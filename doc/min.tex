@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 14, 2005}
+\date{February 15, 2005}
  
 \maketitle
 
@@ -1604,40 +1604,75 @@ in order to specify \verb|##523|.
 
 A CONTEXT is:
 
-\begin{indpar}
-A SEARCH-OBJECT. \\
-A CURRENT-OBJECT. \\
-A CURRENT-STATEMENT. \\
-A CURRENT-ITEM in the current statement. \\
-An EXECUTE-INDICATOR: NEXT-ITEM, NEXT-STATEMENT, REPEAT-STATEMENT. \\
-A FAILURE-FLAG. \\
-\end{indpar}
-
+\begin{indpar}\begin{verbatim}
+CURRENT-OBJECT
+CURRENT-STATEMENT
+CURRENT-ITEM in CURRENT-STATEMENT
+STATE, and integer containing the following flags:
+    FAILURE-FLAG    (set when if condition is false)
+    SKIP-FLAG       (set to skip to next statement)
+    REPEAT-FLAG     (set to repeat this statement)
+    RETURN-FLAG     (set to return from this block)
+    FUNCTION-FLAGS  (by repeating function to communicate
+                     with itself)
+PREVIOUS-CONTEXT (contexts are like CONS cells)
+\end{verbatim}\end{indpar}
 
 \begin{indpar}\begin{verbatim}
 
+    push ( CONTEXT ):
+        C = copy of CONTEXT
+        C.PREVIOUS-CONTEXT = CONTEXT
+        return C
+
     evaluate ( EXPRESSION, CONTEXT ):
         if EXPRESSION is a single number atom:
-            return EXPRESSION
-        if EXPRESSION is `...' bracketed list:
-            return quoted ( EXPRESSION, CONTEXT )
-        if EXPRESSION is {...} bracketed list:
-            return code ( EXPRESSION, CONTEXT )
-        return search ( EXPRESSION, CONTEXT )
+            CONTEXT.CURRENT-OBJECT = EXPRESSION
+        else if EXPRESSION is `...' bracketed list:
+            quoted ( EXPRESSION, CONTEXT, 1 )
+        else if EXPRESSION is {...} bracketed list:
+            code ( EXPRESSION, CONTEXT )
+        else:
+            search ( EXPRESSION, CONTEXT )
 
-    quoted ( EXPRESSION, CONTEXT ):
-        if EXPRESSION contains no [...] bracketted sublists:
-	    return EXPRESSION
-	// TBD: Handle depth, e.g., `foo `fum [[x]] [y]''
+    quoted ( EXPRESSION, CONTEXT, DEPTH ):
+        `Handles depth, e.g., `foo `fum [[x]] [y]'''
+        RESULT = EXPRESSION with 0 list items
+                 (but same .initiator, etc.)
+        foreach ITEM in EXPRESSION:
+            if ITEM is not sublist:
+                append ITEM to RESULT
+                continue
+            C = push CONTEXT
+            if ITEM is [...] bracketed:
+                if DEPTH > 1:
+                    quote ( ITEM, C, DEPTH - 1 )
+                    append C.CURRENT-OBJECT to RESULT
+                else:
+                    evaluate ( ITEM, C )
+                    concatenate C.CURRENT-OBJECT to end of RESULT
+            else if ITEM is `...' quoted:
+                quote ( ITEM, C, DEPTH + 1 )
+                append C.CURRENT-OBJECT to RESULT
+            else:
+                quoted ( ITEM, C, DEPTH )
+                append C.CURRENT-OBJECT to RESULT
+        CONTEXT.CURRENT-OBJECT = RESULT
 
     code ( EXPRESSION, CONTEXT ):
-        ` EXPRESSION is {...} bracketed'
-        push CONTEXT
-	     new CONTEXT has same SEARCH-OBJECT as old CONTEXT
-	     and begins at first item of first statement in
-	     expression, with FAILURE-FLAG off, and CURRENT-OBJECT
-	     equal SEARCH-OBJECT.
-	     ???
+        `EXPRESSION is {...} bracketed'
+        S = 0
+        foreach STATEMENT in EXPRESSION:
+            S.REPEAT-FLAG = 1
+            while S.REPEAT-FLAG:
+                C = push CONTEXT
+                C.CURRENT-STATEMENT = STATEMENT
+                       C.CURRENT-ITEM = first item of STATEMENT
+                C.STATE = S
+                evaluate ( STATEMENT, C )
+                S = C.STATE
+                if S.RETURN-FLAG:
+                    CONTEXT.CURRENT-OBJECT = C.CURRENT-OBJECT
 
     search ( EXPRESSION, CONTEXT ):
         for each OBJECT in CONTEXT:
