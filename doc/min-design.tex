@@ -83,6 +83,12 @@
 \newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
+\newcommand{\minkey}[1]{{\tt min::#1}\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\mupkey}[1]{{\tt mup::#1}\ttindex{mup::#1}\ttindex{#1}}
+\newcommand{\minindex}[1]{\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\mupindex}[1]{\ttindex{mup::#1}\ttindex{#1}}
+
+
 \newcommand{\secref}[1]{\ref{#1}p\pageref{#1}}
 \newcommand{\stepref}[1]{\ref{#1}p\pageref{#1}}
 \newcommand{\appref}[1]{\ref{#1}p\pageref{#1}}
@@ -223,7 +229,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 13, 2004}
+\date{September 15, 2004}
  
 \maketitle
 
@@ -266,7 +272,7 @@ uses the unprotected interface must
 \end{center}
 
 and all unprotected
-interface names begin with `\ttkey{min::unprotected::}'.  Code
+interface names begin with `\minkey{unprotected::}'.  Code
 that uses the unprotected interface typically abbreviates this long
 name prefix to `\ttmkey{mup::}{abbreviates {\tt min::unprotected::}}'
 by including after the `\verb|#include|' statement above the definition:
@@ -301,16 +307,16 @@ the size of each number is clear:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
-\ttkey{min::uns8}	& unsigned 8-bit integer \\
-\ttkey{min::int8}	& signed 8-bit integer \\
-\ttkey{min::uns16}	& unsigned 16-bit integer \\
-\ttkey{min::int16}	& signed 16-bit integer \\
-\ttkey{min::uns32}	& unsigned 32-bit integer \\
-\ttkey{min::int32}	& signed 32-bit integer \\
-\ttkey{min::float32}	& 32-bit IEEE floating point number \\
-\ttkey{min::uns64}	& unsigned 64-bit integer \\
-\ttkey{min::int64}	& signed 64-bit integer \\
-\ttkey{min::float64}	& 64-bit IEEE floating point number \\
+\minkey{uns8}	& unsigned 8-bit integer \\
+\minkey{int8}	& signed 8-bit integer \\
+\minkey{uns16}	& unsigned 16-bit integer \\
+\minkey{int16}	& signed 16-bit integer \\
+\minkey{uns32}	& unsigned 32-bit integer \\
+\minkey{int32}	& signed 32-bit integer \\
+\minkey{float32}	& 32-bit IEEE floating point number \\
+\minkey{uns64}	& unsigned 64-bit integer \\
+\minkey{int64}	& signed 64-bit integer \\
+\minkey{float64}	& 64-bit IEEE floating point number \\
 \end{tabular}
 \end{center}%
 \label{MIN::UNS8}%
@@ -372,7 +378,7 @@ contain no such checks.
 Memory consisting of unrelocatable stubs pointing at relocatable
 bodies is called a `\key{stub/body memory}'.  Thus MIN has a stub/body memory.
 
-The type name of a stub is `\ttkey{min::stub}', and a pointer to a stub
+The type name of a stub is `\minkey{stub}', and a pointer to a stub
 has type `\verb|min::stub *|'.\label{MIN::STUB}
 
 \subsection{General Values}
@@ -389,7 +395,91 @@ a pointer to a stub
 \end{tabular}
 \end{center}
 
-TBD
+This is done by using the high order 16 bits of the value as a subtype
+code, and using two values of this subtype code that would be
+IEEE Nan (Not-a-Number) values for character string and pointer
+values.
+
+The type of a general value is \minkey{gen64}.  This type has the alignment
+properties of {\tt min::float64}, and in some implementations
+is {\tt typedef}'ed to {\tt min::float64}, and so {\tt min::\EOL gen64}
+arguments cannot be used to identify overloaded functions.
+
+The following functions return {\tt 1} if a {\tt min::gen64} datum is of the
+indicated subtype and {\tt 0} otherwise:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \verb|is_float64 ( min::gen64 v )|
+\label{MIN::IS_FLOAT64} \\
+\verb|int min::| & \verb|is_str ( min::gen64 v )|
+\label{MIN::IS_STRING} \\
+\verb|int min::| & \verb|is_stub ( min::gen64 v )|
+\label{MIN::IS_STUB} \\
+\end{tabular}\end{center}%
+\minindex{is\_float64}%
+\minindex{is\_str}%
+\minindex{is\_stub}
+
+The following protected functions return the value appropriate for a given
+subtype, after checking the subtype code with an {\tt assert} statement:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::float64 min::| & \verb|float64_of ( min::gen64 v )|
+\label{MIN::FLOAT64_OF_GEN64} \\
+\verb|unsigned min::| & \verb|strlen ( min::gen64 v )|
+\label{MIN::STRLEN_OF_GEN64} \\
+\verb|char * min::| & \verb|strcpy ( char * p, min::gen64 v )|
+\label{MIN::STRCPY_OF_GEN64} \\
+\verb|char * min::| & \verb|strncpy ( char * p, min::gen64 v, unsigned n )|
+\label{MIN::STRNCPY_OF_GEN64} \\
+\verb|min::stub * min::| & \verb|stub_of ( min::gen64 v )|
+\label{MIN::STUB_OF_GEN64} \\
+\end{tabular}\end{center}%
+\minindex{float64\_of}%
+\minindex{strlen}%
+\minindex{strcpy}%
+\minindex{strncpy}%
+\minindex{stub\_of}
+
+The {\tt strlen} function returns the length of a string value (which
+is from {\tt 0} through {\tt 6}).
+The {\tt strcpy} and {\tt strncpy} functions
+copy a string value to a buffer pointed at
+by \verb|p|.  Copying stops when a NUL is copied or when the
+\verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
+of \verb|p| is returned.
+
+The following unprotected functions return the value appropriate for a given
+subtype, \underline{without} checking the subtype code:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::float64 mup::| & \verb|float64_of ( min::gen64 v )|
+\label{MUP::FLOAT64_OF_GEN64} \\
+\verb|min::uns64 mup::| & \verb|short_string_of ( min::gen64 v )|
+\label{MUP::SHORT_STRING_OF_GEN64} \\
+\verb|min::stub *  mup::| & \verb|stub_of ( min::gen64 v )|
+\label{MUP::STUB_OF_GEN64} \\
+\end{tabular}\end{center}%
+\mupindex{float64\_of}%
+\mupindex{short\_string\_of}%
+\mupindex{stub\_of}
+
+Here the \verb|min::uns64| value returned by \mupkey{short\_string\_of}
+should be overlaid by a union with a \verb|char[]| buffer, as in
+the code:
+
+\begin{indpar}\label{SHORT-STRING-OVERLAY}\begin{verbatim}
+union { min::uns64 str; char buf[8]; } u;
+min::gen64 v;
+. . . .
+u.str = mup::short_string_of ( v );
+cout << u.buf;
+\end{verbatim}\end{indpar}
+
+The {\tt mup::short\_string\_of} function merely copies the
+6 characters from the {\tt min::gen64} value appending 2 NUL characters.
+
+TBD: creating gen values
 
 \subsection{Body Pointers}
 \label{BODY-POINTERS}
@@ -400,22 +490,22 @@ the `\key{relocated flag}' which is one of the execution flags
 described in~\secref{EXECUTION-FLAGS}.
 
 Relocation can only happen inside a MIN system function.  When it
-happens, the MIN system function sets the relocation flag.
+happens, the MIN system function sets the relocated flag.
 
 Upon return from any function call, a function that uses pointers
-into bodies stored in local variables must check the relocation flag,
+into bodies stored in local variables must check the relocated flag,
 and, if that flag is on, must:
 
 \begin{center}
 \begin{tabular}{l}
 recompute all local variables containing pointers into bodies \\
-clear the relocation flag \\
-remember it has cleared the relocation flag
+clear the relocated flag \\
+remember it has cleared the relocated flag
 \end{tabular}
 \end{center}
 
-When the function returns to its caller, it must set the relocation flag
-if that flag was ever turned off by the function.
+When the function returns to its caller, it must set the relocated flag
+if that flag was ever cleared by the function.
 
 Pointers into bodies are recomputed from body pointers stored in stubs,
 which are updated by MIN system functions that relocate bodies.
@@ -424,12 +514,16 @@ The operation of \ikey{deallocating a body}{dealocate!body}
 is considered to be a relocation of the body.  The body pointer in the
 stub is pointed at unimplemented virtual memory, and the type code in the stub
 is set to an illegal value (e.g. zero).  Using a deallocated body is
-considered to be a fatal programming error, so typical code does not
+considered to be a fatal programming error, so usually code need not
 check for this case, and crashes when it tries to access the unimplemented
 virtual memory.  However, there is a limit to the size of unimplemented
 memory, so code using very large bodies should always recheck the type
-code when reloading a possibly relocated body pointer.
+code when reloading a possibly relocated body pointer.  Also, using an
+explicit type code recheck can be a valuable tool for debugging
+accesses to deallocated bodies.
 
+Because of all the special handling required by body pointers, functions
+that obtain body pointers from stubs are unprotected.
 
 \subsection{Stub Control}
 \label{STUB-CONTROL}
@@ -490,7 +584,7 @@ The type code of a stub may be returned by
 \begin{center}
 \verb|int type_of ( min::stub * s )|
 \end{center}%
-\label{TYPE_OF}
+\label{TYPE_OF}\ttindex{type\_of}
 
 A determination of whether or not a stub is collectible may be made
 by applying the function
@@ -498,7 +592,7 @@ by applying the function
 \begin{center}
 \verb|bool min::is_collectible ( int type )|
 \end{center}%
-\label{MIN::IS_COLLECTIBLE}
+\label{MIN::IS_COLLECTIBLE}\minindex{is\_collectible}
 
 to the type code of the stub.  Notice that type codes are signed integers, so
 that negative type codes are uncollectible and positive type codes
@@ -530,7 +624,7 @@ A stub contains a 64-bit value whose type depends upon the stub
 type code (\secref{STUB-TYPE-CODES}).  Many stubs are immutable
 and their values cannot be written after the stub has been created;
 nevertheless we describe unprotected functions below that
-write these values.  Unprotected functions are provided to obtain
+write these values.  Unprotected functions are also provided to obtain
 body pointers from stubs when these are the values of the stubs.
 This cannot be done by protected
 functions as body pointers are relocatable and require special
@@ -539,7 +633,7 @@ programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 \subsection{Number Stubs}
 \label{NUMBER-STUBS}
 
-A \key{number stub} has \ttkey{min::NUMBER}\label{NUMBER-TYPE} type code and
+A \key{number stub} has \minkey{NUMBER}\label{NUMBER-TYPE} type code and
 an immutable \verb|min::float64| value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -547,14 +641,17 @@ an immutable \verb|min::float64| value that can be read by
 \label{FLOAT64_OF} \\
 \verb|min::float64 mup::| & \verb|float64_of ( min::stub * s )|
 \label{MUP::FLOAT64_OF}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\ttkey{float64\_of}%
+\mupkey{float64\_of}
 
 and written by
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void mup::| & \verb|set_float64_of ( min::stub * s, min::float64 f )|
 \label{MUP::SET_FLOAT64_OF}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\mupkey{set\_float64\_of}
 
 
 \subsection{String Stubs}
@@ -582,7 +679,7 @@ and these are described toward the end of this section, after describing
 short and long strings and their unprotected access functions.
 
 A \key{short string stub} has
-\ttkey{min::SHORT\_STRING}\label{SHORT-STRING-TYPE} type code and
+\minkey{SHORT\_STRING}\label{SHORT-STRING-TYPE} type code and
 an immutable \verb|min::uns64| value that holds NUL padded
 8 \verb|char| vector and can be read by
 
@@ -590,17 +687,19 @@ an immutable \verb|min::uns64| value that holds NUL padded
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::uns64 mup::| & \verb|short_string_of ( min::stub * s )|
 \label{MUP::SHORT_STRING_OF}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\mupkey{short\_string\_of}
 
 and written by
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void mup::| & \verb|set_short_string_of ( min::stub * s, min::uns64 str )|
 \label{MUP::SET_SHORT_STRING_OF}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\mupkey{set\_short\_string\_of}
 
-Here the \verb|min::uns64| value \verb|str| should be overlayed
-by a union with a \verb|char[]| buffer, as in
+Here the \verb|min::uns64| value returned by \mupkey{short\_string\_of}
+should be overlaid by a union with a \verb|char[]| buffer, as in
 
 \begin{indpar}\begin{verbatim}
 union { min::uns64 str; char buf[9]; } u;
@@ -624,8 +723,8 @@ the 9'th NUL appended it will still be a NUL-terminated C/C++ \verb|char|
 string.
 
 A \key{long string stub} has
-\ttkey{min::LONG\_STRING}\label{LONG-STRING-TYPE} type code and
-a value that is a pointer to a \ttkey{min::long\_string} type body
+\minkey{LONG\_STRING}\label{LONG-STRING-TYPE} type code and
+a value that is a pointer to a \minkey{long\_string} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
 The following functions respectively return a movable pointer to this body,
 the length of the string, a 32-bit non-zero hash value computed from
@@ -647,7 +746,12 @@ contains the hash value and the string length.
 \label{SIGNATURE_OF_LONG_STRING} \\
 \verb|const char * | & \verb|char_of ( min::long_string * str )|
 \label{CHAR_OF_LONG_STRING}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\mupkey{long\_string\_of}%
+\ttkey{length\_of}%
+\ttkey{hash\_of}%
+\ttkey{signature\_of}%
+\ttkey{char\_of}
 
 The long string body consists of a 64 bit signature containing
 the 32-bit length and 32-bit hash value, followed by a \verb|char|
@@ -666,11 +770,17 @@ are also provided to set the length and hash.
 \label{MUP::HASH_OF_LONG_STRING} \\
 \verb|char * mup::| & \verb|char_of ( min::long_string * str )|
 \label{MUP::CHAR_OF_LONG_STRING} \\
-\verb|void mup::| & \verb|set_length_of ( min::long_string * str, unsigned length )|
+\verb|void mup::| &
+   \verb|set_length_of ( min::long_string * str, unsigned length )|
 \label{MUP::SET_LENGTH_OF_LONG_STRING} \\
-\verb|void mup::| & \verb|set_hash_of ( min::long_string * str, unsigned hash )|
+\verb|void mup::| &
+   \verb|set_hash_of ( min::long_string * str, unsigned hash )|
 \label{MUP::SET_HASH_OF_LONG_STRING}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\mupkey{hash\_of}%
+\mupkey{char\_of}%
+\mupkey{set\_length\_of}%
+\mupkey{set\_hash\_of}
 
 The following are protected functions that operate on both stort and long
 strings.  These functions have the same (overloaded) names and are analogous
@@ -685,7 +795,10 @@ The functions
 \label{STRHASH} \\
 \verb|min::uns64 | & \verb|strsignature ( min::stub * s )|
 \label{STRSIGNATURE}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\ttkey{strlen}%
+\ttkey{strhash}%
+\ttkey{strsignature}
 
 return the length of the string (excluding the terminating NUL),
 the hash value of the string, and the signature of the string.
@@ -704,7 +817,9 @@ The functions
 \label{STRCPY} \\
 \verb|char * | & \verb|strncpy ( char * p, min::stub * s, unsigned n )|
 \label{STRNCPY}
-\end{tabular}\end{center}
+\end{tabular}\end{center}%
+\ttkey{strcpy}%
+\ttkey{strncpy}
 
 copy a string from a MIN short or long string to a buffer pointed at
 by \verb|p|.  Copying stops when a NUL is copied or when the
