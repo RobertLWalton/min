@@ -234,7 +234,7 @@ these tasks well.
 \section{Overview}
 
 
-\section{Lexical Scans}
+\section{Lexemes}
 
 MIN descriptions are representable by strings of characters that
 can be stored in files.  Then the MIN processor reads these, it
@@ -268,7 +268,7 @@ which is not a number.
 
 There are special rules for some characters.
 
-A \ttkey{_} is a letter.
+A \ttkey{\_} is a letter.
 
 A \ttkey{.} is a decimal point if followed by a digit, a letter if followed
 by another letter, and a mark character otherwise.  E.g., {\tt 0.123} is
@@ -313,6 +313,13 @@ An object is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
 every other object and from every atom.  But it has nothing else.
 
+However, as a place in memory, an object has a name.  Objects are assigned
+\skey{raw object name}s
+of the form `\ttkey{\#\#}$I$' where $I$ is an integer that starts
+with {\tt 1} for the first object created and continues in sequence as
+objects are created.  E.g., the first three objects created have the
+raw object names \verb|##1|, \verb|##2|, and \verb|##3|. 
+
 There are two kinds of arrows: single and double.
 
 A \key{single arrow} is an arrow from an object to either another object
@@ -324,14 +331,96 @@ It has a separate label for each direction, with each label being a
 sequence of zero or more atoms.  A double arrow is equivalent to a related pair
 of single arrows going in opposite directions between the same two objects.
 
+An \key{arrow label} is a sequence of zero or more atoms.
 Two arrows leaving the same object may not have the same label.  Thus
 arrows can be named by giving an object which is the source of the arrow
 and a label which is the label of a single arrow or the label in the
 direction leaving the object of a double arrow.
 
+A set of objects can be written to a text file or read from a text file.
+When this is done, a textual representation of the object set must be used
+in the file.  The simplest representation is the raw representation,
+which we now describe.
 
+The format of a \key{raw representation} is:
 
+\begin{center}
+\begin{tabular}{l}
+\key{raw-representation} ::= {\em raw-object-representation} \ldots
+\\[1ex]
+\key{raw-object-representation} ::=
+    \begin{tabular}[t]{@{}l@{}}
+    {\em raw-object-name} \ttkey{::} \\
+    {\em raw-arrow-representation} \ldots
+    \end{tabular}
+\\[1ex]
+\key{raw-arrow-representation}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em raw-single-arrow-representation} \\
+    $|$ & {\em raw-double-arrow-representation}
+    \end{tabular}
+\\[1ex]
+\key{raw-single-arrow-representation} ::= {\em arrow-label}\ttkey{:}
+					  {\em single-arrow-value} \verb|;|
+\\[1ex]
+\key{single-arrow-value} ::= {\em atom} $|$ {\em raw-object-name}
+\\[1ex]
+\key{raw-double-arrow-representation} ::= {\em arrow-label}\ttkey{:}
+					  {\em double-arrow-value}
+					  \ttkey{:}{\em arrow-label} \verb|;|
+\\[1ex]
+\key{double-arrow-value} ::= {\em raw-object-name}
+\\[1ex]
+\key{raw-object-name} ::= \ttkey{\#\#}{\em integer-above-zero}
+\\[1ex]
+\key{arrow-label} ::= {\em atom} \ldots
 
+\end{tabular}
+\end{center}
+
+A simple example of the raw representation of a set of objects is:
+
+\begin{indpar}\begin{verbatim}
+##1::
+    type: woman;
+    name: jill;
+    husband: ##2 :wife;
+##2::
+    type: man;
+    name: jack;
+    wife: ##1 :husband;
+\end{verbatim}\end{indpar}
+
+This represents two objects.
+There are two single arrows from object \verb|##1|,
+one labeled {\tt type} whose target is the atom {\tt woman},
+and one labeled {\tt name} whose target is the atom {\tt jill}.
+There are two similar single arrows from object \verb|##2|.
+There is a double arrow between the two objects which has the
+label {\tt husband} when going from \verb|##1| to \verb|##2|
+and the label {\tt wife} when going in the reverse direction.
+
+In order to permit \verb|:| to be used in an arrow label, the following
+\key{quote representation rule} is applied to representations.
+A quoted symbol cannot be recognized as an atom that has special
+meaning in a representation, such as the \verb|::|, \verb|:|,
+\verb|##|, or \verb|;| atoms in raw representations.  Thus if any
+of these atoms are to be part of an arrow label or value, they should
+be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";"|.
+Other than this rule, there is no
+distinction between quoted and unquoted representations of typically
+unquoted atoms.
+
+The semi-colons at the ends of arrow representations
+in a raw representation may be omitted provided the next line is not
+indented with respect to the first non-whitespace character of the
+arrow representation with the omitted semi-colon, or if the end of
+file immediately follows.  Thus the semi-colons in the example just
+given may be omitted.
+
+In contrast to the raw representation of a set of objects there is the
+cooked representation, that is much easier to read and write, but more
+long winded to explain.
 
 
 \bibliographystyle{plain}
