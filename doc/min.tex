@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 18, 2005}
+\date{February 20, 2005}
  
 \maketitle
 
@@ -1631,8 +1631,15 @@ push ( CONTEXT ):
     C.PREVIOUS-CONTEXT = CONTEXT
     return C
 
+read ( CONTEXT ):
+    if there is no next item in CONTEXT:
+        return FAILURE
+    V = next item in CONTEXT
+    skip CONTEXT over next item
+    return V
+
 evaluate ( CONTEXT ):
-    E = next item read from CONTEXT
+    E = read ( CONTEXT )
     return evaluate ( E, CONTEXT )
 
 evaluate ( EXPRESSION, CONTEXT ):
@@ -1646,16 +1653,9 @@ evaluate ( EXPRESSION, CONTEXT ):
         C = push CONTEXT
         C.EXPRESSION -> EXPRESSION
         C.ITEM -> first item of EXPRESSION
-        V = false
-        while C.ITEM still points at an item
-              and
-              not C.STATE.RETURN-FLAG
-              and
-              not C.STATE.SKIP-FLAG:
-              and
-              not V == FAILURE
-            V = search ( C )
+	V = scan ( C )
         CONTEXT.STATE = C.STATE
+	discard C
         return V
 
 quoted ( EXPRESSION, CONTEXT, DEPTH ):
@@ -1683,25 +1683,26 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
 
 code ( EXPRESSION, CONTEXT ):
     `EXPRESSION is {...} bracketed'
+    V = NULL
     foreach STATEMENT in EXPRESSION:
-        C = push CONTEXT
-        C.STATEMENT -> STATEMENT
-        C.ITEM -> first item of STATEMENT
-        C.STATE = REPEAT-FLAG
-        while C.STATE.REPEAT-FLAG:
-            C.STATE.REPEAT-FLAG = 0
-            V = evaluate ( CONTEXT )
+        CONTEXT.STATE = REPEAT-FLAG
+        while CONTEXT.STATE.REPEAT-FLAG:
+            CONTEXT.STATE.REPEAT-FLAG = 0
+            V = evaluate ( STATEMENT, CONTEXT )
             if CONTEXT.STATE.RETURN-FLAG:
                 break
-        return V
-    return NULL
+	CONTEXT.STATE.REPEAT-FLAG = 0
+	CONTEXT.STATE.SKIP-FLAG = 0
+    return V
 
-search ( CONTEXT ):
-    V = search ( CONTEXT, CONTEXT.FRAME )
+scan ( CONTEXT ):
+    V = scan ( CONTEXT, CONTEXT.FRAME )
     if V != FAILURE: return V
-    return search ( CONTEXT, CONTEXT.FRAME.OBJECT )
+    return scan ( CONTEXT, CONTEXT.FRAME.OBJECT )
 
-search ( CONTEXT, OBJECT ):
+scan ( CONTEXT, OBJECT ):
+   if CONTEST.STATE.SKIP-FLAG:
+       return OBJECT
    if CONTEXT.ITEM points at expression end and OBJECT is
       not a function with no arguments or an object with
       an attribute with the empty label:
@@ -1715,28 +1716,26 @@ search ( CONTEXT, OBJECT ):
        pick the longest match
        remove the matching items from CONTEXT
        let V = value of matched attribute
-       return search ( CONTEXT, V )
+       return scan ( CONTEXT, V )
    else:
        for each ANCESTOR of OBJECT:
-           V = search ( CONTEXT, ANCESTOR )
+           V = scan ( CONTEXT, ANCESTOR )
            if V == FAILURE: break
        return V
    else:
        return FAILURE
 
-execute ( EXPRESSION, CONTEXT, FUNCTION ):
+execute ( CONTEXT, FUNCTION ):
     make a new function frame F
     for each argument name N in FUNCTION:
-        let A be the next atom or bracketed
-            subexpression of EXPRESSION
-        remove A from beginning of EXPRESSION
-        let V = evaluate ( A, CONTEXT )
+        V = evaluate ( CONTEXT )
         make an attribute of F with name N and
              value V
-    let B be the body of FUNCTION
-    let C be CONTEXT with F prepended
-    let V = evaluate ( B, C )
-    return search ( EXPRESSION, CONTEXT, V )
+    C = push CONTEXT
+    C.FRAME = F
+    V = evaluate ( body of FUNCTION, C )
+    discard C,F
+    return V
 
 \end{verbatim}
 
