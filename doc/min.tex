@@ -2,7 +2,7 @@
 %
 % File:         min.tex
 % Author:       Bob Walton (walton@deas.harvard.edu)
-% Date:		See \date below.
+% Date:        	See \date below.
   
 \documentclass[12pt]{article}
 
@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 20, 2005}
+\date{February 21, 2005}
  
 \maketitle
 
@@ -1609,33 +1609,38 @@ FRAME
 pointer to EXPRESSION
 pointer to ITEM in EXPRESSION
 STATE, and integer containing the following flags:
-    FAILURE-FLAG    (set when if condition is false)
-    SKIP-FLAG    (set to skip rest of current statement)
-    REPEAT-FLAG    (set to repeat current statement)
-    RETURN-FLAG    (set to return from current block)
-pointer to PREVIOUS-CONTEXT (contexts are like CONS cells)
+    CONDITION CODE:     CC TRUE, CC FALSE, CC NONE
+                        (set by current statement)
+    PREVIOUS CONDITION CODE:    CC TRUE, CC FALSE, CC NONE
+                                (as set by previous statement)
+    SKIP FLAG    (set to skip rest of current statement)
+    REPEAT FLAG    (set to repeat current statement)
+    RETURN FLAG    (set to return from current block)
+    THROW FLAG    (set to throw from current block)
+pointer to PREVIOUS CONTEXT (contexts are like CONS cells)
 \end{verbatim}\end{indpar}
 
 A FRAME is:
 
 \begin{indpar}\begin{verbatim}
 ... temporary variables like object attrubutes ...
-OBJECT
-pointer to PREVIOUS-FRAME (frames are like CONS cells)
+.object
+.context
+pointer to PREVIOUS FRAME (frames are like CONS cells)
 \end{verbatim}\end{indpar}
 
 \begin{verbatim}
 
 push ( CONTEXT ):
     C = copy of CONTEXT
-    C.PREVIOUS-CONTEXT = CONTEXT
+    C PREVIOUS CONTEXT = CONTEXT
     return C
 
 read ( CONTEXT ):
     if there is no next item in CONTEXT:
         return FAILURE
-    V = next item in CONTEXT
-    skip CONTEXT over next item
+    V = next ITEM in CONTEXT
+    skip CONTEXT over next ITEM
     return V
 
 evaluate ( CONTEXT ):
@@ -1651,15 +1656,16 @@ evaluate ( EXPRESSION, CONTEXT ):
         return code ( EXPRESSION, CONTEXT )
     else:
         C = push CONTEXT
-        C.EXPRESSION -> EXPRESSION
-        C.ITEM -> first item of EXPRESSION
-	V = scan ( C )
-        CONTEXT.STATE = C.STATE
-	discard C
+        C EXPRESSION -> EXPRESSION
+        C ITEM -> first item of EXPRESSION
+        V = scan ( C )
+        CONTEXT STATE = C STATE
+        discard C
         return V
 
 quoted ( EXPRESSION, CONTEXT, DEPTH ):
     `Handles depth, e.g., `foo `fum [[x]] [y]'''
+    `[[x]] is like LISP ,', - there is no equivalent of LISP ,,'
     RESULT = EXPRESSION with 0 list items
              (but same .initiator, etc.)
     foreach ITEM in EXPRESSION:
@@ -1667,56 +1673,84 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
             append ITEM to RESULT
             continue
         if ITEM is [...] bracketed:
-            if DEPTH > 1:
-                append quote ( ITEM, CONTEXT, DEPTH - 1 )
-                       to end of RESULT
+            D = depth of ITEM [...] brackets
+            if DEPTH > D:
+                V = quote ( ITEM, CONTEXT, DEPTH - 1 )
+                if CONTEXT STATE RETURN FLAG
+                   or
+                   CONTEXT STATE THROW FLAG
+                    return V
+                append V to end of RESULT
             else:
-                concatenate evaluate ( ITEM, CONTEXT )
-                            at end of RESULT
+                V = evaluate ( ITEM, CONTEXT )
+                if CONTEXT STATE RETURN FLAG
+                   or
+                   CONTEXT STATE THROW FLAG
+                    return V
+                concatenate V at end of RESULT
         else if ITEM is `...' quoted:
-            append quote ( ITEM, CONTEXT, DEPTH + 1 )
-                   to end of RESULT
+            V = quote ( ITEM, CONTEXT, DEPTH + 1 )
+            if CONTEXT STATE RETURN FLAG
+               or
+               CONTEXT STATE THROW FLAG
+                return V
+            append V to end of RESULT
         else:
-            append quote ( ITEM, CONTEXT, DEPTH )
-                   to end of RESULT
+            V = quote ( ITEM, CONTEXT, DEPTH )
+            if CONTEXT STATE RETURN FLAG
+               or
+               CONTEXT STATE THROW FLAG
+                return V
+            append V to end of RESULT
     return RESULT
 
 code ( EXPRESSION, CONTEXT ):
     `EXPRESSION is {...} bracketed'
     V = NULL
+    CC = CC NONE
     foreach STATEMENT in EXPRESSION:
-        CONTEXT.STATE = REPEAT-FLAG
-        while CONTEXT.STATE.REPEAT-FLAG:
-            CONTEXT.STATE.REPEAT-FLAG = 0
+        CONTEXT STATE = REPEAT FLAG
+        while CONTEXT STATE REPEAT FLAG:
+            CONTEXT STATE REPEAT FLAG = 0
+            CONTEXT STATE PREVIOUS CC = CC
             V = evaluate ( STATEMENT, CONTEXT )
-            if CONTEXT.STATE.RETURN-FLAG:
+            CC = CONTEXT STATE CC
+            CONTEXT STATE SKIP FLAG = 0
+            if CONTEXT STATE RETURN FLAG
+               or
+               CONTEXT STATE THROW FLAG
                 break
-	CONTEXT.STATE.REPEAT-FLAG = 0
-	CONTEXT.STATE.SKIP-FLAG = 0
+        CONTEXT STATE REPEAT FLAG = 0
+        if CONTEXT STATE RETURN FLAG
+           or
+           CONTEXT STATE THROW FLAG
+            break
     return V
 
 scan ( CONTEXT ):
-    V = scan ( CONTEXT, CONTEXT.FRAME )
+    V = scan ( CONTEXT, CONTEXT FRAME )
     if V != FAILURE: return V
-    return scan ( CONTEXT, CONTEXT.FRAME.OBJECT )
+    return scan ( CONTEXT, CONTEXT FRAME .object )
 
 scan ( CONTEXT, OBJECT ):
-   if CONTEST.STATE.SKIP-FLAG:
+   if CONTEXT STATE SKIP FLAG:
        return OBJECT
-   if CONTEXT.ITEM points at expression end and OBJECT is
-      not a function with no arguments or an object with
-      an attribute with the empty label:
+   if CONTEXT ITEM is NOT at beginning CONTEXT EXPRESSION,
+      and OBJECT has an attribute named `.empty' with value V:
+          return scan ( CONTEXT, V )
+   if CONTEXT ITEM points at expression end:
         return OBJECT
-   if OBJECT is function definition:
-       return execute ( CONTEXT, OBJECT )
 
    match names of OBJECT's attributes to next items in
          CONTEXT
    if several match:
-       pick the longest match
-       remove the matching items from CONTEXT
-       let V = value of matched attribute
-       return scan ( CONTEXT, V )
+      pick the longest match
+      remove the matching items from CONTEXT
+      let V = value of matched attribute
+      if V is function definition:
+           return execute ( CONTEXT, V, OBJECT )
+      else:
+           return scan ( CONTEXT, V )
    else:
        for each ANCESTOR of OBJECT:
            V = scan ( CONTEXT, ANCESTOR )
@@ -1725,17 +1759,39 @@ scan ( CONTEXT, OBJECT ):
    else:
        return FAILURE
 
-execute ( CONTEXT, FUNCTION ):
+execute ( CONTEXT, FUNCTION, CONTAINER ):
     make a new function frame F
     for each argument name N in FUNCTION:
         V = evaluate ( CONTEXT )
+        if CONTEXT STATE RETURN FLAG
+           or
+           CONTEXT STATE THROW FLAG:
+            discard F
+            return V
         make an attribute of F with name N and
              value V
+    F .context = CONTEXT
+    F .object = CONTAINER
     C = push CONTEXT
-    C.FRAME = F
-    V = evaluate ( body of FUNCTION, C )
+    C FRAME = F
+    V = code ( body of FUNCTION, C )
+    C STATE RETURN FLAG = 0
+    CONTEXT STATE = C STATE
     discard C,F
     return V
+
+return builtin function ( V )
+    .context state return flag = 1
+    return V
+
+try builtin function ()
+    V = evaluate ( .context )
+    if .context state throw flag:
+        .context state throw flag = 0
+        return evaluate ( .context )
+    else:
+        .context state skip flag = 1
+        return V
 
 \end{verbatim}
 
