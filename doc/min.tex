@@ -226,7 +226,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{August 1, 2004}
+\date{August 2, 2004}
  
 \maketitle
 
@@ -679,13 +679,13 @@ min: (x,y) {
      }
 \end{verbatim}\end{indpar}
 
-\section{code}
+\section{Evaluation}
 
 Consider the following description of a room:
 
 \begin{indpar}\begin{verbatim}
 ##523::
-    type: standard room type
+    type: standard room
     outline: straight width, left, straight length, left,
              straight width, left,
              doored wall width,
@@ -702,28 +702,60 @@ Consider the following description of a room:
     over: ##598
 \end{verbatim}\end{indpar}
 
-It turns out that most the attribute values for this room
-object are pieces of executable code.
+The information in this description is not immediately useful for
+producing output, such as a video picture of the room, or text naming
+the room.  Instead, parts of the description must be evaluated to produce
+the picture or the name.
 
-The \verb|type| attribute value, `{\tt standard room type}', names
-a global variable whose value is an object that describes the type of
-this object.
+The goal of an evaluation is to produce \key{derived information} which is
+frequently stored in a derived attribute of an object.  A \key{derived
+attribute} is just any attribute that stores derived information.  Derived
+attributes are often also \skey{hidden attribute}s, which are just
+attributes whose names begin with `\ttmkey{.}{hidden attribute}', and which
+are not normally output when the object is saved.
 
-The \verb|outline| attribute value is a program to draw the outline of the
-room.  This program is written from the point of view of a robot moving
-around the outline of the room building walls.  The robot follows a sequence
-of commands that are separated by commas.  A possible command is
-`{\tt straight 3.2}', meaning the robot is to go straight \verb|3.2| units.
-But in the example \verb|3.2| is replaced by
+For example, a very important derived attribute of any object is its
+inheritance list, which is the value of the object's \verb|.ancestors|
+attribute, and which is a list of other objects from which the current
+object inherits attributes.  In our example, the \verb|type| attribute
+names another object, `{\tt standard room}', from which the room object
+inherits attributes.  This means that when an evaluation searches for the
+name of an attribute in the room object, if that name is not found, the
+evaluation will next search the `{\tt standard room}' object.
+
+To compute the \verb|.ancestors| attribute an the \verb|type| object
+is evaluated `in global context'.  This last implies that the only
+names the evaluator can use are global variable names, and `{\tt standard
+room}' in fact names a global variable whose value is the object
+which is the sole immediate ancestor of our room.
+
+The \verb|outline| attribute value is used to compute derived attributes
+whose names begin with the word \verb|.video| and which describe how the
+The \verb|outline| attribue value is a program is written from the point
+of view of a robot moving around the outline of the room building walls.
+The robot follows a sequence of commands that are separated by commas.
+
+In order to show how evaluation works, we will explain in detail some
+of the evaluation of \verb|outline|.
+
+First, the evaluator establishes
+a context, which is a list of objects that will be searched when an
+attribute name is to be located.  The context for the evaluation of
+an object's attribute value usually begins with the object and ends with
+an object we call `\verb|global|'.  A global variable is by definition
+just an attribute of the \verb|global| object.
+
+Then the evaluator starts reading the value to be evaluated.  In this
+case the evaluator expects a comma separated list of commands, and evaluates
+each command separately.  The output is a list of new commands that is
+stored in a \verb|.video| attribute and is written in a video language
+that can be processed by the video engine to produce a picture.
+
+
+A possible command is `{\tt straight 3.2}', meaning the robot is to go
+straight \verb|3.2| units.  But in the example \verb|3.2| is replaced by
 {\tt width}, which names an attribute of the object whose value in turn
-is \verb|3.2|.  Here \verb|width| is an argument to the \verb|straight|
-command.  If the argument is more than a single atom, it can be enclosed
-in parentheses, as is the single argument to \verb|straight| in
-
-\begin{center}
-\verb|doored wall (door width )|
-\end{center}
-
+is \verb|3.2|.
 \bibliographystyle{plain}
 \bibliography{min}
 
