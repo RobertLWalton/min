@@ -489,15 +489,11 @@ of the same body.  See~\secref{AUXILARY-POINTERS}.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}
-A compact implementation stores only 32-bit
-general values in data memory, and uses 64-bit general values only
-as function arguments and values.
-A loose implementation uses only 64-bit
-general values,
-and \underline{never} uses 32-bit general values.
+A compact implementation uses 32-bit general values, while
+a loose implementation uses 64-bit general values.
 
 The value of a compact implementation is that it uses less memory,
-but there may be a speed penalty (see \secref{32-BIT-GENERAL-VALUES}).
+but there may be a speed penalty.
 The value of a loose implementation is that it may run faster, but
 there is a memory penalty.  It is not clear what the speed difference
 between the two implementations really is, so both implementations
@@ -505,36 +501,46 @@ are offered in order to decide the issue by experiment.
 
 Also compact implementations do not permit more than
 about $2^{32}$ objects to exist in memory at one time, whereas
-loose implementations permit about $2^{40}$ objects.
+loose implementations permit up to about $2^{44}$ objects.
 
-\subsubsection{32-Bit General Values}
-\label{32-BIT-GENERAL-VALUES}
+\subsubsection{General Value Subtypes}
+\label{GENERAL-VALUE-SUBTYPES}
 
-32-bit general values are used only in compact implementations
-(\pagref{COMPACT}).
-
-A \key{32-bit general value} has type \minkey{gen32}\LABEL{MIN::GEN32} and
-is a 32 bit aligned value that can be of one of the following
+A \key{general value} has type \minkey{gen}\LABEL{MIN::GEN} and
+is a 32 or 64 bit aligned value that can be of one of the following
 subtypes
 
 \begin{center}
 \begin{tabular}{l}
 a pointer to a stub \\
-a 28-bit integer atom \\
-an 28-bit auxilary pointer 
+a 64-bit IEEE floating point number (64 bit general value only) \\
+a 28-bit integer atom (32 bit general value only) \\
+a 0-5 character direct string (64 bit general value only) \\
+a 0-3 character direct string (32 bit general value only) \\
+an 28-bit auxilary pointer (32 bit general value only)
 \end{tabular}
 \end{center}
 
+Numbers and character strings stored inside \verb|min::gen| value are
+called `\key{direct}' values.  Numbers and character strings
+stored in stubs or stub bodies which are pointed at by a
+\verb|min::gen| value are called `\key{indirect}' values.  An atom is
+always stored in only one way be an implementation: if a number will fit
+into a direct value, it is stored as a direct value, and never as an
+indirect value.  Similarly if a character string will fit into a direct value,
+it is stored as a direct value, and never as an indirect value.
 
-\begin{indpar}
-Note:
-On machines that have 32 bit addresses (e.g.,
-the IA32\footnote{Intel Architecture 32-bit, a.k.a, i386 machines.}
-machines), stub addresses
-stored in {\tt min::gen32} values are implemented as addresses of stubs.
-On other machines that may use addresses longer than 32-bits, 
-stub addresses are stored in {\tt min::gen32} values as
-`\skey{virtual stub number}s', or \skey{VSN}{'s}, that map to stub addresses.
+Analogously indirect atoms are stored in only one place in memory, so
+two indirect numbers are equal if and only the \verb|min::gen| values
+pointing at them point at the same place, and simularly
+two indirect characters strings are equal if and only
+the \verb|min::gen| values pointing at them point at the same place.
+
+Therefore two atoms are equal if and only if the \verb|min::gen| values
+designating them are \verb|==|.
+
+General values that point at stubs can hold stub addresses, or they can hold 
+`\skey{virtual stub number}s', \skey{VSN}{'s}, that map to stub addresses.
 A VSN is typically mapped to a stub address by shifting it left by 4
 bits\footnote{
 Stubs are always a power of two in length, e.g. 16 bytes, so VSN's can be
@@ -544,48 +550,93 @@ instead of addresses is to multiply by 16 the number of
 stubs that may exist in memory without needing to use more than 32 bits
 to hold the stub address, and the other effect is to increase program
 execution time somewhat.
-\end{indpar}
 
-A {\tt min::gen32} integer value consists of a high order 4 bit subtype
-code and a low order 28 bit signed integer stored in offset form, so the true
-integer can be derived from the {\tt min:gen32} value by subtracting the
-{\tt min:gen32} representation of zero.  Similarly auxilary pointers
-consist of a high order 4 bit subtype code and a low order 28 bit auxilary
-pointer (see~\secref{AUXILARY-POINTERS} for a definition of auxilary
-pointers).
+On machines that have 32 bit addresses (e.g.,
+the IA32\footnote{Intel Architecture 32-bit, a.k.a, i386 machines.}
+machines), stub addresses are always used.  The affect of using stub
+addresses or VSN's on the approximate maximum number of stubs is as follows:
 
-The type of a general value is \minkey{gen32}.  This type has the alignment
-properties of {\tt min::uns32}, and in some implementations
-is {\tt typedef}'ed to {\tt min::uns32}.  Therefore {\tt min::\EOL gen32}
+\begin{center}
+\begin{tabular}{lrr}
+			&	Addresses	& VSN's \\[1ex]
+32-bit general values	&	$2^28$		& $2^32$ \\[1ex]
+64-bit general values	&	$2^40$		& $2^44$ \\[1ex]
+\end{tabular}
+\end{center}
+
+For 32-bit general values, an integer value consists of a high order 4-bit
+subtype code and a low order 28-bit signed integer stored in offset form,
+so the true integer can be derived from the {\tt min:gen} value by
+subtracting the {\tt min:gen} representation of zero.
+Similarly auxilary pointers consist of a high order 4-bit subtype code
+and a low order 28-bit auxilary pointer (see~\secref{AUXILARY-POINTERS}
+for a definition of auxilary pointers).  A direct string consists of
+an 8-bit subtype code and 24 bits that hold 0 to 3 8-bit {\tt char}'s.
+
+For 64-bit general values the high order 20 bits is used as a subtype
+code.  The values of this subtype code chosen to indicate direct strings,
+pointers, and auxilary pointers make these values IEEE Nan (Not-a-Number)
+values that would not be generated by hardware instructions.
+
+The {\tt min::gen} type has the alignment
+properties of either {\tt min::uns32} or {\tt min::uns64},
+and in many implementations is {\tt typedef}'ed to the appropriate one
+of these two types.  Therefore {\tt min::gen}
 arguments cannot be used to identify overloaded functions.
-However, the length difference between a {\tt min::gen32} value
-and a {\tt min::gen64} value (\secref{64-BIT-GENERAL-VALUES})
-is used to distinguish between overloaded
-functions that accept either kind of value.
 
-The following functions return {\tt 1} if a {\tt min::gen32} datum is of the
+\subsubsection{General Value Compilation}
+\label{GENERAL-VALUE-COMPILATION}
+
+The decisions on whether an implementation is compact or loose and
+whether the implementation uses addresses or VSN's in general value
+that point at stubs must be made when code is compiled.  A C++ code that
+is executed must be compiled to refect these decisions.
+
+The following macros are defined to indicate these decisions:
+
+\begin{center}
+\begin{tabular}{ll}
+\ttkey{MIN\_IS\_COMPACT}	& 1 if compact implemention; 0 if loose \\
+\ttkey{MIN\_IS\_LOOSE}		& 1 if loose implemention; 0 if compact \\
+\ttkey{MIN\_USES\_ADDRESSES}	& 1 if implemention uses addresses;
+				  0 if uses VSN's \\
+\ttkey{MIN\_USES\_VSNS}		& 1 if implemention uses VSN's;
+				  0 if uses addresses \\
+\end{tabular}
+\end{center}
+
+\subsubsection{General Value Functions}
+\label{GENERAL-VALUE-FUNCTIONS}
+
+The following functions return {\tt 1} if a {\tt min::gen} datum is of the
 indicated subtype and {\tt 0} otherwise:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_int}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_INT_OF_GEN32} \\
-\verb|int min::| & \MINKEY{is\_aux}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_AUXILARY_OF_GEN32} \\
-\verb|int min::| & \MINKEY{is\_stub}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_STUB_OF_GEN32} \\
+\verb|int min::| & \MINKEY{is\_direct\_num}\verb| ( min::gen v )|
+\LABEL{MIN::IS_DIRECT_NUM} \\
+\verb|int min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen v )|
+\LABEL{MIN::IS_DIRECT_STR} \\
+\verb|int min::| & \MINKEY{is\_aux}\verb| ( min::gen v )|
+\LABEL{MIN::IS_AUX} \\
+\verb|int min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
+\LABEL{MIN::IS_STUB} \\
 \end{tabular}\end{center}
 
 The following protected functions return the value appropriate for a given
 subtype, after checking the subtype with an {\tt assert} statement:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::INT_OF_GEN32} \\
-\verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::STUB_OF_GEN32} \\
-\verb|unsigned min::| & \MINKEY{aux\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::AUXILARY_OF_GEN32} \\
+\verb|int float::| & \MINKEY{direct\_num\_of}\verb| ( min::gen v )|
+\LABEL{MIN::DIRECT_NUM_OF} \\
+\verb|min::uns64 min::| & \MINKEY{direct\_str\_of}\verb| ( min::gen v )|
+\LABEL{MIN::DIRECT_STR_OF} \\
+\verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen v )|
+\LABEL{MIN::STUB_OF} \\
+\verb|unsigned min::| & \MINKEY{aux\_of}\verb| ( min::gen v )|
+\LABEL{MIN::AUXILARY_OF} \\
 \end{tabular}\end{center}
+
+TBD
 
 The following unprotected functions return the value appropriate for a given
 subtype, \underline{without} checking the subtype:
@@ -631,47 +682,6 @@ range errors.
 
 \subsubsection{64-Bit General Values}
 \label{64-BIT-GENERAL-VALUES}
-
-64-bit general values are the only kind of general value used
-in loose implementations (\pagref{LOOSE}).  64-bit general values
-are used as function arguments and values in compact implementations
-(\pagref{COMPACT}).
-
-A \key{64-bit general value} has type \minkey{gen64}\LABEL{MIN::GEN64} and
-is a 64 bit aligned value that can be of one of the following
-subtypes
-
-\begin{center}
-\begin{tabular}{l}
-an IEEE 64-bit floating point number \\
-a 0-5 character direct string \\
-a pointer to a stub \\
-an auxilary pointer \\
-\end{tabular}
-\end{center}
-
-This is done by using the high order 20 bits of the value as a subtype
-code, and using values of this subtype code that would be
-IEEE Nan (Not-a-Number) values for character string and pointer
-values.
-
-The type of a general value is \minkey{gen64}.  This type has the alignment
-properties of {\tt min::uns64}, and in some implementations
-is {\tt typedef}'ed to {\tt min::uns64}.  Therefore {\tt min::\EOL gen64}
-arguments cannot be used to identify overloaded functions.
-However, the length difference between a {\tt min::gen32} value
-(\secref{32-BIT-GENERAL-VALUES})
-and a {\tt min::gen64} value is used to distinguish between overloaded
-functions that accept either kind of value.
-
-A 0 to 5 character string store in the \verb|min::gen64| value itself is
-called a `\key{direct string}', as opposed to a short string stored in a stub
-(\pagref{SHORT-STRING-STUB})
-that is pointed at by the \verb|min:gen64| value, or a long string
-stored in a body associated with a stub
-(\pagref{LONG-STRING-STUB})
-pointed at by the \verb|min:gen64|
-value.
 
 The following functions return {\tt 1} if a {\tt min::gen64} datum is of the
 indicated subtype and {\tt 0} otherwise:
