@@ -1094,12 +1094,11 @@ priority & macro	& operators	& meaning
 \key{bracketed-expression} \begin{tabular}[t]{@{}rl@{}}
 			    ::= & \verb|(| {\em expression} \verb|)| \\
 			    $|$ & \verb|[| {\em expression} \verb|]| \\
-			    $|$ & \verb|{| {\em code-expression} \verb|}| \\
+			    $|$ & \verb|{| {\em code-block} \verb|}| \\
 			    $|$ & \verb|`| {\em expression} \verb|'| \\[1ex]
 			    \end{tabular}
 \\[1ex]
-{\em code-expression} ::= {\em expression} with preprocessing:
-			see~\secref{CODE-EXPRESSIONS}
+{\em code-block} ::= see~\secref{PARSING-MODES}
 
 \end{tabular}
 \end{center}%
@@ -1109,6 +1108,65 @@ priority & macro	& operators	& meaning
 \caption{Data Representation Syntax}
 \label{DATA-REPRESENTATION-SYNTAX}
 \end{boxedfigure}
+
+
+\subsection{Parsing Modes}
+\label{PARSING-MODES}
+
+There are three \skey{parsing mode}s: text, expression, and code.
+The parsing mode of any lexeme is determined by the innermost
+brackets containing the lexeme, according to Figure~\figref{SPECIAL-LEXEMES}.
+Thus if the innermost brackets are \verb|` '| the parsing mode is `text',
+if they are \verb|[ ]| the mode is `expression', and if they are \verb|{ }|
+the mode is `code'.  The \verb|( )| brackets are not considered in
+determining mode.  Thus it is as if \verb|` '| changes to text mode,
+\verb|[ ]| to expression mode, and \verb|{ }| to code mode, but \verb|( )|
+does not change the mode.
+
+In \key{text mode} only operators with negative priority are recognized,
+line feeds and indentation are treated like any other whitespace, and
+`\verb|:|' is not recognized as a code indicator.
+
+In \key{expression mode} all operators are recognized,
+line feeds and indentation are treated like any other whitespace, and
+`\verb|:|' is not recognized as a code indicator.
+
+In \key{code mode} all operators are recognized,
+while line feeds, indentation, and the code indicator `\verb|:|' are
+used to sequence statements within the code block and to indicate
+code subblocks, according to the following rules:
+
+\begin{enumerate}
+\item
+The column of the first non-whitespace character inside \verb|{}| brackets
+defines the initial column of the \key{code block} enclosed by the
+brackets.
+
+\item No line in a code block may be indented by less than its initial column.
+
+\item A code block is organized as a sequence of statements such that
+each non-whitespace character in the code block initial column begins a new
+statement, and statements so begun are the only statements in the code block.
+
+\item
+If a statement contains a `\verb|:|' \key{code indicator} mark as the last
+lexeme of a line, the first column of the next lexeme in the statement
+begins a \key{code subblock} that includes the rest of the statement.  The
+first column of that next lexeme is the initial column of the code
+subblock.  The subblock obeys rules 2 and 3 just given for code blocks.
+
+\item
+A code block and its surrounding \verb|{ }| brackets represent a list of
+zero or more statements with
+list \verb|.initiator| \verb|"{"| and list \verb|.terminator| \verb|"}"|.
+
+\item
+A code subblock and its preceding code indicator `\verb|:|'
+represents a list of zero or more statements with
+list \verb|.initiator| \verb|":"| and no list \verb|.terminator|.
+
+\end{enumerate}
+
 
 
 \subsection{Standard Representations}
@@ -1221,30 +1279,31 @@ the parsed values produced by standard operator definitions.
 \begin{indpar}[1em]
 
 \newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
+\newcommand{\NBOP}[1]{\ttmnbkey{#1}{parsing}}
 \newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
 
 \bigskip
 
-\OP{(} ~~~ \OP{)} \MAC{parentheses}{.ROUND} \\
-\OP{[} ~~~ \OP{]} \MAC{square brackets}{.SQUARE} \\
-\OP{\CurlyBra} ~~~ \OP{\CurlyKet} \MAC{curly brackets}{.CURLY} \\
-\OP{`} ~~~ \OP{'} \MAC{quotes}{.QUOTE}
+\NBOP{(} ~~~ \NBOP{)} \MAC{parentheses}{.ROUND} \\
+\NBOP{[} ~~~ \NBOP{]} \MAC{square brackets}{.SQUARE} \\
+\NBOP{\CurlyBra} ~~~ \NBOP{\CurlyKet} \MAC{curly brackets}{.CURLY} \\
+\NBOP{`} ~~~ \NBOP{'} \MAC{quotes}{.QUOTE}
 
 \begin{indpar}[0.5em]
 The bracketed subexpression is parsed and the result
 is converted if necessary to a list without either a \verb|.initiator|
 or a \verb|.terminator| attribute.
 Then an \ttmkey{.initiator}{produced by parsing} attribute equal to
-the opening bracket (\verb|"("|, \verb|[|, \verb|{|, or \verb|`|)
+the opening bracket (\verb|"("|, \verb|"["|, \verb|"{"|, or \verb|"`"|)
 and a \ttmkey{.terminator}{produced by parsing} attribute equal to
-the closing bracket (\verb|")"|, \verb|]|, \verb|}|, or \verb|'|)
+the closing bracket (\verb|")"|, \verb|"]"|, \verb|"}"|, or \verb|"'"|)
 are added to this list,
 and the list becomes the result of parsing the parenthesized expression.
 \end{indpar}
 
 \bigskip
 
-\OP{.} ~~~ \OP{!} ~~~ \OP{?} \MAC{terminators}{.SENTENCE}
+\NBOP{.} ~~~ \NBOP{!} ~~~ \NBOP{?} \MAC{terminators}{.SENTENCE}
 
 \begin{indpar}[0.5em]
 Terminators may not be consecutive, may not begin an expression,
@@ -1260,9 +1319,11 @@ lists.
 
 \bigskip
 
-\OP{;} \MAC{subsentence separator}{.SUBSENTENCE}
+\NBOP{;} \MAC{subsentence separator}{.SUBSENTENCE} \\
+\NBOP{,} \MAC{phrase separator}{.PHRASE}
 
 \begin{indpar}[0.5em]
+Here `\verb|;|' or `\verb|,|' is the \key{separator}.
 Each between-separator subexpression (which may be empty) is parsed.
 If empty, a subexpression parses to the empty object
 (an object with no attributes).
@@ -1270,22 +1331,8 @@ There will be at least two subexpressions: one following
 the last separator and one preceding the first separator.
 A list of all the subexpression
 parses is made, is given a \ttmkey{.separate}{produced by parsing}
-attribute with value \verb|";"|, and is returned as the result of
-the parse.
-\end{indpar}
-
-\OP{,} \MAC{phrase separator}{.PHRASE}
-
-\begin{indpar}[0.5em]
-Each between-separator subexpression (which may be empty) is parsed.
-If empty, a subexpression parses to the empty object
-(an object with no attributes).
-There will be at least two subexpressions: one following
-the last separator and one preceding the first separator.
-A list of all the subexpression
-parses is made, is given a \ttmkey{.separate}{produced by parsing}
-attribute with value \verb|","|, and is returned as the result of
-the parse.
+attribute with value of the separator (\verb|";"| or \verb|","|,
+and is returned as the result of the parse.
 \end{indpar}
 
 \bigskip
@@ -1303,7 +1350,7 @@ Expressions with conditional operators must have the syntax:
         \ttmkey{then}{in {\em conditional-expression}}
         {\em subexpression}
     \\
-    \{ \verb|else if|
+    \{ {\tt \bf else if}
 	{\em subexpression}
         \ttmkey{then}{in {\em conditional-expression}}
         {\em subexpression}
@@ -1319,7 +1366,7 @@ where any {\em subexpression} may be empty.
 
 \bigskip
 
-\OP{+} ~~~ \OP{-} \MAC{addition operators}{.SUM}
+\NBOP{+} ~~~ \NBOP{-} \MAC{addition operators}{.SUM}
 
 \begin{indpar}[0.5em]
 Addition operators may not be consecutive and may not end an expression.
@@ -1336,7 +1383,7 @@ the binary summation function \verb|+| and the unary negation function
 
 \bigskip
 
-\OP{*} ~~~ \OP{/} \MAC{multiplication operators}{.PRODUCT}
+\NBOP{*} ~~~ \NBOP{/} \MAC{multiplication operators}{.PRODUCT}
 
 \begin{indpar}[0.5em]
 The two different multiplication operators may not be mixed in the same
