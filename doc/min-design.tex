@@ -2429,6 +2429,20 @@ values are deleted.  The values are given in the {\tt in} vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
 
+TBD
+
+When an attribute value $O_2$ of an attribute name/reverse-name pair
+of object $O_1$ is set, and the reverse-name is not missing,
+the value $O_2$ is the other end of a double arrow.
+It must be an object, and the attribute value $O_1$ is simultaneoulsy
+set for the attribute of $O_2$ with the reverse-name/name pair:w
+
+TBD
+Double arrow deletion.
+
+When an attribute value of an attribute name/reverse-name pair is deleted,
+the value is the other end of a 
+
 The {\tt set\_flagsg} function sets the flags for a given
 object and attribute name.  The flags are given in the {\tt in} vector which
 has length {\tt n}.  All flags are zeroed before the new set of flags
@@ -2478,9 +2492,74 @@ is an integer in the range of a hash table index:
 \LABEL{MIN::SET_FLAGSI} \\
 \end{tabular}\end{center}
 
+The following functions are more optimized versions of the above
+functions for the special case that the attribute has, or should
+have, only one value:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{getg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::GETG} \\
+\verb|void min::| & \MINKEY{setg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::gen v,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::SETG} \\
+\end{tabular}\end{center}
+
+This version of the {\tt getg} function returns the single value $V$ if
+the set of values for the attribute and reverse attribute names consists
+of a single value $V$.  If the set is empty, the special value
+\verb|min::MISSING| is returned, and if the set has more than one value,
+the special value \verb|min::MULTI_VALUED| is returned.
+
+This version of the {\tt setg} function deletes any previous values of
+the attribute and reverse attribute name and makes the one value {\tt v}
+the only value of the attribute and reverse attribute names.
+
+The following functions deal with the case where the attribute
+name/reverse-name pair has a set of values:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{add\_to\_setg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::gen v,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::ADD_TO_SETG} \\
+\verb|void min::| & \MINKEY{add\_to\_multisetg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::gen v,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::ADD_TO_MULTISETG} \\
+\end{tabular}\end{center}
+
+The {\tt add\_to\_set} function adds {\tt v} to the set of
+values of the attribute name/reverse-name pair if and only if
+{\tt v} is not already in the set.  The {\tt add\_to\_multiset}
+function adds {\tt v} even if the value is already in the set.
+
+
 The following variants exist for functions of this section:
 
 \begin{enumerate}
+
+\item For every function of this section with a name ending in `{\tt g}'
+and \verb|min::gen| {\tt name} argument, there is another function with
+the name ending `{\tt g}' replaced by `{\tt i}' and the type of the
+{\tt name} argument changed to {\tt int}.  These functions do that same
+thing as would be done if the {\tt int} {\tt name} argument were converted
+to a \verb|min::gen| value, but they do it more efficiently in the case
+where the {\tt name} argument can be used as an index to the attribute vector
+of the object.
 
 \item Functions which have {\tt reverse\_name} as a last argument
 have versions without this last argument, which act as
@@ -2491,147 +2570,6 @@ versions with `\verb|min::stub *|' {\tt obj} arguments.
 
 \end{enumerate}
 
-
-The following protected functions access attributes:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen | & \TTKEY{getg}\verb| ( min::short_obj * so, min::gen name )|
-\LABEL{GETG_FROM_SHORT_OBJ} \\
-\verb|min::gen | & \TTKEY{getg}\verb| ( min::long_obj * lo, min::gen name )|
-\LABEL{GETG_FROM_LONG_OBJ} \\
-\verb|min::gen | & \TTKEY{getg}\verb| ( min::stub * s, min::gen name )|
-\LABEL{GETG_FROM_STUB} \\
-\verb|min::gen min::| & \MINKEY{getg}\verb| ( min::gen obj, min::gen name )|
-\LABEL{MIN::GETG} \\
-\verb|min::gen | & \TTKEY{geti}\verb| ( min::short_obj * so, int index )|
-\LABEL{GETI_FROM_SHORT_OBJ} \\
-\verb|min::gen | & \TTKEY{geti}\verb| ( min::long_obj * lo, int index )|
-\LABEL{GETI_FROM_LONG_OBJ} \\
-\verb|min::gen | & \TTKEY{geti}\verb| ( min::stub * s, int index )|
-\LABEL{GETI_FROM_STUB} \\
-\verb|min::gen min::| & \MINKEY{geti}\verb| ( min::gen obj, int index )|
-\LABEL{MIN::GETI} \\
-\end{tabular}\end{center}
-
-These functions
-read an attribute value given an attribute name and an object.  The object
-can be specified by either giving a pointer to its body or its stub, or by
-giving a \verb|min::gen| value that points to the stub.  The name can be
-specified either by giving a \verb|min::gen| value or by giving
-an \verb|int| if the name is an integer index.  The function names indicate
-the type of name given, as the name types themselves are both numeric, and may
-lead to overloaded function confusion.  If there is no
-attribute of the object with the given name, these functions return the
-value
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|const min::gen min::| & \MINKEY{MISSING}
-\LABEL{MIN::MISSING}
-\end{tabular}\end{center}
-
-which is a special atom not equal to any number or character string.
-
-In all functions that access attributes a \verb|min::gen|
-name that is an integer numerically equal to an \verb|int| index names the
-same attribute as the index.
-
-Attribute values can be set by the protected functions
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|void | & \TTKEY{putg\REL}%
-	\verb| ( min::short_obj * so, min::gen name, min::gen value )|
-\LABEL{PUTG_TO_SHORT_OBJ} \\
-\verb|void | & \TTKEY{putg\REL}%
-	\verb| ( min::long_obj * lo, min::gen name, min::gen value )|
-\LABEL{PUTG_TO_LONG_OBJ} \\
-\verb|void | &
-    \TTKEY{putg\REL}\verb| ( min::stub * s, min::gen name, min::gen value )|
-\LABEL{PUTG_TO_STUB} \\
-\verb|void min::| &
-    \MINKEY{putg\REL}\verb| ( min::gen obj, min::gen name, min::gen value )|
-\LABEL{MIN::PUTG} \\
-\verb|void | & \TTKEY{puti\REL}%
-	\verb| ( min::short_obj * so, int index, min::gen value )|
-\LABEL{PUTI_TO_SHORT_OBJ} \\
-\verb|void | & \TTKEY{puti\REL}%
-	\verb| ( min::long_obj * lo, int index, min::gen value )|
-\LABEL{PUTI_TO_LONG_OBJ} \\
-\verb|void | &
-    \TTKEY{puti\REL}\verb| ( min::stub * s, int index, min::gen value )|
-\LABEL{PUTI_TO_STUB} \\
-\verb|void min::| &
-    \MINKEY{puti\REL}\verb| ( min::gen obj, int index, min::gen value )|
-\LABEL{MIN::PUTI} \\
-\end{tabular}\end{center}
-
-that set the attribute's value given the attribute's name and an object.
-The object and name can be specified as for the get functions.
-If the attribute
-value is given as \verb|min::MISSING|, the attribute is deleted from the
-object if the attribute previously had a value.  It is never an error
-if the attribute did not previously have a value.
-
-Attribute values can be set to double arrows by the protected functions
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|void | &
-    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::short_obj * so, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTG_TO_SHORT_OBJ} \\
-\verb|void | &
-    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::long_obj * lo, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTG_TO_LONG_OBJ} \\
-\verb|void | &
-    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::stub * s1, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTG_TO_STUB} \\
-\verb|void min::| &
-    \MINKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj1, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{MIN::DOUBLE_PUTG} \\
-\verb|void | &
-    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::short_obj * so, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTI_TO_SHORT_OBJ} \\
-\verb|void | &
-    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::long_obj * lo, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTI_TO_LONG_OBJ} \\
-\verb|void | &
-    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::stub * s1, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTI_TO_STUB} \\
-\verb|void min::| &
-    \MINKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj1, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{MIN::DOUBLE_PUTI} \\
-\end{tabular}\end{center}
-
-which set an attribute of each of the specified objects, like a pair
-of simultaneous put operations.
-The first object and the attribute names can be specified as for the
-get functions,
-but the second object must be specified by a \verb|min::gen| value.
-Any previous values of the attributes are deleted.  When a double arrow
-attribute is deleted using the object and attribute name of one of its
-ends, the other end is deleted too.
 
 \clearpage
 
