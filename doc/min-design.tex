@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 24, 2005}
+\date{March 26, 2005}
  
 \maketitle
 
@@ -276,9 +276,8 @@ and the corresponding code:
 \ttmkey{lab}{abbreviation}	& label (\pagref{LABEL-STUBS}) \\
 \ttmkey{min}{abbreviation}	& the MIN system \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
-\ttmkey{num}{abbreviation}	& number (\pagref{NUMBER-STUBS}) \\
-\ttmkey{obj}{abbreviation}	& object (\pagref{OBJECT-STUBS}) \\
-\ttmkey{str}{abbreviation}	& string (\pagref{STRING-STUBS}) \\
+\ttmkey{obj}{abbreviation}	& object (\pagref{OBJECTS}) \\
+\ttmkey{str}{abbreviation}	& string (\pagref{STRINGS}) \\
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
 \end{tabular}
 \end{center}
@@ -397,7 +396,7 @@ on implementation, have stubs.
 
 A stub is divided into an 8 byte value and an 8 byte control.
 The \mkey{value}{of stub} can be an IEEE floating point number,
-an 8 character string, or, as we will soon see, a pointer to a body.
+an 8 {\tt char} string, or, as we will soon see, a pointer to a body.
 It is also possible for a value to hold any other 8 bytes of information.
 
 The control holds a 1 byte type code and other information used,
@@ -538,8 +537,8 @@ subtypes
 a pointer to a stub \\
 a 64-bit IEEE floating point direct number atom (64 bit general value only) \\
 a 28-bit direct integer atom (32 bit general value only) \\
-a 0-5 character direct string atom (64 bit general value only) \\
-a 0-3 character direct string atom (32 bit general value only) \\
+a 0-5 {\tt char} direct string atom (64 bit general value only) \\
+a 0-3 {\tt char} direct string atom (32 bit general value only) \\
 a 26-bit auxilary list pointer (32 bit general value only) \\
 a 26-bit auxilary sublist pointer (32 bit general value only) \\
 a 26-bit control code (32 bit general value only) \\
@@ -561,7 +560,7 @@ it is stored as a direct value, and never as an indirect value.
 Analogously indirect atoms are stored in only one place in memory, so
 two indirect numbers are equal if and only the \verb|min::gen| values
 pointing at them point at the same place, and similarly
-two indirect characters strings are equal if and only
+two indirect character strings are equal if and only
 the \verb|min::gen| values pointing at them point at the same place.
 
 Therefore two atoms are equal if and only if the \verb|min::gen| values
@@ -712,7 +711,7 @@ cout << u.buf;
 \end{verbatim}\end{indpar}
 
 The {\tt min::direct\_str\_of} function merely copies the 3 or
-5 characters of the {\tt min::gen} direct string value and
+5 {\tt char}'s of the {\tt min::gen} direct string value and
 appends a NUL character.
 It does this by writing an appropriate value into \verb|v.str|.
 
@@ -1169,8 +1168,8 @@ This cannot be done by protected
 functions as body pointers are relocatable and require special
 programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 
-\subsection{Number Stubs}
-\label{NUMBER-STUBS}
+\subsection{Numbers}
+\label{NUMBERS}
 
 A \key{number stub} has \minkey{NUMBER}\LABEL{NUMBER-TYPE} stub type code and
 an immutable \verb|min::float64| value that can be read by
@@ -1190,26 +1189,21 @@ and written by
 \LABEL{MUP::SET_FLOAT64_OF}
 \end{tabular}\end{center}
 
-A number stub can be created by
+An uncollectible number stub with a stub control that is zero except
+for its type code can be created by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void min::stub * MUP::|
-	& \MUPKEY{new\_number\REL}\verb| ( min::float64 f )|
-\LABEL{MUP::NEW_NUMBER}
+\verb|void min::stub * min::|
+	& \MINKEY{new\_number\REL}\verb| ( min::float64 f )|
+\LABEL{MIN::NEW_NUMBER}
 \end{tabular}\end{center}
 
-This function is unprotected only because it always creates a new stub,
-and does not attempt to return any previously created number stub whose
-value equals the argument.
-
-Number stubs are collectible.  Number stubs only exist in compact
-implementations; in loose implementations numbers are stored exclusively
+Collectible number stubs only exist in compact implementations;
+in loose implementations number atoms are stored exclusively
 in direct number general values.
 
 General values that are numbers can be tested, created, and read
 by the following protected functions:
-
-
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen v )|
@@ -1239,13 +1233,11 @@ simply changes the type of its argument.
 The \verb|min::new_gen| function with \verb|min::float64| argument
 and 32-bit \verb|min::gen| value creates a direct integer
 if the argument is an integer in the
-require range, and otherwise creates a number stub and returns a pointer to
-the stub converted to a \verb|min::gen| value.  For 32-bit \verb|min::gen|
-values, any \verb|min::float64| argument to \verb|min::new_gen|
-that can be represented by a direct integer is so represented, and whenever
-such an argument cannot be represented by a direct integer and a number stub
-containing the argument value already exists, a new \verb|min::gen| value
-pointing at that existing stub is created, and no new stub is created.
+require range; otherwise the function returns a \verb|min::gen| value
+that is a pointer to a number stub.  If a pointer to a number stub is
+to be returned and a number stub containing the argument value already exists,
+a pointer to the existing stub is returned;
+otherwise a new number stub is created and a pointer to it returned.
 Therefore two 32-bit \verb|min::gen| values that represent equal numbers are
 themselves \verb|==|.
 
@@ -1273,8 +1265,13 @@ range of the \verb|int| type, and
 \verb|min::int_of| is more efficient when given a 32-bit direct integer
 \verb|min::gen| argument.
 
-\subsection{String Stubs}
-\label{STRING-STUBS}
+\begin{quote}
+The Hash Table Implementation Note on \pagref{HASH-TABLE-IMPLEMENTATION-NOTE}
+also applies to number stubs created by {\tt min::new\_gen}.
+\end{quote}
+
+\subsection{Strings}
+\label{STRINGS}
 
 In MIN all \verb|char| \skey{string}s\index{char strings@{\tt char} strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
@@ -1293,8 +1290,8 @@ check for this.
 
 There are two kinds of string stubs: short strings and long strings.
 There are no protected functions directly accessing these.  In addition,
-a string of up to 3 characters can be stored within a 32-bit
-\verb|min::gen| value, and a string of up to 5 characters can be stored
+a string of up to 3 {\tt char}'s can be stored within a 32-bit
+\verb|min::gen| value, and a string of up to 5 {\tt char}'s can be stored
 within a 64-bit \verb|min::gen| value,
 without using a stub (\secref{GENERAL-VALUE-SUBTYPES}).
 Such strings are called \skey{direct string}s, while strings stored in
@@ -1338,15 +1335,15 @@ u.buf[8] = 0;	// Be sure result is NUL terminated.
 cout << u.buf;
 . . . .
 u.str = 0;	// Be sure all 8 bytes are NUL padded.
-cin >> u.buf;   // Must not read more than 8 characters.
+cin >> u.buf;   // Must not read more than 8 chars.
 MUP::set_short_str_of ( s2 , u.str );
 \end{verbatim}\end{indpar}
 
 Short string values are NUL (zero) padded 0 to 8 \verb|char|
 strings.  To be sure any value read is NUL terminated, a NUL (zero)
 must be stored after the value read, as is done by \verb|u.buf[8] = 0|
-in the example.  To be sure any value written is padded to 8 characters
-by NUL, the 8 character value should be zeroed before any string is
+in the example.  To be sure any value written is padded to 8 {\tt char}'s
+by NUL, the 8 {\tt char} value should be zeroed before any string is
 copied into it, as is done by \verb|u.str = 0| in the example.
 
 A \key{long string stub}\label{LONG-STRING-STUB} has
@@ -1354,9 +1351,10 @@ A \key{long string stub}\label{LONG-STRING-STUB} has
 a value that is a pointer to a \minkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
 
-The following is an unprotected function to return a pointer to the
-a long string body, and several protected functions to return parts
-of that body.\footnote{Of course these protected functions cannot be used
+The following are unprotected functions to return a relocatable pointer to the
+a long string body and relocatable pointers to the string itself,
+and several protected functions to return parts of the body header.
+\footnote{Of course these protected functions cannot be used
 until the unprotected function has been used.  These protected functions
 are protected only in the sense that they introduce no
 \underline{additional} protection issues.}
@@ -1365,20 +1363,25 @@ are protected only in the sense that they introduce no
 \verb|min::long_str * MUP::| &
 	\MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_STR_OF} \\
+\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::STR_OF_LONG_STR} \\
+\verb|char * MUP::| & \MUPKEY{writable\_str\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::WRITABLE_STR_OF_LONG_STR} \\
 \verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_str * str )|
 \LABEL{LENGTH_OF_LONG_STR} \\
 \verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_str * str )|
 \LABEL{HASH_OF_LONG_STR} \\
 \verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_str * str )|
 \LABEL{SIGNATURE_OF_LONG_STR} \\
-\verb|const char * | & \TTKEY{str\_of}\verb| ( min::long_str * str )|
-\LABEL{STR_OF_LONG_STR} \\
 \end{tabular}\end{center}
 
 These functions return a relocatable pointer to the string body,
+relocatable pointers to the NUL terminated {\tt char} string itself,
 the length of the string, a 32-bit non-zero \mkey{hash value}{of string}
-computed from the string, a 64-bit signature for the string,
-and a relocatable pointer to the string.  If the hash value
+computed from the string, and a 64-bit signature for the string.
+A relocatable pointer to the {\tt char} string that permits only reading can be
+obtained, or one that permits both reading and writing can be obtained.
+If the hash value
 has not been previously accessed, it is computed and saved in the
 string by the function that returns it, causing that function to
 take time proportional to the string length.  The 64-bit signature
@@ -1391,14 +1394,16 @@ independent algorithm:
 hash = 0
 n = length of string
 for i = 1 through n:
-    c = i'th character of string as unsigned 8 bit integer
+    c = i'th char of string as unsigned 8 bit integer
     hash = ( hash * 65599 ) + c
+if hash = 0, then hash = 2**32 - 1
 \end{verbatim}\end{indpar}
 
 where the final result is truncated to 32 bits.  The constant
 is a prime such that multiplication by it is turned into
 shifts and adds by compilers: $65599=2^{16}+2^6-1$.\footnote{Another good
-constant that could be used is $33$.}
+constant that could be used is $33$.}  The hash value of a string
+is never zero.
 
 The long string body consists of a 64 bit signature containing
 the 32-bit length and 32-bit hash value, followed by a \verb|char|
@@ -1406,22 +1411,17 @@ vector containing the string with the terminating NUL.  The
 \verb|char| vector is padded to a multiple of 8 bytes with NUL
 bytes, but the terminating NUL and the padding are not included
 in the length.  If the hash has not been computed, it is
-stored in the header as zero.  It is possible, though very unlikely,
-that the hash value will itself be zero, and therefore be mistaken
-for an uncomputed hash value when stored in the string body.
+stored in the header as zero.
 
-The following unprotected versions of the above
-functions return the same values as their associated protected function
-with the following exceptions:
-an uncomputed hash is returned as zero, and the relocatable pointer
-to the string permits the string to be written.  Unprotected functions
-are also provided to set the length and hash.
+The following unprotected functions return the hash value as stored
+in the body and set that value and the length.  The {\tt MUP::hash\_of}
+function returns {\tt 0} if the hash value has not been computed,
+unlike the protected {\tt hash\_of} function that computes any uncomputed
+hash value.
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
-\verb|char * MUP::| & \MUPKEY{str\_of}\verb| ( min::long_str * str )|
-\LABEL{MUP::STR_OF_LONG_STR} \\
 \verb|void MUP::| &
    \MUPKEY{set\_length\_of}\verb| ( min::long_str * str, unsigned length )|
 \LABEL{MUP::SET_LENGTH_OF_LONG_STR} \\
@@ -1472,19 +1472,17 @@ by \verb|p|.  Copying stops when a NUL is copied or when the
 \verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
 of \verb|p| is returned.
 
-The following function creates a short or long string stub.  If the
-input has 8 or fewer characters, a short stub is created: otherwise
-a long stub is created.
+An uncollectible short or long string stub with a stub control that
+is zero except for its type code can be created by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void min::stub * MUP::|
-	& \MUPKEY{new\_str\REL}\verb| ( const char * p )|
-\LABEL{MUP::NEW_STR} \\
+\verb|void min::stub * min::|
+	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
+\LABEL{MIN::NEW_STR} \\
 \end{tabular}\end{center}
 
-This function is unprotected only because it always creates a new stub,
-and does not attempt to return any previously created string stub whose
-string equals the argument.
+If the input has 8 or fewer {\tt char}'s, a short stub is created; otherwise
+a long stub is created.
 
 The following are protected functions with same definitions as above but
 with general value arguments.  The general values must hold a
@@ -1523,19 +1521,20 @@ and create new general values.
 A general value is a string if it holds a string itself or if it
 holds a stub pointer at a short or long string.  When a general value
 is created, if the input string is short enough for the general value
-to hold the string itself, a direct string general value is created, and
-otherwise, if the input string is 8 or fewer {\tt char}'s, a short
-string stub is created, and otherwise a long string stub is created.
-
-When \verb|min::new_gen| function is given a string too long to fit
-in a direct string value, it first searches to see if any equal string
+to hold the string itself, a direct string general value is created.
+Otherwise \verb|min::new_gen| searches to see if any equal string
 exists.  If such a string exists, a pointer to the stub of the existing
 string is returned in the new \verb|min::gen| value, and no new stub
-is created.  Thus if two string \verb|min::gen| values are equal as
+is created.  Otherwise, if the input string is 8 or fewer {\tt char}'s,
+a short string stub is created, and if the input string has more
+than 8 {\tt char}'s, a long string stub is created.
+
+Thus if two string \verb|min::gen| values are equal as
 strings, they have \verb|==| \verb|min::gen| values.
 
 \begin{quote}
-Implementation note: To ensure that no two string stubs have the same
+\key{Hash Table Implementation Note}:\label{HASH-TABLE-IMPLEMENTATION-NOTE}
+To ensure that no two string stubs have the same
 \verb|char| string, a hash table is required.
 This is integrated with the garbage
 collector (GC).  The GC has to maintain a list of all allocated stubs,
@@ -1548,6 +1547,8 @@ chain pointers.
 
 \subsection{Label Stubs}
 \label{LABEL-STUBS}
+
+[This section is obsolete and should be deleted]
 
 Attribute labels are often single strings or numbers.  But they may be
 sequences of strings and numbers.  Such sequences are represented by
@@ -1660,6 +1661,8 @@ A label may be tested by the following protected function:
 \subsection{Label Pair Stubs}
 \label{LABEL-PAIR-STUBS}
 
+[This section is obsolete and should be deleted]
+
 Double arrow labels are pairs of attribute labels, because in order to
 know a double arrow valued attribute of an object X, you must know the
 value Y of the attribute (Y must be an object), the label of the attribute, and
@@ -1733,23 +1736,20 @@ functions for doing this are:
 \end{tabular}\end{center}
 
 
-\subsection{Object Stubs}
-\label{OBJECT-STUBS}
+\subsection{Objects}
+\label{OBJECTS}
 
-An object is conceptually a hash table that maps attribute names to
+An \key{object} is conceptually a hash table that maps attribute names to
 attribute values.
 The part of the hash table that maps small
 unsigned integer attribute names is actually a vector.
 
-A double arrow is a joined pair of attributes in different objects.
-A double arrow valued attribute of an object
-is represented just like other attributes,
-except that a pair of attribute names is given instead of a single
-attribute name.  The value of the attribute is the other object,
-and the extra attribute name is the name of the attribute in that
-other object which is joined to the represented double arrow valued attribute.
-The attribute name pair is represented by general value pointing at
-a label pair stub (\secref{LABEL-PAIR-STUBS}).
+Each map of an attribute name to an attribute value represents an
+arrow in the data base.  Flags, called \key{attribute flags},
+can be attached to this arrow.  If the arrow is a double arrow,
+a reverse direction label, called the \key{reverse attribute name}
+is attached to the arrow, and flags for the reverse direction,
+called \key{reverse attribute flags} may be attached.
 
 An object has a body that consists of the following 5 parts in
 the order given:
@@ -1764,15 +1764,17 @@ auxilary area
 \end{tabular}
 \end{center}
 
-The header contains the sizes of the other 4 parts.  The hash table
+The header contains the sizes of the other 4 parts.
+The \mkey{hash table}{of object}
 stores attribute label/value pairs, for attributes whose labels that are not
 small unsigned integers.
-The vector stores attribute values for attributes whose
-labels are small unsigned integers.  The auxilary area stores various overflow
-data from the hash table and list areas.
+The \key{attribute vector} stores attribute values for attributes whose
+labels are small unsigned integers.  The \key{auxilary area}
+stores various overflow data from the hash table and attribute vector.
 
 The hash table is of fixed size; its size can only be changed by relocating
-the object body.  The list grows up from the hash table into the unused
+the object body.  The attribute vector
+grows up from the end of the hash table into the unused
 area, and the auxilary storage grows down from the end of the body into
 the unused area.
 
@@ -1860,30 +1862,31 @@ vector level, list level, and attribute level.
 
 At the \key{vector level}, the body is viewed as
 a \key{body vector} of \verb|min::gen| values.  A pointer to the
-body vector is returned by the following functions:
+body vector is returned by the following unprotected functions:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|const min::gen * |
-	& \TTKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
-\LABEL{BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|const min::gen * |
-	& \TTKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
-\LABEL{BODY_VECTOR_OF_LONG_OBJ} \\
-\verb|min::gen * MUP::|
+\verb|const min::gen * MUP::|
 	& \MUPKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
 \LABEL{MUP::BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|min::gen * MUP::|
+\verb|const min::gen * MUP::|
 	& \MUPKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
 \LABEL{MUP::BODY_VECTOR_OF_LONG_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{writable\_body\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_SHORT_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{writable\_body\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_LONG_OBJ} \\
 \end{tabular}\end{center}
 
-The protected function only allows reading of body vector elements,
-while the unprotected function allows reading and writing of elements.
+The {\tt MUP::body\_vector\_of} function allows only reading of elements.
+The {\tt MUP::\EOL writable\_\EOL body\_\EOL vector\_\EOL of}
+function allows reading and writing of elements.
 
 The body vector is divided into 5 parts,
-which are, in order, the {object body header},
-the \key{hash table}, \key{object vector},
-\key{unused area}, and \key{auxilary area}.
+which are, in order, the body header,
+the hash table, attribute vector,
+unused area, and auxilary area.
 The header and unused area are not actually \verb|min::gen| values,
 and should not be accessed using a body vector pointer.
 
@@ -1922,7 +1925,8 @@ the help of the two kinds of auxilary pointers:
 
 \begin{center}
 \begin{tabular}{lp{4in}}
-\key{list pointer}	& The list is continued at the target of the list
+\key{continuation pointer}
+			& The list is continued at the target of the list
 			  pointer. \\
 \key{sublist pointer}	& A sublist starts at the target of the sublist
 			  pointer. \\
@@ -1933,44 +1937,51 @@ and two constant values:
 
 \begin{center}\begin{tabular}{r@{}lp{3in}}
 \verb|const min::gen min::| & \MINKEY{LIST\_END} \LABEL{MIN::LIST_END}
-	& The list ends here.  This actually equals a list pointer
+	& The list ends here.  This actually equals a continuation pointer
 	  with zero index. \\
 \verb|const min::gen min::| & \MINKEY{EMPTY\_LIST} \LABEL{MIN::EMPTY_LIST}
-	& Denotes a list element that is itself an empty list.  This actually
+	& Denotes a list element that is itself an empty sublist.  This actually
 	  equals a sublist pointer with zero index.
 \end{tabular}\end{center}
 
-Each hash table entry begins a list, as does each object vector entry.
-If the beginning of the list is \verb|min::LIST_END| value, the list is
-empty.
-If the beginning of the list is a non-auxilary-pointer \verb|min::gen|
-value, the list consists of one element which equals just that value.
-If the beginning of the list is a \verb|min::EMPTY_LIST| value, the
-the list consists of one element which equals just an empty sublist.
-If the beginning of the list is a sublist pointer, the list consists
-of one element which equals the sublist pointed at by the sublist pointer.
-Otherwise the beginning of the list is a list pointer that points at the
-location of the first list element.
+Each hash table or attribute vector element is a \key{list head}.
+Each list head is a \key{list continuation}.
 
-Given the location of a list element, the value of the list element
-can be a non-auxilary-pointer \verb|min::gen| value, a sublist pointer
-pointing at a sublist which equals the element,
-a \verb|min::EMPTY_LIST| value denoting an element that is an empty
-sublist, a list pointer pointing at a continuation of the list,
-or \verb|min::LIST_END| indicating the there is no element because
-the list ends.
+If a list continuation is the value \verb|min::LIST_END|, the list has
+no more elements, and may be empty if it has no previous elements.
+If a list continuation is a continuation pointer,
+that pointer points at another list continuation that continues the list.
+Otherwise the list continuation is a \key{list element} which represents an
+element of the list.
+
+Given a list element, the rest of the list after the element begins with
+a list continuation that has an index one greater than that of the list
+element within the object body vector, unless the list element is a
+list head, in which case there is no next element, and the list has only
+one element.
+
+A list element may be a non-auxilary-pointer \verb|min::gen|
+value, such as a direct number, direct string, control code, or
+stub pointer.  None of these represent sublists.  A list element
+that is an auxilary sublist pointer or the value \verb|min::EMPTY_LIST|
+represents a sublist, and is the \key{sublist head} of that sublist.  A
+sublist head is a list element of the list containing a sublist,
+but cannot be a list element of the sublist.  If it is a sublist pointer,
+it points at a continuation element of the sublist.  If it is the
+value \verb|min::EMPTY_LIST|, it represents an empty sublist.
+
 
 A \minkey{list\_pointer} can be used to move around in a object at
 the list level.  The functions for using a list pointer are:
 
 \begin{center}\begin{tabular}{r@{}l}
-(constructor)~
+(constructor)~\verb|min::|
 	& \MINKEY{list\_pointer}\verb| ( min::short_obj * so )|
 \LABEL{MIN::LIST_POINTER_OF_SHORT_OBJ} \\
-(constructor)~
+(constructor)~\verb|min::|
 	& \MINKEY{list\_pointer}\verb| ( min::long_obj * lo )|
 \LABEL{MIN::LIST_POINTER_OF_LONG_OBJ} \\
-(constructor)~
+(constructor)~\verb|min::|
 	& \MINKEY{list\_pointer}\verb| ( min::gen obj )|
 \LABEL{MIN::LIST_POINTER_OF_GEN} \\
 \verb|unsigned |
@@ -1989,33 +2000,41 @@ the list level.  The functions for using a list pointer are:
 
 A list pointer is created to move around in a particular object.
 Once created it can be started on a new list by the
-{\tt start} function, which takes the index of the first
-body vector element of the list.  This index may point into the
-hash table, object vector, or auxilary area.  The {\tt start} function
+{\tt start} function, which takes as an argument the index of a list
+continuation in the object body vector.  This index may point into the
+hash table, attribute vector, or auxilary area.  The {\tt start} function
 returns the body vector index of the first element of the list, or returns
 {\tt 0} if the list is empty.  The index given to {\tt start}
-may point at a list pointer or \verb|min::LIST_END| valued body vector element,
-but the value returned by {\tt start} may not point at such an element.
+is that of a list continuation, but the index returned is that of
+a list element or {\tt 0}.
 
-The {\tt next} function moves the list pointer to the next element of the
-list it currently points at, and returns the body vector index of that
-element.  It returns {\tt 0} if there is no element because the end of the
-list has been reached.  After the end of a list has been reached, additional
+The {\tt next} function moves the list pointer to the next list element of the
+list the pointer points at, and returns the body vector index of that
+list element.  It returns {\tt 0} if there is no list element because the end
+of the list has been reached.
+After the end of a list has been reached, additional
 calls to {\tt next} will do nothing.  If a non-zero index is returned,
-that \underline{cannot} point at a list pointer or \verb|min::LIST_END| valued
-body vector element.
+it is the index of a list element and not of a list continuation that is
+not a list element.  The {\tt next} function knows when the list element
+pointed at by a list pointer is a list head by checking to see if the
+index of the element lies within the hash table or attribute vector of
+an object.
 
-The {\tt current} function just returns the body vector index of the element
-the list pointer currently points at, or returns {\tt 0} if there is no
-such element, e.g., because the pointer is at the end of a list.
+The {\tt current} function just returns the body vector index of the list
+element the list pointer currently points at, or returns {\tt 0} if there is no
+such element because the pointer is at the end of a list.
 
 A non-zero index returned by {\tt start}, {\tt next}, or {\tt current}
 for a list pointer {\tt X} can index an
 auxilarly pointer only if the list element indexed is a sublist.  In this
 situation the {\tt start\_sublist} function can be given the index
-to set a list pointer to the beginning of the sublist.  The index given
+to set a list pointer to point at the first list element of the sublist.
+The index given
 the {\tt start\_sublist} function must index a body vector element
 whose value is a sublist pointer or \verb|min::EMPTY_LIST|.
+The {\tt start\_sublist} function returns the body vector index of the
+first list element of the sublist, or returns {\tt 0} if the sublist is
+empty.
 
 At the \key{attribute level}, the object is a set of attribute name/value
 pairs.  If the name is an unsigned integer small enough to index an
@@ -2457,9 +2476,9 @@ struct min
 \verb|min::float64 | & \MINKEY{float64\_of}\verb| ( min::stub * s )|
 \LABEL{FLOAT64_OF} \\[1ex]
 
-\verb|void min::stub * MUP::|
-	& \MUPKEY{new\_number\REL}\verb| ( min::float64 f )|
-\LABEL{MUP::NEW_NUMBER} \\[1ex]
+\verb|void min::stub * min::|
+	& \MINKEY{new\_number\REL}\verb| ( min::float64 f )|
+\LABEL{MIN::NEW_NUMBER} \\[1ex]
 
 \verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUMBER} \\[1ex]
@@ -2567,13 +2586,13 @@ struct min
 \LABEL{HASH_OF_LONG_STR} \\
 \verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_str * str )|
 \LABEL{SIGNATURE_OF_LONG_STR} \\
-\verb|const char * | & \TTKEY{str\_of}\verb| ( min::long_str * str )|
-\LABEL{STR_OF_LONG_STR} \\[1ex]
+\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::STR_OF_LONG_STR} \\
+\verb|char * MUP::| & \MUPKEY{writable\_str\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::WRITABLE_STR_OF_LONG_STR} \\[1ex]
 
 \verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
-\verb|char * MUP::| & \MUPKEY{str\_of}\verb| ( min::long_str * str )|
-\LABEL{MUP::STR_OF_LONG_STR} \\
 \verb|void MUP::| &
    \MUPKEY{set\_length\_of}\ARGBREAK
    \verb| ( min::long_str * str,|\ARGBREAK\verb|   unsigned length )|
@@ -2583,9 +2602,9 @@ struct min
     \verb| ( min::long_str * str,|\ARGBREAK\verb|   unsigned hash )|
 \LABEL{MUP::SET_HASH_OF_LONG_STR} \\[1ex]
 
-\verb|void min::stub * MUP::|
-	& \MUPKEY{new\_str\REL}\verb| ( const char * p )|
-\LABEL{MUP::NEW_STR} \\[1ex]
+\verb|void min::stub * min::|
+	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
+\LABEL{MIN::NEW_STR} \\[1ex]
 
 \end{tabular}
 
@@ -2723,20 +2742,30 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.5in}}
+\begin{tabular}{@{}r@{}p{3.5in}}
 
-\verb|const min::gen * |
-	& \TTKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
-\LABEL{BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|const min::gen * |
-	& \TTKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
-\LABEL{BODY_VECTOR_OF_LONG_OBJ} \\
-\verb|min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
+\verb|const min::gen * MUP::|
+	& \MUPKEY{body\_vector\_of}\ARGBREAK
+		\verb| ( min::short_obj * so )|
 \LABEL{MUP::BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
+\verb|const min::gen * MUP::|
+	& \MUPKEY{body\_vector\_of}\ARGBREAK
+		\verb| ( min::long_obj * lo )|
 \LABEL{MUP::BODY_VECTOR_OF_LONG_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{writable\_body\_vector\_of}\ARGBREAK
+		\verb| ( min::short_obj * so )|
+\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_SHORT_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{writable\_body\_vector\_of}\ARGBREAK
+		\verb| ( min::long_obj * lo )|
+\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_LONG_OBJ} \\
+
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{@{}r@{}p{4.5in}}
 
 \verb|unsigned |
 	& \TTKEY{hash\_table\_of}\verb| ( min::short_obj * so )|
