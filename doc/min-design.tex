@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 2, 2005}
+\date{March 24, 2005}
  
 \maketitle
 
@@ -320,7 +320,8 @@ Some {\tt MUP} functions `produce \key{undefined results}' when their arguments
 are out of legal range.
 This means that when the arguments are out of range,
 function execution may lose control and crash, or may produce result
-values out of legal range.  When documentation of a {\tt MUP} function
+values that are wrong or out of legal range.
+When documentation of a {\tt MUP} function
 states that particular argument range checks are not performed,
 then the {\tt MUP} function always produces undefined results when its
 arguments would not pass these checks,
@@ -342,7 +343,7 @@ have names beginning with `\ttmkey{min::}{in function name}'
 only if they have no argument that is a pointer to a MIN defined
 datum.  Many protected MIN functions have such pointer arguments
 and have overloaded names that do not begin with any class qualifier.
-Unprotected MIN functions have names beginning with 
+Unprotected MIN functions \underline{all} have names beginning with 
 `\ttmkey{MUP::}{in function name}'.
 
 In defining MIN data the following number types are used to be sure
@@ -448,6 +449,10 @@ The function that deallocates a body is:
 \end{tabular}\end{center}%
 \index{deallocate!relocating}
 
+Deallocation is considered to be a variant of relocation.
+Relocating functions, those marked marked by {\REL} in documentation,
+may also deallocate objects.
+
 The {\tt is\_deallocated} function described on \pagref{IS_DEALLOCATED}
 can be used to test whether the body of a stub has been deallocated.
 
@@ -482,12 +487,14 @@ A general value can store any of:
 \begin{tabular}{l}
 an atom or pointer to an atom \\
 a pointer to a stub \\
-an auxilary pointer
+an auxilary pointer \\
+a control code
 \end{tabular}
 \end{center}
 
 General values are used as attribute names and values in
-objects, and as function arguments and return values.
+objects, as function arguments and return values, and as
+components of list structures.
 
 Efficiency aside, it does not matter
 whether a general value stores an atom or a pointer
@@ -498,6 +505,10 @@ stored inside an object body to point at some part, called an
 \key{auxilary},\label{AUXILARY} of the same body.
 There are several subtypes of auxilary pointers.
 See~\pagref{AUXILARY-POINTER}.
+
+A \key{control code} is an integer that represents flags and codes
+stored in a general value.  Control codes can have different
+interpretations in different contexts.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}
@@ -529,10 +540,12 @@ a 64-bit IEEE floating point direct number atom (64 bit general value only) \\
 a 28-bit direct integer atom (32 bit general value only) \\
 a 0-5 character direct string atom (64 bit general value only) \\
 a 0-3 character direct string atom (32 bit general value only) \\
-a 27-bit auxilary list pointer (32 bit general value only) \\
-a 27-bit auxilary sublist pointer (32 bit general value only) \\
-a 44-bit auxilary list pointer (64 bit general value only) \\
-a 44-bit auxilary sublist pointer (64 bit general value only)
+a 26-bit auxilary list pointer (32 bit general value only) \\
+a 26-bit auxilary sublist pointer (32 bit general value only) \\
+a 26-bit control code (32 bit general value only) \\
+a 40-bit auxilary list pointer (64 bit general value only) \\
+a 40-bit auxilary sublist pointer (64 bit general value only) \\
+a 40-bit control code (64 bit general value only)
 \end{tabular}
 \end{center}
 
@@ -552,7 +565,7 @@ two indirect characters strings are equal if and only
 the \verb|min::gen| values pointing at them point at the same place.
 
 Therefore two atoms are equal if and only if the \verb|min::gen| values
-designating them are \verb|==|.
+designating them are \verb|==| as 32-bit or 64-bit values.
 
 General values that point at stubs can hold stub addresses, or they can hold 
 `\skey{virtual stub number}s', \skey{VSN}{'s}, that map to stub addresses.
@@ -587,15 +600,19 @@ The range of such a direct integer is the same as the range of a 28-bit
 two's complement integer: $-2^{27}$ to $2^{27}-1$, inclusive.
 
 Similarly 32-bit general value auxilary pointers consist of a high order
-5-bit subtype code
-and a low order 27-bit auxilary pointer (see~\pagref{AUXILARY-POINTER}
-for a definition of auxilary pointers).  And a 32-bit general value
-direct string consists of
+6-bit subtype code
+and a low order 26-bit auxilary pointer (see~\pagref{AUXILARY-POINTER}
+for a definition of auxilary pointers).
+32-bit general value control codes consist of a high order
+6-bit subtype code and a low order 26-bit unsigned integer that
+contains flags and codes and has different interpretations in different
+contexts.
+And a 32-bit general value direct string consists of
 an 8-bit subtype code and 24 bits that hold 0 to 3 8-bit {\tt char}'s.
 
-For 64-bit general values the high order 20 bits is used as a subtype
+For 64-bit general values the high order 24 bits is used as a subtype
 code.  The values chosen for this subtype code make direct strings,
-pointers, and auxilary pointers into IEEE Nan (Not-a-Number)
+pointers, auxilary pointers, and control codes into IEEE Nan (Not-a-Number)
 values that are never generated by hardware instructions.
 
 The {\tt min::gen} type has the alignment
@@ -649,6 +666,8 @@ indicated subtype and {\tt 0} otherwise:
 \LABEL{MIN::IS_LIST_AUX} \\
 \verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST_AUX} \\
+\verb|bool min::| & \MINKEY{is\_control\_code}\verb| ( min::gen v )|
+\LABEL{MIN::IS_CONTROL_CODE} \\
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STUB} \\
 \end{tabular}\end{center}
@@ -669,9 +688,13 @@ subtype, after checking the subtype with an {\tt assert} statement:
 \verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MIN::STUB_OF} \\
 \verb|unsigned min::| & \MINKEY{list\_aux\_of}\verb| ( min::gen v )|
-\LABEL{MIN::LIST_AUXILARY_OF} \\
+\LABEL{MIN::LIST_AUX_OF} \\
 \verb|unsigned min::| & \MINKEY{sublist\_aux\_of}\verb| ( min::gen v )|
-\LABEL{MIN::SUBLIST_AUXILARY_OF} \\
+\LABEL{MIN::SUBLIST_AUX_OF} \\
+\verb|unsigned min::| & \MINKEY{control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MIN::CONTROL_CODE_OF} \\
+\verb|min::uns64 min::| & \MINKEY{long\_control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MIN::LONG_CONTROL_CODE_OF} \\
 \end{tabular}\end{center}
 
 Here the \verb|min::uns64| value returned by \minkey{direct\_str\_of}
@@ -686,10 +709,17 @@ u.str = min::direct_str_of ( v );
 cout << u.buf;
 \end{verbatim}\end{indpar}
 
-Here the {\tt min::direct\_str\_of} function merely copies the 3 or
+The {\tt min::direct\_str\_of} function merely copies the 3 or
 5 characters of the {\tt min::gen} direct string value and
 appends a NUL character.
 It does this by writing an appropriate value into \verb|v.str|.
+
+The \verb|control_code_of| function only returns
+a 26-bit unsigned integer for both 32-bit and 64-bit general values.
+For 64-bit general values it returns only the low order 26 bits of the
+code.
+The \verb|long_control_code_of| function is only defined for 64-bit
+general values, and returns a 40-bit unsigned integer.
 
 The following unprotected functions return the value appropriate for a given
 subtype, \underline{without} checking the subtype:
@@ -707,6 +737,10 @@ subtype, \underline{without} checking the subtype:
 \LABEL{MUP::LIST_AUX_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{sublist\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::SUBLIST_AUX_OF} \\
+\verb|unsigned MUP::| & \MUPKEY{control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MUP::CONTROL_CODE_OF} \\
+\verb|min::uns64 MUP::| & \MUPKEY{long\_control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MUP::LONG_CONTROL_CODE_OF} \\
 \end{tabular}\end{center}
 
 New {\tt min::gen} values can be generated by the following protected
@@ -725,6 +759,11 @@ functions:
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MIN::NEW_SUBLIST_AUX_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
+\LABEL{MIN::NEW_CONTROL_CODE_GEN} \\
+\verb|min::gen min::| &
+    \MINKEY{new\_long\_control\_code\_gen}\verb| ( min::uns64 c )|
+\LABEL{MIN::NEW_LONG_CONTROL_CODE_GEN} \\
 \end{tabular}\end{center}
 
 These protected functions check for argument range errors.  Stubs are
@@ -737,11 +776,17 @@ point number if the \verb|min::gen| type is 64-bits.  The
 {\tt min::float64} argument will always cause an argument range
 error if used with 32-bit \verb|min::gen| values.
 The {\tt unsigned} argument used to make auxilary pointers must
-fit within 27 bits if {\tt min::gen} values are 32-bits, and
-within 44 bits if {\tt min::gen} values are 64-bits.
+fit within 26 bits if {\tt min::gen} values are 32-bits, and
+within 40 bits if {\tt min::gen} values are 64-bits.
+The {\tt unsigned} argument used to make control codes must
+fit within 26 bits regardless of the size of
+{\tt min::gen} values.
+The {\tt long\_control\_code\_gen} function is defined only if
+{\tt min::gen} values are 64-bits, and takes an unsigned integer
+that must fit within 40 bits.
 
 The subtype codes used for 64-bit {\tt min::gen} direct string, stub pointer,
-and auxilary pointer
+auxilary pointer, and control code
 values are chosen so they are not normally generated by the compiler,
 run-time system, or program execution.  Therefore a {\tt min::float64}
 input to {\tt min::new\_direct\_gen} is assumed not to have these subtype
@@ -764,6 +809,11 @@ range errors.
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_SUBLIST_AUX_GEN} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
+\LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
+\verb|min::gen MUP::| &
+    \MUPKEY{new\_long\_control\_code\_gen}\verb| ( min::uns64 c )|
+\LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\
 \end{tabular}\end{center}
 
 The actual string, stub pointer, and auxilary pointer
@@ -784,6 +834,8 @@ subtype codes:
 \LABEL{MIN::GEN_LIST_AUX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_SUBLIST\_AUX}
 \LABEL{MIN::GEN_SUBLIST_AUX} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_CONTROL\_CODE}
+\LABEL{MIN::GEN_CONTROL_CODE} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
 \LABEL{MIN::GEN_ILLEGAL} \\
 \end{tabular}\end{center}
@@ -802,7 +854,7 @@ The following function may be used to retrieve the subtype code field:
 \end{tabular}\end{center}
 
 For 64-bit \verb|min::gen| values, this retrieves the high order
-20 bits of the value, and then replaces this retrieved value if the value
+24 bits of the value, and then replaces this retrieved value if the value
 comes from a direct IEEE 64-bit floating point number.
 For 32-bit \verb|min::gen| values, this retrieves
 the high order 8 bits, and then zeros any low order bits that are not
@@ -2268,6 +2320,8 @@ struct min
 \LABEL{MIN::IS_LIST_AUX} \\
 \verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST_AUX} \\
+\verb|bool min::| & \MINKEY{is\_control\_code}\verb| ( min::gen v )|
+\LABEL{MIN::IS_CONTROL_CODE} \\
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STUB} \\[1ex]
 
@@ -2280,9 +2334,13 @@ struct min
 \verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MIN::STUB_OF} \\
 \verb|unsigned min::| & \MINKEY{list\_aux\_of}\verb| ( min::gen v )|
-\LABEL{MIN::LIST_AUXILARY_OF} \\
+\LABEL{MIN::LIST_AUX_OF} \\
 \verb|unsigned min::| & \MINKEY{sublist\_aux\_of}\verb| ( min::gen v )|
-\LABEL{MIN::SUBLIST_AUXILARY_OF} \\[1ex]
+\LABEL{MIN::SUBLIST_AUX_OF} \\
+\verb|unsigned min::| & \MINKEY{control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MIN::CONTROL_CODE_OF} \\
+\verb|min::uns64 min::| & \MINKEY{long\_control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MIN::LONG_CONTROL_CODE_OF} \\[1ex]
 
 \verb|min::gen min::| & \MINKEY{new\_direct\_gen}\verb| ( int v )|
 \LABEL{MIN::NEW_DIRECT_GEN_OF_INT} \\
@@ -2295,7 +2353,12 @@ struct min
 \verb|min::gen min::| & \MINKEY{new\_list\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
-\LABEL{MIN::NEW_SUBLIST_AUX_GEN} \\[1ex]
+\LABEL{MIN::NEW_SUBLIST_AUX_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
+\LABEL{MIN::NEW_CONTROL_CODE_GEN} \\
+\verb|min::gen min::| &
+    \MINKEY{new\_long\_control\_code\_gen}\verb| ( min::uns64 c )|
+\LABEL{MIN::NEW_LONG_CONTROL_CODE_GEN} \\[1ex]
 
 \verb|int min::| & \MINKEY{gen\_subtype\_of}\verb| ( min::gen v )|
 \LABEL{MIN::GEN_SUBTYPE_OF} \\
@@ -2323,7 +2386,11 @@ struct min
 \verb|unsigned MUP::| & \MUPKEY{list\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::LIST_AUX_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{sublist\_aux\_of}\verb| ( min::gen v )|
-\LABEL{MUP::SUBLIST_AUX_OF} \\[1ex]
+\LABEL{MUP::SUBLIST_AUX_OF} \\
+\verb|unsigned MUP::| & \MUPKEY{control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MUP::CONTROL_CODE_OF} \\
+\verb|min::uns64 MUP::| & \MUPKEY{long\_control\_code\_of}\verb| ( min::gen v )|
+\LABEL{MUP::LONG_CONTROL_CODE_OF} \\[1ex]
 
 \verb|min::gen MUP::| & \MUPKEY{new\_direct\_gen}\verb| ( int v )|
 \LABEL{MUP::NEW_DIRECT_GEN_OF_INT} \\
@@ -2337,6 +2404,11 @@ struct min
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_SUBLIST_AUX_GEN} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
+\LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
+\verb|min::gen MUP::| &
+    \MUPKEY{new\_long\_control\_code\_gen}\verb| ( min::uns64 c )|
+\LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\
 
 \end{tabular}
 
@@ -2360,6 +2432,8 @@ struct min
 \LABEL{MIN::GEN_LIST_AUX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_SUBLIST\_AUX}
 \LABEL{MIN::GEN_SUBLIST_AUX} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_CONTROL\_CODE}
+\LABEL{MIN::GEN_CONTROL_CODE} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
 \LABEL{MIN::GEN_ILLEGAL} \\
 
