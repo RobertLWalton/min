@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 3, 2005}
+\date{February 6, 2005}
  
 \maketitle
 
@@ -392,6 +392,12 @@ and the mark \verb|::| represent the same thing.  Quoted strings can
 represent symbols that have characters in them which cannot be in words
 or marks.
 
+There is one difference between a quoted string and its corresponding
+word or mark, e.g.~between \verb|"+"| and \verb|+|.  This is that the
+quoted string cannot be interpreted as an operator during parsing, while
+the word or mark, if it is an operator, can be so interpreted.
+See \secref{STANDARD-REPRESENTATIONS}.
+
 A quoted string consists of a sequence of
 \skey{character representative}s
 surrounded by double quotes (\verb|"|\index{""@{\tt ""}}).  A non-whitespace
@@ -440,11 +446,6 @@ followed by other characters.  The possible escape sequences are:
 \index{new line 2@{\BACKSLASH{\em new-line} {\em white-space}}}
 \index{+@{\BACKSLASH{\tt +} {\em new-line} {\em white-space}}}
 
-Tab characters in a quoted string
-represent one or more space characters, with tabs set
-every 8 columns.  Columns are counted with respect to the beginning
-of the line, and \underline{not} the beginning of the quoted string.
-
 Single space characters after a quoted string new line representative
 are removed up through the column containing the initial quote (\verb|"|)
 of the quoted string.  Thus
@@ -461,6 +462,18 @@ at the beginning of its representing quoted string line is removed.
 The last removed whitespace column is that of the \verb|"| beginning the
 quoted string.
 
+Tab characters in are always equivalent to one or more space characters,
+with tabs set every 8 columns.  Columns are counted with respect to the
+beginning of the line, and \underline{not} the beginning of any quoted string.
+
+Form feed and vertical tabs cannot appear inside a quoted string.  Carriage
+returns cannot appear inside or outside a quoted string
+except in a sequence containing a line feed.
+Non-whitespace control characters cannot appear inside or outside a quoted
+string.  All these characters can be represented by escape sequences inside
+a quoted string.
+
+
 
 \section{Data}
 
@@ -475,7 +488,7 @@ every other object and from every atom.  But it is nothing more.
 
 However, as a place in memory, an object has a name.  Objects are assigned
 \skey{raw object name}s
-of the form `\ttmkey{\#\#}{in raw object name}$I$' where $I$
+of the form `\ttmnbkey{\#\#}{in raw object name}$I$' where $I$
 is an integer.  Raw object names of this form are assigned only to objects
 that must be named in an output stream (e.g., printed output).
 The first object named in output stream is assigned the name
@@ -545,6 +558,7 @@ The format of a \key{raw representation} is:
 \key{single-arrow-target} ::= {\em atom} $|$ {\em raw-object-name}
 \\[1ex]
 \key{raw-double-arrow-representation} ::=
+\\\hspace*{1in}
 	{\em arrow-label}\ttmkey{:}{in {\em raw-double-arrow-representation}}
 	{\em double-arrow-target}
 	{\tt :}{\em arrow-label}
@@ -661,7 +675,7 @@ created.  It is an error to add to an existing object an attribute with the
 same name as an existing attribute of that object.
 
 
-Object \ttkey{\#\#0} is special: it is the \ttkey{.GLOBAL} object, and
+Object \ttnbkey{\#\#0} is special: it is the \ttkey{.GLOBAL} object, and
 its attributes are called \skey{global variables}.  One of the global
 variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
 object, a situation which can be achieved by the data representation:
@@ -678,7 +692,7 @@ object, a situation which can be achieved by the data representation:
 \subsection{Cooked Representations}
 
 In contrast to the raw representation of a set of objects there is the
-cooked representation, that is much easier to read and write, but a bit more
+cooked representation, that is much easier to read and write, but more
 long winded to explain.
 
 The main thing that the cooked representation does is take certain objects
@@ -764,6 +778,8 @@ is the cooked representation of
     1: ">"
     2: x
     3: y
+    .initiator: "("
+    .terminator: ")"
 ##132::
     1: return
     2: y
@@ -836,10 +852,10 @@ or instead
 \begin{indpar}\begin{verbatim}
 ##291::
     text A: ##93
-    text B: ##521
+    text B: ##999
 \end{verbatim}\end{indpar}
 
-where object \verb|##521| happens to have the same structure as
+where object \verb|##999| happens to have the same structure as
 object \verb|##93|.  The default is to make both \verb|text A|
 and \verb|text B| be the same object, \verb|##93|, and to make
 that object `immutable', meaning that it cannot be changed.  The
@@ -848,8 +864,8 @@ have the property that their cooked representations can replace
 their raw object names in the cooked representations of other
 objects.
 
-A couple of generalizations about certain attribute names are in
-order.  First, the strictly positive integers \verb|1|, \verb|2|,
+The following are generalizations about certain attribute names.
+First, the strictly positive integers \verb|1|, \verb|2|,
 \verb|3|, \ldots are used to name the elements of a list.  Second,
 some attribute names beginning with `\verb|.|' have special
 meaning for object representation.  Examples above are
@@ -886,10 +902,11 @@ Brackets
 \begin{tabular}{l@{~~~~~}l@{~~~~~}l}
 macro	&	brackets	& meaning
 \\[1ex]
-\ttkey{.ROUND}	& \ttkey{(}~~~\ttkey{)}	& parentheses. \\
-\ttkey{.SQUARE}	& \ttkey{[}~~~\ttkey{]}	& square brackets \\
-\ttkey{.CURLY}	& \ttkey{\CurlyBra}~~~\ttkey{\CurlyKet}	& curly brackets \\
-\ttkey{.QUOTE}	& \ttkey{`}~~~\ttkey{'}	& single quotes \\
+\ttkey{.ROUND}	& \ttnbkey{(}~~~\ttnbkey{)}	& parentheses. \\
+\ttkey{.SQUARE}	& \ttnbkey{[}~~~\ttnbkey{]}	& square brackets \\
+\ttkey{.CURLY}	& \ttnbkey{\CurlyBra}~~~\ttnbkey{\CurlyKet}
+						& curly brackets \\
+\ttkey{.QUOTE}	& \ttnbkey{`}~~~\ttnbkey{'}	& single quotes \\
 \end{tabular}
 
 \bigskip
@@ -902,29 +919,29 @@ Standard Operators
 
 priority & macro	& operators	& meaning 
 \\[2ex]
--5000 & \ttkey{.SENTENCE} &  \ttkey{.} ~~~ \ttkey{!} ~~~ \ttkey{?}
+-5000 & \ttkey{.SENTENCE} &  \ttnbkey{.} ~~~ \ttnbkey{!} ~~~ \ttnbkey{?}
 	& sentence terminators \\
--4000 & \ttkey{.SUBSENTENCE} &  \ttkey{;} & subsentence separator \\
--3000 & \ttkey{.PHRASE} &  \ttkey{,} & phrase separator \\
+-4000 & \ttkey{.SUBSENTENCE} &  \ttnbkey{;} & subsentence separator \\
+-3000 & \ttkey{.PHRASE} &  \ttnbkey{,} & phrase separator \\
 +0000 & \ttkey{.CONDITIONAL} &  \ttkey{if} ~~~ \ttkey{then} ~~~ \ttkey{else}
 	& conditionals \\
 +1000 & \ttkey{.LOGICAL} &  \ttkey{and} ~~~ \ttkey{or} ~~~ \ttkey{not}
 	& logical AND, OR, NOT \\
-+2000 & \ttkey{.COMPARE} &  \ttkey{=} ~~~ \ttkey{/=} ~~~
-        \ttkey{!=} 			& equal, not equal, ditto \\
-      &		      & \ttkey{<} ~~~ \ttkey{<=} ~~~ \ttkey{=<}
-      & less than, less than or equal, \\
-      &		      &		&
-      ditto \\
-      &		      & \ttkey{>} ~~~ \ttkey{>=} ~~~ \ttkey{=>}
-      & greater than, greater than or \\
++2000 & \ttkey{.COMPARE} &  \ttnbkey{=} ~~~ \ttnbkey{/=} ~~~
+        \ttnbkey{!=} 			& equal, not equal, ditto \\
+      &		      & \ttnbkey{<} ~~~ \ttnbkey{<=} ~~~ \ttnbkey{=<}
+      & less than, less than or \\
       &		      &		&
       equal, ditto \\
-+3000 & \ttkey{.SUM} &  \ttkey{+} ~~~ \ttkey{-}
+      &		      & \ttnbkey{>} ~~~ \ttnbkey{>=} ~~~ \ttnbkey{=>}
+      & greater than, greater \\
+      &		      &		&
+      than or equal, ditto \\
++3000 & \ttkey{.SUM} &  \ttnbkey{+} ~~~ \ttnbkey{-}
 	& addition, subtraction \\
-+3100 & \ttkey{.PRODUCT} &  \ttkey{*} ~~~ \ttkey{/} 
++3100 & \ttkey{.PRODUCT} &  \ttnbkey{*} ~~~ \ttnbkey{/} 
 	& multiplication, division \\
-+9999 & \ttkey{.OBJNAME} &  \ttkey{\#\#}
++9999 & \ttkey{.OBJNAME} &  \ttnbkey{\#\#}
 	& object name \\
 \end{tabular}
 
@@ -940,9 +957,10 @@ priority & macro	& operators	& meaning
 \begin{tabular}{l}
 \key{data-representation} ::= {\em object-representation} \ldots
 \\[1ex]
-\key{object-representation}
+\key{object-representation} ::=
+\\\hspace*{1in}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em object-header} {\em attribute-representation} \ldots \\
+        & {\em object-header} {\em attribute-representation} \ldots \\
     $|$ & {\em object-header} {\em expression}
 	  \ttmkey{;;}{in {\em object-representation}}
     	  {\em attribute-representation} \ldots \\[1ex]
