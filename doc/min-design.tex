@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 30, 2005}
+\date{February 1, 2005}
  
 \maketitle
 
@@ -273,12 +273,12 @@ and the corresponding code:
 \ttmkey{aux}{abbreviation}	& auxilary (\secref{AUXILARY}) \\
 \ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
-\ttmkey{lab}{abbreviation}	& label \\
+\ttmkey{lab}{abbreviation}	& label (\pagref{LABEL-STUBS}) \\
 \ttmkey{min}{abbreviation}	& the MIN system \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
-\ttmkey{num}{abbreviation}	& number \\
-\ttmkey{obj}{abbreviation}	& object \\
-\ttmkey{str}{abbreviation}	& string \\
+\ttmkey{num}{abbreviation}	& number (\pagref{NUMBER-STUBS}) \\
+\ttmkey{obj}{abbreviation}	& object (\pagref{OBJECT-STUBS}) \\
+\ttmkey{str}{abbreviation}	& string (\pagref{STRING-STUBS}) \\
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
 \end{tabular}
 \end{center}
@@ -317,7 +317,7 @@ In this document we will use the abbreviation `\verb|MUP|' for
 `\verb|min::unprotected|'.
 
 Some {\tt MUP} functions `produce \key{undefined results}' when their arguments
-are out of some legal range.
+are out of legal range.
 This means that when the arguments are out of range,
 function execution may lose control and crash, or may produce result
 values out of legal range.  When documentation of a {\tt MUP} function
@@ -378,7 +378,7 @@ the size of each number is clear:
 Currently planned implementations of MIN assume a compiler that has
 direct support for 64 bit integers.  However, use of 64 bit integer
 types in these implementations is minimized to make it possible to
-modify them to use compilers without such support.
+modify the implementations to use compilers without such support.
 
 \subsection{Stubs and Bodies}
 
@@ -489,12 +489,12 @@ an auxilary pointer
 General values are used as attribute names and values in
 objects, and as function arguments and return values.
 
-Efficiency asside, it does not matter
+Efficiency aside, it does not matter
 whether a general value stores an atom or a pointer
 to the atom, as atoms are immutable and cannot be changed.
 
 An \key{auxilary pointer} is an integer that is used by a general value
-inside an object body to point at some part, called an
+stored inside an object body to point at some part, called an
 \key{auxilary},\label{AUXILARY} of the same body.
 There are several subtypes of auxilary pointers.
 See~\pagref{AUXILARY-POINTERS}.
@@ -526,7 +526,7 @@ subtypes
 \begin{tabular}{l}
 a pointer to a stub \\
 a 64-bit IEEE floating point direct number atom (64 bit general value only) \\
-a 28-bit integer atom (32 bit general value only) \\
+a 28-bit direct integer atom (32 bit general value only) \\
 a 0-5 character direct string atom (64 bit general value only) \\
 a 0-3 character direct string atom (32 bit general value only) \\
 a 27-bit auxilary list pointer (32 bit general value only) \\
@@ -728,7 +728,6 @@ functions:
 
 These protected functions check for argument range errors.  Stubs are
 \underline{not} allocated by these functions, so an {\tt int}
-or {\tt unsigned}
 argument must fit in 28 bits if {\tt min::gen} values
 are 32-bits, and the {\tt const char *} strings must be short enough to
 fit into a direct value.
@@ -748,7 +747,7 @@ codes, and no check is made for such, even by range-checking protected
 functions.
 
 The following unprotected functions are analogous but do not check for
-range errors.  If given out-of-range arguments, their results are undefined.
+range errors.
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen MUP::| & \MUPKEY{new\_direct\_gen}\verb| ( int v )|
@@ -996,7 +995,7 @@ assert ( ! is_deallocate ( s ) );
 \end{verbatim}\end{indpar}
 
 instead of {\tt assert\_allocated} can be useful for debugging
-accesses to deallocated bodies.
+improper accesses to deallocated bodies.
 
 \subsection{Stub Control}
 \label{STUB-CONTROL}
@@ -1039,8 +1038,8 @@ low order 48 bits:	& chain pointer \\
 \end{tabular}
 \end{center}
 
-The main use of non-collectible stubs is as auxilary stubs.
-An `\key{auxilary stub}' is a non-collectible stub attached to an object.
+The main use of uncollectible stubs is as auxilary stubs.
+An `\key{auxilary stub}' is an uncollectible stub attached to an object.
 When the object is garbage collected, the auxilary stub is freed.  Auxilary
 stubs are a means of adding memory to an object without relocating the object.
 For example, if the object stores 64-bit IEEE floating point numbers,
@@ -1120,7 +1119,7 @@ an immutable \verb|min::float64| value that can be read by
 \LABEL{MUP::FLOAT64_OF}
 \end{tabular}\end{center}
 
-written by
+and written by
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void MUP::| &
@@ -1128,7 +1127,7 @@ written by
 \LABEL{MUP::SET_FLOAT64_OF}
 \end{tabular}\end{center}
 
-and created by
+A number stub can be created by
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::stub * min::|
@@ -1136,7 +1135,9 @@ and created by
 \LABEL{MIN::NEW_NUMBER}
 \end{tabular}\end{center}
 
-Number stubs are collectible.
+Number stubs are collectible.  Number stubs only exist in compact
+implementations; in loose implementations numbers are stored exclusively
+in direct number general values.
 
 General values that are numbers can be tested, created, and read
 by the following protected functions:
@@ -1184,7 +1185,8 @@ themselves \verb|==|.
 The \verb|min::new_gen| function with an \verb|int| argument does the
 same thing as it would with its argument converted to a \verb|min::float64|
 value, but is more efficient in the case where \verb|min::gen| values
-are 32 bits.
+are 32 bits and the argument is in the range of a direct integer general
+value.
 
 The \verb|min::number_of| function for a 64-bit \verb|min::gen|
 argument is just another name for the \verb|min::direct_float_of| function
@@ -1209,9 +1211,7 @@ range of the \verb|int| type, and
 
 In MIN all \verb|char| \skey{string}s\index{char strings@{\tt char} strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
-UTF-8 encodes 16 bit UNICODE characters in 1, 2, or 3 \verb|char|'s,
-and encodes certain pairs of two 16 bit UNICODE characters
-(call surrogates) in 4 \verb|char|'s.
+UTF-8 encodes 16 bit UNICODE characters in 1, 2, or 3 \verb|char|'s.
 
 All ASCII characters are encoded as themselves in
 the UTF-8 encoding.  This implies that
@@ -1286,30 +1286,6 @@ A \key{long string stub}\label{LONG-STRING-STUB} has
 \minkey{LONG\_STR}\LABEL{LONG-STR-TYPE} stub type code and
 a value that is a pointer to a \minkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
-The following functions respectively return a relocatable pointer to this body,
-the length of the string, a 32-bit non-zero \mkey{hash value}{of string}
-computed from the string, a 64-bit signature for the string,
-and a relocatable pointer to the string.  If the hash value
-has not been previously accessed, it is computed and saved in the
-string by the function that returns it, causing that function to
-take time proportional to the string length.  The 64-bit signature
-contains the hash value and the string length.
-
-A string hash value is computed according to the following machine
-independent algorithm:
-
-\begin{indpar}\begin{verbatim}
-hash = 0
-n = length of string
-for i = 1 through n:
-    c = i'th character of string as unsigned 8 bit integer
-    hash = ( hash << 5 ) + c
-    hash = ( hash >> 32 ) + hash
-    hash = hash % ( 2**32 )
-\end{verbatim}\end{indpar}
-
-where \verb|<<| and \verb|>>| are left and right shifts of unsigned
-integers, \verb|%| is the `mod' operation, and \verb|**| is exponentiation.
 
 The following is an unprotected function to return a pointer to the
 a long string body, and several protected functions to return parts
@@ -1332,13 +1308,40 @@ are protected only in the sense that they introduce no
 \LABEL{STR_OF_LONG_STR} \\
 \end{tabular}\end{center}
 
+These functions return a relocatable pointer to the string body,
+the length of the string, a 32-bit non-zero \mkey{hash value}{of string}
+computed from the string, a 64-bit signature for the string,
+and a relocatable pointer to the string.  If the hash value
+has not been previously accessed, it is computed and saved in the
+string by the function that returns it, causing that function to
+take time proportional to the string length.  The 64-bit signature
+contains the hash value and the string length.
+
+A string hash value is computed according to the following machine
+independent algorithm:
+
+\begin{indpar}\begin{verbatim}
+hash = 0
+n = length of string
+for i = 1 through n:
+    c = i'th character of string as unsigned 8 bit integer
+    hash = ( hash * 65599 ) + c
+\end{verbatim}\end{indpar}
+
+where the final result is truncated to 32 bits.  The constant
+is a prime such that multiplication by it is turned into
+shifts and adds by compilers: $65599=2^{16}+2^6-1$.\footnote{Another good
+constant that could be used is $33$.}
+
 The long string body consists of a 64 bit signature containing
 the 32-bit length and 32-bit hash value, followed by a \verb|char|
 vector containing the string with the terminating NUL.  The
 \verb|char| vector is padded to a multiple of 8 bytes with NUL
 bytes, but the terminating NUL and the padding are not included
 in the length.  If the hash has not been computed, it is
-stored in the header as zero.
+stored in the header as zero.  It is possible, though very unlikely,
+that the hash value will itself be zero, and therefore be mistaken
+for an uncomputed hash value when stored in the string body.
 
 The following unprotected versions of the above
 functions return the same values as their associated protected function
@@ -1438,8 +1441,6 @@ Some of these functions correspond to the standard C/C++
 {\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions, and differ
 from these only in that instead of taking a {\tt char *} source string
 argument, these functions take a {\tt min::gen} source argument.
-The {\tt min::gen} source argument value can be a direct string, or
-a stub pointer to either a short or long string stub.
 
 The following functions test general values to see if they are a string,
 and create new general values.
@@ -1479,6 +1480,7 @@ chain pointers.
 
 
 \subsection{Label Stubs}
+\label{LABEL-STUBS}
 
 Attribute labels are often single strings or numbers.  But they may be
 sequences of strings and numbers.  Such sequences are represented by
@@ -1526,9 +1528,6 @@ The length of a label may be read by the following functions:
 \LABEL{LABLEN} \\
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\
-\verb|unsigned min::| & \MINKEY{lablen}%
-    \verb| ( min::gen * const p, unsigned n )|
-\LABEL{MIN::LABLEN_OF_GEN_VECTOR} \\
 \end{tabular}\end{center}
 
 The hash value of a label may be computed by the following functions:
@@ -1596,8 +1595,8 @@ A label may be tested by the following protected function:
 
 Double arrow labels are pairs of attribute labels, because in order to
 know a double arrow valued attribute of an object X, you must know the
-value of the attribute, some object Y, the label of the attribute, and
-also the label of the attribute in Y that is the other end of the double
+value Y of the attribute (Y must be an object), the label of the attribute, and
+also the label of the attribute in object Y that is the other end of the double
 arrow.  Double arrow labels are represented by \key{label pair} stubs.%
 \footnote{Label pairs could also be represented by
 sublists stored inside objects (\pagref{LIST-LEVEL}), but each label pair
@@ -2083,6 +2082,10 @@ struct min
 \verb|min::|\MINKEY{SHORT\_STR} \LABEL{SHORT-STR-TYPE}
 \\
 \verb|min::|\MINKEY{LONG\_STR} \LABEL{LONG-STR-TYPE}
+\\
+\verb|min::|\MINKEY{LABEL} \LABEL{LABEL-TYPE}
+\\
+\verb|min::|\MINKEY{LABEL\_PAIR} \LABEL{LABEL-PAIR-TYPE}
 
 \end{indpar}
 
@@ -2393,10 +2396,7 @@ struct min
 \verb|unsigned | & \TTKEY{lablen}\verb| ( min::stub * s )|
 \LABEL{LABLEN} \\
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
-\LABEL{MIN::LABLEN_OF_GEN} \\
-\verb|unsigned min::| & \MINKEY{lablen}\ARGBREAK
-    \verb| ( min::gen * const p, unsigned n )|
-\LABEL{MIN::LABLEN_OF_GEN_VECTOR} \\[1ex]
+\LABEL{MIN::LABLEN_OF_GEN} \\[1ex]
 
 \verb|unsigned | & \TTKEY{labhash}\verb| ( min::stub * s )|
 \LABEL{LABHASH} \\
