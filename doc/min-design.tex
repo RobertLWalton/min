@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 14, 2004}
+\date{November 15, 2004}
  
 \maketitle
 
@@ -1390,8 +1390,8 @@ strings, they have \verb|==| \verb|min::gen| values.
 \subsection{Object Stubs}
 
 An object is conceptually a hash table that maps attribute names to
-attribute values.  Double arrows are handled specially: see
-\secref{DOUBLE-ARROWS}.  The part of the hash table that maps small
+attribute values.  A double arrow is a joined pair of map entries in different
+objects.  The part of the hash table that maps small
 integer attribute names is actually a vector.
 
 An object has a body that consists of 5 parts:
@@ -1400,7 +1400,7 @@ An object has a body that consists of 5 parts:
 \begin{tabular}{l}
 header \\
 hash table \\
-list \\
+vector \\
 unused \\
 auxilary
 \end{tabular}
@@ -1408,7 +1408,7 @@ auxilary
 
 The header contains the sizes of the other 4 parts.  The hash table
 stores attribute label/value pairs, for attributes whose labels that are not
-small integers.  The list stores attribute values, for attributes whose
+small integers.  The vector stores attribute values for attributes whose
 labels are small integers.  The auxilary area stores various overflow
 data from the hash table and list areas.
 
@@ -1420,7 +1420,11 @@ the unused area.
 There are two kinds of objects: short and long.  A \key{short object}
 has a header that stores 16 bit unsigned sizes.  A \key{long object}
 has a header that stores 32 bit unsigned sizes.  Otherwise there is
-no essential difference between a short and a long object.
+no essential difference between a short and a long object.  The functions
+that create attributes convert automatically from short to
+long objects when required.  Conversion in the other direction, and compaction
+of objects, may occur when object bodies are relocated during garbage
+collection.
 
 The protected functions
 
@@ -1456,16 +1460,16 @@ Attribute values can be set by the protected functions
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void | &
-    \TTKEY{putg}\verb| ( min::stub * s, min::gen name, min::gen value )|
+    \TTKEY{putg\REL}\verb| ( min::stub * s, min::gen name, min::gen value )|
 \LABEL{PUTG_TO_STUB} \\
 \verb|void min::| &
-    \MINKEY{putg}\verb| ( min::gen obj, min::gen name, min::gen value )|
+    \MINKEY{putg\REL}\verb| ( min::gen obj, min::gen name, min::gen value )|
 \LABEL{MIN::PUTG} \\
 \verb|void | &
-    \TTKEY{puti}\verb| ( min::stub * s, int index, min::gen value )|
+    \TTKEY{puti\REL}\verb| ( min::stub * s, int index, min::gen value )|
 \LABEL{PUTI_TO_STUB} \\
 \verb|void min::| &
-    \MINKEY{puti}\verb| ( min::gen obj, int index, min::gen value )|
+    \MINKEY{puti\REL}\verb| ( min::gen obj, int index, min::gen value )|
 \LABEL{MIN::PUTI} \\
 \end{tabular}\end{center}
 
@@ -1475,6 +1479,42 @@ If the attribute
 value is given as \verb|min::MISSING|, the attribute is deleted from the
 object it the attribute previously had a value.  It is never an error
 if the attribute did not previously have a value.
+
+Attribute values can be set to double arrows by the protected functions
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void | &
+    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::stub * s1, min::gen name1,| \\
+    \verb|   min::gen name2, min::stub * s2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTG_TO_STUB} \\
+\verb|void min::| &
+    \MINKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj1, min::gen name1,| \\
+    \verb|   min::gen name2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{MIN::DOUBLE_PUTG} \\
+\verb|void | &
+    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::stub * s1, int index1,| \\
+    \verb|   int index2, min::stub * s2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTI_TO_STUB} \\
+\verb|void min::| &
+    \MINKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj1, int index1,| \\
+    \verb|   int index2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{MIN::DOUBLE_PUTI} \\
+\end{tabular}\end{center}
+
+which set an attribute of each of the specified objects, like a pair
+of simultaneous put operations.
+Objects and attribute names can be specified as for the get functions.
+Any previous values of the attributes are deleted.  When a double arrow
+attribute is deleted using the object and attribute name of one of its
+ends, the other end is deleted too.
 
 \subsubsection{Auxilary Pointers}
 \label{AUXILARY-POINTERS}
