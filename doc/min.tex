@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 14, 2005}
+\date{March 15, 2005}
  
 \maketitle
 
@@ -398,7 +398,7 @@ There is one difference between a quoted string and its corresponding
 word or mark, e.g.~between \verb|"+"| and \verb|+|.  This is that the
 quoted string cannot be interpreted as an operator during parsing, while
 the word or mark, if it is an operator, can be so interpreted.
-See \secref{STANDARD-REPRESENTATIONS}.
+See \secref{PARSER-EXPANSION}.
 
 A quoted string consists of a sequence of
 \skey{character representative}s
@@ -1561,112 +1561,32 @@ operator scanning returns:
     1: y
 \end{verbatim}\end{indpar}
 
-\subsection{Standard Representations}
-\label{STANDARD-REPRESENTATIONS}
+Note that classical programming language prefix and postfix operators are
+not supported by MIN.  Examples are given with descriptions of parsers
+in the next section.\footnote{Classical prefix and postfix operators could be
+supported by MIN, but seem to the author to be no more intuitive than
+the MIN approach.  In particular, `{\tt x<y~AND NOT~y<z}' fails classically
+but works in MIN.}
 
-In this section we describe how standard operators parse.
-Subsequent sections describe how to introduce user defined
-operators or change standard parsing.
+\subsubsection{Parser Expansion}
+\label{PARSER-EXPANSION}
 
-We first introduce some terminology by giving some examples.
+The \key{parser expansion} algorithm inputs an object output
+by the operator scanning algorithm and outputs an
+expanded object that replaces the input object.
+The parser expansion algorithm goes through its input
+looking for objects with a {\tt .parser} attribute, and for each
+such object, calls its {\tt .parser} attribute value as a function with
+the object as input and the function output as the expansion of the input
+object.  The expansion algorithm works bottom up, from the innermost
+expression outwords, replacing subexpressions by their expansions.
+It is thus an evaluation algorithm, with the
+{\tt .parser} attribute values as the evaluators.
 
-Consider the expression
-
-\begin{center}
-\verb|- x + 5 * y|
-\end{center}
-
-The first step in parsing an expression is to insert implied
-parentheses using operator priority.  In our example, the
-operators \verb|-| and \verb|+| have priority +3000, while
-the operator \verb|*| has the higher priority +3100.  The
-result is
-
-\begin{center}
-\verb/- x + (| 5 * y |)/
-\end{center}
-
-where \verb/(| |)/ represent implied parentheses.
-
-The next step is to identify the macros associated with the different
-priority levels.  In this case the macro \verb|.SUM| is associated with
-+3000, and the macro \verb|.PRODUCT| is associated with +3100.
-A macro parses expressions containing the operators at the level of the
-macro.  Expressions not containing an operator are left as is.
-Parsing proceeds from the innermost expression to the outermost.
-Thus in our example, first \verb|.PRODUCT| is called with
-`\verb|5 * y|' as its argument, and this returns `\verb|* 5 y|' as
-its parsed result.  Then \verb|.SUM| is called with
-`\verb/- x + (| * 5 y |)/' as its argument, and it returns
-`\verb/+ (| - x |) (| * 5 y |)/' as parsed result.
-This final returned result
-is the same as the objects represented by the raw data
-
-\begin{indpar}
-\verb|##500::|\\
-\verb|    1: "-"|\\
-\verb|    2: x|\\
-\verb|##501::|\\
-\verb|    1: "*"|\\
-\verb|    2: 5|\\
-\verb|    3: y|\\
-\verb|##502::|\\
-\verb|    1: "+"|\\
-\verb|    2: ##500|\\
-\verb|    3: ##501|
-\end{indpar}
-
-except, of course, the actual object numbers might be different when
-the expression was actually parsed.
-
-Now consider the expression
-
-\begin{center}
-\verb|The "." is a terminator.|
-\end{center}
-
-In this the second \verb|.| is an operator, the only operator in the
-expression, and its associated macro \verb|.SENTENCE| is called with the
-argument
-
-\begin{center}
-\verb/(| The "." is a terminator |)./
-\end{center}
-
-to expand the expression and produce a parsed expression that could be
-described by the raw data
-
-\begin{indpar}\begin{verbatim}
-##520::
-    1: the
-    2: "."
-    3: is
-    4: a
-    5: terminator
-    .initiator: capital
-    .terminator: "."
-\end{verbatim}\end{indpar}
-
-where the object number \verb|520| would probably be different in any
-actual parse.  The \verb|.SENTENCE| macro rearranged what it was given
-into a single list in which the first word is lower case,
-the \verb|.initiator| is `\verb|capital|' to indicate the first word
-should be capitalized, and the \verb|.terminator| is the `\verb|.|'
-that was originally the operator.  Changing the case of the first
-word and adding the \verb|.initiator| is done by a
-`de-capitalization algorithm', \secref{DECAPITALIZATION}.
-
-In most cases, a parsed atom is just the atom itself.  However, when a quoted
-atom is parsed, the quotes are removed, a process called \key{de-quoting}.
-Thus in the above example, the atom \verb|"."| when parsed is de-quoted to
-produce the single character atom `\verb|.|'.  This in turn, when represented
-in raw data, is represented by \verb|"."|, on the grounds that
-readers of raw data often also read cooked data, and distinguish between
-raw and cooked by the presence of operators, so in raw data potential
-cooked operators should be protected by quoting them.
-
-With the terminology we have just introduced in mind, the following are
-the parsed values produced by standard operator definitions.
+A {\tt .parser} attribute value is known as a \key{parser}, and is associated
+with an operator priority level
+(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
+The following are the standard parsers and their effects.
 
 \begin{indpar}[1em]
 
@@ -1676,32 +1596,14 @@ the parsed values produced by standard operator definitions.
 
 \bigskip
 
-\NBOP{(} ~~~ \NBOP{)} \MAC{parentheses}{.ROUND} \\
-\NBOP{[} ~~~ \NBOP{]} \MAC{square brackets}{.SQUARE} \\
-\NBOP{\CurlyBra} ~~~ \NBOP{\CurlyKet} \MAC{curly brackets}{.CURLY} \\
-\NBOP{`} ~~~ \NBOP{'} \MAC{quotes}{.QUOTE}
-
-\begin{indpar}[0.5em]
-The bracketed subexpression is parsed and the result
-is converted if necessary to a list without either a \verb|.initiator|
-or a \verb|.terminator| attribute.
-Then an \ttmkey{.initiator}{produced by parsing} attribute equal to
-the opening bracket (\verb|"("|, \verb|"["|, \verb|"{"|, or \verb|"`"|)
-and a \ttmkey{.terminator}{produced by parsing} attribute equal to
-the closing bracket (\verb|")"|, \verb|"]"|, \verb|"}"|, or \verb|"'"|)
-are added to this list,
-and the list becomes the result of parsing the parenthesized expression.
-\end{indpar}
-
-\bigskip
-
-\NBOP{.} ~~~ \NBOP{!} ~~~ \NBOP{?} \MAC{terminators}{.SENTENCE}
+\ttmkey{sentence}{parser} \hfill
+	\key{terminators}: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
 
 \begin{indpar}[0.5em]
 Terminators may not be consecutive, may not begin an expression,
 and must end an expression.  Thus each between-terminator subexpression
 is non-empty and is followed by a terminator.
-Each between-terminator subexpression is parsed and converted if necessary
+Each between-terminator subexpression is converted if necessary
 to a list.  Then a \ttmkey{.terminator}{produced by parsing}
 attribute is added to this list whose value is the terminator following the
 subexpression.  If there is only one subexpression, the list it produces
@@ -1711,49 +1613,22 @@ lists.
 
 \bigskip
 
-\NBOP{;} \MAC{subsentence separator}{.SUBSENTENCE} \\
-\NBOP{,} \MAC{phrase separator}{.PHRASE}
+
+\ttmkey{subsentence}{parser} \hfill
+	\key{subsentence separator}: \NBOP{;} \\
+\ttmkey{phrase}{parser} \hfill
+	\key{phrase separator}: \NBOP{,}
 
 \begin{indpar}[0.5em]
 Here `\verb|;|' or `\verb|,|' is the \key{separator}.
-Each between-separator subexpression (which may be empty) is parsed.
-If empty, a subexpression parses to the empty object
-(an object with no attributes).
-There will be at least two subexpressions: one following
+A list of all between-separator subexpressions is made, with empty
+between-separator subexpressions being represented by objects with
+no attributes.  There will be at least two subexpressions: one following
 the last separator and one preceding the first separator.
-A list of all the subexpression
-parses is made, is given a \ttmkey{.separate}{produced by parsing}
-attribute with value of the separator (\verb|";"| or \verb|","|,
+The list of subexpressions is given a
+\ttmkey{.separator}{produced by parsing}
+attribute with value of the separator (\verb|";"| or \verb|","|),
 and is returned as the result of the parse.
-\end{indpar}
-
-\bigskip
-
-\OP{if} ~~~ \OP{then} ~~~ \OP{else} \MAC{conditional operators}{.CONDITIONAL}
-
-\begin{indpar}[0.5em]
-Expressions with conditional operators must have the syntax:
-
-\begin{indpar}[0.5em]
-\key{conditional-expression} ::=
-    \begin{tabular}[t]{@{}l@{}}
-    \ttmkey{if}{in {\em conditional-expression}}
-	{\em subexpression}
-        \ttmkey{then}{in {\em conditional-expression}}
-        {\em subexpression}
-    \\
-    \{ {\tt \bf else if}
-	{\em subexpression}
-        \ttmkey{then}{in {\em conditional-expression}}
-        {\em subexpression}
-    \}\ldots \\
-    \ttmkey{else}{in {\em conditional-expression}}
-	{\em subexpression}
-    \end{tabular}
-\end{indpar}
-
-where any {\em subexpression} may be empty.
-
 \end{indpar}
 
 \bigskip
