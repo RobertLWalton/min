@@ -281,7 +281,6 @@ and the corresponding code:
 \end{tabular}
 \end{center}
 
-
 \section{Data}
 
 We first describe MIN data memory.
@@ -314,6 +313,16 @@ above:
 
 In this document we will use the abbreviation `\verb|MUP|' for
 `\verb|min::unprotected|'.
+
+Some {\tt MUP} functions `produce \key{undefined results}' when their arguments
+are out of some legal range.
+This means that when the arguments are out of range,
+function execution may lose control and crash, or may produce result
+values out of legal range.  When documentation of a {\tt MUP} function
+states that particular argument range checks are not performed,
+then the {\tt MUP} function always produces undefined results when its
+arguments would not pass these checks,
+unless the documentation explicitly says otherwise.
 
 The data of MIN is defined using C-compatible \ttmkey{struct}{C compatible}'s
 and \ttmkey{union}{C compatible}'s.  C++ implicitly guarentees the layout of
@@ -567,8 +576,8 @@ addresses or VSN's on the approximate maximum number of stubs is as follows:
 
 A 32-bit general value direct integer consists of a high order 4-bit
 subtype code and a low order 28-bit signed integer stored in offset form,
-so the true integer can be derived from the {\tt min:gen} value by
-subtracting the {\tt min:gen} representation of zero.
+so the true integer can be derived from the {\tt min::gen} value by
+subtracting the {\tt min::gen} representation of zero.
 The range of such a direct integer is the same as the range of a 28-bit
 two's complement integer: $-2^{27}$ to $2^{27}-1$, inclusive.
 
@@ -705,8 +714,9 @@ functions:
 \end{tabular}\end{center}
 
 These protected functions check for argument range errors.  Stubs are
-\underline{not} allocated by these functions, so the {\tt int}
-argument must fit in 28 bits if {\tt min:gen} values
+\underline{not} allocated by these functions, so an {\tt int}
+or {\tt unsigned}
+argument must fit in 28 bits if {\tt min::gen} values
 are 32-bits, and the {\tt const char *} strings must be short enough to
 fit into a direct value.
 The {\tt int} argument will be converted to an IEEE 64-bit floating
@@ -772,8 +782,8 @@ The following function may be used to retrieve the subtype code field:
 \end{tabular}\end{center}
 
 For 64-bit \verb|min::gen| values, this retrieves the high order
-20 bits of the value, and then zeros the retrieved value if it
-indicates a direct IEEE 64-bit floating point number.
+20 bits of the value, and then replaces this retrieved value if the value
+comes from a direct IEEE 64-bit floating point number.
 For 32-bit \verb|min::gen| values, this retrieves
 the high order 8 bits, and then zeros the low order 4 bits of that if
 the 8 bit value is less than \verb|min::GEN_DIRECT_STR|.
@@ -783,14 +793,17 @@ In any case, \verb|min::GEN_ILLEGAL| is not a possible value of this function.
 \subsection{Body Pointers}
 \label{BODY-POINTERS}
 
-Body pointers are relocatable and require special programming to
-ensure that thay are up-to-date.  This programming makes use of
-the `\key{relocated flag}\,' which is one of the execution flags
-described in~\secref{EXECUTION-FLAGS}.
+Body pointers are relocatable and require special handling to
+ensure that thay are up-to-date.  Because of this, functions
+that obtain body pointers from stubs are unprotected, and
+names of relocating functions, which might relocate bodies, are marked
+with the superscript {\REL} in this document.
+
 
 Relocation can only happen inside relocating functions
-(\pagref{RELOCATING-FUNCTIONS}).  When it
-happens, the relocated flag is set.
+(\pagref{RELOCATING-FUNCTIONS}).  When it happens,
+the `\key{relocated flag}\,' which is one of the execution flags
+described in~\secref{EXECUTION-FLAGS}, is set.
 
 Upon return from the call to any relocating function,
 a caller who is using body pointers must check the relocated flag,
@@ -798,6 +811,7 @@ and if on, the caller must:
 
 \begin{center}
 \begin{tabular}{l}
+check that object bodies have not been deallocated \\
 recompute all local variables containing pointers into bodies \\
 clear the relocated flag \\
 remember it has cleared the relocated flag
@@ -818,6 +832,7 @@ The code to do all this has the form:
 {
     bool relocated = min::set_relocated_flag ( false );
     . . . . .
+    assert ( . . . == type_of ( . . . ) );
     min::some_body_type * p =
         some_function_returning_a_body_pointer ( ... );
     . . . . . use p . . . . .
@@ -825,6 +840,7 @@ The code to do all this has the form:
     if ( min::set_relocated_flag( false ) )
     {
         relocated = true;
+        assert_allocated ( . . . );
         p = some_function_returning_a_body_pointer ( ... );
     }
     . . . . . use p . . . . .
@@ -841,6 +857,16 @@ The following functions get and set the relocated flag:
 \verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool )|
 \LABEL{MIN::SET_RELOCATED_FLAG}
 \end{tabular}\end{center}
+
+The function to set the flag returns the flag's previous value.
+
+A function that computes a pointer into an object body does not
+check the type code of the object stub pointing at the body.  The type
+code must be checked separately before the pointer is computed.  If the
+pointer is being recomputed after possible relocation, the only check
+required relates to the possibility that the object has been deallocated.
+This check is most efficiently done by the {\tt assert\_allocated}
+function (\pagref{ASSERT_ALLOCATED}).
 
 To simplify code, the following is defined:
 
@@ -874,12 +900,14 @@ as:
 {
     min::relocated relocated;
     . . . . .
+    assert ( . . . == type_of ( . . . ) );
     min::some_body_type * p =
         some_function_returning_a_body_pointer ( ... );
     . . . . . use p . . . . .
     some_relocating_function ( ... );
     if ( relocated )
     {
+        assert_allocated ( . . . );
         p = some_function_returning_a_body_pointer ( ... );
     }
     . . . . . use p . . . . .
@@ -888,12 +916,10 @@ as:
 }
 \end{verbatim}\end{indpar}
 
-The function to set the flag returns the flag's previous value.
-
 The operation of \ikey{deallocating a body}{dealocate!body}
 is considered to be a relocation of the body.  The body pointer in the
 stub is pointed at unimplemented virtual memory, and the type code in the stub
-is set to an illegal value (e.g. zero).
+is set to {\tt min::DEALLOCATED} (\pagref{DEALLOCATED-TYPE}).
 
 The following function tests whether a stub with a body pointer
 has a deallocated body:
@@ -906,10 +932,15 @@ has a deallocated body:
 This function just checks the stub type code to see if it equals
 {\tt min::DEALLOCATED} (\pagref{DEALLOCATED-TYPE}).
 
-Using a deallocated body is
-considered to be a fatal programming error, so usually code need not
-check for this case, and crashes when it tries to access the unimplemented
-virtual memory.  However, there is a limit to the size of unimplemented
+A check that an object body has not been deallocated may be needed before
+a pointer into the body is recomputed after a relocating function has
+been called.  Using a deallocated body is
+considered to be a fatal programming error, so often no check is necessary,
+as a program that uses a deallocated body simply
+crashes when it tries to access the unimplemented
+virtual memory.
+
+However, there is a limit to the size of unimplemented
 memory, so code using very large bodies should always recheck the type
 code when reloading a possibly relocated body pointer.  This limit is
 guarenteed to be at least the value of the macro:
@@ -939,19 +970,14 @@ If {\tt size} is a constant (such as a {\tt size\_of} expression)
 not greater than {\tt MIN\_DEALLOCATED\_\EOL LIMIT},
 this code will be optimized away by the compiler.
 
-However, using
+Note that using
 
 \begin{indpar}\begin{verbatim}
 assert ( ! is_deallocate ( s ) );
 \end{verbatim}\end{indpar}
 
-unconditionally can be a valuable for debugging
+instead of {\tt assert\_allocated} can be useful for debugging
 accesses to deallocated bodies.
-
-Because of the special handling required by body pointers, functions
-that obtain body pointers from stubs are unprotected, and
-names of relocating functions, which might relocate bodies, are marked
-with the superscript {\REL} in this document.
 
 \subsection{Stub Control}
 \label{STUB-CONTROL}
@@ -1119,15 +1145,12 @@ argument.  For a 32-bit argument the function returns
 true if the argument is a direct integer or a stub pointer
 pointing at a number stub.
 
-The \verb|min::new_gen| function with an \verb|int| argument does the
-same thing as it would with its argument converted to a \verb|min:float64|
-value, but is more efficient in the case where \verb|min:gen| values
-are 32 bits.
-
-The \verb|min::new_gen| function for 64-bit \verb|min::gen| values
+The \verb|min::new_gen| function with \verb|min::float64| argument
+and 64-bit \verb|min::gen| value
 is just another name for {\tt min::new\_\EOL direct\_\EOL gen}, which
 simply changes the type of its argument.
-For 32-bit \verb|min:gen| values the function creates a direct integer
+The \verb|min::new_gen| function with \verb|min::float64| argument
+and 32-bit \verb|min::gen| value creates a direct integer
 if the argument is an integer in the
 require range, and otherwise creates a number stub and returns a pointer to
 the stub converted to a \verb|min::gen| value.  For 32-bit \verb|min::gen|
@@ -1138,6 +1161,11 @@ containing the argument value already exists, a new \verb|min::gen| value
 pointing at that existing stub is created, and no new stub is created.
 Therefore two 32-bit \verb|min::gen| values that represent equal numbers are
 themselves \verb|==|.
+
+The \verb|min::new_gen| function with an \verb|int| argument does the
+same thing as it would with its argument converted to a \verb|min::float64|
+value, but is more efficient in the case where \verb|min::gen| values
+are 32 bits.
 
 The \verb|min::number_of| function for a 64-bit \verb|min::gen|
 argument is just another name for the \verb|min::direct_float_of| function
@@ -1155,7 +1183,7 @@ except that \verb|min::int_of| includes a check that the result
 is a pure integer, without any fractional part, and is within the
 range of the \verb|int| type, and
 \verb|min::int_of| is more efficient when given a 32-bit direct integer
-\verb|min:gen| argument.
+\verb|min::gen| argument.
 
 \subsection{String Stubs}
 \label{STRING-STUBS}
@@ -1188,8 +1216,9 @@ stubs or stub bodies which are pointed at by \verb|min::gen| values,
 the short and long strings, are called \skey{indirect string}s.
 There are protected functions accessing general values that denote
 strings of any kind without distinction,
-and these are described toward the end of this section, after describing
-short and long strings and their unprotected access functions.
+and these are described toward the end of this section, after
+short and long strings and their unprotected access functions are
+described.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} has
 \minkey{SHORT\_STR}\LABEL{SHORT-STR-TYPE} stub type code and
@@ -1218,12 +1247,12 @@ should be overlaid by a union with a \verb|char[ ]| buffer, as in
 union { min::uns64 str; char buf[9]; } u;
 min::stub * s1, * s2;
 . . . .
-u.buf[8] = 0;	// Be sure result is NUL terminated.
 u.str = MUP::short_str_of ( s1 );
+u.buf[8] = 0;	// Be sure result is NUL terminated.
 cout << u.buf;
 . . . .
 u.str = 0;	// Be sure all 8 bytes are NUL padded.
-cin >> u.buf;
+cin >> u.buf;   // Must not read more than 8 characters.
 MUP::set_short_str_of ( s2 , u.str );
 \end{verbatim}\end{indpar}
 
@@ -1446,7 +1475,7 @@ The protected functions
 
 read an attribute value given an attribute name and an object.  The object
 can be specified by either giving a pointer to its stub or by
-giving a \verb|min:gen| value that points to the stub.  The name can be
+giving a \verb|min::gen| value that points to the stub.  The name can be
 specified either by giving a \verb|min::gen| value or by giving
 an \verb|int| if the name is an integer index.  The function names indicate
 the type of name given, as the types themselves are both numeric and may
