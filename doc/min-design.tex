@@ -497,7 +497,7 @@ An \key{auxilary pointer} is an integer that is used by a general value
 stored inside an object body to point at some part, called an
 \key{auxilary},\label{AUXILARY} of the same body.
 There are several subtypes of auxilary pointers.
-See~\pagref{AUXILARY-POINTERS}.
+See~\pagref{AUXILARY-POINTER}.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}
@@ -588,7 +588,7 @@ two's complement integer: $-2^{27}$ to $2^{27}-1$, inclusive.
 
 Similarly 32-bit general value auxilary pointers consist of a high order
 5-bit subtype code
-and a low order 27-bit auxilary pointer (see~\pagref{AUXILARY-POINTERS}
+and a low order 27-bit auxilary pointer (see~\pagref{AUXILARY-POINTER}
 for a definition of auxilary pointers).  And a 32-bit general value
 direct string consists of
 an 8-bit subtype code and 24 bits that hold 0 to 3 8-bit {\tt char}'s.
@@ -1076,7 +1076,8 @@ A partial list of stub type codes is:
 
 \begin{center}
 \begin{tabular}{l@{~~~~~}p{4in}}
-\tt min::NUMBER	&	Stub value is an IEEE 64-bit floating point number.
+\tt min::NUMBER
+	&	Stub value is an IEEE 64-bit floating point number.
 \\
 \tt min::SHORT\_STR
 	&	Stub value is 0-8 \verb|const char| string, NUL padded.
@@ -1086,7 +1087,8 @@ A partial list of stub type codes is:
 	        {\tt min::long\_\EOL string} that contains a
 		\verb|const char| vector and its size. 
 \\
-\tt min::DEALLOCATED	&	Stub has a deallocated body.
+\tt min::DEALLOCATED
+	&	Stub has a deallocated body.
 \end{tabular}
 \end{center}
 
@@ -1681,6 +1683,8 @@ except that a pair of attribute names is given instead of a single
 attribute name.  The value of the attribute is the other object,
 and the extra attribute name is the name of the attribute in that
 other object which is joined to the represented double arrow valued attribute.
+The attribute name pair is represented by general value pointing at
+a label pair stub (\secref{LABEL-PAIR-STUBS}).
 
 An object has a body that consists of the following 5 parts in
 the order given:
@@ -1725,8 +1729,8 @@ described.
 A \key{short object stub}\label{SHORT-OBJECT-STUB} has
 \minkey{SHORT\_OBJ}\LABEL{SHORT-OBJ-TYPE} stub type code and
 a value that is a pointer to a \minkey{short\_obj} type body
-which holds the 5 parts of the object.  The header consists of
-4 16-bit integers which are, in order:
+which holds the 5 parts of the object.
+The header consists of 4 16-bit unsigned integers which are, in order:
 
 \begin{center}
 \begin{tabular}{l}
@@ -1737,6 +1741,13 @@ auxilary area size \\
 \end{tabular}
 \end{center}
 
+A \key{long object stub}\label{LONG-OBJECT-STUB} has
+\minkey{LONG\_OBJ}\LABEL{LONG-OBJ-TYPE} stub type code and
+a value that is a pointer to a \minkey{long\_obj} type body
+which holds the 5 parts of the object.  A long object body is
+the same as a short object body except the 4 header integers
+are 32-bit unsigned integers instead of 16-bit unsigned integers.
+
 A pointer to the body and the sizes can be obtained by the following
 functions:
 
@@ -1744,18 +1755,33 @@ functions:
 \verb|min::short_obj * MUP::| &
 	\MUPKEY{short\_obj\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::SHORT_OBJ_OF} \\
-\verb|unsigned | & \TTKEY{hash\_table\_size\_of}\verb| ( min::short_obj * str )|
+\verb|min::long_obj * MUP::| &
+	\MUPKEY{long\_obj\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::LONG_OBJ_OF} \\
+\verb|unsigned | & \TTKEY{hash\_table\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::short_obj * str )|
+\verb|unsigned | & \TTKEY{hash\_table\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{HASH_TABLE_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{OBJ_VECTOR_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{OBJ_VECTOR_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned |
-    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::short_obj * str )|
+    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{AUXILARY_AREA_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned |
-    & \TTKEY{unused\_area\_size\_of}\verb| ( min::short_obj * str )|
+    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{AUXILARY_AREA_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned |
+    & \TTKEY{unused\_area\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{UNUSED_AREA_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned | & \TTKEY{total\_size\_of}\verb| ( min::short_obj * str )|
+\verb|unsigned |
+    & \TTKEY{unused\_area\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{UNUSED_AREA_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned | & \TTKEY{total\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{TOTAL_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned | & \TTKEY{total\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{TOTAL_SIZE_OF_LONG_OBJ} \\
 \end{tabular}\end{center}
 
 Here the total size is the sum of the other four sizes.
@@ -1767,26 +1793,67 @@ size does \underline{not} include the header.
 The data structure of an object body can be viewed at any of three levels:
 vector level, list level, and attribute level.
 
-At the \key{vector level}, the body is a header followed by
-a \key{body vector} of \verb|min::gen| values.
-This body vector is divided into 4 parts,
-which are, in order, the \key{hash table}, \key{object vector},
-\key{unused area}, and \key{auxilary area}.
+At the \key{vector level}, the body is viewed as
+a \key{body vector} of \verb|min::gen| values.  A pointer to the
+body vector is returned by the following functions:
 
-The value of an auxilary pointer is an unsigned integer
+\begin{center}\begin{tabular}{r@{}l}
+\verb|const min::gen * |
+	& \TTKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{BODY_VECTOR_OF_SHORT_OBJ} \\
+\verb|const min::gen * |
+	& \TTKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{BODY_VECTOR_OF_LONG_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{MUP::BODY_VECTOR_OF_SHORT_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{MUP::BODY_VECTOR_OF_LONG_OBJ} \\
+\end{tabular}\end{center}
+
+The protected function only allows reading of body vector elements,
+while the unprotected function allows reading and writing of elements.
+
+The body vector is divided into 5 parts,
+which are, in order, the {object body header},
+the \key{hash table}, \key{object vector},
+\key{unused area}, and \key{auxilary area}.
+The header and unused area are not actually \verb|min::gen| values,
+and should not be accessed using a body vector pointer.
+
+The value of an \key{auxilary pointer}\label{AUXILARY-POINTER}
+is an unsigned integer
 that is the index of a \verb|min::gen|
-value in the object body, treating the entire body, including the
-header, as a vector of \verb|min::gen| values.  As a consequence,
-auxilary pointers with zero value do not address a body vector
-element, since they point into the header, and these may be given
+value in the body vector.
+Auxilary pointers with zero value do not address a body vector
+element, since they point into the header, and these are given
 special meanings.
+
+The indices of the beginning of the hash table and object vector
+can be obtained by the following protected functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned |
+	& \TTKEY{hash\_table\_of}\verb| ( min::short_obj * so )|
+\LABEL{HASH_TABLE_OF_SHORT_OBJ} \\
+\verb|unsigned |
+	& \TTKEY{hash\_table\_of}\verb| ( min::long_obj * lo )|
+\LABEL{HASH_TABLE_OF_LONG_OBJ} \\
+\verb|unsigned |
+	& \TTKEY{object\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{OBJECT_VECTOR_OF_SHORT_OBJ} \\
+\verb|unsigned |
+	& \TTKEY{object\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{OBJECT_VECTOR_OF_LONG_OBJ} \\
+\end{tabular}\end{center}
 
 At the \key{list level},\label{LIST-LEVEL}
 the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
 object vector.  The elements of the lists are non-auxilary-pointer
 \verb|min::gen| values and sublists.  The lists are constructed with
-the help of the three flavors of auxilary pointers:
+the help of the two kinds of auxilary pointers:
 
 \begin{center}
 \begin{tabular}{lp{4in}}
@@ -1794,13 +1861,19 @@ the help of the three flavors of auxilary pointers:
 			  pointer. \\
 \key{sublist pointer}	& A sublist starts at the target of the sublist
 			  pointer. \\
-\minkey{LIST\_END}	& The list ends here.  This actually equals a
-			  list pointer with zero value. \\
-\minkey{EMPTY\_LIST}	& Denotes a list element that is an empty list.
-			  This actually equals a sublist pointer with
-			  zero value.
 \end{tabular}
 \end{center}
+
+and two constant values:
+
+\begin{center}\begin{tabular}{r@{}lp{3in}}
+\verb|const min::gen min::| & \MINKEY{LIST\_END} \LABEL{MIN::LIST_END}
+	& The list ends here.  This actually equals a list pointer
+	  with zero index. \\
+\verb|const min::gen min::| & \MINKEY{EMPTY\_LIST} \LABEL{MIN::EMPTY_LIST}
+	& Denotes a list element that is itself an empty list.  This actually
+	  equals a sublist pointer with zero index.
+\end{tabular}\end{center}
 
 Each hash table entry begins a list, as does each object vector entry.
 If the beginning of the list is \verb|min::LIST_END| value, the list is
@@ -1822,13 +1895,70 @@ sublist, a list pointer pointing at a continuation of the list,
 or \verb|min::LIST_END| indicating the there is no element because
 the list ends.
 
+A \minkey{list\_pointer} can be used to move around in a object at
+the list level.  The functions for using a list pointer are:
+
+\begin{center}\begin{tabular}{r@{}l}
+(constructor)~
+	& \MINKEY{list\_pointer}\verb| ( min::short_obj * so )|
+\LABEL{MIN::LIST_POINTER_OF_SHORT_OBJ} \\
+(constructor)~
+	& \MINKEY{list\_pointer}\verb| ( min::long_obj * lo )|
+\LABEL{MIN::LIST_POINTER_OF_LONG_OBJ} \\
+(constructor)~
+	& \MINKEY{list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MIN::LIST_POINTER_OF_GEN} \\
+\verb|unsigned |
+	& \TTKEY{start}\verb| ( min::list_pointer & lp, unsigned p )|
+\LABEL{START_OF_LIST_POINTER} \\
+\verb|unsigned |
+	& \TTKEY{next}\verb| ( min::list_pointer & lp )|
+\LABEL{NEXT_OF_LIST_POINTER} \\
+\verb|unsigned |
+	& \TTKEY{current}\verb| ( min::list_pointer & lp )|
+\LABEL{CURRENT_OF_LIST_POINTER} \\
+\verb|unsigned |
+	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp, unsigned p )|
+\LABEL{START_SUBLIST_OF_LIST_POINTER} \\
+\end{tabular}\end{center}
+
+A list pointer is created to move around in a particular object.
+Once created it can be started on a new list by the
+{\tt start} function, which takes the index of the first
+body vector element of the list.  This index may point into the
+hash table, object vector, or auxilary area.  The {\tt start} function
+returns the body vector index of the first element of the list, or returns
+{\tt 0} if the list is empty.  The index given to {\tt start}
+may point at a list pointer or \verb|min::LIST_END| valued body vector element,
+but the value returned by {\tt start} may not point at such an element.
+
+The {\tt next} function moves the list pointer to the next element of the
+list it currently points at, and returns the body vector index of that
+element.  It returns {\tt 0} if there is no element because the end of the
+list has been reached.  After the end of a list has been reached, additional
+calls to {\tt next} will do nothing.  If a non-zero index is returned,
+that \underline{cannot} point at a list pointer or \verb|min::LIST_END| valued
+body vector element.
+
+The {\tt current} function just returns the body vector index of the element
+the list pointer currently points at, or returns {\tt 0} if there is no
+such element, e.g., because the pointer is at the end of a list.
+
+A non-zero index returned by {\tt start}, {\tt next}, or {\tt current}
+for a list pointer {\tt X} can index an
+auxilarly pointer only if the list element indexed is a sublist.  In this
+situation the {\tt start\_sublist} function can be given the index
+to set a list pointer to the beginning of the sublist.  The index given
+the {\tt start\_sublist} function must index a body vector element
+whose value is a sublist pointer or \verb|min::EMPTY_LIST|.
+
 At the \key{attribute level}, the object is a set of attribute name/value
 pairs.  If the name is an unsigned integer small enough to index an
 object vector element, then the value is stored in the object vector element
-indexed by the name.  If the name is a double arrow name pair whose
+indexed by the name.  If the name is a double arrow label pair whose
 first component is an unsigned integer small enough to index an object
 vector element, then that object vector element is set to the representation
-of a list of two elements, the first being the name pair, and the second
+of a list of two elements, the first being the label pair, and the second
 being the attribute value.
 
 Otherwise the attribute name/value pair is stored in
@@ -1836,35 +1966,39 @@ the hash table.  Each hash table entry represents a list whose elements
 alternate between attribute names and attribute values.  Thus there are
 an even number of elements of a hash table entry list, and in each pair
 of elements, the attribute name is first, and the corresponding attribute
-value is second.  Sublists are not used at the attribute level.
-Double arrows are stored by storing their name pair where the attribute
-name would normally be.
+value is second.  Double arrows are stored by storing a label pair
+where the attribute name would normally be.
 
+Sublists are not used at the attribute level.
 
-
-
-TBD
-
-The following protected functions access either short or long objects, without
-distinction.
+The following protected functions access attributes:
 
 \begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen | & \TTKEY{getg}\verb| ( min::short_obj * so, min::gen name )|
+\LABEL{GETG_FROM_SHORT_OBJ} \\
+\verb|min::gen | & \TTKEY{getg}\verb| ( min::long_obj * lo, min::gen name )|
+\LABEL{GETG_FROM_LONG_OBJ} \\
 \verb|min::gen | & \TTKEY{getg}\verb| ( min::stub * s, min::gen name )|
 \LABEL{GETG_FROM_STUB} \\
 \verb|min::gen min::| & \MINKEY{getg}\verb| ( min::gen obj, min::gen name )|
 \LABEL{MIN::GETG} \\
+\verb|min::gen | & \TTKEY{geti}\verb| ( min::short_obj * so, int index )|
+\LABEL{GETI_FROM_SHORT_OBJ} \\
+\verb|min::gen | & \TTKEY{geti}\verb| ( min::long_obj * lo, int index )|
+\LABEL{GETI_FROM_LONG_OBJ} \\
 \verb|min::gen | & \TTKEY{geti}\verb| ( min::stub * s, int index )|
 \LABEL{GETI_FROM_STUB} \\
 \verb|min::gen min::| & \MINKEY{geti}\verb| ( min::gen obj, int index )|
 \LABEL{MIN::GETI} \\
 \end{tabular}\end{center}
 
+These functions
 read an attribute value given an attribute name and an object.  The object
-can be specified by either giving a pointer to its stub or by
+can be specified by either giving a pointer to its body or its stub, or by
 giving a \verb|min::gen| value that points to the stub.  The name can be
 specified either by giving a \verb|min::gen| value or by giving
 an \verb|int| if the name is an integer index.  The function names indicate
-the type of name given, as the types themselves are both numeric and may
+the type of name given, as the name types themselves are both numeric, and may
 lead to overloaded function confusion.  If there is no
 attribute of the object with the given name, these functions return the
 value
@@ -1877,18 +2011,30 @@ value
 which is a special atom not equal to any number or character string.
 
 In all functions that access attributes a \verb|min::gen|
-name that is an integer numerically equal to an \verb|int| name names the
-same attribute as the \verb|int| name.
+name that is an integer numerically equal to an \verb|int| index names the
+same attribute as the index.
 
 Attribute values can be set by the protected functions
 
 \begin{center}\begin{tabular}{r@{}l}
+\verb|void | & \TTKEY{putg\REL}%
+	\verb| ( min::short_obj * so, min::gen name, min::gen value )|
+\LABEL{PUTG_TO_SHORT_OBJ} \\
+\verb|void | & \TTKEY{putg\REL}%
+	\verb| ( min::long_obj * lo, min::gen name, min::gen value )|
+\LABEL{PUTG_TO_LONG_OBJ} \\
 \verb|void | &
     \TTKEY{putg\REL}\verb| ( min::stub * s, min::gen name, min::gen value )|
 \LABEL{PUTG_TO_STUB} \\
 \verb|void min::| &
     \MINKEY{putg\REL}\verb| ( min::gen obj, min::gen name, min::gen value )|
 \LABEL{MIN::PUTG} \\
+\verb|void | & \TTKEY{puti\REL}%
+	\verb| ( min::short_obj * so, int index, min::gen value )|
+\LABEL{PUTI_TO_SHORT_OBJ} \\
+\verb|void | & \TTKEY{puti\REL}%
+	\verb| ( min::long_obj * lo, int index, min::gen value )|
+\LABEL{PUTI_TO_LONG_OBJ} \\
 \verb|void | &
     \TTKEY{puti\REL}\verb| ( min::stub * s, int index, min::gen value )|
 \LABEL{PUTI_TO_STUB} \\
@@ -1909,8 +2055,20 @@ Attribute values can be set to double arrows by the protected functions
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void | &
     \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::short_obj * so, min::gen name1,| \\
+    \verb|   min::gen name2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTG_TO_SHORT_OBJ} \\
+\verb|void | &
+    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::long_obj * lo, min::gen name1,| \\
+    \verb|   min::gen name2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTG_TO_LONG_OBJ} \\
+\verb|void | &
+    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
     \verb| ( min::stub * s1, min::gen name1,| \\
-    \verb|   min::gen name2, min::stub * s2 )|
+    \verb|   min::gen name2, min::gen obj2 )|
     \end{tabular}
 \LABEL{DOUBLE_PUTG_TO_STUB} \\
 \verb|void min::| &
@@ -1921,8 +2079,20 @@ Attribute values can be set to double arrows by the protected functions
 \LABEL{MIN::DOUBLE_PUTG} \\
 \verb|void | &
     \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::short_obj * so, int index1,| \\
+    \verb|   int index2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTI_TO_SHORT_OBJ} \\
+\verb|void | &
+    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::long_obj * lo, int index1,| \\
+    \verb|   int index2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTI_TO_LONG_OBJ} \\
+\verb|void | &
+    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
     \verb| ( min::stub * s1, int index1,| \\
-    \verb|   int index2, min::stub * s2 )|
+    \verb|   int index2, min::gen obj2 )|
     \end{tabular}
 \LABEL{DOUBLE_PUTI_TO_STUB} \\
 \verb|void min::| &
@@ -1935,60 +2105,12 @@ Attribute values can be set to double arrows by the protected functions
 
 which set an attribute of each of the specified objects, like a pair
 of simultaneous put operations.
-Objects and attribute names can be specified as for the get functions.
+The first object and the attribute names can be specified as for the
+get functions,
+but the second object must be specified by a \verb|min::gen| value.
 Any previous values of the attributes are deleted.  When a double arrow
 attribute is deleted using the object and attribute name of one of its
 ends, the other end is deleted too.
-
-\subsubsection{Auxilary Pointers}
-\label{AUXILARY-POINTERS}
-
-\subsection{Double Arrows}
-\label{DOUBLE-ARROWS}
-
-An example use of an auxilary to add memory to an object is in the
-representation of double arrows.  The problem is that interally
-a double arrow value must both point at the object that is the
-arrow target and must also point at the label used by the target to
-a double arrow value.  E.g, given
-
-\begin{indpar}\begin{verbatim}
-##1::
-    fee: ##2 :fie
-
-##2::
-    fie: ##1 :fee
-\end{verbatim}\end{indpar}
-
-in which \verb|##1| and \verb|##2| are connected by a double
-arrow that has the \verb|##1| attribute name \verb|fee| 
-and the \verb|##2| attribute name \verb|fie|, then object \verb|##1|
-must store as its \verb|fee| attribute value \underline{both}
-the pointer to \verb|##2| that is the proper value of the attribute
-\underline{and} the label \verb|fie| used by \verb|##2| to reference
-the arrow in the other direction.  This is so that if the value of
-the \verb|fee| attribute of \verb|##1| is changed, the \verb|fie|
-attribute of \verb|##2| can be located and deleted.
-
-The mechanism used to store the double pointer is:
-
-\begin{indpar}\begin{verbatim}
- +---------------------------------------------------------+
- v                                                         |
-##1::                                                      |
-    fee: ---> auxilary 1:                                  |
- +------------- value = ##2                                |
- |              chain pointer ---> auxilary 2:             |
- |                                   value = fie           |
- |                                   chain pointer = NULL  |
- v                                                         |
-##2::                                                      |
-    fie: ---> auxilary 3:                                  |
-                value = ##1 -------------------------------+
-                chain pointer ---> auxilary 3:
-                                     value = fee
-                                     chain pointer = NULL
-\end{verbatim}\end{indpar}
 
 \clearpage
 
@@ -2086,6 +2208,10 @@ struct min
 \verb|min::|\MINKEY{LABEL} \LABEL{LABEL-TYPE}
 \\
 \verb|min::|\MINKEY{LABEL\_PAIR} \LABEL{LABEL-PAIR-TYPE}
+\\
+\verb|min::|\MINKEY{SHORT\_OBJ} \LABEL{SHORT-OBJ-TYPE}
+\\
+\verb|min::|\MINKEY{LONG\_OBJ} \LABEL{LONG-OBJ-TYPE}
 
 \end{indpar}
 
@@ -2451,6 +2577,268 @@ struct min
 \LABEL{CO_PAIR_OF} \\
 \verb|min::gen min::| & \MINKEY{co\_pair\_of}\verb| ( min::gen v )|
 \LABEL{MIN::CO_PAIR_OF_GEN} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Object Stub Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.0in}}
+
+\verb|min::short_obj * MUP::| &
+	\MUPKEY{short\_obj\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::SHORT_OBJ_OF} \\
+\verb|min::long_obj * MUP::| &
+	\MUPKEY{long\_obj\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::LONG_OBJ_OF} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{5.0in}}
+
+\verb|unsigned | & \TTKEY{hash\_table\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned | & \TTKEY{hash\_table\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{HASH_TABLE_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{OBJ_VECTOR_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{OBJ_VECTOR_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned |
+    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{AUXILARY_AREA_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned |
+    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{AUXILARY_AREA_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned |
+    & \TTKEY{unused\_area\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{UNUSED_AREA_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned |
+    & \TTKEY{unused\_area\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{UNUSED_AREA_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned | & \TTKEY{total\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{TOTAL_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned | & \TTKEY{total\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{TOTAL_SIZE_OF_LONG_OBJ} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Object Vector Level Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.5in}}
+
+\verb|const min::gen * |
+	& \TTKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{BODY_VECTOR_OF_SHORT_OBJ} \\
+\verb|const min::gen * |
+	& \TTKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{BODY_VECTOR_OF_LONG_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{body\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{MUP::BODY_VECTOR_OF_SHORT_OBJ} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{body\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{MUP::BODY_VECTOR_OF_LONG_OBJ} \\
+
+\verb|unsigned |
+	& \TTKEY{hash\_table\_of}\verb| ( min::short_obj * so )|
+\LABEL{HASH_TABLE_OF_SHORT_OBJ} \\
+\verb|unsigned |
+	& \TTKEY{hash\_table\_of}\verb| ( min::long_obj * lo )|
+\LABEL{HASH_TABLE_OF_LONG_OBJ} \\
+\verb|unsigned |
+	& \TTKEY{object\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{OBJECT_VECTOR_OF_SHORT_OBJ} \\
+\verb|unsigned |
+	& \TTKEY{object\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{OBJECT_VECTOR_OF_LONG_OBJ} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Object List Level Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.0in}}
+
+\verb|const min::gen min::| & \MINKEY{LIST\_END} \LABEL{MIN::LIST_END} \\
+\verb|const min::gen min::| & \MINKEY{EMPTY\_LIST} \LABEL{MIN::EMPTY_LIST} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{5.0in}}
+
+(constructor)~
+	& \MINKEY{list\_pointer}\verb| ( min::short_obj * so )|
+\LABEL{MIN::LIST_POINTER_OF_SHORT_OBJ} \\
+(constructor)~
+	& \MINKEY{list\_pointer}\verb| ( min::long_obj * lo )|
+\LABEL{MIN::LIST_POINTER_OF_LONG_OBJ} \\
+(constructor)~
+	& \MINKEY{list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MIN::LIST_POINTER_OF_GEN} \\
+\verb|unsigned |
+	& \TTKEY{start}\verb| ( min::list_pointer & lp, unsigned p )|
+\LABEL{START_OF_LIST_POINTER} \\
+\verb|unsigned |
+	& \TTKEY{next}\verb| ( min::list_pointer & lp )|
+\LABEL{NEXT_OF_LIST_POINTER} \\
+\verb|unsigned |
+	& \TTKEY{current}\verb| ( min::list_pointer & lp )|
+\LABEL{CURRENT_OF_LIST_POINTER} \\
+\verb|unsigned | & \TTKEY{start\_sublist}\ARGBREAK
+	\verb| ( min::list_pointer & lp, unsigned p )|
+\LABEL{START_SUBLIST_OF_LIST_POINTER} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Object Attribute Level Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.8in}}
+
+\verb|min::gen | & \TTKEY{getg}\verb| ( min::short_obj * so, min::gen name )|
+\LABEL{GETG_FROM_SHORT_OBJ} \\
+\verb|min::gen | & \TTKEY{getg}\verb| ( min::long_obj * lo, min::gen name )|
+\LABEL{GETG_FROM_LONG_OBJ} \\
+\verb|min::gen | & \TTKEY{getg}\verb| ( min::stub * s, min::gen name )|
+\LABEL{GETG_FROM_STUB} \\
+\verb|min::gen min::| & \MINKEY{getg}\verb| ( min::gen obj, min::gen name )|
+\LABEL{MIN::GETG} \\
+\verb|min::gen | & \TTKEY{geti}\verb| ( min::short_obj * so, int index )|
+\LABEL{GETI_FROM_SHORT_OBJ} \\
+\verb|min::gen | & \TTKEY{geti}\verb| ( min::long_obj * lo, int index )|
+\LABEL{GETI_FROM_LONG_OBJ} \\
+\verb|min::gen | & \TTKEY{geti}\verb| ( min::stub * s, int index )|
+\LABEL{GETI_FROM_STUB} \\
+\verb|min::gen min::| & \MINKEY{geti}\verb| ( min::gen obj, int index )|
+\LABEL{MIN::GETI} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{5.0in}}
+
+\verb|void | & \TTKEY{putg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::short_obj * so,| \\
+    \verb|   min::gen name, min::gen value )|
+    \end{tabular}
+\LABEL{PUTG_TO_SHORT_OBJ} \\
+\verb|void | & \TTKEY{putg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::long_obj * lo,| \\
+    \verb|   min::gen name, min::gen value )|
+    \end{tabular}
+\LABEL{PUTG_TO_LONG_OBJ} \\
+\verb|void | & \TTKEY{putg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::stub * s,| \\
+    \verb|   min::gen name, min::gen value )|
+    \end{tabular}
+\LABEL{PUTG_TO_STUB} \\
+\verb|void min::| & \MINKEY{putg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj,| \\
+    \verb|   min::gen name, min::gen value )|
+    \end{tabular}
+\LABEL{MIN::PUTG} \\
+\verb|void | & \TTKEY{puti\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::short_obj * so,| \\
+    \verb|   int index, min::gen value )|
+    \end{tabular}
+\LABEL{PUTI_TO_SHORT_OBJ} \\
+\verb|void | & \TTKEY{puti\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::long_obj * lo,| \\
+    \verb|   int index, min::gen value )|
+    \end{tabular}
+\LABEL{PUTI_TO_LONG_OBJ} \\
+\verb|void | & \TTKEY{puti\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::stub * s,| \\
+    \verb|   int index, min::gen value )|
+    \end{tabular}
+\LABEL{PUTI_TO_STUB} \\
+\verb|void min::| & \MINKEY{puti\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj,| \\
+    \verb|   int index, min::gen value )|
+    \end{tabular}
+\LABEL{MIN::PUTI} \\[1ex]
+
+\verb|void | & \TTKEY{putg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::short_obj * so, min::gen name1,| \\
+    \verb|   min::gen name2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTG_TO_SHORT_OBJ} \\
+\verb|void | & \TTKEY{putg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::long_obj * lo, min::gen name1,| \\
+    \verb|   min::gen name2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTG_TO_LONG_OBJ} \\
+\verb|void | &
+    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::stub * s1, min::gen name1,| \\
+    \verb|   min::gen name2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTG_TO_STUB} \\
+\verb|void min::| &
+    \MINKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj1, min::gen name1,| \\
+    \verb|   min::gen name2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{MIN::DOUBLE_PUTG} \\
+\verb|void | &
+    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::short_obj * so, int index1,| \\
+    \verb|   int index2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTI_TO_SHORT_OBJ} \\
+\verb|void | &
+    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::long_obj * lo, int index1,| \\
+    \verb|   int index2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTI_TO_LONG_OBJ} \\
+\verb|void | &
+    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::stub * s1, int index1,| \\
+    \verb|   int index2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{DOUBLE_PUTI_TO_STUB} \\
+\verb|void min::| &
+    \MINKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj1, int index1,| \\
+    \verb|   int index2, min::gen obj2 )|
+    \end{tabular}
+\LABEL{MIN::DOUBLE_PUTI} \\
 
 \end{tabular}
 
