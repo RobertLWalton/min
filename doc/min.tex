@@ -694,12 +694,61 @@ Thus in our example \verb|##1| has attributes named \verb|type|,
 \verb|name|, and \verb|husband| that have values, respectively,
 \verb|woman|, \verb|Jill|, and \verb|##2|.
 
+It is possible to place \skey{arrow flag}s on arrows by putting flag characters
+before or after the \verb|:| that follows or precedes an arrow label.
+The following is the same as the above example except that flags
+have been added to some of the arrows:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    type: woman;;|\\
+\verb|    name-: Jill;;|\\
+\verb|    husband@: ##2 :@wife;;|\\
+\verb|##2::|\\
+\verb|    type: man;;|\\
+\verb|    name+: Jack;;|\\
+\verb|    wife@: ##1 :@husband;;|
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.7,1.15){\oval(0.8,0.3)}
+\put(0.5,1.00){\vector(0,-1){0.5}}
+\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
+\put(0.5,0.4){\makebox(0,0){\tt woman}}
+\put(0.9,1.00){\vector(0,-1){0.7}}
+\put(0.95,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt -}}$}}
+\put(0.9,0.2){\makebox(0,0){\tt Jill}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(2.3,1.15){\oval(0.8,0.3)}
+\put(2.1,1.00){\vector(0,-1){0.5}}
+\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
+\put(2.1,0.4){\makebox(0,0){\tt man}}
+\put(2.5,1.00){\vector(0,-1){0.7}}
+\put(2.55,0.55){\makebox(0,0)[l]{{\tt name}$^{\mbox{\tt +}}$}}
+\put(2.5,0.2){\makebox(0,0){\tt Jack}}
+\put(1.1,1.17){\vector(1,0){0.8}}
+\put(1.9,1.13){\vector(-1,0){0.8}}
+\put(1.5,1.15){\oval(0.07,0.12)}
+\put(1.5,1.30){\makebox(0,0){{\tt husband}$^{\mbox{\tt @}}$}}
+\put(1.5,1.00){\makebox(0,0){{\tt wife}$^{\mbox{\tt @}}$}}
+\end{picture}
+\end{center}
+
+In the picture the arrow flags have been added as subscripts on the arrow
+labels, and in the text the flags have been added before of after the
+\verb|:| that follows or precedes the arrow label.
+
 In the rest of this document we use the terminology of attributes,
-attribute name, and attribute values, in place of
-arrows, arrow labels, and arrow targets.
+attribute names, attribute flags, and attribute values, in place of
+arrows, arrow labels, arrow flags, and arrow targets.
 An \key{attribute} of an object is just a single arrow sourced at the object,
 or a double arrow viewed in the direction going away from the object.
 The \key{attribute name}\index{name!attribute} is just the label of this arrow.
+The \skey{attribute flag}s\index{flag!attribute} are just the flags
+of this arrow.
 The \key{attribute value}\index{value!attribute} is just the target
 of this arrow.
 
