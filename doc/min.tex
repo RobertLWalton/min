@@ -83,10 +83,9 @@
 \newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
-\newcommand{\secref}[1]{\ref{#1}{ p\pageref{#1}}}
-\newcommand{\Secref}[1]{\ref{#1}{(p\pageref{#1})}}
-\newcommand{\stepref}[1]{\ref{#1}{(p\pageref{#1})}}
-\newcommand{\appref}[1]{\ref{#1}{ p\pageref{#1}}}
+\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -224,9 +223,9 @@
 \author{Robert L. Walton\thanks{Copyright 2004 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
-by my son's efforts at game design.}}
+by my son's budding career as a game designer.}}
 
-\date{August 21, 2004}
+\date{August 26, 2004}
  
 \maketitle
 
@@ -805,12 +804,13 @@ Brackets
 
 \bigskip
 
-\begin{tabular}{ll@{\hspace*{5em}}ll}
-
-\ttkey{(}~~~\ttkey{)}	& parentheses. &
-\ttkey{[}~~~\ttkey{]}	& square brackets \\
-\ttkey{\CurlyBra}~~~\ttkey{\CurlyKet}	& curly brackets &
-\ttkey{`}~~~\ttkey{'}	& single quotes \\
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
+macro	&	brackets	& meaning
+\\[1ex]
+\ttkey{.ROUND}	& \ttkey{(}~~~\ttkey{)}	& parentheses. \\
+\ttkey{.SQUARE}	& \ttkey{[}~~~\ttkey{]}	& square brackets \\
+\ttkey{.CURLY}	& \ttkey{\CurlyBra}~~~\ttkey{\CurlyKet}	& curly brackets \\
+\ttkey{.QUOTE}	& \ttkey{`}~~~\ttkey{'}	& single quotes \\
 \end{tabular}
 
 \bigskip
@@ -821,12 +821,12 @@ Standard Operators
 
 \begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l}
 
-	 & implied \\
-priority & prefix	& operators	& meaning 
+priority & macro	& operators	& meaning 
 \\[2ex]
--5000 & {\em special} &  \ttkey{.} ~~~ \ttkey{!} ~~~ \ttkey{?}	& sentence terminators \\
--4000 & {\em special} &  \ttkey{;} & subsentence separator \\
--3000 & {\em special} &  \ttkey{,} & phrase separator \\
+-5000 & \ttkey{.SENTENCE} &  \ttkey{.} ~~~ \ttkey{!} ~~~ \ttkey{?}
+	& sentence terminators \\
+-4000 & \ttkey{.SUBSENTENCE} &  \ttkey{;} & subsentence separator \\
+-3000 & \ttkey{.PHRASE} &  \ttkey{,} & phrase separator \\
 +0000 & \ttkey{.CONDITIONAL} &  \ttkey{if} ~~~ \ttkey{then} ~~~ \ttkey{else}
 	& conditionals \\
 +1000 & \ttkey{.LOGICAL} &  \ttkey{and} ~~~ \ttkey{or} ~~~ \ttkey{not}
@@ -861,20 +861,24 @@ priority & prefix	& operators	& meaning
 \begin{tabular}{l}
 \key{data-representation} ::= {\em object-representation} \ldots
 \\[1ex]
-\key{object-representation} ::=
-    {\em object-header}
-    {\em attribute-representation} \ldots
+\key{object-representation}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em object-header} {\em attribute-representation} \ldots \\
+    $|$ & {\em object-header} {\em expression}
+	  \ttmkey{;;}{in {\em object-representation}}
+    	  {\em attribute-representation} \ldots \\[1ex]
+    \end{tabular}
 \\[1ex]
 \key{object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em object-name} \ttmkey{::}{in {\em object-header}} \\
-    $|$ & {\em object-name} \ttmkey{:>>:}{in {\em object-header}} \\
+    $|$ & {\em object-name} \ttmkey{:>>:}{in {\em object-header}} \\[1ex]
     \end{tabular}
 \\[1ex]
 \key{attribute-representation}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em cooked-attribute-representation} \\
-    $|$ & {\em double-arrow-attribute-representation}
+    $|$ & {\em double-arrow-attribute-representation} \\[1ex]
     \end{tabular}
 \\[1ex]
 \key{cooked-attribute-representation} ::=
@@ -912,9 +916,12 @@ priority & prefix	& operators	& meaning
 \key{bracketted-expression} \begin{tabular}[t]{@{}rl@{}}
 			    ::= & \verb|(| {\em expression} \verb|)| \\
 			    $|$ & \verb|[| {\em expression} \verb|]| \\
-			    $|$ & \verb|{| {\em expression} \verb|}| \\
-			    $|$ & \verb|`| {\em expression} \verb|'| \\
+			    $|$ & \verb|{| {\em code-expression} \verb|}| \\
+			    $|$ & \verb|`| {\em expression} \verb|'| \\[1ex]
 			    \end{tabular}
+\\[1ex]
+{\em code-expression} ::= {\em expression} with preprocessing:
+			see~\secref{CODE-EXPRESSIONS}
 
 \end{tabular}
 \end{center}%
@@ -929,6 +936,34 @@ priority & prefix	& operators	& meaning
 A cooked data representation has the syntax given
 in Table~\ref{DATA-REPRESENTATION-SYNTAX} and is based on the
 special lexemes given in Table~\ref{SPECIAL-LEXEMES}.
+
+Cooked data representations differ from raw data representations
+in that cooked data representations contain {\em expressions}.
+An {\em expression} is a list of atoms, bracketted subexpressions,
+and operators.
+
+\secref{OPERATOR-EXPRESSIONS} describes how to preprocess
+expressions containing operators to produce expressions not containing
+operators.  Expressions bracketted with curly brackets \verb|{ }| are
+pre-processed as explained in \secref{CODE-EXPRESSIONS} to remove
+\verb|:| lexemes and insert \verb|{|, \verb|}|, and \verb|;| lexemes.
+In the rest of this section we will assume all preprocessing has been
+done, and {\em expressions} are just lists of {\em atoms} and
+{\em bracketted-subexpressions}.
+
+After being read, expressions are expanded by calling macros.  A macro
+is a piece of code that computes the true value of an expression from
+the expression that is read.
+
+For example, the expression
+
+\subsection{Operator Expressions}
+\label{OPERATOR-EXPRESSIONS}
+
+\subsection{Code Expressions}
+\label{CODE-EXPRESSIONS}
+
+TBD
 
 \section{Evaluation}
 
@@ -1127,49 +1162,51 @@ in order to specify \verb|##523|.
 
 \begin{indpar}\begin{verbatim}
 
-    evaluate ( expression, context ):
-        if expression is a single number atom:
+    evaluate ( EXPRESSION, CONTEXT ):
+        if EXPRESSION is a single number atom:
             return atom
-        if expression is `...' bracketted:
-            return expression without the `'s
-        search ( expression, context )
+        if EXPRESSION is `...' bracketted:
+            return EXPRESSION without the `'s
+        return search ( EXPRESSION, CONTEXT )
 
-    search ( expression, context ):
-        foreach object in context:
-            search (expression, context, object )
-        search ( expression, context, .GLOBAL object )
+    search ( EXPRESSION, CONTEXT ):
+        for each OBJECT in CONTEXT:
+            search (EXPRESSION, CONTEXT, OBJECT )
+            if search was successful:
+                return the value returned by search
+        return search ( EXPRESSION, CONTEXT, .GLOBAL object )
 
-    search ( expression, context, object ):
-       if expression is empty and object is not a function with
+    search ( EXPRESSION, CONTEXT, OBJECT ):
+       if EXPRESSION is empty and OBJECT is not a function with
           no arguments or an object with an attribute with the
           empty label:
-           return object
-       if object is function definition:
-           execute ( expression, context, object )
+           return OBJECT
+       if OBJECT is function definition:
+           return execute ( EXPRESSION, CONTEXT, OBJECT )
 
-       match names of object attributes to beginning of expression
+       match names of OBJECT's attributes to beginning of EXPRESSION
        if several match:
            pick the longest match
-           set r = expression with matched portion removed
-           set v = value of matched attribute
-           search ( r, context, v )
-       else for each ancestor of object:
-           search ( expression, context, ancestor )
-       error
+           let R = EXPRESSION with matched portion removed
+           let V = value of matched attribute
+           return search ( R, CONTEXT, V )
+       else for each ANCESTOR of OBJECT:
+           return search ( EXPRESSION, CONTEXT, ANCESTOR )
+       else error
 
-    execute ( expression, context, function ):
+    execute ( EXPRESSION, CONTEXT, FUNCTION ):
         make a new function frame F
-        for each argument name N in function:
+        for each argument name N in FUNCTION:
             let A be the next atom or bracketted
-                subexpression of expression
-            remove A from expression
-            let V = evaluate ( A, context )
+                subexpression of EXPRESSION
+            remove A from beginning of EXPRESSION
+            let V = evaluate ( A, CONTEXT )
             make an attribute of F with name N and
                  value V
-        let B be the body of the function
-        let C be the context list with F prepended
+        let B be the body of FUNCTION
+        let C be CONTEXT with F prepended
         let V = evaluate ( B, C )
-        search ( expression, context, V )
+        return search ( EXPRESSION, CONTEXT, V )
 
 \end{verbatim}\end{indpar}
 
