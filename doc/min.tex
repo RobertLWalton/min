@@ -225,7 +225,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{August 27, 2004}
+\date{August 28, 2004}
  
 \maketitle
 
@@ -1117,6 +1117,25 @@ the parsed values produced by standard operator definitions.
 
 \newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
 \newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
+
+\bigskip
+
+\OP{(} ~~~ \OP{)} \MAC{parentheses}{.ROUND} \\
+\OP{[} ~~~ \OP{]} \MAC{square brackets}{.SQUARE} \\
+\OP{\CurlyBra} ~~~ \OP{\CurlyKet} \MAC{curly brackets}{.CURLY} \\
+\OP{`} ~~~ \OP{'} \MAC{quotes}{.QUOTE}
+
+\begin{indpar}[0.5em]
+The bracketted subexpression is parsed and the result
+is converted if necessary to a list without either a \verb|.initiator|
+or a \verb|.terminator| attribute.
+Then an \ttmkey{.initiator}{produced by parsing} attribute equal to
+the opening bracket (\verb|"("|, \verb|[|, \verb|{|, or \verb|`|)
+and a \ttmkey{.terminator}{produced by parsing} attribute equal to
+the closing bracket (\verb|")"|, \verb|]|, \verb|}|, or \verb|'|)
+are added to this list,
+and the list becomes the result of parsing the parenthesized expression.
+\end{indpar}
 
 \bigskip
 
