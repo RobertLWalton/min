@@ -226,7 +226,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{August 18, 2004}
+\date{August 21, 2004}
  
 \maketitle
 
@@ -265,6 +265,7 @@ these tasks well.
 
 
 \section{Lexemes}
+\label{LEXEMES}
 
 MIN descriptions are representable by strings of characters that
 can be stored in files.  When a MIN program reads these, it
@@ -441,9 +442,13 @@ The format of a \key{raw representation} is:
 \key{raw-representation} ::= {\em raw-object-representation} \ldots
 \\[1ex]
 \key{raw-object-representation} ::=
-    \begin{tabular}[t]{@{}l@{}}
-    {\em raw-object-name} \ttmkey{::}{in {\em raw-object-representation}} \\
+    {\em raw-object-header}
     {\em raw-arrow-representation} \ldots
+\\[1ex]
+\key{raw-object-header}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
+    $|$ & {\em raw-object-name} \ttmkey{:>>:}{in {\em raw-object-header}} \\
     \end{tabular}
 \\[1ex]
 \key{raw-arrow-representation}
@@ -468,9 +473,14 @@ The format of a \key{raw representation} is:
 \key{double-arrow-target} ::= {\em raw-object-name}
 \\[1ex]
 \key{raw-object-name} ::=
-	\ttmkey{\#\#}{in {\em raw-object-name}}{\em integer-above-zero}
+	\ttmkey{\#\#}{in {\em raw-object-name}}{\em non-negative-integer}
 \\[1ex]
 \key{arrow-label} ::= {\em atom} \ldots
+\\[1ex]
+\key{atom} ::= {\em non-special-lexeme} \ldots
+\\[1ex]
+\key{special-lexeme} ::= \verb|##| $|$ \verb|::| $|$ \verb|:>>:|
+		$|$ \verb|:| $|$ \verb|;;|
 
 \end{tabular}
 \end{center}%
@@ -562,6 +572,28 @@ or a double arrow viewed in the direction going away from the object.
 The \key{attribute name}\index{name!attribute} is just the label of this arrow.
 The \key{attribute value}\index{value!attribute} is just the target
 of this arrow.
+
+The difference between \ttkey{::} and \ttkey{:>>:} is that the former
+indicates that the object should not previously
+exist, while the later indicates that the attributes are to be added to
+any existing object, though if the object does not exist it will be
+created.  It is an error to add to an existing object an attribute with the
+same name as an existing attribute of that object.
+
+
+Object \ttkey{\#\#0} is special: it is the \ttkey{.GLOBAL} object, and
+its attributes are called \skey{global variables}.  One of the global
+variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
+object, a situation which can be achieved by the data representation:
+
+
+
+\begin{indpar}\begin{verbatim}
+##0:>>:
+    .GLOBAL: ##0
+\end{verbatim}\end{indpar}
+
+
 
 \subsection{Cooked Representations}
 
@@ -747,6 +779,157 @@ meaning for object representation.  Examples above are
 Recall that words beginning with `\verb|.|' are reserved for
 use by the MIN system, and should not be defined by MIN users.
 
+In the following sections we describe cooked representations
+precisely.
+
+\subsection{Syntax}
+
+\begin{boxedfigure}
+
+\begin{center}
+
+Ad Hoc Special Lexemes
+
+\bigskip
+
+\begin{tabular}{ll@{\hspace*{5em}}ll}
+\ttkey{::} & object assignment &
+\ttkey{:>>:} & object addition \\
+\ttkey{:} & attribute assignment &
+\ttkey{:} & code indicator \\
+\end{tabular}
+
+\bigskip
+
+Brackets
+
+\bigskip
+
+\begin{tabular}{ll@{\hspace*{5em}}ll}
+
+\ttkey{(}~~~\ttkey{)}	& parentheses. &
+\ttkey{[}~~~\ttkey{]}	& square brackets \\
+\ttkey{\CurlyBra}~~~\ttkey{\CurlyKet}	& curly brackets &
+\ttkey{`}~~~\ttkey{'}	& single quotes \\
+\end{tabular}
+
+\bigskip
+
+Standard Operators
+
+\bigskip
+
+\begin{tabular}{rl@{\hspace*{2em}}l@{\hspace*{2em}}l}
+
+	 & implied \\
+priority & prefix	& operators	& meaning 
+\\[2ex]
+-5000 & {\em special} &  \ttkey{.} ~~~ \ttkey{!} ~~~ \ttkey{?}	& sentence terminators \\
+-4000 & {\em special} &  \ttkey{;} & subsentence separator \\
+-3000 & {\em special} &  \ttkey{,} & phrase separator \\
++0000 & \ttkey{.CONDITIONAL} &  \ttkey{if} ~~~ \ttkey{then} ~~~ \ttkey{else}
+	& conditionals \\
++1000 & \ttkey{.LOGICAL} &  \ttkey{and} ~~~ \ttkey{or} ~~~ \ttkey{not}
+	& logical AND, OR, NOT \\
++2000 & \ttkey{.COMPARE} &  \ttkey{=} ~~~ \ttkey{/=} ~~~
+        \ttkey{!=} 			& equal, not equal, ditto \\
+      &		      & \ttkey{<} ~~~ \ttkey{<=} ~~~ \ttkey{=<}
+      & less than, less than or equal, \\
+      &		      &		&
+      ditto \\
+      &		      & \ttkey{>} ~~~ \ttkey{>=} ~~~ \ttkey{=>}
+      & greater than, greater than or \\
+      &		      &		&
+      equal, ditto \\
++3000 & \ttkey{.SUM} &  \ttkey{+} ~~~ \ttkey{-}
+	& addition, subtraction \\
++3100 & \ttkey{.PRODUCT} &  \ttkey{*} ~~~ \ttkey{/} 
+	& multiplication, division \\
++9999 & \ttkey{.OBJNAME} &  \ttkey{\#\#}
+	& object name \\
+\end{tabular}
+
+\end{center}
+
+\caption{Special Lexemes}
+\label{SPECIAL-LEXEMES}
+\end{boxedfigure}
+
+\begin{boxedfigure}
+
+\begin{center}
+\begin{tabular}{l}
+\key{data-representation} ::= {\em object-representation} \ldots
+\\[1ex]
+\key{object-representation} ::=
+    {\em object-header}
+    {\em attribute-representation} \ldots
+\\[1ex]
+\key{object-header}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em object-name} \ttmkey{::}{in {\em object-header}} \\
+    $|$ & {\em object-name} \ttmkey{:>>:}{in {\em object-header}} \\
+    \end{tabular}
+\\[1ex]
+\key{attribute-representation}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em cooked-attribute-representation} \\
+    $|$ & {\em double-arrow-attribute-representation}
+    \end{tabular}
+\\[1ex]
+\key{cooked-attribute-representation} ::=
+	{\em attribute-label}\ttmkey{:}{in {\em cooked-attribute-representation}}
+	{\em expression}
+	\ttmkey{;;}{in {\em cooked-attribute-representation}}
+\\[1ex]
+\key{double-arrow-attribute-representation} ::=
+\\\hspace*{1in}
+	{\em attribute-label}\ttmkey{:}{in
+		{\em double-arrow-attribute-}!{\em representation}}
+	{\em double-arrow-target}
+	{\tt :}{\em attribute-label}
+	\ttmkey{;;}{in {\em double-arrow-attribute-}!{\em representation}}
+\\[1ex]
+\key{double-arrow-target} ::= {\em object-name}
+\\[1ex]
+\key{object-name} ::=
+	\ttmkey{\#\#}{in {\em object-name}}{\em non-negative-integer}
+\\[1ex]
+\key{attribute-label} ::= {\em atom} \ldots
+\\[1ex]
+\key{atom} ::= non-special lexeme: see Table~\ref{SPECIAL-LEXEMES}
+\\[1ex]
+\key{expression} ::= {\em expression(-9999)}
+\\[1ex]
+{\em expression($N$)} ::=
+	\{ {\em expression($N+1$)} $|$ {\em operator($N$)} \}\ldots
+\\[1ex]
+\key{operator}{\em ($N$)} ::= operator of priority $N$:
+			      see Table~\ref{SPECIAL-LEXEMES}
+\\[1ex]
+{\em expression(10000)} ::= {\em atom} $|$ {\em bracketted-expression}
+\\[1ex]
+\key{bracketted-expression} \begin{tabular}[t]{@{}rl@{}}
+			    ::= & \verb|(| {\em expression} \verb|)| \\
+			    $|$ & \verb|[| {\em expression} \verb|]| \\
+			    $|$ & \verb|{| {\em expression} \verb|}| \\
+			    $|$ & \verb|`| {\em expression} \verb|'| \\
+			    \end{tabular}
+
+\end{tabular}
+\end{center}%
+\index{label!attribute}%
+\index{name!object}
+
+\caption{Data Representation Syntax}
+\label{DATA-REPRESENTATION-SYNTAX}
+\end{boxedfigure}
+
+
+A cooked data representation has the syntax given
+in Table~\ref{DATA-REPRESENTATION-SYNTAX} and is based on the
+special lexemes given in Table~\ref{SPECIAL-LEXEMES}.
+
 \section{Evaluation}
 
 Consider the following description of a room:
@@ -828,8 +1011,8 @@ First the function establishes
 a context, which is a list of objects that will be searched when an
 attribute name is to be located.  The context for the evaluation of
 an object's attribute value usually begins with the object and ends with
-a special object called `\verb|.global|'.  A global variable is by definition
-just an attribute of the \verb|.global| object.  An function evaluating
+a special object called `\verb|.GLOBAL|'.  A global variable is by definition
+just an attribute of the \verb|.GLOBAL| object.  An function evaluating
 an {\tt outline} attribute is likely to include in the context an object
 that defines functions named `{\tt straight}' and `{\tt left}' which will
 evaluate parts of the {\tt outline} attribute.
@@ -954,7 +1137,7 @@ in order to specify \verb|##523|.
     search ( expression, context ):
         foreach object in context:
             search (expression, context, object )
-        search ( expression, context, .global object )
+        search ( expression, context, .GLOBAL object )
 
     search ( expression, context, object ):
        if expression is empty and object is not a function with
