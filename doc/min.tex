@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 21, 2005}
+\date{February 23, 2005}
  
 \maketitle
 
@@ -1606,27 +1606,27 @@ A CONTEXT is:
 
 \begin{indpar}\begin{verbatim}
 FRAME
-pointer to EXPRESSION
-pointer to ITEM in EXPRESSION
+EXPRESSION
+NEXT ITEM INDEX         (of next ITEM in EXPRESSION)
 STATE, and integer containing the following flags:
     CONDITION CODE:     CC TRUE, CC FALSE, CC NONE
                         (set by current statement)
     PREVIOUS CONDITION CODE:    CC TRUE, CC FALSE, CC NONE
                                 (as set by previous statement)
-    SKIP FLAG    (set to skip rest of current statement)
-    REPEAT FLAG    (set to repeat current statement)
-    RETURN FLAG    (set to return from current block)
-    THROW FLAG    (set to throw from current block)
-pointer to PREVIOUS CONTEXT (contexts are like CONS cells)
+    SKIP FLAG       (set to skip rest of current statement)
+    REPEAT FLAG     (set to repeat current statement)
+    RETURN FLAG     (set to return from current block)
+    THROW FLAG      (set to throw from current block)
+PREVIOUS CONTEXT    (contexts are like CONS cells)
 \end{verbatim}\end{indpar}
 
 A FRAME is:
 
 \begin{indpar}\begin{verbatim}
-... temporary variables like object attrubutes ...
+... local variables are like object attrubutes ...
 .object
 .context
-pointer to PREVIOUS FRAME (frames are like CONS cells)
+PREVIOUS FRAME           (frames are like CONS cells)
 \end{verbatim}\end{indpar}
 
 \begin{verbatim}
@@ -1639,8 +1639,8 @@ push ( CONTEXT ):
 read ( CONTEXT ):
     if there is no next item in CONTEXT:
         return FAILURE
-    V = next ITEM in CONTEXT
-    skip CONTEXT over next ITEM
+    V = CONTEXT EXPRESSION ( CONTEXT NEXT ITEM INDEX )
+    CONTEXT NEXT ITEM INDEX = CONTEXT NEXT ITEM INDEX + 1
     return V
 
 evaluate ( CONTEXT ):
@@ -1656,8 +1656,8 @@ evaluate ( EXPRESSION, CONTEXT ):
         return code ( EXPRESSION, CONTEXT )
     else:
         C = push CONTEXT
-        C EXPRESSION -> EXPRESSION
-        C ITEM -> first item of EXPRESSION
+        C EXPRESSION = EXPRESSION
+        C NEXT ITEM INDEX = 1
         V = scan ( C )
         CONTEXT STATE = C STATE
         discard C
@@ -1706,6 +1706,7 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
 
 code ( EXPRESSION, CONTEXT ):
     `EXPRESSION is {...} bracketed'
+    `executing {...} code clears CC' 
     V = NULL
     CC = CC NONE
     foreach STATEMENT in EXPRESSION:
@@ -1713,6 +1714,7 @@ code ( EXPRESSION, CONTEXT ):
         while CONTEXT STATE REPEAT FLAG:
             CONTEXT STATE REPEAT FLAG = 0
             CONTEXT STATE PREVIOUS CC = CC
+            CONTEXT STATE CC = CC NONE
             V = evaluate ( STATEMENT, CONTEXT )
             CC = CONTEXT STATE CC
             CONTEXT STATE SKIP FLAG = 0
@@ -1733,12 +1735,18 @@ scan ( CONTEXT ):
     return scan ( CONTEXT, CONTEXT FRAME .object )
 
 scan ( CONTEXT, OBJECT ):
+   for each ANCESTOR of OBJECT:
+       V = scan object ( CONTEXT, ANCESTOR )
+       if V == FAILURE: break
+   return V
+
+scan object ( CONTEXT, OBJECT ):
    if CONTEXT STATE SKIP FLAG:
        return OBJECT
-   if CONTEXT ITEM is NOT at beginning CONTEXT EXPRESSION,
+   if CONTEXT NEXT ITEM INDEX > 1,
       and OBJECT has an attribute named `.empty' with value V:
           return scan ( CONTEXT, V )
-   if CONTEXT ITEM points at expression end:
+   if CONTEXT NEXT ITEM INDEX > length CONTEXT EXPRESSION:
         return OBJECT
 
    match names of OBJECT's attributes to next items in
@@ -1751,11 +1759,6 @@ scan ( CONTEXT, OBJECT ):
            return execute ( CONTEXT, V, OBJECT )
       else:
            return scan ( CONTEXT, V )
-   else:
-       for each ANCESTOR of OBJECT:
-           V = scan ( CONTEXT, ANCESTOR )
-           if V == FAILURE: break
-       return V
    else:
        return FAILURE
 
