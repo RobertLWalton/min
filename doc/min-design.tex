@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 3, 2005}
+\date{January 8, 2005}
  
 \maketitle
 
@@ -1481,9 +1481,9 @@ chain pointers.
 Attribute labels are often single strings or numbers.  But they may be
 sequences of strings and numbers.  Such sequences are represented by
 \key{label} stubs.\footnote{Labels could also be represented by
-sublists stored inside objects (\pagref{LIST-LEVEL}), but labels tend to
-be reused by many object, and storing them inside each object that uses
-them would be inefficient.}
+sublists stored inside objects (\pagref{LIST-LEVEL}), but each label tends to
+be reused by many objects, and storing it inside each using object
+would be inefficient.}
 
 A label is essentually just a vector of general values, with the special
 property that no two distinct label stubs may have equal vectors of
@@ -1500,25 +1500,45 @@ stub type code.  The label may be read by the protected functions:
 \LABEL{LAB_OF} \\
 \verb|unsigned min::| & \MINKEY{lab\_of}%
     \verb| ( min::gen * p, unsigned n, min::gen v )|
-\LABEL{MIN::LAB_OF} \\
+\LABEL{MIN::LAB_OF_GEN} \\
 \end{tabular}\end{center}
 
-This reads an intial segment of the label vector into the location
+These read an intial segment of the label vector into the location
 addressed by {\tt p}.  If the label vector has {\tt n} or more elements,
 the first {\tt n} elements are read.  Otherwise, as many elements as
 the label vector has are read.  The number of elements read is returned
 in any case.  The label can be denoted by either its stub address or
 by a general value pointing at its stub address.
 
-A hash value for a label may be computed by the following functions:
+The length of a label is the number of elements (general values) in the label.
+Usually this is found my just reading the label, as labels tend to be
+short.  For example, a convention might (or might not) be adopted that
+attribute labels have at most 10 elements.  Then providing output vectors
+to the above functions with 11 elements would not only allow all legal
+attribute labels, but would detect illegally long ones.
+
+The length of a label may be read by the following functions:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned | & \TTKEY{labhash} \verb| ( min::stub * s )|
-\LABEL{LABHASH_OF_STUB} \\
-\verb|unsigned min::| & \MINKEY{labhash} \verb| ( min::gen v )|
-\LABEL{MIN::LABHASH} \\
-\verb|unsigned | & \TTKEY{labhash} \verb| ( min::gen * const p, unsigned n )|
-\LABEL{LABHASH_OF_GEN_VECTOR} \\
+\verb|unsigned | & \TTKEY{lablen}\verb| ( min::stub * s )|
+\LABEL{LABLEN} \\
+\verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
+\LABEL{MIN::LABLEN_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{lablen}%
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{MIN::LABLEN_OF_GEN_VECTOR} \\
+\end{tabular}\end{center}
+
+The hash value of a label may be computed by the following functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned | & \TTKEY{labhash}\verb| ( min::stub * s )|
+\LABEL{LABHASH} \\
+\verb|unsigned min::| & \MINKEY{labhash}\verb| ( min::gen v )|
+\LABEL{MIN::LABHASH_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{labhash}%
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
 \end{tabular}\end{center}
 
 The last function computes the hash value for a label that could be created
@@ -1538,22 +1558,35 @@ for i = 1 through n:
 where \verb|<<| and \verb|>>| are left and right shifts of unsigned
 integers, \verb|%| is the `mod' operation, and \verb|**| is exponentiation.
 
-A label may be created by the following protected functions:
+A label may be created by the following unprotected function:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::stub * | & \TTKEY{new\_label}%
+\verb|min::stub * MUP::| & \MUPKEY{new\_label}%
     \verb| ( min::gen * const p, unsigned n )|
-\LABEL{NEW_LABEL} \\
-\verb|min::gen | & \TTKEY{new\_gen}%
-    \verb| ( min::gen * const p, unsigned n )|
-\LABEL{NEW_GEN_OF_LAB} \\
+\LABEL{MUP::NEW_LABEL} \\
 \end{tabular}\end{center}
 
-and tested by the following function:
+This function is unprotected only because it always creates a new stub,
+and does not attempt to return any previously created label stub whose
+elements equal those given as function arguments.
+
+A label may be created by the following protected function:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|bool | & \MINKEY{is\_label} \verb| ( min::gen v )|
-\LABEL{IS_LABEL_OF_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_gen}%
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\
+\end{tabular}\end{center}
+
+This function returns any existing label with elements equal to
+those given by the function arguments, in preference to creating a new
+label.
+
+A label may be tested by the following protected function:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{is\_label}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LABEL_OF_GEN} \\
 \end{tabular}\end{center}
 
 \subsection{Label Pair Stubs}
@@ -1564,7 +1597,73 @@ know a double arrow valued attribute of an object X, you must know the
 value of the attribute, some object Y, the label of the attribute, and
 also the label of the attribute in Y that is the other end of the double
 arrow.  Double arrow labels are represented by \key{label pair} stubs.%
-\footnote{Ditto for label pairs.}
+\footnote{Label pairs could also be represented by
+sublists stored inside objects (\pagref{LIST-LEVEL}), but each label pair
+tends to be reused by many objects, and storing it inside each using object
+would be inefficient.}
+
+A \key{label pair stub}\label{LABEL-PAIR-STUB}
+has \minkey{LABEL\_PAIR}\LABEL{LABEL-PAIR-TYPE}
+stub type code.  It stores two \verb|min::gen| elements
+called the \mkey{label}{of label pair} and \mkey{co-label}{of label pair}
+of the pair.  These can be read by the protected functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen | & \TTKEY{label\_of}\verb| ( min::stub * s )|
+\LABEL{LABEL_OF} \\
+\verb|min::gen min::| & \MINKEY{label\_of}\verb| ( min::gen v )|
+\LABEL{MIN::LABEL_OF_GEN} \\
+\verb|min::gen | & \TTKEY{co\_label\_of}\verb| ( min::stub * s )|
+\LABEL{CO_LABEL_OF} \\
+\verb|min::gen min::| & \MINKEY{co\_label\_of}\verb| ( min::gen v )|
+\LABEL{MIN::CO_LABEL_OF_GEN} \\
+\end{tabular}\end{center}
+
+A label pair may be created by the following unprotected function:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::stub * MUP::| & \MUPKEY{new\_label\_pair}%
+    \verb| ( min::gen label, min::gen co_label )|
+\LABEL{MUP::NEW_LABEL_PAIR} \\
+\end{tabular}\end{center}
+
+This function is unprotected only because it always creates a new stub,
+and does not attempt to return any previously created label pair stub whose
+label and co-label elements equal those given as function arguments.
+
+A label pair may be created by the following protected function:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_gen}%
+    \verb| ( min::gen label, min::gen co_label )|
+\LABEL{MIN::NEW_GEN_OF_GEN_PAIR} \\
+\end{tabular}\end{center}
+
+This function returns any existing label pair with label and
+co-label elements equal to those given by the function arguments,
+in preference to creating a new label pair.
+
+A label pair may be tested by the following protected function:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{is\_label\_pair}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LABEL_PAIR} \\
+\end{tabular}\end{center}
+
+The \key{co-pair} of a label pair $X$ is the label pair $Y$ such that
+the label of $Y$ is the co-label of $X$ and the co-label of $Y$
+is the label of $X$.  When a label pair is created in memory, typically
+both it and its co-pair are created at the same time.  Then given a label
+pair, the implementation can rapidly find its co-pair.  Protected
+functions for doing this are:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::stub * | & \TTKEY{co\_pair\_of}\verb| ( min::stub * s )|
+\LABEL{CO_PAIR_OF} \\
+\verb|min::gen min::| & \MINKEY{co\_pair\_of}\verb| ( min::gen v )|
+\LABEL{MIN::CO_PAIR_OF_GEN} \\
+\end{tabular}\end{center}
+
 
 \subsection{Object Stubs}
 \label{OBJECT-STUBS}
@@ -2199,10 +2298,6 @@ struct min
 	\verb|   min::stub * s, unsigned n )|
 \LABEL{STRNCPY} \\[1ex]
 
-\verb|void min::stub * MUP::|
-	& \MUPKEY{new\_str\REL}\verb| ( const char * p )|
-\LABEL{MUP::NEW_STR} \\[1ex]
-
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen s )|
@@ -2270,10 +2365,95 @@ struct min
     \verb| ( min::long_str * str,|\ARGBREAK\verb|   unsigned hash )|
 \LABEL{MUP::SET_HASH_OF_LONG_STR} \\[1ex]
 
+\verb|void min::stub * MUP::|
+	& \MUPKEY{new\_str\REL}\verb| ( const char * p )|
+\LABEL{MUP::NEW_STR} \\[1ex]
 
 \end{tabular}
 
 \end{indpar}
+
+\newpage
+
+\INDEXHEADER{Label Stub Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.0in}}
+
+\verb|unsigned | & \TTKEY{lab\_of}\ARGBREAK
+    \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::stub * s )|
+\LABEL{LAB_OF} \\
+\verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
+    \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::gen v )|
+\LABEL{MIN::LAB_OF_GEN} \\[1ex]
+
+\verb|unsigned | & \TTKEY{lablen}\verb| ( min::stub * s )|
+\LABEL{LABLEN} \\
+\verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
+\LABEL{MIN::LABLEN_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{lablen}\ARGBREAK
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{MIN::LABLEN_OF_GEN_VECTOR} \\[1ex]
+
+\verb|unsigned | & \TTKEY{labhash}\verb| ( min::stub * s )|
+\LABEL{LABHASH} \\
+\verb|unsigned min::| & \MINKEY{labhash}\verb| ( min::gen v )|
+\LABEL{MIN::LABHASH_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{labhash}\ARGBREAK
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\[1ex]
+
+\verb|min::stub * MUP::| & \MUPKEY{new\_label}\ARGBREAK
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{MUP::NEW_LABEL} \\[1ex]
+
+\verb|min::gen min::| & \MINKEY{new\_gen}\ARGBREAK
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\[1ex]
+
+\verb|bool min::| & \MINKEY{is\_label}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LABEL_OF_GEN} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Label Pair Stub Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.0in}}
+
+\verb|min::gen | & \TTKEY{label\_of}\verb| ( min::stub * s )|
+\LABEL{LABEL_OF} \\
+\verb|min::gen min::| & \MINKEY{label\_of}\verb| ( min::gen v )|
+\LABEL{MIN::LABEL_OF_GEN} \\
+\verb|min::gen | & \TTKEY{co\_label\_of}\verb| ( min::stub * s )|
+\LABEL{CO_LABEL_OF} \\
+\verb|min::gen min::| & \MINKEY{co\_label\_of}\verb| ( min::gen v )|
+\LABEL{MIN::CO_LABEL_OF_GEN} \\[1ex]
+
+\verb|min::stub * MUP::| & \MUPKEY{new\_label\_pair}\ARGBREAK
+    \verb| ( min::gen label, min::gen co_label )|
+\LABEL{MUP::NEW_LABEL_PAIR} \\[1ex]
+
+\verb|min::gen min::| & \MINKEY{new\_gen}\ARGBREAK
+    \verb| ( min::gen label, min::gen co_label )|
+\LABEL{MIN::NEW_GEN_OF_GEN_PAIR} \\[1ex]
+
+\verb|bool min::| & \MINKEY{is\_label\_pair}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LABEL_PAIR} \\[1ex]
+
+\verb|min::stub * | & \TTKEY{co\_pair\_of}\verb| ( min::stub * s )|
+\LABEL{CO_PAIR_OF} \\
+\verb|min::gen min::| & \MINKEY{co\_pair\_of}\verb| ( min::gen v )|
+\LABEL{MIN::CO_PAIR_OF_GEN} \\
+
+\end{tabular}
+
+\end{indpar}
+
 
 } % end of renewcommand for \LABEL, \{TT,MIN,MUP}KEY.
 
