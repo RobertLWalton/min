@@ -89,9 +89,9 @@
 \newcommand{\mupindex}[1]{\ttindex{mup::#1}\ttindex{#1}}
 
 
-\newcommand{\secref}[1]{\ref{#1}p\pageref{#1}}
-\newcommand{\stepref}[1]{\ref{#1}p\pageref{#1}}
-\newcommand{\appref}[1]{\ref{#1}p\pageref{#1}}
+\newcommand{\secref}[1]{\ref{#1}\,p\pageref{#1}}
+\newcommand{\stepref}[1]{\ref{#1}\,p\pageref{#1}}
+\newcommand{\appref}[1]{\ref{#1}\,p\pageref{#1}}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -343,16 +343,6 @@ Each object has a stub, and the address of the stub is in effect
 the internal name of the object.  Some or all atoms, depending
 on implementation, have stubs.
 
-Some implementations of MIN use 32 bit `\skey{virtual stub number}s',
-or \skey{VSN}{'s}, as stub addresses.  For this reason stubs are
-always a power of two in length, e.g. 16 bytes, so that VSN's can be
-translated to addresses by shifting left.  The only reason to use VSN's
-instead of addresses is to multiply by at least 16 the number of
-stubs that may exist in memory without needing to use more than 32 bits
-to hold a stub address.  On machines that have 32 bit addresses (e.g.,
-the IA32\footnote{Intel Architecture 32-bit} machines),
-VSN's are implemented as addresses of stubs, and no shifting is required.
-
 A stub is divided into an 8 byte value and an 8 byte control.
 The \mkey{value}{of stub} can hold an IEEE floating point number,
 an 8 character string, or, as we will soon see, a pointer to a body.
@@ -381,28 +371,172 @@ bodies is called a `\key{stub/body memory}'.  Thus MIN has a stub/body memory.
 The type name of a stub is `\minkey{stub}', and a pointer to a stub
 has type `\verb|min::stub *|'.\label{MIN::STUB}
 
+
 \subsection{General Values}
 \label{GENERAL-VALUES}
 
-A \key{general value} is a 64 bit aligned value that can hold only one
-of the following
+A general value can store any of:
+
+\begin{center}
+\begin{tabular}{l}
+an atom or pointer to an atom \\
+a pointer to a stub \\
+an indirect pointer
+\end{tabular}
+\end{center}
+
+General values are used to designate attribute names and values in
+objects.
+
+It does not matter whether a general value stores an atom or a pointer
+to the atom, so atoms are immutable and cannot be changed.
+
+An indirect pointer is an integer that is used by a general value
+inside an object body to point at another general value inside the
+body.  See~\secref{INDIRECT-POINTERS}.
+
+There are two kinds of MIN implementation: `\key{compact}' and
+`\key{loose}'.
+A compact implementation uses only 32-bit
+general values, and uses \underline{no} 64-bit general values.
+A loose implementation uses only 64-bit
+general values, and uses \underline{no} 32-bit general values.
+
+The value of a compact implementation is that it uses less memory,
+but there may be speed penalty (see \secref{32-BIT-GENERAL-VALUES}).
+The value of a loose implementation is that it may run faster, but
+there is a memory penalty.  It is not clear what the speed difference
+between the two implementations really is, so both implementations
+are offered in order to decide the issue by experiment.
+
+\subsubsection{32-Bit General Values}
+\label{32-BIT-GENERAL-VALUES}
+
+A \key{32-bit general value} has type \minkey{gen32} and
+is a 32 bit aligned value that can hold a value of one of the following
+subtypes
+
+\begin{center}
+\begin{tabular}{l}
+a pointer to a stub \\
+a 28-bit integer atom \\
+an 28-bit indirect pointer 
+\end{tabular}
+\end{center}
+
+
+On machines that have 32 bit addresses (e.g.,
+the IA32\footnote{Intel Architecture 32-bit} machines), stub addresses
+stored in {\tt min::gen32} values are implemented as addresses of stubs.
+On other machines that may use addresses longer than 32-bits, 
+stub addresses are stored in {\tt min::gen32} values as
+`\skey{virtual stub number}s', or \skey{VSN}{'s}, that map to stub addresses.
+A VSN is typically mapped to a stub address by shifting it left by 4
+bits\footnote{
+Stubs are always a power of two in length, e.g. 16 bytes, so VSN's can be
+translated to addresses by shifting left.} and adding a base constant.
+One effect of using VSN's
+instead of addresses is to multiply by 16 the number of
+stubs that may exist in memory without needing to use more than 32 bits
+to hold the stub address.
+
+A {\tt min::gen32} integer value consists of a high order 4 bit subtype
+code and a low order 28 bit integer stored in offset form, so the true
+integer can be derived from the {\tt min:gen32} value by subtracting the
+{\tt min:gen32} representation of zero.  Similarly indirect pointers
+consist of a high order 4 bit subtype code and a low order 28 bit indirect
+pointer (see~\secref{INDIRECT-POINTERS}).
+
+The type of a general value is \minkey{gen32}.  This type has the alignment
+properties of {\tt min::uns32}, and in some implementations
+is {\tt typedef}'ed to {\tt min::uns32}, and so {\tt min::\EOL gen32}
+arguments cannot be used to identify overloaded functions.
+
+The following functions return {\tt 1} if a {\tt min::gen32} datum is of the
+indicated subtype and {\tt 0} otherwise:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \verb|is_int ( min::gen32 v )|
+\label{MIN::IS_INT_OF_GEN32} \\
+\verb|int min::| & \verb|is_indirect ( min::gen32 v )|
+\label{MIN::IS_INDIRECT_OF_GEN32} \\
+\verb|int min::| & \verb|is_stub ( min::gen32 v )|
+\label{MIN::IS_STUB_OF_GEN32} \\
+\end{tabular}\end{center}%
+\minindex{is\_int}%
+\minindex{is\_indirect}%
+\minindex{is\_stub}
+
+The following protected functions return the value appropriate for a given
+subtype, after checking the subtype code with an {\tt assert} statement:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \verb|int_of ( min::gen32 v )|
+\label{MIN::INT_OF_GEN32} \\
+\verb|min::stub * min::| & \verb|stub_of ( min::gen32 v )|
+\label{MIN::STUB_OF_GEN32} \\
+\verb|unsigned min::| & \verb|indirect_of ( min::gen32 v )|
+\label{MIN::INDIRECT_OF_GEN32} \\
+\end{tabular}\end{center}%
+\minindex{int\_of}%
+\minindex{stub\_of}%
+\minindex{indirect\_of}
+
+The following unprotected functions return the value appropriate for a given
+subtype, \underline{without} checking the subtype code:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int mup::| & \verb|int_of ( min::gen32 v )|
+\label{MUP::INT_OF_GEN32} \\
+\verb|min::stub *  mup::| & \verb|stub_of ( min::gen32 v )|
+\label{MUP::STUB_OF_GEN32} \\
+\verb|unsigned mup::| & \verb|indirect_of ( min::gen32 v )|
+\label{MUP::INDIRECT_OF_GEN32} \\
+\end{tabular}\end{center}%
+\mupindex{int\_of}%
+\mupindex{stub\_of}%
+\mupindex{indirect\_of}
+
+New {\tt min::gen32} values can be generated by the following functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen32 min::| & \verb|new_gen32 ( int v )|
+\label{MIN::NEW_GEN32_OF_INT} \\
+\verb|min::gen32 min::| & \verb|new_gen32 ( min::stub * s )|
+\label{MIN::NEW_GEN32_OF_STUB} \\
+\verb|min::gen32 min::| & \verb|new_gen32 ( unsigned p )|
+\label{MIN::NEW_GEN32_OF_INDIRECT} \\
+\end{tabular}\end{center}%
+\minindex{new\_gen32}
+
+Here an \verb|unsigned| value is taken to be an indirect pointer.
+
+TBD: range errors and mup counterparts.
+
+\subsubsection{64-Bit General Values}
+\label{64-BIT-GENERAL-VALUES}
+
+A \key{64-bit general value} has type \minkey{gen64} and
+is a 64 bit aligned value that can hold a value of one of the following
+subtypes
 
 \begin{center}
 \begin{tabular}{l}
 an IEEE 64-bit floating point number \\
 a 0-6 character string \\
-a pointer to a stub
+a pointer to a stub \\
+an indirect pointer \\
 \end{tabular}
 \end{center}
 
-This is done by using the high order 16 bits of the value as a subtype
-code, and using two values of this subtype code that would be
+This is done by using the high order 20 bits of the value as a subtype
+code, and using values of this subtype code that would be
 IEEE Nan (Not-a-Number) values for character string and pointer
 values.
 
 The type of a general value is \minkey{gen64}.  This type has the alignment
-properties of {\tt min::float64}, and in some implementations
-is {\tt typedef}'ed to {\tt min::float64}, and so {\tt min::\EOL gen64}
+properties of {\tt min::uns64}, and in some implementations
+is {\tt typedef}'ed to {\tt min::uns64}, and so {\tt min::\EOL gen64}
 arguments cannot be used to identify overloaded functions.
 
 The following functions return {\tt 1} if a {\tt min::gen64} datum is of the
@@ -414,11 +548,14 @@ indicated subtype and {\tt 0} otherwise:
 \verb|int min::| & \verb|is_str ( min::gen64 v )|
 \label{MIN::IS_STRING} \\
 \verb|int min::| & \verb|is_stub ( min::gen64 v )|
-\label{MIN::IS_STUB} \\
+\label{MIN::IS_STUB_OF_GEN64} \\
+\verb|int min::| & \verb|is_indirect ( min::gen64 v )|
+\label{MIN::IS_INDIRECT_OF_GEN64} \\
 \end{tabular}\end{center}%
 \minindex{is\_float64}%
 \minindex{is\_str}%
-\minindex{is\_stub}
+\minindex{is\_stub}%
+\minindex{is\_indirect}
 
 The following protected functions return the value appropriate for a given
 subtype, after checking the subtype code with an {\tt assert} statement:
@@ -434,12 +571,15 @@ subtype, after checking the subtype code with an {\tt assert} statement:
 \label{MIN::STRNCPY_OF_GEN64} \\
 \verb|min::stub * min::| & \verb|stub_of ( min::gen64 v )|
 \label{MIN::STUB_OF_GEN64} \\
+\verb|unsigned min::| & \verb|indirect_of ( min::gen64 v )|
+\label{MIN::INDIRECT_OF_GEN64} \\
 \end{tabular}\end{center}%
 \minindex{float64\_of}%
 \minindex{strlen}%
 \minindex{strcpy}%
 \minindex{strncpy}%
-\minindex{stub\_of}
+\minindex{stub\_of}%
+\minindex{indirect\_of}
 
 The {\tt strlen} function returns the length of a string value (which
 is from {\tt 0} through {\tt 6}).
@@ -459,10 +599,13 @@ subtype, \underline{without} checking the subtype code:
 \label{MUP::SHORT_STRING_OF_GEN64} \\
 \verb|min::stub *  mup::| & \verb|stub_of ( min::gen64 v )|
 \label{MUP::STUB_OF_GEN64} \\
+\verb|unsigned mup::| & \verb|indirect_of ( min::gen64 v )|
+\label{MUP::INDIRECT_OF_GEN64} \\
 \end{tabular}\end{center}%
 \mupindex{float64\_of}%
 \mupindex{short\_string\_of}%
-\mupindex{stub\_of}
+\mupindex{stub\_of}%
+\mupindex{indirect\_of}
 
 Here the \verb|min::uns64| value returned by \mupkey{short\_string\_of}
 should be overlaid by a union with a \verb|char[]| buffer, as in
@@ -479,7 +622,61 @@ cout << u.buf;
 The {\tt mup::short\_string\_of} function merely copies the
 6 characters from the {\tt min::gen64} value appending 2 NUL characters.
 
-TBD: creating gen values
+New {\tt min::gen64} values can be generated by the following functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen64 min::| & \verb|new_gen64 ( min::float64 v )|
+\label{MIN::NEW_GEN64_OF_FLOAT64} \\
+\verb|min::gen64 min::| & \verb|new_gen64 ( const char * p )|
+\label{MIN::NEW_GEN64_OF_CHAR} \\
+\verb|min::gen64 min::| & \verb|new_gen64 ( min::stub * s )|
+\label{MIN::NEW_GEN64_OF_STUB} \\
+\verb|min::gen64 min::| & \verb|new_gen64 ( unsigned p )|
+\label{MIN::NEW_GEN64_OF_INDIRECT} \\
+\end{tabular}\end{center}%
+\minindex{new\_gen64}
+
+Here the NUL-terminated string pointed at by \verb|p| must not
+contain more than 6 characters, and an \verb|unsigned| value is
+taken to be an indirect pointer.
+
+TBD: range errors and mup counterparts.
+
+The subtype codes used for {\tt min::gen64} string and stub pointer
+values are chosen so they are not normally generated by the compiler,
+run-time system, or program execution.  Therefore a {\tt min::float64}
+input to {\tt min::new\_gen64} is assumed to not have these subtype
+codes, and no check is made for such.
+
+The actual string and stub pointer {\tt min::gen64} subtype codes
+are implementation dependent.  The following constants equal these
+codes as 20 bit unsigned integers:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \verb|GEN64_STRING|
+\label{MIN::GEN64_STRING} \\
+\verb|unsigned min::| & \verb|GEN64_STUB|
+\label{MIN::GEN64_STUB} \\
+\verb|unsigned min::| & \verb|GEN64_INDIRECT|
+\label{MIN::GEN64_INDIRECT} \\
+\end{tabular}\end{center}%
+\minindex{GEN64\_STRING}%
+\minindex{GEN64\_STUB}%
+\minindex{GEN64\_INDIRECT}
+
+The following functions may be used to retrieve the subtype code field
+from a {\tt min::\EOL gen64}, {\tt min::float64}, or
+{\tt min::uns64} value:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \verb|gen64_subtype_of ( min::gen64 v )|
+\label{MIN::GEN64_SUBTYPE_OF_GEN64} \\
+\verb|int min::| & \verb|gen64_subtype_of ( min::float64 v )|
+\label{MIN::GEN64_SUBTYPE_OF_FLOAT64} \\
+\verb|int min::| & \verb|gen64_subtype_of ( min::uns64 v )|
+\label{MIN::GEN64_SUBTYPE_OF_UNS64} \\
+\end{tabular}\end{center}%
+\minindex{gen\_64\_subtype\_of}
 
 \subsection{Body Pointers}
 \label{BODY-POINTERS}
@@ -873,6 +1070,11 @@ The mechanism used to store the double pointer is:
 \end{verbatim}\end{indpar}
 
 \clearpage
+
+\subsection{Objects}
+
+\subsubsection{Indirect Pointers}
+\label{INDIRECT-POINTERS}
 
 \section{Code and Execution}
 
