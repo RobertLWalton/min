@@ -224,12 +224,12 @@
 \title{Minimal\\Descriptive Programming\\Language\\[2ex]MIN\\[2ex]
        (Draft 1a)}
 
-\author{Robert L. Walton\thanks{Copyright 2004 Robert L. Walton.
+\author{Robert L. Walton\thanks{Copyright 2005 Robert L. Walton.
 Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 11, 2005}
+\date{February 14, 2005}
  
 \maketitle
 
@@ -1602,15 +1602,42 @@ in order to specify \verb|##523|.
 
 \subsection{The Evaluation Algorithm}
 
+A CONTEXT is:
+
+\begin{indpar}
+A SEARCH-OBJECT. \\
+A CURRENT-OBJECT. \\
+A CURRENT-STATEMENT. \\
+A CURRENT-ITEM in the current statement. \\
+An EXECUTE-INDICATOR: NEXT-ITEM, NEXT-STATEMENT, REPEAT-STATEMENT. \\
+A FAILURE-FLAG. \\
+\end{indpar}
+
 
 \begin{indpar}\begin{verbatim}
 
     evaluate ( EXPRESSION, CONTEXT ):
         if EXPRESSION is a single number atom:
-            return atom
-        if EXPRESSION is `...' bracketed:
-            return EXPRESSION without the `'s
+            return EXPRESSION
+        if EXPRESSION is `...' bracketed list:
+            return quoted ( EXPRESSION, CONTEXT )
+        if EXPRESSION is {...} bracketed list:
+            return code ( EXPRESSION, CONTEXT )
         return search ( EXPRESSION, CONTEXT )
+
+    quoted ( EXPRESSION, CONTEXT ):
+        if EXPRESSION contains no [...] bracketted sublists:
+	    return EXPRESSION
+	// TBD: Handle depth, e.g., `foo `fum [[x]] [y]''
+
+    code ( EXPRESSION, CONTEXT ):
+        ` EXPRESSION is {...} bracketed'
+        push CONTEXT
+	     new CONTEXT has same SEARCH-OBJECT as old CONTEXT
+	     and begins at first item of first statement in
+	     expression, with FAILURE-FLAG off, and CURRENT-OBJECT
+	     equal SEARCH-OBJECT.
+	     ???
 
     search ( EXPRESSION, CONTEXT ):
         for each OBJECT in CONTEXT:
