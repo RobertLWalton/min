@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 28, 2005}
+\date{March 29, 2005}
  
 \maketitle
 
@@ -2229,35 +2229,103 @@ mechanism, and not garbage collection, frees auxilary stubs.
 
 At the \key{attribute level}, the object is a map from attribute names
 to attribute flags and from attribute name/reverse-name pairs to
-multi-sets of values.  The part of this map for each given attribute
-name is independent of the other parts of the map for other attribute
-names.  These parts are represented by final segments of lists.
+multi-sets of values.  This map is stored in a set of lists which
+are entries in the hash table or attribute vector.  These lists have
+the syntax:
 
-TBD
+\begin{center}
+\begin{tabular}{l}
+\emkey{hash-table-entry} ::= {\em map-list}\ldots
+\\[1ex]
+\emkey{attribute-vector-entry} ::= {\em segment-entry}\ldots
+\\[1ex]
+\emkey{map-list} ::= {\em map-pair}\ldots
+\\[1ex]
+\emkey{map-pair} ::= {\em name-component } {\em segment-entry}
+\\[1ex]
+\emkey{name-component} ::= {\em atom }
+\\[1ex]
+\emkey{segment-entry} ::= {\em value} $|$ {\em segment-list}
+\\[1ex]
+\emkey{segment-list} ::= {\em map-list-option} {\em attribute-list}
+\\[1ex]
+\emkey{attribute-list} ::= {\em flag-option}
+    {\em value}\ldots {\em reverse-component-list}\ldots
+\\[1ex]
+\emkey{flag} ::= {\em control-code}
+\\[1ex]
+\emkey{value} ::= {\em atom} $|$ {\em object}
+\\[1ex]
+\emkey{reverse-component-list} ::= {\em reverse-attribute-name}
+    {\em value}\ldots
+\\[1ex]
+\emkey{reverse-attribute-name} ::= {\em attribute-name}
+\end{tabular}
+\end{center}
 
-An attribute name is a sequence of atoms.  Each atom of the
+Here
+an {\tt atom} is a \verb|min::gen| value representing a number or string,
+a {\em control-code} is a \verb|min::gen| control code value,
+an {\em object} is a \verb|min::gen| value pointing at an object,
+and an {\em attribute-name} is a \verb|min::gen| value pointing at an
+attribute name.  All these are list elements but not lists.
+An {\em X-list} is a list, in the sense of the object list level.
+An {\em X-option} is an optional element of a list that is an {\em X} if
+it is not omitted.
+
+What the object does is map attribute names to {\em attribute-lists}.
+It does this by mapping using the following search algorithm
+to map an attribute name to an {\em attribute-list}.
 
 \begin{enumerate}
 
-\item If the first component of an attribute name is an integer I in the
-range from 1 through the object attribute vector size S, then
-the component list begins with the I-1'st element of the attribute vector.
+\item Let $C$ be the first component (atom) of the attribute name.
 
-\item Otherwise the component is located in the pair list that begins
-with the H'th element of the hash table, where H = hash of component
-modulo the size of the hash table.
+\item If $C$ is an integer from 1 through the size of the attribute
+vector, inclusive, let $E$ be the attribute vector entry with index $C$,
+and go to step 5.
 
-\item A pair list is an alternating sequence of atoms and component sublists.
-Each atom denotes an attribute name component, and is followed in the pair
-list by the component sublist of that component.
+\item Otherwise let $H$ be the hash value of $C$ modulo the size of
+the hash table.  Let $M$ be the hash table entry with index $H$.
 
-\item If a component sublist begins with a sublist with at least 2 elements,
-that sublist is a pair list for the next component of an attribute name.
-The rest of the component sublist is the attribute name list for the
-attribute name ending in the given component.
+\item $M$ is a {\em map-list}.  Look through the {\em map-pairs} in this
+list for one whose {\em component-name} equals $C$.  If none is found,
+the search fails.
+If one is found, let $E$ be the {\em segment-entry} part of the {\em map-pair}.
 
+\item If $E$ is a value and not a list,
+change $E$ to a list whose only element is $E$.
+Note this will be interpreted below as
+an {\em attribute-list} with one {\em value} and nothing else.
+
+\item $E$ is a {\em segment-entry}.
+If the attribute name has more components, let $C$ be the next
+component.  If $E$ does not begin with a sublist, the search fails.
+But if $E$ begins with a sublist, let this be $M$, and go back to step 4.
+
+\item Otherwise, if there is no next component of the attribute name,
+remove from $E$ any sublist, i.e., any {\em map-list}, that begins $E$.
+The resulting $E$ is the {\em attribute-list} to which the attribute name maps.
 
 \end{enumerate}
+
+TBD
+
+The initial segment of an attribute name consisting of just the first
+component of the name, i.e., the first atom, is mapped as follows.
+If the first component is an integer from 1 through the size of the attribute
+vector, inclusive, the attribute vector entry whose index is this component
+is the {\em segment-entry} to which the initial segment is mapped.  Otherwise
+
+
+If a {\em segment-list} begins with a
+{\em map-list}, 
+
+If 
+
+Hash table entries are {\em hash-table-entries}, which are {\em map-pairs}
+mapping attribute name components onto {\em component-entries}.
+
 
 
 If the name is an unsigned integer small enough to index an
