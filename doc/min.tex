@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 11, 2005}
+\date{March 12, 2005}
  
 \maketitle
 
@@ -1301,6 +1301,115 @@ list \verb|.initiator| \verb|":"| and no list \verb|.terminator|.
 \end{enumerate}
 
 
+\subsection{Parsing}
+\label{PARSING}
+
+Parsing a sequence of lexemes is done in four phases:
+
+\begin{list}{}{}
+\item[(1)] \ikey{Lexeme Scanning}{lexeme scanning}~~~~
+The sequence of lexemes is represented as an object
+that is a list whose elements are atoms that are lexemes
+and objects representing bracketted sublists of lexemes.  Quoted
+atoms are specially represented.
+
+\item[(2)] \ikey{Operator Scanning}{operator scanning}~~~~
+The object representation is scanned for operators
+and modified by inserting parsers.
+
+\item[(3)] \ikey{Expansion}{expansion}~~~~
+The object representation is evaluated by calling the parsers.
+
+\item[(4)] \ikey{Dequoting}{dequoting}~~~~
+Quoted atom representations are replaced by the atoms quoted.
+
+\end{list}
+
+\subsubsection{Lexeme Scanning}
+\label{LEXEME-SCANNING}
+
+The \key{lexeme scanning} algorithm inputs a sequence of lexemes
+and outputs an object representing the sequence.  The object has
+list elements which are attributes labelled {\tt 1}, {\tt 2}, \ldots.
+The object may have an {\tt .initiator} and/or {\tt .terminator}
+attribute.
+
+The rules for computing the object from the lexeme sequence are:
+
+\begin{enumerate}
+
+\item The lexeme sequence is examined to identify matching brackets.
+It is an error if there are unmatched brackets (bracket characters
+in quoted strings do not count as brackets).
+
+If the lexeme sequence begins and ends with matching brackets, these
+are removed from the sequence, and become the {\tt .initiator} and
+{\tt .terminator} attributes of the object being computed.
+
+\item The lexeme sequence is then scanned from right to left to produce
+the list elements of the object being computed.  At each stage of the
+scan, lexemes are input and another list element is produced according
+to the rules:
+
+\begin{enumerate}
+
+\item If the next input is a word or mark, the word or mark becomes the next
+list element.
+
+\item If the next input is a quoted string, the next list element is an
+object whose only attributes are a {\tt 1} attribute that is the quoted string
+and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
+
+\item If the next input is a bracket, the subsequence of lexemes beginning
+with the bracket and ending with the matching bracket becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\end{enumerate}
+
+\end{enumerate}
+
+For example, given the input
+
+\begin{center}
+\verb|`The "+" in (x + 5 * y) is an operator.'|
+\end{center}
+
+the lexical scanning algorithm outputs object \verb|##1| in the
+following:
+
+\begin{indpar}\begin{verbatim}
+##1::
+    1 : The
+    2 : ##2
+    3 : in
+    4 : ##3
+    5 : is
+    6 : an
+    7 : operator
+    8 : .
+    .initiator: "`"
+    .terminator: "'"
+##2::
+    1: "+"
+    .initiator: quoted
+##3::
+    1 : x
+    2 : "+"
+    3 : 5
+    4 : "*"
+    5 : y
+    .initiator: "("
+    .terminator: ")"
+\end{verbatim}\end{indpar}
+
+Recall the in object representations there is no difference between
+a quoted string representation of a mark and the mark, but the quoted
+string representation of marks that can be operators is used, to prevent
+them from being misread as operators.  Thus \verb|"+"| is used in the
+object representation above to denote the 1 character atom \verb|+|,
+and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
+also denote 1 character atoms.
 
 \subsection{Standard Representations}
 \label{STANDARD-REPRESENTATIONS}
@@ -1537,9 +1646,6 @@ division function \verb|/|.  E.g.:
 
 \end{indpar}
 
-
-\subsection{Parsing}
-\label{PARSING}
 
 \section{Evaluation}
 
