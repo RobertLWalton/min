@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 26, 2005}
+\date{March 27, 2005}
  
 \maketitle
 
@@ -1739,17 +1739,38 @@ functions for doing this are:
 \subsection{Objects}
 \label{OBJECTS}
 
-An \key{object} is conceptually a hash table that maps attribute names to
-attribute values.
+An \key{object} is conceptually a hash table that maps
+\skey{attribute name}s to \skey{attribute value}s.
 The part of the hash table that maps small
 unsigned integer attribute names is actually a vector.
 
 Each map of an attribute name to an attribute value represents an
-arrow in the data base.  Flags, called \key{attribute flags},
-can be attached to this arrow.  If the arrow is a double arrow,
+arrow in the data base.
+If the arrow is a double arrow,
 a reverse direction label, called the \key{reverse attribute name}
-is attached to the arrow, and flags for the reverse direction,
-called \key{reverse attribute flags} may be attached.
+is attached to the arrow.
+There can be several arrows with the same attribute name.
+There can be several double arrows with the same attribute name and
+different reverse attribute names.
+
+Several arrows can have the same attribute name, and can have both the
+same name and the same value.  Several double arrows can have the same
+attribute and reverse attribute names, or the same pair of names and the
+same value.
+
+Therefore an attribute name and reverse attribute name together name a
+multi-set of values, where the reverse attribute name can be missing to
+indicate that only single arrows are to be considered, and is present to
+indicate that only double arrows are to be considered.
+It is possible to add a value to this multi-set or delete a value from the
+multi-set.  It is possible to delete the entire multi-set.
+It is possible to treat the multi-set as a set, by adding a value
+to it only if the value does not already occur in the multi-set.
+When testing for value equality, {\tt ==} is used, as this tests for
+equality of both atoms and objects.
+
+Flags, called \key{attribute flags}, can be attached to an attribute name.
+Note that flags are attached to object attribute names, and not to arrows.
 
 An object has a body that consists of the following 5 parts in
 the order given:
@@ -1766,10 +1787,10 @@ auxilary area
 
 The header contains the sizes of the other 4 parts.
 The \mkey{hash table}{of object}
-stores attribute label/value pairs, for attributes whose labels that are not
+stores attribute name/value pairs, for attributes whose names that are not
 small unsigned integers.
 The \key{attribute vector} stores attribute values for attributes whose
-labels are small unsigned integers.  The \key{auxilary area}
+names begin with small positive integers.  The \key{auxilary area}
 stores various overflow data from the hash table and attribute vector.
 
 The hash table is of fixed size; its size can only be changed by relocating
@@ -1784,8 +1805,8 @@ has a header that stores 32 bit unsigned sizes.  Otherwise there is
 no essential difference between a short and a long object.  The functions
 that create attributes convert automatically from short to
 long objects when required.  Conversion in either direction, and compaction
-of objects, may occur when object bodies are relocated during garbage
-collection.
+of objects, may occur whenever object bodies are relocated, as they
+may be during garbage collection.
 
 There are protected functions accessing general values that denote
 objects of any kind without distinction,
@@ -1800,13 +1821,21 @@ which holds the 5 parts of the object.
 The header consists of 4 16-bit unsigned integers which are, in order:
 
 \begin{center}
-\begin{tabular}{l}
-hash table size \\
-attribute vector size \\
-unused area size \\
-auxilary area size \\
+\begin{tabular}{lllllllll}
+header size & + & hash table size \\
+header size & + & hash table size & + & attribute vector size \\
+header size & + & hash table size & + & attribute vector size
+	& + & unused area size \\
+header size & + & hash table size & + & attribute vector size
+	& + & unused area size \\
+        & + & auxilary area size \\
+	& = & header size & + & total size
 \end{tabular}
 \end{center}
+
+All sizes are in units of \verb|min::gen| values.  Aside from its header,
+the object body is just a vector of \verb|min::gen| values.  The total
+size does \underline{not} include the header.
 
 A \key{long object stub}\label{LONG-OBJECT-STUB} has
 \minkey{LONG\_OBJ}\LABEL{LONG-OBJ-TYPE} stub type code and
@@ -1851,11 +1880,8 @@ functions:
 \LABEL{TOTAL_SIZE_OF_LONG_OBJ} \\
 \end{tabular}\end{center}
 
-Here the total size is the sum of the other four sizes.
-
-All sizes are in units of \verb|min::gen| values.  Aside from its header,
-the object body is just a vector of \verb|min::gen| values.  The total
-size does \underline{not} include the header.
+Here the functions that return pointers do \underline{not} check the type
+of the stub, and the total size is exactly the sum of the other four sizes.
 
 The data structure of an object body can be viewed at any of three levels:
 vector level, list level, and attribute level.
@@ -1885,7 +1911,7 @@ function allows reading and writing of elements.
 
 The body vector is divided into 5 parts,
 which are, in order, the body header,
-the hash table, attribute vector,
+hash table, attribute vector,
 unused area, and auxilary area.
 The header and unused area are not actually \verb|min::gen| values,
 and should not be accessed using a body vector pointer.
@@ -1920,7 +1946,9 @@ At the \key{list level},\label{LIST-LEVEL}
 the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
 object vector.  The elements of the lists are non-auxilary-pointer
-\verb|min::gen| values and sublists.  The lists are constructed with
+\verb|min::gen| values (e.g., direct integers, direct strings, pointers
+to stubs, and control codes)
+and sublists.  The lists are constructed with
 the help of the two kinds of auxilary pointers:
 
 \begin{center}
@@ -1935,106 +1963,130 @@ the help of the two kinds of auxilary pointers:
 
 and two constant values:
 
-\begin{center}\begin{tabular}{r@{}lp{3in}}
-\verb|const min::gen min::| & \MINKEY{LIST\_END} \LABEL{MIN::LIST_END}
-	& The list ends here.  This actually equals a continuation pointer
-	  with zero index. \\
-\verb|const min::gen min::| & \MINKEY{EMPTY\_LIST} \LABEL{MIN::EMPTY_LIST}
-	& Denotes a list element that is itself an empty sublist.  This actually
-	  equals a sublist pointer with zero index.
-\end{tabular}\end{center}
+\begin{indpar}
+\begin{list}{}{}
+\item[{\tt const min::gen min::}\MINKEY{LIST\_END}]~\LABEL{MIN::LIST_END}\\
+The list ends here.  This actually equals a continuation pointer
+with zero index.
+\item[{\tt const min::gen min::}\MINKEY{EMPTY\_SUBLIST}]~%
+	\LABEL{MIN::EMPTY_SUBLIST}\\
+A list element value that represents an empty sublist.
+This actually equals a sublist pointer with zero index.
+\end{list}
+\end{indpar}
 
 Each hash table or attribute vector element is a \key{list head}.
-Each list head is a \key{list continuation}.
+Each list head is a \key{list continuation}, which is an element of the
+body vector that has a particular interpretation.  However, not all
+list continuations are list heads.
 
-If a list continuation is the value \verb|min::LIST_END|, the list has
+A list continuation represents a final segment of a list.
+If it has the value \verb|min::LIST_END|, the list has
 no more elements, and may be empty if it has no previous elements.
-If a list continuation is a continuation pointer,
+If the list continuation has a continuation pointer value,
 that pointer points at another list continuation that continues the list.
-Otherwise the list continuation is a \key{list element} which represents an
-element of the list.
+Otherwise the list continuation represents an element of the list,
+and is called a \key{list element}.
 
 Given a list element, the rest of the list after the element begins with
 a list continuation that has an index one greater than that of the list
 element within the object body vector, unless the list element is a
 list head, in which case there is no next element, and the list has only
-one element.
+one element.  All list heads lie in the hash table or attribute vector,
+so testing whether a list element is a list head can be done if just the
+index of the list element in the body vector is known.
 
 A list element may be a non-auxilary-pointer \verb|min::gen|
 value, such as a direct number, direct string, control code, or
 stub pointer.  None of these represent sublists.  A list element
-that is an auxilary sublist pointer or the value \verb|min::EMPTY_LIST|
+that is an auxilary sublist pointer or the value \verb|min::EMPTY_SUBLIST|
 represents a sublist, and is the \key{sublist head} of that sublist.  A
 sublist head is a list element of the list containing a sublist,
 but cannot be a list element of the sublist.  If it is a sublist pointer,
-it points at a continuation element of the sublist.  If it is the
-value \verb|min::EMPTY_LIST|, it represents an empty sublist.
+it points at a list continuation of the sublist.  If it is the
+value \verb|min::EMPTY_SUBLIST|, it represents an empty sublist.
 
 
-A \minkey{list\_pointer} can be used to move around in a object at
+A \MUPkey{list\_pointer} can be used to move around in a object at
 the list level.  The functions for using a list pointer are:
 
 \begin{center}\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINKEY{list\_pointer}\verb| ( min::short_obj * so )|
-\LABEL{MIN::LIST_POINTER_OF_SHORT_OBJ} \\
-(constructor)~\verb|min::|
-	& \MINKEY{list\_pointer}\verb| ( min::long_obj * lo )|
-\LABEL{MIN::LIST_POINTER_OF_LONG_OBJ} \\
-(constructor)~\verb|min::|
-	& \MINKEY{list\_pointer}\verb| ( min::gen obj )|
-\LABEL{MIN::LIST_POINTER_OF_GEN} \\
-\verb|unsigned |
+(constructor)~\verb|MUP::|
+	& \MUPKEY{list\_pointer}\verb| ( min::short_obj * so )|
+\LABEL{MUP::LIST_POINTER_OF_SHORT_OBJ} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{list\_pointer}\verb| ( min::long_obj * lo )|
+\LABEL{MUP::LIST_POINTER_OF_LONG_OBJ} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::LIST_POINTER_OF_GEN} \\
+\verb|min::gen |
 	& \TTKEY{start}\verb| ( min::list_pointer & lp, unsigned p )|
 \LABEL{START_OF_LIST_POINTER} \\
-\verb|unsigned |
+\verb|min::gen |
 	& \TTKEY{next}\verb| ( min::list_pointer & lp )|
 \LABEL{NEXT_OF_LIST_POINTER} \\
-\verb|unsigned |
+\verb|min::gen |
 	& \TTKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{CURRENT_OF_LIST_POINTER} \\
-\verb|unsigned |
-	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp, unsigned p )|
+\verb|min::gen |
+	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp, min::gen p )|
 \LABEL{START_SUBLIST_OF_LIST_POINTER} \\
 \end{tabular}\end{center}
 
 A list pointer is created to move around in a particular object.
-Once created it can be started on a new list by the
-{\tt start} function, which takes as an argument the index of a list
-continuation in the object body vector.  This index may point into the
-hash table, attribute vector, or auxilary area.  The {\tt start} function
-returns the body vector index of the first element of the list, or returns
-{\tt 0} if the list is empty.  The index given to {\tt start}
-is that of a list continuation, but the index returned is that of
-a list element or {\tt 0}.
+Once created it can be started on a new list by the {\tt start} function,
+or on a new sublist by the {\tt start\_sublist} function.
+
+A list pointer points into the relocatable body of an object.  When the
+object is relocated, the list pointer must be reinitialized by recalling
+the {\tt start} function with a list head index.  Relocation of an object
+can also reorganize the object, in which case body vector indices that
+are not of list heads may become invalid.
+
+The {\tt start} function positions a list pointer at the beginning of a
+list, and takes as an argument the index of a list head
+in the object body vector.  This index may point into the
+hash table or attribute vector.  The {\tt start} function
+returns the value of the first element of the list, or returns
+{\tt min::LIST\_END} if the list is empty.
 
 The {\tt next} function moves the list pointer to the next list element of the
-list the pointer points at, and returns the body vector index of that
-list element.  It returns {\tt 0} if there is no list element because the end
-of the list has been reached.
+list the pointer points at, and returns the value of that
+list element.  It returns {\tt min::LIST\_END} if there is
+no list element because the end of the list has been reached.
 After the end of a list has been reached, additional
-calls to {\tt next} will do nothing.  If a non-zero index is returned,
-it is the index of a list element and not of a list continuation that is
-not a list element.  The {\tt next} function knows when the list element
-pointed at by a list pointer is a list head by checking to see if the
-index of the element lies within the hash table or attribute vector of
-an object.
+calls to {\tt next} will do nothing.
 
-The {\tt current} function just returns the body vector index of the list
-element the list pointer currently points at, or returns {\tt 0} if there is no
-such element because the pointer is at the end of a list.
+The {\tt current} function just returns the value of the list
+element the list pointer currently points at, or returns {\tt min::LIST\_END}
+if there is no such element because the pointer is at the end of a list.
 
-A non-zero index returned by {\tt start}, {\tt next}, or {\tt current}
-for a list pointer {\tt X} can index an
-auxilarly pointer only if the list element indexed is a sublist.  In this
-situation the {\tt start\_sublist} function can be given the index
-to set a list pointer to point at the first list element of the sublist.
-The index given
-the {\tt start\_sublist} function must index a body vector element
-whose value is a sublist pointer or \verb|min::EMPTY_LIST|.
-The {\tt start\_sublist} function returns the body vector index of the
-first list element of the sublist, or returns {\tt 0} if the sublist is
-empty.
+The value of a list element can be an auxilary sublist pointer or
+\verb|min::EMPTY_SUBLIST|.  Such a list element value represents a
+sublist, and can be passed to the {\tt start\_sublist} function to point
+a list pointer at the first element of the sublist.  The
+{\tt start\_sublist} function returns the value of this first element,
+or returns {\tt min::LIST\_END} if the sublist is empty.
+
+As an optimization, \skey{auxilary stub}s can be used instead of object
+auxilary area elements.  Auxilary stubs are a way of adding elements to
+an object whose unused area has been exhausted, without relocating the
+object.  If the object is later relocated, it can be reorganized to
+eliminate the use of auxilary stubs by moving information from these
+into a new larger object auxilary area.
+
+An auxilary stub holds a \verb|min::gen| value
+that plays the role of an auxilary element value, and has an
+\key{auxilary chain pointer} that can point at another auxilary stub,
+and which plays the role of incrementing the index of an object
+auxilary area element to get to the next auxilary area element.  Auxilary
+stubs are uncollectible, and their chain pointer is stored in the stub
+control.
+
+There are two types of auxilary stubs:
+
+TBD
 
 At the \key{attribute level}, the object is a set of attribute name/value
 pairs.  If the name is an unsigned integer small enough to index an
@@ -2791,7 +2843,8 @@ struct min
 \begin{tabular}{@{}r@{}p{4.0in}}
 
 \verb|const min::gen min::| & \MINKEY{LIST\_END} \LABEL{MIN::LIST_END} \\
-\verb|const min::gen min::| & \MINKEY{EMPTY\_LIST} \LABEL{MIN::EMPTY_LIST} \\
+\verb|const min::gen min::| &
+	\MINKEY{EMPTY\_SUBLIST} \LABEL{MIN::EMPTY_SUBLIST} \\
 
 \end{tabular}
 
@@ -2799,17 +2852,22 @@ struct min
 
 \begin{indpar}[0.2in]
 
+\begin{tabular}{@{}r@{}p{4.0in}}
+
+(constructor)~\verb|MUP::|
+	& \MUPKEY{list\_pointer}\verb| ( min::short_obj * so )|
+\LABEL{MUP::LIST_POINTER_OF_SHORT_OBJ} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{list\_pointer}\verb| ( min::long_obj * lo )|
+\LABEL{MUP::LIST_POINTER_OF_LONG_OBJ} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::LIST_POINTER_OF_GEN} \\
+
+\end{tabular}
+
 \begin{tabular}{@{}r@{}p{5.0in}}
 
-(constructor)~
-	& \MINKEY{list\_pointer}\verb| ( min::short_obj * so )|
-\LABEL{MIN::LIST_POINTER_OF_SHORT_OBJ} \\
-(constructor)~
-	& \MINKEY{list\_pointer}\verb| ( min::long_obj * lo )|
-\LABEL{MIN::LIST_POINTER_OF_LONG_OBJ} \\
-(constructor)~
-	& \MINKEY{list\_pointer}\verb| ( min::gen obj )|
-\LABEL{MIN::LIST_POINTER_OF_GEN} \\
 \verb|unsigned |
 	& \TTKEY{start}\verb| ( min::list_pointer & lp, unsigned p )|
 \LABEL{START_OF_LIST_POINTER} \\
