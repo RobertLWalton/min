@@ -1,0 +1,315 @@
+% Minimal Descriptive Programming Language
+%
+% File:         min.tex
+% Author:       Bob Walton (walton@deas.harvard.edu)
+% Date:		See \date below.
+  
+\documentclass[12pt]{article}
+
+\usepackage{makeidx}
+\usepackage{pictex}
+
+\makeindex
+
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\raggedbottom
+
+\setlength{\unitlength}{1in}
+
+\pagestyle{headings}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{1ex}
+
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\newcommand{\subsubsubsection}[1]{\paragraph[#1]{#1.}}
+\newcommand{\subsubsubsubsection}[1]{\subparagraph[#1]{#1.}}
+
+% Begin \tableofcontents surgery.
+
+\newcount\AtCatcode
+\AtCatcode=\catcode`@
+\catcode `@=11	% @ is now a letter
+
+\renewcommand{\contentsname}{}
+\renewcommand\l@section{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\l@table{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\tableofcontents{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}}%
+    \item\@starttoc{toc}%
+    \end{list}}
+\renewcommand\listoftables{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}%
+	      }%
+    \item\@starttoc{lot}%
+    \end{list}}
+
+\catcode `@=\AtCatcode	% @ is now restored
+
+% End \tableofcontents surgery.
+
+\newcommand{\CN}[2]%	Change Notice.
+    {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
+     $^{\mbox{#1}}$#2}}
+    % Change notice.
+
+\newcommand{\key}[1]{{\em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\em #1#2}\index{#1}}
+\newcommand{\ikey}[2]{{\em #1}\index{#2}}
+\newcommand{\ttkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttfkey}[2]{{\tt #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{{\tt #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
+\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
+\newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
+\newcommand{\secref}[1]{\ref{#1}{ p\pageref{#1}}}
+\newcommand{\Secref}[1]{\ref{#1}{(p\pageref{#1})}}
+\newcommand{\stepref}[1]{\ref{#1}{(p\pageref{#1})}}
+\newcommand{\appref}[1]{\ref{#1}{ p\pageref{#1}}}
+\newcommand{\pagref}[1]{p\pageref{#1}}
+
+\newcommand{\EOL}{\penalty \exhyphenpenalty}
+
+\newcount\TildeCatcode
+\TildeCatcode=\catcode`\~
+\catcode`~=12
+\newcommand{\Tilde}{~}
+\catcode`~=\TildeCatcode
+
+\newcount\CircumflexCatcode
+\CircumflexCatcode=\catcode`\^
+\catcode`^=12
+\newcommand{\Circumflex}{^}
+\catcode`^=\CircumflexCatcode
+
+\newcount\CurlyBraCatcode
+\newcount\CurlyKetCatcode
+\newcount\SquareBraCatcode
+\newcount\SquareKetCatcode
+\CurlyBraCatcode=\catcode`{
+\CurlyKetCatcode=\catcode`}
+\SquareBraCatcode=\catcode`[
+\SquareKetCatcode=\catcode`]
+
+\catcode`{=\SquareBraCatcode
+\catcode`}=\SquareKetCatcode
+\catcode`[=\CurlyBraCatcode
+\catcode`]=\CurlyKetCatcode
+
+\newcommand[\CurlyBra][{]
+\newcommand[\CurlyKet][}]
+
+\catcode`{=\CurlyBraCatcode
+\catcode`}=\CurlyKetCatcode
+\catcode`[=\SquareBraCatcode
+\catcode`]=\SquareKetCatcode
+
+\newcommand{\ttbrackets}{%
+    \renewcommand{\{}{\CurlyBra}%
+    \renewcommand{\}}{\CurlyKet}}
+
+\newsavebox{\TILDEBOX}
+\begin{lrbox}{\TILDEBOX}
+\verb|~|
+\end{lrbox}
+\newcommand{\TILDE}{\usebox{\TILDEBOX}}
+
+\newsavebox{\BACKSLASHBOX}
+\begin{lrbox}{\BACKSLASHBOX}
+\verb|\|
+\end{lrbox}
+\newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
+
+\newsavebox{\LEFTBRACKETBOX}
+\begin{lrbox}{\LEFTBRACKETBOX}
+\verb|{|
+\end{lrbox}
+\newcommand{\LEFTBRACKET}{\usebox{\LEFTBRACKETBOX}}
+
+\newsavebox{\RIGHTBRACKETBOX}
+\begin{lrbox}{\RIGHTBRACKETBOX}
+\verb|}|
+\end{lrbox}
+\newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.40in}
+
+\newsavebox{\figurebox}
+
+\newenvironment{boxedfigure}[1][!btp]%
+	{\begin{figure*}[#1]
+	 \begin{lrbox}{\figurebox}
+	 \begin{minipage}{\figurewidth}
+
+	 \vspace*{1ex}}%
+	{
+	 \vspace*{1ex}
+
+	 \end{minipage}
+	 \end{lrbox}
+	 \begin{center}
+	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
+	 \end{center}
+	 \end{figure*}}
+
+\newenvironment{indpar}[1][0.3in]%
+	{\begin{list}{}%
+		     {\setlength{\itemsep}{0in}%
+		      \setlength{\topsep}{0in}%
+		      \setlength{\parsep}{1ex}%
+		      \setlength{\labelwidth}{#1}%
+		      \setlength{\leftmargin}{#1}%
+		      \addtolength{\leftmargin}{\labelsep}}%
+	 \item}%
+	{\end{list}}
+
+\begin{document}
+        
+\title{Minimal\\Descriptive and Programming\\Language\\[2ex]MIN\\[2ex]
+       (Draft 1a)}
+
+\author{Robert L. Walton\thanks{Copyright 2004 Robert L. Walton.
+Permission to copy this document verbatim is granted by the author
+to the public.  This document was partly inspired
+by my son's efforts at game design.}}
+
+\date{July 29, 2004}
+ 
+\maketitle
+
+\newpage
+\begin{center}
+\large \bf Table of Contents
+\end{center}
+
+\bigskip
+
+\tableofcontents 
+
+\newpage
+
+\section{Introduction}
+
+This document describes MIN, the Minimal Descriptive and Programming
+Language.
+
+The main goal of MIN is to make it easy to describe objects,
+and to write small pieces of program code change descriptions
+in response to external inputs.  MIN has a geometry engine that translates
+object descriptions into a geometrical scene, video and audio engines
+that translate the geometry and object descriptions into visual and
+audio displays, and a view engine that translates object descriptions
+into textual displays such as spreadsheets.
+
+In is intended to be the smallest, simplest language that can perform
+these tasks well.
+
+
+\section{Remarks}
+
+
+\section{Overview}
+
+
+\section{Lexical Scans}
+
+MIN descriptions are representable by strings of characters that
+can be stored in files.  Then the MIN processor reads these, it
+scans the characters from left to right to produce a sequence
+of \skey{lexeme}s.  There are five kinds of lexemes: words, numbers,
+brackets, marks, and quoted strings.
+
+A \key{word} is a string of letters.  E.g., {\tt fie}.
+
+A \key{number} is a string of digits plus an optional \key{decimal point}.
+E.g., {\tt 5.2}.
+
+A \key{bracket} is a single bracket character.  E.g., \verb|[| and \verb|]|.
+
+A \key{mark} is a string of \key{mark character}s, which are just characters
+that are not letters or digits or decimal points or brackets or quotes.
+E.g., \verb|+|.
+
+A \key{quoted string} is a string of characters that begins and ends with
+a \verb|"| \key{quote character}.  The string of characters may include
+spaces and escape sequences.  See~\secref{QUOTED-STRINGS} for details on
+quoted strings.
+
+Words, marks, and quoted strings are all \skey{symbol}s, which are just
+character strings that can be used like words or marks.  A quoted string
+may be just an alternate representation of a word or a mark.  Thus
+{\tt hello} and {\tt "hello"} represent the same thing, the same symbol.
+Similarly {\tt :} and {\tt ":"} represent the same symbol.  However
+{\tt 0.123} is a number which is not a symbol, and {\tt "0.123"} is a symbol
+which is not a number.
+
+There are special rules for some characters.
+
+A \ttkey{_} is a letter.
+
+A \ttkey{.} is a decimal point if followed by a digit, a letter if followed
+by another letter, and a mark character otherwise.  E.g., {\tt 0.123} is
+a number with a decimal pointer, {\tt .terminator} is a word beginning with
+a letter, and {\tt `Hello.'} contains the word {\tt Hello}
+followed by the \verb|.| mark.
+
+Users of MIN should not create words that begin with {\tt .}; such words
+are reserved for use by the designers of MIN.
+
+A \ttkey{!} is a letter if followed by another letter, and a mark character
+otherwise.  E.g., {\tt !set} is a word and {\tt `Hello!'} contains the
+word {\tt Hello} followed by the \verb|!| mark.
+
+A \ttkey{\BACKSLASH} is a mark character if it occurs outside quoted
+strings, and is an \key{escape character} if it occurs inside quoted strings.
+As an escape character it is used to begin a sequence of characters called
+an escape sequence that denotes a single character.
+See~\secref{ESCAPE-SEQUENCES} for details on escape sequences.
+
+White-space characters, the \key{space character}, the \key{tab character},
+the \key{new line character}, the {\tt form feed character}, and the
+{\tt vertical tab} character are used to separate lexemes.  The space
+character can be used to represent a single space inside quoted strings.
+The tab character is always equivalent to one or more space characters,
+with tabs set every 8 columns.
+The other whitespace characters have special interpretation inside quoted
+strings.
+
+\subsection{Quoted Strings}
+
+TBD
+
+
+
+
+\bibliographystyle{plain}
+\bibliography{min}
+
+\printindex
+
+\end{document}
+
+
