@@ -226,7 +226,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{July 31, 2004}
+\date{August 1, 2004}
  
 \maketitle
 
@@ -276,8 +276,10 @@ A \key{word} is a string of letters.  E.g., {\tt fie}.  The underline
 character (\ttmkey{\UNDERLINE}{letter}) is a letter.
 A period (\ttmkey{.}{letter})
 is a letter if it is followed by a letter; similarly an exclamation
-mark (\ttmkey{!}{letter}) is a letter if it is followed by a letter.
-E.g., \verb|.separator| and \verb|!set| are words.
+mark (\ttmkey{!}{letter}) is a letter if it is followed by a letter,
+and an appostrophe (\ttmkey{'}{letter}) is a letter if it
+is followed by a letter.
+E.g., \verb|.separator|, \verb|!set|, and \verb|it's| are words.
 
 A \key{number} is a string of digits plus an optional \key{decimal point}.
 E.g., {\tt 5.2}.  Any decimal point must be followed by a digit.
@@ -290,7 +292,8 @@ square brackets (\ttmkey{[}{bracket character} and
 curly brackets (\ttmkey{\LEFTBRACKET}{bracket character} and
 \ttmkey{\RIGHTBRACKET}{bracket character}),
 and single quotes (\ttmkey{`}{bracket character} and
-\ttmkey{'}{bracket character}).
+\ttmkey{'}{bracket character}).  The close quote (\verb|'|) is
+a letter, and not a bracket, if it is followed by a letter.
 
 A \key{mark} is a string of mark characters, which are just characters
 that are not letters or digits or decimal points or brackets or quotes.
@@ -354,6 +357,12 @@ An exclamation mark ({\tt !}\index{"!@{\tt "!}!letter}%
 is a letter if followed by another letter, and a mark character
 otherwise.  E.g., {\tt !set} is a word and {\tt `Hello!'} contains the
 word {\tt Hello} followed by the \verb|!| mark.
+
+Similarly the close quote (\ttmkey{'}{letter}) is a letter if followed
+by a letter, as in \verb|it's|, and a closing bracket otherwise.
+
+The double quote ({\tt "}\index{""@{\tt ""}}) is used to begin and end
+quoted strings.
 
 A \ttkey{\BACKSLASH} is a mark character if it occurs outside quoted
 strings, and is an \key{escape character} if it occurs inside quoted strings.
@@ -580,21 +589,140 @@ may be grouped to form the list attribute
 relatives: ##4 ##7 ##2 ##9
 \end{verbatim}\end{indpar}
 
+while the element attributes
+
 \begin{indpar}\begin{verbatim}
-outline 1: straight
-outline 2: 3.2
-outline 3: left
-outline 4: straight
-outline 5: 9.6
-outline 6: left
-outline 6: straight
-outline 6: 3.2
-outline 6: left
-outline 6: straight
-outline 6: left
-outline 6: left
+outline 1 1: straight
+outline 1 2 : 3.2
+outline 2 1: left
+outline 3 1: straight
+outline 3 2: 9.6
+outline 4 1: left
+outline 5 1: straight
+outline 5 2: 3.2
+outline 6 1: left
+outline 7 1: straight
+outline 7 2: 3.8
+outline 8 1: door
+outline 8 2: 2.0
+outline 9 1: straight
+outline 9 2: 3.8
+outline 10 1: close
+outline .separator: ","
 \end{verbatim}\end{indpar}
 
+may be grouped to form the list attribute
+
+\begin{indpar}\begin{verbatim}
+outline: straight 3.2, left, straight 9.6, left,
+         straight 3.2, left, straight 3.8, door 2.0,
+         straight 3.8, close
+\end{verbatim}\end{indpar}
+
+and the element attributes
+
+\begin{indpar}\begin{verbatim}
+text 1 1 1: The
+text 1 1 2: orange
+text 1 1 3: idea
+text 1 1 4: is
+text 1 1 5: peeping
+text 1 2 1: furiously
+text 1 .separator: ","
+text 1 .terminator: "."
+text 2 1: It's
+text 2 2: fallen
+text 2 3: for
+text 2 4: the
+text 2 5: purple
+text 2 6: syllogism
+text 2 .terminator: "!"
+\end{verbatim}\end{indpar}
+
+may be grouped to form the list attribute
+
+\begin{indpar}\begin{verbatim}
+text: The orange idea is peeping, furiously.  It's
+      fallen for the purple syllogism!
+\end{verbatim}\end{indpar}
+
+Also curly brackets (\verb|{ }|) may be used to change
+the format to a format suitable for code.  Thus the element
+attributes
+
+\begin{indpar}\begin{verbatim}
+text 1 1 1: The
+text 1 1 2: orange
+text 1 1 3: idea
+text 1 1 4: is
+text 1 1 5: peeping
+text 1 2 1: furiously
+text 1 .separator: ","
+text 1 .terminator: "."
+text 2 1: It's
+text 2 2: fallen
+text 2 3: for
+text 2 4: the
+text 2 5: purple
+text 2 6: syllogism
+text 2 .terminator: "!"
+\end{verbatim}\end{indpar}
+
+may be grouped to form the list attribute
+
+\begin{indpar}\begin{verbatim}
+min: (x,y) {
+     if x > y:
+         return y;
+     else:
+         return x;
+     }
+\end{verbatim}\end{indpar}
+
+\section{code}
+
+Consider the following description of a room:
+
+\begin{indpar}\begin{verbatim}
+##523::
+    type: standard room type
+    outline: straight width, left, straight length, left,
+             straight width, left,
+             doored wall width,
+             close
+    width: 3.2
+    length: 9.6
+    doored wall: function ( length ) {
+                     d = (length - door width) / 2
+                     straight d
+                     door (door width)
+                     straight d }
+    door : standard room door
+    label: under(over), color(green)
+    over: ##598
+\end{verbatim}\end{indpar}
+
+It turns out that most the attribute values for this room
+object are pieces of executable code.
+
+The \verb|type| attribute value, `{\tt standard room type}', names
+a global variable whose value is an object that describes the type of
+this object.
+
+The \verb|outline| attribute value is a program to draw the outline of the
+room.  This program is written from the point of view of a robot moving
+around the outline of the room building walls.  The robot follows a sequence
+of commands that are separated by commas.  A possible command is
+`{\tt straight 3.2}', meaning the robot is to go straight \verb|3.2| units.
+But in the example \verb|3.2| is replaced by
+{\tt width}, which names an attribute of the object whose value in turn
+is \verb|3.2|.  Here \verb|width| is an argument to the \verb|straight|
+command.  If the argument is more than a single atom, it can be enclosed
+in parentheses, as is the single argument to \verb|straight| in
+
+\begin{center}
+\verb|doored wall (door width )|
+\end{center}
 
 \bibliographystyle{plain}
 \bibliography{min}
