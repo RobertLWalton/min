@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 3, 2005}
+\date{March 7, 2005}
  
 \maketitle
 
@@ -534,10 +534,15 @@ automatically, see \secref{GARBAGE-COLLECTION}) if it cannot be
 reached except by traversing arrows that have maybe flags.
 
 We will give examples in the next section along with a basic way of
-representing sets of objects in text.  In most of this document
+representing sets of objects in text.  In the rest of this document
 arrows are called \skey{attribute}s, arrow labels are called
 \skey{attribute name}s, arrow flags are called \skey{attribute flag}s,
 and arrow targets are called \skey{attribute value}s.
+Also `\ikey{attribute L of object O}{attribute!of an object}'
+denotes the set of all values (arrow targets) of attributes
+of object O (arrows sourced at O) which have the attribute label
+(arrow label) L.
+
 
 \subsection{Raw Representations}
 
@@ -550,73 +555,74 @@ The format of a \key{raw representation} is:
 
 \begin{center}
 \begin{tabular}{l}
-\key{raw-representation} ::= {\em raw-object-representation} \ldots
+\emkey{raw-representation} ::= {\em raw-object-representation} \ldots
 \\[1ex]
-\key{raw-object-representation} ::=
+\emkey{raw-object-representation} ::=
     {\em raw-object-header}
-    {\em raw-arrow-representation} \ldots
+    {\em raw-attribute-representation} \ldots
 \\[1ex]
-\key{raw-object-header}
+\emkey{raw-object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
     $|$ & {\em raw-object-name} \verb|>|{\tt \bf :}%
           \ttmindex{>:}{in {\em raw-object-header}} \\
     \end{tabular}
 \\[1ex]
-\key{raw-arrow-representation}
+\emkey{raw-attribute-representation}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em raw-single-arrow-representation} \\
-    $|$ & {\em raw-double-arrow-representation}
+    ::= & {\em raw-single-attribute-representation} \\
+    $|$ & {\em raw-double-attribute-representation}
     \end{tabular}
 \\[1ex]
-\key{raw-single-arrow-representation} ::=
+\emkey{raw-single-attribute-representation} ::=
 \\\hspace*{1in}
-	{\em arrow-label} {\em arrow-label-terminator}
-	{\em single-arrow-target}
-	\ttmkey{;;}{in {\em raw-single-arrow-representation}}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em single-attribute-value}
+	\ttmkey{;;}{in {\em raw-single-attribute}!{\em -representation}}
 \\[1ex]
-\key{single-arrow-target} ::= {\em atom} $|$ {\em raw-object-name}
+\emkey{single-attribute-value} ::= {\em atom} $|$ {\em raw-object-name}
 \\[1ex]
-\key{raw-double-arrow-representation} ::=
+\emkey{raw-double-attribute-representation} ::=
 \\\hspace*{1in}
-	{\em arrow-label} {\em arrow-label-terminator}
-	{\em double-arrow-target}
+	{\em attribute-label} {\em attribute-label-terminator}
+	{\em double-attribute-value}
 \\\hspace*{1in}
-	{\em arrow-label-initiator} {\em arrow-label}
-	\ttmkey{;;}{in {\em raw-double-arrow-representation}}
+	{\em attribute-label-initiator} {\em attribute-label}
+	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
 \\[1ex]
-\key{double-arrow-target} ::= {\em raw-object-name}
+\emkey{double-attribute-value} ::= {\em raw-object-name}
 \\[1ex]
-\key{raw-object-name} ::=
+\emkey{raw-object-name} ::=
 	\ttmnbkey{\#\#}{in {\em raw-object-name}} {\em non-negative-integer}
 \\[1ex]
-\key{arrow-label} ::= {\em atom} \ldots
+\emkey{attribute-label} ::= {\em atom} \ldots
 \\[1ex]
-\key{arrow-label-terminator} ::=
+\emkey{attribute-label-terminator} ::=
 	{\em flag-character}\ldots{\tt \bf :}%
 	\index{:flag-character@{\em flag-character}\ldots{\tt :}!
-	arrow-label-terminator}~~~~~(a mark)
+	attribute-label-terminator}~~~~~(a mark)
 \\[1ex]
-\key{arrow-label-initiator} ::=
+\emkey{attribute-label-initiator} ::=
 	{\tt \bf :}{\em flag-character}\ldots%
 	\index{:flag-character@{\tt :}{\em flag-character}\ldots!
-	arrow-label-initiator}~~~~~(a mark)
+	attribute-label-initiator}~~~~~(a mark)
 \\[1ex]
-\key{flag-character} ::= {\em mark-character} except \verb|<| or \verb|>|
+\emkey{flag-character} ::= {\em mark-character} except \verb|<| or \verb|>|
 \\[1ex]
-\key{atom} ::= {\em non-special-lexeme}
+\emkey{atom} ::= {\em non-special-lexeme}
 \\[1ex]
-\key{special-lexeme}
+\emkey{special-lexeme}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| \\
-    $|$ & {\em arrow-label-terminator} $|$ {\em arrow-label-initiator}
+    $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
     \end{tabular}
 
 \end{tabular}
 \end{center}%
-\index{label!arrow}%
-\index{source!arrow}%
-\index{target!arrow}
+\index{label!attribute}%
+\index{source!attribute}%
+\index{value!attribute}%
+\index{target!attribute}
 
 A simple example of the raw representation of a set of objects is:
 
@@ -659,31 +665,34 @@ A simple example of the raw representation of a set of objects is:
 \end{center}
 
 This represents two objects.
-There are two single arrows from object \verb|##1|,
-one arrow labeled {\tt type} whose target is the atom {\tt woman},
-and one arrow labeled {\tt name} whose target is the atom {\tt Jill}.
-There are two similar single arrows from object \verb|##2|.
-There is a double arrow between the two objects which has the
+There are two single attributes of object \verb|##1| (arrows sourced
+at \verb|##1|),
+one attribute labeled {\tt type} whose value (target) is the atom {\tt woman},
+and one attribute labeled {\tt name} whose value is the atom {\tt Jill}.
+There are two similar single attributes from object \verb|##2|.
+There is a double attribute (double arrow)
+between the two objects which has the
 label {\tt husband} when going from \verb|##1| to \verb|##2|
 and the label {\tt wife} when going in the reverse direction.
 
-In order to permit \verb|:| to be used in an arrow label, the following
+In order to permit \verb|:| to be used in an attribute label, the following
 \key{quote representation rule} is applied to representations.
 A quoted symbol cannot be recognized as an atom that has special
 meaning in a representation, such as the \verb|::|, \verb|:|,
 \verb|##|, or \verb|;;| atoms in raw representations.  Thus if any
-of these atoms are to be part of an arrow label or target, they should
+of these atoms are to be part of an attribute label or value, they should
 be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";;"|.
 Other than this rule, there is no
 distinction between quoted and unquoted representations of typically
 unquoted atoms.
 
-The double-semi-colons (\verb|;;|) at the ends of arrow representations
+The double-semi-colons (\verb|;;|) at the ends of attribute representations
 may be omitted according to the \key{double-semi-colon representation rule}.
-This rule says that the \ttmkey{;;}{omitting} at the end of an arrow
+This rule says that the \ttmkey{;;}{omitting} at the end of an attribute
 representation may be omitted provided the next line is not
 indented with respect to the first non-white-space character of the
-arrow representation with the omitted \verb|;;|, or alternatively if the end of
+attribute representation with the omitted \verb|;;|,
+or alternatively if the end of
 text (e.g., end of file) immediately follows.
 Thus the \verb|;;|'s in the example just given may be omitted.
 
@@ -694,10 +703,11 @@ Thus in our example \verb|##1| has attributes named \verb|type|,
 \verb|name|, and \verb|husband| that have values, respectively,
 \verb|woman|, \verb|Jill|, and \verb|##2|.
 
-It is possible to place \skey{arrow flag}s on arrows by putting flag characters
-before or after the \verb|:| that follows or precedes an arrow label.
+It is possible to place \skey{arrow flag}s on attributes (arrows)
+by putting flag characters
+before or after the \verb|:| that follows or precedes an attribute label.
 The following is the same as the above example except that flags
-have been added to some of the arrows:
+have been added to some of the attributes:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
@@ -737,11 +747,11 @@ have been added to some of the arrows:
 \end{picture}
 \end{center}
 
-In the picture the arrow flags have been added as subscripts on the arrow
-labels, and in the text the flags have been added before of after the
-\verb|:| that follows or precedes the arrow label.
+In the picture the attribute flags have been added as subscripts on the
+attribute labels, and in the text the flags have been added before of after the
+\verb|:| that follows or precedes the attribute label.
 
-Several arrows sourced at the same object may have the same attribute
+Several arrows sourced at the same object may have the same arrow
 label.  An example of this is, in which object \verb|##1| sources two
 arrows labeled \verb|child|, is:
 
@@ -775,16 +785,8 @@ arrows labeled \verb|child|, is:
 \end{picture}
 \end{center}
 
-In the rest of this document we use the terminology of attributes,
-attribute names, attribute flags, and attribute values, in place of
-arrows, arrow labels, arrow flags, and arrow targets.
-An \key{attribute} of an object is just a single arrow sourced at the object,
-or a double arrow viewed in the direction going away from the object.
-The \key{attribute name}\index{name!attribute} is just the label of this arrow.
-The \skey{attribute flag}s\index{flag!attribute} are just the flags
-of this arrow.
-The \key{attribute value}\index{value!attribute} is just the target
-of this arrow.
+We say that the value of the \verb|child| attribute of \verb|##1| is
+the set to two elements, \verb|##2| and \verb|##3|.
 
 The difference between \ttkey{::} and \ttnbkey{>:} is that the former
 indicates that the object should not previously
@@ -867,7 +869,7 @@ is the cooked representation of the objects
     .terminator: "}"
 \end{verbatim}\end{indpar}
 
-The following is a third example in which
+Next is a third example in which
 curly brackets (\verb|{ }|) are used with multiple
 lines and indentation to represent code, so that
 
