@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 27, 2005}
+\date{March 28, 2005}
  
 \maketitle
 
@@ -438,7 +438,7 @@ the interrupt.
 A body may be \mkey{deallocated}{by moving}
 by moving it to unimplemented memory.  When this is done the
 stub \mkey{type code}{reset on deallocation}
-is reset to the value \minkey{DEALLOCATED}\LABEL{DEALLOCATED-TYPE},
+is reset to the value \minkey{DEALLOCATED}\LABEL{MIN::DEALLOCATED},
 which indicates the body is deallocated.
 The function that deallocates a body is:
 
@@ -996,7 +996,7 @@ as:
 The operation of \ikey{deallocating a body}{dealocate!body}
 is considered to be a relocation of the body.  The body pointer in the
 stub is pointed at unimplemented virtual memory, and the type code in the stub
-is set to {\tt min::DEALLOCATED} (\pagref{DEALLOCATED-TYPE}).
+is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 
 The following function tests whether a stub with a body pointer
 has a deallocated body:
@@ -1007,7 +1007,7 @@ has a deallocated body:
 \end{tabular}\end{center}
 
 This function just checks the stub type code to see if it equals
-{\tt min::DEALLOCATED} (\pagref{DEALLOCATED-TYPE}).
+{\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 
 A check that an object body has not been deallocated may be needed before
 a pointer into the body is recomputed after a relocating function has
@@ -1134,23 +1134,19 @@ are collectible.
 
 A partial list of stub type codes is:
 
-\begin{center}
-\begin{tabular}{l@{~~~~~}p{4in}}
-\tt min::NUMBER
-	&	Stub value is an IEEE 64-bit floating point number.
-\\
-\tt min::SHORT\_STR
-	&	Stub value is 0-8 \verb|const char| string, NUL padded.
-\\
-\tt min::LONG\_STR
-	&	Stub value is a pointer at a body of type
-	        {\tt min::long\_\EOL string} that contains a
-		\verb|const char| vector and its size. 
-\\
-\tt min::DEALLOCATED
-	&	Stub has a deallocated body.
-\end{tabular}
-\end{center}
+\begin{indpar}
+\begin{list}{}{}
+\item[{\tt const int min::NUMBER}]~\\
+Stub value is an IEEE 64-bit floating point number.
+\item[{\tt const int min::SHORT\_STR}]~\\
+Stub value is 0-8 \verb|const char| string, NUL padded.
+\item[{\tt const int min::LONG\_STR}]~\\
+Stub value is a pointer at a body of type {\tt min::long\_\EOL string}
+that contains a \verb|const char| vector and its size. 
+\item[{\tt const int min::DEALLOCATED}]~\\
+Stub has a deallocated body.
+\end{list}
+\end{indpar}
 
 A full list of stub type codes complete with page references
 is given on \pagref{STUB-TYPE-CODE-LIST}.
@@ -1171,7 +1167,7 @@ programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 \subsection{Numbers}
 \label{NUMBERS}
 
-A \key{number stub} has \minkey{NUMBER}\LABEL{NUMBER-TYPE} stub type code and
+A \key{number stub} has \minkey{NUMBER}\LABEL{MIN::NUMBER} stub type code and
 an immutable \verb|min::float64| value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1304,7 +1300,7 @@ short and long strings and their unprotected access functions are
 described.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} has
-\minkey{SHORT\_STR}\LABEL{SHORT-STR-TYPE} stub type code and
+\minkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code and
 an immutable {\tt min::\EOL uns64} value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
@@ -1347,7 +1343,7 @@ by NUL, the 8 {\tt char} value should be zeroed before any string is
 copied into it, as is done by \verb|u.str = 0| in the example.
 
 A \key{long string stub}\label{LONG-STRING-STUB} has
-\minkey{LONG\_STR}\LABEL{LONG-STR-TYPE} stub type code and
+\minkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code and
 a value that is a pointer to a \minkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
 
@@ -1563,7 +1559,7 @@ general values.  However, the vector may be stored in a chain of stubs,
 and not in a body.  The exact manner in which the vector is stored is
 hidden from the user.
 
-A \key{label stub}\label{LABEL-STUB} has \minkey{LABEL}\LABEL{LABEL-TYPE}
+A \key{label stub}\label{LABEL-STUB} has \minkey{LABEL}\LABEL{MIN::LABEL}
 stub type code.  The label may be read by the protected functions:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1674,7 +1670,7 @@ tends to be reused by many objects, and storing it inside each using object
 would be inefficient.}
 
 A \key{label pair stub}\label{LABEL-PAIR-STUB}
-has \minkey{LABEL\_PAIR}\LABEL{LABEL-PAIR-TYPE}
+has \minkey{LABEL\_PAIR}\LABEL{MIN::LABEL_PAIR}
 stub type code.  It stores two \verb|min::gen| elements
 called the \mkey{label}{of label pair} and \mkey{co-label}{of label pair}
 of the pair.  These can be read by the protected functions:
@@ -1815,7 +1811,7 @@ short and long objects and their unprotected access functions are
 described.
 
 A \key{short object stub}\label{SHORT-OBJECT-STUB} has
-\minkey{SHORT\_OBJ}\LABEL{SHORT-OBJ-TYPE} stub type code and
+\minkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code and
 a value that is a pointer to a \minkey{short\_obj} type body
 which holds the 5 parts of the object.
 The header consists of 4 16-bit unsigned integers which are, in order:
@@ -1833,16 +1829,21 @@ header size & + & hash table size & + & attribute vector size
 \end{tabular}
 \end{center}
 
+The header may contain other implementation dependent information used
+for optimization.
+
 All sizes are in units of \verb|min::gen| values.  Aside from its header,
 the object body is just a vector of \verb|min::gen| values.  The total
 size does \underline{not} include the header.
 
 A \key{long object stub}\label{LONG-OBJECT-STUB} has
-\minkey{LONG\_OBJ}\LABEL{LONG-OBJ-TYPE} stub type code and
+\minkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} stub type code and
 a value that is a pointer to a \minkey{long\_obj} type body
 which holds the 5 parts of the object.  A long object body is
 the same as a short object body except the 4 header integers
-are 32-bit unsigned integers instead of 16-bit unsigned integers.
+are 32-bit unsigned integers instead of 16-bit unsigned integers,
+and extra implementation dependent information in the header may be
+different.
 
 A pointer to the body and the sizes can be obtained by the following
 functions:
@@ -1885,6 +1886,9 @@ of the stub, and the total size is exactly the sum of the other four sizes.
 
 The data structure of an object body can be viewed at any of three levels:
 vector level, list level, and attribute level.
+
+\subsubsection{Object Vector Level}
+\label{OBJECT-VECTOR-LEVEL}
 
 At the \key{vector level}, the body is viewed as
 a \key{body vector} of \verb|min::gen| values.  A pointer to the
@@ -1942,6 +1946,9 @@ can be obtained by the following protected functions:
 \LABEL{OBJECT_VECTOR_OF_LONG_OBJ} \\
 \end{tabular}\end{center}
 
+\subsubsection{Object List Level}
+\label{OBJECT-LIST-LEVEL}
+
 At the \key{list level},\label{LIST-LEVEL}
 the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
@@ -1953,8 +1960,7 @@ the help of the two kinds of auxilary pointers:
 
 \begin{center}
 \begin{tabular}{lp{4in}}
-\key{continuation pointer}
-			& The list is continued at the target of the list
+\key{list pointer}	& The list is continued at the target of the list
 			  pointer. \\
 \key{sublist pointer}	& A sublist starts at the target of the sublist
 			  pointer. \\
@@ -1966,8 +1972,7 @@ and two constant values:
 \begin{indpar}
 \begin{list}{}{}
 \item[{\tt const min::gen min::}\MINKEY{LIST\_END}]~\LABEL{MIN::LIST_END}\\
-The list ends here.  This actually equals a continuation pointer
-with zero index.
+The list ends here.  This actually equals a list pointer with zero index.
 \item[{\tt const min::gen min::}\MINKEY{EMPTY\_SUBLIST}]~%
 	\LABEL{MIN::EMPTY_SUBLIST}\\
 A list element value that represents an empty sublist.
@@ -1983,7 +1988,7 @@ list continuations are list heads.
 A list continuation represents a final segment of a list.
 If it has the value \verb|min::LIST_END|, the list has
 no more elements, and may be empty if it has no previous elements.
-If the list continuation has a continuation pointer value,
+If the list continuation has a list pointer value,
 that pointer points at another list continuation that continues the list.
 Otherwise the list continuation represents an element of the list,
 and is called a \key{list element}.
@@ -2006,23 +2011,54 @@ but cannot be a list element of the sublist.  If it is a sublist pointer,
 it points at a list continuation of the sublist.  If it is the
 value \verb|min::EMPTY_SUBLIST|, it represents an empty sublist.
 
+Parts of lists may not be shared with other lists.  In other words,
+there is only one way to reach any element of the auxilary area.
+Or more specifically,
+auxilary pointers must point at elements of the auxilary area,
+two auxilary pointers are not permitted to point at the same auxilary
+area element, and an auxilary area element that is preceded
+in the auxilary area by a list element may not be pointed at by
+an auxilary pointer.
+
+Thus if the one way to reach an element of
+the auxilary area is deleted, the element may be put on a list of
+free elements for the auxilary area.  As an optimization,
+an implementation may use the
+free area to hold the head of a list of free elements of the auxilary
+area.
+
+As an optimization, \skey{auxilary stub}s can be used in place of object
+auxilary area elements.  When this is done, the description of this
+section must be modified as explained in \secref{AUXILARY-STUBS}.
+
+\subsubsubsection{List Pointers}
+\label{LIST-POINTERS}
 
 A \MUPkey{list\_pointer} can be used to move around in a object at
 the list level.  The functions for using a list pointer are:
 
 \begin{center}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{list\_pointer}\verb| ( min::short_obj * so )|
-\LABEL{MUP::LIST_POINTER_OF_SHORT_OBJ} \\
-(constructor)~\verb|MUP::|
-	& \MUPKEY{list\_pointer}\verb| ( min::long_obj * lo )|
-\LABEL{MUP::LIST_POINTER_OF_LONG_OBJ} \\
+	& \MUPKEY{list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::gen obj )|
 \LABEL{MUP::LIST_POINTER_OF_GEN} \\
 \verb|min::gen |
-	& \TTKEY{start}\verb| ( min::list_pointer & lp, unsigned p )|
-\LABEL{START_OF_LIST_POINTER} \\
+	& \TTKEY{start\_hash}%
+	  \verb| ( min::list_pointer & lp, unsigned index )|
+\LABEL{START_HASH} \\
+\verb|min::gen |
+	& \TTKEY{start\_vector}%
+	  \verb| ( min::list_pointer & lp, unsigned index )|
+\LABEL{START_VECTOR} \\
+\verb|min::gen |
+	& \TTKEY{start\_copy}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp,| \\
+	  \verb|   min::list_pointer & lp2 )|
+	  \end{tabular}
+\LABEL{START_COPY} \\
 \verb|min::gen |
 	& \TTKEY{next}\verb| ( min::list_pointer & lp )|
 \LABEL{NEXT_OF_LIST_POINTER} \\
@@ -2030,26 +2066,46 @@ the list level.  The functions for using a list pointer are:
 	& \TTKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{CURRENT_OF_LIST_POINTER} \\
 \verb|min::gen |
-	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp, min::gen p )|
-\LABEL{START_SUBLIST_OF_LIST_POINTER} \\
+	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
+\LABEL{START_SUBLIST} \\
+\verb|bool min::|
+	& \MINKEY{is\_list\_end}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LIST_END} \\
+\verb|bool min::|
+	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
+\LABEL{MIN::IS_SUBLIST} \\
+\verb|void |
+	& \TTKEY{insert\_before}\verb| ( min::list_pointer & lp, min::gen v )|
+\LABEL{INSERT_BEFORE} \\
+\verb|void |
+	& \TTKEY{insert\_after}\verb| ( min::list_pointer & lp, min::gen v )|
+\LABEL{INSERT_AFTER} \\
 \end{tabular}\end{center}
 
 A list pointer is created to move around in a particular object.
-Once created it can be started on a new list by the {\tt start} function,
-or on a new sublist by the {\tt start\_sublist} function.
+Once created it can be started on a new list by one of the
+list \skey{start list function}s,
+{\tt start\_hash}, {\tt start\_vector}, or {\tt start\_copy}
+(note {\tt start\_sublist} is \underline{not} a start list function).
+If the object is relocated,
+the list pointer must be reinitialized by re-calling
+the a start list function.  Relocating an object
+can also reorganize the object, in which case body vector indices pointing
+into the auxilary area may change, invalidating positioning information
+contained in any list pointer pointing into the object.
 
-A list pointer points into the relocatable body of an object.  When the
-object is relocated, the list pointer must be reinitialized by recalling
-the {\tt start} function with a list head index.  Relocation of an object
-can also reorganize the object, in which case body vector indices that
-are not of list heads may become invalid.
+The {\tt start\_hash} function positions a list pointer at the beginning of a
+list whose head is at the given index in the hash table, treating the
+hash table as a vector.  This function returns the value of the first
+element of the list, or returns {\tt min::LIST\_END} if the list is empty.
 
-The {\tt start} function positions a list pointer at the beginning of a
-list, and takes as an argument the index of a list head
-in the object body vector.  This index may point into the
-hash table or attribute vector.  The {\tt start} function
-returns the value of the first element of the list, or returns
-{\tt min::LIST\_END} if the list is empty.
+The {\tt start\_vector} function is analogous except it is given
+an index in the object attribute vector and positions the list pointer
+at the beginning of a list whose head is in that vector.
+
+The {\tt start\_copy} function positions a list pointer to the same place
+as another list pointer.  The two list pointers must have been
+constructed to reference the same object.
 
 The {\tt next} function moves the list pointer to the next list element of the
 list the pointer points at, and returns the value of that
@@ -2062,31 +2118,94 @@ The {\tt current} function just returns the value of the list
 element the list pointer currently points at, or returns {\tt min::LIST\_END}
 if there is no such element because the pointer is at the end of a list.
 
-The value of a list element can be an auxilary sublist pointer or
-\verb|min::EMPTY_SUBLIST|.  Such a list element value represents a
-sublist, and can be passed to the {\tt start\_sublist} function to point
-a list pointer at the first element of the sublist.  The
-{\tt start\_sublist} function returns the value of this first element,
-or returns {\tt min::LIST\_END} if the sublist is empty.
+The value of a list element can represent a sublist.  When a list pointer
+points at a list element representing a sublist, the
+{\tt start\_sublist} function can be called to position the
+list pointer at the first element of the sublist.
+This function returns the value of the first element of
+the sublist, or returns {\tt min::LIST\_END} if the sublist is empty.
+
+Determining whether a list element value represents a sublist requires
+the {\tt min::is\_sublist} function, which must check whether the
+value is a sublist auxilary pointer, is the value {\tt min::EMPTY\_SUBLIST},
+or is a pointer to a sublist auxilary stub as described in
+\secref{AUXILARY-STUBS}.
+
+Determining whether a value represents the end of a list can be done by
+simply checking whether the value equals {\tt min::LIST\_END},
+or can be done with the {\tt min::is\_list\_end} function.
+
+The {\tt insert\_before} function inserts a list element with a given
+value just before the current position of a list pointer.
+The {\tt insert\_after} function inserts a list element just after the
+current position.  If the list pointer is at the end of list,
+{\tt insert\_before} inserts the element at the end of the list, and
+{\tt insert\_after} is an error.  The list pointer continues to point
+at the list element is pointed at before the element was inserted.
+
+TBD: delete, affect of insert on other pointers
+
+\subsubsubsection{Auxilary Stubs}
+\label{AUXILARY-STUBS}
 
 As an optimization, \skey{auxilary stub}s can be used instead of object
 auxilary area elements.  Auxilary stubs are a way of adding elements to
 an object whose unused area has been exhausted, without relocating the
-object.  If the object is later relocated, it can be reorganized to
-eliminate the use of auxilary stubs by moving information from these
-into a new larger object auxilary area.
+object, and are considered to be \skey{extension}s of the object.
+If the object is later relocated, it can be reorganized to
+eliminate the use of auxilary stubs extending the object
+by moving information from these into a new larger object auxilary area.
 
-An auxilary stub holds a \verb|min::gen| value
-that plays the role of an auxilary element value, and has an
-\key{auxilary chain pointer} that can point at another auxilary stub,
-and which plays the role of incrementing the index of an object
-auxilary area element to get to the next auxilary area element.  Auxilary
-stubs are uncollectible, and their chain pointer is stored in the stub
-control.
+The value of an auxilary stub is treated as an auxilary area element value.
+The chain pointer of an auxilary stub is treated as the next auxilary
+area element after the value of the stub.  This chain pointer
+has a value that is treated as a list pointer or as a
+\verb|min::LIST_END| value.  A chain pointer that points at another
+auxilary stub is treated as a list pointer pointing at that stub.
+A chain pointer can also hold an auxilary pointer value that is
+list pointer pointing back into
+the auxilary area of the object the auxilary stub extends.
 
-There are two types of auxilary stubs:
+An auxilary stub has one of the following two uncollectible stub type
+codes:
 
-TBD
+\begin{indpar}
+\begin{list}{}{}
+\item[{\tt const int min::}\MINKEY{LIST\_AUXILARY}]~%
+	\LABEL{MIN::LIST_AUXILARY}\\
+A \verb|min::gen| value pointing at this stub behaves like a list pointer.
+\item[{\tt const int min::}\MINKEY{SUBLIST\_AUXILARY}]~%
+	\LABEL{MIN::SUBLIST_AUXILARY}\\
+A \verb|min::gen| value pointing at this stub behaves like a sublist pointer.
+\end{list}
+\end{indpar}
+
+Stubs with the first type code are called \skey{list auxilary stub}s,
+and those with the second type code are called \skey{sublist auxilary stub}s.
+
+With these definitions, the description of the list level of an object
+given in \secref{OBJECT-LIST-LEVEL} is modified as follows.
+A \verb|min::gen| value that points at list auxilary stub is
+treated as a list pointer.
+A \verb|min::gen| value that points at sublist auxilary stub is
+treated as a sublist pointer.
+
+Therefore a \verb|min::gen| value pointing at a list auxilary stub
+cannot be a list element value, and
+a \verb|min::gen| value pointing at a sublist auxilary stub
+is a list element value that represents a sublist.
+
+If an auxilary stub is pointed at by a chain pointer, the stub must
+be a list auxilary stub.
+
+An auxilary stub can be pointed at by only one pointer stored in an
+object or in some auxilary stub extending an object.
+Thus auxilary
+stubs can be freed as soon as the pointer to them is deleted.  This
+mechanism, and not garbage collection, frees auxilary stubs.
+
+\subsubsection{Object Attribute Level}
+\label{OBJECT-LEVEL-LEVEL}
 
 At the \key{attribute level}, the object is a set of attribute name/value
 pairs.  If the name is an unsigned integer small enough to index an
@@ -2333,21 +2452,25 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\verb|min::|\MINKEY{DEALLOCATED} \LABEL{DEALLOCATED-TYPE}
+\verb|const int min::|\MINKEY{DEALLOCATED} \LABEL{MIN::DEALLOCATED}
 \\
-\verb|min::|\MINKEY{NUMBER} \LABEL{NUMBER-TYPE}
+\verb|const int min::|\MINKEY{NUMBER} \LABEL{MIN::NUMBER}
 \\
-\verb|min::|\MINKEY{SHORT\_STR} \LABEL{SHORT-STR-TYPE}
+\verb|const int min::|\MINKEY{SHORT\_STR} \LABEL{MIN::SHORT_STR}
 \\
-\verb|min::|\MINKEY{LONG\_STR} \LABEL{LONG-STR-TYPE}
+\verb|const int min::|\MINKEY{LONG\_STR} \LABEL{MIN::LONG_STR}
 \\
-\verb|min::|\MINKEY{LABEL} \LABEL{LABEL-TYPE}
+\verb|const int min::|\MINKEY{LABEL} \LABEL{MIN::LABEL}
 \\
-\verb|min::|\MINKEY{LABEL\_PAIR} \LABEL{LABEL-PAIR-TYPE}
+\verb|const int min::|\MINKEY{LABEL\_PAIR} \LABEL{MIN::LABEL_PAIR}
 \\
-\verb|min::|\MINKEY{SHORT\_OBJ} \LABEL{SHORT-OBJ-TYPE}
+\verb|const int min::|\MINKEY{SHORT\_OBJ} \LABEL{MIN::SHORT_OBJ}
 \\
-\verb|min::|\MINKEY{LONG\_OBJ} \LABEL{LONG-OBJ-TYPE}
+\verb|const int min::|\MINKEY{LONG\_OBJ} \LABEL{MIN::LONG_OBJ}
+\\
+\verb|const int min::|\MINKEY{LIST\_AUXILARY} \LABEL{MIN::LIST_AUXILARY}
+\\
+\verb|const int min::|\MINKEY{SUBLIST\_AUXILARY} \LABEL{MIN::SUBLIST_AUXILARY}
 
 \end{indpar}
 
@@ -2855,11 +2978,8 @@ struct min
 \begin{tabular}{@{}r@{}p{4.0in}}
 
 (constructor)~\verb|MUP::|
-	& \MUPKEY{list\_pointer}\verb| ( min::short_obj * so )|
-\LABEL{MUP::LIST_POINTER_OF_SHORT_OBJ} \\
-(constructor)~\verb|MUP::|
-	& \MUPKEY{list\_pointer}\verb| ( min::long_obj * lo )|
-\LABEL{MUP::LIST_POINTER_OF_LONG_OBJ} \\
+	& \MUPKEY{list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::gen obj )|
 \LABEL{MUP::LIST_POINTER_OF_GEN} \\
@@ -2868,18 +2988,42 @@ struct min
 
 \begin{tabular}{@{}r@{}p{5.0in}}
 
-\verb|unsigned |
-	& \TTKEY{start}\verb| ( min::list_pointer & lp, unsigned p )|
-\LABEL{START_OF_LIST_POINTER} \\
+\verb|min::gen |
+	& \TTKEY{start\_hash}\ARGBREAK
+	  \verb| ( min::list_pointer & lp, unsigned index )|
+\LABEL{START_HASH} \\
+\verb|min::gen |
+	& \TTKEY{start\_vector}\ARGBREAK
+	  \verb| ( min::list_pointer & lp, unsigned index )|
+\LABEL{START_VECTOR} \\
+\verb|min::gen |
+	& \TTKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   min::list_pointer & lp2 )|
+\LABEL{START_COPY} \\
 \verb|unsigned |
 	& \TTKEY{next}\verb| ( min::list_pointer & lp )|
 \LABEL{NEXT_OF_LIST_POINTER} \\
 \verb|unsigned |
 	& \TTKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{CURRENT_OF_LIST_POINTER} \\
-\verb|unsigned | & \TTKEY{start\_sublist}\ARGBREAK
-	\verb| ( min::list_pointer & lp, unsigned p )|
-\LABEL{START_SUBLIST_OF_LIST_POINTER} \\
+\verb|min::gen |
+	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
+\LABEL{START_SUBLIST} \\
+\verb|bool min::|
+	& \MINKEY{is\_list\_end}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LIST_END} \\
+\verb|bool min::|
+	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
+\LABEL{MIN::IS_SUBLIST} \\
+\verb|void |
+	& \TTKEY{insert\_before}\ARGBREAK
+	  \verb| ( min::list_pointer & lp, min::gen v )|
+\LABEL{INSERT_BEFORE} \\
+\verb|void |
+	& \TTKEY{insert\_after}\ARGBREAK
+	  \verb| ( min::list_pointer & lp, min::gen v )|
+\LABEL{INSERT_AFTER} \\
 
 \end{tabular}
 
