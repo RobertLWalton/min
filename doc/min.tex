@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 12, 2005}
+\date{March 13, 2005}
  
 \maketitle
 
@@ -1262,7 +1262,7 @@ because it is not in such a subexpression.  To recognize the \verb|*| as
 an operator, one should put \verb|5 * y| in parentheses, as in
 `\verb|move ( 5 * y ), x <- x + 1|'.
 
-In \key{code mode} all operators are recognized,
+In \key{code mode}\label{CODE-MODE} all operators are recognized,
 while line feeds, indentation, and the code indicator `\verb|:|' are
 used to sequence statements within the code block and to indicate
 code subblocks, according to the following rules:
@@ -1282,7 +1282,8 @@ each non-white-space character in the code block initial column begins a new
 statement, and statements so begun are the only statements in the code block.
 
 \item
-If a statement contains a `\verb|:|' \key{code indicator} mark as the last
+If a statement contains a `\verb|:|' \key{code indicator}\label{CODE-INDICATOR}
+mark as the last
 lexeme of a line, the first column of the next lexeme in the statement
 begins a \key{code subblock} that includes the rest of the statement.  The
 first column of that next lexeme is the initial column of the code
@@ -1342,28 +1343,57 @@ The rules for computing the object from the lexeme sequence are:
 It is an error if there are unmatched brackets (bracket characters
 in quoted strings do not count as brackets).
 
-If the lexeme sequence begins and ends with matching brackets, these
-are removed from the sequence, and become the {\tt .initiator} and
-{\tt .terminator} attributes of the object being computed.
-
-\item The lexeme sequence is then scanned from right to left to produce
-the list elements of the object being computed.  At each stage of the
-scan, lexemes are input and another list element is produced according
-to the rules:
+Then the first of the following rules which can be applied is applied,
+unless no rule can be applied.
 
 \begin{enumerate}
 
-\item If the next input is a word or mark, the word or mark becomes the next
-list element.
+\item If the lexeme sequence begins and ends with matching brackets, these
+are removed from the sequence, and become the {\tt .initiator} and
+{\tt .terminator} attributes of the object being computed.
 
-\item If the next input is a quoted string, the next list element is an
-object whose only attributes are a {\tt 1} attribute that is the quoted string
-and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
+\item If the lexeme sequence begins with a `\verb|:|' code indicator mark
+(\pagref{CODE-INDICATOR}), this
+is removed from the sequence, and becomes the {\tt .initiator}
+attribute of the object being computed.
+
+\end{enumerate}
+
+\item The remaining
+lexeme sequence is then scanned from right to left to produce
+the list elements of the object being computed (these become the
+values of the attributes named {\tt 1}, {\tt 2}, {\tt 3}, \ldots).
+At each stage of the
+scan, lexemes are input and another list element is produced according
+to the first of the following rules that can be applied.
+
+\begin{enumerate}
+
+\item If the next input is the beginning of a statement within a code
+block (\pagref{CODE-MODE}),
+the subsequence of lexemes that is the statement (including any
+subblocks) becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
 
 \item If the next input is a bracket, the subsequence of lexemes beginning
 with the bracket and ending with the matching bracket becomes the input,
 the lexical scanning algorithm is called recursively with this subsequence,
 and the object output by the recursive call becomes the next list element.
+
+\item If the next input is a `\verb|:|' code indicator mark
+(\pagref{CODE-INDICATOR}), the subsequence of lexemes consisting of
+the code indicator mark and the following subblock becomes the input,
+the lexical scanning algorithm is called recursively with this subsequence,
+and the object output by the recursive call becomes the next list element.
+
+\item If the next input is a quoted string, the next list element is an
+object whose only attributes are an attribute named {\tt 1} whose value
+is the quoted string atom,
+and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
+
+\item If the next input is a word or mark, the word or mark becomes the next
+list element.
 
 \end{enumerate}
 
@@ -1403,10 +1433,12 @@ following:
     .terminator: ")"
 \end{verbatim}\end{indpar}
 
-Recall the in object representations there is no difference between
-a quoted string representation of a mark and the mark, but the quoted
-string representation of marks that can be operators is used, to prevent
-them from being misread as operators.  Thus \verb|"+"| is used in the
+Recall that within objects there is no difference between
+a quoted string representation of a mark and the mark, as both are
+the same atom, but in textual representations of objects the quoted
+string representation of marks that can be operators is used,
+to keep the marks from being misread as operators.
+Thus \verb|"+"| is used in the textual
 object representation above to denote the 1 character atom \verb|+|,
 and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
 also denote 1 character atoms.
