@@ -84,9 +84,11 @@
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
 \newcommand{\minkey}[1]{{\tt min::#1}\ttindex{min::#1}\ttindex{#1}}
-\newcommand{\mupkey}[1]{{\tt mup::#1}\ttindex{mup::#1}\ttindex{#1}}
+\newcommand{\minmkey}[2]{{\tt min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\MUPkey}[1]{{\tt MUP::#1}\ttindex{MUP::#1}\ttindex{#1}}
+\newcommand{\MUPmkey}[2]{{\tt MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\minindex}[1]{\ttindex{min::#1}\ttindex{#1}}
-\newcommand{\mupindex}[1]{\ttindex{mup::#1}\ttindex{#1}}
+\newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
 
 
 \newcommand{\secref}[1]{\ref{#1}\,p\pageref{#1}}
@@ -224,7 +226,9 @@
 \newcommand{\LABEL}[1]{\label{#1}}
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt #1}\minindex{#1}}
-\newcommand{\MUPKEY}[1]{{\tt #1}\mupindex{#1}}
+\newcommand{\MUPKEY}[1]{{\tt #1}\MUPindex{#1}}
+
+\newcommand{\REL}{$^R$}
 
 \begin{document}
         
@@ -256,6 +260,20 @@ the Minimal Descriptive Programming Language.
 This document is written for readers who wish to add C++ code
 to a MIN implementation, or who wish to maintain an implementation.
 
+A small number of \skey{abbreviation}s are used throughout this document
+and the corresponding code:
+
+\begin{center}
+\begin{tabular}{ll}
+\ttmkey{aux}{abbreviation}	& auxilary (\secref{AUXILARY}) \\
+\ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
+\ttmkey{min}{abbreviation}	& the MIN system \\
+\ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
+\ttmkey{str}{abbreviation}	& string \\
+\ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
+\end{tabular}
+\end{center}
+
 
 \section{Data}
 
@@ -266,7 +284,7 @@ the \key{protected interface}, which can be used
 by C++ code to access MIN data memory while maintaining the integrity
 of that memory, and the \key{unprotected interface}, which provides
 more efficient access to MIN data memory but requires the user to
-follow certain protocols.
+follow certain protocols to be sure the memory is not damaged.
 
 From the syntactic point of view the
 only distinction between these interfaces is that code that
@@ -279,15 +297,15 @@ uses the unprotected interface must
 and all unprotected
 interface names begin with `\minkey{unprotected::}'.  Code
 that uses the unprotected interface typically abbreviates this long
-prefix to `\ttmkey{mup::}{abbreviates {\tt min::unprotected::}}'
+prefix to `\ttmkey{MUP::}{abbreviates {\tt min::unprotected::}}'\label{MUP}
 by including the following definition after the `\verb|#include|' statement
 above:
 
 \begin{center}
-\verb|#define  mup  min::unprotected|
+\verb|#define  MUP  min::unprotected|
 \end{center}
 
-In this document we will use the abbreviation `\verb|mup|' for
+In this document we will use the abbreviation `\verb|MUP|' for
 `\verb|min::unprotected|'.
 
 The data of MIN is defined using C-compatible \ttmkey{struct}{C compatible}'s
@@ -303,10 +321,10 @@ As a consequence of using only C-compatible \verb|struct|'s and
 and uses overloaded functions instead.  Protected functions
 have names beginning with `\ttmkey{min::}{in function name}'
 only if they have no argument that is a pointer to a MIN defined
-datum.  Most protected MIN functions have such pointer arguments
+datum.  Many protected MIN functions have such pointer arguments
 and have overloaded names that do not begin with any class qualifier.
 Unprotected MIN functions have names beginning with 
-`\ttmkey{mup::}{in function name}'.
+`\ttmkey{MUP::}{in function name}'.
 
 In defining MIN data the following number types are used to be sure
 the size of each number is clear:
@@ -334,7 +352,8 @@ the size of each number is clear:
 \label{MIN::FLOAT32}%
 \label{MIN::UNS64}%
 \label{MIN::INT64}%
-\label{MIN::FLOAT64}
+\label{MIN::FLOAT64}%
+\label{UNS}
 
 Currently planned implementations of MIN assume a compiler that has
 direct support for 64 bit integers.  However, use of 64 bit integer
@@ -356,10 +375,9 @@ the internal name of the object.  Some or all atoms, depending
 on implementation, have stubs.
 
 A stub is divided into an 8 byte value and an 8 byte control.
-The \mkey{value}{of stub} can hold an IEEE floating point number,
+The \mkey{value}{of stub} can be an IEEE floating point number,
 an 8 character string, or, as we will soon see, a pointer to a body.
-It is also possible, though not common, for a value to hold any other
-8 bytes of information.
+It is also possible for a value to hold any other 8 bytes of information.
 
 The control holds a 1 byte type code and other information used,
 for example, by the garbage collector.
@@ -367,14 +385,36 @@ for example, by the garbage collector.
 A \key{body} is a variable sized relocatable block of memory
 attached to a particular stub.  A stub may have one body attached to
 it, in which case the stub value is a pointer to that body.
-At almost any time the body can be moved and the stub value reset to
-point at the new location of the body.  The body may be deallocated by
-moving it to unimplemented memory.  Bodies are always some multiple
+When certain functions are called,
+any body can be moved and its corresponding stub value reset to
+point at the new location of the body.
+Functions with this property are called
+`\key{relocating functions}'\label{RELOCATING-FUNCTIONS}
+and are marked by {\REL} in documentation.  Included
+are functions that allocate objects.
+Obtaining a pointer into a body is an unprotected operation, because
+the pointer must be maintained if a relocating function is called.
+
+\ikey{Interrupts}{interrupt!and relocation} can relocate bodies.
+Therefore interrupts are only allowed
+at specific points in the code.  The inline
+\minmkey{interrupt}{relocating}{\REL} function checks an interrupt
+flag, and if that is set, calls an out-of-line function to process
+the interrupt.
+
+A body may be \mkey{deallocated}{by moving}
+by moving it to unimplemented memory.  When this is done the
+stub \mkey{type code}{reset on deallocation}
+is reset to a value that indicates the body is deallocated.
+
+Bodies are always some multiple
 of 8 bytes long, and are allocated on 8 byte boundaries.
 
-Protected functions that take a stub pointer as argument use
+\ikey{Protected functions}{protected function!using {\tt assert}}
+that take a stub pointer as argument use
 \ttmkey{assert}{in protected function} statements to check
-the type code of the stub and various lengths.  Unprotected functions
+the \mkey{type code}{checked by {\tt assert}}
+of the stub and various lengths.  Unprotected functions
 contain no such checks.
 
 Memory consisting of unrelocatable stubs pointing at relocatable
@@ -388,7 +428,10 @@ implementations that go back to the late 1950's or early 60's: see
 p33 of the author's thesis, R-CODE, A Very Capable Virtual Computer.}
 
 The type name of a stub is `\minkey{stub}', and a pointer to a stub
-has type `\verb|min::stub *|'.\LABEL{MIN::STUB}
+has type `\verb|min::stub *|'.\LABEL{MIN::STUB}\footnote{We do
+not use `{\tt const min::stub *}' types partly because such cannot be converted
+to general values, since the latter have no way of distinguishing
+{\tt const} and non-{\tt const} stubs.}
 
 
 \subsection{General Values}
@@ -407,20 +450,23 @@ an auxilary pointer
 General values are used to designate attribute names and values in
 objects.
 
-It does not matter whether a general value stores an atom or a pointer
-to the atom, so atoms are immutable and cannot be changed.
+Efficiency asside, it does not matter
+whether a general value stores an atom or a pointer
+to the atom, as atoms are immutable and cannot be changed.
 
-An auxilary pointer is an integer that is used by a general value
-inside an object body to point at some part of the same body,
-called an auxilarly.  See~\secref{AUXILARY-POINTERS}.
+An \key{auxilary pointer} is an integer that is used by a general value
+inside an object body to point at some part, called an
+\key{auxilary},\label{AUXILARY}
+of the same body.  See~\secref{AUXILARY-POINTERS}.
 
 There are two kinds of MIN implementation: `\key{compact}' and
-`\key{loose}'.
+`\key{loose}'.\label{COMPACT}\label{LOOSE}
 A compact implementation stores only 32-bit
 general values in data memory, and uses 64-bit general values only
 as function arguments and values.
 A loose implementation uses only 64-bit
-general values, and uses \underline{no} 32-bit general values.
+general values,
+and \underline{never} uses 32-bit general values.
 
 The value of a compact implementation is that it uses less memory,
 but there may be a speed penalty (see \secref{32-BIT-GENERAL-VALUES}).
@@ -429,11 +475,18 @@ there is a memory penalty.  It is not clear what the speed difference
 between the two implementations really is, so both implementations
 are offered in order to decide the issue by experiment.
 
+Also compact implementations do not permit more than
+about $2^{32}$ objects to exist in memory at one time, whereas
+loose implementations permit about $2^{40}$ objects.
+
 \subsubsection{32-Bit General Values}
 \label{32-BIT-GENERAL-VALUES}
 
+32-bit general values are used only in compact implementations
+(\pagref{COMPACT}).
+
 A \key{32-bit general value} has type \minkey{gen32}\LABEL{MIN::GEN32} and
-is a 32 bit aligned value that can hold a value of one of the following
+is a 32 bit aligned value that can be of one of the following
 subtypes
 
 \begin{center}
@@ -445,8 +498,11 @@ an 28-bit auxilary pointer
 \end{center}
 
 
+\begin{indpar}
+Note:
 On machines that have 32 bit addresses (e.g.,
-the IA32\footnote{Intel Architecture 32-bit} machines), stub addresses
+the IA32\footnote{Intel Architecture 32-bit, a.k.a, i386 machines.}
+machines), stub addresses
 stored in {\tt min::gen32} values are implemented as addresses of stubs.
 On other machines that may use addresses longer than 32-bits, 
 stub addresses are stored in {\tt min::gen32} values as
@@ -458,10 +514,12 @@ translated to addresses by shifting left.} and adding a base constant.
 One effect of using VSN's
 instead of addresses is to multiply by 16 the number of
 stubs that may exist in memory without needing to use more than 32 bits
-to hold the stub address.
+to hold the stub address, and the other effect is to increase program
+execution time somewhat.
+\end{indpar}
 
 A {\tt min::gen32} integer value consists of a high order 4 bit subtype
-code and a low order 28 bit integer stored in offset form, so the true
+code and a low order 28 bit signed integer stored in offset form, so the true
 integer can be derived from the {\tt min:gen32} value by subtracting the
 {\tt min:gen32} representation of zero.  Similarly auxilary pointers
 consist of a high order 4 bit subtype code and a low order 28 bit auxilary
@@ -486,7 +544,7 @@ indicated subtype and {\tt 0} otherwise:
 \end{tabular}\end{center}
 
 The following protected functions return the value appropriate for a given
-subtype, after checking the subtype code with an {\tt assert} statement:
+subtype, after checking the subtype with an {\tt assert} statement:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen32 v )|
@@ -498,14 +556,14 @@ subtype, after checking the subtype code with an {\tt assert} statement:
 \end{tabular}\end{center}
 
 The following unprotected functions return the value appropriate for a given
-subtype, \underline{without} checking the subtype code:
+subtype, \underline{without} checking the subtype:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int mup::| & \MUPKEY{int\_of}\verb| ( min::gen32 v )|
+\verb|int MUP::| & \MUPKEY{int\_of}\verb| ( min::gen32 v )|
 \LABEL{MUP::INT_OF_GEN32} \\
-\verb|min::stub *  mup::| & \MUPKEY{stub\_of}\verb| ( min::gen32 v )|
+\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen32 v )|
 \LABEL{MUP::STUB_OF_GEN32} \\
-\verb|unsigned mup::| & \MUPKEY{aux\_of}\verb| ( min::gen32 v )|
+\verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen32 v )|
 \LABEL{MUP::AUXILARY_OF_GEN32} \\
 \end{tabular}\end{center}
 
@@ -530,25 +588,28 @@ The following unprotected functions are analogous but do not check for
 range errors.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen32 mup::| & \MINKEY{new\_int\_gen32}\verb| ( int v )|
+\verb|min::gen32 MUP::| & \MINKEY{new\_int\_gen32}\verb| ( int v )|
 \LABEL{MUP::NEW_INT_GEN32} \\
-\verb|min::gen32 mup::| & \MINKEY{new\_gen32}\verb| ( min::stub * s )|
+\verb|min::gen32 MUP::| & \MINKEY{new\_gen32}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN32_OF_STUB} \\
-\verb|min::gen32 mup::| & \MINKEY{new\_aux\_gen32}\verb| ( unsigned p )|
+\verb|min::gen32 MUP::| & \MINKEY{new\_aux\_gen32}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_AUX_GEN32} \\
 \end{tabular}\end{center}
 
 \subsubsection{64-Bit General Values}
 \label{64-BIT-GENERAL-VALUES}
 
+64-bit general values are the only kind of general value used
+in loose implementations (\pagref{LOOSE}).
+
 A \key{64-bit general value} has type \minkey{gen64}\LABEL{MIN::GEN64} and
-is a 64 bit aligned value that can hold a value of one of the following
+is a 64 bit aligned value that can be of one of the following
 subtypes
 
 \begin{center}
 \begin{tabular}{l}
 an IEEE 64-bit floating point number \\
-a 0-6 character string \\
+a 0-5 character string \\
 a pointer to a stub \\
 an auxilary pointer \\
 \end{tabular}
@@ -579,7 +640,7 @@ indicated subtype and {\tt 0} otherwise:
 \end{tabular}\end{center}
 
 The following protected functions return the value appropriate for a given
-subtype, after checking the subtype code with an {\tt assert} statement:
+subtype, after checking the subtype with an {\tt assert} statement:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen64 v )|
@@ -603,40 +664,41 @@ The {\tt short\_strcpy} and {\tt short\_strncpy} functions
 copy a string value to a buffer pointed at
 by \verb|p|.  Copying stops when a NUL is copied or when the
 \verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
-of \verb|p| is returned.  These functions differ from the
-{\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions which
-work with a {\tt gen64} argument that can either encode a 0-6 character
-string directory or can be a pointer to a stub of possibly longer string:
+of \verb|p| is returned.  These functions differ from the standard C/C++
+{\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions only in that
+these functions, instead of taking a source {\tt char *} string argument,
+take a source {\tt gen64} argument that can either encode a 0-5 character
+string directly, or can be a pointer to a stub of possibly longer string:
 see~\pagref{STRLEN_OF_GEN64}.
 
 The following unprotected functions return the value appropriate for a given
-subtype, \underline{without} checking the subtype code:
+subtype, \underline{without} checking the subtype:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::float64 mup::| & \MUPKEY{float64\_of}\verb| ( min::gen64 v )|
+\verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::FLOAT64_OF_GEN64} \\
-\verb|min::uns64 mup::| & \MUPKEY{short\_string\_of}\verb| ( min::gen64 v )|
+\verb|min::uns64 MUP::| & \MUPKEY{short\_string\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::SHORT_STRING_OF_GEN64} \\
-\verb|min::stub *  mup::| & \MUPKEY{stub\_of}\verb| ( min::gen64 v )|
+\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::STUB_OF_GEN64} \\
-\verb|unsigned mup::| & \MUPKEY{aux\_of}\verb| ( min::gen64 v )|
+\verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::AUXILARY_OF_GEN64} \\
 \end{tabular}\end{center}
 
-Here the \verb|min::uns64| value returned by \mupkey{short\_string\_of}
+Here the \verb|min::uns64| value returned by \MUPkey{short\_string\_of}
 should be overlaid by a union with a \verb|char[]| buffer, as in
 the code:
 
 \begin{indpar}\label{SHORT-STRING-OVERLAY}\begin{verbatim}
-union { min::uns64 str; char buf[8]; } u;
+union { min::uns64 str; char buf[6]; } u;
 min::gen64 v;
 . . . .
-u.str = mup::short_string_of ( v );
+u.str = MUP::short_string_of ( v );
 cout << u.buf;
 \end{verbatim}\end{indpar}
 
-The {\tt mup::short\_string\_of} function merely copies the
-6 characters from the {\tt min::gen64} value appending 2 NUL characters.
+The {\tt MUP::short\_string\_of} function merely copies the
+5 characters of the {\tt min::gen64} value and appends a NUL character.
 
 New {\tt min::gen64} values can be generated by the following protected
 functions:
@@ -653,7 +715,7 @@ functions:
 \end{tabular}\end{center}
 
 Here the NUL-terminated string pointed at by \verb|p| must not
-contain more than 6 characters, and an \verb|unsigned| value is
+contain more than 5 characters, and an \verb|unsigned| value is
 taken to be an auxilary pointer.
 The reason the floating point and auxilary pointer functions are not overloaded
 is the danger of confusing them when numbers are stored in {\tt unsigned}
@@ -664,13 +726,13 @@ The following unprotected functions are analogous but do not check for
 range errors.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen64 mup::| & \MUPKEY{new\_float\_gen64}\verb| ( min::float64 v )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_float\_gen64}\verb| ( min::float64 v )|
 \LABEL{MUP::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 mup::| & \MUPKEY{new\_gen64}\verb| ( const char * p )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( const char * p )|
 \LABEL{MUP::NEW_GEN64_OF_CHAR} \\
-\verb|min::gen64 mup::| & \MUPKEY{new\_gen64}\verb| ( min::stub * s )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN64_OF_STUB} \\
-\verb|min::gen64 mup::| & \MUPKEY{new\_aux\_gen64}\verb| ( unsigned p )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_aux\_gen64}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_AUX_GEN64} \\
 \end{tabular}\end{center}
 
@@ -681,16 +743,17 @@ input to {\tt min::new\_gen64} is assumed to not have these subtype
 codes, and no check is made for such, even by range-checking protected
 functions.
 
-The actual string and stub pointer {\tt min::gen64} subtype codes
+The actual string, stub pointer, and auxilary pointer
+{\tt min::gen64} subtype codes
 are implementation dependent.  The following constants equal these
 codes as 20 bit unsigned integers:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{GEN64\_STRING}
+\verb|const unsigned min::| & \MINKEY{GEN64\_STRING}
 \LABEL{MIN::GEN64_STRING} \\
-\verb|unsigned min::| & \MINKEY{GEN64\_STUB}
+\verb|const unsigned min::| & \MINKEY{GEN64\_STUB}
 \LABEL{MIN::GEN64_STUB} \\
-\verb|unsigned min::| & \MINKEY{GEN64\_AUX}
+\verb|const unsigned min::| & \MINKEY{GEN64\_AUX}
 \LABEL{MIN::GEN64_AUX} \\
 \end{tabular}\end{center}
 
@@ -715,11 +778,13 @@ ensure that thay are up-to-date.  This programming makes use of
 the `\key{relocated flag}\,' which is one of the execution flags
 described in~\secref{EXECUTION-FLAGS}.
 
-Relocation can only happen inside certain MIN system functions.  When it
+Relocation can only happen inside relocating functions
+(\pagref{RELOCATING-FUNCTIONS}).  When it
 happens, the relocated flag is set.
 
-Upon return from the call to any function that might relocate bodies,
-the relocated flag must be checked, and if on, the function caller must:
+Upon return from the call to any relocating function,
+a caller who is using body pointers must check the relocated flag,
+and if on, the caller must:
 
 \begin{center}
 \begin{tabular}{l}
@@ -734,9 +799,7 @@ it must set the relocated flag if that flag was ever cleared by
 the returning function.
 
 Pointers into bodies are recomputed from body pointers stored in stubs,
-which are updated by the MIN system functions that relocate bodies.
-
-\newcommand{\REL}{$^R$}
+which are updated by the relocating functions.
 
 The operation of \ikey{deallocating a body}{dealocate!body}
 is considered to be a relocation of the body.  The body pointer in the
@@ -750,9 +813,9 @@ code when reloading a possibly relocated body pointer.  Also, using an
 explicit type code recheck can be a valuable tool for debugging
 accesses to deallocated bodies.
 
-Because of all the special handling required by body pointers, functions
+Because of the special handling required by body pointers, functions
 that obtain body pointers from stubs are unprotected, and
-names of functions that might relocate bodies are marked
+names of relocating functions, which might relocate bodies, are marked
 with the superscript {\REL} in this document.
 
 \subsection{Stub Control}
@@ -760,13 +823,14 @@ with the superscript {\REL} in this document.
 
 A stub contains an 8 byte value and an 8 byte \mkey{control}{of stub}.
 If the control is viewed as a 64 bit integer, its high order byte
-is the type code.  The high order bit of this, which is the high order
+is the \mkey{type code}{high order byte!of stub control}.
+The \mkey{high order bit}{of stub type code} of this, which is the high order
 bit of the 64 bit control integer, is off if the stub is managed by
 the garbage collector (gc), and on otherwise.  In the former case the
 stub is said to be `\key{collectible}'.  In the latter case it is
 said to be `\key{uncollectible}'.
 
-If the stub is collectible, so it is managed by the garbage collector,
+If the stub is collectible,
 the control is used exclusively by the garbage collector,
 except for the type code, which is shared between the garbage collector
 and the rest of the system.  A typical (but not required)
@@ -870,14 +934,14 @@ an immutable \verb|min::float64| value that can be read by
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::float64 | & \MINKEY{float64\_of}\verb| ( min::stub * s )|
 \LABEL{FLOAT64_OF} \\
-\verb|min::float64 mup::| & \MUPKEY{float64\_of}\verb| ( min::stub * s )|
+\verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::FLOAT64_OF}
 \end{tabular}\end{center}
 
 written by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void mup::| &
+\verb|void MUP::| &
     \MUPKEY{set\_float64\_of}\verb| ( min::stub * s, min::float64 f )|
 \LABEL{MUP::SET_FLOAT64_OF}
 \end{tabular}\end{center}
@@ -964,19 +1028,20 @@ an immutable \verb|min::uns64| value that holds a NUL padded
 
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::uns64 mup::| & \MUPKEY{short\_string\_of}\verb| ( min::stub * s )|
+\verb|min::uns64 MUP::| &
+	\MUPKEY{short\_string\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::SHORT_STRING_OF}
 \end{tabular}\end{center}
 
 and written by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void mup::| &
+\verb|void MUP::| &
     \MUPKEY{set\_short\_string\_of}\verb| ( min::stub * s, min::uns64 str )|
 \LABEL{MUP::SET_SHORT_STRING_OF}
 \end{tabular}\end{center}
 
-Here the \verb|min::uns64| value returned by \mupkey{short\_string\_of}
+Here the \verb|min::uns64| value returned by \MUPkey{short\_string\_of}
 should be overlaid by a union with a \verb|char[ ]| buffer, as in
 
 \begin{indpar}\begin{verbatim}
@@ -984,12 +1049,12 @@ union { min::uns64 str; char buf[9]; } u;
 min::stub * s1, * s2;
 . . . .
 u.buf[8] = 0;	// Be sure result is NUL terminated.
-u.str = mup::short_string_of ( s1 );
+u.str = MUP::short_string_of ( s1 );
 cout << u.buf;
 . . . .
 u.str = 0;	// Be sure all 8 bytes are NUL padded.
 cin >> u.buf;
-mup::set_short_string_of ( s2 , u.str );
+MUP::set_short_string_of ( s2 , u.str );
 \end{verbatim}\end{indpar}
 
 Short string values are NUL (zero) padded 0 to 8 \verb|char|
@@ -1014,16 +1079,16 @@ take time proportional to the string length.  The 64-bit signature
 contains the hash value and the string length.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::long_string * mup::| &
+\verb|min::long_string * MUP::| &
 	\MUPKEY{long\_string\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_STRING_OF} \\
-\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_string * str )|
+\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_string * const str )|
 \LABEL{LENGTH_OF_LONG_STRING} \\
 \verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_string * str )|
 \LABEL{HASH_OF_LONG_STRING} \\
 \verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_string * str )|
 \LABEL{SIGNATURE_OF_LONG_STRING} \\
-\verb|const char * | & \TTKEY{char\_of}\verb| ( min::long_string * str )|
+\verb|const char * | & \TTKEY{char\_of}\verb| ( min::long_string * const str )|
 \LABEL{CHAR_OF_LONG_STRING} \\
 \end{tabular}\end{center}
 
@@ -1043,14 +1108,14 @@ to the string permits the string to be written.  Unprotected functions
 are also provided to set the length and hash.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned mup::| & \MUPKEY{hash\_of}\verb| ( min::long_string * str )|
+\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_string * str )|
 \LABEL{MUP::HASH_OF_LONG_STRING} \\
-\verb|char * mup::| & \MUPKEY{char\_of}\verb| ( min::long_string * str )|
+\verb|char * MUP::| & \MUPKEY{char\_of}\verb| ( min::long_string * const str )|
 \LABEL{MUP::CHAR_OF_LONG_STRING} \\
-\verb|void mup::| &
+\verb|void MUP::| &
    \MUPKEY{set\_length\_of}\verb| ( min::long_string * str, unsigned length )|
 \LABEL{MUP::SET_LENGTH_OF_LONG_STRING} \\
-\verb|void mup::| &
+\verb|void MUP::| &
    \MUPKEY{set\_hash\_of}\verb| ( min::long_string * str, unsigned hash )|
 \LABEL{MUP::SET_HASH_OF_LONG_STRING} \\
 \end{tabular}\end{center}
@@ -1087,7 +1152,8 @@ The functions
 \begin{center}\begin{tabular}{r@{}l}
 \verb|char * | & \TTKEY{strcpy}\verb| ( char * p, min::stub * s )|
 \LABEL{STRCPY} \\
-\verb|char * | & \TTKEY{strncpy}\verb| ( char * p, min::stub * s, unsigned n )|
+\verb|char * | &
+	\TTKEY{strncpy}\verb| ( char * p, min::stub * s, unsigned n )|
 \LABEL{STRNCPY} \\
 \end{tabular}\end{center}
 
@@ -1237,6 +1303,17 @@ the unused area.
 \subsection{Execution Flags}
 \label{EXECUTION-FLAGS}
 
+\section{TBD Implementation Ideas}
+
+
+\subsection{Stack and not Ephemeral}
+
+Instead of ephemeral, we use stack objects.  A stack stub is a stub that
+is only reachable from pointers in the stack.   When a stack stub
+pointer (as a general value) is stored in a non-stack object, the price
+of tracing what it points at to make its target non-stack is paid.
+This is a logical time to pay this cost.
+
 \clearpage
 
 \appendix
@@ -1349,19 +1426,19 @@ Gen32 Value Unprotected Function Declarations:
 
 \begin{tabular}{@{}r@{}p{4.5in}}
 
-\verb|int mup::| & \MUPKEY{int\_of}\verb| ( min::gen32 v )|
+\verb|int MUP::| & \MUPKEY{int\_of}\verb| ( min::gen32 v )|
 \LABEL{MUP::INT_OF_GEN32} \\
-\verb|min::stub *  mup::| & \MUPKEY{stub\_of}\verb| ( min::gen32 v )|
+\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen32 v )|
 \LABEL{MUP::STUB_OF_GEN32} \\
-\verb|unsigned mup::| & \MUPKEY{aux\_of}\verb| ( min::gen32 v )|
+\verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen32 v )|
 \LABEL{MUP::AUXILARY_OF_GEN32} \\[1ex]
 
 
-\verb|min::gen32 mup::| & \MINKEY{new\_int\_gen32}\verb| ( int v )|
+\verb|min::gen32 MUP::| & \MINKEY{new\_int\_gen32}\verb| ( int v )|
 \LABEL{MUP::NEW_INT_GEN32} \\
-\verb|min::gen32 mup::| & \MINKEY{new\_gen32}\verb| ( min::stub * s )|
+\verb|min::gen32 MUP::| & \MINKEY{new\_gen32}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN32_OF_STUB} \\
-\verb|min::gen32 mup::| & \MINKEY{new\_aux\_gen32}\verb| ( unsigned p )|
+\verb|min::gen32 MUP::| & \MINKEY{new\_aux\_gen32}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_AUX_GEN32} \\
 
 \end{tabular}
@@ -1433,22 +1510,22 @@ Gen64 Value Unprotected Function Declarations:
 
 \begin{tabular}{@{}r@{}p{4.5in}}
 
-\verb|min::float64 mup::| & \MUPKEY{float64\_of}\verb| ( min::gen64 v )|
+\verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::FLOAT64_OF_GEN64} \\
-\verb|min::uns64 mup::| & \MUPKEY{short\_string\_of}\verb| ( min::gen64 v )|
+\verb|min::uns64 MUP::| & \MUPKEY{short\_string\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::SHORT_STRING_OF_GEN64} \\
-\verb|min::stub *  mup::| & \MUPKEY{stub\_of}\verb| ( min::gen64 v )|
+\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::STUB_OF_GEN64} \\
-\verb|unsigned mup::| & \MUPKEY{aux\_of}\verb| ( min::gen64 v )|
+\verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::AUXILARY_OF_GEN64} \\[1ex]
 
-\verb|min::gen64 mup::| & \MUPKEY{new\_float\_gen64}\verb| ( min::float64 v )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_float\_gen64}\verb| ( min::float64 v )|
 \LABEL{MUP::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 mup::| & \MUPKEY{new\_gen64}\verb| ( const char * p )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( const char * p )|
 \LABEL{MUP::NEW_GEN64_OF_CHAR} \\
-\verb|min::gen64 mup::| & \MUPKEY{new\_gen64}\verb| ( min::stub * s )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN64_OF_STUB} \\
-\verb|min::gen64 mup::| & \MUPKEY{new\_aux\_gen64}\verb| ( unsigned p )|
+\verb|min::gen64 MUP::| & \MUPKEY{new\_aux\_gen64}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_AUX_GEN64} \\[1ex]
 
 \end{tabular}
@@ -1495,9 +1572,9 @@ Number Stub Unprotected Function Declarations:
 
 \begin{tabular}{@{}r@{}p{4.0in}}
 
-\verb|min::float64 mup::| & \MUPKEY{float64\_of}\verb| ( min::stub * s )|
+\verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::FLOAT64_OF} \\
-\verb|void mup::| &
+\verb|void MUP::| &
     \MUPKEY{set\_float64\_of}\ARGBREAK\verb| ( min::stub * s, min::float64 f )|
 \LABEL{MUP::SET_FLOAT64_OF} \\[1ex]
 
@@ -1523,7 +1600,8 @@ String Stub Protected Function Declarations:
 \verb|char * | & \TTKEY{strcpy}\verb| ( char * p, min::stub * s )|
 \LABEL{STRCPY} \\
 \verb|char * | & \TTKEY{strncpy}\ARGBREAK
-	\verb| ( char * p, min::stub * s,|\ARGBREAK\verb|   unsigned n )|
+	\verb| ( char * p,|\ARGBREAK
+	\verb|   min::stub * s, unsigned n )|
 \LABEL{STRNCPY} \\[1ex]
 
 \verb|void min::stub * min::|
@@ -1577,15 +1655,16 @@ String Stub Unprotected Function Declarations:
 
 \begin{tabular}{@{}r@{}p{4.0in}}
 
-\verb|min::uns64 mup::| & \MUPKEY{short\_string\_of}\verb| ( min::stub * s )|
+\verb|min::uns64 MUP::| &
+	\MUPKEY{short\_string\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::SHORT_STRING_OF} \\[1ex]
 
-\verb|void mup::| &
+\verb|void MUP::| &
     \MUPKEY{set\_short\_string\_of}\ARGBREAK
     \verb| ( min::stub * s, min::uns64 str )|
 \LABEL{MUP::SET_SHORT_STRING_OF} \\[1ex]
 
-\verb|min::long_string * mup::| &
+\verb|min::long_string * MUP::| &
 	\MUPKEY{long\_string\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_STRING_OF} \\
 \verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_string * str )|
@@ -1597,15 +1676,15 @@ String Stub Unprotected Function Declarations:
 \verb|const char * | & \TTKEY{char\_of}\verb| ( min::long_string * str )|
 \LABEL{CHAR_OF_LONG_STRING} \\[1ex]
 
-\verb|unsigned mup::| & \MUPKEY{hash\_of}\verb| ( min::long_string * str )|
+\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_string * str )|
 \LABEL{MUP::HASH_OF_LONG_STRING} \\
-\verb|char * mup::| & \MUPKEY{char\_of}\verb| ( min::long_string * str )|
+\verb|char * MUP::| & \MUPKEY{char\_of}\verb| ( min::long_string * str )|
 \LABEL{MUP::CHAR_OF_LONG_STRING} \\
-\verb|void mup::| &
+\verb|void MUP::| &
    \MUPKEY{set\_length\_of}\ARGBREAK
    \verb| ( min::long_string * str,|\ARGBREAK\verb|   unsigned length )|
 \LABEL{MUP::SET_LENGTH_OF_LONG_STRING} \\
-\verb|void mup::| &
+\verb|void MUP::| &
    \MUPKEY{set\_hash\_of}\ARGBREAK
     \verb| ( min::long_string * str,|\ARGBREAK\verb|   unsigned hash )|
 \LABEL{MUP::SET_HASH_OF_LONG_STRING} \\[1ex]
