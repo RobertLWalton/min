@@ -226,7 +226,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{August 8, 2004}
+\date{August 11, 2004}
  
 \maketitle
 
@@ -758,7 +758,7 @@ Consider the following description of a room:
                      door (door width)
                      straight d }
     door : standard room door
-    label: under(over), color(green)
+    label: color green, under over, noun room
     over: ##598
 \end{verbatim}\end{indpar}
 
@@ -798,24 +798,104 @@ The robot follows a sequence of commands that are separated by commas.
 In order to show how evaluation works, we will explain in detail some
 of the evaluation of \verb|outline|.
 
-First, the evaluator establishes
+Evaluation of an \verb|outline| attribute can be done by a function
+named {\tt .evaluate outline}, if such a function is defined by the
+object with the {\tt outline} attribute (object \verb|##523|),
+or one of its ancestors.
+If this function does not exist, evaluation is done by the function
+named {\tt .evalutate}, which is globally defined.  In any case,
+evaluation can be tailored by defining an appropriately named function
+in an object or one of its ancestors.
+
+The evaluation function first establishes
 a context, which is a list of objects that will be searched when an
 attribute name is to be located.  The context for the evaluation of
 an object's attribute value usually begins with the object and ends with
-an object we call `\verb|global|'.  A global variable is by definition
-just an attribute of the \verb|global| object.
+a special object called `\verb|.global|'.  A global variable is by definition
+just an attribute of the \verb|.global| object.  An evaluation function for
+an {\tt outline} attribute is likely to include in the context an object
+that defines functions named `{\tt straight}' and `{\tt left}' which will
+evaluate parts of the {\tt outline} attribute.
 
-Then the evaluator starts reading the value to be evaluated.  In this
-case the evaluator expects a comma separated list of commands, and evaluates
-each command separately.  The output is a list of new commands that is
-stored in a \verb|.video| attribute and is written in a video language
+Then the evaluation function starts reading the value to be evaluated.  In this
+case the it finds a comma separated list of commands, and evaluates
+each command separately.  The output is a new list of new commands that is
+stored in the \verb|.video| attribute of \verb|##523| and
+is written in a video language
 that can be processed by the video engine to produce a picture.
 
+The first command is `{\tt straight width}'.   When `{\tt straight}' is 
+read, a search is made in the current context for an attribute with a name
+beginning with the word `{\tt straight}'.  One will be found whose total
+name is just the single word `{\tt straight}', and the value of that
+attribute will be taken.  We have not shown that attribute, but it will
+exist and have a value of the form
 
-A possible command is `{\tt straight 3.2}', meaning the robot is to go
-straight \verb|3.2| units.  But in the example \verb|3.2| is replaced by
-{\tt width}, which names an attribute of the object whose value in turn
-is \verb|3.2|.
+\begin{center}
+\verb|function ( w ) { |\ldots\verb|}|
+\end{center}
+
+This value means the expression we are reading should have next, after the
+word `{\tt straight}', a single argument.  An argument
+is either a single lexeme or a bracketted string of lexemes.  The argument
+must be read, and perhaps evaluated and replaced by its value, which becomes
+the value of the \verb|w| argument of the `{\tt straight}' function.
+Then this function is evaluated.
+
+In our case `{\tt width}' follows `{\tt straight}'.  This is an unbracketted
+single lexeme argument, and as such must be evaluated and replaced by
+its value.  A search is made for an attribute whose name begins with
+`{\tt width}'.  The `{\tt width}' attribute of \verb|##523| is found,
+and as its value is a number,
+\verb|3.2|, that is the final value of the `{\tt width}' argument.
+Thus the command `{\tt straigth width}' has become `{\tt straight 3.2}',
+and this is then evaluated by executing the `{\tt straight}' function
+with \verb|w| equal to \verb|3.2|.  The result will be some command
+written into the {\tt .video} attribute of \verb|##523|.
+
+The other commands in the {\tt outline} attribute are similar, except
+for the `{\tt doored wall width}' command.  This invokes the `{tt doored wall}'
+function we have defined as an attribute of \verb|##523| (but it would
+make more sense to define it as an attribute of the {\tt standard room}
+object whose attributes are inherited by \verb|##523|).   Again
+`{\tt width}' is the argument which evaluates to \verb|3.2| and becomes
+the value of the `{\tt length}' argument in the `{\tt doored wall}'
+function.  Evaluation of this function is similar, but as a function,
+its evaluation context begins with an object called the function frame
+that has an attribute named `{\tt length}' whose value is the corresponding
+argument value, in this case \verb|3.2|.
+
+The meaning of the `{\tt label}' and `{\tt over}' attribute values
+of \verb|##523| need to be explained.  It is necessary to produce a name
+for \verb|##523| in an arbitrary natural language, such as English or
+French or Japanese, and this is what the `{\tt label}' attribute value does
+when it is evaluated.  This value is also a sequence of commands that
+provide desriptive information about the object which the natural language
+engine can process to produce the desired text.  The `{\tt color green}'
+command invokes the `{\tt color}' global function with an argument that is
+some object which is the value of the `{\tt green}' global variable to
+produce some internal notation that tells the natural language engine
+that \verb|##523| has the color green.  Similarly `{\tt over under}'
+invokes the `{\tt over}' function with an the `{\tt under}' argument that
+just names an attribute of \verb|##523| with value \verb|##598|.  This
+says that \verb|##523| is under \verb|##598|.  Lastly, `{\tt noun room}'
+says that \verb|##523| is a room.
+
+If the label of \verb|##598| is
+
+\begin{center}
+\verb|label: adjective main, noun dungeon|
+\end{center}
+
+then the English natural language engine might generate the text
+
+\begin{center}
+\verb|the green room under the main dungeon|
+\end{center}
+
+in order to specify \verb|##523|.
+
+
 \bibliographystyle{plain}
 \bibliography{min}
 
