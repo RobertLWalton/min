@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 8, 2005}
+\date{January 30, 2005}
  
 \maketitle
 
@@ -736,6 +736,8 @@ The {\tt int} argument will be converted to an IEEE 64-bit floating
 point number if the \verb|min::gen| type is 64-bits.  The
 {\tt min::float64} argument will always cause an argument range
 error if used with 32-bit \verb|min::gen| values.
+The {\tt unsigned} argument used to make auxilary pointers must
+fit within 27 bits if {\tt min::gen} values are 32-bits.
 
 The subtype codes used for 64-bit {\tt min::gen} direct string, stub pointer,
 and auxilary pointer
@@ -746,7 +748,7 @@ codes, and no check is made for such, even by range-checking protected
 functions.
 
 The following unprotected functions are analogous but do not check for
-range errors.
+range errors.  If given out-of-range arguments, their results are undefined.
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen MUP::| & \MUPKEY{new\_direct\_gen}\verb| ( int v )|
