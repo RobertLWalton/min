@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 6, 2005}
+\date{February 10, 2005}
  
 \maketitle
 
@@ -716,22 +716,15 @@ is the cooked representation of the object
     .initiator: capital
 \end{verbatim}\end{indpar}
 
-Another example is
+The following is a second example in which
+curly brackets (\verb|{ }|) are used to permit
+operators such as \verb|+| to be recognized, so that
 
 \begin{indpar}\begin{verbatim}
-##46:: straight 3.2, left, straight (y + 9.4)
+##46:: { straight 3.2; left; straight (y + 9.4) }
 \end{verbatim}\end{indpar}
 
-which parsing transforms into
-
-\begin{indpar}\begin{verbatim}
-##46:: straight 3.2, left, straight (|"+" y 9.4|)
-\end{verbatim}\end{indpar}
-
-where \verb/(| |)/ represent implied parentheses, and
-the \verb|"+"| is a quoted \verb|+| to indicate it cannot
-be interpreted as an operator.
-This is the cooked representation of the set of objects
+is the cooked representation of the objects
 
 \begin{indpar}\begin{verbatim}
 ##42:: 
@@ -741,6 +734,8 @@ This is the cooked representation of the set of objects
     1: "+"
     2: y
     3: 9.4
+    initiator: "("
+    terminator: ")"
 ##44:: 
     1: straight
     2: ##43
@@ -748,12 +743,14 @@ This is the cooked representation of the set of objects
     1: ##42
     2: left
     3: ##44
-    .separator: ","
+    .separator: ";"
+    .initiator: "{"
+    .terminator: "}"
 \end{verbatim}\end{indpar}
 
 The following is a third example in which
-curly brackets (\verb|{ }|) are used to change to
-a format suitable for code, so that
+curly brackets (\verb|{ }|) are used with multiple
+lines and indentation to represent code, so that
 
 \begin{indpar}\begin{verbatim}
 ##138:: function (x,y)
@@ -811,7 +808,7 @@ description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
 ##291:: text: This is a sentence.
-        outline: straight 3.2, left, straight (y + 9.4)
+        outline: { straight 3.2, left, straight (y + 9.4) }
         min: function (x,y)
              {
                 if (x > y):
@@ -878,7 +875,90 @@ precisely.
 
 \subsection{Syntax}
 
-\begin{boxedfigure}
+A cooked data representation has the syntax given
+in Figure~\figref{DATA-REPRESENTATION-SYNTAX} and is based on the
+special lexemes given in Figure~\figref{SPECIAL-LEXEMES}.
+
+The difference between cooked data and raw data is the presence
+of expressions.  An expression is parsed to produce an atom or
+an object which is called the \key{parsed expression}.
+If the expression is part of a
+{\em cooked-attribute-representation}, the atom or object becomes
+the value of the attribute.  For example, the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: This is a sentence.
+    expression B: [ x + 8 ]
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: ##402
+    expression B: ##403
+##402::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+##403::
+    1: "+"
+    2: x
+    3: 8
+    .initiator: "["
+    .terminator: "]"
+\end{verbatim}\end{indpar}
+
+If the expression immediately follows
+an {\em object-header}, and is before any {\em attribute-representa\-tions}
+in the {\em object-representation}, then if the parsed expression is
+an object, the attributes of the object produced are copied to become
+attributes of the object represented, and if parsed expression is
+an atom, the atom becomes the value of the represented object attribute
+named `\ttmkey{1}{defined in cooked representation}'.  For example,
+the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##410:: This is a sentence.
+        x: 5
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##410::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+    x: 5
+\end{verbatim}\end{indpar}
+
+and the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##411:: hi
+        x: 5
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##411::
+    1: hi
+    x: 5
+\end{verbatim}\end{indpar}
+
+The precise algorithm used in parsing is described below in
+\secref{PARSING}.
+
+\begin{boxedfigure}[b!]
 
 \begin{center}
 
@@ -899,14 +979,15 @@ Brackets
 
 \bigskip
 
-\begin{tabular}{l@{~~~~~}l@{~~~~~}l}
-macro	&	brackets	& meaning
+\begin{tabular}{l@{~~~~~}l@{~~~~~}l@{~~~~~}l}
+macro	&	brackets	& meaning	& parsing mode
 \\[1ex]
-\ttkey{.ROUND}	& \ttnbkey{(}~~~\ttnbkey{)}	& parentheses. \\
-\ttkey{.SQUARE}	& \ttnbkey{[}~~~\ttnbkey{]}	& square brackets \\
+\ttkey{.ROUND}	& \ttnbkey{(}~~~\ttnbkey{)}	& parentheses	& no change \\
+\ttkey{.SQUARE}	& \ttnbkey{[}~~~\ttnbkey{]}	& square brackets
+						& expression \\
 \ttkey{.CURLY}	& \ttnbkey{\CurlyBra}~~~\ttnbkey{\CurlyKet}
-						& curly brackets \\
-\ttkey{.QUOTE}	& \ttnbkey{`}~~~\ttnbkey{'}	& single quotes \\
+						& curly brackets & code \\
+\ttkey{.QUOTE}	& \ttnbkey{`}~~~\ttnbkey{'}	& single quotes & text \\
 \end{tabular}
 
 \bigskip
@@ -1030,87 +1111,6 @@ priority & macro	& operators	& meaning
 \end{boxedfigure}
 
 
-A cooked data representation has the syntax given
-in Figure~\figref{DATA-REPRESENTATION-SYNTAX} and is based on the
-special lexemes given in Figure~\figref{SPECIAL-LEXEMES}.
-
-The difference between cooked data and raw data is the presence
-of expressions.  An expression is parsed to produce an atom or
-an object which is called the \key{parsed expression}.
-If the expression is part of a
-{\em cooked-attribute-representation}, the atom or object becomes
-the value of the attribute.  For example, the cooked representation
-
-\begin{indpar}\begin{verbatim}
-##401::
-    text A: This is a sentence.
-    expression B: x + 8
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-##401::
-    text A: ##402
-    expression B: ##403
-##402::
-    1: this
-    2: is
-    3: a
-    4: sentence
-    .initiator: capital
-    .terminator: "."
-##403::
-    1: "+"
-    2: x
-    3: 8
-\end{verbatim}\end{indpar}
-
-If the expression immediately follows
-an {\em object-header}, and is before any {\em attribute-representa\-tions}
-in the {\em object-representation}, then if the parsed expression is
-an object, the attributes of the object produced are copied to become
-attributes of the object represented, and if parsed expression is
-an atom, the atom becomes the value of the represented object attribute
-named `\ttmkey{1}{defined in cooked representation}'.  For example,
-the cooked representation
-
-\begin{indpar}\begin{verbatim}
-##410:: This is a sentence.
-        x: 5
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-##410::
-    1: this
-    2: is
-    3: a
-    4: sentence
-    .initiator: capital
-    .terminator: "."
-    x: 5
-\end{verbatim}\end{indpar}
-
-and the cooked representation
-
-\begin{indpar}\begin{verbatim}
-##411:: hi
-        x: 5
-\end{verbatim}\end{indpar}
-
-is equivalent to the raw representation
-
-\begin{indpar}\begin{verbatim}
-##411::
-    1: hi
-    x: 5
-\end{verbatim}\end{indpar}
-
-The precise algorithm used in parsing is described below in
-\secref{PARSING}.
-
 \subsection{Standard Representations}
 \label{STANDARD-REPRESENTATIONS}
 
@@ -1136,12 +1136,14 @@ result is
 \verb/- x + (| 5 * y |)/
 \end{center}
 
+where \verb/(| |)/ represent implied parentheses.
+
 The next step is to identify the macros associated with the different
 priority levels.  In this case the macro \verb|.SUM| is associated with
 +3000, and the macro \verb|.PRODUCT| is associated with +3100.
 A macro parses expressions containing the operators at the level of the
 macro.  Expressions not containing an operator are left as is.
-Parsing proceeds from the innermost expression to the outtermost.
+Parsing proceeds from the innermost expression to the outermost.
 Thus in our example, first \verb|.PRODUCT| is called with
 `\verb|5 * y|' as its argument, and this returns `\verb|* 5 y|' as
 its parsed result.  Then \verb|.SUM| is called with
@@ -1207,7 +1209,7 @@ word and adding the \verb|.initiator| is done by a
 In most cases, a parsed atom is just the atom itself.  However, when a quoted
 atom is parsed, the quotes are removed, a process called \key{de-quoting}.
 Thus in the above example, the atom \verb|"."| when parsed is de-quoted to
-produce the atom \verb|.|.  This in turn, when represented
+produce the single character atom `\verb|.|'.  This in turn, when represented
 in raw data, is represented by \verb|"."|, on the grounds that
 readers of raw data often also read cooked data, and distinguish between
 raw and cooked by the presence of operators, so in raw data potential
