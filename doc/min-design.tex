@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 13, 2004}
+\date{November 14, 2004}
  
 \maketitle
 
@@ -1094,41 +1094,63 @@ by the following protected functions:
 
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_NUMBER} \\
-\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen64 v )|
-\\
-\verb|min::gen32 min::| &
-	\MINKEY{new\_number\_gen32\REL} \verb| ( min::float64 v )|
-\LABEL{MIN::NEW_NUMBER_GEN32} \\
-\verb|min::gen64 min::| & \MINKEY{new\_number\_gen64}\verb| ( min::float64 v )|
-\LABEL{MIN::NEW_NUMBER_GEN64} \\
-\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::NUMBER_OF_GEN32} \\
-\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::NUMBER_OF_GEN64} \\
+\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen v )|
+\LABEL{MIN::IS_NUMBER} \\[1ex]
+\verb|min::gen min::| &
+	\MINKEY{new\_gen\REL} \verb| ( int v )|
+\LABEL{MIN::NEW_GEN_OF_INT} \\
+\verb|min::gen min::| &
+	\MINKEY{new\_gen\REL} \verb| ( min::float64 v )|
+\LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
+\verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
+\LABEL{MIN::INT_OF_GEN} \\
+\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen v )|
+\LABEL{MIN::NUMBER_OF_GEN} \\
 \end{tabular}\end{center}
 
-The \verb|min::is_number| function for a \verb|min::gen64| argument
-is just another name for the \verb|min::is_float64| function of the same
-argument.  For a \verb|min::gen32| argument the
-{\tt min::is\_\EOL number} function returns
-true if the \verb|min::gen32| value is an integer or a stub pointer
+The \verb|min::is_number| function for a 64-bit \verb|min::gen| argument
+is just another name for the \verb|min::is_direct_float| function of the same
+argument.  For a 32-bit argument the function returns
+true if the argument is a direct integer or a stub pointer
 pointing at a number stub.
 
-Similarly \verb|min::new_number_gen64| is just another name for
-\verb|min::new_float_gen64|, while \verb|min::new_number_gen32| creates an
-integer \verb|min::gen32| value if the argument is an integer in the
-require range, and otherwise creates a number stub and returns a pointer to
-the stub converted to a \verb|min::gen32| value.
+The \verb|min::new_gen| function with an \verb|int| argument does the
+same thing as it would with its argument converted to a \verb|min:float64|
+value, but is more efficient in the case where \verb|min:gen| values
+are 32 bits.
 
-Lastly the \verb|min::float64_of| function is documented on
-\pagref{MIN::FLOAT64_OF_GEN64} for a \verb|min::gen64| argument.  For
-a \verb|min::gen32| argument this returns any integer stored directly
+The \verb|min::new_gen| function for 64-bit \verb|min::gen| values
+is just another name for {\tt min::new\_\EOL direct\_\EOL gen}, which
+simply changes the type of its argument.
+For 32-bit \verb|min:gen| values the function creates a direct integer
+if the argument is an integer in the
+require range, and otherwise creates a number stub and returns a pointer to
+the stub converted to a \verb|min::gen| value.  For 32-bit \verb|min::gen|
+values, any \verb|min::float64| argument to \verb|min::new_gen|
+that can be represented by a direct integer is so represented, and whenever
+such an argument cannot be represented by a direct integer and a number stub
+containing the argument value already exists, a new \verb|min::gen| value
+pointing at that existing stub is created, and no new stub is created.
+Therefore two 32-bit \verb|min::gen| values that represent equal numbers are
+themselves \verb|==|.
+
+The \verb|min::number_of| function for a 64-bit \verb|min::gen|
+argument is just another name for the \verb|min::direct_float_of| function
+of the same argument, which after checking the subtype of the argument,
+simply changes the type of the argument.  For a 32-bit argument the
+function returns any integer stored directly
 in the argument converted to a 64-bit IEEE floating point number, or
 returns the stub value for any number stub pointed at by the argument.
 In this last case the stub type code is checked by an \verb|assert|
 statement to be sure the stub is a number stub.
+
+Lastly, the \verb|min::int_of| function does the same thing as the
+\verb|min::number_of| followed by conversion to an \verb|int| value,
+except that \verb|min::int_of| includes a check that the result
+is a pure integer, without any fractional part, and is within the
+range of the \verb|int| type, and
+\verb|min::int_of| is more efficient when given a 32-bit direct integer
+\verb|min:gen| argument.
 
 \subsection{String Stubs}
 \label{STRING-STUBS}
@@ -1347,7 +1369,7 @@ and create new general values.
 \LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
 \verb|min::gen min::| &
     \MINKEY{new\_gen\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_GEN} \\
+\LABEL{MIN::NEW_GEN_OF_STR} \\
 \end{tabular}\end{center}
 
 A general value is a string if it holds a string itself or if it
@@ -1692,19 +1714,18 @@ struct min
 	& \MINKEY{new\_number\REL}\verb| ( min::float64 f )|
 \LABEL{MIN::NEW_NUMBER} \\[1ex]
 
-\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_NUMBER} \\
-\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_NUMBER} \\
-\verb|min::gen32 min::| &
-	\MINKEY{new\_number\_gen32\REL} \verb| ( min::float64 v )|
-\LABEL{MIN::NEW_NUMBER_GEN32} \\
-\verb|min::gen64 min::| & \MINKEY{new\_number\_gen64}\verb| ( min::float64 v )|
-\LABEL{MIN::NEW_NUMBER_GEN64} \\
-\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::NUMBER_OF_GEN32} \\
-\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::NUMBER_OF_GEN64} \\
+\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen v )|
+\LABEL{MIN::IS_NUMBER} \\[1ex]
+\verb|min::gen min::| &
+	\MINKEY{new\_gen\REL} \verb| ( int v )|
+\LABEL{MIN::NEW_GEN_OF_INT} \\
+\verb|min::gen min::| &
+	\MINKEY{new\_gen\REL} \verb| ( min::float64 v )|
+\LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
+\verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
+\LABEL{MIN::INT_OF_GEN} \\
+\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen v )|
+\LABEL{MIN::NUMBER_OF_GEN} \\
 
 \end{tabular}
 
@@ -1771,7 +1792,7 @@ struct min
 
 \verb|min::gen min::| &
     \MINKEY{new\_gen\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_GEN} \\
+\LABEL{MIN::NEW_GEN_OF_STR} \\
 
 \end{tabular}
 
