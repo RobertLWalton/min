@@ -678,7 +678,7 @@ description of other objects, as in
 \begin{indpar}\begin{verbatim}
 ##291:: text: This is a sentence.
         outline: straight 3.2, left, straight (y + 9.4)
-	min: function (x,y)
+        min: function (x,y)
              {
                 if (x > y):
                     return y
@@ -936,33 +936,49 @@ in order to specify \verb|##523|.
 
 \begin{indpar}\begin{verbatim}
 
-    evaluate context ( expression, context, frame ):
-        search context ( expression, context, frame )
+    evaluate ( expression, context ):
+        if expression is a single number atom:
+            return atom
+        if expression is `...' bracketted:
+            return expression without the `'s
+        search ( expression, context )
 
-    search context ( expression, context, frame ):
+    search ( expression, context ):
         foreach object in context:
-	    search object (expression, object, frame )
-	search object ( expression, .global object, frame )
+            search (expression, context, object )
+        search ( expression, context, .global object )
 
-    search object ( expression, object, frame ):
-        match names of object attributes to expression
-	if several match:
-	   pick the longest match
-	   set r = expression with matched portion removed
-	   set v = value of matched attribute
-	   if v is function definition:
-	       evaluate function ( r, v, frame )
-	   else if v is object:
-	       search ( r, v, frame )
-	   else if r is empty:
-	       terminate evaluation and return v as value
-	   else:
-	       error
-	else if expression empty:
-	   terminate evaluation and return object as value
-	else return
+    search ( expression, context, object ):
+       if expression is empty and object is not a function with
+          no arguments or an object with an attribute with the
+          empty label:
+           return object
+       if object is function definition:
+           execute ( expression, context, object )
 
+       match names of object attributes to beginning of expression
+       if several match:
+           pick the longest match
+           set r = expression with matched portion removed
+           set v = value of matched attribute
+           search ( r, context, v )
+       else for each ancestor of object:
+           search ( expression, context, ancestor )
+       error
 
+    execute ( expression, context, function ):
+        make a new function frame F
+        for each argument name N in function:
+            let A be the next atom or bracketted
+                subexpression of expression
+            remove A from expression
+            let V = evaluate ( A, context )
+            make an attribute of F with name N and
+                 value V
+        let B be the body of the function
+        let C be the context list with F prepended
+        let V = evaluate ( B, C )
+        search ( expression, context, V )
 
 \end{verbatim}\end{indpar}
 
