@@ -1,8 +1,8 @@
-// MIN Language Data
+// MIN Language Protected Interface
 //
-// File:	min_data.h
+// File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Sep  4 05:41:12 EDT 2004
+// Date:	Mon Sep  6 05:24:34 EDT 2004
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,21 +11,25 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/06 09:18:51 $
+//   $Date: 2004/09/06 11:10:20 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
+
+# ifndef MIN_H
+
+// Include parameters.
+//
+# include "min_parameters.h"
 
 struct min {
-    struct data;
-};
 
-# define MIN_COMPACT_DATA 1
-# define MIN_32_BIT_INT int
-# define MIN_64_BIT_INT long long
-# define MIN_BIG_ENDIAN 0
-# define MIN_POINTER_LENGTH 32
+    // Because C++ does not guarentee that structs with
+    // member functions are laid out sensibly in memory,
+    // we eschew the use of member functions.
 
-struct min::data {
+    // Protected functions are declared in this file.
+    // Unprotected functions are declared in the file
+    // min_unprotected.h.
 
     typedef unsigned char uns8;
     typedef signed char int8;
@@ -41,11 +45,7 @@ struct min::data {
 
     typedef double float64;
 
-    struct stub;
-    struct body;
-
-
-# if MIN_COMPACT_DATA
+    struct unprotected;
 
     // A general datum can hold either an IEEE 64 bit
     // floating point number, a pointer to a stub, or
@@ -55,8 +55,15 @@ struct min::data {
     // and all other values are for IEEE floating point
     // numbers.
 
+    // The following implementation seems the most
+    // likely to get efficiency from all compilers.
+    //
+    // Its is a consequence of this that functions mani-
+    // pulating min::gen64 data must have long names
+    // such as min::gen_is_float.
+    //
     typedef uns64 gen64;
-
+   
     inline bool gen_is_float ( gen64 v ) {
         return    (v & 0x7FFF000000000000)
 	       != 0x7FFF000000000000;
@@ -76,7 +83,8 @@ struct min::data {
         return (stub *) (unsigned)
 	       ( v & 0xFFFFFFFFFFFF );
     }
-    // p[8] must be on 8 byte boundary.
+    // p[8] must be on 8 byte boundary.  It may not
+    // be NUL terminated.
     inline void gen_to_string ( gen64 v, char p[8] ) {
 #	if MIN_BIG_ENDIAN
 	    * (uns64 *) p = v << 16;
@@ -91,7 +99,8 @@ struct min::data {
         return   ((uns64) (unsigned) p)
 	       | 0xFFFF000000000000;
     }
-    // p[8] must be on 8 byte boundary.
+    // p[8] must be on 8 byte boundary.  It must
+    // be filled with NULs.
     inline gen64 string_to_gen ( char p[8] ) {
 #	if MIN_BIG_ENDIAN
 	    return   ( ( * (uns64 *) p ) >> 16 )
@@ -102,7 +111,6 @@ struct min::data {
 	           | 0x7FFF000000000000;
 #	endif
     }
-# endif
 
     struct body
     {
@@ -146,20 +154,25 @@ struct min::data {
 
     // Get value from a stub.
     //
-    inline float64 get_float64 ( const stub * p ) {
+    friend inline float64 get_float64 ( const stub * p )
+    {
         return p->v.f;
     }
-    inline int64 get_int64 ( const stub * p ) {
+    friend inline int64 get_int64 ( const stub * p )
+    {
         return p->v.i;
     }
-    inline uns64 get_uns64 ( const stub * p ) {
+    friend inline uns64 get_uns64 ( const stub * p )
+    {
         return p->v.u;
     }
-    inline void get_string
-	    ( char v[8], const stub * p ) {
+    friend inline void get_string
+	    ( char v[8], const stub * p )
+    {
         * (uns64 *) v = p->v.u;
     }
-    inline body * get_body ( const stub * p ) {
+    friend inline body * get_body ( const stub * p )
+    {
 #	if MIN_POINTER_LENGTH == 32
 	    return (body *) p->v.s.lo;
 #	else
@@ -167,38 +180,18 @@ struct min::data {
 #	endif
     }
 
-    // Put value into a stub.
-    //
-    inline void put_float64 ( stub * p, float64 v ) {
-        p->v.f = v;
-    }
-    inline void put_uns64 ( stub * p, uns64 v ) {
-        p->v.u = v;
-    }
-    inline void put_int64 ( stub * p, int64 v ) {
-        p->v.i = v;
-    }
-    inline void put_string ( stub * p, char v[8] ) {
-        p->v.u = * (uns64 *) v;
-    }
-    inline void put_body ( stub * p, body * v ) {
-#	if MIN_POINTER_LENGTH == 32
-	    p->v.s.hi = 0;
-	    p->v.s.lo = (uns32) v;
-#	else
-	    p->v.u = (uns64) v;
-#	endif
-    }
-
     // Get type, chain, etc. from a stub.
     //
-    inline unsigned get_type ( const stub * p ) {
+    friend inline unsigned get_type ( const stub * p )
+    {
         return p->g.s.t;
     }
-    inline unsigned get_subtype ( const stub * p ) {
+    friend inline unsigned get_subtype ( const stub * p )
+    {
         return p->g.s.st;
     }
-    inline stub * get_chain ( const stub * p ) {
+    friend inline stub * get_chain ( const stub * p )
+    {
 #	if MIN_POINTER_LENGTH == 32
 	    return (stub *) p->g.s.lo;
 #	else
@@ -206,3 +199,5 @@ struct min::data {
 #	endif
     }
 };
+
+# endif // MIN_H
