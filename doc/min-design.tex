@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 29, 2004}
+\date{January 3, 2005}
  
 \maketitle
 
@@ -1463,8 +1463,39 @@ string is returned in the new \verb|min::gen| value, and no new stub
 is created.  Thus if two string \verb|min::gen| values are equal as
 strings, they have \verb|==| \verb|min::gen| values.
 
+\begin{quote}
+Implementation note: To ensure that no two string stubs have the same
+\verb|char| string, a hash table is required.
+This is integrated with the garbage
+collector (GC).  The GC has to maintain a list of all allocated stubs,
+which it does (normally) using the chain pointers in the stub.  For
+the case of strings, the GC maintains this list as a hash table, which
+uses a vector to hold the heads of lists threaded through the stub
+chain pointers.
+\end{quote}
+
+
+\subsection{Label and Label Pair Stubs}
+
+Attribute labels are often single strings or numbers.  But they may be
+sequences of strings and numbers.  Such sequences are represented by
+\key{label} stubs.\footnote{Labels could also be represented by
+sublists stored inside objects (\pagref{LIST-LEVEL}), but labels tend to
+be reused by many object, and storing them inside each object that uses
+them would be inefficient.}
+
+Double arrow labels are pairs of attribute labels, because in order to
+know a double arrow valued attribute of an object X, you must know the
+value of the attribute, some object Y, the label of the attribute, and
+also the label of the attribute in Y that is the other end of the double
+arrow.  Double arrow labels are represented by \key{label pair} stubs.%
+\footnote{Ditto for label pairs.}
+
+TBD
+
 
 \subsection{Object Stubs}
+\label{OBJECT-STUBS}
 
 An object is conceptually a hash table that maps attribute names to
 attribute values.
@@ -1578,7 +1609,8 @@ auxilary pointers with zero value do not address a body vector
 element, since they point into the header, and these may be given
 special meanings.
 
-At the \key{list level}, the body consists of two vectors whose
+At the \key{list level},\label{LIST-LEVEL}
+the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
 object vector.  The elements of the lists are non-auxilary-pointer
 \verb|min::gen| values and sublists.  The lists are constructed with
