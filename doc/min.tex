@@ -226,7 +226,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{August 6, 2004}
+\date{August 8, 2004}
  
 \maketitle
 
@@ -569,115 +569,175 @@ In contrast to the raw representation of a set of objects there is the
 cooked representation, that is much easier to read and write, but a bit more
 long winded to explain.
 
-One rule of cooked representations is that some attributes may be
-grouped together to form a list attribute, and the list attribute may
-be represented more compactly.  The attributes that are grouped to
-form the list are called element attributes.
+The main thing that the cooked representation does is take certain objects
+that are organized like lists and represent them as lists.
 
-For example, the element attributes
+For example,
 
 \begin{indpar}\begin{verbatim}
-relatives 1: ##4
-relatives 2: ##7
-relatives 3: ##2
-relatives 4: ##9
+##93:: This is a sentence.
 \end{verbatim}\end{indpar}
 
-may be grouped to form the list attribute
+is the cooked representation of the object
 
 \begin{indpar}\begin{verbatim}
-relatives: ##4 ##7 ##2 ##9
+##93::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .terminator: "."
+    .initiator: capital
 \end{verbatim}\end{indpar}
 
-while the element attributes
+and
 
 \begin{indpar}\begin{verbatim}
-outline 1 1: straight
-outline 1 2 : 3.2
-outline 2 1: left
-outline 3 1: straight
-outline 3 2: 9.6
-outline 4 1: left
-outline 5 1: straight
-outline 5 2: 3.2
-outline 6 1: left
-outline 7 1: straight
-outline 7 2: 3.8
-outline 8 1: door
-outline 8 2: 2.0
-outline 9 1: straight
-outline 9 2: 3.8
-outline 10 1: close
-outline .separator: ","
+##46:: straight 3.2, left, straight (y + 9.4)
 \end{verbatim}\end{indpar}
 
-may be grouped to form the list attribute
+is the cooked representation of the set of objects
 
 \begin{indpar}\begin{verbatim}
-outline: straight 3.2, left, straight 9.6, left,
-         straight 3.2, left, straight 3.8, door 2.0,
-         straight 3.8, close
+##43:: 
+    1: straight
+    2: 3.2
+##44:: 
+    1: .sum
+    2: y
+    3: "+"
+    4: 9.4
+    .initiator: "("
+    .terminator: ")"
+##45:: 
+    1: straight
+    2: ##44
+##46::
+    1: ##43
+    2: left
+    3: ##45
+    .separator: ","
 \end{verbatim}\end{indpar}
 
-and the element attributes
+Also curly brackets (\verb|{ }|) are used to change to
+a format suitable for code.  Thus
 
 \begin{indpar}\begin{verbatim}
-text 1 1 1: The
-text 1 1 2: orange
-text 1 1 3: idea
-text 1 1 4: is
-text 1 1 5: peeping
-text 1 2 1: furiously
-text 1 .separator: ","
-text 1 .terminator: "."
-text 2 1: It's
-text 2 2: fallen
-text 2 3: for
-text 2 4: the
-text 2 5: purple
-text 2 6: syllogism
-text 2 .terminator: "!"
+##137:: function (x,y)
+        {
+           if (x > y):
+               return y
+           else:
+               return x
+        }
 \end{verbatim}\end{indpar}
 
-may be grouped to form the list attribute
+is the cooked representation of
 
 \begin{indpar}\begin{verbatim}
-text: The orange idea is peeping, furiously.  It's
-      fallen for the purple syllogism!
+##130::
+    1: x
+    2: y
+    .separator: ","
+    .initiator: "("
+    .terminator: ")"
+##131::
+    1: .compare
+    2: x
+    3: ">"
+    4: y
+##132::
+    1: return
+    2: y
+    .initiator: ":"
+##133::
+    1: if
+    2: ##131
+    3: ##132
+##134::
+    1: return
+    2: x
+    .initiator: ":"
+##135::
+    1: else
+    2: ##134
+##136::
+    1: ##133
+    2: ##135
+    .initiator: "{"
+    .terminator: "}"
+##137::
+    1: function
+    2: ##130
+    2: ##136
 \end{verbatim}\end{indpar}
 
-Also curly brackets (\verb|{ }|) may be used to change
-the format to a format suitable for code.  Thus the element
-attributes
+Cooked representations may replace raw object names in the
+description of other objects, as in
 
 \begin{indpar}\begin{verbatim}
-text 1 1 1: The
-text 1 1 2: orange
-text 1 1 3: idea
-text 1 1 4: is
-text 1 1 5: peeping
-text 1 2 1: furiously
-text 1 .separator: ","
-text 1 .terminator: "."
-text 2 1: It's
-text 2 2: fallen
-text 2 3: for
-text 2 4: the
-text 2 5: purple
-text 2 6: syllogism
-text 2 .terminator: "!"
+##291:: text: This is a sentence.
+        outline: straight 3.2, left, straight (y + 9.4)
+	min: function (x,y)
+             {
+                if (x > y):
+                    return y
+                else:
+                    return x
+             }
 \end{verbatim}\end{indpar}
 
-may be grouped to form the list attribute
+is the cooked representation of the object
 
 \begin{indpar}\begin{verbatim}
-min: (x,y) {
-     if x > y:
-         return y;
-     else:
-         return x;
-     }
+##291::
+    text: ##93
+    outline: ##46
+    min: ##137
 \end{verbatim}\end{indpar}
+
+given the above examples.
+
+One question left unanswered by the discussion so far is whether
+
+\begin{indpar}\begin{verbatim}
+##291:: text A: This is a sentence.
+        text B: This is a sentence.
+\end{verbatim}\end{indpar}
+
+represents
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text A: ##93
+    text B: ##93
+\end{verbatim}\end{indpar}
+
+so say instead
+
+\begin{indpar}\begin{verbatim}
+##291::
+    text A: ##93
+    text B: ##521
+\end{verbatim}\end{indpar}
+
+where object \verb|##521| happens to have the same structure as
+object \verb|##93|.  The default is to make both \verb|text A|
+and \verb|text B| be the same object, \verb|##93|, and to make
+that object `immutable', meaning that it cannot be changed.  The
+rule is that unless otherwise indicated, only immutable objects
+have the property that their cooked representations can replace
+their raw object names in the cooked representations of other
+objects.
+
+A couple of generalizations about certain attribute names are in
+order.  First, the strictly positive integers \verb|1|, \verb|2|,
+\verb|3|, \ldots are used to name the elements of a list.  Second,
+some attribute names beginning with `\verb|.|' have special
+meaning for object representation.  Examples above are
+\verb|.separator|, \verb|.initiator|, and \verb|.terminator|.
+Recall that words beginning with `\verb|.|' are reserved for
+use by the MIN system, and should not be defined by MIN users.
 
 \section{Evaluation}
 
