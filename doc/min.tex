@@ -741,6 +741,40 @@ In the picture the arrow flags have been added as subscripts on the arrow
 labels, and in the text the flags have been added before of after the
 \verb|:| that follows or precedes the arrow label.
 
+Several arrows sourced at the same object may have the same attribute
+label.  An example of this is, in which object \verb|##1| sources two
+arrows labeled \verb|child|, is:
+
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    child: ##2 :parent;;|\\
+\verb|    child: ##3 :parent;;|\\
+\verb|##2::|\\
+\verb|    parent: ##1 :child;;|\\
+\verb|##3::|\\
+\verb|    parent: ##1 :child;;|
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(2.4,0.3){\tt \#\#1}}
+\put(1.5,1.15){\oval(2.4,0.3)}
+\put(0.65,1.00){\vector(0,-1){0.6}}
+\put(0.60,0.80){\makebox(0,0)[r]{\tt child}}
+\put(0.75,0.40){\vector(0,1){0.6}}
+\put(0.80,0.55){\makebox(0,0)[l]{\tt parent}}
+\put(2.25,1.00){\vector(0,-1){0.6}}
+\put(2.20,0.80){\makebox(0,0)[r]{\tt child}}
+\put(2.35,0.40){\vector(0,1){0.6}}
+\put(2.40,0.55){\makebox(0,0)[l]{\tt parent}}
+\put(0.3,0.10){\makebox(0.8,0.3){\tt \#\#2}}
+\put(0.7,0.25){\oval(0.8,0.3)}
+\put(1.9,0.10){\makebox(0.8,0.3){\tt \#\#3}}
+\put(2.3,0.25){\oval(0.8,0.3)}
+\end{picture}
+\end{center}
+
 In the rest of this document we use the terminology of attributes,
 attribute names, attribute flags, and attribute values, in place of
 arrows, arrow labels, arrow flags, and arrow targets.
