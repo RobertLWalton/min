@@ -77,6 +77,7 @@
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttmnbkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
 \newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
 \newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
@@ -85,9 +86,10 @@
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
-\newcommand{\secref}[1]{\ref{#1}\,p\pageref{#1}}
-\newcommand{\stepref}[1]{\ref{#1}\,p\pageref{#1}}
-\newcommand{\appref}[1]{\ref{#1}\,p\pageref{#1}}
+\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\figref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -384,7 +386,13 @@ strings, see~\secref{QUOTED-STRINGS}.
 \subsection{Quoted Strings}
 \label{QUOTED-STRINGS}
 
-A \key{quoted-string} consists of a sequence of
+A \key{quoted string} is an alternative representation of a symbol, the
+other representations being words and marks.  The quoted string \verb|"::"|
+and the mark \verb|::| represent the same thing.  Quoted strings can
+represent symbols that have characters in them which cannot be in words
+or marks.
+
+A quoted string consists of a sequence of
 \skey{character representative}s
 surrounded by double quotes (\verb|"|\index{""@{\tt ""}}).  A non-whitespace
 character other than quote (\verb|"|) or backslash (\verb|\|)
@@ -463,15 +471,19 @@ number.
 
 An object is just a place in memory, and is like a dot on a blank page.
 It can be the source or target of arrows, and it is different from
-every other object and from every atom.  But it has nothing else.
+every other object and from every atom.  But it is nothing more.
 
 However, as a place in memory, an object has a name.  Objects are assigned
 \skey{raw object name}s
 of the form `\ttmkey{\#\#}{in raw object name}$I$' where $I$
-is an integer that starts
-with {\tt 1} for the first object created and continues in sequence as
-more objects are created.  E.g., the first three objects created have the
-raw object names \verb|##1|, \verb|##2|, and \verb|##3|. 
+is an integer.  Raw object names of this form are assigned only to objects
+that must be named in an output stream (e.g., printed output).
+The first object named in output stream is assigned the name
+\verb|##1|, the second object named in output the name \verb|##2|,
+and so forth.  The same object may be assigned different names in different
+output streams.\footnote{A possible implementation is to give objects that
+have been assigned names in an output stream a hidden system defined output
+stream specific attribute equal to the object's name integer.}
 
 There are two kinds of arrows: single and double.
 
@@ -516,7 +528,7 @@ The format of a \key{raw representation} is:
 \key{raw-object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
-    $|$ & {\em raw-object-name} \ttmkey{:>>:}{in {\em raw-object-header}} \\
+    $|$ & {\em raw-object-name} \ttmnbkey{:>>:}{in {\em raw-object-header}} \\
     \end{tabular}
 \\[1ex]
 \key{raw-arrow-representation}
@@ -641,7 +653,7 @@ The \key{attribute name}\index{name!attribute} is just the label of this arrow.
 The \key{attribute value}\index{value!attribute} is just the target
 of this arrow.
 
-The difference between \ttkey{::} and \ttkey{:>>:} is that the former
+The difference between \ttkey{::} and \ttnbkey{:>>:} is that the former
 indicates that the object should not previously
 exist, while the later indicates that the attributes are to be added to
 any existing object, though if the object does not exist it will be
@@ -694,6 +706,12 @@ and
 
 \begin{indpar}\begin{verbatim}
 ##46:: straight 3.2, left, straight (y + 9.4)
+\end{verbatim}\end{indpar}
+
+which parsing transforms into
+
+\begin{indpar}\begin{verbatim}
+##46:: straight 3.2, left, straight (.sum y `+' 9.4)
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the set of objects
@@ -862,7 +880,7 @@ Ad Hoc Special Lexemes
 
 \begin{tabular}{ll@{\hspace*{5em}}ll}
 \ttkey{::} & object assignment &
-\ttkey{:>>:} & object addition \\
+\ttnbkey{:>>:} & object addition \\
 \ttkey{:} & attribute assignment &
 \ttkey{:} & code indicator \\
 \end{tabular}
@@ -941,7 +959,7 @@ priority & macro	& operators	& meaning
 \key{object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em object-name} \ttmkey{::}{in {\em object-header}} \\
-    $|$ & {\em object-name} \ttmkey{:>>:}{in {\em object-header}} \\[1ex]
+    $|$ & {\em object-name} \ttmnbkey{:>>:}{in {\em object-header}} \\[1ex]
     \end{tabular}
 \\[1ex]
 \key{attribute-representation}
@@ -970,7 +988,7 @@ priority & macro	& operators	& meaning
 \\[1ex]
 \key{attribute-label} ::= {\em atom} \ldots
 \\[1ex]
-\key{atom} ::= non-special lexeme: see Table~\ref{SPECIAL-LEXEMES}
+\key{atom} ::= non-special lexeme: see Figure~\figref{SPECIAL-LEXEMES}
 \\[1ex]
 \key{expression} ::= {\em expression(-9999)}
 \\[1ex]
@@ -978,7 +996,7 @@ priority & macro	& operators	& meaning
 	\{ {\em expression($N+1$)} $|$ {\em operator($N$)} \}\ldots
 \\[1ex]
 \key{operator}{\em ($N$)} ::= operator of priority $N$:
-			      see Table~\ref{SPECIAL-LEXEMES}
+			      see Figure~\figref{SPECIAL-LEXEMES}
 \\[1ex]
 {\em expression(10000)} ::= {\em atom} $|$ {\em bracketed-expression}
 \\[1ex]
@@ -1003,8 +1021,8 @@ priority & macro	& operators	& meaning
 
 
 A cooked data representation has the syntax given
-in Table~\ref{DATA-REPRESENTATION-SYNTAX} and is based on the
-special lexemes given in Table~\ref{SPECIAL-LEXEMES}.
+in Figure~\figref{DATA-REPRESENTATION-SYNTAX} and is based on the
+special lexemes given in Figure~\figref{SPECIAL-LEXEMES}.
 
 The difference between cooked data and raw data is the presence
 of expressions.  An expression is parsed to produce an atom or
