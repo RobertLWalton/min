@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Sep  6 05:24:34 EDT 2004
+// Date:	Mon Sep  6 07:20:53 EDT 2004
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/06 11:10:20 $
+//   $Date: 2004/09/06 11:17:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 # ifndef MIN_H
 
@@ -45,6 +45,7 @@ struct min {
 
     typedef double float64;
 
+    struct stub;
     struct unprotected;
 
     // A general datum can hold either an IEEE 64 bit
@@ -186,7 +187,8 @@ struct min {
     {
         return p->g.s.t;
     }
-    friend inline unsigned get_subtype ( const stub * p )
+    friend inline unsigned get_subtype
+    	( const stub * p )
     {
         return p->g.s.st;
     }
