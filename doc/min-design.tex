@@ -238,7 +238,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 20, 2004}
+\date{October 1, 2004}
  
 \maketitle
 
@@ -801,16 +801,96 @@ the returning function.
 Pointers into bodies are recomputed from body pointers stored in stubs,
 which are updated by the relocating functions.
 
+The code to do all this has the form:
+
+\begin{indpar}\begin{verbatim}
+... some_function ( ... )
+{
+    int relocated = min::set_relocated_flag ( 0 );
+    . . . . .
+    min::some_body_type * p =
+        some_function_returning_a_body_pointer ( ... );
+    . . . . . use p . . . . .
+    some_relocating_function ( ... );
+    if ( min::relocated_flag() )
+    {
+        relocated = min::set_relocated_flag ( 0 );
+        p = some_function_returning_a_body_pointer ( ... );
+    }
+    . . . . . use p . . . . .
+}
+\end{verbatim}\end{indpar}
+
+The following functions get and set the relocated flag:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
+\LABEL{MIN::RELOCATED_FLAG} \\
+\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool )|
+\LABEL{MIN::SET_RELOCATED_FLAG}
+\end{tabular}\end{center}
+
+The function to set the flag returns the flag's previous value.
+
 The operation of \ikey{deallocating a body}{dealocate!body}
 is considered to be a relocation of the body.  The body pointer in the
 stub is pointed at unimplemented virtual memory, and the type code in the stub
-is set to an illegal value (e.g. zero).  Using a deallocated body is
+is set to an illegal value (e.g. zero).
+
+The following function tests whether a stub with a body pointer
+has a deallocated body:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool | & \TTKEY{is\_deallocated}\verb| ( min::stub * s )|
+\LABEL{IS_DEALLOCATED}
+\end{tabular}\end{center}
+
+This function does not check that the stub is of a type that actually
+has a body pointer\footnote{The body pointers of all deallocated body
+stubs point at the same unimplemented location, so this function just
+tests if the possible body pointer equals a given value.},
+and will return erroneous results if the stub does not.
+
+Using a deallocated body is
 considered to be a fatal programming error, so usually code need not
 check for this case, and crashes when it tries to access the unimplemented
 virtual memory.  However, there is a limit to the size of unimplemented
 memory, so code using very large bodies should always recheck the type
-code when reloading a possibly relocated body pointer.  Also, using an
-explicit type code recheck can be a valuable tool for debugging
+code when reloading a possibly relocated body pointer.  This limit is
+guarenteed to be at least the value of the macro:
+
+\begin{center}\begin{tabular}{r@{}l}
+(unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
+\LABEL{MIN_DEALLOCATED_LIMIT}
+\end{tabular}\end{center}
+
+which is used to optimize the inline function:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void | & \TTKEY{assert\_allocated}\verb| ( min::stub * s, unsigned size )|
+\LABEL{ASSERT_ALLOCATED}
+\end{tabular}\end{center}
+
+which expands to the code:
+
+\begin{indpar}\begin{verbatim}
+if ( MIN_DEALLOCATED_LIMIT < size )
+{
+    assert ( ! is_deallocate ( s ) );
+}
+\end{verbatim}\end{indpar}
+
+If {\tt size} is a constant (such as a {\tt size\_of} expression)
+not greater than {\tt MIN\_DEALLOCATED\_\EOL LIMIT},
+this code will be optimized away by the compiler.
+
+However, using
+
+\begin{indpar}\begin{verbatim}
+assert ( ! is_deallocate ( s ) );
+\end{verbatim}\end{indpar}
+
+unconditionally can be a valuable for debugging
 accesses to deallocated bodies.
 
 Because of the special handling required by body pointers, functions
@@ -889,8 +969,8 @@ by applying the function
 \LABEL{MIN::IS_COLLECTIBLE}
 \end{tabular}\end{center}
 
-to the type code of the stub.  Notice that type codes are signed integers, so
-that negative type codes are uncollectible and positive type codes
+to the type code of the stub.  Notice that type codes are \underline{signed}
+integers, so that negative type codes are uncollectible and positive type codes
 are collectible.
 
 A partial list of stub type codes is:
@@ -900,7 +980,7 @@ A partial list of stub type codes is:
 \tt min::NUMBER	&	Stub value is an IEEE 64-bit floating point number.
 \\
 \tt min::SHORT\_STRING
-	&	Stub value is 0-8 \verb|const char| string, 0 padded.
+	&	Stub value is 0-8 \verb|const char| string, NUL padded.
 \\
 \tt min::LONG\_STRING
 	&	Stub value is a pointer at a body of type
@@ -979,7 +1059,8 @@ by the following protected functions:
 
 The \verb|min::is_number| function for a \verb|min::gen64| argument
 is just another name for the \verb|min::is_float64| function of the same
-argument.  For a \verb|min::gen32| argument this function returns
+argument.  For a \verb|min::gen32| argument the
+{\tt min::is\_\EOL number} function returns
 true if the \verb|min::gen32| value is an integer or a stub pointer
 pointing at a number stub.
 
@@ -989,8 +1070,8 @@ integer \verb|min::gen32| value if the argument is an integer in the
 require range, and otherwise creates a number stub and returns a pointer to
 the stub converted to a \verb|min::gen32| value.
 
-Lastly the \verb|min::float64_of| function was documented above
-(\pagref{MIN::FLOAT64_OF_GEN64}) for a \verb|min::gen64| argument.  For
+Lastly the \verb|min::float64_of| function is documented on
+\pagref{MIN::FLOAT64_OF_GEN64} for a \verb|min::gen64| argument.  For
 a \verb|min::gen32| argument this returns any integer stored directly
 in the argument converted to a 64-bit IEEE floating point number, or
 returns the stub value for any number stub pointed at by the argument.
@@ -1002,22 +1083,28 @@ statement to be sure the stub is a number stub.
 
 In MIN all \verb|char| \skey{string}s\index{char strings@{\tt char} strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
-UTF-8 encodes 16 bit UNICODE characters in 1, 2, or 3 \verb|char| characters,
+UTF-8 encodes 16 bit UNICODE characters in 1, 2, or 3 \verb|char|'s,
 and encodes certain pairs of two 16 bit UNICODE characters
-(call surrogates) in 4 \verb|char| characters.
+(call surrogates) in 4 \verb|char|'s.
 
 All ASCII characters are encoded as themselves in
 the UTF-8 encoding.  This implies that
 all ASCII character strings are UTF-8 encoded character
-strings with the same characters as their ASCII representation indicates.
+strings with the same characters as their ASCII representation indicates.%
+\footnote{ASCII character codes range from 0 through 127.  UTF-8 extends
+this by assigning meaning to codes from 128 to 255.}
 
 It is possible for a \verb|char| string to be miscoded UTF-8.  None
 of the functions given below, including the protected functions,
 check for this.
 
 There are two kinds of string stubs: short strings and long strings.
-There are no protected functions directly accessing these.  There are
-protected functions accessing strings of either type without distinction,
+There are no protected functions directly accessing these.  In addition,
+a string of up to 5 characters can be stored within a \verb|min::gen64| value
+without using a stub (\secref{64-BIT-GENERAL-VALUES}):
+such strings are called \skey{direct string}s.
+There are protected functions accessing general values that denote
+strings of any kind without distinction,
 and these are described toward the end of this section, after describing
 short and long strings and their unprotected access functions.
 
@@ -1372,16 +1459,25 @@ Stub Type Codes:\label{STUB-TYPE-CODE-LIST}
 
 \end{indpar}
 
-Stub Function Declarations:
+Stub Related Declarations:
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.5in}}
+\begin{tabular}{@{}r@{}p{4.2in}}
 
 \verb|int | & \TTKEY{type\_of}\verb| ( min::stub * s )|
 \LABEL{TYPE_OF} \\[1ex]
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
-\LABEL{MIN::IS_COLLECTIBLE}
+\LABEL{MIN::IS_COLLECTIBLE} \\[1ex]
+(unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
+\LABEL{MIN_DEALLOCATED_LIMIT} \\
+\verb|void | & \TTKEY{assert\_allocated}\ARGBREAK
+               \verb| ( min::stub * s, unsigned size )|
+\LABEL{ASSERT_ALLOCATED} \\
+\verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
+\LABEL{MIN::RELOCATED_FLAG} \\
+\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool )|
+\LABEL{MIN::SET_RELOCATED_FLAG}
 
 \end{tabular}
 
@@ -1389,7 +1485,7 @@ Stub Function Declarations:
 
 \newpage
 
-Gen32 Value Protected Function Declarations:
+Gen32 Value Protected Declarations:
 
 \begin{indpar}[0.2in]
 
@@ -1420,7 +1516,7 @@ Gen32 Value Protected Function Declarations:
 
 \end{indpar}
 
-Gen32 Value Unprotected Function Declarations:
+Gen32 Value Unprotected Declarations:
 
 \begin{indpar}[0.2in]
 
@@ -1447,7 +1543,7 @@ Gen32 Value Unprotected Function Declarations:
 
 \newpage
 
-Gen64 Value Protected Function Declarations:
+Gen64 Value Protected Declarations:
 
 \begin{indpar}[0.2in]
 
@@ -1504,7 +1600,7 @@ Gen64 Value Protected Function Declarations:
 
 \end{indpar}
 
-Gen64 Value Unprotected Function Declarations:
+Gen64 Value Unprotected Declarations:
 
 \begin{indpar}[0.2in]
 
@@ -1534,7 +1630,7 @@ Gen64 Value Unprotected Function Declarations:
 
 \newpage
 
-Number Stub Protected Function Declarations:
+Number Stub Protected Declarations:
 
 \begin{indpar}[0.2in]
 
@@ -1566,7 +1662,7 @@ Number Stub Protected Function Declarations:
 
 \end{indpar}
 
-Number Stub Unprotected Function Declarations:
+Number Stub Unprotected Declarations:
 
 \begin{indpar}[0.2in]
 
@@ -1584,7 +1680,7 @@ Number Stub Unprotected Function Declarations:
 
 \newpage
 
-String Stub Protected Function Declarations:
+String Stub Protected Declarations:
 
 \begin{indpar}[0.2in]
 
@@ -1649,7 +1745,7 @@ String Stub Protected Function Declarations:
 
 \newpage
 
-String Stub Unprotected Function Declarations:
+String Stub Unprotected Declarations:
 
 \begin{indpar}[0.2in]
 
