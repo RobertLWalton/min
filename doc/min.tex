@@ -702,7 +702,7 @@ is the cooked representation of the object
     .initiator: capital
 \end{verbatim}\end{indpar}
 
-and
+Another example is
 
 \begin{indpar}\begin{verbatim}
 ##46:: straight 3.2, left, straight (y + 9.4)
@@ -711,10 +711,13 @@ and
 which parsing transforms into
 
 \begin{indpar}\begin{verbatim}
-##46:: straight 3.2, left, straight (.sum y `+' 9.4)
+##46:: straight 3.2, left, straight (|"+" y 9.4|)
 \end{verbatim}\end{indpar}
 
-is the cooked representation of the set of objects
+where \verb/(| |)/ represent implied parentheses, and
+the \verb|"+"| is a quoted \verb|+| to indicate it cannot
+be interpreted as an operator.
+This is the cooked representation of the set of objects
 
 \begin{indpar}\begin{verbatim}
 ##42:: 
@@ -722,27 +725,21 @@ is the cooked representation of the set of objects
     2: 3.2
 ##43:: 
     1: "+"
-    .initiator: "`"
-    .terminator: "'"
-##44:: 
-    1: .sum
     2: y
-    3: ##43
-    4: 9.4
-    .initiator: "("
-    .terminator: ")"
-##45:: 
+    3: 9.4
+##44:: 
     1: straight
-    2: ##44
-##46::
+    2: ##43
+##45::
     1: ##42
     2: left
-    3: ##45
+    3: ##44
     .separator: ","
 \end{verbatim}\end{indpar}
 
-Also curly brackets (\verb|{ }|) are used to change to
-a format suitable for code.  Thus
+The following is a third example in which
+curly brackets (\verb|{ }|) are used to change to
+a format suitable for code, so that
 
 \begin{indpar}\begin{verbatim}
 ##138:: function (x,y)
@@ -765,37 +762,32 @@ is the cooked representation of
     .terminator: ")"
 ##131::
     1: ">"
-    .initiator: "`"
-    .terminator: "'"
-##132::
-    1: .compare
     2: x
-    3: ##131
-    4: y
-##133::
+    3: y
+##132::
     1: return
     2: y
     .initiator: ":"
-##134::
+##133::
     1: if
-    2: ##132
-    3: ##133
-##135::
+    2: ##131
+    3: ##132
+##134::
     1: return
     2: x
     .initiator: ":"
-##136::
+##135::
     1: else
+    2: ##134
+##136::
+    1: ##133
     2: ##135
-##137::
-    1: ##134
-    2: ##136
     .initiator: "{"
     .terminator: "}"
-##138::
+##137::
     1: function
     2: ##130
-    2: ##137
+    2: ##136
 \end{verbatim}\end{indpar}
 
 Cooked representations may replace raw object names in the
@@ -818,8 +810,8 @@ is the cooked representation of the object
 \begin{indpar}\begin{verbatim}
 ##291::
     text: ##93
-    outline: ##46
-    min: ##138
+    outline: ##45
+    min: ##137
 \end{verbatim}\end{indpar}
 
 given the above examples.
@@ -1116,39 +1108,42 @@ Consider the expression
 \verb|- x + 5 * y|
 \end{center}
 
-The first step in parsing an expression is to identify all the
-operators of lowest priority in the expression.  In our example,
-there are \verb|-| and \verb|+| which have priority +3000, while
-the operator \verb|*| with the higher priority +3100 is ignored.
-The next step is to identify the macros associated with the lowest
-priority operators.  In this case the macro is \verb|.SUM|.  Then
-this macro is called with the expression as its arguments, and the
-macro finishes the parsing and returns a value which is just
-the parsed expression.
-
-In this case the \verb|.SUM| macro identifies \key{subexpressions},
-which are just the parts of the expression between lowest priority
-operators.  The subexpressions in our example are \verb|x| and
-\verb|5 * y|.  The \verb|.SUM| macro causes the subexpressions
-to be parsed and returns the value
+The first step in parsing an expression is to insert implied
+parentheses using operator priority.  In our example, the
+operators \verb|-| and \verb|+| have priority +3000, while
+the operator \verb|*| has the higher priority +3100.  The
+result is
 
 \begin{center}
-\verb/+ (| - /result-of-parsing-`\verb|x|'\verb/ |) + /result-of-%
-	parsing-`\verb|5 * y|'
+\verb/- x + (| 5 * y |)/
 \end{center}
 
-where \verb/(|   |)/ denote implied parentheses: that is, parentheses
-that do not appear in the original expression.  This returned result
+The next step is to identify the macros associated with the different
+priority levels.  In this case the macro \verb|.SUM| is associated with
++3000, and the macro \verb|.PRODUCT| is associated with +3100.
+A macro parses expressions containing the operators at the level of the
+macro.  Expressions not containing an operator are left as is.
+Parsing proceeds from the innermost expression to the outtermost.
+Thus in our example, first \verb|.PRODUCT| is called with
+`\verb|5 * y|' as its argument, and this returns `\verb|* 5 y|' as
+its parsed result.  Then \verb|.SUM| is called with
+`\verb/- x + (| * 5 y |)/' as its argument, and it returns
+`\verb/+ (| - x |) (| * 5 y |)/' as parsed result.
+This final returned result
 is the same as the objects represented by the raw data
 
 \begin{indpar}
-\verb|##510::|\\
-\verb|    1: +|\\
-\verb|    2: ##511|\\
-\verb|    3: |result-of-parsing-`\verb|5 * y|'\\
-\verb|##511::|\\
-\verb|    1: -|\\
-\verb|    2: |result-of-parsing-`\verb|x|'
+\verb|##500::|\\
+\verb|    1: "-"|\\
+\verb|    2: x|\\
+\verb|##501::|\\
+\verb|    1: "*"|\\
+\verb|    2: 5|\\
+\verb|    3: y|\\
+\verb|##502::|\\
+\verb|    1: "+"|\\
+\verb|    2: ##500|\\
+\verb|    3: ##501|
 \end{indpar}
 
 except, of course, the actual object numbers might be different when
@@ -1161,8 +1156,14 @@ Now consider the expression
 \end{center}
 
 In this the second \verb|.| is an operator, the only operator in the
-expression, and its associated macro \verb|.SENTENCE| is called to expand
-the expression and produces a parsed expression that could be
+expression, and its associated macro \verb|.SENTENCE| is called with the
+argument
+
+\begin{center}
+\verb/(| The "." is a terminator |)./
+\end{center}
+
+to expand the expression and produce a parsed expression that could be
 described by the raw data
 
 \begin{indpar}\begin{verbatim}
@@ -1176,17 +1177,14 @@ described by the raw data
     .terminator: "."
 \end{verbatim}\end{indpar}
 
-where the object number \verb|510| would probably be different in any
-actual parse.  What has happened is that the \verb|.SENTENCE| macro
-parsed the subexpression consisting of everything but the
-terminator `\verb|.| to get a list which was returned as the result
-of the parse.
-The \verb|.terminator| attribute was added to this list to designate
-the particular terminator operator that appears in the expression
-(other possibilities are \verb|!| and \verb|?|).  A `de-capitalization
-algorithm', \secref{DECAPITALIZATION}, is run that in this case
-de-capitalizes `\verb|The|' to produce `\verb|the|' and the \verb|.initiator|
-attribute of the list.
+where the object number \verb|520| would probably be different in any
+actual parse.  The \verb|.SENTENCE| macro rearranged what it was given
+into a single list in which the first word is lower case,
+the \verb|.initiator| is `\verb|capital|' to indicate the first word
+should be capitalized, and the \verb|.terminator| is the `\verb|.|'
+that was originally the operator.  Changing the case of the first
+word and adding the \verb|.initiator| is done by a
+`de-capitalization algorithm', \secref{DECAPITALIZATION}.
 
 In most cases, a parsed atom is just the atom itself.  However, when a quoted
 atom is parsed, the quotes are removed, a process called \key{de-quoting}.
