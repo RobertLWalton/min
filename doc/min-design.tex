@@ -83,9 +83,9 @@
 \newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
-\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
-\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
-\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\secref}[1]{\ref{#1}p\pageref{#1}}
+\newcommand{\stepref}[1]{\ref{#1}p\pageref{#1}}
+\newcommand{\appref}[1]{\ref{#1}p\pageref{#1}}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -223,7 +223,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 9, 2004}
+\date{September 13, 2004}
  
 \maketitle
 
@@ -252,7 +252,7 @@ We first describe MIN data memory.
 
 We give two interfaces to MIN data memory:
 the \key{protected interface}, which can be used
-by C++ code to access MIN data memory while maintaining the integrety
+by C++ code to access MIN data memory while maintaining the integrity
 of that memory, and the \key{unprotected interface}, which provides
 more efficient access to MIN data memory but requires the user to
 follow certain protocols.
@@ -268,18 +268,18 @@ uses the unprotected interface must
 and all unprotected
 interface names begin with `\ttkey{min::unprotected::}'.  Code
 that uses the unprotected interface typically abbreviates this long
-name prefix to `\ttkey{mup::}' by including after the `\verb|#include|'
-statement above the definition:
+name prefix to `\ttmkey{mup::}{abbreviates {\tt min::unprotected::}}'
+by including after the `\verb|#include|' statement above the definition:
 
 \begin{center}
 \verb|#define  mup  min::unprotected|
 \end{center}
 
-In this document we will also use the abbreviation `\verb|mup|' for
+In this document we will use the abbreviation `\verb|mup|' for
 `\verb|min::unprotected|'.
 
-The data of MIN is defined using C-compatible \verb|struct|'s and
-\verb|union|'s.  C++ implicitly guarentees the layout of
+The data of MIN is defined using C-compatible \ttmkey{struct}{C compatible}'s
+and \ttmkey{union}{C compatible}'s.  C++ implicitly guarentees the layout of
 C-compatible \verb|struct|'s and \verb|union|'s to be C-compatible,
 and C has implicit guarentees because of historical C code that
 such data will not contain unnecessary unnamed padding.  Neither the
@@ -288,12 +288,12 @@ MIN depends upon its absence.
 
 As a consequence of using only C-compatible \verb|struct|'s and
 \verb|union|'s to define data, MIN does not use member functions,
-and uses functions instead.  Protected functions
+and uses overloaded functions instead.  Protected functions
 have names beginning with `\ttmkey{min::}{in function name}'
 only if they have no argument that is a pointer to a MIN defined
-stub or other datum.  Most protected MIN functions do not fall into this
-category, have names that do not begin with any class qualifier,
-and are overloaded.  Unprotected functions have names beginning with 
+datum.  Most protected MIN functions have such pointer arguments
+and have overloaded names that do not begin with any class qualifier.
+Unprotected MIN functions have names beginning with 
 `\ttmkey{mup::}{in function name}'.
 
 In defining MIN data the following number types are used to be sure
@@ -341,11 +341,11 @@ Some implementations of MIN use 32 bit `\skey{virtual stub number}s',
 or \skey{VSN}{'s}, as stub addresses.  For this reason stubs are
 always a power of two in length, e.g. 16 bytes, so that VSN's can be
 translated to addresses by shifting left.  The only reason to use VSN's
-instead of addresses is to multiply by at least 4 the number of
+instead of addresses is to multiply by at least 16 the number of
 stubs that may exist in memory without needing to use more than 32 bits
 to hold a stub address.  On machines that have 32 bit addresses (e.g.,
-the IA32 machines), VSN's are implemented as addresses of stubs,
-and no shifting is required.
+the IA32\footnote{Intel Architecture 32-bit} machines),
+VSN's are implemented as addresses of stubs, and no shifting is required.
 
 A stub is divided into an 8 byte value and an 8 byte control.
 The \mkey{value}{of stub} can hold an IEEE floating point number,
@@ -359,15 +359,40 @@ for example, by the garbage collector.
 A \key{body} is a variable sized relocatable block of memory
 attached to a particular stub.  A stub may have one body attached to
 it, in which case the stub value is a pointer to that body.
-At almost any time the body may be moved and the stub value reset to
+At almost any time the body can be moved and the stub value reset to
 point at the new location of the body.  The body may be deallocated by
 moving it to unimplemented memory.  Bodies are always some multiple
 of 8 bytes long, and are allocated on 8 byte boundaries.
 
+Memory consisting of unrelocatable stubs pointing at relocatable
+bodies is called a `\key{stub/body memory}'.  Thus MIN has a stub/body memory.
+
 The type name of a stub is `\ttkey{min::stub}', and a pointer to a stub
 has type `\verb|min::stub *|'.\label{MIN::STUB}
 
+\subsection{General Values}
+\label{GENERAL-VALUES}
+
+A \key{general value} is a 64 bit aligned value that can hold only one
+of the following
+
+\begin{center}
+\begin{tabular}{l}
+an IEEE 64-bit floating point number \\
+a 0-6 character string \\
+a pointer to a stub
+\end{tabular}
+\end{center}
+
+TBD
+
+\subsection{Body Pointers}
+\label{BODY-POINTERS}
+
+TBD: compensating for relocation
+
 \subsection{Stub Control}
+\label{STUB-CONTROL}
 
 A stub contains an 8 byte value and an 8 byte \mkey{control}{of stub}.
 If the control is viewed as a 64 bit integer, its high order byte
@@ -409,9 +434,13 @@ low order 48 bits:	& chain pointer \\
 The main use of non-collectible stubs is as auxilaries.
 An `\key{auxilary}' is a non-collectible stub attached to an object.
 When the object is garbage collected, the auxilary is freed.  Auxilaries
-have two uses: first, as a means of adding memory to an object without
-relocating the object, and seconds, as a means of adding additional
-bodies to an object, since every body needs its own stub.
+are a means of adding memory to an object without relocating the object.
+For example, if the object stores 64-bit IEEE floating point numbers,
+an auxilary can be used to add memory for an additional number to the
+object.  Note the auxilary stub itself typically does not contain enough
+information to tell the type of the value it stores: generally one must
+trace the reference from the object pointing at the auxilary
+to determine this type.
 
 \subsection{Stub Type Codes}
 \label{STUB-TYPE-CODES}
@@ -451,8 +480,8 @@ A partial list of stub type codes is:
 \end{tabular}
 \end{center}
 
-A full list of stub type codes is given on \pagref{STUB-TYPE-VALUE-LIST}
-and includes page references for each type code.
+A full list of stub type codes complete with page references
+is given on \pagref{STUB-TYPE-CODE-LIST}.
 
 \subsection{Stub Values}
 \label{STUB-VALUES}
@@ -462,31 +491,36 @@ type code (\secref{STUB-TYPE-CODES}).  Many stubs are immutable
 and their values cannot be written after the stub has been created;
 nevertheless we describe unprotected functions below that
 write these values.  Protected functions that read these values
-do not check the type codes of the stubs, and therefore can be used
-to read misformatted values, e.g., misformatted IEEE 64-bit floating
-point numbers and misformatted UTF-8 encoded character strings.
+do not check the type codes of the stubs, and can be used
+to read misformatted non-pointer values, e.g., misformatted
+IEEE 64-bit floating point numbers and misformatted UTF-8 encoded
+character strings.  There are no protected functions to read body pointers
+from stubs, as all body pointers are relocatable and require special
+programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 
-\subsection{Stub Number Values}
-\label{STUB-NUMBER-VALUES}
+\subsection{Number Stubs}
+\label{NUMBER-STUBS}
 
-A \key{number stub} has \ttkey{min::NUMBER} type code and
+A \key{number stub} has \ttkey{min::NUMBER}\label{NUMBER-TYPE} type code and
 an immutable \verb|min::float64| value that can be read by
 
-\begin{indpar}\begin{verbatim}
-min::float64 float64_of ( min::stub * s )
-\end{verbatim}\end{indpar}%
-\label{FLOAT64_OF}
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::float64 | & \verb|float64_of ( min::stub * s )|
+\label{FLOAT64_OF} \\
+\verb|min::float64 mup::| & \verb|float64_of ( min::stub * s )|
+\label{MUP::FLOAT64_OF}
+\end{tabular}\end{center}
 
 and written by
 
-\begin{indpar}\begin{verbatim}
-void mup::set_float64_of ( min::stub * s, min::float64 f )
-\end{verbatim}\end{indpar}%
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void mup::| & \verb|set_float64_of ( min::stub * s, min::float64 f )|
 \label{MUP::SET_FLOAT64_OF}
+\end{tabular}\end{center}
 
 
-\subsection{Stub String Values}
-\label{STUB-STRING-VALUES}
+\subsection{String Stubs}
+\label{STRING-STUBS}
 
 In MIN all \verb|char| \skey{string}s\index{char strings@{\tt char} strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
@@ -499,38 +533,48 @@ the UTF-8 encoding.  This implies that
 all ASCII character strings are UTF-8 encoded character
 strings with the same characters as their ASCII representation indicates.
 
-It is possible for a \verb|char| string to be miscoded UTF-8.  The functions
-given below do not check for this.
+It is possible for a \verb|char| string to be miscoded UTF-8.  None
+of the functions given below, including the protected functions,
+check for this.
 
-A \key{short string stub} has \ttkey{min::SHORT\_STRING} type code and
+There are two kinds of string stubs: short strings and long strings.
+There are no protected functions directly accessing these.  There are
+protected functions accessing strings of either type without distinction,
+and these are described toward the end of this section, after describing
+short and long strings and their unprotected access functions.
+
+A \key{short string stub} has
+\ttkey{min::SHORT\_STRING}\label{SHORT-STRING-TYPE} type code and
 an immutable \verb|min::uns64| value that holds NUL padded
 8 \verb|char| vector and can be read by
 
-\begin{indpar}\begin{verbatim}
-min::uns64 string_of ( min::stub * s )
-\end{verbatim}\end{indpar}%
-\label{STRING_OF}
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns64 mup::| & \verb|short_string_of ( min::stub * s )|
+\label{MUP::SHORT_STRING_OF}
+\end{tabular}\end{center}
 
 and written by
 
-\begin{indpar}\begin{verbatim}
-void mup::set_string_of ( min::stub * s, min::uns64 str )
-\end{verbatim}\end{indpar}%
-\label{SET_STRING_OF}%
-\label{MUP::SET_STRING_OF}
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void mup::| & \verb|set_short_string_of ( min::stub * s, min::uns64 str )|
+\label{MUP::SET_SHORT_STRING_OF}
+\end{tabular}\end{center}
 
 Here the \verb|min::uns64| value \verb|str| should be overlayed
 by a union with a \verb|char[]| buffer, as in
 
 \begin{indpar}\begin{verbatim}
 union { min::uns64 str; char buf[9]; } u;
-u.buf[8] = 0;
 min::stub * s1, * s2;
 . . . .
-u.str = string_of ( s1 );
+u.buf[8] = 0;	// Be sure result is NUL terminated.
+u.str = mup::short_string_of ( s1 );
 cout << u.buf;
+. . . .
+u.str = 0;	// Be sure all 8 bytes are NUL padded.
 cin >> u.buf;
-set_string_of ( s2 , u.str );
+mup::set_short_string_of ( s2 , u.str );
 \end{verbatim}\end{indpar}
 
 Short string values are NUL (zero) padded 0 to 8 \verb|char|
@@ -541,10 +585,11 @@ may have non-NUL characters after a NUL character, but with
 the 9'th NUL appended it will still be a NUL-terminated C/C++ \verb|char|
 string.
 
-A \key{long string stub} has \ttkey{min::LONG\_STRING} type code and
+A \key{long string stub} has
+\ttkey{min::LONG\_STRING}\label{LONG-STRING-TYPE} type code and
 a value that is a pointer to a \ttkey{min::long\_string} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
-The following function returns a movable pointer to this body,
+The following functions respectively return a movable pointer to this body,
 the length of the string, a 32-bit non-zero hash value computed from
 the string, a 64-bit signature for the string,
 and a movable pointer to the string.  If the hash value
@@ -553,18 +598,18 @@ string by the function that returns it, causing that function to
 take time proportional to the string length.  The 64-bit signature
 contains the hash value and the string length.
 
-\begin{indpar}\begin{verbatim}
-min::long_string * mup::long_string_of ( min::stub * s )
-unsigned length_of ( min::long_string * str )
-unsigned hash_of ( min::long_string * str )
-min::uns64 signature_of ( min::long_string * str )
-const char * char_of ( min::long_string * str )
-\end{verbatim}\end{indpar}%
-\label{MUP::LONG_STRING_OF}%
-\label{LENGTH_OF_LONG_STRING}%
-\label{HASH_OF_LONG_STRING}%
-\label{SIGNATURE_OF_LONG_STRING}%
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::long_string * mup::| & \verb|long_string_of ( min::stub * s )|
+\label{MUP::LONG_STRING_OF} \\
+\verb|unsigned | & \verb|length_of ( min::long_string * str )|
+\label{LENGTH_OF_LONG_STRING} \\
+\verb|unsigned | & \verb|hash_of ( min::long_string * str )|
+\label{HASH_OF_LONG_STRING} \\
+\verb|min::uns64 | & \verb|signature_of ( min::long_string * str )|
+\label{SIGNATURE_OF_LONG_STRING} \\
+\verb|const char * | & \verb|char_of ( min::long_string * str )|
 \label{CHAR_OF_LONG_STRING}
+\end{tabular}\end{center}
 
 The long string body consists of a 64 bit signature containing
 the 32-bit length and 32-bit hash value, followed by a \verb|char|
@@ -578,16 +623,55 @@ an uncomputed hash is returned as zero, and the movable pointer
 to the string permits the string to be written.  Unprotected functions
 are also provided to set the length and hash.
 
-\begin{indpar}\begin{verbatim}
-unsigned mup::hash_of ( min::long_string * str )
-char * mup::char_of ( min::long_string * str )
-void mup::set_length_of ( min::long_string * str, unsigned length )
-void mup::set_hash_of ( min::long_string * str, unsigned hash )
-\end{verbatim}\end{indpar}%
-\label{MUP::HASH_OF_LONG_STRING}%
-\label{MUP::CHAR_OF_LONG_STRING}%
-\label{MUP::SET_LENGTH_OF_LONG_STRING}%
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned mup::| & \verb|hash_of ( min::long_string * str )|
+\label{MUP::HASH_OF_LONG_STRING} \\
+\verb|char * mup::| & \verb|char_of ( min::long_string * str )|
+\label{MUP::CHAR_OF_LONG_STRING} \\
+\verb|void mup::| & \verb|set_length_of ( min::long_string * str, unsigned length )|
+\label{MUP::SET_LENGTH_OF_LONG_STRING} \\
+\verb|void mup::| & \verb|set_hash_of ( min::long_string * str, unsigned hash )|
 \label{MUP::SET_HASH_OF_LONG_STRING}
+\end{tabular}\end{center}
+
+The following are protected functions that operate on both stort and long
+strings.  These functions have the same (overloaded) names and are analogous
+to standard C library string functions.
+
+The functions
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned | & \verb|strlen ( min::stub * s )|
+\label{STRLEN} \\
+\verb|unsigned | & \verb|strhash ( min::stub * s )|
+\label{STRHASH} \\
+\verb|min::uns64 | & \verb|strsignature ( min::stub * s )|
+\label{STRSIGNATURE}
+\end{tabular}\end{center}
+
+return the length of the string (excluding the terminating NUL),
+the hash value of the string, and the signature of the string.
+The low order bits of the hash value are random, so it can be
+truncated to provide a random hash.  The signatures of two strings
+are equal if the strings are equal, but there is a small chance
+the signatures of unequal strings will be equal.\footnote{The chance
+is much greater for the signature used by MIN than it would be
+for an MD5 signature, which has the same length but is much slower
+to compute.}
+
+The functions
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|char * | & \verb|strcpy ( char * p, min::stub * s )|
+\label{STRCPY} \\
+\verb|char * | & \verb|strncpy ( char * p, min::stub * s, unsigned n )|
+\label{STRNCPY}
+\end{tabular}\end{center}
+
+copy a string from a MIN short or long string to a buffer pointed at
+by \verb|p|.  Copying stops when a NUL is copied or when the
+\verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
+of \verb|p| is returned.
 
 \subsection{Double Arrows}
 
@@ -672,52 +756,76 @@ Data Declarations:
 
 \end{indpar}
 
+Stub Type Codes:\label{STUB-TYPE-CODE-LIST}
+
+\begin{indpar}[0.2in]
+
+\verb|min::NUMBER| \REF{NUMBER-TYPE}
+\\
+\verb|min::SHORT_STRING| \REF{SHORT-STRING-TYPE}
+\\
+\verb|min::LONG_STRING| \REF{LONG-STRING-TYPE}
+
+\end{indpar}
+
 Stub Data Function Declarations:
 
 \begin{indpar}[0.2in]
 
-\verb|int type_of ( min::stub * s )| \REF{TYPE_OF}
-\\
-\verb|bool min::is_collectible ( int type )| \REF{MIN::IS_COLLECTIBLE}
+\begin{tabular}{@{}r@{}p{4.5in}}
 
-\verb|min::float64 float64_of ( min::stub * s )|
+\verb|int | & \verb|type_of ( min::stub * s )| \REF{TYPE_OF}
+\\
+\verb|bool min::| & \verb|is_collectible ( int type )| \REF{MIN::IS_COLLECTIBLE}
+\\
+\verb|min::float64 | & \verb|float64_of ( min::stub * s )|
 \REF{FLOAT64_OF}
 \\
-\verb|void mup::set_float64_of ( min::stub * s, min::float64 f )|
+\verb|min::float64 mup::| & \verb|float64_of ( min::stub * s )|
+\REF{MUP::FLOAT64_OF}
+\\
+\verb|void mup::| & \verb|set_float64_of ( min::stub * s, min::float64 f )|
 \REF{MUP::SET_FLOAT64_OF}
 \\
-\verb|min::uns64 string_of ( min::stub * s )|
-\REF{STRING_OF}
+\verb|min::uns64 | & \verb|mup::short_string_of ( min::stub * s )|
+\REF{MUP::SHORT_STRING_OF}
 \\
-\verb|void mup::set_string_of ( min::stub * s, min::uns64 str )|
-\REF{MUP::SET_STRING_OF}
+\verb|void mup::| & \verb|set_short_string_of| \\
+                  & \verb|  ( min::stub * s, min::uns64 str )|
+\REF{MUP::SET_SHORT_STRING_OF}
 \\
-\verb|min::long_string * mup::long_string_of ( min::stub * s )|
+\verb|min::long_string  | \\
+\verb|  * mup::| & \verb|long_string_of ( min::stub * s )|
 \REF{MUP::LONG_STRING_OF}
 \\
-\verb|unsigned length_of ( min::long_string * str )|
+\verb|unsigned | & \verb|length_of ( min::long_string * str )|
 \REF{LENGTH_OF_LONG_STRING}
 \\
-\verb|unsigned hash_of ( min::long_string * str )|
+\verb|unsigned | & \verb|hash_of ( min::long_string * str )|
 \REF{HASH_OF_LONG_STRING}
 \\
-\verb|min::uns64 signature_of ( min::long_string * str )|
+\verb|min::uns64 | & \verb|signature_of ( min::long_string * str )|
 \REF{SIGNATURE_OF_LONG_STRING}
 \\
-\verb|const char * char_of ( min::long_string * str )|
+\verb|const char * | & \verb|char_of ( min::long_string * str )|
 \REF{CHAR_OF_LONG_STRING}
 \\
-\verb|unsigned mup::hash_of ( min::long_string * str )|
+\verb|unsigned mup::| & \verb|hash_of ( min::long_string * str )|
 \REF{MUP::HASH_OF_LONG_STRING}
 \\
-\verb|char * mup::char_of ( min::long_string * str )|
+\verb|char * mup::| & \verb|char_of ( min::long_string * str )|
 \REF{MUP::CHAR_OF_LONG_STRING}
 \\
-\verb|void mup::set_length_of ( min::long_string * str, unsigned length )|
+\verb|void mup::| & \verb|set_length_of| \\
+                  & \verb|  ( min::long_string * str, unsigned length )|
 \REF{MUP::SET_LENGTH_OF_LONG_STRING}
 \\
-\verb|void mup::set_hash_of ( min::long_string * str, unsigned hash )|
+\verb|void mup::| & \verb|set_hash_of| \\
+                  & \verb|  ( min::long_string * str, unsigned hash )|
 \REF{MUP::SET_HASH_OF_LONG_STRING}
+
+\end{tabular}
+
 
 \end{indpar}
 
