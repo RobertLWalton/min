@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 26, 2004}
+\date{December 27, 2004}
  
 \maketitle
 
@@ -276,6 +276,7 @@ and the corresponding code:
 \ttmkey{min}{abbreviation}	& the MIN system \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
 \ttmkey{num}{abbreviation}	& number \\
+\ttmkey{obj}{abbreviation}	& object \\
 \ttmkey{str}{abbreviation}	& string \\
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
 \end{tabular}
@@ -1453,9 +1454,10 @@ strings, they have \verb|==| \verb|min::gen| values.
 An object is conceptually a hash table that maps attribute names to
 attribute values.  A double arrow is a joined pair of map entries in different
 objects.  The part of the hash table that maps small
-integer attribute names is actually a vector.
+unsigned integer attribute names is actually a vector.
 
-An object has a body that consists of 5 parts:
+An object has a body that consists of the following 5 parts in
+the order given:
 
 \begin{center}
 \begin{tabular}{l}
@@ -1469,8 +1471,9 @@ auxilary
 
 The header contains the sizes of the other 4 parts.  The hash table
 stores attribute label/value pairs, for attributes whose labels that are not
-small integers.  The vector stores attribute values for attributes whose
-labels are small integers.  The auxilary area stores various overflow
+small unsigned integers.
+The vector stores attribute values for attributes whose
+labels are small unsigned integers.  The auxilary area stores various overflow
 data from the hash table and list areas.
 
 The hash table is of fixed size; its size can only be changed by relocating
@@ -1483,11 +1486,35 @@ has a header that stores 16 bit unsigned sizes.  A \key{long object}
 has a header that stores 32 bit unsigned sizes.  Otherwise there is
 no essential difference between a short and a long object.  The functions
 that create attributes convert automatically from short to
-long objects when required.  Conversion in the other direction, and compaction
+long objects when required.  Conversion in either direction, and compaction
 of objects, may occur when object bodies are relocated during garbage
 collection.
 
-The protected functions
+There are protected functions accessing general values that denote
+objects of any kind without distinction,
+and these are described toward the end of this section, after
+short and long objects and their unprotected access functions are
+described.
+
+A \key{short object stub}\label{SHORT-OBJECT-STUB} has
+\minkey{SHORT\_OBJ}\LABEL{SHORT-OBJ-TYPE} stub type code and
+a value that is a pointer to a \minkey{short\_obj} type body
+which holds the 5 parts of the object.  The header consists of
+4 16-bit integers which are, in order:
+
+\begin{center}
+\begin{tabular}{l}
+total size \\
+hash table size \\
+vector size \\
+auxilary size \\
+\end{tabular}
+\end{center}
+
+TBD
+
+The following protected functions access either short or long objects, without
+distinction.
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen | & \TTKEY{getg}\verb| ( min::stub * s, min::gen name )|
@@ -1517,6 +1544,10 @@ value
 
 which is a special atom not equal to any number or character string.
 
+In all functions that access attributes a \verb|min::gen|
+name that is an integer numerically equal to an \verb|int| name names the
+same attribute as the \verb|int| name.
+
 Attribute values can be set by the protected functions
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1538,7 +1569,7 @@ that set the attribute's value given the attribute's name and an object.
 The object and name can be specified as for the get functions.
 If the attribute
 value is given as \verb|min::MISSING|, the attribute is deleted from the
-object it the attribute previously had a value.  It is never an error
+object if the attribute previously had a value.  It is never an error
 if the attribute did not previously have a value.
 
 Attribute values can be set to double arrows by the protected functions
