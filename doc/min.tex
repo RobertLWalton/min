@@ -1390,7 +1390,7 @@ and the object output by the recursive call becomes the next list element.
 \item If the next input is a quoted string, the next list element is an
 object whose only attributes are an attribute named {\tt 1} whose value
 is the quoted string atom,
-and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
+and an {\tt .parser} attribute whose value is the atom `{\tt quoted}'.
 
 \item If the next input is a word or mark, the word or mark becomes the next
 list element.
@@ -1422,7 +1422,7 @@ following:
     .terminator: "'"
 ##2::
     1: "+"
-    .initiator: quoted
+    .parser: quoted
 ##3::
     1 : x
     2 : "+"
@@ -1442,6 +1442,69 @@ Thus \verb|"+"| is used in the textual
 object representation above to denote the 1 character atom \verb|+|,
 and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
 also denote 1 character atoms.
+
+\subsubsection{Operator Scanning}
+\label{OPERATOR-SCANNING}
+
+The \key{operator scanning} algorithm inputs an object output
+by the lexical scanning algorithm and rearanges its contents according
+to the operators it contains.
+Specifically, subsequences of list elements between operators
+are regrouped into sublists to represent subexpressions,
+and {\tt .parser} attributes are added to
+objects in preparation for expansion.
+
+The operator scanning algorithm takes as input both an object and a parsing
+mode.  The parsing mode is either text or expression (\pagref{PARSING-MODES}).
+Code mode is handled elsewhere, during lexical scanning, and is treated as
+equivalent to expression mode during operator scanning.  The output of
+the algorithm is the input object which may be modified.
+The operator scanning algorithm applies the following actions to the
+object:
+
+\begin{enumerate}
+
+\item If the object has a {\tt .parser} attribute value (such as
+the value `{\tt quoted}' introduced by lexical scanning), the operator
+scanning algorithm terminates without modifying the object.
+
+\item The parsing mode argument to the algorthm is changed if the
+object has an {\tt .initiator} attribute as follows:
+
+\begin{center}
+\begin{tabular}{lll}
+\tt .initiator	& \tt .terminator	& new parsing mode \\[1ex]
+\tt `		& \tt '			& text \\
+\tt (		& \tt )			& expression \\
+\tt [		& \tt ]			& expression \\
+\tt \{		& \tt \}		& expression \\
+\tt :		& 			& expression \\
+\end{tabular}
+\end{center}
+	
+\item The object list elements are inspected to see if any are operators.
+An operator is an atom equal to an operator that is recognized according
+to the current parsing mode (see \pagref{PARSING-MODE},
+Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARAION}).
+
+If there are opeators among the list elements, those with the lowest
+priority L are selected.  Then any non-empty sequences of list elements
+between selected operators are replaced by a single object listing the
+replaced elements.  Then, the current object is given a {\tt .parser}
+attribute equal to the parser associated with priority level L
+(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARAION}).
+
+Lastly, if the current parsing mode is text and L equals zero, the parsing
+mode is changed to expression.
+
+\item
+The operator scanning algorithm is called recursively on each element
+of the current object's list that is an object and not an atom.  In making
+this recursive call, the current parsing mode is passed as an argument
+to the recursive algorithm execution.
+
+
+\end{enumerate}
 
 \subsection{Standard Representations}
 \label{STANDARD-REPRESENTATIONS}
