@@ -226,7 +226,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{July 30, 2004}
+\date{July 31, 2004}
  
 \maketitle
 
@@ -371,8 +371,10 @@ The other whitespace characters have special interpretation inside quoted
 strings, see~\secref{QUOTED-STRINGS}.
 
 \subsection{Quoted Strings}
+\label{QUOTED-STRINGS}
 
 TBD
+\label{ESCAPE-SEQUENCES}
 
 \section{Data}
 
@@ -387,7 +389,8 @@ every other object and from every atom.  But it has nothing else.
 
 However, as a place in memory, an object has a name.  Objects are assigned
 \skey{raw object name}s
-of the form `\ttkey{\#\#}$I$' where $I$ is an integer that starts
+of the form `\ttmkey{\#\#}{in raw object name}$I$' where $I$
+is an integer that starts
 with {\tt 1} for the first object created and continues in sequence as
 more objects are created.  E.g., the first three objects created have the
 raw object names \verb|##1|, \verb|##2|, and \verb|##3|. 
@@ -410,7 +413,12 @@ arrows can be named by giving an object which is the source of the arrow
 and a label which is the label of a single arrow or the label in the
 direction leaving the object of a double arrow.
 
-\subsection{The Raw Representation}
+We will give examples in the next section along with a basic way of
+representing sets of objects in text.  In most of this document
+arrows are called attributes, arrow labels are called attribute names,
+and arrow targets are called attribute values.
+
+\subsection{Raw Representations}
 
 A set of objects can be written to a text file or read from a text file.
 When this is done, a textual representation of the object set must be used
@@ -437,16 +445,18 @@ The format of a \key{raw representation} is:
 \\[1ex]
 \key{raw-single-arrow-representation} ::=
 	{\em arrow-label}\ttmkey{:}{in {\em raw-single-arrow-representation}}
-	{\em single-arrow-value} \verb|;|
+	{\em single-arrow-target}
+	\ttmkey{;;}{in {\em raw-single-arrow-representation}}
 \\[1ex]
-\key{single-arrow-value} ::= {\em atom} $|$ {\em raw-object-name}
+\key{single-arrow-target} ::= {\em atom} $|$ {\em raw-object-name}
 \\[1ex]
 \key{raw-double-arrow-representation} ::=
 	{\em arrow-label}\ttmkey{:}{in {\em raw-double-arrow-representation}}
-	{\em double-arrow-value}
-	{\tt :}{\em arrow-label} \verb|;|
+	{\em double-arrow-target}
+	{\tt :}{\em arrow-label}
+	\ttmkey{;;}{in {\em raw-double-arrow-representation}}
 \\[1ex]
-\key{double-arrow-value} ::= {\em raw-object-name}
+\key{double-arrow-target} ::= {\em raw-object-name}
 \\[1ex]
 \key{raw-object-name} ::=
 	\ttmkey{\#\#}{in {\em raw-object-name}}{\em integer-above-zero}
@@ -454,25 +464,55 @@ The format of a \key{raw representation} is:
 \key{arrow-label} ::= {\em atom} \ldots
 
 \end{tabular}
-\end{center}
+\end{center}%
+\index{label!arrow}%
+\index{source!arrow}%
+\index{target!arrow}
 
 A simple example of the raw representation of a set of objects is:
 
-\begin{indpar}\begin{verbatim}
-##1::
-    type: woman;
-    name: jill;
-    husband: ##2 :wife;
-##2::
-    type: man;
-    name: jack;
-    wife: ##1 :husband;
-\end{verbatim}\end{indpar}
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##1::|\\
+\verb|    type: woman;;|\\
+\verb|    name: Jill;;|\\
+\verb|    husband: ##2 :wife;;|\\
+\verb|##2::|\\
+\verb|    type: man;;|\\
+\verb|    name: Jack;;|\\
+\verb|    wife: ##1 :husband;;|
+\end{tabular}
+~~~~~~~~~
+\begin{picture}(3.0,1.5)
+\put(0,0){\framebox(3.0,1.5){}}
+\put(0.3,1.00){\makebox(0.8,0.3){\tt \#\#1}}
+\put(0.7,1.15){\oval(0.8,0.3)}
+\put(0.5,1.00){\vector(0,-1){0.5}}
+\put(0.45,0.75){\makebox(0,0)[r]{\tt type}}
+\put(0.5,0.4){\makebox(0,0){\tt woman}}
+\put(0.9,1.00){\vector(0,-1){0.7}}
+\put(0.95,0.55){\makebox(0,0)[l]{\tt name}}
+\put(0.9,0.2){\makebox(0,0){\tt Jill}}
+\put(1.9,1.00){\makebox(0.8,0.3){\tt \#\#2}}
+\put(2.3,1.15){\oval(0.8,0.3)}
+\put(2.1,1.00){\vector(0,-1){0.5}}
+\put(2.05,0.75){\makebox(0,0)[r]{\tt type}}
+\put(2.1,0.4){\makebox(0,0){\tt man}}
+\put(2.5,1.00){\vector(0,-1){0.7}}
+\put(2.55,0.55){\makebox(0,0)[l]{\tt name}}
+\put(2.5,0.2){\makebox(0,0){\tt Jack}}
+\put(1.1,1.17){\vector(1,0){0.8}}
+\put(1.9,1.13){\vector(-1,0){0.8}}
+\put(1.5,1.15){\oval(0.07,0.12)}
+\put(1.5,1.30){\makebox(0,0){\tt husband}}
+\put(1.5,1.00){\makebox(0,0){\tt wife}}
+\end{picture}
+\end{center}
 
 This represents two objects.
 There are two single arrows from object \verb|##1|,
-one labeled {\tt type} whose target is the atom {\tt woman},
-and one labeled {\tt name} whose target is the atom {\tt jill}.
+one arrow labeled {\tt type} whose target is the atom {\tt woman},
+and one arrow labeled {\tt name} whose target is the atom {\tt Jill}.
 There are two similar single arrows from object \verb|##2|.
 There is a double arrow between the two objects which has the
 label {\tt husband} when going from \verb|##1| to \verb|##2|
@@ -482,23 +522,78 @@ In order to permit \verb|:| to be used in an arrow label, the following
 \key{quote representation rule} is applied to representations.
 A quoted symbol cannot be recognized as an atom that has special
 meaning in a representation, such as the \verb|::|, \verb|:|,
-\verb|##|, or \verb|;| atoms in raw representations.  Thus if any
-of these atoms are to be part of an arrow label or value, they should
-be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";"|.
+\verb|##|, or \verb|;;| atoms in raw representations.  Thus if any
+of these atoms are to be part of an arrow label or target, they should
+be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";;"|.
 Other than this rule, there is no
 distinction between quoted and unquoted representations of typically
 unquoted atoms.
 
-The semi-colons at the ends of arrow representations
-in a raw representation may be omitted provided the next line is not
+The double-semi-colons (\verb|;;|) at the ends of arrow representations
+may be omitted according to the \key{double-semi-colon representation rule}.
+This rule says that the \ttmkey{;;}{omitting} at the end of an arrow
+representation may be omitted provided the next line is not
 indented with respect to the first non-whitespace character of the
-arrow representation with the omitted semi-colon, or if the end of
-file immediately follows.  Thus the semi-colons in the example just
-given may be omitted.
+arrow representation with the omitted \verb|;;|, or alternatively if the end of
+text (e.g., end of file) immediately follows.
+Thus the \verb|;;|'s in the example just given may be omitted.
+
+We can say that \verb|##1| is the source of an arrow labeled \verb|type|
+with target \verb|woman|, but instead we will usually say that
+\verb|##1| has an attribute named \verb|type| with value \verb|woman|.
+Thus in our example \verb|##1| has attributes named \verb|type|,
+\verb|name|, and \verb|husband| that have values, respectively,
+\verb|woman|, \verb|Jill|, and \verb|##2|.
+
+In the rest of this document we use the terminolgy of attributes,
+attribute name, and attribute values, in place of
+arrows, arrow labels, and arrow targets.
+An \key{attribute} of an object is just a single arrow sourced at the object,
+or a double arrow viewed in the direction going away from the object.
+The \key{attribute name}\index{name!attribute} is just the label of this arrow.
+The \key{attribute value}\index{value!attribute} is just the target
+of this arrow.
+
+\subsection{Cooked Representations}
 
 In contrast to the raw representation of a set of objects there is the
-cooked representation, that is much easier to read and write, but more
+cooked representation, that is much easier to read and write, but a bit more
 long winded to explain.
+
+One rule of cooked representations is that some attributes may be
+grouped together to form a list attribute, and the list attribute may
+be represented more compactly.  The attributes that are grouped to
+form the list are called element attributes.
+
+For example, the element attributes
+
+\begin{indpar}\begin{verbatim}
+relatives 1: ##4
+relatives 2: ##7
+relatives 3: ##2
+relatives 4: ##9
+\end{verbatim}\end{indpar}
+
+may be grouped to form the list attribute
+
+\begin{indpar}\begin{verbatim}
+relatives: ##4 ##7 ##2 ##9
+\end{verbatim}\end{indpar}
+
+\begin{indpar}\begin{verbatim}
+outline 1: straight
+outline 2: 3.2
+outline 3: left
+outline 4: straight
+outline 5: 9.6
+outline 6: left
+outline 6: straight
+outline 6: 3.2
+outline 6: left
+outline 6: straight
+outline 6: left
+outline 6: left
+\end{verbatim}\end{indpar}
 
 
 \bibliographystyle{plain}
