@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 12, 2004}
+\date{November 13, 2004}
  
 \maketitle
 
@@ -1403,7 +1403,46 @@ to hold the string itself, a direct string general value is created, and
 otherwise, if the input string is 8 or fewer {\tt char}'s, a short
 string stub is created, and otherwise a long string stub is created.
 
+\subsection{Object Stubs}
+
+An object is conceptually a hash table that maps attribute names to
+attribute values.  Double arrows are handled specially: see
+\secref{DOUBLE-ARROWS}.  The part of the hash table that maps small
+integer attribute names is actually a vector.
+
+An object has a body that consists of 5 parts:
+
+\begin{center}
+\begin{tabular}{l}
+header \\
+hash table \\
+list \\
+unused \\
+auxilary
+\end{tabular}
+\end{center}
+
+The header contains the sizes of the other 4 parts.  The hash table
+stores attribute label/value pairs, for attributes whose labels that are not
+small integers.  The list stores attribute values, for attributes whose
+labels are small integers.  The auxilary area stores various overflow
+data from the hash table and list areas.
+
+The hash table is of fixed size; its size can only be changed by relocating
+the object body.  The list grows up from the hash table into the unused
+area, and the auxilary storage grows down from the end of the body into
+the unused area.
+
+There are two kinds of objects: short and long.  A \key{short object}
+has a header that stores 16 bit unsigned sizes.  A \key{long object}
+has a header that stores 32 bit unsigned sizes.  Otherwise there is
+no difference between a short and a long object.
+
+\subsubsection{Auxilary Pointers}
+\label{AUXILARY-POINTERS}
+
 \subsection{Double Arrows}
+\label{DOUBLE-ARROWS}
 
 An example use of an auxilary to add memory to an object is in the
 representation of double arrows.  The problem is that interally
@@ -1450,34 +1489,6 @@ The mechanism used to store the double pointer is:
 \end{verbatim}\end{indpar}
 
 \clearpage
-
-\subsection{Objects}
-
-An object has a body that consists of 5 parts:
-
-\begin{center}
-\begin{tabular}{l}
-header \\
-hash table \\
-list \\
-unused \\
-auxilary
-\end{tabular}
-\end{center}
-
-The header contains the sizes of the other 4 parts.  The hash table
-stores attribute label/value pairs, for attributes whose labels that are not
-small integers.  The list stores attribute values, for attributes whose
-labels are small integers.  The auxilary area stores various overflow
-data from the hash table and list areas.
-
-The hash table is of fixed size; its size can only be changed by relocating
-the object body.  The list grows up from the hash table into the unused
-area, and the auxilary storage grows down from the end of the body into
-the unused area.
-
-\subsubsection{Auxilary Pointers}
-\label{AUXILARY-POINTERS}
 
 \section{Code and Execution}
 
