@@ -789,8 +789,9 @@ names the evaluator can use are global variable names, and `{\tt standard
 room}' in fact names a global variable whose value is the object
 which is the sole immediate ancestor of our room.
 
-The \verb|outline| attribute value is used to compute derived attributes
-whose names begin with the word \verb|.video| and which describe how the
+The \verb|outline| attribute value is used to compute a derived attribute
+named \verb|.video| which describes how the object is to be displayed
+graphically.
 The \verb|outline| attribue value is a program is written from the point
 of view of a robot moving around the outline of the room building walls.
 The robot follows a sequence of commands that are separated by commas.
@@ -798,31 +799,49 @@ The robot follows a sequence of commands that are separated by commas.
 In order to show how evaluation works, we will explain in detail some
 of the evaluation of \verb|outline|.
 
-Evaluation of an \verb|outline| attribute can be done by a function
-named {\tt .evaluate outline}, if such a function is defined by the
-object with the {\tt outline} attribute (object \verb|##523|),
-or one of its ancestors.
-If this function does not exist, evaluation is done by the function
-named {\tt .evalutate}, which is globally defined.  In any case,
-evaluation can be tailored by defining an appropriately named function
-in an object or one of its ancestors.
+Evaluation of the \verb|outline| attribute of object \verb|##523|
+is triggered when the value
+of the \verb|.video| attribute of this object is needed.  Computation
+of the \verb|.video| attribute is be done by a function
+named {\tt .make .video}, which in this case is defined by {\tt standard
+room} which is an ancestor of \verb|##523|.
+If this function did not exist, compuation would done by the function
+named {\tt .make}, which is globally defined, and which would attempt
+to evaluate the {\tt video} attribute (without the `\verb|.|') of
+\verb|##523| to produce this object's \verb|.video| attribute
+(with the `\verb|.|').  In any case, computation of an attribute AA
+can be done in a fashion taylored to what is being computed by defining a
+`\verb|.make| AA' function in an object or one of its ancestors.
 
-The evaluation function first establishes
+In our case the \verb|.make .video| function evaluates
+the \verb|outline| attribute of \verb|##523| to produce
+a value for the \verb|.video| attribute of \verb|##523|.
+First the function establishes
 a context, which is a list of objects that will be searched when an
 attribute name is to be located.  The context for the evaluation of
 an object's attribute value usually begins with the object and ends with
 a special object called `\verb|.global|'.  A global variable is by definition
-just an attribute of the \verb|.global| object.  An evaluation function for
+just an attribute of the \verb|.global| object.  An function evaluating
 an {\tt outline} attribute is likely to include in the context an object
 that defines functions named `{\tt straight}' and `{\tt left}' which will
 evaluate parts of the {\tt outline} attribute.
 
-Then the evaluation function starts reading the value to be evaluated.  In this
-case the it finds a comma separated list of commands, and evaluates
-each command separately.  The output is a new list of new commands that is
-stored in the \verb|.video| attribute of \verb|##523| and
-is written in a video language
+Besides establishing a context, the \verb|.make| function establishes an
+execution frame.  The execution frame may contain output
+channels, which are places to put output.  In this case the value of
+\verb|.video| becomes an output channel into which functions like
+`{\tt straight}' will write new commands written in a video language
 that can be processed by the video engine to produce a picture.
+
+Since functions such as `{\tt straight}' and `{\tt left}' are written
+from the point of view of a robot moving around the outline of a room,
+the execution frame also contains the current location and direction
+of the robot.
+
+After establishing a context and frame, the evaluating function starts reading
+the \verb|outline| attribute value which is to be evaluated.  In this
+case the it finds a comma separated list of commands, and evaluates
+each command separately.
 
 The first command is `{\tt straight width}'.   When `{\tt straight}' is 
 read, a search is made in the current context for an attribute with a name
@@ -854,26 +873,43 @@ with \verb|w| equal to \verb|3.2|.  The result will be some command
 written into the {\tt .video} attribute of \verb|##523|.
 
 The other commands in the {\tt outline} attribute are similar, except
-for the `{\tt doored wall width}' command.  This invokes the `{tt doored wall}'
+for the `{\tt doored wall width}' command.  This invokes the `{\tt doored wall}'
 function we have defined as an attribute of \verb|##523| (but it would
 make more sense to define it as an attribute of the {\tt standard room}
 object whose attributes are inherited by \verb|##523|).   Again
 `{\tt width}' is the argument which evaluates to \verb|3.2| and becomes
 the value of the `{\tt length}' argument in the `{\tt doored wall}'
-function.  Evaluation of this function is similar, but as a function,
+function.  Evaluation of the `{\tt doored wall}' function is next,
+and as a function,
 its evaluation context begins with an object called the function frame
 that has an attribute named `{\tt length}' whose value is the corresponding
 argument value, in this case \verb|3.2|.
 
-The meaning of the `{\tt label}' and `{\tt over}' attribute values
-of \verb|##523| need to be explained.  It is necessary to produce a name
+A special feature of the MIN language is are dependency lists which
+can be used to figure out when to re-compute attribute values, such as
+the \verb|.video| attribute of \verb|##523|.  Each attribute X can have
+a dependency list which specifies all the other attibutes Y, Z, \ldots
+whose values depend upon the value of X.  When the value of X is changed,
+the values of Y, Z, \ldots are marked `obsolete', which identifies them
+as needing to be recomputed.  Thus in the current case the \verb|width|
+attribute of \verb|##523| has a dependency list that includes the
+\verb|.video| attribute of \verb|##523|.  Not all attributes will have
+dependency lists: the \verb|.ancestors| attribute of an object would
+have a very long dependency list, if it existed, that included all the
+attributes ever computed from the object, and for this reason the
+\verb|.ancestors| attribute has no dependency list, so changing it does
+not mark other values obsolete.
+
+We also need to explain
+the meaning of the `{\tt label}' and `{\tt over}' attribute values
+of \verb|##523|.  It is necessary to produce a name
 for \verb|##523| in an arbitrary natural language, such as English or
 French or Japanese, and this is what the `{\tt label}' attribute value does
 when it is evaluated.  This value is also a sequence of commands that
 provide desriptive information about the object which the natural language
 engine can process to produce the desired text.  The `{\tt color green}'
-command invokes the `{\tt color}' global function with an argument that is
-some object which is the value of the `{\tt green}' global variable to
+command invokes the `{\tt color}' function with an argument that is
+some object which is the value of the `{\tt green}' variable to
 produce some internal notation that tells the natural language engine
 that \verb|##523| has the color green.  Similarly `{\tt over under}'
 invokes the `{\tt over}' function with an the `{\tt under}' argument that
@@ -894,6 +930,57 @@ then the English natural language engine might generate the text
 \end{center}
 
 in order to specify \verb|##523|.
+
+\subsection{The Evaluation Algorithm}
+
+
+\begin{indpar}\begin{verbatim}
+
+    evaluate context ( expression, context, frame ):
+        search context ( expression, context, frame )
+
+    search context ( expression, context, frame ):
+        foreach object in context:
+	    search object (expression, object, frame )
+	search object ( expression, .global object, frame )
+
+    search object ( expression, object, frame ):
+        match names of object attributes to expression
+	if several match:
+	   pick the longest match
+	   set r = expression with matched portion removed
+	   set v = value of matched attribute
+	   if v is function definition:
+	       evaluate function ( r, v, frame )
+	   else if v is object:
+	       search ( r, v, frame )
+	   else if r is empty:
+	       terminate evaluation and return v as value
+	   else:
+	       error
+	else if expression empty:
+	   terminate evaluation and return object as value
+	else return
+
+
+
+\end{verbatim}\end{indpar}
+
+
+
+\subsection{Expressions and Subexpressions}
+
+An \key{expression} is just a list of atoms and bracketted
+subexpressions:
+
+
+\subsection{Search}
+
+\ikey{Search}{search} is part of the evaluation process.
+
+Search is invoked with a \key{context}, which is just a list of
+objects, and an expression, which is just a list of atoms.
+The goal of search is to find an attribute whose name begins the expression.
 
 
 \bibliographystyle{plain}
