@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 13, 2005}
+\date{March 14, 2005}
  
 \maketitle
 
@@ -1308,17 +1308,24 @@ list \verb|.initiator| \verb|":"| and no list \verb|.terminator|.
 Parsing a sequence of lexemes is done in four phases:
 
 \begin{list}{}{}
-\item[(1)] \ikey{Lexeme Scanning}{lexeme scanning}~~~~
+\item[(1)] \ikey{Lexeme Scanning}{lexeme scanning}%
+				 \index{scanning!lexeme}~~~~
 The sequence of lexemes is represented as an object
-that is a list whose elements are atoms that are lexemes
+that is a list whose elements (values of the attributes
+named {\tt 1}, {\tt 2}, {\tt 3}, \ldots) are atoms that are lexemes
 and objects representing bracketted sublists of lexemes.  Quoted
-atoms are specially represented.
+atoms are specially represented by a list with one element and the
+{\tt .parser} attribute value `{\tt quoted}'.
 
-\item[(2)] \ikey{Operator Scanning}{operator scanning}~~~~
+\item[(2)] \ikey{Operator Scanning}{operator scanning}%
+				   \index{scanning!operator}~~~~
 The object representation is scanned for operators
-and modified by inserting parsers.
+and modified by replacing subsequences of elements representing
+subexpressions with implied parentheses with sublists, and by
+adding {\tt .parser} attribute values to some of the list objects.
 
-\item[(3)] \ikey{Expansion}{expansion}~~~~
+\item[(3)] \ikey{Parser Expansion}{parser expansion}%
+				  \index{expansion!parser}~~~~
 The object representation is evaluated by calling the parsers.
 
 \item[(4)] \ikey{Dequoting}{dequoting}~~~~
@@ -1406,7 +1413,7 @@ For example, given the input
 \end{center}
 
 the lexical scanning algorithm outputs object \verb|##1| in the
-following:
+following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
 
 \begin{indpar}\begin{verbatim}
 ##1::
@@ -1477,22 +1484,22 @@ object has an {\tt .initiator} attribute as follows:
 \tt `		& \tt '			& text \\
 \tt (		& \tt )			& expression \\
 \tt [		& \tt ]			& expression \\
-\tt \{		& \tt \}		& expression \\
+\LEFTBRACKET	& \RIGHTBRACKET		& expression \\
 \tt :		& 			& expression \\
 \end{tabular}
 \end{center}
 	
 \item The object list elements are inspected to see if any are operators.
 An operator is an atom equal to an operator that is recognized according
-to the current parsing mode (see \pagref{PARSING-MODE},
-Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARAION}).
+to the current parsing mode (see \pagref{PARSING-MODES},
+Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
 
 If there are opeators among the list elements, those with the lowest
 priority L are selected.  Then any non-empty sequences of list elements
 between selected operators are replaced by a single object listing the
 replaced elements.  Then, the current object is given a {\tt .parser}
 attribute equal to the parser associated with priority level L
-(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARAION}).
+(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
 
 Lastly, if the current parsing mode is text and L equals zero, the parsing
 mode is changed to expression.
@@ -1505,6 +1512,54 @@ to the recursive algorithm execution.
 
 
 \end{enumerate}
+
+Given the the lexical scanning output on
+\pagref{LEXICAL-SCANNING-EXAMPLE-OUTPUT},
+which was derived from the lexeme sequence,
+
+\begin{center}
+\verb|`The "+" in (x + 5 * y) is an operator.'|
+\end{center}
+
+operator scanning returns:
+
+\begin{indpar}\begin{verbatim}
+##1::
+    1 : ##4
+    2 : .
+    .initiator: "`"
+    .terminator: "'"
+    .parser: sentence
+##4::
+    1 : The
+    2 : ##2
+    3 : in
+    4 : ##3
+    5 : is
+    6 : an
+    7 : operator
+##2::
+    1: "+"
+    .parser: quoted
+##3::
+    1 : ##5
+    2 : "+"
+    3 : ##6
+    .initiator: "("
+    .terminator: ")"
+    .parser: sum
+##5::
+    1: x
+##6::
+    1 : ##7
+    2 : "*"
+    3 : ##8
+    .parser: product
+##7::
+    1: 5
+##8::
+    1: y
+\end{verbatim}\end{indpar}
 
 \subsection{Standard Representations}
 \label{STANDARD-REPRESENTATIONS}
@@ -2147,6 +2202,13 @@ subexpressions:
 Search is invoked with a \key{context}, which is just a list of
 objects, and an expression, which is just a list of atoms.
 The goal of search is to find an attribute whose name begins the expression.
+
+\section{To Do}
+Decapitalization\label{DECAPITALIZATION}
+
+Operator Declaration\label{OPERATOR-DECLARATION}
+
+Garbage Collection\label{GARBAGE-COLLECTION}
 
 
 \bibliographystyle{plain}
