@@ -2125,6 +2125,12 @@ list pointer at the first element of the sublist.
 This function returns the value of the first element of
 the sublist, or returns {\tt min::LIST\_END} if the sublist is empty.
 
+If {\tt start\_sublist} is called when the list pointer points at an
+element E that is not a sublist, and is not the end of a list, then
+the element is treated as a sublist with exactly one element, E.
+
+
+
 Determining whether a list element value represents a sublist requires
 the {\tt min::is\_sublist} function, which must check whether the
 value is a sublist auxilary pointer, is the value {\tt min::EMPTY\_SUBLIST},
@@ -2221,8 +2227,40 @@ mechanism, and not garbage collection, frees auxilary stubs.
 \subsubsection{Object Attribute Level}
 \label{OBJECT-LEVEL-LEVEL}
 
-At the \key{attribute level}, the object is a set of attribute name/value
-pairs.  If the name is an unsigned integer small enough to index an
+At the \key{attribute level}, the object is a map from attribute names
+to attribute flags and from attribute name/reverse-name pairs to
+multi-sets of values.  The part of this map for each given attribute
+name is independent of the other parts of the map for other attribute
+names.  These parts are represented by final segments of lists.
+
+TBD
+
+An attribute name is a sequence of atoms.  Each atom of the
+
+\begin{enumerate}
+
+\item If the first component of an attribute name is an integer I in the
+range from 1 through the object attribute vector size S, then
+the component list begins with the I-1'st element of the attribute vector.
+
+\item Otherwise the component is located in the pair list that begins
+with the H'th element of the hash table, where H = hash of component
+modulo the size of the hash table.
+
+\item A pair list is an alternating sequence of atoms and component sublists.
+Each atom denotes an attribute name component, and is followed in the pair
+list by the component sublist of that component.
+
+\item If a component sublist begins with a sublist with at least 2 elements,
+that sublist is a pair list for the next component of an attribute name.
+The rest of the component sublist is the attribute name list for the
+attribute name ending in the given component.
+
+
+\end{enumerate}
+
+
+If the name is an unsigned integer small enough to index an
 object vector element, then the value is stored in the object vector element
 indexed by the name.  If the name is a double arrow label pair whose
 first component is an unsigned integer small enough to index an object
