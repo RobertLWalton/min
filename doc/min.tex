@@ -559,8 +559,8 @@ The format of a \key{raw representation} is:
 \key{raw-object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
-    $|$ & {\em raw-object-name} {\tt \bf :}\verb|>>|{\tt \bf :}%
-          \ttmindex{:>>:}{in {\em raw-object-header}} \\
+    $|$ & {\em raw-object-name} \verb|>|{\tt \bf :}%
+          \ttmindex{>:}{in {\em raw-object-header}} \\
     \end{tabular}
 \\[1ex]
 \key{raw-arrow-representation}
@@ -571,8 +571,7 @@ The format of a \key{raw representation} is:
 \\[1ex]
 \key{raw-single-arrow-representation} ::=
 \\\hspace*{1in}
-	{\em arrow-label} {\em arrow-flags-mark-option}%
-	\ttmkey{:}{in {\em raw-single-arrow-representation}}
+	{\em arrow-label} {\em arrow-label-terminator}
 	{\em single-arrow-target}
 	\ttmkey{;;}{in {\em raw-single-arrow-representation}}
 \\[1ex]
@@ -580,11 +579,10 @@ The format of a \key{raw representation} is:
 \\[1ex]
 \key{raw-double-arrow-representation} ::=
 \\\hspace*{1in}
-	{\em arrow-label} {\em arrow-flags-mark-option}%
-	\ttmkey{:}{in {\em raw-double-arrow-representation}}
+	{\em arrow-label} {\em arrow-label-terminator}
 	{\em double-arrow-target}
 \\\hspace*{1in}
-	{\tt \bf :}{\em arrow-flags-mark-option} {\em arrow-label}
+	{\em arrow-label-initiator} {\em arrow-label}
 	\ttmkey{;;}{in {\em raw-double-arrow-representation}}
 \\[1ex]
 \key{double-arrow-target} ::= {\em raw-object-name}
@@ -594,17 +592,25 @@ The format of a \key{raw representation} is:
 \\[1ex]
 \key{arrow-label} ::= {\em atom} \ldots
 \\[1ex]
-\key{arrow-flags-mark-option} ::= {\em empty} $|$ {arrow-flags-mark}
+\key{arrow-label-terminator} ::=
+	{\em flag-character}\ldots{\tt \bf :}%
+	\index{:flag-character@{\em flag-character}\ldots{\tt :}!
+	arrow-label-terminator}~~~~~(a mark)
 \\[1ex]
-\key{arrow-flags-mark} ::= \verb|<|{\em flag-character} {\em flag-character}%
-	\ldots\verb|>|~~~~~(a mark)
+\key{arrow-label-initiator} ::=
+	{\tt \bf :}{\em flag-character}\ldots%
+	\index{:flag-character@{\tt :}{\em flag-character}\ldots!
+	arrow-label-initiator}~~~~~(a mark)
 \\[1ex]
 \key{flag-character} ::= {\em mark-character} except \verb|<| or \verb|>|
 \\[1ex]
-\key{atom} ::= {\em non-special-lexeme} \ldots
+\key{atom} ::= {\em non-special-lexeme}
 \\[1ex]
-\key{special-lexeme} ::= \verb|##| $|$ \verb|::| $|$ \verb|:>>:|
-		$|$ \verb|:| $|$ \verb|;;| $|$ {\em arrow-flags-mark}
+\key{special-lexeme}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| \\
+    $|$ & {\em arrow-label-terminator} $|$ {\em arrow-label-initiator}
+    \end{tabular}
 
 \end{tabular}
 \end{center}%
@@ -697,7 +703,7 @@ The \key{attribute name}\index{name!attribute} is just the label of this arrow.
 The \key{attribute value}\index{value!attribute} is just the target
 of this arrow.
 
-The difference between \ttkey{::} and \ttnbkey{:>>:} is that the former
+The difference between \ttkey{::} and \ttnbkey{>:} is that the former
 indicates that the object should not previously
 exist, while the later indicates that the attributes are to be added to
 any existing object, though if the object does not exist it will be
@@ -713,7 +719,7 @@ object, a situation which can be achieved by the data representation:
 
 
 \begin{indpar}\begin{verbatim}
-##0:>>:
+##0>:
     .GLOBAL: ##0
 \end{verbatim}\end{indpar}
 
@@ -998,7 +1004,7 @@ Ad Hoc Special Lexemes
 
 \begin{tabular}{ll@{\hspace*{5em}}ll}
 \ttkey{::} & object assignment &
-\ttnbkey{:>>:} & object addition \\
+\ttnbkey{>:} & object addition \\
 \ttkey{:} & attribute assignment &
 \ttkey{:} & code indicator \\
 \end{tabular}
@@ -1080,7 +1086,7 @@ priority & macro	& operators	& meaning
 \key{object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em object-name} \ttmkey{::}{in {\em object-header}} \\
-    $|$ & {\em object-name} \ttmnbkey{:>>:}{in {\em object-header}} \\[1ex]
+    $|$ & {\em object-name} \ttmnbkey{>:}{in {\em object-header}} \\[1ex]
     \end{tabular}
 \\[1ex]
 \key{attribute-representation}
