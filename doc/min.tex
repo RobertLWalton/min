@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 10, 2005}
+\date{February 11, 2005}
  
 \maketitle
 
@@ -1371,13 +1371,12 @@ where any {\em subexpression} may be empty.
 \begin{indpar}[0.5em]
 Addition operators may not be consecutive and may not end an expression.
 Between operator subexpressions are parsed, and the results rewritten using
-the binary summation function \verb|+| and the unary negation function
-\verb|-|.  Association is to the left:
-\verb|x+y+z|$\Rightarrow$(\verb|+| (\verb|+ x y|) \verb|z|).  E.g.:
+the multi-argument summation function \verb|+| and the unary negation function
+\verb|-|.
 
 \begin{indpar}[0.5em]
 \verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
-\verb|+| (\verb|+| (\verb|+| (\verb|-x|) \verb|y|) \verb|z|) (\verb|- w|)
+\verb|+ (- x) y z (- w)|
 \end{indpar}
 \end{indpar}
 
@@ -1389,14 +1388,16 @@ the binary summation function \verb|+| and the unary negation function
 The two different multiplication operators may not be mixed in the same
 expression.
 Multiplication operators may not be consecutive and may neither begin
-nor end an expression.
+nor end an expression.  The division operator \verb|/| must have exactly
+two operands.
 Between operator subexpressions are parsed, and the results rewritten using
-the binary multiplication function \verb|*| or the binary division function
-\verb|/|.  Association is to the left.  E.g.:
+the multi-argument multiplication function \verb|*| or the binary
+division function \verb|/|.  E.g.:
 
 \begin{indpar}[0.5em]
-\verb|x / y / z| ~~~ $\Longrightarrow$ ~~~
-\verb|/| (\verb|/ x y| ) \verb|z|
+\verb|x * y * z| ~~~ $\Longrightarrow$ ~~~ \verb|* x y z| \\
+\verb|x / y| ~~~ $\Longrightarrow$ ~~~ \verb|/ x y|
+
 \end{indpar}
 \end{indpar}
 
