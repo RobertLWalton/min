@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 23, 2005}
+\date{March 3, 2005}
  
 \maketitle
 
@@ -289,18 +289,19 @@ A \key{number} is a string of digits plus an optional \key{decimal point}.
 E.g., {\tt 5.2}.  Any decimal point must be followed by a digit.
 
 A \key{bracket} is a single bracket character.  E.g., \verb|[| and \verb|]|.
-The \key{bracket characters} are parentheses
-(\ttmkey{(}{bracket character} and \ttmkey{)}{bracket character}),
-square brackets (\ttmkey{[}{bracket character} and
-\ttmkey{]}{bracket character}),
-curly brackets (\ttmkey{\LEFTBRACKET}{bracket character} and
-\ttmkey{\RIGHTBRACKET}{bracket character}),
-and single quotes (\ttmkey{`}{bracket character} and
-\ttmkey{'}{bracket character}).  The close quote (\verb|'|) is
+The \key{bracket characters} are parentheses,
+\ttmkey{(}{bracket character} and \ttmkey{)}{bracket character},
+square brackets, \ttmkey{[}{bracket character} and
+\ttmkey{]}{bracket character},
+curly brackets, \ttmkey{\LEFTBRACKET}{bracket character} and
+\ttmkey{\RIGHTBRACKET}{bracket character},
+and single quotes, \ttmkey{`}{bracket character} and
+\ttmkey{'}{bracket character}.  The close quote (\verb|'|) is
 a letter, and not a bracket, if it is followed by a letter.
 
 A \key{mark} is a string of mark characters, which are just characters
-that are not letters or digits or decimal points or brackets or quotes.
+that are not letters or digits or decimal points or brackets or quotes
+or white-space characters.
 E.g., \verb|+| and \verb|::|.  The \key{mark characters} are
 comma (\ttmkey{,}{mark character}),
 semi-colon (\ttmkey{;}{mark character}),
@@ -374,13 +375,14 @@ As an escape character it is used to begin a sequence of characters called
 an escape sequence that denotes a single character.
 See~\pagref{ESCAPE-SEQUENCES} for details on escape sequences.
 
-White-space characters, the \key{space character}, the \key{tab character},
+\ikey{White-space characters}{white-space character},
+the \key{space character}, the \key{tab character},
 the \key{new line character}, the \key{form feed character}, and the
 \key{vertical tab} character, are used to separate lexemes.  The space
 character can be used to represent a single space inside quoted strings.
 The tab character is always equivalent to one or more space characters,
 with tabs set every 8 columns.
-The other whitespace characters have special interpretation inside quoted
+The other white-space characters have special interpretation inside quoted
 strings, see~\secref{QUOTED-STRINGS}.
 
 \subsection{Quoted Strings}
@@ -400,14 +402,17 @@ See \secref{STANDARD-REPRESENTATIONS}.
 
 A quoted string consists of a sequence of
 \skey{character representative}s
-surrounded by double quotes (\verb|"|\index{""@{\tt ""}}).  A non-whitespace
+surrounded by double quotes (\verb|"|\index{""@{\tt ""}}).  A non-white-space
 character other than quote (\verb|"|) or backslash (\verb|\|)
 can be used to represent itself.  The single space character can be used
-to represent itself.  Any sequence of line feeds and carriage returns
-containing at least one line feed represents a single line feed.
+to represent itself.  Line feeds represent themselves;
+carriage returns are ignored.
 The other character representatives are called \skey{escape sequence}s,
 and consist of a backslash (\verb|\|\index{\\@{\tt \BACKSLASH}})
-followed by other characters.  The possible escape sequences are:
+followed by other characters.  Each escape sequence represents exactly
+one character, except for the \verb|\+|{\em new-line}~{\em white-space}
+sequence that represents zero characters.  The possible escape sequences and
+the character they represent are:
 
 \begin{center}
 \begin{tabular}{lp{4in}}
@@ -457,19 +462,20 @@ some text "This is a line.
 
 contains a quoted string that represents two lines, the first beginning
 with `\verb|This|' and second beginning with `\verb|And|'.  There is no
-whitespace at the beginning of the second represented line, as the whitespace
+white-space at the beginning of the second represented line, as the white-space
 at the beginning of its representing quoted string line is removed.
-The last removed whitespace column is that of the \verb|"| beginning the
+The last removed white-space column is that of the \verb|"| beginning the
 quoted string.
 
 Tab characters in are always equivalent to one or more space characters,
 with tabs set every 8 columns.  Columns are counted with respect to the
 beginning of the line, and \underline{not} the beginning of any quoted string.
 
-Form feed and vertical tabs cannot appear inside a quoted string.  Carriage
+Form feeds and vertical tabs cannot appear inside a quoted string.  Carriage
 returns cannot appear inside or outside a quoted string
-except in a sequence containing a line feed.
-Non-whitespace control characters cannot appear inside or outside a quoted
+except in a sequence of carriage returns and line feeds
+containing at least one line feed.
+Non-white-space control characters cannot appear inside or outside a quoted
 string.  All these characters can be represented by escape sequences inside
 a quoted string.
 
@@ -509,17 +515,29 @@ It has a separate label for each direction, with each label being a
 sequence of zero or more atoms.  A double arrow is equivalent to a
 \underline{related pair}
 of single arrows going in opposite directions between the same two objects.
+The difference between a double arrow and a pair of single arrows is that
+it is possible to delete only one direction of a pair of single arrows, but 
+when deleting a double arrow, both directions are deleted.
 
 An \key{arrow label} is a sequence of zero or more atoms.
-Two arrows leaving the same object may not have the same label.  Thus
-arrows can be named by giving an object which is the source of the arrow
-and a label which is the label of a single arrow or the label in the
-direction leaving the object of a double arrow.
+Two arrows leaving the same object may have the same label.  Thus
+an object and an arrow label together name
+a set of arrows sourced at the object.
+
+In addition to a label, and arrow may have \skey{arrow flag}s.  A double arrow
+has a separate set of flags for each of its directions.  The standard
+flags are the \key{dot flag} (\ttmkey{.}{dot flag}), which signifies
+the arrow is not to be output when its source is output, and the
+\key{maybe flag} (\ttmkey{?}{maybe flag}), which signifies
+that the target of the arrow may be garbage collected (made to disappear
+automatically, see \secref{GARBAGE-COLLECTION}) if it cannot be
+reached except by traversing arrows that have maybe flags.
 
 We will give examples in the next section along with a basic way of
 representing sets of objects in text.  In most of this document
-arrows are called attributes, arrow labels are called attribute names,
-and arrow targets are called attribute values.
+arrows are called \skey{attribute}s, arrow labels are called
+\skey{attribute name}s, arrow flags are called \skey{attribute flag}s,
+and arrow targets are called \skey{attribute value}s.
 
 \subsection{Raw Representations}
 
@@ -541,7 +559,8 @@ The format of a \key{raw representation} is:
 \key{raw-object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
-    $|$ & {\em raw-object-name} \ttmnbkey{:>>:}{in {\em raw-object-header}} \\
+    $|$ & {\em raw-object-name} {\tt \bf :}\verb|>>|{\tt \bf :}%
+          \ttmindex{:>>:}{in {\em raw-object-header}} \\
     \end{tabular}
 \\[1ex]
 \key{raw-arrow-representation}
@@ -551,7 +570,9 @@ The format of a \key{raw representation} is:
     \end{tabular}
 \\[1ex]
 \key{raw-single-arrow-representation} ::=
-	{\em arrow-label}\ttmkey{:}{in {\em raw-single-arrow-representation}}
+\\\hspace*{1in}
+	{\em arrow-label} {\em arrow-flags-mark-option}%
+	\ttmkey{:}{in {\em raw-single-arrow-representation}}
 	{\em single-arrow-target}
 	\ttmkey{;;}{in {\em raw-single-arrow-representation}}
 \\[1ex]
@@ -559,22 +580,31 @@ The format of a \key{raw representation} is:
 \\[1ex]
 \key{raw-double-arrow-representation} ::=
 \\\hspace*{1in}
-	{\em arrow-label}\ttmkey{:}{in {\em raw-double-arrow-representation}}
+	{\em arrow-label} {\em arrow-flags-mark-option}%
+	\ttmkey{:}{in {\em raw-double-arrow-representation}}
 	{\em double-arrow-target}
-	{\tt :}{\em arrow-label}
+\\\hspace*{1in}
+	{\tt \bf :}{\em arrow-flags-mark-option} {\em arrow-label}
 	\ttmkey{;;}{in {\em raw-double-arrow-representation}}
 \\[1ex]
 \key{double-arrow-target} ::= {\em raw-object-name}
 \\[1ex]
 \key{raw-object-name} ::=
-	\ttmkey{\#\#}{in {\em raw-object-name}}{\em non-negative-integer}
+	\ttmnbkey{\#\#}{in {\em raw-object-name}} {\em non-negative-integer}
 \\[1ex]
 \key{arrow-label} ::= {\em atom} \ldots
+\\[1ex]
+\key{arrow-flags-mark-option} ::= {\em empty} $|$ {arrow-flags-mark}
+\\[1ex]
+\key{arrow-flags-mark} ::= \verb|<|{\em flag-character} {\em flag-character}%
+	\ldots\verb|>|~~~~~(a mark)
+\\[1ex]
+\key{flag-character} ::= {\em mark-character} except \verb|<| or \verb|>|
 \\[1ex]
 \key{atom} ::= {\em non-special-lexeme} \ldots
 \\[1ex]
 \key{special-lexeme} ::= \verb|##| $|$ \verb|::| $|$ \verb|:>>:|
-		$|$ \verb|:| $|$ \verb|;;|
+		$|$ \verb|:| $|$ \verb|;;| $|$ {\em arrow-flags-mark}
 
 \end{tabular}
 \end{center}%
@@ -646,7 +676,7 @@ The double-semi-colons (\verb|;;|) at the ends of arrow representations
 may be omitted according to the \key{double-semi-colon representation rule}.
 This rule says that the \ttmkey{;;}{omitting} at the end of an arrow
 representation may be omitted provided the next line is not
-indented with respect to the first non-whitespace character of the
+indented with respect to the first non-white-space character of the
 arrow representation with the omitted \verb|;;|, or alternatively if the end of
 text (e.g., end of file) immediately follows.
 Thus the \verb|;;|'s in the example just given may be omitted.
@@ -1124,11 +1154,11 @@ determining mode.  Thus it is as if \verb|` '| changes to text mode,
 does not change the mode.
 
 In \key{text mode} only operators with negative priority are recognized,
-line feeds and indentation are treated like any other whitespace, and
+line feeds and indentation are treated like any other white-space, and
 `\verb|:|' is not recognized as a code indicator.
 
 In \key{expression mode} all operators are recognized,
-line feeds and indentation are treated like any other whitespace, and
+line feeds and indentation are treated like any other white-space, and
 `\verb|:|' is not recognized as a code indicator.
 
 In \key{code mode} all operators are recognized,
@@ -1138,14 +1168,14 @@ code subblocks, according to the following rules:
 
 \begin{enumerate}
 \item
-The column of the first non-whitespace character inside \verb|{}| brackets
+The column of the first non-white-space character inside \verb|{}| brackets
 defines the initial column of the \key{code block} enclosed by the
 brackets.
 
 \item No line in a code block may be indented by less than its initial column.
 
 \item A code block is organized as a sequence of statements such that
-each non-whitespace character in the code block initial column begins a new
+each non-white-space character in the code block initial column begins a new
 statement, and statements so begun are the only statements in the code block.
 
 \item
