@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 15, 2004}
+\date{December 26, 2004}
  
 \maketitle
 
@@ -427,7 +427,8 @@ the interrupt.
 A body may be \mkey{deallocated}{by moving}
 by moving it to unimplemented memory.  When this is done the
 stub \mkey{type code}{reset on deallocation}
-is reset to a value that indicates the body is deallocated.
+is reset to the value \minkey{DEALLOCATED}\LABEL{DEALLOCATED-TYPE},
+which indicates the body is deallocated.
 The function that deallocates a body is:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -436,8 +437,6 @@ The function that deallocates a body is:
 \end{tabular}\end{center}%
 \index{deallocate!relocating}
 
-When the body of a stub is deallocated, the stub is given
-the \minkey{DEALLOCATED}\LABEL{DEALLOCATED-TYPE} stub type code.
 The {\tt is\_deallocated} function described on \pagref{IS_DEALLOCATED}
 can be used to test whether the body of a stub has been deallocated.
 
@@ -514,15 +513,16 @@ subtypes
 \begin{center}
 \begin{tabular}{l}
 a pointer to a stub \\
-a 64-bit IEEE floating point number atom (64 bit general value only) \\
+a 64-bit IEEE floating point direct number atom (64 bit general value only) \\
 a 28-bit integer atom (32 bit general value only) \\
 a 0-5 character direct string atom (64 bit general value only) \\
 a 0-3 character direct string atom (32 bit general value only) \\
-an 28-bit auxilary pointer (32 bit general value only)
+a 28-bit auxilary pointer (32 bit general value only) \\
+a 44-bit auxilary pointer (64 bit general value only)
 \end{tabular}
 \end{center}
 
-Numbers and character strings stored inside \verb|min::gen| value are
+Numbers and character strings stored inside a \verb|min::gen| value are
 called `\key{direct}' values.  Numbers and character strings
 stored in stubs or stub bodies which are pointed at by a
 \verb|min::gen| value are called `\key{indirect}' values.  An atom is
@@ -533,7 +533,7 @@ it is stored as a direct value, and never as an indirect value.
 
 Analogously indirect atoms are stored in only one place in memory, so
 two indirect numbers are equal if and only the \verb|min::gen| values
-pointing at them point at the same place, and simularly
+pointing at them point at the same place, and similarly
 two indirect characters strings are equal if and only
 the \verb|min::gen| values pointing at them point at the same place.
 
@@ -565,13 +565,18 @@ addresses or VSN's on the approximate maximum number of stubs is as follows:
 \end{tabular}
 \end{center}
 
-For 32-bit general values, a direct integer value consists of a high order 4-bit
+A 32-bit general value direct integer consists of a high order 4-bit
 subtype code and a low order 28-bit signed integer stored in offset form,
 so the true integer can be derived from the {\tt min:gen} value by
 subtracting the {\tt min:gen} representation of zero.
-Similarly auxilary pointers consist of a high order 4-bit subtype code
+The range of such a direct integer is the same as the range of a 28-bit
+two's complement integer: $-2^{27}$ to $2^{27}-1$, inclusive.
+
+Similarly 32-bit general value auxilary pointers consist of a high order
+4-bit subtype code
 and a low order 28-bit auxilary pointer (see~\secref{AUXILARY-POINTERS}
-for a definition of auxilary pointers).  A direct string consists of
+for a definition of auxilary pointers).  And a 32-bit general value
+direct string consists of
 an 8-bit subtype code and 24 bits that hold 0 to 3 8-bit {\tt char}'s.
 
 For 64-bit general values the high order 20 bits is used as a subtype
