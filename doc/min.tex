@@ -196,7 +196,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{July 29, 2004}
+\date{July 30, 2004}
  
 \maketitle
 
@@ -301,6 +301,35 @@ strings.
 \subsection{Quoted Strings}
 
 TBD
+
+\section{Data}
+
+A \key{datum} in MIN is either an atom, an object, or an arrow.
+
+An \key{atom} is either a symbol (word, mark, or quoted string) or a
+number.
+
+An object is just a place in memory, and is like a dot on a blank page.
+It can be the source or target of arrows, and it is different from
+every other object and from every atom.  But it has nothing else.
+
+There are two kinds of arrows: single and double.
+
+A \key{single arrow} is an arrow from an object to either another object
+or to an atom.  The arrow has a label, which is a sequence of zero or
+more atoms.
+
+A \key{double arrow} is a double headed arrow between two objects.
+It has a separate label for each direction, with each label being a
+sequence of zero or more atoms.  A double arrow is equivalent to a related pair
+of single arrows going in opposite directions between the same two objects.
+
+Two arrows leaving the same object may not have the same label.  Thus
+arrows can be named by giving an object which is the source of the arrow
+and a label which is the label of a single arrow or the label in the
+direction leaving the object of a double arrow.
+
+
 
 
 
