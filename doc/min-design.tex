@@ -69,24 +69,29 @@
      $^{\mbox{#1}}$#2}}
     % Change notice.
 
-\newcommand{\key}[1]{{\em #1}\index{#1}}
-\newcommand{\mkey}[2]{{\em #1}\index{#1!#2}}
-\newcommand{\skey}[2]{{\em #1#2}\index{#1}}
-\newcommand{\ikey}[2]{{\em #1}\index{#2}}
-\newcommand{\ttkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
-\newcommand{\ttmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttfkey}[2]{{\tt #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
-\newcommand{\ttakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
-\newcommand{\ttamkey}[3]{{\tt #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\key}[1]{{\bf \em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
+\newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
+% < and > do not work for \tt \bf, hence:
+\newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
-\newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
+\newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
-\newcommand{\minkey}[1]{{\tt min::#1}\ttindex{min::#1}\ttindex{#1}}
-\newcommand{\minmkey}[2]{{\tt min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
-\newcommand{\MUPkey}[1]{{\tt MUP::#1}\ttindex{MUP::#1}\ttindex{#1}}
-\newcommand{\MUPmkey}[2]{{\tt MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\minkey}[1]%
+           {{\tt \bf min::#1}\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\minmkey}[2]%
+           {{\tt \bf min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\MUPkey}[1]{{\tt \bf MUP::#1}\ttindex{MUP::#1}\ttindex{#1}}
+\newcommand{\MUPmkey}[2]%
+           {{\tt \bf MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\minindex}[1]{\ttindex{min::#1}\ttindex{#1}}
 \newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
 
@@ -232,13 +237,13 @@
 
 \begin{document}
         
-\title{Design\\[2ex]of the\\[2ex]
+\title{Internal Design\\[2ex]of the\\[2ex]
        Minimal\\Descriptive Programming\\Language\\[2ex]MIN\\[2ex]
        (Draft 1a)}
 
 \author{Robert L. Walton}
 
-\date{October 1, 2004}
+\date{November 11, 2004}
  
 \maketitle
 
@@ -267,6 +272,7 @@ and the corresponding code:
 \begin{tabular}{ll}
 \ttmkey{aux}{abbreviation}	& auxilary (\secref{AUXILARY}) \\
 \ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
+\ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
 \ttmkey{min}{abbreviation}	& the MIN system \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
 \ttmkey{str}{abbreviation}	& string \\
@@ -314,7 +320,8 @@ C-compatible \verb|struct|'s and \verb|union|'s to be C-compatible,
 and C has implicit guarentees because of historical C code that
 such data will not contain unnecessary unnamed padding.  Neither the
 C or C++ standards guarentee the absence of unnecessary unnamed padding, but
-MIN depends upon its absence.
+MIN depends upon its absence, as does any code that reads and writes
+binary files.
 
 As a consequence of using only C-compatible \verb|struct|'s and
 \verb|union|'s to define data, MIN does not use member functions,
@@ -353,6 +360,7 @@ the size of each number is clear:
 \label{MIN::UNS64}%
 \label{MIN::INT64}%
 \label{MIN::FLOAT64}%
+\label{INT}%
 \label{UNS}
 
 Currently planned implementations of MIN assume a compiler that has
@@ -382,8 +390,14 @@ It is also possible for a value to hold any other 8 bytes of information.
 The control holds a 1 byte type code and other information used,
 for example, by the garbage collector.
 
+The type name of a stub is `\minkey{stub}', and a pointer to a stub
+has type `\verb|min::stub *|'.\LABEL{MIN::STUB}\footnote{We do
+not use `{\tt const min::stub *}' types partly because such cannot be converted
+to general values, since the latter have no way of distinguishing
+{\tt const} and non-{\tt const} stubs.}
+
 A \key{body} is a variable sized relocatable block of memory
-attached to a particular stub.  A stub may have one body attached to
+attached to a particular stub.  A stub may have a single body attached to
 it, in which case the stub value is a pointer to that body.
 When certain functions are called,
 any body can be moved and its corresponding stub value reset to
@@ -398,7 +412,14 @@ the pointer must be maintained if a relocating function is called.
 \ikey{Interrupts}{interrupt!and relocation} can relocate bodies.
 Therefore interrupts are only allowed
 at specific points in the code.  The inline
-\minmkey{interrupt}{relocating}{\REL} function checks an interrupt
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{interrupt\REL}\verb| ( void )|
+\LABEL{MIN::INTERRUPT} \\
+\end{tabular}\end{center}%
+\index{interrupt!relocating}
+
+function checks an interrupt
 flag, and if that is set, calls an out-of-line function to process
 the interrupt.
 
@@ -406,6 +427,16 @@ A body may be \mkey{deallocated}{by moving}
 by moving it to unimplemented memory.  When this is done the
 stub \mkey{type code}{reset on deallocation}
 is reset to a value that indicates the body is deallocated.
+The function that deallocates a body is:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void | & \TTKEY{deallocate\REL}\verb| ( min::stub * s )|
+\LABEL{DEALLOCATE} \\
+\end{tabular}\end{center}%
+\index{deallocate!relocating}
+
+The {\tt is\_deallocated} function described on \pagref{IS_DEALLOCATED}
+can be used to test whether the body of a stub has been deallocated.
 
 Bodies are always some multiple
 of 8 bytes long, and are allocated on 8 byte boundaries.
@@ -418,7 +449,8 @@ of the stub and various lengths.  Unprotected functions
 contain no such checks.
 
 Memory consisting of unrelocatable stubs pointing at relocatable
-bodies is called a `\key{stub/body memory}'.  Thus MIN has a stub/body memory.
+bodies is called a `\key{stub/\EOL body memory}'.
+Thus MIN has a stub/body memory.
 The main advantages of stub/body memory are that relocation of bodies
 can happen independently of other program activity, and bodies can be
 deallocated by program command at any time.\footnote{
@@ -426,12 +458,6 @@ Stub/body memories are certainly not new.  For example, Kyoto COMMONLISP
 used a stub/body implementation of arrays, and the author has heard about
 implementations that go back to the late 1950's or early 60's: see
 p33 of the author's thesis, R-CODE, A Very Capable Virtual Computer.}
-
-The type name of a stub is `\minkey{stub}', and a pointer to a stub
-has type `\verb|min::stub *|'.\LABEL{MIN::STUB}\footnote{We do
-not use `{\tt const min::stub *}' types partly because such cannot be converted
-to general values, since the latter have no way of distinguishing
-{\tt const} and non-{\tt const} stubs.}
 
 
 \subsection{General Values}
@@ -447,8 +473,8 @@ an auxilary pointer
 \end{tabular}
 \end{center}
 
-General values are used to designate attribute names and values in
-objects.
+General values are used as attribute names and values in
+objects, and as function arguments and return values.
 
 Efficiency asside, it does not matter
 whether a general value stores an atom or a pointer
@@ -531,7 +557,8 @@ properties of {\tt min::uns32}, and in some implementations
 is {\tt typedef}'ed to {\tt min::uns32}.  Therefore {\tt min::\EOL gen32}
 arguments cannot be used to identify overloaded functions.
 However, the length difference between a {\tt min::gen32} value
-and a {\tt min::gen64} value is used to distinguish between overloaded
+and a {\tt min::gen64} value (\secref{64-BIT-GENERAL-VALUES})
+is used to distinguish between overloaded
 functions that accept either kind of value.
 
 The following functions return {\tt 1} if a {\tt min::gen32} datum is of the
@@ -582,10 +609,11 @@ functions:
 \LABEL{MIN::NEW_AUX_GEN32} \\
 \end{tabular}\end{center}
 
+These protected functions check for argument range errors.
 Here an \verb|unsigned| value is taken to be an auxilary pointer, and
 the reason the integer and auxilary pointer functions are not overloaded
 is the danger of confusing them when integers are stored in {\tt unsigned}
-types.  These protected functions check for argument range errors.
+types.
 
 The following unprotected functions are analogous but do not check for
 range errors.
@@ -603,7 +631,9 @@ range errors.
 \label{64-BIT-GENERAL-VALUES}
 
 64-bit general values are the only kind of general value used
-in loose implementations (\pagref{LOOSE}).
+in loose implementations (\pagref{LOOSE}).  64-bit general values
+are used as function arguments and values in compact implementations
+(\pagref{COMPACT}).
 
 A \key{64-bit general value} has type \minkey{gen64}\LABEL{MIN::GEN64} and
 is a 64 bit aligned value that can be of one of the following
@@ -628,13 +658,17 @@ properties of {\tt min::uns64}, and in some implementations
 is {\tt typedef}'ed to {\tt min::uns64}.  Therefore {\tt min::\EOL gen64}
 arguments cannot be used to identify overloaded functions.
 However, the length difference between a {\tt min::gen32} value
+(\secref{32-BIT-GENERAL-VALUES})
 and a {\tt min::gen64} value is used to distinguish between overloaded
 functions that accept either kind of value.
 
 A 0 to 5 character string store in the \verb|min::gen64| value itself is
 called a `\key{direct string}', as opposed to a short string stored in a stub
+(\pagref{SHORT-STRING-STUB})
 that is pointed at by the \verb|min:gen64| value, or a long string
-stored in a body associated with a stub pointed at by the \verb|min:gen64|
+stored in a body associated with a stub
+(\pagref{LONG-STRING-STUB})
+pointed at by the \verb|min:gen64|
 value.
 
 The following functions return {\tt 1} if a {\tt min::gen64} datum is of the
@@ -677,7 +711,7 @@ u.str = min::direct_str_of ( v );
 cout << u.buf;
 \end{verbatim}\end{indpar}
 
-The {\tt min::direct\_str\_of} function merely copies the
+Here the {\tt min::direct\_str\_of} function merely copies the
 5 characters of the {\tt min::gen64} value and appends a NUL character.
 It does this by writing an appropriate value into \verb|v.str|.
 
@@ -710,12 +744,16 @@ functions:
 \LABEL{MIN::NEW_AUX_GEN64} \\
 \end{tabular}\end{center}
 
+These protected functions check for argument range errors.
 Here the NUL-terminated string pointed at by \verb|p| must not
 contain more than 5 characters, and an \verb|unsigned| value is
 taken to be an auxilary pointer.
 The reason the floating point and auxilary pointer functions are not overloaded
 is the danger of confusing them when numbers are stored in {\tt unsigned}
-types.  These protected functions check for argument range errors.
+types.
+The reason the direct string function has the name it does is that
+{\tt new\_gen64} names a function that will create non-direct strings if
+the string is too long to store in a direct string.
 
 
 The following unprotected functions are analogous but do not check for
@@ -1105,9 +1143,9 @@ strings of any kind without distinction,
 and these are described toward the end of this section, after describing
 short and long strings and their unprotected access functions.
 
-A \key{short string stub} has
+A \key{short string stub}\label{SHORT-STRING-STUB} has
 \minkey{SHORT\_STR}\LABEL{SHORT-STR-TYPE} stub type code and
-an immutable \verb|min::uns64| value that holds a NUL padded
+an immutable {\tt min::\EOL uns64} value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
 
@@ -1148,7 +1186,7 @@ in the example.  To be sure any value written is padded to 8 characters
 by NUL, the 8 character value should be zeroed before any string is
 copied into it, as is done by \verb|u.str = 0| in the example.
 
-A \key{long string stub} has
+A \key{long string stub}\label{LONG-STRING-STUB} has
 \minkey{LONG\_STR}\LABEL{LONG-STR-TYPE} stub type code and
 a value that is a pointer to a \minkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
@@ -1481,7 +1519,11 @@ Stub Related Declarations:
 \verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
 \LABEL{MIN::RELOCATED_FLAG} \\
 \verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool )|
-\LABEL{MIN::SET_RELOCATED_FLAG}
+\LABEL{MIN::SET_RELOCATED_FLAG} \\
+\verb|void min::| & \MINKEY{interrupt\REL}\verb| ( void )|
+\LABEL{MIN::INTERRUPT} \\
+\verb|void | & \TTKEY{deallocate\REL}\verb| ( min::stub * s )|
+\LABEL{DEALLOCATE} \\
 
 \end{tabular}
 
