@@ -530,6 +530,9 @@ The type of a general value is \minkey{gen32}.  This type has the alignment
 properties of {\tt min::uns32}, and in some implementations
 is {\tt typedef}'ed to {\tt min::uns32}.  Therefore {\tt min::\EOL gen32}
 arguments cannot be used to identify overloaded functions.
+However, the length difference between a {\tt min::gen32} value
+and a {\tt min::gen64} value is used to distinguish between overloaded
+functions that accept either kind of value.
 
 The following functions return {\tt 1} if a {\tt min::gen32} datum is of the
 indicated subtype and {\tt 0} otherwise:
@@ -609,7 +612,7 @@ subtypes
 \begin{center}
 \begin{tabular}{l}
 an IEEE 64-bit floating point number \\
-a 0-5 character string \\
+a 0-5 character direct string \\
 a pointer to a stub \\
 an auxilary pointer \\
 \end{tabular}
@@ -624,6 +627,15 @@ The type of a general value is \minkey{gen64}.  This type has the alignment
 properties of {\tt min::uns64}, and in some implementations
 is {\tt typedef}'ed to {\tt min::uns64}.  Therefore {\tt min::\EOL gen64}
 arguments cannot be used to identify overloaded functions.
+However, the length difference between a {\tt min::gen32} value
+and a {\tt min::gen64} value is used to distinguish between overloaded
+functions that accept either kind of value.
+
+A 0 to 5 character string store in the \verb|min::gen64| value itself is
+called a `\key{direct string}', as opposed to a short string stored in a stub
+that is pointed at by the \verb|min:gen64| value, or a long string
+stored in a body associated with a stub pointed at by the \verb|min:gen64|
+value.
 
 The following functions return {\tt 1} if a {\tt min::gen64} datum is of the
 indicated subtype and {\tt 0} otherwise:
@@ -631,8 +643,8 @@ indicated subtype and {\tt 0} otherwise:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|int min::| & \MINKEY{is\_float64}\verb| ( min::gen64 v )|
 \LABEL{MIN::IS_FLOAT64} \\
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_STR} \\
+\verb|int min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen64 v )|
+\LABEL{MIN::IS_DIRECT_STR_OF_GEN64} \\
 \verb|int min::| & \MINKEY{is\_stub}\verb| ( min::gen64 v )|
 \LABEL{MIN::IS_STUB_OF_GEN64} \\
 \verb|int min::| & \MINKEY{is\_aux}\verb| ( min::gen64 v )|
@@ -645,31 +657,29 @@ subtype, after checking the subtype with an {\tt assert} statement:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen64 v )|
 \LABEL{MIN::FLOAT64_OF_GEN64} \\
-\verb|unsigned min::| & \MINKEY{short\_strlen}\verb| ( min::gen64 v )|
-\LABEL{MIN::SHORT_STRLEN_OF_GEN64} \\
-\verb|char * min::| & \MINKEY{short\_strcpy}\verb| ( char * p, min::gen64 v )|
-\LABEL{MIN::SHORT_STRCPY_OF_GEN64} \\
-\verb|char * min::| &
-	\MINKEY{short\_strncpy}\verb| ( char * p, min::gen64 v, unsigned n )|
-\LABEL{MIN::SHORT_STRNCPY_OF_GEN64} \\
+\verb|min::uns64 min::| & \MINKEY{direct\_str\_of}\verb| ( min::gen64 v )|
+\LABEL{MIN::DIRECT_STR_OF_GEN64} \\
 \verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen64 v )|
 \LABEL{MIN::STUB_OF_GEN64} \\
 \verb|unsigned min::| & \MINKEY{aux\_of}\verb| ( min::gen64 v )|
 \LABEL{MIN::AUXILARY_OF_GEN64} \\
 \end{tabular}\end{center}
 
-The {\tt short\_strlen} function returns the length of a string value (which
-is from {\tt 0} through {\tt 6}).
-The {\tt short\_strcpy} and {\tt short\_strncpy} functions
-copy a string value to a buffer pointed at
-by \verb|p|.  Copying stops when a NUL is copied or when the
-\verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
-of \verb|p| is returned.  These functions differ from the standard C/C++
-{\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions only in that
-these functions, instead of taking a source {\tt char *} string argument,
-take a source {\tt gen64} argument that can either encode a 0-5 character
-string directly, or can be a pointer to a stub of possibly longer string:
-see~\pagref{STRLEN_OF_GEN64}.
+Here the \verb|min::uns64| value returned by \minkey{direct\_str\_of}
+should be overlaid by a union with a \verb|char[]| buffer, as in
+the code:
+
+\begin{indpar}\begin{verbatim}
+union { min::uns64 str; char buf[6]; } u;
+min::gen64 v;
+. . . .
+u.str = min::direct_str_of ( v );
+cout << u.buf;
+\end{verbatim}\end{indpar}
+
+The {\tt min::direct\_str\_of} function merely copies the
+5 characters of the {\tt min::gen64} value and appends a NUL character.
+It does this by writing an appropriate value into \verb|v.str|.
 
 The following unprotected functions return the value appropriate for a given
 subtype, \underline{without} checking the subtype:
@@ -677,28 +687,13 @@ subtype, \underline{without} checking the subtype:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::FLOAT64_OF_GEN64} \\
-\verb|min::uns64 MUP::| & \MUPKEY{short\_string\_of}\verb| ( min::gen64 v )|
-\LABEL{MUP::SHORT_STRING_OF_GEN64} \\
+\verb|min::uns64 MUP::| & \MUPKEY{direct\_str\_of}\verb| ( min::gen64 v )|
+\LABEL{MUP::DIRECT_STR_OF_GEN64} \\
 \verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::STUB_OF_GEN64} \\
 \verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::AUXILARY_OF_GEN64} \\
 \end{tabular}\end{center}
-
-Here the \verb|min::uns64| value returned by \MUPkey{short\_string\_of}
-should be overlaid by a union with a \verb|char[]| buffer, as in
-the code:
-
-\begin{indpar}\label{SHORT-STRING-OVERLAY}\begin{verbatim}
-union { min::uns64 str; char buf[6]; } u;
-min::gen64 v;
-. . . .
-u.str = MUP::short_string_of ( v );
-cout << u.buf;
-\end{verbatim}\end{indpar}
-
-The {\tt MUP::short\_string\_of} function merely copies the
-5 characters of the {\tt min::gen64} value and appends a NUL character.
 
 New {\tt min::gen64} values can be generated by the following protected
 functions:
@@ -706,8 +701,9 @@ functions:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen64 min::| & \MINKEY{new\_float\_gen64}\verb| ( min::float64 v )|
 \LABEL{MIN::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 min::| & \MINKEY{new\_gen64}\verb| ( const char * p )|
-\LABEL{MIN::NEW_GEN64_OF_CHAR} \\
+\verb|min::gen64 min::| &
+	\MINKEY{new\_direct\_str\_gen64}\verb| ( const char * p )|
+\LABEL{MIN::NEW_DIRECT_STR_GEN64} \\
 \verb|min::gen64 min::| & \MINKEY{new\_gen64}\verb| ( min::stub * s )|
 \LABEL{MIN::NEW_GEN64_OF_STUB} \\
 \verb|min::gen64 min::| & \MINKEY{new\_aux\_gen64}\verb| ( unsigned p )|
@@ -728,8 +724,9 @@ range errors.
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen64 MUP::| & \MUPKEY{new\_float\_gen64}\verb| ( min::float64 v )|
 \LABEL{MUP::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( const char * p )|
-\LABEL{MUP::NEW_GEN64_OF_CHAR} \\
+\verb|min::gen64 MUP::| &
+	\MUPKEY{new\_direct\_str\_gen64}\verb| ( const char * p )|
+\LABEL{MUP::NEW_DIRECT_STR_GEN64} \\
 \verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN64_OF_STUB} \\
 \verb|min::gen64 MUP::| & \MUPKEY{new\_aux\_gen64}\verb| ( unsigned p )|
@@ -749,8 +746,8 @@ are implementation dependent.  The following constants equal these
 codes as 20 bit unsigned integers:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|const unsigned min::| & \MINKEY{GEN64\_STRING}
-\LABEL{MIN::GEN64_STRING} \\
+\verb|const unsigned min::| & \MINKEY{GEN64\_DIRECT\_STR}
+\LABEL{MIN::GEN64_DIRECT_STR} \\
 \verb|const unsigned min::| & \MINKEY{GEN64\_STUB}
 \LABEL{MIN::GEN64_STUB} \\
 \verb|const unsigned min::| & \MINKEY{GEN64\_AUX}
@@ -979,10 +976,10 @@ A partial list of stub type codes is:
 \begin{tabular}{l@{~~~~~}p{4in}}
 \tt min::NUMBER	&	Stub value is an IEEE 64-bit floating point number.
 \\
-\tt min::SHORT\_STRING
+\tt min::SHORT\_STR
 	&	Stub value is 0-8 \verb|const char| string, NUL padded.
 \\
-\tt min::LONG\_STRING
+\tt min::LONG\_STR
 	&	Stub value is a pointer at a body of type
 	        {\tt min::long\_\EOL string} that contains a
 		\verb|const char| vector and its size. 
@@ -1051,10 +1048,10 @@ by the following protected functions:
 \LABEL{MIN::NEW_NUMBER_GEN32} \\
 \verb|min::gen64 min::| & \MINKEY{new\_number\_gen64}\verb| ( min::float64 v )|
 \LABEL{MIN::NEW_NUMBER_GEN64} \\
-\verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::FLOAT64_OF_GEN32} \\
-\verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen64 v )|
-\\
+\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen32 v )|
+\LABEL{MIN::NUMBER_OF_GEN32} \\
+\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen64 v )|
+\LABEL{MIN::NUMBER_OF_GEN64} \\
 \end{tabular}\end{center}
 
 The \verb|min::is_number| function for a \verb|min::gen64| argument
@@ -1109,26 +1106,26 @@ and these are described toward the end of this section, after describing
 short and long strings and their unprotected access functions.
 
 A \key{short string stub} has
-\minkey{SHORT\_STRING}\LABEL{SHORT-STRING-TYPE} stub type code and
+\minkey{SHORT\_STR}\LABEL{SHORT-STR-TYPE} stub type code and
 an immutable \verb|min::uns64| value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::| &
-	\MUPKEY{short\_string\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::SHORT_STRING_OF}
+	\MUPKEY{short\_str\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::SHORT_STR_OF}
 \end{tabular}\end{center}
 
 and written by
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void MUP::| &
-    \MUPKEY{set\_short\_string\_of}\verb| ( min::stub * s, min::uns64 str )|
-\LABEL{MUP::SET_SHORT_STRING_OF}
+    \MUPKEY{set\_short\_str\_of}\verb| ( min::stub * s, min::uns64 str )|
+\LABEL{MUP::SET_SHORT_STR_OF}
 \end{tabular}\end{center}
 
-Here the \verb|min::uns64| value returned by \MUPkey{short\_string\_of}
+Here the \verb|min::uns64| value returned by \MUPkey{short\_str\_of}
 should be overlaid by a union with a \verb|char[ ]| buffer, as in
 
 \begin{indpar}\begin{verbatim}
@@ -1136,25 +1133,24 @@ union { min::uns64 str; char buf[9]; } u;
 min::stub * s1, * s2;
 . . . .
 u.buf[8] = 0;	// Be sure result is NUL terminated.
-u.str = MUP::short_string_of ( s1 );
+u.str = MUP::short_str_of ( s1 );
 cout << u.buf;
 . . . .
 u.str = 0;	// Be sure all 8 bytes are NUL padded.
 cin >> u.buf;
-MUP::set_short_string_of ( s2 , u.str );
+MUP::set_short_str_of ( s2 , u.str );
 \end{verbatim}\end{indpar}
 
 Short string values are NUL (zero) padded 0 to 8 \verb|char|
 strings.  To be sure any value read is NUL terminated, a NUL (zero)
 must be stored after the value read, as is done by \verb|u.buf[8] = 0|
-in the example.  If the value read is not what it should be, it
-may have non-NUL characters after a NUL character, but with
-the 9'th NUL appended it will still be a NUL-terminated C/C++ \verb|char|
-string.
+in the example.  To be sure any value written is padded to 8 characters
+by NUL, the 8 character value should be zeroed before any string is
+copied into it, as is done by \verb|u.str = 0| in the example.
 
 A \key{long string stub} has
-\minkey{LONG\_STRING}\LABEL{LONG-STRING-TYPE} stub type code and
-a value that is a pointer to a \minkey{long\_string} type body
+\minkey{LONG\_STR}\LABEL{LONG-STR-TYPE} stub type code and
+a value that is a pointer to a \minkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
 The following functions respectively return a relocatable pointer to this body,
 the length of the string, a 32-bit non-zero hash value computed from
@@ -1166,17 +1162,17 @@ take time proportional to the string length.  The 64-bit signature
 contains the hash value and the string length.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::long_string * MUP::| &
-	\MUPKEY{long\_string\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::LONG_STRING_OF} \\
-\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_string * const str )|
-\LABEL{LENGTH_OF_LONG_STRING} \\
-\verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_string * str )|
-\LABEL{HASH_OF_LONG_STRING} \\
-\verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_string * str )|
-\LABEL{SIGNATURE_OF_LONG_STRING} \\
-\verb|const char * | & \TTKEY{char\_of}\verb| ( min::long_string * const str )|
-\LABEL{CHAR_OF_LONG_STRING} \\
+\verb|min::long_str * MUP::| &
+	\MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::LONG_STR_OF} \\
+\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_str * str )|
+\LABEL{LENGTH_OF_LONG_STR} \\
+\verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_str * str )|
+\LABEL{HASH_OF_LONG_STR} \\
+\verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_str * str )|
+\LABEL{SIGNATURE_OF_LONG_STR} \\
+\verb|const char * | & \TTKEY{str\_of}\verb| ( min::long_str * str )|
+\LABEL{STR_OF_LONG_STR} \\
 \end{tabular}\end{center}
 
 The long string body consists of a 64 bit signature containing
@@ -1195,16 +1191,16 @@ to the string permits the string to be written.  Unprotected functions
 are also provided to set the length and hash.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_string * str )|
-\LABEL{MUP::HASH_OF_LONG_STRING} \\
-\verb|char * MUP::| & \MUPKEY{char\_of}\verb| ( min::long_string * const str )|
-\LABEL{MUP::CHAR_OF_LONG_STRING} \\
+\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::HASH_OF_LONG_STR} \\
+\verb|char * MUP::| & \MUPKEY{str\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::STR_OF_LONG_STR} \\
 \verb|void MUP::| &
-   \MUPKEY{set\_length\_of}\verb| ( min::long_string * str, unsigned length )|
-\LABEL{MUP::SET_LENGTH_OF_LONG_STRING} \\
+   \MUPKEY{set\_length\_of}\verb| ( min::long_str * str, unsigned length )|
+\LABEL{MUP::SET_LENGTH_OF_LONG_STR} \\
 \verb|void MUP::| &
-   \MUPKEY{set\_hash\_of}\verb| ( min::long_string * str, unsigned hash )|
-\LABEL{MUP::SET_HASH_OF_LONG_STRING} \\
+   \MUPKEY{set\_hash\_of}\verb| ( min::long_str * str, unsigned hash )|
+\LABEL{MUP::SET_HASH_OF_LONG_STR} \\
 \end{tabular}\end{center}
 
 The following are protected functions that operate on both short and long
@@ -1249,64 +1245,72 @@ by \verb|p|.  Copying stops when a NUL is copied or when the
 \verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
 of \verb|p| is returned.
 
+Some of these functions correspond to the standard C/C++
+{\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions, and differ
+from these only in that instead of taking a {\tt char *} source string
+argument, these functions take a {\tt min::gen64} source argument.
+The {\tt min::gen64} source argument value can be a direct string, or
+a stub pointer to either a short or long string stub.
+
 The following function creates a short or long string stub.  If the
 input has 8 or fewer characters, a short stub is created: otherwise
 a long stub is created.
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::stub * min::|
-	& \MINKEY{new\_string\REL}\verb| ( const char * p )|
-\LABEL{MIN::NEW_STRING} \\
+	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
+\LABEL{MIN::NEW_STR} \\
 \end{tabular}\end{center}
 
 The following are protected functions with same definitions as above but
 with general value arguments.  The general values must hold a
-string value or a pointer to a short or long string stub.
+direct string value or a pointer to a short or long string stub.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned | & \TTKEY{strlen}\verb| ( min::gen32 v )|
-\LABEL{STRLEN_OF_GEN32} \\
-\verb|unsigned | & \TTKEY{strlen}\verb| ( min::gen64 v )|
-\LABEL{STRLEN_OF_GEN64} \\
-\verb|unsigned | & \TTKEY{strhash}\verb| ( min::gen32 s )|
-\LABEL{STRHASH_OF_GEN32} \\
-\verb|unsigned | & \TTKEY{strhash}\verb| ( min::gen64 s )|
-\LABEL{STRHASH_OF_GEN64} \\
-\verb|min::uns64 | & \TTKEY{strsignature}\verb| ( min::gen32 s )|
-\LABEL{STRSIGNATURE_OF_GEN32} \\
-\verb|min::uns64 | & \TTKEY{strsignature}\verb| ( min::gen64 s )|
-\LABEL{STRSIGNATURE_OF_GEN64} \\
-\verb|char * | & \TTKEY{strcpy}\verb| ( char * p, min::gen32 s )|
-\LABEL{STRCPY_OF_GEN32} \\
-\verb|char * | & \TTKEY{strcpy}\verb| ( char * p, min::gen64 s )|
-\LABEL{STRCPY_OF_GEN64} \\
-\verb|char * | & \TTKEY{strncpy}\verb| ( char * p, min::gen32 s, unsigned n )|
-\LABEL{STRNCPY_OF_GEN32} \\
-\verb|char * | & \TTKEY{strncpy}\verb| ( char * p, min::gen64 s, unsigned n )|
-\LABEL{STRNCPY_OF_GEN64} \\
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen32 v )|
+\LABEL{MIN::STRLEN_OF_GEN32} \\
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen64 v )|
+\LABEL{MIN::STRLEN_OF_GEN64} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen32 s )|
+\LABEL{MIN::STRHASH_OF_GEN32} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen64 s )|
+\LABEL{MIN::STRHASH_OF_GEN64} \\
+\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen32 s )|
+\LABEL{MIN::STRSIGNATURE_OF_GEN32} \\
+\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen64 s )|
+\LABEL{MIN::STRSIGNATURE_OF_GEN64} \\
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen32 s )|
+\LABEL{MIN::STRCPY_OF_GEN32} \\
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen64 s )|
+\LABEL{MIN::STRCPY_OF_GEN64} \\
+\verb|char * min::| &
+	\MINKEY{strncpy}\verb| ( char * p, min::gen32 s, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_GEN32} \\
+\verb|char * min::| & \MINKEY{strncpy}\verb| ( char * p, min::gen64 s, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_GEN64} \\
 \end{tabular}\end{center}
 
 The following functions test general values to see if they are a string,
 and create new general values.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_string}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_STRING} \\
-\verb|int min::| & \MINKEY{is\_string}\verb| ( min::gen64 v )|
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen32 v )|
+\LABEL{MIN::IS_STR_OF_GEN32} \\
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen64 v )|
 \\
 \verb|min::gen32 min::| &
-    \MINKEY{new\_string\_gen32\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_STRING_GEN32} \\
+    \MINKEY{new\_str\_gen32\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_STR_GEN32} \\
 \verb|min::gen64 min::| &
-    \MINKEY{new\_string\_gen64\REL} \verb| ( const char * p )|
+    \MINKEY{new\_str\_gen64\REL} \verb| ( const char * p )|
 \\
 \end{tabular}\end{center}
 
 A general value is a string if it holds a string itself or if it
 holds a stub pointer at a short or long string.  When a general value
 is created, if the input string is short enough for the general value
-to hold the string itself, that kind of general value is created, and
-otherwise if the input string is 8 or fewer {\tt char}'s a short
+to hold the string itself, a direct string general value is created, and
+otherwise, if the input string is 8 or fewer {\tt char}'s, a short
 string stub is created, and otherwise a long string stub is created.
 
 \subsection{Double Arrows}
@@ -1453,9 +1457,9 @@ Stub Type Codes:\label{STUB-TYPE-CODE-LIST}
 
 \verb|min::|\MINKEY{NUMBER} \LABEL{NUMBER-TYPE}
 \\
-\verb|min::|\MINKEY{SHORT\_STRING} \LABEL{SHORT-STRING-TYPE}
+\verb|min::|\MINKEY{SHORT\_STR} \LABEL{SHORT-STR-TYPE}
 \\
-\verb|min::|\MINKEY{LONG\_STRING} \LABEL{LONG-STRING-TYPE}
+\verb|min::|\MINKEY{LONG\_STR} \LABEL{LONG-STR-TYPE}
 
 \end{indpar}
 
@@ -1547,12 +1551,12 @@ Gen64 Value Protected Declarations:
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.5in}}
+\begin{tabular}{@{}r@{}p{4.4in}}
 
 \verb|int min::| & \MINKEY{is\_float64}\verb| ( min::gen64 v )|
 \LABEL{MIN::IS_FLOAT64} \\
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_STR} \\
+\verb|int min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen64 v )|
+\LABEL{MIN::IS_DIRECT_STR_OF_GEN64} \\
 \verb|int min::| & \MINKEY{is\_stub}\verb| ( min::gen64 v )|
 \LABEL{MIN::IS_STUB_OF_GEN64} \\
 \verb|int min::| & \MINKEY{is\_aux}\verb| ( min::gen64 v )|
@@ -1560,14 +1564,8 @@ Gen64 Value Protected Declarations:
 
 \verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen64 v )|
 \LABEL{MIN::FLOAT64_OF_GEN64} \\
-\verb|unsigned min::| & \MINKEY{short\_strlen}\verb| ( min::gen64 v )|
-\LABEL{MIN::SHORT_STRLEN_OF_GEN64} \\
-\verb|char * min::| & \MINKEY{short\_strcpy}\verb| ( char * p, min::gen64 v )|
-\LABEL{MIN::SHORT_STRCPY_OF_GEN64} \\
-\verb|char * min::| &
-	\MINKEY{short\_strncpy}\ARGBREAK
-	\verb| ( char * p, min::gen64 v, unsigned n )|
-\LABEL{MIN::SHORT_STRNCPY_OF_GEN64} \\
+\verb|int min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen64 v )|
+\LABEL{MIN::IS_DIRECT_STR_OF_GEN64} \\
 \verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen64 v )|
 \LABEL{MIN::STUB_OF_GEN64} \\
 \verb|unsigned min::| & \MINKEY{aux\_of}\verb| ( min::gen64 v )|
@@ -1575,15 +1573,16 @@ Gen64 Value Protected Declarations:
 
 \verb|min::gen64 min::| & \MINKEY{new\_float\_gen64}\verb| ( min::float64 v )|
 \LABEL{MIN::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 min::| & \MINKEY{new\_gen64}\verb| ( const char * p )|
-\LABEL{MIN::NEW_GEN64_OF_CHAR} \\
+\verb|min::gen64 min::| &
+	\MINKEY{new\_direct\_str\_gen64}\verb| ( const char * p )|
+\LABEL{MIN::NEW_DIRECT_STR_GEN64} \\
 \verb|min::gen64 min::| & \MINKEY{new\_gen64}\verb| ( min::stub * s )|
 \LABEL{MIN::NEW_GEN64_OF_STUB} \\
 \verb|min::gen64 min::| & \MINKEY{new\_aux\_gen64}\verb| ( unsigned p )|
 \LABEL{MIN::NEW_AUX_GEN64} \\[1ex]
 
-\verb|unsigned min::| & \MINKEY{GEN64\_STRING}
-\LABEL{MIN::GEN64_STRING} \\
+\verb|const unsigned min::| & \MINKEY{GEN64\_DIRECT\_STR}
+\LABEL{MIN::GEN64_DIRECT_STR} \\
 \verb|unsigned min::| & \MINKEY{GEN64\_STUB}
 \LABEL{MIN::GEN64_STUB} \\
 \verb|unsigned min::| & \MINKEY{GEN64\_AUX}
@@ -1608,8 +1607,8 @@ Gen64 Value Unprotected Declarations:
 
 \verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::FLOAT64_OF_GEN64} \\
-\verb|min::uns64 MUP::| & \MUPKEY{short\_string\_of}\verb| ( min::gen64 v )|
-\LABEL{MUP::SHORT_STRING_OF_GEN64} \\
+\verb|min::uns64 MUP::| & \MUPKEY{direct\_str\_of}\verb| ( min::gen64 v )|
+\LABEL{MUP::DIRECT_STR_OF_GEN64} \\
 \verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen64 v )|
 \LABEL{MUP::STUB_OF_GEN64} \\
 \verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen64 v )|
@@ -1617,8 +1616,9 @@ Gen64 Value Unprotected Declarations:
 
 \verb|min::gen64 MUP::| & \MUPKEY{new\_float\_gen64}\verb| ( min::float64 v )|
 \LABEL{MUP::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( const char * p )|
-\LABEL{MUP::NEW_GEN64_OF_CHAR} \\
+\verb|min::gen64 MUP::| &
+	\MUPKEY{new\_direct\_str\_gen64}\verb| ( const char * p )|
+\LABEL{MUP::NEW_DIRECT_STR_GEN64} \\
 \verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN64_OF_STUB} \\
 \verb|min::gen64 MUP::| & \MUPKEY{new\_aux\_gen64}\verb| ( unsigned p )|
@@ -1653,10 +1653,10 @@ Number Stub Protected Declarations:
 \LABEL{MIN::NEW_NUMBER_GEN32} \\
 \verb|min::gen64 min::| & \MINKEY{new\_number\_gen64}\verb| ( min::float64 v )|
 \LABEL{MIN::NEW_NUMBER_GEN64} \\
-\verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::FLOAT64_OF_GEN32} \\
-\verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::FLOAT64_OF_GEN32} \\
+\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen32 v )|
+\LABEL{MIN::NUMBER_OF_GEN32} \\
+\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen64 v )|
+\LABEL{MIN::NUMBER_OF_GEN64} \\
 
 \end{tabular}
 
@@ -1701,42 +1701,44 @@ String Stub Protected Declarations:
 \LABEL{STRNCPY} \\[1ex]
 
 \verb|void min::stub * min::|
-	& \MINKEY{new\_string\REL}\verb| ( const char * p )|
-\LABEL{MIN::NEW_STRING} \\[1ex]
+	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
+\LABEL{MIN::NEW_STR} \\[1ex]
 
-\verb|unsigned | & \TTKEY{strlen}\verb| ( min::gen32 v )|
-\LABEL{STRLEN_OF_GEN32} \\
-\verb|unsigned | & \TTKEY{strlen}\verb| ( min::gen64 v )|
-\LABEL{STRLEN_OF_GEN64} \\
-\verb|unsigned | & \TTKEY{strhash}\verb| ( min::gen32 s )|
-\LABEL{STRHASH_OF_GEN32} \\
-\verb|unsigned | & \TTKEY{strhash}\verb| ( min::gen64 s )|
-\LABEL{STRHASH_OF_GEN64} \\
-\verb|min::uns64 | & \TTKEY{strsignature}\verb| ( min::gen32 s )|
-\LABEL{STRSIGNATURE_OF_GEN32} \\
-\verb|min::uns64 | & \TTKEY{strsignature}\verb| ( min::gen64 s )|
-\LABEL{STRSIGNATURE_OF_GEN64} \\
-\verb|char * | & \TTKEY{strcpy}\verb| ( char * p, min::gen32 s )|
-\LABEL{STRCPY_OF_GEN32} \\
-\verb|char * | & \TTKEY{strcpy}\verb| ( char * p, min::gen64 s )|
-\LABEL{STRCPY_OF_GEN64} \\
-\verb|char * | & \TTKEY{strncpy}\ARGBREAK
-	\verb| ( char * p, min::gen32 s,|\ARGBREAK\verb|   unsigned n )|
-\LABEL{STRNCPY_OF_GEN32} \\
-\verb|char * | & \TTKEY{strncpy}\ARGBREAK
-	\verb| ( char * p, min::gen64 s,|\ARGBREAK\verb|   unsigned n )|
-\LABEL{STRNCPY_OF_GEN64} \\[1ex]
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen32 v )|
+\LABEL{MIN::STRLEN_OF_GEN32} \\
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen64 v )|
+\LABEL{MIN::STRLEN_OF_GEN64} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen32 s )|
+\LABEL{MIN::STRHASH_OF_GEN32} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen64 s )|
+\LABEL{MIN::STRHASH_OF_GEN64} \\
+\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen32 s )|
+\LABEL{MIN::STRSIGNATURE_OF_GEN32} \\
+\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen64 s )|
+\LABEL{MIN::STRSIGNATURE_OF_GEN64} \\
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen32 s )|
+\LABEL{MIN::STRCPY_OF_GEN32} \\
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen64 s )|
+\LABEL{MIN::STRCPY_OF_GEN64} \\
+\verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
+                      \verb| ( char * p,|\ARGBREAK
+		      \verb|   min::gen32 s, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_GEN32} \\
+\verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
+		      \verb| ( char * p,|\ARGBREAK
+		      \verb|   min::gen64 s, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_GEN64} \\[1ex]
 
-\verb|int min::| & \MINKEY{is\_string}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_STRING} \\
-\verb|int min::| & \MINKEY{is\_string}\verb| ( min::gen64 v )|
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen32 v )|
+\LABEL{MIN::IS_STR_OF_GEN32} \\
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen64 v )|
 \\[1ex]
 
 \verb|min::gen32 min::| &
-    \MINKEY{new\_string\_gen32\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_STRING_GEN32} \\
+    \MINKEY{new\_str\_gen32\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_STR_GEN32} \\
 \verb|min::gen64 min::| &
-    \MINKEY{new\_string\_gen64\REL} \verb| ( const char * p )|
+    \MINKEY{new\_str\_gen64\REL} \verb| ( const char * p )|
 \\
 
 \end{tabular}
@@ -1752,38 +1754,38 @@ String Stub Unprotected Declarations:
 \begin{tabular}{@{}r@{}p{4.0in}}
 
 \verb|min::uns64 MUP::| &
-	\MUPKEY{short\_string\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::SHORT_STRING_OF} \\[1ex]
+	\MUPKEY{short\_str\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::SHORT_STR_OF} \\[1ex]
 
 \verb|void MUP::| &
-    \MUPKEY{set\_short\_string\_of}\ARGBREAK
+    \MUPKEY{set\_short\_str\_of}\ARGBREAK
     \verb| ( min::stub * s, min::uns64 str )|
-\LABEL{MUP::SET_SHORT_STRING_OF} \\[1ex]
+\LABEL{MUP::SET_SHORT_STR_OF} \\[1ex]
 
-\verb|min::long_string * MUP::| &
-	\MUPKEY{long\_string\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::LONG_STRING_OF} \\
-\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_string * str )|
-\LABEL{LENGTH_OF_LONG_STRING} \\
-\verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_string * str )|
-\LABEL{HASH_OF_LONG_STRING} \\
-\verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_string * str )|
-\LABEL{SIGNATURE_OF_LONG_STRING} \\
-\verb|const char * | & \TTKEY{char\_of}\verb| ( min::long_string * str )|
-\LABEL{CHAR_OF_LONG_STRING} \\[1ex]
+\verb|min::long_str * MUP::| &
+	\MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::LONG_STR_OF} \\
+\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_str * str )|
+\LABEL{LENGTH_OF_LONG_STR} \\
+\verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_str * str )|
+\LABEL{HASH_OF_LONG_STR} \\
+\verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_str * str )|
+\LABEL{SIGNATURE_OF_LONG_STR} \\
+\verb|const char * | & \TTKEY{str\_of}\verb| ( min::long_str * str )|
+\LABEL{STR_OF_LONG_STR} \\[1ex]
 
-\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_string * str )|
-\LABEL{MUP::HASH_OF_LONG_STRING} \\
-\verb|char * MUP::| & \MUPKEY{char\_of}\verb| ( min::long_string * str )|
-\LABEL{MUP::CHAR_OF_LONG_STRING} \\
+\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::HASH_OF_LONG_STR} \\
+\verb|char * MUP::| & \MUPKEY{str\_of}\verb| ( min::long_str * str )|
+\LABEL{MUP::STR_OF_LONG_STR} \\
 \verb|void MUP::| &
    \MUPKEY{set\_length\_of}\ARGBREAK
-   \verb| ( min::long_string * str,|\ARGBREAK\verb|   unsigned length )|
-\LABEL{MUP::SET_LENGTH_OF_LONG_STRING} \\
+   \verb| ( min::long_str * str,|\ARGBREAK\verb|   unsigned length )|
+\LABEL{MUP::SET_LENGTH_OF_LONG_STR} \\
 \verb|void MUP::| &
    \MUPKEY{set\_hash\_of}\ARGBREAK
-    \verb| ( min::long_string * str,|\ARGBREAK\verb|   unsigned hash )|
-\LABEL{MUP::SET_HASH_OF_LONG_STRING} \\[1ex]
+    \verb| ( min::long_str * str,|\ARGBREAK\verb|   unsigned hash )|
+\LABEL{MUP::SET_HASH_OF_LONG_STR} \\[1ex]
 
 
 \end{tabular}
