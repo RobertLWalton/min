@@ -69,23 +69,25 @@
      $^{\mbox{#1}}$#2}}
     % Change notice.
 
-\newcommand{\key}[1]{{\em #1}\index{#1}}
-\newcommand{\mkey}[2]{{\em #1}\index{#1!#2}}
-\newcommand{\skey}[2]{{\em #1#2}\index{#1}}
-\newcommand{\ikey}[2]{{\em #1}\index{#2}}
-\newcommand{\ttkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
-\newcommand{\ttmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttfkey}[2]{{\tt #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
-\newcommand{\ttakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
-\newcommand{\ttamkey}[3]{{\tt #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\key}[1]{{\bf \em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
+\newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
+% < and > do not work for \tt \bf, hence:
+\newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
-\newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
+\newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
 
-\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
-\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
-\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\secref}[1]{\ref{#1}\,p\pageref{#1}}
+\newcommand{\stepref}[1]{\ref{#1}\,p\pageref{#1}}
+\newcommand{\appref}[1]{\ref{#1}\,p\pageref{#1}}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -225,7 +227,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{August 28, 2004}
+\date{February 3, 2005}
  
 \maketitle
 
@@ -277,7 +279,7 @@ character (\ttmkey{\UNDERLINE}{letter}) is a letter.
 A period (\ttmkey{.}{letter})
 is a letter if it is followed by a letter; similarly an exclamation
 mark (\ttmkey{!}{letter}) is a letter if it is followed by a letter,
-and an appostrophe (\ttmkey{'}{letter}) is a letter if it
+and an apostrophe (\ttmkey{'}{letter}) is a letter if it
 is followed by a letter.
 E.g., \verb|.separator|, \verb|!set|, and \verb|it's| are words.
 
@@ -311,7 +313,7 @@ dollar sign (\ttmkey{\$}{mark character}),
 percent sign (\ttmkey{\%}{mark character}),
 circumflex (\ttmkey{\CIRCUMFLEX}{mark character}),
 ampersand (\ttmkey{\&}{mark character}),
-asterix (\ttmkey{*}{mark character}),
+asterisk (\ttmkey{*}{mark character}),
 minus sign (\ttmkey{-}{mark character}),
 plus sign (\ttmkey{+}{mark character}),
 equal sign (\ttmkey{=}{mark character}),
@@ -344,7 +346,7 @@ An underline (\ttmkey{\UNDERLINE}{letter}) is a letter.
 A \ttmkey{.}{letter}\index{.@{\tt .}!decimal point}
 is a decimal point if followed by a digit, a letter if followed
 by another letter, and a mark character otherwise.  E.g., {\tt 0.123} is
-a number with a decimal pointer, {\tt .terminator} is a word beginning with
+a number with a decimal point, {\tt .terminator} is a word beginning with
 a letter, and {\tt `Hello.'} contains the word {\tt Hello}
 followed by the \verb|.| mark.
 
@@ -372,7 +374,7 @@ See~\pagref{ESCAPE-SEQUENCES} for details on escape sequences.
 
 White-space characters, the \key{space character}, the \key{tab character},
 the \key{new line character}, the \key{form feed character}, and the
-\key{vertical tab} character are used to separate lexemes.  The space
+\key{vertical tab} character, are used to separate lexemes.  The space
 character can be used to represent a single space inside quoted strings.
 The tab character is always equivalent to one or more space characters,
 with tabs set every 8 columns.
@@ -382,8 +384,75 @@ strings, see~\secref{QUOTED-STRINGS}.
 \subsection{Quoted Strings}
 \label{QUOTED-STRINGS}
 
-TBD
-\label{ESCAPE-SEQUENCES}
+A \key{quoted-string} consists of a sequence of
+\skey{character representative}s
+surrounded by double quotes (\verb|"|\index{""@{\tt ""}}).  A non-whitespace
+character other than quote (\verb|"|) or backslash (\verb|\|)
+can be used to represent itself.  The single space character can be used
+to represent itself.  Any sequence of line feeds and carriage returns
+containing at least one line feed represents a single line feed.
+The other character representatives are called \skey{escape sequence}s,
+and consist of a backslash (\verb|\|\index{\\@{\tt \BACKSLASH}})
+followed by other characters.  The possible escape sequences are:
+
+\begin{center}
+\begin{tabular}{lp{4in}}
+\verb|\n| & new line \\
+\verb|\r| & carriage return \\
+\verb|\t| & horizontal tab \\
+\verb|\b| & backspace \\
+\verb|\f| & form feed \\
+\verb|\v| & vertical tab \\
+\verb|\\| & \verb|\| \\
+\verb|\"| & \verb|"| \\[1ex]
+\verb|\x|$hh$ & character with ASCII code $hh$ as a 2 digit
+		hexadecimal number \\[1ex]
+\verb|\|$ooo$ & character with ASCII code $ooo$ as a
+		3 digit octal number \\[1ex]
+\verb|\|{\em new-line} {\em white-space}
+		& the backslash, new line, and all following white space
+		  characters are replaced by a space character \\[1ex]
+\verb|\+|{\em new-line} {\em white-space}
+		& the backslash, {\tt +}, new line, and all following
+		  white space characters are deleted \\
+\end{tabular}
+\end{center}%
+\label{ESCAPE-SEQUENCES}%
+\index{n@{\tt \BACKSLASH n}}%
+\index{r@{\tt \BACKSLASH r}}%
+\index{t@{\tt \BACKSLASH t}}%
+\index{b@{\tt \BACKSLASH b}}%
+\index{f@{\tt \BACKSLASH f}}%
+\index{v@{\tt \BACKSLASH v}}%
+\index{\\2@{\BACKSLASH\BACKSLASH}}%
+\index{""2@{\tt \BACKSLASH""}}%
+\index{space character 2@{\BACKSLASH{\em space}}}%
+\index{x@{\tt \BACKSLASH x}$hh$}%
+\index{digit@{\BACKSLASH{\em digit}}}%
+\index{new line 2@{\BACKSLASH{\em new-line} {\em white-space}}}
+\index{+@{\BACKSLASH{\tt +} {\em new-line} {\em white-space}}}
+
+Tab characters in a quoted string
+represent one or more space characters, with tabs set
+every 8 columns.  Columns are counted with respect to the beginning
+of the line, and \underline{not} the beginning of the quoted string.
+
+Single space characters after a quoted string new line representative
+are removed up through the column containing the initial quote (\verb|"|)
+of the quoted string.  Thus
+
+\begin{indpar}\begin{verbatim}
+some text "This is a line.
+           And another line."
+\end{verbatim}\end{indpar}
+
+contains a quoted string that represents two lines, the first beginning
+with `\verb|This|' and second beginning with `\verb|And|'.  There is no
+whitespace at the beginning of the second represented line, as the whitespace
+at the beginning of its representing quoted string line is removed.
+The last removed whitespace column is that of the \verb|"| beginning the
+quoted string.
+
 
 \section{Data}
 
@@ -563,7 +632,7 @@ Thus in our example \verb|##1| has attributes named \verb|type|,
 \verb|name|, and \verb|husband| that have values, respectively,
 \verb|woman|, \verb|Jill|, and \verb|##2|.
 
-In the rest of this document we use the terminolgy of attributes,
+In the rest of this document we use the terminology of attributes,
 attribute name, and attribute values, in place of
 arrows, arrow labels, and arrow targets.
 An \key{attribute} of an object is just a single arrow sourced at the object,
@@ -911,9 +980,9 @@ priority & macro	& operators	& meaning
 \key{operator}{\em ($N$)} ::= operator of priority $N$:
 			      see Table~\ref{SPECIAL-LEXEMES}
 \\[1ex]
-{\em expression(10000)} ::= {\em atom} $|$ {\em bracketted-expression}
+{\em expression(10000)} ::= {\em atom} $|$ {\em bracketed-expression}
 \\[1ex]
-\key{bracketted-expression} \begin{tabular}[t]{@{}rl@{}}
+\key{bracketed-expression} \begin{tabular}[t]{@{}rl@{}}
 			    ::= & \verb|(| {\em expression} \verb|)| \\
 			    $|$ & \verb|[| {\em expression} \verb|]| \\
 			    $|$ & \verb|{| {\em code-expression} \verb|}| \\
@@ -1040,8 +1109,8 @@ macro finishes the parsing and returns a value which is just
 the parsed expression.
 
 In this case the \verb|.SUM| macro identifies \key{subexpressions},
-which are just the parts of the expession between lowest priority
-operators.  The subexpresssions in our example are \verb|x| and
+which are just the parts of the expression between lowest priority
+operators.  The subexpressions in our example are \verb|x| and
 \verb|5 * y|.  The \verb|.SUM| macro causes the subexpressions
 to be parsed and returns the value
 
@@ -1096,14 +1165,14 @@ terminator `\verb|.| to get a list which was returned as the result
 of the parse.
 The \verb|.terminator| attribute was added to this list to designate
 the particular terminator operator that appears in the expression
-(other possibilities are \verb|!| and \verb|?|).  A `decapitalization
+(other possibilities are \verb|!| and \verb|?|).  A `de-capitalization
 algorithm', \secref{DECAPITALIZATION}, is run that in this case
-decapitalizes `\verb|The|' to produce `\verb|the|' and the \verb|.initiator|
+de-capitalizes `\verb|The|' to produce `\verb|the|' and the \verb|.initiator|
 attribute of the list.
 
 In most cases, a parsed atom is just the atom itself.  However, when a quoted
-atom is parsed, the quotes are removed, a process called \key{dequoting}.
-Thus in the above example, the atom \verb|"."| when parsed is dequoted to
+atom is parsed, the quotes are removed, a process called \key{de-quoting}.
+Thus in the above example, the atom \verb|"."| when parsed is de-quoted to
 produce the atom \verb|.|.  This in turn, when represented
 in raw data, is represented by \verb|"."|, on the grounds that
 readers of raw data often also read cooked data, and distinguish between
@@ -1126,7 +1195,7 @@ the parsed values produced by standard operator definitions.
 \OP{`} ~~~ \OP{'} \MAC{quotes}{.QUOTE}
 
 \begin{indpar}[0.5em]
-The bracketted subexpression is parsed and the result
+The bracketed subexpression is parsed and the result
 is converted if necessary to a list without either a \verb|.initiator|
 or a \verb|.terminator| attribute.
 Then an \ttmkey{.initiator}{produced by parsing} attribute equal to
@@ -1308,7 +1377,7 @@ which is the sole immediate ancestor of our room.
 The \verb|outline| attribute value is used to compute a derived attribute
 named \verb|.video| which describes how the object is to be displayed
 graphically.
-The \verb|outline| attribue value is a program is written from the point
+The \verb|outline| attribute value is a program is written from the point
 of view of a robot moving around the outline of the room building walls.
 The robot follows a sequence of commands that are separated by commas.
 
@@ -1321,12 +1390,12 @@ of the \verb|.video| attribute of this object is needed.  Computation
 of the \verb|.video| attribute is be done by a function
 named {\tt .make .video}, which in this case is defined by {\tt standard
 room} which is an ancestor of \verb|##523|.
-If this function did not exist, compuation would done by the function
+If this function did not exist, computation would done by the function
 named {\tt .make}, which is globally defined, and which would attempt
 to evaluate the {\tt video} attribute (without the `\verb|.|') of
 \verb|##523| to produce this object's \verb|.video| attribute
 (with the `\verb|.|').  In any case, computation of an attribute AA
-can be done in a fashion taylored to what is being computed by defining a
+can be done in a fashion tailored to what is being computed by defining a
 `\verb|.make| AA' function in an object or one of its ancestors.
 
 In our case the \verb|.make .video| function evaluates
@@ -1372,18 +1441,18 @@ exist and have a value of the form
 
 This value means the expression we are reading should have next, after the
 word `{\tt straight}', a single argument.  An argument
-is either a single lexeme or a bracketted string of lexemes.  The argument
+is either a single lexeme or a bracketed string of lexemes.  The argument
 must be read, and perhaps evaluated and replaced by its value, which becomes
 the value of the \verb|w| argument of the `{\tt straight}' function.
 Then this function is evaluated.
 
-In our case `{\tt width}' follows `{\tt straight}'.  This is an unbracketted
+In our case `{\tt width}' follows `{\tt straight}'.  This is an unbracketed
 single lexeme argument, and as such must be evaluated and replaced by
 its value.  A search is made for an attribute whose name begins with
 `{\tt width}'.  The `{\tt width}' attribute of \verb|##523| is found,
 and as its value is a number,
 \verb|3.2|, that is the final value of the `{\tt width}' argument.
-Thus the command `{\tt straigth width}' has become `{\tt straight 3.2}',
+Thus the command `{\tt straight width}' has become `{\tt straight 3.2}',
 and this is then evaluated by executing the `{\tt straight}' function
 with \verb|w| equal to \verb|3.2|.  The result will be some command
 written into the {\tt .video} attribute of \verb|##523|.
@@ -1404,7 +1473,7 @@ argument value, in this case \verb|3.2|.
 A special feature of the MIN language is are dependency lists which
 can be used to figure out when to re-compute attribute values, such as
 the \verb|.video| attribute of \verb|##523|.  Each attribute X can have
-a dependency list which specifies all the other attibutes Y, Z, \ldots
+a dependency list which specifies all the other attributes Y, Z, \ldots
 whose values depend upon the value of X.  When the value of X is changed,
 the values of Y, Z, \ldots are marked `obsolete', which identifies them
 as needing to be recomputed.  Thus in the current case the \verb|width|
@@ -1422,7 +1491,7 @@ of \verb|##523|.  It is necessary to produce a name
 for \verb|##523| in an arbitrary natural language, such as English or
 French or Japanese, and this is what the `{\tt label}' attribute value does
 when it is evaluated.  This value is also a sequence of commands that
-provide desriptive information about the object which the natural language
+provide descriptive information about the object which the natural language
 engine can process to produce the desired text.  The `{\tt color green}'
 command invokes the `{\tt color}' function with an argument that is
 some object which is the value of the `{\tt green}' variable to
@@ -1455,7 +1524,7 @@ in order to specify \verb|##523|.
     evaluate ( EXPRESSION, CONTEXT ):
         if EXPRESSION is a single number atom:
             return atom
-        if EXPRESSION is `...' bracketted:
+        if EXPRESSION is `...' bracketed:
             return EXPRESSION without the `'s
         return search ( EXPRESSION, CONTEXT )
 
@@ -1487,7 +1556,7 @@ in order to specify \verb|##523|.
     execute ( EXPRESSION, CONTEXT, FUNCTION ):
         make a new function frame F
         for each argument name N in FUNCTION:
-            let A be the next atom or bracketted
+            let A be the next atom or bracketed
                 subexpression of EXPRESSION
             remove A from beginning of EXPRESSION
             let V = evaluate ( A, CONTEXT )
@@ -1504,7 +1573,7 @@ in order to specify \verb|##523|.
 
 \subsection{Expressions and Subexpressions}
 
-An \key{expression} is just a list of atoms and bracketted
+An \key{expression} is just a list of atoms and bracketed
 subexpressions:
 
 
