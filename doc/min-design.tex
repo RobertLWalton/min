@@ -2141,9 +2141,23 @@ The {\tt insert\_after} function inserts a list element just after the
 current position.  If the list pointer is at the end of list,
 {\tt insert\_before} inserts the element at the end of the list, and
 {\tt insert\_after} is an error.  The list pointer continues to point
-at the list element is pointed at before the element was inserted.
+at the list element it pointed at before the element was inserted.
 
-TBD: delete, affect of insert on other pointers
+If there are several list pointers pointing into a list,
+and one is used to insert an element after a element of the list,
+or to insert an element before the end of the list,
+the other list pointers are not affected.  In particular, other
+list pointers pointing at the end of the list will continue to point
+at the end of the list.  In addition, other lists pointers pointing
+into sublists of the list or superlists of the list are not affected.
+
+TBD
+
+If there are several list pointers pointing into a list,
+and one is used to insert an element X before a element Y of the list
+that is not the end of the list, any other list pointers pointing
+into the list or at the end of an empty sublist of the list may be
+affected in an undefined way.
 
 \subsubsubsection{Auxilary Stubs}
 \label{AUXILARY-STUBS}
