@@ -1,0 +1,384 @@
+% Minimal Descriptive Programming Language Design
+%
+% File:         min-design.tex
+% Author:       Bob Walton (walton@deas.harvard.edu)
+% Date:		See \date below.
+  
+\documentclass[12pt]{article}
+
+\usepackage{makeidx}
+\usepackage{pictex}
+
+\makeindex
+
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\raggedbottom
+
+\setlength{\unitlength}{1in}
+
+\pagestyle{headings}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{1ex}
+
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\newcommand{\subsubsubsection}[1]{\paragraph[#1]{#1.}}
+\newcommand{\subsubsubsubsection}[1]{\subparagraph[#1]{#1.}}
+
+% Begin \tableofcontents surgery.
+
+\newcount\AtCatcode
+\AtCatcode=\catcode`@
+\catcode `@=11	% @ is now a letter
+
+\renewcommand{\contentsname}{}
+\renewcommand\l@section{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\l@table{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\tableofcontents{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}}%
+    \item\@starttoc{toc}%
+    \end{list}}
+\renewcommand\listoftables{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}%
+	      }%
+    \item\@starttoc{lot}%
+    \end{list}}
+
+\catcode `@=\AtCatcode	% @ is now restored
+
+% End \tableofcontents surgery.
+
+\newcommand{\CN}[2]%	Change Notice.
+    {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
+     $^{\mbox{#1}}$#2}}
+    % Change notice.
+
+\newcommand{\key}[1]{{\em #1}\index{#1}}
+\newcommand{\mkey}[2]{{\em #1}\index{#1!#2}}
+\newcommand{\skey}[2]{{\em #1#2}\index{#1}}
+\newcommand{\ikey}[2]{{\em #1}\index{#2}}
+\newcommand{\ttkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
+\newcommand{\ttmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttfkey}[2]{{\tt #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+\newcommand{\ttakey}[2]{{\tt #1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{{\tt #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
+\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\emkey}[1]{{\em #1}\index{#1@{\em #1}}}
+\newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
+\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\pagref}[1]{p\pageref{#1}}
+
+\newcommand{\EOL}{\penalty \exhyphenpenalty}
+
+\newcount\TildeCatcode
+\TildeCatcode=\catcode`\~
+\catcode`~=12
+\newcommand{\Tilde}{~}
+\catcode`~=\TildeCatcode
+
+\newcount\CircumflexCatcode
+\CircumflexCatcode=\catcode`\^
+\catcode`^=12
+\newcommand{\Circumflex}{^}
+\catcode`^=\CircumflexCatcode
+
+\newcount\CurlyBraCatcode
+\newcount\CurlyKetCatcode
+\newcount\SquareBraCatcode
+\newcount\SquareKetCatcode
+\CurlyBraCatcode=\catcode`{
+\CurlyKetCatcode=\catcode`}
+\SquareBraCatcode=\catcode`[
+\SquareKetCatcode=\catcode`]
+
+\catcode`{=\SquareBraCatcode
+\catcode`}=\SquareKetCatcode
+\catcode`[=\CurlyBraCatcode
+\catcode`]=\CurlyKetCatcode
+
+\newcommand[\CurlyBra][{]
+\newcommand[\CurlyKet][}]
+
+\catcode`{=\CurlyBraCatcode
+\catcode`}=\CurlyKetCatcode
+\catcode`[=\SquareBraCatcode
+\catcode`]=\SquareKetCatcode
+
+\newcommand{\ttbrackets}{%
+    \renewcommand{\{}{\CurlyBra}%
+    \renewcommand{\}}{\CurlyKet}}
+
+\newsavebox{\TILDEBOX}
+\begin{lrbox}{\TILDEBOX}
+\verb|~|
+\end{lrbox}
+\newcommand{\TILDE}{\usebox{\TILDEBOX}}
+
+\newsavebox{\BACKSLASHBOX}
+\begin{lrbox}{\BACKSLASHBOX}
+\verb|\|
+\end{lrbox}
+\newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
+
+\newsavebox{\LEFTBRACKETBOX}
+\begin{lrbox}{\LEFTBRACKETBOX}
+\verb|{|
+\end{lrbox}
+\newcommand{\LEFTBRACKET}{\usebox{\LEFTBRACKETBOX}}
+
+\newsavebox{\RIGHTBRACKETBOX}
+\begin{lrbox}{\RIGHTBRACKETBOX}
+\verb|}|
+\end{lrbox}
+\newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
+
+\newsavebox{\UNDERLINEBOX}
+\begin{lrbox}{\UNDERLINEBOX}
+\verb|_|
+\end{lrbox}
+\newcommand{\UNDERLINE}{\usebox{\UNDERLINEBOX}}
+
+\newsavebox{\CIRCUMFLEXBOX}
+\begin{lrbox}{\CIRCUMFLEXBOX}
+\verb|^|
+\end{lrbox}
+\newcommand{\CIRCUMFLEX}{\usebox{\CIRCUMFLEXBOX}}
+
+\newsavebox{\BARBOX}
+\begin{lrbox}{\BARBOX}
+\verb/|/
+\end{lrbox}
+\newcommand{\BAR}{\usebox{\BARBOX}}
+
+\newsavebox{\LESSTHANBOX}
+\begin{lrbox}{\LESSTHANBOX}
+\verb/</
+\end{lrbox}
+\newcommand{\LESSTHAN}{\usebox{\LESSTHANBOX}}
+
+\newsavebox{\GREATERTHANBOX}
+\begin{lrbox}{\GREATERTHANBOX}
+\verb/>/
+\end{lrbox}
+\newcommand{\GREATERTHAN}{\usebox{\GREATERTHANBOX}}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.40in}
+
+\newsavebox{\figurebox}
+
+\newenvironment{boxedfigure}[1][!btp]%
+	{\begin{figure*}[#1]
+	 \begin{lrbox}{\figurebox}
+	 \begin{minipage}{\figurewidth}
+
+	 \vspace*{1ex}}%
+	{
+	 \vspace*{1ex}
+
+	 \end{minipage}
+	 \end{lrbox}
+	 \begin{center}
+	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
+	 \end{center}
+	 \end{figure*}}
+
+\newenvironment{indpar}[1][0.3in]%
+	{\begin{list}{}%
+		     {\setlength{\itemsep}{0in}%
+		      \setlength{\topsep}{0in}%
+		      \setlength{\parsep}{1ex}%
+		      \setlength{\labelwidth}{#1}%
+		      \setlength{\leftmargin}{#1}%
+		      \addtolength{\leftmargin}{\labelsep}}%
+	 \item}%
+	{\end{list}}
+
+\begin{document}
+        
+\title{Design\\[2ex]of the\\[2ex]
+       Minimal\\Descriptive Programming\\Language\\[2ex]MIN\\[2ex]
+       (Draft 1a)}
+
+\author{Robert L. Walton}
+
+\date{September 4, 2004}
+ 
+\maketitle
+
+\newpage
+\begin{center}
+\large \bf Table of Contents
+\end{center}
+
+\bigskip
+
+\tableofcontents 
+
+\newpage
+
+\section{Introduction}
+
+This document describes the internal design of MIN,
+the Minimal Descriptive Programming Language.
+This document is aimed at those who which to add C++ code
+to a MIN implementation, or who wish to maintain an implementation.
+
+
+\section{Data}
+
+We first describe MIN data memory.  We then give two interfaces
+to this memory: the protected interface, which can be used
+by C++ code to access MIN data memory while maintaining the integrety
+of that memory, and the unprotected interface, which provides
+more efficient access to MIN data memory but requires the user to
+follow certain protocols.
+
+\subsection{Stubs and Bodies}
+
+MIN data memory consists of regions that contain stubs and regions
+that contain bodies.  A region is a continguous multi-page block
+of memory.
+
+\ikey{Stubs}{stub}
+are small fixed size units of memory that cannot be relocated:
+the usual stub size for MIN is 16 bytes.
+Each object has a stub, and the address of the stub is in effect
+the internal name of the object.  Some or all atoms, depending
+on implementation, may have stubs.
+
+A stub is divided into an 8 byte value and an 8 byte control.
+The \mkey{value}{of stub} can hold an IEEE floating point number,
+an 8 character string, or, as we will soon see, a pointer to a body.
+It is also possible, though not common, for a value to hold any other
+8 bytes of information.
+
+The control holds a 1 byte type code and other information used,
+for example, by the garbage collector.
+
+A \key{body} is a variable sized relocatable block of memory
+attached to a particular stub.  A stub may have one body attached to
+it, in which case the stub value is a pointer to that body.
+At almost any time the body may be moved and the stub value reset to
+point at the new location of the body.  The body may be deallocated by
+moving it to unimplemented memory.  Bodies are always some multiple
+of 8 bytes long, and are allocated on 8 byte boundaries.
+
+\subsection{Stub Control}
+
+A stub contains an 8 byte value and an 8 byte \mkey{control}{of stub}.
+If the control is viewed as a 64 bit integer, its high order byte
+is the type code.  The high order bit of this, which is the high order
+bit of the 64 bit control integer, is off if the stub is managed by
+the garbage collector, and on otherwise.
+
+If the stub is managed by the garbage collector, the control is used
+exclusively by the garbage collector, except for the type code which
+is shared between the garbage collector and the rest of the system.
+In this case the stub is said to be `\key{collectable}'.  A typical
+garbage collector organization of the control of a collectable stub is:
+
+\begin{center}
+\begin{tabular}{ll}
+high order 8 bits:	& type code \\
+next 8 bits:		& gc flags \\
+low order 48 bits:	& chain pointer \\
+\end{tabular}
+\end{center}
+
+The chain pointer is used to build lists of allocated stubs which
+the garbage collector (gc) manages.
+
+If a stub is non-collectable, its control can be organized in different
+ways according to the type code value.  The standard way of organizing
+the control is:
+
+\begin{center}
+\begin{tabular}{ll}
+high order 8 bits:	& type code \\
+next 8 bits:		& subtype code \\
+low order 48 bits:	& chain pointer \\
+\end{tabular}
+\end{center}
+
+The main use of non-collectable stubs is as auxilaries.
+An `\key{auxilary}' is a non-collectable stub attached to an object.
+When the object is garbage collected, the auxilary is freed.  Auxilaries
+have two uses: first, as a means of adding memory to an object without
+relocating the object, and seconds, as a means of adding additional
+bodies to an object, since every body needs its own stub.
+
+An example use of an auxilary to add memory to an object is in the
+representation of double arrows.  The problem is that interally
+a double arrow value must both point at the object that is the
+arrow target and must also point at the label used by the target to
+a double arrow value.  E.g, given
+
+\begin{indpar}\begin{verbatim}
+##1::
+    fee: ##2 :fie
+
+##2::
+    fie: ##1 :fee
+\end{verbatim}\end{indpar}
+
+in which \verb|##1| and \verb|##2| are connected by a double
+arrow that has the \verb|##1| attribute name \verb|fee| 
+and the \verb|##2| attribute name \verb|fie|, then object \verb|##1|
+must store as its \verb|fee| attribute value \underline{both}
+the pointer to \verb|##2| that is the proper value of the attribute
+\underline{and} the label \verb|fie| used by \verb|##2| to reference
+the arrow in the other direction.  This is so that if the value of
+the \verb|fee| attribute of \verb|##1| is changed, the \verb|fie|
+attribute of \verb|##2| can be located and deleted.
+
+The mechanism used to store the double pointer is:
+
+\begin{indpar}\begin{verbatim}
+ +---------------------------------------------------------+
+ v                                                         |
+##1::                                                      |
+    fee: ---> auxilary 1:                                  |
+ +------------- value = ##2                                |
+ |              chain pointer ---> auxilary 2:             |
+ |                                   value = fie           |
+ |                                   chain pointer = NULL  |
+ v                                                         |
+##2::                                                      |
+    fie: ---> auxilary 3:                                  |
+                value = ##1 -------------------------------+
+                chain pointer ---> auxilary 3:
+                                     value = fee
+                                     chain pointer = NULL
+\end{verbatim}\end{indpar}
+
+\bibliographystyle{plain}
+\bibliography{min}
+
+\printindex
+
+\end{document}
+
+
+
