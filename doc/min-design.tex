@@ -230,8 +230,8 @@
 
 \newcommand{\LABEL}[1]{\label{#1}}
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
-\newcommand{\MINKEY}[1]{{\tt #1}\minindex{#1}}
-\newcommand{\MUPKEY}[1]{{\tt #1}\MUPindex{#1}}
+\newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
+\newcommand{\MUPKEY}[1]{{\tt \bf #1}\MUPindex{#1}}
 
 \newcommand{\REL}{$^R$}
 
@@ -1420,7 +1420,61 @@ the unused area.
 There are two kinds of objects: short and long.  A \key{short object}
 has a header that stores 16 bit unsigned sizes.  A \key{long object}
 has a header that stores 32 bit unsigned sizes.  Otherwise there is
-no difference between a short and a long object.
+no essential difference between a short and a long object.
+
+The protected functions
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen | & \TTKEY{getg}\verb| ( min::stub * s, min::gen name )|
+\LABEL{GETG_FROM_STUB} \\
+\verb|min::gen min::| & \MINKEY{getg}\verb| ( min::gen obj, min::gen name )|
+\LABEL{MIN::GETG} \\
+\verb|min::gen | & \TTKEY{geti}\verb| ( min::stub * s, int index )|
+\LABEL{GETI_FROM_STUB} \\
+\verb|min::gen min::| & \MINKEY{geti}\verb| ( min::gen obj, int index )|
+\LABEL{MIN::GETI} \\
+\end{tabular}\end{center}
+
+read an attribute value given an attribute name and an object.  The object
+can be specified by either giving a pointer to its stub or by
+giving a \verb|min:gen| value that points to the stub.  The name can be
+specified either by giving a \verb|min::gen| value or by giving
+an \verb|int| if the name is an integer index.  The function names indicate
+the type of name given, as the types themselves are both numeric and may
+lead to overloaded function confusion.  If there is no
+attribute of the object with the given name, these functions return the
+value
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|const min::gen min::| & \MINKEY{MISSING}
+\LABEL{MIN::MISSING}
+\end{tabular}\end{center}
+
+which is a special atom not equal to any number or character string.
+
+Attribute values can be set by the protected functions
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void | &
+    \TTKEY{putg}\verb| ( min::stub * s, min::gen name, min::gen value )|
+\LABEL{PUTG_TO_STUB} \\
+\verb|void min::| &
+    \MINKEY{putg}\verb| ( min::gen obj, min::gen name, min::gen value )|
+\LABEL{MIN::PUTG} \\
+\verb|void | &
+    \TTKEY{puti}\verb| ( min::stub * s, int index, min::gen value )|
+\LABEL{PUTI_TO_STUB} \\
+\verb|void min::| &
+    \MINKEY{puti}\verb| ( min::gen obj, int index, min::gen value )|
+\LABEL{MIN::PUTI} \\
+\end{tabular}\end{center}
+
+that set the attribute's value given the attribute's name and an object.
+The object and name can be specified as for the get functions.
+If the attribute
+value is given as \verb|min::MISSING|, the attribute is deleted from the
+object it the attribute previously had a value.  It is never an error
+if the attribute did not previously have a value.
 
 \subsubsection{Auxilary Pointers}
 \label{AUXILARY-POINTERS}
