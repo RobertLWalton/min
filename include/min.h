@@ -2,7 +2,7 @@
 //
 // File:	min_data.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Sep  3 10:03:20 EDT 2004
+// Date:	Sat Sep  4 05:41:12 EDT 2004
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/03 15:59:11 $
+//   $Date: 2004/09/04 16:12:21 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 # define MIN_COMPACT_DATA 1
 # define MIN_32_BIT_INT int
 # define MIN_64_BIT_INT long long
 # define MIN_BIG_ENDIAN 0
+# define MIN_POINTER_LENGTH 32
 
 struct min {
 
@@ -40,10 +41,6 @@ struct min {
     struct body;
 
 
-// If we have compact data, the 64 bit value is over-
-// loaded as an IEEE floating point number or as a 16
-// bit type fixed header with a 48 bit value.
-//
 # if MIN_COMPACT_DATA
 
     // A general datum can hold either an IEEE 64 bit
@@ -112,9 +109,17 @@ struct min {
 	union {
 	    float64 f;
 	    char c[8];
-	    body * p;
 	    uns64 u;
 	    int64 i;
+	    struct {
+#		if MIN_BIG_ENDIAN
+		    uns32 hi;
+		    uns32 lo;
+#		else
+		    uns32 lo;
+		    uns32 hi;
+#		endif
+	    } s;
 	} v; // value
 
 	union {
@@ -124,9 +129,9 @@ struct min {
 		    uns8 t; // type
 		    uns8 st; // subtype
 		    uns16 s;
-		    uns32 u;
+		    uns32 lo;
 #		else
-		    uns32 u;
+		    uns32 lo;
 		    uns16 s;
 		    uns8 st; // subtype
 		    uns8 t; // type
@@ -146,8 +151,16 @@ struct min {
     inline uns64 get_uns64 ( const stub * p ) {
         return p->v.u;
     }
+    inline void get_string
+	    ( char v[8], const stub * p ) {
+        * (uns64 *) v = p->v.u;
+    }
     inline body * get_body ( const stub * p ) {
-        return p->v.p;
+#	if MIN_POINTER_LENGTH == 32
+	    return (body *) p->v.s.lo;
+#	else
+	    return (body *) p->v.u;
+#	endif
     }
 
     // Put value into a stub.
@@ -161,8 +174,16 @@ struct min {
     inline void put_int64 ( stub * p, int64 v ) {
         p->v.i = v;
     }
+    inline void put_string ( stub * p, char v[8] ) {
+        p->v.u = * (uns64 *) v;
+    }
     inline void put_body ( stub * p, body * v ) {
-        p->v.p = v;
+#	if MIN_POINTER_LENGTH == 32
+	    p->v.s.hi = 0;
+	    p->v.s.lo = (uns32) v;
+#	else
+	    p->v.u = (uns64) v;
+#	endif
     }
 
     // Get type, chain, etc. from a stub.
@@ -174,7 +195,10 @@ struct min {
         return p->g.s.st;
     }
     inline stub * get_chain ( const stub * p ) {
-        return (stub *) (unsigned)
-	       ( p->g.u & 0xFFFFFFFFFFFF );
+#	if MIN_POINTER_LENGTH == 32
+	    return (stub *) p->g.s.lo;
+#	else
+	    return (stub *) ( p->g.u & 0xFFFFFFFFFFFF );
+#	endif
     }
 };
