@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Sep  6 07:37:33 EDT 2004
+// Date:	Wed Sep  8 12:33:38 EDT 2004
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/06 12:10:47 $
+//   $Date: 2004/09/08 17:21:48 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 # ifndef MIN_H
 
@@ -167,14 +167,26 @@ struct min {
 
     struct long_string
     {
+        union {
+	    uns8 small_length;
+	    uns32 large_length;
+	} u;
     };
 
     struct short_object
     {
+        uns16	maximum_list_length;
+        uns16	list_length;
+        uns16	maximum_hash_length;
+        uns16	hash_length;
     };
 
     struct long_object
     {
+        uns32	maximum_list_length;
+        uns32	list_length;
+        uns32	maximum_hash_length;
+        uns32	hash_length;
     };
 
     // Get non-pointer values from a stub.
