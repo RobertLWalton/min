@@ -1268,13 +1268,36 @@ A \key{long string stub}\label{LONG-STRING-STUB} has
 a value that is a pointer to a \minkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
 The following functions respectively return a relocatable pointer to this body,
-the length of the string, a 32-bit non-zero hash value computed from
-the string, a 64-bit signature for the string,
+the length of the string, a 32-bit non-zero \mkey{hash value}{of string}
+computed from the string, a 64-bit signature for the string,
 and a relocatable pointer to the string.  If the hash value
 has not been previously accessed, it is computed and saved in the
 string by the function that returns it, causing that function to
 take time proportional to the string length.  The 64-bit signature
 contains the hash value and the string length.
+
+A string hash value is computed according to the following machine
+independent algorithm:
+
+\begin{indpar}\begin{verbatim}
+hash = 0
+n = length of string
+for i = 1 through n:
+    c = i'th character of string as unsigned 8 bit integer
+    hash = ( hash << 5 ) + c
+    hash = ( hash >> 32 ) + hash
+    hash = hash % ( 2**32 )
+\end{verbatim}\end{indpar}
+
+where \verb|<<| and \verb|>>| are left and right shifts of unsigned
+integers, \verb|%| is the `mod' operation, and \verb|**| is exponentiation.
+
+The following is an unprotected function to return a pointer to the
+a long string body, and several protected functions to return parts
+of that body.\footnote{Of course these protected functions cannot be used
+until the unprotected function has been used.  These protected functions
+are protected only in the sense that they introduce no
+\underline{additional} protection issues.}
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::long_str * MUP::| &
@@ -1365,10 +1388,14 @@ input has 8 or fewer characters, a short stub is created: otherwise
 a long stub is created.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void min::stub * min::|
-	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
-\LABEL{MIN::NEW_STR} \\
+\verb|void min::stub * MUP::|
+	& \MUPKEY{new\_str\REL}\verb| ( const char * p )|
+\LABEL{MUP::NEW_STR} \\
 \end{tabular}\end{center}
+
+This function is unprotected only because it always creates a new stub,
+and does not attempt to return any previously created string stub whose
+string equals the argument.
 
 The following are protected functions with same definitions as above but
 with general value arguments.  The general values must hold a
@@ -1897,9 +1924,9 @@ struct min
 	\verb|   min::stub * s, unsigned n )|
 \LABEL{STRNCPY} \\[1ex]
 
-\verb|void min::stub * min::|
-	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
-\LABEL{MIN::NEW_STR} \\[1ex]
+\verb|void min::stub * MUP::|
+	& \MUPKEY{new\_str\REL}\verb| ( const char * p )|
+\LABEL{MUP::NEW_STR} \\[1ex]
 
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
