@@ -225,7 +225,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{August 26, 2004}
+\date{August 27, 2004}
  
 \maketitle
 
@@ -937,33 +937,304 @@ A cooked data representation has the syntax given
 in Table~\ref{DATA-REPRESENTATION-SYNTAX} and is based on the
 special lexemes given in Table~\ref{SPECIAL-LEXEMES}.
 
-Cooked data representations differ from raw data representations
-in that cooked data representations contain {\em expressions}.
-An {\em expression} is a list of atoms, bracketted subexpressions,
-and operators.
+The difference between cooked data and raw data is the presence
+of expressions.  An expression is parsed to produce an atom or
+an object which is called the \key{parsed expression}.
+If the expression is part of a
+{\em cooked-attribute-representation}, the atom or object becomes
+the value of the attribute.  For example, the cooked representation
 
-\secref{OPERATOR-EXPRESSIONS} describes how to preprocess
-expressions containing operators to produce expressions not containing
-operators.  Expressions bracketted with curly brackets \verb|{ }| are
-pre-processed as explained in \secref{CODE-EXPRESSIONS} to remove
-\verb|:| lexemes and insert \verb|{|, \verb|}|, and \verb|;| lexemes.
-In the rest of this section we will assume all preprocessing has been
-done, and {\em expressions} are just lists of {\em atoms} and
-{\em bracketted-subexpressions}.
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: This is a sentence.
+    expression B: x + 8
+\end{verbatim}\end{indpar}
 
-After being read, expressions are expanded by calling macros.  A macro
-is a piece of code that computes the true value of an expression from
-the expression that is read.
+is equivalent to the raw representation
 
-For example, the expression
+\begin{indpar}\begin{verbatim}
+##401::
+    text A: ##402
+    expression B: ##403
+##402::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+##403::
+    1: "+"
+    2: x
+    3: 8
+\end{verbatim}\end{indpar}
 
-\subsection{Operator Expressions}
-\label{OPERATOR-EXPRESSIONS}
+If the expression immediately follows
+an {\em object-header}, and is before any {\em attribute-representa\-tions}
+in the {\em object-representation}, then if the parsed expression is
+an object, the attributes of the object produced are copied to become
+attributes of the object represented, and if parsed expression is
+an atom, the atom becomes the value of the represented object attribute
+named `\ttmkey{1}{defined in cooked representation}'.  For example,
+the cooked representation
 
-\subsection{Code Expressions}
-\label{CODE-EXPRESSIONS}
+\begin{indpar}\begin{verbatim}
+##410:: This is a sentence.
+        x: 5
+\end{verbatim}\end{indpar}
 
-TBD
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##410::
+    1: this
+    2: is
+    3: a
+    4: sentence
+    .initiator: capital
+    .terminator: "."
+    x: 5
+\end{verbatim}\end{indpar}
+
+and the cooked representation
+
+\begin{indpar}\begin{verbatim}
+##411:: hi
+        x: 5
+\end{verbatim}\end{indpar}
+
+is equivalent to the raw representation
+
+\begin{indpar}\begin{verbatim}
+##411::
+    1: hi
+    x: 5
+\end{verbatim}\end{indpar}
+
+The precise algorithm used in parsing is described below in
+\secref{PARSING}.
+
+\subsection{Standard Representations}
+\label{STANDARD-REPRESENTATIONS}
+
+In this section we describe how standard operators parse.
+Subsequent sections describe how to introduce user defined
+operators or change standard parsing.
+
+We first introduce some terminology by giving some examples.
+
+Consider the expression
+
+\begin{center}
+\verb|- x + 5 * y|
+\end{center}
+
+The first step in parsing an expression is to identify all the
+operators of lowest priority in the expression.  In our example,
+there are \verb|-| and \verb|+| which have priority +3000, while
+the operator \verb|*| with the higher priority +3100 is ignored.
+The next step is to identify the macros associated with the lowest
+priority operators.  In this case the macro is \verb|.SUM|.  Then
+this macro is called with the expression as its arguments, and the
+macro finishes the parsing and returns a value which is just
+the parsed expression.
+
+In this case the \verb|.SUM| macro identifies \key{subexpressions},
+which are just the parts of the expession between lowest priority
+operators.  The subexpresssions in our example are \verb|x| and
+\verb|5 * y|.  The \verb|.SUM| macro causes the subexpressions
+to be parsed and returns the value
+
+\begin{center}
+\verb/+ (| - /result-of-parsing-`\verb|x|'\verb/ |) + /result-of-%
+	parsing-`\verb|5 * y|'
+\end{center}
+
+where \verb/(|   |)/ denote implied parentheses: that is, parentheses
+that do not appear in the original expression.  This returned result
+is the same as the objects represented by the raw data
+
+\begin{indpar}
+\verb|##510::|\\
+\verb|    1: +|\\
+\verb|    2: ##511|\\
+\verb|    3: |result-of-parsing-`\verb|5 * y|'\\
+\verb|##511::|\\
+\verb|    1: -|\\
+\verb|    2: |result-of-parsing-`\verb|x|'
+\end{indpar}
+
+except, of course, the actual object numbers might be different when
+the expression was actually parsed.
+
+Now consider the expression
+
+\begin{center}
+\verb|The "." is a terminator.|
+\end{center}
+
+In this the second \verb|.| is an operator, the only operator in the
+expression, and its associated macro \verb|.SENTENCE| is called to expand
+the expression and produces a parsed expression that could be
+described by the raw data
+
+\begin{indpar}\begin{verbatim}
+##520::
+    1: the
+    2: "."
+    3: is
+    4: a
+    5: terminator
+    .initiator: capital
+    .terminator: "."
+\end{verbatim}\end{indpar}
+
+where the object number \verb|510| would probably be different in any
+actual parse.  What has happened is that the \verb|.SENTENCE| macro
+parsed the subexpression consisting of everything but the
+terminator `\verb|.| to get a list which was returned as the result
+of the parse.
+The \verb|.terminator| attribute was added to this list to designate
+the particular terminator operator that appears in the expression
+(other possibilities are \verb|!| and \verb|?|).  A `decapitalization
+algorithm', \secref{DECAPITALIZATION}, is run that in this case
+decapitalizes `\verb|The|' to produce `\verb|the|' and the \verb|.initiator|
+attribute of the list.
+
+In most cases, a parsed atom is just the atom itself.  However, when a quoted
+atom is parsed, the quotes are removed, a process called \key{dequoting}.
+Thus in the above example, the atom \verb|"."| when parsed is dequoted to
+produce the atom \verb|.|.  This in turn, when represented
+in raw data, is represented by \verb|"."|, on the grounds that
+readers of raw data often also read cooked data, and distinguish between
+raw and cooked by the presence of operators, so in raw data potential
+cooked operators should be protected by quoting them.
+
+With the terminology we have just introduced in mind, the following are
+the parsed values produced by standard operator definitions.
+
+\begin{indpar}[1em]
+
+\newcommand{\OP}[1]{\ttmkey{#1}{parsing}}
+\newcommand{\MAC}[2]{\hfill #1, \ttmkey{#2}{parsing macro}}
+
+\bigskip
+
+\OP{.} ~~~ \OP{!} ~~~ \OP{?} \MAC{terminators}{.SENTENCE}
+
+\begin{indpar}[0.5em]
+Terminators may not be consecutive, may not begin an expression,
+and must end an expression.  Thus each between-terminator subexpression
+is non-empty and is followed by a terminator.
+Each between-terminator subexpression is parsed and converted if necessary
+to a list.  Then a \ttmkey{.terminator}{produced by parsing}
+attribute is added to this list whose value is the terminator following the
+subexpression.  If there is only one subexpression, the list it produces
+is the parse result.  Otherwise the result is the list of all the subexpression
+lists.
+\end{indpar}
+
+\bigskip
+
+\OP{;} \MAC{subsentence separator}{.SUBSENTENCE}
+
+\begin{indpar}[0.5em]
+Each between-separator subexpression (which may be empty) is parsed.
+If empty, a subexpression parses to the empty object
+(an object with no attributes).
+There will be at least two subexpressions: one following
+the last separator and one preceding the first separator.
+A list of all the subexpression
+parses is made, is given a \ttmkey{.separate}{produced by parsing}
+attribute with value \verb|";"|, and is returned as the result of
+the parse.
+\end{indpar}
+
+\OP{,} \MAC{phrase separator}{.PHRASE}
+
+\begin{indpar}[0.5em]
+Each between-separator subexpression (which may be empty) is parsed.
+If empty, a subexpression parses to the empty object
+(an object with no attributes).
+There will be at least two subexpressions: one following
+the last separator and one preceding the first separator.
+A list of all the subexpression
+parses is made, is given a \ttmkey{.separate}{produced by parsing}
+attribute with value \verb|","|, and is returned as the result of
+the parse.
+\end{indpar}
+
+\bigskip
+
+\OP{if} ~~~ \OP{then} ~~~ \OP{else} \MAC{conditional operators}{.CONDITIONAL}
+
+\begin{indpar}[0.5em]
+Expressions with conditional operators must have the syntax:
+
+\begin{indpar}[0.5em]
+\key{conditional-expression} ::=
+    \begin{tabular}[t]{@{}l@{}}
+    \ttmkey{if}{in {\em conditional-expression}}
+	{\em subexpression}
+        \ttmkey{then}{in {\em conditional-expression}}
+        {\em subexpression}
+    \\
+    \{ \verb|else if|
+	{\em subexpression}
+        \ttmkey{then}{in {\em conditional-expression}}
+        {\em subexpression}
+    \}\ldots \\
+    \ttmkey{else}{in {\em conditional-expression}}
+	{\em subexpression}
+    \end{tabular}
+\end{indpar}
+
+where any {\em subexpression} may be empty.
+
+\end{indpar}
+
+\bigskip
+
+\OP{+} ~~~ \OP{-} \MAC{addition operators}{.SUM}
+
+\begin{indpar}[0.5em]
+Addition operators may not be consecutive and may not end an expression.
+Between operator subexpressions are parsed, and the results rewritten using
+the binary summation function \verb|+| and the unary negation function
+\verb|-|.  Association is to the left:
+\verb|x+y+z|$\Rightarrow$(\verb|+| (\verb|+ x y|) \verb|z|).  E.g.:
+
+\begin{indpar}[0.5em]
+\verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
+\verb|+| (\verb|+| (\verb|+| (\verb|-x|) \verb|y|) \verb|z|) (\verb|- w|)
+\end{indpar}
+\end{indpar}
+
+\bigskip
+
+\OP{*} ~~~ \OP{/} \MAC{multiplication operators}{.PRODUCT}
+
+\begin{indpar}[0.5em]
+The two different multiplication operators may not be mixed in the same
+expression.
+Multiplication operators may not be consecutive and may neither begin
+nor end an expression.
+Between operator subexpressions are parsed, and the results rewritten using
+the binary multiplication function \verb|*| or the binary division function
+\verb|/|.  Association is to the left.  E.g.:
+
+\begin{indpar}[0.5em]
+\verb|x / y / z| ~~~ $\Longrightarrow$ ~~~
+\verb|/| (\verb|/ x y| ) \verb|z|
+\end{indpar}
+\end{indpar}
+
+
+\end{indpar}
+
+
+\subsection{Parsing}
+\label{PARSING}
 
 \section{Evaluation}
 
