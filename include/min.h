@@ -11,9 +11,13 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/04 16:12:21 $
+//   $Date: 2004/09/06 09:18:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
+
+struct min {
+    struct data;
+};
 
 # define MIN_COMPACT_DATA 1
 # define MIN_32_BIT_INT int
@@ -21,7 +25,7 @@
 # define MIN_BIG_ENDIAN 0
 # define MIN_POINTER_LENGTH 32
 
-struct min {
+struct min::data {
 
     typedef unsigned char uns8;
     typedef signed char int8;
