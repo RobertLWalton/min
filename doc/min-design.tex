@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 28, 2004}
+\date{December 29, 2004}
  
 \maketitle
 
@@ -1561,7 +1561,8 @@ All sizes are in units of \verb|min::gen| values.  Aside from its header,
 the object body is just a vector of \verb|min::gen| values.  The total
 size does \underline{not} include the header.
 
-The data structure of an object body can be viewed at any of three levels.
+The data structure of an object body can be viewed at any of three levels:
+vector level, list level, and attribute level.
 
 At the \key{vector level}, the body is a header followed by
 a \key{body vector} of \verb|min::gen| values.
@@ -1590,25 +1591,52 @@ the help of the three flavors of auxilary pointers:
 \key{sublist pointer}	& A sublist starts at the target of the sublist
 			  pointer. \\
 \minkey{LIST\_END}	& The list ends here.  This actually equals a
-			  list pointer with zero value.
+			  list pointer with zero value. \\
+\minkey{EMPTY\_LIST}	& Denotes a list element that is an empty list.
+			  This actually equals a sublist pointer with
+			  zero value.
 \end{tabular}
 \end{center}
 
 Each hash table entry begins a list, as does each object vector entry.
-If the beginning of the list is \verb|min::LIST_END|, the list is
+If the beginning of the list is \verb|min::LIST_END| value, the list is
 empty.
 If the beginning of the list is a non-auxilary-pointer \verb|min::gen|
 value, the list consists of one element which equals just that value.
+If the beginning of the list is a \verb|min::EMPTY_LIST| value, the
+the list consists of one element which equals just an empty sublist.
 If the beginning of the list is a sublist pointer, the list consists
 of one element which equals the sublist pointed at by the sublist pointer.
 Otherwise the beginning of the list is a list pointer that points at the
-beginning of the list.
+location of the first list element.
 
 Given the location of a list element, the value of the list element
 can be a non-auxilary-pointer \verb|min::gen| value, a sublist pointer
-pointing at a sublist which equals the element, a list pointer pointing
-at a continuation of the list, or \verb|min::LIST_END| indicating the
-there is no element because the list ends.
+pointing at a sublist which equals the element,
+a \verb|min::EMPTY_LIST| value denoting an element that is an empty
+sublist, a list pointer pointing at a continuation of the list,
+or \verb|min::LIST_END| indicating the there is no element because
+the list ends.
+
+At the \key{attribute level}, the object is a set of attribute name/value
+pairs.  If the name is an unsigned integer small enough to index an
+object vector element, then the value is stored in the object vector element
+indexed by the name.  If the name is a double arrow name pair whose
+first component is an unsigned integer small enough to index an object
+vector element, then that object vector element is set to the representation
+of a list of two elements, the first being the name pair, and the second
+being the attribute value.
+
+Otherwise the attribute name/value pair is stored in
+the hash table.  Each hash table entry represents a list whose elements
+alternate between attribute names and attribute values.  Thus there are
+an even number of elements of a hash table entry list, and in each pair
+of elements, the attribute name is first, and the corresponding attribute
+value is second.  Sublists are not used at the attribute level.
+Double arrows are stored by storing their name pair where the attribute
+name would normally be.
+
+
 
 
 TBD
