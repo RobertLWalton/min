@@ -581,7 +581,7 @@ indicated subtype and {\tt 0} otherwise:
 \verb|int min::| & \verb|is_float64 ( min::gen64 v )|
 \label{MIN::IS_FLOAT64} \\
 \verb|int min::| & \verb|is_str ( min::gen64 v )|
-\label{MIN::IS_STRING} \\
+\label{MIN::IS_STR} \\
 \verb|int min::| & \verb|is_stub ( min::gen64 v )|
 \label{MIN::IS_STUB_OF_GEN64} \\
 \verb|int min::| & \verb|is_aux ( min::gen64 v )|
@@ -898,7 +898,7 @@ programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 \subsection{Number Stubs}
 \label{NUMBER-STUBS}
 
-A \key{number stub} has \minkey{NUMBER}\label{NUMBER-TYPE} type code and
+A \key{number stub} has \minkey{NUMBER}\label{NUMBER-TYPE} stub type code and
 an immutable \verb|min::float64| value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -927,6 +927,51 @@ and created by
 \end{tabular}\end{center}%
 \minindex{new\_number}
 
+Number stubs are collectible.
+
+General values that are numbers can be tested, created, and read
+by the following protected functions:
+
+
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \verb|is_number ( min::gen32 v )|
+\label{MIN::IS_NUMBER} \\
+\verb|int min::| & \verb|is_number ( min::gen64 v )|
+\\
+\verb|min::gen32 min::| & \verb|new_number_gen32|\REL \verb| ( min::float64 v )|
+\label{MIN::NEW_NUMBER_GEN32} \\
+\verb|min::gen64 min::| & \verb|new_number_gen64 ( min::float64 v )|
+\label{MIN::NEW_NUMBER_GEN64} \\
+\verb|min::float64 min::| & \verb|float64_of ( min::gen32 v )|
+\label{MIN::FLOAT64_OF_GEN32} \\
+\verb|min::float64 min::| & \verb|float64_of ( min::gen64 v )|
+\\
+\end{tabular}\end{center}%
+\minindex{is\_number}%
+\minindex{new\_number\_gen32}%
+\minindex{new\_number\_gen64}%
+\minindex{float64\_of}
+
+The \verb|min::is_number| function for a \verb|min::gen64| argument
+is just another name for the \verb|min::is_float64| function of the same
+argument.  For a \verb|min::gen32| argument this function returns
+true if the \verb|min::gen32| value is an integer or a stub pointer
+pointing at a number stub.
+
+Similarly \verb|min::new_number_gen64| is just another name for
+\verb|min::new_float_gen64|, while \verb|min::new_number_gen32| creates an
+integer \verb|min::gen32| value if the argument is an integer in the
+require range, and otherwise creates a number stub and returns a pointer to
+the stub converted to a \verb|min::gen32| value.
+
+Lastly the \verb|min::float64_of| function was documented above
+(\pagref{MIN::FLOAT64_OF_GEN64}) for a \verb|min::gen64| argument.  For
+a \verb|min::gen32| argument this returns any integer stored directly
+in the argument converted to a 64-bit IEEE floating point number, or
+returns the stub value for any number stub pointed at by the argument.
+In this last case the stub type code is checked by an \verb|assert|
+statement to be sure the stub is a number stub.
 
 \subsection{String Stubs}
 \label{STRING-STUBS}
@@ -937,7 +982,7 @@ UTF-8 encodes 16 bit UNICODE characters in 1, 2, or 3 \verb|char| characters,
 and encodes certain pairs of two 16 bit UNICODE characters
 (call surrogates) in 4 \verb|char| characters.
 
-All ASCII characters are encoded by themselves in
+All ASCII characters are encoded as themselves in
 the UTF-8 encoding.  This implies that
 all ASCII character strings are UTF-8 encoded character
 strings with the same characters as their ASCII representation indicates.
@@ -953,8 +998,8 @@ and these are described toward the end of this section, after describing
 short and long strings and their unprotected access functions.
 
 A \key{short string stub} has
-\minkey{SHORT\_STRING}\label{SHORT-STRING-TYPE} type code and
-an immutable \verb|min::uns64| value that holds NUL padded
+\minkey{SHORT\_STRING}\label{SHORT-STRING-TYPE} stub type code and
+an immutable \verb|min::uns64| value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
 
@@ -973,7 +1018,7 @@ and written by
 \mupindex{set\_short\_string\_of}
 
 Here the \verb|min::uns64| value returned by \mupkey{short\_string\_of}
-should be overlaid by a union with a \verb|char[]| buffer, as in
+should be overlaid by a union with a \verb|char[ ]| buffer, as in
 
 \begin{indpar}\begin{verbatim}
 union { min::uns64 str; char buf[9]; } u;
@@ -997,13 +1042,13 @@ the 9'th NUL appended it will still be a NUL-terminated C/C++ \verb|char|
 string.
 
 A \key{long string stub} has
-\minkey{LONG\_STRING}\label{LONG-STRING-TYPE} type code and
+\minkey{LONG\_STRING}\label{LONG-STRING-TYPE} stub type code and
 a value that is a pointer to a \minkey{long\_string} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
-The following functions respectively return a movable pointer to this body,
+The following functions respectively return a relocatable pointer to this body,
 the length of the string, a 32-bit non-zero hash value computed from
 the string, a 64-bit signature for the string,
-and a movable pointer to the string.  If the hash value
+and a relocatable pointer to the string.  If the hash value
 has not been previously accessed, it is computed and saved in the
 string by the function that returns it, causing that function to
 take time proportional to the string length.  The 64-bit signature
@@ -1033,9 +1078,12 @@ vector containing the string with the terminating NUL.  The
 \verb|char| vector is padded to a multiple of 8 bytes with NUL
 bytes, but the terminating NUL and the padding are not included
 in the length.  If the hash has not been computed, it is
-stored in the header as zero.  Unprotected versions of the above
-functions return the same values with the following exceptions:
-an uncomputed hash is returned as zero, and the movable pointer
+stored in the header as zero.
+
+The following unprotected versions of the above
+functions return the same values as their associated protected function
+with the following exceptions:
+an uncomputed hash is returned as zero, and the relocatable pointer
 to the string permits the string to be written.  Unprotected functions
 are also provided to set the length and hash.
 
@@ -1056,9 +1104,11 @@ are also provided to set the length and hash.
 \mupindex{set\_length\_of}%
 \mupindex{set\_hash\_of}
 
-The following are protected functions that operate on both stort and long
-strings.  These functions have the same (overloaded) names and are analogous
-to standard C library string functions.
+The following are protected functions that operate on both short and long
+strings.  Some of these functions have the same (overloaded) names
+as standard C library string functions, and have the same definition
+except that the string source is represented by a short or long string
+stub.
 
 The functions
 
@@ -1099,6 +1149,73 @@ copy a string from a MIN short or long string to a buffer pointed at
 by \verb|p|.  Copying stops when a NUL is copied or when the
 \verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
 of \verb|p| is returned.
+
+The following function creates a short or long string stub.  If the
+input has 8 or fewer characters, a short stub is created: otherwise
+a long stub is created.
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void min::stub * min::|
+	& \verb|new_string|\REL\verb| ( const char * p )|
+\label{MIN::NEW_STRING}
+\end{tabular}\end{center}%
+\minindex{new\_string}
+
+The following are protected functions with same definitions as above but
+with general value arguments.  The general values must hold a
+string value or a pointer to a short or long string stub.
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned | & \verb|strlen ( min::gen32 v )|
+\label{STRLEN_OF_GEN32} \\
+\verb|unsigned | & \verb|strlen ( min::gen64 v )|
+\label{STRLEN_OF_GEN64} \\
+\verb|unsigned | & \verb|strhash ( min::gen32 s )|
+\label{STRHASH_OF_GEN32} \\
+\verb|unsigned | & \verb|strhash ( min::gen64 s )|
+\label{STRHASH_OF_GEN64} \\
+\verb|min::uns64 | & \verb|strsignature ( min::gen32 s )|
+\label{STRSIGNATURE_OF_GEN32} \\
+\verb|min::uns64 | & \verb|strsignature ( min::gen64 s )|
+\label{STRSIGNATURE_OF_GEN64} \\
+\verb|char * | & \verb|strcpy ( char * p, min::gen32 s )|
+\label{STRCPY_OF_GEN32} \\
+\verb|char * | & \verb|strcpy ( char * p, min::gen64 s )|
+\label{STRCPY_OF_GEN64} \\
+\verb|char * | & \verb|strncpy ( char * p, min::gen32 s, unsigned n )|
+\label{STRNCPY_OF_GEN32} \\
+\verb|char * | & \verb|strncpy ( char * p, min::gen64 s, unsigned n )|
+\label{STRNCPY_OF_GEN64}
+\end{tabular}\end{center}%
+\ttindex{strlen}%
+\ttindex{strhash}%
+\ttindex{strsignature}%
+\ttindex{strcpy}%
+\ttindex{strncpy}
+
+The following functions test general values to see if they are a string,
+and create new general values.
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \verb|is_string ( min::gen32 v )|
+\label{MIN::IS_STRING} \\
+\verb|int min::| & \verb|is_string ( min::gen64 v )|
+\\
+\verb|min::gen32 min::| & \verb|new_string_gen32|\REL \verb| ( const char * p )|
+\label{MIN::NEW_STRING_GEN32} \\
+\verb|min::gen64 min::| & \verb|new_string_gen64|\REL \verb| ( const char * p )|
+\\
+\end{tabular}\end{center}%
+\minindex{is\_string}%
+\minindex{new\_string\_gen32}%
+\minindex{new\_string\_gen64}
+
+A general value is a string if it holds a string itself or if it
+holds a stub pointer at a short or long string.  When a general value
+is created, if the input string is short enough for the general value
+to hold the string itself, that kind of general value is created, and
+otherwise if the input string is 8 or fewer {\tt char}'s a short
+string stub is created, and otherwise a long string stub is created.
 
 \subsection{Double Arrows}
 
