@@ -273,6 +273,7 @@ and the corresponding code:
 \ttmkey{aux}{abbreviation}	& auxilary (\secref{AUXILARY}) \\
 \ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
+\ttmkey{lab}{abbreviation}	& label \\
 \ttmkey{min}{abbreviation}	& the MIN system \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
 \ttmkey{num}{abbreviation}	& number \\
@@ -1475,7 +1476,7 @@ chain pointers.
 \end{quote}
 
 
-\subsection{Label and Label Pair Stubs}
+\subsection{Label Stubs}
 
 Attribute labels are often single strings or numbers.  But they may be
 sequences of strings and numbers.  Such sequences are represented by
@@ -1484,15 +1485,86 @@ sublists stored inside objects (\pagref{LIST-LEVEL}), but labels tend to
 be reused by many object, and storing them inside each object that uses
 them would be inefficient.}
 
+A label is essentually just a vector of general values, with the special
+property that no two distinct label stubs may have equal vectors of
+general values.  However, the vector may be stored in a chain of stubs,
+and not in a body.  The exact manner in which the vector is stored is
+hidden from the user.
+
+A \key{label stub}\label{LABEL-STUB} has \minkey{LABEL}\LABEL{LABEL-TYPE}
+stub type code.  The label may be read by the protected functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned | & \TTKEY{lab\_of}%
+    \verb| ( min::gen * p, unsigned n, min::stub * s )|
+\LABEL{LAB_OF} \\
+\verb|unsigned min::| & \MINKEY{lab\_of}%
+    \verb| ( min::gen * p, unsigned n, min::gen v )|
+\LABEL{MIN::LAB_OF} \\
+\end{tabular}\end{center}
+
+This reads an intial segment of the label vector into the location
+addressed by {\tt p}.  If the label vector has {\tt n} or more elements,
+the first {\tt n} elements are read.  Otherwise, as many elements as
+the label vector has are read.  The number of elements read is returned
+in any case.  The label can be denoted by either its stub address or
+by a general value pointing at its stub address.
+
+A hash value for a label may be computed by the following functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned | & \TTKEY{labhash} \verb| ( min::stub * s )|
+\LABEL{LABHASH_OF_STUB} \\
+\verb|unsigned min::| & \MINKEY{labhash} \verb| ( min::gen v )|
+\LABEL{MIN::LABHASH} \\
+\verb|unsigned | & \TTKEY{labhash} \verb| ( min::gen * const p, unsigned n )|
+\LABEL{LABHASH_OF_GEN_VECTOR} \\
+\end{tabular}\end{center}
+
+The last function computes the hash value for a label that could be created
+from the given vector of {\tt n} general values.  The hash of a vector of
+general values is computed by the following machine independent algorithm:
+
+\begin{indpar}\begin{verbatim}
+hash = 0
+n = length of vector
+for i = 1 through n:
+    h = hash value of i'th element of vector
+    hash = ( hash << 7 ) + c
+    hash = ( hash >> 32 ) + hash
+    hash = hash % ( 2**32 )
+\end{verbatim}\end{indpar}
+
+where \verb|<<| and \verb|>>| are left and right shifts of unsigned
+integers, \verb|%| is the `mod' operation, and \verb|**| is exponentiation.
+
+A label may be created by the following protected functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::stub * | & \TTKEY{new\_label}%
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{NEW_LABEL} \\
+\verb|min::gen | & \TTKEY{new\_gen}%
+    \verb| ( min::gen * const p, unsigned n )|
+\LABEL{NEW_GEN_OF_LAB} \\
+\end{tabular}\end{center}
+
+and tested by the following function:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool | & \MINKEY{is\_label} \verb| ( min::gen v )|
+\LABEL{IS_LABEL_OF_GEN} \\
+\end{tabular}\end{center}
+
+\subsection{Label Pair Stubs}
+\label{LABEL-PAIR-STUBS}
+
 Double arrow labels are pairs of attribute labels, because in order to
 know a double arrow valued attribute of an object X, you must know the
 value of the attribute, some object Y, the label of the attribute, and
 also the label of the attribute in Y that is the other end of the double
 arrow.  Double arrow labels are represented by \key{label pair} stubs.%
 \footnote{Ditto for label pairs.}
-
-TBD
-
 
 \subsection{Object Stubs}
 \label{OBJECT-STUBS}
