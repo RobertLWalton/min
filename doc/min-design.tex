@@ -229,7 +229,7 @@
 
 \author{Robert L. Walton}
 
-\date{September 15, 2004}
+\date{September 16, 2004}
  
 \maketitle
 
@@ -1072,6 +1072,29 @@ The mechanism used to store the double pointer is:
 \clearpage
 
 \subsection{Objects}
+
+An object has a body that consists of 5 parts:
+
+\begin{center}
+\begin{tabular}{l}
+header \\
+hash table \\
+list \\
+unused \\
+auxilary
+\end{tabular}
+\end{center}
+
+The header contains the sizes of the other 4 parts.  The hash table
+stores attribute label/value pairs, for attributes whose labels that are not
+small integers.  The list stores attribute values, for attributes whose
+labels are small integers.  The auxilary area stores various overflow
+data from the hash table and list areas.
+
+The hash table is of fixed size; its size can only be changed by relocating
+the object body.  The list grows up from the hash table into the unused
+area, and the auxilary storage grows down from the end of the body into
+the unused area.
 
 \subsubsection{Indirect Pointers}
 \label{INDIRECT-POINTERS}
