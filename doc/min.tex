@@ -226,7 +226,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's efforts at game design.}}
 
-\date{August 11, 2004}
+\date{August 18, 2004}
  
 \maketitle
 
@@ -599,13 +599,17 @@ and
 is the cooked representation of the set of objects
 
 \begin{indpar}\begin{verbatim}
-##43:: 
+##42:: 
     1: straight
     2: 3.2
+##43:: 
+    1: "+"
+    .initiator: "`"
+    .terminator: "'"
 ##44:: 
     1: .sum
     2: y
-    3: "+"
+    3: ##43
     4: 9.4
     .initiator: "("
     .terminator: ")"
@@ -613,7 +617,7 @@ is the cooked representation of the set of objects
     1: straight
     2: ##44
 ##46::
-    1: ##43
+    1: ##42
     2: left
     3: ##45
     .separator: ","
@@ -623,7 +627,7 @@ Also curly brackets (\verb|{ }|) are used to change to
 a format suitable for code.  Thus
 
 \begin{indpar}\begin{verbatim}
-##137:: function (x,y)
+##138:: function (x,y)
         {
            if (x > y):
                return y
@@ -642,34 +646,38 @@ is the cooked representation of
     .initiator: "("
     .terminator: ")"
 ##131::
+    1: ">"
+    .initiator: "`"
+    .terminator: "'"
+##132::
     1: .compare
     2: x
-    3: ">"
+    3: ##131
     4: y
-##132::
+##133::
     1: return
     2: y
     .initiator: ":"
-##133::
-    1: if
-    2: ##131
-    3: ##132
 ##134::
+    1: if
+    2: ##132
+    3: ##133
+##135::
     1: return
     2: x
     .initiator: ":"
-##135::
-    1: else
-    2: ##134
 ##136::
-    1: ##133
+    1: else
     2: ##135
+##137::
+    1: ##134
+    2: ##136
     .initiator: "{"
     .terminator: "}"
-##137::
+##138::
     1: function
     2: ##130
-    2: ##136
+    2: ##137
 \end{verbatim}\end{indpar}
 
 Cooked representations may replace raw object names in the
@@ -693,7 +701,7 @@ is the cooked representation of the object
 ##291::
     text: ##93
     outline: ##46
-    min: ##137
+    min: ##138
 \end{verbatim}\end{indpar}
 
 given the above examples.
@@ -713,7 +721,7 @@ represents
     text B: ##93
 \end{verbatim}\end{indpar}
 
-so say instead
+or instead
 
 \begin{indpar}\begin{verbatim}
 ##291::
