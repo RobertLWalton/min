@@ -1050,7 +1050,7 @@ priority & parser	& operators	& meaning
 -4000 & \ttkey{subsentence} &  \ttnbkey{;} & subsentence separator \\
 -3000 & \ttkey{phrase} &  \ttnbkey{,} & phrase separator \\
 +0000 & \ttkey{assign} &  \ttnbkey{<-} ~~~ \ttkey{BECOMES} & assignment \\
-+1000 & \ttkey{boolean} &  \ttkey{AND} ~~~ \ttkey{OR} ~~~ \ttkey{NOT}
++1000 & \ttkey{logical} &  \ttkey{AND} ~~~ \ttkey{OR} ~~~ \ttkey{NOT}
 	& logical and, or, not \\
 +2000 & \ttkey{compare} &  \ttnbkey{=} ~~~ \ttnbkey{/=} ~~~
         \ttnbkey{!=} 			& equal, not equal, ditto \\
@@ -1315,7 +1315,7 @@ that is a list whose elements (values of the attributes
 named {\tt 1}, {\tt 2}, {\tt 3}, \ldots) are atoms that are lexemes
 and objects representing bracketted sublists of lexemes.  Quoted
 atoms are specially represented by a list with one element and the
-{\tt .parser} attribute value `{\tt quoted}'.
+{\tt .initiator} attribute value `{\tt quoted}'.
 
 \item[(2)] \ikey{Operator Scanning}{operator scanning}%
 				   \index{scanning!operator}~~~~
@@ -1397,7 +1397,7 @@ and the object output by the recursive call becomes the next list element.
 \item If the next input is a quoted string, the next list element is an
 object whose only attributes are an attribute named {\tt 1} whose value
 is the quoted string atom,
-and an {\tt .parser} attribute whose value is the atom `{\tt quoted}'.
+and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
 
 \item If the next input is a word or mark, the word or mark becomes the next
 list element.
@@ -1429,7 +1429,7 @@ following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
     .terminator: "'"
 ##2::
     1: "+"
-    .parser: quoted
+    .initiator: quoted
 ##3::
     1 : x
     2 : "+"
@@ -1471,8 +1471,8 @@ object:
 
 \begin{enumerate}
 
-\item If the object has a {\tt .parser} attribute value (such as
-the value `{\tt quoted}' introduced by lexical scanning), the operator
+\item If the object has an 
+an `{\tt .initiator} attribute equal to `{\tt quoted}', the
 scanning algorithm terminates without modifying the object.
 
 \item The parsing mode argument to the algorthm is changed if the
@@ -1540,7 +1540,7 @@ operator scanning returns:
     7 : operator
 ##2::
     1: "+"
-    .parser: quoted
+    .initiator: quoted
 ##3::
     1 : ##5
     2 : "+"
@@ -1620,7 +1620,10 @@ lists.
 	\key{phrase separator}: \NBOP{,}
 
 \begin{indpar}[0.5em]
-Here `\verb|;|' or `\verb|,|' is the \key{separator}.
+Here `\verb|;|' or `\verb|,|' is the \key{separator}.  These have different
+priority levels and different parsers, and so cannot appear together
+in the same expression.
+
 A list of all between-separator subexpressions is made, with empty
 between-separator subexpressions being represented by objects with
 no attributes.  There will be at least two subexpressions: one following
@@ -1633,6 +1636,26 @@ and is returned as the result of the parse.
 
 \bigskip
 
+\ttmkey{assign}{parser} \hfill
+	\skey{assign operator}s: \NBOP{<-} ~ \OP{BECOMES}
+
+\begin{indpar}[0.5em]
+Assign operators may not be consecutive and may not begin or end an expression.
+The two different kinds of assignment operator, \verb|<-| and \verb|BECOMES|,
+may not be mixed in the same expression.
+The results rewritten using the two-argument assignment function \verb|<-|,
+making multiple assignments from right to left.
+
+\begin{indpar}[0.5em]
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))| \\
+\verb|x BECOMES y BECOMES z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{indpar}
+\end{indpar}
+
+\bigskip
+
 \ttmkey{logical}{parser} \hfill
 	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
 
@@ -1640,7 +1663,8 @@ and is returned as the result of the parse.
 One expression cannot have both {\tt AND} and {\tt OR} operators
 outside explicitly bracketed subexpressions.  The {\tt NOT} operator
 can only occur at the beginning of an expression or just after {\tt AND}
-or {\tt OR}.  Subexpressions cannot be empty.
+or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
+before a {\tt NOT}, which must always be empty.
 
 If the only operator is {\tt NOT}, the expression is its own expansion.
 
@@ -1654,12 +1678,47 @@ or {\tt OR} function and a single argument {\tt NOT} function.
 \\\hspace*{1in}
 \verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
 \end{indpar}
-\end{indpar}
 
 Note that {\tt NOT} is not a classical prefix operator, which would have
 higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
 and {\tt OR} may not be used in the same logical expression without using
 explicit parentheses.
+\end{indpar}
+
+\bigskip
+
+\ttmkey{compare}{parser} \hfill
+	\skey{compare operator}s:
+	\NBOP{=} ~ \NBOP{<} ~ \NBOP{>} ~
+	\NBOP{/=} ~ \NBOP{!=} ~
+	\NBOP{=>} ~ \NBOP{>=} ~
+	\NBOP{=<} ~ \NBOP{<=}
+
+\begin{indpar}[0.5em]
+Subexpressions cannot be empty, and a compare operator may not
+begin or end an expression.
+The expression is rewritten using a multi-argument {\tt AND}
+function and two-argument compare functions.  Temporary variables
+(\secref{TEMPORARY-VARIABLES})
+are used to name intermediate expression values so as to
+avoid recomputing arguments.
+
+\begin{indpar}[0.5em]
+\verb|x < y < z| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (< x (<- (.tmp 56) y)) (< (.tmp 56) z)| \\
+\verb|x = y + z != w/2 <= x| ~~~ $\Longrightarrow$
+\\\hspace*{1in}\begin{tabular}{@{}ll@{}}
+	       \verb|AND| & \verb|(= x (<- (.tmp 57) (+ y z)))| \\
+			  & \verb|(!= (.tmp 57) (<- (.tmp 58) (/w 2)))| \\
+			  & \verb|(<= (.tmp 58) x)| \\
+	       \end{tabular}
+\end{indpar}
+
+Note that sequences of comparison operators are treated as they are
+in mathematics and not as they are in classical programming languages.
+E.g., \verb|x<y<z| means \verb|x<y AND y<z| and \underline{not}
+\verb|(x<y)<z|.
+\end{indpar}
 
 \bigskip
 
@@ -1679,11 +1738,12 @@ and the unary negation function \verb|-|.
 
 \bigskip
 
-\NBOP{*} ~~~ \NBOP{/} \MAC{multiplication operators}{.PRODUCT}
+\ttmkey{product}{parser} \hfill
+	\skey{multiplication operator}s: \NBOP{*} ~ \NBOP{/}
 
 \begin{indpar}[0.5em]
-The two different multiplication operators may not be mixed in the same
-expression.
+The two different kinds of multiplication operators, \verb|*| and \verb|/|,
+cannot be mixed in the same expression.
 Multiplication operators may not be consecutive and may neither begin
 nor end an expression.  The division operator \verb|/| must have exactly
 two operands.
@@ -1700,6 +1760,18 @@ division function \verb|/|.  E.g.:
 
 
 \end{indpar}
+
+\subsubsection{Dequoting}
+\label{DEQUOTING}
+
+The \key{dequoting} algorithm inputs an object output
+by the parser expansion algorithm and outputs a dequoted object.
+If the object has an {\tt .initiator} attribute equal
+to `{\tt quoted}', the single element of the object's list
+(which will be an atom) is output.  Otherwise the dequoting algorithm is applied
+to each element of the object's list that is itself an object (and not an
+atom).
+
 
 
 \section{Evaluation}
@@ -2112,6 +2184,8 @@ The goal of search is to find an attribute whose name begins the expression.
 Decapitalization\label{DECAPITALIZATION}
 
 Operator Declaration\label{OPERATOR-DECLARATION}
+
+Temporary Variables\label{TEMPORARY-VARIABLES}
 
 Garbage Collection\label{GARBAGE-COLLECTION}
 
