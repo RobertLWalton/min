@@ -96,9 +96,9 @@
 \newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
 
 
-\newcommand{\secref}[1]{\ref{#1}\,p\pageref{#1}}
-\newcommand{\stepref}[1]{\ref{#1}\,p\pageref{#1}}
-\newcommand{\appref}[1]{\ref{#1}\,p\pageref{#1}}
+\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 1, 2005}
+\date{February 20, 2005}
  
 \maketitle
 
@@ -996,6 +996,19 @@ assert ( ! is_deallocate ( s ) );
 
 instead of {\tt assert\_allocated} can be useful for debugging
 improper accesses to deallocated bodies.
+
+\subsection{Stubless Bodies}
+\label{STUBLESS-BODIES}
+
+Body pointers have types such as {\tt long\_str} and {\tt long\_obj}.
+It is possible to have a body without a corresponding stub.  Such
+bodies are called \ikey{stubless bodies}{stubless body}.  They
+allocated in the C++ stack, C++ heap, C++ global data area,
+or in some other way.  The rules of \secref{BODY-POINTERS} should
+not be applied to these pointers.
+
+For example, function frames are allocated in the C++ stack as stubless
+{\tt long\_obj} bodies.
 
 \subsection{Stub Control}
 \label{STUB-CONTROL}
