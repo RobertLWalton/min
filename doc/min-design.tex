@@ -597,12 +597,18 @@ The following macros are defined to describe these decisions:
 
 \begin{center}
 \begin{tabular}{ll}
-\ttkey{MIN\_IS\_COMPACT}	& 1 if compact implemention; 0 if loose \\
-\ttkey{MIN\_IS\_LOOSE}		& 1 if loose implemention; 0 if compact \\
-\ttkey{MIN\_USES\_ADDRESSES}	& 1 if implemention uses addresses;
-				  0 if it uses VSN's \\
-\ttkey{MIN\_USES\_VSNS}		& 1 if implemention uses VSN's;
-				  0 if it uses addresses \\
+\TTKEY{MIN\_IS\_COMPACT}	& 1 if compact implemention; 0 if loose
+\LABEL{MIN_IS_COMPACT} \\
+\TTKEY{MIN\_IS\_LOOSE}		& 1 if loose implemention; 0 if compact
+\LABEL{MIN_IS_LOOSE}	 \\
+\TTKEY{MIN\_SIZEOF\_GEN}	& 64 if loose implemention; 32 if compact
+\LABEL{MIN_SIZEOF_GEN} \\
+\TTKEY{MIN\_USES\_ADDRESSES}	& 1 if implemention uses addresses;
+				  0 if it uses VSN's
+\LABEL{MIN_USES_ADDRESSES} \\
+\TTKEY{MIN\_USES\_VSNS}		& 1 if implemention uses VSN's;
+				  0 if it uses addresses
+\LABEL{MIN_USES_VSNS}	 \\
 \end{tabular}
 \end{center}
 
@@ -693,10 +699,14 @@ functions:
 \LABEL{MIN::NEW_AUX_GEN} \\
 \end{tabular}\end{center}
 
-These protected functions check for argument range errors.  The function
-with an {\tt int} argument will convert that to an IEEE 64-bit floating
-point number if the \verb|min::gen| type is 64-bits.  The function
-with an {\tt min::float64} argument will always have an argument range
+These protected functions check for argument range errors.  Stubs are
+\underline{not} allocated by these functions, so the {\tt int}
+argument must fit in 28 bits if {\tt min:gen} values
+are 32-bits, and the {\tt const char *} strings must be short enough to
+fit into a direct value.
+The {\tt int} argument will be converted to an IEEE 64-bit floating
+point number if the \verb|min::gen| type is 64-bits.  The
+{\tt min::float64} argument will always cause an argument range
 error if used with 32-bit \verb|min::gen| values.
 
 The subtype codes used for 64-bit {\tt min::gen} direct string, stub pointer,
@@ -723,40 +733,47 @@ range errors.
 \LABEL{MUP::NEW_AUX_GEN} \\
 \end{tabular}\end{center}
 
-TBD
-
 The actual string, stub pointer, and auxilary pointer
 {\tt min::gen} subtype codes
 are implementation dependent.  The following constants equal these
-codes as unsigned integers:
-
-\begin{center}\begin{tabular}{r@{}l@{\hspace*{0.3in}}l}
-\verb|const unsigned min::| & \MINKEY{GEN32\_DIRECT\_INT} & 4 bits
-\LABEL{MIN::GEN32_DIRECT_STR} \\
-\verb|const unsigned min::| & \MINKEY{GEN32\_DIRECT\_STR} & 8 bits
-\LABEL{MIN::GEN32_DIRECT_STR} \\
-\verb|const unsigned min::| & \MINKEY{GEN32\_AUX} & 4 bits
-\LABEL{MIN::GEN32_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN64\_DIRECT\_STR}	& 20 bits
-\LABEL{MIN::GEN64_DIRECT_STR} \\
-\verb|const unsigned min::| & \MINKEY{GEN64\_STUB}	& 20 bits
-\LABEL{MIN::GEN64_STUB} \\
-\verb|const unsigned min::| & \MINKEY{GEN64\_AUX}	& 20 bits
-\LABEL{MIN::GEN64_AUX} \\
-\end{tabular}\end{center}
-
-The following functions may be used to retrieve the subtype code field
-from a {\tt min::\EOL gen64}, {\tt min::float64}, or
-{\tt min::uns64} value:
+subtype codes:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{gen64\_subtype\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::GEN64_SUBTYPE_OF_GEN64} \\
-\verb|int min::| & \MINKEY{gen64\_subtype\_of}\verb| ( min::float64 v )|
-\LABEL{MIN::GEN64_SUBTYPE_OF_FLOAT64} \\
-\verb|int min::| & \MINKEY{gen64\_subtype\_of}\verb| ( min::uns64 v )|
-\LABEL{MIN::GEN64_SUBTYPE_OF_UNS64} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_INT}
+\LABEL{MIN::GEN_DIRECT_INT} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_FLOAT}
+\LABEL{MIN::GEN_DIRECT_FLOAT} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_STR}
+\LABEL{MIN::GEN_DIRECT_STR} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_STUB}
+\LABEL{MIN::GEN_STUB} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_AUX}
+\LABEL{MIN::GEN_AUX} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
+\LABEL{MIN::GEN_ILLEGAL} \\
 \end{tabular}\end{center}
+
+\verb|min::GEN_ILLEGAL| is actually illegal as a subtype code.
+For 64-bit \verb|min::gen| values, {\tt MIN::\EOL GEN\_DIRECT\_INT} is defined
+to be equal to \verb|min::GEN_ILLEGAL|,
+and for 32-bit \verb|min::gen| values, \verb|MIN::GEN_DIRECT_FLOAT| is defined
+to be equal to \verb|min::GEN_ILLEGAL|.
+
+The following function may be used to retrieve the subtype code field:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \MINKEY{gen\_subtype\_of}\verb| ( min::gen v )|
+\LABEL{MIN::GEN_SUBTYPE_OF} \\
+\end{tabular}\end{center}
+
+For 64-bit \verb|min::gen| values, this retrieves the high order
+20 bits of the value, and then zeros the retrieved value if it
+indicates a direct IEEE 64-bit floating point number.
+For 32-bit \verb|min::gen| values, this retrieves
+the high order 8 bits, and then zeros the low order 4 bits of that if
+the 8 bit value is less than \verb|min::GEN_DIRECT_STR|.
+In any case, \verb|min::GEN_ILLEGAL| is not a possible value of this function.
+
 
 \subsection{Body Pointers}
 \label{BODY-POINTERS}
@@ -1135,9 +1152,13 @@ check for this.
 
 There are two kinds of string stubs: short strings and long strings.
 There are no protected functions directly accessing these.  In addition,
-a string of up to 5 characters can be stored within a \verb|min::gen64| value
-without using a stub (\secref{64-BIT-GENERAL-VALUES}):
-such strings are called \skey{direct string}s.
+a string of up to 3 characters can be stored within a 32-bit
+\verb|min::gen| value, and a string of up to 5 characters can be stored
+within a 64-bit \verb|min::gen| value,
+without using a stub (\secref{GENERAL-VALUE-SUBTYPES}).
+Such strings are called \skey{direct string}s, while strings stored in
+stubs or stub bodies which are pointed at by \verb|min::gen| values,
+the short and long strings, are called \skey{indirect string}s.
 There are protected functions accessing general values that denote
 strings of any kind without distinction,
 and these are described toward the end of this section, after describing
@@ -1298,53 +1319,35 @@ with general value arguments.  The general values must hold a
 direct string value or a pointer to a short or long string stub.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen32 v )|
-\LABEL{MIN::STRLEN_OF_GEN32} \\
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen64 v )|
-\LABEL{MIN::STRLEN_OF_GEN64} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen32 s )|
-\LABEL{MIN::STRHASH_OF_GEN32} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen64 s )|
-\LABEL{MIN::STRHASH_OF_GEN64} \\
-\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen32 s )|
-\LABEL{MIN::STRSIGNATURE_OF_GEN32} \\
-\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen64 s )|
-\LABEL{MIN::STRSIGNATURE_OF_GEN64} \\
-\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen32 s )|
-\LABEL{MIN::STRCPY_OF_GEN32} \\
-\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen64 s )|
-\LABEL{MIN::STRCPY_OF_GEN64} \\
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
+\LABEL{MIN::STRLEN_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen s )|
+\LABEL{MIN::STRHASH_OF_GEN} \\
+\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen s )|
+\LABEL{MIN::STRSIGNATURE_OF_GEN} \\
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen s )|
+\LABEL{MIN::STRCPY_OF_GEN} \\
 \verb|char * min::| &
-	\MINKEY{strncpy}\verb| ( char * p, min::gen32 s, unsigned n )|
-\LABEL{MIN::STRNCPY_OF_GEN32} \\
-\verb|char * min::| & \MINKEY{strncpy}\verb| ( char * p, min::gen64 s, unsigned n )|
-\LABEL{MIN::STRNCPY_OF_GEN64} \\
+	\MINKEY{strncpy}\verb| ( char * p, min::gen s, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_GEN} \\
 \end{tabular}\end{center}
 
 Some of these functions correspond to the standard C/C++
 {\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions, and differ
 from these only in that instead of taking a {\tt char *} source string
-argument, these functions take a {\tt min::gen32} or {\tt min::gen64}
-source argument.
-The {\tt min::gen64} source argument value can be a direct string, or
-a stub pointer to either a short or long string stub.
-The {\tt min::gen32} source argument value can be
+argument, these functions take a {\tt min::gen} source argument.
+The {\tt min::gen} source argument value can be a direct string, or
 a stub pointer to either a short or long string stub.
 
 The following functions test general values to see if they are a string,
 and create new general values.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_STR_OF_GEN32} \\
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen64 v )|
-\\
-\verb|min::gen32 min::| &
-    \MINKEY{new\_str\_gen32\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_STR_GEN32} \\
-\verb|min::gen64 min::| &
-    \MINKEY{new\_str\_gen64\REL} \verb| ( const char * p )|
-\\
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
+\LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
+\verb|min::gen min::| &
+    \MINKEY{new\_gen\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_GEN} \\
 \end{tabular}\end{center}
 
 A general value is a string if it holds a string itself or if it
@@ -1353,6 +1356,14 @@ is created, if the input string is short enough for the general value
 to hold the string itself, a direct string general value is created, and
 otherwise, if the input string is 8 or fewer {\tt char}'s, a short
 string stub is created, and otherwise a long string stub is created.
+
+When \verb|min::new_gen| function is given a string too long to fit
+in a direct string value, it first searches to see if any equal string
+exists.  If such a string exists, a pointer to the stub of the existing
+string is returned in the new \verb|min::gen| value, and no new stub
+is created.  Thus if two string \verb|min::gen| values are equal as
+strings, they have \verb|==| \verb|min::gen| values.
+
 
 \subsection{Object Stubs}
 
@@ -1490,20 +1501,37 @@ struct min
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \newcommand{\ARGBREAK}{\\&{\tt ~~~~~}}
+\newcommand{\INDEXHEADER}[1]{{\bf #1}:}
 
-Data Declarations:
+\INDEXHEADER{Compilation Macros}
+
+\begin{indpar}[0.2in]
+
+% The ...KEY macros must be preceeded by a \verb.
+\verb||\TTKEY{MIN\_IS\_COMPACT}
+\LABEL{MIN_IS_COMPACT} \\
+\verb||\TTKEY{MIN\_IS\_LOOSE}
+\LABEL{MIN_IS_LOOSE}	 \\
+\verb||\TTKEY{MIN\_SIZEOF\_GEN}
+\LABEL{MIN_SIZEOF_GEN} \\
+\verb||\TTKEY{MIN\_USES\_ADDRESSES}
+\LABEL{MIN_USES_ADDRESSES} \\
+\verb||\TTKEY{MIN\_USES\_VSNS}
+\LABEL{MIN_USES_VSNS}
+
+\end{indpar}
+
+\INDEXHEADER{Data Declarations}
 
 \begin{indpar}[0.2in]
 
 \verb|min::|\MINKEY{stub} \LABEL{MIN::STUB}
 \\
-\verb|min::|\MINKEY{gen32} \LABEL{MIN::GEN32}
-\\
-\verb|min::|\MINKEY{gen64} \LABEL{MIN::GEN64}
+\verb|min::|\MINKEY{gen} \LABEL{MIN::GEN}
 
 \end{indpar}
 
-Stub Type Codes:\label{STUB-TYPE-CODE-LIST}
+\INDEXHEADER{Stub Type Codes}\label{STUB-TYPE-CODE-LIST}
 
 \begin{indpar}[0.2in]
 
@@ -1517,7 +1545,9 @@ Stub Type Codes:\label{STUB-TYPE-CODE-LIST}
 
 \end{indpar}
 
-Stub Related Declarations:
+\newpage
+
+\INDEXHEADER{Stub Related Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -1545,59 +1575,47 @@ Stub Related Declarations:
 
 \end{indpar}
 
-\newpage
-
-Gen32 Value Protected Declarations:
+\INDEXHEADER{Gen Value Protected Declarations}
 
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}r@{}p{4.5in}}
 
-\verb|int min::| & \MINKEY{is\_int}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_INT_OF_GEN32} \\
-\verb|int min::| & \MINKEY{is\_aux}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_AUXILARY_OF_GEN32} \\
-\verb|int min::| & \MINKEY{is\_stub}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_STUB_OF_GEN32} \\[1ex]
+\verb|bool min::| & \MINKEY{is\_direct\_int}\verb| ( min::gen v )|
+\LABEL{MIN::IS_DIRECT_INT} \\
+\verb|bool min::| & \MINKEY{is\_direct\_float}\verb| ( min::gen v )|
+\LABEL{MIN::IS_DIRECT_FLOAT} \\
+\verb|bool min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen v )|
+\LABEL{MIN::IS_DIRECT_STR} \\
+\verb|bool min::| & \MINKEY{is\_aux}\verb| ( min::gen v )|
+\LABEL{MIN::IS_AUX} \\
+\verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
+\LABEL{MIN::IS_STUB} \\[1ex]
 
-\verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::INT_OF_GEN32} \\
-\verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::STUB_OF_GEN32} \\
-\verb|unsigned min::| & \MINKEY{aux\_of}\verb| ( min::gen32 v )|
-\LABEL{MIN::AUXILARY_OF_GEN32} \\[1ex]
+\verb|min::float64 min::| & \MINKEY{direct\_float\_of}\verb| ( min::gen v )|
+\LABEL{MIN::DIRECT_FLOAT_OF} \\
+\verb|min::int32 min::| & \MINKEY{direct\_int\_of}\verb| ( min::gen v )|
+\LABEL{MIN::DIRECT_INT_OF} \\
+\verb|min::uns64 min::| & \MINKEY{direct\_str\_of}\verb| ( min::gen v )|
+\LABEL{MIN::DIRECT_STR_OF} \\
+\verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen v )|
+\LABEL{MIN::STUB_OF} \\
+\verb|unsigned min::| & \MINKEY{aux\_of}\verb| ( min::gen v )|
+\LABEL{MIN::AUXILARY_OF} \\[1ex]
 
-\verb|min::gen32 min::| & \MINKEY{new\_int\_gen32}\verb| ( int v )|
-\LABEL{MIN::NEW_INT_GEN32} \\
-\verb|min::gen32 min::| & \MINKEY{new\_gen32}\verb| ( min::stub * s )|
-\LABEL{MIN::NEW_GEN32_OF_STUB} \\
-\verb|min::gen32 min::| & \MINKEY{new\_aux\_gen32}\verb| ( unsigned p )|
-\LABEL{MIN::NEW_AUX_GEN32} \\[1ex]
+\verb|min::gen min::| & \MINKEY{new\_direct\_gen}\verb| ( int v )|
+\LABEL{MIN::NEW_DIRECT_GEN_OF_INT} \\
+\verb|min::gen min::| & \MINKEY{new\_direct\_gen}\verb| ( min::float64 v )|
+\LABEL{MIN::NEW_DIRECT_GEN_OF_FLOAT64} \\
+\verb|min::gen min::| & \MINKEY{new\_direct\_gen}\verb| ( const char * p )|
+\LABEL{MIN::NEW_DIRECT_GEN_OF_STR} \\
+\verb|min::gen min::| & \MINKEY{new\_gen}\verb| ( min::stub * s )|
+\LABEL{MIN::NEW_GEN_OF_STUB} \\
+\verb|min::gen min::| & \MINKEY{new\_aux\_gen}\verb| ( unsigned p )|
+\LABEL{MIN::NEW_AUX_GEN} \\[1ex]
 
-\end{tabular}
-
-\end{indpar}
-
-Gen32 Value Unprotected Declarations:
-
-\begin{indpar}[0.2in]
-
-\begin{tabular}{@{}r@{}p{4.5in}}
-
-\verb|int MUP::| & \MUPKEY{int\_of}\verb| ( min::gen32 v )|
-\LABEL{MUP::INT_OF_GEN32} \\
-\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen32 v )|
-\LABEL{MUP::STUB_OF_GEN32} \\
-\verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen32 v )|
-\LABEL{MUP::AUXILARY_OF_GEN32} \\[1ex]
-
-
-\verb|min::gen32 MUP::| & \MINKEY{new\_int\_gen32}\verb| ( int v )|
-\LABEL{MUP::NEW_INT_GEN32} \\
-\verb|min::gen32 MUP::| & \MINKEY{new\_gen32}\verb| ( min::stub * s )|
-\LABEL{MUP::NEW_GEN32_OF_STUB} \\
-\verb|min::gen32 MUP::| & \MINKEY{new\_aux\_gen32}\verb| ( unsigned p )|
-\LABEL{MUP::NEW_AUX_GEN32} \\
+\verb|int min::| & \MINKEY{gen\_subtype\_of}\verb| ( min::gen v )|
+\LABEL{MIN::GEN_SUBTYPE_OF} \\
 
 \end{tabular}
 
@@ -1605,90 +1623,62 @@ Gen32 Value Unprotected Declarations:
 
 \newpage
 
-Gen64 Value Protected Declarations:
-
-\begin{indpar}[0.2in]
-
-\begin{tabular}{@{}r@{}p{4.4in}}
-
-\verb|int min::| & \MINKEY{is\_float64}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_FLOAT64} \\
-\verb|int min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_DIRECT_STR_OF_GEN64} \\
-\verb|int min::| & \MINKEY{is\_stub}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_STUB_OF_GEN64} \\
-\verb|int min::| & \MINKEY{is\_aux}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_AUXILARY_OF_GEN64} \\[1ex]
-
-\verb|min::float64 min::| & \MINKEY{float64\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::FLOAT64_OF_GEN64} \\
-\verb|int min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen64 v )|
-\LABEL{MIN::IS_DIRECT_STR_OF_GEN64} \\
-\verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::STUB_OF_GEN64} \\
-\verb|unsigned min::| & \MINKEY{aux\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::AUXILARY_OF_GEN64} \\[1ex]
-
-\verb|min::gen64 min::| & \MINKEY{new\_float\_gen64}\verb| ( min::float64 v )|
-\LABEL{MIN::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 min::| &
-	\MINKEY{new\_direct\_str\_gen64}\verb| ( const char * p )|
-\LABEL{MIN::NEW_DIRECT_STR_GEN64} \\
-\verb|min::gen64 min::| & \MINKEY{new\_gen64}\verb| ( min::stub * s )|
-\LABEL{MIN::NEW_GEN64_OF_STUB} \\
-\verb|min::gen64 min::| & \MINKEY{new\_aux\_gen64}\verb| ( unsigned p )|
-\LABEL{MIN::NEW_AUX_GEN64} \\[1ex]
-
-\verb|const unsigned min::| & \MINKEY{GEN64\_DIRECT\_STR}
-\LABEL{MIN::GEN64_DIRECT_STR} \\
-\verb|unsigned min::| & \MINKEY{GEN64\_STUB}
-\LABEL{MIN::GEN64_STUB} \\
-\verb|unsigned min::| & \MINKEY{GEN64\_AUX}
-\LABEL{MIN::GEN64_AUX} \\[1ex]
-
-\verb|int min::| & \MINKEY{gen64\_subtype\_of}\verb| ( min::gen64 v )|
-\LABEL{MIN::GEN64_SUBTYPE_OF_GEN64} \\
-\verb|int min::| & \MINKEY{gen64\_subtype\_of}\verb| ( min::float64 v )|
-\LABEL{MIN::GEN64_SUBTYPE_OF_FLOAT64} \\
-\verb|int min::| & \MINKEY{gen64\_subtype\_of}\verb| ( min::uns64 v )|
-\LABEL{MIN::GEN64_SUBTYPE_OF_UNS64} \\
-
-\end{tabular}
-
-\end{indpar}
-
-Gen64 Value Unprotected Declarations:
+\INDEXHEADER{Gen Value Unprotected Declarations}
 
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}r@{}p{4.5in}}
 
-\verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::gen64 v )|
-\LABEL{MUP::FLOAT64_OF_GEN64} \\
-\verb|min::uns64 MUP::| & \MUPKEY{direct\_str\_of}\verb| ( min::gen64 v )|
-\LABEL{MUP::DIRECT_STR_OF_GEN64} \\
-\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen64 v )|
-\LABEL{MUP::STUB_OF_GEN64} \\
-\verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen64 v )|
-\LABEL{MUP::AUXILARY_OF_GEN64} \\[1ex]
+\verb|min::float64 MUP::| & \MUPKEY{direct\_float\_of}\verb| ( min::gen v )|
+\LABEL{MUP::DIRECT_FLOAT_OF} \\
+\verb|min::int32 MUP::| & \MUPKEY{direct\_int\_of}\verb| ( min::gen v )|
+\LABEL{MUP::DIRECT_INT_OF} \\
+\verb|min::uns64 MUP::| & \MUPKEY{direct\_str\_of}\verb| ( min::gen v )|
+\LABEL{MUP::DIRECT_STR_OF} \\
+\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
+\LABEL{MUP::STUB_OF} \\
+\verb|unsigned MUP::| & \MUPKEY{aux\_of}\verb| ( min::gen v )|
+\LABEL{MUP::AUX_OF} \\[1ex]
 
-\verb|min::gen64 MUP::| & \MUPKEY{new\_float\_gen64}\verb| ( min::float64 v )|
-\LABEL{MUP::NEW_FLOAT_GEN64} \\
-\verb|min::gen64 MUP::| &
-	\MUPKEY{new\_direct\_str\_gen64}\verb| ( const char * p )|
-\LABEL{MUP::NEW_DIRECT_STR_GEN64} \\
-\verb|min::gen64 MUP::| & \MUPKEY{new\_gen64}\verb| ( min::stub * s )|
-\LABEL{MUP::NEW_GEN64_OF_STUB} \\
-\verb|min::gen64 MUP::| & \MUPKEY{new\_aux\_gen64}\verb| ( unsigned p )|
-\LABEL{MUP::NEW_AUX_GEN64} \\[1ex]
+\verb|min::gen MUP::| & \MUPKEY{new\_direct\_gen}\verb| ( int v )|
+\LABEL{MUP::NEW_DIRECT_GEN_OF_INT} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_direct\_gen}\verb| ( min::float64 v )|
+\LABEL{MUP::NEW_DIRECT_GEN_OF_FLOAT64} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_direct\_gen}\verb| ( const char * p )|
+\LABEL{MUP::NEW_DIRECT_GEN_OF_STR} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_gen}\verb| ( min::stub * s )|
+\LABEL{MUP::NEW_GEN_OF_STUB} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_aux\_gen}\verb| ( unsigned p )|
+\LABEL{MUP::NEW_AUX_GEN} \\
 
 \end{tabular}
 
 \end{indpar}
 
-\newpage
+\INDEXHEADER{Gen Value Subtype Codes}
 
-Number Stub Protected Declarations:
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.0in}}
+
+\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_INT}
+\LABEL{MIN::GEN_DIRECT_INT} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_FLOAT}
+\LABEL{MIN::GEN_DIRECT_FLOAT} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_STR}
+\LABEL{MIN::GEN_DIRECT_STR} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_STUB}
+\LABEL{MIN::GEN_STUB} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_AUX}
+\LABEL{MIN::GEN_AUX} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
+\LABEL{MIN::GEN_ILLEGAL} \\
+
+\end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Number Stub Protected Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -1720,7 +1710,7 @@ Number Stub Protected Declarations:
 
 \end{indpar}
 
-Number Stub Unprotected Declarations:
+\INDEXHEADER{Number Stub Unprotected Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -1738,7 +1728,7 @@ Number Stub Unprotected Declarations:
 
 \newpage
 
-String Stub Protected Declarations:
+\INDEXHEADER{String Stub Protected Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -1762,42 +1752,26 @@ String Stub Protected Declarations:
 	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
 \LABEL{MIN::NEW_STR} \\[1ex]
 
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen32 v )|
-\LABEL{MIN::STRLEN_OF_GEN32} \\
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen64 v )|
-\LABEL{MIN::STRLEN_OF_GEN64} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen32 s )|
-\LABEL{MIN::STRHASH_OF_GEN32} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen64 s )|
-\LABEL{MIN::STRHASH_OF_GEN64} \\
-\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen32 s )|
-\LABEL{MIN::STRSIGNATURE_OF_GEN32} \\
-\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen64 s )|
-\LABEL{MIN::STRSIGNATURE_OF_GEN64} \\
-\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen32 s )|
-\LABEL{MIN::STRCPY_OF_GEN32} \\
-\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen64 s )|
-\LABEL{MIN::STRCPY_OF_GEN64} \\
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
+\LABEL{MIN::STRLEN_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen s )|
+\LABEL{MIN::STRHASH_OF_GEN} \\
+\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen s )|
+\LABEL{MIN::STRSIGNATURE_OF_GEN} \\
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen s )|
+\LABEL{MIN::STRCPY_OF_GEN} \\
 \verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
                       \verb| ( char * p,|\ARGBREAK
-		      \verb|   min::gen32 s, unsigned n )|
-\LABEL{MIN::STRNCPY_OF_GEN32} \\
-\verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
-		      \verb| ( char * p,|\ARGBREAK
-		      \verb|   min::gen64 s, unsigned n )|
-\LABEL{MIN::STRNCPY_OF_GEN64} \\[1ex]
+		      \verb|   min::gen s, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_GEN} \\[1ex]
 
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen32 v )|
-\LABEL{MIN::IS_STR_OF_GEN32} \\
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen64 v )|
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
+\LABEL{MIN::IS_STR_OF_GEN}
 \\[1ex]
 
-\verb|min::gen32 min::| &
-    \MINKEY{new\_str\_gen32\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_STR_GEN32} \\
-\verb|min::gen64 min::| &
-    \MINKEY{new\_str\_gen64\REL} \verb| ( const char * p )|
-\\
+\verb|min::gen min::| &
+    \MINKEY{new\_gen\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_GEN} \\
 
 \end{tabular}
 
@@ -1805,7 +1779,7 @@ String Stub Protected Declarations:
 
 \newpage
 
-String Stub Unprotected Declarations:
+\INDEXHEADER{String Stub Unprotected Declarations}
 
 \begin{indpar}[0.2in]
 
