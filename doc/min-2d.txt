@@ -1,6 +1,6 @@
 MIN 2D Graphics Engine
 Draft 1
-Sun Aug 15 11:52:35 EDT 2004
+Sun Aug 15 13:39:23 EDT 2004
 Bob Walton
 walton@acm.org
 
@@ -15,35 +15,37 @@ contains:
 	ground		A set of points (gx, gy, gz) where gravity is always
 			in the negative gz direction, so gz is height.
 
+			The ground is an abstraction computable from view
+			information.
+
 	view		A view is a 2D image of the ground and other things.
 			More specifically, a view is a rectangle of pixels
 			which may be much bigger than what can be displayed
 			at one time.  For each pixel the following is given:
 
-			    (x,y) coordinates of the pixel in the view
+			    (x,y): Coordinates of the pixel in the view.
 
-			    z coordinate: distance from camera of pixel
+			    z: Distance coordinate from camera of pixel.
 
-			    vgz coordinate: distance from camera of ground
-			        point that would be seen by camera if there
-				were no obstruction; if vgz = z then there
-				is in fact no obstruction and the camera is
-				looking at the ground for this pixel
+			    vgz: Distance coordinate from camera of ground
+			    point that would be seen by camera if there were
+			    no obstruction.  If vgz = z, then there is in fact
+			    no obstruction and the camera is looking at the
+			    ground for this pixel.
 
-			    an ARGB color value for what is visible; here
-			    A is an alpha value that says the visible color
-			    equals A * forground color + ( 1 - A ) ground
-			    color
+			    ARGB: Color value for what is visible; here A is
+			    an alpha value that says the visible color equals
+			    A * foreground color + ( 1 - A ) background color.
 
-			    forbidden flag: set of a ground object (see below)
+			    forbidden flag: Set if a ground object (see below)
 			    is not permitted to be at the ground point that
 			    would be visible at this pixel position were there
-			    no obstruction
+			    no obstruction.
 
-			    segment list: list of segments (see below) that
-			    are near to this pixel (details below), and for
-			    each segment the distance of this pixel to the
-			    segment
+			    segment list: List of segments (see below) that
+			    are near to this pixel, and for each listed
+			    segment the distance from this pixel to that
+			    segment.
 
 			Note that the (gx,gy,gz) coordinates of the ground
 			point that would be visible were there no obstruction
@@ -52,60 +54,96 @@ contains:
 			pixel.
 
 	ground object	This is an object that has a contact point on the
-			ground and moves along the ground.  More specifically,
-			a ground object has:
+			ground and moves its contact point along the ground.
+			More specifically, a ground object has:
 
-			    a ground contact point (gx,gy,gz)
+			    view: The view the object is in.
 
-			    rotation angle R; the direction in the (gx,gy)
+			    contact point (x,y): The view coordinates of
+			    a pixel of the view.
+
+			    ground contact point (gx,gy,gz): Computable
+			    from the view contact point (x,y,vgz); the ground
+			    contact point corresponding to the view contact
+			    point.
+
+			    rotation angle R: The direction in the (gx,gy)
 			    plane that the object is facing.  R = 0 if the
 			    object is facing the positive gx direction.
 
-			    height H; the object can jump above its contact
-			    point
+			    height H: The object can jump above its contact
+			    point by some height H that adds to (gx,gy,gz).
 
-			    a configuration graph; this is a directed graph
+			    configuration graph C: This is a directed graph
 			    of configurations, where a configuration is
 			    intuitively a position of the ground object when
-			    it is facing in the positive gx direction.  The
-			    arrows in this graph are transitions from one
+			    it is facing in the positive gx direction.  As a
+			    directed graph, this has nodes that are configur-
+			    ations, and arrows that are transitions from one
 			    configuration to another.  A loop of 20 configur-
 			    ations could be use, for example, to represent a
-			    20 frame walking loop.
+			    20 frame walking loop or a 10 frame crawling loop.
 
 			        Each configuration has:
 
-				    stop flag; set if the object can stop in
+				    stop flag: Set if the object can stop in
 				    this configuration.  If not set, there
 				    must be exactly one arrow leaving this
 				    configuration, and the renderer will follow
 				    this arrow to prevent the object from
 				    stopping in this configuration.
 
-				    a graphic surface, which is a rectangular
-				    array of pixels each with an ARGB value,
-				    where A is an alpha value used for
-				    blending by the formula
+				    for each of 16 rotations:
 
-				    	color = A * (configuration color )
-					    + ( 1 - A ) * (background color )
+				        graphic surface: A rectangular array
+					of pixels each with an ARGB value,
+					where A is an alpha value used
+					for blending by the formula
 
-				    where color is one of R, G, or B
+					  color = A * (configuration color )
+					        + (1 - A) * (background color )
 
-				Each arrow has:
+				        where color is one of R, G, or B.  The
+					graph surface used is the one whose
+					rotation is closest to R.
 
-				    (dgx,dgy,dgz) change in contact point when
+
+				each arrow has:
+
+				    (dgx,dgy,dgz): Change in contact point when
 				    arrow is followed.  Intuitively this
 				    means that changing to another configura-
 				    tion moves the contact point.  However,
 				    the renderer will only use this as an
 				    approximation.
 
-	forground object    This is an object that is drawn on top of a view
+	foreground object   This is an object that is drawn on top of a view
 			    and modifies the view.  E.g., an open door as
 			    opposed to a closed door.  It is just a small
 			    view that is used to replace a piece of a larger
-			    view temporarily.
+			    view temporarily by straight copying.
+
+	carried object	    A carried object is an object that can be carried
+			    by a ground object.  Each carried object has
+
+			    a ground object: This is the only object that can
+			    carry the carried object.
+
+			    for some ground object configurations, and for
+			    each of 16 rotation of those configurations:
+
+			        a small graphic surface: This replaces part of
+				the graphic surface of the ground object for
+				the given configuration and rotation.
+
+			    a priority P: If a ground object is carrying two
+			    carried objects, the objects with lower priority
+			    replace graphic surface pixels first.  It is
+			    generally true that low priority objects should
+			    be small and easily obscurable and no two objects
+			    with the same priority should not overlap and be
+			    carried at the same time.
+
 
 	segment		    A segment just has an identifier naming the
 			    segment.  A message to the program can be
@@ -114,8 +152,36 @@ contains:
 			    contains a segment that was not in the segment
 			    list of the last contact point of the object. 
 		
-			    Conceptually segments are most frequently possibly
-			    curved line segments.  Example segments would be
-			    walls an object cannot move though, doors that
-			    might open automatically, invisible boundaries
-			    between regions, etc.
+			    Segments are often possibly curved line segments.
+			    Example segments would be walls an object cannot
+			    move though, doors that might open automatically,
+			    invisible boundaries between regions, etc.
+
+
+Notes:
+
+When blending a ground object, the actual formula is
+
+    object z = vgz at object contact point (x,y)
+
+    if ( object z <= pixel z )	# object obscures view
+
+        alpha = object alpha
+
+    else # view obscures object
+
+	alpha = (object alpha) * (1 - view alpha)
+
+    color = alpha * (object color) + (1 - alpha) * (view color)
+
+Thus if view obscures object and view alpha = 1.0 the object is not
+seen, and if object obscures view and object alpha = 1.0 the view is
+not seen.
+
+The height of the object is used to offset both object z and the object
+graphic surface being used by (0,0,H) in ground coordinates translated
+into the corresponding displacement in (x,y,z) view coordinates.
+
+When the camera angle changes, everything changes, including the view and the
+ground object configuration graphic surfaces.  Thus only a very few camera
+angles can be supported.
