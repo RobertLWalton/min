@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 11, 2004}
+\date{November 12, 2004}
  
 \maketitle
 
@@ -435,6 +435,8 @@ The function that deallocates a body is:
 \end{tabular}\end{center}%
 \index{deallocate!relocating}
 
+When the body of a stub is deallocated, the stub is given
+the \minkey{DEALLOCATED}\LABEL{DEALLOCATED-TYPE} stub type code.
 The {\tt is\_deallocated} function described on \pagref{IS_DEALLOCATED}
 can be used to test whether the body of a stub has been deallocated.
 
@@ -841,18 +843,20 @@ The code to do all this has the form:
 \begin{indpar}\begin{verbatim}
 ... some_function ( ... )
 {
-    int relocated = min::set_relocated_flag ( 0 );
+    bool relocated = min::set_relocated_flag ( false );
     . . . . .
     min::some_body_type * p =
         some_function_returning_a_body_pointer ( ... );
     . . . . . use p . . . . .
     some_relocating_function ( ... );
-    if ( min::relocated_flag() )
+    if ( min::set_relocated_flag( false ) )
     {
-        relocated = min::set_relocated_flag ( 0 );
+        relocated = true;
         p = some_function_returning_a_body_pointer ( ... );
     }
     . . . . . use p . . . . .
+    min::set_relocated_flag ( relocated );
+    return ...;
 }
 \end{verbatim}\end{indpar}
 
@@ -864,6 +868,52 @@ The following functions get and set the relocated flag:
 \verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool )|
 \LABEL{MIN::SET_RELOCATED_FLAG}
 \end{tabular}\end{center}
+
+To simplify code, the following is defined:
+
+\begin{indpar}\begin{verbatim}
+class min::relocated
+{
+    bool relocated;
+    min::relocated ( void )
+    {
+        relocated = min::set_relocated_flag ( false );
+    }
+    ~ min::relocated ( void )
+    {
+        min::set_relocated_flag ( relocated );
+    }
+    operator bool ()
+    {
+        if ( min::set_relocated_flag ( false ) )
+            return relocated = true;
+        else
+            return false;
+    }
+}
+\end{verbatim}\end{indpar}
+
+which permits the example code given above to be rewritten more conveniently
+as:
+
+\begin{indpar}\begin{verbatim}
+... some_function ( ... )
+{
+    min::relocated relocated;
+    . . . . .
+    min::some_body_type * p =
+        some_function_returning_a_body_pointer ( ... );
+    . . . . . use p . . . . .
+    some_relocating_function ( ... );
+    if ( relocated )
+    {
+        p = some_function_returning_a_body_pointer ( ... );
+    }
+    . . . . . use p . . . . .
+    return ...;
+    // relocated deconstructor sets relocated flag.
+}
+\end{verbatim}\end{indpar}
 
 The function to set the flag returns the flag's previous value.
 
@@ -880,11 +930,8 @@ has a deallocated body:
 \LABEL{IS_DEALLOCATED}
 \end{tabular}\end{center}
 
-This function does not check that the stub is of a type that actually
-has a body pointer\footnote{The body pointers of all deallocated body
-stubs point at the same unimplemented location, so this function just
-tests if the possible body pointer equals a given value.},
-and will return erroneous results if the stub does not.
+This function just checks the stub type code to see if it equals
+{\tt min::DEALLOCATED} (\pagref{DEALLOCATED-TYPE}).
 
 Using a deallocated body is
 considered to be a fatal programming error, so usually code need not
@@ -1021,6 +1068,8 @@ A partial list of stub type codes is:
 	&	Stub value is a pointer at a body of type
 	        {\tt min::long\_\EOL string} that contains a
 		\verb|const char| vector and its size. 
+\\
+\tt min::DEALLOCATED	&	Stub has a deallocated body.
 \end{tabular}
 \end{center}
 
@@ -1283,13 +1332,6 @@ by \verb|p|.  Copying stops when a NUL is copied or when the
 \verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
 of \verb|p| is returned.
 
-Some of these functions correspond to the standard C/C++
-{\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions, and differ
-from these only in that instead of taking a {\tt char *} source string
-argument, these functions take a {\tt min::gen64} source argument.
-The {\tt min::gen64} source argument value can be a direct string, or
-a stub pointer to either a short or long string stub.
-
 The following function creates a short or long string stub.  If the
 input has 8 or fewer characters, a short stub is created: otherwise
 a long stub is created.
@@ -1327,6 +1369,16 @@ direct string value or a pointer to a short or long string stub.
 \verb|char * min::| & \MINKEY{strncpy}\verb| ( char * p, min::gen64 s, unsigned n )|
 \LABEL{MIN::STRNCPY_OF_GEN64} \\
 \end{tabular}\end{center}
+
+Some of these functions correspond to the standard C/C++
+{\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions, and differ
+from these only in that instead of taking a {\tt char *} source string
+argument, these functions take a {\tt min::gen32} or {\tt min::gen64}
+source argument.
+The {\tt min::gen64} source argument value can be a direct string, or
+a stub pointer to either a short or long string stub.
+The {\tt min::gen32} source argument value can be
+a stub pointer to either a short or long string stub.
 
 The following functions test general values to see if they are a string,
 and create new general values.
@@ -1493,6 +1545,8 @@ Stub Type Codes:\label{STUB-TYPE-CODE-LIST}
 
 \begin{indpar}[0.2in]
 
+\verb|min::|\MINKEY{DEALLOCATED} \LABEL{DEALLOCATED-TYPE}
+\\
 \verb|min::|\MINKEY{NUMBER} \LABEL{NUMBER-TYPE}
 \\
 \verb|min::|\MINKEY{SHORT\_STR} \LABEL{SHORT-STR-TYPE}
