@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 30, 2005}
+\date{March 31, 2005}
  
 \maketitle
 
@@ -2357,6 +2357,12 @@ that the attribute name maps to.
 The following are the basic protected functions that access attributes:
 
 \begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \MINKEY{countg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::COUNTG} \\
 \verb|unsigned min::| & \MINKEY{getg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
@@ -2364,21 +2370,12 @@ The following are the basic protected functions that access attributes:
     \verb|   min::gen name, min::gen reverse_name)|
     \end{tabular}
 \LABEL{MIN::GETG} \\
-\verb|unsigned min::| & \MINKEY{countg}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
-    \end{tabular}
-\LABEL{MIN::COUNTG} \\
 \verb|unsigned min::| & \MINKEY{get\_flagsg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::uns32 * out, unsigned n,| \\
     \verb|   min::gen obj,| \\
     \verb|   min::gen name)|
     \end{tabular}
-\LABEL{MIN::GET_FLAGSG} \\
-\verb|unsigned min::| & \MINKEY{count\_flagsg}%
-    \verb| ( min::gen obj, min::gen name)|
 \LABEL{MIN::COUNT_FLAGSG} \\
 \verb|void min::| & \MINKEY{setg\REL}%
     \begin{tabular}[t]{@{}l@{}}
@@ -2386,6 +2383,9 @@ The following are the basic protected functions that access attributes:
     \verb|   min::gen obj,| \\
     \verb|   min::gen name, min::gen reverse_name)|
     \end{tabular}
+\LABEL{MIN::GET_FLAGSG} \\
+\verb|unsigned min::| & \MINKEY{count\_flagsg}%
+    \verb| ( min::gen obj, min::gen name)|
 \LABEL{MIN::SETG} \\
 \verb|void min::| & \MINKEY{set\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
@@ -2399,26 +2399,28 @@ The following are the basic protected functions that access attributes:
 The {\tt countg} function returns the number of values for a given
 object, attribute name, and reverse attribute name.  Attribute names
 and reverse attribute names can be atoms or attribute labels.  The
-reverse attribute name can be the special value {\tt min::MISSING}
-the count is to be returned for the attribute name with no reverse attribute
-name.
+reverse attribute name can also be the special value {\tt min::MISSING},
+in which case the count is returned is for the attribute name
+with no reverse attribute name.
 
 The {\tt getg} function gets the values which {\tt countg} counts.
 The values are stored in the {\tt out} vector.  The number of values
-stored is the function return value.  The argument {tt n} is the
+stored is the function return value.  The argument {\tt n} is the
 maximum number of values that may be returned, the length of {\tt out}.
 If there are more then {\tt n} values, only {\tt n} values are returned.
 
-The {\tt count\_flagsg} function returns the length of a \verb|min::uns32|
-vector required to store all the flags for a given object and attribute name.
+The {\tt count\_flagsg} function returns the length of the smallest
+\verb|min::uns32| vector required to store all the set flags for a given
+object and attribute name.  It returns {\tt 0} if no flags are set.
 The attribute name can be an atom or an attribute label.
 
 The {\tt get\_flagsg} function returns flags in the \verb|min::uns32|
 vector vector {\tt out} for a given object and attribute name.
-the number of elements of the vector written is the return value of the
-function. The argument {\tt n} is the maximum number of elements that
-may be written, the length of {\tt out}.  If there are more flags
-than will fit in {\tt n} elements, only {\tt n} elements are written.
+The return value is the same as that of {\tt count\_flagsg} if this is
+not greater than {\tt n}, or is {\tt n} otherwise, and is in any case
+the number of elements of the vector {\tt out} written.
+The argument {\tt n} is the maximum number of elements that
+may be written, the length of {\tt out}.
 In the {\tt out} vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~32$ and
 $I=\mbox{floor}(N/32)$.
@@ -2429,68 +2431,21 @@ values are deleted.  The values are given in the {\tt in} vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
 
-TBD
+If the reverse name argument to {\tt setg} is \verb|min::MISSING|,
+the values deleted or set represent single arrows.
 
-When an attribute value $O_2$ of an attribute name/reverse-name pair
-of object $O_1$ is set, and the reverse-name is not missing,
-the value $O_2$ is the other end of a double arrow.
-It must be an object, and the attribute value $O_1$ is simultaneoulsy
-set for the attribute of $O_2$ with the reverse-name/name pair:w
-
-TBD
-Double arrow deletion.
-
-When an attribute value of an attribute name/reverse-name pair is deleted,
-the value is the other end of a 
+If the reverse name is not
+\verb|min::MISSING|, the values deleted or set represent double arrows.
+In this case let the object be $O_1$, the name be $N$, and the reverse
+name be $R$.  If a value $O_2$ is set (or deleted), the value $O_1$ will also
+be set (or deleted) from the attribute named $R$ with reverse name $N$ of the
+object $O_2$.  That is, the other end of the double arrow will also be
+set (or deleted).
 
 The {\tt set\_flagsg} function sets the flags for a given
 object and attribute name.  The flags are given in the {\tt in} vector which
 has length {\tt n}.  All flags are zeroed before the new set of flags
 is written.  If {\tt n} is zero, all flags are zeroed.
-
-The following functions are analogous to the above functions, but
-optimize for the case where the attribute name is a single atom that
-is an integer in the range of a hash table index:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{geti}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   int name, min::gen reverse_name)|
-    \end{tabular}
-\LABEL{MIN::GETI} \\
-\verb|unsigned min::| & \MINKEY{counti}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj,| \\
-    \verb|   int name, min::gen reverse_name)|
-    \end{tabular}
-\LABEL{MIN::COUNTI} \\
-\verb|unsigned min::| & \MINKEY{get\_flagsi}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::uns32 * out, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   int name)|
-    \end{tabular}
-\LABEL{MIN::GET_FLAGSI} \\
-\verb|unsigned min::| & \MINKEY{count\_flagsi}%
-    \verb| ( min::gen obj, int name)|
-\LABEL{MIN::COUNT_FLAGSI} \\
-\verb|void min::| & \MINKEY{seti\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::gen * in, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   int name, min::gen reverse_name)|
-    \end{tabular}
-\LABEL{MIN::SETI} \\
-\verb|void min::| & \MINKEY{set\_flagsi\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   int name)|
-    \end{tabular}
-\LABEL{MIN::SET_FLAGSI} \\
-\end{tabular}\end{center}
 
 The following functions are more optimized versions of the above
 functions for the special case that the attribute has, or should
@@ -2502,28 +2457,30 @@ have, only one value:
     \verb| ( min::gen obj,| \\
     \verb|   min::gen name, min::gen reverse_name)|
     \end{tabular}
-\LABEL{MIN::GETG} \\
+\LABEL{MIN::GETG1} \\
 \verb|void min::| & \MINKEY{setg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::gen v,| \\
     \verb|   min::gen obj,| \\
     \verb|   min::gen name, min::gen reverse_name)|
     \end{tabular}
-\LABEL{MIN::SETG} \\
+\LABEL{MIN::SETG1} \\
 \end{tabular}\end{center}
 
 This version of the {\tt getg} function returns the single value $V$ if
-the set of values for the attribute and reverse attribute names consists
-of a single value $V$.  If the set is empty, the special value
-\verb|min::MISSING| is returned, and if the set has more than one value,
-the special value \verb|min::MULTI_VALUED| is returned.
+the set of values for object, attribute name, and reverse attribute namer
+consists of a single value $V$.  If the set is empty, the special value
+\verb|min::MISSING| (\pagref{MIN::MISSING}) is returned,
+and if the set has more than one value, the special value
+\verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) is returned.
 
 This version of the {\tt setg} function deletes any previous values of
-the attribute and reverse attribute name and makes the one value {\tt v}
-the only value of the attribute and reverse attribute names.
+the object, attribute name, and reverse attribute name,
+and makes the one value {\tt v} the only value of the object,
+attribute name, and reverse attribute name.
 
-The following functions deal with the case where the attribute
-name/reverse-name pair has a set of values:
+The following functions may be used to add one value to the set of values of an
+object, attribute name, and reverse attribute name:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add\_to\_setg\REL}%
@@ -2543,33 +2500,75 @@ name/reverse-name pair has a set of values:
 \end{tabular}\end{center}
 
 The {\tt add\_to\_set} function adds {\tt v} to the set of
-values of the attribute name/reverse-name pair if and only if
-{\tt v} is not already in the set.  The {\tt add\_to\_multiset}
-function adds {\tt v} even if the value is already in the set.
+values if and only if {\tt v} is not already in the set,
+using {\tt ==} to compare values for equality.
+The {\tt add\_to\_multiset} function adds {\tt v} even if the
+value is already in the set.
 
 
 The following variants exist for functions of this section:
 
 \begin{enumerate}
 
-\item For every function of this section with a name ending in `{\tt g}'
-and \verb|min::gen| {\tt name} argument, there is another function with
-the name ending `{\tt g}' replaced by `{\tt i}' and the type of the
-{\tt name} argument changed to {\tt int}.  These functions do that same
-thing as would be done if the {\tt int} {\tt name} argument were converted
-to a \verb|min::gen| value, but they do it more efficiently in the case
-where the {\tt name} argument can be used as an index to the attribute vector
-of the object.
+\item Functions
+which have a \verb|min::gen| {\tt name} argument
+have versions with a \verb|int| {\tt name} argument.  However,
+the functions with \verb|min::gen| {\tt name} argument have function
+names ending in `{\tt g}', whereas the functions with
+\verb|int| {\tt name} argument have names that are the same except the
+ending `{\tt g}' is replaced by `{\tt i}'.  Thus there are functions named
+\minkey{counti},
+\minkey{geti},
+\minkey{count\_flagsi},
+\minkey{get\_flagsi},
+\minkey{seti},
+\minkey{set\_\EOL flagsi},
+\minkey{add\_\EOL to\_\EOL seti},
+and
+\minkey{add\_\EOL to\_\EOL multiseti}.\label{G_TO_I_VARIANTS}
+This is done as in many
+implementations \verb|int| may be implicitly convertable to \verb|min::gen|
+by an improper conversion that gives the wrong result.\footnote{
+For example, if the implementation defines {\tt min::gen} to be
+{\tt min::uns64}.}
 
-\item Functions which have {\tt reverse\_name} as a last argument
+\item Functions\label{MIN::GEN_REPLACED_BY_MIN::STUB}
+which have {\tt reverse\_name} as a last argument
 have versions without this last argument, which act as
 if the value \verb|min::MISSING| were given to this argument.
 
-\item Functions with \verb|min::gen| {\tt obj} arguments also have
-versions with `\verb|min::stub *|' {\tt obj} arguments.
+\item Functions\label{REVERSE_NAME_OMITTED}
+which have a \verb|min::gen| {\tt obj} argument also have
+versions with a \verb|min::stub *| {\tt obj} argument.
 
 \end{enumerate}
 
+
+\subsection{Special Values}
+\label{SPECIAL-VALUES}
+
+Special values are \verb|min::gen| values that are unique
+and not equal to any value that can be generated during
+program execution.  An implementation can create them by
+making objects during inititalization, and making the special
+values be pointers to these objects.  However, special values
+are to be treated as C/C++ {\tt const} values, and are never
+to be used unless documentation specifies a specific use.
+They are commonly used as return or argument values by some
+functions.
+
+The special values are:
+
+\begin{indpar}
+\begin{list}{}{}
+\item[{\tt const int min::}\MINKEY{MISSING}]~%
+	\LABEL{MIN::MISSING}\\
+Denotes a missing value.
+\item[{\tt const int min::}\MINKEY{MULTI\_VALUED}]~%
+	\LABEL{MIN::MULTI_VALUED}\\
+Indicates a set of values has more than one element.
+\end{list}
+\end{indpar}
 
 \clearpage
 
@@ -3246,64 +3245,88 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}r@{}p{4.8in}}
+\verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
+    \verb| ( min::gen obj,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::COUNTG} \\
 \verb|unsigned min::| & \MINKEY{getg}\ARGBREAK
     \verb| ( min::gen * out, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name)|
 \LABEL{MIN::GETG} \\
-\verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
-    \verb| ( min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
-\LABEL{MIN::COUNTG} \\
 \verb|unsigned min::| & \MINKEY{get\_flagsg}\ARGBREAK
-    \verb| ( min::uns32 * out, unsigned n|\ARGBREAK
+    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name)|
+\LABEL{MIN::COUNT_FLAGSG} \\
+\verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
+    \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
 \LABEL{MIN::GET_FLAGSG} \\
 \verb|unsigned min::| & \MINKEY{count\_flagsg}\ARGBREAK
     \verb| ( min::gen obj, min::gen name)|
-\LABEL{MIN::COUNT_FLAGSG} \\
-\verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
-    \verb| ( const min::gen * in, unsigned n|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
 \LABEL{MIN::SETG} \\
 \verb|void min::| & \MINKEY{set\_flagsg\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n|\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name)|
 \LABEL{MIN::SET_FLAGSG} \\
 \end{tabular}
 
 \begin{tabular}{@{}r@{}p{4.8in}}
-\verb|unsigned min::| & \MINKEY{geti}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   int name, min::gen reverse_name)|
-\LABEL{MIN::GETI} \\
-\verb|unsigned min::| & \MINKEY{counti}\ARGBREAK
+\verb|min::gen min::| & \MINKEY{getg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
-    \verb|   int name, min::gen reverse_name)|
-\LABEL{MIN::COUNTI} \\
-\verb|unsigned min::| & \MINKEY{get\_flagsi}\ARGBREAK
-    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::GETG1} \\
+\verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
+    \verb| ( const min::gen v,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   int name)|
-\LABEL{MIN::GET_FLAGSI} \\
-\verb|unsigned min::| & \MINKEY{count\_flagsi}\ARGBREAK
-    \verb| ( min::gen obj, int name)|
-\LABEL{MIN::COUNT_FLAGSI} \\
-\verb|void min::| & \MINKEY{seti\REL}\ARGBREAK
-    \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::SETG1} \\
+\verb|void min::| & \MINKEY{add\_to\_setg\REL}\ARGBREAK
+    \verb| ( const min::gen v,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   int name, min::gen reverse_name)|
-\LABEL{MIN::SETI} \\
-\verb|void min::| & \MINKEY{set\_flagsi\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::ADD_TO_SETG} \\
+\verb|void min::| & \MINKEY{add\_to\_multisetg\REL}\ARGBREAK
+    \verb| ( const min::gen v,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   int name)|
-\LABEL{MIN::SET_FLAGSI} \\
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::ADD_TO_MULTISETG} \\
 \end{tabular}
+
+
+The Attribute Level functions also have variants with:
+
+\begin{indpar}
+\begin{tabular}{@{}p{5.0in}}
+\verb|min::gen name| replaced by \verb|int name| \\
+and name ending `{\tt g}' replaced by `{\tt i}' \\
+~~~~~\begin{tabular}[b]{ll}
+\verb|min::counti| & \verb|min::geti| \\
+\verb|min::count_flagsi| & \verb|min::get_flagsi| \\
+\verb|min::seti| & \verb|min::set_flagsi| \\
+\verb|min::add_to_seti| & \verb|min::add_to_multiseti|
+\end{tabular}
+\LABEL{G_TO_I_VARIANTS} \\[1ex]
+\verb|min::gen obj| replaced by \verb|min::stub * obj|
+\LABEL{MIN::GEN_REPLACED_BY_MIN::STUB} \\[1ex]
+\verb|min::gen reverse_name| omitted\\
+(implicitly equal to \verb|min::MISSING|)
+\LABEL{REVERSE_NAME_OMITTED}
+\end{tabular}
+\end{indpar}
+
+\end{indpar}
+
+\INDEXHEADER{Special Values}
+
+\begin{indpar}[0.2in]
+
+\verb|min::|\MINKEY{MISSING} \LABEL{MIN::MISSING}
+\\
+\verb|min::|\MINKEY{MULTI\_VALUED} \LABEL{MIN::MULTI_VALUED}
 
 \end{indpar}
 
