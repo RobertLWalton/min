@@ -566,6 +566,8 @@ The format of a \key{raw representation} is:
     ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
     $|$ & {\em raw-object-name} \verb|>|{\tt \bf :}%
           \ttmindex{>:}{in {\em raw-object-header}} \\
+    $|$ & {\em raw-object-name} \verb|>|{\tt \bf :}%
+          \ttmindex{>>:}{in {\em raw-object-header}} \\
     \end{tabular}
 \\[1ex]
 \emkey{raw-attribute-representation}
@@ -613,7 +615,7 @@ The format of a \key{raw representation} is:
 \\[1ex]
 \emkey{special-lexeme}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| \\
+    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| \\
     $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
     \end{tabular}
 
@@ -683,8 +685,7 @@ meaning in a representation, such as the \verb|::|, \verb|:|,
 of these atoms are to be part of an attribute label or value, they should
 be represented by \verb|"::"|, \verb|":"|, \verb|"##"|, or \verb|";;"|.
 Other than this rule, there is no
-distinction between quoted and unquoted representations of typically
-unquoted atoms.
+distinction between quoted and unquoted representations of unquoted atoms.
 
 The double-semi-colons (\verb|;;|) at the ends of attribute representations
 may be omitted according to the \key{double-semi-colon representation rule}.
@@ -695,6 +696,10 @@ attribute representation with the omitted \verb|;;|,
 or alternatively if the end of
 text (e.g., end of file) immediately follows.
 Thus the \verb|;;|'s in the example just given may be omitted.
+To detect errors, if a line of an attribute representation is indented by
+just one column with respect to the first non-white-space character of the
+attribute representation, the line is considered to be in error.
+Thus indentations must be by at least two columns.
 
 We can say that \verb|##1| is the source of an arrow labeled \verb|type|
 with target \verb|woman|, but instead we will usually say that
@@ -751,9 +756,10 @@ In the picture the attribute flags have been added as subscripts on the
 attribute labels, and in the text the flags have been added before of after the
 \verb|:| that follows or precedes the attribute label.
 
-Several arrows sourced at the same object may have the same arrow
-label.  An example of this is, in which object \verb|##1| sources two
-arrows labeled \verb|child|, is:
+Several attributes of the same object (arrows sourced at the object)
+may have the same attribute
+label.  An example of this, in which object \verb|##1| has two
+attributes labeled \verb|child|, is:
 
 \begin{center}
 \begin{tabular}[b]{@{}l@{}}
@@ -788,13 +794,14 @@ arrows labeled \verb|child|, is:
 We say that the value of the \verb|child| attribute of \verb|##1| is
 the set to two elements, \verb|##2| and \verb|##3|.
 
-The difference between \ttkey{::} and \ttnbkey{>:} is that the former
-indicates that the object should not previously
-exist, while the later indicates that the attributes are to be added to
-any existing object, though if the object does not exist it will be
-created.  It is an error to add to an existing object an attribute with the
-same name as an existing attribute of that object.
-
+The difference between \ttnbkey{::} and \ttnbkey{>:} or \ttnbkey{>>:}
+is that \verb|::| indicates that the object should not previously
+exist, while \verb|>:| and \verb|>>:| indicate that the attributes are to
+be added to any existing object, though if the object does not exist it will be
+created.  For \verb|>:| it is an error to add to an existing object an
+attribute with the same name as an existing attribute of that object.
+For \verb|>>:| this is not an error, and the added attribute value becomes
+an addition to the set of values of the attribute.
 
 Object \ttnbkey{\#\#0} is special: it is the \ttkey{.GLOBAL} object, and
 its attributes are called \skey{global variables}.  One of the global
