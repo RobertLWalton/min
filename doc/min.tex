@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 15, 2005}
+\date{March 16, 2005}
  
 \maketitle
 
@@ -1597,7 +1597,7 @@ The following are the standard parsers and their effects.
 \bigskip
 
 \ttmkey{sentence}{parser} \hfill
-	\key{terminators}: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
+	\skey{terminator}s: \NBOP{.} ~ \NBOP{!} ~ \NBOP{?}
 
 \begin{indpar}[0.5em]
 Terminators may not be consecutive, may not begin an expression,
@@ -1633,13 +1633,43 @@ and is returned as the result of the parse.
 
 \bigskip
 
-\NBOP{+} ~~~ \NBOP{-} \MAC{addition operators}{.SUM}
+\ttmkey{logical}{parser} \hfill
+	\skey{logical operator}s: \OP{AND} ~ \OP{OR} ~ \OP{NOT}
+
+\begin{indpar}[0.5em]
+One expression cannot have both {\tt AND} and {\tt OR} operators
+outside explicitly bracketed subexpressions.  The {\tt NOT} operator
+can only occur at the beginning of an expression or just after {\tt AND}
+or {\tt OR}.  Subexpressions cannot be empty.
+
+If the only operator is {\tt NOT}, the expression is its own expansion.
+
+Otherwise the expression is rewritten using a multi-argument {\tt AND}
+or {\tt OR} function and a single argument {\tt NOT} function.
+
+\begin{indpar}[0.5em]
+\verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
+\verb|AND (NOT x) (NOT y) z w| \\
+\verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
+\\\hspace*{1in}
+\verb|OR (NOT (x = 8)) (NOT (y < 9)) (z = 0)|
+\end{indpar}
+\end{indpar}
+
+Note that {\tt NOT} is not a classical prefix operator, which would have
+higher priority than \verb|=| or \verb|<|.  Also note that {\tt AND}
+and {\tt OR} may not be used in the same logical expression without using
+explicit parentheses.
+
+\bigskip
+
+\ttmkey{sum}{parser} \hfill
+	\skey{addition operator}s: \NBOP{+} ~ \NBOP{-}
 
 \begin{indpar}[0.5em]
 Addition operators may not be consecutive and may not end an expression.
-Between operator subexpressions are parsed, and the results rewritten using
-the multi-argument summation function \verb|+| and the unary negation function
-\verb|-|.
+The results rewritten using the multi-argument summation function \verb|+|
+and the unary negation function \verb|-|.
 
 \begin{indpar}[0.5em]
 \verb|- x + y + z - w| ~~~ $\Longrightarrow$ ~~~
