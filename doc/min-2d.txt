@@ -1,0 +1,85 @@
+MIN 2D Graphics Engine
+Draft 1
+Fri Aug  6 12:20:44 EDT 2004
+Bob Walton
+walton@acm.org
+
+This document is a draft specification of the Minimal Descriptive Programming
+Language (MIN) 2D graphics engine.
+
+INTRODUCTION
+
+The 2D engine draws a `virtual world' which is 3D with limits.  This world
+contains:
+
+	ground		A 3D surface given by a function z = g(x,y) where
+			(x,y) are horizontal coordinates and z is height.
+			Overhanging crags are not possible.  Gravity is
+			always in negative z direction.  X is left to right;
+			y is front to rear (depth).
+
+	view		A view is a 2D image of the ground and other things.
+			More specifically, a view is a rectangle of pixels
+			which may be much bigger than what can be displayed
+			at one time.  For each pixel the following is given:
+
+			    x,y,z of the ground point that would be visible
+			    at this pixel position if there were no obstruction
+
+			    color value of what is visible
+
+			    obstruction flag: set if pixel is not a view of
+			    the ground
+
+			    forbidden flag: set of a ground object (see below)
+			    is not permitted to be at the ground point that
+			    would be visible at this pixel position were there
+			    no obstruction
+
+			    segment list: list of segments (see below) that
+			    are near to this pixel (details below)
+
+	ground object	This is an object that has a contact point on the
+			ground.  More specifically, a ground object has:
+
+			    a contact point (x,y,z) such that z = g(x,y)
+
+			    rotation angle R; the direction in the (x,y) plane
+			    that the object is facing.  R = 0 if the object
+			    is facing the positive x direction.
+
+			    height H; the object can jump, but not high
+			    enough to go over any view pixel that is above
+			    ground level for an overhead camera view
+
+			    a configuration graph; this is a directed graph
+			    of configurations, where a configuration is
+			    intuitively a position of the ground object when
+			    it is facing in the positive x direction.  The
+			    arrows in this graph are transitions from one
+			    configuration to another.  A loop of 20 configur-
+			    ations could be use, for example, to represent a
+			    20 frame walking loop.
+
+			        Each configuration has:
+
+				    stop flag; set if the object can stop in
+				    this configuration.  If not set, there
+				    must be exactly one arrow leaving this
+				    configuration, and the renderer will follow
+				    this arrow to prevent the object from
+				    stopping in this configuration.
+
+				Each arrow has:
+
+				    (dx,dy,dz) change in contact point when
+				    arrow is followed.  Intuitively this
+				    means that changing to another configura-
+				    tion moved the contact point.  However,
+				    the renderer will only use this as an
+				    approximation.
+			    
+
+
+
+	
