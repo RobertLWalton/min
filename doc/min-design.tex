@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 29, 2005}
+\date{March 30, 2005}
  
 \maketitle
 
@@ -2149,21 +2149,28 @@ current position.  If the list pointer is at the end of list,
 {\tt insert\_after} is an error.  The list pointer continues to point
 at the list element it pointed at before the element was inserted.
 
-If there are several list pointers pointing into a list,
-and one is used to insert an element after a element of the list,
-or to insert an element before the end of the list,
+If there are several list pointers,
+and one is used to insert an element after a element of a list,
+or to insert an element before the end of a list,
 the other list pointers are not affected.  In particular, other
 list pointers pointing at the end of the list will continue to point
 at the end of the list.  In addition, other lists pointers pointing
-into sublists of the list or superlists of the list are not affected.
+into sublists of the list or superlists containing the list are not affected.
 
-TBD
+If there are several list pointers,
+and one is used to insert an element X before a element Y of a list,
+and Y is not the end of the list, all list pointers pointing at Y
+will be repointed at X, and all other list pointers will not be affected.
 
-If there are several list pointers pointing into a list,
-and one is used to insert an element X before a element Y of the list
-that is not the end of the list, any other list pointers pointing
-into the list or at the end of an empty sublist of the list may be
-affected in an undefined way.
+\begin{quote}
+\key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
+Insertion in general replaces an element E by a list pointer that
+points at a pair of elements, one of which is E, followed by
+a list pointer back to the element originally after E in the list.
+The special cases all concern pointers pointing at the end of a list;
+these can be marked as being end pointers, and made to continue to point
+at the end of the list no matter how the list is changed.
+\end{quote}
 
 \subsubsubsection{Auxilary Stubs}
 \label{AUXILARY-STUBS}
@@ -2235,9 +2242,9 @@ the syntax:
 
 \begin{center}
 \begin{tabular}{l}
-\emkey{hash-table-entry} ::= {\em map-list}\ldots
+\emkey{hash-table-entry} ::= {\em map-list}
 \\[1ex]
-\emkey{attribute-vector-entry} ::= {\em segment-entry}\ldots
+\emkey{attribute-vector-entry} ::= {\em segment-entry}
 \\[1ex]
 \emkey{map-list} ::= {\em map-pair}\ldots
 \\[1ex]
@@ -2249,14 +2256,14 @@ the syntax:
 \\[1ex]
 \emkey{segment-list} ::= {\em map-list-option} {\em attribute-list}
 \\[1ex]
-\emkey{attribute-list} ::= {\em flag-option}
-    {\em value}\ldots {\em reverse-component-list}\ldots
+\emkey{attribute-list} ::= {\em flag-set}
+    {\em value}\ldots {\em reverse-attribute-list}\ldots
 \\[1ex]
-\emkey{flag} ::= {\em control-code}
+\emkey{flag-set} ::= {\em control-code}\ldots
 \\[1ex]
 \emkey{value} ::= {\em atom} $|$ {\em object}
 \\[1ex]
-\emkey{reverse-component-list} ::= {\em reverse-attribute-name}
+\emkey{reverse-attribute-list} ::= {\em reverse-attribute-name}
     {\em value}\ldots
 \\[1ex]
 \emkey{reverse-attribute-name} ::= {\em attribute-name}
@@ -2264,7 +2271,7 @@ the syntax:
 \end{center}
 
 Here
-an {\tt atom} is a \verb|min::gen| value representing a number or string,
+an {\em atom} is a \verb|min::gen| value representing a number or string,
 a {\em control-code} is a \verb|min::gen| control code value,
 an {\em object} is a \verb|min::gen| value pointing at an object,
 and an {\em attribute-name} is a \verb|min::gen| value pointing at an
@@ -2273,9 +2280,8 @@ An {\em X-list} is a list, in the sense of the object list level.
 An {\em X-option} is an optional element of a list that is an {\em X} if
 it is not omitted.
 
-What the object does is map attribute names to {\em attribute-lists}.
-It does this by mapping using the following search algorithm
-to map an attribute name to an {\em attribute-list}.
+An object is represented by a map from attribute names to {\em attribute-lists}.
+This map is based on the following search algorithm:
 
 \begin{enumerate}
 
@@ -2309,42 +2315,182 @@ The resulting $E$ is the {\em attribute-list} to which the attribute name maps.
 
 \end{enumerate}
 
-TBD
+Once an attribute name $N$ has been mapped to an attribute list, the
+attribute list is interpreted as follows:
 
-The initial segment of an attribute name consisting of just the first
-component of the name, i.e., the first atom, is mapped as follows.
-If the first component is an integer from 1 through the size of the attribute
-vector, inclusive, the attribute vector entry whose index is this component
-is the {\em segment-entry} to which the initial segment is mapped.  Otherwise
+\begin{enumerate}
 
+\item The {\em flag-set} and the beginning of an {\em attribute-list}
+specifies the attribute flags of the attribute name.\label{FLAG-SET}
+See below \pagref{ATTRIBUTE-FLAGS} for details.
 
-If a {\em segment-list} begins with a
-{\em map-list}, 
+\item The {\em values} in the {\em attribute-list} before any
+{\em reverse-attribute-list} are the values of the attribute name paired with
+the empty reverse attribute name.
 
-If 
+\item The {\em values} in any {\em reverse-attribute-list} are
+the values of the attribute name paired with the {\em reverse-attribute-name}
+of the {\em reverse-attribute-list}.
 
-Hash table entries are {\em hash-table-entries}, which are {\em map-pairs}
-mapping attribute name components onto {\em component-entries}.
+\end{enumerate}
 
+\ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
+are represented by a {\em flag-set} in an {\em attribute-list}
+(\pagref{FLAG-SET}).
+The {\em flag-set} is a sequence of \verb|min::gen|
+control codes.
 
+The flags are numberred 0, 1, 2, \ldots.  Flag $N$ corresponds to
+the bit in the $I$'th control code
+selected by the mask $2^K$ where $I=\mbox{floor}(N/C)+1$,
+$K=N~\mbox{mod}~C$, and $C$ is the
+number of bits in a control code integer.  $C$ is 26 if \verb|min::gen|
+values are 32-bits, and 44 if \verb|min::gen| values are 64-bits.
 
-If the name is an unsigned integer small enough to index an
-object vector element, then the value is stored in the object vector element
-indexed by the name.  If the name is a double arrow label pair whose
-first component is an unsigned integer small enough to index an object
-vector element, then that object vector element is set to the representation
-of a list of two elements, the first being the label pair, and the second
-being the attribute value.
+A flag is set for an attribute name if and only if its corresponding
+bit is present and set in the {\em flag-set} of the {\em attribute-list}
+that the attribute name maps to.
 
-Otherwise the attribute name/value pair is stored in
-the hash table.  Each hash table entry represents a list whose elements
-alternate between attribute names and attribute values.  Thus there are
-an even number of elements of a hash table entry list, and in each pair
-of elements, the attribute name is first, and the corresponding attribute
-value is second.  Double arrows are stored by storing a label pair
-where the attribute name would normally be.
+\subsubsubsection{Attribute Functions}
+\label{ATTRIBUTE-FUNCTIONS}
 
-Sublists are not used at the attribute level.
+The following are the basic protected functions that access attributes:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \MINKEY{getg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen * out, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::GETG} \\
+\verb|unsigned min::| & \MINKEY{countg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::COUNTG} \\
+\verb|unsigned min::| & \MINKEY{get\_flagsg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::uns32 * out, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   min::gen name)|
+    \end{tabular}
+\LABEL{MIN::GET_FLAGSG} \\
+\verb|unsigned min::| & \MINKEY{count\_flagsg}%
+    \verb| ( min::gen obj, min::gen name)|
+\LABEL{MIN::COUNT_FLAGSG} \\
+\verb|void min::| & \MINKEY{setg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::gen * in, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::SETG} \\
+\verb|void min::| & \MINKEY{set\_flagsg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::uns32 * in, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   min::gen name)|
+    \end{tabular}
+\LABEL{MIN::SET_FLAGSG} \\
+\end{tabular}\end{center}
+
+The {\tt countg} function returns the number of values for a given
+object, attribute name, and reverse attribute name.  Attribute names
+and reverse attribute names can be atoms or attribute labels.  The
+reverse attribute name can be the special value {\tt min::MISSING}
+the count is to be returned for the attribute name with no reverse attribute
+name.
+
+The {\tt getg} function gets the values which {\tt countg} counts.
+The values are stored in the {\tt out} vector.  The number of values
+stored is the function return value.  The argument {tt n} is the
+maximum number of values that may be returned, the length of {\tt out}.
+If there are more then {\tt n} values, only {\tt n} values are returned.
+
+The {\tt count\_flagsg} function returns the length of a \verb|min::uns32|
+vector required to store all the flags for a given object and attribute name.
+The attribute name can be an atom or an attribute label.
+
+The {\tt get\_flagsg} function returns flags in the \verb|min::uns32|
+vector vector {\tt out} for a given object and attribute name.
+the number of elements of the vector written is the return value of the
+function. The argument {\tt n} is the maximum number of elements that
+may be written, the length of {\tt out}.  If there are more flags
+than will fit in {\tt n} elements, only {\tt n} elements are written.
+In the {\tt out} vector, flag $N$ is the bit selected by mask $2^K$
+in the vector element with index $I$, where $K=N~\mbox{mod}~32$ and
+$I=\mbox{floor}(N/32)$.
+
+The {\tt setg} function sets the values for a given
+object, attribute name, and reverse attribute name.  All the previous
+values are deleted.  The values are given in the {\tt in} vector, and
+the number of values is given in {\tt n}.  If {\tt n} is zero, all
+values are deleted.
+
+The {\tt set\_flagsg} function sets the flags for a given
+object and attribute name.  The flags are given in the {\tt in} vector which
+has length {\tt n}.  All flags are zeroed before the new set of flags
+is written.  If {\tt n} is zero, all flags are zeroed.
+
+The following functions are analogous to the above functions, but
+optimize for the case where the attribute name is a single atom that
+is an integer in the range of a hash table index:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \MINKEY{geti}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen * out, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   int name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::GETI} \\
+\verb|unsigned min::| & \MINKEY{counti}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen obj,| \\
+    \verb|   int name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::COUNTI} \\
+\verb|unsigned min::| & \MINKEY{get\_flagsi}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::uns32 * out, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   int name)|
+    \end{tabular}
+\LABEL{MIN::GET_FLAGSI} \\
+\verb|unsigned min::| & \MINKEY{count\_flagsi}%
+    \verb| ( min::gen obj, int name)|
+\LABEL{MIN::COUNT_FLAGSI} \\
+\verb|void min::| & \MINKEY{seti\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::gen * in, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   int name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::SETI} \\
+\verb|void min::| & \MINKEY{set\_flagsi\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::uns32 * in, unsigned n,| \\
+    \verb|   min::gen obj,| \\
+    \verb|   int name)|
+    \end{tabular}
+\LABEL{MIN::SET_FLAGSI} \\
+\end{tabular}\end{center}
+
+The following variants exist for functions of this section:
+
+\begin{enumerate}
+
+\item Functions which have {\tt reverse\_name} as a last argument
+have versions without this last argument, which act as
+if the value \verb|min::MISSING| were given to this argument.
+
+\item Functions with \verb|min::gen| {\tt obj} arguments also have
+versions with `\verb|min::stub *|' {\tt obj} arguments.
+
+\end{enumerate}
+
 
 The following protected functions access attributes:
 
@@ -3155,129 +3301,70 @@ struct min
 
 \begin{tabular}{@{}r@{}p{4.8in}}
 
-\verb|min::gen | & \TTKEY{getg}\verb| ( min::short_obj * so, min::gen name )|
-\LABEL{GETG_FROM_SHORT_OBJ} \\
-\verb|min::gen | & \TTKEY{getg}\verb| ( min::long_obj * lo, min::gen name )|
-\LABEL{GETG_FROM_LONG_OBJ} \\
-\verb|min::gen | & \TTKEY{getg}\verb| ( min::stub * s, min::gen name )|
-\LABEL{GETG_FROM_STUB} \\
-\verb|min::gen min::| & \MINKEY{getg}\verb| ( min::gen obj, min::gen name )|
-\LABEL{MIN::GETG} \\
-\verb|min::gen | & \TTKEY{geti}\verb| ( min::short_obj * so, int index )|
-\LABEL{GETI_FROM_SHORT_OBJ} \\
-\verb|min::gen | & \TTKEY{geti}\verb| ( min::long_obj * lo, int index )|
-\LABEL{GETI_FROM_LONG_OBJ} \\
-\verb|min::gen | & \TTKEY{geti}\verb| ( min::stub * s, int index )|
-\LABEL{GETI_FROM_STUB} \\
-\verb|min::gen min::| & \MINKEY{geti}\verb| ( min::gen obj, int index )|
-\LABEL{MIN::GETI} \\
-
 \end{tabular}
 
 \end{indpar}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{5.0in}}
+\begin{tabular}{@{}r@{}p{4.8in}}
+\verb|unsigned min::| & \MINKEY{getg}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::GETG} \\
+\verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
+    \verb| ( min::gen obj,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::COUNTG} \\
+\verb|unsigned min::| & \MINKEY{get\_flagsg}\ARGBREAK
+    \verb| ( min::uns32 * out, unsigned n|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   min::gen name)|
+\LABEL{MIN::GET_FLAGSG} \\
+\verb|unsigned min::| & \MINKEY{count\_flagsg}\ARGBREAK
+    \verb| ( min::gen obj, min::gen name)|
+\LABEL{MIN::COUNT_FLAGSG} \\
+\verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
+    \verb| ( const min::gen * in, unsigned n|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name)|
+\LABEL{MIN::SETG} \\
+\verb|void min::| & \MINKEY{set\_flagsg\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   min::gen name)|
+\LABEL{MIN::SET_FLAGSG} \\
+\end{tabular}
 
-\verb|void | & \TTKEY{putg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::short_obj * so,| \\
-    \verb|   min::gen name, min::gen value )|
-    \end{tabular}
-\LABEL{PUTG_TO_SHORT_OBJ} \\
-\verb|void | & \TTKEY{putg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::long_obj * lo,| \\
-    \verb|   min::gen name, min::gen value )|
-    \end{tabular}
-\LABEL{PUTG_TO_LONG_OBJ} \\
-\verb|void | & \TTKEY{putg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::stub * s,| \\
-    \verb|   min::gen name, min::gen value )|
-    \end{tabular}
-\LABEL{PUTG_TO_STUB} \\
-\verb|void min::| & \MINKEY{putg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj,| \\
-    \verb|   min::gen name, min::gen value )|
-    \end{tabular}
-\LABEL{MIN::PUTG} \\
-\verb|void | & \TTKEY{puti\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::short_obj * so,| \\
-    \verb|   int index, min::gen value )|
-    \end{tabular}
-\LABEL{PUTI_TO_SHORT_OBJ} \\
-\verb|void | & \TTKEY{puti\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::long_obj * lo,| \\
-    \verb|   int index, min::gen value )|
-    \end{tabular}
-\LABEL{PUTI_TO_LONG_OBJ} \\
-\verb|void | & \TTKEY{puti\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::stub * s,| \\
-    \verb|   int index, min::gen value )|
-    \end{tabular}
-\LABEL{PUTI_TO_STUB} \\
-\verb|void min::| & \MINKEY{puti\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj,| \\
-    \verb|   int index, min::gen value )|
-    \end{tabular}
-\LABEL{MIN::PUTI} \\[1ex]
-
-\verb|void | & \TTKEY{putg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::short_obj * so, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTG_TO_SHORT_OBJ} \\
-\verb|void | & \TTKEY{putg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::long_obj * lo, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTG_TO_LONG_OBJ} \\
-\verb|void | &
-    \TTKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::stub * s1, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTG_TO_STUB} \\
-\verb|void min::| &
-    \MINKEY{putg\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj1, min::gen name1,| \\
-    \verb|   min::gen name2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{MIN::DOUBLE_PUTG} \\
-\verb|void | &
-    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::short_obj * so, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTI_TO_SHORT_OBJ} \\
-\verb|void | &
-    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::long_obj * lo, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTI_TO_LONG_OBJ} \\
-\verb|void | &
-    \TTKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::stub * s1, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{DOUBLE_PUTI_TO_STUB} \\
-\verb|void min::| &
-    \MINKEY{puti\REL}\begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj1, int index1,| \\
-    \verb|   int index2, min::gen obj2 )|
-    \end{tabular}
-\LABEL{MIN::DOUBLE_PUTI} \\
-
+\begin{tabular}{@{}r@{}p{4.8in}}
+\verb|unsigned min::| & \MINKEY{geti}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   int name, min::gen reverse_name)|
+\LABEL{MIN::GETI} \\
+\verb|unsigned min::| & \MINKEY{counti}\ARGBREAK
+    \verb| ( min::gen obj,|\ARGBREAK
+    \verb|   int name, min::gen reverse_name)|
+\LABEL{MIN::COUNTI} \\
+\verb|unsigned min::| & \MINKEY{get\_flagsi}\ARGBREAK
+    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   int name)|
+\LABEL{MIN::GET_FLAGSI} \\
+\verb|unsigned min::| & \MINKEY{count\_flagsi}\ARGBREAK
+    \verb| ( min::gen obj, int name)|
+\LABEL{MIN::COUNT_FLAGSI} \\
+\verb|void min::| & \MINKEY{seti\REL}\ARGBREAK
+    \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   int name, min::gen reverse_name)|
+\LABEL{MIN::SETI} \\
+\verb|void min::| & \MINKEY{set\_flagsi\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj,|\ARGBREAK
+    \verb|   int name)|
+\LABEL{MIN::SET_FLAGSI} \\
 \end{tabular}
 
 \end{indpar}
