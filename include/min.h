@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Sep  6 07:20:53 EDT 2004
+// Date:	Mon Sep  6 07:37:33 EDT 2004
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,15 +11,16 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/06 11:17:06 $
+//   $Date: 2004/09/06 12:10:47 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 # ifndef MIN_H
 
 // Include parameters.
 //
 # include "min_parameters.h"
+# include <cassert>
 
 struct min {
 
@@ -80,7 +81,11 @@ struct min {
     inline float64 gen_to_float ( gen64 v ) {
         return * (float64 *) & v;
     }
+    // There is also an unprotected version of this
+    // function min::unprotected::gen_to_stub that has
+    // no assert.
     inline stub * gen_to_stub ( gen64 v ) {
+        assert ( gen_is_stub ( v ) );
         return (stub *) (unsigned)
 	       ( v & 0xFFFFFFFFFFFF );
     }
@@ -113,8 +118,15 @@ struct min {
 #	endif
     }
 
-    struct body
+    // Type code for stub.
+    //
+    enum stub_type
     {
+        NUMBER		= 1,
+	SHORT_STRING	= 2,
+	LONG_STRING	= 3,
+	SHORT_OBJECT	= 4,
+	LONG_OBJECT	= 5,
     };
 
     struct stub
@@ -153,7 +165,19 @@ struct min {
 	} g; // gc and control
     };
 
-    // Get value from a stub.
+    struct long_string
+    {
+    };
+
+    struct short_object
+    {
+    };
+
+    struct long_object
+    {
+    };
+
+    // Get non-pointer values from a stub.
     //
     friend inline float64 get_float64 ( const stub * p )
     {
@@ -172,28 +196,65 @@ struct min {
     {
         * (uns64 *) v = p->v.u;
     }
-    friend inline body * get_body ( const stub * p )
+
+    // Get pointer values from stub.  There are more
+    // efficient min::unprotected versions of these
+    // that have no asserts.
+    //
+    friend inline long_string * get_long_string
+    	( const stub * p )
     {
+        assert ( get_type ( p ) == LONG_STRING );
 #	if MIN_POINTER_LENGTH == 32
-	    return (body *) p->v.s.lo;
+	    return (long_string *) p->v.s.lo;
 #	else
-	    return (body *) p->v.u;
+	    return (long_string *) p->v.u;
+#	endif
+    }
+    friend inline short_object * get_short_object
+    	( const stub * p )
+    {
+        assert ( get_type ( p ) == SHORT_OBJECT );
+#	if MIN_POINTER_LENGTH == 32
+	    return (short_object *) p->v.s.lo;
+#	else
+	    return (short_object *) p->v.u;
+#	endif
+    }
+    friend inline long_object * get_long_object
+    	( const stub * p )
+    {
+        assert ( get_type ( p ) == LONG_OBJECT );
+#	if MIN_POINTER_LENGTH == 32
+	    return (long_object *) p->v.s.lo;
+#	else
+	    return (long_object *) p->v.u;
 #	endif
     }
 
-    // Get type, chain, etc. from a stub.
+    // Get type from a stub.
     //
     friend inline unsigned get_type ( const stub * p )
     {
         return p->g.s.t;
     }
+
+    // Get subtype, chain, etc. from non-collectable
+    // stub.
+    //
+    // There are unprotected versions of the following
+    // functions in min::unprotected that are more
+    // efficient because they have no assert.
+    //
     friend inline unsigned get_subtype
     	( const stub * p )
     {
+	assert ( p->v.i < 0 );
         return p->g.s.st;
     }
     friend inline stub * get_chain ( const stub * p )
     {
+	assert ( p->v.i < 0 );
 #	if MIN_POINTER_LENGTH == 32
 	    return (stub *) p->g.s.lo;
 #	else
