@@ -1,6 +1,6 @@
 MIN 2D Graphics Engine
 Draft 1
-Sun Aug 15 13:39:23 EDT 2004
+Sun Aug 15 14:46:24 EDT 2004
 Bob Walton
 walton@acm.org
 
@@ -23,7 +23,7 @@ contains:
 			which may be much bigger than what can be displayed
 			at one time.  For each pixel the following is given:
 
-			    (x,y): Coordinates of the pixel in the view.
+			    (x,y): View coordinates of the pixel.
 
 			    z: Distance coordinate from camera of pixel.
 
@@ -31,11 +31,12 @@ contains:
 			    point that would be seen by camera if there were
 			    no obstruction.  If vgz = z, then there is in fact
 			    no obstruction and the camera is looking at the
-			    ground for this pixel.
+			    ground for this pixel.  Otherwise z < vgz is
+			    required.
 
 			    ARGB: Color value for what is visible; here A is
 			    an alpha value that says the visible color equals
-			    A * foreground color + ( 1 - A ) background color.
+			    A * foreground color + ( 1 - A ) ground color.
 
 			    forbidden flag: Set if a ground object (see below)
 			    is not permitted to be at the ground point that
@@ -72,7 +73,7 @@ contains:
 			    object is facing the positive gx direction.
 
 			    height H: The object can jump above its contact
-			    point by some height H that adds to (gx,gy,gz).
+			    point by some height H that adds to gz.
 
 			    configuration graph C: This is a directed graph
 			    of configurations, where a configuration is
@@ -82,7 +83,7 @@ contains:
 			    ations, and arrows that are transitions from one
 			    configuration to another.  A loop of 20 configur-
 			    ations could be use, for example, to represent a
-			    20 frame walking loop or a 10 frame crawling loop.
+			    20 frame walking loop or a 20 frame crawling loop.
 
 			        Each configuration has:
 
@@ -93,7 +94,7 @@ contains:
 				    this arrow to prevent the object from
 				    stopping in this configuration.
 
-				    for each of 16 rotations:
+				    for each of 16 rotations (16 R values):
 
 				        graphic surface: A rectangular array
 					of pixels each with an ARGB value,
@@ -119,9 +120,20 @@ contains:
 
 	foreground object   This is an object that is drawn on top of a view
 			    and modifies the view.  E.g., an open door as
-			    opposed to a closed door.  It is just a small
-			    view that is used to replace a piece of a larger
-			    view temporarily by straight copying.
+			    opposed to a closed door.  It has:
+			    
+			    view: The view this can modify.
+
+			    pixel information: Same as for the view, but for a
+			    small number of pixels of the view.  This
+			    information overlays the view pixel information
+			    when the foreground object is active.
+
+			    active flag: Set when object is active and its
+			    pixels overlay those of the view.
+
+			    Foreground objects that are simultaneously active
+			    must not overlap.
 
 	carried object	    A carried object is an object that can be carried
 			    by a ground object.  Each carried object has
@@ -138,24 +150,27 @@ contains:
 
 			    a priority P: If a ground object is carrying two
 			    carried objects, the objects with lower priority
-			    replace graphic surface pixels first.  It is
-			    generally true that low priority objects should
-			    be small and easily obscurable and no two objects
-			    with the same priority should not overlap and be
-			    carried at the same time.
+			    replace graphic surface pixels first.
 
+			    active flag: Set when object is active and is
+			    being carried, so its graphic surfaces replace
+			    part of the carrying ground object's graphic
+			    surfaces.
+
+			    Two objects with the same priority should not
+			    overlap and be active at the same time.
 
 	segment		    A segment just has an identifier naming the
-			    segment.  A message to the program can be
-			    triggered when the contact point of a ground
-			    object moves to a pixel whose segment list
-			    contains a segment that was not in the segment
-			    list of the last contact point of the object. 
+			    segment.  When the contact point of a ground
+			    object moves to a pixel, the segment list of
+			    the pixel can be used to trigger actions.
 		
-			    Segments are often possibly curved line segments.
-			    Example segments would be walls an object cannot
-			    move though, doors that might open automatically,
-			    invisible boundaries between regions, etc.
+			    For example, a curved line can be used as a
+			    segment that represents a wall that cannot be
+			    moved through, a door that might open
+			    automatically when approached, or an invisible
+			    boundary between regions with different game
+			    properties.
 
 
 Notes:
@@ -178,6 +193,10 @@ Thus if view obscures object and view alpha = 1.0 the object is not
 seen, and if object obscures view and object alpha = 1.0 the view is
 not seen.
 
+It remains to be seen how big ground objects can be for this to run fast
+enough.  It may be possible to represent movement of a single large object
+by having many views, i.e. backgrounds, and cycling through them.
+
 The height of the object is used to offset both object z and the object
 graphic surface being used by (0,0,H) in ground coordinates translated
 into the corresponding displacement in (x,y,z) view coordinates.
@@ -185,3 +204,9 @@ into the corresponding displacement in (x,y,z) view coordinates.
 When the camera angle changes, everything changes, including the view and the
 ground object configuration graphic surfaces.  Thus only a very few camera
 angles can be supported.
+
+In theory any graphics surface can be scaled to any smaller size in a manner
+that looks good if the pixels are small enough to begin with.  Thus the
+information above is sufficient to scale ground and carried object graphic
+surfaces to indicate projective size decrease.  It remains to be seen if
+this looks good or can be done fast enough.
