@@ -364,6 +364,11 @@ point at the new location of the body.  The body may be deallocated by
 moving it to unimplemented memory.  Bodies are always some multiple
 of 8 bytes long, and are allocated on 8 byte boundaries.
 
+Protected functions that take a stub pointer as argument use
+\ttmkey{assert}{in protected function} statements to check
+the type code of the stub and various lengths.  Unprotected functions
+contain no such checks.
+
 Memory consisting of unrelocatable stubs pointing at relocatable
 bodies is called a `\key{stub/body memory}'.  Thus MIN has a stub/body memory.
 
@@ -389,7 +394,42 @@ TBD
 \subsection{Body Pointers}
 \label{BODY-POINTERS}
 
-TBD: compensating for relocation
+Body pointers are relocatable and require special programming to
+ensure that thay are up-to-date.  This programming makes use of
+the `\key{relocated flag}' which is one of the execution flags
+described in~\secref{EXECUTION-FLAGS}.
+
+Relocation can only happen inside a MIN system function.  When it
+happens, the MIN system function sets the relocation flag.
+
+Upon return from any function call, a function that uses pointers
+into bodies stored in local variables must check the relocation flag,
+and, if that flag is on, must:
+
+\begin{center}
+\begin{tabular}{l}
+recompute all local variables containing pointers into bodies \\
+clear the relocation flag \\
+remember it has cleared the relocation flag
+\end{tabular}
+\end{center}
+
+When the function returns to its caller, it must set the relocation flag
+if that flag was ever turned off by the function.
+
+Pointers into bodies are recomputed from body pointers stored in stubs,
+which are updated by MIN system functions that relocate bodies.
+
+The operation of \ikey{deallocating a body}{dealocate!body}
+is considered to be a relocation of the body.  The body pointer in the
+stub is pointed at unimplemented virtual memory, and the type code in the stub
+is set to an illegal value (e.g. zero).  Using a deallocated body is
+considered to be a fatal programming error, so typical code does not
+check for this case, and crashes when it tries to access the unimplemented
+virtual memory.  However, there is a limit to the size of unimplemented
+memory, so code using very large bodies should always recheck the type
+code when reloading a possibly relocated body pointer.
+
 
 \subsection{Stub Control}
 \label{STUB-CONTROL}
@@ -490,12 +530,10 @@ A stub contains a 64-bit value whose type depends upon the stub
 type code (\secref{STUB-TYPE-CODES}).  Many stubs are immutable
 and their values cannot be written after the stub has been created;
 nevertheless we describe unprotected functions below that
-write these values.  Protected functions that read these values
-do not check the type codes of the stubs, and can be used
-to read misformatted non-pointer values, e.g., misformatted
-IEEE 64-bit floating point numbers and misformatted UTF-8 encoded
-character strings.  There are no protected functions to read body pointers
-from stubs, as all body pointers are relocatable and require special
+write these values.  Unprotected functions are provided to obtain
+body pointers from stubs when these are the values of the stubs.
+This cannot be done by protected
+functions as body pointers are relocatable and require special
 programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 
 \subsection{Number Stubs}
@@ -720,6 +758,11 @@ The mechanism used to store the double pointer is:
 \end{verbatim}\end{indpar}
 
 \clearpage
+
+\section{Code and Execution}
+
+\subsection{Execution Flags}
+\label{EXECUTION-FLAGS}
 
 \appendix
 
