@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 16, 2005}
+\date{May 23, 2005}
  
 \maketitle
 
@@ -263,9 +263,11 @@ these tasks well.
 
 \section{Remarks}
 
+TBD
 
 \section{Overview}
 
+TBD
 
 \section{Lexemes}
 \label{LEXEMES}
@@ -302,7 +304,7 @@ a letter, and not a bracket, if it is followed by a letter.
 A \key{mark} is a string of mark characters, which are just characters
 that are not letters or digits or decimal points or brackets or quotes
 or white-space characters.
-E.g., \verb|+| and \verb|::|.  The \key{mark characters} are
+E.g., \verb|+| and \verb|::| are marks.  The \key{mark characters} are
 comma (\ttmkey{,}{mark character}),
 semi-colon (\ttmkey{;}{mark character}),
 colon (\ttmkey{:}{mark character}),
@@ -375,10 +377,10 @@ As an escape character it is used to begin a sequence of characters called
 an escape sequence that denotes a single character.
 See~\pagref{ESCAPE-SEQUENCES} for details on escape sequences.
 
-\ikey{White-space characters}{white-space character},
+\ikey{White-space characters}{white-space character} --
 the \key{space character}, the \key{tab character},
 the \key{new line character}, the \key{form feed character}, and the
-\key{vertical tab} character, are used to separate lexemes.  The space
+\key{vertical tab} character -- are used to separate lexemes.  The space
 character can be used to represent a single space inside quoted strings.
 The tab character is always equivalent to one or more space characters,
 with tabs set every 8 columns.
@@ -407,7 +409,8 @@ character other than quote (\verb|"|) or backslash (\verb|\|)
 can be used to represent itself.  The single space character can be used
 to represent itself.  Line feeds represent themselves;
 carriage returns are ignored.
-The other character representatives are called \skey{escape sequence}s,
+The other character representatives are called
+\skey{escape sequence}s,\label{ESCAPE-SEQUENCES}
 and consist of a backslash (\verb|\|\index{\\@{\tt \BACKSLASH}})
 followed by other characters.  Each escape sequence represents exactly
 one character, except for the \verb|\+|{\em new-line}~{\em white-space}
@@ -436,7 +439,6 @@ the character they represent are:
 		  white space characters are deleted \\
 \end{tabular}
 \end{center}%
-\label{ESCAPE-SEQUENCES}%
 \index{n@{\tt \BACKSLASH n}}%
 \index{r@{\tt \BACKSLASH r}}%
 \index{t@{\tt \BACKSLASH t}}%
@@ -451,7 +453,7 @@ the character they represent are:
 \index{new line 2@{\BACKSLASH{\em new-line} {\em white-space}}}
 \index{+@{\BACKSLASH{\tt +} {\em new-line} {\em white-space}}}
 
-Single space characters after a quoted string new line representative
+Single space characters after a newline in a quoted string
 are removed up through the column containing the initial quote (\verb|"|)
 of the quoted string.  Thus
 
@@ -502,7 +504,8 @@ The first object named in output stream is assigned the name
 and so forth.  The same object may be assigned different names in different
 output streams.\footnote{A possible implementation is to give objects that
 have been assigned names in an output stream a hidden system defined output
-stream specific attribute equal to the object's name integer.}
+stream specific attribute (\pagref{ATTRIBUTE})
+equal to the object's name integer.}
 
 There are two kinds of arrows: single and double.
 
@@ -524,18 +527,22 @@ Two arrows leaving the same object may have the same label.  Thus
 an object and an arrow label together name
 a set of arrows sourced at the object.
 
-In addition to a label, and arrow may have \skey{arrow flag}s.  A double arrow
-has a separate set of flags for each of its directions.  The standard
-flags are the \key{dot flag} (\ttmkey{.}{dot flag}), which signifies
-the arrow is not to be output when its source is output, and the
-\key{maybe flag} (\ttmkey{?}{maybe flag}), which signifies
-that the target of the arrow may be garbage collected (made to disappear
-automatically, see \secref{GARBAGE-COLLECTION}) if it cannot be
-reached except by traversing arrows that have maybe flags.
+\ikey{Arrow flags}{arrow flag} may be attached to arrow labels.
+More precisely, a set of arrow flags is defined for each object
+and each arrow label, and these flags apply to all arrows sourced at the
+object that have the given label.
+The standard flags are the \key{dot flag} (\ttmkey{.}{dot flag}),
+and the \key{maybe flag} (\ttmkey{?}{maybe flag}).
+Arrows with a dot flagged label are not to be output when their source
+is output.
+Targets of arrows with a maybe flagged label may be garbage collected
+(made to disappear automatically, see \secref{GARBAGE-COLLECTION})
+if they cannot be reached except by traversing arrows whose labels
+have maybe flags.
 
 We will give examples in the next section along with a basic way of
 representing sets of objects in text.  In the rest of this document
-arrows are called \skey{attribute}s, arrow labels are called
+arrows are called \skey{attribute}s,\label{ATTRIBUTE} arrow labels are called
 \skey{attribute name}s, arrow flags are called \skey{attribute flag}s,
 and arrow targets are called \skey{attribute value}s.
 Also `\ikey{attribute L of object O}{attribute!of an object}'
@@ -553,14 +560,18 @@ which we now describe.
 
 The format of a \key{raw representation} is:
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{l}
 \emkey{raw-representation} ::= {\em raw-object-representation} \ldots
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{raw-object-representation} ::=
     {\em raw-object-header}
     {\em raw-attribute-representation} \ldots
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{raw-object-header}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
@@ -569,21 +580,30 @@ The format of a \key{raw representation} is:
     $|$ & {\em raw-object-name} \verb|>>|{\tt \bf :}%
           \ttmindex{>>:}{in {\em raw-object-header}} \\
     \end{tabular}
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{raw-attribute-representation}\label{RAW-ATTRIBUTE-REPRESENTATION}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & {\em raw-single-attribute-representation} \\
     $|$ & {\em raw-double-attribute-representation}
     \end{tabular}
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{raw-single-attribute-representation} ::=
 \\\hspace*{1in}
 	{\em attribute-label} {\em attribute-label-terminator}
 	{\em single-attribute-value}
 	\ttmkey{;;}{in {\em raw-single-attribute}!{\em -representation}}
-\\[1ex]
+\end{tabular}%
+\index{value!attribute}
+
+\begin{tabular}{l}
 \emkey{single-attribute-value} ::= {\em atom} $|$ {\em raw-object-name}
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{raw-double-attribute-representation} ::=
 \\\hspace*{1in}
 	{\em attribute-label} {\em attribute-label-terminator}
@@ -591,40 +611,52 @@ The format of a \key{raw representation} is:
 \\\hspace*{1in}
 	{\em attribute-label-initiator} {\em attribute-label}
 	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{double-attribute-value} ::= {\em raw-object-name}
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{raw-object-name} ::=
 	\ttmnbkey{\#\#}{in {\em raw-object-name}} {\em non-negative-integer}
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{attribute-label} ::= {\em atom} \ldots
-\\[1ex]
+\end{tabular}%
+\index{label!attribute}
+
+\begin{tabular}{l}
 \emkey{attribute-label-terminator} ::=
 	{\em flag-character}\ldots{\tt \bf :}%
 	\index{:flag-character@{\em flag-character}\ldots{\tt :}!
 	attribute-label-terminator}~~~~~(a mark)
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{attribute-label-initiator} ::=
 	{\tt \bf :}{\em flag-character}\ldots%
 	\index{:flag-character@{\tt :}{\em flag-character}\ldots!
 	attribute-label-initiator}~~~~~(a mark)
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{flag-character} ::= {\em mark-character} except \verb|<| or \verb|>|
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{atom} ::= {\em non-special-lexeme}
-\\[1ex]
+\end{tabular}
+
+\begin{tabular}{l}
 \emkey{special-lexeme}
     \begin{tabular}[t]{@{}rl@{}}
     ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| \\
     $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
     \end{tabular}
-
 \end{tabular}
-\end{center}%
-\index{label!attribute}%
-\index{source!attribute}%
-\index{value!attribute}%
-\index{target!attribute}
+\end{indpar}
 
 A simple example of the raw representation of a set of objects is:
 
