@@ -554,7 +554,7 @@ of object O (arrows sourced at O) which have the attribute label
 \subsection{Raw Representations}
 
 A set of objects can be written to a text file or read from a text file.
-When this is done, a textual representation of the object set must be used
+When this is done, a textual representation of the object set is used
 in the file.  The simplest representation is the raw representation,
 which we now describe.
 
@@ -642,7 +642,8 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{flag-character} ::= {\em mark-character} except \verb|<| or \verb|>|
+\emkey{flag-character} ::= {\em mark-character}
+		except \verb|:|, \verb|<|, or \verb|>|
 \end{tabular}
 
 \begin{tabular}{l}
@@ -652,7 +653,7 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{special-lexeme}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| \\
+    ::= & \verb|##| $|$ \verb|::| $|$ \verb|>:| $|$ \verb|>>:| $|$ \verb|;;| \\
     $|$ & {\em attribute-label-terminator} $|$ {\em attribute-label-initiator}
     \end{tabular}
 \end{tabular}
@@ -669,7 +670,6 @@ A simple example of the raw representation of a set of objects is:
 \verb|##2::|\\
 \verb|    type: man;;|\\
 \verb|    name: Jack;;|\\
-\verb|    wife: ##1 :husband;;|
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
@@ -722,25 +722,18 @@ distinction between quoted and unquoted representations of unquoted atoms.
 The double-semi-colons (\verb|;;|) at the ends of attribute representations
 may be omitted according to the \key{double-semi-colon representation rule}.
 This rule says that the \ttmkey{;;}{omitting} at the end of an attribute
-representation may be omitted provided the next line is not
+representation may be omitted provided the next non-blank line is not
 indented with respect to the first non-white-space character of the
 attribute representation with the omitted \verb|;;|,
-or alternatively if the end of
-text (e.g., end of file) immediately follows.
+or alternatively if there are no following non-blank lines in the text
+(e.g., in the file).
 Thus the \verb|;;|'s in the example just given may be omitted.
 To detect errors, if a line of an attribute representation is indented by
 just one column with respect to the first non-white-space character of the
 attribute representation, the line is considered to be in error.
 Thus indentations must be by at least two columns.
 
-We can say that \verb|##1| is the source of an arrow labeled \verb|type|
-with target \verb|woman|, but instead we will usually say that
-\verb|##1| has an attribute named \verb|type| with value \verb|woman|.
-Thus in our example \verb|##1| has attributes named \verb|type|,
-\verb|name|, and \verb|husband| that have values, respectively,
-\verb|woman|, \verb|Jill|, and \verb|##2|.
-
-It is possible to place \skey{arrow flag}s on attributes (arrows)
+It is possible to place \skey{attribute flag}s on attribute labels
 by putting flag characters
 before or after the \verb|:| that follows or precedes an attribute label.
 The following is the same as the above example except that flags
@@ -755,7 +748,6 @@ have been added to some of the attributes:
 \verb|##2::|\\
 \verb|    type: man;;|\\
 \verb|    name+: Jack;;|\\
-\verb|    wife@: ##1 :@husband;;|
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
@@ -784,7 +776,7 @@ have been added to some of the attributes:
 \end{picture}
 \end{center}
 
-In the picture the attribute flags have been added as subscripts on the
+In the picture the attribute flags have been added as superscripts on the
 attribute labels, and in the text the flags have been added before of after the
 \verb|:| that follows or precedes the attribute label.
 
@@ -798,10 +790,6 @@ attributes labeled \verb|child|, is:
 \verb|##1::|\\
 \verb|    child: ##2 :parent;;|\\
 \verb|    child: ##3 :parent;;|\\
-\verb|##2::|\\
-\verb|    parent: ##1 :child;;|\\
-\verb|##3::|\\
-\verb|    parent: ##1 :child;;|
 \end{tabular}
 ~~~~~~~~~
 \begin{picture}(3.0,1.5)
@@ -826,14 +814,34 @@ attributes labeled \verb|child|, is:
 We say that the value of the \verb|child| attribute of \verb|##1| is
 the set to two elements, \verb|##2| and \verb|##3|.
 
-The difference between \ttnbkey{::} and \ttnbkey{>:} or \ttnbkey{>>:}
-is that \verb|::| indicates that the object should not previously
-exist, while \verb|>:| and \verb|>>:| indicate that the attributes are to
-be added to any existing object, though if the object does not exist it will be
-created.  For \verb|>:| it is an error to add to an existing object an
-attribute with the same name as an existing attribute of that object.
-For \verb|>>:| this is not an error, and the added attribute value becomes
-an addition to the set of values of the attribute.
+Differences between \ttnbkey{::}, \ttnbkey{>:}, are \ttnbkey{>>:} relate
+to what is done when an object or attribute label previously exists.
+
+\verb|::| indicates that the object being represented should not previously
+exist, or if it does exist, must not have been defined by any previous
+object representation (it may have been defined as the value of a double
+attribute).  Second, any attribute label represented in the object
+representation, if it previously exists, must be represented with exactly
+the same flags as it already has.
+
+At the other extreme, \verb|>>:| adds to existing objects.
+The object being represented can previously exist.  Any attribute
+representation in the object representation creates a new attribute value.
+Any flags on an attribute label are added to the flags of the label if
+the label already exists.
+
+\verb|>:| is like \verb|>>:| except that the object representation cannot
+add new values to previously existing attributes of the object represented.
+Thus \verb|>:| is used to introduce new attributes to an existing object.
+Note that new values can be added to attributes of double attribute value
+objects.
+
+Note that double attributes must have only one representation.  If they
+are given two representations, one for each end of the attribute (arrow
+pair), \underline{two} identical double attributes (two arrow pairs with the
+same labels) will be created.  Usually one end of a double attribute is
+thought of as the primary end, and its object representation is used to
+include the sole representation of the double attribute.
 
 Object \ttnbkey{\#\#0} is special: it is the \ttkey{.GLOBAL} object, and
 its attributes are called \skey{global variables}.  One of the global
@@ -1345,7 +1353,7 @@ Parsing a sequence of lexemes is done in four phases:
 The sequence of lexemes is represented as an object
 that is a list whose elements (values of the attributes
 named {\tt 1}, {\tt 2}, {\tt 3}, \ldots) are atoms that are lexemes
-and objects representing bracketted sublists of lexemes.  Quoted
+and objects representing bracketed sublists of lexemes.  Quoted
 atoms are specially represented by a list with one element and the
 {\tt .initiator} attribute value `{\tt quoted}'.
 
@@ -1370,7 +1378,7 @@ Quoted atom representations are replaced by the atoms quoted.
 
 The \key{lexeme scanning} algorithm inputs a sequence of lexemes
 and outputs an object representing the sequence.  The object has
-list elements which are attributes labelled {\tt 1}, {\tt 2}, \ldots.
+list elements which are attributes labeled {\tt 1}, {\tt 2}, \ldots.
 The object may have an {\tt .initiator} and/or {\tt .terminator}
 attribute.
 
@@ -1486,7 +1494,7 @@ also denote 1 character atoms.
 \label{OPERATOR-SCANNING}
 
 The \key{operator scanning} algorithm inputs an object output
-by the lexical scanning algorithm and rearanges its contents according
+by the lexical scanning algorithm and rearranges its contents according
 to the operators it contains.
 Specifically, subsequences of list elements between operators
 are regrouped into sublists to represent subexpressions,
@@ -1504,11 +1512,12 @@ object:
 \begin{enumerate}
 
 \item If the object has an 
-an `{\tt .initiator} attribute equal to `{\tt quoted}', the
+an {\tt .initiator} attribute equal to `{\tt quoted}', the
 scanning algorithm terminates without modifying the object.
 
-\item The parsing mode argument to the algorthm is changed if the
-object has an {\tt .initiator} attribute as follows:
+\item
+If the object has an {\tt .initiator} attribute,
+the parsing mode argument to the algorithm is changed as follows:
 
 \begin{center}
 \begin{tabular}{lll}
@@ -1526,7 +1535,7 @@ An operator is an atom equal to an operator that is recognized according
 to the current parsing mode (see \pagref{PARSING-MODES},
 Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
 
-If there are opeators among the list elements, those with the lowest
+If there are operators among the list elements, those with the lowest
 priority L are selected.  Then any non-empty sequences of list elements
 between selected operators are replaced by a single object listing the
 replaced elements.  Then, the current object is given a {\tt .parser}
@@ -1611,7 +1620,7 @@ looking for objects with a {\tt .parser} attribute, and for each
 such object, calls its {\tt .parser} attribute value as a function with
 the object as input and the function output as the expansion of the input
 object.  The expansion algorithm works bottom up, from the innermost
-expression outwords, replacing subexpressions by their expansions.
+expression outward, replacing subexpressions by their expansions.
 It is thus an evaluation algorithm, with the
 {\tt .parser} attribute values as the evaluators.
 
@@ -2021,7 +2030,7 @@ PREVIOUS CONTEXT    (contexts are like CONS cells)
 A FRAME is:
 
 \begin{indpar}\begin{verbatim}
-... local variables are like object attrubutes ...
+... local variables are like object attributes ...
 .object
 .context
 PREVIOUS FRAME           (frames are like CONS cells)
