@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{May 23, 2005}
+\date{May 25, 2005}
  
 \maketitle
 
@@ -889,15 +889,41 @@ For example,
 
 is the cooked representation of the object
 
-\begin{indpar}\begin{verbatim}
-##93::
-    1: this
-    2: is
-    3: a
-    4: sentence
-    .terminator: "."
-    .initiator: capital
-\end{verbatim}\end{indpar}
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##93::|\\
+\verb|    1: this|\\
+\verb|    2: is|\\
+\verb|    3: a|\\
+\verb|    4: sentence|\\
+\verb|    .terminator: "."|\\
+\verb|    .initiator: capital|\\
+\end{tabular}
+~~~~~
+\begin{picture}(4.1,1.5)
+\put(0,0){\framebox(4.1,1.5){}}
+\put(0.3,1.00){\makebox(3.4,0.3){\tt \#\#93}}
+\put(2.0,1.15){\oval(3.4,0.3)}
+\put(1.00,1.00){\vector(0,-1){0.4}}
+\put(0.95,0.85){\makebox(0,0)[r]{\tt .initiator}}
+\put(1.00,0.50){\makebox(0,0)[c]{\tt capital}}
+\put(1.50,1.00){\vector(0,-1){0.6}}
+\put(1.45,0.85){\makebox(0,0)[r]{\tt 1}}
+\put(1.50,0.30){\makebox(0,0)[c]{\tt this}}
+\put(1.85,1.00){\vector(0,-1){0.6}}
+\put(1.80,0.85){\makebox(0,0)[r]{\tt 2}}
+\put(1.85,0.30){\makebox(0,0)[c]{\tt is}}
+\put(2.10,1.00){\vector(0,-1){0.6}}
+\put(2.05,0.85){\makebox(0,0)[r]{\tt 3}}
+\put(2.10,0.30){\makebox(0,0)[c]{\tt a}}
+\put(2.60,1.00){\vector(0,-1){0.6}}
+\put(2.55,0.85){\makebox(0,0)[r]{\tt 4}}
+\put(2.60,0.30){\makebox(0,0)[c]{\tt sentence}}
+\put(3.00,1.00){\vector(0,-1){0.4}}
+\put(3.00,0.50){\makebox(0,0)[c]{\tt "."}}
+\put(3.05,0.85){\makebox(0,0)[l]{\tt .terminator}}
+\end{picture}
+\end{center}
 
 The following is a second example in which parentheses \verb|( )|
 are used to permit the operator \verb|+| to be recognized, so that
@@ -908,25 +934,83 @@ are used to permit the operator \verb|+| to be recognized, so that
 
 is the cooked representation of the objects
 
-\begin{indpar}\begin{verbatim}
-##42:: 
-    1: straight
-    2: 3.2
-##43:: 
-    1: "+"
-    2: y
-    3: 9.4
-    initiator: "("
-    terminator: ")"
-##44:: 
-    1: straight
-    2: ##43
-##45::
-    1: ##42
-    2: left
-    3: ##44
-    .separator: ";"
-\end{verbatim}\end{indpar}
+\begin{center}
+\begin{tabular}[b]{@{}l@{}}
+\verb|##42::|\\
+\verb|    1: straight|\\
+\verb|    2: 3.2|\\
+\verb|##43::|\\
+\verb|    1: "+"|\\
+\verb|    2: y|\\
+\verb|    3: 9.4|\\
+\verb|    initiator: "("|\\
+\verb|    terminator: ")"|\\
+\verb|##44:: |\\
+\verb|    1: straight|\\
+\verb|    2: ##43|\\
+\verb|##45::|\\
+\verb|    1: ##42|\\
+\verb|    2: left|\\
+\verb|    3: ##44|\\
+\verb|    .separator: ";"|\\
+\end{tabular}
+~~~~~
+\begin{picture}(4.1,3.2)
+\put(0,0){\framebox(4.1,3.2){}}
+\put(1.4,0.0){
+\put(0.0,0.90){\makebox(2.0,0.3){\tt \#\#43}}
+\put(1.0,1.05){\oval(2.0,0.3)}
+\put(0.40,0.90){\vector(0,-1){0.4}}
+\put(0.35,0.75){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.40){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,0.90){\vector(0,-1){0.6}}
+\put(0.65,0.75){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.20){\makebox(0,0)[c]{\tt "+"}}
+\put(1.00,0.90){\vector(0,-1){0.6}}
+\put(0.95,0.75){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.20){\makebox(0,0)[c]{\tt y}}
+\put(1.30,0.90){\vector(0,-1){0.6}}
+\put(1.25,0.75){\makebox(0,0)[r]{\tt 3}}
+\put(1.30,0.20){\makebox(0,0)[c]{\tt 9.4}}
+\put(1.60,0.90){\vector(0,-1){0.4}}
+\put(1.60,0.40){\makebox(0,0)[c]{\tt ")"}}
+\put(1.65,0.75){\makebox(0,0)[l]{\tt .terminator}}
+}
+\put(0.2,1.3){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#42}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.3}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
+\put(0.90,0.50){\vector(0,-1){0.3}}
+\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
+\put(0.90,0.10){\makebox(0,0)[c]{\tt 3.2}}
+}
+\put(2.2,1.3){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#44}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.3}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.10){\makebox(0,0)[c]{\tt straight}}
+\put(0.90,0.50){\vector(0,-1){0.6}}
+\put(0.85,0.35){\makebox(0,0)[r]{\tt 2}}
+}
+\put(0.2,2.2){
+\put(0.0,0.50){\makebox(3.2,0.3){\tt \#\#45}}
+\put(1.60,0.65){\oval(3.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.6}}
+\put(0.25,0.35){\makebox(0,0)[r]{\tt 1}}
+\put(1.30,0.50){\vector(0,-1){0.3}}
+\put(1.25,0.35){\makebox(0,0)[r]{\tt 2}}
+\put(1.30,0.10){\makebox(0,0)[c]{\tt left}}
+\put(2.30,0.50){\vector(0,-1){0.6}}
+\put(2.25,0.35){\makebox(0,0)[r]{\tt 3}}
+\put(2.80,0.50){\vector(0,-1){0.3}}
+\put(2.85,0.35){\makebox(0,0)[l]{\tt .separator}}
+\put(2.80,0.10){\makebox(0,0)[c]{\tt ";"}}
+}
+\end{picture}
+\end{center}
 
 Next is a third example in which
 curly brackets (\verb|{ }|) are used with multiple
