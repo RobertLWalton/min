@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{May 25, 2005}
+\date{May 27, 2005}
  
 \maketitle
 
@@ -1026,46 +1026,185 @@ lines and indentation to represent code, so that
         }
 \end{verbatim}\end{indpar}
 
-is the cooked representation of
+is the cooked representation of the object in
+Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 
-\begin{indpar}\begin{verbatim}
-##130::
-    1: x
-    2: y
-    .separator: ","
-    .initiator: "("
-    .terminator: ")"
-##131::
-    1: ">"
-    2: x
-    3: y
-    .initiator: "("
-    .terminator: ")"
-##132::
-    1: return
-    2: y
-    .initiator: ":"
-##133::
-    1: if
-    2: ##131
-    3: ##132
-##134::
-    1: return
-    2: x
-    .initiator: ":"
-##135::
-    1: else
-    2: ##134
-##136::
-    1: ##133
-    2: ##135
-    .initiator: "{"
-    .terminator: "}"
-##137::
-    1: function
-    2: ##130
-    2: ##136
-\end{verbatim}\end{indpar}
+
+\begin{boxedfigure}
+
+\begin{center}
+\begin{tabular}[t]{@{}l@{}}
+\verb|##130::|\\
+\verb|    1: x|\\
+\verb|    2: y|\\
+\verb|    .separator: ","|\\
+\verb|    .initiator: "("|\\
+\verb|    .terminator: ")"|\\
+\verb|##131::|\\
+\verb|    1: ">"|\\
+\verb|    2: x|\\
+\verb|    3: y|\\
+\verb|    .initiator: "("|\\
+\verb|    .terminator: ")"|\\
+\verb|##132::|\\
+\verb|    1: return|\\
+\verb|    2: y|\\
+\verb|    .initiator: ":"|\\
+\verb|##133::|\\
+\verb|    1: if|\\
+\verb|    2: ##131|\\
+\verb|    3: ##132|\\
+\verb|##134::|\\
+\verb|    1: return|\\
+\verb|    2: x|\\
+\verb|    .initiator: ":"|\\
+\verb|##135::|\\
+\verb|    1: else|\\
+\verb|    2: ##134|\\
+\verb|##136::|\\
+\verb|    1: ##133|\\
+\verb|    2: ##135|\\
+\verb|    .initiator: "{"|\\
+\verb|    .terminator: "}"|\\
+\end{tabular}
+~~~~~
+\begin{tabular}[t]{@{}l@{}}
+\verb|##137::|\\
+\verb|    1: function|\\
+\verb|    2: ##130|\\
+\verb|    3: ##136|\\[2ex]
+\begin{picture}(4.0,5.5)
+\put(0,0){\framebox(4.0,5.5){}}
+\put(0.6,0.0){
+\put(0.0,0.50){\makebox(2.0,0.3){\tt \#\#131}}
+\put(1.0,0.65){\oval(2.0,0.3)}
+\put(0.40,0.50){\vector(0,-1){0.25}}
+\put(0.35,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.15){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt ">"}}
+\put(1.00,0.50){\vector(0,-1){0.25}}
+\put(0.95,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.15){\makebox(0,0)[c]{\tt x}}
+\put(1.30,0.50){\vector(0,-1){0.25}}
+\put(1.25,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.30,0.15){\makebox(0,0)[c]{\tt y}}
+\put(1.60,0.50){\vector(0,-1){0.25}}
+\put(1.65,0.40){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.60,0.15){\makebox(0,0)[c]{\tt ")"}}
+}
+\put(1.4,1.4){
+\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#132}}
+\put(0.65,0.65){\oval(1.3,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
+\put(1.10,0.50){\vector(0,-1){0.25}}
+\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.10,0.15){\makebox(0,0)[c]{\tt y}}
+}
+\put(2.6,0.7){
+\put(0.0,0.50){\makebox(1.3,0.3){\tt \#\#134}}
+\put(0.65,0.65){\oval(1.3,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt ":"}}
+\put(0.70,0.50){\vector(0,-1){0.25}}
+\put(0.65,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.15){\makebox(0,0)[c]{\tt return}}
+\put(1.10,0.50){\vector(0,-1){0.25}}
+\put(1.05,0.40){\makebox(0,0)[r]{\tt 3}}
+\put(1.10,0.15){\makebox(0,0)[c]{\tt x}}
+}
+\put(0.2,2.0){
+\put(0.0,0.50){\makebox(1.2,0.3){\tt \#\#133}}
+\put(0.60,0.65){\oval(1.2,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.25}}
+\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.15){\makebox(0,0)[c]{\tt if}}
+\put(0.60,0.50){\line(0,-1){0.45}}
+\put(0.50,0.05){\oval(0.2,0.2)[br]}
+\put(0.50,-0.05){\line(-1,0){0.40}}
+\put(0.10,-0.15){\oval(0.2,0.2)[tl]}
+\put(0.00,-0.15){\line(0,-1){1.10}}
+\put(0.10,-1.25){\oval(0.2,0.2)[bl]}
+\put(0.10,-1.35){\vector(1,0){0.30}}
+\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(0.90,0.50){\line(0,-1){0.35}}
+\put(1.00,0.15){\oval(0.2,0.2)[bl]}
+\put(1.00,0.05){\vector(1,0){0.2}}
+\put(0.85,0.40){\makebox(0,0)[r]{\tt 3}}
+}
+\put(2.8,2.0){
+\put(0.0,0.50){\makebox(0.8,0.3){\tt \#\#135}}
+\put(0.40,0.65){\oval(0.8,0.3)}
+\put(0.20,0.50){\vector(0,-1){0.25}}
+\put(0.15,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.20,0.15){\makebox(0,0)[c]{\tt else}}
+\put(0.60,0.50){\vector(0,-1){1.0}}
+\put(0.55,0.40){\makebox(0,0)[r]{\tt 2}}
+}
+\put(1.5,2.4){
+\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#136}}
+\put(0.85,1.15){\oval(1.3,0.3)}
+\put(0.40,1.00){\vector(0,-1){0.25}}
+\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.65){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,1.00){\line(0,-1){0.65}}
+\put(0.60,0.35){\oval(0.2,0.2)[br]}
+\put(0.60,0.25){\vector(-1,0){0.70}}
+\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
+\put(1.00,1.00){\line(0,-1){0.65}}
+\put(1.10,0.35){\oval(0.2,0.2)[bl]}
+\put(1.10,0.25){\vector(1,0){0.20}}
+\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
+\put(1.30,1.00){\vector(0,-1){0.25}}
+\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.30,0.65){\makebox(0,0)[c]{\tt ")"}}
+}
+\put(0.6,3.2){
+\put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#130}}
+\put(0.85,1.15){\oval(1.3,0.3)}
+\put(0.40,1.00){\vector(0,-1){0.25}}
+\put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
+\put(0.40,0.65){\makebox(0,0)[c]{\tt "("}}
+\put(0.70,1.00){\vector(0,-1){0.25}}
+\put(0.65,0.90){\makebox(0,0)[r]{\tt 1}}
+\put(0.70,0.65){\makebox(0,0)[c]{\tt x}}
+\put(1.00,1.00){\vector(0,-1){0.25}}
+\put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
+\put(1.00,0.65){\makebox(0,0)[c]{\tt y}}
+\put(1.30,1.00){\vector(0,-1){0.25}}
+\put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
+\put(1.30,0.65){\makebox(0,0)[c]{\tt ")"}}
+\put(1.50,1.15){\vector(1,0){1.0}}
+\put(1.55,1.20){\makebox(0,0)[l]{\tt .separator}}
+\put(2.55,1.15){\makebox(0,0)[l]{\tt ","}}
+}
+\put(0.2,4.5){
+\put(0.0,0.50){\makebox(3.6,0.30){\tt \#\#137}}
+\put(1.80,0.65){\oval(3.6,0.3)}
+\put(0.30,0.50){\vector(0,-1){0.25}}
+\put(0.25,0.40){\makebox(0,0)[r]{\tt 1}}
+\put(0.30,0.15){\makebox(0,0)[c]{\tt function}}
+\put(1.25,0.50){\vector(0,-1){0.5}}
+\put(1.20,0.40){\makebox(0,0)[r]{\tt 2}}
+\put(3.40,0.50){\line(0,-1){1.35}}
+\put(3.30,-0.85){\oval(0.2,0.2)[br]}
+\put(3.30,-0.95){\vector(-1,0){0.5}}
+\put(3.35,0.40){\makebox(0,0)[r]{\tt 3}}
+}
+\end{picture}
+\end{tabular}
+\end{center}
+
+\caption{Example Code Object Representation}
+\label{EXAMPLE-CODE-OBJECT-REPRESENTATION}
+\end{boxedfigure}
 
 Cooked representations may replace raw object names in the
 description of other objects, as in
