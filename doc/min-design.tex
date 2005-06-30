@@ -728,7 +728,7 @@ the code:
 \begin{indpar}\begin{verbatim}
 union { min::uns64 str; char buf[6]; } u;
 min::gen v;
-. . . .
+. . . set v to a direct string value . . .
 u.str = min::direct_str_of ( v );
 cout << u.buf;
 \end{verbatim}\end{indpar}
@@ -736,7 +736,7 @@ cout << u.buf;
 The {\tt min::direct\_str\_of} function merely copies the 3 or
 5 {\tt char}'s of the {\tt min::gen} direct string value and
 appends a NUL character.
-It does this by writing an appropriate value into \verb|v.str|.
+It does this by writing an appropriate value into \verb|u.str|.
 
 The \verb|control_code_of| function only returns
 a 26-bit unsigned integer for both 32-bit and 64-bit general values.
@@ -755,7 +755,7 @@ subtype, \underline{without} checking the subtype:
 \LABEL{MUP::DIRECT_INT_OF} \\
 \verb|min::uns64 MUP::| & \MUPKEY{direct\_str\_of}\verb| ( min::gen v )|
 \LABEL{MUP::DIRECT_STR_OF} \\
-\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MUP::STUB_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{list\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::LIST_AUX_OF} \\
@@ -840,7 +840,7 @@ range errors.
 \LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\
 \end{tabular}\end{center}
 
-The actual string, stub pointer, and auxilary pointer
+The actual direct value, stub pointer, auxilary pointer, and control code
 {\tt min::gen} subtype codes
 are implementation dependent.  The following constants equal these
 subtype codes:
@@ -930,17 +930,18 @@ The code to do all this has the form:
 ... some_function ( ... )
 {
     bool relocated = min::set_relocated_flag ( false );
+    min::stub * s = a_pointer_to_some_stub_with_a_body;
     . . . . .
-    assert ( . . . == type_of ( . . . ) );
+    assert ( . . . == type_of ( s ) );
     min::some_body_type * p =
-        some_function_returning_a_body_pointer ( ... );
+        some_function_returning_a_body_pointer ( s );
     . . . . . use p . . . . .
     some_relocating_function ( ... );
     if ( min::set_relocated_flag( false ) )
     {
         relocated = true;
-        assert_allocated ( . . . );
-        p = some_function_returning_a_body_pointer ( ... );
+        assert_allocated ( s, MAX_SIZE_OF_BODY_OF_S );
+        p = some_function_returning_a_body_pointer ( s );
     }
     . . . . . use p . . . . .
     min::set_relocated_flag ( relocated );
@@ -999,16 +1000,17 @@ as:
 ... some_function ( ... )
 {
     min::relocated relocated;
+    min::stub * s = a_pointer_to_some_stub_with_a_body;
     . . . . .
-    assert ( . . . == type_of ( . . . ) );
+    assert ( . . . == type_of ( s ) );
     min::some_body_type * p =
-        some_function_returning_a_body_pointer ( ... );
+        some_function_returning_a_body_pointer ( s );
     . . . . . use p . . . . .
     some_relocating_function ( ... );
     if ( relocated )
     {
-        assert_allocated ( . . . );
-        p = some_function_returning_a_body_pointer ( ... );
+        assert_allocated ( s, MAX_SIZE_OF_BODY_OF_S );
+        p = some_function_returning_a_body_pointer ( s );
     }
     . . . . . use p . . . . .
     return ...;
@@ -1060,7 +1062,7 @@ which is used to optimize the inline function:
 which expands to the code:
 
 \begin{indpar}\begin{verbatim}
-if ( MIN_DEALLOCATED_LIMIT < size )
+if ( MIN_DEALLOCATED_LIMIT < size || MIN_DEBUG )
 {
     assert ( ! is_deallocate ( s ) );
 }
@@ -1068,16 +1070,17 @@ if ( MIN_DEALLOCATED_LIMIT < size )
 
 If {\tt size} is a constant (such as a {\tt size\_of} expression)
 not greater than {\tt MIN\_DEALLOCATED\_\EOL LIMIT},
-this code will be optimized away by the compiler.
+this code will normally be optimized away by the compiler.
 
-Note that using
+However if {\tt MIN\_DEBUG} is set {\tt assert\_allocated} always
+executes
 
 \begin{indpar}\begin{verbatim}
 assert ( ! is_deallocate ( s ) );
 \end{verbatim}\end{indpar}
 
-instead of {\tt assert\_allocated} can be useful for debugging
-improper accesses to deallocated bodies.
+because this is useful for debugging improper accesses to deallocated
+bodies.
 
 \subsection{Stub Control}
 \label{STUB-CONTROL}
@@ -1111,7 +1114,7 @@ the garbage collector manages.
 
 If a stub is uncollectible, its stub control can be organized in different
 ways according to the type code value.  The standard way of organizing
-the stub control is:
+an uncollectible stub control is:
 
 \begin{center}
 \begin{tabular}{ll}
@@ -1131,7 +1134,8 @@ can be used to add memory for additional numbers to the
 object.  Note that the auxilary stub itself may not contain enough
 information to tell the type of the value it stores; one may have to
 trace the reference from the object pointing at the auxilary stub
-to determine this type.
+to determine this type.  See
+\secref{AUXILARY-STUBS} for functions associated with auxilary stubs.
 
 \subsection{Stub Type Codes}
 \label{STUB-TYPE-CODES}
@@ -1190,7 +1194,8 @@ programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 \subsection{Numbers}
 \label{NUMBERS}
 
-A \key{number stub} has \minkey{NUMBER}\LABEL{MIN::NUMBER} stub type code and
+A \key{number stub} is collectible, has \minkey{NUMBER}\LABEL{MIN::NUMBER}
+stub type code, and has
 an immutable \verb|min::float64| value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1208,16 +1213,7 @@ and written by
 \LABEL{MUP::SET_FLOAT64_OF}
 \end{tabular}\end{center}
 
-An uncollectible number stub with a stub control that is zero except
-for its type code can be created by
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|void min::stub * min::|
-	& \MINKEY{new\_number\REL}\verb| ( min::float64 f )|
-\LABEL{MIN::NEW_NUMBER}
-\end{tabular}\end{center}
-
-Collectible number stubs only exist in compact implementations;
+Number stubs exist only in compact implementations;
 in loose implementations number atoms are stored exclusively
 in direct number general values.
 
@@ -1322,8 +1318,8 @@ and these are described toward the end of this section, after
 short and long strings and their unprotected access functions are
 described.
 
-A \key{short string stub}\label{SHORT-STRING-STUB} has
-\minkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code and
+A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
+\minkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
 an immutable {\tt min::\EOL uns64} value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
@@ -1348,7 +1344,7 @@ should be overlaid by a union with a \verb|char[ ]| buffer, as in
 \begin{indpar}\begin{verbatim}
 union { min::uns64 str; char buf[9]; } u;
 min::stub * s1, * s2;
-. . . .
+. . . set s1 and s2 to point at short string stubs . . .
 u.str = MUP::short_str_of ( s1 );
 u.buf[8] = 0;	// Be sure result is NUL terminated.
 cout << u.buf;
@@ -1365,8 +1361,8 @@ in the example.  To be sure any value written is padded to 8 {\tt char}'s
 by NUL, the 8 {\tt char} value should be zeroed before any string is
 copied into it, as is done by \verb|u.str = 0| in the example.
 
-A \key{long string stub}\label{LONG-STRING-STUB} has
-\minkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code and
+A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
+\minkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
 a value that is a pointer to a \minkey{long\_str} type body
 which holds an arbitrary length NUL terminated \verb|char| string.
 
@@ -1424,6 +1420,9 @@ shifts and adds by compilers: $65599=2^{16}+2^6-1$.\footnote{Another good
 constant that could be used is $33$.}  The hash value of a string
 is never zero.
 
+The low order bits of the hash value are random, so it can be
+truncated to provide a random hash.
+
 The long string body consists of a 64 bit signature containing
 the 32-bit length and 32-bit hash value, followed by a \verb|char|
 vector containing the string with the terminating NUL.  The
@@ -1468,8 +1467,7 @@ The functions
 
 return the length of the string (excluding the terminating NUL),
 the hash value of the string, and the signature of the string.
-The low order bits of the hash value are random, so it can be
-truncated to provide a random hash.  The signatures of two strings
+The signatures of two strings
 are equal if the strings are equal, but there is a small chance
 the signatures of unequal strings will be equal.\footnote{The chance
 is much greater for the signature used by MIN than it would be
@@ -1490,18 +1488,6 @@ copy a string from a MIN short or long string to a buffer pointed at
 by \verb|p|.  Copying stops when a NUL is copied or when the
 \verb|strncpy| function copies the \verb|n|'th \verb|char|.  The value
 of \verb|p| is returned.
-
-An uncollectible short or long string stub with a stub control that
-is zero except for its type code can be created by
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|void min::stub * min::|
-	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
-\LABEL{MIN::NEW_STR} \\
-\end{tabular}\end{center}
-
-If the input has 8 or fewer {\tt char}'s, a short stub is created; otherwise
-a long stub is created.
 
 The following are protected functions with same definitions as above but
 with general value arguments.  The general values must hold a
@@ -1525,6 +1511,62 @@ Some of these functions correspond to the standard C/C++
 {\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions, and differ
 from these only in that instead of taking a {\tt char *} source string
 argument, these functions take a {\tt min::gen} source argument.
+
+A read-only pointer to the characters of a string general value can
+be obtained using the following functions to create
+a \key{string pointer}:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
+\LABEL{MUP::STR_POINTER_OF_GEN} \\
+\verb|const char * | & \MUPKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
+\LABEL{MUP::STR_OF_STR_POINTER} \\
+\verb|void | & \MUPKEY{relocate}\verb| ( MUP::str_pointer & sp )|
+\LABEL{MUP::RELOCATE_OF_STR_POINTER} \\
+\end{tabular}\end{center}
+
+The constructor creates a string pointer pointing to the {\tt char}'s
+of the string specified by the \verb|min::gen| argument.  This argument
+must be a direct string or a pointer to a short or long string stub.
+The {\tt str\_of} function returns this pointer, taking care to ensure
+the vector of {\tt char}'s is NUL-terminated.  The {\tt relocate}
+function resets the pointer after the relocated flag has been set,
+in case this is necessary.
+The value of {\tt str\_of} is not updated after the relocated flag has
+been set \underline{until} the {\tt relocate} function is called on the
+string pointer.
+
+For direct and some short strings the string pointer, when it is created,
+copies the string {\tt char}'s into a buffer internal to the string pointer,
+in order to save the {\tt char}'s in a direct string value, or to
+add a missing NUL to the end of the {\tt char} vector.  In other cases,
+including all long string cases, no copying is done, making string pointers
+a more efficient way of reading a string than {\tt strcpy}.
+
+A typical use of string pointers that indicates how the {\tt relocate}
+function works is:
+
+\begin{indpar}\begin{verbatim}
+... some_function ( ... )
+{
+    min::relocated relocated;
+    min::gen g = some_string_value;
+    MUP::str_pointer sp ( g );
+    const char * p = str_of ( sp );
+    . . . use and increment p . . .
+    some_relocating_function ( ... );
+    if ( relocated )
+    {
+        int displacement = p - str_of ( sp );
+        relocate ( sp );
+        p = str_of ( sp ) + displacement;
+    }
+    . . . . . use p . . . . .
+    return ...;
+    // relocated deconstructor sets relocated flag.
+}
+\end{verbatim}\end{indpar}
+
 
 The following functions test general values to see if they are a string,
 and create new general values.
@@ -1559,7 +1601,7 @@ This is integrated with the garbage
 collector (GC).  The GC has to maintain a list of all allocated stubs,
 which it does (normally) using the chain pointers in the stub.  For
 the case of strings, the GC maintains this list as a hash table, which
-uses a vector to hold the heads of lists threaded through the stub
+uses a vector to hold the heads of lists threaded through the string stub
 chain pointers.
 \end{quote}
 
@@ -2195,19 +2237,21 @@ these can be marked as being end pointers, and made to continue to point
 at the end of the list no matter how the list is changed.
 \end{quote}
 
-\subsubsubsection{Auxilary Stubs}
-\label{AUXILARY-STUBS}
+\subsubsubsection{Object Auxilary Stubs}
+\label{OBJECT-AUXILARY-STUBS}
 
-As an optimization, \skey{auxilary stub}s can be used instead of object
-auxilary area elements.  Auxilary stubs are a way of adding elements to
+As an optimization, \skey{object auxilary stub}s\index{auxilary stub!object}
+can be used instead of object
+auxilary area elements.  Object auxilary stubs are a way of adding elements to
 an object whose unused area has been exhausted, without relocating the
 object, and are considered to be \skey{extension}s of the object.
 If the object is later relocated, it can be reorganized to
-eliminate the use of auxilary stubs extending the object
+eliminate the use of object auxilary stubs extending the object
 by moving information from these into a new larger object auxilary area.
 
-The value of an auxilary stub is treated as an auxilary area element value.
-The chain pointer of an auxilary stub is treated as the next auxilary
+The value of an object
+auxilary stub is treated as an auxilary area element value.
+The chain pointer of an object auxilary stub is treated as the next auxilary
 area element after the value of the stub.  This chain pointer
 has a value that is treated as a list pointer or as a
 \verb|min::LIST_END| value.  A chain pointer that points at another
@@ -2216,7 +2260,7 @@ A chain pointer can also hold an auxilary pointer value that is
 list pointer pointing back into
 the auxilary area of the object the auxilary stub extends.
 
-An auxilary stub has one of the following two uncollectible stub type
+An object auxilary stub has one of the following two uncollectible stub type
 codes:
 
 \begin{indpar}
@@ -2230,8 +2274,10 @@ A \verb|min::gen| value pointing at this stub behaves like a sublist pointer.
 \end{list}
 \end{indpar}
 
-Stubs with the first type code are called \skey{list auxilary stub}s,
-and those with the second type code are called \skey{sublist auxilary stub}s.
+Stubs with the first type code are called
+\skey{list auxilary stub}s,\index{auxilary stub!list}
+and those with the second type code are called
+\skey{sublist auxilary stub}s.\index{auxilary stub!sublist}
 
 With these definitions, the description of the list level of an object
 given in \secref{OBJECT-LIST-LEVEL} is modified as follows.
@@ -2245,14 +2291,14 @@ cannot be a list element value, and
 a \verb|min::gen| value pointing at a sublist auxilary stub
 is a list element value that represents a sublist.
 
-If an auxilary stub is pointed at by a chain pointer, the stub must
-be a list auxilary stub.
+If an object auxilary stub is pointed at by a chain pointer in another
+object auxilar stub, the first stub must be a list auxilary stub.
 
-An auxilary stub can be pointed at by only one pointer stored in an
-object or in some auxilary stub extending an object.
-Thus auxilary
+An object auxilary stub can be pointed at by only one pointer stored in an
+object or in some object auxilary stub extending an object.
+Thus object auxilary
 stubs can be freed as soon as the pointer to them is deleted.  This
-mechanism, and not garbage collection, frees auxilary stubs.
+mechanism, and not garbage collection, frees object auxilary stubs.
 
 \subsubsection{Object Attribute Level}
 \label{OBJECT-LEVEL-LEVEL}
@@ -2593,6 +2639,10 @@ Indicates a set of values has more than one element.
 \end{list}
 \end{indpar}
 
+\subsection{Auxilary Stubs}
+\label{AUXILARY-STUBS}
+
+
 \clearpage
 
 \section{Code and Execution}
@@ -2814,7 +2864,7 @@ struct min
 \LABEL{MUP::DIRECT_INT_OF} \\
 \verb|min::uns64 MUP::| & \MUPKEY{direct\_str\_of}\verb| ( min::gen v )|
 \LABEL{MUP::DIRECT_STR_OF} \\
-\verb|min::stub *  MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MUP::STUB_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{list\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::LIST_AUX_OF} \\
@@ -2883,10 +2933,6 @@ struct min
 
 \verb|min::float64 | & \MINKEY{float64\_of}\verb| ( min::stub * s )|
 \LABEL{FLOAT64_OF} \\[1ex]
-
-\verb|void min::stub * min::|
-	& \MINKEY{new\_number\REL}\verb| ( min::float64 f )|
-\LABEL{MIN::NEW_NUMBER} \\[1ex]
 
 \verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUMBER} \\[1ex]
@@ -3009,10 +3055,6 @@ struct min
    \MUPKEY{set\_hash\_of}\ARGBREAK
     \verb| ( min::long_str * str,|\ARGBREAK\verb|   unsigned hash )|
 \LABEL{MUP::SET_HASH_OF_LONG_STR} \\[1ex]
-
-\verb|void min::stub * min::|
-	& \MINKEY{new\_str\REL}\verb| ( const char * p )|
-\LABEL{MIN::NEW_STR} \\[1ex]
 
 \end{tabular}
 
