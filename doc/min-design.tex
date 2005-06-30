@@ -270,12 +270,13 @@ and the corresponding code:
 
 \begin{center}
 \begin{tabular}{ll}
-\ttmkey{aux}{abbreviation}	& auxilary (\secref{AUXILARY}) \\
+\ttmkey{aux}{abbreviation}	& auxiliary (\secref{AUXILIARY}) \\
 \ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
 \ttmkey{lab}{abbreviation}	& label (\pagref{LABEL-STUBS}) \\
 \ttmkey{min}{abbreviation}	& the MIN system \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
+\ttmkey{num}{abbreviation}	& number (\pagref{NUMBERS}) \\
 \ttmkey{obj}{abbreviation}	& object (\pagref{OBJECTS}) \\
 \ttmkey{str}{abbreviation}	& string (\pagref{STRINGS}) \\
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
@@ -327,11 +328,11 @@ arguments would not pass these checks,
 unless the documentation explicitly says otherwise.
 
 The data of MIN is defined using C-compatible \ttmkey{struct}{C compatible}'s
-and \ttmkey{union}{C compatible}'s.  C++ implicitly guarentees the layout of
+and \ttmkey{union}{C compatible}'s.  C++ implicitly guarantees the layout of
 C-compatible \verb|struct|'s and \verb|union|'s to be C-compatible,
-and C has implicit guarentees because of historical C code that
+and C has implicit guarantees because of historical C code that
 such data will not contain unnecessary unnamed padding.  Neither the
-C or C++ standards guarentee the absence of unnecessary unnamed padding, but
+C or C++ standards guarantee the absence of unnecessary unnamed padding, but
 MIN depends upon its absence, as does any code that reads and writes
 binary files.
 
@@ -384,7 +385,7 @@ modify the implementations to use compilers without such support.
 \subsection{Stubs and Bodies}
 
 MIN data memory consists of regions that contain stubs and regions
-that contain bodies.  A region is a continguous block
+that contain bodies.  A region is a contiguous block
 of memory, typically consisting of an integral number of hardware
 pages.
 
@@ -487,7 +488,7 @@ A general value can store any of:
 \begin{tabular}{l}
 an atom value \\
 a pointer to a stub \\
-an auxilary pointer \\
+an auxiliary pointer \\
 a control code
 \end{tabular}
 \end{center}
@@ -503,11 +504,11 @@ as atom values are immutable and cannot be changed.  Of course not all
 atom values will fit into a general value, and those that are not must
 be stored in stubs or in areas of memory pointed at by stubs.
 
-An \key{auxilary pointer} is an integer that is used by a general value
+An \key{auxiliary pointer} is an integer that is used by a general value
 stored inside an object body to point at some part, called an
-\key{auxilary},\label{AUXILARY} of the same body.
-There are several subtypes of auxilary pointers.
-See~\pagref{AUXILARY-POINTER}.
+\key{auxiliary},\label{AUXILIARY} of the same body.
+There are several subtypes of auxiliary pointers.
+See~\pagref{AUXILIARY-POINTER}.
 
 A \key{control code} is an integer that represents flags and codes
 stored in a general value.  Control codes can have different
@@ -545,10 +546,10 @@ a 64-bit IEEE floating point direct number atom (64 bit general value only) \\
 a 28-bit direct integer atom (32 bit general value only) \\
 a 0-5 {\tt char} direct string atom (64 bit general value only) \\
 a 0-3 {\tt char} direct string atom (32 bit general value only) \\
-a 26-bit auxilary list pointer (32 bit general value only) \\
-a 40-bit auxilary list pointer (64 bit general value only) \\
-a 26-bit auxilary sublist pointer (32 bit general value only) \\
-a 40-bit auxilary sublist pointer (64 bit general value only) \\
+a 26-bit auxiliary list pointer (32 bit general value only) \\
+a 40-bit auxiliary list pointer (64 bit general value only) \\
+a 26-bit auxiliary sublist pointer (32 bit general value only) \\
+a 40-bit auxiliary sublist pointer (64 bit general value only) \\
 a 26-bit control code (32 bit general value only) \\
 a 40-bit control code (64 bit general value only)
 \end{tabular}
@@ -610,10 +611,10 @@ subtracting the {\tt min::gen} representation of zero.
 The range of such a direct integer is the same as the range of a 28-bit
 two's complement integer: $-2^{27}$ to $2^{27}-1$, inclusive.
 
-Similarly 32-bit general value auxilary pointers consist of a high order
+Similarly 32-bit general value auxiliary pointers consist of a high order
 6-bit subtype code
-and a low order 26-bit auxilary pointer (see~\pagref{AUXILARY-POINTER}
-for a definition of auxilary pointers).
+and a low order 26-bit auxiliary pointer (see~\pagref{AUXILIARY-POINTER}
+for a definition of auxiliary pointers).
 32-bit general value control codes consist of a high order
 6-bit subtype code and a low order 26-bit unsigned integer that
 contains flags and codes and has different interpretations in different
@@ -625,7 +626,7 @@ For 64-bit general values that point at stubs, the high order 20 bits
 are used as a subtype code.  For other 64-bit general values, the high
 order 24 bits are the subtype code.
 The values chosen for these subtype codes make direct strings,
-stub pointers, auxilary pointers, and control codes into IEEE Nan (Not-a-Number)
+stub pointers, auxiliary pointers, and control codes into IEEE Nan (Not-a-Number)
 values that are never generated by hardware instructions.
 
 The {\tt min::gen} type has the alignment
@@ -647,16 +648,16 @@ The following macros are defined to describe these decisions:
 
 \begin{center}
 \begin{tabular}{ll}
-\TTKEY{MIN\_IS\_COMPACT}	& 1 if compact implemention; 0 if loose
+\TTKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose
 \LABEL{MIN_IS_COMPACT} \\
-\TTKEY{MIN\_IS\_LOOSE}		& 1 if loose implemention; 0 if compact
+\TTKEY{MIN\_IS\_LOOSE}		& 1 if loose implementation; 0 if compact
 \LABEL{MIN_IS_LOOSE}	 \\
-\TTKEY{MIN\_SIZEOF\_GEN}	& 64 if loose implemention; 32 if compact
+\TTKEY{MIN\_SIZEOF\_GEN}	& 64 if loose implementation; 32 if compact
 \LABEL{MIN_SIZEOF_GEN} \\
-\TTKEY{MIN\_USES\_ADDRESSES}	& 1 if implemention uses addresses;
+\TTKEY{MIN\_USES\_ADDRESSES}	& 1 if implementation uses addresses;
 				  0 if it uses VSN's
 \LABEL{MIN_USES_ADDRESSES} \\
-\TTKEY{MIN\_USES\_VSNS}		& 1 if implemention uses VSN's;
+\TTKEY{MIN\_USES\_VSNS}		& 1 if implementation uses VSN's;
 				  0 if it uses addresses
 \LABEL{MIN_USES_VSNS}	 \\
 \end{tabular}
@@ -799,7 +800,7 @@ The {\tt int} argument will be converted to an IEEE 64-bit floating
 point number if the \verb|min::gen| type is 64-bits.  The
 {\tt min::float64} argument will always cause an argument range
 error if used with 32-bit \verb|min::gen| values.
-The {\tt unsigned} argument used to make auxilary pointers must
+The {\tt unsigned} argument used to make auxiliary pointers must
 fit within 26 bits if {\tt min::gen} values are 32-bits, and
 within 40 bits if {\tt min::gen} values are 64-bits.
 The {\tt unsigned} argument used to make control codes must
@@ -810,7 +811,7 @@ The {\tt long\_control\_code\_gen} function is defined only if
 that must fit within 40 bits.
 
 The subtype codes used for 64-bit {\tt min::gen} direct string, stub pointer,
-auxilary pointer, and control code
+auxiliary pointer, and control code
 values are chosen so they are not normally generated by the compiler,
 run-time system, or program execution.  Therefore a {\tt min::float64}
 input to {\tt min::new\_direct\_gen} is assumed not to have these subtype
@@ -840,7 +841,7 @@ range errors.
 \LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\
 \end{tabular}\end{center}
 
-The actual direct value, stub pointer, auxilary pointer, and control code
+The actual direct value, stub pointer, auxiliary pointer, and control code
 {\tt min::gen} subtype codes
 are implementation dependent.  The following constants equal these
 subtype codes:
@@ -890,7 +891,7 @@ In any case, \verb|min::GEN_ILLEGAL| is not a possible value of this function.
 \label{BODY-POINTERS}
 
 Body pointers are relocatable and require special handling to
-ensure that thay are up-to-date.  Because of this, functions
+ensure that they are up-to-date.  Because of this, functions
 that obtain body pointers from stubs are unprotected, and
 names of relocating functions, which might relocate bodies, are marked
 with the superscript {\REL} in this document.
@@ -1018,7 +1019,7 @@ as:
 }
 \end{verbatim}\end{indpar}
 
-The operation of \ikey{deallocating a body}{dealocate!body}
+The operation of \ikey{deallocating a body}{deallocate!body}
 is considered to be a relocation of the body.  The body pointer in the
 stub is pointed at unimplemented virtual memory, and the type code in the stub
 is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
@@ -1045,7 +1046,7 @@ virtual memory.
 However, there is a limit to the size of unimplemented
 memory, so code using very large bodies should always recheck the type
 code when reloading a possibly relocated body pointer.  This limit is
-guarenteed to be at least the value of the macro:
+guaranteed to be at least the value of the macro:
 
 \begin{center}\begin{tabular}{r@{}l}
 (unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
@@ -1124,18 +1125,18 @@ low order 44 bits:	& chain pointer \\
 \end{tabular}
 \end{center}
 
-The main use of uncollectible stubs is as auxilary stubs.
-An `\key{auxilary stub}' is an uncollectible stub attached to an object.
-When the object is garbage collected, the auxilary stub is freed.  Auxilary
+The main use of uncollectible stubs is as auxiliary stubs.
+An `\key{auxiliary stub}' is an uncollectible stub attached to an object.
+When the object is garbage collected, the auxiliary stub is freed.  Auxiliary
 stubs are a means of adding memory to an object without relocating the object.
 For example, if the object stores 64-bit IEEE floating point numbers,
-a chain of auxilary stubs
+a chain of auxiliary stubs
 can be used to add memory for additional numbers to the
-object.  Note that the auxilary stub itself may not contain enough
+object.  Note that the auxiliary stub itself may not contain enough
 information to tell the type of the value it stores; one may have to
-trace the reference from the object pointing at the auxilary stub
+trace the reference from the object pointing at the auxiliary stub
 to determine this type.  See
-\secref{AUXILARY-STUBS} for functions associated with auxilary stubs.
+\secref{AUXILIARY-STUBS} for functions associated with auxiliary stubs.
 
 \subsection{Stub Type Codes}
 \label{STUB-TYPE-CODES}
@@ -1221,8 +1222,8 @@ General values that are numbers can be tested, created, and read
 by the following protected functions:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen v )|
-\LABEL{MIN::IS_NUMBER} \\[1ex]
+\verb|int min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
+\LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::| &
 	\MINKEY{new\_gen\REL} \verb| ( int v )|
 \LABEL{MIN::NEW_GEN_OF_INT} \\
@@ -1231,11 +1232,13 @@ by the following protected functions:
 \LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
-\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen v )|
-\LABEL{MIN::NUMBER_OF_GEN} \\
+\verb|min::float64 min::| & \MINKEY{num\_of}\verb| ( min::gen v )|
+\LABEL{MIN::NUM_OF_GEN} \\[1ex]
+\verb|unsigned min::| & \MINKEY{numhash}\verb| ( min::gen v )|
+\LABEL{MIN::NUMHASH_OF_GEN} \\
 \end{tabular}\end{center}
 
-The \verb|min::is_number| function for a 64-bit \verb|min::gen| argument
+The \verb|min::is_num| function for a 64-bit \verb|min::gen| argument
 is just another name for the \verb|min::is_direct_float| function of the same
 argument.  For a 32-bit argument the function returns
 true if the argument is a direct integer or a stub pointer
@@ -1262,7 +1265,7 @@ value, but is more efficient in the case where \verb|min::gen| values
 are 32 bits and the argument is in the range of a direct integer general
 value.
 
-The \verb|min::number_of| function for a 64-bit \verb|min::gen|
+The \verb|min::num_of| function for a 64-bit \verb|min::gen|
 argument is just another name for the \verb|min::direct_float_of| function
 of the same argument, which after checking the subtype of the argument,
 simply changes the type of the argument.  For a 32-bit argument the
@@ -1272,13 +1275,18 @@ returns the stub value for any number stub pointed at by the argument.
 In this last case the stub type code is checked by an \verb|assert|
 statement to be sure the stub is a number stub.
 
-Lastly, the \verb|min::int_of| function does the same thing as the
-\verb|min::number_of| followed by conversion to an \verb|int| value,
+The \verb|min::int_of| function does the same thing as the
+\verb|min::num_of| followed by conversion to an \verb|int| value,
 except that \verb|min::int_of| includes a check that the result
 is a pure integer, without any fractional part, and is within the
 range of the \verb|int| type, and
 \verb|min::int_of| is more efficient when given a 32-bit direct integer
 \verb|min::gen| argument.
+
+Lastly, the \verb|min::numhash| returns the hash value of a \verb|min::gen|
+value that is a number.  This value is computed by considering the number
+to be a string of 8 characters and using the algorithm
+on \pagref{HASH-ALGORITHM} to compute the hash value of this string.
 
 \begin{quote}
 The Hash Table Implementation Note on \pagref{HASH-TABLE-IMPLEMENTATION-NOTE}
@@ -1403,7 +1411,7 @@ take time proportional to the string length.  The 64-bit signature
 contains the hash value and the string length.
 
 A string hash value is computed according to the following machine
-independent algorithm:
+independent algorithm:\label{HASH-ALGORITHM}
 
 \begin{indpar}\begin{verbatim}
 hash = 0
@@ -1519,10 +1527,10 @@ a \key{string pointer}:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
 \LABEL{MUP::STR_POINTER_OF_GEN} \\
-\verb|const char * | & \MUPKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MUP::STR_OF_STR_POINTER} \\
-\verb|void | & \MUPKEY{relocate}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MUP::RELOCATE_OF_STR_POINTER} \\
+\verb|const char * | & \TTKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
+\LABEL{STR_OF_STR_POINTER} \\
+\verb|void | & \TTKEY{relocate}\verb| ( MUP::str_pointer & sp )|
+\LABEL{RELOCATE_OF_STR_POINTER} \\
 \end{tabular}\end{center}
 
 The constructor creates a string pointer pointing to the {\tt char}'s
@@ -1609,23 +1617,24 @@ chain pointers.
 \subsection{Label Stubs}
 \label{LABEL-STUBS}
 
-[This section is obsolete and should be deleted]
-
-Attribute labels are often single strings or numbers.  But they may be
-sequences of strings and numbers.  Such sequences are represented by
+Attribute labels are often atoms, i.e., single strings or numbers.
+But they may be sequences of atoms.  Such sequences are represented by
 \key{label} stubs.\footnote{Labels could also be represented by
 sublists stored inside objects (\pagref{LIST-LEVEL}), but each label tends to
 be reused by many objects, and storing it inside each using object
-would be inefficient.}
+would be inefficient.  In addition labels are useful as function arguments.}
 
-A label is essentually just a vector of general values, with the special
+A label is essentially just a vector of atoms, with the special
 property that no two distinct label stubs may have equal vectors of
-general values.  However, the vector may be stored in a chain of stubs,
+atoms.  However, the vector may be stored in a chain of stubs,
 and not in a body.  The exact manner in which the vector is stored is
-hidden from the user.
+hidden from the user.  Atoms which are elements of a label are represented
+by \verb|min::gen| general values.
 
-A \key{label stub}\label{LABEL-STUB} has \minkey{LABEL}\LABEL{MIN::LABEL}
-stub type code.  The label may be read by the protected functions:
+A \key{label stub}\label{LABEL-STUB} is collectible,
+has \minkey{LABEL}\LABEL{MIN::LABEL} stub type code,
+and has an immutable value.
+The label value may be read by the protected functions:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|unsigned | & \TTKEY{lab\_of}%
@@ -1636,7 +1645,7 @@ stub type code.  The label may be read by the protected functions:
 \LABEL{MIN::LAB_OF_GEN} \\
 \end{tabular}\end{center}
 
-These read an intial segment of the label vector into the location
+These read an initial segment of the label vector into the location
 addressed by {\tt p}.  If the label vector has {\tt n} or more elements,
 the first {\tt n} elements are read.  Otherwise, as many elements as
 the label vector has are read.  The number of elements read is returned
@@ -1672,33 +1681,12 @@ The hash value of a label may be computed by the following functions:
 \end{tabular}\end{center}
 
 The last function computes the hash value for a label that could be created
-from the given vector of {\tt n} general values.  The hash of a vector of
-general values is computed by the following machine independent algorithm:
-
-\begin{indpar}\begin{verbatim}
-hash = 0
-n = length of vector
-for i = 1 through n:
-    h = hash value of i'th element of vector
-    hash = ( hash << 7 ) + c
-    hash = ( hash >> 32 ) + hash
-    hash = hash % ( 2**32 )
-\end{verbatim}\end{indpar}
-
-where \verb|<<| and \verb|>>| are left and right shifts of unsigned
-integers, \verb|%| is the `mod' operation, and \verb|**| is exponentiation.
-
-A label may be created by the following unprotected function:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::stub * MUP::| & \MUPKEY{new\_label}%
-    \verb| ( min::gen * const p, unsigned n )|
-\LABEL{MUP::NEW_LABEL} \\
-\end{tabular}\end{center}
-
-This function is unprotected only because it always creates a new stub,
-and does not attempt to return any previously created label stub whose
-elements equal those given as function arguments.
+from the given vector {\tt p} of {\tt n} general values, where each
+general value is an atom.  The hash of a label is computed by treating
+each of its atoms
+as a character string, concatenating all these strings in order, and applying
+the algorithm on \pagref{HASH-ALGORITHM} to compute the hash value of
+concatenated string.
 
 A label may be created by the following protected function:
 
@@ -1708,6 +1696,9 @@ A label may be created by the following protected function:
 \LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\
 \end{tabular}\end{center}
 
+Here {\tt p} must point to a vector of {\tt n} \verb|min::gen|
+values that becomes the value vector of the label.  Each
+\verb|min::gen| value must be an atom.
 This function returns any existing label with elements equal to
 those given by the function arguments, in preference to creating a new
 label.
@@ -1717,83 +1708,6 @@ A label may be tested by the following protected function:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_label}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LABEL_OF_GEN} \\
-\end{tabular}\end{center}
-
-\subsection{Label Pair Stubs}
-\label{LABEL-PAIR-STUBS}
-
-[This section is obsolete and should be deleted]
-
-Double arrow labels are pairs of attribute labels, because in order to
-know a double arrow valued attribute of an object X, you must know the
-value Y of the attribute (Y must be an object), the label of the attribute, and
-also the label of the attribute in object Y that is the other end of the double
-arrow.  Double arrow labels are represented by \key{label pair} stubs.%
-\footnote{Label pairs could also be represented by
-sublists stored inside objects (\pagref{LIST-LEVEL}), but each label pair
-tends to be reused by many objects, and storing it inside each using object
-would be inefficient.}
-
-A \key{label pair stub}\label{LABEL-PAIR-STUB}
-has \minkey{LABEL\_PAIR}\LABEL{MIN::LABEL_PAIR}
-stub type code.  It stores two \verb|min::gen| elements
-called the \mkey{label}{of label pair} and \mkey{co-label}{of label pair}
-of the pair.  These can be read by the protected functions:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen | & \TTKEY{label\_of}\verb| ( min::stub * s )|
-\LABEL{LABEL_OF} \\
-\verb|min::gen min::| & \MINKEY{label\_of}\verb| ( min::gen v )|
-\LABEL{MIN::LABEL_OF_GEN} \\
-\verb|min::gen | & \TTKEY{co\_label\_of}\verb| ( min::stub * s )|
-\LABEL{CO_LABEL_OF} \\
-\verb|min::gen min::| & \MINKEY{co\_label\_of}\verb| ( min::gen v )|
-\LABEL{MIN::CO_LABEL_OF_GEN} \\
-\end{tabular}\end{center}
-
-A label pair may be created by the following unprotected function:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::stub * MUP::| & \MUPKEY{new\_label\_pair}%
-    \verb| ( min::gen label, min::gen co_label )|
-\LABEL{MUP::NEW_LABEL_PAIR} \\
-\end{tabular}\end{center}
-
-This function is unprotected only because it always creates a new stub,
-and does not attempt to return any previously created label pair stub whose
-label and co-label elements equal those given as function arguments.
-
-A label pair may be created by the following protected function:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_gen}%
-    \verb| ( min::gen label, min::gen co_label )|
-\LABEL{MIN::NEW_GEN_OF_GEN_PAIR} \\
-\end{tabular}\end{center}
-
-This function returns any existing label pair with label and
-co-label elements equal to those given by the function arguments,
-in preference to creating a new label pair.
-
-A label pair may be tested by the following protected function:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{is\_label\_pair}\verb| ( min::gen v )|
-\LABEL{MIN::IS_LABEL_PAIR} \\
-\end{tabular}\end{center}
-
-The \key{co-pair} of a label pair $X$ is the label pair $Y$ such that
-the label of $Y$ is the co-label of $X$ and the co-label of $Y$
-is the label of $X$.  When a label pair is created in memory, typically
-both it and its co-pair are created at the same time.  Then given a label
-pair, the implementation can rapidly find its co-pair.  Protected
-functions for doing this are:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::stub * | & \TTKEY{co\_pair\_of}\verb| ( min::stub * s )|
-\LABEL{CO_PAIR_OF} \\
-\verb|min::gen min::| & \MINKEY{co\_pair\_of}\verb| ( min::gen v )|
-\LABEL{MIN::CO_PAIR_OF_GEN} \\
 \end{tabular}\end{center}
 
 
@@ -1842,7 +1756,7 @@ header \\
 hash table \\
 attribute vector \\
 unused area\\
-auxilary area
+auxiliary area
 \end{tabular}
 \end{center}
 
@@ -1851,13 +1765,13 @@ The \mkey{hash table}{of object}
 stores attribute name/value pairs, for attributes whose names that are not
 small unsigned integers.
 The \key{attribute vector} stores attribute values for attributes whose
-names begin with small positive integers.  The \key{auxilary area}
+names begin with small positive integers.  The \key{auxiliary area}
 stores various overflow data from the hash table and attribute vector.
 
 The hash table is of fixed size; its size can only be changed by relocating
 the object body.  The attribute vector
 grows up from the end of the hash table into the unused
-area, and the auxilary storage grows down from the end of the body into
+area, and the auxiliary storage grows down from the end of the body into
 the unused area.
 
 There are two kinds of objects: short and long.  A \key{short object}
@@ -1889,7 +1803,7 @@ header size & + & hash table size & + & attribute vector size
 	& + & unused area size \\
 header size & + & hash table size & + & attribute vector size
 	& + & unused area size \\
-        & + & auxilary area size \\
+        & + & auxiliary area size \\
 	& = & header size & + & total size
 \end{tabular}
 \end{center}
@@ -1929,11 +1843,11 @@ functions:
 \verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::long_obj * lo )|
 \LABEL{OBJ_VECTOR_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned |
-    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::short_obj * so )|
-\LABEL{AUXILARY_AREA_SIZE_OF_SHORT_OBJ} \\
+    & \TTKEY{auxiliary\_area\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{AUXILIARY_AREA_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned |
-    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::long_obj * lo )|
-\LABEL{AUXILARY_AREA_SIZE_OF_LONG_OBJ} \\
+    & \TTKEY{auxiliary\_area\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{AUXILIARY_AREA_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned |
     & \TTKEY{unused\_area\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{UNUSED_AREA_SIZE_OF_SHORT_OBJ} \\
@@ -1981,15 +1895,15 @@ function allows reading and writing of elements.
 The body vector is divided into 5 parts,
 which are, in order, the body header,
 hash table, attribute vector,
-unused area, and auxilary area.
+unused area, and auxiliary area.
 The header and unused area are not actually \verb|min::gen| values,
 and should not be accessed using a body vector pointer.
 
-The value of an \key{auxilary pointer}\label{AUXILARY-POINTER}
+The value of an \key{auxiliary pointer}\label{AUXILIARY-POINTER}
 is an unsigned integer
 that is the index of a \verb|min::gen|
 value in the body vector.
-Auxilary pointers with zero value do not address a body vector
+Auxiliary pointers with zero value do not address a body vector
 element, since they point into the header, and these are given
 special meanings.
 
@@ -2017,11 +1931,11 @@ can be obtained by the following protected functions:
 At the \key{list level},\label{LIST-LEVEL}
 the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
-object vector.  The elements of the lists are non-auxilary-pointer
+object vector.  The elements of the lists are non-auxiliary-pointer
 \verb|min::gen| values (e.g., direct integers, direct strings, pointers
 to stubs, and control codes)
 and sublists.  The lists are constructed with
-the help of the two kinds of auxilary pointers:
+the help of the two kinds of auxiliary pointers:
 
 \begin{center}
 \begin{tabular}{lp{4in}}
@@ -2066,10 +1980,10 @@ one element.  All list heads lie in the hash table or attribute vector,
 so testing whether a list element is a list head can be done if just the
 index of the list element in the body vector is known.
 
-A list element may be a non-auxilary-pointer \verb|min::gen|
+A list element may be a non-auxiliary-pointer \verb|min::gen|
 value, such as a direct number, direct string, control code, or
 stub pointer.  None of these represent sublists.  A list element
-that is an auxilary sublist pointer or the value \verb|min::EMPTY_SUBLIST|
+that is an auxiliary sublist pointer or the value \verb|min::EMPTY_SUBLIST|
 represents a sublist, and is the \key{sublist head} of that sublist.  A
 sublist head is a list element of the list containing a sublist,
 but cannot be a list element of the sublist.  If it is a sublist pointer,
@@ -2077,24 +1991,24 @@ it points at a list continuation of the sublist.  If it is the
 value \verb|min::EMPTY_SUBLIST|, it represents an empty sublist.
 
 Parts of lists may not be shared with other lists.  In other words,
-there is only one way to reach any element of the auxilary area.
+there is only one way to reach any element of the auxiliary area.
 Or more specifically,
-auxilary pointers must point at elements of the auxilary area,
-two auxilary pointers are not permitted to point at the same auxilary
-area element, and an auxilary area element that is preceded
-in the auxilary area by a list element may not be pointed at by
-an auxilary pointer.
+auxiliary pointers must point at elements of the auxiliary area,
+two auxiliary pointers are not permitted to point at the same auxiliary
+area element, and an auxiliary area element that is preceded
+in the auxiliary area by a list element may not be pointed at by
+an auxiliary pointer.
 
 Thus if the one way to reach an element of
-the auxilary area is deleted, the element may be put on a list of
-free elements for the auxilary area.  As an optimization,
+the auxiliary area is deleted, the element may be put on a list of
+free elements for the auxiliary area.  As an optimization,
 an implementation may use the
-free area to hold the head of a list of free elements of the auxilary
+free area to hold the head of a list of free elements of the auxiliary
 area.
 
-As an optimization, \skey{auxilary stub}s can be used in place of object
-auxilary area elements.  When this is done, the description of this
-section must be modified as explained in \secref{AUXILARY-STUBS}.
+As an optimization, \skey{auxiliary stub}s can be used in place of object
+auxiliary area elements.  When this is done, the description of this
+section must be modified as explained in \secref{AUXILIARY-STUBS}.
 
 \subsubsubsection{List Pointers}
 \label{LIST-POINTERS}
@@ -2156,7 +2070,7 @@ If the object is relocated,
 the list pointer must be reinitialized by re-calling
 the a start list function.  Relocating an object
 can also reorganize the object, in which case body vector indices pointing
-into the auxilary area may change, invalidating positioning information
+into the auxiliary area may change, invalidating positioning information
 contained in any list pointer pointing into the object.
 
 The {\tt start\_hash} function positions a list pointer at the beginning of a
@@ -2198,9 +2112,9 @@ the element is treated as a sublist with exactly one element, E.
 
 Determining whether a list element value represents a sublist requires
 the {\tt min::is\_sublist} function, which must check whether the
-value is a sublist auxilary pointer, is the value {\tt min::EMPTY\_SUBLIST},
-or is a pointer to a sublist auxilary stub as described in
-\secref{AUXILARY-STUBS}.
+value is a sublist auxiliary pointer, is the value {\tt min::EMPTY\_SUBLIST},
+or is a pointer to a sublist auxiliary stub as described in
+\secref{AUXILIARY-STUBS}.
 
 Determining whether a value represents the end of a list can be done by
 simply checking whether the value equals {\tt min::LIST\_END},
@@ -2225,7 +2139,7 @@ into sublists of the list or superlists containing the list are not affected.
 If there are several list pointers,
 and one is used to insert an element X before a element Y of a list,
 and Y is not the end of the list, all list pointers pointing at Y
-will be repointed at X, and all other list pointers will not be affected.
+will be re-pointed at X, and all other list pointers will not be affected.
 
 \begin{quote}
 \key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
@@ -2237,68 +2151,68 @@ these can be marked as being end pointers, and made to continue to point
 at the end of the list no matter how the list is changed.
 \end{quote}
 
-\subsubsubsection{Object Auxilary Stubs}
-\label{OBJECT-AUXILARY-STUBS}
+\subsubsubsection{Object Auxiliary Stubs}
+\label{OBJECT-AUXILIARY-STUBS}
 
-As an optimization, \skey{object auxilary stub}s\index{auxilary stub!object}
+As an optimization, \skey{object auxiliary stub}s\index{auxiliary stub!object}
 can be used instead of object
-auxilary area elements.  Object auxilary stubs are a way of adding elements to
+auxiliary area elements.  Object auxiliary stubs are a way of adding elements to
 an object whose unused area has been exhausted, without relocating the
 object, and are considered to be \skey{extension}s of the object.
 If the object is later relocated, it can be reorganized to
-eliminate the use of object auxilary stubs extending the object
-by moving information from these into a new larger object auxilary area.
+eliminate the use of object auxiliary stubs extending the object
+by moving information from these into a new larger object auxiliary area.
 
 The value of an object
-auxilary stub is treated as an auxilary area element value.
-The chain pointer of an object auxilary stub is treated as the next auxilary
+auxiliary stub is treated as an auxiliary area element value.
+The chain pointer of an object auxiliary stub is treated as the next auxiliary
 area element after the value of the stub.  This chain pointer
 has a value that is treated as a list pointer or as a
 \verb|min::LIST_END| value.  A chain pointer that points at another
-auxilary stub is treated as a list pointer pointing at that stub.
-A chain pointer can also hold an auxilary pointer value that is
+auxiliary stub is treated as a list pointer pointing at that stub.
+A chain pointer can also hold an auxiliary pointer value that is
 list pointer pointing back into
-the auxilary area of the object the auxilary stub extends.
+the auxiliary area of the object the auxiliary stub extends.
 
-An object auxilary stub has one of the following two uncollectible stub type
+An object auxiliary stub has one of the following two uncollectible stub type
 codes:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const int min::}\MINKEY{LIST\_AUXILARY}]~%
-	\LABEL{MIN::LIST_AUXILARY}\\
+\item[{\tt const int min::}\MINKEY{LIST\_AUXILIARY}]~%
+	\LABEL{MIN::LIST_AUXILIARY}\\
 A \verb|min::gen| value pointing at this stub behaves like a list pointer.
-\item[{\tt const int min::}\MINKEY{SUBLIST\_AUXILARY}]~%
-	\LABEL{MIN::SUBLIST_AUXILARY}\\
+\item[{\tt const int min::}\MINKEY{SUBLIST\_AUXILIARY}]~%
+	\LABEL{MIN::SUBLIST_AUXILIARY}\\
 A \verb|min::gen| value pointing at this stub behaves like a sublist pointer.
 \end{list}
 \end{indpar}
 
 Stubs with the first type code are called
-\skey{list auxilary stub}s,\index{auxilary stub!list}
+\skey{list auxiliary stub}s,\index{auxiliary stub!list}
 and those with the second type code are called
-\skey{sublist auxilary stub}s.\index{auxilary stub!sublist}
+\skey{sublist auxiliary stub}s.\index{auxiliary stub!sublist}
 
 With these definitions, the description of the list level of an object
 given in \secref{OBJECT-LIST-LEVEL} is modified as follows.
-A \verb|min::gen| value that points at list auxilary stub is
+A \verb|min::gen| value that points at list auxiliary stub is
 treated as a list pointer.
-A \verb|min::gen| value that points at sublist auxilary stub is
+A \verb|min::gen| value that points at sublist auxiliary stub is
 treated as a sublist pointer.
 
-Therefore a \verb|min::gen| value pointing at a list auxilary stub
+Therefore a \verb|min::gen| value pointing at a list auxiliary stub
 cannot be a list element value, and
-a \verb|min::gen| value pointing at a sublist auxilary stub
+a \verb|min::gen| value pointing at a sublist auxiliary stub
 is a list element value that represents a sublist.
 
-If an object auxilary stub is pointed at by a chain pointer in another
-object auxilar stub, the first stub must be a list auxilary stub.
+If an object auxiliary stub is pointed at by a chain pointer in another
+object auxiliary stub, the first stub must be a list auxiliary stub.
 
-An object auxilary stub can be pointed at by only one pointer stored in an
-object or in some object auxilary stub extending an object.
-Thus object auxilary
+An object auxiliary stub can be pointed at by only one pointer stored in an
+object or in some object auxiliary stub extending an object.
+Thus object auxiliary
 stubs can be freed as soon as the pointer to them is deleted.  This
-mechanism, and not garbage collection, frees object auxilary stubs.
+mechanism, and not garbage collection, frees object auxiliary stubs.
 
 \subsubsection{Object Attribute Level}
 \label{OBJECT-LEVEL-LEVEL}
@@ -2409,7 +2323,7 @@ are represented by a {\em flag-set} in an {\em attribute-list}
 The {\em flag-set} is a sequence of \verb|min::gen|
 control codes.
 
-The flags are numberred 0, 1, 2, \ldots.  Flag $N$ corresponds to
+The flags are numbered 0, 1, 2, \ldots.  Flag $N$ corresponds to
 the bit in the $I$'th control code
 selected by the mask $2^K$ where $I=\mbox{floor}(N/C)+1$,
 $K=N~\mbox{mod}~C$, and $C$ is the
@@ -2596,7 +2510,7 @@ ending `{\tt g}' is replaced by `{\tt i}'.  Thus there are functions named
 and
 \minkey{add\_\EOL to\_\EOL multiseti}.\label{G_TO_I_VARIANTS}
 This is done as in many
-implementations \verb|int| may be implicitly convertable to \verb|min::gen|
+implementations \verb|int| may be implicitly convertible to \verb|min::gen|
 by an improper conversion that gives the wrong result.\footnote{
 For example, if the implementation defines {\tt min::gen} to be
 {\tt min::uns64}.}
@@ -2619,7 +2533,7 @@ versions with a \verb|min::stub *| {\tt obj} argument.
 Special values are \verb|min::gen| values that are unique
 and not equal to any value that can be generated during
 program execution.  An implementation can create them by
-making objects during inititalization, and making the special
+making objects during initialization, and making the special
 values be pointers to these objects.  However, special values
 are to be treated as C/C++ {\tt const} values, and are never
 to be used unless documentation specifies a specific use.
@@ -2639,8 +2553,8 @@ Indicates a set of values has more than one element.
 \end{list}
 \end{indpar}
 
-\subsection{Auxilary Stubs}
-\label{AUXILARY-STUBS}
+\subsection{Auxiliary Stubs}
+\label{AUXILIARY-STUBS}
 
 
 \clearpage
@@ -2745,15 +2659,13 @@ struct min
 \\
 \verb|const int min::|\MINKEY{LABEL} \LABEL{MIN::LABEL}
 \\
-\verb|const int min::|\MINKEY{LABEL\_PAIR} \LABEL{MIN::LABEL_PAIR}
-\\
 \verb|const int min::|\MINKEY{SHORT\_OBJ} \LABEL{MIN::SHORT_OBJ}
 \\
 \verb|const int min::|\MINKEY{LONG\_OBJ} \LABEL{MIN::LONG_OBJ}
 \\
-\verb|const int min::|\MINKEY{LIST\_AUXILARY} \LABEL{MIN::LIST_AUXILARY}
+\verb|const int min::|\MINKEY{LIST\_AUXILIARY} \LABEL{MIN::LIST_AUXILIARY}
 \\
-\verb|const int min::|\MINKEY{SUBLIST\_AUXILARY} \LABEL{MIN::SUBLIST_AUXILARY}
+\verb|const int min::|\MINKEY{SUBLIST\_AUXILIARY} \LABEL{MIN::SUBLIST_AUXILIARY}
 
 \end{indpar}
 
@@ -2934,8 +2846,8 @@ struct min
 \verb|min::float64 | & \MINKEY{float64\_of}\verb| ( min::stub * s )|
 \LABEL{FLOAT64_OF} \\[1ex]
 
-\verb|int min::| & \MINKEY{is\_number}\verb| ( min::gen v )|
-\LABEL{MIN::IS_NUMBER} \\[1ex]
+\verb|int min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
+\LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::| &
 	\MINKEY{new\_gen\REL} \verb| ( int v )|
 \LABEL{MIN::NEW_GEN_OF_INT} \\
@@ -2944,8 +2856,10 @@ struct min
 \LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
-\verb|min::float64 min::| & \MINKEY{number\_of}\verb| ( min::gen v )|
-\LABEL{MIN::NUMBER_OF_GEN} \\
+\verb|min::float64 min::| & \MINKEY{num\_of}\verb| ( min::gen v )|
+\LABEL{MIN::NUM_OF_GEN} \\[1ex]
+\verb|unsigned min::| & \MINKEY{numhash}\verb| ( min::gen v )|
+\LABEL{MIN::NUMHASH_OF_GEN} \\
 
 \end{tabular}
 
@@ -3001,6 +2915,13 @@ struct min
                       \verb| ( char * p,|\ARGBREAK
 		      \verb|   min::gen s, unsigned n )|
 \LABEL{MIN::STRNCPY_OF_GEN} \\[1ex]
+
+\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
+\LABEL{MUP::STR_POINTER_OF_GEN} \\
+\verb|const char * | & \TTKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
+\LABEL{STR_OF_STR_POINTER} \\
+\verb|void | & \TTKEY{relocate}\verb| ( MUP::str_pointer & sp )|
+\LABEL{RELOCATE_OF_STR_POINTER} \\[1ex]
 
 \verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STR_OF_GEN}
@@ -3088,51 +3009,12 @@ struct min
     \verb| ( min::gen * const p, unsigned n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\[1ex]
 
-\verb|min::stub * MUP::| & \MUPKEY{new\_label}\ARGBREAK
-    \verb| ( min::gen * const p, unsigned n )|
-\LABEL{MUP::NEW_LABEL} \\[1ex]
-
 \verb|min::gen min::| & \MINKEY{new\_gen}\ARGBREAK
     \verb| ( min::gen * const p, unsigned n )|
 \LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\[1ex]
 
 \verb|bool min::| & \MINKEY{is\_label}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LABEL_OF_GEN} \\
-
-\end{tabular}
-
-\end{indpar}
-
-\INDEXHEADER{Label Pair Stub Declarations}
-
-\begin{indpar}[0.2in]
-
-\begin{tabular}{@{}r@{}p{4.0in}}
-
-\verb|min::gen | & \TTKEY{label\_of}\verb| ( min::stub * s )|
-\LABEL{LABEL_OF} \\
-\verb|min::gen min::| & \MINKEY{label\_of}\verb| ( min::gen v )|
-\LABEL{MIN::LABEL_OF_GEN} \\
-\verb|min::gen | & \TTKEY{co\_label\_of}\verb| ( min::stub * s )|
-\LABEL{CO_LABEL_OF} \\
-\verb|min::gen min::| & \MINKEY{co\_label\_of}\verb| ( min::gen v )|
-\LABEL{MIN::CO_LABEL_OF_GEN} \\[1ex]
-
-\verb|min::stub * MUP::| & \MUPKEY{new\_label\_pair}\ARGBREAK
-    \verb| ( min::gen label, min::gen co_label )|
-\LABEL{MUP::NEW_LABEL_PAIR} \\[1ex]
-
-\verb|min::gen min::| & \MINKEY{new\_gen}\ARGBREAK
-    \verb| ( min::gen label, min::gen co_label )|
-\LABEL{MIN::NEW_GEN_OF_GEN_PAIR} \\[1ex]
-
-\verb|bool min::| & \MINKEY{is\_label\_pair}\verb| ( min::gen v )|
-\LABEL{MIN::IS_LABEL_PAIR} \\[1ex]
-
-\verb|min::stub * | & \TTKEY{co\_pair\_of}\verb| ( min::stub * s )|
-\LABEL{CO_PAIR_OF} \\
-\verb|min::gen min::| & \MINKEY{co\_pair\_of}\verb| ( min::gen v )|
-\LABEL{MIN::CO_PAIR_OF_GEN} \\
 
 \end{tabular}
 
@@ -3168,11 +3050,11 @@ struct min
 \verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::long_obj * lo )|
 \LABEL{OBJ_VECTOR_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned |
-    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::short_obj * so )|
-\LABEL{AUXILARY_AREA_SIZE_OF_SHORT_OBJ} \\
+    & \TTKEY{auxiliary\_area\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{AUXILIARY_AREA_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned |
-    & \TTKEY{auxilary\_area\_size\_of}\verb| ( min::long_obj * lo )|
-\LABEL{AUXILARY_AREA_SIZE_OF_LONG_OBJ} \\
+    & \TTKEY{auxiliary\_area\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{AUXILIARY_AREA_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned |
     & \TTKEY{unused\_area\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{UNUSED_AREA_SIZE_OF_SHORT_OBJ} \\
