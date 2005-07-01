@@ -1135,8 +1135,8 @@ can be used to add memory for additional numbers to the
 object.  Note that the auxiliary stub itself may not contain enough
 information to tell the type of the value it stores; one may have to
 trace the reference from the object pointing at the auxiliary stub
-to determine this type.  See
-\secref{AUXILIARY-STUBS} for functions associated with auxiliary stubs.
+to determine this type.  See \secref{STUB-FUNCTIONS} for functions
+that can read and write auxiliary stubs.
 
 \subsection{Stub Type Codes}
 \label{STUB-TYPE-CODES}
@@ -2010,7 +2010,7 @@ area.
 
 As an optimization, \skey{auxiliary stub}s can be used in place of object
 auxiliary area elements.  When this is done, the description of this
-section must be modified as explained in \secref{AUXILIARY-STUBS}.
+section must be modified as explained in \secref{OBJECT-AUXILIARY-STUBS}.
 
 \subsubsubsection{List Pointers}
 \label{LIST-POINTERS}
@@ -2116,7 +2116,7 @@ Determining whether a list element value represents a sublist requires
 the {\tt min::is\_sublist} function, which must check whether the
 value is a sublist auxiliary pointer, is the value {\tt min::EMPTY\_SUBLIST},
 or is a pointer to a sublist auxiliary stub as described in
-\secref{AUXILIARY-STUBS}.
+\secref{OBJECT-AUXILIARY-STUBS}.
 
 Determining whether a value represents the end of a list can be done by
 simply checking whether the value equals {\tt min::LIST\_END},
@@ -2220,7 +2220,7 @@ The use of object auxiliary stubs by an implementation is hidden from
 the user of MIN by object list level functions.  There are no functions
 for dealing explicitly with object auxiliary stubs.  There are, however,
 functions to read and write auxiliary stubs of all kinds in
-\secref{AUXILIARY-STUBS}, though the only use of these functions on
+\secref{STUB-FUNCTIONS}, though the only use of these functions on
 object auxiliary stubs would be for debugging.
 
 \subsubsection{Object Attribute Level}
@@ -2616,8 +2616,12 @@ Indicates a set of values has more than one element.
 \end{list}
 \end{indpar}
 
-\subsection{Auxiliary Stubs}
-\label{AUXILIARY-STUBS}
+\subsection{Stub Functions}
+\label{STUB-FUNCTIONS}
+
+In this section we describe unprotected functions that can be used to read
+or write stubs for purposes of debugging or of constructing other higher level
+functions.  These functions do not check type codes of stubs.
 
 
 \clearpage
@@ -2642,6 +2646,8 @@ This is a logical time to pay this cost.
 
 Maybe not having \verb|min::| in names of functions with \verb|min::|
 pointer arguments is not a good idea.
+
+Interface to gc, including stack for protecting values.
 
 \clearpage
 
