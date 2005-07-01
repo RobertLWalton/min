@@ -2480,7 +2480,9 @@ and if the set has more than one value, the special value
 This version of the {\tt setg} function deletes any previous values of
 the object, attribute name, and reverse attribute name,
 and makes the one value {\tt v} the only value of the object,
-attribute name, and reverse attribute name.
+attribute name, and reverse attribute name.  But if {\tt v} is
+\verb|min::MISSING|, all previous values are deleted and no values
+are added.
 
 The following functions may be used to add one value to the set of values of an
 object, attribute name, and reverse attribute name:
@@ -2508,6 +2510,47 @@ using {\tt ==} to compare values for equality.
 The {\tt add\_to\_multiset} function adds {\tt v} even if the
 value is already in the set.
 
+The following functions may be used to set, or clear, or flip
+the flags turned on in the input vector:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{set\_some\_flagsg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::uns32 * in, unsigned n,| \\
+    \verb|   min::gen obj, min::gen name)|
+    \end{tabular}
+\LABEL{MIN::SET_SOME_FLAGSG} \\
+\verb|void min::| & \MINKEY{clear\_some\_flagsg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::uns32 * in, unsigned n,| \\
+    \verb|   min::gen obj, min::gen name)|
+    \end{tabular}
+\LABEL{MIN::CLEAR_SOME_FLAGSG} \\
+\verb|void min::| & \MINKEY{flip\_some\_flagsg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::uns32 * in, unsigned n,| \\
+    \verb|   min::gen obj, min::gen name)|
+    \end{tabular}
+\LABEL{MIN::FLIP_SOME_FLAGSG} \\
+\end{tabular}\end{center}
+
+The following functions may be used to test, set, or clear, or flip
+individual flag number {\tt n}:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{test\_flagg\REL}%
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::TEST_FLAGG} \\
+\verb|void min::| & \MINKEY{set\_flagg\REL}%
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::SET_FLAGG} \\
+\verb|void min::| & \MINKEY{clear\_flagg\REL}%
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::CLEAR_FLAGG} \\
+\verb|void min::| & \MINKEY{flip\_flagg\REL}%
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::FLIP_FLAGG} \\
+\end{tabular}\end{center}
 
 The following variants exist for functions of this section:
 
@@ -2566,7 +2609,7 @@ The special values are:
 \begin{list}{}{}
 \item[{\tt const int min::}\MINKEY{MISSING}]~%
 	\LABEL{MIN::MISSING}\\
-Denotes a missing value.
+Denotes a missing value or an empty set of values.
 \item[{\tt const int min::}\MINKEY{MULTI\_VALUED}]~%
 	\LABEL{MIN::MULTI_VALUED}\\
 Indicates a set of values has more than one element.
@@ -3272,6 +3315,35 @@ struct min
 \LABEL{MIN::ADD_TO_MULTISETG} \\
 \end{tabular}
 
+\begin{tabular}{@{}r@{}p{4.8in}}
+\verb|void min::| & \MINKEY{set\_some\_flagsg\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj, min::gen name)|
+\LABEL{MIN::SET_SOME_FLAGSG} \\
+\verb|void min::| & \MINKEY{clear\_some\_flagsg\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj, min::gen name)|
+\LABEL{MIN::CLEAR_SOME_FLAGSG} \\
+\verb|void min::| & \MINKEY{flip\_some\_flagsg\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj, min::gen name)|
+\LABEL{MIN::FLIP_SOME_FLAGSG} \\
+\end{tabular}
+
+\begin{tabular}{@{}r@{}p{4.8in}}
+\verb|bool min::| & \MINKEY{test\_flagg\REL}\ARGBREAK
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::TEST_FLAGG} \\
+\verb|void min::| & \MINKEY{set\_flagg\REL}\ARGBREAK
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::SET_FLAGG} \\
+\verb|void min::| & \MINKEY{clear\_flagg\REL}\ARGBREAK
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::CLEAR_FLAGG} \\
+\verb|void min::| & \MINKEY{flip\_flagg\REL}\ARGBREAK
+    \verb| ( unsigned n, min::gen obj, min::gen name)|
+\LABEL{MIN::FLIP_FLAGG} \\
+\end{tabular}
 
 The Attribute Level functions also have variants with:
 
