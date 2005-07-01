@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 30, 2005}
+\date{July 1, 2005}
  
 \maketitle
 
@@ -1789,8 +1789,8 @@ and these are described toward the end of this section, after
 short and long objects and their unprotected access functions are
 described.
 
-A \key{short object stub}\label{SHORT-OBJECT-STUB} has
-\minkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code and
+A \key{short object stub}\label{SHORT-OBJECT-STUB} is collectible, has
+\minkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code, and has
 a value that is a pointer to a \minkey{short\_obj} type body
 which holds the 5 parts of the object.
 The header consists of 4 16-bit unsigned integers which are, in order:
@@ -1815,8 +1815,8 @@ All sizes are in units of \verb|min::gen| values.  Aside from its header,
 the object body is just a vector of \verb|min::gen| values.  The total
 size does \underline{not} include the header.
 
-A \key{long object stub}\label{LONG-OBJECT-STUB} has
-\minkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} stub type code and
+A \key{long object stub}\label{LONG-OBJECT-STUB} is collectible, has
+\minkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} stub type code, and has
 a value that is a pointer to a \minkey{long\_obj} type body
 which holds the 5 parts of the object.  A long object body is
 the same as a short object body except the 4 header integers
@@ -1838,10 +1838,12 @@ functions:
 \LABEL{HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned | & \TTKEY{hash\_table\_size\_of}\verb| ( min::long_obj * lo )|
 \LABEL{HASH_TABLE_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::short_obj * so )|
-\LABEL{OBJ_VECTOR_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::long_obj * lo )|
-\LABEL{OBJ_VECTOR_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned | &
+    \TTKEY{attribute\_vector\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{ATTRIBUTE_VECTOR_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned |
+    & \TTKEY{attribute\_vector\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{ATTRIBUTE_VECTOR_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned |
     & \TTKEY{auxiliary\_area\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{AUXILIARY_AREA_SIZE_OF_SHORT_OBJ} \\
@@ -1918,11 +1920,11 @@ can be obtained by the following protected functions:
 	& \TTKEY{hash\_table\_of}\verb| ( min::long_obj * lo )|
 \LABEL{HASH_TABLE_OF_LONG_OBJ} \\
 \verb|unsigned |
-	& \TTKEY{object\_vector\_of}\verb| ( min::short_obj * so )|
-\LABEL{OBJECT_VECTOR_OF_SHORT_OBJ} \\
+	& \TTKEY{attribute\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{ATTRIBUTE_VECTOR_OF_SHORT_OBJ} \\
 \verb|unsigned |
-	& \TTKEY{object\_vector\_of}\verb| ( min::long_obj * lo )|
-\LABEL{OBJECT_VECTOR_OF_LONG_OBJ} \\
+	& \TTKEY{attribute\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{ATTRIBUTE_VECTOR_OF_LONG_OBJ} \\
 \end{tabular}\end{center}
 
 \subsubsection{Object List Level}
@@ -2091,7 +2093,7 @@ list the pointer points at, and returns the value of that
 list element.  It returns {\tt min::LIST\_END} if there is
 no list element because the end of the list has been reached.
 After the end of a list has been reached, additional
-calls to {\tt next} will do nothing.
+calls to {\tt next} will do nothing but return {\tt min::LIST\_END}.
 
 The {\tt current} function just returns the value of the list
 element the list pointer currently points at, or returns {\tt min::LIST\_END}
@@ -2214,6 +2216,13 @@ Thus object auxiliary
 stubs can be freed as soon as the pointer to them is deleted.  This
 mechanism, and not garbage collection, frees object auxiliary stubs.
 
+The use of object auxiliary stubs by an implementation is hidden from
+the user of MIN by object list level functions.  There are no functions
+for dealing explicitly with object auxiliary stubs.  There are, however,
+functions to read and write auxiliary stubs of all kinds in
+\secref{AUXILIARY-STUBS}, though the only use of these functions on
+object auxiliary stubs would be for debugging.
+
 \subsubsection{Object Attribute Level}
 \label{OBJECT-LEVEL-LEVEL}
 
@@ -2225,114 +2234,125 @@ the syntax:
 
 \begin{center}
 \begin{tabular}{l}
-\emkey{hash-table-entry} ::= {\em map-list}
+\emkey{hash-table-entry} ::= {\em map-sublist}
 \\[1ex]
 \emkey{attribute-vector-entry} ::= {\em segment-entry}
 \\[1ex]
-\emkey{map-list} ::= {\em map-pair}\ldots
+\emkey{map-sublist} ::= {\em map-pair}$^\star$
 \\[1ex]
 \emkey{map-pair} ::= {\em name-component } {\em segment-entry}
 \\[1ex]
 \emkey{name-component} ::= {\em atom }
 \\[1ex]
-\emkey{segment-entry} ::= {\em value} $|$ {\em segment-list}
+\emkey{segment-entry} ::= {\em value} $|$ {\em segment-sublist}
 \\[1ex]
-\emkey{segment-list} ::= {\em map-list-option} {\em attribute-list}
+\emkey{segment-sublist}
+    \begin{tabular}[t]{@{}r@{~}l@{}}
+    ::= & {\em flag-set}
+	  {\em value}$^\star$ \\
+    $|$ & {\em map-sublist}
+	  {\em reverse-attribute-map-sublist-option}
+	  {\em flag-set}
+	  {\em value}$^\star$ \\
+    \end{tabular}
 \\[1ex]
-\emkey{attribute-list} ::= {\em flag-set}
-    {\em value}\ldots {\em reverse-attribute-list}\ldots
-\\[1ex]
-\emkey{flag-set} ::= {\em control-code}\ldots
+\emkey{flag-set} ::= {\em control-code}$^\star$
 \\[1ex]
 \emkey{value} ::= {\em atom} $|$ {\em object}
 \\[1ex]
-\emkey{reverse-attribute-list} ::= {\em reverse-attribute-name}
-    {\em value}\ldots
-\\[1ex]
-\emkey{reverse-attribute-name} ::= {\em attribute-name}
+\emkey{reverse-attribute-map-sublist} ::= {\em map-pair}$^\star$
 \end{tabular}
 \end{center}
 
-Here
-an {\em atom} is a \verb|min::gen| value representing a number or string,
+Here the syntactic categories represent \verb|min::gen| values or lists
+of \verb|min::gen| values in the sense of the object list level.
+
+An {\em atom} is a \verb|min::gen| value representing a number or string,
 a {\em control-code} is a \verb|min::gen| control code value,
 an {\em object} is a \verb|min::gen| value pointing at an object,
-and an {\em attribute-name} is a \verb|min::gen| value pointing at an
-attribute name.  All these are list elements but not lists.
+and an {\em label} is a \verb|min::gen| value pointing at a label.
+All these are list elements but not lists.
+
 An {\em X-list} is a list, in the sense of the object list level.
+
+An {\em X-sublist} is a sublist, in the sense of the object list level, which
+is to say it is a list that is an element of another list.
+
 An {\em X-option} is an optional element of a list that is an {\em X} if
 it is not omitted.
 
-An object is represented by a map from attribute names to {\em attribute-lists}.
-This map is based on the following search algorithm:
+An object is represented by a map from attribute names to flags and from
+attribute names and reverse attribute names to values.
+This map is based on the following search algorithm, which starts from
+an attribute name and an optional reverse attribute name, and returns
+a set of flags and a set of values.
 
 \begin{enumerate}
 
-\item Let $C$ be the first component (atom) of the attribute name.
+\item Let $N$ be the attribute name.
+
+\item Let $C$ be the first {\em name-component} of $N$.
 
 \item If $C$ is an integer from 1 through the size of the attribute
 vector, inclusive, let $E$ be the attribute vector entry with index $C$,
-and go to step 5.
+and go to step 6.
 
 \item Otherwise let $H$ be the hash value of $C$ modulo the size of
 the hash table.  Let $M$ be the hash table entry with index $H$.
 
-\item $M$ is a {\em map-list}.  Look through the {\em map-pairs} in this
-list for one whose {\em component-name} equals $C$.  If none is found,
+\item $M$ is a {\em map-sublist}.  Look through the {\em map-pairs} in this
+list for one whose {\em name-component} equals $C$.  If none is found,
 the search fails.
 If one is found, let $E$ be the {\em segment-entry} part of the {\em map-pair}.
 
-\item If $E$ is a value and not a list,
-change $E$ to a list whose only element is $E$.
-Note this will be interpreted below as
-an {\em attribute-list} with one {\em value} and nothing else.
+\item If $E$ is a {\em value} and not a sublist,
+the search terminates as follows.
+If $C$ is not the last name component of $N$, or $N$ is the attribute name
+and the reverse attribute name has been given, then the search fails.
+Otherwise the search returns no flags and returns $E$ as a single value.
 
-\item $E$ is a {\em segment-entry}.
-If the attribute name has more components, let $C$ be the next
-component.  If $E$ does not begin with a sublist, the search fails.
-But if $E$ begins with a sublist, let this be $M$, and go back to step 4.
+\item $E$ is a {\em segment-sublist}.
+If $C$ is the last component of $N$, and $N$ is the reverse attribute
+name or no reverse attribute name was given, the search terminates.
+Any sublists beginning $E$ are skipped over.  Any
+{\em control-codes} next encountered are returned as flags.  Any {\em values}
+following these are returned as the set of values.
 
-\item Otherwise, if there is no next component of the attribute name,
-remove from $E$ any sublist, i.e., any {\em map-list}, that begins $E$.
-The resulting $E$ is the {\em attribute-list} to which the attribute name maps.
+\item
+If $E$ does not begin with a sublist, or if $C$ is the
+last component of the attribute name and $E$ does not begin with two sublists,
+the search fails.
 
-\end{enumerate}
+\item
+If $C$ is not the last component of $N$, replace $C$ by the next
+component of $N$, replace $M$ by the sublist beginning $E$, and go to step 5.
 
-Once an attribute name $N$ has been mapped to an attribute list, the
-attribute list is interpreted as follows:
-
-\begin{enumerate}
-
-\item The {\em flag-set} and the beginning of an {\em attribute-list}
-specifies the attribute flags of the attribute name.\label{FLAG-SET}
-See below \pagref{ATTRIBUTE-FLAGS} for details.
-
-\item The {\em values} in the {\em attribute-list} before any
-{\em reverse-attribute-list} are the values of the attribute name paired with
-the empty reverse attribute name.
-
-\item The {\em values} in any {\em reverse-attribute-list} are
-the values of the attribute name paired with the {\em reverse-attribute-name}
-of the {\em reverse-attribute-list}.
+\item
+If $C$ is the last component of $N$ (which must be the attribute
+name) replace $N$ by the reverse attribute name, $C$ by the first component
+of the reverse attribute name, $M$ by the second of the two sublists
+beginning $E$, and go to step 5.
 
 \end{enumerate}
 
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
-are represented by a {\em flag-set} in an {\em attribute-list}
-(\pagref{FLAG-SET}).
+are represented by a {\em flag-set} in an {\em segment-sublist}.
 The {\em flag-set} is a sequence of \verb|min::gen|
 control codes.
 
 The flags are numbered 0, 1, 2, \ldots.  Flag $N$ corresponds to
 the bit in the $I$'th control code
-selected by the mask $2^K$ where $I=\mbox{floor}(N/C)+1$,
-$K=N~\mbox{mod}~C$, and $C$ is the
-number of bits in a control code integer.  $C$ is 26 if \verb|min::gen|
+selected by the mask $2^K$ where $I=\mbox{floor}(N/B)+1$,
+$K=N~\mbox{mod}~B$, and $B$ is the
+number of bits in a control code integer.  $B$ is 26 if \verb|min::gen|
 values are 32-bits, and 44 if \verb|min::gen| values are 64-bits.
 
 A flag is set for an attribute name if and only if its corresponding
-bit is present and set in the {\em flag-set} of the {\em attribute-list}
-that the attribute name maps to.
+bit is present and set in the {\em flag-set} found by a search given
+just the attribute name and no reverse attribute name.
+
+A search that is given both an attribute name and a reverse attribute
+name should never find a non-empty {\em flag-set} or return any flags.
 
 \subsubsubsection{Attribute Functions}
 \label{ATTRIBUTE-FUNCTIONS}
@@ -3045,10 +3065,12 @@ struct min
 \LABEL{HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned | & \TTKEY{hash\_table\_size\_of}\verb| ( min::long_obj * lo )|
 \LABEL{HASH_TABLE_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::short_obj * so )|
-\LABEL{OBJ_VECTOR_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned | & \TTKEY{obj\_vector\_size\_of}\verb| ( min::long_obj * lo )|
-\LABEL{OBJ_VECTOR_SIZE_OF_LONG_OBJ} \\
+\verb|unsigned | &
+    \TTKEY{attribute\_vector\_size\_of}\verb| ( min::short_obj * so )|
+\LABEL{ATTRIBUTE_VECTOR_SIZE_OF_SHORT_OBJ} \\
+\verb|unsigned |
+    & \TTKEY{attribute\_vector\_size\_of}\verb| ( min::long_obj * lo )|
+\LABEL{ATTRIBUTE_VECTOR_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned |
     & \TTKEY{auxiliary\_area\_size\_of}\verb| ( min::short_obj * so )|
 \LABEL{AUXILIARY_AREA_SIZE_OF_SHORT_OBJ} \\
@@ -3106,11 +3128,11 @@ struct min
 	& \TTKEY{hash\_table\_of}\verb| ( min::long_obj * lo )|
 \LABEL{HASH_TABLE_OF_LONG_OBJ} \\
 \verb|unsigned |
-	& \TTKEY{object\_vector\_of}\verb| ( min::short_obj * so )|
-\LABEL{OBJECT_VECTOR_OF_SHORT_OBJ} \\
+	& \TTKEY{attribute\_vector\_of}\verb| ( min::short_obj * so )|
+\LABEL{ATTRIBUTE_VECTOR_OF_SHORT_OBJ} \\
 \verb|unsigned |
-	& \TTKEY{object\_vector\_of}\verb| ( min::long_obj * lo )|
-\LABEL{OBJECT_VECTOR_OF_LONG_OBJ} \\
+	& \TTKEY{attribute\_vector\_of}\verb| ( min::long_obj * lo )|
+\LABEL{ATTRIBUTE_VECTOR_OF_LONG_OBJ} \\
 
 \end{tabular}
 
