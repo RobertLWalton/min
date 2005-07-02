@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 1, 2005}
+\date{July 2, 2005}
  
 \maketitle
 
@@ -1200,18 +1200,18 @@ stub type code, and has
 an immutable \verb|min::float64| value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::float64 | & \MINKEY{float64\_of}\verb| ( min::stub * s )|
-\LABEL{FLOAT64_OF} \\
-\verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::FLOAT64_OF}
+\verb|min::float64 | & \MINKEY{float\_of}\verb| ( min::stub * s )|
+\LABEL{FLOAT_OF} \\
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::FLOAT_OF}
 \end{tabular}\end{center}
 
 and written by
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void MUP::| &
-    \MUPKEY{set\_float64\_of}\verb| ( min::stub * s, min::float64 f )|
-\LABEL{MUP::SET_FLOAT64_OF}
+    \MUPKEY{set\_float\_of}\verb| ( min::stub * s, min::float64 f )|
+\LABEL{MUP::SET_FLOAT_OF}
 \end{tabular}\end{center}
 
 Number stubs exist only in compact implementations;
@@ -1232,8 +1232,8 @@ by the following protected functions:
 \LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
-\verb|min::float64 min::| & \MINKEY{num\_of}\verb| ( min::gen v )|
-\LABEL{MIN::NUM_OF_GEN} \\[1ex]
+\verb|min::float64 min::| & \MINKEY{float\_of}\verb| ( min::gen v )|
+\LABEL{MIN::FLOAT_OF_GEN} \\[1ex]
 \verb|unsigned min::| & \MINKEY{numhash}\verb| ( min::gen v )|
 \LABEL{MIN::NUMHASH_OF_GEN} \\
 \end{tabular}\end{center}
@@ -2258,7 +2258,7 @@ the syntax:
 \\[1ex]
 \emkey{flag-set} ::= {\em control-code}$^\star$
 \\[1ex]
-\emkey{value} ::= {\em atom} $|$ {\em object}
+\emkey{value} ::= {\em atom} $|$ {\em object} $|$ {\em label}
 \\[1ex]
 \emkey{reverse-attribute-map-sublist} ::= {\em map-pair}$^\star$
 \end{tabular}
@@ -2269,7 +2269,7 @@ of \verb|min::gen| values in the sense of the object list level.
 
 An {\em atom} is a \verb|min::gen| value representing a number or string,
 a {\em control-code} is a \verb|min::gen| control code value,
-an {\em object} is a \verb|min::gen| value pointing at an object,
+an {\em object} is a \verb|min::gen| value pointing at an object stub,
 and an {\em label} is a \verb|min::gen| value pointing at a label.
 All these are list elements but not lists.
 
@@ -2281,8 +2281,9 @@ is to say it is a list that is an element of another list.
 An {\em X-option} is an optional element of a list that is an {\em X} if
 it is not omitted.
 
-An object is represented by a map from attribute names to flags and from
-attribute names and reverse attribute names to values.
+An object is represented by a map which maps attribute names to flags and
+multisets of values and maps attribute name/reverse name pairs to multisets
+of values.
 This map is based on the following search algorithm, which starts from
 an attribute name and an optional reverse attribute name, and returns
 a set of flags and a set of values.
@@ -2294,8 +2295,8 @@ a set of flags and a set of values.
 \item Let $C$ be the first {\em name-component} of $N$.
 
 \item If $C$ is an integer from 1 through the size of the attribute
-vector, inclusive, let $E$ be the attribute vector entry with index $C$,
-and go to step 6.
+vector, inclusive, let $E$ be the attribute vector entry with index $C$
+($E$ is a {\em segment-entry}) and go to step 6.
 
 \item Otherwise let $H$ be the hash value of $C$ modulo the size of
 the hash table.  Let $M$ be the hash table entry with index $H$.
@@ -2305,7 +2306,7 @@ list for one whose {\em name-component} equals $C$.  If none is found,
 the search fails.
 If one is found, let $E$ be the {\em segment-entry} part of the {\em map-pair}.
 
-\item If $E$ is a {\em value} and not a sublist,
+\item $E$ is a {\em segment-entry}. If $E$ is a {\em value}, and not a sublist,
 the search terminates as follows.
 If $C$ is not the last name component of $N$, or $N$ is the attribute name
 and the reverse attribute name has been given, then the search fails.
@@ -2314,7 +2315,8 @@ Otherwise the search returns no flags and returns $E$ as a single value.
 \item $E$ is a {\em segment-sublist}.
 If $C$ is the last component of $N$, and $N$ is the reverse attribute
 name or no reverse attribute name was given, the search terminates.
-Any sublists beginning $E$ are skipped over.  Any
+Any sublists beginning $E$ are skipped over (these will be {\em map-sublists}
+and {\em reverse-attribute-map-sublists}).  Any
 {\em control-codes} next encountered are returned as flags.  Any {\em values}
 following these are returned as the set of values.
 
@@ -2623,6 +2625,75 @@ In this section we describe unprotected functions that can be used to read
 or write stubs for purposes of debugging or of constructing other higher level
 functions.  These functions do not check type codes of stubs.
 
+The following functions read or write the value and control part of a
+stub:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::VALUE_OF} \\
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\\
+\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::CONTROL_OF} \\
+\verb|void MUP::| &
+    \MUPKEY{set\_value\_of}\verb| ( min::stub * s, min::uns64 v )|
+\LABEL{MUP::SET_VALUE_OF} \\
+\verb|void MUP::| &
+    \MUPKEY{set\_float\_of}\verb| ( min::stub * s, min::float64 f )|
+\\
+\verb|void MUP::| &
+    \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 v )|
+\LABEL{MUP::SET_CONTROL_OF} \\
+\end{tabular}\end{center}
+
+Here the floating point functions are reading or writing the stub
+value.  Thus the stub value can be taken to be either of type \verb|min::uns64|
+or of type \verb|min::float64|.
+
+These functions do \underline{not} check type codes, nor do they check
+that values read or written are within legal range for a particular
+stub.  Thus a stub value that is not a floating point number can be
+read by \verb|MUP::float_of| with undefined results, and a stub control
+that has its high order bit off indicating the stub will be collectible
+can be written by \verb|MUP::set_control_of| even if the written
+control datum is incompatible with the garbage collector implementation,
+which will produce undefined results when the garbage collector
+next executes.
+
+The high order byte of any control written by \verb|MUP::set_control_of|
+is the type code, and the high order bit is clear if the stub is collectible
+and set if the stub is uncollectible (\secref{STUB-CONTROL}).
+
+A stub control holds an 8-bit type code, 12-bits of flags, and 44 bits
+of value or pointer.
+The following functions can be used be used to compute or dissect stub
+controls:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{stub\_control} \\
+    & \verb|    ( int type_code, unsigned flags, unsigned value )|
+\LABEL{MUP::STUB_CONTROL} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{stub\_control} \\
+    & \verb|    ( int type_code, unsigned flags, min::stub * s )|
+\\
+\verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::TYPE_OF_CONTROL} \\
+\verb|unsigned MUP::| & \MUPKEY{flags\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::FLAGS_OF_CONTROL} \\
+\verb|unsigned MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::VALUE_OF_CONTROL} \\
+\verb|min::stub * MUP::| & \MUPKEY{pointer\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::POINTER_OF_CONTROL} \\
+\end{tabular}\end{center}
+
+Here the 8-bit type code is represented as an {\tt int} in
+the range from $-128$ through $127$, and the 12-bit flags are represented
+as an {\tt unsigned} integer in the range from $0$ through $2^{12}-1$.
+The {\tt MUP::stub\_control} function computes a control value that can be set
+by {\tt MUP::set\_control\_of}, and the other functions dissect values read by
+{\tt MUP::control\_of}.
 
 \clearpage
 
@@ -2912,8 +2983,8 @@ struct min
 \begin{tabular}{@{}r@{}p{4.0in}}
 
 
-\verb|min::float64 | & \MINKEY{float64\_of}\verb| ( min::stub * s )|
-\LABEL{FLOAT64_OF} \\[1ex]
+\verb|min::float64 | & \MINKEY{float\_of}\verb| ( min::stub * s )|
+\LABEL{FLOAT_OF} \\[1ex]
 
 \verb|int min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
@@ -2925,8 +2996,8 @@ struct min
 \LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
-\verb|min::float64 min::| & \MINKEY{num\_of}\verb| ( min::gen v )|
-\LABEL{MIN::NUM_OF_GEN} \\[1ex]
+\verb|min::float64 min::| & \MINKEY{float\_of}\verb| ( min::gen v )|
+\LABEL{MIN::FLOAT_OF_GEN} \\[1ex]
 \verb|unsigned min::| & \MINKEY{numhash}\verb| ( min::gen v )|
 \LABEL{MIN::NUMHASH_OF_GEN} \\
 
@@ -2940,11 +3011,11 @@ struct min
 
 \begin{tabular}{@{}r@{}p{4.0in}}
 
-\verb|min::float64 MUP::| & \MUPKEY{float64\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::FLOAT64_OF} \\
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::FLOAT_OF} \\
 \verb|void MUP::| &
-    \MUPKEY{set\_float64\_of}\ARGBREAK\verb| ( min::stub * s, min::float64 f )|
-\LABEL{MUP::SET_FLOAT64_OF} \\[1ex]
+    \MUPKEY{set\_float\_of}\ARGBREAK\verb| ( min::stub * s, min::float64 f )|
+\LABEL{MUP::SET_FLOAT_OF} \\[1ex]
 
 \end{tabular}
 
