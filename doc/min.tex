@@ -229,7 +229,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{May 27, 2005}
+\date{July 8, 2005}
  
 \maketitle
 
@@ -348,7 +348,7 @@ There are special rules for some characters.
 
 An underline (\ttmkey{\UNDERLINE}{letter}) is a letter.
 
-A \ttmkey{.}{letter}\index{.@{\tt .}!decimal point}
+A \key{point}\index{.@{\tt .}} (\verb|.|)
 is a decimal point if followed by a digit, a letter if followed
 by another letter, and a mark character otherwise.  E.g., {\tt 0.123} is
 a number with a decimal point, {\tt .terminator} is a word beginning with
@@ -356,7 +356,7 @@ a letter, and {\tt `Hello.'} contains the word {\tt Hello}
 followed by the \verb|.| mark.
 
 Users of MIN should not create words that begin with
-\ttmkey{.}{reserved use}; such words
+a point (\ttmkey{.}{reserved use}); such words
 are reserved for use by the designers of MIN.
 
 An exclamation mark ({\tt !}\index{"!@{\tt "!}!letter}%
@@ -505,7 +505,8 @@ and so forth.  The same object may be assigned different names in different
 output streams.\footnote{A possible implementation is to give objects that
 have been assigned names in an output stream a hidden system defined output
 stream specific attribute (\pagref{ATTRIBUTE})
-equal to the object's name integer.}
+equal to the object's name integer.  Another implementation uses a
+hash table per stream.}
 
 There are two kinds of arrows: single and double.
 
@@ -1153,7 +1154,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(0.85,1.15){\oval(1.3,0.3)}
 \put(0.40,1.00){\vector(0,-1){0.25}}
 \put(0.35,0.90){\makebox(0,0)[r]{\tt .initiator}}
-\put(0.40,0.65){\makebox(0,0)[c]{\tt "("}}
+\put(0.40,0.65){\makebox(0,0)[c]{\tt "\LEFTBRACKET"}}
 \put(0.70,1.00){\line(0,-1){0.65}}
 \put(0.60,0.35){\oval(0.2,0.2)[br]}
 \put(0.60,0.25){\vector(-1,0){0.70}}
@@ -1164,7 +1165,7 @@ Figure~\ref{EXAMPLE-CODE-OBJECT-REPRESENTATION}.
 \put(0.95,0.90){\makebox(0,0)[r]{\tt 2}}
 \put(1.30,1.00){\vector(0,-1){0.25}}
 \put(1.35,0.90){\makebox(0,0)[l]{\tt .terminator}}
-\put(1.30,0.65){\makebox(0,0)[c]{\tt ")"}}
+\put(1.30,0.65){\makebox(0,0)[c]{\tt "\RIGHTBRACKET"}}
 }
 \put(0.6,3.2){
 \put(0.2,1.00){\makebox(1.3,0.3){\tt \#\#130}}
@@ -1378,8 +1379,7 @@ priority & parser	& operators	& meaning
 \\[1ex]
 \key{attribute-representation}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em raw-attribute-representation}
-          (\pagref{RAW-ATTRIBUTE-REPRESENTATION}) \\
+    ::= & {\em raw-attribute-representation} \\
     $|$ & {\em cooked-single-attribute-representation} \\
     $|$ & {\em cooked-double-attribute-representation} \\[1ex]
     \end{tabular}
@@ -1420,7 +1420,9 @@ priority & parser	& operators	& meaning
 			    \end{tabular}
 \\[1ex]
 \key{code-block} ::= {\em expression} in code mode
-
+\\[1ex]
+See \pagref{RAW-ATTRIBUTE-REPRESENTATION} for rest of equations
+(e.g., for {\em raw-attribute-representation}).
 \end{tabular}
 \end{center}%
 \index{label!attribute}%
@@ -1523,7 +1525,7 @@ the mode is `expression'.  If the innermost brackets are \verb|{ }|
 the mode is `code'.  Thus it is as if \verb|` '| changes to text mode,
 \verb|( )| and \verb|[ ]| to expression mode, and \verb|{ }| to code mode.
 
-In \key{expression mode} all operators are recognized,
+In \key{expression mode}\label{EXPRESSION-MODE} all operators are recognized,
 line feeds and indentation are treated like any other white-space, and
 `\verb|:|' is not recognized as a code indicator.
 
@@ -1551,9 +1553,16 @@ The column of the first non-white-space character inside \verb|{}| brackets
 defines the initial column of the \key{code block} enclosed by the
 brackets.
 
-\item No line in a code block may be indented by less than its initial column.
+\item No line inside a code block may be indented by less than its
+initial column.
 Any line indented by more than the initial column must be indented by at
 least 2 columns more than the initial column.
+
+If the code block
+terminating \verb|}| is the first lexeme on its line, its line is
+\underline{not} considered to be inside the code block.  If the
+terminating \verb|}| is \underline{not} the first lexeme on its line, 
+its line is considered to be inside the code block.
 
 \item A code block is organized as a sequence of statements such that
 each non-white-space character in the code block initial column begins a new
@@ -1654,31 +1663,34 @@ to the first of the following rules that can be applied.
 
 \begin{enumerate}
 
-\item If the next input is the beginning of a statement within a code
+\item If the next lexeme is the beginning of a statement within a code
 block (\pagref{CODE-MODE}),
 the subsequence of lexemes that is the statement (including any
 subblocks) becomes the input,
 the lexical scanning algorithm is called recursively with this subsequence,
 and the object output by the recursive call becomes the next list element.
 
-\item If the next input is a bracket, the subsequence of lexemes beginning
+\item If the next lexeme is an opening bracket (\verb|{|, \verb|(|,
+\verb|[|, or \verb|`|), the subsequence of lexemes beginning
 with the bracket and ending with the matching bracket becomes the input,
 the lexical scanning algorithm is called recursively with this subsequence,
 and the object output by the recursive call becomes the next list element.
 
-\item If the next input is a `\verb|:|' code indicator mark
+\item If the next lexeme is a `\verb|:|' code indicator mark
 (\pagref{CODE-INDICATOR}), the subsequence of lexemes consisting of
 the code indicator mark and the following subblock becomes the input,
 the lexical scanning algorithm is called recursively with this subsequence,
 and the object output by the recursive call becomes the next list element.
 
-\item If the next input is a quoted string, the next list element is an
+\item If the next lexeme is a quoted string, the lexeme by itself
+becomes the input, and the next list element is an
 object whose only attributes are an attribute named {\tt 1} whose value
-is the quoted string atom,
+is the quoted string atom
 and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
 
-\item If the next input is a word or mark, the word or mark becomes the next
-list element.
+\item If the next lexeme is a word, mark, or number, the lexeme by itself
+becomes the input, and the word, mark, or number
+becomes the next list element.
 
 \end{enumerate}
 
@@ -1721,12 +1733,17 @@ following:\label{LEXICAL-SCANNING-EXAMPLE-OUTPUT}
 Recall that within objects there is no difference between
 a quoted string representation of a mark and the mark, as both are
 the same atom, but in textual representations of objects the quoted
-string representation of marks that can be operators is used,
+string representation of marks that can be operators is used
 to keep the marks from being misread as operators.
 Thus \verb|"+"| is used in the textual
 object representation above to denote the 1 character atom \verb|+|,
 and \verb|"*"|, \verb|"("|, \verb|"`"|, \verb|")"|, and \verb|"'"| 
 also denote 1 character atoms.
+
+Differences between expression mode (\pagref{EXPRESSION-MODE})
+and code mode (\pagref{CODE-MODE}) are all
+handled during lexical scanning, and thereafter these two modes behave
+the same.
 
 \subsubsection{Operator Scanning}
 \label{OPERATOR-SCANNING}
@@ -1771,14 +1788,15 @@ the parsing mode argument to the algorithm is changed as follows:
 \item The object list elements are inspected to see if any are operators.
 An operator is an atom equal to an operator that is recognized according
 to the current parsing mode (see \pagref{PARSING-MODES},
-Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
+Figure~\figref{SPECIAL-LEXEMES}, and Section~\secref{OPERATOR-DECLARATION}).
 
 If there are operators among the list elements, those with the lowest
-priority L are selected.  Then any non-empty sequences of list elements
-between selected operators are replaced by a single object listing the
-replaced elements.  Then, the current object is given a {\tt .parser}
+priority L are selected.  Then any non-empty sequences of list elements between
+selected operators are replaced by a single object listing the replaced
+elements.  However sequences with only one element are not replaced.
+Then, the current object is given a {\tt .parser}
 attribute equal to the parser associated with priority level L
-(see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
+(see Figure~\figref{SPECIAL-LEXEMES} and Section~\secref{OPERATOR-DECLARATION}).
 
 Lastly, if the current parsing mode is text and L equals zero, the parsing
 mode is changed to expression.
