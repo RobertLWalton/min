@@ -81,6 +81,8 @@
 \newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
 \newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
 \newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
+\newcommand{\ttdkey}[1]{{\tt \bf .#1}\index{#1@{\tt .#1}}}
+\newcommand{\ttdmkey}[2]{{\tt \bf .#1}\index{#1@{\tt .#1}!#2}}
 \newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
@@ -229,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{July 8, 2005}
+\date{July 11, 2005}
  
 \maketitle
 
@@ -2084,7 +2086,7 @@ Consider the following description of a room:
     width: 3.2
     length: 9.6
     doored wall: function ( length ) {
-                     d = (length - door width) / 2
+                     d <- (length - door width) / 2
                      straight d
                      door (door width)
                      straight d }
@@ -2098,30 +2100,23 @@ producing output, such as a video picture of the room, or text naming
 the room.  Instead, parts of the description must be evaluated to produce
 the picture or the name.
 
-The goal of an evaluation is to produce \key{derived information} which is
-frequently stored in a derived attribute of an object.  A \key{derived
-attribute} is just any attribute that stores derived information.  Derived
-attributes are often also \skey{hidden attribute}s, which are just
-attributes whose names begin with `\ttmkey{.}{hidden attribute}', and which
-are not normally output when the object is saved.
-
-For example, a very important derived attribute of any object is its
-inheritance list, which is the value of the object's \verb|.ancestors|
-attribute, and which is a list of other objects from which the current
+Another example is the \ttmkey{type}{of object} attribute of an object,
+which is implicitly evaluated to produce the \ttdmkey{ancestors} attribute
+of the object.  This last is a list of other objects from which the current
 object inherits attributes.  In our example, the \verb|type| attribute
 names another object, `{\tt standard room}', from which the room object
 inherits attributes.  This means that when an evaluation searches for the
 name of an attribute in the room object, if that name is not found, the
 evaluation will next search the `{\tt standard room}' object.
 
-To compute the \verb|.ancestors| attribute an the \verb|type| object
+To compute the \verb|.ancestors| attribute the \verb|type| object
 is evaluated `in global context'.  This last implies that the only
 names the evaluator can use are global variable names, and `{\tt standard
 room}' in fact names a global variable whose value is the object
 which is the sole immediate ancestor of our room.
 
-The \verb|outline| attribute value is used to compute a derived attribute
-named \verb|.video| which describes how the object is to be displayed
+In our example, the \verb|outline| attribute value is used to compute
+a video output that describes how the object is to be displayed
 graphically.
 The \verb|outline| attribute value is a program is written from the point
 of view of a robot moving around the outline of the room building walls.
@@ -2131,22 +2126,14 @@ In order to show how evaluation works, we will explain in detail some
 of the evaluation of \verb|outline|.
 
 Evaluation of the \verb|outline| attribute of object \verb|##523|
-is triggered when the value
-of the \verb|.video| attribute of this object is needed.  Computation
-of the \verb|.video| attribute is be done by a function
-named {\tt .make .video}, which in this case is defined by {\tt standard
-room} which is an ancestor of \verb|##523|.
-If this function did not exist, computation would done by the function
-named {\tt .make}, which is globally defined, and which would attempt
-to evaluate the {\tt video} attribute (without the `\verb|.|') of
-\verb|##523| to produce this object's \verb|.video| attribute
-(with the `\verb|.|').  In any case, computation of an attribute AA
-can be done in a fashion tailored to what is being computed by defining a
-`\verb|.make| AA' function in an object or one of its ancestors.
+is triggered when a video description of how to display this object
+is needed.  This evaluation is done by the
+\ttdmkey{display}{function of object} attribute of the object to be
+displayed.  In this case this {\tt .display} attribute
+is defined by {\tt standard room} which is an ancestor of \verb|##523|.
 
-In our case the \verb|.make .video| function evaluates
-the \verb|outline| attribute of \verb|##523| to produce
-a value for the \verb|.video| attribute of \verb|##523|.
+In our case the \verb|.display| function evaluates
+the \verb|outline| attribute of \verb|##523| to produce the video output.
 First the function establishes
 a context, which is a list of objects that will be searched when an
 attribute name is to be located.  The context for the evaluation of
@@ -2157,12 +2144,11 @@ an {\tt outline} attribute is likely to include in the context an object
 that defines functions named `{\tt straight}' and `{\tt left}' which will
 evaluate parts of the {\tt outline} attribute.
 
-Besides establishing a context, the \verb|.make| function establishes an
-execution frame.  The execution frame may contain output
-channels, which are places to put output.  In this case the value of
-\verb|.video| becomes an output channel into which functions like
-`{\tt straight}' will write new commands written in a video language
-that can be processed by the video engine to produce a picture.
+Besides establishing a context, the \verb|.display| function establishes an
+execution frame.  The execution frame contains a video output channel into
+which functions like `{\tt straight}' write new commands written in
+a video language that can be processed by the video engine to produce
+a picture.
 
 Since functions such as `{\tt straight}' and `{\tt left}' are written
 from the point of view of a robot moving around the outline of a room,
@@ -2200,8 +2186,8 @@ and as its value is a number,
 \verb|3.2|, that is the final value of the `{\tt width}' argument.
 Thus the command `{\tt straight width}' has become `{\tt straight 3.2}',
 and this is then evaluated by executing the `{\tt straight}' function
-with \verb|w| equal to \verb|3.2|.  The result will be some command
-written into the {\tt .video} attribute of \verb|##523|.
+with \verb|w| equal to \verb|3.2|.  The result will be video commands
+written into the video output channel.
 
 The other commands in the {\tt outline} attribute are similar, except
 for the `{\tt doored wall width}' command.  This invokes the `{\tt doored wall}'
@@ -2215,21 +2201,6 @@ and as a function,
 its evaluation context begins with an object called the function frame
 that has an attribute named `{\tt length}' whose value is the corresponding
 argument value, in this case \verb|3.2|.
-
-A special feature of the MIN language is are dependency lists which
-can be used to figure out when to re-compute attribute values, such as
-the \verb|.video| attribute of \verb|##523|.  Each attribute X can have
-a dependency list which specifies all the other attributes Y, Z, \ldots
-whose values depend upon the value of X.  When the value of X is changed,
-the values of Y, Z, \ldots are marked `obsolete', which identifies them
-as needing to be recomputed.  Thus in the current case the \verb|width|
-attribute of \verb|##523| has a dependency list that includes the
-\verb|.video| attribute of \verb|##523|.  Not all attributes will have
-dependency lists: the \verb|.ancestors| attribute of an object would
-have a very long dependency list, if it existed, that included all the
-attributes ever computed from the object, and for this reason the
-\verb|.ancestors| attribute has no dependency list, so changing it does
-not mark other values obsolete.
 
 We also need to explain
 the meaning of the `{\tt label}' and `{\tt over}' attribute values
@@ -2315,7 +2286,7 @@ evaluate ( EXPRESSION, CONTEXT ):
     else if EXPRESSION is `...' bracketed list:
         return quoted ( EXPRESSION, CONTEXT, 1 )
     else if EXPRESSION is {...} bracketed list:
-        return code ( EXPRESSION, CONTEXT )
+        return execute block ( EXPRESSION, CONTEXT )
     else:
         C = push CONTEXT
         C EXPRESSION = EXPRESSION
@@ -2366,13 +2337,13 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
             append V to end of RESULT
     return RESULT
 
-code ( EXPRESSION, CONTEXT ):
+execute block ( EXPRESSION, CONTEXT ):
     `EXPRESSION is {...} bracketed'
-    `executing {...} code clears CC' 
+    `executing {...} clears CC' 
     V = NULL
     CC = CC NONE
     foreach STATEMENT in EXPRESSION:
-        CONTEXT STATE = REPEAT FLAG
+        CONTEXT STATE REPEAT FLAG = 1
         while CONTEXT STATE REPEAT FLAG:
             CONTEXT STATE REPEAT FLAG = 0
             CONTEXT STATE PREVIOUS CC = CC
@@ -2392,21 +2363,22 @@ code ( EXPRESSION, CONTEXT ):
     return V
 
 scan ( CONTEXT ):
-    V = scan ( CONTEXT, CONTEXT FRAME )
+    V = scan object ( CONTEXT, CONTEXT FRAME )
     if V != FAILURE: return V
     return scan ( CONTEXT, CONTEXT FRAME .object )
 
 scan ( CONTEXT, OBJECT ):
+   V = scan object ( CONTEXT, OBJECT )
+    if V != FAILURE: return V
    for each ANCESTOR of OBJECT:
        V = scan object ( CONTEXT, ANCESTOR )
-       if V == FAILURE: break
+       if V != FAILURE: break
    return V
 
 scan object ( CONTEXT, OBJECT ):
    if CONTEXT STATE SKIP FLAG:
        return OBJECT
-   if CONTEXT NEXT ITEM INDEX > 1,
-      and OBJECT has an attribute named `.empty' with value V:
+   if OBJECT has an attribute named `.empty' with value V:
           return scan ( CONTEXT, V )
    if CONTEXT NEXT ITEM INDEX > length CONTEXT EXPRESSION:
         return OBJECT
@@ -2415,7 +2387,7 @@ scan object ( CONTEXT, OBJECT ):
          CONTEXT
    if several match:
       pick the longest match
-      remove the matching items from CONTEXT
+      increment CONTEXT NEXT ITEM INDEX to skip matching items
       let V = value of matched attribute
       if V is function definition:
            return execute ( CONTEXT, V, OBJECT )
@@ -2439,7 +2411,10 @@ execute ( CONTEXT, FUNCTION, CONTAINER ):
     F .object = CONTAINER
     C = push CONTEXT
     C FRAME = F
-    V = code ( body of FUNCTION, C )
+    if FUNCTION is {...} bracketted list:
+        V = execute block ( body of FUNCTION, C )
+    else if FUNCTION is internal function:
+        V = execute internal FUNCTION ( C )
     C STATE RETURN FLAG = 0
     CONTEXT STATE = C STATE
     discard C,F
