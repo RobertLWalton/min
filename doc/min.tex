@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{July 11, 2005}
+\date{July 13, 2005}
  
 \maketitle
 
@@ -2291,15 +2291,15 @@ evaluate ( EXPRESSION, CONTEXT ):
         C = push CONTEXT
         C EXPRESSION = EXPRESSION
         C NEXT ITEM INDEX = 1
-        V = scan ( C )
+        V = scan ( C, READ-OPERATION )
         CONTEXT STATE = C STATE
         discard C
         return V
 
 quoted ( EXPRESSION, CONTEXT, DEPTH ):
     `Handles depth, e.g., `foo `fum [[x]] [y]'''
-    `[[x]] is like LISP ,', - there is no equivalent of LISP ,,'
-    RESULT = EXPRESSION with 0 list items
+    `[[x]] is like LISP ",'," - there is no equivalent of LISP ",,"'
+    RESULT = EXPRESSION with list items all removed
              (but same .initiator, etc.)
     foreach ITEM in EXPRESSION:
         if ITEM is not sublist:
@@ -2312,13 +2312,18 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
                 if CONTEXT STATE RETURN FLAG
                    or
                    CONTEXT STATE THROW FLAG
+                   or
+                   CONTEXT STATE SKIP FLAG
                     return V
                 append V to end of RESULT
             else:
-                V = evaluate ( ITEM, CONTEXT )
+                I = ITEM with D-1 square brackets stripped
+                V = evaluate ( I, CONTEXT )
                 if CONTEXT STATE RETURN FLAG
                    or
                    CONTEXT STATE THROW FLAG
+                   or
+                   CONTEXT STATE SKIP FLAG
                     return V
                 concatenate V at end of RESULT
         else if ITEM is `...' quoted:
@@ -2326,6 +2331,8 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
             if CONTEXT STATE RETURN FLAG
                or
                CONTEXT STATE THROW FLAG
+               or
+               CONTEXT STATE SKIP FLAG
                 return V
             append V to end of RESULT
         else:
@@ -2333,6 +2340,8 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
             if CONTEXT STATE RETURN FLAG
                or
                CONTEXT STATE THROW FLAG
+               or
+               CONTEXT STATE SKIP FLAG
                 return V
             append V to end of RESULT
     return RESULT
@@ -2362,20 +2371,20 @@ execute block ( EXPRESSION, CONTEXT ):
             break
     return V
 
-scan ( CONTEXT ):
-    V = scan object ( CONTEXT, CONTEXT FRAME )
+scan ( CONTEXT, VALUE ):
+    V = scan object ( CONTEXT, CONTEXT FRAME, VALUE )
     if V != FAILURE: return V
-    return scan ( CONTEXT, CONTEXT FRAME .object )
+    return scan ( CONTEXT, CONTEXT FRAME .object, VALUE )
 
-scan ( CONTEXT, OBJECT ):
-   V = scan object ( CONTEXT, OBJECT )
-    if V != FAILURE: return V
+scan ( CONTEXT, OBJECT, VALUE ):
+   V = scan object ( CONTEXT, OBJECT, VALUE )
+   if V != FAILURE: return V
    for each ANCESTOR of OBJECT:
-       V = scan object ( CONTEXT, ANCESTOR )
+       V = scan object ( CONTEXT, ANCESTOR, VALUE )
        if V != FAILURE: break
    return V
 
-scan object ( CONTEXT, OBJECT ):
+scan object ( CONTEXT, OBJECT, VALUE ):
    if CONTEXT STATE SKIP FLAG:
        return OBJECT
    if OBJECT has an attribute named `.empty' with value V:
@@ -2386,25 +2395,40 @@ scan object ( CONTEXT, OBJECT ):
    match names of OBJECT's attributes to next items in
          CONTEXT
    if several match:
-      pick the longest match
+      pick the longest match M
       increment CONTEXT NEXT ITEM INDEX to skip matching items
+      if VALUE != READ-OPERATION
+         and
+         CONTEXT NEXT ITEM INDEX > length CONTEXT EXPRESSION:
+            set attribute M of OBJECT = VALUE
+            return VALUE
       let V = value of matched attribute
       if V is function definition:
            return execute ( CONTEXT, V, OBJECT )
       else:
            return scan ( CONTEXT, V )
+   else if VALUE != READ-OPERATION:
+        A = rest of CONTEXT EXPRESSION
+        set attribute A of OBJECT = VALUE
+        return VALUE
    else:
        return FAILURE
 
 execute ( CONTEXT, FUNCTION, CONTAINER ):
     make a new function frame F
     for each argument name N in FUNCTION:
-        V = evaluate ( CONTEXT )
+        if N is to be evaluated:
+            V = evaluate ( CONTEXT )
+        else:
+            E = read ( CONTEXT )
+            V = (.context. E CONTEXT)
         if CONTEXT STATE RETURN FLAG
            or
            CONTEXT STATE THROW FLAG:
-            discard F
-            return V
+           or
+           CONTEXT STATE THROW SKIP:
+                discard F
+                return V
         make an attribute of F with name N and
              value V
     F .context = CONTEXT
@@ -2420,11 +2444,25 @@ execute ( CONTEXT, FUNCTION, CONTAINER ):
     discard C,F
     return V
 
-return builtin function ( V )
+.assign builtin function():
+    L = read ( .context )
+    V = evaluate ( .context )
+    C = push .context
+    C EXPRESSION = L
+    C NEXT ITEM INDEX = 1
+    C STATE = CC NONE and off flags
+    V = scan ( C, V )
+    discard C
+    return V
+
+return builtin function ( V ):
     .context state return flag = 1
     return V
 
-try builtin function ()
+.context. builtin function ( EXPRESSION, CONTEXT ):
+    return evaluate ( EXPRESSION, CONTEXT )
+
+try builtin function ():
     V = evaluate ( .context )
     if .context state throw flag:
         .context state throw flag = 0
