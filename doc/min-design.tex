@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 25, 2005}
+\date{July 26, 2005}
  
 \maketitle
 
@@ -2286,7 +2286,8 @@ the syntax:
 \\[1ex]
 \emkey{flag-set} ::= {\em control-code}$^\star$
 \\[1ex]
-\emkey{value} ::= {\em atom} $|$ {\em object} $|$ {\em label}
+\emkey{value} ::= {\em atom} $|$ {\em object} $|$ {\em label} $|$
+		  {\em argument} $|$ {\em typed-value}
 \\[1ex]
 \emkey{reverse-attribute-map-sublist} ::= {\em map-pair}$^\star$
 \end{tabular}
@@ -2298,8 +2299,17 @@ of \verb|min::gen| values in the sense of the object list level.
 An {\em atom} is a \verb|min::gen| value representing a number or string,
 a {\em control-code} is a \verb|min::gen| control code value,
 an {\em object} is a \verb|min::gen| value pointing at an object stub,
-and an {\em label} is a \verb|min::gen| value pointing at a label.
+a {\em label} is a \verb|min::gen| value pointing at a label stub,
+an {\em argument} is a \verb|min::gen| argument value,
+and a {\em typed-object} is a \verb|min::gen| value pointing at a
+typed-object stub.
 All these are list elements but not lists.
+
+Note that {\em argument} and {\em typed-object}
+values are not treated in any special way
+at the object attribute level.  They can be used as values just
+like {\em atoms} or {\em objects}.
+
 
 An {\em X-list} is a list, in the sense of the object list level.
 
@@ -2314,7 +2324,10 @@ multisets of values and maps attribute name/reverse name pairs to multisets
 of values.
 This map is based on the following search algorithm, which starts from
 an attribute name and an optional reverse attribute name, and returns
-a set of flags and a set of values.
+a set of flags and a set of values.  Note that if no reverse attribute
+name is given, only values \underline{not}
+associated with \underline{any} reverse attribute name are returned by
+this search algorithm.
 
 \begin{enumerate}
 
