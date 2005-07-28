@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 26, 2005}
+\date{July 28, 2005}
  
 \maketitle
 
@@ -489,7 +489,7 @@ A general value can store any of:
 an atom value \\
 a pointer to a stub \\
 an auxiliary pointer \\
-an argument pointer \\
+an index \\
 a control code
 \end{tabular}
 \end{center}
@@ -511,11 +511,9 @@ stored inside an object body to point at some part, called an
 There are several subtypes of auxiliary pointers.
 See~\pagref{AUXILIARY-POINTER}.
 
-An \key{argument pointer} is a pair of integers that is used by a general value
-stored inside the body of an object called a \key{type object}
-to point after the manner of an indirect pointer to an element of another
-object called an \key{argument object}.
-See~\pagref{ARGUMENT-POINTER}.
+An \key{index} is an integer that is used to give the index of a variable
+variable that is an element of a variable vector.
+See~\pagref{VARIABLE-VECTORS}.
 
 A \key{control code} is an integer that represents flags and codes
 stored in a general value.  Control codes can have different
@@ -557,8 +555,8 @@ a 24-bit auxiliary list pointer (32 bit general value only) \\
 a 40-bit auxiliary list pointer (64 bit general value only) \\
 a 24-bit auxiliary sublist pointer (32 bit general value only) \\
 a 40-bit auxiliary sublist pointer (64 bit general value only) \\
-a 24-bit argument pointer (32 bit general value only) \\
-a 40-bit argument pointer (64 bit general value only) \\
+a 24-bit index (32 bit general value only) \\
+a 40-bit index (64 bit general value only) \\
 a 24-bit control code (32 bit general value only) \\
 a 40-bit control code (64 bit general value only)
 \end{tabular}
@@ -700,8 +698,8 @@ indicated subtype and {\tt 0} otherwise:
 \LABEL{MIN::IS_LIST_AUX} \\
 \verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST_AUX} \\
-\verb|bool min::| & \MINKEY{is\_argument}\verb| ( min::gen v )|
-\LABEL{MIN::IS_ARGUMENT} \\
+\verb|bool min::| & \MINKEY{is\_index}\verb| ( min::gen v )|
+\LABEL{MIN::IS_INDEX} \\
 \verb|bool min::| & \MINKEY{is\_control\_code}\verb| ( min::gen v )|
 \LABEL{MIN::IS_CONTROL_CODE} \\
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
@@ -727,8 +725,8 @@ subtype, after checking the subtype with an {\tt assert} statement:
 \LABEL{MIN::LIST_AUX_OF} \\
 \verb|unsigned min::| & \MINKEY{sublist\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MIN::SUBLIST_AUX_OF} \\
-\verb|unsigned min::| & \MINKEY{argument\_of}\verb| ( min::gen v )|
-\LABEL{MIN::ARGUMENT_OF} \\
+\verb|unsigned min::| & \MINKEY{index\_of}\verb| ( min::gen v )|
+\LABEL{MIN::INDEX_OF} \\
 \verb|unsigned min::| & \MINKEY{control\_code\_of}\verb| ( min::gen v )|
 \LABEL{MIN::CONTROL_CODE_OF} \\
 \verb|min::uns64 min::| & \MINKEY{long\_control\_code\_of}\verb| ( min::gen v )|
@@ -752,7 +750,7 @@ The {\tt min::direct\_str\_of} function merely copies the 3 or
 appends a NUL character.
 It does this by writing an appropriate value into \verb|u.str|.
 
-The \verb|argument_of| function only returns
+The \verb|index_of| function only returns
 a 24-bit unsigned integer for both 32-bit and 64-bit general values.
 The extra bits available in 64-bit values are never needed or used.
 
@@ -779,8 +777,8 @@ subtype, \underline{without} checking the subtype:
 \LABEL{MUP::LIST_AUX_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{sublist\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::SUBLIST_AUX_OF} \\
-\verb|unsigned MUP::| & \MUPKEY{argument\_of}\verb| ( min::gen v )|
-\LABEL{MUP::ARGUMENT_OF} \\
+\verb|unsigned MUP::| & \MUPKEY{index\_of}\verb| ( min::gen v )|
+\LABEL{MUP::INDEX_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{control\_code\_of}\verb| ( min::gen v )|
 \LABEL{MUP::CONTROL_CODE_OF} \\
 \verb|min::uns64 MUP::| & \MUPKEY{long\_control\_code\_of}\verb| ( min::gen v )|
@@ -804,8 +802,8 @@ functions:
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MIN::NEW_SUBLIST_AUX_GEN} \\
-\verb|min::gen min::| & \MINKEY{new\_argument\_gen}\verb| ( unsigned a )|
-\LABEL{MIN::NEW_ARGUMENT_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_index\_gen}\verb| ( unsigned a )|
+\LABEL{MIN::NEW_INDEX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
 \LABEL{MIN::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen min::| &
@@ -824,8 +822,11 @@ point number if the \verb|min::gen| type is 64-bits.  The
 error if used with 32-bit \verb|min::gen| values.
 The {\tt unsigned} argument used to make auxiliary pointers must
 fit within 24 bits if {\tt min::gen} values are 32-bits, and
-within 40 bits if {\tt min::gen} values are 64-bits.
-The {\tt unsigned} argument used to make either argument pointers
+within 40 bits if {\tt min::gen} values are 64-bits.\footnote{
+In some implementations this argument cannot be more than 32-bits
+because that is the size of the {\tt unsigned} argument value,
+even if {\tt min::gen} values can accept 40-bit auxilary pointers.}
+The {\tt unsigned} argument used to make either indices
 or control codes must fit within 24 bits regardless of the size of
 {\tt min::gen} values.
 The {\tt long\_control\_code\_gen} function is defined only if
@@ -858,8 +859,8 @@ range errors.
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_SUBLIST_AUX_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_argument\_gen}\verb| ( unsigned a )|
-\LABEL{MUP::NEW_ARGUMENT_GEN} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_index\_gen}\verb| ( unsigned a )|
+\LABEL{MUP::NEW_INDEX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
 \LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen MUP::| &
@@ -885,8 +886,8 @@ subtype codes:
 \LABEL{MIN::GEN_LIST_AUX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_SUBLIST\_AUX}
 \LABEL{MIN::GEN_SUBLIST_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_ARGUMENT}
-\LABEL{MIN::GEN_ARGUMENT} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_INDEX}
+\LABEL{MIN::GEN_INDEX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_CONTROL\_CODE}
 \LABEL{MIN::GEN_CONTROL_CODE} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
@@ -1893,8 +1894,8 @@ functions:
 Here the functions that return pointers do \underline{not} check the type
 of the stub, and the total size is exactly the sum of the other four sizes.
 
-The data structure of an object body can be viewed at any of three levels:
-vector level, list level, and attribute level.
+The data structure of an object body can be viewed at any of four levels:
+vector level, list level, attribute level, and variable level.
 
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
@@ -2286,8 +2287,7 @@ the syntax:
 \\[1ex]
 \emkey{flag-set} ::= {\em control-code}$^\star$
 \\[1ex]
-\emkey{value} ::= {\em atom} $|$ {\em object} $|$ {\em label} $|$
-		  {\em argument} $|$ {\em typed-value}
+\emkey{value} ::= {\em atom} $|$ {\em object} $|$ {\em label} $|$ {\em index}
 \\[1ex]
 \emkey{reverse-attribute-map-sublist} ::= {\em map-pair}$^\star$
 \end{tabular}
@@ -2300,16 +2300,8 @@ An {\em atom} is a \verb|min::gen| value representing a number or string,
 a {\em control-code} is a \verb|min::gen| control code value,
 an {\em object} is a \verb|min::gen| value pointing at an object stub,
 a {\em label} is a \verb|min::gen| value pointing at a label stub,
-an {\em argument} is a \verb|min::gen| argument value,
-and a {\em typed-object} is a \verb|min::gen| value pointing at a
-typed-object stub.
+and an {\em index} is a \verb|min::gen| index value.
 All these are list elements but not lists.
-
-Note that {\em argument} and {\em typed-object}
-values are not treated in any special way
-at the object attribute level.  They can be used as values just
-like {\em atoms} or {\em objects}.
-
 
 An {\em X-list} is a list, in the sense of the object list level.
 
@@ -2644,6 +2636,74 @@ versions with a \verb|min::stub *| {\tt obj} argument.
 
 \end{enumerate}
 
+\subsubsection{Object Variable Level}
+\label{OBJECT-VARIABLE-LEVEL}
+
+A variable vector plus an associated set of constant objects
+represents a set of objects whose structure is constant but whose
+attribute values are variable.  The variable attribute values are
+called `\skey{variable}s' and are elements of the variable vector.
+The attribute values actually stored in the associated objects are index
+general values that point at variables in the variable vector.
+In effect these indeces are indirect pointers at the variables.
+
+A variable $X$ can hold either a general value,
+or an indirect pointer to another variable $Y$.
+An indirect point directs all references to $X$ to the
+other variable $Y$.  $Y$ can be in the same variable vector as $X$,
+in which case the indirect pointer is just the index of $Y$ as an element
+of this variable vector, or $Y$ can be in a different variable vector from $X$,
+in which case the indirect pointer is a pair consisting
+of a pointer to the stub of the variable vector containing $Y$
+and an index value specifying $Y$ as an element of this vector.
+
+The objects associated with a variable vector are required to satisfy
+some restrictions.  First, values with reverse attribute names cannot
+be indices.  Second, if an attribute with no reverse attribute name
+has more than one value, its values cannot be indices.
+
+\subsubsubsection{Variables}
+\label{Variables}
+
+A \MUPkey{variable} can be used to move around in a object at
+the variable level, and get or set the values of variables.
+The functions for using a variable are:
+
+\begin{center}\begin{tabular}{r@{}l}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{variable}\verb| ( )|
+\LABEL{MUP::VARIABLE} \\
+\verb|min::gen min::| & \MINKEY{point}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::variable & var,| \\
+    \verb|   min::gen vector, unsigned index_name)|
+    \end{tabular}
+\LABEL{POINT_VARIABLE} \\
+\verb|min::gen min:: |
+	& \TTKEY{get}\verb| ( min::variable & var )|
+\LABEL{GET_VARIABLE} \\
+\verb|min::gen min:: |
+	& \TTKEY{set}\verb| ( min::variable & var, min::gen value )|
+\LABEL{SET_VARIABLE} \\
+\verb|bool min::|
+	& \TTKEY{is\_variable}\verb| ( min::variable & var )|
+\LABEL{IS_VARIABLE} \\
+\verb|min::gen min::| & \MINKEY{getg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::variable & var,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::GETG_OF_VARIABLE} \\
+\verb|min::gen min::| & \MINKEY{geti}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::variable & var,| \\
+    \verb|   int name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::GETI_OF_VARIABLE} \\
+\end{tabular}\end{center}
+
+
+
 
 \subsection{Special Values}
 \label{SPECIAL-VALUES}
@@ -2775,8 +2835,6 @@ Maybe not having \verb|min::| in names of functions with \verb|min::|
 pointer arguments is not a good idea.
 
 Interface to gc, including stack for protecting values.
-
-Type and argument objects.\label{ARGUMENT-POINTER}
 
 \clearpage
 
@@ -2913,8 +2971,8 @@ struct min
 \LABEL{MIN::IS_LIST_AUX} \\
 \verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST_AUX} \\
-\verb|bool min::| & \MINKEY{is\_argument}\verb| ( min::gen v )|
-\LABEL{MIN::IS_ARGUMENT} \\
+\verb|bool min::| & \MINKEY{is\_index}\verb| ( min::gen v )|
+\LABEL{MIN::IS_INDEX} \\
 \verb|bool min::| & \MINKEY{is\_control\_code}\verb| ( min::gen v )|
 \LABEL{MIN::IS_CONTROL_CODE} \\
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
@@ -2932,8 +2990,8 @@ struct min
 \LABEL{MIN::LIST_AUX_OF} \\
 \verb|unsigned min::| & \MINKEY{sublist\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MIN::SUBLIST_AUX_OF} \\
-\verb|unsigned min::| & \MINKEY{argument\_of}\verb| ( min::gen v )|
-\LABEL{MIN::ARGUMENT_OF} \\
+\verb|unsigned min::| & \MINKEY{index\_of}\verb| ( min::gen v )|
+\LABEL{MIN::INDEX_OF} \\
 \verb|unsigned min::| & \MINKEY{control\_code\_of}\verb| ( min::gen v )|
 \LABEL{MIN::CONTROL_CODE_OF} \\
 \verb|min::uns64 min::| & \MINKEY{long\_control\_code\_of}\verb| ( min::gen v )|
@@ -2952,8 +3010,8 @@ struct min
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MIN::NEW_SUBLIST_AUX_GEN} \\
-\verb|min::gen min::| & \MINKEY{new\_argument\_gen}\verb| ( unsigned a )|
-\LABEL{MIN::NEW_ARGUMENT_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_index\_gen}\verb| ( unsigned a )|
+\LABEL{MIN::NEW_INDEX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
 \LABEL{MIN::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen min::| &
@@ -2987,8 +3045,8 @@ struct min
 \LABEL{MUP::LIST_AUX_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{sublist\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::SUBLIST_AUX_OF} \\
-\verb|unsigned MUP::| & \MUPKEY{argument\_of}\verb| ( min::gen v )|
-\LABEL{MUP::ARGUMENT_OF} \\
+\verb|unsigned MUP::| & \MUPKEY{index\_of}\verb| ( min::gen v )|
+\LABEL{MUP::INDEX_OF} \\
 \verb|unsigned MUP::| & \MUPKEY{control\_code\_of}\verb| ( min::gen v )|
 \LABEL{MUP::CONTROL_CODE_OF} \\
 \verb|min::uns64 MUP::| & \MUPKEY{long\_control\_code\_of}\verb| ( min::gen v )|
@@ -3007,8 +3065,8 @@ struct min
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_SUBLIST_AUX_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_argument\_gen}\verb| ( unsigned a )|
-\LABEL{MUP::NEW_ARGUMENT_GEN} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_index\_gen}\verb| ( unsigned a )|
+\LABEL{MUP::NEW_INDEX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_control\_code\_gen}\verb| ( unsigned c )|
 \LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen MUP::| &
@@ -3037,8 +3095,8 @@ struct min
 \LABEL{MIN::GEN_LIST_AUX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_SUBLIST\_AUX}
 \LABEL{MIN::GEN_SUBLIST_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_ARGUMENT}
-\LABEL{MIN::GEN_ARGUMENT} \\
+\verb|const unsigned min::| & \MINKEY{GEN\_INDEX}
+\LABEL{MIN::GEN_INDEX} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_CONTROL\_CODE}
 \LABEL{MIN::GEN_CONTROL_CODE} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
