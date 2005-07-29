@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 28, 2005}
+\date{July 29, 2005}
  
 \maketitle
 
@@ -928,7 +928,8 @@ with the superscript {\REL} in this document.
 
 Relocation can only happen inside relocating functions
 (\pagref{RELOCATING-FUNCTIONS}).  When it happens,
-the `\key{relocated flag}\,' which is one of the execution flags
+the `\key{relocated flag}\,'\label{RELOCATED-FLAG}
+which is one of the execution flags
 described in~\secref{EXECUTION-FLAGS}, is set.  Deallocation
 (\pagref{DEALLOCATE}) can also happen inside relocating functions,
 and is like relocation to non-existent memory, except that the
@@ -2657,50 +2658,139 @@ in which case the indirect pointer is a pair consisting
 of a pointer to the stub of the variable vector containing $Y$
 and an index value specifying $Y$ as an element of this vector.
 
-The objects associated with a variable vector are required to satisfy
-some restrictions.  First, values with reverse attribute names cannot
-be indices.  Second, if an attribute with no reverse attribute name
-has more than one value, its values cannot be indices.
+\subsubsubsection{Variable Pointers}
+\label{VARIABLE-POINTERS}
 
-\subsubsubsection{Variables}
-\label{Variables}
-
-A \MUPkey{variable} can be used to move around in a object at
-the variable level, and get or set the values of variables.
-The functions for using a variable are:
+A \MUPkey{variable\_pointer} can be used to move around in objects at
+the variable level, and get or set the values of variables.  A variable
+pointer points at a variable in a variable vector.  Such a variable
+may point at an object, and attribute values of the object may be
+indices that effectively point at other variables in the variable vector.
+The functions for using a variable pointer are:
 
 \begin{center}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{variable}\verb| ( )|
+	& \MUPKEY{variable\_pointer}\verb| ( )|
 \LABEL{MUP::VARIABLE} \\
 \verb|min::gen min::| & \MINKEY{point}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable & var,| \\
-    \verb|   min::gen vector, unsigned index_name)|
+    \verb| ( min::variable_pointer & vp,| \\
+    \verb|   min::gen vector, unsigned index)|
     \end{tabular}
-\LABEL{POINT_VARIABLE} \\
-\verb|min::gen min:: |
-	& \TTKEY{get}\verb| ( min::variable & var )|
-\LABEL{GET_VARIABLE} \\
-\verb|min::gen min:: |
-	& \TTKEY{set}\verb| ( min::variable & var, min::gen value )|
-\LABEL{SET_VARIABLE} \\
-\verb|bool min::|
-	& \TTKEY{is\_variable}\verb| ( min::variable & var )|
-\LABEL{IS_VARIABLE} \\
-\verb|min::gen min::| & \MINKEY{getg}%
+\LABEL{POINT_VARIABLE_POINTER} \\
+\verb|void min::|
+	& \TTKEY{relocate}\verb| ( min::variable_pointer & vp )|
+\LABEL{RELOCATE_VARIABLE_POINTER} \\
+\verb|min::gen min::|
+	& \TTKEY{get}\verb| ( min::variable_pointer & vp )|
+\LABEL{GET_VARIABLE_POINTER} \\
+\verb|void min::|
+	& \TTKEY{set}\verb| ( min::variable_pointer & vp, min::gen value )|
+\LABEL{SET_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{moveg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable & var,| \\
+    \verb| ( min::variable_pointer & vp,| \\
+    \verb|   min::gen name)|
+    \end{tabular}
+\LABEL{MIN::MOVEG_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{move}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::variable_pointer & vp,| \\
+    \verb|   unsigned index)|
+    \end{tabular}
+\LABEL{MOVE_VARIABLE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{countg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::variable_poiner & vp,| \\
     \verb|   min::gen name, min::gen reverse_name)|
     \end{tabular}
-\LABEL{MIN::GETG_OF_VARIABLE} \\
-\verb|min::gen min::| & \MINKEY{geti}%
+\LABEL{MIN::COUNTG_OF_VARIABLE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{getg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable & var,| \\
-    \verb|   int name, min::gen reverse_name)|
+    \verb| ( min::gen * out, unsigned n,| \\
+    \verb|   min::variable_poiner & vp,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
     \end{tabular}
-\LABEL{MIN::GETI_OF_VARIABLE} \\
+\LABEL{MIN::GETG_OF_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{getg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::variable_poiner & vp,| \\
+    \verb|   min::gen name, min::gen reverse_name)|
+    \end{tabular}
+\LABEL{MIN::GETG1_OF_VARIABLE_POINTER} \\
 \end{tabular}\end{center}
+
+The {\tt point} function points a variable pointer at a particular
+variable in a given variable vector.  The variable is determined by
+its index as a vector element.  The usual convention is for the variable with
+index {\tt 0} of a vector to point at the root object of the
+cluster of objects associated with the vector.
+It is an undefined operation to access a variable pointer that
+has never been pointed at a variable by a {\tt point} function call.
+
+In order to optimize things,
+a {\tt MUP::variable\_pointer} contains an internal pointer that points
+directly at a variable in the body of a variable vector.  As this pointer
+is relocatable, it must be adjusted if the relocated flag is raised
+(\pagref{RELOCATED-FLAG}).  This is done by applying the {\tt relocate}
+function to the pointer.  Because this is necessary, the constructor for
+a variable pointer is unprotected.
+
+The {\tt get} function returns the value of the variable pointed at,
+after following all indirections.  That is, if the variable pointer
+points at $X$ and the value of $X$ is
+an indirect pointer to another variable $Y$
+as its value, the {\tt get} proceeds as if the variable pointer pointed
+at $Y$.
+
+The {\tt set} function set the value of the variable pointed at,
+after following all indirections.  That is, if the variable pointer
+points at $X$ and the value of $X$ is an indirect pointer to
+another variable $Y$ as its value,
+the {\tt set} proceeds as if the variable pointer pointed
+at $Y$.
+
+The {\tt moveg} function works if {\tt get} returns a pointer to an object
+stub.  In this case, {\tt moveg} finds the values of the attribute of the
+object with the given attribute name
+and no reverse attribute name, and proceeds as follows:
+\begin{indpar}
+If there are no values, \verb|min::MISSING| is returned and the variable
+pointer is left unchanged.
+
+If there is only one value and that is an index, the variable pointer is
+re-pointed at the variable with that index in the variable vector the
+variable pointer is currently pointing at, and \verb|min::SUCCESS|
+is returned.
+
+If there is only one value and that is \underline{not} an index,
+that value is returned, and the variable pointer is left unchanged.
+
+If there is more than one value, \verb|min::MULTI_VALUED|
+is returned, and the variable pointer is left unchanged.
+\end{indpar}
+
+Note that the variable pointer is changed only if the attribute has
+a single index value.
+
+The {\tt countg} and {\tt getg} functions applied to a variable pointer
+work the same way the would if they were applied to result of applying
+{\tt get} to the variable pointer.  These functions will \underline{not}
+change the variable pointer no matter what the attribute value is, and
+will return any index attribute value as a \verb|min::gen| result.
+
+The {\tt move} function can be used with any index value returned to
+point the variable pointer at the variable referred to by the index,
+without changing the variable vector referenced by the variable pointer.
+Thus for an attribute with a single index value, {\tt moveg} is equivalent
+to applying {\tt getg} to retrieve the index value, and then applying
+{\tt move} to that value.
+
+The {\tt moveg}, {\tt countg}, and {\tt getg} functions have associates
+named \minmkey{movei}{of variable pointer},
+\minmkey{counti}{of variable pointer},
+and \minmkey{geti}{of variable pointer} that are identical except their
+attribute name argument is of type {\tt int} instead of \verb|min::gen|.
 
 
 
