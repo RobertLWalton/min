@@ -2859,7 +2859,34 @@ off.
 \subsection{Variable Vectors}
 \label{VARIABLE-VECTORS}
 
-TBD
+A variable vector is used to represent a set of objects whose structure
+is fixed but whose attribute values are variable.  The vector elements
+are variables.  By convention each vector has an associated set of constant
+objects whose attribute values are indirect pointers to the variables in
+the vector.
+
+Thus a vector represents a labeled graph.  There is one variable for
+each node of the graph, and that variable points at an object that
+defines the labeled arrows sourced at the node, or the variable points
+at a number or string that is the value of the node.  When a variable $X$
+points at an object, and $N$ is the name of an attribute of the object,
+the attribute value of $N$ is the index of a variable in the vector
+that represents the node one gets to when one starts at $X$ and follows
+the arrow labeled $N$.
+
+Typically the vector variable with index {\tt 0} points at the object which
+is the root of the labelled graph represented by a variable vector.
+
+The same objects may be used with many different variable vectors.  Thus
+one can think of the variable vector as a structure and the objects as the
+type of the structure.
+
+Variable vectors must be initialized with values for each variable.  If a
+vector represents a graph some of whose nodes source no arrows and have
+no string or number associated with them, the variables of these nodes are
+given the value \minkey{NULL}, which signifies a variable that has no value.
+Such variables may be given values by later computations.
+
 
 \subsection{Special Values}
 \label{SPECIAL-VALUES}
