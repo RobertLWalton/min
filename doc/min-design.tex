@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 29, 2005}
+\date{July 31, 2005}
  
 \maketitle
 
@@ -825,7 +825,7 @@ fit within 24 bits if {\tt min::gen} values are 32-bits, and
 within 40 bits if {\tt min::gen} values are 64-bits.\footnote{
 In some implementations this argument cannot be more than 32-bits
 because that is the size of the {\tt unsigned} argument value,
-even if {\tt min::gen} values can accept 40-bit auxilary pointers.}
+even if {\tt min::gen} values can accept 40-bit auxiliary pointers.}
 The {\tt unsigned} argument used to make either indices
 or control codes must fit within 24 bits regardless of the size of
 {\tt min::gen} values.
@@ -2399,38 +2399,38 @@ The following are the basic protected functions that access attributes:
 \verb|unsigned min::| & \MINKEY{countg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::COUNTG} \\
 \verb|unsigned min::| & \MINKEY{getg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
     \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::GETG} \\
 \verb|unsigned min::| & \MINKEY{get\_flagsg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::uns32 * out, unsigned n,| \\
     \verb|   min::gen obj,| \\
-    \verb|   min::gen name)|
+    \verb|   min::gen name )|
     \end{tabular}
 \LABEL{MIN::COUNT_FLAGSG} \\
 \verb|void min::| & \MINKEY{setg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::gen * in, unsigned n,| \\
     \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::GET_FLAGSG} \\
 \verb|unsigned min::| & \MINKEY{count\_flagsg}%
-    \verb| ( min::gen obj, min::gen name)|
+    \verb| ( min::gen obj, min::gen name )|
 \LABEL{MIN::SETG} \\
 \verb|void min::| & \MINKEY{set\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
     \verb|   min::gen obj,| \\
-    \verb|   min::gen name)|
+    \verb|   min::gen name )|
     \end{tabular}
 \LABEL{MIN::SET_FLAGSG} \\
 \end{tabular}\end{center}
@@ -2501,14 +2501,14 @@ have, only one value:
 \verb|min::gen min::| & \MINKEY{getg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::GETG1} \\
 \verb|void min::| & \MINKEY{setg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::gen v,| \\
     \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::SETG1} \\
 \end{tabular}\end{center}
@@ -2538,14 +2538,14 @@ object, attribute name, and reverse attribute name:
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::gen v,| \\
     \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::ADD_TO_SETG} \\
 \verb|void min::| & \MINKEY{add\_to\_multisetg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::gen v,| \\
     \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::ADD_TO_MULTISETG} \\
 \end{tabular}\end{center}
@@ -2565,19 +2565,19 @@ the flags turned on in the input vector:
 \verb|void min::| & \MINKEY{set\_some\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj, min::gen name)|
+    \verb|   min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::SET_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{clear\_some\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj, min::gen name)|
+    \verb|   min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::CLEAR_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{flip\_some\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj, min::gen name)|
+    \verb|   min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::FLIP_SOME_FLAGSG} \\
 \end{tabular}\end{center}
@@ -2587,16 +2587,16 @@ individual flag number {\tt n}:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{test\_flagg\REL}%
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::TEST_FLAGG} \\
 \verb|void min::| & \MINKEY{set\_flagg\REL}%
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::SET_FLAGG} \\
 \verb|void min::| & \MINKEY{clear\_flagg\REL}%
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::CLEAR_FLAGG} \\
 \verb|void min::| & \MINKEY{flip\_flagg\REL}%
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::FLIP_FLAGG} \\
 \end{tabular}\end{center}
 
@@ -2642,91 +2642,122 @@ versions with a \verb|min::stub *| {\tt obj} argument.
 
 A variable vector plus an associated set of constant objects
 represents a set of objects whose structure is constant but whose
-attribute values are variable.  The variable attribute values are
-called `\skey{variable}s' and are elements of the variable vector.
-The attribute values actually stored in the associated objects are index
-general values that point at variables in the variable vector.
-In effect these indeces are indirect pointers at the variables.
+attribute values are variable.  This is explained in more detail in
+\secref{VARIABLE-VECTORS}.  Here we will explain things at a lower
+level.
 
-A variable $X$ can hold either a general value,
-or an indirect pointer to another variable $Y$.
-An indirect point directs all references to $X$ to the
-other variable $Y$.  $Y$ can be in the same variable vector as $X$,
-in which case the indirect pointer is just the index of $Y$ as an element
-of this variable vector, or $Y$ can be in a different variable vector from $X$,
-in which case the indirect pointer is a pair consisting
-of a pointer to the stub of the variable vector containing $Y$
-and an index value specifying $Y$ as an element of this vector.
+A variable vector is a vector whose elements are variables.  A variable
+can store a \verb|min::gen| value or an indirect pointer at another
+variable.  A variable is pointed at by a pair consisting of a
+pointer to its containing variable vector and the unsigned integer index
+of the variable as an element of that vector.  An indirect pointer
+stored in a variable consists of such a pair.
+
+In general, referencing a variable $X$ that stores an indirect pointer to
+a variable $Y$ should be the same as referencing $Y$ instead of $X$.
+
+A variable vector is associated with constant objects.  Attribute values
+in these objects are indirected to variables in the variable vector.
+This is done for one attribute value by making the object attribute value
+be a \verb|min::gen| index that is the index of the variable to which
+the attribute value is indirected.  The variable vector of the indirection
+must be discovered by context, and is not stored in the object.  This
+permits the object to be used with many different variable vectors.
+See~\secref{VARIABLE-VECTORS} for more details.
+
+Usually objects associated with a variable vector are pointed at by
+the variables in the vector.  Typically one has a variable $V$ pointing at an
+object $O$ and the attribute $N$ of $O$ has an index designating another
+variable $W$ in the same variable vector as $V$.  That is, the variable
+vector containing a variable pointing at $O$ is the same variable vector
+that contains the variables to which $O$'s attributes are indirected.
 
 \subsubsubsection{Variable Pointers}
 \label{VARIABLE-POINTERS}
 
 A \MUPkey{variable\_pointer} can be used to move around in objects at
 the variable level, and get or set the values of variables.  A variable
-pointer points at a variable in a variable vector.  Such a variable
-may point at an object, and attribute values of the object may be
-indices that effectively point at other variables in the variable vector.
+pointer points at a variable in a variable vector.
 The functions for using a variable pointer are:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{variable\_pointer}\verb| ( )|
-\LABEL{MUP::VARIABLE} \\
+\LABEL{MUP::VARIABLE_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{point}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::variable_pointer & vp,| \\
-    \verb|   min::gen vector, unsigned index)|
+    \verb|   min::gen vector, unsigned index )|
     \end{tabular}
 \LABEL{POINT_VARIABLE_POINTER} \\
 \verb|void min::|
+	& \TTKEY{clear}\verb| ( min::variable_pointer & vp )|
+\LABEL{CLEAR_VARIABLE_POINTER} \\
+\verb|void min::|
 	& \TTKEY{relocate}\verb| ( min::variable_pointer & vp )|
 \LABEL{RELOCATE_VARIABLE_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \TTKEY{get}\verb| ( min::variable_pointer & vp )|
 \LABEL{GET_VARIABLE_POINTER} \\
 \verb|void min::|
 	& \TTKEY{set}\verb| ( min::variable_pointer & vp, min::gen value )|
 \LABEL{SET_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{indirect}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::variable_pointer & vp1,| \\
+    \verb|   min::variable_pointer & vp2 )|
+    \end{tabular}
+\LABEL{MIN::INDIRECT_VARIABLE_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{moveg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::variable_pointer & vp,| \\
-    \verb|   min::gen name)|
+    \verb|   min::gen name )|
     \end{tabular}
 \LABEL{MIN::MOVEG_VARIABLE_POINTER} \\
 \verb|min::gen min::| & \MINKEY{move}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::variable_pointer & vp,| \\
-    \verb|   unsigned index)|
+    \verb|   unsigned index )|
     \end{tabular}
 \LABEL{MOVE_VARIABLE_POINTER} \\
 \verb|unsigned min::| & \MINKEY{countg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_poiner & vp,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb| ( min::variable_pointer & vp,| \\
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::COUNTG_OF_VARIABLE_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{getg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
-    \verb|   min::variable_poiner & vp,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::variable_pointer & vp,| \\
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::GETG_OF_VARIABLE_POINTER} \\
 \verb|min::gen min::| & \MINKEY{getg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_poiner & vp,| \\
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb| ( min::variable_pointer & vp,| \\
+    \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::GETG1_OF_VARIABLE_POINTER} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt point} function points a variable pointer at a particular
 variable in a given variable vector.  The variable is determined by
-its index as a vector element.  The usual convention is for the variable with
-index {\tt 0} of a vector to point at the root object of the
-cluster of objects associated with the vector.
+its index as a vector element.
+
+The {\tt clear} function clears a variable pointer so that it does
+not point at any variable.  This is the state the pointer is in
+just after it is constructed.
 It is an undefined operation to access a variable pointer that
-has never been pointed at a variable by a {\tt point} function call.
+is cleared.
 
 In order to optimize things,
 a {\tt MUP::variable\_pointer} contains an internal pointer that points
@@ -2738,17 +2769,24 @@ a variable pointer is unprotected.
 
 The {\tt get} function returns the value of the variable pointed at,
 after following all indirections.  That is, if the variable pointer
-points at $X$ and the value of $X$ is
-an indirect pointer to another variable $Y$
-as its value, the {\tt get} proceeds as if the variable pointer pointed
+points at $X$ and the value of $X$ is an indirect pointer to another
+variable $Y$, the {\tt get} function proceeds as if the variable pointer pointed
 at $Y$.
 
-The {\tt set} function set the value of the variable pointed at,
+The {\tt set} function sets the value of the variable pointed at,
 after following all indirections.  That is, if the variable pointer
 points at $X$ and the value of $X$ is an indirect pointer to
-another variable $Y$ as its value,
-the {\tt set} proceeds as if the variable pointer pointed
-at $Y$.
+another variable $Y$, the {\tt set} function proceeds as if the variable pointer
+pointed at $Y$.
+
+The {\tt indirect} function sets the value of the variable pointed at by
+the first variable pointer (\verb|vp1|),
+after following all indirections,
+to point indirectly at the variable pointed at by the second variable
+pointer (\verb|vp2|).
+If \verb|vp1| points at $X$ and the value of $X$ is an indirect pointer to
+another variable $Y$, the {\tt indirect} function proceeds as if \verb|vp1|
+pointed at $Y$.
 
 The {\tt moveg} function works if {\tt get} returns a pointer to an object
 stub.  In this case, {\tt moveg} finds the values of the attribute of the
@@ -2792,8 +2830,36 @@ named \minmkey{movei}{of variable pointer},
 and \minmkey{geti}{of variable pointer} that are identical except their
 attribute name argument is of type {\tt int} instead of \verb|min::gen|.
 
+The \key{variable forward optimization}\index{forward!variable optimization}
+system control parameter effects
+the operation of functions that trace indirect pointers stored in
+variables.  If set, the optimization applies to the {\tt get}, {\tt set}, and
+{\tt indirect} functions, and to other functions that implicitly use {\tt get}.
+Whenever one of these functions discovers a variable $X$ that
+points indirectly at a variable $Y$ that points indirectly at a variable $Z$,
+the function resets $X$ to point at $Z$.  The
+variable forward optimization control parameter can itself
+be gotten or set by the functions:
 
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::|
+	& \TTKEY{variable\_forward\_optimization}\verb| ( )|
+\\
+\verb|bool min::|
+	& \TTKEY{variable\_forward\_optimization}\verb| ( bool value )|
+\LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
+\end{tabular}\end{center}
 
+The {\tt variable\_forward\_optimization} function with no argument gets
+the value of the control parameter, while the function with an argument
+sets the value and returns the previous value.  By default the parameter
+is on (value is {\tt true}), so optimizations are performed unless turned
+off.
+
+\subsection{Variable Vectors}
+\label{VARIABLE-VECTORS}
+
+TBD
 
 \subsection{Special Values}
 \label{SPECIAL-VALUES}
@@ -2821,6 +2887,13 @@ Denotes any value from a set of values.
 \item[{\tt const int min::}\MINKEY{MULTI\_VALUED}]~%
 	\LABEL{MIN::MULTI_VALUED}\\
 Indicates a set of values has more than one element.
+\item[{\tt const int min::}\MINKEY{NULL}]~%
+	\LABEL{MIN::NULL}\\
+A value given to a variable vector variable (\secref{VARIABLE-VECTORS})
+that has no value and can be indirected.
+\item[{\tt const int min::}\MINKEY{SUCCESS}]~%
+	\LABEL{MIN::SUCCESS}\\
+A value returned to indicate a function has succeeded.
 \end{list}
 \end{indpar}
 
@@ -3553,92 +3626,84 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}r@{}p{4.8in}}
-
-\end{tabular}
-
-\end{indpar}
-
-\begin{indpar}[0.2in]
-
-\begin{tabular}{@{}r@{}p{4.8in}}
 \verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::COUNTG} \\
 \verb|unsigned min::| & \MINKEY{getg}\ARGBREAK
     \verb| ( min::gen * out, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::GETG} \\
 \verb|unsigned min::| & \MINKEY{get\_flagsg}\ARGBREAK
     \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name)|
+    \verb|   min::gen name )|
 \LABEL{MIN::COUNT_FLAGSG} \\
 \verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
     \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::GET_FLAGSG} \\
 \verb|unsigned min::| & \MINKEY{count\_flagsg}\ARGBREAK
-    \verb| ( min::gen obj, min::gen name)|
+    \verb| ( min::gen obj, min::gen name )|
 \LABEL{MIN::SETG} \\
 \verb|void min::| & \MINKEY{set\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name)|
+    \verb|   min::gen name )|
 \LABEL{MIN::SET_FLAGSG} \\
 \end{tabular}
 
 \begin{tabular}{@{}r@{}p{4.8in}}
 \verb|min::gen min::| & \MINKEY{getg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::GETG1} \\
 \verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
     \verb| ( const min::gen v,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::SETG1} \\
 \verb|void min::| & \MINKEY{add\_to\_setg\REL}\ARGBREAK
     \verb| ( const min::gen v,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::ADD_TO_SETG} \\
 \verb|void min::| & \MINKEY{add\_to\_multisetg\REL}\ARGBREAK
     \verb| ( const min::gen v,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name)|
+    \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::ADD_TO_MULTISETG} \\
 \end{tabular}
 
 \begin{tabular}{@{}r@{}p{4.8in}}
 \verb|void min::| & \MINKEY{set\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name)|
+    \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::SET_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{clear\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name)|
+    \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::CLEAR_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{flip\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name)|
+    \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::FLIP_SOME_FLAGSG} \\
 \end{tabular}
 
 \begin{tabular}{@{}r@{}p{4.8in}}
 \verb|bool min::| & \MINKEY{test\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::TEST_FLAGG} \\
 \verb|void min::| & \MINKEY{set\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::SET_FLAGG} \\
 \verb|void min::| & \MINKEY{clear\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::CLEAR_FLAGG} \\
 \verb|void min::| & \MINKEY{flip\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name)|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::FLIP_FLAGG} \\
 \end{tabular}
 
@@ -3665,13 +3730,83 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 
 \end{indpar}
 
+\INDEXHEADER{Object Variable Level Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}r@{}p{4.5in}}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{variable\_pointer}\verb| ( )|
+\LABEL{MUP::VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{point}\ARGBREAK
+    \verb| ( min::variable_pointer & vp,|\ARGBREAK
+    \verb|   min::gen vector, unsigned index )|
+\LABEL{POINT_VARIABLE_POINTER} \\
+\verb|void min::|
+	& \TTKEY{clear}\verb| ( min::variable_pointer & vp )|
+\LABEL{CLEAR_VARIABLE_POINTER} \\
+\verb|void min::|
+	& \TTKEY{relocate}\verb| ( min::variable_pointer & vp )|
+\LABEL{RELOCATE_VARIABLE_POINTER} \\
+\verb|min::gen min::|
+	& \TTKEY{get}\verb| ( min::variable_pointer & vp )|
+\LABEL{GET_VARIABLE_POINTER} \\
+\verb|void min::|
+	& \TTKEY{set}\ARGBREAK
+    \verb| ( min::variable_pointer & vp,|\ARGBREAK
+    \verb|   min::gen value )|
+\LABEL{SET_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{indirect}\ARGBREAK
+    \verb| ( min::variable_pointer & vp1,|\ARGBREAK
+    \verb|   min::variable_pointer & vp2 )|
+\LABEL{MIN::INDIRECT_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{moveg}\ARGBREAK
+    \verb| ( min::variable_pointer & vp,|\ARGBREAK
+    \verb|   min::gen name )|
+\LABEL{MIN::MOVEG_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{move}\ARGBREAK
+    \verb| ( min::variable_pointer & vp,|\ARGBREAK
+    \verb|   unsigned index )|
+\LABEL{MOVE_VARIABLE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
+    \verb| ( min::variable_pointer & vp,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name )|
+\LABEL{MIN::COUNTG_OF_VARIABLE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{getg}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::variable_pointer & vp,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name )|
+\LABEL{MIN::GETG_OF_VARIABLE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{getg}\ARGBREAK
+    \verb| ( min::variable_pointer & vp,|\ARGBREAK
+    \verb|   min::gen name, min::gen reverse_name )|
+\LABEL{MIN::GETG1_OF_VARIABLE_POINTER} \\
+\end{tabular}
+
+\begin{tabular}{@{}r@{}p{5.0in}}
+\verb|bool min::|
+	& \TTKEY{variable\_forward\_optimization}\verb| ( )|
+\LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
+\verb|bool min::|
+	& \TTKEY{variable\_forward\_optimization}\verb| ( bool value )|
+\LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
+\end{tabular}
+
+\end{indpar}
+
 \INDEXHEADER{Special Values}
 
 \begin{indpar}[0.2in]
 
 \verb|min::|\MINKEY{MISSING} \LABEL{MIN::MISSING}
 \\
+\verb|min::|\MINKEY{ANY} \LABEL{MIN::ANY}
+\\
 \verb|min::|\MINKEY{MULTI\_VALUED} \LABEL{MIN::MULTI_VALUED}
+\\
+\verb|min::|\MINKEY{NULL} \LABEL{MIN::NULL}
+\\
+\verb|min::|\MINKEY{SUCCESS} \LABEL{MIN::SUCCESS}
 
 \end{indpar}
 
