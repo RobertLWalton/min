@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 31, 2005}
+\date{August 1, 2005}
  
 \maketitle
 
@@ -2867,8 +2867,8 @@ the vector.
 
 Thus a vector represents a labeled graph.  There is one variable for
 each node of the graph, and that variable points at an object that
-defines the labeled arrows sourced at the node, or the variable points
-at a number or string that is the value of the node.  When a variable $X$
+defines the labeled arrows sourced at the node, or the variable is set to
+a number or string that is the value of the node.  When a variable $X$
 points at an object, and $N$ is the name of an attribute of the object,
 the attribute value of $N$ is the index of a variable in the vector
 that represents the node one gets to when one starts at $X$ and follows
@@ -2886,6 +2886,171 @@ vector represents a graph some of whose nodes source no arrows and have
 no string or number associated with them, the variables of these nodes are
 given the value \minkey{NULL}, which signifies a variable that has no value.
 Such variables may be given values by later computations.
+
+A primary use of variable vectors is with graphs that are to be unified.
+In the process of unification some graph nodes are set to indirect pointers
+to other graph nodes, so every reference to nodes so set is forwarded to
+the target of the indirect pointers.  Therefore, since variables represent
+graph nodes, a variable in a variable
+vector can store an indirect pointer at another variable in another variable
+vector, so that all references to the variable storing the indirect pointer
+are forwarded to the pointer's target variable.
+
+A variable vector is structured somewhat like an object (\secref{OBJECTS}).
+It has a body that consists of the following 4 parts in the order given:
+
+\begin{center}
+\begin{tabular}{l}
+header \\
+variable vector \\
+unused area\\
+auxiliary area
+\end{tabular}
+\end{center}
+
+The header contains the sizes of the other 3 parts.
+The \key{variable vector} stores the variables.  The \key{auxiliary area}
+stores overflow data from the variable vector.
+
+The variable vector
+grows up from the end of the header into the unused
+area, and the auxiliary storage grows down from the end of the body into
+the unused area.
+
+The header of a variable vector stores 32 bit sizes; variable vectors are
+all line long objects in this respect.
+
+A \key{variable vector stub}\label{VARIABLE-VECTOR-STUB} is collectible, has
+\minkey{VARIABLE\_VECTOR}\LABEL{MIN::VARIABLE_VECTOR} stub type code, and has
+a value that is a pointer to a \minkey{variable\_vector} type body
+which holds the 4 parts of the object.
+The header consists of 3 32-bit unsigned integers which are, in order:
+
+\begin{center}
+\begin{tabular}{lllllllll}
+header size & + & variable vector size \\
+header size & + & variable vector size
+	& + & unused area size \\
+header size & +  & variable vector size
+	& + & unused area size \\
+        & + & auxiliary area size \\
+	& = & header size & + & total size
+\end{tabular}
+\end{center}
+
+The header may contain other implementation dependent information used
+for optimization.
+
+All sizes are in units of \verb|min::gen| values.  Aside from its header,
+the variable vector body is just a vector of \verb|min::gen| values.  The total
+size does \underline{not} include the header.
+
+A pointer to the body and the sizes can be obtained by the following
+functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::variable_vector * MUP::| &
+	\MUPKEY{variable\_vector\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::VARIABLE_VECTOR_OF} \\
+\verb|unsigned | &
+    \TTKEY{variable\_vector\_size\_of} \\
+    & \verb|    ( min::variable_vector * vv )|
+\LABEL{VARIABLE_VECTOR_SIZE_OF_VARIABLE_VECTOR} \\
+\verb|unsigned |
+    & \TTKEY{auxiliary\_area\_size\_of} \\
+    & \verb|    ( min::variable_vector * vv )|
+\LABEL{AUXILIARY_AREA_SIZE_OF_VARIABLE_VECTOR} \\
+\verb|unsigned |
+    & \TTKEY{unused\_area\_size\_of} \\
+    & \verb|    ( min::variable_vector * vv )|
+\LABEL{UNUSED_AREA_SIZE_OF_VARIABLE_VECTOR} \\
+\verb|unsigned | & \TTKEY{total\_size\_of} \\
+    & \verb|    ( min::variable_vector * vv )|
+\LABEL{TOTAL_SIZE_OF_VARIABLE_VECTOR} \\
+\end{tabular}\end{center}
+
+Here the functions that return pointers do \underline{not} check the type
+of the stub, and the total size is exactly the sum of the other three sizes.
+
+The data structure of an variable vector body can be viewed at any of
+two levels: vector level and variable level.
+
+\subsubsection{Variable Vector Vector Level}
+\label{VARIABLE-VECTOR-VECTOR-LEVEL}
+
+At the \key{vector level}, the variable vector body is viewed as
+a \key{body vector} of \verb|min::gen| values.  A pointer to the
+body vector is returned by the following unprotected functions:
+
+\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\verb|const min::gen * MUP::|
+	& \MUPKEY{body\_vector\_of}\verb| ( min::variable_vector * vv )|
+\LABEL{MUP::BODY_VECTOR_OF_VARIABLE_VECTOR} \\
+\verb|min::gen * MUP::|
+	& \MUPKEY{writable\_body\_vector\_of}%
+		\verb| ( min::variable_vector * vv )|
+\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_VARIABLE_VECTOR} \\
+\end{tabular}\end{center}
+
+The {\tt MUP::body\_vector\_of} function allows only reading of elements.
+The {\tt MUP::\EOL writable\_\EOL body\_\EOL vector\_\EOL of}
+function allows reading and writing of elements.
+
+The body vector is divided into 4 parts,
+which are, in order, the body header,
+variable vector, unused area, and auxiliary area.
+The header and unused area are not actually \verb|min::gen| values,
+and should not be accessed using a body vector pointer.
+
+The value of an auxiliary pointer
+is an unsigned integer part of which is the index of a \verb|min::gen|
+value in the body vector.  This is distinct from the use of
+auxiliary pointers in objects, as in that case the entire integer is
+the index.  Details are below in \secref{VARIABLE-VECTOR-VARIABLE-LEVEL}.
+
+The index of the beginning of the variable vector part of a variable vector
+can be obtained by the following protected function:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned |
+	& \TTKEY{variable\_vector\_of}\verb| ( min::variable_vector * vv )|
+\LABEL{VARIABLE_VECTOR_OF_VARIABLE_VECTOR} \\
+\end{tabular}\end{center}
+
+\subsubsection{Variable Vector Variable Level}
+\label{VARIABLE-VECTOR-VARIABLE-LEVEL}
+
+At the \key{variable level},\label{VARIABLE-LEVEL}
+the body of a variable vector consists of a vector of variables.
+Each variable stores a \verb|min::gen| value, or an auxilarly pointer
+that represents an indirect pointer to another variable in the same
+variable vector or in some other variable vector.  An indirect pointer
+is a pair consisting of a pointer to a variable vector and an index
+of a variable in that vector.  Variable vectors use two kinds
+auxiliary pointers:
+
+\begin{indpar}
+\key{indirect pair pointer} ~~~	This points at an \key{indirect pair},
+which is a pair of \verb|min::gen| values the first of which points at
+a variable vector and the second of which is an index \verb|min::gen| value
+that is the index of a variable in the vector pointed at.
+The indirect pair is stored in auxilarly memory, and the entire indirect
+pair pointer integer value is the index in auxiliary memory
+of the first \verb|min::gen| value of the indirect pair.
+
+\key{indirect indexed pointer} ~~~ The integer value of this auxiliary value is
+split evenly into two parts.  For 32-bit general values each part is
+12 bits, whereas for 64-bit general values each part is 20 bits.  The high
+order part is the index in auxiliary memory of a \verb|min::gen| value that
+is the pointer to the variable vector.  The low order part is the index of
+a variable in that vector.  As a special case, if the high order part
+is zero, the variable vector is that same as the variable vector containing
+the auxilary pointer.
+\end{indpar}
+
+
+TBD
+
 
 
 \subsection{Special Values}
