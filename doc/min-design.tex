@@ -243,7 +243,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 1, 2005}
+\date{August 2, 2005}
  
 \maketitle
 
@@ -2706,7 +2706,7 @@ The functions for using a variable pointer are:
 \verb|void min::|
 	& \TTKEY{set}\verb| ( min::variable_pointer & vp, min::gen value )|
 \LABEL{SET_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{indirect}%
+\verb|min::gen min::| & \MINKEY{indirect\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::variable_pointer & vp1,| \\
     \verb|   min::variable_pointer & vp2 )|
@@ -2896,6 +2896,11 @@ vector can store an indirect pointer at another variable in another variable
 vector, so that all references to the variable storing the indirect pointer
 are forwarded to the pointer's target variable.
 
+Objects associated with a variable vector can have attribute values that
+are not indices, but are instead numbers, strings, or pointers other
+objects associated with the vector.  Such attribute values are
+not variable and cannot be indirected by unification algorithms.
+
 A variable vector is structured somewhat like an object (\secref{OBJECTS}).
 It has a body that consists of the following 4 parts in the order given:
 
@@ -2918,7 +2923,8 @@ area, and the auxiliary storage grows down from the end of the body into
 the unused area.
 
 The header of a variable vector stores 32 bit sizes; variable vectors are
-all line long objects in this respect.
+all like long objects in this respect, and there is no variable vector
+analogue of short objects.
 
 A \key{variable vector stub}\label{VARIABLE-VECTOR-STUB} is collectible, has
 \minkey{VARIABLE\_VECTOR}\LABEL{MIN::VARIABLE_VECTOR} stub type code, and has
@@ -2969,16 +2975,16 @@ functions:
 \LABEL{TOTAL_SIZE_OF_VARIABLE_VECTOR} \\
 \end{tabular}\end{center}
 
-Here the functions that return pointers do \underline{not} check the type
+Here the function that returns a pointer does \underline{not} check the type
 of the stub, and the total size is exactly the sum of the other three sizes.
 
-The data structure of an variable vector body can be viewed at any of
+The data structure of a variable vector body can be viewed at any of
 two levels: vector level and variable level.
 
 \subsubsection{Variable Vector Vector Level}
 \label{VARIABLE-VECTOR-VECTOR-LEVEL}
 
-At the \key{vector level}, the variable vector body is viewed as
+At the \key{vector level}\,, the variable vector body is viewed as
 a \key{body vector} of \verb|min::gen| values.  A pointer to the
 body vector is returned by the following unprotected functions:
 
@@ -3003,10 +3009,11 @@ The header and unused area are not actually \verb|min::gen| values,
 and should not be accessed using a body vector pointer.
 
 The value of an auxiliary pointer
-is an unsigned integer part of which is the index of a \verb|min::gen|
+is an unsigned integer of which part is the index of a \verb|min::gen|
 value in the body vector.  This is distinct from the use of
-auxiliary pointers in objects, as in that case the entire integer is
-the index.  Details are below in \secref{VARIABLE-VECTOR-VARIABLE-LEVEL}.
+auxiliary pointers in objects, as in that case the entire auxiliary pointer
+integer is the index.
+Details are below in \secref{VARIABLE-VECTOR-VARIABLE-LEVEL}.
 
 The index of the beginning of the variable vector part of a variable vector
 can be obtained by the following protected function:
@@ -3027,10 +3034,11 @@ that represents an indirect pointer to another variable in the same
 variable vector or in some other variable vector.  An indirect pointer
 is a pair consisting of a pointer to a variable vector and an index
 of a variable in that vector.  Variable vectors use two kinds
-auxiliary pointers:
+auxiliary pointers to represent indirect pointers:
 
 \begin{indpar}
-\key{indirect pair pointer} ~~~	This points at an \key{indirect pair},
+\key{indirect pair pointer} ~~~	This is an auxiliary pointer that
+points at an \key{indirect pair},
 which is a pair of \verb|min::gen| values the first of which points at
 a variable vector and the second of which is an index \verb|min::gen| value
 that is the index of a variable in the vector pointed at.
@@ -3048,6 +3056,12 @@ is zero, the variable vector is that same as the variable vector containing
 the auxilary pointer.
 \end{indpar}
 
+Indirect indexed pointers are used when the integers that must be stored
+will fit into them.  Otherwise indirect pair pointers are used.  An
+implementation typically allocates enough auxiliary memory to a new variable
+vector to permit every variable to efficiently store an indirect pointer.
+After the variable vector has aged, it may be reorganized during garbage
+collection to minimize use of auxiliary memory.
 
 TBD
 
@@ -3948,7 +3962,7 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
     \verb| ( min::variable_pointer & vp,|\ARGBREAK
     \verb|   min::gen value )|
 \LABEL{SET_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{indirect}\ARGBREAK
+\verb|min::gen min::| & \MINKEY{indirect\REL}\ARGBREAK
     \verb| ( min::variable_pointer & vp1,|\ARGBREAK
     \verb|   min::variable_pointer & vp2 )|
 \LABEL{MIN::INDIRECT_VARIABLE_POINTER} \\
