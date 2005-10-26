@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{July 13, 2005}
+\date{October 26, 2005}
  
 \maketitle
 
@@ -2240,26 +2240,38 @@ A CONTEXT is:
 \begin{indpar}\begin{verbatim}
 FRAME
 EXPRESSION
-NEXT ITEM INDEX         (of next ITEM in EXPRESSION)
+NEXT ITEM INDEX         // of next ITEM in EXPRESSION
 STATE, and integer containing the following flags:
     CONDITION CODE:     CC TRUE, CC FALSE, CC NONE
-                        (set by current statement)
+                        // set by current statement
     PREVIOUS CONDITION CODE:    CC TRUE, CC FALSE, CC NONE
-                                (as set by previous statement)
-    SKIP FLAG       (set to skip rest of current statement)
-    REPEAT FLAG     (set to repeat current statement)
-    RETURN FLAG     (set to return from current block)
-    THROW FLAG      (set to throw from current block)
-PREVIOUS CONTEXT    (contexts are like CONS cells)
+                                // as set by previous statement
+    SKIP FLAG       // set to skip rest of current statement
+    REPEAT FLAG     // set to repeat current statement
+    RETURN FLAG     // set to return from current block
+    THROW FLAG      // set to throw from current block
+PREVIOUS CONTEXT    // contexts are chained like CONS cells
 \end{verbatim}\end{indpar}
 
 A FRAME is:
 
 \begin{indpar}\begin{verbatim}
 ... local variables are like object attributes ...
-.object
-.context
-PREVIOUS FRAME           (frames are like CONS cells)
+.object                  // object containing executing code
+.caller                  // context of caller of frame
+.value                   // assignment rightside argument input
+                         // to a function evaluation
+PREVIOUS FRAME           // frames are like CONS cells
+\end{verbatim}\end{indpar}
+
+Some special values are:
+
+\begin{indpar}\begin{verbatim}
+FAILURE                  // Search has failed.
+SKIPPED                  // Search, evaluation, etc. has been
+                         // skipped because the SKIP flag is
+                         // on.
+READ-OPERATION           // Read, instead of write, a value.
 \end{verbatim}\end{indpar}
 
 \begin{verbatim}
@@ -2276,10 +2288,18 @@ read ( CONTEXT ):
     CONTEXT NEXT ITEM INDEX = CONTEXT NEXT ITEM INDEX + 1
     return V
 
+// In general evaluate returns a VALUE and may change the
+// SKIP, REPEAT, RETURN, and THROW flags of the CONTEXT.
+
+// Read the next expression from a context and evaluate that
+// expression in the context.
+//
 evaluate ( CONTEXT ):
     E = read ( CONTEXT )
     return evaluate ( E, CONTEXT )
 
+// Evaluate an expression in a context.
+//
 evaluate ( EXPRESSION, CONTEXT ):
     if EXPRESSION is a single number atom:
         return EXPRESSION
@@ -2346,19 +2366,30 @@ quoted ( EXPRESSION, CONTEXT, DEPTH ):
             append V to end of RESULT
     return RESULT
 
+// Evaluate an EXPESSION of the form
+//
+//	{ STATEMENT ... }
+//
+// CONTEXT CC and FLAGS are set from last statement
+// executed.  Initializes CC to CC NONE and flags are
+// to off.
+//
 execute block ( EXPRESSION, CONTEXT ):
     `EXPRESSION is {...} bracketed'
     `executing {...} clears CC' 
     V = NULL
-    CC = CC NONE
+    CONTEXT STATE CC = CC NONE
+    CONTEXT STATE SKIP FLAG = 0
+    CONTEXT STATE REPEAT FLAG = 0
+    CONTEXT STATE RETURN FLAG = 0
+    CONTEXT STATE THROW FLAG = 0
     foreach STATEMENT in EXPRESSION:
         CONTEXT STATE REPEAT FLAG = 1
         while CONTEXT STATE REPEAT FLAG:
             CONTEXT STATE REPEAT FLAG = 0
-            CONTEXT STATE PREVIOUS CC = CC
+            CONTEXT STATE PREVIOUS CC = CONTEXT STATE CC
             CONTEXT STATE CC = CC NONE
             V = evaluate ( STATEMENT, CONTEXT )
-            CC = CONTEXT STATE CC
             CONTEXT STATE SKIP FLAG = 0
             if CONTEXT STATE RETURN FLAG
                or
@@ -2371,11 +2402,28 @@ execute block ( EXPRESSION, CONTEXT ):
             break
     return V
 
+// Scanning reads an attribute name from a context and uses it to
+// identify an attribute of a frame or object.  This identification
+// process entails searching frames and objects for an attribute
+// with the given name.
+//
+// Then if VALUE is READ-OPERATION, the value of the attribute is
+// returned, but if VALUE is something else, the attribute is
+// set to VALUE and the VALUE is returned.
+//
+// If the SKIP flag goes on, SKIPPED is returned.
+
+// Search the frame of a context first, and then search the object
+// of that frame.  Return FAILURE if not found.
+//
 scan ( CONTEXT, VALUE ):
     V = scan object ( CONTEXT, CONTEXT FRAME, VALUE )
     if V != FAILURE: return V
     return scan ( CONTEXT, CONTEXT FRAME .object, VALUE )
 
+// Search an object first, and then the ancestors of the object.
+// Return FAILURE if not found.
+//
 scan ( CONTEXT, OBJECT, VALUE ):
    V = scan object ( CONTEXT, OBJECT, VALUE )
    if V != FAILURE: return V
@@ -2384,13 +2432,18 @@ scan ( CONTEXT, OBJECT, VALUE ):
        if V != FAILURE: break
    return V
 
+// Search a particular object.  Return FAILURE if not found.
+//
 scan object ( CONTEXT, OBJECT, VALUE ):
    if CONTEXT STATE SKIP FLAG:
-       return OBJECT
+       return SKIPPED
    if OBJECT has an attribute named `.empty' with value V:
-          return scan ( CONTEXT, V )
+          return scan ( CONTEXT, V, VALUE )
    if CONTEXT NEXT ITEM INDEX > length CONTEXT EXPRESSION:
-        return OBJECT
+        if VALUE = READ-OPERATION
+            return OBJECT
+        else
+            return FAILURE
 
    match names of OBJECT's attributes to next items in
          CONTEXT
@@ -2404,9 +2457,9 @@ scan object ( CONTEXT, OBJECT, VALUE ):
             return VALUE
       let V = value of matched attribute
       if V is function definition:
-           return execute ( CONTEXT, V, OBJECT )
+           return execute ( CONTEXT, V, OBJECT, VALUE )
       else:
-           return scan ( CONTEXT, V )
+           return scan ( CONTEXT, V, VALUE )
    else if VALUE != READ-OPERATION:
         A = rest of CONTEXT EXPRESSION
         set attribute A of OBJECT = VALUE
@@ -2414,7 +2467,7 @@ scan object ( CONTEXT, OBJECT, VALUE ):
    else:
        return FAILURE
 
-execute ( CONTEXT, FUNCTION, CONTAINER ):
+execute ( CONTEXT, FUNCTION, CONTAINER, VALUE ):
     make a new function frame F
     for each argument name N in FUNCTION:
         if N is to be evaluated:
@@ -2422,17 +2475,19 @@ execute ( CONTEXT, FUNCTION, CONTAINER ):
         else:
             E = read ( CONTEXT )
             V = (.context. E CONTEXT)
+        if CONTEXT STATE THROW SKIP:
+                discard F
+                return SKIPPED
         if CONTEXT STATE RETURN FLAG
            or
            CONTEXT STATE THROW FLAG:
-           or
-           CONTEXT STATE THROW SKIP:
                 discard F
                 return V
         make an attribute of F with name N and
              value V
-    F .context = CONTEXT
+    F .caller = CONTEXT
     F .object = CONTAINER
+    F .value = VALUE
     C = push CONTEXT
     C FRAME = F
     if FUNCTION is {...} bracketted list:
