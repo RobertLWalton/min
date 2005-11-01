@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  1 07:06:17 EST 2005
+// Date:	Tue Nov  1 07:33:02 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/01 12:06:19 $
+//   $Date: 2005/11/01 12:59:34 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 # ifndef MIN_H
 
@@ -50,6 +50,9 @@ namespaces min {
 #   endif
 
 #   if MIN_IS_COMPACT
+	const unsigned GEN_STUB_UPPER
+	    = 0xE0000000; // Upper limit for stubs.
+
 	const unsigned GEN_STUB
 	    = 0;
 	const unsigned GEN_DIRECT_FLOAT
@@ -100,7 +103,7 @@ namespaces min {
 #   if MIN_IS_COMPACT
 	inline bool is_direct_stub ( min::gen v )
 	{
-	    return ( v >> 28 < 0xE )
+	    return ( v < GEN_STUB_UPPER )
 	}
 	inline bool is_direct_float ( min::gen v )
 	{
@@ -141,7 +144,77 @@ namespaces min {
 	{
 	    return ( v >> 24 == GEN_CONTROL_CODE );
 	}
+	inline bool gen_subtype_of ( min::gen v )
+	{
+	    return ( v < GEN_STUB_UPPER )
+	        return GEN_STUB;
+	    unsigned vshifted = v >> 24;
+	    if ( vshifted >= GEN_DIRECT_INT )
+	        vshifted &= ~ 0xF;
+	    return vshifted;
+	}
 #   else // if MIN_IS_LOOSE
+	inline bool is_direct_stub ( min::gen v )
+	{
+	    return ( v >> 44 == GEN_STUB >> 4 );
+	}
+	inline bool is_direct_float ( min::gen v )
+	{
+	    // Low order 45 bits and high order bit
+	    // are masked for this test.
+	    //
+	    return
+	        (    uns32 ( v >> 45 ) & 0x3FFFF
+	          == MIN_FLOAT64_SIGNALLING_NAN >> 5 );
+	}
+	inline bool is_direct_int ( min::gen v )
+	{
+	    return false;
+	}
+	inline bool is_direct_str ( min::gen v )
+	{
+	    return ( v >> 40 == GEN_DIRECT_STR );
+	}
+	inline bool is_list_aux ( min::gen v )
+	{
+	    return ( v >> 40 == GEN_LIST_AUX );
+	}
+	inline bool is_sublist_aux ( min::gen v )
+	{
+	    return ( v >> 40 == GEN_SUBLIST_AUX );
+	}
+	inline bool is_indirect_pair_aux ( min::gen v )
+	{
+	    return
+	        ( v >> 40 == GEN_INDIRECT_PAIR_AUX );
+	}
+	inline bool is_indirect_indexed_aux
+		( min::gen v )
+	{
+	    return
+	    	( v >> 40 == GEN_INDIRECT_INDEXED_AUX );
+	}
+	inline bool is_index ( min::gen v )
+	{
+	    return ( v >> 40 == GEN_INDEX );
+	}
+	inline bool is_control_code ( min::gen v )
+	{
+	    return ( v >> 40 == GEN_CONTROL_CODE );
+	}
+	inline bool gen_subtype_of ( min::gen v )
+	{
+	    // Low order 45 bits and high order bit
+	    // are masked for this test.
+	    //
+	    if (    uns32 ( v >> 45 ) & 0x3FFFF
+	         == MIN_FLOAT64_SIGNALLING_NAN >> 5 )
+	        return GEN_DIRECT_FLOAT;
+	    unsigned vshifted = v >> 40;
+	    if ( vshifted >= GEN_STUB )
+	        vshifted &= ~ 0xF;
+	    return vshifted;
+	}
 #   endif
 
     // Type code for stub.
