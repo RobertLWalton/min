@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Sep  8 12:33:38 EDT 2004
+// Date:	Tue Nov  1 07:06:17 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/08 17:21:48 $
+//   $Date: 2005/11/01 12:06:19 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 # ifndef MIN_H
 
@@ -22,15 +22,9 @@
 # include "min_parameters.h"
 # include <cassert>
 
-struct min {
+namespaces min {
 
-    // Because C++ does not guarentee that structs with
-    // member functions are laid out sensibly in memory,
-    // we eschew the use of member functions.
-
-    // Protected functions are declared in this file.
-    // Unprotected functions are declared in the file
-    // min_unprotected.h.
+    // Number Types
 
     typedef unsigned char uns8;
     typedef signed char int8;
@@ -40,83 +34,115 @@ struct min {
 
     typedef unsigned MIN_32_BIT_INT uns32;
     typedef signed MIN_32_BIT_INT int32;
+    typedef float float32;
 
     typedef unsigned MIN_64_BIT_INT uns64;
     typedef signed MIN_64_BIT_INT int64;
-
     typedef double float64;
 
-    struct stub;
-    struct unprotected;
-
-    // A general datum can hold either an IEEE 64 bit
-    // floating point number, a pointer to a stub, or
-    // a 6 byte string.  The high order 16 bits deter-
-    // mine what is held.  There bits have one special
-    // value for pointers to stubs, another for strings,
-    // and all other values are for IEEE floating point
-    // numbers.
-
-    // The following implementation seems the most
-    // likely to get efficiency from all compilers.
+    // We assume the machine has integer registers that
+    // are the most efficient place for min::gen values.
     //
-    // Its is a consequence of this that functions mani-
-    // pulating min::gen64 data must have long names
-    // such as min::gen_is_float.
-    //
-    typedef uns64 gen64;
-   
-    inline bool gen_is_float ( gen64 v ) {
-        return    (v & 0x7FFF000000000000)
-	       != 0x7FFF000000000000;
-    }
-    inline bool gen_is_stub ( gen64 v ) {
-        return    (v & 0xFFFF000000000000)
-	       == 0xFFFF000000000000;
-    }
-    inline bool gen_is_string ( gen64 v ) {
-        return    (v & 0xFFFF000000000000)
-	       == 0x7FFF000000000000;
-    }
-    inline float64 gen_to_float ( gen64 v ) {
-        return * (float64 *) & v;
-    }
-    // There is also an unprotected version of this
-    // function min::unprotected::gen_to_stub that has
-    // no assert.
-    inline stub * gen_to_stub ( gen64 v ) {
-        assert ( gen_is_stub ( v ) );
-        return (stub *) (unsigned)
-	       ( v & 0xFFFFFFFFFFFF );
-    }
-    // p[8] must be on 8 byte boundary.  It may not
-    // be NUL terminated.
-    inline void gen_to_string ( gen64 v, char p[8] ) {
-#	if MIN_BIG_ENDIAN
-	    * (uns64 *) p = v << 16;
-#	else
-	    * (uns64 *) p = v & 0xFFFFFFFFFFFF;
-#	endif
-    }
-    inline gen64 float_to_gen ( float64 v ) {
-        return * (gen64 *) & v;
-    }
-    inline gen64 stub_to_gen ( stub * p ) {
-        return   ((uns64) (unsigned) p)
-	       | 0xFFFF000000000000;
-    }
-    // p[8] must be on 8 byte boundary.  It must
-    // be filled with NULs.
-    inline gen64 string_to_gen ( char p[8] ) {
-#	if MIN_BIG_ENDIAN
-	    return   ( ( * (uns64 *) p ) >> 16 )
-	           | 0x7FFF000000000000;
-#	else
-	    return   (   ( * (uns64 *) p )
-	               & 0xFFFFFFFFFFFF )
-	           | 0x7FFF000000000000;
-#	endif
-    }
+#   if MIN_IS_COMPACT
+	typedef uns32 gen;
+#   else // if MIN_IS_LOOSE
+	typedef uns64 gen;
+#   endif
+
+#   if MIN_IS_COMPACT
+	const unsigned GEN_STUB
+	    = 0;
+	const unsigned GEN_DIRECT_FLOAT
+	    = 0x100; // illegal
+	const unsigned GEN_DIRECT_INT
+	    = 0xF0;
+	const unsigned GEN_DIRECT_STR
+	    = 0xE1;
+	const unsigned GEN_LIST_AUX
+	    = 0xE2;
+	const unsigned GEN_SUBLIST_AUX
+	    = 0xE3;
+	const unsigned GEN_INDIRECT_PAIR_AUX
+	    = 0xE4;
+	const unsigned GEN_INDIRECT_INDEXED_AUX
+	    = 0xE5;
+	const unsigned GEN_INDEX
+	    = 0xE6;
+	const unsigned GEN_CONTROL_CODE
+	    = 0xE7;
+	const unsigned GEN_ILLEGAL
+	    = 0x100;
+#   else // if MIN_IS_LOOSE
+	const unsigned GEN_STUB
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x10;
+	const unsigned GEN_DIRECT_FLOAT
+	    = 0;
+	const unsigned GEN_DIRECT_INT
+	    = 0x1000000; // illegal
+	const unsigned GEN_DIRECT_STR
+	    = MIN_FLOAT64_SIGNALLING_NAN + 1;
+	const unsigned GEN_LIST_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 2;
+	const unsigned GEN_SUBLIST_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 3;
+	const unsigned GEN_INDIRECT_PAIR_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 4;
+	const unsigned GEN_INDIRECT_INDEXED_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 5;
+	const unsigned GEN_INDEX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 6;
+	const unsigned GEN_CONTROL_CODE
+	    = MIN_FLOAT64_SIGNALLING_NAN + 7;
+	const unsigned GEN_ILLEGAL
+	    = 0x1000000;
+#   endif
+
+#   if MIN_IS_COMPACT
+	inline bool is_direct_stub ( min::gen v )
+	{
+	    return ( v >> 28 < 0xE )
+	}
+	inline bool is_direct_float ( min::gen v )
+	{
+	    return false;
+	}
+	inline bool is_direct_int ( min::gen v )
+	{
+	    return ( v >> 28 == GEN_DIRECT_INT >> 4 );
+	}
+	inline bool is_direct_str ( min::gen v )
+	{
+	    return ( v >> 24 == GEN_DIRECT_STR );
+	}
+	inline bool is_list_aux ( min::gen v )
+	{
+	    return ( v >> 24 == GEN_LIST_AUX );
+	}
+	inline bool is_sublist_aux ( min::gen v )
+	{
+	    return ( v >> 24 == GEN_SUBLIST_AUX );
+	}
+	inline bool is_indirect_pair_aux ( min::gen v )
+	{
+	    return
+	        ( v >> 24 == GEN_INDIRECT_PAIR_AUX );
+	}
+	inline bool is_indirect_indexed_aux
+		( min::gen v )
+	{
+	    return
+	    	( v >> 24 == GEN_INDIRECT_INDEXED_AUX );
+	}
+	inline bool is_index ( min::gen v )
+	{
+	    return ( v >> 24 == GEN_INDEX );
+	}
+	inline bool is_control_code ( min::gen v )
+	{
+	    return ( v >> 24 == GEN_CONTROL_CODE );
+	}
+#   else // if MIN_IS_LOOSE
+#   endif
 
     // Type code for stub.
     //
