@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  1 09:46:03 EST 2005
+// Date:	Tue Nov  1 10:39:17 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/01 14:46:03 $
+//   $Date: 2005/11/01 16:24:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 # ifndef MIN_H
 
@@ -115,7 +115,7 @@ namespaces min {
 #   endif
 
 #   if MIN_IS_COMPACT
-	inline bool is_direct_stub ( min::gen v )
+	inline bool is_stub ( min::gen v )
 	{
 	    return ( v < GEN_DIRECT_INT )
 	}
@@ -171,7 +171,7 @@ namespaces min {
 	        return GEN_ILLEGAL;
 	}
 #   else // if MIN_IS_LOOSE
-	inline bool is_direct_stub ( min::gen v )
+	inline bool is_stub ( min::gen v )
 	{
 	    return ( v >> 44 == GEN_STUB >> 4 );
 	}
@@ -232,6 +232,145 @@ namespaces min {
 	        return GEN_ILLEGAL;
 	    else
 	        return GEN_DIRECT_FLOAT;
+	}
+#   endif
+
+#   if MIN_IS_COMPACT
+	inline min::stub * stub_of ( min::gen v )
+	{
+	    assert ( is_stub ( v ) );
+#	    if MIN_USES_ADDRESSES
+		return (min::stub *) v
+#	    else // MIN_USES_VSNS
+		return (min::stub *)
+		    (   ( v << MIN_VSN_SHIFT )
+		      + MIN_VSN_BASE );
+#	    endif
+	}
+	inline float64 direct_float_of ( min::gen v )
+	{
+	    // Assertion always fails.
+	    assert ( is_direct_float ( v ) );
+	    return 0;
+	}
+	inline int direct_int_of ( min::gen v )
+	{
+	    assert ( is_direct_int ( v ) );
+	    return (int32) ( v - GEN_DIRECT_INT << 24
+	                       - 1 << 27 );
+	}
+	inline uns64 direct_str_of ( min::gen v )
+	{
+	    assert ( is_direct_str ( v ) );
+#	    if MIN_BIG_ENDIAN
+		return ( uns64 ( v ) << 40 );
+#	    else
+		return ( uns64 ( v  & 0xFFFFFF ) );
+#	    endif
+	}
+	inline unsigned list_aux_of ( min::gen v )
+	{
+	    assert ( is_list_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned sublist_aux_of ( min::gen v )
+	{
+	    assert ( is_sublist_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned indirect_pair_aux_of
+		( min::gen v )
+	{
+	    assert ( is_indirect_pair_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned indirect_indexed_aux_of
+		( min::gen v )
+	{
+	    assert ( is_indirect_indexed_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned index_of ( min::gen v )
+	{
+	    assert ( is_index ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned control_code_of ( min::gen v )
+	{
+	    assert ( is_control_code ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+#   else // if MIN_IS_LOOSE
+	inline min::stub * stub_of ( min::gen v )
+	{
+	    assert ( is_stub ( v ) );
+#	    if MIN_USES_ADDRESSES
+		return (min::stub *)
+		    ( v & 0xFFFFFFFFF );
+#	    else // MIN_USES_VSNS
+		return (min::stub *)
+		    (   (    ( v & 0xFFFFFFFFF )
+		          << MIN_VSN_SHIFT )
+		      + MIN_VSN_BASE );
+#	    endif
+	}
+	inline float64 direct_float_of ( min::gen v )
+	{
+	    // Assertion always fails.
+	    assert ( is_direct_float ( v ) );
+	    return (float64) v;
+	}
+	inline int direct_int_of ( min::gen v )
+	{
+	    assert ( is_direct_int ( v ) );
+	    // Assertion always fails.
+	    return 0;
+	}
+	inline uns64 direct_str_of ( min::gen v )
+	{
+	    assert ( is_direct_str ( v ) );
+#	    if MIN_BIG_ENDIAN
+		return ( v << 24 );
+#	    else
+		return ( v  & 0xFFFFFFFFFF );
+#	    endif
+	}
+	inline unsigned list_aux_of ( min::gen v )
+	{
+	    assert ( is_list_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned sublist_aux_of ( min::gen v )
+	{
+	    assert ( is_sublist_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned indirect_pair_aux_of
+		( min::gen v )
+	{
+	    assert ( is_indirect_pair_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned indirect_indexed_aux_of
+		( min::gen v )
+	{
+	    assert ( is_indirect_indexed_aux ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned index_of ( min::gen v )
+	{
+	    assert ( is_index ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline unsigned control_code_of ( min::gen v )
+	{
+	    assert ( is_control_code ( v ) );
+	    return ( v & 0xFFFFFF );
+	}
+	inline uns64 long_control_code_of ( min::gen v )
+	{
+	    assert ( is_control_code ( v ) );
+	    return ( v & 0xFFFFFFFFFF );
 	}
 #   endif
 
