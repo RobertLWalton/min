@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Sep  6 05:24:34 EDT 2004
+// Date:	Tue Nov  1 05:13:16 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,15 +11,51 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2004/09/06 11:10:22 $
+//   $Date: 2005/11/01 10:15:20 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
-// 1 to compact object bodies by using 32 bit object
-// numbers to reference stubs; 0 to use gen64 values
-// instead to minimize creation of atoms.
+// Table of Contents
 //
-# define MIN_COMPACT_DATA 1
+//	Software Parameters
+//	Hardware Parameters
+
+// Note: The following parameters may be overridden by
+// giving -D options to the compiler:
+//
+//	MIN_IS_COMPACT
+//	MIN_USES_VSNS
+// 
+// Other parameters are computed from these.
+
+// Software Parameters.
+
+// 1 if min::gen values are 32 bits; else 0
+//
+# ifndef MIN_IS_COMPACT
+#   define MIN_IS_COMPACT 0
+# endif
+
+// 1 if min::gen values are 64 bits; else 0
+//
+# define MIN_IS_LOOSE ( ! MIN_IS_COMPACT )
+
+// Size of min::gen values in bits; 32 or 64.
+//
+# define MIN_SIZEOF_GEN ( MIN_IS_COMPACT ? 32 : 64 )
+
+// 1 to use VSNs in min::gen values to address stubs
+//
+# ifndef MIN_USES_VSNS
+#   define MIN_USES_VSNS 0
+# endif
+
+// 1 to use addresses and NOT VSNs in min::gen values
+//
+# define MIN_USES_ADDRESSES ( ! MIN_USES_VSNS )
+
+// Machine Parameters
+// ------- ----------
 
 // Type of 32 bit integer.
 //
