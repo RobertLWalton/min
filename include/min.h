@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  1 07:33:02 EST 2005
+// Date:	Tue Nov  1 09:46:03 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/01 12:59:34 $
+//   $Date: 2005/11/01 14:46:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 # ifndef MIN_H
 
@@ -50,60 +50,74 @@ namespaces min {
 #   endif
 
 #   if MIN_IS_COMPACT
-	const unsigned GEN_STUB_UPPER
-	    = 0xE0000000; // Upper limit for stubs.
+
+	// Layout
+	//   0x00-0xDF	stubs
+	//   0xE0-0xEF  direct integers
+	//   0xF0-0xF6  direct string and other
+	//   0xF7-0xFF  illegal
 
 	const unsigned GEN_STUB
 	    = 0;
 	const unsigned GEN_DIRECT_FLOAT
-	    = 0x100; // illegal
+	    = 0xF7; // illegal
 	const unsigned GEN_DIRECT_INT
-	    = 0xF0;
+	    = 0xE0;
 	const unsigned GEN_DIRECT_STR
-	    = 0xE1;
+	    = 0xF0;
 	const unsigned GEN_LIST_AUX
-	    = 0xE2;
+	    = 0xF1;
 	const unsigned GEN_SUBLIST_AUX
-	    = 0xE3;
+	    = 0xF2;
 	const unsigned GEN_INDIRECT_PAIR_AUX
-	    = 0xE4;
+	    = 0xF3;
 	const unsigned GEN_INDIRECT_INDEXED_AUX
-	    = 0xE5;
+	    = 0xF4;
 	const unsigned GEN_INDEX
-	    = 0xE6;
+	    = 0xF5;
 	const unsigned GEN_CONTROL_CODE
-	    = 0xE7;
+	    = 0xF6;
 	const unsigned GEN_ILLEGAL
-	    = 0x100;
+	    = 0xF7;  // Upper limit for legal.
 #   else // if MIN_IS_LOOSE
+
+	// Layout with base MIN_FLOAT_SIGNALLING_NAN:
+	//
+	//   0x00-0x0F	stub
+	//   0x10-0x16	direct string and others
+	//   0x17-0x1F	illegal
+	//   other	floating point
+
 	const unsigned GEN_STUB
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x10;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x00;
 	const unsigned GEN_DIRECT_FLOAT
 	    = 0;
-	const unsigned GEN_DIRECT_INT
-	    = 0x1000000; // illegal
+	const unsigned GEN_DIRECT_INT // illegal
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x17;
 	const unsigned GEN_DIRECT_STR
-	    = MIN_FLOAT64_SIGNALLING_NAN + 1;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x10;
 	const unsigned GEN_LIST_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 2;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x11;
 	const unsigned GEN_SUBLIST_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 3;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x12;
 	const unsigned GEN_INDIRECT_PAIR_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 4;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
 	const unsigned GEN_INDIRECT_INDEXED_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 5;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x14;
 	const unsigned GEN_INDEX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 6;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x15;
 	const unsigned GEN_CONTROL_CODE
-	    = MIN_FLOAT64_SIGNALLING_NAN + 7;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x16;
 	const unsigned GEN_ILLEGAL
-	    = 0x1000000;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x17;
+	const unsigned GEN_UPPER
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 #   endif
 
 #   if MIN_IS_COMPACT
 	inline bool is_direct_stub ( min::gen v )
 	{
-	    return ( v < GEN_STUB_UPPER )
+	    return ( v < GEN_DIRECT_INT )
 	}
 	inline bool is_direct_float ( min::gen v )
 	{
@@ -146,12 +160,15 @@ namespaces min {
 	}
 	inline bool gen_subtype_of ( min::gen v )
 	{
-	    return ( v < GEN_STUB_UPPER )
+	    v >>= 24;
+	    if ( v < GEN_DIRECT_INT )
 	        return GEN_STUB;
-	    unsigned vshifted = v >> 24;
-	    if ( vshifted >= GEN_DIRECT_INT )
-	        vshifted &= ~ 0xF;
-	    return vshifted;
+	    else if ( v < GEN_DIRECT_STR)
+	        return GEN_DIRECT_INT;
+	    else if ( v < GEN_ILLEGAL)
+	        return v;
+	    else
+	        return GEN_ILLEGAL;
 	}
 #   else // if MIN_IS_LOOSE
 	inline bool is_direct_stub ( min::gen v )
@@ -164,8 +181,8 @@ namespaces min {
 	    // are masked for this test.
 	    //
 	    return
-	        (    uns32 ( v >> 45 ) & 0x3FFFF
-	          == MIN_FLOAT64_SIGNALLING_NAN >> 5 );
+	        (    uns32 ( v >> 45 )
+	          != MIN_FLOAT64_SIGNALLING_NAN >> 5 );
 	}
 	inline bool is_direct_int ( min::gen v )
 	{
@@ -204,29 +221,32 @@ namespaces min {
 	}
 	inline bool gen_subtype_of ( min::gen v )
 	{
-	    // Low order 45 bits and high order bit
-	    // are masked for this test.
-	    //
-	    if (    uns32 ( v >> 45 ) & 0x3FFFF
-	         == MIN_FLOAT64_SIGNALLING_NAN >> 5 )
+	    v >>= 40;
+	    if ( v < GEN_STUB )
 	        return GEN_DIRECT_FLOAT;
-	    unsigned vshifted = v >> 40;
-	    if ( vshifted >= GEN_STUB )
-	        vshifted &= ~ 0xF;
-	    return vshifted;
+	    else if ( v < GEN_DIRECT_STR)
+	        return GEN_STUB;
+	    else if ( v < GEN_ILLEGAL)
+	        return v;
+	    else if ( v <= GEN_UPPER)
+	        return GEN_ILLEGAL;
+	    else
+	        return GEN_DIRECT_FLOAT;
 	}
 #   endif
 
-    // Type code for stub.
+    // Stub type codes.
     //
-    enum stub_type
-    {
-        NUMBER		= 1,
-	SHORT_STRING	= 2,
-	LONG_STRING	= 3,
-	SHORT_OBJECT	= 4,
-	LONG_OBJECT	= 5,
-    };
+    const int DEALLOCATED		= 1;
+    const int NUMBER			= 1;
+    const int SHORT_STR			= 2;
+    const int LONG_STR			= 3;
+    const int LABEL			= 4;
+    const int SHORT_OBJ			= 5;
+    const int LONG_OBJ			= 6;
+    const int LIST_AUX			= 7;
+    const int SUBLIST_AUX		= 8;
+    const int VARIABLE_VECTOR		= 9;
 
     struct stub
     {
