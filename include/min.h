@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/02 18:21:59 $
+//   $Date: 2005/11/02 18:53:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents:
 //
@@ -116,17 +116,19 @@ namespace min {
 		       p;
 	    }
 #	endif
+
+    inline void * uns64_to_pointer ( min::uns64 v )
+    {
+	return (void *)
+	       (unsigned MIN_INT_POINTER_TYPE) v;
+    }
+    inline min::uns64 pointer_to_uns64 ( void * p )
+    {
+	return (min::uns64)
+	       (unsigned MIN_INT_POINTER_TYPE) p;
+    }
+
 #   else // if MIN_IS_LOOSE
-	inline void * uns64_to_pointer ( min::uns64 v )
-	{
-	    return (void *)
-		   (unsigned MIN_INT_POINTER_TYPE) v;
-	}
-	inline min::uns64 pointer_to_uns64 ( void * p )
-	{
-	    return (min::uns64)
-		   (unsigned MIN_INT_POINTER_TYPE) p;
-	}
 #	if MIN_USES_VSNS
 	    inline min::stub * uns64_to_stub_p
 	    	( min::uns64 v )
@@ -770,6 +772,17 @@ namespace min {
 	           uns64_to_stub_p ( v );
 #	endif
     }
+
+    // Allocation of bodies is from a stack-like region
+    // of memory.  Bodies are separated by body control
+    // structures.
+
+    struct body_control {
+        uns64 stub_p;
+	int64 size_difference;
+    };
+    struct body_control * tail_body_control;
+    struct body_control * end_body_control;
 }
 
 // TBD
