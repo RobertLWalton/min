@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov  2 04:59:33 EST 2005
+// Date:	Wed Nov  2 07:29:56 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,23 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/02 10:01:23 $
+//   $Date: 2005/11/02 18:21:59 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
+
+// Table of Contents:
+//
+//	Setup
+//	Number Types
+//	Internal Pointer Conversion Functions
+//	General Value Types and Data
+//	General Value Test Functions
+//	General Value Read Functions
+//	General Value Constructor Functions
+//	Stub Types and Data
+
+// Setup
+// -----
 
 # ifndef MIN_H
 
@@ -27,7 +41,12 @@ namespace min {
 
     struct stub;
 
-    // Number Types
+}
+
+// Number Types
+// ------ -----
+
+namespace min {
 
     typedef unsigned char uns8;
     typedef signed char int8;
@@ -42,6 +61,110 @@ namespace min {
     typedef unsigned MIN_INT64_TYPE uns64;
     typedef signed MIN_INT64_TYPE int64;
     typedef double float64;
+}
+
+// Internal Pointer Conversion Functions
+// -------- ------- ---------- ---------
+
+namespace min {
+
+    // We need to be able to convert unsigned integers
+    // to pointers and vice versa.
+
+#   if MIN_IS_COMPACT
+	inline void * uns32_to_pointer ( min::uns32 v )
+	{
+	    return (void *)
+		   (unsigned MIN_INT_POINTER_TYPE) v;
+	}
+	inline min::uns32 pointer_to_uns32 ( void * p )
+	{
+	    return (min::uns32)
+		   (unsigned MIN_INT_POINTER_TYPE) p;
+	}
+#	if MIN_USES_VSNS
+	    inline min::stub * uns32_to_stub_p
+	    	( min::uns32 v )
+	    {
+		return (min::stub *)
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       (   ( v << MIN_VSN_SHIFT )
+			 + MIN_VSN_BASE );
+	    }
+	    inline min::uns32 stub_p_to_uns32
+	    	( void * p )
+	    {
+		return (min::uns32)
+		       ( ( (unsigned
+		            MIN_INT_POINTER_TYPE) p
+			   >> MIN_VSN_SHIFT )
+			 - MIN_VSN_BASE );
+	    }
+#	else // MIN_USES_ADDRESSES
+	    inline min::stub * uns32_to_stub_p
+	    	( min::uns32 v )
+	    {
+		return (min::stub *)
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       v;
+	    }
+	    inline min::uns32 stub_p_to_uns32
+	    	( void * p )
+	    {
+		return (min::uns32)
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       p;
+	    }
+#	endif
+#   else // if MIN_IS_LOOSE
+	inline void * uns64_to_pointer ( min::uns64 v )
+	{
+	    return (void *)
+		   (unsigned MIN_INT_POINTER_TYPE) v;
+	}
+	inline min::uns64 pointer_to_uns64 ( void * p )
+	{
+	    return (min::uns64)
+		   (unsigned MIN_INT_POINTER_TYPE) p;
+	}
+#	if MIN_USES_VSNS
+	    inline min::stub * uns64_to_stub_p
+	    	( min::uns64 v )
+	    {
+		return (min::stub *)
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       (   ( v << MIN_VSN_SHIFT )
+			 + MIN_VSN_BASE );
+	    }
+	    inline min::uns64 stub_p_to_uns64
+	    	( void * p )
+	    {
+		return (min::uns64)
+		       ( ( (unsigned
+		            MIN_INT_POINTER_TYPE) p
+			   >> MIN_VSN_SHIFT )
+			 - MIN_VSN_BASE );
+	    }
+#	else // MIN_USES_ADDRESSES
+	    inline min::stub * uns64_to_stub_p
+	    	( min::uns64 v )
+	    {
+		return (min::stub *)
+		       (unsigned MIN_INT_POINTER_TYPE) v;
+	    }
+	    inline min::uns64 stub_p_to_uns64 ( void * p )
+	    {
+		return (min::uns64)
+		       (unsigned MIN_INT_POINTER_TYPE) p;
+	    }
+#	endif
+#   endif
+}
+
+// General Value Types and Data
+// ------- ----- ----- --- ----
+
+namespace min {
 
     // We assume the machine has integer registers that
     // are the most efficient place for min::gen values.
@@ -116,6 +239,12 @@ namespace min {
 	const unsigned GEN_UPPER
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 #   endif
+}
+
+// General Value Test Functions
+// ------- ----- ---- ---------
+
+namespace min {
 
 #   if MIN_IS_COMPACT
 	inline bool is_stub ( min::gen v )
@@ -237,30 +366,27 @@ namespace min {
 	        return GEN_DIRECT_FLOAT;
 	}
 #   endif
+}
+
+// General Value Read Functions
+// ------- ----- ---- ---------
+
+namespace min {
 
 #   if MIN_IS_COMPACT
 	inline min::stub * stub_of ( min::gen v )
 	{
 	    assert ( is_stub ( v ) );
-#	    if MIN_USES_ADDRESSES
-		return (min::stub *) v
-#	    else // MIN_USES_VSNS
-		return (min::stub *)
-		    (   ( v << MIN_VSN_SHIFT )
-		      + MIN_VSN_BASE );
-#	    endif
+	    return uns32_to_stub_p ( v );
 	}
-	inline float64 direct_float_of ( min::gen v )
-	{
-	    // Assertion always fails.
-	    assert ( is_direct_float ( v ) );
-	    return 0;
-	}
+	// Unimplemented for COMPACT:
+	//   float64 direct_float_of ( min::gen v )
 	inline int direct_int_of ( min::gen v )
 	{
 	    assert ( is_direct_int ( v ) );
-	    return (int32) ( v - GEN_DIRECT_INT << 24
-	                       - 1 << 27 );
+	    return (int32)
+	           ( v - ( GEN_DIRECT_INT << 24 )
+		       - ( 1 << 27 ) );
 	}
 	inline uns64 direct_str_of ( min::gen v )
 	{
@@ -268,7 +394,7 @@ namespace min {
 #	    if MIN_BIG_ENDIAN
 		return ( uns64 ( v ) << 40 );
 #	    else
-		return ( uns64 ( v  & 0xFFFFFF ) );
+		return ( uns64 ( v & 0xFFFFFF ) );
 #	    endif
 	}
 	inline unsigned list_aux_of ( min::gen v )
@@ -307,17 +433,7 @@ namespace min {
 	inline min::stub * stub_of ( min::gen v )
 	{
 	    assert ( is_stub ( v ) );
-#	    if MIN_USES_ADDRESSES
-		return (min::stub *)
-		       (unsigned MIN_INT_POINTER_TYPE)
-		       ( v & 0xFFFFFFFFFF );
-#	    else // MIN_USES_VSNS
-		return (min::stub *)
-		       (unsigned MIN_INT_POINTER_TYPE)
-		       (   (    ( v & 0xFFFFFFFFFF )
-		             << MIN_VSN_SHIFT )
-		         + MIN_VSN_BASE );
-#	    endif
+	    return uns64_to_stub_p ( v & 0xFFFFFFFFFF );
 	}
 	inline float64 direct_float_of ( min::gen v )
 	{
@@ -337,7 +453,7 @@ namespace min {
 #	    if MIN_BIG_ENDIAN
 		return ( v << 24 );
 #	    else
-		return ( v  & 0xFFFFFFFFFF );
+		return ( v & 0xFFFFFFFFFF );
 #	    endif
 	}
 	inline unsigned list_aux_of ( min::gen v )
@@ -378,25 +494,25 @@ namespace min {
 	    return ( v & 0xFFFFFFFFFF );
 	}
 #   endif
+}
+
+// General Value Constructor Functions
+// ------- ----- ----------- ---------
+
+namespace min {
 
 #   if MIN_IS_COMPACT
 	inline min::gen new_gen ( min::stub * s )
 	{
-#	    if MIN_USES_ADDRESSES
-		return (min::gen) s;
-#	    else // MIN_USES_VSNS
-		return (min::gen)
-		    ( (   (unsigned) s
-		        - MIN_VSN_BASE )
-		      >> MIN_VSN_SHIFT );
-#	    endif
+	    return (min::gen) stub_p_to_uns32 ( s );
 	}
 	inline min::gen new_direct_int_gen ( int v )
 	{
 	    assert ( -1 << 27 <= v && v < 1 << 27 );
 	    return (min::gen)
-	           ((uns32) v + GEN_DIRECT_INT << 24
-		   	      + 1 << 27 );
+	           (  (uns32) v
+		    + ( GEN_DIRECT_INT << 24 )
+		    + ( 1 << 27 ) );
 	}
 	// Unimplemented for COMPACT:
 	//  min::gen new_direct_float_gen ( float64 v )
@@ -407,12 +523,12 @@ namespace min {
 	    uns32 v = * (uns32 *) p;
 #	    if MIN_BIG_ENDIAN
 		return (min::gen)
-		       (   v >> 8
-		         + GEN_DIRECT_STR << 24 );
+		       (   ( v >> 8 )
+		         + ( GEN_DIRECT_STR << 24 ) );
 #	    else
 		return (min::gen)
-		       (   v & 0xFFFFFF
-		         + GEN_DIRECT_STR << 24 );
+		       (   ( v & 0xFFFFFF )
+		         + ( GEN_DIRECT_STR << 24 ) );
 #	    endif
 	}
 	inline min::gen new_list_aux_gen ( unsigned p )
@@ -463,22 +579,9 @@ namespace min {
 #   else // if MIN_IS_LOOSE
 	inline min::gen new_gen ( min::stub * s )
 	{
-#	    if MIN_USES_ADDRESSES
-		return (min::gen)
-		       ( (uns64)
-		         (unsigned MIN_INT_POINTER_TYPE)
-			 s
-		         + (uns64) GEN_STUB << 40 );
-#	    else // MIN_USES_VSNS
-		return (min::gen)
-		    ( (   (uns64)
-		          (unsigned
-			   MIN_INT_POINTER_TYPE)
-			  s
-		        - MIN_VSN_BASE )
-		      >> MIN_VSN_SHIFT
-		      + (uns64) GEN_STUB << 40 );
-#	    endif
+	    return (min::gen)
+		   ( stub_p_to_uns64 ( s )
+		     + ( (uns64) GEN_STUB << 40 )  );
 	}
 	// Unimplemented for LOOSE:
 	//   min::gen new_direct_int_gen ( int v )
@@ -493,21 +596,22 @@ namespace min {
 	    uns64 v = * (uns64 *) p;
 #	    if MIN_BIG_ENDIAN
 		return (min::gen)
-		       (   v >> 24
-		         + (uns64) GEN_DIRECT_STR
-			   << 40 );
+		       (   ( v >> 24 )
+		         + ( (uns64) GEN_DIRECT_STR
+			     << 40 ) );
 #	    else
 		return (min::gen)
-		       (   v & 0xFFFFFFFFFF
-		         + (uns64) GEN_DIRECT_STR
-			   << 40 );
+		       (   ( v & 0xFFFFFFFFFF )
+		         + ( (uns64) GEN_DIRECT_STR
+			     << 40 ) );
 #	    endif
 	}
 	inline min::gen new_list_aux_gen ( unsigned p )
 	{
 	    assert ( p < 1 << 24 );
 	    return (min::gen)
-	           ( p + (uns64) GEN_LIST_AUX << 40 );
+	           (   p
+		     + ( (uns64) GEN_LIST_AUX << 40 ) );
 	}
 	inline min::gen new_sublist_aux_gen
 		( unsigned p )
@@ -515,7 +619,8 @@ namespace min {
 	    assert ( p < 1 << 24 );
 	    return (min::gen)
 	           (   p
-		     + (uns64) GEN_SUBLIST_AUX << 40 );
+		     + ( (uns64) GEN_SUBLIST_AUX
+		         << 40 ) );
 	}
 	inline min::gen new_indirect_pair_aux_gen
 		( unsigned p )
@@ -523,8 +628,8 @@ namespace min {
 	    assert ( p < 1 << 24 );
 	    return (min::gen)
 	           (   p
-		     + (uns64) GEN_INDIRECT_PAIR_AUX
-		       << 40 );
+		     + ( (uns64) GEN_INDIRECT_PAIR_AUX
+		         << 40 ) );
 	}
 	inline min::gen new_indirect_indexed_aux_gen
 		( unsigned p )
@@ -532,14 +637,15 @@ namespace min {
 	    assert ( p < 1 << 24 );
 	    return (min::gen)
 	           (   p
-		     + (uns64) GEN_INDIRECT_INDEXED_AUX
-		       << 40 );
+		     + ( (uns64)
+		         GEN_INDIRECT_INDEXED_AUX
+		         << 40 ) );
 	}
 	inline min::gen new_index_gen ( unsigned a )
 	{
 	    assert ( a < 1 << 24 );
 	    return (min::gen)
-	           ( a + (uns64) GEN_INDEX << 40 );
+	           ( a + ( (uns64) GEN_INDEX << 40 ) );
 	}
 	inline min::gen new_control_code_gen
 		( unsigned c )
@@ -547,7 +653,8 @@ namespace min {
 	    assert ( c < 1 << 24 );
 	    return (min::gen)
 	           (   c
-		     + (uns64) GEN_CONTROL_CODE << 40 );
+		     + ( (uns64) GEN_CONTROL_CODE
+		         << 40 ) );
 	}
 	inline min::gen new_control_code_gen
 		( min::uns64 c )
@@ -555,69 +662,128 @@ namespace min {
 	    assert ( c < (uns64) 1 << 40 );
 	    return (min::gen)
 	           (   c
-		     + (uns64) GEN_CONTROL_CODE << 40 );
+		     + ( (uns64) GEN_CONTROL_CODE
+		         << 40 ) );
 	}
 
 #   endif
+}
+
+// Stub Types and Data
+// ---- ----- --- ----
+
+namespace min {
 
     // Stub type codes.
     //
     const int DEALLOCATED		= 1;
-    const int NUMBER			= 1;
-    const int SHORT_STR			= 2;
-    const int LONG_STR			= 3;
-    const int LABEL			= 4;
-    const int SHORT_OBJ			= 5;
-    const int LONG_OBJ			= 6;
-    const int LIST_AUX			= 7;
-    const int SUBLIST_AUX		= 8;
-    const int VARIABLE_VECTOR		= 9;
+    const int NUMBER			= 2;
+    const int SHORT_STR			= 3;
+    const int LONG_STR			= 4;
+    const int LABEL			= 5;
+    const int SHORT_OBJ			= 6;
+    const int LONG_OBJ			= 7;
+    const int LIST_AUX			= 8;
+    const int SUBLIST_AUX		= 9;
+    const int VARIABLE_VECTOR		= 10;
 
     struct stub
     {
 	union {
-	    float64 f;
-	    char c[8];
-	    uns64 u;
-	    int64 i;
-	    struct {
-#		if MIN_BIG_ENDIAN
-		    uns32 hi;
-		    uns32 lo;
-#		else
-		    uns32 lo;
-		    uns32 hi;
-#		endif
-	    } s;
+	    float64 f64;
+	    uns64 u64;
+	    int64 i64;
+	    uns32 u32[2];
+	    char c8[8];
 	} v; // value
 
 	union {
-	    uns64 u;
-	    struct {
-#		if MIN_BIG_ENDIAN
-		    uns8 t; // type
-		    uns8 st; // subtype
-		    uns16 s;
-		    uns32 lo;
-#		else
-		    uns32 lo;
-		    uns16 s;
-		    uns8 st; // subtype
-		    uns8 t; // type
-#		endif
-	    } s;
-	} g; // gc and control
+	    uns64 u64;
+	    int64 i64;
+	    uns32 u32[2];
+	    int8 i8[8];
+	} c; // control
     };
+}
+
+// Garbage Collector Interface
+// ------- --------- ---------
 
-    struct long_string
+// This interface includes high performance inline
+// functions that allocate stubs and bodies and that
+// write general values containing pointers into
+// stubs or bodies.
+
+namespace min {
+
+    // For COMPACT implementations, the low order
+    // 32 bits of the stub control hold the chain
+    // pointer, and the next higher order 24 bits
+    // are gc flags.
+    //
+    // For LOOSE implentations, the low order 44 bits
+    // of the stub control hold the chain pointer, and
+    // the next higher order 12 bits are the gc flags.
+
+    // Stub allocation is from a single list of stubs
+    // chained together by the chain part of the stub
+    // control.
+    //
+    // A pointer to the last allocated stub is maintain-
+    // ed.  To allocate a new stub, this is updated to
+    // the next stub on the list, if any.  Otherwise, if
+    // there is no next stub, an out-of-line function,
+    // min::gc_stub_expand_free_list, is called to add
+    // to the end of the list.
+    //
+    // Pointer to the last allocated stub, which must
+    // exist (it can be a dummy).
+    //
+    min::stub * last_allocated_stub;
+    //
+    // Out of line function to return pointer to next
+    // free stub as a uns32 or uns64 address or VSN.
+    //
+#   if MIN_IS_COMPACT
+	uns32 gc_stub_expand_free_list ( void );
+#   else // if MIN_IS_LOOSE
+	uns64 gc_stub_expand_free_list ( void );
+#   endif
+    //
+    // Function to return the next allocated stub.
+    // This function does NOT set any part of the stub.
+    min::stub * allocate_stub ( void )
     {
-        union {
-	    uns8 small_length;
-	    uns32 large_length;
-	} u;
+#	if MIN_IS_COMPACT
+	    uns32 v = last_allocated_stub->
+	    		c.u32[MIN_BIG_ENDIAN];
+	    if ( v == 0 )
+	        v = min::gc_stub_expand_free_list ();
+	    return last_allocated_stub =
+	           uns32_to_stub_p ( v );
+#	else // if MIN_IS_LOOSE
+	    uns64 v = last_allocated_stub->c.u64;
+	    v &= 0x00000FFFFFFFFFFF;
+	    if ( v == 0 )
+	        v = min::gc_stub_expand_free_list ();
+	    return last_allocated_stub =
+	           uns64_to_stub_p ( v );
+#	endif
+    }
+}
+
+// TBD
+// ---
+
+namespace min {
+
+    struct long_str
+    {
+	uns32 length;
+	uns32 hash;
     };
 
-    struct short_object
+    struct short_obj
     {
         uns16	maximum_list_length;
         uns16	list_length;
@@ -625,98 +791,13 @@ namespace min {
         uns16	hash_length;
     };
 
-    struct long_object
+    struct long_obj
     {
         uns32	maximum_list_length;
         uns32	list_length;
         uns32	maximum_hash_length;
         uns32	hash_length;
     };
-
-    // Get non-pointer values from a stub.
-    //
-    friend inline float64 get_float64 ( const stub * p )
-    {
-        return p->v.f;
-    }
-    friend inline int64 get_int64 ( const stub * p )
-    {
-        return p->v.i;
-    }
-    friend inline uns64 get_uns64 ( const stub * p )
-    {
-        return p->v.u;
-    }
-    friend inline void get_string
-	    ( char v[8], const stub * p )
-    {
-        * (uns64 *) v = p->v.u;
-    }
-
-    // Get pointer values from stub.  There are more
-    // efficient min::unprotected versions of these
-    // that have no asserts.
-    //
-    friend inline long_string * get_long_string
-    	( const stub * p )
-    {
-        assert ( get_type ( p ) == LONG_STRING );
-#	if MIN_POINTER_LENGTH == 32
-	    return (long_string *) p->v.s.lo;
-#	else
-	    return (long_string *) p->v.u;
-#	endif
-    }
-    friend inline short_object * get_short_object
-    	( const stub * p )
-    {
-        assert ( get_type ( p ) == SHORT_OBJECT );
-#	if MIN_POINTER_LENGTH == 32
-	    return (short_object *) p->v.s.lo;
-#	else
-	    return (short_object *) p->v.u;
-#	endif
-    }
-    friend inline long_object * get_long_object
-    	( const stub * p )
-    {
-        assert ( get_type ( p ) == LONG_OBJECT );
-#	if MIN_POINTER_LENGTH == 32
-	    return (long_object *) p->v.s.lo;
-#	else
-	    return (long_object *) p->v.u;
-#	endif
-    }
-
-    // Get type from a stub.
-    //
-    friend inline unsigned get_type ( const stub * p )
-    {
-        return p->g.s.t;
-    }
-
-    // Get subtype, chain, etc. from non-collectable
-    // stub.
-    //
-    // There are unprotected versions of the following
-    // functions in min::unprotected that are more
-    // efficient because they have no assert.
-    //
-    friend inline unsigned get_subtype
-    	( const stub * p )
-    {
-	assert ( p->v.i < 0 );
-        return p->g.s.st;
-    }
-    friend inline stub * get_chain ( const stub * p )
-    {
-	assert ( p->v.i < 0 );
-#	if MIN_POINTER_LENGTH == 32
-	    return (stub *) p->g.s.lo;
-#	else
-	    return (stub *) ( p->g.u & 0xFFFFFFFFFFFF );
-#	endif
-    }
-};
+}
 
 # endif // MIN_H
