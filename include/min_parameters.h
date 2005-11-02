@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  1 06:19:59 EST 2005
+// Date:	Wed Nov  2 05:01:24 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/01 12:06:19 $
+//   $Date: 2005/11/02 10:01:24 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents
 //
@@ -65,10 +65,12 @@
 //	    Type of 32 bit signed integer.
 //	MIN_INT64_TYPE
 //	    Type of 64 bit signed integer.
+//	MIN_INT_POINTER_TYPE
+//	    Type of int (int32 or int64) that holds
+//	    a pointer exactly.
 //	MIN_BIG_ENDIAN
 //	    1 if big endian; else 0.
-//	MIN_POINTER_LENGTH
-//	    Length in bits of xxx * pointer types.
+//	    
 //	MIN_FLOAT64_SIGNALLING_NAN
 //	    High order 24 bits of the smallest (as an
 //	    unsigned binary number) 64 bit floating
@@ -78,6 +80,6 @@
 #   define MIN_INT32_TYPE int
 #   define MIN_INT64_TYPE long long
 #   define MIN_BIG_ENDIAN 0
-#   define MIN_POINTER_LENGTH 32
+#   define MIN_INT_POINTER_TYPE int
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF800
 # endif
