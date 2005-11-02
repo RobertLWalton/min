@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  1 10:39:17 EST 2005
+// Date:	Wed Nov  2 04:59:33 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,18 +11,21 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/01 16:24:08 $
+//   $Date: 2005/11/02 10:01:23 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 # ifndef MIN_H
 
 // Include parameters.
 //
 # include "min_parameters.h"
+# include <cstring>
 # include <cassert>
 
-namespaces min {
+namespace min {
+
+    struct stub;
 
     // Number Types
 
@@ -32,12 +35,12 @@ namespaces min {
     typedef unsigned short uns16;
     typedef signed short int16;
 
-    typedef unsigned MIN_32_BIT_INT uns32;
-    typedef signed MIN_32_BIT_INT int32;
+    typedef unsigned MIN_INT32_TYPE uns32;
+    typedef signed MIN_INT32_TYPE int32;
     typedef float float32;
 
-    typedef unsigned MIN_64_BIT_INT uns64;
-    typedef signed MIN_64_BIT_INT int64;
+    typedef unsigned MIN_INT64_TYPE uns64;
+    typedef signed MIN_INT64_TYPE int64;
     typedef double float64;
 
     // We assume the machine has integer registers that
@@ -306,12 +309,14 @@ namespaces min {
 	    assert ( is_stub ( v ) );
 #	    if MIN_USES_ADDRESSES
 		return (min::stub *)
-		    ( v & 0xFFFFFFFFF );
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       ( v & 0xFFFFFFFFFF );
 #	    else // MIN_USES_VSNS
 		return (min::stub *)
-		    (   (    ( v & 0xFFFFFFFFF )
-		          << MIN_VSN_SHIFT )
-		      + MIN_VSN_BASE );
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       (   (    ( v & 0xFFFFFFFFFF )
+		             << MIN_VSN_SHIFT )
+		         + MIN_VSN_BASE );
 #	    endif
 	}
 	inline float64 direct_float_of ( min::gen v )
@@ -372,6 +377,187 @@ namespaces min {
 	    assert ( is_control_code ( v ) );
 	    return ( v & 0xFFFFFFFFFF );
 	}
+#   endif
+
+#   if MIN_IS_COMPACT
+	inline min::gen new_gen ( min::stub * s )
+	{
+#	    if MIN_USES_ADDRESSES
+		return (min::gen) s;
+#	    else // MIN_USES_VSNS
+		return (min::gen)
+		    ( (   (unsigned) s
+		        - MIN_VSN_BASE )
+		      >> MIN_VSN_SHIFT );
+#	    endif
+	}
+	inline min::gen new_direct_int_gen ( int v )
+	{
+	    assert ( -1 << 27 <= v && v < 1 << 27 );
+	    return (min::gen)
+	           ((uns32) v + GEN_DIRECT_INT << 24
+		   	      + 1 << 27 );
+	}
+	// Unimplemented for COMPACT:
+	//  min::gen new_direct_float_gen ( float64 v )
+	inline min::gen new_direct_str_gen
+		( const char * p )
+	{
+	    assert ( strlen ( p ) <= 3 );
+	    uns32 v = * (uns32 *) p;
+#	    if MIN_BIG_ENDIAN
+		return (min::gen)
+		       (   v >> 8
+		         + GEN_DIRECT_STR << 24 );
+#	    else
+		return (min::gen)
+		       (   v & 0xFFFFFF
+		         + GEN_DIRECT_STR << 24 );
+#	    endif
+	}
+	inline min::gen new_list_aux_gen ( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           ( p + GEN_LIST_AUX << 24 );
+	}
+	inline min::gen new_sublist_aux_gen
+		( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           ( p + GEN_SUBLIST_AUX << 24 );
+	}
+	inline min::gen new_indirect_pair_aux_gen
+		( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           ( p + GEN_INDIRECT_PAIR_AUX << 24 );
+	}
+	inline min::gen new_indirect_indexed_aux_gen
+		( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           (   p
+		     + GEN_INDIRECT_INDEXED_AUX << 24 );
+	}
+	inline min::gen new_index_gen ( unsigned a )
+	{
+	    assert ( a < 1 << 24 );
+	    return (min::gen)
+	           ( a + GEN_INDEX << 24 );
+	}
+	inline min::gen new_control_code_gen
+		( unsigned c )
+	{
+	    assert ( c < 1 << 24 );
+	    return (min::gen)
+	           ( c + GEN_CONTROL_CODE << 24 );
+	}
+	// Unimplemented for COMPACT:
+	//  min::gen new_long_control_code_gen
+	//	( unsigned c )
+
+#   else // if MIN_IS_LOOSE
+	inline min::gen new_gen ( min::stub * s )
+	{
+#	    if MIN_USES_ADDRESSES
+		return (min::gen)
+		       ( (uns64)
+		         (unsigned MIN_INT_POINTER_TYPE)
+			 s
+		         + (uns64) GEN_STUB << 40 );
+#	    else // MIN_USES_VSNS
+		return (min::gen)
+		    ( (   (uns64)
+		          (unsigned
+			   MIN_INT_POINTER_TYPE)
+			  s
+		        - MIN_VSN_BASE )
+		      >> MIN_VSN_SHIFT
+		      + (uns64) GEN_STUB << 40 );
+#	    endif
+	}
+	// Unimplemented for LOOSE:
+	//   min::gen new_direct_int_gen ( int v )
+	min::gen new_direct_float_gen ( float64 v )
+	{
+	    return * (min::gen *) & v;
+	}
+	inline min::gen new_direct_str_gen
+		( const char * p )
+	{
+	    assert ( strlen ( p ) <= 5 );
+	    uns64 v = * (uns64 *) p;
+#	    if MIN_BIG_ENDIAN
+		return (min::gen)
+		       (   v >> 24
+		         + (uns64) GEN_DIRECT_STR
+			   << 40 );
+#	    else
+		return (min::gen)
+		       (   v & 0xFFFFFFFFFF
+		         + (uns64) GEN_DIRECT_STR
+			   << 40 );
+#	    endif
+	}
+	inline min::gen new_list_aux_gen ( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           ( p + (uns64) GEN_LIST_AUX << 40 );
+	}
+	inline min::gen new_sublist_aux_gen
+		( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           (   p
+		     + (uns64) GEN_SUBLIST_AUX << 40 );
+	}
+	inline min::gen new_indirect_pair_aux_gen
+		( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           (   p
+		     + (uns64) GEN_INDIRECT_PAIR_AUX
+		       << 40 );
+	}
+	inline min::gen new_indirect_indexed_aux_gen
+		( unsigned p )
+	{
+	    assert ( p < 1 << 24 );
+	    return (min::gen)
+	           (   p
+		     + (uns64) GEN_INDIRECT_INDEXED_AUX
+		       << 40 );
+	}
+	inline min::gen new_index_gen ( unsigned a )
+	{
+	    assert ( a < 1 << 24 );
+	    return (min::gen)
+	           ( a + (uns64) GEN_INDEX << 40 );
+	}
+	inline min::gen new_control_code_gen
+		( unsigned c )
+	{
+	    assert ( c < 1 << 24 );
+	    return (min::gen)
+	           (   c
+		     + (uns64) GEN_CONTROL_CODE << 40 );
+	}
+	inline min::gen new_control_code_gen
+		( min::uns64 c )
+	{
+	    assert ( c < (uns64) 1 << 40 );
+	    return (min::gen)
+	           (   c
+		     + (uns64) GEN_CONTROL_CODE << 40 );
+	}
+
 #   endif
 
     // Stub type codes.
