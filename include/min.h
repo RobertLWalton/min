@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov  2 07:29:56 EST 2005
+// Date:	Thu Nov  3 19:28:30 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/02 18:53:03 $
+//   $Date: 2005/11/04 01:45:01 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents:
 //
@@ -25,6 +25,8 @@
 //	General Value Read Functions
 //	General Value Constructor Functions
 //	Stub Types and Data
+//	Process Interface
+//	Garbage Collector Interface
 
 // Setup
 // -----
@@ -39,7 +41,7 @@
 
 namespace min {
 
-    struct stub;
+    struct stub;	// See Stub Types and Data.
 
 }
 
@@ -251,7 +253,7 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline bool is_stub ( min::gen v )
 	{
-	    return ( v < GEN_DIRECT_INT )
+	    return ( v < GEN_DIRECT_INT );
 	}
 	inline bool is_direct_float ( min::gen v )
 	{
@@ -708,6 +710,31 @@ namespace min {
     };
 }
 
+// Process Interface
+// ------- ---------
+
+// This interface includes a process control block
+// and functions to test for interrupts.  The process
+// control block includes data for other subsystems.
+
+namespace min {
+
+      struct body_control; // See Garbage Collector
+      			   // Interface.
+
+      struct process_control {
+
+	  // See Garbage Collector Interface:
+	  //
+          min::stub * last_allocated_stub;
+	  min::body_control * tail_body_control;
+	  min::body_control * end_body_control;
+      };
+
+      min::process_control * current_process;
+
+}
+
 // Garbage Collector Interface
 // ------- --------- ---------
 
@@ -741,7 +768,8 @@ namespace min {
     // Pointer to the last allocated stub, which must
     // exist (it can be a dummy).
     //
-    min::stub * last_allocated_stub;
+    // In process control:
+    //		min::stub * last_allocated_stub;
     //
     // Out of line function to return pointer to next
     // free stub as a uns32 or uns64 address or VSN.
@@ -757,18 +785,22 @@ namespace min {
     min::stub * allocate_stub ( void )
     {
 #	if MIN_IS_COMPACT
-	    uns32 v = last_allocated_stub->
+	    uns32 v = min::current_process->
+	              last_allocated_stub->
 	    		c.u32[MIN_BIG_ENDIAN];
 	    if ( v == 0 )
 	        v = min::gc_stub_expand_free_list ();
-	    return last_allocated_stub =
+	    return min::current_process->
+	           last_allocated_stub =
 	           uns32_to_stub_p ( v );
 #	else // if MIN_IS_LOOSE
-	    uns64 v = last_allocated_stub->c.u64;
+	    uns64 v = min::current_process->
+	              last_allocated_stub->c.u64;
 	    v &= 0x00000FFFFFFFFFFF;
 	    if ( v == 0 )
 	        v = min::gc_stub_expand_free_list ();
-	    return last_allocated_stub =
+	    return min::current_process->
+	           last_allocated_stub =
 	           uns64_to_stub_p ( v );
 #	endif
     }
@@ -776,13 +808,67 @@ namespace min {
     // Allocation of bodies is from a stack-like region
     // of memory.  Bodies are separated by body control
     // structures.
+    //
+    // The tail_body_control is just before the last
+    // body of the region, and the end_body_control is
+    // just after this body, and is at the very end of
+    // the region.  The last body of the region is free,
+    // and from its beginning are allocated new bodies.
 
     struct body_control {
-        uns64 stub_p;
+        uns64 control;
+	    // Pointer to stub associated with the
+	    // following body, or 0 if body is free.
+	    // High order 16 bits can be used in the
+	    // future for other info.
 	int64 size_difference;
+	    // Size of next body - size of previous
+	    // body, in bytes.  Each body size includes
+	    // one body_control.  If there is no next
+	    // body, that size is 0, and if there is
+	    // no previous body, that size is 0.
     };
-    struct body_control * tail_body_control;
-    struct body_control * end_body_control;
+    //
+    // In process_control:
+    //	    body_control * end_body_control;
+    //
+    // Out of line function to return end_body_control
+    // value for a situation in which the last free
+    // body has at least n + sizeof ( body_control )
+    // bytes.
+    //
+    body_control * gc_body_stack_expand ( unsigned n );
+    //
+    // Function to return the address of the body_con-
+    // trol in front of a newly allocated body with n'
+    // bytes, where n' is n rounded up to a multiple of
+    // 8.
+    //
+    body_control * allocate_body ( unsigned n )
+    {
+        n = ( n + 7 ) & ~ 07;
+	body_control * end = current_process->
+			     end_body_control;
+	if (   end->size_difference
+	     + 2 * sizeof ( body_control )
+	     + n > 0 )
+	    end = gc_body_stack_expand ( n );
+	uns8 * address = (uns8 *) end;
+	address += end->size_difference;
+	body_control * head = (body_control *) address;
+	address += n + sizeof ( body_control );
+	body_control * tail = (body_control *) address;
+	head->size_difference +=
+	    end->size_difference
+	    + n + sizeof ( body_control );
+	tail->size_difference =
+	    - end->size_difference
+	    - 2 * ( n + sizeof ( body_control ) );
+	end->size_difference +=
+	    n + sizeof ( body_control );
+	tail->control = 0;
+	return head;
+    }
 }
 
 // TBD
