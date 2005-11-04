@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Nov  3 19:28:30 EST 2005
+// Date:	Fri Nov  4 11:52:48 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,22 +11,27 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/04 01:45:01 $
+//   $Date: 2005/11/04 16:52:44 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents:
 //
 //	Setup
-//	Number Types
+//	C++ Number Types
 //	Internal Pointer Conversion Functions
 //	General Value Types and Data
 //	General Value Test Functions
 //	General Value Read Functions
 //	General Value Constructor Functions
 //	Stub Types and Data
+//	Stub Functions
 //	Process Interface
 //	Garbage Collector Interface
+//	Numbers
+//	Strings
+//	Labels
+//	Objects
 
 // Setup
 // -----
@@ -36,6 +41,7 @@
 // Include parameters.
 //
 # include "min_parameters.h"
+# include <climits>
 # include <cstring>
 # include <cassert>
 
@@ -45,8 +51,8 @@ namespace min {
 
 }
 
-// Number Types
-// ------ -----
+// C++ Number Types
+// --- ------ -----
 
 namespace min {
 
@@ -710,6 +716,22 @@ namespace min {
     };
 }
 
+// Stub Functions
+// ---- ---------
+
+namespace min {
+
+    inline int type_of ( min::stub * s )
+    {
+        return s->c.i8[7*MIN_LITTLE_ENDIAN];
+    }
+
+    inline bool is_collectable ( int type )
+    {
+    	return type >= 0;
+    }
+}
+
 // Process Interface
 // ------- ---------
 
@@ -717,7 +739,7 @@ namespace min {
 // and functions to test for interrupts.  The process
 // control block includes data for other subsystems.
 
-namespace min {
+namespace min { namespace unprotected {
 
       struct body_control; // See Garbage Collector
       			   // Interface.
@@ -727,13 +749,13 @@ namespace min {
 	  // See Garbage Collector Interface:
 	  //
           min::stub * last_allocated_stub;
-	  min::body_control * tail_body_control;
-	  min::body_control * end_body_control;
+	  min::unprotected::body_control *
+	      end_body_control;
       };
 
-      min::process_control * current_process;
+      process_control * current_process;
 
-}
+} }
 
 // Garbage Collector Interface
 // ------- --------- ---------
@@ -743,7 +765,7 @@ namespace min {
 // write general values containing pointers into
 // stubs or bodies.
 
-namespace min {
+namespace min { namespace unprotected {
 
     // For COMPACT implementations, the low order
     // 32 bits of the stub control hold the chain
@@ -762,8 +784,8 @@ namespace min {
     // ed.  To allocate a new stub, this is updated to
     // the next stub on the list, if any.  Otherwise, if
     // there is no next stub, an out-of-line function,
-    // min::gc_stub_expand_free_list, is called to add
-    // to the end of the list.
+    // gc_stub_expand_free_list, is called to add to the
+    // end of the list.
     //
     // Pointer to the last allocated stub, which must
     // exist (it can be a dummy).
@@ -782,24 +804,24 @@ namespace min {
     //
     // Function to return the next allocated stub.
     // This function does NOT set any part of the stub.
-    min::stub * allocate_stub ( void )
+    min::stub * new_stub ( void )
     {
 #	if MIN_IS_COMPACT
-	    uns32 v = min::current_process->
+	    uns32 v = current_process->
 	              last_allocated_stub->
 	    		c.u32[MIN_BIG_ENDIAN];
 	    if ( v == 0 )
-	        v = min::gc_stub_expand_free_list ();
-	    return min::current_process->
+	        v = gc_stub_expand_free_list ();
+	    return current_process->
 	           last_allocated_stub =
 	           uns32_to_stub_p ( v );
 #	else // if MIN_IS_LOOSE
-	    uns64 v = min::current_process->
+	    uns64 v = current_process->
 	              last_allocated_stub->c.u64;
 	    v &= 0x00000FFFFFFFFFFF;
 	    if ( v == 0 )
-	        v = min::gc_stub_expand_free_list ();
-	    return min::current_process->
+	        v = gc_stub_expand_free_list ();
+	    return current_process->
 	           last_allocated_stub =
 	           uns64_to_stub_p ( v );
 #	endif
@@ -844,7 +866,7 @@ namespace min {
     // bytes, where n' is n rounded up to a multiple of
     // 8.
     //
-    body_control * allocate_body ( unsigned n )
+    body_control * new_body ( unsigned n )
     {
         n = ( n + 7 ) & ~ 07;
 	body_control * end = current_process->
@@ -869,6 +891,152 @@ namespace min {
 	tail->control = 0;
 	return head;
     }
+} }
+
+// Numbers
+// -------
+
+namespace min {
+
+#   if MIN_IS_COMPACT
+	namespace unprotected {
+
+	    // Function to create new number stub or
+	    // return an existing stub.
+	    //
+	    min::gen new_num_stub_gen
+		( min::float64 v );
+	}
+
+	inline min::float64 float_of ( min::stub * s )
+	{
+	    assert ( type_of ( s ) == min::NUMBER );
+	    return s->v.f64;
+	}
+        inline bool is_num ( min::gen v )
+	{
+	    if ( v >= ( min::GEN_DIRECT_STR << 24 ) )
+	        return false;
+	    else if ( v >=
+	              ( min::GEN_DIRECT_INT << 24 ) )
+	        return false;
+	    else
+	        return
+		  ( type_of
+		      ( uns32_to_stub_p ( v ) )
+		        == min::NUMBER );
+	}
+	inline min::gen new_gen ( int v )
+	{
+	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
+		return (min::gen)
+		       (  (uns32) v
+			+ ( GEN_DIRECT_INT << 24 )
+			+ ( 1 << 27 ) );
+	    return unprotected::new_num_stub_gen ( v );
+	}
+	inline min::gen new_gen ( float64 v )
+	{
+	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
+	    {
+	        int i = (int) v;
+		if ( i == v )
+		    return (min::gen)
+			   (  (uns32) i
+			    + ( GEN_DIRECT_INT << 24 )
+			    + ( 1 << 27 ) );
+	    }
+	    return unprotected::new_num_stub_gen ( v );
+	}
+        inline int int_of ( min::gen v )
+	{
+	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+	    {
+	    	min::stub * s = uns32_to_stub_p ( v );
+		assert ( type_of ( s ) == min::NUMBER );
+		min::float64 f = s->v.f64;
+		assert ( INT_MIN <= f && f <= INT_MAX );
+		int i = (int) f;
+		assert ( i == f );
+		return i;
+	    }
+	    else if ( v <
+	              ( min::GEN_DIRECT_STR << 24 ) )
+		return (int32)
+		       ( v - ( GEN_DIRECT_INT << 24 )
+			   - ( 1 << 27 ) );
+	    else
+	        assert ( is_num ( v ) );
+	}
+        inline float64 float_of ( min::gen v )
+	{
+	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+	    {
+	    	min::stub * s = uns32_to_stub_p ( v );
+		assert ( type_of ( s ) == min::NUMBER );
+		return s->v.f64;
+	    }
+	    else if ( v <
+	              ( min::GEN_DIRECT_STR << 24 ) )
+		return (float64) (int32)
+		       ( v - ( GEN_DIRECT_INT << 24 )
+			   - ( 1 << 27 ) );
+	    else
+	        assert ( is_num ( v ) );
+	}
+#   else
+        inline bool is_num ( min::gen v )
+	{
+	    return min::is_direct_float ( v );
+	}
+	inline min::gen new_gen ( int v )
+	{
+	    return new_direct_float_gen ( v );
+	}
+	inline min::gen new_gen ( float64 v )
+	{
+	    return new_direct_float_gen ( v );
+	}
+        inline int int_of ( min::gen v )
+	{
+	    assert ( is_num ( v ) );
+	    min::float64 f = (float64) ( v );
+	    assert ( INT_MIN <= f && f <= INT_MAX );
+	    int i = (int) f;
+	    assert ( i == f );
+	    return i;
+	}
+        inline float64 float_of ( min::gen v )
+	{
+	    assert ( is_num ( v ) );
+	    return (float64) ( v );
+	}
+#   endif
+    unsigned min::numhash ( min::gen v );
+}
+
+// Strings
+// -------
+
+namespace min {
+}
+
+// Labels
+// ------
+
+namespace min {
+}
+
+// Objects
+// -------
+
+namespace min {
+}
+
+// Numbers
+// -------
+
+namespace min {
 }
 
 // TBD
