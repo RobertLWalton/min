@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov  5 10:57:58 EST 2005
+// Date:	Sat Nov  5 12:57:27 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/05 16:00:49 $
+//   $Date: 2005/11/05 17:57:20 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents:
 //
