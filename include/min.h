@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov  5 09:23:39 EST 2005
+// Date:	Sat Nov  5 10:57:58 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/05 14:23:46 $
+//   $Date: 2005/11/05 16:00:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents:
 //
@@ -200,8 +200,8 @@ namespace min {
 
 	const unsigned GEN_STUB
 	    = 0;
-	const unsigned GEN_DIRECT_FLOAT
-	    = 0xF7; // illegal
+	// Unimplemented for COMPACT:
+	//   unsigned GEN_DIRECT_FLOAT
 	const unsigned GEN_DIRECT_INT
 	    = 0xE0;
 	const unsigned GEN_DIRECT_STR
@@ -233,8 +233,8 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x00;
 	const unsigned GEN_DIRECT_FLOAT
 	    = 0;
-	const unsigned GEN_DIRECT_INT // illegal
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x17;
+	// Unimplemented for LOOSE:
+	//   unsigned GEN_DIRECT_INT // illegal
 	const unsigned GEN_DIRECT_STR
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x10;
 	const unsigned GEN_LIST_AUX
@@ -1191,7 +1191,7 @@ namespace min {
 	        assert ( is_num ( v ) );
 	    }
 	}
-#   else
+#   else // if MIN_IS_LOOSE
         inline bool is_num ( min::gen v )
 	{
 	    return min::is_direct_float ( v );
