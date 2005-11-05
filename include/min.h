@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov  5 03:06:24 EST 2005
+// Date:	Sat Nov  5 09:23:39 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/05 08:06:18 $
+//   $Date: 2005/11/05 14:23:46 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents:
 //
@@ -266,10 +266,8 @@ namespace min {
 	{
 	    return ( v < GEN_DIRECT_INT );
 	}
-	inline bool is_direct_float ( min::gen v )
-	{
-	    return false;
-	}
+	// Unimplemented for COMPACT:
+	//  bool is_direct_float ( min::gen v )
 	inline bool is_direct_int ( min::gen v )
 	{
 	    return ( v >> 28 == GEN_DIRECT_INT >> 4 );
@@ -331,10 +329,8 @@ namespace min {
 	        (    uns32 ( v >> 45 )
 	          != MIN_FLOAT64_SIGNALLING_NAN >> 5 );
 	}
-	inline bool is_direct_int ( min::gen v )
-	{
-	    return false;
-	}
+	// Unimplemented for LOOSE:
+	//   bool is_direct_int ( min::gen v )
 	inline bool is_direct_str ( min::gen v )
 	{
 	    return ( v >> 40 == GEN_DIRECT_STR );
@@ -870,6 +866,8 @@ namespace min {
 	    assert ( ! is_deallocated ( s ) );
 	}
     }
+
+    void deallocate ( min::stub * s );
 }
 
 // Process Interface
@@ -902,9 +900,23 @@ namespace min { namespace unprotected {
 
     process_control * current_process;
 
+    // Out of line function to execute interrupt.
+    // Returns true.
+    //
+    bool interrupt ( void );
+
 } }
 
 namespace min {
+
+    inline bool interrupt ( void )
+    {
+        if ( unprotected::
+	     current_process->interrupt_flag )
+	    return unprotected::interrupt();
+	else return false;
+    }
+
     inline bool relocated_flag ( void )
     {
          return unprotected::
