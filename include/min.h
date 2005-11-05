@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov  5 01:41:16 EST 2005
+// Date:	Sat Nov  5 03:06:24 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/05 06:41:10 $
+//   $Date: 2005/11/05 08:06:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents:
 //
@@ -44,6 +44,10 @@
 # include <climits>
 # include <cstring>
 # include <cassert>
+
+# ifndef MIN_DEBUG
+#   define MIN_DEBUG 0
+# endif
 
 namespace min {
 
@@ -124,6 +128,7 @@ namespace min { namespace unprotected {
 		       p;
 	    }
 #	endif
+#   endif
 
     inline void * uns64_to_pointer ( min::uns64 v )
     {
@@ -136,7 +141,7 @@ namespace min { namespace unprotected {
 	       (unsigned MIN_INT_POINTER_TYPE) p;
     }
 
-#   else // if MIN_IS_LOOSE
+#   if MIN_IS_LOOSE
 #	if MIN_USES_VSNS
 	    inline min::stub * uns64_to_stub_p
 	    	( min::uns64 v )
@@ -851,6 +856,20 @@ namespace min {
     {
     	return type >= 0;
     }
+
+    inline bool is_deallocated ( min::stub * s )
+    {
+        return type_of ( s ) == min::DEALLOCATED;
+    }
+
+    inline void assert_allocated
+	    ( min::stub * s, unsigned size )
+    {
+        if ( MIN_DEALLOCATED_LIMIT < size || MIN_DEBUG )
+	{
+	    assert ( ! is_deallocated ( s ) );
+	}
+    }
 }
 
 // Process Interface
@@ -862,21 +881,66 @@ namespace min {
 
 namespace min { namespace unprotected {
 
-      struct body_control; // See Garbage Collector
-      			   // Interface.
+    struct body_control; // See Garbage Collector
+      			 // Interface.
 
-      struct process_control {
+    struct process_control {
 
-	  // See Garbage Collector Interface:
-	  //
-          min::stub * last_allocated_stub;
-	  min::unprotected::body_control *
-	      end_body_control;
-      };
+	bool interrupt_flag;
+	    // On if interrupt should occur.
 
-      process_control * current_process;
+	bool relocated_flag;
+	    // On if bodies have been relocated.
+
+        min::stub * last_allocated_stub;
+	    // See Garbage Collector Interface.
+
+	min::unprotected::
+	     body_control * end_body_control;
+	     // See Garbage Collector Interface.
+    };
+
+    process_control * current_process;
 
 } }
+
+namespace min {
+    inline bool relocated_flag ( void )
+    {
+         return unprotected::
+	        current_process->relocated_flag;
+    }
+    inline bool set_relocated_flag ( bool value )
+    {
+         bool old_value =
+	     unprotected::
+	     current_process->relocated_flag;
+	 unprotected::current_process->relocated_flag =
+	     value;
+	 return old_value;
+    }
+
+    class relocated {
+    public:
+        bool relocated_flag;
+	relocated ( void )
+	{
+	    relocated_flag =
+	        min::set_relocated_flag ( false );
+	}
+	~ relocated ( void )
+	{
+	    min::set_relocated_flag ( relocated_flag );
+	}
+	operator bool ()
+	{
+	    if ( min::set_relocated_flag ( false ) )
+	        return relocated_flag = true;
+	    else
+	        return false;
+	}
+    };
+}
 
 // Garbage Collector Interface
 // ------- --------- ---------
@@ -1095,7 +1159,9 @@ namespace min {
 	              ( min::GEN_DIRECT_STR << 24 ) )
 		return unprotected::direct_int_of ( v );
 	    else
+	    {
 	        assert ( is_num ( v ) );
+	    }
 	}
         inline float64 float_of ( min::gen v )
 	{
@@ -1109,7 +1175,9 @@ namespace min {
 	              ( min::GEN_DIRECT_STR << 24 ) )
 		return unprotected::direct_int_of ( v );
 	    else
+	    {
 	        assert ( is_num ( v ) );
+	    }
 	}
 #   else
         inline bool is_num ( min::gen v )
@@ -1146,16 +1214,104 @@ namespace min {
 // -------
 
 namespace min {
+    struct long_str {
+        min::uns32 length;
+        min::uns32 hash;
+    };
+}
+
+namespace min { namespace unprotected {
+    min::uns64 short_str_of ( min::stub * s )
+    {
+        return s->v.u64;
+    }
+    void set_short_str_of
+	    ( min::stub * s, min::uns64 str )
+    {
+        s->v.u64 = str;
+    }
+    min::long_str * long_str_of ( min::stub * s )
+    {
+        return (min::long_str *)
+	       unprotected::
+	       uns64_to_pointer ( s->v.u64 );
+    }
+    const char * str_of ( min::long_str * str )
+    {
+        return (const char *) str
+	       + sizeof ( min::long_str );
+    }
+    char * writable_str_of ( min::long_str * str )
+    {
+        return (char *) str
+	       + sizeof ( min::long_str );
+    }
+    inline unsigned hash_of ( min::long_str * str )
+    {
+	return str->hash;
+    }
+    inline void set_length_of
+            ( min::long_str * str, unsigned length )
+    {
+	str->length = length;
+    }
+    inline void set_hash_of
+            ( min::long_str * str, unsigned hash )
+    {
+	str->hash = hash;
+    }
+} }
+
+namespace min {
+
+    inline unsigned length_of ( min::long_str * str )
+    {
+        return str->length;
+    }
+
+    min::uns64 strhash
+        ( const char * p, unsigned size );
+
+    inline unsigned hash_of ( min::long_str * str )
+    {
+        if ( unprotected::hash_of ( str ) == 0 )
+	    unprotected::set_hash_of
+	        ( str,
+	          strhash
+		    ( unprotected::str_of ( str ),
+		      length_of ( str ) ) );
+	return unprotected::hash_of ( str );
+    }
+
+    inline unsigned strlen ( min::stub * s )
+    {
+        if ( type_of ( s ) == min::SHORT_STR )
+	{
+	    char * p = s->v.c8;
+	    char * endp = p + 8;
+	    while ( * p && p < endp ) ++ p;
+	    return p - s->v.c8;
+	}
+	assert ( type_of ( s ) == min::LONG_STR );
+	return length_of
+	    ( unprotected::long_str_of ( s ) );
+    }
 }
 
 // Labels
 // ------
+
+namespace min { namespace unprotected {
+} }
 
 namespace min {
 }
 
 // Objects
 // -------
+
+namespace min { namespace unprotected {
+} }
 
 namespace min {
 }
@@ -1170,12 +1326,6 @@ namespace min {
 // ---
 
 namespace min {
-
-    struct long_str
-    {
-	uns32 length;
-	uns32 hash;
-    };
 
     struct short_obj
     {

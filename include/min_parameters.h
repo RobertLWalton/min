@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov  2 12:42:18 EST 2005
+// Date:	Sat Nov  5 02:32:57 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/02 18:22:00 $
+//   $Date: 2005/11/05 08:06:18 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents
 //
@@ -66,6 +66,13 @@
 // 1 to use addresses and NOT VSNs in min::gen values
 //
 # define MIN_USES_ADDRESSES ( ! MIN_USES_VSNS )
+
+// Minimum size of unimplemented memory at which
+// deallocated body pointers are pointed.
+//
+# ifndef MIN_DEALLOCATED_LIMIT
+#   define MIN_DEALLOCATED_LIMIT (1 << 20)
+# endif
 
 // Machine Parameters
 // ------- ----------
