@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 5, 2005}
+\date{November 7, 2005}
  
 \maketitle
 
@@ -448,7 +448,7 @@ The function that deallocates a body is:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{deallocate\REL}\verb| ( min::stub * s )|
-\LABEL{DEALLOCATE} \\
+\LABEL{MIN::DEALLOCATE} \\
 \end{tabular}\end{center}%
 \index{deallocate!relocating}
 
@@ -981,7 +981,7 @@ Relocation can only happen inside relocating functions
 the `\key{relocated flag}\,'\label{RELOCATED-FLAG}
 which is one of the execution flags
 described in~\secref{EXECUTION-FLAGS}, is set.  Deallocation
-(\pagref{DEALLOCATE}) can also happen inside relocating functions,
+(\pagref{MIN::DEALLOCATE}) can also happen inside relocating functions,
 and is like relocation to non-existent memory, except that the
 stub type code is reset to the value {\tt min::DEALLOCATED}.
 
@@ -1035,7 +1035,7 @@ The following functions get and set the relocated flag:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
 \LABEL{MIN::RELOCATED_FLAG} \\
-\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool )|
+\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool value )|
 \LABEL{MIN::SET_RELOCATED_FLAG}
 \end{tabular}\end{center}
 
@@ -1046,8 +1046,8 @@ check the type code of the object stub pointing at the body.  The type
 code must be checked separately before the pointer is computed.  If the
 pointer is being recomputed after possible relocation, the only check
 required relates to the possibility that the object has been deallocated.
-This check is most efficiently done by the {\tt assert\_allocated}
-function (\pagref{ASSERT_ALLOCATED}).
+This check is most efficiently done by the {\tt min::assert\_allocated}
+function (\pagref{MIN::ASSERT_ALLOCATED}).
 
 To simplify code, the following is defined:
 
@@ -1055,19 +1055,19 @@ To simplify code, the following is defined:
 class min::relocated
 {
 public:
-    bool relocated;
-    min::relocated ( void )
+    bool relocated_flag;
+    relocated ( void )
     {
-        relocated = min::set_relocated_flag ( false );
+        relocated_flag = min::set_relocated_flag ( false );
     }
-    ~ min::relocated ( void )
+    ~ relocated ( void )
     {
-        min::set_relocated_flag ( relocated );
+        min::set_relocated_flag ( relocated_flag );
     }
     operator bool ()
     {
         if ( min::set_relocated_flag ( false ) )
-            return relocated = true;
+            return relocated_flag = true;
         else
             return false;
     }
@@ -1104,7 +1104,7 @@ is considered to be a relocation of the body.  The body pointer in the
 stub is pointed at unimplemented virtual memory, and the type code in the stub
 is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 
-The following function tests whether a stub with a body pointer
+The following function tests whether a stub
 has a deallocated body:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1136,8 +1136,9 @@ guaranteed to be at least the value of the macro:
 which is used to optimize the inline function:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void | & \TTKEY{assert\_allocated}\verb| ( min::stub * s, unsigned size )|
-\LABEL{ASSERT_ALLOCATED}
+\verb|void min::|
+    & \MINKEY{assert\_allocated}\verb| ( min::stub * s, unsigned size )|
+\LABEL{MIN::ASSERT_ALLOCATED}
 \end{tabular}\end{center}
 
 which expands to the code:
@@ -1153,7 +1154,7 @@ If {\tt size} is a constant (such as a {\tt size\_of} expression)
 not greater than {\tt MIN\_DEALLOCATED\_\EOL LIMIT},
 this code will normally be optimized away by the compiler.
 
-However if {\tt MIN\_DEBUG} is set {\tt assert\_allocated} always
+However if {\tt MIN\_DEBUG} is set {\tt min::assert\_allocated} always
 executes
 
 \begin{indpar}\begin{verbatim}
@@ -1166,7 +1167,7 @@ bodies.
 \subsection{Stub Control}
 \label{STUB-CONTROL}
 
-A stub contains an 8 byte value and an 8 byte
+A stub contains an 8 byte stub value and an 8 byte
 \key{stub control}\index{control!of stub}.
 If the stub control is viewed as a 64 bit integer, its high order byte
 is the \mkey{type code}{high order byte!of stub control}.
@@ -1210,13 +1211,12 @@ An `\key{auxiliary stub}' is an uncollectible stub attached to an object.
 When the object is garbage collected, the auxiliary stub is freed.  Auxiliary
 stubs are a means of adding memory to an object without relocating the object.
 For example, if the object stores 64-bit IEEE floating point numbers,
-a chain of auxiliary stubs
-can be used to add memory for additional numbers to the
-object.  Note that the auxiliary stub itself may not contain enough
-information to tell the type of the value it stores; one may have to
-trace the reference from the object pointing at the auxiliary stub
-to determine this type.  See \secref{STUB-FUNCTIONS} for functions
-that can read and write auxiliary stubs.
+a chain of auxiliary stubs can be used to add memory to the object
+for additional numbers.  Note that the auxiliary stub itself may not
+contain enough information to tell the type of the value it stores;
+one may have to trace the reference from the object pointing at the
+auxiliary stub to determine this type.  See \secref{STUB-FUNCTIONS}
+for functions that can read and write auxiliary stubs.
 
 \subsection{Stub Type Codes}
 \label{STUB-TYPE-CODES}
@@ -1224,8 +1224,8 @@ that can read and write auxiliary stubs.
 The type code of a stub may be returned by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int | & \TTKEY{type\_of}\verb| ( min::stub * s )|
-\LABEL{TYPE_OF}
+\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
+\LABEL{MIN::TYPE_OF}
 \end{tabular}\end{center}
 
 A determination of whether or not a stub is collectible may be made
@@ -1262,12 +1262,12 @@ is given on \pagref{STUB-TYPE-CODE-LIST}.
 \subsection{Stub Values}
 \label{STUB-VALUES}
 
-A stub contains a 64-bit value whose type depends upon the stub
+A stub contains a 64-bit \key{stub value} whose type depends upon the stub
 type code (\secref{STUB-TYPE-CODES}).  Many stubs are immutable
-and their values cannot be written after the stub has been created;
+and their stub values cannot be written after the stub has been created;
 nevertheless we describe unprotected functions below that
 write these values.  Unprotected functions are also provided to obtain
-body pointers from stubs when these are the values of the stubs.
+body pointers from stubs when these are the stub values of the stubs.
 This cannot be done by protected
 functions as body pointers are relocatable and require special
 programming be sure they are up-to-date (\secref{BODY-POINTERS}).
@@ -1277,12 +1277,12 @@ programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 
 A \key{number stub} is collectible, has \minkey{NUMBER}\LABEL{MIN::NUMBER}
 stub type code, and has
-an immutable \verb|min::float64| value that can be read by
+an immutable \verb|min::float64| stub value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::float64 | & \MINKEY{float\_of}\verb| ( min::stub * s )|
+\verb|min::float64 | & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
 \LABEL{FLOAT_OF} \\
-\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\verb|min::float64 MUP::| & \MUPKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
 \LABEL{MUP::FLOAT_OF}
 \end{tabular}\end{center}
 
@@ -1290,19 +1290,20 @@ and written by
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void MUP::|
-    & \MUPKEY{set\_float\_of}\verb| ( min::stub * s, min::float64 f )|
+    & \MUPKEY{set\_float\_of\COMPACT}\verb| ( min::stub * s, min::float64 f )|
 \LABEL{MUP::SET_FLOAT_OF}
 \end{tabular}\end{center}
 
 Number stubs exist only in compact implementations;
 in loose implementations number atoms are stored exclusively
-in direct number general values.
+in direct number general values
+(\secref{GENERAL-VALUE-SUBTYPES}).
 
 General values that are numbers can be tested, created, and read
 by the following protected functions:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
+\verb|bool min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::|
     & \MINKEY{new\_gen\REL} \verb| ( int v )|
@@ -1345,7 +1346,7 @@ value, but is more efficient in the case where \verb|min::gen| values
 are 32 bits and the argument is in the range of a direct integer general
 value.
 
-The \verb|min::num_of| function for a 64-bit \verb|min::gen|
+The \verb|min::float_of| function for a 64-bit \verb|min::gen|
 argument is just another name for the \verb|min::direct_float_of| function
 of the same argument, which after checking the subtype of the argument,
 simply changes the type of the argument.  For a 32-bit argument the
@@ -1356,7 +1357,7 @@ In this last case the stub type code is checked by an \verb|assert|
 statement to be sure the stub is a number stub.
 
 The \verb|min::int_of| function does the same thing as the
-\verb|min::num_of| followed by conversion to an \verb|int| value,
+\verb|min::float_of| followed by conversion to an \verb|int| value,
 except that \verb|min::int_of| includes a check that the result
 is a pure integer, without any fractional part, and is within the
 range of the \verb|int| type, and
@@ -1364,8 +1365,9 @@ range of the \verb|int| type, and
 \verb|min::gen| argument.
 
 Lastly, the \verb|min::numhash| returns the hash value of a \verb|min::gen|
-value that is a number.  This value is computed by considering the number
-to be a string of 8 characters and using the algorithm
+value that is a number.  This value is computed by considering
+the \verb|min::float_of| value of the number
+to be a \underline{big endian} string of 8 characters and using the algorithm
 on \pagref{HASH-ALGORITHM} to compute the hash value of this string.
 
 \begin{quote}
@@ -1408,7 +1410,7 @@ described.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
 \minkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
-an immutable {\tt min::\EOL uns64} value that holds a NUL padded
+an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
 
@@ -3147,13 +3149,13 @@ In this section we describe unprotected functions that can be used to read
 or write stubs for purposes of debugging or of constructing other higher level
 functions.  These functions do not check type codes of stubs.
 
-The following functions read or write the value and control part of a
-stub:
+The following functions read or write the stub value and stub control parts
+of a stub:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::VALUE_OF} \\
-\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\verb|min::float64 MUP::| & \MUPKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
 \\
 \verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::CONTROL_OF} \\
@@ -3161,7 +3163,7 @@ stub:
     & \MUPKEY{set\_value\_of}\verb| ( min::stub * s, min::uns64 v )|
 \LABEL{MUP::SET_VALUE_OF} \\
 \verb|void MUP::|
-    & \MUPKEY{set\_float\_of}\verb| ( min::stub * s, min::float64 f )|
+    & \MUPKEY{set\_float\_of\COMPACT}\verb| ( min::stub * s, min::float64 f )|
 \\
 \verb|void MUP::|
     & \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 v )|
@@ -3339,23 +3341,23 @@ struct min
 
 \begin{tabular}{@{}r@{}p{4.2in}}
 
-\verb|int | & \TTKEY{type\_of}\verb| ( min::stub * s )|
-\LABEL{TYPE_OF} \\[1ex]
+\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
+\LABEL{MIN::TYPE_OF} \\[1ex]
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
 \LABEL{MIN::IS_COLLECTIBLE} \\[1ex]
 (unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
 \LABEL{MIN_DEALLOCATED_LIMIT} \\
-\verb|void | & \TTKEY{assert\_allocated}\ARGBREAK
+\verb|void min::| & \MINKEY{assert\_allocated}\ARGBREAK
                \verb| ( min::stub * s, unsigned size )|
-\LABEL{ASSERT_ALLOCATED} \\
+\LABEL{MIN::ASSERT_ALLOCATED} \\
 \verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
 \LABEL{MIN::RELOCATED_FLAG} \\
-\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool )|
+\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool value )|
 \LABEL{MIN::SET_RELOCATED_FLAG} \\
 \verb|void min::| & \MINKEY{interrupt\REL}\verb| ( void )|
 \LABEL{MIN::INTERRUPT} \\
 \verb|void min::| & \MINKEY{deallocate\REL}\verb| ( min::stub * s )|
-\LABEL{DEALLOCATE} \\
+\LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
 
@@ -3560,10 +3562,10 @@ struct min
 \begin{tabular}{@{}r@{}p{4.0in}}
 
 
-\verb|min::float64 | & \MINKEY{float\_of}\verb| ( min::stub * s )|
+\verb|min::float64 | & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
 \LABEL{FLOAT_OF} \\[1ex]
 
-\verb|int min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
+\verb|bool min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::|
     & \MINKEY{new\_gen\REL} \verb| ( int v )|
@@ -3588,10 +3590,11 @@ struct min
 
 \begin{tabular}{@{}r@{}p{4.0in}}
 
-\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\verb|min::float64 MUP::| & \MUPKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
 \LABEL{MUP::FLOAT_OF} \\
 \verb|void MUP::|
-    & \MUPKEY{set\_float\_of}\ARGBREAK\verb| ( min::stub * s, min::float64 f )|
+    & \MUPKEY{set\_float\_of\COMPACT}\ARGBREAK
+               \verb| ( min::stub * s, min::float64 f )|
 \LABEL{MUP::SET_FLOAT_OF} \\[1ex]
 
 \end{tabular}
