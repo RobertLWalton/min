@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov  5 12:57:27 EST 2005
+// Date:	Tue Nov  8 00:34:08 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/05 17:57:20 $
+//   $Date: 2005/11/08 06:30:40 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // Table of Contents:
 //
@@ -643,7 +643,8 @@ namespace min { namespace unprotected {
 	}
 	// Unimplemented for LOOSE:
 	//   min::gen new_direct_int_gen ( int v )
-	min::gen new_direct_float_gen ( float64 v )
+	inline min::gen new_direct_float_gen
+		( float64 v )
 	{
 	    return * (min::gen *) & v;
 	}
@@ -1001,7 +1002,7 @@ namespace min { namespace unprotected {
     //
     // Function to return the next allocated stub.
     // This function does NOT set any part of the stub.
-    min::stub * new_stub ( void )
+    inline min::stub * new_stub ( void )
     {
 #	if MIN_IS_COMPACT
 	    uns32 v = current_process->
@@ -1063,7 +1064,7 @@ namespace min { namespace unprotected {
     // bytes, where n' is n rounded up to a multiple of
     // 8.
     //
-    body_control * new_body ( unsigned n )
+    inline body_control * new_body ( unsigned n )
     {
         n = ( n + 7 ) & ~ 07;
 	body_control * end = current_process->
@@ -1219,7 +1220,13 @@ namespace min {
 	    return (float64) ( v );
 	}
 #   endif
-    unsigned min::numhash ( min::gen v );
+
+    min::uns32 floathash ( min::float64 f );
+
+    inline min::uns32 numhash ( min::gen v )
+    {
+    	return floathash ( min::float_of ( v ) );
+    }
 }
 
 // Strings
@@ -1281,7 +1288,10 @@ namespace min {
         return str->length;
     }
 
-    min::uns64 strhash
+    // Function to compute the hash of an arbitrary
+    // char string.
+    //
+    min::uns32 strhash
         ( const char * p, unsigned size );
 
     inline unsigned hash_of ( min::long_str * str )

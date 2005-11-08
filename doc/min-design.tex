@@ -1315,7 +1315,7 @@ by the following protected functions:
 \LABEL{MIN::INT_OF_GEN} \\
 \verb|min::float64 min::| & \MINKEY{float\_of}\verb| ( min::gen v )|
 \LABEL{MIN::FLOAT_OF_GEN} \\[1ex]
-\verb|unsigned min::| & \MINKEY{numhash}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{numhash}\verb| ( min::gen v )|
 \LABEL{MIN::NUMHASH_OF_GEN} \\
 \end{tabular}\end{center}
 
@@ -1369,6 +1369,14 @@ value that is a number.  This value is computed by considering
 the \verb|min::float_of| value of the number
 to be a \underline{big endian} string of 8 characters and using the algorithm
 on \pagref{HASH-ALGORITHM} to compute the hash value of this string.
+
+To permit hash values of arbitrary floating point numbers to be computed,
+the following function is provided:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::| & \MINKEY{floathash}\verb| ( min::float64 f )|
+\LABEL{MIN::FLOATHASH} \\
+\end{tabular}\end{center}
 
 \begin{quote}
 The Hash Table Implementation Note on \pagref{HASH-TABLE-IMPLEMENTATION-NOTE}
@@ -1472,25 +1480,22 @@ are protected only in the sense that they introduce no
 \LABEL{MUP::STR_OF_LONG_STR} \\
 \verb|char * MUP::| & \MUPKEY{writable\_str\_of}\verb| ( min::long_str * str )|
 \LABEL{MUP::WRITABLE_STR_OF_LONG_STR} \\
-\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_str * str )|
-\LABEL{LENGTH_OF_LONG_STR} \\
-\verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_str * str )|
-\LABEL{HASH_OF_LONG_STR} \\
-\verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_str * str )|
-\LABEL{SIGNATURE_OF_LONG_STR} \\
+\verb|unsigned min::| & \MINKEY{length\_of}\verb| ( min::long_str * str )|
+\LABEL{MIN::LENGTH_OF_LONG_STR} \\
+\verb|unsigned min::| & \MINKEY{hash\_of}\verb| ( min::long_str * str )|
+\LABEL{MIN::HASH_OF_LONG_STR} \\
 \end{tabular}\end{center}
 
 These functions return a relocatable pointer to the string body,
 relocatable pointers to the NUL terminated {\tt char} string itself,
-the length of the string, a 32-bit non-zero \mkey{hash value}{of string}
-computed from the string, and a 64-bit signature for the string.
+the length of the string, and a 32-bit non-zero \mkey{hash value}{of string}
+computed from the string.
 A relocatable pointer to the {\tt char} string that permits only reading can be
 obtained, or one that permits both reading and writing can be obtained.
 If the hash value
 has not been previously accessed, it is computed and saved in the
 string by the function that returns it, causing that function to
-take time proportional to the string length.  The 64-bit signature
-contains the hash value and the string length.
+take time proportional to the string length.
 
 A string hash value is computed according to the following machine
 independent algorithm:\label{HASH-ALGORITHM}
@@ -1513,9 +1518,9 @@ is never zero.
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
 
-The long string body consists of a 64 bit signature containing
-the 32-bit length and 32-bit hash value, followed by a \verb|char|
-vector containing the string with the terminating NUL.  The
+The long string body consists of the 32-bit length and 32-bit hash value
+of the string, followed by a \verb|char|
+vector containing the string proper with the terminating NUL.  The
 \verb|char| vector is padded to a multiple of 8 bytes with NUL
 bytes, but the terminating NUL and the padding are not included
 in the length.  If the hash has not been computed, it is
@@ -1524,7 +1529,7 @@ stored in the header as zero.
 The following unprotected functions return the hash value as stored
 in the body and set that value and the length.  The {\tt MUP::hash\_of}
 function returns {\tt 0} if the hash value has not been computed,
-unlike the protected {\tt hash\_of} function that computes any uncomputed
+unlike the protected {\tt min::hash\_of} function that computes any uncomputed
 hash value.
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1551,18 +1556,10 @@ The functions
 \LABEL{STRLEN} \\
 \verb|unsigned | & \TTKEY{strhash}\verb| ( min::stub * s )|
 \LABEL{STRHASH} \\
-\verb|min::uns64 | & \TTKEY{strsignature}\verb| ( min::stub * s )|
-\LABEL{STRSIGNATURE} \\
 \end{tabular}\end{center}
 
-return the length of the string (excluding the terminating NUL),
-the hash value of the string, and the signature of the string.
-The signatures of two strings
-are equal if the strings are equal, but there is a small chance
-the signatures of unequal strings will be equal.\footnote{The chance
-is much greater for the signature used by MIN than it would be
-for an MD5 signature, which has the same length but is much slower
-to compute.}
+return the length of the string (excluding the terminating NUL) and
+the hash value of the string.
 
 The functions
 
@@ -1588,8 +1585,6 @@ direct string value or a pointer to a short or long string stub.
 \LABEL{MIN::STRLEN_OF_GEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen s )|
 \LABEL{MIN::STRHASH_OF_GEN} \\
-\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen s )|
-\LABEL{MIN::STRSIGNATURE_OF_GEN} \\
 \verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen s )|
 \LABEL{MIN::STRCPY_OF_GEN} \\
 \verb|char * min::|
@@ -3577,8 +3572,10 @@ struct min
 \LABEL{MIN::INT_OF_GEN} \\
 \verb|min::float64 min::| & \MINKEY{float\_of}\verb| ( min::gen v )|
 \LABEL{MIN::FLOAT_OF_GEN} \\[1ex]
-\verb|unsigned min::| & \MINKEY{numhash}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{numhash}\verb| ( min::gen v )|
 \LABEL{MIN::NUMHASH_OF_GEN} \\
+\verb|min::uns32 min::| & \MINKEY{floathash}\verb| ( min::float64 f )|
+\LABEL{MIN::FLOATHASH} \\
 
 \end{tabular}
 
@@ -3612,9 +3609,7 @@ struct min
 \verb|unsigned | & \TTKEY{strlen}\verb| ( min::stub * s )|
 \LABEL{STRLEN} \\
 \verb|unsigned | & \TTKEY{strhash}\verb| ( min::stub * s )|
-\LABEL{STRHASH} \\
-\verb|min::uns64 | & \TTKEY{strsignature}\verb| ( min::stub * s )|
-\LABEL{STRSIGNATURE} \\[1ex]
+\LABEL{STRHASH} \\[1ex]
 
 \verb|char * | & \TTKEY{strcpy}\verb| ( char * p, min::stub * s )|
 \LABEL{STRCPY} \\
@@ -3627,8 +3622,6 @@ struct min
 \LABEL{MIN::STRLEN_OF_GEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen s )|
 \LABEL{MIN::STRHASH_OF_GEN} \\
-\verb|min::uns64 min::| & \MINKEY{strsignature}\verb| ( min::gen s )|
-\LABEL{MIN::STRSIGNATURE_OF_GEN} \\
 \verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen s )|
 \LABEL{MIN::STRCPY_OF_GEN} \\
 \verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
@@ -3675,12 +3668,10 @@ struct min
 \verb|min::long_str * MUP::|
     & \MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_STR_OF} \\
-\verb|unsigned | & \TTKEY{length\_of}\verb| ( min::long_str * str )|
-\LABEL{LENGTH_OF_LONG_STR} \\
-\verb|unsigned | & \TTKEY{hash\_of}\verb| ( min::long_str * str )|
-\LABEL{HASH_OF_LONG_STR} \\
-\verb|min::uns64 | & \TTKEY{signature\_of}\verb| ( min::long_str * str )|
-\LABEL{SIGNATURE_OF_LONG_STR} \\
+\verb|unsigned min::| & \MINKEY{length\_of}\verb| ( min::long_str * str )|
+\LABEL{MIN::LENGTH_OF_LONG_STR} \\
+\verb|unsigned min::| & \MINKEY{hash\_of}\verb| ( min::long_str * str )|
+\LABEL{MIN::HASH_OF_LONG_STR} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
 \verb|char * MUP::| & \MUPKEY{writable\_str\_of}\verb| ( min::long_str * str )|
