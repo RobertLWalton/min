@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  8 00:43:26 EST 2005
+// Date:	Tue Nov  8 03:07:25 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/08 06:30:40 $
+//   $Date: 2005/11/08 14:15:41 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents:
 //
@@ -107,6 +107,68 @@ min::uns32 min::strhash
     }
     if ( hash == 0 ) hash = 0xFFFFFFFF;
 }
+
+unsigned min::strlen ( min::gen v )
+{
+    if ( min::is_direct_str ( v ) )
+    {
+        union { char buf[8]; min::uns64 str; } u;
+	u.str = min::direct_str_of ( v );
+	return ::strlen ( u.buf );
+    }
+    else
+    {
+        return min::strlen ( min::stub_of ( v ) );
+    }
+}
+
+min::uns32 min::strhash ( min::gen v )
+{
+    if ( min::is_direct_str ( v ) )
+    {
+        union { char buf[8]; min::uns64 str; } u;
+	u.str = min::direct_str_of ( v );
+	return min::strhash
+	    ( u.buf, ::strlen ( u.buf ) );
+    }
+    else
+    {
+        return min::strhash ( min::stub_of ( v ) );
+    }
+}
+
+char * min::strcpy ( char * p, min::gen v )
+{
+    if ( min::is_direct_str ( v ) )
+    {
+        union { char buf[8]; min::uns64 str; } u;
+	u.str = min::direct_str_of ( v );
+	return ::strcpy ( p, u.buf );
+    }
+    else
+    {
+        return min::strcpy ( p, min::stub_of ( v ) );
+    }
+}
+
+char * min::strncpy ( char * p, min::gen v, unsigned n )
+{
+    if ( min::is_direct_str ( v ) )
+    {
+        union { char buf[8]; min::uns64 str; } u;
+	u.str = min::direct_str_of ( v );
+	return ::strncpy ( p, u.buf, n );
+    }
+    else
+    {
+        return min::strncpy
+	    ( p, min::stub_of ( v ), n );
+    }
+}
+
+min::gen min::unprotected::new_str_stub_gen
+	( const char * p )
+	{ return 0; }
 
 // Labels
 // ------
