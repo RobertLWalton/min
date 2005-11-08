@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  8 00:34:08 EST 2005
+// Date:	Tue Nov  8 03:07:42 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/08 06:30:40 $
+//   $Date: 2005/11/08 14:15:41 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents:
 //
@@ -1153,171 +1153,345 @@ namespace min {
 		    return unprotected::
 		           new_direct_int_gen ( i );
 	    }
-	    return unprotected::new_num_stub_gen ( v );
-	}
-        inline int int_of ( min::gen v )
-	{
-	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+		return unprotected::new_num_stub_gen ( v );
+	    }
+	    inline int int_of ( min::gen v )
 	    {
-	    	min::stub * s =
-		    unprotected::uns32_to_stub_p ( v );
-		assert ( type_of ( s ) == min::NUMBER );
-		min::float64 f = s->v.f64;
+		if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+		{
+		    min::stub * s =
+			unprotected::uns32_to_stub_p ( v );
+		    assert ( type_of ( s ) == min::NUMBER );
+		    min::float64 f = s->v.f64;
+		    assert ( INT_MIN <= f && f <= INT_MAX );
+		    int i = (int) f;
+		    assert ( i == f );
+		    return i;
+		}
+		else if ( v <
+			  ( min::GEN_DIRECT_STR << 24 ) )
+		    return unprotected::direct_int_of ( v );
+		else
+		{
+		    assert ( is_num ( v ) );
+		}
+	    }
+	    inline float64 float_of ( min::gen v )
+	    {
+		if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+		{
+		    min::stub * s =
+			unprotected::uns32_to_stub_p ( v );
+		    return float_of ( s );
+		}
+		else if ( v <
+			  ( min::GEN_DIRECT_STR << 24 ) )
+		    return unprotected::direct_int_of ( v );
+		else
+		{
+		    assert ( is_num ( v ) );
+		}
+	    }
+    #   else // if MIN_IS_LOOSE
+	    inline bool is_num ( min::gen v )
+	    {
+		return min::is_direct_float ( v );
+	    }
+	    inline min::gen new_gen ( int v )
+	    {
+		return new_direct_float_gen ( v );
+	    }
+	    inline min::gen new_gen ( float64 v )
+	    {
+		return new_direct_float_gen ( v );
+	    }
+	    inline int int_of ( min::gen v )
+	    {
+		assert ( is_num ( v ) );
+		min::float64 f = (float64) ( v );
 		assert ( INT_MIN <= f && f <= INT_MAX );
 		int i = (int) f;
 		assert ( i == f );
 		return i;
 	    }
-	    else if ( v <
-	              ( min::GEN_DIRECT_STR << 24 ) )
-		return unprotected::direct_int_of ( v );
-	    else
+	    inline float64 float_of ( min::gen v )
 	    {
-	        assert ( is_num ( v ) );
+		assert ( is_num ( v ) );
+		return (float64) ( v );
 	    }
-	}
-        inline float64 float_of ( min::gen v )
+    #   endif
+
+	min::uns32 floathash ( min::float64 f );
+
+	inline min::uns32 numhash ( min::gen v )
 	{
-	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+	    return floathash ( min::float_of ( v ) );
+	}
+    }
+    
+    // Strings
+    // -------
+
+    namespace min {
+	struct long_str {
+	    min::uns32 length;
+	    min::uns32 hash;
+	};
+    }
+
+    namespace min { namespace unprotected {
+	min::uns64 short_str_of ( min::stub * s )
+	{
+	    return s->v.u64;
+	}
+	void set_short_str_of
+		( min::stub * s, min::uns64 str )
+	{
+	    s->v.u64 = str;
+	}
+	min::long_str * long_str_of ( min::stub * s )
+	{
+	    return (min::long_str *)
+		   unprotected::
+		   uns64_to_pointer ( s->v.u64 );
+	}
+	const char * str_of ( min::long_str * str )
+	{
+	    return (const char *) str
+		   + sizeof ( min::long_str );
+	}
+	char * writable_str_of ( min::long_str * str )
+	{
+	    return (char *) str
+		   + sizeof ( min::long_str );
+	}
+	inline unsigned hash_of ( min::long_str * str )
+	{
+	    return str->hash;
+	}
+	inline void set_length_of
+		( min::long_str * str, unsigned length )
+	{
+	    str->length = length;
+	}
+	inline void set_hash_of
+		( min::long_str * str, unsigned hash )
+	{
+	    str->hash = hash;
+	}
+    } }
+
+    namespace min {
+
+	inline unsigned length_of ( min::long_str * str )
+	{
+	    return str->length;
+	}
+
+	// Function to compute the hash of an arbitrary
+	// char string.
+	//
+	min::uns32 strhash
+	    ( const char * p, unsigned size );
+
+	inline unsigned hash_of ( min::long_str * str )
+	{
+	    if ( unprotected::hash_of ( str ) == 0 )
+		unprotected::set_hash_of
+		    ( str,
+		      strhash
+			( unprotected::str_of ( str ),
+			  length_of ( str ) ) );
+	    return unprotected::hash_of ( str );
+	}
+
+	inline unsigned strlen ( min::stub * s )
+	{
+	    if ( type_of ( s ) == min::SHORT_STR )
 	    {
-	    	min::stub * s =
-		    unprotected::uns32_to_stub_p ( v );
-		return float_of ( s );
+		char * p = s->v.c8;
+		char * endp = p + 8;
+		while ( * p && p < endp ) ++ p;
+		return p - s->v.c8;
 	    }
-	    else if ( v <
-	              ( min::GEN_DIRECT_STR << 24 ) )
-		return unprotected::direct_int_of ( v );
-	    else
+	    assert ( type_of ( s ) == min::LONG_STR );
+	    return length_of
+		( unprotected::long_str_of ( s ) );
+	}
+
+	inline min::uns32 strhash ( min::stub * s )
+	{
+	    if ( type_of ( s ) == min::SHORT_STR )
 	    {
-	        assert ( is_num ( v ) );
+		int n;
+		if ( s->v.c8[7] != 0 ) n = 8;
+		else n = ::strlen ( s->v.c8 );
+		return min::strhash ( s->v.c8, n );
 	    }
+	    assert ( type_of ( s ) == min::LONG_STR );
+	    min::long_str * ls =
+		unprotected::long_str_of ( s );
+	    return min::strhash
+		( min::unprotected::str_of ( ls ),
+		  min::length_of ( ls ) );
 	}
-#   else // if MIN_IS_LOOSE
-        inline bool is_num ( min::gen v )
+
+	inline char * strcpy ( char * p, min::stub * s )
 	{
-	    return min::is_direct_float ( v );
+	    if ( type_of ( s ) == min::SHORT_STR )
+	    {
+		if ( s->v.c8[7] )
+		    p[8] = 0;
+		return strncpy ( p, s->v.c8, 8 );
+	    }
+	    assert ( type_of ( s ) == min::LONG_STR );
+	    return ::strcpy
+		( p, min::unprotected::writable_str_of
+		       ( unprotected::long_str_of ( s ) ) );
 	}
-	inline min::gen new_gen ( int v )
+
+	inline char * strncpy
+	    ( char * p, min::stub * s, unsigned n )
 	{
-	    return new_direct_float_gen ( v );
+	    if ( type_of ( s ) == min::SHORT_STR )
+	    {
+		if ( s->v.c8[7] && n >= 9 )
+		    p[8] = 0;
+		return ::strncpy
+			 ( p, s->v.c8, n < 8 ? n : 8 );
+	    }
+	    assert ( type_of ( s ) == min::LONG_STR );
+	    return ::strncpy
+		( p, min::unprotected::writable_str_of
+		       ( unprotected::long_str_of ( s ) ),
+		     n );
 	}
-	inline min::gen new_gen ( float64 v )
+
+	unsigned strlen ( min::gen v );
+	min::uns32 strhash ( min::gen v );
+	char * strcpy ( char * p, min::gen v );
+	char * strncpy ( char * p, min::gen v, unsigned n );
+
+
+	// Some forward reference stuff that must be
+	// declared here before it is referenced by a
+	// friend declaration.
+	//
+	namespace unprotected {
+	    class str_pointer;
+	}
+	const char * min::str_of
+	    ( min::unprotected::str_pointer & sp );
+	void min::relocate
+	    ( min::unprotected::str_pointer & sp );
+
+	namespace unprotected {
+
+	    class str_pointer
+	    {
+	    public:
+
+		str_pointer ( min::gen v )
+		{
+
+		    // TBD: push v into GC protection stack?
+
+		    if ( min::is_direct_str ( v ) )
+		    {
+			u.str = min::unprotected::
+				direct_str_of ( v );
+			beginp = u.buf;
+			s = NULL;
+			return;
+		    }
+		    s = min::stub_of ( v );
+		    if ( min::type_of ( s )
+			 == min::SHORT_STR )
+		    {
+			u.str = s->v.u64;
+			u.buf[8] = 0;
+			beginp = u.buf;
+			s = NULL;
+			return;
+		    }
+		    assert ( min::type_of ( s )
+			     == min::LONG_STR );
+		    beginp =
+			min::unprotected::str_of
+			    ( min::unprotected::long_str_of
+				  ( s ) );
+		}
+
+		friend const char * min::str_of
+		    ( str_pointer & sp );
+		friend void min::relocate
+		    ( str_pointer & sp );
+
+	    private:
+
+		min::stub * s;
+		    // Stub pointer if long string, or
+		    // NULL otherwise.
+
+		const char * beginp;
+		    // Pointer to start of string.
+
+		union { char buf[9]; min::uns64 str; } u;
+		    // Place to store direct string, and to
+		    // store short string so as to add a
+		    // NUL to end.
+	    };
+
+	}
+
+	inline const char * str_of
+		( min::unprotected::str_pointer & sp )
 	{
-	    return new_direct_float_gen ( v );
+	    return sp.beginp;
 	}
-        inline int int_of ( min::gen v )
+
+	inline void relocate
+		( min::unprotected::str_pointer & sp )
 	{
-	    assert ( is_num ( v ) );
-	    min::float64 f = (float64) ( v );
-	    assert ( INT_MIN <= f && f <= INT_MAX );
-	    int i = (int) f;
-	    assert ( i == f );
-	    return i;
+	    if ( sp.s != NULL )
+		sp.beginp =
+		    min::unprotected::str_of
+			( min::unprotected::
+			  long_str_of
+			      ( sp.s ) );
 	}
-        inline float64 float_of ( min::gen v )
+
+	inline bool is_str ( min::gen v )
 	{
-	    assert ( is_num ( v ) );
-	    return (float64) ( v );
+	    if ( min::is_direct_str ( v ) )
+		return true;
+	    if ( ! min::is_stub ( v ) )
+		return false;
+	    min::stub * s = min::unprotected::stub_of ( v );
+	    return min::type_of ( s ) == min::SHORT_STR
+		   ||
+		   min::type_of ( s ) == min::LONG_STR;
 	}
-#   endif
 
-    min::uns32 floathash ( min::float64 f );
+	namespace unprotected {
+	    min::gen new_str_stub_gen ( const char * p );
+	}
 
-    inline min::uns32 numhash ( min::gen v )
-    {
-    	return floathash ( min::float_of ( v ) );
-    }
-}
-
-// Strings
-// -------
-
-namespace min {
-    struct long_str {
-        min::uns32 length;
-        min::uns32 hash;
-    };
-}
-
-namespace min { namespace unprotected {
-    min::uns64 short_str_of ( min::stub * s )
-    {
-        return s->v.u64;
-    }
-    void set_short_str_of
-	    ( min::stub * s, min::uns64 str )
-    {
-        s->v.u64 = str;
-    }
-    min::long_str * long_str_of ( min::stub * s )
-    {
-        return (min::long_str *)
-	       unprotected::
-	       uns64_to_pointer ( s->v.u64 );
-    }
-    const char * str_of ( min::long_str * str )
-    {
-        return (const char *) str
-	       + sizeof ( min::long_str );
-    }
-    char * writable_str_of ( min::long_str * str )
-    {
-        return (char *) str
-	       + sizeof ( min::long_str );
-    }
-    inline unsigned hash_of ( min::long_str * str )
-    {
-	return str->hash;
-    }
-    inline void set_length_of
-            ( min::long_str * str, unsigned length )
-    {
-	str->length = length;
-    }
-    inline void set_hash_of
-            ( min::long_str * str, unsigned hash )
-    {
-	str->hash = hash;
-    }
-} }
-
-namespace min {
-
-    inline unsigned length_of ( min::long_str * str )
-    {
-        return str->length;
-    }
-
-    // Function to compute the hash of an arbitrary
-    // char string.
-    //
-    min::uns32 strhash
-        ( const char * p, unsigned size );
-
-    inline unsigned hash_of ( min::long_str * str )
-    {
-        if ( unprotected::hash_of ( str ) == 0 )
-	    unprotected::set_hash_of
-	        ( str,
-	          strhash
-		    ( unprotected::str_of ( str ),
-		      length_of ( str ) ) );
-	return unprotected::hash_of ( str );
-    }
-
-    inline unsigned strlen ( min::stub * s )
-    {
-        if ( type_of ( s ) == min::SHORT_STR )
+	inline min::gen new_gen ( const char * p )
 	{
-	    char * p = s->v.c8;
-	    char * endp = p + 8;
-	    while ( * p && p < endp ) ++ p;
-	    return p - s->v.c8;
+	    unsigned n = ::strlen ( p );
+#	if MIN_IS_COMPACT
+		if ( n <= 3 )
+		    return min::unprotected::
+			   new_direct_str_gen ( p );
+#	else // if MIN_IS_LOOSE
+		if ( n <= 5 )
+		    return min::unprotected::
+			   new_direct_str_gen ( p );
+#	endif
+	    return min::unprotected::
+		   new_str_stub_gen ( p );
 	}
-	assert ( type_of ( s ) == min::LONG_STR );
-	return length_of
-	    ( unprotected::long_str_of ( s ) );
-    }
 }
 
 // Labels
