@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  8 03:07:42 EST 2005
+// Date:	Thu Nov 10 09:31:42 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/08 14:15:41 $
+//   $Date: 2005/11/10 19:01:39 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents:
 //
@@ -808,6 +808,8 @@ namespace min {
 namespace min {
 
     // Stub type codes.
+
+    // Collectable.
     //
     const int DEALLOCATED		= 1;
     const int NUMBER			= 2;
@@ -820,9 +822,14 @@ namespace min {
     const int SUBLIST_AUX		= 9;
     const int VARIABLE_VECTOR		= 10;
 
+    // Uncollectable.
+    //
+    const int LABEL_AUX			= -1;
+
     struct stub
     {
 	union {
+	    gen g;
 	    float64 f64;
 	    uns64 u64;
 	    int64 i64;
@@ -869,6 +876,98 @@ namespace min {
     }
 
     void deallocate ( min::stub * s );
+
+    namespace unprotected {
+
+        inline min::uns64 value_of ( min::stub * s )
+	{
+	    return s->v.u64;
+	}
+
+        inline min::float64 float_of ( min::stub * s )
+	{
+	    return s->v.f64;
+	}
+
+        inline min::uns64 control_of ( min::stub * s )
+	{
+	    return s->c.u64;
+	}
+
+        inline void set_value_of
+		( min::stub * s, min::uns64 v )
+	{
+	    s->v.u64 = v;
+	}
+
+        inline void set_float_of
+		( min::stub * s, min::float64 v )
+	{
+	    s->v.f64 = v;
+	}
+
+        inline void set_control_of
+		( min::stub * s, min::uns64 v )
+	{
+	    s->c.u64 = v;
+	}
+
+        inline min::uns64 stub_control
+		( int type_code, unsigned flags,
+		  unsigned value )
+	{
+	    return ( min::uns64 ( type_code ) << 56 )
+	    	   |
+		   ( min::uns64 ( flags ) << 44 )
+		   |
+		   value;
+	}
+
+        inline min::uns64 stub_control
+		( int type_code, unsigned flags,
+		  min::stub * s )
+	{
+	    return ( min::uns64 ( type_code ) << 56 )
+	    	   |
+		   ( min::uns64 ( flags ) << 44 )
+		   |
+#	    if MIN_IS_COMPACT
+		   min::unprotected::
+		        stub_p_to_uns32 ( s );
+#	    else // if MIN_IS_LOOSE
+		   min::unprotected::
+		        stub_p_to_uns64 ( s );
+#	    endif
+	}
+
+        inline int type_of_control ( min::uns64 c )
+	{
+	    return int ( min::int64 ( c ) >> 56 );
+        }
+
+        inline unsigned flags_of_control ( min::uns64 c )
+	{
+	    return unsigned ( c >> 44 ) & 0xFFFF;
+        }
+
+        inline unsigned value_of_control ( min::uns64 c )
+	{
+	    return unsigned ( c & 0xFFFFFFFFFFF );
+        }
+
+        inline min::stub * pointer_of_control ( min::uns64 c )
+	{
+#	    if MIN_IS_COMPACT
+	       return min::unprotected::uns32_to_stub_p
+	       		( min::uns32 ( c ) );
+#	    else // if MIN_IS_LOOSE
+	       return min::unprotected::uns64_to_stub_p
+	       		( c & 0xFFFFFFFFFFF );
+#	    endif
+
+        }
+    }
+
 }
 
 // Process Interface
@@ -1104,18 +1203,6 @@ namespace min {
 	    //
 	    min::gen new_num_stub_gen
 		( min::float64 v );
-
-	    inline min::float64 float_of
-		    ( min::stub * s )
-	    {
-		return s->v.f64;
-	    }
-
-	    inline void set_float_of
-		    ( min::stub * s, min::float64 f )
-	    {
-		s->v.f64 = f;
-	    }
 	}
 
 	inline min::float64 float_of ( min::stub * s )
@@ -1497,10 +1584,84 @@ namespace min {
 // Labels
 // ------
 
+// Labels are implemented by a chain beginning at the
+// label stub and continuing with auxilary stubs of
+// type min::LABEL_AUX.  This is done on the presumption
+// that most labels have only 2 or 3 components.
+//
+// The value of the min::LABEL stub points at the first
+// of the chain of min::LABEL_AUX stubs.  Each of these
+// has an element as value and a pointer to the next
+// stub as chain.  min::LABEL_AUX stubs are uncollec-
+// table.
+//
+// All of the pointers to min::LABEL_AUX stubs are
+// stored as uns64 addresses and NOT as VSNs.
+
 namespace min { namespace unprotected {
+
 } }
 
 namespace min {
+
+    inline unsigned lab_of
+	    ( min::gen * p, unsigned n, min::stub * s )
+    {
+        assert ( min::type_of ( s ) == min::LABEL );
+	min::stub * aux = (min::stub *)
+			  min::unprotected::
+	                       uns64_to_pointer
+			           ( s->v.u64 );
+	unsigned count = 0;
+        while ( aux && count < n )
+	{
+	    * p ++ = min::gen ( aux->v.g );
+	    ++ count;
+	    aux = (min::stub *)
+	          min::unprotected::uns64_to_pointer
+	    	    ( aux->c.u64 & 0xFFFFFFFFFFFF );
+	}
+	return count;
+    }
+
+    inline unsigned lab_of
+	    ( min::gen * p, unsigned n, min::gen v )
+    {
+	return min::lab_of ( p, n, min::stub_of ( v ) );
+    }
+
+    inline unsigned lablen ( min::stub * s )
+    {
+        assert ( min::type_of ( s ) == min::LABEL );
+	min::stub * aux = (min::stub *)
+			  min::unprotected::
+	                       uns64_to_pointer
+			           ( s->v.u64 );
+	unsigned count = 0;
+        while ( aux )
+	{
+	    ++ count;
+	    aux = (min::stub *)
+	          min::unprotected::uns64_to_pointer
+	    	    ( aux->c.u64 & 0xFFFFFFFFFFFF );
+	}
+	return count;
+    }
+
+    inline unsigned lablen ( min::gen v )
+    {
+	return min::lablen ( min::stub_of ( v ) );
+    }
+
+    min::gen new_gen ( min::gen * const p, unsigned n );
+
+    inline bool is_label ( min::gen v )
+    {
+	if ( ! min::is_stub ( v ) )
+	    return false;
+	min::stub * s = min::unprotected::stub_of ( v );
+	return min::type_of ( s ) == min::LABEL;
+    }
 }
 
 // Objects

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov  8 03:07:25 EST 2005
+// Date:	Thu Nov 10 09:08:08 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,15 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/08 14:15:41 $
+//   $Date: 2005/11/10 19:01:52 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents:
 //
 //	Setup
-//	Process Interface
-//	Garbage Collector Interface
+//	Process Management
+//	Garbage Collector Management
 //	Numbers
 //	Strings
 //	Labels
@@ -29,6 +29,7 @@
 // -----
 
 # include "../include/min.h"
+# define MUP min::unprotected
 
 
 // Stub Functions
@@ -38,8 +39,8 @@ void min::deallocate ( min::stub * s )
     { }
 
 
-// Process Interface
-// ------- ---------
+// Process Management
+// ------- ----------
 
 // Out of line function to execute interrupt.
 // Returns true.
@@ -48,8 +49,24 @@ bool min::unprotected::interrupt ( void )
 	{ return true; }
 
 
-// Garbage Collector Interface
-// ------- --------- ---------
+// Garbage Collector Management
+// ------- --------- ----------
+
+// Data.
+
+// Hash tables for atoms.
+//
+min::stub ** string_hash;
+min::stub ** number_hash;
+min::stub ** label_hash;
+unsigned string_hash_size;
+unsigned number_hash_size;
+unsigned label_hash_size;
+
+// Flags for newly allocated stubs.
+//
+unsigned new_atom_gc_flags;
+unsigned new_nonatom_gc_flags;
 
 # if MIN_IS_COMPACT
     min::uns32 min::unprotected::gc_stub_expand_free_list
@@ -71,7 +88,26 @@ min::unprotected::body_control *
 # if MIN_IS_COMPACT
     min::gen min::unprotected::new_num_stub_gen
 	    ( min::float64 v )
-	    { return 0; }
+    {
+	unsigned hash = floathash ( v );
+	unsigned h = hash % number_hash_size;
+	min::stub * s = number_hash[h];
+	while ( s )
+	{
+	    if ( MUP::float_of ( s ) == v )
+		return min::new_gen ( s );
+	}
+
+	s = MUP::new_stub ();
+	MUP::set_float_of ( s, v );
+	MUP::set_control_of
+	    ( s,
+	      MUP::stub_control ( min::NUMBER,
+				  new_atom_gc_flags,
+				  number_hash[h] ));
+	number_hash[h] = s;
+	return min::new_gen ( s );
+    }
 # endif
 
 min::uns32 min::floathash ( min::float64 f )
@@ -168,7 +204,53 @@ char * min::strncpy ( char * p, min::gen v, unsigned n )
 
 min::gen min::unprotected::new_str_stub_gen
 	( const char * p )
-	{ return 0; }
+{
+    unsigned length = ::strlen ( p );
+    unsigned hash = strhash ( p, length );
+    unsigned h = hash % string_hash_size;
+    min::stub * s = string_hash[h];
+    while ( s )
+    {
+        if (    length <= 8
+	     && min::type_of ( s ) == min::SHORT_STR
+	     && strncmp ( p, s->v.c8, 8 ) == 0 )
+	    return min::new_gen ( s );
+	else if (    length > 8
+	          && min::type_of ( s ) == min::LONG_STR
+	          && strcmp
+		       ( p, MUP::str_of (
+			      MUP::long_str_of ( s ) ) )
+		     == 0 )
+	    return min::new_gen ( s );
+    }
+
+    s = MUP::new_stub ();
+    int type;
+    if ( length <= 8 )
+    {
+	type = min::SHORT_STR;
+	::strncpy ( s->v.c8, p, 8 );
+    }
+    else
+    {
+	type = min::LONG_STR;
+	MUP::body_control * b = MUP::new_body
+	    ( sizeof ( min::long_str ) + length + 1 );
+	b->control = MUP::pointer_to_uns64 ( s );
+	s->v.u64 = MUP::pointer_to_uns64 ( b + 1 );
+	min::long_str * ls = (min::long_str *) ( b + 1 );
+	ls->length = length;
+	ls->hash = hash;
+	::strcpy ( MUP::writable_str_of ( ls ), p );
+    }
+    MUP::set_control_of
+	( s,
+	  MUP::stub_control ( type,
+			      new_atom_gc_flags,
+			      string_hash[h] ));
+    string_hash[h] = s;
+    return min::new_gen ( s );
+}
 
 // Labels
 // ------
