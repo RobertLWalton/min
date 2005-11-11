@@ -1,8 +1,8 @@
-// MIN Language Protected Interface
+// MIN Language Interface
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Nov 10 09:31:42 EST 2005
+// Date:	Fri Nov 11 11:50:05 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/10 19:01:39 $
+//   $Date: 2005/11/11 20:11:33 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // Table of Contents:
 //
@@ -31,6 +31,7 @@
 //	Numbers
 //	Strings
 //	Labels
+//	Atom Functions
 //	Objects
 
 // Setup
@@ -1073,6 +1074,40 @@ namespace min { namespace unprotected {
     // of the stub control hold the chain pointer, and
     // the next higher order 12 bits are the gc flags.
 
+    // GC flags.
+    //
+    const unsigned MARKS = ( 0x3F << 6 );
+    const unsigned AREAS = 0x3F;
+
+    // Mutator (non-gc execution engine) action:
+    //
+    // If a pointer to stub S2 is stored in a datum
+    // with stub S1, then the AREAS flags of S1 are
+    // logically OR'ed into the MARKS flags of S2.
+    //
+    // In addition, if any MARKS flag turned on in S2
+    // by this action is also on in MUP::gc_stack_marks,
+    // a pointer to S2 is added to the MUP::gc_stack if
+    // that stack is not full.
+    //
+    // When a new stub is allocated, it is given the
+    // flags in MUP::gc_new_stub_flags, but is NOT put
+    // on the MUP::gc_stack.
+
+    unsigned gc_stack_marks;
+    unsigned gc_new_stub_flags;
+
+    // The GC Stack is a vector of min::stub * values
+    // that is filled from low to high addresses.  MUP::
+    // gc_stack points at the first empty location.
+    // MUP::gc_stack_end points just after the vector.
+    // MUP::gc_stack >= MUP::gc_stack_end iff the stack
+    // is full.
+    //
+    min::stub * gc_stack;
+    min::stub * gc_stack_end;
+
+
     // Stub allocation is from a single list of stubs
     // chained together by the chain part of the stub
     // control.
@@ -1308,277 +1343,277 @@ namespace min {
 	    }
     #   endif
 
-	min::uns32 floathash ( min::float64 f );
+    min::uns32 floathash ( min::float64 f );
 
-	inline min::uns32 numhash ( min::gen v )
-	{
-	    return floathash ( min::float_of ( v ) );
-	}
+    inline min::uns32 numhash ( min::gen v )
+    {
+	return floathash ( min::float_of ( v ) );
     }
-    
-    // Strings
-    // -------
+}
+
+// Strings
+// -------
 
-    namespace min {
-	struct long_str {
-	    min::uns32 length;
-	    min::uns32 hash;
-	};
+namespace min {
+    struct long_str {
+	min::uns32 length;
+	min::uns32 hash;
+    };
+}
+
+namespace min { namespace unprotected {
+    min::uns64 short_str_of ( min::stub * s )
+    {
+	return s->v.u64;
+    }
+    void set_short_str_of
+	    ( min::stub * s, min::uns64 str )
+    {
+	s->v.u64 = str;
+    }
+    min::long_str * long_str_of ( min::stub * s )
+    {
+	return (min::long_str *)
+	       unprotected::
+	       uns64_to_pointer ( s->v.u64 );
+    }
+    const char * str_of ( min::long_str * str )
+    {
+	return (const char *) str
+	       + sizeof ( min::long_str );
+    }
+    char * writable_str_of ( min::long_str * str )
+    {
+	return (char *) str
+	       + sizeof ( min::long_str );
+    }
+    inline unsigned hash_of ( min::long_str * str )
+    {
+	return str->hash;
+    }
+    inline void set_length_of
+	    ( min::long_str * str, unsigned length )
+    {
+	str->length = length;
+    }
+    inline void set_hash_of
+	    ( min::long_str * str, unsigned hash )
+    {
+	str->hash = hash;
+    }
+} }
+
+namespace min {
+
+    inline unsigned length_of ( min::long_str * str )
+    {
+	return str->length;
     }
 
-    namespace min { namespace unprotected {
-	min::uns64 short_str_of ( min::stub * s )
-	{
-	    return s->v.u64;
-	}
-	void set_short_str_of
-		( min::stub * s, min::uns64 str )
-	{
-	    s->v.u64 = str;
-	}
-	min::long_str * long_str_of ( min::stub * s )
-	{
-	    return (min::long_str *)
-		   unprotected::
-		   uns64_to_pointer ( s->v.u64 );
-	}
-	const char * str_of ( min::long_str * str )
-	{
-	    return (const char *) str
-		   + sizeof ( min::long_str );
-	}
-	char * writable_str_of ( min::long_str * str )
-	{
-	    return (char *) str
-		   + sizeof ( min::long_str );
-	}
-	inline unsigned hash_of ( min::long_str * str )
-	{
-	    return str->hash;
-	}
-	inline void set_length_of
-		( min::long_str * str, unsigned length )
-	{
-	    str->length = length;
-	}
-	inline void set_hash_of
-		( min::long_str * str, unsigned hash )
-	{
-	    str->hash = hash;
-	}
-    } }
+    // Function to compute the hash of an arbitrary
+    // char string.
+    //
+    min::uns32 strhash
+	( const char * p, unsigned size );
 
-    namespace min {
+    inline unsigned hash_of ( min::long_str * str )
+    {
+	if ( unprotected::hash_of ( str ) == 0 )
+	    unprotected::set_hash_of
+		( str,
+		  strhash
+		    ( unprotected::str_of ( str ),
+		      length_of ( str ) ) );
+	return unprotected::hash_of ( str );
+    }
 
-	inline unsigned length_of ( min::long_str * str )
+    inline unsigned strlen ( min::stub * s )
+    {
+	if ( type_of ( s ) == min::SHORT_STR )
 	{
-	    return str->length;
+	    char * p = s->v.c8;
+	    char * endp = p + 8;
+	    while ( * p && p < endp ) ++ p;
+	    return p - s->v.c8;
 	}
+	assert ( type_of ( s ) == min::LONG_STR );
+	return length_of
+	    ( unprotected::long_str_of ( s ) );
+    }
 
-	// Function to compute the hash of an arbitrary
-	// char string.
-	//
-	min::uns32 strhash
-	    ( const char * p, unsigned size );
-
-	inline unsigned hash_of ( min::long_str * str )
+    inline min::uns32 strhash ( min::stub * s )
+    {
+	if ( type_of ( s ) == min::SHORT_STR )
 	{
-	    if ( unprotected::hash_of ( str ) == 0 )
-		unprotected::set_hash_of
-		    ( str,
-		      strhash
-			( unprotected::str_of ( str ),
-			  length_of ( str ) ) );
-	    return unprotected::hash_of ( str );
+	    int n;
+	    if ( s->v.c8[7] != 0 ) n = 8;
+	    else n = ::strlen ( s->v.c8 );
+	    return min::strhash ( s->v.c8, n );
 	}
+	assert ( type_of ( s ) == min::LONG_STR );
+	min::long_str * ls =
+	    unprotected::long_str_of ( s );
+	return min::strhash
+	    ( min::unprotected::str_of ( ls ),
+	      min::length_of ( ls ) );
+    }
 
-	inline unsigned strlen ( min::stub * s )
+    inline char * strcpy ( char * p, min::stub * s )
+    {
+	if ( type_of ( s ) == min::SHORT_STR )
 	{
-	    if ( type_of ( s ) == min::SHORT_STR )
-	    {
-		char * p = s->v.c8;
-		char * endp = p + 8;
-		while ( * p && p < endp ) ++ p;
-		return p - s->v.c8;
-	    }
-	    assert ( type_of ( s ) == min::LONG_STR );
-	    return length_of
-		( unprotected::long_str_of ( s ) );
+	    if ( s->v.c8[7] )
+		p[8] = 0;
+	    return strncpy ( p, s->v.c8, 8 );
 	}
+	assert ( type_of ( s ) == min::LONG_STR );
+	return ::strcpy
+	    ( p, min::unprotected::writable_str_of
+		   ( unprotected::long_str_of ( s ) ) );
+    }
 
-	inline min::uns32 strhash ( min::stub * s )
+    inline char * strncpy
+	( char * p, min::stub * s, unsigned n )
+    {
+	if ( type_of ( s ) == min::SHORT_STR )
 	{
-	    if ( type_of ( s ) == min::SHORT_STR )
-	    {
-		int n;
-		if ( s->v.c8[7] != 0 ) n = 8;
-		else n = ::strlen ( s->v.c8 );
-		return min::strhash ( s->v.c8, n );
-	    }
-	    assert ( type_of ( s ) == min::LONG_STR );
-	    min::long_str * ls =
-		unprotected::long_str_of ( s );
-	    return min::strhash
-		( min::unprotected::str_of ( ls ),
-		  min::length_of ( ls ) );
-	}
-
-	inline char * strcpy ( char * p, min::stub * s )
-	{
-	    if ( type_of ( s ) == min::SHORT_STR )
-	    {
-		if ( s->v.c8[7] )
-		    p[8] = 0;
-		return strncpy ( p, s->v.c8, 8 );
-	    }
-	    assert ( type_of ( s ) == min::LONG_STR );
-	    return ::strcpy
-		( p, min::unprotected::writable_str_of
-		       ( unprotected::long_str_of ( s ) ) );
-	}
-
-	inline char * strncpy
-	    ( char * p, min::stub * s, unsigned n )
-	{
-	    if ( type_of ( s ) == min::SHORT_STR )
-	    {
-		if ( s->v.c8[7] && n >= 9 )
-		    p[8] = 0;
-		return ::strncpy
-			 ( p, s->v.c8, n < 8 ? n : 8 );
-	    }
-	    assert ( type_of ( s ) == min::LONG_STR );
+	    if ( s->v.c8[7] && n >= 9 )
+		p[8] = 0;
 	    return ::strncpy
-		( p, min::unprotected::writable_str_of
-		       ( unprotected::long_str_of ( s ) ),
-		     n );
+		     ( p, s->v.c8, n < 8 ? n : 8 );
 	}
+	assert ( type_of ( s ) == min::LONG_STR );
+	return ::strncpy
+	    ( p, min::unprotected::writable_str_of
+		   ( unprotected::long_str_of ( s ) ),
+		 n );
+    }
 
-	unsigned strlen ( min::gen v );
-	min::uns32 strhash ( min::gen v );
-	char * strcpy ( char * p, min::gen v );
-	char * strncpy ( char * p, min::gen v, unsigned n );
+    unsigned strlen ( min::gen v );
+    min::uns32 strhash ( min::gen v );
+    char * strcpy ( char * p, min::gen v );
+    char * strncpy ( char * p, min::gen v, unsigned n );
 
 
-	// Some forward reference stuff that must be
-	// declared here before it is referenced by a
-	// friend declaration.
-	//
-	namespace unprotected {
-	    class str_pointer;
-	}
-	const char * min::str_of
-	    ( min::unprotected::str_pointer & sp );
-	void min::relocate
-	    ( min::unprotected::str_pointer & sp );
+    // Some forward reference stuff that must be
+    // declared here before it is referenced by a
+    // friend declaration.
+    //
+    namespace unprotected {
+	class str_pointer;
+    }
+    const char * min::str_of
+	( min::unprotected::str_pointer & sp );
+    void min::relocate
+	( min::unprotected::str_pointer & sp );
 
-	namespace unprotected {
+    namespace unprotected {
 
-	    class str_pointer
+	class str_pointer
+	{
+	public:
+
+	    str_pointer ( min::gen v )
 	    {
-	    public:
 
-		str_pointer ( min::gen v )
+		// TBD: push v into GC protection stack?
+
+		if ( min::is_direct_str ( v ) )
 		{
-
-		    // TBD: push v into GC protection stack?
-
-		    if ( min::is_direct_str ( v ) )
-		    {
-			u.str = min::unprotected::
-				direct_str_of ( v );
-			beginp = u.buf;
-			s = NULL;
-			return;
-		    }
-		    s = min::stub_of ( v );
-		    if ( min::type_of ( s )
-			 == min::SHORT_STR )
-		    {
-			u.str = s->v.u64;
-			u.buf[8] = 0;
-			beginp = u.buf;
-			s = NULL;
-			return;
-		    }
-		    assert ( min::type_of ( s )
-			     == min::LONG_STR );
-		    beginp =
-			min::unprotected::str_of
-			    ( min::unprotected::long_str_of
-				  ( s ) );
+		    u.str = min::unprotected::
+			    direct_str_of ( v );
+		    beginp = u.buf;
+		    s = NULL;
+		    return;
 		}
-
-		friend const char * min::str_of
-		    ( str_pointer & sp );
-		friend void min::relocate
-		    ( str_pointer & sp );
-
-	    private:
-
-		min::stub * s;
-		    // Stub pointer if long string, or
-		    // NULL otherwise.
-
-		const char * beginp;
-		    // Pointer to start of string.
-
-		union { char buf[9]; min::uns64 str; } u;
-		    // Place to store direct string, and to
-		    // store short string so as to add a
-		    // NUL to end.
-	    };
-
-	}
-
-	inline const char * str_of
-		( min::unprotected::str_pointer & sp )
-	{
-	    return sp.beginp;
-	}
-
-	inline void relocate
-		( min::unprotected::str_pointer & sp )
-	{
-	    if ( sp.s != NULL )
-		sp.beginp =
+		s = min::stub_of ( v );
+		if ( min::type_of ( s )
+		     == min::SHORT_STR )
+		{
+		    u.str = s->v.u64;
+		    u.buf[8] = 0;
+		    beginp = u.buf;
+		    s = NULL;
+		    return;
+		}
+		assert ( min::type_of ( s )
+			 == min::LONG_STR );
+		beginp =
 		    min::unprotected::str_of
-			( min::unprotected::
-			  long_str_of
-			      ( sp.s ) );
-	}
+			( min::unprotected::long_str_of
+			      ( s ) );
+	    }
 
-	inline bool is_str ( min::gen v )
-	{
-	    if ( min::is_direct_str ( v ) )
-		return true;
-	    if ( ! min::is_stub ( v ) )
-		return false;
-	    min::stub * s = min::unprotected::stub_of ( v );
-	    return min::type_of ( s ) == min::SHORT_STR
-		   ||
-		   min::type_of ( s ) == min::LONG_STR;
-	}
+	    friend const char * min::str_of
+		( str_pointer & sp );
+	    friend void min::relocate
+		( str_pointer & sp );
 
-	namespace unprotected {
-	    min::gen new_str_stub_gen ( const char * p );
-	}
+	private:
 
-	inline min::gen new_gen ( const char * p )
-	{
-	    unsigned n = ::strlen ( p );
+	    min::stub * s;
+		// Stub pointer if long string, or
+		// NULL otherwise.
+
+	    const char * beginp;
+		// Pointer to start of string.
+
+	    union { char buf[9]; min::uns64 str; } u;
+		// Place to store direct string, and to
+		// store short string so as to add a
+		// NUL to end.
+	};
+
+    }
+
+    inline const char * str_of
+	    ( min::unprotected::str_pointer & sp )
+    {
+	return sp.beginp;
+    }
+
+    inline void relocate
+	    ( min::unprotected::str_pointer & sp )
+    {
+	if ( sp.s != NULL )
+	    sp.beginp =
+		min::unprotected::str_of
+		    ( min::unprotected::
+		      long_str_of
+			  ( sp.s ) );
+    }
+
+    inline bool is_str ( min::gen v )
+    {
+	if ( min::is_direct_str ( v ) )
+	    return true;
+	if ( ! min::is_stub ( v ) )
+	    return false;
+	min::stub * s = min::unprotected::stub_of ( v );
+	return min::type_of ( s ) == min::SHORT_STR
+	       ||
+	       min::type_of ( s ) == min::LONG_STR;
+    }
+
+    namespace unprotected {
+	min::gen new_str_stub_gen ( const char * p );
+    }
+
+    inline min::gen new_gen ( const char * p )
+    {
+	unsigned n = ::strlen ( p );
 #	if MIN_IS_COMPACT
-		if ( n <= 3 )
-		    return min::unprotected::
-			   new_direct_str_gen ( p );
+	    if ( n <= 3 )
+		return min::unprotected::
+		       new_direct_str_gen ( p );
 #	else // if MIN_IS_LOOSE
-		if ( n <= 5 )
-		    return min::unprotected::
-			   new_direct_str_gen ( p );
+	    if ( n <= 5 )
+		return min::unprotected::
+		       new_direct_str_gen ( p );
 #	endif
-	    return min::unprotected::
-		   new_str_stub_gen ( p );
-	}
+	return min::unprotected::
+	       new_str_stub_gen ( p );
+    }
 }
 
 // Labels
@@ -1655,13 +1690,31 @@ namespace min {
 
     min::gen new_gen ( min::gen * const p, unsigned n );
 
-    inline bool is_label ( min::gen v )
+    min::uns32 labhash ( min::gen v );
+
+    inline bool is_lab ( min::gen v )
     {
 	if ( ! min::is_stub ( v ) )
 	    return false;
 	min::stub * s = min::unprotected::stub_of ( v );
 	return min::type_of ( s ) == min::LABEL;
     }
+}
+
+// Atom Functions
+// ---- ---------
+
+namespace min {
+    inline bool is_atom ( min::gen v )
+    {
+        return min::is_num ( v )
+	       ||
+	       min::is_str ( v )
+	       ||
+	       min::is_lab ( v );
+    }
+
+    min::uns32 hash ( min::gen v );
 }
 
 // Objects
