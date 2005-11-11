@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/10 19:01:52 $
+//   $Date: 2005/11/11 20:11:33 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents:
 //
@@ -30,10 +30,21 @@
 
 # include "../include/min.h"
 # define MUP min::unprotected
-
 
 // Stub Functions
 // ---- ---------
+
+min::uns32 min::hash ( min::gen v )
+{
+    if ( min::is_num ( v ) )
+        return min::numhash ( v );
+    else if ( min::is_str ( v ) )
+        return min::strhash ( v );
+    else if ( min::is_lab ( v ) )
+        return min::labhash ( v );
+    else
+	return 0;
+}
 
 void min::deallocate ( min::stub * s )
     { }
@@ -62,11 +73,6 @@ min::stub ** label_hash;
 unsigned string_hash_size;
 unsigned number_hash_size;
 unsigned label_hash_size;
-
-// Flags for newly allocated stubs.
-//
-unsigned new_atom_gc_flags;
-unsigned new_nonatom_gc_flags;
 
 # if MIN_IS_COMPACT
     min::uns32 min::unprotected::gc_stub_expand_free_list
@@ -103,7 +109,7 @@ min::unprotected::body_control *
 	MUP::set_control_of
 	    ( s,
 	      MUP::stub_control ( min::NUMBER,
-				  new_atom_gc_flags,
+				  gc_new_stub_flags,
 				  number_hash[h] ));
 	number_hash[h] = s;
 	return min::new_gen ( s );
@@ -246,7 +252,7 @@ min::gen min::unprotected::new_str_stub_gen
     MUP::set_control_of
 	( s,
 	  MUP::stub_control ( type,
-			      new_atom_gc_flags,
+			      gc_new_stub_flags,
 			      string_hash[h] ));
     string_hash[h] = s;
     return min::new_gen ( s );
@@ -254,6 +260,30 @@ min::gen min::unprotected::new_str_stub_gen
 
 // Labels
 // ------
+
+// 65599**8:
+//
+const min::uns32 lab_multiplier =
+	  min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
+	* min::uns32 ( 65599 );
+
+min::uns32 labhash ( const min::gen * p, unsigned n )
+{
+    min::uns32 m = 1;
+    min::uns32 hash = 0;
+    while ( n -- )
+    {
+        hash = m * hash + min::hash ( * p ++ );
+	m *= lab_multiplier;
+    }
+    return hash;
+}
 
 
 // Objects

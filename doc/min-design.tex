@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 10, 2005}
+\date{November 11, 2005}
  
 \maketitle
 
@@ -964,6 +964,24 @@ part of the subtype code.
 \verb|min::GEN_ILLEGAL| is returned by this function if the \verb|min::gen|
 is not a legal general value.
 
+There are several general value functions that concern atoms.  An \key{atom}
+is an immutable value that has a hash value, so that an atom can be
+used as a hash table index.
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{is\_atom}\verb| ( min::gen v )|
+\LABEL{MIN::IS_ATOM} \\
+\verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
+\LABEL{MIN::HASH} \\
+\end{tabular}\end{center}
+
+The \verb|min::is_atom| function returns true if and only if its argument is
+an atom, which is defined as either
+a number (\secref{NUMBERS}),
+a string (\secref{STRINGS}),
+or label (\secref{LABELS}).
+The \verb|min::hash| function returns a non-zero hash value if its argument
+is an atom, and returns zero otherwise.
 
 
 \subsection{Body Pointers}
@@ -1714,9 +1732,9 @@ and has an immutable value.
 The label value may be read by the protected functions:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned | & \TTKEY{lab\_of}%
+\verb|unsigned min::| & \MINKEY{lab\_of}%
     \verb| ( min::gen * p, unsigned n, min::stub * s )|
-\LABEL{LAB_OF} \\
+\LABEL{MIN::LAB_OF} \\
 \verb|unsigned min::| & \MINKEY{lab\_of}%
     \verb| ( min::gen * p, unsigned n, min::gen v )|
 \LABEL{MIN::LAB_OF_GEN} \\
@@ -1739,8 +1757,8 @@ attribute labels, but would detect illegally long ones.
 The length of a label may be read by the following functions:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned | & \TTKEY{lablen}\verb| ( min::stub * s )|
-\LABEL{LABLEN} \\
+\verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::stub * s )|
+\LABEL{MIN::LABLEN} \\
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\
 \end{tabular}\end{center}
@@ -1748,12 +1766,12 @@ The length of a label may be read by the following functions:
 The hash value of a label may be computed by the following functions:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned | & \TTKEY{labhash}\verb| ( min::stub * s )|
-\LABEL{LABHASH} \\
-\verb|unsigned min::| & \MINKEY{labhash}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::stub * s )|
+\LABEL{MIN::LABHASH} \\
+\verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
-\verb|unsigned min::| & \MINKEY{labhash}%
-    \verb| ( min::gen * const p, unsigned n )|
+\verb|min::uns32 min::| & \MINKEY{labhash}%
+    \verb| ( const min::gen * p, unsigned n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
 \end{tabular}\end{center}
 
@@ -1769,7 +1787,7 @@ A label may be created by the following protected function:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_gen}%
-    \verb| ( min::gen * const p, unsigned n )|
+    \verb| ( const min::gen * p, unsigned n )|
 \LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\
 \end{tabular}\end{center}
 
@@ -1783,8 +1801,8 @@ label.
 A label may be tested by the following protected function:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{is\_label}\verb| ( min::gen v )|
-\LABEL{MIN::IS_LABEL_OF_GEN} \\
+\verb|bool min::| & \MINKEY{is\_lab}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LAB_OF_GEN} \\
 \end{tabular}\end{center}
 
 
@@ -3443,7 +3461,12 @@ struct min
 \LABEL{MIN::NEW_LONG_CONTROL_CODE_GEN} \\[1ex]
 
 \verb|int min::| & \MINKEY{gen\_subtype\_of}\verb| ( min::gen v )|
-\LABEL{MIN::GEN_SUBTYPE_OF} \\
+\LABEL{MIN::GEN_SUBTYPE_OF} \\[1ex]
+
+\verb|bool min::| & \MINKEY{is\_atom}\verb| ( min::gen v )|
+\LABEL{MIN::IS_ATOM} \\
+\verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
+\LABEL{MIN::HASH} \\
 
 \end{tabular}
 
@@ -3700,32 +3723,32 @@ struct min
 
 \begin{tabular}{@{}r@{}p{4.0in}}
 
-\verb|unsigned | & \TTKEY{lab\_of}\ARGBREAK
+\verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
     \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::stub * s )|
-\LABEL{LAB_OF} \\
+\LABEL{MIN::LAB_OF} \\
 \verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
     \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::gen v )|
 \LABEL{MIN::LAB_OF_GEN} \\[1ex]
 
-\verb|unsigned | & \TTKEY{lablen}\verb| ( min::stub * s )|
-\LABEL{LABLEN} \\
+\verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::stub * s )|
+\LABEL{MIN::LABLEN} \\
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\[1ex]
 
-\verb|unsigned | & \TTKEY{labhash}\verb| ( min::stub * s )|
-\LABEL{LABHASH} \\
-\verb|unsigned min::| & \MINKEY{labhash}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::stub * s )|
+\LABEL{MIN::LABHASH} \\
+\verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
-\verb|unsigned min::| & \MINKEY{labhash}\ARGBREAK
-    \verb| ( min::gen * const p, unsigned n )|
+\verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
+    \verb| ( const min::gen * p, unsigned n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\[1ex]
 
 \verb|min::gen min::| & \MINKEY{new\_gen}\ARGBREAK
-    \verb| ( min::gen * const p, unsigned n )|
+    \verb| ( const min::gen * p, unsigned n )|
 \LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\[1ex]
 
-\verb|bool min::| & \MINKEY{is\_label}\verb| ( min::gen v )|
-\LABEL{MIN::IS_LABEL_OF_GEN} \\
+\verb|bool min::| & \MINKEY{is\_lab}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LAB_OF_GEN} \\
 
 \end{tabular}
 
