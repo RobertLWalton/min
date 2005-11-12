@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 11 21:58:36 EST 2005
+// Date:	Sat Nov 12 09:30:22 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/12 02:58:34 $
+//   $Date: 2005/11/12 16:21:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.27 $
+//   $Revision: 1.28 $
 
 // Table of Contents:
 //
@@ -166,12 +166,15 @@ namespace min { namespace unprotected {
 	    	( min::uns64 v )
 	    {
 		return (min::stub *)
-		       (unsigned MIN_INT_POINTER_TYPE) v;
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       v;
 	    }
-	    inline min::uns64 stub_p_to_uns64 ( void * p )
+	    inline min::uns64 stub_p_to_uns64
+		    ( void * p )
 	    {
 		return (min::uns64)
-		       (unsigned MIN_INT_POINTER_TYPE) p;
+		       (unsigned MIN_INT_POINTER_TYPE)
+		       p;
 	    }
 #	endif
 #   endif
@@ -957,17 +960,20 @@ namespace min {
 	    return int ( min::int64 ( c ) >> 56 );
         }
 
-        inline unsigned flags_of_control ( min::uns64 c )
+        inline unsigned flags_of_control
+		( min::uns64 c )
 	{
 	    return unsigned ( c >> 44 ) & 0xFFFF;
         }
 
-        inline unsigned value_of_control ( min::uns64 c )
+        inline unsigned value_of_control
+		( min::uns64 c )
 	{
 	    return unsigned ( c & 0xFFFFFFFFFFF );
         }
 
-        inline min::stub * pointer_of_control ( min::uns64 c )
+        inline min::stub * pointer_of_control
+		( min::uns64 c )
 	{
 #	    if MIN_IS_COMPACT
 	       return min::unprotected::uns32_to_stub_p
@@ -1286,24 +1292,30 @@ namespace min {
 		    return unprotected::
 		           new_direct_int_gen ( i );
 	    }
-		return unprotected::new_num_stub_gen ( v );
+		return unprotected::
+		       new_num_stub_gen ( v );
 	    }
 	    inline int int_of ( min::gen v )
 	    {
 		if ( v < ( min::GEN_DIRECT_INT << 24 ) )
 		{
 		    min::stub * s =
-			unprotected::uns32_to_stub_p ( v );
-		    assert ( type_of ( s ) == min::NUMBER );
+			unprotected::
+			uns32_to_stub_p ( v );
+		    assert (    type_of ( s )
+		             == min::NUMBER );
 		    min::float64 f = s->v.f64;
-		    assert ( INT_MIN <= f && f <= INT_MAX );
+		    assert (    INT_MIN <= f
+		             && f <= INT_MAX );
 		    int i = (int) f;
 		    assert ( i == f );
 		    return i;
 		}
-		else if ( v <
-			  ( min::GEN_DIRECT_STR << 24 ) )
-		    return unprotected::direct_int_of ( v );
+		else if
+		    (   v
+		      < ( min::GEN_DIRECT_STR << 24 ) )
+		    return unprotected::
+		           direct_int_of ( v );
 		else
 		{
 		    assert ( is_num ( v ) );
@@ -1314,12 +1326,15 @@ namespace min {
 		if ( v < ( min::GEN_DIRECT_INT << 24 ) )
 		{
 		    min::stub * s =
-			unprotected::uns32_to_stub_p ( v );
+			unprotected::
+			uns32_to_stub_p ( v );
 		    return float_of ( s );
 		}
-		else if ( v <
-			  ( min::GEN_DIRECT_STR << 24 ) )
-		    return unprotected::direct_int_of ( v );
+		else if
+		    (   v
+		      < ( min::GEN_DIRECT_STR << 24 ) )
+		    return unprotected::
+		           direct_int_of ( v );
 		else
 		{
 		    assert ( is_num ( v ) );
@@ -1365,14 +1380,13 @@ namespace min {
 // Strings
 // -------
 
-namespace min {
+namespace min { namespace unprotected {
+
     struct long_str {
 	min::uns32 length;
 	min::uns32 hash;
     };
-}
 
-namespace min { namespace unprotected {
     min::uns64 short_str_of ( min::stub * s )
     {
 	return s->v.u64;
@@ -1382,33 +1396,39 @@ namespace min { namespace unprotected {
     {
 	s->v.u64 = str;
     }
-    min::long_str * long_str_of ( min::stub * s )
+    min::unprotected::long_str * long_str_of
+	    ( min::stub * s )
     {
-	return (min::long_str *)
+	return (min::unprotected::long_str *)
 	       unprotected::
 	       uns64_to_pointer ( s->v.u64 );
     }
-    const char * str_of ( min::long_str * str )
+    const char * str_of
+    	    ( min::unprotected::long_str * str )
     {
 	return (const char *) str
-	       + sizeof ( min::long_str );
+	       + sizeof ( min::unprotected::long_str );
     }
-    char * writable_str_of ( min::long_str * str )
+    char * writable_str_of
+    	    ( min::unprotected::long_str * str )
     {
 	return (char *) str
-	       + sizeof ( min::long_str );
+	       + sizeof ( min::unprotected::long_str );
     }
-    inline unsigned hash_of ( min::long_str * str )
+    inline unsigned hash_of
+        ( min::unprotected::long_str * str )
     {
 	return str->hash;
     }
     inline void set_length_of
-	    ( min::long_str * str, unsigned length )
+	    ( min::unprotected::long_str * str,
+	      unsigned length )
     {
 	str->length = length;
     }
     inline void set_hash_of
-	    ( min::long_str * str, unsigned hash )
+	    ( min::unprotected::long_str * str,
+	      unsigned hash )
     {
 	str->hash = hash;
     }
@@ -1416,7 +1436,8 @@ namespace min { namespace unprotected {
 
 namespace min {
 
-    inline unsigned length_of ( min::long_str * str )
+    inline unsigned length_of
+    	    ( min::unprotected::long_str * str )
     {
 	return str->length;
     }
@@ -1425,9 +1446,10 @@ namespace min {
     // char string.
     //
     min::uns32 strhash
-	( const char * p, unsigned size );
+	    ( const char * p, unsigned size );
 
-    inline unsigned hash_of ( min::long_str * str )
+    inline unsigned hash_of
+	    ( min::unprotected::long_str * str )
     {
 	if ( unprotected::hash_of ( str ) == 0 )
 	    unprotected::set_hash_of
@@ -1462,7 +1484,7 @@ namespace min {
 	    return min::strhash ( s->v.c8, n );
 	}
 	assert ( type_of ( s ) == min::LONG_STR );
-	min::long_str * ls =
+	min::unprotected::long_str * ls =
 	    unprotected::long_str_of ( s );
 	return min::strhash
 	    ( min::unprotected::str_of ( ls ),
@@ -1631,7 +1653,7 @@ namespace min {
 // ------
 
 // Labels are implemented by a chain beginning at the
-// label stub and continuing with auxilary stubs of
+// label stub and continuing with auxiliary stubs of
 // type min::LABEL_AUX.  This is done on the presumption
 // that most labels have only 2 or 3 components.
 //
@@ -1700,7 +1722,8 @@ namespace min {
     {
 	return min::labhash ( min::stub_of ( v ) );
     }
-    min::uns32 labhash ( const min::gen * p, unsigned n );
+    min::uns32 labhash
+	    ( const min::gen * p, unsigned n );
 
     min::gen new_gen ( const min::gen * p, unsigned n );
 
@@ -1733,9 +1756,113 @@ namespace min {
 // -------
 
 namespace min { namespace unprotected {
+
+    // It is possible to encode the vector_offset in 8
+    // bits by allowing only a small number of hash
+    // table sizes that are referenced through a table.
+    // By these means at least 8 bits of flags can be
+    // added to these headers if desired.
+    //
+    struct short_obj
+    {
+        min::uns16	vector_offset;
+        min::uns16	unused_offset;
+        min::uns16	auxiliary_offset;
+        min::uns16	end_offset;
+    };
+
+    struct long_obj
+    {
+        min::uns32	vector_offset;
+        min::uns32	unused_offset;
+        min::uns32	auxiliary_offset;
+        min::uns32	end_offset;
+    };
+
+    inline min::unprotected::short_obj * short_obj_of
+	    ( min::stub * s )
+    {
+        return (min::unprotected::short_obj *)
+	       min::unprotected::
+	       uns64_to_pointer
+	           ( min::unprotected::value_of ( s ) );
+    }
+
+    inline min::unprotected::long_obj * long_obj_of
+	    ( min::stub * s )
+    {
+        return (min::unprotected::long_obj *)
+	       min::unprotected::
+	       uns64_to_pointer
+	           ( min::unprotected::value_of ( s ) );
+    }
 } }
 
 namespace min {
+
+    inline unsigned hash_table_size_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return   so->vector_offset
+	       - sizeof ( min::unprotected::short_obj )
+	         / sizeof ( min::gen );
+    }
+
+    inline unsigned hash_table_size_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return   lo->vector_offset
+	       - sizeof ( min::unprotected::long_obj )
+	         / sizeof ( min::gen );
+    }
+
+    inline unsigned attribute_vector_size_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return so->unused_offset - so->vector_offset;
+    }
+
+    inline unsigned attribute_vector_size_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return lo->unused_offset - lo->vector_offset;
+    }
+
+    inline unsigned auxiliary_area_size_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return so->end_offset - so->auxiliary_offset;
+    }
+
+    inline unsigned auxiliary_area_size_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return lo->end_offset - lo->auxiliary_offset;
+    }
+
+    inline unsigned unused_area_size_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return so->auxiliary_offset - so->unused_offset;
+    }
+
+    inline unsigned unused_area_size_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return lo->auxiliary_offset - lo->unused_offset;
+    }
+
+    inline unsigned total_size_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return so->end_offset;
+    }
+
+    inline unsigned total_size_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return lo->end_offset;
+    }
 }
 
 // Numbers
@@ -1748,22 +1875,6 @@ namespace min {
 // ---
 
 namespace min {
-
-    struct short_obj
-    {
-        uns16	maximum_list_length;
-        uns16	list_length;
-        uns16	maximum_hash_length;
-        uns16	hash_length;
-    };
-
-    struct long_obj
-    {
-        uns32	maximum_list_length;
-        uns32	list_length;
-        uns32	maximum_hash_length;
-        uns32	hash_length;
-    };
 }
 
 # endif // MIN_H
