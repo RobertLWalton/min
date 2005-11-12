@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 11 11:50:05 EST 2005
+// Date:	Fri Nov 11 21:58:36 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/11 20:11:33 $
+//   $Date: 2005/11/12 02:58:34 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // Table of Contents:
 //
@@ -890,6 +890,11 @@ namespace min {
 	    return s->v.f64;
 	}
 
+        inline min::gen gen_of ( min::stub * s )
+	{
+	    return s->v.g;
+	}
+
         inline min::uns64 control_of ( min::stub * s )
 	{
 	    return s->c.u64;
@@ -907,6 +912,12 @@ namespace min {
 	    s->v.f64 = v;
 	}
 
+        inline void set_gen_of
+		( min::stub * s, min::gen v )
+	{
+	    s->v.g = v;
+	}
+
         inline void set_control_of
 		( min::stub * s, min::uns64 v )
 	{
@@ -915,7 +926,7 @@ namespace min {
 
         inline min::uns64 stub_control
 		( int type_code, unsigned flags,
-		  unsigned value )
+		  unsigned value = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
 	    	   |
@@ -1633,10 +1644,6 @@ namespace min {
 // All of the pointers to min::LABEL_AUX stubs are
 // stored as uns64 addresses and NOT as VSNs.
 
-namespace min { namespace unprotected {
-
-} }
-
 namespace min {
 
     inline unsigned lab_of
@@ -1688,9 +1695,14 @@ namespace min {
 	return min::lablen ( min::stub_of ( v ) );
     }
 
-    min::gen new_gen ( min::gen * const p, unsigned n );
+    min::uns32 labhash ( min::stub * s );
+    inline min::uns32 labhash ( min::gen v )
+    {
+	return min::labhash ( min::stub_of ( v ) );
+    }
+    min::uns32 labhash ( const min::gen * p, unsigned n );
 
-    min::uns32 labhash ( min::gen v );
+    min::gen new_gen ( const min::gen * p, unsigned n );
 
     inline bool is_lab ( min::gen v )
     {
