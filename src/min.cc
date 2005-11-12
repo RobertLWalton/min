@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Nov 10 09:08:08 EST 2005
+// Date:	Fri Nov 11 21:58:47 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/11 20:11:33 $
+//   $Date: 2005/11/12 02:58:34 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents:
 //
@@ -102,6 +102,9 @@ min::unprotected::body_control *
 	{
 	    if ( MUP::float_of ( s ) == v )
 		return min::new_gen ( s );
+	    s = (min::stub *)
+	        MUP::pointer_of_control
+		    ( MUP::control_of ( s ) );
 	}
 
 	s = MUP::new_stub ();
@@ -228,6 +231,9 @@ min::gen min::unprotected::new_str_stub_gen
 			      MUP::long_str_of ( s ) ) )
 		     == 0 )
 	    return min::new_gen ( s );
+	s = (min::stub *)
+	    MUP::pointer_of_control
+		( MUP::control_of ( s ) );
     }
 
     s = MUP::new_stub ();
@@ -279,10 +285,92 @@ min::uns32 labhash ( const min::gen * p, unsigned n )
     min::uns32 hash = 0;
     while ( n -- )
     {
+        assert ( min::is_atom ( * p ) );
         hash = m * hash + min::hash ( * p ++ );
 	m *= lab_multiplier;
     }
     return hash;
+}
+
+min::uns32 labhash ( min::stub * s )
+{
+    assert ( min::type_of ( s ) == min::LABEL );
+    min::uns32 m = 1;
+    min::uns32 hash = 0;
+    min::stub * p = (min::stub *)
+        MUP::uns64_to_pointer ( MUP::value_of ( s ) );
+    while ( p )
+    {
+        hash = m * hash
+	     + min::hash
+		    ( (min::gen) MUP::value_of ( p ) );
+	m *= lab_multiplier;
+        p = (min::stub *)
+	    MUP::pointer_of_control
+		( MUP::control_of ( p ) );
+    }
+    return hash;
+}
+
+min::gen new_gen ( const min::gen * p, unsigned n )
+{
+    unsigned hash = labhash ( p, n );
+    unsigned h = hash % label_hash_size;
+    min::stub * s = label_hash[h];
+    while ( s )
+    {
+	assert ( min::type_of ( s ) == min::LABEL );
+	min::stub * q = (min::stub *)
+	    MUP::uns64_to_pointer ( MUP::value_of ( s ) );
+	unsigned i = 0;
+	while ( q )
+	{
+	    if ( i >= n ) break;
+	    if (    p[i++]
+	         != (min::gen) MUP::value_of ( q ) )
+	        break;
+	    q = (min::stub *)
+		MUP::pointer_of_control
+		    ( MUP::control_of ( q ) );
+	}
+	if ( q == NULL && i >= n )
+	    return min::new_gen ( s );
+	s = (min::stub *)
+	    MUP::pointer_of_control
+		( MUP::control_of ( s ) );
+    }
+
+    s = MUP::new_stub ();
+    if ( n == 0 )
+        MUP::set_value_of ( s, 0 );
+    else
+    {
+        min::stub * lastq = NULL;
+	for ( unsigned i = 0; i < n; ++ i )
+	{
+	    min::stub * q = MUP::new_stub ();
+	    MUP::set_gen_of ( q, p[i] );
+	    if ( lastq )
+		MUP::set_control_of
+		    ( s, MUP::stub_control
+		           ( min::LABEL_AUX, 0,
+			     lastq ) );
+	    else
+		MUP::set_value_of
+		    ( s, MUP::pointer_to_uns64 ( q ) );
+	    lastq = q;
+	}
+	MUP::set_control_of
+	    ( lastq, MUP::stub_control
+	    	         ( min::LABEL_AUX, 0 ) );
+    }
+    MUP::set_control_of
+	( s,
+	  MUP::stub_control ( min::LABEL,
+			      MUP::gc_new_stub_flags,
+			      label_hash[h] ));
+    label_hash[h] = s;
+    return min::new_gen ( s );
 }
 
 
