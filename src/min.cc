@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 11 21:58:47 EST 2005
+// Date:	Sat Nov 12 09:39:23 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/12 02:58:34 $
+//   $Date: 2005/11/12 16:21:49 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents:
 //
@@ -247,10 +247,10 @@ min::gen min::unprotected::new_str_stub_gen
     {
 	type = min::LONG_STR;
 	MUP::body_control * b = MUP::new_body
-	    ( sizeof ( min::long_str ) + length + 1 );
+	    ( sizeof ( MUP::long_str ) + length + 1 );
 	b->control = MUP::pointer_to_uns64 ( s );
 	s->v.u64 = MUP::pointer_to_uns64 ( b + 1 );
-	min::long_str * ls = (min::long_str *) ( b + 1 );
+	MUP::long_str * ls = (MUP::long_str *) ( b + 1 );
 	ls->length = length;
 	ls->hash = hash;
 	::strcpy ( MUP::writable_str_of ( ls ), p );
