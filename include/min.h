@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 12 23:02:57 EST 2005
+// Date:	Sun Nov 13 06:26:03 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/13 04:52:29 $
+//   $Date: 2005/11/13 16:30:46 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // Table of Contents:
 //
@@ -48,6 +48,7 @@
 # include <climits>
 # include <cstring>
 # include <cassert>
+# include <new>
 
 # ifndef MIN_DEBUG
 #   define MIN_DEBUG 0
@@ -994,7 +995,6 @@ namespace min {
 
         }
     }
-
 }
 
 // Process Interface
@@ -1953,9 +1953,253 @@ namespace min {
 // ------ ---- -----
 
 namespace min { namespace unprotected {
+
+    class list_pointer;
 } }
 
 namespace min {
+
+#   if MIN_IS_COMPACT
+	const min::gen LIST_END = (min::gen)
+	    ( (min::uns32) min::GEN_LIST_AUX << 24 );
+	const min::gen EMPTY_SUBLIST = (min::gen)
+	    ( (min::uns32) min::GEN_LIST_AUX << 24 );
+#   else // if MIN_IS_LOOSE
+	const min::gen LIST_END = (min::gen)
+	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
+	const min::gen EMPTY_SUBLIST = (min::gen)
+	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
+#   endif
+
+    // We must declare these before we make them
+    // friends.
+
+    min::gen start_hash
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index );
+    min::gen start_vector
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index );
+    min::gen start_copy
+            ( min::unprotected::list_pointer & lp,
+	      min::unprotected::list_pointer & lp2 );
+    min::gen next
+    	    ( min::unprotected::list_pointer & lp );
+    min::gen current
+    	    ( min::unprotected::list_pointer & lp );
+    min::gen start_sublist
+    	    ( min::unprotected::list_pointer & lp );
+    void insert_before
+    	    ( min::unprotected::list_pointer & lp,
+	      min::gen v );
+    void insert_after
+    	    ( min::unprotected::list_pointer & lp,
+	      min::gen v );
+}
+
+namespace min { namespace unprotected {
+
+    class list_pointer {
+
+    public:
+
+        list_pointer ( min::stub * s )
+	{
+	    int t = min::type_of ( s );
+	    assert (    t == min::SHORT_OBJ
+	    	     || t == min::LONG_OBJ );
+	    this->s = s;
+	    so = NULL;
+	    lo = NULL;
+	    current = 0;
+	    is_at_end = false;
+	    is_in_aux = false;
+	}
+
+        list_pointer ( min::gen v )
+	{
+	    new (this)
+	        list_pointer ( min::stub_of ( v ) );
+	}
+
+    private:
+
+	friend min::gen min::start_hash
+		( min::unprotected::list_pointer & lp,
+		  unsigned index );
+	friend min::gen min::start_vector
+		( min::unprotected::list_pointer & lp,
+		  unsigned index );
+	friend min::gen min::start_copy
+		( min::unprotected::list_pointer & lp,
+		  min::unprotected::list_pointer & lp2
+		);
+	friend min::gen min::next
+		( min::unprotected::list_pointer & lp );
+	friend min::gen min::current
+		( min::unprotected::list_pointer & lp );
+	friend min::gen min::start_sublist
+		( min::unprotected::list_pointer & lp );
+	friend void min::insert_before
+		( min::unprotected::list_pointer & lp,
+		  min::gen v );
+	friend void min::insert_after
+		( min::unprotected::list_pointer & lp,
+		  min::gen v );
+
+    	min::stub * s;
+	    // Stub of object.
+	min::unprotected::short_obj * so;
+	min::unprotected::long_obj * lo;
+	    // After start, just one of these is
+	    // non-NULL.
+	min::gen * base;
+	    // base of body vector.
+	unsigned current;
+	    // base[current] is current location.
+	bool is_at_end;
+	    // Ignore current, as pointer is at end
+	    // of a list.
+	bool is_in_aux;
+	    // Current points into auxiliary area,
+	    // instead of head.  This means that the
+	    // next sequential vector element is part of
+	    // the list.
+
+        void relocate ( )
+	{
+	    int t = min::type_of ( s );
+	    if ( t == min::SHORT_OBJ )
+	    {
+	        so = min::unprotected::
+		     short_obj_of ( s );
+		base = (min::gen *) so;
+	    }
+	    else if ( t == min::LONG_OBJ )
+	    {
+	        lo = min::unprotected::
+		     long_obj_of ( s );
+		base = (min::gen *) so;
+	    }
+	    else
+	    {
+		assert ( ! is_deallocated ( s ) );
+	        assert ( ! "s is not an object" );
+	    }
+	}
+
+	min::gen forward ( unsigned index )
+	{
+	    while ( true )
+	    {
+		current = index;
+		if ( ! min::is_list_aux
+			   ( base[current] ) )
+		{
+		    is_at_end = false;
+		    return base[current];
+		}
+		if ( base[current] == min::LIST_END )
+		{
+		    is_at_end = true;
+		    return base[current];
+		}
+		index = min::list_aux_of
+			    ( base[current] );
+		is_in_aux = true;
+	    }
+	}
+
+	// Allocate n consecutive aux cells and return
+	// the index of the first such cell.
+	//
+	unsigned allocate ( unsigned n )
+	{
+	    return 0;	// TBD
+	}
+    };
+} }
+
+namespace min {
+
+    inline min::gen start_hash
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index )
+    {
+	lp.relocate();
+        if ( lp.so )
+	{
+	    index +=   sizeof ( min::unprotected::
+	                             short_obj )
+	             / sizeof ( min::gen );
+	    assert (   index
+	             < lp.so->attribute_vector_offset );
+	}
+	else
+	{
+	    index +=   sizeof ( min::unprotected::
+	                             long_obj )
+	             / sizeof ( min::gen );
+	    assert (   index
+	             < lp.lo->attribute_vector_offset );
+	}
+	lp.is_in_aux = false;
+	return lp.forward ( index );
+    }
+    inline min::gen start_vector
+            ( min::unprotected::list_pointer & lp, unsigned index )
+    {
+	lp.relocate();
+        if ( lp.so )
+	{
+	    index += lp.so->attribute_vector_offset;
+	    assert ( index < lp.so->unused_area_offset );
+	}
+	else
+	{
+	    index += lp.lo->attribute_vector_offset;
+	    assert ( index < lp.lo->unused_area_offset );
+	}
+	lp.is_in_aux = false;
+	return lp.forward ( index );
+    }
+    inline min::gen start_copy
+            ( min::unprotected::list_pointer & lp,
+	      min::unprotected::list_pointer & lp2 )
+    {
+        assert ( lp.s == lp2.s );
+	lp.lo = lp2.lo;
+	lp.so = lp2.so;
+	lp.current = lp2.current;
+	lp.is_at_end = lp2.is_at_end;
+	lp.is_in_aux = lp2.is_in_aux;
+	return lp.is_at_end ? min::LIST_END
+	                    : lp.base[lp.current];
+    }
+    inline min::gen next
+    	    ( min::unprotected::list_pointer & lp )
+    {
+    	if ( lp.is_at_end ) return min::LIST_END;
+	if ( ! lp.is_in_aux )
+	{
+	    lp.is_at_end = true;
+	    return min::LIST_END;
+	}
+	return lp.forward ( lp.current + 1 );
+    }
+    inline min::gen current
+    	    ( min::unprotected::list_pointer & lp )
+    {
+    	if ( lp.is_at_end ) return min::LIST_END;
+	else return lp.base[lp.current];
+    }
+    inline min::gen start_sublist
+    	    ( min::unprotected::list_pointer & lp )
+    {
+	assert ( ! lp.is_at_end );
+	lp.forward ( min::sublist_aux_of
+			  ( lp.base[lp.current] ) );
+    }
 }
 
 // Object Attribute Level
