@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 12, 2005}
+\date{November 13, 2005}
  
 \maketitle
 
@@ -2051,11 +2051,10 @@ can be obtained by the following protected functions:
 At the \key{list level},\label{LIST-LEVEL}
 the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
-object vector.  The elements of the lists are non-auxiliary-pointer
-\verb|min::gen| values (e.g., direct integers, direct strings, pointers
-to stubs, and control codes)
-and sublists.  The lists are constructed with
-the help of the two kinds of auxiliary pointers:
+object vector.  The elements of the lists are
+\verb|min::gen| values other than the list or sublist auxiliary
+pointers, and sublists.  The lists are constructed with
+the help of the list and sublist auxiliary pointers:
 
 \begin{indpar}
 \key{list auxiliary pointer} ~~~
@@ -2085,7 +2084,7 @@ list continuations are list heads.
 
 A list continuation represents a final segment of a list.
 If it has the value \verb|min::LIST_END|, the list has
-no more elements, and may be empty if it has no previous elements.
+no more elements, and is empty if it has no previous elements.
 If the list continuation has a list pointer value,
 that pointer points at another list continuation that continues the list.
 Otherwise the list continuation represents an element of the list,
@@ -2099,10 +2098,10 @@ one element.  All list heads lie in the hash table or attribute vector,
 so testing whether a list element is a list head can be done if just the
 index of the list element in the body vector is known.
 
-A list element may be a non-auxiliary-pointer \verb|min::gen|
-value, such as a direct number, direct string, control code, or
-stub pointer.  None of these represent sublists.  A list element
-that is an auxiliary sublist pointer or the value \verb|min::EMPTY_SUBLIST|
+A list element that is not a sublist may be any \verb|min::gen|
+value that is not a list or sublist auxililary pointer.
+A list element
+that is an sublist auxiliary pointer or the value \verb|min::EMPTY_SUBLIST|
 represents a sublist, and is the \key{sublist head} of that sublist.  A
 sublist head is a list element of the list containing a sublist,
 but cannot be a list element of the sublist.  If it is a sublist pointer,

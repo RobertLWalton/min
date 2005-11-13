@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 12 09:39:23 EST 2005
+// Date:	Sun Nov 13 10:44:16 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/12 16:21:49 $
+//   $Date: 2005/11/13 16:30:47 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents:
 //
@@ -24,6 +24,7 @@
 //	Strings
 //	Labels
 //	Objects
+//	Object List Level
 
 // Setup
 // -----
@@ -376,6 +377,46 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 
 // Objects
 // -------
+
+
+
+// Object List Level
+// ------ ---- -----
+
+inline void min::insert_before
+	( min::unprotected::list_pointer & lp,
+	  min::gen v )
+{
+    assert (    ! min::is_list_aux ( v )
+             && ! min::is_sublist_aux ( v ) );
+
+    unsigned index = lp.allocate ( 3 );
+    if ( ! lp.is_in_aux )
+    {
+	if ( lp.is_at_end )
+	{
+	    lp.base[index] = lp.base[lp.current];
+	    lp.base[index+1] = v;
+	    lp.current = index + 2;
+	}
+	else
+	{
+	    lp.base[index] = v;
+	    lp.base[index+1] = lp.base[lp.current];
+	    lp.current = index + 1;
+	}
+	lp.base[index+2] = min::LIST_END;
+    }
+    else
+    {
+    }
+}
+
+inline void min::insert_after
+	( min::unprotected::list_pointer & lp,
+	  min::gen v )
+{
+}
 
 
 // Numbers
