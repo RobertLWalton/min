@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 12 09:30:22 EST 2005
+// Date:	Sat Nov 12 23:02:57 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/12 16:21:49 $
+//   $Date: 2005/11/13 04:52:29 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // Table of Contents:
 //
@@ -33,6 +33,9 @@
 //	Labels
 //	Atom Functions
 //	Objects
+//	Object Vector Level
+//	Object List Level
+//	Object Attribute Level
 
 // Setup
 // -----
@@ -898,6 +901,12 @@ namespace min {
 	    return s->v.g;
 	}
 
+        inline void * pointer_of ( min::stub * s )
+	{
+	    return min::unprotected::
+	           uns64_to_pointer ( s->v.u64 );
+	}
+
         inline min::uns64 control_of ( min::stub * s )
 	{
 	    return s->c.u64;
@@ -1757,44 +1766,40 @@ namespace min {
 
 namespace min { namespace unprotected {
 
-    // It is possible to encode the vector_offset in 8
-    // bits by allowing only a small number of hash
-    // table sizes that are referenced through a table.
-    // By these means at least 8 bits of flags can be
-    // added to these headers if desired.
+    // It is possible to encode the attribute_vector_
+    // offset in 8 bits by allowing only a small number
+    // of hash table sizes that are referenced through
+    // a table.  By these means at least 8 bits of flags
+    // can be added to these headers if desired.
     //
     struct short_obj
     {
-        min::uns16	vector_offset;
-        min::uns16	unused_offset;
-        min::uns16	auxiliary_offset;
-        min::uns16	end_offset;
+        min::uns16	attribute_vector_offset;
+        min::uns16	unused_area_offset;
+        min::uns16	auxiliary_area_offset;
+        min::uns16	total_size;
     };
 
     struct long_obj
     {
-        min::uns32	vector_offset;
-        min::uns32	unused_offset;
-        min::uns32	auxiliary_offset;
-        min::uns32	end_offset;
+        min::uns32	attribute_vector_offset;
+        min::uns32	unused_area_offset;
+        min::uns32	auxiliary_area_offset;
+        min::uns32	total_size;
     };
 
     inline min::unprotected::short_obj * short_obj_of
 	    ( min::stub * s )
     {
         return (min::unprotected::short_obj *)
-	       min::unprotected::
-	       uns64_to_pointer
-	           ( min::unprotected::value_of ( s ) );
+	       min::unprotected::pointer_of ( s );
     }
 
     inline min::unprotected::long_obj * long_obj_of
 	    ( min::stub * s )
     {
         return (min::unprotected::long_obj *)
-	       min::unprotected::
-	       uns64_to_pointer
-	           ( min::unprotected::value_of ( s ) );
+	       min::unprotected::pointer_of ( s );
     }
 } }
 
@@ -1803,7 +1808,7 @@ namespace min {
     inline unsigned hash_table_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return   so->vector_offset
+        return   so->attribute_vector_offset
 	       - sizeof ( min::unprotected::short_obj )
 	         / sizeof ( min::gen );
     }
@@ -1811,7 +1816,7 @@ namespace min {
     inline unsigned hash_table_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return   lo->vector_offset
+        return   lo->attribute_vector_offset
 	       - sizeof ( min::unprotected::long_obj )
 	         / sizeof ( min::gen );
     }
@@ -1819,54 +1824,154 @@ namespace min {
     inline unsigned attribute_vector_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return so->unused_offset - so->vector_offset;
+        return   so->unused_area_offset
+	       - so->attribute_vector_offset;
     }
 
     inline unsigned attribute_vector_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return lo->unused_offset - lo->vector_offset;
+        return   lo->unused_area_offset
+	       - lo->attribute_vector_offset;
     }
 
     inline unsigned auxiliary_area_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return so->end_offset - so->auxiliary_offset;
+        return   so->total_size
+	       - so->auxiliary_area_offset;
     }
 
     inline unsigned auxiliary_area_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return lo->end_offset - lo->auxiliary_offset;
+        return   lo->total_size
+	       - lo->auxiliary_area_offset;
     }
 
     inline unsigned unused_area_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return so->auxiliary_offset - so->unused_offset;
+        return   so->auxiliary_area_offset
+	       - so->unused_area_offset;
     }
 
     inline unsigned unused_area_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return lo->auxiliary_offset - lo->unused_offset;
+        return   lo->auxiliary_area_offset
+	       - lo->unused_area_offset;
+    }
+
+    inline unsigned header_size_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return   sizeof ( min::unprotected::short_obj )
+	       / sizeof ( min::gen );
+    }
+
+    inline unsigned header_size_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return   sizeof ( min::unprotected::long_obj )
+	       / sizeof ( min::gen );
     }
 
     inline unsigned total_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return so->end_offset;
+        return so->total_size;
     }
 
     inline unsigned total_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return lo->end_offset;
+        return lo->total_size;
     }
+}
+
+// Object Vector Level
+// ------ ------ -----
+
+namespace min { namespace unprotected {
+
+    inline const min::gen * body_vector_of
+    	    ( min::unprotected::short_obj * so )
+    {
+        return (const min::gen *) so;
+    }
+
+    inline const min::gen * body_vector_of
+    	    ( min::unprotected::long_obj * lo )
+    {
+        return (const min::gen *) lo;
+    }
+
+    inline min::gen * writable_body_vector_of
+    	    ( min::unprotected::short_obj * so )
+    {
+        return (min::gen *) so;
+    }
+
+    inline min::gen * writable_body_vector_of
+    	    ( min::unprotected::long_obj * lo )
+    {
+        return (min::gen *) lo;
+    }
+} }
+
+namespace min {
+
+    inline unsigned hash_table_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return   sizeof ( min::unprotected::short_obj )
+	       / sizeof ( min::gen );
+    }
+
+    inline unsigned hash_table_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return   sizeof ( min::unprotected::long_obj )
+	       / sizeof ( min::gen );
+    }
+
+    inline unsigned attribute_vector_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return so->attribute_vector_offset;
+    }
+
+    inline unsigned attribute_vector_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return lo->attribute_vector_offset;
+    }
+}
+
+// Object List Level
+// ------ ---- -----
+
+namespace min { namespace unprotected {
+} }
+
+namespace min {
+}
+
+// Object Attribute Level
+// ------ --------- -----
+
+namespace min { namespace unprotected {
+} }
+
+namespace min {
 }
 
 // Numbers
 // -------
+
+namespace min { namespace unprotected {
+} }
 
 namespace min {
 }
