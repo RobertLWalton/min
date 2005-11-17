@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 13, 2005}
+\date{November 17, 2005}
  
 \maketitle
 
@@ -2132,7 +2132,8 @@ section must be modified as explained in \secref{OBJECT-AUXILIARY-STUBS}.
 \label{LIST-POINTERS}
 
 A \MUPkey{list\_pointer} can be used to move around in a object at
-the list level.  The functions for using a list pointer are:
+the list level.  The functions for using a list pointer to do this
+are:
 
 \begin{center}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
@@ -2171,12 +2172,6 @@ the list level.  The functions for using a list pointer are:
 \verb|bool min::|
 	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST} \\
-\verb|void |
-	& \TTKEY{insert\_before}\verb| ( min::list_pointer & lp, min::gen v )|
-\LABEL{INSERT_BEFORE} \\
-\verb|void |
-	& \TTKEY{insert\_after}\verb| ( min::list_pointer & lp, min::gen v )|
-\LABEL{INSERT_AFTER} \\
 \end{tabular}\end{center}
 
 A list pointer is created to move around in a particular object.
@@ -2226,8 +2221,6 @@ If {\tt start\_sublist} is called when the list pointer points at an
 element E that is not a sublist, and is not the end of a list, then
 the element is treated as a sublist with exactly one element, E.
 
-
-
 Determining whether a list element value represents a sublist requires
 the {\tt min::is\_sublist} function, which must check whether the
 value is a sublist auxiliary pointer, is the value {\tt min::EMPTY\_SUBLIST},
@@ -2237,6 +2230,15 @@ or is a pointer to a sublist auxiliary stub as described in
 Determining whether a value represents the end of a list can be done by
 simply checking whether the value equals {\tt min::LIST\_END},
 or can be done with the {\tt min::is\_list\_end} function.
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void |
+	& \TTKEY{insert\_before}\verb| ( min::list_pointer & lp, min::gen v )|
+\LABEL{INSERT_BEFORE} \\
+\verb|void |
+	& \TTKEY{insert\_after}\verb| ( min::list_pointer & lp, min::gen v )|
+\LABEL{INSERT_AFTER} \\
+\end{tabular}\end{center}
 
 The {\tt insert\_before} function inserts a list element with a given
 value just before the current position of a list pointer.
