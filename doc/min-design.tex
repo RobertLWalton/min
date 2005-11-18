@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 17, 2005}
+\date{November 18, 2005}
  
 \maketitle
 
@@ -2142,30 +2142,30 @@ are:
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::gen obj )|
 \LABEL{MUP::LIST_POINTER_OF_GEN} \\
-\verb|min::gen |
-	& \TTKEY{start\_hash}%
+\verb|min::gen min::|
+	& \MINKEY{start\_hash}%
 	  \verb| ( min::list_pointer & lp, unsigned index )|
-\LABEL{START_HASH} \\
-\verb|min::gen |
-	& \TTKEY{start\_vector}%
+\LABEL{MIN::START_HASH} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_vector}%
 	  \verb| ( min::list_pointer & lp, unsigned index )|
-\LABEL{START_VECTOR} \\
-\verb|min::gen |
-	& \TTKEY{start\_copy}%
+\LABEL{MIN::START_VECTOR} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::list_pointer & lp,| \\
 	  \verb|   min::list_pointer & lp2 )|
 	  \end{tabular}
-\LABEL{START_COPY} \\
-\verb|min::gen |
-	& \TTKEY{next}\verb| ( min::list_pointer & lp )|
-\LABEL{NEXT_OF_LIST_POINTER} \\
-\verb|min::gen |
-	& \TTKEY{current}\verb| ( min::list_pointer & lp )|
-\LABEL{CURRENT_OF_LIST_POINTER} \\
-\verb|min::gen |
-	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
-\LABEL{START_SUBLIST} \\
+\LABEL{MIN::START_COPY} \\
+\verb|min::gen min::|
+	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST} \\
 \verb|bool min::|
 	& \MINKEY{is\_list\_end}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LIST_END} \\
@@ -2231,44 +2231,92 @@ Determining whether a value represents the end of a list can be done by
 simply checking whether the value equals {\tt min::LIST\_END},
 or can be done with the {\tt min::is\_list\_end} function.
 
+Making insertions in object lists requires reservation of the necessary
+space first, in order to be sure that a sequence of insertions will
+all succeed.  The functions used are:
+
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void |
-	& \TTKEY{insert\_before}\verb| ( min::list_pointer & lp, min::gen v )|
-\LABEL{INSERT_BEFORE} \\
-\verb|void |
-	& \TTKEY{insert\_after}\verb| ( min::list_pointer & lp, min::gen v )|
-\LABEL{INSERT_AFTER} \\
+\verb|void min::|
+	& \MINKEY{insert\_reserve\REL}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp,| \\
+	  \verb|   unsigned insertions, unsigned elements = 0,| \\
+	  \verb|   bool use_auxiliaries =| \\
+	  \verb|       min::use_list_auxiliary_stubs )| \\
+	  \end{tabular}
+\LABEL{MIN::INSERT_RESERVE} \\
+\verb|void min::|
+	& \MINKEY{insert\_before}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp,| \\
+	  \verb|   min::gen * p, unsigned n )| \\
+	  \end{tabular}
+\LABEL{MIN::INSERT_BEFORE} \\
+\verb|void min::|
+	& \MINKEY{insert\_after}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp,| \\
+	  \verb|   min::gen * p, unsigned n )| \\
+	  \end{tabular}
+\LABEL{MIN::INSERT_AFTER} \\
 \end{tabular}\end{center}
 
-The {\tt insert\_before} function inserts a list element with a given
-value just before the current position of a list pointer.
-The {\tt insert\_after} function inserts a list element just after the
+The {\tt insert\_reserve} function reserves space for the given number
+of insertion function calls and the given total number of list elements
+to be inserted.  If the later is {\tt 0}, the default, it is taken to
+be equal to the number of insertion function calls.  If space is not
+reserved for insertion function calls in this way, the calls will be
+in error.
+
+The {\tt insert\_reserve} function can increase the size of the object
+if it is insufficient, or instead it can depend upon using
+object auxiliary stubs (\secref{OBJECT-AUXILIARY-STUBS}) if the object
+runs out of space, in which case {\tt insert\_reserve} must be sure
+there are sufficient free stubs to satisfy the insertion calls.  The
+last argument to {\tt insert\_reserve} determines which strategy is
+used.  It defaults to the value of \minkey{use\_list\_auxiliary\_stubs}.
+
+The {\tt insert\_before} function inserts list elements
+just before the current position of a list pointer.
+The {\tt insert\_after} function inserts list elements just after the
 current position.  If the list pointer is at the end of list,
-{\tt insert\_before} inserts the element at the end of the list, and
+{\tt insert\_before} inserts the elements at the end of the list, and
 {\tt insert\_after} is an error.  The list pointer continues to point
-at the list element it pointed at before the element was inserted.
+at the list element it pointed at before elements were inserted.
+The elements are specified by a length {\tt n}
+vector {\tt p} of {\tt min::gen} values.
+
+The following function can be used to delete {\tt n} consecutive elements
+of a list, the first of which is the element currently pointed at by
+the list pointer:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen min::|
+	& \MINKEY{delete}%
+	  \verb| ( min::list_pointer & lp, unsigned n = 1 )|
+\LABEL{MIN::DELETE_FROM_LIST} \\
+\end{tabular}\end{center}
+
+Element deletion requires no reservation.
 
 If there are several list pointers,
-and one is used to insert an element after a element of a list,
-or to insert an element before the end of a list,
-the other list pointers are not affected.  In particular, other
-list pointers pointing at the end of the list will continue to point
-at the end of the list.  In addition, other lists pointers pointing
-into sublists of the list or superlists containing the list are not affected.
-
-If there are several list pointers,
-and one is used to insert an element X before a element Y of a list,
-and Y is not the end of the list, all list pointers pointing at Y
-will be re-pointed at X, and all other list pointers will not be affected.
+and one is used to insert elements into a list X, or delete elements from
+X, other list pointers pointing into the list X
+may be affected in unspecified ways.  Other list pointers not pointing
+into X will not be affected, even if they point into other lists of
+the same object.
 
 \begin{quote}
 \key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
 Insertion in general replaces an element E by a list pointer that
-points at a pair of elements, one of which is E, followed by
+points at a vector of elements, one of which is E, and the last of which is
 a list pointer back to the element originally after E in the list.
-The special cases all concern pointers pointing at the end of a list;
-these can be marked as being end pointers, and made to continue to point
-at the end of the list no matter how the list is changed.
+As a special case, insertion before the end of a list that consists of
+a single element headed in the hash table or attribute vector is transformed
+into insertion after the single element.  It is this case that makes
+it impossible to guarentee that list pointers not pointing at E will
+be unaffected by an insertion even if they point into the list that
+contains E.
 \end{quote}
 
 \subsubsubsection{Object Auxiliary Stubs}
@@ -3906,44 +3954,62 @@ struct min
 
 \end{tabular}
 
-\begin{tabular}{@{}r@{}p{5.0in}}
+\begin{tabular}{@{}r@{}p{4.8in}}
 
-\verb|min::gen |
-	& \TTKEY{start\_hash}\ARGBREAK
+\verb|min::gen min::|
+	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned index )|
-\LABEL{START_HASH} \\
-\verb|min::gen |
-	& \TTKEY{start\_vector}\ARGBREAK
+\LABEL{MIN::START_HASH} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_vector}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned index )|
-\LABEL{START_VECTOR} \\
-\verb|min::gen |
-	& \TTKEY{start\_copy}\ARGBREAK
+\LABEL{MIN::START_VECTOR} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
 	  \verb|   min::list_pointer & lp2 )|
-\LABEL{START_COPY} \\
-\verb|unsigned |
-	& \TTKEY{next}\verb| ( min::list_pointer & lp )|
-\LABEL{NEXT_OF_LIST_POINTER} \\
-\verb|unsigned |
-	& \TTKEY{current}\verb| ( min::list_pointer & lp )|
-\LABEL{CURRENT_OF_LIST_POINTER} \\
-\verb|min::gen |
-	& \TTKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
-\LABEL{START_SUBLIST} \\
+\LABEL{MIN::START_COPY} \\
+\verb|unsigned min::|
+	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER} \\
+\verb|unsigned min::|
+	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST} \\
 \verb|bool min::|
 	& \MINKEY{is\_list\_end}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LIST_END} \\
 \verb|bool min::|
 	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST} \\
-\verb|void |
-	& \TTKEY{insert\_before}\ARGBREAK
-	  \verb| ( min::list_pointer & lp, min::gen v )|
-\LABEL{INSERT_BEFORE} \\
-\verb|void |
-	& \TTKEY{insert\_after}\ARGBREAK
-	  \verb| ( min::list_pointer & lp, min::gen v )|
-\LABEL{INSERT_AFTER} \\
+
+\end{tabular}
+
+\begin{tabular}{@{}r@{}p{4.8in}}
+
+\verb|void min::|
+	& \MINKEY{insert\_reserve\REL}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned insertions, unsigned elements = 0,|\ARGBREAK
+	  \verb|   bool use_auxiliaries =|\ARGBREAK
+	  \verb|       min::use_list_auxiliary_stubs )|
+\LABEL{MIN::INSERT_RESERVE} \\
+\verb|void min::|
+	& \MINKEY{insert\_before}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   min::gen * p, unsigned n )|
+\LABEL{MIN::INSERT_BEFORE} \\
+\verb|void min::|
+	& \MINKEY{insert\_after}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   min::gen * p, unsigned n )|
+\LABEL{MIN::INSERT_AFTER} \\
+\verb|min::gen min::|
+	& \MINKEY{delete}\ARGBREAK
+	  \verb| ( min::list_pointer & lp, unsigned n = 1 )|
+\LABEL{MIN::DELETE_FROM_LIST} \\
 
 \end{tabular}
 
