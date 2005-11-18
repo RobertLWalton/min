@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov 13 06:26:03 EST 2005
+// Date:	Fri Nov 18 11:33:26 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/13 16:30:46 $
+//   $Date: 2005/11/18 18:54:16 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.30 $
+//   $Revision: 1.31 $
 
 // Table of Contents:
 //
@@ -49,10 +49,6 @@
 # include <cstring>
 # include <cassert>
 # include <new>
-
-# ifndef MIN_DEBUG
-#   define MIN_DEBUG 0
-# endif
 
 namespace min {
 
@@ -826,13 +822,17 @@ namespace min {
     const int LABEL			= 5;
     const int SHORT_OBJ			= 6;
     const int LONG_OBJ			= 7;
-    const int LIST_AUX			= 8;
-    const int SUBLIST_AUX		= 9;
     const int VARIABLE_VECTOR		= 10;
 
     // Uncollectable.
     //
     const int LABEL_AUX			= -1;
+    const int LIST_AUX			= -2;
+    const int SUBLIST_AUX		= -3;
+
+    // Non-gc flags for uncollectable controls.
+    //
+    const unsigned LIST_AUX_STUB	= 1;
 
     struct stub
     {
@@ -1766,15 +1766,20 @@ namespace min {
 
 namespace min { namespace unprotected {
 
-    // It is possible to encode the attribute_vector_
-    // offset in 8 bits by allowing only a small number
-    // of hash table sizes that are referenced through
-    // a table.  By these means at least 8 bits of flags
-    // can be added to these headers if desired.
-    //
+    // attribute_vector_offset[I] is the offset of the
+    // attribute vector in an object body, in min::gen
+    // units.  I is the low order bits of the object
+    // header flags word.
+    // 
+    const unsigned ATTRIBUTE_VECTOR_OFFSET_SIZE = 256;
+    const unsigned ATTRIBUTE_VECTOR_OFFSET_MASK =
+	    ATTRIBUTE_VECTOR_OFFSET_SIZE - 1;
+    min::uns32 attribute_vector_offset
+    		    [ATTRIBUTE_VECTOR_OFFSET_SIZE];
+
     struct short_obj
     {
-        min::uns16	attribute_vector_offset;
+        min::uns16	flags;
         min::uns16	unused_area_offset;
         min::uns16	auxiliary_area_offset;
         min::uns16	total_size;
@@ -1782,7 +1787,7 @@ namespace min { namespace unprotected {
 
     struct long_obj
     {
-        min::uns32	attribute_vector_offset;
+        min::uns32	flags;
         min::uns32	unused_area_offset;
         min::uns32	auxiliary_area_offset;
         min::uns32	total_size;
@@ -1801,6 +1806,15 @@ namespace min { namespace unprotected {
         return (min::unprotected::long_obj *)
 	       min::unprotected::pointer_of ( s );
     }
+
+    inline unsigned flags_to_offset ( unsigned flags )
+    {
+        return min::unprotected::
+	    attribute_vector_offset
+		[   flags
+		  & min::unprotected::
+			 ATTRIBUTE_VECTOR_OFFSET_MASK ];
+    }
 } }
 
 namespace min {
@@ -1808,7 +1822,8 @@ namespace min {
     inline unsigned hash_table_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return   so->attribute_vector_offset
+        return   min::unprotected::
+		      flags_to_offset (so->flags);
 	       - sizeof ( min::unprotected::short_obj )
 	         / sizeof ( min::gen );
     }
@@ -1816,7 +1831,8 @@ namespace min {
     inline unsigned hash_table_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return   lo->attribute_vector_offset
+        return   min::unprotected::
+		      flags_to_offset (lo->flags);
 	       - sizeof ( min::unprotected::long_obj )
 	         / sizeof ( min::gen );
     }
@@ -1825,14 +1841,16 @@ namespace min {
 	    ( min::unprotected::short_obj * so )
     {
         return   so->unused_area_offset
-	       - so->attribute_vector_offset;
+               - min::unprotected::
+		      flags_to_offset (so->flags);
     }
 
     inline unsigned attribute_vector_size_of
 	    ( min::unprotected::long_obj * lo )
     {
         return   lo->unused_area_offset
-	       - lo->attribute_vector_offset;
+               - min::unprotected::
+		      flags_to_offset (lo->flags);
     }
 
     inline unsigned auxiliary_area_size_of
@@ -1939,13 +1957,15 @@ namespace min {
     inline unsigned attribute_vector_of
 	    ( min::unprotected::short_obj * so )
     {
-        return so->attribute_vector_offset;
+        return min::unprotected::
+		    flags_to_offset (so->flags);
     }
 
     inline unsigned attribute_vector_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return lo->attribute_vector_offset;
+        return min::unprotected::
+		    flags_to_offset (lo->flags);
     }
 }
 
@@ -1953,7 +1973,6 @@ namespace min {
 // ------ ---- -----
 
 namespace min { namespace unprotected {
-
     class list_pointer;
 } }
 
@@ -1970,6 +1989,8 @@ namespace min {
 	const min::gen EMPTY_SUBLIST = (min::gen)
 	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
 #   endif
+
+    bool use_list_auxiliary_stubs;
 
     // We must declare these before we make them
     // friends.
@@ -1989,12 +2010,18 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp );
     min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp );
+    void insert_reserve
+    	    ( min::unprotected::list_pointer & lp,
+	      unsigned insertions,
+	      unsigned elements = 0,
+	      bool use_auxiliaries =
+	          min::use_list_auxiliary_stubs );
     void insert_before
     	    ( min::unprotected::list_pointer & lp,
-	      min::gen v );
+	      min::gen * p, unsigned n );
     void insert_after
     	    ( min::unprotected::list_pointer & lp,
-	      min::gen v );
+	      min::gen * p, unsigned n );
 }
 
 namespace min { namespace unprotected {
@@ -2009,11 +2036,22 @@ namespace min { namespace unprotected {
 	    assert (    t == min::SHORT_OBJ
 	    	     || t == min::LONG_OBJ );
 	    this->s = s;
+
+	    // An object may be converted from short to
+	    // long by any relocation, so we cannot
+	    // compute so/lo here.
 	    so = NULL;
 	    lo = NULL;
+
+	    base = NULL;
 	    current = 0;
+#	    if MIN_USE_LIST_AUX_STUBS
+		current_stub = NULL;
+#	    endif
 	    is_at_end = false;
 	    is_in_aux = false;
+	    reserved_insertions = 0;
+	    reserved_elements = 0;
 	}
 
         list_pointer ( min::gen v )
@@ -2040,12 +2078,17 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp );
 	friend min::gen min::start_sublist
 		( min::unprotected::list_pointer & lp );
+	friend void insert_reserve
+		( min::unprotected::list_pointer & lp,
+		  unsigned insertions,
+		  unsigned elements,
+		  bool use_auxiliaries );
 	friend void min::insert_before
 		( min::unprotected::list_pointer & lp,
-		  min::gen v );
+		  min::gen * p, unsigned n );
 	friend void min::insert_after
 		( min::unprotected::list_pointer & lp,
-		  min::gen v );
+		  min::gen * p, unsigned n );
 
     	min::stub * s;
 	    // Stub of object.
@@ -2053,10 +2096,19 @@ namespace min { namespace unprotected {
 	min::unprotected::long_obj * lo;
 	    // After start, just one of these is
 	    // non-NULL.
+
 	min::gen * base;
 	    // base of body vector.
 	unsigned current;
-	    // base[current] is current location.
+	    // base[current] is current location
+	    // if current != 0.
+#	if MIN_USE_LIST_AUX_STUBS
+	    min::stub * current_stub;
+	        // The current position, which is a list
+		// auxiliary stub, if current == 0 and
+		// current_stub != NULL.
+		 
+#	endif
 	bool is_at_end;
 	    // Ignore current, as pointer is at end
 	    // of a list.
@@ -2065,6 +2117,11 @@ namespace min { namespace unprotected {
 	    // instead of head.  This means that the
 	    // next sequential vector element is part of
 	    // the list.
+
+	unsigned reserved_insertions;
+	unsigned reserved_elements;
+	    // Set by insert_resert and decremented by
+	    // insert_{before,after}.
 
         void relocate ( )
 	{
@@ -2086,10 +2143,21 @@ namespace min { namespace unprotected {
 		assert ( ! is_deallocated ( s ) );
 	        assert ( ! "s is not an object" );
 	    }
+	    current = 0;
+#	    if MIN_USE_LIST_AUX_STUBS
+		current_stub = NULL;
+#	    endif
+	    is_at_end = false;
+	    is_in_aux = false;
+	    reserved_insertions = 0;
+	    reserved_elements = 0;
 	}
 
 	min::gen forward ( unsigned index )
 	{
+#           if MIN_USE_LIST_AUX_STUBS
+		current_stub = NULL;
+#	    endif
 	    while ( true )
 	    {
 		current = index;
@@ -2097,6 +2165,24 @@ namespace min { namespace unprotected {
 			   ( base[current] ) )
 		{
 		    is_at_end = false;
+#	            if MIN_USE_LIST_AUX_STUBS
+			if ( min::is_stub
+			            ( base[current] ) )
+			{
+			    min::stub * s =
+			        min::stub_of
+				    ( base[current] );
+			    if (    min::type_of ( s )
+			         == min::LIST_AUX )
+			    {
+				current_stub = s;
+				current = 0;
+				return
+				  min::unprotected::
+				       gen_of ( s );
+			    }
+			}
+#	            endif
 		    return base[current];
 		}
 		if ( base[current] == min::LIST_END )
@@ -2111,11 +2197,42 @@ namespace min { namespace unprotected {
 	}
 
 	// Allocate n consecutive aux cells and return
-	// the index of the first such cell.
+	// the index of the first such cell.  If there
+	// are insufficient cells available, return 0.
 	//
 	unsigned allocate ( unsigned n )
 	{
-	    return 0;	// TBD
+	    unsigned unused_area_offset;
+	    unsigned auxiliary_area_offset;
+	    if ( so )
+	    {
+	        unused_area_offset =
+		    so->unused_area_offset;
+	        auxiliary_area_offset =
+		    so->auxiliary_area_offset;
+	    }
+	    else
+	    {
+	        unused_area_offset =
+		    lo->unused_area_offset;
+	        auxiliary_area_offset =
+		    lo->auxiliary_area_offset;
+	    }
+	    if (   unused_area_offset + n
+	         > auxiliary_area_offset )
+	        return 0;
+	    auxiliary_area_offset -= n;
+	    if ( so )
+	    {
+	        so->auxiliary_area_offset =
+		    auxiliary_area_offset;
+	    }
+	    else
+	    {
+	        lo->auxiliary_area_offset =
+		    auxiliary_area_offset;
+	    }
+	    return auxiliary_area_offset;
 	}
     };
 } }
@@ -2133,7 +2250,9 @@ namespace min {
 	                             short_obj )
 	             / sizeof ( min::gen );
 	    assert (   index
-	             < lp.so->attribute_vector_offset );
+                     < min::unprotected::
+			flags_to_offset (lp.so->flags)
+		   );
 	}
 	else
 	{
@@ -2141,7 +2260,9 @@ namespace min {
 	                             long_obj )
 	             / sizeof ( min::gen );
 	    assert (   index
-	             < lp.lo->attribute_vector_offset );
+                     < min::unprotected::
+			flags_to_offset (lp.lo->flags)
+		   );
 	}
 	lp.is_in_aux = false;
 	return lp.forward ( index );
@@ -2152,12 +2273,14 @@ namespace min {
 	lp.relocate();
         if ( lp.so )
 	{
-	    index += lp.so->attribute_vector_offset;
+	    index += min::unprotected::
+			flags_to_offset (lp.so->flags);
 	    assert ( index < lp.so->unused_area_offset );
 	}
 	else
 	{
-	    index += lp.lo->attribute_vector_offset;
+	    index += min::unprotected::
+			flags_to_offset (lp.lo->flags);
 	    assert ( index < lp.lo->unused_area_offset );
 	}
 	lp.is_in_aux = false;
@@ -2179,26 +2302,81 @@ namespace min {
     inline min::gen next
     	    ( min::unprotected::list_pointer & lp )
     {
-    	if ( lp.is_at_end ) return min::LIST_END;
-	if ( ! lp.is_in_aux )
+    	if ( lp.is_at_end )
+	    return min::LIST_END;
+#       if MIN_USE_LIST_AUX_STUBS
+	    else if ( lp.current_stub != NULL )
+	    {
+	        min::uns64 c =
+		    min::unprotected::control_of
+		    	( lp.current_stub );
+		if (   min::unprotected::
+		            flags_of_control ( c )
+		     & min::LIST_AUX_STUB )
+		{
+		    lp.current_stub =
+		        min::unprotected::
+			     pointer_of_control ( c );
+		    return
+		        min::unprotected::
+			     gen_of ( lp.current_stub );
+		}
+		else
+		{
+		    unsigned v =
+		        min::unprotected::
+			     value_of_control ( c );
+		    if ( c == 0 )
+		    {
+		        lp.is_at_end = true;
+			return min::LIST_END;
+		    }
+		    else
+		        return lp.forward ( v );
+		}
+	    }
+#       endif
+	else if ( ! lp.is_in_aux )
 	{
 	    lp.is_at_end = true;
 	    return min::LIST_END;
 	}
-	return lp.forward ( lp.current + 1 );
+	else
+	    return lp.forward ( lp.current + 1 );
     }
     inline min::gen current
     	    ( min::unprotected::list_pointer & lp )
     {
-    	if ( lp.is_at_end ) return min::LIST_END;
-	else return lp.base[lp.current];
+    	if ( lp.is_at_end )
+	    return min::LIST_END;
+#       if MIN_USE_LIST_AUX_STUBS
+	    else if ( lp.current_stub != NULL )
+	        return min::unprotected::
+			    gen_of ( lp.current_stub );
+#       endif
+	else
+	    return lp.base[lp.current];
     }
     inline min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp )
     {
 	assert ( ! lp.is_at_end );
-	lp.forward ( min::sublist_aux_of
-			  ( lp.base[lp.current] ) );
+	min::gen v = min::current ( lp );
+#	if MIN_USE_LIST_AUX_STUBS
+	    if ( min::is_sublist_aux ( v ) )
+		return lp.forward
+		    ( min::unprotected::
+			   sublist_aux_of ( v ) );
+	    lp.current_stub = min::stub_of ( v );
+	    lp.current = 0;
+	    assert (    min::type_of ( lp.current_stub )
+		     == min::SUBLIST_AUX );
+	    return min::unprotected::
+			gen_of ( lp.current_stub );
+#	else
+	    return lp.forward
+	        ( min:: sublist_aux_of ( v ) );
+#	endif
     }
 }
 

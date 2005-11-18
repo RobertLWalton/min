@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov 13 10:44:16 EST 2005
+// Date:	Fri Nov 18 11:33:41 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/13 16:30:47 $
+//   $Date: 2005/11/18 18:56:09 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents:
 //
@@ -383,29 +383,38 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 // Object List Level
 // ------ ---- -----
 
+inline void copy_elements
+	( min::gen * q, min::gen * p, unsigned n )
+{
+    while ( n -- )
+    {
+	assert (    ! min::is_list_aux ( * p )
+		 && ! min::is_sublist_aux ( * p ) );
+	* q ++ = * p ++;
+    }
+}
+
 inline void min::insert_before
 	( min::unprotected::list_pointer & lp,
-	  min::gen v )
+	  min::gen * p, unsigned n )
 {
-    assert (    ! min::is_list_aux ( v )
-             && ! min::is_sublist_aux ( v ) );
 
-    unsigned index = lp.allocate ( 3 );
+    unsigned index = lp.allocate ( 2 + n );
     if ( ! lp.is_in_aux )
     {
 	if ( lp.is_at_end )
 	{
 	    lp.base[index] = lp.base[lp.current];
-	    lp.base[index+1] = v;
-	    lp.current = index + 2;
+	    copy_elements ( lp.base + index + 1, p, n );
+	    lp.current = index+n+1;
 	}
 	else
 	{
-	    lp.base[index] = v;
-	    lp.base[index+1] = lp.base[lp.current];
-	    lp.current = index + 1;
+	    copy_elements ( lp.base + index, p, n );
+	    lp.base[index+n] = lp.base[lp.current];
+	    lp.current = index + n;
 	}
-	lp.base[index+2] = min::LIST_END;
+	lp.base[index+n+1] = min::LIST_END;
     }
     else
     {
@@ -414,7 +423,7 @@ inline void min::insert_before
 
 inline void min::insert_after
 	( min::unprotected::list_pointer & lp,
-	  min::gen v )
+	  min::gen * p, unsigned )
 {
 }
 
