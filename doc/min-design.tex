@@ -2261,30 +2261,40 @@ all succeed.  The functions used are:
 \LABEL{MIN::INSERT_AFTER} \\
 \end{tabular}\end{center}
 
-The {\tt insert\_reserve} function reserves space for the given number
+The {\tt min::insert\_reserve} function reserves space for the given number
 of insertion function calls and the given total number of list elements
 to be inserted.  If the later is {\tt 0}, the default, it is taken to
 be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
 
-The {\tt insert\_reserve} function can increase the size of the object
+The {\tt min::insert\_reserve} function can increase the size of the object
 if it is insufficient, or instead it can depend upon using
 object auxiliary stubs (\secref{OBJECT-AUXILIARY-STUBS}) if the object
-runs out of space, in which case {\tt insert\_reserve} must be sure
+runs out of space, in which case {\tt min::insert\_reserve} must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
-last argument to {\tt insert\_reserve} determines which strategy is
+last argument to {\tt min::insert\_reserve} determines which strategy is
 used.  It defaults to the value of \minkey{use\_list\_auxiliary\_stubs}.
 
-The {\tt insert\_before} function inserts list elements
+The {\tt min::insert\_before} function inserts list elements
 just before the current position of a list pointer.
-The {\tt insert\_after} function inserts list elements just after the
+The {\tt min::insert\_after} function inserts list elements just after the
 current position.  If the list pointer is at the end of list,
-{\tt insert\_before} inserts the elements at the end of the list, and
-{\tt insert\_after} is an error.  The list pointer continues to point
+{\tt min::insert\_before} inserts the elements at the end of the list, and
+{\tt min::insert\_after} is an error.  The list pointer continues to point
 at the list element it pointed at before elements were inserted.
 The elements are specified by a length {\tt n}
 vector {\tt p} of {\tt min::gen} values.
+
+A sequence of instructions that begins with a
+call to {\tt min::insert\_reserve} and ends with the last
+list insertion function for which the beginning call made a reservation
+is called a `\key{list insertion sequence}'.  A list insertion sequence
+must not contain any call to
+a relocating (\REL) function (\pagref{RELOCATING-FUNCTIONS}), aside from
+the beginning call to {\tt min::insert\_reserve}.  In particular, there can
+be no call to {\tt min::interrupt} (\pagref{MIN::INTERRUPT}) and no
+second call to {\tt min::insert\_reserve}.
 
 The following function can be used to delete {\tt n} consecutive elements
 of a list, the first of which is the element currently pointed at by
