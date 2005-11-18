@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov  5 02:32:57 EST 2005
+// Date:	Fri Nov 18 11:28:31 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/05 08:06:18 $
+//   $Date: 2005/11/18 18:54:16 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents
 //
@@ -21,14 +21,22 @@
 //	Hardware Parameters
 
 // Note: The following parameters may be overridden by
-// giving -D options to the compiler:
+// giving -D XXX=1 options to the compiler:
 //
+//	MIN_DEBUG
 //	MIN_IS_COMPACT
 //	MIN_USES_VSNS
+//	MIN_USE_LIST_AUX_STUBS
 // 
 // Other parameters are computed from these.
 
 // Software Parameters.
+
+// 1 to add extra debugging code; 0 not to.
+//
+# ifndef MIN_DEBUG
+#   define MIN_DEBUG 0
+# endif
 
 // 1 if min::gen values are 32 bits; else 0
 //
@@ -67,18 +75,17 @@
 //
 # define MIN_USES_ADDRESSES ( ! MIN_USES_VSNS )
 
-// Minimum size of unimplemented memory at which
-// deallocated body pointers are pointed.
+// 1 to enable use of list auxiliary stubs; 0 not to.
 //
-# ifndef MIN_DEALLOCATED_LIMIT
-#   define MIN_DEALLOCATED_LIMIT (1 << 20)
+# ifndef MIN_USE_LIST_AUX_STUBS
+#   define MIN_USE_LIST_AUX_STUBS 0
 # endif
 
 // Machine Parameters
 // ------- ----------
 
 // Note: for GNU cpp, `cpp -dM </dev/null' lists all the
-// predefined defined macros including those the define
+// predefined defined macros including those that define
 // machine type.
 
 //	MIN_INT32_TYPE
@@ -98,6 +105,10 @@
 //	    unsigned binary number) 64 bit floating
 //	    point signalling NAN.
 //
+//	MIN_DEALLOCATED_LIMIT
+//	    Minimum size of unimplemented memory at
+//	    which deallocated body pointers are pointed.
+//
 # ifdef __i386
 #   define MIN_INT32_TYPE int
 #   define MIN_INT64_TYPE long long
@@ -105,4 +116,5 @@
 #   define MIN_LITTLE_ENDIAN 1
 #   define MIN_INT_POINTER_TYPE int
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF800
+#   define MIN_DEALLOCATED_LIMIT (1 << 20)
 # endif
