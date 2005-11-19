@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 18 11:33:26 EST 2005
+// Date:	Fri Nov 18 21:41:21 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/18 18:54:16 $
+//   $Date: 2005/11/19 02:52:14 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // Table of Contents:
 //
@@ -2026,6 +2026,10 @@ namespace min {
 
 namespace min { namespace unprotected {
 
+    unsigned allocate
+        ( min::unprotected::list_pointer & lp,
+	  unsigned n );
+
     class list_pointer {
 
     public:
@@ -2062,6 +2066,10 @@ namespace min { namespace unprotected {
 
     private:
 
+	friend unsigned allocate
+		( min::unprotected::list_pointer & lp,
+		  unsigned n );
+
 	friend min::gen min::start_hash
 		( min::unprotected::list_pointer & lp,
 		  unsigned index );
@@ -2072,12 +2080,14 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp,
 		  min::unprotected::list_pointer & lp2
 		);
+
 	friend min::gen min::next
 		( min::unprotected::list_pointer & lp );
 	friend min::gen min::current
 		( min::unprotected::list_pointer & lp );
 	friend min::gen min::start_sublist
 		( min::unprotected::list_pointer & lp );
+
 	friend void insert_reserve
 		( min::unprotected::list_pointer & lp,
 		  unsigned insertions,
@@ -2194,45 +2204,6 @@ namespace min { namespace unprotected {
 			    ( base[current] );
 		is_in_aux = true;
 	    }
-	}
-
-	// Allocate n consecutive aux cells and return
-	// the index of the first such cell.  If there
-	// are insufficient cells available, return 0.
-	//
-	unsigned allocate ( unsigned n )
-	{
-	    unsigned unused_area_offset;
-	    unsigned auxiliary_area_offset;
-	    if ( so )
-	    {
-	        unused_area_offset =
-		    so->unused_area_offset;
-	        auxiliary_area_offset =
-		    so->auxiliary_area_offset;
-	    }
-	    else
-	    {
-	        unused_area_offset =
-		    lo->unused_area_offset;
-	        auxiliary_area_offset =
-		    lo->auxiliary_area_offset;
-	    }
-	    if (   unused_area_offset + n
-	         > auxiliary_area_offset )
-	        return 0;
-	    auxiliary_area_offset -= n;
-	    if ( so )
-	    {
-	        so->auxiliary_area_offset =
-		    auxiliary_area_offset;
-	    }
-	    else
-	    {
-	        lo->auxiliary_area_offset =
-		    auxiliary_area_offset;
-	    }
-	    return auxiliary_area_offset;
 	}
     };
 } }
