@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 19 06:33:57 EST 2005
+// Date:	Sat Nov 19 07:51:39 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/19 12:49:50 $
+//   $Date: 2005/11/19 15:16:59 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents:
 //
@@ -76,11 +76,11 @@ unsigned number_hash_size;
 unsigned label_hash_size;
 
 # if MIN_IS_COMPACT
-    min::uns32 min::unprotected::gc_stub_expand_free_list
-	    ( void )
+    min::uns32 min::unprotected::
+                    gc_stub_expand_free_list ( void )
 # else // if MIN_IS_LOOSE
-    min::uns64 min::unprotected::gc_stub_expand_free_list
-	    ( void )
+    min::uns64 min::unprotected::
+                    gc_stub_expand_free_list ( void )
 # endif
 	    { return 0; }
 
@@ -251,7 +251,8 @@ min::gen min::unprotected::new_str_stub_gen
 	    ( sizeof ( MUP::long_str ) + length + 1 );
 	b->control = MUP::pointer_to_uns64 ( s );
 	s->v.u64 = MUP::pointer_to_uns64 ( b + 1 );
-	MUP::long_str * ls = (MUP::long_str *) ( b + 1 );
+	MUP::long_str * ls =
+	    (MUP::long_str *) ( b + 1 );
 	ls->length = length;
 	ls->hash = hash;
 	::strcpy ( MUP::writable_str_of ( ls ), p );
@@ -322,7 +323,8 @@ min::gen new_gen ( const min::gen * p, unsigned n )
     {
 	assert ( min::type_of ( s ) == min::LABEL );
 	min::stub * q = (min::stub *)
-	    MUP::uns64_to_pointer ( MUP::value_of ( s ) );
+	    MUP::uns64_to_pointer
+	        ( MUP::value_of ( s ) );
 	unsigned i = 0;
 	while ( q )
 	{
@@ -435,15 +437,26 @@ inline void copy_elements
     }
 }
 
-inline void min::insert_before
+void min::unprotected::insert_reserve
+	( min::unprotected::list_pointer & lp,
+	  unsigned insertions,
+	  unsigned elements,
+	  bool use_aux )
+{
+}
+
+void min::insert_before
 	( min::unprotected::list_pointer & lp,
 	  min::gen * p, unsigned n )
 {
 
+    assert ( lp.reserved_insertions >= 1 );
+    assert ( lp.reserved_elements >= n );
+
     unsigned index = allocate ( lp, 2 + n );
-    if ( ! lp.is_in_aux )
+    if ( lp.current < lp.header_end )
     {
-	if ( lp.is_at_end )
+	if ( lp.is_at_following_end )
 	{
 	    lp.base[index] = lp.base[lp.current];
 	    copy_elements ( lp.base + index + 1, p, n );
@@ -462,7 +475,7 @@ inline void min::insert_before
     }
 }
 
-inline void min::insert_after
+void min::insert_after
 	( min::unprotected::list_pointer & lp,
 	  min::gen * p, unsigned )
 {
