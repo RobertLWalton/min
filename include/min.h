@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 19 06:34:50 EST 2005
+// Date:	Sat Nov 19 07:50:48 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/19 12:49:50 $
+//   $Date: 2005/11/19 15:16:59 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // Table of Contents:
 //
@@ -2067,12 +2067,11 @@ namespace min { namespace unprotected {
 
 	    base = NULL;
 	    current = 0;
-	    is_at_end = false;
-	    is_in_aux = false;
+	    is_at_following_end = false;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
-#	    if MIN_USE_LIST_AUX_STUBS
+#	    if MIN_USES_LIST_AUX_STUBS
 		current_stub = NULL;
 		use_list_aux_stubs = false;
 #	    endif
@@ -2095,26 +2094,38 @@ namespace min { namespace unprotected {
 
 	min::gen * base;
 	    // base of body vector.
-	unsigned current;
-	    // base[current] is current location
-	    // if current != 0.
-#	if MIN_USE_LIST_AUX_STUBS
-	    min::stub * current_stub;
-	        // The current position, which is a list
-		// auxiliary stub, if current == 0 and
-		// current_stub != NULL.
-		 
-#	endif
-	bool is_at_end;
-	    // Ignore current, as pointer is at end
-	    // of a list.
-	bool is_in_aux;
-	    // Current points into auxiliary area,
-	    // instead of head.  This means that the
-	    // next sequential vector element is part of
-	    // the list.
 
-#	if MIN_USE_LIST_AUX_STUBS
+	// Current element is as follows
+	//
+	//   if current != 0
+	//	base[current] is current element
+	//   if current_stub != NULL
+	//	MUP::gen_of ( current_stub ) is current
+	//	element
+	//   if is_at_following_end
+	//	current or current_stub points at the
+	//	last element of a list, but the pointer
+	//	is at the end of the list which follows
+	//	the last element.
+	//
+	//   Note:  If current != 0
+	//	       and current < header_end
+	//
+	//	then base[current] is in the attribute
+	//	vector or hash table and is a list head.
+	//
+	//   Note: At least one of current and current_
+	//	   stub must be 0 (NULL).  If both are
+	//	   the pointer points at no element.
+	//
+	unsigned current;
+	unsigned header_end;
+#	if MIN_USES_LIST_AUX_STUBS
+	    min::stub * current_stub;
+#	endif
+	bool is_at_following_end;
+
+#	if MIN_USES_LIST_AUX_STUBS
 	    bool use_list_aux_stubs;
 		// True if list auxiliary stubs are to
 		// be used for insertions if space in
@@ -2168,12 +2179,14 @@ namespace min { namespace unprotected {
 	        so = min::unprotected::
 		     short_obj_of ( s );
 		base = (min::gen *) so;
+		header_end = so->unused_area_offset;
 	    }
 	    else if ( t == min::LONG_OBJ )
 	    {
 	        lo = min::unprotected::
 		     long_obj_of ( s );
-		base = (min::gen *) so;
+		base = (min::gen *) lo;
+		header_end = lo->unused_area_offset;
 	    }
 	    else
 	    {
@@ -2181,29 +2194,28 @@ namespace min { namespace unprotected {
 	        assert ( ! "s is not an object" );
 	    }
 	    current = 0;
-	    is_at_end = false;
-	    is_in_aux = false;
+	    is_at_following_end = false;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
-#	    if MIN_USE_LIST_AUX_STUBS
+#	    if MIN_USES_LIST_AUX_STUBS
 		current_stub = NULL;
 #	    endif
 	}
 
 	min::gen forward ( unsigned index )
 	{
-#           if MIN_USE_LIST_AUX_STUBS
+#           if MIN_USES_LIST_AUX_STUBS
 		current_stub = NULL;
 #	    endif
+	    is_at_following_end = false;
 	    while ( true )
 	    {
 		current = index;
 		if ( ! min::is_list_aux
 			   ( base[current] ) )
 		{
-		    is_at_end = false;
-#	            if MIN_USE_LIST_AUX_STUBS
+#	            if MIN_USES_LIST_AUX_STUBS
 			if ( min::is_stub
 			            ( base[current] ) )
 			{
@@ -2224,13 +2236,9 @@ namespace min { namespace unprotected {
 		    return base[current];
 		}
 		if ( base[current] == min::LIST_END )
-		{
-		    is_at_end = true;
 		    return base[current];
-		}
 		index = min::list_aux_of
 			    ( base[current] );
-		is_in_aux = true;
 	    }
 	}
     };
@@ -2263,26 +2271,27 @@ namespace min {
 			flags_to_offset (lp.lo->flags)
 		   );
 	}
-	lp.is_in_aux = false;
 	return lp.forward ( index );
     }
     inline min::gen start_vector
-            ( min::unprotected::list_pointer & lp, unsigned index )
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index )
     {
 	lp.relocate();
         if ( lp.so )
 	{
 	    index += min::unprotected::
 			flags_to_offset (lp.so->flags);
-	    assert ( index < lp.so->unused_area_offset );
+	    assert
+	        ( index < lp.so->unused_area_offset );
 	}
 	else
 	{
 	    index += min::unprotected::
 			flags_to_offset (lp.lo->flags);
-	    assert ( index < lp.lo->unused_area_offset );
+	    assert
+	        ( index < lp.lo->unused_area_offset );
 	}
-	lp.is_in_aux = false;
 	return lp.forward ( index );
     }
     inline min::gen start_copy
@@ -2293,17 +2302,22 @@ namespace min {
 	lp.lo = lp2.lo;
 	lp.so = lp2.so;
 	lp.current = lp2.current;
-	lp.is_at_end = lp2.is_at_end;
-	lp.is_in_aux = lp2.is_in_aux;
-	return lp.is_at_end ? min::LIST_END
-	                    : lp.base[lp.current];
+	lp.is_at_following_end =
+	    lp2.is_at_following_end;
+#       if MIN_USES_LIST_AUX_STUBS
+	    lp.current_stub = lp2.current_stub;
+#       endif
+	lp.reserved_insertions = 0;
+	lp.reserved_elements = 0;
+	return lp.is_at_following_end ?
+	       min::LIST_END : lp.base[lp.current];
     }
     inline min::gen next
     	    ( min::unprotected::list_pointer & lp )
     {
-    	if ( lp.is_at_end )
+    	if ( lp.is_at_following_end )
 	    return min::LIST_END;
-#       if MIN_USE_LIST_AUX_STUBS
+#       if MIN_USES_LIST_AUX_STUBS
 	    else if ( lp.current_stub != NULL )
 	    {
 	        min::uns64 c =
@@ -2327,7 +2341,7 @@ namespace min {
 			     value_of_control ( c );
 		    if ( c == 0 )
 		    {
-		        lp.is_at_end = true;
+		        lp.is_at_following_end = true;
 			return min::LIST_END;
 		    }
 		    else
@@ -2335,9 +2349,9 @@ namespace min {
 		}
 	    }
 #       endif
-	else if ( ! lp.is_in_aux )
+	else if ( lp.current < lp.header_end )
 	{
-	    lp.is_at_end = true;
+	    lp.is_at_following_end = true;
 	    return min::LIST_END;
 	}
 	else
@@ -2346,9 +2360,9 @@ namespace min {
     inline min::gen current
     	    ( min::unprotected::list_pointer & lp )
     {
-    	if ( lp.is_at_end )
+    	if ( lp.is_at_following_end )
 	    return min::LIST_END;
-#       if MIN_USE_LIST_AUX_STUBS
+#       if MIN_USES_LIST_AUX_STUBS
 	    else if ( lp.current_stub != NULL )
 	        return min::unprotected::
 			    gen_of ( lp.current_stub );
@@ -2359,9 +2373,8 @@ namespace min {
     inline min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp )
     {
-	assert ( ! lp.is_at_end );
 	min::gen v = min::current ( lp );
-#	if MIN_USE_LIST_AUX_STUBS
+#	if MIN_USES_LIST_AUX_STUBS
 	    if ( min::is_sublist_aux ( v ) )
 		return lp.forward
 		    ( min::unprotected::
@@ -2395,7 +2408,7 @@ namespace min {
 	        min::unused_area_size_of ( lp.lo );
 	if (      unused_area_size
 	        < 2 * insertions + elements
-#	    if MIN_USE_LIST_AUX_STUBS
+#	    if MIN_USES_LIST_AUX_STUBS
 	     && (    ! use_aux
 	          ||   min::unprotected::
 		            current_process->
@@ -2409,7 +2422,7 @@ namespace min {
 	{
 	    lp.reserved_insertions = insertions;
 	    lp.reserved_elements = elements;
-#	    if MIN_USE_LIST_AUX_STUBS
+#	    if MIN_USES_LIST_AUX_STUBS
 		lp.use_list_aux_stubs = use_aux;
 #	    endif
 	}
