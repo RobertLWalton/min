@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 18 21:41:21 EST 2005
+// Date:	Sat Nov 19 06:34:50 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/19 02:52:14 $
+//   $Date: 2005/11/19 12:49:50 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // Table of Contents:
 //
@@ -1020,6 +1020,9 @@ namespace min { namespace unprotected {
         min::stub * last_allocated_stub;
 	    // See Garbage Collector Interface.
 
+        unsigned number_of_free_stubs;
+	    // See Garbage Collector Interface.
+
 	min::unprotected::
 	     body_control * end_body_control;
 	     // See Garbage Collector Interface.
@@ -1145,11 +1148,16 @@ namespace min { namespace unprotected {
     // gc_stub_expand_free_list, is called to add to the
     // end of the list.
     //
-    // Pointer to the last allocated stub, which must
-    // exist (it can be a dummy).
-    //
     // In process control:
-    //		min::stub * last_allocated_stub;
+    //
+    //	    min::stub * last_allocated_stub
+    //		Pointer to the last allocated stub,
+    //		which must exist (it can be a dummy).
+    //
+    //	    unsigned number_of_free_stubs
+    //		Number of free stubs that can be allo-
+    //		cated without requiring a call to gc_
+    //		stub_expand_free_list.
     //
     // Out of line function to return pointer to next
     // free stub as a uns32 or uns64 address or VSN.
@@ -1974,6 +1982,14 @@ namespace min {
 
 namespace min { namespace unprotected {
     class list_pointer;
+
+    // Out of line versions of functions.
+    //
+    void insert_reserve
+    	    ( min::unprotected::list_pointer & lp,
+	      unsigned insertions,
+	      unsigned elements,
+	      bool use_aux );
 } }
 
 namespace min {
@@ -2014,7 +2030,7 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements = 0,
-	      bool use_auxiliaries =
+	      bool use_aux =
 	          min::use_list_auxiliary_stubs );
     void insert_before
     	    ( min::unprotected::list_pointer & lp,
@@ -2026,6 +2042,8 @@ namespace min {
 
 namespace min { namespace unprotected {
 
+    // Internal functions: see min.cc.
+    //
     unsigned allocate
         ( min::unprotected::list_pointer & lp,
 	  unsigned n );
@@ -2049,13 +2067,15 @@ namespace min { namespace unprotected {
 
 	    base = NULL;
 	    current = 0;
-#	    if MIN_USE_LIST_AUX_STUBS
-		current_stub = NULL;
-#	    endif
 	    is_at_end = false;
 	    is_in_aux = false;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
+
+#	    if MIN_USE_LIST_AUX_STUBS
+		current_stub = NULL;
+		use_list_aux_stubs = false;
+#	    endif
 	}
 
         list_pointer ( min::gen v )
@@ -2065,40 +2085,6 @@ namespace min { namespace unprotected {
 	}
 
     private:
-
-	friend unsigned allocate
-		( min::unprotected::list_pointer & lp,
-		  unsigned n );
-
-	friend min::gen min::start_hash
-		( min::unprotected::list_pointer & lp,
-		  unsigned index );
-	friend min::gen min::start_vector
-		( min::unprotected::list_pointer & lp,
-		  unsigned index );
-	friend min::gen min::start_copy
-		( min::unprotected::list_pointer & lp,
-		  min::unprotected::list_pointer & lp2
-		);
-
-	friend min::gen min::next
-		( min::unprotected::list_pointer & lp );
-	friend min::gen min::current
-		( min::unprotected::list_pointer & lp );
-	friend min::gen min::start_sublist
-		( min::unprotected::list_pointer & lp );
-
-	friend void insert_reserve
-		( min::unprotected::list_pointer & lp,
-		  unsigned insertions,
-		  unsigned elements,
-		  bool use_auxiliaries );
-	friend void min::insert_before
-		( min::unprotected::list_pointer & lp,
-		  min::gen * p, unsigned n );
-	friend void min::insert_after
-		( min::unprotected::list_pointer & lp,
-		  min::gen * p, unsigned n );
 
     	min::stub * s;
 	    // Stub of object.
@@ -2128,10 +2114,51 @@ namespace min { namespace unprotected {
 	    // next sequential vector element is part of
 	    // the list.
 
+#	if MIN_USE_LIST_AUX_STUBS
+	    bool use_list_aux_stubs;
+		// True if list auxiliary stubs are to
+		// be used for insertions if space in
+		// the object runs out.
+#	endif
+
 	unsigned reserved_insertions;
 	unsigned reserved_elements;
 	    // Set by insert_resert and decremented by
 	    // insert_{before,after}.
+
+	friend unsigned allocate
+		( min::unprotected::list_pointer & lp,
+		  unsigned n );
+
+	friend min::gen min::start_hash
+		( min::unprotected::list_pointer & lp,
+		  unsigned index );
+	friend min::gen min::start_vector
+		( min::unprotected::list_pointer & lp,
+		  unsigned index );
+	friend min::gen min::start_copy
+		( min::unprotected::list_pointer & lp,
+		  min::unprotected::list_pointer & lp2
+		);
+
+	friend min::gen min::next
+		( min::unprotected::list_pointer & lp );
+	friend min::gen min::current
+		( min::unprotected::list_pointer & lp );
+	friend min::gen min::start_sublist
+		( min::unprotected::list_pointer & lp );
+
+	friend void min::insert_reserve
+		( min::unprotected::list_pointer & lp,
+		  unsigned insertions,
+		  unsigned elements,
+		  bool use_aux );
+	friend void min::insert_before
+		( min::unprotected::list_pointer & lp,
+		  min::gen * p, unsigned n );
+	friend void min::insert_after
+		( min::unprotected::list_pointer & lp,
+		  min::gen * p, unsigned n );
 
         void relocate ( )
 	{
@@ -2154,13 +2181,14 @@ namespace min { namespace unprotected {
 	        assert ( ! "s is not an object" );
 	    }
 	    current = 0;
-#	    if MIN_USE_LIST_AUX_STUBS
-		current_stub = NULL;
-#	    endif
 	    is_at_end = false;
 	    is_in_aux = false;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
+
+#	    if MIN_USE_LIST_AUX_STUBS
+		current_stub = NULL;
+#	    endif
 	}
 
 	min::gen forward ( unsigned index )
@@ -2348,6 +2376,43 @@ namespace min {
 	    return lp.forward
 	        ( min:: sublist_aux_of ( v ) );
 #	endif
+    }
+    inline void insert_reserve
+    	    ( min::unprotected::list_pointer & lp,
+	      unsigned insertions,
+	      unsigned elements,
+	      bool use_aux )
+    {
+        if ( elements = 0 ) elements = insertions;
+	assert ( insertions <= elements );
+
+	unsigned unused_area_size;
+	if ( lp.so )
+	    unused_area_size =
+	        min::unused_area_size_of ( lp.so );
+	else
+	    unused_area_size =
+	        min::unused_area_size_of ( lp.lo );
+	if (      unused_area_size
+	        < 2 * insertions + elements
+#	    if MIN_USE_LIST_AUX_STUBS
+	     && (    ! use_aux
+	          ||   min::unprotected::
+		            current_process->
+			    number_of_free_stubs
+		     < elements )
+#	    endif
+	   )
+	    min::unprotected::insert_reserve
+	        ( lp, insertions, elements, use_aux );
+	else
+	{
+	    lp.reserved_insertions = insertions;
+	    lp.reserved_elements = elements;
+#	    if MIN_USE_LIST_AUX_STUBS
+		lp.use_list_aux_stubs = use_aux;
+#	    endif
+	}
     }
 }
 
