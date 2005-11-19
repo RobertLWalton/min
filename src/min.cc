@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 19 07:51:39 EST 2005
+// Date:	Sat Nov 19 11:35:34 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/19 15:16:59 $
+//   $Date: 2005/11/19 18:59:31 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents:
 //
@@ -449,11 +449,24 @@ void min::insert_before
 	( min::unprotected::list_pointer & lp,
 	  min::gen * p, unsigned n )
 {
+    if ( lp.is_at_following_end )
+    {
+        lp.is_at_following_end = false;
+	min::insert_after ( lp, p, n );
+    }
 
     assert ( lp.reserved_insertions >= 1 );
     assert ( lp.reserved_elements >= n );
 
-    unsigned index = allocate ( lp, 2 + n );
+    min::gen value = min::current ( lp );
+    bool at_end = ( value == min::LIST_END );
+    unsigned index = allocate ( lp, n + 2 - at_end );
+    if ( index > 0 )
+    {
+        copy_elements ( lp.base + index, p, n );
+	lp.base[n] = value;
+
+    }
     if ( lp.current < lp.header_end )
     {
 	if ( lp.is_at_following_end )
