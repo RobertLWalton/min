@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 18 11:33:41 EST 2005
+// Date:	Fri Nov 18 21:37:47 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/18 18:56:09 $
+//   $Date: 2005/11/19 02:52:14 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents:
 //
@@ -383,6 +383,47 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 // Object List Level
 // ------ ---- -----
 
+// Allocate n consecutive aux cells and return the index
+// of the first such cell.  If there are insufficient
+// cells available, return 0.
+//
+inline unsigned min::unprotected::allocate
+	( min::unprotected::list_pointer & lp,
+	  unsigned n)
+{
+    unsigned unused_area_offset;
+    unsigned auxiliary_area_offset;
+    if ( lp.so )
+    {
+	unused_area_offset =
+	    lp.so->unused_area_offset;
+	auxiliary_area_offset =
+	    lp.so->auxiliary_area_offset;
+    }
+    else
+    {
+	unused_area_offset =
+	    lp.lo->unused_area_offset;
+	auxiliary_area_offset =
+	    lp.lo->auxiliary_area_offset;
+    }
+    if (   unused_area_offset + n
+	 > auxiliary_area_offset )
+	return 0;
+    auxiliary_area_offset -= n;
+    if ( lp.so )
+    {
+	lp.so->auxiliary_area_offset =
+	    auxiliary_area_offset;
+    }
+    else
+    {
+	lp.lo->auxiliary_area_offset =
+	    auxiliary_area_offset;
+    }
+    return auxiliary_area_offset;
+}
+
 inline void copy_elements
 	( min::gen * q, min::gen * p, unsigned n )
 {
@@ -399,7 +440,7 @@ inline void min::insert_before
 	  min::gen * p, unsigned n )
 {
 
-    unsigned index = lp.allocate ( 2 + n );
+    unsigned index = allocate ( lp, 2 + n );
     if ( ! lp.is_in_aux )
     {
 	if ( lp.is_at_end )
