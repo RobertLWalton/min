@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 19 18:58:25 EST 2005
+// Date:	Sun Nov 20 09:21:36 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/20 13:28:52 $
+//   $Date: 2005/11/20 14:26:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // Table of Contents:
 //
@@ -623,6 +623,12 @@ namespace min { namespace unprotected {
 	           (   p
 		     + GEN_INDIRECT_INDEXED_AUX << 24 );
 	}
+	inline min::gen new_aux_gen
+		( min::gen v, unsigned p )
+	{
+	    return (min::gen)
+	           ( ( v & 0xFF000000 ) + p );
+	}
 	inline min::gen new_index_gen ( unsigned a )
 	{
 	    return (min::gen)
@@ -698,6 +704,12 @@ namespace min { namespace unprotected {
 		     + ( (uns64)
 		         GEN_INDIRECT_INDEXED_AUX
 		         << 40 ) );
+	}
+	inline min::gen new_aux_gen
+		( min::gen v, unsigned p )
+	{
+	    return (min::gen)
+	           ( ( v & 0xFFFFFF0000000000 ) + p );
 	}
 	inline min::gen new_index_gen ( unsigned a )
 	{
