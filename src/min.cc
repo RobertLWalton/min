@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov 20 05:55:59 EST 2005
+// Date:	Sun Nov 20 09:05:31 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/20 13:28:52 $
+//   $Date: 2005/11/20 14:26:19 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents:
 //
@@ -473,15 +473,18 @@ void min::insert_before
     assert ( lp.reserved_insertions >= 1 );
     assert ( lp.reserved_elements >= n );
 
+    lp.reserved_insertions -= 1;
+    lp.reserved_elements -= n;
+
+    unsigned aux_area_offset;
+    if ( lp.so )
+	aux_area_offset = lp.so->aux_area_offset;
+    else
+	aux_area_offset = lp.lo->aux_area_offset;
+
     if ( lp.current == min::LIST_END )
     {
-        assert ( lp.current_index != 0 );
-
-	unsigned aux_area_offset;
-	if ( lp.so )
-	    aux_area_offset = lp.so->aux_area_offset;
-	else
-	    aux_area_offset = lp.lo->aux_area_offset;
+	assert ( lp.current_index != 0 );
 
 	bool contiguous =
 	    ( lp.current_index == aux_area_offset );
@@ -497,6 +500,27 @@ void min::insert_before
     }
     else
     {
+	assert ( lp.current_index != 0 );
+
+	bool previous = ( lp.previous_index != 0 );
+	unsigned index =
+	    MUP::allocate ( lp, n + 1 + ! previous );
+	copy_elements
+	    ( lp.base + index + 1, p, n );
+	if ( ! previous )
+	    lp.base[index + n + 1] = lp.current;
+	if ( previous )
+	    lp.base[lp.previous_index] =
+	        min::unprotected::new_aux_gen
+		    ( lp.base[lp.previous_index],
+		      index + n + 1 );
+	else
+	{
+	    lp.base[lp.current_index] =
+	        min::new_list_aux_gen ( index + n + 1 );
+	    lp.previous_index = lp.current_index;
+	    lp.current_index = index + n + 1;
+	}
     }
 }
 
