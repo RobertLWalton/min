@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 19 11:35:34 EST 2005
+// Date:	Sun Nov 20 05:55:59 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/19 18:59:31 $
+//   $Date: 2005/11/20 13:28:52 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents:
 //
@@ -104,7 +104,7 @@ min::unprotected::body_control *
 	    if ( MUP::float_of ( s ) == v )
 		return min::new_gen ( s );
 	    s = (min::stub *)
-	        MUP::pointer_of_control
+	        MUP::stub_p_of_control
 		    ( MUP::control_of ( s ) );
 	}
 
@@ -233,7 +233,7 @@ min::gen min::unprotected::new_str_stub_gen
 		     == 0 )
 	    return min::new_gen ( s );
 	s = (min::stub *)
-	    MUP::pointer_of_control
+	    MUP::stub_p_of_control
 		( MUP::control_of ( s ) );
     }
 
@@ -308,7 +308,7 @@ min::uns32 labhash ( min::stub * s )
 		    ( (min::gen) MUP::value_of ( p ) );
 	m *= lab_multiplier;
         p = (min::stub *)
-	    MUP::pointer_of_control
+	    MUP::stub_p_of_control
 		( MUP::control_of ( p ) );
     }
     return hash;
@@ -333,13 +333,13 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 	         != (min::gen) MUP::value_of ( q ) )
 	        break;
 	    q = (min::stub *)
-		MUP::pointer_of_control
+		MUP::stub_p_of_control
 		    ( MUP::control_of ( q ) );
 	}
 	if ( q == NULL && i >= n )
 	    return min::new_gen ( s );
 	s = (min::stub *)
-	    MUP::pointer_of_control
+	    MUP::stub_p_of_control
 		( MUP::control_of ( s ) );
     }
 
@@ -394,46 +394,47 @@ inline unsigned min::unprotected::allocate
 	  unsigned n)
 {
     unsigned unused_area_offset;
-    unsigned auxiliary_area_offset;
+    unsigned aux_area_offset;
     if ( lp.so )
     {
 	unused_area_offset =
 	    lp.so->unused_area_offset;
-	auxiliary_area_offset =
-	    lp.so->auxiliary_area_offset;
+	aux_area_offset =
+	    lp.so->aux_area_offset;
     }
     else
     {
 	unused_area_offset =
 	    lp.lo->unused_area_offset;
-	auxiliary_area_offset =
-	    lp.lo->auxiliary_area_offset;
+	aux_area_offset =
+	    lp.lo->aux_area_offset;
     }
     if (   unused_area_offset + n
-	 > auxiliary_area_offset )
+	 > aux_area_offset )
 	return 0;
-    auxiliary_area_offset -= n;
+    aux_area_offset -= n;
     if ( lp.so )
     {
-	lp.so->auxiliary_area_offset =
-	    auxiliary_area_offset;
+	lp.so->aux_area_offset =
+	    aux_area_offset;
     }
     else
     {
-	lp.lo->auxiliary_area_offset =
-	    auxiliary_area_offset;
+	lp.lo->aux_area_offset =
+	    aux_area_offset;
     }
-    return auxiliary_area_offset;
+    return aux_area_offset;
 }
 
 inline void copy_elements
 	( min::gen * q, min::gen * p, unsigned n )
 {
+    q += n;
     while ( n -- )
     {
 	assert (    ! min::is_list_aux ( * p )
 		 && ! min::is_sublist_aux ( * p ) );
-	* q ++ = * p ++;
+	* -- q = * p ++;
     }
 }
 
@@ -449,39 +450,50 @@ void min::insert_before
 	( min::unprotected::list_pointer & lp,
 	  min::gen * p, unsigned n )
 {
-    if ( lp.is_at_following_end )
+    if (    lp.current_index == 0
+#	 if MIN_USES_LIST_AUX_STUBS
+	 && lp.current_stub == NULL
+#	 endif
+       )
     {
-        lp.is_at_following_end = false;
+        // Inserting before a min::LIST_END that
+	// is not a specific auxilary element is
+	// treated as inserting after the previous
+	// element.
+        assert ( lp.current == min::LIST_END );
+        lp.current_index = lp.previous_index;
+#	if MIN_USES_LIST_AUX_STUBS
+	    lp.current_stub = lp.previous_stub;
+#	endif
+	lp.current = 0;
 	min::insert_after ( lp, p, n );
+	return;
     }
 
     assert ( lp.reserved_insertions >= 1 );
     assert ( lp.reserved_elements >= n );
 
-    min::gen value = min::current ( lp );
-    bool at_end = ( value == min::LIST_END );
-    unsigned index = allocate ( lp, n + 2 - at_end );
-    if ( index > 0 )
+    if ( lp.current == min::LIST_END )
     {
-        copy_elements ( lp.base + index, p, n );
-	lp.base[n] = value;
+        assert ( lp.current_index != 0 );
 
-    }
-    if ( lp.current < lp.header_end )
-    {
-	if ( lp.is_at_following_end )
-	{
-	    lp.base[index] = lp.base[lp.current];
-	    copy_elements ( lp.base + index + 1, p, n );
-	    lp.current = index+n+1;
-	}
+	unsigned aux_area_offset;
+	if ( lp.so )
+	    aux_area_offset = lp.so->aux_area_offset;
 	else
-	{
-	    copy_elements ( lp.base + index, p, n );
-	    lp.base[index+n] = lp.base[lp.current];
-	    lp.current = index + n;
-	}
-	lp.base[index+n+1] = min::LIST_END;
+	    aux_area_offset = lp.lo->aux_area_offset;
+
+	bool contiguous =
+	    ( lp.current_index == aux_area_offset );
+	unsigned index =
+	    MUP::allocate ( lp, n + ! contiguous );
+	copy_elements ( lp.base + index + 1, p, n );
+	lp.base[index] = min::LIST_END;
+	if ( ! contiguous )
+	    lp.base[lp.current_index] =
+	        min::new_list_aux_gen ( index + n );
+	lp.current_index = index;
+	lp.previous_index = 0;
     }
     else
     {
