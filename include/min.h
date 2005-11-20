@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 19 07:50:48 EST 2005
+// Date:	Sat Nov 19 18:58:25 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/19 15:16:59 $
+//   $Date: 2005/11/20 13:28:52 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.34 $
+//   $Revision: 1.35 $
 
 // Table of Contents:
 //
@@ -982,7 +982,7 @@ namespace min {
 	    return unsigned ( c & 0xFFFFFFFFFFF );
         }
 
-        inline min::stub * pointer_of_control
+        inline min::stub * stub_p_of_control
 		( min::uns64 c )
 	{
 #	    if MIN_IS_COMPACT
@@ -1789,7 +1789,7 @@ namespace min { namespace unprotected {
     {
         min::uns16	flags;
         min::uns16	unused_area_offset;
-        min::uns16	auxiliary_area_offset;
+        min::uns16	aux_area_offset;
         min::uns16	total_size;
     };
 
@@ -1797,7 +1797,7 @@ namespace min { namespace unprotected {
     {
         min::uns32	flags;
         min::uns32	unused_area_offset;
-        min::uns32	auxiliary_area_offset;
+        min::uns32	aux_area_offset;
         min::uns32	total_size;
     };
 
@@ -1861,31 +1861,31 @@ namespace min {
 		      flags_to_offset (lo->flags);
     }
 
-    inline unsigned auxiliary_area_size_of
+    inline unsigned aux_area_size_of
 	    ( min::unprotected::short_obj * so )
     {
         return   so->total_size
-	       - so->auxiliary_area_offset;
+	       - so->aux_area_offset;
     }
 
-    inline unsigned auxiliary_area_size_of
+    inline unsigned aux_area_size_of
 	    ( min::unprotected::long_obj * lo )
     {
         return   lo->total_size
-	       - lo->auxiliary_area_offset;
+	       - lo->aux_area_offset;
     }
 
     inline unsigned unused_area_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return   so->auxiliary_area_offset
+        return   so->aux_area_offset
 	       - so->unused_area_offset;
     }
 
     inline unsigned unused_area_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return   lo->auxiliary_area_offset
+        return   lo->aux_area_offset
 	       - lo->unused_area_offset;
     }
 
@@ -2006,7 +2006,7 @@ namespace min {
 	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
 #   endif
 
-    bool use_list_auxiliary_stubs;
+    bool use_list_aux_stubs;
 
     // We must declare these before we make them
     // friends.
@@ -2031,7 +2031,7 @@ namespace min {
 	      unsigned insertions,
 	      unsigned elements = 0,
 	      bool use_aux =
-	          min::use_list_auxiliary_stubs );
+	          min::use_list_aux_stubs );
     void insert_before
     	    ( min::unprotected::list_pointer & lp,
 	      min::gen * p, unsigned n );
@@ -2067,13 +2067,12 @@ namespace min { namespace unprotected {
 
 	    base = NULL;
 	    current = 0;
-	    is_at_following_end = false;
+	    current_index = previous_index = 0;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
 #	    if MIN_USES_LIST_AUX_STUBS
-		current_stub = NULL;
-		use_list_aux_stubs = false;
+		current_stub = previous_stub = NULL;
 #	    endif
 	}
 
@@ -2095,35 +2094,41 @@ namespace min { namespace unprotected {
 	min::gen * base;
 	    // base of body vector.
 
-	// Current element is as follows
+	min::gen current;
+	    // Value of current element, as returned by
+	    // the min::current function.
+
+	// Current element indices and stub pointers are
+	// as follows:
 	//
-	//   if current != 0
-	//	base[current] is current element
-	//   if current_stub != NULL
+	//   if current_index != 0:
+	//	base[current_index] is current element
+	//   if current_stub != NULL:
 	//	MUP::gen_of ( current_stub ) is current
 	//	element
-	//   if is_at_following_end
-	//	current or current_stub points at the
-	//	last element of a list, but the pointer
-	//	is at the end of the list which follows
-	//	the last element.
+	//   if previous_index != 0:
+	//	base[previous_index] is pointer to the
+	//	current element or aux stub
+	//   if previous_stub != NULL:
+	//	MUP::control_of ( previous_stub ) is
+	//	pointer to current element or aux stub
+	//   if current_index == 0 and current_stub == 0
+	//	and previous_index != 0:
+	//	previous_index < unused_area_offset is
+	//	list header of 1 element list and
+	//	pointer is at end of the list after the
+	//	1 element
+	//   if current_index == 0 and current_stub == 0
+	//	and previous_stub != 0:
+	//	MUP::control_of ( previous_stub ) is
+	//	min::LIST_END and pointer points at this.
 	//
-	//   Note:  If current != 0
-	//	       and current < header_end
-	//
-	//	then base[current] is in the attribute
-	//	vector or hash table and is a list head.
-	//
-	//   Note: At least one of current and current_
-	//	   stub must be 0 (NULL).  If both are
-	//	   the pointer points at no element.
-	//
-	unsigned current;
-	unsigned header_end;
+	unsigned current_index;
+	unsigned previous_index;
 #	if MIN_USES_LIST_AUX_STUBS
 	    min::stub * current_stub;
+	    min::stub * previous_stub;
 #	endif
-	bool is_at_following_end;
 
 #	if MIN_USES_LIST_AUX_STUBS
 	    bool use_list_aux_stubs;
@@ -2179,14 +2184,12 @@ namespace min { namespace unprotected {
 	        so = min::unprotected::
 		     short_obj_of ( s );
 		base = (min::gen *) so;
-		header_end = so->unused_area_offset;
 	    }
 	    else if ( t == min::LONG_OBJ )
 	    {
 	        lo = min::unprotected::
 		     long_obj_of ( s );
 		base = (min::gen *) lo;
-		header_end = lo->unused_area_offset;
 	    }
 	    else
 	    {
@@ -2194,51 +2197,66 @@ namespace min { namespace unprotected {
 	        assert ( ! "s is not an object" );
 	    }
 	    current = 0;
-	    is_at_following_end = false;
+	    current_index = previous_index = 0;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
 #	    if MIN_USES_LIST_AUX_STUBS
-		current_stub = NULL;
+		current_stub = previous_stub = NULL;
 #	    endif
 	}
 
+	// Set current_index and current and then do
+	// fowarding while is a list pointer.  Sets
+	// current_stub = NULL.  Does not set previous_
+	// index or previous_stub if there is no
+	// forwarding.
+	//
 	min::gen forward ( unsigned index )
 	{
+	    current_index = index;
 #           if MIN_USES_LIST_AUX_STUBS
 		current_stub = NULL;
 #	    endif
-	    is_at_following_end = false;
 	    while ( true )
 	    {
-		current = index;
-		if ( ! min::is_list_aux
-			   ( base[current] ) )
+		current = base[current_index];
+		if ( ! min::is_list_aux ( current ) )
 		{
 #	            if MIN_USES_LIST_AUX_STUBS
-			if ( min::is_stub
-			            ( base[current] ) )
+			if ( min::is_stub ( current ) )
 			{
 			    min::stub * s =
 			        min::stub_of
-				    ( base[current] );
+					( current );
 			    if (    min::type_of ( s )
 			         == min::LIST_AUX )
 			    {
+				previous_index =
+				    current_index;
+				previous_stub = NULL;
+				current_index = 0;
 				current_stub = s;
-				current = 0;
 				return
-				  min::unprotected::
-				       gen_of ( s );
+				  current =
+				      min::unprotected::
+				           gen_of ( s );
 			    }
 			}
 #	            endif
-		    return base[current];
+		    return current;
 		}
-		if ( base[current] == min::LIST_END )
-		    return base[current];
-		index = min::list_aux_of
-			    ( base[current] );
+		else if ( current == min::LIST_END )
+		    return current;
+		else
+		{
+		    previous_index = current_index;
+#	            if MIN_USES_LIST_AUX_STUBS
+			previous_stub = NULL;
+#	            endif
+		    current_index =
+		        min::list_aux_of ( current );
+		}
 	    }
 	}
     };
@@ -2301,25 +2319,28 @@ namespace min {
         assert ( lp.s == lp2.s );
 	lp.lo = lp2.lo;
 	lp.so = lp2.so;
-	lp.current = lp2.current;
-	lp.is_at_following_end =
-	    lp2.is_at_following_end;
+	lp.current_index = lp2.current_index;
+	lp.previous_index = lp2.previous_index;
 #       if MIN_USES_LIST_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
+	    lp.previous_stub = lp2.previous_stub;
 #       endif
 	lp.reserved_insertions = 0;
 	lp.reserved_elements = 0;
-	return lp.is_at_following_end ?
-	       min::LIST_END : lp.base[lp.current];
+	return lp.current = lp2.current;
     }
     inline min::gen next
     	    ( min::unprotected::list_pointer & lp )
     {
-    	if ( lp.is_at_following_end )
-	    return min::LIST_END;
+        if ( lp.current == min::LIST_END )
+	    return lp.current;
+
 #       if MIN_USES_LIST_AUX_STUBS
-	    else if ( lp.current_stub != NULL )
+	    if ( lp.current_stub != NULL )
 	    {
+		lp.previous_stub = lp.current_stub;
+		lp.previous_index = 0;
+
 	        min::uns64 c =
 		    min::unprotected::control_of
 		    	( lp.current_stub );
@@ -2329,65 +2350,70 @@ namespace min {
 		{
 		    lp.current_stub =
 		        min::unprotected::
-			     pointer_of_control ( c );
+			     stub_p_of_control ( c );
 		    return
-		        min::unprotected::
-			     gen_of ( lp.current_stub );
+		        lp.current =
+			    min::unprotected::
+			         gen_of
+				   ( lp.current_stub );
 		}
 		else
 		{
-		    unsigned v =
+		    unsigned index =
 		        min::unprotected::
 			     value_of_control ( c );
-		    if ( c == 0 )
+		    if ( index == 0 )
 		    {
-		        lp.is_at_following_end = true;
-			return min::LIST_END;
+			lp.current_stub = NULL;
+			return lp.current =
+			    min::LIST_END;
 		    }
 		    else
-		        return lp.forward ( v );
+		        return lp.forward ( index );
 		}
 	    }
+	    lp.previous_stub = NULL;
 #       endif
-	else if ( lp.current < lp.header_end )
+
+	lp.previous_index = lp.current_index;
+	unsigned head_end;
+	if ( lp.so )
+	    head_end = lp.so->unused_area_offset;
+	else
+	    head_end = lp.lo->unused_area_offset;
+	if ( lp.current_index < head_end )
 	{
-	    lp.is_at_following_end = true;
-	    return min::LIST_END;
+	    lp.current_index = 0;
+	    return lp.current = min::LIST_END;
 	}
 	else
-	    return lp.forward ( lp.current + 1 );
+	    return lp.forward ( lp.current_index - 1 );
     }
     inline min::gen current
     	    ( min::unprotected::list_pointer & lp )
     {
-    	if ( lp.is_at_following_end )
-	    return min::LIST_END;
-#       if MIN_USES_LIST_AUX_STUBS
-	    else if ( lp.current_stub != NULL )
-	        return min::unprotected::
-			    gen_of ( lp.current_stub );
-#       endif
-	else
-	    return lp.base[lp.current];
+    	return lp.current;
     }
     inline min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp )
     {
-	min::gen v = min::current ( lp );
 #	if MIN_USES_LIST_AUX_STUBS
-	    if ( min::is_sublist_aux ( v ) )
+	    lp.previous_index = lp.current_index;
+	    lp.previous_stub = lp.current_stub;
+	    if ( min::is_sublist_aux ( lp.current ) )
 		return lp.forward
 		    ( min::unprotected::
-			   sublist_aux_of ( v ) );
-	    lp.current_stub = min::stub_of ( v );
-	    lp.current = 0;
+			   sublist_aux_of ( lp.current ) );
+	    lp.current_stub = min::stub_of ( lp.current );
+	    lp.current_index = 0;
 	    assert (    min::type_of ( lp.current_stub )
 		     == min::SUBLIST_AUX );
-	    return min::unprotected::
+	    return lp.current = min::unprotected::
 			gen_of ( lp.current_stub );
 #	else
+	    lp.previous_index = lp.current_index;
 	    return lp.forward
-	        ( min:: sublist_aux_of ( v ) );
+	        ( min:: sublist_aux_of ( lp.current ) );
 #	endif
     }
     inline void insert_reserve
