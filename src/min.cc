@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/20 14:26:19 $
+//   $Date: 2005/11/21 15:26:29 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents:
 //
@@ -387,7 +387,8 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 
 // Allocate n consecutive aux cells and return the index
 // of the first such cell.  If there are insufficient
-// cells available, return 0.
+// cells available, return 0 is list auxiliary stubs can
+// be used, and proclaim an assert violation otherwise.
 //
 inline unsigned min::unprotected::allocate
 	( min::unprotected::list_pointer & lp,
@@ -409,9 +410,14 @@ inline unsigned min::unprotected::allocate
 	aux_area_offset =
 	    lp.lo->aux_area_offset;
     }
-    if (   unused_area_offset + n
-	 > aux_area_offset )
-	return 0;
+#   if MIN_USES_LIST_AUX_STUBS
+	if (   unused_area_offset + n
+	     > aux_area_offset )
+	    return 0;
+#   else
+	assert (    unused_area_offset + n
+	         <= aux_area_offset );
+#   endif
     aux_area_offset -= n;
     if ( lp.so )
     {
@@ -426,6 +432,11 @@ inline unsigned min::unprotected::allocate
     return aux_area_offset;
 }
 
+// Copy n elements from the vector at p to the vector at
+// q, reversing the order of the elements.  Check that
+// none of the copied elements are list or sublist
+// pointers.
+//
 inline void copy_elements
 	( min::gen * q, min::gen * p, unsigned n )
 {
@@ -526,8 +537,61 @@ void min::insert_before
 
 void min::insert_after
 	( min::unprotected::list_pointer & lp,
-	  min::gen * p, unsigned )
+	  min::gen * p, unsigned n )
 {
+    assert ( lp.current != min::LIST_END );
+
+    assert ( lp.reserved_insertions >= 1 );
+    assert ( lp.reserved_elements >= n );
+
+    lp.reserved_insertions -= 1;
+    lp.reserved_elements -= n;
+
+#   if MIN_USES_LIST_AUX_STUBS
+	bool in_aux = ( lp.current_index != 0 );
+#   else
+	bool in_aux = true;
+#   endif
+
+    unsigned index =
+        MUP::allocate ( lp, n + 1 + in_aux );
+
+    copy_elements ( lp.base + index + 1, p, n );
+
+    if ( in_aux )
+    {
+
+	unsigned unused_area_offset;
+	if ( lp.so )
+	    unused_area_offset =
+	        lp.so->unused_area_offset;
+	else
+	    unused_area_offset =
+	        lp.lo->unused_area_offset;
+
+	if ( lp.current_index < unused_area_offset )
+	    lp.base[index] = min::LIST_END;
+	else if ( min::is_list_aux
+	              ( lp.base[lp.current_index - 1] ) )
+	    lp.base[index] =
+	        lp.base[lp.current_index - 1];
+	else
+	    lp.base[index] =
+	        min::unprotected::new_list_aux_gen
+			( lp.current_index - 1 );
+
+        lp.base[index + n + 1] = lp.current;
+	lp.base[lp.current_index] =
+	    min::unprotected::new_list_aux_gen
+		    ( index + n + 1 );
+	lp.forward ( lp.current_index );
+    }
+#   if MIN_USES_LIST_AUX_STUBS
+    else
+    {
+    	assert ( lp.current_stub != NULL );
+    }
+#   endif
 }
 
 
