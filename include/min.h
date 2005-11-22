@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov 20 09:21:36 EST 2005
+// Date:	Tue Nov 22 04:24:48 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/20 14:26:18 $
+//   $Date: 2005/11/22 10:32:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.36 $
+//   $Revision: 1.37 $
 
 // Table of Contents:
 //
@@ -842,9 +842,11 @@ namespace min {
     const int LIST_AUX			= -2;
     const int SUBLIST_AUX		= -3;
 
-    // Non-gc flags for uncollectable controls.
-    //
-    const unsigned LIST_AUX_STUB	= 1;
+    namespace unprotected {
+	// Non-gc flags for uncollectable controls.
+	//
+	const unsigned LIST_AUX_STUB	= 1;
+    }
 
     struct stub
     {
@@ -947,6 +949,12 @@ namespace min {
 		( min::stub * s, min::uns64 v )
 	{
 	    s->c.u64 = v;
+	}
+
+	inline void set_type_of
+		( min::stub * s, int type )
+	{
+	    s->c.i8[7*MIN_LITTLE_ENDIAN] = type;
 	}
 
         inline min::uns64 stub_control
@@ -2046,19 +2054,24 @@ namespace min {
 	          min::use_list_aux_stubs );
     void insert_before
     	    ( min::unprotected::list_pointer & lp,
-	      min::gen * p, unsigned n );
+	      const min::gen * p, unsigned n );
     void insert_after
     	    ( min::unprotected::list_pointer & lp,
-	      min::gen * p, unsigned n );
+	      const min::gen * p, unsigned n );
 }
 
 namespace min { namespace unprotected {
 
     // Internal functions: see min.cc.
     //
-    unsigned allocate
+    unsigned allocate_aux_list
         ( min::unprotected::list_pointer & lp,
 	  unsigned n );
+
+    min::gen allocate_stub_list
+	( int type,
+	  const min::gen * p, unsigned n,
+	  min::uns64 end );
 
     class list_pointer {
 
@@ -2154,9 +2167,14 @@ namespace min { namespace unprotected {
 	    // Set by insert_resert and decremented by
 	    // insert_{before,after}.
 
-	friend unsigned allocate
+	friend unsigned allocate_aux_list
 		( min::unprotected::list_pointer & lp,
 		  unsigned n );
+
+        friend min::gen allocate_stub_list
+		( int type,
+		  const min::gen * p, unsigned n,
+		  min::uns64 end );
 
 	friend min::gen min::start_hash
 		( min::unprotected::list_pointer & lp,
@@ -2183,10 +2201,10 @@ namespace min { namespace unprotected {
 		  bool use_aux );
 	friend void min::insert_before
 		( min::unprotected::list_pointer & lp,
-		  min::gen * p, unsigned n );
+		  const min::gen * p, unsigned n );
 	friend void min::insert_after
 		( min::unprotected::list_pointer & lp,
-		  min::gen * p, unsigned n );
+		  const min::gen * p, unsigned n );
 
         void relocate ( )
 	{
@@ -2358,7 +2376,7 @@ namespace min {
 		    	( lp.current_stub );
 		if (   min::unprotected::
 		            flags_of_control ( c )
-		     & min::LIST_AUX_STUB )
+		     & min::unprotected::LIST_AUX_STUB )
 		{
 		    lp.current_stub =
 		        min::unprotected::
