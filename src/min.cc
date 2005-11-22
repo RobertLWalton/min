@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 22 04:26:16 EST 2005
+// Date:	Tue Nov 22 06:30:29 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/22 10:32:02 $
+//   $Date: 2005/11/22 11:44:28 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents:
 //
@@ -586,12 +586,14 @@ void min::insert_before
 	return;
     }
 
-    unsigned m = n + 1;
-    if ( lp.previous_index != 0 ) ++ m;
+    bool previous = ( lp.previous_index != 0 );
 #   if MIN_USES_LIST_AUX_STUBS
-	else if ( lp.previous_stub != NULL ) ++ m;
+	if ( lp.previous_stub != NULL ) previous = true;
 #   endif
-    unsigned index = MUP::allocate_aux_list ( lp, m );
+
+    unsigned index = MUP::allocate_aux_list
+    	( lp, n + 1 + ! previous );
+
 #   if MIN_USES_LIST_AUX_STUBS
 	if ( index == 0 )
 	{
@@ -602,7 +604,20 @@ void min::insert_before
 	    return;
 	}
 #   endif
+
     copy_elements ( lp.base + index + 1, p, n );
+
+#   if MIN_USES_LIST_AUX_STUBS
+    if ( lp.current_stub != NULL )
+        lp.base[index] =
+	    min::new_gen ( lp.current_stub );
+	    // TBD What about type of current stub
+    else
+#   endif
+        lp.base[index] =
+	    min::new_list_aux_gen
+	        ( lp.current_index - ! previous );
+
     if ( lp.previous_index != 0 )
 	lp.base[lp.previous_index] =
 	    min::unprotected::new_aux_gen
@@ -610,8 +625,12 @@ void min::insert_before
 		  index + n + 1 );
 #   if MIN_USES_LIST_AUX_STUBS
 	else if ( lp.previous_stub != NULL )
-	{
-	}
+	    MUP::set_control_of
+	        ( lp.previous_stub,
+		  MUP::stub_control
+		      ( min::type_of
+		            ( lp.previous_stub ),
+			0, index + n ) );
 #   endif
     else
     {
