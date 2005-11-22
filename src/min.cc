@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov 20 09:05:31 EST 2005
+// Date:	Tue Nov 22 04:26:16 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/21 15:26:29 $
+//   $Date: 2005/11/22 10:32:02 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents:
 //
@@ -390,7 +390,7 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 // cells available, return 0 is list auxiliary stubs can
 // be used, and proclaim an assert violation otherwise.
 //
-inline unsigned min::unprotected::allocate
+inline unsigned MUP::allocate_aux_list
 	( min::unprotected::list_pointer & lp,
 	  unsigned n)
 {
@@ -432,13 +432,73 @@ inline unsigned min::unprotected::allocate
     return aux_area_offset;
 }
 
+// Allocate a chain of stubs containing the n min::gen
+// values in p.  The type of the first stub is given
+// and the other stubs have type min::LIST_AUX.  Each
+// stub but the last points at the next stub.  The
+// control of the last contains the end value, which
+// may be a list aux value or a pointer to a stub.
+// This function returns a pointer to the first stub
+// allocated, or returns `end' if n == 0.
+//
+// This function asserts that the relocated flag is
+// off both before and after any stub allocations
+// this function performs.  Sufficient stubs should
+// have been reserved in advance.
+//
+min::gen MUP::allocate_stub_list
+	( int type, const min::gen * p, unsigned n,
+	  min::uns64 end )
+{
+    if ( n == 0 )
+    {
+	if (   MUP::flags_of_control ( end )
+	     & MUP::LIST_AUX_STUB )
+	    return min::new_gen
+		( MUP::stub_p_of_control ( end ) );
+	else
+	    return min::new_list_aux_gen
+	    	( MUP::value_of_control ( end ) );
+    }
+
+    // Check for failure to use min::insert_reserve
+    // properly.
+    //
+    assert ( ! relocated_flag () );
+
+    min::stub * first = MUP::new_stub ();
+    MUP::set_gen_of ( first, * p ++ );
+    min::stub * previous = first;
+    min::stub * last = first;
+    while ( -- n )
+    {
+	min::stub * last = MUP::new_stub ();
+	MUP::set_gen_of ( last, * p ++ );
+	MUP::set_control_of
+	     ( previous,
+	       MUP::stub_control
+	           ( type, MUP::LIST_AUX_STUB, last ) );
+	type = MUP::LIST_AUX_STUB;
+	previous = last;
+    }
+
+    // Check for failure to use min::insert_reserve
+    // properly.
+    //
+    assert ( ! relocated_flag () );
+    MUP::set_control_of ( last, end );
+    MUP::set_type_of ( last, type );
+
+    return min::new_gen ( first );
+}
+
 // Copy n elements from the vector at p to the vector at
 // q, reversing the order of the elements.  Check that
 // none of the copied elements are list or sublist
 // pointers.
 //
 inline void copy_elements
-	( min::gen * q, min::gen * p, unsigned n )
+	( min::gen * q, const min::gen * p, unsigned n )
 {
     q += n;
     while ( n -- )
@@ -448,6 +508,8 @@ inline void copy_elements
 	* -- q = * p ++;
     }
 }
+
+
 
 void min::unprotected::insert_reserve
 	( min::unprotected::list_pointer & lp,
@@ -459,7 +521,7 @@ void min::unprotected::insert_reserve
 
 void min::insert_before
 	( min::unprotected::list_pointer & lp,
-	  min::gen * p, unsigned n )
+	  const min::gen * p, unsigned n )
 {
     if (    lp.current_index == 0
 #	 if MIN_USES_LIST_AUX_STUBS
@@ -500,7 +562,20 @@ void min::insert_before
 	bool contiguous =
 	    ( lp.current_index == aux_area_offset );
 	unsigned index =
-	    MUP::allocate ( lp, n + ! contiguous );
+	    MUP::allocate_aux_list
+	    	( lp, n + ! contiguous );
+#	if MIN_USES_LIST_AUX_STUBS
+	    if ( index == 0 )
+	    {
+	    	lp.base[lp.current_index] =
+		    MUP::allocate_stub_list
+		        ( min::LIST_AUX,
+			  p, n,
+			  MUP::stub_control
+			      ( 0, 0, (unsigned) 0 ) );
+		return;
+	    }
+#	endif
 	copy_elements ( lp.base + index + 1, p, n );
 	lp.base[index] = min::LIST_END;
 	if ( ! contiguous )
@@ -508,36 +583,49 @@ void min::insert_before
 	        min::new_list_aux_gen ( index + n );
 	lp.current_index = index;
 	lp.previous_index = 0;
+	return;
     }
-    else
-    {
-	assert ( lp.current_index != 0 );
 
-	bool previous = ( lp.previous_index != 0 );
-	unsigned index =
-	    MUP::allocate ( lp, n + 1 + ! previous );
-	copy_elements
-	    ( lp.base + index + 1, p, n );
-	if ( ! previous )
-	    lp.base[index + n + 1] = lp.current;
-	if ( previous )
-	    lp.base[lp.previous_index] =
-	        min::unprotected::new_aux_gen
-		    ( lp.base[lp.previous_index],
-		      index + n + 1 );
-	else
+    unsigned m = n + 1;
+    if ( lp.previous_index != 0 ) ++ m;
+#   if MIN_USES_LIST_AUX_STUBS
+	else if ( lp.previous_stub != NULL ) ++ m;
+#   endif
+    unsigned index = MUP::allocate_aux_list ( lp, m );
+#   if MIN_USES_LIST_AUX_STUBS
+	if ( index == 0 )
 	{
 	    lp.base[lp.current_index] =
-	        min::new_list_aux_gen ( index + n + 1 );
-	    lp.previous_index = lp.current_index;
-	    lp.current_index = index + n + 1;
+		MUP::allocate_stub_list
+		    ( min::LIST_AUX,
+		      p, n, min::LIST_END );
+	    return;
 	}
+#   endif
+    copy_elements ( lp.base + index + 1, p, n );
+    if ( lp.previous_index != 0 )
+	lp.base[lp.previous_index] =
+	    min::unprotected::new_aux_gen
+		( lp.base[lp.previous_index],
+		  index + n + 1 );
+#   if MIN_USES_LIST_AUX_STUBS
+	else if ( lp.previous_stub != NULL )
+	{
+	}
+#   endif
+    else
+    {
+	lp.base[index + n + 1] = lp.current;
+	lp.base[lp.current_index] =
+	    min::new_list_aux_gen ( index + n + 1 );
+	lp.previous_index = lp.current_index;
+	lp.current_index = index + n + 1;
     }
 }
 
 void min::insert_after
 	( min::unprotected::list_pointer & lp,
-	  min::gen * p, unsigned n )
+	  const min::gen * p, unsigned n )
 {
     assert ( lp.current != min::LIST_END );
 
@@ -554,7 +642,7 @@ void min::insert_after
 #   endif
 
     unsigned index =
-        MUP::allocate ( lp, n + 1 + in_aux );
+        MUP::allocate_aux_list ( lp, n + 1 + in_aux );
 
     copy_elements ( lp.base + index + 1, p, n );
 
