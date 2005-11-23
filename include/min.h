@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 22 04:24:48 EST 2005
+// Date:	Wed Nov 23 09:49:21 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/23 07:21:00 $
+//   $Date: 2005/11/23 14:57:35 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.38 $
+//   $Revision: 1.39 $
 
 // Table of Contents:
 //
@@ -1188,7 +1188,7 @@ namespace min { namespace unprotected {
 	uns64 gc_stub_expand_free_list ( void );
 #   endif
     //
-    // Function to return the next allocated stub.
+    // Function to return the next free stub.
     // This function does NOT set any part of the stub.
     inline min::stub * new_stub ( void )
     {
@@ -1210,6 +1210,39 @@ namespace min { namespace unprotected {
 	    return current_process->
 	           last_allocated_stub =
 	           unprotected::uns64_to_stub_p ( v );
+#	endif
+    }
+    //
+    // Function to return the next free stub while
+    // clipping this stub from the free list.
+    //
+    // This function does NOT set any part of the stub.
+    inline min::stub * new_aux_stub ( void )
+    {
+#	if MIN_IS_COMPACT
+	    uns32 v = current_process->
+	              last_allocated_stub->
+	    		c.u32[MIN_BIG_ENDIAN];
+	    if ( v == 0 )
+	        v = gc_stub_expand_free_list ();
+	    min::stub * s =
+		unprotected::uns32_to_stub_p ( v );
+	    current_process->
+	        last_allocated_stub->
+		    c.u32[MIN_BIG_ENDIAN] =
+			s->c.u32[MIN_BIG_ENDIAN];
+	    return s;
+#	else // if MIN_IS_LOOSE
+	    uns64 v = current_process->
+	              last_allocated_stub->c.u64;
+	    v &= 0x00000FFFFFFFFFFF;
+	    if ( v == 0 )
+	        v = gc_stub_expand_free_list ();
+	    min::stub * s =
+		unprotected::uns64_to_stub_p ( v );
+	    current_process->
+	        last_allocated_stub->c.u64 = s->c.u64;
+	    return s;
 #	endif
     }
 

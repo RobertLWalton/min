@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov 23 09:35:32 EST 2005
+// Date:	Wed Nov 23 09:55:43 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/23 14:34:59 $
+//   $Date: 2005/11/23 14:57:35 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents:
 //
@@ -459,13 +459,13 @@ void MUP::allocate_stub_list
     //
     assert ( ! relocated_flag () );
 
-    first = MUP::new_stub ();
+    first = MUP::new_aux_stub ();
     MUP::set_gen_of ( first, * p ++ );
     min::stub * previous = first;
     last = first;
     while ( -- n )
     {
-	min::stub * last = MUP::new_stub ();
+	min::stub * last = MUP::new_aux_stub ();
 	MUP::set_gen_of ( last, * p ++ );
 	MUP::set_control_of
 	     ( previous,
@@ -624,7 +624,7 @@ void min::insert_before
 	    if ( ! previous )
 	    {
 		assert ( lp.current_index != 0 );
-	        s = MUP::new_stub();
+	        s = MUP::new_aux_stub();
 		MUP::set_gen_of ( s, lp.current );
 		MUP::set_control_of
 		    ( s,
@@ -818,7 +818,7 @@ void min::insert_after
 		MUP::stub_control
 		    ( min::LIST_AUX, 0,
 		      lp.current_index - ! previous );
-	    min::stub * s = MUP::new_stub();
+	    min::stub * s = MUP::new_aux_stub();
 	    MUP::set_gen_of ( s, lp.current );
 
 	    if ( previous )
