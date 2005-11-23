@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 22 09:33:18 EST 2005
+// Date:	Tue Nov 22 23:47:09 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/22 14:32:49 $
+//   $Date: 2005/11/23 07:21:00 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents:
 //
@@ -446,8 +446,10 @@ inline unsigned MUP::allocate_aux_list
 // this function performs.  Sufficient stubs should
 // have been reserved in advance.
 //
-min::gen MUP::allocate_stub_list
-	( int type, const min::gen * p, unsigned n,
+void MUP::allocate_stub_list
+	( min::stub * & first,
+	  min::stub * & last,
+	  int type, const min::gen * p, unsigned n,
 	  min::uns64 end )
 {
     assert ( n > 0 );
@@ -457,10 +459,10 @@ min::gen MUP::allocate_stub_list
     //
     assert ( ! relocated_flag () );
 
-    min::stub * first = MUP::new_stub ();
+    first = MUP::new_stub ();
     MUP::set_gen_of ( first, * p ++ );
     min::stub * previous = first;
-    min::stub * last = first;
+    last = first;
     while ( -- n )
     {
 	min::stub * last = MUP::new_stub ();
@@ -479,8 +481,6 @@ min::gen MUP::allocate_stub_list
     assert ( ! relocated_flag () );
     MUP::set_control_of ( last, end );
     MUP::set_type_of ( last, type );
-
-    return min::new_gen ( first );
 }
 
 // Copy n elements from the vector at p to the vector at
@@ -520,6 +520,7 @@ void min::insert_before
 #	 if MIN_USES_LIST_AUX_STUBS
 	 && lp.current_stub == NULL
 #	 endif
+	 && n > 0
        )
     {
         // Inserting before a min::LIST_END that
@@ -542,6 +543,8 @@ void min::insert_before
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
+    if ( n == 0 ) return;
+
     if ( lp.current == min::LIST_END )
     {
 	assert ( lp.current_index != 0 );
@@ -563,12 +566,14 @@ void min::insert_before
 #	if MIN_USES_LIST_AUX_STUBS
 	    if ( index == 0 )
 	    {
+		min::stub * first, * last;
+		MUP::allocate_stub_list
+		    ( first, last,
+		      min::LIST_AUX, p, n,
+		      MUP::stub_control
+			( 0, 0, (unsigned) 0 ) );
 	    	lp.base[lp.current_index] =
-		    MUP::allocate_stub_list
-		        ( min::LIST_AUX,
-			  p, n,
-			  MUP::stub_control
-			      ( 0, 0, (unsigned) 0 ) );
+		    min::new_gen ( first );
 		return;
 	    }
 #	endif
@@ -614,23 +619,86 @@ void min::insert_before
 #   if MIN_USES_LIST_AUX_STUBS
 	if ( index == 0 )
 	{
-	    lp.base[lp.current_index] =
-		MUP::allocate_stub_list
-		    ( min::LIST_AUX,
-		      p, n, min::LIST_END );
+	    min::uns64 end;
+	    min::stub * s;
+	    if ( ! previous )
+	    {
+		assert ( lp.current_index != 0 );
+	        s = MUP::new_stub();
+		MUP::set_gen_of ( s, lp.current );
+		MUP::set_control_of
+		    ( s,
+		      MUP::stub_control
+		        ( min::LIST_AUX, 0,
+			  lp.current_index - 1 ) );
+		end = MUP::stub_control
+		    ( min::LIST_AUX, MUP::LIST_AUX_STUB,
+		      s );
+	    }
+	    else if ( lp.current_stub != NULL )
+	    {
+		end = MUP::stub_control
+		   ( min::LIST_AUX,
+		     MUP::LIST_AUX_STUB,
+		     lp.current_stub );
+		MUP::set_type_of
+		    ( lp.current_stub, min::LIST_AUX );
+	    }
+	    else
+		end = MUP::stub_control
+		   ( min::LIST_AUX, 0,
+		     lp.current_index );
+
+	    min::stub * first, * last;
+	    MUP::allocate_stub_list
+		( first, last,
+		  sublist ? min::SUBLIST_AUX
+			  : min::LIST_AUX,
+		  p, n, end );
+
+	    if ( lp.previous_index != 0 )
+		lp.base[lp.previous_index] =
+		    min::new_gen ( first );
+	    else if ( lp.previous_stub != NULL )
+	    {
+		if ( sublist )
+		    MUP::set_gen_of
+			( lp.previous_stub,
+			  min::new_gen ( first ) );
+		else
+		    MUP::set_control_of
+			( lp.previous_stub,
+			  MUP::stub_control
+			      ( min::type_of
+				    ( lp.previous_stub ),
+				MUP::LIST_AUX_STUB,
+				first ) );
+	    }
+	    else
+	    {
+		assert ( lp.current_index != 0 );
+
+		lp.base[lp.current_index] =
+		    min::new_gen ( first );
+		lp.current_index = 0;
+		lp.current_stub = s;
+		lp.previous_stub = last;
+	    }
 	    return;
 	}
 #   endif
 
-    copy_elements ( lp.base + index + 1, p, n );
+    copy_elements
+        ( lp.base + index + 1 + ! previous, p, n );
 
 #   if MIN_USES_LIST_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
+        assert ( previous );
         lp.base[index] =
 	    min::new_gen ( lp.current_stub );
 	MUP::set_type_of
-	    ( lp.current_stub, MUP::LIST_AUX_STUB );
+	    ( lp.current_stub, min::LIST_AUX );
     }
     else
 #   endif
@@ -673,11 +741,10 @@ void min::insert_before
     {
 	assert ( lp.current_index != 0 );
 
-	lp.base[index + n + 1] = lp.current;
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( index + n + 1 );
-	lp.previous_index = lp.current_index;
-	lp.current_index = index + n + 1;
+	lp.base[index + 1] = lp.current;
+	lp.current_index = index + 1;
     }
 }
 
@@ -685,15 +752,15 @@ void min::insert_after
 	( min::unprotected::list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
-    if ( n == 0 ) return;
-
-    assert ( lp.current != min::LIST_END );
-
     assert ( lp.reserved_insertions >= 1 );
     assert ( lp.reserved_elements >= n );
 
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
+
+    if ( n == 0 ) return;
+
+    assert ( lp.current != min::LIST_END );
 
 #   if MIN_USES_LIST_AUX_STUBS
 	bool in_aux = ( lp.current_index != 0 );
@@ -703,6 +770,12 @@ void min::insert_after
 
     unsigned index =
         MUP::allocate_aux_list ( lp, n + 1 + in_aux );
+
+#   if MIN_USES_LIST_AUX_STUBS
+	if ( index == 0 )
+	{
+	}
+#   endif
 
     copy_elements ( lp.base + index + 1, p, n );
 
