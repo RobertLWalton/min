@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/22 10:32:02 $
+//   $Date: 2005/11/23 07:21:00 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // Table of Contents:
 //
@@ -2068,8 +2068,10 @@ namespace min { namespace unprotected {
         ( min::unprotected::list_pointer & lp,
 	  unsigned n );
 
-    min::gen allocate_stub_list
-	( int type,
+    void allocate_stub_list
+	( min::stub * & first,
+	  min::stub * & last,
+	  int type,
 	  const min::gen * p, unsigned n,
 	  min::uns64 end );
 
@@ -2171,8 +2173,10 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp,
 		  unsigned n );
 
-        friend min::gen allocate_stub_list
-		( int type,
+        friend void allocate_stub_list
+		( min::stub * & first,
+		  min::stub * & last,
+		  int type,
 		  const min::gen * p, unsigned n,
 		  min::uns64 end );
 
