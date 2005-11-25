@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov 23 09:55:43 EST 2005
+// Date:	Fri Nov 25 03:29:42 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/23 14:57:35 $
+//   $Date: 2005/11/25 09:09:33 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents:
 //
@@ -410,7 +410,7 @@ inline unsigned MUP::allocate_aux_list
 	aux_area_offset =
 	    lp.lo->aux_area_offset;
     }
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
 	if (   unused_area_offset + n
 	     > aux_area_offset )
 	    return 0;
@@ -517,7 +517,7 @@ void min::insert_before
     if ( n == 0 ) return;
 
     if (    lp.current_index == 0
-#	 if MIN_USES_LIST_AUX_STUBS
+#	 if MIN_USES_OBJECT_AUX_STUBS
 	 && lp.current_stub == NULL
 #	 endif
 	 && n > 0
@@ -529,7 +529,7 @@ void min::insert_before
 	// element.
         assert ( lp.current == min::LIST_END );
         lp.current_index = lp.previous_index;
-#	if MIN_USES_LIST_AUX_STUBS
+#	if MIN_USES_OBJECT_AUX_STUBS
 	    lp.current_stub = lp.previous_stub;
 #	endif
 	lp.current = 0;
@@ -548,7 +548,7 @@ void min::insert_before
     if ( lp.current == min::LIST_END )
     {
 	assert ( lp.current_index != 0 );
-#	if MIN_USES_LIST_AUX_STUBS
+#	if MIN_USES_OBJECT_AUX_STUBS
 	    assert ( lp.previous_stub == NULL );
 #	endif
 
@@ -563,7 +563,7 @@ void min::insert_before
 	unsigned index =
 	    MUP::allocate_aux_list
 	    	( lp, n + ! contiguous );
-#	if MIN_USES_LIST_AUX_STUBS
+#	if MIN_USES_OBJECT_AUX_STUBS
 	    if ( index == 0 )
 	    {
 		min::stub * first, * last;
@@ -595,7 +595,7 @@ void min::insert_before
 	sublist = min::is_sublist_aux
 	    ( lp.base[lp.previous_index] );
     }
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
 	if ( lp.previous_stub != NULL )
 	{
 	    previous = true;
@@ -616,7 +616,7 @@ void min::insert_before
     unsigned index = MUP::allocate_aux_list
     	( lp, n + 1 + ! previous );
 
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
 	if ( index == 0 )
 	{
 	    min::uns64 end;
@@ -691,7 +691,7 @@ void min::insert_before
     copy_elements
         ( lp.base + index + 1 + ! previous, p, n );
 
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
         assert ( previous );
@@ -714,7 +714,7 @@ void min::insert_before
 		  index + n );
 	lp.previous_index = index;
     }
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
 	else if ( lp.previous_stub != NULL )
 	{
 	    if ( sublist )
@@ -770,7 +770,7 @@ void min::insert_after
 	sublist = min::is_sublist_aux
 	    ( lp.base[lp.previous_index] );
     }
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
 	if ( lp.previous_stub != NULL )
 	{
 	    previous = true;
@@ -791,7 +791,7 @@ void min::insert_after
     unsigned index = MUP::allocate_aux_list
     	( lp, n + 1 + ! previous );
 
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
 	if ( index == 0 )
 	{
 	    min::stub * first, * last;
@@ -837,7 +837,7 @@ void min::insert_after
 		lp.current_index = 0;
 		lp.current_stub = s;
 
-	#	if MIN_USES_LIST_AUX_STUBS
+	#	if MIN_USES_OBJECT_AUX_STUBS
 		    if ( lp.previous_stub != NULL )
 		    {
 			if ( sublist )
@@ -887,7 +887,7 @@ void min::insert_after
 	}
 #   endif
 
-#   if MIN_USES_LIST_AUX_STUBS
+#   if MIN_USES_OBJECT_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
 	assert ( previous );
@@ -924,7 +924,7 @@ void min::insert_after
 	lp.base[lp.current_index] = p[n-1];
 	lp.current_index = index + n;
 
-#	if MIN_USES_LIST_AUX_STUBS
+#	if MIN_USES_OBJECT_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
 	    {
 		if ( sublist )

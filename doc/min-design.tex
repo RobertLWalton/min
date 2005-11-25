@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 18, 2005}
+\date{November 25, 2005}
  
 \maketitle
 
@@ -291,6 +291,22 @@ accessed by C++ code that contains the following inclusion:
 \begin{center}
 \verb|#include  <min.h>|
 \end{center}
+
+There are some macros that can be defined to control compilation.
+These have names beginning with \ttkey{MIN\_}.  One of these
+is:
+
+\begin{center}
+\begin{tabular}{ll}
+\TTKEY{MIN\_DEBUG}	& 1 if extra debugging checks are to be compiled;
+			  0 if not
+\LABEL{MIN_DEBUG} \\
+\end{tabular}
+\end{center}
+
+This macro can be defined independently for each separately compiled
+part of a program, but most \verb|MIN_| macros must be defined identically
+for all separately compiled parts of a single program.
 
 
 \section{Data}
@@ -571,7 +587,7 @@ a 28-bit direct integer atom\COMPACT \\
 a 0-5 {\tt char} direct string atom\LOOSE \\
 a 0-3 {\tt char} direct string atom\COMPACT \\
 a 24-bit list auxiliary pointer \\
-a 24-bit sublist auxiliary auxiliary pointer \\
+a 24-bit sublist auxiliary pointer \\
 a 24-bit indirect pair auxiliary pointer \\
 a 24-bit indirect indexed auxiliary pointer \\
 a 24-bit index \\
@@ -696,16 +712,8 @@ The following macros are defined to describe these decisions:
 \end{tabular}
 \end{center}
 
-In addition the following macro can be set differently for any particular
-piece of C++ code before it is compiled:
-
-\begin{center}
-\begin{tabular}{ll}
-\TTKEY{MIN\_DEBUG}	& 1 if extra debugging checks are to be compiled;
-			  0 if not
-\LABEL{MIN_DEBUG} \\
-\end{tabular}
-\end{center}
+These macros must be defined identically
+for all separately compiled parts of a single program.
 
 \subsubsection{General Value Functions}
 \label{GENERAL-VALUE-FUNCTIONS}
@@ -1954,11 +1962,11 @@ functions:
     & \MINKEY{attribute\_vector\_size\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned min::|
-    & \MINKEY{auxiliary\_area\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::AUXILIARY_AREA_SIZE_OF_SHORT_OBJ} \\
+    & \MINKEY{aux\_area\_size\_of}\verb| ( MUP::short_obj * so )|
+\LABEL{MIN::AUX_AREA_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned min::|
-    & \MINKEY{auxiliary\_area\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::AUXILIARY_AREA_SIZE_OF_LONG_OBJ} \\
+    & \MINKEY{aux\_area\_size\_of}\verb| ( MUP::long_obj * lo )|
+\LABEL{MIN::AUX_AREA_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned min::|
     & \MINKEY{unused\_area\_size\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MIN::UNUSED_AREA_SIZE_OF_SHORT_OBJ} \\
@@ -2241,8 +2249,8 @@ all succeed.  The functions used are:
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::list_pointer & lp,| \\
 	  \verb|   unsigned insertions, unsigned elements = 0,| \\
-	  \verb|   bool use_auxiliaries =| \\
-	  \verb|       min::use_list_auxiliary_stubs )| \\
+	  \verb|   bool use_object_aux_stubs =| \\
+	  \verb|       min::use_object_aux_stubs )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_RESERVE} \\
 \verb|void min::|
@@ -2274,7 +2282,7 @@ object auxiliary stubs (\secref{OBJECT-AUXILIARY-STUBS}) if the object
 runs out of space, in which case {\tt min::insert\_reserve} must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
 last argument to {\tt min::insert\_reserve} determines which strategy is
-used.  It defaults to the value of \minkey{use\_list\_auxiliary\_stubs}.
+used.  It defaults to the value of \minkey{use\_object\_aux\_stubs}.
 
 The {\tt min::insert\_before} function inserts list elements
 just before the current position of a list pointer.
@@ -2341,6 +2349,19 @@ If the object is later relocated, it can be reorganized to
 eliminate the use of object auxiliary stubs extending the object
 by moving information from these into a new larger object auxiliary area.
 
+The code implementing object auxiliary stubs can be compiled into a program
+or left out of a program according to the setting of the macro:
+
+
+\begin{center}
+\begin{tabular}{l}
+\TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS} \\
+~~~~~ 1 if code to use object auxilary stubs is to be compiled; \\
+~~~~~ 0 if this code is not to be compiled.
+\LABEL{MIN_USES_OBJECT_AUX_STUBS} \\
+\end{tabular}
+\end{center}
+
 The value of an object
 auxiliary stub is treated as an auxiliary area element value.
 The chain pointer of an object auxiliary stub is treated as the next auxiliary
@@ -2357,11 +2378,11 @@ codes:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const int min::}\MINKEY{LIST\_AUXILIARY}]~%
-	\LABEL{MIN::LIST_AUXILIARY}\\
+\item[{\tt const int min::}\MINKEY{LIST\_AUX}]~%
+	\LABEL{MIN::LIST_AUX}\\
 A \verb|min::gen| value pointing at this stub behaves like a list pointer.
-\item[{\tt const int min::}\MINKEY{SUBLIST\_AUXILIARY}]~%
-	\LABEL{MIN::SUBLIST_AUXILIARY}\\
+\item[{\tt const int min::}\MINKEY{SUBLIST\_AUX}]~%
+	\LABEL{MIN::SUBLIST_AUX}\\
 A \verb|min::gen| value pointing at this stub behaves like a sublist pointer.
 \end{list}
 \end{indpar}
@@ -2903,9 +2924,9 @@ functions:
     & \verb|    ( min::variable_vector * vv )|
 \LABEL{VARIABLE_VECTOR_SIZE_OF_VARIABLE_VECTOR} \\
 \verb|unsigned |
-    & \TTKEY{auxiliary\_area\_size\_of} \\
+    & \TTKEY{aux\_area\_size\_of} \\
     & \verb|    ( min::variable_vector * vv )|
-\LABEL{AUXILIARY_AREA_SIZE_OF_VARIABLE_VECTOR} \\
+\LABEL{AUX_AREA_SIZE_OF_VARIABLE_VECTOR} \\
 \verb|unsigned |
     & \TTKEY{unused\_area\_size\_of} \\
     & \verb|    ( min::variable_vector * vv )|
@@ -3373,19 +3394,22 @@ struct min
 
 \begin{indpar}[0.2in]
 
-% The ...KEY macros must be preceeded by a \verb.
-\verb||\TTKEY{MIN\_IS\_COMPACT}
+\begin{tabular}{@{}p{6.2in}@{}}
+\TTKEY{MIN\_IS\_COMPACT}
 \LABEL{MIN_IS_COMPACT} \\
-\verb||\TTKEY{MIN\_IS\_LOOSE}
+\TTKEY{MIN\_IS\_LOOSE}
 \LABEL{MIN_IS_LOOSE}	 \\
-\verb||\TTKEY{MIN\_SIZEOF\_GEN}
+\TTKEY{MIN\_SIZEOF\_GEN}
 \LABEL{MIN_SIZEOF_GEN} \\
-\verb||\TTKEY{MIN\_USES\_ADDRESSES}
+\TTKEY{MIN\_USES\_ADDRESSES}
 \LABEL{MIN_USES_ADDRESSES} \\
-\verb||\TTKEY{MIN\_USES\_VSNS}
+\TTKEY{MIN\_USES\_VSNS}
 \LABEL{MIN_USES_VSNS} \\
-\verb||\TTKEY{MIN\_DEBUG}
-\LABEL{MIN_DEBUG}
+\TTKEY{MIN\_DEBUG}
+\LABEL{MIN_DEBUG} \\
+\TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
+\LABEL{MIN_USES_OBJECT_AUX_STUBS}
+\end{tabular}
 
 \end{indpar}
 
@@ -3393,9 +3417,12 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\verb|min::|\MINKEY{stub} \LABEL{MIN::STUB}
-\\
-\verb|min::|\MINKEY{gen} \LABEL{MIN::GEN}
+\begin{tabular}{@{}p{0.6in}@{}p{5.6in}@{}}
+\verb|min::| & \MINKEY{stub}
+\LABEL{MIN::STUB} \\
+\verb|min::| & \MINKEY{gen}
+\LABEL{MIN::GEN}
+\end{tabular}
 
 \end{indpar}
 
@@ -3403,24 +3430,26 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\verb|const int min::|\MINKEY{DEALLOCATED} \LABEL{MIN::DEALLOCATED}
-\\
-\verb|const int min::|\MINKEY{NUMBER} \LABEL{MIN::NUMBER}
-\\
-\verb|const int min::|\MINKEY{SHORT\_STR} \LABEL{MIN::SHORT_STR}
-\\
-\verb|const int min::|\MINKEY{LONG\_STR} \LABEL{MIN::LONG_STR}
-\\
-\verb|const int min::|\MINKEY{LABEL} \LABEL{MIN::LABEL}
-\\
-\verb|const int min::|\MINKEY{SHORT\_OBJ} \LABEL{MIN::SHORT_OBJ}
-\\
-\verb|const int min::|\MINKEY{LONG\_OBJ} \LABEL{MIN::LONG_OBJ}
-\\
-\verb|const int min::|\MINKEY{LIST\_AUXILIARY} \LABEL{MIN::LIST_AUXILIARY}
-\\
-\verb|const int min::|\MINKEY{SUBLIST\_AUXILIARY} \LABEL{MIN::SUBLIST_AUXILIARY}
-
+\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
+\verb|const int min::| & \MINKEY{DEALLOCATED}
+\LABEL{MIN::DEALLOCATED} \\
+\verb|const int min::| & \MINKEY{NUMBER}
+\LABEL{MIN::NUMBER} \\
+\verb|const int min::| & \MINKEY{SHORT\_STR}
+\LABEL{MIN::SHORT_STR} \\
+\verb|const int min::| & \MINKEY{LONG\_STR}
+\LABEL{MIN::LONG_STR} \\
+\verb|const int min::| & \MINKEY{LABEL}
+\LABEL{MIN::LABEL} \\
+\verb|const int min::| & \MINKEY{SHORT\_OBJ}
+\LABEL{MIN::SHORT_OBJ} \\
+\verb|const int min::| & \MINKEY{LONG\_OBJ}
+\LABEL{MIN::LONG_OBJ} \\
+\verb|const int min::| & \MINKEY{LIST\_AUX}
+\LABEL{MIN::LIST_AUX} \\
+\verb|const int min::| & \MINKEY{SUBLIST\_AUX}
+\LABEL{MIN::SUBLIST_AUX} 
+\end{tabular}
 \end{indpar}
 
 \newpage
@@ -3429,14 +3458,11 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.2in}}
-
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
 \LABEL{MIN::TYPE_OF} \\[1ex]
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
 \LABEL{MIN::IS_COLLECTIBLE} \\[1ex]
-(unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
-\LABEL{MIN_DEALLOCATED_LIMIT} \\
 \verb|void min::| & \MINKEY{assert\_allocated}\ARGBREAK
                \verb| ( min::stub * s, unsigned size )|
 \LABEL{MIN::ASSERT_ALLOCATED} \\
@@ -3450,6 +3476,11 @@ struct min
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
+\end{tabular}
+
+\begin{tabular}{@{}p{2.0in}@{}p{4.2in}@{}}
+(unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
+\LABEL{MIN_DEALLOCATED_LIMIT} \\
 
 \end{tabular}
 
@@ -3459,8 +3490,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.5in}}
-
+\begin{tabular}{@{}p{1.6in}@{}p{4.6in}@{}}
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STUB} \\
 \verb|bool min::| & \MINKEY{is\_direct\_float\LOOSE}\verb| ( min::gen v )|
@@ -3544,7 +3574,6 @@ struct min
 \LABEL{MIN::IS_ATOM} \\
 \verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
 \LABEL{MIN::HASH} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -3555,8 +3584,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.5in}}
-
+\begin{tabular}{@{}p{1.6in}@{}p{4.6in}@{}}
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MUP::STUB_OF} \\
 \verb|min::float64 MUP::|
@@ -3621,8 +3649,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
 \verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_INT}
 \LABEL{MIN::GEN_DIRECT_INT} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_FLOAT}
@@ -3645,7 +3672,6 @@ struct min
 \LABEL{MIN::GEN_CONTROL_CODE} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
 \LABEL{MIN::GEN_ILLEGAL} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -3654,9 +3680,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
-
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
 \verb|min::float64 | & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
 \LABEL{FLOAT_OF} \\[1ex]
 
@@ -3676,7 +3700,6 @@ struct min
 \LABEL{MIN::NUMHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{floathash}\verb| ( min::float64 f )|
 \LABEL{MIN::FLOATHASH} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -3685,15 +3708,13 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
 \verb|min::float64 MUP::| & \MUPKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
 \LABEL{MUP::FLOAT_OF} \\
 \verb|void MUP::|
     & \MUPKEY{set\_float\_of\COMPACT}\ARGBREAK
                \verb| ( min::stub * s, min::float64 f )|
 \LABEL{MUP::SET_FLOAT_OF} \\[1ex]
-
 \end{tabular}
 
 \end{indpar}
@@ -3704,8 +3725,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::stub * s )|
 \LABEL{MIN::STRLEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::stub * s )|
@@ -3743,7 +3763,6 @@ struct min
 \verb|min::gen min::|
     & \MINKEY{new\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_GEN_OF_STR} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -3754,8 +3773,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
 \verb|min::uns64 MUP::|
     & \MUPKEY{short\_str\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::SHORT_STR_OF} \\[1ex]
@@ -3787,7 +3805,6 @@ struct min
    \MUPKEY{set\_hash\_of}\ARGBREAK
     \verb| ( MUP::long_str * str,|\ARGBREAK\verb|   unsigned hash )|
 \LABEL{MUP::SET_HASH_OF_LONG_STR} \\[1ex]
-
 \end{tabular}
 
 \end{indpar}
@@ -3798,8 +3815,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
 \verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
     \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::stub * s )|
 \LABEL{MIN::LAB_OF} \\
@@ -3826,7 +3842,6 @@ struct min
 
 \verb|bool min::| & \MINKEY{is\_lab}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -3835,23 +3850,20 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
+\begin{tabular}{@{}p{2.0in}@{}p{4.2in}@{}}
 \verb|MUP::short_obj * MUP::|
     & \MUPKEY{short\_obj\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::SHORT_OBJ_OF} \\
 \verb|MUP::long_obj * MUP::|
     & \MUPKEY{long\_obj\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_OBJ_OF} \\
-
 \end{tabular}
 
 \end{indpar}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.8in}}
-
+\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
 \verb|unsigned min::|
     & \MINKEY{hash\_table\_size\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MIN::HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
@@ -3867,11 +3879,11 @@ struct min
     		\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned min::|
-    & \MINKEY{auxiliary\_area\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::AUXILIARY_AREA_SIZE_OF_SHORT_OBJ} \\
+    & \MINKEY{aux\_area\_size\_of}\verb| ( MUP::short_obj * so )|
+\LABEL{MIN::AUX_AREA_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned min::|
-    & \MINKEY{auxiliary\_area\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::AUXILIARY_AREA_SIZE_OF_LONG_OBJ} \\
+    & \MINKEY{aux\_area\_size\_of}\verb| ( MUP::long_obj * lo )|
+\LABEL{MIN::AUX_AREA_SIZE_OF_LONG_OBJ} \\
 \verb|unsigned min::|
     & \MINKEY{unused\_area\_size\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MIN::UNUSED_AREA_SIZE_OF_SHORT_OBJ} \\
@@ -3886,7 +3898,6 @@ struct min
 \LABEL{MIN::TOTAL_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned min::| & \MINKEY{total\_size\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::TOTAL_SIZE_OF_LONG_OBJ} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -3895,8 +3906,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{3.5in}}
-
+\begin{tabular}{@{}p{2.0in}@{}p{4.2in}@{}}
 \verb|const min::gen * MUP::|
 	& \MUPKEY{body\_vector\_of}\ARGBREAK
 		\verb| ( MUP::short_obj * so )|
@@ -3913,13 +3923,11 @@ struct min
 	& \MUPKEY{writable\_body\_vector\_of}\ARGBREAK
 		\verb| ( MUP::long_obj * lo )|
 \LABEL{MUP::WRITABLE_BODY_VECTOR_OF_LONG_OBJ} \\
-
 \end{tabular}
 
 \bigskip
 
-\begin{tabular}{@{}r@{}p{4.5in}}
-
+\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
 \verb|unsigned min::|
 	& \MINKEY{hash\_table\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MIN::HASH_TABLE_OF_SHORT_OBJ} \\
@@ -3932,7 +3940,6 @@ struct min
 \verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_OF_LONG_OBJ} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -3940,32 +3947,36 @@ struct min
 \INDEXHEADER{Object List Level Declarations}
 
 \begin{indpar}[0.2in]
+\begin{tabular}{@{}p{6.2in}@{}}
+\TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
+\LABEL{MIN_USES_OBJECT_AUX_STUBS}
+\end{tabular}
+\end{indpar}
 
-\begin{tabular}{@{}r@{}p{4.0in}}
+\begin{indpar}[0.2in]
 
-\verb|const min::gen min::| & \MINKEY{LIST\_END} \LABEL{MIN::LIST_END} \\
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\verb|const min::gen min::| & \MINKEY{LIST\_END}
+\LABEL{MIN::LIST_END} \\
 \verb|const min::gen min::|
-    & \MINKEY{EMPTY\_SUBLIST} \LABEL{MIN::EMPTY_SUBLIST} \\
-
+    & \MINKEY{EMPTY\_SUBLIST}
+\LABEL{MIN::EMPTY_SUBLIST} \\
 \end{tabular}
 
 \end{indpar}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.0in}}
-
+\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::stub * s )|
 \LABEL{MUP::LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::gen obj )|
 \LABEL{MUP::LIST_POINTER_OF_GEN} \\
-
 \end{tabular}
 
-\begin{tabular}{@{}r@{}p{4.8in}}
-
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned index )|
@@ -3994,17 +4005,15 @@ struct min
 \verb|bool min::|
 	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST} \\
-
 \end{tabular}
 
-\begin{tabular}{@{}r@{}p{4.8in}}
-
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}\ARGBREAK
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned insertions, unsigned elements = 0,|\ARGBREAK
-	  \verb|   bool use_auxiliaries =|\ARGBREAK
-	  \verb|       min::use_list_auxiliary_stubs )|
+	  \verb|   bool use_object_aux_stubs =|\ARGBREAK
+	  \verb|       min::use_object_aux_stubs )|
 \LABEL{MIN::INSERT_RESERVE} \\
 \verb|void min::|
 	& \MINKEY{insert\_before}\ARGBREAK
@@ -4020,7 +4029,6 @@ struct min
 	& \MINKEY{delete}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned n = 1 )|
 \LABEL{MIN::DELETE_FROM_LIST} \\
-
 \end{tabular}
 
 \end{indpar}
@@ -4029,7 +4037,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.8in}}
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
@@ -4059,7 +4067,7 @@ struct min
 \LABEL{MIN::SET_FLAGSG} \\
 \end{tabular}
 
-\begin{tabular}{@{}r@{}p{4.8in}}
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|min::gen min::| & \MINKEY{getg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
@@ -4081,7 +4089,7 @@ struct min
 \LABEL{MIN::ADD_TO_MULTISETG} \\
 \end{tabular}
 
-\begin{tabular}{@{}r@{}p{4.8in}}
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|void min::| & \MINKEY{set\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
     \verb|   min::gen obj, min::gen name )|
@@ -4096,7 +4104,7 @@ struct min
 \LABEL{MIN::FLIP_SOME_FLAGSG} \\
 \end{tabular}
 
-\begin{tabular}{@{}r@{}p{4.8in}}
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|bool min::| & \MINKEY{test\_flagg\REL}\ARGBREAK
     \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::TEST_FLAGG} \\
@@ -4111,10 +4119,11 @@ struct min
 \LABEL{MIN::FLIP_FLAGG} \\
 \end{tabular}
 
+\newpage
+
 The Attribute Level functions also have variants with:
 
-\begin{indpar}
-\begin{tabular}{@{}p{5.0in}}
+\begin{tabular}{@{\hspace*{1.0in}}p{5.2in}@{}}
 \verb|min::gen name| replaced by \verb|int name| \\
 and name ending `{\tt g}' replaced by `{\tt i}' \\
 ~~~~~\begin{tabular}[b]{ll}
@@ -4130,7 +4139,6 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 (implicitly equal to \verb|min::MISSING|)
 \LABEL{REVERSE_NAME_OMITTED}
 \end{tabular}
-\end{indpar}
 
 \end{indpar}
 
@@ -4138,7 +4146,7 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}r@{}p{4.5in}}
+\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{variable\_pointer}\verb| ( )|
 \LABEL{MUP::VARIABLE_POINTER} \\
@@ -4187,7 +4195,7 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 \LABEL{MIN::GETG1_OF_VARIABLE_POINTER} \\
 \end{tabular}
 
-\begin{tabular}{@{}r@{}p{5.0in}}
+\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|bool min::|
 	& \TTKEY{variable\_forward\_optimization}\verb| ( )|
 \LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
@@ -4202,15 +4210,18 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 
 \begin{indpar}[0.2in]
 
-\verb|min::|\MINKEY{MISSING} \LABEL{MIN::MISSING}
-\\
-\verb|min::|\MINKEY{ANY} \LABEL{MIN::ANY}
-\\
-\verb|min::|\MINKEY{MULTI\_VALUED} \LABEL{MIN::MULTI_VALUED}
-\\
-\verb|min::|\MINKEY{NULL} \LABEL{MIN::NULL}
-\\
-\verb|min::|\MINKEY{SUCCESS} \LABEL{MIN::SUCCESS}
+\begin{tabular}{@{}p{0.6in}@{}p{5.6in}@{}}
+\verb|min::| & \MINKEY{MISSING}
+\LABEL{MIN::MISSING} \\
+\verb|min::| & \MINKEY{ANY}
+\LABEL{MIN::ANY} \\
+\verb|min::| & \MINKEY{MULTI\_VALUED}
+\LABEL{MIN::MULTI_VALUED} \\
+\verb|min::| & \MINKEY{NULL}
+\LABEL{MIN::NULL} \\
+\verb|min::| & \MINKEY{SUCCESS}
+\LABEL{MIN::SUCCESS}
+\end{tabular}
 
 \end{indpar}
 
@@ -4223,6 +4234,3 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 \printindex
 
 \end{document}
-
-
-

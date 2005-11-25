@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov 23 09:49:21 EST 2005
+// Date:	Fri Nov 25 03:28:50 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/23 14:57:35 $
+//   $Date: 2005/11/25 09:09:33 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.39 $
+//   $Revision: 1.40 $
 
 // Table of Contents:
 //
@@ -2042,7 +2042,7 @@ namespace min { namespace unprotected {
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
-	      bool use_aux );
+	      bool use_object_aux_stubs );
 } }
 
 namespace min {
@@ -2059,7 +2059,7 @@ namespace min {
 	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
 #   endif
 
-    bool use_list_aux_stubs;
+    bool use_object_aux_stubs;
 
     // We must declare these before we make them
     // friends.
@@ -2083,8 +2083,8 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements = 0,
-	      bool use_aux =
-	          min::use_list_aux_stubs );
+	      bool use_object_aux_stubs =
+	          min::use_object_aux_stubs );
     void insert_before
     	    ( min::unprotected::list_pointer & lp,
 	      const min::gen * p, unsigned n );
@@ -2131,7 +2131,7 @@ namespace min { namespace unprotected {
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
-#	    if MIN_USES_LIST_AUX_STUBS
+#	    if MIN_USES_OBJECT_AUX_STUBS
 		current_stub = previous_stub = NULL;
 #	    endif
 	}
@@ -2185,13 +2185,13 @@ namespace min { namespace unprotected {
 	//
 	unsigned current_index;
 	unsigned previous_index;
-#	if MIN_USES_LIST_AUX_STUBS
+#	if MIN_USES_OBJECT_AUX_STUBS
 	    min::stub * current_stub;
 	    min::stub * previous_stub;
 #	endif
 
-#	if MIN_USES_LIST_AUX_STUBS
-	    bool use_list_aux_stubs;
+#	if MIN_USES_OBJECT_AUX_STUBS
+	    bool use_object_aux_stubs;
 		// True if list auxiliary stubs are to
 		// be used for insertions if space in
 		// the object runs out.
@@ -2235,7 +2235,7 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp,
 		  unsigned insertions,
 		  unsigned elements,
-		  bool use_aux );
+		  bool use_object_aux_stubs );
 	friend void min::insert_before
 		( min::unprotected::list_pointer & lp,
 		  const min::gen * p, unsigned n );
@@ -2268,7 +2268,7 @@ namespace min { namespace unprotected {
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
-#	    if MIN_USES_LIST_AUX_STUBS
+#	    if MIN_USES_OBJECT_AUX_STUBS
 		current_stub = previous_stub = NULL;
 #	    endif
 	}
@@ -2282,7 +2282,7 @@ namespace min { namespace unprotected {
 	min::gen forward ( unsigned index )
 	{
 	    current_index = index;
-#           if MIN_USES_LIST_AUX_STUBS
+#           if MIN_USES_OBJECT_AUX_STUBS
 		current_stub = NULL;
 #	    endif
 	    while ( true )
@@ -2290,7 +2290,7 @@ namespace min { namespace unprotected {
 		current = base[current_index];
 		if ( ! min::is_list_aux ( current ) )
 		{
-#	            if MIN_USES_LIST_AUX_STUBS
+#	            if MIN_USES_OBJECT_AUX_STUBS
 			if ( min::is_stub ( current ) )
 			{
 			    min::stub * s =
@@ -2318,7 +2318,7 @@ namespace min { namespace unprotected {
 		else
 		{
 		    previous_index = current_index;
-#	            if MIN_USES_LIST_AUX_STUBS
+#	            if MIN_USES_OBJECT_AUX_STUBS
 			previous_stub = NULL;
 #	            endif
 		    current_index =
@@ -2388,7 +2388,7 @@ namespace min {
 	lp.so = lp2.so;
 	lp.current_index = lp2.current_index;
 	lp.previous_index = lp2.previous_index;
-#       if MIN_USES_LIST_AUX_STUBS
+#       if MIN_USES_OBJECT_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 	    lp.previous_stub = lp2.previous_stub;
 #       endif
@@ -2402,7 +2402,7 @@ namespace min {
         if ( lp.current == min::LIST_END )
 	    return lp.current;
 
-#       if MIN_USES_LIST_AUX_STUBS
+#       if MIN_USES_OBJECT_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		lp.previous_stub = lp.current_stub;
@@ -2464,7 +2464,7 @@ namespace min {
     inline min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp )
     {
-#	if MIN_USES_LIST_AUX_STUBS
+#	if MIN_USES_OBJECT_AUX_STUBS
 	    lp.previous_index = lp.current_index;
 	    lp.previous_stub = lp.current_stub;
 	    if ( min::is_sublist_aux ( lp.current ) )
@@ -2487,7 +2487,7 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
-	      bool use_aux )
+	      bool use_object_aux_stubs )
     {
         if ( elements = 0 ) elements = insertions;
 	assert ( insertions <= elements );
@@ -2501,8 +2501,8 @@ namespace min {
 	        min::unused_area_size_of ( lp.lo );
 	if (      unused_area_size
 	        < 2 * insertions + elements
-#	    if MIN_USES_LIST_AUX_STUBS
-	     && (    ! use_aux
+#	    if MIN_USES_OBJECT_AUX_STUBS
+	     && (    ! use_object_aux_stubs
 	          ||   min::unprotected::
 		            current_process->
 			    number_of_free_stubs
@@ -2510,13 +2510,15 @@ namespace min {
 #	    endif
 	   )
 	    min::unprotected::insert_reserve
-	        ( lp, insertions, elements, use_aux );
+	        ( lp, insertions, elements,
+		  use_object_aux_stubs );
 	else
 	{
 	    lp.reserved_insertions = insertions;
 	    lp.reserved_elements = elements;
-#	    if MIN_USES_LIST_AUX_STUBS
-		lp.use_list_aux_stubs = use_aux;
+#	    if MIN_USES_OBJECT_AUX_STUBS
+		lp.use_object_aux_stubs =
+		   use_object_aux_stubs;
 #	    endif
 	}
     }
