@@ -1319,18 +1319,8 @@ stub type code, and has
 an immutable \verb|min::float64| stub value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::float64 | & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
-\LABEL{FLOAT_OF} \\
-\verb|min::float64 MUP::| & \MUPKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
-\LABEL{MUP::FLOAT_OF}
-\end{tabular}\end{center}
-
-and written by
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|void MUP::|
-    & \MUPKEY{set\_float\_of\COMPACT}\verb| ( min::stub * s, min::float64 f )|
-\LABEL{MUP::SET_FLOAT_OF}
+\verb|min::float64 min::| & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
+\LABEL{MIN::FLOAT_OF} \\
 \end{tabular}\end{center}
 
 Number stubs exist only in compact implementations;
@@ -3273,44 +3263,87 @@ In this section we describe unprotected functions that can be used to read
 or write stubs for purposes of debugging or of constructing other higher level
 functions.  These functions do not check type codes of stubs.
 
-The following functions read or write the stub value and stub control parts
-of a stub:
+The following functions read or write the stub value part of a stub:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::VALUE_OF} \\
-\verb|min::float64 MUP::| & \MUPKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
-\\
-\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::CONTROL_OF} \\
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::FLOAT_OF} \\
+\verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::GEN_OF} \\
+\verb|void * MUP::| & \MUPKEY{pointer\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::POINTER_OF} \\
 \verb|void MUP::|
     & \MUPKEY{set\_value\_of}\verb| ( min::stub * s, min::uns64 v )|
 \LABEL{MUP::SET_VALUE_OF} \\
 \verb|void MUP::|
-    & \MUPKEY{set\_float\_of\COMPACT}\verb| ( min::stub * s, min::float64 f )|
-\\
+    & \MUPKEY{set\_float\_of}\verb| ( min::stub * s, min::float64 f )|
+\LABEL{MUP::SET_FLOAT_OF} \\
 \verb|void MUP::|
-    & \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 v )|
-\LABEL{MUP::SET_CONTROL_OF} \\
+    & \MUPKEY{set\_gen\_of}\verb| ( min::stub * s, min::gen v )|
+\LABEL{MUP::SET_GEN_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_pointer\_of}\verb| ( min::stub * s, void * p )|
+\LABEL{MUP::SET_POINTER_OF} \\
 \end{tabular}\end{center}
 
-Here the floating point functions are reading or writing the stub
-value.  Thus the stub value can be taken to be either of type \verb|min::uns64|
-or of type \verb|min::float64|.
+Thus the stub value can be taken to be of type \verb|min::uns64|,
+\verb|min::float64|, \verb|min::gen|, or
+of some pointer type.
 
 These functions do \underline{not} check type codes, nor do they check
 that values read or written are within legal range for a particular
 stub.  Thus a stub value that is not a floating point number can be
-read by \verb|MUP::float_of| with undefined results, and a stub control
-that has its high order bit off indicating the stub will be collectible
+read by \verb|MUP::float_of| with undefined results.
+
+The following functions read or write the stub control part of a stub:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::CONTROL_OF} \\
+\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )| \\
+\verb|bool MUP::|
+    & \MUPKEY{test\_flags\_of}\verb| ( min::stub * s, unsigned flags )|
+\LABEL{MUP::TEST_FLAGS_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 c )|
+\LABEL{MUP::SET_CONTROL_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{set\_type\_of}\verb| ( min::stub * s, int type )|
+\LABEL{MUP::SET_TYPE_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{set\_flags\_of}\verb| ( min::stub * s, unsigned flags )|
+\LABEL{MUP::SET_FLAGS_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{clear\_flags\_of}\verb| ( min::stub * s, unsigned flags )|
+\LABEL{MUP::CLEAR_FLAGS_OF} \\
+\end{tabular}\end{center}
+
+The \verb|MUP::control_of| and \verb|MUP::set_control_of| functions
+deal with the entire 64 bit stub control value of a stub.  The other
+functions deal only with parts.  The \verb|MUP::test_flags_of| function
+returns true if and only if the logical AND of the \verb|flags| arguments
+and the flags in the stub's control is non-zero.  The \verb|MUP::set_flags_of|
+function sets one or more individual flags by logically ORing its
+argument into the stub's control, and the
+\verb|MUP::clear_flags_of| function clears flags by logically ANDing
+the complement of its argument into the stub's control.
+
+These functions do \underline{not} check type codes, nor do they check
+that values read or written are within legal range for a particular
+stub.  Thus a stub control value
 can be written by \verb|MUP::set_control_of| even if the written
 control datum is incompatible with the garbage collector implementation,
-which will produce undefined results when the garbage collector
+and may produce undefined results when the garbage collector
 next executes.
 
 The high order byte of any control written by \verb|MUP::set_control_of|
 is the type code, and the high order bit is clear if the stub is collectible
 and set if the stub is uncollectible (\secref{STUB-CONTROL}).
+It is required that the type of a stub \underline{not} be changed from
+a collectible to an uncollectible type or vice versa
+by the \MUPkey{set\_type\_of} or \MUPkey{set\_control\_of} functions.
 
 A stub control holds an 8-bit type code, 12-bits of flags, and 44 bits
 of value or pointer.
@@ -3701,8 +3734,8 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
-\verb|min::float64 | & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
-\LABEL{FLOAT_OF} \\[1ex]
+\verb|min::float64 min::| & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
+\LABEL{MIN::FLOAT_OF} \\[1ex]
 
 \verb|bool min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
@@ -3724,20 +3757,8 @@ struct min
 
 \end{indpar}
 
-\INDEXHEADER{Number Stub Unprotected Declarations}
 
-\begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
-\verb|min::float64 MUP::| & \MUPKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
-\LABEL{MUP::FLOAT_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_float\_of\COMPACT}\ARGBREAK
-               \verb| ( min::stub * s, min::float64 f )|
-\LABEL{MUP::SET_FLOAT_OF} \\[1ex]
-\end{tabular}
-
-\end{indpar}
 
 \newpage
 
@@ -4222,6 +4243,22 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 \verb|bool min::|
 	& \TTKEY{variable\_forward\_optimization}\verb| ( bool value )|
 \LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
+\end{tabular}
+
+\end{indpar}
+
+\INDEXHEADER{Stub Functions}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}p{1.6in}@{}p{4.6in}@{}}
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\ARGBREAK
+		\verb| ( min::stub * s )|
+\LABEL{MUP::FLOAT_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_float\_of}\ARGBREAK
+               \verb| ( min::stub * s, min::float64 f )|
+\LABEL{MUP::SET_FLOAT_OF} \\[1ex]
 \end{tabular}
 
 \end{indpar}

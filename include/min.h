@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 25 07:39:20 EST 2005
+// Date:	Fri Nov 25 14:17:26 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/25 15:50:47 $
+//   $Date: 2005/11/25 19:17:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.41 $
+//   $Revision: 1.42 $
 
 // Table of Contents:
 //
@@ -928,11 +928,19 @@ namespace min
 		        pointer_to_uns64 ( s );
 	}
 
-        inline min::uns64 renew_control_value
+        inline min::uns64 renew_control
 		( min::uns64 c, min::uns64 v )
 	{
 	    return ( c & ~ min::internal::POINTER_MASK )
 	           | v;
+	}
+
+        inline min::uns64 renew_control
+		( min::uns64 c, void * v )
+	{
+	    return ( c & ~ min::internal::POINTER_MASK )
+	           | min::internal::
+		          pointer_to_uns64 ( v );
 	}
 
         inline min::uns64 renew_control_flags
@@ -1054,6 +1062,14 @@ namespace min {
 	    return s->c.u64;
 	}
 
+	inline bool test_flags_of
+		( min::stub * s, unsigned flags )
+	{
+	    return s->c.u64
+	           & (    min::uns64(flags)
+		       << MIN_POINTER_BITS );
+	}
+
         inline void set_value_of
 		( min::stub * s, min::uns64 v )
 	{
@@ -1089,6 +1105,20 @@ namespace min {
 		( min::stub * s, int type )
 	{
 	    s->c.i8[7*MIN_LITTLE_ENDIAN] = type;
+	}
+
+	inline void set_flags_of
+		( min::stub * s, unsigned flags )
+	{
+	    s->c.u64 |=
+	      ( min::uns64(flags) << MIN_POINTER_BITS );
+	}
+
+	inline void clear_flags_of
+		( min::stub * s, unsigned flags )
+	{
+	    s->c.u64 &= ~
+	      ( min::uns64(flags) << MIN_POINTER_BITS );
 	}
     }
 }
