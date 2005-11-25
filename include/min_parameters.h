@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 19 09:16:35 EST 2005
+// Date:	Fri Nov 25 03:28:31 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/19 15:16:59 $
+//   $Date: 2005/11/25 09:09:33 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents
 //
@@ -26,7 +26,7 @@
 //	MIN_DEBUG
 //	MIN_IS_COMPACT
 //	MIN_USES_VSNS
-//	MIN_USES_LIST_AUX_STUBS
+//	MIN_USES_OBJECT_AUX_STUBS
 // 
 // Other parameters are computed from these.
 
@@ -77,8 +77,8 @@
 
 // 1 to enable use of list auxiliary stubs; 0 not to.
 //
-# ifndef MIN_USES_LIST_AUX_STUBS
-#   define MIN_USES_LIST_AUX_STUBS 0
+# ifndef MIN_USES_OBJECT_AUX_STUBS
+#   define MIN_USES_OBJECT_AUX_STUBS 0
 # endif
 
 // Machine Parameters
