@@ -924,6 +924,19 @@ range errors.
 \LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\
 \end{tabular}\end{center}
 
+The following unprotected functions can be used to replace the non-subtype
+part of a \verb|min::gen| value that is \underline{not}
+a pointer to a stub or a number (direct float or direct integer).
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen MUP::|
+    & \MUPKEY{new\_gen\COMPACT}\verb| ( min::gen v, min::uns32 p )|
+\LABEL{MUP::NEW_GEN_COMPACT} \\
+\verb|min::gen MUP::|
+    & \MUPKEY{new\_gen\LOOSE}\verb| ( min::gen v, min::uns64 p )|
+\LABEL{MUP::NEW_GEN_LOOSE} \\
+\end{tabular}\end{center}
+
 The actual direct atom, stub pointer, auxiliary pointer, and control code
 {\tt min::gen} subtype codes
 are implementation dependent.  The following constants equal these
@@ -3639,7 +3652,14 @@ struct min
 \LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen MUP::|
     & \MUPKEY{new\_long\_control\_code\_gen\LOOSE}\verb| ( min::uns64 c )|
-\LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\
+\LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\[1ex]
+
+\verb|min::gen MUP::|
+    & \MUPKEY{new\_gen\COMPACT}\verb| ( min::gen v, min::uns32 p )|
+\LABEL{MUP::NEW_GEN_COMPACT} \\
+\verb|min::gen MUP::|
+    & \MUPKEY{new\_gen\LOOSE}\verb| ( min::gen v, min::uns64 p )|
+\LABEL{MUP::NEW_GEN_LOOSE} \\
 
 \end{tabular}
 
