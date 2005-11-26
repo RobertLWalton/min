@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 25 07:42:13 EST 2005
+// Date:	Fri Nov 25 23:04:19 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/25 15:50:47 $
+//   $Date: 2005/11/26 04:29:38 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents:
 //
@@ -105,7 +105,7 @@ min::unprotected::body_control *
 	    if ( MUP::float_of ( s ) == v )
 		return min::new_gen ( s );
 	    s = (min::stub *)
-	        MUP::stub_p_of_control
+	        MUP::stub_of_control
 		    ( MUP::control_of ( s ) );
 	}
 
@@ -234,7 +234,7 @@ min::gen min::unprotected::new_str_stub_gen
 		     == 0 )
 	    return min::new_gen ( s );
 	s = (min::stub *)
-	    MUP::stub_p_of_control
+	    MUP::stub_of_control
 		( MUP::control_of ( s ) );
     }
 
@@ -309,7 +309,7 @@ min::uns32 labhash ( min::stub * s )
 		    ( (min::gen) MUP::value_of ( p ) );
 	m *= lab_multiplier;
         p = (min::stub *)
-	    MUP::stub_p_of_control
+	    MUP::stub_of_control
 		( MUP::control_of ( p ) );
     }
     return hash;
@@ -334,13 +334,13 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 	         != (min::gen) MUP::value_of ( q ) )
 	        break;
 	    q = (min::stub *)
-		MUP::stub_p_of_control
+		MUP::stub_of_control
 		    ( MUP::control_of ( q ) );
 	}
 	if ( q == NULL && i >= n )
 	    return min::new_gen ( s );
 	s = (min::stub *)
-	    MUP::stub_p_of_control
+	    MUP::stub_of_control
 		( MUP::control_of ( s ) );
     }
 
@@ -897,11 +897,11 @@ void min::insert_after
 	    ( lp.base + index + 1, p, n );
 	min::uns64 c =
 	    MUP::control_of ( lp.current_stub );
-	if (   MUP::flags_of_control ( c )
-	     & MUP::LIST_AUX_STUB )
+	if (   MUP::test_flags_of_control
+		   ( c, MUP::LIST_AUX_STUB ) )
 	    lp.base[index] =
 		min::new_gen
-		    ( MUP::stub_p_of_control ( c ) );
+		    ( MUP::stub_of_control ( c ) );
 	else
 	    lp.base[index] =
 	        min::new_list_aux_gen

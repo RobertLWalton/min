@@ -3345,36 +3345,60 @@ It is required that the type of a stub \underline{not} be changed from
 a collectible to an uncollectible type or vice versa
 by the \MUPkey{set\_type\_of} or \MUPkey{set\_control\_of} functions.
 
-A stub control holds an 8-bit type code, 12-bits of flags, and 44 bits
-of value or pointer.
-The following functions can be used be used to compute or dissect stub
-controls:
+A stub control holds an 8 bit type code, $M$ bits of flags, and $N$ bits
+of value or pointer, where $8\leq M\leq 24$ and $32\leq N\leq 48$.
+$N$ is the number of bits required to store a pointer, and is
+determined by the hardware being used.
+The following functions can be used to compute or dissect 64 bit stub
+control values:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::|
-    & \MUPKEY{stub\_control} \\
+    & \MUPKEY{new\_control} \\
     & \verb|    ( int type_code, unsigned flags, unsigned value )|
-\LABEL{MUP::STUB_CONTROL} \\
+\LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
 \verb|min::uns64 MUP::|
-    & \MUPKEY{stub\_control} \\
+    & \MUPKEY{new\_control} \\
     & \verb|    ( int type_code, unsigned flags, min::stub * s )|
-\\
+\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_type}\verb| ( min::uns64 c, int type )|
+\LABEL{MUP::RENEW_CONTROL_TYPE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_flags}\verb| ( min::uns64 c, unsigned flags )|
+\LABEL{MUP::RENEW_CONTROL_FLAGS} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_value}\verb| ( min::uns64 c, min::uns64 v )|
+\LABEL{MUP::RENEW_CONTROL_VALUE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_pointer}\verb| ( min::uns64 c, void * p )|
+\LABEL{MUP::RENEW_CONTROL_POINTER} \\
+\verb|bool MUP::|
+    & \MUPKEY{test\_control\_flags}\verb| ( min::uns64 c, unsigned flags )|
+\LABEL{MUP::TEST_CONTROL_FLAGS} \\
 \verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::TYPE_OF_CONTROL} \\
 \verb|unsigned MUP::| & \MUPKEY{flags\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::FLAGS_OF_CONTROL} \\
-\verb|unsigned MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::VALUE_OF_CONTROL} \\
-\verb|min::stub * MUP::| & \MUPKEY{pointer\_of\_control}\verb| ( min::uns64 c )|
+\verb|void * MUP::| & \MUPKEY{pointer\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::POINTER_OF_CONTROL} \\
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::STUB_OF_CONTROL} \\
 \end{tabular}\end{center}
 
 Here the 8-bit type code is represented as an {\tt int} in
-the range from $-128$ through $127$, and the 12-bit flags are represented
-as an {\tt unsigned} integer in the range from $0$ through $2^{12}-1$.
-The {\tt MUP::stub\_control} function computes a control value that can be set
-by {\tt MUP::set\_control\_of}, and the other functions dissect values read by
-{\tt MUP::control\_of}.
+the range from $-128$ through $127$, and the $M$-bit flags are represented
+as an {\tt unsigned} integer in the range from $0$ through $2^{24}-1$.
+The `{\tt new}' functions compute a control value that can be set
+by {\tt MUP::set\_control\_of}, the `{\tt renew}' functions modify control
+values read by {\tt MUP::control\_of}
+by inserting a new type, new flags, or a new value
+or pointer, the `{\tt test}' function returns true if and only if the AND
+of the control value flags and the {\tt flags} argument is non-zero,
+and the other functions return the parts of a control value
+read by {\tt MUP::control\_of}.
 
 \clearpage
 

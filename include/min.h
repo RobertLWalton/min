@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 25 14:17:26 EST 2005
+// Date:	Fri Nov 25 19:35:26 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/25 19:17:10 $
+//   $Date: 2005/11/26 04:29:38 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.42 $
+//   $Revision: 1.43 $
 
 // Table of Contents:
 //
@@ -97,7 +97,7 @@ namespace min { namespace internal {
 		   (unsigned MIN_INT_POINTER_TYPE) p;
 	}
 #	if MIN_USES_VSNS
-	    inline min::stub * uns32_to_stub_p
+	    inline min::stub * uns32_to_stub
 	    	( min::uns32 v )
 	    {
 		return (min::stub *)
@@ -105,7 +105,7 @@ namespace min { namespace internal {
 		       (   ( v << MIN_VSN_SHIFT )
 			 + MIN_VSN_BASE );
 	    }
-	    inline min::uns32 stub_p_to_uns32
+	    inline min::uns32 stub_to_uns32
 	    	( void * p )
 	    {
 		return (min::uns32)
@@ -115,14 +115,14 @@ namespace min { namespace internal {
 			 - MIN_VSN_BASE );
 	    }
 #	else // MIN_USES_ADDRESSES
-	    inline min::stub * uns32_to_stub_p
+	    inline min::stub * uns32_to_stub
 	    	( min::uns32 v )
 	    {
 		return (min::stub *)
 		       (unsigned MIN_INT_POINTER_TYPE)
 		       v;
 	    }
-	    inline min::uns32 stub_p_to_uns32
+	    inline min::uns32 stub_to_uns32
 	    	( void * p )
 	    {
 		return (min::uns32)
@@ -145,7 +145,7 @@ namespace min { namespace internal {
 
 #   if MIN_IS_LOOSE
 #	if MIN_USES_VSNS
-	    inline min::stub * uns64_to_stub_p
+	    inline min::stub * uns64_to_stub
 	    	( min::uns64 v )
 	    {
 		return (min::stub *)
@@ -153,7 +153,7 @@ namespace min { namespace internal {
 		       (   ( v << MIN_VSN_SHIFT )
 			 + MIN_VSN_BASE );
 	    }
-	    inline min::uns64 stub_p_to_uns64
+	    inline min::uns64 stub_to_uns64
 	    	( void * p )
 	    {
 		return (min::uns64)
@@ -163,14 +163,14 @@ namespace min { namespace internal {
 			 - MIN_VSN_BASE );
 	    }
 #	else // MIN_USES_ADDRESSES
-	    inline min::stub * uns64_to_stub_p
+	    inline min::stub * uns64_to_stub
 	    	( min::uns64 v )
 	    {
 		return (min::stub *)
 		       (unsigned MIN_INT_POINTER_TYPE)
 		       v;
 	    }
-	    inline min::uns64 stub_p_to_uns64
+	    inline min::uns64 stub_to_uns64
 		    ( void * p )
 	    {
 		return (min::uns64)
@@ -394,7 +394,7 @@ namespace min { namespace unprotected {
 #   if MIN_IS_COMPACT
 	inline min::stub * stub_of ( min::gen v )
 	{
-	    return internal::uns32_to_stub_p ( v );
+	    return internal::uns32_to_stub ( v );
 	}
 	// Unimplemented for COMPACT:
 	//   float64 direct_float_of ( min::gen v )
@@ -443,7 +443,7 @@ namespace min { namespace unprotected {
 #   else // if MIN_IS_LOOSE
 	inline min::stub * stub_of ( min::gen v )
 	{
-	    return internal::uns64_to_stub_p
+	    return internal::uns64_to_stub
 	    		( v & 0xFFFFFFFFFF );
 	}
 	inline float64 direct_float_of ( min::gen v )
@@ -575,7 +575,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_gen ( min::stub * s )
 	{
 	    return (min::gen)
-	        internal::stub_p_to_uns32 ( s );
+	        internal::stub_to_uns32 ( s );
 	}
 	inline min::gen new_direct_int_gen ( int v )
 	{
@@ -649,7 +649,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_gen ( min::stub * s )
 	{
 	    return (min::gen)
-		   ( internal::stub_p_to_uns64 ( s )
+		   ( internal::stub_to_uns64 ( s )
 		     + ( (uns64) GEN_STUB << 40 )  );
 	}
 	// Unimplemented for LOOSE:
@@ -846,14 +846,16 @@ namespace min
 {
     namespace internal {
 
-	const min::uns64 POINTER_MASK =
-	    ( ( uns64(1) << MIN_POINTER_BITS ) - 1 );
+	const min::uns64 TYPE_MASK =
+	    ~ ( ( uns64(1) << 56 ) - 1 );
 	const min::uns64 FLAGS_MASK =
 	    ( ( uns64(1) << ( 56 - MIN_POINTER_BITS ) )
 	      - 1 );
 	const min::uns64 LONG_FLAGS_MASK =
 	    ( ( uns64(1) << ( 64 - MIN_POINTER_BITS ) )
 	      - 1 );
+	const min::uns64 POINTER_MASK =
+	    ( ( uns64(1) << MIN_POINTER_BITS ) - 1 );
 
     }
 
@@ -880,6 +882,13 @@ namespace min
 		  & min::internal::LONG_FLAGS_MASK );
         }
 
+        inline bool test_flags_of_control
+		( min::uns64 c, unsigned flags )
+	{
+	    return c & (    min::uns64 ( flags )
+	                 << MIN_POINTER_BITS );
+        }
+
         inline unsigned value_of_control
 		( min::uns64 c )
 	{
@@ -895,7 +904,7 @@ namespace min
 
         }
 
-        inline min::stub * stub_p_of_control
+        inline min::stub * stub_of_control
 		( min::uns64 c )
 	{
 	    return (min::stub *)
@@ -928,19 +937,11 @@ namespace min
 		        pointer_to_uns64 ( s );
 	}
 
-        inline min::uns64 renew_control
-		( min::uns64 c, min::uns64 v )
+        inline min::uns64 renew_control_type
+		( min::uns64 c, int type )
 	{
-	    return ( c & ~ min::internal::POINTER_MASK )
-	           | v;
-	}
-
-        inline min::uns64 renew_control
-		( min::uns64 c, void * v )
-	{
-	    return ( c & ~ min::internal::POINTER_MASK )
-	           | min::internal::
-		          pointer_to_uns64 ( v );
+	    return ( c & ~ min::internal::TYPE_MASK )
+	           | ( min::uns64 (type) << 56 );
 	}
 
         inline min::uns64 renew_control_flags
@@ -950,6 +951,21 @@ namespace min
 	                     << MIN_POINTER_BITS ) )
 	           | (   min::uns64 (flags)
 		       << MIN_POINTER_BITS );
+	}
+
+        inline min::uns64 renew_control_value
+		( min::uns64 c, min::uns64 v )
+	{
+	    return ( c & ~ min::internal::POINTER_MASK )
+	           | v;
+	}
+
+        inline min::uns64 renew_control_pointer
+		( min::uns64 c, void * v )
+	{
+	    return ( c & ~ min::internal::POINTER_MASK )
+	           | min::internal::
+		          pointer_to_uns64 ( v );
 	}
 }}
 
@@ -1306,7 +1322,7 @@ namespace min { namespace unprotected {
 	        v = gc_stub_expand_free_list ();
 	    return current_process->
 	           last_allocated_stub =
-	           internal::uns32_to_stub_p ( v );
+	           internal::uns32_to_stub ( v );
 #	else // if MIN_IS_LOOSE
 	    uns64 v = current_process->
 	              last_allocated_stub->c.u64;
@@ -1315,7 +1331,7 @@ namespace min { namespace unprotected {
 	        v = gc_stub_expand_free_list ();
 	    return current_process->
 	           last_allocated_stub =
-	           internal::uns64_to_stub_p ( v );
+	           internal::uns64_to_stub ( v );
 #	endif
     }
     //
@@ -1332,7 +1348,7 @@ namespace min { namespace unprotected {
 	    if ( v == 0 )
 	        v = gc_stub_expand_free_list ();
 	    min::stub * s =
-		internal::uns32_to_stub_p ( v );
+		internal::uns32_to_stub ( v );
 	    current_process->
 	        last_allocated_stub->
 		    c.u32[MIN_BIG_ENDIAN] =
@@ -1345,7 +1361,7 @@ namespace min { namespace unprotected {
 	    if ( v == 0 )
 	        v = gc_stub_expand_free_list ();
 	    min::stub * s =
-		internal::uns64_to_stub_p ( v );
+		internal::uns64_to_stub ( v );
 	    current_process->
 	        last_allocated_stub->c.u64 = s->c.u64;
 	    return s;
@@ -1448,7 +1464,7 @@ namespace min {
 	    else
 	        return
 		  ( type_of
-		      ( internal::uns32_to_stub_p
+		      ( internal::uns32_to_stub
 		      		( v ) )
 		        == min::NUMBER );
 	}
@@ -1477,7 +1493,7 @@ namespace min {
 		{
 		    min::stub * s =
 			internal::
-			uns32_to_stub_p ( v );
+			uns32_to_stub ( v );
 		    assert (    type_of ( s )
 		             == min::NUMBER );
 		    min::float64 f = s->v.f64;
@@ -1503,7 +1519,7 @@ namespace min {
 		{
 		    min::stub * s =
 			internal::
-			uns32_to_stub_p ( v );
+			uns32_to_stub ( v );
 		    return float_of ( s );
 		}
 		else if
@@ -2518,12 +2534,13 @@ namespace min {
 		    min::unprotected::control_of
 		    	( lp.current_stub );
 		if (   min::unprotected::
-		            flags_of_control ( c )
-		     & min::unprotected::LIST_AUX_STUB )
+		            test_flags_of_control
+			  ( c, min::unprotected::
+			            LIST_AUX_STUB ) )
 		{
 		    lp.current_stub =
 		        min::unprotected::
-			     stub_p_of_control ( c );
+			     stub_of_control ( c );
 		    return
 		        lp.current =
 			    min::unprotected::
