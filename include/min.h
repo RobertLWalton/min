@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 25 19:35:26 EST 2005
+// Date:	Sat Nov 26 07:05:45 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/26 04:29:38 $
+//   $Date: 2005/11/26 15:19:52 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.43 $
+//   $Revision: 1.44 $
 
 // Table of Contents:
 //
@@ -24,7 +24,7 @@
 //	General Value Test Functions
 //	General Value Read Functions
 //	General Value Constructor Functions
-//	Controls
+//	Control Values
 //	Stub Types and Data
 //	Stub Functions
 //	Process Interface
@@ -819,41 +819,15 @@ namespace min {
 #   endif
 }
 
-// Controls
-// --------
+// Control Values
+// ------- ------
 
-// Controls are uns64 values used to hold a pointer and
-// flags and a type code.
-//
-// We need to divide a 64 bit uns64 control into:
-//
-//	8 bit int8 type code
-//	m bit unsigned flags value
-//	n bit pointer or other value
-//
-// where
-//	8 + m + n = 64
-//
-//	n = MIN_POINTER_BITS
-//
-//	32 <= n <= 48
-//	8 <= m <= 24
-//
-// Alternatively we sometimes want to extend the flags
-// to an 8 + m bit `long flags'.
-//
 namespace min
 {
     namespace internal {
 
 	const min::uns64 TYPE_MASK =
 	    ~ ( ( uns64(1) << 56 ) - 1 );
-	const min::uns64 FLAGS_MASK =
-	    ( ( uns64(1) << ( 56 - MIN_POINTER_BITS ) )
-	      - 1 );
-	const min::uns64 LONG_FLAGS_MASK =
-	    ( ( uns64(1) << ( 64 - MIN_POINTER_BITS ) )
-	      - 1 );
 	const min::uns64 POINTER_MASK =
 	    ( ( uns64(1) << MIN_POINTER_BITS ) - 1 );
 
@@ -864,29 +838,6 @@ namespace min
         inline int type_of_control ( min::uns64 c )
 	{
 	    return int ( min::int64 ( c ) >> 56 );
-        }
-
-        inline unsigned flags_of_control
-		( min::uns64 c )
-	{
-	    return unsigned
-	        (   ( c >> MIN_POINTER_BITS )
-		  & min::internal::FLAGS_MASK );
-        }
-
-        inline unsigned long_flags_of_control
-		( min::uns64 c )
-	{
-	    return unsigned
-	        (   ( c >> MIN_POINTER_BITS )
-		  & min::internal::LONG_FLAGS_MASK );
-        }
-
-        inline bool test_flags_of_control
-		( min::uns64 c, unsigned flags )
-	{
-	    return c & (    min::uns64 ( flags )
-	                 << MIN_POINTER_BITS );
         }
 
         inline unsigned value_of_control
@@ -913,28 +864,26 @@ namespace min
         }
 
         inline min::uns64 new_control
-		( int type_code, unsigned flags,
-		  min::uns64 value = 0 )
+		( int type_code, min::uns64 v,
+		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
 	    	   |
-		   (    min::uns64 ( flags )
-		     << MIN_POINTER_BITS )
+		   v
 		   |
-		   value;
+		   flags;
 	}
 
         inline min::uns64 new_control
-		( int type_code, unsigned flags,
-		  void * s )
+		( int type_code, void * p,
+		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
 	    	   |
-		   (    min::uns64 ( flags )
-		     << MIN_POINTER_BITS )
-		   |
 		   min::internal::
-		        pointer_to_uns64 ( s );
+		        pointer_to_uns64 ( p )
+		   |
+		   flags;
 	}
 
         inline min::uns64 renew_control_type
@@ -942,15 +891,6 @@ namespace min
 	{
 	    return ( c & ~ min::internal::TYPE_MASK )
 	           | ( min::uns64 (type) << 56 );
-	}
-
-        inline min::uns64 renew_control_flags
-		( min::uns64 c, unsigned flags )
-	{
-	    return ( c & ~ (   min::internal::FLAGS_MASK
-	                     << MIN_POINTER_BITS ) )
-	           | (   min::uns64 (flags)
-		       << MIN_POINTER_BITS );
 	}
 
         inline min::uns64 renew_control_value
@@ -961,11 +901,11 @@ namespace min
 	}
 
         inline min::uns64 renew_control_pointer
-		( min::uns64 c, void * v )
+		( min::uns64 c, void * p )
 	{
 	    return ( c & ~ min::internal::POINTER_MASK )
 	           | min::internal::
-		          pointer_to_uns64 ( v );
+		          pointer_to_uns64 ( p );
 	}
 }}
 
@@ -996,7 +936,8 @@ namespace min {
     namespace unprotected {
 	// Non-gc flags for uncollectable controls.
 	//
-	const unsigned LIST_AUX_STUB	= 1;
+	const min::uns64 STUB_POINTER =
+	    min::uns64(1) << 55;
     }
 
     struct stub
@@ -1078,12 +1019,10 @@ namespace min {
 	    return s->c.u64;
 	}
 
-	inline bool test_flags_of
-		( min::stub * s, unsigned flags )
+        inline bool test_flags_of
+		( min::stub * s, min::uns64 flags )
 	{
-	    return s->c.u64
-	           & (    min::uns64(flags)
-		       << MIN_POINTER_BITS );
+	    return s->c.u64 & flags;
 	}
 
         inline void set_value_of
@@ -1112,9 +1051,9 @@ namespace min {
 	}
 
         inline void set_control_of
-		( min::stub * s, min::uns64 v )
+		( min::stub * s, min::uns64 c )
 	{
-	    s->c.u64 = v;
+	    s->c.u64 = c;
 	}
 
 	inline void set_type_of
@@ -1123,18 +1062,16 @@ namespace min {
 	    s->c.i8[7*MIN_LITTLE_ENDIAN] = type;
 	}
 
-	inline void set_flags_of
-		( min::stub * s, unsigned flags )
+        inline void set_flags_of
+		( min::stub * s, min::uns64 flags )
 	{
-	    s->c.u64 |=
-	      ( min::uns64(flags) << MIN_POINTER_BITS );
+	    s->c.u64 |= flags;
 	}
 
-	inline void clear_flags_of
-		( min::stub * s, unsigned flags )
+        inline void clear_flags_of
+		( min::stub * s, min::uns64 flags )
 	{
-	    s->c.u64 &= ~
-	      ( min::uns64(flags) << MIN_POINTER_BITS );
+	    s->c.u64 &= ~ flags;
 	}
     }
 }
@@ -2533,10 +2470,8 @@ namespace min {
 	        min::uns64 c =
 		    min::unprotected::control_of
 		    	( lp.current_stub );
-		if (   min::unprotected::
-		            test_flags_of_control
-			  ( c, min::unprotected::
-			            LIST_AUX_STUB ) )
+		if ( c & min::unprotected::
+			      STUB_POINTER )
 		{
 		    lp.current_stub =
 		        min::unprotected::

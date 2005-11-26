@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 25 23:04:19 EST 2005
+// Date:	Sat Nov 26 07:11:18 EST 2005
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/26 04:29:38 $
+//   $Date: 2005/11/26 15:19:52 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents:
 //
@@ -114,8 +114,8 @@ min::unprotected::body_control *
 	MUP::set_control_of
 	    ( s,
 	      MUP::new_control
-	          ( min::NUMBER, gc_new_stub_flags,
-		    number_hash[h] ));
+	          ( min::NUMBER, number_hash[h],
+		    gc_new_stub_flags ));
 	number_hash[h] = s;
 	return min::new_gen ( s );
     }
@@ -261,8 +261,8 @@ min::gen min::unprotected::new_str_stub_gen
     MUP::set_control_of
 	( s,
 	  MUP::new_control
-	      ( type, gc_new_stub_flags,
-	        string_hash[h] ));
+	      ( type, string_hash[h],
+	        gc_new_stub_flags ));
     string_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -357,8 +357,7 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 	    if ( lastq )
 		MUP::set_control_of
 		    ( s, MUP::new_control
-		           ( min::LABEL_AUX, 0,
-			     lastq ) );
+		           ( min::LABEL_AUX, lastq ) );
 	    else
 		MUP::set_value_of
 		    ( s, MINT::pointer_to_uns64 ( q ) );
@@ -366,14 +365,14 @@ min::gen new_gen ( const min::gen * p, unsigned n )
 	}
 	MUP::set_control_of
 	    ( lastq, MUP::new_control
-	    	         ( min::LABEL_AUX, 0 ) );
+	    	         ( min::LABEL_AUX,
+			   min::uns64 (0) ) );
     }
     MUP::set_control_of
 	( s,
 	  MUP::new_control
-	      ( min::LABEL,
-	        MUP::gc_new_stub_flags,
-	        label_hash[h] ));
+	      ( min::LABEL, label_hash[h],
+	        MUP::gc_new_stub_flags ));
     label_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -472,8 +471,8 @@ void MUP::allocate_stub_list
 	MUP::set_control_of
 	     ( previous,
 	       MUP::new_control
-	           ( type, MUP::LIST_AUX_STUB, last ) );
-	type = MUP::LIST_AUX_STUB;
+	           ( type, last, MUP::STUB_POINTER ) );
+	type = min::LIST_AUX;
 	previous = last;
     }
 
@@ -573,7 +572,7 @@ void min::insert_before
 		    ( first, last,
 		      min::LIST_AUX, p, n,
 		      MUP::new_control
-			( 0, 0, (min::uns64) 0 ) );
+			( 0, (min::uns64) 0 ) );
 	    	lp.base[lp.current_index] =
 		    min::new_gen ( first );
 		return;
@@ -631,25 +630,23 @@ void min::insert_before
 		MUP::set_control_of
 		    ( s,
 		      MUP::new_control
-		        ( min::LIST_AUX, 0,
+		        ( min::LIST_AUX,
 			  lp.current_index - 1 ) );
 		end = MUP::new_control
-		    ( min::LIST_AUX, MUP::LIST_AUX_STUB,
-		      s );
+		    ( min::LIST_AUX, s,
+		      MUP::STUB_POINTER );
 	    }
 	    else if ( lp.current_stub != NULL )
 	    {
 		end = MUP::new_control
-		   ( min::LIST_AUX,
-		     MUP::LIST_AUX_STUB,
-		     lp.current_stub );
+		   ( min::LIST_AUX, lp.current_stub,
+		     MUP::STUB_POINTER );
 		MUP::set_type_of
 		    ( lp.current_stub, min::LIST_AUX );
 	    }
 	    else
 		end = MUP::new_control
-		   ( min::LIST_AUX, 0,
-		     lp.current_index );
+		   ( min::LIST_AUX, lp.current_index );
 
 	    min::stub * first, * last;
 	    MUP::allocate_stub_list
@@ -673,8 +670,8 @@ void min::insert_before
 			  MUP::new_control
 			      ( min::type_of
 				    ( lp.previous_stub ),
-				MUP::LIST_AUX_STUB,
-				first ) );
+				first,
+				MUP::STUB_POINTER ) );
 	    }
 	    else
 	    {
@@ -733,7 +730,7 @@ void min::insert_before
 		      MUP::new_control
 			  ( min::type_of
 				( lp.previous_stub ),
-			    0, index + n ) );
+			    index + n ) );
 	    }
 	    lp.previous_index = index;
 	    lp.previous_stub = NULL;
@@ -811,14 +808,14 @@ void min::insert_after
 		      MUP::new_control
 			 ( min::type_of
 			       ( lp.current_stub ),
-			   MUP::LIST_AUX_STUB,
-			   first ) );
+			   first,
+			   MUP::STUB_POINTER ) );
 		return;
 	    }
 
 	    min::uns64 end =
 		MUP::new_control
-		    ( min::LIST_AUX, 0,
+		    ( min::LIST_AUX,
 		      lp.current_index - ! previous );
 	    min::stub * s = MUP::new_aux_stub();
 	    MUP::set_gen_of ( s, lp.current );
@@ -833,8 +830,8 @@ void min::insert_after
 		      MUP::new_control
 		          ( sublist ? min::SUBLIST_AUX
 			            : min::LIST_AUX,
-			    MUP::LIST_AUX_STUB,
-			    first ) );
+			    first,
+			    MUP::STUB_POINTER ) );
 		lp.base[lp.current_index] = p[n-1];
 		lp.current_index = 0;
 		lp.current_stub = s;
@@ -856,8 +853,9 @@ void min::insert_after
 				  ( min::type_of
 				      ( lp.
 				        previous_stub ),
-				    MUP::LIST_AUX_STUB,
-				    s ) );
+				    s,
+				    MUP::STUB_POINTER
+				  ) );
 			}
 			return;
 		    }
@@ -877,9 +875,8 @@ void min::insert_after
 		MUP::set_control_of
 		    ( s,
 		      MUP::new_control
-		          ( min::LIST_AUX,
-			    MUP::LIST_AUX_STUB,
-			    first ) );
+		          ( min::LIST_AUX, first,
+			    MUP::STUB_POINTER ) );
 		lp.base[lp.current_index] =
 		    min::new_gen ( s );
 		lp.current_index = 0;
@@ -897,8 +894,7 @@ void min::insert_after
 	    ( lp.base + index + 1, p, n );
 	min::uns64 c =
 	    MUP::control_of ( lp.current_stub );
-	if (   MUP::test_flags_of_control
-		   ( c, MUP::LIST_AUX_STUB ) )
+	if ( c & MUP::STUB_POINTER )
 	    lp.base[index] =
 		min::new_gen
 		    ( MUP::stub_of_control ( c ) );
@@ -909,7 +905,7 @@ void min::insert_after
 	MUP::set_control_of
 	    ( lp.current_stub,
 	      MUP::new_control
-	         ( min::type_of ( lp.current_stub ), 0,
+	         ( min::type_of ( lp.current_stub ),
 		   index + n ) );
 	return;
     }
@@ -943,7 +939,7 @@ void min::insert_after
 			  MUP::new_control
 			      ( min::type_of
 				    ( lp.previous_stub ),
-				0, index + n ) );
+				index + n ) );
 		}
 		return;
 	    }

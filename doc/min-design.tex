@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 25, 2005}
+\date{November 26, 2005}
  
 \maketitle
 
@@ -930,11 +930,11 @@ a pointer to a stub or a number (direct float or direct integer).
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen MUP::|
-    & \MUPKEY{new\_gen\COMPACT}\verb| ( min::gen v, min::uns32 p )|
-\LABEL{MUP::NEW_GEN_COMPACT} \\
+    & \MUPKEY{renew\_gen\COMPACT}\verb| ( min::gen v, min::uns32 p )|
+\LABEL{MUP::RENEW_GEN_COMPACT} \\
 \verb|min::gen MUP::|
-    & \MUPKEY{new\_gen\LOOSE}\verb| ( min::gen v, min::uns64 p )|
-\LABEL{MUP::NEW_GEN_LOOSE} \\
+    & \MUPKEY{renew\_gen\LOOSE}\verb| ( min::gen v, min::uns64 p )|
+\LABEL{MUP::RENEW_GEN_LOOSE} \\
 \end{tabular}\end{center}
 
 The actual direct atom, stub pointer, auxiliary pointer, and control code
@@ -3304,7 +3304,7 @@ The following functions read or write the stub control part of a stub:
 \LABEL{MUP::CONTROL_OF} \\
 \verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )| \\
 \verb|bool MUP::|
-    & \MUPKEY{test\_flags\_of}\verb| ( min::stub * s, unsigned flags )|
+    & \MUPKEY{test\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
 \LABEL{MUP::TEST_FLAGS_OF} \\
 \verb|void MUP::|
     & \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 c )|
@@ -3313,16 +3313,71 @@ The following functions read or write the stub control part of a stub:
     & \MUPKEY{set\_type\_of}\verb| ( min::stub * s, int type )|
 \LABEL{MUP::SET_TYPE_OF} \\
 \verb|bool MUP::|
-    & \MUPKEY{set\_flags\_of}\verb| ( min::stub * s, unsigned flags )|
+    & \MUPKEY{set\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
 \LABEL{MUP::SET_FLAGS_OF} \\
 \verb|bool MUP::|
-    & \MUPKEY{clear\_flags\_of}\verb| ( min::stub * s, unsigned flags )|
+    & \MUPKEY{clear\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
 \LABEL{MUP::CLEAR_FLAGS_OF} \\
 \end{tabular}\end{center}
 
 The \verb|MUP::control_of| and \verb|MUP::set_control_of| functions
 deal with the entire 64 bit stub control value of a stub.  The other
-functions deal only with parts.  The \verb|MUP::test_flags_of| function
+functions deal only with parts.
+
+The stub control in a stub is an example of a MIN \key{control value}.
+A MIN control value holds a pointer, or a pointer sized unsigned integer,
+in its low order bits.  It may hold an 8 bit type code in its highest order
+bits.  Any bits left over are flag bits.  Control values have type
+\verb|min::uns64|.
+
+Thus control values contain a pointer/value low order field, and optional
+type code high order field, and flag bits.  The size of the pointer/value field
+varies with the hardware: it may be anything from 32 bits to 48 bits.
+The type code field, if present, is always 8 bits.  The number of flag bits
+varies from 8 to 32.
+
+The control values used as stub controls do have a type code field which
+can be read by \verb|min::type_of| (which is unprotected) and
+written by \verb|MUP::set_type_of|.
+
+The flag bits are set, cleared, and tested individually.  They are
+defined by constants of type \verb|min::uns64|, such as
+
+\begin{indpar}
+\begin{list}{}{}
+\item[{\tt const min::uns64 MUP::}\MUPKEY{STUB\_POINTER}]~%
+	\LABEL{MIN::STUB_POINTER}\\
+Indicates that the pointer/value field of the control holds a
+stub pointer (which is never in VSN form).
+\end{list}
+\end{indpar}
+
+These flag constants are defined by expressions of the form
+
+\begin{center}
+\verb|( min::uns64(1) << |$K$\verb| )|
+\end{center}
+
+where
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+$M\leq K\leq 63$ & if there is no type code field \\
+$M\leq K\leq 55$ & if there is a type code field \\
+\\
+\multicolumn{2}{l}{$M$ is the size of the pointer/value field} \\
+\\
+$32\leq M\leq 48$ & depending on hardware \\
+\end{tabular}
+\end{center}
+
+The above functions assume that any flag constants select bits
+in a control value that are not inside the pointer/value field,
+or inside the type code field if that is used.
+
+The flags in the stub control value of a stub can be tested, set, or
+cleared by some of the above functions.
+The \verb|MUP::test_flags_of| function
 returns true if and only if the logical AND of the \verb|flags| arguments
 and the flags in the stub's control is non-zero.  The \verb|MUP::set_flags_of|
 function sets one or more individual flags by logically ORing its
@@ -3330,56 +3385,46 @@ argument into the stub's control, and the
 \verb|MUP::clear_flags_of| function clears flags by logically ANDing
 the complement of its argument into the stub's control.
 
-These functions do \underline{not} check type codes, nor do they check
+The above functions do \underline{not} check type codes, nor do they check
 that values read or written are within legal range for a particular
 stub.  Thus a stub control value
 can be written by \verb|MUP::set_control_of| even if the written
 control datum is incompatible with the garbage collector implementation,
 and may produce undefined results when the garbage collector
-next executes.
+next executes.  Flag bits must not be inside the pointer/value field
+or inside the type code field if that is used.
 
 The high order byte of any control written by \verb|MUP::set_control_of|
 is the type code, and the high order bit is clear if the stub is collectible
 and set if the stub is uncollectible (\secref{STUB-CONTROL}).
-It is required that the type of a stub \underline{not} be changed from
-a collectible to an uncollectible type or vice versa
-by the \MUPkey{set\_type\_of} or \MUPkey{set\_control\_of} functions.
+Changing a stub from collectible to uncollectible or vice versa requires
+removing or adding the stub to garbage collector lists that are threaded
+through the pointer field of the stub control.  So one cannot simply
+change the type code field of a stub from collectible to uncollectible
+or vice versa.
 
-A stub control holds an 8 bit type code, $M$ bits of flags, and $N$ bits
-of value or pointer, where $8\leq M\leq 24$ and $32\leq N\leq 48$.
-$N$ is the number of bits required to store a pointer, and is
-determined by the hardware being used.
-The following functions can be used to compute or dissect 64 bit stub
-control values:
+Control values can be directly manipulated by the following functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{center}\begin{tabular}{@{}r@{}l@{}}
 \verb|min::uns64 MUP::|
     & \MUPKEY{new\_control} \\
-    & \verb|    ( int type_code, unsigned flags, unsigned value )|
+    & \verb|    ( int type_code, min::uns64 v, min::uns64 flags = 0 )|
 \LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
 \verb|min::uns64 MUP::|
     & \MUPKEY{new\_control} \\
-    & \verb|    ( int type_code, unsigned flags, min::stub * s )|
+    & \verb|    ( int type_code, void * p, min::uns64 flags = 0 )|
 \LABEL{MUP::NEW_CONTROL_OF_STUB} \\
 \verb|min::uns64 MUP::|
     & \MUPKEY{renew\_control\_type}\verb| ( min::uns64 c, int type )|
 \LABEL{MUP::RENEW_CONTROL_TYPE} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_control\_flags}\verb| ( min::uns64 c, unsigned flags )|
-\LABEL{MUP::RENEW_CONTROL_FLAGS} \\
 \verb|min::uns64 MUP::|
     & \MUPKEY{renew\_control\_value}\verb| ( min::uns64 c, min::uns64 v )|
 \LABEL{MUP::RENEW_CONTROL_VALUE} \\
 \verb|min::uns64 MUP::|
     & \MUPKEY{renew\_control\_pointer}\verb| ( min::uns64 c, void * p )|
 \LABEL{MUP::RENEW_CONTROL_POINTER} \\
-\verb|bool MUP::|
-    & \MUPKEY{test\_control\_flags}\verb| ( min::uns64 c, unsigned flags )|
-\LABEL{MUP::TEST_CONTROL_FLAGS} \\
 \verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::TYPE_OF_CONTROL} \\
-\verb|unsigned MUP::| & \MUPKEY{flags\_of\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::FLAGS_OF_CONTROL} \\
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::VALUE_OF_CONTROL} \\
 \verb|void * MUP::| & \MUPKEY{pointer\_of\_control}\verb| ( min::uns64 c )|
@@ -3389,16 +3434,14 @@ control values:
 \end{tabular}\end{center}
 
 Here the 8-bit type code is represented as an {\tt int} in
-the range from $-128$ through $127$, and the $M$-bit flags are represented
-as an {\tt unsigned} integer in the range from $0$ through $2^{24}-1$.
-The `{\tt new}' functions compute a control value that can be set
-by {\tt MUP::set\_control\_of}, the `{\tt renew}' functions modify control
-values read by {\tt MUP::control\_of}
-by inserting a new type, new flags, or a new value
-or pointer, the `{\tt test}' function returns true if and only if the AND
-of the control value flags and the {\tt flags} argument is non-zero,
-and the other functions return the parts of a control value
-read by {\tt MUP::control\_of}.
+the range from $-128$ through $127$.
+The `{\tt new}' functions compute a control value,
+the `{\tt renew}' functions modify control values
+by inserting a new type, value, or pointer, and
+the other functions return the parts of a control value.
+The \verb|MUP::stub_of_control| function is the same as
+\verb|MUP::pointer_of_control| with the addition of casting
+its return value to `\verb|min::stub *|' for convenience.
 
 \clearpage
 
@@ -3459,6 +3502,13 @@ struct min
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \newcommand{\ARGBREAK}{\\&{\tt ~~~~~}}
 \newcommand{\INDEXHEADER}[1]{{\bf #1}:}
+\newlength{\TABULARLEN}
+\newenvironment{TABULAR}[1]%
+  {\setlength{\TABULARLEN}{6.2in}
+   \addtolength{\TABULARLEN}{-#1}
+   \begin{tabular}{@{}r@{}l@{}}
+   \hspace*{#1} & \hspace*{\TABULARLEN} \\[-4ex]}%
+  {\end{tabular}}
 
 \INDEXHEADER{Compilation Macros}
 
@@ -3487,20 +3537,22 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{0.6in}@{}p{5.6in}@{}}
+\begin{TABULAR}{0.6in}
 \verb|min::| & \MINKEY{stub}
 \LABEL{MIN::STUB} \\
 \verb|min::| & \MINKEY{gen}
 \LABEL{MIN::GEN}
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Stub Type Codes}\label{STUB-TYPE-CODE-LIST}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
+\begin{TABULAR}{1.4in}
 \verb|const int min::| & \MINKEY{DEALLOCATED}
 \LABEL{MIN::DEALLOCATED} \\
 \verb|const int min::| & \MINKEY{NUMBER}
@@ -3519,16 +3571,14 @@ struct min
 \LABEL{MIN::LIST_AUX} \\
 \verb|const int min::| & \MINKEY{SUBLIST\_AUX}
 \LABEL{MIN::SUBLIST_AUX} 
-\end{tabular}
+\end{TABULAR}
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Stub Related Declarations}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
+\begin{TABULAR}{1.2in}
 \verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
 \LABEL{MIN::TYPE_OF} \\[1ex]
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
@@ -3546,21 +3596,23 @@ struct min
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
-\end{tabular}
+\end{TABULAR}
 
-\begin{tabular}{@{}p{2.0in}@{}p{4.2in}@{}}
+\begin{TABULAR}{2.0in}
 (unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
 \LABEL{MIN_DEALLOCATED_LIMIT} \\
 
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Gen Value Protected Declarations}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.6in}@{}p{4.6in}@{}}
+\begin{TABULAR}{1.6in}
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STUB} \\
 \verb|bool min::| & \MINKEY{is\_direct\_float\LOOSE}\verb| ( min::gen v )|
@@ -3580,8 +3632,10 @@ struct min
 \verb|bool min::| & \MINKEY{is\_index}\verb| ( min::gen v )|
 \LABEL{MIN::IS_INDEX} \\
 \verb|bool min::| & \MINKEY{is\_control\_code}\verb| ( min::gen v )|
-\LABEL{MIN::IS_CONTROL_CODE} \\[1ex]
+\LABEL{MIN::IS_CONTROL_CODE} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.6in}
 \verb|min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MIN::STUB_OF} \\
 \verb|min::float64 min::|
@@ -3607,8 +3661,10 @@ struct min
 \LABEL{MIN::CONTROL_CODE_OF} \\
 \verb|min::uns64 min::|
     & \MINKEY{long\_control\_code\_of\LOOSE}\verb| ( min::gen v )|
-\LABEL{MIN::LONG_CONTROL_CODE_OF} \\[1ex]
+\LABEL{MIN::LONG_CONTROL_CODE_OF} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.6in}
 \verb|min::gen min::| & \MINKEY{new\_gen}\verb| ( min::stub * s )|
 \LABEL{MIN::NEW_GEN_OF_STUB} \\
 \verb|min::gen min::|
@@ -3635,26 +3691,28 @@ struct min
 \LABEL{MIN::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen min::|
     & \MINKEY{new\_long\_control\_code\_gen\LOOSE}\verb| ( min::uns64 c )|
-\LABEL{MIN::NEW_LONG_CONTROL_CODE_GEN} \\[1ex]
+\LABEL{MIN::NEW_LONG_CONTROL_CODE_GEN} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.6in}
 \verb|int min::| & \MINKEY{gen\_subtype\_of}\verb| ( min::gen v )|
-\LABEL{MIN::GEN_SUBTYPE_OF} \\[1ex]
+\LABEL{MIN::GEN_SUBTYPE_OF} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.6in}
 \verb|bool min::| & \MINKEY{is\_atom}\verb| ( min::gen v )|
 \LABEL{MIN::IS_ATOM} \\
 \verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
 \LABEL{MIN::HASH} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Gen Value Unprotected Declarations}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.6in}@{}p{4.6in}@{}}
+\begin{TABULAR}{1.6in}
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MUP::STUB_OF} \\
 \verb|min::float64 MUP::|
@@ -3681,8 +3739,10 @@ struct min
 \LABEL{MUP::CONTROL_CODE_OF} \\
 \verb|min::uns64 MUP::|
     & \MUPKEY{long\_control\_code\_of\LOOSE}\verb| ( min::gen v )|
-\LABEL{MUP::LONG_CONTROL_CODE_OF} \\[1ex]
+\LABEL{MUP::LONG_CONTROL_CODE_OF} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.6in}
 \verb|min::gen MUP::| & \MUPKEY{new\_gen}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN_OF_STUB} \\
 \verb|min::gen MUP::|
@@ -3709,24 +3769,28 @@ struct min
 \LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen MUP::|
     & \MUPKEY{new\_long\_control\_code\_gen\LOOSE}\verb| ( min::uns64 c )|
-\LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\[1ex]
+\LABEL{MUP::NEW_LONG_CONTROL_CODE_GEN} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.6in}
 \verb|min::gen MUP::|
-    & \MUPKEY{new\_gen\COMPACT}\verb| ( min::gen v, min::uns32 p )|
-\LABEL{MUP::NEW_GEN_COMPACT} \\
+    & \MUPKEY{renew\_gen\COMPACT}\verb| ( min::gen v, min::uns32 p )|
+\LABEL{MUP::RENEW_GEN_COMPACT} \\
 \verb|min::gen MUP::|
-    & \MUPKEY{new\_gen\LOOSE}\verb| ( min::gen v, min::uns64 p )|
-\LABEL{MUP::NEW_GEN_LOOSE} \\
+    & \MUPKEY{renew\_gen\LOOSE}\verb| ( min::gen v, min::uns64 p )|
+\LABEL{MUP::RENEW_GEN_LOOSE} \\
 
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Gen Value Subtype Codes}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\begin{TABULAR}{1.8in}
 \verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_INT}
 \LABEL{MIN::GEN_DIRECT_INT} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_FLOAT}
@@ -3749,7 +3813,7 @@ struct min
 \LABEL{MIN::GEN_CONTROL_CODE} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
 \LABEL{MIN::GEN_ILLEGAL} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
@@ -3757,10 +3821,12 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\begin{TABULAR}{1.8in}
 \verb|min::float64 min::| & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
-\LABEL{MIN::FLOAT_OF} \\[1ex]
+\LABEL{MIN::FLOAT_OF} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::|
@@ -3777,32 +3843,34 @@ struct min
 \LABEL{MIN::NUMHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{floathash}\verb| ( min::float64 f )|
 \LABEL{MIN::FLOATHASH} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
 
 
 
-\newpage
-
 \INDEXHEADER{String Stub Protected Declarations}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\begin{TABULAR}{1.8in}
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::stub * s )|
 \LABEL{MIN::STRLEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::stub * s )|
-\LABEL{MIN::STRHASH} \\[1ex]
+\LABEL{MIN::STRHASH} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::stub * s )|
 \LABEL{MIN::STRCPY} \\
 \verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
 	\verb| ( char * p,|\ARGBREAK
 	\verb|   min::stub * s, unsigned n )|
-\LABEL{MIN::STRNCPY} \\[1ex]
+\LABEL{MIN::STRNCPY} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen v )|
@@ -3812,42 +3880,49 @@ struct min
 \verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
                       \verb| ( char * p,|\ARGBREAK
 		      \verb|   min::gen v, unsigned n )|
-\LABEL{MIN::STRNCPY_OF_GEN} \\[1ex]
+\LABEL{MIN::STRNCPY_OF_GEN} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
 \LABEL{MUP::STR_POINTER_OF_GEN} \\
 \verb|const char * min::| & \MINKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
 \LABEL{MIN::STR_OF_STR_POINTER} \\
 \verb|void min::| & \MINKEY{relocate}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MIN::RELOCATE_OF_STR_POINTER} \\[1ex]
+\LABEL{MIN::RELOCATE_OF_STR_POINTER} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
-\LABEL{MIN::IS_STR_OF_GEN}
-\\[1ex]
+\LABEL{MIN::IS_STR_OF_GEN} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|min::gen min::|
     & \MINKEY{new\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_GEN_OF_STR} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{String Stub Unprotected Declarations}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\begin{TABULAR}{1.8in}
 \verb|min::uns64 MUP::|
     & \MUPKEY{short\_str\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::SHORT_STR_OF} \\[1ex]
+\LABEL{MUP::SHORT_STR_OF} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|void MUP::|
     & \MUPKEY{set\_short\_str\_of}\ARGBREAK
       \verb| ( min::stub * s, min::uns64 str )|
-\LABEL{MUP::SET_SHORT_STR_OF} \\[1ex]
+\LABEL{MUP::SET_SHORT_STR_OF} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|MUP::long_str * MUP::|
     & \MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_STR_OF} \\
@@ -3858,8 +3933,10 @@ struct min
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
 \verb|char * MUP::| & \MUPKEY{writable\_str\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MUP::WRITABLE_STR_OF_LONG_STR} \\[1ex]
+\LABEL{MUP::WRITABLE_STR_OF_LONG_STR} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
 \verb|void MUP::| &
@@ -3870,44 +3947,50 @@ struct min
    \MUPKEY{set\_hash\_of}\ARGBREAK
     \verb| ( MUP::long_str * str,|\ARGBREAK\verb|   unsigned hash )|
 \LABEL{MUP::SET_HASH_OF_LONG_STR} \\[1ex]
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Label Stub Declarations}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\begin{TABULAR}{1.8in}
 \verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
     \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::stub * s )|
 \LABEL{MIN::LAB_OF} \\
 \verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
     \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::gen v )|
-\LABEL{MIN::LAB_OF_GEN} \\[1ex]
+\LABEL{MIN::LAB_OF_GEN} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::stub * s )|
 \LABEL{MIN::LABLEN} \\
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
-\LABEL{MIN::LABLEN_OF_GEN} \\[1ex]
+\LABEL{MIN::LABLEN_OF_GEN} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::stub * s )|
 \LABEL{MIN::LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
     \verb| ( const min::gen * p, unsigned n )|
-\LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\[1ex]
+\LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|min::gen min::| & \MINKEY{new\_gen}\ARGBREAK
     \verb| ( const min::gen * p, unsigned n )|
-\LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\[1ex]
+\LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\
+\end{TABULAR}
 
+\begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{is\_lab}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
@@ -3915,20 +3998,20 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{2.0in}@{}p{4.2in}@{}}
+\begin{TABULAR}{2.0in}
 \verb|MUP::short_obj * MUP::|
     & \MUPKEY{short\_obj\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::SHORT_OBJ_OF} \\
 \verb|MUP::long_obj * MUP::|
     & \MUPKEY{long\_obj\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_OBJ_OF} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
+\begin{TABULAR}{1.4in}
 \verb|unsigned min::|
     & \MINKEY{hash\_table\_size\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MIN::HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
@@ -3963,7 +4046,7 @@ struct min
 \LABEL{MIN::TOTAL_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned min::| & \MINKEY{total\_size\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::TOTAL_SIZE_OF_LONG_OBJ} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
@@ -3971,7 +4054,7 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{2.0in}@{}p{4.2in}@{}}
+\begin{TABULAR}{2.0in}
 \verb|const min::gen * MUP::|
 	& \MUPKEY{body\_vector\_of}\ARGBREAK
 		\verb| ( MUP::short_obj * so )|
@@ -3988,11 +4071,11 @@ struct min
 	& \MUPKEY{writable\_body\_vector\_of}\ARGBREAK
 		\verb| ( MUP::long_obj * lo )|
 \LABEL{MUP::WRITABLE_BODY_VECTOR_OF_LONG_OBJ} \\
-\end{tabular}
+\end{TABULAR}
 
 \bigskip
 
-\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
+\begin{TABULAR}{1.4in}
 \verb|unsigned min::|
 	& \MINKEY{hash\_table\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MIN::HASH_TABLE_OF_SHORT_OBJ} \\
@@ -4005,7 +4088,7 @@ struct min
 \verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_OF_LONG_OBJ} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
@@ -4020,28 +4103,28 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\begin{TABULAR}{1.8in}
 \verb|const min::gen min::| & \MINKEY{LIST\_END}
 \LABEL{MIN::LIST_END} \\
 \verb|const min::gen min::|
     & \MINKEY{EMPTY\_SUBLIST}
 \LABEL{MIN::EMPTY_SUBLIST} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.8in}@{}p{4.4in}@{}}
+\begin{TABULAR}{1.8in}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::stub * s )|
 \LABEL{MUP::LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::gen obj )|
 \LABEL{MUP::LIST_POINTER_OF_GEN} \\
-\end{tabular}
+\end{TABULAR}
 
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
+\begin{TABULAR}{1.2in}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned index )|
@@ -4070,9 +4153,9 @@ struct min
 \verb|bool min::|
 	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST} \\
-\end{tabular}
+\end{TABULAR}
 
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
+\begin{TABULAR}{1.2in}
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}\ARGBREAK
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
@@ -4094,15 +4177,17 @@ struct min
 	& \MINKEY{delete}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned n = 1 )|
 \LABEL{MIN::DELETE_FROM_LIST} \\
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Object Attribute Level Declarations}
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
+\begin{TABULAR}{1.2in}
 \verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
@@ -4130,9 +4215,9 @@ struct min
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name )|
 \LABEL{MIN::SET_FLAGSG} \\
-\end{tabular}
+\end{TABULAR}
 
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
+\begin{TABULAR}{1.2in}
 \verb|min::gen min::| & \MINKEY{getg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
@@ -4152,9 +4237,9 @@ struct min
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::ADD_TO_MULTISETG} \\
-\end{tabular}
+\end{TABULAR}
 
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
+\begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{set\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
     \verb|   min::gen obj, min::gen name )|
@@ -4167,9 +4252,9 @@ struct min
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
     \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::FLIP_SOME_FLAGSG} \\
-\end{tabular}
+\end{TABULAR}
 
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
+\begin{TABULAR}{1.2in}
 \verb|bool min::| & \MINKEY{test\_flagg\REL}\ARGBREAK
     \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::TEST_FLAGG} \\
@@ -4182,7 +4267,7 @@ struct min
 \verb|void min::| & \MINKEY{flip\_flagg\REL}\ARGBREAK
     \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::FLIP_FLAGG} \\
-\end{tabular}
+\end{TABULAR}
 
 \newpage
 
@@ -4211,7 +4296,7 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{1.4in}@{}p{4.8in}@{}}
+\begin{TABULAR}{1.4in}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{variable\_pointer}\verb| ( )|
 \LABEL{MUP::VARIABLE_POINTER} \\
@@ -4225,6 +4310,9 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 \verb|void min::|
 	& \MINKEY{relocate}\verb| ( min::variable_pointer & vp )|
 \LABEL{MIN::RELOCATE_VARIABLE_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
 \verb|min::gen min::|
 	& \TTKEY{get}\verb| ( min::variable_pointer & vp )|
 \LABEL{GET_VARIABLE_POINTER} \\
@@ -4241,6 +4329,9 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
     \verb| ( min::variable_pointer & vp,|\ARGBREAK
     \verb|   min::gen name )|
 \LABEL{MIN::MOVEG_VARIABLE_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
 \verb|min::gen min::| & \MINKEY{move}\ARGBREAK
     \verb| ( min::variable_pointer & vp,|\ARGBREAK
     \verb|   unsigned index )|
@@ -4249,6 +4340,9 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
     \verb| ( min::variable_pointer & vp,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::COUNTG_OF_VARIABLE_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
 \verb|unsigned min::| & \MINKEY{getg}\ARGBREAK
     \verb| ( min::gen * out, unsigned n,|\ARGBREAK
     \verb|   min::variable_pointer & vp,|\ARGBREAK
@@ -4258,32 +4352,13 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
     \verb| ( min::variable_pointer & vp,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::GETG1_OF_VARIABLE_POINTER} \\
-\end{tabular}
-
-\begin{tabular}{@{}p{1.2in}@{}p{5.0in}@{}}
 \verb|bool min::|
 	& \TTKEY{variable\_forward\_optimization}\verb| ( )|
 \LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
 \verb|bool min::|
 	& \TTKEY{variable\_forward\_optimization}\verb| ( bool value )|
 \LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
-\end{tabular}
-
-\end{indpar}
-
-\INDEXHEADER{Stub Functions}
-
-\begin{indpar}[0.2in]
-
-\begin{tabular}{@{}p{1.6in}@{}p{4.6in}@{}}
-\verb|min::float64 MUP::| & \MUPKEY{float\_of}\ARGBREAK
-		\verb| ( min::stub * s )|
-\LABEL{MUP::FLOAT_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_float\_of}\ARGBREAK
-               \verb| ( min::stub * s, min::float64 f )|
-\LABEL{MUP::SET_FLOAT_OF} \\[1ex]
-\end{tabular}
+\end{TABULAR}
 
 \end{indpar}
 
@@ -4291,7 +4366,7 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{@{}p{0.6in}@{}p{5.6in}@{}}
+\begin{TABULAR}{0.6in}
 \verb|min::| & \MINKEY{MISSING}
 \LABEL{MIN::MISSING} \\
 \verb|min::| & \MINKEY{ANY}
@@ -4302,7 +4377,119 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 \LABEL{MIN::NULL} \\
 \verb|min::| & \MINKEY{SUCCESS}
 \LABEL{MIN::SUCCESS}
-\end{tabular}
+\end{TABULAR}
+
+\end{indpar}
+
+\newpage
+
+\INDEXHEADER{Stub Functions}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::VALUE_OF} \\
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::FLOAT_OF} \\
+\verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::GEN_OF} \\
+\verb|void * MUP::| & \MUPKEY{pointer\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::POINTER_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_value\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 v )|
+\LABEL{MUP::SET_VALUE_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_float\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::float64 f )|
+\LABEL{MUP::SET_FLOAT_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_gen\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::gen v )|
+\LABEL{MUP::SET_GEN_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_pointer\_of}\ARGBREAK
+      \verb| ( min::stub * s, void * p )|
+\LABEL{MUP::SET_POINTER_OF} \\[1ex]
+
+\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::CONTROL_OF} \\
+\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
+\LABEL{MIN::TYPE_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{test\_flags\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 flags )|
+\LABEL{MUP::TEST_FLAGS_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_control\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 c )|
+\LABEL{MUP::SET_CONTROL_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{set\_type\_of}\ARGBREAK
+      \verb| ( min::stub * s, int type )|
+\LABEL{MUP::SET_TYPE_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{set\_flags\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 flags )|
+\LABEL{MUP::SET_FLAGS_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{clear\_flags\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 flags )|
+\LABEL{MUP::CLEAR_FLAGS_OF} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\newpage
+
+\INDEXHEADER{Control Values}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control} \\
+    & \verb|    ( int type_code, min::uns64 v,|\ARGBREAK
+      \verb|      min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control} \\
+    & \verb|    ( int type_code, void * p,|\ARGBREAK
+      \verb|      min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_type}\ARGBREAK
+      \verb| ( min::uns64 c, int type )|
+\LABEL{MUP::RENEW_CONTROL_TYPE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_value}\ARGBREAK
+      \verb| ( min::uns64 c, min::uns64 v )|
+\LABEL{MUP::RENEW_CONTROL_VALUE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_pointer}\ARGBREAK
+      \verb| ( min::uns64 c, void * p )|
+\LABEL{MUP::RENEW_CONTROL_POINTER} \\
+\verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::TYPE_OF_CONTROL} \\
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::VALUE_OF_CONTROL} \\
+\verb|void * MUP::| & \MUPKEY{pointer\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::POINTER_OF_CONTROL} \\
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::STUB_OF_CONTROL} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Control Flags}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.0in}
+\verb|const min::uns64 MUP::| & \MUPKEY{STUB\_POINTER}
+\LABEL{MIN::STUB_POINTER}\\
+\end{TABULAR}
 
 \end{indpar}
 
