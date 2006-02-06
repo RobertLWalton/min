@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 26 07:05:45 EST 2005
+// Date:	Mon Feb  6 09:58:14 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/26 15:19:52 $
+//   $Date: 2006/02/06 16:44:13 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.44 $
+//   $Revision: 1.45 $
 
 // Table of Contents:
 //
@@ -42,6 +42,7 @@
 // -----
 
 # ifndef MIN_H
+# define MIN_H
 
 // Include parameters.
 //
@@ -101,8 +102,9 @@ namespace min { namespace internal {
 	    	( min::uns32 v )
 	    {
 		return (min::stub *)
-		       (unsigned MIN_INT_POINTER_TYPE)
-		       (   ( v << MIN_VSN_SHIFT )
+		       ( ( (unsigned
+		            MIN_INT_POINTER_TYPE) v
+		           << MIN_VSN_SHIFT )
 			 + MIN_VSN_BASE );
 	    }
 	    inline min::uns32 stub_to_uns32
@@ -111,8 +113,8 @@ namespace min { namespace internal {
 		return (min::uns32)
 		       ( ( (unsigned
 		            MIN_INT_POINTER_TYPE) p
-			   >> MIN_VSN_SHIFT )
-			 - MIN_VSN_BASE );
+			   - MIN_VSN_BASE )
+			 >> MIN_VSN_SHIFT );
 	    }
 #	else // MIN_USES_ADDRESSES
 	    inline min::stub * uns32_to_stub
@@ -149,8 +151,9 @@ namespace min { namespace internal {
 	    	( min::uns64 v )
 	    {
 		return (min::stub *)
-		       (unsigned MIN_INT_POINTER_TYPE)
-		       (   ( v << MIN_VSN_SHIFT )
+		       ( ( (unsigned
+		            MIN_INT_POINTER_TYPE) v
+		           << MIN_VSN_SHIFT )
 			 + MIN_VSN_BASE );
 	    }
 	    inline min::uns64 stub_to_uns64
@@ -159,8 +162,8 @@ namespace min { namespace internal {
 		return (min::uns64)
 		       ( ( (unsigned
 		            MIN_INT_POINTER_TYPE) p
-			   >> MIN_VSN_SHIFT )
-			 - MIN_VSN_BASE );
+			   - MIN_VSN_BASE )
+		         >> MIN_VSN_SHIFT );
 	    }
 #	else // MIN_USES_ADDRESSES
 	    inline min::stub * uns64_to_stub
@@ -191,13 +194,13 @@ namespace min {
     //
 #   if MIN_IS_COMPACT
 	typedef uns32 gen;
-#   else // if MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	typedef uns64 gen;
 #   endif
 
 #   if MIN_IS_COMPACT
 
-	// Layout
+	// Layout (high order 8 bits)
 	//   0x00-0xDF	stubs
 	//   0xE0-0xEF  direct integers
 	//   0xF0-0xF6  direct string and other
@@ -224,10 +227,13 @@ namespace min {
 	const unsigned GEN_CONTROL_CODE
 	    = 0xF6;
 	const unsigned GEN_ILLEGAL
-	    = 0xF7;  // Upper limit for legal.
-#   else // if MIN_IS_LOOSE
+	    = 0xF7;  // First illegal subtype code.
+	const unsigned GEN_UPPER
+	    = 0xFF; // Largest subtype code.
+#   elif MIN_IS_LOOSE
 
-	// Layout with base MIN_FLOAT_SIGNALLING_NAN:
+	// Layout (high order 24 bits) with base
+	// MIN_FLOAT_SIGNALLING_NAN:
 	//
 	//   0x00-0x0F	stub
 	//   0x10-0x16	direct string and others
@@ -256,8 +262,10 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x16;
 	const unsigned GEN_ILLEGAL
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x17;
+	    // First illegal subtype code.
 	const unsigned GEN_UPPER
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
+	    // Largest subtype code.
 #   endif
 }
 
@@ -269,7 +277,7 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline bool is_stub ( min::gen v )
 	{
-	    return ( v < GEN_DIRECT_INT );
+	    return ( v < ( GEN_DIRECT_INT << 24 ) );
 	}
 	// Unimplemented for COMPACT:
 	//  bool is_direct_float ( min::gen v )
@@ -320,7 +328,7 @@ namespace min {
 	    else
 	        return GEN_ILLEGAL;
 	}
-#   else // if MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	inline bool is_stub ( min::gen v )
 	{
 	    return ( v >> 44 == GEN_STUB >> 4 );
@@ -331,8 +339,9 @@ namespace min {
 	    // are masked for this test.
 	    //
 	    return
-	        (    uns32 ( v >> 45 )
-	          != MIN_FLOAT64_SIGNALLING_NAN >> 5 );
+	        ( (uns64) v & 0x7FFFE00000000000L )
+	        != ( (uns64) MIN_FLOAT64_SIGNALLING_NAN
+		     << 40 );
 	}
 	// Unimplemented for LOOSE:
 	//   bool is_direct_int ( min::gen v )
@@ -440,7 +449,7 @@ namespace min { namespace unprotected {
 	}
 	// Unimplemented for COMPACT:
 	//    uns64 long_control_code_of ( min::gen v )
-#   else // if MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	inline min::stub * stub_of ( min::gen v )
 	{
 	    return internal::uns64_to_stub
@@ -645,7 +654,7 @@ namespace min { namespace unprotected {
 	           ( ( v & 0xFF000000 ) + p );
 	}
 
-#   else // if MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	inline min::gen new_gen ( min::stub * s )
 	{
 	    return (min::gen)
@@ -1243,7 +1252,7 @@ namespace min { namespace unprotected {
     //
 #   if MIN_IS_COMPACT
 	uns32 gc_stub_expand_free_list ( void );
-#   else // if MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	uns64 gc_stub_expand_free_list ( void );
 #   endif
     //
@@ -1469,7 +1478,7 @@ namespace min {
 		    assert ( is_num ( v ) );
 		}
 	    }
-    #   else // if MIN_IS_LOOSE
+    #   elif MIN_IS_LOOSE
 	    inline bool is_num ( min::gen v )
 	    {
 		return min::is_direct_float ( v );
@@ -2111,7 +2120,7 @@ namespace min {
 	    ( (min::uns32) min::GEN_LIST_AUX << 24 );
 	const min::gen EMPTY_SUBLIST = (min::gen)
 	    ( (min::uns32) min::GEN_LIST_AUX << 24 );
-#   else // if MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	const min::gen LIST_END = (min::gen)
 	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
 	const min::gen EMPTY_SUBLIST = (min::gen)
