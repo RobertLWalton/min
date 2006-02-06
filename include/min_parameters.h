@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 25 07:34:20 EST 2005
+// Date:	Mon Feb  6 09:56:20 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/25 15:50:47 $
+//   $Date: 2006/02/06 14:55:24 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents
 //
@@ -28,7 +28,11 @@
 //	MIN_USES_VSNS
 //	MIN_USES_OBJECT_AUX_STUBS
 // 
+// See below for the definition of these paramters.
 // Other parameters are computed from these.
+
+#ifndef MIN_PARAMETERS_H
+#define MIN_PARAMETERS_H
 
 // Software Parameters.
 
@@ -123,3 +127,5 @@
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF800
 #   define MIN_DEALLOCATED_LIMIT (1 << 20)
 # endif
+
+#endif // MIN_PARAMETERS_H
