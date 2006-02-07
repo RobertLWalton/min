@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/07 07:26:37 $
+//   $Date: 2006/02/07 07:28:30 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.46 $
+//   $Revision: 1.47 $
 
 // Table of Contents:
 //
@@ -21,9 +21,9 @@
 //	C++ Number Types
 //	Internal Pointer Conversion Functions
 //	General Value Types and Data
+//	General Value Constructor Functions
 //	General Value Test Functions
 //	General Value Read Functions
-//	General Value Constructor Functions
 //	Control Values
 //	Stub Types and Data
 //	Stub Functions
@@ -266,6 +266,256 @@ namespace min {
 	const unsigned GEN_UPPER
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 	    // Largest subtype code.
+#   endif
+}
+
+// General Value Constructor Functions
+// ------- ----- ----------- ---------
+
+namespace min { namespace unprotected {
+
+    // MUP:: constructors
+
+#   if MIN_IS_COMPACT
+	inline min::gen new_gen ( min::stub * s )
+	{
+	    return (min::gen)
+	        internal::stub_to_uns32 ( s );
+	}
+	inline min::gen new_direct_int_gen ( int v )
+	{
+	    return (min::gen)
+	           (  (uns32) v
+		    + ( GEN_DIRECT_INT << 24 )
+		    + ( 1 << 27 ) );
+	}
+	// Unimplemented for COMPACT:
+	//  min::gen new_direct_float_gen ( float64 v )
+	inline min::gen new_direct_str_gen
+		( const char * p )
+	{
+	    uns32 v = (uns32) GEN_DIRECT_STR << 24;
+	    char * s = ( (char *) & v )
+		     + MIN_BIG_ENDIAN;
+	       ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ );
+	    return (min::gen) v;
+	}
+	inline min::gen new_list_aux_gen ( unsigned p )
+	{
+	    return (min::gen)
+	           ( p + GEN_LIST_AUX << 24 );
+	}
+	inline min::gen new_sublist_aux_gen
+		( unsigned p )
+	{
+	    return (min::gen)
+	           ( p + GEN_SUBLIST_AUX << 24 );
+	}
+	inline min::gen new_indirect_pair_aux_gen
+		( unsigned p )
+	{
+	    return (min::gen)
+	           ( p + GEN_INDIRECT_PAIR_AUX << 24 );
+	}
+	inline min::gen new_indirect_indexed_aux_gen
+		( unsigned p )
+	{
+	    return (min::gen)
+	           (   p
+		     + GEN_INDIRECT_INDEXED_AUX << 24 );
+	}
+	inline min::gen new_index_gen ( unsigned a )
+	{
+	    return (min::gen)
+	           ( a + GEN_INDEX << 24 );
+	}
+	inline min::gen new_control_code_gen
+		( unsigned c )
+	{
+	    return (min::gen)
+	           ( c + GEN_CONTROL_CODE << 24 );
+	}
+	// Unimplemented for COMPACT:
+	//  min::gen new_long_control_code_gen
+	//	( unsigned c )
+	inline min::gen renew_gen
+		( min::gen v, min::uns32 p )
+	{
+	    return (min::gen)
+	           ( ( v & 0xFF000000 ) + p );
+	}
+
+#   elif MIN_IS_LOOSE
+	inline min::gen new_gen ( min::stub * s )
+	{
+	    return (min::gen)
+		   (   internal::stub_to_uns64 ( s )
+		     + ( (uns64) GEN_STUB << 40 )  );
+	}
+	// Unimplemented for LOOSE:
+	//   min::gen new_direct_int_gen ( int v )
+	inline min::gen new_direct_float_gen
+		( float64 v )
+	{
+	    return * (min::gen *) & v;
+	}
+	inline min::gen new_direct_str_gen
+		( const char * p )
+	{
+	    uns64 v = (uns64) GEN_DIRECT_STR << 40;
+	    char * s = ( (char *) & v )
+	             + 3 * MIN_BIG_ENDIAN;
+	       ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ );
+	    return (min::gen) v;
+	}
+	inline min::gen new_list_aux_gen ( unsigned p )
+	{
+	    return (min::gen)
+	           (   p
+		     + ( (uns64) GEN_LIST_AUX
+		         << 40 ) );
+	}
+	inline min::gen new_sublist_aux_gen
+		( unsigned p )
+	{
+	    return (min::gen)
+	           (   p
+		     + ( (uns64) GEN_SUBLIST_AUX
+		         << 40 ) );
+	}
+	inline min::gen new_indirect_pair_aux_gen
+		( unsigned p )
+	{
+	    return (min::gen)
+	           (   p
+		     + ( (uns64) GEN_INDIRECT_PAIR_AUX
+		         << 40 ) );
+	}
+	inline min::gen new_indirect_indexed_aux_gen
+		( unsigned p )
+	{
+	    return (min::gen)
+	           (   p
+		     + ( (uns64)
+		         GEN_INDIRECT_INDEXED_AUX
+		         << 40 ) );
+	}
+	inline min::gen new_index_gen ( unsigned a )
+	{
+	    return (min::gen)
+	           ( a + ( (uns64) GEN_INDEX << 40 ) );
+	}
+	inline min::gen new_control_code_gen
+		( unsigned c )
+	{
+	    return (min::gen)
+	           (   c
+		     + ( (uns64) GEN_CONTROL_CODE
+		         << 40 ) );
+	}
+	inline min::gen new_long_control_code_gen
+		( min::uns64 c )
+	{
+	    return (min::gen)
+	           (   c
+		     + ( (uns64) GEN_CONTROL_CODE
+		         << 40 ) );
+	}
+	inline min::gen renew_gen
+		( min::gen v, min::uns64 p )
+	{
+	    return (min::gen)
+	           ( ( v & 0xFFFFFF0000000000 ) + p );
+	}
+
+#   endif
+} }
+
+namespace min {
+
+    // min:: constructors
+
+    inline min::gen new_gen ( min::stub * s )
+    {
+	return unprotected::new_gen ( s );
+    }
+#   if MIN_IS_COMPACT
+	inline min::gen new_direct_int_gen ( int v )
+	{
+	    assert ( -1 << 27 <= v && v < 1 << 27 );
+	    return unprotected::new_direct_int_gen
+	    		( v );
+	}
+#   endif
+#   if MIN_IS_LOOSE
+	inline min::gen new_direct_float_gen
+		( float64 v )
+	{
+	    return unprotected::new_direct_float_gen
+	    		( v );
+	}
+#   endif
+    inline min::gen new_direct_str_gen
+	    ( const char * p )
+    {
+#       if MIN_IS_COMPACT
+	    assert ( strlen ( p ) <= 3 );
+#	elif MIN_IS_LOOSE
+	    assert ( strlen ( p ) <= 5 );
+#	endif
+	return unprotected::new_direct_str_gen ( p );
+    }
+    inline min::gen new_list_aux_gen ( unsigned p )
+    {
+	assert ( p < 1 << 24 );
+	return unprotected::new_list_aux_gen ( p );
+    }
+    inline min::gen new_sublist_aux_gen
+	    ( unsigned p )
+    {
+	assert ( p < 1 << 24 );
+	return unprotected::new_sublist_aux_gen ( p );
+    }
+    inline min::gen new_indirect_pair_aux_gen
+	    ( unsigned p )
+    {
+	assert ( p < 1 << 24 );
+	return unprotected::new_indirect_pair_aux_gen
+			( p );
+    }
+    inline min::gen new_indirect_indexed_aux_gen
+	    ( unsigned p )
+    {
+	assert ( p < 1 << 24 );
+	return unprotected::new_indirect_indexed_aux_gen
+			( p );
+    }
+    inline min::gen new_index_gen ( unsigned a )
+    {
+	assert ( a < 1 << 24 );
+	return unprotected::new_index_gen ( a );
+    }
+    inline min::gen new_control_code_gen
+	    ( unsigned c )
+    {
+	assert ( c < 1 << 24 );
+	return unprotected::new_control_code_gen ( c );
+    }
+#   if MIN_IS_LOOSE
+	inline min::gen new_long_control_code_gen
+		( min::uns64 c )
+	{
+	    assert ( c < (uns64) 1 << 40 );
+	    return
+	      unprotected::new_long_control_code_gen
+	      	( c );
+	}
 #   endif
 }
 
@@ -569,256 +819,6 @@ namespace min {
 	    assert ( is_control_code ( v ) );
 	    return unprotected::long_control_code_of
 	    		( v );
-	}
-#   endif
-}
-
-// General Value Constructor Functions
-// ------- ----- ----------- ---------
-
-namespace min { namespace unprotected {
-
-    // MUP:: constructors
-
-#   if MIN_IS_COMPACT
-	inline min::gen new_gen ( min::stub * s )
-	{
-	    return (min::gen)
-	        internal::stub_to_uns32 ( s );
-	}
-	inline min::gen new_direct_int_gen ( int v )
-	{
-	    return (min::gen)
-	           (  (uns32) v
-		    + ( GEN_DIRECT_INT << 24 )
-		    + ( 1 << 27 ) );
-	}
-	// Unimplemented for COMPACT:
-	//  min::gen new_direct_float_gen ( float64 v )
-	inline min::gen new_direct_str_gen
-		( const char * p )
-	{
-	    uns32 v = (uns32) GEN_DIRECT_STR << 24;
-	    char * s = ( (char *) & v )
-		     + MIN_BIG_ENDIAN;
-	       ( * s ++ = * p ++ )
-	    && ( * s ++ = * p ++ )
-	    && ( * s ++ = * p ++ );
-	    return (min::gen) v;
-	}
-	inline min::gen new_list_aux_gen ( unsigned p )
-	{
-	    return (min::gen)
-	           ( p + GEN_LIST_AUX << 24 );
-	}
-	inline min::gen new_sublist_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           ( p + GEN_SUBLIST_AUX << 24 );
-	}
-	inline min::gen new_indirect_pair_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           ( p + GEN_INDIRECT_PAIR_AUX << 24 );
-	}
-	inline min::gen new_indirect_indexed_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + GEN_INDIRECT_INDEXED_AUX << 24 );
-	}
-	inline min::gen new_index_gen ( unsigned a )
-	{
-	    return (min::gen)
-	           ( a + GEN_INDEX << 24 );
-	}
-	inline min::gen new_control_code_gen
-		( unsigned c )
-	{
-	    return (min::gen)
-	           ( c + GEN_CONTROL_CODE << 24 );
-	}
-	// Unimplemented for COMPACT:
-	//  min::gen new_long_control_code_gen
-	//	( unsigned c )
-	inline min::gen renew_gen
-		( min::gen v, min::uns32 p )
-	{
-	    return (min::gen)
-	           ( ( v & 0xFF000000 ) + p );
-	}
-
-#   elif MIN_IS_LOOSE
-	inline min::gen new_gen ( min::stub * s )
-	{
-	    return (min::gen)
-		   (   internal::stub_to_uns64 ( s )
-		     + ( (uns64) GEN_STUB << 40 )  );
-	}
-	// Unimplemented for LOOSE:
-	//   min::gen new_direct_int_gen ( int v )
-	inline min::gen new_direct_float_gen
-		( float64 v )
-	{
-	    return * (min::gen *) & v;
-	}
-	inline min::gen new_direct_str_gen
-		( const char * p )
-	{
-	    uns64 v = (uns64) GEN_DIRECT_STR << 40;
-	    char * s = ( (char *) & v )
-	             + 3 * MIN_BIG_ENDIAN;
-	       ( * s ++ = * p ++ )
-	    && ( * s ++ = * p ++ )
-	    && ( * s ++ = * p ++ )
-	    && ( * s ++ = * p ++ )
-	    && ( * s ++ = * p ++ );
-	    return (min::gen) v;
-	}
-	inline min::gen new_list_aux_gen ( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + ( (uns64) GEN_LIST_AUX
-		         << 40 ) );
-	}
-	inline min::gen new_sublist_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + ( (uns64) GEN_SUBLIST_AUX
-		         << 40 ) );
-	}
-	inline min::gen new_indirect_pair_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + ( (uns64) GEN_INDIRECT_PAIR_AUX
-		         << 40 ) );
-	}
-	inline min::gen new_indirect_indexed_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + ( (uns64)
-		         GEN_INDIRECT_INDEXED_AUX
-		         << 40 ) );
-	}
-	inline min::gen new_index_gen ( unsigned a )
-	{
-	    return (min::gen)
-	           ( a + ( (uns64) GEN_INDEX << 40 ) );
-	}
-	inline min::gen new_control_code_gen
-		( unsigned c )
-	{
-	    return (min::gen)
-	           (   c
-		     + ( (uns64) GEN_CONTROL_CODE
-		         << 40 ) );
-	}
-	inline min::gen new_long_control_code_gen
-		( min::uns64 c )
-	{
-	    return (min::gen)
-	           (   c
-		     + ( (uns64) GEN_CONTROL_CODE
-		         << 40 ) );
-	}
-	inline min::gen renew_gen
-		( min::gen v, min::uns64 p )
-	{
-	    return (min::gen)
-	           ( ( v & 0xFFFFFF0000000000 ) + p );
-	}
-
-#   endif
-} }
-
-namespace min {
-
-    // min:: constructors
-
-    inline min::gen new_gen ( min::stub * s )
-    {
-	return unprotected::new_gen ( s );
-    }
-#   if MIN_IS_COMPACT
-	inline min::gen new_direct_int_gen ( int v )
-	{
-	    assert ( -1 << 27 <= v && v < 1 << 27 );
-	    return unprotected::new_direct_int_gen
-	    		( v );
-	}
-#   endif
-#   if MIN_IS_LOOSE
-	inline min::gen new_direct_float_gen
-		( float64 v )
-	{
-	    return unprotected::new_direct_float_gen
-	    		( v );
-	}
-#   endif
-    inline min::gen new_direct_str_gen
-	    ( const char * p )
-    {
-#       if MIN_IS_COMPACT
-	    assert ( strlen ( p ) <= 3 );
-#	elif MIN_IS_LOOSE
-	    assert ( strlen ( p ) <= 5 );
-#	endif
-	return unprotected::new_direct_str_gen ( p );
-    }
-    inline min::gen new_list_aux_gen ( unsigned p )
-    {
-	assert ( p < 1 << 24 );
-	return unprotected::new_list_aux_gen ( p );
-    }
-    inline min::gen new_sublist_aux_gen
-	    ( unsigned p )
-    {
-	assert ( p < 1 << 24 );
-	return unprotected::new_sublist_aux_gen ( p );
-    }
-    inline min::gen new_indirect_pair_aux_gen
-	    ( unsigned p )
-    {
-	assert ( p < 1 << 24 );
-	return unprotected::new_indirect_pair_aux_gen
-			( p );
-    }
-    inline min::gen new_indirect_indexed_aux_gen
-	    ( unsigned p )
-    {
-	assert ( p < 1 << 24 );
-	return unprotected::new_indirect_indexed_aux_gen
-			( p );
-    }
-    inline min::gen new_index_gen ( unsigned a )
-    {
-	assert ( a < 1 << 24 );
-	return unprotected::new_index_gen ( a );
-    }
-    inline min::gen new_control_code_gen
-	    ( unsigned c )
-    {
-	assert ( c < 1 << 24 );
-	return unprotected::new_control_code_gen ( c );
-    }
-#   if MIN_IS_LOOSE
-	inline min::gen new_long_control_code_gen
-		( min::uns64 c )
-	{
-	    assert ( c < (uns64) 1 << 40 );
-	    return
-	      unprotected::new_long_control_code_gen
-	      	( c );
 	}
 #   endif
 }
