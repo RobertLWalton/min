@@ -2088,6 +2088,62 @@ an object (and not an atom).
 
 \section{Evaluation}
 
+A MIN expression is an atom or a list
+(see Figure~\ref{DATA-REPRESENTATION-SYNTAX})
+that can be evaluated according to the following principles:
+
+\begin{enumerate}
+
+\item
+An expression evaluation has as input an optional list of
+values and has as output an optional list of values.
+The input values may be thought of as values to be stored,
+and the output values may be thought of as values read or
+returned from a function.
+
+A missing value list and an empty value list are not the same thing;
+a missing input list means nothing is to be stored, and an empty
+input list means the empty list is to be stored.
+
+\item
+
+An expression is treated as a list of subexpressions called
+`\skey{argument}s' that are read
+from left to right under the control of a `\key{current value}'.
+The current value at the beginning of the expression is the
+`\key{initial value}' of the expression.
+
+Arguments are of three
+different kinds.
+\ikey{Evaluated arguments}{evaluated argument} are evaluated
+when they are read.
+\ikey{Unevaluated arguments}{unevaluated argument} are never evaluated,
+and in effect evaluate to themselves.
+\ikey{Delayed arguments}{delayed argument} are packaged with the
+context in which they are read so they may be
+evaluated later, in the same context as they would have been evaluated
+in had they been evaluted arguments.
+
+The list of unread arguments remaining in the expression is called the
+`\key{remaining argument list}'.
+
+
+\item
+The current value reads zero or more arguments, performs some computation,
+and modifies the input and output value lists and the current value.
+The remaining argument list may also be modified, though usually the only
+modification is to remove arguments as they are read.
+
+\item
+Current objects that return a single value when the input value
+list is missing and the remaining argument list is emtpy, will
+instead make the value they would have returned the new current value
+if the remaining argument list is not empty.
+
+\end{enumerate}
+
+\subsection{Evaluation Examples}
+
 Consider the following description of a room:
 
 \begin{indpar}\begin{verbatim}
