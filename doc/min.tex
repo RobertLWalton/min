@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{October 26, 2005}
+\date{February 7, 2006}
  
 \maketitle
 
@@ -833,7 +833,7 @@ to what is done when an object or attribute label previously exists.
 
 \verb|::| indicates that the object being represented should not previously
 exist, or if it does exist, must not have been defined by any previous
-object representation (it may have been defined as the value of a double
+object representation (it may have been defined as the value of an
 attribute).  Second, any attribute label represented in the object
 representation, if it previously exists, must be represented with exactly
 the same flags as it already has.
@@ -932,7 +932,7 @@ The following is a second example in which parentheses \verb|( )|
 are used to permit the operator \verb|+| to be recognized, so that
 
 \begin{indpar}\begin{verbatim}
-##46:: straight 3.2; left; straight (y + 9.4)
+##45:: straight 3.2; left; straight (y + 9.4)
 \end{verbatim}\end{indpar}
 
 is the cooked representation of the objects
@@ -1885,7 +1885,22 @@ It is thus an evaluation algorithm, with the
 A {\tt .parser} attribute value is known as a \key{parser}, and is associated
 with an operator priority level
 (see Figure \figref{SPECIAL-LEXEMES} and \secref{OPERATOR-DECLARATION}).
-The following are the standard parsers and their effects.
+Immediately below are the standard parsers and their effects.
+
+In describing effects, we use notation such as
+
+\begin{center}
+\verb|x <- y <- z + w| ~~~ $\Longrightarrow$ ~~~
+\verb|<- x (<- y (+ x w))|
+\end{center}
+
+Here $\Longrightarrow$ means `is rewritten as'.  Furthermore, the
+parentheses introduced by the rewrite are \underline{implicit},
+which means that the lists they bracket have \underline{no}
+\verb|.initiator| or \verb|.terminator|, and the parentheses are
+merely written here to indicate sublists in the expression structure.
+
+\newpage
 
 \begin{indpar}[1em]
 
@@ -1965,12 +1980,11 @@ can only occur at the beginning of an expression or just after {\tt AND}
 or {\tt OR}.  Subexpressions cannot be empty, except for the subexpressions
 before a {\tt NOT}, which must always be empty.
 
-If the only operator is {\tt NOT}, the expression is its own expansion.
-
-Otherwise the expression is rewritten using a multi-argument {\tt AND}
+The expression is rewritten using a multi-argument {\tt AND}
 or {\tt OR} function and a single argument {\tt NOT} function.
 
 \begin{indpar}[0.5em]
+\verb|NOT x = 8| ~~~ $\Longrightarrow$ \verb|NOT (x = 8)| \\
 \verb|NOT x AND NOT y AND z AND w| ~~~ $\Longrightarrow$ ~~~
 \verb|AND (NOT x) (NOT y) z w| \\
 \verb|NOT x = 8 OR NOT y < 9 OR z = 0| ~~~ $\Longrightarrow$
@@ -1999,7 +2013,7 @@ begin or end an expression.
 The expression is rewritten using a multi-argument {\tt AND}
 function and two-argument compare functions.  Temporary variables
 (\secref{TEMPORARY-VARIABLES})
-are used to name intermediate expression values so as to
+are used to name intermediate expression values to
 avoid recomputing arguments.
 
 \begin{indpar}[0.5em]
