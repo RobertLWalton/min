@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb  6 09:58:14 EST 2006
+// Date:	Tue Feb  7 02:02:29 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/06 16:44:13 $
+//   $Date: 2006/02/07 07:26:37 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.45 $
+//   $Revision: 1.46 $
 
 // Table of Contents:
 //
@@ -598,16 +598,13 @@ namespace min { namespace unprotected {
 	inline min::gen new_direct_str_gen
 		( const char * p )
 	{
-	    uns32 v = * (uns32 *) p;
-#	    if MIN_BIG_ENDIAN
-		return (min::gen)
-		       (   ( v >> 8 )
-		         + ( GEN_DIRECT_STR << 24 ) );
-#	    else
-		return (min::gen)
-		       (   ( v & 0xFFFFFF )
-		         + ( GEN_DIRECT_STR << 24 ) );
-#	    endif
+	    uns32 v = (uns32) GEN_DIRECT_STR << 24;
+	    char * s = ( (char *) & v )
+		     + MIN_BIG_ENDIAN;
+	       ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ );
+	    return (min::gen) v;
 	}
 	inline min::gen new_list_aux_gen ( unsigned p )
 	{
@@ -658,7 +655,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_gen ( min::stub * s )
 	{
 	    return (min::gen)
-		   ( internal::stub_to_uns64 ( s )
+		   (   internal::stub_to_uns64 ( s )
 		     + ( (uns64) GEN_STUB << 40 )  );
 	}
 	// Unimplemented for LOOSE:
@@ -671,24 +668,22 @@ namespace min { namespace unprotected {
 	inline min::gen new_direct_str_gen
 		( const char * p )
 	{
-	    uns64 v = * (uns64 *) p;
-#	    if MIN_BIG_ENDIAN
-		return (min::gen)
-		       (   ( v >> 24 )
-		         + ( (uns64) GEN_DIRECT_STR
-			     << 40 ) );
-#	    else
-		return (min::gen)
-		       (   ( v & 0xFFFFFFFFFF )
-		         + ( (uns64) GEN_DIRECT_STR
-			     << 40 ) );
-#	    endif
+	    uns64 v = (uns64) GEN_DIRECT_STR << 40;
+	    char * s = ( (char *) & v )
+	             + 3 * MIN_BIG_ENDIAN;
+	       ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ )
+	    && ( * s ++ = * p ++ );
+	    return (min::gen) v;
 	}
 	inline min::gen new_list_aux_gen ( unsigned p )
 	{
 	    return (min::gen)
 	           (   p
-		     + ( (uns64) GEN_LIST_AUX << 40 ) );
+		     + ( (uns64) GEN_LIST_AUX
+		         << 40 ) );
 	}
 	inline min::gen new_sublist_aux_gen
 		( unsigned p )
@@ -775,7 +770,7 @@ namespace min {
     {
 #       if MIN_IS_COMPACT
 	    assert ( strlen ( p ) <= 3 );
-#	else // MIN_IS_LOOSE
+#	elif MIN_IS_LOOSE
 	    assert ( strlen ( p ) <= 5 );
 #	endif
 	return unprotected::new_direct_str_gen ( p );
