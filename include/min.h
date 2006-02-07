@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb  7 02:02:29 EST 2006
+// Date:	Tue Feb  7 03:22:38 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/07 07:28:30 $
+//   $Date: 2006/02/07 08:21:57 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.47 $
+//   $Revision: 1.48 $
 
 // Table of Contents:
 //
@@ -51,6 +51,12 @@
 # include <cstring>
 # include <cassert>
 # include <new>
+
+// Define MIN_ASSERT so we can intercept assertions.
+//
+# ifndef MIN_ASSERT
+#    define MIN_ASSERT( expression ) assert(expression)
+# endif
 
 namespace min {
 
@@ -448,7 +454,7 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline min::gen new_direct_int_gen ( int v )
 	{
-	    assert ( -1 << 27 <= v && v < 1 << 27 );
+	    MIN_ASSERT ( -1 << 27 <= v && v < 1 << 27 );
 	    return unprotected::new_direct_int_gen
 	    		( v );
 	}
@@ -465,53 +471,53 @@ namespace min {
 	    ( const char * p )
     {
 #       if MIN_IS_COMPACT
-	    assert ( strlen ( p ) <= 3 );
+	    MIN_ASSERT ( strlen ( p ) <= 3 );
 #	elif MIN_IS_LOOSE
-	    assert ( strlen ( p ) <= 5 );
+	    MIN_ASSERT ( strlen ( p ) <= 5 );
 #	endif
 	return unprotected::new_direct_str_gen ( p );
     }
     inline min::gen new_list_aux_gen ( unsigned p )
     {
-	assert ( p < 1 << 24 );
+	MIN_ASSERT ( p < 1 << 24 );
 	return unprotected::new_list_aux_gen ( p );
     }
     inline min::gen new_sublist_aux_gen
 	    ( unsigned p )
     {
-	assert ( p < 1 << 24 );
+	MIN_ASSERT ( p < 1 << 24 );
 	return unprotected::new_sublist_aux_gen ( p );
     }
     inline min::gen new_indirect_pair_aux_gen
 	    ( unsigned p )
     {
-	assert ( p < 1 << 24 );
+	MIN_ASSERT ( p < 1 << 24 );
 	return unprotected::new_indirect_pair_aux_gen
 			( p );
     }
     inline min::gen new_indirect_indexed_aux_gen
 	    ( unsigned p )
     {
-	assert ( p < 1 << 24 );
+	MIN_ASSERT ( p < 1 << 24 );
 	return unprotected::new_indirect_indexed_aux_gen
 			( p );
     }
     inline min::gen new_index_gen ( unsigned a )
     {
-	assert ( a < 1 << 24 );
+	MIN_ASSERT ( a < 1 << 24 );
 	return unprotected::new_index_gen ( a );
     }
     inline min::gen new_control_code_gen
 	    ( unsigned c )
     {
-	assert ( c < 1 << 24 );
+	MIN_ASSERT ( c < 1 << 24 );
 	return unprotected::new_control_code_gen ( c );
     }
 #   if MIN_IS_LOOSE
 	inline min::gen new_long_control_code_gen
 		( min::uns64 c )
 	{
-	    assert ( c < (uns64) 1 << 40 );
+	    MIN_ASSERT ( c < (uns64) 1 << 40 );
 	    return
 	      unprotected::new_long_control_code_gen
 	      	( c );
@@ -758,65 +764,65 @@ namespace min {
 
     inline min::stub * stub_of ( min::gen v )
     {
-	assert ( is_stub ( v ) );
+	MIN_ASSERT ( is_stub ( v ) );
 	return unprotected::stub_of ( v );
     }
 #   if MIN_IS_LOOSE
 	inline float64 direct_float_of ( min::gen v )
 	{
-	    assert ( is_direct_float ( v ) );
+	    MIN_ASSERT ( is_direct_float ( v ) );
 	    return unprotected::direct_float_of ( v );
 	}
 #   endif
 #   if MIN_IS_COMPACT
 	inline int direct_int_of ( min::gen v )
 	{
-	    assert ( is_direct_int ( v ) );
+	    MIN_ASSERT ( is_direct_int ( v ) );
 	    return unprotected::direct_int_of ( v );
 	}
 #   endif
     inline uns64 direct_str_of ( min::gen v )
     {
-	assert ( is_direct_str ( v ) );
+	MIN_ASSERT ( is_direct_str ( v ) );
 	return unprotected::direct_str_of ( v );
     }
     inline unsigned list_aux_of ( min::gen v )
     {
-	assert ( is_list_aux ( v ) );
+	MIN_ASSERT ( is_list_aux ( v ) );
 	return unprotected::list_aux_of ( v );
     }
     inline unsigned sublist_aux_of ( min::gen v )
     {
-	assert ( is_sublist_aux ( v ) );
+	MIN_ASSERT ( is_sublist_aux ( v ) );
 	return unprotected::sublist_aux_of ( v );
     }
     inline unsigned indirect_pair_aux_of
 	    ( min::gen v )
     {
-	assert ( is_indirect_pair_aux ( v ) );
+	MIN_ASSERT ( is_indirect_pair_aux ( v ) );
 	return unprotected::indirect_pair_aux_of ( v );
     }
     inline unsigned indirect_indexed_aux_of
 	    ( min::gen v )
     {
-	assert ( is_indirect_indexed_aux ( v ) );
+	MIN_ASSERT ( is_indirect_indexed_aux ( v ) );
 	return unprotected::indirect_indexed_aux_of
 			( v );
     }
     inline unsigned index_of ( min::gen v )
     {
-	assert ( is_index ( v ) );
+	MIN_ASSERT ( is_index ( v ) );
 	return unprotected::index_of ( v );
     }
     inline unsigned control_code_of ( min::gen v )
     {
-	assert ( is_control_code ( v ) );
+	MIN_ASSERT ( is_control_code ( v ) );
 	return unprotected::control_code_of ( v );
     }
 #   if MIN_IS_LOOSE
 	inline uns64 long_control_code_of ( min::gen v )
 	{
-	    assert ( is_control_code ( v ) );
+	    MIN_ASSERT ( is_control_code ( v ) );
 	    return unprotected::long_control_code_of
 	    		( v );
 	}
@@ -989,7 +995,7 @@ namespace min {
     {
         if ( MIN_DEALLOCATED_LIMIT < size || MIN_DEBUG )
 	{
-	    assert ( ! is_deallocated ( s ) );
+	    MIN_ASSERT ( ! is_deallocated ( s ) );
 	}
     }
 
@@ -1392,7 +1398,7 @@ namespace min {
 
 	inline min::float64 float_of ( min::stub * s )
 	{
-	    assert ( type_of ( s ) == min::NUMBER );
+	    MIN_ASSERT ( type_of ( s ) == min::NUMBER );
 	    return unprotected::float_of ( s );
 	}
         inline bool is_num ( min::gen v )
@@ -1435,13 +1441,13 @@ namespace min {
 		    min::stub * s =
 			internal::
 			uns32_to_stub ( v );
-		    assert (    type_of ( s )
-		             == min::NUMBER );
+		    MIN_ASSERT (    type_of ( s )
+		                 == min::NUMBER );
 		    min::float64 f = s->v.f64;
-		    assert (    INT_MIN <= f
-		             && f <= INT_MAX );
+		    MIN_ASSERT (    INT_MIN <= f
+		                 && f <= INT_MAX );
 		    int i = (int) f;
-		    assert ( i == f );
+		    MIN_ASSERT ( i == f );
 		    return i;
 		}
 		else if
@@ -1451,7 +1457,7 @@ namespace min {
 		           direct_int_of ( v );
 		else
 		{
-		    assert ( is_num ( v ) );
+		    MIN_ASSERT ( is_num ( v ) );
 		}
 	    }
 	    inline float64 float_of ( min::gen v )
@@ -1470,7 +1476,7 @@ namespace min {
 		           direct_int_of ( v );
 		else
 		{
-		    assert ( is_num ( v ) );
+		    MIN_ASSERT ( is_num ( v ) );
 		}
 	    }
     #   elif MIN_IS_LOOSE
@@ -1488,16 +1494,17 @@ namespace min {
 	    }
 	    inline int int_of ( min::gen v )
 	    {
-		assert ( is_num ( v ) );
+		MIN_ASSERT ( is_num ( v ) );
 		min::float64 f = (float64) ( v );
-		assert ( INT_MIN <= f && f <= INT_MAX );
+		MIN_ASSERT
+		    ( INT_MIN <= f && f <= INT_MAX );
 		int i = (int) f;
-		assert ( i == f );
+		MIN_ASSERT ( i == f );
 		return i;
 	    }
 	    inline float64 float_of ( min::gen v )
 	    {
-		assert ( is_num ( v ) );
+		MIN_ASSERT ( is_num ( v ) );
 		return (float64) ( v );
 	    }
     #   endif
@@ -1602,7 +1609,7 @@ namespace min {
 	    while ( * p && p < endp ) ++ p;
 	    return p - s->v.c8;
 	}
-	assert ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
 	return length_of
 	    ( unprotected::long_str_of ( s ) );
     }
@@ -1616,7 +1623,7 @@ namespace min {
 	    else n = ::strlen ( s->v.c8 );
 	    return min::strhash ( s->v.c8, n );
 	}
-	assert ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
 	min::unprotected::long_str * ls =
 	    unprotected::long_str_of ( s );
 	return min::strhash
@@ -1632,7 +1639,7 @@ namespace min {
 		p[8] = 0;
 	    return strncpy ( p, s->v.c8, 8 );
 	}
-	assert ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
 	return ::strcpy
 	    ( p, min::unprotected::writable_str_of
 		   ( unprotected::long_str_of ( s ) ) );
@@ -1648,7 +1655,7 @@ namespace min {
 	    return ::strncpy
 		     ( p, s->v.c8, n < 8 ? n : 8 );
 	}
-	assert ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
 	return ::strncpy
 	    ( p, min::unprotected::writable_str_of
 		   ( unprotected::long_str_of ( s ) ),
@@ -1702,8 +1709,8 @@ namespace min {
 		    s = NULL;
 		    return;
 		}
-		assert ( min::type_of ( s )
-			 == min::LONG_STR );
+		MIN_ASSERT (    min::type_of ( s )
+			     == min::LONG_STR );
 		beginp =
 		    min::unprotected::str_of
 			( min::unprotected::long_str_of
@@ -1804,7 +1811,7 @@ namespace min {
     inline unsigned lab_of
 	    ( min::gen * p, unsigned n, min::stub * s )
     {
-        assert ( min::type_of ( s ) == min::LABEL );
+        MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	min::stub * aux = (min::stub *)
 			  min::internal::
 	                       uns64_to_pointer
@@ -1829,7 +1836,7 @@ namespace min {
 
     inline unsigned lablen ( min::stub * s )
     {
-        assert ( min::type_of ( s ) == min::LABEL );
+        MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	min::stub * aux = (min::stub *)
 			  min::internal::
 	                       uns64_to_pointer
@@ -2178,8 +2185,8 @@ namespace min { namespace unprotected {
         list_pointer ( min::stub * s )
 	{
 	    int t = min::type_of ( s );
-	    assert (    t == min::SHORT_OBJ
-	    	     || t == min::LONG_OBJ );
+	    MIN_ASSERT (    t == min::SHORT_OBJ
+	    	         || t == min::LONG_OBJ );
 	    this->s = s;
 
 	    // An object may be converted from short to
@@ -2244,7 +2251,8 @@ namespace min { namespace unprotected {
 	//   if current_index == 0 and current_stub == 0
 	//	and previous_stub != 0:
 	//	MUP::control_of ( previous_stub ) is
-	//	min::LIST_END and pointer points at this.
+	//	min::LIST_END and pointer points at
+	//	this.
 	//
 	unsigned current_index;
 	unsigned previous_index;
@@ -2323,8 +2331,8 @@ namespace min { namespace unprotected {
 	    }
 	    else
 	    {
-		assert ( ! is_deallocated ( s ) );
-	        assert ( ! "s is not an object" );
+		MIN_ASSERT ( ! is_deallocated ( s ) );
+	        MIN_ASSERT ( ! "s is not an object" );
 	    }
 	    current = 0;
 	    current_index = previous_index = 0;
@@ -2404,20 +2412,22 @@ namespace min {
 	    index +=   sizeof ( min::unprotected::
 	                             short_obj )
 	             / sizeof ( min::gen );
-	    assert (   index
-                     < min::unprotected::
-			flags_to_offset (lp.so->flags)
-		   );
+	    MIN_ASSERT
+	        (   index
+		  < min::unprotected::
+		         flags_to_offset (lp.so->flags)
+		);
 	}
 	else
 	{
 	    index +=   sizeof ( min::unprotected::
 	                             long_obj )
 	             / sizeof ( min::gen );
-	    assert (   index
-                     < min::unprotected::
-			flags_to_offset (lp.lo->flags)
-		   );
+	    MIN_ASSERT
+	        (   index
+                  < min::unprotected::
+		         flags_to_offset (lp.lo->flags)
+		);
 	}
 	return lp.forward ( index );
     }
@@ -2430,14 +2440,14 @@ namespace min {
 	{
 	    index += min::unprotected::
 			flags_to_offset (lp.so->flags);
-	    assert
+	    MIN_ASSERT
 	        ( index < lp.so->unused_area_offset );
 	}
 	else
 	{
 	    index += min::unprotected::
 			flags_to_offset (lp.lo->flags);
-	    assert
+	    MIN_ASSERT
 	        ( index < lp.lo->unused_area_offset );
 	}
 	return lp.forward ( index );
@@ -2446,7 +2456,7 @@ namespace min {
             ( min::unprotected::list_pointer & lp,
 	      min::unprotected::list_pointer & lp2 )
     {
-        assert ( lp.s == lp2.s );
+        MIN_ASSERT ( lp.s == lp2.s );
 	lp.lo = lp2.lo;
 	lp.so = lp2.so;
 	lp.current_index = lp2.current_index;
@@ -2532,11 +2542,14 @@ namespace min {
 	    if ( min::is_sublist_aux ( lp.current ) )
 		return lp.forward
 		    ( min::unprotected::
-			   sublist_aux_of ( lp.current ) );
-	    lp.current_stub = min::stub_of ( lp.current );
+			   sublist_aux_of
+			       ( lp.current ) );
+	    lp.current_stub =
+	        min::stub_of ( lp.current );
 	    lp.current_index = 0;
-	    assert (    min::type_of ( lp.current_stub )
-		     == min::SUBLIST_AUX );
+	    MIN_ASSERT
+	        (    min::type_of ( lp.current_stub )
+		  == min::SUBLIST_AUX );
 	    return lp.current = min::unprotected::
 			gen_of ( lp.current_stub );
 #	else
@@ -2552,7 +2565,7 @@ namespace min {
 	      bool use_object_aux_stubs )
     {
         if ( elements = 0 ) elements = insertions;
-	assert ( insertions <= elements );
+	MIN_ASSERT ( insertions <= elements );
 
 	unsigned unused_area_size;
 	if ( lp.so )
