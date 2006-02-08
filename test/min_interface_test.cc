@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb  8 03:46:15 EST 2006
+// Date:	Wed Feb  8 10:10:26 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/08 08:43:39 $
+//   $Date: 2006/02/08 15:15:05 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents:
 //
@@ -221,6 +221,21 @@ int main ()
 	    MIN_ASSERT
 	        (    MUP::direct_int_of ( igen )
 		  == -1 << 27 );
+#	endif
+
+#	if MIN_IS_LOOSE
+	    cout << "Test direct float general"
+	    	    " values:" << endl;
+	    min::float64 f = -8.245324897;
+	    min::gen fgen =
+	    	MUP::new_direct_float_gen ( f );
+	    MIN_ASSERT ( min::is_direct_float ( fgen ) );
+	    MIN_ASSERT
+	        ( MUP::direct_float_of ( fgen ) == f );
+	    fgen = min::new_direct_float_gen ( f );
+	    MIN_ASSERT ( min::is_direct_float ( fgen ) );
+	    MIN_ASSERT
+	        ( MUP::direct_float_of ( fgen ) == f );
 #	endif
 
 

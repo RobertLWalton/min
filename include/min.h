@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb  7 03:22:38 EST 2006
+// Date:	Wed Feb  8 10:15:46 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/07 08:21:57 $
+//   $Date: 2006/02/08 15:14:35 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.48 $
+//   $Revision: 1.49 $
 
 // Table of Contents:
 //
@@ -713,7 +713,7 @@ namespace min { namespace unprotected {
 	}
 	inline float64 direct_float_of ( min::gen v )
 	{
-	    return (float64) v;
+	    return * (float64 *) & v;
 	}
 	// Unimplemented for LOOSE:
 	//   int direct_int_of ( min::gen v )
