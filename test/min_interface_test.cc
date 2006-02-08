@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb  7 02:38:06 EST 2006
+// Date:	Wed Feb  8 02:18:08 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/07 08:22:09 $
+//   $Date: 2006/02/08 07:53:17 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents:
 //
@@ -21,9 +21,7 @@
 //	C++ Number Types
 //	Internal Pointer Conversion Functions
 //	General Value Types and Data
-//	General Value Constructor Functions
-//	General Value Test Functions
-//	General Value Read Functions
+//	General Value Constructor/Test/Read Functions
 //	Control Values
 //	Stub Types and Data
 //	Stub Functions
@@ -51,6 +49,7 @@ void min_assert
     		 __FILE__, __LINE__, #expr );
 
 # include <min.h>
+# define MUP min::unprotected
 # include <iostream>
 using std::cout;
 using std::endl;
@@ -73,24 +72,28 @@ void min_assert
     }
     if ( print )
 	cout << "Line " << line
-             << " assert " << expression
+             << " assert: " << expression
 	     << ( value ? " true." : " false." )
 	     << endl;
     if ( exit )
     {
         cout << "EXITING BECAUSE OF BAD ASSERT VALUE"
 	     << endl;
+	::exit ( 1 );
     }
 }
 
 int main ()
 {
+    cout << endl;
     cout << "Start Test!" << endl;
 
 // C++ Number Types
 // --- ------ -----
 
     {
+	cout << endl;
+	cout << "Start Number Types Test!" << endl;
 	cout << "Check that uns64 is 64 bits long:"
 	     << endl;
     	min::uns64 u64 = (min::uns64) 1;
@@ -102,13 +105,87 @@ int main ()
 	u64 >>= 14;
 	f64 = u64;
 	MIN_ASSERT ( f64 == 0 );
-	cout << "Number Types Done!" << endl;
+
+	cout << "Finish Number Types Test!" << endl;
     }
 
-
+
 // Internal Pointer Conversion Functions
+// -------- ------- ---------- ---------
+
+    {
+	cout << endl;
+	cout << "Start Internal Pointer Conversion"
+	        " Test!" << endl;
+    	char buffer[1];
+	min::stub * stub =
+	    (min::stub *) (sizeof (min::stub));
+
+	cout << "Test pointer/uns64 conversions:"
+	     << endl;
+	min::uns64 u64 =
+	    min::internal::pointer_to_uns64 ( buffer );
+	char * b64 = (char *)
+	    min::internal::uns64_to_pointer ( u64 );
+	MIN_ASSERT ( b64 == buffer );
+
+#	if MIN_IS_COMPACT
+	    cout << "Test pointer/uns32 conversions:"
+		 << endl;
+	    min::uns32 u32 =
+		min::internal::pointer_to_uns32 ( buffer );
+	    char * b32 = (char *)
+		min::internal::uns32_to_pointer ( u32 );
+	    MIN_ASSERT ( b32 == buffer );
+	    cout << "Test stub/uns32 conversions:"
+		 << endl;
+	    u32 = min::internal::stub_to_uns32 ( stub );
+	    min::stub * s32 =
+		min::internal::uns32_to_stub ( u32 );
+	    MIN_ASSERT ( s32 == stub );
+#	elif MIN_IS_LOOSE
+	    cout << "Test stub/uns64 conversions:"
+		 << endl;
+	    u64 = min::internal::stub_to_uns64 ( stub );
+	    min::stub * s64 =
+		min::internal::uns64_to_stub ( u64 );
+	    MIN_ASSERT ( s64 == stub );
+#	endif
+
+	cout << "Finish Internal Pointer Conversion"
+	        " Test!" << endl;
+    }
+
 // General Value Types and Data
-// General Value Constructor Functions
+// ------- ----- ----- --- ----
+
+    // There are no general value types and data tests.
+
+
+// General Value Constructor/Test/Read Functions
+// ------- ----- --------------------- ---------
+
+    {
+	cout << endl;
+	cout << "Start General Value Constructor/"
+	        "/Test/Read Function Test!" << endl;
+	min::stub * stub =
+	    (min::stub *) (sizeof (min::stub));
+
+	cout << "Test stub general values:" << endl;
+	min::gen s = MUP::new_gen ( stub );
+	MIN_ASSERT ( min::is_stub ( s ) );
+	MIN_ASSERT ( MUP::stub_of ( s ) == stub );
+	s = min::new_gen ( stub );
+	MIN_ASSERT ( min::is_stub ( s ) );
+	MIN_ASSERT ( MUP::stub_of ( s ) == stub );
+
+
+	cout << "Finish General Value Constructor/"
+	        "/Test/Read Function Test!" << endl;
+    }
+
+
 // General Value Test Functions
 // General Value Read Functions
 // Control Values
@@ -128,5 +205,6 @@ int main ()
 // Finish
 // ------
 
+    cout << endl;
     cout << "Finished Test!" << endl;
 }
