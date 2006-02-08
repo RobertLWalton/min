@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb  8 02:18:08 EST 2006
+// Date:	Wed Feb  8 03:46:15 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/08 07:53:17 $
+//   $Date: 2006/02/08 08:43:39 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents:
 //
@@ -54,39 +54,47 @@ void min_assert
 using std::cout;
 using std::endl;
 
-bool min_assert_enable = true;
-bool min_assert_desired = true;
+struct min_assert_exception {};
+
 bool min_assert_print = true;
 void min_assert
 	( bool value,
 	  const char * file, unsigned line,
 	  const char * expression )
 {
-    bool print = min_assert_print;
-    bool exit = false;
-    if ( min_assert_enable
-         && ( min_assert_desired != value ) )
+    if ( min_assert_print )
     {
-	print = true;
-	exit = true;
-    }
-    if ( print )
-	cout << "Line " << line
+	cout << file << ":" << line
              << " assert: " << expression
 	     << ( value ? " true." : " false." )
 	     << endl;
-    if ( exit )
-    {
-        cout << "EXITING BECAUSE OF BAD ASSERT VALUE"
-	     << endl;
-	::exit ( 1 );
     }
+    if ( ! value )
+	throw ( new min_assert_exception );
 }
+
+#define desire_success(statement) \
+    { cout << __FILE__ << ":" << __LINE__ \
+	   << " desire success: " #statement \
+	   << endl; \
+      statement; }
+
+#define desire_failure(statement) \
+    try { cout << __FILE__ << ":" << __LINE__ \
+               << " desire failure: " #statement \
+	       << endl; \
+	  statement; \
+          cout << "EXITING BECAUSE OF SUCCESSFUL" \
+	          " MIN_ASSERT" << endl; \
+	  exit (1 ); } \
+    catch ( min_assert_exception * x ) {}
 
 int main ()
 {
     cout << endl;
     cout << "Start Test!" << endl;
+
+    try {
 
 // C++ Number Types
 // --- ------ -----
@@ -133,7 +141,8 @@ int main ()
 	    cout << "Test pointer/uns32 conversions:"
 		 << endl;
 	    min::uns32 u32 =
-		min::internal::pointer_to_uns32 ( buffer );
+		min::internal::pointer_to_uns32
+		    ( buffer );
 	    char * b32 = (char *)
 		min::internal::uns32_to_pointer ( u32 );
 	    MIN_ASSERT ( b32 == buffer );
@@ -173,12 +182,46 @@ int main ()
 	    (min::stub *) (sizeof (min::stub));
 
 	cout << "Test stub general values:" << endl;
-	min::gen s = MUP::new_gen ( stub );
-	MIN_ASSERT ( min::is_stub ( s ) );
-	MIN_ASSERT ( MUP::stub_of ( s ) == stub );
-	s = min::new_gen ( stub );
-	MIN_ASSERT ( min::is_stub ( s ) );
-	MIN_ASSERT ( MUP::stub_of ( s ) == stub );
+	min::gen sgen = MUP::new_gen ( stub );
+	MIN_ASSERT ( min::is_stub ( sgen ) );
+	MIN_ASSERT ( MUP::stub_of ( sgen ) == stub );
+	sgen = min::new_gen ( stub );
+	MIN_ASSERT ( min::is_stub ( sgen ) );
+	MIN_ASSERT ( MUP::stub_of ( sgen ) == stub );
+
+#	if MIN_IS_COMPACT
+	    cout << "Test direct integer general"
+	    	    " values:" << endl;
+	    int i = -8434;
+	    min::gen igen =
+	    	MUP::new_direct_int_gen ( i );
+	    MIN_ASSERT ( min::is_direct_int ( igen ) );
+	    MIN_ASSERT
+	        ( MUP::direct_int_of ( igen ) == i );
+	    igen = min::new_direct_int_gen ( i );
+	    MIN_ASSERT ( min::is_direct_int ( igen ) );
+	    MIN_ASSERT
+	        ( MUP::direct_int_of ( igen ) == i );
+	    desire_failure (
+	        igen = min::new_direct_int_gen
+			    ( 1 << 27 );
+	    );
+	    desire_success (
+		igen = min::new_direct_int_gen
+			    ( 1 << 26 );
+	    );
+	    desire_failure (
+	        igen = min::new_direct_int_gen
+			    ( -1 << 28 );
+	    );
+	    desire_success (
+		igen = min::new_direct_int_gen
+			    ( -1 << 27 );
+	    );
+	    MIN_ASSERT
+	        (    MUP::direct_int_of ( igen )
+		  == -1 << 27 );
+#	endif
 
 
 	cout << "Finish General Value Constructor/"
@@ -204,6 +247,12 @@ int main ()
 
 // Finish
 // ------
+
+    } catch ( min_assert_exception * x ) {
+        cout << "EXITING BECAUSE OF FAILED MIN_ASSERT"
+	     << endl;
+	exit ( 1 );
+    }
 
     cout << endl;
     cout << "Finished Test!" << endl;
