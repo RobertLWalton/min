@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb  8 10:10:26 EST 2006
+// Date:	Wed Feb  8 19:20:23 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/08 15:15:05 $
+//   $Date: 2006/02/09 00:33:40 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents:
 //
@@ -51,6 +51,7 @@ void min_assert
 # include <min.h>
 # define MUP min::unprotected
 # include <iostream>
+# include <cstring>
 using std::cout;
 using std::endl;
 
@@ -65,7 +66,8 @@ void min_assert
     if ( min_assert_print )
     {
 	cout << file << ":" << line
-             << " assert: " << expression
+             << " assert:" << endl 
+	     << "    " << expression
 	     << ( value ? " true." : " false." )
 	     << endl;
     }
@@ -75,14 +77,14 @@ void min_assert
 
 #define desire_success(statement) \
     { cout << __FILE__ << ":" << __LINE__ \
-	   << " desire success: " #statement \
-	   << endl; \
+	   << " desire success:" << endl \
+	   << "    " << #statement << endl; \
       statement; }
 
 #define desire_failure(statement) \
     try { cout << __FILE__ << ":" << __LINE__ \
-               << " desire failure: " #statement \
-	       << endl; \
+               << " desire failure:" << endl \
+	       << "    " << #statement << endl; \
 	  statement; \
           cout << "EXITING BECAUSE OF SUCCESSFUL" \
 	          " MIN_ASSERT" << endl; \
@@ -237,6 +239,33 @@ int main ()
 	    MIN_ASSERT
 	        ( MUP::direct_float_of ( fgen ) == f );
 #	endif
+    
+	cout << "Test direct string general values:"
+	     << endl;
+#	if MIN_IS_COMPACT
+	    char * str = "ABC";
+	    char * overflowstr = "ABCD";
+#	elif MIN_IS_LOOSE
+	    char * str = "ABCDE";
+	    char * overflowstr = "ABCDEF";
+#	endif
+	union {
+	    min::uns64 u64;
+	    char str[8];
+	} value;
+	min::gen strgen =
+	    MUP::new_direct_str_gen ( str );
+	value.u64 = MUP::direct_str_of ( strgen );
+	MIN_ASSERT ( strcmp ( str, value.str ) == 0 );
+	desire_success (
+	    strgen = min::new_direct_str_gen ( str );
+	);
+	desire_failure (
+	    strgen = min::new_direct_str_gen
+	    			( overflowstr );
+	);
+ 
+
 
 
 	cout << "Finish General Value Constructor/"
