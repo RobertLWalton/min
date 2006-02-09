@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 26, 2005}
+\date{February 9, 2006}
  
 \maketitle
 
@@ -2482,7 +2482,14 @@ is to say it is a list that is an element of another list.
 An {\em X-option} is an optional element of a list that is an {\em X} if
 it is not omitted.
 
-An object is represented by a map which maps attribute names to flags and
+The capability of omitting {\em map-sublists} at the beginning of a
+{\em segment-sublist} is an optimization.  An omitted
+{\em map-sublist} is equivalent
+to an empty {\em map-sublist}.  If only one {\em map-sublist} is a
+omitted, it must be the {\em reverse-attribute-map-sublist} that is
+omitted, to avoid ambiguity.
+
+An object is represented by a map that maps attribute names to flags and
 multisets of values and maps attribute name/reverse name pairs to multisets
 of values.
 This map is based on the following search algorithm, which starts from
@@ -2516,7 +2523,7 @@ If $C$ is not the last name component of $N$, or $N$ is the attribute name
 and the reverse attribute name has been given, then the search fails.
 Otherwise the search returns no flags and returns $E$ as a single value.
 
-\item $E$ is a {\em segment-sublist}.
+\item $E$ must be a {\em segment-sublist}.
 If $C$ is the last component of $N$, and $N$ is the reverse attribute
 name or no reverse attribute name was given, the search terminates.
 Any sublists beginning $E$ are skipped over (these will be {\em map-sublists}
@@ -2547,11 +2554,11 @@ The {\em flag-set} is a sequence of \verb|min::gen|
 control codes.
 
 The flags are numbered 0, 1, 2, \ldots.  Flag $N$ corresponds to
-the bit in the $I$'th control code
-selected by the mask $2^K$ where $I=\mbox{floor}(N/B)+1$,
+the bit in the $I+1$'st control code
+selected by the mask $2^K$ where $I=\mbox{floor}(N/B)$,
 $K=N~\mbox{mod}~B$, and $B$ is the
 number of bits in a control code integer.  $B$ is 24 if \verb|min::gen|
-values are 32-bits, and 44 if \verb|min::gen| values are 64-bits.
+values are 32-bits, and 40 if \verb|min::gen| values are 64-bits.
 
 A flag is set for an attribute name if and only if its corresponding
 bit is present and set in the {\em flag-set} found by a search given
@@ -2610,7 +2617,8 @@ object, attribute name, and reverse attribute name.  Attribute names
 and reverse attribute names can be atoms or attribute labels.  The
 reverse attribute name can also be the special value {\tt min::MISSING},
 in which case the count is returned of values with the attribute name
-with no reverse attribute name, or the special value {\tt min::ANY},
+with no reverse attribute name.  Or the reverse attribute name
+can be the special value {\tt min::ANY},
 in which case the count is returned of values with the attribute name
 and \underline{any or no} reverse attribute name.
 
@@ -3442,6 +3450,7 @@ the other functions return the parts of a control value.
 The \verb|MUP::stub_of_control| function is the same as
 \verb|MUP::pointer_of_control| with the addition of casting
 its return value to `\verb|min::stub *|' for convenience.
+None of these functions check the ranges of their arguments.
 
 \clearpage
 
@@ -3462,9 +3471,6 @@ of tracing what it points at to make its target non-stack is paid.
 This is a logical time to pay this cost.
 
 \section{To Do}
-
-Maybe not having \verb|min::| in names of functions with \verb|min::|
-pointer arguments is not a good idea.
 
 Interface to gc, including stack for protecting values.
 
@@ -3570,7 +3576,9 @@ struct min
 \verb|const int min::| & \MINKEY{LIST\_AUX}
 \LABEL{MIN::LIST_AUX} \\
 \verb|const int min::| & \MINKEY{SUBLIST\_AUX}
-\LABEL{MIN::SUBLIST_AUX} 
+\LABEL{MIN::SUBLIST_AUX} \\
+\verb|const int min::| & \MINKEY{VARIABLE\_VECTOR}
+\LABEL{MIN::VARIABLE_VECTOR} 
 \end{TABULAR}
 \end{indpar}
 
