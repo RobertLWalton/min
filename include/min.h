@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb  8 10:15:46 EST 2006
+// Date:	Thu Feb  9 06:01:58 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/08 15:14:35 $
+//   $Date: 2006/02/09 11:05:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.49 $
+//   $Revision: 1.50 $
 
 // Table of Contents:
 //
@@ -311,37 +311,38 @@ namespace min { namespace unprotected {
 	inline min::gen new_list_aux_gen ( unsigned p )
 	{
 	    return (min::gen)
-	           ( p + GEN_LIST_AUX << 24 );
+	           ( p + ( GEN_LIST_AUX << 24 ) );
 	}
 	inline min::gen new_sublist_aux_gen
 		( unsigned p )
 	{
 	    return (min::gen)
-	           ( p + GEN_SUBLIST_AUX << 24 );
+	           ( p + ( GEN_SUBLIST_AUX << 24 ) );
 	}
 	inline min::gen new_indirect_pair_aux_gen
 		( unsigned p )
 	{
 	    return (min::gen)
-	           ( p + GEN_INDIRECT_PAIR_AUX << 24 );
+	        ( p + ( GEN_INDIRECT_PAIR_AUX << 24 ) );
 	}
 	inline min::gen new_indirect_indexed_aux_gen
 		( unsigned p )
 	{
 	    return (min::gen)
-	           (   p
-		     + GEN_INDIRECT_INDEXED_AUX << 24 );
+	        (   p
+		  + ( GEN_INDIRECT_INDEXED_AUX << 24 )
+	        );
 	}
 	inline min::gen new_index_gen ( unsigned a )
 	{
 	    return (min::gen)
-	           ( a + GEN_INDEX << 24 );
+	           ( a + ( GEN_INDEX << 24 ) );
 	}
 	inline min::gen new_control_code_gen
 		( unsigned c )
 	{
 	    return (min::gen)
-	           ( c + GEN_CONTROL_CODE << 24 );
+	           ( c + ( GEN_CONTROL_CODE << 24 ) );
 	}
 	// Unimplemented for COMPACT:
 	//  min::gen new_long_control_code_gen
