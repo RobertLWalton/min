@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb  8 19:20:23 EST 2006
+// Date:	Thu Feb  9 05:40:26 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/09 00:33:40 $
+//   $Date: 2006/02/09 11:44:07 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents:
 //
@@ -51,9 +51,22 @@ void min_assert
 # include <min.h>
 # define MUP min::unprotected
 # include <iostream>
+# include <iomanip>
 # include <cstring>
 using std::cout;
 using std::endl;
+using std::hex;
+using std::dec;
+using std::ostream;
+
+struct print_gen {
+    min::gen g;
+    print_gen ( min::gen g ) : g ( g ) {}
+    friend ostream & operator << ( ostream & s, print_gen pg )
+    {
+	return s << hex << pg.g << dec;
+    }
+};
 
 struct min_assert_exception {};
 
@@ -183,20 +196,27 @@ int main ()
 	min::stub * stub =
 	    (min::stub *) (sizeof (min::stub));
 
+	cout << endl;
 	cout << "Test stub general values:" << endl;
-	min::gen sgen = MUP::new_gen ( stub );
-	MIN_ASSERT ( min::is_stub ( sgen ) );
-	MIN_ASSERT ( MUP::stub_of ( sgen ) == stub );
-	sgen = min::new_gen ( stub );
-	MIN_ASSERT ( min::is_stub ( sgen ) );
-	MIN_ASSERT ( MUP::stub_of ( sgen ) == stub );
+	min::gen stubgen = MUP::new_gen ( stub );
+	cout << "stubgen: " << print_gen ( stubgen )
+	     << endl;
+	MIN_ASSERT ( min::is_stub ( stubgen ) );
+	MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
+	stubgen = min::new_gen ( stub );
+	MIN_ASSERT ( min::is_stub ( stubgen ) );
+	MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
+	MIN_ASSERT ( ! min::is_direct_str ( stubgen ) );
 
 #	if MIN_IS_COMPACT
+	    cout << endl;
 	    cout << "Test direct integer general"
 	    	    " values:" << endl;
 	    int i = -8434;
 	    min::gen igen =
 	    	MUP::new_direct_int_gen ( i );
+	    cout << "igen: " << print_gen ( igen )
+		 << endl;
 	    MIN_ASSERT ( min::is_direct_int ( igen ) );
 	    MIN_ASSERT
 	        ( MUP::direct_int_of ( igen ) == i );
@@ -223,14 +243,20 @@ int main ()
 	    MIN_ASSERT
 	        (    MUP::direct_int_of ( igen )
 		  == -1 << 27 );
+	    MIN_ASSERT ( ! min::is_stub ( igen ) );
+	    MIN_ASSERT
+	    	( ! min::is_direct_str ( igen ) );
 #	endif
 
 #	if MIN_IS_LOOSE
+	    cout << endl;
 	    cout << "Test direct float general"
 	    	    " values:" << endl;
 	    min::float64 f = -8.245324897;
 	    min::gen fgen =
 	    	MUP::new_direct_float_gen ( f );
+	    cout << "fgen: " << print_gen ( fgen )
+		 << endl;
 	    MIN_ASSERT ( min::is_direct_float ( fgen ) );
 	    MIN_ASSERT
 	        ( MUP::direct_float_of ( fgen ) == f );
@@ -238,8 +264,12 @@ int main ()
 	    MIN_ASSERT ( min::is_direct_float ( fgen ) );
 	    MIN_ASSERT
 	        ( MUP::direct_float_of ( fgen ) == f );
+	    MIN_ASSERT ( ! min::is_stub ( fgen ) );
+	    MIN_ASSERT
+	    	( ! min::is_direct_str ( fgen ) );
 #	endif
     
+        cout << endl;
 	cout << "Test direct string general values:"
 	     << endl;
 #	if MIN_IS_COMPACT
@@ -255,6 +285,9 @@ int main ()
 	} value;
 	min::gen strgen =
 	    MUP::new_direct_str_gen ( str );
+	cout << "strgen: " << print_gen ( strgen )
+	     << endl;
+	MIN_ASSERT ( min::is_direct_str ( strgen ) );
 	value.u64 = MUP::direct_str_of ( strgen );
 	MIN_ASSERT ( strcmp ( str, value.str ) == 0 );
 	desire_success (
@@ -264,10 +297,155 @@ int main ()
 	    strgen = min::new_direct_str_gen
 	    			( overflowstr );
 	);
+	MIN_ASSERT ( ! min::is_stub ( strgen ) );
  
+        cout << endl;
+	cout << "Test list aux general values:"
+	     << endl;
+	unsigned aux = 734523;
+	min::gen listauxgen =
+	    MUP::new_list_aux_gen ( aux );
+	cout << "listauxgen: "
+	     << print_gen ( listauxgen ) << endl;
+	MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
+	MIN_ASSERT
+	    ( min::list_aux_of ( listauxgen ) == aux );
+	desire_success (
+	    listauxgen = min::new_list_aux_gen ( aux );
+	);
+	desire_failure (
+	    listauxgen = min::new_list_aux_gen
+	    			( 1 << 24 );
+	);
+	MIN_ASSERT
+	    ( ! min::is_stub ( listauxgen ) );
+	MIN_ASSERT
+	    ( ! min::is_direct_str ( listauxgen ) );
+ 
+        cout << endl;
+	cout << "Test sublist aux general values:"
+	     << endl;
+	min::gen sublistauxgen =
+	    MUP::new_sublist_aux_gen ( aux );
+	cout << "sublistauxgen: "
+	     << print_gen ( sublistauxgen ) << endl;
+	MIN_ASSERT
+	    ( min::is_sublist_aux ( sublistauxgen ) );
+	MIN_ASSERT
+	    (    min::sublist_aux_of ( sublistauxgen )
+	      == aux );
+	desire_success (
+	    sublistauxgen =
+	        min::new_sublist_aux_gen ( aux );
+	);
+	desire_failure (
+	    sublistauxgen = min::new_sublist_aux_gen
+	    			( 1 << 24 );
+	);
+	MIN_ASSERT
+	    ( ! min::is_stub ( sublistauxgen ) );
+	MIN_ASSERT
+	    ( ! min::is_direct_str ( sublistauxgen ) );
+ 
+        cout << endl;
+	cout << "Test indirect pair aux general values:"
+	     << endl;
+	min::gen pairauxgen =
+	    MUP::new_indirect_pair_aux_gen ( aux );
+	cout << "pairauxgen: "
+	     << print_gen ( pairauxgen ) << endl;
+	MIN_ASSERT
+	    ( min::is_indirect_pair_aux ( pairauxgen ) );
+	MIN_ASSERT
+	    (    min::indirect_pair_aux_of
+	              ( pairauxgen )
+	      == aux );
+	desire_success (
+	    pairauxgen =
+	    	min::new_indirect_pair_aux_gen ( aux );
+	);
+	desire_failure (
+	    pairauxgen = min::new_indirect_pair_aux_gen
+	    			( 1 << 24 );
+	);
+	MIN_ASSERT
+	    ( ! min::is_stub ( pairauxgen ) );
+	MIN_ASSERT
+	    ( ! min::is_direct_str ( pairauxgen ) );
+ 
+        cout << endl;
+	cout << "Test indirect indexed aux general"
+	        " values:" << endl;
+	min::gen indexedauxgen =
+	    MUP::new_indirect_indexed_aux_gen ( aux );
+	cout << "indexedauxgen: "
+	     << print_gen ( indexedauxgen ) << endl;
+	MIN_ASSERT
+	    ( min::is_indirect_indexed_aux
+		  ( indexedauxgen ) );
+	MIN_ASSERT
+	    (    min::indirect_indexed_aux_of
+	              ( indexedauxgen )
+	      == aux );
+	desire_success (
+	    indexedauxgen =
+	    	min::new_indirect_indexed_aux_gen
+		    ( aux );
+	);
+	desire_failure (
+	    indexedauxgen =
+	        min::new_indirect_indexed_aux_gen
+		    ( 1 << 24 );
+	);
+	MIN_ASSERT
+	    ( ! min::is_stub ( indexedauxgen ) );
+	MIN_ASSERT
+	    ( ! min::is_direct_str ( indexedauxgen ) );
+ 
+        cout << endl;
+	cout << "Test index general values:" << endl;
+	unsigned index = 734523;
+	min::gen indexgen =
+	    MUP::new_index_gen ( index );
+	cout << "indexgen: "
+	     << print_gen ( indexgen ) << endl;
+	MIN_ASSERT ( min::is_index ( indexgen ) );
+	MIN_ASSERT
+	    ( min::index_of ( indexgen ) == index );
+	desire_success (
+	    indexgen = min::new_index_gen ( index );
+	);
+	desire_failure (
+	    indexgen = min::new_index_gen ( 1 << 24 );
+	);
+	MIN_ASSERT ( ! min::is_stub ( indexgen ) );
+	MIN_ASSERT
+	    ( ! min::is_direct_str ( indexgen ) );
+ 
+        cout << endl;
+	cout << "Test control code general values:"
+	     << endl;
+	unsigned code = 734523;
+	min::gen codegen =
+	    MUP::new_control_code_gen ( code );
+	cout << "codegen: "
+	     << print_gen ( codegen ) << endl;
+	MIN_ASSERT ( min::is_control_code ( codegen ) );
+	MIN_ASSERT
+	    ( min::control_code_of ( codegen ) == code );
+	desire_success (
+	    codegen = min::new_control_code_gen ( code );
+	);
+	desire_failure (
+	    codegen = min::new_control_code_gen
+	    			( 1 << 24 );
+	);
+	MIN_ASSERT ( ! min::is_stub ( codegen ) );
+	MIN_ASSERT ( ! min::is_direct_str ( codegen ) );
+	
 
 
-
+	cout << endl;
 	cout << "Finish General Value Constructor/"
 	        "/Test/Read Function Test!" << endl;
     }
