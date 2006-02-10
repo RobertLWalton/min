@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 10 10:17:34 EST 2006
+// Date:	Fri Feb 10 11:36:00 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/10 15:17:26 $
+//   $Date: 2006/02/10 18:10:22 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents:
 //
@@ -317,6 +317,20 @@ int main ()
 	    listauxgen = min::new_list_aux_gen
 	    			( 1 << 24 );
 	);
+	MIN_ASSERT
+	    ( ! min::is_stub ( listauxgen ) );
+	MIN_ASSERT
+	    ( ! min::is_direct_str ( listauxgen ) );
+	unsigned reaux = 963921;
+	listauxgen =
+	    MUP::renew_gen ( listauxgen, reaux );
+	cout << "re-listauxgen: "
+	     << print_gen ( listauxgen ) << endl;
+	MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
+	MIN_ASSERT
+	    ( min::list_aux_of ( listauxgen ) == reaux );
+	MIN_ASSERT
+	    ( ! min::is_sublist_aux ( listauxgen ) );
 	MIN_ASSERT
 	    ( ! min::is_stub ( listauxgen ) );
 	MIN_ASSERT
