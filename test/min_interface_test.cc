@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb  9 05:40:26 EST 2006
+// Date:	Fri Feb 10 10:17:34 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/09 11:44:07 $
+//   $Date: 2006/02/10 15:17:26 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents:
 //
@@ -376,31 +376,41 @@ int main ()
         cout << endl;
 	cout << "Test indirect indexed aux general"
 	        " values:" << endl;
-	min::gen indexedauxgen =
-	    MUP::new_indirect_indexed_aux_gen ( aux );
-	cout << "indexedauxgen: "
-	     << print_gen ( indexedauxgen ) << endl;
+	unsigned indirect_aux = 637;
+	unsigned indirect_index = 281;
+	min::gen indirectgen =
+	    MUP::new_indirect_indexed_aux_gen
+		( indirect_aux, indirect_index );
+	cout << "indirectgen: "
+	     << print_gen ( indirectgen ) << endl;
 	MIN_ASSERT
 	    ( min::is_indirect_indexed_aux
-		  ( indexedauxgen ) );
+		  ( indirectgen ) );
 	MIN_ASSERT
-	    (    min::indirect_indexed_aux_of
-	              ( indexedauxgen )
-	      == aux );
+	    (    min::indirect_aux_of ( indirectgen )
+	      == indirect_aux );
+	MIN_ASSERT
+	    (    min::indirect_index_of ( indirectgen )
+	      == indirect_index );
 	desire_success (
-	    indexedauxgen =
+	    indirectgen =
 	    	min::new_indirect_indexed_aux_gen
-		    ( aux );
+		    ( indirect_aux, indirect_index );
 	);
 	desire_failure (
-	    indexedauxgen =
+	    indirectgen =
 	        min::new_indirect_indexed_aux_gen
-		    ( 1 << 24 );
+		    ( 1 << 20, indirect_index );
+	);
+	desire_failure (
+	    indirectgen =
+	        min::new_indirect_indexed_aux_gen
+		    ( indirect_aux, 1 << 20 );
 	);
 	MIN_ASSERT
-	    ( ! min::is_stub ( indexedauxgen ) );
+	    ( ! min::is_stub ( indirectgen ) );
 	MIN_ASSERT
-	    ( ! min::is_direct_str ( indexedauxgen ) );
+	    ( ! min::is_direct_str ( indirectgen ) );
  
         cout << endl;
 	cout << "Test index general values:" << endl;
