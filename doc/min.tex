@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 7, 2006}
+\date{February 9, 2006}
  
 \maketitle
 
@@ -2136,9 +2136,9 @@ An expression evaluation also has as both input and output
 a condition code containing some flag bits that control evaluation.
 In the context of evaluating a block (a sequence of expressions to
 be evaluated one after another), one bit may be set to repeat the
-current expression, another to indicate the current expression
-should be treated as a conditional (`\verb|if|' or `\verb|else if|'),
-and so forth.
+current expression, another to indicate that any immediately following
+`\verb|else|' or `\verb|else if|' expression should be skipped, and
+so forth.
 
 \item
 The current value reads zero or more arguments, performs some computation,
@@ -2152,6 +2152,86 @@ Current objects that return a single value when the input value
 list is missing and the remaining argument list is empty usually will
 make the value they would have returned the new current value
 if the remaining argument list is not empty.
+
+\item
+When a function is called, a function frame is allocated to a stack
+in order to hold the local variables of the function.
+Function frames are just like
+objects, except that no object can point at a function frame, and
+no function frame X can point at another function frame Y unless
+X and Y are in the same stack and Y is allocated after X is allocated and
+freed before X is freed.
+
+\item
+When the current value of an expression is an object or frame, the next
+arguments are used as the name of an attribute which is searched for
+starting with the current value.
+Objects and function frames have a list of ancestors from which they
+inherit attributes.  Ancestors are themselved objects or frames.
+If the search does not find an attribute in an
+object or frame, the ancestors of the object or frame are searched for
+the attribute, recursively depth first.
+
+Note that because only frames may point at frames, a frame may not be
+an ancestor of an object, and frame X may be an ancestor of frame Y only
+if X and Y are in the same stack and Y is allocated after X is allocated
+and freed before X is freed.
+
+The last ancestor in the list of ancestors of an object or frame is called
+the \key{lexical parent} of the object or frame, and plays the role of
+identifying the lexical container of the object or frame.
+
+\item
+
+There are two kinds of functions.
+
+\ikey{Methods}{method} are functions whose code is the value of
+an object or frame attribute.
+When called, a new frame is created to hold the local variables
+of the function execution, and that frame is given as its lexical parent
+the object or frame whose attribute is the function code.
+
+\ikey{Abstractions}{abstraction} are functions created by a function execution.
+An abstraction consists of a pair, one element being the code of the
+function, and the other element being a pointer to the frame of the function
+execution that created the abstraction.  When the abstraction is called,
+a new frame is created to hold the local variables of the function
+execution, and that frame is given as its lexical parent the
+frame pointed at by the frame element of the abstraction, which is the
+frame of the function execution that created the abstraction.
+
+An abstraction can only be called by a function execution X that runs
+during the function execution Y that created the abstraction.
+Similarly a method of the frame of a function execution Y can only
+be called by a function execution X that runs during Y.  X and Y can be
+the same function execution in either case.
+
+\begin{quote}
+Some languages permit the lexical parent of an object to be a frame,
+but MIN does not.
+
+Specifically, in languages with object types, whenever a function or
+object type definition X is created
+within a function execution whose frame is Y,
+X is associated with Y.
+Then any function call or object
+creation using the definition X yields a function frame or object whose
+lexical parent is Y.  Also, if a definition X of a function or object type
+occurs within an object type definition Z,
+then effectively X is not available except within an object Y of type Z,
+and Y becomes the lexical parent of any function execution or
+object created from definition X.
+
+Because object types may be defined
+by function code, objects may have function frames as lexical parents.
+The adverse consequence is that either these objects must be deallocated
+their lexical parent is, or their lexical parent must persist after
+its function execution terminates.  MIN does not support these things,
+and therefore does not support objects whose lexical parents are frames
+(or in general, objects that point at frames in any way).
+
+\end{quote}
+
 
 \end{enumerate}
 
