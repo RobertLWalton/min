@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb  9 06:01:58 EST 2006
+// Date:	Fri Feb 10 10:17:47 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/09 11:05:06 $
+//   $Date: 2006/02/10 15:16:48 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.50 $
+//   $Revision: 1.51 $
 
 // Table of Contents:
 //
@@ -326,17 +326,17 @@ namespace min { namespace unprotected {
 	        ( p + ( GEN_INDIRECT_PAIR_AUX << 24 ) );
 	}
 	inline min::gen new_indirect_indexed_aux_gen
-		( unsigned p )
+		( unsigned p, unsigned i )
 	{
 	    return (min::gen)
-	        (   p
+	        (   ( p << 12 ) + i
 		  + ( GEN_INDIRECT_INDEXED_AUX << 24 )
 	        );
 	}
-	inline min::gen new_index_gen ( unsigned a )
+	inline min::gen new_index_gen ( unsigned i )
 	{
 	    return (min::gen)
-	           ( a + ( GEN_INDEX << 24 ) );
+	           ( i + ( GEN_INDEX << 24 ) );
 	}
 	inline min::gen new_control_code_gen
 		( unsigned c )
@@ -405,18 +405,18 @@ namespace min { namespace unprotected {
 		         << 40 ) );
 	}
 	inline min::gen new_indirect_indexed_aux_gen
-		( unsigned p )
+		( unsigned p, unsigned i )
 	{
 	    return (min::gen)
-	           (   p
+	           (   ( (uns64) p << 20 ) + i
 		     + ( (uns64)
 		         GEN_INDIRECT_INDEXED_AUX
 		         << 40 ) );
 	}
-	inline min::gen new_index_gen ( unsigned a )
+	inline min::gen new_index_gen ( unsigned i )
 	{
 	    return (min::gen)
-	           ( a + ( (uns64) GEN_INDEX << 40 ) );
+	           ( i + ( (uns64) GEN_INDEX << 40 ) );
 	}
 	inline min::gen new_control_code_gen
 		( unsigned c )
@@ -496,17 +496,31 @@ namespace min {
 	return unprotected::new_indirect_pair_aux_gen
 			( p );
     }
-    inline min::gen new_indirect_indexed_aux_gen
-	    ( unsigned p )
+#   if MIN_IS_COMPACT
+	inline min::gen new_indirect_indexed_aux_gen
+		( unsigned p, unsigned i )
+	{
+	    MIN_ASSERT ( p < 1 << 12 );
+	    MIN_ASSERT ( i < 1 << 12 );
+	    return unprotected::
+	           new_indirect_indexed_aux_gen
+			    ( p, i );
+	}
+#   elif MIN_IS_LOOSE
+	inline min::gen new_indirect_indexed_aux_gen
+		( unsigned p, unsigned i )
+	{
+	    MIN_ASSERT ( p < 1 << 20 );
+	    MIN_ASSERT ( i < 1 << 20 );
+	    return unprotected::
+	           new_indirect_indexed_aux_gen
+			    ( p, i );
+	}
+#   endif
+    inline min::gen new_index_gen ( unsigned i )
     {
-	MIN_ASSERT ( p < 1 << 24 );
-	return unprotected::new_indirect_indexed_aux_gen
-			( p );
-    }
-    inline min::gen new_index_gen ( unsigned a )
-    {
-	MIN_ASSERT ( a < 1 << 24 );
-	return unprotected::new_index_gen ( a );
+	MIN_ASSERT ( i < 1 << 24 );
+	return unprotected::new_index_gen ( i );
     }
     inline min::gen new_control_code_gen
 	    ( unsigned c )
@@ -691,10 +705,15 @@ namespace min { namespace unprotected {
 	{
 	    return ( v & 0xFFFFFF );
 	}
-	inline unsigned indirect_indexed_aux_of
+	inline unsigned indirect_aux_of
 		( min::gen v )
 	{
-	    return ( v & 0xFFFFFF );
+	    return ( ( v >> 12 ) & 0xFFF );
+	}
+	inline unsigned indirect_index_of
+		( min::gen v )
+	{
+	    return ( v & 0xFFF );
 	}
 	inline unsigned index_of ( min::gen v )
 	{
@@ -739,10 +758,15 @@ namespace min { namespace unprotected {
 	{
 	    return ( v & 0xFFFFFF );
 	}
-	inline unsigned indirect_indexed_aux_of
+	inline unsigned indirect_aux_of
 		( min::gen v )
 	{
-	    return ( v & 0xFFFFFF );
+	    return ( ( v >> 20 ) & 0xFFFFF );
+	}
+	inline unsigned indirect_index_of
+		( min::gen v )
+	{
+	    return ( v & 0xFFFFF );
 	}
 	inline unsigned index_of ( min::gen v )
 	{
@@ -803,12 +827,15 @@ namespace min {
 	MIN_ASSERT ( is_indirect_pair_aux ( v ) );
 	return unprotected::indirect_pair_aux_of ( v );
     }
-    inline unsigned indirect_indexed_aux_of
-	    ( min::gen v )
+    inline unsigned indirect_aux_of ( min::gen v )
     {
 	MIN_ASSERT ( is_indirect_indexed_aux ( v ) );
-	return unprotected::indirect_indexed_aux_of
-			( v );
+	return unprotected::indirect_aux_of ( v );
+    }
+    inline unsigned indirect_index_of ( min::gen v )
+    {
+	MIN_ASSERT ( is_indirect_indexed_aux ( v ) );
+	return unprotected::indirect_index_of ( v );
     }
     inline unsigned index_of ( min::gen v )
     {
