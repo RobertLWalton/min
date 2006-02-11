@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 10 10:17:47 EST 2006
+// Date:	Sat Feb 11 03:24:09 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/10 15:16:48 $
+//   $Date: 2006/02/11 08:54:13 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.51 $
+//   $Revision: 1.52 $
 
 // Table of Contents:
 //
@@ -862,6 +862,10 @@ namespace min {
 
 namespace min
 {
+    // The pointer/value field is at most 48 bits.
+    // There are at least 8 flag bits, 1 << 55 to
+    // 1 << 48.
+
     namespace internal {
 
 	const min::uns64 TYPE_MASK =
