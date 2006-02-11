@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 10 11:36:00 EST 2006
+// Date:	Sat Feb 11 03:26:43 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/10 18:10:22 $
+//   $Date: 2006/02/11 08:53:59 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents:
 //
@@ -473,11 +473,106 @@ int main ()
 	cout << "Finish General Value Constructor/"
 	        "/Test/Read Function Test!" << endl;
     }
-
 
-// General Value Test Functions
-// General Value Read Functions
 // Control Values
+// ------- ------
+
+    {
+	cout << endl;
+	cout << "Start Control Value Test!" << endl;
+    	min::uns64 hiflag = min::uns64(1) << 55;
+    	min::uns64 midflag = min::uns64(1) << 51;
+    	min::uns64 loflag = min::uns64(1) << 48;
+    	min::uns64 flags  = hiflag | loflag;
+    	min::uns64 v1 = 73458439;
+    	min::uns64 v2 = 83670280;
+	int type1 = -123;
+	int type2 = 127;
+	void * p1 = (void *) 353456321;
+	void * p2 = (void *) 651946503;
+	min::stub * stub1 =
+	    (min::stub *) (sizeof (min::stub));
+	min::stub * stub2 =
+	    (min::stub *) (5 * sizeof (min::stub));
+
+	min::uns64 control1 =
+	    MUP::new_control ( type1, v1, flags );
+	cout << "control1: " << hex << control1 << dec
+	     << endl;
+        MIN_ASSERT
+	    (    MUP::type_of_control ( control1 )
+	      == type1 );
+        MIN_ASSERT
+	    (    MUP::value_of_control ( control1 )
+	      == v1 );
+        MIN_ASSERT ( control1 & hiflag );
+        MIN_ASSERT ( control1 & loflag );
+        MIN_ASSERT ( ! ( control1 & midflag ) );
+
+	control1 =
+	    MUP::renew_control_type ( control1, type2 );
+	cout << "re-control1: " << hex << control1
+	     << dec << endl;
+        MIN_ASSERT
+	    (    MUP::type_of_control ( control1 )
+	      == type2 );
+        MIN_ASSERT
+	    (    MUP::value_of_control ( control1 )
+	      == v1 );
+        MIN_ASSERT ( control1 & hiflag );
+        MIN_ASSERT ( control1 & loflag );
+        MIN_ASSERT ( ! ( control1 & midflag ) );
+
+	control1 =
+	    MUP::renew_control_value ( control1, v2 );
+	cout << "re-control1: " << hex << control1
+	     << dec << endl;
+        MIN_ASSERT
+	    (    MUP::type_of_control ( control1 )
+	      == type2 );
+        MIN_ASSERT
+	    (    MUP::value_of_control ( control1 )
+	      == v2 );
+        MIN_ASSERT ( control1 & hiflag );
+        MIN_ASSERT ( control1 & loflag );
+        MIN_ASSERT ( ! ( control1 & midflag ) );
+
+	min::uns64 control2 =
+	    MUP::new_control ( type1, stub1, hiflag );
+	cout << "control2: " << hex << control2 << dec
+	     << endl;
+        MIN_ASSERT
+	    (    MUP::type_of_control ( control2 )
+	      == type1 );
+        MIN_ASSERT
+	    (    MUP::pointer_of_control ( control2 )
+	      == stub1 );
+        MIN_ASSERT
+	    (    MUP::stub_of_control ( control2 )
+	      == stub1 );
+        MIN_ASSERT ( control2 & hiflag );
+        MIN_ASSERT ( ! ( control2 & loflag ) );
+        MIN_ASSERT ( ! ( control2 & midflag ) );
+
+	control2 =
+	    MUP::renew_control_pointer
+		( control2, stub2 );
+	cout << "re-control2: " << hex << control2
+	     << dec << endl;
+        MIN_ASSERT
+	    (    MUP::type_of_control ( control2 )
+	      == type1 );
+        MIN_ASSERT
+	    (    MUP::stub_of_control ( control2 )
+	      == stub2 );
+        MIN_ASSERT ( control2 & hiflag );
+        MIN_ASSERT ( ! ( control2 & loflag ) );
+        MIN_ASSERT ( ! ( control2 & midflag ) );
+
+	cout << endl;
+	cout << "Finish Control Value Test!" << endl;
+    }
+
 // Stub Types and Data
 // Stub Functions
 // Process Interface
