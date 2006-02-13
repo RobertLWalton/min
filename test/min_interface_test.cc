@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 11 03:26:43 EST 2006
+// Date:	Mon Feb 13 11:57:53 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/11 08:53:59 $
+//   $Date: 2006/02/13 16:55:17 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents:
 //
@@ -574,7 +574,73 @@ int main ()
     }
 
 // Stub Types and Data
+// ---- ----- --- ----
+
+    // There are no stub types and data tests.
+
 // Stub Functions
+// ---- ---------
+
+    {
+	cout << endl;
+	cout << "Start Stub Functions Test!" << endl;
+	min::stub stub_struct;
+	min::stub * stub = & stub_struct;
+
+        cout << endl;
+	cout << "Test stub value set/read functions:"
+	     << endl;
+	min::uns64 u = 0x9047814326432464;
+	cout << "u: " << hex << u << dec << endl;
+	MUP::set_value_of ( stub, u );
+	MIN_ASSERT ( MUP::value_of ( stub ) == u );
+
+	min::float64 f = 1.4362346234;
+	MUP::set_float_of ( stub, f );
+	MIN_ASSERT ( MUP::float_of ( stub ) == f );
+
+	min::gen g = min::new_gen ( stub );
+	MUP::set_gen_of ( stub, g );
+	MIN_ASSERT ( MUP::gen_of ( stub ) == g );
+
+	void * p = & g;
+	MUP::set_pointer_of ( stub, p );
+	MIN_ASSERT ( MUP::pointer_of ( stub ) == p );
+
+        cout << endl;
+	cout << "Test stub control set/read functions:"
+	     << endl;
+	min::uns64 f1 = min::uns64(1) << 55;
+	min::uns64 f2 = min::uns64(1) << 48;
+	min::uns64 c = f1 | f2;
+	cout << "c: " << hex << c << dec << endl;
+	MUP::set_control_of ( stub, c );
+	MIN_ASSERT ( MUP::control_of ( stub ) == c );
+	MIN_ASSERT ( min::type_of ( stub ) == 0 );
+	MUP::set_type_of ( stub, min::NUMBER );
+	c = MUP::renew_control_type ( c, min::NUMBER );
+	cout << "c: " << hex << c << dec << endl;
+	MIN_ASSERT ( MUP::control_of ( stub ) == c );
+	MIN_ASSERT
+	    ( min::type_of ( stub ) == min::NUMBER );
+
+        cout << endl;
+	cout << "Test stub flag set/clear/read"
+	        " functions:" << endl;
+	MIN_ASSERT ( MUP::test_flags_of ( stub, f1 ) );
+	MIN_ASSERT ( MUP::test_flags_of ( stub, f2 ) );
+	MUP::clear_flags_of ( stub, f2 );
+	MIN_ASSERT ( MUP::test_flags_of ( stub, f1 ) );
+	MIN_ASSERT
+	    ( ! MUP::test_flags_of ( stub, f2 ) );
+	MUP::set_flags_of ( stub, f2 );
+	MIN_ASSERT ( MUP::test_flags_of ( stub, f1 ) );
+	MIN_ASSERT ( MUP::test_flags_of ( stub, f2 ) );
+	MIN_ASSERT ( MUP::control_of ( stub ) == c );
+
+	cout << endl;
+	cout << "Finish Stub Functions Test!" << endl;
+    }
 // Process Interface
 // Garbage Collector Interface
 // Numbers
