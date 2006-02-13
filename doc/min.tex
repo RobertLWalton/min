@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 9, 2006}
+\date{February 12, 2006}
  
 \maketitle
 
@@ -2105,17 +2105,13 @@ context in which the expression is evaluated.
 It is typically a function frame for the function
 whose code contains the expression.
 
-Arguments are of three
-different kinds.
-\ikey{Evaluated arguments}{evaluated argument} are evaluated
-when they are read, using the initial value of the expression
-containing the argument.
-\ikey{Unevaluated arguments}{unevaluated argument} are never evaluated,
-and in effect evaluate to themselves.
-\ikey{Delayed arguments}{delayed argument} are packaged with the
-initial value of the expression containing them so that they may be
-evaluated later, with that initial value, and therefore in the same
-context as they would have had they been evaluated arguments.
+Arguments are read without being evaluated.  They can then
+be evaluated at any time using the same initial value as the expression
+that contained the argument.  Thus arguments may be immediately
+evaluated, never evaluated, or evaluated later.  Sometimes parts of
+an unevaluated argument can be treated as separate arguments, as when
+an argument is a comma separated list whose elements can be evaluted
+separately.
 
 The list of unread arguments remaining in the expression is called the
 `\key{remaining argument list}'.
@@ -2148,7 +2144,7 @@ modification is to remove arguments as they are read from the
 remaining argument list, and either set the current value if there
 are remaining arguments or the output argument list otherwise.
 
-Current objects that return a single value when the input value
+Current values that return a single value when the input value
 list is missing and the remaining argument list is empty usually will
 make the value they would have returned the new current value
 if the remaining argument list is not empty.
@@ -2213,7 +2209,7 @@ but MIN does not.
 Specifically, in languages with object types, whenever a function or
 object type definition X is created
 within a function execution whose frame is Y,
-X is associated with Y.
+definition X is associated with frame Y.
 Then any function call or object
 creation using the definition X yields a function frame or object whose
 lexical parent is Y.  Also, if a definition X of a function or object type
@@ -2222,11 +2218,12 @@ then effectively X is not available except within an object Y of type Z,
 and Y becomes the lexical parent of any function execution or
 object created from definition X.
 
-Because object types may be defined
-by function code, objects may have function frames as lexical parents.
+Because object types may be defined by function code (in languages other
+than MIN), objects may have function frames as lexical parents.
 The adverse consequence is that either these objects must be deallocated
-their lexical parent is, or their lexical parent must persist after
-its function execution terminates.  MIN does not support these things,
+when their lexical parent's function execution terminates,
+or their lexical parent must persist after its function execution terminates.
+MIN does not support this,
 and therefore does not support objects whose lexical parents are frames
 (or in general, objects that point at frames in any way).
 
@@ -2397,6 +2394,128 @@ then the English natural language engine might generate the text
 in order to specify \verb|##523|.
 
 \subsection{The Evaluation Algorithm}
+
+An object or frame has an `ttdkey{ancestors}' attribute that is a
+list of all the ancestors of the object or frame.  The last element
+of this list is called the `\key{lexical parent}' of the object or
+frame.  Ancestors of objects must be other objects, while ancestors
+of frames can be objects or frames.  Frame X can be an ancestor of
+frame Y only if X and Y are in the same stack and Y is allocated after
+X is allocated and freed before X is freed.
+
+The context of an expression being evaluated is provided by an
+`key{evaluation context}' datum.  This is typically not a MIN datum,
+but instead a C++ datum, allocated in the C++ stack to the C++ frame
+of a C++ expression evaluator function.  Evaluation contexts
+are allocated to their own `\key{evaluation stack}', which may be
+just the C++ stack (and may contain other things besides evaluation
+contexts).
+
+An evaluation context has the following components:
+
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttakey{frame}{of evaluation context} & MIN frame
+    & Top frame on the frame stack whenever the evaluation
+      context is the top evaluation context on the evaluation stack. \\[0.5ex]
+
+\ttakey{caller}{of evaluation context} & evaluation context
+    & Evaluation context of the expression which called the function
+      execution of which the current evaluation context is a part. \\[0.5ex]
+
+\ttakey{expression}{of evaluation context} & MIN expression
+    & Expression being evaluated.
+
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttakey{initial value}{of evaluation context} & MIN value
+    & Initial value for evaluating the expression being evaluated. \\[0.5ex]
+
+\ttakey{current value}{of evaluation context} & MIN value
+    & Current value for evaluating the expression being evaluated.
+
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttakey{arguments}{of evaluation context} & MIN expression
+    & An expression containing the remaining arguments.  This often
+      equals the expression being evaluated. \\[0.5ex]
+
+\ttakey{next}{of evaluation context} & non-negative integer
+    & The remaining arguments are all the elements of the `{\tt arguments}'
+      expression list from the element whose index is `{\tt next}'
+      to the end of the list.
+
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttakey{input values}{of evaluation context} & MIN list or MISSING
+    & The possibly empty list of input values, or the special MISSING
+      value.  The MISSING value need not be a MIN value, and
+      may be the C++ NULL value.  \\[0.5ex]
+
+\ttakey{output values}{of evaluation context} & MIN list or MISSING
+    & Ditto but for output values instead of input values.
+
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttakey{condition code}{of evaluation context} & 32 bits
+    & Contains flags that control expression evaluation.  The low order
+      16 bits are reserved to the MIN system, and the high order bits
+      may be used by applications programs.  See below.
+
+\end{tabular}
+\end{indpar}
+
+The MIN system \skey{condition code flag}s are:
+
+\begin{indpar}
+\begin{list}{}{}
+
+\item[\ttakey{repeat}{condition code flag}]~\\
+    If on at the end of evaluating a statement in a block,
+    this flag is turned off and the statement is repeated.
+
+\item[\ttakey{skip else}{condition code flag}]~\\
+    If on at the beginning of an {\tt else} statement being
+    evaluated in a block, the {\tt else} statement is skipped
+    and this flag is turned off.
+
+    If on at the beginning of an {\tt else if} statement
+    being evaluated in a block, the {\tt else if} statement is
+    skipped and this flag is left on.
+
+    If on at the beginning of any other statement in a block,
+    this flag is turned off.
+
+\item[\ttakey{skip catch}{condition code flag}]~\\
+    Similar to the {\tt skip else} flag, but skips {\tt catch}
+    statements instead of {\tt else} statements.  Set while
+    executing {\tt try} statements.  Cleared if a {\tt throw}
+    to the TBD
+
+\item[\ttakey{return}{condition code flag}]~\\
+    If on at the end of evaluating a statement in a block,
+    a return to the last caller is executed.  Any output
+    values, current value changes, etc.~of the caller must
+    be done by the expression that sets the return flag.
+
+
+\end{list}
+\end{indpar}
+
+\subsection{The Evaluation Algorithm: OLD}
 
 A CONTEXT is:
 
