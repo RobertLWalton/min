@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 11 03:24:09 EST 2006
+// Date:	Wed Feb 15 04:23:51 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/11 08:54:13 $
+//   $Date: 2006/02/15 10:00:19 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.52 $
+//   $Revision: 1.53 $
 
 // Table of Contents:
 //
@@ -587,9 +587,9 @@ namespace min {
 	{
 	    return ( v >> 24 == GEN_CONTROL_CODE );
 	}
-	inline bool gen_subtype_of ( min::gen v )
+	inline unsigned gen_subtype_of ( min::gen v )
 	{
-	    v >>= 24;
+	    v = (min::uns32) v >> 24;
 	    if ( v < GEN_DIRECT_INT )
 	        return GEN_STUB;
 	    else if ( v < GEN_DIRECT_STR)
@@ -647,9 +647,9 @@ namespace min {
 	{
 	    return ( v >> 40 == GEN_CONTROL_CODE );
 	}
-	inline bool gen_subtype_of ( min::gen v )
+	inline unsigned gen_subtype_of ( min::gen v )
 	{
-	    v >>= 40;
+	    v = (min::uns64) v >> 40;
 	    if ( v < GEN_STUB )
 	        return GEN_DIRECT_FLOAT;
 	    else if ( v < GEN_DIRECT_STR)
