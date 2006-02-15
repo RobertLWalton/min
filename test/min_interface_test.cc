@@ -2,7 +2,7 @@
 //
 // File:	min_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 13 11:57:53 EST 2006
+// Date:	Wed Feb 15 04:18:15 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/13 16:55:17 $
+//   $Date: 2006/02/15 10:00:06 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents:
 //
@@ -48,8 +48,6 @@ void min_assert
     min_assert ( expr ? true : false, \
     		 __FILE__, __LINE__, #expr );
 
-# include <min.h>
-# define MUP min::unprotected
 # include <iostream>
 # include <iomanip>
 # include <cstring>
@@ -58,6 +56,9 @@ using std::endl;
 using std::hex;
 using std::dec;
 using std::ostream;
+
+# include <min.h>
+# define MUP min::unprotected
 
 struct print_gen {
     min::gen g;
@@ -205,6 +206,8 @@ int main ()
 	MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
 	stubgen = min::new_gen ( stub );
 	MIN_ASSERT ( min::is_stub ( stubgen ) );
+	MIN_ASSERT (    min::gen_subtype_of ( stubgen )
+	             == min::GEN_STUB );
 	MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
 	MIN_ASSERT ( ! min::is_direct_str ( stubgen ) );
 
@@ -222,6 +225,9 @@ int main ()
 	        ( MUP::direct_int_of ( igen ) == i );
 	    igen = min::new_direct_int_gen ( i );
 	    MIN_ASSERT ( min::is_direct_int ( igen ) );
+	    MIN_ASSERT
+	        (    min::gen_subtype_of ( igen )
+		  == min::GEN_DIRECT_INT );
 	    MIN_ASSERT
 	        ( MUP::direct_int_of ( igen ) == i );
 	    desire_failure (
@@ -263,6 +269,9 @@ int main ()
 	    fgen = min::new_direct_float_gen ( f );
 	    MIN_ASSERT ( min::is_direct_float ( fgen ) );
 	    MIN_ASSERT
+	        (    min::gen_subtype_of ( fgen )
+		  == min::GEN_DIRECT_FLOAT );
+	    MIN_ASSERT
 	        ( MUP::direct_float_of ( fgen ) == f );
 	    MIN_ASSERT ( ! min::is_stub ( fgen ) );
 	    MIN_ASSERT
@@ -288,6 +297,8 @@ int main ()
 	cout << "strgen: " << print_gen ( strgen )
 	     << endl;
 	MIN_ASSERT ( min::is_direct_str ( strgen ) );
+	MIN_ASSERT (    min::gen_subtype_of ( strgen )
+	             == min::GEN_DIRECT_STR );
 	value.u64 = MUP::direct_str_of ( strgen );
 	MIN_ASSERT ( strcmp ( str, value.str ) == 0 );
 	desire_success (
@@ -308,6 +319,8 @@ int main ()
 	cout << "listauxgen: "
 	     << print_gen ( listauxgen ) << endl;
 	MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
+	MIN_ASSERT (    min::gen_subtype_of ( listauxgen )
+	             == min::GEN_LIST_AUX );
 	MIN_ASSERT
 	    ( min::list_aux_of ( listauxgen ) == aux );
 	desire_success (
@@ -346,6 +359,9 @@ int main ()
 	MIN_ASSERT
 	    ( min::is_sublist_aux ( sublistauxgen ) );
 	MIN_ASSERT
+	    (    min::gen_subtype_of ( sublistauxgen )
+	      == min::GEN_SUBLIST_AUX );
+	MIN_ASSERT
 	    (    min::sublist_aux_of ( sublistauxgen )
 	      == aux );
 	desire_success (
@@ -370,6 +386,9 @@ int main ()
 	     << print_gen ( pairauxgen ) << endl;
 	MIN_ASSERT
 	    ( min::is_indirect_pair_aux ( pairauxgen ) );
+	MIN_ASSERT
+	    (    min::gen_subtype_of ( pairauxgen )
+	      == min::GEN_INDIRECT_PAIR_AUX );
 	MIN_ASSERT
 	    (    min::indirect_pair_aux_of
 	              ( pairauxgen )
@@ -400,6 +419,9 @@ int main ()
 	MIN_ASSERT
 	    ( min::is_indirect_indexed_aux
 		  ( indirectgen ) );
+	MIN_ASSERT
+	    (    min::gen_subtype_of ( indirectgen )
+	      == min::GEN_INDIRECT_INDEXED_AUX );
 	MIN_ASSERT
 	    (    min::indirect_aux_of ( indirectgen )
 	      == indirect_aux );
@@ -435,6 +457,9 @@ int main ()
 	     << print_gen ( indexgen ) << endl;
 	MIN_ASSERT ( min::is_index ( indexgen ) );
 	MIN_ASSERT
+	    (    min::gen_subtype_of ( indexgen )
+	      == min::GEN_INDEX );
+	MIN_ASSERT
 	    ( min::index_of ( indexgen ) == index );
 	desire_success (
 	    indexgen = min::new_index_gen ( index );
@@ -456,6 +481,9 @@ int main ()
 	     << print_gen ( codegen ) << endl;
 	MIN_ASSERT ( min::is_control_code ( codegen ) );
 	MIN_ASSERT
+	    (    min::gen_subtype_of ( codegen )
+	      == min::GEN_CONTROL_CODE );
+	MIN_ASSERT
 	    ( min::control_code_of ( codegen ) == code );
 	desire_success (
 	    codegen = min::new_control_code_gen ( code );
@@ -466,8 +494,43 @@ int main ()
 	);
 	MIN_ASSERT ( ! min::is_stub ( codegen ) );
 	MIN_ASSERT ( ! min::is_direct_str ( codegen ) );
-	
-
+ 
+#	if MIN_IS_LOOSE
+	    cout << endl;
+	    cout << "Test long control code general"
+	            " values:" << endl;
+	    min::uns64 longcode = 0xF123456789;
+	    min::gen longcodegen =
+		MUP::new_long_control_code_gen
+		    ( longcode );
+	    cout << "longcodegen: "
+		 << print_gen ( longcodegen ) << endl;
+	    MIN_ASSERT
+	        ( min::is_control_code
+		      ( longcodegen ) );
+	    MIN_ASSERT
+		(    min::gen_subtype_of ( longcodegen )
+		  == min::GEN_CONTROL_CODE );
+	    MIN_ASSERT
+		(    min::long_control_code_of
+			 ( longcodegen )
+		  == longcode );
+	    desire_success (
+		longcodegen =
+		    min::new_long_control_code_gen
+		        ( longcode );
+	    );
+	    desire_failure (
+		longcodegen =
+		    min::new_long_control_code_gen
+			( min::uns64(1) << 40 );
+	    );
+	    MIN_ASSERT
+	        ( ! min::is_stub ( longcodegen ) );
+	    MIN_ASSERT
+	        ( ! min::is_direct_str
+		        ( longcodegen ) );
+#	endif
 
 	cout << endl;
 	cout << "Finish General Value Constructor/"
