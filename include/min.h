@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 16 09:17:04 EST 2006
+// Date:	Thu Feb 16 11:27:16 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/16 15:54:50 $
+//   $Date: 2006/02/16 16:24:58 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.55 $
+//   $Revision: 1.56 $
 
 // Table of Contents:
 //
@@ -1285,7 +1285,7 @@ namespace min { namespace unprotected {
     // ed.  To allocate a new stub, this is updated to
     // the next stub on the list, if any.  Otherwise, if
     // there is no next stub, an out-of-line function,
-    // gc_stub_expand_free_list, is called to add to the
+    // gc_expand_stub_free_list, is called to add to the
     // end of the list.
     //
     // Unallocated stubs have stub type min::FREE and
@@ -1297,14 +1297,14 @@ namespace min { namespace unprotected {
     min::stub * last_allocated_stub;
 
     // Number of free stubs that can be allocated with-
-    // out requiring a call to gc_stub_expand_free_list.
+    // out requiring a call to gc_expand_stub_free_list.
     //
     unsigned number_of_free_stubs;
 
     // Out of line function to increase the number of
     // free stubs to be at least n.
     //
-    void gc_stub_expand_free_list ( unsigned n );
+    void gc_expand_stub_free_list ( unsigned n );
 
     // Function to return the next free stub as a
     // garbage collectible stub.  The type is set to
@@ -1317,7 +1317,7 @@ namespace min { namespace unprotected {
     inline min::stub * new_stub ( void )
     {
 	if ( number_of_free_stubs == 0 )
-	    gc_stub_expand_free_list ( 1 );
+	    gc_expand_stub_free_list ( 1 );
 	-- number_of_free_stubs;
 	uns64 c = control_of ( last_allocated_stub );
 	min::stub * s = stub_of_control ( c );
@@ -1335,7 +1335,7 @@ namespace min { namespace unprotected {
     inline min::stub * new_aux_stub ( void )
     {
 	if ( number_of_free_stubs == 0 )
-	    gc_stub_expand_free_list ( 1 );
+	    gc_expand_stub_free_list ( 1 );
 	-- number_of_free_stubs;
 	uns64 c = control_of ( last_allocated_stub );
 	min::stub * s = stub_of_control ( c );
@@ -1350,11 +1350,10 @@ namespace min { namespace unprotected {
     // of memory.  Bodies are separated by body control
     // structures.
     //
-    // The tail_body_control is just before the last
-    // body of the region, and the end_body_control is
-    // just after this body, and is at the very end of
-    // the region.  The last body of the region is free,
-    // and from its beginning are allocated new bodies.
+    // The end_body_control is just after the last body
+    // of the region, and is at the very end of the
+    // region.  The last body of the region is free, and
+    // from its beginning are allocated new bodies.
 
     struct body_control {
         uns64 control;
@@ -1370,30 +1369,29 @@ namespace min { namespace unprotected {
 	    // no previous body, that size is 0.
     };
 
-    body_control * tail_body_control;
     body_control * end_body_control;
 
     // Out of line function to return end_body_control
     // value for a situation in which the last free
-    // body has at least n + sizeof ( body_control )
-    // bytes.
+    // body (exclusive of any body controls) has at
+    // least n + sizeof ( body_control ) bytes.
     //
-    body_control * gc_body_stack_expand ( unsigned n );
-    //
+    body_control * gc_expand_body_stack ( unsigned n );
+
     // Function to return the address of the body_con-
     // trol in front of a newly allocated body with n'
     // bytes, where n' is n rounded up to a multiple of
-    // 8.
+    // 8.  The control member of the returned body
+    // control is set to zero.
     //
     inline body_control * new_body ( unsigned n )
     {
         n = ( n + 7 ) & ~ 07;
-	body_control * end = min::unprotected::
-			     end_body_control;
+	body_control * end = end_body_control;
 	if (   end->size_difference
 	     + 2 * sizeof ( body_control )
 	     + n > 0 )
-	    end = gc_body_stack_expand ( n );
+	    end = gc_expand_body_stack ( n );
 	uns8 * address = (uns8 *) end;
 	address += end->size_difference;
 	body_control * head = (body_control *) address;
@@ -2610,7 +2608,6 @@ namespace min {
 #	    if MIN_USES_OBJECT_AUX_STUBS
 	     && (    ! use_object_aux_stubs
 	          ||   min::unprotected::
-		            min::unprotected::
 			    number_of_free_stubs
 		     < elements )
 #	    endif
