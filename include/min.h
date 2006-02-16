@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 16 11:27:16 EST 2006
+// Date:	Thu Feb 16 13:07:28 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/16 16:24:58 $
+//   $Date: 2006/02/16 18:07:48 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.56 $
+//   $Revision: 1.57 $
 
 // Table of Contents:
 //
@@ -970,14 +970,14 @@ namespace min {
     const int LONG_OBJ			= 8;
     const int VARIABLE_VECTOR		= 9;
 
-    // Uncollectable.
+    // Uncollectible.
     //
     const int LABEL_AUX			= -1;
     const int LIST_AUX			= -2;
     const int SUBLIST_AUX		= -3;
 
     namespace unprotected {
-	// Non-gc flags for uncollectable controls.
+	// Non-gc flags for uncollectible controls.
 	//
 	const min::uns64 STUB_POINTER =
 	    min::uns64(1) << 55;
@@ -1013,7 +1013,7 @@ namespace min {
         return s->c.i8[7*MIN_LITTLE_ENDIAN];
     }
 
-    inline bool is_collectable ( int type )
+    inline bool is_collectible ( int type )
     {
     	return type >= 0;
     }
