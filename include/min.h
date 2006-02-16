@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 15 04:23:51 EST 2006
+// Date:	Thu Feb 16 03:51:28 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/15 10:00:19 $
+//   $Date: 2006/02/16 09:01:53 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.53 $
+//   $Revision: 1.54 $
 
 // Table of Contents:
 //
@@ -1031,8 +1031,6 @@ namespace min {
 	}
     }
 
-    void deallocate ( min::stub * s );
-
     namespace unprotected {
 
         inline min::uns64 value_of ( min::stub * s )
@@ -1123,30 +1121,20 @@ namespace min {
 
 // This interface includes a process control block
 // and functions to test for interrupts.  The process
-// control block includes data for other subsystems.
+// control block contains pointers to stacks.
 
 namespace min { namespace unprotected {
 
-    struct body_control; // See Garbage Collector
-      			 // Interface.
+    bool interrupt_flag;
+	// On if interrupt should occur.
+
+    bool relocated_flag;
+	// On if bodies have been relocated.
 
     struct process_control {
 
-	bool interrupt_flag;
-	    // On if interrupt should occur.
+        // Pointers to stacks: TBD.
 
-	bool relocated_flag;
-	    // On if bodies have been relocated.
-
-        min::stub * last_allocated_stub;
-	    // See Garbage Collector Interface.
-
-        unsigned number_of_free_stubs;
-	    // See Garbage Collector Interface.
-
-	min::unprotected::
-	     body_control * end_body_control;
-	     // See Garbage Collector Interface.
     };
 
     process_control * current_process;
@@ -1162,23 +1150,20 @@ namespace min {
 
     inline bool interrupt ( void )
     {
-        if ( unprotected::
-	     current_process->interrupt_flag )
+        if ( unprotected::interrupt_flag )
 	    return unprotected::interrupt();
 	else return false;
     }
 
     inline bool relocated_flag ( void )
     {
-         return unprotected::
-	        current_process->relocated_flag;
+         return unprotected::relocated_flag;
     }
     inline bool set_relocated_flag ( bool value )
     {
          bool old_value =
-	     unprotected::
-	     current_process->relocated_flag;
-	 unprotected::current_process->relocated_flag =
+	     unprotected::relocated_flag;
+	 unprotected::relocated_flag =
 	     value;
 	 return old_value;
     }
@@ -1209,9 +1194,15 @@ namespace min {
 // ------- --------- ---------
 
 // This interface includes high performance inline
-// functions that allocate stubs and bodies and that
-// write general values containing pointers into
-// stubs or bodies.
+// functions that allocate and deallocate stubs and
+// bodies and that write general values containing
+// pointers into stubs or bodies.
+
+namespace min {
+
+    void deallocate ( min::stub * s );
+
+}
 
 namespace min { namespace unprotected {
 
@@ -1268,18 +1259,17 @@ namespace min { namespace unprotected {
     // there is no next stub, an out-of-line function,
     // gc_stub_expand_free_list, is called to add to the
     // end of the list.
+
+    // Pointer to the last allocated stub, which must
+    // exist (it can be a dummy).
     //
-    // In process control:
+    min::stub * last_allocated_stub;
+
+    // Number of free stubs that can be allocated with-
+    // out requiring a call to gc_stub_expand_free_list.
     //
-    //	    min::stub * last_allocated_stub
-    //		Pointer to the last allocated stub,
-    //		which must exist (it can be a dummy).
-    //
-    //	    unsigned number_of_free_stubs
-    //		Number of free stubs that can be allo-
-    //		cated without requiring a call to gc_
-    //		stub_expand_free_list.
-    //
+    unsigned number_of_free_stubs;
+
     // Out of line function to return pointer to next
     // free stub as a uns32 or uns64 address or VSN.
     //
@@ -1294,21 +1284,21 @@ namespace min { namespace unprotected {
     inline min::stub * new_stub ( void )
     {
 #	if MIN_IS_COMPACT
-	    uns32 v = current_process->
+	    uns32 v = min::unprotected::
 	              last_allocated_stub->
 	    		c.u32[MIN_BIG_ENDIAN];
 	    if ( v == 0 )
 	        v = gc_stub_expand_free_list ();
-	    return current_process->
+	    return min::unprotected::
 	           last_allocated_stub =
 	           internal::uns32_to_stub ( v );
 #	else // if MIN_IS_LOOSE
-	    uns64 v = current_process->
+	    uns64 v = min::unprotected::
 	              last_allocated_stub->c.u64;
 	    v &= 0x00000FFFFFFFFFFF;
 	    if ( v == 0 )
 	        v = gc_stub_expand_free_list ();
-	    return current_process->
+	    return min::unprotected::
 	           last_allocated_stub =
 	           internal::uns64_to_stub ( v );
 #	endif
@@ -1321,27 +1311,27 @@ namespace min { namespace unprotected {
     inline min::stub * new_aux_stub ( void )
     {
 #	if MIN_IS_COMPACT
-	    uns32 v = current_process->
+	    uns32 v = min::unprotected::
 	              last_allocated_stub->
 	    		c.u32[MIN_BIG_ENDIAN];
 	    if ( v == 0 )
 	        v = gc_stub_expand_free_list ();
 	    min::stub * s =
 		internal::uns32_to_stub ( v );
-	    current_process->
+	    min::unprotected::
 	        last_allocated_stub->
 		    c.u32[MIN_BIG_ENDIAN] =
 			s->c.u32[MIN_BIG_ENDIAN];
 	    return s;
 #	else // if MIN_IS_LOOSE
-	    uns64 v = current_process->
+	    uns64 v = min::unprotected::
 	              last_allocated_stub->c.u64;
 	    v &= 0x00000FFFFFFFFFFF;
 	    if ( v == 0 )
 	        v = gc_stub_expand_free_list ();
 	    min::stub * s =
 		internal::uns64_to_stub ( v );
-	    current_process->
+	    min::unprotected::
 	        last_allocated_stub->c.u64 = s->c.u64;
 	    return s;
 #	endif
@@ -1370,10 +1360,10 @@ namespace min { namespace unprotected {
 	    // body, that size is 0, and if there is
 	    // no previous body, that size is 0.
     };
-    //
-    // In process_control:
-    //	    body_control * end_body_control;
-    //
+
+    body_control * tail_body_control;
+    body_control * end_body_control;
+
     // Out of line function to return end_body_control
     // value for a situation in which the last free
     // body has at least n + sizeof ( body_control )
@@ -1389,7 +1379,7 @@ namespace min { namespace unprotected {
     inline body_control * new_body ( unsigned n )
     {
         n = ( n + 7 ) & ~ 07;
-	body_control * end = current_process->
+	body_control * end = min::unprotected::
 			     end_body_control;
 	if (   end->size_difference
 	     + 2 * sizeof ( body_control )
@@ -2611,7 +2601,7 @@ namespace min {
 #	    if MIN_USES_OBJECT_AUX_STUBS
 	     && (    ! use_object_aux_stubs
 	          ||   min::unprotected::
-		            current_process->
+		            min::unprotected::
 			    number_of_free_stubs
 		     < elements )
 #	    endif
