@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 16 03:51:28 EST 2006
+// Date:	Thu Feb 16 09:17:04 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/16 09:01:53 $
+//   $Date: 2006/02/16 15:54:50 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.54 $
+//   $Revision: 1.55 $
 
 // Table of Contents:
 //
@@ -960,14 +960,15 @@ namespace min {
 
     // Collectable.
     //
-    const int DEALLOCATED		= 1;
-    const int NUMBER			= 2;
-    const int SHORT_STR			= 3;
-    const int LONG_STR			= 4;
-    const int LABEL			= 5;
-    const int SHORT_OBJ			= 6;
-    const int LONG_OBJ			= 7;
-    const int VARIABLE_VECTOR		= 10;
+    const int FREE			= 1;
+    const int DEALLOCATED		= 2;
+    const int NUMBER			= 3;
+    const int SHORT_STR			= 4;
+    const int LONG_STR			= 5;
+    const int LABEL			= 6;
+    const int SHORT_OBJ			= 7;
+    const int LONG_OBJ			= 8;
+    const int VARIABLE_VECTOR		= 9;
 
     // Uncollectable.
     //
@@ -1206,27 +1207,36 @@ namespace min {
 
 namespace min { namespace unprotected {
 
-    // For COMPACT implementations, the low order
-    // 32 bits of the stub control hold the chain
-    // pointer, and the next higher order 24 bits
-    // are gc flags.
-    //
-    // For LOOSE implentations, the low order 44 bits
-    // of the stub control hold the chain pointer, and
-    // the next higher order 12 bits are the gc flags.
-
     // GC flags.
     //
-    const unsigned MARKS = ( 0x3F << 6 );
-    const unsigned AREAS = 0x3F;
+    // The low order MIN_POINTER_BITS of the stub
+    // control hold the chain pointer and high order 8
+    // bits hold the stub type code.  The rest of the
+    // bits are GC flags, in 2-bit pairs.  The high
+    // order bit of each pair is the scavenged bit,
+    // and the low order bit the marked bit.  There
+    // are at most 64 - 8 - 32 = 24 GC flags, or at
+    // most 12 pairs.
+    //
+    const unsigned GC_FLAG_BITS =
+	64 - 8 - MIN_POINTER_BITS;
+    const uns64 GC_FLAG_MASK =
+           ( (uns64(1) << GC_FLAG_BITS) - 1 )
+	<< MIN_POINTER_BITS;
+    const uns64 GC_SCAVENGED_MASK =
+    	  GC_FLAG_MASK
+	& ( uns64(0xAAAAAA) << MIN_POINTER_BITS );
+    const uns64 GC_MARKED_MASK =
+        GC_SCAVENGED_MASK >> 1;
 
     // Mutator (non-gc execution engine) action:
     //
     // If a pointer to stub S2 is stored in a datum
-    // with stub S1, then the AREAS flags of S1 are
-    // logically OR'ed into the MARKS flags of S2.
+    // with stub S1, then for each pair of GC flags the
+    // scavenged flag of the pair of S1 is logically
+    // OR'ed into the marked flag of the pair of S2.
     //
-    // In addition, if any MARKS flag turned on in S2
+    // In addition, if any marked flag turned on in S2
     // by this action is also on in MUP::gc_stack_marks,
     // a pointer to S2 is added to the MUP::gc_stack if
     // that stack is not full.
@@ -1234,9 +1244,9 @@ namespace min { namespace unprotected {
     // When a new stub is allocated, it is given the
     // flags in MUP::gc_new_stub_flags, but is NOT put
     // on the MUP::gc_stack.
-
-    unsigned gc_stack_marks;
-    unsigned gc_new_stub_flags;
+    //
+    min::uns64 gc_stack_marks;
+    min::uns64 gc_new_stub_flags;
 
     // The GC Stack is a vector of min::stub * values
     // that is filled from low to high addresses.  MUP::
@@ -1245,9 +1255,27 @@ namespace min { namespace unprotected {
     // MUP::gc_stack >= MUP::gc_stack_end iff the stack
     // is full.
     //
-    min::stub * gc_stack;
-    min::stub * gc_stack_end;
+    min::stub ** gc_stack;
+    min::stub ** gc_stack_end;
 
+    // Function executed whenever a pointer to stub S2
+    // is stored in a datum with stub S1.  This function
+    // updates the GC flags of S2.
+    //
+    // S1 is the source of the written pointer and S2
+    // is the target.
+    // 
+    inline void gc_write_update
+	    ( min::stub * s1, min::stub * s2 )
+    {
+        uns64 f = ( control_of ( s1 ) >> 1 )
+	        & ( ~ control_of ( s2 ) )
+		& GC_MARKED_MASK;
+	set_flags_of ( s2, f );
+	if (    ( f & gc_stack_marks )
+	     && gc_stack < gc_stack_end )
+	    * gc_stack ++ = s2;
+    }
 
     // Stub allocation is from a single list of stubs
     // chained together by the chain part of the stub
@@ -1259,6 +1287,9 @@ namespace min { namespace unprotected {
     // there is no next stub, an out-of-line function,
     // gc_stub_expand_free_list, is called to add to the
     // end of the list.
+    //
+    // Unallocated stubs have stub type min::FREE and
+    // zero stub control flags.
 
     // Pointer to the last allocated stub, which must
     // exist (it can be a dummy).
@@ -1270,71 +1301,49 @@ namespace min { namespace unprotected {
     //
     unsigned number_of_free_stubs;
 
-    // Out of line function to return pointer to next
-    // free stub as a uns32 or uns64 address or VSN.
+    // Out of line function to increase the number of
+    // free stubs to be at least n.
     //
-#   if MIN_IS_COMPACT
-	uns32 gc_stub_expand_free_list ( void );
-#   elif MIN_IS_LOOSE
-	uns64 gc_stub_expand_free_list ( void );
-#   endif
+    void gc_stub_expand_free_list ( unsigned n );
+
+    // Function to return the next free stub as a
+    // garbage collectible stub.  The type is set to
+    // min::FREE and may be changed to any garbage
+    // collectible type.  The value is NOT set.  The GC
+    // flags are set to MUP::gc_new_stub_flags, and the
+    // non-type part of the stub control is maintained
+    // by the GC.
     //
-    // Function to return the next free stub.
-    // This function does NOT set any part of the stub.
     inline min::stub * new_stub ( void )
     {
-#	if MIN_IS_COMPACT
-	    uns32 v = min::unprotected::
-	              last_allocated_stub->
-	    		c.u32[MIN_BIG_ENDIAN];
-	    if ( v == 0 )
-	        v = gc_stub_expand_free_list ();
-	    return min::unprotected::
-	           last_allocated_stub =
-	           internal::uns32_to_stub ( v );
-#	else // if MIN_IS_LOOSE
-	    uns64 v = min::unprotected::
-	              last_allocated_stub->c.u64;
-	    v &= 0x00000FFFFFFFFFFF;
-	    if ( v == 0 )
-	        v = gc_stub_expand_free_list ();
-	    return min::unprotected::
-	           last_allocated_stub =
-	           internal::uns64_to_stub ( v );
-#	endif
+	if ( number_of_free_stubs == 0 )
+	    gc_stub_expand_free_list ( 1 );
+	-- number_of_free_stubs;
+	uns64 c = control_of ( last_allocated_stub );
+	min::stub * s = stub_of_control ( c );
+	set_flags_of ( s, gc_new_stub_flags );
+	return last_allocated_stub = s;
     }
-    //
+    
     // Function to return the next free stub while
-    // clipping this stub from the free list.
+    // removing this stub from the GC list of stubs.
     //
-    // This function does NOT set any part of the stub.
+    // This function does NOT set any part of the stub
+    // returned.  The stub returned is ignored by the
+    // GC.
+    //
     inline min::stub * new_aux_stub ( void )
     {
-#	if MIN_IS_COMPACT
-	    uns32 v = min::unprotected::
-	              last_allocated_stub->
-	    		c.u32[MIN_BIG_ENDIAN];
-	    if ( v == 0 )
-	        v = gc_stub_expand_free_list ();
-	    min::stub * s =
-		internal::uns32_to_stub ( v );
-	    min::unprotected::
-	        last_allocated_stub->
-		    c.u32[MIN_BIG_ENDIAN] =
-			s->c.u32[MIN_BIG_ENDIAN];
-	    return s;
-#	else // if MIN_IS_LOOSE
-	    uns64 v = min::unprotected::
-	              last_allocated_stub->c.u64;
-	    v &= 0x00000FFFFFFFFFFF;
-	    if ( v == 0 )
-	        v = gc_stub_expand_free_list ();
-	    min::stub * s =
-		internal::uns64_to_stub ( v );
-	    min::unprotected::
-	        last_allocated_stub->c.u64 = s->c.u64;
-	    return s;
-#	endif
+	if ( number_of_free_stubs == 0 )
+	    gc_stub_expand_free_list ( 1 );
+	-- number_of_free_stubs;
+	uns64 c = control_of ( last_allocated_stub );
+	min::stub * s = stub_of_control ( c );
+	c = renew_control_pointer
+	        ( c, pointer_of_control
+			 ( control_of ( s ) ) );
+	set_control_of ( last_allocated_stub, c );
+	return s;
     }
 
     // Allocation of bodies is from a stack-like region
