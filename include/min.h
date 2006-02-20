@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 09:21:12 EST 2006
+// Date:	Mon Feb 20 14:30:02 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 14:20:56 $
+//   $Date: 2006/02/20 19:48:19 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.58 $
+//   $Revision: 1.59 $
 
 // Table of Contents:
 //
@@ -1405,7 +1405,8 @@ namespace min { namespace unprotected {
 	    + n + sizeof ( body_control );
 	tail->size_difference =
 	    - end->size_difference
-	    - 2 * ( n + sizeof ( body_control ) );
+	    - 2 * min::int64
+	               ( n + sizeof ( body_control ) );
 	end->size_difference +=
 	    n + sizeof ( body_control );
 	tail->control = 0;
