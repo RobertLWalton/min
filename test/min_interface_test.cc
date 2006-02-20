@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 11:26:23 EST 2006
+// Date:	Mon Feb 20 12:31:47 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 16:47:44 $
+//   $Date: 2006/02/20 17:48:30 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents:
 //
@@ -1004,6 +1004,16 @@ int main ()
 	MUP::gc_write_update ( &s1, &s2 );
 	MIN_ASSERT
 	    ( MUP::gc_stack == stack + 2 );
+
+        cout << endl;
+	cout << "Test stub allocator functions:"
+	     << endl;
+	min::stub * stub1 = MUP::new_stub();
+	MIN_ASSERT ( stub1 == begin_stub_region + 1 );
+	MIN_ASSERT
+	    ( min::type_of ( stub1 ) == min::FREE );
+
+
 	
 
 	cout << endl;
