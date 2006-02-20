@@ -1,8 +1,8 @@
 // MIN Language Interface Test Program
 //
-// File:	min_test.cc
+// File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 16 13:02:03 EST 2006
+// Date:	Mon Feb 20 04:51:02 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/16 18:07:40 $
+//   $Date: 2006/02/20 12:07:50 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents:
 //
@@ -40,14 +40,6 @@
 // Setup
 // -----
 
-void min_assert
-	( bool value,
-	  const char * file, unsigned line,
-	  const char * expression );
-# define MIN_ASSERT(expr) \
-    min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr );
-
 # include <iostream>
 # include <iomanip>
 # include <cstring>
@@ -57,8 +49,149 @@ using std::hex;
 using std::dec;
 using std::ostream;
 
+void min_assert
+	( bool value,
+	  const char * file, unsigned line,
+	  const char * expression );
+# define MIN_ASSERT(expr) \
+    min_assert ( expr ? true : false, \
+    		 __FILE__, __LINE__, #expr );
+
 # include <min.h>
 # define MUP min::unprotected
+
+// Out of line functions that must be defined to test
+// the MIN interface.  These definitions are just for
+// simple interface testing.
+
+// Process Interface Functions.
+
+// When this out-of-line interrupt function is called it
+// sets the `interrupt_called' variable to true.
+//
+bool interrupt_called;
+bool MUP::interrupt ( void )
+{
+    interrupt_called = true;
+    return true;
+}
+
+// Garbage Collector Interface Functions.
+
+// Place to allocate stubs.  Stubs must be allocated on
+// a `sizeof (min::stub)' boundary.
+//
+char stub_region[10000];
+
+// Number of stubs allocated to stub_region so far,
+// address of the first stub in the region, and the
+// address of the first location beyond the last
+// possible stub in the region.
+//
+unsigned region_stubs_allocated = 0;
+min::stub * begin_stub_region;
+min::stub * end_stub_region;
+
+// Initialize stub_region, MUP::last_allocated_stub (to
+// a dummy), and number_free_stubs.
+//
+void initialize_stub_region ( void )
+{
+    unsigned MIN_INT_POINTER_TYPE stp =
+	(unsigned MIN_INT_POINTER_TYPE) stub_region;
+    // Check that sizeof min::stub is a power of 2.
+    assert ( (   sizeof (min::stub) - 1
+	       & sizeof (min::stub) )
+	     == 0 );
+    unsigned MIN_INT_POINTER_TYPE p = stp;
+    p += sizeof (min::stub) - 1;
+    p &= ~ (sizeof (min::stub) - 1 ) ;
+    begin_stub_region = (min::stub *) p;
+    stp += sizeof stub_region;
+    unsigned n = ( stp - p ) / ( sizeof (min::stub) );
+    p += ( sizeof (min::stub) ) * n;
+    end_stub_region = (min::stub *) p;
+    assert ( begin_stub_region < end_stub_region );
+
+    MUP::last_allocated_stub = begin_stub_region;
+    MUP::number_of_free_stubs = 0;
+    ++ region_stubs_allocated;
+    min::uns64 c = MUP::new_control
+	( min::FREE, (void *) NULL, 0 );
+    MUP::set_control_of
+	( MUP::last_allocated_stub, c );
+    MUP::set_value_of
+	( MUP::last_allocated_stub, 0 );
+}
+
+// Function to allocate n - number_of_free_stubs more
+// stubs to the stub_region and attach them to the
+// free list just after the last_allocated_stub.
+//
+void MUP::gc_expand_stub_free_list ( unsigned n )
+{
+    if ( n <= MUP::number_of_free_stubs ) return;
+    n -= MUP::number_of_free_stubs;
+
+    min::uns64 lastc = MUP::control_of
+	( MUP::last_allocated_stub );
+    min::stub * free = MUP::stub_of_control ( lastc );
+    while ( n -- > 0 )
+    {
+        min::stub * s = begin_stub_region
+	              + region_stubs_allocated;
+	assert ( s < end_stub_region );
+	++ region_stubs_allocated;
+	++ MUP::number_of_free_stubs;
+	min::uns64 c = MUP::new_control
+	    ( min::FREE, free, 0 );
+	MUP::set_control_of ( s, c );
+	MUP::set_value_of ( s, 0 );
+	free = s;
+    }
+    lastc = MUP::renew_control_pointer ( lastc, free );
+    MUP::set_control_of
+	( MUP::last_allocated_stub, lastc );
+}
+
+// Place to allocate bodies.  Bodes must be allocated on
+// 8 byte boundaries.
+//
+char body_region[10000];
+
+// Number of bytes allocated to the body region so far,
+// address of the first body control block in the region,
+// and the address of the first location beyond the last
+// possible body control block in the region.
+//
+unsigned region_bytes_allocated = 0;
+MUP::body_control * begin_body_region;
+MUP::body_control * end_body_region;
+
+// Initialize body_region and MUP::end_body_control.
+//
+void initialize_body_region ( void )
+{
+    unsigned MIN_INT_POINTER_TYPE stp =
+	(unsigned MIN_INT_POINTER_TYPE) body_region;
+    unsigned MIN_INT_POINTER_TYPE p = stp;
+    p += 7;
+    p &= ~ 7;
+    begin_body_region = (MUP::body_control *) p;
+    stp += sizeof body_region;
+    unsigned n = ( stp - p ) / 8;
+    p += 8 * n;
+    end_body_region = (MUP::body_control *) p;
+    assert ( begin_body_region + 2 <= end_body_region );
+
+    begin_body_region->control = 0;
+    begin_body_region->size_difference =
+        sizeof (MUP::body_control);
+    MUP::end_body_control = begin_body_region + 1;
+    MUP::end_body_control->control = 0;
+    MUP::end_body_control->size_difference =
+        - sizeof (MUP::body_control);
+}
 
 struct print_gen {
     min::gen g;
