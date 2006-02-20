@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 12:31:47 EST 2006
+// Date:	Mon Feb 20 13:08:11 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 17:48:30 $
+//   $Date: 2006/02/20 18:05:13 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents:
 //
@@ -1008,10 +1008,47 @@ int main ()
         cout << endl;
 	cout << "Test stub allocator functions:"
 	     << endl;
+	MUP::gc_new_stub_flags = 0;
 	min::stub * stub1 = MUP::new_stub();
 	MIN_ASSERT ( stub1 == begin_stub_region + 1 );
 	MIN_ASSERT
+	    ( stub1 == MUP::last_allocated_stub );
+	MIN_ASSERT
+	    ( region_stubs_allocated == 2 );
+	MIN_ASSERT
 	    ( min::type_of ( stub1 ) == min::FREE );
+	MIN_ASSERT
+	    ( ! MUP::test_flags_of
+	    	     ( stub1, marked_flag ) );
+	MUP::gc_new_stub_flags = marked_flag;
+	min::stub * stub2 = MUP::new_stub();
+	MIN_ASSERT
+	    ( stub2 == MUP::last_allocated_stub );
+	MIN_ASSERT
+	    ( region_stubs_allocated == 3 );
+	MIN_ASSERT ( stub2 == begin_stub_region + 2 );
+	MIN_ASSERT
+	    ( min::type_of ( stub2 ) == min::FREE );
+	MIN_ASSERT
+	    ( MUP::test_flags_of
+	    	     ( stub2, marked_flag ) );
+	MUP::gc_expand_stub_free_list ( 2 );
+	MIN_ASSERT
+	    ( region_stubs_allocated == 5 );
+	MIN_ASSERT
+	    ( stub2 == MUP::last_allocated_stub );
+	min::stub * stub3 = MUP::new_aux_stub();
+	MIN_ASSERT ( stub3 == begin_stub_region + 4 );
+	MIN_ASSERT
+	    ( region_stubs_allocated == 5 );
+	MIN_ASSERT
+	    ( stub2 == MUP::last_allocated_stub );
+	min::stub * stub4 = MUP::new_stub();
+	MIN_ASSERT ( stub4 == begin_stub_region + 3 );
+	MIN_ASSERT
+	    ( region_stubs_allocated == 5 );
+	MIN_ASSERT
+	    ( stub4 == MUP::last_allocated_stub );
 
 
 	
