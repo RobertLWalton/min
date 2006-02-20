@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 07:22:40 EST 2006
+// Date:	Mon Feb 20 08:26:02 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,13 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 13:21:44 $
+//   $Date: 2006/02/20 14:13:56 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents:
 //
 //	Setup
+//	Run-Time System for Interface Tests
 //	C++ Number Types
 //	Internal Pointer Conversion Functions
 //	General Value Types and Data
@@ -49,10 +50,44 @@ using std::hex;
 using std::dec;
 using std::ostream;
 
+// Redefinition of MIN_ASSERT for use in min.h.
+//
+struct min_assert_exception {};
+//
+bool min_assert_print = true;
 void min_assert
 	( bool value,
 	  const char * file, unsigned line,
-	  const char * expression );
+	  const char * expression )
+{
+    if ( min_assert_print )
+    {
+	cout << file << ":" << line
+             << " assert:" << endl 
+	     << "    " << expression
+	     << ( value ? " true." : " false." )
+	     << endl;
+    }
+    if ( ! value )
+	throw ( new min_assert_exception );
+}
+
+# define desire_success(statement) \
+    { cout << __FILE__ << ":" << __LINE__ \
+	   << " desire success:" << endl \
+	   << "    " << #statement << endl; \
+      statement; }
+
+# define desire_failure(statement) \
+    try { cout << __FILE__ << ":" << __LINE__ \
+               << " desire failure:" << endl \
+	       << "    " << #statement << endl; \
+	  statement; \
+          cout << "EXITING BECAUSE OF SUCCESSFUL" \
+	          " MIN_ASSERT" << endl; \
+	  exit (1 ); } \
+    catch ( min_assert_exception * x ) {}
+//
 # define MIN_ASSERT(expr) \
     min_assert ( expr ? true : false, \
     		 __FILE__, __LINE__, #expr );
@@ -60,9 +95,25 @@ void min_assert
 # include <min.h>
 # define MUP min::unprotected
 
+// Helper functions for tests.
+
+
+struct print_gen {
+    min::gen g;
+    print_gen ( min::gen g ) : g ( g ) {}
+    friend ostream & operator << ( ostream & s, print_gen pg )
+    {
+	return s << hex << pg.g << dec;
+    }
+};
+
+// Run-Time System for Interface Tests
+// -------- ------ --- --------- -----
+
 // Out of line functions that must be defined to test
-// the MIN interface.  These definitions are just for
-// simple interface testing.
+// the MIN interface.  These definitions substitute for
+// the normal run-time system, and are just for simple
+// interface testing.
 
 // Process Interface Functions.
 
@@ -93,7 +144,7 @@ min::stub * begin_stub_region;
 min::stub * end_stub_region;
 
 // Initialize stub_region, MUP::last_allocated_stub (to
-// a dummy), and number_free_stubs.
+// a dummy), and number_free_stubs (to zero).
 //
 void initialize_stub_region ( void )
 {
@@ -159,12 +210,10 @@ void MUP::gc_expand_stub_free_list ( unsigned n )
 //
 char body_region[10000];
 
-// Number of bytes allocated to the body region so far,
-// address of the first body control block in the region,
+// Address of the first body control block in the region,
 // and the address of the first location beyond the last
 // possible body control block in the region.
 //
-unsigned region_bytes_allocated = 0;
 MUP::body_control * begin_body_region;
 MUP::body_control * end_body_region;
 
@@ -196,7 +245,7 @@ void initialize_body_region ( void )
 // Function to be sure last free body (not counting its
 // body control) has n' + sizeof ( body_control ) bytes,
 // where n' is n rounded up to a muliple of 8.  Updates
-// MUP::end_body_control and returns it value.
+// MUP::end_body_control and returns its value.
 //
 MUP::body_control * MUP::gc_expand_body_stack
 	( unsigned n )
@@ -204,12 +253,13 @@ MUP::body_control * MUP::gc_expand_body_stack
     n += 7;
     n &= ~ 7;
     MUP::body_control * end = MUP::end_body_control;
-    min::int64 m = n + end->size_difference
-                 + 2 * sizeof (MUP::body_control);
+    min::int64 m = n + 2 * sizeof (MUP::body_control)
+		 + end->size_difference;
     if ( m <= 0 ) return end;
     unsigned MIN_INT_POINTER_TYPE p =
 	(unsigned MIN_INT_POINTER_TYPE) end;
     p += m;
+    assert ( ( p & 7 ) == 0 );
     end = (MUP::body_control *) p;
     assert ( end + 1 <= end_body_region );
     end->control = 0;
@@ -218,51 +268,6 @@ MUP::body_control * MUP::gc_expand_body_stack
     MUP::end_body_control = end;
     return end;
 }
-
-struct print_gen {
-    min::gen g;
-    print_gen ( min::gen g ) : g ( g ) {}
-    friend ostream & operator << ( ostream & s, print_gen pg )
-    {
-	return s << hex << pg.g << dec;
-    }
-};
-
-struct min_assert_exception {};
-
-bool min_assert_print = true;
-void min_assert
-	( bool value,
-	  const char * file, unsigned line,
-	  const char * expression )
-{
-    if ( min_assert_print )
-    {
-	cout << file << ":" << line
-             << " assert:" << endl 
-	     << "    " << expression
-	     << ( value ? " true." : " false." )
-	     << endl;
-    }
-    if ( ! value )
-	throw ( new min_assert_exception );
-}
-
-#define desire_success(statement) \
-    { cout << __FILE__ << ":" << __LINE__ \
-	   << " desire success:" << endl \
-	   << "    " << #statement << endl; \
-      statement; }
-
-#define desire_failure(statement) \
-    try { cout << __FILE__ << ":" << __LINE__ \
-               << " desire failure:" << endl \
-	       << "    " << #statement << endl; \
-	  statement; \
-          cout << "EXITING BECAUSE OF SUCCESSFUL" \
-	          " MIN_ASSERT" << endl; \
-	  exit (1 ); } \
-    catch ( min_assert_exception * x ) {}
 
 int main ()
 {
@@ -883,7 +888,62 @@ int main ()
 	cout << endl;
 	cout << "Finish Stub Functions Test!" << endl;
     }
+
 // Process Interface
+// ------- ---------
+    {
+	cout << endl;
+	cout << "Start Process Interface Test!" << endl;
+	MUP::interrupt_flag = false;
+	MUP::relocated_flag = false;
+
+	// Process control testing is TBD.
+
+        cout << endl;
+	cout << "Test interrupt function:" << endl;
+	interrupt_called = false;
+	min::interrupt();
+	MIN_ASSERT ( ! interrupt_called );
+	MUP::interrupt_flag = true;
+	min::interrupt();
+	MIN_ASSERT ( interrupt_called );
+
+        cout << endl;
+	cout << "Test relocate flag functions:"
+	     << endl;
+	MIN_ASSERT ( ! min::relocated_flag() );
+	MIN_ASSERT
+	    ( ! min::set_relocated_flag ( true ) );
+	MIN_ASSERT ( min::relocated_flag() );
+	MIN_ASSERT
+	    ( min::set_relocated_flag ( false ) );
+	MIN_ASSERT ( ! min::relocated_flag() );
+
+	// Now relocated flag is false.
+	{
+	    min::relocated r;
+	    MIN_ASSERT ( ! r );
+	    MIN_ASSERT ( ! min::relocated_flag() )
+	    min::set_relocated_flag ( true );
+	    MIN_ASSERT ( r );
+	    MIN_ASSERT ( ! min::relocated_flag() )
+	}
+	MIN_ASSERT ( min::relocated_flag() );
+
+	// Now relocated flag is true.
+	{
+	    min::relocated r;
+	    MIN_ASSERT ( ! min::relocated_flag() )
+	    MIN_ASSERT ( ! r );
+	    MIN_ASSERT ( ! min::relocated_flag() )
+	}
+	MIN_ASSERT ( min::relocated_flag() )
+
+	cout << endl;
+	cout << "Finish Process Interface Test!"
+	     << endl;
+    }
+
 // Garbage Collector Interface
 // Numbers
 // Strings
