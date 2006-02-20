@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 13:08:11 EST 2006
+// Date:	Mon Feb 20 13:16:05 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 18:05:13 $
+//   $Date: 2006/02/20 19:48:07 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents:
 //
@@ -239,7 +239,7 @@ void initialize_body_region ( void )
     MUP::end_body_control = begin_body_region + 1;
     MUP::end_body_control->control = 0;
     MUP::end_body_control->size_difference =
-        - sizeof (MUP::body_control);
+        - min::int64 ( sizeof (MUP::body_control) );
 }
 
 // Function to be sure last free body (not counting its
@@ -256,15 +256,22 @@ MUP::body_control * MUP::gc_expand_body_stack
     min::int64 m = n + 2 * sizeof (MUP::body_control)
 		 + end->size_difference;
     if ( m <= 0 ) return end;
+    assert ( ( m & 7 ) == 0 );
     unsigned MIN_INT_POINTER_TYPE p =
 	(unsigned MIN_INT_POINTER_TYPE) end;
-    p += m;
     assert ( ( p & 7 ) == 0 );
+    unsigned MIN_INT_POINTER_TYPE q =
+    	p + end->size_difference;
+    MUP::body_control * previous =
+        (MUP::body_control *) q;
+    previous->size_difference += m;
+    p += m;
     end = (MUP::body_control *) p;
     assert ( end + 1 <= end_body_region );
     end->control = 0;
     end->size_difference =
-        - n - 2 * sizeof (MUP::body_control);
+        - min::int64
+	       ( n + 2 * sizeof (MUP::body_control) );
     MUP::end_body_control = end;
     return end;
 }
@@ -1051,7 +1058,30 @@ int main ()
 	    ( stub4 == MUP::last_allocated_stub );
 
 
-	
+        cout << endl;
+	cout << "Test body allocator functions:"
+	     << endl;
+	MUP::body_control * body1 =
+	    MUP::new_body ( 128 );
+	char * p1 = (char *) body1
+	          + sizeof ( * body1 );
+	memset ( p1, 0xBB, 128 );
+	MUP::body_control * body2 =
+	    MUP::new_body ( 128 );
+	char * p2 = (char *) body2
+	          + sizeof ( * body2 );
+	memset ( p2, 0xBB, 128 );
+	MIN_ASSERT ( memcmp ( p1, p2, 128 ) == 0 );
+	MIN_ASSERT ( p1 + sizeof ( MUP::body_control )
+	                + 128 == p2 );
+	char * p3 = (char *) MUP::end_body_control
+	          + sizeof ( MUP::body_control );
+	MUP::gc_expand_body_stack ( 256 );
+	char * p4 = (char *) MUP::end_body_control
+	          + sizeof ( MUP::body_control );
+	MIN_ASSERT ( p3 + sizeof ( MUP::body_control )
+	                + 256 == p4 );
+	// TBD
 
 	cout << endl;
 	cout << "Finish Garbage Collector"
