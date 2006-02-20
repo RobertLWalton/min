@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 04:51:02 EST 2006
+// Date:	Mon Feb 20 07:22:40 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 12:07:50 $
+//   $Date: 2006/02/20 13:21:44 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents:
 //
@@ -191,6 +191,32 @@ void initialize_body_region ( void )
     MUP::end_body_control->control = 0;
     MUP::end_body_control->size_difference =
         - sizeof (MUP::body_control);
+}
+
+// Function to be sure last free body (not counting its
+// body control) has n' + sizeof ( body_control ) bytes,
+// where n' is n rounded up to a muliple of 8.  Updates
+// MUP::end_body_control and returns it value.
+//
+MUP::body_control * MUP::gc_expand_body_stack
+	( unsigned n )
+{
+    n += 7;
+    n &= ~ 7;
+    MUP::body_control * end = MUP::end_body_control;
+    min::int64 m = n + end->size_difference
+                 + 2 * sizeof (MUP::body_control);
+    if ( m <= 0 ) return end;
+    unsigned MIN_INT_POINTER_TYPE p =
+	(unsigned MIN_INT_POINTER_TYPE) end;
+    p += m;
+    end = (MUP::body_control *) p;
+    assert ( end + 1 <= end_body_region );
+    end->control = 0;
+    end->size_difference =
+        - n - 2 * sizeof (MUP::body_control);
+    MUP::end_body_control = end;
+    return end;
 }
 
 struct print_gen {
