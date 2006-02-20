@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 08:26:02 EST 2006
+// Date:	Mon Feb 20 11:26:23 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 14:13:56 $
+//   $Date: 2006/02/20 16:47:44 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents:
 //
@@ -945,6 +945,72 @@ int main ()
     }
 
 // Garbage Collector Interface
+// ------- --------- ---------
+
+    {
+	cout << endl;
+	cout << "Start Garbage Collector"
+	        " Interface Test!" << endl;
+	initialize_stub_region();
+	initialize_body_region();
+	min::stub * stack[2];
+	MUP::gc_stack = stack;
+	MUP::gc_stack_end = stack + 2;
+	min::stub s1, s2;
+	const min::uns64 marked_flag =
+	    min::uns64(1) << MIN_POINTER_BITS;
+	const min::uns64 scavenged_flag =
+	    marked_flag << 1;
+	MUP::gc_stack_marks = marked_flag;
+
+        cout << endl;
+	cout << "Test mutator functions:"
+	     << endl;
+	MUP::set_control_of ( &s1, 0 );
+	MUP::set_flags_of ( &s1, scavenged_flag );
+	MUP::set_control_of ( &s2, 0 );
+	MUP::gc_stack = stack;
+	MUP::gc_stack_marks = 0;
+	MUP::gc_write_update ( &s1, &s2 );
+	MIN_ASSERT
+	    ( MUP::test_flags_of ( &s2, marked_flag ) );
+	MIN_ASSERT
+	    ( MUP::gc_stack == stack );
+	MUP::set_control_of ( &s2, 0 );
+	MUP::gc_stack_marks = marked_flag;
+	MUP::gc_write_update ( &s1, &s2 );
+	MIN_ASSERT
+	    ( MUP::test_flags_of ( &s2, marked_flag ) );
+	MIN_ASSERT
+	    ( MUP::gc_stack == stack + 1 );
+	MIN_ASSERT ( stack[0] == &s2 );
+	MUP::gc_write_update ( &s1, &s2 );
+	MIN_ASSERT
+	    ( MUP::test_flags_of ( &s2, marked_flag ) );
+	MIN_ASSERT
+	    ( MUP::gc_stack == stack + 1 );
+	MIN_ASSERT
+	    ( ! MUP::test_flags_of
+	    	     ( &s1, marked_flag ) );
+	MIN_ASSERT
+	    ( ! MUP::test_flags_of
+	    	     ( &s2, scavenged_flag ) );
+	MUP::clear_flags_of ( &s2, marked_flag );
+	MUP::gc_write_update ( &s1, &s2 );
+	MIN_ASSERT
+	    ( MUP::gc_stack == stack + 2 );
+	MIN_ASSERT ( stack[1] == &s2 );
+	MUP::clear_flags_of ( &s2, marked_flag );
+	MUP::gc_write_update ( &s1, &s2 );
+	MIN_ASSERT
+	    ( MUP::gc_stack == stack + 2 );
+	
+
+	cout << endl;
+	cout << "Finish Garbage Collector"
+	        " Interface Test!" << endl;
+    }
+
 // Numbers
 // Strings
 // Labels
