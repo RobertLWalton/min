@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 16 13:07:28 EST 2006
+// Date:	Mon Feb 20 09:21:12 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/16 18:07:48 $
+//   $Date: 2006/02/20 14:20:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.57 $
+//   $Revision: 1.58 $
 
 // Table of Contents:
 //
@@ -1179,7 +1179,10 @@ namespace min {
 	}
 	~ relocated ( void )
 	{
-	    min::set_relocated_flag ( relocated_flag );
+	    bool current_relocated_flag =
+	        min::set_relocated_flag
+		    ( relocated_flag );
+	    MIN_ASSERT ( ! current_relocated_flag );
 	}
 	operator bool ()
 	{
