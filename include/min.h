@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 21 18:59:20 EST 2006
+// Date:	Wed Feb 22 05:28:24 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/22 10:14:23 $
+//   $Date: 2006/02/22 10:25:43 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.62 $
+//   $Revision: 1.63 $
 
 // Table of Contents:
 //
@@ -149,6 +149,7 @@ namespace min { namespace internal {
 #	        error MIN_STUB_NUMBER_BITS > 32
 #           endif
 	}
+#   endif
 } }
 
 // General Value Types and Data
@@ -476,8 +477,7 @@ namespace min {
 	    return unprotected::new_direct_int_gen
 	    		( v );
 	}
-#   endif
-#   if MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	inline min::gen new_direct_float_gen
 		( float64 v )
 	{
@@ -1724,7 +1724,7 @@ namespace min {
 		    MIN_ASSERT ( is_num ( v ) );
 		}
 	    }
-    #   elif MIN_IS_LOOSE
+#   elif MIN_IS_LOOSE
 	    inline bool is_num ( min::gen v )
 	    {
 		return min::is_direct_float ( v );
@@ -1752,7 +1752,7 @@ namespace min {
 		MIN_ASSERT ( is_num ( v ) );
 		return (float64) ( v );
 	    }
-    #   endif
+#   endif
 
     min::uns32 floathash ( min::float64 f );
 
@@ -2024,7 +2024,7 @@ namespace min {
 	    if ( n <= 3 )
 		return min::unprotected::
 		       new_direct_str_gen ( p );
-#	else // if MIN_IS_LOOSE
+#	elif MIN_IS_LOOSE
 	    if ( n <= 5 )
 		return min::unprotected::
 		       new_direct_str_gen ( p );
