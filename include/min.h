@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/22 00:40:06 $
+//   $Date: 2006/02/22 10:14:23 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.61 $
+//   $Revision: 1.62 $
 
 // Table of Contents:
 //
@@ -87,100 +87,9 @@ namespace min { namespace internal {
     // to pointers and vice versa.
 
 #   if MIN_POINTER_BITS <= 32
-	typedef pointer_uns uns32;
+	typedef uns32 pointer_uns;
 #   elif
-	typedef pointer_uns uns64;
-#   endif
-
-    inline min::stub * uns64_to_stub
-	    ( min::uns64 v, unsigned stub_pointer_bits )
-    {
-	min::internal::pointer_uns p =
-	   (min::internal::pointer_uns)
-	   (v & ( ( min::uns64(1) << stub_pointer_bits )
-	          - 1 ) );
-	if ( stub_pointer_bits >= MIN_POINTER_BITS )
-	    return (min::stub *) p;
-	else if (    stub_pointer_bits
-	          >= MIN_STUB_RELATIVE_BITS )
-	    return
-	        (min::stub *)
-		( p + (min::internal::pointer_uns)
-		      MIN_STUB_BASE );
-	else if (    pointer_bits
-	          >= MIN_STUB_NUMBER_BITS )
-	    return
-	        (min::stub *)
-		(min::internal::pointer_uns)
-		MIN_STUB_BASE + p;
-    }
-
-    inline min::uns64 stub_into_uns64
-	    ( min::uns64 v, min::stub * s,
-	      unsigned stub_pointer_bits )
-    {
-	v &= ~ ( ( min::uns64(1) << stub_pointer_bits )
-	         - 1 );
-	if ( stub_pointer_bits >= MIN_POINTER_BITS )
-	    return v + (min::internal::pointer_uns) s;
-	else if (    stub_pointer_bits
-	          >= MIN_STUB_RELATIVE_BITS )
-	    return v + ( (min::internal::pointer_uns) s
-	                 - MIN_STUB_BASE );
-	else if (    pointer_bits
-	          >= MIN_STUB_NUMBER_BITS )
-	    return
-	        v + ( ( (min::internal::pointer_uns) s
-	                - MIN_STUB_BASE )
-		      >> MIN_STUB_SHIFT );
-    }
-
-#   if MIN_IS_COMPACT
-	inline void * uns32_to_pointer ( min::uns32 v )
-	{
-	    return (void *)
-		   (min::internal::pointer_uns) v;
-	}
-	inline min::uns32 pointer_to_uns32 ( void * p )
-	{
-	    return (min::uns32)
-		   (min::internal::pointer_uns) p;
-	}
-#	if MIN_USES_VSNS
-	    inline min::stub * uns32_to_stub
-	    	( min::uns32 v )
-	    {
-		return (min::stub *)
-		       ( ( (min::internal
-		               ::pointer_uns) v
-		           << MIN_VSN_SHIFT )
-			 + MIN_VSN_BASE );
-	    }
-	    inline min::uns32 stub_to_uns32
-	    	( void * p )
-	    {
-		return (min::uns32)
-		       ( ( (min::internal
-		               ::pointer_uns) p
-			   - MIN_VSN_BASE )
-			 >> MIN_VSN_SHIFT );
-	    }
-#	else // MIN_USES_ADDRESSES
-	    inline min::stub * uns32_to_stub
-	    	( min::uns32 v )
-	    {
-		return (min::stub *)
-		       (min::internal::pointer_uns)
-		       v;
-	    }
-	    inline min::uns32 stub_to_uns32
-	    	( void * p )
-	    {
-		return (min::uns32)
-		       (min::internal::pointer_uns)
-		       p;
-	    }
-#	endif
+	typedef uns64 pointer_uns;
 #   endif
 
     inline void * uns64_to_pointer ( min::uns64 v )
@@ -194,43 +103,52 @@ namespace min { namespace internal {
 	       (min::internal::pointer_uns) p;
     }
 
-#   if MIN_IS_LOOSE
-#	if MIN_USES_VSNS
-	    inline min::stub * uns64_to_stub
-	    	( min::uns64 v )
-	    {
-		return (min::stub *)
-		       ( ( (min::internal
-		               ::pointer_uns) v
-		           << MIN_VSN_SHIFT )
-			 + MIN_VSN_BASE );
-	    }
-	    inline min::uns64 stub_to_uns64
-	    	( void * p )
-	    {
-		return (min::uns64)
-		       ( ( (min::internal
-		               ::pointer_uns) p
-			   - MIN_VSN_BASE )
-		         >> MIN_VSN_SHIFT );
-	    }
-#	else // MIN_USES_ADDRESSES
-	    inline min::stub * uns64_to_stub
-	    	( min::uns64 v )
-	    {
-		return (min::stub *)
-		       (min::internal::pointer_uns)
-		       v;
-	    }
-	    inline min::uns64 stub_to_uns64
-		    ( void * p )
-	    {
-		return (min::uns64)
-		       (min::internal::pointer_uns)
-		       p;
-	    }
-#	endif
-#   endif
+#   if MIN_STUB_NUMBER_BITS <= 32
+
+	// If we can fit a stub address into 32 bits,
+	// define routines to do so, even if we have
+	// not implemented compact general values.
+
+	inline min::stub * uns32_to_stub
+		( min::uns32 v )
+	{
+	    return (min::stub *)
+		   (min::internal::pointer_uns) v;
+	    min::internal::pointer_uns p =
+		(min::internal::pointer_uns) v;
+#           if MIN_POINTER_BITS <= 32
+		return ( min::stub * ) p;
+#           elif MIN_STUB_RELATIVE_BITS <= 32
+		return
+		    (min::stub *)
+		    ( p + (min::internal::pointer_uns)
+			  MIN_STUB_BASE );
+#           elif MIN_STUB_NUMBER_BITS <= 32
+		return
+		    (min::stub *)
+		    (min::internal::pointer_uns)
+		    MIN_STUB_BASE + p;
+#           else
+#	        error MIN_STUB_NUMBER_BITS > 32
+#           endif
+	}
+	inline min::uns32 stub_to_uns32
+		( min::stub * s )
+	{
+#           if MIN_POINTER_BITS <= 32
+	        return (min::internal::pointer_uns) s;
+#           elif MIN_STUB_RELATIVE_BITS <= 32
+	        return   (min::internal::pointer_uns) s
+		       - (min::internal::pointer_uns)
+		         MIN_STUB_BASE;
+#           elif MIN_STUB_NUMBER_BITS <= 32
+	        return s - (min::stub *)
+	                   (min::internal::pointer_uns)
+		           MIN_STUB_BASE;
+#           else
+#	        error MIN_STUB_NUMBER_BITS > 32
+#           endif
+	}
 } }
 
 // General Value Types and Data
@@ -317,6 +235,61 @@ namespace min {
 	    // Largest subtype code.
 #   endif
 }
+
+namespace min { namespace internal {
+
+#   if MIN_IS_LOOSE
+        inline min::stub * general_uns64_to_stub
+	        ( min::uns64 v )
+        {
+	    min::internal::pointer_uns p =
+	       (min::internal::pointer_uns)
+	       (v & ( ( min::uns64(1) << 44 ) - 1 ) );
+#           if MIN_POINTER_BITS <= 44
+	        return ( min::stub * ) p;
+#           elif MIN_STUB_RELATIVE_BITS <= 44
+	        return
+	            (min::stub *)
+		    ( p + (min::internal::pointer_uns)
+		          MIN_STUB_BASE );
+#           elif MIN_STUB_NUMBER_BITS <= 44
+	        return
+	            (min::stub *)
+		    (min::internal::pointer_uns)
+		    MIN_STUB_BASE + p;
+#           else
+#	        error MIN_STUB_NUMBER_BITS > 44
+#           endif
+        }
+
+        inline min::uns64 general_stub_to_uns64
+	        ( min::stub * s )
+        {
+#           if MIN_POINTER_BITS <= 44
+	        return (min::internal::pointer_uns) s;
+#           elif MIN_STUB_RELATIVE_BITS <= 44
+	        return
+	               (min::internal::pointer_uns) s
+	             - (min::internal::pointer_uns)
+		       MIN_STUB_BASE;
+#           elif MIN_STUB_NUMBER_BITS <= 44
+	        return   s
+	               - (min::stub *)
+		         (min::internal::pointer_uns)
+		         MIN_STUB_BASE;
+#           else
+#	        error MIN_STUB_NUMBER_BITS > 44
+#           endif
+        }
+
+        inline min::uns64 general_stub_into_uns64
+	        ( min::uns64 v, min::stub * s )
+        {
+	    v &= ~ ( ( min::uns64(1) << 44 ) - 1 );
+	    return v + general_stub_to_uns64 ( s );
+        }
+#   endif
+} }
 
 // General Value Constructor Functions
 // ------- ----- ----------- ---------
@@ -401,7 +374,8 @@ namespace min { namespace unprotected {
 	inline min::gen new_gen ( min::stub * s )
 	{
 	    return (min::gen)
-		   (   internal::stub_to_uns64 ( s )
+		   (     internal
+		       ::general_stub_to_uns64 ( s )
 		     + ( (uns64) GEN_STUB << 40 )  );
 	}
 	// Unimplemented for LOOSE:
@@ -717,7 +691,8 @@ namespace min { namespace unprotected {
 #   if MIN_IS_COMPACT
 	inline min::stub * stub_of ( min::gen v )
 	{
-	    return internal::uns32_to_stub ( v );
+	    return   internal
+	           ::uns32_to_stub ( v );
 	}
 	// Unimplemented for COMPACT:
 	//   float64 direct_float_of ( min::gen v )
@@ -771,7 +746,7 @@ namespace min { namespace unprotected {
 #   elif MIN_IS_LOOSE
 	inline min::stub * stub_of ( min::gen v )
 	{
-	    return internal::uns64_to_stub
+	    return internal::general_uns64_to_stub
 	    		( v & 0xFFFFFFFFFF );
 	}
 	inline float64 direct_float_of ( min::gen v )
@@ -903,96 +878,290 @@ namespace min {
 // Control Values
 // ------- ------
 
-namespace min
-{
-    // The pointer/value field is at most 48 bits.
-    // There are at least 8 flag bits, 1 << 55 to
-    // 1 << 48.
+# define MIN_CONTROL_VALUE_BITS 48
+# define MIN_GC_CONTROL_VALUE_BITS \
+    ( 56 - MIN_GC_FLAG_BITS )
 
-    namespace internal {
+namespace min { namespace internal {
 
-	const min::uns64 TYPE_MASK =
-	    ~ ( ( uns64(1) << 56 ) - 1 );
-	const min::uns64 POINTER_MASK =
-	    ( ( uns64(1) << MIN_POINTER_BITS ) - 1 );
+    const min::uns64 TYPE_MASK =
+	~ ( ( uns64(1) << 56 ) - 1 );
+    const min::uns64 CONTROL_VALUE_MASK =
+	( ( uns64(1) << MIN_CONTROL_VALUE_BITS ) - 1 );
+    const min::uns64 GC_CONTROL_VALUE_MASK =
+	(   ( uns64(1) << MIN_GC_CONTROL_VALUE_BITS )
+	  - 1 );
+} }
 
+namespace min { namespace unprotected {
+
+    inline int type_of_control ( min::uns64 c )
+    {
+	return int ( min::int64 ( c ) >> 56 );
     }
 
-    namespace unprotected {
+    inline unsigned value_of_control
+	    ( min::uns64 c )
+    {
+	return unsigned
+	  ( c & min::internal::CONTROL_VALUE_MASK );
+    }
 
-        inline int type_of_control ( min::uns64 c )
-	{
-	    return int ( min::int64 ( c ) >> 56 );
-        }
+    inline min::uns64 new_control
+	    ( int type_code, min::uns64 v,
+	      min::uns64 flags = 0 )
+    {
+	return ( min::uns64 ( type_code ) << 56 )
+	       |
+	       v
+	       |
+	       flags;
+    }
 
-        inline unsigned value_of_control
+    inline min::uns64 renew_control_type
+	    ( min::uns64 c, int type )
+    {
+	return ( c & ~ min::internal::TYPE_MASK )
+	       | ( min::uns64 (type) << 56 );
+    }
+
+    inline min::uns64 renew_control_value
+	    ( min::uns64 c, min::uns64 v )
+    {
+	return ( c & ~ min::internal
+	                  ::CONTROL_VALUE_MASK )
+	       | v;
+    }
+
+#   if MIN_POINTER_BITS <= MIN_CONTROL_VALUE_BITS
+
+	inline min::stub * stub_of_control
 		( min::uns64 c )
 	{
-	    return unsigned
-	      ( c & min::internal::POINTER_MASK );
-        }
+	    return ( min::stub * )
+	           (min::internal::pointer_uns)
+	           (c & min::internal
+		           ::CONTROL_VALUE_MASK );
+	}
 
-        inline void * pointer_of_control
-		( min::uns64 c )
-	{
-	    return min::internal::uns64_to_pointer
-	      ( c & min::internal::POINTER_MASK );
-
-        }
-
-        inline min::stub * stub_of_control
-		( min::uns64 c )
-	{
-	    return (min::stub *)
-	        min::internal::uns64_to_pointer
-	            ( c & min::internal::POINTER_MASK );
-        }
-
-        inline min::uns64 new_control
-		( int type_code, min::uns64 v,
+	inline min::uns64 new_control
+		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
-	    	   |
-		   v
+		   |
+		   (min::internal::pointer_uns) s
 		   |
 		   flags;
 	}
 
-        inline min::uns64 new_control
-		( int type_code, void * p,
+	inline min::uns64 renew_control_stub
+		( min::uns64 c, min::stub * s )
+	{
+	    return ( c & ~ min::internal
+	                      ::CONTROL_VALUE_MASK )
+		   | (min::internal::pointer_uns) s;
+	}
+
+#   elif    MIN_STUB_RELATIVE_BITS \
+         <= MIN_CONTROL_VALUE_BITS
+
+	inline min::stub * stub_of_control
+		( min::uns64 c )
+	{
+	    min::internal::pointer_uns p =
+	       (min::internal::pointer_uns)
+	       (c & min::internal::CONTROL_VALUE_MASK );
+	    return
+	        (min::stub *)
+		( p + (min::internal::pointer_uns)
+		      MIN_STUB_BASE );
+	}
+
+	inline min::uns64 new_control
+		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
-	    	   |
-		   min::internal::
-		        pointer_to_uns64 ( p )
+		   |
+	           (   (min::internal::pointer_uns) s
+	             - (min::internal::pointer_uns)
+		       MIN_STUB_BASE )
 		   |
 		   flags;
 	}
 
-        inline min::uns64 renew_control_type
-		( min::uns64 c, int type )
+	inline min::uns64 renew_control_stub
+		( min::uns64 c, min::stub * s )
 	{
-	    return ( c & ~ min::internal::TYPE_MASK )
-	           | ( min::uns64 (type) << 56 );
+	    return ( c & ~ min::internal
+	                      ::CONTROL_VALUE_MASK )
+		   | (   (min::internal::pointer_uns) s
+		       - (min::internal::pointer_uns)
+		         MIN_STUB_BASE );
 	}
 
-        inline min::uns64 renew_control_value
-		( min::uns64 c, min::uns64 v )
+#   elif    MIN_STUB_NUMBER_BITS \
+         <= MIN_CONTROL_VALUE_BITS
+
+	inline min::stub * stub_of_control
+		( min::uns64 c )
 	{
-	    return ( c & ~ min::internal::POINTER_MASK )
-	           | v;
+	    min::internal::pointer_uns p =
+	       (min::internal::pointer_uns)
+	       (c & min::internal::CONTROL_VALUE_MASK );
+	    return
+	        (min::stub *)
+		(min::internal::pointer_uns)
+		MIN_STUB_BASE + p;
 	}
 
-        inline min::uns64 renew_control_pointer
-		( min::uns64 c, void * p )
+	inline min::uns64 new_control
+		( int type_code, min::stub * s,
+		  min::uns64 flags = 0 )
 	{
-	    return ( c & ~ min::internal::POINTER_MASK )
-	           | min::internal::
-		          pointer_to_uns64 ( p );
+	    return ( min::uns64 ( type_code ) << 56 )
+		   |
+		   (min::internal::pointer_uns) s
+	           | (   s
+	               - (min::stub *)
+		         (min::internal::pointer_uns)
+		         MIN_STUB_BASE )
+		   |
+		   flags;
 	}
-}}
+
+	inline min::uns64 renew_control_stub
+		( min::uns64 c, min::stub * s )
+	{
+	    return ( c & ~ min::internal
+	                      ::CONTROL_VALUE_MASK )
+	           | (   s
+	               - (min::stub *)
+		         (min::internal::pointer_uns)
+		         MIN_STUB_BASE );
+	}
+#   else
+#	error   MIN_STUB_NUMBER_BITS \
+              > MIN_CONTROL_VALUE_BITS
+#   endif
+
+#   if MIN_POINTER_BITS <= MIN_GC_CONTROL_VALUE_BITS
+
+	inline min::stub * stub_of_gc_control
+		( min::uns64 c )
+	{
+	    return ( min::stub * )
+	           (min::internal::pointer_uns)
+	           (c & min::internal
+		           ::GC_CONTROL_VALUE_MASK );
+	}
+
+	inline min::uns64 new_gc_control
+		( int type_code, min::stub * s,
+		  min::uns64 flags = 0 )
+	{
+	    return ( min::uns64 ( type_code ) << 56 )
+		   |
+		   (min::internal::pointer_uns) s
+		   |
+		   flags;
+	}
+
+	inline min::uns64 renew_gc_control_stub
+		( min::uns64 c, min::stub * s )
+	{
+	    return ( c & ~ min::internal
+	                      ::GC_CONTROL_VALUE_MASK )
+		   | (min::internal::pointer_uns) s;
+	}
+
+#   elif    MIN_STUB_RELATIVE_BITS \
+         <= MIN_GC_CONTROL_VALUE_BITS
+
+	inline min::stub * stub_of_gc_control
+		( min::uns64 c )
+	{
+	    min::internal::pointer_uns p =
+	       (min::internal::pointer_uns)
+	       (c & min::internal
+	               ::GC_CONTROL_VALUE_MASK );
+	    return
+	        (min::stub *)
+		( p + (min::internal::pointer_uns)
+		      MIN_STUB_BASE );
+	}
+
+	inline min::uns64 new_gc_control
+		( int type_code, min::stub * s,
+		  min::uns64 flags = 0 )
+	{
+	    return ( min::uns64 ( type_code ) << 56 )
+		   |
+	           (   (min::internal::pointer_uns) s
+	             - (min::internal::pointer_uns)
+		       MIN_STUB_BASE )
+		   |
+		   flags;
+	}
+
+	inline min::uns64 renew_gc_control_stub
+		( min::uns64 c, min::stub * s )
+	{
+	    return ( c & ~ min::internal
+	                      ::GC_CONTROL_VALUE_MASK )
+		   | (   (min::internal::pointer_uns) s
+		       - (min::internal::pointer_uns)
+		         MIN_STUB_BASE );
+	}
+
+#   elif    MIN_STUB_NUMBER_BITS \
+         <= MIN_GC_CONTROL_VALUE_BITS
+
+	inline min::stub * stub_of_gc_control
+		( min::uns64 c )
+	{
+	    min::internal::pointer_uns p =
+	       (min::internal::pointer_uns)
+	       (c & min::internal
+	               ::GC_CONTROL_VALUE_MASK );
+	    return
+	        (min::stub *)
+		(min::internal::pointer_uns)
+		MIN_STUB_BASE + p;
+	}
+
+	inline min::uns64 new_gc_control
+		( int type_code, min::stub * s,
+		  min::uns64 flags = 0 )
+	{
+	    return ( min::uns64 ( type_code ) << 56 )
+		   |
+		   (min::internal::pointer_uns) s
+	           | (   s
+	               - (min::stub *)
+		         (min::internal::pointer_uns)
+		         MIN_STUB_BASE )
+		   |
+		   flags;
+	}
+
+	inline min::uns64 renew_gc_control_stub
+		( min::uns64 c, min::stub * s )
+	{
+	    return ( c & ~ min::internal
+	                      ::GC_CONTROL_VALUE_MASK )
+	           | (   s
+	               - (min::stub *)
+		         (min::internal::pointer_uns)
+		         MIN_STUB_BASE );
+	}
+#   else
+#	error   MIN_STUB_NUMBER_BITS \
+              > MIN_GC_CONTROL_VALUE_BITS
+#   endif
+
+} }
 
 // Stub Types and Data
 // ---- ----- --- ----
@@ -1385,8 +1554,8 @@ namespace min { namespace unprotected {
 	-- number_of_free_stubs;
 	uns64 c = control_of ( last_allocated_stub );
 	min::stub * s = stub_of_control ( c );
-	c = renew_control_pointer
-	        ( c, pointer_of_control
+	c = renew_control_stub
+	        ( c, stub_of_control
 			 ( control_of ( s ) ) );
 	set_control_of ( last_allocated_stub, c );
 	return s;
