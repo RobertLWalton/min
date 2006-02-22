@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/20 19:48:07 $
+//   $Date: 2006/02/22 19:34:11 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents:
 //
@@ -92,6 +92,15 @@ void min_assert
     min_assert ( expr ? true : false, \
     		 __FILE__, __LINE__, #expr );
 
+# include <min_parameters.h>
+
+// Artificial increase in pointer size for stretch test.
+//
+# ifdef MIN_STRETCH_TEST
+#   undef MIN_POINTER_SIZE
+#   define MIN_POINTER_SIZE 52
+# endif
+
 # include <min.h>
 # define MUP min::unprotected
 
@@ -148,13 +157,13 @@ min::stub * end_stub_region;
 //
 void initialize_stub_region ( void )
 {
-    unsigned MIN_INT_POINTER_TYPE stp =
-	(unsigned MIN_INT_POINTER_TYPE) stub_region;
+    min::internal::pointer_uns stp =
+	(min::internal::pointer_uns) stub_region;
     // Check that sizeof min::stub is a power of 2.
     assert ( (   sizeof (min::stub) - 1
 	       & sizeof (min::stub) )
 	     == 0 );
-    unsigned MIN_INT_POINTER_TYPE p = stp;
+    min::internal::pointer_uns p = stp;
     p += sizeof (min::stub) - 1;
     p &= ~ (sizeof (min::stub) - 1 ) ;
     begin_stub_region = (min::stub *) p;
@@ -167,8 +176,8 @@ void initialize_stub_region ( void )
     MUP::last_allocated_stub = begin_stub_region;
     MUP::number_of_free_stubs = 0;
     ++ region_stubs_allocated;
-    min::uns64 c = MUP::new_control
-	( min::FREE, (void *) NULL, 0 );
+    min::uns64 c = MUP::new_gc_control
+	( min::FREE, (min::stub *) NULL );
     MUP::set_control_of
 	( MUP::last_allocated_stub, c );
     MUP::set_value_of
@@ -186,7 +195,8 @@ void MUP::gc_expand_stub_free_list ( unsigned n )
 
     min::uns64 lastc = MUP::control_of
 	( MUP::last_allocated_stub );
-    min::stub * free = MUP::stub_of_control ( lastc );
+    min::stub * free =
+	MUP::stub_of_gc_control ( lastc );
     while ( n -- > 0 )
     {
         min::stub * s = begin_stub_region
@@ -194,13 +204,13 @@ void MUP::gc_expand_stub_free_list ( unsigned n )
 	assert ( s < end_stub_region );
 	++ region_stubs_allocated;
 	++ MUP::number_of_free_stubs;
-	min::uns64 c = MUP::new_control
-	    ( min::FREE, free, 0 );
+	min::uns64 c = MUP::new_gc_control
+	    ( min::FREE, free );
 	MUP::set_control_of ( s, c );
 	MUP::set_value_of ( s, 0 );
 	free = s;
     }
-    lastc = MUP::renew_control_pointer ( lastc, free );
+    lastc = MUP::renew_gc_control_stub ( lastc, free );
     MUP::set_control_of
 	( MUP::last_allocated_stub, lastc );
 }
@@ -221,9 +231,9 @@ MUP::body_control * end_body_region;
 //
 void initialize_body_region ( void )
 {
-    unsigned MIN_INT_POINTER_TYPE stp =
-	(unsigned MIN_INT_POINTER_TYPE) body_region;
-    unsigned MIN_INT_POINTER_TYPE p = stp;
+    min::internal::pointer_uns stp =
+	(min::internal::pointer_uns) body_region;
+    min::internal::pointer_uns p = stp;
     p += 7;
     p &= ~ 7;
     begin_body_region = (MUP::body_control *) p;
@@ -233,47 +243,48 @@ void initialize_body_region ( void )
     end_body_region = (MUP::body_control *) p;
     assert ( begin_body_region + 2 <= end_body_region );
 
-    begin_body_region->control = 0;
+    begin_body_region->control =
+        MUP::new_control
+	    ( min::FREE, sizeof (MUP::body_control) );
     begin_body_region->size_difference =
         sizeof (MUP::body_control);
     MUP::end_body_control = begin_body_region + 1;
-    MUP::end_body_control->control = 0;
+    MUP::end_body_control->control =
+        MUP::new_control
+	    ( min::FREE, sizeof (MUP::body_control) );
     MUP::end_body_control->size_difference =
         - min::int64 ( sizeof (MUP::body_control) );
 }
 
-// Function to be sure last free body (not counting its
-// body control) has n' + sizeof ( body_control ) bytes,
-// where n' is n rounded up to a muliple of 8.  Updates
-// MUP::end_body_control and returns its value.
+// Function to be increase the size of the body
+// following MUP::free_body_control until it has at
+// least n bytes.  Assumes free_body_control is
+// always the next to last body_control, and the
+// free body following it can grow in the body stack
+// until end_body_region is hit.
 //
-MUP::body_control * MUP::gc_expand_body_stack
-	( unsigned n )
+MUP::body_control * MUP::gc_find_body ( unsigned n )
 {
     n += 7;
     n &= ~ 7;
-    MUP::body_control * end = MUP::end_body_control;
-    min::int64 m = n + 2 * sizeof (MUP::body_control)
-		 + end->size_difference;
-    if ( m <= 0 ) return end;
-    assert ( ( m & 7 ) == 0 );
-    unsigned MIN_INT_POINTER_TYPE p =
-	(unsigned MIN_INT_POINTER_TYPE) end;
+    MUP::body_control * free = MUP::free_body_control;
+    min::int64 sz =
+        MUP::value_of_control ( free->control );
+    assert ( sz < n );	// Should not be called if
+    			// n <= sz.
+    assert ( ( sz & 7 ) == 0 );
+    min::internal::pointer_uns p =
+	(min::internal::pointer_uns) free;
     assert ( ( p & 7 ) == 0 );
-    unsigned MIN_INT_POINTER_TYPE q =
-    	p + end->size_difference;
-    MUP::body_control * previous =
-        (MUP::body_control *) q;
-    previous->size_difference += m;
-    p += m;
-    end = (MUP::body_control *) p;
-    assert ( end + 1 <= end_body_region );
-    end->control = 0;
-    end->size_difference =
-        - min::int64
-	       ( n + 2 * sizeof (MUP::body_control) );
-    MUP::end_body_control = end;
-    return end;
+    p += n + sizeof (MUP::body_control);
+    MUP::body_control * tail =
+        (MUP::body_control *) p;
+    free->control = MUP::new_control ( min::FREE, n );
+    free->size_difference += - sz + min::int64 ( n );
+    tail->control = MUP::new_control ( min::FREE, 0 );
+    tail->size_difference = - min::int64 ( n );
+    assert ( trail + 1 <= end_body_region );
+    return free;
 }
 
 int main ()
