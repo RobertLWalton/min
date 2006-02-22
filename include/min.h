@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 21 05:51:26 EST 2006
+// Date:	Tue Feb 21 18:59:20 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/21 13:48:33 $
+//   $Date: 2006/02/22 00:40:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.60 $
+//   $Revision: 1.61 $
 
 // Table of Contents:
 //
@@ -76,13 +76,6 @@ namespace min {
     typedef unsigned MIN_INT64_TYPE uns64;
     typedef signed MIN_INT64_TYPE int64;
     typedef double float64;
-
-    namespace unprotected {
-#   if MIN_POINTER_BITS <= 32
-	typedef pointer_uns uns32;
-#   elif
-	typedef pointer_uns uns64;
-#   endif
 }
 
 // Internal Pointer Conversion Functions
@@ -93,23 +86,72 @@ namespace min { namespace internal {
     // We need to be able to convert unsigned integers
     // to pointers and vice versa.
 
+#   if MIN_POINTER_BITS <= 32
+	typedef pointer_uns uns32;
+#   elif
+	typedef pointer_uns uns64;
+#   endif
+
+    inline min::stub * uns64_to_stub
+	    ( min::uns64 v, unsigned stub_pointer_bits )
+    {
+	min::internal::pointer_uns p =
+	   (min::internal::pointer_uns)
+	   (v & ( ( min::uns64(1) << stub_pointer_bits )
+	          - 1 ) );
+	if ( stub_pointer_bits >= MIN_POINTER_BITS )
+	    return (min::stub *) p;
+	else if (    stub_pointer_bits
+	          >= MIN_STUB_RELATIVE_BITS )
+	    return
+	        (min::stub *)
+		( p + (min::internal::pointer_uns)
+		      MIN_STUB_BASE );
+	else if (    pointer_bits
+	          >= MIN_STUB_NUMBER_BITS )
+	    return
+	        (min::stub *)
+		(min::internal::pointer_uns)
+		MIN_STUB_BASE + p;
+    }
+
+    inline min::uns64 stub_into_uns64
+	    ( min::uns64 v, min::stub * s,
+	      unsigned stub_pointer_bits )
+    {
+	v &= ~ ( ( min::uns64(1) << stub_pointer_bits )
+	         - 1 );
+	if ( stub_pointer_bits >= MIN_POINTER_BITS )
+	    return v + (min::internal::pointer_uns) s;
+	else if (    stub_pointer_bits
+	          >= MIN_STUB_RELATIVE_BITS )
+	    return v + ( (min::internal::pointer_uns) s
+	                 - MIN_STUB_BASE );
+	else if (    pointer_bits
+	          >= MIN_STUB_NUMBER_BITS )
+	    return
+	        v + ( ( (min::internal::pointer_uns) s
+	                - MIN_STUB_BASE )
+		      >> MIN_STUB_SHIFT );
+    }
+
 #   if MIN_IS_COMPACT
 	inline void * uns32_to_pointer ( min::uns32 v )
 	{
 	    return (void *)
-		   (min::unprotected::pointer_uns) v;
+		   (min::internal::pointer_uns) v;
 	}
 	inline min::uns32 pointer_to_uns32 ( void * p )
 	{
 	    return (min::uns32)
-		   (min::unprotected::pointer_uns) p;
+		   (min::internal::pointer_uns) p;
 	}
 #	if MIN_USES_VSNS
 	    inline min::stub * uns32_to_stub
 	    	( min::uns32 v )
 	    {
 		return (min::stub *)
-		       ( ( (min::unprotected
+		       ( ( (min::internal
 		               ::pointer_uns) v
 		           << MIN_VSN_SHIFT )
 			 + MIN_VSN_BASE );
@@ -118,7 +160,7 @@ namespace min { namespace internal {
 	    	( void * p )
 	    {
 		return (min::uns32)
-		       ( ( (min::unprotected
+		       ( ( (min::internal
 		               ::pointer_uns) p
 			   - MIN_VSN_BASE )
 			 >> MIN_VSN_SHIFT );
@@ -128,14 +170,14 @@ namespace min { namespace internal {
 	    	( min::uns32 v )
 	    {
 		return (min::stub *)
-		       (min::unprotected::pointer_uns)
+		       (min::internal::pointer_uns)
 		       v;
 	    }
 	    inline min::uns32 stub_to_uns32
 	    	( void * p )
 	    {
 		return (min::uns32)
-		       (min::unprotected::pointer_uns)
+		       (min::internal::pointer_uns)
 		       p;
 	    }
 #	endif
@@ -144,12 +186,12 @@ namespace min { namespace internal {
     inline void * uns64_to_pointer ( min::uns64 v )
     {
 	return (void *)
-	       (min::unprotected::pointer_uns) v;
+	       (min::internal::pointer_uns) v;
     }
     inline min::uns64 pointer_to_uns64 ( void * p )
     {
 	return (min::uns64)
-	       (min::unprotected::pointer_uns) p;
+	       (min::internal::pointer_uns) p;
     }
 
 #   if MIN_IS_LOOSE
@@ -158,7 +200,7 @@ namespace min { namespace internal {
 	    	( min::uns64 v )
 	    {
 		return (min::stub *)
-		       ( ( (min::unprotected
+		       ( ( (min::internal
 		               ::pointer_uns) v
 		           << MIN_VSN_SHIFT )
 			 + MIN_VSN_BASE );
@@ -167,7 +209,7 @@ namespace min { namespace internal {
 	    	( void * p )
 	    {
 		return (min::uns64)
-		       ( ( (min::unprotected
+		       ( ( (min::internal
 		               ::pointer_uns) p
 			   - MIN_VSN_BASE )
 		         >> MIN_VSN_SHIFT );
@@ -177,14 +219,14 @@ namespace min { namespace internal {
 	    	( min::uns64 v )
 	    {
 		return (min::stub *)
-		       (min::unprotected::pointer_uns)
+		       (min::internal::pointer_uns)
 		       v;
 	    }
 	    inline min::uns64 stub_to_uns64
 		    ( void * p )
 	    {
 		return (min::uns64)
-		       (min::unprotected::pointer_uns)
+		       (min::internal::pointer_uns)
 		       p;
 	    }
 #	endif
