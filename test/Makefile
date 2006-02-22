@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2006/02/20 19:48:07 $
+#   $Date: 2006/02/22 19:34:11 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.3 $
+#   $Revision: 1.4 $
 
 INCLUDE_FILES = \
 	../include/min_parameters.h \
@@ -21,46 +21,46 @@ INCLUDE_FILES = \
 
 all:		min_interface_test_loose \
 		min_interface_test_compact \
-		min_interface_test_loose_vsns \
-		min_interface_test_compact_vsns
+		min_interface_test_loose_stretch \
+		min_interface_test_compact_stretch
 	min_interface_test_loose
 	min_interface_test_compact
-	min_interface_test_loose_vsns
-	min_interface_test_compact_vsns
+	min_interface_test_loose_stretch
+	min_interface_test_compact_stretch
 
 min.o:	min.cc
 	g++ -I ../include -c min.cc
 
 min_interface_test_loose:	\
 		min_interface_test.cc ${INCLUDE_FILES}
-	g++ -g -DMIN_IS_COMPACT=0 -DMIN_USES_VSNS=0 \
+	g++ -g -DMIN_IS_COMPACT=0 \
 	    -I ../include \
 	    -o min_interface_test_loose \
 	    min_interface_test.cc
 
 min_interface_test_compact:	\
 		min_interface_test.cc ${INCLUDE_FILES}
-	g++ -g -DMIN_IS_COMPACT=1 -DMIN_USES_VSNS=0 \
+	g++ -g -DMIN_IS_COMPACT=1 \
 	    -I ../include \
 	    -o min_interface_test_compact \
 	    min_interface_test.cc
 
-min_interface_test_loose_vsns:	\
+min_interface_test_loose_stretch:	\
 		min_interface_test.cc ${INCLUDE_FILES}
-	g++ -g -DMIN_IS_COMPACT=0 -DMIN_USES_VSNS=1 \
+	g++ -g -DMIN_IS_COMPACT=0 -DMIN_STRETCH_TEST=1 \
 	    -I ../include \
-	    -o min_interface_test_loose_vsns \
+	    -o min_interface_test_loose_stretch \
 	    min_interface_test.cc
 
-min_interface_test_compact_vsns:	\
+min_interface_test_compact_stretch:	\
 		min_interface_test.cc ${INCLUDE_FILES}
-	g++ -g -DMIN_IS_COMPACT=1 -DMIN_USES_VSNS=1 \
+	g++ -g -DMIN_IS_COMPACT=1 -DMIN_STRETCH_TEST=1 \
 	    -I ../include \
-	    -o min_interface_test_compact_vsns \
+	    -o min_interface_test_compact_stretch \
 	    min_interface_test.cc
 
 clean:
 	rm -f min_interface_test_loose \
 	      min_interface_test_compact \
-	      min_interface_test_loose_vsns \
-	      min_interface_test_compact_vsns
+	      min_interface_test_loose_stretch \
+	      min_interface_test_compact_stretch
