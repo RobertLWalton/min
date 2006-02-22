@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 21 08:29:26 EST 2006
+// Date:	Wed Feb 22 05:23:11 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/21 13:41:45 $
+//   $Date: 2006/02/22 10:20:24 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents
 //
@@ -75,16 +75,14 @@
 // stub addresses or stub numbers.  The packing scheme
 // for relative stub addresses is:
 //
-//     stub address = relative stub address
-//		    + MIN_STUB_BASE
+//     stub address = (min::stub *)
+//		      (   relative stub address
+//		        + MIN_STUB_BASE )
 //
 // The packing scheme for stub numbers is:
 //
-//     stub address = ( stub number << MIN_STUB_SHIFT )
-//		    + MIN_STUB_BASE
-//
-// where 1 << MIN_STUB_SHIFT is the size of a stub, and
-// therefore MIN_STUB_SHIFT is 4.
+//     stub address = (min::stub *) MIN_STUB_BASE
+//		    + stub number
 //
 // The number of bits required for each scheme of
 // storing a stub address is:
@@ -96,7 +94,8 @@
 // where MIN_POINTER_BITS is the number of bits in a
 // pointer, as determined by the hardware (see below),
 // and MIN_STUB_NUMBER_BITS = MIN_STUB_RELATIVE_BITS -
-// MIN_STUB_SHIFT.
+// MIN_STUB_SHIFT where MIN_STUB_SHIFT is such that
+// the size of a stub is ( 1 << MIN_STUB_SHIFT );
 //
 // When stub addresses are stored in a certain number of
 // bits as much packing is used as is required to fit
@@ -109,13 +108,9 @@
 //
 //	loose general value	44
 //
-//	garbage collectible
-//	stub control value	56 - MIN_GC_FLAG_BITS
+//	gc control value	56 - MIN_GC_FLAG_BITS
 //
-//	auxiliary stub
-//	control value		48
-//
-//	block control value	48
+//	(other) control value	48
 //
 // MIN_GC_FLAG_BITS controls how many ephemeral levels
 // of garbage collector are implemented.
