@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 22 05:28:24 EST 2006
+// Date:	Wed Feb 22 07:25:19 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/22 10:25:43 $
+//   $Date: 2006/02/22 13:54:37 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.63 $
+//   $Revision: 1.64 $
 
 // Table of Contents:
 //
@@ -1420,29 +1420,23 @@ namespace min {
 
 }
 
-namespace min { namespace unprotected {
+namespace min { namespace internal {
 
     // GC flags.
     //
-    // The low order MIN_POINTER_BITS of the stub
-    // control hold the chain pointer and high order 8
-    // bits hold the stub type code.  The rest of the
-    // bits are GC flags, in 2-bit pairs.  The high
-    // order bit of each pair is the scavenged bit,
-    // and the low order bit the marked bit.  There
-    // are at most 64 - 8 - 32 = 24 GC flags, or at
-    // most 12 pairs.
-    //
-    const unsigned GC_FLAG_BITS =
-	64 - 8 - MIN_POINTER_BITS;
     const uns64 GC_FLAG_MASK =
-           ( (uns64(1) << GC_FLAG_BITS) - 1 )
-	<< MIN_POINTER_BITS;
+           ( (uns64(1) << MIN_GC_FLAG_BITS) - 1 )
+	<< MIN_GC_CONTROL_VALUE_BITS;
     const uns64 GC_SCAVENGED_MASK =
     	  GC_FLAG_MASK
-	& ( uns64(0xAAAAAA) << MIN_POINTER_BITS );
+	& (    uns64(0xAAAAAA)
+	    << MIN_GC_CONTROL_VALUE_BITS );
     const uns64 GC_MARKED_MASK =
         GC_SCAVENGED_MASK >> 1;
+
+} }
+
+namespace min { namespace unprotected {
 
     // Mutator (non-gc execution engine) action:
     //
@@ -1485,7 +1479,7 @@ namespace min { namespace unprotected {
     {
         uns64 f = ( control_of ( s1 ) >> 1 )
 	        & ( ~ control_of ( s2 ) )
-		& GC_MARKED_MASK;
+		& internal::GC_MARKED_MASK;
 	set_flags_of ( s2, f );
 	if (    ( f & gc_stack_marks )
 	     && gc_stack < gc_stack_end )
@@ -1535,7 +1529,7 @@ namespace min { namespace unprotected {
 	    gc_expand_stub_free_list ( 1 );
 	-- number_of_free_stubs;
 	uns64 c = control_of ( last_allocated_stub );
-	min::stub * s = stub_of_control ( c );
+	min::stub * s = stub_of_gc_control ( c );
 	set_flags_of ( s, gc_new_stub_flags );
 	return last_allocated_stub = s;
     }
@@ -1553,9 +1547,9 @@ namespace min { namespace unprotected {
 	    gc_expand_stub_free_list ( 1 );
 	-- number_of_free_stubs;
 	uns64 c = control_of ( last_allocated_stub );
-	min::stub * s = stub_of_control ( c );
-	c = renew_control_stub
-	        ( c, stub_of_control
+	min::stub * s = stub_of_gc_control ( c );
+	c = renew_gc_control_stub
+	        ( c, stub_of_gc_control
 			 ( control_of ( s ) ) );
 	set_control_of ( last_allocated_stub, c );
 	return s;
@@ -1572,26 +1566,41 @@ namespace min { namespace unprotected {
 
     struct body_control {
         uns64 control;
-	    // Pointer to stub associated with the
-	    // following body, or 0 if body is free.
-	    // High order 16 bits can be used in the
-	    // future for other info.
+	    // If not free, the tyep is any value but
+	    // min::FREE, and the control contains a
+	    // pointer to stub associated with the
+	    // following body.  The stub and body itself
+	    // must contain enough information to deter-
+	    // mine the size of the body (in particular
+	    // the location of the body_control follow-
+	    // ing the body).
+	    //
+	    // If free, the type is min::FREE and the
+	    // control value is the length of the free
+	    // body following the body_control.
 	int64 size_difference;
-	    // Size of next body - size of previous
-	    // body, in bytes.  Each body size includes
-	    // one body_control.  If there is no next
-	    // body, that size is 0, and if there is
-	    // no previous body, that size is 0.
+	    // Size of the body following the body_
+	    // control - size of the body preceding the
+	    // body_control, in bytes.  If there is no
+	    // body after the body control, that size
+	    // is 0, and if there is body before the
+	    // body control, that size is 0.
     };
 
-    body_control * end_body_control;
-
-    // Out of line function to return end_body_control
-    // value for a situation in which the last free
-    // body (exclusive of any body controls) has at
-    // least n + sizeof ( body_control ) bytes.
+    // Location of the free body control from which new
+    // bodies should be allocated by inline code, if
+    // possible.  Always exists, but may be a dummy for
+    // a zero length free body.
     //
-    body_control * gc_expand_body_stack ( unsigned n );
+    body_control * free_body_control;
+
+    // Out of line function to return the body_control
+    // value for a free body that has at least n bytes.
+    // This function may or may not expand the body
+    // stack and may or may not reset free_body_control.
+    // n must be a multiple of 8.
+    //
+    body_control * gc_find_body ( unsigned n );
 
     // Function to return the address of the body_con-
     // trol in front of a newly allocated body with n'
@@ -1601,27 +1610,31 @@ namespace min { namespace unprotected {
     //
     inline body_control * new_body ( unsigned n )
     {
+        // We must be careful to convert n and
+	// sizeof ( body_control ) to int64 BEFORE
+	// negating them.
+
         n = ( n + 7 ) & ~ 07;
-	body_control * end = end_body_control;
-	if (   end->size_difference
-	     + 2 * sizeof ( body_control )
-	     + n > 0 )
-	    end = gc_expand_body_stack ( n );
-	uns8 * address = (uns8 *) end;
-	address += end->size_difference;
-	body_control * head = (body_control *) address;
-	address += n + sizeof ( body_control );
-	body_control * tail = (body_control *) address;
-	head->size_difference +=
-	    end->size_difference
-	    + n + sizeof ( body_control );
-	tail->size_difference =
-	    - end->size_difference
-	    - 2 * min::int64
-	               ( n + sizeof ( body_control ) );
-	end->size_difference +=
-	    n + sizeof ( body_control );
-	tail->control = 0;
+	body_control * head = free_body_control;
+	if (   value_of_control ( head->control )
+	     < n + sizeof ( body_control ) )
+	    head = gc_find_body
+	              ( n + sizeof ( body_control ) );
+	uns8 * address = (uns8 *) head
+	               + sizeof ( body_control );
+	int64 sz = value_of_control ( head->control );
+	body_control * free =
+	    (body_control *) ( address + n );
+	body_control * tail = (body_control *)
+	    ( address + (internal::pointer_uns) sz );
+	head->control = 0;
+	head->size_difference -= sz + int64 ( n );
+	int64 freesz =
+	    sz - int64 ( n + sizeof ( body_control ) );
+	free->control =
+	    new_control ( min::FREE, freesz );
+	free->size_difference = freesz - int64 ( n );
+	tail->size_difference += sz - freesz;
 	return head;
     }
 } }
