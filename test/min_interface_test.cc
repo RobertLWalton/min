@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 09:37:25 EST 2006
+// Date:	Thu Feb 23 09:51:42 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 14:34:24 $
+//   $Date: 2006/02/23 15:12:56 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // Table of Contents:
 //
@@ -253,8 +253,52 @@ void initialize_body_region ( void )
     MUP::free_body_control = begin_body_region;
 }
 
+// Function to add m bytes to the free area following
+// free_body_control.  M must be a multiple of 8.
+//
+void add_to_free_body ( unsigned m )
+{
+    MUP::body_control * free = MUP::free_body_control;
+    min::internal::pointer_uns size =
+        MUP::value_of_control ( free->control );
+    assert ( ( size & 7 ) == 0 );
+    assert ( ( m & 7 ) == 0 );
+    min::internal::pointer_uns new_size = size + m;
+
+    min::internal::pointer_uns p =
+	(min::internal::pointer_uns) free;
+    assert ( ( p & 7 ) == 0 );
+    p += size + sizeof ( MUP::body_control );
+    MUP::body_control * tail = (MUP::body_control *) p;
+
+    // Tail points at body_control following old free
+    // body.  We read it here, as otherwise it would
+    // never be read.
+    //
+    assert (    tail->control
+	     == MUP::new_control
+	            ( min::FREE, (min::uns64) 0 ) );
+    assert (    tail->size_difference
+	     == - min::int64 ( size ) );
+    p += m;
+    tail = (MUP::body_control *) p;
+    assert ( tail + 1 <= end_body_region );
+
+    // Now tail points at body_control following new
+    // free body, which we must write.
+
+    free->size_difference += min::int64 ( m );
+    free->control =
+        MUP::new_control ( min::FREE, new_size );
+    tail->control =
+        MUP::new_control ( min::FREE, (min::uns64) 0 );
+    tail->size_difference = - min::int64 ( new_size );
+}
+
 // Function to execute MUP::new_body when the free_
-// body_control free body is too small.
+// body_control free body is too small.  n is the
+// argument to MUP::new_body rounded up to a multiple
+// of 8.
 //
 MUP::body_control * MUP::gc_new_body ( unsigned n )
 {
@@ -262,29 +306,14 @@ MUP::body_control * MUP::gc_new_body ( unsigned n )
 
     // Expand the free body to be large enough.
 
-    MUP::body_control * free = MUP::free_body_control;
     min::internal::pointer_uns size =
-        MUP::value_of_control ( free->control );
+        MUP::value_of_control
+	     ( MUP::free_body_control->control );
     min::internal::pointer_uns new_size =
 	n + sizeof ( body_control );
     assert ( ( size & 7 ) == 0 );
     assert ( size < new_size );
-    min::internal::pointer_uns added_size =
-	new_size - size;
-
-    min::internal::pointer_uns p =
-	(min::internal::pointer_uns) free;
-    assert ( ( p & 7 ) == 0 );
-    p += added_size;
-    MUP::body_control * tail = (MUP::body_control *) p;
-    assert ( tail + 1 <= end_body_region );
-
-    free->size_difference += int64 ( added_size );
-    free->control =
-        MUP::new_control ( min::FREE, new_size );
-    tail->control =
-        MUP::new_control ( min::FREE, (min::uns64) 0 );
-    tail->size_difference = 0;
+    add_to_free_body ( new_size - size );
 
     // Done expanding free area.  Now rerun new_stub.
 
@@ -1139,7 +1168,20 @@ int main ()
 	MIN_ASSERT ( memcmp ( p1, p2, 128 ) == 0 );
 	MIN_ASSERT ( p1 + sizeof ( MUP::body_control )
 	                + 128 == p2 );
-	// TBD
+	add_to_free_body ( 200 );
+	MUP::body_control * body3 =
+	    MUP::new_body ( 128 );
+	char * p3 = (char *) body3
+	          + sizeof ( * body3 );
+	memset ( p3, 0xCC, 128 );
+	MUP::body_control * body4 =
+	    MUP::new_body ( 128 );
+	char * p4 = (char *) body4
+	          + sizeof ( * body4 );
+	memset ( p4, 0xCC, 128 );
+	MIN_ASSERT ( memcmp ( p3, p4, 128 ) == 0 );
+	MIN_ASSERT ( p3 + sizeof ( MUP::body_control )
+	                + 128 == p4 );
 
 	cout << endl;
 	cout << "Finish Garbage Collector"
