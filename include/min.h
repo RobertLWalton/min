@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 03:33:08 EST 2006
+// Date:	Thu Feb 23 06:52:43 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 08:51:43 $
+//   $Date: 2006/02/23 11:50:15 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.66 $
+//   $Revision: 1.67 $
 
 // Table of Contents:
 //
@@ -116,7 +116,7 @@ namespace min { namespace internal {
 		   (min::internal::pointer_uns) v;
 	    min::internal::pointer_uns p =
 		(min::internal::pointer_uns) v;
-#           if MIN_POINTER_BITS <= 32
+#           if MIN_STUB_POINTER_BITS <= 32
 		return ( min::stub * ) p;
 #           elif MIN_STUB_RELATIVE_BITS <= 32
 		return
@@ -135,7 +135,7 @@ namespace min { namespace internal {
 	inline min::uns32 stub_to_uns32
 		( min::stub * s )
 	{
-#           if MIN_POINTER_BITS <= 32
+#           if MIN_STUB_POINTER_BITS <= 32
 	        return (min::internal::pointer_uns) s;
 #           elif MIN_STUB_RELATIVE_BITS <= 32
 	        return   (min::internal::pointer_uns) s
@@ -246,7 +246,7 @@ namespace min { namespace internal {
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
 	       (v & ( ( min::uns64(1) << 44 ) - 1 ) );
-#           if MIN_POINTER_BITS <= 44
+#           if MIN_STUB_POINTER_BITS <= 44
 	        return ( min::stub * ) p;
 #           elif MIN_STUB_RELATIVE_BITS <= 44
 	        return
@@ -266,7 +266,7 @@ namespace min { namespace internal {
         inline min::uns64 general_stub_to_uns64
 	        ( min::stub * s )
         {
-#           if MIN_POINTER_BITS <= 44
+#           if MIN_STUB_POINTER_BITS <= 44
 	        return (min::internal::pointer_uns) s;
 #           elif MIN_STUB_RELATIVE_BITS <= 44
 	        return
@@ -933,7 +933,7 @@ namespace min { namespace unprotected {
 	       | v;
     }
 
-#   if MIN_POINTER_BITS <= MIN_CONTROL_VALUE_BITS
+#   if MIN_STUB_POINTER_BITS <= MIN_CONTROL_VALUE_BITS
 
 	inline min::stub * stub_of_control
 		( min::uns64 c )
@@ -1046,7 +1046,8 @@ namespace min { namespace unprotected {
               > MIN_CONTROL_VALUE_BITS
 #   endif
 
-#   if MIN_POINTER_BITS <= MIN_GC_CONTROL_VALUE_BITS
+#   if    MIN_STUB_POINTER_BITS \
+       <= MIN_GC_CONTROL_VALUE_BITS
 
 	inline min::stub * stub_of_gc_control
 		( min::uns64 c )

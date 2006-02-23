@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 04:24:15 EST 2006
+// Date:	Thu Feb 23 06:50:07 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 09:27:01 $
+//   $Date: 2006/02/23 11:48:14 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents
 //
@@ -87,15 +87,15 @@
 // The number of bits required for each scheme of
 // storing a stub address is:
 //
-//	stub address		MIN_POINTER_BITS
+//	stub address		MIN_STUB_POINTER_BITS
 //	stub relative address	MIN_STUB_RELATIVE_BITS
 //	stub number		MIN_STUB_NUMBER_BITS
 //
-// where MIN_POINTER_BITS is the number of bits in a
-// pointer, as determined by the hardware (see below),
-// and MIN_STUB_NUMBER_BITS = MIN_STUB_RELATIVE_BITS -
-// MIN_STUB_SHIFT where MIN_STUB_SHIFT is such that
-// the size of a stub is ( 1 << MIN_STUB_SHIFT );
+// where MIN_STUB_POINTER_BITS is the number of bits in
+// a stub pointer, as determined by the hardware (see
+// below), and MIN_STUB_NUMBER_BITS = MIN_STUB_RELATIVE_
+// BITS - MIN_STUB_SHIFT where MIN_STUB_SHIFT is such
+// that the size of a stub is ( 1 << MIN_STUB_SHIFT ).
 //
 // When stub addresses are stored in a certain number of
 // bits as much packing is used as is required to fit
@@ -117,13 +117,24 @@
 //
 // Note that addresses of stub bodies and addresses
 // pointing into stub bodies can always be stored in
-// 64 bit locations if MIN_POINTER_BITS is as big as
-// 64 bits.  Thus only stub addresses are constrained
-// to be storable in less than 64 bits.
+// 64 bit locations if pointers are as big as 64 bits.
+// Thus only stub addresses are constrained to be
+// storable in less than 64 bits (they must in fact be
+// storable in at most 44 bits).
 
 // The values you need to set to control all this
 // follow.  All must be constant integer expressions
-// unless otherwise noted.
+// unless otherwise noted.  Note that MIN_POINTER_BITS
+// is the number of bits needed to store a pointer, as
+// determined by hardware: See Hardware Parameters
+// below.
+
+// Number of bits in an absolute (non-relative) stub
+// address.
+//
+# ifndef MIN_STUB_POINTER_BITS
+#   define MIN_STUB_POINTER_BITS MIN_POINTER_BITS
+# endif
 
 // Base for relative stub addresses.  Can be a non-
 // negative constant or global variable.  If a global
@@ -137,7 +148,7 @@
 // Number of bits in a relative stub address.
 //
 # ifndef MIN_STUB_RELATIVE_BITS
-#   define MIN_STUB_RELATIVE_BITS MIN_POINTER_BITS
+#   define MIN_STUB_RELATIVE_BITS MIN_STUB_POINTER_BITS
 # endif
 
 // Number of GC flag bits.  The GC needs 4N+2 flag bits
@@ -145,7 +156,8 @@
 // level of garbage collection.
 //
 # ifndef MIN_GC_FLAG_BITS
-#   define MIN_GC_FLAG_BITS ( 56 - MIN_POINTER_BITS )
+#   define MIN_GC_FLAG_BITS \
+           ( 56 - MIN_STUB_POINTER_BITS )
 # endif
 
 // Normally you will not define the following, and so
@@ -164,6 +176,7 @@
 #   define MIN_STUB_NUMBER_BITS \
            ( MIN_STUB_RELATIVE_BITS - MIN_STUB_SHIFT )
 # endif
+
 
 // Machine Parameters
 // ------- ----------
