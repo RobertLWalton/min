@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Mon Feb 20 14:11:52 EST 2006
+# Date:		Thu Feb 23 07:05:44 EST 2006
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2006/02/22 19:34:11 $
+#   $Date: 2006/02/23 12:03:01 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.4 $
+#   $Revision: 1.5 $
 
 INCLUDE_FILES = \
 	../include/min_parameters.h \
@@ -47,14 +47,14 @@ min_interface_test_compact:	\
 
 min_interface_test_loose_stretch:	\
 		min_interface_test.cc ${INCLUDE_FILES}
-	g++ -g -DMIN_IS_COMPACT=0 -DMIN_STRETCH_TEST=1 \
+	g++ -g -DMIN_IS_COMPACT=0 -DMIN_STRETCH=44 \
 	    -I ../include \
 	    -o min_interface_test_loose_stretch \
 	    min_interface_test.cc
 
 min_interface_test_compact_stretch:	\
 		min_interface_test.cc ${INCLUDE_FILES}
-	g++ -g -DMIN_IS_COMPACT=1 -DMIN_STRETCH_TEST=1 \
+	g++ -g -DMIN_IS_COMPACT=1 -DMIN_STRETCH=36 \
 	    -I ../include \
 	    -o min_interface_test_compact_stretch \
 	    min_interface_test.cc
