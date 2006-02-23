@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 03:55:20 EST 2006
+// Date:	Thu Feb 23 05:33:55 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 10:28:18 $
+//   $Date: 2006/02/23 10:32:09 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // Table of Contents:
 //
@@ -110,7 +110,8 @@ void min_assert
 struct print_gen {
     min::gen g;
     print_gen ( min::gen g ) : g ( g ) {}
-    friend ostream & operator << ( ostream & s, print_gen pg )
+    friend ostream & operator <<
+    	    ( ostream & s, print_gen pg )
     {
 	return s << hex << pg.g << dec;
     }
@@ -220,9 +221,9 @@ void MUP::gc_expand_stub_free_list ( unsigned n )
 //
 char body_region[10000];
 
-// Address of the first body control block in the region,
-// and the address of the first location beyond the last
-// possible body control block in the region.
+// Address of the first body control block in the
+// region, and the address of the first location beyond
+// the last possible body control block in the region.
 //
 MUP::body_control * begin_body_region;
 MUP::body_control * end_body_region;
@@ -464,11 +465,13 @@ int main ()
 	    	MUP::new_direct_float_gen ( f );
 	    cout << "fgen: " << print_gen ( fgen )
 		 << endl;
-	    MIN_ASSERT ( min::is_direct_float ( fgen ) );
+	    MIN_ASSERT
+	        ( min::is_direct_float ( fgen ) );
 	    MIN_ASSERT
 	        ( MUP::direct_float_of ( fgen ) == f );
 	    fgen = min::new_direct_float_gen ( f );
-	    MIN_ASSERT ( min::is_direct_float ( fgen ) );
+	    MIN_ASSERT
+	        ( min::is_direct_float ( fgen ) );
 	    MIN_ASSERT
 	        (    min::gen_subtype_of ( fgen )
 		  == min::GEN_DIRECT_FLOAT );
@@ -520,7 +523,8 @@ int main ()
 	cout << "listauxgen: "
 	     << print_gen ( listauxgen ) << endl;
 	MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
-	MIN_ASSERT (    min::gen_subtype_of ( listauxgen )
+	MIN_ASSERT (    min::gen_subtype_of
+				( listauxgen )
 	             == min::GEN_LIST_AUX );
 	MIN_ASSERT
 	    ( min::list_aux_of ( listauxgen ) == aux );
@@ -542,7 +546,8 @@ int main ()
 	     << print_gen ( listauxgen ) << endl;
 	MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
 	MIN_ASSERT
-	    ( min::list_aux_of ( listauxgen ) == reaux );
+	    (    min::list_aux_of ( listauxgen )
+	      == reaux );
 	MIN_ASSERT
 	    ( ! min::is_sublist_aux ( listauxgen ) );
 	MIN_ASSERT
@@ -586,7 +591,8 @@ int main ()
 	cout << "pairauxgen: "
 	     << print_gen ( pairauxgen ) << endl;
 	MIN_ASSERT
-	    ( min::is_indirect_pair_aux ( pairauxgen ) );
+	    ( min::is_indirect_pair_aux
+	    		( pairauxgen ) );
 	MIN_ASSERT
 	    (    min::gen_subtype_of ( pairauxgen )
 	      == min::GEN_INDIRECT_PAIR_AUX );
@@ -685,9 +691,11 @@ int main ()
 	    (    min::gen_subtype_of ( codegen )
 	      == min::GEN_CONTROL_CODE );
 	MIN_ASSERT
-	    ( min::control_code_of ( codegen ) == code );
+	    (    min::control_code_of ( codegen )
+	      == code );
 	desire_success (
-	    codegen = min::new_control_code_gen ( code );
+	    codegen =
+	        min::new_control_code_gen ( code );
 	);
 	desire_failure (
 	    codegen = min::new_control_code_gen
