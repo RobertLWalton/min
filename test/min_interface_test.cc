@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 07:37:11 EST 2006
+// Date:	Thu Feb 23 09:37:25 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,20 +11,20 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 12:34:24 $
+//   $Date: 2006/02/23 14:34:24 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // Table of Contents:
 //
 //	Setup
 //	Run-Time System for Interface Tests
 //	C++ Number Types
-//	Internal Pointer Conversion Functions
 //	General Value Types and Data
+//	Stub Types and Data
+//	Internal Pointer Conversion Functions
 //	General Value Constructor/Test/Read Functions
 //	Control Values
-//	Stub Types and Data
 //	Stub Functions
 //	Process Interface
 //	Garbage Collector Interface
@@ -316,9 +316,19 @@ int main ()
 	f64 = u64;
 	MIN_ASSERT ( f64 == 0 );
 
+	cout << endl;
 	cout << "Finish Number Types Test!" << endl;
     }
+
+// General Value Types and Data
+// ------- ----- ----- --- ----
 
+    // There are no general types and data tests.
+
+// Stub Types and Data
+// ---- ----- --- ----
+
+    // There are no stub types and data tests.
 
 // Internal Pointer Conversion Functions
 // -------- ------- ---------- ---------
@@ -331,6 +341,7 @@ int main ()
 	min::stub * stub =
 	    (min::stub *) (sizeof (min::stub));
 
+	cout << endl;
 	cout << "Test pointer/uns64 conversions:"
 	     << endl;
 	min::uns64 u64 =
@@ -340,6 +351,7 @@ int main ()
 	MIN_ASSERT ( b64 == buffer );
 
 #	if MIN_STUB_NUMBER_BITS <= 32
+	    cout << endl;
 	    cout << "Test stub/uns32 conversions:"
 		 << endl;
 	    min::uns32 u32 =
@@ -349,24 +361,11 @@ int main ()
 	    MIN_ASSERT ( s32 == stub );
 #	endif
 
-	cout << "Finish Internal Pointer Conversion"
-	        " Test!" << endl;
-    }
-
-// General Value Types and Data
-// ------- ----- ----- --- ----
-    {
-	cout << endl;
-	cout << "Start General Value Types and Data"
-	        " Test!" << endl;
-    	char buffer[1];
-	min::stub * stub =
-	    (min::stub *) (sizeof (min::stub));
-
 #	if MIN_IS_LOOSE
+	    cout << endl;
 	    cout << "Test general stub/uns64"
 	            " conversions:" << endl;
-	    min::uns64 u64 =
+	    u64 =
 	        min::internal
 		   ::general_stub_to_uns64 ( stub );
 	    u64 += min::uns64(min::GEN_STUB) << 44;
@@ -381,10 +380,10 @@ int main ()
 	    MIN_ASSERT ( u64 == g64 );
 #	endif
 
-	cout << "Finish General Value Types and Data"
+	cout << endl;
+	cout << "Finish Internal Pointer Conversion"
 	        " Test!" << endl;
     }
-
 
 // General Value Constructor/Test/Read Functions
 // ------- ----- --------------------- ---------
@@ -764,6 +763,9 @@ int main ()
 	min::stub * stub2 =
 	    (min::stub *) (5 * sizeof (min::stub));
 
+	cout << endl;
+	cout << "Test controls sans stub addresses:"
+	     << endl;
 	min::uns64 control1 =
 	    MUP::new_control ( type1, v1, flags );
 	cout << "control1: " << hex << control1 << dec
@@ -806,6 +808,9 @@ int main ()
         MIN_ASSERT ( control1 & loflag );
         MIN_ASSERT ( ! ( control1 & midflag ) );
 
+	cout << endl;
+	cout << "Test non-gc controls with stub"
+	        " addresses:" << endl;
 	min::uns64 control2 =
 	    MUP::new_control ( type1, stub1, hiflag );
 	cout << "control2: " << hex << control2 << dec
@@ -836,13 +841,41 @@ int main ()
         MIN_ASSERT ( ! ( control2 & midflag ) );
 
 	cout << endl;
+	cout << "Test gc controls with stub"
+	        " addresses:" << endl;
+	min::uns64 control3 =
+	    MUP::new_gc_control
+	    	( type1, stub1, hiflag );
+	cout << "control3: " << hex << control3 << dec
+	     << endl;
+        MIN_ASSERT
+	    (    MUP::type_of_control ( control3 )
+	      == type1 );
+        MIN_ASSERT
+	    (    MUP::stub_of_control ( control3 )
+	      == stub1 );
+        MIN_ASSERT ( control3 & hiflag );
+        MIN_ASSERT ( ! ( control3 & loflag ) );
+        MIN_ASSERT ( ! ( control3 & midflag ) );
+
+	control3 =
+	    MUP::renew_control_stub
+		( control3, stub2 );
+	cout << "re-control3: " << hex << control3
+	     << dec << endl;
+        MIN_ASSERT
+	    (    MUP::type_of_control ( control3 )
+	      == type1 );
+        MIN_ASSERT
+	    (    MUP::stub_of_control ( control3 )
+	      == stub2 );
+        MIN_ASSERT ( control3 & hiflag );
+        MIN_ASSERT ( ! ( control3 & loflag ) );
+        MIN_ASSERT ( ! ( control3 & midflag ) );
+
+	cout << endl;
 	cout << "Finish Control Value Test!" << endl;
     }
-
-// Stub Types and Data
-// ---- ----- --- ----
-
-    // There are no stub types and data tests.
 
 // Stub Functions
 // ---- ---------
