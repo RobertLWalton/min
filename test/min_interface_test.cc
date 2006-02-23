@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 20 13:16:05 EST 2006
+// Date:	Thu Feb 23 03:55:20 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/22 19:34:11 $
+//   $Date: 2006/02/23 10:28:18 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents:
 //
@@ -227,7 +227,8 @@ char body_region[10000];
 MUP::body_control * begin_body_region;
 MUP::body_control * end_body_region;
 
-// Initialize body_region and MUP::end_body_control.
+// Initialize body_region and MUP::free_body_control.
+// The initial free body is of zero length.
 //
 void initialize_body_region ( void )
 {
@@ -244,47 +245,52 @@ void initialize_body_region ( void )
     assert ( begin_body_region + 2 <= end_body_region );
 
     begin_body_region->control =
-        MUP::new_control
-	    ( min::FREE, sizeof (MUP::body_control) );
-    begin_body_region->size_difference =
-        sizeof (MUP::body_control);
-    MUP::end_body_control = begin_body_region + 1;
-    MUP::end_body_control->control =
-        MUP::new_control
-	    ( min::FREE, sizeof (MUP::body_control) );
-    MUP::end_body_control->size_difference =
-        - min::int64 ( sizeof (MUP::body_control) );
+        MUP::new_control ( min::FREE, (min::uns64) 0);
+    begin_body_region->size_difference = 0;
+    MUP::body_control * end = begin_body_region + 1;
+    end->control =
+        MUP::new_control ( min::FREE, (min::uns64) 0 );
+    end->size_difference = 0;
+
+    MUP::free_body_control = begin_body_region;
 }
 
-// Function to be increase the size of the body
-// following MUP::free_body_control until it has at
-// least n bytes.  Assumes free_body_control is
-// always the next to last body_control, and the
-// free body following it can grow in the body stack
-// until end_body_region is hit.
+// Function to execute MUP::new_body when the free_
+// body_control free body is too small.
 //
-MUP::body_control * MUP::gc_find_body ( unsigned n )
+MUP::body_control * MUP::gc_new_body ( unsigned n )
 {
-    n += 7;
-    n &= ~ 7;
+    assert ( ( n & 7 ) == 0 );
+
+    // Expand the free body to be large enough.
+
     MUP::body_control * free = MUP::free_body_control;
-    min::int64 sz =
+    min::internal::pointer_uns size =
         MUP::value_of_control ( free->control );
-    assert ( sz < n );	// Should not be called if
-    			// n <= sz.
-    assert ( ( sz & 7 ) == 0 );
+    min::internal::pointer_uns new_size =
+	n + sizeof ( body_control );
+    assert ( ( size & 7 ) == 0 );
+    assert ( size < new_size );
+    min::internal::pointer_uns added_size =
+	new_size - size;
+
     min::internal::pointer_uns p =
 	(min::internal::pointer_uns) free;
     assert ( ( p & 7 ) == 0 );
-    p += n + sizeof (MUP::body_control);
-    MUP::body_control * tail =
-        (MUP::body_control *) p;
-    free->control = MUP::new_control ( min::FREE, n );
-    free->size_difference += - sz + min::int64 ( n );
-    tail->control = MUP::new_control ( min::FREE, 0 );
-    tail->size_difference = - min::int64 ( n );
-    assert ( trail + 1 <= end_body_region );
-    return free;
+    p += added_size;
+    MUP::body_control * tail = (MUP::body_control *) p;
+    assert ( tail + 1 <= end_body_region );
+
+    free->size_difference += int64 ( added_size );
+    free->control =
+        MUP::new_control ( min::FREE, new_size );
+    tail->control =
+        MUP::new_control ( min::FREE, (min::uns64) 0 );
+    tail->size_difference = 0;
+
+    // Done expanding free area.  Now rerun new_stub.
+
+    return MUP::new_body ( n );
 }
 
 int main ()
@@ -335,28 +341,14 @@ int main ()
 	    min::internal::uns64_to_pointer ( u64 );
 	MIN_ASSERT ( b64 == buffer );
 
-#	if MIN_IS_COMPACT
-	    cout << "Test pointer/uns32 conversions:"
-		 << endl;
-	    min::uns32 u32 =
-		min::internal::pointer_to_uns32
-		    ( buffer );
-	    char * b32 = (char *)
-		min::internal::uns32_to_pointer ( u32 );
-	    MIN_ASSERT ( b32 == buffer );
+#	if MIN_STUB_NUMBER_BITS <= 32
 	    cout << "Test stub/uns32 conversions:"
 		 << endl;
-	    u32 = min::internal::stub_to_uns32 ( stub );
+	    min::uns32 u32 =
+	        min::internal::stub_to_uns32 ( stub );
 	    min::stub * s32 =
 		min::internal::uns32_to_stub ( u32 );
 	    MIN_ASSERT ( s32 == stub );
-#	elif MIN_IS_LOOSE
-	    cout << "Test stub/uns64 conversions:"
-		 << endl;
-	    u64 = min::internal::stub_to_uns64 ( stub );
-	    min::stub * s64 =
-		min::internal::uns64_to_stub ( u64 );
-	    MIN_ASSERT ( s64 == stub );
 #	endif
 
 	cout << "Finish Internal Pointer Conversion"
@@ -365,8 +357,35 @@ int main ()
 
 // General Value Types and Data
 // ------- ----- ----- --- ----
+    {
+	cout << endl;
+	cout << "Start General Value Types and Data"
+	        " Test!" << endl;
+    	char buffer[1];
+	min::stub * stub =
+	    (min::stub *) (sizeof (min::stub));
 
-    // There are no general value types and data tests.
+#	if MIN_IS_LOOSE
+	    cout << "Test general stub/uns64"
+	            " conversions:" << endl;
+	    min::uns64 u64 =
+	        min::internal
+		   ::general_stub_to_uns64 ( stub );
+	    u64 += min::uns64(min::GEN_STUB) << 44;
+	    min::stub * s64 =
+		min::internal
+		   ::general_uns64_to_stub ( u64 );
+	    MIN_ASSERT ( s64 == stub );
+	    min::uns64 g64 =
+		min::internal
+		   ::general_stub_into_uns64
+		   	( u64, stub );
+	    MIN_ASSERT ( u64 == g64 );
+#	endif
+
+	cout << "Finish General Value Types and Data"
+	        " Test!" << endl;
+    }
 
 
 // General Value Constructor/Test/Read Functions
@@ -790,9 +809,6 @@ int main ()
 	    (    MUP::type_of_control ( control2 )
 	      == type1 );
         MIN_ASSERT
-	    (    MUP::pointer_of_control ( control2 )
-	      == stub1 );
-        MIN_ASSERT
 	    (    MUP::stub_of_control ( control2 )
 	      == stub1 );
         MIN_ASSERT ( control2 & hiflag );
@@ -800,7 +816,7 @@ int main ()
         MIN_ASSERT ( ! ( control2 & midflag ) );
 
 	control2 =
-	    MUP::renew_control_pointer
+	    MUP::renew_control_stub
 		( control2, stub2 );
 	cout << "re-control2: " << hex << control2
 	     << dec << endl;
@@ -1085,13 +1101,6 @@ int main ()
 	MIN_ASSERT ( memcmp ( p1, p2, 128 ) == 0 );
 	MIN_ASSERT ( p1 + sizeof ( MUP::body_control )
 	                + 128 == p2 );
-	char * p3 = (char *) MUP::end_body_control
-	          + sizeof ( MUP::body_control );
-	MUP::gc_expand_body_stack ( 256 );
-	char * p4 = (char *) MUP::end_body_control
-	          + sizeof ( MUP::body_control );
-	MIN_ASSERT ( p3 + sizeof ( MUP::body_control )
-	                + 256 == p4 );
 	// TBD
 
 	cout << endl;
