@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 05:33:55 EST 2006
+// Date:	Thu Feb 23 07:03:50 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 10:32:09 $
+//   $Date: 2006/02/23 12:03:01 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents:
 //
@@ -49,6 +49,12 @@ using std::endl;
 using std::hex;
 using std::dec;
 using std::ostream;
+
+// Artificial increase in pointer size for stretch test.
+//
+# ifdef MIN_STRETCH
+#   define MIN_STUB_POINTER_BITS MIN_STRETCH
+# endif
 
 // Redefinition of MIN_ASSERT for use in min.h.
 //
@@ -91,15 +97,6 @@ void min_assert
 # define MIN_ASSERT(expr) \
     min_assert ( expr ? true : false, \
     		 __FILE__, __LINE__, #expr );
-
-# include <min_parameters.h>
-
-// Artificial increase in pointer size for stretch test.
-//
-# ifdef MIN_STRETCH_TEST
-#   undef MIN_POINTER_SIZE
-#   define MIN_POINTER_SIZE 52
-# endif
 
 # include <min.h>
 # define MUP min::unprotected

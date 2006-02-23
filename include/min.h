@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 06:52:43 EST 2006
+// Date:	Thu Feb 23 07:06:20 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,21 +11,21 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 11:50:15 $
+//   $Date: 2006/02/23 12:04:25 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.67 $
+//   $Revision: 1.68 $
 
 // Table of Contents:
 //
 //	Setup
 //	C++ Number Types
-//	Internal Pointer Conversion Functions
 //	General Value Types and Data
+//	Stub Types and Data
+//	Internal Pointer Conversion Functions
 //	General Value Constructor Functions
 //	General Value Test Functions
 //	General Value Read Functions
 //	Control Values
-//	Stub Types and Data
 //	Stub Functions
 //	Process Interface
 //	Garbage Collector Interface
@@ -52,11 +52,6 @@
 # include <cassert>
 # include <new>
 
-namespace min {
-
-    struct stub;	// See Stub Types and Data.
-
-}
 
 // C++ Number Types
 // --- ------ -----
@@ -77,80 +72,6 @@ namespace min {
     typedef signed MIN_INT64_TYPE int64;
     typedef double float64;
 }
-
-// Internal Pointer Conversion Functions
-// -------- ------- ---------- ---------
-
-namespace min { namespace internal {
-
-    // We need to be able to convert unsigned integers
-    // to pointers and vice versa.
-
-#   if MIN_POINTER_BITS <= 32
-	typedef uns32 pointer_uns;
-#   elif
-	typedef uns64 pointer_uns;
-#   endif
-
-    inline void * uns64_to_pointer ( min::uns64 v )
-    {
-	return (void *)
-	       (min::internal::pointer_uns) v;
-    }
-    inline min::uns64 pointer_to_uns64 ( void * p )
-    {
-	return (min::uns64)
-	       (min::internal::pointer_uns) p;
-    }
-
-#   if MIN_STUB_NUMBER_BITS <= 32
-
-	// If we can fit a stub address into 32 bits,
-	// define routines to do so, even if we have
-	// not implemented compact general values.
-
-	inline min::stub * uns32_to_stub
-		( min::uns32 v )
-	{
-	    return (min::stub *)
-		   (min::internal::pointer_uns) v;
-	    min::internal::pointer_uns p =
-		(min::internal::pointer_uns) v;
-#           if MIN_STUB_POINTER_BITS <= 32
-		return ( min::stub * ) p;
-#           elif MIN_STUB_RELATIVE_BITS <= 32
-		return
-		    (min::stub *)
-		    ( p + (min::internal::pointer_uns)
-			  MIN_STUB_BASE );
-#           elif MIN_STUB_NUMBER_BITS <= 32
-		return
-		    (min::stub *)
-		    (min::internal::pointer_uns)
-		    MIN_STUB_BASE + p;
-#           else
-#	        error MIN_STUB_NUMBER_BITS > 32
-#           endif
-	}
-	inline min::uns32 stub_to_uns32
-		( min::stub * s )
-	{
-#           if MIN_STUB_POINTER_BITS <= 32
-	        return (min::internal::pointer_uns) s;
-#           elif MIN_STUB_RELATIVE_BITS <= 32
-	        return   (min::internal::pointer_uns) s
-		       - (min::internal::pointer_uns)
-		         MIN_STUB_BASE;
-#           elif MIN_STUB_NUMBER_BITS <= 32
-	        return s - (min::stub *)
-	                   (min::internal::pointer_uns)
-		           MIN_STUB_BASE;
-#           else
-#	        error MIN_STUB_NUMBER_BITS > 32
-#           endif
-	}
-#   endif
-} }
 
 // General Value Types and Data
 // ------- ----- ----- --- ----
@@ -236,8 +157,131 @@ namespace min {
 	    // Largest subtype code.
 #   endif
 }
+
+// Stub Types and Data
+// ---- ----- --- ----
+
+namespace min {
+
+    // Stub type codes.
+
+    // Collectable.
+    //
+    const int FREE			= 1;
+    const int DEALLOCATED		= 2;
+    const int NUMBER			= 3;
+    const int SHORT_STR			= 4;
+    const int LONG_STR			= 5;
+    const int LABEL			= 6;
+    const int SHORT_OBJ			= 7;
+    const int LONG_OBJ			= 8;
+    const int VARIABLE_VECTOR		= 9;
+
+    // Uncollectible.
+    //
+    const int LABEL_AUX			= -1;
+    const int LIST_AUX			= -2;
+    const int SUBLIST_AUX		= -3;
+
+    namespace unprotected {
+	// Non-gc flags for uncollectible controls.
+	//
+	const min::uns64 STUB_POINTER =
+	    min::uns64(1) << 55;
+    }
+
+    struct stub
+    {
+	union {
+	    gen g;
+	    float64 f64;
+	    uns64 u64;
+	    int64 i64;
+	    uns32 u32[2];
+	    char c8[8];
+	} v; // value
+
+	union {
+	    uns64 u64;
+	    int64 i64;
+	    uns32 u32[2];
+	    int8 i8[8];
+	} c; // control
+    };
+}
+
+// Internal Pointer Conversion Functions
+// -------- ------- ---------- ---------
 
 namespace min { namespace internal {
+
+    // We need to be able to convert unsigned integers
+    // to pointers and vice versa.
+
+#   if MIN_POINTER_BITS <= 32
+	typedef uns32 pointer_uns;
+#   elif
+	typedef uns64 pointer_uns;
+#   endif
+
+    inline void * uns64_to_pointer ( min::uns64 v )
+    {
+	return (void *)
+	       (min::internal::pointer_uns) v;
+    }
+    inline min::uns64 pointer_to_uns64 ( void * p )
+    {
+	return (min::uns64)
+	       (min::internal::pointer_uns) p;
+    }
+
+#   if MIN_STUB_NUMBER_BITS <= 32
+
+	// If we can fit a stub address into 32 bits,
+	// define routines to do so, even if we have
+	// not implemented compact general values.
+
+	inline min::stub * uns32_to_stub
+		( min::uns32 v )
+	{
+	    return (min::stub *)
+		   (min::internal::pointer_uns) v;
+	    min::internal::pointer_uns p =
+		(min::internal::pointer_uns) v;
+#           if MIN_STUB_POINTER_BITS <= 32
+		return ( min::stub * ) p;
+#           elif MIN_STUB_RELATIVE_BITS <= 32
+		return
+		    (min::stub *)
+		    ( p + (min::internal::pointer_uns)
+			  MIN_STUB_BASE );
+#           elif MIN_STUB_NUMBER_BITS <= 32
+		return
+		    (min::stub *)
+		    (min::internal::pointer_uns)
+		    MIN_STUB_BASE + p;
+#           else
+#	        error MIN_STUB_NUMBER_BITS > 32
+#           endif
+	}
+	inline min::uns32 stub_to_uns32
+		( min::stub * s )
+	{
+#           if MIN_STUB_POINTER_BITS <= 32
+	        return (min::internal::pointer_uns) s;
+#           elif MIN_STUB_RELATIVE_BITS <= 32
+	        return   (min::internal::pointer_uns) s
+		       - (min::internal::pointer_uns)
+		         MIN_STUB_BASE;
+#           elif MIN_STUB_NUMBER_BITS <= 32
+	        return s - (min::stub *)
+	                   (min::internal::pointer_uns)
+		           MIN_STUB_BASE;
+#           else
+#	        error MIN_STUB_NUMBER_BITS > 32
+#           endif
+	}
+#   endif
 
 #   if MIN_IS_LOOSE
         inline min::stub * general_uns64_to_stub
@@ -1163,58 +1207,6 @@ namespace min { namespace unprotected {
 #   endif
 
 } }
-
-// Stub Types and Data
-// ---- ----- --- ----
-
-namespace min {
-
-    // Stub type codes.
-
-    // Collectable.
-    //
-    const int FREE			= 1;
-    const int DEALLOCATED		= 2;
-    const int NUMBER			= 3;
-    const int SHORT_STR			= 4;
-    const int LONG_STR			= 5;
-    const int LABEL			= 6;
-    const int SHORT_OBJ			= 7;
-    const int LONG_OBJ			= 8;
-    const int VARIABLE_VECTOR		= 9;
-
-    // Uncollectible.
-    //
-    const int LABEL_AUX			= -1;
-    const int LIST_AUX			= -2;
-    const int SUBLIST_AUX		= -3;
-
-    namespace unprotected {
-	// Non-gc flags for uncollectible controls.
-	//
-	const min::uns64 STUB_POINTER =
-	    min::uns64(1) << 55;
-    }
-
-    struct stub
-    {
-	union {
-	    gen g;
-	    float64 f64;
-	    uns64 u64;
-	    int64 i64;
-	    uns32 u32[2];
-	    char c8[8];
-	} v; // value
-
-	union {
-	    uns64 u64;
-	    int64 i64;
-	    uns32 u32[2];
-	    int8 i8[8];
-	} c; // control
-    };
-}
 
 // Stub Functions
 // ---- ---------
