@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 22 20:18:37 EST 2006
+// Date:	Thu Feb 23 03:33:08 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 01:16:10 $
+//   $Date: 2006/02/23 08:51:43 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.65 $
+//   $Revision: 1.66 $
 
 // Table of Contents:
 //
@@ -1582,29 +1582,23 @@ namespace min { namespace unprotected {
 	    // body control, that size is 0.
     };
 
-    // Begin_body_control and end_body_control are the
-    // body_controls before and after the free body that
-    // is the end of the body stack.  New bodies are
-    // allocated to the beginning of this free body, and
-    // begin_body_control is changed to point at the
-    // header of the unused part of the free body, which
-    // becomes the new (and smaller) free body a the end
-    // of the body stack.  The stack may be inside a
-    // longer list of allocated bodies which may or may
-    // not be free.
+    // Free_body_control is the body_control before a
+    // free body that is used as a stack to allocate
+    // new bodies.  A new body is allocated to the
+    // beginning of the free body, and free_body_control
+    // is moved to the end of the newly allocated body.
     //
-    body_control * begin_body_control;
-    body_control * end_body_control;
+    body_control * free_body_control;
 
     // Out of line function to returns a value which
     // may be directly returned by new_body (see
     // below).  This function is called by new_body
-    // when the body stack is too short to services an
+    // when the body stack is too short to service an
     // allocation request.  This function may or may not
-    // reset the body stack (begin/end_body_control).
+    // reset free_body_control.
     //
-    // Here n must be a multiple of 8 (and is the argu-
-    // ment of new_body rounded up to a multiple of 8).
+    // Here n must be the argument to new_body rounded
+    // up to a multiple of 8.
     //
     body_control * gc_new_body ( unsigned n );
 
@@ -1616,31 +1610,56 @@ namespace min { namespace unprotected {
     //
     inline body_control * new_body ( unsigned n )
     {
-        // We must be careful to convert n and
-	// sizeof ( body_control ) to int64 BEFORE
-	// negating them.
+        // We must be careful to convert unsigned and
+	// sizeof values to int64 BEFORE negating them.
 
         n = ( n + 7 ) & ~ 07;
-	body_control * head = begin_body_control;
-	if (   value_of_control ( head->control )
-	     < n + sizeof ( body_control ) )
+	body_control * head = free_body_control;
+	internal::pointer_uns size =
+	    value_of_control ( head->control );
+	if ( size < n + sizeof ( body_control ) )
 	    return gc_new_body ( n );
+
+	// The pointers are:
+	//
+	//	head --------->	body_control
+	//			n bytes		---+
+	//	free ---------> body_control       |
+	//			size - n           | ifb
+	//			     - sizeof bc   |
+	//			   bytes        ---+
+	//	tail ---------> body_control
+	//		
+	// where
+	//
+	//	head = initial free_body_control
+	//	     = body_control before returned body
+	//	free = final free_body_control
+	//	     = body_control after returned body
+	//	     = body_control before new free body
+	//	tail = body_control after original and
+	//	       new free bodies
+	//	sizeof bc = sizeof ( body_control )
+	//	ifb = initial free body
 
 	uns8 * address = (uns8 *) head
 	               + sizeof ( body_control );
 	body_control * free =
 	    (body_control *) ( address + n );
-	body_control * tail = end_body_control;
-	int64 sz = value_of_control ( head->control );
+	body_control * tail =
+	    (body_control *) ( address + size );
+	// Reset size to size of new free body.
+	size -= internal::pointer_uns 
+		    ( n + sizeof ( body_control ) );
+	head->size_difference -=
+	    int64 ( size + sizeof ( body_control ) );
+	free->size_difference =
+	    int64 ( size ) - int64 ( n );
+	tail->size_difference +=
+	    int64 ( n + sizeof ( body_control ) );
 	head->control = 0;
-	head->size_difference -= sz + int64 ( n );
-	int64 freesz =
-	    sz - int64 ( n + sizeof ( body_control ) );
-	free->control =
-	    new_control ( min::FREE, freesz );
-	free->size_difference = freesz - int64 ( n );
-	tail->size_difference += sz - freesz;
-	begin_body_control = free;
+	free->control = new_control ( min::FREE, size );
+	free_body_control = free;
 	return head;
     }
 } }
