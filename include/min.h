@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 22 07:25:19 EST 2006
+// Date:	Wed Feb 22 20:18:37 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/22 13:54:37 $
+//   $Date: 2006/02/23 01:16:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.64 $
+//   $Revision: 1.65 $
 
 // Table of Contents:
 //
@@ -1559,11 +1559,6 @@ namespace min { namespace unprotected {
     // of memory.  Bodies are separated by body control
     // structures.
     //
-    // The end_body_control is just after the last body
-    // of the region, and is at the very end of the
-    // region.  The last body of the region is free, and
-    // from its beginning are allocated new bodies.
-
     struct body_control {
         uns64 control;
 	    // If not free, the tyep is any value but
@@ -1587,20 +1582,31 @@ namespace min { namespace unprotected {
 	    // body control, that size is 0.
     };
 
-    // Location of the free body control from which new
-    // bodies should be allocated by inline code, if
-    // possible.  Always exists, but may be a dummy for
-    // a zero length free body.
+    // Begin_body_control and end_body_control are the
+    // body_controls before and after the free body that
+    // is the end of the body stack.  New bodies are
+    // allocated to the beginning of this free body, and
+    // begin_body_control is changed to point at the
+    // header of the unused part of the free body, which
+    // becomes the new (and smaller) free body a the end
+    // of the body stack.  The stack may be inside a
+    // longer list of allocated bodies which may or may
+    // not be free.
     //
-    body_control * free_body_control;
+    body_control * begin_body_control;
+    body_control * end_body_control;
 
-    // Out of line function to return the body_control
-    // value for a free body that has at least n bytes.
-    // This function may or may not expand the body
-    // stack and may or may not reset free_body_control.
-    // n must be a multiple of 8.
+    // Out of line function to returns a value which
+    // may be directly returned by new_body (see
+    // below).  This function is called by new_body
+    // when the body stack is too short to services an
+    // allocation request.  This function may or may not
+    // reset the body stack (begin/end_body_control).
     //
-    body_control * gc_find_body ( unsigned n );
+    // Here n must be a multiple of 8 (and is the argu-
+    // ment of new_body rounded up to a multiple of 8).
+    //
+    body_control * gc_new_body ( unsigned n );
 
     // Function to return the address of the body_con-
     // trol in front of a newly allocated body with n'
@@ -1615,18 +1621,17 @@ namespace min { namespace unprotected {
 	// negating them.
 
         n = ( n + 7 ) & ~ 07;
-	body_control * head = free_body_control;
+	body_control * head = begin_body_control;
 	if (   value_of_control ( head->control )
 	     < n + sizeof ( body_control ) )
-	    head = gc_find_body
-	              ( n + sizeof ( body_control ) );
+	    return gc_new_body ( n );
+
 	uns8 * address = (uns8 *) head
 	               + sizeof ( body_control );
-	int64 sz = value_of_control ( head->control );
 	body_control * free =
 	    (body_control *) ( address + n );
-	body_control * tail = (body_control *)
-	    ( address + (internal::pointer_uns) sz );
+	body_control * tail = end_body_control;
+	int64 sz = value_of_control ( head->control );
 	head->control = 0;
 	head->size_difference -= sz + int64 ( n );
 	int64 freesz =
@@ -1635,6 +1640,7 @@ namespace min { namespace unprotected {
 	    new_control ( min::FREE, freesz );
 	free->size_difference = freesz - int64 ( n );
 	tail->size_difference += sz - freesz;
+	begin_body_control = free;
 	return head;
     }
 } }
