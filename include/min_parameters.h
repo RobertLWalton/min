@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 22 05:23:11 EST 2006
+// Date:	Thu Feb 23 04:24:15 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/22 10:20:24 $
+//   $Date: 2006/02/23 09:27:01 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents
 //
@@ -113,21 +113,22 @@
 //	(other) control value	48
 //
 // MIN_GC_FLAG_BITS controls how many ephemeral levels
-// of garbage collector are implemented.
+// of garbage collector are implemented (see below).
 //
 // Note that addresses of stub bodies and addresses
 // pointing into stub bodies can always be stored in
 // 64 bit locations if MIN_POINTER_BITS is as big as
 // 64 bits.  Thus only stub addresses are constrained
-// to be less than 64 bits.
+// to be storable in less than 64 bits.
 
 // The values you need to set to control all this
 // follow.  All must be constant integer expressions
 // unless otherwise noted.
 
-// Base for relative stub addresses.  Can be constant
-// or global variable (if global variable, should be
-// of unsigned type large enough to hold a pointer).
+// Base for relative stub addresses.  Can be a non-
+// negative constant or global variable.  If a global
+// variable, should be of unsigned type large enough
+// to hold a pointer.
 //
 # ifndef MIN_STUB_BASE
 #   define MIN_STUB_BASE 0
@@ -150,7 +151,8 @@
 // Normally you will not define the following, and so
 // will get the defaults.
 
-// Number of low order zero bits in a stub address.
+// Number of low order zero bits in a stub relative
+// address.  Sizeof stub = 1 << MIN_STUB_SHIFT.
 //
 # ifndef MIN_STUB_SHIFT
 #   define MIN_STUB_SHIFT 4
