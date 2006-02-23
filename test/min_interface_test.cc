@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 07:03:50 EST 2006
+// Date:	Thu Feb 23 07:37:11 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 12:03:01 $
+//   $Date: 2006/02/23 12:34:24 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents:
 //
@@ -91,7 +91,7 @@ void min_assert
 	  statement; \
           cout << "EXITING BECAUSE OF SUCCESSFUL" \
 	          " MIN_ASSERT" << endl; \
-	  exit (1 ); } \
+	  exit ( 1 ); } \
     catch ( min_assert_exception * x ) {}
 //
 # define MIN_ASSERT(expr) \
@@ -997,7 +997,7 @@ int main ()
 	MUP::gc_stack_end = stack + 2;
 	min::stub s1, s2;
 	const min::uns64 marked_flag =
-	    min::uns64(1) << MIN_POINTER_BITS;
+	    min::uns64(1) << MIN_STUB_POINTER_BITS;
 	const min::uns64 scavenged_flag =
 	    marked_flag << 1;
 	MUP::gc_stack_marks = marked_flag;

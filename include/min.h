@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 07:06:20 EST 2006
+// Date:	Thu Feb 23 07:36:32 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 12:04:25 $
+//   $Date: 2006/02/23 12:33:34 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.68 $
+//   $Revision: 1.69 $
 
 // Table of Contents:
 //
@@ -244,8 +244,6 @@ namespace min { namespace internal {
 	inline min::stub * uns32_to_stub
 		( min::uns32 v )
 	{
-	    return (min::stub *)
-		   (min::internal::pointer_uns) v;
 	    min::internal::pointer_uns p =
 		(min::internal::pointer_uns) v;
 #           if MIN_STUB_POINTER_BITS <= 32
