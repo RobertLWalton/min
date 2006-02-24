@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 06:50:07 EST 2006
+// Date:	Fri Feb 24 10:05:04 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 11:48:14 $
+//   $Date: 2006/02/24 15:03:58 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents
 //
@@ -192,9 +192,9 @@
 //	MIN_POINTER_BITS
 //	    Number of bits needed to hold a pointer.
 //	    Must not be greater than 64.
-//	MIN_BIG_ENDIAN
+//	MIN_IS_BIG_ENDIAN
 //	    1 if big endian; else 0.
-//	MIN_LITTLE_ENDIAN
+//	MIN_IS_LITTLE_ENDIAN
 //	    1 if little endian; else 0.
 //	    
 //	MIN_FLOAT64_SIGNALLING_NAN
@@ -209,8 +209,8 @@
 # ifdef __i386
 #   define MIN_INT32_TYPE int
 #   define MIN_INT64_TYPE long long
-#   define MIN_BIG_ENDIAN 0
-#   define MIN_LITTLE_ENDIAN 1
+#   define MIN_IS_BIG_ENDIAN 0
+#   define MIN_IS_LITTLE_ENDIAN 1
 #   define MIN_POINTER_BITS 32
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF800
 #   define MIN_DEALLOCATED_LIMIT (1 << 20)
