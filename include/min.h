@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 07:36:32 EST 2006
+// Date:	Fri Feb 24 03:23:53 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 12:33:34 $
+//   $Date: 2006/02/24 08:21:11 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.69 $
+//   $Revision: 1.70 $
 
 // Table of Contents:
 //
@@ -1329,10 +1329,10 @@ namespace min {
 
 namespace min { namespace unprotected {
 
-    bool interrupt_flag;
+    extern bool interrupt_flag;
 	// On if interrupt should occur.
 
-    bool relocated_flag;
+    extern bool relocated_flag;
 	// On if bodies have been relocated.
 
     struct process_control {
@@ -1341,7 +1341,7 @@ namespace min { namespace unprotected {
 
     };
 
-    process_control * current_process;
+    extern process_control * current_process;
 
     // Out of line function to execute interrupt.
     // Returns true.
@@ -1437,7 +1437,7 @@ namespace min { namespace unprotected {
     // OR'ed into the marked flag of the pair of S2.
     //
     // In addition, if any marked flag turned on in S2
-    // by this action is also on in MUP::gc_stack_marks,
+    // by this action is also on in MUP::c_stack_marks,
     // a pointer to S2 is added to the MUP::gc_stack if
     // that stack is not full.
     //
@@ -1445,8 +1445,8 @@ namespace min { namespace unprotected {
     // flags in MUP::gc_new_stub_flags, but is NOT put
     // on the MUP::gc_stack.
     //
-    min::uns64 gc_stack_marks;
-    min::uns64 gc_new_stub_flags;
+    extern min::uns64 gc_stack_marks;
+    extern min::uns64 gc_new_stub_flags;
 
     // The GC Stack is a vector of min::stub * values
     // that is filled from low to high addresses.  MUP::
@@ -1455,8 +1455,8 @@ namespace min { namespace unprotected {
     // MUP::gc_stack >= MUP::gc_stack_end iff the stack
     // is full.
     //
-    min::stub ** gc_stack;
-    min::stub ** gc_stack_end;
+    extern min::stub ** gc_stack;
+    extern min::stub ** gc_stack_end;
 
     // Function executed whenever a pointer to stub S2
     // is stored in a datum with stub S1.  This function
@@ -1494,12 +1494,12 @@ namespace min { namespace unprotected {
     // Pointer to the last allocated stub, which must
     // exist (it can be a dummy).
     //
-    min::stub * last_allocated_stub;
+    extern min::stub * last_allocated_stub;
 
     // Number of free stubs that can be allocated with-
     // out requiring a call to gc_expand_stub_free_list.
     //
-    unsigned number_of_free_stubs;
+    extern unsigned number_of_free_stubs;
 
     // Out of line function to increase the number of
     // free stubs to be at least n.
@@ -1579,7 +1579,7 @@ namespace min { namespace unprotected {
     // beginning of the free body, and free_body_control
     // is moved to the end of the newly allocated body.
     //
-    body_control * free_body_control;
+    extern body_control * free_body_control;
 
     // Out of line function to returns a value which
     // may be directly returned by new_body (see
@@ -1801,29 +1801,29 @@ namespace min { namespace unprotected {
 	min::uns32 hash;
     };
 
-    min::uns64 short_str_of ( min::stub * s )
+    inline min::uns64 short_str_of ( min::stub * s )
     {
 	return s->v.u64;
     }
-    void set_short_str_of
+    inline void set_short_str_of
 	    ( min::stub * s, min::uns64 str )
     {
 	s->v.u64 = str;
     }
-    min::unprotected::long_str * long_str_of
+    inline min::unprotected::long_str * long_str_of
 	    ( min::stub * s )
     {
 	return (min::unprotected::long_str *)
 	       internal::
 	       uns64_to_pointer ( s->v.u64 );
     }
-    const char * str_of
+    inline const char * str_of
     	    ( min::unprotected::long_str * str )
     {
 	return (const char *) str
 	       + sizeof ( min::unprotected::long_str );
     }
-    char * writable_str_of
+    inline char * writable_str_of
     	    ( min::unprotected::long_str * str )
     {
 	return (char *) str
@@ -2179,7 +2179,7 @@ namespace min { namespace unprotected {
     const unsigned ATTRIBUTE_VECTOR_OFFSET_SIZE = 256;
     const unsigned ATTRIBUTE_VECTOR_OFFSET_MASK =
 	    ATTRIBUTE_VECTOR_OFFSET_SIZE - 1;
-    min::uns32 attribute_vector_offset
+    extern min::uns32 attribute_vector_offset
     		    [ATTRIBUTE_VECTOR_OFFSET_SIZE];
 
     struct short_obj
@@ -2403,7 +2403,7 @@ namespace min {
 	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
 #   endif
 
-    bool use_object_aux_stubs;
+    extern bool use_object_aux_stubs;
 
     // We must declare these before we make them
     // friends.
