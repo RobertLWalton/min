@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 03:56:37 EST 2006
+// Date:	Fri Feb 24 05:08:27 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 08:53:53 $
+//   $Date: 2006/02/24 10:14:59 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // Table of Contents:
 //
@@ -1207,6 +1207,16 @@ int main ()
 	cout << "n1: " << print_gen ( n1 ) << endl;
 	MIN_ASSERT ( min::is_num ( n1 ) );
 	MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
+	MIN_ASSERT ( min::float_of ( n1 ) == 12345 );
+	min::gen n2 = min::new_gen ( 1.2345 );
+	cout << "n2: " << print_gen ( n2 ) << endl;
+	MIN_ASSERT ( min::is_num ( n2 ) );
+	MIN_ASSERT ( min::float_of ( n2 ) == 1.2345 );
+	min::uns32 n2hash = min::numhash ( n2 );
+	MIN_ASSERT
+	    ( n2hash == min::floathash ( 1.2345 ) );
+	cout << "floathash ( " << 1.2345 << ") = "
+	     << hex << n2hash << dec << endl;
 
 	cout << endl;
 	cout << "Finish Numbers Test!" << endl;
