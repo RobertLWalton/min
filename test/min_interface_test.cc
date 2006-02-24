@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 09:51:42 EST 2006
+// Date:	Thu Feb 23 19:41:04 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/23 15:12:56 $
+//   $Date: 2006/02/24 00:38:04 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.27 $
+//   $Revision: 1.28 $
 
 // Table of Contents:
 //
@@ -188,6 +188,8 @@ void initialize_stub_region ( void )
 //
 void MUP::gc_expand_stub_free_list ( unsigned n )
 {
+    cout << "MUP::gc_expand_stub_free_list (" << n
+         << ") called" << endl;
     if ( n <= MUP::number_of_free_stubs ) return;
     n -= MUP::number_of_free_stubs;
 
@@ -258,6 +260,8 @@ void initialize_body_region ( void )
 //
 void add_to_free_body ( unsigned m )
 {
+    cout << "add_to_free_body (" << m << ") called"
+         << endl;
     MUP::body_control * free = MUP::free_body_control;
     min::internal::pointer_uns size =
         MUP::value_of_control ( free->control );
