@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 23 19:41:04 EST 2006
+// Date:	Fri Feb 24 03:56:37 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 00:38:04 $
+//   $Date: 2006/02/24 08:53:53 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // Table of Contents:
 //
@@ -1193,6 +1193,25 @@ int main ()
     }
 
 // Numbers
+// -------
+
+    {
+	cout << endl;
+	cout << "Start Numbers Test!" << endl;
+
+	cout << endl;
+	cout << "Start Numbers Test!" << endl;
+	cout << "Test number create/test/read"
+	        " functions:" << endl;
+	min::gen n1 = min::new_gen ( 12345 );
+	cout << "n1: " << print_gen ( n1 ) << endl;
+	MIN_ASSERT ( min::is_num ( n1 ) );
+	MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
+
+	cout << endl;
+	cout << "Finish Numbers Test!" << endl;
+    }
+
 // Strings
 // Labels
 // Atom Functions

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 03:50:35 EST 2006
+// Date:	Fri Feb 24 03:56:07 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 08:47:51 $
+//   $Date: 2006/02/24 08:53:11 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.71 $
+//   $Revision: 1.72 $
 
 // Table of Contents:
 //
@@ -607,8 +607,7 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline bool is_stub ( min::gen v )
 	{
-	    return
-	        ( v < ( uns32(GEN_DIRECT_INT) << 24 ) );
+	    return ( v < ( GEN_DIRECT_INT << 24 ) );
 	}
 	// Unimplemented for COMPACT:
 	//  bool is_direct_float ( min::gen v )
@@ -1678,12 +1677,10 @@ namespace min {
 	}
         inline bool is_num ( min::gen v )
 	{
-	    if ( v >= (    uns32(min::GEN_DIRECT_STR)
-	                << 24 ) )
+	    if ( v >= ( min::GEN_DIRECT_STR << 24 ) )
 	        return false;
-	    else if ( v >=
-	              (    uns32(min::GEN_DIRECT_INT)
-		        << 24 ) )
+	    else if ( v >= (    min::GEN_DIRECT_INT
+	                     << 24 ) )
 	        return true;
 	    else
 	        return
