@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 03:23:53 EST 2006
+// Date:	Fri Feb 24 03:50:35 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 08:21:11 $
+//   $Date: 2006/02/24 08:47:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.70 $
+//   $Revision: 1.71 $
 
 // Table of Contents:
 //
@@ -607,7 +607,8 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline bool is_stub ( min::gen v )
 	{
-	    return ( v < ( GEN_DIRECT_INT << 24 ) );
+	    return
+	        ( v < ( uns32(GEN_DIRECT_INT) << 24 ) );
 	}
 	// Unimplemented for COMPACT:
 	//  bool is_direct_float ( min::gen v )
@@ -1677,11 +1678,13 @@ namespace min {
 	}
         inline bool is_num ( min::gen v )
 	{
-	    if ( v >= ( min::GEN_DIRECT_STR << 24 ) )
+	    if ( v >= (    uns32(min::GEN_DIRECT_STR)
+	                << 24 ) )
 	        return false;
 	    else if ( v >=
-	              ( min::GEN_DIRECT_INT << 24 ) )
-	        return false;
+	              (    uns32(min::GEN_DIRECT_INT)
+		        << 24 ) )
+	        return true;
 	    else
 	        return
 		  ( type_of
@@ -1705,82 +1708,85 @@ namespace min {
 		    return unprotected::
 		           new_direct_int_gen ( i );
 	    }
-		return unprotected::
-		       new_num_stub_gen ( v );
-	    }
-	    inline int int_of ( min::gen v )
+	    return unprotected::
+		   new_num_stub_gen ( v );
+	}
+	inline int int_of ( min::gen v )
+	{
+	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
 	    {
-		if ( v < ( min::GEN_DIRECT_INT << 24 ) )
-		{
-		    min::stub * s =
-			internal::
-			uns32_to_stub ( v );
-		    MIN_ASSERT (    type_of ( s )
-		                 == min::NUMBER );
-		    min::float64 f = s->v.f64;
-		    MIN_ASSERT (    INT_MIN <= f
-		                 && f <= INT_MAX );
-		    int i = (int) f;
-		    MIN_ASSERT ( i == f );
-		    return i;
-		}
-		else if
-		    (   v
-		      < ( min::GEN_DIRECT_STR << 24 ) )
-		    return unprotected::
-		           direct_int_of ( v );
-		else
-		{
-		    MIN_ASSERT ( is_num ( v ) );
-		}
-	    }
-	    inline float64 float_of ( min::gen v )
-	    {
-		if ( v < ( min::GEN_DIRECT_INT << 24 ) )
-		{
-		    min::stub * s =
-			internal::
-			uns32_to_stub ( v );
-		    return float_of ( s );
-		}
-		else if
-		    (   v
-		      < ( min::GEN_DIRECT_STR << 24 ) )
-		    return unprotected::
-		           direct_int_of ( v );
-		else
-		{
-		    MIN_ASSERT ( is_num ( v ) );
-		}
-	    }
-#   elif MIN_IS_LOOSE
-	    inline bool is_num ( min::gen v )
-	    {
-		return min::is_direct_float ( v );
-	    }
-	    inline min::gen new_gen ( int v )
-	    {
-		return new_direct_float_gen ( v );
-	    }
-	    inline min::gen new_gen ( float64 v )
-	    {
-		return new_direct_float_gen ( v );
-	    }
-	    inline int int_of ( min::gen v )
-	    {
-		MIN_ASSERT ( is_num ( v ) );
-		min::float64 f = (float64) ( v );
-		MIN_ASSERT
-		    ( INT_MIN <= f && f <= INT_MAX );
+		min::stub * s =
+		    internal::
+		    uns32_to_stub ( v );
+		MIN_ASSERT (    type_of ( s )
+			     == min::NUMBER );
+		min::float64 f = s->v.f64;
+		MIN_ASSERT (    INT_MIN <= f
+			     && f <= INT_MAX );
 		int i = (int) f;
 		MIN_ASSERT ( i == f );
 		return i;
 	    }
-	    inline float64 float_of ( min::gen v )
+	    else if
+		(   v
+		  < ( min::GEN_DIRECT_STR << 24 ) )
+		return unprotected::
+		       direct_int_of ( v );
+	    else
 	    {
 		MIN_ASSERT ( is_num ( v ) );
-		return (float64) ( v );
 	    }
+	}
+	inline float64 float_of ( min::gen v )
+	{
+	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+	    {
+		min::stub * s =
+		    internal::
+		    uns32_to_stub ( v );
+		return float_of ( s );
+	    }
+	    else if
+		(   v
+		  < ( min::GEN_DIRECT_STR << 24 ) )
+		return unprotected::
+		       direct_int_of ( v );
+	    else
+	    {
+		MIN_ASSERT ( is_num ( v ) );
+	    }
+	}
+#   elif MIN_IS_LOOSE
+	inline bool is_num ( min::gen v )
+	{
+	    return min::is_direct_float ( v );
+	}
+	inline min::gen new_gen ( int v )
+	{
+	    return new_direct_float_gen ( v );
+	}
+	inline min::gen new_gen ( float64 v )
+	{
+	    return new_direct_float_gen ( v );
+	}
+	inline int int_of ( min::gen v )
+	{
+	    MIN_ASSERT ( is_num ( v ) );
+	    min::float64 & f =
+		* (float64 *) ( &v );
+	    MIN_ASSERT
+		( INT_MIN <= f && f <= INT_MAX );
+	    int i = (int) f;
+	    MIN_ASSERT ( i == f );
+	    return i;
+	}
+	inline float64 float_of ( min::gen v )
+	{
+	    MIN_ASSERT ( is_num ( v ) );
+	    min::float64 & f =
+		* (float64 *) ( &v );
+	    return f;
+	}
 #   endif
 
     min::uns32 floathash ( min::float64 f );
