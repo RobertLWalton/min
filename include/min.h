@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 03:56:07 EST 2006
+// Date:	Fri Feb 24 09:42:10 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 08:53:11 $
+//   $Date: 2006/02/24 15:03:58 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.72 $
+//   $Revision: 1.73 $
 
 // Table of Contents:
 //
@@ -361,7 +361,7 @@ namespace min { namespace unprotected {
 	{
 	    uns32 v = (uns32) GEN_DIRECT_STR << 24;
 	    char * s = ( (char *) & v )
-		     + MIN_BIG_ENDIAN;
+		     + MIN_IS_BIG_ENDIAN;
 	       ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ );
@@ -433,7 +433,7 @@ namespace min { namespace unprotected {
 	{
 	    uns64 v = (uns64) GEN_DIRECT_STR << 40;
 	    char * s = ( (char *) & v )
-	             + 3 * MIN_BIG_ENDIAN;
+	             + 3 * MIN_IS_BIG_ENDIAN;
 	       ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ )
@@ -746,9 +746,9 @@ namespace min { namespace unprotected {
 	}
 	inline uns64 direct_str_of ( min::gen v )
 	{
-#	    if MIN_BIG_ENDIAN
+#	    if MIN_IS_BIG_ENDIAN
 		return ( uns64 ( v ) << 40 );
-#	    else
+#	    elif MIN_IS_LITTLE_ENDIAN
 		return ( uns64 ( v & 0xFFFFFF ) );
 #	    endif
 	}
@@ -799,9 +799,9 @@ namespace min { namespace unprotected {
 	//   int direct_int_of ( min::gen v )
 	inline uns64 direct_str_of ( min::gen v )
 	{
-#	    if MIN_BIG_ENDIAN
+#	    if MIN_IS_BIG_ENDIAN
 		return ( v << 24 );
-#	    else
+#	    elif MIN_IS_LITTLE_ENDIAN
 		return ( v & 0xFFFFFFFFFF );
 #	    endif
 	}
@@ -1213,7 +1213,7 @@ namespace min {
 
     inline int type_of ( min::stub * s )
     {
-        return s->c.i8[7*MIN_LITTLE_ENDIAN];
+        return s->c.i8[7*MIN_IS_LITTLE_ENDIAN];
     }
 
     inline bool is_collectible ( int type )
@@ -1303,7 +1303,7 @@ namespace min {
 	inline void set_type_of
 		( min::stub * s, int type )
 	{
-	    s->c.i8[7*MIN_LITTLE_ENDIAN] = type;
+	    s->c.i8[7*MIN_IS_LITTLE_ENDIAN] = type;
 	}
 
         inline void set_flags_of
@@ -1653,6 +1653,20 @@ namespace min { namespace unprotected {
 	free_body_control = free;
 	return head;
     }
+
+    // Hash tables for atoms.  The stubs in these tables
+    // are chained together by the gc chain pointer and
+    // are garbage collectible.
+
+    extern min::stub ** str_hash;
+    extern unsigned str_hash_size;
+
+    extern min::stub ** num_hash;
+    extern unsigned num_hash_size;
+
+    extern min::stub ** lab_hash;
+    extern unsigned lab_hash_size;
+
 } }
 
 // Numbers

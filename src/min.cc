@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 03:10:30 EST 2006
+// Date:	Fri Feb 24 09:41:52 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 08:53:53 $
+//   $Date: 2006/02/24 15:07:36 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // Table of Contents:
 //
@@ -32,6 +32,15 @@
 # include <min.h>
 # define MUP min::unprotected
 # define MINT min::internal
+
+// For debugging.
+//
+# include <iostream>
+# include <iomanip>
+using std::hex;
+using std::dec;
+using std::cout;
+using std::endl;
 
 // Stub Functions
 // ---- ---------
@@ -78,20 +87,20 @@ namespace min { namespace unprotected {
     unsigned number_of_free_stubs;
     body_control * free_body_control;
 
+    min::stub ** str_hash;
+    unsigned str_hash_size;
+
+    min::stub ** num_hash;
+    unsigned num_hash_size;
+
+    min::stub ** lab_hash;
+    unsigned lab_hash_size;
+
     min::uns32 attribute_vector_offset
     		    [ATTRIBUTE_VECTOR_OFFSET_SIZE];
     bool use_object_aux_stubs;
 
 } }
-
-// Hash tables for atoms.
-//
-min::stub ** string_hash;
-min::stub ** number_hash;
-min::stub ** label_hash;
-unsigned string_hash_size;
-unsigned number_hash_size;
-unsigned label_hash_size;
 
 
 // Numbers
@@ -102,8 +111,8 @@ unsigned label_hash_size;
 	    ( min::float64 v )
     {
 	unsigned hash = floathash ( v );
-	unsigned h = hash % number_hash_size;
-	min::stub * s = number_hash[h];
+	unsigned h = hash % MUP::num_hash_size;
+	min::stub * s = MUP::num_hash[h];
 	while ( s )
 	{
 	    if ( MUP::float_of ( s ) == v )
@@ -118,9 +127,9 @@ unsigned label_hash_size;
 	MUP::set_control_of
 	    ( s,
 	      MUP::new_control
-	          ( min::NUMBER, number_hash[h],
+	          ( min::NUMBER, MUP::num_hash[h],
 		    gc_new_stub_flags ));
-	number_hash[h] = s;
+	MUP::num_hash[h] = s;
 	return min::new_gen ( s );
     }
 # endif
@@ -133,11 +142,11 @@ min::uns32 min::floathash ( min::float64 f )
 #   if MIN_IS_LITTLE_ENDIAN
 	p += 8;
 #   endif
-    while ( -- size )
+    while ( size -- )
     {
 #	if MIN_IS_BIG_ENDIAN
 	    hash = ( hash * 65599 ) + * p ++;
-#	else // if MIN_IS_LITTLE_ENDIAN
+#	elif MIN_IS_LITTLE_ENDIAN
 	    hash = ( hash * 65599 ) + * -- p;
 #	endif
     }
@@ -222,8 +231,8 @@ min::gen min::unprotected::new_str_stub_gen
 {
     unsigned length = ::strlen ( p );
     unsigned hash = strhash ( p, length );
-    unsigned h = hash % string_hash_size;
-    min::stub * s = string_hash[h];
+    unsigned h = hash % MUP::str_hash_size;
+    min::stub * s = MUP::str_hash[h];
     while ( s )
     {
         if (    length <= 8
@@ -265,9 +274,9 @@ min::gen min::unprotected::new_str_stub_gen
     MUP::set_control_of
 	( s,
 	  MUP::new_control
-	      ( type, string_hash[h],
+	      ( type, MUP::str_hash[h],
 	        gc_new_stub_flags ));
-    string_hash[h] = s;
+    MUP::str_hash[h] = s;
     return min::new_gen ( s );
 }
 
@@ -322,8 +331,8 @@ min::uns32 min::labhash ( min::stub * s )
 min::gen min::new_gen ( const min::gen * p, unsigned n )
 {
     unsigned hash = labhash ( p, n );
-    unsigned h = hash % label_hash_size;
-    min::stub * s = label_hash[h];
+    unsigned h = hash % MUP::lab_hash_size;
+    min::stub * s = MUP::lab_hash[h];
     while ( s )
     {
 	assert ( min::type_of ( s ) == min::LABEL );
@@ -375,9 +384,9 @@ min::gen min::new_gen ( const min::gen * p, unsigned n )
     MUP::set_control_of
 	( s,
 	  MUP::new_control
-	      ( min::LABEL, label_hash[h],
+	      ( min::LABEL, MUP::lab_hash[h],
 	        MUP::gc_new_stub_flags ));
-    label_hash[h] = s;
+    MUP::lab_hash[h] = s;
     return min::new_gen ( s );
 }
 

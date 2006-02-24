@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 05:08:27 EST 2006
+// Date:	Fri Feb 24 09:46:39 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 10:14:59 $
+//   $Date: 2006/02/24 15:07:36 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.30 $
+//   $Revision: 1.31 $
 
 // Table of Contents:
 //
@@ -322,6 +322,21 @@ MUP::body_control * MUP::gc_new_body ( unsigned n )
     // Done expanding free area.  Now rerun new_stub.
 
     return MUP::new_body ( n );
+}
+
+// Function to initialize GC hash tables.
+//
+void initialize_hash_tables ( void )
+{
+    MUP::str_hash_size = 101;
+    MUP::str_hash =
+        new (min::stub *)[MUP::str_hash_size];
+    MUP::num_hash_size = 101;
+    MUP::num_hash =
+        new (min::stub *)[MUP::num_hash_size];
+    MUP::lab_hash_size = 101;
+    MUP::lab_hash =
+        new (min::stub *)[MUP::lab_hash_size];
 }
 
 int main ()
@@ -1058,6 +1073,7 @@ int main ()
 	        " Interface Test!" << endl;
 	initialize_stub_region();
 	initialize_body_region();
+	initialize_hash_tables();
 	min::stub * stack[2];
 	MUP::gc_stack = stack;
 	MUP::gc_stack_end = stack + 2;
@@ -1203,11 +1219,18 @@ int main ()
 	cout << "Start Numbers Test!" << endl;
 	cout << "Test number create/test/read"
 	        " functions:" << endl;
+
 	min::gen n1 = min::new_gen ( 12345 );
 	cout << "n1: " << print_gen ( n1 ) << endl;
 	MIN_ASSERT ( min::is_num ( n1 ) );
 	MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
 	MIN_ASSERT ( min::float_of ( n1 ) == 12345 );
+	min::uns32 n1hash = min::numhash ( n1 );
+	MIN_ASSERT
+	    ( n1hash == min::floathash ( 12345 ) );
+	cout << "n1hash: " << hex << n1hash << dec
+	     << endl;
+
 	min::gen n2 = min::new_gen ( 1.2345 );
 	cout << "n2: " << print_gen ( n2 ) << endl;
 	MIN_ASSERT ( min::is_num ( n2 ) );
@@ -1215,8 +1238,19 @@ int main ()
 	min::uns32 n2hash = min::numhash ( n2 );
 	MIN_ASSERT
 	    ( n2hash == min::floathash ( 1.2345 ) );
-	cout << "floathash ( " << 1.2345 << ") = "
-	     << hex << n2hash << dec << endl;
+	cout << "n2hash: " << hex << n2hash << dec
+	     << endl;
+
+	min::gen n3 = min::new_gen ( 1 << 30 );
+	cout << "n3: " << print_gen ( n3 ) << endl;
+	MIN_ASSERT ( min::is_num ( n3 ) );
+	MIN_ASSERT ( min::int_of ( n3 ) == 1 << 30 );
+	MIN_ASSERT ( min::float_of ( n3 ) == 1 << 30 );
+	min::uns32 n3hash = min::numhash ( n3 );
+	MIN_ASSERT
+	    ( n3hash == min::floathash ( 1 << 30 ) );
+	cout << "n3hash: " << hex << n3hash << dec
+	     << endl;
 
 	cout << endl;
 	cout << "Finish Numbers Test!" << endl;
