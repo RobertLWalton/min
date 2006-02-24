@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 26 07:11:18 EST 2005
+// Date:	Fri Feb 24 03:10:30 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2005/11/26 15:19:52 $
+//   $Date: 2006/02/24 08:53:53 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // Table of Contents:
 //
@@ -29,7 +29,7 @@
 // Setup
 // -----
 
-# include "../include/min.h"
+# include <min.h>
 # define MUP min::unprotected
 # define MINT min::internal
 
@@ -55,17 +55,34 @@ void min::deallocate ( min::stub * s )
 // Process Management
 // ------- ----------
 
-// Out of line function to execute interrupt.
-// Returns true.
-//
-bool min::unprotected::interrupt ( void )
-	{ return true; }
+namespace min { namespace unprotected {
 
+    bool interrupt_flag;
+    bool relocated_flag;
+    process_control * current_process;
+
+} }
 
 // Garbage Collector Management
 // ------- --------- ----------
 
 // Data.
+
+namespace min { namespace unprotected {
+
+    min::uns64 gc_stack_marks;
+    min::uns64 gc_new_stub_flags;
+    min::stub ** gc_stack;
+    min::stub ** gc_stack_end;
+    min::stub * last_allocated_stub;
+    unsigned number_of_free_stubs;
+    body_control * free_body_control;
+
+    min::uns32 attribute_vector_offset
+    		    [ATTRIBUTE_VECTOR_OFFSET_SIZE];
+    bool use_object_aux_stubs;
+
+} }
 
 // Hash tables for atoms.
 //
@@ -76,19 +93,6 @@ unsigned string_hash_size;
 unsigned number_hash_size;
 unsigned label_hash_size;
 
-# if MIN_IS_COMPACT
-    min::uns32 min::unprotected::
-                    gc_stub_expand_free_list ( void )
-# else // if MIN_IS_LOOSE
-    min::uns64 min::unprotected::
-                    gc_stub_expand_free_list ( void )
-# endif
-	    { return 0; }
-
-min::unprotected::body_control *
-    min::unprotected::gc_body_stack_expand
-	( unsigned n )
-        { return 0; }
 
 // Numbers
 // -------
@@ -282,7 +286,7 @@ const min::uns32 lab_multiplier =
 	* min::uns32 ( 65599 )
 	* min::uns32 ( 65599 );
 
-min::uns32 labhash ( const min::gen * p, unsigned n )
+min::uns32 min::labhash ( const min::gen * p, unsigned n )
 {
     min::uns32 m = 1;
     min::uns32 hash = 0;
@@ -295,7 +299,7 @@ min::uns32 labhash ( const min::gen * p, unsigned n )
     return hash;
 }
 
-min::uns32 labhash ( min::stub * s )
+min::uns32 min::labhash ( min::stub * s )
 {
     assert ( min::type_of ( s ) == min::LABEL );
     min::uns32 m = 1;
@@ -315,7 +319,7 @@ min::uns32 labhash ( min::stub * s )
     return hash;
 }
 
-min::gen new_gen ( const min::gen * p, unsigned n )
+min::gen min::new_gen ( const min::gen * p, unsigned n )
 {
     unsigned hash = labhash ( p, n );
     unsigned h = hash % label_hash_size;
@@ -458,7 +462,7 @@ void MUP::allocate_stub_list
     // Check for failure to use min::insert_reserve
     // properly.
     //
-    assert ( ! relocated_flag () );
+    assert ( ! min::relocated_flag () );
 
     first = MUP::new_aux_stub ();
     MUP::set_gen_of ( first, * p ++ );
@@ -479,7 +483,7 @@ void MUP::allocate_stub_list
     // Check for failure to use min::insert_reserve
     // properly.
     //
-    assert ( ! relocated_flag () );
+    assert ( ! min::relocated_flag () );
     MUP::set_control_of ( last, end );
     MUP::set_type_of ( last, type );
 }
