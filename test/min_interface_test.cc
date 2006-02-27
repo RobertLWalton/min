@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 09:46:39 EST 2006
+// Date:	Mon Feb 27 11:04:43 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 15:07:36 $
+//   $Date: 2006/02/27 16:04:12 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // Table of Contents:
 //
@@ -1230,6 +1230,7 @@ int main ()
 	    ( n1hash == min::floathash ( 12345 ) );
 	cout << "n1hash: " << hex << n1hash << dec
 	     << endl;
+	MIN_ASSERT ( min::new_gen ( 12345 ) == n1 );
 
 	min::gen n2 = min::new_gen ( 1.2345 );
 	cout << "n2: " << print_gen ( n2 ) << endl;
@@ -1240,6 +1241,7 @@ int main ()
 	    ( n2hash == min::floathash ( 1.2345 ) );
 	cout << "n2hash: " << hex << n2hash << dec
 	     << endl;
+	MIN_ASSERT ( min::new_gen ( 1.2345 ) == n2 );
 
 	min::gen n3 = min::new_gen ( 1 << 30 );
 	cout << "n3: " << print_gen ( n3 ) << endl;
@@ -1251,6 +1253,7 @@ int main ()
 	    ( n3hash == min::floathash ( 1 << 30 ) );
 	cout << "n3hash: " << hex << n3hash << dec
 	     << endl;
+	MIN_ASSERT ( min::new_gen ( 1 << 30 ) == n3 );
 
 	cout << endl;
 	cout << "Finish Numbers Test!" << endl;
