@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 03:09:25 $
+//   $Date: 2006/02/28 03:39:09 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.75 $
+//   $Revision: 1.76 $
 
 // Table of Contents:
 //
@@ -243,42 +243,42 @@ namespace min { namespace internal {
 	    min::internal::pointer_uns p =
 		(min::internal::pointer_uns) v;
 #           if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-               <= 0xDEEEEEEE
+               <= 0xDFFFFFFF
 		return ( min::stub * ) p;
 #           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-                 <= 0xDEEEEEEE
+                 <= 0xDFFFFFFF
 		return
 		    (min::stub *)
 		    ( p + (min::internal::pointer_uns)
 			  MIN_STUB_BASE );
-#           elif MIN_MAXIMUM_STUB_INDEX <= 0xDEEEEEEE
+#           elif MIN_MAXIMUM_STUB_INDEX <= 0xDFFFFFFF
 		return
 		    (min::stub *)
 		    (min::internal::pointer_uns)
 		    MIN_STUB_BASE + p;
 #           else
 #	        error   MIN_MAXIMUM_STUB_INDEX \
-                      > 0xDEEEEEEE
+                      > 0xDFFFFFFF
 #           endif
 	}
 	inline min::uns32 general_stub_to_uns32
 		( min::stub * s )
 	{
 #           if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-               <= 0xDEEEEEEE
+               <= 0xDFFFFFFF
 	        return (min::internal::pointer_uns) s;
 #           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-                 <= 0xDEEEEEEE
+                 <= 0xDFFFFFFF
 	        return   (min::internal::pointer_uns) s
 		       - (min::internal::pointer_uns)
 		         MIN_STUB_BASE;
-#           elif MIN_MAXIMUM_STUB_INDEX <= 0xDEEEEEEE
+#           elif MIN_MAXIMUM_STUB_INDEX <= 0xDFFFFFFF
 	        return s - (min::stub *)
 	                   (min::internal::pointer_uns)
 		           MIN_STUB_BASE;
 #           else
 #	        error   MIN_MAXIMUM_STUB_INDEX \
-                      > 0xDEEEEEEE
+                      > 0xDFFFFFFF
 #           endif
 	}
 #   elif MIN_IS_LOOSE

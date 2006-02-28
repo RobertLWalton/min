@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 22:12:27 EST 2006
+// Date:	Mon Feb 27 22:42:12 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 03:09:25 $
+//   $Date: 2006/02/28 03:39:10 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents
 //
