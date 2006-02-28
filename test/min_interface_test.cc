@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 22:59:15 EST 2006
+// Date:	Tue Feb 28 08:27:38 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 03:57:36 $
+//   $Date: 2006/02/28 13:27:56 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // Table of Contents:
 //
@@ -1242,6 +1242,7 @@ int main ()
 	min::gen n1 = min::new_gen ( 12345 );
 	cout << "n1: " << print_gen ( n1 ) << endl;
 	MIN_ASSERT ( min::is_num ( n1 ) );
+	MIN_ASSERT ( min::is_atom ( n1 ) );
 	MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
 	MIN_ASSERT ( min::float_of ( n1 ) == 12345 );
 	min::uns32 n1hash = min::numhash ( n1 );
@@ -1254,6 +1255,7 @@ int main ()
 	min::gen n2 = min::new_gen ( 1.2345 );
 	cout << "n2: " << print_gen ( n2 ) << endl;
 	MIN_ASSERT ( min::is_num ( n2 ) );
+	MIN_ASSERT ( min::is_atom ( n2 ) );
 	MIN_ASSERT ( min::float_of ( n2 ) == 1.2345 );
 	min::uns32 n2hash = min::numhash ( n2 );
 	MIN_ASSERT
@@ -1265,6 +1267,7 @@ int main ()
 	min::gen n3 = min::new_gen ( 1 << 30 );
 	cout << "n3: " << print_gen ( n3 ) << endl;
 	MIN_ASSERT ( min::is_num ( n3 ) );
+	MIN_ASSERT ( min::is_atom ( n3 ) );
 	MIN_ASSERT ( min::int_of ( n3 ) == 1 << 30 );
 	MIN_ASSERT ( min::float_of ( n3 ) == 1 << 30 );
 	min::uns32 n3hash = min::numhash ( n3 );
