@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 20:44:18 EST 2006
+// Date:	Mon Feb 27 21:18:40 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 02:07:35 $
+//   $Date: 2006/02/28 03:09:57 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // Table of Contents:
 //
@@ -460,6 +460,9 @@ int main ()
 
 	cout << endl;
 	cout << "Test stub general values:" << endl;
+	cout << "stub: " << hex
+	     << min::internal::pointer_uns ( stub )
+	     << dec << endl;
 	min::gen stubgen = MUP::new_gen ( stub );
 	cout << "stubgen: " << print_gen ( stubgen )
 	     << endl;

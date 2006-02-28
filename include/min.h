@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 20:22:39 EST 2006
+// Date:	Mon Feb 27 21:09:48 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 01:46:56 $
+//   $Date: 2006/02/28 03:09:25 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.74 $
+//   $Revision: 1.75 $
 
 // Table of Contents:
 //
@@ -1015,7 +1015,7 @@ namespace min { namespace unprotected {
 	{
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
-	       (c & min::internal::CONTROL_VALUE_MASK );
+	       (c & MIN_CONTROL_VALUE_MASK );
 	    return
 	        (min::stub *)
 		( p + (min::internal::pointer_uns)
