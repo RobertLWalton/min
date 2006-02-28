@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 22:42:12 EST 2006
+// Date:	Tue Feb 28 07:55:12 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 03:39:10 $
+//   $Date: 2006/02/28 12:57:21 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents
 //
@@ -27,9 +27,14 @@
 //	MIN_IS_COMPACT
 //	MIN_USES_OBJECT_AUX_STUBS
 //
-// Other parameters can be overridden to have value YYY
-// by giving -DXXX=YYY options to the compiler.  Some
-// examples are:
+// The following parameters can be overridden to have
+// value YYY by giving -DXXX=YYY options to the
+// compiler.
+//
+//	MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS
+//	MIN_STUB_BASE
+//	MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
+//	MIN_GC_FLAG_BITS
 //
 //    -DMIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFF
 //      Value is 2**32-1.  Allows high 2**29 bytes to be
@@ -39,6 +44,11 @@
 //    -DMIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFF
 //	Value is 2**48-1.  Allows up to 2**44 stubs to
 //	exist on machines with 64 bit addresses.
+//
+//    -DMIN_GC_FLAG_BITS=24
+//	Increase the number of GC flag bits from the
+//	default of 12 provided stub addresses can be
+//	packed into 56 - MIN_GC_FLAG_BITS bits.
 // 
 // See below for the definition of these paramters.
 // Other parameters are computed from these.
@@ -70,10 +80,6 @@
 // 1 if min::gen values are 64 bits; else 0.
 //
 # define MIN_IS_LOOSE ( ! MIN_IS_COMPACT )
-
-// Size of min::gen values in bits; 32 or 64.
-//
-# define MIN_SIZEOF_GEN ( MIN_IS_COMPACT ? 32 : 64 )
 
 // 1 to enable use of list auxiliary stubs; 0 not to.
 //
