@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 19:46:05 EST 2006
+// Date:	Mon Feb 27 20:52:14 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 01:18:22 $
+//   $Date: 2006/02/28 01:49:11 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents
 //
@@ -21,22 +21,22 @@
 //	Hardware Parameters
 
 // Note: The following parameters may be overridden by
-// giving -D XXX=1 options to the compiler:
+// giving -DXXX=1 options to the compiler:
 //
 //	MIN_DEBUG
 //	MIN_IS_COMPACT
 //	MIN_USES_OBJECT_AUX_STUBS
 //
 // Other parameters can be overridden to have value YYY
-// by giving -D XXX=YYY options to the compiler.  Some
+// by giving -DXXX=YYY options to the compiler.  Some
 // examples are:
 //
-//   -D MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFF
-//	Value is 2**32-1.  Allows high 2**29 bytes to be
+//    -DMIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFF
+//      Value is 2**32-1.  Allows high 2**29 bytes to be
 // 	used for stubs on machines with 32 bit addres-
 //	ses.
 //
-//   -D MIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFF
+//    -DMIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFF
 //	Value is 2**48-1.  Allows up to 2**44 stubs to
 //	exist on machines with 64 bit addresses.
 // 
