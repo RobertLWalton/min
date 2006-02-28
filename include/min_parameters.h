@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 10:05:04 EST 2006
+// Date:	Mon Feb 27 19:46:05 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 15:03:58 $
+//   $Date: 2006/02/28 01:18:22 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents
 //
@@ -28,7 +28,17 @@
 //	MIN_USES_OBJECT_AUX_STUBS
 //
 // Other parameters can be overridden to have value YYY
-// by giving -D XXX=YYY options to the compiler.
+// by giving -D XXX=YYY options to the compiler.  Some
+// examples are:
+//
+//   -D MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFF
+//	Value is 2**32-1.  Allows high 2**29 bytes to be
+// 	used for stubs on machines with 32 bit addres-
+//	ses.
+//
+//   -D MIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFF
+//	Value is 2**48-1.  Allows up to 2**44 stubs to
+//	exist on machines with 64 bit addresses.
 // 
 // See below for the definition of these paramters.
 // Other parameters are computed from these.
@@ -71,46 +81,57 @@
 #   define MIN_USES_OBJECT_AUX_STUBS 0
 # endif
 
-// Stub addresses can be packed into either relative
-// stub addresses or stub numbers.  The packing scheme
-// for relative stub addresses is:
+// All addresses are 64 bits except stub addresses,
+// which are packed.  All stub address packing schemes
+// represent stub addresses as unsigned integers that
+// need less than 64 bits of storage.  Stub addresses
+// can be packed as absolute stub addresses, relative
+// stub addresses, or stub indices.
 //
-//     stub address = (min::stub *)
-//		      (   relative stub address
-//		        + MIN_STUB_BASE )
+// Absolute stub addresses are defined by the formula:
 //
-// The packing scheme for stub numbers is:
+//	stub address = absolute stub address
 //
-//     stub address = (min::stub *) MIN_STUB_BASE
-//		    + stub number
+// and are in the range:
 //
-// The number of bits required for each scheme of
-// storing a stub address is:
+//	0 .. MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS
 //
-//	stub address		MIN_STUB_POINTER_BITS
-//	stub relative address	MIN_STUB_RELATIVE_BITS
-//	stub number		MIN_STUB_NUMBER_BITS
+// Relative stub addresses are defined by the formula:
 //
-// where MIN_STUB_POINTER_BITS is the number of bits in
-// a stub pointer, as determined by the hardware (see
-// below), and MIN_STUB_NUMBER_BITS = MIN_STUB_RELATIVE_
-// BITS - MIN_STUB_SHIFT where MIN_STUB_SHIFT is such
-// that the size of a stub is ( 1 << MIN_STUB_SHIFT ).
+//	stub address = (min::stub *)
+//		       (   relative stub address
+//		         + MIN_STUB_BASE )
+//
+// and are in the range:
+//
+//	0 .. MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
+//
+// Stub indices are defined by the formula:
+//
+//	stub address = (min::stub *) MIN_STUB_BASE
+//		     + stub index
+//
+// and are in the range:
+//
+//	0 .. MIN_MAXIMUM_RELATIVE_STUB_ADDRESS / 16
+//
+// where 16 is the number of bytes in a stub.
 //
 // When stub addresses are stored in a certain number of
 // bits as much packing is used as is required to fit
 // the stub address into the available bits.  This is
 // determined as follows:
 //
-//	stub address in:	bits:
+//    stub address in:        range:
 //
-//	compact general value	32
+//    compact general value   0 .. 2**32 - 2**29 - 1
 //
-//	loose general value	44
+//    loose general value     0 .. 2**44 - 1
 //
-//	gc control value	56 - MIN_GC_FLAG_BITS
+//    gc control value	      0 .. 2**G - 1 where
+//			      G = 56 - MIN_GC_FLAG_BITS
 //
-//	(other) control value	48
+//    (other) control value   0 .. 2**48-1
 //
 // MIN_GC_FLAG_BITS controls how many ephemeral levels
 // of garbage collector are implemented (see below).
@@ -129,11 +150,28 @@
 // determined by hardware: See Hardware Parameters
 // below.
 
-// Number of bits in an absolute (non-relative) stub
-// address.
+// Maximum absolute stub address.  Defaults to:
 //
-# ifndef MIN_STUB_POINTER_BITS
-#   define MIN_STUB_POINTER_BITS MIN_POINTER_BITS
+//	2**32 - 2**29 - 1    if MIN_POINTER_BITS == 32
+//
+//	2**44 - 1	     if MIN_POINTER_BITS != 32
+//
+# ifndef MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS
+#   define MAXIMUM_ABSOLUTE_STUB_ADDRESS \
+	   ( MIN_POINTER_BITS == 32 ? 0xDFFFFFFF : \
+	     0xFFFFFFFFFFF )
+# endif
+
+// Maximum relative stub address.  Defaults to:
+//
+//	2**32 - 2**29 - 1    if MIN_POINTER_BITS == 32
+//
+//	2**48 - 1	     if MIN_POINTER_BITS != 32
+//
+# ifndef MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
+#   define MAXIMUM_RELATIVE_STUB_ADDRESS \
+	   ( MIN_POINTER_BITS == 32 ? 0xDFFFFFFF : \
+	     0xFFFFFFFFFFFF )
 # endif
 
 // Base for relative stub addresses.  Can be a non-
@@ -145,19 +183,12 @@
 #   define MIN_STUB_BASE 0
 # endif
 
-// Number of bits in a relative stub address.
-//
-# ifndef MIN_STUB_RELATIVE_BITS
-#   define MIN_STUB_RELATIVE_BITS MIN_STUB_POINTER_BITS
-# endif
-
 // Number of GC flag bits.  The GC needs 4N+2 flag bits
 // to implement N ephemeral levels and 1 non-ephemeral
-// level of garbage collection.
+// level of garbage collection.  Defaults to 12.
 //
 # ifndef MIN_GC_FLAG_BITS
-#   define MIN_GC_FLAG_BITS \
-           ( 56 - MIN_STUB_POINTER_BITS )
+#   define MIN_GC_FLAG_BITS 12
 # endif
 
 // Normally you will not define the following, and so
@@ -170,11 +201,11 @@
 #   define MIN_STUB_SHIFT 4
 # endif
 
-// Number of bits in a stub number.
+// Maximum stub index.
 //
-# ifndef MIN_STUB_NUMBER_BITS
-#   define MIN_STUB_NUMBER_BITS \
-           ( MIN_STUB_RELATIVE_BITS - MIN_STUB_SHIFT )
+# ifndef MIN_MAXIMUM_STUB_INDEX
+#   define MIN_MAXIMUM_STUB_INDEX \
+           ( MIN_MAXIMUM_RELATIVE_STUB_ADDRESS / 16 )
 # endif
 
 
