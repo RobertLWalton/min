@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 11, 2006}
+\date{February 17, 2006}
  
 \maketitle
 
@@ -619,36 +619,51 @@ the \verb|min::gen| values pointing at them point at the same place.
 Therefore two atoms are equal if and only if the \verb|min::gen| values
 designating them are \verb|==| as 32-bit or 64-bit values.
 
-General values that point at stubs can hold stub addresses, or they can hold 
-`\skey{virtual stub number}s', \skey{VSN}{'s}, that map to stub addresses.
-An implementation cannot use both stub addresses and VSN's in general values;
-the implementation must use one or the other.
+General values that point at stubs hold stub addresses in a
+packed format.  44 bits are available to store a stub address in a
+64-bit general value, and 32 bits are available to store a stub address
+in a 32-bit general value, but in the latter case the packed address must be
+less than $2^{32}-2^{29}$.  There are three
+\skey{stub address packing scheme}s,\label{STUB-ADDRESS-PACKING} and the fastest
+is selected for each type of general value.
 
-A VSN is typically mapped to a stub address by shifting it left by 4
-bits\footnote{
-Stubs are always a power of two in length, e.g. 16 bytes, so VSN's can be
-translated to addresses by shifting left.} and possibly adding a base constant.
-One effect of using VSN's
-instead of addresses is to multiply by 16 the number of
-stubs that may exist in memory without needing to use more than 32 bits
-to hold the stub address, and the other effect is to increase program
-execution time somewhat.
+The fastest scheme is the \key{absolute stub address} scheme,
+where the absolute stub
+address is stored.  For 64 bit general values this is
+just a matter of inserting the stub address into the low order 44 bits
+of the value.  For 32 bit general values this is just a matter of
+using the stub address as the general value.  This scheme can be used if
+the absolute address of the stub is not too large.  The
+macro \TTKEY{MIN\_\EOL MAXIMUM\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}%
+\LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS}
+defines the maximum absolute address of any stub as an unsigned integer.
 
-On machines that have 32 bit addresses (e.g.,
+The second fastest scheme is the \key{relative stub address} scheme, where the
+stub address relative to a constant \key{stub base}
+address is stored.  The stub base
+address is defined as the value of the
+\TTKEY{MIN\_STUB\_BASE}\LABEL{MIN_STUB_BASE}
+macro, which can be a non-negative constant or the name of a global
+variable holding an unsigned integer.  The relative stub address is
+just the absolute stub address minus the stub base.  This scheme can be
+used if the relative address of the stub is not too large.  The
+macro \TTKEY{MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}%
+\LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS}
+defines the maximum relative address of any stub as an unsigned integer.
+
+The slowest scheme is the \key{stub index} scheme, where the
+relative stub address divided by the stub length is stored.
+The stub length is choosen to be a power of 2 so that this
+scheme will be efficient.  Again, this scheme can be used if
+if the relative address of the stub is not too large, but since
+the stub length is 16, the relative address can be 16 times larger
+for the stub index packing scheme than it is for the stub relative address
+packing scheme.
+
+Note that on machines that have 32 bit addresses (e.g.,
 the IA32\footnote{Intel Architecture 32-bit, a.k.a, i386 machines.}
-machines), stub addresses are normally used, as there is little to gain
-by using VSN's.
-The affect of using stub
-addresses or VSN's on the approximate maximum number of stubs is as follows:
-
-\begin{center}
-{\bf Maximum Possible Number of Stubs} \\[1ex]
-\begin{tabular}{lrr}
-			&	Addresses	& VSN's \\[1ex]
-32-bit general values	&	$2^{28}$	& $2^{32}$ \\[1ex]
-64-bit general values	&	$2^{40}$	& $2^{44}$ \\[1ex]
-\end{tabular}
-\end{center}
+machines), there is little to gain by the stub index packing scheme,
+so that scheme should not be used on such machines.
 
 A 32-bit general value direct integer consists of a high order 4-bit
 subtype code and a low order 28-bit signed integer stored in offset form,
@@ -700,10 +715,8 @@ and must have a name beginning with `{\tt min::}'.
 \label{GENERAL-VALUE-COMPILATION}
 
 The decisions on whether an implementation is compact or loose and
-whether the implementation uses addresses or VSN's in general values
-that point at stubs must be made before C++ code is compiled.
-
-The following macros are defined to describe these decisions:
+must be made before C++ code is compiled.
+The following macros describe these decisions:
 
 \begin{center}
 \begin{tabular}{ll}
@@ -713,16 +726,25 @@ The following macros are defined to describe these decisions:
 \LABEL{MIN_IS_LOOSE}	 \\
 \TTKEY{MIN\_SIZEOF\_GEN}	& 64 if loose implementation; 32 if compact
 \LABEL{MIN_SIZEOF_GEN} \\
-\TTKEY{MIN\_USES\_ADDRESSES}	& 1 if implementation uses addresses;
-				  0 if it uses VSN's
-\LABEL{MIN_USES_ADDRESSES} \\
-\TTKEY{MIN\_USES\_VSNS}		& 1 if implementation uses VSN's;
-				  0 if it uses addresses
-\LABEL{MIN_USES_VSNS}	 \\
 \end{tabular}
 \end{center}
 
-These macros must be defined identically
+Similarly the parameters that control stub address packing
+(\pagref{STUB-ADDRESS-PACKING}) must be defined before C++ code is
+compiled.  The following macros determine these decisions:
+
+\begin{center}
+\begin{tabular}{l}
+\TTKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS} \\
+\TTKEY{MIN\_STUB\_BASE}	\\
+\TTKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
+\end{tabular}
+\end{center}
+
+
+TBD: MIN\_USES\_OBJECT\_AUX\_STUBS
+
+All the above macros must be defined identically
 for all separately compiled parts of a single program.
 
 \subsubsection{General Value Functions}
@@ -3557,10 +3579,12 @@ struct min
 \LABEL{MIN_IS_LOOSE}	 \\
 \TTKEY{MIN\_SIZEOF\_GEN}
 \LABEL{MIN_SIZEOF_GEN} \\
-\TTKEY{MIN\_USES\_ADDRESSES}
-\LABEL{MIN_USES_ADDRESSES} \\
-\TTKEY{MIN\_USES\_VSNS}
-\LABEL{MIN_USES_VSNS} \\
+\TTKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
+\LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS} \\
+\TTKEY{MIN\_STUB\_BASE}
+\LABEL{MIN_STUB_BASE} \\
+\TTKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
+\LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS} \\
 \TTKEY{MIN\_DEBUG}
 \LABEL{MIN_DEBUG} \\
 \TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
