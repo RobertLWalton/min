@@ -716,7 +716,11 @@ and must have a name beginning with `{\tt min::}'.
 
 The decisions on whether an implementation is compact or loose and
 must be made before C++ code is compiled.
-The following macros describe these decisions:
+Decisions must also be made determining the stub address packing
+parameters (\pagref{STUB-ADDRESS-PACKING}).
+The following macros, which must be defined identically
+for all separately compiled parts of a single program, describe
+these decisions:
 
 \begin{center}
 \begin{tabular}{ll}
@@ -724,28 +728,18 @@ The following macros describe these decisions:
 \LABEL{MIN_IS_COMPACT} \\
 \TTKEY{MIN\_IS\_LOOSE}		& 1 if loose implementation; 0 if compact
 \LABEL{MIN_IS_LOOSE}	 \\
-\TTKEY{MIN\_SIZEOF\_GEN}	& 64 if loose implementation; 32 if compact
-\LABEL{MIN_SIZEOF_GEN} \\
 \end{tabular}
 \end{center}
-
-Similarly the parameters that control stub address packing
-(\pagref{STUB-ADDRESS-PACKING}) must be defined before C++ code is
-compiled.  The following macros determine these decisions:
 
 \begin{center}
-\begin{tabular}{l}
-\TTKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS} \\
-\TTKEY{MIN\_STUB\_BASE}	\\
+\begin{tabular}{ll}
+\TTKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
+			& See \pagref{STUB-ADDRESS-PACKING} \\
+\TTKEY{MIN\_STUB\_BASE} & See \pagref{STUB-ADDRESS-PACKING} \\
 \TTKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
+			& See \pagref{STUB-ADDRESS-PACKING} \\
 \end{tabular}
 \end{center}
-
-
-TBD: MIN\_USES\_OBJECT\_AUX\_STUBS
-
-All the above macros must be defined identically
-for all separately compiled parts of a single program.
 
 \subsubsection{General Value Functions}
 \label{GENERAL-VALUE-FUNCTIONS}
@@ -1276,12 +1270,14 @@ garbage collector organization of the stub control of a collectible stub is:
 \begin{center}
 \begin{tabular}{ll}
 high order 8 bits:	& type code \\
-next 12 bits:		& gc flags \\
-low order 44 bits:	& chain pointer \\
+next 12-24 bits:	& gc flags \\
+low order 44-32 bits:	& chain pointer \\
 \end{tabular}
 \end{center}
 
-The chain pointer is used to build lists of allocated stubs which
+The chain pointer is a packed stub address
+(see \pagref{STUB-ADDRESS-PACKING})
+that is used to build lists of allocated stubs which
 the garbage collector manages.
 
 If a stub is uncollectible, its stub control can be organized in different
@@ -1291,10 +1287,14 @@ an uncollectible stub control is:
 \begin{center}
 \begin{tabular}{ll}
 high order 8 bits:	& type code \\
-next 12 bits:		& subtype code \\
-low order 44 bits:	& chain pointer \\
+next 8 bits:		& subtype code \\
+low order 48 bits:	& chain pointer \\
 \end{tabular}
 \end{center}
+
+Again the chain pointer is a packed stub address
+(see \pagref{STUB-ADDRESS-PACKING}),
+but now it has enough bits to be packed with the fastest packing scheme.
 
 The main use of uncollectible stubs is as auxiliary stubs.
 An `\key{auxiliary stub}' is an uncollectible stub attached to an object.
@@ -3577,14 +3577,14 @@ struct min
 \LABEL{MIN_IS_COMPACT} \\
 \TTKEY{MIN\_IS\_LOOSE}
 \LABEL{MIN_IS_LOOSE}	 \\
-\TTKEY{MIN\_SIZEOF\_GEN}
-\LABEL{MIN_SIZEOF_GEN} \\
 \TTKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
 \LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS} \\
 \TTKEY{MIN\_STUB\_BASE}
 \LABEL{MIN_STUB_BASE} \\
 \TTKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
 \LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS} \\
+\TTKEY{MIN\_DEALLOCATED\_LIMIT}
+\LABEL{MIN_DEALLOCATED_LIMIT} \\
 \TTKEY{MIN\_DEBUG}
 \LABEL{MIN_DEBUG} \\
 \TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
@@ -3658,12 +3658,6 @@ struct min
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.0in}
-(unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
-\LABEL{MIN_DEALLOCATED_LIMIT} \\
-
 \end{TABULAR}
 
 \end{indpar}
