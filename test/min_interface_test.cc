@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 11:04:43 EST 2006
+// Date:	Mon Feb 27 20:44:18 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/27 16:04:12 $
+//   $Date: 2006/02/28 02:07:35 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // Table of Contents:
 //
@@ -52,8 +52,23 @@ using std::ostream;
 
 // Artificial increase in pointer size for stretch test.
 //
+// If MIN_STRETCH defines, set
+//
+//	MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS = 2**60 - 1
+//	MIN_MAXIMUM_RELATIVE_STUB_ADDRESS =
+//		2**36 - 2**33 - 1  if MIN_IS_COMPACT
+//		2**48 - 1  if MIN_IS_COMPACT
+//
 # ifdef MIN_STRETCH
-#   define MIN_STUB_POINTER_BITS MIN_STRETCH
+#   define MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
+ 	       0xFFFFFFFFFFFFFFF
+#   if MIN_IS_COMPACT
+#	define MIN_RELATIVE_ABSOLUTE_STUB_ADDRESS \
+ 	       0xDFFFFFFFF
+#   else
+#	define MIN_RELATIVE_ABSOLUTE_STUB_ADDRESS \
+ 	       0xFFFFFFFFFFFF
+#   endif
 # endif
 
 // Redefinition of MIN_ASSERT for use in min.h.
@@ -398,18 +413,18 @@ int main ()
 	    min::internal::uns64_to_pointer ( u64 );
 	MIN_ASSERT ( b64 == buffer );
 
-#	if MIN_STUB_NUMBER_BITS <= 32
+#	if MIN_IS_COMPACT
 	    cout << endl;
 	    cout << "Test stub/uns32 conversions:"
 		 << endl;
 	    min::uns32 u32 =
-	        min::internal::stub_to_uns32 ( stub );
+	        min::internal
+		   ::general_stub_to_uns32 ( stub );
 	    min::stub * s32 =
-		min::internal::uns32_to_stub ( u32 );
+		min::internal
+		   ::general_uns32_to_stub ( u32 );
 	    MIN_ASSERT ( s32 == stub );
-#	endif
-
-#	if MIN_IS_LOOSE
+#	elif MIN_IS_LOOSE
 	    cout << endl;
 	    cout << "Test general stub/uns64"
 	            " conversions:" << endl;
@@ -1079,7 +1094,8 @@ int main ()
 	MUP::gc_stack_end = stack + 2;
 	min::stub s1, s2;
 	const min::uns64 marked_flag =
-	    min::uns64(1) << MIN_STUB_POINTER_BITS;
+	       min::uns64(1)
+	    << ( 56 - MIN_GC_FLAG_BITS );
 	const min::uns64 scavenged_flag =
 	    marked_flag << 1;
 	MUP::gc_stack_marks = marked_flag;
