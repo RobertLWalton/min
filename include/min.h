@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 21:09:48 EST 2006
+// Date:	Mon Feb 27 22:55:43 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 03:39:09 $
+//   $Date: 2006/02/28 03:52:41 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.76 $
+//   $Revision: 1.77 $
 
 // Table of Contents:
 //
@@ -1064,8 +1064,6 @@ namespace min { namespace unprotected {
 		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
-		   |
-		   (min::internal::pointer_uns) s
 	           | (   s
 	               - (min::stub *)
 		         (min::internal::pointer_uns)
@@ -1174,8 +1172,6 @@ namespace min { namespace unprotected {
 		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
-		   |
-		   (min::internal::pointer_uns) s
 	           | (   s
 	               - (min::stub *)
 		         (min::internal::pointer_uns)

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 21:18:40 EST 2006
+// Date:	Mon Feb 27 22:59:15 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 03:09:57 $
+//   $Date: 2006/02/28 03:57:36 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.34 $
+//   $Revision: 1.35 $
 
 // Table of Contents:
 //
@@ -57,16 +57,16 @@ using std::ostream;
 //	MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS = 2**60 - 1
 //	MIN_MAXIMUM_RELATIVE_STUB_ADDRESS =
 //		2**36 - 2**33 - 1  if MIN_IS_COMPACT
-//		2**48 - 1  if MIN_IS_COMPACT
+//		2**48 - 1  if not MIN_IS_COMPACT
 //
 # ifdef MIN_STRETCH
 #   define MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
  	       0xFFFFFFFFFFFFFFF
 #   if MIN_IS_COMPACT
-#	define MIN_RELATIVE_ABSOLUTE_STUB_ADDRESS \
+#	define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
  	       0xDFFFFFFFF
 #   else
-#	define MIN_RELATIVE_ABSOLUTE_STUB_ADDRESS \
+#	define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
  	       0xFFFFFFFFFFFF
 #   endif
 # endif
@@ -918,7 +918,7 @@ int main ()
 	    (    MUP::type_of_control ( control3 )
 	      == type1 );
         MIN_ASSERT
-	    (    MUP::stub_of_control ( control3 )
+	    (    MUP::stub_of_gc_control ( control3 )
 	      == stub1 );
         MIN_ASSERT ( control3 & hiflag );
         MIN_ASSERT ( ! ( control3 & loflag ) );
