@@ -2880,7 +2880,7 @@ each node of the graph.  That variable may point at an object that
 defines the labeled arrows sourced at the node.  Or the variable may be
 set to a number or string that is the value of a leaf node that sources
 no arrows.  Or the variable may be set to the special value
-\minkey{NULL} that indicates the node is not yet defined, and might
+\minkey{UNDEFINED} that indicates the node is not yet defined, and might
 later become either a source of arrows or a leaf.
 
 When a variable $X$
@@ -2901,7 +2901,7 @@ type of the structure.
 Variable vectors must be initialized with values for each variable.  If a
 vector represents a graph some of whose nodes source no arrows and have
 no string or number associated with them, the variables of these nodes are
-given the initial value \minkey{NULL},
+given the initial value \minkey{UNDEFINED},
 which signifies a node that is not defined
 yet.  These variables can be set later to define their nodes.
 
@@ -3297,22 +3297,25 @@ The special values are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const int min::}\MINKEY{MISSING}]~%
+\item[{\tt const min::gen min::}\MINKEY{MISSING}]~%
 	\LABEL{MIN::MISSING}\\
 Denotes a missing value or an empty set of values.
-\item[{\tt const int min::}\MINKEY{ANY}]~%
+\item[{\tt const min::gen min::}\MINKEY{ANY}]~%
 	\LABEL{MIN::ANY}\\
 Denotes any value from a set of values.
-\item[{\tt const int min::}\MINKEY{MULTI\_VALUED}]~%
+\item[{\tt const min::gen min::}\MINKEY{MULTI\_VALUED}]~%
 	\LABEL{MIN::MULTI_VALUED}\\
 Indicates a set of values has more than one element.
-\item[{\tt const int min::}\MINKEY{NULL}]~%
-	\LABEL{MIN::NULL}\\
+\item[{\tt const min::gen min::}\MINKEY{UNDEFINED}]~%
+	\LABEL{MIN::UNDEFINED}\\
 A value given to a variable vector variable (\secref{VARIABLE-VECTORS})
 that has no value and can be indirected.
-\item[{\tt const int min::}\MINKEY{SUCCESS}]~%
+\item[{\tt const min::gen min::}\MINKEY{SUCCESS}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
+\item[{\tt const min::gen min::}\MINKEY{FAILURE}]~%
+	\LABEL{MIN::FAILURE}\\
+A value returned to indicate a function has failed.
 \end{list}
 \end{indpar}
 
@@ -4430,17 +4433,19 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{0.6in}
-\verb|min::| & \MINKEY{MISSING}
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::| & \MINKEY{MISSING}
 \LABEL{MIN::MISSING} \\
-\verb|min::| & \MINKEY{ANY}
+\verb|min::gen min::| & \MINKEY{ANY}
 \LABEL{MIN::ANY} \\
-\verb|min::| & \MINKEY{MULTI\_VALUED}
+\verb|min::gen min::| & \MINKEY{MULTI\_VALUED}
 \LABEL{MIN::MULTI_VALUED} \\
-\verb|min::| & \MINKEY{NULL}
-\LABEL{MIN::NULL} \\
-\verb|min::| & \MINKEY{SUCCESS}
-\LABEL{MIN::SUCCESS}
+\verb|min::gen min::| & \MINKEY{UNDEFINED}
+\LABEL{MIN::UNDEFINED} \\
+\verb|min::gen min::| & \MINKEY{SUCCESS}
+\LABEL{MIN::SUCCESS} \\
+\verb|min::gen min::| & \MINKEY{FAILURE}
+\LABEL{MIN::FAILURE} \\
 \end{TABULAR}
 
 \end{indpar}
