@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar  1 01:35:29 EST 2006
+// Date:	Wed Mar  1 06:37:47 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/01 06:33:03 $
+//   $Date: 2006/03/01 11:34:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.80 $
+//   $Revision: 1.81 $
 
 // Table of Contents:
 //
@@ -122,7 +122,7 @@ namespace min {
 	const unsigned GEN_UPPER
 	    = 0xFF; // Largest subtype code.
 
-#	define MIN_NEW_SPECIAL(i) \
+#	define MIN_NEW_SPECIAL_GEN(i) \
 	    ( min::gen ( (GEN_SPECIAL << 24) + (i) ) )
 
 #   elif MIN_IS_LOOSE
@@ -165,7 +165,7 @@ namespace min {
 	    // Largest subtype code.
 
 
-#	define MIN_NEW_SPECIAL(i) \
+#	define MIN_NEW_SPECIAL_GEN(i) \
 	    ( min::gen \
 	        (   (min::uns64(GEN_SPECIAL) << 40) \
 		  + (i) ) )
@@ -175,17 +175,17 @@ namespace min {
     // range 2**24 - 256 .. 2**24 - 1.
     //
     const min::gen MISSING =
-	MIN_NEW_SPECIAL ( 0xFFFFFF );
+	MIN_NEW_SPECIAL_GEN ( 0xFFFFFF );
     const min::gen ANY =
-	MIN_NEW_SPECIAL ( 0xFFFFFE );
+	MIN_NEW_SPECIAL_GEN ( 0xFFFFFE );
     const min::gen MULTI_VALUED =
-	MIN_NEW_SPECIAL ( 0xFFFFFD );
+	MIN_NEW_SPECIAL_GEN ( 0xFFFFFD );
     const min::gen UNDEFINED =
-	MIN_NEW_SPECIAL ( 0xFFFFFC );
+	MIN_NEW_SPECIAL_GEN ( 0xFFFFFC );
     const min::gen SUCCESS =
-	MIN_NEW_SPECIAL ( 0xFFFFFB );
+	MIN_NEW_SPECIAL_GEN ( 0xFFFFFB );
     const min::gen FAILURE =
-	MIN_NEW_SPECIAL ( 0xFFFFFA );
+	MIN_NEW_SPECIAL_GEN ( 0xFFFFFA );
 }
 
 // Stub Types and Data
