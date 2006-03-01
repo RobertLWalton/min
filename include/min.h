@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 27 22:55:43 EST 2006
+// Date:	Tue Feb 28 18:56:36 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 03:52:41 $
+//   $Date: 2006/03/01 00:14:12 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.77 $
+//   $Revision: 1.78 $
 
 // Table of Contents:
 //
@@ -115,8 +115,10 @@ namespace min {
 	    = 0xF5;
 	const unsigned GEN_CONTROL_CODE
 	    = 0xF6;
+	const unsigned GEN_SPECIAL
+	    = 0xF7;
 	const unsigned GEN_ILLEGAL
-	    = 0xF7;  // First illegal subtype code.
+	    = 0xF8;  // First illegal subtype code.
 	const unsigned GEN_UPPER
 	    = 0xFF; // Largest subtype code.
 #   elif MIN_IS_LOOSE
@@ -149,8 +151,10 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x15;
 	const unsigned GEN_CONTROL_CODE
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x16;
-	const unsigned GEN_ILLEGAL
+	const unsigned GEN_SPECIAL
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x17;
+	const unsigned GEN_ILLEGAL
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x18;
 	    // First illegal subtype code.
 	const unsigned GEN_UPPER
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
@@ -412,6 +416,11 @@ namespace min { namespace unprotected {
 	// Unimplemented for COMPACT:
 	//  min::gen new_long_control_code_gen
 	//	( unsigned c )
+	inline min::gen new_special_gen ( unsigned v )
+	{
+	    return (min::gen)
+	           ( v + ( GEN_SPECIAL << 24 ) );
+	}
 	inline min::gen renew_gen
 		( min::gen v, min::uns32 p )
 	{
@@ -498,6 +507,14 @@ namespace min { namespace unprotected {
 	    return (min::gen)
 	           (   c
 		     + ( (uns64) GEN_CONTROL_CODE
+		         << 40 ) );
+	}
+	inline min::gen new_special_gen
+		( unsigned v )
+	{
+	    return (min::gen)
+	           (   v
+		     + ( (uns64) GEN_SPECIAL
 		         << 40 ) );
 	}
 	inline min::gen renew_gen
@@ -602,6 +619,12 @@ namespace min {
 	      unprotected::new_long_control_code_gen
 	      	( c );
 	}
+    inline min::gen new_special_gen
+	    ( unsigned v )
+    {
+	MIN_ASSERT ( v < 1 << 24 );
+	return unprotected::new_special_gen ( v );
+    }
 #   endif
 }
 
@@ -651,6 +674,10 @@ namespace min {
 	inline bool is_control_code ( min::gen v )
 	{
 	    return ( v >> 24 == GEN_CONTROL_CODE );
+	}
+	inline bool is_special ( min::gen v )
+	{
+	    return ( v >> 24 == GEN_SPECIAL );
 	}
 	inline unsigned gen_subtype_of ( min::gen v )
 	{
@@ -711,6 +738,10 @@ namespace min {
 	inline bool is_control_code ( min::gen v )
 	{
 	    return ( v >> 40 == GEN_CONTROL_CODE );
+	}
+	inline bool is_special ( min::gen v )
+	{
+	    return ( v >> 40 == GEN_SPECIAL );
 	}
 	inline unsigned gen_subtype_of ( min::gen v )
 	{
@@ -791,6 +822,10 @@ namespace min { namespace unprotected {
 	}
 	// Unimplemented for COMPACT:
 	//    uns64 long_control_code_of ( min::gen v )
+	inline unsigned special_value_of ( min::gen v )
+	{
+	    return ( v & 0xFFFFFF );
+	}
 #   elif MIN_IS_LOOSE
 	inline min::stub * stub_of ( min::gen v )
 	{
@@ -845,6 +880,10 @@ namespace min { namespace unprotected {
 	inline uns64 long_control_code_of ( min::gen v )
 	{
 	    return ( v & 0xFFFFFFFFFF );
+	}
+	inline unsigned special_value_of ( min::gen v )
+	{
+	    return ( v & 0xFFFFFF );
 	}
 #   endif
 } }
@@ -921,6 +960,11 @@ namespace min {
 	    		( v );
 	}
 #   endif
+    inline unsigned special_value_of ( min::gen v )
+    {
+	MIN_ASSERT ( is_special ( v ) );
+	return unprotected::special_value_of ( v );
+    }
 }
 
 // Control Values
