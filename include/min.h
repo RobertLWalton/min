@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 28 18:56:36 EST 2006
+// Date:	Tue Feb 28 19:38:36 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/01 00:14:12 $
+//   $Date: 2006/03/01 00:50:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.78 $
+//   $Revision: 1.79 $
 
 // Table of Contents:
 //
@@ -121,6 +121,19 @@ namespace min {
 	    = 0xF8;  // First illegal subtype code.
 	const unsigned GEN_UPPER
 	    = 0xFF; // Largest subtype code.
+
+	const min::gen MISSING =
+	    ( GEN_SPECIAL << 24 ) + 0xFFFFFF;
+	const min::gen ANY =
+	    ( GEN_SPECIAL << 24 ) + 0xFFFFFE;
+	const min::gen MULTI_VALUED =
+	    ( GEN_SPECIAL << 24 ) + 0xFFFFFD;
+	const min::gen UNDEFINED =
+	    ( GEN_SPECIAL << 24 ) + 0xFFFFFC;
+	const min::gen SUCCESS =
+	    ( GEN_SPECIAL << 24 ) + 0xFFFFFB;
+	const min::gen FAILURE =
+	    ( GEN_SPECIAL << 24 ) + 0xFFFFFA;
 #   elif MIN_IS_LOOSE
 
 	// Layout (high order 24 bits) with base
@@ -159,6 +172,19 @@ namespace min {
 	const unsigned GEN_UPPER
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 	    // Largest subtype code.
+
+	const min::gen MISSING =
+	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFF;
+	const min::gen ANY =
+	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFE;
+	const min::gen MULTI_VALUED =
+	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFD;
+	const min::gen UNDEFINED =
+	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFC;
+	const min::gen SUCCESS =
+	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFB;
+	const min::gen FAILURE =
+	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFA;
 #   endif
 }
 
