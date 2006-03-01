@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 14:06:15 $
+//   $Date: 2006/03/01 08:55:55 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // Table of Contents:
 //
@@ -802,6 +802,47 @@ int main ()
 	        ( ! min::is_direct_str
 		        ( longcodegen ) );
 #	endif
+ 
+        cout << endl;
+	cout << "Test special general values:"
+	     << endl;
+
+	MIN_ASSERT
+	    ( min::is_special ( min::MISSING ) );
+	MIN_ASSERT
+	    ( min::is_special ( min::ANY ) );
+	MIN_ASSERT
+	    ( min::is_special ( min::MULTI_VALUED ) );
+	MIN_ASSERT
+	    ( min::is_special ( min::UNDEFINED ) );
+	MIN_ASSERT
+	    ( min::is_special ( min::SUCCESS ) );
+	MIN_ASSERT
+	    ( min::is_special ( min::FAILURE ) );
+
+	unsigned special = 542492;
+	min::gen specialgen =
+	    MUP::new_special_gen ( special );
+	cout << "specialgen: "
+	     << print_gen ( specialgen ) << endl;
+	MIN_ASSERT ( min::is_special ( specialgen ) );
+	MIN_ASSERT
+	    (    min::gen_subtype_of ( specialgen )
+	      == min::GEN_SPECIAL );
+	MIN_ASSERT
+	    (    min::special_index_of ( specialgen )
+	      == special );
+	desire_success (
+	    specialgen =
+	        min::new_special_gen ( special );
+	);
+	desire_failure (
+	    specialgen =
+	        min::new_special_gen ( 1 << 24 );
+	);
+	MIN_ASSERT ( ! min::is_stub ( specialgen ) );
+	MIN_ASSERT
+	    ( ! min::is_direct_str ( specialgen ) );
 
 	cout << endl;
 	cout << "Finish General Value Constructor/"
