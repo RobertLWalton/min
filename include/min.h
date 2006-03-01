@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/01 11:34:49 $
+//   $Date: 2006/03/01 18:32:42 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.81 $
+//   $Revision: 1.82 $
 
 // Table of Contents:
 //
@@ -1632,6 +1632,7 @@ namespace min { namespace unprotected {
 	    // is 0, and if there is body before the
 	    // body control, that size is 0.
     };
+
 
     // Free_body_control is the body_control before a
     // free body that is used as a stack to allocate
