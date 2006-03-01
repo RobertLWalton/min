@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 28 19:38:36 EST 2006
+// Date:	Wed Mar  1 01:35:29 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/01 00:50:51 $
+//   $Date: 2006/03/01 06:33:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.79 $
+//   $Revision: 1.80 $
 
 // Table of Contents:
 //
@@ -122,18 +122,9 @@ namespace min {
 	const unsigned GEN_UPPER
 	    = 0xFF; // Largest subtype code.
 
-	const min::gen MISSING =
-	    ( GEN_SPECIAL << 24 ) + 0xFFFFFF;
-	const min::gen ANY =
-	    ( GEN_SPECIAL << 24 ) + 0xFFFFFE;
-	const min::gen MULTI_VALUED =
-	    ( GEN_SPECIAL << 24 ) + 0xFFFFFD;
-	const min::gen UNDEFINED =
-	    ( GEN_SPECIAL << 24 ) + 0xFFFFFC;
-	const min::gen SUCCESS =
-	    ( GEN_SPECIAL << 24 ) + 0xFFFFFB;
-	const min::gen FAILURE =
-	    ( GEN_SPECIAL << 24 ) + 0xFFFFFA;
+#	define MIN_NEW_SPECIAL(i) \
+	    ( min::gen ( (GEN_SPECIAL << 24) + (i) ) )
+
 #   elif MIN_IS_LOOSE
 
 	// Layout (high order 24 bits) with base
@@ -173,19 +164,28 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 	    // Largest subtype code.
 
-	const min::gen MISSING =
-	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFF;
-	const min::gen ANY =
-	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFE;
-	const min::gen MULTI_VALUED =
-	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFD;
-	const min::gen UNDEFINED =
-	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFC;
-	const min::gen SUCCESS =
-	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFB;
-	const min::gen FAILURE =
-	    ( uns64(GEN_SPECIAL) << 40 ) + 0xFFFFFA;
+
+#	define MIN_NEW_SPECIAL(i) \
+	    ( min::gen \
+	        (   (min::uns64(GEN_SPECIAL) << 40) \
+		  + (i) ) )
 #   endif
+
+    // MIN special values must have indices in the
+    // range 2**24 - 256 .. 2**24 - 1.
+    //
+    const min::gen MISSING =
+	MIN_NEW_SPECIAL ( 0xFFFFFF );
+    const min::gen ANY =
+	MIN_NEW_SPECIAL ( 0xFFFFFE );
+    const min::gen MULTI_VALUED =
+	MIN_NEW_SPECIAL ( 0xFFFFFD );
+    const min::gen UNDEFINED =
+	MIN_NEW_SPECIAL ( 0xFFFFFC );
+    const min::gen SUCCESS =
+	MIN_NEW_SPECIAL ( 0xFFFFFB );
+    const min::gen FAILURE =
+	MIN_NEW_SPECIAL ( 0xFFFFFA );
 }
 
 // Stub Types and Data
@@ -442,10 +442,10 @@ namespace min { namespace unprotected {
 	// Unimplemented for COMPACT:
 	//  min::gen new_long_control_code_gen
 	//	( unsigned c )
-	inline min::gen new_special_gen ( unsigned v )
+	inline min::gen new_special_gen ( unsigned i )
 	{
 	    return (min::gen)
-	           ( v + ( GEN_SPECIAL << 24 ) );
+	           ( i + ( GEN_SPECIAL << 24 ) );
 	}
 	inline min::gen renew_gen
 		( min::gen v, min::uns32 p )
@@ -536,10 +536,10 @@ namespace min { namespace unprotected {
 		         << 40 ) );
 	}
 	inline min::gen new_special_gen
-		( unsigned v )
+		( unsigned i )
 	{
 	    return (min::gen)
-	           (   v
+	           (   i
 		     + ( (uns64) GEN_SPECIAL
 		         << 40 ) );
 	}
@@ -645,13 +645,13 @@ namespace min {
 	      unprotected::new_long_control_code_gen
 	      	( c );
 	}
-    inline min::gen new_special_gen
-	    ( unsigned v )
-    {
-	MIN_ASSERT ( v < 1 << 24 );
-	return unprotected::new_special_gen ( v );
-    }
 #   endif
+    inline min::gen new_special_gen
+	    ( unsigned i )
+    {
+	MIN_ASSERT ( i < 1 << 24 );
+	return unprotected::new_special_gen ( i );
+    }
 }
 
 // General Value Test Functions
@@ -848,7 +848,7 @@ namespace min { namespace unprotected {
 	}
 	// Unimplemented for COMPACT:
 	//    uns64 long_control_code_of ( min::gen v )
-	inline unsigned special_value_of ( min::gen v )
+	inline unsigned special_index_of ( min::gen v )
 	{
 	    return ( v & 0xFFFFFF );
 	}
@@ -907,7 +907,7 @@ namespace min { namespace unprotected {
 	{
 	    return ( v & 0xFFFFFFFFFF );
 	}
-	inline unsigned special_value_of ( min::gen v )
+	inline unsigned special_index_of ( min::gen v )
 	{
 	    return ( v & 0xFFFFFF );
 	}
@@ -986,10 +986,10 @@ namespace min {
 	    		( v );
 	}
 #   endif
-    inline unsigned special_value_of ( min::gen v )
+    inline unsigned special_index_of ( min::gen v )
     {
 	MIN_ASSERT ( is_special ( v ) );
-	return unprotected::special_value_of ( v );
+	return unprotected::special_index_of ( v );
     }
 }
 
