@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 28 08:32:56 EST 2006
+// Date:	Wed Mar  1 12:56:37 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/01 08:55:55 $
+//   $Date: 2006/03/01 17:53:25 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.38 $
+//   $Revision: 1.39 $
 
 // Table of Contents:
 //
@@ -1276,7 +1276,6 @@ int main ()
 	cout << "Start Numbers Test!" << endl;
 
 	cout << endl;
-	cout << "Start Numbers Test!" << endl;
 	cout << "Test number create/test/read"
 	        " functions:" << endl;
 
@@ -1329,6 +1328,52 @@ int main ()
     }
 
 // Strings
+
+    {
+	cout << endl;
+	cout << "Start Strings Test!" << endl;
+	struct min::stub * stub = new min::stub;
+	union {
+	    min::uns64 u64;
+	    char str[9];
+	} in, out;
+
+	cout << endl;
+	cout << "Test short strings:" << endl;
+	strcpy ( in.str, "ABCDEFG" );
+	MUP::set_short_str_of ( stub, in.u64 );
+	out.u64 = MUP::short_str_of ( stub );
+	out.str[8] = 0;
+	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
+	strcpy ( in.str, "ABCDEFGH" );
+	MUP::set_short_str_of ( stub, in.u64 );
+	out.u64 = MUP::short_str_of ( stub );
+	out.str[8] = 0;
+	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
+
+	cout << endl;
+	cout << "Test long strings:" << endl;
+	MUP::body_control * bc =
+	    MUP::new_body
+		( sizeof (MUP::long_str) + 14 );
+	MUP::set_pointer_of ( stub, bc + 1 );
+	MUP::long_str * lstr =
+	    MUP::long_str_of ( stub );
+	MUP::set_length_of ( lstr, 14 );
+	MUP::set_hash_of ( lstr, 0 );
+	char * wp = MUP::writable_str_of ( lstr );
+	const char * rp = MUP::str_of ( lstr );
+	strcpy ( wp, "ABCDEFGHIJKLM" );
+	MIN_ASSERT ( wp == rp );
+	MIN_ASSERT
+	    ( (void * ) wp == (void *) (lstr + 1 ) );
+	MIN_ASSERT ( min::length_of ( lstr ) == 14 );
+	MIN_ASSERT ( MUP::hash_of ( lstr ) == 0 );
+	
+	cout << endl;
+	cout << "Finish Strings Test!" << endl;
+    }
+
 // Labels
 // Atom Functions
 // Objects
