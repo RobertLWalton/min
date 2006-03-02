@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 03:54:57 EST 2006
+// Date:	Thu Mar  2 04:28:11 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 09:01:29 $
+//   $Date: 2006/03/02 09:25:07 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.83 $
+//   $Revision: 1.84 $
 
 // Table of Contents:
 //
@@ -1970,12 +1970,8 @@ namespace min {
     inline min::uns32 strhash ( min::stub * s )
     {
 	if ( type_of ( s ) == min::SHORT_STR )
-	{
-	    int n;
-	    if ( s->v.c8[7] != 0 ) n = 8;
-	    else n = ::strlen ( s->v.c8 );
-	    return min::strnhash ( s->v.c8, n );
-	}
+	    return min::strnhash ( s->v.c8, 8 );
+
 	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
 	min::unprotected::long_str * ls =
 	    unprotected::long_str_of ( s );

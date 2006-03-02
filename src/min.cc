@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 04:24:14 EST 2006
+// Date:	Thu Mar  2 04:26:38 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 09:21:08 $
+//   $Date: 2006/03/02 09:23:30 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // Table of Contents:
 //
@@ -242,7 +242,7 @@ min::gen min::unprotected::new_str_stub_gen
 	( const char * p )
 {
     unsigned length = ::strlen ( p );
-    unsigned hash = strnhash ( p, length );
+    unsigned hash = strhash ( p );
     unsigned h = hash % MUP::str_hash_size;
     min::stub * s = MUP::str_hash[h];
     while ( s )
