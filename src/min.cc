@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 24 09:41:52 EST 2006
+// Date:	Thu Mar  2 03:47:31 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/24 15:07:36 $
+//   $Date: 2006/03/02 09:02:14 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.27 $
+//   $Revision: 1.28 $
 
 // Table of Contents:
 //
@@ -156,7 +156,7 @@ min::uns32 min::floathash ( min::float64 f )
 // Strings
 // -------
 
-min::uns32 min::strhash
+min::uns32 min::strnhash
 	( const char * p, unsigned size )
 {
     min::uns32 hash = 0;
@@ -164,6 +164,18 @@ min::uns32 min::strhash
     while ( size -- )
     {
         hash = ( hash * 65599 ) + * q ++;
+    }
+    if ( hash == 0 ) hash = 0xFFFFFFFF;
+}
+
+min::uns32 min::strhash ( const char * p )
+{
+    min::uns32 hash = 0;
+    const unsigned char * q = (const unsigned char *) p;
+    unsigned char c;
+    while ( c = * q ++ )
+    {
+        hash = ( hash * 65599 ) + c;
     }
     if ( hash == 0 ) hash = 0xFFFFFFFF;
 }
@@ -188,8 +200,7 @@ min::uns32 min::strhash ( min::gen v )
     {
         union { char buf[8]; min::uns64 str; } u;
 	u.str = min::direct_str_of ( v );
-	return min::strhash
-	    ( u.buf, ::strlen ( u.buf ) );
+	return min::strhash ( u.buf );
     }
     else
     {
@@ -230,7 +241,7 @@ min::gen min::unprotected::new_str_stub_gen
 	( const char * p )
 {
     unsigned length = ::strlen ( p );
-    unsigned hash = strhash ( p, length );
+    unsigned hash = strnhash ( p, length );
     unsigned h = hash % MUP::str_hash_size;
     min::stub * s = MUP::str_hash[h];
     while ( s )
