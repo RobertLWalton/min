@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 03:47:31 EST 2006
+// Date:	Thu Mar  2 04:24:14 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 09:02:14 $
+//   $Date: 2006/03/02 09:21:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // Table of Contents:
 //
@@ -161,9 +161,10 @@ min::uns32 min::strnhash
 {
     min::uns32 hash = 0;
     const unsigned char * q = (const unsigned char *) p;
-    while ( size -- )
+    unsigned char c;
+    while ( c = * q ++ && size -- )
     {
-        hash = ( hash * 65599 ) + * q ++;
+        hash = ( hash * 65599 ) + c;
     }
     if ( hash == 0 ) hash = 0xFFFFFFFF;
 }
