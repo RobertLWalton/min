@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar  1 06:37:47 EST 2006
+// Date:	Thu Mar  2 03:54:57 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/01 18:32:42 $
+//   $Date: 2006/03/02 09:01:29 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.82 $
+//   $Revision: 1.83 $
 
 // Table of Contents:
 //
@@ -1934,11 +1934,13 @@ namespace min {
 	return str->length;
     }
 
-    // Function to compute the hash of an arbitrary
+    // Functions to compute the hash of an arbitrary
     // char string.
     //
-    min::uns32 strhash
+    min::uns32 strnhash
 	    ( const char * p, unsigned size );
+    //
+    min::uns32 strhash ( const char * p );
 
     inline unsigned hash_of
 	    ( min::unprotected::long_str * str )
@@ -1947,8 +1949,7 @@ namespace min {
 	    unprotected::set_hash_of
 		( str,
 		  strhash
-		    ( unprotected::str_of ( str ),
-		      length_of ( str ) ) );
+		    ( unprotected::str_of ( str ) ) );
 	return unprotected::hash_of ( str );
     }
 
@@ -1973,14 +1974,13 @@ namespace min {
 	    int n;
 	    if ( s->v.c8[7] != 0 ) n = 8;
 	    else n = ::strlen ( s->v.c8 );
-	    return min::strhash ( s->v.c8, n );
+	    return min::strnhash ( s->v.c8, n );
 	}
 	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
 	min::unprotected::long_str * ls =
 	    unprotected::long_str_of ( s );
 	return min::strhash
-	    ( min::unprotected::str_of ( ls ),
-	      min::length_of ( ls ) );
+	    ( min::unprotected::str_of ( ls ) );
     }
 
     inline char * strcpy ( char * p, min::stub * s )
