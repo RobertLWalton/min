@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 04:16:07 EST 2006
+// Date:	Thu Mar  2 04:28:58 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 09:21:08 $
+//   $Date: 2006/03/02 09:40:30 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.40 $
+//   $Revision: 1.41 $
 
 // Table of Contents:
 //
@@ -1332,40 +1332,61 @@ int main ()
     {
 	cout << endl;
 	cout << "Start Strings Test!" << endl;
-	struct min::stub * stub = new min::stub;
+	struct min::stub * sstub = new min::stub;
+	struct min::stub * lstub = new min::stub;
+	MUP::set_control_of
+	    ( sstub,
+	      MUP::new_gc_control
+	          ( min::SHORT_STR, 0 ) );
+	MUP::set_control_of
+	    ( lstub,
+	      MUP::new_gc_control
+	          ( min::SHORT_STR, 0 ) );
 	union {
 	    min::uns64 u64;
 	    char str[9];
 	} in, out;
-	const char * s = "ABCDEFG";
+	const char * s13 = "ABCDEFGHIJKLM";
+	const char * s8 = "ABCDEFGH";
+	const char * s7 = "ABCDEFG";
 
 	cout << endl;
 	cout << "Test string hash:" << endl;
-	min::uns32 shash = min::strhash ( s );
-	cout << "shash: " << hex << shash << dec
+	min::uns32 s13hash = min::strhash ( s13 );
+	min::uns32 s8hash = min::strhash ( s8 );
+	min::uns32 s7hash = min::strhash ( s7 );
+	cout << "s13hash: " << hex << s13hash << dec
 	     << endl;
+	cout << "s8hash: " << hex << s8hash << dec
+	     << endl;
+	cout << "s7hash: " << hex << s7hash << dec
+	     << endl;
+	MIN_ASSERT
+	    ( min::strnhash ( s13, 8 ) == s8hash );
 
 	cout << endl;
 	cout << "Test short strings:" << endl;
-	strcpy ( in.str, "ABCDEFG" );
-	MUP::set_short_str_of ( stub, in.u64 );
-	out.u64 = MUP::short_str_of ( stub );
+	strcpy ( in.str, s7 );
+	MUP::set_short_str_of ( sstub, in.u64 );
+	out.u64 = MUP::short_str_of ( sstub );
 	out.str[8] = 0;
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
-	strcpy ( in.str, "ABCDEFGH" );
-	MUP::set_short_str_of ( stub, in.u64 );
-	out.u64 = MUP::short_str_of ( stub );
+	MIN_ASSERT ( strhash ( sstub ) == s7hash );
+	strcpy ( in.str, s8 );
+	MUP::set_short_str_of ( sstub, in.u64 );
+	out.u64 = MUP::short_str_of ( sstub );
 	out.str[8] = 0;
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
+	MIN_ASSERT ( strhash ( sstub ) == s8hash );
 
 	cout << endl;
 	cout << "Test long strings:" << endl;
 	MUP::body_control * bc =
 	    MUP::new_body
 		( sizeof (MUP::long_str) + 14 );
-	MUP::set_pointer_of ( stub, bc + 1 );
+	MUP::set_pointer_of ( lstub, bc + 1 );
 	MUP::long_str * lstr =
-	    MUP::long_str_of ( stub );
+	    MUP::long_str_of ( lstub );
 	MUP::set_length_of ( lstr, 14 );
 	MUP::set_hash_of ( lstr, 0 );
 	char * wp = MUP::writable_str_of ( lstr );
