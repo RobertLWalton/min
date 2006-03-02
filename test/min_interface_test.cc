@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 04:28:58 EST 2006
+// Date:	Thu Mar  2 08:17:33 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 09:40:30 $
+//   $Date: 2006/03/02 13:37:16 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.41 $
+//   $Revision: 1.42 $
 
 // Table of Contents:
 //
@@ -1341,7 +1341,7 @@ int main ()
 	MUP::set_control_of
 	    ( lstub,
 	      MUP::new_gc_control
-	          ( min::SHORT_STR, 0 ) );
+	          ( min::LONG_STR, 0 ) );
 	union {
 	    min::uns64 u64;
 	    char str[9];
@@ -1372,12 +1372,14 @@ int main ()
 	out.str[8] = 0;
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
 	MIN_ASSERT ( strhash ( sstub ) == s7hash );
+	MIN_ASSERT ( strlen ( sstub ) == 7 );
 	strcpy ( in.str, s8 );
 	MUP::set_short_str_of ( sstub, in.u64 );
 	out.u64 = MUP::short_str_of ( sstub );
 	out.str[8] = 0;
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
 	MIN_ASSERT ( strhash ( sstub ) == s8hash );
+	MIN_ASSERT ( strlen ( sstub ) == 8 );
 
 	cout << endl;
 	cout << "Test long strings:" << endl;
@@ -1387,16 +1389,21 @@ int main ()
 	MUP::set_pointer_of ( lstub, bc + 1 );
 	MUP::long_str * lstr =
 	    MUP::long_str_of ( lstub );
-	MUP::set_length_of ( lstr, 14 );
+	MUP::set_length_of ( lstr, 13 );
 	MUP::set_hash_of ( lstr, 0 );
 	char * wp = MUP::writable_str_of ( lstr );
 	const char * rp = MUP::str_of ( lstr );
-	strcpy ( wp, "ABCDEFGHIJKLM" );
+	strcpy ( wp, s13 );
 	MIN_ASSERT ( wp == rp );
+	cout << "MUP::str_of (long_str_of ( lstub )): "
+	     << rp << endl;
 	MIN_ASSERT
 	    ( (void * ) wp == (void *) (lstr + 1 ) );
-	MIN_ASSERT ( min::length_of ( lstr ) == 14 );
+	MIN_ASSERT ( min::length_of ( lstr ) == 13 );
 	MIN_ASSERT ( MUP::hash_of ( lstr ) == 0 );
+	MIN_ASSERT ( min::hash_of ( lstr ) == s13hash );
+	MIN_ASSERT ( strhash ( lstub ) == s13hash );
+	MIN_ASSERT ( strlen ( lstub ) == 13 );
 	
 	cout << endl;
 	cout << "Finish Strings Test!" << endl;
