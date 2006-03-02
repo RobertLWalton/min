@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar  1 12:56:37 EST 2006
+// Date:	Thu Mar  2 04:16:07 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/01 17:53:25 $
+//   $Date: 2006/03/02 09:21:08 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.39 $
+//   $Revision: 1.40 $
 
 // Table of Contents:
 //
@@ -1337,6 +1337,13 @@ int main ()
 	    min::uns64 u64;
 	    char str[9];
 	} in, out;
+	const char * s = "ABCDEFG";
+
+	cout << endl;
+	cout << "Test string hash:" << endl;
+	min::uns32 shash = min::strhash ( s );
+	cout << "shash: " << hex << shash << dec
+	     << endl;
 
 	cout << endl;
 	cout << "Test short strings:" << endl;

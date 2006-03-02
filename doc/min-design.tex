@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 1, 2006}
+\date{March 2, 2006}
  
 \maketitle
 
@@ -1622,6 +1622,21 @@ is never zero.
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
 
+To permit hash values of arbitrary strings to be computed,
+the following functions are provided:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( const char * p )|
+\LABEL{MIN::STRHASH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{strnhash}\verb| ( const char * p, unsigned n )|
+\LABEL{MIN::STRNHASH} \\
+\end{tabular}\end{center}
+
+Both \verb|strhash| and \verb|strnhash| accept NUL terminated strings, but
+\verb|strnhash| stops reading the string after the first \verb|n| characters
+if none of these characters is NUL.
+
 The long string body consists of the 32-bit length and 32-bit hash value
 of the string, followed by a \verb|char|
 vector containing the string proper with the terminating NUL.  The
@@ -1659,7 +1674,7 @@ The functions
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::stub * s )|
 \LABEL{MIN::STRLEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::stub * s )|
-\LABEL{MIN::STRHASH} \\
+\LABEL{MIN::STRHASH_OF_STUB} \\
 \end{tabular}\end{center}
 
 return the length of the string (excluding the terminating NUL) and
@@ -4019,7 +4034,7 @@ struct min
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::stub * s )|
 \LABEL{MIN::STRLEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::stub * s )|
-\LABEL{MIN::STRHASH} \\
+\LABEL{MIN::STRHASH_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -4042,6 +4057,14 @@ struct min
                       \verb| ( char * p,|\ARGBREAK
 		      \verb|   min::gen v, unsigned n )|
 \LABEL{MIN::STRNCPY_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( const char * p )|
+\LABEL{MIN::STRHASH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{strnhash}\verb| ( const char * p, unsigned n )|
+\LABEL{MIN::STRNHASH} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
