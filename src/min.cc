@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 04:42:22 EST 2006
+// Date:	Thu Mar  2 22:55:49 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 09:40:30 $
+//   $Date: 2006/03/03 04:08:04 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // Table of Contents:
 //
@@ -118,15 +118,15 @@ namespace min { namespace unprotected {
 	    if ( MUP::float_of ( s ) == v )
 		return min::new_gen ( s );
 	    s = (min::stub *)
-	        MUP::stub_of_control
+	        MUP::stub_of_gc_control
 		    ( MUP::control_of ( s ) );
 	}
 
-	s = MUP::new_stub ();
+	s = MUP::new_aux_stub ();
 	MUP::set_float_of ( s, v );
 	MUP::set_control_of
 	    ( s,
-	      MUP::new_control
+	      MUP::new_gc_control
 	          ( min::NUMBER, MUP::num_hash[h],
 		    gc_new_stub_flags ));
 	MUP::num_hash[h] = s;
@@ -261,11 +261,11 @@ min::gen min::unprotected::new_str_stub_gen
 		     == 0 )
 	    return min::new_gen ( s );
 	s = (min::stub *)
-	    MUP::stub_of_control
+	    MUP::stub_of_gc_control
 		( MUP::control_of ( s ) );
     }
 
-    s = MUP::new_stub ();
+    s = MUP::new_aux_stub ();
     int type;
     if ( length <= 8 )
     {
@@ -287,7 +287,7 @@ min::gen min::unprotected::new_str_stub_gen
     }
     MUP::set_control_of
 	( s,
-	  MUP::new_control
+	  MUP::new_gc_control
 	      ( type, MUP::str_hash[h],
 	        gc_new_stub_flags ));
     MUP::str_hash[h] = s;
@@ -367,11 +367,11 @@ min::gen min::new_gen ( const min::gen * p, unsigned n )
 	if ( q == NULL && i >= n )
 	    return min::new_gen ( s );
 	s = (min::stub *)
-	    MUP::stub_of_control
+	    MUP::stub_of_gc_control
 		( MUP::control_of ( s ) );
     }
 
-    s = MUP::new_stub ();
+    s = MUP::new_aux_stub ();
     if ( n == 0 )
         MUP::set_value_of ( s, 0 );
     else
@@ -397,7 +397,7 @@ min::gen min::new_gen ( const min::gen * p, unsigned n )
     }
     MUP::set_control_of
 	( s,
-	  MUP::new_control
+	  MUP::new_gc_control
 	      ( min::LABEL, MUP::lab_hash[h],
 	        MUP::gc_new_stub_flags ));
     MUP::lab_hash[h] = s;

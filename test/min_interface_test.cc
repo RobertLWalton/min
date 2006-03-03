@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 08:17:33 EST 2006
+// Date:	Thu Mar  2 22:29:31 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 13:37:16 $
+//   $Date: 2006/03/03 04:08:04 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.42 $
+//   $Revision: 1.43 $
 
 // Table of Contents:
 //
@@ -346,12 +346,18 @@ void initialize_hash_tables ( void )
     MUP::str_hash_size = 101;
     MUP::str_hash =
         new (min::stub *)[MUP::str_hash_size];
+    for ( int i = 0; i < MUP::str_hash_size; ++ i )
+        MUP::str_hash[i] = NULL;
     MUP::num_hash_size = 101;
     MUP::num_hash =
         new (min::stub *)[MUP::num_hash_size];
+    for ( int i = 0; i < MUP::num_hash_size; ++ i )
+        MUP::num_hash[i] = NULL;
     MUP::lab_hash_size = 101;
     MUP::lab_hash =
         new (min::stub *)[MUP::lab_hash_size];
+    for ( int i = 0; i < MUP::lab_hash_size; ++ i )
+        MUP::lab_hash[i] = NULL;
 }
 
 int main ()
@@ -1332,8 +1338,8 @@ int main ()
     {
 	cout << endl;
 	cout << "Start Strings Test!" << endl;
-	struct min::stub * sstub = new min::stub;
-	struct min::stub * lstub = new min::stub;
+	struct min::stub * sstub = MUP::new_stub();
+	struct min::stub * lstub = MUP::new_stub();
 	MUP::set_control_of
 	    ( sstub,
 	      MUP::new_gc_control
@@ -1346,9 +1352,11 @@ int main ()
 	    min::uns64 u64;
 	    char str[9];
 	} in, out;
+	char buffer[20];
 	const char * s13 = "ABCDEFGHIJKLM";
 	const char * s8 = "ABCDEFGH";
 	const char * s7 = "ABCDEFG";
+	const char * s3 = "ABC";
 
 	cout << endl;
 	cout << "Test string hash:" << endl;
@@ -1373,6 +1381,9 @@ int main ()
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
 	MIN_ASSERT ( strhash ( sstub ) == s7hash );
 	MIN_ASSERT ( strlen ( sstub ) == 7 );
+	strcpy ( buffer, sstub );
+	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
+
 	strcpy ( in.str, s8 );
 	MUP::set_short_str_of ( sstub, in.u64 );
 	out.u64 = MUP::short_str_of ( sstub );
@@ -1380,6 +1391,11 @@ int main ()
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
 	MIN_ASSERT ( strhash ( sstub ) == s8hash );
 	MIN_ASSERT ( strlen ( sstub ) == 8 );
+	strcpy ( buffer, sstub );
+	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
+	buffer[7] = 0;
+	strncpy ( buffer, sstub, 7 );
+	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
 
 	cout << endl;
 	cout << "Test long strings:" << endl;
@@ -1404,6 +1420,22 @@ int main ()
 	MIN_ASSERT ( min::hash_of ( lstr ) == s13hash );
 	MIN_ASSERT ( strhash ( lstub ) == s13hash );
 	MIN_ASSERT ( strlen ( lstub ) == 13 );
+	strcpy ( buffer, lstub );
+	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
+	buffer[8] = 0;
+	strncpy ( buffer, lstub, 8 );
+	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
+
+	cout << endl;
+	cout << "Test string general values:" << endl;
+	min::gen strgen3 = min::new_gen ( s3 );
+	min::gen strgen7 = min::new_gen ( s7 );
+	min::gen strgen8 = min::new_gen ( s8 );
+	min::gen strgen13 = min::new_gen ( s13 );
+	MIN_ASSERT ( min::is_str ( strgen3 ) );
+	MIN_ASSERT ( min::is_direct_str ( strgen3 ) );
+	MIN_ASSERT ( min::is_str ( strgen7 ) );
+	MIN_ASSERT ( min::is_stub ( strgen7 ) );
 	
 	cout << endl;
 	cout << "Finish Strings Test!" << endl;
