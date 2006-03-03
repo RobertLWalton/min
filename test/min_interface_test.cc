@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar  3 04:54:22 EST 2006
+// Date:	Fri Mar  3 05:18:50 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/03 09:51:27 $
+//   $Date: 2006/03/03 10:47:10 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.44 $
+//   $Revision: 1.45 $
 
 // Table of Contents:
 //
@@ -115,6 +115,7 @@ void min_assert
 
 # include <min.h>
 # define MUP min::unprotected
+# define MINT min::internal
 
 // Helper functions for tests.
 
@@ -170,13 +171,13 @@ min::stub * end_stub_region;
 //
 void initialize_stub_region ( void )
 {
-    min::internal::pointer_uns stp =
-	(min::internal::pointer_uns) stub_region;
+    MINT::pointer_uns stp =
+	(MINT::pointer_uns) stub_region;
     // Check that sizeof min::stub is a power of 2.
     assert ( (   sizeof (min::stub) - 1
 	       & sizeof (min::stub) )
 	     == 0 );
-    min::internal::pointer_uns p = stp;
+    MINT::pointer_uns p = stp;
     p += sizeof (min::stub) - 1;
     p &= ~ (sizeof (min::stub) - 1 ) ;
     begin_stub_region = (min::stub *) p;
@@ -247,9 +248,9 @@ MUP::body_control * end_body_region;
 //
 void initialize_body_region ( void )
 {
-    min::internal::pointer_uns stp =
-	(min::internal::pointer_uns) body_region;
-    min::internal::pointer_uns p = stp;
+    MINT::pointer_uns stp =
+	(MINT::pointer_uns) body_region;
+    MINT::pointer_uns p = stp;
     p += 7;
     p &= ~ 7;
     begin_body_region = (MUP::body_control *) p;
@@ -278,14 +279,14 @@ void add_to_free_body ( unsigned m )
     cout << "add_to_free_body (" << m << ") called"
          << endl;
     MUP::body_control * free = MUP::free_body_control;
-    min::internal::pointer_uns size =
+    MINT::pointer_uns size =
         MUP::value_of_control ( free->control );
     assert ( ( size & 7 ) == 0 );
     assert ( ( m & 7 ) == 0 );
-    min::internal::pointer_uns new_size = size + m;
+    MINT::pointer_uns new_size = size + m;
 
-    min::internal::pointer_uns p =
-	(min::internal::pointer_uns) free;
+    MINT::pointer_uns p =
+	(MINT::pointer_uns) free;
     assert ( ( p & 7 ) == 0 );
     p += size + sizeof ( MUP::body_control );
     MUP::body_control * tail = (MUP::body_control *) p;
@@ -325,10 +326,10 @@ MUP::body_control * MUP::gc_new_body ( unsigned n )
 
     // Expand the free body to be large enough.
 
-    min::internal::pointer_uns size =
+    MINT::pointer_uns size =
         MUP::value_of_control
 	     ( MUP::free_body_control->control );
-    min::internal::pointer_uns new_size =
+    MINT::pointer_uns new_size =
 	n + sizeof ( body_control );
     assert ( ( size & 7 ) == 0 );
     assert ( size < new_size );
@@ -337,6 +338,31 @@ MUP::body_control * MUP::gc_new_body ( unsigned n )
     // Done expanding free area.  Now rerun new_stub.
 
     return MUP::new_body ( n );
+}
+
+// Function to relocate a body.  Just allocates a new
+// body and copies the contents of the old body to the
+// new body, zeros the old body, and returns the
+// body control before the new body.  Body control is
+// copied from old to new body, and body control of
+// old body is set to free body.
+//
+// Length rounded up to multiple of 8 is length of the
+// old and new bodies.
+//
+MUP::body_control * relocate_body
+	( MUP::body_control * bc, unsigned length )
+{
+    length += 7;
+    length &= ~ 7;
+    MUP::body_control * newbc =
+    	MUP::new_body ( length );
+    newbc->control = bc->control;
+    bc->control =
+        MUP::new_control ( min::FREE, length );
+    memcpy ( newbc+1, bc+1, length );
+    memset ( bc+1, 0, length );
+    return newbc;
 }
 
 // Function to initialize GC hash tables.
@@ -414,9 +440,9 @@ int main ()
 	cout << "Test pointer/uns64 conversions:"
 	     << endl;
 	min::uns64 u64 =
-	    min::internal::pointer_to_uns64 ( buffer );
+	    MINT::pointer_to_uns64 ( buffer );
 	char * b64 = (char *)
-	    min::internal::uns64_to_pointer ( u64 );
+	    MINT::uns64_to_pointer ( u64 );
 	MIN_ASSERT ( b64 == buffer );
 
 #	if MIN_IS_COMPACT
@@ -424,27 +450,22 @@ int main ()
 	    cout << "Test stub/uns32 conversions:"
 		 << endl;
 	    min::uns32 u32 =
-	        min::internal
-		   ::general_stub_to_uns32 ( stub );
+	        MINT::general_stub_to_uns32 ( stub );
 	    min::stub * s32 =
-		min::internal
-		   ::general_uns32_to_stub ( u32 );
+		MINT::general_uns32_to_stub ( u32 );
 	    MIN_ASSERT ( s32 == stub );
 #	elif MIN_IS_LOOSE
 	    cout << endl;
 	    cout << "Test general stub/uns64"
 	            " conversions:" << endl;
 	    u64 =
-	        min::internal
-		   ::general_stub_to_uns64 ( stub );
+	        MINT::general_stub_to_uns64 ( stub );
 	    u64 += min::uns64(min::GEN_STUB) << 44;
 	    min::stub * s64 =
-		min::internal
-		   ::general_uns64_to_stub ( u64 );
+		MINT::general_uns64_to_stub ( u64 );
 	    MIN_ASSERT ( s64 == stub );
 	    min::uns64 g64 =
-		min::internal
-		   ::general_stub_into_uns64
+		MINT::general_stub_into_uns64
 		   	( u64, stub );
 	    MIN_ASSERT ( u64 == g64 );
 #	endif
@@ -467,7 +488,7 @@ int main ()
 	cout << endl;
 	cout << "Test stub general values:" << endl;
 	cout << "stub: " << hex
-	     << min::internal::pointer_uns ( stub )
+	     << MINT::pointer_uns ( stub )
 	     << dec << endl;
 	min::gen stubgen = MUP::new_gen ( stub );
 	cout << "stubgen: " << print_gen ( stubgen )
@@ -1477,6 +1498,64 @@ int main ()
 	    ( min::strhash ( strgen13 ) == s13hash );
 	min::strcpy ( buffer, strgen13 );
 	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
+
+	cout << endl;
+	cout << "Test string pointers:" << endl;
+	// Test body relocation first.
+	MUP::set_pointer_of
+	    ( stub13,
+	        relocate_body
+		    (   (MUP::body_control *)
+		        MUP::pointer_of ( stub13 )
+		      - 1,
+		        min::strlen ( stub13 )
+		      + sizeof (MUP::long_str) )
+		+ 1 );
+	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
+	MIN_ASSERT
+	    ( min::strhash ( strgen13 ) == s13hash );
+	min::strcpy ( buffer, strgen13 );
+	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
+	MUP::str_pointer p3 ( strgen3 );
+	MUP::str_pointer p7 ( strgen7 );
+	MUP::str_pointer p8 ( strgen8 );
+	MUP::str_pointer p13 ( strgen13 );
+	MIN_ASSERT
+	    ( strcmp ( min::str_of ( p3 ), s3 ) == 0 );
+	MIN_ASSERT
+	    ( strcmp ( min::str_of ( p7 ), s7 ) == 0 );
+	MIN_ASSERT
+	    ( strcmp ( min::str_of ( p8 ), s8 ) == 0 );
+	const char * p13str_before = min::str_of ( p13 );
+	cout << "p13str_before: " << hex
+	     << (MINT::pointer_uns) p13str_before
+	     << dec << endl;
+	MIN_ASSERT
+	    ( strcmp ( p13str_before, s13 ) == 0 );
+	MUP::set_pointer_of
+	    ( stub13,
+	        relocate_body
+		    (   (MUP::body_control *)
+		        MUP::pointer_of ( stub13 )
+		      - 1,
+		        min::strlen ( stub13 )
+		      + sizeof (MUP::long_str) )
+		+ 1 );
+	const char * p13str_mid = min::str_of ( p13 );
+	cout << "p13str_mid: " << hex
+	     << (MINT::pointer_uns) p13str_mid
+	     << dec << endl;
+	MIN_ASSERT
+	    (    strcmp ( min::str_of ( p13 ), s13 )
+	      != 0 );
+	min::relocate ( p13 );
+	const char * p13str_after = min::str_of ( p13 );
+	cout << "p13str_after: " << hex
+	     << (MINT::pointer_uns) p13str_after
+	     << dec << endl;
+	MIN_ASSERT
+	    (    strcmp ( min::str_of ( p13 ), s13 )
+	      == 0 );
 	
 	cout << endl;
 	cout << "Finish Strings Test!" << endl;
