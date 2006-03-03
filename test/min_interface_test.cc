@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 22:29:31 EST 2006
+// Date:	Fri Mar  3 04:54:22 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/03 04:08:04 $
+//   $Date: 2006/03/03 09:51:27 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.43 $
+//   $Revision: 1.44 $
 
 // Table of Contents:
 //
@@ -1363,14 +1363,19 @@ int main ()
 	min::uns32 s13hash = min::strhash ( s13 );
 	min::uns32 s8hash = min::strhash ( s8 );
 	min::uns32 s7hash = min::strhash ( s7 );
+	min::uns32 s3hash = min::strhash ( s3 );
 	cout << "s13hash: " << hex << s13hash << dec
 	     << endl;
 	cout << "s8hash: " << hex << s8hash << dec
 	     << endl;
 	cout << "s7hash: " << hex << s7hash << dec
 	     << endl;
+	cout << "s3hash: " << hex << s3hash << dec
+	     << endl;
 	MIN_ASSERT
 	    ( min::strnhash ( s13, 8 ) == s8hash );
+	MIN_ASSERT
+	    ( min::strnhash ( s13, 3 ) == s3hash );
 
 	cout << endl;
 	cout << "Test short strings:" << endl;
@@ -1379,9 +1384,9 @@ int main ()
 	out.u64 = MUP::short_str_of ( sstub );
 	out.str[8] = 0;
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
-	MIN_ASSERT ( strhash ( sstub ) == s7hash );
-	MIN_ASSERT ( strlen ( sstub ) == 7 );
-	strcpy ( buffer, sstub );
+	MIN_ASSERT ( min::strhash ( sstub ) == s7hash );
+	MIN_ASSERT ( min::strlen ( sstub ) == 7 );
+	min::strcpy ( buffer, sstub );
 	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
 
 	strcpy ( in.str, s8 );
@@ -1389,12 +1394,12 @@ int main ()
 	out.u64 = MUP::short_str_of ( sstub );
 	out.str[8] = 0;
 	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
-	MIN_ASSERT ( strhash ( sstub ) == s8hash );
-	MIN_ASSERT ( strlen ( sstub ) == 8 );
-	strcpy ( buffer, sstub );
+	MIN_ASSERT ( min::strhash ( sstub ) == s8hash );
+	MIN_ASSERT ( min::strlen ( sstub ) == 8 );
+	min::strcpy ( buffer, sstub );
 	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
 	buffer[7] = 0;
-	strncpy ( buffer, sstub, 7 );
+	min::strncpy ( buffer, sstub, 7 );
 	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
 
 	cout << endl;
@@ -1418,12 +1423,13 @@ int main ()
 	MIN_ASSERT ( min::length_of ( lstr ) == 13 );
 	MIN_ASSERT ( MUP::hash_of ( lstr ) == 0 );
 	MIN_ASSERT ( min::hash_of ( lstr ) == s13hash );
-	MIN_ASSERT ( strhash ( lstub ) == s13hash );
-	MIN_ASSERT ( strlen ( lstub ) == 13 );
-	strcpy ( buffer, lstub );
+	MIN_ASSERT
+	    ( min::strhash ( lstub ) == s13hash );
+	MIN_ASSERT ( min::strlen ( lstub ) == 13 );
+	min::strcpy ( buffer, lstub );
 	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
 	buffer[8] = 0;
-	strncpy ( buffer, lstub, 8 );
+	min::strncpy ( buffer, lstub, 8 );
 	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
 
 	cout << endl;
@@ -1432,10 +1438,45 @@ int main ()
 	min::gen strgen7 = min::new_gen ( s7 );
 	min::gen strgen8 = min::new_gen ( s8 );
 	min::gen strgen13 = min::new_gen ( s13 );
+
 	MIN_ASSERT ( min::is_str ( strgen3 ) );
 	MIN_ASSERT ( min::is_direct_str ( strgen3 ) );
 	MIN_ASSERT ( min::is_str ( strgen7 ) );
 	MIN_ASSERT ( min::is_stub ( strgen7 ) );
+	min::stub * stub7 = MUP::stub_of ( strgen7 );
+	MIN_ASSERT (    min::type_of ( stub7 )
+	             == min::SHORT_STR );
+	MIN_ASSERT ( min::is_str ( strgen8 ) );
+	MIN_ASSERT ( min::is_stub ( strgen8 ) );
+	min::stub * stub8 = MUP::stub_of ( strgen8 );
+	MIN_ASSERT (    min::type_of ( stub8 )
+	             == min::SHORT_STR );
+	MIN_ASSERT ( min::is_str ( strgen13 ) );
+	MIN_ASSERT ( min::is_stub ( strgen13 ) );
+	min::stub * stub13 = MUP::stub_of ( strgen13 );
+	MIN_ASSERT (    min::type_of ( stub13 )
+	             == min::LONG_STR );
+
+	MIN_ASSERT ( min::strlen ( strgen3 ) == 3 );
+	MIN_ASSERT
+	    ( min::strhash ( strgen3 ) == s3hash );
+	min::strcpy ( buffer, strgen3 );
+	MIN_ASSERT ( strcmp ( buffer, s3 ) == 0 );
+	MIN_ASSERT ( min::strlen ( strgen7 ) == 7 );
+	MIN_ASSERT
+	    ( min::strhash ( strgen7 ) == s7hash );
+	min::strcpy ( buffer, strgen7 );
+	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
+	MIN_ASSERT ( min::strlen ( strgen8 ) == 8 );
+	MIN_ASSERT
+	    ( min::strhash ( strgen8 ) == s8hash );
+	min::strcpy ( buffer, strgen8 );
+	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
+	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
+	MIN_ASSERT
+	    ( min::strhash ( strgen13 ) == s13hash );
+	min::strcpy ( buffer, strgen13 );
+	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
 	
 	cout << endl;
 	cout << "Finish Strings Test!" << endl;
