@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 22:55:49 EST 2006
+// Date:	Mon Mar 13 13:46:18 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/03 04:08:04 $
+//   $Date: 2006/03/13 21:12:50 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // Table of Contents:
 //
@@ -107,7 +107,7 @@ namespace min { namespace unprotected {
 // -------
 
 # if MIN_IS_COMPACT
-    min::gen min::unprotected::new_num_stub_gen
+    min::gen MUP::new_num_stub_gen
 	    ( min::float64 v )
     {
 	unsigned hash = floathash ( v );
@@ -240,7 +240,7 @@ char * min::strncpy ( char * p, min::gen v, unsigned n )
     }
 }
 
-min::gen min::unprotected::new_str_stub_gen
+min::gen MUP::new_str_stub_gen
 	( const char * p )
 {
     unsigned length = ::strlen ( p );
@@ -311,33 +311,28 @@ const min::uns32 lab_multiplier =
 
 min::uns32 min::labhash ( const min::gen * p, unsigned n )
 {
-    min::uns32 m = 1;
     min::uns32 hash = 0;
     while ( n -- )
     {
-        assert ( min::is_atom ( * p ) );
-        hash = m * hash + min::hash ( * p ++ );
-	m *= lab_multiplier;
+        MIN_ASSERT ( min::is_atom ( * p ) );
+        hash = lab_multiplier * hash
+	     + min::hash ( * p ++ );
     }
     return hash;
 }
 
 min::uns32 min::labhash ( min::stub * s )
 {
-    assert ( min::type_of ( s ) == min::LABEL );
-    min::uns32 m = 1;
+    MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
+    min::uns64 c = MUP::value_of ( s );
     min::uns32 hash = 0;
-    min::stub * p = (min::stub *)
-        MINT::uns64_to_pointer ( MUP::value_of ( s ) );
-    while ( p )
+    while ( true )
     {
-        hash = m * hash
-	     + min::hash
-		    ( (min::gen) MUP::value_of ( p ) );
-	m *= lab_multiplier;
-        p = (min::stub *)
-	    MUP::stub_of_control
-		( MUP::control_of ( p ) );
+	s = MUP::stub_of_control ( c );
+	if ( s == NULL ) break;
+        hash = lab_multiplier * hash
+	     + min::hash ( MUP::gen_of ( s ) );
+	c = MUP::control_of ( s );
     }
     return hash;
 }
@@ -349,25 +344,26 @@ min::gen min::new_gen ( const min::gen * p, unsigned n )
     min::stub * s = MUP::lab_hash[h];
     while ( s )
     {
-	assert ( min::type_of ( s ) == min::LABEL );
-	min::stub * q = (min::stub *)
-	    MINT::uns64_to_pointer
-	        ( MUP::value_of ( s ) );
+	MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
+	min::uns64 c = MUP::value_of ( s );
 	unsigned i = 0;
-	while ( q )
+	while ( true )
 	{
+	    min::stub * aux =
+	        MUP::stub_of_control ( c );
+	    if ( aux == NULL )
+	    {
+	        if ( i == n )
+		    return min::new_gen ( s );
+		else
+		    break;
+	    }
 	    if ( i >= n ) break;
-	    if (    p[i++]
-	         != (min::gen) MUP::value_of ( q ) )
+	    if ( p[i++] != MUP::gen_of ( aux ) )
 	        break;
-	    q = (min::stub *)
-		MUP::stub_of_control
-		    ( MUP::control_of ( q ) );
+	    c = MUP::control_of ( aux );
 	}
-	if ( q == NULL && i >= n )
-	    return min::new_gen ( s );
-	s = (min::stub *)
-	    MUP::stub_of_gc_control
+	s = MUP::stub_of_gc_control
 		( MUP::control_of ( s ) );
     }
 
@@ -379,15 +375,14 @@ min::gen min::new_gen ( const min::gen * p, unsigned n )
         min::stub * lastq = NULL;
 	for ( unsigned i = 0; i < n; ++ i )
 	{
-	    min::stub * q = MUP::new_stub ();
+	    min::stub * q = MUP::new_aux_stub ();
 	    MUP::set_gen_of ( q, p[i] );
+	    min::uns64 c = MUP::new_control
+		             ( min::LABEL_AUX, q );
 	    if ( lastq )
-		MUP::set_control_of
-		    ( s, MUP::new_control
-		           ( min::LABEL_AUX, lastq ) );
+		MUP::set_control_of ( lastq, c );
 	    else
-		MUP::set_value_of
-		    ( s, MINT::pointer_to_uns64 ( q ) );
+		MUP::set_value_of ( s, c );
 	    lastq = q;
 	}
 	MUP::set_control_of
@@ -403,7 +398,6 @@ min::gen min::new_gen ( const min::gen * p, unsigned n )
     MUP::lab_hash[h] = s;
     return min::new_gen ( s );
 }
-
 
 // Objects
 // -------
@@ -419,7 +413,7 @@ min::gen min::new_gen ( const min::gen * p, unsigned n )
 // be used, and proclaim an assert violation otherwise.
 //
 inline unsigned MUP::allocate_aux_list
-	( min::unprotected::list_pointer & lp,
+	( MUP::list_pointer & lp,
 	  unsigned n)
 {
     unsigned unused_area_offset;
@@ -443,8 +437,8 @@ inline unsigned MUP::allocate_aux_list
 	     > aux_area_offset )
 	    return 0;
 #   else
-	assert (    unused_area_offset + n
-	         <= aux_area_offset );
+	MIN_ASSERT (    unused_area_offset + n
+	             <= aux_area_offset );
 #   endif
     aux_area_offset -= n;
     if ( lp.so )
@@ -480,12 +474,12 @@ void MUP::allocate_stub_list
 	  int type, const min::gen * p, unsigned n,
 	  min::uns64 end )
 {
-    assert ( n > 0 );
+    MIN_ASSERT ( n > 0 );
 
     // Check for failure to use min::insert_reserve
     // properly.
     //
-    assert ( ! min::relocated_flag () );
+    MIN_ASSERT ( ! min::relocated_flag () );
 
     first = MUP::new_aux_stub ();
     MUP::set_gen_of ( first, * p ++ );
@@ -506,7 +500,7 @@ void MUP::allocate_stub_list
     // Check for failure to use min::insert_reserve
     // properly.
     //
-    assert ( ! min::relocated_flag () );
+    MIN_ASSERT ( ! min::relocated_flag () );
     MUP::set_control_of ( last, end );
     MUP::set_type_of ( last, type );
 }
@@ -522,16 +516,16 @@ inline void copy_elements
     q += n;
     while ( n -- )
     {
-	assert (    ! min::is_list_aux ( * p )
-		 && ! min::is_sublist_aux ( * p ) );
+	MIN_ASSERT (    ! min::is_list_aux ( * p )
+		     && ! min::is_sublist_aux ( * p ) );
 	* -- q = * p ++;
     }
 }
 
 
 
-void min::unprotected::insert_reserve
-	( min::unprotected::list_pointer & lp,
+void MUP::insert_reserve
+	( MUP::list_pointer & lp,
 	  unsigned insertions,
 	  unsigned elements,
 	  bool use_aux )
@@ -539,7 +533,7 @@ void min::unprotected::insert_reserve
 }
 
 void min::insert_before
-	( min::unprotected::list_pointer & lp,
+	( MUP::list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
     if ( n == 0 ) return;
@@ -555,7 +549,7 @@ void min::insert_before
 	// is not a specific auxilary element is
 	// treated as inserting after the previous
 	// element.
-        assert ( lp.current == min::LIST_END );
+        MIN_ASSERT ( lp.current == min::LIST_END );
         lp.current_index = lp.previous_index;
 #	if MIN_USES_OBJECT_AUX_STUBS
 	    lp.current_stub = lp.previous_stub;
@@ -565,8 +559,8 @@ void min::insert_before
 	return;
     }
 
-    assert ( lp.reserved_insertions >= 1 );
-    assert ( lp.reserved_elements >= n );
+    MIN_ASSERT ( lp.reserved_insertions >= 1 );
+    MIN_ASSERT ( lp.reserved_elements >= n );
 
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
@@ -575,9 +569,9 @@ void min::insert_before
 
     if ( lp.current == min::LIST_END )
     {
-	assert ( lp.current_index != 0 );
+	MIN_ASSERT ( lp.current_index != 0 );
 #	if MIN_USES_OBJECT_AUX_STUBS
-	    assert ( lp.previous_stub == NULL );
+	    MIN_ASSERT ( lp.previous_stub == NULL );
 #	endif
 
 	unsigned aux_area_offset;
@@ -651,7 +645,7 @@ void min::insert_before
 	    min::stub * s;
 	    if ( ! previous )
 	    {
-		assert ( lp.current_index != 0 );
+		MIN_ASSERT ( lp.current_index != 0 );
 	        s = MUP::new_aux_stub();
 		MUP::set_gen_of ( s, lp.current );
 		MUP::set_control_of
@@ -702,7 +696,7 @@ void min::insert_before
 	    }
 	    else
 	    {
-		assert ( lp.current_index != 0 );
+		MIN_ASSERT ( lp.current_index != 0 );
 
 		lp.base[lp.current_index] =
 		    min::new_gen ( first );
@@ -720,7 +714,7 @@ void min::insert_before
 #   if MIN_USES_OBJECT_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
-        assert ( previous );
+        MIN_ASSERT ( previous );
         lp.base[index] =
 	    min::new_gen ( lp.current_stub );
 	MUP::set_type_of
@@ -735,7 +729,7 @@ void min::insert_before
     if ( lp.previous_index != 0 )
     {
 	lp.base[lp.previous_index] =
-	    min::unprotected::renew_gen
+	    MUP::renew_gen
 		( lp.base[lp.previous_index],
 		  index + n );
 	lp.previous_index = index;
@@ -765,7 +759,7 @@ void min::insert_before
 #   endif
     else
     {
-	assert ( lp.current_index != 0 );
+	MIN_ASSERT ( lp.current_index != 0 );
 
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( index + n + 1 );
@@ -775,18 +769,18 @@ void min::insert_before
 }
 
 void min::insert_after
-	( min::unprotected::list_pointer & lp,
+	( MUP::list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
-    assert ( lp.reserved_insertions >= 1 );
-    assert ( lp.reserved_elements >= n );
+    MIN_ASSERT ( lp.reserved_insertions >= 1 );
+    MIN_ASSERT ( lp.reserved_elements >= n );
 
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
     if ( n == 0 ) return;
 
-    assert ( lp.current != min::LIST_END );
+    MIN_ASSERT ( lp.current != min::LIST_END );
 
     bool previous = false;
     bool sublist = false;
@@ -824,7 +818,7 @@ void min::insert_after
 
 	    if ( lp.current_stub != NULL )
 	    {
-		assert ( previous );
+		MIN_ASSERT ( previous );
 		MUP::allocate_stub_list
 		    ( first, last, min::LIST_AUX,
 		      p, n,
@@ -889,12 +883,12 @@ void min::insert_after
 	#	endif
 
 		lp.base[lp.previous_index] =
-		    min::unprotected::new_gen ( s );
+		    MUP::new_gen ( s );
 		return;
 	    }
 	    else
 	    {
-		assert ( lp.current_index != 0 );
+		MIN_ASSERT ( lp.current_index != 0 );
 
 		MUP::allocate_stub_list
 		    ( first, last, min::LIST_AUX,
@@ -916,7 +910,7 @@ void min::insert_after
 #   if MIN_USES_OBJECT_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
-	assert ( previous );
+	MIN_ASSERT ( previous );
 	copy_elements
 	    ( lp.base + index + 1, p, n );
 	min::uns64 c =
@@ -973,14 +967,14 @@ void min::insert_after
 #	endif
 
 	lp.base[lp.previous_index] =
-	    min::unprotected::renew_gen
+	    MUP::renew_gen
 		( lp.base[lp.previous_index],
 		  index + n );
 	return;
     }
     else
     {
-	assert ( lp.current_index != 0 );
+	MIN_ASSERT ( lp.current_index != 0 );
 
 	copy_elements
 	    ( lp.base + index + 1, p, n );
