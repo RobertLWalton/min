@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar  2 04:28:11 EST 2006
+// Date:	Mon Mar 13 13:40:49 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/02 09:25:07 $
+//   $Date: 2006/03/13 21:12:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.84 $
+//   $Revision: 1.85 $
 
 // Table of Contents:
 //
@@ -2147,12 +2147,13 @@ namespace min {
 //
 // The value of the min::LABEL stub points at the first
 // of the chain of min::LABEL_AUX stubs.  Each of these
-// has an element as value and a pointer to the next
-// stub as chain.  min::LABEL_AUX stubs are uncollec-
-// table.
+// has a min::gen element as value and a pointer to the
+// next stub as chain.  min::LABEL_AUX stubs are un-
+// collectable.
 //
 // All of the pointers to min::LABEL_AUX stubs are
-// stored as uns64 addresses and NOT as VSNs.
+// stored as control values with type min::LABEL_AUX,
+// even the value member of the min::LABEL stub.
 
 namespace min {
 
@@ -2160,18 +2161,15 @@ namespace min {
 	    ( min::gen * p, unsigned n, min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	min::stub * aux = (min::stub *)
-			  min::internal::
-	                       uns64_to_pointer
-			           ( s->v.u64 );
+	min::uns64 c = min::unprotected::value_of ( s );
 	unsigned count = 0;
-        while ( aux && count < n )
+        while ( count < n )
 	{
-	    * p ++ = min::gen ( aux->v.g );
+	    s = min::unprotected::stub_of_control ( c );
+	    if ( s == NULL ) break;
+	    * p ++ = min::unprotected::gen_of ( s );
 	    ++ count;
-	    aux = (min::stub *)
-	          min::internal::uns64_to_pointer
-	    	    ( aux->c.u64 & 0xFFFFFFFFFFFF );
+	    c = min::unprotected::control_of ( s );
 	}
 	return count;
     }
@@ -2185,17 +2183,14 @@ namespace min {
     inline unsigned lablen ( min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	min::stub * aux = (min::stub *)
-			  min::internal::
-	                       uns64_to_pointer
-			           ( s->v.u64 );
+	min::uns64 c = min::unprotected::value_of ( s );
 	unsigned count = 0;
-        while ( aux )
+        while ( true )
 	{
+	    s = min::unprotected::stub_of_control ( c );
+	    if ( s == NULL ) break;
 	    ++ count;
-	    aux = (min::stub *)
-	          min::internal::uns64_to_pointer
-	    	    ( aux->c.u64 & 0xFFFFFFFFFFFF );
+	    c = min::unprotected::control_of ( s );
 	}
 	return count;
     }
