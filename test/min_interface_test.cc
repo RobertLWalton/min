@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar  3 05:18:50 EST 2006
+// Date:	Tue Mar 14 04:47:09 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/03 10:47:10 $
+//   $Date: 2006/03/14 10:08:30 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.45 $
+//   $Revision: 1.46 $
 
 // Table of Contents:
 //
@@ -1461,18 +1461,22 @@ int main ()
 	min::gen strgen13 = min::new_gen ( s13 );
 
 	MIN_ASSERT ( min::is_str ( strgen3 ) );
+	MIN_ASSERT ( min::is_atom ( strgen3 ) );
 	MIN_ASSERT ( min::is_direct_str ( strgen3 ) );
 	MIN_ASSERT ( min::is_str ( strgen7 ) );
+	MIN_ASSERT ( min::is_atom ( strgen7 ) );
 	MIN_ASSERT ( min::is_stub ( strgen7 ) );
 	min::stub * stub7 = MUP::stub_of ( strgen7 );
 	MIN_ASSERT (    min::type_of ( stub7 )
 	             == min::SHORT_STR );
 	MIN_ASSERT ( min::is_str ( strgen8 ) );
+	MIN_ASSERT ( min::is_atom ( strgen8 ) );
 	MIN_ASSERT ( min::is_stub ( strgen8 ) );
 	min::stub * stub8 = MUP::stub_of ( strgen8 );
 	MIN_ASSERT (    min::type_of ( stub8 )
 	             == min::SHORT_STR );
 	MIN_ASSERT ( min::is_str ( strgen13 ) );
+	MIN_ASSERT ( min::is_atom ( strgen13 ) );
 	MIN_ASSERT ( min::is_stub ( strgen13 ) );
 	min::stub * stub13 = MUP::stub_of ( strgen13 );
 	MIN_ASSERT (    min::type_of ( stub13 )
@@ -1481,23 +1485,39 @@ int main ()
 	MIN_ASSERT ( min::strlen ( strgen3 ) == 3 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen3 ) == s3hash );
+	MIN_ASSERT
+	    ( min::hash ( strgen3 ) == s3hash );
 	min::strcpy ( buffer, strgen3 );
 	MIN_ASSERT ( strcmp ( buffer, s3 ) == 0 );
+	MIN_ASSERT
+	    ( min::new_gen ( buffer ) == strgen3 );
 	MIN_ASSERT ( min::strlen ( strgen7 ) == 7 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen7 ) == s7hash );
+	MIN_ASSERT
+	    ( min::hash ( strgen7 ) == s7hash );
 	min::strcpy ( buffer, strgen7 );
 	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
+	MIN_ASSERT
+	    ( min::new_gen ( buffer ) == strgen7 );
 	MIN_ASSERT ( min::strlen ( strgen8 ) == 8 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen8 ) == s8hash );
+	MIN_ASSERT
+	    ( min::hash ( strgen8 ) == s8hash );
 	min::strcpy ( buffer, strgen8 );
 	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
+	MIN_ASSERT
+	    ( min::new_gen ( buffer ) == strgen8 );
 	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen13 ) == s13hash );
+	MIN_ASSERT
+	    ( min::hash ( strgen13 ) == s13hash );
 	min::strcpy ( buffer, strgen13 );
 	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
+	MIN_ASSERT
+	    ( min::new_gen ( buffer ) == strgen13 );
 
 	cout << endl;
 	cout << "Test string pointers:" << endl;
@@ -1562,6 +1582,45 @@ int main ()
     }
 
 // Labels
+// ------
+
+    {
+	cout << endl;
+	cout << "Start Labels Test!" << endl;
+	min::gen labv1[3], labv2[5];
+	labv1[0] = min::new_gen ( "Hello" );
+	labv1[1] = min::new_gen ( 55 );
+	labv1[2] = min::new_gen ( "End" );
+
+	cout << endl;
+	cout << "Test label hash:" << endl;
+	min::uns32 labhash1 = min::labhash (labv1, 3);
+	cout << "labhash1: " << hex << labhash1 << dec
+	     << endl;
+
+	cout << endl;
+	cout << "Test labels:" << endl;
+	min::gen lab = min::new_gen ( labv1, 3 );
+	MIN_ASSERT ( min::is_lab ( lab ) );
+	MIN_ASSERT ( min::is_atom ( lab ) );
+	MIN_ASSERT ( min::is_stub ( lab ) );
+	min::stub * s = min::stub_of ( lab );
+	MIN_ASSERT ( min::labhash ( s ) == labhash1 );
+	MIN_ASSERT ( min::lablen ( s ) == 3 );
+	MIN_ASSERT ( min::labhash ( lab ) == labhash1 );
+	MIN_ASSERT ( min::lablen ( lab ) == 3 );
+	MIN_ASSERT ( min::hash ( lab ) == labhash1 );
+	MIN_ASSERT
+	    ( min::lab_of ( labv2, 5, s ) == 3 );
+	MIN_ASSERT ( min::new_gen ( labv2, 3 ) == lab );
+	MIN_ASSERT
+	    ( min::lab_of ( labv2, 5, lab ) == 3 );
+	MIN_ASSERT ( min::new_gen ( labv2, 3 ) == lab );
+	
+	cout << endl;
+	cout << "Finish Labels Test!" << endl;
+    }
+
 // Atom Functions
 // Objects
 // Object Vector Level
