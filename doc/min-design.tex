@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 2, 2006}
+\date{March 14, 2006}
  
 \maketitle
 
@@ -1472,7 +1472,8 @@ Lastly, the \verb|min::numhash| returns the hash value of a \verb|min::gen|
 value that is a number.  This value is computed by considering
 the \verb|min::float_of| value of the number
 to be a \underline{big endian} string of 8 characters and using the algorithm
-on \pagref{HASH-ALGORITHM} to compute the hash value of this string.
+on \pagref{HASH-ALGORITHM} to compute the hash value of this string.%
+\label{NUMBER-HASH-ALGORITHM}
 
 To permit hash values of arbitrary floating point numbers to be computed,
 the following function is provided:
@@ -1878,11 +1879,28 @@ The hash value of a label may be computed by the following functions:
 
 The last function computes the hash value for a label that could be created
 from the given vector {\tt p} of {\tt n} general values, where each
-general value is an atom.  The hash of a label is computed by treating
-each of its atoms
-as a character string, concatenating all these strings in order, and applying
-the algorithm on \pagref{HASH-ALGORITHM} to compute the hash value of
-concatenated string.
+general value is an atom.  The hash of a label is computed from
+the hash of each of its atoms using the following
+machine independent algorithm:\label{LABEL-HASH-ALGORITHM}
+
+\begin{indpar}\begin{verbatim}
+hash = 0
+n = length of label
+for i = 1 through n:
+    h = hash of i'th element of label
+    hash = ( hash * ( 65599 ** 10 ) ) + h
+if hash = 0, then hash = 2**32 - 1
+\end{verbatim}\end{indpar}
+
+Comparing this with the hash algorithm for strings
+on \pagref{HASH-ALGORITHM}, one sees that as long as
+atoms are numbers and strings of fewer than 10 characters,
+the hash of a label is equivalent to the hash of the
+string made by concatenating its elements, where each
+string of fewer than 10 characters is padded to 10 characters
+by prefacing it with NUL characters.  Note that
+numbers are treated as 8 character strings; see
+\pagref{NUMBER-HASH-ALGORITHM}.
 
 A label may be created by the following protected function:
 

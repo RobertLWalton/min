@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 13 13:46:18 EST 2006
+// Date:	Tue Mar 14 06:06:27 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/13 21:12:50 $
+//   $Date: 2006/03/14 11:03:28 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // Table of Contents:
 //
@@ -299,8 +299,10 @@ min::gen MUP::new_str_stub_gen
 
 // 65599**8:
 //
-const min::uns32 lab_multiplier =
+const min::uns32 lab_multiplier =	// 65599**10
 	  min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
+	* min::uns32 ( 65599 )
 	* min::uns32 ( 65599 )
 	* min::uns32 ( 65599 )
 	* min::uns32 ( 65599 )
