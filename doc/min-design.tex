@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 14, 2006}
+\date{March 15, 2006}
  
 \maketitle
 
@@ -1974,7 +1974,7 @@ auxiliary area
 \end{tabular}
 \end{center}
 
-The header contains the sizes of the other 4 parts.
+The \mkey{header}{of object} contains the sizes of the other 4 parts.
 The \mkey{hash table}{of object}
 stores attribute name/value pairs, for attributes whose names that are not
 small unsigned integers.
@@ -2007,7 +2007,7 @@ A \key{short object stub}\label{SHORT-OBJECT-STUB} is collectible, has
 \minkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code, and has
 a value that is a pointer to a \MUPkey{short\_obj} type body
 which holds the 5 parts of the object.
-The header consists of 4 16-bit unsigned integers which are, in order:
+The header encodes 4 16-bit unsigned integers, which are, in order:
 
 \begin{center}
 \begin{tabular}{lllllllll}
@@ -2023,20 +2023,24 @@ header size & + & hash table size & + & attribute vector size
 \end{center}
 
 The header may contain other implementation dependent information used
-for optimization.  Some implementations may use a different header
-format not containing the above sizes directly.  For example, an
-implementation may permit only particular hash table sizes that are
-listed in a table, and use 8 bits to encode a table reference, freeing
-up at least 8 bits in the header for use as flags.
+for optimization.  Most implementations do not
+contain the above sizes directly.  For example, an
+implementation may permit only particular hash table sizes,
+and use 8 bits to encode a reference to a table
+of hash table sizes, freeing up at least 8 bits in the header for
+use as flags.  These flags may be used to optimize garbage collection.
+For example, objects which have auxiliary stubs
+(\pagref{OBJECT-AUXILIARY-STUBS})
+may be flagged, thereby identifying objects that need extra work
+when deallocated or relocated.
 
 An implementation is not required to support all possible sizes of
-hash table and other areas,
-but should support sizes that permit objects that are
-read-only to be compacted.  In particular, zero sized unused areas
-should be supported, along with arbitrary sized attribute vector
-and auxiliary area.
+hash table or all possible total sizes, but should support
+sizes that permit objects that are read-only to be efficiently compacted.
+Within the limits set by the total and hash table sizes, arbitrary sizes
+of the vector, unused, and auxiliary areas should be supported.
 
-All sizes are \underline{in units of {\tt min::gen} values}.
+\underline{All sizes are in units of {\tt min::gen} values}.
 Aside from its header,
 the object body is just a vector of \verb|min::gen| values.  The total
 size \underline{includes} the header.
@@ -2045,7 +2049,7 @@ A \key{long object stub}\label{LONG-OBJECT-STUB} is collectible, has
 \minkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} stub type code, and has
 a value that is a pointer to a \MUPkey{long\_obj} type body
 which holds the 5 parts of the object.  A long object body is
-the same as a short object body except the 4 header integers
+the same as a short object body except the 4 area sizes
 are 32-bit unsigned integers instead of 16-bit unsigned integers,
 and extra implementation dependent information in the header may be
 different.
@@ -2096,6 +2100,29 @@ functions:
 
 Here the functions that return pointers do \underline{not} check the type
 of the stub.
+
+In order to create an object it is necessary to determine possible
+hash table and total sizes.  The following functions return the smallest
+possible size equal to or greater than the function argument,
+\underline{unless} all possible sizes are less than the function argument,
+in which case the largest possible size is returned.  The caller of
+one of these functions must check the returned value to be sure it is
+as large as the function argument.
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::|
+    & \MINKEY{short\_obj\_hash\_table\_size}\verb| ( unsigned u )|
+\LABEL{MUP::SHORT_OBJ_HASH_TABLE_SIZE} \\
+\verb|unsigned min::|
+    & \MINKEY{short\_obj\_total\_size}\verb| ( unsigned u )|
+\LABEL{MUP::SHORT_OBJ_TOTAL_SIZE} \\
+\verb|unsigned min::|
+    & \MINKEY{long\_obj\_hash\_table\_size}\verb| ( unsigned u )|
+\LABEL{MUP::LONG_OBJ_HASH_TABLE_SIZE} \\
+\verb|unsigned min::|
+    & \MINKEY{long\_obj\_total\_size}\verb| ( unsigned u )|
+\LABEL{MUP::LONG_OBJ_TOTAL_SIZE} \\
+\end{tabular}\end{center}
 
 The data structure of an object body can be viewed at any of three levels:
 vector level (\secref{OBJECT-VECTOR-LEVEL}),
