@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 14 04:47:09 EST 2006
+// Date:	Wed Mar 15 04:11:14 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/14 10:08:30 $
+//   $Date: 2006/03/15 09:07:42 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.46 $
+//   $Revision: 1.47 $
 
 // Table of Contents:
 //
@@ -31,7 +31,6 @@
 //	Numbers
 //	Strings
 //	Labels
-//	Atom Functions
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -1359,8 +1358,8 @@ int main ()
     {
 	cout << endl;
 	cout << "Start Strings Test!" << endl;
-	struct min::stub * sstub = MUP::new_stub();
-	struct min::stub * lstub = MUP::new_stub();
+	struct min::stub * sstub = MUP::new_aux_stub();
+	struct min::stub * lstub = MUP::new_aux_stub();
 	MUP::set_control_of
 	    ( sstub,
 	      MUP::new_gc_control
@@ -1621,8 +1620,43 @@ int main ()
 	cout << "Finish Labels Test!" << endl;
     }
 
-// Atom Functions
 // Objects
+// -------
+
+    {
+	cout << endl;
+	cout << "Start Objects Test!" << endl;
+	struct min::stub * sstub = MUP::new_aux_stub();
+	struct min::stub * lstub = MUP::new_aux_stub();
+	MUP::set_pointer_of
+	    ( sstub,
+	      1 + MUP::new_body
+	            (       sizeof (MUP::short_obj )
+		      + 4 * sizeof (min::gen) ) );
+	MUP::set_control_of
+	    ( sstub,
+	      MUP::new_gc_control
+	          ( min::SHORT_OBJ, 0 ) );
+	MUP::set_pointer_of
+	    ( lstub,
+	      1 + MUP::new_body
+	            (       sizeof (MUP::long_obj )
+		      + 40 * sizeof (min::gen) ) );
+	MUP::set_control_of
+	    ( lstub,
+	      MUP::new_gc_control
+	          ( min::LONG_OBJ, 0 ) );
+
+	cout << endl;
+	cout << "Test short objects:" << endl;
+
+	cout << endl;
+	cout << "Test long objects:" << endl;
+
+	cout << endl;
+	cout << "Finish Objects Test!" << endl;
+    }
+
 // Object Vector Level
 // Object List Level
 // Object Attribute Level
