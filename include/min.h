@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 13 13:40:49 EST 2006
+// Date:	Sat Mar 18 13:02:04 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/13 21:12:49 $
+//   $Date: 2006/03/18 17:58:54 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.85 $
+//   $Revision: 1.86 $
 
 // Table of Contents:
 //
@@ -2240,16 +2240,15 @@ namespace min {
 
 namespace min { namespace unprotected {
 
-    // attribute_vector_offset[I] is the offset of the
-    // attribute vector in an object body, in min::gen
-    // units.  I is the low order bits of the object
-    // header flags word.
+    // hash_table_size[I] is the size of the hash table
+    // in an object body, in min::gen units.  I is the
+    // low order bits of the object header flags word.
     // 
-    const unsigned ATTRIBUTE_VECTOR_OFFSET_SIZE = 256;
-    const unsigned ATTRIBUTE_VECTOR_OFFSET_MASK =
-	    ATTRIBUTE_VECTOR_OFFSET_SIZE - 1;
-    extern min::uns32 attribute_vector_offset
-    		    [ATTRIBUTE_VECTOR_OFFSET_SIZE];
+    const unsigned HASH_TABLE_SIZE_CODE_SIZE = 256;
+    const unsigned HASH_TABLE_SIZE_CODE_MASK =
+	    HASH_TABLE_SIZE_CODE_SIZE - 1;
+    extern min::uns32 hash_table_size
+    		    [HASH_TABLE_SIZE_CODE_SIZE];
 
     struct short_obj
     {
@@ -2259,6 +2258,9 @@ namespace min { namespace unprotected {
         min::uns16	total_size;
     };
 
+    const unsigned short_obj_header_size =
+        sizeof ( short_obj ) / sizeof ( min::gen );
+
     struct long_obj
     {
         min::uns32	flags;
@@ -2266,6 +2268,9 @@ namespace min { namespace unprotected {
         min::uns32	aux_area_offset;
         min::uns32	total_size;
     };
+
+    const unsigned long_obj_header_size =
+        sizeof ( long_obj ) / sizeof ( min::gen );
 
     inline min::unprotected::short_obj * short_obj_of
 	    ( min::stub * s )
@@ -2281,13 +2286,13 @@ namespace min { namespace unprotected {
 	       min::unprotected::pointer_of ( s );
     }
 
-    inline unsigned flags_to_offset ( unsigned flags )
+    inline unsigned hash_table_size_of_flags
+	    ( unsigned flags )
     {
-        return min::unprotected::
-	    attribute_vector_offset
+        return min::unprotected::hash_table_size
 		[   flags
 		  & min::unprotected::
-			 ATTRIBUTE_VECTOR_OFFSET_MASK ];
+			 HASH_TABLE_SIZE_CODE_MASK ];
     }
 } }
 
@@ -2297,18 +2302,16 @@ namespace min {
 	    ( min::unprotected::short_obj * so )
     {
         return   min::unprotected::
-		      flags_to_offset (so->flags);
-	       - sizeof ( min::unprotected::short_obj )
-	         / sizeof ( min::gen );
+		      hash_table_size_of_flags
+			  (so->flags);
     }
 
     inline unsigned hash_table_size_of
 	    ( min::unprotected::long_obj * lo )
     {
         return   min::unprotected::
-		      flags_to_offset (lo->flags);
-	       - sizeof ( min::unprotected::long_obj )
-	         / sizeof ( min::gen );
+		      hash_table_size_of_flags
+			  (lo->flags);
     }
 
     inline unsigned attribute_vector_size_of
@@ -2316,7 +2319,9 @@ namespace min {
     {
         return   so->unused_area_offset
                - min::unprotected::
-		      flags_to_offset (so->flags);
+		      hash_table_size_of_flags
+			  (so->flags)
+	       - unprotected::short_obj_header_size;
     }
 
     inline unsigned attribute_vector_size_of
@@ -2324,7 +2329,9 @@ namespace min {
     {
         return   lo->unused_area_offset
                - min::unprotected::
-		      flags_to_offset (lo->flags);
+		      hash_table_size_of_flags
+			  (lo->flags)
+	       - unprotected::long_obj_header_size;
     }
 
     inline unsigned aux_area_size_of
@@ -2358,15 +2365,13 @@ namespace min {
     inline unsigned header_size_of
 	    ( min::unprotected::short_obj * so )
     {
-        return   sizeof ( min::unprotected::short_obj )
-	       / sizeof ( min::gen );
+        return unprotected::short_obj_header_size;
     }
 
     inline unsigned header_size_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return   sizeof ( min::unprotected::long_obj )
-	       / sizeof ( min::gen );
+        return unprotected::long_obj_header_size;
     }
 
     inline unsigned total_size_of
@@ -2417,29 +2422,29 @@ namespace min {
     inline unsigned hash_table_of
 	    ( min::unprotected::short_obj * so )
     {
-        return   sizeof ( min::unprotected::short_obj )
-	       / sizeof ( min::gen );
+        return  unprotected::short_obj_header_size;
     }
 
     inline unsigned hash_table_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return   sizeof ( min::unprotected::long_obj )
-	       / sizeof ( min::gen );
+        return  unprotected::long_obj_header_size;
     }
 
     inline unsigned attribute_vector_of
 	    ( min::unprotected::short_obj * so )
     {
-        return min::unprotected::
-		    flags_to_offset (so->flags);
+        return   unprotected::
+		 hash_table_size_of_flags (so->flags)
+	       + unprotected::short_obj_header_size;
     }
 
     inline unsigned attribute_vector_of
 	    ( min::unprotected::long_obj * lo )
     {
-        return min::unprotected::
-		    flags_to_offset (lo->flags);
+        return   unprotected::
+		 hash_table_size_of_flags (lo->flags)
+	       + unprotected::long_obj_header_size;
     }
 }
 
@@ -2752,25 +2757,23 @@ namespace min {
 	lp.relocate();
         if ( lp.so )
 	{
-	    index +=   sizeof ( min::unprotected::
-	                             short_obj )
-	             / sizeof ( min::gen );
 	    MIN_ASSERT
 	        (   index
 		  < min::unprotected::
-		         flags_to_offset (lp.so->flags)
+		         hash_table_size_of_flags
+			     (lp.so->flags)
 		);
+	    index += unprotected::short_obj_header_size;
 	}
 	else
 	{
-	    index +=   sizeof ( min::unprotected::
-	                             long_obj )
-	             / sizeof ( min::gen );
 	    MIN_ASSERT
 	        (   index
                   < min::unprotected::
-		         flags_to_offset (lp.lo->flags)
+		         hash_table_size_of_flags
+			     (lp.lo->flags)
 		);
+	    index += unprotected::long_obj_header_size;
 	}
 	return lp.forward ( index );
     }
@@ -2782,14 +2785,18 @@ namespace min {
         if ( lp.so )
 	{
 	    index += min::unprotected::
-			flags_to_offset (lp.so->flags);
+			hash_table_size_of_flags
+			    (lp.so->flags)
+		   + unprotected::short_obj_header_size;
 	    MIN_ASSERT
 	        ( index < lp.so->unused_area_offset );
 	}
 	else
 	{
 	    index += min::unprotected::
-			flags_to_offset (lp.lo->flags);
+			hash_table_size_of_flags
+			    (lp.lo->flags)
+		   + unprotected::long_obj_header_size;
 	    MIN_ASSERT
 	        ( index < lp.lo->unused_area_offset );
 	}
