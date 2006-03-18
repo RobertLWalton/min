@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 18 13:02:04 EST 2006
+// Date:	Sat Mar 18 14:17:49 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/18 17:58:54 $
+//   $Date: 2006/03/18 19:14:15 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.86 $
+//   $Revision: 1.87 $
 
 // Table of Contents:
 //
@@ -2385,6 +2385,11 @@ namespace min {
     {
         return lo->total_size;
     }
+
+    unsigned short_obj_hash_table_size ( unsigned u );
+    unsigned short_obj_total_size ( unsigned u );
+    unsigned long_obj_hash_table_size ( unsigned u );
+    unsigned long_obj_total_size ( unsigned u );
 }
 
 // Object Vector Level
