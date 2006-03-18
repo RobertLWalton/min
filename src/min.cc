@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 18 13:02:23 EST 2006
+// Date:	Sat Mar 18 14:17:40 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/18 17:59:09 $
+//   $Date: 2006/03/18 19:14:34 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // Table of Contents:
 //
@@ -478,6 +478,68 @@ namespace min { namespace unprotected {
     bool use_object_aux_stubs;
 
 } }
+
+unsigned min::short_obj_hash_table_size ( unsigned u )
+{
+    if ( u >= ( 1 << 16 ) - MUP::short_obj_header_size )
+        u = ( 1 << 16 ) - MUP::short_obj_header_size;
+    int lo = 0, hi = 255;
+
+    // Invariant:
+    //
+    //    MUP::hash_table_size[hi] >= u || hi = 255
+    //
+    while ( true )
+    {
+        int mid = ( lo + hi ) / 2;
+	if ( MUP::hash_table_size[mid] >= u )
+	    hi = mid;
+	else if ( lo == mid ) break;
+	else
+	    lo = mid;
+    }
+    min::uns32 size = MUP::hash_table_size[hi];
+    if ( size >= ( 1 << 16 )
+               - MUP::short_obj_header_size )
+	return MUP::hash_table_size[--hi];
+    else
+	return size;
+}
+
+unsigned min::short_obj_total_size ( unsigned u )
+{
+    if ( u < ( 1 << 16 ) ) return u;
+    else return ( 1 << 16 ) - 1;
+}
+
+unsigned min::long_obj_hash_table_size ( unsigned u )
+{
+    int lo = 0, hi = 255;
+
+    // Invariant:
+    //
+    //    MUP::hash_table_size[hi] >= u || hi = 255
+    //
+    while ( true )
+    {
+        int mid = ( lo + hi ) / 2;
+	if ( MUP::hash_table_size[mid] >= u )
+	    hi = mid;
+	else if ( lo == mid ) break;
+	else
+	    lo = mid;
+    }
+    return MUP::hash_table_size[hi];
+}
+
+unsigned min::long_obj_total_size ( unsigned u )
+{
+    if ( sizeof (min::uns32) < sizeof (unsigned) )
+    {
+        if ( u < min::uns32(-1) ) return u;
+	else return min::uns32(-1);
+    } else return u;
+}
 
 
 // Object List Level
