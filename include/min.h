@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 05:10:34 EST 2006
+// Date:	Sun Mar 19 06:13:07 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 10:14:11 $
+//   $Date: 2006/03/19 11:22:16 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.88 $
+//   $Revision: 1.89 $
 
 // Table of Contents:
 //
@@ -1612,7 +1612,7 @@ namespace min { namespace unprotected {
     //
     struct body_control {
         uns64 control;
-	    // If not free, the tyep is any value but
+	    // If not free, the type is any value but
 	    // min::FREE, and the control contains a
 	    // pointer to stub associated with the
 	    // following body.  The stub and body itself
@@ -2391,6 +2391,10 @@ namespace min {
     unsigned short_obj_total_size ( unsigned u );
     unsigned long_obj_hash_table_size ( unsigned u );
     unsigned long_obj_total_size ( unsigned u );
+
+    min::gen new_obj_gen
+	    ( unsigned hash_table_size,
+	      unsigned unused_area_size );
 }
 
 // Object Vector Level

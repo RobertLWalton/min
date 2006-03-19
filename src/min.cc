@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 05:12:26 EST 2006
+// Date:	Sun Mar 19 05:24:08 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 10:14:21 $
+//   $Date: 2006/03/19 11:22:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // Table of Contents:
 //
@@ -485,20 +485,19 @@ unsigned min::short_obj_hash_table_size ( unsigned u )
 {
     if ( u >= ( 1 << 16 ) - MUP::short_obj_header_size )
         u = ( 1 << 16 ) - MUP::short_obj_header_size;
-    int lo = 0, hi = 255;
 
     // Invariant:
     //
     //    MUP::hash_table_size[hi] >= u || hi = 255
     //
-    while ( true )
+    int lo = 0, hi = 255;
+    if ( u <= 1 ) hi = u;
+    else while ( true )
     {
         int mid = ( lo + hi ) / 2;
-	if ( MUP::hash_table_size[mid] >= u )
-	    hi = mid;
+	if ( MUP::hash_table_size[mid] >= u ) hi = mid;
 	else if ( lo == mid ) break;
-	else
-	    lo = mid;
+	else lo = mid;
     }
     min::uns32 size = MUP::hash_table_size[hi];
     if ( size >= ( 1 << 16 )
@@ -516,20 +515,18 @@ unsigned min::short_obj_total_size ( unsigned u )
 
 unsigned min::long_obj_hash_table_size ( unsigned u )
 {
-    int lo = 0, hi = 255;
-
     // Invariant:
     //
     //    MUP::hash_table_size[hi] >= u || hi = 255
     //
-    while ( true )
+    int lo = 0, hi = 255;
+    if ( u <= 1 ) hi = u;
+    else while ( true )
     {
         int mid = ( lo + hi ) / 2;
-	if ( MUP::hash_table_size[mid] >= u )
-	    hi = mid;
+	if ( MUP::hash_table_size[mid] >= u ) hi = mid;
 	else if ( lo == mid ) break;
-	else
-	    lo = mid;
+	else lo = mid;
     }
     return MUP::hash_table_size[hi];
 }
@@ -541,6 +538,82 @@ unsigned min::long_obj_total_size ( unsigned u )
         if ( u < min::uns32(-1) ) return u;
 	else return min::uns32(-1);
     } else return u;
+}
+
+min::gen min::new_obj_gen
+	    ( unsigned hash_table_size,
+	      unsigned unused_area_size )
+{
+    MIN_ASSERT (    hash_table_size
+                 <= MUP::hash_table_size[255] );
+
+    // Invariant:
+    //
+    //    MUP::hash_table_size[hi] >= u || hi = 255
+    //
+    int lo = 0, hi = 255;
+    if ( hash_table_size <= 1 ) hi = hash_table_size;
+    else while ( true )
+    {
+        int mid = ( lo + hi ) / 2;
+	if (    MUP::hash_table_size[mid]
+	     >= hash_table_size )
+	    hi = mid;
+	else if ( lo == mid ) break;
+	else lo = mid;
+    }
+    hash_table_size = MUP::hash_table_size[hi];
+
+    MIN_ASSERT (    unused_area_size
+                 <=   min::uns32(-1)
+		    - hash_table_size
+		    - MUP::long_obj_header_size );
+    unsigned total_size =
+        unused_area_size + hash_table_size;
+    min::stub * s = MUP::new_stub();
+    min::gen * p;
+    if (   total_size + MUP::short_obj_header_size
+         < ( 1 << 16 ) )
+    {
+        total_size += MUP::short_obj_header_size;
+	MUP::body_control * bc =
+	    MUP::new_body
+		( sizeof (min::gen) * total_size );
+	bc->control = MUP::new_control ( 0, s );
+	MUP::short_obj * so =
+	    (MUP::short_obj *) ( bc + 1 );
+	MUP::set_pointer_of ( s, so );
+	so->flags = hi;
+	so->unused_area_offset =
+	       MUP::short_obj_header_size
+	     + hash_table_size;
+	so->aux_area_offset = total_size;
+	so->total_size	    = total_size;
+	p = (min::gen *) so
+	  + MUP::short_obj_header_size;
+    }
+    else
+    {
+        total_size += MUP::long_obj_header_size;
+	MUP::body_control * bc =
+	    MUP::new_body
+		( sizeof (min::gen) * total_size );
+	bc->control = MUP::new_control ( 0, s );
+	MUP::long_obj * lo =
+	    (MUP::long_obj *) ( bc + 1 );
+	MUP::set_pointer_of ( s, lo );
+	lo->flags = hi;
+	lo->unused_area_offset =
+	       MUP::long_obj_header_size
+	     + hash_table_size;
+	lo->aux_area_offset = total_size;
+	lo->total_size	    = total_size;
+	p = (min::gen *) lo
+	  + MUP::long_obj_header_size;
+    }
+    min::gen * endp = p + hash_table_size;
+    while ( p < endp ) * p ++ = min::LIST_END;
+    return min::new_gen ( s );
 }
 
 
