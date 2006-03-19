@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 15 04:11:14 EST 2006
+// Date:	Sun Mar 19 05:14:06 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/15 09:07:42 $
+//   $Date: 2006/03/19 10:14:22 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.47 $
+//   $Revision: 1.48 $
 
 // Table of Contents:
 //
@@ -1305,7 +1305,7 @@ int main ()
 	cout << "Test number create/test/read"
 	        " functions:" << endl;
 
-	min::gen n1 = min::new_gen ( 12345 );
+	min::gen n1 = min::new_num_gen ( 12345 );
 	cout << "n1: " << print_gen ( n1 ) << endl;
 	MIN_ASSERT ( min::is_num ( n1 ) );
 	MIN_ASSERT ( min::is_atom ( n1 ) );
@@ -1318,9 +1318,9 @@ int main ()
 	    ( n1hash == min::floathash ( 12345 ) );
 	MIN_ASSERT
 	    ( n1hash == min::hash ( n1 ) );
-	MIN_ASSERT ( min::new_gen ( 12345 ) == n1 );
+	MIN_ASSERT ( min::new_num_gen ( 12345 ) == n1 );
 
-	min::gen n2 = min::new_gen ( 1.2345 );
+	min::gen n2 = min::new_num_gen ( 1.2345 );
 	cout << "n2: " << print_gen ( n2 ) << endl;
 	MIN_ASSERT ( min::is_num ( n2 ) );
 	MIN_ASSERT ( min::is_atom ( n2 ) );
@@ -1332,9 +1332,10 @@ int main ()
 	    ( n2hash == min::floathash ( 1.2345 ) );
 	MIN_ASSERT
 	    ( n2hash == min::hash ( n2 ) );
-	MIN_ASSERT ( min::new_gen ( 1.2345 ) == n2 );
+	MIN_ASSERT
+	    ( min::new_num_gen ( 1.2345 ) == n2 );
 
-	min::gen n3 = min::new_gen ( 1 << 30 );
+	min::gen n3 = min::new_num_gen ( 1 << 30 );
 	cout << "n3: " << print_gen ( n3 ) << endl;
 	MIN_ASSERT ( min::is_num ( n3 ) );
 	MIN_ASSERT ( min::is_atom ( n3 ) );
@@ -1347,7 +1348,8 @@ int main ()
 	    ( n3hash == min::floathash ( 1 << 30 ) );
 	MIN_ASSERT
 	    ( n3hash == min::hash ( n3 ) );
-	MIN_ASSERT ( min::new_gen ( 1 << 30 ) == n3 );
+	MIN_ASSERT
+	    ( min::new_num_gen ( 1 << 30 ) == n3 );
 
 	cout << endl;
 	cout << "Finish Numbers Test!" << endl;
@@ -1454,10 +1456,10 @@ int main ()
 
 	cout << endl;
 	cout << "Test string general values:" << endl;
-	min::gen strgen3 = min::new_gen ( s3 );
-	min::gen strgen7 = min::new_gen ( s7 );
-	min::gen strgen8 = min::new_gen ( s8 );
-	min::gen strgen13 = min::new_gen ( s13 );
+	min::gen strgen3 = min::new_str_gen ( s3 );
+	min::gen strgen7 = min::new_str_gen ( s7 );
+	min::gen strgen8 = min::new_str_gen ( s8 );
+	min::gen strgen13 = min::new_str_gen ( s13 );
 
 	MIN_ASSERT ( min::is_str ( strgen3 ) );
 	MIN_ASSERT ( min::is_atom ( strgen3 ) );
@@ -1489,7 +1491,7 @@ int main ()
 	min::strcpy ( buffer, strgen3 );
 	MIN_ASSERT ( strcmp ( buffer, s3 ) == 0 );
 	MIN_ASSERT
-	    ( min::new_gen ( buffer ) == strgen3 );
+	    ( min::new_str_gen ( buffer ) == strgen3 );
 	MIN_ASSERT ( min::strlen ( strgen7 ) == 7 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen7 ) == s7hash );
@@ -1498,7 +1500,7 @@ int main ()
 	min::strcpy ( buffer, strgen7 );
 	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
 	MIN_ASSERT
-	    ( min::new_gen ( buffer ) == strgen7 );
+	    ( min::new_str_gen ( buffer ) == strgen7 );
 	MIN_ASSERT ( min::strlen ( strgen8 ) == 8 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen8 ) == s8hash );
@@ -1507,7 +1509,7 @@ int main ()
 	min::strcpy ( buffer, strgen8 );
 	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
 	MIN_ASSERT
-	    ( min::new_gen ( buffer ) == strgen8 );
+	    ( min::new_str_gen ( buffer ) == strgen8 );
 	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen13 ) == s13hash );
@@ -1516,7 +1518,7 @@ int main ()
 	min::strcpy ( buffer, strgen13 );
 	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
 	MIN_ASSERT
-	    ( min::new_gen ( buffer ) == strgen13 );
+	    ( min::new_str_gen ( buffer ) == strgen13 );
 
 	cout << endl;
 	cout << "Test string pointers:" << endl;
@@ -1545,7 +1547,8 @@ int main ()
 	    ( strcmp ( min::str_of ( p7 ), s7 ) == 0 );
 	MIN_ASSERT
 	    ( strcmp ( min::str_of ( p8 ), s8 ) == 0 );
-	const char * p13str_before = min::str_of ( p13 );
+	const char * p13str_before =
+	    min::str_of ( p13 );
 	cout << "p13str_before: " << hex
 	     << (MINT::pointer_uns) p13str_before
 	     << dec << endl;
@@ -1587,9 +1590,9 @@ int main ()
 	cout << endl;
 	cout << "Start Labels Test!" << endl;
 	min::gen labv1[3], labv2[5];
-	labv1[0] = min::new_gen ( "Hello" );
-	labv1[1] = min::new_gen ( 55 );
-	labv1[2] = min::new_gen ( "End" );
+	labv1[0] = min::new_str_gen ( "Hello" );
+	labv1[1] = min::new_num_gen ( 55 );
+	labv1[2] = min::new_str_gen ( "End" );
 
 	cout << endl;
 	cout << "Test label hash:" << endl;
@@ -1599,7 +1602,7 @@ int main ()
 
 	cout << endl;
 	cout << "Test labels:" << endl;
-	min::gen lab = min::new_gen ( labv1, 3 );
+	min::gen lab = min::new_lab_gen ( labv1, 3 );
 	MIN_ASSERT ( min::is_lab ( lab ) );
 	MIN_ASSERT ( min::is_atom ( lab ) );
 	MIN_ASSERT ( min::is_stub ( lab ) );
@@ -1611,10 +1614,12 @@ int main ()
 	MIN_ASSERT ( min::hash ( lab ) == labhash1 );
 	MIN_ASSERT
 	    ( min::lab_of ( labv2, 5, s ) == 3 );
-	MIN_ASSERT ( min::new_gen ( labv2, 3 ) == lab );
+	MIN_ASSERT
+	    ( min::new_lab_gen ( labv2, 3 ) == lab );
 	MIN_ASSERT
 	    ( min::lab_of ( labv2, 5, lab ) == 3 );
-	MIN_ASSERT ( min::new_gen ( labv2, 3 ) == lab );
+	MIN_ASSERT
+	    ( min::new_lab_gen ( labv2, 3 ) == lab );
 	
 	cout << endl;
 	cout << "Finish Labels Test!" << endl;

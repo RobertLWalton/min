@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 18 14:17:40 EST 2006
+// Date:	Sun Mar 19 05:12:26 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/18 19:14:34 $
+//   $Date: 2006/03/19 10:14:21 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.36 $
+//   $Revision: 1.37 $
 
 // Table of Contents:
 //
@@ -307,7 +307,8 @@ const min::uns32 lab_multiplier =	// 65599**10
 	* min::uns32 ( 65599 )
 	* min::uns32 ( 65599 );
 
-min::uns32 min::labhash ( const min::gen * p, unsigned n )
+min::uns32 min::labhash
+	( const min::gen * p, unsigned n )
 {
     min::uns32 hash = 0;
     while ( n -- )
@@ -335,7 +336,8 @@ min::uns32 min::labhash ( min::stub * s )
     return hash;
 }
 
-min::gen min::new_gen ( const min::gen * p, unsigned n )
+min::gen min::new_lab_gen
+	( const min::gen * p, unsigned n )
 {
     unsigned hash = labhash ( p, n );
     unsigned h = hash % MUP::lab_hash_size;
@@ -828,7 +830,7 @@ void min::insert_before
 			( lp.previous_stub,
 			  MUP::new_control
 			      ( min::type_of
-				    ( lp.previous_stub ),
+				  ( lp.previous_stub ),
 				first,
 				MUP::STUB_POINTER ) );
 	    }
@@ -1097,7 +1099,7 @@ void min::insert_after
 			( lp.previous_stub,
 			  MUP::new_control
 			      ( min::type_of
-				    ( lp.previous_stub ),
+				  ( lp.previous_stub ),
 				index + n ) );
 		}
 		return;
