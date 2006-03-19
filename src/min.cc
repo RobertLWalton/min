@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 05:24:08 EST 2006
+// Date:	Sun Mar 19 07:23:25 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 11:22:08 $
+//   $Date: 2006/03/19 14:19:14 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.38 $
+//   $Revision: 1.39 $
 
 // Table of Contents:
 //
@@ -579,10 +579,12 @@ min::gen min::new_obj_gen
 	MUP::body_control * bc =
 	    MUP::new_body
 		( sizeof (min::gen) * total_size );
-	bc->control = MUP::new_control ( 0, s );
+	bc->control =
+	    MUP::new_control ( min::SHORT_OBJ, s );
 	MUP::short_obj * so =
 	    (MUP::short_obj *) ( bc + 1 );
 	MUP::set_pointer_of ( s, so );
+	MUP::set_type_of ( s, min::SHORT_OBJ );
 	so->flags = hi;
 	so->unused_area_offset =
 	       MUP::short_obj_header_size
@@ -594,14 +596,17 @@ min::gen min::new_obj_gen
     }
     else
     {
+        cout << "lohs: " << MUP::long_obj_header_size << endl;
         total_size += MUP::long_obj_header_size;
 	MUP::body_control * bc =
 	    MUP::new_body
 		( sizeof (min::gen) * total_size );
-	bc->control = MUP::new_control ( 0, s );
+	bc->control =
+	    MUP::new_control ( min::LONG_OBJ, s );
 	MUP::long_obj * lo =
 	    (MUP::long_obj *) ( bc + 1 );
 	MUP::set_pointer_of ( s, lo );
+	MUP::set_type_of ( s, min::LONG_OBJ );
 	lo->flags = hi;
 	lo->unused_area_offset =
 	       MUP::long_obj_header_size
