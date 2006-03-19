@@ -2134,7 +2134,7 @@ An object can be created by the protected function:
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( unsigned hash_table_size,| \\
-    \verb|   unsigned unused_size )| \\
+    \verb|   unsigned unused_area_size )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{center}
@@ -2143,7 +2143,7 @@ The hash table size of the returned object is the smallest possible
 hash table size that is at least as large as that given.  The total
 size of the returned object is the smallest possible total size
 that is at least as large as the sum of the actual hash table size,
-the unused size given, and the header size.
+the unused area size given, and the header size.
 The returned object is short if this total size is less than
 $2^{16}$, and long otherwise.
 It is a fatal programming error if no possible hasth table or total size
@@ -4415,8 +4415,8 @@ struct min
 \begin{TABULAR}{1.4in}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned total_size,| \\
-    \verb|   unsigned hash_table_size )| \\
+    \verb| ( unsigned hash_table_size,| \\
+    \verb|   unsigned unused_area_size )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{TABULAR}
