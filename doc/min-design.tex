@@ -2146,15 +2146,15 @@ that is at least as large as the sum of the actual hash table size,
 the unused area size given, and the header size.
 The returned object is short if this total size is less than
 $2^{16}$, and long otherwise.
-It is a fatal programming error if no possible hasth table or total size
+It is a fatal programming error if no possible hash table or total size
 is large enough, but this is unlikely, given the large sizes allowed
 by a long object.
 
-The hash table
-of the returned object is zeroed, and therefore empty.  The attribute
-vector and auxiliary areas of the returned object are zero length,
-and all space not used by the header and hash table is allocated to
-the unused area.  The attribute vector and auxiliary area can be
+The hash table of the returned object is filled with \verb|min::LIST_END|
+values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
+The attribute vector and auxiliary areas of the returned object are
+zero length, and all space not used by the header and hash table is
+allocated to the unused area.  The attribute vector and auxiliary area can be
 filled by `push' instructions described below (\pagref{OBJECT_PUSH_FUNCTIONS}).
 
 The data structure of an object body can be viewed at any of three levels:
