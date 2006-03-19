@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 07:23:25 EST 2006
+// Date:	Sun Mar 19 09:24:01 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 14:19:14 $
+//   $Date: 2006/03/19 14:24:21 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.39 $
+//   $Revision: 1.40 $
 
 // Table of Contents:
 //
@@ -596,7 +596,6 @@ min::gen min::new_obj_gen
     }
     else
     {
-        cout << "lohs: " << MUP::long_obj_header_size << endl;
         total_size += MUP::long_obj_header_size;
 	MUP::body_control * bc =
 	    MUP::new_body
