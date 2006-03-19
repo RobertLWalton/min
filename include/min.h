@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 18 14:17:49 EST 2006
+// Date:	Sun Mar 19 05:10:34 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/18 19:14:15 $
+//   $Date: 2006/03/19 10:14:11 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.87 $
+//   $Revision: 1.88 $
 
 // Table of Contents:
 //
@@ -1764,14 +1764,14 @@ namespace min {
 		      		( v ) )
 		        == min::NUMBER );
 	}
-	inline min::gen new_gen ( int v )
+	inline min::gen new_num_gen ( int v )
 	{
 	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
 		return unprotected::new_direct_int_gen
 				( v );
 	    return unprotected::new_num_stub_gen ( v );
 	}
-	inline min::gen new_gen ( float64 v )
+	inline min::gen new_num_gen ( float64 v )
 	{
 	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
 	    {
@@ -1833,11 +1833,11 @@ namespace min {
 	{
 	    return min::is_direct_float ( v );
 	}
-	inline min::gen new_gen ( int v )
+	inline min::gen new_num_gen ( int v )
 	{
 	    return new_direct_float_gen ( v );
 	}
-	inline min::gen new_gen ( float64 v )
+	inline min::gen new_num_gen ( float64 v )
 	{
 	    return new_direct_float_gen ( v );
 	}
@@ -2120,7 +2120,7 @@ namespace min {
 	min::gen new_str_stub_gen ( const char * p );
     }
 
-    inline min::gen new_gen ( const char * p )
+    inline min::gen new_str_gen ( const char * p )
     {
 	unsigned n = ::strlen ( p );
 #	if MIN_IS_COMPACT
@@ -2208,7 +2208,8 @@ namespace min {
     min::uns32 labhash
 	    ( const min::gen * p, unsigned n );
 
-    min::gen new_gen ( const min::gen * p, unsigned n );
+    min::gen new_lab_gen
+	    ( const min::gen * p, unsigned n );
 
     inline bool is_lab ( min::gen v )
     {

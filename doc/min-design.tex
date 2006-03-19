@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 16, 2006}
+\date{March 19, 2006}
  
 \maketitle
 
@@ -1410,11 +1410,11 @@ by the following protected functions:
 \verb|bool min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::|
-    & \MINKEY{new\_gen\REL} \verb| ( int v )|
-\LABEL{MIN::NEW_GEN_OF_INT} \\
+    & \MINKEY{new\_num\_gen\REL} \verb| ( int v )|
+\LABEL{MIN::NEW_NUM_GEN_OF_INT} \\
 \verb|min::gen min::|
-    & \MINKEY{new\_gen\REL} \verb| ( min::float64 v )|
-\LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
+    & \MINKEY{new\_num\_gen\REL} \verb| ( min::float64 v )|
+\LABEL{MIN::NEW_NUM_GEN_OF_FLOAT64} \\[1ex]
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
 \verb|min::float64 min::| & \MINKEY{float\_of}\verb| ( min::gen v )|
@@ -1485,7 +1485,7 @@ the following function is provided:
 
 \begin{quote}
 The Hash Table Implementation Note on \pagref{HASH-TABLE-IMPLEMENTATION-NOTE}
-also applies to number stubs created by {\tt min::new\_gen}.
+also applies to number stubs created by {\tt min::new\_num\_gen}.
 \end{quote}
 
 \subsection{Strings}
@@ -1780,8 +1780,8 @@ and create new general values.
 \verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
 \verb|min::gen min::|
-    & \MINKEY{new\_gen\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_GEN_OF_STR} \\
+    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_STR_GEN} \\
 \end{tabular}\end{center}
 
 A general value is a string if it holds a string itself or if it
@@ -1905,9 +1905,9 @@ numbers are treated as 8 character strings; see
 A label may be created by the following protected function:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_gen}%
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}%
     \verb| ( const min::gen * p, unsigned n )|
-\LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\
+\LABEL{MIN::NEW_LAB_GEN} \\
 \end{tabular}\end{center}
 
 Here {\tt p} must point to a vector of {\tt n} \verb|min::gen|
@@ -2131,22 +2131,24 @@ by presenting these functions with the \verb|u| argument value
 An object can be created by the protected function:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_obj}%
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned total_size,| \\
-    \verb|   unsigned hash_table_size )| \\
+    \verb| ( unsigned hash_table_size,| \\
+    \verb|   unsigned unused_size )| \\
     \end{tabular}
-\LABEL{MIN::NEW_OBJ} \\
+\LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{center}
 
-The total and hash table sizes of the returned object are possible
-total and hash table sizes at least as large as those given as
-parameters.
-The returned object is short if the total size argument is less than
+The hash table size of the returned object is the smallest possible
+hash table size that is at least as large as that given.  The total
+size of the returned object is the smallest possible total size
+that is at least as large as the sum of the actual hash table size,
+the unused size given, and the header size.
+The returned object is short if this total size is less than
 $2^{16}$, and long otherwise.
-It is a fatal programming error if no possible size
-is at least as large as its corresponding argument, but this is
-unlikely, given the large sizes allowed by a long object.
+It is a fatal programming error if no possible hasth table or total size
+is large enough, but this is unlikely, given the large sizes allowed
+by a long object.
 
 The hash table
 of the returned object is zeroed, and therefore empty.  The attribute
@@ -4155,11 +4157,11 @@ struct min
 \verb|bool min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::|
-    & \MINKEY{new\_gen\REL} \verb| ( int v )|
-\LABEL{MIN::NEW_GEN_OF_INT} \\
+    & \MINKEY{new\_num\_gen\REL} \verb| ( int v )|
+\LABEL{MIN::NEW_NUM_GEN_OF_INT} \\
 \verb|min::gen min::|
-    & \MINKEY{new\_gen\REL} \verb| ( min::float64 v )|
-\LABEL{MIN::NEW_GEN_OF_FLOAT64} \\[1ex]
+    & \MINKEY{new\_num\_gen\REL} \verb| ( min::float64 v )|
+\LABEL{MIN::NEW_NUM_GEN_OF_FLOAT64} \\[1ex]
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INT_OF_GEN} \\
 \verb|min::float64 min::| & \MINKEY{float\_of}\verb| ( min::gen v )|
@@ -4232,8 +4234,8 @@ struct min
 
 \begin{TABULAR}{1.8in}
 \verb|min::gen min::|
-    & \MINKEY{new\_gen\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_GEN_OF_STR} \\
+    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_STR_GEN} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -4315,9 +4317,9 @@ struct min
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|min::gen min::| & \MINKEY{new\_gen}\ARGBREAK
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
     \verb| ( const min::gen * p, unsigned n )|
-\LABEL{MIN::NEW_GEN_OF_GEN_VECTOR} \\
+\LABEL{MIN::NEW_LAB_GEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -4411,12 +4413,12 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.4in}
-\verb|min::gen min::| & \MINKEY{new\_obj}%
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( unsigned total_size,| \\
     \verb|   unsigned hash_table_size )| \\
     \end{tabular}
-\LABEL{MIN::NEW_OBJ} \\
+\LABEL{MIN::NEW_OBJ_GEN} \\
 \end{TABULAR}
 
 \end{indpar}
