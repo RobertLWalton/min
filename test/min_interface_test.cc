@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 07:18:04 EST 2006
+// Date:	Sun Mar 19 09:25:40 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 14:19:14 $
+//   $Date: 2006/03/19 14:24:21 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.49 $
+//   $Revision: 1.50 $
 
 // Table of Contents:
 //
@@ -1691,6 +1691,8 @@ int main ()
 	unsigned st = min::total_size_of ( so );
 	cout << "sh: " << sh << " sht: " << sht
 	     << " sua: " << sua
+	     << " sav: " << sav
+	     << " saa: " << saa
 	     << " st: " << st << endl;
 	MIN_ASSERT ( sht >= 100 );
 	MIN_ASSERT ( sua >= 500 );
