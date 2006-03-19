@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 05:14:06 EST 2006
+// Date:	Sun Mar 19 07:18:04 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 10:14:22 $
+//   $Date: 2006/03/19 14:19:14 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.48 $
+//   $Revision: 1.49 $
 
 // Table of Contents:
 //
@@ -233,7 +233,7 @@ void MUP::gc_expand_stub_free_list ( unsigned n )
 // Place to allocate bodies.  Bodes must be allocated on
 // 8 byte boundaries.
 //
-char body_region[10000];
+char body_region[2000000];
 
 // Address of the first body control block in the
 // region, and the address of the first location beyond
@@ -1631,32 +1631,98 @@ int main ()
     {
 	cout << endl;
 	cout << "Start Objects Test!" << endl;
-	struct min::stub * sstub = MUP::new_aux_stub();
-	struct min::stub * lstub = MUP::new_aux_stub();
-	MUP::set_pointer_of
-	    ( sstub,
-	      1 + MUP::new_body
-	            (       sizeof (MUP::short_obj )
-		      + 4 * sizeof (min::gen) ) );
-	MUP::set_control_of
-	    ( sstub,
-	      MUP::new_gc_control
-	          ( min::SHORT_OBJ, 0 ) );
-	MUP::set_pointer_of
-	    ( lstub,
-	      1 + MUP::new_body
-	            (       sizeof (MUP::long_obj )
-		      + 40 * sizeof (min::gen) ) );
-	MUP::set_control_of
-	    ( lstub,
-	      MUP::new_gc_control
-	          ( min::LONG_OBJ, 0 ) );
+
+	cout << endl;
+	cout << "Test object size functions:" << endl;
+
+	unsigned slast = 0;
+	unsigned smaxht =
+	    min::short_obj_hash_table_size
+		( unsigned(-1) );
+	cout << "smaxht: " << smaxht << endl;
+	MIN_ASSERT
+	    ( smaxht >= 19 * ( 1 << 16 ) / 20 - 1 );
+	for ( unsigned u = 0; u < ( 1 << 16 ); ++ u )
+	{
+	    unsigned t = min::short_obj_total_size ( u );
+	    assert ( t == u );
+	    unsigned ht =
+	        min::short_obj_hash_table_size ( u );
+	    if ( u > ht )
+	        assert ( ht == smaxht );
+	    else
+	        assert ( slast < u || slast == ht );
+	    slast = ht;
+	}
+
+	unsigned llast = 0;
+	unsigned lmaxht =
+	    min::long_obj_hash_table_size
+		( unsigned(-1) );
+	cout << "lmaxht: " << lmaxht << endl;
+	MIN_ASSERT ( lmaxht >= 4000000 );
+	for ( unsigned u = 0; u < ( 1 << 20 ); ++ u )
+	{
+	    unsigned t = min::long_obj_total_size ( u );
+	    assert ( t == u );
+	    unsigned ht =
+	        min::long_obj_hash_table_size ( u );
+	    if ( u > ht )
+	        assert ( ht == lmaxht );
+	    else
+	        assert ( llast < u || llast == ht );
+	    llast = ht;
+	}
 
 	cout << endl;
 	cout << "Test short objects:" << endl;
+	min::gen sgen = min::new_obj_gen ( 100, 500 );
+	min::stub * sstub = min::stub_of ( sgen );
+	MIN_ASSERT
+	    ( min::type_of ( sstub ) == min::SHORT_OBJ );
+	MUP::short_obj * so =
+	    MUP::short_obj_of ( sstub );
+	unsigned sh = min::header_size_of ( so );
+	unsigned sht = min::hash_table_size_of ( so );
+	unsigned sav =
+	    min::attribute_vector_size_of ( so );
+	unsigned sua = min::unused_area_size_of ( so );
+	unsigned saa = min::aux_area_size_of ( so );
+	unsigned st = min::total_size_of ( so );
+	cout << "sh: " << sh << " sht: " << sht
+	     << " sua: " << sua
+	     << " st: " << st << endl;
+	MIN_ASSERT ( sht >= 100 );
+	MIN_ASSERT ( sua >= 500 );
+	MIN_ASSERT ( sav == 0 );
+	MIN_ASSERT ( saa == 0 );
+	MIN_ASSERT ( st == sh + sht + sav + sua + saa );
 
 	cout << endl;
 	cout << "Test long objects:" << endl;
+	min::gen lgen = min::new_obj_gen ( 7000, 70000 );
+	min::stub * lstub = min::stub_of ( lgen );
+	MIN_ASSERT
+	    ( min::type_of ( lstub ) == min::LONG_OBJ );
+	MUP::long_obj * lo =
+	    MUP::long_obj_of ( lstub );
+	unsigned lh = min::header_size_of ( lo );
+	unsigned lht = min::hash_table_size_of ( lo );
+	unsigned lav =
+	    min::attribute_vector_size_of ( lo );
+	unsigned lua = min::unused_area_size_of ( lo );
+	unsigned laa = min::aux_area_size_of ( lo );
+	unsigned lt = min::total_size_of ( lo );
+	cout << "lh: " << lh << " lht: " << lht
+	     << " lua: " << lua
+	     << " lav: " << lav
+	     << " laa: " << laa
+	     << " lt: " << lt << endl;
+	MIN_ASSERT ( lht >= 7000 );
+	MIN_ASSERT ( lua >= 70000 );
+	MIN_ASSERT ( lav == 0 );
+	MIN_ASSERT ( laa == 0 );
+	MIN_ASSERT ( lt == lh + lht + lav + lua + laa );
 
 	cout << endl;
 	cout << "Finish Objects Test!" << endl;
