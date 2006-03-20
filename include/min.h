@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 06:13:07 EST 2006
+// Date:	Mon Mar 20 05:42:23 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 11:22:16 $
+//   $Date: 2006/03/20 12:36:07 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.89 $
+//   $Revision: 1.90 $
 
 // Table of Contents:
 //
@@ -2425,6 +2425,76 @@ namespace min { namespace unprotected {
     {
         return (min::gen *) lo;
     }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen value )
+    {
+        min::gen * q = (min::gen *) so;
+	q[so->unused_area_offset ++] = value;
+    }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen value )
+    {
+        min::gen * q = (min::gen *) lo;
+	q[lo->unused_area_offset ++] = value;
+    }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen * p, unsigned n )
+    {
+        min::gen * q = (min::gen *) so;
+	while ( n -- )
+	    q[so->unused_area_offset ++] = * p ++;
+    }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen * p, unsigned n )
+    {
+        min::gen * q = (min::gen *) lo;
+	while ( n -- )
+	    q[lo->unused_area_offset ++] = * p ++;
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen value )
+    {
+        min::gen * q = (min::gen *) so;
+	q[-- so->aux_area_offset] = value;
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen value )
+    {
+        min::gen * q = (min::gen *) lo;
+	q[-- lo->aux_area_offset] = value;
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen * p, unsigned n )
+    {
+        min::gen * q = (min::gen *) so;
+	p += n;
+	while ( n -- )
+	    q[-- so->aux_area_offset] = * -- p;
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen * p, unsigned n )
+    {
+        min::gen * q = (min::gen *) lo;
+	p += n;
+	while ( n -- )
+	    q[-- lo->aux_area_offset] = * -- p;
+    }
 } }
 
 namespace min {
@@ -2455,6 +2525,94 @@ namespace min {
         return   unprotected::
 		 hash_table_size_of_flags (lo->flags)
 	       + unprotected::long_obj_header_size;
+    }
+
+    inline unsigned aux_area_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return so->aux_area_offset;
+    }
+
+    inline unsigned aux_area_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return lo->aux_area_offset;
+    }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen value )
+    {
+	MIN_ASSERT (   so->unused_area_offset
+	             < so->aux_area_offset );
+	unprotected::attribute_vector_push
+	    ( so, value );
+    }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen value )
+    {
+	MIN_ASSERT (   lo->unused_area_offset
+	             < lo->aux_area_offset );
+	unprotected::attribute_vector_push
+	    ( lo, value );
+    }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen * p, unsigned n )
+    {
+	MIN_ASSERT (    so->unused_area_offset + n
+	             <= so->aux_area_offset );
+	unprotected::attribute_vector_push
+	    ( so, p, n );
+    }
+
+    inline void attribute_vector_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen * p, unsigned n )
+    {
+	MIN_ASSERT (    lo->unused_area_offset + n
+	             <= lo->aux_area_offset );
+	unprotected::attribute_vector_push
+	    ( lo, p, n );
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen value )
+    {
+	MIN_ASSERT (   so->unused_area_offset
+	             < so->aux_area_offset );
+	unprotected::aux_area_push ( so, value );
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen value )
+    {
+	MIN_ASSERT (   lo->unused_area_offset
+	             < lo->aux_area_offset );
+	unprotected::aux_area_push ( lo, value );
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::short_obj * so,
+	      min::gen * p, unsigned n )
+    {
+	MIN_ASSERT (    so->unused_area_offset + n
+	             <= so->aux_area_offset );
+	unprotected::aux_area_push ( so, p, n );
+    }
+
+    inline void aux_area_push
+    	    ( min::unprotected::long_obj * lo,
+	      min::gen * p, unsigned n )
+    {
+	MIN_ASSERT (    lo->unused_area_offset + n
+	             <= lo->aux_area_offset );
+	unprotected::aux_area_push ( lo, p, n );
     }
 }
 
