@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 09:25:40 EST 2006
+// Date:	Mon Mar 20 07:45:00 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 14:24:21 $
+//   $Date: 2006/03/20 15:14:01 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.50 $
+//   $Revision: 1.51 $
 
 // Table of Contents:
 //
@@ -1628,6 +1628,9 @@ int main ()
 // Objects
 // -------
 
+    // Values shared with subsequent object tests.
+    min::gen short_obj_gen;
+    min::gen long_obj_gen;
     {
 	cout << endl;
 	cout << "Start Objects Test!" << endl;
@@ -1676,7 +1679,8 @@ int main ()
 
 	cout << endl;
 	cout << "Test short objects:" << endl;
-	min::gen sgen = min::new_obj_gen ( 100, 500 );
+	short_obj_gen = min::new_obj_gen ( 100, 500 );
+	min::gen sgen = short_obj_gen;
 	min::stub * sstub = min::stub_of ( sgen );
 	MIN_ASSERT
 	    ( min::type_of ( sstub ) == min::SHORT_OBJ );
@@ -1702,7 +1706,8 @@ int main ()
 
 	cout << endl;
 	cout << "Test long objects:" << endl;
-	min::gen lgen = min::new_obj_gen ( 7000, 70000 );
+	long_obj_gen = min::new_obj_gen ( 7000, 70000 );
+	min::gen lgen = long_obj_gen;
 	min::stub * lstub = min::stub_of ( lgen );
 	MIN_ASSERT
 	    ( min::type_of ( lstub ) == min::LONG_OBJ );
@@ -1731,6 +1736,118 @@ int main ()
     }
 
 // Object Vector Level
+
+    // Values shared with previous object tests.
+    // min::gen short_obj_gen;
+    // min::gen long_obj_gen;
+    {
+	cout << endl;
+	cout << "Start Object Vector Level Test!"
+	     << endl;
+	min::gen num0 = min::new_num_gen ( 0 );
+	min::gen num1 = min::new_num_gen ( 1 );
+	min::gen num2 = min::new_num_gen ( 2 );
+	min::gen num3 = min::new_num_gen ( 3 );
+	min::gen numv[3] = { num1, num2, num3 };
+
+	cout << endl;
+	cout << "Test short object vector level:"
+	     << endl;
+	min::gen sgen = short_obj_gen;
+	min::stub * sstub = min::stub_of ( sgen );
+	MUP::short_obj * so =
+	    MUP::short_obj_of ( sstub );
+	const min::gen * srb =
+	    MUP::body_vector_of ( so );
+	min::gen * swb =
+	    MUP::writable_body_vector_of ( so );
+	unsigned ht = min::hash_table_of ( so );
+	unsigned av = min::attribute_vector_of ( so );
+	MIN_ASSERT ( srb[ht] == min::LIST_END );
+	swb[ht] = min::EMPTY_SUBLIST;
+	MIN_ASSERT ( srb[ht] == min::EMPTY_SUBLIST );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( so )
+	      == 500 );
+	swb[av] = num0;
+	MIN_ASSERT ( srb[av] == num0 )
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( so )
+	      == 0 );
+	min::attribute_vector_push ( so, num1 );
+	MIN_ASSERT ( srb[av] == num1 )
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( so )
+	      == 1 );
+	swb[av+1] = num0;
+	swb[av+2] = num0;
+	swb[av+3] = num0;
+	MIN_ASSERT ( srb[av+1] == num0 )
+	MIN_ASSERT ( srb[av+2] == num0 )
+	MIN_ASSERT ( srb[av+3] == num0 )
+	min::attribute_vector_push ( so, numv, 3 );
+	MIN_ASSERT ( srb[av+1] == num1 )
+	MIN_ASSERT ( srb[av+2] == num2 )
+	MIN_ASSERT ( srb[av+3] == num3 )
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( so )
+	      == 4 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( so )
+	      == 500 - 4 );
+	unsigned aa = min::aux_area_of ( so );
+	swb[aa-1] = num0;
+	MIN_ASSERT ( srb[aa-1] == num0 )
+	MIN_ASSERT
+	    ( min::aux_area_size_of ( so ) == 0 );
+	min::aux_area_push ( so, num1 );
+	MIN_ASSERT ( srb[aa-1] == num1 )
+	MIN_ASSERT
+	    ( min::aux_area_size_of ( so ) == 1 );
+	swb[aa-2] = num0;
+	swb[aa-3] = num0;
+	swb[aa-4] = num0;
+	MIN_ASSERT ( srb[aa-2] == num0 )
+	MIN_ASSERT ( srb[aa-3] == num0 )
+	MIN_ASSERT ( srb[aa-4] == num0 )
+	min::aux_area_push ( so, numv, 3 );
+	MIN_ASSERT ( srb[aa-4] == num1 )
+	MIN_ASSERT ( srb[aa-3] == num2 )
+	MIN_ASSERT ( srb[aa-2] == num3 )
+	MIN_ASSERT
+	    ( min::aux_area_size_of ( so ) == 4 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( so )
+	      == 500 - 8 );
+	min::gen fillv[500];
+	for ( int i = 0; i < 500; ++ i )
+	    fillv[i] = num0;
+	min::attribute_vector_push
+	    ( so, fillv, 250 - 4 );
+	min::aux_area_push
+	    ( so, fillv, 250 - 4 );
+	MIN_ASSERT
+	    ( min::unused_area_size_of ( so ) == 0 );
+	desire_failure (
+	    min::attribute_vector_push ( so, num3 );
+	);
+	desire_failure (
+	    min::aux_area_push ( so, num3 );
+	);
+
+
+	cout << endl;
+	cout << "Test long object vector level:"
+	     << endl;
+	min::gen lgen = long_obj_gen;
+	min::stub * lstub = min::stub_of ( lgen );
+	MUP::long_obj * lo =
+	    MUP::long_obj_of ( lstub );
+
+	cout << endl;
+	cout << "Finish Object Vector Level Test!"
+	     << endl;
+    }
 // Object List Level
 // Object Attribute Level
 
