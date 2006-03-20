@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 19, 2006}
+\date{March 20, 2006}
  
 \maketitle
 
@@ -2206,8 +2206,9 @@ Auxiliary pointers with zero value do not address a body vector
 element, since they point into the header, and these are given
 special meanings.
 
-The indices of the beginning of the hash table and object vector
-can be obtained by the following protected functions:
+The indices of the beginning of the hash table, beginning of the
+attribute vector, and beginning of the auxiliary area can be
+obtained by the following protected functions:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|unsigned min::|
@@ -2222,29 +2223,37 @@ can be obtained by the following protected functions:
 \verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_OF_LONG_OBJ} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_of}\verb| ( MUP::short_obj * so )|
+\LABEL{MIN::AUX_AREA_OF_SHORT_OBJ} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_of}\verb| ( MUP::long_obj * lo )|
+\LABEL{MIN::AUX_AREA_OF_LONG_OBJ} \\
 \end{tabular}\end{center}
 
 The attribute vector can be grown by pushing values onto its end.
-The auxiliary area can be grown by pushing values onto its beginning.
+The auxiliary area can be grown by pushing values onto its beginning;
+\verb|aux_area_of| returns the index of the last value pushed into
+the auxiliary area.
 In both cases, unused area is consumed.  The values pushed are
 \verb|min::gen| values, and all sizes are calculated in units of
 \verb|min::gen| values.  The following protected functions are
 provided:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
 \LABEL{MIN::AUX_AREA_PUSH_OF_GEN} \\
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
 \LABEL{MIN::AUX_AREA_PUSH_OF_GENS} \\
@@ -2279,19 +2288,19 @@ similarly named protected functions, but include no check on the unused
 area size:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
 \LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
 \LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
 \LABEL{MUP::AUX_AREA_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
 \LABEL{MUP::AUX_AREA_PUSH_OF_GENS} \\
@@ -2303,7 +2312,7 @@ area size:
 At the \key{list level},\label{LIST-LEVEL}
 the body consists of two vectors whose
 elements are lists.  The two vectors are the hash table, and the
-object vector.  The elements of the lists are
+attribute vector.  The elements of the lists are
 \verb|min::gen| values other than the list or sublist auxiliary
 pointers, and sublists.  The lists are constructed with
 the help of the list and sublist auxiliary pointers:
@@ -4461,25 +4470,31 @@ struct min
 \verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_OF_LONG_OBJ} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_of}\verb| ( MUP::short_obj * so )|
+\LABEL{MIN::AUX_AREA_OF_SHORT_OBJ} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_of}\verb| ( MUP::long_obj * lo )|
+\LABEL{MIN::AUX_AREA_OF_LONG_OBJ} \\
 \end{TABULAR}
 
 \medskip
 
 \begin{TABULAR}{1.4in}
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{attribute\_vector\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so, min::gen value )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{attribute\_vector\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so,|\ARGBREAK
 	  \verb|   min::gen * p, unsigned n )|
 \LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{aux\_area\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so, min::gen value )|
 \LABEL{MIN::AUX_AREA_PUSH_OF_GEN} \\
-\verb|unsigned min::|
+\verb|void min::|
 	& \MINKEY{aux\_area\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so,|\ARGBREAK
 	  \verb|   min::gen * p, unsigned n )|
@@ -4489,20 +4504,20 @@ struct min
 \medskip
 
 \begin{TABULAR}{1.4in}
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{attribute\_vector\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so, min::gen value )|
 \LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{attribute\_vector\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so,|\ARGBREAK
 	  \verb|   min::gen * p, unsigned n )|
 \LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{aux\_area\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so, min::gen value )|
 \LABEL{MUP::AUX_AREA_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
+\verb|void MUP::|
 	& \MUPKEY{aux\_area\_push}\ARGBREAK
 	  \verb| ( MUP::short_obj * so, |\ARGBREAK
 	  \verb|   min::gen * p, unsigned n )|
