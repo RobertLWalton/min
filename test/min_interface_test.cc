@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 20 07:45:00 EST 2006
+// Date:	Mon Mar 20 10:55:00 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/20 15:14:01 $
+//   $Date: 2006/03/20 15:51:33 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.51 $
+//   $Revision: 1.52 $
 
 // Table of Contents:
 //
@@ -1749,6 +1749,9 @@ int main ()
 	min::gen num2 = min::new_num_gen ( 2 );
 	min::gen num3 = min::new_num_gen ( 3 );
 	min::gen numv[3] = { num1, num2, num3 };
+	min::gen fillv[70000];
+	for ( int i = 0; i < 70000; ++ i )
+	    fillv[i] = num0;
 
 	cout << endl;
 	cout << "Test short object vector level:"
@@ -1819,9 +1822,6 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( so )
 	      == 500 - 8 );
-	min::gen fillv[500];
-	for ( int i = 0; i < 500; ++ i )
-	    fillv[i] = num0;
 	min::attribute_vector_push
 	    ( so, fillv, 250 - 4 );
 	min::aux_area_push
@@ -1843,6 +1843,80 @@ int main ()
 	min::stub * lstub = min::stub_of ( lgen );
 	MUP::long_obj * lo =
 	    MUP::long_obj_of ( lstub );
+	const min::gen * lrb =
+	    MUP::body_vector_of ( lo );
+	min::gen * lwb =
+	    MUP::writable_body_vector_of ( lo );
+	ht = min::hash_table_of ( lo );
+	av = min::attribute_vector_of ( lo );
+	MIN_ASSERT ( lrb[ht] == min::LIST_END );
+	lwb[ht] = min::EMPTY_SUBLIST;
+	MIN_ASSERT ( lrb[ht] == min::EMPTY_SUBLIST );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( lo )
+	      == 70000 );
+	lwb[av] = num0;
+	MIN_ASSERT ( lrb[av] == num0 )
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( lo )
+	      == 0 );
+	min::attribute_vector_push ( lo, num1 );
+	MIN_ASSERT ( lrb[av] == num1 )
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( lo )
+	      == 1 );
+	lwb[av+1] = num0;
+	lwb[av+2] = num0;
+	lwb[av+3] = num0;
+	MIN_ASSERT ( lrb[av+1] == num0 )
+	MIN_ASSERT ( lrb[av+2] == num0 )
+	MIN_ASSERT ( lrb[av+3] == num0 )
+	min::attribute_vector_push ( lo, numv, 3 );
+	MIN_ASSERT ( lrb[av+1] == num1 )
+	MIN_ASSERT ( lrb[av+2] == num2 )
+	MIN_ASSERT ( lrb[av+3] == num3 )
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( lo )
+	      == 4 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( lo )
+	      == 70000 - 4 );
+	aa = min::aux_area_of ( lo );
+	lwb[aa-1] = num0;
+	MIN_ASSERT ( lrb[aa-1] == num0 )
+	MIN_ASSERT
+	    ( min::aux_area_size_of ( lo ) == 0 );
+	min::aux_area_push ( lo, num1 );
+	MIN_ASSERT ( lrb[aa-1] == num1 )
+	MIN_ASSERT
+	    ( min::aux_area_size_of ( lo ) == 1 );
+	lwb[aa-2] = num0;
+	lwb[aa-3] = num0;
+	lwb[aa-4] = num0;
+	MIN_ASSERT ( lrb[aa-2] == num0 )
+	MIN_ASSERT ( lrb[aa-3] == num0 )
+	MIN_ASSERT ( lrb[aa-4] == num0 )
+	min::aux_area_push ( lo, numv, 3 );
+	MIN_ASSERT ( lrb[aa-4] == num1 )
+	MIN_ASSERT ( lrb[aa-3] == num2 )
+	MIN_ASSERT ( lrb[aa-2] == num3 )
+	MIN_ASSERT
+	    ( min::aux_area_size_of ( lo ) == 4 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( lo )
+	      == 70000 - 8 );
+	min::attribute_vector_push
+	    ( lo, fillv, 35000 - 4 );
+	min::aux_area_push
+	    ( lo, fillv, 35000 - 4 );
+	MIN_ASSERT
+	    ( min::unused_area_size_of ( lo ) == 0 );
+	desire_failure (
+	    min::attribute_vector_push ( lo, num3 );
+	);
+	desire_failure (
+	    min::aux_area_push ( lo, num3 );
+	);
 
 	cout << endl;
 	cout << "Finish Object Vector Level Test!"
