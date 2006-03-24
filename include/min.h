@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 24 06:28:37 EST 2006
+// Date:	Fri Mar 24 06:50:00 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/24 11:24:45 $
+//   $Date: 2006/03/24 11:46:31 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.91 $
+//   $Revision: 1.92 $
 
 // Table of Contents:
 //
@@ -2691,12 +2691,14 @@ namespace min { namespace unprotected {
         ( min::unprotected::list_pointer & lp,
 	  unsigned n );
 
-    void allocate_stub_list
-	( min::stub * & first,
-	  min::stub * & last,
-	  int type,
-	  const min::gen * p, unsigned n,
-	  min::uns64 end );
+#   if MIN_USES_OBJECT_AUX_STUBS
+	void allocate_stub_list
+	    ( min::stub * & first,
+	      min::stub * & last,
+	      int type,
+	      const min::gen * p, unsigned n,
+	      min::uns64 end );
+#   endif
 
     class list_pointer {
 
@@ -2797,12 +2799,14 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp,
 		  unsigned n );
 
-        friend void allocate_stub_list
-		( min::stub * & first,
-		  min::stub * & last,
-		  int type,
-		  const min::gen * p, unsigned n,
-		  min::uns64 end );
+#	if MIN_USES_OBJECT_AUX_STUBS
+	    friend void allocate_stub_list
+		    ( min::stub * & first,
+		      min::stub * & last,
+		      int type,
+		      const min::gen * p, unsigned n,
+		      min::uns64 end );
+#	endif
 
 	friend min::gen min::start_hash
 		( min::unprotected::list_pointer & lp,
@@ -2833,6 +2837,9 @@ namespace min { namespace unprotected {
 	friend void min::insert_after
 		( min::unprotected::list_pointer & lp,
 		  const min::gen * p, unsigned n );
+	friend void remove
+		( min::unprotected::list_pointer & lp,
+		  unsigned n = 1 );
 
         void relocate ( )
 	{

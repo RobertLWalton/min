@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 24 06:34:24 EST 2006
+// Date:	Fri Mar 24 06:35:57 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/24 11:30:58 $
+//   $Date: 2006/03/24 11:46:43 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.43 $
+//   $Revision: 1.44 $
 
 // Table of Contents:
 //
@@ -626,7 +626,7 @@ min::gen min::new_obj_gen
 
 // Allocate n consecutive aux cells and return the index
 // of the first such cell.  If there are insufficient
-// cells available, return 0 is list auxiliary stubs can
+// cells available, return 0 if list auxiliary stubs can
 // be used, and proclaim an assert violation otherwise.
 //
 inline unsigned MUP::allocate_aux_list
@@ -670,6 +670,8 @@ inline unsigned MUP::allocate_aux_list
     }
     return aux_area_offset;
 }
+
+# if MIN_USES_OBJECT_AUX_STUBS
 
 // Allocate a chain of stubs containing the n min::gen
 // values in p.  The type of the first stub is given
@@ -721,6 +723,8 @@ void MUP::allocate_stub_list
     MUP::set_control_of ( last, end );
     MUP::set_type_of ( last, type );
 }
+
+# endif // MIN_USES_OBJECT_AUX_STUBS
 
 // Copy n elements from the vector at p to the vector at
 // q, reversing the order of the elements.  Check that
