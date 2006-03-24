@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 20 05:42:23 EST 2006
+// Date:	Fri Mar 24 06:28:37 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/20 12:36:07 $
+//   $Date: 2006/03/24 11:24:45 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.90 $
+//   $Revision: 1.91 $
 
 // Table of Contents:
 //
@@ -2620,6 +2620,7 @@ namespace min {
 // ------ ---- -----
 
 namespace min { namespace unprotected {
+
     class list_pointer;
 
     // Out of line versions of functions.
@@ -2628,7 +2629,7 @@ namespace min { namespace unprotected {
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
-	      bool use_object_aux_stubs );
+	      bool use_obj_aux_stubs );
 } }
 
 namespace min {
@@ -2637,15 +2638,15 @@ namespace min {
 	const min::gen LIST_END = (min::gen)
 	    ( (min::uns32) min::GEN_LIST_AUX << 24 );
 	const min::gen EMPTY_SUBLIST = (min::gen)
-	    ( (min::uns32) min::GEN_LIST_AUX << 24 );
+	    ( (min::uns32) min::GEN_SUBLIST_AUX << 24 );
 #   elif MIN_IS_LOOSE
 	const min::gen LIST_END = (min::gen)
 	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
 	const min::gen EMPTY_SUBLIST = (min::gen)
-	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
+	    ( (min::uns64) min::GEN_SUBLIST_AUX << 40 );
 #   endif
 
-    extern bool use_object_aux_stubs;
+    extern bool use_obj_aux_stubs;
 
     // We must declare these before we make them
     // friends.
@@ -2669,14 +2670,17 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements = 0,
-	      bool use_object_aux_stubs =
-	          min::use_object_aux_stubs );
+	      bool use_obj_aux_stubs =
+	          min::use_obj_aux_stubs );
     void insert_before
     	    ( min::unprotected::list_pointer & lp,
 	      const min::gen * p, unsigned n );
     void insert_after
     	    ( min::unprotected::list_pointer & lp,
 	      const min::gen * p, unsigned n );
+    void remove
+    	    ( min::unprotected::list_pointer & lp,
+	      unsigned n = 1 );
 }
 
 namespace min { namespace unprotected {
@@ -2778,7 +2782,7 @@ namespace min { namespace unprotected {
 #	endif
 
 #	if MIN_USES_OBJECT_AUX_STUBS
-	    bool use_object_aux_stubs;
+	    bool use_obj_aux_stubs;
 		// True if list auxiliary stubs are to
 		// be used for insertions if space in
 		// the object runs out.
@@ -2822,7 +2826,7 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp,
 		  unsigned insertions,
 		  unsigned elements,
-		  bool use_object_aux_stubs );
+		  bool use_obj_aux_stubs );
 	friend void min::insert_before
 		( min::unprotected::list_pointer & lp,
 		  const min::gen * p, unsigned n );
@@ -3080,7 +3084,7 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
-	      bool use_object_aux_stubs )
+	      bool use_obj_aux_stubs )
     {
         if ( elements = 0 ) elements = insertions;
 	MIN_ASSERT ( insertions <= elements );
@@ -3095,7 +3099,7 @@ namespace min {
 	if (      unused_area_size
 	        < 2 * insertions + elements
 #	    if MIN_USES_OBJECT_AUX_STUBS
-	     && (    ! use_object_aux_stubs
+	     && (    ! use_obj_aux_stubs
 	          ||   min::unprotected::
 			    number_of_free_stubs
 		     < elements )
@@ -3103,14 +3107,14 @@ namespace min {
 	   )
 	    min::unprotected::insert_reserve
 	        ( lp, insertions, elements,
-		  use_object_aux_stubs );
+		  use_obj_aux_stubs );
 	else
 	{
 	    lp.reserved_insertions = insertions;
 	    lp.reserved_elements = elements;
 #	    if MIN_USES_OBJECT_AUX_STUBS
-		lp.use_object_aux_stubs =
-		   use_object_aux_stubs;
+		lp.use_obj_aux_stubs =
+		   use_obj_aux_stubs;
 #	    endif
 	}
     }
