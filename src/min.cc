@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 19 09:24:01 EST 2006
+// Date:	Fri Mar 24 06:33:20 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/19 14:24:21 $
+//   $Date: 2006/03/24 11:29:38 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.40 $
+//   $Revision: 1.42 $
 
 // Table of Contents:
 //
@@ -477,7 +477,7 @@ namespace min { namespace unprotected {
 	  2888887,  3033323,  3184969,  3344213,
 	  3511421,  3686989,  3871331,  4064881
     };
-    bool use_object_aux_stubs;
+    bool use_obj_aux_stubs;
 
 } }
 
@@ -1202,6 +1202,12 @@ void min::insert_after
 	lp.current_index = index + n + 1;
 	return;
     }
+}
+
+void min::remove
+	( min::unprotected::list_pointer & lp,
+	  unsigned n = 1 )
+{
 }
 
 
