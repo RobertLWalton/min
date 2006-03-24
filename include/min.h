@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 24 06:50:00 EST 2006
+// Date:	Fri Mar 24 06:52:55 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/24 11:46:31 $
+//   $Date: 2006/03/24 17:25:43 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.92 $
+//   $Revision: 1.93 $
 
 // Table of Contents:
 //
@@ -2717,15 +2717,17 @@ namespace min { namespace unprotected {
 	    so = NULL;
 	    lo = NULL;
 
-	    base = NULL;
-	    current = 0;
-	    current_index = previous_index = 0;
-	    reserved_insertions = 0;
-	    reserved_elements = 0;
+	    // An unstarted list pointer behaves as if
+	    // it were pointing at the end of a list
+	    // for which insertions are illegal.
+	    //
+	    current = min::LIST_END;
 
-#	    if MIN_USES_OBJECT_AUX_STUBS
-		current_stub = previous_stub = NULL;
-#	    endif
+	    // Other members are initialized by
+	    // relocate() (see below) when so or lo is
+	    // set.  This means that functions that
+	    // assume a pointer has been started should
+	    // first assert that so or lo is not NULL.
 	}
 
         list_pointer ( min::gen v )
@@ -2738,6 +2740,7 @@ namespace min { namespace unprotected {
 
     	min::stub * s;
 	    // Stub of object.
+
 	min::unprotected::short_obj * so;
 	min::unprotected::long_obj * lo;
 	    // After start, just one of these is
@@ -2751,30 +2754,53 @@ namespace min { namespace unprotected {
 	    // the min::current function.
 
 	// Current element indices and stub pointers are
-	// as follows:
+	// set as follows:
 	//
-	//   if current_index != 0:
-	//	base[current_index] is current element
-	//   if current_stub != NULL:
-	//	MUP::gen_of ( current_stub ) is current
-	//	element
-	//   if previous_index != 0:
-	//	base[previous_index] is pointer to the
-	//	current element or aux stub
-	//   if previous_stub != NULL:
-	//	MUP::control_of ( previous_stub ) is
-	//	pointer to current element or aux stub
-	//   if current_index == 0 and current_stub == 0
-	//	and previous_index != 0:
-	//	previous_index < unused_area_offset is
-	//	list header of 1 element list and
-	//	pointer is at end of the list after the
-	//	1 element
-	//   if current_index == 0 and current_stub == 0
-	//	and previous_stub != 0:
-	//	MUP::control_of ( previous_stub ) is
-	//	min::LIST_END and pointer points at
-	//	this.
+	//   either current_index == 0
+	//       or current_stub == NULL
+	//       or both
+	//
+	//   either previous_index == 0
+	//       or previous_stub == NULL
+	//       or both
+	//
+	// (Previous_{index,stub} is kept to make
+	//  inserts more efficient.)
+	//
+	//   if current_index == 0
+	//      and current_stub == 0:
+	//
+	//	current == min::LIST_END
+	//
+	//	either previous_index != 0:
+	//	  previous_index < unused_area_offset,
+	//	  base[previous_index] is the list
+	//	  header of a 1 element list, and
+	//	  pointer is at the end of the list
+	//	  after the 1 element
+	//
+	//	or previous_stub != NULL:
+	//	  MUP::control_of ( previous_stub ) is
+	//	  min::LIST_END, and pointer points at
+	//	  this.
+	//
+	//   else
+	//
+	//      either current_index != 0:
+	//	   base[current_index] is current
+	//	   element
+	//      or current_stub != NULL:
+	//	   MUP::gen_of ( current_stub ) is
+	//	   current element
+	//
+	//      either previous_index != 0:
+	//	   NULL: base[previous_index] is pointer
+	//	   to the current element or aux stub
+	//      or previous_stub != NULL:
+	//	   MUP::control_of ( previous_stub )
+	//	   is a pointer to current element or
+	//	   aux stub
+	//	or neither
 	//
 	unsigned current_index;
 	unsigned previous_index;
@@ -2841,6 +2867,9 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp,
 		  unsigned n = 1 );
 
+	// Set all the members of the list pointer from
+	// the stub s.
+	//
         void relocate ( )
 	{
 	    int t = min::type_of ( s );
@@ -2861,21 +2890,24 @@ namespace min { namespace unprotected {
 		MIN_ASSERT ( ! is_deallocated ( s ) );
 	        MIN_ASSERT ( ! "s is not an object" );
 	    }
-	    current = 0;
+	    current = min::LIST_END;
 	    current_index = previous_index = 0;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
 #	    if MIN_USES_OBJECT_AUX_STUBS
 		current_stub = previous_stub = NULL;
+		use_obj_aux_stubs = false;
 #	    endif
 	}
 
-	// Set current_index and current and then do
-	// fowarding while is a list pointer.  Sets
-	// current_stub = NULL.  Does not set previous_
-	// index or previous_stub if there is no
-	// forwarding.
+	// Sets current_index to the index argument, and
+	// then sets current.  Then does fowarding while
+	// current is a list pointer.  Sets current_stub
+	// = NULL.  Does not set previous_index or
+	// previous_stub if there is no forwarding.
+	// Returns current.  Index argument must not be
+	// 0.
 	//
 	min::gen forward ( unsigned index )
 	{
@@ -2902,10 +2934,9 @@ namespace min { namespace unprotected {
 				previous_stub = NULL;
 				current_index = 0;
 				current_stub = s;
-				return
-				  current =
-				      min::unprotected::
-				           gen_of ( s );
+			        current =
+				    min::unprotected::
+				         gen_of ( s );
 			    }
 			}
 #	            endif
@@ -2942,7 +2973,7 @@ namespace min {
 		         hash_table_size_of_flags
 			     (lp.so->flags)
 		);
-	    index += unprotected::short_obj_header_size;
+	    index += min::hash_table_of ( lp.so );
 	}
 	else
 	{
@@ -2952,7 +2983,7 @@ namespace min {
 		         hash_table_size_of_flags
 			     (lp.lo->flags)
 		);
-	    index += unprotected::long_obj_header_size;
+	    index += min::hash_table_of ( lp.lo );
 	}
 	return lp.forward ( index );
     }
@@ -2963,19 +2994,13 @@ namespace min {
 	lp.relocate();
         if ( lp.so )
 	{
-	    index += min::unprotected::
-			hash_table_size_of_flags
-			    (lp.so->flags)
-		   + unprotected::short_obj_header_size;
+	    index += min::attribute_vector_of ( lp.so );
 	    MIN_ASSERT
 	        ( index < lp.so->unused_area_offset );
 	}
 	else
 	{
-	    index += min::unprotected::
-			hash_table_size_of_flags
-			    (lp.lo->flags)
-		   + unprotected::long_obj_header_size;
+	    index += min::attribute_vector_of ( lp.lo );
 	    MIN_ASSERT
 	        ( index < lp.lo->unused_area_offset );
 	}
@@ -2986,13 +3011,16 @@ namespace min {
 	      min::unprotected::list_pointer & lp2 )
     {
         MIN_ASSERT ( lp.s == lp2.s );
+	MIN_ASSERT ( lp2.so != NULL || lp2.lo != NULL );
 	lp.lo = lp2.lo;
 	lp.so = lp2.so;
+	lp.base = lp2.base;
 	lp.current_index = lp2.current_index;
 	lp.previous_index = lp2.previous_index;
 #       if MIN_USES_OBJECT_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 	    lp.previous_stub = lp2.previous_stub;
+	    lp.use_aux_stubs = lp2.use_aux_stubs;
 #       endif
 	lp.reserved_insertions = 0;
 	lp.reserved_elements = 0;
@@ -3001,8 +3029,17 @@ namespace min {
     inline min::gen next
     	    ( min::unprotected::list_pointer & lp )
     {
+	unsigned head_end;
+
         if ( lp.current == min::LIST_END )
 	    return lp.current;
+	else if ( lp.so )
+	    head_end = lp.so->unused_area_offset;
+	else if ( lp.lo )
+	    head_end = lp.lo->unused_area_offset;
+	else
+	    MIN_ASSERT
+	        ( ! "lp list has not been started" );
 
 #       if MIN_USES_OBJECT_AUX_STUBS
 	    if ( lp.current_stub != NULL )
@@ -3044,11 +3081,6 @@ namespace min {
 #       endif
 
 	lp.previous_index = lp.current_index;
-	unsigned head_end;
-	if ( lp.so )
-	    head_end = lp.so->unused_area_offset;
-	else
-	    head_end = lp.lo->unused_area_offset;
 	if ( lp.current_index < head_end )
 	{
 	    lp.current_index = 0;
@@ -3100,9 +3132,13 @@ namespace min {
 	if ( lp.so )
 	    unused_area_size =
 	        min::unused_area_size_of ( lp.so );
-	else
+	else if ( lp.lo )
 	    unused_area_size =
 	        min::unused_area_size_of ( lp.lo );
+	else
+	    MIN_ASSERT
+	        ( ! "lp list has not been started" );
+
 	if (      unused_area_size
 	        < 2 * insertions + elements
 #	    if MIN_USES_OBJECT_AUX_STUBS
