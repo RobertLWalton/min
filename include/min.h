@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 24 06:52:55 EST 2006
+// Date:	Fri Mar 24 15:52:04 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/24 17:25:43 $
+//   $Date: 2006/03/24 20:52:00 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.93 $
+//   $Revision: 1.94 $
 
 // Table of Contents:
 //
@@ -2764,6 +2764,12 @@ namespace min { namespace unprotected {
 	//       or previous_stub == NULL
 	//       or both
 	//
+	//   previous_is_sublist_head is set if
+	//	base[previous_index] or gen_of
+	//	(previous_stub) is a sublist aux
+	//	pointer or EMPTY_SUBLIST value or
+	//	or pointer to a SUBLIST_AUX stub.
+	//
 	// (Previous_{index,stub} is kept to make
 	//  inserts more efficient.)
 	//
@@ -2773,16 +2779,22 @@ namespace min { namespace unprotected {
 	//	current == min::LIST_END
 	//
 	//	either previous_index != 0:
-	//	  previous_index < unused_area_offset,
-	//	  base[previous_index] is the list
-	//	  header of a 1 element list, and
-	//	  pointer is at the end of the list
-	//	  after the 1 element
+	//	  either previous_is_sublist_head:
+	//	    base[previous_index] == EMPTY_LIST
+	//	  or:
+	//	    previous_index < unused_area_offset,
+	//	    base[previous_index] is the list
+	//	    header of a 1 element list, and
+	//	    pointer is at the end of the list
+	//	    after the 1 element
 	//
 	//	or previous_stub != NULL:
-	//	  MUP::control_of ( previous_stub ) is
-	//	  min::LIST_END, and pointer points at
-	//	  this.
+	//	  either previous_is_sublist_head:
+	//	    gen_of(previous_stub) is EMPTY_LIST
+	//	  or:
+	//	    MUP::control_of ( previous_stub ) is
+	//	    min::LIST_END, and pointer points at
+	//	    this.
 	//
 	//   else
 	//
@@ -2802,12 +2814,21 @@ namespace min { namespace unprotected {
 	//	   aux stub
 	//	or neither
 	//
+	// Rule: if current == min::LIST_END then
+	//       either current_index != 0
+	//		and previous_index == 0
+	//		and previous_stub == NULL
+	//	 or current_index == 0
+	//	    and current_stub == 0
+	//	    (see above)
+	//
 	unsigned current_index;
 	unsigned previous_index;
 #	if MIN_USES_OBJECT_AUX_STUBS
 	    min::stub * current_stub;
 	    min::stub * previous_stub;
 #	endif
+	bool previous_is_sublist_head;
 
 #	if MIN_USES_OBJECT_AUX_STUBS
 	    bool use_obj_aux_stubs;
@@ -2892,6 +2913,7 @@ namespace min { namespace unprotected {
 	    }
 	    current = min::LIST_END;
 	    current_index = previous_index = 0;
+	    previous_is_sublist_head = false;
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
 
@@ -2905,9 +2927,9 @@ namespace min { namespace unprotected {
 	// then sets current.  Then does fowarding while
 	// current is a list pointer.  Sets current_stub
 	// = NULL.  Does not set previous_index or
-	// previous_stub if there is no forwarding.
-	// Returns current.  Index argument must not be
-	// 0.
+	// previous_stub if there is no forwarding or if
+	// one of these is previously set.  Returns
+	// current.  Index argument must not be 0.
 	//
 	min::gen forward ( unsigned index )
 	{
@@ -2915,6 +2937,12 @@ namespace min { namespace unprotected {
 #           if MIN_USES_OBJECT_AUX_STUBS
 		current_stub = NULL;
 #	    endif
+	    bool previous_is_set =
+	        (    previous_index != 0
+#                    if MIN_USES_OBJECT_AUX_STUBS
+		         || previous_stub != NULL
+#		     endif
+	        );
 	    while ( true )
 	    {
 		current = base[current_index];
@@ -2929,9 +2957,15 @@ namespace min { namespace unprotected {
 			    if (    min::type_of ( s )
 			         == min::LIST_AUX )
 			    {
-				previous_index =
-				    current_index;
-				previous_stub = NULL;
+			        if ( ! previous_is_set )
+				{
+				    previous_index =
+					current_index;
+				    previous_stub =
+				    	NULL;
+				    previous_is_set =
+				    	true;
+				}
 				current_index = 0;
 				current_stub = s;
 			        current =
@@ -2946,10 +2980,14 @@ namespace min { namespace unprotected {
 		    return current;
 		else
 		{
-		    previous_index = current_index;
-#	            if MIN_USES_OBJECT_AUX_STUBS
-			previous_stub = NULL;
-#	            endif
+		    if ( ! previous_is_set )
+		    {
+			previous_index = current_index;
+#	                if MIN_USES_OBJECT_AUX_STUBS
+			    previous_stub = NULL;
+#	                endif
+			previous_is_set = true;
+		    }
 		    current_index =
 		        min::list_aux_of ( current );
 		}
@@ -3017,6 +3055,8 @@ namespace min {
 	lp.base = lp2.base;
 	lp.current_index = lp2.current_index;
 	lp.previous_index = lp2.previous_index;
+	lp.previous_is_sublist_head =
+	    lp2.previous_is_sublist_head;
 #       if MIN_USES_OBJECT_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 	    lp.previous_stub = lp2.previous_stub;
@@ -3041,11 +3081,13 @@ namespace min {
 	    MIN_ASSERT
 	        ( ! "lp list has not been started" );
 
+	lp.previous_index = lp.current_index;
+	lp.previous_is_sublist_head = false;
+
 #       if MIN_USES_OBJECT_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		lp.previous_stub = lp.current_stub;
-		lp.previous_index = 0;
 
 	        min::uns64 c =
 		    min::unprotected::control_of
@@ -3070,8 +3112,8 @@ namespace min {
 		    if ( index == 0 )
 		    {
 			lp.current_stub = NULL;
-			return lp.current =
-			    min::LIST_END;
+			return
+			    lp.current = min::LIST_END;
 		    }
 		    else
 		        return lp.forward ( index );
@@ -3080,7 +3122,6 @@ namespace min {
 	    lp.previous_stub = NULL;
 #       endif
 
-	lp.previous_index = lp.current_index;
 	if ( lp.current_index < head_end )
 	{
 	    lp.current_index = 0;
@@ -3100,6 +3141,13 @@ namespace min {
 #	if MIN_USES_OBJECT_AUX_STUBS
 	    lp.previous_index = lp.current_index;
 	    lp.previous_stub = lp.current_stub;
+	    lp.previous_is_sublist_head = true;
+	    if ( lp.current == min::EMPTY_SUBLIST )
+	    {
+	        lp.current_index = 0;
+		lp.current_stub = NULL;
+		return lp.current = min::LIST_END;
+	    }
 	    if ( min::is_sublist_aux ( lp.current ) )
 		return lp.forward
 		    ( min::unprotected::
@@ -3115,8 +3163,16 @@ namespace min {
 			gen_of ( lp.current_stub );
 #	else
 	    lp.previous_index = lp.current_index;
-	    return lp.forward
-	        ( min:: sublist_aux_of ( lp.current ) );
+	    lp.previous_is_sublist_head = true;
+	    if ( lp.current == min::EMPTY_SUBLIST )
+	    {
+	        lp.current_index = 0;
+		return lp.current = min::LIST_END;
+	    }
+	    else
+		return lp.forward
+		    ( min::sublist_aux_of
+		    	        ( lp.current ) );
 #	endif
     }
     inline void insert_reserve
