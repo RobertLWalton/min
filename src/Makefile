@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2006/02/28 02:07:35 $
+#   $Date: 2006/03/25 15:24:40 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.7 $
+#   $Revision: 1.8 $
 
 INCLUDE_FILES = \
 	../include/min_parameters.h \
@@ -35,6 +35,7 @@ min_interface_test_loose:	\
 		min_interface_test.cc min.cc \
 		${INCLUDE_FILES}
 	g++ -g -DMIN_IS_COMPACT=0 \
+	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
 	    -o min_interface_test_loose \
 	    min_interface_test.cc min.cc
@@ -43,6 +44,7 @@ min_interface_test_compact:	\
 		min_interface_test.cc min.cc \
 		${INCLUDE_FILES}
 	g++ -g -DMIN_IS_COMPACT=1 \
+	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
 	    -o min_interface_test_compact \
 	    min_interface_test.cc min.cc
@@ -51,6 +53,7 @@ min_interface_test_loose_stretch:	\
 		min_interface_test.cc min.cc \
 		${INCLUDE_FILES}
 	g++ -g -DMIN_IS_COMPACT=0 -DMIN_STRETCH=1 \
+	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
 	    -o min_interface_test_loose_stretch \
 	    min_interface_test.cc min.cc
@@ -59,6 +62,7 @@ min_interface_test_compact_stretch:	\
 		min_interface_test.cc min.cc \
 		${INCLUDE_FILES}
 	g++ -g -DMIN_IS_COMPACT=1 -DMIN_STRETCH=1 \
+	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
 	    -o min_interface_test_compact_stretch \
 	    min_interface_test.cc min.cc
