@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 20, 2006}
+\date{March 24, 2006}
  
 \maketitle
 
@@ -2557,18 +2557,18 @@ the beginning call to {\tt min::insert\_reserve}.  In particular, there can
 be no call to {\tt min::interrupt} (\pagref{MIN::INTERRUPT}) and no
 second call to {\tt min::insert\_reserve}.
 
-The following function can be used to delete {\tt n} consecutive elements
+The following function can be used to remove {\tt n} consecutive elements
 of a list, the first of which is the element currently pointed at by
 the list pointer:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
-	& \MINKEY{delete}%
+	& \MINKEY{remove}%
 	  \verb| ( min::list_pointer & lp, unsigned n = 1 )|
-\LABEL{MIN::DELETE_FROM_LIST} \\
+\LABEL{MIN::REMOVE_FROM_LIST} \\
 \end{tabular}\end{center}
 
-Element deletion requires no reservation.
+Element removal requires no reservation.
 
 If there are several list pointers,
 and one is used to insert elements into a list X, or delete elements from
@@ -4608,9 +4608,9 @@ struct min
 	  \verb|   min::gen * p, unsigned n )|
 \LABEL{MIN::INSERT_AFTER} \\
 \verb|min::gen min::|
-	& \MINKEY{delete}\ARGBREAK
+	& \MINKEY{remove}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned n = 1 )|
-\LABEL{MIN::DELETE_FROM_LIST} \\
+\LABEL{MIN::REMOVE_FROM_LIST} \\
 \end{TABULAR}
 
 \end{indpar}
