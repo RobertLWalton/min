@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 25 07:46:17 EST 2006
+// Date:	Sat Mar 25 10:24:58 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/25 15:17:07 $
+//   $Date: 2006/03/25 15:24:40 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.47 $
+//   $Revision: 1.48 $
 
 // Table of Contents:
 //
@@ -649,7 +649,7 @@ inline unsigned MUP::allocate_aux_list
 	aux_area_offset =
 	    lp.lo->aux_area_offset;
     }
-#   if MIN_USES_OBJECT_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
 	if (   unused_area_offset + n
 	     > aux_area_offset )
 	    return 0;
@@ -671,7 +671,7 @@ inline unsigned MUP::allocate_aux_list
     return aux_area_offset;
 }
 
-# if MIN_USES_OBJECT_AUX_STUBS
+# if MIN_USES_OBJ_AUX_STUBS
 
 // Allocate a chain of stubs containing the n min::gen
 // values in p.  The type of the first stub is given
@@ -724,7 +724,7 @@ void MUP::allocate_stub_list
     MUP::set_type_of ( last, type );
 }
 
-# endif // MIN_USES_OBJECT_AUX_STUBS
+# endif // MIN_USES_OBJ_AUX_STUBS
 
 // Copy n elements from the vector at p to the vector at
 // q, reversing the order of the elements.  Check that
@@ -776,7 +776,7 @@ void min::insert_before
 	    ( ! "lp list has not been started" );
 
     if (    lp.current_index == 0
-#	 if MIN_USES_OBJECT_AUX_STUBS
+#	 if MIN_USES_OBJ_AUX_STUBS
 	 && lp.current_stub == NULL
 #	 endif
 	 && ! lp.previous_is_sublist_head
@@ -790,7 +790,7 @@ void min::insert_before
 	//
         MIN_ASSERT ( lp.current == min::LIST_END );
         lp.current_index = lp.previous_index;
-#	if MIN_USES_OBJECT_AUX_STUBS
+#	if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp.previous_stub;
 	    lp.previous_stub = NULL;
 #	endif
@@ -815,7 +815,7 @@ void min::insert_before
 	    // Previous must exist and be EMPTY_SUBLIST.
 	    //
 	    MIN_ASSERT ( lp.current_index == 0 );
-#	    if MIN_USES_OBJECT_AUX_STUBS
+#	    if MIN_USES_OBJ_AUX_STUBS
 		MIN_ASSERT ( lp.current_stub == NULL );
 #	    endif
 	}
@@ -826,13 +826,13 @@ void min::insert_before
 	    //
 	    MIN_ASSERT ( lp.current_index != 0 );
 	    MIN_ASSERT ( lp.previous_index == 0 );
-#	    if MIN_USES_OBJECT_AUX_STUBS
+#	    if MIN_USES_OBJ_AUX_STUBS
 		MIN_ASSERT ( lp.previous_stub == NULL );
 #	    endif
 	    contiguous =
 		( lp.current_index == aux_area_offset );
 	}
-#	if MIN_USES_OBJECT_AUX_STUBS
+#	if MIN_USES_OBJ_AUX_STUBS
 	    if (    lp.use_obj_aux_stubs
 		 &&     unused_area_offset
 		      + ( n + ! contiguous )
@@ -888,7 +888,7 @@ void min::insert_before
 		    ( aux_area_offset - 1 );
 	    if ( ! lp.previous_is_sublist_head )
 		lp.base[lp.current_index] = fgen;
-#	    if MIN_USES_OBJECT_AUX_STUBS
+#	    if MIN_USES_OBJ_AUX_STUBS
 	    else if ( lp.previous_stub != NULL )
 	    {
 		MUP::set_gen_of
@@ -914,7 +914,7 @@ void min::insert_before
 
     bool previous = ( lp.previous_index != 0 );
 
-#   if MIN_USES_OBJECT_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
         if ( lp.previous_stub != NULL )
 	    previous = true;
 	if (    lp.use_obj_aux_stubs
@@ -1003,7 +1003,7 @@ void min::insert_before
     while ( n -- )
 	lp.base[-- aux_area_offset] = * p ++;
 
-#   if MIN_USES_OBJECT_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
         MIN_ASSERT ( previous );
@@ -1026,7 +1026,7 @@ void min::insert_before
 	    min::new_list_aux_gen ( next );
     }
 
-#   if MIN_USES_OBJECT_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
 	if ( lp.previous_stub != NULL )
 	{
 	    if ( lp.previous_is_sublist_head )
@@ -1094,7 +1094,7 @@ void min::insert_after
 	sublist = min::is_sublist_aux
 	    ( lp.base[lp.previous_index] );
     }
-#   if MIN_USES_OBJECT_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
 	if ( lp.previous_stub != NULL )
 	{
 	    previous = true;
@@ -1115,7 +1115,7 @@ void min::insert_after
     unsigned index = MUP::allocate_aux_list
     	( lp, n + 1 + ! previous );
 
-#   if MIN_USES_OBJECT_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
 	if ( index == 0 )
 	{
 	    min::stub * first, * last;
@@ -1161,7 +1161,7 @@ void min::insert_after
 		lp.current_index = 0;
 		lp.current_stub = s;
 
-	#	if MIN_USES_OBJECT_AUX_STUBS
+	#	if MIN_USES_OBJ_AUX_STUBS
 		    if ( lp.previous_stub != NULL )
 		    {
 			if ( sublist )
@@ -1211,7 +1211,7 @@ void min::insert_after
 	}
 #   endif
 
-#   if MIN_USES_OBJECT_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
 	MIN_ASSERT ( previous );
@@ -1247,7 +1247,7 @@ void min::insert_after
 	lp.base[lp.current_index] = p[n-1];
 	lp.current_index = index + n;
 
-#	if MIN_USES_OBJECT_AUX_STUBS
+#	if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
 	    {
 		if ( sublist )

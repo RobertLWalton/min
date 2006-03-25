@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 28 07:55:12 EST 2006
+// Date:	Sat Mar 25 10:23:22 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/02/28 12:57:21 $
+//   $Date: 2006/03/25 15:24:20 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // Table of Contents
 //
@@ -25,7 +25,7 @@
 //
 //	MIN_DEBUG
 //	MIN_IS_COMPACT
-//	MIN_USES_OBJECT_AUX_STUBS
+//	MIN_USES_OBJ_AUX_STUBS
 //
 // The following parameters can be overridden to have
 // value YYY by giving -DXXX=YYY options to the
@@ -83,8 +83,8 @@
 
 // 1 to enable use of list auxiliary stubs; 0 not to.
 //
-# ifndef MIN_USES_OBJECT_AUX_STUBS
-#   define MIN_USES_OBJECT_AUX_STUBS 0
+# ifndef MIN_USES_OBJ_AUX_STUBS
+#   define MIN_USES_OBJ_AUX_STUBS 0
 # endif
 
 // All addresses are 64 bits except stub addresses,
