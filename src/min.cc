@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 24 12:30:05 EST 2006
+// Date:	Sat Mar 25 02:47:00 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/24 20:50:25 $
+//   $Date: 2006/03/25 07:43:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.45 $
+//   $Revision: 1.46 $
 
 // Table of Contents:
 //
@@ -779,10 +779,12 @@ void min::insert_before
 #	 if MIN_USES_OBJECT_AUX_STUBS
 	 && lp.current_stub == NULL
 #	 endif
+	 && ! lp.previous_is_sublist_head
        )
     {
         // Inserting before a min::LIST_END that
-	// is not a specific auxilary element is
+	// is not a specific auxilary element and
+	// is not the end of an empty sublist is
 	// treated as inserting after the previous
 	// element.
 	//
@@ -790,7 +792,9 @@ void min::insert_before
         lp.current_index = lp.previous_index;
 #	if MIN_USES_OBJECT_AUX_STUBS
 	    lp.current_stub = lp.previous_stub;
+	    lp.previous_stub = NULL;
 #	endif
+	lp.previous_index = 0;
 	lp.current = min::MISSING;
 	min::insert_after ( lp, p, n );
 	return;
@@ -804,13 +808,26 @@ void min::insert_before
 
     if ( lp.current == min::LIST_END )
     {
-	MIN_ASSERT ( lp.current_index != 0 );
-	MIN_ASSERT ( lp.previous_index == 0 );
+	bool contiguous = false;
 
-	bool contiguous =
-	    ( lp.current_index == aux_area_offset );
+	if ( lp.previous_is_sublist_head )
+	{
+	    MIN_ASSERT ( lp.current_index == 0 );
+#	    if MIN_USES_OBJECT_AUX_STUBS
+		MIN_ASSERT ( lp.previous_stub == NULL );
+#	    endif
+	}
+	else
+	{
+	    MIN_ASSERT ( lp.current_index != 0 );
+	    MIN_ASSERT ( lp.previous_index == 0 );
+#	    if MIN_USES_OBJECT_AUX_STUBS
+		MIN_ASSERT ( lp.previous_stub == NULL );
+#	    endif
+	    contiguous =
+		( lp.current_index == aux_area_offset );
+	}
 #	if MIN_USES_OBJECT_AUX_STUBS
-	    MIN_ASSERT ( lp.previous_stub == NULL );
 	    if (    lp.use_obj_aux_stubs
 		 &&     unused_area_offset
 		      + ( n + ! contiguous )
@@ -819,12 +836,32 @@ void min::insert_before
 		min::stub * first, * last;
 		MUP::allocate_stub_list
 		    ( first, last,
-		      min::LIST_AUX, p, n,
+		      lp.previous_is_sublist_head ?
+			  min::SUBLIST_AUX :
+		          min::LIST_AUX,
+		      p, n,
 		      MUP::new_control
 			( 0, (min::uns64) 0 ) );
-	    	lp.base[lp.current_index] =
-		    min::new_gen ( first );
-		lp.current_index = 0;
+		min::gen fgen = min::new_gen ( first );
+		if ( lp.previous_is_sublist_head )
+		{
+		    if ( lp.previous_index != 0 )
+		    {
+		        lp.base[lp.previous_index] =
+			    fgen;
+			lp.previous_index = 0;
+		    }
+		    else
+		       MUP::set_gen_of
+		           ( lp.previous_stub, fgen );
+		    lp.previous_is_sublist_head = false;
+		}
+		else
+		{
+		    lp.base[lp.current_index] =
+			min::new_gen ( first );
+		    lp.current_index = 0;
+		}
 		lp.previous_stub = last;
 		return;
 	    }
@@ -836,9 +873,23 @@ void min::insert_before
 	if ( contiguous )
 	    ++ aux_area_offset;
 	else
-	    lp.base[lp.current_index] =
+	{
+	    min::gen fgen =
 	        min::new_list_aux_gen
 		    ( aux_area_offset - 1 );
+	    if ( ! lp.previous_is_sublist_head )
+		lp.base[lp.current_index] = fgen;
+#	    if MIN_USES_OBJECT_AUX_STUBS
+	    else if ( lp.previous_stub != NULL )
+	    {
+		MUP::set_gen_of
+		    ( lp.previous_stub, fgen );
+		lp.previous_stub = NULL;
+	    }
+#	    endif
+	    else
+		lp.base[lp.previous_index] = fgen;
+	}
 	while ( n -- )
 	    lp.base[-- aux_area_offset] = * p ++;
 	    
@@ -852,45 +903,30 @@ void min::insert_before
 	return;
     }
 
-    bool previous = false;	// previous exists.
-    bool sublist = false;	// previous is sublist
-    				// aux or current_stub
-				// is SUBLIST_AUX or
-    if ( lp.previous_index != 0 )
-    {
-        previous = true;
-	sublist = min::is_sublist_aux
-	    ( lp.base[lp.previous_index] );
-    }
+    bool previous = ( lp.previous_index != 0 );
+
 #   if MIN_USES_OBJECT_AUX_STUBS
-	if ( lp.previous_stub != NULL )
-	{
+        if ( lp.previous_stub != NULL )
 	    previous = true;
-	    if (    lp.current_stub != NULL
-		 &&    min::type_of
-			  ( lp.current_stub )
-		    == min::SUBLIST_AUX )
-	        sublist = true;
-	    min::gen v =
-	        MUP::gen_of ( lp.previous_stub );
-	    if (       min::is_sublist_aux ( v )
-	         &&    min::sublist_aux_of ( v )
-		    == lp.current_index )
-	        sublist = true;
-	}
-#   endif
-
-    unsigned index = MUP::allocate_aux_list
-    	( lp, n + 1 + ! previous );
-
-#   if MIN_USES_OBJECT_AUX_STUBS
-	if ( index == 0 )
+	if (    lp.use_obj_aux_stubs
+	     &&     unused_area_offset + n
+		  + ( n + 1 + ! previous )
+		> aux_area_offset )
 	{
 	    min::uns64 end;
 	    min::stub * s;
-	    if ( ! previous )
+	    if ( lp.current_stub != NULL )
 	    {
-		MIN_ASSERT ( lp.current_index != 0 );
+		end = MUP::new_control
+		   ( min::LIST_AUX, lp.current_stub,
+		     MUP::STUB_POINTER );
+		MUP::set_type_of
+		    ( lp.current_stub, min::LIST_AUX );
+	    }
+	    else if ( ! previous )
+	    {
+		// TBD: What if current is head of list
+		// in hash table or attribute vector?
 	        s = MUP::new_aux_stub();
 		MUP::set_gen_of ( s, lp.current );
 		MUP::set_control_of
@@ -901,14 +937,6 @@ void min::insert_before
 		end = MUP::new_control
 		    ( min::LIST_AUX, s,
 		      MUP::STUB_POINTER );
-	    }
-	    else if ( lp.current_stub != NULL )
-	    {
-		end = MUP::new_control
-		   ( min::LIST_AUX, lp.current_stub,
-		     MUP::STUB_POINTER );
-		MUP::set_type_of
-		    ( lp.current_stub, min::LIST_AUX );
 	    }
 	    else
 		end = MUP::new_control
@@ -952,6 +980,9 @@ void min::insert_before
 	    return;
 	}
 #   endif
+
+    unsigned index = MUP::allocate_aux_list
+    	( lp, n + 1 + ! previous );
 
     copy_elements
         ( lp.base + index + 1 + ! previous, p, n );
