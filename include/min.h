@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/24 20:52:00 $
+//   $Date: 2006/03/25 15:17:21 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.94 $
+//   $Revision: 1.95 $
 
 // Table of Contents:
 //
@@ -2778,23 +2778,23 @@ namespace min { namespace unprotected {
 	//
 	//	current == min::LIST_END
 	//
-	//	either previous_index != 0:
-	//	  either previous_is_sublist_head:
+	//	either previous_is_sublist_head:
+	//	  either previous_index != 0 and
 	//	    base[previous_index] == EMPTY_LIST
-	//	  or:
-	//	    previous_index < unused_area_offset,
-	//	    base[previous_index] is the list
-	//	    header of a 1 element list, and
-	//	    pointer is at the end of the list
-	//	    after the 1 element
+	//	  or previous_stub != NULL and
+	//	    gen_of(previous_stub) == EMPTY_LIST
+	//
+	//	or previous_index != 0:
+	//	  previous_index < unused_area_offset,
+	//	  base[previous_index] is the list
+	//	  header of a 1 element list, and
+	//	  pointer is at the end of the list
+	//	  after the 1 element
 	//
 	//	or previous_stub != NULL:
-	//	  either previous_is_sublist_head:
-	//	    gen_of(previous_stub) is EMPTY_LIST
-	//	  or:
-	//	    MUP::control_of ( previous_stub ) is
-	//	    min::LIST_END, and pointer points at
-	//	    this.
+	//	  MUP::control_of ( previous_stub ) is
+	//	  min::LIST_END, and pointer points at
+	//	  this.
 	//
 	//   else
 	//
@@ -2821,6 +2821,17 @@ namespace min { namespace unprotected {
 	//	 or current_index == 0
 	//	    and current_stub == 0
 	//	    (see above)
+	//
+	//	 (This means that min::LIST_ENDs are
+	//	  retracted into any pointer at them
+	//	  when they are created by removals:
+	//	  e.g., a sublist aux pointer at a
+	//	  min::LIST_END is converted to a
+	//	  min::EMPTY_SUBLIST.)
+	//
+	// Rule: if current_stub != NULL then
+	//	 either previous_index != 0 or
+	//	        previous_stub != NULL
 	//
 	unsigned current_index;
 	unsigned previous_index;
@@ -3060,7 +3071,8 @@ namespace min {
 #       if MIN_USES_OBJECT_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 	    lp.previous_stub = lp2.previous_stub;
-	    lp.use_aux_stubs = lp2.use_aux_stubs;
+	    lp.use_obj_aux_stubs =
+	        lp2.use_obj_aux_stubs;
 #       endif
 	lp.reserved_insertions = 0;
 	lp.reserved_elements = 0;
