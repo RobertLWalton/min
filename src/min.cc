@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 25 15:52:08 EST 2006
+// Date:	Sun Mar 26 06:11:32 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/25 22:24:55 $
+//   $Date: 2006/03/26 11:08:03 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.50 $
+//   $Revision: 1.51 $
 
 // Table of Contents:
 //
@@ -1262,10 +1262,9 @@ void min::insert_after
 	      MUP::new_control
 	         ( min::type_of ( lp.current_stub ),
 		   first ) );
-	return;
     }
+    else
 #   endif
-
     if ( previous )
     {
 	// Given previous, we can copy the last new
@@ -1303,7 +1302,6 @@ void min::insert_after
 	lp.base[lp.previous_index] =
 	    MUP::renew_gen
 		( lp.base[lp.previous_index], first );
-	return;
     }
     else
     {
@@ -1321,14 +1319,162 @@ void min::insert_after
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( first );
 	lp.current_index = first;
-	return;
     }
+
+    if ( lp.so )
+	lp.so->aux_area_offset = aux_area_offset;
+    else
+	lp.lo->aux_area_offset = aux_area_offset;
 }
 
 void min::remove
-	( min::unprotected::list_pointer & lp,
-	  unsigned n )
+	( MUP::list_pointer & lp, unsigned n )
 {
+    if ( n == 0 ) return;
+    MIN_ASSERT ( lp.so != NULL || lp.lo != NULL );
+
+    MUP::list_pointer lp2 ( lp.s );
+
+    unsigned previous_index = lp.previous_index;
+    bool previous_is_sublist_head =
+	lp.previous_is_sublist_head;
+    unsigned current_index = lp.current_index;
+#   if ! MIN_USES_OBJ_AUX_STUBS
+	while ( n -- ) next ( lp );
+	lp.previous_index = previous_index;
+	lp.previous_is_sublist_head =
+	    previous_is_sublist_head;
+#   elif MIN_USES_OBJ_AUX_STUBS
+	min::stub * previous_stub = lp.previous_stub;
+	while ( n -- )
+	{
+	    if ( lp.current == min::LIST_END ) break;
+	    min::stub * last_stub = lp.current_stub;
+	    next ( lp );
+	    // TBD: Free last_stub.
+	}
+	lp.previous_stub = previous_stub;
+	lp.previous_index = previous_index;
+	lp.previous_is_sublist_head =
+	    previous_is_sublist_head;
+
+	if ( previous_stub != NULL )
+	{
+	    if ( lp.current_stub != NULL )
+	    {
+		if ( previous_is_sublist_head )
+		{
+		    MUP::set_type_of
+			( lp.current_stub,
+			  min::SUBLIST_AUX );
+		    MUP::set_gen_of
+		        ( previous_stub,
+			  min::new_gen
+			      ( lp.current_stub ) );
+		}
+		else
+		{
+		    int type =
+		        min::type_of ( previous_stub );
+		    MUP::set_control_of
+		        ( previous_stub,
+			  MUP::new_control
+			      ( type, lp.current_stub,
+			        MUP::STUB_POINTER ) );
+		}
+	    }
+	    else if ( lp.current == min::LIST_END )
+	    {
+	        if ( previous_is_sublist_head )
+		    MUP::set_gen_of
+		        ( previous_stub,
+			  min::EMPTY_SUBLIST );
+		else
+		{
+		    int type =
+		        min::type_of ( previous_stub );
+		    MUP::set_control_of
+		        ( previous_stub,
+			  MUP::new_control
+			      ( type, min::uns64(0) ) );
+		}
+		lp.current_index = 0;
+	    }
+	    else
+	    {
+	        MIN_ASSERT ( lp.current_index != 0 );
+	        if ( previous_is_sublist_head )
+		    MUP::set_gen_of
+		        ( previous_stub,
+			  min::new_sublist_aux_gen
+			      ( lp.current_index ) );
+		else
+		{
+		    int type =
+		        min::type_of ( previous_stub );
+		    MUP::set_control_of
+		        ( previous_stub,
+			  MUP::new_control
+			      ( type,
+			        lp.current_index ) );
+		}
+	    }
+	}
+	else
+#   endif
+    if ( previous_index != 0 )
+    {
+#	if MIN_USES_OBJ_AUX_STUBS
+	    if ( lp.current_stub != NULL )
+	    {
+		if ( previous_is_sublist_head )
+		    MUP::set_type_of
+			( lp.current_stub,
+			  min::SUBLIST_AUX );
+		lp.base[previous_index] =
+		    min::new_gen ( lp.current_stub );
+	    }
+	    else
+#	endif
+	if ( lp.current == min::LIST_END )
+	{
+	    if ( previous_is_sublist_head )
+	    {
+		lp.base[previous_index] =
+		    min::EMPTY_SUBLIST;
+		lp.current_index = 0;
+	    }
+	    else
+	    {
+		lp.base[previous_index] =
+		    min::LIST_END;
+		lp.current_index = previous_index;
+		lp.previous_index = 0;
+	    }
+	}
+	else
+	{
+	    MIN_ASSERT ( lp.current_index != 0 );
+	    if ( previous_is_sublist_head )
+		lp.base[previous_index] =
+		    min::new_sublist_aux_gen
+			( lp.current_index );
+	    else
+		lp.base[previous_index] =
+		    min::new_list_aux_gen
+			( lp.current_index );
+	}
+    }
+    else
+    {
+    	// No previous.
+
+	MIN_ASSERT ( current_index != 0 );
+	lp.base[current_index] =
+	    min::new_list_aux_gen ( lp.current_index );
+	lp.previous_index = current_index;
+	lp.previous_is_sublist_head = false;
+    }
 }
 
 
