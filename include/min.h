@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 26 04:21:52 EST 2006
+// Date:	Mon Mar 27 15:58:35 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/26 11:08:57 $
+//   $Date: 2006/03/27 20:55:00 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.97 $
+//   $Revision: 1.98 $
 
 // Table of Contents:
 //
@@ -2687,10 +2687,6 @@ namespace min { namespace unprotected {
 
     // Internal functions: see min.cc.
     //
-    unsigned allocate_aux_list
-        ( min::unprotected::list_pointer & lp,
-	  unsigned n );
-
 #   if MIN_USES_OBJ_AUX_STUBS
 	void allocate_stub_list
 	    ( min::stub * & first,
@@ -2714,6 +2710,7 @@ namespace min { namespace unprotected {
 	    // An object may be converted from short to
 	    // long by any relocation, so we cannot
 	    // compute so/lo here.
+	    //
 	    so = NULL;
 	    lo = NULL;
 
@@ -2739,20 +2736,56 @@ namespace min { namespace unprotected {
     private:
 
     	min::stub * s;
-	    // Stub of object.
+	    // Stub of object.  Set by constructor.
 
 	min::unprotected::short_obj * so;
 	min::unprotected::long_obj * lo;
 	    // After start, just one of these is
-	    // non-NULL.
+	    // non-NULL.  Set NULL by constructor.
+
+	min::gen current;
+	    // Value of current element, as returned by
+	    // the min::current function.  Set to LIST_
+	    // END by constructor.
+
+	// The remaining members are NOT set by the
+	// constructor.  After construction, a list_
+	// pointer should behave as if it pointed at
+	// the end of an empty list for which insertions
+	// are programming errors.
 
 	min::gen * base;
 	    // base of body vector.
 
-	min::gen current;
-	    // Value of current element, as returned by
-	    // the min::current function.
-
+	// Element indices and stub pointers are set
+	// according to the following rules:
+	//
+	// Either:
+	//
+	//	current_index != 0
+	//	   and current == base[current_index]
+	//	   and current_stub == NULL
+	//
+	//   or current_stub != NULL
+	//	   and current == gen_of (current_stub)
+	//	   and current_index == 0
+	//
+	//   or current_index == 0
+	//      and current_stub == NULL
+	//      and current == LIST_END
+	//
+	// In general, previous is a list or sublist
+	// auxiliary pointer at the current element, or
+	// is a stub pointer that points at an object
+	// auxiliary stub and that behaves like a list
+	// or sublist auxiliary pointer.  Previous need
+	// not exist.  previous_is_sublist_head is true
+	// iff previous is a sublist auxiliary pointer
+	// or a stub pointer pointing at a SUBLIST_AUX
+	// auxiliary stub.
+	//
+	// TBD
+	
 	// Current element indices and stub pointers are
 	// set as follows:
 	//

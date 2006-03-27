@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 26 06:11:32 EST 2006
+// Date:	Mon Mar 27 15:02:17 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/26 11:08:03 $
+//   $Date: 2006/03/27 20:55:15 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.51 $
+//   $Revision: 1.52 $
 
 // Table of Contents:
 //
@@ -624,53 +624,6 @@ min::gen min::new_obj_gen
 // Object List Level
 // ------ ---- -----
 
-// Allocate n consecutive aux cells and return the index
-// of the first such cell.  If there are insufficient
-// cells available, return 0 if list auxiliary stubs can
-// be used, and proclaim an assert violation otherwise.
-//
-inline unsigned MUP::allocate_aux_list
-	( MUP::list_pointer & lp,
-	  unsigned n)
-{
-    unsigned unused_area_offset;
-    unsigned aux_area_offset;
-    if ( lp.so )
-    {
-	unused_area_offset =
-	    lp.so->unused_area_offset;
-	aux_area_offset =
-	    lp.so->aux_area_offset;
-    }
-    else
-    {
-	unused_area_offset =
-	    lp.lo->unused_area_offset;
-	aux_area_offset =
-	    lp.lo->aux_area_offset;
-    }
-#   if MIN_USES_OBJ_AUX_STUBS
-	if (   unused_area_offset + n
-	     > aux_area_offset )
-	    return 0;
-#   else
-	MIN_ASSERT (    unused_area_offset + n
-	             <= aux_area_offset );
-#   endif
-    aux_area_offset -= n;
-    if ( lp.so )
-    {
-	lp.so->aux_area_offset =
-	    aux_area_offset;
-    }
-    else
-    {
-	lp.lo->aux_area_offset =
-	    aux_area_offset;
-    }
-    return aux_area_offset;
-}
-
 # if MIN_USES_OBJ_AUX_STUBS
 
 // Allocate a chain of stubs containing the n min::gen
@@ -725,25 +678,6 @@ void MUP::allocate_stub_list
 }
 
 # endif // MIN_USES_OBJ_AUX_STUBS
-
-// Copy n elements from the vector at p to the vector at
-// q, reversing the order of the elements.  Check that
-// none of the copied elements are list or sublist
-// pointers.
-//
-inline void copy_elements
-	( min::gen * q, const min::gen * p, unsigned n )
-{
-    q += n;
-    while ( n -- )
-    {
-	MIN_ASSERT (    ! min::is_list_aux ( * p )
-		     && ! min::is_sublist_aux ( * p ) );
-	* -- q = * p ++;
-    }
-}
-
-
 
 void MUP::insert_reserve
 	( MUP::list_pointer & lp,
