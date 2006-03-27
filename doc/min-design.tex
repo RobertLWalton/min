@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 24, 2006}
+\date{March 27, 2006}
  
 \maketitle
 
@@ -2319,10 +2319,10 @@ the help of the list and sublist auxiliary pointers:
 
 \begin{indpar}
 \key{list auxiliary pointer} ~~~
-The list is continued at the target of the list pointer.
+The list is continued at the target of the list auxiliary pointer.
 
 \key{sublist auxiliary pointer}	~~~
-A sublist starts at the target of the sublist pointer.
+A sublist starts at the target of the sublist auxiliary pointer.
 \end{indpar}
 
 and two constant values:
@@ -2330,11 +2330,12 @@ and two constant values:
 \begin{indpar}
 \begin{list}{}{}
 \item[{\tt const min::gen min::}\MINKEY{LIST\_END}]~\LABEL{MIN::LIST_END}\\
-The list ends here.  This actually equals a list pointer with zero index.
+The list ends here.
+This actually equals a list auxiliary pointer with zero index.
 \item[{\tt const min::gen min::}\MINKEY{EMPTY\_SUBLIST}]~%
 	\LABEL{MIN::EMPTY_SUBLIST}\\
 A list element value that represents an empty sublist.
-This actually equals a sublist pointer with zero index.
+This actually equals a sublist auxiliary pointer with zero index.
 \end{list}
 \end{indpar}
 
@@ -2346,37 +2347,60 @@ list continuations are list heads.
 A list continuation represents a final segment of a list.
 If it has the value \verb|min::LIST_END|, the list has
 no more elements, and is empty if it has no previous elements.
-If the list continuation has a list pointer value,
+If the list continuation has a list auxiliary pointer value,
 that pointer points at another list continuation that continues the list.
 Otherwise the list continuation represents an element of the list,
 and is called a \key{list element}.
 
+Thus list element is an element of the list, cannot be a list auxiliary
+pointer or the special value \verb|min::LIST_END|.  But it can be
+a sublist auxiliary pointer, or the special value \verb|min::EMPTY_SUBLIST|,
+both of which denote a list element that is a sublist.
+
 Given a list element, the rest of the list after the element begins with
-a list continuation that has an index one greater than that of the list
+a list continuation that has an index one less than that of the list
 element within the object body vector, unless the list element is a
 list head, in which case there is no next element, and the list has only
 one element.  All list heads lie in the hash table or attribute vector,
 so testing whether a list element is a list head can be done if just the
 index of the list element in the body vector is known.
 
-A list element that is not a sublist may be any \verb|min::gen|
-value that is not a list or sublist auxililary pointer.
 A list element
-that is an sublist auxiliary pointer or the value \verb|min::EMPTY_SUBLIST|
+that is a sublist auxiliary pointer or the value \verb|min::EMPTY_SUBLIST|
 represents a sublist, and is the \key{sublist head} of that sublist.  A
 sublist head is a list element of the list containing a sublist,
-but cannot be a list element of the sublist.  If it is a sublist pointer,
+but cannot be a list element of the sublist.
+If it is a sublist auxiliary pointer,
 it points at a list continuation of the sublist.  If it is the
 value \verb|min::EMPTY_SUBLIST|, it represents an empty sublist.
 
+There are several rules that the list level obeys that lead to
+some efficiencies:
+
+\begin{indpar}
+{\bf No Superflous \verb|min::LIST_END|'s}.%
+\index{superfluous LIST_END@superfluous {\tt LIST\_END}}
+A list or sublist auxiliary pointer may not point at an auxiliary
+area element containing a \verb|min::LIST_END| value.
+
+{\bf No Superflous List Auxiliary Pointers}.%
+\index{superfluous list auxiliary pointers}
+A list or sublist auxiliary pointer may not point at an auxiliary
+area element containing a list auxiliary pointer.
+
+{\bf No List Sharing}.%
+\index{list sharing}
 Parts of lists may not be shared with other lists.  In other words,
 there is only one way to reach any element of the auxiliary area.
-Or more specifically,
+
+Or more specifically, list and sublist
 auxiliary pointers must point at elements of the auxiliary area,
-two auxiliary pointers are not permitted to point at the same auxiliary
+two list or sublist auxiliary pointers are not permitted to point
+at the same auxiliary
 area element, and an auxiliary area element that is preceded
 in the auxiliary area by a list element may not be pointed at by
-an auxiliary pointer.
+a list or sublist auxiliary pointer.
+\end{indpar}
 
 Thus if the one way to reach an element of
 the auxiliary area is deleted, the element may be put on a list of
@@ -2609,22 +2633,29 @@ or left out of a program according to the setting of the macro:
 \begin{center}
 \begin{tabular}{l}
 \TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS} \\
-~~~~~ 1 if code to use object auxilary stubs is to be compiled; \\
+~~~~~ 1 if code to use object auxiliary stubs is to be compiled; \\
 ~~~~~ 0 if this code is not to be compiled.
 \LABEL{MIN_USES_OBJECT_AUX_STUBS} \\
 \end{tabular}
 \end{center}
 
 The value of an object
-auxiliary stub is treated as an auxiliary area element value.
-The chain pointer of an object auxiliary stub is treated as the next auxiliary
-area element after the value of the stub.  This chain pointer
-has a value that is treated as a list pointer or as a
-\verb|min::LIST_END| value.  A chain pointer that points at another
-auxiliary stub is treated as a list pointer pointing at that stub.
-A chain pointer can also hold an auxiliary pointer value that is
-list pointer pointing back into
-the auxiliary area of the object the auxiliary stub extends.
+auxiliary stub is treated like an auxiliary area element value that is
+always a list element, and is never a list auxiliary pointer
+or a \verb|min::LIST_END| value.  However, as a list element,
+the value may be a sublist auxiliary pointer (or equivalent, see below)
+or a \verb|min::EMPTY_SUBLIST| value.
+
+The control of an object auxiliary stub is treated like an auxiliary
+area element value that is always a list auxiliary pointer
+or a \verb|min::LIST_END| value, and is never a list element.
+
+The value and control of an object auxiliary stub are treated like
+consecutive elements of the object auxiliary area, with the control
+preceding the value in the area, and therefore
+following the value in list order.
+Thus the control represents the auxiliary area element immediately
+following the list element represented by the value.
 
 An object auxiliary stub has one of the following two uncollectible stub type
 codes:
@@ -2633,43 +2664,91 @@ codes:
 \begin{list}{}{}
 \item[{\tt const int min::}\MINKEY{LIST\_AUX}]~%
 	\LABEL{MIN::LIST_AUX}\\
-A \verb|min::gen| value pointing at this stub behaves like a list pointer.
+A \verb|min::gen| value or stub control
+pointing at this stub behaves like a list pointer.
 \item[{\tt const int min::}\MINKEY{SUBLIST\_AUX}]~%
 	\LABEL{MIN::SUBLIST_AUX}\\
 A \verb|min::gen| value pointing at this stub behaves like a sublist pointer.
 \end{list}
 \end{indpar}
 
-Stubs with the first type code are called
-\skey{list auxiliary stub}s,\index{auxiliary stub!list}
-and those with the second type code are called
-\skey{sublist auxiliary stub}s.\index{auxiliary stub!sublist}
+Any stub pointer to an auxiliary stub of type \minkey{LIST\_AUX} is treated
+as a list auxiliary pointer.  Such stub pointers may be stored in
+auxiliary area \verb|min::gen| values or in auxiliary stub controls.
 
-With these definitions, the description of the list level of an object
-given in \secref{OBJECT-LIST-LEVEL} is modified as follows.
-A \verb|min::gen| value that points at list auxiliary stub is
-treated as a list pointer.
-A \verb|min::gen| value that points at sublist auxiliary stub is
-treated as a sublist pointer.
+Any stub pointer to an auxiliary stub of type \minkey{SUBLIST\_AUX} is treated
+as a sublist auxiliary pointer.  Such stub pointers may be stored in
+auxiliary area \verb|min::gen| values or in auxiliary stub \verb|min::gen|
+values.
 
-Therefore a \verb|min::gen| value pointing at a list auxiliary stub
-cannot be a list element value, and
-a \verb|min::gen| value pointing at a sublist auxiliary stub
-is a list element value that represents a sublist.
+Thus the following rules are obeyed:
 
-If an object auxiliary stub is pointed at by a chain pointer in another
-object auxiliary stub, the first stub must be a list auxiliary stub.
+\begin{indpar}
 
-An object auxiliary stub can be pointed at by only one pointer stored in an
-object or in some object auxiliary stub extending an object.
-Thus object auxiliary
-stubs can be freed as soon as the pointer to them is deleted.  This
-mechanism, and not garbage collection, frees object auxiliary stubs.
+{\bf \minkey{LIST\_AUX} stubs}.
+An auxiliary area element
+holding a \verb|min::gen| value that points at a stub $S$
+of type \verb|min::LIST_AUX| is the equivalent of a list auxiliary
+pointer pointing at the list element that is stub $S$'s value.
+
+If the control of an auxiliary stub holds a stub pointer, that pointer
+must point at an auxiliary stub $S$ of type \verb|min::LIST_AUX| and the
+control is the equivalent of a list auxiliary pointer pointing at
+the list element that is stub $S$'s value.
+
+{\bf \minkey{SUBLIST\_AUX} stubs}.
+An auxiliary area element holding a \verb|min::gen| value that points at
+a stub $S$
+of type \verb|min::SUBLIST_AUX| is the equivalent of a sublist auxiliary
+pointer pointing at the list element that is stub $S$'s value.
+
+An auxiliary stub \verb|min::gen| value that points at
+a stub $S$ of type {\tt min::\EOL SUBLIST\_\EOL AUX}
+is the equivalent of a sublist auxiliary
+pointer pointing at the list element that is stub $S$'s value.
+
+{\bf Values of Object Auxiliary Stubs}.%
+\index{value!of object auxiliary stub}
+An object auxiliary stub value is always a list element, and can never
+be a list auxiliary pointer value, a \verb|min::gen| value pointing at
+a stub of type \verb|min::LIST_AUX|, or a \verb|min::LIST_END| value.
+
+However, it can be a sublist auxiliary pointer value, a \verb|min::gen|
+value pointing at a stub of type \verb|min::SUBLIST_AUX|, or a
+\verb|min::EMPTY_SUBLIST| value.
+
+{\bf Controls of Object Auxiliary Stubs}.%
+\index{control!of object auxiliary stub}
+An object auxiliary stub control is never a list element, and must
+be a list auxiliary pointer value, a stub pointer value pointing at
+a stub of type \verb|min::LIST_AUX|, or a \verb|min::LIST_END| value.
+
+{\bf Pointers to Object Auxiliary Stubs}.%
+\index{pointer!to object auxiliary stub}
+Every object auxiliary stub is pointed at by a \verb|min::gen|
+value or by the control of another object auxiliary stub.  There is
+only one such pointer pointing at each object auxiliary stub.
+A \verb|min::gen| value pointing at an object auxiliary stub $S$
+must the the value of an auxiliary area element or the value of
+an object auxiliary stub (in which case $S$ must be of type
+\verb|min::SUBLIST_AUX|).
+
+\end{indpar}
+
+If the auxiliary area of an object has enough space, these rules
+by themselves may be used to relocate all the information in the
+object's auxiliary stubs to the object's auxiliary area.  The result
+must obey the object list level rules of \secref{OBJECT-LIST-LEVEL}.
+This means, for example, that a list auxiliary pointer cannot point
+at an auxiliary area element that holds a \verb|min::gen| value
+pointing at an object auxiliary stub of type \verb|min::LIST_AUX|,
+as this would be equivalent to a list auxiliary pointer pointing at an
+element holding another list auxiliary pointer.
 
 The use of object auxiliary stubs by an implementation is hidden from
 the user of MIN by object list level functions.  There are no functions
 for dealing explicitly with object auxiliary stubs.  There are, however,
-functions to read and write auxiliary stubs of all kinds in
+functions to read and write stubs of all kinds in
 \secref{STUB-FUNCTIONS}, though the only use of these functions on
 object auxiliary stubs would be for debugging.
 
@@ -3253,7 +3332,7 @@ can be obtained by the following protected function:
 
 At the \key{variable level},\label{VARIABLE-LEVEL}
 the body of a variable vector consists of a vector of variables.
-Each variable stores a \verb|min::gen| value, or an auxilarly pointer
+Each variable stores a \verb|min::gen| value, or an auxiliary pointer
 that represents an indirect pointer to another variable in the same
 variable vector or in some other variable vector.  An indirect pointer
 is a pair consisting of a pointer to a variable vector and an index
@@ -3268,7 +3347,7 @@ which is a pair of \verb|min::gen| values the first of which points at
 a variable vector and the second of which is an
 \ikey{index}{index general value} \verb|min::gen| value
 that is the index of a variable in the vector pointed at.
-The indirect pair is stored in auxilarly memory, and the entire indirect
+The indirect pair is stored in auxiliary memory, and the entire indirect
 pair pointer integer value is the index in auxiliary memory
 of the first \verb|min::gen| value of the indirect pair.
 
