@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 27 19:21:11 EST 2006
+// Date:	Tue Mar 28 03:07:08 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/28 01:57:39 $
+//   $Date: 2006/03/28 09:13:09 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.99 $
+//   $Revision: 1.100 $
 
 // Table of Contents:
 //
@@ -3036,20 +3036,14 @@ namespace min {
 	{
 	    MIN_ASSERT
 	        (   index
-		  < min::unprotected::
-		         hash_table_size_of_flags
-			     (lp.so->flags)
-		);
+		  < min::hash_table_size_of ( lp.so ) );
 	    index += min::hash_table_of ( lp.so );
 	}
 	else
 	{
 	    MIN_ASSERT
 	        (   index
-                  < min::unprotected::
-		         hash_table_size_of_flags
-			     (lp.lo->flags)
-		);
+		  < min::hash_table_size_of ( lp.lo ) );
 	    index += min::hash_table_of ( lp.lo );
 	}
 	return lp.forward ( index );
@@ -3059,6 +3053,7 @@ namespace min {
 	      unsigned index )
     {
 	lp.relocate();
+	unsigned original_index = index;
         if ( lp.so )
 	{
 	    index += min::attribute_vector_of ( lp.so );
@@ -3071,6 +3066,11 @@ namespace min {
 	    MIN_ASSERT
 	        ( index < lp.lo->unused_area_offset );
 	}
+
+	// This checks for overflow in +=.
+	//
+	MIN_ASSERT ( original_index < index );
+
 	return lp.forward ( index );
     }
     inline min::gen start_copy
@@ -3089,8 +3089,7 @@ namespace min {
 #       if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 	    lp.previous_stub = lp2.previous_stub;
-	    lp.use_obj_aux_stubs =
-	        lp2.use_obj_aux_stubs;
+	    lp.use_obj_aux_stubs = false;
 #       endif
 	lp.reserved_insertions = 0;
 	lp.reserved_elements = 0;
@@ -3106,7 +3105,7 @@ namespace min {
 	unsigned head_end;
 
         if ( lp.current == min::LIST_END )
-	    return lp.current;
+	    return min::LIST_END;
 	else if ( lp.so )
 	    head_end = lp.so->unused_area_offset;
 	else if ( lp.lo )
@@ -3115,12 +3114,11 @@ namespace min {
 	    MIN_ASSERT
 	        ( ! "lp list has not been started" );
 
-	lp.previous_index = lp.current_index;
-	lp.previous_is_sublist_head = false;
-
 #       if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
+		lp.previous_index = 0;
+		lp.previous_is_sublist_head = false;
 		lp.previous_stub = lp.current_stub;
 
 	        min::uns64 c =
@@ -3157,6 +3155,9 @@ namespace min {
 
 	if ( lp.current_index < head_end )
 	{
+	    // Previous must not exist as current is
+	    // list (not sublist) head.
+
 	    lp.previous_index = lp.current_index;
 	    lp.current_index = 0;
 	    return lp.current = min::LIST_END;
@@ -3172,42 +3173,36 @@ namespace min {
     inline min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp )
     {
+	lp.previous_index = lp.current_index;
+	lp.previous_is_sublist_head = true;
+
 #	if MIN_USES_OBJ_AUX_STUBS
-	    lp.previous_index = lp.current_index;
 	    lp.previous_stub = lp.current_stub;
-	    lp.previous_is_sublist_head = true;
-	    if ( lp.current == min::EMPTY_SUBLIST )
+	    if ( min::is_stub ( lp.current ) )
 	    {
-	        lp.current_index = 0;
-		lp.current_stub = NULL;
-		return lp.current = min::LIST_END;
+		lp.current_stub =
+		    min::unprotected::
+		         stub_of ( lp.current );
+		lp.current_index = 0;
+		MIN_ASSERT
+		    (    min::type_of ( lp.current_stub )
+		      == min::SUBLIST_AUX );
+		lp.current =
+		    min::unprotected::
+			 gen_of ( lp.current_stub );
+		return lp.current;
 	    }
-	    if ( min::is_sublist_aux ( lp.current ) )
-		return lp.forward
-		    ( min::unprotected::
-			   sublist_aux_of
-			       ( lp.current ) );
-	    lp.current_stub =
-	        min::stub_of ( lp.current );
-	    lp.current_index = 0;
-	    MIN_ASSERT
-	        (    min::type_of ( lp.current_stub )
-		  == min::SUBLIST_AUX );
-	    return lp.current = min::unprotected::
-			gen_of ( lp.current_stub );
-#	else
-	    lp.previous_index = lp.current_index;
-	    lp.previous_is_sublist_head = true;
-	    if ( lp.current == min::EMPTY_SUBLIST )
-	    {
-	        lp.current_index = 0;
-		return lp.current = min::LIST_END;
-	    }
-	    else
-		return lp.forward
-		    ( min::sublist_aux_of
-		    	        ( lp.current ) );
+	    lp.current_stub = NULL;
 #	endif
+
+	lp.current_index =
+	    sublist_aux_of ( lp.current );
+	if ( lp.current_index == 0 )
+	    lp.current = min::LIST_END;
+	else
+	    lp.current =
+		lp.base[lp.current_index];
+	return lp.current;
     }
     inline void insert_reserve
     	    ( min::unprotected::list_pointer & lp,
