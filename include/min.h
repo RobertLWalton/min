@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 28 03:07:08 EST 2006
+// Date:	Tue Mar 28 07:00:02 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/28 09:13:09 $
+//   $Date: 2006/03/28 15:58:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.100 $
+//   $Revision: 1.101 $
 
 // Table of Contents:
 //
@@ -1497,7 +1497,7 @@ namespace min { namespace unprotected {
     // OR'ed into the marked flag of the pair of S2.
     //
     // In addition, if any marked flag turned on in S2
-    // by this action is also on in MUP::c_stack_marks,
+    // by this action is also on in MUP::gc_stack_marks,
     // a pointer to S2 is added to the MUP::gc_stack if
     // that stack is not full.
     //
@@ -1548,8 +1548,8 @@ namespace min { namespace unprotected {
     // gc_expand_stub_free_list, is called to add to the
     // end of the list.
     //
-    // Unallocated stubs have stub type min::FREE and
-    // zero stub control flags.
+    // Unallocated stubs have stub type min::FREE, zero
+    // stub control flags, and min:MISSING value.
 
     // Pointer to the last allocated stub, which must
     // exist (it can be a dummy).
@@ -1604,6 +1604,25 @@ namespace min { namespace unprotected {
 			 ( control_of ( s ) ) );
 	set_control_of ( last_allocated_stub, c );
 	return s;
+    }
+
+    // Function to put a stub on the free list right
+    // after the last allocated stub.  Note this means
+    // that stubs that have been previously allocated
+    // are preferred for new allocations over stubs
+    // that have never been allocated.
+    //
+    inline void free_stub ( min::stub * s )
+    {
+        min::unprotected::set_gen_of ( s, min::MISSING );
+	min::unprotected::set_control_of
+	    ( s, min::unprotected::control_of
+	             ( last_allocated_stub ) );
+	min::unprotected::set_control_of
+	    ( last_allocated_stub,
+	      min::unprotected::new_control
+		  ( min::FREE, s ) );
+	++ number_of_free_stubs;
     }
 
     // Allocation of bodies is from a stack-like region
@@ -2619,6 +2638,13 @@ namespace min {
 // Object List Level
 // ------ ---- -----
 
+// The control for LIST_AUX and SUBLIST_AUX object
+// auxiliary stubs is either a list auxilary pointer
+// with index in the value field of the stub control,
+// or is a stub pointer to another LIST_AUX stub with
+// the MUP::STUB_POINTER flag and the stub pointer in
+// the control.
+
 namespace min { namespace unprotected {
 
     class list_pointer;
@@ -2783,9 +2809,9 @@ namespace min { namespace unprotected {
 	// behaves like a list or sublist auxiliary
 	// pointer.  Previous need not exist if current_
 	// index != 0.  previous_is_sublist_head is true
-	// iff previous is a sublist auxiliary pointer
-	// or a stub pointer pointing at a SUBLIST_AUX
-	// auxiliary stub.
+	// iff previous exists and is a sublist auxili-
+	// ary pointer or a stub pointer pointing at a
+	// SUBLIST_AUX auxiliary stub.
 	//
 	// Either:
 	//
@@ -2805,6 +2831,7 @@ namespace min { namespace unprotected {
 	//
 	//   or     previous_index == 0
 	//      and previous_stub == NULL
+	//	and ! previous_is_sublist_head
 	//      and previous does not exist
 	//
 	// If previous exists, then either:
@@ -2829,6 +2856,7 @@ namespace min { namespace unprotected {
 	//          current_index != 0
 	//      and current_stub == NULL
 	//      and current == base[current_index]
+	//	and ! previous_is_sublist_head
 	//	and previous does not exist
 	//
 	//   or     current_index == 0
