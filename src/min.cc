@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 28 06:50:11 EST 2006
+// Date:	Wed Mar 29 03:58:28 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/28 16:56:35 $
+//   $Date: 2006/03/29 09:00:58 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.53 $
+//   $Revision: 1.54 $
 
 // Table of Contents:
 //
@@ -1081,9 +1081,7 @@ void min::insert_after
 #   if MIN_USES_OBJ_AUX_STUBS
 	if ( lp.previous_stub != NULL )
 	    previous = true;
-#   endif
 
-#   if MIN_USES_OBJ_AUX_STUBS
 	if (    lp.use_obj_aux_stubs
 	     &&     unused_area_offset
 		  + ( n + 1 + ! previous )
@@ -1119,7 +1117,7 @@ void min::insert_after
 		       min::LIST_AUX;
 	    min::uns64 end =
 		MUP::new_control
-		    ( min::LIST_AUX,
+		    ( type,
 		      lp.current_index - ! previous );
 	    if ( n > previous )
 		MUP::allocate_stub_list
@@ -1129,7 +1127,8 @@ void min::insert_after
 	    if ( previous )
 	    {
 		// Given previous, we can copy the last
-		// new element the old current element.
+		// new element to the old current
+		// element.
 		//
 		if ( n > 1 )
 		    end = MUP::new_control
@@ -1143,11 +1142,9 @@ void min::insert_after
 		if ( lp.previous_stub != NULL )
 		{
 		    if ( lp.previous_is_sublist_head )
-		    {
 			MUP::set_gen_of
 			    ( lp.previous_stub,
 			      min::new_gen ( s ) );
-		    }
 		    else
 		    {
 			unsigned type =
@@ -1159,12 +1156,10 @@ void min::insert_after
 			      ( type, s,
 			        MUP::STUB_POINTER ) );
 		    }
-		    return;
 		}
-
-		lp.base[lp.previous_index] =
-		    MUP::new_gen ( s );
-		return;
+		else
+		    lp.base[lp.previous_index] =
+			MUP::new_gen ( s );
 	    }
 	    else
 	    {
@@ -1183,8 +1178,8 @@ void min::insert_after
 		    min::new_gen ( s );
 		lp.current_index = 0;
 		lp.current_stub = s;
-		return;
 	    }
+	    return;
 	}
 #   endif
 
@@ -1223,7 +1218,7 @@ void min::insert_after
     if ( previous )
     {
 	// Given previous, we can copy the last new
-	// element the old current element.
+	// element to the old current element.
 	//
 
 	lp.base[-- aux_area_offset] =
@@ -1250,13 +1245,15 @@ void min::insert_after
 				  ( lp.previous_stub ),
 				first ) );
 		}
-		return;
 	    }
+	    else
 #	endif
-
-	lp.base[lp.previous_index] =
-	    MUP::renew_gen
-		( lp.base[lp.previous_index], first );
+	{
+	    lp.base[lp.previous_index] =
+		MUP::renew_gen
+		    ( lp.base[lp.previous_index],
+		      first );
+	}
     }
     else
     {
@@ -1288,8 +1285,6 @@ void min::remove
     if ( n == 0 ) return;
     MIN_ASSERT ( lp.so != NULL || lp.lo != NULL );
 
-    MUP::list_pointer lp2 ( lp.s );
-
     unsigned previous_index = lp.previous_index;
     bool previous_is_sublist_head =
 	lp.previous_is_sublist_head;
@@ -1306,7 +1301,7 @@ void min::remove
 	    if ( lp.current == min::LIST_END ) break;
 	    min::stub * last_stub = lp.current_stub;
 	    next ( lp );
-	    // TBD: Free last_stub.
+	    MUP::free_stub ( last_stub );
 	}
 	lp.previous_stub = previous_stub;
 	lp.previous_index = previous_index;
@@ -1377,6 +1372,7 @@ void min::remove
 	}
 	else
 #   endif
+
     if ( previous_index != 0 )
     {
 #	if MIN_USES_OBJ_AUX_STUBS
