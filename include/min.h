@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 28 07:00:02 EST 2006
+// Date:	Wed Mar 29 04:00:08 EST 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/28 15:58:18 $
+//   $Date: 2006/03/29 08:56:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.101 $
+//   $Revision: 1.102 $
 
 // Table of Contents:
 //
@@ -3258,7 +3258,7 @@ namespace min {
 	     && (    ! use_obj_aux_stubs
 	          ||   min::unprotected::
 			    number_of_free_stubs
-		     < elements )
+		     < insertions + elements )
 #	    endif
 	   )
 	    min::unprotected::insert_reserve
