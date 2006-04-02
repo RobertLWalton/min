@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 27, 2006}
+\date{April 2, 2006}
  
 \maketitle
 
@@ -2317,15 +2317,20 @@ attribute vector.  The elements of the lists are
 pointers, and sublists.  The lists are constructed with
 the help of the list and sublist auxiliary pointers:
 
-\begin{indpar}
-\key{list auxiliary pointer} ~~~
+\begin{center}
+\begin{tabular}{lp{3in}}
+\key{list auxiliary pointer} &
 The list is continued at the target of the list auxiliary pointer.
-
-\key{sublist auxiliary pointer}	~~~
+\\[2ex]
+\key{sublist auxiliary pointer}	&
 A sublist starts at the target of the sublist auxiliary pointer.
-\end{indpar}
+\end{tabular}
+\end{center}
 
-and two constant values:
+Each auxiliary pointer contains the object body vector element index
+of the auxiliary area element that is the target of the auxiliary pointer.
+
+Lists also make use of two constant values:
 
 \begin{indpar}
 \begin{list}{}{}
@@ -2352,7 +2357,7 @@ that pointer points at another list continuation that continues the list.
 Otherwise the list continuation represents an element of the list,
 and is called a \key{list element}.
 
-Thus list element is an element of the list, cannot be a list auxiliary
+A list element is an element of the list, and cannot be a list auxiliary
 pointer or the special value \verb|min::LIST_END|.  But it can be
 a sublist auxiliary pointer, or the special value \verb|min::EMPTY_SUBLIST|,
 both of which denote a list element that is a sublist.
@@ -2378,7 +2383,7 @@ There are several rules that the list level obeys that lead to
 some efficiencies:
 
 \begin{indpar}
-{\bf No Superflous \verb|min::LIST_END|'s}.%
+{\bf No Superflous {\tt \bf min::LIST\_END}'s}.%
 \index{superfluous LIST_END@superfluous {\tt LIST\_END}}
 A list or sublist auxiliary pointer may not point at an auxiliary
 area element containing a \verb|min::LIST_END| value.
@@ -2405,8 +2410,8 @@ a list or sublist auxiliary pointer.
 Thus if the one way to reach an element of
 the auxiliary area is deleted, the element may be put on a list of
 free elements for the auxiliary area.  As an optimization,
-an implementation may use the
-free area to hold the head of a list of free elements of the auxiliary
+an implementation may use the free area or space in the object's header
+to hold the head of a list of free elements of the auxiliary
 area.
 
 As an optimization, \skey{auxiliary stub}s can be used in place of object
