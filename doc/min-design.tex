@@ -2199,7 +2199,7 @@ The header and unused area are not actually \verb|min::gen| values,
 and should not be accessed using a body vector pointer.
 
 The value of an \key{auxiliary pointer}\label{OBJECT-BODY-AUXILIARY-POINTER}
-stored in an object body (or in an auxiliary stub attached to
+stored in an object body (or in an object auxiliary stub attached to
 the object: see~\secref{OBJECT-AUXILIARY-STUBS}) is an unsigned integer
 that is the index of a \verb|min::gen|
 value in the body vector.
@@ -2731,8 +2731,6 @@ The value and control of an object auxiliary stub are treated like
 consecutive elements of the object auxiliary area, with the control
 preceding the value in the area, and therefore
 following the value in list order.
-Thus the control represents the auxiliary area element immediately
-following the list element represented by the value.
 
 An object auxiliary stub has one of the following two uncollectible stub type
 codes:
@@ -2749,12 +2747,12 @@ A \verb|min::gen| value pointing at this stub behaves like a sublist pointer.
 \end{list}
 \end{indpar}
 
-Any stub pointer to an auxiliary stub of type \minkey{LIST\_AUX} is treated
-as a list auxiliary pointer.  Such stub pointers may be stored in
+Any stub pointer to an object auxiliary stub of type \minkey{LIST\_AUX}
+is treated as a list auxiliary pointer.  Such stub pointers may be stored in
 auxiliary area \verb|min::gen| values or in auxiliary stub controls.
 
-Any stub pointer to an auxiliary stub of type \minkey{SUBLIST\_AUX} is treated
-as a sublist auxiliary pointer.  Such stub pointers may be stored in
+Any stub pointer to an object auxiliary stub of type \minkey{SUBLIST\_AUX}
+is treated as a sublist auxiliary pointer.  Such stub pointers may be stored in
 auxiliary area \verb|min::gen| values or in auxiliary stub \verb|min::gen|
 values.
 
@@ -2768,8 +2766,8 @@ holding a \verb|min::gen| value that points at a stub $S$
 of type \verb|min::LIST_AUX| is the equivalent of a list auxiliary
 pointer pointing at the list element that is stub $S$'s value.
 
-If the control of an auxiliary stub holds a stub pointer, that pointer
-must point at an auxiliary stub $S$ of type \verb|min::LIST_AUX| and the
+If the control of an object auxiliary stub holds a stub pointer, that pointer
+must point at an object auxiliary stub $S$ of type \verb|min::LIST_AUX| and the
 control is the equivalent of a list auxiliary pointer pointing at
 the list element that is stub $S$'s value.
 
@@ -2779,7 +2777,7 @@ a stub $S$
 of type \verb|min::SUBLIST_AUX| is the equivalent of a sublist auxiliary
 pointer pointing at the list element that is stub $S$'s value.
 
-An auxiliary stub \verb|min::gen| value that points at
+An object auxiliary stub \verb|min::gen| value that points at
 a stub $S$ of type {\tt min::\EOL SUBLIST\_\EOL AUX}
 is the equivalent of a sublist auxiliary
 pointer pointing at the list element that is stub $S$'s value.
@@ -2807,8 +2805,8 @@ value or by the control of another object auxiliary stub.  There is
 only one such pointer pointing at each object auxiliary stub.
 A \verb|min::gen| value pointing at an object auxiliary stub $S$
 must the the value of an auxiliary area element or the value of
-an object auxiliary stub (in which case $S$ must be of type
-\verb|min::SUBLIST_AUX|).
+an object auxiliary stub, and in this latter case $S$ must be of type
+\verb|min::SUBLIST_AUX|.
 
 \end{indpar}
 
