@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 29 04:00:08 EST 2006
+// Date:	Sat May 13 06:55:02 EDT 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/29 08:56:51 $
+//   $Date: 2006/05/13 11:02:54 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.102 $
+//   $Revision: 1.103 $
 
 // Table of Contents:
 //
@@ -2673,6 +2673,23 @@ namespace min {
 #   endif
 
     extern bool use_obj_aux_stubs;
+
+    inline bool is_list_end ( min::gen v )
+    {
+        return v == min::LIST_END;
+    }
+    inline bool is_sublist ( min::gen v )
+    {
+        return min::is_sublist_aux ( v )
+#              if MIN_USES_OBJ_AUX_STUBS
+		   ||
+		   ( min::is_stub ( v )
+		     &&
+		     min::type_of ( min::stub_of ( v ) )
+		     == min::SUBLIST_AUX )
+#	       endif
+	       ;
+    }
 
     // We must declare these before we make them
     // friends.
