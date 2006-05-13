@@ -245,7 +245,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 2, 2006}
+\date{May 13, 2006}
  
 \maketitle
 
@@ -2350,8 +2350,7 @@ body vector that has a particular interpretation.  However, not all
 list continuations are list heads.
 
 A list continuation represents a final segment of a list.
-If it has the value \verb|min::LIST_END|, the list has
-no more elements, and is empty if it has no previous elements.
+If it has the value \verb|min::LIST_END|, the final segment is empty.
 If the list continuation has a list auxiliary pointer value,
 that pointer points at another list continuation that continues the list.
 Otherwise the list continuation represents an element of the list,
@@ -2492,8 +2491,8 @@ constructed to reference the same object.
 The {\tt next} function moves the list pointer to the next list element of the
 list the pointer points at, and returns the value of that
 list element.  It returns {\tt min::LIST\_END} if there is
-no list element because the end of the list has been reached.
-After the end of a list has been reached, additional
+no next list element because the end of the list has been reached.
+Thus after the end of a list has been reached, additional
 calls to {\tt next} will do nothing but return {\tt min::LIST\_END}.
 
 The {\tt current} function just returns the value of the list
@@ -2507,19 +2506,22 @@ list pointer at the first element of the sublist.
 This function returns the value of the first element of
 the sublist, or returns {\tt min::LIST\_END} if the sublist is empty.
 
-If {\tt start\_sublist} is called when the list pointer points at an
-element E that is not a sublist, and is not the end of a list, then
-the element is treated as a sublist with exactly one element, E.
+It is an error to call {\tt start\_sublist} if the list pointer points at an
+element E that is not a sublist, or if the list pointer
+points at the end of a list.
 
-Determining whether a list element value represents a sublist requires
+Determining whether a list pointer current element value
+represents a sublist requires
 the {\tt min::is\_sublist} function, which must check whether the
 value is a sublist auxiliary pointer, is the value {\tt min::EMPTY\_SUBLIST},
 or is a pointer to a sublist auxiliary stub as described in
 \secref{OBJECT-AUXILIARY-STUBS}.
 
-Determining whether a value represents the end of a list can be done by
+Determining whether a list pointer current element value
+represents the end of a list can be done by
 simply checking whether the value equals {\tt min::LIST\_END},
-or can be done with the {\tt min::is\_list\_end} function.
+or can be done equivalently
+with the {\tt min::is\_list\_end} function.
 
 Making insertions in object lists requires reservation of the necessary
 space first, in order to be sure that a sequence of insertions will
