@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 20 06:54:23 EDT 2006
+// Date:	Sat May 20 09:41:02 EDT 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/05/20 13:39:00 $
+//   $Date: 2006/05/20 20:47:58 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.104 $
+//   $Revision: 1.105 $
 
 // Table of Contents:
 //
@@ -2853,10 +2853,8 @@ namespace min { namespace unprotected {
 	//      and current == LIST_END
 	//	and previous exists
 	//
-	//	previous_index != 0 and previous is a
-	//	list head stored in the hash table or
-	//	attribute vector.  Current is the list
-	//	end after this list head.
+	//	See below for alternatives when
+	//	current == LIST_END
 	//
 	// previous_is_sublist_head is true iff previous
 	// exists and is a sublist auxiliary pointer or
@@ -2903,7 +2901,10 @@ namespace min { namespace unprotected {
 	//
 	// If current == LIST_END then either:
 	//
-	//          current_index != 0
+	//	    so == NULL and lo == NULL
+	//	and nothing else is set meaningfully
+	//
+	//   or     current_index != 0
 	//      and current_stub == NULL
 	//      and current == base[current_index]
 	//	and ! previous_is_sublist_head
@@ -3032,19 +3033,21 @@ namespace min { namespace unprotected {
 	// Set all the members of the list pointer from
 	// the stub s.
 	//
-        void relocate ( )
+        void relocate ( void )
 	{
 	    int t = min::type_of ( s );
 	    if ( t == min::SHORT_OBJ )
 	    {
 	        so = min::unprotected::
 		     short_obj_of ( s );
+		lo = NULL;
 		base = (min::gen *) so;
 	    }
 	    else if ( t == min::LONG_OBJ )
 	    {
 	        lo = min::unprotected::
 		     long_obj_of ( s );
+		so = NULL;
 		base = (min::gen *) lo;
 	    }
 	    else
@@ -3114,6 +3117,8 @@ namespace min { namespace unprotected {
 
 namespace min {
 
+    // Inline functions:
+
     inline min::gen start_hash
             ( min::unprotected::list_pointer & lp,
 	      unsigned index )
@@ -3140,32 +3145,35 @@ namespace min {
 	      unsigned index )
     {
 	lp.relocate();
-	unsigned original_index = index;
+	unsigned attribute_vector_offset;
+	unsigned attribute_vector_size;
         if ( lp.so )
 	{
-	    index += min::attribute_vector_of ( lp.so );
-	    MIN_ASSERT
-	        ( index < lp.so->unused_area_offset );
+	    attribute_vector_offset =
+	        min::attribute_vector_of ( lp.so );
+	    attribute_vector_size =
+	          lp.so->unused_area_offset
+		- attribute_vector_offset;
 	}
 	else
 	{
-	    index += min::attribute_vector_of ( lp.lo );
-	    MIN_ASSERT
-	        ( index < lp.lo->unused_area_offset );
+	    attribute_vector_offset =
+	        min::attribute_vector_of ( lp.lo );
+	    attribute_vector_size =
+	          lp.lo->unused_area_offset
+		- attribute_vector_offset;
 	}
 
-	// This checks for overflow in +=.
-	//
-	MIN_ASSERT ( original_index < index );
+	MIN_ASSERT ( index < attribute_vector_size );
 
-	return lp.forward ( index );
+	return lp.forward
+	    ( attribute_vector_offset + index );
     }
     inline min::gen start_copy
             ( min::unprotected::list_pointer & lp,
 	      min::unprotected::list_pointer & lp2 )
     {
         MIN_ASSERT ( lp.s == lp2.s );
-	MIN_ASSERT ( lp2.so != NULL || lp2.lo != NULL );
 	lp.lo = lp2.lo;
 	lp.so = lp2.so;
 	lp.base = lp2.base;
