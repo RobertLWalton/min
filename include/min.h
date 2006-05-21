@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/05/21 09:07:00 $
+//   $Date: 2006/05/21 09:39:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.106 $
+//   $Revision: 1.107 $
 
 // Table of Contents:
 //
@@ -3077,15 +3077,17 @@ namespace min { namespace unprotected {
 	min::gen forward ( unsigned index )
 	{
 	    current_index = index;
-	    previous_index = 0;
-	    previous_is_sublist_head = false;
 	    current = base[current_index];
-#           if MIN_USES_OBJ_AUX_STUBS
-		current_stub = NULL;
-		previous_stub = NULL;
-#	    endif
+
+	    previous_stub = NULL;
+	    previous_is_sublist_head = false;
+
 	    if ( min::is_list_aux ( current ) )
 	    {
+#               if MIN_USES_OBJ_AUX_STUBS
+		    current_stub = NULL;
+#	        endif
+
 		if ( current != min::LIST_END )
 		{
 		    previous_index = current_index;
@@ -3100,6 +3102,7 @@ namespace min { namespace unprotected {
 		    min::stub * s =
 		        min::stub_of ( current );
 		    int type = min::type_of ( s );
+
 		    if ( type == min::LIST_AUX )
 		    {
 		        previous_index = current_index;
@@ -3110,6 +3113,14 @@ namespace min { namespace unprotected {
 		    }
 		}
 #           endif
+	    else
+	    {
+#               if MIN_USES_OBJ_AUX_STUBS
+		    current_stub = NULL;
+#	        endif
+
+		previous_index = 0;
+	    }
 	    return current;
 	}
     };
@@ -3251,14 +3262,15 @@ namespace min {
 		    return lp.current;
 		}
 	    }
-	    lp.previous_stub = NULL;
 #       endif
 
 	if ( lp.current_index < head_end )
 	{
-	    // Previous must not exist as current is
-	    // list (not sublist) head.
-
+	    // Current is list (not sublist) head.
+	    //
+	    // Previous does not exist as current is
+	    // not LIST_END.
+	    //
 	    lp.previous_index = lp.current_index;
 	    lp.current_index = 0;
 	    return lp.current = min::LIST_END;
