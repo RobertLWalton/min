@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 29 03:58:28 EST 2006
+// Date:	Sun May 21 06:41:54 EDT 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/29 09:00:58 $
+//   $Date: 2006/05/21 11:17:31 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.54 $
+//   $Revision: 1.55 $
 
 // Table of Contents:
 //
@@ -630,8 +630,10 @@ min::gen min::new_obj_gen
 // values in p.  The type of the first stub is given
 // and the other stubs have type min::LIST_AUX.  Each
 // stub but the last points at the next stub.  The
-// control of the last contains the end value, which
-// may be a list aux value or a pointer to a stub.
+// control of the last, except for its type field,
+// equals the end value, which may be a list aux value
+// or a pointer to a stub.
+//
 // This function returns pointers to the first and last
 // stubs allocated.  n > 0 is required.
 //
@@ -643,7 +645,8 @@ min::gen min::new_obj_gen
 void MUP::allocate_stub_list
 	( min::stub * & first,
 	  min::stub * & last,
-	  int type, const min::gen * p, unsigned n,
+	  int type,
+	  const min::gen * p, unsigned n,
 	  min::uns64 end )
 {
     MIN_ASSERT ( n > 0 );
@@ -659,7 +662,7 @@ void MUP::allocate_stub_list
     last = first;
     while ( -- n )
     {
-	min::stub * last = MUP::new_aux_stub ();
+	last = MUP::new_aux_stub ();
 	MUP::set_gen_of ( last, * p ++ );
 	MUP::set_control_of
 	     ( previous,
@@ -678,15 +681,6 @@ void MUP::allocate_stub_list
 }
 
 # endif // MIN_USES_OBJ_AUX_STUBS
-
-void MUP::insert_reserve
-	( MUP::list_pointer & lp,
-	  unsigned insertions,
-	  unsigned elements,
-	  bool use_aux )
-{
-    assert ( ! "insert reserve not implemented" );
-}
 
 void min::insert_before
 	( MUP::list_pointer & lp,
@@ -1425,6 +1419,23 @@ void min::remove
 	    min::new_list_aux_gen ( lp.current_index );
 	lp.previous_index = current_index;
 	lp.previous_is_sublist_head = false;
+    }
+}
+
+void MUP::insert_reserve
+	( MUP::list_pointer & lp,
+	  unsigned insertions,
+	  unsigned elements,
+	  bool use_aux )
+{
+#   if MIN_USES_OBJ_AUX_STUBS
+	if ( use_aux )
+	    MUP::gc_expand_stub_free_list
+		( insertions + elements );
+	else
+#   endif
+    {
+	assert ( ! "insert reserve not implemented" );
     }
 }
 

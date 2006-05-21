@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/20 15:51:33 $
+//   $Date: 2006/05/21 11:17:31 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.52 $
+//   $Revision: 1.53 $
 
 // Table of Contents:
 //
@@ -1549,9 +1549,6 @@ int main ()
 	    ( strcmp ( min::str_of ( p8 ), s8 ) == 0 );
 	const char * p13str_before =
 	    min::str_of ( p13 );
-	cout << "p13str_before: " << hex
-	     << (MINT::pointer_uns) p13str_before
-	     << dec << endl;
 	MIN_ASSERT
 	    ( strcmp ( p13str_before, s13 ) == 0 );
 	MUP::set_pointer_of
@@ -1564,17 +1561,13 @@ int main ()
 		      + sizeof (MUP::long_str) )
 		+ 1 );
 	const char * p13str_mid = min::str_of ( p13 );
-	cout << "p13str_mid: " << hex
-	     << (MINT::pointer_uns) p13str_mid
-	     << dec << endl;
+	MIN_ASSERT ( p13str_mid == p13str_before );
 	MIN_ASSERT
 	    (    strcmp ( min::str_of ( p13 ), s13 )
 	      != 0 );
 	min::relocate ( p13 );
 	const char * p13str_after = min::str_of ( p13 );
-	cout << "p13str_after: " << hex
-	     << (MINT::pointer_uns) p13str_after
-	     << dec << endl;
+	MIN_ASSERT ( p13str_after != p13str_before );
 	MIN_ASSERT
 	    (    strcmp ( min::str_of ( p13 ), s13 )
 	      == 0 );
