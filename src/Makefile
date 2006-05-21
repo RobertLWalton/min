@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Sun May 21 05:09:54 EDT 2006
+# Date:		Sun May 21 05:34:49 EDT 2006
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2006/05/21 09:09:59 $
+#   $Date: 2006/05/21 09:37:55 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.11 $
+#   $Revision: 1.12 $
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
@@ -31,19 +31,18 @@ PROGRAMS = \
 
 all:	${PROGRAMS:=.diff}
 
-test:	cleantest ${PROGRAMS:=.test}
+test:	${PROGRAMS:=.test}
 
-cleantest:
-	rm -f ${PROGRAMS:=.test}
-
-%.test:	%.out
+%.test:	%.out Makefile
 	rm -f $*.test
 	sed -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
+	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
             < $*.out > $*.test
 
-%.diff:	%.out %.test
+%.diff:	%.out
 	sed -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
+	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
             < $*.out | diff - $*.test
 
