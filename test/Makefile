@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2006/05/21 09:37:55 $
+#   $Date: 2006/05/21 11:17:31 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.12 $
+#   $Revision: 1.13 $
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
@@ -29,7 +29,11 @@ PROGRAMS = \
 
 .SECONDARY:	${PROGRAMS:=.out}
 
-all:	${PROGRAMS:=.diff}
+all:	diff
+
+diff:	${PROGRAMS:=.diff}
+
+out:	${PROGRAMS:=.out}
 
 test:	${PROGRAMS:=.test}
 
