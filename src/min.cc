@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 21 06:41:54 EDT 2006
+// Date:	Sun May 21 09:27:37 EDT 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/05/21 11:17:31 $
+//   $Date: 2006/05/21 15:46:54 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.55 $
+//   $Revision: 1.56 $
 
 // Table of Contents:
 //
@@ -712,8 +712,23 @@ void min::insert_before
 
     if ( lp.current == min::LIST_END )
     {
+	// Contiguous means current_index == aux_area_
+	// offset so we can add elements by copying
+	// then into tha aux area beginning at current_
+	// index.
+	//
 	bool contiguous = false;
+
+	// Previous_is_list_head means previous is in
+	// the hash table or attribute vector.  This
+	// can only happen if previous_index != 0 and
+	// previous_is_sublist_head is false.
+	//
 	bool previous_is_list_head = false;
+
+	// Pointer to the first new element that
+	// replaces LIST_END in current.
+	//
 	min::gen fgen;
 
 	if ( lp.previous_index != 0 )
@@ -796,7 +811,7 @@ void min::insert_before
 	    else
 #	endif
 		MIN_ASSERT (      unused_area_offset
-			        + ( n + ! contiguous )
+			        + n + ( ! contiguous )
 		                + previous_is_list_head
 			     <= aux_area_offset );
 
@@ -832,7 +847,7 @@ void min::insert_before
 	        lp.base[-- aux_area_offset] =
 		    lp.base[lp.previous_index];
 		fgen = min::new_list_aux_gen
-		    ( aux_area_offset - 1 );
+		    ( aux_area_offset );
 	    }
 	    else
 		fgen = min::new_sublist_aux_gen
@@ -854,6 +869,7 @@ void min::insert_before
 	lp.base[-- aux_area_offset] = min::LIST_END;
 	lp.current_index = aux_area_offset;
 	lp.previous_index = 0;
+	lp.previous_is_sublist_head = false;
 	if ( lp.so )
 	    lp.so->aux_area_offset = aux_area_offset;
 	else
