@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Sun May 21 04:45:41 EDT 2006
+# Date:		Sun May 21 05:09:54 EDT 2006
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2006/05/21 09:02:53 $
+#   $Date: 2006/05/21 09:09:59 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.10 $
+#   $Revision: 1.11 $
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
@@ -31,7 +31,10 @@ PROGRAMS = \
 
 all:	${PROGRAMS:=.diff}
 
-test:	${PROGRAMS:=.test}
+test:	cleantest ${PROGRAMS:=.test}
+
+cleantest:
+	rm -f ${PROGRAMS:=.test}
 
 %.test:	%.out
 	rm -f $*.test
@@ -53,7 +56,7 @@ min.o:	min.cc
 
 min_interface_test_loose:	\
 		min_interface_test.cc min.cc \
-		${INCLUDE_FILES}
+		${INCLUDE_FILES} Makefile
 	g++ -g -DMIN_IS_COMPACT=0 \
 	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
@@ -62,7 +65,7 @@ min_interface_test_loose:	\
 
 min_interface_test_compact:	\
 		min_interface_test.cc min.cc \
-		${INCLUDE_FILES}
+		${INCLUDE_FILES} Makefile
 	g++ -g -DMIN_IS_COMPACT=1 \
 	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
@@ -71,7 +74,7 @@ min_interface_test_compact:	\
 
 min_interface_test_loose_stretch:	\
 		min_interface_test.cc min.cc \
-		${INCLUDE_FILES}
+		${INCLUDE_FILES} Makefile
 	g++ -g -DMIN_IS_COMPACT=0 -DMIN_STRETCH=1 \
 	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
@@ -80,7 +83,7 @@ min_interface_test_loose_stretch:	\
 
 min_interface_test_compact_stretch:	\
 		min_interface_test.cc min.cc \
-		${INCLUDE_FILES}
+		${INCLUDE_FILES} Makefile
 	g++ -g -DMIN_IS_COMPACT=1 -DMIN_STRETCH=1 \
 	    -DMIN_USES_OBJ_AUX_STUBS=1 \
 	    -I ../include \
