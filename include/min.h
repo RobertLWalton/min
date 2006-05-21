@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 20 09:41:02 EDT 2006
+// Date:	Sun May 21 03:57:45 EDT 2006
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/05/20 20:47:58 $
+//   $Date: 2006/05/21 09:07:00 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.105 $
+//   $Revision: 1.106 $
 
 // Table of Contents:
 //
@@ -3117,29 +3117,33 @@ namespace min { namespace unprotected {
 
 namespace min {
 
-    // Inline functions:
+    // Inline functions.  See MIN design document.
 
     inline min::gen start_hash
             ( min::unprotected::list_pointer & lp,
 	      unsigned index )
     {
 	lp.relocate();
+	unsigned hash_table_offset;
+	unsigned hash_table_size;
         if ( lp.so )
 	{
-	    MIN_ASSERT
-	        (   index
-		  < min::hash_table_size_of ( lp.so ) );
-	    index += min::hash_table_of ( lp.so );
+	    hash_table_offset =
+	        min::hash_table_of ( lp.so );
+	    hash_table_size =
+	        min::hash_table_size_of ( lp.so );
 	}
 	else
 	{
-	    MIN_ASSERT
-	        (   index
-		  < min::hash_table_size_of ( lp.lo ) );
-	    index += min::hash_table_of ( lp.lo );
+	    hash_table_offset =
+	        min::hash_table_of ( lp.lo );
+	    hash_table_size =
+	        min::hash_table_size_of ( lp.lo );
 	}
-	return lp.forward ( index );
+	MIN_ASSERT ( index < hash_table_size );
+	return lp.forward ( hash_table_offset + index );
     }
+
     inline min::gen start_vector
             ( min::unprotected::list_pointer & lp,
 	      unsigned index )
@@ -3169,6 +3173,7 @@ namespace min {
 	return lp.forward
 	    ( attribute_vector_offset + index );
     }
+
     inline min::gen start_copy
             ( min::unprotected::list_pointer & lp,
 	      min::unprotected::list_pointer & lp2 )
@@ -3190,6 +3195,7 @@ namespace min {
 	lp.reserved_elements = 0;
 	return lp.current = lp2.current;
     }
+
     inline min::gen next
     	    ( min::unprotected::list_pointer & lp )
     {
@@ -3260,11 +3266,13 @@ namespace min {
 	else
 	    return lp.forward ( lp.current_index - 1 );
     }
+
     inline min::gen current
     	    ( min::unprotected::list_pointer & lp )
     {
     	return lp.current;
     }
+
     inline min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp )
     {
@@ -3299,6 +3307,7 @@ namespace min {
 		lp.base[lp.current_index];
 	return lp.current;
     }
+
     inline void insert_reserve
     	    ( min::unprotected::list_pointer & lp,
 	      unsigned insertions,
