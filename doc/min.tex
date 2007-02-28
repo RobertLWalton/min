@@ -390,12 +390,13 @@ and the mark \verb|::| represent the same thing.  Quoted strings can
 represent symbols that have characters in them which cannot be in words,
 marks, or separators.
 
-There is one difference between a quoted string and its corresponding
-word, mark, or separator, e.g.~between \verb|"+"| and \verb|+|.
-This is that the
-quoted string cannot be interpreted as an operator during parsing, while
-the word, mark or separator, if it is an operator, can be so interpreted.
-See \secref{PARSER-EXPANSION}.
+A quoted string (e.g., \verb|"+"| or \verb|"x"|) and its corresponding
+word, mark, or separator (e.g., \verb|+| or \verb|x|)
+many be treated differently during parsing (\secref{PARSER-EXPANSION}).
+The unquoted word, mark, or separator may be treated as an operator
+or variable name, while the quoted string will be treated as naming
+a constant.  Except for parsing, there is no difference between
+a quoted string and any corresponding word, mark, or separator.
 
 A quoted string consists of a sequence of
 \skey{character representative}s
@@ -478,7 +479,7 @@ a quoted string.
 
 A \key{datum} in MIN is either an atom, an object, or an arrow.
 
-An \key{atom} is either a symbol (word, mark, or quoted string) or a
+An \key{atom} is either a symbol (word, mark, separator, or quoted string) or a
 number.
 
 An object is just a place in memory, and is like a dot on a blank page.
@@ -573,10 +574,10 @@ The format of a \key{raw representation} is:
 \begin{tabular}{l}
 \emkey{raw-object-header}
     \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em raw-object-name} \ttmkey{::}{in {\em raw-object-header}} \\
-    $|$ & {\em raw-object-name} \verb|>|{\tt \bf :}%
+    ::= & {\em object-name} \ttmkey{::}{in {\em raw-object-header}} \\
+    $|$ & {\em object-name} \verb|>|{\tt \bf :}%
           \ttmindex{>:}{in {\em raw-object-header}} \\
-    $|$ & {\em raw-object-name} \verb|>>|{\tt \bf :}%
+    $|$ & {\em object-name} \verb|>>|{\tt \bf :}%
           \ttmindex{>>:}{in {\em raw-object-header}} \\
     \end{tabular}
 \end{tabular}
@@ -599,7 +600,7 @@ The format of a \key{raw representation} is:
 \index{value!attribute}
 
 \begin{tabular}{l}
-\emkey{single-attribute-value} ::= {\em atom} $|$ {\em raw-object-name}
+\emkey{single-attribute-value} ::= {\em atom} $|$ {\em object-name}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -613,12 +614,12 @@ The format of a \key{raw representation} is:
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{double-attribute-value} ::= {\em raw-object-name}
+\emkey{double-attribute-value} ::= {\em object-name}
 \end{tabular}
 
 \begin{tabular}{l}
-\emkey{raw-object-name} ::=
-	\ttmnbkey{\#\#}{in {\em raw-object-name}} {\em non-negative-integer}
+\emkey{object-name} ::=
+	\ttmnbkey{\#\#}{in {\em object-name}} {\em non-negative-integer}
 \end{tabular}
 
 \begin{tabular}{l}
@@ -851,7 +852,7 @@ Usually one end of a double attribute is
 thought of as the primary end, and its object representation is used to
 include the sole representation of the double attribute.
 
-The {\em raw-object-name} \ttnbkey{\#\#0} is special; it always names
+The {\em object-name} \ttnbkey{\#\#0} is special; it always names
 a particular object, the \ttkey{.GLOBAL} object,
 whose its attributes are called \skey{global variables}.  One of the global
 variables is named {\tt .GLOBAL} and has as its value the {\tt .GLOBAL}
@@ -1360,7 +1361,7 @@ priority & parser	& operators	& meaning
 \\\hspace*{1in}
     \begin{tabular}[t]{@{}r@{~}l@{}}
         & {\em object-header} {\em attribute-representation} \ldots \\
-    $|$ & {\em object-header} {\em expression}
+    $|$ & {\em object-header} {\em text-expression}
 	  \ttmkey{;;}{in {\em object-representation}}
     	  {\em attribute-representation} \ldots \\[1ex]
     \end{tabular}
@@ -1382,7 +1383,7 @@ priority & parser	& operators	& meaning
 \key{cooked-single-attribute-representation} ::=
 \\\hspace*{1in}
 	{\em attribute-label} {\em attribute-label-terminator}
-	{\em text}
+	{\em text-expression}
 	\ttmkey{;;}{in {\em cooked-single-attribute}!{\em -representation}}
 \\[1ex]
 \key{cooked-double-attribute-representation} ::=
@@ -1395,7 +1396,7 @@ priority & parser	& operators	& meaning
 	{\em attribute-label-initiator} {\em attribute-label}
 	\ttmkey{;;}{in {\em raw-double-attribute-representation}}
 \\[1ex]
-\key{text} ::= {\em expression} in text mode
+\key{text-expression} ::= {\em expression} in text mode
 \\[1ex]
 \key{expression} ::= {\em expression(-9999)}
 \\[1ex]
@@ -1411,7 +1412,7 @@ priority & parser	& operators	& meaning
 			    ::= & \verb|(| {\em expression} \verb|)| \\
 			    $|$ & \verb|[| {\em expression} \verb|]| \\
 			    $|$ & \verb|{| {\em code-block} \verb|}| \\
-			    $|$ & \verb|`| {\em text} \verb|'| \\[1ex]
+			    $|$ & \verb|`| {\em text-expression} \verb|'| \\[1ex]
 			    \end{tabular}
 \\[1ex]
 \key{code-block} ::= {\em expression} in code mode
@@ -1683,9 +1684,9 @@ object whose only attributes are an attribute named {\tt 1} whose value
 is the quoted string atom
 and an {\tt .initiator} attribute whose value is the atom `{\tt quoted}'.
 
-\item If the next lexeme is a word, mark, or number, the lexeme by itself
-becomes the input, and the word, mark, or number
-becomes the next list element.
+\item If the next lexeme is a word, mark, separator, or number,
+the lexeme by itself becomes the input, and the word, mark, separator,
+or number becomes the next list element.
 
 \end{enumerate}
 
@@ -1834,23 +1835,17 @@ operator scanning returns:
     1: "+"
     .initiator: quoted
 ##3::
-    1 : ##5
+    1 : x
     2 : "+"
-    3 : ##6
+    3 : ##5
     .initiator: "("
     .terminator: ")"
     .parser: sum
 ##5::
-    1: x
-##6::
-    1 : ##7
+    1 : 5
     2 : "*"
-    3 : ##8
+    3 : y
     .parser: product
-##7::
-    1: 5
-##8::
-    1: y
 \end{verbatim}\end{indpar}
 
 Note that classical programming language prefix and postfix operators are
