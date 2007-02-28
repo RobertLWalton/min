@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 27, 2007}
+\date{February 28, 2007}
  
 \maketitle
 
@@ -280,8 +280,12 @@ scans the characters from left to right to produce a sequence
 of \skey{lexeme}s.  There are six kinds of lexemes: words, numbers,
 brackets, separators, marks, and quoted strings.
 
-A \key{word} is a string of \skey{letter}s.  E.g., {\tt fie}.  The underline
-character (\ttmkey{\UNDERLINE}{letter}) is a letter.
+A \key{word} is a string of \skey{word character}s.
+A \mkey{letter}{word character} is a word character, as is
+the underline character (\ttmkey{\UNDERLINE}{word character}).
+A period (\ttmkey{.}{word character}) is a word character when
+it is followed by a letter.  For example, {\tt fie} and {\tt .terminator}
+are words.
 
 A \key{number} is a string of digits plus an optional \key{decimal point}.
 E.g., {\tt 5.2}.  Any decimal point must be followed by a digit.
@@ -289,11 +293,12 @@ Note that `{\tt X1}' is a string of \underline{two} lexemes, and is the
 same as `{\tt X 1}'.
 
 A \key{mark} is a string of mark characters, which are just characters
-that are not letters or digits or decimal points or brackets or separators
+that are not word characters
+or digits or decimal points or brackets or separators
 or quotes or white-space characters.  E.g., \verb|+| and \verb|::| are marks.
 The \skey{mark character}s are:
 colon (\ttmkey{:}{mark character}),
-period (\ttmkey{.}{mark character}) when not followed by a digit,
+period (\ttmkey{.}{mark character}) when not followed by a digit or letter,
 exclamation mark (\ttmkey{!}{mark character}),
 question mark (\ttmkey{?}{mark character}),
 apostrophe (\ttmkey{'}{mark character}) when followed by a letter,
@@ -330,14 +335,14 @@ curly brackets, \ttmkey{\LEFTBRACKET}{bracket character} and
 \ttmkey{\RIGHTBRACKET}{bracket character},
 and single quotes, \ttmkey{`}{bracket character} and
 \ttmkey{'}{bracket character}.  The close quote, or apostrophe, (\verb|'|) is
-a mark, and not a bracket, if it is followed by a (possibly weak)
+a mark, and not a bracket, if it is followed by a
 mark other than another apostrophe, or followed by a letter,
 or followed by a digit.
 
 A \key{quoted string} is a string of characters that begins and ends with
 a \verb|"| \key{quote character}.  The string of characters may include
 spaces and escape sequences.  See~\secref{QUOTED-STRINGS} for details on
-quoted strings.
+quoted strings.  The quote character may only be used in quoted strings.
 
 Words, marks, separators, and quoted strings
 are all \skey{symbol}s, which are just
@@ -856,6 +861,10 @@ object itself, a situation which can be achieved by the data representation:
 ##0>:
     .GLOBAL: ##0
 \end{verbatim}\end{indpar}
+
+Words beginning with `\ttkey{.}' are reserved for use by
+the MIN system, and should not be defined by MIN users.  {\tt .GLOBAL}
+is an example of such a word.
 
 
 
