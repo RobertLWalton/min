@@ -2062,6 +2062,7 @@ division function \verb|/|.  E.g.:
 
 
 \section{Evaluation}
+\label{EVALUATION}
 
 A MIN expression is an atom or a list
 (see Figure~\figref{DATA-REPRESENTATION-SYNTAX})
@@ -2093,6 +2094,56 @@ This information is available from the lexical context of the code that
 creates the object.
 The lexical context also includes the lexical context of the lexical
 parent of the object.
+
+In effect, the `type' of an object is the lexical context in which
+the object is created.  All objects created with the same lexical
+context can share the same code.  To make this work properly, the
+lexical parent of an object is determined by the lexical context
+in which the object is created.
+
+\section{Evaluation Context}
+\label{EVALUATION-CONTEXT}
+
+Expressions are evaluated in an \key{evaluation context} that
+contains the following:
+
+\bigskip
+
+\key{current expression}
+
+\begin{indpar}[0.5em]
+This is the expression being evaluated.  It is not used during
+evaluation (see `remaining argument list' below), but is available for
+debugging and error messages.
+\end{indpar}
+
+\key{remaining argument list}
+
+\begin{indpar}[0.5em]
+This is initialized to the list of elements of the current expression.
+These elements are call \skey{argument}s.
+If the expression is a single atom, it is treated as a list
+of one atom.
+
+As the expression is evaluated, arguments are removed from
+the beginning of the remaining argument list.
+\end{indpar}
+
+\bigskip
+
+\key{current evaluator}\\
+\key{initial evaluator}
+
+\begin{indpar}[0.5em]
+The current evaluator is the object that is currently evaluating the
+expression.  The initial evaluator is used to set the current evaluator
+when evaluation of new expression begins.  Thus when a subexpression
+of the current expression is to be evaluated, a new evaluation context
+is created for evaluating the subexpression, and the initial evaluator
+becomes both the initial and current evaluator in the new context.
+\end{indpar}
+
+
 
 
 \begin{enumerate}
