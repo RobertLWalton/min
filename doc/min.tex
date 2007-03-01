@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{February 28, 2007}
+\date{March 1, 2007}
  
 \maketitle
 
@@ -1611,9 +1611,6 @@ adding {\tt .parser} attribute values to some of the list objects.
 				  \index{expansion!parser}~~~~
 The object representation is evaluated by calling the parsers.
 
-\item[(4)] \ikey{Dequoting}{dequoting}~~~~
-Quoted atom representations are replaced by the atoms quoted.
-
 \end{list}
 
 \subsubsection{Lexeme Scanning}
@@ -1865,10 +1862,12 @@ The parser expansion algorithm goes through its input
 looking for objects with a {\tt .parser} attribute, and for each
 such object, calls its {\tt .parser} attribute value as a function with
 the object as input and the function output as the expansion of the input
-object.  The expansion algorithm works bottom up, from the innermost
-expression outward, replacing subexpressions by their expansions.
-It is thus an evaluation algorithm, with the
-{\tt .parser} attribute values as the evaluators.
+object.  The expansion algorithm works only on the top level: when the
+algorithm calls the {\tt .parser} attribute function of an expression,
+the algorithm leaves it up to that function to call the {\tt .parser}
+attribute functions of subexpressions.  The standard parsers do this
+first, thus effecting a bottom up algorithm, similar to expression
+evaluation.
 
 A {\tt .parser} attribute value is known as a \key{parser}, and is associated
 with an operator priority level
@@ -2061,24 +2060,40 @@ division function \verb|/|.  E.g.:
 
 \end{indpar}
 
-\subsubsection{Dequoting}
-\label{DEQUOTING}
-
-The \key{dequoting} algorithm inputs an object output
-by the parser expansion algorithm and outputs a dequoted object.
-If the object has an {\tt .initiator} attribute equal
-to `{\tt quoted}', the single element of the object's list
-(which will be an atom) is output.  Otherwise the dequoting algorithm is
-applied recursively to each element of the object's list that is itself
-an object (and not an atom).
-
-
 
 \section{Evaluation}
 
 A MIN expression is an atom or a list
-(see Figure~\ref{DATA-REPRESENTATION-SYNTAX})
-that can be evaluated according to the following principles:
+(see Figure~\figref{DATA-REPRESENTATION-SYNTAX})
+that can be evaluated.  Evaluation is done by an object,
+which may be a function frame (see below).  The attributes of the
+object constitute the local variables accessible during evaluation.
+If a variable cannot be found locally, it is found by searching
+the ancestors of the object.  The first ancestor searched is called
+the lexical parent of the object, and plays a special role in
+compilation.
+
+Evaluation is done in an evaluation context.  This context includes
+the object currently evaluating expressions, a pointer indicating
+the next part of the expression to be evaluated, and other information.
+The object evaluating the expression may change during evaluation of
+the expression, as when the first part of an expression designates
+another object that is to evaluate the rest of the expression.
+The evaluation context includes an initial object that is to be used
+as the first object to evaluate any subexpression.
+
+The code that does evaluation for a particular object is compiled.
+Associated with each evaluation context is a lexical context
+which contains the information available at the time this code is
+compiled.  Code may be compiled as soon as the lexical context in
+which it is run is defined.
+The lexical context includes incomplete information about which attributes
+are defined for an object that performs evaluations of expressions.
+This information is available from the lexical context of the code that
+creates the object.
+The lexical context also includes the lexical context of the lexical
+parent of the object.
+
 
 \begin{enumerate}
 
