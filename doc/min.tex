@@ -2104,8 +2104,9 @@ in which the object is created.
 \section{Evaluation Context}
 \label{EVALUATION-CONTEXT}
 
-Expressions are evaluated in an \key{evaluation context} that
-contains the following:
+Expressions are evaluated in an \key{evaluation context}.  Evaluation
+contexts are organized in a tree, with subcontexts and parent contexts.
+Each evaluation context contains the following:
 
 \bigskip
 
@@ -2126,7 +2127,9 @@ If the expression is a single atom, it is treated as a list
 of one atom.
 
 As the expression is evaluated, arguments are removed from
-the beginning of the remaining argument list.
+the beginning of the remaining argument list.  When an argument is
+removed, it may or may not be evaluated, as determined by the
+current evaluator (see below).
 \end{indpar}
 
 \bigskip
@@ -2136,11 +2139,24 @@ the beginning of the remaining argument list.
 
 \begin{indpar}[0.5em]
 The current evaluator is the object that is currently evaluating the
-expression.  The initial evaluator is used to set the current evaluator
-when evaluation of new expression begins.  Thus when a subexpression
-of the current expression is to be evaluated, a new evaluation context
-is created for evaluating the subexpression, and the initial evaluator
-becomes both the initial and current evaluator in the new context.
+expression.  Often this object is a function frame created when a
+function is called.  But this object is also frequently a non-frame
+object whose attributes are to be read or written.
+
+The initial evaluator is used to initialize the current evaluator in
+any newly created evaluation subcontext.
+When an argument is to be evaluated, a new evaluation subcontext
+is created for evaluating the argument, and the initial evaluator
+becomes both the initial and current evaluator in the subcontext.
+\end{indpar}
+
+\bigskip
+
+\key{input list}\\
+\key{output list}
+
+\begin{indpar}[0.5em]
+TBD
 \end{indpar}
 
 
