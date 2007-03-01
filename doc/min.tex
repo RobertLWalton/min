@@ -2156,7 +2156,51 @@ becomes both the initial and current evaluator in the subcontext.
 \key{output list}
 
 \begin{indpar}[0.5em]
-TBD
+The input list is a list of values, or is missing, and similarly
+the output list is a list of values, or is missing.  Missing and
+empty lists are \underline{not} the same.
+
+The input values are values to be written somewhere.  The output
+values are values read from somewhere.  Write and read operations
+are controlled by these lists and other parts of the context.
+
+\end{indpar}
+
+\bigskip
+
+\key{memory type}
+
+\begin{indpar}[0.5em]
+Reads and writes come in three kinds: \key{single value},
+\key{set value} and \key{multiset value}.
+
+In the single value case, the thing being read or written is
+viewed as having a single value.  A read should return this value
+(in th output list), a write should overwrite
+(from the input list) any existing value, or create a new value if
+none exists, and a delete should delete the thing being read or
+written.
+
+In the set value case, the thing begin read or written is
+viewed as having a set of \underline{unequal} values.
+A read should return the values of this set (in the output list),
+a write should add to this set any values (from the input list)
+not already in the set, and a delete should remove designated values
+(from the input list).
+
+The multiset case is just like the case except that values may be
+replicated, and need not all be unequal.  Adding a value that already
+exists merely increments the values replication count, and deleting
+the value deletes the count.  The count may not be negative.
+
+\end{indpar}
+
+\bigskip
+
+\key{search type}
+
+\begin{indpar}[0.5em]
+TBD: local, non-local.
 \end{indpar}
 
 
