@@ -2657,6 +2657,151 @@ The MIN system \skey{evaluation flag}s are:
 \end{list}
 \end{indpar}
 
+\subsection{Evaluation Steps}
+
+An evaluation step performs some operation on the
+top evaluation context in the evaluation stack.
+The top level program executor creates a non-empty
+evaluation stack and executes evaluation steps until the
+stack becomes empty.  Some builtin operators push an
+evaluation context into the evaluation stack and then execute
+evaluation steps until that context terminates; that is,
+until the context is popped from the stack.  When a context
+terminates, information from that context, such as its output
+value list and evaluation flag setting, is passed to the
+builtin operator.
+
+An \key{evaluation step} is just the execution of the first
+of the following which applies:
+
+\begin{enumerate}
+
+\item
+The remaining arguments are a non-empty string of
+atoms that name an attribute of the current object,
+and the input list is empty.
+
+\begin{indpar}[0.5em]
+Add all the values of the current object attribute to
+the output list and terminate evaluation of the current
+evaluation context.  The attribute may have zero or more values.
+\end{indpar}
+
+\item
+The remaining arguments are a non-empty string of
+atoms that name an attribute of an ancestor of the current
+object, and do so for at most one ancestor,
+and the input list is empty.
+
+\begin{indpar}[0.5em]
+Add all the values of the ancestor's attribute to
+the output list and terminate evaluation of the current
+evaluation context.  The attribute may have zero or more values.
+\end{indpar}
+
+\item
+The remaining arguments begin with a non-empty string of
+atoms that name an attribute of the current object,
+this string is the longest such string in case there are
+several that name attributes of the current object,
+this string does \underline{not} include all of the
+remaining arguments, the input list is empty, and the
+named current object attribute has a single value that
+is an object.
+
+\begin{indpar}[0.5em]
+Remove the attribute name from the beginning of the
+remaining arguments (by incrementing the {\tt next}
+value in the current context), and make the current
+object attribute value the new current object.
+\end{indpar}
+
+\item
+The remaining arguments begin with a non-empty string of
+atoms that name an attribute of an ancestor of the current object,
+this string is the longest such string in case there are
+several that name attributes of ancestors of the current object,
+at most one ancestor of the current object has an attribute named
+by this string,
+this string does \underline{not} include all of the
+remaining arguments, the input list is empty, and the
+named ancestor has a single value that
+is an object.
+
+\begin{indpar}[0.5em]
+Remove the attribute name from the beginning of the
+remaining arguments (by incrementing the {\tt next}
+value in the current context), and make the ancestor
+attribute value the new current object.
+\end{indpar}
+
+\item
+The remaining arguments begin with a non-empty string of
+atoms that name an attribute of the current object,
+this string is the longest such string in case there are
+several that name attributes of the current object,
+and the named current object attribute has a single value that
+is a function.
+
+\begin{indpar}[0.5em]
+Remove the attribute name from the beginning of the
+remaining arguments (by incrementing the {\tt next}
+value in the current context), and call the function.
+
+Calling the function consist of pushing a new function evaluation
+context into the evaluation stack and pushing a new frame
+for the function into the frame stack.  The current context
+is the caller context, and the new context is the function context.
+The function context has the new frame as its current and initial evaluator,
+and that frame has the object whose attribute value is the function was its
+only ancestor.  The function context has the body of the function
+as its expression to be evaluated.  The function context has the
+caller context as its {\tt caller}.
+
+Evaluation steps are then performed until the function context
+terminates.  During this the function may read arguments from
+its {\tt caller}.
+
+When the function context terminates, further
+action depends upon whether there are
+remaining arguments in the caller context, and upone
+the flags of the function context.  The first of the
+following applicable steps are taken:
+
+\begin{indpar}[0.5em]
+If the {\tt throw} flag of the function context is on,
+the current output value list is replaced by the output value
+list of the function context, the {\tt throw} flag of the
+caller context is set, and the caller context terminates.
+\end{indpar}
+
+\begin{indpar}[0.5em]
+If there are no remaining arguments in the caller context,
+the output values of the
+function context are added to the end of the list of output
+values of the caller context, and the caller context terminates.
+\end{indpar}
+
+\begin{indpar}[0.5em]
+If there are remaining arguments in the caller context,
+and the output list of the function context has a single element
+that is an object name, that object name becomes the current
+evaluator of the caller context.
+\end{indpar}
+
+\begin{indpar}[0.5em]
+If there are remaining arguments in the caller context,
+and the output list of the function context has a single element
+that is an abstract function, that function is called from the
+caller context.  This is just like the function call above,
+except that the ancestors of the new frame are specified by the
+abstract function.
+\end{indpar}
+
+\end{indpar}
+
+\end{enumerate}
+
 \subsection{The Evaluation Algorithm: OLD}
 
 A CONTEXT is:
