@@ -2644,15 +2644,16 @@ The MIN system \skey{evaluation flag}s are:
     Set when a {\tt throw} statement is executed during a
     {\tt try} statement.
 
-    If \underline{off} at the beginning of a {\tt catch} or `{\tt catch if}'
-    statement being evaluated in a block, the {\tt catch} or
-    `{\tt catch if}' statement is skipped.
+    Forces termination of everything but a {\tt try} statement.
+
+\item[\ttakey{skip catch}{evaluation flag}]~\\
+    Just like {\tt skip else} but skips {\tt catch} and
+    {\tt catch if} statements.
 
 \item[\ttakey{return}{evaluation flag}]~\\
-    If on at the end of evaluating a statement in a block,
-    a return to the last caller is executed.  Any output
-    values, current value changes, etc.~of the caller must
-    be done by the expression that sets the return flag.
+    Set when a {\tt return} statement is executed.
+
+    Forces termination of everything but a call operation.
 
 \end{list}
 \end{indpar}
@@ -2677,127 +2678,141 @@ of the following which applies:
 \begin{enumerate}
 
 \item
-The remaining arguments are a non-empty string of
-atoms that name an attribute of the current object,
-and the input list is empty.
+There are no remaining arguments in the current (topmost)
+evaluation context, neither the {\tt throw} or {\tt return}
+flags are set, and the input value list is \underline{not} missing.
 
 \begin{indpar}[0.5em]
-Add all the values of the current object attribute to
-the output list and terminate evaluation of the current
-evaluation context.  The attribute may have zero or more values.
+Execute an error operation.
+\end{indpar}
+
+\item
+There are no remaining arguments in the current (topmost)
+evaluation context, or the {\tt throw} or {\tt return}
+flags are set.
+
+\begin{indpar}[0.5em]
+The current evaluation context is terminated.
+Information in this context is
+passed back to the operation that created the context.
+\end{indpar}
+
+\item
+The output value list is not missing, contains just one element,
+and that element is the name of an object.
+
+\begin{indpar}[0.5em]
+The current evaluator is set to the named object and the
+output value list is reset to missing.
+\end{indpar}
+
+\item
+The output value list is not missing, contains just one element,
+and that element is the a function abstraction (a pair consisting
+of a function body and a context object).
+
+\begin{indpar}[0.5em]
+The output value list is reset to missing and a
+\key{call operation} using the function abstraction that was
+in this list is performed.  Specifically:
+\begin{indpar}[0.5em]
+A new evaluation context, called the \key{function context}, is pushed
+into the evaluation stack.  The context previous to this in the stack,
+the current context, is called the \key{caller context}.
+
+A new frame is pushed onto the frame stack.  This frame is given a
+single ancestor, the context object named in the function abstraction.
+
+The caller context becomes the {\tt caller} of the function context.
+The new frame becomes the {\tt initial evaluator} and also the
+{\tt current evaluator} of the function context.  The function body
+becomes the {\tt expression} of the function context.
+
+The call operation executes evaluation steps until the function context
+terminates.
+
+Then the call operation sets the caller context output value list
+and {\tt throw}
+flag to equal the function context output value list and {\tt throw} flag,
+and pops the function context and its frame from their stacks.
+
+Note that the {\tt return} flag in the function context is \underline{not}
+copied to the caller context.
+\end{indpar}
+
+\end{indpar}
+
+\item
+The output value list is not missing.
+
+\begin{indpar}[0.5em]
+An error operation is executed.
+\end{indpar}
+
+\item
+\label{LOCAL-WRITE}
+The remaining arguments are a non-empty string of
+atoms that name an attribute of the current object,
+and the input value list is \underline{not} missing.
+
+\begin{indpar}[0.5em]
+Remove the attribute name from the beginning of the
+remaining arguments (by incrementing the {\tt next}
+value in the current context).
+
+Perform a write operation on the current object, the name
+of the attribute, and the input value list.
+
+Set the input value list to empty.
 \end{indpar}
 
 \item
 The remaining arguments are a non-empty string of
 atoms that name an attribute of an ancestor of the current
 object, and do so for at most one ancestor,
-and the input list is empty.
+and the input value list is \underline{not} missing.
 
 \begin{indpar}[0.5em]
-Add all the values of the ancestor's attribute to
-the output list and terminate evaluation of the current
-evaluation context.  The attribute may have zero or more values.
+Same as (\ref{LOCAL-WRITE}) but with the the ancestor in
+place of the current object.
 \end{indpar}
 
 \item
+\label{LOCAL-READ}
 The remaining arguments begin with a non-empty string of
 atoms that name an attribute of the current object,
 this string is the longest such string in case there are
-several that name attributes of the current object,
-this string does \underline{not} include all of the
-remaining arguments, the input list is empty, and the
-named current object attribute has a single value that
-is an object.
+several that name attributes of the current object.
 
 \begin{indpar}[0.5em]
 Remove the attribute name from the beginning of the
 remaining arguments (by incrementing the {\tt next}
-value in the current context), and make the current
-object attribute value the new current object.
+value in the current context).
+
+Set the output value list to list all the values of the
+current object attribute, in any order.
+The attribute may have zero or more values.
+
+If any of the values is a function, this is converted into
+a function abstraction before being placed in the output.
+The function body in the abstraction is taken from the
+attribute value, and the context object is set to the
+current object (the object whose attribute provided the
+function body).
 \end{indpar}
 
 \item
 The remaining arguments begin with a non-empty string of
-atoms that name an attribute of an ancestor of the current object,
-this string is the longest such string in case there are
-several that name attributes of ancestors of the current object,
-at most one ancestor of the current object has an attribute named
-by this string,
-this string does \underline{not} include all of the
-remaining arguments, the input list is empty, and the
-named ancestor has a single value that
-is an object.
-
-\begin{indpar}[0.5em]
-Remove the attribute name from the beginning of the
-remaining arguments (by incrementing the {\tt next}
-value in the current context), and make the ancestor
-attribute value the new current object.
-\end{indpar}
-
-\item
-The remaining arguments begin with a non-empty string of
-atoms that name an attribute of the current object,
+atoms that name an attribute of an ancestor of the
+current object,
 this string is the longest such string in case there are
 several that name attributes of the current object,
-and the named current object attribute has a single value that
-is a function.
+and there are not two ancestors that have an attribute
+with this name.
 
 \begin{indpar}[0.5em]
-Remove the attribute name from the beginning of the
-remaining arguments (by incrementing the {\tt next}
-value in the current context), and call the function.
-
-Calling the function consist of pushing a new function evaluation
-context into the evaluation stack and pushing a new frame
-for the function into the frame stack.  The current context
-is the caller context, and the new context is the function context.
-The function context has the new frame as its current and initial evaluator,
-and that frame has the object whose attribute value is the function was its
-only ancestor.  The function context has the body of the function
-as its expression to be evaluated.  The function context has the
-caller context as its {\tt caller}.
-
-Evaluation steps are then performed until the function context
-terminates.  During this the function may read arguments from
-its {\tt caller}.
-
-When the function context terminates, further
-action depends upon whether there are
-remaining arguments in the caller context, and upone
-the flags of the function context.  The first of the
-following applicable steps are taken:
-
-\begin{indpar}[0.5em]
-If the {\tt throw} flag of the function context is on,
-the current output value list is replaced by the output value
-list of the function context, the {\tt throw} flag of the
-caller context is set, and the caller context terminates.
-\end{indpar}
-
-\begin{indpar}[0.5em]
-If there are no remaining arguments in the caller context,
-the output values of the
-function context are added to the end of the list of output
-values of the caller context, and the caller context terminates.
-\end{indpar}
-
-\begin{indpar}[0.5em]
-If there are remaining arguments in the caller context,
-and the output list of the function context has a single element
-that is an object name, that object name becomes the current
-evaluator of the caller context.
-\end{indpar}
-
-\begin{indpar}[0.5em]
-If there are remaining arguments in the caller context,
-and the output list of the function context has a single element
-that is an abstract function, that function is called from the
-caller context.  This is just like the function call above,
-except that the ancestors of the new frame are specified by the
-abstract function.
-\end{indpar}
-
+Same as (\ref{LOCAL-READ}) but with the ancestor in
+place of the current object.
 \end{indpar}
 
 \end{enumerate}
