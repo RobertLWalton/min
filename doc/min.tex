@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 8, 2007}
+\date{March 10, 2007}
  
 \maketitle
 
@@ -2527,7 +2527,7 @@ for names of variables and functions.
 Every object or frame can have an `\ttdkey{ancestors}' attribute that is a
 list of all the ancestors of the object or frame.
 These are the objects or frames that are searched when a name is not
-found in the given object or fram.
+found in the given object or frame.
 
 Ancestors of objects must be other objects, while ancestors
 of frames can be objects or frames.  Frame X can be an ancestor of
@@ -2683,6 +2683,11 @@ terminates, information from that context, such as its output
 value list and evaluation flag setting, is passed to the
 builtin operation.
 
+An evaluation step may invoke one of three builtin operations:
+the call operation, the write opration,
+or the error operation.  These are described
+in subsequent sections.
+
 An \key{evaluation step} is just the execution of the first
 of the following which applies:
 
@@ -2724,32 +2729,8 @@ of a function body and a context object).
 
 \begin{indpar}[0.5em]
 The output value list is reset to missing and a
-\key{call operation} using the function abstraction that was
-in this list is performed.  Specifically:
-\begin{indpar}[0.5em]
-A new evaluation context, called the \key{function context}, is pushed
-into the evaluation stack.  The context previous to this in the stack,
-the current context, is called the \key{caller context}.
-
-A new frame is pushed onto the frame stack.  This frame is given a
-single ancestor, the context object named in the function abstraction.
-
-The caller context becomes the {\tt caller} of the function context.
-The new frame becomes the {\tt initial evaluator} and also the
-{\tt current evaluator} of the function context.  The function body
-becomes the {\tt expression} of the function context.
-
-The call operation executes evaluation steps until the function context
-terminates.
-
-Then the call operation sets the caller context output value list
-and {\tt throw}
-flag to equal the function context output value list and {\tt throw} flag,
-and pops the function context and its frame from their stacks.
-
-Note that the {\tt return} flag in the function context is \underline{not}
-copied to the caller context.
-\end{indpar}
+call operation using the function abstraction that was
+in this list is performed.
 
 \end{indpar}
 
@@ -2773,8 +2754,6 @@ value in the current context).
 
 Perform a write operation on the current object, the name
 of the attribute, and the input value list.
-
-Set the input value list to empty.
 \end{indpar}
 
 \item
@@ -2826,7 +2805,114 @@ Same as (\ref{LOCAL-READ}) but with the ancestor in
 place of the current object.
 \end{indpar}
 
+\item
+None of the above conditions are met.
+
+\begin{indpar}[0.5em]
+An error operation is executed.
+\end{indpar}
+
 \end{enumerate}
+
+\subsection{The Call Operation}
+\label{CALL-OPERATION}
+
+The \key{call operation} invokes a function.  The operation takes
+as input the current evaluation context and frame stacks,
+and an abstraction, which consists of
+a \key{function body}, which is a list beginning with the word
+`{\tt function}', and a frame or object, which is called the
+function \key{context object}.
+
+The call operation does the following:
+
+\begin{enumerate}
+
+\item
+The current context is called the \key{caller context}.
+
+\item
+A new evaluation context, called the \key{function context}, is pushed
+into the evaluation stack.
+
+\item
+A new frame is pushed onto the frame stack.  This frame is given a
+single ancestor, the context object named in the function abstraction.
+
+\item
+The caller context becomes the {\tt caller} of the function context.
+The new frame becomes the {\tt initial evaluator} and also the
+{\tt current evaluator} of the function context.  The function body
+becomes the {\tt expression} of the function context.
+
+\item
+Evaluation steps are executed until the function context terminates.
+
+\item
+The caller context output value list and {\tt throw} flag are set
+to equal the function context output value list and {\tt throw} flag.
+
+Note that the {\tt return} flag in the function context is \underline{not}
+copied to the caller context.
+
+\item
+The function context and its frame are popped from their stacks.
+\end{enumerate}
+
+\subsection{The Write Operation}
+\label{WRITE-OPERATION}
+
+\subsection{The Error Operation}
+\label{ERROR-OPERATION}
+
+The \key{error operation} creates an expression to be evaluated,
+and then evaluates it.  The expression calls the `{\tt error}' function
+with arguments that describe the error.  The expression is evaluated
+as if it were a subexpression of the currently evaluating expression.
+
+Specifically, the error operation does the following:
+
+\begin{enumerate}
+
+\item
+The current context is called the \key{parent context}.
+
+\item
+A new evaluation context, called the \key{error context}, is pushed
+into the evaluation stack.
+
+\item
+The expression of the error context is set to a list whose first
+element is `{\tt error}' and whose remaining elements, which are
+called \skey{error argument}s, describe the error.
+The error arguments should \underline{not} be evaluated.
+
+\item
+The {\tt caller} of the error context is copied from the parent context.
+The {\tt initial evaluator} and {\tt current evaluator} of the error context
+are copied from the {\tt initial evaluator} of the parent context.
+
+\item
+Evaluation steps are executed until the error context terminates.
+
+\item
+The {\tt throw} flag of the parent context is set.
+
+\item
+If the {\tt throw} flag of the error context is set, then the
+parent context output value list is set
+to equal the error context output value list.
+Otherwise the parent context output value list is set equal to the
+error context expression: so that `{\tt error}' becomes the first
+output value, and the error arguments become the remaining output values.
+
+\item
+The error context is popped from its stack.
+
+
+\end{enumerate}
+
+
 
 \subsection{Builtin Operations}
 \label{BUILTIN-OPERATIONS}
