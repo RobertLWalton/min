@@ -2625,7 +2625,13 @@ An evaluation context has the following components:
     & Contains flags that control expression evaluation.  The low order
       16 bits are reserved to the MIN system, and the high order bits
       may be used by applications programs.  See below.
-
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+\ttmkey{suboperation}{of evaluation context} & MIN symbol
+    & Suboperation for a {\tt write} operation: either MISSING or one of
+      \ttkey{set}, \ttkey{multi-set}, or {\tt delete}.
 \end{tabular}
 \end{indpar}
 
@@ -2861,6 +2867,46 @@ The function context and its frame are popped from their stacks.
 
 \subsection{The Write Operation}
 \label{WRITE-OPERATION}
+
+The \key{write operation} takes as input an object, an attribute
+name, the input value list from the current (topmost) evaluation context,
+and the suboperation of that context.  The value set of the named
+attribute of the object is changed according to the suboperation
+as follows:
+
+\begin{indpar}[0.5em]
+\begin{list}{}{}
+
+\item[MISSING]~\\
+All the current values of the attribute are deleted, and the set
+of attribute values is reset to the values in the input value list.
+Some of these values may be duplicates (equal to each other).
+
+\item[\ttakey{set}{evaluation suboperation}]~\\
+    Those values in the input value list that are not already equal
+    to values of the attribute are made values of the attribute.
+    This is done recursively, so duplicate values in the input value
+    list have the effect of a single unduplicated value.
+
+\item[\ttakey{multi-set}{evaluation suboperation}]~\\
+    All values in the input value list are made new values of the attribute.
+    These may create new values that equal previous values, or equal
+    each other.
+
+\item[\ttakey{delete}{evaluation suboperation}]~\\
+    For each value in the input value list, if an existing attribute value
+    is equal to the input value, the existing attribute value is deleted.
+    The input value list may contain duplicates to delete multiple equal
+    attribute values.  It is not an error if an input value is not an
+    existing value.
+
+
+\end{list}
+\end{indpar}
+
+After the above is done, the input value list is set to MISSING and
+the output value list is set to the values of the attribute, in any
+order.
 
 \subsection{The Error Operation}
 \label{ERROR-OPERATION}
