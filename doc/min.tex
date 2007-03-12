@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 10, 2007}
+\date{March 12, 2007}
  
 \maketitle
 
@@ -269,7 +269,332 @@ TBD
 
 \section{Overview}
 
-TBD
+Consider the following description of a room:
+
+\begin{indpar}\begin{verbatim}
+##523::
+    type: standard room
+    outline: straight width, left, straight length, left,
+             straight width, left,
+             doored wall width,
+             close
+    width: 3.2
+    length: 9.6
+    doored wall: function ( length ) {
+                     d <- (length - door width) / 2
+                     straight d
+                     door (door width)
+                     straight d }
+    door : standard room door
+    label: color green, under over, noun room
+    over: ##598
+\end{verbatim}\end{indpar}
+
+The information in this description is not immediately useful for
+producing output, such as a video picture of the room, or text naming
+the room.  Instead, parts of the description must be evaluated to produce
+the picture or the name.
+
+Another example is the \ttmkey{type}{of object} attribute of an object,
+which is implicitly evaluated to produce the \ttdmkey{ancestors} attribute
+of the object.  This last is a list of other objects from which the current
+object inherits attributes.  In our example, the \verb|type| attribute
+names another object, `{\tt standard room}', from which the room object
+inherits attributes.  This means that when an evaluation searches for the
+name of an attribute in the room object, if that name is not found, the
+evaluation will next search the `{\tt standard room}' object.
+
+To compute the \verb|.ancestors| attribute the \verb|type| object
+is evaluated `in global context'.  This last implies that the only
+names the evaluator can use are global variable names, and `{\tt standard
+room}' in fact names a global variable whose value is the object
+which is the sole immediate ancestor of our room.
+
+In our example, the \verb|outline| attribute value is used to compute
+a video output that describes how the object is to be displayed
+graphically.
+The \verb|outline| attribute value is a program is written from the point
+of view of a robot moving around the outline of the room building walls.
+The robot follows a sequence of commands that are separated by commas.
+
+In order to show how evaluation works, we will explain in detail some
+of the evaluation of \verb|outline|.
+
+Evaluation of the \verb|outline| attribute of object \verb|##523|
+is triggered when a video description of how to display this object
+is needed.  This evaluation is done by the
+\ttdmkey{display}{function of object} attribute of the object to be
+displayed.  In this case this {\tt .display} attribute
+is defined by {\tt standard room} which is an ancestor of \verb|##523|.
+
+In our case the \verb|.display| function evaluates
+the \verb|outline| attribute of \verb|##523| to produce the video output.
+First the function establishes
+a context, which is a list of objects that will be searched when an
+attribute name is to be located.  The context for the evaluation of
+an object's attribute value usually begins with the object and ends with
+a special object called `\verb|.GLOBAL|'.  A global variable is by definition
+just an attribute of the \verb|.GLOBAL| object.  An function evaluating
+an {\tt outline} attribute is likely to include in the context an object
+that defines functions named `{\tt straight}' and `{\tt left}' which will
+evaluate parts of the {\tt outline} attribute.
+
+Besides establishing a context, the \verb|.display| function establishes an
+execution frame.  The execution frame contains a video output channel into
+which functions like `{\tt straight}' write new commands written in
+a video language that can be processed by the video engine to produce
+a picture.
+
+Since functions such as `{\tt straight}' and `{\tt left}' are written
+from the point of view of a robot moving around the outline of a room,
+the execution frame also contains the current location and direction
+of the robot.
+
+After establishing a context and frame, the evaluating function starts reading
+the \verb|outline| attribute value which is to be evaluated.  In this
+case the it finds a comma separated list of commands, and evaluates
+each command separately.
+
+The first command is `{\tt straight width}'.   When `{\tt straight}' is 
+read, a search is made in the current context for an attribute with a name
+beginning with the word `{\tt straight}'.  One will be found whose total
+name is just the single word `{\tt straight}', and the value of that
+attribute will be taken.  We have not shown that attribute, but it will
+exist and have a value of the form
+
+\begin{center}
+\verb|function ( w ) { |\ldots\verb|}|
+\end{center}
+
+This value means the expression we are reading should have next, after the
+word `{\tt straight}', a single argument.  An argument
+is either a single lexeme or a bracketed string of lexemes.  The argument
+must be read, and perhaps evaluated and replaced by its value, which becomes
+the value of the \verb|w| argument of the `{\tt straight}' function.
+Then this function is evaluated.
+
+In our case `{\tt width}' follows `{\tt straight}'.  This is an unbracketed
+single lexeme argument, and as such must be evaluated and replaced by
+its value.  A search is made for an attribute whose name begins with
+`{\tt width}'.  The `{\tt width}' attribute of \verb|##523| is found,
+and as its value is a number,
+\verb|3.2|, that is the final value of the `{\tt width}' argument.
+Thus the command `{\tt straight width}' has become `{\tt straight 3.2}',
+and this is then evaluated by executing the `{\tt straight}' function
+with \verb|w| equal to \verb|3.2|.  The result will be video commands
+written into the video output channel.
+
+The other commands in the {\tt outline} attribute are similar, except
+for the `{\tt doored wall width}' command.  This invokes the `{\tt doored wall}'
+function we have defined as an attribute of \verb|##523| (but it would
+make more sense to define it as an attribute of the {\tt standard room}
+object whose attributes are inherited by \verb|##523|).   Again
+`{\tt width}' is the argument which evaluates to \verb|3.2| and becomes
+the value of the `{\tt length}' argument in the `{\tt doored wall}'
+function.  Evaluation of the `{\tt doored wall}' function is next,
+and as a function,
+its evaluation context begins with an object called the function frame
+that has an attribute named `{\tt length}' whose value is the corresponding
+argument value, in this case \verb|3.2|.
+
+We also need to explain
+the meaning of the `{\tt label}' and `{\tt over}' attribute values
+of \verb|##523|.  It is necessary to produce a name
+for \verb|##523| in an arbitrary natural language, such as English or
+French or Japanese, and this is what the `{\tt label}' attribute value does
+when it is evaluated.  This value is also a sequence of commands that
+provide descriptive information about the object which the natural language
+engine can process to produce the desired text.  The `{\tt color green}'
+command invokes the `{\tt color}' function with an argument that is
+some object which is the value of the `{\tt green}' variable to
+produce some internal notation that tells the natural language engine
+that \verb|##523| has the color green.  Similarly `{\tt over under}'
+invokes the `{\tt over}' function with an the `{\tt under}' argument that
+just names an attribute of \verb|##523| with value \verb|##598|.  This
+says that \verb|##523| is under \verb|##598|.  Lastly, `{\tt noun room}'
+says that \verb|##523| is a room.
+
+If the label of \verb|##598| is
+
+\begin{center}
+\verb|label: adjective main, noun dungeon|
+\end{center}
+
+then the English natural language engine might generate the text
+
+\begin{center}
+\verb|the green room under the main dungeon|
+\end{center}
+
+in order to specify \verb|##523|.
+
+\subsection{The Evaluation Algorithm}
+
+Expressions are evaluated in a context called an
+`\key{evaluation context}'.  This is typically not a MIN datum,
+but instead a C++ datum, allocated in the C++ stack to the C++ frame
+of a C++ expression evaluator function.  Evaluation contexts
+are allocated to their own `\key{evaluation stack}', which may be
+just the C++ stack (and may contain other things besides evaluation
+contexts).
+
+The local variables of a function are stored in a `\key{frame}',
+which is like an object, except that it is stored in its own
+stack, the `\key{frame stack}'.
+
+Each evaluation context has a frame or object called the
+current evaluator.  This is the starting point for searching
+for names of variables and functions. 
+Every object or frame can have an `\ttdkey{ancestors}' attribute that is a
+list of all the ancestors of the object or frame.
+These are the objects or frames that are searched when a name is not
+found in the given object or frame.
+
+Ancestors of objects must be other objects, while ancestors
+of frames can be objects or frames.  Frame X can be an ancestor of
+frame Y only if X and Y are in the same stack and Y is allocated after
+X is allocated and freed before X is freed.
+
+An evaluation context has the following components:
+
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\begin{tabular}[t]{@{}l@{}}
+\tt \bf current \\
+\tt \bf evaluator \\
+\end{tabular}\ttmindex{current evaluator}{of evaluation context}
+    & \begin{tabular}[t]{@{}l@{}}object or frame\\name\end{tabular}
+    & One should think of expression evaluation as being done by an object
+      or frame called the current evaluator.
+\\[0.5ex]
+\begin{tabular}[t]{@{}l@{}}
+\tt \bf initial \\
+\tt \bf evaluator \\
+\end{tabular}\ttmindex{initial evaluator}{of evaluation context}
+    & \begin{tabular}[t]{@{}l@{}}object or frame\\name\end{tabular}
+    & Initial value for the current evaluator when a new context is
+      created to evaluate a subexpression.  \underline{Both} the current
+      and initial evaluator of the new context are set to the
+      initial evaluator of the previous context in the evaluation stack.
+\end{tabular}
+\end{indpar}
+
+\bigskip
+
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttmkey{expression}{of evaluation context} & MIN expression
+    & Expression being evaluated.
+\\[2ex]
+\ttmkey{next}{of evaluation context}
+    & \begin{tabular}[t]{@{}l@{}}non-negative\\integer\end{tabular}
+    & The \skey{remaining argument}s
+      are all the elements of the `{\tt expression}'
+      list from the element whose index is `{\tt next}'
+      to the end of the list.  {\tt 0} is the index of the first element.
+      If `{\tt expression}' is not a list, it is treated as if it were
+      a list of one element.
+
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttmkey{caller}{of evaluation context} & evaluation context
+    & Evaluation context of the expression which called the function
+      execution of which the current evaluation context is a part.
+      When the function wants to read another argument, it invokes
+      this evaluation context to read or to read and evaluate the
+      next function argument.
+      This is also the context that resumes execution when a function
+      returns.
+
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\ttmkey{input values}{of evaluation context}
+    & \begin{tabular}[t]{@{}l@{}}MIN list\\or MISSING\end{tabular}
+    & The possibly empty list of input values, or the special MISSING
+      value.  The MISSING value need not be a MIN value,
+      may be the C++ NULL value, and is \underline{not} the same
+      as an empty list.
+      \\[0.5ex]
+    &
+    & Expressions of the form `$X$ \verb|<-| $Y$' cause values
+      generated by evaluating $Y$ to become input values to the
+      evaluation of $X$.
+\\[0.5ex]
+\ttmkey{output values}{of evaluation context}
+    & \begin{tabular}[t]{@{}l@{}}MIN list\\or MISSING\end{tabular}
+    & Ditto but for output values instead of input values.
+      Expressions that return values do so in this output values list.
+
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+
+\begin{tabular}[t]{@{}l@{}}
+\tt \bf evaluation \\
+\tt \bf flags \\
+\end{tabular}\ttmindex{evaluation flags}{of evaluation context}
+    & 32 bits
+    & Contains flags that control expression evaluation.  The low order
+      16 bits are reserved to the MIN system, and the high order bits
+      may be used by applications programs.  See below.
+\end{tabular}
+\end{indpar}
+\begin{indpar}[0.1in]
+\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
+\ttmkey{suboperation}{of evaluation context} & MIN symbol
+    & Suboperation for a {\tt write} operation: either MISSING or one of
+      \ttkey{set}, \ttkey{multi-set}, or {\tt delete}.
+\end{tabular}
+\end{indpar}
+
+The MIN system \skey{evaluation flag}s are:
+
+\begin{indpar}
+\begin{list}{}{}
+
+\item[\ttakey{repeat}{evaluation flag}]~\\
+    If on at the end of evaluating a statement in a block,
+    this flag is turned off and the statement is repeated.
+
+\item[\ttakey{skip else}{evaluation flag}]~\\
+    If on at the beginning of an {\tt else} statement being
+    evaluated in a block, the {\tt else} statement is skipped
+    and this flag is turned off.
+
+    If on at the beginning of an `{\tt else if}' statement
+    being evaluated in a block, the `{\tt else if}' statement is
+    skipped and this flag is left on.
+
+    If on at the beginning of any other statement in a block,
+    this flag is turned off.
+
+\item[\ttakey{throw}{evaluation flag}]~\\
+    Set when a {\tt throw} statement is executed during a
+    {\tt try} statement.
+
+    Forces termination of everything but a {\tt try} statement.
+
+\item[\ttakey{skip catch}{evaluation flag}]~\\
+    Just like {\tt skip else} but skips {\tt catch} and
+    {\tt catch if} statements.
+
+\item[\ttakey{return}{evaluation flag}]~\\
+    Set when a {\tt return} statement is executed.
+
+    Forces termination of everything but a call operation.
+
+\end{list}
+\end{indpar}
+
 
 \section{Lexemes}
 \label{LEXEMES}
@@ -2100,579 +2425,6 @@ the object is created.  All objects created with the same lexical
 context can share the same code.  To make this work properly, the
 lexical parent of an object is determined by the lexical context
 in which the object is created.
-
-\section{Evaluation Context}
-\label{EVALUATION-CONTEXT}
-
-Expressions are evaluated in an \key{evaluation context}.  Evaluation
-contexts are organized in a tree, with subcontexts and parent contexts.
-Each evaluation context contains the following:
-
-\bigskip
-
-\key{current expression}
-
-\begin{indpar}[0.5em]
-This is the expression being evaluated.  It is not used during
-evaluation (see `remaining argument list' below), but is available for
-debugging and error messages.
-\end{indpar}
-
-\key{remaining argument list}
-
-\begin{indpar}[0.5em]
-This is initialized to the list of elements of the current expression.
-These elements are call \skey{argument}s.
-If the expression is a single atom, it is treated as a list
-of one atom.
-
-As the expression is evaluated, arguments are removed from
-the beginning of the remaining argument list.  When an argument is
-removed, it may or may not be evaluated, as determined by the
-current evaluator (see below).
-\end{indpar}
-
-\bigskip
-
-\key{current evaluator}\\
-\key{initial evaluator}
-
-\begin{indpar}[0.5em]
-The current evaluator is the object that is currently evaluating the
-expression.  Often this object is a function frame created when a
-function is called.  But this object is also frequently a non-frame
-object whose attributes are to be read or written.
-
-The initial evaluator is used to initialize the current evaluator in
-any newly created evaluation subcontext.
-When an argument is to be evaluated, a new evaluation subcontext
-is created for evaluating the argument, and the initial evaluator
-becomes both the initial and current evaluator in the subcontext.
-\end{indpar}
-
-\bigskip
-
-\key{input list}\\
-\key{output list}
-
-\begin{indpar}[0.5em]
-The input list is a list of values, or is missing, and similarly
-the output list is a list of values, or is missing.  Missing and
-empty lists are \underline{not} the same.
-
-The input values are values to be written somewhere.  The output
-values are values read from somewhere.  Write and read operations
-are controlled by these lists and other parts of the context.
-
-\end{indpar}
-
-\bigskip
-
-\key{memory type}
-
-\begin{indpar}[0.5em]
-Reads and writes come in three kinds: \key{single value},
-\key{set value} and \key{multiset value}.
-
-In the single value case, the thing being read or written is
-viewed as having a single value.  A read should return this value
-(in th output list), a write should overwrite
-(from the input list) any existing value, or create a new value if
-none exists, and a delete should delete the thing being read or
-written.
-
-In the set value case, the thing begin read or written is
-viewed as having a set of \underline{unequal} values.
-A read should return the values of this set (in the output list),
-a write should add to this set any values (from the input list)
-not already in the set, and a delete should remove designated values
-(from the input list).
-
-The multiset case is just like the case except that values may be
-replicated, and need not all be unequal.  Adding a value that already
-exists merely increments the values replication count, and deleting
-the value deletes the count.  The count may not be negative.
-
-\end{indpar}
-
-\bigskip
-
-\key{search type}
-
-\begin{indpar}[0.5em]
-TBD: local, non-local.
-\end{indpar}
-
-
-
-
-\begin{enumerate}
-
-\item
-An expression is treated as a list of subexpressions called
-`\skey{argument}s' that are read
-from left to right under the control of a `\key{current value}'.
-The current value at the beginning of the expression is the
-`\key{initial value}' of the expression.
-The initial value of an expression completely defines the
-context in which the expression is evaluated.
-It is typically a function frame for the function
-whose code contains the expression.
-
-Arguments are read without being evaluated.  They can then
-be evaluated at any time using the same initial value as the expression
-that contained the argument.  Thus arguments may be immediately
-evaluated, never evaluated, or evaluated later.  Sometimes parts of
-an unevaluated argument can be treated as separate arguments, as when
-an argument is a comma separated list whose elements can be evaluted
-separately.
-
-The list of unread arguments remaining in the expression is called the
-`\key{remaining argument list}'.
-
-\item
-An expression evaluation may have a list of input
-values and/or a a list of output values.
-The input values may be thought of as values to be stored,
-and the output values may be thought of as values read or
-returned from a function.  Either list may be missing.
-
-A missing value list and an empty value list are not the same thing;
-e.g., a missing input list means nothing is to be stored, and an empty
-input list means the empty list is to be stored.
-
-\item
-An expression evaluation also has as both input and output
-a condition code containing some flag bits that control evaluation.
-In the context of evaluating a block (a sequence of expressions to
-be evaluated one after another), one bit may be set to repeat the
-current expression, another to indicate that any immediately following
-`\verb|else|' or `\verb|else if|' expression should be skipped, and
-so forth.
-
-\item
-The current value reads zero or more arguments, performs some computation,
-and modifies the input and output value lists, the current value, the
-condition code, and the remaining argument list.  Usually the only
-modification is to remove arguments as they are read from the
-remaining argument list, and either set the current value if there
-are remaining arguments or the output argument list otherwise.
-
-Current values that return a single value when the input value
-list is missing and the remaining argument list is empty usually will
-make the value they would have returned the new current value
-if the remaining argument list is not empty.
-
-\item
-When a function is called, a function frame is allocated to a stack
-in order to hold the local variables of the function.
-Function frames are just like
-objects, except that no object can point at a function frame, and
-no function frame X can point at another function frame Y unless
-X and Y are in the same stack and Y is allocated after X is allocated and
-freed before X is freed.
-
-\item
-When the current value of an expression is an object or frame, the next
-arguments are used as the name of an attribute which is searched for
-starting with the current value.
-Objects and function frames have a list of ancestors from which they
-inherit attributes.  Ancestors are themselved objects or frames.
-If the search does not find an attribute in an
-object or frame, the ancestors of the object or frame are searched for
-the attribute, recursively depth first.
-
-Note that because only frames may point at frames, a frame may not be
-an ancestor of an object, and frame X may be an ancestor of frame Y only
-if X and Y are in the same stack and Y is allocated after X is allocated
-and freed before X is freed.
-
-The last ancestor in the list of ancestors of an object or frame is called
-the \key{lexical parent} of the object or frame, and plays the role of
-identifying the lexical container of the object or frame.
-
-\item
-
-There are two kinds of functions.
-
-\ikey{Methods}{method} are functions whose code is the value of
-an object or frame attribute.
-When called, a new frame is created to hold the local variables
-of the function execution, and that frame is given as its lexical parent
-the object or frame whose attribute is the function code.
-
-\ikey{Abstractions}{abstraction} are functions created by a function execution.
-An abstraction consists of a pair, one element being the code of the
-function, and the other element being a pointer to the frame of the function
-execution that created the abstraction.  When the abstraction is called,
-a new frame is created to hold the local variables of the function
-execution, and that frame is given as its lexical parent the
-frame pointed at by the frame element of the abstraction, which is the
-frame of the function execution that created the abstraction.
-
-An abstraction can only be called by a function execution X that runs
-during the function execution Y that created the abstraction.
-Similarly a method of the frame of a function execution Y can only
-be called by a function execution X that runs during Y.  X and Y can be
-the same function execution in either case.
-
-\begin{quote}
-Some languages permit the lexical parent of an object to be a frame,
-but MIN does not.
-
-Specifically, in languages with object types, whenever a function or
-object type definition X is created
-within a function execution whose frame is Y,
-definition X is associated with frame Y.
-Then any function call or object
-creation using the definition X yields a function frame or object whose
-lexical parent is Y.  Also, if a definition X of a function or object type
-occurs within an object type definition Z,
-then effectively X is not available except within an object Y of type Z,
-and Y becomes the lexical parent of any function execution or
-object created from definition X.
-
-Because object types may be defined by function code (in languages other
-than MIN), objects may have function frames as lexical parents.
-The adverse consequence is that either these objects must be deallocated
-when their lexical parent's function execution terminates,
-or their lexical parent must persist after its function execution terminates.
-MIN does not support this,
-and therefore does not support objects whose lexical parents are frames
-(or in general, objects that point at frames in any way).
-
-\end{quote}
-
-
-\end{enumerate}
-
-\subsection{Evaluation Examples}
-
-Consider the following description of a room:
-
-\begin{indpar}\begin{verbatim}
-##523::
-    type: standard room
-    outline: straight width, left, straight length, left,
-             straight width, left,
-             doored wall width,
-             close
-    width: 3.2
-    length: 9.6
-    doored wall: function ( length ) {
-                     d <- (length - door width) / 2
-                     straight d
-                     door (door width)
-                     straight d }
-    door : standard room door
-    label: color green, under over, noun room
-    over: ##598
-\end{verbatim}\end{indpar}
-
-The information in this description is not immediately useful for
-producing output, such as a video picture of the room, or text naming
-the room.  Instead, parts of the description must be evaluated to produce
-the picture or the name.
-
-Another example is the \ttmkey{type}{of object} attribute of an object,
-which is implicitly evaluated to produce the \ttdmkey{ancestors} attribute
-of the object.  This last is a list of other objects from which the current
-object inherits attributes.  In our example, the \verb|type| attribute
-names another object, `{\tt standard room}', from which the room object
-inherits attributes.  This means that when an evaluation searches for the
-name of an attribute in the room object, if that name is not found, the
-evaluation will next search the `{\tt standard room}' object.
-
-To compute the \verb|.ancestors| attribute the \verb|type| object
-is evaluated `in global context'.  This last implies that the only
-names the evaluator can use are global variable names, and `{\tt standard
-room}' in fact names a global variable whose value is the object
-which is the sole immediate ancestor of our room.
-
-In our example, the \verb|outline| attribute value is used to compute
-a video output that describes how the object is to be displayed
-graphically.
-The \verb|outline| attribute value is a program is written from the point
-of view of a robot moving around the outline of the room building walls.
-The robot follows a sequence of commands that are separated by commas.
-
-In order to show how evaluation works, we will explain in detail some
-of the evaluation of \verb|outline|.
-
-Evaluation of the \verb|outline| attribute of object \verb|##523|
-is triggered when a video description of how to display this object
-is needed.  This evaluation is done by the
-\ttdmkey{display}{function of object} attribute of the object to be
-displayed.  In this case this {\tt .display} attribute
-is defined by {\tt standard room} which is an ancestor of \verb|##523|.
-
-In our case the \verb|.display| function evaluates
-the \verb|outline| attribute of \verb|##523| to produce the video output.
-First the function establishes
-a context, which is a list of objects that will be searched when an
-attribute name is to be located.  The context for the evaluation of
-an object's attribute value usually begins with the object and ends with
-a special object called `\verb|.GLOBAL|'.  A global variable is by definition
-just an attribute of the \verb|.GLOBAL| object.  An function evaluating
-an {\tt outline} attribute is likely to include in the context an object
-that defines functions named `{\tt straight}' and `{\tt left}' which will
-evaluate parts of the {\tt outline} attribute.
-
-Besides establishing a context, the \verb|.display| function establishes an
-execution frame.  The execution frame contains a video output channel into
-which functions like `{\tt straight}' write new commands written in
-a video language that can be processed by the video engine to produce
-a picture.
-
-Since functions such as `{\tt straight}' and `{\tt left}' are written
-from the point of view of a robot moving around the outline of a room,
-the execution frame also contains the current location and direction
-of the robot.
-
-After establishing a context and frame, the evaluating function starts reading
-the \verb|outline| attribute value which is to be evaluated.  In this
-case the it finds a comma separated list of commands, and evaluates
-each command separately.
-
-The first command is `{\tt straight width}'.   When `{\tt straight}' is 
-read, a search is made in the current context for an attribute with a name
-beginning with the word `{\tt straight}'.  One will be found whose total
-name is just the single word `{\tt straight}', and the value of that
-attribute will be taken.  We have not shown that attribute, but it will
-exist and have a value of the form
-
-\begin{center}
-\verb|function ( w ) { |\ldots\verb|}|
-\end{center}
-
-This value means the expression we are reading should have next, after the
-word `{\tt straight}', a single argument.  An argument
-is either a single lexeme or a bracketed string of lexemes.  The argument
-must be read, and perhaps evaluated and replaced by its value, which becomes
-the value of the \verb|w| argument of the `{\tt straight}' function.
-Then this function is evaluated.
-
-In our case `{\tt width}' follows `{\tt straight}'.  This is an unbracketed
-single lexeme argument, and as such must be evaluated and replaced by
-its value.  A search is made for an attribute whose name begins with
-`{\tt width}'.  The `{\tt width}' attribute of \verb|##523| is found,
-and as its value is a number,
-\verb|3.2|, that is the final value of the `{\tt width}' argument.
-Thus the command `{\tt straight width}' has become `{\tt straight 3.2}',
-and this is then evaluated by executing the `{\tt straight}' function
-with \verb|w| equal to \verb|3.2|.  The result will be video commands
-written into the video output channel.
-
-The other commands in the {\tt outline} attribute are similar, except
-for the `{\tt doored wall width}' command.  This invokes the `{\tt doored wall}'
-function we have defined as an attribute of \verb|##523| (but it would
-make more sense to define it as an attribute of the {\tt standard room}
-object whose attributes are inherited by \verb|##523|).   Again
-`{\tt width}' is the argument which evaluates to \verb|3.2| and becomes
-the value of the `{\tt length}' argument in the `{\tt doored wall}'
-function.  Evaluation of the `{\tt doored wall}' function is next,
-and as a function,
-its evaluation context begins with an object called the function frame
-that has an attribute named `{\tt length}' whose value is the corresponding
-argument value, in this case \verb|3.2|.
-
-We also need to explain
-the meaning of the `{\tt label}' and `{\tt over}' attribute values
-of \verb|##523|.  It is necessary to produce a name
-for \verb|##523| in an arbitrary natural language, such as English or
-French or Japanese, and this is what the `{\tt label}' attribute value does
-when it is evaluated.  This value is also a sequence of commands that
-provide descriptive information about the object which the natural language
-engine can process to produce the desired text.  The `{\tt color green}'
-command invokes the `{\tt color}' function with an argument that is
-some object which is the value of the `{\tt green}' variable to
-produce some internal notation that tells the natural language engine
-that \verb|##523| has the color green.  Similarly `{\tt over under}'
-invokes the `{\tt over}' function with an the `{\tt under}' argument that
-just names an attribute of \verb|##523| with value \verb|##598|.  This
-says that \verb|##523| is under \verb|##598|.  Lastly, `{\tt noun room}'
-says that \verb|##523| is a room.
-
-If the label of \verb|##598| is
-
-\begin{center}
-\verb|label: adjective main, noun dungeon|
-\end{center}
-
-then the English natural language engine might generate the text
-
-\begin{center}
-\verb|the green room under the main dungeon|
-\end{center}
-
-in order to specify \verb|##523|.
-
-\subsection{The Evaluation Algorithm}
-
-Expressions are evaluated in a context called an
-`\key{evaluation context}'.  This is typically not a MIN datum,
-but instead a C++ datum, allocated in the C++ stack to the C++ frame
-of a C++ expression evaluator function.  Evaluation contexts
-are allocated to their own `\key{evaluation stack}', which may be
-just the C++ stack (and may contain other things besides evaluation
-contexts).
-
-The local variables of a function are stored in a `\key{frame}',
-which is like an object, except that it is stored in its own
-stack, the `\key{frame stack}'.
-
-Each evaluation context has a frame or object called the
-current evaluator.  This is the starting point for searching
-for names of variables and functions. 
-Every object or frame can have an `\ttdkey{ancestors}' attribute that is a
-list of all the ancestors of the object or frame.
-These are the objects or frames that are searched when a name is not
-found in the given object or frame.
-
-Ancestors of objects must be other objects, while ancestors
-of frames can be objects or frames.  Frame X can be an ancestor of
-frame Y only if X and Y are in the same stack and Y is allocated after
-X is allocated and freed before X is freed.
-
-An evaluation context has the following components:
-
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
-
-\begin{tabular}[t]{@{}l@{}}
-\tt \bf current \\
-\tt \bf evaluator \\
-\end{tabular}\ttmindex{current evaluator}{of evaluation context}
-    & \begin{tabular}[t]{@{}l@{}}object or frame\\name\end{tabular}
-    & One should think of expression evaluation as being done by an object
-      or frame called the current evaluator.
-\\[0.5ex]
-\begin{tabular}[t]{@{}l@{}}
-\tt \bf initial \\
-\tt \bf evaluator \\
-\end{tabular}\ttmindex{initial evaluator}{of evaluation context}
-    & \begin{tabular}[t]{@{}l@{}}object or frame\\name\end{tabular}
-    & Initial value for the current evaluator when a new context is
-      created to evaluate a subexpression.  \underline{Both} the current
-      and initial evaluator of the new context are set to the
-      initial evaluator of the previous context in the evaluation stack.
-\end{tabular}
-\end{indpar}
-
-\bigskip
-
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
-
-\ttmkey{expression}{of evaluation context} & MIN expression
-    & Expression being evaluated.
-\\[2ex]
-\ttmkey{next}{of evaluation context}
-    & \begin{tabular}[t]{@{}l@{}}non-negative\\integer\end{tabular}
-    & The \skey{remaining argument}s
-      are all the elements of the `{\tt expression}'
-      list from the element whose index is `{\tt next}'
-      to the end of the list.  {\tt 0} is the index of the first element.
-      If `{\tt expression}' is not a list, it is treated as if it were
-      a list of one element.
-
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
-
-\ttmkey{caller}{of evaluation context} & evaluation context
-    & Evaluation context of the expression which called the function
-      execution of which the current evaluation context is a part.
-      When the function wants to read another argument, it invokes
-      this evaluation context to read or to read and evaluate the
-      next function argument.
-      This is also the context that resumes execution when a function
-      returns.
-
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
-
-\ttmkey{input values}{of evaluation context}
-    & \begin{tabular}[t]{@{}l@{}}MIN list\\or MISSING\end{tabular}
-    & The possibly empty list of input values, or the special MISSING
-      value.  The MISSING value need not be a MIN value,
-      may be the C++ NULL value, and is \underline{not} the same
-      as an empty list.
-      \\[0.5ex]
-    &
-    & Expressions of the form `$X$ \verb|<-| $Y$' cause values
-      generated by evaluating $Y$ to become input values to the
-      evaluation of $X$.
-\\[0.5ex]
-\ttmkey{output values}{of evaluation context}
-    & \begin{tabular}[t]{@{}l@{}}MIN list\\or MISSING\end{tabular}
-    & Ditto but for output values instead of input values.
-      Expressions that return values do so in this output values list.
-
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
-
-\begin{tabular}[t]{@{}l@{}}
-\tt \bf evaluation \\
-\tt \bf flags \\
-\end{tabular}\ttmindex{evaluation flags}{of evaluation context}
-    & 32 bits
-    & Contains flags that control expression evaluation.  The low order
-      16 bits are reserved to the MIN system, and the high order bits
-      may be used by applications programs.  See below.
-\end{tabular}
-\end{indpar}
-\begin{indpar}[0.1in]
-\begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
-\ttmkey{suboperation}{of evaluation context} & MIN symbol
-    & Suboperation for a {\tt write} operation: either MISSING or one of
-      \ttkey{set}, \ttkey{multi-set}, or {\tt delete}.
-\end{tabular}
-\end{indpar}
-
-The MIN system \skey{evaluation flag}s are:
-
-\begin{indpar}
-\begin{list}{}{}
-
-\item[\ttakey{repeat}{evaluation flag}]~\\
-    If on at the end of evaluating a statement in a block,
-    this flag is turned off and the statement is repeated.
-
-\item[\ttakey{skip else}{evaluation flag}]~\\
-    If on at the beginning of an {\tt else} statement being
-    evaluated in a block, the {\tt else} statement is skipped
-    and this flag is turned off.
-
-    If on at the beginning of an `{\tt else if}' statement
-    being evaluated in a block, the `{\tt else if}' statement is
-    skipped and this flag is left on.
-
-    If on at the beginning of any other statement in a block,
-    this flag is turned off.
-
-\item[\ttakey{throw}{evaluation flag}]~\\
-    Set when a {\tt throw} statement is executed during a
-    {\tt try} statement.
-
-    Forces termination of everything but a {\tt try} statement.
-
-\item[\ttakey{skip catch}{evaluation flag}]~\\
-    Just like {\tt skip else} but skips {\tt catch} and
-    {\tt catch if} statements.
-
-\item[\ttakey{return}{evaluation flag}]~\\
-    Set when a {\tt return} statement is executed.
-
-    Forces termination of everything but a call operation.
-
-\end{list}
-\end{indpar}
 
 \subsection{Evaluation Steps}
 \label{EVALUATION-STEPS}
