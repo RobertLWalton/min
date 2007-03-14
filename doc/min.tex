@@ -307,44 +307,52 @@ The \verb|outline| attribute value is a program written from the point
 of view of a robot moving around the outline of the room building walls.
 The robot follows a sequence of commands that are separated by commas.
 
+The {\tt type} attribute of the room indicates that the room object
+inherits attributes from the {\tt standard room} object.  The room
+has a hidden {\tt .ancestors} attribute that lists all the objects from
+which the room inherits, and the {\tt type} attribute is used to compute the
+{\tt .ancestors} attribute.
+
 Evaluation of the \verb|outline| attribute of object \verb|##523|
 is triggered when a video description of how to display this object
 is needed.  This evaluation is done by the
-\ttdmkey{display}{function of object} attribute of the object to be
+{\tt .display} attribute of the object to be
 displayed.  In this case this {\tt .display} attribute
 is defined by {\tt standard room} which is an ancestor of \verb|##523|.
 
 In our case the \verb|.display| function evaluates
 the \verb|outline| attribute of \verb|##523| to produce the video output.
-First the function establishes
-a context, which is a list of objects that will be searched when an
-attribute name is to be located.  The context for the evaluation of
-an object's attribute value usually begins with the object and ends with
-a special object called `\verb|.GLOBAL|'.  A global variable is by definition
-just an attribute of the \verb|.GLOBAL| object.  An function evaluating
-an {\tt outline} attribute is likely to include in the context an object
-that defines functions named `{\tt straight}' and `{\tt left}' which will
-evaluate parts of the {\tt outline} attribute.
-
-Besides establishing a context, the \verb|.display| function establishes an
-execution frame.  The execution frame contains a video output channel into
-which functions like `{\tt straight}' write new commands written in
-a video language that can be processed by the video engine to produce
-a picture.
+First the function creates an display object that contains
+data to be used during evaluation and has {\tt .ancestors}
+which control where names such as {\tt straight} are found during
+evaluation.  One of the attributes of the display object is the
+video output channel into which video commands are written by
+functions such as `{\tt straight}'.
+The first ancestor of the display object
+is the room object, which is searched
+for attribute names immediately after the display object is searched.
+The next ancestor of the display object is a video
+object that provides definitions for functions such as `{\tt straight}'
+that define the video language.  The last ancestor of the
+display object is the {\tt .GLOBAL} object that provides
+definitions of global variables (such as `{\tt standard room}').
 
 Since functions such as `{\tt straight}' and `{\tt left}' are written
 from the point of view of a robot moving around the outline of a room,
-the execution frame also contains the current location and direction
+the display object also contains the current location and direction
 of the robot.
 
-After establishing a context and frame, the evaluating function starts reading
-the \verb|outline| attribute value which is to be evaluated.  In this
-case the it finds a comma separated list of commands, and evaluates
-each command separately.
+After establishing a display object, the {\tt .display}
+function evaluates the {\tt outline} attribute
+value in the context of the display object to produce video output
+in the display object video output channel.  The {\tt outline}
+attribute value is a comma separated list of commands, each of
+which is to be evaluated in sequence.
 
 The first command is `{\tt straight width}'.   When `{\tt straight}' is 
-read, a search is made in the current context for an attribute with a name
-beginning with the word `{\tt straight}'.  One will be found whose total
+read, a search is made for an attribute with a name
+beginning with the word `{\tt straight}'.  One will be found in the
+video object whose total
 name is just the single word `{\tt straight}', and the value of that
 attribute will be taken.  We have not shown that attribute, but it will
 exist and have a value of the form
@@ -380,13 +388,17 @@ object whose attributes are inherited by \verb|##523|).   Again
 the value of the `{\tt length}' argument in the `{\tt doored wall}'
 function.  Evaluation of the `{\tt doored wall}' function is next,
 and as a function,
-its evaluation context begins with an object called the function frame
-that has an attribute named `{\tt length}' whose value is the corresponding
-argument value, in this case \verb|3.2|.
+its evaluation context begins by creating an object called the function frame
+which has an attribute named `{\tt length}' whose value is the corresponding
+argument value, in this case \verb|3.2|, and will acquire an attribute
+named `{\tt d}', which is set by the `\verb|d <-| \ldots' statement in the
+function.
 
-We also need to explain
-the meaning of the `{\tt label}' and `{\tt over}' attribute values
-of \verb|##523|.  It is necessary to produce a name
+This concludes our (partial) explanation of the evaluation of the
+`{\tt outline}' attribute ofr \verb|##523|.  We turn now to a brief
+explanation of the `{\tt label}' and `{\tt over}' attribute values.
+
+It is necessary to produce a name
 for \verb|##523| in an arbitrary natural language, such as English or
 French or Japanese, and this is what the `{\tt label}' attribute value does
 when it is evaluated.  This value is also a sequence of commands that
@@ -415,21 +427,12 @@ then the English natural language engine might generate the text
 
 in order to specify \verb|##523|.
 
-Another example is the \ttmkey{type}{of object} attribute of an object,
-which is implicitly evaluated to produce the
-\ttdmkey{ancestors}{of object} attribute
-of the object.  This last is a list of other objects from which the current
-object inherits attributes.  In our example, the \verb|type| attribute
-names another object, `{\tt standard room}', from which the room object
-inherits attributes.  This means that when an evaluation searches for the
-name of an attribute in the room object, if that name is not found, the
-evaluation will next search the `{\tt standard room}' object.
+Our last example of attribute evaluation is the `{\tt type}'
+attribute of \verb|##523|, whose value is `{\tt standard room}'.
+This attribute is evaluated to produce the list of objects
+in the {\tt .ancestors} attribute.
 
-To compute the \verb|.ancestors| attribute the \verb|type| object
-is evaluated `in global context'.  This last implies that the only
-names the evaluator can use are global variable names, and `{\tt standard
-room}' in fact names a global variable whose value is the object
-which is the sole immediate ancestor of our room.
+TBD: flags and compilation.
 
 \section{Remarks}
 
