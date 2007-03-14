@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 12, 2007}
+\date{March 14, 2007}
  
 \maketitle
 
@@ -262,14 +262,11 @@ and textual displays such as spreadsheets.
 MIN is intended to be the smallest, simplest language that can perform
 these tasks well.
 
-
-\section{Remarks}
-
-TBD
-
 \section{Overview}
+\label{OVERVIEW}
 
-Consider the following description of a room:
+MIN is a language that describes things.
+Consider the following MIN description of a room:
 
 \begin{indpar}\begin{verbatim}
 ##523::
@@ -285,40 +282,30 @@ Consider the following description of a room:
                      straight d
                      door (door width)
                      straight d }
-    door : standard room door
+    door: standard room door
     label: color green, under over, noun room
     over: ##598
 \end{verbatim}\end{indpar}
 
-The information in this description is not immediately useful for
-producing output, such as a video picture of the room, or text naming
-the room.  Instead, parts of the description must be evaluated to produce
-the picture or the name.
+This room is a MIN object, and as such has a MIN object
+name: {\tt \#\#523}.  As an object, the room has attributes,
+such as {\tt type}, {\tt outline}, {\tt width}, etc.
+Some of these attributes, e.g., {\tt outline}, do not have
+simple numeric or symbolic values, but instead have values
+that are computer programs written in a limited language
+that describe things like video images or means of constructing
+text naming the room.  The {\tt label} attribute of this room
+object and the {\tt label} attribute of object {\tt \#\#598} (not shown)
+might be used to construct the text `the green room under the main dungeon'.
 
-Another example is the \ttmkey{type}{of object} attribute of an object,
-which is implicitly evaluated to produce the \ttdmkey{ancestors} attribute
-of the object.  This last is a list of other objects from which the current
-object inherits attributes.  In our example, the \verb|type| attribute
-names another object, `{\tt standard room}', from which the room object
-inherits attributes.  This means that when an evaluation searches for the
-name of an attribute in the room object, if that name is not found, the
-evaluation will next search the `{\tt standard room}' object.
-
-To compute the \verb|.ancestors| attribute the \verb|type| object
-is evaluated `in global context'.  This last implies that the only
-names the evaluator can use are global variable names, and `{\tt standard
-room}' in fact names a global variable whose value is the object
-which is the sole immediate ancestor of our room.
-
-In our example, the \verb|outline| attribute value is used to compute
-a video output that describes how the object is to be displayed
-graphically.
-The \verb|outline| attribute value is a program is written from the point
-of view of a robot moving around the outline of the room building walls.
-The robot follows a sequence of commands that are separated by commas.
-
+The {\tt outline} and {\tt label} attribute values in this room description
+are not immediately useful for producing output, but must be evaluated to
+produce the picture or the name.
 In order to show how evaluation works, we will explain in detail some
 of the evaluation of \verb|outline|.
+The \verb|outline| attribute value is a program written from the point
+of view of a robot moving around the outline of the room building walls.
+The robot follows a sequence of commands that are separated by commas.
 
 Evaluation of the \verb|outline| attribute of object \verb|##523|
 is triggered when a video description of how to display this object
@@ -427,6 +414,41 @@ then the English natural language engine might generate the text
 \end{center}
 
 in order to specify \verb|##523|.
+
+Another example is the \ttmkey{type}{of object} attribute of an object,
+which is implicitly evaluated to produce the
+\ttdmkey{ancestors}{of object} attribute
+of the object.  This last is a list of other objects from which the current
+object inherits attributes.  In our example, the \verb|type| attribute
+names another object, `{\tt standard room}', from which the room object
+inherits attributes.  This means that when an evaluation searches for the
+name of an attribute in the room object, if that name is not found, the
+evaluation will next search the `{\tt standard room}' object.
+
+To compute the \verb|.ancestors| attribute the \verb|type| object
+is evaluated `in global context'.  This last implies that the only
+names the evaluator can use are global variable names, and `{\tt standard
+room}' in fact names a global variable whose value is the object
+which is the sole immediate ancestor of our room.
+
+\section{Remarks}
+
+Min has several features that distinguish it from previous
+programming languages.
+
+First, the MIN attribute structure permits attributes to have
+sets of values, and by using double arrows, permits direct
+use of the entity-relation model of data description.
+
+Second, MIN encourages descriptions by specialized programs, as
+for the {\tt outline} and {\tt label} attributes of the room
+object in the Overview (\secref{OVERVIEW}).  Some of these,
+in particular the video descriptions, need to be compiled.
+This is not easy for MIN supports inheritance, and any change
+to inherited objects would, in a normal language, force
+recompilation.  MIN deals with this by using flags to indicate
+which attributes are to be treated as variables by compilation.
+
 
 \section{Lexemes}
 \label{LEXEMES}
