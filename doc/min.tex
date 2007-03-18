@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 14, 2007}
+\date{March 18, 2007}
  
 \maketitle
 
@@ -442,6 +442,7 @@ programming languages.
 First, the MIN attribute structure permits attributes to have
 sets of values, and by using double arrows, permits direct
 use of the entity-relation model of data description.
+For examples, see the diagrams in \secref{RAW-REPRESENTATIONS}.
 
 Second, MIN encourages descriptions by specialized programs, as
 for the {\tt outline} and {\tt label} attributes of the room
@@ -734,6 +735,7 @@ and the label of the arrow directed toward the object is the
 
 
 \subsection{Raw Representations}
+\label{RAW-REPRESENTATIONS}
 
 A set of objects can be written to a text file or read from a text file.
 When this is done, a textual representation of the object set is used
@@ -2246,46 +2248,6 @@ division function \verb|/|.  E.g.:
 \section{Evaluation}
 \label{EVALUATION}
 
-A MIN expression is an atom or a list
-(see Figure~\figref{DATA-REPRESENTATION-SYNTAX})
-that can be evaluated.  Evaluation is done by an object,
-which may be a function frame (see below).  The attributes of the
-object constitute the local variables accessible during evaluation.
-If a variable cannot be found locally, it is found by searching
-the ancestors of the object.  The first ancestor searched is called
-the lexical parent of the object, and plays a special role in
-compilation.
-
-Evaluation is done in an evaluation context.  This context includes
-the object currently evaluating expressions, a pointer indicating
-the next part of the expression to be evaluated, and other information.
-The object evaluating the expression may change during evaluation of
-the expression, as when the first part of an expression designates
-another object that is to evaluate the rest of the expression.
-The evaluation context includes an initial object that is to be used
-as the first object to evaluate any subexpression.
-
-The code that does evaluation for a particular object is compiled.
-Associated with each evaluation context is a lexical context
-which contains the information available at the time this code is
-compiled.  Code may be compiled as soon as the lexical context in
-which it is run is defined.
-The lexical context includes incomplete information about which attributes
-are defined for an object that performs evaluations of expressions.
-This information is available from the lexical context of the code that
-creates the object.
-The lexical context also includes the lexical context of the lexical
-parent of the object.
-
-In effect, the `type' of an object is the lexical context in which
-the object is created.  All objects created with the same lexical
-context can share the same code.  To make this work properly, the
-lexical parent of an object is determined by the lexical context
-in which the object is created.
-
-
-\subsection{The Evaluation Algorithm}
-
 Expressions are evaluated in a context called an
 `\key{evaluation context}'.  This is typically not a MIN datum,
 but instead a C++ datum, allocated in the C++ stack to the C++ frame
@@ -2311,7 +2273,14 @@ of frames can be objects or frames.  Frame X can be an ancestor of
 frame Y only if X and Y are in the same stack and Y is allocated after
 X is allocated and freed before X is freed.
 
-An evaluation context has the following components:
+Ancestors are searched for a name depth first.  That is, the search
+begins with an object, then searches the first ancestor of that object,
+then the first ancestor of the first ancestor, and so forth.  This
+is called the `\key{ancestor search order}'.\label{ANCESTOR-SEARCH-ORDER}.
+
+\subsection{Evaluation Contexts}
+
+An \key{evaluation context} has the following components:
 
 \begin{indpar}[0.1in]
 \begin{tabular}{@{}p{1.2in}p{1.5in}p{3.1in}@{}}
@@ -2542,12 +2511,14 @@ of the attribute, and the input value list.
 \item
 The remaining arguments are a non-empty string of
 atoms that name an attribute of an ancestor of the current
-object, and do so for at most one ancestor,
-and the input value list is \underline{not} missing.
+object, and the input value list is \underline{not} missing.
 
 \begin{indpar}[0.5em]
-Same as (\ref{LOCAL-WRITE}) but with the the ancestor in
-place of the current object.
+The first ancestor in the ancestor search order
+(\pagref{ANCESTOR-SEARCH-ORDER}) which has an
+an attribute with the given name is selected.
+The rest of the operation is the same as (\ref{LOCAL-WRITE})
+but with the selected ancestor in place of the current object.
 \end{indpar}
 
 \item
@@ -2577,15 +2548,15 @@ function body).
 \item
 The remaining arguments begin with a non-empty string of
 atoms that name an attribute of an ancestor of the
-current object,
-this string is the longest such string in case there are
-several that name attributes of the current object,
-and there are not two ancestors that have an attribute
-with this name.
+current object.
 
 \begin{indpar}[0.5em]
-Same as (\ref{LOCAL-READ}) but with the ancestor in
-place of the current object.
+The first ancestor in the ancestor search order
+(\pagref{ANCESTOR-SEARCH-ORDER}) which has an
+an attribute with a suitable name is selected.  If the ancestor
+has several such attributes, the one with the longest name is selected.
+The rest of the operation is the same as (\ref{LOCAL-READ})
+but with the selected ancestor and attribute in place of the current object.
 \end{indpar}
 
 \item
@@ -2737,10 +2708,11 @@ The error context is popped from its stack.
 
 
 
-\subsection{Builtin Operations}
-\label{BUILTIN-OPERATIONS}
+\subsection{The Function Operation}
+\label{FUNCTION-OPERATION}
 
-The builtin operations are the call operation and the error operation.
+\subsection{The Try Operation}
+\label{TRY-OPERATION}
 
 \subsection{The Evaluation Algorithm: OLD}
 
