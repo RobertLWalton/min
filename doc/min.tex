@@ -231,7 +231,7 @@ Permission to copy this document verbatim is granted by the author
 to the public.  This document was partly inspired
 by my son's budding career as a game designer.}}
 
-\date{March 18, 2007}
+\date{March 20, 2007}
  
 \maketitle
 
@@ -2707,9 +2707,53 @@ The error context is popped from its stack.
 \end{enumerate}
 
 
-
 \subsection{The Function Operation}
 \label{FUNCTION-OPERATION}
+
+Functions are executed by the call operation (\pagref{CALL-OPERATION})
+which creates a function context in which the statements of the
+function are executed.  The first statement of a function is the
+`{\tt function}' statement that performs a \key{function operation}.
+This operation reads and evaluates function arguments.
+
+The function operation takes as input a list of argument names, each of which
+names an attribute of the function execution's frame that is to be
+set to an argument value.  The operation reads arguments from the {\tt caller}
+of the function context, optionally evaluates the arguments, and assigns
+the argument values to the argument names in order.
+
+If an argument is to be evaluated, it is evaluated by the following
+actions:
+
+\begin{enumerate}
+
+\item
+A new context, the \key{argument evaluation context}, is created at the
+top of the context stack.  The {\tt initial evaluator} and
+{\tt caller} components are copied from the {\tt caller} context of the
+function context.  The {\tt expression} of the argument evaluation
+context is set to the next argument of the caller context expression,
+and the {\tt current evaluator} of the argument evaluation context
+is set to the {\tt initial evaluator} of that context.
+
+\item
+Evaluation steps are executed until the argument evaluation context
+terminates.
+
+\item
+If the {\tt throw} flag on the argument evaluation context is set,
+the throw flag and output list are copied from the argument evaluation
+context to the function context, and the function context is terminated.
+
+\item
+Otherwise the output values are assigned to argument names in order.
+If the output value is missing, an error operation is executed.  If it
+is empty, nothing is done.  If it has more elements than there are argument
+names, the extra elements are discarded.
+
+
+\end{enumerate}
+
 
 \subsection{The Try Operation}
 \label{TRY-OPERATION}
