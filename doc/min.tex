@@ -2730,11 +2730,12 @@ actions:
 \item
 A new context, the \key{argument evaluation context}, is created at the
 top of the context stack.  The {\tt initial evaluator} and
-{\tt caller} components are copied from the {\tt caller} context of the
-function context.  The {\tt expression} of the argument evaluation
+{\tt caller} components of the new context
+are copied from the {\tt caller} context of the
+function context.  The {\tt expression} of the new
 context is set to the next argument of the caller context expression,
-and the {\tt current evaluator} of the argument evaluation context
-is set to the {\tt initial evaluator} of that context.
+and the {\tt current evaluator} of the new context
+is set to the {\tt initial evaluator} of new context.
 
 \item
 Evaluation steps are executed until the argument evaluation context
@@ -2747,12 +2748,19 @@ context to the function context, and the function context is terminated.
 
 \item
 Otherwise the output values are assigned to argument names in order.
+Specifically, a write operation is performed as if the input list had
+a single element, the output value being assigned, the suboperation
+were missing, and the argument name were the attribute name.
+
 If the output value is missing, an error operation is executed.  If it
 is empty, nothing is done.  If it has more elements than there are argument
 names, the extra elements are discarded.
 
 
 \end{enumerate}
+
+If at the end of the function operation there are remaining unused
+argument names, an error operation is executed.
 
 
 \subsection{The Try Operation}
