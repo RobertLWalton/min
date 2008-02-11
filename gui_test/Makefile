@@ -18,5 +18,5 @@ tcl_test_cc.so: tcl_test_cc.cc
 	g++ -shared -o tcl_test_cc.so -DUSE_TCL_STUBS tcl_test_cc.cc -ltclstub8.4
 
 clean:
-	rm -rf glut_hello gtk_test tcl_test_cc.so tcl_test.so
+	rm -rf glXtest glut_hello gtk_test tcl_test_cc.so tcl_test.so
 
