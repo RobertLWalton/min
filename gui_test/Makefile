@@ -1,4 +1,7 @@
-all:	glut_hello gtk_test tcl_test.so tcl_test_cc.so
+all:	glXtest glut_hello gtk_test tcl_test.so tcl_test_cc.so
+
+glXtest: glXtest.c
+	gcc -o glXtest -L /usr/X11R6/lib glXtest.c -lX11 -lGL
 
 glut_hello: glut_hello.c
 	gcc -o glut_hello -L /usr/X11R6/lib glut_hello.c \
@@ -15,5 +18,5 @@ tcl_test_cc.so: tcl_test_cc.cc
 	g++ -shared -o tcl_test_cc.so -DUSE_TCL_STUBS tcl_test_cc.cc -ltclstub8.4
 
 clean:
-	rm -rf glut_hello glXtest tcl_test_cc.so tcl_test.so
+	rm -rf glut_hello gtk_test tcl_test_cc.so tcl_test.so
 
