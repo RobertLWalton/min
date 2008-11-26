@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 25 10:23:22 EST 2006
+// Date:	Tue Nov 25 21:15:50 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/03/25 15:24:20 $
+//   $Date: 2008/11/26 03:14:24 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents
 //
@@ -243,7 +243,7 @@
 //	    Minimum size of unimplemented memory at
 //	    which deallocated body pointers are pointed.
 //
-# ifdef __i386
+# if __i386__
 #   define MIN_INT32_TYPE int
 #   define MIN_INT64_TYPE long long
 #   define MIN_IS_BIG_ENDIAN 0

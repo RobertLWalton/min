@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 21 03:57:45 EDT 2006
+// Date:	Tue Nov 25 21:40:56 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/05/21 09:39:02 $
+//   $Date: 2008/11/26 03:14:24 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.107 $
+//   $Revision: 1.108 $
 
 // Table of Contents:
 //
@@ -547,7 +547,7 @@ namespace min { namespace unprotected {
 		( min::gen v, min::uns64 p )
 	{
 	    return (min::gen)
-	           ( ( v & 0xFFFFFF0000000000 ) + p );
+	           ( ( v & 0xFFFFFF0000000000ull ) + p );
 	}
 
 #   endif
@@ -728,7 +728,7 @@ namespace min {
 	    // are masked for this test.
 	    //
 	    return
-	        ( (uns64) v & 0x7FFFE00000000000L )
+	        ( (uns64) v & 0x7FFFE00000000000ull )
 	        != ( (uns64) MIN_FLOAT64_SIGNALLING_NAN
 		     << 40 );
 	}
@@ -856,7 +856,7 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of ( min::gen v )
 	{
 	    return internal::general_uns64_to_stub
-	    		( v & 0xFFFFFFFFFF );
+	    		( v & 0xFFFFFFFFFFull );
 	}
 	inline float64 direct_float_of ( min::gen v )
 	{
@@ -869,7 +869,7 @@ namespace min { namespace unprotected {
 #	    if MIN_IS_BIG_ENDIAN
 		return ( v << 24 );
 #	    elif MIN_IS_LITTLE_ENDIAN
-		return ( v & 0xFFFFFFFFFF );
+		return ( v & 0xFFFFFFFFFFull );
 #	    endif
 	}
 	inline unsigned list_aux_of ( min::gen v )
@@ -905,7 +905,7 @@ namespace min { namespace unprotected {
 	}
 	inline uns64 long_control_code_of ( min::gen v )
 	{
-	    return ( v & 0xFFFFFFFFFF );
+	    return ( v & 0xFFFFFFFFFFull );
 	}
 	inline unsigned special_index_of ( min::gen v )
 	{
@@ -999,9 +999,9 @@ namespace min {
 // CONTROL MASK is 2**48 - 1.
 // GC CONTROL MASK is 2**(56 - MIN_GC_FLAG_BITS) - 1.
 //
-# define MIN_CONTROL_VALUE_MASK 0xFFFFFFFFFFFF
+# define MIN_CONTROL_VALUE_MASK 0xFFFFFFFFFFFFull
 # define MIN_GC_CONTROL_VALUE_MASK \
-    ( 0xFFFFFFFFFFFFFF >> MIN_GC_FLAG_BITS )
+    ( 0xFFFFFFFFFFFFFFull >> MIN_GC_FLAG_BITS )
 
 namespace min { namespace internal {
 
@@ -2042,9 +2042,9 @@ namespace min {
     namespace unprotected {
 	class str_pointer;
     }
-    const char * min::str_of
+    const char * str_of
 	( min::unprotected::str_pointer & sp );
-    void min::relocate
+    void relocate
 	( min::unprotected::str_pointer & sp );
 
     namespace unprotected {
