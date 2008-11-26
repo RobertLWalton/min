@@ -1,0 +1,6 @@
+*.class
+glut_hello
+glXtest
+gtk_test
+tcl_test_cc.so
+tcl_test.so

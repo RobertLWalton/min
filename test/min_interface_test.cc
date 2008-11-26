@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 20 10:55:00 EST 2006
+// Date:	Tue Nov 25 21:39:05 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/05/21 11:17:31 $
+//   $Date: 2008/11/26 03:14:00 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.53 $
+//   $Revision: 1.54 $
 
 // Table of Contents:
 //
@@ -368,19 +368,20 @@ MUP::body_control * relocate_body
 //
 void initialize_hash_tables ( void )
 {
+    typedef min::stub * stubp;
     MUP::str_hash_size = 101;
     MUP::str_hash =
-        new (min::stub *)[MUP::str_hash_size];
+        new stubp[MUP::str_hash_size];
     for ( int i = 0; i < MUP::str_hash_size; ++ i )
         MUP::str_hash[i] = NULL;
     MUP::num_hash_size = 101;
     MUP::num_hash =
-        new (min::stub *)[MUP::num_hash_size];
+        new stubp[MUP::num_hash_size];
     for ( int i = 0; i < MUP::num_hash_size; ++ i )
         MUP::num_hash[i] = NULL;
     MUP::lab_hash_size = 101;
     MUP::lab_hash =
-        new (min::stub *)[MUP::lab_hash_size];
+        new stubp[MUP::lab_hash_size];
     for ( int i = 0; i < MUP::lab_hash_size; ++ i )
         MUP::lab_hash[i] = NULL;
 }
@@ -796,7 +797,7 @@ int main ()
 	    cout << endl;
 	    cout << "Test long control code general"
 	            " values:" << endl;
-	    min::uns64 longcode = 0xF123456789;
+	    min::uns64 longcode = 0xF123456789ull;
 	    min::gen longcodegen =
 		MUP::new_long_control_code_gen
 		    ( longcode );
@@ -1022,7 +1023,7 @@ int main ()
         cout << endl;
 	cout << "Test stub value set/read functions:"
 	     << endl;
-	min::uns64 u = 0x9047814326432464;
+	min::uns64 u = 0x9047814326432464ull;
 	cout << "u: " << hex << u << dec << endl;
 	MUP::set_value_of ( stub, u );
 	MIN_ASSERT ( MUP::value_of ( stub ) == u );
@@ -1321,7 +1322,9 @@ int main ()
 	MIN_ASSERT ( min::new_num_gen ( 12345 ) == n1 );
 
 	min::gen n2 = min::new_num_gen ( 1.2345 );
-	cout << "n2: " << print_gen ( n2 ) << endl;
+#	if MIN_IS_LOOSE
+	    cout << "n2: " << print_gen ( n2 ) << endl;
+#	endif
 	MIN_ASSERT ( min::is_num ( n2 ) );
 	MIN_ASSERT ( min::is_atom ( n2 ) );
 	MIN_ASSERT ( min::float_of ( n2 ) == 1.2345 );
@@ -1336,7 +1339,9 @@ int main ()
 	    ( min::new_num_gen ( 1.2345 ) == n2 );
 
 	min::gen n3 = min::new_num_gen ( 1 << 30 );
-	cout << "n3: " << print_gen ( n3 ) << endl;
+#	if MIN_IS_LOOSE
+	    cout << "n3: " << print_gen ( n3 ) << endl;
+#	endif
 	MIN_ASSERT ( min::is_num ( n3 ) );
 	MIN_ASSERT ( min::is_atom ( n3 ) );
 	MIN_ASSERT ( min::int_of ( n3 ) == 1 << 30 );
