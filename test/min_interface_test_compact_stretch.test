@@ -593,7 +593,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::new_num_gen ( 12345 ) == n1 true.
 MUP::gc_expand_stub_free_list (1) called
-n2: 805e6d
 min_interface_test.cc:XXXX assert:
     min::is_num ( n2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -614,7 +613,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::new_num_gen ( 1.2345 ) == n2 true.
 MUP::gc_expand_stub_free_list (1) called
-n3: 805e6e
 min_interface_test.cc:XXXX assert:
     min::is_num ( n3 ) true.
 min_interface_test.cc:XXXX assert:
