@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 25 21:15:50 EST 2008
+// Date:	Thu Nov 27 08:30:01 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,46 +11,38 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/26 03:14:24 $
+//   $Date: 2008/11/27 13:24:25 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents
 //
 //	Software Parameters
 //	Hardware Parameters
 
-// Note: The following parameters may be overridden by
-// giving -DXXX=1 options to the compiler:
+// Note: GNU C++ requires that unsigned long long con-
+// stants have the `ull' postfix.  The standard rule
+// that a constant type is the first type in which the
+// value fits does NOT seem to be followed.
+
+// The following compiler options illustrate typical use
+// in overriding defaults:
 //
-//	MIN_DEBUG
-//	MIN_IS_COMPACT
-//	MIN_USES_OBJ_AUX_STUBS
-//
-// The following parameters can be overridden to have
-// value YYY by giving -DXXX=YYY options to the
-// compiler.
-//
-//	MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS
-//	MIN_STUB_BASE
-//	MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
-//	MIN_GC_FLAG_BITS
-//
-//    -DMIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFF
-//      Value is 2**32-1.  Allows high 2**29 bytes to be
-// 	used for stubs on machines with 32 bit addres-
-//	ses.
-//
-//    -DMIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFF
-//	Value is 2**48-1.  Allows up to 2**44 stubs to
-//	exist on machines with 64 bit addresses.
-//
-//    -DMIN_GC_FLAG_BITS=24
-//	Increase the number of GC flag bits from the
-//	default of 12 provided stub addresses can be
-//	packed into 56 - MIN_GC_FLAG_BITS bits.
+// -DMIN_DEBUG=1
+// -DMIN_PROTECT=0
+// -DMIN_IS_COMPACT=1
+// -DMIN_USES_OBJ_AUX_STUBS=1
+// -DMIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFFFFFFull
+//	// 2**48 - 1; forces use of stub relative
+//	// addresses or indices in 64 bit general
+//	// values.
+// -DMIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFFull
+//	// 2**48 - 1; forces use of stub indices in 64
+//	// bit general values.
+// -DMIN_GC_FLAG_BITS=14
+//	// Adds an ephemeral GC level.
 // 
-// See below for the definition of these paramters.
+// See below for the definition of these parameters.
 // Other parameters are computed from these.
 
 # ifndef MIN_PARAMETERS_H
@@ -64,11 +56,22 @@
 #   define MIN_DEBUG 0
 # endif
 
+// 1 to include checks in protected functions; 0 not to.
+//
+# ifndef MIN_PROTECT
+#   define MIN_PROTECT 1
+# endif
+
 // Define MIN_ASSERT so we can intercept assertions.
 // Normally MIN_ASSERT == assert from <cassert>.
 //
 # ifndef MIN_ASSERT
-#    define MIN_ASSERT( expression ) assert(expression)
+#   if MIN_PROTECT
+#	define MIN_ASSERT( expression ) \
+		assert(expression)
+#   else
+#	define MIN_ASSERT( expression )
+#   endif
 # endif
 
 // 1 if min::gen values are 32 bits; else 0.
@@ -139,8 +142,9 @@
 //
 //    (other) control value   0 .. 2**48-1
 //
-// MIN_GC_FLAG_BITS controls how many ephemeral levels
-// of garbage collector are implemented (see below).
+// MIN_GC_FLAG_BITS (which defaults to 12) controls how
+// many ephemeral levels of garbage collector are
+// implemented (see below).
 //
 // Note that addresses of stub bodies and addresses
 // pointing into stub bodies can always be stored in
@@ -158,26 +162,36 @@
 
 // Maximum absolute stub address.  Defaults to:
 //
-//	2**32 - 2**29 - 1    if MIN_POINTER_BITS == 32
+//	2**32 - 2**29 - 1    if MIN_POINTER_BITS <= 32
 //
-//	2**44 - 1	     if MIN_POINTER_BITS != 32
+//	2**44 - 1	     if MIN_POINTER_BITS > 32
+//
+// The defaults permit absolute stub addresses to be
+// stored in COMPACT general values when pointers are
+// 32 bits long and in LOOSE general values when
+// pointers are more than 32 bits long.
 //
 # ifndef MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS
 #   define MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-	   ( MIN_POINTER_BITS == 32 ? 0xDFFFFFFF : \
-	     0xFFFFFFFFFFF )
+	   ( MIN_POINTER_BITS <= 32 ? 0xDFFFFFFFul : \
+	     0xFFFFFFFFFFFull )
 # endif
 
 // Maximum relative stub address.  Defaults to:
 //
-//	2**32 - 2**29 - 1    if MIN_POINTER_BITS == 32
+//	2**32 - 2**29 - 1    if MIN_POINTER_BITS <= 32
 //
-//	2**48 - 1	     if MIN_POINTER_BITS != 32
+//	2**44 - 1	     if MIN_POINTER_BITS > 32
+//
+// The defaults permit relative stub addresses to be
+// stored in COMPACT general values when pointers are
+// 32 bits long and in LOOSE general values when
+// pointers are more than 32 bits long.
 //
 # ifndef MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
 #   define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-	   ( MIN_POINTER_BITS == 32 ? 0xDFFFFFFF : \
-	     0xFFFFFFFFFFFF )
+	   ( MIN_POINTER_BITS <= 32 ? 0xDFFFFFFFul : \
+	     0xFFFFFFFFFFFull )
 # endif
 
 // Base for relative stub addresses.  Can be a non-
@@ -233,12 +247,10 @@
 //	    1 if big endian; else 0.
 //	MIN_IS_LITTLE_ENDIAN
 //	    1 if little endian; else 0.
-//	    
 //	MIN_FLOAT64_SIGNALLING_NAN
 //	    High order 24 bits of the smallest (as an
-//	    unsigned binary number) 64 bit floating
+//	    unsigned binary integer) 64 bit floating
 //	    point signalling NAN.
-//
 //	MIN_DEALLOCATED_LIMIT
 //	    Minimum size of unimplemented memory at
 //	    which deallocated body pointers are pointed.
@@ -249,7 +261,7 @@
 #   define MIN_IS_BIG_ENDIAN 0
 #   define MIN_IS_LITTLE_ENDIAN 1
 #   define MIN_POINTER_BITS 32
-#   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF800
+#   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
 #   define MIN_DEALLOCATED_LIMIT (1 << 20)
 # endif
 
