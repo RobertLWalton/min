@@ -28,7 +28,7 @@ Start General Value Constructor//Test/Read Function Test!
 
 Test stub general values:
 stub: 10
-stubgen: 7ff8000000000010
+stubgen: 7ff4000000000010
 min_interface_test.cc:XXXX assert:
     min::is_stub ( stubgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -60,7 +60,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( fgen ) true.
 
 Test direct string general values:
-strgen: 7ff8104544434241
+strgen: 7ff4104544434241
 min_interface_test.cc:XXXX assert:
     min::is_direct_str ( strgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -79,7 +79,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_stub ( strgen ) true.
 
 Test list aux general values:
-listauxgen: 7ff81100000b353b
+listauxgen: 7ff41100000b353b
 min_interface_test.cc:XXXX assert:
     min::is_list_aux ( listauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -100,7 +100,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_stub ( listauxgen ) true.
 min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( listauxgen ) true.
-re-listauxgen: 7ff81100000eb551
+re-listauxgen: 7ff41100000eb551
 min_interface_test.cc:XXXX assert:
     min::is_list_aux ( listauxgen ) true.
 ../include/min.h:XXXX assert:
@@ -115,7 +115,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( listauxgen ) true.
 
 Test sublist aux general values:
-sublistauxgen: 7ff81200000b353b
+sublistauxgen: 7ff41200000b353b
 min_interface_test.cc:XXXX assert:
     min::is_sublist_aux ( sublistauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -138,7 +138,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( sublistauxgen ) true.
 
 Test indirect pair aux general values:
-pairauxgen: 7ff81300000b353b
+pairauxgen: 7ff41300000b353b
 min_interface_test.cc:XXXX assert:
     min::is_indirect_pair_aux ( pairauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -161,7 +161,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( pairauxgen ) true.
 
 Test indirect indexed aux general values:
-indirectgen: 7ff8140027d00119
+indirectgen: 7ff4140027d00119
 min_interface_test.cc:XXXX assert:
     min::is_indirect_indexed_aux ( indirectgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -196,7 +196,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( indirectgen ) true.
 
 Test index general values:
-indexgen: 7ff81500000b353b
+indexgen: 7ff41500000b353b
 min_interface_test.cc:XXXX assert:
     min::is_index ( indexgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -219,7 +219,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( indexgen ) true.
 
 Test control code general values:
-codegen: 7ff81600000b353b
+codegen: 7ff41600000b353b
 min_interface_test.cc:XXXX assert:
     min::is_control_code ( codegen ) true.
 min_interface_test.cc:XXXX assert:
@@ -242,7 +242,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( codegen ) true.
 
 Test long control code general values:
-longcodegen: 7ff816f123456789
+longcodegen: 7ff416f123456789
 min_interface_test.cc:XXXX assert:
     min::is_control_code ( longcodegen ) true.
 min_interface_test.cc:XXXX assert:
@@ -277,7 +277,7 @@ min_interface_test.cc:XXXX assert:
     min::is_special ( min::SUCCESS ) true.
 min_interface_test.cc:XXXX assert:
     min::is_special ( min::FAILURE ) true.
-specialgen: 7ff817000008471c
+specialgen: 7ff417000008471c
 min_interface_test.cc:XXXX assert:
     min::is_special ( specialgen ) true.
 min_interface_test.cc:XXXX assert:
