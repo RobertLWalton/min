@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 25 21:39:05 EST 2008
+// Date:	Fri Nov 28 07:10:53 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/26 03:14:00 $
+//   $Date: 2008/11/28 13:39:05 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.54 $
+//   $Revision: 1.55 $
 
 // Table of Contents:
 //
@@ -110,7 +110,7 @@ void min_assert
 //
 # define MIN_ASSERT(expr) \
     min_assert ( expr ? true : false, \
-    		 __FILE__, __LINE__, #expr );
+    		 __FILE__, __LINE__, #expr )
 
 # include <min.h>
 # define MUP min::unprotected
@@ -703,46 +703,45 @@ int main ()
 	    ( ! min::is_direct_str ( pairauxgen ) );
  
         cout << endl;
-	cout << "Test indirect indexed aux general"
-	        " values:" << endl;
-	unsigned indirect_aux = 637;
-	unsigned indirect_index = 281;
-	min::gen indirectgen =
-	    MUP::new_indirect_indexed_aux_gen
-		( indirect_aux, indirect_index );
-	cout << "indirectgen: "
-	     << print_gen ( indirectgen ) << endl;
+	cout << "Test indexed aux general values:"
+	     << endl;
+	unsigned indexed_aux = 637;
+	unsigned indexed_index = 281;
+	min::gen indexedauxgen =
+	    MUP::new_indexed_aux_gen
+		( indexed_aux, indexed_index );
+	cout << "indexedauxgen: "
+	     << print_gen ( indexedauxgen ) << endl;
 	MIN_ASSERT
-	    ( min::is_indirect_indexed_aux
-		  ( indirectgen ) );
+	    ( min::is_indexed_aux ( indexedauxgen ) );
 	MIN_ASSERT
-	    (    min::gen_subtype_of ( indirectgen )
-	      == min::GEN_INDIRECT_INDEXED_AUX );
+	    (    min::gen_subtype_of ( indexedauxgen )
+	      == min::GEN_INDEXED_AUX );
 	MIN_ASSERT
-	    (    min::indirect_aux_of ( indirectgen )
-	      == indirect_aux );
+	    (    min::indexed_aux_of ( indexedauxgen )
+	      == indexed_aux );
 	MIN_ASSERT
-	    (    min::indirect_index_of ( indirectgen )
-	      == indirect_index );
+	    (    min::indexed_index_of ( indexedauxgen )
+	      == indexed_index );
 	desire_success (
-	    indirectgen =
-	    	min::new_indirect_indexed_aux_gen
-		    ( indirect_aux, indirect_index );
+	    indexedauxgen =
+	    	min::new_indexed_aux_gen
+		    ( indexed_aux, indexed_index );
 	);
 	desire_failure (
-	    indirectgen =
-	        min::new_indirect_indexed_aux_gen
-		    ( 1 << 20, indirect_index );
+	    indexedauxgen =
+	        min::new_indexed_aux_gen
+		    ( 1 << 20, indexed_index );
 	);
 	desire_failure (
-	    indirectgen =
-	        min::new_indirect_indexed_aux_gen
-		    ( indirect_aux, 1 << 20 );
+	    indexedauxgen =
+	        min::new_indexed_aux_gen
+		    ( indexed_aux, 1 << 20 );
 	);
 	MIN_ASSERT
-	    ( ! min::is_stub ( indirectgen ) );
+	    ( ! min::is_stub ( indexedauxgen ) );
 	MIN_ASSERT
-	    ( ! min::is_direct_str ( indirectgen ) );
+	    ( ! min::is_direct_str ( indexedauxgen ) );
  
         cout << endl;
 	cout << "Test index general values:" << endl;
@@ -1129,21 +1128,21 @@ int main ()
 	{
 	    min::relocated r;
 	    MIN_ASSERT ( ! r );
-	    MIN_ASSERT ( ! min::relocated_flag() )
+	    MIN_ASSERT ( ! min::relocated_flag() );
 	    min::set_relocated_flag ( true );
 	    MIN_ASSERT ( r );
-	    MIN_ASSERT ( ! min::relocated_flag() )
+	    MIN_ASSERT ( ! min::relocated_flag() );
 	}
 	MIN_ASSERT ( min::relocated_flag() );
 
 	// Now relocated flag is true.
 	{
 	    min::relocated r;
-	    MIN_ASSERT ( ! min::relocated_flag() )
+	    MIN_ASSERT ( ! min::relocated_flag() );
 	    MIN_ASSERT ( ! r );
-	    MIN_ASSERT ( ! min::relocated_flag() )
+	    MIN_ASSERT ( ! min::relocated_flag() );
 	}
-	MIN_ASSERT ( min::relocated_flag() )
+	MIN_ASSERT ( min::relocated_flag() );
 
 	cout << endl;
 	cout << "Finish Process Interface Test!"
@@ -1645,7 +1644,8 @@ int main ()
 	    ( smaxht >= 19 * ( 1 << 16 ) / 20 - 1 );
 	for ( unsigned u = 0; u < ( 1 << 16 ); ++ u )
 	{
-	    unsigned t = min::short_obj_total_size ( u );
+	    unsigned t =
+	        min::short_obj_total_size ( u );
 	    assert ( t == u );
 	    unsigned ht =
 	        min::short_obj_hash_table_size ( u );
@@ -1681,7 +1681,8 @@ int main ()
 	min::gen sgen = short_obj_gen;
 	min::stub * sstub = min::stub_of ( sgen );
 	MIN_ASSERT
-	    ( min::type_of ( sstub ) == min::SHORT_OBJ );
+	    (    min::type_of ( sstub )
+	      == min::SHORT_OBJ );
 	MUP::short_obj * so =
 	    MUP::short_obj_of ( sstub );
 	unsigned sh = min::header_size_of ( so );
@@ -1771,25 +1772,25 @@ int main ()
 	    (    min::unused_area_size_of ( so )
 	      == 500 );
 	swb[av] = num0;
-	MIN_ASSERT ( srb[av] == num0 )
+	MIN_ASSERT ( srb[av] == num0 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( so )
 	      == 0 );
 	min::attribute_vector_push ( so, num1 );
-	MIN_ASSERT ( srb[av] == num1 )
+	MIN_ASSERT ( srb[av] == num1 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( so )
 	      == 1 );
 	swb[av+1] = num0;
 	swb[av+2] = num0;
 	swb[av+3] = num0;
-	MIN_ASSERT ( srb[av+1] == num0 )
-	MIN_ASSERT ( srb[av+2] == num0 )
-	MIN_ASSERT ( srb[av+3] == num0 )
+	MIN_ASSERT ( srb[av+1] == num0 );
+	MIN_ASSERT ( srb[av+2] == num0 );
+	MIN_ASSERT ( srb[av+3] == num0 );
 	min::attribute_vector_push ( so, numv, 3 );
-	MIN_ASSERT ( srb[av+1] == num1 )
-	MIN_ASSERT ( srb[av+2] == num2 )
-	MIN_ASSERT ( srb[av+3] == num3 )
+	MIN_ASSERT ( srb[av+1] == num1 );
+	MIN_ASSERT ( srb[av+2] == num2 );
+	MIN_ASSERT ( srb[av+3] == num3 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( so )
 	      == 4 );
@@ -1798,23 +1799,23 @@ int main ()
 	      == 500 - 4 );
 	unsigned aa = min::aux_area_of ( so );
 	swb[aa-1] = num0;
-	MIN_ASSERT ( srb[aa-1] == num0 )
+	MIN_ASSERT ( srb[aa-1] == num0 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( so ) == 0 );
 	min::aux_area_push ( so, num1 );
-	MIN_ASSERT ( srb[aa-1] == num1 )
+	MIN_ASSERT ( srb[aa-1] == num1 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( so ) == 1 );
 	swb[aa-2] = num0;
 	swb[aa-3] = num0;
 	swb[aa-4] = num0;
-	MIN_ASSERT ( srb[aa-2] == num0 )
-	MIN_ASSERT ( srb[aa-3] == num0 )
-	MIN_ASSERT ( srb[aa-4] == num0 )
+	MIN_ASSERT ( srb[aa-2] == num0 );
+	MIN_ASSERT ( srb[aa-3] == num0 );
+	MIN_ASSERT ( srb[aa-4] == num0 );
 	min::aux_area_push ( so, numv, 3 );
-	MIN_ASSERT ( srb[aa-4] == num1 )
-	MIN_ASSERT ( srb[aa-3] == num2 )
-	MIN_ASSERT ( srb[aa-2] == num3 )
+	MIN_ASSERT ( srb[aa-4] == num1 );
+	MIN_ASSERT ( srb[aa-3] == num2 );
+	MIN_ASSERT ( srb[aa-2] == num3 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( so ) == 4 );
 	MIN_ASSERT
@@ -1854,25 +1855,25 @@ int main ()
 	    (    min::unused_area_size_of ( lo )
 	      == 70000 );
 	lwb[av] = num0;
-	MIN_ASSERT ( lrb[av] == num0 )
+	MIN_ASSERT ( lrb[av] == num0 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( lo )
 	      == 0 );
 	min::attribute_vector_push ( lo, num1 );
-	MIN_ASSERT ( lrb[av] == num1 )
+	MIN_ASSERT ( lrb[av] == num1 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( lo )
 	      == 1 );
 	lwb[av+1] = num0;
 	lwb[av+2] = num0;
 	lwb[av+3] = num0;
-	MIN_ASSERT ( lrb[av+1] == num0 )
-	MIN_ASSERT ( lrb[av+2] == num0 )
-	MIN_ASSERT ( lrb[av+3] == num0 )
+	MIN_ASSERT ( lrb[av+1] == num0 );
+	MIN_ASSERT ( lrb[av+2] == num0 );
+	MIN_ASSERT ( lrb[av+3] == num0 );
 	min::attribute_vector_push ( lo, numv, 3 );
-	MIN_ASSERT ( lrb[av+1] == num1 )
-	MIN_ASSERT ( lrb[av+2] == num2 )
-	MIN_ASSERT ( lrb[av+3] == num3 )
+	MIN_ASSERT ( lrb[av+1] == num1 );
+	MIN_ASSERT ( lrb[av+2] == num2 );
+	MIN_ASSERT ( lrb[av+3] == num3 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( lo )
 	      == 4 );
@@ -1881,23 +1882,23 @@ int main ()
 	      == 70000 - 4 );
 	aa = min::aux_area_of ( lo );
 	lwb[aa-1] = num0;
-	MIN_ASSERT ( lrb[aa-1] == num0 )
+	MIN_ASSERT ( lrb[aa-1] == num0 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( lo ) == 0 );
 	min::aux_area_push ( lo, num1 );
-	MIN_ASSERT ( lrb[aa-1] == num1 )
+	MIN_ASSERT ( lrb[aa-1] == num1 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( lo ) == 1 );
 	lwb[aa-2] = num0;
 	lwb[aa-3] = num0;
 	lwb[aa-4] = num0;
-	MIN_ASSERT ( lrb[aa-2] == num0 )
-	MIN_ASSERT ( lrb[aa-3] == num0 )
-	MIN_ASSERT ( lrb[aa-4] == num0 )
+	MIN_ASSERT ( lrb[aa-2] == num0 );
+	MIN_ASSERT ( lrb[aa-3] == num0 );
+	MIN_ASSERT ( lrb[aa-4] == num0 );
 	min::aux_area_push ( lo, numv, 3 );
-	MIN_ASSERT ( lrb[aa-4] == num1 )
-	MIN_ASSERT ( lrb[aa-3] == num2 )
-	MIN_ASSERT ( lrb[aa-2] == num3 )
+	MIN_ASSERT ( lrb[aa-4] == num1 );
+	MIN_ASSERT ( lrb[aa-3] == num2 );
+	MIN_ASSERT ( lrb[aa-2] == num3 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( lo ) == 4 );
 	MIN_ASSERT
