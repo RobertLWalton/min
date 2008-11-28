@@ -77,6 +77,7 @@
 % < and > do not work for \tt \bf, hence:
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttnbmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
 \newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
 \newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
@@ -230,6 +231,7 @@
 
 \newcommand{\LABEL}[1]{\label{#1}}
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
+\newcommand{\TTNBKEY}[1]{\ttnbkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
 \newcommand{\MUPKEY}[1]{{\tt \bf #1}\MUPindex{#1}}
 
@@ -245,7 +247,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 13, 2006}
+\date{November 27, 2008}
  
 \maketitle
 
@@ -298,17 +300,47 @@ These have names beginning with \ttkey{MIN\_}.  One of these
 is:
 
 \begin{center}
-\begin{tabular}{ll}
-\TTKEY{MIN\_DEBUG}	& 1 if extra debugging checks are to be compiled;
-			  0 if not
+\begin{tabular}{lp{4.0in}}
+\TTNBKEY{MIN\_DEBUG}	& 1 if extra debugging checks are to be compiled;
+			  0 (the default) if not
 \LABEL{MIN_DEBUG} \\
 \end{tabular}
 \end{center}
 
-This macro can be defined independently for each separately compiled
+Parts of MIN provide protection against bugs by using the {\tt MIN\_ASSERT}
+macro:
+
+\begin{center}
+\begin{tabular}{lp{4.0in}}
+\TTNBKEY{MIN\_ASSERT}{\tt (}$e${\tt )}
+	& By default defined as `{\tt assert(}$e${\tt )}' if
+	  {\tt MIN\_PROTECT} is defined to be {\tt 1} (its default),
+	  and defined to be a no operation otherwise.  Alternatively
+	  may be defined by the compilation before
+	  \verb|#include <min.h>|.
+\LABEL{MIN_ASSERT}
+\\[1ex]
+\TTNBKEY{MIN\_PROTECT}	& 1 (the default)
+                          if {\tt MIN\_ASSERT} is to be mapped to
+			  the C++ \ttkey{assert} macro if {\tt MIN\_ASSERT}
+			  not otherwise defined; 0 to map {\tt MIN\_ASSERT}
+			  to a no operation if it is not otherwise defined.
+\LABEL{MIN_PROTECT} \\
+\end{tabular}
+\end{center}
+
+By setting {\tt MIN\_PROTECT} to {\tt 0}, a compilation can optimized
+debugged code.  Alternatively,
+a compilation can provide its own definition for the
+{\tt MIN\_ASSERT} macro,
+such as a definition printing extra information
+in case of an assertion failure.
+
+The above macros ({\tt MIN\_DEBUG}, {\tt MIN\_ASSERT},
+{\tt MIN\_PROTECT})
+can be defined independently for each separately compiled
 part of a program, but most \verb|MIN_| macros must be defined identically
 for all separately compiled parts of a single program.
-
 
 \section{Data}
 
@@ -345,6 +377,10 @@ states that particular argument range checks are not performed,
 then the {\tt MUP} function always produces undefined results when its
 arguments would not pass these checks,
 unless the documentation explicitly says otherwise.
+
+Some, but not all, of the protection provided by the protected interface
+is obtained by the functions of that interface using the
+{\tt MIN\_ASSERT} macro.
 
 The data of MIN is defined using C-compatible \ttmkey{struct}{C compatible}'s
 and \ttmkey{union}{C compatible}'s.  C++ implicitly guarantees the layout of
@@ -394,9 +430,8 @@ the size of each number is clear:
 \label{UNS}
 
 Currently planned implementations of MIN assume a compiler that has
-direct support for 64 bit integers.  However, use of 64 bit integer
-types in these implementations is minimized to make it possible to
-modify the implementations to use compilers without such support.
+direct support for 64 bit integers.  It is possible, but not recommended,
+to modify the implementations to use compilers without such support.
 
 \subsection{Stubs and Bodies}
 
@@ -409,8 +444,9 @@ pages.
 are small fixed size units of memory that cannot be relocated:
 the usual stub size for MIN is 16 bytes.
 Each object has a stub, and the address of the stub is in effect
-the internal name of the object.  Some or all atoms, depending
-on implementation, have stubs.
+the internal name of the object.  Some atoms (e.g., numbers, strings)
+have stubs, and some (e.g., integers that are not large, and very short
+strings) do not.
 
 A stub is divided into an 8 byte \key{stub value}
 and an 8 byte \key{stub control}.
@@ -428,7 +464,7 @@ to general values, since the latter have no way of distinguishing
 {\tt const} and non-{\tt const} stubs.}
 
 A \key{body} is a variable sized relocatable block of memory
-attached to a particular stub.  A stub may have a single body attached to
+attached to a particular stub.  A stub may have a body attached to
 it, in which case the stub value is a pointer to that body.
 When certain functions are called,
 any body can be moved and its corresponding stub value reset to
@@ -480,10 +516,11 @@ can be used to test whether the body of a stub has been deallocated.
 Bodies are always some multiple
 of 8 bytes long, and are allocated on 8 byte boundaries.
 
-\ikey{Protected functions}{protected function!using {\tt assert}}
+\ikey{Protected functions}{protected function!using {\tt MIN\_ASSERT}}
 that take a stub pointer as argument use
-\ttmkey{assert}{in protected function} statements to check
-the \mkey{type code}{checked by {\tt assert}}
+\ttnbmkey{MIN\_ASSERT}{in protected function} macros
+(\pagref{MIN_ASSERT}) to check
+the \mkey{type code}{checked by {\tt MIN\_ASSERT}}
 of the stub and various lengths.  Unprotected functions
 contain no such checks.
 
@@ -511,7 +548,7 @@ a pointer to a stub \\
 an auxiliary pointer \\
 an index \\
 a control code \\
-a special general value
+a special value
 \end{tabular}
 \end{center}
 
@@ -547,9 +584,11 @@ A \key{control code} is an integer that represents flags and codes
 stored in a general value.  Control codes can have different
 interpretations in different contexts.
 
-A \key{special general value} is a unique value that has some
-special meaning.  For example, \verb|min::MISSING| is a special
-general value that means that data is missing. 
+A \key{special value} is a unique value that has some
+special meaning.  \verb|min::MISSING|, for example, is a special
+value that may be input or output to indicate that data is missing,
+and \verb|min::NONE| is a special value used only internally to
+indicate that a function argument or result does not exist.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}
@@ -600,7 +639,7 @@ a 20-bit+20-bit indirect indexed auxiliary pointer\LOOSE \\
 a 24-bit index \\
 a 24-bit control code \\
 a 40-bit control code\LOOSE \\
-a 24-bit special general value \\
+a 24-bit special value \\
 \end{tabular}
 \end{center}
 
@@ -609,7 +648,7 @@ implementations, and {\LOOSE} subtypes are only implemented by
 loose implementations (\pagref{COMPACT}).
 
 Numbers and character strings stored inside a \verb|min::gen| value are
-called `\skey{direct atom}s'.  Numbers and character strings
+called `\skey{direct atom}s\,'.  Numbers and character strings
 stored in stubs or stub bodies which are pointed at by a
 \verb|min::gen| value are called `\skey{indirect atom}s'.  An atom is
 always stored in only one way by an implementation.  If a number will fit
@@ -630,33 +669,56 @@ General values that point at stubs hold stub addresses in a
 packed format.  44 bits are available to store a stub address in a
 64-bit general value, and 32 bits are available to store a stub address
 in a 32-bit general value, but in the latter case the packed address must be
-less than $2^{32}-2^{29}$.  There are three
+less than $2^{32}-2^{29}$ (the $2^{29}$ other 32 bit values are used to store
+direct integers, auxilary pointers, indices, control codes, and special
+values).  There are three
 \skey{stub address packing scheme}s,\label{STUB-ADDRESS-PACKING} and the fastest
-is selected for each type of general value.
+is selected for each type of general value.  The scheme selection is
+controlled by the following `\skey{stub address packing parameter}\,'
+macros:
+
+\begin{center}
+\begin{tabular}{lp{3.0in}}
+\TTNBKEY{MIN\_\EOL MAXIMUM\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
+	& The maximum absolute address of any stub as an unsigned integer
+	  constant.
+\LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS} \\[1ex]
+\TTNBKEY{MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
+	& The maximum relative address of any stub as an unsigned integer
+	  constant.
+\LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS} \\[1ex]
+\TTNBKEY{MIN\_STUB\_BASE}
+	& The stub base address for relative addressing.  This can be
+          a non-negative integer constant or the name of a global
+          variable holding an unsigned integer.
+\LABEL{MIN_STUB_BASE}
+\end{tabular}
+\end{center}
 
 The fastest scheme is the \key{absolute stub address} scheme,
 where the absolute stub
 address is stored.  For 64 bit general values this is
 just a matter of inserting the stub address into the low order 44 bits
 of the value.  For 32 bit general values this is just a matter of
-using the stub address as the general value.  This scheme can be used if
-the absolute address of the stub is not too large.  The
-macro \TTKEY{MIN\_\EOL MAXIMUM\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}%
-\LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS}
-defines the maximum absolute address of any stub as an unsigned integer.
+using the stub address as the general value.
+This scheme can be used if
+{\tt MIN\_\EOL MAXIMUM\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
+can be stored in 44 bits for 64 bit general values, or is at most
+$2^{32}-2^{29}-1$ for 32 bit general values.
 
 The second fastest scheme is the \key{relative stub address} scheme, where the
 stub address relative to a constant \key{stub base}
-address is stored.  The stub base
-address is defined as the value of the
-\TTKEY{MIN\_STUB\_BASE}\LABEL{MIN_STUB_BASE}
-macro, which can be a non-negative constant or the name of a global
-variable holding an unsigned integer.  The relative stub address is
-just the absolute stub address minus the stub base.  This scheme can be
-used if the relative address of the stub is not too large.  The
-macro \TTKEY{MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}%
-\LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS}
-defines the maximum relative address of any stub as an unsigned integer.
+address is stored.  The stub base is stored in {\tt MIN\_STUB\_BASE}, and
+the relation between the absolute and relative stub addresses is:
+
+\begin{center}
+stub absolute address = {\tt MIN\_STUB\_BASE} + stub relative address
+\end{center}
+
+This scheme can be used if
+{\tt MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
+can be stored in 44 bits for 64 bit general values, or is at most
+$2^{32}-2^{29}-1$ for 32 bit general values.
 
 The slowest scheme is the \key{stub index} scheme, where the
 relative stub address divided by the stub length is stored.
@@ -666,6 +728,10 @@ if the relative address of the stub is not too large, but since
 the stub length is 16, the relative address can be 16 times larger
 for the stub index packing scheme than it is for the stub relative address
 packing scheme.
+Thus the index scheme can be used if
+{\tt MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS/16}
+can be stored in 44 bits for 64 bit general values, or is at most
+$2^{32}-2^{29}-1$ for 32 bit general values.
 
 Note that on machines that have 32 bit addresses (e.g.,
 the IA32\footnote{Intel Architecture 32-bit, a.k.a, i386 machines.}
@@ -687,7 +753,7 @@ and~\pagref{VARIABLE-VECTOR-AUXILIARY-POINTER}
 for a definition of auxiliary pointers).  For indirect indexed
 auxiliary pointer values the datum is a 12-bit auxiliary pointer and
 a 12-bit index.  For index and special
-general values the datum is a 24-bit index.
+values the datum is a 24-bit index.
 For control code general values the datum is 24-bits that
 contains flags and codes that have different interpretations in different
 contexts.  And for direct string general values the datum
@@ -706,7 +772,7 @@ For most auxiliary pointer general values the 40-bit datum is used to hold
 a 24-bit auxiliary pointer; larger auxiliary pointers are not allowed.  For
 indirect indexed auxiliary pointer general values
 the datum holds a 20-bit auxiliary pointer
-and a 20-bit index.  For index and special general values the datum holds a
+and a 20-bit index.  For index and special values the datum holds a
 24-bit index; again larger indices are not allowed.
 For control code general values the datum is a 40-bit control code;
 and for direct string general values the datum holds 0-5 {\tt char}'s.
@@ -732,19 +798,19 @@ these decisions:
 
 \begin{center}
 \begin{tabular}{ll}
-\TTKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose
+\TTNBKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose
 \LABEL{MIN_IS_COMPACT} \\
-\TTKEY{MIN\_IS\_LOOSE}		& 1 if loose implementation; 0 if compact
+\TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact
 \LABEL{MIN_IS_LOOSE}	 \\
 \end{tabular}
 \end{center}
 
 \begin{center}
 \begin{tabular}{ll}
-\TTKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
+\TTNBKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
 			& See \pagref{STUB-ADDRESS-PACKING} \\
-\TTKEY{MIN\_STUB\_BASE} & See \pagref{STUB-ADDRESS-PACKING} \\
-\TTKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
+\TTNBKEY{MIN\_STUB\_BASE} & See \pagref{STUB-ADDRESS-PACKING} \\
+\TTNBKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
 			& See \pagref{STUB-ADDRESS-PACKING} \\
 \end{tabular}
 \end{center}
@@ -935,7 +1001,7 @@ argument to {\tt min::new\_direct\_int\_gen\COMPACT} must fit in 28 bits,
 and the {\tt const char *} strings must be short enough to
 fit into a direct string.
 The {\tt unsigned} arguments used to make auxiliary pointers, indices,
-and special general values
+and special values
 must fit within 24 bits, except for {\tt min::new\_indirect\_indexed\_aux\_gen}
 for which they must fit within 12 bits when \verb|min::gen| values are
 32 bits, and 20 bits when \verb|min::gen| values are 64 bits.
@@ -944,7 +1010,7 @@ must fit within 24 bits, while the {\tt min::uns64} argument used with
 {\tt long\_control\_code\_gen\LOOSE} must fit within 40 bits.
 
 The subtype codes used for 64-bit {\tt min::gen} direct string, stub pointer,
-auxiliary pointer, index, control code, and special general values
+auxiliary pointer, index, control code, and special values
 -- that is, all the non-numeric \verb|min::gen| values --
 are chosen so they are not normally generated by the compiler,
 run-time system, or program execution.  A {\tt min::float64}
@@ -1238,7 +1304,7 @@ code when reloading a possibly relocated body pointer.  This limit is
 guaranteed to be at least the value of the macro:
 
 \begin{center}\begin{tabular}{r@{}l}
-(unsigned integer macro)~~ & \TTKEY{MIN\_DEALLOCATED\_LIMIT}
+(unsigned integer macro)~~ & \TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
 \LABEL{MIN_DEALLOCATED_LIMIT}
 \end{tabular}\end{center}
 
@@ -2709,7 +2775,7 @@ or left out of a program according to the setting of the macro:
 
 \begin{center}
 \begin{tabular}{l}
-\TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS} \\
+\TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS} \\
 ~~~~~ 1 if code to use object auxiliary stubs is to be compiled; \\
 ~~~~~ 0 if this code is not to be compiled.
 \LABEL{MIN_USES_OBJECT_AUX_STUBS} \\
@@ -3633,8 +3699,8 @@ off.
 
 
 
-\subsection{Special General Values}
-\label{SPECIAL-GENERAL-VALUES}
+\subsection{Special Values}
+\label{SPECIAL-VALUES}
 
 Special general values are \verb|min::gen| values that are unique
 and not equal to any value that can be generated during
@@ -3643,13 +3709,18 @@ values, and are never to be used unless documentation specifies
 a specific use.  They are used as return or argument
 values by some functions.
 
-The special general values defined by MIN are:
+The special values defined by MIN are:
 
 \begin{indpar}
 \begin{list}{}{}
 \item[{\tt const min::gen min::}\MINKEY{MISSING}]~%
 	\LABEL{MIN::MISSING}\\
-Denotes a missing value or an empty set of values.
+Denotes a missing value or an empty set of values, and may be input
+or output and used as an attribute value.
+\item[{\tt const min::gen min::}\MINKEY{NONE}]~%
+	\LABEL{MIN::NONE}\\
+Denotes a non-existent function value or result, and may not be
+input or output or used as an attribute value or label.
 \item[{\tt const min::gen min::}\MINKEY{ANY}]~%
 	\LABEL{MIN::ANY}\\
 Denotes any value from a set of values.
@@ -3669,25 +3740,25 @@ A value returned to indicate a function has failed.
 \end{list}
 \end{indpar}
 
-Special general values each have a unique \ikey{index}{of special general value}
-that identifies them relative to other special general values.  These
+Special general values each have a unique \ikey{index}{of special value}
+that identifies them relative to other special values.  These
 indices are in the range $0$ through $2^{24}-1$.  The last 256 indices of this
 range, $2^{24}-256$ through $2^{24}-1$ are reserved for use by the MIN
-system.  Other special general values can be created by other systems,
+system.  Other special values can be created by other systems,
 and indices near 0 are reserved for non-system users.
 
-For efficiency reasons it is desirable for special general values to be
+For efficiency reasons it is desirable for special values to be
 compile time constants.  Because compilers generally do not run
 inline functions at compile time, a macro is needed to compute special
-general values.  This macro is
+values.  This macro is
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|(macro) min::gen |
-	& \TTKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
+	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
 \LABEL{MIN_NEW_SPECIAL_GEN} \\
 \end{tabular}\end{center}
 
-where \verb|i| is the index of the special general value to be
+where \verb|i| is the index of the special value to be
 created, and must be an unsigned integer compile time constant
 expression.  This macro does \underline{not} check the range
 of the index, and is unprotected in this sense.  A typical usage
@@ -3964,6 +4035,7 @@ struct min
 {
 \renewcommand{\LABEL}[1]{\dotfill~\pagref{#1}}
 \renewcommand{\TTKEY}[1]{{\tt ~~#1~~}}
+\renewcommand{\TTNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \newcommand{\ARGBREAK}{\\&{\tt ~~~~~}}
@@ -3981,21 +4053,25 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{tabular}{@{}p{6.2in}@{}}
-\TTKEY{MIN\_IS\_COMPACT}
+\TTNBKEY{MIN\_IS\_COMPACT}
 \LABEL{MIN_IS_COMPACT} \\
-\TTKEY{MIN\_IS\_LOOSE}
+\TTNBKEY{MIN\_IS\_LOOSE}
 \LABEL{MIN_IS_LOOSE}	 \\
-\TTKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
+\TTNBKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
 \LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS} \\
-\TTKEY{MIN\_STUB\_BASE}
+\TTNBKEY{MIN\_STUB\_BASE}
 \LABEL{MIN_STUB_BASE} \\
-\TTKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
+\TTNBKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
 \LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS} \\
-\TTKEY{MIN\_DEALLOCATED\_LIMIT}
+\TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
 \LABEL{MIN_DEALLOCATED_LIMIT} \\
-\TTKEY{MIN\_DEBUG}
+\TTNBKEY{MIN\_DEBUG}
 \LABEL{MIN_DEBUG} \\
-\TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
+\TTNBKEY{MIN\_PROTECT}
+\LABEL{MIN_PROTECT} \\
+\TTNBKEY{MIN\_ASSERT($e$)}
+\LABEL{MIN_ASSERT} \\
+\TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
 \LABEL{MIN_USES_OBJECT_AUX_STUBS}
 \end{tabular}
 
@@ -4266,7 +4342,7 @@ struct min
 
 \begin{TABULAR}{1.6in}
 \verb|(macro) min::gen|
-	& \TTKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
+	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
 \LABEL{MIN_NEW_SPECIAL_GEN} \\
 \end{TABULAR}
 
@@ -4684,7 +4760,7 @@ struct min
 
 \begin{indpar}[0.2in]
 \begin{tabular}{@{}p{6.2in}@{}}
-\TTKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
+\TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
 \LABEL{MIN_USES_OBJECT_AUX_STUBS}
 \end{tabular}
 \end{indpar}
@@ -4994,13 +5070,15 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 
 \end{indpar}
 
-\INDEXHEADER{Special General Values}
+\INDEXHEADER{Special Values}
 
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.2in}
 \verb|min::gen min::| & \MINKEY{MISSING}
 \LABEL{MIN::MISSING} \\
+\verb|min::gen min::| & \MINKEY{NONE}
+\LABEL{MIN::NONE} \\
 \verb|min::gen min::| & \MINKEY{ANY}
 \LABEL{MIN::ANY} \\
 \verb|min::gen min::| & \MINKEY{MULTI\_VALUED}

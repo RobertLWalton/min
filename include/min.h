@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 25 21:40:56 EST 2008
+// Date:	Thu Nov 27 20:51:12 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/26 03:14:24 $
+//   $Date: 2008/11/28 02:15:00 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.108 $
+//   $Revision: 1.109 $
 
 // Table of Contents:
 //
@@ -176,16 +176,18 @@ namespace min {
     //
     const min::gen MISSING =
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFFF );
-    const min::gen ANY =
+    const min::gen NONE =
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFFE );
-    const min::gen MULTI_VALUED =
+    const min::gen ANY =
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFFD );
-    const min::gen UNDEFINED =
+    const min::gen MULTI_VALUED =
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFFC );
-    const min::gen SUCCESS =
+    const min::gen UNDEFINED =
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFFB );
-    const min::gen FAILURE =
+    const min::gen SUCCESS =
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFFA );
+    const min::gen FAILURE =
+	MIN_NEW_SPECIAL_GEN ( 0xFFFFF9 );
 }
 
 // Stub Types and Data
