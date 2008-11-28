@@ -160,40 +160,40 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( pairauxgen ) true.
 
-Test indirect indexed aux general values:
-indirectgen: 7ff4140027d00119
+Test indexed aux general values:
+indexedauxgen: 7ff4140027d00119
 min_interface_test.cc:XXXX assert:
-    min::is_indirect_indexed_aux ( indirectgen ) true.
+    min::is_indexed_aux ( indexedauxgen ) true.
 min_interface_test.cc:XXXX assert:
-    min::gen_subtype_of ( indirectgen ) == min::GEN_INDIRECT_INDEXED_AUX true.
+    min::gen_subtype_of ( indexedauxgen ) == min::GEN_INDEXED_AUX true.
 ../include/min.h:XXXX assert:
-    is_indirect_indexed_aux ( v ) true.
+    is_indexed_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
-    min::indirect_aux_of ( indirectgen ) == indirect_aux true.
+    min::indexed_aux_of ( indexedauxgen ) == indexed_aux true.
 ../include/min.h:XXXX assert:
-    is_indirect_indexed_aux ( v ) true.
+    is_indexed_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
-    min::indirect_index_of ( indirectgen ) == indirect_index true.
+    min::indexed_index_of ( indexedauxgen ) == indexed_index true.
 min_interface_test.cc:XXXX desire success:
-    indirectgen = min::new_indirect_indexed_aux_gen ( indirect_aux, indirect_index );
+    indexedauxgen = min::new_indexed_aux_gen ( indexed_aux, indexed_index );
 ../include/min.h:XXXX assert:
     p < 1 << 20 true.
 ../include/min.h:XXXX assert:
     i < 1 << 20 true.
 min_interface_test.cc:XXXX desire failure:
-    indirectgen = min::new_indirect_indexed_aux_gen ( 1 << 20, indirect_index );
+    indexedauxgen = min::new_indexed_aux_gen ( 1 << 20, indexed_index );
 ../include/min.h:XXXX assert:
     p < 1 << 20 false.
 min_interface_test.cc:XXXX desire failure:
-    indirectgen = min::new_indirect_indexed_aux_gen ( indirect_aux, 1 << 20 );
+    indexedauxgen = min::new_indexed_aux_gen ( indexed_aux, 1 << 20 );
 ../include/min.h:XXXX assert:
     p < 1 << 20 true.
 ../include/min.h:XXXX assert:
     i < 1 << 20 false.
 min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( indirectgen ) true.
+    ! min::is_stub ( indexedauxgen ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( indirectgen ) true.
+    ! min::is_direct_str ( indexedauxgen ) true.
 
 Test index general values:
 indexgen: 7ff41500000b353b

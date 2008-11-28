@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Nov 27 20:51:12 EST 2008
+// Date:	Fri Nov 28 07:16:18 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/28 02:15:00 $
+//   $Date: 2008/11/28 13:39:19 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.109 $
+//   $Revision: 1.110 $
 
 // Table of Contents:
 //
@@ -109,7 +109,7 @@ namespace min {
 	    = 0xF2;
 	const unsigned GEN_INDIRECT_PAIR_AUX
 	    = 0xF3;
-	const unsigned GEN_INDIRECT_INDEXED_AUX
+	const unsigned GEN_INDEXED_AUX
 	    = 0xF4;
 	const unsigned GEN_INDEX
 	    = 0xF5;
@@ -149,7 +149,7 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x12;
 	const unsigned GEN_INDIRECT_PAIR_AUX
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
-	const unsigned GEN_INDIRECT_INDEXED_AUX
+	const unsigned GEN_INDEXED_AUX
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x14;
 	const unsigned GEN_INDEX
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x15;
@@ -422,13 +422,12 @@ namespace min { namespace unprotected {
 	    return (min::gen)
 	        ( p + ( GEN_INDIRECT_PAIR_AUX << 24 ) );
 	}
-	inline min::gen new_indirect_indexed_aux_gen
+	inline min::gen new_indexed_aux_gen
 		( unsigned p, unsigned i )
 	{
 	    return (min::gen)
 	        (   ( p << 12 ) + i
-		  + ( GEN_INDIRECT_INDEXED_AUX << 24 )
-	        );
+		  + ( GEN_INDEXED_AUX << 24 ) );
 	}
 	inline min::gen new_index_gen ( unsigned i )
 	{
@@ -507,14 +506,13 @@ namespace min { namespace unprotected {
 		     + ( (uns64) GEN_INDIRECT_PAIR_AUX
 		         << 40 ) );
 	}
-	inline min::gen new_indirect_indexed_aux_gen
+	inline min::gen new_indexed_aux_gen
 		( unsigned p, unsigned i )
 	{
 	    return (min::gen)
 	           (   ( (uns64) p << 20 ) + i
 		     + ( (uns64)
-		         GEN_INDIRECT_INDEXED_AUX
-		         << 40 ) );
+		         GEN_INDEXED_AUX << 40 ) );
 	}
 	inline min::gen new_index_gen ( unsigned i )
 	{
@@ -549,7 +547,7 @@ namespace min { namespace unprotected {
 		( min::gen v, min::uns64 p )
 	{
 	    return (min::gen)
-	           ( ( v & 0xFFFFFF0000000000ull ) + p );
+	        ( ( v & 0xFFFFFF0000000000ull ) + p );
 	}
 
 #   endif
@@ -607,24 +605,22 @@ namespace min {
 			( p );
     }
 #   if MIN_IS_COMPACT
-	inline min::gen new_indirect_indexed_aux_gen
+	inline min::gen new_indexed_aux_gen
 		( unsigned p, unsigned i )
 	{
 	    MIN_ASSERT ( p < 1 << 12 );
 	    MIN_ASSERT ( i < 1 << 12 );
 	    return unprotected::
-	           new_indirect_indexed_aux_gen
-			    ( p, i );
+	           new_indexed_aux_gen ( p, i );
 	}
 #   elif MIN_IS_LOOSE
-	inline min::gen new_indirect_indexed_aux_gen
+	inline min::gen new_indexed_aux_gen
 		( unsigned p, unsigned i )
 	{
 	    MIN_ASSERT ( p < 1 << 20 );
 	    MIN_ASSERT ( i < 1 << 20 );
 	    return unprotected::
-	           new_indirect_indexed_aux_gen
-			    ( p, i );
+	           new_indexed_aux_gen ( p, i );
 	}
 #   endif
     inline min::gen new_index_gen ( unsigned i )
@@ -689,11 +685,9 @@ namespace min {
 	    return
 	        ( v >> 24 == GEN_INDIRECT_PAIR_AUX );
 	}
-	inline bool is_indirect_indexed_aux
-		( min::gen v )
+	inline bool is_indexed_aux ( min::gen v )
 	{
-	    return
-	    	( v >> 24 == GEN_INDIRECT_INDEXED_AUX );
+	    return ( v >> 24 == GEN_INDEXED_AUX );
 	}
 	inline bool is_index ( min::gen v )
 	{
@@ -753,11 +747,9 @@ namespace min {
 	    return
 	        ( v >> 40 == GEN_INDIRECT_PAIR_AUX );
 	}
-	inline bool is_indirect_indexed_aux
-		( min::gen v )
+	inline bool is_indexed_aux ( min::gen v )
 	{
-	    return
-	    	( v >> 40 == GEN_INDIRECT_INDEXED_AUX );
+	    return ( v >> 40 == GEN_INDEXED_AUX );
 	}
 	inline bool is_index ( min::gen v )
 	{
@@ -830,13 +822,11 @@ namespace min { namespace unprotected {
 	{
 	    return ( v & 0xFFFFFF );
 	}
-	inline unsigned indirect_aux_of
-		( min::gen v )
+	inline unsigned indexed_aux_of ( min::gen v )
 	{
 	    return ( ( v >> 12 ) & 0xFFF );
 	}
-	inline unsigned indirect_index_of
-		( min::gen v )
+	inline unsigned indexed_index_of ( min::gen v )
 	{
 	    return ( v & 0xFFF );
 	}
@@ -887,13 +877,11 @@ namespace min { namespace unprotected {
 	{
 	    return ( v & 0xFFFFFF );
 	}
-	inline unsigned indirect_aux_of
-		( min::gen v )
+	inline unsigned indexed_aux_of ( min::gen v )
 	{
 	    return ( ( v >> 20 ) & 0xFFFFF );
 	}
-	inline unsigned indirect_index_of
-		( min::gen v )
+	inline unsigned indexed_index_of ( min::gen v )
 	{
 	    return ( v & 0xFFFFF );
 	}
@@ -960,15 +948,15 @@ namespace min {
 	MIN_ASSERT ( is_indirect_pair_aux ( v ) );
 	return unprotected::indirect_pair_aux_of ( v );
     }
-    inline unsigned indirect_aux_of ( min::gen v )
+    inline unsigned indexed_aux_of ( min::gen v )
     {
-	MIN_ASSERT ( is_indirect_indexed_aux ( v ) );
-	return unprotected::indirect_aux_of ( v );
+	MIN_ASSERT ( is_indexed_aux ( v ) );
+	return unprotected::indexed_aux_of ( v );
     }
-    inline unsigned indirect_index_of ( min::gen v )
+    inline unsigned indexed_index_of ( min::gen v )
     {
-	MIN_ASSERT ( is_indirect_indexed_aux ( v ) );
-	return unprotected::indirect_index_of ( v );
+	MIN_ASSERT ( is_indexed_aux ( v ) );
+	return unprotected::indexed_index_of ( v );
     }
     inline unsigned index_of ( min::gen v )
     {
@@ -1616,7 +1604,8 @@ namespace min { namespace unprotected {
     //
     inline void free_stub ( min::stub * s )
     {
-        min::unprotected::set_gen_of ( s, min::MISSING );
+        min::unprotected::set_gen_of
+	    ( s, min::MISSING );
 	min::unprotected::set_control_of
 	    ( s, min::unprotected::control_of
 	             ( last_allocated_stub ) );
@@ -3302,7 +3291,8 @@ namespace min {
 		         stub_of ( lp.current );
 		lp.current_index = 0;
 		MIN_ASSERT
-		    (    min::type_of ( lp.current_stub )
+		    (    min::type_of
+		             ( lp.current_stub )
 		      == min::SUBLIST_AUX );
 		lp.current =
 		    min::unprotected::
