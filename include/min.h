@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 28 07:16:18 EST 2008
+// Date:	Sun Nov 30 11:08:57 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/28 13:39:19 $
+//   $Date: 2008/11/30 16:08:46 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.110 $
+//   $Revision: 1.111 $
 
 // Table of Contents:
 //
@@ -1917,11 +1917,6 @@ namespace min { namespace unprotected {
 	return (char *) str
 	       + sizeof ( min::unprotected::long_str );
     }
-    inline unsigned hash_of
-        ( min::unprotected::long_str * str )
-    {
-	return str->hash;
-    }
     inline void set_length_of
 	    ( min::unprotected::long_str * str,
 	      unsigned length )
@@ -1943,6 +1938,11 @@ namespace min {
     {
 	return str->length;
     }
+    inline unsigned hash_of
+        ( min::unprotected::long_str * str )
+    {
+	return str->hash;
+    }
 
     // Functions to compute the hash of an arbitrary
     // char string.
@@ -1951,17 +1951,6 @@ namespace min {
 	    ( const char * p, unsigned size );
     //
     min::uns32 strhash ( const char * p );
-
-    inline unsigned hash_of
-	    ( min::unprotected::long_str * str )
-    {
-	if ( unprotected::hash_of ( str ) == 0 )
-	    unprotected::set_hash_of
-		( str,
-		  strhash
-		    ( unprotected::str_of ( str ) ) );
-	return unprotected::hash_of ( str );
-    }
 
     inline unsigned strlen ( min::stub * s )
     {

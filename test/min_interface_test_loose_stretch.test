@@ -704,8 +704,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::length_of ( lstr ) == 13 true.
 min_interface_test.cc:XXXX assert:
-    MUP::hash_of ( lstr ) == 0 true.
-min_interface_test.cc:XXXX assert:
     min::hash_of ( lstr ) == s13hash true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LONG_STR true.
