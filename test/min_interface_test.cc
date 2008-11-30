@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Nov 28 07:10:53 EST 2008
+// Date:	Sun Nov 30 11:12:01 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/28 13:39:05 $
+//   $Date: 2008/11/30 16:08:55 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.55 $
+//   $Revision: 1.56 $
 
 // Table of Contents:
 //
@@ -1437,7 +1437,7 @@ int main ()
 	MUP::long_str * lstr =
 	    MUP::long_str_of ( lstub );
 	MUP::set_length_of ( lstr, 13 );
-	MUP::set_hash_of ( lstr, 0 );
+	MUP::set_hash_of ( lstr, s13hash );
 	char * wp = MUP::writable_str_of ( lstr );
 	const char * rp = MUP::str_of ( lstr );
 	strcpy ( wp, s13 );
@@ -1447,7 +1447,6 @@ int main ()
 	MIN_ASSERT
 	    ( (void * ) wp == (void *) (lstr + 1 ) );
 	MIN_ASSERT ( min::length_of ( lstr ) == 13 );
-	MIN_ASSERT ( MUP::hash_of ( lstr ) == 0 );
 	MIN_ASSERT ( min::hash_of ( lstr ) == s13hash );
 	MIN_ASSERT
 	    ( min::strhash ( lstub ) == s13hash );
