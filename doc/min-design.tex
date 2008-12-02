@@ -1953,6 +1953,14 @@ and not in a body.  The exact manner in which the vector is stored is
 hidden from the user.  Atoms which are elements of a label are represented
 by \verb|min::gen| general values.
 
+Note that a label of one element
+is distinct from the element itself, even though both have the same
+hash code.  Also note that labels can be elements of labels.  A programming
+language may wish to require that the elements of labels be numbers or
+strings, that numbers and strings be treated as labels of one element,
+and that proper labels with one element not be created.  But the
+\verb|min.h| code does not do this.
+
 A \key{label stub}\label{LABEL-STUB} is collectible,
 has \minnbkey{LABEL}\LABEL{MIN::LABEL} stub type code,
 and has an immutable value.
@@ -2040,7 +2048,8 @@ values that becomes the value vector of the label.  Each
 \verb|min::gen| value must be an atom.
 This function returns any existing label with elements equal to
 those given by the function arguments, in preference to creating a new
-label.
+label.  Thus two \verb|min::gen| label values with equal elements are
+\verb|==|.
 
 A label may be tested by the following protected function:
 
