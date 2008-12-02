@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Dec  1 22:41:34 EST 2008
+// Date:	Tue Dec  2 01:20:18 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/02 05:04:10 $
+//   $Date: 2008/12/02 11:34:35 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.57 $
+//   $Revision: 1.58 $
 
 // Table of Contents:
 //
@@ -1489,6 +1489,10 @@ int main ()
 	min::gen strgen7 = min::new_str_gen ( s7 );
 	min::gen strgen8 = min::new_str_gen ( s8 );
 	min::gen strgen13 = min::new_str_gen ( s13 );
+	MIN_ASSERT (    min::new_str_gen ( s13, 8 )
+	             == strgen8 );
+	MIN_ASSERT (    min::new_str_gen ( s13, 20 )
+	             == strgen13 );
 
 	MIN_ASSERT ( min::is_str ( strgen3 ) );
 	MIN_ASSERT ( min::is_atom ( strgen3 ) );
@@ -1600,6 +1604,13 @@ int main ()
 	MIN_ASSERT
 	    (    strcmp ( min::str_of ( p13 ), s13 )
 	      == 0 );
+
+	MUP::str_pointer p ( strgen13 );
+	MIN_ASSERT
+	    ( strcmp ( min::str_of ( p ), s13 ) == 0 );
+	min::initialize ( p, strgen8 );
+	MIN_ASSERT
+	    ( strcmp ( min::str_of ( p ), s8 ) == 0 );
 	
 	cout << endl;
 	cout << "Finish Strings Test!" << endl;
