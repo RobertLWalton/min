@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 1, 2008}
+\date{December 2, 2008}
  
 \maketitle
 
@@ -692,7 +692,7 @@ packed format.  44 bits are available to store a stub address in a
 64-bit general value, and 32 bits are available to store a stub address
 in a 32-bit general value, but in the latter case the packed address must be
 less than $2^{32}-2^{29}$ (the $2^{29}$ other 32 bit values are used to store
-direct integers, auxilary pointers, indices, control codes, and special
+direct integers, auxiliary pointers, indices, control codes, and special
 values).  There are three
 \skey{stub address packing scheme}s,\label{STUB-ADDRESS-PACKING} and the fastest
 is selected for each type of general value.  The scheme selection is
@@ -744,7 +744,7 @@ $2^{32}-2^{29}-1$ for 32 bit general values.
 
 The slowest scheme is the \key{stub index} scheme, where the
 relative stub address divided by the stub length is stored.
-The stub length is choosen to be a power of 2 so that this
+The stub length is chosen to be a power of 2 so that this
 scheme will be efficient.  Again, this scheme can be used if
 if the relative address of the stub is not too large, but since
 the stub length is 16, the relative address can be 16 times larger
@@ -1336,7 +1336,7 @@ However, there is a limit to the size of unimplemented
 memory, so code using very large bodies should always recheck the type
 code when reloading a possibly relocated body pointer.  Any object
 whose size is not greater than the value of the following
-macro is guarenteed to be pointed at unimplemented memory when it is
+macro is guaranteed to be pointed at unimplemented memory when it is
 deallocated:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1918,7 +1918,7 @@ exists.  If such a string exists, a pointer to the stub of the existing
 string is returned in the new \verb|min::gen| value, and no new stub
 is created.  Otherwise, if the input string is 8 or fewer {\tt char}'s,
 a short string stub is created, and if the input string has more
-than 8 {\tt char}'s, a long string stub is created.
+than 8 {\tt char}'s, a long string stub and body are created.
 
 Thus if two string \verb|min::gen| values are equal as
 strings, they have \verb|==| \verb|min::gen| values.
@@ -2507,13 +2507,13 @@ There are several rules that the list level obeys that lead to
 some efficiencies:
 
 \begin{indpar}
-{\bf No Superflous {\tt \bf min::LIST\_END}'s}.%
+{\bf No Superfluous {\tt \bf min::LIST\_END}'s}.%
 \index{superfluous LIST_END@superfluous {\tt LIST\_END}}%
 \label{NO-SUPERFLUOUS-LIST}
 A list or sublist auxiliary pointer may not point at an auxiliary
 area element containing a \verb|min::LIST_END| value.
 
-{\bf No Superflous List Auxiliary Pointers}.%
+{\bf No Superfluous List Auxiliary Pointers}.%
 \index{superfluous list auxiliary pointers}
 A list or sublist auxiliary pointer may not point at an auxiliary
 area element containing a list auxiliary pointer.
@@ -2806,7 +2806,7 @@ pointing a the current
 element.  Insertions before or after the current element will change
 this auxiliary value, and may move the current element to another
 location.  Otherwise insertions replace the current element
-by an auxilary value (or equivalent)
+by an auxiliary value (or equivalent)
 pointing at a vector of elements (or equivalent),
 one of which is a copy of the replaced element.
 This last is done for insertions after the single element of a one
@@ -3018,7 +3018,7 @@ omitted, it must be the {\em reverse-attribute-map-sublist} that is
 omitted, to avoid ambiguity.
 
 An object is represented by a map that maps attribute names to flags and
-multisets of values and maps attribute name/reverse name pairs to multisets
+multi-sets of values and maps attribute name/reverse name pairs to multi-sets
 of values.
 This map is based on the following search algorithm, which starts from
 an attribute name and an optional reverse attribute name, and returns
@@ -3363,12 +3363,12 @@ later become either a source of arrows or a leaf.
 When a variable $X$
 points at an object, and $N$ is the name of an attribute of the object,
 values for attribute $N$ of the object
-can be \skey{index general value}s that hold indeces of variables
+can be \skey{index general value}s that hold indices of variables
 in the vector that represent nodes one gets to when one starts at
 $X$ and follows arrows labeled $N$.
 
 Typically the vector variable with index {\tt 0} points at the object which
-is the root of the labelled graph represented by a variable vector.
+is the root of the labeled graph represented by a variable vector.
 
 As the objects are constant, and the same objects
 may be used with many different variable vectors.  Thus
