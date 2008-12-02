@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 30, 2008}
+\date{December 1, 2008}
  
 \maketitle
 
@@ -993,6 +993,9 @@ functions:
 \LABEL{MIN::NEW_DIRECT_INT_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_direct\_str\_gen}\verb| ( const char * p )|
 \LABEL{MIN::NEW_DIRECT_STR_GEN} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_direct\_str\_gen}\verb| ( const char * p, unsigned n )|
+\LABEL{MIN::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen min::| & \MINKEY{new\_list\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
@@ -1019,7 +1022,10 @@ These protected functions check for argument range errors.  Stubs are
 \underline{not} allocated by these functions, so an {\tt int}
 argument to {\tt min::new\_direct\_int\_gen\COMPACT} must fit in 28 bits,
 and the {\tt const char *} strings must be short enough to
-fit into a direct string.
+fit into a direct string.  For {\tt min::new\_\EOL direct\_\EOL str\_\EOL gen}
+with a second argument \verb|n|, a string longer than \verb|n| characters
+is shortened to \verb|n| characters (analogously to \verb|strncpy| and
+\verb|strncmp|).
 The {\tt unsigned} arguments used to make auxiliary pointers, indices,
 and special values
 must fit within 24 bits, except for {\tt min::new\_indexed\_aux\_gen}
@@ -1052,6 +1058,9 @@ range errors.
 \LABEL{MUP::NEW_DIRECT_INT_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_direct\_str\_gen}\verb| ( const char * p )|
 \LABEL{MUP::NEW_DIRECT_STR_GEN} \\
+\verb|min::gen MUP::|
+    & \MUPKEY{new\_direct\_str\_gen}\verb| ( const char * p, unsigned n )|
+\LABEL{MUP::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_list\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
@@ -1295,7 +1304,7 @@ as:
     }
     . . . . . use p . . . . .
     return ...;
-    // relocated deconstructor sets relocated flag.
+    // relocated deconstructor restores relocated flag.
 }
 \end{verbatim}\end{indpar}
 
@@ -1713,8 +1722,8 @@ if hash = 0, then hash = 2**32 - 1
 where the final result is truncated to 32 bits.  The constant
 is a prime such that multiplication by it is turned into
 shifts and adds by compilers: $65599=2^{16}+2^6-1$.\footnote{Another good
-constant that could be used is $33$.}  The hash value of a string
-is never zero.
+constant that could be used is $33$.}  A hash value is never zero
+(so zero can be used to denote a missing hash value).
 
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
@@ -1742,7 +1751,7 @@ bytes, but the terminating NUL and the padding are not included
 in the length.
 
 The following unprotected functions set the length and hash value as stored
-in the body.
+in the body:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void MUP::| &
@@ -1808,7 +1817,7 @@ from these only in that instead of taking a {\tt char *} source string
 argument, these functions take a {\tt min::gen} source argument.
 
 A read-only pointer to the characters of a string general value can
-be obtained using the following functions to create
+be obtained using the following functions to create and manage
 a \key{string pointer}:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1816,6 +1825,9 @@ a \key{string pointer}:
 \LABEL{MUP::STR_POINTER_OF_GEN} \\
 \verb|const char * min::| & \MINKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
 \LABEL{MIN::STR_OF_STR_POINTER} \\
+\verb|void min::|
+    & \MINKEY{initialize}\verb| ( MUP::str_pointer & sp, min::gen v )|
+\LABEL{MIN::INIT_OF_STR_POINTER} \\
 \verb|void min::| & \MINKEY{relocate}\verb| ( MUP::str_pointer & sp )|
 \LABEL{MIN::RELOCATE_OF_STR_POINTER} \\
 \end{tabular}\end{center}
@@ -1823,13 +1835,16 @@ a \key{string pointer}:
 The constructor creates a string pointer pointing to the {\tt char}'s
 of the string specified by the \verb|min::gen| argument.  This argument
 must be a direct string or a pointer to a short or long string stub.
-The {\tt min::str\_of} function returns this pointer, taking care to ensure
-the vector of {\tt char}'s is NUL-terminated.  The {\tt min::relocate}
+The {\tt min::str\_of} function returns a standard C++ pointer to the string,
+taking care to ensure the vector of {\tt char}'s is NUL-terminated.
+The {\tt min::initialize} function resets the pointer to point at another
+\verb|min::gen| value.
+The {\tt min::relocate}
 function resets the pointer after the relocated flag has been set,
 in case this is necessary.
-The value of {\tt min::str\_of} is not updated after the relocated flag has
-been set \underline{until} the {\tt min::relocate} function is called on the
-string pointer.
+The value of {\tt min::str\_of} does not change and may become obsolete when
+the relocated flag is been set, and the {\tt min::relocate} function
+makes the value current.
 
 For direct and some short strings the string pointer, when it is created,
 copies the string {\tt char}'s into a buffer internal to the string pointer,
@@ -1844,21 +1859,32 @@ function works is:
 \begin{indpar}\begin{verbatim}
 ... some_function ( ... )
 {
+    // relocated constructor saves the relocated flag.
     min::relocated relocated;
+    . . . . .
     min::gen g = some_string_value;
     MUP::str_pointer sp ( g );
     const char * p = min::str_of ( sp );
     . . . use and increment p . . .
+
     some_relocating_function ( ... );
     if ( relocated )
     {
+        // The relocating function does NOT change sp
+        // which remains pointing at its former now
+        // possibly incorrect place.
+        //
         int displacement = p - min::str_of ( sp );
+
+        // Make sp current.
         min::relocate ( sp );
+
+        // Revise p.
         p = min::str_of ( sp ) + displacement;
     }
     . . . . . use p . . . . .
     return ...;
-    // relocated deconstructor sets relocated flag.
+    // relocated deconstructor restores relocated flag.
 }
 \end{verbatim}\end{indpar}
 
@@ -1872,7 +1898,16 @@ and create new general values.
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_STR_GEN} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p, unsigned n )|
+\LABEL{MIN::NEW_STR_GEN_WITH_N} \\
 \end{tabular}\end{center}
+
+The \verb|min::new_str_gen| functions copy the input string after the
+manner of \verb|strcpy| and \verb|strncpy|, respectively.  That is,
+they copy from \verb|p|
+until a NUL is copied or \verb|n| characters have been copied, whichever
+comes first.
 
 A general value is a string if it holds a string itself or if it
 holds a stub pointer at a short or long string.  When a general value
@@ -4247,6 +4282,10 @@ struct min
 \verb|min::gen min::|
     & \MINKEY{new\_direct\_str\_gen\COMPACT}\verb| ( const char * p )|
 \LABEL{MIN::NEW_DIRECT_STR_GEN} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_direct\_str\_gen}\ARGBREAK
+      \verb| ( const char * p, unsigned n )|
+\LABEL{MIN::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen min::| & \MINKEY{new\_list\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
@@ -4333,6 +4372,10 @@ struct min
 \LABEL{MUP::NEW_DIRECT_INT_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_direct\_str\_gen}\verb| ( const char * p )|
 \LABEL{MUP::NEW_DIRECT_STR_GEN} \\
+\verb|min::gen MUP::|
+    & \MUPKEY{new\_direct\_str\_gen}\ARGBREAK
+      \verb| ( const char * p, unsigned n )|
+\LABEL{MUP::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_list\_aux\_gen}\verb| ( unsigned p )|
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( unsigned p )|
@@ -4483,15 +4526,6 @@ struct min
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
-\LABEL{MUP::STR_POINTER_OF_GEN} \\
-\verb|const char * min::| & \MINKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MIN::STR_OF_STR_POINTER} \\
-\verb|void min::| & \MINKEY{relocate}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MIN::RELOCATE_OF_STR_POINTER} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
 \verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STR_OF_GEN} \\
 \end{TABULAR}
@@ -4500,6 +4534,29 @@ struct min
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_STR_GEN} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( const char * p, unsigned n )|
+\LABEL{MIN::NEW_STR_GEN_WITH_N} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{String Pointer Declarations}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
+\LABEL{MUP::STR_POINTER_OF_GEN} \\
+\verb|const char * min::| & \MINKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
+\LABEL{MIN::STR_OF_STR_POINTER} \\
+\verb|void min::|
+    & \MINKEY{initialize}\ARGBREAK
+      \verb| ( MUP::str_pointer & sp, min::gen v )|
+\LABEL{MIN::INIT_OF_STR_POINTER} \\
+\verb|void min::| & \MINKEY{relocate}\verb| ( MUP::str_pointer & sp )|
+\LABEL{MIN::RELOCATE_OF_STR_POINTER} \\
 \end{TABULAR}
 
 \end{indpar}

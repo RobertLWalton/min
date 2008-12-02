@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 21 09:27:37 EDT 2006
+// Date:	Mon Dec  1 11:28:15 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2006/05/21 15:46:54 $
+//   $Date: 2008/12/02 05:03:25 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.56 $
+//   $Revision: 1.57 $
 
 // Table of Contents:
 //
@@ -236,25 +236,35 @@ char * min::strncpy ( char * p, min::gen v, unsigned n )
     }
 }
 
-min::gen MUP::new_str_stub_gen
-	( const char * p )
+// Perform the new_str_stub_gen operation where n is the
+// exact number of characters in p that are to be used
+// (instead of the maximum).  There must be no NULs in
+// the first n characters of p.
+//
+min::gen MUP::new_str_stub_gen_internal
+	( const char * p, unsigned n )
 {
-    unsigned length = ::strlen ( p );
-    unsigned hash = strhash ( p );
+    unsigned hash = min::strnhash ( p, n );
     unsigned h = hash % MUP::str_hash_size;
     min::stub * s = MUP::str_hash[h];
+    const char * q;
     while ( s )
     {
-        if (    length <= 8
+        if (    n <= 8
 	     && min::type_of ( s ) == min::SHORT_STR
-	     && strncmp ( p, s->v.c8, 8 ) == 0 )
+	     && strncmp ( p, s->v.c8, n ) == 0
+	     && (    n == 8
+	          || s->v.c8[n] == 0 ) )
 	    return min::new_gen ( s );
-	else if (    length > 8
+	else if (    n > 8
 	          && min::type_of ( s ) == min::LONG_STR
-	          && strcmp
-		       ( p, MUP::str_of (
-			      MUP::long_str_of ( s ) ) )
-		     == 0 )
+	          && strncmp
+		       ( p, q = MUP::str_of (
+			            MUP::long_str_of
+				        ( s ) ),
+			    n )
+		     == 0
+		  && q[n] == 0 )
 	    return min::new_gen ( s );
 	s = (min::stub *)
 	    MUP::stub_of_gc_control
@@ -263,21 +273,22 @@ min::gen MUP::new_str_stub_gen
 
     s = MUP::new_aux_stub ();
     int type;
-    if ( length <= 8 )
+    if ( n <= 8 )
     {
 	type = min::SHORT_STR;
-	::strncpy ( s->v.c8, p, 8 );
+	s->v.u64 = 0;
+	::strncpy ( s->v.c8, p, n );
     }
     else
     {
 	type = min::LONG_STR;
 	MUP::body_control * b = MUP::new_body
-	    ( sizeof ( MUP::long_str ) + length + 1 );
+	    ( sizeof ( MUP::long_str ) + n + 1 );
 	b->control = MINT::pointer_to_uns64 ( s );
 	s->v.u64 = MINT::pointer_to_uns64 ( b + 1 );
 	MUP::long_str * ls =
 	    (MUP::long_str *) ( b + 1 );
-	ls->length = length;
+	ls->length = n;
 	ls->hash = hash;
 	::strcpy ( MUP::writable_str_of ( ls ), p );
     }
@@ -285,7 +296,7 @@ min::gen MUP::new_str_stub_gen
 	( s,
 	  MUP::new_gc_control
 	      ( type, MUP::str_hash[h],
-	        gc_new_stub_flags ));
+	        MUP::gc_new_stub_flags ));
     MUP::str_hash[h] = s;
     return min::new_gen ( s );
 }

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov 30 11:12:01 EST 2008
+// Date:	Mon Dec  1 22:41:34 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/30 16:08:55 $
+//   $Date: 2008/12/02 05:04:10 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.56 $
+//   $Revision: 1.57 $
 
 // Table of Contents:
 //
@@ -51,7 +51,7 @@ using std::ostream;
 
 // Artificial increase in pointer size for stretch test.
 //
-// If MIN_STRETCH defines, set
+// If MIN_STRETCH defined, set
 //
 //	MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS = 2**60 - 1
 //	MIN_MAXIMUM_RELATIVE_STUB_ADDRESS =
@@ -117,7 +117,6 @@ void min_assert
 # define MINT min::internal
 
 // Helper functions for tests.
-
 
 struct print_gen {
     min::gen g;
@@ -577,14 +576,19 @@ int main ()
 #	if MIN_IS_COMPACT
 	    char * str = "ABC";
 	    char * overflowstr = "ABCD";
+	    char * overflowstrn = "ABCDE";
+	    int strlimit = 3;
 #	elif MIN_IS_LOOSE
 	    char * str = "ABCDE";
 	    char * overflowstr = "ABCDEF";
+	    char * overflowstrn = "ABCDEFG";
+	    int strlimit = 6;
 #	endif
 	union {
 	    min::uns64 u64;
 	    char str[8];
 	} value;
+
 	min::gen strgen =
 	    MUP::new_direct_str_gen ( str );
 	cout << "strgen: " << print_gen ( strgen )
@@ -602,6 +606,28 @@ int main ()
 	    			( overflowstr );
 	);
 	MIN_ASSERT ( ! min::is_stub ( strgen ) );
+
+	min::gen strngen =
+	    MUP::new_direct_str_gen ( str, 2 );
+	cout << "strngen: " << print_gen ( strngen )
+	     << endl;
+	MIN_ASSERT ( min::is_direct_str ( strngen ) );
+	MIN_ASSERT (    min::gen_subtype_of ( strngen )
+	             == min::GEN_DIRECT_STR );
+	value.u64 = MUP::direct_str_of ( strngen );
+	MIN_ASSERT
+	    ( strncmp ( str, value.str, 2 ) == 0 );
+	MIN_ASSERT ( value.str[2] == 0 );
+	desire_success (
+	    strngen =
+	        min::new_direct_str_gen ( str, 2 );
+	);
+	desire_failure (
+	    strngen = min::new_direct_str_gen
+	    			( overflowstrn,
+				  strlimit + 1 );
+	);
+	MIN_ASSERT ( ! min::is_stub ( strngen ) );
  
         cout << endl;
 	cout << "Test list aux general values:"
