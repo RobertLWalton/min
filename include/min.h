@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov 30 11:08:57 EST 2008
+// Date:	Mon Dec  1 23:02:45 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/30 16:08:46 $
+//   $Date: 2008/12/02 05:02:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.111 $
+//   $Revision: 1.112 $
 
 // Table of Contents:
 //
@@ -375,6 +375,19 @@ namespace min { namespace internal {
 // General Value Constructor Functions
 // ------- ----- ----------- ---------
 
+namespace min {
+
+    // Helper function.
+
+    inline unsigned strnlen
+	    ( const char * p, unsigned n )
+    {
+        const char * q = p;
+	while ( * q && n > 0 ) ++ q, -- n;
+	return q - p;
+    }
+}
+
 namespace min { namespace unprotected {
 
     // MUP:: constructors
@@ -403,6 +416,17 @@ namespace min { namespace unprotected {
 	       ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ );
+	    return (min::gen) v;
+	}
+	inline min::gen new_direct_str_gen
+		( const char * p, unsigned n )
+	{
+	    uns32 v = (uns32) GEN_DIRECT_STR << 24;
+	    char * s = ( (char *) & v )
+		     + MIN_IS_BIG_ENDIAN;
+	       ( n >= 1 && ( * s ++ = * p ++ ) )
+	    && ( n >= 2 && ( * s ++ = * p ++ ) )
+	    && ( n >= 3 && ( * s ++ = * p ++ ) );
 	    return (min::gen) v;
 	}
 	inline min::gen new_list_aux_gen ( unsigned p )
@@ -481,6 +505,19 @@ namespace min { namespace unprotected {
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ );
+	    return (min::gen) v;
+	}
+	inline min::gen new_direct_str_gen
+		( const char * p, unsigned n )
+	{
+	    uns64 v = (uns64) GEN_DIRECT_STR << 40;
+	    char * s = ( (char *) & v )
+	             + 3 * MIN_IS_BIG_ENDIAN;
+	       ( n >= 1 && ( * s ++ = * p ++ ) )
+	    && ( n >= 2 && ( * s ++ = * p ++ ) )
+	    && ( n >= 3 && ( * s ++ = * p ++ ) )
+	    && ( n >= 4 && ( * s ++ = * p ++ ) )
+	    && ( n >= 5 && ( * s ++ = * p ++ ) );
 	    return (min::gen) v;
 	}
 	inline min::gen new_list_aux_gen ( unsigned p )
@@ -583,6 +620,16 @@ namespace min {
 	    MIN_ASSERT ( strlen ( p ) <= 3 );
 #	elif MIN_IS_LOOSE
 	    MIN_ASSERT ( strlen ( p ) <= 5 );
+#	endif
+	return unprotected::new_direct_str_gen ( p );
+    }
+    inline min::gen new_direct_str_gen
+	    ( const char * p, unsigned n )
+    {
+#       if MIN_IS_COMPACT
+	    MIN_ASSERT ( strnlen ( p, n ) <= 3 );
+#	elif MIN_IS_LOOSE
+	    MIN_ASSERT ( strnlen ( p, n ) <= 5 );
 #	endif
 	return unprotected::new_direct_str_gen ( p );
     }
@@ -1984,7 +2031,7 @@ namespace min {
 	{
 	    if ( s->v.c8[7] )
 		p[8] = 0;
-	    return strncpy ( p, s->v.c8, 8 );
+	    return ::strncpy ( p, s->v.c8, 8 );
 	}
 	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
 	return ::strcpy
@@ -2024,6 +2071,9 @@ namespace min {
     }
     const char * str_of
 	( min::unprotected::str_pointer & sp );
+    void initialize
+	( min::unprotected::str_pointer & sp,
+	  min::gen v );
     void relocate
 	( min::unprotected::str_pointer & sp );
 
@@ -2066,6 +2116,8 @@ namespace min {
 
 	    friend const char * min::str_of
 		( str_pointer & sp );
+	    friend void min::initialize
+		( str_pointer & sp, min::gen v );
 	    friend void min::relocate
 		( str_pointer & sp );
 
@@ -2092,6 +2144,14 @@ namespace min {
 	return sp.beginp;
     }
 
+    inline void initialize
+	    ( min::unprotected::str_pointer & sp,
+	      min::gen v )
+    {
+	new ( & sp )
+	    min::unprotected::str_pointer ( v );
+    }
+
     inline void relocate
 	    ( min::unprotected::str_pointer & sp )
     {
@@ -2116,7 +2176,20 @@ namespace min {
     }
 
     namespace unprotected {
-	min::gen new_str_stub_gen ( const char * p );
+	min::gen new_str_stub_gen_internal
+	    ( const char * p, unsigned n );
+	inline min::gen new_str_stub_gen
+		( const char * p )
+	{
+	    return new_str_stub_gen_internal
+	        ( p, ::strlen ( p ) );
+	}
+	inline min::gen new_str_stub_gen
+	    ( const char * p, unsigned n )
+	{
+	    return new_str_stub_gen_internal
+	        ( p, ::strnlen ( p, n ) );
+	}
     }
 
     inline min::gen new_str_gen ( const char * p )
@@ -2133,6 +2206,23 @@ namespace min {
 #	endif
 	return min::unprotected::
 	       new_str_stub_gen ( p );
+    }
+
+    inline min::gen new_str_gen
+            ( const char * p, unsigned n )
+    {
+	n = strnlen ( p, n );
+#	if MIN_IS_COMPACT
+	    if ( n <= 3 )
+		return min::unprotected::
+		       new_direct_str_gen ( p, n );
+#	elif MIN_IS_LOOSE
+	    if ( n <= 5 )
+		return min::unprotected::
+		       new_direct_str_gen ( p, n );
+#	endif
+	return min::unprotected::
+	       new_str_stub_gen ( p, n );
     }
 }
 

@@ -95,6 +95,25 @@ min_interface_test.cc:XXXX desire failure:
     strlen ( p ) <= 3 false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( strgen ) true.
+strngen: f0004241
+min_interface_test.cc:XXXX assert:
+    min::is_direct_str ( strngen ) true.
+min_interface_test.cc:XXXX assert:
+    min::gen_subtype_of ( strngen ) == min::GEN_DIRECT_STR true.
+min_interface_test.cc:XXXX assert:
+    strncmp ( str, value.str, 2 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    value.str[2] == 0 true.
+min_interface_test.cc:XXXX desire success:
+    strngen = min::new_direct_str_gen ( str, 2 );
+../include/min.h:XXXX assert:
+    strnlen ( p, n ) <= 3 true.
+min_interface_test.cc:XXXX desire failure:
+    strngen = min::new_direct_str_gen ( overflowstrn, strlimit + 1 );
+../include/min.h:XXXX assert:
+    strnlen ( p, n ) <= 3 false.
+min_interface_test.cc:XXXX assert:
+    ! min::is_stub ( strngen ) true.
 
 Test list aux general values:
 listauxgen: f10b353b
