@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 2, 2008}
+\date{December 5, 2008}
  
 \maketitle
 
@@ -2074,12 +2074,11 @@ a reverse direction label, called the \key{reverse attribute name}
 is attached to the arrow.
 There can be several arrows with the same attribute name.
 There can be several double arrows with the same attribute name and
-different reverse attribute names.
+the same reverse attribute name.
 
-Several arrows can have the same attribute name, and can have both the
-same name and the same value.  Several double arrows can have the same
-attribute and reverse attribute names, or the same pair of names and the
-same value.
+Several arrows can have both the same attribute name and the
+same value.  Several double arrows can have the same
+attribute and reverse attribute names and the same value.
 
 Therefore an attribute name and reverse attribute name together name a
 multi-set of values, where the reverse attribute name can be missing to
@@ -2093,7 +2092,8 @@ When testing for value equality, {\tt ==} is used, as this tests for
 equality of both atoms and objects.
 
 Flags, called \key{attribute flags}, can be attached to an attribute name.
-Note that flags are attached to object attribute names, and not to arrows.
+Note that flags are attached to object attribute names, and not to arrows,
+values, or reverse attribute names.
 
 An object has a body that consists of the following 5 parts in
 the order given:
@@ -2155,6 +2155,10 @@ header size & + & hash table size & + & attribute vector size
 	& = & total size
 \end{tabular}
 \end{center}
+
+Here all sizes are in \verb|min::gen| units.  Thus the header size,
+which is 64 bits, is {\tt 1} for a loose implementation and {\tt 2}
+for a compact implementation (\pagref{COMPACT-OR-LOOSE}).
 
 The header may contain other implementation dependent information used
 for optimization.  Most implementations do not
@@ -2233,7 +2237,8 @@ functions:
 \end{tabular}\end{center}
 
 Here the functions that return pointers do \underline{not} check the type
-of the stub.
+of the stub, and the pointers returned will become obsolete if the body of
+the object is relocated (\secref{BODY-POINTERS}).
 
 In order to create an object it is necessary to determine possible
 hash table and total sizes.  The following functions return the smallest

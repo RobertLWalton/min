@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Dec  2 01:20:18 EST 2008
+// Date:	Fri Dec  5 12:39:03 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/02 11:34:35 $
+//   $Date: 2008/12/05 18:16:37 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.58 $
+//   $Revision: 1.59 $
 
 // Table of Contents:
 //
@@ -1662,6 +1662,7 @@ int main ()
 // -------
 
     // Values shared with subsequent object tests.
+    //
     min::gen short_obj_gen;
     min::gen long_obj_gen;
     {
@@ -1698,7 +1699,8 @@ int main ()
 		( unsigned(-1) );
 	cout << "lmaxht: " << lmaxht << endl;
 	MIN_ASSERT ( lmaxht >= 4000000 );
-	for ( unsigned u = 0; u < ( 1 << 20 ); ++ u )
+	// Note: lmaxht < ( 1 << 22 ) is possible.
+	for ( unsigned u = 0; u <= 4000000; ++ u )
 	{
 	    unsigned t = min::long_obj_total_size ( u );
 	    assert ( t == u );
