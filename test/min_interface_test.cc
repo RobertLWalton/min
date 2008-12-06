@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Dec  5 12:39:03 EST 2008
+// Date:	Sat Dec  6 08:20:24 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/05 18:16:37 $
+//   $Date: 2008/12/06 13:24:08 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.59 $
+//   $Revision: 1.60 $
 
 // Table of Contents:
 //
@@ -1814,7 +1814,9 @@ int main ()
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( so )
 	      == 0 );
-	min::attribute_vector_push ( so, num1 );
+	MIN_ASSERT (    min::attribute_vector_push
+			     ( so, num1 )
+		     == av );
 	MIN_ASSERT ( srb[av] == num1 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( so )
@@ -1825,7 +1827,9 @@ int main ()
 	MIN_ASSERT ( srb[av+1] == num0 );
 	MIN_ASSERT ( srb[av+2] == num0 );
 	MIN_ASSERT ( srb[av+3] == num0 );
-	min::attribute_vector_push ( so, numv, 3 );
+	MIN_ASSERT (    min::attribute_vector_push
+	                     ( so, numv, 3 )
+		     == av + 1 );
 	MIN_ASSERT ( srb[av+1] == num1 );
 	MIN_ASSERT ( srb[av+2] == num2 );
 	MIN_ASSERT ( srb[av+3] == num3 );
@@ -1840,7 +1844,8 @@ int main ()
 	MIN_ASSERT ( srb[aa-1] == num0 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( so ) == 0 );
-	min::aux_area_push ( so, num1 );
+	MIN_ASSERT (    min::aux_area_push ( so, num1 )
+	             == aa - 1 );
 	MIN_ASSERT ( srb[aa-1] == num1 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( so ) == 1 );
@@ -1850,7 +1855,9 @@ int main ()
 	MIN_ASSERT ( srb[aa-2] == num0 );
 	MIN_ASSERT ( srb[aa-3] == num0 );
 	MIN_ASSERT ( srb[aa-4] == num0 );
-	min::aux_area_push ( so, numv, 3 );
+	MIN_ASSERT (    min::aux_area_push
+	                     ( so, numv, 3 )
+		     == aa - 4 );
 	MIN_ASSERT ( srb[aa-4] == num1 );
 	MIN_ASSERT ( srb[aa-3] == num2 );
 	MIN_ASSERT ( srb[aa-2] == num3 );
@@ -1897,7 +1904,9 @@ int main ()
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( lo )
 	      == 0 );
-	min::attribute_vector_push ( lo, num1 );
+	MIN_ASSERT (    min::attribute_vector_push
+	                     ( lo, num1 )
+		     == av );
 	MIN_ASSERT ( lrb[av] == num1 );
 	MIN_ASSERT
 	    (    min::attribute_vector_size_of ( lo )
@@ -1908,7 +1917,9 @@ int main ()
 	MIN_ASSERT ( lrb[av+1] == num0 );
 	MIN_ASSERT ( lrb[av+2] == num0 );
 	MIN_ASSERT ( lrb[av+3] == num0 );
-	min::attribute_vector_push ( lo, numv, 3 );
+	MIN_ASSERT (    min::attribute_vector_push
+	                     ( lo, numv, 3 )
+		     == av + 1 );
 	MIN_ASSERT ( lrb[av+1] == num1 );
 	MIN_ASSERT ( lrb[av+2] == num2 );
 	MIN_ASSERT ( lrb[av+3] == num3 );
@@ -1923,7 +1934,8 @@ int main ()
 	MIN_ASSERT ( lrb[aa-1] == num0 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( lo ) == 0 );
-	min::aux_area_push ( lo, num1 );
+	MIN_ASSERT (    min::aux_area_push ( lo, num1 )
+	             == aa - 1 );
 	MIN_ASSERT ( lrb[aa-1] == num1 );
 	MIN_ASSERT
 	    ( min::aux_area_size_of ( lo ) == 1 );
@@ -1933,7 +1945,9 @@ int main ()
 	MIN_ASSERT ( lrb[aa-2] == num0 );
 	MIN_ASSERT ( lrb[aa-3] == num0 );
 	MIN_ASSERT ( lrb[aa-4] == num0 );
-	min::aux_area_push ( lo, numv, 3 );
+	MIN_ASSERT (    min::aux_area_push
+	                     ( lo, numv, 3 )
+		     == aa - 4 );
 	MIN_ASSERT ( lrb[aa-4] == num1 );
 	MIN_ASSERT ( lrb[aa-3] == num2 );
 	MIN_ASSERT ( lrb[aa-2] == num3 );

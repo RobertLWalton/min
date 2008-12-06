@@ -1036,6 +1036,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     so->unused_area_offset < so->aux_area_offset true.
 min_interface_test.cc:XXXX assert:
+    min::attribute_vector_push ( so, num1 ) == av true.
+min_interface_test.cc:XXXX assert:
     srb[av] == num1 true.
 min_interface_test.cc:XXXX assert:
     min::attribute_vector_size_of ( so ) == 1 true.
@@ -1047,6 +1049,8 @@ min_interface_test.cc:XXXX assert:
     srb[av+3] == num0 true.
 ../include/min.h:XXXX assert:
     so->unused_area_offset + n <= so->aux_area_offset true.
+min_interface_test.cc:XXXX assert:
+    min::attribute_vector_push ( so, numv, 3 ) == av + 1 true.
 min_interface_test.cc:XXXX assert:
     srb[av+1] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -1064,6 +1068,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     so->unused_area_offset < so->aux_area_offset true.
 min_interface_test.cc:XXXX assert:
+    min::aux_area_push ( so, num1 ) == aa - 1 true.
+min_interface_test.cc:XXXX assert:
     srb[aa-1] == num1 true.
 min_interface_test.cc:XXXX assert:
     min::aux_area_size_of ( so ) == 1 true.
@@ -1075,6 +1081,8 @@ min_interface_test.cc:XXXX assert:
     srb[aa-4] == num0 true.
 ../include/min.h:XXXX assert:
     so->unused_area_offset + n <= so->aux_area_offset true.
+min_interface_test.cc:XXXX assert:
+    min::aux_area_push ( so, numv, 3 ) == aa - 4 true.
 min_interface_test.cc:XXXX assert:
     srb[aa-4] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -1116,6 +1124,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lo->unused_area_offset < lo->aux_area_offset true.
 min_interface_test.cc:XXXX assert:
+    min::attribute_vector_push ( lo, num1 ) == av true.
+min_interface_test.cc:XXXX assert:
     lrb[av] == num1 true.
 min_interface_test.cc:XXXX assert:
     min::attribute_vector_size_of ( lo ) == 1 true.
@@ -1127,6 +1137,8 @@ min_interface_test.cc:XXXX assert:
     lrb[av+3] == num0 true.
 ../include/min.h:XXXX assert:
     lo->unused_area_offset + n <= lo->aux_area_offset true.
+min_interface_test.cc:XXXX assert:
+    min::attribute_vector_push ( lo, numv, 3 ) == av + 1 true.
 min_interface_test.cc:XXXX assert:
     lrb[av+1] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -1144,6 +1156,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lo->unused_area_offset < lo->aux_area_offset true.
 min_interface_test.cc:XXXX assert:
+    min::aux_area_push ( lo, num1 ) == aa - 1 true.
+min_interface_test.cc:XXXX assert:
     lrb[aa-1] == num1 true.
 min_interface_test.cc:XXXX assert:
     min::aux_area_size_of ( lo ) == 1 true.
@@ -1155,6 +1169,8 @@ min_interface_test.cc:XXXX assert:
     lrb[aa-4] == num0 true.
 ../include/min.h:XXXX assert:
     lo->unused_area_offset + n <= lo->aux_area_offset true.
+min_interface_test.cc:XXXX assert:
+    min::aux_area_push ( lo, numv, 3 ) == aa - 4 true.
 min_interface_test.cc:XXXX assert:
     lrb[aa-4] == num1 true.
 min_interface_test.cc:XXXX assert:
