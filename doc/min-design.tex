@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 5, 2008}
+\date{December 6, 2008}
  
 \maketitle
 
@@ -2270,7 +2270,7 @@ by presenting these functions with the \verb|u| argument value
 An object can be created by the protected function:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_obj\_gen}%
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( unsigned hash_table_size,| \\
     \verb|   unsigned unused_area_size )| \\
@@ -2380,22 +2380,38 @@ In both cases, unused area is consumed.  The values pushed are
 provided:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void min::|
+\verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|void min::|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|void min::|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned min::|
 	& \MINKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::AUX_AREA_PUSH_OF_GEN} \\
-\verb|void min::|
+\LABEL{MIN::SHORT_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned min::|
 	& \MINKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MIN::AUX_AREA_PUSH_OF_GENS} \\
+\LABEL{MIN::SHORT_AUX_AREA_PUSH_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MIN::LONG_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_AUX_AREA_PUSH_OF_GENS} \\
 \end{tabular}\end{center}\label{OBJECT_PUSH_FUNCTIONS}
 
 Here the attribute vector push functions add to the end of the attribute
@@ -2405,14 +2421,8 @@ pushed into the attribute vector, $V_1$ will be immediately before $V_2$
 in the body vector,
 but if they are consecutively pushed into the auxiliary area, $V_1$
 will be immediately after $V_2$ in the body vector.
-Both these functions check that the unused area has sufficient space for
-the push, and signal a fatal program error if it does not.  The number
-of values that can be pushed without signaling this error is just
-the size of the unused area, which can be determined by the
-\verb|min::unused_area_size_of| function
-(\pagref{MIN::UNUSED_AREA_SIZE_OF_SHORT_OBJ}).
 
-Two of the above functions push multiple values, as described by a vector
+Four of the above functions push multiple values given by a vector
 \verb|p| of \verb|n| \verb|min::gen| values.  These functions
 preserve the order of the values in memory, so \verb|p[0]| is pushed
 into a body vector location immediately before the location into which
@@ -2422,27 +2432,54 @@ in the order \verb|p[0]|, \verb|p[1]|, \verb|p[2]|, \ldots; while the
 auxiliary vector push function pushes
 in the order \verb|p[n-1]|, \verb|p[n-2]|, \verb|p[n-3]|, \ldots.
 
+All these functions return the index of the value pushed that is first
+in memory (e.g., the index of the location into which \verb|p[0]| is
+pushed).
+
+All these functions check that the unused area has sufficient space for
+the pushes, and signal a fatal program error if it does not.  The number
+of values that can be pushed without signaling this error is just
+the size of the unused area, which can be determined by the
+\verb|min::unused_area_size_of| function
+(\pagref{MIN::UNUSED_AREA_SIZE_OF_SHORT_OBJ}).
+
 The following unprotected push functions are identical to the
 similarly named protected functions, but include no check on the unused
 area size:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void MUP::|
+\verb|unsigned MUP::|
 	& \MUPKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|void MUP::|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
 	& \MUPKEY{attribute\_vector\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|void MUP::|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned MUP::|
 	& \MUPKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::AUX_AREA_PUSH_OF_GEN} \\
-\verb|void MUP::|
+\LABEL{MUP::SHORT_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
 	& \MUPKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MUP::AUX_AREA_PUSH_OF_GENS} \\
+\LABEL{MUP::SHORT_AUX_AREA_PUSH_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MUP::LONG_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_push} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_AUX_AREA_PUSH_OF_GENS} \\
 \end{tabular}\end{center}
 
 \subsubsection{Object List Level}
@@ -4746,7 +4783,7 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.4in}
-\verb|min::gen min::| & \MINKEY{new\_obj\_gen}%
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( unsigned hash_table_size,| \\
     \verb|   unsigned unused_area_size )| \\
@@ -4805,47 +4842,83 @@ struct min
 \medskip
 
 \begin{TABULAR}{1.4in}
-\verb|void min::|
+\verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|void min::|
+	  \verb|    ( MUP::short_obj * so, min::gen value )|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_push} \\
+	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_push}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so, min::gen value )|
+\LABEL{MIN::SHORT_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_push}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::SHORT_AUX_AREA_PUSH_OF_GENS} \\
+\verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|   min::gen * p, unsigned n )|
-\LABEL{MIN::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|void min::|
+	  \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_push}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned min::|
 	& \MINKEY{aux\_area\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::AUX_AREA_PUSH_OF_GEN} \\
-\verb|void min::|
+	  \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MIN::LONG_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned min::|
 	& \MINKEY{aux\_area\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|   min::gen * p, unsigned n )|
-\LABEL{MIN::AUX_AREA_PUSH_OF_GENS} \\
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_AUX_AREA_PUSH_OF_GENS} \\
 \end{TABULAR}
 
 \medskip
 
 \begin{TABULAR}{1.4in}
-\verb|void MUP::|
+\verb|unsigned MUP::|
 	& \MUPKEY{attribute\_vector\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
-\verb|void MUP::|
+	  \verb|    ( MUP::short_obj * so, min::gen value )|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_push} \\
+	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_push}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so, min::gen value )|
+\LABEL{MUP::SHORT_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_push}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::SHORT_AUX_AREA_PUSH_OF_GENS} \\
+\verb|unsigned MUP::|
 	& \MUPKEY{attribute\_vector\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|   min::gen * p, unsigned n )|
-\LABEL{MUP::ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
-\verb|void MUP::|
+	  \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_push}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_PUSH_OF_GENS} \\
+\verb|unsigned MUP::|
 	& \MUPKEY{aux\_area\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::AUX_AREA_PUSH_OF_GEN} \\
-\verb|void MUP::|
+	  \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MUP::LONG_AUX_AREA_PUSH_OF_GEN} \\
+\verb|unsigned MUP::|
 	& \MUPKEY{aux\_area\_push}\ARGBREAK
-	  \verb| ( MUP::short_obj * so, |\ARGBREAK
-	  \verb|   min::gen * p, unsigned n )|
-\LABEL{MUP::AUX_AREA_PUSH_OF_GENS} \\
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_AUX_AREA_PUSH_OF_GENS} \\
 \end{TABULAR}
 
 \end{indpar}
