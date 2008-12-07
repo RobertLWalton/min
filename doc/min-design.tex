@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 6, 2008}
+\date{December 7, 2008}
  
 \maketitle
 
@@ -2522,8 +2522,8 @@ This actually equals a sublist auxiliary pointer with zero index.
 
 Each hash table or attribute vector element is a \key{list head}.
 Each list head is a \key{list continuation}, which is an element of the
-body vector that has a particular interpretation.  However, not all
-list continuations are list heads.
+body vector that has a particular interpretation, described below.
+However, not all list continuations are list heads.
 
 A list continuation represents a final segment of a list.
 If it has the value \verb|min::LIST_END|, the final segment is empty.
@@ -2578,15 +2578,17 @@ Or more specifically, list and sublist
 auxiliary pointers must point at elements of the auxiliary area,
 two list or sublist auxiliary pointers are not permitted to point
 at the same auxiliary
-area element, and an auxiliary area element that is preceded
+area element, and an auxiliary area element that is followed
 in the auxiliary area by a list element may not be pointed at by
-a list or sublist auxiliary pointer.
+a list or sublist auxiliary pointer (because the list element
+in effect points at the auxiliary area element as being the
+continuation of the list containing the list element).
 \end{indpar}
 
 Thus if the one way to reach an element of
 the auxiliary area is deleted, the element may be put on a list of
 free elements for the auxiliary area.  As an optimization,
-an implementation may use the free area or space in the object's header
+an implementation may use the unused area or space in the object's header
 to hold the head of a list of free elements of the auxiliary
 area.
 
@@ -2620,7 +2622,7 @@ are:
 	& \MINKEY{start\_copy}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::list_pointer & lp,| \\
-	  \verb|   min::list_pointer & lp2 )|
+	  \verb|   const min::list_pointer & lp2 )|
 	  \end{tabular}
 \LABEL{MIN::START_COPY} \\
 \verb|min::gen min::|
@@ -2647,23 +2649,44 @@ list \skey{start list function}s,
 (note {\tt start\_sublist} is \underline{not} a start list function).
 If the object is relocated,
 the list pointer must be reinitialized by re-calling
-the a start list function.  Relocating an object
+a start list function.  Relocating an object
 can also reorganize the object, in which case body vector indices pointing
-into the auxiliary area may change, invalidating positioning information
+into the attribute vector or auxiliary area may change,
+invalidating positioning information
 contained in any list pointer pointing into the object.
 
-The {\tt start\_hash} function positions a list pointer at the beginning of a
-list whose head is at the given index in the hash table, treating the
+\begin{quote}
+\key{Hash Table Reorganization Note}:\label{HASH-TABLE-REORGANIZATION-NOTE}
+A hash table is reorganized in order to change its size and make it
+either larger and more efficient or smaller and more compact.  However,
+to reorganized a hash table one needs more information than is provided by
+the object list level.  The object attribute level
+(\secref{OBJECT-ATTRIBUTE-LEVEL}) provides such
+information, so a hash table organized according to the rules of the
+object attribute level can be reorganized according to those rules.
+\end{quote}
+
+The {\tt start\_hash} function positions a list pointer at the beginning of the
+list whose head is at the given index within the hash table, treating the
 hash table as a vector.  This function returns the value of the first
 element of the list, or returns {\tt min::LIST\_END} if the list is empty.
+The index is usually the hash value of an atom (number, string, or label),
+modulo the size of the hash table,
+but exactly how the index is computed is not determined by the object
+list level.  Index 0 refers to the first element of the
+hash table, and the maximum index is the size of the hash table minus 1.
+The index is \underline{not} a body vector index.
 
 The {\tt start\_vector} function is analogous except it is given
-an index in the object attribute vector and positions the list pointer
-at the beginning of a list whose head is in that vector.
+an index within the object attribute vector and positions the list pointer
+at the beginning of the list whose head is the attribute vector element
+at that index.  Index 0 refers to the first element of the attribute vector,
+and the maximum index is the size of the attribute vector minus 1.
+The index is \underline{not} a body vector index.
 
-The {\tt start\_copy} function positions a list pointer to the same place
-as another list pointer.  The two list pointers must have been
-constructed to reference the same object.
+The {\tt start\_copy} function positions a list pointer ({\tt lp})
+to the same place as another list pointer ({\tt lp2}).
+The two list pointers must have been constructed to reference the same object.
 
 The {\tt next} function moves the list pointer to the next list element of the
 list the pointer points at, and returns the value of that
@@ -2732,7 +2755,7 @@ defined for {\tt MUP::list\_\EOL pointer}'s are also defined:
 	& \MINKEY{start\_copy}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::rw_list_pointer & lp,| \\
-	  \verb|   min::rw_list_pointer & lp2 )|
+	  \verb|   const min::rw_list_pointer & lp2 )|
 	  \end{tabular}
 \LABEL{MIN::START_COPY_OF_RW} \\
 \verb|min::gen min::|
@@ -4969,7 +4992,7 @@ struct min
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
-	  \verb|   min::list_pointer & lp2 )|
+	  \verb|   const min::list_pointer & lp2 )|
 \LABEL{MIN::START_COPY} \\
 \verb|unsigned min::|
 	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
@@ -5015,7 +5038,7 @@ struct min
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::rw_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::rw_list_pointer & lp2 )|
+	  \verb|   const min::rw_list_pointer & lp2 )|
 \LABEL{MIN::START_COPY_OF_RW} \\
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::rw_list_pointer & lp )|

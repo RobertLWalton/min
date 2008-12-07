@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Dec  6 07:37:14 EST 2008
+// Date:	Sun Dec  7 03:41:13 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/06 13:23:50 $
+//   $Date: 2008/12/07 08:42:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.113 $
+//   $Revision: 1.114 $
 
 // Table of Contents:
 //
@@ -2782,7 +2782,8 @@ namespace min {
 	      unsigned index );
     min::gen start_copy
             ( min::unprotected::list_pointer & lp,
-	      min::unprotected::list_pointer & lp2 );
+	      const min::unprotected::list_pointer
+	            & lp2 );
     min::gen next
     	    ( min::unprotected::list_pointer & lp );
     min::gen current
@@ -3083,7 +3084,8 @@ namespace min { namespace unprotected {
 		  unsigned index );
 	friend min::gen min::start_copy
 		( min::unprotected::list_pointer & lp,
-		  min::unprotected::list_pointer & lp2
+		  const min::unprotected::list_pointer
+		        & lp2
 		);
 
 	friend min::gen min::next
@@ -3267,7 +3269,8 @@ namespace min {
 
     inline min::gen start_copy
             ( min::unprotected::list_pointer & lp,
-	      min::unprotected::list_pointer & lp2 )
+	      const min::unprotected::list_pointer
+	            & lp2 )
     {
         MIN_ASSERT ( lp.s == lp2.s );
 	lp.lo = lp2.lo;
