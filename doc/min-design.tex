@@ -284,7 +284,6 @@ and the corresponding code:
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
 \ttmkey{num}{abbreviation}	& number (\pagref{NUMBERS}) \\
 \ttmkey{obj}{abbreviation}	& object (\pagref{OBJECTS}) \\
-\ttmkey{rw}{abbreviation}	& read-write (\pagref{RW}) \\
 \ttmkey{str}{abbreviation}	& string (\pagref{STRINGS}) \\
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
 \end{tabular}
@@ -2724,49 +2723,47 @@ or can be done equivalently
 with the {\tt min::is\_list\_end} function.
 
 A {\tt MUP::list\_pointer} cannot be used to modify a list.  Instead,
-one must use a {\tt MUP::rw\_\EOL list\_\EOL pointer}
-({\tt rw} stands for `read-write', as opposed to `read-only'),%
-\label{RW}
+one must use a {\tt MUP::writ\-able\_\EOL list\_\EOL pointer}
 for which all the functions
 defined for {\tt MUP::list\_\EOL pointer}'s are also defined:
 
 \begin{center}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{rw\_list\_pointer}\verb| ( min::stub * s )|
-\LABEL{MUP::RW_LIST_POINTER_OF_STUB} \\
+	& \MUPKEY{writable\_list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::WRITABLE_LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
-	& \MUPKEY{rw\_list\_pointer}\verb| ( min::gen obj )|
-\LABEL{MUP::RW_LIST_POINTER_OF_GEN} \\
+	& \MUPKEY{writable\_list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::WRITABLE_LIST_POINTER_OF_GEN} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::rw_list_pointer & lp,| \\
+	  \verb| ( min::writable_list_pointer & lp,| \\
 	  \verb|   unsigned index )|
 	  \end{tabular}
-\LABEL{MIN::START_HASH_OF_RW} \\
+\LABEL{MIN::START_HASH_OF_WRITABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_vector}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::rw_list_pointer & lp,| \\
+	  \verb| ( min::writable_list_pointer & lp,| \\
 	  \verb|   unsigned index )|
 	  \end{tabular}
-\LABEL{MIN::START_VECTOR_OF_RW} \\
+\LABEL{MIN::START_VECTOR_OF_WRITABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::rw_list_pointer & lp,| \\
-	  \verb|   const min::rw_list_pointer & lp2 )|
+	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb|   const min::writable_list_pointer & lp2 )|
 	  \end{tabular}
-\LABEL{MIN::START_COPY_OF_RW} \\
+\LABEL{MIN::START_COPY_OF_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{next}\verb| ( min::rw_list_pointer & lp )|
-\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_RW} \\
+	& \MINKEY{next}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{current}\verb| ( min::rw_list_pointer & lp )|
-\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_RW} \\
+	& \MINKEY{current}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::rw_list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST_OF_RW} \\
+	& \MINKEY{start\_sublist}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
 \end{tabular}\end{center}
 
 Making insertions in object lists requires reservation of the necessary
@@ -2777,7 +2774,7 @@ all succeed.  The functions used are:
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::rw_list_pointer & lp,| \\
+	  \verb| ( min::writable_list_pointer & lp,| \\
 	  \verb|   unsigned insertions, unsigned elements = 0,| \\
 	  \verb|   bool use_object_aux_stubs =| \\
 	  \verb|       min::use_object_aux_stubs )| \\
@@ -2786,14 +2783,14 @@ all succeed.  The functions used are:
 \verb|void min::|
 	& \MINKEY{insert\_before}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::rw_list_pointer & lp,| \\
+	  \verb| ( min::writable_list_pointer & lp,| \\
 	  \verb|   min::gen * p, unsigned n )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_BEFORE} \\
 \verb|void min::|
 	& \MINKEY{insert\_after}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::rw_list_pointer & lp,| \\
+	  \verb| ( min::writable_list_pointer & lp,| \\
 	  \verb|   min::gen * p, unsigned n )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_AFTER} \\
@@ -2812,7 +2809,7 @@ object auxiliary stubs (\secref{OBJECT-AUXILIARY-STUBS}) if the object
 runs out of space, in which case {\tt min::insert\_reserve} must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
 last argument to {\tt min::insert\_reserve} determines which strategy is
-used.  It defaults to the value of \minkey{use\_object\_aux\_stubs}%
+used.  It defaults to the value of \minkey{use\_object\_aux\_stubs}.%
 \footnote{But if the auxiliary stub code is not compiled in, the last
 argument is treated as if it was always {\tt false}:
 see {\tt MIN\_\EOL USES\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
@@ -2829,6 +2826,11 @@ at the list element it pointed at before elements were inserted.
 The elements are specified by a length {\tt n}
 vector {\tt p} of {\tt min::gen} values.
 
+To insert a sublist, first insert {\tt min::EMPTY\_SUBLIST}, then
+position the pointer to the sublist and use
+{\tt min::start\_sublist} to enter the sublist, and then use
+{\tt min::insert\_before} to insert the elements of the sublist.
+
 A sequence of instructions that begins with a
 call to {\tt min::insert\_reserve} and ends with the last
 list insertion function for which the beginning call made a reservation
@@ -2837,7 +2839,8 @@ must not contain any call to
 a relocating (\REL) function (\pagref{RELOCATING-FUNCTIONS}), aside from
 the beginning call to {\tt min::insert\_reserve}.  In particular, there can
 be no call to {\tt min::interrupt\REL} (\pagref{MIN::INTERRUPT}) and no
-second call to {\tt min::insert\_reserve\REL}.
+second call to {\tt min::insert\_reserve\REL}.  There can be calls to
+create and position list pointers.
 
 The following function can be used to remove {\tt n} consecutive elements
 of a list, the first of which is the element currently pointed at by
@@ -2846,7 +2849,7 @@ the list pointer:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{remove}%
-	  \verb| ( min::rw_list_pointer & lp, unsigned n = 1 )|
+	  \verb| ( min::writable_list_pointer & lp, unsigned n = 1 )|
 \LABEL{MIN::REMOVE_FROM_LIST} \\
 \end{tabular}\end{center}
 
@@ -2873,7 +2876,7 @@ detectable).
 \begin{quote}
 \key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
 In order to enforce the `No Superfluous' rules on 
-\pagref{NO-SUPERFLUOUS-LIST}, {\tt MUP::rw\_list\_pointer}'s keep
+\pagref{NO-SUPERFLUOUS-LIST}, {\tt MUP::writable\_list\_pointer}'s keep
 track of any auxiliary value
 (or equivalent as per \secref{OBJECT-AUXILIARY-STUBS})
 pointing a the current
@@ -5015,11 +5018,11 @@ struct min
 
 \begin{TABULAR}{1.8in}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{rw\_list\_pointer}\verb| ( min::stub * s )|
-\LABEL{MUP::RW_LIST_POINTER_OF_STUB} \\
+	& \MUPKEY{writable\_list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::WRITABLE_LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
-	& \MUPKEY{rw\_list\_pointer}\verb| ( min::gen obj )|
-\LABEL{MUP::RW_LIST_POINTER_OF_GEN} \\
+	& \MUPKEY{writable\_list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::WRITABLE_LIST_POINTER_OF_GEN} \\
 \end{TABULAR}
 
 \bigskip
@@ -5027,28 +5030,28 @@ struct min
 \begin{TABULAR}{1.2in}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
-	  \verb| ( min::rw_list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned index )|
-\LABEL{MIN::START_HASH_OF_RW} \\
+\LABEL{MIN::START_HASH_OF_WRITABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_vector}\ARGBREAK
-	  \verb| ( min::rw_list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned index )|
-\LABEL{MIN::START_VECTOR_OF_RW} \\
+\LABEL{MIN::START_VECTOR_OF_WRITABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
-	  \verb| ( min::rw_list_pointer & lp,|\ARGBREAK
-	  \verb|   const min::rw_list_pointer & lp2 )|
-\LABEL{MIN::START_COPY_OF_RW} \\
+	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::writable_list_pointer & lp2 )|
+\LABEL{MIN::START_COPY_OF_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{next}\verb| ( min::rw_list_pointer & lp )|
-\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_RW} \\
+	& \MINKEY{next}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{current}\verb| ( min::rw_list_pointer & lp )|
-\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_RW} \\
+	& \MINKEY{current}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::rw_list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST_OF_RW} \\
+	& \MINKEY{start\_sublist}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
 \end{TABULAR}
 
 \bigskip
