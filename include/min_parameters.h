@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Nov 27 08:30:01 EST 2008
+// Date:	Fri Dec 19 13:55:45 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/11/27 13:24:25 $
+//   $Date: 2008/12/19 09:53:22 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // Table of Contents
 //
@@ -180,6 +180,7 @@
 // Maximum relative stub address.  Defaults to:
 //
 //	2**32 - 2**29 - 1    if MIN_POINTER_BITS <= 32
+//			     or MIN_IS_COMPACT
 //
 //	2**44 - 1	     if MIN_POINTER_BITS > 32
 //
@@ -190,8 +191,9 @@
 //
 # ifndef MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
 #   define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-	   ( MIN_POINTER_BITS <= 32 ? 0xDFFFFFFFul : \
-	     0xFFFFFFFFFFFull )
+	( (    MIN_POINTER_BITS <= 32 \
+            || MIN_IS_COMPACT ) ? \
+          0xDFFFFFFFul : 0xFFFFFFFFFFFull )
 # endif
 
 // Base for relative stub addresses.  Can be a non-
@@ -261,6 +263,15 @@
 #   define MIN_IS_BIG_ENDIAN 0
 #   define MIN_IS_LITTLE_ENDIAN 1
 #   define MIN_POINTER_BITS 32
+#   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
+#   define MIN_DEALLOCATED_LIMIT (1 << 20)
+# endif
+# if __x86_64__
+#   define MIN_INT32_TYPE int
+#   define MIN_INT64_TYPE long long
+#   define MIN_IS_BIG_ENDIAN 0
+#   define MIN_IS_LITTLE_ENDIAN 1
+#   define MIN_POINTER_BITS 64
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
 #   define MIN_DEALLOCATED_LIMIT (1 << 20)
 # endif
