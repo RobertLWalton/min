@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Dec  7 03:41:13 EST 2008
+// Date:	Fri Dec 19 13:56:10 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/07 08:42:17 $
+//   $Date: 2008/12/19 09:53:22 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.114 $
+//   $Revision: 1.115 $
 
 // Table of Contents:
 //
@@ -252,7 +252,7 @@ namespace min { namespace internal {
 
 #   if MIN_POINTER_BITS <= 32
 	typedef uns32 pointer_uns;
-#   elif
+#   else
 	typedef uns64 pointer_uns;
 #   endif
 
