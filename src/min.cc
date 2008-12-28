@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Dec  1 11:28:15 EST 2008
+// Date:	Sat Dec 27 06:42:40 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,13 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/02 05:03:25 $
+//   $Date: 2008/12/28 09:35:01 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.57 $
+//   $Revision: 1.58 $
 
 // Table of Contents:
 //
 //	Setup
+//	Initialization
+//	Stub Functions
 //	Process Management
 //	Garbage Collector Management
 //	Numbers
@@ -37,10 +39,67 @@
 //
 # include <iostream>
 # include <iomanip>
+# include <cmath>
 using std::hex;
 using std::dec;
 using std::cout;
 using std::endl;
+
+// Initialization
+// --------------
+
+static bool initialize_min_done = false;
+MINT::initialize_min::initialize_min ( void )
+{
+    if ( initialize_min_done ) return;
+
+    assert ( sizeof ( MIN_INT32_TYPE ) == 4 );
+    assert ( sizeof ( MIN_INT64_TYPE ) == 8 );
+    assert
+        ( sizeof ( void * ) == MIN_POINTER_BITS / 8 );
+
+    min::uns32 u = 1;
+    char * up = (char *) & u;
+    bool big_endian = ( up[3] == 1 );
+    bool little_endian = ( up[0] == 1 );
+    assert ( MIN_IS_BIG_ENDIAN == big_endian );
+    assert ( MIN_IS_LITTLE_ENDIAN == little_endian );
+
+#   if MIN_IS_LOOSE 
+
+	// Tests of MIN_FLOAT64_SIGNALLING_NAN
+	//
+	min::gen missing = min::MISSING;
+	min::float64 v = * (min::float64 *) & missing;
+
+	assert ( isnan ( v ) );
+
+	// Attemps to get any kind of NaN to raise an
+	// exception failed, so we cannot test for that.
+
+	// However, we can test that hardware does not
+	// generate non-signalling NaNs with high order
+	// 16 bits identical to v.
+
+	min::float64 v2 = v + 1.0;
+
+	assert ( isnan ( v2 ) );
+	min::uns16 * vp = (min::uns16 *) & v;
+	min::uns16 * v2p = (min::uns16 *) & v2;
+	assert ( vp[3*little_endian]
+		 !=
+		 v2p[3*little_endian] );
+
+	v2 = 0.0;
+	v2 = v2 / v2;
+	assert ( isnan ( v2 ) );
+	assert ( vp[3*little_endian]
+		 !=
+		 v2p[3*little_endian] );
+#   endif
+
+    initialize_min_done = true;
+}
 
 // Stub Functions
 // ---- ---------
@@ -694,7 +753,7 @@ void MUP::allocate_stub_list
 # endif // MIN_USES_OBJ_AUX_STUBS
 
 void min::insert_before
-	( MUP::list_pointer & lp,
+	( MUP::writable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
     unsigned unused_area_offset;
@@ -712,8 +771,7 @@ void min::insert_before
 	aux_area_offset = lp.lo->aux_area_offset;
     }
     else
-	MIN_ASSERT
-	    ( ! "lp list has not been started" );
+	MIN_ABORT ( "lp list has not been started" );
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -721,12 +779,14 @@ void min::insert_before
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
+    MUP::gc_write_update ( lp.s, p, n );
+
     if ( lp.current == min::LIST_END )
     {
-	// Contiguous means current_index == aux_area_
-	// offset so we can add elements by copying
-	// then into tha aux area beginning at current_
-	// index.
+	// Contiguous means the previous pointer does
+	// not exists and current_index == aux_area_
+	// offset so we can add elements by copying them
+	// into tha aux area just before current_index.
 	//
 	bool contiguous = false;
 
@@ -737,8 +797,8 @@ void min::insert_before
 	//
 	bool previous_is_list_head = false;
 
-	// Pointer to the first new element that
-	// replaces LIST_END in current.
+	// Pointer to the first new element; replaces
+	// LIST_END in current.
 	//
 	min::gen fgen;
 
@@ -850,7 +910,7 @@ void min::insert_before
 		lp.previous_stub = NULL;
 	    }
 	    else
-#	    endif
+#	endif
 	if ( lp.previous_index != 0 )
 	{
 	    if ( previous_is_list_head )
@@ -907,6 +967,7 @@ void min::insert_before
 	{
 	    // Not enough aux area available for all the
 	    // new elements, and aux stubs are allowed.
+	    // Prepare to call allocate_stub_list.
 	    //
 	    min::uns64 end;
 	    min::stub * s;
@@ -919,6 +980,7 @@ void min::insert_before
 		end = MUP::new_control
 		   ( 0, lp.current_stub,
 		     MUP::STUB_POINTER );
+		MIN_ASSERT ( previous );
 	    }
 	    else if ( ! previous )
 	    {
@@ -931,7 +993,17 @@ void min::insert_before
 		    next = 0;
 		else if (    lp.base[-- next]
 		          == min::LIST_END )
+		{
+		    // Next element (the one immediately
+		    // before the current element in the
+		    // aux area) is LIST_END will not
+		    // be needed any more, hence we free
+		    // it.
+		    //
+		    lp.base[next] = min::NONE;
+
 		    next = 0;
+		}
 		MUP::set_control_of
 		    ( s,
 		      MUP::new_control
@@ -1014,8 +1086,18 @@ void min::insert_before
 	    lp.base[-- aux_area_offset] = lp.current;
 	    if ( next < unused_area_offset )
 	        next = 0;
-	    else if ( lp.base[-- next] == min::LIST_END )
-	        next = 0;
+	    else if (    lp.base[-- next]
+	              == min::LIST_END )
+	    {
+		// Next element (the one immediately
+		// before the current element in the aux
+		// area) is LIST_END will not be needed
+		// any more, hence we free it.
+		//
+		lp.base[next] = min::NONE;
+
+		next = 0;
+	    }
 	}
         lp.base[-- aux_area_offset] =
 	    min::new_list_aux_gen ( next );
@@ -1070,7 +1152,7 @@ void min::insert_before
 }
 
 void min::insert_after
-	( MUP::list_pointer & lp,
+	( MUP::writable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
     unsigned unused_area_offset;
@@ -1088,8 +1170,7 @@ void min::insert_after
 	aux_area_offset = lp.lo->aux_area_offset;
     }
     else
-	MIN_ASSERT
-	    ( ! "lp list has not been started" );
+	MIN_ABORT ( "lp list has not been started" );
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -1097,6 +1178,8 @@ void min::insert_after
 
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
+
+    MUP::gc_write_update ( lp.s, p, n );
 
     bool previous = ( lp.previous_index != 0 );
 #   if MIN_USES_OBJ_AUX_STUBS
@@ -1136,10 +1219,13 @@ void min::insert_after
 	    int type = lp.previous_is_sublist_head ?
 	    	       min::SUBLIST_AUX :
 		       min::LIST_AUX;
+	    unsigned next =
+	        lp.current_index - ! previous;
+	    if ( lp.current_index < unused_area_offset )
+	        next = 0;
 	    min::uns64 end =
-		MUP::new_control
-		    ( type,
-		      lp.current_index - ! previous );
+		MUP::new_control ( type, next );
+
 	    if ( n > previous )
 		MUP::allocate_stub_list
 		    ( first, last, min::LIST_AUX,
@@ -1206,10 +1292,14 @@ void min::insert_after
 
     // Insertion will use aux area.
 
-    unsigned first = aux_area_offset;
+    unsigned first = aux_area_offset - 1;
 
     if ( lp.current_index != 0 )
 	lp.base[-- aux_area_offset] = lp.current;
+
+    // Copy all the new elements BUT the last new
+    // element.
+    //
     while ( -- n )
 	lp.base[-- aux_area_offset] = * p ++;
 
@@ -1285,9 +1375,22 @@ void min::insert_after
 	MIN_ASSERT ( lp.current_index != 0 );
 
 	lp.base[-- aux_area_offset] = * p ++;
+	unsigned next = lp.current_index;
+	if ( next < unused_area_offset )
+	    next = 0;
+	else if ( lp.base[-- next] == min::LIST_END )
+	{
+	    // Next element (the one immediately
+	    // before the current element in the aux
+	    // area) is LIST_END will not be needed
+	    // any more, hence we free it.
+	    //
+	    lp.base[next] = min::NONE;
+
+	    next = 0;
+	}
 	lp.base[-- aux_area_offset] =
-	    min::new_list_aux_gen
-		( lp.current_index - 1 );
+	    min::new_list_aux_gen ( next );
 
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( first );
@@ -1300,18 +1403,57 @@ void min::insert_after
 	lp.lo->aux_area_offset = aux_area_offset;
 }
 
-void min::remove
-	( MUP::list_pointer & lp, unsigned n )
+unsigned min::remove
+	( MUP::writable_list_pointer & lp, unsigned n )
 {
-    if ( n == 0 ) return;
-    MIN_ASSERT ( lp.so != NULL || lp.lo != NULL );
+    if ( n == 0 || lp.current == min::LIST_END )
+        return 0;
+
+    unsigned unused_area_offset;
+    unsigned aux_area_offset;
+    if ( lp.so )
+    {
+	unused_area_offset = lp.so->unused_area_offset;
+	aux_area_offset = lp.so->aux_area_offset;
+    }
+    else if ( lp.lo )
+    {
+	unused_area_offset = lp.lo->unused_area_offset;
+	aux_area_offset = lp.lo->aux_area_offset;
+    }
+    else
+	MIN_ABORT ( "lp list has not been started" );
+
+    // Count of items removed; to be returned as result.
+    //
+    unsigned count = 0;
 
     unsigned previous_index = lp.previous_index;
     bool previous_is_sublist_head =
 	lp.previous_is_sublist_head;
     unsigned current_index = lp.current_index;
 #   if ! MIN_USES_OBJ_AUX_STUBS
-	while ( n -- ) next ( lp );
+	if ( lp.current_index < unused_area_offset )
+	{
+	    // Special case: deleting list head.
+	    //
+	    lp.base[lp.current_index] = min::LIST_END;
+	    return 1;
+	}
+	while ( n -- )
+	{
+	    if ( lp.current == min::LIST_END ) break;
+	    ++ count;
+	    lp.base[lp.current_index] = min::NONE;
+	    lp.current = lp.base[-- lp.current.index];
+	    if ( min::is_list_aux ( lp.current ) )
+	    {
+	        lp.base[lp.current_index] = min::NONE;
+		lp.current_index =
+		    min::list_aux_of ( lp.current );
+		lp.current = lp.base[lp.current.index];
+	    }
+	}
 	lp.previous_index = previous_index;
 	lp.previous_is_sublist_head =
 	    previous_is_sublist_head;
@@ -1320,10 +1462,32 @@ void min::remove
 	while ( n -- )
 	{
 	    if ( lp.current == min::LIST_END ) break;
-	    min::stub * last_stub = lp.current_stub;
-	    next ( lp );
-	    MUP::free_stub ( last_stub );
+	    ++ count;
+	    if ( lp.current_stub != NULL )
+	    {
+		min::stub * last_stub = lp.current_stub;
+		next ( lp );
+		MUP::free_stub ( last_stub );
+	    }
+	    else
+	    {
+		lp.base[lp.current_index] = min::NONE;
+		lp.current =
+		    lp.base[-- lp.current_index];
+		if ( min::is_list_aux ( lp.current ) )
+		{
+		    lp.base[lp.current_index] =
+			min::NONE;
+		    lp.current_index =
+			min::list_aux_of ( lp.current );
+		    lp.current =
+			lp.base[lp.current_index];
+		}
+		else if ( min::is_stub ( lp.current ) )
+		    lp.forward ( lp.current_index );
+	    }
 	}
+
 	lp.previous_stub = previous_stub;
 	lp.previous_index = previous_index;
 	lp.previous_is_sublist_head =
@@ -1369,11 +1533,17 @@ void min::remove
 			  MUP::new_control
 			      ( type, min::uns64(0) ) );
 		}
-		lp.current_index = 0;
+		if ( lp.current_index != 0 )
+		{
+		    lp.base[lp.current_index] =
+		        min::NONE;
+		    lp.current_index = 0;
+		}
 	    }
 	    else
 	    {
 	        MIN_ASSERT ( lp.current_index != 0 );
+
 	        if ( previous_is_sublist_head )
 		    MUP::set_gen_of
 		        ( previous_stub,
@@ -1410,6 +1580,9 @@ void min::remove
 #	endif
 	if ( lp.current == min::LIST_END )
 	{
+	    MIN_ASSERT ( lp.current_index != 0 );
+	    lp.base[lp.current_index] = min::NONE;
+
 	    if ( previous_is_sublist_head )
 	    {
 		lp.base[previous_index] =
@@ -1427,6 +1600,7 @@ void min::remove
 	else
 	{
 	    MIN_ASSERT ( lp.current_index != 0 );
+
 	    if ( previous_is_sublist_head )
 		lp.base[previous_index] =
 		    min::new_sublist_aux_gen
@@ -1442,15 +1616,18 @@ void min::remove
     	// No previous.
 
 	MIN_ASSERT ( current_index != 0 );
+
 	lp.base[current_index] =
 	    min::new_list_aux_gen ( lp.current_index );
 	lp.previous_index = current_index;
 	lp.previous_is_sublist_head = false;
     }
+
+    return count;
 }
 
 void MUP::insert_reserve
-	( MUP::list_pointer & lp,
+	( MUP::writable_list_pointer & lp,
 	  unsigned insertions,
 	  unsigned elements,
 	  bool use_aux )
@@ -1462,7 +1639,7 @@ void MUP::insert_reserve
 	else
 #   endif
     {
-	assert ( ! "insert reserve not implemented" );
+	MIN_ABORT ( "insert reserve not implemented" );
     }
 }
 
