@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Dec 19 13:55:45 EST 2008
+// Date:	Fri Dec 26 05:27:30 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,18 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/19 09:53:22 $
+//   $Date: 2008/12/28 09:35:01 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // Table of Contents
 //
+//	Usage and Setup
 //	Software Parameters
 //	Hardware Parameters
+
+// Usage and Setup
+// ----- --- -----
 
 // Note: GNU C++ requires that unsigned long long con-
 // stants have the `ull' postfix.  The standard rule
@@ -47,8 +51,9 @@
 
 # ifndef MIN_PARAMETERS_H
 # define MIN_PARAMETERS_H
-
-// Software Parameters.
+
+// Software Parameters
+// -------- ----------
 
 // 1 to add extra debugging code; 0 not to.
 //
@@ -231,8 +236,8 @@
 # endif
 
 
-// Machine Parameters
-// ------- ----------
+// Hardware Parameters
+// -------- ----------
 
 // Note: for GNU cpp, `cpp -dM </dev/null' lists all the
 // predefined defined macros including those that define
