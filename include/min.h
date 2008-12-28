@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Dec 25 01:39:45 EST 2008
+// Date:	Sun Dec 28 04:36:03 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/28 09:35:01 $
+//   $Date: 2008/12/28 09:40:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.116 $
+//   $Revision: 1.117 $
 
 // Table of Contents:
 //
@@ -60,13 +60,13 @@
 
 namespace min { namespace internal {
 
-    class initialize_min
+    class initializer
     {
         public:
 
-	initialize_min ( void );
+	initializer ( void );
     };
-    static initialize_min initialize_min_instance;
+    static initializer initializer_instance;
 
 } }
 
@@ -1546,14 +1546,14 @@ namespace min { namespace unprotected {
 
     // Mutator (non-gc execution engine) action:
     //
-    // If a pointer to stub S2 is stored in a datum
-    // with stub S1, then for each pair of GC flags the
-    // scavenged flag of the pair of S1 is logically
-    // OR'ed into the marked flag of the pair of S2.
+    // If a pointer to stub s2 is stored in a datum
+    // with stub s1, then for each pair of GC flags the
+    // scavenged flag of the pair of s1 is logically
+    // OR'ed into the marked flag of the pair of s2.
     //
-    // In addition, if any marked flag turned on in S2
+    // In addition, if any marked flag turned on in s2
     // by this action is also on in MUP::gc_stack_marks,
-    // a pointer to S2 is added to the MUP::gc_stack if
+    // a pointer to s2 is added to the MUP::gc_stack if
     // that stack is not full.
     //
     // When a new stub is allocated, it is given the
@@ -1594,10 +1594,10 @@ namespace min { namespace unprotected {
 
     // Function executed whenever the n general values
     // pointed at by p are stored in a datum with stub
-    // S1, and the general values may contain stub
+    // s1, and the general values may contain stub
     // pointers.  This function calls gc_write_update
-    // ( s1, s2 ) for every stub pointer in one of the
-    // general values.
+    // ( s1, s2 ) for every stub pointer s2 in one of
+    // the general values.
     //
     inline void gc_write_update
 	    ( min::stub * s1,
