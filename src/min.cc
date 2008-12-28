@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Dec 27 06:42:40 EST 2008
+// Date:	Sun Dec 28 04:39:33 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/28 09:35:01 $
+//   $Date: 2008/12/28 09:40:12 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.58 $
+//   $Revision: 1.59 $
 
 // Table of Contents:
 //
@@ -48,10 +48,10 @@ using std::endl;
 // Initialization
 // --------------
 
-static bool initialize_min_done = false;
-MINT::initialize_min::initialize_min ( void )
+static bool initializer_done = false;
+MINT::initializer::initializer ( void )
 {
-    if ( initialize_min_done ) return;
+    if ( initializer_done ) return;
 
     assert ( sizeof ( MIN_INT32_TYPE ) == 4 );
     assert ( sizeof ( MIN_INT64_TYPE ) == 8 );
@@ -98,7 +98,7 @@ MINT::initialize_min::initialize_min ( void )
 		 v2p[3*little_endian] );
 #   endif
 
-    initialize_min_done = true;
+    initializer_done = true;
 }
 
 // Stub Functions
