@@ -1214,4 +1214,48 @@ min_interface_test.cc:XXXX desire failure:
 
 Finish Object Vector Level Test!
 
+Start Object List Level Test!
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+VSIZE 250 VORG 102 USIZE 0
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    t == min::SHORT_OBJ || t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+min_interface_test.cc:XXXX assert:
+    min::current ( lp ) == vbody[vorg+0] true.
+min_interface_test.cc:XXXX assert:
+    min::next ( lp ) == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
+    min::current ( lp ) == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
+    min::next ( lp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+min_interface_test.cc:XXXX assert:
+    min::current ( lp ) == vbody[vorg+0] true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    t == min::SHORT_OBJ || t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+MUP::gc_expand_stub_free_list (4) called
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == numtest true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::EMPTY_SUBLIST true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::LIST_END true.
+
+Finish Object List Level Test!
+
 Finished Test!

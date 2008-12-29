@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Dec  6 08:20:24 EST 2008
+// Date:	Mon Dec 29 04:45:17 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/06 13:24:08 $
+//   $Date: 2008/12/29 17:29:47 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.60 $
+//   $Revision: 1.61 $
 
 // Table of Contents:
 //
@@ -1973,7 +1973,64 @@ int main ()
 	cout << "Finish Object Vector Level Test!"
 	     << endl;
     }
+
 // Object List Level
+
+    // Values shared with previous object tests.
+    // min::gen short_obj_gen;
+    // min::gen long_obj_gen;
+    {
+	cout << endl;
+	cout << "Start Object List Level Test!"
+	     << endl;
+
+	min::stub * short_stub =
+	    min::stub_of ( short_obj_gen );
+	MUP::short_obj * so =
+	    MUP::short_obj_of ( short_stub );
+	min::gen * vbody =
+	    MUP::writable_body_vector_of ( so );
+	unsigned vsize =
+	    min::attribute_vector_size_of ( so );
+	unsigned vorg =
+	    min::attribute_vector_of ( so );
+	unsigned usize =
+	    min::unused_area_size_of ( so );
+	cout << "VSIZE " << vsize << " VORG " << vorg
+	     << " USIZE " << usize << endl;
+
+	min::set_relocated_flag ( false );
+
+	MUP::list_pointer lp ( short_obj_gen );
+	min::start_vector ( lp, 0 );
+	MIN_ASSERT ( min::current ( lp ) == vbody[vorg+0] );
+	MIN_ASSERT ( min::next ( lp ) == min::LIST_END );
+	MIN_ASSERT ( min::current ( lp ) == min::LIST_END );
+	MIN_ASSERT ( min::next ( lp ) == min::LIST_END );
+	min::gen numtest = min::new_num_gen ( 123456789 );
+	vbody[vorg+0] = numtest;
+	min::start_vector ( lp, 0 );
+	MIN_ASSERT ( min::current ( lp ) == vbody[vorg+0] );
+
+	MUP::writable_list_pointer wlp ( short_obj_gen );
+	min::start_vector ( wlp, 0 );
+	min::insert_reserve ( wlp, 1, 3, true );
+	min::gen num100 = min::new_num_gen ( 100 );
+	min::gen num102 = min::new_num_gen ( 100 );
+	min::gen p[3] = { num100, min::EMPTY_SUBLIST, num102 };
+	min::insert_after ( wlp, p, 3 );
+	MIN_ASSERT ( min::current ( wlp ) == numtest );
+	MIN_ASSERT ( min::next ( wlp ) == num100 );
+	MIN_ASSERT ( min::next ( wlp ) == min::EMPTY_SUBLIST );
+	MIN_ASSERT ( min::next ( wlp ) == num102 );
+	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+
+
+
+	cout << endl;
+	cout << "Finish Object List Level Test!" << endl;
+    }
+
 // Object Attribute Level
 
 // Finish
