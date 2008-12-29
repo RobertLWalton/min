@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Dec 28 04:36:03 EST 2008
+// Date:	Mon Dec 29 10:44:13 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/28 09:40:08 $
+//   $Date: 2008/12/29 17:29:22 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.117 $
+//   $Revision: 1.118 $
 
 // Table of Contents:
 //
@@ -2774,6 +2774,10 @@ namespace min { namespace unprotected {
     class list_pointer;
     class writable_list_pointer;
 
+} }
+
+namespace min { namespace internal {
+
     // Out of line versions of functions.
     //
     void insert_reserve
@@ -3071,6 +3075,12 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp );
 
 	friend void min::insert_reserve
+		( min::unprotected
+		     ::writable_list_pointer & lp,
+		  unsigned insertions,
+		  unsigned elements,
+		  bool use_obj_aux_stubs );
+	friend void min::internal::insert_reserve
 		( min::unprotected
 		     ::writable_list_pointer & lp,
 		  unsigned insertions,
@@ -3400,7 +3410,7 @@ namespace min {
 	      unsigned elements,
 	      bool use_obj_aux_stubs )
     {
-        if ( elements = 0 ) elements = insertions;
+        if ( elements == 0 ) elements = insertions;
 	MIN_ASSERT ( insertions <= elements );
 
 	unsigned unused_area_size;
@@ -3423,7 +3433,7 @@ namespace min {
 		     < insertions + elements )
 #	    endif
 	   )
-	    min::unprotected::insert_reserve
+	    min::internal::insert_reserve
 	        ( lp, insertions, elements,
 		  use_obj_aux_stubs );
 	else

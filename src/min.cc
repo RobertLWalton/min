@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Dec 28 04:39:33 EST 2008
+// Date:	Mon Dec 29 10:42:12 EST 2008
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/28 09:40:12 $
+//   $Date: 2008/12/29 17:29:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.59 $
+//   $Revision: 1.60 $
 
 // Table of Contents:
 //
@@ -547,9 +547,10 @@ namespace min { namespace unprotected {
 	  2888887,  3033323,  3184969,  3344213,
 	  3511421,  3686989,  3871331,  4064881
     };
-    bool use_obj_aux_stubs;
 
 } }
+
+bool min::use_obj_aux_stubs = false;
 
 unsigned min::short_obj_hash_table_size ( unsigned u )
 {
@@ -1626,14 +1627,14 @@ unsigned min::remove
     return count;
 }
 
-void MUP::insert_reserve
+void MINT::insert_reserve
 	( MUP::writable_list_pointer & lp,
 	  unsigned insertions,
 	  unsigned elements,
-	  bool use_aux )
+	  bool use_obj_aux_stubs )
 {
 #   if MIN_USES_OBJ_AUX_STUBS
-	if ( use_aux )
+	if ( use_obj_aux_stubs )
 	    MUP::gc_expand_stub_free_list
 		( insertions + elements );
 	else
@@ -1641,6 +1642,12 @@ void MUP::insert_reserve
     {
 	MIN_ABORT ( "insert reserve not implemented" );
     }
+
+    lp.reserved_insertions = insertions;
+    lp.reserved_elements = elements;
+#   if MIN_USES_OBJ_AUX_STUBS
+	lp.use_obj_aux_stubs = use_obj_aux_stubs;
+#   endif
 }
 
 
