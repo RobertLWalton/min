@@ -2521,12 +2521,12 @@ functions are the inverse of the above push functions:
 
 These functions undo the effects of the corresponding push functions,
 and copy data in the reverse direction.
-They return the index of the last attribute vector element
-remaining after the pop, or the first auxiliary element remaining
-after the pop.  If there are no elements remaining after the pop,
-the index returned
-is the index of the first body element before the attribute vector
-or the index of the virtual body element after the auxiliary area.
+They respectively return the index of the
+first body element after the attribute vector
+(same value as {\tt min::attribute\_\EOL vector\_\EOL of\_\EOL ()
++ min::attribute\_\EOL vector\_\EOL size\_\EOL of()})
+and the first auxiliary area element
+(same value as {\tt min::aux\_\EOL area\_\EOL of\_\EOL ()}).
 
 These functions check that there are enough elements left to pop,
 and signal a fatal program error if not.
