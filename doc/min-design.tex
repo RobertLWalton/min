@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 7, 2008}
+\date{January 2, 2009}
  
 \maketitle
 
@@ -2479,6 +2479,93 @@ area size:
 	& \MUPKEY{aux\_area\_push} \\
 	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
 \LABEL{MUP::LONG_AUX_AREA_PUSH_OF_GENS} \\
+\end{tabular}\end{center}
+
+The following (little used) pop
+functions are the inverse of the above push functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen & value )|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen & value )|
+\LABEL{MIN::SHORT_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
+\LABEL{MIN::SHORT_AUX_AREA_POP_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen & value )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen & value )|
+\LABEL{MIN::LONG_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_AUX_AREA_POP_OF_GENS} \\
+\end{tabular}\end{center}\label{OBJECT_POP_FUNCTIONS}
+
+These functions undo the effects of the corresponding push functions,
+and copy data in the reverse direction.
+They return the index of the last attribute vector element
+remaining after the pop, or the first auxiliary element remaining
+after the pop.  If there are no elements remaining after the pop,
+the index returned
+is the index of the first body element before the attribute vector
+or the index of the virtual body element after the auxiliary area.
+
+These functions check that there are enough elements left to pop,
+and signal a fatal program error if not.
+The following unprotected functions are identical to the above
+functions but do not include this check.
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen value )|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen value )|
+\LABEL{MUP::SHORT_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
+\LABEL{MUP::SHORT_AUX_AREA_POP_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen value )|
+\LABEL{MUP::LONG_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop} \\
+	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_AUX_AREA_POP_OF_GENS} \\
 \end{tabular}\end{center}
 
 \subsubsection{Object List Level}
@@ -4886,6 +4973,9 @@ struct min
 	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
 	  \verb|      min::gen * p, unsigned n )|
 \LABEL{MIN::SHORT_AUX_AREA_PUSH_OF_GENS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
 \verb|unsigned min::|
 	& \MINKEY{attribute\_vector\_push}\ARGBREAK
 	  \verb|    ( MUP::long_obj * lo, min::gen value )|
@@ -4927,6 +5017,9 @@ struct min
 	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
 	  \verb|      min::gen * p, unsigned n )|
 \LABEL{MUP::SHORT_AUX_AREA_PUSH_OF_GENS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
 \verb|unsigned MUP::|
 	& \MUPKEY{attribute\_vector\_push}\ARGBREAK
 	  \verb|    ( MUP::long_obj * lo, min::gen value )|
@@ -4945,6 +5038,94 @@ struct min
 	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
 	  \verb|      min::gen * p, unsigned n )|
 \LABEL{MUP::LONG_AUX_AREA_PUSH_OF_GENS} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.4in}
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so, min::gen & value )|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::SHORT_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so, min::gen & value )|
+\LABEL{MIN::SHORT_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::SHORT_AUX_AREA_POP_OF_GENS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{attribute\_vector\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
+\LABEL{MIN::LONG_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned min::|
+	& \MINKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MIN::LONG_AUX_AREA_POP_OF_GENS} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.4in}
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so, min::gen & value )|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop} \\
+	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::SHORT_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so, min::gen & value )|
+\LABEL{MUP::SHORT_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::SHORT_AUX_AREA_POP_OF_GENS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{attribute\_vector\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_ATTRIBUTE_VECTOR_POP_OF_GENS} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
+\LABEL{MUP::LONG_AUX_AREA_POP_OF_GEN} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{aux\_area\_pop}\ARGBREAK
+	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
+	  \verb|      min::gen * p, unsigned n )|
+\LABEL{MUP::LONG_AUX_AREA_POP_OF_GENS} \\
 \end{TABULAR}
 
 \end{indpar}
