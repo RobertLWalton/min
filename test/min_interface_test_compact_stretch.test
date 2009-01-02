@@ -1113,6 +1113,14 @@ min_interface_test.cc:XXXX assert:
     min::attribute_vector_size_of ( so ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( so ) == 500 - 4 true.
+min_interface_test.cc:XXXX desire failure:
+    min::attribute_vector_pop ( so, outv[0] );
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset false.
+min_interface_test.cc:XXXX desire failure:
+    min::attribute_vector_pop ( so, outv + 1, 3 );
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) + n <= so->unused_area_offset false.
 ../include/min.h:XXXX assert:
     so->unused_area_offset + n <= so->aux_area_offset true.
 ../include/min.h:XXXX assert:
@@ -1135,6 +1143,14 @@ min_interface_test.cc:XXXX assert:
     min::aux_area_size_of ( so ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( so ) == 500 - 4 true.
+min_interface_test.cc:XXXX desire failure:
+    min::aux_area_pop ( so, outv[0] );
+../include/min.h:XXXX assert:
+    so->aux_area_offset < so->total_size false.
+min_interface_test.cc:XXXX desire failure:
+    min::aux_area_pop ( so, outv + 1, 3 );
+../include/min.h:XXXX assert:
+    so->aux_area_offset + n <= so->total_size false.
 ../include/min.h:XXXX assert:
     so->unused_area_offset + n <= so->aux_area_offset true.
 ../include/min.h:XXXX assert:
@@ -1245,6 +1261,14 @@ min_interface_test.cc:XXXX assert:
     min::attribute_vector_size_of ( lo ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( lo ) == 70000 - 4 true.
+min_interface_test.cc:XXXX desire failure:
+    min::attribute_vector_pop ( lo, outv[0] );
+../include/min.h:XXXX assert:
+    attribute_vector_of ( lo ) < lo->unused_area_offset false.
+min_interface_test.cc:XXXX desire failure:
+    min::attribute_vector_pop ( lo, outv + 1, 3 );
+../include/min.h:XXXX assert:
+    attribute_vector_of ( lo ) + n <= lo->unused_area_offset false.
 ../include/min.h:XXXX assert:
     lo->unused_area_offset + n <= lo->aux_area_offset true.
 ../include/min.h:XXXX assert:
@@ -1267,6 +1291,14 @@ min_interface_test.cc:XXXX assert:
     min::aux_area_size_of ( lo ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( lo ) == 70000 - 4 true.
+min_interface_test.cc:XXXX desire failure:
+    min::aux_area_pop ( lo, outv[0] );
+../include/min.h:XXXX assert:
+    lo->aux_area_offset < lo->total_size false.
+min_interface_test.cc:XXXX desire failure:
+    min::aux_area_pop ( lo, outv + 1, 3 );
+../include/min.h:XXXX assert:
+    lo->aux_area_offset + n <= lo->total_size false.
 ../include/min.h:XXXX assert:
     lo->unused_area_offset + n <= lo->aux_area_offset true.
 ../include/min.h:XXXX assert:
@@ -1280,9 +1312,17 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX assert:
     lo->unused_area_offset < lo->aux_area_offset false.
 min_interface_test.cc:XXXX desire failure:
+    min::attribute_vector_push ( lo, numv, 3 );
+../include/min.h:XXXX assert:
+    lo->unused_area_offset + n <= lo->aux_area_offset false.
+min_interface_test.cc:XXXX desire failure:
     min::aux_area_push ( lo, num3 );
 ../include/min.h:XXXX assert:
     lo->unused_area_offset < lo->aux_area_offset false.
+min_interface_test.cc:XXXX desire failure:
+    min::aux_area_push ( lo, numv, 3 );
+../include/min.h:XXXX assert:
+    lo->unused_area_offset + n <= lo->aux_area_offset false.
 
 Finish Object Vector Level Test!
 

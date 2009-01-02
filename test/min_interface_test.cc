@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jan  2 10:02:11 EST 2009
+// Date:	Fri Jan  2 12:14:54 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/02 15:25:06 $
+//   $Date: 2009/01/02 17:14:19 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.62 $
+//   $Revision: 1.63 $
 
 // Table of Contents:
 //
@@ -1886,6 +1886,12 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( so )
 	      == 500 - 4 );
+	desire_failure (
+	    min::attribute_vector_pop ( so, outv[0] );
+	);
+	desire_failure (
+	    min::attribute_vector_pop ( so, outv + 1, 3 );
+	);
 	min::attribute_vector_push
 	    ( so, fillv, 4 );
 
@@ -1906,6 +1912,12 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( so )
 	      == 500 - 4 );
+	desire_failure (
+	    min::aux_area_pop ( so, outv[0] );
+	);
+	desire_failure (
+	    min::aux_area_pop ( so, outv + 1, 3 );
+	);
 	min::aux_area_push
 	    ( so, fillv, 4 );
 
@@ -2017,6 +2029,12 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( lo )
 	      == 70000 - 4 );
+	desire_failure (
+	    min::attribute_vector_pop ( lo, outv[0] );
+	);
+	desire_failure (
+	    min::attribute_vector_pop ( lo, outv + 1, 3 );
+	);
 	min::attribute_vector_push
 	    ( lo, fillv, 4 );
 
@@ -2037,6 +2055,12 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( lo )
 	      == 70000 - 4 );
+	desire_failure (
+	    min::aux_area_pop ( lo, outv[0] );
+	);
+	desire_failure (
+	    min::aux_area_pop ( lo, outv + 1, 3 );
+	);
 	min::aux_area_push
 	    ( lo, fillv, 4 );
 
@@ -2050,7 +2074,13 @@ int main ()
 	    min::attribute_vector_push ( lo, num3 );
 	);
 	desire_failure (
+	    min::attribute_vector_push ( lo, numv, 3 );
+	);
+	desire_failure (
 	    min::aux_area_push ( lo, num3 );
+	);
+	desire_failure (
+	    min::aux_area_push ( lo, numv, 3 );
 	);
 
 	cout << endl;
