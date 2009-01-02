@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Dec 29 04:45:17 EST 2008
+// Date:	Fri Jan  2 10:02:11 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/29 17:29:47 $
+//   $Date: 2009/01/02 15:25:06 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.61 $
+//   $Revision: 1.62 $
 
 // Table of Contents:
 //
@@ -1789,6 +1789,7 @@ int main ()
 	min::gen fillv[70000];
 	for ( int i = 0; i < 70000; ++ i )
 	    fillv[i] = num0;
+	min::gen outv[4];
 
 	cout << endl;
 	cout << "Test short object vector level:"
@@ -1839,6 +1840,7 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( so )
 	      == 500 - 4 );
+
 	unsigned aa = min::aux_area_of ( so );
 	swb[aa-1] = num0;
 	MIN_ASSERT ( srb[aa-1] == num0 );
@@ -1866,6 +1868,47 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( so )
 	      == 500 - 8 );
+
+	MIN_ASSERT
+	    (    min::attribute_vector_pop
+	    		( so, outv + 1, 3 )
+	      == min::attribute_vector_of ( so ) + 1 );
+	MIN_ASSERT
+	    (    min::attribute_vector_pop ( so, outv[0] )
+	      == min::attribute_vector_of ( so ) );
+	MIN_ASSERT ( outv[0] == num1 );
+	MIN_ASSERT ( outv[1] == num1 );
+	MIN_ASSERT ( outv[2] == num2 );
+	MIN_ASSERT ( outv[3] == num3 );
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( so )
+	      == 0 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( so )
+	      == 500 - 4 );
+	min::attribute_vector_push
+	    ( so, fillv, 4 );
+
+	MIN_ASSERT
+	    (    min::aux_area_pop
+	    		( so, outv + 1, 3 )
+	      == min::aux_area_of ( so ) );
+	MIN_ASSERT
+	    (    min::aux_area_pop ( so, outv[0] )
+	      == min::aux_area_of ( so ) );
+	MIN_ASSERT ( outv[0] == num1 );
+	MIN_ASSERT ( outv[1] == num1 );
+	MIN_ASSERT ( outv[2] == num2 );
+	MIN_ASSERT ( outv[3] == num3 );
+	MIN_ASSERT
+	    (    min::aux_area_size_of ( so )
+	      == 0 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( so )
+	      == 500 - 4 );
+	min::aux_area_push
+	    ( so, fillv, 4 );
+
 	min::attribute_vector_push
 	    ( so, fillv, 250 - 4 );
 	min::aux_area_push
@@ -1956,6 +1999,47 @@ int main ()
 	MIN_ASSERT
 	    (    min::unused_area_size_of ( lo )
 	      == 70000 - 8 );
+
+	MIN_ASSERT
+	    (    min::attribute_vector_pop
+	    		( lo, outv + 1, 3 )
+	      == min::attribute_vector_of ( lo ) + 1 );
+	MIN_ASSERT
+	    (    min::attribute_vector_pop ( lo, outv[0] )
+	      == min::attribute_vector_of ( lo ) );
+	MIN_ASSERT ( outv[0] == num1 );
+	MIN_ASSERT ( outv[1] == num1 );
+	MIN_ASSERT ( outv[2] == num2 );
+	MIN_ASSERT ( outv[3] == num3 );
+	MIN_ASSERT
+	    (    min::attribute_vector_size_of ( lo )
+	      == 0 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( lo )
+	      == 70000 - 4 );
+	min::attribute_vector_push
+	    ( lo, fillv, 4 );
+
+	MIN_ASSERT
+	    (    min::aux_area_pop
+	    		( lo, outv + 1, 3 )
+	      == min::aux_area_of ( lo ) );
+	MIN_ASSERT
+	    (    min::aux_area_pop ( lo, outv[0] )
+	      == min::aux_area_of ( lo ) );
+	MIN_ASSERT ( outv[0] == num1 );
+	MIN_ASSERT ( outv[1] == num1 );
+	MIN_ASSERT ( outv[2] == num2 );
+	MIN_ASSERT ( outv[3] == num3 );
+	MIN_ASSERT
+	    (    min::aux_area_size_of ( lo )
+	      == 0 );
+	MIN_ASSERT
+	    (    min::unused_area_size_of ( lo )
+	      == 70000 - 4 );
+	min::aux_area_push
+	    ( lo, fillv, 4 );
+
 	min::attribute_vector_push
 	    ( lo, fillv, 35000 - 4 );
 	min::aux_area_push
