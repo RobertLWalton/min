@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jan  2 07:42:18 EST 2009
+// Date:	Sat Jan  3 11:15:29 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/02 13:32:47 $
+//   $Date: 2009/01/03 17:04:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.119 $
+//   $Revision: 1.120 $
 
 // Table of Contents:
 //
@@ -2927,6 +2927,7 @@ namespace min { namespace unprotected {
 
     class list_pointer;
     class writable_list_pointer;
+    class insertable_list_pointer;
 
 } }
 
@@ -2936,7 +2937,7 @@ namespace min { namespace internal {
     //
     void insert_reserve
     	    ( min::unprotected
-	         ::writable_list_pointer & lp,
+	         ::insertable_list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
 	      bool use_obj_aux_stubs );
@@ -2992,26 +2993,32 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp );
     min::gen current
     	    ( min::unprotected::list_pointer & lp );
+    min::gen refresh
+    	    ( min::unprotected::list_pointer & lp );
     min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp );
-    void insert_reserve
+    min::gen set
     	    ( min::unprotected
 	         ::writable_list_pointer & lp,
+	      min::gen value );
+    void insert_reserve
+    	    ( min::unprotected
+	         ::insertable_list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements = 0,
 	      bool use_obj_aux_stubs =
 	          min::use_obj_aux_stubs );
     void insert_before
     	    ( min::unprotected
-	         ::writable_list_pointer & lp,
+	         ::insertable_list_pointer & lp,
 	      const min::gen * p, unsigned n );
     void insert_after
     	    ( min::unprotected
-	         ::writable_list_pointer & lp,
+	         ::insertable_list_pointer & lp,
 	      const min::gen * p, unsigned n );
     unsigned remove
     	    ( min::unprotected
-	         ::writable_list_pointer & lp,
+	         ::insertable_list_pointer & lp,
 	      unsigned n = 1 );
 }
 
@@ -3225,32 +3232,38 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp );
 	friend min::gen min::current
 		( min::unprotected::list_pointer & lp );
+	friend min::gen min::refresh
+		( min::unprotected::list_pointer & lp );
 	friend min::gen min::start_sublist
 		( min::unprotected::list_pointer & lp );
 
-	friend void min::insert_reserve
+	friend min::gen min::set
 		( min::unprotected
 		     ::writable_list_pointer & lp,
+		  min::gen value );
+	friend void min::insert_reserve
+		( min::unprotected
+		     ::insertable_list_pointer & lp,
 		  unsigned insertions,
 		  unsigned elements,
 		  bool use_obj_aux_stubs );
 	friend void min::internal::insert_reserve
 		( min::unprotected
-		     ::writable_list_pointer & lp,
+		     ::insertable_list_pointer & lp,
 		  unsigned insertions,
 		  unsigned elements,
 		  bool use_obj_aux_stubs );
 	friend void min::insert_before
 		( min::unprotected
-		     ::writable_list_pointer & lp,
+		     ::insertable_list_pointer & lp,
 		  const min::gen * p, unsigned n );
 	friend void min::insert_after
 		( min::unprotected
-		     ::writable_list_pointer & lp,
+		     ::insertable_list_pointer & lp,
 		  const min::gen * p, unsigned n );
 	friend unsigned min::remove
 		( min::unprotected
-		     ::writable_list_pointer & lp,
+		     ::insertable_list_pointer & lp,
 		  unsigned n );
 
     // Private Helper Functions:
@@ -3356,6 +3369,19 @@ namespace min { namespace unprotected {
 
         writable_list_pointer ( min::gen v )
 	    : list_pointer ( v ) {}
+
+    };
+
+    class insertable_list_pointer
+        : public writable_list_pointer {
+
+    public:
+
+        insertable_list_pointer ( min::stub * s )
+	    : writable_list_pointer ( s ) {}
+
+        insertable_list_pointer ( min::gen v )
+	    : writable_list_pointer ( v ) {}
 
     };
 
@@ -3521,6 +3547,25 @@ namespace min {
     	return lp.current;
     }
 
+    inline min::gen refresh
+    	    ( min::unprotected::list_pointer & lp )
+    {
+	if ( lp.current_index != 0 )
+	    return lp.current =
+	    		lp.base[lp.current_index];
+#       if MIN_USES_OBJ_AUX_STUBS
+	    else if ( lp.current_stub != NULL )
+		return lp.current =
+			   min::unprotected::
+			        gen_of
+			          ( lp.current_stub );
+#	endif
+	else if ( lp.current == min::LIST_END )
+	    return lp.current;
+
+	MIN_ABORT ( "inconsistent list_pointer" );
+    }
+
     inline min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp )
     {
@@ -3557,9 +3602,35 @@ namespace min {
 	return lp.current;
     }
 
+    inline min::gen set
+	    ( min::unprotected
+	         ::writable_list_pointer & lp,
+	      min::gen value )
+    {
+        MIN_ASSERT ( value != min::LIST_END );
+        MIN_ASSERT ( lp.current != min::LIST_END );
+        MIN_ASSERT ( value == min::EMPTY_SUBLIST
+	             ||
+		     ! is_sublist ( value ) );
+
+	if ( lp.current_index != 0 )
+	    return lp.current =
+	        lp.base[lp.current_index] = value;
+#       if MIN_USES_OBJ_AUX_STUBS
+	    else if ( lp.current_stub != NULL )
+	    {
+		min::unprotected::set_gen_of
+		    ( lp.current_stub, value );
+		return lp.current = value;
+	    }
+#	endif
+
+	MIN_ABORT ( "inconsistent list_pointer" );
+    }
+
     inline void insert_reserve
     	    ( min::unprotected
-	         ::writable_list_pointer & lp,
+	         ::insertable_list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
 	      bool use_obj_aux_stubs )
