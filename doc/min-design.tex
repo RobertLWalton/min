@@ -2889,13 +2889,13 @@ refreshes the cache and returns the current element:
 \verb|min:gen min::|
 	& \MINKEY{refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::list_pointer & lp, )| \\
+	  \verb| ( min::list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
 \verb|min:gen min::|
 	& \MINKEY{refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp, )| \\
+	  \verb| ( min::writable_list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_WRITABLE} \\
 \end{tabular}\end{center}
@@ -2953,7 +2953,7 @@ defined for {\tt MUP::writ\-able\_list\_\EOL point\-er}'s are also defined for
 \verb|min:gen min::|
 	& \MINKEY{refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::insertable_list_pointer & lp, )| \\
+	  \verb| ( min::insertable_list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_INSERTABLE} \\
 \end{tabular}\end{center}
@@ -5305,6 +5305,10 @@ struct min
 \verb|bool min::|
 	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST} \\
+\verb|min:gen min::|
+	& \MINKEY{refresh}\ARGBREAK
+	  \verb| ( min::list_pointer & lp )|
+\LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
 \end{TABULAR}
 
 \bigskip
@@ -5345,6 +5349,65 @@ struct min
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
+\verb|void min::|
+	& \MINKEY{set}\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb|   min::gen value )|
+\LABEL{MIN::SET_OF_WRITABLE} \\
+\verb|min:gen min::|
+	& \MINKEY{refresh}\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_WRITABLE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{insertable\_list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::INSERTABLE_LIST_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{insertable\_list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::INSERTABLE_LIST_POINTER_OF_GEN} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::|
+	& \MINKEY{start\_hash}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MIN::START_HASH_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_vector}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MIN::START_VECTOR_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_COPY_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{next}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{current}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_INSERTABLE} \\
+\verb|void min::|
+	& \MINKEY{set}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   min::gen value )|
+\LABEL{MIN::SET_OF_INSERTABLE} \\
+\verb|min:gen min::|
+	& \MINKEY{refresh}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_INSERTABLE} \\
 \end{TABULAR}
 
 \bigskip
@@ -5352,24 +5415,25 @@ struct min
 \begin{TABULAR}{1.2in}
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}\ARGBREAK
-	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned insertions, unsigned elements = 0,|\ARGBREAK
 	  \verb|   bool use_object_aux_stubs =|\ARGBREAK
 	  \verb|       min::use_object_aux_stubs )|
 \LABEL{MIN::INSERT_RESERVE} \\
 \verb|void min::|
 	& \MINKEY{insert\_before}\ARGBREAK
-	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen * p, unsigned n )|
 \LABEL{MIN::INSERT_BEFORE} \\
 \verb|void min::|
 	& \MINKEY{insert\_after}\ARGBREAK
-	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen * p, unsigned n )|
 \LABEL{MIN::INSERT_AFTER} \\
 \verb|min::gen min::|
 	& \MINKEY{remove}\ARGBREAK
-	  \verb| ( min::list_pointer & lp, unsigned n = 1 )|
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned n = 1 )|
 \LABEL{MIN::REMOVE_FROM_LIST} \\
 \end{TABULAR}
 
