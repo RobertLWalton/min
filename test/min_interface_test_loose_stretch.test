@@ -1374,11 +1374,38 @@ min_interface_test.cc:XXXX assert:
     insertions <= elements true.
 MUP::gc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::EMPTY_SUBLIST true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    t == min::SHORT_OBJ || t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+MUP::gc_expand_stub_free_list (4) called
+min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == min::EMPTY_SUBLIST true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == min::LIST_END true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:

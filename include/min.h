@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  3 11:15:29 EST 2009
+// Date:	Sat Jan  3 12:08:04 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/03 17:04:56 $
+//   $Date: 2009/01/03 17:10:30 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.120 $
+//   $Revision: 1.121 $
 
 // Table of Contents:
 //
@@ -2997,7 +2997,7 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp );
     min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp );
-    min::gen set
+    void set
     	    ( min::unprotected
 	         ::writable_list_pointer & lp,
 	      min::gen value );
@@ -3237,7 +3237,7 @@ namespace min { namespace unprotected {
 	friend min::gen min::start_sublist
 		( min::unprotected::list_pointer & lp );
 
-	friend min::gen min::set
+	friend void min::set
 		( min::unprotected
 		     ::writable_list_pointer & lp,
 		  min::gen value );
@@ -3602,7 +3602,7 @@ namespace min {
 	return lp.current;
     }
 
-    inline min::gen set
+    inline void set
 	    ( min::unprotected
 	         ::writable_list_pointer & lp,
 	      min::gen value )
@@ -3614,18 +3614,20 @@ namespace min {
 		     ! is_sublist ( value ) );
 
 	if ( lp.current_index != 0 )
-	    return lp.current =
+	    lp.current =
 	        lp.base[lp.current_index] = value;
 #       if MIN_USES_OBJ_AUX_STUBS
 	    else if ( lp.current_stub != NULL )
 	    {
 		min::unprotected::set_gen_of
 		    ( lp.current_stub, value );
-		return lp.current = value;
+		lp.current = value;
 	    }
 #	endif
-
-	MIN_ABORT ( "inconsistent list_pointer" );
+	else
+	{
+	    MIN_ABORT ( "inconsistent list_pointer" );
+	}
     }
 
     inline void insert_reserve
