@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Dec 29 10:42:12 EST 2008
+// Date:	Sat Jan  3 11:14:58 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/29 17:29:08 $
+//   $Date: 2009/01/03 17:04:26 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.60 $
+//   $Revision: 1.61 $
 
 // Table of Contents:
 //
@@ -754,7 +754,7 @@ void MUP::allocate_stub_list
 # endif // MIN_USES_OBJ_AUX_STUBS
 
 void min::insert_before
-	( MUP::writable_list_pointer & lp,
+	( MUP::insertable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
     unsigned unused_area_offset;
@@ -1153,7 +1153,7 @@ void min::insert_before
 }
 
 void min::insert_after
-	( MUP::writable_list_pointer & lp,
+	( MUP::insertable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
     unsigned unused_area_offset;
@@ -1405,7 +1405,7 @@ void min::insert_after
 }
 
 unsigned min::remove
-	( MUP::writable_list_pointer & lp, unsigned n )
+	( MUP::insertable_list_pointer & lp, unsigned n )
 {
     if ( n == 0 || lp.current == min::LIST_END )
         return 0;
@@ -1628,7 +1628,7 @@ unsigned min::remove
 }
 
 void MINT::insert_reserve
-	( MUP::writable_list_pointer & lp,
+	( MUP::insertable_list_pointer & lp,
 	  unsigned insertions,
 	  unsigned elements,
 	  bool use_obj_aux_stubs )
