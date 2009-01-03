@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 2, 2009}
+\date{January 3, 2009}
  
 \maketitle
 
@@ -2809,10 +2809,12 @@ simply checking whether the value equals {\tt min::LIST\_END},
 or can be done equivalently
 with the {\tt min::is\_list\_end} function.
 
-A {\tt MUP::list\_pointer} cannot be used to modify a list.  Instead,
-one must use a {\tt MUP::writ\-able\_\EOL list\_\EOL pointer}
-for which all the functions
-defined for {\tt MUP::list\_\EOL pointer}'s are also defined:
+A {\tt MUP::list\_pointer} cannot be used to modify a list.  If the
+only modifications desired are changing existing list elements, you can
+use a {\tt MUP::writ\-able\_\EOL list\_\EOL pointer}.
+All the functions
+defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
+{\tt MUP::writ\-able\_\EOL list\_\EOL pointer}'s:
 
 \begin{center}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
@@ -2853,6 +2855,109 @@ defined for {\tt MUP::list\_\EOL pointer}'s are also defined:
 \LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
 \end{tabular}\end{center}
 
+In addition the following function can be used to change the
+current element:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void min::|
+	& \MINKEY{set}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb|   min::gen value )| \\
+	  \end{tabular}
+\LABEL{MIN::SET_OF_WRITABLE} \\
+\end{tabular}\end{center}
+
+Neither the previous value of the element nor the
+new value of the element may be {\tt min::LIST\_\EOL END}.
+
+The previous value of the element may be a sublist head, in which
+case setting the element will make the sublist elements inaccessible,
+and will make any list pointers pointing at the sublist or at other
+sublists accessible only through the sublist invalid.
+The new value of the element may be {\tt min::EMPTY\_SUBLIST},
+but cannot be any other kind of sublist.
+
+If an element is set in this way, any other list pointer pointing at
+that element will likely become invalid, because list pointers
+cache the current element they are pointing at.  However list
+pointers that have been made invalid in this way
+can be quickly made valid again by the following function that
+refreshes the cache and returns the current element:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min:gen min::|
+	& \MINKEY{refresh}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp, )| \\
+	  \end{tabular}
+\LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
+\verb|min:gen min::|
+	& \MINKEY{refresh}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_list_pointer & lp, )| \\
+	  \end{tabular}
+\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_WRITABLE} \\
+\end{tabular}\end{center}
+
+Inserting and removing elements from a list requires yet another
+kind of list pointer, a {\tt MUP::insert\-able\_\EOL list\_\EOL pointer}.
+All functions
+defined for {\tt MUP::writ\-able\_list\_\EOL point\-er}'s are also defined for
+{\tt MUP::insert\-able\_\EOL list\_\EOL pointer}'s:
+
+\begin{center}\begin{tabular}{r@{}l}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{insertable\_list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::INSERTABLE_LIST_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{insertable\_list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::INSERTABLE_LIST_POINTER_OF_GEN} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_hash}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp,| \\
+	  \verb|   unsigned index )|
+	  \end{tabular}
+\LABEL{MIN::START_HASH_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_vector}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp,| \\
+	  \verb|   unsigned index )|
+	  \end{tabular}
+\LABEL{MIN::START_VECTOR_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp,| \\
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+	  \end{tabular}
+\LABEL{MIN::START_COPY_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{next}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{current}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_INSERTABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_INSERTABLE} \\
+\verb|void min::|
+	& \MINKEY{set}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp,| \\
+	  \verb|   min::gen value )| \\
+	  \end{tabular}
+\LABEL{MIN::SET_OF_INSERTABLE} \\
+\verb|min:gen min::|
+	& \MINKEY{refresh}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp, )| \\
+	  \end{tabular}
+\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_INSERTABLE} \\
+\end{tabular}\end{center}
+
 Making insertions in object lists requires reservation of the necessary
 space first, in order to be sure that a sequence of insertions will
 all succeed.  The functions used are:
@@ -2861,7 +2966,7 @@ all succeed.  The functions used are:
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   unsigned insertions, unsigned elements = 0,| \\
 	  \verb|   bool use_object_aux_stubs =| \\
 	  \verb|       min::use_object_aux_stubs )| \\
@@ -2870,14 +2975,14 @@ all succeed.  The functions used are:
 \verb|void min::|
 	& \MINKEY{insert\_before}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   min::gen * p, unsigned n )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_BEFORE} \\
 \verb|void min::|
 	& \MINKEY{insert\_after}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   min::gen * p, unsigned n )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_AFTER} \\
@@ -2889,6 +2994,10 @@ to be inserted.  If the later is {\tt 0}, the default, it is taken to
 be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
+
+Note that {\tt min::insert\_reserve} is the only list pointer
+function that may cause a relocation, and if a relocation occurs,
+all list pointers become invalid and must be restarted.
 
 The {\tt min::insert\_reserve} function can increase the size of the object
 if it is insufficient, or instead it can depend upon using
@@ -2936,7 +3045,10 @@ the list pointer:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{remove}%
-	  \verb| ( min::writable_list_pointer & lp, unsigned n = 1 )|
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp,| \\
+	  \verb|   unsigned n = 1 )|
+	  \end{tabular}
 \LABEL{MIN::REMOVE_FROM_LIST} \\
 \end{tabular}\end{center}
 
@@ -2963,7 +3075,7 @@ detectable).
 \begin{quote}
 \key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
 In order to enforce the `No Superfluous' rules on 
-\pagref{NO-SUPERFLUOUS-LIST}, {\tt MUP::writable\_list\_pointer}'s keep
+\pagref{NO-SUPERFLUOUS-LIST}, {\tt MUP::insertable\_list\_pointer}'s keep
 track of any auxiliary value
 (or equivalent as per \secref{OBJECT-AUXILIARY-STUBS})
 pointing a the current
