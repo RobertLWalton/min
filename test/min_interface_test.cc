@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  3 11:15:57 EST 2009
+// Date:	Sun Jan  4 07:41:29 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/03 17:06:40 $
+//   $Date: 2009/01/04 16:38:45 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.64 $
+//   $Revision: 1.65 $
 
 // Table of Contents:
 //
@@ -2132,12 +2132,16 @@ int main ()
 	MIN_ASSERT ( ! min::relocated_flag() );
 
 	min::gen num100 = min::new_num_gen ( 100 );
-	min::gen num102 = min::new_num_gen ( 100 );
-	min::gen p[3] = { num100, min::EMPTY_SUBLIST, num102 };
+	min::gen num101 = min::new_num_gen ( 101 );
+	min::gen num102 = min::new_num_gen ( 102 );
+	min::gen p[3] = { num100, num101, num102 };
 	min::insert_after ( wlp, p, 3 );
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( min::next ( wlp ) == num100 );
-	MIN_ASSERT ( min::next ( wlp ) == min::EMPTY_SUBLIST );
+	MIN_ASSERT ( min::next ( wlp ) == num101 );
+	min::set ( wlp, min::EMPTY_SUBLIST );
+	MIN_ASSERT (    min::current ( wlp )
+	             == min::EMPTY_SUBLIST );
 
 	MUP::insertable_list_pointer wslp = ( short_obj_gen );
 	min::start_copy ( wslp, wlp );
@@ -2150,7 +2154,7 @@ int main ()
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
 	MIN_ASSERT ( min::current ( wslp ) == num100 );
-	MIN_ASSERT ( min::next ( wslp ) == min::EMPTY_SUBLIST );
+	MIN_ASSERT ( min::next ( wslp ) == num101 );
 	MIN_ASSERT ( min::next ( wslp ) == num102 );
 	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
 
