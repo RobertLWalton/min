@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 3, 2009}
+\date{January 5, 2009}
  
 \maketitle
 
@@ -3043,7 +3043,7 @@ of a list, the first of which is the element currently pointed at by
 the list pointer:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::gen min::|
+\verb|unsigned min::|
 	& \MINKEY{remove}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
@@ -3057,8 +3057,9 @@ elements removed, or at the end of the list if there is no such element.
 If there are fewer than {\tt n} elements in the list at and after
 the list pointer current element, then there is no error, but all the
 elements at and after the current element are removed, and the list
-pointer is pointed at the end of the list.
-Element removal requires no reservation.
+pointer is pointed at the end of the list.  The returned value is the
+number of elements actually removed (and is less than {\tt n} if the
+list was too short).  Element removal requires no reservation.
 
 If there are two list pointers, $P_1$ and $P_2$, pointing at list
 elements in the same object, and $P_1$
@@ -5430,7 +5431,7 @@ struct min
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen * p, unsigned n )|
 \LABEL{MIN::INSERT_AFTER} \\
-\verb|min::gen min::|
+\verb|unsigned min::|
 	& \MINKEY{remove}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned n = 1 )|
