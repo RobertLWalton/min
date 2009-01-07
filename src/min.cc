@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan  5 00:06:48 EST 2009
+// Date:	Tue Jan  6 19:37:52 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/05 06:08:33 $
+//   $Date: 2009/01/07 01:48:06 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.62 $
+//   $Revision: 1.63 $
 
 // Table of Contents:
 //
@@ -1405,66 +1405,58 @@ void min::insert_after
 }
 
 unsigned min::remove
-	( MUP::insertable_list_pointer & lp, unsigned n )
+	( MUP::insertable_list_pointer & lp,
+	  unsigned n )
 {
     // Note: current code does NOT set orphaned sublist
     // elements to NONE.
 
     unsigned unused_area_offset;
-    unsigned aux_area_offset;
     if ( lp.so )
-    {
 	unused_area_offset = lp.so->unused_area_offset;
-	aux_area_offset = lp.so->aux_area_offset;
-    }
     else if ( lp.lo )
-    {
 	unused_area_offset = lp.lo->unused_area_offset;
-	aux_area_offset = lp.lo->aux_area_offset;
-    }
     else
 	MIN_ABORT ( "lp list has not been started" );
 
     if ( n == 0 || lp.current == min::LIST_END )
         return 0;
+    else if ( lp.current_index != 0
+              &&
+	      lp.current_index < unused_area_offset )
+    {
+	// Special case: deleting list head of a list
+	// with just 1 element.
+	//
+	lp.current = lp.base[lp.current_index]
+	           = min::LIST_END;
+	return 1;
+    }
 
-    // Count of items removed; to be returned as result.
+    // Save the current previous pointer and current
+    // index.
     //
-    unsigned count = 0;
-
     unsigned previous_index = lp.previous_index;
     bool previous_is_sublist_head =
 	lp.previous_is_sublist_head;
     unsigned current_index = lp.current_index;
-#   if ! MIN_USES_OBJ_AUX_STUBS
-	if ( lp.current_index < unused_area_offset )
-	{
-	    // Special case: deleting list head of a
-	    // a list with just 1 element.
-	    //
-	    lp.base[lp.current_index] = min::LIST_END;
-	    return 1;
-	}
-	while ( n -- )
-	{
-	    if ( lp.current == min::LIST_END ) break;
-	    ++ count;
-	    lp.base[lp.current_index] = min::NONE;
-	    lp.current = lp.base[-- lp.current.index];
-	    if ( min::is_list_aux ( lp.current ) )
-	    {
-	        lp.base[lp.current_index] = min::NONE;
-		lp.current_index =
-		    min::list_aux_of ( lp.current );
-		lp.current = lp.base[lp.current.index];
-	    }
-	}
-#   elif MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USES_OBJ_AUX_STUBS
 	min::stub * previous_stub = lp.previous_stub;
-	while ( n -- )
-	{
-	    if ( lp.current == min::LIST_END ) break;
-	    ++ count;
+#   endif
+
+    // Count of elements removed; to be returned as
+    // result.
+    //
+    unsigned count = 0;
+
+    // Skip n elements (or until end of list).
+    //
+    while ( n -- )
+    {
+	if ( lp.current == min::LIST_END ) break;
+	++ count;
+
+#       if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		min::stub * last_stub = lp.current_stub;
@@ -1472,25 +1464,27 @@ unsigned min::remove
 		MUP::free_stub ( last_stub );
 	    }
 	    else
+#       endif
+	{
+	    MIN_ASSERT ( lp.current_index != 0 );
+	    lp.base[lp.current_index] = min::NONE;
+	    lp.current =
+		lp.base[-- lp.current_index];
+	    if ( lp.current == min::LIST_END )
+	        break;
+	    else if ( min::is_list_aux ( lp.current ) )
 	    {
-	        MIN_ASSERT ( lp.current_index != 0 );
-		lp.base[lp.current_index] = min::NONE;
+		lp.base[lp.current_index] =
+		    min::NONE;
+		lp.current_index =
+		    min::list_aux_of ( lp.current );
 		lp.current =
-		    lp.base[-- lp.current_index];
-		if ( min::is_list_aux ( lp.current ) )
-		{
-		    lp.base[lp.current_index] =
-			min::NONE;
-		    lp.current_index =
-			min::list_aux_of ( lp.current );
-		    lp.current =
-			lp.base[lp.current_index];
-		}
-		else if ( min::is_stub ( lp.current ) )
-		    lp.forward ( lp.current_index );
+		    lp.base[lp.current_index];
 	    }
+	    else if ( min::is_stub ( lp.current ) )
+		lp.forward ( lp.current_index );
 	}
-#   endif
+    }
 
     // Now lp.current_index/lp.current_stub are the new
     // current element and we must either set the old
@@ -1569,15 +1563,30 @@ unsigned min::remove
 	    }
 
 	    lp.previous_stub = previous_stub;
-	    lp.previous_index = previous_index;
 	    lp.previous_is_sublist_head =
 		previous_is_sublist_head;
-
+	    lp.previous_index = 0;
 	}
 	else
 #   endif
     if ( previous_index != 0 )
     {
+#	if MIN_USES_OBJ_AUX_STUBS
+	    if ( lp.current_stub != NULL )
+	    {
+		if ( previous_is_sublist_head )
+		    MUP::set_type_of
+			( lp.current_stub,
+			  min::SUBLIST_AUX );
+		lp.base[previous_index] =
+		    min::new_gen ( lp.current_stub );
+
+		lp.previous_index = previous_index;
+		lp.previous_is_sublist_head =
+		    previous_is_sublist_head;
+	    }
+	    else
+#	endif
 	if ( lp.current == min::LIST_END )
 	{
 	    if ( lp.current_index != 0 )
@@ -1588,6 +1597,8 @@ unsigned min::remove
 		lp.base[previous_index] =
 		    min::EMPTY_SUBLIST;
 		lp.current_index = 0;
+		lp.previous_index = previous_index;
+		lp.previous_is_sublist_head = true;
 	    }
 	    else
 	    {
@@ -1595,19 +1606,9 @@ unsigned min::remove
 		    min::LIST_END;
 		lp.current_index = previous_index;
 		lp.previous_index = 0;
+		lp.previous_is_sublist_head = false;
 	    }
 	}
-#	if MIN_USES_OBJ_AUX_STUBS
-	    else if ( lp.current_stub != NULL )
-	    {
-		if ( previous_is_sublist_head )
-		    MUP::set_type_of
-			( lp.current_stub,
-			  min::SUBLIST_AUX );
-		lp.base[previous_index] =
-		    min::new_gen ( lp.current_stub );
-	    }
-#	endif
 	else
 	{
 	    MIN_ASSERT ( lp.current_index != 0 );
@@ -1620,41 +1621,64 @@ unsigned min::remove
 		lp.base[previous_index] =
 		    min::new_list_aux_gen
 			( lp.current_index );
+
+	    lp.previous_index = previous_index;
+	    lp.previous_is_sublist_head =
+		previous_is_sublist_head;
 	}
+
+	lp.previous_stub = NULL;
     }
     else
     {
-    	// No previous.  Note that lp.current_stub
-	// == NULL as stubs always have a previous.
+    	// No previous.  Then the first element
+	// removed cannot be a stub, as stubs always
+	// have a previous pointer.
 
 	MIN_ASSERT ( current_index != 0 );
 
+#       if MIN_USES_OBJ_AUX_STUBS
+	    lp.previous_stub = NULL;
+
+	    if ( lp.current_stub != NULL )
+	    {
+		lp.base[current_index] =
+		    min::new_gen ( lp.current_stub );
+		lp.previous_index = current_index;
+	    }
+	    else
+#       endif
 	if ( lp.current == min::LIST_END )
 	{
 	    if ( lp.current_index != 0 )
 		lp.base[lp.current_index] = min::NONE;
 	    lp.base[current_index] = min::LIST_END;
+	    lp.current_index = current_index;
+	    lp.previous_index = 0;
 	}
 	else if ( current_index < unused_area_offset
 	          &&
 		     lp.base[current_index - 1]
 		  == min::LIST_END )
     	{
-	    // Now list has just one element in the list
-	    // head.
+	    // Now list has just one element that needs
+	    // to be moved to the list head.
 
 	    lp.base[current_index] = lp.current;
 	    lp.base[lp.current_index] = min::NONE;
 	    lp.base[-- lp.current_index] = min::NONE;
 	    lp.current_index = current_index;
+	    lp.previous_index = 0;
 	}
 	else
 	{
 	    lp.base[current_index] =
-		min::new_list_aux_gen ( lp.current_index );
+		min::new_list_aux_gen
+		    ( lp.current_index );
 	    lp.previous_index = current_index;
-	    lp.previous_is_sublist_head = false;
 	}
+
+	lp.previous_is_sublist_head = false;
     }
 
     return count;
