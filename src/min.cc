@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jan  6 19:37:52 EST 2009
+// Date:	Wed Jan  7 23:06:46 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/07 01:48:06 $
+//   $Date: 2009/01/08 05:33:51 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.63 $
+//   $Revision: 1.64 $
 
 // Table of Contents:
 //
@@ -1572,6 +1572,8 @@ unsigned min::remove
     if ( previous_index != 0 )
     {
 #	if MIN_USES_OBJ_AUX_STUBS
+	    lp.previous_stub = NULL;
+
 	    if ( lp.current_stub != NULL )
 	    {
 		if ( previous_is_sublist_head )
@@ -1626,8 +1628,6 @@ unsigned min::remove
 	    lp.previous_is_sublist_head =
 		previous_is_sublist_head;
 	}
-
-	lp.previous_stub = NULL;
     }
     else
     {
@@ -1656,22 +1656,10 @@ unsigned min::remove
 	    lp.current_index = current_index;
 	    lp.previous_index = 0;
 	}
-	else if ( current_index < unused_area_offset
-	          &&
-		     lp.base[current_index - 1]
-		  == min::LIST_END )
-    	{
-	    // Now list has just one element that needs
-	    // to be moved to the list head.
-
-	    lp.base[current_index] = lp.current;
-	    lp.base[lp.current_index] = min::NONE;
-	    lp.base[-- lp.current_index] = min::NONE;
-	    lp.current_index = current_index;
-	    lp.previous_index = 0;
-	}
 	else
 	{
+	    MIN_ASSERT
+	        ( current_index >= unused_area_offset );
 	    lp.base[current_index] =
 		min::new_list_aux_gen
 		    ( lp.current_index );
