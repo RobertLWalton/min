@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  3 12:08:04 EST 2009
+// Date:	Thu Jan  8 00:32:03 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/03 17:10:30 $
+//   $Date: 2009/01/08 05:33:25 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.121 $
+//   $Revision: 1.122 $
 
 // Table of Contents:
 //
@@ -3125,11 +3125,17 @@ namespace min { namespace unprotected {
 	//	previous_is_sublist_head == false.
 	//
 	//	The current value is the LIST_END that
+	//	is after an element in a stub.  The
+	//	current pointer does not exist, but the
+	//	previous pointer points at the stub.
+	//	previous_is_sublist_head == false.
+	//
+	//	The current value is the LIST_END that
 	//	is the end of an empty sublist.  The
 	//	current pointer does not exist, but the
-	//	previous pointer points at the empty
-	//	sublist.  previous_is_sublist_head ==
-	//	true.
+	//	previous pointer points at the element
+	//	containing EMPTY_SUBLIST.  previous_is_
+	//	sublist_head == true.
 	//
 	// The current pointer is in one of the follow-
 	// ing states (here `current' means `current
@@ -3146,6 +3152,7 @@ namespace min { namespace unprotected {
 	//	       current_index == 0
 	//	   and current_stub == NULL
 	//	   and current pointer does not exist
+	//	   and current == LIST_END
 	//
 	// The previous pointer is similar, but also
 	// differs when it points at a stub, since it
@@ -3167,25 +3174,38 @@ namespace min { namespace unprotected {
 	//	   and previous_stub == NULL
 	//	   and previous pointer does not exist
 	//
-	// If a current value or previous list or
-	// sublist value is stub pointer, then it points
-	// as an auxiliary stub, and is treated as a
-	// sublist pointer if the auxiliary stub is of
-	// type SUBLIST_AUX, and is treated as a list
-	// pointer if the stub is of type LIST_AUX.
+	// If a previous value is a stub pointer, then
+	// it points at an auxiliary stub, and is
+	// treated as a sublist pointer if the auxiliary
+	// stub is of type SUBLIST_AUX, and is treated
+	// as a list pointer if the stub is of type
+	// LIST_AUX.
+	//
 	// The gen_of value of the auxiliary stub is
 	// equivalent to an auxiliary area element
 	// pointed at by a sublist or list pointer.  The
 	// control_of value of the stub is equivalent
 	// to the next value after that in a list, but
 	// that next value must be a list or sublist
-	// pointer.
+	// pointer or LIST_END.
+	//
+	// If the current pointer points at a stub, the
+	// previous pointer must exist.
+	//
+	// If the current value is not LIST_END, the
+	// current pointer must exist.
+	//
+	// A current value can be LIST_END or EMPTY_
+	// SUBLIST, but cannot be a list or sublist
+	// pointer (and in particular cannot point
+	// at a stub of LIST_AUX or SUBLIST_AUX type).
 	//
 	unsigned current_index;
 	unsigned previous_index;
 	bool previous_is_sublist_head;
 	    // True if previous pointer exists and
 	    // points at a sublist pointer.
+
 #	if MIN_USES_OBJ_AUX_STUBS
 	    min::stub * current_stub;
 	    min::stub * previous_stub;
