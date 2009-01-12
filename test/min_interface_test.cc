@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 12 07:15:19 EST 2009
+// Date:	Mon Jan 12 08:01:49 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/12 12:15:39 $
+//   $Date: 2009/01/12 16:06:16 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.67 $
+//   $Revision: 1.68 $
 
 // Table of Contents:
 //
@@ -60,13 +60,13 @@ using std::ostream;
 //
 # ifdef MIN_STRETCH
 #   define MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
- 	       0xFFFFFFFFFFFFFFF
+ 	       0xFFFFFFFFFFFFFFFull
 #   if MIN_IS_COMPACT
 #	define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
- 	       0xDFFFFFFFF
+ 	       0xDFFFFFFFFull
 #   else
 #	define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
- 	       0xFFFFFFFFFFFF
+ 	       0xFFFFFFFFFFFFull
 #   endif
 # endif
 
@@ -2375,6 +2375,84 @@ int main ()
 
 	cout << "USIZE AFTER USING AUX "
 	     << min::unused_area_size_of ( so ) << endl;
+
+	// Now use a mixture of aux area and aux stubs.
+
+	 while ( min::unused_area_size_of ( so ) != 0 )
+	    min::attribute_vector_push ( so, numtest );
+
+	vbody[vorg+0] = numtest;
+	min::start_vector ( lp, 0 );
+	MIN_ASSERT ( min::current ( lp ) == vbody[vorg+0] );
+
+	min::gen num103 = min::new_num_gen ( 103 );
+	min::gen num104 = min::new_num_gen ( 104 );
+	min::gen num105 = min::new_num_gen ( 105 );
+	min::gen num106 = min::new_num_gen ( 106 );
+	min::gen num107 = min::new_num_gen ( 107 );
+
+	min::gen pv[8] =
+	    { num100, num101, num102, num103,
+	      num104, num105, num106, num107 };
+	min::gen psplit[2] = { num104, num107 };
+
+	// Build the following list:
+	//
+	//	{ numtest		In list head
+	//	  num100		In aux stub
+	//	  num101		In aux stub
+	//	  num102		In aux stub
+	//	  num103		In aux stub
+	//	  num104		In aux area
+	//	  num105		In aux area
+	//	  num106		In aux stub
+	//	  num107 }		In aux area
+
+
+        MIN_ASSERT ( min::unused_area_size_of ( so ) == 0 );
+	min::gen tmpv [20];
+	min::start_vector ( wlp, 0 );
+	min::insert_reserve ( wlp, 1, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_after ( wlp, pv, 2 );
+	MIN_ASSERT ( min::current ( wlp ) == numtest );
+	MIN_ASSERT ( min::next ( wlp ) == num100 );
+	MIN_ASSERT ( min::next ( wlp ) == num101 );
+	min::attribute_vector_pop ( so, tmpv, 3 );
+        MIN_ASSERT ( min::unused_area_size_of ( so ) == 3 );
+	min::insert_reserve ( wlp, 1, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_after ( wlp, psplit, 2 );
+        MIN_ASSERT ( min::unused_area_size_of ( so ) == 0 );
+	MIN_ASSERT ( min::next ( wlp ) == num104 );
+	min::insert_reserve ( wlp, 1, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_before ( wlp, pv + 2, 2 );
+	min::attribute_vector_pop ( so, tmpv, 3 );
+        MIN_ASSERT ( min::unused_area_size_of ( so ) == 3 );
+	MIN_ASSERT ( min::next ( wlp ) == num107 );
+	min::insert_reserve ( wlp, 2, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_before ( wlp, pv + 5, 1 );
+        MIN_ASSERT ( min::unused_area_size_of ( so ) == 0 );
+	min::insert_before ( wlp, pv + 6, 1 );
+	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+
+	min::start_vector ( wlp, 0 );
+	MIN_ASSERT ( min::current ( wlp ) == numtest );
+	MIN_ASSERT ( min::next ( wlp ) == num100 );
+	MIN_ASSERT ( min::next ( wlp ) == num101 );
+	MIN_ASSERT ( min::next ( wlp ) == num102 );
+	MIN_ASSERT ( min::next ( wlp ) == num103 );
+	MIN_ASSERT ( min::next ( wlp ) == num104 );
+	MIN_ASSERT ( min::next ( wlp ) == num105 );
+	MIN_ASSERT ( min::next ( wlp ) == num106 );
+	MIN_ASSERT ( min::next ( wlp ) == num107 );
+	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+
+
+
+
 
 	cout << endl;
 	cout << "Finish Object List Level Test!" << endl;

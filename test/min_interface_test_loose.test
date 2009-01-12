@@ -1722,6 +1722,111 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 USIZE AFTER USING AUX 11
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    so->unused_area_offset < so->aux_area_offset true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+min_interface_test.cc:XXXX assert:
+    min::current ( lp ) == vbody[vorg+0] true.
+min_interface_test.cc:XXXX assert:
+    min::unused_area_size_of ( so ) == 0 true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == numtest true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num101 true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) + n <= so->unused_area_offset true.
+min_interface_test.cc:XXXX assert:
+    min::unused_area_size_of ( so ) == 3 true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+min_interface_test.cc:XXXX assert:
+    min::unused_area_size_of ( so ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num104 true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) + n <= so->unused_area_offset true.
+min_interface_test.cc:XXXX assert:
+    min::unused_area_size_of ( so ) == 3 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num107 true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+MUP::gc_expand_stub_free_list (4) called
+min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+min_interface_test.cc:XXXX assert:
+    min::unused_area_size_of ( so ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == numtest true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num101 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num103 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num104 true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num105 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num106 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num107 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::LIST_END true.
 
 Finish Object List Level Test!
 
