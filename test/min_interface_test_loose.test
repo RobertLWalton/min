@@ -1518,6 +1518,210 @@ min_interface_test.cc:XXXX assert:
     index < attribute_vector_size true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+../include/min.h:XXXX assert:
+    attribute_vector_of ( so ) < so->unused_area_offset true.
+USIZE BEFORE USING AUX 20
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+min_interface_test.cc:XXXX assert:
+    min::current ( lp ) == vbody[vorg+0] true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == numtest true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num101 true.
+../include/min.h:XXXX assert:
+    value != min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.current != min::LIST_END true.
+../include/min.h:XXXX assert:
+    value == min::EMPTY_SUBLIST || ! is_sublist ( value ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == min::EMPTY_SUBLIST true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+../include/min.h:XXXX assert:
+    insertions <= elements true.
+min_interface_test.cc:XXXX assert:
+    ! min::relocated_flag() true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num101 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == numtest true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::is_sublist ( min::next ( wlp ) ) true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num101 true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+min_interface_test.cc:XXXX assert:
+    1 == min::remove ( wslp, 1 ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num100 true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+min_interface_test.cc:XXXX assert:
+    1 == min::remove ( wslp, 1 ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
+    is_sublist_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    1 == min::remove ( wslp, 5 ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == min::EMPTY_SUBLIST true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == numtest true.
+../include/min.h:XXXX assert:
+    p < 1 << 24 true.
+min_interface_test.cc:XXXX assert:
+    3 == min::remove ( wlp, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wlp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    1 == min::remove ( wlp, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < attribute_vector_size true.
+min_interface_test.cc:XXXX assert:
+    min::current ( wlp ) == min::LIST_END true.
+USIZE AFTER USING AUX 11
 
 Finish Object List Level Test!
 
