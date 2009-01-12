@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan  8 00:32:03 EST 2009
+// Date:	Mon Jan 12 11:04:33 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/08 05:33:25 $
+//   $Date: 2009/01/12 16:04:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.122 $
+//   $Revision: 1.123 $
 
 // Table of Contents:
 //
@@ -1690,13 +1690,13 @@ namespace min { namespace unprotected {
     inline void free_stub ( min::stub * s )
     {
         min::unprotected::set_gen_of
-	    ( s, min::MISSING );
+	    ( s, min::NONE );
 	min::unprotected::set_control_of
 	    ( s, min::unprotected::control_of
 	             ( last_allocated_stub ) );
 	min::unprotected::set_control_of
 	    ( last_allocated_stub,
-	      min::unprotected::new_control
+	      min::unprotected::new_gc_control
 		  ( min::FREE, s ) );
 	++ number_of_free_stubs;
     }
