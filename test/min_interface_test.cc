@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 12 08:01:49 EST 2009
+// Date:	Wed Jan 14 08:09:42 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/12 16:06:16 $
+//   $Date: 2009/01/14 14:26:02 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.68 $
+//   $Revision: 1.69 $
 
 // Table of Contents:
 //
@@ -2448,11 +2448,92 @@ int main ()
 	MIN_ASSERT ( min::next ( wlp ) == num105 );
 	MIN_ASSERT ( min::next ( wlp ) == num106 );
 	MIN_ASSERT ( min::next ( wlp ) == num107 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
+
+	// Repeat the test using a mixture of aux area
+	// and aux stubs but using long object instead
+	// of short object.
+
+	min::stub * long_stub =
+	    min::stub_of ( long_obj_gen );
+	MUP::long_obj * lo =
+	    MUP::long_obj_of ( long_stub );
+	vbody = MUP::writable_body_vector_of ( lo );
+	vsize = min::attribute_vector_size_of ( lo );
+	vorg = min::attribute_vector_of ( lo );
+	usize = min::unused_area_size_of ( lo );
+	cout << "VSIZE " << vsize << " VORG " << vorg
+	     << " USIZE " << usize << endl;
+
+	MUP::list_pointer llp ( long_obj_gen );
+	MUP::insertable_list_pointer
+	    wllp ( long_obj_gen );
+
+	vbody[vorg+0] = numtest;
+	min::start_vector ( llp, 0 );
+	MIN_ASSERT
+	    ( min::current ( llp ) == vbody[vorg+0] );
+
+	// Build the following list:
+	//
+	//	{ numtest		In list head
+	//	  num100		In aux stub
+	//	  num101		In aux stub
+	//	  num102		In aux stub
+	//	  num103		In aux stub
+	//	  num104		In aux area
+	//	  num105		In aux area
+	//	  num106		In aux stub
+	//	  num107 }		In aux area
 
 
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( lo ) == 0 );
+	min::start_vector ( wllp, 0 );
+	min::insert_reserve ( wllp, 1, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_after ( wllp, pv, 2 );
+	MIN_ASSERT ( min::current ( wllp ) == numtest );
+	MIN_ASSERT ( min::next ( wllp ) == num100 );
+	MIN_ASSERT ( min::next ( wllp ) == num101 );
+	min::attribute_vector_pop ( lo, tmpv, 3 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( lo ) == 3 );
+	min::insert_reserve ( wllp, 1, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_after ( wllp, psplit, 2 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( lo ) == 0 );
+	MIN_ASSERT ( min::next ( wllp ) == num104 );
+	min::insert_reserve ( wllp, 1, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_before ( wllp, pv + 2, 2 );
+	min::attribute_vector_pop ( lo, tmpv, 3 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( lo ) == 3 );
+	MIN_ASSERT ( min::next ( wllp ) == num107 );
+	min::insert_reserve ( wllp, 2, 2, true );
+	MIN_ASSERT ( ! min::relocated_flag() );
+	min::insert_before ( wllp, pv + 5, 1 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( lo ) == 0 );
+	min::insert_before ( wllp, pv + 6, 1 );
+	MIN_ASSERT
+	    ( min::next ( wllp ) == min::LIST_END );
 
-
+	min::start_vector ( wllp, 0 );
+	MIN_ASSERT ( min::current ( wllp ) == numtest );
+	MIN_ASSERT ( min::next ( wllp ) == num100 );
+	MIN_ASSERT ( min::next ( wllp ) == num101 );
+	MIN_ASSERT ( min::next ( wllp ) == num102 );
+	MIN_ASSERT ( min::next ( wllp ) == num103 );
+	MIN_ASSERT ( min::next ( wllp ) == num104 );
+	MIN_ASSERT ( min::next ( wllp ) == num105 );
+	MIN_ASSERT ( min::next ( wllp ) == num106 );
+	MIN_ASSERT ( min::next ( wllp ) == num107 );
+	MIN_ASSERT
+	    ( min::next ( wllp ) == min::LIST_END );
 
 	cout << endl;
 	cout << "Finish Object List Level Test!" << endl;
