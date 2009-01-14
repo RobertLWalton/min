@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 14 08:09:42 EST 2009
+// Date:	Wed Jan 14 09:33:43 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/14 14:26:02 $
+//   $Date: 2009/01/14 14:33:36 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.69 $
+//   $Revision: 1.70 $
 
 // Table of Contents:
 //
@@ -1874,7 +1874,8 @@ int main ()
 	    		( so, outv + 1, 3 )
 	      == min::attribute_vector_of ( so ) + 1 );
 	MIN_ASSERT
-	    (    min::attribute_vector_pop ( so, outv[0] )
+	    (    min::attribute_vector_pop
+	             ( so, outv[0] )
 	      == min::attribute_vector_of ( so ) );
 	MIN_ASSERT ( outv[0] == num1 );
 	MIN_ASSERT ( outv[1] == num1 );
@@ -1890,7 +1891,8 @@ int main ()
 	    min::attribute_vector_pop ( so, outv[0] );
 	);
 	desire_failure (
-	    min::attribute_vector_pop ( so, outv + 1, 3 );
+	    min::attribute_vector_pop
+	        ( so, outv + 1, 3 );
 	);
 	min::attribute_vector_push
 	    ( so, fillv, 4 );
@@ -2017,7 +2019,8 @@ int main ()
 	    		( lo, outv + 1, 3 )
 	      == min::attribute_vector_of ( lo ) + 1 );
 	MIN_ASSERT
-	    (    min::attribute_vector_pop ( lo, outv[0] )
+	    (    min::attribute_vector_pop
+		     ( lo, outv[0] )
 	      == min::attribute_vector_of ( lo ) );
 	MIN_ASSERT ( outv[0] == num1 );
 	MIN_ASSERT ( outv[1] == num1 );
@@ -2033,7 +2036,8 @@ int main ()
 	    min::attribute_vector_pop ( lo, outv[0] );
 	);
 	desire_failure (
-	    min::attribute_vector_pop ( lo, outv + 1, 3 );
+	    min::attribute_vector_pop
+		( lo, outv + 1, 3 );
 	);
 	min::attribute_vector_push
 	    ( lo, fillv, 4 );
@@ -2117,16 +2121,23 @@ int main ()
 
 	MUP::list_pointer lp ( short_obj_gen );
 	min::start_vector ( lp, 0 );
-	MIN_ASSERT ( min::current ( lp ) == vbody[vorg+0] );
-	MIN_ASSERT ( min::next ( lp ) == min::LIST_END );
-	MIN_ASSERT ( min::current ( lp ) == min::LIST_END );
-	MIN_ASSERT ( min::next ( lp ) == min::LIST_END );
-	min::gen numtest = min::new_num_gen ( 123456789 );
+	MIN_ASSERT
+	    ( min::current ( lp ) == vbody[vorg+0] );
+	MIN_ASSERT
+	    ( min::next ( lp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::current ( lp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( lp ) == min::LIST_END );
+	min::gen numtest =
+	    min::new_num_gen ( 123456789 );
 	vbody[vorg+0] = numtest;
 	min::start_vector ( lp, 0 );
-	MIN_ASSERT ( min::current ( lp ) == vbody[vorg+0] );
+	MIN_ASSERT
+	    ( min::current ( lp ) == vbody[vorg+0] );
 
-	MUP::insertable_list_pointer wlp ( short_obj_gen );
+	MUP::insertable_list_pointer
+	    wlp ( short_obj_gen );
 	min::start_vector ( wlp, 0 );
 	min::insert_reserve ( wlp, 1, 3, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
@@ -2150,7 +2161,8 @@ int main ()
 	// Vector[0] list now is
 	//	{ numtest, num100, {}, num102 }
 	//
-	MUP::insertable_list_pointer wslp = ( short_obj_gen );
+	MUP::insertable_list_pointer
+	    wslp ( short_obj_gen );
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
 	min::insert_reserve ( wslp, 1, 3, true );
@@ -2167,15 +2179,18 @@ int main ()
 	MIN_ASSERT ( min::current ( wslp ) == num100 );
 	MIN_ASSERT ( min::next ( wslp ) == num101 );
 	MIN_ASSERT ( min::next ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	MIN_ASSERT ( min::next ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( min::next ( wlp ) == num100 );
-	MIN_ASSERT ( min::is_sublist ( min::next ( wlp ) ) );
+	MIN_ASSERT
+	    ( min::is_sublist ( min::next ( wlp ) ) );
 
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
@@ -2184,7 +2199,8 @@ int main ()
 	MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
 	min::refresh ( wlp );
 	MIN_ASSERT ( min::current ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	// Vector[0] list now is
 	//	{ numtest, num100,
@@ -2194,14 +2210,16 @@ int main ()
 	min::start_sublist ( wslp );
 	MIN_ASSERT ( min::current ( wslp ) == num100 );
 	MIN_ASSERT ( min::next ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
 	MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
 	min::refresh ( wlp );
 	MIN_ASSERT ( min::current ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	// Vector[0] list now is
 	//	{ numtest, num100,
@@ -2210,7 +2228,8 @@ int main ()
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
 	MIN_ASSERT ( min::current ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
@@ -2224,28 +2243,33 @@ int main ()
 	MIN_ASSERT (    min::current ( wlp )
 	             == min::EMPTY_SUBLIST );
 	MIN_ASSERT ( min::next ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( 3 == min::remove ( wlp, 3 ) );
 	MIN_ASSERT ( min::current ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	// Vector[0] list now is { num102 }
 	//
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( min::current ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( 1 == min::remove ( wlp, 3 ) );
-	MIN_ASSERT ( min::current ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::current ( wlp ) == min::LIST_END );
 
 	// Vector[0] list now is { }
 	//
 	min::start_vector ( wlp, 0 );
-	MIN_ASSERT ( min::current ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::current ( wlp ) == min::LIST_END );
 
 	// Repeat the above using aux area.
 
@@ -2257,7 +2281,8 @@ int main ()
 	     << min::unused_area_size_of ( so ) << endl;
 	vbody[vorg+0] = numtest;
 	min::start_vector ( lp, 0 );
-	MIN_ASSERT ( min::current ( lp ) == vbody[vorg+0] );
+	MIN_ASSERT
+	    ( min::current ( lp ) == vbody[vorg+0] );
 
 	min::start_vector ( wlp, 0 );
 	min::insert_reserve ( wlp, 1, 3, true );
@@ -2293,15 +2318,18 @@ int main ()
 	MIN_ASSERT ( min::current ( wslp ) == num100 );
 	MIN_ASSERT ( min::next ( wslp ) == num101 );
 	MIN_ASSERT ( min::next ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	MIN_ASSERT ( min::next ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( min::next ( wlp ) == num100 );
-	MIN_ASSERT ( min::is_sublist ( min::next ( wlp ) ) );
+	MIN_ASSERT
+	    ( min::is_sublist ( min::next ( wlp ) ) );
 
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
@@ -2310,7 +2338,8 @@ int main ()
 	MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
 	min::refresh ( wlp );
 	MIN_ASSERT ( min::current ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	// Vector[0] list now is
 	//	{ numtest, num100,
@@ -2320,14 +2349,16 @@ int main ()
 	min::start_sublist ( wslp );
 	MIN_ASSERT ( min::current ( wslp ) == num100 );
 	MIN_ASSERT ( min::next ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
 	MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
 	min::refresh ( wlp );
 	MIN_ASSERT ( min::current ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	// Vector[0] list now is
 	//	{ numtest, num100,
@@ -2336,7 +2367,8 @@ int main ()
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
 	MIN_ASSERT ( min::current ( wslp ) == num102 );
-	MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wslp ) == min::LIST_END );
 
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
@@ -2350,28 +2382,33 @@ int main ()
 	MIN_ASSERT (    min::current ( wlp )
 	             == min::EMPTY_SUBLIST );
 	MIN_ASSERT ( min::next ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( 3 == min::remove ( wlp, 3 ) );
 	MIN_ASSERT ( min::current ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	// Vector[0] list now is { num102 }
 	//
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( min::current ( wlp ) == num102 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( 1 == min::remove ( wlp, 3 ) );
-	MIN_ASSERT ( min::current ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::current ( wlp ) == min::LIST_END );
 
 	// Vector[0] list now is { }
 	//
 	min::start_vector ( wlp, 0 );
-	MIN_ASSERT ( min::current ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::current ( wlp ) == min::LIST_END );
 
 	cout << "USIZE AFTER USING AUX "
 	     << min::unused_area_size_of ( so ) << endl;
@@ -2383,7 +2420,8 @@ int main ()
 
 	vbody[vorg+0] = numtest;
 	min::start_vector ( lp, 0 );
-	MIN_ASSERT ( min::current ( lp ) == vbody[vorg+0] );
+	MIN_ASSERT
+	    ( min::current ( lp ) == vbody[vorg+0] );
 
 	min::gen num103 = min::new_num_gen ( 103 );
 	min::gen num104 = min::new_num_gen ( 104 );
@@ -2409,7 +2447,8 @@ int main ()
 	//	  num107 }		In aux area
 
 
-        MIN_ASSERT ( min::unused_area_size_of ( so ) == 0 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( so ) == 0 );
 	min::gen tmpv [20];
 	min::start_vector ( wlp, 0 );
 	min::insert_reserve ( wlp, 1, 2, true );
@@ -2419,24 +2458,29 @@ int main ()
 	MIN_ASSERT ( min::next ( wlp ) == num100 );
 	MIN_ASSERT ( min::next ( wlp ) == num101 );
 	min::attribute_vector_pop ( so, tmpv, 3 );
-        MIN_ASSERT ( min::unused_area_size_of ( so ) == 3 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( so ) == 3 );
 	min::insert_reserve ( wlp, 1, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_after ( wlp, psplit, 2 );
-        MIN_ASSERT ( min::unused_area_size_of ( so ) == 0 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( so ) == 0 );
 	MIN_ASSERT ( min::next ( wlp ) == num104 );
 	min::insert_reserve ( wlp, 1, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_before ( wlp, pv + 2, 2 );
 	min::attribute_vector_pop ( so, tmpv, 3 );
-        MIN_ASSERT ( min::unused_area_size_of ( so ) == 3 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( so ) == 3 );
 	MIN_ASSERT ( min::next ( wlp ) == num107 );
 	min::insert_reserve ( wlp, 2, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_before ( wlp, pv + 5, 1 );
-        MIN_ASSERT ( min::unused_area_size_of ( so ) == 0 );
+        MIN_ASSERT
+	    ( min::unused_area_size_of ( so ) == 0 );
 	min::insert_before ( wlp, pv + 6, 1 );
-	MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+	MIN_ASSERT
+	    ( min::next ( wlp ) == min::LIST_END );
 
 	min::start_vector ( wlp, 0 );
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
@@ -2536,7 +2580,8 @@ int main ()
 	    ( min::next ( wllp ) == min::LIST_END );
 
 	cout << endl;
-	cout << "Finish Object List Level Test!" << endl;
+	cout << "Finish Object List Level Test!"
+	     << endl;
     }
 
 // Object Attribute Level
