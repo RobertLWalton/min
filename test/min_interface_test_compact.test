@@ -904,7 +904,7 @@ MUP::gc_expand_stub_free_list (1) called
 Test label hash:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-labhash1: ea5aabd8
+labhash1: 95375049
 
 Test labels:
 ../include/min.h:XXXX assert:

@@ -920,7 +920,7 @@ Start Labels Test!
 Test label hash:
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
-labhash1: ea5aabd8
+labhash1: 95375049
 
 Test labels:
 ../include/min.h:XXXX assert:
