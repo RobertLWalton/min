@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 14 08:57:28 EST 2009
+// Date:	Thu Jan 15 08:37:24 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/14 14:45:07 $
+//   $Date: 2009/01/15 13:54:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.124 $
+//   $Revision: 1.125 $
 
 // Table of Contents:
 //
@@ -33,7 +33,7 @@
 //	Numbers
 //	Strings
 //	Labels
-//	Atom Functions
+//	Name Functions
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -2347,11 +2347,12 @@ namespace min {
     }
 }
 
-// Atom Functions
+// Name Functions
 // ---- ---------
 
 namespace min {
-    inline bool is_atom ( min::gen v )
+
+    inline bool is_name ( min::gen v )
     {
         return min::is_num ( v )
 	       ||
