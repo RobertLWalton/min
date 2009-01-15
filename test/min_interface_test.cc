@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 14 09:33:43 EST 2009
+// Date:	Thu Jan 15 08:38:26 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/14 14:33:36 $
+//   $Date: 2009/01/15 13:54:58 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.70 $
+//   $Revision: 1.71 $
 
 // Table of Contents:
 //
@@ -1334,7 +1334,7 @@ int main ()
 	min::gen n1 = min::new_num_gen ( 12345 );
 	cout << "n1: " << print_gen ( n1 ) << endl;
 	MIN_ASSERT ( min::is_num ( n1 ) );
-	MIN_ASSERT ( min::is_atom ( n1 ) );
+	MIN_ASSERT ( min::is_name ( n1 ) );
 	MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
 	MIN_ASSERT ( min::float_of ( n1 ) == 12345 );
 	min::uns32 n1hash = min::numhash ( n1 );
@@ -1351,7 +1351,7 @@ int main ()
 	    cout << "n2: " << print_gen ( n2 ) << endl;
 #	endif
 	MIN_ASSERT ( min::is_num ( n2 ) );
-	MIN_ASSERT ( min::is_atom ( n2 ) );
+	MIN_ASSERT ( min::is_name ( n2 ) );
 	MIN_ASSERT ( min::float_of ( n2 ) == 1.2345 );
 	min::uns32 n2hash = min::numhash ( n2 );
 	cout << "n2hash: " << hex << n2hash << dec
@@ -1368,7 +1368,7 @@ int main ()
 	    cout << "n3: " << print_gen ( n3 ) << endl;
 #	endif
 	MIN_ASSERT ( min::is_num ( n3 ) );
-	MIN_ASSERT ( min::is_atom ( n3 ) );
+	MIN_ASSERT ( min::is_name ( n3 ) );
 	MIN_ASSERT ( min::int_of ( n3 ) == 1 << 30 );
 	MIN_ASSERT ( min::float_of ( n3 ) == 1 << 30 );
 	min::uns32 n3hash = min::numhash ( n3 );
@@ -1495,22 +1495,22 @@ int main ()
 	             == strgen13 );
 
 	MIN_ASSERT ( min::is_str ( strgen3 ) );
-	MIN_ASSERT ( min::is_atom ( strgen3 ) );
+	MIN_ASSERT ( min::is_name ( strgen3 ) );
 	MIN_ASSERT ( min::is_direct_str ( strgen3 ) );
 	MIN_ASSERT ( min::is_str ( strgen7 ) );
-	MIN_ASSERT ( min::is_atom ( strgen7 ) );
+	MIN_ASSERT ( min::is_name ( strgen7 ) );
 	MIN_ASSERT ( min::is_stub ( strgen7 ) );
 	min::stub * stub7 = MUP::stub_of ( strgen7 );
 	MIN_ASSERT (    min::type_of ( stub7 )
 	             == min::SHORT_STR );
 	MIN_ASSERT ( min::is_str ( strgen8 ) );
-	MIN_ASSERT ( min::is_atom ( strgen8 ) );
+	MIN_ASSERT ( min::is_name ( strgen8 ) );
 	MIN_ASSERT ( min::is_stub ( strgen8 ) );
 	min::stub * stub8 = MUP::stub_of ( strgen8 );
 	MIN_ASSERT (    min::type_of ( stub8 )
 	             == min::SHORT_STR );
 	MIN_ASSERT ( min::is_str ( strgen13 ) );
-	MIN_ASSERT ( min::is_atom ( strgen13 ) );
+	MIN_ASSERT ( min::is_name ( strgen13 ) );
 	MIN_ASSERT ( min::is_stub ( strgen13 ) );
 	min::stub * stub13 = MUP::stub_of ( strgen13 );
 	MIN_ASSERT (    min::type_of ( stub13 )
@@ -1637,7 +1637,7 @@ int main ()
 	cout << "Test labels:" << endl;
 	min::gen lab = min::new_lab_gen ( labv1, 3 );
 	MIN_ASSERT ( min::is_lab ( lab ) );
-	MIN_ASSERT ( min::is_atom ( lab ) );
+	MIN_ASSERT ( min::is_name ( lab ) );
 	MIN_ASSERT ( min::is_stub ( lab ) );
 	min::stub * s = min::stub_of ( lab );
 	MIN_ASSERT ( min::labhash ( s ) == labhash1 );

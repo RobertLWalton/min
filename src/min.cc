@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan  7 23:06:46 EST 2009
+// Date:	Thu Jan 15 08:37:45 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/08 05:33:51 $
+//   $Date: 2009/01/15 13:54:13 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.64 $
+//   $Revision: 1.65 $
 
 // Table of Contents:
 //
@@ -383,7 +383,7 @@ min::uns32 min::labhash
     min::uns32 hash = 0;
     while ( n -- )
     {
-        MIN_ASSERT ( min::is_atom ( * p ) );
+        MIN_ASSERT ( min::is_name ( * p ) );
         hash = lab_multiplier * hash
 	     + min::hash ( * p ++ );
     }

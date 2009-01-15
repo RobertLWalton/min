@@ -599,7 +599,7 @@ n1: e8003039
 min_interface_test.cc:XXXX assert:
     min::is_num ( n1 ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( n1 ) true.
+    min::is_name ( n1 ) true.
 min_interface_test.cc:XXXX assert:
     min::int_of ( n1 ) == 12345 true.
 min_interface_test.cc:XXXX assert:
@@ -615,7 +615,7 @@ MUP::gc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_num ( n2 ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( n2 ) true.
+    min::is_name ( n2 ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::NUMBER true.
 min_interface_test.cc:XXXX assert:
@@ -635,7 +635,7 @@ MUP::gc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_num ( n3 ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( n3 ) true.
+    min::is_name ( n3 ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::NUMBER true.
 ../include/min.h:XXXX assert:
@@ -736,13 +736,13 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_str ( strgen3 ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( strgen3 ) true.
+    min::is_name ( strgen3 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_direct_str ( strgen3 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_str ( strgen7 ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( strgen7 ) true.
+    min::is_name ( strgen7 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( strgen7 ) true.
 min_interface_test.cc:XXXX assert:
@@ -750,7 +750,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_str ( strgen8 ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( strgen8 ) true.
+    min::is_name ( strgen8 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( strgen8 ) true.
 min_interface_test.cc:XXXX assert:
@@ -758,7 +758,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_str ( strgen13 ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( strgen13 ) true.
+    min::is_name ( strgen13 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( strgen13 ) true.
 min_interface_test.cc:XXXX assert:
@@ -916,7 +916,7 @@ MUP::gc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
-    min::is_atom ( lab ) true.
+    min::is_name ( lab ) true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( lab ) true.
 ../include/min.h:XXXX assert:
