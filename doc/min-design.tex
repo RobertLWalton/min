@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 12, 2009}
+\date{January 15, 2009}
  
 \maketitle
 
@@ -608,7 +608,7 @@ interpretations in different contexts.
 A \key{special value} is a unique value that has some
 special meaning.  \verb|min::MISSING|, for example, is a special
 value that may be input or output to indicate that data is missing,
-and \verb|min::NONE| is a special value used only internally to
+and \verb|min::NONE| is a special value used only to
 indicate that a function argument or result does not exist.
 
 There are two kinds of MIN implementation: `\key{compact}' and
@@ -1149,24 +1149,24 @@ part of the subtype code.
 \verb|min::GEN_ILLEGAL| is returned by this function if the \verb|min::gen|
 value is not a legal general value.
 
-There are a few general value functions that concern atoms.  An \key{atom}
-is an immutable value that has a hash value, so that an atom can be
-used as a hash table index.
+There are a few general value functions that concern atoms.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{is\_atom}\verb| ( min::gen v )|
-\LABEL{MIN::IS_ATOM} \\
+\verb|bool min::| & \MINKEY{is\_name}\verb| ( min::gen v )|
+\LABEL{MIN::IS_NAME} \\
 \verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
 \LABEL{MIN::HASH} \\
 \end{tabular}\end{center}
 
-The \verb|min::is_atom| function returns true if and only if its argument is
-an atom, which is defined as either
+The \verb|min::is_name| function returns true if and only if its argument is
+an immutable value that has a hash value and therefore can be used as
+a \key{name component}.  More specifically,
+\verb|min::is_name| returns true if and only if its argument is
 a number (\secref{NUMBERS}),
 a string (\secref{STRINGS}),
-or label (\secref{LABELS}).
+or a label (\secref{LABELS}).
 The \verb|min::hash| function returns a non-zero hash value if its argument
-is an atom, and returns zero otherwise.
+is usable as a name component, and returns zero otherwise.
 
 
 \subsection{Body Pointers}
@@ -1940,20 +1940,23 @@ chain pointers.
 
 Attribute labels are often atoms, i.e., single strings or numbers.
 But they may be sequences of atoms.  Such sequences are represented by
-\key{label} stubs.\footnote{Labels could also be represented by
+\skey{label}s.\footnote{Labels could also be represented by
 sublists stored inside objects (\pagref{LIST-LEVEL}), but each label tends to
 be reused by many objects, and storing it inside each using object
 would be inefficient.  In addition labels are useful as function arguments.}
+Labels may also be elements of other labels.
 
-A label is essentially just a vector of atoms, with the special
-property that no two distinct label stubs may have equal vectors of
-atoms.  However, the vector may be stored in a chain of stubs,
+A label is essentially just a vector of name components, where a name
+component is an atom or a label.  However, labels are immutable and
+have the property that no two distinct label stubs may have equal vectors of
+name components.  
+
+A label vector may be stored in a chain of stubs,
 and not in a body.  The exact manner in which the vector is stored is
-hidden from the user.  Atoms which are elements of a label are represented
-by \verb|min::gen| general values.
+hidden from the user.  
 
 Note that a label of one element
-is distinct from the element itself, even though both have the same
+is distinct from the element itself and has a different
 hash code.  Also note that labels can be elements of labels.  A programming
 language may wish to require that the elements of labels be numbers or
 strings, that numbers and strings be treated as labels of one element,
@@ -2011,12 +2014,12 @@ The hash value of a label may be computed by the following functions:
 
 The last function computes the hash value for a label that could be created
 from the given vector {\tt p} of {\tt n} general values, where each
-general value is an atom.  The hash of a label is computed from
-the hash of each of its atoms using the following
+general value is a name component.  The hash of a label is computed from
+the hash of each of its elements using the following
 machine independent algorithm:\label{LABEL-HASH-ALGORITHM}
 
 \begin{indpar}\begin{verbatim}
-hash = 0
+hash = 1009
 n = length of label
 for i = 1 through n:
     h = hash of i'th element of label
@@ -2026,13 +2029,14 @@ if hash = 0, then hash = 2**32 - 1
 
 Comparing this with the hash algorithm for strings
 on \pagref{HASH-ALGORITHM}, one sees that as long as
-atoms are numbers and strings of fewer than 10 characters,
+label elements are numbers and strings of fewer than 10 characters,
 the hash of a label is equivalent to the hash of the
-string made by concatenating its elements, where each
+string made by concatenating a prefix and then the label elements, where each
 string of fewer than 10 characters is padded to 10 characters
 by prefacing it with NUL characters.  Note that
 numbers are treated as 8 character strings; see
-\pagref{NUMBER-HASH-ALGORITHM}.
+\pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 character string with
+hash value {\tt 1009}.
 
 A label may be created by the following protected function:
 
@@ -2044,7 +2048,7 @@ A label may be created by the following protected function:
 
 Here {\tt p} must point to a vector of {\tt n} \verb|min::gen|
 values that becomes the value vector of the label.  Each
-\verb|min::gen| value must be an atom.
+\verb|min::gen| value must be a name component.
 This function returns any existing label with elements equal to
 those given by the function arguments, in preference to creating a new
 label.  Thus two \verb|min::gen| label values with equal elements are
@@ -2088,7 +2092,7 @@ multi-set.  It is possible to delete the entire multi-set.
 It is possible to treat the multi-set as a set, by adding a value
 to it only if the value does not already occur in the multi-set.
 When testing for value equality, {\tt ==} is used, as this tests for
-equality of both atoms and objects.
+equality of both name components and objects.
 
 Flags, called \key{attribute flags}, can be attached to an attribute name.
 Note that flags are attached to object attribute names, and not to arrows,
@@ -2756,7 +2760,8 @@ The {\tt start\_hash} function positions a list pointer at the beginning of the
 list whose head is at the given index within the hash table, treating the
 hash table as a vector.  This function returns the value of the first
 element of the list, or returns {\tt min::LIST\_END} if the list is empty.
-The index is usually the hash value of an atom (number, string, or label),
+The index is usually the hash value of a name component
+(number, string, or label),
 modulo the size of the hash table,
 but exactly how the index is computed is not determined by the object
 list level.  Index 0 refers to the first element of the
@@ -3097,11 +3102,12 @@ is transformed into an insertion after the list's single element.
 
 As an optimization, \skey{object auxiliary stub}s\index{auxiliary stub!object}
 can be used instead of object
-auxiliary area elements.  Object auxiliary stubs are a way of adding elements to
+auxiliary area elements.  Object auxiliary stubs are a way of adding
+list elements to
 an object whose unused area has been exhausted, without relocating the
 object, and are considered to be \skey{extension}s of the object.
 If the object is later relocated, it can be reorganized to
-eliminate the use of object auxiliary stubs extending the object
+eliminate the use of any object auxiliary stubs that extend the object
 by moving information from these into a new larger object auxiliary area.
 
 The code implementing object auxiliary stubs can be compiled into a program
@@ -3233,21 +3239,22 @@ object auxiliary stubs would be for debugging.
 
 At the \key{attribute level}, the object is a map from attribute names
 to attribute flags and from attribute name/reverse-name pairs to
-multi-sets of values.  This map is stored in a set of lists which
+multi-sets of values.  Here names are sequences of name components, which are
+numbers, strings, or labels.  The object map is stored in a set of lists which
 are entries in the hash table or attribute vector.  These lists have
 the syntax:
 
 \begin{center}
 \begin{tabular}{l}
-\emkey{hash-table-entry} ::= {\em map-sublist}
+\emkey{hash-table-entry} ::= {\em map-list}
 \\[1ex]
 \emkey{attribute-vector-entry} ::= {\em segment-entry}
 \\[1ex]
-\emkey{map-sublist} ::= {\em map-pair}$^\star$
+\emkey{map-list} ::= {\em map-pair}$^\star$
 \\[1ex]
 \emkey{map-pair} ::= {\em name-component } {\em segment-entry}
 \\[1ex]
-\emkey{name-component} ::= {\em atom }
+\emkey{name-component} ::= {\em number } $|$ {\em string} $|$ {\em label}
 \\[1ex]
 \emkey{segment-entry} ::= {\em value} $|$ {\em segment-sublist}
 \\[1ex]
@@ -3255,54 +3262,88 @@ the syntax:
     \begin{tabular}[t]{@{}r@{~}l@{}}
     ::= & {\em flag-set}
 	  {\em value}$^\star$ \\
-    $|$ & {\em map-sublist}
-	  {\em reverse-attribute-map-sublist-option}
+    $|$ & {\em child-sublist}
+	  {\em reverse-child-sublist-option}
 	  {\em flag-set}
 	  {\em value}$^\star$ \\
     \end{tabular}
 \\[1ex]
+\emkey{child-sublist} ::= {\em map-pair}$^\star$
+\\[1ex]
+\emkey{reverse-child-sublist} ::= {\em map-pair}$^\star$
+\\[1ex]
 \emkey{flag-set} ::= {\em control-code}$^\star$
 \\[1ex]
-\emkey{value} ::= {\em atom} $|$ {\em object} $|$ {\em label} $|$ {\em index}
-\\[1ex]
-\emkey{reverse-attribute-map-sublist} ::= {\em map-pair}$^\star$
+\emkey{value} ::= {\em number} $|$ {\em string} $|$ {\em label}
+              $|$ {\em object} $|$ {\em index}
 \end{tabular}
 \end{center}
 
 Here the syntactic categories represent \verb|min::gen| values or lists
 of \verb|min::gen| values in the sense of the object list level.
 
-An {\em atom} is a \verb|min::gen| value representing a number or string,
-a {\em control-code} is a \verb|min::gen| control code value,
-an {\em object} is a \verb|min::gen| value pointing at an object stub,
-a {\em label} is a \verb|min::gen| value pointing at a label stub,
-and an {\em index} is a \verb|min::gen| index value.
-All these are list elements but not lists.
-
-An {\em X-list} is a list, in the sense of the object list level.
+An {\em X-list} is a list, in the sense of the object list level.  Thus
+a {\em hash-table-entry} is a {\em map-list} which is a list.
 
 An {\em X-sublist} is a sublist, in the sense of the object list level, which
-is to say it is a list that is an element of another list.
+is to say it is a list that is an element of another list.  Thus
+{\em segment-sublists} and {\em map-sublists} are sublists.
+
+A {\em value} is a list element, and is an {\em number}, {\em string},
+{\em label}, {\em object}, or {\em index}.
+
+Everything else is a sequence of elements in some list or sublist.
+{\em Map-pairs} are sequences of two elements.
+{\em Flag-sets} are sequences of {\em control-codes}.
+A {\em control-code} is a \verb|min::gen| control code value.
 
 An {\em X-option} is an optional element of a list that is an {\em X} if
 it is not omitted.
 
-The capability of omitting {\em map-sublists} at the beginning of a
-{\em segment-sublist} is an optimization.  An omitted
-{\em map-sublist} is equivalent
-to an empty {\em map-sublist}.  If only one {\em map-sublist} is a
-omitted, it must be the {\em reverse-attribute-map-sublist} that is
-omitted, to avoid ambiguity.
+The object map represents a tree whose root is the object and whose
+other nodes are represented by {\em map-pairs}.  Each {\em map-pair}
+assigns a {\em name-component} and a {\em segment-entry} to its
+node.  The {\em segment-entry} assigns to the node a list of {\em values},
+a {\em flag-set}, and optionally a {\em map-sublist} that represents
+the children of the node, and a {\em reverse-child-sublist}
+that also represents a different kind of children of the node.
 
-An object is represented by a map that maps attribute names to flags and
-multi-sets of values and maps attribute name/reverse name pairs to multi-sets
-of values.
-This map is based on the following search algorithm, which starts from
-an attribute name and an optional reverse attribute name, and returns
-a set of flags and a set of values.  Note that if no reverse attribute
-name is given, only values \underline{not}
-associated with \underline{any} reverse attribute name are returned by
-this search algorithm.
+An attribute name corresponds
+to the node reached from the root by going successively to the children
+named by the {\em name-components} in the attribute name.
+An element of the object's has table is a {\em hash-table-entry}
+that is a {\em map-list} that lists the children of the root whose
+{\em name-components} hash to the hash table element and are not
+also legal attribute vector indices.  An element of the attribute vector
+is the {\em segment-value} for a child of the root whose {\em name-component}
+is the index of the element in the attribute vector.
+
+
+An attribute
+name/reverse attribute name pair is handled as if the attribute name
+were followed by the reverse attribute name, but at the junction of the
+two names a switch is made between normal node children represented by
+the {\em child-sublist} and reverse attribute name children represented by
+the {\em reverse-child-sublist}.
+
+So a {\em hash-table-entry} is a {\em map-list} which is a
+list of elements that alternate between {\em name-components} and
+{\em segment-entries}.  A {\em segment-entry} may be a {\em segment-sublist}
+that specifies {\em flag-sets} and {\em values}, and may also specify
+{\em map-sublists} that are like {\em map-lists} and give more
+{\em name-component}/{\em value} pairs.  There are various abbreviations.
+Although the general {\em segment-entry} is a {\em segment-sublist},
+if this sublist just has a single {\em value}, that {\em value}
+can used by itself as the {\em segment-entry}.
+Either both the {\em child-sublist} and {\em reverse-child-sublist}
+may be ommitted from a {\em segment-sublist},
+or just the {\em reverse-child-sublist} may be omitted.
+If only one {\em map-sublist} is a omitted,
+it must be the {\em reverse-child-sublist} that is omitted, to avoid ambiguity.
+
+Given the above, the following search algorithm may be used to find the
+multi-set of values and set of flags associated with an attribute name or
+with an attribute name/reverse name pair.
 
 \begin{enumerate}
 
@@ -3419,8 +3460,9 @@ The following are the basic protected functions that access attributes:
 
 The {\tt countg} function returns the number of values for a given
 object, attribute name, and reverse attribute name.  Attribute names
-and reverse attribute names can be atoms or attribute labels.  The
-reverse attribute name can also be the special value {\tt min::MISSING},
+and reverse attribute names can be atoms or labels.  An atom is
+treated as if it were a label with the atom as its only element.  The
+reverse attribute name can also be the special value {\tt min::NONE},
 in which case the count is returned of values with the attribute name
 with no reverse attribute name.  Or the reverse attribute name
 can be the special value {\tt min::ANY},
@@ -3455,11 +3497,11 @@ values are deleted.  The values are given in the {\tt in} vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
 
-If the reverse name argument to {\tt setg} is \verb|min::MISSING|,
+If the reverse name argument to {\tt setg} is \verb|min::NONE|,
 the values deleted or set represent single arrows.
 
 If the reverse name is not
-\verb|min::MISSING|, the values deleted or set may have reverse attribute
+\verb|min::NONE|, the values deleted or set may have reverse attribute
 names and represent double arrows.  In this case,
 let the object be $O_1$, the attribute name be $N$, and the reverse
 attribute name be $R$.  If a value $O_2$ is set (or deleted), the value
@@ -3499,18 +3541,18 @@ have, only one value:
 This version of the {\tt getg} function returns the single value $V$ if
 the set of values for object, attribute name, and reverse attribute name
 consists of a single value $V$.  If the set is empty, the special value
-\verb|min::MISSING| (\pagref{MIN::MISSING}) is returned,
+\verb|min::NONE| (\pagref{MIN::NONE}) is returned,
 and if the set has more than one value, the special value
 \verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) is returned.
-The reverse attribute name can be \verb|min::MISSING| or \verb|min::ANY|.
+The reverse attribute name can be \verb|min::NONE| or \verb|min::ANY|.
 
 This version of the {\tt setg} function deletes any previous values of
 the object, attribute name, and reverse attribute name,
 and makes the one value {\tt v} the only value of the object,
 attribute name, and reverse attribute name.  But if {\tt v} is
-\verb|min::MISSING|, all previous values are deleted and no values
+\verb|min::NONE|, all previous values are deleted and no values
 are added.  The reverse attribute name cannot be \verb|min::ANY| unless
-{\tt v} is \verb|min::MISSING|.
+{\tt v} is \verb|min::NONE|.
 
 
 The following functions may be used to add one value to the set of values of an
@@ -3538,7 +3580,7 @@ values if and only if {\tt v} is not already in the set,
 using {\tt ==} to compare values for equality.
 The {\tt add\_to\_multiset} function adds {\tt v} even if the
 value is already in the set.
-The reverse attribute name can be \verb|min::MISSING|
+The reverse attribute name can be \verb|min::NONE|
 but cannot be \verb|min::ANY|.
 
 The following functions may be used to set, or clear, or flip
@@ -3612,7 +3654,7 @@ For example, if the implementation defines {\tt min::gen} to be
 \item Functions\label{MIN::GEN_REPLACED_BY_MIN::STUB}
 which have {\tt reverse\_name} as a last argument
 have versions without this last argument, which act as
-if the value \verb|min::MISSING| were given to this argument.
+if the value \verb|min::NONE| were given to this argument.
 
 \item Functions\label{REVERSE_NAME_OMITTED}
 which have a \verb|min::gen| {\tt obj} argument also have
@@ -4591,8 +4633,8 @@ struct min
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|bool min::| & \MINKEY{is\_atom}\verb| ( min::gen v )|
-\LABEL{MIN::IS_ATOM} \\
+\verb|bool min::| & \MINKEY{is\_name}\verb| ( min::gen v )|
+\LABEL{MIN::IS_NAME} \\
 \verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
 \LABEL{MIN::HASH} \\
 \end{TABULAR}
