@@ -3684,6 +3684,7 @@ the functions with \verb|min::gen| {\tt name} argument have function
 names ending in `{\tt g}', whereas the functions with
 \verb|int| {\tt name} argument have names that are the same except the
 ending `{\tt g}' is replaced by `{\tt i}'.  Thus there are functions named
+\begin{indpar}\raggedright
 \minkey{counti},
 \minkey{geti},
 \minkey{count\_flagsi},
@@ -3691,8 +3692,16 @@ ending `{\tt g}' is replaced by `{\tt i}'.  Thus there are functions named
 \minkey{seti},
 \minkey{set\_\EOL flagsi},
 \minkey{add\_\EOL to\_\EOL seti},
+\minkey{add\_\EOL to\_\EOL multiseti},
+\minkey{set\_\EOL some\_\EOL flagsi},
+\minkey{clear\_\EOL some\_\EOL flagsi},
+\minkey{flip\_\EOL some\_\EOL flagsi},
+\minkey{test\_\EOL flagi},
+\minkey{set\_\EOL flagi},
+\minkey{clear\_\EOL flagi},
 and
-\minkey{add\_\EOL to\_\EOL multiseti}.\label{G_TO_I_VARIANTS}
+\minkey{flip\_\EOL flagi}.\label{G_TO_I_VARIANTS}
+\end{indpar}
 This is done as in many
 implementations \verb|int| may be implicitly convertible to \verb|min::gen|
 by an improper conversion that gives the wrong result.\footnote{
@@ -5556,7 +5565,6 @@ struct min
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::SETG} \\
-\LABEL{MIN::COUNT_FLAGSG} \\
 \verb|unsigned min::| & \MINKEY{count\_flagsg}\ARGBREAK
     \verb| ( min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
@@ -5638,13 +5646,17 @@ and name ending `{\tt g}' replaced by `{\tt i}' \\
 \verb|min::counti| & \verb|min::geti| \\
 \verb|min::count_flagsi| & \verb|min::get_flagsi| \\
 \verb|min::seti| & \verb|min::set_flagsi| \\
-\verb|min::add_to_seti| & \verb|min::add_to_multiseti|
+\verb|min::add_to_seti| & \verb|min::add_to_multiseti| \\
+\verb|min::set_some_flagsi| & \verb|min::clear_some_flagsi| \\
+\verb|min::flip_some_flagsi| \\
+\verb|min::test_flagi| & \verb|min::set_flagi| \\
+\verb|min::clear_flagi| & \verb|min::flip_flagi| \\
 \end{tabular}
 \LABEL{G_TO_I_VARIANTS} \\[1ex]
 \verb|min::gen obj| replaced by \verb|min::stub * obj|
 \LABEL{MIN::GEN_REPLACED_BY_MIN::STUB} \\[1ex]
 \verb|min::gen reverse_name| omitted\\
-(implicitly equal to \verb|min::MISSING|)
+(implicitly equal to \verb|min::NONE|)
 \LABEL{REVERSE_NAME_OMITTED}
 \end{tabular}
 
