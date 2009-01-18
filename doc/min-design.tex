@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 16, 2009}
+\date{January 18, 2009}
  
 \maketitle
 
@@ -3237,28 +3237,27 @@ object auxiliary stubs would be for debugging.
 \subsubsection{Object Attribute Level}
 \label{OBJECT-ATTRIBUTE-LEVEL}
 
-At the \key{attribute level}, the object is a map from attribute names
-to attribute flags and from attribute name/reverse-name pairs to
-multi-sets of values.  Here names are sequences of name components, which are
+At the \key{attribute level}, the object is a map attribute name/reverse-name
+pairs to flags and multi-sets of values.
+Here names are sequences of name components, which are
 numbers, strings, or labels.  The object map is stored in a set of lists which
 are entries in the hash table or attribute vector.  These lists have
 the syntax:
 
-\begin{center}
-\begin{tabular}{l}
+\begin{indpar}
 \emkey{hash-table-entry} ::= {\em map-list}
 \\[1ex]
-\emkey{attribute-vector-entry} ::= {\em segment-entry}
+\emkey{attribute-vector-entry} ::= {\em node-descriptor}
 \\[1ex]
 \emkey{map-list} ::= {\em map-pair}$^\star$
 \\[1ex]
-\emkey{map-pair} ::= {\em name-component } {\em segment-entry}
+\emkey{map-pair} ::= {\em name-component } {\em node-descriptor}
 \\[1ex]
 \emkey{name-component} ::= {\em number } $|$ {\em string} $|$ {\em label}
 \\[1ex]
-\emkey{segment-entry} ::= {\em value} $|$ {\em segment-sublist}
+\emkey{node-descriptor} ::= {\em value} $|$ {\em node-sublist}
 \\[1ex]
-\emkey{segment-sublist}
+\emkey{node-sublist}
     \begin{tabular}[t]{@{}r@{~}l@{}}
     ::= & {\em flag-set}
 	  {\em value}$^\star$ \\
@@ -3276,8 +3275,7 @@ the syntax:
 \\[1ex]
 \emkey{value} ::= {\em number} $|$ {\em string} $|$ {\em label}
               $|$ {\em object} $|$ {\em index}
-\end{tabular}
-\end{center}
+\end{indpar}
 
 Here the syntactic categories represent \verb|min::gen| values or lists
 of \verb|min::gen| values in the sense of the object list level.
@@ -3287,7 +3285,7 @@ a {\em hash-table-entry} is a {\em map-list} which is a list.
 
 An {\em X-sublist} is a sublist, in the sense of the object list level, which
 is to say it is a list that is an element of another list.  Thus
-{\em segment-sublists} and {\em child-sublists} are sublists.
+{\em node-sublists} and {\em child-sublists} are sublists.
 
 A {\em value} is a list element that is not a sublist,
 and is an {\em number}, {\em string},
@@ -3303,29 +3301,37 @@ it is not omitted.
 
 The object map represents a tree whose root is the object and whose
 other nodes are represented by {\em map-pairs}.  Each {\em map-pair}
-assigns a {\em name-component} and a {\em segment-entry} to its
-node.  The {\em segment-entry} assigns to the node a list of {\em values},
+assigns a {\em name-component} and a {\em node-descriptor} to its
+node.  The {\em node-descriptor} assigns to the node a list of {\em values},
 a {\em flag-set}, and optionally a {\em child-sublist} that represents
 the children of the node, and a {\em reverse-child-sublist}
 that also represents a different kind of children of the node.
+Both the {\em child-sublist} and {\em reverse-child-sublist},
+or just the latter, may be omitted to optimize storage.  If a
+{\em node-descriptor} consists of a single {\em value} and nothing else,
+it can be replaced by that {\em value}, to optimize storage.
 
 An attribute name is a sequence of {\em name-components} and corresponds
 to the node reached from the root by going successively to the children
-named by the successive elements of the attribute name.
-An element of the object's hash table is a {\em hash-table-entry}
-that is a {\em map-list} that lists the children of the root whose
-{\em name-components} hash values equal the vector index of the hash
-table element in the hash table element,
-modulo the length of the hash table.
-An element of the attribute vector
-is the {\em segment-value} for a child of the root whose {\em name-component}
-is the vector index of the element in the attribute vector.
-If the {\em name-component} of a child of the object root is an integer
-within range to be a vector index of an attribute vector element,
-that child is defined by the attribute vector element, and not by
-a hash table element {\em map-pair}.
+named by the successive elements of the attribute name.  An element of
+the object's hash table is a
+{\em hash-table-entry} which is a {\em map-list} whose
+elements alternate between {\em name-components} and
+{\em node-descriptors}.  Each {\em name-component} and following
+{\em node-descriptor} constitute a {\em map-pair} which describes a node
+that is a child of the object root.
+A {\em node-descriptor} may be a {\em node-sublist}
+that specifies {\em flag-sets} and {\em values}, and may also specify
+{\em child-sublists} and {\em reverse-child-lists}
+that are like {\em map-lists} and describe the children of the node.
 
-
+If a child of the object root has a {\em name-component} that
+is a natural number that is a legal index in the object's attribute
+vector, the child is described by giving just its {\em node-descriptor}
+in the attribute vector element indexed by the child's {\em name-component}.
+Otherwise a {\em map-pair} describing the child is placed in the
+{\em hash-table-entry} whose index in the object's hash table equals the
+{\em name-component's} hash value modulo the length of the hash table.
 
 An attribute
 name/reverse attribute name pair is handled as if the attribute name
@@ -3335,21 +3341,6 @@ the {\em child-sublist} and reverse attribute name children represented by
 the {\em reverse-child-sublist}.  The nodes that are only accessible
 using a reverse attribute name have {\em value} lists, {\em flag-sets},
 and {\em child-sublists}, but may not have {\em reverse-child-sublists}.
-
-So a {\em hash-table-entry} is a {\em map-list} which is a
-list of elements that alternate between {\em name-components} and
-{\em segment-entries}.  A {\em segment-entry} may be a {\em segment-sublist}
-that specifies {\em flag-sets} and {\em values}, and may also specify
-{\em child-sublists} that are like {\em map-lists} and give more
-{\em name-component}/{\em value} pairs.  There are various abbreviations.
-Although the general {\em segment-entry} is a {\em segment-sublist},
-if this sublist just has a single {\em value}, that {\em value}
-can used by itself as the {\em segment-entry}.
-Either both the {\em child-sublist} and {\em reverse-child-sublist}
-may be omitted from a {\em segment-sublist},
-or just the {\em reverse-child-sublist} may be omitted.
-If only one {\em child-sublist} is a omitted,
-it must be the {\em reverse-child-sublist} that is omitted, to avoid ambiguity.
 
 Given the above, the following search algorithm may be used to find the
 multi-set of values and set of flags associated with an attribute name or
@@ -3363,7 +3354,7 @@ with an attribute name/reverse name pair.
 
 \item If $C$ is an integer from 1 through the size of the attribute
 vector, inclusive, let $E$ be the attribute vector entry with index $C$
-($E$ is a {\em segment-entry}) and go to step 6.
+($E$ is a {\em node-descriptor}) and go to step 6.
 
 \item Otherwise let $H$ be the hash value of $C$ modulo the size of
 the hash table.  Let $M$ be the hash table entry with index $H$.
@@ -3371,15 +3362,15 @@ the hash table.  Let $M$ be the hash table entry with index $H$.
 \item $M$ is a {\em child-sublist}.  Look through the {\em map-pairs} in this
 list for one whose {\em name-component} equals $C$.  If none is found,
 the search fails.
-If one is found, let $E$ be the {\em segment-entry} part of the {\em map-pair}.
+If one is found, let $E$ be the {\em node-descriptor} part of the {\em map-pair}.
 
-\item $E$ is a {\em segment-entry}. If $E$ is a {\em value}, and not a sublist,
+\item $E$ is a {\em node-descriptor}. If $E$ is a {\em value}, and not a sublist,
 the search terminates as follows.
 If $C$ is not the last name component of $N$, or $N$ is the attribute name
 and the reverse attribute name has been given, then the search fails.
 Otherwise the search returns no flags and returns $E$ as a single value.
 
-\item $E$ must be a {\em segment-sublist}.
+\item $E$ must be a {\em node-sublist}.
 If $C$ is the last component of $N$, and $N$ is the reverse attribute
 name or no reverse attribute name was given, the search terminates.
 Any sublists beginning $E$ are skipped over (these will be {\em child-sublists}
@@ -3407,7 +3398,7 @@ beginning $E$, and go to step 5.
 \end{enumerate}
 
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
-are represented by a {\em flag-set} in an {\em segment-sublist}.
+are represented by a {\em flag-set} in an {\em node-sublist}.
 The {\em flag-set} is a sequence of \verb|min::gen|
 control codes.
 
