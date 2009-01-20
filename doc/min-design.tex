@@ -3242,14 +3242,67 @@ pairs to flags and multi-sets of values.
 Here names are sequences of name components, which are
 numbers, strings, or labels.  The object map is stored in a set of lists which
 are entries in the hash table or attribute vector.  These lists have
-the syntax:
+one of two syntaxes depending upon the setting of the following macro:
+
+\begin{center}
+\begin{tabular}{l}
+\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS} \\
+~~~~~ 1 if partial attribute labels are supported; \\
+~~~~~ 0 if partial attribute labels are not supported.
+\LABEL{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS} \\
+\end{tabular}
+\end{center}
+
+If partial attribute labels are supported, the attribute name given to
+a read function may be too long, and the read function will use only an
+initial segment of that name, returning the length of that segment
+along with the values and flags associated with that segment.
+
+If partial attribute names are \underline{not} supported
+the object lists have the syntax:
+
+\begin{indpar}
+\emkey{hash-table-entry} ::= {\em map-list}
+\\[1ex]
+\emkey{attribute-vector-entry} ::= {\em vector-list}
+\\[1ex]
+\emkey{map-list} ::= {\em map-pair}$\,^\star$
+\\[1ex]
+\emkey{vector-list} ::= {\em attribute-descriptor} {\em map-pair}$\,^\star$
+\\[1ex]
+\emkey{map-pair} ::= {\em attribute-name } {\em attribute-descriptor}
+\\[1ex]
+\emkey{attribute-name} ::= {\em atom } $|$ {\em label}
+\\[1ex]
+\emkey{attribute-descriptor} ::= {\em value} $|$ {\em attribute-sublist}
+\\[1ex]
+\emkey{attribute-sublist} ::=
+    {\em double-arrow-map-sublist-option} {\em flag-set} {\em value}$\,^\star$
+\\[1ex]
+\emkey{double-arrow-map-sublist} ::= {\em double-arrow-map-pair}$\,^\star$
+\\[1ex]
+\emkey{double-arrow-map-pair} ::=
+    {\em reverse-attribute-name } {\em value-set-descriptor}
+\\[1ex]
+\emkey{reverse-attribute-name} ::= {\em atom } $|$ {\em label}
+\\[1ex]
+\emkey{value-set-descriptor} ::= {\em value} $|$ {\em value-sublist}
+\\[1ex]
+\emkey{value-sublist} ::= {\em value}$\,^\star$
+\\[1ex]
+\emkey{flag-set} ::= {\em control-code}$\,^\star$
+\\[1ex]
+\emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object} $|$ {\em index}
+\end{indpar}
+
+TBD
 
 \begin{indpar}
 \emkey{hash-table-entry} ::= {\em map-list}
 \\[1ex]
 \emkey{attribute-vector-entry} ::= {\em node-descriptor}
 \\[1ex]
-\emkey{map-list} ::= {\em map-pair}$^\star$
+\emkey{map-list} ::= {\em map-pair}$\,^\star$
 \\[1ex]
 \emkey{map-pair} ::= {\em name-component } {\em node-descriptor}
 \\[1ex]
@@ -3260,18 +3313,18 @@ the syntax:
 \emkey{node-sublist}
     \begin{tabular}[t]{@{}r@{~}l@{}}
     ::= & {\em flag-set}
-	  {\em value}$^\star$ \\
+	  {\em value}$\,^\star$ \\
     $|$ & {\em child-sublist}
 	  {\em reverse-child-sublist-option}
 	  {\em flag-set}
-	  {\em value}$^\star$ \\
+	  {\em value}$\,^\star$ \\
     \end{tabular}
 \\[1ex]
-\emkey{child-sublist} ::= {\em map-pair}$^\star$
+\emkey{child-sublist} ::= {\em map-pair}$\,^\star$
 \\[1ex]
-\emkey{reverse-child-sublist} ::= {\em map-pair}$^\star$
+\emkey{reverse-child-sublist} ::= {\em map-pair}$\,^\star$
 \\[1ex]
-\emkey{flag-set} ::= {\em control-code}$^\star$
+\emkey{flag-set} ::= {\em control-code}$\,^\star$
 \\[1ex]
 \emkey{value} ::= {\em number} $|$ {\em string} $|$ {\em label}
               $|$ {\em object} $|$ {\em index}
@@ -4499,7 +4552,9 @@ struct min
 \TTNBKEY{MIN\_ASSERT($e$)}
 \LABEL{MIN_ASSERT} \\
 \TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
-\LABEL{MIN_USES_OBJECT_AUX_STUBS}
+\LABEL{MIN_USES_OBJECT_AUX_STUBS} \\
+\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS}
+\LABEL{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS} \\
 \end{tabular}
 
 \end{indpar}
