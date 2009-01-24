@@ -3237,8 +3237,9 @@ object auxiliary stubs would be for debugging.
 \subsubsection{Object Attribute Level}
 \label{OBJECT-ATTRIBUTE-LEVEL}
 
-At the \key{attribute level}, the object is a map attribute name/reverse-name
-pairs to flags and multi-sets of values.
+At the \key{attribute level}\,, the object is a map from attribute-names to
+flags and multi-sets of values and from attribute-name/reverse-attribute-name
+pairs to multi-sets of values.
 Here names are sequences of name components, which are
 numbers, strings, or labels.  The object map is stored in a set of lists which
 are entries in the hash table or attribute vector.  These lists have
@@ -3279,9 +3280,9 @@ the object lists have the syntax:
 \emkey{attribute-descriptor} ::= {\em value} $|$ {\em attribute-sublist}
 \\[1ex]
 \emkey{attribute-sublist} ::=
-    {\em double-arrow-map-sublist-option} {\em flag-set} {\em value}$\,^\star$
+    {\em double-arrow-sublist-option} {\em flag-set} {\em value}$\,^\star$
 \\[1ex]
-\emkey{double-arrow-map-sublist} ::=
+\emkey{double-arrow-sublist} ::=
     {\em double-arrow-name-descriptor-pair}$\,^\star$
 \\[1ex]
 \emkey{double-arrow-name-descriptor-pair} ::=
@@ -3298,7 +3299,8 @@ the object lists have the syntax:
 \emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object} $|$ {\em index}
 \end{indpar}
 
-Here the syntactic categories represent \verb|min::gen| values or lists
+Here the syntactic categories represent \verb|min::gen| values
+or lists or sublists
 of \verb|min::gen| values in the sense of the object list level.
 
 An {\em X-list} is a list, in the sense of the object list level.  Thus
@@ -3306,30 +3308,31 @@ a {\em hash-list} and {\em vector-list} are lists.
 
 An {\em X-sublist} is a sublist, in the sense of the object list level, which
 is to say it is a list that is an element of another list.  Thus
-{\em node-sublists} and {\em child-sublists} are sublists.
-
-A {\em value} is a list element that is not a sublist,
-and is an {\em atom},
-{\em label}, {\em object} (i.e., a pointer to an object stub), or {\em index}.
-
-Everything else is a sequence of elements in some list or sublist.
-{\em Map-pairs} are sequences of two elements.
-{\em Flag-sets} are sequences of {\em control-codes}.
-A {\em control-code} is a \verb|min::gen| control code value.
+{\em attribute-sublists} and {\em double-arrow-sublists} are sublists.
 
 An {\em X-option} is an optional element of a list that is an {\em X} if
 it is not omitted.
 
+Everything else is a single list element or
+a sequence of elements in some list or sublist.
+{\em Map-pairs} are sequences of two elements.
+{\em Flag-sets} are sequences of {\em control-codes}.
+
+An {\em atom} is a \verb|min::gen| number or string.
+An {\em object} is a \verb|min::gen| value pointing at an object stub.
+A {\em control-code} is a \verb|min::gen| control code value.
+An {\em index} is a \verb|min::gen| index value.
+
 The above form of object map maps an {\em attribute-name} to a set of
 values, a set of flags, and a optional
-{\em double-arrow-map-sublist}.  This last maps {\em reverse-attribute-names}
+{\em double-arrow-sublist}.  This last maps {\em reverse-attribute-names}
 to sets of values.
 
 A {\em hash-list} is simply a list of alternating {\em attribute-names}
 and {\em attribute-descriptors}.
-The long form of an {\em attribute-descriptors} is an
+The long form of an {\em attribute-descriptor} is an
 {\em attribute-sublist} that gives a list of flags, a list of {\em values},
-and an optional {\em double-arrow-map-sublist}.  If the
+and an optional {\em double-arrow-sublist}.  If the
 {\em attribute-sublist} would be nothing but a one element list containing
 a single {\em value}, a common case, it may be replaced by this single
 {\em value}, in the interests of optimizing memory.
@@ -3347,15 +3350,24 @@ begins with such an integer, then the attribute's
 is put in the {\em vector-list} of the attribute vector element
 indexed by the integer.
 Otherwise the {\em attribute-name-descriptor-pair} is put
-in the {\em hash-list} for the object's hash table entry which index
+in the {\em hash-list} of the object's hash table entry whose index
+in the hash table
 equals the hash of the {\em attribute-name} modulo the length of the
 hash table.
 
-A {\em double-arrow-map-sublist} is 
+A {\em double-arrow-sublist} is 
 simply a sublist of alternating {\em reverse-attribute-names}
 and {\em value-sets}.  The former are just like {\em attribute-names}
 and the latter are just like {\em attribute-descriptors} that have no
-flags or {\em double-arrow-map-sublists}.
+flags or {\em double-arrow-sublists}.
+
+An {\em X-pair} whose second element is an empty {\em attribute-sublist}
+or {\em value-sublist} can be added or removed without changing
+the apparent contents
+of the object at the attribute level.  There is one exception: if
+a {\em vector-list} contains a {\em attribute-name-descriptor-pair}
+the initial {\em attribute-descriptor} in the {\em vector-list} cannot
+be omitted, even if it is an empty sublist.
 
 In the interests of compatibility with the case where partial attribute
 names are supported, {\em attribute-names} and {\em reverse-attribute-names}
@@ -3386,14 +3398,14 @@ the object lists have the following alternative syntax:
     ::= & {\em flag-set}
 	  {\em value}$\,^\star$ \\
     $|$ & {\em child-sublist}
-	  {\em double-arrow-map-sublist-option}
+	  {\em double-arrow-sublist-option}
 	  {\em flag-set}
 	  {\em value}$\,^\star$ \\
     \end{tabular}
 \\[1ex]
 \emkey{child-sublist} ::= {\em node-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{double-arrow-map-sublist} ::=
+\emkey{double-arrow-sublist} ::=
     {\em double-arrow-name-descriptor-pair}$\,^\star$
 \\[1ex]
 \emkey{double-arrow-name-descriptor-pair} ::=
@@ -3418,38 +3430,43 @@ An {\em attribute-name} is viewed as a sequence of
 defines a path in the tree from the root to a node.
 Each node has an associated {\em node-descriptor} that
 contains the node {\em values}, flags,
-and optional {\em double-arrow-map-sublist} which are associated
+and optional {\em double-arrow-sublist} which are associated
 with the {\em attribute-name} that names the path from the root to the
 node.  The {\em node-descriptor} also contains a {\em child-sublist}
 which describes the children of the node in the tree.
 
 A {\em hash-table-entry} is a {\em node-list} that gives alternating
-{\em attribute-name-component}/{\em node-descriptor} pairs for
+{\em attribute-name-component}/\EOL {\em node-\EOL de\-scrip\-tor} pairs for
 children of the object root node.  A {\em vector-attribute-entry}
 just describes one node that is a child of the root, namely the node
 whose {\em attribute-name-component} equals the vector index of the
 {\em attribute-vector-entry} in the object's attribute vector.
-If a nodes's {\em attribute-name-component} is an integer in the legal
+For a child of the object root,
+if the child nodes's {\em attribute-name-component} is an integer in the legal
 range of the object's attribute vector indices, then the nodes's
 {\em node-descriptor} is stored in the object's attribute vector.
 Otherwise the nodes's {\em attribute-name-component} and
 {\em node-descriptor} are placed in the {\em hash-table-entry}
 whose index in the object's hash table equals the hash of the
-node's {\em attribute-name-component} modulo the length of the hash table.
+{\em attribute-name-component} modulo the length of the hash table.
 
 A {\em node-descriptor} that consists of nothing but a single {\em value}
 can be represented by just that {\em value}; otherwise it is represented
 by a {\em node-sublist}.  If this last begins with a sublist, that must
 be the {\em child-sublist}, which has the same structure as a {\em node-list}
 and describes the children of the node.  Otherwise neither the
-{\em child-sublist} nor the {\em double-arrow-map-sublist} can be present.
+{\em child-sublist} nor the {\em double-arrow-sublist} can be present.
 Note that to avoid ambiguity it is not permitted to omit the
 {\em child-sublist} without also omitting
-the {\em double-arrow-map-sublist}.  Except for these details
+the {\em double-arrow-sublist}.  Except for these details
 the {\em node-descriptor} structure is the same was as that of the
 {\em attribute-descriptor} in the case where partial attribute names are
-not allowed.  The {\em double-arrow-map-sublist} structure is exactly
+not allowed.  The {\em double-arrow-sublist} structure is exactly
 the same.
+
+A node whose {\em node-descriptor} is an empty list can be added or removed
+without changing the apparent contents
+of the object at the attribute level.
 
 In this data structure attribute names must be sequences and cannot be
 atoms.  Functions that access this structure convert any atom attribute name
@@ -3476,7 +3493,9 @@ just the attribute name and no reverse attribute name.
 \subsubsubsection{Attribute Functions}
 \label{ATTRIBUTE-FUNCTIONS}
 
-The following are the basic protected functions that access attributes:
+The following are the basic protected functions that access attributes.
+These functions only use complete attribute names, and not partial
+attribute names.
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{countg}%
@@ -3492,13 +3511,6 @@ The following are the basic protected functions that access attributes:
     \verb|   min::gen name, min::gen reverse_name )|
     \end{tabular}
 \LABEL{MIN::GETG} \\
-\verb|unsigned min::| & \MINKEY{get\_flagsg}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::uns32 * out, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
-    \end{tabular}
-\LABEL{MIN::GET_FLAGSG} \\
 \verb|void min::| & \MINKEY{setg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::gen * in, unsigned n,| \\
@@ -3508,15 +3520,19 @@ The following are the basic protected functions that access attributes:
 \LABEL{MIN::SETG} \\
 \verb|unsigned min::| & \MINKEY{count\_flagsg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::COUNT_FLAGSG} \\
+\verb|unsigned min::| & \MINKEY{get\_flagsg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::uns32 * out, unsigned n,| \\
+    \verb|   min::gen obj, min::gen name )|
+    \end{tabular}
+\LABEL{MIN::GET_FLAGSG} \\
 \verb|void min::| & \MINKEY{set\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::SET_FLAGSG} \\
 \end{tabular}\end{center}
@@ -3542,24 +3558,18 @@ If there are more then {\tt n} values, only {\tt n} values are returned.
 
 The {\tt count\_flagsg} function returns the length of the smallest
 \verb|min::uns32| vector required to store all the set flags for a given
-object, attribute name, and reverse attribute name.
-It returns {\tt 0} if no flags are set.
-The reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
+object and attribute name.  It returns {\tt 0} if no flags are set.
 
 The {\tt get\_flagsg} function returns flags in the \verb|min::uns32|
-vector vector {\tt out} for a given object, attribute name,
-and reverse attribute name.
+vector {\tt out} for a given object and attribute name.
 The argument {\tt n} is the maximum number of vector elements that
 may be written, the length of {\tt out}.
 The return value is the same as that of {\tt count\_flagsg} if this is
 not greater than {\tt n}, or is {\tt n} otherwise, and is in any case
-the number of elements of the vector {\tt out} written.
+the number of elements of the {\tt out} vector written.
 In the {\tt out} vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~32$ and
 $I=\mbox{floor}(N/32)$.
-The reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
 
 The {\tt setg} function sets the values for a given
 object, attribute name, and reverse attribute name.  All the previous
@@ -3584,12 +3594,10 @@ If the reverse name argument to {\tt setg} is \verb|min::ANY|,
 or no reverse attribute name will be deleted.
 
 The {\tt set\_flagsg} function sets the flags for a given
-object, attribute name, and reverse attribute name.
+object and attribute name.
 The flags are given in the {\tt in} vector which
 has length {\tt n}.  All flags are zeroed before the new set of flags
 is written.  If {\tt n} is zero, all flags are zeroed.
-The reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
 
 The following functions are more optimized versions of the above
 functions for the special case that the attribute has, or should
@@ -3624,8 +3632,8 @@ the object, attribute name, and reverse attribute name,
 and makes the one value {\tt v} the only value of the object,
 attribute name, and reverse attribute name.  But if {\tt v} is
 \verb|min::NONE|, all previous values are deleted and no values
-are added.  The reverse attribute name cannot be \verb|min::ANY| unless
-{\tt v} is \verb|min::NONE|.
+are added.  The reverse attribute name can be \verb|min::NONE|,
+but can only be \verb|min::ANY| if {\tt v} is \verb|min::NONE|.
 
 
 The following functions may be used to add one value to the set of values of an
@@ -3657,34 +3665,28 @@ The reverse attribute name can be \verb|min::NONE|
 but cannot be \verb|min::ANY|.
 
 The following functions may be used to set, or clear, or flip
-the flags turned on in the input vector:
+the flags turned on in the {\tt in} vector:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_some\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::SET_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{clear\_some\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::CLEAR_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{flip\_some\_flagsg\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::FLIP_SOME_FLAGSG} \\
 \end{tabular}\end{center}
-
-The reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
 
 The following functions may be used to test, set, or clear, or flip
 individual flag number {\tt n}:
@@ -3692,32 +3694,25 @@ individual flag number {\tt n}:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{test\_flagg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::TEST_FLAGG} \\
 \verb|void min::| & \MINKEY{set\_flagg\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::SET_FLAGG} \\
 \verb|void min::| & \MINKEY{clear\_flagg\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::CLEAR_FLAGG} \\
 \verb|void min::| & \MINKEY{flip\_flagg\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
     \end{tabular}
 \LABEL{MIN::FLIP_FLAGG} \\
 \end{tabular}\end{center}
-
-The reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
 
 The following variants exist for functions of this section:
 
@@ -5603,24 +5598,21 @@ struct min
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::GETG} \\
-\verb|unsigned min::| & \MINKEY{get\_flagsg}\ARGBREAK
-    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::GET_FLAGSG} \\
 \verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
     \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
     \verb|   min::gen obj,|\ARGBREAK
     \verb|   min::gen name, min::gen reverse_name )|
 \LABEL{MIN::SETG} \\
 \verb|unsigned min::| & \MINKEY{count\_flagsg}\ARGBREAK
-    \verb| ( min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( min::gen obj, min::gen name )|
 \LABEL{MIN::COUNT_FLAGSG} \\
+\verb|unsigned min::| & \MINKEY{get\_flagsg}\ARGBREAK
+    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
+    \verb|   min::gen obj, min::gen name )|
+\LABEL{MIN::GET_FLAGSG} \\
 \verb|void min::| & \MINKEY{set\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::SET_FLAGSG} \\
 \end{TABULAR}
 
@@ -5649,37 +5641,30 @@ struct min
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{set\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::SET_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{clear\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::CLEAR_SOME_FLAGSG} \\
 \verb|void min::| & \MINKEY{flip\_some\_flagsg\REL}\ARGBREAK
     \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::gen obj, min::gen name )|
 \LABEL{MIN::FLIP_SOME_FLAGSG} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|bool min::| & \MINKEY{test\_flagg}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::TEST_FLAGG} \\
 \verb|void min::| & \MINKEY{set\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::SET_FLAGG} \\
 \verb|void min::| & \MINKEY{clear\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::CLEAR_FLAGG} \\
 \verb|void min::| & \MINKEY{flip\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( unsigned n, min::gen obj, min::gen name )|
 \LABEL{MIN::FLIP_FLAGG} \\
 \end{TABULAR}
 
