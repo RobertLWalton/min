@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 20, 2009}
+\date{January 25, 2009}
  
 \maketitle
 
@@ -3493,77 +3493,130 @@ just the attribute name and no reverse attribute name.
 \subsubsubsection{Attribute Functions}
 \label{ATTRIBUTE-FUNCTIONS}
 
-The following are the basic protected functions that access attributes.
-These functions only use complete attribute names, and not partial
-attribute names.
+The functions that access attributes are of two kinds: locator functions
+that find attributes within an object, and accessor functions
+that read or write attribute flags and values.  The locator functions set an
+{\em attribute\_pointer} that the accessor functions
+use to identify the attribute being read or written.
+
+The \skey{attribute locator function}s\index{locator function!attribute} that
+can be used for reading attribute values and flags are:
+
+\begin{center}\begin{tabular}{r@{}l}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{attribute\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::ATTRIBUTE_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{attribute\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::ATTRIBUTE_POINTER_OF_GEN} \\
+\verb|min::gen min::|
+	& \MINKEY{locateg}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::attribute_pointer & ap, min::gen name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locateg}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::attribute_pointer & ap,| \\
+	  \verb|   unsigned & length, min::gen name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATE_PARTIAL} \\
+\verb|min::gen min::|
+	& \MINKEY{locateg\_reverse}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::attribute_pointer & ap,| \\
+	  \verb|   min::gen reverse_name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATE_REVERSE} \\
+\verb|min::gen min::|
+	& \MINKEY{relocate}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::attribute_pointer & ap )| \\
+	  \end{tabular}
+\LABEL{MIN::RELOCATE_ATTRIBUTE} \\
+\end{tabular}\end{center}
+
+Attribute pointers are tied to an object, which may be specified by
+giving either the object's stub or a \verb|min::gen| value pointing
+at the object's stub.
+
+An attribute pointer can be thought of as storing an attribute name
+and a reverse attribute name.  The latter can take the special
+values {\tt min::NONE} and {\tt min::ANY}.  The attribute name designates
+the object attribute pointed at.  The flag set pointed at is always
+the flag set of this attribute, regardless of the setting of the
+reverse attribute name.  The reverse attribute name designates the
+value set pointed at.  If it is {\tt min::NONE}, these are the values
+not associated with any particular reverse attribute name.  If it is
+{\tt min::ANY}, the value set is the set of \underline{all}
+values associated with reverse attribute names.  Otherwise the value
+set pointed at is that associated with the particular reverse attribute
+name stored in the pointer.
+
+The {\tt locateg} function sets the attribute name of the pointer.
+If the `{\tt length}' argument is \underline{not} given, {\tt locateg}
+saves the entire attribute name.  If the `{\tt length}' argument
+is given, this function saves the longest initial segment of the
+attribute name that locates an attribute which has either a non-empty
+set of values, or at least one set flag, or at least one value
+associated with a reverse attribute name.  The
+length of this initial segment is returned in the `\verb|length|'
+argument.  If \verb|0| is returned in `\verb|length|',
+no initial segment meeting the requirements was found.
+
+The {\tt reverse\_locateg} function sets the reverse attribute name of
+a pointer.  This can take the special value {\tt min::NONE} or
+{\tt min::ANY}, as noted above.  A call to {\tt locateg} sets the
+reverse attribute name to {\tt min::NONE}.
+
+If the object is reorganized, the attribute pointers of the object
+will be obsoleted, and must be be reset by calling either the
+{\tt locateg} and perhaps {\tt reverse\_locateg} functions, or by
+calling the {\tt relocate} function.
+
+The \skey{attribute accessor function}s\index{accessor function!attribute} that
+can be used for reading attribute values and flags are:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{countg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb| ( min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::COUNTG} \\
 \verb|unsigned min::| & \MINKEY{getg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
+    \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::GETG} \\
-\verb|void min::| & \MINKEY{setg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::gen * in, unsigned n,| \\
-    \verb|   min::gen obj,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
-    \end{tabular}
-\LABEL{MIN::SETG} \\
 \verb|unsigned min::| & \MINKEY{count\_flagsg}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen obj, min::gen name )|
+    \verb| ( min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::COUNT_FLAGSG} \\
 \verb|unsigned min::| & \MINKEY{get\_flagsg}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::uns32 * out, unsigned n,| \\
-    \verb|   min::gen obj, min::gen name )|
+    \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::GET_FLAGSG} \\
-\verb|void min::| & \MINKEY{set\_flagsg\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::gen obj, min::gen name )|
-    \end{tabular}
-\LABEL{MIN::SET_FLAGSG} \\
 \end{tabular}\end{center}
 
-The {\tt countg} function returns the number of values for a given
-object, attribute name, and reverse attribute name.  Attribute names
-and reverse attribute names can be atoms or labels.  A label specifies
-the sequence of {\em nam-components} that is the attribute name or reverse
-attribute name.  An atom is
-treated as if it were a label with the atom as its only element.  The
-reverse attribute name can also be the special value {\tt min::NONE},
-in which case the count is returned of values with the attribute name
-with no reverse attribute name.  Or the reverse attribute name
-can be the special value {\tt min::ANY},
-in which case the count is returned of values with the attribute name
-and \underline{any or no} reverse attribute name.
-
-The {\tt getg} function gets the values which {\tt countg} counts.
-The values are stored in the {\tt out} vector.  The number of values
-stored is the function return value.  The argument {\tt n} is the
+The {\tt countg} function returns the number of values in the value
+set pointed at.
+The {\tt getg} function gets these values and stores them
+in the {\tt out} vector.  The number of values
+stored is the {\tt getg} return value.  The argument {\tt n} is the
 maximum number of values that may be returned, the length of {\tt out}.
 If there are more then {\tt n} values, only {\tt n} values are returned.
 
 The {\tt count\_flagsg} function returns the length of the smallest
-\verb|min::uns32| vector required to store all the set flags for a given
-object and attribute name.  It returns {\tt 0} if no flags are set.
-
-The {\tt get\_flagsg} function returns flags in the \verb|min::uns32|
-vector {\tt out} for a given object and attribute name.
-The argument {\tt n} is the maximum number of vector elements that
-may be written, the length of {\tt out}.
+\verb|min::uns32| vector required to store all the flags in the flag
+set pointed at.  It returns {\tt 0} if no flags are set.
+The {\tt get\_flagsg} function returns these flags in the \verb|min::uns32|
+vector {\tt out}.  The argument {\tt n} is the maximum number of
+vector elements that may be written, the length of {\tt out}.
 The return value is the same as that of {\tt count\_flagsg} if this is
 not greater than {\tt n}, or is {\tt n} otherwise, and is in any case
 the number of elements of the {\tt out} vector written.
@@ -3571,33 +3624,85 @@ In the {\tt out} vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~32$ and
 $I=\mbox{floor}(N/32)$.
 
-The {\tt setg} function sets the values for a given
-object, attribute name, and reverse attribute name.  All the previous
-values are deleted.  The values are given in the {\tt in} vector, and
+The above functions can read but not write attribute values and flags.
+To write these you need to use a {\tt writable\_attribute\_pointer}
+and the following locator and access functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{writable\_attribute\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{writable\_attribute\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_GEN} \\
+\verb|min::gen min::|
+	& \MINKEY{locateg}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_attribute_pointer & ap,| \\
+	  \verb|   min::gen name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATE_ATTRIBUTE_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{locateg}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_attribute_pointer & ap,| \\
+	  \verb|   unsigned & length, min::gen name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{locateg\_reverse}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_attribute_pointer & ap,| \\
+	  \verb|   min::gen reverse_name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATE_REVERSE_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{relocate}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_attribute_pointer & ap )| \\
+	  \end{tabular}
+\LABEL{MIN::RELOCATE_ATTRIBUTE_WRITABLE} \\
+\end{tabular}\end{center}
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{setg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::gen * in, unsigned n,| \\
+    \verb|   min::writable_attribute_pointer ap )| \\
+    \end{tabular}
+\LABEL{MIN::SETG} \\
+\verb|void min::| & \MINKEY{set\_flagsg\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( const min::uns32 * in, unsigned n,| \\
+    \verb|   min::writable_attribute_pointer ap )| \\
+    \end{tabular}
+\LABEL{MIN::SET_FLAGSG} \\
+\end{tabular}\end{center}
+
+The {\tt setg} function sets all the values in the value set the
+attribute pointer is pointing at, deleting any previous values.
+The values are given in the {\tt in} vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
 
-If the reverse name argument to {\tt setg} is \verb|min::NONE|,
-the values deleted or set represent single arrows.
-
-If the reverse name is not
-\verb|min::NONE|, the values deleted or set may have reverse attribute
-names and represent double arrows.  In this case,
-let the object be $O_1$, the attribute name be $N$, and the reverse
-attribute name be $R$.  If a value $O_2$ is set (or deleted), the value
-$O_1$ will also be set (or deleted) from the attribute named $R$ with
+If the attribute pointer is pointing at values associated with
+reverse attribute names, the values set or deleted represent double arrows.
+In this case, let the object being pointed at by the object pointer be $O_1$,
+the pointer attribute name be $N$, and the reverse
+attribute name associated with a double arrow value be $R$.
+If a double arrow value pointing at object $O_2$ is set (or deleted), the value
+pointing at $O_1$ will also be set (or deleted) from the attribute named
+$R$ with
 reverse attribute name $N$ of the object $O_2$.  That is, the other end of
 the double arrow will also be set (or deleted).
 
-If the reverse name argument to {\tt setg} is \verb|min::ANY|,
-{\tt n} must be zero, and all values with the attribute name and any
-or no reverse attribute name will be deleted.
-
-The {\tt set\_flagsg} function sets the flags for a given
-object and attribute name.
+The {\tt set\_flagsg} function sets the flags of the flag set the attribute
+pointer points at.
 The flags are given in the {\tt in} vector which
 has length {\tt n}.  All flags are zeroed before the new set of flags
 is written.  If {\tt n} is zero, all flags are zeroed.
+
+TBD
 
 The following functions are more optimized versions of the above
 functions for the special case that the attribute has, or should
@@ -3713,6 +3818,51 @@ individual flag number {\tt n}:
     \end{tabular}
 \LABEL{MIN::FLIP_FLAGG} \\
 \end{tabular}\end{center}
+
+All the above functions in this section use complete attribute names
+and work regardless of the setting of 
+{\tt MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS}%
+(\pagref{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS}).  The following
+variangs of those functions above that get but do not set information
+use partial attribute names and are defined only if
+{\tt MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS} is set to \verb|1|:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \MINKEY{countg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( unsigned & length, min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name )|
+    \end{tabular}
+\LABEL{MIN::COUNTG_PARTIAL} \\
+\verb|unsigned min::| & \MINKEY{getg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen * out, unsigned n,| \\
+    \verb|   unsigned & length, min::gen obj,| \\
+    \verb|   min::gen name, min::gen reverse_name )|
+    \end{tabular}
+\LABEL{MIN::GETG_PARTIAL} \\
+\verb|unsigned min::| & \MINKEY{count\_flagsg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb|   unsigned & length, min::gen obj,| \\
+    \verb|   min::gen name )|
+    \end{tabular}
+\LABEL{MIN::COUNT_FLAGSG_PARTIAL} \\
+\verb|unsigned min::| & \MINKEY{get\_flagsg}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::uns32 * out, unsigned n,| \\
+    \verb|   unsigned & length, min::gen obj,| \\
+    \verb|   min::gen name )|
+    \end{tabular}
+\LABEL{MIN::GET_FLAGSG_PARTIAL} \\
+\end{tabular}\end{center}
+
+There functions use the longest initial segment of the attribute name
+that locates an attribute which has either a non-empty set of values,
+or at least one set flag, or at least one value associated with the
+attribute name initial segment and any reverse attribute name.  The
+length of this initial segment is returned in the `\verb|length|'
+argument.  If \verb|0| is returned in `\verb|length|',
+no initial segment meeting the requirements was found.
 
 The following variants exist for functions of this section:
 
