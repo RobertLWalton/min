@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 25, 2009}
+\date{January 26, 2009}
  
 \maketitle
 
@@ -3522,20 +3522,26 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	& \MUPKEY{attribute\_pointer}\verb| ( min::gen obj )|
 \LABEL{MUP::ATTRIBUTE_POINTER_OF_GEN} \\
 \verb|min::gen min::|
-	& \MINKEY{locateg}%
+	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attribute_pointer & ap, min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_ATTRIBUTE} \\
 \verb|min::gen min::|
-	& \MINKEY{locateg}%
+	& \MINKEY{locatei}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::attribute_pointer & ap, int name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATEI_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attribute_pointer & ap,| \\
 	  \verb|   unsigned & length, min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_PARTIAL} \\
 \verb|min::gen min::|
-	& \MINKEY{locateg\_reverse}%
+	& \MINKEY{locate\_reverse}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attribute_pointer & ap,| \\
 	  \verb|   min::gen reverse_name )|
@@ -3557,21 +3563,28 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	& \MUPKEY{writable\_attribute\_pointer}\verb| ( min::gen obj )|
 \LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_GEN} \\
 \verb|min::gen min::|
-	& \MINKEY{locateg}%
+	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::writable_attribute_pointer & wap,| \\
 	  \verb|   min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_ATTRIBUTE_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{locateg}%
+	& \MINKEY{locatei}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_attribute_pointer & wap,| \\
+	  \verb|   int name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATEI_ATTRIBUTE_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::writable_attribute_pointer & wap,| \\
 	  \verb|   unsigned & length, min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{locateg\_reverse}%
+	& \MINKEY{locate\_reverse}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::writable_attribute_pointer & wap,| \\
 	  \verb|   min::gen reverse_name )|
@@ -3595,10 +3608,22 @@ Attribute pointers are tied to an object, which may be specified by
 giving either the object's stub or a \verb|min::gen| value pointing
 at the object's stub.
 
-The {\tt locateg} function sets the attribute name of the pointer.
-If the `{\tt length}' argument is \underline{not} given, {\tt locateg}
-uses the complete attribute name.  If the `{\tt length}' argument
-is given, this function uses the longest initial segment of the
+The {\tt locate} function sets the attribute name of the pointer.
+If the `{\tt length}' argument is \underline{not} given, {\tt locate}
+uses the complete attribute name.  The {\tt locatei} function does the
+same thing as {\tt locate} but is optimized for the case where the attribute
+name is a sequence consisting of a single integer.\footnote{
+In some implementations {\tt min::gen} is defined to be {\tt min::uns64},
+and in these implementation {\tt int} is incorrectly convertable to
+{\tt min::gen} by a C++ implicit conversion.  As a consequence of this
+the {\tt locatei} function must have a differenent name from the
+{\tt locate} function.}
+
+The form of the {\tt locate} function that takes a `{\tt length}'
+argument exists only if the
+{\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTRIBUTE\_\EOL LABELS}
+(\pagref{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS}) macro is set to {\tt 1}.
+This form of {\tt locate} uses the longest initial segment of the
 attribute name that locates an attribute which has either a non-empty
 set of values, or at least one set flag, or at least one value
 associated with a reverse attribute name.  The
@@ -3606,14 +3631,19 @@ length of this initial segment is returned in the `\verb|length|'
 argument.  If \verb|0| is returned in `\verb|length|',
 no initial segment meeting the requirements was found.
 
-The {\tt reverse\_locateg} function sets the reverse attribute name of
+The {\tt locate\_reverse} function sets the reverse attribute name of
 a pointer.  This can take the special value {\tt min::NONE} or
-{\tt min::ANY}, as noted above.  A call to {\tt locateg} sets the
+{\tt min::ANY}, as noted above.  A call to {\tt locate} sets the
 reverse attribute name to {\tt min::NONE}.
+
+Both the {\tt locate} and {\tt locate\_reverse} functions take name
+arguments that are labels (\secref{LABELS}).  If an atom (number or
+string) is given instead, this is treated as an abbreviation for the
+label whose only element is the atom.
 
 If the object is reorganized or relocated, the attribute pointers of the object
 will be obsoleted, and must be be reset by calling either the
-{\tt locateg} and perhaps {\tt reverse\_locateg} functions, or by
+{\tt locate} and perhaps {\tt locate\_reverse} functions, or by
 calling the {\tt relocate} function.
 
 The \skey{attribute accessor function}s\index{accessor function!attribute} that
@@ -3856,52 +3886,6 @@ individual flag number {\tt n}:
     \end{tabular}
 \LABEL{MIN::FLIP_FLAG} \\
 \end{tabular}\end{center}
-
-The following variants exist for functions of this section:
-
-\begin{enumerate}
-
-\item Functions
-which have a \verb|min::gen| {\tt name} argument
-have versions with a \verb|int| {\tt name} argument.  However,
-the functions with \verb|min::gen| {\tt name} argument have function
-names ending in `{\tt g}', whereas the functions with
-\verb|int| {\tt name} argument have names that are the same except the
-ending `{\tt g}' is replaced by `{\tt i}'.  Thus there are functions named
-\begin{indpar}\raggedright
-\minkey{counti},
-\minkey{geti},
-\minkey{count\_flagsi},
-\minkey{get\_flagsi},
-\minkey{seti},
-\minkey{set\_\EOL flagsi},
-\minkey{add\_\EOL to\_\EOL seti},
-\minkey{add\_\EOL to\_\EOL multiseti},
-\minkey{set\_\EOL some\_\EOL flagsi},
-\minkey{clear\_\EOL some\_\EOL flagsi},
-\minkey{flip\_\EOL some\_\EOL flagsi},
-\minkey{test\_\EOL flagi},
-\minkey{set\_\EOL flagi},
-\minkey{clear\_\EOL flagi},
-and
-\minkey{flip\_\EOL flagi}.\label{G_TO_I_VARIANTS}
-\end{indpar}
-This is done as in many
-implementations \verb|int| may be implicitly convertible to \verb|min::gen|
-by an improper conversion that gives the wrong result.\footnote{
-For example, if the implementation defines {\tt min::gen} to be
-{\tt min::uns64}.}
-
-\item Functions\label{MIN::GEN_REPLACED_BY_MIN::STUB}
-which have {\tt reverse\_name} as a last argument
-have versions without this last argument, which act as
-if the value \verb|min::NONE| were given to this argument.
-
-\item Functions\label{REVERSE_NAME_OMITTED}
-which have a \verb|min::gen| {\tt obj} argument also have
-versions with a \verb|min::stub *| {\tt obj} argument.
-
-\end{enumerate}
 
 \subsection{Variable Vectors}
 \label{VARIABLE-VECTORS}
