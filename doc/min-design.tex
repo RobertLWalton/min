@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 27, 2009}
+\date{January 28, 2009}
  
 \maketitle
 
@@ -4710,7 +4710,7 @@ struct min
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \newcommand{\ARGBREAK}{\\&{\tt ~~~~~}}
-\newcommand{\INDEXHEADER}[1]{{\bf #1}:}
+\newcommand{\INDEXHEADER}[1]{{\bf #1}:\vspace{1ex}}
 \newlength{\TABULARLEN}
 \newenvironment{TABULAR}[1]%
   {\setlength{\TABULARLEN}{6.2in}
@@ -4818,8 +4818,6 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Gen Value Protected Declarations}
 
@@ -4934,6 +4932,8 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Gen Value Unprotected Declarations}
 
@@ -5354,6 +5354,8 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Object Vector Level Declarations}
 
@@ -5809,6 +5811,10 @@ struct min
 	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen reverse_name )|
 \LABEL{MIN::LOCATE_REVERSE} \\
+\verb|min::gen min::|
+	& \MINKEY{relocate}%
+	  \verb| ( min::attribute_pointer & ap )|
+\LABEL{MIN::RELOCATE_ATTRIBUTE} \\
 \end{TABULAR}
 
 \bigskip
@@ -5842,17 +5848,154 @@ struct min
 	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
 	  \verb|   min::gen reverse_name )|
 \LABEL{MIN::LOCATE_REVERSE_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{relocate}\ARGBREAK
+	  \verb| ( min::writable_attribute_pointer & wap )|
+\LABEL{MIN::RELOCATE_ATTRIBUTE_WRITABLE} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.2in}
-TBD
-\end{TABULAR}
+\bigskip
 
 \begin{TABULAR}{1.2in}
-TBD
+\verb|unsigned min::| & \MINKEY{count}%
+    \verb| ( min::attribute_pointer ap )|
+\LABEL{MIN::COUNT_OF_ATTRIBUTE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::attribute_pointer ap )|
+\LABEL{MIN::GET_OF_ATTRIBUTE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{count\_flags}%
+    \verb| ( min::attribute_pointer ap )|
+\LABEL{MIN::COUNT_FLAGS_OF_ATTRIBUTE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
+    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
+    \verb|   min::attribute_pointer ap )|
+\LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE_POINTER} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|unsigned min::| & \MINKEY{count}%
+    \verb| ( min::writable_attribute_pointer wap )|
+\LABEL{MIN::COUNT_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::GET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
+    \verb| ( min::writable_attribute_pointer wap )|
+\LABEL{MIN::COUNT_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
+    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::GET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
+    \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::SET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\verb|void min::| & \MINKEY{set\_flags\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::SET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::| & \MINKEY{get}%
+    \verb| ( min::attribute_pointer ap )|
+\LABEL{MIN::GET1_OF_ATTRIBUTE_POINTER} \\
+\verb|min::gen min::| & \MINKEY{get}%
+    \verb| ( min::writable_attribute_pointer wap )|
+\LABEL{MIN::GET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
+    \verb| ( const min::gen v,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::SET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
+    \verb| ( const min::gen v,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::ADD_TO_SET} \\
+\verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
+    \verb| ( const min::gen v,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::ADD_TO_MULTISET} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{set\_some\_flags\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::SET_SOME_FLAGS} \\
+\verb|void min::| & \MINKEY{clear\_some\_flags\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::CLEAR_SOME_FLAGS} \\
+\verb|void min::| & \MINKEY{flip\_some\_flags\REL}\ARGBREAK
+    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::FLIP_SOME_FLAGS} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
+    \verb| ( unsigned n, min::attribute_pointer ap )|
+\LABEL{MIN::TEST_FLAG} \\
+\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
+    \verb| ( unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::TEST_FLAG_OF_WRITABLE} \\
+\verb|void min::| & \MINKEY{set\_flag\REL}\ARGBREAK
+    \verb| ( unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::SET_FLAG} \\
+\verb|void min::| & \MINKEY{clear\_flag\REL}\ARGBREAK
+    \verb| ( unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::CLEAR_FLAG} \\
+\verb|void min::| & \MINKEY{flip\_flag\REL}\ARGBREAK
+    \verb| ( unsigned n,|\ARGBREAK
+    \verb|   min::writable_attribute_pointer wap )|
+\LABEL{MIN::FLIP_FLAG} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|unsigned min::| & \MINKEY{get\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::attribute_pointer ap )|
+\LABEL{MIN::GET_ATTRIBUTES} \\
+\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
+    \verb| ( min::attribute_pointer ap )|
+\LABEL{MIN::REWIND_ATTRIBUTES} \\
+\verb|unsigned min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::attribute_pointer ap )|
+\LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
+\verb|void min::| & \MINKEY{rewind\_reverse\_attributes}\ARGBREAK
+    \verb| ( min::attribute_pointer ap )|
+\LABEL{MIN::REWIND_REVERSE_ATTRIBUTES} \\
 \end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Variable Vector Variable Level Declarations}
 
@@ -5924,6 +6067,8 @@ TBD
 
 \end{indpar}
 
+\newpage
+
 \INDEXHEADER{Special Values}
 
 \begin{indpar}[0.2in]
@@ -5946,8 +6091,6 @@ TBD
 \end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Stub Functions}
 
