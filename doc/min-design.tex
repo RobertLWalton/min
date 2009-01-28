@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 26, 2009}
+\date{January 27, 2009}
  
 \maketitle
 
@@ -3255,9 +3255,9 @@ one of two syntaxes depending upon the setting of the following macro:
 \end{center}
 
 If partial attribute labels are supported, the attribute name given to
-a read function may be too long, and the read function will use only an
-initial segment of that name, returning the length of that segment
-along with the values and flags associated with that segment.
+a function that locates an attribute may be too long,
+and the function will use only an initial segment of that name,
+returning the length of that segment.
 
 If partial attribute names are \underline{not} supported
 the object lists have the syntax:
@@ -3334,7 +3334,8 @@ The long form of an {\em attribute-descriptor} is an
 {\em attribute-sublist} that gives a list of flags, a list of {\em values},
 and an optional {\em double-arrow-sublist}.  If the
 {\em attribute-sublist} would be nothing but a one element list containing
-a single {\em value}, a common case, it may be replaced by this single
+a single {\em value}, a common case, the {\em attribute-sublist}
+may be replaced by this single
 {\em value}, in the interests of optimizing memory.
 
 A {\em vector-list} is just like a {\em hash-list} but omits the first
@@ -3344,7 +3345,7 @@ attribute vector element in which the {\em vector-list} is stored.
 {\em Attribute-names} can be either {\em atoms} or {\em labels}.
 If an {\em attribute-name} is an integer {\em atom}
 that is in the range of a legal
-attribute vector index, of it the {\em attribute-name}
+attribute vector index, or it the {\em attribute-name}
 begins with such an integer, then the attribute's
 {\em attribute-name-descriptor-pair}
 is put in the {\em vector-list} of the attribute vector element
@@ -3373,8 +3374,8 @@ In the interests of compatibility with the case where partial attribute
 names are supported, {\em attribute-names} and {\em reverse-attribute-names}
 that are {\em labels} whose sole element is an {\em atom} are not
 permitted in the object data lists, and when functions are presented with
-such names, the functions replace them with their sole element, which is
-an {\em atom}.
+such names, the functions replace them with their sole element, namely the
+{\em atom}.
 
 If partial attribute names \underline{are} supported
 the object lists have the following alternative syntax:
@@ -3437,7 +3438,7 @@ which describes the children of the node in the tree.
 
 A {\em hash-table-entry} is a {\em node-list} that gives alternating
 {\em attribute-name-component}/\EOL {\em node-\EOL de\-scrip\-tor} pairs for
-children of the object root node.  A {\em vector-attribute-entry}
+children of the object root node.  A {\em attribute-vector-entry}
 just describes one node that is a child of the root, namely the node
 whose {\em attribute-name-component} equals the vector index of the
 {\em attribute-vector-entry} in the object's attribute vector.
@@ -3472,6 +3473,10 @@ In this data structure attribute names must be sequences and cannot be
 atoms.  Functions that access this structure convert any atom attribute name
 to a label whose sole component is the atom.
 
+An attribute that does not exist is equivalent to an attribute with
+an empty value set and all zero flags.  A reverse attribute name that does
+not exist for a particular attribute is equivalent to that name with an
+empty value set.
 
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
 are represented by a {\em flag-set} in an {\em attribute-sublist} or
@@ -3485,10 +3490,8 @@ selected by the mask $2^K$ where $I=\mbox{floor}(N/B)$,
 $K=N~\mbox{mod}~B$, and $B$ is the
 number of bits in a control code integer.  $B$ is 24 if \verb|min::gen|
 values are 32-bits, and 40 if \verb|min::gen| values are 64-bits.
-
 A flag is set for an attribute name if and only if its corresponding
-bit is present and set in the {\em flag-set} found by a search given
-just the attribute name and no reverse attribute name.
+bit is present and set and in the attribute's {\em flag-set}.
 
 \subsubsubsection{Attribute Functions}
 \label{ATTRIBUTE-FUNCTIONS}
@@ -3504,12 +3507,16 @@ and a reverse attribute name.  The latter can take the special
 values {\tt min::NONE} and {\tt min::ANY}.  The attribute name designates
 the object attribute pointed at.  The flag set pointed at is always
 the flag set of this attribute, regardless of the setting of the
-reverse attribute name.  The reverse attribute name designates the
-value set pointed at.  If it is {\tt min::NONE}, these are the values
-not associated with any particular reverse attribute name.  If it is
-{\tt min::ANY}, the value set is the set of \underline{all}
-values associated with reverse attribute names.  Otherwise the value
-set pointed at is that associated with the particular reverse attribute
+reverse attribute name.  The attribute name and
+reverse attribute name together designate the
+value set pointed at.  If the reverse attribute name
+is {\tt min::NONE}, the value set pointed at is the set of all values
+\underline{not} associated with any particular reverse attribute name.  If the
+reverse attribute name is {\tt min::ANY},
+the value set is the set of all
+values that are associated with reverse attribute names.  Otherwise the value
+set pointed at is the set of values
+associated with the particular reverse attribute
 name stored in the pointer.
 
 The \skey{attribute locator function}s\index{locator function!attribute} are:
@@ -3641,10 +3648,13 @@ arguments that are labels (\secref{LABELS}).  If an atom (number or
 string) is given instead, this is treated as an abbreviation for the
 label whose only element is the atom.
 
-If the object is reorganized or relocated, the attribute pointers of the object
-will be obsoleted, and must be be reset by calling either the
-{\tt locate} and perhaps {\tt locate\_reverse} functions, or by
-calling the {\tt relocate} function.
+If the object is reorganized or relocated as per Section~\secref{BODY-POINTERS},
+the attribute pointers of the object
+will become obsolete, and must be be reset either by calling the
+{\tt locate} and if necessary {\tt locate\_reverse} functions, or by
+calling the {\tt relocate} function.  This last function uses the
+attribute and reverse attribute names stored in the pointer to
+restore the pointer.
 
 The \skey{attribute accessor function}s\index{accessor function!attribute} that
 can be used for reading attribute values and flags are:
@@ -3745,15 +3755,17 @@ the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
 
 If the attribute pointer is pointing at values associated with
-reverse attribute names, the values set or deleted represent double arrows.
-In this case, let the object being pointed at by the object pointer be $O_1$,
-the pointer attribute name be $N$, and the reverse
-attribute name associated with a double arrow value be $R$.
+a reverse attribute name, the values set or deleted represent double arrows.
+In this case, let the object being pointed at by the attribute pointer be $O_1$,
+the pointer attribute name be $N$, and the pointer reverse
+attribute name be $R$.
 If a double arrow value pointing at object $O_2$ is set (or deleted), the value
 pointing at $O_1$ will also be set (or deleted) from the attribute named
 $R$ with
 reverse attribute name $N$ of the object $O_2$.  That is, the other end of
-the double arrow will also be set (or deleted).
+the double arrow will also be set (or deleted).  Recall that the value
+associated with a reverse name must consist only of values that point at
+other objects.
 
 For the {\tt set} function the
 pointer's reverse attribute name can be \verb|min::NONE|
@@ -3862,7 +3874,7 @@ individual flag number {\tt n}:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{test\_flag}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::attribute_pointer wap )| \\
+    \verb| ( unsigned n, min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::TEST_FLAG} \\
 \verb|bool min::| & \MINKEY{test\_flag}%
@@ -3886,6 +3898,61 @@ individual flag number {\tt n}:
     \end{tabular}
 \LABEL{MIN::FLIP_FLAG} \\
 \end{tabular}\end{center}
+
+It is possible to discover all the attribute names associated with
+an object, and all the reverse attribute names associated with an
+attribute of an object.  This can be done with the following
+functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \MINKEY{get\_attributes}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen * out, unsigned n,| \\
+    \verb|   min::attribute_pointer ap )| \\
+    \end{tabular}
+\LABEL{MIN::GET_ATTRIBUTES} \\
+\verb|void min::| & \MINKEY{rewind\_attributes}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::attribute_pointer ap )| \\
+    \end{tabular}
+\LABEL{MIN::REWIND_ATTRIBUTES} \\
+\verb|unsigned min::| & \MINKEY{get\_reverse\_attributes}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen * out, unsigned n,| \\
+    \verb|   min::attribute_pointer ap )| \\
+    \end{tabular}
+\LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
+\verb|void min::| & \MINKEY{rewind\_reverse\_attributes}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::attribute_pointer ap )| \\
+    \end{tabular}
+\LABEL{MIN::REWIND_REVERSE_ATTRIBUTES} \\
+\end{tabular}\end{center}
+
+The {\tt get\_attributes} function gets up to {\tt n} attribute
+names of the object associated with the {\tt attribute\_pointer},
+and returns the number of names gotten.  If called multiple times,
+it gets successive names until all the names are returned.  To be
+sure all names have been returned, it should be called repeatedly
+until it returns fewer than {\tt n} names (if there are no names
+left {\tt 0} will be returned).  An attribute name is returned
+only if the attribute has a non-empty value set, or has a non-zero flag,
+or has an attribute value associated with a reverse attribute name.
+
+If you want to restart at the
+beginning, {\tt rewind\_attributes} can be called.  If
+the object is reorganized or relocated as per Section~\secref{BODY-POINTERS},
+the attribute pointers of the object will become obsolete,
+and either the {\tt relocate} function (\pagref{MIN::RELOCATE_ATTRIBUTE})
+should be called before continuing, or the {\tt rewind\_attributes}
+function should be called to start over.
+
+The {\tt get\_reverse\_attributes} and {\tt rewind\_reverse\_attribute}
+functions are analogous but return reverse attribute names associated
+with a particular object and the attribute name stored in the attribute
+pointer.  A reverse attribute name is returned
+only if its value set is non-empty.
+
 
 \subsection{Variable Vectors}
 \label{VARIABLE-VECTORS}
@@ -5715,110 +5782,75 @@ struct min
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.2in}
-\verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
-    \verb| ( min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::COUNTG} \\
-\verb|unsigned min::| & \MINKEY{getg}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::GETG} \\
-\verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
-    \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::SETG} \\
-\verb|unsigned min::| & \MINKEY{count\_flagsg}\ARGBREAK
-    \verb| ( min::gen obj, min::gen name )|
-\LABEL{MIN::COUNT_FLAGSG} \\
-\verb|unsigned min::| & \MINKEY{get\_flagsg}\ARGBREAK
-    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name )|
-\LABEL{MIN::GET_FLAGSG} \\
-\verb|void min::| & \MINKEY{set\_flagsg\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name )|
-\LABEL{MIN::SET_FLAGSG} \\
+\begin{TABULAR}{1.8in}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{attribute\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::ATTRIBUTE_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{attribute\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::ATTRIBUTE_POINTER_OF_GEN} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::gen name )|
+\LABEL{MIN::LOCATE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locatei}\ARGBREAK
+	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
+	  \verb|   int name )|
+\LABEL{MIN::LOCATEI_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
+	  \verb|   unsigned & length, min::gen name )|
+\LABEL{MIN::LOCATE_PARTIAL} \\
+\verb|min::gen min::|
+	& \MINKEY{locate\_reverse}\ARGBREAK
+	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::gen reverse_name )|
+\LABEL{MIN::LOCATE_REVERSE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{writable\_attribute\_pointer}\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{writable\_attribute\_pointer}\ARGBREAK
+	  \verb| ( min::gen obj )|
+\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_GEN} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
+	  \verb|   min::gen name )|
+\LABEL{MIN::LOCATE_ATTRIBUTE_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{locatei}\ARGBREAK
+	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
+	  \verb|   int name )|
+\LABEL{MIN::LOCATEI_ATTRIBUTE_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
+	  \verb|   unsigned & length, min::gen name )|
+\LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate\_reverse}\ARGBREAK
+	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
+	  \verb|   min::gen reverse_name )|
+\LABEL{MIN::LOCATE_REVERSE_WRITABLE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|min::gen min::| & \MINKEY{getg}\ARGBREAK
-    \verb| ( min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::GETG1} \\
-\verb|void min::| & \MINKEY{setg\REL}\ARGBREAK
-    \verb| ( const min::gen v,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::SETG1} \\
-\verb|void min::| & \MINKEY{add\_to\_setg\REL}\ARGBREAK
-    \verb| ( const min::gen v,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::ADD_TO_SETG} \\
-\verb|void min::| & \MINKEY{add\_to\_multisetg\REL}\ARGBREAK
-    \verb| ( const min::gen v,|\ARGBREAK
-    \verb|   min::gen obj,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::ADD_TO_MULTISETG} \\
+TBD
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{set\_some\_flagsg\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name )|
-\LABEL{MIN::SET_SOME_FLAGSG} \\
-\verb|void min::| & \MINKEY{clear\_some\_flagsg\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name )|
-\LABEL{MIN::CLEAR_SOME_FLAGSG} \\
-\verb|void min::| & \MINKEY{flip\_some\_flagsg\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::gen obj, min::gen name )|
-\LABEL{MIN::FLIP_SOME_FLAGSG} \\
+TBD
 \end{TABULAR}
-
-\begin{TABULAR}{1.2in}
-\verb|bool min::| & \MINKEY{test\_flagg}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name )|
-\LABEL{MIN::TEST_FLAGG} \\
-\verb|void min::| & \MINKEY{set\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name )|
-\LABEL{MIN::SET_FLAGG} \\
-\verb|void min::| & \MINKEY{clear\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name )|
-\LABEL{MIN::CLEAR_FLAGG} \\
-\verb|void min::| & \MINKEY{flip\_flagg\REL}\ARGBREAK
-    \verb| ( unsigned n, min::gen obj, min::gen name )|
-\LABEL{MIN::FLIP_FLAGG} \\
-\end{TABULAR}
-
-\newpage
-
-The Attribute Level functions also have variants with:
-
-\begin{tabular}{@{\hspace*{1.0in}}p{5.2in}@{}}
-\verb|min::gen name| replaced by \verb|int name| \\
-and name ending `{\tt g}' replaced by `{\tt i}' \\
-~~~~~\begin{tabular}[b]{ll}
-\verb|min::counti| & \verb|min::geti| \\
-\verb|min::count_flagsi| & \verb|min::get_flagsi| \\
-\verb|min::seti| & \verb|min::set_flagsi| \\
-\verb|min::add_to_seti| & \verb|min::add_to_multiseti| \\
-\verb|min::set_some_flagsi| & \verb|min::clear_some_flagsi| \\
-\verb|min::flip_some_flagsi| \\
-\verb|min::test_flagi| & \verb|min::set_flagi| \\
-\verb|min::clear_flagi| & \verb|min::flip_flagi| \\
-\end{tabular}
-\LABEL{G_TO_I_VARIANTS} \\[1ex]
-\verb|min::gen obj| replaced by \verb|min::stub * obj|
-\LABEL{MIN::GEN_REPLACED_BY_MIN::STUB} \\[1ex]
-\verb|min::gen reverse_name| omitted\\
-(implicitly equal to \verb|min::NONE|)
-\LABEL{REVERSE_NAME_OMITTED}
-\end{tabular}
 
 \end{indpar}
 
