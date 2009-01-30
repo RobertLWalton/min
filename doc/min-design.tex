@@ -2814,6 +2814,42 @@ simply checking whether the value equals {\tt min::LIST\_END},
 or can be done equivalently
 with the {\tt min::is\_list\_end} function.
 
+Often it is necessary to discover the size of an object's hash table
+or attribute vector before calling {\tt start\_hash} or
+{\tt start\_vector}.  While this can be done independently of list
+pointers, it is most efficiently done by using the following unprotected
+functions:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void MUP::|
+	& \MUPKEY{start}\verb| ( min::list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER} \\[1ex]
+\verb|unsigned MUP::|
+	& \MUPKEY{vector\_size\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_hash}%
+	  \verb| ( min::list_pointer & lp, unsigned index )|
+\LABEL{MUP::START_HASH} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_vector}%
+	  \verb| ( min::list_pointer & lp, unsigned index )|
+\LABEL{MUP::START_VECTOR} \\
+\end{tabular}\end{center}
+
+The {\tt MUP::start} function \underline{must} be called before
+any of the other functions.  Then the {\tt MUP::hash\_table\_size\_of}
+and {\tt MUP::attribute\_vector\_size\_of} functions can be called to
+discover the hash table and attribute vector sizes, followed
+by the {\tt MUP::start\_hash} or {\tt MUP::start\_vector} functions.
+The {\tt min::start\_hash} function described above simply calls
+{\tt MUP::start} followed by {\tt MUP::start\_hash}, and
+{\tt min::start\_vector} similarly calls
+{\tt MUP::\EOL start} followed by {\tt MUP::\EOL start\_vector}.
+
 A {\tt MUP::list\_pointer} cannot be used to modify a list.  If the
 only modifications desired are changing existing list elements, you can
 use a {\tt MUP::writ\-able\_\EOL list\_\EOL pointer}.
@@ -2858,6 +2894,32 @@ defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
+\end{tabular}\end{center}
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void MUP::|
+	& \MUPKEY{start}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER_OF_WRITABLE} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{hash\_size\_of}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\[1ex]
+\verb|unsigned MUP::|
+	& \MUPKEY{vector\_size\_of}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_hash}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb|   unsigned index )| \\
+	  \end{tabular}
+\LABEL{MUP::START_HASH_OF_WRITABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_vector}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb|   unsigned index )| \\
+	  \end{tabular}
+\LABEL{MUP::START_VECTOR_OF_WRITABLE} \\
 \end{tabular}\end{center}
 
 In addition the following function can be used to change the
@@ -2961,6 +3023,32 @@ defined for {\tt MUP::writ\-able\_list\_\EOL point\-er}'s are also defined for
 	  \verb| ( min::insertable_list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_INSERTABLE} \\
+\end{tabular}\end{center}
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|void MUP::|
+	& \MUPKEY{start}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER_OF_INSERTABLE} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{hash\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_INSERTABLE} \\[1ex]
+\verb|unsigned MUP::|
+	& \MUPKEY{vector\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_INSERTABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_hash}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp,| \\
+	  \verb|   unsigned index )| \\
+	  \end{tabular}
+\LABEL{MUP::START_HASH_OF_INSERTABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_vector}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp,| \\
+	  \verb|   unsigned index )| \\
+	  \end{tabular}
+\LABEL{MUP::START_VECTOR_OF_INSERTABLE} \\
 \end{tabular}\end{center}
 
 Making insertions in object lists requires reservation of the necessary
@@ -3097,44 +3185,21 @@ Any insertion before the end of a list of such a single element list
 is transformed into an insertion after the list's single element.
 \end{quote}
 
-There are several list pointer information functions that can be useful:
+As a matter of convenience, the pointer to the stub of the object
+that a list pointer is associated with can be retrieved
+by the {\tt min::stub\_of} function:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER} \\
-\verb|unsigned min::|
-	& \MINKEY{vector\_size\_of}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::VECTOR_SIZE_OF_LIST_POINTER} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER} \\[1ex]
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER_WRITABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{vector\_size\_of}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::VECTOR_SIZE_OF_LIST_POINTER_WRITABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_size\_of}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER_WRITABLE} \\[1ex]
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER_INSERTABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{vector\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::VECTOR_SIZE_OF_LIST_POINTER_INSERTABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER_INSERTABLE} \\
 \end{tabular}\end{center}
-
-A pointer to the stub of the object
-that a list pointer is associated with can be retrieved
-by the {\tt min::stub\_of} function.  The size of the attribute vector
-of this object can be retrieved by the {\tt vector\_size\_of} function,
-and the size of the hash table can be retrieved by the {\tt hash\_size\_of}
-function.
 
 \subsubsubsection{Object Auxiliary Stubs}
 \label{OBJECT-AUXILIARY-STUBS}
@@ -3643,6 +3708,8 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	  \end{tabular}
 \LABEL{MIN::RELOCATE_ATTRIBUTE_WRITABLE} \\
 \end{tabular}\end{center}
+
+\newpage
 
 There are two kinds of attribute pointers.  A {\tt min::attribute\_pointer}
 can be used to read attribute values and flags, but not write them.
@@ -5691,6 +5758,30 @@ struct min
 
 \bigskip
 
+\begin{TABULAR}{1.2in}
+\verb|void MUP::|
+	& \MUPKEY{start}\verb| ( min::list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{vector\_size\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_hash}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MUP::START_HASH} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_vector}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MUP::START_VECTOR} \\
+\end{TABULAR}
+
+\bigskip
+
 \begin{TABULAR}{1.8in}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{writable\_list\_pointer}\verb| ( min::stub * s )|
@@ -5737,6 +5828,30 @@ struct min
 	& \MINKEY{refresh}\ARGBREAK
 	  \verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_WRITABLE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|void MUP::|
+	& \MUPKEY{start}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER_OF_WRITABLE} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{hash\_size\_of}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\[1ex]
+\verb|unsigned MUP::|
+	& \MUPKEY{vector\_size\_of}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_hash}\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MUP::START_HASH_OF_WRITABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_vector}\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MUP::START_VECTOR_OF_WRITABLE} \\
 \end{TABULAR}
 
 \bigskip
@@ -5793,6 +5908,32 @@ struct min
 \bigskip
 
 \begin{TABULAR}{1.2in}
+\verb|void MUP::|
+	& \MUPKEY{start}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER_OF_INSERTABLE} \\
+\verb|unsigned MUP::|
+	& \MUPKEY{hash\_size\_of}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_INSERTABLE} \\[1ex]
+\verb|unsigned MUP::|
+	& \MUPKEY{vector\_size\_of}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_INSERTABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_hash}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MUP::START_HASH_OF_INSERTABLE} \\
+\verb|min::gen MUP::|
+	& \MUPKEY{start\_vector}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   unsigned index )|
+\LABEL{MUP::START_VECTOR_OF_INSERTABLE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
@@ -5823,36 +5964,14 @@ struct min
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER} \\
-\verb|unsigned min::|
-	& \MINKEY{vector\_size\_of}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::VECTOR_SIZE_OF_LIST_POINTER} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER} \\[1ex]
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\ARGBREAK
 	  \verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER_WRITABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{vector\_size\_of}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::VECTOR_SIZE_OF_LIST_POINTER_WRITABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_size\_of}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER_WRITABLE} \\[1ex]
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER_INSERTABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{vector\_size\_of}\ARGBREAK
-	  \verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::VECTOR_SIZE_OF_LIST_POINTER_INSERTABLE} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_size\_of}\ARGBREAK
-	  \verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER_INSERTABLE} \\
 \end{TABULAR}
 
 \end{indpar}
