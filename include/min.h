@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan 15 08:37:24 EST 2009
+// Date:	Fri Jan 30 02:24:30 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/15 13:54:02 $
+//   $Date: 2009/01/30 18:52:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.125 $
+//   $Revision: 1.126 $
 
 // Table of Contents:
 //
@@ -2980,12 +2980,9 @@ namespace min {
     // We must declare these before we make them
     // friends.
 
-    min::gen start_hash
-            ( min::unprotected::list_pointer & lp,
-	      unsigned index );
-    min::gen start_vector
-            ( min::unprotected::list_pointer & lp,
-	      unsigned index );
+    min::stub * stub_of
+    	    ( min::unprotected::list_pointer & lp );
+
     min::gen start_copy
             ( min::unprotected::list_pointer & lp,
 	      const min::unprotected::list_pointer
@@ -3035,6 +3032,22 @@ namespace min { namespace unprotected {
 	      const min::gen * p, unsigned n,
 	      min::uns64 end );
 #   endif
+
+    // We must declare these before we make them
+    // friends.
+
+    void  start
+            ( min::unprotected::list_pointer & lp );
+    min::gen start_hash
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index );
+    min::gen start_vector
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index );
+    unsigned hash_table_size_of
+            ( min::unprotected::list_pointer & lp );
+    unsigned attribute_vector_size_of
+            ( min::unprotected::list_pointer & lp );
 
     class list_pointer {
 
@@ -3236,13 +3249,23 @@ namespace min { namespace unprotected {
 		      const min::gen * p, unsigned n,
 		      min::uns64 end );
 #	endif
+	friend min::stub * min::stub_of
+		( min::unprotected::list_pointer & lp );
 
-	friend min::gen min::start_hash
+	friend void min::unprotected::start
+		( min::unprotected::list_pointer & lp );
+	friend min::gen min::unprotected::start_hash
 		( min::unprotected::list_pointer & lp,
 		  unsigned index );
-	friend min::gen min::start_vector
+	friend min::gen min::unprotected::start_vector
 		( min::unprotected::list_pointer & lp,
 		  unsigned index );
+	friend unsigned min::unprotected
+	                   ::hash_table_size_of
+		( min::unprotected::list_pointer & lp );
+	friend unsigned min::unprotected
+	                   ::attribute_vector_size_of
+		( min::unprotected::list_pointer & lp );
 	friend min::gen min::start_copy
 		( min::unprotected::list_pointer & lp,
 		  const min::unprotected::list_pointer
@@ -3288,43 +3311,6 @@ namespace min { namespace unprotected {
 		  unsigned n );
 
     // Private Helper Functions:
-
-	// Set all the members of the list pointer from
-	// the stub s.
-	//
-        void start ( void )
-	{
-	    int t = min::type_of ( s );
-	    if ( t == min::SHORT_OBJ )
-	    {
-	        so = min::unprotected::
-		     short_obj_of ( s );
-		lo = NULL;
-		base = (min::gen *) so;
-	    }
-	    else if ( t == min::LONG_OBJ )
-	    {
-	        lo = min::unprotected::
-		     long_obj_of ( s );
-		so = NULL;
-		base = (min::gen *) lo;
-	    }
-	    else
-	    {
-		MIN_ASSERT ( ! is_deallocated ( s ) );
-	        MIN_ABORT ( "s is not an object" );
-	    }
-	    current = min::LIST_END;
-	    current_index = previous_index = 0;
-	    previous_is_sublist_head = false;
-	    reserved_insertions = 0;
-	    reserved_elements = 0;
-
-#	    if MIN_USES_OBJ_AUX_STUBS
-		current_stub = previous_stub = NULL;
-		use_obj_aux_stubs = false;
-#	    endif
-	}
 
 	// Set current pointer to the index argument,
 	// and then set current.  Do fowarding if
@@ -3408,15 +3394,69 @@ namespace min { namespace unprotected {
 
 } }
 
-namespace min {
+namespace min { namespace unprotected {
 
     // Inline functions.  See MIN design document.
+
+    inline void start
+            ( min::unprotected::list_pointer & lp )
+    {
+	int t = min::type_of ( lp.s );
+	if ( t == min::SHORT_OBJ )
+	{
+	    lp.so = min::unprotected::
+		 short_obj_of ( lp.s );
+	    lp.lo = NULL;
+	    lp.base = (min::gen *) lp.so;
+	}
+	else if ( t == min::LONG_OBJ )
+	{
+	    lp.lo = min::unprotected::
+		 long_obj_of ( lp.s );
+	    lp.so = NULL;
+	    lp.base = (min::gen *) lp.lo;
+	}
+	else
+	{
+	    MIN_ASSERT ( ! is_deallocated ( lp.s ) );
+	    MIN_ABORT ( "s is not an object" );
+	}
+	lp.current = min::LIST_END;
+	lp.current_index = lp.previous_index = 0;
+	lp.previous_is_sublist_head = false;
+	lp.reserved_insertions = 0;
+	lp.reserved_elements = 0;
+
+#	if MIN_USES_OBJ_AUX_STUBS
+	    lp.current_stub = lp.previous_stub = NULL;
+	    lp.use_obj_aux_stubs = false;
+#	endif
+    }
+
+    inline unsigned hash_table_size_of
+            ( min::unprotected::list_pointer & lp )
+    {
+        if ( lp.so )
+	    return min::hash_table_size_of ( lp.so );
+	else
+	    return min::hash_table_size_of ( lp.lo );
+    }
+
+    inline unsigned attribute_vector_size_of
+            ( min::unprotected::list_pointer & lp )
+    {
+        if ( lp.so )
+	    return min::attribute_vector_size_of
+	    		( lp.so );
+	else
+	    return min::attribute_vector_size_of
+	    		( lp.lo );
+    }
 
     inline min::gen start_hash
             ( min::unprotected::list_pointer & lp,
 	      unsigned index )
     {
-	lp.start();
 	unsigned hash_table_offset;
 	unsigned hash_table_size;
         if ( lp.so )
@@ -3441,7 +3481,6 @@ namespace min {
             ( min::unprotected::list_pointer & lp,
 	      unsigned index )
     {
-	lp.start();
 	unsigned attribute_vector_offset;
 	unsigned attribute_vector_size;
         if ( lp.so )
@@ -3465,6 +3504,37 @@ namespace min {
 
 	return lp.forward
 	    ( attribute_vector_offset + index );
+    }
+
+} }
+
+
+namespace min {
+
+    // Inline functions.  See MIN design document.
+
+    inline min::stub * stub_of
+	    ( min::unprotected::list_pointer & lp )
+    {
+    	return lp.s;
+    }
+
+    inline min::gen start_hash
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index )
+    {
+        min::unprotected::start ( lp );
+	return min::unprotected
+	          ::start_hash ( lp, index );
+    }
+
+    inline min::gen start_vector
+            ( min::unprotected::list_pointer & lp,
+	      unsigned index )
+    {
+        min::unprotected::start ( lp );
+	return min::unprotected
+	          ::start_vector ( lp, index );
     }
 
     inline min::gen start_copy
@@ -3700,9 +3770,178 @@ namespace min {
 // ------ --------- -----
 
 namespace min { namespace unprotected {
+
+    class attribute_pointer;
+    class writable_attribute_pointer;
+
+} }
+
+namespace min { namespace internal {
+
+} }
+
+namespace min { 
+
+    // We must declare these before we make them
+    // friends.
+
+    void locate
+	    ( min::unprotected
+		 ::attribute_pointer & ap,
+	      min::gen name );
+    void locatei
+	    ( min::unprotected
+		 ::attribute_pointer & ap,
+	      int name );
+    void locate_reverse
+	    ( min::unprotected
+		 ::attribute_pointer & ap,
+	      min::gen reverse_name );
+    void relocate
+	    ( min::unprotected
+		 ::attribute_pointer & ap );
+
+#   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+	void locate
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  unsigned & length, min::gen name );
+#   endif
+
+}
+
+namespace min { namespace unprotected {
+
+
+    class attribute_pointer {
+
+    public:
+
+        attribute_pointer ( min::stub * s )
+	    : alp ( s ), ralp ( s ),
+	      attribute_name ( min::NONE ),
+	      reverse_attribute_name ( min::NONE )
+	{
+	}
+
+        attribute_pointer ( min::gen v )
+	    : alp ( v ), ralp ( v ),
+	      attribute_name ( min::NONE ),
+	      reverse_attribute_name ( min::NONE )
+	{
+	}
+
+    private:
+
+    // Private Data:
+
+        min::gen attribute_name;
+        min::gen reverse_attribute_name;
+
+    	min::unprotected::writable_list_pointer alp;
+	    // Pointer to attribute attribute-desriptor
+	    // or node-desriptor element in a list or
+	    // sublist, for the attribute name.
+
+    	min::unprotected::writable_list_pointer ralp;
+	    // Pointer to reverse attribute value-set
+	    // element in a list or sublist, for the
+	    // attribute name and reverse attribute
+	    // name.
+
+    // Friends:
+
+	friend void min::locate
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  min::gen name );
+	friend void min::locatei
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  int name );
+	friend void min::locate_reverse
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  min::gen reverse_name );
+	friend void min::relocate
+		( min::unprotected
+		     ::attribute_pointer & ap );
+
+#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+	    friend void min::locate
+		    ( min::unprotected
+			 ::attribute_pointer & ap,
+		      unsigned & length,
+		      min::gen name );
+#	endif
+
+    // Private Helper Functions:
+
+    };
+
+    class writable_attribute_pointer
+        : public attribute_pointer {
+
+    public:
+
+        writable_attribute_pointer ( min::stub * s )
+	    : attribute_pointer ( s ) {}
+
+        writable_attribute_pointer ( min::gen v )
+	    : attribute_pointer ( v ) {}
+
+    };
+
 } }
 
 namespace min {
+
+#    if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+#    else // not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+	inline void locate
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  min::gen name )
+	{
+	    if ( is_lab ( name ) )
+	    {
+	        min::gen v[2];
+		unsigned count = lab_of ( v, 2, name );
+		if ( count == 1 )
+		    name = v[0];
+	    }
+
+	    min::unprotected::start ( ap.alp );
+	    int i;
+	    float64 f;
+	    if ( is_num ( name )
+	         &&
+		 0 <= ( f = float_of ( name ) )
+		 &&
+		 f < min::unprotected
+		        ::attribute_vector_size_of
+			    ( ap.alp )
+		 &&
+		 ( i = (int) f ) == f )
+	        min::unprotected
+		   ::start_vector ( ap.alp, i );
+	    else
+	    {
+	        i = min::hash ( name )
+		  % min::unprotected
+		       ::hash_table_size_of ( ap.alp );
+		min::unprotected
+		   ::start_hash ( ap.alp, i );
+	    }
+
+	    // TBW
+	}
+
+#    endif
 }
 
 // Numbers
