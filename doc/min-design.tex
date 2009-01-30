@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 28, 2009}
+\date{January 30, 2009}
  
 \maketitle
 
@@ -2724,6 +2724,9 @@ are:
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST} \\
+\verb|min::stub * min::|
+	& \MINKEY{stub\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER} \\
 \verb|bool min::|
 	& \MINKEY{is\_list\_end}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LIST_END} \\
@@ -2814,6 +2817,10 @@ simply checking whether the value equals {\tt min::LIST\_END},
 or can be done equivalently
 with the {\tt min::is\_list\_end} function.
 
+A pointer to the stub of the object
+that a list pointer is associated with can be retrieved
+using the {\tt min::stub\_of} function.
+
 A {\tt MUP::list\_pointer} cannot be used to modify a list.  If the
 only modifications desired are changing existing list elements, you can
 use a {\tt MUP::writ\-able\_\EOL list\_\EOL pointer}.
@@ -2858,6 +2865,9 @@ defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
+\verb|min::stub * min::|
+	& \MINKEY{stub\_of}\verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER_WRITABLE} \\
 \end{tabular}\end{center}
 
 In addition the following function can be used to change the
@@ -2948,6 +2958,9 @@ defined for {\tt MUP::writ\-able\_list\_\EOL point\-er}'s are also defined for
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_INSERTABLE} \\
+\verb|min::stub * min::|
+	& \MINKEY{stub\_of}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER_INSERTABLE} \\
 \verb|void min::|
 	& \MINKEY{set}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -5615,7 +5628,7 @@ struct min
 
 \bigskip
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{1.5in}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::list_pointer & lp, unsigned index )|
@@ -5638,6 +5651,9 @@ struct min
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST} \\
+\verb|min::stub * min::|
+	& \MINKEY{stub\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER} \\
 \verb|bool min::|
 	& \MINKEY{is\_list\_end}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LIST_END} \\
@@ -5663,7 +5679,7 @@ struct min
 
 \bigskip
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{1.5in}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
@@ -5686,8 +5702,13 @@ struct min
 	& \MINKEY{current}\verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::writable_list_pointer & lp )|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
+\verb|min::stub * min::|
+	& \MINKEY{stub\_of}\ARGBREAK
+	  \verb| ( min::writable_list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER_WRITABLE} \\
 \verb|void min::|
 	& \MINKEY{set}\ARGBREAK
 	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
@@ -5712,7 +5733,7 @@ struct min
 
 \bigskip
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{1.5in}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
@@ -5732,12 +5753,17 @@ struct min
 	& \MINKEY{next}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_LIST_POINTER_OF_INSERTABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{current}\verb| ( min::insertable_list_pointer & lp )|
+	& \MINKEY{current}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_INSERTABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_INSERTABLE} \\
+\verb|min::stub * min::|
+	& \MINKEY{stub\_of}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER_INSERTABLE} \\
 \verb|void min::|
 	& \MINKEY{set}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
