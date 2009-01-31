@@ -913,6 +913,7 @@ MUP::gc_expand_stub_free_list (1) called
 MUP::gc_expand_stub_free_list (1) called
 MUP::gc_expand_stub_free_list (1) called
 MUP::gc_expand_stub_free_list (1) called
+MUP::gc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
@@ -922,7 +923,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    min::type_of ( s ) == min::LABEL true.
 min_interface_test.cc:XXXX assert:
     min::labhash ( s ) == labhash1 true.
 ../include/min.h:XXXX assert:
@@ -932,7 +933,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    min::type_of ( s ) == min::LABEL true.
 min_interface_test.cc:XXXX assert:
     min::labhash ( lab ) == labhash1 true.
 ../include/min.h:XXXX assert:
@@ -944,7 +945,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    min::type_of ( s ) == min::LABEL true.
 min_interface_test.cc:XXXX assert:
     min::hash ( lab ) == labhash1 true.
 ../include/min.h:XXXX assert:
