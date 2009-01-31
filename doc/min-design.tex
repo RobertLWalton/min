@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 30, 2009}
+\date{January 31, 2009}
  
 \maketitle
 
@@ -2054,12 +2054,32 @@ those given by the function arguments, in preference to creating a new
 label.  Thus two \verb|min::gen| label values with equal elements are
 \verb|==|.
 
-A label may be tested by the following protected function:
+The following function returns true if and only if its argument is
+a label:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_lab}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
 \end{tabular}\end{center}
+
+The elements of a label may be accessed sequentially using a label
+pointer:
+
+\begin{center}\begin{tabular}{r@{}l}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{label\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::LABEL_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{label\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::LABEL_POINTER_OF_GEN} \\
+\verb|min::gen min::|
+	& \MINKEY{current}\verb| ( min::label_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LABEL_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{next}\verb| ( min::label_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LABEL_POINTER} \\
+\end{tabular}\end{center}
+
 
 
 \subsection{Objects}
