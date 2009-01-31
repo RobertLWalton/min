@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan 15 10:08:47 EST 2009
+// Date:	Sat Jan 31 08:06:48 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/15 15:10:40 $
+//   $Date: 2009/01/31 13:45:45 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.66 $
+//   $Revision: 1.67 $
 
 // Table of Contents:
 //
@@ -390,76 +390,65 @@ min::uns32 min::labhash
     return hash;
 }
 
-min::uns32 min::labhash ( min::stub * s )
-{
-    MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-    min::uns64 c = MUP::value_of ( s );
-    min::uns32 hash = 1009;
-    while ( true )
-    {
-	s = MUP::stub_of_control ( c );
-	if ( s == NULL ) break;
-        hash = lab_multiplier * hash
-	     + min::hash ( MUP::gen_of ( s ) );
-	c = MUP::control_of ( s );
-    }
-    return hash;
-}
-
 min::gen min::new_lab_gen
 	( const min::gen * p, unsigned n )
 {
-    unsigned hash = labhash ( p, n );
+    uns32 hash = labhash ( p, n );
     unsigned h = hash % MUP::lab_hash_size;
+
+    // Search for existing label stub with given
+    // elements.
+    //
     min::stub * s = MUP::lab_hash[h];
     while ( s )
     {
 	MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	min::uns64 c = MUP::value_of ( s );
-	unsigned i = 0;
-	while ( true )
+	min::stub * aux = MUP::stub_of_control ( c );
+	if ( (uns32) MUP::value_of ( aux ) == hash )
 	{
-	    min::stub * aux =
-	        MUP::stub_of_control ( c );
-	    if ( aux == NULL )
+	    unsigned i = 0;
+	    while ( true )
 	    {
-	        if ( i == n )
-		    return min::new_gen ( s );
-		else
+		c = MUP::control_of ( aux );
+		aux = MUP::stub_of_control ( c );
+		if ( aux == NULL )
+		{
+		    if ( i == n )
+			return min::new_gen ( s );
+		    else
+			break;
+		}
+		if ( i >= n ) break;
+		if ( p[i++] != MUP::gen_of ( aux ) )
 		    break;
 	    }
-	    if ( i >= n ) break;
-	    if ( p[i++] != MUP::gen_of ( aux ) )
-	        break;
-	    c = MUP::control_of ( aux );
 	}
 	s = MUP::stub_of_gc_control
 		( MUP::control_of ( s ) );
     }
 
+    // Allocate new label.
+    //
     s = MUP::new_aux_stub ();
-    if ( n == 0 )
-        MUP::set_value_of ( s, 0 );
-    else
+    min::stub * aux = MUP::new_aux_stub ();
+    MUP::set_value_of
+        ( s, MUP::new_control ( 0, aux ) );
+    MUP::set_value_of ( aux, (uns64) hash );
+
+    for ( unsigned i = 0; i < n; ++ i )
     {
-        min::stub * lastq = NULL;
-	for ( unsigned i = 0; i < n; ++ i )
-	{
-	    min::stub * q = MUP::new_aux_stub ();
-	    MUP::set_gen_of ( q, p[i] );
-	    min::uns64 c = MUP::new_control
-		             ( min::LABEL_AUX, q );
-	    if ( lastq )
-		MUP::set_control_of ( lastq, c );
-	    else
-		MUP::set_value_of ( s, c );
-	    lastq = q;
-	}
+	min::stub * nextaux = MUP::new_aux_stub ();
+	MUP::set_gen_of ( nextaux, p[i] );
 	MUP::set_control_of
-	    ( lastq, MUP::new_control
-	    	         ( min::LABEL_AUX,
-			   min::uns64 (0) ) );
+	    ( aux, MUP::new_control
+	                ( min::LABEL_AUX, nextaux ) );
+	aux = nextaux;
     }
+    MUP::set_control_of
+	( aux, MUP::new_control
+		    ( min::LABEL_AUX,
+		      min::uns64 (0) ) );
     MUP::set_control_of
 	( s,
 	  MUP::new_gc_control

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jan 30 02:24:30 EST 2009
+// Date:	Sat Jan 31 04:38:19 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/30 18:52:49 $
+//   $Date: 2009/01/31 13:47:11 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.126 $
+//   $Revision: 1.127 $
 
 // Table of Contents:
 //
@@ -2272,15 +2272,20 @@ namespace min {
 // type min::LABEL_AUX.  This is done on the presumption
 // that most labels have only 2 or 3 components.
 //
-// The value of the min::LABEL stub points at the first
-// of the chain of min::LABEL_AUX stubs.  Each of these
-// has a min::gen element as value and a pointer to the
-// next stub as chain.  min::LABEL_AUX stubs are un-
-// collectable.
+// The min::LABEL stub is garbage collectible, and the
+// remaining min::LAB_AUX stubs are uncollectible.
+// Because it is collectible, the min::LABEL stub must
+// use its value to point at the first min::LAB_AUX
+// stub.  The min::LAB_AUX stubs use their control
+// to point at the next min::LAB_AUX stub.  The control
+// stub address in the last min::LAB_AUX stub is set to
+// NULL.
 //
-// All of the pointers to min::LABEL_AUX stubs are
-// stored as control values with type min::LABEL_AUX,
-// even the value member of the min::LABEL stub.
+// The first min::LAB_AUX stub contains the label's hash
+// code in its stub value, represented as a min::uns64
+// integer.  The remaining min::LAB_AUX stubs each
+// contain successive elements of the label in their
+// values.
 
 namespace min {
 
@@ -2289,14 +2294,15 @@ namespace min {
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	min::uns64 c = min::unprotected::value_of ( s );
+	s = min::unprotected::stub_of_control ( c );
 	unsigned count = 0;
         while ( count < n )
 	{
+	    c = min::unprotected::control_of ( s );
 	    s = min::unprotected::stub_of_control ( c );
 	    if ( s == NULL ) break;
 	    * p ++ = min::unprotected::gen_of ( s );
 	    ++ count;
-	    c = min::unprotected::control_of ( s );
 	}
 	return count;
     }
@@ -2311,13 +2317,14 @@ namespace min {
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	min::uns64 c = min::unprotected::value_of ( s );
+	s = min::unprotected::stub_of_control ( c );
 	unsigned count = 0;
         while ( true )
 	{
+	    c = min::unprotected::control_of ( s );
 	    s = min::unprotected::stub_of_control ( c );
 	    if ( s == NULL ) break;
 	    ++ count;
-	    c = min::unprotected::control_of ( s );
 	}
 	return count;
     }
@@ -2327,7 +2334,14 @@ namespace min {
 	return min::lablen ( min::stub_of ( v ) );
     }
 
-    min::uns32 labhash ( min::stub * s );
+    inline min::uns32 labhash ( min::stub * s )
+    {
+        MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
+	min::uns64 c = min::unprotected::value_of ( s );
+	s = min::unprotected::stub_of_control ( c );
+	c = min::unprotected::value_of ( s );
+	return (uns32) c;
+    }
     inline min::uns32 labhash ( min::gen v )
     {
 	return min::labhash ( min::stub_of ( v ) );
@@ -3898,50 +3912,77 @@ namespace min { namespace unprotected {
 
 namespace min {
 
-#    if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
-
-#    else // not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
-
-	inline void locate
-		( min::unprotected
-		     ::attribute_pointer & ap,
-		  min::gen name )
+    inline void locate
+	    ( min::unprotected
+		 ::attribute_pointer & ap,
+	      min::gen name )
+    {
+	// If name is label whose only element is an
+	// atom, set name = the atom.
+	//
+	if ( is_lab ( name ) )
 	{
-	    if ( is_lab ( name ) )
-	    {
-	        min::gen v[2];
-		unsigned count = lab_of ( v, 2, name );
-		if ( count == 1 )
-		    name = v[0];
-	    }
-
-	    min::unprotected::start ( ap.alp );
-	    int i;
-	    float64 f;
-	    if ( is_num ( name )
-	         &&
-		 0 <= ( f = float_of ( name ) )
+	    min::gen v[2];
+	    unsigned count = lab_of ( v, 2, name );
+	    if ( count == 1
 		 &&
-		 f < min::unprotected
-		        ::attribute_vector_size_of
-			    ( ap.alp )
-		 &&
-		 ( i = (int) f ) == f )
-	        min::unprotected
-		   ::start_vector ( ap.alp, i );
-	    else
-	    {
-	        i = min::hash ( name )
-		  % min::unprotected
-		       ::hash_table_size_of ( ap.alp );
-		min::unprotected
-		   ::start_hash ( ap.alp, i );
-	    }
-
-	    // TBW
+		 ( is_num ( v[0] )
+		   ||
+		   is_str ( v[0] ) ) )
+		name = v[0];
 	}
 
-#    endif
+	min::unprotected::start ( ap.alp );
+
+	// If name is an integer in the right range,
+	// locate attribute vector entry and return.
+	//
+	if ( is_num ( name ) )
+	{
+	    float64 f = float_of ( name );
+	    int i = (int) f;
+
+	    if ( i == f
+		 &&
+		 0 <= i
+		 &&
+		 i < min::unprotected
+			::attribute_vector_size_of
+			    ( ap.alp ) )
+	    {
+		min::unprotected
+		   ::start_vector ( ap.alp, i );
+		return;
+	    }
+	}
+
+	int i = min::hash ( name )
+	      % min::unprotected
+		   ::hash_table_size_of ( ap.alp );
+	min::unprotected
+	   ::start_hash ( ap.alp, i );
+
+
+#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+#	else // not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+	    for ( min::gen c = current ( ap.alp );
+	          c != min::LIST_END;
+		  next ( ap.alp), c = next ( ap.alp ) )
+	    {
+	        if ( c == name )
+		{
+		    c = next ( ap.alp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    return;
+		}
+	    }
+	    return;
+
+#	endif
+
+    }
 }
 
 // Numbers
