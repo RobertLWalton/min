@@ -910,10 +910,7 @@ Test labels:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 MUP::gc_expand_stub_free_list (1) called
-MUP::gc_expand_stub_free_list (1) called
-MUP::gc_expand_stub_free_list (1) called
-MUP::gc_expand_stub_free_list (1) called
-MUP::gc_expand_stub_free_list (1) called
+add_to_free_body (40) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
