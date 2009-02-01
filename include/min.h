@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  1 02:07:43 EST 2009
+// Date:	Sun Feb  1 11:36:09 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/01 14:01:51 $
+//   $Date: 2009/02/01 16:36:42 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.128 $
+//   $Revision: 1.129 $
 
 // Table of Contents:
 //
@@ -3931,60 +3931,145 @@ namespace min { namespace unprotected {
 
 namespace min {
 
-    inline void locate
-	    ( min::unprotected
-		 ::attribute_pointer & ap,
-	      min::gen name )
-    {
-	// If name is label whose only element is an
-	// atom, set name = the atom.
-	//
-	if ( is_lab ( name ) )
-	{
-	    min::gen v[2];
-	    unsigned count = lab_of ( v, 2, name );
-	    if ( count == 1
-		 &&
-		 ( is_num ( v[0] )
-		   ||
-		   is_str ( v[0] ) ) )
-		name = v[0];
+#   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+	namespace internal {
+
+	    void locate
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  unsigned & length,
+		  min::gen name );
+
 	}
 
-	min::unprotected::start ( ap.alp );
-
-	// If name is an integer in the right range,
-	// locate attribute vector entry and return.
-	//
-	if ( is_num ( name ) )
+	inline void locate
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  unsigned & length,
+		  min::gen name )
 	{
-	    float64 f = float_of ( name );
-	    int i = (int) f;
-
-	    if ( i == f
-		 &&
-		 0 <= i
-		 &&
-		 i < min::unprotected
-			::attribute_vector_size_of
-			    ( ap.alp ) )
+	    if ( is_lab ( name ) )
 	    {
-		min::unprotected
-		   ::start_vector ( ap.alp, i );
-		return;
+	        unsigned len = lablen ( name );
+		if ( len == 0 )
+		{
+		    length = 0;
+		    return;
+		}s
+		else if ( len > 1 )
+		{
+		    internal::locate
+		        ( ap, length, name );
+		    return;
+		}
+		lab_of ( & name, 1, name );
 	    }
+	    else
+	    {
+	        MIN_ASSERT (    is_num ( name )
+		             || is_str ( name ) );
+	    }
+
+	    min::unprotected::start ( ap.alp );
+
+	    // If name is an integer in the right range,
+	    // locate attribute vector entry and return.
+	    //
+	    if ( is_num ( name ) )
+	    {
+		float64 f = float_of ( name );
+		int i = (int) f;
+
+		if ( i == f
+		     &&
+		     0 <= i
+		     &&
+		     i < min::unprotected
+			    ::attribute_vector_size_of
+				( ap.alp ) )
+		{
+		    min::unprotected
+		       ::start_vector ( ap.alp, i );
+		    length = 1;
+		    return;
+		}
+	    }
+
+	    int i = min::hash ( name )
+		  % min::unprotected
+		       ::hash_table_size_of
+			   ( ap.alp );
+	    min::unprotected
+	       ::start_hash ( ap.alp, i );
+
+	    for ( min::gen c = current ( ap.alp );
+		  c != min::LIST_END;
+		  next ( ap.alp), c = next ( ap.alp ) )
+	    {
+		if ( c == name )
+		{
+		    c = next ( ap.alp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    length = 1;
+		    return;
+		}
+	    }
+
+	    length = 0;
 	}
 
-	int i = min::hash ( name )
-	      % min::unprotected
-		   ::hash_table_size_of ( ap.alp );
-	min::unprotected
-	   ::start_hash ( ap.alp, i );
+#   else // not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
+	inline void locate
+		( min::unprotected
+		     ::attribute_pointer & ap,
+		  min::gen name )
+	{
 
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	    // If name is label whose only element is an
+	    // atom, set name = the atom.
+	    //
+	    if ( is_lab ( name )
+		 &&
+		 lablen ( name ) == 1 )
+	    {
+		min::gen element[1];
+		lab_of ( element, 1, name );
+		if ( is_num ( element[0] )
+		     ||
+		     is_str ( element[0] ) )
+		    name = element[0];
+	    }
 
-#	else // not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	    min::unprotected::start ( ap.alp );
+
+	    // If name is an integer in the right range,
+	    // locate attribute vector entry and return.
+	    //
+	    if ( is_num ( name ) )
+	    {
+		float64 f = float_of ( name );
+		int i = (int) f;
+
+		if ( i == f
+		     &&
+		     0 <= i
+		     &&
+		     i < min::unprotected
+			    ::attribute_vector_size_of
+				( ap.alp ) )
+		{
+		    min::unprotected
+		       ::start_vector ( ap.alp, i );
+		    return;
+		}
+	    }
+
+	    int i = min::hash ( name )
+		  % min::unprotected
+		       ::hash_table_size_of ( ap.alp );
+	    min::unprotected::start_hash ( ap.alp, i );
 
 	    for ( min::gen c = current ( ap.alp );
 	          c != min::LIST_END;
@@ -3999,9 +4084,9 @@ namespace min {
 	    }
 	    return;
 
-#	endif
+	}
 
-    }
+#   endif
 }
 
 // Numbers

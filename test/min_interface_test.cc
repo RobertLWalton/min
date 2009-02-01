@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan 15 08:38:26 EST 2009
+// Date:	Sun Feb  1 08:29:20 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/15 13:54:58 $
+//   $Date: 2009/02/01 16:37:00 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.71 $
+//   $Revision: 1.72 $
 
 // Table of Contents:
 //
 //	Setup
 //	Run-Time System for Interface Tests
+//	Main Program
 //	C++ Number Types
 //	General Value Types and Data
 //	Stub Types and Data
@@ -384,6 +385,9 @@ void initialize_hash_tables ( void )
     for ( int i = 0; i < MUP::lab_hash_size; ++ i )
         MUP::lab_hash[i] = NULL;
 }
+
+// Main Program
+// ---- -------
 
 int main ()
 {
