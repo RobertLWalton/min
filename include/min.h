@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 31 04:38:19 EST 2009
+// Date:	Sun Feb  1 02:07:43 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/31 13:47:11 $
+//   $Date: 2009/02/01 14:01:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.127 $
+//   $Revision: 1.128 $
 
 // Table of Contents:
 //
@@ -2267,25 +2267,52 @@ namespace min {
 // Labels
 // ------
 
-// Labels are implemented by a chain beginning at the
-// label stub and continuing with auxiliary stubs of
-// type min::LABEL_AUX.  This is done on the presumption
-// that most labels have only 2 or 3 components.
+// Labels are implemented by a body consisting of a
+// header followed by the label elements.  The header
+// contains the length (number of elements) and the
+// hash value.
 //
-// The min::LABEL stub is garbage collectible, and the
-// remaining min::LAB_AUX stubs are uncollectible.
-// Because it is collectible, the min::LABEL stub must
-// use its value to point at the first min::LAB_AUX
-// stub.  The min::LAB_AUX stubs use their control
-// to point at the next min::LAB_AUX stub.  The control
-// stub address in the last min::LAB_AUX stub is set to
-// NULL.
-//
-// The first min::LAB_AUX stub contains the label's hash
-// code in its stub value, represented as a min::uns64
-// integer.  The remaining min::LAB_AUX stubs each
-// contain successive elements of the label in their
-// values.
+// This implementation is hidden so an implementation
+// using uncollectible stubs is also possible.
+
+namespace min { namespace internal {
+
+    struct lab_header
+    {
+        uns32		length;
+        uns32		hash;
+    };
+
+    const unsigned lab_header_size =
+        sizeof ( lab_header ) / sizeof ( min::gen );
+
+    inline min::internal::lab_header * lab_header_of
+	    ( min::stub * s )
+    {
+        return (min::internal::lab_header *)
+	       min::unprotected::pointer_of ( s );
+    }
+
+    inline unsigned lablen
+	    ( min::internal::lab_header * lh )
+    {
+        return lh->length;
+    }
+
+    inline unsigned labhash
+	    ( min::internal::lab_header * lh )
+    {
+        return lh->hash;
+    }
+
+    inline const min::gen * vector_of
+	    ( min::internal::lab_header * lh )
+    {
+        return (const min::gen *) lh
+	     + min::internal::lab_header_size;
+    }
+
+} }
 
 namespace min {
 
@@ -2293,15 +2320,16 @@ namespace min {
 	    ( min::gen * p, unsigned n, min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	min::uns64 c = min::unprotected::value_of ( s );
-	s = min::unprotected::stub_of_control ( c );
+	min::internal::lab_header * lh =
+	    min::internal::lab_header_of ( s );
+	const min::gen * q =
+	    min::internal::vector_of ( lh );
+	unsigned len = min::internal::lablen ( lh );
+
 	unsigned count = 0;
-        while ( count < n )
+        while ( count < n && len -- )
 	{
-	    c = min::unprotected::control_of ( s );
-	    s = min::unprotected::stub_of_control ( c );
-	    if ( s == NULL ) break;
-	    * p ++ = min::unprotected::gen_of ( s );
+	    * p ++ = * q ++;
 	    ++ count;
 	}
 	return count;
@@ -2316,17 +2344,8 @@ namespace min {
     inline unsigned lablen ( min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	min::uns64 c = min::unprotected::value_of ( s );
-	s = min::unprotected::stub_of_control ( c );
-	unsigned count = 0;
-        while ( true )
-	{
-	    c = min::unprotected::control_of ( s );
-	    s = min::unprotected::stub_of_control ( c );
-	    if ( s == NULL ) break;
-	    ++ count;
-	}
-	return count;
+	return min::internal::lablen
+	    ( min::internal::lab_header_of ( s ) );
     }
 
     inline unsigned lablen ( min::gen v )
@@ -2334,18 +2353,18 @@ namespace min {
 	return min::lablen ( min::stub_of ( v ) );
     }
 
-    inline min::uns32 labhash ( min::stub * s )
+    inline unsigned labhash ( min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	min::uns64 c = min::unprotected::value_of ( s );
-	s = min::unprotected::stub_of_control ( c );
-	c = min::unprotected::value_of ( s );
-	return (uns32) c;
+	return min::internal::labhash
+	    ( min::internal::lab_header_of ( s ) );
     }
+
     inline min::uns32 labhash ( min::gen v )
     {
 	return min::labhash ( min::stub_of ( v ) );
     }
+
     min::uns32 labhash
 	    ( const min::gen * p, unsigned n );
 
