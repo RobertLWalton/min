@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 31 08:06:48 EST 2009
+// Date:	Sun Feb  1 07:28:34 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/01/31 13:45:45 $
+//   $Date: 2009/02/01 14:02:13 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.67 $
+//   $Revision: 1.68 $
 
 // Table of Contents:
 //
@@ -396,59 +396,41 @@ min::gen min::new_lab_gen
     uns32 hash = labhash ( p, n );
     unsigned h = hash % MUP::lab_hash_size;
 
-    // Search for existing label stub with given
-    // elements.
+    // Search for existing label stub with given elements.
     //
     min::stub * s = MUP::lab_hash[h];
-    while ( s )
+    for ( ; s ; s = MUP::stub_of_gc_control
+			( MUP::control_of ( s ) ) )
     {
 	MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	min::uns64 c = MUP::value_of ( s );
-	min::stub * aux = MUP::stub_of_control ( c );
-	if ( (uns32) MUP::value_of ( aux ) == hash )
-	{
-	    unsigned i = 0;
-	    while ( true )
-	    {
-		c = MUP::control_of ( aux );
-		aux = MUP::stub_of_control ( c );
-		if ( aux == NULL )
-		{
-		    if ( i == n )
-			return min::new_gen ( s );
-		    else
-			break;
-		}
-		if ( i >= n ) break;
-		if ( p[i++] != MUP::gen_of ( aux ) )
-		    break;
-	    }
-	}
-	s = MUP::stub_of_gc_control
-		( MUP::control_of ( s ) );
+	MINT::lab_header * lh =
+	    MINT::lab_header_of ( s );
+
+	if ( hash != MINT::labhash ( lh ) ) continue;
+	if ( n != MINT::lablen ( lh ) ) continue;
+
+	const min::gen * q = MINT::vector_of ( lh );
+	int i;
+	for ( i = 0; i < n && p[i] == q[i]; ++ i );
+	if ( i == n ) return new_gen ( s );
     }
 
     // Allocate new label.
     //
     s = MUP::new_aux_stub ();
-    min::stub * aux = MUP::new_aux_stub ();
-    MUP::set_value_of
-        ( s, MUP::new_control ( 0, aux ) );
-    MUP::set_value_of ( aux, (uns64) hash );
+    MUP::body_control * b = MUP::new_body
+	(   sizeof ( MINT::lab_header )
+	  + n * sizeof (min::gen) );
+    b->control = MINT::pointer_to_uns64 ( s );
+    s->v.u64 = MINT::pointer_to_uns64 ( b + 1 );
 
-    for ( unsigned i = 0; i < n; ++ i )
-    {
-	min::stub * nextaux = MUP::new_aux_stub ();
-	MUP::set_gen_of ( nextaux, p[i] );
-	MUP::set_control_of
-	    ( aux, MUP::new_control
-	                ( min::LABEL_AUX, nextaux ) );
-	aux = nextaux;
-    }
-    MUP::set_control_of
-	( aux, MUP::new_control
-		    ( min::LABEL_AUX,
-		      min::uns64 (0) ) );
+    MINT::lab_header * lh =
+	(MINT::lab_header *) ( b + 1 );
+    lh->length = n;
+    lh->hash = hash;
+    memcpy ( (min::gen *) lh + MINT::lab_header_size,
+             p, n * sizeof ( min::gen ) );
+
     MUP::set_control_of
 	( s,
 	  MUP::new_gc_control
