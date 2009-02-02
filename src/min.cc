@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  1 07:28:34 EST 2009
+// Date:	Mon Feb  2 08:22:39 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/01 14:02:13 $
+//   $Date: 2009/02/02 15:20:59 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.68 $
+//   $Revision: 1.69 $
 
 // Table of Contents:
 //
@@ -27,6 +27,7 @@
 //	Labels
 //	Objects
 //	Object List Level
+//	Object Attribute Level
 
 // Setup
 // -----
@@ -1665,11 +1666,107 @@ void MINT::insert_reserve
 	lp.use_obj_aux_stubs = use_obj_aux_stubs;
 #   endif
 }
-
 
-// Numbers
-// -------
+// Object Attribute Level
+// ------ --------- -----
 
-
-// TBD
-// ---
+
+# if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+    void MINT::locate
+	    ( min::unprotected
+		 ::attribute_pointer & ap,
+	      unsigned & length,
+	      min::gen name )
+    {
+	MIN_ASSERT ( is_lab ( name ) );
+	unsigned len = lablen ( name );
+	MIN_ASSERT ( len > 1 );
+
+	ap.attribute_name = name;
+	ap.reverse_attribute_name = NONE;
+
+	min::gen element[len];
+	lab_of ( element, len, name );
+
+	min::unprotected::start ( ap.alp );
+
+	// If element[0] is an integer in the right
+	// range, locate attribute vector entry.
+	// Otherwise locate hash table entry.
+	//
+	float64 f;
+	int i;
+	if ( is_num ( element[0] )
+	     &&
+	     0 <= ( f = float_of ( element[0] ) )
+	     &&
+	     ( i = (int) f ) == f
+	     &&
+	     i < MUP::attribute_vector_size_of
+			( ap.alp ) )
+	    min::unprotected
+	       ::start_vector ( ap.alp, i );
+	else
+	{
+	    i = min::hash ( element[0] )
+	      % MUP::hash_table_size_of
+		       ( ap.alp );
+	    MUP::start_hash ( ap.alp, i );
+
+	    ap.length = length = 0;
+	    min::gen c;
+	    for ( c = current ( ap.alp );
+		  c != min::LIST_END;
+		  next ( ap.alp),
+		  c = next ( ap.alp ) )
+	    {
+		if ( c == element[0] )
+		{
+		    c = next ( ap.alp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    break;
+		}
+	    }
+	}
+
+	min::gen c = current ( ap.alp );
+	if ( c == min::LIST_END )
+	{
+	    ap.length = 0;
+	    return;
+	}
+
+	length = 1;
+
+	while ( length < len )
+	{
+	    if ( ! is_sublist ( c ) ) break;
+	    start_copy ( ap.ralp, ap.alp );
+	    start_sublist ( ap.ralp );
+	    c = current ( ap.ralp );
+	    if ( ! is_sublist ( c ) ) break;
+	    start_sublist ( ap.ralp );
+
+	    for ( c = current ( ap.ralp );
+	          c != min::LIST_END;
+		  next ( ap.ralp), c = next ( ap.ralp ) )
+	    {
+		if ( c == element[length] )
+		{
+		    c = next ( ap.ralp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    break;
+		}
+	    }
+	    if ( c == min::LIST_END ) break;
+
+	    start_copy ( ap.alp, ap.ralp );
+	    ++ length;
+	}
+
+	ap.length = length;
+	return;
+    }
+
+# endif // MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
