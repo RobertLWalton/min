@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  1 11:36:09 EST 2009
+// Date:	Mon Feb  2 07:42:52 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/01 16:36:42 $
+//   $Date: 2009/02/02 15:21:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.129 $
+//   $Revision: 1.130 $
 
 // Table of Contents:
 //
@@ -3871,6 +3871,11 @@ namespace min { namespace unprotected {
 
         min::gen attribute_name;
         min::gen reverse_attribute_name;
+
+#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	    unsigned length;
+	        // Length returned by last locate.
+#	endif
 
     	min::unprotected::writable_list_pointer alp;
 	    // Pointer to attribute attribute-desriptor
