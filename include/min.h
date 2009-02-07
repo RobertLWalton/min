@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb  2 07:42:52 EST 2009
+// Date:	Fri Feb  6 19:45:59 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/02 15:21:10 $
+//   $Date: 2009/02/07 01:42:47 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.130 $
+//   $Revision: 1.131 $
 
 // Table of Contents:
 //
@@ -3802,14 +3802,11 @@ namespace min {
 // Object Attribute Level
 // ------ --------- -----
 
+
 namespace min { namespace unprotected {
 
-    class attribute_pointer;
-    class writable_attribute_pointer;
-
-} }
-
-namespace min { namespace internal {
+    template < class list_pointer_type >
+        class attribute_pointer_type;
 
 } }
 
@@ -3818,27 +3815,32 @@ namespace min {
     // We must declare these before we make them
     // friends.
 
+    template < class list_pointer_type >
     void locate
-	    ( min::unprotected
-		 ::attribute_pointer & ap,
+	    ( unprotected::attribute_pointer_type
+	          < list_pointer_type > & ap,
 	      min::gen name );
+    template < class list_pointer_type >
     void locatei
-	    ( min::unprotected
-		 ::attribute_pointer & ap,
+	    ( unprotected::attribute_pointer_type
+	          < list_pointer_type > & ap,
 	      int name );
+    template < class list_pointer_type >
     void locate_reverse
-	    ( min::unprotected
-		 ::attribute_pointer & ap,
+	    ( unprotected::attribute_pointer_type
+	          < list_pointer_type > & ap,
 	      min::gen reverse_name );
+    template < class list_pointer_type >
     void relocate
-	    ( min::unprotected
-		 ::attribute_pointer & ap );
+	    ( unprotected::attribute_pointer_type
+	          < list_pointer_type > & ap );
 
 #   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
+	template < class list_pointer_type >
 	void locate
-		( min::unprotected
-		     ::attribute_pointer & ap,
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type > & ap,
 		  unsigned & length, min::gen name );
 #   endif
 
@@ -3847,18 +3849,19 @@ namespace min {
 namespace min { namespace unprotected {
 
 
-    class attribute_pointer {
+    template < class list_pointer_type >
+    class attribute_pointer_type {
 
     public:
 
-        attribute_pointer ( min::stub * s )
+        attribute_pointer_type ( min::stub * s )
 	    : alp ( s ), ralp ( s ),
 	      attribute_name ( min::NONE ),
 	      reverse_attribute_name ( min::NONE )
 	{
 	}
 
-        attribute_pointer ( min::gen v )
+        attribute_pointer_type ( min::gen v )
 	    : alp ( v ), ralp ( v ),
 	      attribute_name ( min::NONE ),
 	      reverse_attribute_name ( min::NONE )
@@ -3877,12 +3880,12 @@ namespace min { namespace unprotected {
 	        // Length returned by last locate.
 #	endif
 
-    	min::unprotected::writable_list_pointer alp;
+    	list_pointer_type alp;
 	    // Pointer to attribute attribute-desriptor
 	    // or node-desriptor element in a list or
 	    // sublist, for the attribute name.
 
-    	min::unprotected::writable_list_pointer ralp;
+    	list_pointer_type ralp;
 	    // Pointer to reverse attribute value-set
 	    // element in a list or sublist, for the
 	    // attribute name and reverse attribute
@@ -3890,47 +3893,45 @@ namespace min { namespace unprotected {
 
     // Friends:
 
-	friend void min::locate
-		( min::unprotected
-		     ::attribute_pointer & ap,
+	template < class list_pointer_type_1 >
+	friend void locate
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type_1 > & ap,
 		  min::gen name );
-	friend void min::locatei
-		( min::unprotected
-		     ::attribute_pointer & ap,
+	template < class list_pointer_type_1 >
+	friend void locatei
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type_1 > & ap,
 		  int name );
-	friend void min::locate_reverse
-		( min::unprotected
-		     ::attribute_pointer & ap,
+	template < class list_pointer_type_1 >
+	friend void locate_reverse
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type_1 > & ap,
 		  min::gen reverse_name );
-	friend void min::relocate
-		( min::unprotected
-		     ::attribute_pointer & ap );
+	template < class list_pointer_type_1 >
+	friend void relocate
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type_1 > & ap );
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
-	    friend void min::locate
-		    ( min::unprotected
-			 ::attribute_pointer & ap,
-		      unsigned & length,
-		      min::gen name );
+	    template < class list_pointer_type_1 >
+	    friend void locate
+		    ( unprotected::attribute_pointer_type
+			  < list_pointer_type_1 > & ap,
+		      unsigned & length, min::gen name );
 #	endif
 
     // Private Helper Functions:
 
     };
 
-    class writable_attribute_pointer
-        : public attribute_pointer {
-
-    public:
-
-        writable_attribute_pointer ( min::stub * s )
-	    : attribute_pointer ( s ) {}
-
-        writable_attribute_pointer ( min::gen v )
-	    : attribute_pointer ( v ) {}
-
-    };
+    typedef attribute_pointer_type
+	    < min::unprotected::list_pointer >
+        attribute_pointer;
+    typedef attribute_pointer_type
+	    < min::unprotected::writable_list_pointer >
+        writable_attribute_pointer;
 
 } }
 
@@ -3940,17 +3941,19 @@ namespace min {
 
 	namespace internal {
 
+	    template < class list_pointer_type >
 	    void locate
-		( min::unprotected
-		     ::attribute_pointer & ap,
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type > & ap,
 		  unsigned & length,
 		  min::gen name );
 
 	}
 
+	template < class list_pointer_type >
 	inline void locate
-		( min::unprotected
-		     ::attribute_pointer & ap,
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type > & ap,
 		  unsigned & length,
 		  min::gen name )
 	{
@@ -3961,7 +3964,7 @@ namespace min {
 		{
 		    length = 0;
 		    return;
-		}s
+		}
 		else if ( len > 1 )
 		{
 		    internal::locate
@@ -4026,9 +4029,10 @@ namespace min {
 
 #   else // not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
+	template < class list_pointer_type >
 	inline void locate
-		( min::unprotected
-		     ::attribute_pointer & ap,
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type > & ap,
 		  min::gen name )
 	{
 
