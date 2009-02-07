@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb  2 08:22:39 EST 2009
+// Date:	Fri Feb  6 13:11:07 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/02 15:20:59 $
+//   $Date: 2009/02/07 01:42:21 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.69 $
+//   $Revision: 1.70 $
 
 // Table of Contents:
 //
@@ -1673,9 +1673,10 @@ void MINT::insert_reserve
 
 # if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
+    template < class list_pointer_type >
     void MINT::locate
-	    ( min::unprotected
-		 ::attribute_pointer & ap,
+	    ( unprotected::attribute_pointer_type
+	          < list_pointer_type > & ap,
 	      unsigned & length,
 	      min::gen name )
     {

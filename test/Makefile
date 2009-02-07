@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Thu Nov 27 06:04:08 EST 2008
+# Date:		Fri Feb  6 20:25:30 EST 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2008/11/27 13:24:00 $
+#   $Date: 2009/02/07 01:41:26 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.15 $
+#   $Revision: 1.16 $
 
 # We need the following to mask RCS lines
 #
@@ -28,7 +28,9 @@ INCLUDE_FILES = \
 
 LIBRARIES =
 
-TEST_CASES = loose compact loose_stretch compact_stretch
+TEST_CASES = loose compact \
+             loose_stretch compact_stretch \
+	     loose_partial compact_partial
 
 PROGRAMS = \
     ${foreach c,${TEST_CASES},min_interface_test_$c}
@@ -74,39 +76,37 @@ min.o:	../src/min.cc
 	g++ -I ../include -c ../src/min.cc
 
 min_interface_test_loose:	\
-		min_interface_test.cc ../src/min.cc \
-		${INCLUDE_FILES} Makefile
-	g++ -g -DMIN_IS_COMPACT=0 \
-	    -DMIN_USES_OBJ_AUX_STUBS=1 \
-	    -I ../include \
-	    -o min_interface_test_loose \
-	    min_interface_test.cc ../src/min.cc
+	GFLAGS = -DMIN_IS_COMPACT=0 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_interface_test_compact:	\
-		min_interface_test.cc ../src/min.cc \
-		${INCLUDE_FILES} Makefile
-	g++ -g -DMIN_IS_COMPACT=1 \
-	    -DMIN_USES_OBJ_AUX_STUBS=1 \
-	    -I ../include \
-	    -o min_interface_test_compact \
-	    min_interface_test.cc ../src/min.cc
+	GFLAGS = -DMIN_IS_COMPACT=1 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_interface_test_loose_stretch:	\
-		min_interface_test.cc ../src/min.cc \
-		${INCLUDE_FILES} Makefile
-	g++ -g -DMIN_IS_COMPACT=0 -DMIN_STRETCH=1 \
-	    -DMIN_USES_OBJ_AUX_STUBS=1 \
-	    -I ../include \
-	    -o min_interface_test_loose_stretch \
-	    min_interface_test.cc ../src/min.cc
+	GFLAGS = -DMIN_IS_COMPACT=0 -DMIN_STRETCH=1 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_interface_test_compact_stretch:	\
+	GFLAGS = -DMIN_IS_COMPACT=1 -DMIN_STRETCH=1 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
+
+min_interface_test_loose_partial:	\
+	GFLAGS = -DMIN_IS_COMPACT=0 \
+		 -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
+
+min_interface_test_compact_partial:	\
+	GFLAGS = -DMIN_IS_COMPACT=1 \
+		 -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
+
+${PROGRAMS}:		\
 		min_interface_test.cc ../src/min.cc \
 		${INCLUDE_FILES} Makefile
-	g++ -g -DMIN_IS_COMPACT=1 -DMIN_STRETCH=1 \
-	    -DMIN_USES_OBJ_AUX_STUBS=1 \
+	g++ -g ${GFLAGS} \
 	    -I ../include \
-	    -o min_interface_test_compact_stretch \
+	    -o $@ \
 	    min_interface_test.cc ../src/min.cc
 
 clean:
