@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb  6 13:11:07 EST 2009
+// Date:	Sat Feb  7 03:24:34 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/07 01:42:21 $
+//   $Date: 2009/02/07 11:11:18 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.70 $
+//   $Revision: 1.71 $
 
 // Table of Contents:
 //
@@ -1677,7 +1677,6 @@ void MINT::insert_reserve
     void MINT::locate
 	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap,
-	      unsigned & length,
 	      min::gen name )
     {
 	MIN_ASSERT ( is_lab ( name ) );
@@ -1715,7 +1714,6 @@ void MINT::insert_reserve
 		       ( ap.alp );
 	    MUP::start_hash ( ap.alp, i );
 
-	    ap.length = length = 0;
 	    min::gen c;
 	    for ( c = current ( ap.alp );
 		  c != min::LIST_END;
@@ -1738,9 +1736,9 @@ void MINT::insert_reserve
 	    return;
 	}
 
-	length = 1;
+	ap.length = 1;
 
-	while ( length < len )
+	while ( ap.length < len )
 	{
 	    if ( ! is_sublist ( c ) ) break;
 	    start_copy ( ap.ralp, ap.alp );
@@ -1753,7 +1751,7 @@ void MINT::insert_reserve
 	          c != min::LIST_END;
 		  next ( ap.ralp), c = next ( ap.ralp ) )
 	    {
-		if ( c == element[length] )
+		if ( c == element[ap.length] )
 		{
 		    c = next ( ap.ralp );
 		    MIN_ASSERT ( c != min::LIST_END );
@@ -1763,10 +1761,9 @@ void MINT::insert_reserve
 	    if ( c == min::LIST_END ) break;
 
 	    start_copy ( ap.alp, ap.ralp );
-	    ++ length;
+	    ++ ap.length;
 	}
 
-	ap.length = length;
 	return;
     }
 
