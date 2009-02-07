@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb  6 19:45:59 EST 2009
+// Date:	Sat Feb  7 03:03:08 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/07 01:42:47 $
+//   $Date: 2009/02/07 11:11:44 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.131 $
+//   $Revision: 1.132 $
 
 // Table of Contents:
 //
@@ -3930,7 +3930,8 @@ namespace min { namespace unprotected {
 	    < min::unprotected::list_pointer >
         attribute_pointer;
     typedef attribute_pointer_type
-	    < min::unprotected::writable_list_pointer >
+	    < min::unprotected
+	         ::insertable_list_pointer >
         writable_attribute_pointer;
 
 } }
@@ -3945,7 +3946,6 @@ namespace min {
 	    void locate
 		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap,
-		  unsigned & length,
 		  min::gen name );
 
 	}
@@ -3954,24 +3954,25 @@ namespace min {
 	inline void locate
 		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap,
-		  unsigned & length,
 		  min::gen name )
 	{
+	    ap.reverse_attribute_name = min::NONE;
+	    ap.attribute_name = name;
 	    if ( is_lab ( name ) )
 	    {
 	        unsigned len = lablen ( name );
 		if ( len == 0 )
 		{
-		    length = 0;
+		    ap.length = 0;
 		    return;
 		}
 		else if ( len > 1 )
 		{
-		    internal::locate
-		        ( ap, length, name );
+		    internal::locate ( ap, name );
 		    return;
 		}
 		lab_of ( & name, 1, name );
+		ap.attribute_name = name;
 	    }
 	    else
 	    {
@@ -3999,7 +4000,7 @@ namespace min {
 		{
 		    min::unprotected
 		       ::start_vector ( ap.alp, i );
-		    length = 1;
+		    ap.length = 1;
 		    return;
 		}
 	    }
@@ -4019,13 +4020,72 @@ namespace min {
 		{
 		    c = next ( ap.alp );
 		    MIN_ASSERT ( c != min::LIST_END );
-		    length = 1;
+		    ap.length = 1;
 		    return;
 		}
 	    }
 
-	    length = 0;
+	    ap.length = 0;
 	}
+
+	template < class list_pointer_type >
+	inline void locate
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type > & ap,
+		  unsigned & length,
+		  min::gen name )
+	{
+	    locate ( ap, name );
+	    length = ap.length;
+	}
+
+	template < class list_pointer_type >
+	inline void locatei
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type > & ap,
+		  int name )
+	{
+	    ap.reverse_attribute_name = min::NONE;
+	    ap.attribute_name =
+	        min::new_num_gen ( name );
+
+	    min::unprotected::start ( ap.alp );
+
+	    if ( 0 <= name
+		 &&
+		 name < min::unprotected
+			   ::attribute_vector_size_of
+			       ( ap.alp ) )
+	    {
+		min::unprotected
+		   ::start_vector ( ap.alp, name );
+		ap.length = 1;
+		return;
+	    }
+
+	    int i = min::numhash ( ap.attribute_name )
+		  % min::unprotected
+		       ::hash_table_size_of
+			   ( ap.alp );
+	    min::unprotected
+	       ::start_hash ( ap.alp, i );
+
+	    for ( min::gen c = current ( ap.alp );
+		  c != min::LIST_END;
+		  next ( ap.alp), c = next ( ap.alp ) )
+	    {
+		if ( c == ap.attribute_name )
+		{
+		    c = next ( ap.alp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    ap.length = 1;
+		    return;
+		}
+	    }
+
+	    ap.length = 0;
+	}
+
 
 #   else // not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
@@ -4035,6 +4095,8 @@ namespace min {
 		      < list_pointer_type > & ap,
 		  min::gen name )
 	{
+	    ap.reverse_attribute_name = min::NONE;
+
 
 	    // If name is label whose only element is an
 	    // atom, set name = the atom.
@@ -4050,6 +4112,7 @@ namespace min {
 		     is_str ( element[0] ) )
 		    name = element[0];
 	    }
+	    ap.attribute_name = name;
 
 	    min::unprotected::start ( ap.alp );
 
@@ -4095,16 +4158,115 @@ namespace min {
 
 	}
 
+	template < class list_pointer_type >
+	inline void locatei
+		( unprotected::attribute_pointer_type
+		      < list_pointer_type > & ap,
+		  int name )
+	{
+	    ap.reverse_attribute_name = min::NONE;
+	    ap.attribute_name =
+	        min::new_num_gen ( name );
+
+	    min::unprotected::start ( ap.alp );
+
+	    if ( 0 <= name
+		 &&
+		 name < min::unprotected
+			   ::attribute_vector_size_of
+			       ( ap.alp ) )
+	    {
+		min::unprotected
+		   ::start_vector ( ap.alp, name );
+		return;
+	    }
+
+	    int i = min::numhash ( ap.attribute_name )
+		  % min::unprotected
+		       ::hash_table_size_of ( ap.alp );
+	    min::unprotected::start_hash ( ap.alp, i );
+
+	    for ( min::gen c = current ( ap.alp );
+	          c != min::LIST_END;
+		  next ( ap.alp), c = next ( ap.alp ) )
+	    {
+	        if ( c == ap.attribute_name )
+		{
+		    c = next ( ap.alp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    return;
+		}
+	    }
+	    return;
+
+	}
+
 #   endif
-}
-
-// Numbers
-// -------
 
-namespace min { namespace unprotected {
-} }
+    template < class list_pointer_type >
+    void locate_reverse
+	    ( unprotected::attribute_pointer_type
+		  < list_pointer_type > & ap,
+	      min::gen reverse_name )
+    {
+	if ( reverse_name == min::NONE
+	     ||
+	     reverse_name == min::ANY )
+	    return;
 
-namespace min {
+	if ( is_lab ( reverse_name )
+	     &&
+	     lablen ( reverse_name ) == 1 )
+	{
+	    min::gen atom;
+	    lab_of ( & atom, 1, reverse_name );
+	    if ( is_str ( atom )
+		 ||
+		 is_num ( atom ) )
+		reverse_name = atom;
+	}
+
+	ap.reverse_attribute_name = reverse_name;
+
+	start_copy ( ap.ralp, ap.alp );
+
+	if ( ! is_sublist ( refresh ( ap.ralp ) )
+#	   if not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	     ||
+	     ! is_sublist ( next ( ap.ralp ) )
+#	   endif
+           )
+	{
+	    start ( ap.ralp );
+	    return;
+	}
+
+	start_sublist ( ap.ralp );
+
+	for ( min::gen c = current ( ap.ralp );
+	      c != min::LIST_END;
+	      next ( ap.ralp), c = next ( ap.ralp ) )
+	{
+	    if ( c == reverse_name )
+	    {
+		c = next ( ap.ralp );
+		MIN_ASSERT ( c != min::LIST_END );
+		return;
+	    }
+	}
+	return;
+    }
+
+    template < class list_pointer_type >
+    void relocate
+	    ( unprotected::attribute_pointer_type
+	          < list_pointer_type > & ap )
+    {
+        if ( ap.attribute_name == min::NONE ) return;
+        locate ( ap, ap.attribute_name );
+        locate_reverse ( ap, ap.reverse_attribute_name );
+    }
+
 }
 
 // TBD
