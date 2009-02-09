@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 2, 2009}
+\date{February 9, 2009}
  
 \maketitle
 
@@ -2854,74 +2854,74 @@ The {\tt min::start\_hash} function described above simply calls
 
 A {\tt MUP::list\_pointer} cannot be used to modify a list.  If the
 only modifications desired are changing existing list elements, you can
-use a {\tt MUP::writ\-able\_\EOL list\_\EOL pointer}.
+use a {\tt MUP::updat\-able\_\EOL list\_\EOL pointer}.
 All the functions
 defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
-{\tt MUP::writ\-able\_\EOL list\_\EOL pointer}'s:
+{\tt MUP::updat\-able\_\EOL list\_\EOL pointer}'s:
 
 \begin{center}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_list\_pointer}\verb| ( min::stub * s )|
-\LABEL{MUP::WRITABLE_LIST_POINTER_OF_STUB} \\
+	& \MUPKEY{updatable\_list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::UPDATABLE_LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_list\_pointer}\verb| ( min::gen obj )|
-\LABEL{MUP::WRITABLE_LIST_POINTER_OF_GEN} \\
+	& \MUPKEY{updatable\_list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::UPDATABLE_LIST_POINTER_OF_GEN} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::updatable_list_pointer & lp,| \\
 	  \verb|   unsigned index )|
 	  \end{tabular}
-\LABEL{MIN::START_HASH_OF_WRITABLE} \\
+\LABEL{MIN::START_HASH_OF_UPDATABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_vector}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::updatable_list_pointer & lp,| \\
 	  \verb|   unsigned index )|
 	  \end{tabular}
-\LABEL{MIN::START_VECTOR_OF_WRITABLE} \\
+\LABEL{MIN::START_VECTOR_OF_UPDATABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
-	  \verb|   const min::writable_list_pointer & lp2 )|
+	  \verb| ( min::updatable_list_pointer & lp,| \\
+	  \verb|   const min::updatable_list_pointer & lp2 )|
 	  \end{tabular}
-\LABEL{MIN::START_COPY_OF_WRITABLE} \\
+\LABEL{MIN::START_COPY_OF_UPDATABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{next}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_WRITABLE} \\
+	& \MINKEY{next}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_UPDATABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{current}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_WRITABLE} \\
+	& \MINKEY{current}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_UPDATABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
+	& \MINKEY{start\_sublist}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_UPDATABLE} \\
 \end{tabular}\end{center}
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void MUP::|
-	& \MUPKEY{start}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MUP::START_LIST_POINTER_OF_WRITABLE} \\
+	& \MUPKEY{start}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER_OF_UPDATABLE} \\
 \verb|unsigned MUP::|
-	& \MUPKEY{hash\_size\_of}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\[1ex]
+	& \MUPKEY{hash\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_UPDATABLE} \\[1ex]
 \verb|unsigned MUP::|
-	& \MUPKEY{vector\_size\_of}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\
+	& \MUPKEY{vector\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_UPDATABLE} \\
 \verb|min::gen MUP::|
 	& \MUPKEY{start\_hash}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::updatable_list_pointer & lp,| \\
 	  \verb|   unsigned index )| \\
 	  \end{tabular}
-\LABEL{MUP::START_HASH_OF_WRITABLE} \\
+\LABEL{MUP::START_HASH_OF_UPDATABLE} \\
 \verb|min::gen MUP::|
 	& \MUPKEY{start\_vector}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::updatable_list_pointer & lp,| \\
 	  \verb|   unsigned index )| \\
 	  \end{tabular}
-\LABEL{MUP::START_VECTOR_OF_WRITABLE} \\
+\LABEL{MUP::START_VECTOR_OF_UPDATABLE} \\
 \end{tabular}\end{center}
 
 In addition the following function can be used to change the
@@ -2929,12 +2929,12 @@ current element:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::|
-	& \MINKEY{set}%
+	& \MINKEY{update}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp,| \\
+	  \verb| ( min::updatable_list_pointer & lp,| \\
 	  \verb|   min::gen value )| \\
 	  \end{tabular}
-\LABEL{MIN::SET_OF_WRITABLE} \\
+\LABEL{MIN::SET_OF_UPDATABLE} \\
 \end{tabular}\end{center}
 
 Neither the previous value of the element nor the
@@ -2964,15 +2964,15 @@ refreshes the cache and returns the current element:
 \verb|min:gen min::|
 	& \MINKEY{refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_list_pointer & lp )| \\
+	  \verb| ( min::updatable_list_pointer & lp )| \\
 	  \end{tabular}
-\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_WRITABLE} \\
+\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_UPDATABLE} \\
 \end{tabular}\end{center}
 
 Inserting and removing elements from a list requires yet another
 kind of list pointer, a {\tt MUP::insert\-able\_\EOL list\_\EOL pointer}.
 All functions
-defined for {\tt MUP::writ\-able\_list\_\EOL point\-er}'s are also defined for
+defined for {\tt MUP::updat\-able\_list\_\EOL point\-er}'s are also defined for
 {\tt MUP::insert\-able\_\EOL list\_\EOL pointer}'s:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -3013,7 +3013,7 @@ defined for {\tt MUP::writ\-able\_list\_\EOL point\-er}'s are also defined for
 	& \MINKEY{start\_sublist}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_INSERTABLE} \\
 \verb|void min::|
-	& \MINKEY{set}%
+	& \MINKEY{update}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   min::gen value )| \\
@@ -3196,8 +3196,8 @@ by the {\tt min::stub\_of} function:
 	& \MINKEY{stub\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER} \\
 \verb|min::stub * min::|
-	& \MINKEY{stub\_of}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::STUB_OF_LIST_POINTER_WRITABLE} \\
+	& \MINKEY{stub\_of}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER_UPDATABLE} \\
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER_INSERTABLE} \\
@@ -5786,11 +5786,11 @@ struct min
 
 \begin{TABULAR}{1.8in}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_list\_pointer}\verb| ( min::stub * s )|
-\LABEL{MUP::WRITABLE_LIST_POINTER_OF_STUB} \\
+	& \MUPKEY{updatable\_list\_pointer}\verb| ( min::stub * s )|
+\LABEL{MUP::UPDATABLE_LIST_POINTER_OF_STUB} \\
 (constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_list\_pointer}\verb| ( min::gen obj )|
-\LABEL{MUP::WRITABLE_LIST_POINTER_OF_GEN} \\
+	& \MUPKEY{updatable\_list\_pointer}\verb| ( min::gen obj )|
+\LABEL{MUP::UPDATABLE_LIST_POINTER_OF_GEN} \\
 \end{TABULAR}
 
 \bigskip
@@ -5798,62 +5798,62 @@ struct min
 \begin{TABULAR}{1.2in}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned index )|
-\LABEL{MIN::START_HASH_OF_WRITABLE} \\
+\LABEL{MIN::START_HASH_OF_UPDATABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_vector}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned index )|
-\LABEL{MIN::START_VECTOR_OF_WRITABLE} \\
+\LABEL{MIN::START_VECTOR_OF_UPDATABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
-	  \verb|   const min::writable_list_pointer & lp2 )|
-\LABEL{MIN::START_COPY_OF_WRITABLE} \\
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_COPY_OF_UPDATABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{next}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_WRITABLE} \\
+	& \MINKEY{next}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER_OF_UPDATABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{current}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_WRITABLE} \\
+	& \MINKEY{current}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER_OF_UPDATABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST_OF_WRITABLE} \\
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_UPDATABLE} \\
 \verb|void min::|
-	& \MINKEY{set}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	& \MINKEY{update}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen value )|
-\LABEL{MIN::SET_OF_WRITABLE} \\
+\LABEL{MIN::SET_OF_UPDATABLE} \\
 \verb|min:gen min::|
 	& \MINKEY{refresh}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_WRITABLE} \\
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_UPDATABLE} \\
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{1.2in}
 \verb|void MUP::|
-	& \MUPKEY{start}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MUP::START_LIST_POINTER_OF_WRITABLE} \\
+	& \MUPKEY{start}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MUP::START_LIST_POINTER_OF_UPDATABLE} \\
 \verb|unsigned MUP::|
-	& \MUPKEY{hash\_size\_of}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\[1ex]
+	& \MUPKEY{hash\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MUP::HASH_SIZE_OF_LIST_POINTER_OF_UPDATABLE} \\[1ex]
 \verb|unsigned MUP::|
-	& \MUPKEY{vector\_size\_of}\verb| ( min::writable_list_pointer & lp )|
-\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_WRITABLE} \\
+	& \MUPKEY{vector\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MUP::VECTOR_SIZE_OF_LIST_POINTER_OF_UPDATABLE} \\
 \verb|min::gen MUP::|
 	& \MUPKEY{start\_hash}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned index )|
-\LABEL{MUP::START_HASH_OF_WRITABLE} \\
+\LABEL{MUP::START_HASH_OF_UPDATABLE} \\
 \verb|min::gen MUP::|
 	& \MUPKEY{start\_vector}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp,|\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   unsigned index )|
-\LABEL{MUP::START_VECTOR_OF_WRITABLE} \\
+\LABEL{MUP::START_VECTOR_OF_UPDATABLE} \\
 \end{TABULAR}
 
 \bigskip
@@ -5897,7 +5897,7 @@ struct min
 	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_INSERTABLE} \\
 \verb|void min::|
-	& \MINKEY{set}\ARGBREAK
+	& \MINKEY{update}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen value )|
 \LABEL{MIN::SET_OF_INSERTABLE} \\
@@ -5968,8 +5968,8 @@ struct min
 \LABEL{MIN::STUB_OF_LIST_POINTER} \\
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\ARGBREAK
-	  \verb| ( min::writable_list_pointer & lp )|
-\LABEL{MIN::STUB_OF_LIST_POINTER_WRITABLE} \\
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::STUB_OF_LIST_POINTER_UPDATABLE} \\
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
