@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 9, 2009}
+\date{February 10, 2009}
  
 \maketitle
 
@@ -2852,6 +2852,10 @@ The {\tt min::start\_hash} function described above simply calls
 {\tt min::start\_vector} similarly calls
 {\tt MUP::\EOL start} followed by {\tt MUP::\EOL start\_vector}.
 
+The {\tt MUP::start} function can also be used just to put a list
+pointer in a state where {\tt min::current} always returns
+{\tt min::LIST\_END} and {\tt min::next} as no effect.
+
 A {\tt MUP::list\_pointer} cannot be used to modify a list.  If the
 only modifications desired are changing existing list elements, you can
 use a {\tt MUP::updat\-able\_\EOL list\_\EOL pointer}.
@@ -3159,8 +3163,19 @@ list was too short).  Element removal requires no reservation.
 If there are two list pointers, $P_1$ and $P_2$, pointing at list
 elements in the same object, and $P_1$
 is used to insert or remove elements from the list it points at,
-then $P_2$ will be invalidated if it points into the same list as $P_1$
-or into a descendant sublist of that list.  The effects can be subtle
+then $P_2$ will be invalidated if:
+
+\begin{enumerate}
+\item
+$P_2$ points at a removed element or into a sublist that previously
+was accessible only through a removed element.
+
+\item
+$P_2$ pointed at the same element as $P_1$ and the $P_1$ operation was an
+{\tt insert\_before} or {\tt insert\_after}.
+\end{enumerate}
+
+The effects can be subtle
 and not obvious: for example, using $P_1$ to insert before or after
 a list element that is an empty sublist can invalidate $P_2$
 if it points at the end of that sublist.
