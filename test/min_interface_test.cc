@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  1 08:29:20 EST 2009
+// Date:	Tue Feb 10 08:07:41 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/01 16:37:00 $
+//   $Date: 2009/02/10 14:45:43 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.72 $
+//   $Revision: 1.73 $
 
 // Table of Contents:
 //
@@ -2158,7 +2158,7 @@ int main ()
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( min::next ( wlp ) == num100 );
 	MIN_ASSERT ( min::next ( wlp ) == num101 );
-	min::set ( wlp, min::EMPTY_SUBLIST );
+	min::update ( wlp, min::EMPTY_SUBLIST );
 	MIN_ASSERT (    min::current ( wlp )
 	             == min::EMPTY_SUBLIST );
 
@@ -2299,7 +2299,7 @@ int main ()
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( min::next ( wlp ) == num100 );
 	MIN_ASSERT ( min::next ( wlp ) == num101 );
-	min::set ( wlp, min::EMPTY_SUBLIST );
+	min::update ( wlp, min::EMPTY_SUBLIST );
 	MIN_ASSERT (    min::current ( wlp )
 	             == min::EMPTY_SUBLIST );
 
