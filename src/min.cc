@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb  7 03:24:34 EST 2009
+// Date:	Tue Feb 10 08:22:42 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/07 11:11:18 $
+//   $Date: 2009/02/10 14:45:37 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.71 $
+//   $Revision: 1.72 $
 
 // Table of Contents:
 //
@@ -723,6 +723,25 @@ void MUP::allocate_stub_list
     MIN_ASSERT ( ! min::relocated_flag () );
 }
 
+void MINT::collect_aux_stub_helper ( min::stub * s )
+{
+    while ( true )
+    {
+	MINT::collect_aux_stub ( MUP::gen_of ( s ) );
+	min::uns64 c = MUP::control_of ( s );
+
+	MUP::free_stub ( s );
+
+	if ( ( c & MUP::STUB_POINTER ) == 0 ) break;
+	s =  MUP::stub_of_control ( c );
+	int type = min::type_of ( s );
+	if ( type != min::LIST_AUX
+	     &&
+	     type != min::SUBLIST_AUX )
+	    break;
+    }
+}
+
 # endif // MIN_USES_OBJ_AUX_STUBS
 
 void min::insert_before
@@ -1380,8 +1399,9 @@ unsigned min::remove
 	( MUP::insertable_list_pointer & lp,
 	  unsigned n )
 {
-    // Note: current code does NOT set orphaned sublist
-    // elements to NONE.
+    // Note: current code does NOT set orphaned elements
+    // to NONE.  Note some of these may be pointers
+    // to orphaned sublist aux stubs.
 
     unsigned unused_area_offset;
     if ( lp.so )
@@ -1433,13 +1453,14 @@ unsigned min::remove
 	    {
 		min::stub * last_stub = lp.current_stub;
 		next ( lp );
+		MINT::collect_aux_stub
+		    ( MUP::gen_of ( last_stub ) );
 		MUP::free_stub ( last_stub );
 	    }
 	    else
 #       endif
 	{
 	    MIN_ASSERT ( lp.current_index != 0 );
-	    lp.base[lp.current_index] = min::NONE;
 	    lp.current =
 		lp.base[-- lp.current_index];
 	    if ( lp.current == min::LIST_END )
@@ -1611,6 +1632,8 @@ unsigned min::remove
 
 #       if MIN_USES_OBJ_AUX_STUBS
 	    lp.previous_stub = NULL;
+	    MINT::collect_aux_stub
+		( lp.base[current_index] );
 
 	    if ( lp.current_stub != NULL )
 	    {

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb  7 03:03:08 EST 2009
+// Date:	Tue Feb 10 07:45:14 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/07 11:11:44 $
+//   $Date: 2009/02/10 14:44:39 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.132 $
+//   $Revision: 1.133 $
 
 // Table of Contents:
 //
@@ -2960,7 +2960,7 @@ namespace min {
 namespace min { namespace unprotected {
 
     class list_pointer;
-    class writable_list_pointer;
+    class updatable_list_pointer;
     class insertable_list_pointer;
 
 } }
@@ -2975,6 +2975,34 @@ namespace min { namespace internal {
 	      unsigned insertions,
 	      unsigned elements,
 	      bool use_obj_aux_stubs );
+
+#   if MIN_USES_OBJ_AUX_STUBS
+
+	// Any aux stubs used by an object MUST always
+	// be reachable from min::gen elements in the
+	// object vector body, although these elements
+	// can be disconnected from the list structure
+	// and therefore garbage.  If a min::gen value
+	// is being completely removed from the object
+	// vector body and it points at an aux stub,
+	// then that aux stub and any aux stubs it
+	// points at must be garbage collected.  This
+	// function checks a min::gen value that is
+	// being completely removed and performs the
+	// appropriate aux stub collections.
+	//
+	void collect_aux_stub_helper ( min::stub * s );
+	inline void collect_aux_stub ( min::gen v )
+	{
+	    if ( ! is_stub ( v ) ) return;
+	    min::stub * s = min::stub_of ( v );
+	    int type = min::type_of ( s );
+	    if ( type == min::LIST_AUX
+	         ||
+		 type == min::SUBLIST_AUX )
+	        collect_aux_stub_helper ( s );
+	}
+#   endif
 } }
 
 namespace min {
@@ -3028,9 +3056,9 @@ namespace min {
     	    ( min::unprotected::list_pointer & lp );
     min::gen start_sublist
     	    ( min::unprotected::list_pointer & lp );
-    void set
+    void update
     	    ( min::unprotected
-	         ::writable_list_pointer & lp,
+	         ::updatable_list_pointer & lp,
 	      min::gen value );
     void insert_reserve
     	    ( min::unprotected
@@ -3314,9 +3342,9 @@ namespace min { namespace unprotected {
 	friend min::gen min::start_sublist
 		( min::unprotected::list_pointer & lp );
 
-	friend void min::set
+	friend void min::update
 		( min::unprotected
-		     ::writable_list_pointer & lp,
+		     ::updatable_list_pointer & lp,
 		  min::gen value );
 	friend void min::insert_reserve
 		( min::unprotected
@@ -3400,28 +3428,28 @@ namespace min { namespace unprotected {
 	}
     };
 
-    class writable_list_pointer : public list_pointer {
+    class updatable_list_pointer : public list_pointer {
 
     public:
 
-        writable_list_pointer ( min::stub * s )
+        updatable_list_pointer ( min::stub * s )
 	    : list_pointer ( s ) {}
 
-        writable_list_pointer ( min::gen v )
+        updatable_list_pointer ( min::gen v )
 	    : list_pointer ( v ) {}
 
     };
 
     class insertable_list_pointer
-        : public writable_list_pointer {
+        : public updatable_list_pointer {
 
     public:
 
         insertable_list_pointer ( min::stub * s )
-	    : writable_list_pointer ( s ) {}
+	    : updatable_list_pointer ( s ) {}
 
         insertable_list_pointer ( min::gen v )
-	    : writable_list_pointer ( v ) {}
+	    : updatable_list_pointer ( v ) {}
 
     };
 
@@ -3726,9 +3754,9 @@ namespace min {
 	return lp.current;
     }
 
-    inline void set
+    inline void update
 	    ( min::unprotected
-	         ::writable_list_pointer & lp,
+	         ::updatable_list_pointer & lp,
 	      min::gen value )
     {
         MIN_ASSERT ( value != min::LIST_END );
@@ -3737,17 +3765,20 @@ namespace min {
 	             ||
 		     ! is_sublist ( value ) );
 
-	if ( lp.current_index != 0 )
-	    lp.current =
-	        lp.base[lp.current_index] = value;
 #       if MIN_USES_OBJ_AUX_STUBS
-	    else if ( lp.current_stub != NULL )
+	    min::internal
+	       ::collect_aux_stub ( lp.current );
+	    if ( lp.current_stub != NULL )
 	    {
 		min::unprotected::set_gen_of
 		    ( lp.current_stub, value );
 		lp.current = value;
 	    }
+	    else
 #	endif
+	if ( lp.current_index != 0 )
+	    lp.current =
+	        lp.base[lp.current_index] = value;
 	else
 	{
 	    MIN_ABORT ( "inconsistent list_pointer" );
