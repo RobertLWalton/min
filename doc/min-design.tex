@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 10, 2009}
+\date{February 11, 2009}
  
 \maketitle
 
@@ -3390,8 +3390,7 @@ the object lists have the syntax:
 \\[1ex]
 \emkey{hash-list} ::= {\em attribute-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{vector-list} ::=
-    {\em attribute-descriptor} {\em attribute-name-descriptor-pair}$\,^\star$
+\emkey{vector-list} ::= {\em attribute-descriptor-elements}
 \\[1ex]
 \emkey{attribute-name-descriptor-pair} ::=
     {\em attribute-name } {\em attribute-descriptor}
@@ -3400,7 +3399,9 @@ the object lists have the syntax:
 \\[1ex]
 \emkey{attribute-descriptor} ::= {\em value} $|$ {\em attribute-sublist}
 \\[1ex]
-\emkey{attribute-sublist} ::=
+\emkey{attribute-sublist} ::= {\em attribute-descriptor-elements}
+\\[1ex]
+\emkey{attribute-descriptor-elements} ::=
     {\em double-arrow-sublist-option} {\em flag-set} {\em value}$\,^\star$
 \\[1ex]
 \emkey{double-arrow-sublist} ::=
@@ -3459,19 +3460,20 @@ a single {\em value}, a common case, the {\em attribute-sublist}
 may be replaced by this single
 {\em value}, in the interests of optimizing memory.
 
-A {\em vector-list} is just like a {\em hash-list} but omits the first
-element of the list, which by implication equals the vector index of the
+A {\em vector-list} is a list that has the same format as an
+{\em attribute-sublist}.  This is associated with the
+{\em attribute-name} that equals the vector index of the
 attribute vector element in which the {\em vector-list} is stored.
 
 {\em Attribute-names} can be either {\em atoms} or {\em labels}.
 If an {\em attribute-name} is an integer {\em atom}
 that is in the range of a legal
-attribute vector index, or it the {\em attribute-name}
-begins with such an integer, then the attribute's
-{\em attribute-name-descriptor-pair}
-is put in the {\em vector-list} of the attribute vector element
+attribute vector index then a {\em vector-list} with the same format as an
+{\em attribute-sublist}
+is put in the attribute vector element
 indexed by the integer.
-Otherwise the {\em attribute-name-descriptor-pair} is put
+Otherwise an {\em attribute-name-descriptor-pair} containing
+the {\em attribute-name} is put
 in the {\em hash-list} of the object's hash table entry whose index
 in the hash table
 equals the hash of the {\em attribute-name} modulo the length of the
@@ -3482,14 +3484,6 @@ simply a sublist of alternating {\em reverse-attribute-names}
 and {\em value-sets}.  The former are just like {\em attribute-names}
 and the latter are just like {\em attribute-descriptors} that have no
 flags or {\em double-arrow-sublists}.
-
-An {\em X-pair} whose second element is an empty {\em attribute-sublist}
-or {\em value-sublist} can be added or removed without changing
-the apparent contents
-of the object at the attribute level.  There is one exception: if
-a {\em vector-list} contains a {\em attribute-name-descriptor-pair}
-the initial {\em attribute-descriptor} in the {\em vector-list} cannot
-be omitted, even if it is an empty sublist.
 
 In the interests of compatibility with the case where partial attribute
 names are supported, {\em attribute-names} and {\em reverse-attribute-names}
@@ -3504,9 +3498,11 @@ the object lists have the following alternative syntax:
 \begin{indpar}
 \emkey{hash-table-entry} ::= {\em node-list}
 \\[1ex]
-\emkey{attribute-vector-entry} ::= {\em node-descriptor}
+\emkey{attribute-vector-entry} ::= {\em vector-list}
 \\[1ex]
 \emkey{node-list} ::= {\em node-name-descriptor-pair}$\,^\star$
+\\[1ex]
+\emkey{vector-list} ::= {\em node-descriptor-elements}
 \\[1ex]
 \emkey{node-name-descriptor-pair} ::=
     {\em attribute-name-component } {\em node-descriptor}
@@ -3515,14 +3511,17 @@ the object lists have the following alternative syntax:
 \\[1ex]
 \emkey{node-descriptor} ::= {\em value} $|$ {\em node-sublist}
 \\[1ex]
-\emkey{node-sublist}
+\emkey{node-sublist} ::= {\em node-descriptor-elements}
+\\[1ex]
+\emkey{node-descriptor-elements}
     \begin{tabular}[t]{@{}r@{~}l@{}}
     ::= & {\em flag-set}
 	  {\em value}$\,^\star$ \\
     $|$ & {\em child-sublist}
-	  {\em double-arrow-sublist-option}
-	  {\em flag-set}
-	  {\em value}$\,^\star$ \\
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\em double-arrow-sublist-option} \\
+	  {\em flag-set} {\em value}$\,^\star$
+	  \end{tabular}
     \end{tabular}
 \\[1ex]
 \emkey{child-sublist} ::= {\em node-name-descriptor-pair}$\,^\star$
@@ -3554,7 +3553,8 @@ Each node has an associated {\em node-descriptor} that
 contains the node {\em values}, flags,
 and optional {\em double-arrow-sublist} which are associated
 with the {\em attribute-name} that names the path from the root to the
-node.  The {\em node-descriptor} also contains a {\em child-sublist}
+node.  The {\em node-descriptor} also may contain
+an optional {\em child-sublist}
 which describes the children of the node in the tree.
 
 A {\em hash-table-entry} is a {\em node-list} that gives alternating
@@ -3586,18 +3586,9 @@ the {\em node-descriptor} structure is the same was as that of the
 not allowed.  The {\em double-arrow-sublist} structure is exactly
 the same.
 
-A node whose {\em node-descriptor} is an empty list can be added or removed
-without changing the apparent contents
-of the object at the attribute level.
-
 In this data structure attribute names must be sequences and cannot be
 atoms.  Functions that access this structure convert any atom attribute name
 to a label whose sole component is the atom.
-
-An attribute that does not exist is equivalent to an attribute with
-an empty value set and all zero flags.  A reverse attribute name that does
-not exist for a particular attribute is equivalent to that name with an
-empty value set.
 
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
 are represented by a {\em flag-set} in an {\em attribute-sublist} or

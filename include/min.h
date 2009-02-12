@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/12 08:09:02 $
+//   $Date: 2009/02/12 08:24:01 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.134 $
+//   $Revision: 1.135 $
 
 // Table of Contents:
 //
@@ -4000,6 +4000,12 @@ namespace min {
 
 	namespace internal {
 
+	    // This function performs locate for names
+	    // with more than one component and sets
+	    // ap.length.  It does NOT set
+	    // ATTRIBUTE_FOUND unless the entire
+	    // label is used.
+	    //
 	    template < class list_pointer_type >
 	    void locate
 		( internal::attribute_pointer_type
@@ -4105,8 +4111,13 @@ namespace min {
 		  unsigned & length,
 		  min::gen name )
 	{
+	    typedef internal::attribute_pointer_type
+			< list_pointer_type > ap_type;
+
 	    locate ( ap, name );
 	    length = ap.length;
+	    if ( length > 0 )
+		ap.flags |= ap_type::ATTRIBUTE_FOUND;
 	}
 
 	template < class list_pointer_type >
