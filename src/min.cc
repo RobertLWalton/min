@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 10 08:22:42 EST 2009
+// Date:	Wed Feb 11 08:00:18 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/10 14:45:37 $
+//   $Date: 2009/02/12 08:24:29 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.72 $
+//   $Revision: 1.73 $
 
 // Table of Contents:
 //
@@ -1698,10 +1698,13 @@ void MINT::insert_reserve
 
     template < class list_pointer_type >
     void MINT::locate
-	    ( unprotected::attribute_pointer_type
+	    ( MINT::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      min::gen name )
     {
+	typedef internal::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
 	MIN_ASSERT ( is_lab ( name ) );
 	unsigned len = lablen ( name );
 	MIN_ASSERT ( len > 1 );
@@ -1728,14 +1731,20 @@ void MINT::insert_reserve
 	     &&
 	     i < MUP::attribute_vector_size_of
 			( ap.alp ) )
+	{
 	    min::unprotected
 	       ::start_vector ( ap.alp, i );
+	    ap.flags = ap_type::IN_VECTOR;
+	    ap.index = i;
+	}
 	else
 	{
-	    i = min::hash ( element[0] )
-	      % MUP::hash_table_size_of
-		       ( ap.alp );
-	    MUP::start_hash ( ap.alp, i );
+	    ap.index = min::hash ( element[0] )
+	             % MUP::hash_table_size_of
+		              ( ap.alp );
+	    ap.flags = 0;
+
+	    MUP::start_hash ( ap.alp, ap.index );
 
 	    min::gen c;
 	    for ( c = current ( ap.alp );
@@ -1787,6 +1796,8 @@ void MINT::insert_reserve
 	    ++ ap.length;
 	}
 
+	if ( ap.length == len )
+	    ap.flags |= ap_type::ATTRIBUTE_FOUND;
 	return;
     }
 
