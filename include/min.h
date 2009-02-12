@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 10 07:45:14 EST 2009
+// Date:	Wed Feb 11 07:54:07 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/10 14:44:39 $
+//   $Date: 2009/02/12 08:09:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.133 $
+//   $Revision: 1.134 $
 
 // Table of Contents:
 //
@@ -3834,7 +3834,10 @@ namespace min {
 // ------ --------- -----
 
 
-namespace min { namespace unprotected {
+namespace min { namespace internal {
+
+    // This is the generic attribute pointer type from
+    // which specific attribute pointer types are made.
 
     template < class list_pointer_type >
         class attribute_pointer_type;
@@ -3848,36 +3851,36 @@ namespace min {
 
     template < class list_pointer_type >
     void locate
-	    ( unprotected::attribute_pointer_type
+	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      min::gen name );
     template < class list_pointer_type >
     void locatei
-	    ( unprotected::attribute_pointer_type
+	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      int name );
     template < class list_pointer_type >
     void locate_reverse
-	    ( unprotected::attribute_pointer_type
+	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      min::gen reverse_name );
     template < class list_pointer_type >
     void relocate
-	    ( unprotected::attribute_pointer_type
+	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap );
 
 #   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
 	template < class list_pointer_type >
 	void locate
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  unsigned & length, min::gen name );
 #   endif
 
 }
 
-namespace min { namespace unprotected {
+namespace min { namespace internal {
 
 
     template < class list_pointer_type >
@@ -3913,7 +3916,7 @@ namespace min { namespace unprotected {
 
     	list_pointer_type alp;
 	    // Pointer to attribute attribute-desriptor
-	    // or node-desriptor element in a list or
+	    // or node-descriptor element in a list or
 	    // sublist, for the attribute name.
 
     	list_pointer_type ralp;
@@ -3922,45 +3925,69 @@ namespace min { namespace unprotected {
 	    // attribute name and reverse attribute
 	    // name.
 
+	unsigned index;
+	    // Hash or attribute vector index.
+
+	unsigned flags;
+	    enum {
+	        IN_VECTOR	= ( 1 << 0 ),
+		    // On if index is attribute vector
+		    // index; off it its hash table
+		    // index.
+
+		ATTRIBUTE_FOUND	= ( 1 << 1 ),
+		    // Attribute was successfully
+		    // located.
+
+		REVERSE_ATTRIBUTE_FOUND	= ( 1 << 2 ),
+		    // Reverse attribute was
+		    // successfully located.
+	    };
+	        
+
     // Friends:
 
 	template < class list_pointer_type_1 >
 	friend void locate
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type_1 > & ap,
 		  min::gen name );
 	template < class list_pointer_type_1 >
 	friend void locatei
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type_1 > & ap,
 		  int name );
 	template < class list_pointer_type_1 >
 	friend void locate_reverse
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type_1 > & ap,
 		  min::gen reverse_name );
 	template < class list_pointer_type_1 >
 	friend void relocate
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type_1 > & ap );
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
 	    template < class list_pointer_type_1 >
 	    friend void locate
-		    ( unprotected::attribute_pointer_type
+		    ( internal::attribute_pointer_type
 			  < list_pointer_type_1 > & ap,
 		      unsigned & length, min::gen name );
 #	endif
 
-    // Private Helper Functions:
-
     };
 
-    typedef attribute_pointer_type
+} }
+
+namespace min { namespace unprotected {
+
+    // Public unprotected attribute pointer types.
+
+    typedef internal::attribute_pointer_type
 	    < min::unprotected::list_pointer >
         attribute_pointer;
-    typedef attribute_pointer_type
+    typedef internal::attribute_pointer_type
 	    < min::unprotected
 	         ::insertable_list_pointer >
         writable_attribute_pointer;
@@ -3975,7 +4002,7 @@ namespace min {
 
 	    template < class list_pointer_type >
 	    void locate
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  min::gen name );
 
@@ -3983,10 +4010,13 @@ namespace min {
 
 	template < class list_pointer_type >
 	inline void locate
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  min::gen name )
 	{
+	    typedef internal::attribute_pointer_type
+			< list_pointer_type > ap_type;
+
 	    ap.reverse_attribute_name = min::NONE;
 	    ap.attribute_name = name;
 	    if ( is_lab ( name ) )
@@ -3995,6 +4025,7 @@ namespace min {
 		if ( len == 0 )
 		{
 		    ap.length = 0;
+		    ap.flags = 0;
 		    return;
 		}
 		else if ( len > 1 )
@@ -4032,16 +4063,20 @@ namespace min {
 		    min::unprotected
 		       ::start_vector ( ap.alp, i );
 		    ap.length = 1;
+		    ap.index = i;
+		    ap.flags = ap_type::IN_VECTOR
+		             | ap_type::ATTRIBUTE_FOUND;
+
 		    return;
 		}
 	    }
 
-	    int i = min::hash ( name )
-		  % min::unprotected
-		       ::hash_table_size_of
-			   ( ap.alp );
+	    ap.index = min::hash ( name )
+		     % min::unprotected
+		          ::hash_table_size_of
+			      ( ap.alp );
 	    min::unprotected
-	       ::start_hash ( ap.alp, i );
+	       ::start_hash ( ap.alp, ap.index );
 
 	    for ( min::gen c = current ( ap.alp );
 		  c != min::LIST_END;
@@ -4052,16 +4087,20 @@ namespace min {
 		    c = next ( ap.alp );
 		    MIN_ASSERT ( c != min::LIST_END );
 		    ap.length = 1;
+		    ap.flags = ap_type::ATTRIBUTE_FOUND;
 		    return;
 		}
 	    }
 
+	    min::unprotected
+	       ::start_hash ( ap.alp, ap.index );
 	    ap.length = 0;
+	    ap.flags = 0;
 	}
 
 	template < class list_pointer_type >
 	inline void locate
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  unsigned & length,
 		  min::gen name )
@@ -4072,10 +4111,13 @@ namespace min {
 
 	template < class list_pointer_type >
 	inline void locatei
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  int name )
 	{
+	    typedef internal::attribute_pointer_type
+			< list_pointer_type > ap_type;
+
 	    ap.reverse_attribute_name = min::NONE;
 	    ap.attribute_name =
 	        min::new_num_gen ( name );
@@ -4091,15 +4133,18 @@ namespace min {
 		min::unprotected
 		   ::start_vector ( ap.alp, name );
 		ap.length = 1;
+		ap.index = name;
+		ap.flags = ap_type::IN_VECTOR
+		         | ap_type::ATTRIBUTE_FOUND;
 		return;
 	    }
 
-	    int i = min::numhash ( ap.attribute_name )
-		  % min::unprotected
-		       ::hash_table_size_of
-			   ( ap.alp );
+	    ap.index = min::numhash ( ap.attribute_name )
+		     % min::unprotected
+		          ::hash_table_size_of
+			      ( ap.alp );
 	    min::unprotected
-	       ::start_hash ( ap.alp, i );
+	       ::start_hash ( ap.alp, ap.index );
 
 	    for ( min::gen c = current ( ap.alp );
 		  c != min::LIST_END;
@@ -4110,11 +4155,13 @@ namespace min {
 		    c = next ( ap.alp );
 		    MIN_ASSERT ( c != min::LIST_END );
 		    ap.length = 1;
+		    ap.flags = ap_type::ATTRIBUTE_FOUND;
 		    return;
 		}
 	    }
 
 	    ap.length = 0;
+	    ap.flags = 0;
 	}
 
 
@@ -4122,10 +4169,13 @@ namespace min {
 
 	template < class list_pointer_type >
 	inline void locate
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  min::gen name )
 	{
+	    typedef internal::attribute_pointer_type
+			< list_pointer_type > ap_type;
+
 	    ap.reverse_attribute_name = min::NONE;
 
 
@@ -4165,14 +4215,19 @@ namespace min {
 		{
 		    min::unprotected
 		       ::start_vector ( ap.alp, i );
+		    ap.index = i;
+		    ap.flags = ap_type::IN_VECTOR
+		             | ap_type::ATTRIBUTE_FOUND;
 		    return;
 		}
 	    }
 
-	    int i = min::hash ( name )
-		  % min::unprotected
-		       ::hash_table_size_of ( ap.alp );
-	    min::unprotected::start_hash ( ap.alp, i );
+	    ap.index = min::hash ( name )
+		     % min::unprotected
+		          ::hash_table_size_of
+			      ( ap.alp );
+	    min::unprotected::start_hash
+	        ( ap.alp, ap.index );
 
 	    for ( min::gen c = current ( ap.alp );
 	          c != min::LIST_END;
@@ -4182,19 +4237,27 @@ namespace min {
 		{
 		    c = next ( ap.alp );
 		    MIN_ASSERT ( c != min::LIST_END );
+		    ap.flags = ap_type::ATTRIBUTE_FOUND;
 		    return;
 		}
 	    }
+
+	    min::unprotected::start_hash
+	        ( ap.alp, ap.index );
+	    ap.flags = 0;
 	    return;
 
 	}
 
 	template < class list_pointer_type >
 	inline void locatei
-		( unprotected::attribute_pointer_type
+		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  int name )
 	{
+	    typedef internal::attribute_pointer_type
+			< list_pointer_type > ap_type;
+
 	    ap.reverse_attribute_name = min::NONE;
 	    ap.attribute_name =
 	        min::new_num_gen ( name );
@@ -4209,13 +4272,19 @@ namespace min {
 	    {
 		min::unprotected
 		   ::start_vector ( ap.alp, name );
+		ap.index = name;
+		ap.flags = ap_type::IN_VECTOR
+			 | ap_type::ATTRIBUTE_FOUND;
 		return;
 	    }
 
-	    int i = min::numhash ( ap.attribute_name )
-		  % min::unprotected
-		       ::hash_table_size_of ( ap.alp );
-	    min::unprotected::start_hash ( ap.alp, i );
+	    ap.index = min::numhash
+	    		    ( ap.attribute_name )
+		     % min::unprotected
+		          ::hash_table_size_of
+			    ( ap.alp );
+	    min::unprotected::start_hash
+		( ap.alp, ap.index );
 
 	    for ( min::gen c = current ( ap.alp );
 	          c != min::LIST_END;
@@ -4225,9 +4294,11 @@ namespace min {
 		{
 		    c = next ( ap.alp );
 		    MIN_ASSERT ( c != min::LIST_END );
+		    ap.flags = ap_type::ATTRIBUTE_FOUND;
 		    return;
 		}
 	    }
+	    ap.flags = 0;
 	    return;
 
 	}
@@ -4236,14 +4307,22 @@ namespace min {
 
     template < class list_pointer_type >
     void locate_reverse
-	    ( unprotected::attribute_pointer_type
+	    ( internal::attribute_pointer_type
 		  < list_pointer_type > & ap,
 	      min::gen reverse_name )
     {
+	typedef internal::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
 	if ( reverse_name == min::NONE
 	     ||
 	     reverse_name == min::ANY )
+	{
+	    ap.reverse_attribute_name = reverse_name;
+	    ap.flags &=
+	        ~ ap_type::REVERSE_ATTRIBUTE_FOUND;
 	    return;
+	}
 
 	if ( is_lab ( reverse_name )
 	     &&
@@ -4269,6 +4348,8 @@ namespace min {
            )
 	{
 	    start ( ap.ralp );
+	    ap.flags &=
+	        ~ ap_type::REVERSE_ATTRIBUTE_FOUND;
 	    return;
 	}
 
@@ -4282,15 +4363,18 @@ namespace min {
 	    {
 		c = next ( ap.ralp );
 		MIN_ASSERT ( c != min::LIST_END );
+		ap.flags |=
+		    ap_type::REVERSE_ATTRIBUTE_FOUND;
 		return;
 	    }
 	}
+	ap.flags &= ~ ap_type::REVERSE_ATTRIBUTE_FOUND;
 	return;
     }
 
     template < class list_pointer_type >
     void relocate
-	    ( unprotected::attribute_pointer_type
+	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
         if ( ap.attribute_name == min::NONE ) return;
