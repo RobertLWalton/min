@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 11 07:54:07 EST 2009
+// Date:	Sat Feb 14 20:19:02 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/12 08:24:01 $
+//   $Date: 2009/02/15 16:43:59 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.135 $
+//   $Revision: 1.136 $
 
 // Table of Contents:
 //
@@ -105,6 +105,7 @@ namespace min {
 	typedef uns64 gen;
 #   endif
 
+
 #   if MIN_IS_COMPACT
 
 	// Layout (high order 8 bits)
@@ -140,8 +141,13 @@ namespace min {
 	const unsigned GEN_UPPER
 	    = 0xFF; // Largest subtype code.
 
-#	define MIN_NEW_SPECIAL_GEN(i) \
-	    ( min::gen ( (GEN_SPECIAL << 24) + (i) ) )
+	typedef uns32 UNS_GEN;
+	    // Unsigned type convertable to a min::gen
+	    // value.
+	const unsigned TSIZE = 8;
+	const unsigned VSIZE = 24;
+	    // Sized of type and value field in a
+	    // min:gen.
 
 #   elif MIN_IS_LOOSE
 
@@ -182,12 +188,21 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 	    // Largest subtype code.
 
+	typedef uns64 UNS_GEN;
+	    // Unsigned type convertable to a min::gen
+	    // value.
+	const unsigned TSIZE = 24;
+	const unsigned VSIZE = 40;
+	    // Sized of type and value field in a
+	    // min:gen.
 
-#	define MIN_NEW_SPECIAL_GEN(i) \
-	    ( min::gen \
-	        (   (min::uns64(GEN_SPECIAL) << 40) \
-		  + (i) ) )
 #   endif
+
+#   define MIN_NEW_SPECIAL_GEN(i) \
+	( min::gen ( (   min::UNS_GEN \
+	                      ( min::GEN_SPECIAL ) \
+	              << min::VSIZE ) \
+		     + ( i ) ) )
 
     // MIN special values must have indices in the
     // range 2**24 - 256 .. 2**24 - 1.
@@ -420,7 +435,7 @@ namespace min { namespace unprotected {
 	{
 	    return (min::gen)
 	           (  (uns32) v
-		    + ( GEN_DIRECT_INT << 24 )
+		    + ( GEN_DIRECT_INT << VSIZE )
 		    + ( 1 << 27 ) );
 	}
 	// Unimplemented for COMPACT:
@@ -428,7 +443,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_direct_str_gen
 		( const char * p )
 	{
-	    uns32 v = (uns32) GEN_DIRECT_STR << 24;
+	    uns32 v = (uns32) GEN_DIRECT_STR << VSIZE;
 	    char * s = ( (char *) & v )
 		     + MIN_IS_BIG_ENDIAN;
 	       ( * s ++ = * p ++ )
@@ -439,7 +454,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_direct_str_gen
 		( const char * p, unsigned n )
 	{
-	    uns32 v = (uns32) GEN_DIRECT_STR << 24;
+	    uns32 v = (uns32) GEN_DIRECT_STR << VSIZE;
 	    char * s = ( (char *) & v )
 		     + MIN_IS_BIG_ENDIAN;
 	       ( n >= 1 && ( * s ++ = * p ++ ) )
@@ -450,45 +465,42 @@ namespace min { namespace unprotected {
 	inline min::gen new_list_aux_gen ( unsigned p )
 	{
 	    return (min::gen)
-	           ( p + ( GEN_LIST_AUX << 24 ) );
+	           ( p + ( GEN_LIST_AUX << VSIZE ) );
 	}
 	inline min::gen new_sublist_aux_gen
 		( unsigned p )
 	{
 	    return (min::gen)
-	           ( p + ( GEN_SUBLIST_AUX << 24 ) );
+	           ( p + ( GEN_SUBLIST_AUX << VSIZE ) );
 	}
 	inline min::gen new_indirect_pair_aux_gen
 		( unsigned p )
 	{
 	    return (min::gen)
-	        ( p + ( GEN_INDIRECT_PAIR_AUX << 24 ) );
+	        ( p + ( GEN_INDIRECT_PAIR_AUX << VSIZE ) );
 	}
 	inline min::gen new_indexed_aux_gen
 		( unsigned p, unsigned i )
 	{
 	    return (min::gen)
-	        (   ( p << 12 ) + i
-		  + ( GEN_INDEXED_AUX << 24 ) );
+	        (   ( p << VSIZE / 2 ) + i
+		  + ( GEN_INDEXED_AUX << VSIZE ) );
 	}
 	inline min::gen new_index_gen ( unsigned i )
 	{
 	    return (min::gen)
-	           ( i + ( GEN_INDEX << 24 ) );
+	           ( i + ( GEN_INDEX << VSIZE ) );
 	}
 	inline min::gen new_control_code_gen
 		( unsigned c )
 	{
 	    return (min::gen)
-	           ( c + ( GEN_CONTROL_CODE << 24 ) );
+	           ( c + ( GEN_CONTROL_CODE << VSIZE ) );
 	}
-	// Unimplemented for COMPACT:
-	//  min::gen new_long_control_code_gen
-	//	( unsigned c )
 	inline min::gen new_special_gen ( unsigned i )
 	{
 	    return (min::gen)
-	           ( i + ( GEN_SPECIAL << 24 ) );
+	           ( i + ( GEN_SPECIAL << VSIZE ) );
 	}
 	inline min::gen renew_gen
 		( min::gen v, min::uns32 p )
@@ -653,19 +665,19 @@ namespace min {
     }
     inline min::gen new_list_aux_gen ( unsigned p )
     {
-	MIN_ASSERT ( p < 1 << 24 );
+	MIN_ASSERT ( p < 1 << VSIZE );
 	return unprotected::new_list_aux_gen ( p );
     }
     inline min::gen new_sublist_aux_gen
 	    ( unsigned p )
     {
-	MIN_ASSERT ( p < 1 << 24 );
+	MIN_ASSERT ( p < 1 << VSIZE );
 	return unprotected::new_sublist_aux_gen ( p );
     }
     inline min::gen new_indirect_pair_aux_gen
 	    ( unsigned p )
     {
-	MIN_ASSERT ( p < 1 << 24 );
+	MIN_ASSERT ( p < 1 << VSIZE );
 	return unprotected::new_indirect_pair_aux_gen
 			( p );
     }
@@ -690,29 +702,19 @@ namespace min {
 #   endif
     inline min::gen new_index_gen ( unsigned i )
     {
-	MIN_ASSERT ( i < 1 << 24 );
+	MIN_ASSERT ( i < 1 << VSIZE );
 	return unprotected::new_index_gen ( i );
     }
     inline min::gen new_control_code_gen
 	    ( unsigned c )
     {
-	MIN_ASSERT ( c < 1 << 24 );
+	MIN_ASSERT ( c < 1 << VSIZE );
 	return unprotected::new_control_code_gen ( c );
     }
-#   if MIN_IS_LOOSE
-	inline min::gen new_long_control_code_gen
-		( min::uns64 c )
-	{
-	    MIN_ASSERT ( c < (uns64) 1 << 40 );
-	    return
-	      unprotected::new_long_control_code_gen
-	      	( c );
-	}
-#   endif
     inline min::gen new_special_gen
 	    ( unsigned i )
     {
-	MIN_ASSERT ( i < 1 << 24 );
+	MIN_ASSERT ( i < 1 << VSIZE );
 	return unprotected::new_special_gen ( i );
     }
 }
@@ -725,7 +727,7 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline bool is_stub ( min::gen v )
 	{
-	    return ( v < ( GEN_DIRECT_INT << 24 ) );
+	    return ( v < ( GEN_DIRECT_INT << VSIZE ) );
 	}
 	// Unimplemented for COMPACT:
 	//  bool is_direct_float ( min::gen v )
@@ -735,40 +737,40 @@ namespace min {
 	}
 	inline bool is_direct_str ( min::gen v )
 	{
-	    return ( v >> 24 == GEN_DIRECT_STR );
+	    return ( v >> VSIZE == GEN_DIRECT_STR );
 	}
 	inline bool is_list_aux ( min::gen v )
 	{
-	    return ( v >> 24 == GEN_LIST_AUX );
+	    return ( v >> VSIZE == GEN_LIST_AUX );
 	}
 	inline bool is_sublist_aux ( min::gen v )
 	{
-	    return ( v >> 24 == GEN_SUBLIST_AUX );
+	    return ( v >> VSIZE == GEN_SUBLIST_AUX );
 	}
 	inline bool is_indirect_pair_aux ( min::gen v )
 	{
 	    return
-	        ( v >> 24 == GEN_INDIRECT_PAIR_AUX );
+	        ( v >> VSIZE == GEN_INDIRECT_PAIR_AUX );
 	}
 	inline bool is_indexed_aux ( min::gen v )
 	{
-	    return ( v >> 24 == GEN_INDEXED_AUX );
+	    return ( v >> VSIZE == GEN_INDEXED_AUX );
 	}
 	inline bool is_index ( min::gen v )
 	{
-	    return ( v >> 24 == GEN_INDEX );
+	    return ( v >> VSIZE == GEN_INDEX );
 	}
 	inline bool is_control_code ( min::gen v )
 	{
-	    return ( v >> 24 == GEN_CONTROL_CODE );
+	    return ( v >> VSIZE == GEN_CONTROL_CODE );
 	}
 	inline bool is_special ( min::gen v )
 	{
-	    return ( v >> 24 == GEN_SPECIAL );
+	    return ( v >> VSIZE == GEN_SPECIAL );
 	}
 	inline unsigned gen_subtype_of ( min::gen v )
 	{
-	    v = (min::uns32) v >> 24;
+	    v = (min::uns32) v >> VSIZE;
 	    if ( v < GEN_DIRECT_INT )
 	        return GEN_STUB;
 	    else if ( v < GEN_DIRECT_STR)
@@ -797,40 +799,40 @@ namespace min {
 	//   bool is_direct_int ( min::gen v )
 	inline bool is_direct_str ( min::gen v )
 	{
-	    return ( v >> 40 == GEN_DIRECT_STR );
+	    return ( v >> VSIZE == GEN_DIRECT_STR );
 	}
 	inline bool is_list_aux ( min::gen v )
 	{
-	    return ( v >> 40 == GEN_LIST_AUX );
+	    return ( v >> VSIZE == GEN_LIST_AUX );
 	}
 	inline bool is_sublist_aux ( min::gen v )
 	{
-	    return ( v >> 40 == GEN_SUBLIST_AUX );
+	    return ( v >> VSIZE == GEN_SUBLIST_AUX );
 	}
 	inline bool is_indirect_pair_aux ( min::gen v )
 	{
 	    return
-	        ( v >> 40 == GEN_INDIRECT_PAIR_AUX );
+	        ( v >> VSIZE == GEN_INDIRECT_PAIR_AUX );
 	}
 	inline bool is_indexed_aux ( min::gen v )
 	{
-	    return ( v >> 40 == GEN_INDEXED_AUX );
+	    return ( v >> VSIZE == GEN_INDEXED_AUX );
 	}
 	inline bool is_index ( min::gen v )
 	{
-	    return ( v >> 40 == GEN_INDEX );
+	    return ( v >> VSIZE == GEN_INDEX );
 	}
 	inline bool is_control_code ( min::gen v )
 	{
-	    return ( v >> 40 == GEN_CONTROL_CODE );
+	    return ( v >> VSIZE == GEN_CONTROL_CODE );
 	}
 	inline bool is_special ( min::gen v )
 	{
-	    return ( v >> 40 == GEN_SPECIAL );
+	    return ( v >> VSIZE == GEN_SPECIAL );
 	}
 	inline unsigned gen_subtype_of ( min::gen v )
 	{
-	    v = (min::uns64) v >> 40;
+	    v = (min::uns64) v >> VSIZE;
 	    if ( v < GEN_STUB )
 	        return GEN_DIRECT_FLOAT;
 	    else if ( v < GEN_DIRECT_STR)
@@ -863,13 +865,13 @@ namespace min { namespace unprotected {
 	inline int direct_int_of ( min::gen v )
 	{
 	    return (int32)
-	           ( v - ( GEN_DIRECT_INT << 24 )
+	           ( v - ( GEN_DIRECT_INT << VSIZE )
 		       - ( 1 << 27 ) );
 	}
 	inline uns64 direct_str_of ( min::gen v )
 	{
 #	    if MIN_IS_BIG_ENDIAN
-		return ( uns64 ( v ) << 40 );
+		return ( uns64 ( v ) << VSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
 		return ( uns64 ( v & 0xFFFFFF ) );
 #	    endif
@@ -924,7 +926,7 @@ namespace min { namespace unprotected {
 	inline uns64 direct_str_of ( min::gen v )
 	{
 #	    if MIN_IS_BIG_ENDIAN
-		return ( v << 24 );
+		return ( v << VSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
 		return ( v & 0xFFFFFFFFFFull );
 #	    endif
@@ -1847,10 +1849,10 @@ namespace min {
 	}
         inline bool is_num ( min::gen v )
 	{
-	    if ( v >= ( min::GEN_DIRECT_STR << 24 ) )
+	    if ( v >= ( min::GEN_DIRECT_STR << VSIZE ) )
 	        return false;
 	    else if ( v >= (    min::GEN_DIRECT_INT
-	                     << 24 ) )
+	                     << VSIZE ) )
 	        return true;
 	    else
 	        return
@@ -1880,7 +1882,7 @@ namespace min {
 	}
 	inline int int_of ( min::gen v )
 	{
-	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+	    if ( v < ( min::GEN_DIRECT_INT << VSIZE ) )
 	    {
 		min::stub * s =
 		    internal::
@@ -1896,7 +1898,7 @@ namespace min {
 	    }
 	    else if
 		(   v
-		  < ( min::GEN_DIRECT_STR << 24 ) )
+		  < ( min::GEN_DIRECT_STR << VSIZE ) )
 		return unprotected::
 		       direct_int_of ( v );
 	    else
@@ -1906,7 +1908,7 @@ namespace min {
 	}
 	inline float64 float_of ( min::gen v )
 	{
-	    if ( v < ( min::GEN_DIRECT_INT << 24 ) )
+	    if ( v < ( min::GEN_DIRECT_INT << VSIZE ) )
 	    {
 		min::stub * s =
 		    internal::
@@ -1915,7 +1917,7 @@ namespace min {
 	    }
 	    else if
 		(   v
-		  < ( min::GEN_DIRECT_STR << 24 ) )
+		  < ( min::GEN_DIRECT_STR << VSIZE ) )
 		return unprotected::
 		       direct_int_of ( v );
 	    else
@@ -3009,14 +3011,14 @@ namespace min {
 
 #   if MIN_IS_COMPACT
 	const min::gen LIST_END = (min::gen)
-	    ( (min::uns32) min::GEN_LIST_AUX << 24 );
+	    ( (min::uns32) min::GEN_LIST_AUX << VSIZE );
 	const min::gen EMPTY_SUBLIST = (min::gen)
-	    ( (min::uns32) min::GEN_SUBLIST_AUX << 24 );
+	    ( (min::uns32) min::GEN_SUBLIST_AUX << VSIZE );
 #   elif MIN_IS_LOOSE
 	const min::gen LIST_END = (min::gen)
-	    ( (min::uns64) min::GEN_LIST_AUX << 40 );
+	    ( (min::uns64) min::GEN_LIST_AUX << VSIZE );
 	const min::gen EMPTY_SUBLIST = (min::gen)
-	    ( (min::uns64) min::GEN_SUBLIST_AUX << 40 );
+	    ( (min::uns64) min::GEN_SUBLIST_AUX << VSIZE );
 #   endif
 
     extern bool use_obj_aux_stubs;
@@ -3844,6 +3846,20 @@ namespace min { namespace internal {
 
 } }
 
+namespace min { namespace unprotected {
+
+    // Public unprotected attribute pointer types.
+
+    typedef internal::attribute_pointer_type
+	    < min::unprotected::list_pointer >
+        attribute_pointer;
+    typedef internal::attribute_pointer_type
+	    < min::unprotected
+	         ::insertable_list_pointer >
+        writable_attribute_pointer;
+
+} }
+
 namespace min { 
 
     // We must declare these before we make them
@@ -3877,6 +3893,40 @@ namespace min {
 		      < list_pointer_type > & ap,
 		  unsigned & length, min::gen name );
 #   endif
+
+    template < class list_pointer_type >
+    unsigned count
+	    ( internal::attribute_pointer_type
+	          < list_pointer_type > & ap );
+
+    template < class list_pointer_type >
+    unsigned get
+	    ( min::gen * out, unsigned n,
+	      internal::attribute_pointer_type
+	          < list_pointer_type > & ap );
+
+    template < class list_pointer_type >
+    unsigned count_flags
+	    ( internal::attribute_pointer_type
+	          < list_pointer_type > & ap );
+
+    template < class list_pointer_type >
+    unsigned get_flags
+	    ( min::uns32 * out, unsigned n,
+	      internal::attribute_pointer_type
+	          < list_pointer_type > & ap );
+
+    void set
+	    ( const min::gen * in, unsigned n,
+	      min::unprotected
+	         ::writable_attribute_pointer
+		  & wap );
+
+    void set_flags
+	    ( const min::uns32 * in, unsigned n,
+	      min::unprotected
+	         ::writable_attribute_pointer
+		  & wap );
 
 }
 
@@ -3976,21 +4026,41 @@ namespace min { namespace internal {
 		      unsigned & length, min::gen name );
 #	endif
 
+	template < class list_pointer_type_1 >
+	friend unsigned count
+		( internal::attribute_pointer_type
+		      < list_pointer_type_1 > & ap );
+
+	template < class list_pointer_type_1 >
+	friend unsigned get
+		( min::gen * out, unsigned n,
+		  internal::attribute_pointer_type
+		      < list_pointer_type_1 > & ap );
+
+	template < class list_pointer_type_1 >
+	friend unsigned count_flags
+		( internal::attribute_pointer_type
+		      < list_pointer_type_1 > & ap );
+
+	template < class list_pointer_type_1 >
+	friend unsigned get_flags
+		( min::uns32 * out, unsigned n,
+		  internal::attribute_pointer_type
+		      < list_pointer_type_1 > & ap );
+
+	friend void set
+		( const min::gen * in, unsigned n,
+		  min::unprotected
+		     ::writable_attribute_pointer
+		      & wap );
+
+	friend void set_flags
+		( const min::uns32 * in, unsigned n,
+		  min::unprotected
+		     ::writable_attribute_pointer
+		      & wap );
+
     };
-
-} }
-
-namespace min { namespace unprotected {
-
-    // Public unprotected attribute pointer types.
-
-    typedef internal::attribute_pointer_type
-	    < min::unprotected::list_pointer >
-        attribute_pointer;
-    typedef internal::attribute_pointer_type
-	    < min::unprotected
-	         ::insertable_list_pointer >
-        writable_attribute_pointer;
 
 } }
 
@@ -4392,6 +4462,199 @@ namespace min {
         locate ( ap, ap.attribute_name );
         locate_reverse ( ap, ap.reverse_attribute_name );
     }
+
+    namespace internal {
+
+	template < class list_pointer_type >
+	unsigned count_any
+		( internal::attribute_pointer_type
+	          < list_pointer_type > & ap );
+	template < class list_pointer_type >
+	unsigned get_any
+		( min::gen * out, unsigned n,
+		  internal::attribute_pointer_type
+		      < list_pointer_type > & ap );
+    }
+
+    template < class list_pointer_type >
+    unsigned count
+	    ( internal::attribute_pointer_type
+	          < list_pointer_type > & ap )
+    {
+	typedef internal::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
+	if ( ! ( ap.flags & ap_type::ATTRIBUTE_FOUND ) )
+	    return 0;
+	else if ( ap.reverse_attribute_name == min::ANY )
+	    return count_any ( ap );
+
+	unprotected::list_pointer lp
+	    ( min::stub_of ( ap.alp ) );
+
+	if ( ap.reverse_attribute_name = min::NONE )
+	{
+	    start_copy ( lp, ap.alp );
+	    while ( is_sublist ( current ( lp ) ) )
+	        next ( lp );
+	    while ( is_control_code ( current ( lp ) ) )
+	        next ( lp );
+	}
+	else
+	{
+	    if ( ! (   ap.flags
+	             & ap_type
+		         ::REVERSE_ATTRIBUTE_FOUND ) )
+		return 0;
+	    start_copy ( lp, ap.ralp );
+	}
+
+	unsigned result = 0;
+	while ( current ( lp ) != min::LIST_END )
+	    ++ result, next (lp );
+	return result;
+    }
+        
+
+    template < class list_pointer_type >
+    unsigned get
+	    ( min::gen * out, unsigned n,
+	      internal::attribute_pointer_type
+	          < list_pointer_type > & ap )
+    {
+	typedef internal::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
+	if ( ! ( ap.flags & ap_type::ATTRIBUTE_FOUND ) )
+	    return 0;
+	else if ( ap.reverse_attribute_name == min::ANY )
+	    return count_any ( out, n, ap );
+
+	unprotected::list_pointer lp
+	    ( min::stub_of ( ap.alp ) );
+
+	if ( ap.reverse_attribute_name = min::NONE )
+	{
+	    start_copy ( lp, ap.alp );
+	    while ( is_sublist ( current ( lp ) ) )
+	        next ( lp );
+	    while ( is_control_code ( current ( lp ) ) )
+	        next ( lp );
+	}
+	else
+	{
+	    if ( ! (   ap.flags
+	             & ap_type
+		         ::REVERSE_ATTRIBUTE_FOUND ) )
+		return 0;
+	    start_copy ( lp, ap.ralp );
+	}
+
+	unsigned result = 0;
+	while (    current ( lp ) != min::LIST_END
+	        && result < n )
+	{
+	    ++ result;
+	    * out ++ = current ( lp );
+	    next (lp );
+	}
+	return result;
+    }
+
+    template < class list_pointer_type >
+    unsigned count_flags
+	    ( internal::attribute_pointer_type
+	          < list_pointer_type > & ap )
+    {
+	typedef internal::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
+	if ( ! ( ap.flags & ap_type::ATTRIBUTE_FOUND ) )
+	    return 0;
+
+	unprotected::list_pointer lp
+	    ( min::stub_of ( ap.alp ) );
+
+	start_copy ( lp, ap.alp );
+	while ( is_sublist ( current ( lp ) ) )
+	    next ( lp );
+
+	unsigned result = 0;
+	while ( is_control_code ( current ( lp ) ) )
+	{
+	    result += VSIZE;
+	    next (lp );
+	}
+	return ( result + 31 ) / 32;
+    }
+
+    template < class list_pointer_type >
+    unsigned get_flags
+	    ( min::uns32 * out, unsigned n,
+	      internal::attribute_pointer_type
+	          < list_pointer_type > & ap )
+    {
+	typedef internal::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
+	if ( ! ( ap.flags & ap_type::ATTRIBUTE_FOUND ) )
+	    return 0;
+
+	if ( n == 0 ) return 0;
+
+	unprotected::list_pointer lp
+	    ( min::stub_of ( ap.alp ) );
+
+	start_copy ( lp, ap.alp );
+	while ( is_sublist ( current ( lp ) ) )
+	    next ( lp );
+
+	unsigned result = 0;
+	uns64 buffer = 0;
+	unsigned bits = 0;
+	    // Buffer holds `bits' bits in its lower
+	    // order bits.
+	min::gen c;
+	while ( is_control_code ( c = current ( lp ) ) )
+	{
+	    // Buffer cannot have more than 24 bits and
+	    // control cannot have more than 40 so
+	    // both will fit in buffer.
+
+#	    if MIN_IS_COMPACT
+		buffer += control_code_of ( c )
+		       << bits;
+#	    else // if MIN_IS_LOOSE
+		buffer += long_control_code_of ( c )
+		       << bits;
+#	    endif
+	    bits += VSIZE;
+
+	    while ( bits >= 32 )
+	    {
+	        * out ++ = (uns32) buffer;
+		if ( ++ result >= n )
+		    return n;
+		buffer >>= 32;
+		bits -= 32;
+	    }
+
+	    next (lp );
+	}
+	return result;
+    }
+
+    void set
+	    ( const min::gen * in, unsigned n,
+	      min::unprotected
+	         ::writable_attribute_pointer
+		  & wap );
+
+    void set_flags
+	    ( const min::uns32 * in, unsigned n,
+	      min::unprotected
+	         ::writable_attribute_pointer
+		  & wap );
 
 }
 

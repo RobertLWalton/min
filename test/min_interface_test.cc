@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 10 08:07:41 EST 2009
+// Date:	Sun Feb 15 11:41:46 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/10 14:45:43 $
+//   $Date: 2009/02/15 16:44:06 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.73 $
+//   $Revision: 1.74 $
 
 // Table of Contents:
 //
@@ -821,43 +821,6 @@ int main ()
 	);
 	MIN_ASSERT ( ! min::is_stub ( codegen ) );
 	MIN_ASSERT ( ! min::is_direct_str ( codegen ) );
- 
-#	if MIN_IS_LOOSE
-	    cout << endl;
-	    cout << "Test long control code general"
-	            " values:" << endl;
-	    min::uns64 longcode = 0xF123456789ull;
-	    min::gen longcodegen =
-		MUP::new_long_control_code_gen
-		    ( longcode );
-	    cout << "longcodegen: "
-		 << print_gen ( longcodegen ) << endl;
-	    MIN_ASSERT
-	        ( min::is_control_code
-		      ( longcodegen ) );
-	    MIN_ASSERT
-		(    min::gen_subtype_of ( longcodegen )
-		  == min::GEN_CONTROL_CODE );
-	    MIN_ASSERT
-		(    min::long_control_code_of
-			 ( longcodegen )
-		  == longcode );
-	    desire_success (
-		longcodegen =
-		    min::new_long_control_code_gen
-		        ( longcode );
-	    );
-	    desire_failure (
-		longcodegen =
-		    min::new_long_control_code_gen
-			( min::uns64(1) << 40 );
-	    );
-	    MIN_ASSERT
-	        ( ! min::is_stub ( longcodegen ) );
-	    MIN_ASSERT
-	        ( ! min::is_direct_str
-		        ( longcodegen ) );
-#	endif
  
         cout << endl;
 	cout << "Test special general values:"
