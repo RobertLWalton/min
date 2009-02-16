@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 15 19:37:15 EST 2009
+// Date:	Mon Feb 16 03:09:31 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/16 01:52:06 $
+//   $Date: 2009/02/16 10:26:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.137 $
+//   $Revision: 1.138 $
 
 // Table of Contents:
 //
@@ -3004,6 +3004,13 @@ namespace min { namespace unprotected {
 	    //
 	    current = min::LIST_END;
 
+	    // Reservations can be made anytime after a
+	    // pointer is created, and can be made
+	    // before start()ing a pointer.
+	    //
+	    reserved_insertions = 0;
+	    reserved_elements = 0;
+
 	    // Other members are initialized by start()
 	    // (see below), which sets so or lo.  This
 	    // means that functions that assume a
@@ -3164,7 +3171,7 @@ namespace min { namespace unprotected {
 	unsigned reserved_elements;
 	    // Set by insert_reserve and decremented by
 	    // insert_{before,after}.  The latter dec-
-	    // rement reserved_instructions once and
+	    // rement reserved_insertions once and
 	    // decrement reserved_elements once for
 	    // each element inserted.  These counters
 	    // must never become less than 0 (else
@@ -3355,8 +3362,6 @@ namespace min { namespace unprotected {
 	lp.current = min::LIST_END;
 	lp.current_index = lp.previous_index = 0;
 	lp.previous_is_sublist_head = false;
-	lp.reserved_insertions = 0;
-	lp.reserved_elements = 0;
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp.previous_stub = NULL;
@@ -3486,8 +3491,6 @@ namespace min {
 	    lp.previous_stub = lp2.previous_stub;
 	    lp.use_obj_aux_stubs = false;
 #       endif
-	lp.reserved_insertions = 0;
-	lp.reserved_elements = 0;
 	return lp.current = lp2.current;
     }
 
@@ -3760,6 +3763,16 @@ namespace min {
 		( internal::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  unsigned & length, min::gen name );
+
+	namespace internal {
+
+	    template < class list_pointer_type >
+	    void locate
+		    ( internal::attribute_pointer_type
+			  < list_pointer_type > & ap,
+		      min::gen name );
+
+	}
 #   endif
 
     template < class list_pointer_type >
@@ -3780,7 +3793,7 @@ namespace min {
 
     template < class list_pointer_type >
     unsigned get_flags
-	    ( min::uns32 * out, unsigned n,
+	    ( min::gen * out, unsigned n,
 	      internal::attribute_pointer_type
 	          < list_pointer_type > & ap );
 
@@ -3791,7 +3804,7 @@ namespace min {
 		  & wap );
 
     void set_flags
-	    ( const min::uns32 * in, unsigned n,
+	    ( const min::gen * in, unsigned n,
 	      min::unprotected
 	         ::writable_attribute_pointer
 		  & wap );
@@ -3865,65 +3878,60 @@ namespace min { namespace internal {
 
     // Friends:
 
-	template < class list_pointer_type_1 >
-	friend void locate
+	friend void min::locate<>
 		( internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap,
+		      < list_pointer_type > & ap,
 		  min::gen name );
-	template < class list_pointer_type_1 >
-	friend void locatei
+	friend void min::locatei<>
 		( internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap,
+		      < list_pointer_type > & ap,
 		  int name );
-	template < class list_pointer_type_1 >
-	friend void locate_reverse
+	friend void min::locate_reverse<>
 		( internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap,
+		      < list_pointer_type > & ap,
 		  min::gen reverse_name );
-	template < class list_pointer_type_1 >
-	friend void relocate
+	friend void min::relocate<>
 		( internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap );
+		      < list_pointer_type > & ap );
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
-	    template < class list_pointer_type_1 >
-	    friend void locate
+	    friend void min::locate<>
 		    ( internal::attribute_pointer_type
-			  < list_pointer_type_1 > & ap,
+			  < list_pointer_type > & ap,
 		      unsigned & length, min::gen name );
+	    friend void min::internal::locate<>
+		    ( internal::attribute_pointer_type
+			  < list_pointer_type > & ap,
+		      min::gen name );
 #	endif
 
-	template < class list_pointer_type_1 >
-	friend unsigned count
+	friend unsigned min::count<>
 		( internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap );
+		      < list_pointer_type > & ap );
 
-	template < class list_pointer_type_1 >
-	friend unsigned get
+	friend unsigned min::get<>
 		( min::gen * out, unsigned n,
 		  internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap );
+		      < list_pointer_type > & ap );
 
-	template < class list_pointer_type_1 >
-	friend unsigned count_flags
+	friend unsigned min::count_flags<>
 		( internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap );
+		      < list_pointer_type > & ap );
 
-	template < class list_pointer_type_1 >
-	friend unsigned get_flags
-		( min::uns32 * out, unsigned n,
+	friend unsigned min::get_flags<>
+		( min::gen * out, unsigned n,
 		  internal::attribute_pointer_type
-		      < list_pointer_type_1 > & ap );
+		      < list_pointer_type > & ap );
 
-	friend void set
+	friend void min::set
 		( const min::gen * in, unsigned n,
 		  min::unprotected
 		     ::writable_attribute_pointer
 		      & wap );
 
-	friend void set_flags
-		( const min::uns32 * in, unsigned n,
+	friend void min::set_flags
+		( const min::gen * in, unsigned n,
 		  min::unprotected
 		     ::writable_attribute_pointer
 		      & wap );
@@ -4255,7 +4263,7 @@ namespace min {
 #   endif
 
     template < class list_pointer_type >
-    void locate_reverse
+    inline void locate_reverse
 	    ( internal::attribute_pointer_type
 		  < list_pointer_type > & ap,
 	      min::gen reverse_name )
@@ -4322,13 +4330,13 @@ namespace min {
     }
 
     template < class list_pointer_type >
-    void relocate
+    inline void relocate
 	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
         if ( ap.attribute_name == min::NONE ) return;
-        locate ( ap, ap.attribute_name );
-        locate_reverse ( ap, ap.reverse_attribute_name );
+        min::locate ( ap, ap.attribute_name );
+        min::locate_reverse ( ap, ap.reverse_attribute_name );
     }
 
     namespace internal {
@@ -4345,7 +4353,7 @@ namespace min {
     }
 
     template < class list_pointer_type >
-    unsigned count
+    inline unsigned count
 	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
@@ -4385,7 +4393,7 @@ namespace min {
         
 
     template < class list_pointer_type >
-    unsigned get
+    inline unsigned get
 	    ( min::gen * out, unsigned n,
 	      internal::attribute_pointer_type
 	          < list_pointer_type > & ap )
@@ -4430,7 +4438,7 @@ namespace min {
     }
 
     template < class list_pointer_type >
-    unsigned count_flags
+    inline unsigned count_flags
 	    ( internal::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
@@ -4448,17 +4456,21 @@ namespace min {
 	    next ( lp );
 
 	unsigned result = 0;
-	while ( is_control_code ( current ( lp ) ) )
+	unsigned n = 0;
+	min::gen c;
+	while ( is_control_code ( c = current ( lp ) ) )
 	{
-	    result += VSIZE;
+	    ++ n;
+	    if ( control_code_of ( c ) != 0 )
+	        result = n;
 	    next (lp );
 	}
-	return ( result + 31 ) / 32;
+	return result;
     }
 
     template < class list_pointer_type >
-    unsigned get_flags
-	    ( min::uns32 * out, unsigned n,
+    inline unsigned get_flags
+	    ( min::gen * out, unsigned n,
 	      internal::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
@@ -4478,45 +4490,126 @@ namespace min {
 	    next ( lp );
 
 	unsigned result = 0;
-	uns64 buffer = 0;
-	unsigned bits = 0;
-	    // Buffer holds `bits' bits in its lower
-	    // order bits.
 	min::gen c;
-	while ( is_control_code ( c = current ( lp ) ) )
+	while ( is_control_code ( c = current ( lp ) )
+	        &&
+		result < n )
 	{
-	    // Buffer cannot have more than 24 bits and
-	    // control cannot have more than 40 so
-	    // both will fit in buffer.
-
-	    buffer += control_code_of ( c ) << bits;
-	    bits += VSIZE;
-
-	    while ( bits >= 32 )
-	    {
-	        * out ++ = (uns32) buffer;
-		if ( ++ result >= n )
-		    return n;
-		buffer >>= 32;
-		bits -= 32;
-	    }
-
-	    next (lp );
+	    * out ++ = c;
+	    ++ result;
 	}
 	return result;
     }
 
-    void set
+    inline void set
 	    ( const min::gen * in, unsigned n,
 	      min::unprotected
 	         ::writable_attribute_pointer
-		  & wap );
+		  & wap )
+    {
+	typedef min::unprotected
+	           ::writable_attribute_pointer ap_type;
 
-    void set_flags
-	    ( const min::uns32 * in, unsigned n,
+	MIN_ASSERT
+	    ( wap.flags & ap_type::ATTRIBUTE_FOUND );
+	MIN_ASSERT
+	    ( wap.reverse_attribute_name != min::ANY );
+
+	min::relocated relocated;
+
+	unprotected::insertable_list_pointer lp
+	    ( min::stub_of ( wap.alp ) );
+
+	while ( true )
+	{
+	    insert_reserve ( lp, 1, n );
+	    if ( ! relocated ) break;
+	    relocate ( wap );
+	}
+
+	if ( wap.reverse_attribute_name = min::NONE )
+	{
+	    start_copy ( lp, wap.alp );
+	    while ( is_sublist ( current ( lp ) ) )
+	        next ( lp );
+	    while ( is_control_code ( current ( lp ) ) )
+	        next ( lp );
+	}
+	else
+	{
+	    MIN_ASSERT (   wap.flags
+	                 & ap_type
+		             ::REVERSE_ATTRIBUTE_FOUND );
+	    start_copy ( lp, wap.ralp );
+	}
+
+	min::gen c;
+	while (       ( c = current ( lp ) )
+	           != min::LIST_END
+	        && n > 0 )
+	{
+	    update ( lp, * in ++ );
+	    -- n;
+	    next (lp );
+	}
+	if ( n != 0 )
+	    insert_before ( lp, in, n );
+	else for ( ; c != min::LIST_END;
+	             c = current ( lp ) )
+	    remove ( lp, 1000 );
+    }
+
+    inline void set_flags
+	    ( const min::gen * in, unsigned n,
 	      min::unprotected
 	         ::writable_attribute_pointer
-		  & wap );
+		  & wap )
+    {
+	typedef min::unprotected
+	           ::writable_attribute_pointer ap_type;
+
+	MIN_ASSERT
+	    ( wap.flags & ap_type::ATTRIBUTE_FOUND );
+
+	min::relocated relocated;
+
+	unprotected::insertable_list_pointer lp
+	    ( min::stub_of ( wap.alp ) );
+
+	while ( true )
+	{
+	    insert_reserve ( lp, 1, n );
+	    if ( ! relocated ) break;
+	    relocate ( wap );
+	}
+
+	start_copy ( lp, wap.alp );
+	while ( is_sublist ( current ( lp ) ) )
+	    next ( lp );
+
+	min::gen c;
+	while ( is_control_code ( c = current ( lp ) )
+	        &&
+		n > 0 )
+	{
+	    MIN_ASSERT ( is_control_code ( * in ) );
+	    update ( lp, * in ++ );
+	    next ( lp );
+	    -- n;
+	}
+	if ( n != 0 )
+	{
+	    for ( int i = 0; i < n; ++ i )
+	    {
+	        MIN_ASSERT
+		    ( is_control_code ( in[i] ) );
+	    }
+	    insert_before ( lp, in, n );
+	}
+	else while ( is_control_code
+	                 ( current ( lp ) ) )
+	    remove ( lp, 1 );
+    }
 
 }
 

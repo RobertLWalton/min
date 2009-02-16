@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 11, 2009}
+\date{February 16, 2009}
  
 \maketitle
 
@@ -3093,6 +3093,15 @@ to be inserted.  If the later is {\tt 0}, the default, it is taken to
 be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
+
+The {\tt min::insert\_reserve} function may be called for a pointer
+before any {\tt start} function is called to set the pointer.  However,
+only one pointer at a time on an object may have an effective reservation.
+Each call to {\tt min::insert\_reserve} for a list pointer
+to an object invalidates
+all previous calls to {\tt min::insert\_reserve} for any list pointer
+to the same object.  Errors in this regard involving two different
+list pointers are not detected.
 
 Note that {\tt min::insert\_reserve} is the only list pointer
 function that may cause a relocation, and if a relocation occurs,
