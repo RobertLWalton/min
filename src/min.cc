@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 11 08:00:18 EST 2009
+// Date:	Mon Feb 16 05:26:19 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/12 08:24:29 $
+//   $Date: 2009/02/16 10:26:35 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.73 $
+//   $Revision: 1.74 $
 
 // Table of Contents:
 //
@@ -1706,7 +1706,7 @@ void MINT::insert_reserve
 		    < list_pointer_type > ap_type;
 
 	MIN_ASSERT ( is_lab ( name ) );
-	unsigned len = lablen ( name );
+	unsigned len = min::lablen ( name );
 	MIN_ASSERT ( len > 1 );
 
 	ap.attribute_name = name;
