@@ -110,11 +110,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     listauxgen = min::new_list_aux_gen ( aux );
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX desire failure:
-    listauxgen = min::new_list_aux_gen ( 1 << 24 );
+    listauxgen = min::new_list_aux_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
-    p < 1 << 24 false.
+    p < (unsgen) 1 << VSIZE false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( listauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -146,11 +146,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     sublistauxgen = min::new_sublist_aux_gen ( aux );
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX desire failure:
-    sublistauxgen = min::new_sublist_aux_gen ( 1 << 24 );
+    sublistauxgen = min::new_sublist_aux_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
-    p < 1 << 24 false.
+    p < (unsgen) 1 << VSIZE false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( sublistauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -169,11 +169,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     pairauxgen = min::new_indirect_pair_aux_gen ( aux );
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX desire failure:
-    pairauxgen = min::new_indirect_pair_aux_gen ( 1 << 24 );
+    pairauxgen = min::new_indirect_pair_aux_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
-    p < 1 << 24 false.
+    p < (unsgen) 1 << VSIZE false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( pairauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -196,19 +196,19 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     indexedauxgen = min::new_indexed_aux_gen ( indexed_aux, indexed_index );
 ../include/min.h:XXXX assert:
-    p < 1 << 20 true.
+    p < 1 << ( VSIZE / 2 ) true.
 ../include/min.h:XXXX assert:
-    i < 1 << 20 true.
+    i < 1 << ( VSIZE / 2 ) true.
 min_interface_test.cc:XXXX desire failure:
-    indexedauxgen = min::new_indexed_aux_gen ( 1 << 20, indexed_index );
+    indexedauxgen = min::new_indexed_aux_gen ( 1 << (min::VSIZE/2), indexed_index );
 ../include/min.h:XXXX assert:
-    p < 1 << 20 false.
+    p < 1 << ( VSIZE / 2 ) false.
 min_interface_test.cc:XXXX desire failure:
-    indexedauxgen = min::new_indexed_aux_gen ( indexed_aux, 1 << 20 );
+    indexedauxgen = min::new_indexed_aux_gen ( indexed_aux, 1 << (min::VSIZE/2) );
 ../include/min.h:XXXX assert:
-    p < 1 << 20 true.
+    p < 1 << ( VSIZE / 2 ) true.
 ../include/min.h:XXXX assert:
-    i < 1 << 20 false.
+    i < 1 << ( VSIZE / 2 ) false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( indexedauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -227,11 +227,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     indexgen = min::new_index_gen ( index );
 ../include/min.h:XXXX assert:
-    i < 1 << 24 true.
+    i < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX desire failure:
-    indexgen = min::new_index_gen ( 1 << 24 );
+    indexgen = min::new_index_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
-    i < 1 << 24 false.
+    i < (unsgen) 1 << VSIZE false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( indexgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -250,38 +250,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     codegen = min::new_control_code_gen ( code );
 ../include/min.h:XXXX assert:
-    c < 1 << 24 true.
+    c < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX desire failure:
-    codegen = min::new_control_code_gen ( 1 << 24 );
+    codegen = min::new_control_code_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
-    c < 1 << 24 false.
+    c < (unsgen) 1 << VSIZE false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( codegen ) true.
 min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( codegen ) true.
-
-Test long control code general values:
-longcodegen: 7ff416f123456789
-min_interface_test.cc:XXXX assert:
-    min::is_control_code ( longcodegen ) true.
-min_interface_test.cc:XXXX assert:
-    min::gen_subtype_of ( longcodegen ) == min::GEN_CONTROL_CODE true.
-../include/min.h:XXXX assert:
-    is_control_code ( v ) true.
-min_interface_test.cc:XXXX assert:
-    min::long_control_code_of ( longcodegen ) == longcode true.
-min_interface_test.cc:XXXX desire success:
-    longcodegen = min::new_long_control_code_gen ( longcode );
-../include/min.h:XXXX assert:
-    c < (uns64) 1 << 40 true.
-min_interface_test.cc:XXXX desire failure:
-    longcodegen = min::new_long_control_code_gen ( min::uns64(1) << 40 );
-../include/min.h:XXXX assert:
-    c < (uns64) 1 << 40 false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( longcodegen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( longcodegen ) true.
 
 Test special general values:
 min_interface_test.cc:XXXX assert:
@@ -308,11 +285,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     specialgen = min::new_special_gen ( special );
 ../include/min.h:XXXX assert:
-    i < 1 << 24 true.
+    i < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX desire failure:
-    specialgen = min::new_special_gen ( 1 << 24 );
+    specialgen = min::new_special_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
-    i < 1 << 24 false.
+    i < (unsgen) 1 << VSIZE false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( specialgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -1568,9 +1545,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -1594,7 +1571,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
@@ -1630,7 +1607,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num101 true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     1 == min::remove ( wslp, 1 ) true.
 min_interface_test.cc:XXXX assert:
@@ -1656,7 +1633,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     1 == min::remove ( wslp, 1 ) true.
 min_interface_test.cc:XXXX assert:
@@ -1692,7 +1669,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     3 == min::remove ( wlp, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -1769,7 +1746,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( so ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1790,9 +1767,9 @@ MUP::gc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( so ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1865,7 +1842,7 @@ MUP::gc_expand_stub_free_list (3) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( lo ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1886,9 +1863,9 @@ MUP::gc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
-    p < 1 << 24 true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
     min::unused_area_size_of ( lo ) == 0 true.
 min_interface_test.cc:XXXX assert:
