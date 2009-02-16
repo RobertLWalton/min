@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 14 20:19:02 EST 2009
+// Date:	Sun Feb 15 19:37:15 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/15 16:43:59 $
+//   $Date: 2009/02/16 01:52:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.136 $
+//   $Revision: 1.137 $
 
 // Table of Contents:
 //
@@ -141,7 +141,7 @@ namespace min {
 	const unsigned GEN_UPPER
 	    = 0xFF; // Largest subtype code.
 
-	typedef uns32 UNS_GEN;
+	typedef uns32 unsgen;
 	    // Unsigned type convertable to a min::gen
 	    // value.
 	const unsigned TSIZE = 8;
@@ -188,7 +188,7 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 	    // Largest subtype code.
 
-	typedef uns64 UNS_GEN;
+	typedef uns64 unsgen;
 	    // Unsigned type convertable to a min::gen
 	    // value.
 	const unsigned TSIZE = 24;
@@ -199,7 +199,7 @@ namespace min {
 #   endif
 
 #   define MIN_NEW_SPECIAL_GEN(i) \
-	( min::gen ( (   min::UNS_GEN \
+	( min::gen ( (   min::unsgen \
 	                      ( min::GEN_SPECIAL ) \
 	              << min::VSIZE ) \
 		     + ( i ) ) )
@@ -462,52 +462,6 @@ namespace min { namespace unprotected {
 	    && ( n >= 3 && ( * s ++ = * p ++ ) );
 	    return (min::gen) v;
 	}
-	inline min::gen new_list_aux_gen ( unsigned p )
-	{
-	    return (min::gen)
-	           ( p + ( GEN_LIST_AUX << VSIZE ) );
-	}
-	inline min::gen new_sublist_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           ( p + ( GEN_SUBLIST_AUX << VSIZE ) );
-	}
-	inline min::gen new_indirect_pair_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	        ( p + ( GEN_INDIRECT_PAIR_AUX << VSIZE ) );
-	}
-	inline min::gen new_indexed_aux_gen
-		( unsigned p, unsigned i )
-	{
-	    return (min::gen)
-	        (   ( p << VSIZE / 2 ) + i
-		  + ( GEN_INDEXED_AUX << VSIZE ) );
-	}
-	inline min::gen new_index_gen ( unsigned i )
-	{
-	    return (min::gen)
-	           ( i + ( GEN_INDEX << VSIZE ) );
-	}
-	inline min::gen new_control_code_gen
-		( unsigned c )
-	{
-	    return (min::gen)
-	           ( c + ( GEN_CONTROL_CODE << VSIZE ) );
-	}
-	inline min::gen new_special_gen ( unsigned i )
-	{
-	    return (min::gen)
-	           ( i + ( GEN_SPECIAL << VSIZE ) );
-	}
-	inline min::gen renew_gen
-		( min::gen v, min::uns32 p )
-	{
-	    return (min::gen)
-	           ( ( v & 0xFF000000 ) + p );
-	}
 
 #   elif MIN_IS_LOOSE
 	inline min::gen new_gen ( min::stub * s )
@@ -515,7 +469,7 @@ namespace min { namespace unprotected {
 	    return (min::gen)
 		   (     internal
 		       ::general_stub_to_uns64 ( s )
-		     + ( (uns64) GEN_STUB << 40 )  );
+		     + ( (uns64) GEN_STUB << VSIZE )  );
 	}
 	// Unimplemented for LOOSE:
 	//   min::gen new_direct_int_gen ( int v )
@@ -527,7 +481,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_direct_str_gen
 		( const char * p )
 	{
-	    uns64 v = (uns64) GEN_DIRECT_STR << 40;
+	    uns64 v = (uns64) GEN_DIRECT_STR << VSIZE;
 	    char * s = ( (char *) & v )
 	             + 3 * MIN_IS_BIG_ENDIAN;
 	       ( * s ++ = * p ++ )
@@ -540,7 +494,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_direct_str_gen
 		( const char * p, unsigned n )
 	{
-	    uns64 v = (uns64) GEN_DIRECT_STR << 40;
+	    uns64 v = (uns64) GEN_DIRECT_STR << VSIZE;
 	    char * s = ( (char *) & v )
 	             + 3 * MIN_IS_BIG_ENDIAN;
 	       ( n >= 1 && ( * s ++ = * p ++ ) )
@@ -550,74 +504,67 @@ namespace min { namespace unprotected {
 	    && ( n >= 5 && ( * s ++ = * p ++ ) );
 	    return (min::gen) v;
 	}
-	inline min::gen new_list_aux_gen ( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + ( (uns64) GEN_LIST_AUX
-		         << 40 ) );
-	}
-	inline min::gen new_sublist_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + ( (uns64) GEN_SUBLIST_AUX
-		         << 40 ) );
-	}
-	inline min::gen new_indirect_pair_aux_gen
-		( unsigned p )
-	{
-	    return (min::gen)
-	           (   p
-		     + ( (uns64) GEN_INDIRECT_PAIR_AUX
-		         << 40 ) );
-	}
-	inline min::gen new_indexed_aux_gen
-		( unsigned p, unsigned i )
-	{
-	    return (min::gen)
-	           (   ( (uns64) p << 20 ) + i
-		     + ( (uns64)
-		         GEN_INDEXED_AUX << 40 ) );
-	}
-	inline min::gen new_index_gen ( unsigned i )
-	{
-	    return (min::gen)
-	           ( i + ( (uns64) GEN_INDEX << 40 ) );
-	}
-	inline min::gen new_control_code_gen
-		( unsigned c )
-	{
-	    return (min::gen)
-	           (   c
-		     + ( (uns64) GEN_CONTROL_CODE
-		         << 40 ) );
-	}
-	inline min::gen new_long_control_code_gen
-		( min::uns64 c )
-	{
-	    return (min::gen)
-	           (   c
-		     + ( (uns64) GEN_CONTROL_CODE
-		         << 40 ) );
-	}
-	inline min::gen new_special_gen
-		( unsigned i )
-	{
-	    return (min::gen)
-	           (   i
-		     + ( (uns64) GEN_SPECIAL
-		         << 40 ) );
-	}
-	inline min::gen renew_gen
-		( min::gen v, min::uns64 p )
-	{
-	    return (min::gen)
-	        ( ( v & 0xFFFFFF0000000000ull ) + p );
-	}
-
 #   endif
+
+    inline min::gen new_list_aux_gen ( unsgen p )
+    {
+	return (min::gen)
+	       (   p
+		 + ( (unsgen) GEN_LIST_AUX
+		     << VSIZE ) );
+    }
+    inline min::gen new_sublist_aux_gen
+	    ( unsgen p )
+    {
+	return (min::gen)
+	       (   p
+		 + ( (unsgen) GEN_SUBLIST_AUX
+		     << VSIZE ) );
+    }
+    inline min::gen new_indirect_pair_aux_gen
+	    ( unsgen p )
+    {
+	return (min::gen)
+	       (   p
+		 + ( (unsgen) GEN_INDIRECT_PAIR_AUX
+		     << VSIZE ) );
+    }
+    inline min::gen new_indexed_aux_gen
+	    ( unsigned p, unsigned i )
+    {
+	return (min::gen)
+	       (   ( (unsgen) p << (VSIZE/2) ) + i
+		 + ( (unsgen)
+		     GEN_INDEXED_AUX << VSIZE ) );
+    }
+    inline min::gen new_index_gen ( unsgen i )
+    {
+	return (min::gen)
+	       ( i + ( (unsgen) GEN_INDEX << VSIZE ) );
+    }
+    inline min::gen new_control_code_gen
+	    ( unsgen c )
+    {
+	return (min::gen)
+	       (   c
+		 + ( (unsgen) GEN_CONTROL_CODE
+		     << VSIZE ) );
+    }
+    inline min::gen new_special_gen
+	    ( unsgen i )
+    {
+	return (min::gen)
+	       (   i
+		 + ( (unsgen) GEN_SPECIAL
+		     << VSIZE ) );
+    }
+    inline min::gen renew_gen
+	    ( min::gen v, min::unsgen p )
+    {
+	return (min::gen)
+	    ( ( (unsgen ) v & ( (unsgen) -1 << VSIZE ) )
+	      + p );
+    }
 } }
 
 namespace min {
@@ -663,58 +610,47 @@ namespace min {
 #	endif
 	return unprotected::new_direct_str_gen ( p );
     }
-    inline min::gen new_list_aux_gen ( unsigned p )
+    inline min::gen new_list_aux_gen ( unsgen p )
     {
-	MIN_ASSERT ( p < 1 << VSIZE );
+	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
 	return unprotected::new_list_aux_gen ( p );
     }
     inline min::gen new_sublist_aux_gen
-	    ( unsigned p )
+	    ( unsgen p )
     {
-	MIN_ASSERT ( p < 1 << VSIZE );
+	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
 	return unprotected::new_sublist_aux_gen ( p );
     }
     inline min::gen new_indirect_pair_aux_gen
-	    ( unsigned p )
+	    ( unsgen p )
     {
-	MIN_ASSERT ( p < 1 << VSIZE );
+	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
 	return unprotected::new_indirect_pair_aux_gen
 			( p );
     }
-#   if MIN_IS_COMPACT
-	inline min::gen new_indexed_aux_gen
-		( unsigned p, unsigned i )
-	{
-	    MIN_ASSERT ( p < 1 << 12 );
-	    MIN_ASSERT ( i < 1 << 12 );
-	    return unprotected::
-	           new_indexed_aux_gen ( p, i );
-	}
-#   elif MIN_IS_LOOSE
-	inline min::gen new_indexed_aux_gen
-		( unsigned p, unsigned i )
-	{
-	    MIN_ASSERT ( p < 1 << 20 );
-	    MIN_ASSERT ( i < 1 << 20 );
-	    return unprotected::
-	           new_indexed_aux_gen ( p, i );
-	}
-#   endif
-    inline min::gen new_index_gen ( unsigned i )
+    inline min::gen new_indexed_aux_gen
+	    ( unsigned p, unsigned i )
     {
-	MIN_ASSERT ( i < 1 << VSIZE );
+	MIN_ASSERT ( p < 1 << ( VSIZE / 2 ) );
+	MIN_ASSERT ( i < 1 << ( VSIZE / 2 ) );
+	return unprotected::
+	       new_indexed_aux_gen ( p, i );
+    }
+    inline min::gen new_index_gen ( unsgen i )
+    {
+	MIN_ASSERT ( i < (unsgen) 1 << VSIZE );
 	return unprotected::new_index_gen ( i );
     }
     inline min::gen new_control_code_gen
-	    ( unsigned c )
+	    ( unsgen c )
     {
-	MIN_ASSERT ( c < 1 << VSIZE );
+	MIN_ASSERT ( c < (unsgen) 1 << VSIZE );
 	return unprotected::new_control_code_gen ( c );
     }
     inline min::gen new_special_gen
-	    ( unsigned i )
+	    ( unsgen i )
     {
-	MIN_ASSERT ( i < 1 << VSIZE );
+	MIN_ASSERT ( i < (unsgen) 1 << VSIZE );
 	return unprotected::new_special_gen ( i );
     }
 }
@@ -734,39 +670,6 @@ namespace min {
 	inline bool is_direct_int ( min::gen v )
 	{
 	    return ( v >> 28 == GEN_DIRECT_INT >> 4 );
-	}
-	inline bool is_direct_str ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_DIRECT_STR );
-	}
-	inline bool is_list_aux ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_LIST_AUX );
-	}
-	inline bool is_sublist_aux ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_SUBLIST_AUX );
-	}
-	inline bool is_indirect_pair_aux ( min::gen v )
-	{
-	    return
-	        ( v >> VSIZE == GEN_INDIRECT_PAIR_AUX );
-	}
-	inline bool is_indexed_aux ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_INDEXED_AUX );
-	}
-	inline bool is_index ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_INDEX );
-	}
-	inline bool is_control_code ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_CONTROL_CODE );
-	}
-	inline bool is_special ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_SPECIAL );
 	}
 	inline unsigned gen_subtype_of ( min::gen v )
 	{
@@ -793,46 +696,13 @@ namespace min {
 	    return
 	        ( (uns64) v & 0x7FFFE00000000000ull )
 	        != ( (uns64) MIN_FLOAT64_SIGNALLING_NAN
-		     << 40 );
+		     << VSIZE );
 	}
 	// Unimplemented for LOOSE:
 	//   bool is_direct_int ( min::gen v )
-	inline bool is_direct_str ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_DIRECT_STR );
-	}
-	inline bool is_list_aux ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_LIST_AUX );
-	}
-	inline bool is_sublist_aux ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_SUBLIST_AUX );
-	}
-	inline bool is_indirect_pair_aux ( min::gen v )
-	{
-	    return
-	        ( v >> VSIZE == GEN_INDIRECT_PAIR_AUX );
-	}
-	inline bool is_indexed_aux ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_INDEXED_AUX );
-	}
-	inline bool is_index ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_INDEX );
-	}
-	inline bool is_control_code ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_CONTROL_CODE );
-	}
-	inline bool is_special ( min::gen v )
-	{
-	    return ( v >> VSIZE == GEN_SPECIAL );
-	}
 	inline unsigned gen_subtype_of ( min::gen v )
 	{
-	    v = (min::uns64) v >> VSIZE;
+	    v = (unsgen) v >> VSIZE;
 	    if ( v < GEN_STUB )
 	        return GEN_DIRECT_FLOAT;
 	    else if ( v < GEN_DIRECT_STR)
@@ -845,6 +715,45 @@ namespace min {
 	        return GEN_DIRECT_FLOAT;
 	}
 #   endif
+
+    inline bool is_direct_str ( min::gen v )
+    {
+	return
+	    ( (unsgen) v >> VSIZE == GEN_DIRECT_STR );
+    }
+    inline bool is_list_aux ( min::gen v )
+    {
+	return ( (unsgen) v >> VSIZE == GEN_LIST_AUX );
+    }
+    inline bool is_sublist_aux ( min::gen v )
+    {
+	return
+	    ( (unsgen) v >> VSIZE == GEN_SUBLIST_AUX );
+    }
+    inline bool is_indirect_pair_aux ( min::gen v )
+    {
+	return
+	    (    (unsgen) v >> VSIZE
+	      == GEN_INDIRECT_PAIR_AUX );
+    }
+    inline bool is_indexed_aux ( min::gen v )
+    {
+	return
+	    ( (unsgen) v >> VSIZE == GEN_INDEXED_AUX );
+    }
+    inline bool is_index ( min::gen v )
+    {
+	return ( (unsgen) v >> VSIZE == GEN_INDEX );
+    }
+    inline bool is_control_code ( min::gen v )
+    {
+	return
+	    ( (unsgen) v >> VSIZE == GEN_CONTROL_CODE );
+    }
+    inline bool is_special ( min::gen v )
+    {
+	return ( (unsgen) v >> VSIZE == GEN_SPECIAL );
+    }
 }
 
 // General Value Read Functions
@@ -876,41 +785,6 @@ namespace min { namespace unprotected {
 		return ( uns64 ( v & 0xFFFFFF ) );
 #	    endif
 	}
-	inline unsigned list_aux_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned sublist_aux_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned indirect_pair_aux_of
-		( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned indexed_aux_of ( min::gen v )
-	{
-	    return ( ( v >> 12 ) & 0xFFF );
-	}
-	inline unsigned indexed_index_of ( min::gen v )
-	{
-	    return ( v & 0xFFF );
-	}
-	inline unsigned index_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned control_code_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	// Unimplemented for COMPACT:
-	//    uns64 long_control_code_of ( min::gen v )
-	inline unsigned special_index_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
 #   elif MIN_IS_LOOSE
 	inline min::stub * stub_of ( min::gen v )
 	{
@@ -931,44 +805,46 @@ namespace min { namespace unprotected {
 		return ( v & 0xFFFFFFFFFFull );
 #	    endif
 	}
-	inline unsigned list_aux_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned sublist_aux_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned indirect_pair_aux_of
-		( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned indexed_aux_of ( min::gen v )
-	{
-	    return ( ( v >> 20 ) & 0xFFFFF );
-	}
-	inline unsigned indexed_index_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFF );
-	}
-	inline unsigned index_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline unsigned control_code_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
-	inline uns64 long_control_code_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFFFFFFull );
-	}
-	inline unsigned special_index_of ( min::gen v )
-	{
-	    return ( v & 0xFFFFFF );
-	}
 #   endif
+
+    const unsgen VMASK = ( (unsgen) 1 << VSIZE ) - 1;
+    const unsgen VHALFMASK =
+        ( (unsgen) 1 << ( VSIZE / 2 ) ) - 1;
+
+    inline unsgen list_aux_of ( min::gen v )
+    {
+	return (unsgen) v & VMASK;
+    }
+    inline unsgen sublist_aux_of ( min::gen v )
+    {
+	return (unsgen) v & VMASK;
+    }
+    inline unsgen indirect_pair_aux_of
+	    ( min::gen v )
+    {
+	return (unsgen) v & VMASK;
+    }
+    inline unsigned indexed_aux_of ( min::gen v )
+    {
+	return   ( (unsgen) v >> ( VSIZE / 2 ) )
+	       & VHALFMASK;
+    }
+    inline unsigned indexed_index_of ( min::gen v )
+    {
+	return (unsgen) v & VHALFMASK;
+    }
+    inline unsgen index_of ( min::gen v )
+    {
+	return (unsgen) v & VMASK;
+    }
+    inline unsgen control_code_of ( min::gen v )
+    {
+	return (unsgen) v & VMASK;
+    }
+    inline unsgen special_index_of ( min::gen v )
+    {
+	return (unsgen) v & VMASK;
+    }
 } }
 
 namespace min {
@@ -999,17 +875,17 @@ namespace min {
 	MIN_ASSERT ( is_direct_str ( v ) );
 	return unprotected::direct_str_of ( v );
     }
-    inline unsigned list_aux_of ( min::gen v )
+    inline unsgen list_aux_of ( min::gen v )
     {
 	MIN_ASSERT ( is_list_aux ( v ) );
 	return unprotected::list_aux_of ( v );
     }
-    inline unsigned sublist_aux_of ( min::gen v )
+    inline unsgen sublist_aux_of ( min::gen v )
     {
 	MIN_ASSERT ( is_sublist_aux ( v ) );
 	return unprotected::sublist_aux_of ( v );
     }
-    inline unsigned indirect_pair_aux_of
+    inline unsgen indirect_pair_aux_of
 	    ( min::gen v )
     {
 	MIN_ASSERT ( is_indirect_pair_aux ( v ) );
@@ -1025,25 +901,17 @@ namespace min {
 	MIN_ASSERT ( is_indexed_aux ( v ) );
 	return unprotected::indexed_index_of ( v );
     }
-    inline unsigned index_of ( min::gen v )
+    inline unsgen index_of ( min::gen v )
     {
 	MIN_ASSERT ( is_index ( v ) );
 	return unprotected::index_of ( v );
     }
-    inline unsigned control_code_of ( min::gen v )
+    inline unsgen control_code_of ( min::gen v )
     {
 	MIN_ASSERT ( is_control_code ( v ) );
 	return unprotected::control_code_of ( v );
     }
-#   if MIN_IS_LOOSE
-	inline uns64 long_control_code_of ( min::gen v )
-	{
-	    MIN_ASSERT ( is_control_code ( v ) );
-	    return unprotected::long_control_code_of
-	    		( v );
-	}
-#   endif
-    inline unsigned special_index_of ( min::gen v )
+    inline unsgen special_index_of ( min::gen v )
     {
 	MIN_ASSERT ( is_special ( v ) );
 	return unprotected::special_index_of ( v );
@@ -4621,13 +4489,7 @@ namespace min {
 	    // control cannot have more than 40 so
 	    // both will fit in buffer.
 
-#	    if MIN_IS_COMPACT
-		buffer += control_code_of ( c )
-		       << bits;
-#	    else // if MIN_IS_LOOSE
-		buffer += long_control_code_of ( c )
-		       << bits;
-#	    endif
+	    buffer += control_code_of ( c ) << bits;
 	    bits += VSIZE;
 
 	    while ( bits >= 32 )

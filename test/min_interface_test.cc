@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 15 11:41:46 EST 2009
+// Date:	Sun Feb 15 20:41:51 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/15 16:44:06 $
+//   $Date: 2009/02/16 01:50:25 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.74 $
+//   $Revision: 1.75 $
 
 // Table of Contents:
 //
@@ -652,7 +652,7 @@ int main ()
 	);
 	desire_failure (
 	    listauxgen = min::new_list_aux_gen
-	    			( 1 << 24 );
+		( (min::unsgen) 1 << min::VSIZE );
 	);
 	MIN_ASSERT
 	    ( ! min::is_stub ( listauxgen ) );
@@ -695,7 +695,7 @@ int main ()
 	);
 	desire_failure (
 	    sublistauxgen = min::new_sublist_aux_gen
-	    			( 1 << 24 );
+		( (min::unsgen) 1 << min::VSIZE );
 	);
 	MIN_ASSERT
 	    ( ! min::is_stub ( sublistauxgen ) );
@@ -725,7 +725,7 @@ int main ()
 	);
 	desire_failure (
 	    pairauxgen = min::new_indirect_pair_aux_gen
-	    			( 1 << 24 );
+		( (min::unsgen) 1 << min::VSIZE );
 	);
 	MIN_ASSERT
 	    ( ! min::is_stub ( pairauxgen ) );
@@ -761,12 +761,14 @@ int main ()
 	desire_failure (
 	    indexedauxgen =
 	        min::new_indexed_aux_gen
-		    ( 1 << 20, indexed_index );
+		    ( 1 << (min::VSIZE/2),
+		      indexed_index );
 	);
 	desire_failure (
 	    indexedauxgen =
 	        min::new_indexed_aux_gen
-		    ( indexed_aux, 1 << 20 );
+		    ( indexed_aux,
+		      1 << (min::VSIZE/2) );
 	);
 	MIN_ASSERT
 	    ( ! min::is_stub ( indexedauxgen ) );
@@ -790,7 +792,8 @@ int main ()
 	    indexgen = min::new_index_gen ( index );
 	);
 	desire_failure (
-	    indexgen = min::new_index_gen ( 1 << 24 );
+	    indexgen = min::new_index_gen
+		( (min::unsgen) 1 << min::VSIZE );
 	);
 	MIN_ASSERT ( ! min::is_stub ( indexgen ) );
 	MIN_ASSERT
@@ -817,7 +820,7 @@ int main ()
 	);
 	desire_failure (
 	    codegen = min::new_control_code_gen
-	    			( 1 << 24 );
+		( (min::unsgen) 1 << min::VSIZE );
 	);
 	MIN_ASSERT ( ! min::is_stub ( codegen ) );
 	MIN_ASSERT ( ! min::is_direct_str ( codegen ) );
@@ -857,7 +860,8 @@ int main ()
 	);
 	desire_failure (
 	    specialgen =
-	        min::new_special_gen ( 1 << 24 );
+	        min::new_special_gen
+		    ( (min::unsgen) 1 << min::VSIZE );
 	);
 	MIN_ASSERT ( ! min::is_stub ( specialgen ) );
 	MIN_ASSERT
