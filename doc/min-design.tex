@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 16, 2009}
+\date{February 17, 2009}
  
 \maketitle
 
@@ -3399,7 +3399,7 @@ the object lists have the syntax:
 \\[1ex]
 \emkey{hash-list} ::= {\em attribute-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{vector-list} ::= {\em attribute-descriptor-elements}
+\emkey{vector-list} ::= {\em attribute-descriptor}
 \\[1ex]
 \emkey{attribute-name-descriptor-pair} ::=
     {\em attribute-name } {\em attribute-descriptor}
@@ -3408,9 +3408,7 @@ the object lists have the syntax:
 \\[1ex]
 \emkey{attribute-descriptor} ::= {\em value} $|$ {\em attribute-sublist}
 \\[1ex]
-\emkey{attribute-sublist} ::= {\em attribute-descriptor-elements}
-\\[1ex]
-\emkey{attribute-descriptor-elements} ::=
+\emkey{attribute-sublist} ::=
     {\em double-arrow-sublist-option} {\em flag-set} {\em value}$\,^\star$
 \\[1ex]
 \emkey{double-arrow-sublist} ::=
@@ -3469,16 +3467,18 @@ a single {\em value}, a common case, the {\em attribute-sublist}
 may be replaced by this single
 {\em value}, in the interests of optimizing memory.
 
-A {\em vector-list} is a list that has the same format as an
-{\em attribute-sublist}.  This is associated with the
+A {\em vector-list} always has exactly one element that is
+the {\em attribute-descriptor} which is associated with the
 {\em attribute-name} that equals the vector index of the
 attribute vector element in which the {\em vector-list} is stored.
+This {\em attribute-descriptor} will be an empty sublist
+if the vector index has no associated attribute.
 
 {\em Attribute-names} can be either {\em atoms} or {\em labels}.
 If an {\em attribute-name} is an integer {\em atom}
 that is in the range of a legal
-attribute vector index then a {\em vector-list} with the same format as an
-{\em attribute-sublist}
+attribute vector index then a {\em vector-list} with one element that is
+an {\em attribute-descriptor}
 is put in the attribute vector element
 indexed by the integer.
 Otherwise an {\em attribute-name-descriptor-pair} containing
@@ -3511,7 +3511,7 @@ the object lists have the following alternative syntax:
 \\[1ex]
 \emkey{node-list} ::= {\em node-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{vector-list} ::= {\em node-descriptor-elements}
+\emkey{vector-list} ::= {\em node-descriptor}
 \\[1ex]
 \emkey{node-name-descriptor-pair} ::=
     {\em attribute-name-component } {\em node-descriptor}
@@ -3520,9 +3520,7 @@ the object lists have the following alternative syntax:
 \\[1ex]
 \emkey{node-descriptor} ::= {\em value} $|$ {\em node-sublist}
 \\[1ex]
-\emkey{node-sublist} ::= {\em node-descriptor-elements}
-\\[1ex]
-\emkey{node-descriptor-elements}
+\emkey{node-sublist}
     \begin{tabular}[t]{@{}r@{~}l@{}}
     ::= & {\em flag-set}
 	  {\em value}$\,^\star$ \\
@@ -3575,9 +3573,13 @@ whose {\em attribute-name-component} equals the vector index of the
 For a child of the object root,
 if the child nodes's {\em attribute-name-component} is an integer in the legal
 range of the object's attribute vector indices, then the nodes's
-{\em node-descriptor} is stored in the object's attribute vector.
-Otherwise the nodes's {\em attribute-name-component} and
-{\em node-descriptor} are placed in the {\em hash-table-entry}
+{\em node-descriptor} is stored in the {\em vector-list}
+that is stored in the object's attribute vector element.
+A {\em vector-list} is always a one element list whose element is a
+{\em node-descriptor} that may be an empty sublist.
+For a child of the root whose name component is not a legal attribute
+vector index, its {\em attribute-name-component} and
+{\em node-descriptor} is placed in the {\em hash-table-entry}
 whose index in the object's hash table equals the hash of the
 {\em attribute-name-component} modulo the length of the hash table.
 
