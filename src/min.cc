@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 16 05:26:19 EST 2009
+// Date:	Sat Feb 21 00:08:54 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/16 10:26:35 $
+//   $Date: 2009/02/21 16:28:56 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.74 $
+//   $Revision: 1.75 $
 
 // Table of Contents:
 //
@@ -397,7 +397,8 @@ min::gen min::new_lab_gen
     uns32 hash = labhash ( p, n );
     unsigned h = hash % MUP::lab_hash_size;
 
-    // Search for existing label stub with given elements.
+    // Search for existing label stub with given
+    // elements.
     //
     min::stub * s = MUP::lab_hash[h];
     for ( ; s ; s = MUP::stub_of_gc_control
@@ -1693,29 +1694,48 @@ void MINT::insert_reserve
 // Object Attribute Level
 // ------ --------- -----
 
+// Note: refresh ( ap.dap) is never used instead of
+// current in MINT:: functions as it must be called
+// by the min:: functions before they call the
+// MINT:: functions.
 
 # if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
+    // Handle all cases except where the name is an
+    // integer number atom in the range of an attribute
+    // vector subscript.
+    //
     template < class list_pointer_type >
     void MINT::locate
 	    ( MINT::attribute_pointer_type
 	          < list_pointer_type > & ap,
-	      min::gen name )
+	      min::gen name,
+	      bool allow_partial_labels )
     {
 	typedef internal::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
-	MIN_ASSERT ( is_lab ( name ) );
-	unsigned len = min::lablen ( name );
-	MIN_ASSERT ( len > 1 );
-
 	ap.attribute_name = name;
-	ap.reverse_attribute_name = NONE;
+	ap.reverse_attribute_name = min::NONE;
 
+	bool is_label = is_lab ( name );
+	unsigned len;
+	if ( is_label )
+	{
+	    len = min::lablen ( name );
+	    MIN_ASSERT ( len > 0 );
+	}
+	else
+	{
+	    MIN_ASSERT
+		( is_str ( name ) || is_num ( name ) );
+	    len = 1;
+	}
 	min::gen element[len];
-	lab_of ( element, len, name );
+	if ( is_label ) lab_of ( element, len, name );
+	else element[0] = name;
 
-	min::unprotected::start ( ap.alp );
+	min::unprotected::start ( ap.dlp );
 
 	// If element[0] is an integer in the right
 	// range, locate attribute vector entry.
@@ -1730,10 +1750,10 @@ void MINT::insert_reserve
 	     ( i = (int) f ) == f
 	     &&
 	     i < MUP::attribute_vector_size_of
-			( ap.alp ) )
+			( ap.dlp ) )
 	{
 	    min::unprotected
-	       ::start_vector ( ap.alp, i );
+	       ::start_vector ( ap.dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.index = i;
 	}
@@ -1741,30 +1761,32 @@ void MINT::insert_reserve
 	{
 	    ap.index = min::hash ( element[0] )
 	             % MUP::hash_table_size_of
-		              ( ap.alp );
+		              ( ap.dlp );
 	    ap.flags = 0;
 
-	    MUP::start_hash ( ap.alp, ap.index );
+	    MUP::start_hash ( ap.dlp, ap.index );
 
 	    min::gen c;
-	    for ( c = current ( ap.alp );
+	    for ( c = current ( ap.dlp );
 		  c != min::LIST_END;
-		  next ( ap.alp),
-		  c = next ( ap.alp ) )
+		  next ( ap.dlp),
+		  c = next ( ap.dlp ) )
 	    {
 		if ( c == element[0] )
 		{
-		    c = next ( ap.alp );
+		    c = next ( ap.dlp );
 		    MIN_ASSERT ( c != min::LIST_END );
 		    break;
 		}
 	    }
 	}
 
-	min::gen c = current ( ap.alp );
+	min::gen c = current ( ap.dlp );
 	if ( c == min::LIST_END )
 	{
 	    ap.length = 0;
+	    ap.state = ap_type::LOCATE_FAIL;
+	    start ( ap.dlp );
 	    return;
 	}
 
@@ -1773,32 +1795,915 @@ void MINT::insert_reserve
 	while ( ap.length < len )
 	{
 	    if ( ! is_sublist ( c ) ) break;
-	    start_copy ( ap.ralp, ap.alp );
-	    start_sublist ( ap.ralp );
-	    c = current ( ap.ralp );
+	    start_copy ( ap.saved_dlp, ap.dlp );
+	    start_sublist ( ap.saved_dlp );
+	    c = current ( ap.saved_dlp );
 	    if ( ! is_sublist ( c ) ) break;
-	    start_sublist ( ap.ralp );
+	    start_sublist ( ap.saved_dlp );
 
-	    for ( c = current ( ap.ralp );
+	    for ( c = current ( ap.saved_dlp );
 	          c != min::LIST_END;
-		  next ( ap.ralp), c = next ( ap.ralp ) )
+		  next ( ap.saved_dlp),
+		  c = next ( ap.saved_dlp ) )
 	    {
 		if ( c == element[ap.length] )
 		{
-		    c = next ( ap.ralp );
+		    c = next ( ap.saved_dlp );
 		    MIN_ASSERT ( c != min::LIST_END );
 		    break;
 		}
 	    }
 	    if ( c == min::LIST_END ) break;
 
-	    start_copy ( ap.alp, ap.ralp );
+	    start_copy ( ap.dlp, ap.saved_dlp );
 	    ++ ap.length;
 	}
 
-	if ( ap.length == len )
-	    ap.flags |= ap_type::ATTRIBUTE_FOUND;
+	if ( ap.length == len || allow_partial_labels )
+	    ap.state = ap_type::LOCATE_NONE;
+	else
+	{
+	    start_copy ( ap.saved_dlp, ap.dlp );
+	    start ( ap.dlp );
+	    ap.state = ap_type::LOCATE_FAIL;
+	}
+
 	return;
     }
 
-# endif // MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+    // Finish relocation after ap.dlp is positioned
+    // at beginning of hash-list or vector-list.
+    // State must be >= LOCATE_NONE.
+    // 
+    template < class list_pointer_type >
+    inline void MINT::relocate
+	    ( MINT::attribute_pointer_type
+	          < list_pointer_type > & ap )
+    {
+	typedef internal::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
+	MIN_ASSERT ( ap.length > 0 );
+
+	bool is_label = is_lab ( ap.attribute_name );
+	unsigned len;
+	if ( is_label )
+	    len = min::lablen ( ap.attribute_name );
+	else len = 1;
+	min::gen element[len];
+	if ( is_label )
+	    lab_of ( element, len, ap.attribute_name );
+	else element[0] = ap.attribute_name;
+
+	if ( ! ( ap.flags & ap_type::IN_VECTOR ) )
+	{
+	    min::gen c;
+	    for ( c = current ( ap.dlp );
+		  c != min::LIST_END;
+		  next ( ap.dlp),
+		  c = next ( ap.dlp ) )
+	    {
+		if ( c == element[0] )
+		{
+		    c = next ( ap.dlp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    break;
+		}
+	    }
+	}
+
+	min::gen c = current ( ap.dlp );
+	MIN_ASSERT ( c != min::LIST_END );
+
+	unsigned length = 1;
+
+	MIN_ASSERT ( ap.length <= len );
+
+	while ( length < ap.length )
+	{
+	    if ( ! is_sublist ( c ) ) break;
+	    start_copy ( ap.saved_dlp, ap.dlp );
+	    start_sublist ( ap.saved_dlp );
+	    c = current ( ap.saved_dlp );
+	    if ( ! is_sublist ( c ) ) break;
+	    start_sublist ( ap.saved_dlp );
+
+	    for ( c = current ( ap.saved_dlp );
+	          c != min::LIST_END;
+		  next ( ap.saved_dlp),
+		  c = next ( ap.saved_dlp ) )
+	    {
+		if ( c == element[ap.length] )
+		{
+		    c = next ( ap.saved_dlp );
+		    MIN_ASSERT ( c != min::LIST_END );
+		    break;
+		}
+	    }
+	    if ( c == min::LIST_END ) break;
+
+	    start_copy ( ap.dlp, ap.saved_dlp );
+	    ++ ap.length;
+	}
+
+	MIN_REQUIRE ( length == ap.length );
+
+	return;
+    }
+
+# else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+
+    template < class list_pointer_type >
+    void MINT::locate
+	    ( MINT::attribute_pointer_type
+		  < list_pointer_type > & ap,
+	      min::gen name )
+    {
+	typedef MINT::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
+	ap.reverse_attribute_name = min::NONE;
+
+	// If name is label whose only element is an
+	// atom, set name = the atom.
+	//
+	if ( is_lab ( name )
+	     &&
+	     lablen ( name ) == 1 )
+	{
+	    min::gen atom;
+	    lab_of ( & atom, 1, name );
+	    if ( is_num ( atom )
+		 ||
+		 is_str ( atom ) )
+		name = atom;
+	}
+	ap.attribute_name = name;
+
+	min::unprotected::start ( ap.dlp );
+
+	// If name is an integer in the right range,
+	// locate attribute vector entry and return.
+	//
+	if ( is_num ( name ) )
+	{
+	    float64 f = float_of ( name );
+	    int i = (int) f;
+
+	    if ( i == f
+		 &&
+		 0 <= i
+		 &&
+		 i < min::unprotected
+			::attribute_vector_size_of
+			    ( ap.dlp ) )
+	    {
+		min::unprotected
+		   ::start_vector ( ap.dlp, i );
+		ap.index = i;
+		ap.flags = ap_type::IN_VECTOR;
+		ap.state = ap_type::LOCATE_NONE;
+		return;
+	    }
+	}
+
+	ap.index = min::hash ( name )
+		 % min::unprotected
+		      ::hash_table_size_of
+			  ( ap.dlp );
+	min::unprotected::start_hash
+	    ( ap.dlp, ap.index );
+
+	for ( min::gen c = current ( ap.dlp );
+	      c != min::LIST_END;
+	      next ( ap.dlp), c = next ( ap.dlp ) )
+	{
+	    if ( c == name )
+	    {
+		c = next ( ap.dlp );
+		MIN_ASSERT ( c != min::LIST_END );
+		ap.flags = 0;
+		ap.state = ap_type::LOCATE_NONE;
+		return;
+	    }
+	}
+
+        // Name not found.
+	//
+	min::unprotected::start_hash
+	    ( ap.dlp, ap.index );
+	ap.flags = 0;
+	ap.state = ap_type::LOCATE_FAIL;
+	return;
+
+    }
+
+    // Finish relocation after ap.dlp is positioned
+    // at beginning of hash-list or vector-list.
+    // State must be >= LOCATE_NONE.
+    // 
+    template < class list_pointer_type >
+    inline void MINT::relocate
+	    ( MINT::attribute_pointer_type
+		  < list_pointer_type > & ap )
+    {
+	typedef MINT::attribute_pointer_type
+		    < list_pointer_type > ap_type;
+
+	for ( min::gen c = current ( ap.dlp );
+	      c != min::LIST_END;
+	      next ( ap.dlp), c = next ( ap.dlp ) )
+	{
+	    if ( c == ap.attribute_name )
+	    {
+		c = next ( ap.dlp );
+		MIN_ASSERT ( c != min::LIST_END );
+		return;
+	    }
+	}
+
+	MIN_ABORT ( "relocate could not find"
+	            " attribute" );
+    }
+
+# endif
+
+template < class list_pointer_type >
+void min::locate_reverse
+	( internal::attribute_pointer_type
+	      < list_pointer_type > & ap,
+	  min::gen reverse_name )
+{
+    typedef internal::attribute_pointer_type
+		< list_pointer_type > ap_type;
+
+    // If reverse_name is label whose only element is an
+    // atom, set reverse_name = the atom.
+    //
+    if ( is_lab ( reverse_name )
+	 &&
+	 lablen ( reverse_name ) == 1 )
+    {
+	min::gen atom;
+	lab_of ( & atom, 1, reverse_name );
+	if ( is_str ( atom )
+	     ||
+	     is_num ( atom ) )
+	    reverse_name = atom;
+    }
+
+    ap.reverse_attribute_name = reverse_name;
+
+    if ( reverse_name == ap.reverse_attribute_name )
+        return;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::LOCATE_FAIL:
+    	    return;
+    case ap_type::LOCATE_NONE:
+	    if ( reverse_name == min::ANY )
+	    {
+	        ap.state = ap_type::LOCATE_ANY;
+		return;
+	    }
+	    break;
+    case ap_type::LOCATE_ANY:
+	    if ( reverse_name == min::NONE )
+	    {
+	        ap.state = ap_type::LOCATE_NONE;
+		return;
+	    }
+	    break;
+    case ap_type::REVERSE_LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_SUCCEED:
+	    refresh ( ap.saved_dap );
+    	    start_copy ( ap.dap, ap.saved_dap );
+	    if ( reverse_name == min::NONE )
+	    {
+	        ap.state = ap_type::LOCATE_NONE;
+		return;
+	    }
+	    else if ( reverse_name == min::ANY )
+	    {
+	        ap.state = ap_type::LOCATE_ANY;
+		return;
+	    }
+	    break;
+    }
+
+    // ap.dap is as set by previous successful locate
+    // and reverse_name is not NONE or ANY.
+
+    start_copy ( ap.saved_dlp, ap.dlp );
+
+    if ( ! is_sublist ( current ( ap.dlp ) )
+	 ||
+	 ! ( start_sublist ( ap.dlp ),
+	     is_sublist ( current ( ap.dlp ) ) )
+#	   if not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	 ||
+	 ! is_sublist ( next ( ap.dlp ) )
+#	   endif
+       )
+    {
+	start ( ap.dlp );
+	ap.state = ap_type::REVERSE_LOCATE_FAIL;
+	return;
+    }
+
+    start_sublist ( ap.dlp );
+
+    for ( min::gen c = current ( ap.dlp );
+	  c != min::LIST_END;
+	  next ( ap.dlp), c = next ( ap.dlp ) )
+    {
+	if ( c == reverse_name )
+	{
+	    c = next ( ap.dlp );
+	    MIN_ASSERT ( c != min::LIST_END );
+	    ap.state =
+		ap_type::REVERSE_LOCATE_SUCCEED;
+	    return;
+	}
+    }
+
+    start ( ap.dlp );
+    ap.state = ap_type::REVERSE_LOCATE_FAIL;
+}
+
+template < class list_pointer_type >
+void min::relocate
+	( MINT::attribute_pointer_type
+	      < list_pointer_type > & ap )
+{
+    typedef MINT::attribute_pointer_type
+		< list_pointer_type > ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+        return;
+    case ap_type::LOCATE_FAIL:
+#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	    ap.length = 0;
+#	endif
+	return;
+    }
+
+    if ( ap.flags & ap_type::IN_VECTOR )
+    {
+        min::start_vector ( ap.dlp, ap.index );
+#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	    if ( ap.length != 1 ) MINT::relocate ( ap );
+#	endif
+    }
+    else
+    {
+        min::start_hash ( ap.dlp, ap.index );
+	MINT::relocate ( ap );
+    }
+
+    switch ( ap.state )
+    {
+    case ap_type::LOCATE_NONE:
+    case ap_type::LOCATE_ANY:
+        return;
+    case ap_type::REVERSE_LOCATE_FAIL:
+        start_copy ( ap.saved_dlp, ap.dlp );
+	start ( ap.dlp );
+	return;
+    }
+
+    start_copy ( ap.saved_dlp, ap.dlp );
+
+    if ( ! is_sublist ( current ( ap.dlp ) )
+	 ||
+	 ! ( start_sublist ( ap.dlp ),
+	     is_sublist ( current ( ap.dlp ) ) )
+#	   if not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+	 ||
+	 ! is_sublist ( next ( ap.dlp ) )
+#	   endif
+       )
+	MIN_ABORT ( "relocate could not find"
+	            " reverse attribute" );
+
+    start_sublist ( ap.dlp );
+
+    for ( min::gen c = current ( ap.dlp );
+	  c != min::LIST_END;
+	  next ( ap.dlp), c = next ( ap.dlp ) )
+    {
+	if ( c == ap.reverse_attribute_name )
+	{
+	    c = next ( ap.dlp );
+	    MIN_REQUIRE ( c != min::LIST_END );
+	    return;
+	}
+    }
+    MIN_ABORT ( "relocate could not find reverse"
+                " attribute" );
+}
+
+template < class list_pointer_type >
+inline unsigned MINT::count
+	( internal::attribute_pointer_type
+	      < list_pointer_type > & ap )
+{
+    typedef internal::attribute_pointer_type
+		< list_pointer_type > ap_type;
+
+    min:gen c;
+    MUP::list_pointer lp ( min::stub_of ( ap.dlp ) );
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_FAIL:
+	    return 0;
+    case ap_type::LOCATE_NONE:
+	    start_copy ( lp, ap.dlp );
+	    start_sublist ( lp );
+	    while ( is_sublist ( current ( lp ) ) )
+		next ( lp );
+	    while ( is_control_code ( current ( lp ) ) )
+		next ( lp );
+    	    break;
+    case ap_type::REVERSE_LOCATE_SUCCEED:
+	    start_copy ( lp, ap.dlp );
+	    start_sublist ( lp );
+    	    break;
+    case ap_type::LOCATE_ANY:
+        {
+	    start_copy ( ap.saved_dlp, ap.dlp );
+	    if ( ! is_sublist
+	               ( current ( ap.saved_dlp ) )
+		 ||
+		 ! ( start_sublist ( ap.saved_dlp ),
+		     is_sublist
+		         ( current ( ap.saved_dlp ) ) )
+    #	   if not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+		 ||
+		 ! is_sublist ( next ( ap.saved_dlp ) )
+    #	   endif
+	       )
+		return 0;
+
+	    unsigned result = 0;
+	    MUP::list_pointer lp ( stub_of ( ap.dlp ) );
+
+	    for ( c = next ( ap.saved_dlp );
+		  c != min::LIST_END;
+		  next ( ap.saved_dlp),
+		  c = next ( ap.saved_dlp ) )
+	    {
+		if ( is_sublist ( c  ) )
+		{
+		    start_copy ( lp, ap.saved_dlp );
+		    start_sublist ( lp );
+		    for ( c = current ( lp );
+		          c != min::LIST_END;
+			  c = next ( lp ) )
+			++ result;
+		}
+		else ++ result;
+	    }
+	    return result;
+	}
+    }
+
+    unsigned result = 0;
+    while ( current ( lp ) != min::LIST_END )
+	++ result, next (lp );
+    return result;
+}
+
+template < class list_pointer_type >
+inline unsigned MINT::get
+	( min::gen * out, unsigned n,
+	  internal::attribute_pointer_type
+	      < list_pointer_type > & ap )
+{
+    typedef internal::attribute_pointer_type
+		< list_pointer_type > ap_type;
+
+    min:gen c;
+    MUP::list_pointer lp ( min::stub_of ( ap.dlp ) );
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_FAIL:
+	    return 0;
+    case ap_type::LOCATE_NONE:
+	    start_copy ( lp, ap.dlp );
+	    start_sublist ( lp );
+	    while ( is_sublist ( current ( lp ) ) )
+		next ( lp );
+	    while ( is_control_code ( current ( lp ) ) )
+		next ( lp );
+    	    break;
+    case ap_type::REVERSE_LOCATE_SUCCEED:
+	    start_copy ( lp, ap.dlp );
+	    start_sublist ( lp );
+    	    break;
+    case ap_type::LOCATE_ANY:
+        {
+	    start_copy ( ap.saved_dlp, ap.dlp );
+	    if ( ! is_sublist
+	               ( current ( ap.saved_dlp ) )
+		 ||
+		 ! ( start_sublist ( ap.saved_dlp ),
+		     is_sublist
+		         ( current ( ap.saved_dlp ) ) )
+    #	   if not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+		 ||
+		 ! is_sublist ( next ( ap.saved_dlp ) )
+    #	   endif
+	       )
+		return 0;
+
+	    unsigned result = 0;
+	    MUP::list_pointer lp ( stub_of ( ap.dlp ) );
+
+	    for ( c = next ( ap.saved_dlp );
+		  c != min::LIST_END && result < n;
+		  next ( ap.saved_dlp),
+		         c = next ( ap.saved_dlp ) )
+	    {
+		if ( is_sublist ( c  ) )
+		{
+		    start_copy ( lp, ap.saved_dlp );
+		    start_sublist ( lp );
+		    while (       ( c = current ( lp ) )
+		               != min::LIST_END
+		            && result < n )
+		    {
+			* out ++ = c;
+			++ result;
+			next ( lp );
+		    }
+		}
+		else ++ result, * out ++ = c;
+	    }
+	    return result;
+	}
+    }
+
+    unsigned result = 0;
+    while ( ( c = current ( lp ) ) != min::LIST_END
+            && result < n )
+	++ result, * out ++ = c, next (lp );
+    return result;
+}
+
+inline void MINT::set
+	( const min::gen * in, unsigned n,
+	  min::unprotected
+	     ::writable_attribute_pointer & wap )
+{
+    typedef min::unprotected
+	       ::writable_attribute_pointer ap_type;
+
+    MIN_ASSERT
+        ( wap.reverse_attribute_name != min::ANY );
+
+    switch ( wap.state )
+    {
+    case ap_type::INIT:
+	    MIN_ABORT ( "bad attribute set call" );
+    case ap_type::LOCATE_FAIL:
+    	    MINT::attribute_create ( wap );
+    case ap_type::REVERSE_LOCATE_FAIL:
+	    MINT::reverse_attribute_create ( wap );
+    }
+
+    MUP::insertable_list_pointer
+        lp ( min::stub_of ( wap.dlp ) );
+    start_copy ( lp, wap.dlp );
+    min:gen c = current ( lp );
+
+    if ( ! is_sublist ( c ) )
+    {
+	min::relocated relocated;
+        min::insert_reserve ( lp, 1, n );
+	if ( relocated )
+	{
+	    relocate ( wap );
+	    MINT::set ( in, n, wap );
+	    return;
+	}
+	update ( lp, min::EMPTY_SUBLIST );
+	start_sublist ( lp );
+	insert_before ( lp, in, n );
+    }
+    else
+    {
+        start_sublist ( lp );
+	while ( is_sublist ( current ( lp ) ) )
+	    next ( lp );
+	while ( is_control_code ( current ( lp ) ) )
+	    next ( lp );
+	for ( c = current ( lp );
+	      c != min::LIST_END && n > 0;
+	      c = next ( lp ) )
+	    update ( lp, ( -- n, * in ++ ) );
+	if ( n > 0 )
+	{
+	    min::relocated relocated;
+	    min::insert_reserve ( lp, 1, n );
+	    if ( relocated )
+	    {
+		relocate ( wap );
+		add_to_multiset ( in, n, wap );
+		return;
+	    }
+	    insert_before ( lp, in, n );
+	}
+	else for ( ; c != min::LIST_END;
+		     c = current ( lp ) )
+	    remove ( lp, 1000 );
+    }
+}
+
+inline void min::add_to_multiset
+	( const min::gen * in, unsigned n,
+	  min::unprotected
+	     ::writable_attribute_pointer & wap )
+{
+    typedef min::unprotected
+	       ::writable_attribute_pointer ap_type;
+
+    MIN_ASSERT
+        ( wap.reverse_attribute_name != min::ANY );
+
+    switch ( wap.state )
+    {
+    case ap_type::INIT:
+	    MIN_ABORT ( "bad attribute set call" );
+    case ap_type::LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_FAIL:
+	    min::set ( in, n, wap );
+	    return;
+    }
+
+    MUP::insertable_list_pointer
+        lp ( min::stub_of ( wap.dlp ) );
+    start_copy ( lp, wap.dlp );
+    min:gen c = current ( lp );
+
+    if ( ! is_sublist ( c ) )
+    {
+	min::relocated relocated;
+        min::insert_reserve ( lp, 2, n + 1 );
+	if ( relocated )
+	{
+	    min::relocate ( wap );
+	    min::add_to_multiset ( in, n, wap );
+	    return;
+	}
+	update ( lp, min::EMPTY_SUBLIST );
+	start_sublist ( lp );
+	min::gen element[1] = { c };
+	insert_before ( lp, element, 1 );
+	insert_before ( lp, in, n );
+    }
+    else
+    {
+        start_sublist ( lp );
+	while ( is_sublist ( current ( lp ) ) )
+	    next ( lp );
+	while ( is_control_code ( current ( lp ) ) )
+	    next ( lp );
+	while ( current ( lp ) != min::LIST_END )
+	    next ( lp );
+	min::relocated relocated;
+	min::insert_reserve ( lp, 1, n );
+	if ( relocated )
+	{
+	    min::relocate ( wap );
+	    add_to_multiset ( in, n, wap );
+	    return;
+	}
+	insert_before ( lp, in, n );
+    }
+}
+
+inline void min::add_to_set
+	( const min::gen * in, unsigned n,
+	  min::unprotected
+	     ::writable_attribute_pointer & wap )
+{
+    typedef min::unprotected
+	       ::writable_attribute_pointer ap_type;
+
+    MIN_ASSERT
+        ( wap.reverse_attribute_name != min::ANY );
+
+    switch ( wap.state )
+    {
+    case ap_type::INIT:
+	    MIN_ABORT ( "bad attribute set call" );
+    case ap_type::LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_FAIL:
+	    min::set ( in, n, wap );
+	    return;
+    }
+
+    MUP::insertable_list_pointer
+        lp ( min::stub_of ( wap.dlp ) );
+    start_copy ( lp, wap.dlp );
+    min:gen c = current ( lp );
+
+    if ( ! is_sublist ( c ) )
+    {
+	min::relocated relocated;
+	bool include_c = true;
+	for ( int i = 0; include_c && i < n; ++ i )
+	    include_c = ( c != in[i] );
+        min::insert_reserve
+	    ( lp, 1 + include_c, n + include_c );
+	if ( relocated )
+	{
+	    min::relocate ( wap );
+	    min::add_to_set ( in, n, wap );
+	    return;
+	}
+	update ( lp, min::EMPTY_SUBLIST );
+	start_sublist ( lp );
+	if ( include_c )
+	{
+	    min::gen element[1] = { c };
+	    insert_before ( lp, element, 1 );
+	}
+	insert_before ( lp, in, n );
+    }
+    else
+    {
+        start_sublist ( lp );
+	while ( is_sublist ( current ( lp ) ) )
+	    next ( lp );
+	while ( is_control_code ( current ( lp ) ) )
+	    next ( lp );
+
+	// Copy in vector to kept vector.  Remove from
+	// kept vector all elements that are already
+	// in the values, decrementing n for each
+	// value removed.
+	//
+        min::gen kept[n];
+	memcpy ( kept, in, n * sizeof ( min::gen ) );
+
+	for ( c = current ( lp );
+	      c != min::LIST_END;
+	      c = next ( lp ) )
+	for ( int i = 0; i < n; )
+	{
+	    if ( c != kept[i] ) ++ i;
+	    else
+	    {
+		for ( int j = i + 1; j < n; )
+		    kept[i++] = kept[j++];
+		-- n;
+		break;
+	    }
+	}
+
+	min::relocated relocated;
+	min::insert_reserve ( lp, 1, n );
+	if ( relocated )
+	{
+	    min::relocate ( wap );
+	    add_to_multiset ( kept, n, wap );
+	    return;
+	}
+	insert_before ( lp, kept, n );
+    }
+}
+
+inline void MINT::set_flags
+	( const min::gen * in, unsigned n,
+	  min::unprotected
+	     ::writable_attribute_pointer & wap )
+{
+    typedef min::unprotected
+	       ::writable_attribute_pointer ap_type;
+
+    MIN_ASSERT
+        ( wap.reverse_attribute_name != min::ANY );
+
+    switch ( wap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::REVERSE_LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_SUCCEED:
+	    MIN_ABORT ( "bad attribute set call" );
+    case ap_type::LOCATE_FAIL:
+    	    if ( wap.reverse_attribute_name != min::NONE
+	         &&
+    	         wap.reverse_attribute_name != min::ANY
+	       )
+		MIN_ABORT ( "bad attribute set call" );
+    	    MINT::attribute_create ( wap );
+    }
+
+    MUP::insertable_list_pointer
+        lp ( min::stub_of ( wap.dlp ) );
+    start_copy ( lp, wap.dlp );
+    min:gen c = current ( lp );
+
+    if ( ! is_sublist ( c ) )
+    {
+        if ( n == 0 ) return;
+
+	min::relocated relocated;
+        min::insert_reserve ( lp, 2, n + 1 );
+	if ( relocated )
+	{
+	    min::relocate ( wap );
+	    MINT::set_flags ( in, n, wap );
+	    return;
+	}
+	update ( lp, min::EMPTY_SUBLIST );
+	start_sublist ( lp );
+	insert_before ( lp, in, n );
+	min::gen element[1] = { c };
+	insert_before ( lp, element, 1 );
+    }
+    else
+    {
+        start_sublist ( lp );
+	while ( is_sublist ( current ( lp ) ) )
+	    next ( lp );
+	while ( is_control_code ( current ( lp ) ) )
+	    update ( lp, * in ++ ), -- n; next ( lp );
+	if ( n > 0 )
+	{
+	    min::relocated relocated;
+	    min::insert_reserve ( lp, 1, n );
+	    if ( relocated )
+	    {
+		min::relocate ( wap );
+		MINT::set_flags ( in, n, wap );
+		return;
+	    }
+	    insert_before ( lp, in, n );
+	}
+	else for ( c = current ( lp );
+	           is_control_code ( c );
+		   c = next ( lp ) )
+	    update ( lp, new_control_code_gen ( 0 ) );
+    }
+}
+
+inline void MINT::set_more_flags
+	( const min::gen * in, unsigned n,
+	  min::unprotected
+	     ::writable_attribute_pointer & wap )
+{
+    typedef min::unprotected
+	       ::writable_attribute_pointer ap_type;
+
+    MIN_ASSERT
+        ( wap.reverse_attribute_name != min::ANY );
+
+    switch ( wap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::REVERSE_LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_SUCCEED:
+	    MIN_ABORT ( "bad attribute set call" );
+    case ap_type::LOCATE_FAIL:
+    	    if ( wap.reverse_attribute_name != min::NONE
+	         &&
+    	         wap.reverse_attribute_name != min::ANY
+	       )
+		MIN_ABORT ( "bad attribute set call" );
+    	    MINT::attribute_create ( wap );
+    }
+
+    MUP::insertable_list_pointer
+        lp ( min::stub_of ( wap.dlp ) );
+    start_copy ( lp, wap.dlp );
+    min:gen c = current ( lp );
+
+    min::relocated relocated;
+    min::insert_reserve ( lp, 1, n );
+    if ( relocated )
+    {
+	min::relocate ( wap );
+	set_more_flags ( in, n, wap );
+	return;
+    }
+
+    MIN_ASSERT ( is_sublist ( c ) );
+    start_sublist ( lp );
+    while ( is_sublist ( current ( lp ) ) )
+	next ( lp );
+    while ( is_control_code ( current ( lp ) ) );
+    insert_before ( lp, in, n );
+}
