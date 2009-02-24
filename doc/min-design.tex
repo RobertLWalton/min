@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 19, 2009}
+\date{February 24, 2009}
  
 \maketitle
 
@@ -3174,19 +3174,33 @@ then $P_2$ will be invalidated if:
 
 \begin{enumerate}
 \item
-$P_2$ points at a removed element or into a sublist that previously
-was accessible only through a removed element.
+$P_2$ points at a removed element.  This includes elements explicitly
+removed by the operation on $P_1$, and also elements reachable via
+sublists from these elements.  The list structure of an object is a tree
+(and \underline{not} a more general acyclic directed graph), and removing
+any element removes all descendants of that element.
 
 \item
-$P_2$ pointed at the same element as $P_1$ and the $P_1$ operation was an
-{\tt insert\_before} or {\tt insert\_after}.
+The $P_1$ operation does an {\tt insert\_before} element $e$
+or an {\tt insert\_after} element
+$e$, and:
+\begin{enumerate}
+\item $P_2$ pointed at $e$.
+\item $e$ is a sublist and $P_2$ is an insertable pointer that
+pointed at $e$'s first element.
+\item $e$ is an empty sublist and $P_2$ is an insertable pointer that
+pointed at $e$'s end.
+\end{enumerate}
+
 \end{enumerate}
 
 The effects can be subtle
 and not obvious: for example, using $P_1$ to insert before or after
 a list element that is an empty sublist can invalidate $P_2$
 if it points at the end of that sublist.
-The invalidation of $P_2$ is \underline{not} a detectable error
+
+The invalidation of $P_2$ in the above situtations
+is \underline{not} a detectable error
 (just as the invalidation of list pointers by relocation is not
 detectable).
 
