@@ -1371,12 +1371,16 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 MUP::gc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
@@ -1408,6 +1412,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
@@ -1422,6 +1428,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
@@ -1429,6 +1437,8 @@ min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
@@ -1442,11 +1452,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
@@ -1565,6 +1579,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -1572,6 +1588,8 @@ min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
@@ -1601,6 +1619,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
@@ -1617,6 +1637,8 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
@@ -1626,6 +1648,8 @@ min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
@@ -1643,11 +1667,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
+../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
+../include/min.h:XXXX assert:
+    lp.s == lp2.s true.
 ../include/min.h:XXXX assert:
     lp.s == lp2.s true.
 ../include/min.h:XXXX assert:

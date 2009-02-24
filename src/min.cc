@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 21 00:08:54 EST 2009
+// Date:	Tue Feb 24 02:01:29 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/21 16:28:56 $
+//   $Date: 2009/02/24 08:01:58 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.75 $
+//   $Revision: 1.76 $
 
 // Table of Contents:
 //
@@ -1768,21 +1768,21 @@ void MINT::insert_reserve
 
 	    min::gen c;
 	    for ( c = current ( ap.dlp );
-		  c != min::LIST_END;
+		  ! is_list_end ( c );
 		  next ( ap.dlp),
 		  c = next ( ap.dlp ) )
 	    {
 		if ( c == element[0] )
 		{
 		    c = next ( ap.dlp );
-		    MIN_ASSERT ( c != min::LIST_END );
+		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
 	}
 
 	min::gen c = current ( ap.dlp );
-	if ( c == min::LIST_END )
+	if ( is_list_end ( c ) )
 	{
 	    ap.length = 0;
 	    ap.state = ap_type::LOCATE_FAIL;
@@ -1802,18 +1802,18 @@ void MINT::insert_reserve
 	    start_sublist ( ap.saved_dlp );
 
 	    for ( c = current ( ap.saved_dlp );
-	          c != min::LIST_END;
+	          ! is_list_end ( c );
 		  next ( ap.saved_dlp),
 		  c = next ( ap.saved_dlp ) )
 	    {
 		if ( c == element[ap.length] )
 		{
 		    c = next ( ap.saved_dlp );
-		    MIN_ASSERT ( c != min::LIST_END );
+		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
-	    if ( c == min::LIST_END ) break;
+	    if ( is_list_end ( c ) ) break;
 
 	    start_copy ( ap.dlp, ap.saved_dlp );
 	    ++ ap.length;
@@ -1859,21 +1859,21 @@ void MINT::insert_reserve
 	{
 	    min::gen c;
 	    for ( c = current ( ap.dlp );
-		  c != min::LIST_END;
+		  ! is_list_end ( c );
 		  next ( ap.dlp),
 		  c = next ( ap.dlp ) )
 	    {
 		if ( c == element[0] )
 		{
 		    c = next ( ap.dlp );
-		    MIN_ASSERT ( c != min::LIST_END );
+		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
 	}
 
 	min::gen c = current ( ap.dlp );
-	MIN_ASSERT ( c != min::LIST_END );
+	MIN_ASSERT ( ! is_list_end ( c ) );
 
 	unsigned length = 1;
 
@@ -1889,18 +1889,18 @@ void MINT::insert_reserve
 	    start_sublist ( ap.saved_dlp );
 
 	    for ( c = current ( ap.saved_dlp );
-	          c != min::LIST_END;
+	          ! is_list_end ( c );
 		  next ( ap.saved_dlp),
 		  c = next ( ap.saved_dlp ) )
 	    {
 		if ( c == element[ap.length] )
 		{
 		    c = next ( ap.saved_dlp );
-		    MIN_ASSERT ( c != min::LIST_END );
+		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
-	    if ( c == min::LIST_END ) break;
+	    if ( is_list_end ( c ) ) break;
 
 	    start_copy ( ap.dlp, ap.saved_dlp );
 	    ++ ap.length;
@@ -1975,13 +1975,13 @@ void MINT::insert_reserve
 	    ( ap.dlp, ap.index );
 
 	for ( min::gen c = current ( ap.dlp );
-	      c != min::LIST_END;
+	      ! is_list_end ( c );
 	      next ( ap.dlp), c = next ( ap.dlp ) )
 	{
 	    if ( c == name )
 	    {
 		c = next ( ap.dlp );
-		MIN_ASSERT ( c != min::LIST_END );
+		MIN_ASSERT ( ! is_list_end ( c ) );
 		ap.flags = 0;
 		ap.state = ap_type::LOCATE_NONE;
 		return;
@@ -2011,13 +2011,13 @@ void MINT::insert_reserve
 		    < list_pointer_type > ap_type;
 
 	for ( min::gen c = current ( ap.dlp );
-	      c != min::LIST_END;
+	      ! is_list_end ( c );
 	      next ( ap.dlp), c = next ( ap.dlp ) )
 	{
 	    if ( c == ap.attribute_name )
 	    {
 		c = next ( ap.dlp );
-		MIN_ASSERT ( c != min::LIST_END );
+		MIN_ASSERT ( ! is_list_end ( c ) );
 		return;
 	    }
 	}
@@ -2116,13 +2116,13 @@ void min::locate_reverse
     start_sublist ( ap.dlp );
 
     for ( min::gen c = current ( ap.dlp );
-	  c != min::LIST_END;
+	  ! is_list_end ( c );
 	  next ( ap.dlp), c = next ( ap.dlp ) )
     {
 	if ( c == reverse_name )
 	{
 	    c = next ( ap.dlp );
-	    MIN_ASSERT ( c != min::LIST_END );
+	    MIN_ASSERT ( ! is_list_end ( c ) );
 	    ap.state =
 		ap_type::REVERSE_LOCATE_SUCCEED;
 	    return;
@@ -2193,13 +2193,13 @@ void min::relocate
     start_sublist ( ap.dlp );
 
     for ( min::gen c = current ( ap.dlp );
-	  c != min::LIST_END;
+	  ! is_list_end ( c );
 	  next ( ap.dlp), c = next ( ap.dlp ) )
     {
 	if ( c == ap.reverse_attribute_name )
 	{
 	    c = next ( ap.dlp );
-	    MIN_REQUIRE ( c != min::LIST_END );
+	    MIN_REQUIRE ( ! is_list_end ( c ) );
 	    return;
 	}
     }
@@ -2256,7 +2256,7 @@ inline unsigned MINT::count
 	    MUP::list_pointer lp ( stub_of ( ap.dlp ) );
 
 	    for ( c = next ( ap.saved_dlp );
-		  c != min::LIST_END;
+		  ! is_list_end ( c );
 		  next ( ap.saved_dlp),
 		  c = next ( ap.saved_dlp ) )
 	    {
@@ -2265,7 +2265,7 @@ inline unsigned MINT::count
 		    start_copy ( lp, ap.saved_dlp );
 		    start_sublist ( lp );
 		    for ( c = current ( lp );
-		          c != min::LIST_END;
+		          ! is_list_end ( c );
 			  c = next ( lp ) )
 			++ result;
 		}
@@ -2276,7 +2276,7 @@ inline unsigned MINT::count
     }
 
     unsigned result = 0;
-    while ( current ( lp ) != min::LIST_END )
+    while ( ! is_list_end ( current ( lp ) ) )
 	++ result, next (lp );
     return result;
 }
@@ -2331,7 +2331,7 @@ inline unsigned MINT::get
 	    MUP::list_pointer lp ( stub_of ( ap.dlp ) );
 
 	    for ( c = next ( ap.saved_dlp );
-		  c != min::LIST_END && result < n;
+		  ! is_list_end ( c ) && result < n;
 		  next ( ap.saved_dlp),
 		         c = next ( ap.saved_dlp ) )
 	    {
@@ -2339,8 +2339,9 @@ inline unsigned MINT::get
 		{
 		    start_copy ( lp, ap.saved_dlp );
 		    start_sublist ( lp );
-		    while (       ( c = current ( lp ) )
-		               != min::LIST_END
+		    while (    ! is_list_end
+		                    ( c = current
+				            ( lp ) )
 		            && result < n )
 		    {
 			* out ++ = c;
@@ -2355,7 +2356,7 @@ inline unsigned MINT::get
     }
 
     unsigned result = 0;
-    while ( ( c = current ( lp ) ) != min::LIST_END
+    while (    ! is_list_end ( c = current ( lp ) )
             && result < n )
 	++ result, * out ++ = c, next (lp );
     return result;
@@ -2409,7 +2410,7 @@ inline void MINT::set
 	while ( is_control_code ( current ( lp ) ) )
 	    next ( lp );
 	for ( c = current ( lp );
-	      c != min::LIST_END && n > 0;
+	      ! is_list_end ( c ) && n > 0;
 	      c = next ( lp ) )
 	    update ( lp, ( -- n, * in ++ ) );
 	if ( n > 0 )
@@ -2424,7 +2425,7 @@ inline void MINT::set
 	    }
 	    insert_before ( lp, in, n );
 	}
-	else for ( ; c != min::LIST_END;
+	else for ( ; ! is_list_end ( c );
 		     c = current ( lp ) )
 	    remove ( lp, 1000 );
     }
@@ -2479,7 +2480,7 @@ inline void min::add_to_multiset
 	    next ( lp );
 	while ( is_control_code ( current ( lp ) ) )
 	    next ( lp );
-	while ( current ( lp ) != min::LIST_END )
+	while ( ! is_list_end ( current ( lp ) ) )
 	    next ( lp );
 	min::relocated relocated;
 	min::insert_reserve ( lp, 1, n );
@@ -2559,7 +2560,7 @@ inline void min::add_to_set
 	memcpy ( kept, in, n * sizeof ( min::gen ) );
 
 	for ( c = current ( lp );
-	      c != min::LIST_END;
+	      ! is_list_end ( c );
 	      c = next ( lp ) )
 	for ( int i = 0; i < n; )
 	{

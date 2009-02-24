@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Fri Feb  6 20:25:30 EST 2009
+# Date:		Tue Feb 24 02:52:57 EST 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/02/07 01:41:26 $
+#   $Date: 2009/02/24 08:01:19 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.16 $
+#   $Revision: 1.17 $
 
 # We need the following to mask RCS lines
 #
@@ -59,7 +59,7 @@ test:	${PROGRAMS:=.test}
 
 %.diff:	%.out
 	@echo DIFFING $*.test $*.out
-	@sed \
+	-@sed \
 	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
 	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \

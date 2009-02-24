@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 21 00:08:28 EST 2009
+// Date:	Tue Feb 24 02:54:25 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/21 16:15:25 $
+//   $Date: 2009/02/24 08:02:32 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.139 $
+//   $Revision: 1.140 $
 
 // Table of Contents:
 //
@@ -2931,7 +2931,8 @@ namespace min {
     min::gen refresh
     	    ( min::unprotected::list_pointer & lp );
     min::gen start_sublist
-    	    ( min::unprotected::list_pointer & lp );
+    	    ( min::unprotected::list_pointer & lp,
+    	      min::unprotected::list_pointer & lp2 );
     void update
     	    ( min::unprotected
 	         ::updatable_list_pointer & lp,
@@ -3016,6 +3017,9 @@ namespace min { namespace unprotected {
 	    //
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
+#	    if MIN_USES_OBJ_AUX_STUBS
+		use_obj_aux_stubs = false;
+#	    endif
 
 	    // Other members are initialized by start()
 	    // (see below), which sets so or lo.  This
@@ -3223,7 +3227,8 @@ namespace min { namespace unprotected {
 	friend min::gen min::refresh
 		( min::unprotected::list_pointer & lp );
 	friend min::gen min::start_sublist
-		( min::unprotected::list_pointer & lp );
+		( min::unprotected::list_pointer & lp,
+    	          min::unprotected::list_pointer & lp2 );
 
 	friend void min::update
 		( min::unprotected
@@ -3371,7 +3376,6 @@ namespace min { namespace unprotected {
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp.previous_stub = NULL;
-	    lp.use_obj_aux_stubs = false;
 #	endif
     }
 
@@ -3495,7 +3499,6 @@ namespace min {
 #       if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 	    lp.previous_stub = lp2.previous_stub;
-	    lp.use_obj_aux_stubs = false;
 #       endif
 	return lp.current = lp2.current;
     }
@@ -3598,18 +3601,24 @@ namespace min {
     }
 
     inline min::gen start_sublist
-    	    ( min::unprotected::list_pointer & lp )
+    	    ( min::unprotected::list_pointer & lp,
+    	      min::unprotected::list_pointer & lp2 )
     {
-	lp.previous_index = lp.current_index;
+        MIN_ASSERT ( lp.s == lp2.s );
+	lp.lo = lp2.lo;
+	lp.so = lp2.so;
+	lp.base = lp2.base;
+
+	lp.previous_index = lp2.current_index;
 	lp.previous_is_sublist_head = true;
 
 #	if MIN_USES_OBJ_AUX_STUBS
-	    lp.previous_stub = lp.current_stub;
-	    if ( min::is_stub ( lp.current ) )
+	    lp.previous_stub = lp2.current_stub;
+	    if ( min::is_stub ( lp2.current ) )
 	    {
 		lp.current_stub =
 		    min::unprotected::
-		         stub_of ( lp.current );
+		         stub_of ( lp2.current );
 		lp.current_index = 0;
 		MIN_ASSERT
 		    (    min::type_of
@@ -3624,13 +3633,19 @@ namespace min {
 #	endif
 
 	lp.current_index =
-	    sublist_aux_of ( lp.current );
+	    sublist_aux_of ( lp2.current );
 	if ( lp.current_index == 0 )
 	    lp.current = min::LIST_END;
 	else
 	    lp.current =
 		lp.base[lp.current_index];
 	return lp.current;
+    }
+
+    inline min::gen start_sublist
+    	    ( min::unprotected::list_pointer & lp )
+    {
+	return start_sublist ( lp, lp );
     }
 
     inline void update
