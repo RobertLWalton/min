@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 24 02:01:29 EST 2009
+// Date:	Wed Feb 25 10:14:08 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/24 08:01:58 $
+//   $Date: 2009/02/25 20:42:09 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.76 $
+//   $Revision: 1.77 $
 
 // Table of Contents:
 //
@@ -1694,10 +1694,10 @@ void MINT::insert_reserve
 // Object Attribute Level
 // ------ --------- -----
 
-// Note: refresh ( ap.dap) is never used instead of
-// current in MINT:: functions as it must be called
-// by the min:: functions before they call the
-// MINT:: functions.
+// Note: refresh ( ap.dlp) or refresh ( ap.locate_dlp )
+// is never used instead of current in MINT:: functions
+// as refresh() must be called by the min:: functions
+// before they call the MINT:: functions.
 
 # if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
@@ -1769,8 +1769,7 @@ void MINT::insert_reserve
 	    min::gen c;
 	    for ( c = current ( ap.dlp );
 		  ! is_list_end ( c );
-		  next ( ap.dlp),
-		  c = next ( ap.dlp ) )
+		  next ( ap.dlp), c = next ( ap.dlp ) )
 	    {
 		if ( c == element[0] )
 		{
@@ -1792,38 +1791,42 @@ void MINT::insert_reserve
 
 	ap.length = 1;
 
+	start_copy ( ap.locate_dlp, ap.dlp );
 	while ( ap.length < len )
 	{
 	    if ( ! is_sublist ( c ) ) break;
-	    start_copy ( ap.saved_dlp, ap.dlp );
-	    start_sublist ( ap.saved_dlp );
-	    c = current ( ap.saved_dlp );
+	    start_sublist ( ap.dlp );
+	    c = current ( ap.dlp );
 	    if ( ! is_sublist ( c ) ) break;
-	    start_sublist ( ap.saved_dlp );
+	    start_sublist ( ap.dlp );
 
-	    for ( c = current ( ap.saved_dlp );
+	    for ( c = current ( ap.dlp );
 	          ! is_list_end ( c );
-		  next ( ap.saved_dlp),
-		  c = next ( ap.saved_dlp ) )
+		  next ( ap.dlp),
+		  c = next ( ap.dlp ) )
 	    {
 		if ( c == element[ap.length] )
 		{
-		    c = next ( ap.saved_dlp );
+		    c = next ( ap.dlp );
 		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
 	    if ( is_list_end ( c ) ) break;
 
-	    start_copy ( ap.dlp, ap.saved_dlp );
 	    ++ ap.length;
+	    start_copy ( ap.locate_dlp, ap.dlp );
 	}
 
-	if ( ap.length == len || allow_partial_labels )
+	if ( ap.length == len )
 	    ap.state = ap_type::LOCATE_NONE;
+	else if ( allow_partial_labels )
+	{
+	    start_copy ( ap.dlp, ap.locate_dlp );
+	    ap.state = ap_type::LOCATE_NONE;
+	}
 	else
 	{
-	    start_copy ( ap.saved_dlp, ap.dlp );
 	    start ( ap.dlp );
 	    ap.state = ap_type::LOCATE_FAIL;
 	}
@@ -1860,8 +1863,7 @@ void MINT::insert_reserve
 	    min::gen c;
 	    for ( c = current ( ap.dlp );
 		  ! is_list_end ( c );
-		  next ( ap.dlp),
-		  c = next ( ap.dlp ) )
+		  next ( ap.dlp), c = next ( ap.dlp ) )
 	    {
 		if ( c == element[0] )
 		{
@@ -1879,30 +1881,30 @@ void MINT::insert_reserve
 
 	MIN_ASSERT ( ap.length <= len );
 
+	start_copy ( ap.locate_dlp, ap.dlp );
 	while ( length < ap.length )
 	{
 	    if ( ! is_sublist ( c ) ) break;
-	    start_copy ( ap.saved_dlp, ap.dlp );
-	    start_sublist ( ap.saved_dlp );
-	    c = current ( ap.saved_dlp );
+	    start_sublist ( ap.dlp );
+	    c = current ( ap.dlp );
 	    if ( ! is_sublist ( c ) ) break;
-	    start_sublist ( ap.saved_dlp );
+	    start_sublist ( ap.dlp );
 
-	    for ( c = current ( ap.saved_dlp );
+	    for ( c = current ( ap.dlp );
 	          ! is_list_end ( c );
-		  next ( ap.saved_dlp),
-		  c = next ( ap.saved_dlp ) )
+		  next ( ap.dlp),
+		  c = next ( ap.dlp ) )
 	    {
 		if ( c == element[ap.length] )
 		{
-		    c = next ( ap.saved_dlp );
+		    c = next ( ap.dlp );
 		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
 	    if ( is_list_end ( c ) ) break;
 
-	    start_copy ( ap.dlp, ap.saved_dlp );
+	    start_copy ( ap.locate_dlp, ap.dlp );
 	    ++ ap.length;
 	}
 
@@ -1960,6 +1962,7 @@ void MINT::insert_reserve
 	    {
 		min::unprotected
 		   ::start_vector ( ap.dlp, i );
+		start_copy ( ap.locate_dlp, ap.dlp );
 		ap.index = i;
 		ap.flags = ap_type::IN_VECTOR;
 		ap.state = ap_type::LOCATE_NONE;
@@ -1982,6 +1985,7 @@ void MINT::insert_reserve
 	    {
 		c = next ( ap.dlp );
 		MIN_ASSERT ( ! is_list_end ( c ) );
+		start_copy ( ap.locate_dlp, ap.dlp );
 		ap.flags = 0;
 		ap.state = ap_type::LOCATE_NONE;
 		return;
@@ -1990,8 +1994,7 @@ void MINT::insert_reserve
 
         // Name not found.
 	//
-	min::unprotected::start_hash
-	    ( ap.dlp, ap.index );
+	start ( ap.dlp );
 	ap.flags = 0;
 	ap.state = ap_type::LOCATE_FAIL;
 	return;
@@ -2052,14 +2055,16 @@ void min::locate_reverse
 	    reverse_name = atom;
     }
 
-    ap.reverse_attribute_name = reverse_name;
-
     if ( reverse_name == ap.reverse_attribute_name )
         return;
+
+    ap.reverse_attribute_name = reverse_name;
 
     switch ( ap.state )
     {
     case ap_type::INIT:
+	    MIN_ABORT
+	        ( "bad attribute reverse_locate call" );
     case ap_type::LOCATE_FAIL:
     	    return;
     case ap_type::LOCATE_NONE:
@@ -2078,8 +2083,6 @@ void min::locate_reverse
 	    break;
     case ap_type::REVERSE_LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_SUCCEED:
-	    refresh ( ap.saved_dap );
-    	    start_copy ( ap.dap, ap.saved_dap );
 	    if ( reverse_name == min::NONE )
 	    {
 	        ap.state = ap_type::LOCATE_NONE;
@@ -2093,10 +2096,10 @@ void min::locate_reverse
 	    break;
     }
 
-    // ap.dap is as set by previous successful locate
-    // and reverse_name is not NONE or ANY.
+    // ap.locate_dap is as set by previous successful
+    // locate and reverse_name is not NONE or ANY.
 
-    start_copy ( ap.saved_dlp, ap.dlp );
+    start_copy ( ap.dlp, ap.locate_dlp );
 
     if ( ! is_sublist ( current ( ap.dlp ) )
 	 ||
@@ -2171,12 +2174,11 @@ void min::relocate
     case ap_type::LOCATE_ANY:
         return;
     case ap_type::REVERSE_LOCATE_FAIL:
-        start_copy ( ap.saved_dlp, ap.dlp );
 	start ( ap.dlp );
 	return;
     }
 
-    start_copy ( ap.saved_dlp, ap.dlp );
+    start_copy ( ap.locate_dlp, ap.dlp );
 
     if ( ! is_sublist ( current ( ap.dlp ) )
 	 ||
@@ -2223,50 +2225,52 @@ inline unsigned MINT::count
     case ap_type::INIT:
     case ap_type::LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_FAIL:
-	    return 0;
+	    MIN_ABORT ( "min::count failed" );
     case ap_type::LOCATE_NONE:
-	    start_copy ( lp, ap.dlp );
-	    start_sublist ( lp );
+	    // We handled case of a non-sublist single
+	    // value in the min::count function that
+	    // called this function.
+	    //
+	    start_sublist ( lp, ap.dlp );
 	    while ( is_sublist ( current ( lp ) ) )
 		next ( lp );
 	    while ( is_control_code ( current ( lp ) ) )
 		next ( lp );
     	    break;
     case ap_type::REVERSE_LOCATE_SUCCEED:
-	    start_copy ( lp, ap.dlp );
-	    start_sublist ( lp );
+	    // We handled case of a non-sublist single
+	    // value in the min::count function that
+	    // called this function.
+	    //
+	    start_sublist ( lp, ap.dlp );
     	    break;
     case ap_type::LOCATE_ANY:
         {
-	    start_copy ( ap.saved_dlp, ap.dlp );
-	    if ( ! is_sublist
-	               ( current ( ap.saved_dlp ) )
+	    start_copy ( lp, ap.dlp );
+	    if ( ! is_sublist ( current ( lp ) )
 		 ||
-		 ! ( start_sublist ( ap.saved_dlp ),
-		     is_sublist
-		         ( current ( ap.saved_dlp ) ) )
+		 ! ( start_sublist ( lp ),
+		     is_sublist ( current ( lp ) ) )
     #	   if not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 		 ||
-		 ! is_sublist ( next ( ap.saved_dlp ) )
+		 ! is_sublist ( next ( lp ) )
     #	   endif
 	       )
 		return 0;
 
 	    unsigned result = 0;
-	    MUP::list_pointer lp ( stub_of ( ap.dlp ) );
+	    MUP::list_pointer lp2 ( stub_of ( lp ) );
 
-	    for ( c = next ( ap.saved_dlp );
+	    for ( c = next ( lp );
 		  ! is_list_end ( c );
-		  next ( ap.saved_dlp),
-		  c = next ( ap.saved_dlp ) )
+		  next ( ap.lp), c = next ( ap.lp ) )
 	    {
 		if ( is_sublist ( c  ) )
 		{
-		    start_copy ( lp, ap.saved_dlp );
-		    start_sublist ( lp );
-		    for ( c = current ( lp );
+		    start_sublist ( lp2, lp );
+		    for ( c = current ( lp2 );
 		          ! is_list_end ( c );
-			  c = next ( lp ) )
+			  c = next ( lp2 ) )
 			++ result;
 		}
 		else ++ result;
@@ -2276,8 +2280,10 @@ inline unsigned MINT::count
     }
 
     unsigned result = 0;
-    while ( ! is_list_end ( current ( lp ) ) )
-	++ result, next (lp );
+    for ( c = current ( lp );
+          ! is_list_end ( c );
+	  ++ result, c = next ( lp ) );
+
     return result;
 }
 
@@ -2298,56 +2304,54 @@ inline unsigned MINT::get
     case ap_type::INIT:
     case ap_type::LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_FAIL:
-	    return 0;
+	    MIN_ABORT ( "min::get failed" );
     case ap_type::LOCATE_NONE:
-	    start_copy ( lp, ap.dlp );
-	    start_sublist ( lp );
+	    // We handled case of a non-sublist single
+	    // value in the min::count function that
+	    // called this function.
+	    //
+	    start_sublist ( lp, ap.dlp );
 	    while ( is_sublist ( current ( lp ) ) )
 		next ( lp );
 	    while ( is_control_code ( current ( lp ) ) )
 		next ( lp );
     	    break;
     case ap_type::REVERSE_LOCATE_SUCCEED:
-	    start_copy ( lp, ap.dlp );
-	    start_sublist ( lp );
+	    // We handled case of a non-sublist single
+	    // value in the min::count function that
+	    // called this function.
+	    //
+	    start_sublist ( lp, ap.dlp );
     	    break;
     case ap_type::LOCATE_ANY:
         {
-	    start_copy ( ap.saved_dlp, ap.dlp );
-	    if ( ! is_sublist
-	               ( current ( ap.saved_dlp ) )
+	    start_copy ( lp, ap.dlp );
+	    if ( ! is_sublist ( current ( lp ) )
 		 ||
-		 ! ( start_sublist ( ap.saved_dlp ),
-		     is_sublist
-		         ( current ( ap.saved_dlp ) ) )
+		 ! ( start_sublist ( lp ),
+		     is_sublist ( current ( lp ) ) )
     #	   if not MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 		 ||
-		 ! is_sublist ( next ( ap.saved_dlp ) )
+		 ! is_sublist ( next ( lp ) )
     #	   endif
 	       )
 		return 0;
 
 	    unsigned result = 0;
-	    MUP::list_pointer lp ( stub_of ( ap.dlp ) );
+	    MUP::list_pointer lp2 ( stub_of ( lp ) );
 
-	    for ( c = next ( ap.saved_dlp );
+	    for ( c = next ( lp );
 		  ! is_list_end ( c ) && result < n;
-		  next ( ap.saved_dlp),
-		         c = next ( ap.saved_dlp ) )
+		  next ( ap.lp), c = next ( ap.lp ) )
 	    {
 		if ( is_sublist ( c  ) )
 		{
-		    start_copy ( lp, ap.saved_dlp );
-		    start_sublist ( lp );
-		    while (    ! is_list_end
-		                    ( c = current
-				            ( lp ) )
-		            && result < n )
-		    {
-			* out ++ = c;
-			++ result;
-			next ( lp );
-		    }
+		    start_sublist ( lp2, lp );
+		    for ( c = current ( lp2 );
+		             ! is_list_end ( c )
+			  && result < n;
+			  c = next ( lp2 ) )
+			* out ++ = c, ++ result;
 		}
 		else ++ result, * out ++ = c;
 	    }
@@ -2356,13 +2360,15 @@ inline unsigned MINT::get
     }
 
     unsigned result = 0;
-    while (    ! is_list_end ( c = current ( lp ) )
-            && result < n )
-	++ result, * out ++ = c, next (lp );
+    for ( c = current ( lp );
+          ! is_list_end ( c ) && result < n;
+	  c = next ( lp ) )
+	++ result, * out ++ = c;
+
     return result;
 }
 
-inline void MINT::set
+void MINT::set
 	( const min::gen * in, unsigned n,
 	  min::unprotected
 	     ::writable_attribute_pointer & wap )
@@ -2390,6 +2396,7 @@ inline void MINT::set
 
     if ( ! is_sublist ( c ) )
     {
+    
 	min::relocated relocated;
         min::insert_reserve ( lp, 1, n );
 	if ( relocated )
@@ -2431,7 +2438,7 @@ inline void MINT::set
     }
 }
 
-inline void min::add_to_multiset
+void min::add_to_multiset
 	( const min::gen * in, unsigned n,
 	  min::unprotected
 	     ::writable_attribute_pointer & wap )
@@ -2494,7 +2501,7 @@ inline void min::add_to_multiset
     }
 }
 
-inline void min::add_to_set
+void min::add_to_set
 	( const min::gen * in, unsigned n,
 	  min::unprotected
 	     ::writable_attribute_pointer & wap )
@@ -2586,7 +2593,7 @@ inline void min::add_to_set
     }
 }
 
-inline void MINT::set_flags
+void MINT::set_flags
 	( const min::gen * in, unsigned n,
 	  min::unprotected
 	     ::writable_attribute_pointer & wap )
@@ -2661,7 +2668,7 @@ inline void MINT::set_flags
     }
 }
 
-inline void MINT::set_more_flags
+void MINT::set_more_flags
 	( const min::gen * in, unsigned n,
 	  min::unprotected
 	     ::writable_attribute_pointer & wap )
@@ -2707,4 +2714,16 @@ inline void MINT::set_more_flags
 	next ( lp );
     while ( is_control_code ( current ( lp ) ) );
     insert_before ( lp, in, n );
+}
+
+void MINT::attribute_create
+	( MUP::writable_attribute_pointer & wap )
+{
+    // TBW
+}
+
+void MINT::reverse_attribute_create
+	( MUP::writable_attribute_pointer & wap )
+{
+    // TBW
 }

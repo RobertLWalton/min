@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 24 02:54:25 EST 2009
+// Date:	Wed Feb 25 09:31:27 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/24 08:02:32 $
+//   $Date: 2009/02/25 20:42:25 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.140 $
+//   $Revision: 1.141 $
 
 // Table of Contents:
 //
@@ -3747,7 +3747,7 @@ namespace min { namespace unprotected {
         attribute_pointer;
     typedef min::internal::attribute_pointer_type
 	    < min::unprotected
-	         ::insertable_list_pointer >
+	         ::updatable_list_pointer >
         writable_attribute_pointer;
 
 } }
@@ -3907,7 +3907,7 @@ namespace min { namespace internal {
     public:
 
         attribute_pointer_type ( min::stub * s )
-	    : dlp ( s ), saved_dlp ( s ),
+	    : dlp ( s ), locate_dlp ( s ),
 	      attribute_name ( min::NONE ),
 	      reverse_attribute_name ( min::NONE ),
 	      state ( INIT )
@@ -3915,7 +3915,7 @@ namespace min { namespace internal {
 	}
 
         attribute_pointer_type ( min::gen v )
-	    : dlp ( v ), saved_dlp ( v ),
+	    : dlp ( v ), locate_dlp ( v ),
 	      attribute_name ( min::NONE ),
 	      reverse_attribute_name ( min::NONE ),
 	      state ( INIT )
@@ -3937,9 +3937,9 @@ namespace min { namespace internal {
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 	    unsigned length;
-	        // Length returned by last locate, or
-		// that would be returned if a length
-		// argument was given for the locate.
+	        // Length that would be returned by last
+		// the locate if that locate had a
+		// length argument.
 #	endif
 
 	unsigned state;  // One of:
@@ -3950,13 +3950,13 @@ namespace min { namespace internal {
 	        INIT			= 0,
 		    // No locate function called.
 
-		 // A locate with a length argument
-		 // succeeds if it returns length > 0
-		 // and fails otherwise.
-		 //
 		 // A call to locate succeeds if it
 		 // finds an attribute- or node-
 		 // descriptor, and fails otherwise.
+		 //
+		 // A locate with a length argument
+		 // succeeds if it returns length > 0
+		 // and fails otherwise.
 
 		LOCATE_FAIL		= 1,
 		    // Last call to locate failed.
@@ -3969,43 +3969,39 @@ namespace min { namespace internal {
 		    // reverse_attribute to NONE.
 
 		// Note: states >= LOCATE_NONE imply
-		// a successful locate.
+		// the last call to locate succeeded.
 
 		LOCATE_ANY		= 3,
 		    // Last call to reverse_locate set
-		    // the reverse attribute to ANY,
-		    // when last call to locate
-		    // succeeded.
+		    // the reverse attribute to ANY.
 
 		REVERSE_LOCATE_FAIL	= 4,
 		    // Last call to reverse_locate when
-		    // the state was not INIT or LOCATE_
-		    // FAIL set the reverse attribute to
-		    // a value other than NONE or ANY
-		    // and failed.
+		    // the state was >= LOCATE_NONE set
+		    // the reverse attribute to a value
+		    // other than NONE or ANY and
+		    // failed.
 
 		REVERSE_LOCATE_SUCCEED	= 5
 		    // Last call to reverse_locate when
-		    // the state was not INIT or LOCATE_
-		    // FAIL set the reverse attribute to
-		    // a value other than NONE or ANY
-		    // and succeeded.
+		    // the state was >= LOCATE_NONE set
+		    // the reverse attribute to a value
+		    // other than NONE or ANY and
+		    // succeeded.
 
 	    };
 
 	unsigned flags;
 	    // All flags are zeroed when the attribute
 	    // pointer is created, and remain zeroed
-	    // until the first locate function
-	    // completes.
+	    // until set by the first locate.
 
 	    enum {
 
 	        IN_VECTOR	= ( 1 << 0 ),
 		    // On if index is attribute vector
 		    // index; off it its hash table
-		    // index or no locate has been
-		    // called yet.
+		    // index or no locate yet.
 	    };
 
     	list_pointer_type dlp;
@@ -4017,26 +4013,20 @@ namespace min { namespace internal {
 	    // at a LIST_END (set by the start
 	    // function).
 
-    	list_pointer_type saved_dlp;
-	    // This is a copy of dlp made whenever the
-	    // dlp is reset because the attribute
-	    // pointer entered the REVERSE_LOCATE_FAIL
-	    // or REVERSE_LOCATE_SUCCEED state.
-	    //
-	    // Also, if partial attribute labels are
-	    // enabled and a locate function without a
-	    // length argument fails, this is a copy of
-	    // dlp as it would have been had the locate
-	    // function been given a length argument,
-	    // and the `length' member of the attribute
-	    // pointer is the length that would have
-	    // been returned.  This permits the `set'
-	    // function to be optimized.
+    	list_pointer_type locate_dlp;
+	    // This is the value of dlp after the last
+	    // successful locate, or as the value would
+	    // be had the last unsuccessful locate had
+	    // a length argument, in the case where
+	    // partial labels are allowed.  This last
+	    // permits the `set' function to be
+	    // optimized.
 
 	unsigned index;
 	    // Hash or attribute vector index passed to
 	    // the start_hash or start_vector functions
-	    // by the last call to locate.
+	    // by the last call to locate.  See the
+	    // IN_VECTOR flag above.
 	        
 
     // Friends:
@@ -4183,16 +4173,17 @@ namespace min {
 
 	ap.attribute_name = min::new_num_gen ( name );
 
-	min::unprotected::start ( ap.alp );
+	min::unprotected::start ( ap.dlp );
 
 	if ( 0 <= name
 	     &&
 	     name < min::unprotected
 		       ::attribute_vector_size_of
-			   ( ap.alp ) )
+			   ( ap.dlp ) )
 	{
 	    min::unprotected
-	       ::start_vector ( ap.alp, name );
+	       ::start_vector ( ap.dlp, name );
+	    start_copy ( ap.locate_dlp, ap.dlp );
 
 	    ap.index = name;
 	    ap.state = ap_type::LOCATE_NONE;
@@ -4319,28 +4310,29 @@ namespace min {
 	typedef internal::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
-	min::gen c = refresh ( ap.dlp );
+	min::gen c = refresh ( ap.locate_dlp );
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
 	case ap_type::LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_SUCCEED:
 		return 0;
 	case ap_type::LOCATE_NONE:
 	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
 		if ( ! is_sublist ( c ) ) return 0;
 	}
 
 	unprotected::list_pointer lp
-	    ( stub_of ( ap.dlp ) );
-	start_copy ( lp, ap.dlp );
-	start_sublist ( lp );
+	    ( stub_of ( ap.locate_dlp ) );
+	start_sublist ( lp, ap.locate_dlp );
 	while ( is_sublist ( c = current ( lp ) ) )
 	    next ( lp );
 	unsigned result = 0;
-	while ( is_control_code ( c = current ( lp ) ) )
-	    ++ result, next ( lp );
+	for ( c = current ( lp );
+	      is_control_code ( c );
+	      c = next ( lp ) )
+	    ++ result;
 	return result;
     }
 
@@ -4353,30 +4345,29 @@ namespace min {
 	typedef internal::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
-	min::gen c =  refresh ( ap.dlp );
+	min::gen c =  refresh ( ap.locate_dlp );
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
 	case ap_type::LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_SUCCEED:
 		return 0;
 	case ap_type::LOCATE_NONE:
 	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
 		if ( ! is_sublist ( c ) ) return 0;
 	}
 
 	unprotected::list_pointer lp
-	    ( stub_of ( ap.dlp ) );
-	start_copy ( lp, ap.dlp );
-	start_sublist ( lp );
+	    ( stub_of ( ap.locate_dlp ) );
+	start_sublist ( lp, ap.locate_dlp );
 	while ( is_sublist ( c = current ( lp ) ) )
 	    next ( lp );
 	unsigned result = 0;
-	while ( result < n
-	        &&
-		is_control_code ( c = current ( lp ) ) )
-	    ++ result, * out ++ = c, next ( lp );
+	for ( c = current ( lp );
+	      result < n && is_control_code ( c );
+	      c = next ( lp ) )
+	    ++ result, * out ++ = c;
 	return result;
     }
 
@@ -4411,26 +4402,31 @@ namespace min {
 	typedef unprotected::writable_attribute_pointer
 		    ap_type;
 
-	min::gen c = refresh ( wap.dlp );
+	min::gen c = refresh ( wap.locate_dlp );
 	switch ( wap.state )
 	{
 	case ap_type::LOCATE_NONE:
 	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
+	case ap_type::REVERSE_LOCATE_FAIL:
 		if ( is_sublist ( c ) )
 		{
 		    unprotected::updatable_list_pointer
-		        lp ( stub_of ( wap.dlp ) );
-		    start_copy ( lp, wap.dlp );
-		    start_sublist ( lp );
+		        lp ( stub_of
+				( wap.locate_dlp ) );
+		    start_sublist ( lp, wap.locate_dlp );
 		    while ( is_sublist
-		                ( c = current ( lp ) ) )
+		                ( current ( lp ) ) )
 			next ( lp );
 		    unsigned m = 0;
 		    while ( m < n
 			    &&
 			    is_control_code
-			        ( c = current ( lp ) ) )
+			        ( current ( lp ) ) )
 		    {
+			MIN_ASSERT
+			    ( is_control_code
+			          ( * in ) );
 			update ( lp, * in ++ );
 			++ m;
 			next ( lp );
