@@ -3560,7 +3560,8 @@ names are supported, {\em attribute-names} and {\em reverse-attribute-names}
 that are {\em labels} whose sole element is an {\em atom} are not
 permitted in the object data lists, and when functions are presented with
 such names, the functions replace them with their sole element, namely the
-{\em atom}.
+{\em atom}.  In addition, {\em attribute-names} that have no elements
+are forbidden, for reasons of compatibility.
 
 If partial attribute names \underline{are} supported
 the object lists have the following alternative syntax:
@@ -3660,7 +3661,9 @@ the same.
 
 In this data structure attribute names must be sequences and cannot be
 atoms.  Functions that access this structure convert any atom attribute name
-to a label whose sole component is the atom.
+to a label whose sole component is the atom.  Furthermore, attribute names
+that are labels with no elements, and therefore would produce zero length
+sequences, are forbidden.
 
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
 are represented by a {\em flag-set} in an {\em attribute-sublist} or
