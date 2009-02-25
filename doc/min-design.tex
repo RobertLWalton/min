@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 24, 2009}
+\date{February 25, 2009}
  
 \maketitle
 
@@ -3222,6 +3222,57 @@ element list headed in the hash table or attribute vector.
 Any insertion before the end of a list of such a single element list
 is transformed into an insertion after the list's single element.
 \end{quote}
+
+The {\tt min::start\_copy} function can be used to downgrade the
+type of a list pointer, e.g., going from an insertable to a writable
+list pointer:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::|$xx$\verb|list_pointer & lp,| \\
+	  \verb|   const min::|$yy$\verb|list_pointer & lp2 )|
+	  \end{tabular}
+\LABEL{MIN::START_COPY_XX_YY} \\
+\end{tabular}
+
+where the permitted valus of $xx$ and $yy$ are:
+
+\begin{tabular}{ll}
+$xx$ & $yy$ \\[1ex]
+`'				& `' \\
+`'				& `\verb|writable_|' \\
+`'				& `\verb|insertable_|' \\
+`\verb|writable_|'		& `\verb|writable_|' \\
+`\verb|writable_|'		& `\verb|insertable_|' \\
+`\verb|insertable_|'		& `\verb|insertable_|' \\
+\end{tabular}
+
+\end{center}
+
+The two argument {\tt min::start\_sublist} function is equivalent
+to {\tt start\_copy} followed by {\tt start\_sublist} on just the
+first argument of {\tt start\_copy}, except the type of the list
+pointer can be either downgraded or upgraded,
+e.g., going from an ordinary (read-only) list
+pointer to an insertable list pointer:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::|$xx$\verb|list_pointer & lp,| \\
+	  \verb|   const min::|$yy$\verb|list_pointer & lp2 )|
+	  \end{tabular}
+\LABEL{MIN::START_SUBLIST_XX_YY} \\
+\end{tabular}
+
+where $xx$ is one of `', `\verb|writable_|', or `\verb|insertable_|', \\
+and $yy$ is independently
+one of `', `\verb|writable_|', or `\verb|insertable_|'.
+
+\end{center}
 
 As a matter of convenience, the pointer to the stub of the object
 that a list pointer is associated with can be retrieved
