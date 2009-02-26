@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 25 09:31:27 EST 2009
+// Date:	Thu Feb 26 07:17:19 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/25 20:42:25 $
+//   $Date: 2009/02/26 18:28:07 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.141 $
+//   $Revision: 1.142 $
 
 // Table of Contents:
 //
@@ -2913,6 +2913,10 @@ namespace min {
 #	       endif
 	       ;
     }
+    inline bool is_empty_sublist ( min::gen v )
+    {
+        return v == min::EMPTY_SUBLIST;
+    }
 
     // We must declare these before we make them
     // friends.
@@ -3228,7 +3232,8 @@ namespace min { namespace unprotected {
 		( min::unprotected::list_pointer & lp );
 	friend min::gen min::start_sublist
 		( min::unprotected::list_pointer & lp,
-    	          min::unprotected::list_pointer & lp2 );
+    	          min::unprotected::list_pointer & lp2
+	        );
 
 	friend void min::update
 		( min::unprotected
@@ -4414,7 +4419,8 @@ namespace min {
 		    unprotected::updatable_list_pointer
 		        lp ( stub_of
 				( wap.locate_dlp ) );
-		    start_sublist ( lp, wap.locate_dlp );
+		    start_sublist
+		        ( lp, wap.locate_dlp );
 		    while ( is_sublist
 		                ( current ( lp ) ) )
 			next ( lp );
