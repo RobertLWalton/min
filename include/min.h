@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 27 09:26:27 EST 2009
+// Date:	Fri Feb 27 11:19:50 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/27 14:30:51 $
+//   $Date: 2009/02/27 16:32:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.143 $
+//   $Revision: 1.144 $
 
 // Table of Contents:
 //
@@ -3814,26 +3814,26 @@ namespace min {
 	      internal::attribute_pointer_type
 	          < list_pointer_type > & ap );
     void set
-	    ( const min::gen * in, unsigned n,
-	      min::unprotected
+	    ( min::unprotected
 	         ::writable_attribute_pointer
-		  & wap );
+		  & wap,
+	      const min::gen * in, unsigned n );
     void add_to_set
-	    ( const min::gen * in, unsigned n,
-	      min::unprotected
+	    ( min::unprotected
 	         ::writable_attribute_pointer
-		  & wap );
+		  & wap,
+	      const min::gen * in, unsigned n );
     void add_to_multiset
-	    ( const min::gen * in, unsigned n,
-	      min::unprotected
+	    ( min::unprotected
 	         ::writable_attribute_pointer
-		  & wap );
+		  & wap,
+	      const min::gen * in, unsigned n );
 
     void set_flags
-	    ( const min::gen * in, unsigned n,
-	      min::unprotected
+	    ( min::unprotected
 	         ::writable_attribute_pointer
-		  & wap );
+		  & wap,
+	      const min::gen * in, unsigned n );
 
     namespace internal {
 
@@ -3873,22 +3873,22 @@ namespace min {
 		      < list_pointer_type > & ap );
 
 	void set
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	void set_flags
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	void set_more_flags
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	void attribute_create
 		( min::unprotected
@@ -4100,28 +4100,28 @@ namespace min { namespace internal {
 		      < list_pointer_type > & ap );
 
 	friend void min::set
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	friend void min::add_to_set
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	friend void min::add_to_multiset
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		  & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	friend void min::set_flags
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	friend unsigned min::internal::count<>
 		( internal::attribute_pointer_type
@@ -4133,22 +4133,22 @@ namespace min { namespace internal {
 		      < list_pointer_type > & ap );
 
 	friend void min::internal::set
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	friend void min::internal::set_flags
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	friend void min::internal::set_more_flags
-		( const min::gen * in, unsigned n,
-		  min::unprotected
+		( min::unprotected
 		     ::writable_attribute_pointer
-		      & wap );
+		      & wap,
+		  const min::gen * in, unsigned n );
 
 	friend void min::internal::attribute_create
 		( min::unprotected
@@ -4379,10 +4379,9 @@ namespace min {
     }
 
     inline void set
-	    ( const min::gen * in, unsigned n,
-	      min::unprotected
-	         ::writable_attribute_pointer
-		  & wap )
+	    ( min::unprotected
+		 ::writable_attribute_pointer & wap,
+	      const min::gen * in, unsigned n )
     {
 	typedef unprotected::writable_attribute_pointer
 		    ap_type;
@@ -4397,14 +4396,13 @@ namespace min {
 		return;
 	}
 
-	internal::set ( in, n, wap ); 
+	internal::set ( wap, in, n  ); 
     }
 
     inline void set_flags
-	    ( const min::gen * in, unsigned n,
-	      min::unprotected
-	         ::writable_attribute_pointer
-		  & wap )
+	    ( min::unprotected
+		 ::writable_attribute_pointer & wap,
+	      const min::gen * in, unsigned n )
     {
 	typedef unprotected::writable_attribute_pointer
 		    ap_type;
@@ -4441,7 +4439,7 @@ namespace min {
 		    }
 		    if ( m < n )
 		        internal::set_more_flags
-			    ( in, n, wap );
+			    ( wap, in, n );
 		    else while ( is_control_code
 		                      ( next ( lp ) ) )
 		        update ( lp,
@@ -4451,7 +4449,7 @@ namespace min {
 		}
 	}
 
-	internal::set_flags ( in, n, wap );
+	internal::set_flags ( wap, in, n );
     }
 
 }
