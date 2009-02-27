@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 26 07:17:19 EST 2009
+// Date:	Fri Feb 27 09:26:27 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/26 18:28:07 $
+//   $Date: 2009/02/27 14:30:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.142 $
+//   $Revision: 1.143 $
 
 // Table of Contents:
 //
@@ -4013,10 +4013,8 @@ namespace min { namespace internal {
 	    // Descriptor list pointer.  Points at the
 	    // list element containing the attribute- or
 	    // node- descriptor found, unless the state
-	    // is INIT, LOCATE_FAILED, or REVERSE_
-	    // LOCATE_FAILED, in which case this points
-	    // at a LIST_END (set by the start
-	    // function).
+	    // is INIT, LOCATE_FAIL, or REVERSE_LOCATE_
+	    // FAIL, in which case this is not set.
 
     	list_pointer_type locate_dlp;
 	    // This is the value of dlp after the last
@@ -4026,6 +4024,10 @@ namespace min { namespace internal {
 	    // partial labels are allowed.  This last
 	    // permits the `set' function to be
 	    // optimized.
+	    //
+	    // This is not set if the state is INIT, or
+	    // if the state is LOCATE_FAIL and length
+	    // does not exist or is == 0.
 
 	unsigned index;
 	    // Hash or attribute vector index passed to
