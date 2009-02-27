@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 25, 2009}
+\date{February 27, 2009}
  
 \maketitle
 
@@ -2730,6 +2730,9 @@ are:
 \verb|bool min::|
 	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST} \\
+\verb|bool min::|
+	& \MINKEY{is\_empty\_sublist}\verb| ( min::gen v )|
+\LABEL{MIN::IS_EMPTY_SUBLIST} \\
 \end{tabular}\end{center}
 
 A list pointer is created to move around in a particular object.
@@ -2806,7 +2809,9 @@ represents a sublist requires
 the {\tt min::is\_sublist} function, which must check whether the
 value is a sublist auxiliary pointer, is the value {\tt min::EMPTY\_SUBLIST},
 or is a pointer to a sublist auxiliary stub as described in
-\secref{OBJECT-AUXILIARY-STUBS}.
+\secref{OBJECT-AUXILIARY-STUBS}.  The {\tt min::is\_empty\_sublist}
+function, on the other hand, merely checks whether the value is
+{\tt min::EMPTY\_SUBLIST}.
 
 Determining whether a list pointer current element value
 represents the end of a list can be done by
@@ -3867,7 +3872,7 @@ can be used for reading attribute values and flags are:
 \LABEL{MIN::COUNT_FLAGS_OF_ATTRIBUTE_POINTER} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::uns32 * out, unsigned n,| \\
+    \verb| ( min::gen * out, unsigned n,| \\
     \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE_POINTER} \\
@@ -3892,7 +3897,7 @@ can be used for reading attribute values and flags are:
 \LABEL{MIN::COUNT_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::uns32 * out, unsigned n,| \\
+    \verb| ( min::gen * out, unsigned n,| \\
     \verb|   min::writable_attribute_pointer wap )| \\
     \end{tabular}
 \LABEL{MIN::GET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
@@ -3907,17 +3912,18 @@ maximum number of values that may be returned, the length of {\tt out}.
 If there are more then {\tt n} values, only {\tt n} values are returned.
 
 The {\tt count\_flags} function returns the length of the smallest
-\verb|min::uns32| vector required to store all the flags in the flag
-set pointed at.  It returns {\tt 0} if no flags are set.
-The {\tt get\_flags} function returns these flags in the \verb|min::uns32|
+\verb|min::gen| vector required to store all the flags in the flag
+set pointed at as \verb|min:gen| control code values.
+It returns {\tt 0} if no flags are set.
+The {\tt get\_flags} function returns these flags in the \verb|min::gen|
 vector {\tt out}.  The argument {\tt n} is the maximum number of
 vector elements that may be written, the length of {\tt out}.
 The return value is the same as that of {\tt count\_flags} if this is
 not greater than {\tt n}, or is {\tt n} otherwise, and is in any case
 the number of elements of the {\tt out} vector written.
 In the {\tt out} vector, flag $N$ is the bit selected by mask $2^K$
-in the vector element with index $I$, where $K=N~\mbox{mod}~32$ and
-$I=\mbox{floor}(N/32)$.
+in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
+and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
 
 The \skey{attribute accessor function}s\index{accessor function!attribute} that
 can be used for writing attribute values and flags are:
@@ -3925,14 +3931,14 @@ can be used for writing attribute values and flags are:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::gen * in, unsigned n,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::SET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|void min::| & \MINKEY{set\_flags\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::SET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \end{tabular}\end{center}
@@ -3983,8 +3989,8 @@ have, only one value:
 \LABEL{MIN::GET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|void min::| & \MINKEY{set\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::gen v,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen v )|
     \end{tabular}
 \LABEL{MIN::SET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \end{tabular}\end{center}
@@ -4007,28 +4013,28 @@ pointer's reverse attribute name can be \verb|min::NONE|
 but cannot be \verb|min::ANY|.
 
 
-The following functions may be used to add one value to the set of values
+The following functions may be used to add values to the set of values
 pointed at:
 
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add\_to\_set\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::gen v,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::gen v,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \end{tabular}\end{center}
 
-The {\tt add\_to\_set} function adds {\tt v} to the set of
-values if and only if {\tt v} is not already in the set,
+The {\tt add\_to\_set} function adds a value to the set of
+values if and only if the value is not already in the set,
 using {\tt ==} to compare values for equality.
-The {\tt add\_to\_multiset} function adds {\tt v} even if the
+The {\tt add\_to\_multiset} function adds a value even if the
 value is already in the set.
 For these functions pointer's reverse attribute name can be \verb|min::NONE|
 but cannot be \verb|min::ANY|.
@@ -4039,20 +4045,20 @@ the flags turned on in the {\tt in} vector:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_some\_flags\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::SET_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{clear\_some\_flags\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::CLEAR_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{flip\_some\_flags\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( const min::uns32 * in, unsigned n,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::FLIP_SOME_FLAGS} \\
 \end{tabular}\end{center}
@@ -4063,27 +4069,27 @@ individual flag number {\tt n}:
 \begin{center}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{test\_flag}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::attribute_pointer ap )| \\
+    \verb| ( min::attribute_pointer wap, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::TEST_FLAG} \\
 \verb|bool min::| & \MINKEY{test\_flag}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::TEST_FLAG_OF_WRITABLE} \\
 \verb|void min::| & \MINKEY{set\_flag\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::SET_FLAG} \\
 \verb|void min::| & \MINKEY{clear\_flag\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::CLEAR_FLAG} \\
 \verb|void min::| & \MINKEY{flip\_flag\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned n, min::writable_attribute_pointer wap )| \\
+    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::FLIP_FLAG} \\
 \end{tabular}\end{center}
@@ -5824,6 +5830,9 @@ struct min
 \verb|bool min::|
 	& \MINKEY{is\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST} \\
+\verb|bool min::|
+	& \MINKEY{is\_empty\_sublist}\verb| ( min::gen v )|
+\LABEL{MIN::IS_EMPTY_SUBLIST} \\
 \verb|min:gen min::|
 	& \MINKEY{refresh}\ARGBREAK
 	  \verb| ( min::list_pointer & lp )|
@@ -6144,7 +6153,7 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
     \verb| ( min::attribute_pointer ap )|
 \LABEL{MIN::COUNT_FLAGS_OF_ATTRIBUTE_POINTER} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
-    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
     \verb|   min::attribute_pointer ap )|
 \LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE_POINTER} \\
 \end{TABULAR}
@@ -6163,7 +6172,7 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
     \verb| ( min::writable_attribute_pointer wap )|
 \LABEL{MIN::COUNT_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
-    \verb| ( min::uns32 * out, unsigned n,|\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
     \verb|   min::writable_attribute_pointer wap )|
 \LABEL{MIN::GET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \end{TABULAR}
@@ -6172,12 +6181,12 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{set\REL}\ARGBREAK
-    \verb| ( const min::gen * in, unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|void min::| & \MINKEY{set\_flags\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \end{TABULAR}
 
@@ -6191,8 +6200,8 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
     \verb| ( min::writable_attribute_pointer wap )|
 \LABEL{MIN::GET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|void min::| & \MINKEY{set\REL}\ARGBREAK
-    \verb| ( const min::gen v,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
 \LABEL{MIN::SET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \end{TABULAR}
 
@@ -6200,12 +6209,12 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
-    \verb| ( const min::gen v,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
-    \verb| ( const min::gen v,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \end{TABULAR}
 
@@ -6213,16 +6222,16 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{set\_some\_flags\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{clear\_some\_flags\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::CLEAR_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{flip\_some\_flags\REL}\ARGBREAK
-    \verb| ( const min::uns32 * in, unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::FLIP_SOME_FLAGS} \\
 \end{TABULAR}
 
@@ -6230,23 +6239,23 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 
 \begin{TABULAR}{1.2in}
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb| ( unsigned n, min::attribute_pointer ap )|
+    \verb| ( min::attribute_pointer ap, unsigned n )|
 \LABEL{MIN::TEST_FLAG} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb| ( unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
 \LABEL{MIN::TEST_FLAG_OF_WRITABLE} \\
 \verb|void min::| & \MINKEY{set\_flag\REL}\ARGBREAK
-    \verb| ( unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
 \LABEL{MIN::SET_FLAG} \\
 \verb|void min::| & \MINKEY{clear\_flag\REL}\ARGBREAK
-    \verb| ( unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
 \LABEL{MIN::CLEAR_FLAG} \\
 \verb|void min::| & \MINKEY{flip\_flag\REL}\ARGBREAK
-    \verb| ( unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
+    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
 \LABEL{MIN::FLIP_FLAG} \\
 \end{TABULAR}
 
