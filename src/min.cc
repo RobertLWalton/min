@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 27 09:31:12 EST 2009
+// Date:	Fri Feb 27 11:24:26 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/27 16:04:36 $
+//   $Date: 2009/02/27 16:31:55 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.79 $
+//   $Revision: 1.80 $
 
 // Table of Contents:
 //
@@ -2358,8 +2358,8 @@ inline unsigned MINT::get
 }
 
 void MINT::set
-	( const min::gen * in, unsigned n,
-	  MUP::writable_attribute_pointer & wap )
+	( MUP::writable_attribute_pointer & wap,
+	  const min::gen * in, unsigned n )
 {
     typedef MUP::writable_attribute_pointer ap_type;
 
@@ -2401,7 +2401,7 @@ void MINT::set
 	if ( relocated )
 	{
 	    relocate ( wap );
-	    MINT::set ( in, n, wap );
+	    MINT::set ( wap, in, n );
 	    return;
 	}
 	update ( lp, min::EMPTY_SUBLIST );
@@ -2431,7 +2431,7 @@ void MINT::set
 	    if ( relocated )
 	    {
 		relocate ( wap );
-		add_to_multiset ( in, n, wap );
+		add_to_multiset ( wap, in, n );
 		return;
 	    }
 	    insert_before ( lp, in, n );
@@ -2443,8 +2443,8 @@ void MINT::set
 }
 
 void min::add_to_multiset
-	( const min::gen * in, unsigned n,
-	  MUP::writable_attribute_pointer & wap )
+	( MUP::writable_attribute_pointer & wap,
+	  const min::gen * in, unsigned n )
 {
     typedef MUP::writable_attribute_pointer ap_type;
 
@@ -2459,7 +2459,7 @@ void min::add_to_multiset
 	    MIN_ABORT ( "bad attribute set call" );
     case ap_type::LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_FAIL:
-	    min::set ( in, n, wap );
+	    min::set ( wap, in, n );
 	    return;
     }
 
@@ -2475,7 +2475,7 @@ void min::add_to_multiset
 	if ( relocated )
 	{
 	    min::relocate ( wap );
-	    min::add_to_multiset ( in, n, wap );
+	    min::add_to_multiset ( wap, in, n );
 	    return;
 	}
 	update ( lp, min::EMPTY_SUBLIST );
@@ -2485,7 +2485,7 @@ void min::add_to_multiset
 	insert_before ( lp, in, n );
     }
     else if ( is_empty_sublist ( c ) && n == 1 )
-        MINT::set ( in, n, wap );
+        MINT::set ( wap, in, n );
     else
     {
         start_sublist ( lp );
@@ -2501,7 +2501,7 @@ void min::add_to_multiset
 	if ( relocated )
 	{
 	    min::relocate ( wap );
-	    add_to_multiset ( in, n, wap );
+	    add_to_multiset ( wap, in, n );
 	    return;
 	}
 	insert_before ( lp, in, n );
@@ -2509,8 +2509,8 @@ void min::add_to_multiset
 }
 
 void min::add_to_set
-	( const min::gen * in, unsigned n,
-	  MUP::writable_attribute_pointer & wap )
+	( MUP::writable_attribute_pointer & wap,
+	  const min::gen * in, unsigned n )
 {
     typedef MUP::writable_attribute_pointer ap_type;
 
@@ -2525,7 +2525,7 @@ void min::add_to_set
 	    MIN_ABORT ( "bad attribute set call" );
     case ap_type::LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_FAIL:
-	    min::set ( in, n, wap );
+	    min::set ( wap, in, n );
 	    return;
     }
 
@@ -2548,7 +2548,7 @@ void min::add_to_set
 	if ( relocated )
 	{
 	    min::relocate ( wap );
-	    min::add_to_set ( in, n, wap );
+	    min::add_to_set ( wap, in, n );
 	    return;
 	}
 	update ( lp, min::EMPTY_SUBLIST );
@@ -2600,7 +2600,7 @@ void min::add_to_set
 	if ( relocated )
 	{
 	    min::relocate ( wap );
-	    add_to_multiset ( kept, n, wap );
+	    add_to_multiset ( wap, kept, n );
 	    return;
 	}
 	insert_before ( lp, kept, n );
@@ -2608,8 +2608,8 @@ void min::add_to_set
 }
 
 void MINT::set_flags
-	( const min::gen * in, unsigned n,
-	  MUP::writable_attribute_pointer & wap )
+	( MUP::writable_attribute_pointer & wap,
+	  const min::gen * in, unsigned n )
 {
     typedef MUP::writable_attribute_pointer ap_type;
 
@@ -2641,7 +2641,7 @@ void MINT::set_flags
 	if ( relocated )
 	{
 	    min::relocate ( wap );
-	    MINT::set_flags ( in, n, wap );
+	    MINT::set_flags ( wap, in, n );
 	    return;
 	}
 	update ( lp, min::EMPTY_SUBLIST );
@@ -2666,7 +2666,7 @@ void MINT::set_flags
 	    if ( relocated )
 	    {
 		min::relocate ( wap );
-		MINT::set_more_flags ( in, n, wap );
+		MINT::set_more_flags ( wap, in, n );
 		return;
 	    }
 	    insert_before ( lp, in, n );
@@ -2683,8 +2683,8 @@ void MINT::set_flags
 // already have a descriptor that is a sublist.
 //
 void MINT::set_more_flags
-	( const min::gen * in, unsigned n,
-	  MUP::writable_attribute_pointer & wap )
+	( MUP::writable_attribute_pointer & wap,
+	  const min::gen * in, unsigned n )
 {
     typedef MUP::writable_attribute_pointer ap_type;
 
@@ -2709,7 +2709,7 @@ void MINT::set_more_flags
     if ( relocated )
     {
 	min::relocate ( wap );
-	set_more_flags ( in, n, wap );
+	set_more_flags ( wap, in, n );
 	return;
     }
 
