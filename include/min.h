@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 27 11:19:50 EST 2009
+// Date:	Sun Mar  1 19:20:04 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/27 16:32:10 $
+//   $Date: 2009/03/02 00:44:23 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.144 $
+//   $Revision: 1.145 $
 
 // Table of Contents:
 //
@@ -3942,8 +3942,8 @@ namespace min { namespace internal {
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 	    unsigned length;
-	        // Length that would be returned by last
-		// the locate if that locate had a
+	        // Length that would be returned by the
+		// last locate if that locate had a
 		// length argument.
 #	endif
 
@@ -3966,15 +3966,15 @@ namespace min { namespace internal {
 		LOCATE_FAIL		= 1,
 		    // Last call to locate failed.
 
+		// Note: states >= LOCATE_NONE imply
+		// the last call to locate succeeded.
+
 		LOCATE_NONE		= 2,
 		    // Last call to locate succeeded,
 		    // and no call to reverse_locate
 		    // has been made or the last call
 		    // to reverse_locate set the
 		    // reverse_attribute to NONE.
-
-		// Note: states >= LOCATE_NONE imply
-		// the last call to locate succeeded.
 
 		LOCATE_ANY		= 3,
 		    // Last call to reverse_locate set
@@ -4018,16 +4018,16 @@ namespace min { namespace internal {
 
     	list_pointer_type locate_dlp;
 	    // This is the value of dlp after the last
-	    // successful locate, or as the value would
-	    // be had the last unsuccessful locate had
-	    // a length argument, in the case where
-	    // partial labels are allowed.  This last
-	    // permits the `set' function to be
+	    // successful locate, or the value dlp
+	    // would have had if the last unsuccessful
+	    // locate had a length argument, in the case
+	    // where partial labels are allowed.  This
+	    // last permits the `set' function to be
 	    // optimized.
 	    //
 	    // This is not set if the state is INIT, or
 	    // if the state is LOCATE_FAIL and length
-	    // does not exist or is == 0.
+	    // member does not exist or is == 0.
 
 	unsigned index;
 	    // Hash or attribute vector index passed to
@@ -4193,8 +4193,8 @@ namespace min {
 	    start_copy ( ap.locate_dlp, ap.dlp );
 
 	    ap.index = name;
-	    ap.state = ap_type::LOCATE_NONE;
 	    ap.flags = ap_type::IN_VECTOR;
+	    ap.state = ap_type::LOCATE_NONE;
 	    ap.reverse_attribute_name = min::NONE;
 
 #	    if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
@@ -4249,6 +4249,15 @@ namespace min {
 		int i = (int) f;
 		if ( i == f )
 		{
+		    // Because name has only one
+		    // component, there is no difference
+		    // between
+		    // internal::locate
+		    //	   ( ap, name, true )
+		    // and
+		    // internal::locate
+		    //	   ( ap, name, false ).
+		    //
 		    locatei ( ap, i );
 		    return;
 		}
@@ -4258,6 +4267,12 @@ namespace min {
 	}
 
 #   endif
+
+    // In most the following functions either
+    // refresh ( {w}ap.dlp ) or
+    // refresh ( {w}ap.locate_dlp )
+    // must be called before calling any internal
+    // function.
 
     template < class list_pointer_type >
     inline unsigned count
@@ -4290,8 +4305,8 @@ namespace min {
 	typedef internal::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
-	min::gen c =  refresh ( ap.dlp );
 	if ( n == 0 ) return 0;
+	min::gen c =  refresh ( ap.dlp );
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
@@ -4317,28 +4332,21 @@ namespace min {
 	typedef internal::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
-	min::gen c = refresh ( ap.locate_dlp );
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
 	case ap_type::LOCATE_FAIL:
 		return 0;
-	case ap_type::LOCATE_NONE:
-	case ap_type::LOCATE_ANY:
-	case ap_type::REVERSE_LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_SUCCEED:
-		if ( ! is_sublist ( c ) ) return 0;
 	}
 
+	min::gen c = refresh ( ap.locate_dlp );
+	if ( ! is_sublist ( c ) ) return 0;
 	unprotected::list_pointer lp
 	    ( stub_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
-	while ( is_sublist ( c = current ( lp ) ) )
-	    next ( lp );
+	for ( ; is_sublist ( c ); c = next ( lp ) );
 	unsigned result = 0;
-	for ( c = current ( lp );
-	      is_control_code ( c );
-	      c = next ( lp ) )
+	for ( ; is_control_code ( c ); c = next ( lp ) )
 	    ++ result;
 	return result;
     }
@@ -4352,28 +4360,22 @@ namespace min {
 	typedef internal::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
-	min::gen c =  refresh ( ap.locate_dlp );
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
 	case ap_type::LOCATE_FAIL:
 		return 0;
-	case ap_type::LOCATE_NONE:
-	case ap_type::LOCATE_ANY:
-	case ap_type::REVERSE_LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_SUCCEED:
-		if ( ! is_sublist ( c ) ) return 0;
 	}
 
+	min::gen c =  refresh ( ap.locate_dlp );
+	if ( ! is_sublist ( c ) ) return 0;
 	unprotected::list_pointer lp
 	    ( stub_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
-	while ( is_sublist ( c = current ( lp ) ) )
-	    next ( lp );
+	for ( ; is_sublist ( c ); c = next ( lp ) );
 	unsigned result = 0;
-	for ( c = current ( lp );
-	      result < n && is_control_code ( c );
-	      c = next ( lp ) )
+	for ( ; result < n && is_control_code ( c );
+	        c = next ( lp ) )
 	    ++ result, * out ++ = c;
 	return result;
     }
@@ -4421,27 +4423,23 @@ namespace min {
 				( wap.locate_dlp ) );
 		    start_sublist
 		        ( lp, wap.locate_dlp );
-		    while ( is_sublist
-		                ( current ( lp ) ) )
+		    c = current ( lp );
+		    while ( is_sublist ( c ) )
 			next ( lp );
-		    unsigned m = 0;
-		    while ( m < n
-			    &&
-			    is_control_code
-			        ( current ( lp ) ) )
+		    for ( ;    n > 0
+		            && is_control_code ( c );
+			   -- n, c = next ( lp ) )
 		    {
 			MIN_ASSERT
 			    ( is_control_code
 			          ( * in ) );
 			update ( lp, * in ++ );
-			++ m;
-			next ( lp );
 		    }
-		    if ( m < n )
+		    if ( n > 0 )
 		        internal::set_more_flags
 			    ( wap, in, n );
-		    else while ( is_control_code
-		                      ( next ( lp ) ) )
+		    else for ( ; is_control_code ( c );
+		                 c = next ( lp ) )
 		        update ( lp,
 			         new_control_code_gen
 				     ( 0 ) );
