@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar  1 19:20:04 EST 2009
+// Date:	Wed Mar  4 13:21:34 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/03/02 00:44:23 $
+//   $Date: 2009/03/04 19:57:50 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.145 $
+//   $Revision: 1.146 $
 
 // Table of Contents:
 //
@@ -4344,7 +4344,9 @@ namespace min {
 	unprotected::list_pointer lp
 	    ( stub_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
-	for ( ; is_sublist ( c ); c = next ( lp ) );
+	for ( c = current ( lp );
+	      is_sublist ( c );
+	      c = next ( lp ) );
 	unsigned result = 0;
 	for ( ; is_control_code ( c ); c = next ( lp ) )
 	    ++ result;
@@ -4372,7 +4374,9 @@ namespace min {
 	unprotected::list_pointer lp
 	    ( stub_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
-	for ( ; is_sublist ( c ); c = next ( lp ) );
+	for ( c = current ( lp );
+	      is_sublist ( c );
+	      c = next ( lp ) );
 	unsigned result = 0;
 	for ( ; result < n && is_control_code ( c );
 	        c = next ( lp ) )
@@ -4423,9 +4427,9 @@ namespace min {
 				( wap.locate_dlp ) );
 		    start_sublist
 		        ( lp, wap.locate_dlp );
-		    c = current ( lp );
-		    while ( is_sublist ( c ) )
-			next ( lp );
+		    for ( c = current ( lp );
+			  is_sublist ( c );
+			  c = next ( lp ) );
 		    for ( ;    n > 0
 		            && is_control_code ( c );
 			   -- n, c = next ( lp ) )
