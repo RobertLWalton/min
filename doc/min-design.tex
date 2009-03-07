@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 27, 2009}
+\date{March 7, 2009}
  
 \maketitle
 
@@ -3097,9 +3097,14 @@ be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
 
-The {\tt min::insert\_reserve} function may be called for a pointer
-before any {\tt start} function is called to set the pointer.  However,
-only one pointer at a time on an object may have an effective reservation.
+The {\tt min::insert\_reserve} function may \underline{not}
+be called for a pointer before any {\tt start}
+function is called to set the pointer (but \verb|MUP::start| will do).
+However, calling a {\tt start} function after {\tt min::insert\_reserve}
+does \underline{not} cancel or alter the reservation made by
+{\tt min::insert\_\EOL reserve}.
+
+Only one pointer at a time for a given object may have an effective reservation.
 Each call to {\tt min::insert\_reserve} for a list pointer
 to an object invalidates
 all previous calls to {\tt min::insert\_reserve} for any list pointer

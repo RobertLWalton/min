@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar  4 13:21:55 EST 2009
+// Date:	Sat Mar  7 13:19:43 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/03/04 19:58:20 $
+//   $Date: 2009/03/07 19:23:29 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.81 $
+//   $Revision: 1.82 $
 
 // Table of Contents:
 //
@@ -2091,11 +2091,13 @@ void min::locate_reverse
     case ap_type::REVERSE_LOCATE_SUCCEED:
 	    if ( reverse_name == min::NONE )
 	    {
+		start_copy ( ap.dlp, ap.locate_dlp );
 	        ap.state = ap_type::LOCATE_NONE;
 		return;
 	    }
 	    else if ( reverse_name == min::ANY )
 	    {
+		start_copy ( ap.dlp, ap.locate_dlp );
 	        ap.state = ap_type::LOCATE_ANY;
 		return;
 	    }
@@ -2182,6 +2184,8 @@ void min::relocate
 	return;
     }
 
+    // state == REVERSE_LOCATE_SUCCEED
+
     if ( ! is_sublist ( current ( ap.dlp ) )
 	 ||
 	 ! ( start_sublist ( ap.dlp ),
@@ -2263,6 +2267,7 @@ inline unsigned MINT::count
 	    unsigned result = 0;
 	    MUP::list_pointer lp2 ( stub_of ( lp ) );
 
+	    start_sublist ( lp );
 	    for ( c = next ( lp );
 		  ! is_list_end ( c );
 		  next ( ap.lp), c = next ( ap.lp ) )
@@ -2284,7 +2289,8 @@ inline unsigned MINT::count
     unsigned result = 0;
     for ( c = current ( lp );
           ! is_list_end ( c );
-	  ++ result, c = next ( lp ) );
+	  c = next ( lp ) )
+	++ result;
 
     return result;
 }
@@ -2342,6 +2348,7 @@ inline unsigned MINT::get
 	    unsigned result = 0;
 	    MUP::list_pointer lp2 ( stub_of ( lp ) );
 
+	    start_sublist ( lp );
 	    for ( c = next ( lp );
 		  ! is_list_end ( c ) && result < n;
 		  next ( ap.lp), c = next ( ap.lp ) )
@@ -2385,16 +2392,15 @@ void MINT::set
 	    MIN_ABORT ( "bad attribute set call" );
     case ap_type::LOCATE_FAIL:
     	    MINT::attribute_create ( wap );
-	    if ( wap.reverse_attribute_name == min::NONE
-	         ||
-		 wap.reverse_attribute_name == min::ANY
-	       )
+	    if (    wap.reverse_attribute_name
+	         == min::NONE )
 	        break;
     case ap_type::REVERSE_LOCATE_FAIL:
 	    MINT::reverse_attribute_create ( wap );
     }
 
-    // WARNING: attribute create may relocate.
+    // WARNING: Attribute create may have relocated
+    //	        object.
 
     MUP::insertable_list_pointer
         lp ( min::stub_of ( wap.dlp ) );
@@ -2403,11 +2409,7 @@ void MINT::set
 
     if ( ! is_sublist ( c ) )
     {
-        if ( n == 1 )
-	{
-	    update ( wap.dlp, * in );
-	    return;
-	}
+        if ( n == 1 ) MIN_ABORT ( "min::set failed" );
     
 	min::relocated relocated;
         min::insert_reserve ( lp, 1, n );
@@ -2498,7 +2500,7 @@ void min::add_to_multiset
 	insert_before ( lp, in, n );
     }
     else if ( is_empty_sublist ( c ) && n == 1 )
-        MINT::set ( wap, in, n );
+        update ( lp, * in );
     else
     {
         start_sublist ( lp );
@@ -2626,8 +2628,8 @@ void MINT::set_flags
 {
     typedef MUP::writable_attribute_pointer ap_type;
 
-    MIN_ASSERT
-        ( wap.reverse_attribute_name != min::ANY );
+    for ( unsigned i = 0; i < n; ++ i )
+        MIN_ASSERT ( is_control_code ( in[i] ) );
 
     switch ( wap.state )
     {
@@ -2638,7 +2640,8 @@ void MINT::set_flags
     	    MINT::attribute_create ( wap );
     }
 
-    // WARNING: attribute create may relocate.
+    // WARNING: Attribute create may have relocated
+    //	        object.
 
     MUP::insertable_list_pointer
         lp ( min::stub_of ( wap.locate_dlp ) );
@@ -2701,8 +2704,8 @@ void MINT::set_more_flags
 {
     typedef MUP::writable_attribute_pointer ap_type;
 
-    MIN_ASSERT
-        ( wap.reverse_attribute_name != min::ANY );
+    for ( unsigned i = 0; i < n; ++ i )
+        MIN_ASSERT ( is_control_code ( in[i] ) );
 
     switch ( wap.state )
     {
@@ -2730,7 +2733,8 @@ void MINT::set_more_flags
     start_sublist ( lp );
     while ( is_sublist ( current ( lp ) ) )
 	next ( lp );
-    while ( is_control_code ( current ( lp ) ) );
+    while ( is_control_code ( current ( lp ) ) )
+        next ( lp );
     insert_before ( lp, in, n );
 }
 
@@ -2740,8 +2744,6 @@ void MINT::set_more_flags
 	    ( MUP::writable_attribute_pointer & wap )
     {
 	typedef MUP::writable_attribute_pointer ap_type;
-
-	refresh ( wap.locate_dlp );
 
 	MIN_ASSERT
 	    ( wap.state == ap_type::LOCATE_FAIL );
@@ -2765,10 +2767,10 @@ void MINT::set_more_flags
 	min::relocated relocated;
 	while ( true )
 	{
-	    MUP::start ( wap.locate_dlp );
+	    MUP::start ( lp );
 	    min::insert_reserve
 	        ( lp, 2 * ( len - wap.length ),
-		      4 * ( len - wap.length ) );
+		      3 * ( len - wap.length ) + 1 );
 	    if ( ! relocated ) break;
 	    min::relocate ( wap );
 	}
@@ -2784,7 +2786,7 @@ void MINT::set_more_flags
 		 ( i = (int) f ) == f
 		 &&
 		 i < MUP::attribute_vector_size_of
-				( wap.locate_dlp ) )
+				( lp ) )
 	    {
 		wap.flags = ap_type::IN_VECTOR;
 		wap.index = i;
@@ -2797,7 +2799,7 @@ void MINT::set_more_flags
 		wap.index = min::hash ( element[0] )
 			 % MUP::hash_table_size_of
 			      ( lp );
-		min::start_hash ( lp, wap.index );
+		MUP::start_hash ( lp, wap.index );
 		min::gen elements[2] =
 		    { element[0], min::EMPTY_SUBLIST };
 		insert_before ( lp, elements, 2 );
@@ -2808,6 +2810,7 @@ void MINT::set_more_flags
 
 	    wap.length = 1;
 	}
+	else refresh ( wap.locate_dlp );
 
 	while ( wap.length < len )
 	{
@@ -2821,6 +2824,7 @@ void MINT::set_more_flags
 		min::gen elements[2] =
 		    { min::EMPTY_SUBLIST, c };
 		insert_before ( lp, elements, 2 );
+		refresh ( wap.locate_dlp );
 		start_sublist ( lp, wap.locate_dlp );
 	    }
 	    else if ( start_sublist ( lp ),
@@ -2829,6 +2833,7 @@ void MINT::set_more_flags
 		min::gen elements[1] =
 		    { min::EMPTY_SUBLIST };
 		insert_before ( lp, elements, 1 );
+		refresh ( wap.locate_dlp );
 		start_sublist ( lp, wap.locate_dlp );
 	    }
 	    start_copy ( wap.locate_dlp, lp );
@@ -2868,12 +2873,15 @@ void MINT::set_more_flags
 
 	MUP::insertable_list_pointer lp
 	    ( stub_of ( wap.dlp ) );
+        min::start_hash ( lp, wap.index );
 
 	min::relocated relocated;
 	min::insert_reserve ( lp, 1, 2 );
-	if ( relocated ) min::relocate ( wap );
-
-        min::start_hash ( lp, wap.index );
+	if ( relocated )
+	{
+	    min::relocate ( wap );
+	    min::start_hash ( lp, wap.index );
+	}
 
 	min::gen elements[2] =
 	    { wap.attribute_name, min::EMPTY_SUBLIST };
