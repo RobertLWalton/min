@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar  4 13:21:34 EST 2009
+// Date:	Sat Mar  7 13:22:52 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/03/04 19:57:50 $
+//   $Date: 2009/03/07 19:22:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.146 $
+//   $Revision: 1.147 $
 
 // Table of Contents:
 //
@@ -4398,8 +4398,10 @@ namespace min {
 	case ap_type::REVERSE_LOCATE_SUCCEED:
 	case ap_type::LOCATE_NONE:
 		if ( ! is_sublist ( c ) )
+		{
 		    update ( wap.dlp, * in );
-		return;
+		    return;
+		}
 	}
 
 	internal::set ( wap, in, n  ); 
