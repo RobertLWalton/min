@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar  7 13:19:43 EST 2009
+// Date:	Mon Mar  9 11:20:31 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/03/07 19:23:29 $
+//   $Date: 2009/03/09 15:23:17 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.82 $
+//   $Revision: 1.83 $
 
 // Table of Contents:
 //
@@ -2924,8 +2924,7 @@ void MINT::reverse_attribute_create
 	    if ( relocated ) min::relocate ( wap );
 	    update ( wap.locate_dlp,
 	             min::EMPTY_SUBLIST );
-	    start_copy ( lp, wap.locate_dlp );
-	    start_sublist ( lp );
+	    start_sublist ( lp, wap.locate_dlp );
 	    min::gen elements[3] =
 	        { min::EMPTY_SUBLIST,
 		  min::EMPTY_SUBLIST,
@@ -2938,8 +2937,7 @@ void MINT::reverse_attribute_create
 	    if ( relocated ) min::relocate ( wap );
 	    update ( wap.locate_dlp,
 	             min::EMPTY_SUBLIST );
-	    start_copy ( lp, wap.locate_dlp );
-	    start_sublist ( lp );
+	    start_sublist ( lp, wap.locate_dlp );
 	    min::gen elements[2] =
 	        { min::EMPTY_SUBLIST, c };
 	    insert_before ( lp, elements, 2 );
