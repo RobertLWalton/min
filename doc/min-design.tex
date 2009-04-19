@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 7, 2009}
+\date{April 19, 2009}
  
 \maketitle
 
@@ -1163,7 +1163,8 @@ a \key{name component}.  More specifically,
 a number (\secref{NUMBERS}),
 a string (\secref{STRINGS}),
 or a label (\secref{LABELS}), i.e., is an atom or a label.
-The \verb|min::hash| function returns a non-zero hash value if its argument
+The \verb|min::hash| function returns a non-zero
+\key{hash value}\label{HASH-VALUE} if its argument
 is usable as a name component, and returns zero otherwise.
 
 
@@ -1607,8 +1608,7 @@ of the functions given below, including the protected functions,
 check for this.
 
 There are two kinds of string stubs: short strings and long strings.
-There are no protected functions directly accessing these.  In addition,
-a string of up to 3 {\tt char}'s can be stored within a 32-bit
+In addition, a string of up to 3 {\tt char}'s can be stored within a 32-bit
 \verb|min::gen| value, and a string of up to 5 {\tt char}'s can be stored
 within a 64-bit \verb|min::gen| value,
 without using a stub
@@ -1617,92 +1617,94 @@ without using a stub
 Such strings are called \skey{direct string}s, while strings stored in
 stubs or stub bodies which are pointed at by \verb|min::gen| values,
 the short and long strings, are called \skey{indirect string}s.
-There are protected functions accessing general values that denote
-strings of any kind without distinction,
-and these are described toward the end of this section, after
-short and long strings and their unprotected access functions are
-described.
+A short string holds up to 8 characters inside the string stub
+(there must be more characters than a direct string will hold).
+A long string has an string body that holds the string characters
+(there must be more than 8)
+along with the string length and hash value.
 
 All three kinds of strings, direct, short, and long, are immutable
 and have hash values (\pagref{HASH-VALUE}).
 
-A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
-\minnbkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
-an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
-8 \verb|char| vector and can be read by
+There are protected functions accessing general values that denote
+strings of any kind without distinction, and these are described next.
+Unprotected functions that apply only to particular
+types of string are described later in this section.
 
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::uns64 MUP::|
-    & \MUPKEY{short\_str\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::SHORT_STR_OF}
-\end{tabular}\end{center}
-
-and written by
+The following functions create new general string values:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void MUP::|
-    & \MUPKEY{set\_short\_str\_of}\verb| ( min::stub * s, min::uns64 str )|
-\LABEL{MUP::SET_SHORT_STR_OF}
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_STR_GEN} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p, unsigned n )|
+\LABEL{MIN::NEW_STR_GEN_WITH_N} \\
 \end{tabular}\end{center}
 
-Here the \verb|min::uns64| value returned by \MUPkey{short\_str\_of}
-should be overlaid by a union with a \verb|char[ ]| buffer, as in
+The \verb|min::new_str_gen| functions copy the input string after the
+manner of \verb|strcpy| and \verb|strncpy|, respectively.  That is,
+they copy from \verb|p|
+until a NUL is copied or \verb|n| characters have been copied, whichever
+comes first.
 
-\begin{indpar}\begin{verbatim}
-union { min::uns64 str; char buf[9]; } u;
-min::stub * s1, * s2;
-. . . set s1 and s2 to point at short string stubs . . .
-u.str = MUP::short_str_of ( s1 );
-u.buf[8] = 0;	// Be sure result is NUL terminated.
-cout << u.buf;
-. . . .
-u.str = 0;	// Be sure all 8 bytes are NUL padded.
-cin >> u.buf;   // Must not read more than 8 chars.
-MUP::set_short_str_of ( s2 , u.str );
-\end{verbatim}\end{indpar}
+When a string general value
+is created, if the input string is short enough for the general value
+to hold the string itself, a direct string general value is created.
+Otherwise \verb|min::new_str_gen| searches to see if any equal string
+exists.  If such a string exists, a pointer to the stub of the existing
+string is returned in the new \verb|min::gen| value, and no new stub
+is created.  Otherwise, if the input string is 8 or fewer {\tt char}'s,
+a short string stub is created, and if the input string has more
+than 8 {\tt char}'s, a long string stub and body are created.
 
-Short string values are NUL (zero) padded 0 to 8 \verb|char|
-strings.  To be sure any value read is NUL terminated, a NUL (zero)
-must be stored after the value read, as is done by \verb|u.buf[8] = 0|
-in the example.  To be sure any value written is padded to 8 {\tt char}'s
-by NUL, the 8 {\tt char} value should be zeroed before any string is
-copied into it, as is done by \verb|u.str = 0| in the example.
+Thus if two string \verb|min::gen| values are equal as
+strings, they have \verb|==| \verb|min::gen| values.
 
-A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
-\minnbkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
-a value that is a pointer to a \MUPkey{long\_str} type body
-which holds an arbitrary length NUL terminated \verb|char| string.
-
-The following are unprotected functions to return a relocatable pointer to the
-a long string body and relocatable pointers to the string itself,
-and several protected functions to return parts of the body header.
-\footnote{Of course these protected functions cannot be used
-until the unprotected function has been used.  These protected functions
-are protected only in the sense that they introduce no
-\underline{additional} protection issues.}
+The following functions test a \verb|min::gen| value to see if it
+is a string and obtain information from
+a string \verb|min::gen| value.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|MUP::long_str * MUP::|
-    & \MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::LONG_STR_OF} \\
-\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MUP::STR_OF_LONG_STR} \\
-\verb|char * MUP::| & \MUPKEY{writable\_str\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MUP::WRITABLE_STR_OF_LONG_STR} \\
-\verb|unsigned min::| & \MINKEY{length\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MIN::LENGTH_OF_LONG_STR} \\
-\verb|unsigned min::| & \MINKEY{hash\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MIN::HASH_OF_LONG_STR} \\
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
+\LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
+\LABEL{MIN::STRLEN_OF_GEN} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen v )|
+\LABEL{MIN::STRHASH_OF_GEN} \\[1ex]
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen v )|
+\LABEL{MIN::STRCPY_OF_GEN} \\
+\verb|char * min::|
+    & \MINKEY{strncpy}\verb| ( char * p, min::gen v, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_GEN} \\[1ex]
+\verb|int min::| & \MINKEY{strcmp}\verb| ( const char * p, min::gen v )|
+\LABEL{MIN::STRCMP_OF_GEN} \\
+\verb|int min::|
+    & \MINKEY{strncmp}\verb| ( const char * p, min::gen v, unsigned n )|
+\LABEL{MIN::STRNCMP_OF_GEN} \\
 \end{tabular}\end{center}
 
-These functions return a relocatable pointer to the string body,
-relocatable pointers to the NUL terminated {\tt char} string itself,
-the length of the string, and a 32-bit non-zero \mkey{hash value}{of string}
-\label{HASH-VALUE}
-computed from the string.
-A relocatable pointer to the {\tt char} string that permits only reading can be
-obtained, or one that permits both reading and writing can be obtained.
+Five of these functions correspond to the standard C/C++
+{\tt strlen}, {\tt strcpy}, {\tt strncpy}, {\tt strcmp},
+and {\tt strncmp} functions, and differ
+from these only in that instead of taking a {\tt char *} source string
+argument, these functions take a {\tt min::gen} source argument.
+
+To permit hash values of arbitrary strings to be computed,
+without creating {\tt min::gen} values from them first,
+the following functions are provided:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( const char * p )|
+\LABEL{MIN::STRHASH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{strnhash}\verb| ( const char * p, unsigned n )|
+\LABEL{MIN::STRNHASH} \\
+\end{tabular}\end{center}
+
+Both \verb|strhash| and \verb|strnhash| accept NUL terminated strings, but
+\verb|strnhash| stops reading the string after the first \verb|n| characters
+if none of these characters is NUL.
 
 A string hash value is computed according to the following machine
 independent algorithm:\label{HASH-ALGORITHM}
@@ -1725,20 +1727,110 @@ constant that could be used is $33$.}  A hash value is never zero
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
 
-To permit hash values of arbitrary strings to be computed,
-the following functions are provided:
+A read-only pointer to the characters of a string {\tt min::gen} value can
+be obtained using the following functions to create and use
+a \key{string pointer}:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( const char * p )|
-\LABEL{MIN::STRHASH} \\
-\verb|min::uns32 min::|
-    & \MINKEY{strnhash}\verb| ( const char * p, unsigned n )|
-\LABEL{MIN::STRNHASH} \\
+\verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| ( min::gen v )|
+\LABEL{MIN::STR_POINTER_OF_GEN} \\
+\verb|void min::|
+    & \MINKEY{initialize}\verb| ( min::str_pointer & sp, min::gen v )|
+\LABEL{MIN::INIT_OF_STR_POINTER} \\[1ex]
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::str_pointer & sp )|
+\LABEL{MIN::STRLEN_OF_STR_POINTER} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::str_pointer & sp )|
+\LABEL{MIN::STRHASH_OF_STR_POINTER} \\[1ex]
+\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::str_pointer & sp )|
+\LABEL{MIN::STRCPY_OF_STR_POINTER} \\
+\verb|char * min::|
+    & \MINKEY{strncpy}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( char * p,| \\
+      \verb|   min::str_pointer & sp, unsigned n )| \\[1ex]
+      \end{tabular}
+\LABEL{MIN::STRNCPY_OF_STR_POINTER} \\[1ex]
+\verb|int min::|
+    & \MINKEY{strcmp}\verb| ( const char * p, min::str_pointer & sp )|
+\LABEL{MIN::STRCMP_OF_STR_POINTER} \\
+\verb|int min::|
+    & \MINKEY{strncmp}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb|( const char * p,| \\
+      \verb|  min::str_pointer & sp, unsigned n )| \\[1ex]
+      \end{tabular}
+\LABEL{MIN::STRNCMP_OF_STR_POINTER} \\[1ex]
+\verb|const char      |
+    & \ttkey{operator [ ]}\verb| ( min::str_pointer & sp, int index )|
+\LABEL{MUP::[]_OF_STR_POINTER} \\
+\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::str_pointer & sp )|
+\LABEL{MUP::STR_OF_STR_POINTER} \\
 \end{tabular}\end{center}
 
-Both \verb|strhash| and \verb|strnhash| accept NUL terminated strings, but
-\verb|strnhash| stops reading the string after the first \verb|n| characters
-if none of these characters is NUL.
+The constructor creates a string pointer pointing to the {\tt char}'s
+of the string specified by the \verb|min::gen| argument.  This argument
+must be a direct string or a pointer to a short or long string stub.
+The {\tt min::initialize} function can reset the string
+pointer to point at a different \verb|min::gen| value.
+
+The \verb|strlen|, \verb|strhash|, \verb|strcpy|, \verb|strncpy|,
+\verb|strcmp|, and \verb|strncmp| functions retrieve the same information
+about the string pointed at by a string pointer as they retrieve about
+the string {\tt min::gen} value the pointer points at.
+
+The {\tt MUP::str\_of} function returns a standard C++ pointer to the string,
+taking care to ensure the vector of {\tt char}'s is NUL-terminated.
+The value of {\tt min::str\_of} will become obsolete if the string is
+relocated, and in particular, may become obsolete if a relocating
+function is called.
+
+The \verb|[ ]| operator can be used to access individual characters
+in a string.  If {\tt sp} is a string pointer, `\verb|sp[i]|' is
+shorthand for `\verb|MUP::str_of(sp)[i]|'.
+
+For direct and short strings the string pointer, when it is created,
+copies the string {\tt char}'s into a buffer internal to the string pointer,
+in order to save the {\tt char}'s in a direct string value, or to
+add a missing NUL to the end of the short string {\tt char} vector.
+In long string cases no copying is done, and the string pointer
+is essentually just a pointer to the string stub, which in turn points
+at the string proper inside a relocatable string body.
+
+The rest of this section describes unprotected functions that access the
+internals of short and long strings.
+
+A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
+\minnbkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
+an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
+8 \verb|char| vector and can be read by
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{short\_str\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::SHORT_STR_OF}
+\end{tabular}\end{center}
+
+Here the \verb|min::uns64| value returned by \MUPkey{short\_str\_of}
+should be overlaid by a union with a \verb|char[ ]| buffer, as in
+
+\begin{indpar}\begin{verbatim}
+union { min::uns64 str; char buf[9]; } u;
+min::stub * s1;
+. . . set s1 to point at a short string stub . . .
+u.str = MUP::short_str_of ( s1 );
+u.buf[8] = 0;	// Be sure result is NUL terminated.
+cout << u.buf;
+\end{verbatim}\end{indpar}
+
+Short string values are NUL (zero) padded 0 to 8 \verb|char|
+strings.  To be sure any value read is NUL terminated, a NUL (zero)
+must be stored after the value read, as is done by \verb|u.buf[8] = 0|
+in the example.
+
+A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
+\minnbkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
+a value that is a pointer to a \MUPkey{long\_str} type body
+which holds an arbitrary length NUL terminated \verb|char| string.
 
 The long string body consists of the 32-bit length and 32-bit hash value
 of the string, followed by a \verb|char|
@@ -1747,178 +1839,24 @@ vector containing the string proper with the terminating NUL.  The
 bytes, but the terminating NUL and the padding are not included
 in the length.
 
-The following unprotected functions set the length and hash value as stored
-in the body:
+The following are unprotected functions to return a relocatable pointer to the
+long string body, a relocatable pointer to the string itself,
+and the length and hash of the string.
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|void MUP::| &
-   \MUPKEY{set\_length\_of}\verb| ( MUP::long_str * str, unsigned length )|
-\LABEL{MUP::SET_LENGTH_OF_LONG_STR} \\
-\verb|void MUP::| &
-   \MUPKEY{set\_hash\_of}\verb| ( MUP::long_str * str, unsigned hash )|
-\LABEL{MUP::SET_HASH_OF_LONG_STR} \\
+\verb|MUP::long_str * MUP::|
+    & \MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
+\LABEL{MUP::LONG_STR_OF} \\
+\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
+\LABEL{MUP::STR_OF_LONG_STR} \\
+\verb|unsigned min::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
+\LABEL{MUP::LENGTH_OF_LONG_STR} \\
+\verb|unsigned min::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
+\LABEL{MUP::HASH_OF_LONG_STR} \\
 \end{tabular}\end{center}
 
-The following are protected functions that operate on both short and long
-strings.  Some of these functions have the same (overloaded) names
-as standard C library string functions, and have the same definition
-except that the string source is represented by a short or long string
-stub.
-
-The functions
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::stub * s )|
-\LABEL{MIN::STRLEN} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::stub * s )|
-\LABEL{MIN::STRHASH_OF_STUB} \\
-\end{tabular}\end{center}
-
-return the length of the string (excluding the terminating NUL) and
-the hash value of the string.
-
-The functions
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::stub * s )|
-\LABEL{MIN::STRCPY} \\
-\verb|char * min::|
-    & \MINKEY{strncpy}\verb| ( char * p, min::stub * s, unsigned n )|
-\LABEL{MIN::STRNCPY} \\
-\end{tabular}\end{center}
-
-copy a string from a MIN short or long string to a buffer pointed at
-by \verb|p|.  Copying stops when a NUL is copied or when the
-\verb|min::strncpy| function copies the \verb|n|'th \verb|char|.  The value
-of \verb|p| is returned.
-
-The following are protected functions with same definitions as above but
-with general value arguments.  The general values must hold a
-direct string value or a pointer to a short or long string stub.
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
-\LABEL{MIN::STRLEN_OF_GEN} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen v )|
-\LABEL{MIN::STRHASH_OF_GEN} \\
-\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen v )|
-\LABEL{MIN::STRCPY_OF_GEN} \\
-\verb|char * min::|
-    & \MINKEY{strncpy}\verb| ( char * p, min::gen v, unsigned n )|
-\LABEL{MIN::STRNCPY_OF_GEN} \\
-\end{tabular}\end{center}
-
-Some of these functions correspond to the standard C/C++
-{\tt strlen}, {\tt strcpy}, and {\tt strncpy} functions, and differ
-from these only in that instead of taking a {\tt char *} source string
-argument, these functions take a {\tt min::gen} source argument.
-
-A read-only pointer to the characters of a string general value can
-be obtained using the following functions to create and manage
-a \key{string pointer}:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
-\LABEL{MUP::STR_POINTER_OF_GEN} \\
-\verb|const char * min::| & \MINKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MIN::STR_OF_STR_POINTER} \\
-\verb|void min::|
-    & \MINKEY{initialize}\verb| ( MUP::str_pointer & sp, min::gen v )|
-\LABEL{MIN::INIT_OF_STR_POINTER} \\
-\verb|void min::| & \MINKEY{relocate}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MIN::RELOCATE_OF_STR_POINTER} \\
-\end{tabular}\end{center}
-
-The constructor creates a string pointer pointing to the {\tt char}'s
-of the string specified by the \verb|min::gen| argument.  This argument
-must be a direct string or a pointer to a short or long string stub.
-The {\tt min::str\_of} function returns a standard C++ pointer to the string,
-taking care to ensure the vector of {\tt char}'s is NUL-terminated.
-The {\tt min::initialize} function resets the pointer to point at another
-\verb|min::gen| value.
-The {\tt min::relocate}
-function resets the pointer after the relocated flag has been set,
-in case this is necessary.
-The value of {\tt min::str\_of} does not change and may become obsolete when
-the relocated flag is been set, and the {\tt min::relocate} function
-makes the value current.
-
-For direct and some short strings the string pointer, when it is created,
-copies the string {\tt char}'s into a buffer internal to the string pointer,
-in order to save the {\tt char}'s in a direct string value, or to
-add a missing NUL to the end of the {\tt char} vector.  In other cases,
-including all long string cases, no copying is done, making string pointers
-a more efficient way of reading a string than {\tt min::strcpy}.
-
-A typical use of string pointers that indicates how the {\tt min::relocate}
-function works is:
-
-\begin{indpar}\begin{verbatim}
-... some_function ( ... )
-{
-    // relocated constructor saves the relocated flag.
-    min::relocated relocated;
-    . . . . .
-    min::gen g = some_string_value;
-    MUP::str_pointer sp ( g );
-    const char * p = min::str_of ( sp );
-    . . . use and increment p . . .
-
-    some_relocating_function ( ... );
-    if ( relocated )
-    {
-        // The relocating function does NOT change sp
-        // which remains pointing at its former now
-        // possibly incorrect place.
-        //
-        int displacement = p - min::str_of ( sp );
-
-        // Make sp current.
-        min::relocate ( sp );
-
-        // Revise p.
-        p = min::str_of ( sp ) + displacement;
-    }
-    . . . . . use p . . . . .
-    return ...;
-    // relocated deconstructor restores relocated flag.
-}
-\end{verbatim}\end{indpar}
-
-
-The following functions test general values to see if they are a string,
-and create new general values.
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
-\LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
-\verb|min::gen min::|
-    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_STR_GEN} \\
-\verb|min::gen min::|
-    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p, unsigned n )|
-\LABEL{MIN::NEW_STR_GEN_WITH_N} \\
-\end{tabular}\end{center}
-
-The \verb|min::new_str_gen| functions copy the input string after the
-manner of \verb|strcpy| and \verb|strncpy|, respectively.  That is,
-they copy from \verb|p|
-until a NUL is copied or \verb|n| characters have been copied, whichever
-comes first.
-
-A general value is a string if it holds a string itself or if it
-holds a stub pointer at a short or long string.  When a general value
-is created, if the input string is short enough for the general value
-to hold the string itself, a direct string general value is created.
-Otherwise \verb|min::new_str_gen| searches to see if any equal string
-exists.  If such a string exists, a pointer to the stub of the existing
-string is returned in the new \verb|min::gen| value, and no new stub
-is created.  Otherwise, if the input string is 8 or fewer {\tt char}'s,
-a short string stub is created, and if the input string has more
-than 8 {\tt char}'s, a long string stub and body are created.
-
-Thus if two string \verb|min::gen| values are equal as
-strings, they have \verb|==| \verb|min::gen| values.
+These functions are unprotected because \verb|long_str *| pointers
+are relocatable.
 
 \begin{quote}
 \key{Hash Table Implementation Note}:\label{HASH-TABLE-IMPLEMENTATION-NOTE}
@@ -5293,22 +5231,6 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::stub * s )|
-\LABEL{MIN::STRLEN} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::stub * s )|
-\LABEL{MIN::STRHASH_OF_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::stub * s )|
-\LABEL{MIN::STRCPY} \\
-\verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
-	\verb| ( char * p,|\ARGBREAK
-	\verb|   min::stub * s, unsigned n )|
-\LABEL{MIN::STRNCPY} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
 \verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen v )|
@@ -5319,6 +5241,12 @@ struct min
                       \verb| ( char * p,|\ARGBREAK
 		      \verb|   min::gen v, unsigned n )|
 \LABEL{MIN::STRNCPY_OF_GEN} \\
+\verb|int min::| & \MINKEY{strcmp}\verb| ( const char * p, min::gen v )|
+\LABEL{MIN::STRCMP_OF_GEN} \\
+\verb|int min::| & \MINKEY{strncmp}\ARGBREAK
+                   \verb| ( const char * p,|\ARGBREAK
+		   \verb|   min::gen v, unsigned n )|
+\LABEL{MIN::STRNCMP_OF_GEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -5351,16 +5279,14 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| ( min::gen v )|
-\LABEL{MUP::STR_POINTER_OF_GEN} \\
-\verb|const char * min::| & \MINKEY{str\_of}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MIN::STR_OF_STR_POINTER} \\
+\verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| ( min::gen v )|
+\LABEL{MIN::STR_POINTER_OF_GEN} \\
+\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::str_pointer & sp )|
+\LABEL{MUP::STR_OF_STR_POINTER} \\
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
       \verb| ( MUP::str_pointer & sp, min::gen v )|
 \LABEL{MIN::INIT_OF_STR_POINTER} \\
-\verb|void min::| & \MINKEY{relocate}\verb| ( MUP::str_pointer & sp )|
-\LABEL{MIN::RELOCATE_OF_STR_POINTER} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -5376,35 +5302,15 @@ struct min
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|void MUP::|
-    & \MUPKEY{set\_short\_str\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::uns64 str )|
-\LABEL{MUP::SET_SHORT_STR_OF} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
 \verb|MUP::long_str * MUP::|
     & \MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_STR_OF} \\
-\verb|unsigned min::| & \MINKEY{length\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MIN::LENGTH_OF_LONG_STR} \\
-\verb|unsigned min::| & \MINKEY{hash\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MIN::HASH_OF_LONG_STR} \\
+\verb|unsigned min::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
+\LABEL{MUP::LENGTH_OF_LONG_STR} \\
+\verb|unsigned min::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
+\LABEL{MUP::HASH_OF_LONG_STR} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
-\verb|char * MUP::| & \MUPKEY{writable\_str\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MUP::WRITABLE_STR_OF_LONG_STR} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|void MUP::| &
-   \MUPKEY{set\_length\_of}\ARGBREAK
-   \verb| ( MUP::long_str * str,|\ARGBREAK\verb|   unsigned length )|
-\LABEL{MUP::SET_LENGTH_OF_LONG_STR} \\
-\verb|void MUP::| &
-   \MUPKEY{set\_hash\_of}\ARGBREAK
-    \verb| ( MUP::long_str * str,|\ARGBREAK\verb|   unsigned hash )|
-\LABEL{MUP::SET_HASH_OF_LONG_STR} \\[1ex]
 \end{TABULAR}
 
 \end{indpar}
