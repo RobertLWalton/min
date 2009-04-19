@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 07:25:55 EDT 2009
+// Date:	Sun Apr 19 14:44:45 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 11:26:32 $
+//   $Date: 2009/04/19 18:50:43 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.84 $
+//   $Revision: 1.85 $
 
 // Table of Contents:
 //
@@ -247,9 +247,19 @@ unsigned min::strlen ( min::gen v )
 	u.str = min::direct_str_of ( v );
 	return ::strlen ( u.buf );
     }
+
+    min::stub * s = min::stub_of ( v );
+    if ( type_of ( s ) == min::SHORT_STR )
+    {
+	char * p = s->v.c8;
+	char * endp = p + 8;
+	while ( * p && p < endp ) ++ p;
+	return p - s->v.c8;
+    }
     else
     {
-        return min::strlen ( min::stub_of ( v ) );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	return unprotected::long_str_of ( s )->length;
     }
 }
 
@@ -261,9 +271,14 @@ min::uns32 min::strhash ( min::gen v )
 	u.str = min::direct_str_of ( v );
 	return min::strhash ( u.buf );
     }
+
+    min::stub * s = min::stub_of ( v );
+    if ( type_of ( s ) == min::SHORT_STR )
+	return min::strnhash ( s->v.c8, 8 );
     else
     {
-        return min::strhash ( min::stub_of ( v ) );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	return unprotected::long_str_of ( s )->hash;
     }
 }
 
@@ -275,9 +290,23 @@ char * min::strcpy ( char * p, min::gen v )
 	u.str = min::direct_str_of ( v );
 	return ::strcpy ( p, u.buf );
     }
+
+    min::stub * s = min::stub_of ( v );
+    if ( type_of ( s ) == min::SHORT_STR )
+    {
+	if ( s->v.c8[7] )
+	{
+	    p[8] = 0;
+	    return ::strncpy ( p, s->v.c8, 8 );
+	}
+	return ::strcpy ( p, s->v.c8 );
+    }
     else
     {
-        return min::strcpy ( p, min::stub_of ( v ) );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	return ::strcpy
+	    ( p, min::unprotected::str_of
+		   ( unprotected::long_str_of ( s ) ) );
     }
 }
 
@@ -289,10 +318,22 @@ char * min::strncpy ( char * p, min::gen v, unsigned n )
 	u.str = min::direct_str_of ( v );
 	return ::strncpy ( p, u.buf, n );
     }
+
+    min::stub * s = min::stub_of ( v );
+    if ( type_of ( s ) == min::SHORT_STR )
+    {
+	if ( s->v.c8[7] && n >= 9 )
+	    p[8] = 0;
+	return ::strncpy
+		 ( p, s->v.c8, n < 8 ? n : 8 );
+    }
     else
     {
-        return min::strncpy
-	    ( p, min::stub_of ( v ), n );
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	return ::strncpy
+	    ( p, min::unprotected::str_of
+		   ( unprotected::long_str_of ( s ) ),
+		 n );
     }
 }
 
