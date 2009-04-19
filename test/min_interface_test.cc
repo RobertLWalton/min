@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 15 20:41:51 EST 2009
+// Date:	Sun Apr 19 05:51:33 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/02/16 01:50:25 $
+//   $Date: 2009/04/19 11:25:31 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.75 $
+//   $Revision: 1.76 $
 
 // Table of Contents:
 //
@@ -1375,6 +1375,7 @@ int main ()
 	    min::uns64 u64;
 	    char str[9];
 	} in, out;
+
 	char buffer[20];
 	const char * s13 = "ABCDEFGHIJKLM";
 	const char * s8 = "ABCDEFGH";
@@ -1526,6 +1527,7 @@ int main ()
 
 	cout << endl;
 	cout << "Test string pointers:" << endl;
+
 	// Test body relocation first.
 	MUP::set_pointer_of
 	    ( stub13,
@@ -1541,18 +1543,60 @@ int main ()
 	    ( min::strhash ( strgen13 ) == s13hash );
 	min::strcpy ( buffer, strgen13 );
 	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
-	MUP::str_pointer p3 ( strgen3 );
-	MUP::str_pointer p7 ( strgen7 );
-	MUP::str_pointer p8 ( strgen8 );
-	MUP::str_pointer p13 ( strgen13 );
-	MIN_ASSERT
-	    ( strcmp ( min::str_of ( p3 ), s3 ) == 0 );
-	MIN_ASSERT
-	    ( strcmp ( min::str_of ( p7 ), s7 ) == 0 );
-	MIN_ASSERT
-	    ( strcmp ( min::str_of ( p8 ), s8 ) == 0 );
+
+	min::str_pointer p3 ( strgen3 );
+	min::str_pointer p7 ( strgen7 );
+	min::str_pointer p8 ( strgen8 );
+	min::str_pointer p13 ( strgen13 );
+
+	MIN_ASSERT ( min::strcmp ( s3, p3 ) == 0 );
+	MIN_ASSERT ( min::strcmp ( s7, p7 ) == 0 );
+	MIN_ASSERT ( min::strcmp ( s8, p8 ) == 0 );
+	MIN_ASSERT ( min::strcmp ( s13, p13 ) == 0 );
+
+	MIN_ASSERT ( s3[0] == p3[0] );
+	MIN_ASSERT ( s3[1] == p3[1] );
+	MIN_ASSERT ( s3[2] == p3[2] );
+	MIN_ASSERT ( s3[3] == p3[3] );
+	MIN_ASSERT ( s7[0] == p7[0] );
+	MIN_ASSERT ( s7[6] == p7[6] );
+	MIN_ASSERT ( s7[7] == p7[7] );
+	MIN_ASSERT ( s8[0] == p8[0] );
+	MIN_ASSERT ( s8[7] == p8[7] );
+	MIN_ASSERT ( s8[8] == p8[8] );
+	MIN_ASSERT ( s13[0] == p13[0] );
+	MIN_ASSERT ( s13[12] == p13[12] );
+	MIN_ASSERT ( s13[13] == p13[13] );
+
+	min::strcpy ( buffer, p3 );
+	MIN_ASSERT ( strcmp ( buffer, s3 ) == 0 );
+	min::strcpy ( buffer, p13 );
+	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
+	buffer[5] = 0;
+	MIN_ASSERT ( strncmp ( buffer, p13, 5 ) == 0 );
+	MIN_ASSERT ( strncmp ( buffer, p13, 6 ) != 0 );
+	buffer[4] = 0;
+	buffer[5] = 'X';
+	min::strncpy ( buffer, p13, 5 );
+	MIN_ASSERT ( buffer[4] == s13[4] );
+	MIN_ASSERT ( buffer[5] == 'X' );
+
+	MIN_ASSERT ( min::strlen ( p3 ) == 3 );
+	MIN_ASSERT ( min::strlen ( p7 ) == 7 );
+	MIN_ASSERT ( min::strlen ( p8 ) == 8 );
+	MIN_ASSERT ( min::strlen ( p13 ) == 13 );
+
+	MIN_ASSERT (    min::strhash ( p3 )
+	             == min::strhash ( s3 ) );
+	MIN_ASSERT (    min::strhash ( p7 )
+	             == min::strhash ( s7 ) );
+	MIN_ASSERT (    min::strhash ( p8 )
+	             == min::strhash ( s8 ) );
+	MIN_ASSERT (    min::strhash ( p13 )
+	             == min::strhash ( s13 ) );
+
 	const char * p13str_before =
-	    min::str_of ( p13 );
+	    min::unprotected::str_of ( p13 );
 	MIN_ASSERT
 	    ( strcmp ( p13str_before, s13 ) == 0 );
 	MUP::set_pointer_of
@@ -1564,24 +1608,15 @@ int main ()
 		        min::strlen ( stub13 )
 		      + sizeof (MUP::long_str) )
 		+ 1 );
-	const char * p13str_mid = min::str_of ( p13 );
-	MIN_ASSERT ( p13str_mid == p13str_before );
-	MIN_ASSERT
-	    (    strcmp ( min::str_of ( p13 ), s13 )
-	      != 0 );
-	min::relocate ( p13 );
-	const char * p13str_after = min::str_of ( p13 );
+	const char * p13str_after =
+	    min::unprotected::str_of ( p13 );
 	MIN_ASSERT ( p13str_after != p13str_before );
-	MIN_ASSERT
-	    (    strcmp ( min::str_of ( p13 ), s13 )
-	      == 0 );
+	MIN_ASSERT ( min::strcmp ( s13, p13 ) == 0 );
 
-	MUP::str_pointer p ( strgen13 );
-	MIN_ASSERT
-	    ( strcmp ( min::str_of ( p ), s13 ) == 0 );
+	min::str_pointer p ( strgen13 );
+	MIN_ASSERT ( strcmp ( s13, p ) == 0 );
 	min::initialize ( p, strgen8 );
-	MIN_ASSERT
-	    ( strcmp ( min::str_of ( p ), s8 ) == 0 );
+	MIN_ASSERT ( strcmp ( s8, p ) == 0 );
 	
 	cout << endl;
 	cout << "Finish Strings Test!" << endl;

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar  9 11:20:31 EDT 2009
+// Date:	Sun Apr 19 07:25:55 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/03/09 15:23:17 $
+//   $Date: 2009/04/19 11:26:32 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.83 $
+//   $Revision: 1.84 $
 
 // Table of Contents:
 //
@@ -312,13 +312,13 @@ min::gen MUP::new_str_stub_gen_internal
     {
         if (    n <= 8
 	     && min::type_of ( s ) == min::SHORT_STR
-	     && strncmp ( p, s->v.c8, n ) == 0
+	     && ::strncmp ( p, s->v.c8, n ) == 0
 	     && (    n == 8
 	          || s->v.c8[n] == 0 ) )
 	    return min::new_gen ( s );
 	else if (    n > 8
 	          && min::type_of ( s ) == min::LONG_STR
-	          && strncmp
+	          && ::strncmp
 		       ( p, q = MUP::str_of (
 			            MUP::long_str_of
 				        ( s ) ),
