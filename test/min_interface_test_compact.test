@@ -663,8 +663,6 @@ min_interface_test.cc:XXXX assert:
 Finish Numbers Test!
 
 Start Strings Test!
-MUP::gc_expand_stub_free_list (1) called
-MUP::gc_expand_stub_free_list (1) called
 
 Test string hash:
 s13hash: 5a78f047
@@ -675,54 +673,6 @@ min_interface_test.cc:XXXX assert:
     min::strnhash ( s13, 8 ) == s8hash true.
 min_interface_test.cc:XXXX assert:
     min::strnhash ( s13, 3 ) == s3hash true.
-
-Test short strings:
-min_interface_test.cc:XXXX assert:
-    strcmp ( in.str, out.str ) == 0 true.
-min_interface_test.cc:XXXX assert:
-    min::strhash ( sstub ) == s7hash true.
-min_interface_test.cc:XXXX assert:
-    min::strlen ( sstub ) == 7 true.
-min_interface_test.cc:XXXX assert:
-    strcmp ( buffer, s7 ) == 0 true.
-min_interface_test.cc:XXXX assert:
-    strcmp ( in.str, out.str ) == 0 true.
-min_interface_test.cc:XXXX assert:
-    min::strhash ( sstub ) == s8hash true.
-min_interface_test.cc:XXXX assert:
-    min::strlen ( sstub ) == 8 true.
-min_interface_test.cc:XXXX assert:
-    strcmp ( buffer, s8 ) == 0 true.
-min_interface_test.cc:XXXX assert:
-    strcmp ( buffer, s7 ) == 0 true.
-
-Test long strings:
-add_to_free_body (40) called
-min_interface_test.cc:XXXX assert:
-    wp == rp true.
-MUP::str_of (long_str_of ( lstub )): ABCDEFGHIJKLM
-min_interface_test.cc:XXXX assert:
-    (void * ) wp == (void *) (lstr + 1 ) true.
-min_interface_test.cc:XXXX assert:
-    min::length_of ( lstr ) == 13 true.
-min_interface_test.cc:XXXX assert:
-    min::hash_of ( lstr ) == s13hash true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
-min_interface_test.cc:XXXX assert:
-    min::strhash ( lstub ) == s13hash true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
-min_interface_test.cc:XXXX assert:
-    min::strlen ( lstub ) == 13 true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
-min_interface_test.cc:XXXX assert:
-    strcmp ( buffer, s13 ) == 0 true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
-min_interface_test.cc:XXXX assert:
-    strcmp ( buffer, s8 ) == 0 true.
 
 Test string general values:
 MUP::gc_expand_stub_free_list (1) called
@@ -811,51 +761,35 @@ min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen8 true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     min::hash ( strgen13 ) == s13hash true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen13 true.
 
 Test string pointers:
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 add_to_free_body (40) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
 ../include/min.h:XXXX assert:
@@ -934,8 +868,6 @@ min_interface_test.cc:XXXX assert:
     min::strhash ( p13 ) == min::strhash ( s13 ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == min::LONG_STR true.
 add_to_free_body (40) called
 min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
