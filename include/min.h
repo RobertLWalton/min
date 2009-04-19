@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 15:05:05 EDT 2009
+// Date:	Sun Apr 19 15:32:18 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 19:27:20 $
+//   $Date: 2009/04/19 19:32:57 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.150 $
+//   $Revision: 1.151 $
 
 // Table of Contents:
 //
@@ -1852,11 +1852,6 @@ namespace min { namespace unprotected {
     inline min::uns64 short_str_of ( min::stub * s )
     {
 	return s->v.u64;
-    }
-    inline void set_short_str_of
-	    ( min::stub * s, min::uns64 str )
-    {
-	s->v.u64 = str;
     }
     inline min::unprotected::long_str * long_str_of
 	    ( min::stub * s )
