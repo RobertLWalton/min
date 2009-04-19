@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 05:51:33 EDT 2009
+// Date:	Sun Apr 19 14:18:18 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 11:25:31 $
+//   $Date: 2009/04/19 18:49:53 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.76 $
+//   $Revision: 1.77 $
 
 // Table of Contents:
 //
@@ -1361,20 +1361,6 @@ int main ()
     {
 	cout << endl;
 	cout << "Start Strings Test!" << endl;
-	struct min::stub * sstub = MUP::new_aux_stub();
-	struct min::stub * lstub = MUP::new_aux_stub();
-	MUP::set_control_of
-	    ( sstub,
-	      MUP::new_gc_control
-	          ( min::SHORT_STR, 0 ) );
-	MUP::set_control_of
-	    ( lstub,
-	      MUP::new_gc_control
-	          ( min::LONG_STR, 0 ) );
-	union {
-	    min::uns64 u64;
-	    char str[9];
-	} in, out;
 
 	char buffer[20];
 	const char * s13 = "ABCDEFGHIJKLM";
@@ -1400,60 +1386,6 @@ int main ()
 	    ( min::strnhash ( s13, 8 ) == s8hash );
 	MIN_ASSERT
 	    ( min::strnhash ( s13, 3 ) == s3hash );
-
-	cout << endl;
-	cout << "Test short strings:" << endl;
-	strcpy ( in.str, s7 );
-	MUP::set_short_str_of ( sstub, in.u64 );
-	out.u64 = MUP::short_str_of ( sstub );
-	out.str[8] = 0;
-	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
-	MIN_ASSERT ( min::strhash ( sstub ) == s7hash );
-	MIN_ASSERT ( min::strlen ( sstub ) == 7 );
-	min::strcpy ( buffer, sstub );
-	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
-
-	strcpy ( in.str, s8 );
-	MUP::set_short_str_of ( sstub, in.u64 );
-	out.u64 = MUP::short_str_of ( sstub );
-	out.str[8] = 0;
-	MIN_ASSERT ( strcmp ( in.str, out.str ) == 0 );
-	MIN_ASSERT ( min::strhash ( sstub ) == s8hash );
-	MIN_ASSERT ( min::strlen ( sstub ) == 8 );
-	min::strcpy ( buffer, sstub );
-	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
-	buffer[7] = 0;
-	min::strncpy ( buffer, sstub, 7 );
-	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
-
-	cout << endl;
-	cout << "Test long strings:" << endl;
-	MUP::body_control * bc =
-	    MUP::new_body
-		( sizeof (MUP::long_str) + 14 );
-	MUP::set_pointer_of ( lstub, bc + 1 );
-	MUP::long_str * lstr =
-	    MUP::long_str_of ( lstub );
-	MUP::set_length_of ( lstr, 13 );
-	MUP::set_hash_of ( lstr, s13hash );
-	char * wp = MUP::writable_str_of ( lstr );
-	const char * rp = MUP::str_of ( lstr );
-	strcpy ( wp, s13 );
-	MIN_ASSERT ( wp == rp );
-	cout << "MUP::str_of (long_str_of ( lstub )): "
-	     << rp << endl;
-	MIN_ASSERT
-	    ( (void * ) wp == (void *) (lstr + 1 ) );
-	MIN_ASSERT ( min::length_of ( lstr ) == 13 );
-	MIN_ASSERT ( min::hash_of ( lstr ) == s13hash );
-	MIN_ASSERT
-	    ( min::strhash ( lstub ) == s13hash );
-	MIN_ASSERT ( min::strlen ( lstub ) == 13 );
-	min::strcpy ( buffer, lstub );
-	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
-	buffer[8] = 0;
-	min::strncpy ( buffer, lstub, 8 );
-	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
 
 	cout << endl;
 	cout << "Test string general values:" << endl;
@@ -1535,7 +1467,7 @@ int main ()
 		    (   (MUP::body_control *)
 		        MUP::pointer_of ( stub13 )
 		      - 1,
-		        min::strlen ( stub13 )
+		        ::strlen ( s13 )
 		      + sizeof (MUP::long_str) )
 		+ 1 );
 	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
@@ -1605,7 +1537,7 @@ int main ()
 		    (   (MUP::body_control *)
 		        MUP::pointer_of ( stub13 )
 		      - 1,
-		        min::strlen ( stub13 )
+		        ::strlen ( s13 )
 		      + sizeof (MUP::long_str) )
 		+ 1 );
 	const char * p13str_after =

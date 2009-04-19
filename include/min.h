@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 05:27:03 EDT 2009
+// Date:	Sun Apr 19 14:17:12 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 11:26:26 $
+//   $Date: 2009/04/19 18:51:14 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.148 $
+//   $Revision: 1.149 $
 
 // Table of Contents:
 //
@@ -1911,63 +1911,6 @@ namespace min {
 	    ( const char * p, unsigned size );
     //
     min::uns32 strhash ( const char * p );
-
-    inline unsigned strlen ( min::stub * s )
-    {
-	if ( type_of ( s ) == min::SHORT_STR )
-	{
-	    char * p = s->v.c8;
-	    char * endp = p + 8;
-	    while ( * p && p < endp ) ++ p;
-	    return p - s->v.c8;
-	}
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
-	return length_of
-	    ( unprotected::long_str_of ( s ) );
-    }
-
-    inline min::uns32 strhash ( min::stub * s )
-    {
-	if ( type_of ( s ) == min::SHORT_STR )
-	    return min::strnhash ( s->v.c8, 8 );
-
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
-	min::unprotected::long_str * ls =
-	    unprotected::long_str_of ( s );
-	return min::strhash
-	    ( min::unprotected::str_of ( ls ) );
-    }
-
-    inline char * strcpy ( char * p, min::stub * s )
-    {
-	if ( type_of ( s ) == min::SHORT_STR )
-	{
-	    if ( s->v.c8[7] )
-		p[8] = 0;
-	    return ::strncpy ( p, s->v.c8, 8 );
-	}
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
-	return ::strcpy
-	    ( p, min::unprotected::writable_str_of
-		   ( unprotected::long_str_of ( s ) ) );
-    }
-
-    inline char * strncpy
-	( char * p, min::stub * s, unsigned n )
-    {
-	if ( type_of ( s ) == min::SHORT_STR )
-	{
-	    if ( s->v.c8[7] && n >= 9 )
-		p[8] = 0;
-	    return ::strncpy
-		     ( p, s->v.c8, n < 8 ? n : 8 );
-	}
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
-	return ::strncpy
-	    ( p, min::unprotected::writable_str_of
-		   ( unprotected::long_str_of ( s ) ),
-		 n );
-    }
 
     unsigned strlen ( min::gen v );
     min::uns32 strhash ( min::gen v );
