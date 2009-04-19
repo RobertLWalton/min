@@ -722,7 +722,13 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s3 ) == 0 true.
 min_interface_test.cc:XXXX assert:
+    min::strcmp ( s3, strgen3 ) == 0 true.
+min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen3 true.
+min_interface_test.cc:XXXX assert:
+    buffer[2] == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::strncmp ( buffer, strgen3, 2 ) == 0 true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -739,8 +745,20 @@ min_interface_test.cc:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s7 ) == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::strcmp ( s7, strgen7 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen7 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    buffer[6] == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::strncmp ( buffer, strgen7, 6 ) == 0 true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -757,8 +775,20 @@ min_interface_test.cc:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s8 ) == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::strcmp ( s8, strgen8 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen8 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    buffer[7] == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::strncmp ( buffer, strgen8, 7 ) == 0 true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -775,8 +805,20 @@ min_interface_test.cc:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::strcmp ( s13, strgen13 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen13 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    buffer[12] == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::strncmp ( buffer, strgen13, 12 ) == 0 true.
 
 Test string pointers:
 add_to_free_body (40) called

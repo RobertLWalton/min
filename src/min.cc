@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 14:44:45 EDT 2009
+// Date:	Sun Apr 19 15:05:27 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 18:50:43 $
+//   $Date: 2009/04/19 19:27:34 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.85 $
+//   $Revision: 1.86 $
 
 // Table of Contents:
 //
@@ -337,6 +337,70 @@ char * min::strncpy ( char * p, min::gen v, unsigned n )
     }
 }
 
+int min::strcmp ( const char * p, min::gen v )
+{
+    if ( min::is_direct_str ( v ) )
+    {
+        union { char buf[8]; min::uns64 str; } u;
+	u.str = min::direct_str_of ( v );
+	return ::strcmp ( p, u.buf );
+    }
+
+    min::stub * s = min::stub_of ( v );
+    if ( type_of ( s ) == min::SHORT_STR )
+    {
+	if ( s->v.c8[7] )
+	{
+	    int r = ::strncmp ( p, s->v.c8, 8 );
+	    if ( r != 0 )
+	        return r;
+	    else
+	        return ::strcmp ( p + 8, "" );
+	}
+	return ::strcmp ( p, s->v.c8 );
+    }
+    else
+    {
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	return ::strcmp
+	    ( p, min::unprotected::str_of
+		   ( unprotected::long_str_of ( s ) ) );
+    }
+}
+
+int min::strncmp
+	( const char * p, min::gen v, unsigned n )
+{
+    if ( min::is_direct_str ( v ) )
+    {
+        union { char buf[8]; min::uns64 str; } u;
+	u.str = min::direct_str_of ( v );
+	return ::strncmp ( p, u.buf, n );
+    }
+
+    min::stub * s = min::stub_of ( v );
+    if ( type_of ( s ) == min::SHORT_STR )
+    {
+	if ( s->v.c8[7] && n >= 9 )
+	{
+	    int r = ::strncmp ( p, s->v.c8, 8 );
+	    if ( r != 0 )
+	        return r;
+	    else
+	        return ::strcmp ( p + 8, "" );
+	}
+	return ::strncmp ( p, s->v.c8, n );
+    }
+    else
+    {
+	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	return ::strncmp
+	    ( p, min::unprotected::str_of
+		   ( unprotected::long_str_of ( s ) ),
+		 n );
+    }
+}
+
 // Perform the new_str_stub_gen operation where n is the
 // exact number of characters in p that are to be used
 // (instead of the maximum).  There must be no NULs in
@@ -391,7 +455,7 @@ min::gen MUP::new_str_stub_gen_internal
 	    (MUP::long_str *) ( b + 1 );
 	ls->length = n;
 	ls->hash = hash;
-	::strcpy ( MUP::writable_str_of ( ls ), p );
+	::strcpy ( (char *) MUP::str_of ( ls ), p );
     }
     MUP::set_control_of
 	( s,

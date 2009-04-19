@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 14:18:18 EDT 2009
+// Date:	Sun Apr 19 15:13:02 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 18:49:53 $
+//   $Date: 2009/04/19 19:26:38 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.77 $
+//   $Revision: 1.78 $
 
 // Table of Contents:
 //
@@ -1427,8 +1427,15 @@ int main ()
 	    ( min::hash ( strgen3 ) == s3hash );
 	min::strcpy ( buffer, strgen3 );
 	MIN_ASSERT ( strcmp ( buffer, s3 ) == 0 );
+	MIN_ASSERT ( min::strcmp ( s3, strgen3 ) == 0 );
 	MIN_ASSERT
 	    ( min::new_str_gen ( buffer ) == strgen3 );
+	buffer[2] = 0;
+	min::strncpy ( buffer, strgen3, 2 );
+	MIN_ASSERT ( buffer[2] == 0 );
+	MIN_ASSERT
+	    (    min::strncmp ( buffer, strgen3, 2 )
+	      == 0 );
 	MIN_ASSERT ( min::strlen ( strgen7 ) == 7 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen7 ) == s7hash );
@@ -1436,8 +1443,15 @@ int main ()
 	    ( min::hash ( strgen7 ) == s7hash );
 	min::strcpy ( buffer, strgen7 );
 	MIN_ASSERT ( strcmp ( buffer, s7 ) == 0 );
+	MIN_ASSERT ( min::strcmp ( s7, strgen7 ) == 0 );
 	MIN_ASSERT
 	    ( min::new_str_gen ( buffer ) == strgen7 );
+	buffer[6] = 0;
+	min::strncpy ( buffer, strgen7, 6 );
+	MIN_ASSERT ( buffer[6] == 0 );
+	MIN_ASSERT
+	    (    min::strncmp ( buffer, strgen7, 6 )
+	      == 0 );
 	MIN_ASSERT ( min::strlen ( strgen8 ) == 8 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen8 ) == s8hash );
@@ -1445,8 +1459,15 @@ int main ()
 	    ( min::hash ( strgen8 ) == s8hash );
 	min::strcpy ( buffer, strgen8 );
 	MIN_ASSERT ( strcmp ( buffer, s8 ) == 0 );
+	MIN_ASSERT ( min::strcmp ( s8, strgen8 ) == 0 );
 	MIN_ASSERT
 	    ( min::new_str_gen ( buffer ) == strgen8 );
+	buffer[7] = 0;
+	min::strncpy ( buffer, strgen8, 7 );
+	MIN_ASSERT ( buffer[7] == 0 );
+	MIN_ASSERT
+	    (    min::strncmp ( buffer, strgen8, 7 )
+	      == 0 );
 	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen13 ) == s13hash );
@@ -1455,7 +1476,15 @@ int main ()
 	min::strcpy ( buffer, strgen13 );
 	MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
 	MIN_ASSERT
+	    ( min::strcmp ( s13, strgen13 ) == 0 );
+	MIN_ASSERT
 	    ( min::new_str_gen ( buffer ) == strgen13 );
+	buffer[12] = 0;
+	min::strncpy ( buffer, strgen13, 12 );
+	MIN_ASSERT ( buffer[12] == 0 );
+	MIN_ASSERT
+	    (    min::strncmp ( buffer, strgen13, 12 )
+	      == 0 );
 
 	cout << endl;
 	cout << "Test string pointers:" << endl;

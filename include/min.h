@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 14:17:12 EDT 2009
+// Date:	Sun Apr 19 15:05:05 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 18:51:14 $
+//   $Date: 2009/04/19 19:27:20 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.149 $
+//   $Revision: 1.150 $
 
 // Table of Contents:
 //
@@ -1871,27 +1871,6 @@ namespace min { namespace unprotected {
 	return (const char *) str
 	       + sizeof ( min::unprotected::long_str );
     }
-    inline char * writable_str_of
-    	    ( min::unprotected::long_str * str )
-    {
-	return (char *) str
-	       + sizeof ( min::unprotected::long_str );
-    }
-    inline void set_length_of
-	    ( min::unprotected::long_str * str,
-	      unsigned length )
-    {
-	str->length = length;
-    }
-    inline void set_hash_of
-	    ( min::unprotected::long_str * str,
-	      unsigned hash )
-    {
-	str->hash = hash;
-    }
-} }
-
-namespace min {
 
     inline unsigned length_of
     	    ( min::unprotected::long_str * str )
@@ -1903,6 +1882,9 @@ namespace min {
     {
 	return str->hash;
     }
+} }
+
+namespace min {
 
     // Functions to compute the hash of an arbitrary
     // char string.
@@ -1916,6 +1898,9 @@ namespace min {
     min::uns32 strhash ( min::gen v );
     char * strcpy ( char * p, min::gen v );
     char * strncpy ( char * p, min::gen v, unsigned n );
+    int strcmp ( const char * p, min::gen v );
+    int strncmp
+        ( const char * p, min::gen v, unsigned n );
 
     // String Pointers:
 
