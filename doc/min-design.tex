@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 19, 2009}
+\date{April 20, 2009}
  
 \maketitle
 
@@ -1849,9 +1849,9 @@ and the length and hash of the string.
 \LABEL{MUP::LONG_STR_OF} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
-\verb|unsigned min::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
+\verb|unsigned MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::LENGTH_OF_LONG_STR} \\
-\verb|unsigned min::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
+\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
 \end{tabular}\end{center}
 
@@ -4847,6 +4847,7 @@ struct min
 \renewcommand{\TTNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
+\renewcommand{\ttkey}[1]{{\tt ~~#1~~}}
 \newcommand{\ARGBREAK}{\\&{\tt ~~~~~}}
 \newcommand{\INDEXHEADER}[1]{{\bf #1}:\vspace{1ex}}
 \newlength{\TABULARLEN}
@@ -5193,7 +5194,7 @@ struct min
 
 \end{indpar}
 
-\INDEXHEADER{Number Stub Protected Declarations}
+\INDEXHEADER{Number Protected Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -5226,9 +5227,24 @@ struct min
 
 
 
-\INDEXHEADER{String Stub Protected Declarations}
+\INDEXHEADER{String Protected Declarations}
 
 \begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
+\LABEL{MIN::NEW_STR_GEN} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( const char * p, unsigned n )|
+\LABEL{MIN::NEW_STR_GEN_WITH_N} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
+\LABEL{MIN::IS_STR_OF_GEN} \\
+\end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
@@ -5257,21 +5273,6 @@ struct min
 \LABEL{MIN::STRNHASH} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.8in}
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
-\LABEL{MIN::IS_STR_OF_GEN} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|min::gen min::|
-    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
-\LABEL{MIN::NEW_STR_GEN} \\
-\verb|min::gen min::|
-    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb| ( const char * p, unsigned n )|
-\LABEL{MIN::NEW_STR_GEN_WITH_N} \\
-\end{TABULAR}
-
 \end{indpar}
 
 \INDEXHEADER{String Pointer Declarations}
@@ -5281,17 +5282,43 @@ struct min
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| ( min::gen v )|
 \LABEL{MIN::STR_POINTER_OF_GEN} \\
-\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::str_pointer & sp )|
-\LABEL{MUP::STR_OF_STR_POINTER} \\
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
-      \verb| ( MUP::str_pointer & sp, min::gen v )|
-\LABEL{MIN::INIT_OF_STR_POINTER} \\
+      \verb| ( min::str_pointer & sp, min::gen v )|
+\LABEL{MIN::INIT_OF_STR_POINTER} \\[1ex]
+\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::str_pointer & sp )|
+\LABEL{MIN::STRLEN_OF_STR_POINTER} \\
+\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::str_pointer & sp )|
+\LABEL{MIN::STRHASH_OF_STR_POINTER} \\[1ex]
+\verb|char * min::| & \MINKEY{strcpy}\ARGBREAK
+      \verb| ( char * p, min::str_pointer & sp )|
+\LABEL{MIN::STRCPY_OF_STR_POINTER} \\
+\verb|char * min::|
+    & \MINKEY{strncpy}\ARGBREAK
+      \verb| ( char * p,|\ARGBREAK
+      \verb|   min::str_pointer & sp, unsigned n )|
+\LABEL{MIN::STRNCPY_OF_STR_POINTER} \\[1ex]
+\verb|int min::|
+    & \MINKEY{strcmp}\ARGBREAK
+      \verb| ( const char * p,|\ARGBREAK
+      \verb|   min::str_pointer & sp )|
+\LABEL{MIN::STRCMP_OF_STR_POINTER} \\
+\verb|int min::|
+    & \MINKEY{strncmp}\ARGBREAK
+      \verb|( const char * p,|\ARGBREAK
+      \verb|  min::str_pointer & sp, unsigned n )|
+\LABEL{MIN::STRNCMP_OF_STR_POINTER} \\[1ex]
+\verb|const char      |
+    & \ttkey{operator [ ]}\ARGBREAK
+      \verb| ( min::str_pointer & sp, int index )|
+\LABEL{MUP::[]_OF_STR_POINTER} \\
+\verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::str_pointer & sp )|
+\LABEL{MUP::STR_OF_STR_POINTER} \\
 \end{TABULAR}
 
 \end{indpar}
 
-\INDEXHEADER{String Stub Unprotected Declarations}
+\INDEXHEADER{String Unprotected Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -5305,17 +5332,17 @@ struct min
 \verb|MUP::long_str * MUP::|
     & \MUPKEY{long\_str\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::LONG_STR_OF} \\
-\verb|unsigned min::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MUP::LENGTH_OF_LONG_STR} \\
-\verb|unsigned min::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
-\LABEL{MUP::HASH_OF_LONG_STR} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
+\verb|unsigned MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
+\LABEL{MUP::LENGTH_OF_LONG_STR} \\
+\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
+\LABEL{MUP::HASH_OF_LONG_STR} \\
 \end{TABULAR}
 
 \end{indpar}
 
-\INDEXHEADER{Label Stub Declarations}
+\INDEXHEADER{Label Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -5358,7 +5385,7 @@ struct min
 
 \end{indpar}
 
-\INDEXHEADER{Object Stub Declarations}
+\INDEXHEADER{Object Declarations}
 
 \begin{indpar}[0.2in]
 
