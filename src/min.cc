@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Apr 19 15:05:27 EDT 2009
+// Date:	Fri Apr 24 09:15:56 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/19 19:27:34 $
+//   $Date: 2009/04/24 15:06:03 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.86 $
+//   $Revision: 1.87 $
 
 // Table of Contents:
 //
@@ -552,8 +552,7 @@ min::gen min::new_lab_gen
 
 namespace min { namespace unprotected {
 
-    min::uns32 hash_table_size
-	[HASH_TABLE_SIZE_CODE_SIZE] =
+    min::uns32 hash_size [HASH_SIZE_CODE_SIZE] =
     {
 	// Except for the first 2 values, these
 	// sizes are primes chosen so that none
@@ -630,28 +629,28 @@ namespace min { namespace unprotected {
 
 bool min::use_obj_aux_stubs = false;
 
-unsigned min::short_obj_hash_table_size ( unsigned u )
+unsigned min::short_obj_hash_size ( unsigned u )
 {
     if ( u >= ( 1 << 16 ) - MUP::short_obj_header_size )
         u = ( 1 << 16 ) - MUP::short_obj_header_size;
 
     // Invariant:
     //
-    //    MUP::hash_table_size[hi] >= u || hi = 255
+    //    MUP::hash_size[hi] >= u || hi = 255
     //
     int lo = 0, hi = 255;
     if ( u <= 1 ) hi = u;
     else while ( true )
     {
         int mid = ( lo + hi ) / 2;
-	if ( MUP::hash_table_size[mid] >= u ) hi = mid;
+	if ( MUP::hash_size[mid] >= u ) hi = mid;
 	else if ( lo == mid ) break;
 	else lo = mid;
     }
-    min::uns32 size = MUP::hash_table_size[hi];
-    if ( size >= ( 1 << 16 )
-               - MUP::short_obj_header_size )
-	return MUP::hash_table_size[--hi];
+    min::uns32 size = MUP::hash_size[hi];
+    if ( size >=   ( 1 << 16 )
+                 - MUP::short_obj_header_size )
+	return MUP::hash_size[--hi];
     else
 	return size;
 }
@@ -662,22 +661,22 @@ unsigned min::short_obj_total_size ( unsigned u )
     else return ( 1 << 16 ) - 1;
 }
 
-unsigned min::long_obj_hash_table_size ( unsigned u )
+unsigned min::long_obj_hash_size ( unsigned u )
 {
     // Invariant:
     //
-    //    MUP::hash_table_size[hi] >= u || hi = 255
+    //    MUP::hash_size[hi] >= u || hi = 255
     //
     int lo = 0, hi = 255;
     if ( u <= 1 ) hi = u;
     else while ( true )
     {
         int mid = ( lo + hi ) / 2;
-	if ( MUP::hash_table_size[mid] >= u ) hi = mid;
+	if ( MUP::hash_size[mid] >= u ) hi = mid;
 	else if ( lo == mid ) break;
 	else lo = mid;
     }
-    return MUP::hash_table_size[hi];
+    return MUP::hash_size[hi];
 }
 
 unsigned min::long_obj_total_size ( unsigned u )
@@ -690,35 +689,32 @@ unsigned min::long_obj_total_size ( unsigned u )
 }
 
 min::gen min::new_obj_gen
-	    ( unsigned hash_table_size,
-	      unsigned unused_area_size )
+	    ( unsigned hash_size,
+	      unsigned unused_size )
 {
-    MIN_ASSERT (    hash_table_size
-                 <= MUP::hash_table_size[255] );
+    MIN_ASSERT ( hash_size <= MUP::hash_size[255] );
 
     // Invariant:
     //
-    //    MUP::hash_table_size[hi] >= u || hi = 255
+    //    MUP::hash_size[hi] >= u || hi = 255
     //
     int lo = 0, hi = 255;
-    if ( hash_table_size <= 1 ) hi = hash_table_size;
+    if ( hash_size <= 1 ) hi = hash_size;
     else while ( true )
     {
         int mid = ( lo + hi ) / 2;
-	if (    MUP::hash_table_size[mid]
-	     >= hash_table_size )
+	if ( MUP::hash_size[mid] >= hash_size )
 	    hi = mid;
 	else if ( lo == mid ) break;
 	else lo = mid;
     }
-    hash_table_size = MUP::hash_table_size[hi];
+    hash_size = MUP::hash_size[hi];
 
-    MIN_ASSERT (    unused_area_size
+    MIN_ASSERT (    unused_size
                  <=   min::uns32(-1)
-		    - hash_table_size
+		    - hash_size
 		    - MUP::long_obj_header_size );
-    unsigned total_size =
-        unused_area_size + hash_table_size;
+    unsigned total_size = unused_size + hash_size;
     min::stub * s = MUP::new_stub();
     min::gen * p;
     if (   total_size + MUP::short_obj_header_size
@@ -735,11 +731,11 @@ min::gen min::new_obj_gen
 	MUP::set_pointer_of ( s, so );
 	MUP::set_type_of ( s, min::SHORT_OBJ );
 	so->flags = hi;
-	so->unused_area_offset =
+	so->unused_offset =
 	       MUP::short_obj_header_size
-	     + hash_table_size;
-	so->aux_area_offset = total_size;
-	so->total_size	    = total_size;
+	     + hash_size;
+	so->aux_offset	= total_size;
+	so->total_size  = total_size;
 	p = (min::gen *) so
 	  + MUP::short_obj_header_size;
     }
@@ -756,15 +752,15 @@ min::gen min::new_obj_gen
 	MUP::set_pointer_of ( s, lo );
 	MUP::set_type_of ( s, min::LONG_OBJ );
 	lo->flags = hi;
-	lo->unused_area_offset =
+	lo->unused_offset =
 	       MUP::long_obj_header_size
-	     + hash_table_size;
-	lo->aux_area_offset = total_size;
-	lo->total_size	    = total_size;
+	     + hash_size;
+	lo->aux_offset	= total_size;
+	lo->total_size  = total_size;
 	p = (min::gen *) lo
 	  + MUP::long_obj_header_size;
     }
-    min::gen * endp = p + hash_table_size;
+    min::gen * endp = p + hash_size;
     while ( p < endp ) * p ++ = min::LIST_END;
     return min::new_gen ( s );
 }
@@ -854,19 +850,19 @@ void min::insert_before
 	( MUP::insertable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
-    unsigned unused_area_offset;
-    unsigned aux_area_offset;
+    unsigned unused_offset;
+    unsigned aux_offset;
 
     if ( n == 0 ) return;
     else if ( lp.so )
     {
-	unused_area_offset = lp.so->unused_area_offset;
-	aux_area_offset = lp.so->aux_area_offset;
+	unused_offset	= lp.so->unused_offset;
+	aux_offset	= lp.so->aux_offset;
     }
     else if ( lp.lo )
     {
-	unused_area_offset = lp.lo->unused_area_offset;
-	aux_area_offset = lp.lo->aux_area_offset;
+	unused_offset	= lp.lo->unused_offset;
+	aux_offset	= lp.lo->aux_offset;
     }
     else
 	MIN_ABORT ( "lp list has not been started" );
@@ -882,7 +878,7 @@ void min::insert_before
     if ( lp.current == min::LIST_END )
     {
 	// Contiguous means the previous pointer does
-	// not exists and current_index == aux_area_
+	// not exists and current_index == aux_
 	// offset so we can add elements by copying them
 	// into tha aux area just before current_index.
 	//
@@ -905,14 +901,14 @@ void min::insert_before
 	        ! lp.previous_is_sublist_head;
 	else if ( lp.previous_stub == NULL )
 	    contiguous =
-		( lp.current_index == aux_area_offset );
+		( lp.current_index == aux_offset );
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if (    lp.use_obj_aux_stubs
-		 &&     unused_area_offset
+		 &&     unused_offset
 		      + n + ( ! contiguous )
 		      + previous_is_list_head
-		    > aux_area_offset )
+		    > aux_offset )
 	    {
 	        // Not enough aux area available for
 		// all the new elements, and aux stubs
@@ -979,10 +975,10 @@ void min::insert_before
 	    }
 	    else
 #	endif
-		MIN_ASSERT (      unused_area_offset
+		MIN_ASSERT (      unused_offset
 			        + n + ( ! contiguous )
 		                + previous_is_list_head
-			     <= aux_area_offset );
+			     <= aux_offset );
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
@@ -990,7 +986,7 @@ void min::insert_before
 	        if ( lp.previous_is_sublist_head )
 		{
 		    fgen = min::new_list_aux_gen
-			       ( aux_area_offset - 1 );
+			       ( aux_offset - 1 );
 		    MUP::set_gen_of
 			( lp.previous_stub, fgen );
 		}
@@ -1003,7 +999,7 @@ void min::insert_before
 		        ( lp.previous_stub,
 			  MUP::new_control
 			      ( type,
-			        aux_area_offset - 1 ) );
+			        aux_offset - 1 ) );
 		}
 		lp.previous_stub = NULL;
 	    }
@@ -1013,36 +1009,36 @@ void min::insert_before
 	{
 	    if ( previous_is_list_head )
 	    {
-	        lp.base[-- aux_area_offset] =
+	        lp.base[-- aux_offset] =
 		    lp.base[lp.previous_index];
 		fgen = min::new_list_aux_gen
-		    ( aux_area_offset );
+		    ( aux_offset );
 	    }
 	    else
 		fgen = min::new_sublist_aux_gen
-		    ( aux_area_offset - 1 );
+		    ( aux_offset - 1 );
 	    lp.base[lp.previous_index] = fgen;
 	}
 	else if ( contiguous )
-	    ++ aux_area_offset;
+	    ++ aux_offset;
 	else
 	{
 	    fgen = min::new_list_aux_gen
-		       ( aux_area_offset - 1 );
+		       ( aux_offset - 1 );
 	    lp.base[lp.current_index] = fgen;
 	}
 
 	while ( n -- )
-	    lp.base[-- aux_area_offset] = * p ++;
+	    lp.base[-- aux_offset] = * p ++;
 	    
-	lp.base[-- aux_area_offset] = min::LIST_END;
-	lp.current_index = aux_area_offset;
+	lp.base[-- aux_offset] = min::LIST_END;
+	lp.current_index = aux_offset;
 	lp.previous_index = 0;
 	lp.previous_is_sublist_head = false;
 	if ( lp.so )
-	    lp.so->aux_area_offset = aux_area_offset;
+	    lp.so->aux_offset = aux_offset;
 	else
-	    lp.lo->aux_area_offset = aux_area_offset;
+	    lp.lo->aux_offset = aux_offset;
 	return;
     }
 
@@ -1059,9 +1055,9 @@ void min::insert_before
         if ( lp.previous_stub != NULL )
 	    previous = true;
 	if (    lp.use_obj_aux_stubs
-	     &&     unused_area_offset
+	     &&     unused_offset
 		  + n + 1 + ( ! previous )
-		> aux_area_offset )
+		> aux_offset )
 	{
 	    // Not enough aux area available for all the
 	    // new elements, and aux stubs are allowed.
@@ -1087,7 +1083,7 @@ void min::insert_before
 		end = MUP::new_control
 		    ( 0, s, MUP::STUB_POINTER );
 		unsigned next = lp.current_index;
-		if ( next < unused_area_offset )
+		if ( next < unused_offset )
 		    next = 0;
 		else if (    lp.base[-- next]
 		          == min::LIST_END )
@@ -1157,20 +1153,20 @@ void min::insert_before
 	}
 	else
 #   endif
-	    MIN_ASSERT (      unused_area_offset
+	    MIN_ASSERT (      unused_offset
 			    + n + 1 + ( ! previous )
-			 <= aux_area_offset );
+			 <= aux_offset );
 
-    unsigned first = aux_area_offset - 1;
+    unsigned first = aux_offset - 1;
 
     while ( n -- )
-	lp.base[-- aux_area_offset] = * p ++;
+	lp.base[-- aux_offset] = * p ++;
 
 #   if MIN_USES_OBJ_AUX_STUBS
 	if ( lp.current_stub != NULL )
 	{
 	    MIN_ASSERT ( previous );
-	    lp.base[-- aux_area_offset] =
+	    lp.base[-- aux_offset] =
 		min::new_gen ( lp.current_stub );
 	    MUP::set_type_of
 		( lp.current_stub, min::LIST_AUX );
@@ -1181,8 +1177,8 @@ void min::insert_before
 	unsigned next = lp.current_index;
         if ( ! previous )
 	{
-	    lp.base[-- aux_area_offset] = lp.current;
-	    if ( next < unused_area_offset )
+	    lp.base[-- aux_offset] = lp.current;
+	    if ( next < unused_offset )
 	        next = 0;
 	    else if (    lp.base[-- next]
 	              == min::LIST_END )
@@ -1197,7 +1193,7 @@ void min::insert_before
 		next = 0;
 	    }
 	}
-        lp.base[-- aux_area_offset] =
+        lp.base[-- aux_offset] =
 	    min::new_list_aux_gen ( next );
     }
 
@@ -1220,7 +1216,7 @@ void min::insert_before
 		      MUP::new_control
 			  ( type, first ) );
 	    }
-	    lp.previous_index = aux_area_offset;
+	    lp.previous_index = aux_offset;
 	    lp.previous_stub = NULL;
 	    lp.previous_is_sublist_head = false;
 	}
@@ -1232,7 +1228,7 @@ void min::insert_before
 	    MUP::renew_gen
 		( lp.base[lp.previous_index],
 		  first );
-	lp.previous_index = aux_area_offset;
+	lp.previous_index = aux_offset;
 	lp.previous_is_sublist_head = false;
     }
     else
@@ -1240,32 +1236,32 @@ void min::insert_before
 	MIN_ASSERT ( lp.current_index != 0 );
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( first );
-	lp.current_index = aux_area_offset + 1;
+	lp.current_index = aux_offset + 1;
     }
 
     if ( lp.so )
-	lp.so->aux_area_offset = aux_area_offset;
+	lp.so->aux_offset = aux_offset;
     else
-	lp.lo->aux_area_offset = aux_area_offset;
+	lp.lo->aux_offset = aux_offset;
 }
 
 void min::insert_after
 	( MUP::insertable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
-    unsigned unused_area_offset;
-    unsigned aux_area_offset;
+    unsigned unused_offset;
+    unsigned aux_offset;
 
     if ( n == 0 ) return;
     else if ( lp.so )
     {
-	unused_area_offset = lp.so->unused_area_offset;
-	aux_area_offset = lp.so->aux_area_offset;
+	unused_offset = lp.so->unused_offset;
+	aux_offset = lp.so->aux_offset;
     }
     else if ( lp.lo )
     {
-	unused_area_offset = lp.lo->unused_area_offset;
-	aux_area_offset = lp.lo->aux_area_offset;
+	unused_offset = lp.lo->unused_offset;
+	aux_offset = lp.lo->aux_offset;
     }
     else
 	MIN_ABORT ( "lp list has not been started" );
@@ -1285,9 +1281,9 @@ void min::insert_after
 	    previous = true;
 
 	if (    lp.use_obj_aux_stubs
-	     &&     unused_area_offset
+	     &&     unused_offset
 		  + ( n + 1 + ! previous )
-		> aux_area_offset )
+		> aux_offset )
 	{
 	    // Not enough aux area available for
 	    // all the new elements, and aux stubs
@@ -1319,7 +1315,7 @@ void min::insert_after
 		       min::LIST_AUX;
 	    unsigned next =
 	        lp.current_index - ! previous;
-	    if ( lp.current_index < unused_area_offset )
+	    if ( lp.current_index < unused_offset )
 	        next = 0;
 	    min::uns64 end =
 		MUP::new_control ( type, next );
@@ -1390,30 +1386,30 @@ void min::insert_after
 
     // Insertion will use aux area.
 
-    unsigned first = aux_area_offset - 1;
+    unsigned first = aux_offset - 1;
 
     if ( lp.current_index != 0 )
-	lp.base[-- aux_area_offset] = lp.current;
+	lp.base[-- aux_offset] = lp.current;
 
     // Copy all the new elements BUT the last new
     // element.
     //
     while ( -- n )
-	lp.base[-- aux_area_offset] = * p ++;
+	lp.base[-- aux_offset] = * p ++;
 
 #   if MIN_USES_OBJ_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
 	MIN_ASSERT ( previous );
-	lp.base[-- aux_area_offset] = * p ++;
+	lp.base[-- aux_offset] = * p ++;
 	min::uns64 c =
 	    MUP::control_of ( lp.current_stub );
 	if ( c & MUP::STUB_POINTER )
-	    lp.base[-- aux_area_offset] =
+	    lp.base[-- aux_offset] =
 		min::new_gen
 		    ( MUP::stub_of_control ( c ) );
 	else
-	    lp.base[-- aux_area_offset] =
+	    lp.base[-- aux_offset] =
 	        min::new_list_aux_gen
 		    ( MUP::value_of_control ( c ) );
 	MUP::set_control_of
@@ -1430,7 +1426,7 @@ void min::insert_after
 	// element to the old current element.
 	//
 
-	lp.base[-- aux_area_offset] =
+	lp.base[-- aux_offset] =
 	    min::new_list_aux_gen ( lp.current_index );
 	lp.base[lp.current_index] = * p ++;
 	lp.current_index = first;
@@ -1472,9 +1468,9 @@ void min::insert_after
 	//
 	MIN_ASSERT ( lp.current_index != 0 );
 
-	lp.base[-- aux_area_offset] = * p ++;
+	lp.base[-- aux_offset] = * p ++;
 	unsigned next = lp.current_index;
-	if ( next < unused_area_offset )
+	if ( next < unused_offset )
 	    next = 0;
 	else if ( lp.base[-- next] == min::LIST_END )
 	{
@@ -1487,7 +1483,7 @@ void min::insert_after
 
 	    next = 0;
 	}
-	lp.base[-- aux_area_offset] =
+	lp.base[-- aux_offset] =
 	    min::new_list_aux_gen ( next );
 
 	lp.base[lp.current_index] =
@@ -1496,9 +1492,9 @@ void min::insert_after
     }
 
     if ( lp.so )
-	lp.so->aux_area_offset = aux_area_offset;
+	lp.so->aux_offset = aux_offset;
     else
-	lp.lo->aux_area_offset = aux_area_offset;
+	lp.lo->aux_offset = aux_offset;
 }
 
 unsigned min::remove
@@ -1509,11 +1505,11 @@ unsigned min::remove
     // to NONE.  Note some of these may be pointers
     // to orphaned sublist aux stubs.
 
-    unsigned unused_area_offset;
+    unsigned unused_offset;
     if ( lp.so )
-	unused_area_offset = lp.so->unused_area_offset;
+	unused_offset = lp.so->unused_offset;
     else if ( lp.lo )
-	unused_area_offset = lp.lo->unused_area_offset;
+	unused_offset = lp.lo->unused_offset;
     else
 	MIN_ABORT ( "lp list has not been started" );
 
@@ -1521,7 +1517,7 @@ unsigned min::remove
         return 0;
     else if ( lp.current_index != 0
               &&
-	      lp.current_index < unused_area_offset )
+	      lp.current_index < unused_offset )
     {
 	// Special case: deleting list head of a list
 	// with just 1 element.
@@ -1760,7 +1756,7 @@ unsigned min::remove
 	else
 	{
 	    MIN_ASSERT
-	        ( current_index >= unused_area_offset );
+	        ( current_index >= unused_offset );
 	    lp.base[current_index] =
 		min::new_list_aux_gen
 		    ( lp.current_index );
@@ -1862,8 +1858,7 @@ void MINT::insert_reserve
 	     &&
 	     ( i = (int) f ) == f
 	     &&
-	     i < MUP::attribute_vector_size_of
-			( ap.dlp ) )
+	     i < MUP::attr_size_of ( ap.dlp ) )
 	{
 	    MUP::start_vector ( ap.dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
@@ -1879,7 +1874,7 @@ void MINT::insert_reserve
 	else
 	{
 	    ap.index = min::hash ( element[0] )
-	             % MUP::hash_table_size_of
+	             % MUP::hash_size_of
 		              ( ap.dlp );
 	    ap.flags = 0;
 
@@ -2069,8 +2064,7 @@ void MINT::insert_reserve
 		 &&
 		 0 <= i
 		 &&
-		 i < MUP::attribute_vector_size_of
-			    ( ap.dlp ) )
+		 i < MUP::attr_size_of ( ap.dlp ) )
 	    {
 		MUP::start_vector ( ap.dlp, i );
 		start_copy ( ap.locate_dlp, ap.dlp );
@@ -2082,7 +2076,7 @@ void MINT::insert_reserve
 	}
 
 	ap.index = min::hash ( name )
-		 % MUP::hash_table_size_of
+		 % MUP::hash_size_of
 			  ( ap.dlp );
 	MUP::start_hash
 	    ( ap.dlp, ap.index );
@@ -2890,8 +2884,7 @@ void MINT::set_more_flags
 		 &&
 		 ( i = (int) f ) == f
 		 &&
-		 i < MUP::attribute_vector_size_of
-				( lp ) )
+		 i < MUP::attr_size_of ( lp ) )
 	    {
 		wap.flags = ap_type::IN_VECTOR;
 		wap.index = i;
@@ -2902,7 +2895,7 @@ void MINT::set_more_flags
 
 		wap.flags = 0;
 		wap.index = min::hash ( element[0] )
-			 % MUP::hash_table_size_of
+			 % MUP::hash_size_of
 			      ( lp );
 		MUP::start_hash ( lp, wap.index );
 		min::gen elements[2] =
