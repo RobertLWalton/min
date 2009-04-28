@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr 28 04:26:26 EDT 2009
+// Date:	Tue Apr 28 05:27:45 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/28 09:26:47 $
+//   $Date: 2009/04/28 09:28:07 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.154 $
+//   $Revision: 1.155 $
 
 // Table of Contents:
 //
@@ -302,6 +302,9 @@ namespace min { namespace internal {
 	       (min::internal::pointer_uns) p;
     }
 
+    // Given a ref to an uns64 we need to convert it to
+    // a ref to a pointer.
+
 #   if MIN_POINTER_BITS <= 32
 	inline void * & uns64_ref_to_pointer_ref
 	    ( min::uns64 & v )
@@ -315,11 +318,6 @@ namespace min { namespace internal {
 	    return * (void **) & v;
 	}
 #   endif
-
-    // Given a ref to an uns64 we need to convert it to
-    // a ref to a pointer.
-
-
 
 #   if MIN_IS_COMPACT
 
