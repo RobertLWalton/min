@@ -982,21 +982,19 @@ Finish Labels Test!
 Start Objects Test!
 
 Test object size functions:
-smaxht: 64453
-min_interface_test.cc:XXXX assert:
-    smaxht >= 19 * ( 1 << 16 ) / 20 - 1 true.
-lmaxht: 4064881
+smaxht: 107
+lmaxht: 4294967295
 min_interface_test.cc:XXXX assert:
     lmaxht >= 4000000 true.
 
 Test short objects:
 MUP::gc_expand_stub_free_list (1) called
-add_to_free_body (4832) called
+add_to_free_body (4848) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( sstub ) == min::SHORT_OBJ true.
-sh: 1 sht: 101 sua: 500 sav: 0 saa: 0 st: 602
+sh: 1 sht: 103 sua: 500 sav: 0 saa: 0 st: 604
 min_interface_test.cc:XXXX assert:
     sht >= 100 true.
 min_interface_test.cc:XXXX assert:
@@ -1010,12 +1008,12 @@ min_interface_test.cc:XXXX assert:
 
 Test long objects:
 MUP::gc_expand_stub_free_list (1) called
-add_to_free_body (618504) called
+add_to_free_body (616520) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( lstub ) == min::LONG_OBJ true.
-lh: 2 lht: 7309 lua: 70000 lav: 0 laa: 0 lt: 77311
+lh: 2 lht: 7061 lua: 70000 lav: 0 laa: 0 lt: 77063
 min_interface_test.cc:XXXX assert:
     lht >= 7000 true.
 min_interface_test.cc:XXXX assert:
@@ -1340,7 +1338,7 @@ Finish Object Vector Level Test!
 Start Object List Level Test!
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-VSIZE 250 VORG 102 USIZE 0
+VSIZE 250 VORG 104 USIZE 0
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1852,7 +1850,7 @@ min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
-VSIZE 35000 VORG 7311 USIZE 0
+VSIZE 35000 VORG 7063 USIZE 0
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
