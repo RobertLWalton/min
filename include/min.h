@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr 28 05:27:45 EDT 2009
+// Date:	Wed Apr 29 01:26:31 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/28 09:28:07 $
+//   $Date: 2009/04/29 15:19:09 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.155 $
+//   $Revision: 1.156 $
 
 // Table of Contents:
 //
@@ -2317,31 +2317,45 @@ namespace min {
 
 namespace min { namespace unprotected {
 
-    // hash_size[I] is the size of the hash table in an
-    // object body, in min::gen units.  I is the low
-    // order HASH_SIZE_CODE_BITS of the object header
-    // flags word.
-    // 
-    const unsigned HASH_SIZE_CODE_BITS = 8;
-    const unsigned HASH_SIZE_CODE_SIZE =
-	    1 << HASH_SIZE_CODE_BITS;
-    const unsigned HASH_SIZE_CODE_MASK =
-	    HASH_SIZE_CODE_SIZE - 1;
-    extern min::uns32 hash_size [HASH_SIZE_CODE_SIZE];
-
-    // The variable vector size is the next lowest
-    // XXX_OBJ_VAR_SIZE_BITS of the flags word.
+    // Flags Bits:
     //
-    const unsigned SHORT_OBJ_VAR_SIZE_BITS = 8;
-    const unsigned SHORT_OBJ_VAR_SIZE_MASK =
-        ( 1 << SHORT_OBJ_VAR_SIZE_BITS ) - 1;
-    const unsigned LONG_OBJ_VAR_SIZE_BITS = 16;
-    const unsigned LONG_OBJ_VAR_SIZE_MASK =
-        ( 1 << LONG_OBJ_VAR_SIZE_BITS ) - 1;
+    //    0:		OBJ_OPEN
+    //    1:    	OBJ_INSERT_MODE
+    //    2:		reserved for future use
+    //    3-4:		long objects only,
+    //			reserved for future use
+    //
+    // The flag bits are the low order XXX_OBJ_FLAG_BITS
+    // of the flags, and the higher order bits are the
+    // hash size code I.
+    //
+    // hash_size[I] is the size of the hash table in an
+    // object body, in min::gen units.
+    //
+    // OBJ_OPEN is on if a vec_pointer, updatable_vec_
+    // pointer, or insertable_vec_pointer exists for the
+    // object.
+    //
+    // OBJ_INSERT_MODE is on if an insertable_vec_
+    // pointer exists for the object.
+    // 
+    const unsigned OBJ_OPEN = 1;
+    const unsigned OBJ_INSERT_MODE = 2;
+
+    const unsigned SHORT_OBJ_FLAG_BITS = 3;
+    const unsigned LONG_OBJ_FLAG_BITS = 5;
+
+    const unsigned SHORT_OBJ_HASH_SIZE_CODE_BITS =
+        8 - SHORT_OBJ_FLAG_BITS;
+    const unsigned LONG_OBJ_HASH_SIZE_CODE_BITS =
+        16 - LONG_OBJ_FLAG_BITS;
+
+    extern min::uns32 hash_size[];
 
     struct short_obj
     {
-        min::uns16	flags;
+        min::uns8	flags;
+        min::uns8	hash_offset;
         min::uns16	unused_offset;
         min::uns16	aux_offset;
         min::uns16	total_size;
@@ -2352,7 +2366,8 @@ namespace min { namespace unprotected {
 
     struct long_obj
     {
-        min::uns32	flags;
+        min::uns16	flags;
+        min::uns16	hash_offset;
         min::uns32	unused_offset;
         min::uns32	aux_offset;
         min::uns32	total_size;
@@ -2375,29 +2390,20 @@ namespace min { namespace unprotected {
 	       min::unprotected::pointer_of ( s );
     }
 
-    inline unsigned hash_size_of_flags
+    inline unsigned short_obj_hash_size_of_flags
 	    ( unsigned flags )
     {
         return min::unprotected::hash_size
-		[   flags
-		  & min::unprotected
-		       ::HASH_SIZE_CODE_MASK ];
+		[ flags >> min::unprotected
+		              ::SHORT_OBJ_FLAG_BITS ];
     }
 
-    inline unsigned short_obj_var_size_of_flags
+    inline unsigned long_obj_hash_size_of_flags
 	    ( unsigned flags )
     {
-        return ( flags >> HASH_SIZE_CODE_BITS )
-	       &
-	       SHORT_OBJ_VAR_SIZE_MASK;
-    }
-
-    inline unsigned long_obj_var_size_of_flags
-	    ( unsigned flags )
-    {
-        return ( flags >> HASH_SIZE_CODE_BITS )
-	       &
-	       LONG_OBJ_VAR_SIZE_MASK;
+        return min::unprotected::hash_size
+		[ flags >> min::unprotected
+		              ::LONG_OBJ_FLAG_BITS ];
     }
 } }
 
@@ -2407,14 +2413,16 @@ namespace min {
 	    ( min::unprotected::short_obj * so )
     {
         return   min::unprotected::
-		      hash_size_of_flags (so->flags);
+		      short_obj_hash_size_of_flags
+		          (so->flags);
     }
 
     inline unsigned hash_size_of
 	    ( min::unprotected::long_obj * lo )
     {
         return   min::unprotected::
-		      hash_size_of_flags (lo->flags);
+		      long_obj_hash_size_of_flags
+		          (lo->flags);
     }
 
     inline unsigned attr_size_of
@@ -2422,7 +2430,8 @@ namespace min {
     {
         return   so->unused_offset
                - min::unprotected
-		    ::hash_size_of_flags (so->flags)
+		    ::short_obj_hash_size_of_flags
+		        (so->flags)
 	       - unprotected::short_obj_header_size;
     }
 
@@ -2431,7 +2440,8 @@ namespace min {
     {
         return   lo->unused_offset
                - min::unprotected
-		    ::hash_size_of_flags (lo->flags)
+		    ::long_obj_hash_size_of_flags
+		        (lo->flags)
 	       - unprotected::long_obj_header_size;
     }
 
@@ -2596,15 +2606,16 @@ namespace min {
 		       ::short_obj_of ( s );
 
 		flags		= so->flags;
+		hash_offset	= so->hash_offset;
 		unused_offset	= so->unused_offset;
 		aux_offset	= so->aux_offset;
 		total_size	= so->total_size;
 
 		var_offset =
 		    unprotected::short_obj_header_size;
-		hash_offset =
+		hash_size =
 		    unprotected
-		        ::short_obj_var_size_of_flags
+		        ::short_obj_hash_size_of_flags
 			    ( flags );
 	    }
 	    else
@@ -2615,21 +2626,18 @@ namespace min {
 		       ::long_obj_of ( s );
 
 		flags		= lo->flags;
+		hash_offset	= lo->hash_offset;
 		unused_offset	= lo->unused_offset;
 		aux_offset	= lo->aux_offset;
 		total_size	= lo->total_size;
 
 		var_offset =
 		    unprotected::long_obj_header_size;
-		hash_offset =
+		hash_size =
 		    unprotected
-		        ::long_obj_var_size_of_flags
+		        ::long_obj_hash_size_of_flags
 			    ( flags );
 	    }
-
-	    hash_offset += var_offset;
-	    hash_size = unprotected::hash_size_of_flags
-	    			( flags );
 	    attr_offset = hash_offset + hash_size;
 	}
 
@@ -3179,7 +3187,8 @@ namespace min {
 	    ( min::unprotected::short_obj * so )
     {
         return   unprotected::
-		 hash_size_of_flags (so->flags)
+		 short_obj_hash_size_of_flags
+		     (so->flags)
 	       + unprotected::short_obj_header_size;
     }
 
@@ -3187,7 +3196,7 @@ namespace min {
 	    ( min::unprotected::long_obj * lo )
     {
         return   unprotected::
-		 hash_size_of_flags (lo->flags)
+		 long_obj_hash_size_of_flags (lo->flags)
 	       + unprotected::long_obj_header_size;
     }
 

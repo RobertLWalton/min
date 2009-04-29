@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Apr 24 09:21:37 EDT 2009
+// Date:	Wed Apr 29 11:14:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/24 15:11:27 $
+//   $Date: 2009/04/29 15:18:01 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.79 $
+//   $Revision: 1.80 $
 
 // Table of Contents:
 //
@@ -1644,8 +1644,6 @@ int main ()
 	    min::short_obj_hash_size
 		( unsigned(-1) );
 	cout << "smaxht: " << smaxht << endl;
-	MIN_ASSERT
-	    ( smaxht >= 19 * ( 1 << 16 ) / 20 - 1 );
 	for ( unsigned u = 0; u < ( 1 << 16 ); ++ u )
 	{
 	    unsigned t =
