@@ -2,7 +2,7 @@
 //
 // File:	min_hash_table_sizes.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr 28 07:22:43 EDT 2009
+// Date:	Wed Apr 29 06:44:00 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/28 13:12:45 $
+//   $Date: 2009/04/29 12:06:14 $
 //   $RCSfile: min_hash_table_sizes.cc,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 # include <iostream>
 # include <iomanip>
@@ -51,7 +51,7 @@ int main ( )
          << endl
          << "// sizes are primes chosen so that none"
 	 << endl
-         << "// is greater than 101% of the previous"
+         << "// is greater than 105% of the previous"
          << endl
          << "// one, where possible."
          << endl
@@ -80,7 +80,7 @@ int main ( )
 		  i += current )
 	        set_non_prime ( i );
 
-	if ( current > last + last / 100 )
+	if ( current > last + last / 20 )
 	{
 	    if ( count > 0 ) cout << ",";
 	    if ( count % 4 == 0 ) cout << endl;
