@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 29 01:26:31 EDT 2009
+// Date:	Fri May  1 12:59:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/29 15:19:09 $
+//   $Date: 2009/05/01 17:02:13 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.156 $
+//   $Revision: 1.157 $
 
 // Table of Contents:
 //
@@ -2528,9 +2528,27 @@ namespace min {
 	( min::vec_pointer & vp, min::gen v );
 
     namespace unprotected {
-	const min::gen * & base
+	min::gen * & base
+	    ( min::vec_pointer & vp );
+	unsigned var_offset_of
+	    ( min::vec_pointer & vp );
+	unsigned hash_offset_of
+	    ( min::vec_pointer & vp );
+	unsigned attr_offset_of
+	    ( min::vec_pointer & vp );
+	unsigned unused_offset_of
+	    ( min::vec_pointer & vp );
+	unsigned aux_offset_of
 	    ( min::vec_pointer & vp );
     }
+    min::stub * stub_of
+	( min::vec_pointer & vp );
+    unsigned hash_size_of
+	( min::vec_pointer & vp );
+    unsigned attr_size_of
+	( min::vec_pointer & vp );
+    unsigned unused_size_of
+	( min::vec_pointer & vp );
     const min::gen & var
 	( min::vec_pointer & vp, unsigned index );
     const min::gen & hash
@@ -2556,6 +2574,13 @@ namespace min {
     min::gen & aux
 	( min::updatable_vec_pointer & vp,
 	  unsigned index );
+
+    namespace unprotected {
+	unsigned & unused_offset_of
+	    ( min::insertable_vec_pointer & vp );
+	unsigned & aux_offset_of
+	    ( min::insertable_vec_pointer & vp );
+    }
 
     void initialize
 	( min::insertable_vec_pointer & vp,
@@ -2654,8 +2679,28 @@ namespace min {
 	friend void initialize
 	    ( min::vec_pointer & vp, min::gen v );
 
-	friend const min::gen * & unprotected::base
+	friend min::gen * & unprotected::base
 	    ( min::vec_pointer & vp );
+	friend unsigned unprotected::var_offset_of
+	    ( min::vec_pointer & vp );
+	friend unsigned unprotected::hash_offset_of
+	    ( min::vec_pointer & vp );
+	friend unsigned unprotected::attr_offset_of
+	    ( min::vec_pointer & vp );
+	friend unsigned unprotected::unused_offset_of
+	    ( min::vec_pointer & vp );
+	friend unsigned unprotected::aux_offset_of
+	    ( min::vec_pointer & vp );
+
+	friend min::stub * stub_of
+	    ( min::vec_pointer & vp );
+	friend unsigned hash_size_of
+	    ( min::vec_pointer & vp );
+	friend unsigned attr_size_of
+	    ( min::vec_pointer & vp );
+	friend unsigned unused_size_of
+	    ( min::vec_pointer & vp );
+
 	friend const min::gen & var
 	    ( min::vec_pointer & vp, unsigned index );
 	friend const min::gen & hash
@@ -2679,6 +2724,11 @@ namespace min {
 	friend min::gen & aux
 	    ( min::updatable_vec_pointer & vp,
 	      unsigned index );
+
+	friend unsigned & unprotected::unused_offset_of
+	    ( min::insertable_vec_pointer & vp );
+	friend unsigned & unprotected::aux_offset_of
+	    ( min::insertable_vec_pointer & vp );
 
 	friend void initialize
 	    ( min::insertable_vec_pointer & vp,
@@ -2794,12 +2844,58 @@ namespace min {
         new ( & vp ) min::vec_pointer ( v );
     }
 
-    inline const min::gen * & unprotected::base
+    inline min::gen * & unprotected::base
 	( min::vec_pointer & vp )
     {
-	return * (const min::gen **) &
+	return * (min::gen **) &
 	       min::unprotected::pointer_ref_of
 	           ( vp.s );
+    }
+    inline unsigned unprotected::var_offset_of
+	( min::vec_pointer & vp )
+    {
+        return vp.var_offset;
+    }
+    inline unsigned unprotected::hash_offset_of
+	( min::vec_pointer & vp )
+    {
+        return vp.hash_offset;
+    }
+    inline unsigned unprotected::attr_offset_of
+	( min::vec_pointer & vp )
+    {
+        return vp.attr_offset;
+    }
+    inline unsigned unprotected::unused_offset_of
+	( min::vec_pointer & vp )
+    {
+        return vp.unused_offset;
+    }
+    inline unsigned unprotected::aux_offset_of
+	( min::vec_pointer & vp )
+    {
+        return vp.aux_offset;
+    }
+
+    inline min::stub * stub_of
+	( min::vec_pointer & vp )
+    {
+        return vp.s;
+    }
+    inline unsigned hash_size_of
+	( min::vec_pointer & vp )
+    {
+        return vp.hash_size;
+    }
+    inline unsigned attr_size_of
+	( min::vec_pointer & vp )
+    {
+        return vp.unused_offset - vp.attr_offset;
+    }
+    inline unsigned unused_size_of
+	( min::vec_pointer & vp )
+    {
+        return vp.aux_offset - vp.unused_offset;
     }
 
     inline const min::gen & var
@@ -2876,6 +2972,17 @@ namespace min {
 	MIN_ASSERT ( vp.aux_offset <= index );
 	MIN_ASSERT ( index < vp.total_size );
 	return unprotected::base(vp)[index];
+    }
+
+    inline unsigned & unprotected::unused_offset_of
+	( min::insertable_vec_pointer & vp )
+    {
+        return vp.unused_offset;
+    }
+    inline unsigned & unprotected::aux_offset_of
+	( min::insertable_vec_pointer & vp )
+    {
+        return vp.aux_offset;
     }
 
     inline void initialize
@@ -3406,21 +3513,23 @@ namespace min {
         insertable_list_pointer;
 }
 
-namespace min { namespace unprotected {
-
-    class list_pointer;
-    class updatable_list_pointer;
-    class insertable_list_pointer;
-
-} }
-
 namespace min { namespace internal {
 
-    // Out of line versions of functions.
+    // Internal functions: see min.cc.
+    //
+#   if MIN_USES_OBJ_AUX_STUBS
+	void allocate_stub_list
+	    ( min::stub * & first,
+	      min::stub * & last,
+	      int type,
+	      const min::gen * p, unsigned n,
+	      min::uns64 end );
+#   endif
+
+    // Out of line versions of functions: see min.cc.
     //
     void insert_reserve
-    	    ( min::unprotected
-	         ::insertable_list_pointer & lp,
+    	    ( min::insertable_list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
 	      bool use_obj_aux_stubs );
@@ -3496,94 +3605,82 @@ namespace min {
     // We must declare these before we make them
     // friends.
 
-    min::stub * stub_of
-    	    ( min::unprotected::list_pointer & lp );
+    template < class vecpt >
+    vecpt & vec_pointer_of
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp );
 
+    template < class vecpt >
+    min::gen start_hash
+            ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
+	      unsigned index );
+    template < class vecpt >
+    min::gen start_vector
+            ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
+	      unsigned index );
+    template < class vecpt, class vecpt2 >
     min::gen start_copy
-            ( min::unprotected::list_pointer & lp,
-	      const min::unprotected::list_pointer
-	            & lp2 );
-    min::gen next
-    	    ( min::unprotected::list_pointer & lp );
-    min::gen current
-    	    ( min::unprotected::list_pointer & lp );
-    min::gen refresh
-    	    ( min::unprotected::list_pointer & lp );
+            ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
+	      const
+	      min::internal
+	         ::list_pointer_type<vecpt2> & lp2 );
+    template < class vecpt, class vecpt2 >
     min::gen start_sublist
-    	    ( min::unprotected::list_pointer & lp,
-    	      min::unprotected::list_pointer & lp2 );
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
+    	      const min::internal
+	         ::list_pointer_type<vecpt2> & lp2 );
+
+    template < class vecpt >
+    min::gen next
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp );
+    template < class vecpt >
+    min::gen current
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp );
+    template < class vecpt >
+    min::gen refresh
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp );
+
     void update
-    	    ( min::unprotected
-	         ::updatable_list_pointer & lp,
+    	    ( min::updatable_list_pointer & lp,
+	      min::gen value );
+    void update
+    	    ( min::insertable_list_pointer & lp,
 	      min::gen value );
     void insert_reserve
-    	    ( min::unprotected
-	         ::insertable_list_pointer & lp,
+    	    ( min::insertable_list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements = 0,
 	      bool use_obj_aux_stubs =
 	          min::use_obj_aux_stubs );
     void insert_before
-    	    ( min::unprotected
-	         ::insertable_list_pointer & lp,
+    	    ( min::insertable_list_pointer & lp,
 	      const min::gen * p, unsigned n );
     void insert_after
-    	    ( min::unprotected
-	         ::insertable_list_pointer & lp,
+    	    ( min::insertable_list_pointer & lp,
 	      const min::gen * p, unsigned n );
     unsigned remove
-    	    ( min::unprotected
-	         ::insertable_list_pointer & lp,
+    	    ( min::insertable_list_pointer & lp,
 	      unsigned n = 1 );
 }
 
-namespace min { namespace unprotected {
+namespace min { namespace internal {
 
-    // Internal functions: see min.cc.
-    //
-#   if MIN_USES_OBJ_AUX_STUBS
-	void allocate_stub_list
-	    ( min::stub * & first,
-	      min::stub * & last,
-	      int type,
-	      const min::gen * p, unsigned n,
-	      min::uns64 end );
-#   endif
-
-    // We must declare these before we make them
-    // friends.
-
-    void  start
-            ( min::unprotected::list_pointer & lp );
-    min::gen start_hash
-            ( min::unprotected::list_pointer & lp,
-	      unsigned index );
-    min::gen start_vector
-            ( min::unprotected::list_pointer & lp,
-	      unsigned index );
-    unsigned hash_size_of
-            ( min::unprotected::list_pointer & lp );
-    unsigned attr_size_of
-            ( min::unprotected::list_pointer & lp );
-
-    class list_pointer {
+    template < class vecpt >
+	class list_pointer_type {
 
     public:
 
-        list_pointer ( min::stub * s )
+        list_pointer_type ( vecpt & vecp )
+	    : vecp ( vecp ),
+	      base ( min::unprotected::base ( vecp ) )
 	{
-	    int t = min::type_of ( s );
-	    MIN_ASSERT (    t == min::SHORT_OBJ
-	    	         || t == min::LONG_OBJ );
-	    this->s = s;
-
-	    // An object may be converted from short to
-	    // long by any relocation, so we cannot
-	    // compute so/lo here.
-	    //
-	    so = NULL;
-	    lo = NULL;
-
 	    // An unstarted list pointer behaves as if
 	    // it were pointing at the end of a list
 	    // for which insertions are illegal.
@@ -3607,23 +3704,13 @@ namespace min { namespace unprotected {
 	    // assert that so or lo is not NULL.
 	}
 
-        list_pointer ( min::gen v )
-	{
-	    new (this)
-	        list_pointer ( min::stub_of ( v ) );
-	}
-
     private:
 
     // Private Data:
 
-    	min::stub * s;
-	    // Stub of object.  Set by constructor.
-
-	min::unprotected::short_obj * so;
-	min::unprotected::long_obj * lo;
-	    // After start(), just one of these is
-	    // non-NULL.  Both set NULL by constructor.
+	vecpt & vecp;
+	min::gen * & base;
+	    // Vector pointer to object and base(vecp).
 
 	min::gen current;
 	    // Value of current element, as returned by
@@ -3635,11 +3722,6 @@ namespace min { namespace unprotected {
 	// pointer should behave as if it pointed at
 	// the end of an empty list for which insertions
 	// are programming errors.
-
-	min::gen * base;
-	    // Base of body vector.  Equals so or lo but
-	    // has a different type so it can be used
-	    // with vector level indices.
 
 	// Abstractly there is a current pointer and a
 	// previous pointer.  The current pointer points
@@ -3769,74 +3851,111 @@ namespace min { namespace unprotected {
     // Friends:
 
 #	if MIN_USES_OBJ_AUX_STUBS
-	    friend void allocate_stub_list
+	    friend void min::internal
+	                   ::allocate_stub_list
 		    ( min::stub * & first,
 		      min::stub * & last,
 		      int type,
 		      const min::gen * p, unsigned n,
 		      min::uns64 end );
 #	endif
-	friend min::stub * min::stub_of
-		( min::unprotected::list_pointer & lp );
+	friend vecpt & vec_pointer_of<>
+		( min::internal
+		     ::list_pointer_type<vecpt> & lp );
 
-	friend void min::unprotected::start
-		( min::unprotected::list_pointer & lp );
-	friend min::gen min::unprotected::start_hash
-		( min::unprotected::list_pointer & lp,
+	friend min::gen min::start_hash<>
+		( min::internal
+		     ::list_pointer_type<vecpt> & lp,
 		  unsigned index );
-	friend min::gen min::unprotected::start_vector
-		( min::unprotected::list_pointer & lp,
+	friend min::gen min::start_vector<>
+		( min::internal
+		     ::list_pointer_type<vecpt> & lp,
 		  unsigned index );
-	friend unsigned min::unprotected
-	                   ::hash_size_of
-		( min::unprotected::list_pointer & lp );
-	friend unsigned min::unprotected
-	                   ::attr_size_of
-		( min::unprotected::list_pointer & lp );
-	friend min::gen min::start_copy
-		( min::unprotected::list_pointer & lp,
-		  const min::unprotected::list_pointer
-		        & lp2
-		);
 
-	friend min::gen min::next
-		( min::unprotected::list_pointer & lp );
-	friend min::gen min::current
-		( min::unprotected::list_pointer & lp );
-	friend min::gen min::refresh
-		( min::unprotected::list_pointer & lp );
-	friend min::gen min::start_sublist
-		( min::unprotected::list_pointer & lp,
-    	          min::unprotected::list_pointer & lp2
-	        );
+	friend min::gen start_copy<>
+		( min::list_pointer & lp,
+		  const
+		  min::list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::updatable_list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::updatable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+
+	friend min::gen start_sublist<>
+		( min::list_pointer & lp,
+		  const
+		  min::list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::updatable_list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::updatable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+
+	friend min::gen min::next<>
+		( min::internal
+		     ::list_pointer_type<vecpt> & lp );
+	friend min::gen min::current<>
+		( min::internal
+		     ::list_pointer_type<vecpt> & lp );
+	friend min::gen min::refresh<>
+		( min::internal
+		     ::list_pointer_type<vecpt> & lp );
 
 	friend void min::update
-		( min::unprotected
-		     ::updatable_list_pointer & lp,
+		( min::updatable_list_pointer & lp,
+		  min::gen value );
+	friend void min::update
+		( min::insertable_list_pointer & lp,
 		  min::gen value );
 	friend void min::insert_reserve
-		( min::unprotected
-		     ::insertable_list_pointer & lp,
+		( min::insertable_list_pointer & lp,
 		  unsigned insertions,
 		  unsigned elements,
 		  bool use_obj_aux_stubs );
 	friend void min::internal::insert_reserve
-		( min::unprotected
-		     ::insertable_list_pointer & lp,
+		( min::insertable_list_pointer & lp,
 		  unsigned insertions,
 		  unsigned elements,
 		  bool use_obj_aux_stubs );
 	friend void min::insert_before
-		( min::unprotected
-		     ::insertable_list_pointer & lp,
+		( min::insertable_list_pointer & lp,
 		  const min::gen * p, unsigned n );
 	friend void min::insert_after
-		( min::unprotected
-		     ::insertable_list_pointer & lp,
+		( min::insertable_list_pointer & lp,
 		  const min::gen * p, unsigned n );
 	friend unsigned min::remove
-		( min::unprotected
-		     ::insertable_list_pointer & lp,
+		( min::insertable_list_pointer & lp,
 		  unsigned n );
 
     // Private Helper Functions:
@@ -3896,182 +4015,56 @@ namespace min { namespace unprotected {
 	}
     };
 
-    class updatable_list_pointer : public list_pointer {
-
-    public:
-
-        updatable_list_pointer ( min::stub * s )
-	    : list_pointer ( s ) {}
-
-        updatable_list_pointer ( min::gen v )
-	    : list_pointer ( v ) {}
-
-    };
-
-    class insertable_list_pointer
-        : public updatable_list_pointer {
-
-    public:
-
-        insertable_list_pointer ( min::stub * s )
-	    : updatable_list_pointer ( s ) {}
-
-        insertable_list_pointer ( min::gen v )
-	    : updatable_list_pointer ( v ) {}
-
-    };
-
 } }
-
-namespace min { namespace unprotected {
-
-    // Inline functions.  See MIN design document.
-
-    inline void start
-            ( min::unprotected::list_pointer & lp )
-    {
-	int t = min::type_of ( lp.s );
-	if ( t == min::SHORT_OBJ )
-	{
-	    lp.so = min::unprotected::
-		 short_obj_of ( lp.s );
-	    lp.lo = NULL;
-	    lp.base = (min::gen *) lp.so;
-	}
-	else if ( t == min::LONG_OBJ )
-	{
-	    lp.lo = min::unprotected::
-		 long_obj_of ( lp.s );
-	    lp.so = NULL;
-	    lp.base = (min::gen *) lp.lo;
-	}
-	else
-	{
-	    MIN_ASSERT ( ! is_deallocated ( lp.s ) );
-	    MIN_ABORT ( "s is not an object" );
-	}
-	lp.current = min::LIST_END;
-	lp.current_index = lp.previous_index = 0;
-	lp.previous_is_sublist_head = false;
-
-#	if MIN_USES_OBJ_AUX_STUBS
-	    lp.current_stub = lp.previous_stub = NULL;
-#	endif
-    }
-
-    inline unsigned hash_size_of
-            ( min::unprotected::list_pointer & lp )
-    {
-        if ( lp.so )
-	    return min::hash_size_of ( lp.so );
-	else
-	    return min::hash_size_of ( lp.lo );
-    }
-
-    inline unsigned attr_size_of
-            ( min::unprotected::list_pointer & lp )
-    {
-        if ( lp.so )
-	    return min::attr_size_of
-	    		( lp.so );
-	else
-	    return min::attr_size_of
-	    		( lp.lo );
-    }
-
-    inline min::gen start_hash
-            ( min::unprotected::list_pointer & lp,
-	      unsigned index )
-    {
-	unsigned hash_offset;
-	unsigned hash_size;
-        if ( lp.so )
-	{
-	    hash_offset =
-	        min::hash_offset_of ( lp.so );
-	    hash_size =
-	        min::hash_size_of ( lp.so );
-	}
-	else
-	{
-	    hash_offset =
-	        min::hash_offset_of ( lp.lo );
-	    hash_size =
-	        min::hash_size_of ( lp.lo );
-	}
-	MIN_ASSERT ( index < hash_size );
-	return lp.forward ( hash_offset + index );
-    }
-
-    inline min::gen start_vector
-            ( min::unprotected::list_pointer & lp,
-	      unsigned index )
-    {
-	unsigned attr_offset;
-	unsigned attr_size;
-        if ( lp.so )
-	{
-	    attr_offset =
-	        min::attr_offset_of ( lp.so );
-	    attr_size =
-	          lp.so->unused_offset
-		- attr_offset;
-	}
-	else
-	{
-	    attr_offset =
-	        min::attr_offset_of ( lp.lo );
-	    attr_size =
-	          lp.lo->unused_offset
-		- attr_offset;
-	}
-
-	MIN_ASSERT ( index < attr_size );
-
-	return lp.forward
-	    ( attr_offset + index );
-    }
-
-} }
-
 
 namespace min {
 
     // Inline functions.  See MIN design document.
 
-    inline min::stub * stub_of
-	    ( min::unprotected::list_pointer & lp )
+    template < class vecpt >
+    inline vecpt & vec_pointer_of
+	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp )
     {
-    	return lp.s;
+    	return lp.vecp;
     }
 
+    template < class vecpt >
     inline min::gen start_hash
-            ( min::unprotected::list_pointer & lp,
+            ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
 	      unsigned index )
     {
-        min::unprotected::start ( lp );
-	return min::unprotected
-	          ::start_hash ( lp, index );
+	MIN_ASSERT ( index < hash_size_of ( lp.vecp ) );
+	return lp.forward
+	    (   unprotected::hash_offset_of ( lp.vecp )
+	      + index );
     }
 
+    template < class vecpt >
     inline min::gen start_vector
-            ( min::unprotected::list_pointer & lp,
+            ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
 	      unsigned index )
     {
-        min::unprotected::start ( lp );
-	return min::unprotected
-	          ::start_vector ( lp, index );
+	index += unprotected::attr_offset_of
+	             ( lp.vecp );
+	MIN_ASSERT
+	    ( index < unprotected::unused_offset_of
+	                  ( lp.vecp ) );
+	return lp.forward ( index );
     }
 
+    template < class vecpt, class vecpt2 >
     inline min::gen start_copy
-            ( min::unprotected::list_pointer & lp,
-	      const min::unprotected::list_pointer
-	            & lp2 )
+            ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
+	      const
+	      min::internal
+	         ::list_pointer_type<vecpt2> & lp2 )
     {
-        MIN_ASSERT ( lp.s == lp2.s );
-	lp.lo = lp2.lo;
-	lp.so = lp2.so;
-	lp.base = lp2.base;
+        MIN_ASSERT (    stub_of ( lp.vecp )
+	             == stub_of ( lp2.vecp ) );
 	lp.current_index = lp2.current_index;
 	lp.previous_index = lp2.previous_index;
 	lp.previous_is_sublist_head =
@@ -4083,24 +4076,61 @@ namespace min {
 	return lp.current = lp2.current;
     }
 
+    template < class vecpt, class vecpt2 >
+    inline min::gen start_sublist
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
+    	      const min::internal
+	         ::list_pointer_type<vecpt2> & lp2 )
+    {
+        MIN_ASSERT (    stub_of ( lp.vecp )
+	             == stub_of ( lp2.vecp ) );
+
+	lp.previous_index = lp2.current_index;
+	lp.previous_is_sublist_head = true;
+
+#	if MIN_USES_OBJ_AUX_STUBS
+	    lp.previous_stub = lp2.current_stub;
+	    if ( min::is_stub ( lp2.current ) )
+	    {
+		lp.current_stub =
+		    min::unprotected::
+		         stub_of ( lp2.current );
+		lp.current_index = 0;
+		MIN_ASSERT
+		    (    min::type_of
+		             ( lp.current_stub )
+		      == min::SUBLIST_AUX );
+		lp.current =
+		    min::unprotected::
+			 gen_of ( lp.current_stub );
+		return lp.current;
+	    }
+	    lp.current_stub = NULL;
+#	endif
+
+	lp.current_index =
+	    sublist_aux_of ( lp2.current );
+	if ( lp.current_index == 0 )
+	    lp.current = min::LIST_END;
+	else
+	    lp.current =
+		lp.base[lp.current_index];
+	return lp.current;
+    }
+
+    template < class vecpt >
     inline min::gen next
-    	    ( min::unprotected::list_pointer & lp )
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp )
     {
         // The code of remove ( lp ) depends upon the
 	// fact that this function does not READ
 	// lp.previous_stub.
 
-	unsigned head_end;
 
         if ( lp.current == min::LIST_END )
 	    return min::LIST_END;
-	else if ( lp.so )
-	    head_end = lp.so->unused_offset;
-	else if ( lp.lo )
-	    head_end = lp.lo->unused_offset;
-	else
-	    MIN_ASSERT
-	        ( ! "lp list has not been started" );
 
 #       if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
@@ -4140,7 +4170,9 @@ namespace min {
 	    }
 #       endif
 
-	if ( lp.current_index < head_end )
+	if (   lp.current_index
+	     < unprotected::unused_offset_of
+	           ( lp.vecp ) )
 	{
 	    // Current is list (not sublist) head.
 	    //
@@ -4155,14 +4187,18 @@ namespace min {
 	    return lp.forward ( lp.current_index - 1 );
     }
 
+    template < class vecpt >
     inline min::gen current
-    	    ( min::unprotected::list_pointer & lp )
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp )
     {
     	return lp.current;
     }
 
+    template < class vecpt >
     inline min::gen refresh
-    	    ( min::unprotected::list_pointer & lp )
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp )
     {
 	if ( lp.current_index != 0 )
 	    return lp.current =
@@ -4180,57 +4216,46 @@ namespace min {
 	MIN_ABORT ( "inconsistent list_pointer" );
     }
 
+    template < class vecpt >
     inline min::gen start_sublist
-    	    ( min::unprotected::list_pointer & lp,
-    	      min::unprotected::list_pointer & lp2 )
-    {
-        MIN_ASSERT ( lp.s == lp2.s );
-	lp.lo = lp2.lo;
-	lp.so = lp2.so;
-	lp.base = lp2.base;
-
-	lp.previous_index = lp2.current_index;
-	lp.previous_is_sublist_head = true;
-
-#	if MIN_USES_OBJ_AUX_STUBS
-	    lp.previous_stub = lp2.current_stub;
-	    if ( min::is_stub ( lp2.current ) )
-	    {
-		lp.current_stub =
-		    min::unprotected::
-		         stub_of ( lp2.current );
-		lp.current_index = 0;
-		MIN_ASSERT
-		    (    min::type_of
-		             ( lp.current_stub )
-		      == min::SUBLIST_AUX );
-		lp.current =
-		    min::unprotected::
-			 gen_of ( lp.current_stub );
-		return lp.current;
-	    }
-	    lp.current_stub = NULL;
-#	endif
-
-	lp.current_index =
-	    sublist_aux_of ( lp2.current );
-	if ( lp.current_index == 0 )
-	    lp.current = min::LIST_END;
-	else
-	    lp.current =
-		lp.base[lp.current_index];
-	return lp.current;
-    }
-
-    inline min::gen start_sublist
-    	    ( min::unprotected::list_pointer & lp )
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp )
     {
 	return start_sublist ( lp, lp );
     }
 
     inline void update
-	    ( min::unprotected
-	         ::updatable_list_pointer & lp,
+	    ( min::updatable_list_pointer & lp,
+	      min::gen value )
+    {
+        MIN_ASSERT ( value != min::LIST_END );
+        MIN_ASSERT ( lp.current != min::LIST_END );
+        MIN_ASSERT ( value == min::EMPTY_SUBLIST
+	             ||
+		     ! is_sublist ( value ) );
+
+#       if MIN_USES_OBJ_AUX_STUBS
+	    min::internal
+	       ::collect_aux_stub ( lp.current );
+	    if ( lp.current_stub != NULL )
+	    {
+		min::unprotected::set_gen_of
+		    ( lp.current_stub, value );
+		lp.current = value;
+	    }
+	    else
+#	endif
+	if ( lp.current_index != 0 )
+	    lp.current =
+	        lp.base[lp.current_index] = value;
+	else
+	{
+	    MIN_ABORT ( "inconsistent list_pointer" );
+	}
+    }
+
+    inline void update
+	    ( min::insertable_list_pointer & lp,
 	      min::gen value )
     {
         MIN_ASSERT ( value != min::LIST_END );
@@ -4260,8 +4285,7 @@ namespace min {
     }
 
     inline void insert_reserve
-    	    ( min::unprotected
-	         ::insertable_list_pointer & lp,
+    	    ( min::insertable_list_pointer & lp,
 	      unsigned insertions,
 	      unsigned elements,
 	      bool use_obj_aux_stubs )
@@ -4269,16 +4293,9 @@ namespace min {
         if ( elements == 0 ) elements = insertions;
 	MIN_ASSERT ( insertions <= elements );
 
-	unsigned unused_size;
-	if ( lp.so )
-	    unused_size =
-	        min::unused_size_of ( lp.so );
-	else if ( lp.lo )
-	    unused_size =
-	        min::unused_size_of ( lp.lo );
-	else
-	    MIN_ASSERT
-	        ( ! "lp list has not been started" );
+	unsigned unused_size =
+	      unprotected::aux_offset_of ( lp.vecp )
+	    - unprotected::unused_offset_of ( lp.vecp );
 
 	if (      unused_size
 	        < 2 * insertions + elements
@@ -4323,11 +4340,10 @@ namespace min { namespace unprotected {
     // Public unprotected attribute pointer types.
 
     typedef min::internal::attribute_pointer_type
-	    < min::unprotected::list_pointer >
+	    < min::list_pointer >
         attribute_pointer;
     typedef min::internal::attribute_pointer_type
-	    < min::unprotected
-	         ::updatable_list_pointer >
+	    < min::insertable_list_pointer >
         writable_attribute_pointer;
 
 } }
@@ -4755,16 +4771,13 @@ namespace min {
 
 	ap.attribute_name = min::new_num_gen ( name );
 
-	min::unprotected::start ( ap.dlp );
-
 	if ( 0 <= name
 	     &&
-	     name < min::unprotected
-		       ::attr_size_of
-			   ( ap.dlp ) )
+	     name < min::attr_size_of
+	                ( min::vec_pointer_of
+			      ( ap.dlp ) ) )
 	{
-	    min::unprotected
-	       ::start_vector ( ap.dlp, name );
+	    start_vector ( ap.dlp, name );
 	    start_copy ( ap.locate_dlp, ap.dlp );
 
 	    ap.index = name;
@@ -4916,8 +4929,8 @@ namespace min {
 
 	min::gen c = refresh ( ap.locate_dlp );
 	if ( ! is_sublist ( c ) ) return 0;
-	unprotected::list_pointer lp
-	    ( stub_of ( ap.locate_dlp ) );
+	list_pointer lp
+	    ( vec_pointer_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
 	for ( c = current ( lp );
 	      is_sublist ( c );
@@ -4946,8 +4959,8 @@ namespace min {
 
 	min::gen c =  refresh ( ap.locate_dlp );
 	if ( ! is_sublist ( c ) ) return 0;
-	unprotected::list_pointer lp
-	    ( stub_of ( ap.locate_dlp ) );
+	list_pointer lp
+	    ( vec_pointer_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
 	for ( c = current ( lp );
 	      is_sublist ( c );
@@ -4999,8 +5012,8 @@ namespace min {
 	case ap_type::REVERSE_LOCATE_FAIL:
 		if ( is_sublist ( c ) )
 		{
-		    unprotected::updatable_list_pointer
-		        lp ( stub_of
+		    updatable_list_pointer
+		        lp ( vec_pointer_of
 				( wap.locate_dlp ) );
 		    start_sublist
 		        ( lp, wap.locate_dlp );

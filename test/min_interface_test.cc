@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 29 11:14:43 EDT 2009
+// Date:	Fri May  1 13:01:03 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/29 15:18:01 $
+//   $Date: 2009/05/01 17:02:46 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.80 $
+//   $Revision: 1.81 $
 
 // Table of Contents:
 //
@@ -2031,24 +2031,21 @@ int main ()
 	cout << "Start Object List Level Test!"
 	     << endl;
 
-	min::stub * short_stub =
-	    min::stub_of ( short_obj_gen );
-	MUP::short_obj * so =
-	    MUP::short_obj_of ( short_stub );
-	min::gen * vbody =
-	    MUP::writable_body_vector_of ( so );
-	unsigned vsize = min::attr_size_of ( so );
-	unsigned vorg = min::attr_offset_of ( so );
-	unsigned usize = min::unused_size_of ( so );
+	min::insertable_vec_pointer short_vp
+		( short_obj_gen );
+	min::gen * & sbase = MUP::base ( short_vp );
+	unsigned vsize = min::attr_size_of ( short_vp );
+	unsigned vorg = MUP::attr_offset_of ( short_vp );
+	unsigned usize = min::unused_size_of ( short_vp );
 	cout << "VSIZE " << vsize << " VORG " << vorg
 	     << " USIZE " << usize << endl;
 
 	min::set_relocated_flag ( false );
 
-	MUP::list_pointer lp ( short_obj_gen );
+	min::list_pointer lp ( short_vp );
 	min::start_vector ( lp, 0 );
 	MIN_ASSERT
-	    ( min::current ( lp ) == vbody[vorg+0] );
+	    ( min::current ( lp ) == sbase[vorg+0] );
 	MIN_ASSERT
 	    ( min::next ( lp ) == min::LIST_END );
 	MIN_ASSERT
@@ -2057,13 +2054,12 @@ int main ()
 	    ( min::next ( lp ) == min::LIST_END );
 	min::gen numtest =
 	    min::new_num_gen ( 123456789 );
-	vbody[vorg+0] = numtest;
+	sbase[vorg+0] = numtest;
 	min::start_vector ( lp, 0 );
 	MIN_ASSERT
-	    ( min::current ( lp ) == vbody[vorg+0] );
+	    ( min::current ( lp ) == sbase[vorg+0] );
 
-	MUP::insertable_list_pointer
-	    wlp ( short_obj_gen );
+	min::insertable_list_pointer wlp ( short_vp );
 	min::start_vector ( wlp, 0 );
 	min::insert_reserve ( wlp, 1, 3, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
@@ -2087,8 +2083,7 @@ int main ()
 	// Vector[0] list now is
 	//	{ numtest, num100, {}, num102 }
 	//
-	MUP::insertable_list_pointer
-	    wslp ( short_obj_gen );
+	min::insertable_list_pointer wslp ( short_vp );
 	min::start_copy ( wslp, wlp );
 	min::start_sublist ( wslp );
 	min::insert_reserve ( wslp, 1, 3, true );
@@ -2201,14 +2196,14 @@ int main ()
 
 	min::gen tmp;
 	for ( int i = 0; i < 20; ++ i )
-	    min::attr_pop ( so, tmp );
+	    min::attr_pop ( short_vp, tmp );
 
 	cout << "USIZE BEFORE USING AUX "
-	     << min::unused_size_of ( so ) << endl;
-	vbody[vorg+0] = numtest;
+	     << min::unused_size_of ( short_vp ) << endl;
+	sbase[vorg+0] = numtest;
 	min::start_vector ( lp, 0 );
 	MIN_ASSERT
-	    ( min::current ( lp ) == vbody[vorg+0] );
+	    ( min::current ( lp ) == sbase[vorg+0] );
 
 	min::start_vector ( wlp, 0 );
 	min::insert_reserve ( wlp, 1, 3, true );
@@ -2337,17 +2332,17 @@ int main ()
 	    ( min::current ( wlp ) == min::LIST_END );
 
 	cout << "USIZE AFTER USING AUX "
-	     << min::unused_size_of ( so ) << endl;
+	     << min::unused_size_of ( short_vp ) << endl;
 
 	// Now use a mixture of aux area and aux stubs.
 
-	 while ( min::unused_size_of ( so ) != 0 )
-	    min::attr_push ( so, numtest );
+	 while ( min::unused_size_of ( short_vp ) != 0 )
+	    min::attr_push ( short_vp, numtest );
 
-	vbody[vorg+0] = numtest;
+	sbase[vorg+0] = numtest;
 	min::start_vector ( lp, 0 );
 	MIN_ASSERT
-	    ( min::current ( lp ) == vbody[vorg+0] );
+	    ( min::current ( lp ) == sbase[vorg+0] );
 
 	min::gen num103 = min::new_num_gen ( 103 );
 	min::gen num104 = min::new_num_gen ( 104 );
@@ -2374,7 +2369,7 @@ int main ()
 
 
         MIN_ASSERT
-	    ( min::unused_size_of ( so ) == 0 );
+	    ( min::unused_size_of ( short_vp ) == 0 );
 	min::gen tmpv [20];
 	min::start_vector ( wlp, 0 );
 	min::insert_reserve ( wlp, 1, 2, true );
@@ -2383,27 +2378,27 @@ int main ()
 	MIN_ASSERT ( min::current ( wlp ) == numtest );
 	MIN_ASSERT ( min::next ( wlp ) == num100 );
 	MIN_ASSERT ( min::next ( wlp ) == num101 );
-	min::attr_pop ( so, tmpv, 3 );
+	min::attr_pop ( short_vp, tmpv, 3 );
         MIN_ASSERT
-	    ( min::unused_size_of ( so ) == 3 );
+	    ( min::unused_size_of ( short_vp ) == 3 );
 	min::insert_reserve ( wlp, 1, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_after ( wlp, psplit, 2 );
         MIN_ASSERT
-	    ( min::unused_size_of ( so ) == 0 );
+	    ( min::unused_size_of ( short_vp ) == 0 );
 	MIN_ASSERT ( min::next ( wlp ) == num104 );
 	min::insert_reserve ( wlp, 1, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_before ( wlp, pv + 2, 2 );
-	min::attr_pop ( so, tmpv, 3 );
+	min::attr_pop ( short_vp, tmpv, 3 );
         MIN_ASSERT
-	    ( min::unused_size_of ( so ) == 3 );
+	    ( min::unused_size_of ( short_vp ) == 3 );
 	MIN_ASSERT ( min::next ( wlp ) == num107 );
 	min::insert_reserve ( wlp, 2, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_before ( wlp, pv + 5, 1 );
         MIN_ASSERT
-	    ( min::unused_size_of ( so ) == 0 );
+	    ( min::unused_size_of ( short_vp ) == 0 );
 	min::insert_before ( wlp, pv + 6, 1 );
 	MIN_ASSERT
 	    ( min::next ( wlp ) == min::LIST_END );
@@ -2425,25 +2420,22 @@ int main ()
 	// and aux stubs but using long object instead
 	// of short object.
 
-	min::stub * long_stub =
-	    min::stub_of ( long_obj_gen );
-	MUP::long_obj * lo =
-	    MUP::long_obj_of ( long_stub );
-	vbody = MUP::writable_body_vector_of ( lo );
-	vsize = min::attr_size_of ( lo );
-	vorg = min::attr_offset_of ( lo );
-	usize = min::unused_size_of ( lo );
+	min::insertable_vec_pointer long_vp
+		( long_obj_gen );
+	min::gen * & lbase = MUP::base ( long_vp );
+	vsize = min::attr_size_of ( long_vp );
+	vorg = MUP::attr_offset_of ( long_vp );
+	usize = min::unused_size_of ( long_vp );
 	cout << "VSIZE " << vsize << " VORG " << vorg
 	     << " USIZE " << usize << endl;
 
-	MUP::list_pointer llp ( long_obj_gen );
-	MUP::insertable_list_pointer
-	    wllp ( long_obj_gen );
+	min::list_pointer llp ( long_vp );
+	min::insertable_list_pointer wllp ( long_vp );
 
-	vbody[vorg+0] = numtest;
+	lbase[vorg+0] = numtest;
 	min::start_vector ( llp, 0 );
 	MIN_ASSERT
-	    ( min::current ( llp ) == vbody[vorg+0] );
+	    ( min::current ( llp ) == lbase[vorg+0] );
 
 	// Build the following list:
 	//
@@ -2459,7 +2451,7 @@ int main ()
 
 
         MIN_ASSERT
-	    ( min::unused_size_of ( lo ) == 0 );
+	    ( min::unused_size_of ( long_vp ) == 0 );
 	min::start_vector ( wllp, 0 );
 	min::insert_reserve ( wllp, 1, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
@@ -2467,27 +2459,27 @@ int main ()
 	MIN_ASSERT ( min::current ( wllp ) == numtest );
 	MIN_ASSERT ( min::next ( wllp ) == num100 );
 	MIN_ASSERT ( min::next ( wllp ) == num101 );
-	min::attr_pop ( lo, tmpv, 3 );
+	min::attr_pop ( long_vp, tmpv, 3 );
         MIN_ASSERT
-	    ( min::unused_size_of ( lo ) == 3 );
+	    ( min::unused_size_of ( long_vp ) == 3 );
 	min::insert_reserve ( wllp, 1, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_after ( wllp, psplit, 2 );
         MIN_ASSERT
-	    ( min::unused_size_of ( lo ) == 0 );
+	    ( min::unused_size_of ( long_vp ) == 0 );
 	MIN_ASSERT ( min::next ( wllp ) == num104 );
 	min::insert_reserve ( wllp, 1, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_before ( wllp, pv + 2, 2 );
-	min::attr_pop ( lo, tmpv, 3 );
+	min::attr_pop ( long_vp, tmpv, 3 );
         MIN_ASSERT
-	    ( min::unused_size_of ( lo ) == 3 );
+	    ( min::unused_size_of ( long_vp ) == 3 );
 	MIN_ASSERT ( min::next ( wllp ) == num107 );
 	min::insert_reserve ( wllp, 2, 2, true );
 	MIN_ASSERT ( ! min::relocated_flag() );
 	min::insert_before ( wllp, pv + 5, 1 );
         MIN_ASSERT
-	    ( min::unused_size_of ( lo ) == 0 );
+	    ( min::unused_size_of ( long_vp ) == 0 );
 	min::insert_before ( wllp, pv + 6, 1 );
 	MIN_ASSERT
 	    ( min::next ( wllp ) == min::LIST_END );
