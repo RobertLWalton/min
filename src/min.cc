@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Apr 29 01:47:50 EDT 2009
+// Date:	Fri May  1 13:00:09 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/04/29 15:18:43 $
+//   $Date: 2009/05/01 17:02:31 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.88 $
+//   $Revision: 1.89 $
 
 // Table of Contents:
 //
@@ -1279,7 +1279,7 @@ min::gen min::new_obj_gen
 // this function performs.  Sufficient stubs should
 // have been reserved in advance.
 //
-void MUP::allocate_stub_list
+void MINT::allocate_stub_list
 	( min::stub * & first,
 	  min::stub * & last,
 	  int type,
@@ -1339,25 +1339,15 @@ void MINT::collect_aux_stub_helper ( min::stub * s )
 # endif // MIN_USES_OBJ_AUX_STUBS
 
 void min::insert_before
-	( MUP::insertable_list_pointer & lp,
+	( min::insertable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
-    unsigned unused_offset;
-    unsigned aux_offset;
-
     if ( n == 0 ) return;
-    else if ( lp.so )
-    {
-	unused_offset	= lp.so->unused_offset;
-	aux_offset	= lp.so->aux_offset;
-    }
-    else if ( lp.lo )
-    {
-	unused_offset	= lp.lo->unused_offset;
-	aux_offset	= lp.lo->aux_offset;
-    }
-    else
-	MIN_ABORT ( "lp list has not been started" );
+
+    unsigned unused_offset =
+        unprotected::unused_offset_of ( lp.vecp );
+    unsigned aux_offset =
+        unprotected::aux_offset_of ( lp.vecp );
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -1365,7 +1355,7 @@ void min::insert_before
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
-    MUP::gc_write_update ( lp.s, p, n );
+    MUP::gc_write_update ( stub_of ( lp.vecp ), p, n );
 
     if ( lp.current == min::LIST_END )
     {
@@ -1407,7 +1397,7 @@ void min::insert_before
 		// are allowed.
 		//
 		min::stub * first, * last;
-		MUP::allocate_stub_list
+		MINT::allocate_stub_list
 		    ( first, last,
 		      lp.previous_is_sublist_head ?
 			  min::SUBLIST_AUX :
@@ -1527,10 +1517,8 @@ void min::insert_before
 	lp.current_index = aux_offset;
 	lp.previous_index = 0;
 	lp.previous_is_sublist_head = false;
-	if ( lp.so )
-	    lp.so->aux_offset = aux_offset;
-	else
-	    lp.lo->aux_offset = aux_offset;
+	unprotected::aux_offset_of ( lp.vecp ) =
+	    aux_offset;
 	return;
     }
 
@@ -1604,7 +1592,7 @@ void min::insert_before
 	    }
 
 	    min::stub * first, * last;
-	    MUP::allocate_stub_list
+	    MINT::allocate_stub_list
 		( first, last, type, p, n, end );
 
 	    if ( lp.previous_index != 0 )
@@ -1731,32 +1719,19 @@ void min::insert_before
 	lp.current_index = aux_offset + 1;
     }
 
-    if ( lp.so )
-	lp.so->aux_offset = aux_offset;
-    else
-	lp.lo->aux_offset = aux_offset;
+    unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
 }
 
 void min::insert_after
-	( MUP::insertable_list_pointer & lp,
+	( min::insertable_list_pointer & lp,
 	  const min::gen * p, unsigned n )
 {
-    unsigned unused_offset;
-    unsigned aux_offset;
-
     if ( n == 0 ) return;
-    else if ( lp.so )
-    {
-	unused_offset = lp.so->unused_offset;
-	aux_offset = lp.so->aux_offset;
-    }
-    else if ( lp.lo )
-    {
-	unused_offset = lp.lo->unused_offset;
-	aux_offset = lp.lo->aux_offset;
-    }
-    else
-	MIN_ABORT ( "lp list has not been started" );
+
+    unsigned unused_offset =
+        unprotected::unused_offset_of ( lp.vecp );
+    unsigned aux_offset =
+        unprotected::aux_offset_of ( lp.vecp );
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -1765,7 +1740,7 @@ void min::insert_after
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
-    MUP::gc_write_update ( lp.s, p, n );
+    MUP::gc_write_update ( stub_of ( lp.vecp ), p, n );
 
     bool previous = ( lp.previous_index != 0 );
 #   if MIN_USES_OBJ_AUX_STUBS
@@ -1785,7 +1760,7 @@ void min::insert_after
 
 	    if ( lp.current_stub != NULL )
 	    {
-		MUP::allocate_stub_list
+		MINT::allocate_stub_list
 		    ( first, last, min::LIST_AUX,
 		      p, n,
 		      MUP::control_of
@@ -1813,7 +1788,7 @@ void min::insert_after
 		MUP::new_control ( type, next );
 
 	    if ( n > previous )
-		MUP::allocate_stub_list
+		MINT::allocate_stub_list
 		    ( first, last, min::LIST_AUX,
 		      p, n - previous, end );
 
@@ -1983,33 +1958,24 @@ void min::insert_after
 	lp.current_index = first;
     }
 
-    if ( lp.so )
-	lp.so->aux_offset = aux_offset;
-    else
-	lp.lo->aux_offset = aux_offset;
+    unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
 }
 
 unsigned min::remove
-	( MUP::insertable_list_pointer & lp,
+	( min::insertable_list_pointer & lp,
 	  unsigned n )
 {
     // Note: current code does NOT set orphaned elements
     // to NONE.  Note some of these may be pointers
     // to orphaned sublist aux stubs.
 
-    unsigned unused_offset;
-    if ( lp.so )
-	unused_offset = lp.so->unused_offset;
-    else if ( lp.lo )
-	unused_offset = lp.lo->unused_offset;
-    else
-	MIN_ABORT ( "lp list has not been started" );
-
     if ( n == 0 || lp.current == min::LIST_END )
         return 0;
     else if ( lp.current_index != 0
               &&
-	      lp.current_index < unused_offset )
+	        lp.current_index
+	      < unprotected::unused_offset_of
+	            ( lp.vecp ) )
     {
 	// Special case: deleting list head of a list
 	// with just 1 element.
@@ -2248,7 +2214,9 @@ unsigned min::remove
 	else
 	{
 	    MIN_ASSERT
-	        ( current_index >= unused_offset );
+	        (    current_index
+		  >= unprotected::unused_offset_of
+		         ( lp.vecp ) );
 	    lp.base[current_index] =
 		min::new_list_aux_gen
 		    ( lp.current_index );
@@ -2262,7 +2230,7 @@ unsigned min::remove
 }
 
 void MINT::insert_reserve
-	( MUP::insertable_list_pointer & lp,
+	( min::insertable_list_pointer & lp,
 	  unsigned insertions,
 	  unsigned elements,
 	  bool use_obj_aux_stubs )
@@ -2332,8 +2300,6 @@ void MINT::insert_reserve
 	if ( is_label ) lab_of ( element, len, name );
 	else element[0] = name;
 
-	MUP::start ( ap.dlp );
-
 	// Process element[0] and if found set
 	// ap.length = 1.
 	//
@@ -2350,9 +2316,9 @@ void MINT::insert_reserve
 	     &&
 	     ( i = (int) f ) == f
 	     &&
-	     i < MUP::attr_size_of ( ap.dlp ) )
+	     i < attr_size_of ( ap.dlp ) )
 	{
-	    MUP::start_vector ( ap.dlp, i );
+	    start_vector ( ap.dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.index = i;
 	    ap.length = 1;
@@ -2366,11 +2332,10 @@ void MINT::insert_reserve
 	else
 	{
 	    ap.index = min::hash ( element[0] )
-	             % MUP::hash_size_of
-		              ( ap.dlp );
+	             % hash_size_of ( ap.dlp );
 	    ap.flags = 0;
 
-	    MUP::start_hash ( ap.dlp, ap.index );
+	    start_hash ( ap.dlp, ap.index );
 
 	    for ( c = current ( ap.dlp );
 		  ! is_list_end ( c );
@@ -2542,8 +2507,6 @@ void MINT::insert_reserve
 
 	ap.attribute_name = name;
 
-	MUP::start ( ap.dlp );
-
 	// If name is an integer in the right range,
 	// locate attribute vector entry and return.
 	//
@@ -2556,9 +2519,9 @@ void MINT::insert_reserve
 		 &&
 		 0 <= i
 		 &&
-		 i < MUP::attr_size_of ( ap.dlp ) )
+		 i < attr_size_of ( ap.dlp.vecp ) )
 	    {
-		MUP::start_vector ( ap.dlp, i );
+		start_vector ( ap.dlp, i );
 		start_copy ( ap.locate_dlp, ap.dlp );
 		ap.index = i;
 		ap.flags = ap_type::IN_VECTOR;
@@ -2568,10 +2531,9 @@ void MINT::insert_reserve
 	}
 
 	ap.index = min::hash ( name )
-		 % MUP::hash_size_of
-			  ( ap.dlp );
-	MUP::start_hash
-	    ( ap.dlp, ap.index );
+		 % hash_size_of
+			  ( vec_pointer_of ( ap.dlp ) );
+	start_hash ( ap.dlp, ap.index );
 
 	for ( min::gen c = current ( ap.dlp );
 	      ! is_list_end ( c );
@@ -2754,14 +2716,14 @@ void min::relocate
 
     if ( ap.flags & ap_type::IN_VECTOR )
     {
-        min::start_vector ( ap.locate_dlp, ap.index );
+        start_vector ( ap.locate_dlp, ap.index );
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 	    if ( ap.length != 1 ) MINT::relocate ( ap );
 #	endif
     }
     else
     {
-        min::start_hash ( ap.locate_dlp, ap.index );
+        start_hash ( ap.locate_dlp, ap.index );
 	MINT::relocate ( ap );
     }
 
@@ -2815,7 +2777,7 @@ inline unsigned MINT::count
 		< list_pointer_type > ap_type;
 
     min:gen c;
-    MUP::list_pointer lp ( min::stub_of ( ap.dlp ) );
+    list_pointer lp ( min::vec_pointer_of ( ap.dlp ) );
 
     switch ( ap.state )
     {
@@ -2856,7 +2818,7 @@ inline unsigned MINT::count
 		return 0;
 
 	    unsigned result = 0;
-	    MUP::list_pointer lp2 ( stub_of ( lp ) );
+	    list_pointer lp2 ( vec_pointer_of ( lp ) );
 
 	    start_sublist ( lp );
 	    for ( c = next ( lp );
@@ -2896,7 +2858,7 @@ inline unsigned MINT::get
 		< list_pointer_type > ap_type;
 
     min:gen c;
-    MUP::list_pointer lp ( min::stub_of ( ap.dlp ) );
+    list_pointer lp ( vec_pointer_of ( ap.dlp ) );
 
     switch ( ap.state )
     {
@@ -2937,7 +2899,7 @@ inline unsigned MINT::get
 		return 0;
 
 	    unsigned result = 0;
-	    MUP::list_pointer lp2 ( stub_of ( lp ) );
+	    list_pointer lp2 ( vec_pointer_of ( lp ) );
 
 	    start_sublist ( lp );
 	    for ( c = next ( lp );
@@ -2993,8 +2955,8 @@ void MINT::set
     // WARNING: Attribute create may have relocated
     //	        object.
 
-    MUP::insertable_list_pointer
-        lp ( min::stub_of ( wap.dlp ) );
+    insertable_list_pointer
+        lp ( vec_pointer_of ( wap.dlp ) );
     min:gen c = refresh ( wap.dlp );
     start_copy ( lp, wap.dlp );
 
@@ -3006,7 +2968,7 @@ void MINT::set
         min::insert_reserve ( lp, 1, n );
 	if ( relocated )
 	{
-	    relocate ( wap );
+	    min::relocate ( wap );
 	    MINT::set ( wap, in, n );
 	    return;
 	}
@@ -3036,7 +2998,7 @@ void MINT::set
 	    min::insert_reserve ( lp, 1, n );
 	    if ( relocated )
 	    {
-		relocate ( wap );
+		min::relocate ( wap );
 		add_to_multiset ( wap, in, n );
 		return;
 	    }
@@ -3069,8 +3031,8 @@ void min::add_to_multiset
 	    return;
     }
 
-    MUP::insertable_list_pointer
-        lp ( min::stub_of ( wap.dlp ) );
+    insertable_list_pointer
+        lp ( vec_pointer_of ( wap.dlp ) );
     min:gen c = refresh ( wap.dlp );
     start_copy ( lp, wap.dlp );
 
@@ -3135,8 +3097,8 @@ void min::add_to_set
 	    return;
     }
 
-    MUP::insertable_list_pointer
-        lp ( min::stub_of ( wap.dlp ) );
+    insertable_list_pointer
+        lp ( vec_pointer_of ( wap.dlp ) );
     min:gen c = refresh ( wap.dlp );
     start_copy ( lp, wap.dlp );
 
@@ -3234,8 +3196,8 @@ void MINT::set_flags
     // WARNING: Attribute create may have relocated
     //	        object.
 
-    MUP::insertable_list_pointer
-        lp ( min::stub_of ( wap.locate_dlp ) );
+    insertable_list_pointer
+        lp ( vec_pointer_of ( wap.locate_dlp ) );
     min:gen c = refresh ( wap.locate_dlp );
     start_copy ( lp, wap.locate_dlp );
 
@@ -3306,8 +3268,8 @@ void MINT::set_more_flags
 	        ( "bad attribute set more flags call" );
     }
 
-    MUP::insertable_list_pointer
-        lp ( min::stub_of ( wap.locate_dlp ) );
+    insertable_list_pointer
+        lp ( vec_pointer_of ( wap.locate_dlp ) );
     min:gen c = refresh ( wap.locate_dlp );
     start_copy ( lp, wap.locate_dlp );
 
@@ -3352,13 +3314,12 @@ void MINT::set_more_flags
 
 	MIN_ASSERT ( wap.length < len );
 
-	MUP::insertable_list_pointer lp
-	    ( stub_of ( wap.locate_dlp ) );
+	insertable_list_pointer lp
+	    ( vec_pointer_of ( wap.locate_dlp ) );
 
 	min::relocated relocated;
 	while ( true )
 	{
-	    MUP::start ( lp );
 	    min::insert_reserve
 	        ( lp, 2 * ( len - wap.length ),
 		      3 * ( len - wap.length ) + 1 );
@@ -3376,20 +3337,22 @@ void MINT::set_more_flags
 		 &&
 		 ( i = (int) f ) == f
 		 &&
-		 i < MUP::attr_size_of ( lp ) )
+		 i < attr_size_of
+		         ( vec_pointer_of ( lp ) ) )
 	    {
 		wap.flags = ap_type::IN_VECTOR;
 		wap.index = i;
-		MUP::start_vector ( wap.locate_dlp, i );
+		start_vector ( wap.locate_dlp, i );
 	    }
 	    else
 	    {
 
 		wap.flags = 0;
 		wap.index = min::hash ( element[0] )
-			 % MUP::hash_size_of
-			      ( lp );
-		MUP::start_hash ( lp, wap.index );
+			  % hash_size_of
+			        ( vec_pointer_of
+				       ( lp ) );
+		start_hash ( lp, wap.index );
 		min::gen elements[2] =
 		    { element[0], min::EMPTY_SUBLIST };
 		insert_before ( lp, elements, 2 );
@@ -3461,8 +3424,8 @@ void MINT::set_more_flags
 	MIN_ASSERT
 	    ( ! ( wap.flags & ap_type::IN_VECTOR ) );
 
-	MUP::insertable_list_pointer lp
-	    ( stub_of ( wap.dlp ) );
+	insertable_list_pointer lp
+	    ( vec_pointer_of ( wap.dlp ) );
         min::start_hash ( lp, wap.index );
 
 	min::relocated relocated;
@@ -3477,7 +3440,7 @@ void MINT::set_more_flags
 	    { wap.attribute_name, min::EMPTY_SUBLIST };
 	insert_before ( lp, elements, 2 );
 
-        min::start_hash ( wap.dlp, wap.index );
+        start_hash ( wap.dlp, wap.index );
 	next ( wap.dlp );
 	start_copy ( wap.locate_dlp, wap.dlp );
 
@@ -3502,8 +3465,8 @@ void MINT::reverse_attribute_create
 
     min::relocated relocated;
 
-    MUP::insertable_list_pointer lp
-	( stub_of ( wap.locate_dlp ) );
+    insertable_list_pointer lp
+	( vec_pointer_of ( wap.locate_dlp ) );
     min::gen c = refresh ( wap.locate_dlp );
     start_copy ( lp, wap.locate_dlp );
 
