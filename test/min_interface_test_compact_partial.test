@@ -1345,6 +1345,8 @@ Finish Object Vector Level Test!
 Start Object List Level Test!
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    ( flags & forbidden ) == 0 true.
 VSIZE 250 VORG 105 USIZE 0
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
@@ -1847,6 +1849,8 @@ min_interface_test.cc:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    ( flags & forbidden ) == 0 true.
 VSIZE 35000 VORG 7065 USIZE 0
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
