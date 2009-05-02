@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May  1 12:59:50 EDT 2009
+// Date:	Sat May  2 02:25:05 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/01 17:02:13 $
+//   $Date: 2009/05/02 06:35:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.157 $
+//   $Revision: 1.158 $
 
 // Table of Contents:
 //
@@ -3647,12 +3647,12 @@ namespace min {
     	    ( min::internal
 	         ::list_pointer_type<vecpt> & lp );
 
+    template < class vecpt >
     void update
-    	    ( min::updatable_list_pointer & lp,
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
 	      min::gen value );
-    void update
-    	    ( min::insertable_list_pointer & lp,
-	      min::gen value );
+
     void insert_reserve
     	    ( min::insertable_list_pointer & lp,
 	      unsigned insertions,
@@ -3932,10 +3932,10 @@ namespace min { namespace internal {
 		( min::internal
 		     ::list_pointer_type<vecpt> & lp );
 
-	friend void min::update
+	friend void min::update<>
 		( min::updatable_list_pointer & lp,
 		  min::gen value );
-	friend void min::update
+	friend void min::update<>
 		( min::insertable_list_pointer & lp,
 		  min::gen value );
 	friend void min::insert_reserve
@@ -4055,6 +4055,19 @@ namespace min {
 	return lp.forward ( index );
     }
 
+    // start_copy is declared as a friend only for
+    // legal compinations of list_pointers, e.g.,
+    //
+    // start_copy ( updatable_list_pointer & lp,
+    //		    insertable_list_pointer & lp2 )
+    //
+    // is allowed but
+    //
+    // start_copy ( insertable_list_pointer & lp,
+    //		    updatable_list_pointer & lp2 )
+    //
+    // is not allowed (not a friend).
+    //
     template < class vecpt, class vecpt2 >
     inline min::gen start_copy
             ( min::internal
@@ -4076,6 +4089,10 @@ namespace min {
 	return lp.current = lp2.current;
     }
 
+    // start_sublist is declared as a friend only for
+    // legal compinations of list_pointers, just like
+    // start_copy above.
+    //
     template < class vecpt, class vecpt2 >
     inline min::gen start_sublist
     	    ( min::internal
@@ -4224,38 +4241,13 @@ namespace min {
 	return start_sublist ( lp, lp );
     }
 
+    // update is declared as a friend only for
+    // updatable_ and insertable_ list_pointers.
+    //
+    template < class vecpt >
     inline void update
-	    ( min::updatable_list_pointer & lp,
-	      min::gen value )
-    {
-        MIN_ASSERT ( value != min::LIST_END );
-        MIN_ASSERT ( lp.current != min::LIST_END );
-        MIN_ASSERT ( value == min::EMPTY_SUBLIST
-	             ||
-		     ! is_sublist ( value ) );
-
-#       if MIN_USES_OBJ_AUX_STUBS
-	    min::internal
-	       ::collect_aux_stub ( lp.current );
-	    if ( lp.current_stub != NULL )
-	    {
-		min::unprotected::set_gen_of
-		    ( lp.current_stub, value );
-		lp.current = value;
-	    }
-	    else
-#	endif
-	if ( lp.current_index != 0 )
-	    lp.current =
-	        lp.base[lp.current_index] = value;
-	else
-	{
-	    MIN_ABORT ( "inconsistent list_pointer" );
-	}
-    }
-
-    inline void update
-	    ( min::insertable_list_pointer & lp,
+    	    ( min::internal
+	         ::list_pointer_type<vecpt> & lp,
 	      min::gen value )
     {
         MIN_ASSERT ( value != min::LIST_END );
