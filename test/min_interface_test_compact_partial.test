@@ -511,27 +511,15 @@ Start Garbage Collector Interface Test!
 
 Test mutator functions:
 min_interface_test.cc:XXXX assert:
-    MUP::test_flags_of ( &s2, marked_flag ) true.
-min_interface_test.cc:XXXX assert:
     MUP::gc_stack == stack true.
-min_interface_test.cc:XXXX assert:
-    MUP::test_flags_of ( &s2, marked_flag ) true.
-min_interface_test.cc:XXXX assert:
-    MUP::gc_stack == stack + 1 true.
-min_interface_test.cc:XXXX assert:
-    stack[0] == &s2 true.
-min_interface_test.cc:XXXX assert:
-    MUP::test_flags_of ( &s2, marked_flag ) true.
-min_interface_test.cc:XXXX assert:
-    MUP::gc_stack == stack + 1 true.
-min_interface_test.cc:XXXX assert:
-    ! MUP::test_flags_of ( &s1, marked_flag ) true.
-min_interface_test.cc:XXXX assert:
-    ! MUP::test_flags_of ( &s2, scavenged_flag ) true.
 min_interface_test.cc:XXXX assert:
     MUP::gc_stack == stack + 2 true.
 min_interface_test.cc:XXXX assert:
+    stack[0] == &s1 true.
+min_interface_test.cc:XXXX assert:
     stack[1] == &s2 true.
+min_interface_test.cc:XXXX assert:
+    MUP::gc_stack == stack + 2 true.
 min_interface_test.cc:XXXX assert:
     MUP::gc_stack == stack + 2 true.
 
@@ -546,7 +534,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::type_of ( stub1 ) == min::FREE true.
 min_interface_test.cc:XXXX assert:
-    ! MUP::test_flags_of ( stub1, marked_flag ) true.
+    ! MUP::test_flags_of ( stub1, unmarked_flag ) true.
 MUP::gc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub2 == MUP::last_allocated_stub true.
@@ -557,7 +545,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::type_of ( stub2 ) == min::FREE true.
 min_interface_test.cc:XXXX assert:
-    MUP::test_flags_of ( stub2, marked_flag ) true.
+    MUP::test_flags_of ( stub2, unmarked_flag ) true.
 MUP::gc_expand_stub_free_list (2) called
 min_interface_test.cc:XXXX assert:
     region_stubs_allocated == 5 true.
