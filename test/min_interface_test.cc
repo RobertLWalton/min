@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May  1 13:01:03 EDT 2009
+// Date:	Wed May 13 11:15:09 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/01 17:02:46 $
+//   $Date: 2009/05/13 15:24:47 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.81 $
+//   $Revision: 1.82 $
 
 // Table of Contents:
 //
@@ -1160,12 +1160,12 @@ int main ()
 	MUP::gc_stack = stack;
 	MUP::gc_stack_end = stack + 2;
 	min::stub s1, s2;
-	const min::uns64 marked_flag =
+	const min::uns64 unmarked_flag =
 	       min::uns64(1)
 	    << ( 56 - MIN_GC_FLAG_BITS );
 	const min::uns64 scavenged_flag =
-	    marked_flag << 1;
-	MUP::gc_stack_marks = marked_flag;
+	    unmarked_flag << 1;
+	MUP::gc_stack_mask = unmarked_flag;
 
         cout << endl;
 	cout << "Test mutator functions:"
@@ -1173,41 +1173,23 @@ int main ()
 	MUP::set_control_of ( &s1, 0 );
 	MUP::set_flags_of ( &s1, scavenged_flag );
 	MUP::set_control_of ( &s2, 0 );
+	MUP::set_flags_of ( &s2, unmarked_flag );
 	MUP::gc_stack = stack;
-	MUP::gc_stack_marks = 0;
+	MUP::gc_stack_mask = 0;
 	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT
-	    ( MUP::test_flags_of ( &s2, marked_flag ) );
-	MIN_ASSERT
-	    ( MUP::gc_stack == stack );
-	MUP::set_control_of ( &s2, 0 );
-	MUP::gc_stack_marks = marked_flag;
+	MIN_ASSERT ( MUP::gc_stack == stack );
+	MUP::gc_stack_mask = unmarked_flag;
 	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT
-	    ( MUP::test_flags_of ( &s2, marked_flag ) );
-	MIN_ASSERT
-	    ( MUP::gc_stack == stack + 1 );
-	MIN_ASSERT ( stack[0] == &s2 );
-	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT
-	    ( MUP::test_flags_of ( &s2, marked_flag ) );
-	MIN_ASSERT
-	    ( MUP::gc_stack == stack + 1 );
-	MIN_ASSERT
-	    ( ! MUP::test_flags_of
-	    	     ( &s1, marked_flag ) );
-	MIN_ASSERT
-	    ( ! MUP::test_flags_of
-	    	     ( &s2, scavenged_flag ) );
-	MUP::clear_flags_of ( &s2, marked_flag );
-	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT
-	    ( MUP::gc_stack == stack + 2 );
+	MIN_ASSERT ( MUP::gc_stack == stack + 2 );
+	MIN_ASSERT ( stack[0] == &s1 );
 	MIN_ASSERT ( stack[1] == &s2 );
-	MUP::clear_flags_of ( &s2, marked_flag );
+	MUP::clear_flags_of ( &s1, scavenged_flag );
 	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT
-	    ( MUP::gc_stack == stack + 2 );
+	MIN_ASSERT ( MUP::gc_stack == stack + 2 );
+	MUP::set_flags_of ( &s1, scavenged_flag );
+	MUP::clear_flags_of ( &s2, unmarked_flag );
+	MUP::gc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MUP::gc_stack == stack + 2 );
 
         cout << endl;
 	cout << "Test stub allocator functions:"
@@ -1223,8 +1205,8 @@ int main ()
 	    ( min::type_of ( stub1 ) == min::FREE );
 	MIN_ASSERT
 	    ( ! MUP::test_flags_of
-	    	     ( stub1, marked_flag ) );
-	MUP::gc_new_stub_flags = marked_flag;
+	    	     ( stub1, unmarked_flag ) );
+	MUP::gc_new_stub_flags = unmarked_flag;
 	min::stub * stub2 = MUP::new_stub();
 	MIN_ASSERT
 	    ( stub2 == MUP::last_allocated_stub );
@@ -1235,7 +1217,7 @@ int main ()
 	    ( min::type_of ( stub2 ) == min::FREE );
 	MIN_ASSERT
 	    ( MUP::test_flags_of
-	    	     ( stub2, marked_flag ) );
+	    	     ( stub2, unmarked_flag ) );
 	MUP::gc_expand_stub_free_list ( 2 );
 	MIN_ASSERT
 	    ( region_stubs_allocated == 5 );
@@ -2034,9 +2016,12 @@ int main ()
 	min::insertable_vec_pointer short_vp
 		( short_obj_gen );
 	min::gen * & sbase = MUP::base ( short_vp );
-	unsigned vsize = min::attr_size_of ( short_vp );
-	unsigned vorg = MUP::attr_offset_of ( short_vp );
-	unsigned usize = min::unused_size_of ( short_vp );
+	unsigned vsize =
+	    min::attr_size_of ( short_vp );
+	unsigned vorg =
+	    MUP::attr_offset_of ( short_vp );
+	unsigned usize =
+	    min::unused_size_of ( short_vp );
 	cout << "VSIZE " << vsize << " VORG " << vorg
 	     << " USIZE " << usize << endl;
 
@@ -2199,7 +2184,8 @@ int main ()
 	    min::attr_pop ( short_vp, tmp );
 
 	cout << "USIZE BEFORE USING AUX "
-	     << min::unused_size_of ( short_vp ) << endl;
+	     << min::unused_size_of ( short_vp )
+	     << endl;
 	sbase[vorg+0] = numtest;
 	min::start_vector ( lp, 0 );
 	MIN_ASSERT
@@ -2332,7 +2318,8 @@ int main ()
 	    ( min::current ( wlp ) == min::LIST_END );
 
 	cout << "USIZE AFTER USING AUX "
-	     << min::unused_size_of ( short_vp ) << endl;
+	     << min::unused_size_of ( short_vp )
+	     << endl;
 
 	// Now use a mixture of aux area and aux stubs.
 

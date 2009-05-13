@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May  2 02:57:01 EDT 2009
+// Date:	Wed May 13 08:39:37 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/02 07:58:47 $
+//   $Date: 2009/05/13 15:21:27 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.159 $
+//   $Revision: 1.160 $
 
 // Table of Contents:
 //
@@ -1461,21 +1461,105 @@ namespace min { namespace unprotected {
 
     // Mutator (non-gc execution engine) action:
     //
-    // If a pointer to stub s2 is stored in a datum
-    // with stub s1, then for each pair of GC flags the
-    // scavenged flag of the pair of s1 is logically
-    // OR'ed into the marked flag of the pair of s2.
-    //
-    // In addition, if any marked flag turned on in s2
-    // by this action is also on in MUP::gc_stack_marks,
-    // a pointer to s2 is added to the MUP::gc_stack if
-    // that stack is not full.
+    // If a pointer to stub s2 is stored in a datum with
+    // stub s1, then for each pair of GC flags the sca-
+    // venged flag of the pair of s1 and the unmarked
+    // flag of the pair s2 are logically ANDed, and if
+    // the corresponding bit is on in MUP::gc_stack_
+    // mask, then push a pointer to s1 and then a
+    // pointer to s2 into the MUP::gc_stack.
     //
     // When a new stub is allocated, it is given the
-    // flags in MUP::gc_new_stub_flags, but is NOT put
-    // on the MUP::gc_stack.
+    // flags in MUP::gc_new_stub_flags.
     //
-    extern min::uns64 gc_stack_marks;
+    // One use of this mutator action is as follows.
+    //
+    // To mark the those members of a set of stubs S
+    // that are pointed at by members of a set of stubs
+    // R, use a pair of GC flags, and set the corres-
+    // ponding bit in MUP::gc_stack_mask.  Clear the
+    // scavenged flag of the flag pair in each stub in
+    // R or S, set the unmarked flag in every stub in S
+    // that is not in R, and clear the unmarked flag of
+    // EVERY other stub.
+    //
+    // At the end of the algorithm, the scavenged flag
+    // will be set for each stub in R, and the unmarked
+    // flag will be cleared for each stub of S pointed
+    // at by a stub of R, and for each such stub of S,
+    // that stub will have been added to the set R.
+    // The algorithm may err by clearing the unmarked
+    // flag of a few additional stubs in S.
+    //
+    // The algorithm does the following until done.  For
+    // each stub s1 in R whose scavenged flag is off,
+    // s1's scavenged flag is set, and then for each
+    // pointer from s1's object to a stub s2 in S, if
+    // the unmarked flag of s2 is set, it is cleared and
+    // s2 is added to the set R.  If a pair of pointers
+    // s1, s2 appears in the MUP::gc_stack with the
+    // scavenged flag of s1 on and the unmarked flag of
+    // s2 on, the unmarked and scavenged flags of s2 are
+    // cleared, and s2 is added to the set R.
+    //
+    // It is only necessary to keep track of the stubs
+    // in R whose scavenged flag is off.  These can be
+    // listed in a stack of stub pointers, set initially
+    // to contain pointers to all the stubs in R.  Then
+    // to add a stub to R, merely push a pointer to the
+    // stub into this stack.  The above algorithm can
+    // then pop a pointer of this stack and proceed as
+    // above for stubs in R whose scavenged flag was
+    // is not set.
+    //
+    // If a brand new stub is created, it can be added
+    // to S by clearing its scavenged flag and setting
+    // its unmarked flag, as being new it cannot yet be
+    // pointed at by a stub in R.
+    // 
+    // Another use of the mutator action is as follows.
+    //
+    // To mark members of a set of stubs R that point at
+    // members of a set of stubs S, use a pair of GC
+    // pointers, and set the corresponding bit in MUP::
+    // gc_stack_mask.  Set the unmarked flag of the flag
+    // pair in every stub of S, and clear that flag in
+    // EVERY other stub.  Clear the scavenged flag of
+    // EVERY stub.
+    //
+    // At the end of the algorithm the unmarked flags
+    // will not have been changed, and the scavenged
+    // flags will set for every member of R that does
+    // NOT point at a member of S.  The algorithm may
+    // err by setting the scavenged flag of a few
+    // additional stubs in R.
+    //
+    // The algorithm does the following until done.  For
+    // each stub s1 in R, taken in some pre-determined
+    // order, the scavenged flag of s1 is turned on, the
+    // object is checked to see if it has any pointers
+    // to stubs in S, and if so, its scavenged flag is
+    // turned back off.  If a pair of pointers s1, s2
+    // appears in the MUP::gc_stack with the scavenged
+    // flag of s1 on and the unmarked flag of s2 on, the
+    // scavenged flag of s1 is cleared.
+    //
+    // A stack of pointers to stubs in R whose scavenged
+    // flags have been cleared at some point in the
+    // above algorithm can be easily kept.  After all
+    // the stubs in R have been gone through in the
+    // pre-determined order, this will include all stubs
+    // in R whose object point at stubs in S, whenever
+    // the MUP::gc_stack is empty.
+    //
+    // If a brand new stub is created, it can be added
+    // to S by clearing its scavenged flag and setting
+    // its unmarked flag.
+    //
+    // WARNING: only unmarked flag bits may be on in
+    // MUP::gc_stack_mask.
+    //
+    extern min::uns64 gc_stack_mask;
     extern min::uns64 gc_new_stub_flags;
 
     // The GC Stack is a vector of min::stub * values
@@ -1483,7 +1567,10 @@ namespace min { namespace unprotected {
     // gc_stack points at the first empty location.
     // MUP::gc_stack_end points just after the vector.
     // MUP::gc_stack >= MUP::gc_stack_end iff the stack
-    // is full.
+    // is full.  This last check is NOT made normally
+    // when pushing values into the stack, as the stack
+    // is a very large piece of virtual memory, and is
+    // protected at its end by an inaccessible page.
     //
     extern min::stub ** gc_stack;
     extern min::stub ** gc_stack_end;
@@ -1499,12 +1586,14 @@ namespace min { namespace unprotected {
 	    ( min::stub * s1, min::stub * s2 )
     {
         uns64 f = ( control_of ( s1 ) >> 1 )
-	        & ( ~ control_of ( s2 ) )
-		& min::internal::GC_MARKED_MASK;
-	set_flags_of ( s2, f );
-	if (    ( f & gc_stack_marks )
-	     && gc_stack < gc_stack_end )
+	        & ( control_of ( s2 ) )
+		& min::unprotected::gc_stack_mask;
+
+	if ( f != 0 )
+	{
+	    * gc_stack ++ = s1;
 	    * gc_stack ++ = s2;
+	}
     }
 
     // Function executed whenever the n general values

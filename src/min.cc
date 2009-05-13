@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May  1 13:00:09 EDT 2009
+// Date:	Wed May 13 11:21:32 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/01 17:02:31 $
+//   $Date: 2009/05/13 15:21:54 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.89 $
+//   $Revision: 1.90 $
 
 // Table of Contents:
 //
@@ -139,7 +139,7 @@ namespace min { namespace unprotected {
 
 namespace min { namespace unprotected {
 
-    min::uns64 gc_stack_marks;
+    min::uns64 gc_stack_mask;
     min::uns64 gc_new_stub_flags;
     min::stub ** gc_stack;
     min::stub ** gc_stack_end;
