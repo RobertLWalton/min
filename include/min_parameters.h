@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May 15 09:30:04 EDT 2009
+// Date:	Fri May 15 12:32:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/15 14:29:21 $
+//   $Date: 2009/05/15 19:28:21 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // Table of Contents
 //
@@ -43,7 +43,7 @@
 // -DMIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFFull
 //	// 2**48 - 1; forces use of stub indices in 64
 //	// bit general values.
-// -DMIN_ACC_FLAG_BITS=14
+// -DMIN_ACC_FLAG_BITS=16
 //	// Adds an ephemeral ACC level.
 // 
 // See below for the definition of these parameters.
@@ -210,10 +210,16 @@
 #   define MIN_STUB_BASE 0
 # endif
 
-// Number of ACC flag bits.  The ACC needs 4N+2 flag
+// Number of ACC flag bits.  The ACC needs 4N+4 flag
 // bits to implement N ephemeral levels and 1 non-
 // ephemeral level of garbage collection.  Defaults to
 // 12.
+//
+// NOTE: if MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS >=
+// ( 1 << ( 56 - MIN_ACC_FLAG_BITS ) ) then the
+// control value of a stub cannot hold an absolute
+// stub address.  It may still be able to hold a
+// relative stub address or a stub index.
 //
 # ifndef MIN_ACC_FLAG_BITS
 #   define MIN_ACC_FLAG_BITS 12

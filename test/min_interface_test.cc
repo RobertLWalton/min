@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 13 11:15:09 EDT 2009
+// Date:	Fri May 15 09:27:26 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/13 15:24:47 $
+//   $Date: 2009/05/15 19:28:32 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.82 $
+//   $Revision: 1.83 $
 
 // Table of Contents:
 //
@@ -189,7 +189,7 @@ void initialize_stub_region ( void )
     MUP::last_allocated_stub = begin_stub_region;
     MUP::number_of_free_stubs = 0;
     ++ region_stubs_allocated;
-    min::uns64 c = MUP::new_gc_control
+    min::uns64 c = MUP::new_acc_control
 	( min::FREE, (min::stub *) NULL );
     MUP::set_control_of
 	( MUP::last_allocated_stub, c );
@@ -201,9 +201,9 @@ void initialize_stub_region ( void )
 // stubs to the stub_region and attach them to the
 // free list just after the last_allocated_stub.
 //
-void MUP::gc_expand_stub_free_list ( unsigned n )
+void MUP::acc_expand_stub_free_list ( unsigned n )
 {
-    cout << "MUP::gc_expand_stub_free_list (" << n
+    cout << "MUP::acc_expand_stub_free_list (" << n
          << ") called" << endl;
     if ( n <= MUP::number_of_free_stubs ) return;
     n -= MUP::number_of_free_stubs;
@@ -211,7 +211,7 @@ void MUP::gc_expand_stub_free_list ( unsigned n )
     min::uns64 lastc = MUP::control_of
 	( MUP::last_allocated_stub );
     min::stub * free =
-	MUP::stub_of_gc_control ( lastc );
+	MUP::stub_of_acc_control ( lastc );
     while ( n -- > 0 )
     {
         min::stub * s = begin_stub_region
@@ -219,13 +219,13 @@ void MUP::gc_expand_stub_free_list ( unsigned n )
 	assert ( s < end_stub_region );
 	++ region_stubs_allocated;
 	++ MUP::number_of_free_stubs;
-	min::uns64 c = MUP::new_gc_control
+	min::uns64 c = MUP::new_acc_control
 	    ( min::FREE, free );
 	MUP::set_control_of ( s, c );
 	MUP::set_value_of ( s, 0 );
 	free = s;
     }
-    lastc = MUP::renew_gc_control_stub ( lastc, free );
+    lastc = MUP::renew_acc_control_stub ( lastc, free );
     MUP::set_control_of
 	( MUP::last_allocated_stub, lastc );
 }
@@ -319,7 +319,7 @@ void add_to_free_body ( unsigned m )
 // argument to MUP::new_body rounded up to a multiple
 // of 8.
 //
-MUP::body_control * MUP::gc_new_body ( unsigned n )
+MUP::body_control * MUP::acc_new_body ( unsigned n )
 {
     assert ( ( n & 7 ) == 0 );
 
@@ -364,7 +364,7 @@ MUP::body_control * relocate_body
     return newbc;
 }
 
-// Function to initialize GC hash tables.
+// Function to initialize ACC hash tables.
 //
 void initialize_hash_tables ( void )
 {
@@ -939,7 +939,7 @@ int main ()
         MIN_ASSERT ( ! ( control1 & midflag ) );
 
 	cout << endl;
-	cout << "Test non-gc controls with stub"
+	cout << "Test non-acc controls with stub"
 	        " addresses:" << endl;
 	min::uns64 control2 =
 	    MUP::new_control ( type1, stub1, hiflag );
@@ -971,10 +971,10 @@ int main ()
         MIN_ASSERT ( ! ( control2 & midflag ) );
 
 	cout << endl;
-	cout << "Test gc controls with stub"
+	cout << "Test acc controls with stub"
 	        " addresses:" << endl;
 	min::uns64 control3 =
-	    MUP::new_gc_control
+	    MUP::new_acc_control
 	    	( type1, stub1, hiflag );
 	cout << "control3: " << hex << control3 << dec
 	     << endl;
@@ -982,7 +982,7 @@ int main ()
 	    (    MUP::type_of_control ( control3 )
 	      == type1 );
         MIN_ASSERT
-	    (    MUP::stub_of_gc_control ( control3 )
+	    (    MUP::stub_of_acc_control ( control3 )
 	      == stub1 );
         MIN_ASSERT ( control3 & hiflag );
         MIN_ASSERT ( ! ( control3 & loflag ) );
@@ -1068,7 +1068,7 @@ int main ()
 	MIN_ASSERT ( MUP::control_of ( stub ) == c );
 
         cout << endl;
-	cout << "Test stub GC related functions:"
+	cout << "Test stub ACC related functions:"
 	     << endl;
 	MIN_ASSERT
 	    ( min::is_collectible ( min::NUMBER ) );
@@ -1157,15 +1157,15 @@ int main ()
 	initialize_body_region();
 	initialize_hash_tables();
 	min::stub * stack[2];
-	MUP::gc_stack = stack;
-	MUP::gc_stack_end = stack + 2;
+	MUP::acc_stack = stack;
+	MUP::acc_stack_end = stack + 2;
 	min::stub s1, s2;
 	const min::uns64 unmarked_flag =
 	       min::uns64(1)
-	    << ( 56 - MIN_GC_FLAG_BITS );
+	    << ( 56 - MIN_ACC_FLAG_BITS );
 	const min::uns64 scavenged_flag =
 	    unmarked_flag << 1;
-	MUP::gc_stack_mask = unmarked_flag;
+	MUP::acc_stack_mask = unmarked_flag;
 
         cout << endl;
 	cout << "Test mutator functions:"
@@ -1174,27 +1174,27 @@ int main ()
 	MUP::set_flags_of ( &s1, scavenged_flag );
 	MUP::set_control_of ( &s2, 0 );
 	MUP::set_flags_of ( &s2, unmarked_flag );
-	MUP::gc_stack = stack;
-	MUP::gc_stack_mask = 0;
-	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::gc_stack == stack );
-	MUP::gc_stack_mask = unmarked_flag;
-	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::gc_stack == stack + 2 );
+	MUP::acc_stack = stack;
+	MUP::acc_stack_mask = 0;
+	MUP::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MUP::acc_stack == stack );
+	MUP::acc_stack_mask = unmarked_flag;
+	MUP::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MUP::acc_stack == stack + 2 );
 	MIN_ASSERT ( stack[0] == &s1 );
 	MIN_ASSERT ( stack[1] == &s2 );
 	MUP::clear_flags_of ( &s1, scavenged_flag );
-	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::gc_stack == stack + 2 );
+	MUP::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MUP::acc_stack == stack + 2 );
 	MUP::set_flags_of ( &s1, scavenged_flag );
 	MUP::clear_flags_of ( &s2, unmarked_flag );
-	MUP::gc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::gc_stack == stack + 2 );
+	MUP::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MUP::acc_stack == stack + 2 );
 
         cout << endl;
 	cout << "Test stub allocator functions:"
 	     << endl;
-	MUP::gc_new_stub_flags = 0;
+	MUP::acc_new_stub_flags = 0;
 	min::stub * stub1 = MUP::new_stub();
 	MIN_ASSERT ( stub1 == begin_stub_region + 1 );
 	MIN_ASSERT
@@ -1206,7 +1206,7 @@ int main ()
 	MIN_ASSERT
 	    ( ! MUP::test_flags_of
 	    	     ( stub1, unmarked_flag ) );
-	MUP::gc_new_stub_flags = unmarked_flag;
+	MUP::acc_new_stub_flags = unmarked_flag;
 	min::stub * stub2 = MUP::new_stub();
 	MIN_ASSERT
 	    ( stub2 == MUP::last_allocated_stub );
@@ -1218,7 +1218,7 @@ int main ()
 	MIN_ASSERT
 	    ( MUP::test_flags_of
 	    	     ( stub2, unmarked_flag ) );
-	MUP::gc_expand_stub_free_list ( 2 );
+	MUP::acc_expand_stub_free_list ( 2 );
 	MIN_ASSERT
 	    ( region_stubs_allocated == 5 );
 	MIN_ASSERT
