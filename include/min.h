@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May 15 09:24:28 EDT 2009
+// Date:	Fri May 15 15:25:37 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/15 14:29:21 $
+//   $Date: 2009/05/15 19:28:21 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.161 $
+//   $Revision: 1.162 $
 
 // Table of Contents:
 //
@@ -961,6 +961,19 @@ namespace min {
 // Control Values
 // ------- ------
 
+// Control value layout:
+//
+//	Bits		Use
+//
+//	0 .. m-1	Stub absolute or relative
+//			address or stub index.
+//
+//	m .. 55		ACC flag bits
+//
+//	56 .. 63	Type code.
+//
+// where m == 56 - MIN_ACC_FLAG_BITS.
+
 // CONTROL MASK is 2**48 - 1.
 // ACC CONTROL MASK is 2**(56 - MIN_ACC_FLAG_BITS) - 1.
 //
@@ -1431,6 +1444,36 @@ namespace min {
 
 // Allocator/Collector/Compactor Data
 // ----------------------------- ----
+
+namespace min { namespace internal {
+
+    // The ACC Flag Bit layout is:
+    //
+    //	Bit		Use
+    //
+    //	0		Fixed Body Flag
+    //
+    //	1		Reserved
+    //
+    //	2, 4, 6, ...	Unmarked Flags
+    //
+    //	3, 5, 7, ...	Scavenged Flags
+
+    // Collector flags.
+    //
+    const uns64 ACC_FLAG_MASK =
+           ( (uns64(1) << MIN_ACC_FLAG_BITS) - 1 )
+	<< ( 56 - MIN_ACC_FLAG_BITS );
+    const uns64 ACC_SCAVENGED_MASK =
+    	  ACC_FLAG_MASK
+	& (    uns64(0xAAAAAAAAAA)
+	    << ( 56 - MIN_ACC_FLAG_BITS ) + 1 );
+    const uns64 ACC_UNMARKED_MASK =
+        ACC_SCAVENGED_MASK >> 1;
+    const uns64 ACC_FIXED_BODY_FLAG =
+	( uns64(1) << ( 56 - MIN_ACC_FLAG_BITS ) );
+
+} }
 
 // Allocator/Collector/Compactor Mutator Interface
 // ----------------------------- ------- ---------
@@ -1448,22 +1491,6 @@ namespace min {
     void deallocate ( min::stub * s );
 
 }
-
-namespace min { namespace internal {
-
-    // ACC flags.
-    //
-    const uns64 ACC_FLAG_MASK =
-           ( (uns64(1) << MIN_ACC_FLAG_BITS) - 1 )
-	<< ( 56 - MIN_ACC_FLAG_BITS );
-    const uns64 ACC_SCAVENGED_MASK =
-    	  ACC_FLAG_MASK
-	& (    uns64(0xAAAAAA)
-	    << ( 56 - MIN_ACC_FLAG_BITS ) );
-    const uns64 ACC_MARKED_MASK =
-        ACC_SCAVENGED_MASK >> 1;
-
-} }
 
 namespace min { namespace unprotected {
 
