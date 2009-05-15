@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 13 08:39:37 EDT 2009
+// Date:	Fri May 15 09:24:28 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/13 15:21:27 $
+//   $Date: 2009/05/15 14:29:21 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.160 $
+//   $Revision: 1.161 $
 
 // Table of Contents:
 //
@@ -29,7 +29,9 @@
 //	Control Values
 //	Stub Functions
 //	Process Interface
-//	Garbage Collector Interface
+//	Allocator/Collector/Compactor Data
+//	Allocator/Collector/Compactor Mutator Interface
+//	Collector Compactor Interface
 //	Numbers
 //	Strings
 //	Labels
@@ -250,7 +252,7 @@ namespace min {
     const int SUBLIST_AUX		= -3;
 
     namespace unprotected {
-	// Non-gc flags for uncollectible controls.
+	// Non-acc flags for uncollectible controls.
 	//
 	const min::uns64 STUB_POINTER =
 	    min::uns64(1) << 55;
@@ -960,11 +962,11 @@ namespace min {
 // ------- ------
 
 // CONTROL MASK is 2**48 - 1.
-// GC CONTROL MASK is 2**(56 - MIN_GC_FLAG_BITS) - 1.
+// ACC CONTROL MASK is 2**(56 - MIN_ACC_FLAG_BITS) - 1.
 //
 # define MIN_CONTROL_VALUE_MASK 0xFFFFFFFFFFFFull
-# define MIN_GC_CONTROL_VALUE_MASK \
-    ( 0xFFFFFFFFFFFFFFull >> MIN_GC_FLAG_BITS )
+# define MIN_ACC_CONTROL_VALUE_MASK \
+    ( 0xFFFFFFFFFFFFFFull >> MIN_ACC_FLAG_BITS )
 
 namespace min { namespace internal {
 
@@ -1120,17 +1122,17 @@ namespace min { namespace unprotected {
 #   endif
 
 #   if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-       <= MIN_GC_CONTROL_VALUE_MASK
+       <= MIN_ACC_CONTROL_VALUE_MASK
 
-	inline min::stub * stub_of_gc_control
+	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
 	    return ( min::stub * )
 	           (min::internal::pointer_uns)
-	           (c & MIN_GC_CONTROL_VALUE_MASK );
+	           (c & MIN_ACC_CONTROL_VALUE_MASK );
 	}
 
-	inline min::uns64 new_gc_control
+	inline min::uns64 new_acc_control
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
@@ -1141,29 +1143,29 @@ namespace min { namespace unprotected {
 		   flags;
 	}
 
-	inline min::uns64 renew_gc_control_stub
+	inline min::uns64 renew_acc_control_stub
 		( min::uns64 c, min::stub * s )
 	{
-	    return ( c & ~ MIN_GC_CONTROL_VALUE_MASK )
+	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
 		   | (min::internal::pointer_uns) s;
 	}
 
 #   elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-         <= MIN_GC_CONTROL_VALUE_MASK
+         <= MIN_ACC_CONTROL_VALUE_MASK
 
-	inline min::stub * stub_of_gc_control
+	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
-	       (c & MIN_GC_CONTROL_VALUE_MASK );
+	       (c & MIN_ACC_CONTROL_VALUE_MASK );
 	    return
 	        (min::stub *)
 		( p + (min::internal::pointer_uns)
 		      MIN_STUB_BASE );
 	}
 
-	inline min::uns64 new_gc_control
+	inline min::uns64 new_acc_control
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
@@ -1176,31 +1178,31 @@ namespace min { namespace unprotected {
 		   flags;
 	}
 
-	inline min::uns64 renew_gc_control_stub
+	inline min::uns64 renew_acc_control_stub
 		( min::uns64 c, min::stub * s )
 	{
-	    return ( c & ~ MIN_GC_CONTROL_VALUE_MASK )
+	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
 		   | (   (min::internal::pointer_uns) s
 		       - (min::internal::pointer_uns)
 		         MIN_STUB_BASE );
 	}
 
 #   elif    MIN_MAXIMUM_STUB_INDEX \
-         <= MIN_GC_CONTROL_VALUE_MASK
+         <= MIN_ACC_CONTROL_VALUE_MASK
 
-	inline min::stub * stub_of_gc_control
+	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
-	       (c & MIN_GC_CONTROL_VALUE_MASK );
+	       (c & MIN_ACC_CONTROL_VALUE_MASK );
 	    return
 	        (min::stub *)
 		(min::internal::pointer_uns)
 		MIN_STUB_BASE + p;
 	}
 
-	inline min::uns64 new_gc_control
+	inline min::uns64 new_acc_control
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
@@ -1213,10 +1215,10 @@ namespace min { namespace unprotected {
 		   flags;
 	}
 
-	inline min::uns64 renew_gc_control_stub
+	inline min::uns64 renew_acc_control_stub
 		( min::uns64 c, min::stub * s )
 	{
-	    return ( c & ~ MIN_GC_CONTROL_VALUE_MASK )
+	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
 	           | (   s
 	               - (min::stub *)
 		         (min::internal::pointer_uns)
@@ -1224,7 +1226,7 @@ namespace min { namespace unprotected {
 	}
 #   else
 #	error   MIN_MAXIMUM_STUB_INDEX \
-              > MIN_GC_CONTROL_VALUE_MASK
+              > MIN_ACC_CONTROL_VALUE_MASK
 #   endif
 
 } }
@@ -1427,8 +1429,14 @@ namespace min {
     };
 }
 
-// Garbage Collector Interface
-// ------- --------- ---------
+// Allocator/Collector/Compactor Data
+// ----------------------------- ----
+
+// Allocator/Collector/Compactor Mutator Interface
+// ----------------------------- ------- ---------
+
+// Collector Compactor Interface
+// --------- --------- ---------
 
 // This interface includes high performance inline
 // functions that allocate and deallocate stubs and
@@ -1443,41 +1451,41 @@ namespace min {
 
 namespace min { namespace internal {
 
-    // GC flags.
+    // ACC flags.
     //
-    const uns64 GC_FLAG_MASK =
-           ( (uns64(1) << MIN_GC_FLAG_BITS) - 1 )
-	<< ( 56 - MIN_GC_FLAG_BITS );
-    const uns64 GC_SCAVENGED_MASK =
-    	  GC_FLAG_MASK
+    const uns64 ACC_FLAG_MASK =
+           ( (uns64(1) << MIN_ACC_FLAG_BITS) - 1 )
+	<< ( 56 - MIN_ACC_FLAG_BITS );
+    const uns64 ACC_SCAVENGED_MASK =
+    	  ACC_FLAG_MASK
 	& (    uns64(0xAAAAAA)
-	    << ( 56 - MIN_GC_FLAG_BITS ) );
-    const uns64 GC_MARKED_MASK =
-        GC_SCAVENGED_MASK >> 1;
+	    << ( 56 - MIN_ACC_FLAG_BITS ) );
+    const uns64 ACC_MARKED_MASK =
+        ACC_SCAVENGED_MASK >> 1;
 
 } }
 
 namespace min { namespace unprotected {
 
-    // Mutator (non-gc execution engine) action:
+    // Mutator (non-acc execution engine) action:
     //
     // If a pointer to stub s2 is stored in a datum with
-    // stub s1, then for each pair of GC flags the sca-
+    // stub s1, then for each pair of ACC flags the sca-
     // venged flag of the pair of s1 and the unmarked
     // flag of the pair s2 are logically ANDed, and if
-    // the corresponding bit is on in MUP::gc_stack_
+    // the corresponding bit is on in MUP::acc_stack_
     // mask, then push a pointer to s1 and then a
-    // pointer to s2 into the MUP::gc_stack.
+    // pointer to s2 into the MUP::acc_stack.
     //
     // When a new stub is allocated, it is given the
-    // flags in MUP::gc_new_stub_flags.
+    // flags in MUP::acc_new_stub_flags.
     //
     // One use of this mutator action is as follows.
     //
     // To mark the those members of a set of stubs S
     // that are pointed at by members of a set of stubs
-    // R, use a pair of GC flags, and set the corres-
-    // ponding bit in MUP::gc_stack_mask.  Clear the
+    // R, use a pair of ACC flags, and set the corres-
+    // ponding bit in MUP::acc_stack_mask.  Clear the
     // scavenged flag of the flag pair in each stub in
     // R or S, set the unmarked flag in every stub in S
     // that is not in R, and clear the unmarked flag of
@@ -1497,7 +1505,7 @@ namespace min { namespace unprotected {
     // pointer from s1's object to a stub s2 in S, if
     // the unmarked flag of s2 is set, it is cleared and
     // s2 is added to the set R.  If a pair of pointers
-    // s1, s2 appears in the MUP::gc_stack with the
+    // s1, s2 appears in the MUP::acc_stack with the
     // scavenged flag of s1 on and the unmarked flag of
     // s2 on, the unmarked and scavenged flags of s2 are
     // cleared, and s2 is added to the set R.
@@ -1520,11 +1528,11 @@ namespace min { namespace unprotected {
     // Another use of the mutator action is as follows.
     //
     // To mark members of a set of stubs R that point at
-    // members of a set of stubs S, use a pair of GC
+    // members of a set of stubs S, use a pair of ACC
     // pointers, and set the corresponding bit in MUP::
-    // gc_stack_mask.  Set the unmarked flag of the flag
-    // pair in every stub of S, and clear that flag in
-    // EVERY other stub.  Clear the scavenged flag of
+    // acc_stack_mask.  Set the unmarked flag of the
+    // flag pair in every stub of S, and clear that flag
+    // in EVERY other stub.  Clear the scavenged flag of
     // EVERY stub.
     //
     // At the end of the algorithm the unmarked flags
@@ -1540,7 +1548,7 @@ namespace min { namespace unprotected {
     // object is checked to see if it has any pointers
     // to stubs in S, and if so, its scavenged flag is
     // turned back off.  If a pair of pointers s1, s2
-    // appears in the MUP::gc_stack with the scavenged
+    // appears in the MUP::acc_stack with the scavenged
     // flag of s1 on and the unmarked flag of s2 on, the
     // scavenged flag of s1 is cleared.
     //
@@ -1550,60 +1558,61 @@ namespace min { namespace unprotected {
     // the stubs in R have been gone through in the
     // pre-determined order, this will include all stubs
     // in R whose object point at stubs in S, whenever
-    // the MUP::gc_stack is empty.
+    // the MUP::acc_stack is empty.
     //
     // If a brand new stub is created, it can be added
     // to S by clearing its scavenged flag and setting
     // its unmarked flag.
     //
     // WARNING: only unmarked flag bits may be on in
-    // MUP::gc_stack_mask.
+    // MUP::acc_stack_mask.
     //
-    extern min::uns64 gc_stack_mask;
-    extern min::uns64 gc_new_stub_flags;
+    extern min::uns64 acc_stack_mask;
+    extern min::uns64 acc_new_stub_flags;
 
-    // The GC Stack is a vector of min::stub * values
+    // The ACC Stack is a vector of min::stub * values
     // that is filled from low to high addresses.  MUP::
-    // gc_stack points at the first empty location.
-    // MUP::gc_stack_end points just after the vector.
-    // MUP::gc_stack >= MUP::gc_stack_end iff the stack
-    // is full.  This last check is NOT made normally
-    // when pushing values into the stack, as the stack
-    // is a very large piece of virtual memory, and is
-    // protected at its end by an inaccessible page.
+    // acc_stack points at the first empty location.
+    // MUP::acc_stack_end points just after the vector.
+    // MUP::acc_stack >= MUP::acc_stack_end iff the
+    // stack is full.  This last check is NOT made norm-
+    // ally when pushing values into the stack, as the
+    // stack is a very large piece of virtual memory,
+    // and is protected at its end by an inaccessible
+    // page.
     //
-    extern min::stub ** gc_stack;
-    extern min::stub ** gc_stack_end;
+    extern min::stub ** acc_stack;
+    extern min::stub ** acc_stack_end;
 
     // Function executed whenever a pointer to stub s2
     // is stored in a datum with stub s1.  This function
-    // updates the GC flags of s2.
+    // updates the ACC flags of s2.
     //
     // s1 is the source of the written pointer and s2
     // is the target.
     // 
-    inline void gc_write_update
+    inline void acc_write_update
 	    ( min::stub * s1, min::stub * s2 )
     {
         uns64 f = ( control_of ( s1 ) >> 1 )
 	        & ( control_of ( s2 ) )
-		& min::unprotected::gc_stack_mask;
+		& min::unprotected::acc_stack_mask;
 
 	if ( f != 0 )
 	{
-	    * gc_stack ++ = s1;
-	    * gc_stack ++ = s2;
+	    * acc_stack ++ = s1;
+	    * acc_stack ++ = s2;
 	}
     }
 
     // Function executed whenever the n general values
     // pointed at by p are stored in a datum with stub
     // s1, and the general values may contain stub
-    // pointers.  This function calls gc_write_update
+    // pointers.  This function calls acc_write_update
     // ( s1, s2 ) for every stub pointer s2 in one of
     // the general values.
     //
-    inline void gc_write_update
+    inline void acc_write_update
 	    ( min::stub * s1,
 	      const min::gen * p, unsigned n )
     {
@@ -1611,7 +1620,7 @@ namespace min { namespace unprotected {
 	{
 	    min::gen v = * p ++;
 	    if ( min::is_stub ( v ) )
-	        gc_write_update
+	        acc_write_update
 		    ( s1, min::stub_of ( v ) );
 	}
     }
@@ -1624,8 +1633,8 @@ namespace min { namespace unprotected {
     // ed.  To allocate a new stub, this is updated to
     // the next stub on the list, if any.  Otherwise, if
     // there is no next stub, an out-of-line function,
-    // gc_expand_stub_free_list, is called to add to the
-    // end of the list.
+    // acc_expand_stub_free_list, is called to add to
+    // the end of the list.
     //
     // Unallocated stubs have stub type min::FREE, zero
     // stub control flags, and min:MISSING value.
@@ -1636,50 +1645,51 @@ namespace min { namespace unprotected {
     extern min::stub * last_allocated_stub;
 
     // Number of free stubs that can be allocated with-
-    // out requiring a call to gc_expand_stub_free_list.
+    // out requiring a call to acc_expand_stub_free_
+    // list.
     //
     extern unsigned number_of_free_stubs;
 
     // Out of line function to increase the number of
     // free stubs to be at least n.
     //
-    void gc_expand_stub_free_list ( unsigned n );
+    void acc_expand_stub_free_list ( unsigned n );
 
     // Function to return the next free stub as a
     // garbage collectible stub.  The type is set to
     // min::FREE and may be changed to any garbage
-    // collectible type.  The value is NOT set.  The GC
-    // flags are set to MUP::gc_new_stub_flags, and the
+    // collectible type.  The value is NOT set.  The ACC
+    // flags are set to MUP::acc_new_stub_flags, and the
     // non-type part of the stub control is maintained
-    // by the GC.
+    // by the ACC.
     //
     inline min::stub * new_stub ( void )
     {
 	if ( number_of_free_stubs == 0 )
-	    gc_expand_stub_free_list ( 1 );
+	    acc_expand_stub_free_list ( 1 );
 	-- number_of_free_stubs;
 	uns64 c = control_of ( last_allocated_stub );
-	min::stub * s = stub_of_gc_control ( c );
-	set_flags_of ( s, gc_new_stub_flags );
+	min::stub * s = stub_of_acc_control ( c );
+	set_flags_of ( s, acc_new_stub_flags );
 	return last_allocated_stub = s;
     }
     
     // Function to return the next free stub while
-    // removing this stub from the GC list of stubs.
+    // removing this stub from the ACC list of stubs.
     //
     // This function does NOT set any part of the stub
     // returned.  The stub returned is ignored by the
-    // GC.
+    // ACC.
     //
     inline min::stub * new_aux_stub ( void )
     {
 	if ( number_of_free_stubs == 0 )
-	    gc_expand_stub_free_list ( 1 );
+	    acc_expand_stub_free_list ( 1 );
 	-- number_of_free_stubs;
 	uns64 c = control_of ( last_allocated_stub );
-	min::stub * s = stub_of_gc_control ( c );
-	c = renew_gc_control_stub
-	        ( c, stub_of_gc_control
+	min::stub * s = stub_of_acc_control ( c );
+	c = renew_acc_control_stub
+	        ( c, stub_of_acc_control
 			 ( control_of ( s ) ) );
 	set_control_of ( last_allocated_stub, c );
 	return s;
@@ -1696,11 +1706,11 @@ namespace min { namespace unprotected {
         min::unprotected::set_gen_of
 	    ( s, min::NONE );
 	uns64 c = control_of ( last_allocated_stub );
-	min::stub * next = stub_of_gc_control ( c );
+	min::stub * next = stub_of_acc_control ( c );
 	min::unprotected::set_control_of
-	    ( s, min::unprotected::new_gc_control
+	    ( s, min::unprotected::new_acc_control
 		  ( min::FREE, next ) );
-	c = renew_gc_control_stub ( c, s );
+	c = renew_acc_control_stub ( c, s );
 	set_control_of ( last_allocated_stub, c );
 	++ number_of_free_stubs;
     }
@@ -1751,7 +1761,7 @@ namespace min { namespace unprotected {
     // Here n must be the argument to new_body rounded
     // up to a multiple of 8.
     //
-    body_control * gc_new_body ( unsigned n );
+    body_control * acc_new_body ( unsigned n );
 
     // Function to return the address of the body_con-
     // trol in front of a newly allocated body with n'
@@ -1769,7 +1779,7 @@ namespace min { namespace unprotected {
 	min::internal::pointer_uns size =
 	    value_of_control ( head->control );
 	if ( size < n + sizeof ( body_control ) )
-	    return gc_new_body ( n );
+	    return acc_new_body ( n );
 
 	// The pointers are:
 	//
@@ -1815,7 +1825,7 @@ namespace min { namespace unprotected {
     }
 
     // Hash tables for atoms.  The stubs in these tables
-    // are chained together by the gc chain pointer and
+    // are chained together by the acc chain pointer and
     // are garbage collectible.
 
     extern min::stub ** str_hash;

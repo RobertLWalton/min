@@ -334,7 +334,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
-Test non-gc controls with stub addresses:
+Test non-acc controls with stub addresses:
 control2: 8580000000000010
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
@@ -358,12 +358,12 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
-Test gc controls with stub addresses:
+Test acc controls with stub addresses:
 control3: 8580000000000001
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
-    MUP::stub_of_gc_control ( control3 ) == stub1 true.
+    MUP::stub_of_acc_control ( control3 ) == stub1 true.
 min_interface_test.cc:XXXX assert:
     control3 & hiflag true.
 min_interface_test.cc:XXXX assert:
@@ -425,7 +425,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     MUP::control_of ( stub ) == c true.
 
-Test stub GC related functions:
+Test stub ACC related functions:
 min_interface_test.cc:XXXX assert:
     min::is_collectible ( min::NUMBER ) true.
 min_interface_test.cc:XXXX assert:
@@ -493,20 +493,20 @@ Start Garbage Collector Interface Test!
 
 Test mutator functions:
 min_interface_test.cc:XXXX assert:
-    MUP::gc_stack == stack true.
+    MUP::acc_stack == stack true.
 min_interface_test.cc:XXXX assert:
-    MUP::gc_stack == stack + 2 true.
+    MUP::acc_stack == stack + 2 true.
 min_interface_test.cc:XXXX assert:
     stack[0] == &s1 true.
 min_interface_test.cc:XXXX assert:
     stack[1] == &s2 true.
 min_interface_test.cc:XXXX assert:
-    MUP::gc_stack == stack + 2 true.
+    MUP::acc_stack == stack + 2 true.
 min_interface_test.cc:XXXX assert:
-    MUP::gc_stack == stack + 2 true.
+    MUP::acc_stack == stack + 2 true.
 
 Test stub allocator functions:
-MUP::gc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + 1 true.
 min_interface_test.cc:XXXX assert:
@@ -517,7 +517,7 @@ min_interface_test.cc:XXXX assert:
     min::type_of ( stub1 ) == min::FREE true.
 min_interface_test.cc:XXXX assert:
     ! MUP::test_flags_of ( stub1, unmarked_flag ) true.
-MUP::gc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub2 == MUP::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
@@ -528,7 +528,7 @@ min_interface_test.cc:XXXX assert:
     min::type_of ( stub2 ) == min::FREE true.
 min_interface_test.cc:XXXX assert:
     MUP::test_flags_of ( stub2, unmarked_flag ) true.
-MUP::gc_expand_stub_free_list (2) called
+MUP::acc_expand_stub_free_list (2) called
 min_interface_test.cc:XXXX assert:
     region_stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
@@ -657,9 +657,9 @@ min_interface_test.cc:XXXX assert:
     min::strnhash ( s13, 3 ) == s3hash true.
 
 Test string general values:
-MUP::gc_expand_stub_free_list (1) called
-MUP::gc_expand_stub_free_list (1) called
-MUP::gc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
 add_to_free_body (40) called
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 8 ) == strgen8 true.
@@ -910,7 +910,7 @@ labhash1: 95375049
 Test labels:
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
-MUP::gc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
 add_to_free_body (48) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
@@ -976,7 +976,7 @@ min_interface_test.cc:XXXX assert:
     lmaxht >= 4000000 true.
 
 Test short objects:
-MUP::gc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
 add_to_free_body (4848) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
@@ -995,7 +995,7 @@ min_interface_test.cc:XXXX assert:
     st == sh + sht + sav + sua + saa true.
 
 Test long objects:
-MUP::gc_expand_stub_free_list (1) called
+MUP::acc_expand_stub_free_list (1) called
 add_to_free_body (616520) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
@@ -1347,7 +1347,7 @@ min_interface_test.cc:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::gc_expand_stub_free_list (4) called
+MUP::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 min_interface_test.cc:XXXX assert:
@@ -1372,7 +1372,7 @@ min_interface_test.cc:XXXX assert:
     is_sublist_aux ( v ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::gc_expand_stub_free_list (4) called
+MUP::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
@@ -1787,7 +1787,7 @@ min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num107 true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::gc_expand_stub_free_list (4) called
+MUP::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
@@ -1843,7 +1843,7 @@ min_interface_test.cc:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::gc_expand_stub_free_list (3) called
+MUP::acc_expand_stub_free_list (3) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 min_interface_test.cc:XXXX assert:
@@ -1858,7 +1858,7 @@ min_interface_test.cc:XXXX assert:
     min::unused_size_of ( long_vp ) == 3 true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::gc_expand_stub_free_list (3) called
+MUP::acc_expand_stub_free_list (3) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
@@ -1879,7 +1879,7 @@ min_interface_test.cc:XXXX assert:
     min::next ( wllp ) == num107 true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::gc_expand_stub_free_list (4) called
+MUP::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
