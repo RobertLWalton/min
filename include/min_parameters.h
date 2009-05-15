@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Dec 26 05:27:30 EST 2008
+// Date:	Fri May 15 09:30:04 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2008/12/28 09:35:01 $
+//   $Date: 2009/05/15 14:29:21 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.27 $
+//   $Revision: 1.28 $
 
 // Table of Contents
 //
@@ -43,8 +43,8 @@
 // -DMIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFFull
 //	// 2**48 - 1; forces use of stub indices in 64
 //	// bit general values.
-// -DMIN_GC_FLAG_BITS=14
-//	// Adds an ephemeral GC level.
+// -DMIN_ACC_FLAG_BITS=14
+//	// Adds an ephemeral ACC level.
 // 
 // See below for the definition of these parameters.
 // Other parameters are computed from these.
@@ -142,12 +142,12 @@
 //
 //    loose general value     0 .. 2**44 - 1
 //
-//    gc control value	      0 .. 2**G - 1 where
-//			      G = 56 - MIN_GC_FLAG_BITS
+//    acc control value	      0 .. 2**G - 1 where
+//			      G = 56 - MIN_ACC_FLAG_BITS
 //
 //    (other) control value   0 .. 2**48-1
 //
-// MIN_GC_FLAG_BITS (which defaults to 12) controls how
+// MIN_ACC_FLAG_BITS (which defaults to 12) controls how
 // many ephemeral levels of garbage collector are
 // implemented (see below).
 //
@@ -210,12 +210,13 @@
 #   define MIN_STUB_BASE 0
 # endif
 
-// Number of GC flag bits.  The GC needs 4N+2 flag bits
-// to implement N ephemeral levels and 1 non-ephemeral
-// level of garbage collection.  Defaults to 12.
+// Number of ACC flag bits.  The ACC needs 4N+2 flag
+// bits to implement N ephemeral levels and 1 non-
+// ephemeral level of garbage collection.  Defaults to
+// 12.
 //
-# ifndef MIN_GC_FLAG_BITS
-#   define MIN_GC_FLAG_BITS 12
+# ifndef MIN_ACC_FLAG_BITS
+#   define MIN_ACC_FLAG_BITS 12
 # endif
 
 // Normally you will not define the following, and so

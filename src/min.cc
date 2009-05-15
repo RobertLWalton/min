@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 13 11:21:32 EDT 2009
+// Date:	Fri May 15 09:26:20 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/13 15:21:54 $
+//   $Date: 2009/05/15 14:29:38 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.90 $
+//   $Revision: 1.91 $
 
 // Table of Contents:
 //
@@ -139,10 +139,10 @@ namespace min { namespace unprotected {
 
 namespace min { namespace unprotected {
 
-    min::uns64 gc_stack_mask;
-    min::uns64 gc_new_stub_flags;
-    min::stub ** gc_stack;
-    min::stub ** gc_stack_end;
+    min::uns64 acc_stack_mask;
+    min::uns64 acc_new_stub_flags;
+    min::stub ** acc_stack;
+    min::stub ** acc_stack_end;
     min::stub * last_allocated_stub;
     unsigned number_of_free_stubs;
     body_control * free_body_control;
@@ -174,7 +174,7 @@ namespace min { namespace unprotected {
 	    if ( MUP::float_of ( s ) == v )
 		return min::new_gen ( s );
 	    s = (min::stub *)
-	        MUP::stub_of_gc_control
+	        MUP::stub_of_acc_control
 		    ( MUP::control_of ( s ) );
 	}
 
@@ -182,9 +182,9 @@ namespace min { namespace unprotected {
 	MUP::set_float_of ( s, v );
 	MUP::set_control_of
 	    ( s,
-	      MUP::new_gc_control
+	      MUP::new_acc_control
 	          ( min::NUMBER, MUP::num_hash[h],
-		    gc_new_stub_flags ));
+		    acc_new_stub_flags ));
 	MUP::num_hash[h] = s;
 	return min::new_gen ( s );
     }
@@ -432,7 +432,7 @@ min::gen MUP::new_str_stub_gen_internal
 		  && q[n] == 0 )
 	    return min::new_gen ( s );
 	s = (min::stub *)
-	    MUP::stub_of_gc_control
+	    MUP::stub_of_acc_control
 		( MUP::control_of ( s ) );
     }
 
@@ -459,9 +459,9 @@ min::gen MUP::new_str_stub_gen_internal
     }
     MUP::set_control_of
 	( s,
-	  MUP::new_gc_control
+	  MUP::new_acc_control
 	      ( type, MUP::str_hash[h],
-	        MUP::gc_new_stub_flags ));
+	        MUP::acc_new_stub_flags ));
     MUP::str_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -506,7 +506,7 @@ min::gen min::new_lab_gen
     // elements.
     //
     min::stub * s = MUP::lab_hash[h];
-    for ( ; s ; s = MUP::stub_of_gc_control
+    for ( ; s ; s = MUP::stub_of_acc_control
 			( MUP::control_of ( s ) ) )
     {
 	MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
@@ -540,9 +540,9 @@ min::gen min::new_lab_gen
 
     MUP::set_control_of
 	( s,
-	  MUP::new_gc_control
+	  MUP::new_acc_control
 	      ( min::LABEL, MUP::lab_hash[h],
-	        MUP::gc_new_stub_flags ));
+	        MUP::acc_new_stub_flags ));
     MUP::lab_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -1355,7 +1355,7 @@ void min::insert_before
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
-    MUP::gc_write_update ( stub_of ( lp.vecp ), p, n );
+    MUP::acc_write_update ( stub_of ( lp.vecp ), p, n );
 
     if ( lp.current == min::LIST_END )
     {
@@ -1740,7 +1740,7 @@ void min::insert_after
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
-    MUP::gc_write_update ( stub_of ( lp.vecp ), p, n );
+    MUP::acc_write_update ( stub_of ( lp.vecp ), p, n );
 
     bool previous = ( lp.previous_index != 0 );
 #   if MIN_USES_OBJ_AUX_STUBS
@@ -2237,7 +2237,7 @@ void MINT::insert_reserve
 {
 #   if MIN_USES_OBJ_AUX_STUBS
 	if ( use_obj_aux_stubs )
-	    MUP::gc_expand_stub_free_list
+	    MUP::acc_expand_stub_free_list
 		( insertions + elements );
 	else
 #   endif
