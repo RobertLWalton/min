@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May 15 09:26:20 EDT 2009
+// Date:	Sat May 16 08:32:03 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/15 14:29:38 $
+//   $Date: 2009/05/16 13:42:30 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.91 $
+//   $Revision: 1.92 $
 
 // Table of Contents:
 //
@@ -139,11 +139,6 @@ namespace min { namespace unprotected {
 
 namespace min { namespace unprotected {
 
-    min::uns64 acc_stack_mask;
-    min::uns64 acc_new_stub_flags;
-    min::stub ** acc_stack;
-    min::stub ** acc_stack_end;
-    min::stub * last_allocated_stub;
     unsigned number_of_free_stubs;
     body_control * free_body_control;
 
@@ -155,6 +150,16 @@ namespace min { namespace unprotected {
 
     min::stub ** lab_hash;
     unsigned lab_hash_size;
+
+} }
+
+namespace min { namespace internal {
+
+    min::uns64 acc_stack_mask;
+    min::stub ** acc_stack;
+
+    min::uns64 acc_new_stub_flags;
+    min::stub * last_allocated_stub;
 
 } }
 
@@ -178,13 +183,13 @@ namespace min { namespace unprotected {
 		    ( MUP::control_of ( s ) );
 	}
 
-	s = MUP::new_aux_stub ();
+	s = MINT::new_aux_stub ();
 	MUP::set_float_of ( s, v );
 	MUP::set_control_of
 	    ( s,
 	      MUP::new_acc_control
 	          ( min::NUMBER, MUP::num_hash[h],
-		    acc_new_stub_flags ));
+		    MINT::acc_new_stub_flags ));
 	MUP::num_hash[h] = s;
 	return min::new_gen ( s );
     }
@@ -436,7 +441,7 @@ min::gen MUP::new_str_stub_gen_internal
 		( MUP::control_of ( s ) );
     }
 
-    s = MUP::new_aux_stub ();
+    s = MINT::new_aux_stub ();
     int type;
     if ( n <= 8 )
     {
@@ -461,7 +466,7 @@ min::gen MUP::new_str_stub_gen_internal
 	( s,
 	  MUP::new_acc_control
 	      ( type, MUP::str_hash[h],
-	        MUP::acc_new_stub_flags ));
+	        MINT::acc_new_stub_flags ));
     MUP::str_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -524,7 +529,7 @@ min::gen min::new_lab_gen
 
     // Allocate new label.
     //
-    s = MUP::new_aux_stub ();
+    s = MINT::new_aux_stub ();
     MUP::body_control * b = MUP::new_body
 	(   sizeof ( MINT::lab_header )
 	  + n * sizeof (min::gen) );
@@ -542,7 +547,7 @@ min::gen min::new_lab_gen
 	( s,
 	  MUP::new_acc_control
 	      ( min::LABEL, MUP::lab_hash[h],
-	        MUP::acc_new_stub_flags ));
+	        MINT::acc_new_stub_flags ));
     MUP::lab_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -1205,7 +1210,7 @@ min::gen min::new_obj_gen
 		    - hash_size
 		    - MUP::long_obj_header_size );
     unsigned total_size = unused_size + hash_size;
-    min::stub * s = MUP::new_stub();
+    min::stub * s = MINT::new_stub();
     min::gen * p;
     if (   total_size + MUP::short_obj_header_size
          < ( 1 << 16 ) )
@@ -1293,13 +1298,13 @@ void MINT::allocate_stub_list
     //
     MIN_ASSERT ( ! min::relocated_flag () );
 
-    first = MUP::new_aux_stub ();
+    first = MINT::new_aux_stub ();
     MUP::set_gen_of ( first, * p ++ );
     min::stub * previous = first;
     last = first;
     while ( -- n )
     {
-	last = MUP::new_aux_stub ();
+	last = MINT::new_aux_stub ();
 	MUP::set_gen_of ( last, * p ++ );
 	MUP::set_control_of
 	     ( previous,
@@ -1324,7 +1329,7 @@ void MINT::collect_aux_stub_helper ( min::stub * s )
 	MINT::collect_aux_stub ( MUP::gen_of ( s ) );
 	min::uns64 c = MUP::control_of ( s );
 
-	MUP::free_stub ( s );
+	MINT::free_stub ( s );
 
 	if ( ( c & MUP::STUB_POINTER ) == 0 ) break;
 	s =  MUP::stub_of_control ( c );
@@ -1355,7 +1360,8 @@ void min::insert_before
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
-    MUP::acc_write_update ( stub_of ( lp.vecp ), p, n );
+    MINT::acc_write_update
+            ( stub_of ( lp.vecp ), p, n );
 
     if ( lp.current == min::LIST_END )
     {
@@ -1430,7 +1436,7 @@ void min::insert_before
 		    if ( previous_is_list_head )
 		    {
 		        min::stub * s =
-			    MUP::new_aux_stub();
+			    MINT::new_aux_stub();
 			MUP::set_value_of
 			    ( s,
 			      lp.base
@@ -1558,7 +1564,7 @@ void min::insert_before
 	    }
 	    else if ( ! previous )
 	    {
-	        s = MUP::new_aux_stub();
+	        s = MINT::new_aux_stub();
 		MUP::set_gen_of ( s, lp.current );
 		end = MUP::new_control
 		    ( 0, s, MUP::STUB_POINTER );
@@ -1740,7 +1746,8 @@ void min::insert_after
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
 
-    MUP::acc_write_update ( stub_of ( lp.vecp ), p, n );
+    MINT::acc_write_update
+	    ( stub_of ( lp.vecp ), p, n );
 
     bool previous = ( lp.previous_index != 0 );
 #   if MIN_USES_OBJ_AUX_STUBS
@@ -1775,7 +1782,7 @@ void min::insert_after
 		return;
 	    }
 
-	    min::stub * s = MUP::new_aux_stub();
+	    min::stub * s = MINT::new_aux_stub();
 	    MUP::set_gen_of ( s, lp.current );
 	    int type = lp.previous_is_sublist_head ?
 	    	       min::SUBLIST_AUX :
@@ -2015,7 +2022,7 @@ unsigned min::remove
 		next ( lp );
 		MINT::collect_aux_stub
 		    ( MUP::gen_of ( last_stub ) );
-		MUP::free_stub ( last_stub );
+		MINT::free_stub ( last_stub );
 	    }
 	    else
 #       endif
