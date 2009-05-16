@@ -511,17 +511,17 @@ Start Garbage Collector Interface Test!
 
 Test mutator functions:
 min_interface_test.cc:XXXX assert:
-    MUP::acc_stack == stack true.
+    MINT::acc_stack == stack true.
 min_interface_test.cc:XXXX assert:
-    MUP::acc_stack == stack + 2 true.
+    MINT::acc_stack == stack + 2 true.
 min_interface_test.cc:XXXX assert:
     stack[0] == &s1 true.
 min_interface_test.cc:XXXX assert:
     stack[1] == &s2 true.
 min_interface_test.cc:XXXX assert:
-    MUP::acc_stack == stack + 2 true.
+    MINT::acc_stack == stack + 2 true.
 min_interface_test.cc:XXXX assert:
-    MUP::acc_stack == stack + 2 true.
+    MINT::acc_stack == stack + 2 true.
 
 Test stub allocator functions:
 MUP::acc_expand_stub_free_list (1) called
