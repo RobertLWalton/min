@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May 15 09:27:26 EDT 2009
+// Date:	Sat May 16 08:19:37 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/15 19:28:32 $
+//   $Date: 2009/05/16 13:43:47 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.83 $
+//   $Revision: 1.84 $
 
 // Table of Contents:
 //
@@ -165,7 +165,7 @@ unsigned region_stubs_allocated = 0;
 min::stub * begin_stub_region;
 min::stub * end_stub_region;
 
-// Initialize stub_region, MUP::last_allocated_stub (to
+// Initialize stub_region, MINT::last_allocated_stub (to
 // a dummy), and number_free_stubs (to zero).
 //
 void initialize_stub_region ( void )
@@ -186,15 +186,15 @@ void initialize_stub_region ( void )
     end_stub_region = (min::stub *) p;
     assert ( begin_stub_region < end_stub_region );
 
-    MUP::last_allocated_stub = begin_stub_region;
+    MINT::last_allocated_stub = begin_stub_region;
     MUP::number_of_free_stubs = 0;
     ++ region_stubs_allocated;
     min::uns64 c = MUP::new_acc_control
 	( min::FREE, (min::stub *) NULL );
     MUP::set_control_of
-	( MUP::last_allocated_stub, c );
+	( MINT::last_allocated_stub, c );
     MUP::set_value_of
-	( MUP::last_allocated_stub, 0 );
+	( MINT::last_allocated_stub, 0 );
 }
 
 // Function to allocate n - number_of_free_stubs more
@@ -209,7 +209,7 @@ void MUP::acc_expand_stub_free_list ( unsigned n )
     n -= MUP::number_of_free_stubs;
 
     min::uns64 lastc = MUP::control_of
-	( MUP::last_allocated_stub );
+	( MINT::last_allocated_stub );
     min::stub * free =
 	MUP::stub_of_acc_control ( lastc );
     while ( n -- > 0 )
@@ -227,7 +227,7 @@ void MUP::acc_expand_stub_free_list ( unsigned n )
     }
     lastc = MUP::renew_acc_control_stub ( lastc, free );
     MUP::set_control_of
-	( MUP::last_allocated_stub, lastc );
+	( MINT::last_allocated_stub, lastc );
 }
 
 // Place to allocate bodies.  Bodes must be allocated on
@@ -1157,15 +1157,14 @@ int main ()
 	initialize_body_region();
 	initialize_hash_tables();
 	min::stub * stack[2];
-	MUP::acc_stack = stack;
-	MUP::acc_stack_end = stack + 2;
+	MINT::acc_stack = stack;
 	min::stub s1, s2;
 	const min::uns64 unmarked_flag =
 	       min::uns64(1)
 	    << ( 56 - MIN_ACC_FLAG_BITS );
 	const min::uns64 scavenged_flag =
 	    unmarked_flag << 1;
-	MUP::acc_stack_mask = unmarked_flag;
+	MINT::acc_stack_mask = unmarked_flag;
 
         cout << endl;
 	cout << "Test mutator functions:"
@@ -1174,31 +1173,31 @@ int main ()
 	MUP::set_flags_of ( &s1, scavenged_flag );
 	MUP::set_control_of ( &s2, 0 );
 	MUP::set_flags_of ( &s2, unmarked_flag );
-	MUP::acc_stack = stack;
-	MUP::acc_stack_mask = 0;
-	MUP::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::acc_stack == stack );
-	MUP::acc_stack_mask = unmarked_flag;
-	MUP::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::acc_stack == stack + 2 );
+	MINT::acc_stack = stack;
+	MINT::acc_stack_mask = 0;
+	MINT::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MINT::acc_stack == stack );
+	MINT::acc_stack_mask = unmarked_flag;
+	MINT::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MINT::acc_stack == stack + 2 );
 	MIN_ASSERT ( stack[0] == &s1 );
 	MIN_ASSERT ( stack[1] == &s2 );
 	MUP::clear_flags_of ( &s1, scavenged_flag );
-	MUP::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::acc_stack == stack + 2 );
+	MINT::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MINT::acc_stack == stack + 2 );
 	MUP::set_flags_of ( &s1, scavenged_flag );
 	MUP::clear_flags_of ( &s2, unmarked_flag );
-	MUP::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MUP::acc_stack == stack + 2 );
+	MINT::acc_write_update ( &s1, &s2 );
+	MIN_ASSERT ( MINT::acc_stack == stack + 2 );
 
         cout << endl;
 	cout << "Test stub allocator functions:"
 	     << endl;
-	MUP::acc_new_stub_flags = 0;
-	min::stub * stub1 = MUP::new_stub();
+	MINT::acc_new_stub_flags = 0;
+	min::stub * stub1 = MINT::new_stub();
 	MIN_ASSERT ( stub1 == begin_stub_region + 1 );
 	MIN_ASSERT
-	    ( stub1 == MUP::last_allocated_stub );
+	    ( stub1 == MINT::last_allocated_stub );
 	MIN_ASSERT
 	    ( region_stubs_allocated == 2 );
 	MIN_ASSERT
@@ -1206,10 +1205,10 @@ int main ()
 	MIN_ASSERT
 	    ( ! MUP::test_flags_of
 	    	     ( stub1, unmarked_flag ) );
-	MUP::acc_new_stub_flags = unmarked_flag;
-	min::stub * stub2 = MUP::new_stub();
+	MINT::acc_new_stub_flags = unmarked_flag;
+	min::stub * stub2 = MINT::new_stub();
 	MIN_ASSERT
-	    ( stub2 == MUP::last_allocated_stub );
+	    ( stub2 == MINT::last_allocated_stub );
 	MIN_ASSERT
 	    ( region_stubs_allocated == 3 );
 	MIN_ASSERT ( stub2 == begin_stub_region + 2 );
@@ -1222,19 +1221,19 @@ int main ()
 	MIN_ASSERT
 	    ( region_stubs_allocated == 5 );
 	MIN_ASSERT
-	    ( stub2 == MUP::last_allocated_stub );
-	min::stub * stub3 = MUP::new_aux_stub();
+	    ( stub2 == MINT::last_allocated_stub );
+	min::stub * stub3 = MINT::new_aux_stub();
 	MIN_ASSERT ( stub3 == begin_stub_region + 4 );
 	MIN_ASSERT
 	    ( region_stubs_allocated == 5 );
 	MIN_ASSERT
-	    ( stub2 == MUP::last_allocated_stub );
-	min::stub * stub4 = MUP::new_stub();
+	    ( stub2 == MINT::last_allocated_stub );
+	min::stub * stub4 = MINT::new_stub();
 	MIN_ASSERT ( stub4 == begin_stub_region + 3 );
 	MIN_ASSERT
 	    ( region_stubs_allocated == 5 );
 	MIN_ASSERT
-	    ( stub4 == MUP::last_allocated_stub );
+	    ( stub4 == MINT::last_allocated_stub );
 
 
         cout << endl;

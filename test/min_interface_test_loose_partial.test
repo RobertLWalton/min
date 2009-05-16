@@ -510,7 +510,7 @@ MUP::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + 1 true.
 min_interface_test.cc:XXXX assert:
-    stub1 == MUP::last_allocated_stub true.
+    stub1 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
     region_stubs_allocated == 2 true.
 min_interface_test.cc:XXXX assert:
@@ -519,7 +519,7 @@ min_interface_test.cc:XXXX assert:
     ! MUP::test_flags_of ( stub1, unmarked_flag ) true.
 MUP::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
-    stub2 == MUP::last_allocated_stub true.
+    stub2 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
     region_stubs_allocated == 3 true.
 min_interface_test.cc:XXXX assert:
@@ -532,19 +532,19 @@ MUP::acc_expand_stub_free_list (2) called
 min_interface_test.cc:XXXX assert:
     region_stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
-    stub2 == MUP::last_allocated_stub true.
+    stub2 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
     stub3 == begin_stub_region + 4 true.
 min_interface_test.cc:XXXX assert:
     region_stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
-    stub2 == MUP::last_allocated_stub true.
+    stub2 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
     stub4 == begin_stub_region + 3 true.
 min_interface_test.cc:XXXX assert:
     region_stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
-    stub4 == MUP::last_allocated_stub true.
+    stub4 == MINT::last_allocated_stub true.
 
 Test body allocator functions:
 add_to_free_body (144) called

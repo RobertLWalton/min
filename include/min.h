@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May 15 15:25:37 EDT 2009
+// Date:	Sat May 16 08:17:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/15 19:28:21 $
+//   $Date: 2009/05/16 13:42:16 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.162 $
+//   $Revision: 1.163 $
 
 // Table of Contents:
 //
@@ -1445,6 +1445,21 @@ namespace min {
 // Allocator/Collector/Compactor Data
 // ----------------------------- ----
 
+namespace min { namespace unprotected {
+
+    // Number of free stubs that can be allocated with-
+    // out requiring a call to acc_expand_stub_free_
+    // list.
+    //
+    extern unsigned number_of_free_stubs;
+
+    // Out of line function to increase the number of
+    // free stubs to be at least n.
+    //
+    void acc_expand_stub_free_list ( unsigned n );
+
+} }
+
 namespace min { namespace internal {
 
     // The ACC Flag Bit layout is:
@@ -1472,6 +1487,173 @@ namespace min { namespace internal {
         ACC_SCAVENGED_MASK >> 1;
     const uns64 ACC_FIXED_BODY_FLAG =
 	( uns64(1) << ( 56 - MIN_ACC_FLAG_BITS ) );
+
+    // acc_write_update ( s1, s2 ) checks whether
+    //
+    //		unmarked flags of *s2
+    //		&
+    //		scavenged flags of *s1
+    //		&
+    //		acc_stack_mask
+    //
+    // is non-zero, and if so, pushes first s1 and then
+    // s2 into the acc_stack.  This call is made when
+    // a pointer to s2 is stored in the s1 object, and
+    // the acc_stackk is used by the collector to adjust
+    // the marks it makes on objects.
+    //
+    // For efficiency, acc_stack_mask is ann uns64 that
+    // only has ON bits in the unmarked flag positions.
+    // Then the unshifted control value of s2 and the
+    // control value value of s1 left shifted by 1 can
+    // be bitwise ANDed with the acc_stack_mask and the
+    // result checked for zero.
+    //
+
+    // WARNING: only unmarked flag bits may be on in
+    // MUP::acc_stack_mask.
+    //
+    extern min::uns64 acc_stack_mask;
+    extern min::stub ** acc_stack;
+
+    // Function executed whenever a pointer to stub s2
+    // is stored in a datum with stub s1.  s1 is the
+    // source of the written pointer and s2 is the
+    // target.
+    // 
+    inline void acc_write_update
+	    ( min::stub * s1, min::stub * s2 )
+    {
+        uns64 f = (    min::unprotected
+	                  ::control_of ( s1 )
+	            >> 1 )
+	        & ( min::unprotected
+		       ::control_of ( s2 ) )
+		& min::internal::acc_stack_mask;
+
+	if ( f != 0 )
+	{
+	    * acc_stack ++ = s1;
+	    * acc_stack ++ = s2;
+	}
+    }
+
+    // Function executed whenever the n general values
+    // pointed at by p are stored in a datum with stub
+    // s1, and the general values may contain stub
+    // pointers.  This function calls acc_write_update
+    // ( s1, s2 ) for every stub pointer s2 in one of
+    // the general values.
+    //
+    inline void acc_write_update
+	    ( min::stub * s1,
+	      const min::gen * p, unsigned n )
+    {
+        while ( n -- )
+	{
+	    min::gen v = * p ++;
+	    if ( min::is_stub ( v ) )
+	        acc_write_update
+		    ( s1, min::stub_of ( v ) );
+	}
+    }
+
+    // Stub allocation is from a single list of stubs
+    // chained together by the chain part of the stub
+    // control.
+    //
+    // A pointer to the last allocated stub is maintain-
+    // ed.  To allocate a new stub, this is updated to
+    // the next stub on the list, if any.  Otherwise, if
+    // there is no next stub, an out-of-line function,
+    // acc_expand_stub_free_list, is called to add to
+    // the end of the list.
+    //
+    // Unallocated stubs have stub type min::FREE, zero
+    // stub control flags, and min:MISSING value.
+
+    extern min::uns64 acc_new_stub_flags;
+
+    // Pointer to the last allocated stub, which must
+    // exist (it can be a dummy).
+    //
+    extern min::stub * last_allocated_stub;
+
+    // Function to return the next free stub as a
+    // garbage collectible stub.  The type is set to
+    // min::FREE and may be changed to any garbage
+    // collectible type.  The value is NOT set.  The ACC
+    // flags are set to MUP::acc_new_stub_flags, and the
+    // non-type part of the stub control is maintained
+    // by the ACC.
+    //
+    inline min::stub * new_stub ( void )
+    {
+	if ( min::unprotected
+	        ::number_of_free_stubs == 0 )
+	    min::unprotected
+	       ::acc_expand_stub_free_list ( 1 );
+	-- min::unprotected::number_of_free_stubs;
+	uns64 c = min::unprotected::control_of
+			( last_allocated_stub );
+	min::stub * s = min::unprotected
+	                   ::stub_of_acc_control ( c );
+	min::unprotected::set_flags_of
+	    ( s, acc_new_stub_flags );
+	return last_allocated_stub = s;
+    }
+    
+    // Function to return the next free stub while
+    // removing this stub from the ACC list of stubs.
+    //
+    // This function does NOT set any part of the stub
+    // returned.  The stub returned is ignored by the
+    // ACC.
+    //
+    inline min::stub * new_aux_stub ( void )
+    {
+	if ( min::unprotected
+	        ::number_of_free_stubs == 0 )
+	    min::unprotected
+	       ::acc_expand_stub_free_list ( 1 );
+	-- min::unprotected::number_of_free_stubs;
+	uns64 c = min::unprotected::control_of
+			( last_allocated_stub );
+	min::stub * s = min::unprotected
+	                   ::stub_of_acc_control ( c );
+	c = min::unprotected::renew_acc_control_stub
+	        ( c, min::unprotected
+		        ::stub_of_acc_control
+			    ( min::unprotected
+			         ::control_of ( s ) ) );
+	min::unprotected::set_control_of
+		( last_allocated_stub, c );
+	return s;
+    }
+
+    // Function to put a stub on the free list right
+    // after the last allocated stub.  Note this means
+    // that stubs that have been previously allocated
+    // are preferred for new allocations over stubs
+    // that have never been allocated.
+    //
+    inline void free_stub ( min::stub * s )
+    {
+        min::unprotected::set_gen_of
+	    ( s, min::NONE );
+	uns64 c = min::unprotected::control_of
+			( last_allocated_stub );
+	min::stub * next =
+	    min::unprotected::stub_of_acc_control ( c );
+	min::unprotected::set_control_of
+	    ( s, min::unprotected::new_acc_control
+		  ( min::FREE, next ) );
+	c = min::unprotected
+	       ::renew_acc_control_stub ( c, s );
+	min::unprotected::set_control_of
+		( last_allocated_stub, c );
+	++ min::unprotected::number_of_free_stubs;
+    }
 
 } }
 
@@ -1590,157 +1772,6 @@ namespace min { namespace unprotected {
     // If a brand new stub is created, it can be added
     // to S by clearing its scavenged flag and setting
     // its unmarked flag.
-    //
-    // WARNING: only unmarked flag bits may be on in
-    // MUP::acc_stack_mask.
-    //
-    extern min::uns64 acc_stack_mask;
-    extern min::uns64 acc_new_stub_flags;
-
-    // The ACC Stack is a vector of min::stub * values
-    // that is filled from low to high addresses.  MUP::
-    // acc_stack points at the first empty location.
-    // MUP::acc_stack_end points just after the vector.
-    // MUP::acc_stack >= MUP::acc_stack_end iff the
-    // stack is full.  This last check is NOT made norm-
-    // ally when pushing values into the stack, as the
-    // stack is a very large piece of virtual memory,
-    // and is protected at its end by an inaccessible
-    // page.
-    //
-    extern min::stub ** acc_stack;
-    extern min::stub ** acc_stack_end;
-
-    // Function executed whenever a pointer to stub s2
-    // is stored in a datum with stub s1.  This function
-    // updates the ACC flags of s2.
-    //
-    // s1 is the source of the written pointer and s2
-    // is the target.
-    // 
-    inline void acc_write_update
-	    ( min::stub * s1, min::stub * s2 )
-    {
-        uns64 f = ( control_of ( s1 ) >> 1 )
-	        & ( control_of ( s2 ) )
-		& min::unprotected::acc_stack_mask;
-
-	if ( f != 0 )
-	{
-	    * acc_stack ++ = s1;
-	    * acc_stack ++ = s2;
-	}
-    }
-
-    // Function executed whenever the n general values
-    // pointed at by p are stored in a datum with stub
-    // s1, and the general values may contain stub
-    // pointers.  This function calls acc_write_update
-    // ( s1, s2 ) for every stub pointer s2 in one of
-    // the general values.
-    //
-    inline void acc_write_update
-	    ( min::stub * s1,
-	      const min::gen * p, unsigned n )
-    {
-        while ( n -- )
-	{
-	    min::gen v = * p ++;
-	    if ( min::is_stub ( v ) )
-	        acc_write_update
-		    ( s1, min::stub_of ( v ) );
-	}
-    }
-
-    // Stub allocation is from a single list of stubs
-    // chained together by the chain part of the stub
-    // control.
-    //
-    // A pointer to the last allocated stub is maintain-
-    // ed.  To allocate a new stub, this is updated to
-    // the next stub on the list, if any.  Otherwise, if
-    // there is no next stub, an out-of-line function,
-    // acc_expand_stub_free_list, is called to add to
-    // the end of the list.
-    //
-    // Unallocated stubs have stub type min::FREE, zero
-    // stub control flags, and min:MISSING value.
-
-    // Pointer to the last allocated stub, which must
-    // exist (it can be a dummy).
-    //
-    extern min::stub * last_allocated_stub;
-
-    // Number of free stubs that can be allocated with-
-    // out requiring a call to acc_expand_stub_free_
-    // list.
-    //
-    extern unsigned number_of_free_stubs;
-
-    // Out of line function to increase the number of
-    // free stubs to be at least n.
-    //
-    void acc_expand_stub_free_list ( unsigned n );
-
-    // Function to return the next free stub as a
-    // garbage collectible stub.  The type is set to
-    // min::FREE and may be changed to any garbage
-    // collectible type.  The value is NOT set.  The ACC
-    // flags are set to MUP::acc_new_stub_flags, and the
-    // non-type part of the stub control is maintained
-    // by the ACC.
-    //
-    inline min::stub * new_stub ( void )
-    {
-	if ( number_of_free_stubs == 0 )
-	    acc_expand_stub_free_list ( 1 );
-	-- number_of_free_stubs;
-	uns64 c = control_of ( last_allocated_stub );
-	min::stub * s = stub_of_acc_control ( c );
-	set_flags_of ( s, acc_new_stub_flags );
-	return last_allocated_stub = s;
-    }
-    
-    // Function to return the next free stub while
-    // removing this stub from the ACC list of stubs.
-    //
-    // This function does NOT set any part of the stub
-    // returned.  The stub returned is ignored by the
-    // ACC.
-    //
-    inline min::stub * new_aux_stub ( void )
-    {
-	if ( number_of_free_stubs == 0 )
-	    acc_expand_stub_free_list ( 1 );
-	-- number_of_free_stubs;
-	uns64 c = control_of ( last_allocated_stub );
-	min::stub * s = stub_of_acc_control ( c );
-	c = renew_acc_control_stub
-	        ( c, stub_of_acc_control
-			 ( control_of ( s ) ) );
-	set_control_of ( last_allocated_stub, c );
-	return s;
-    }
-
-    // Function to put a stub on the free list right
-    // after the last allocated stub.  Note this means
-    // that stubs that have been previously allocated
-    // are preferred for new allocations over stubs
-    // that have never been allocated.
-    //
-    inline void free_stub ( min::stub * s )
-    {
-        min::unprotected::set_gen_of
-	    ( s, min::NONE );
-	uns64 c = control_of ( last_allocated_stub );
-	min::stub * next = stub_of_acc_control ( c );
-	min::unprotected::set_control_of
-	    ( s, min::unprotected::new_acc_control
-		  ( min::FREE, next ) );
-	c = renew_acc_control_stub ( c, s );
-	set_control_of ( last_allocated_stub, c );
-	++ number_of_free_stubs;
-    }
 
     // Allocation of bodies is from a stack-like region
     // of memory.  Bodies are separated by body control
