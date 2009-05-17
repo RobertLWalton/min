@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May 15 12:32:50 EDT 2009
+// Date:	Sun May 17 11:46:22 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/15 19:28:21 $
+//   $Date: 2009/05/17 16:47:35 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // Table of Contents
 //
@@ -241,6 +241,22 @@
 #   define MIN_MAXIMUM_STUB_INDEX \
            ( MIN_MAXIMUM_RELATIVE_STUB_ADDRESS / 16 )
 # endif
+
+// Maximum size of a fixed block for the ACC fixed block
+// allocator.
+//
+# define MAX_FIXED_BODY_SIZE ( 1 << 17 )
+
+namespace min { namespace internal {
+#   ifdef __GNUC__
+	inline unsigned clz ( unsigned u )
+	{
+	    return __builtin_clz ( u );
+	}
+#   else
+#   endif
+} }
+        
 
 
 // Hardware Parameters
