@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 16 08:17:50 EDT 2009
+// Date:	Sun May 17 11:47:54 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/16 13:42:16 $
+//   $Date: 2009/05/17 16:47:35 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.163 $
+//   $Revision: 1.164 $
 
 // Table of Contents:
 //
@@ -1655,6 +1655,136 @@ namespace min { namespace internal {
 	++ min::unprotected::number_of_free_stubs;
     }
 
+    // fixed_bodies[j] is the head of a free list of
+    // fixed bodies of size 1 << ( j + 3 ), for 0 <= j
+    // and (1<<j) <= MAX_FIXED_BODY_SIZE/8.
+    //
+    extern struct fixed_body_list
+    {
+	unsigned size;
+        unsigned count;
+	void * next;
+    } * fixed_bodies;
+
+    // Out-of-line functions to handle special cases of
+    // new_body.
+    //
+    void new_non_fixed_body
+	( min::stub * s, unsigned n, int type );
+    void new_fixed_body
+	( min::stub * s, unsigned n, int type );
+
+    // Allocate a body to a stub, and set the stub type.
+    // n is the minimum size of the body in bytes.
+    // The previous stub type must be min::FREE.
+    //
+    inline void new_body
+	( min::stub * s, unsigned n, int type )
+    {
+	MIN_ASSERT ( min::type_of ( s ) == min::FREE );
+
+        if ( n == 0 || n > MAX_FIXED_BODY_SIZE )
+	{
+	     new_non_fixed_body ( s, n, type );
+	     return;
+	}
+
+	unsigned m = n + 7;
+	m >>= 3;
+
+	// See min_parameters.h for clz.
+	fixed_body_list * fbl = fixed_bodies
+	    + ( 8 * sizeof ( unsigned ) - 1
+	                                - clz ( m ) );
+	if ( fbl->size < n ) ++ fixed_bodies;
+	if ( fbl->count == 0 )
+	{
+	     new_fixed_body ( s, n, type );
+	     return;
+	}
+
+	min::unprotected
+	   ::set_pointer_of ( s, fbl->next );
+	min::unprotected
+	   ::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
+	-- fbl->count;
+	fbl->next = * ( void ** ) fbl->next;
+    }
+
+    // Deallocate the body of a stub, and reset the stub
+    // type to min::DEALLOCATED.  The stub body pointer
+    // is pointed at inaccessible memory of at least the
+    // same size as the old stub body.  The previous
+    // stub type must specify that the stub has a body,
+    // or it must equal min::DEALLOCATED (in which case
+    // nothing is done).
+    //
+    void deallocate_body ( min::stub * s );
+
+    // When constructed the resize_body struct allocates
+    // a new body for a stub s, and when desconstructed
+    // the resize_body struct installs the new body in
+    // the stub s  while deallocating the old body of s.
+    // Stub s is not altered until the resize_body
+    // struct is deconstructed.
+    //
+    // After the new body is obtained, information
+    // should be copied from the old body to the new
+    // body, before the resize_body struct is decon-
+    // structed.
+    // 
+    struct resize_body;
+    void void_resize_body ( resize_body * r );
+    struct resize_body {
+
+	// Construct resize_body for stub s with new
+	// body size n.
+	//
+        resize_body ( min::stub * s, unsigned n )
+	    : s ( s )
+	{
+	    min::unprotected
+	       ::set_type_of ( & stub, min::FREE );
+	    new_body ( & stub, n, min::type_of ( s ) );
+	}
+	~resize_body ( void )
+	{
+	    if ( s == NULL ) return;
+	    s->v.u64 = stub.v.u64;
+	    s->c.u64 ^= ( stub.c.u64 ^ s->c.u64 )
+	                &
+			ACC_FIXED_BODY_FLAG;
+	}
+
+	friend void * new_body_address
+			( resize_body & r );
+	friend void void_resize_body
+			( resize_body & r );
+
+    private:
+
+	min::stub * s;
+        min::stub stub;
+
+    };
+
+    // Return the new body address.
+    //
+    inline void * new_body_address ( resize_body & r )
+    {
+	return min::unprotected
+		  ::pointer_of ( & r.stub );
+    }
+    // Void the resize_body struct so it will not
+    // change anything when deconstructed.  The
+    // new body is deallocated.
+    //
+    inline void void_resize_body ( resize_body & r )
+    {
+	deallocate_body ( & r.stub );
+	r.s = NULL;
+    }
+
 } }
 
 // Allocator/Collector/Compactor Mutator Interface
@@ -1670,7 +1800,10 @@ namespace min { namespace internal {
 
 namespace min {
 
-    void deallocate ( min::stub * s );
+    inline void deallocate ( min::stub * s )
+    {
+    	min::internal::dealloate_body ( s );
+    }
 
 }
 
