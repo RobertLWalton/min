@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 17 11:47:54 EDT 2009
+// Date:	Mon May 18 07:19:34 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/17 16:47:35 $
+//   $Date: 2009/05/18 13:36:09 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.164 $
+//   $Revision: 1.165 $
 
 // Table of Contents:
 //
@@ -29,9 +29,7 @@
 //	Control Values
 //	Stub Functions
 //	Process Interface
-//	Allocator/Collector/Compactor Data
-//	Allocator/Collector/Compactor Mutator Interface
-//	Collector Compactor Interface
+//	Allocator/Collector/Compactor Interface
 //	Numbers
 //	Strings
 //	Labels
@@ -1442,8 +1440,8 @@ namespace min {
     };
 }
 
-// Allocator/Collector/Compactor Data
-// ----------------------------- ----
+// Allocator/Collector/Compactor Interface
+// ----------------------------- ---------
 
 namespace min { namespace unprotected {
 
@@ -1657,58 +1655,55 @@ namespace min { namespace internal {
 
     // fixed_bodies[j] is the head of a free list of
     // fixed bodies of size 1 << ( j + 3 ), for 0 <= j
-    // and (1<<j) <= MAX_FIXED_BODY_SIZE/8.
+    // and (1<<j) <= MIN_MAX_FIXED_BODY_SIZE/8.
     //
     extern struct fixed_body_list
     {
-	unsigned size;
-        unsigned count;
-	void * next;
-    } * fixed_bodies;
+	unsigned size;	// Size of fixed body.
+        unsigned count;	// Number of fixed bodies on the
+			// list.
+	void * first;	// First fixed body on the list.
+			// Each fixed body begins with
+			// a void * pointing at the next
+			// body on the list.
+    } fixed_bodies[MIN_MAX_FIXED_BODY_SIZE_LOG-2];
 
-    // Out-of-line functions to handle special cases of
-    // new_body.
-    //
     void new_non_fixed_body
-	( min::stub * s, unsigned n, int type );
+	( min::stub * s, unsigned n );
     void new_fixed_body
-	( min::stub * s, unsigned n, int type );
+	( min::stub * s, unsigned n );
 
-    // Allocate a body to a stub, and set the stub type.
-    // n is the minimum size of the body in bytes.
-    // The previous stub type must be min::FREE.
+    // Allocate a body to a stub.  n is the minimum size
+    // of the body in bytes.  The stub control must be
+    // set: its ACC flags may be changed.
     //
-    inline void new_body
-	( min::stub * s, unsigned n, int type )
+    inline void new_body ( min::stub * s, unsigned n )
     {
-	MIN_ASSERT ( min::type_of ( s ) == min::FREE );
-
-        if ( n == 0 || n > MAX_FIXED_BODY_SIZE )
+        if ( n == 0 || n > MIN_MAX_FIXED_BODY_SIZE )
 	{
-	     new_non_fixed_body ( s, n, type );
+	     new_non_fixed_body ( s, n );
 	     return;
 	}
 
 	unsigned m = n + 7;
 	m >>= 3;
 
-	// See min_parameters.h for clz.
-	fixed_body_list * fbl = fixed_bodies
-	    + ( 8 * sizeof ( unsigned ) - 1
-	                                - clz ( m ) );
-	if ( fbl->size < n ) ++ fixed_bodies;
+	// See min_parameters.h for fixed_bodies_log.
+	fixed_body_list * fbl =
+		fixed_bodies + fixed_bodies_log ( m );
+	if ( fbl->size < n ) ++ fbl;
 	if ( fbl->count == 0 )
 	{
-	     new_fixed_body ( s, n, type );
+	     new_fixed_body ( s, n );
 	     return;
 	}
 
 	min::unprotected
-	   ::set_pointer_of ( s, fbl->next );
+	   ::set_pointer_of ( s, fbl->first );
 	min::unprotected
 	   ::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
 	-- fbl->count;
-	fbl->next = * ( void ** ) fbl->next;
+	fbl->first = * ( void ** ) fbl->first;
     }
 
     // Deallocate the body of a stub, and reset the stub
@@ -1721,33 +1716,35 @@ namespace min { namespace internal {
     //
     void deallocate_body ( min::stub * s );
 
-    // When constructed the resize_body struct allocates
-    // a new body for a stub s, and when desconstructed
-    // the resize_body struct installs the new body in
-    // the stub s  while deallocating the old body of s.
-    // Stub s is not altered until the resize_body
-    // struct is deconstructed.
+    // When constructed the relocate_body struct allo-
+    // cates a new body for a stub s, and when descon-
+    // structed the relocate_body struct installs the
+    // new body in the stub s  while deallocating the
+    // old body of s.  Stub s is not altered until the
+    // relocate_body struct is deconstructed (the
+    // void_relocate_body function can be used to
+    // prevent stub s from ever being altered).
     //
     // After the new body is obtained, information
     // should be copied from the old body to the new
-    // body, before the resize_body struct is decon-
+    // body, before the relocate_body struct is decon-
     // structed.
     // 
-    struct resize_body;
-    void void_resize_body ( resize_body * r );
-    struct resize_body {
+    struct relocate_body;
+    void void_relocate_body ( relocate_body * r );
+    struct relocate_body {
 
-	// Construct resize_body for stub s with new
+	// Construct relocate_body for stub s with new
 	// body size n.
 	//
-        resize_body ( min::stub * s, unsigned n )
+        relocate_body ( min::stub * s, unsigned n )
 	    : s ( s )
 	{
 	    min::unprotected
 	       ::set_type_of ( & stub, min::FREE );
-	    new_body ( & stub, n, min::type_of ( s ) );
+	    new_body ( & stub, n );
 	}
-	~resize_body ( void )
+	~relocate_body ( void )
 	{
 	    if ( s == NULL ) return;
 	    s->v.u64 = stub.v.u64;
@@ -1756,10 +1753,10 @@ namespace min { namespace internal {
 			ACC_FIXED_BODY_FLAG;
 	}
 
-	friend void * new_body_address
-			( resize_body & r );
-	friend void void_resize_body
-			( resize_body & r );
+	friend void * new_body_pointer
+			( relocate_body & r );
+	friend void void_relocate_body
+			( relocate_body & r );
 
     private:
 
@@ -1768,27 +1765,33 @@ namespace min { namespace internal {
 
     };
 
-    // Return the new body address.
+    // Return a pointer to the new body.
     //
-    inline void * new_body_address ( resize_body & r )
+    inline void * new_body_pointer ( relocate_body & r )
     {
 	return min::unprotected
 		  ::pointer_of ( & r.stub );
     }
-    // Void the resize_body struct so it will not
+    // Void the relocate_body struct so it will not
     // change anything when deconstructed.  The
     // new body is deallocated.
     //
-    inline void void_resize_body ( resize_body & r )
+    inline void void_relocate_body ( relocate_body & r )
     {
 	deallocate_body ( & r.stub );
 	r.s = NULL;
     }
 
 } }
-
-// Allocator/Collector/Compactor Mutator Interface
-// ----------------------------- ------- ---------
+
+namespace min {
+
+    inline void deallocate ( min::stub * s )
+    {
+    	min::internal::deallocate_body ( s );
+    }
+
+}
 
 // Collector Compactor Interface
 // --------- --------- ---------
@@ -1797,15 +1800,6 @@ namespace min { namespace internal {
 // functions that allocate and deallocate stubs and
 // bodies and that write general values containing
 // pointers into stubs or bodies.
-
-namespace min {
-
-    inline void deallocate ( min::stub * s )
-    {
-    	min::internal::dealloate_body ( s );
-    }
-
-}
 
 namespace min { namespace unprotected {
 

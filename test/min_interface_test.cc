@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 16 08:19:37 EDT 2009
+// Date:	Sun May 17 13:48:45 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/16 13:43:47 $
+//   $Date: 2009/05/18 13:37:27 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.84 $
+//   $Revision: 1.85 $
 
 // Table of Contents:
 //
@@ -28,7 +28,7 @@
 //	Control Values
 //	Stub Functions
 //	Process Interface
-//	Garbage Collector Interface
+//	Allocator/Collector/Compactor Interface
 //	Numbers
 //	Strings
 //	Labels
@@ -149,7 +149,7 @@ bool MUP::interrupt ( void )
     return true;
 }
 
-// Garbage Collector Interface Functions.
+// Allocator/Collector/Compactor Interface Functions.
 
 // Place to allocate stubs.  Stubs must be allocated on
 // a `sizeof (min::stub)' boundary.
@@ -161,7 +161,7 @@ char stub_region[10000];
 // address of the first location beyond the last
 // possible stub in the region.
 //
-unsigned region_stubs_allocated = 0;
+unsigned stubs_allocated = 0;
 min::stub * begin_stub_region;
 min::stub * end_stub_region;
 
@@ -188,13 +188,29 @@ void initialize_stub_region ( void )
 
     MINT::last_allocated_stub = begin_stub_region;
     MUP::number_of_free_stubs = 0;
-    ++ region_stubs_allocated;
+    ++ stubs_allocated;
     min::uns64 c = MUP::new_acc_control
 	( min::FREE, (min::stub *) NULL );
     MUP::set_control_of
 	( MINT::last_allocated_stub, c );
     MUP::set_value_of
 	( MINT::last_allocated_stub, 0 );
+}
+
+ostream & operator << ( ostream & out, min::stub * s )
+{
+    min::stub locate;
+    out << "stub ";
+
+    if ( s > & locate ) out << "in stack";
+    else if ( begin_stub_region <= s
+	      &&
+	      s < end_stub_region )
+	out << s - begin_stub_region;
+    else
+        MIN_ABORT ( "bad stub" );
+
+    return out;
 }
 
 // Function to allocate n - number_of_free_stubs more
@@ -215,9 +231,9 @@ void MUP::acc_expand_stub_free_list ( unsigned n )
     while ( n -- > 0 )
     {
         min::stub * s = begin_stub_region
-	              + region_stubs_allocated;
+	              + stubs_allocated;
 	assert ( s < end_stub_region );
-	++ region_stubs_allocated;
+	++ stubs_allocated;
 	++ MUP::number_of_free_stubs;
 	min::uns64 c = MUP::new_acc_control
 	    ( min::FREE, free );
@@ -235,15 +251,19 @@ void MUP::acc_expand_stub_free_list ( unsigned n )
 //
 char body_region[2000000];
 
+// Place to point deallocated bodies.  All zeros.
+//
+char deallocated_body_region[2000000];
+
 // Address of the first body control block in the
 // region, and the address of the first location beyond
 // the last possible body control block in the region.
 //
-MUP::body_control * begin_body_region;
-MUP::body_control * end_body_region;
+min::uns64 * begin_body_region;
+min::uns64 * end_body_region;
+min::uns64 * next_body;
 
-// Initialize body_region and MUP::free_body_control.
-// The initial free body is of zero length.
+// Initialize body_region.
 //
 void initialize_body_region ( void )
 {
@@ -252,116 +272,111 @@ void initialize_body_region ( void )
     MINT::pointer_uns p = stp;
     p += 7;
     p &= ~ 7;
-    begin_body_region = (MUP::body_control *) p;
+    begin_body_region = (min::uns64 *) p;
     stp += sizeof body_region;
     unsigned n = ( stp - p ) / 8;
     p += 8 * n;
-    end_body_region = (MUP::body_control *) p;
-    assert ( begin_body_region + 2 <= end_body_region );
+    end_body_region = (min::uns64 *) p;
 
-    begin_body_region->control =
-        MUP::new_control ( min::FREE, (min::uns64) 0);
-    begin_body_region->size_difference = 0;
-    MUP::body_control * end = begin_body_region + 1;
-    end->control =
-        MUP::new_control ( min::FREE, (min::uns64) 0 );
-    end->size_difference = 0;
-
-    MUP::free_body_control = begin_body_region;
+    for ( unsigned j = 0;
+          j < MIN_MAX_FIXED_BODY_SIZE_LOG-2; ++ j )
+    {
+	MINT::fixed_bodies[j].size = 1 << ( j + 3 );
+	MINT::fixed_bodies[j].count = 0;
+	MINT::fixed_bodies[j].first = NULL;
+    }
+    next_body = begin_body_region;
 }
 
-// Function to add m bytes to the free area following
-// free_body_control.  M must be a multiple of 8.
-//
-void add_to_free_body ( unsigned m )
+void MINT::new_non_fixed_body
+	( min::stub * s, unsigned n )
 {
-    cout << "add_to_free_body (" << m << ") called"
-         << endl;
-    MUP::body_control * free = MUP::free_body_control;
-    MINT::pointer_uns size =
-        MUP::value_of_control ( free->control );
-    assert ( ( size & 7 ) == 0 );
-    assert ( ( m & 7 ) == 0 );
-    MINT::pointer_uns new_size = size + m;
+    cout << "MINT::new_non_fixed_body ( " << s
+         << ", " << n << " ) called" << endl;
 
-    MINT::pointer_uns p =
-	(MINT::pointer_uns) free;
-    assert ( ( p & 7 ) == 0 );
-    p += size + sizeof ( MUP::body_control );
-    MUP::body_control * tail = (MUP::body_control *) p;
+    unsigned m = n + 7;
+    m >>= 3;
+    MIN_ASSERT ( next_body + m <= end_body_region );
 
-    // Tail points at body_control following old free
-    // body.  We read it here, as otherwise it would
-    // never be read.
-    //
-    assert (    tail->control
-	     == MUP::new_control
-	            ( min::FREE, (min::uns64) 0 ) );
-    assert (    tail->size_difference
-	     == - min::int64 ( size ) );
-    p += m;
-    tail = (MUP::body_control *) p;
-    assert ( tail + 1 <= end_body_region );
+    min::unprotected
+       ::set_pointer_of ( s, next_body );
 
-    // Now tail points at body_control following new
-    // free body, which we must write.
-
-    free->size_difference += min::int64 ( m );
-    free->control =
-        MUP::new_control ( min::FREE, new_size );
-    tail->control =
-        MUP::new_control ( min::FREE, (min::uns64) 0 );
-    tail->size_difference = - min::int64 ( new_size );
+    next_body += m;
 }
 
-// Function to execute MUP::new_body when the free_
-// body_control free body is too small.  n is the
-// argument to MUP::new_body rounded up to a multiple
-// of 8.
+// Performs MINT::new_body when count of fixed bodies
+// is zero.
 //
-MUP::body_control * MUP::acc_new_body ( unsigned n )
+void MINT::new_fixed_body ( min::stub * s, unsigned n )
 {
-    assert ( ( n & 7 ) == 0 );
+    cout << "MINT::new_fixed_body ( " << s
+         << ", " << n << " ) called" << endl;
 
-    // Expand the free body to be large enough.
+    unsigned m = n + 7;
+    m >>= 3;
 
-    MINT::pointer_uns size =
-        MUP::value_of_control
-	     ( MUP::free_body_control->control );
-    MINT::pointer_uns new_size =
-	n + sizeof ( body_control );
-    assert ( ( size & 7 ) == 0 );
-    assert ( size < new_size );
-    add_to_free_body ( new_size - size );
+    // See min_parameters.h for fixed_bodies_log.
+    fixed_body_list * fbl =
+	    fixed_bodies + fixed_bodies_log ( m );
+    if ( fbl->size < n ) ++ fbl;
 
-    // Done expanding free area.  Now rerun new_stub.
+    m = fbl->size >> 3;
+    min::uns64 * next = next_body;
+    MIN_ASSERT ( next + 2 * m <= end_body_region );
 
-    return MUP::new_body ( n );
+    cout << "Using fixed_bodies["
+         << fbl - fixed_bodies << "]"
+	 << " and assigning begin_body_region["
+	 << next - begin_body_region
+	 << " .. "
+	 << next - begin_body_region + m - 1
+	 << "]" << endl;
+
+    min::unprotected
+       ::set_pointer_of ( s, next );
+    min::unprotected
+       ::set_flags_of ( s, MINT::ACC_FIXED_BODY_FLAG );
+
+    next += m;
+    * (void **) next = NULL;
+    fbl->first = (void *) next;
+    fbl->count = 1;
+
+    next_body = next + m;
+}
+
+// Deallocate the stub body.  Repoints the body to the
+// all zero deallocated_body_region.
+//
+void MINT::deallocate_body ( min::stub * s )
+{
+    cout << "MINT::deallocate ( " << s
+         << " ) called" << endl;
+
+    if ( min::type_of ( s ) == min::DEALLOCATED )
+        return;
+
+    MUP::set_pointer_of ( s, deallocated_body_region );
+    MUP::set_type_of ( s, min::DEALLOCATED );
 }
 
 // Function to relocate a body.  Just allocates a new
-// body and copies the contents of the old body to the
-// new body, zeros the old body, and returns the
-// body control before the new body.  Body control is
-// copied from old to new body, and body control of
-// old body is set to free body.
+// body, copies the contents of the old body to the
+// new body, and zeros the old body, and deallocates
+// the old body.
 //
-// Length rounded up to multiple of 8 is length of the
-// old and new bodies.
-//
-MUP::body_control * relocate_body
-	( MUP::body_control * bc, unsigned length )
+static void relocate_body
+	( min::stub * s, unsigned length )
 {
-    length += 7;
-    length &= ~ 7;
-    MUP::body_control * newbc =
-    	MUP::new_body ( length );
-    newbc->control = bc->control;
-    bc->control =
-        MUP::new_control ( min::FREE, length );
-    memcpy ( newbc+1, bc+1, length );
-    memset ( bc+1, 0, length );
-    return newbc;
+    cout << "relocate_body ( stub "
+         << s - begin_stub_region << ", " << length
+         << " ) called" << endl;
+
+    MINT::relocate_body rbody ( s, length );
+
+    memcpy ( MINT::new_body_pointer ( rbody ),
+             MUP::pointer_of ( s ), length );
+    memset ( MUP::pointer_of ( s ), 0, length );
 }
 
 // Function to initialize ACC hash tables.
@@ -384,6 +399,18 @@ void initialize_hash_tables ( void )
         new stubp[MUP::lab_hash_size];
     for ( int i = 0; i < MUP::lab_hash_size; ++ i )
         MUP::lab_hash[i] = NULL;
+}
+
+// Acc stack.
+//
+static min::stub * acc_stack[1000];
+static min::stub ** acc_stack_end = acc_stack + 1000;
+
+// Initialize the acc_stack.
+//
+void initialize_acc_stack ( void )
+{
+    MINT::acc_stack = ::acc_stack;
 }
 
 // Main Program
@@ -1146,18 +1173,17 @@ int main ()
 	     << endl;
     }
 
-// Garbage Collector Interface
-// ------- --------- ---------
+// Allocator/Collector/Compactor Interface
+// ----------------------------- ---------
 
     {
 	cout << endl;
-	cout << "Start Garbage Collector"
+	cout << "Start Allocator/Collector/Compactor"
 	        " Interface Test!" << endl;
 	initialize_stub_region();
 	initialize_body_region();
 	initialize_hash_tables();
-	min::stub * stack[2];
-	MINT::acc_stack = stack;
+	initialize_acc_stack();
 	min::stub s1, s2;
 	const min::uns64 unmarked_flag =
 	       min::uns64(1)
@@ -1173,22 +1199,24 @@ int main ()
 	MUP::set_flags_of ( &s1, scavenged_flag );
 	MUP::set_control_of ( &s2, 0 );
 	MUP::set_flags_of ( &s2, unmarked_flag );
-	MINT::acc_stack = stack;
 	MINT::acc_stack_mask = 0;
 	MINT::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MINT::acc_stack == stack );
+	MIN_ASSERT ( MINT::acc_stack == ::acc_stack );
 	MINT::acc_stack_mask = unmarked_flag;
 	MINT::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MINT::acc_stack == stack + 2 );
-	MIN_ASSERT ( stack[0] == &s1 );
-	MIN_ASSERT ( stack[1] == &s2 );
+	MIN_ASSERT
+	    ( MINT::acc_stack == ::acc_stack + 2 );
+	MIN_ASSERT ( ::acc_stack[0] == &s1 );
+	MIN_ASSERT ( ::acc_stack[1] == &s2 );
 	MUP::clear_flags_of ( &s1, scavenged_flag );
 	MINT::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MINT::acc_stack == stack + 2 );
+	MIN_ASSERT
+	    ( MINT::acc_stack == ::acc_stack + 2 );
 	MUP::set_flags_of ( &s1, scavenged_flag );
 	MUP::clear_flags_of ( &s2, unmarked_flag );
 	MINT::acc_write_update ( &s1, &s2 );
-	MIN_ASSERT ( MINT::acc_stack == stack + 2 );
+	MIN_ASSERT
+	    ( MINT::acc_stack == ::acc_stack + 2 );
 
         cout << endl;
 	cout << "Test stub allocator functions:"
@@ -1198,8 +1226,7 @@ int main ()
 	MIN_ASSERT ( stub1 == begin_stub_region + 1 );
 	MIN_ASSERT
 	    ( stub1 == MINT::last_allocated_stub );
-	MIN_ASSERT
-	    ( region_stubs_allocated == 2 );
+	MIN_ASSERT ( stubs_allocated == 2 );
 	MIN_ASSERT
 	    ( min::type_of ( stub1 ) == min::FREE );
 	MIN_ASSERT
@@ -1209,8 +1236,7 @@ int main ()
 	min::stub * stub2 = MINT::new_stub();
 	MIN_ASSERT
 	    ( stub2 == MINT::last_allocated_stub );
-	MIN_ASSERT
-	    ( region_stubs_allocated == 3 );
+	MIN_ASSERT ( stubs_allocated == 3 );
 	MIN_ASSERT ( stub2 == begin_stub_region + 2 );
 	MIN_ASSERT
 	    ( min::type_of ( stub2 ) == min::FREE );
@@ -1218,20 +1244,17 @@ int main ()
 	    ( MUP::test_flags_of
 	    	     ( stub2, unmarked_flag ) );
 	MUP::acc_expand_stub_free_list ( 2 );
-	MIN_ASSERT
-	    ( region_stubs_allocated == 5 );
+	MIN_ASSERT ( stubs_allocated == 5 );
 	MIN_ASSERT
 	    ( stub2 == MINT::last_allocated_stub );
 	min::stub * stub3 = MINT::new_aux_stub();
 	MIN_ASSERT ( stub3 == begin_stub_region + 4 );
-	MIN_ASSERT
-	    ( region_stubs_allocated == 5 );
+	MIN_ASSERT ( stubs_allocated == 5 );
 	MIN_ASSERT
 	    ( stub2 == MINT::last_allocated_stub );
 	min::stub * stub4 = MINT::new_stub();
 	MIN_ASSERT ( stub4 == begin_stub_region + 3 );
-	MIN_ASSERT
-	    ( region_stubs_allocated == 5 );
+	MIN_ASSERT ( stubs_allocated == 5 );
 	MIN_ASSERT
 	    ( stub4 == MINT::last_allocated_stub );
 
@@ -1239,36 +1262,37 @@ int main ()
         cout << endl;
 	cout << "Test body allocator functions:"
 	     << endl;
-	MUP::body_control * body1 =
-	    MUP::new_body ( 128 );
-	char * p1 = (char *) body1
-	          + sizeof ( * body1 );
+	MINT::new_body ( stub1, 128 );
+	char * p1 = (char *) MUP::pointer_of ( stub1 );
 	memset ( p1, 0xBB, 128 );
-	MUP::body_control * body2 =
-	    MUP::new_body ( 128 );
-	char * p2 = (char *) body2
-	          + sizeof ( * body2 );
+	MINT::new_body ( stub2, 128 );
+	char * p2 = (char *) MUP::pointer_of ( stub2 );
 	memset ( p2, 0xBB, 128 );
 	MIN_ASSERT ( memcmp ( p1, p2, 128 ) == 0 );
-	MIN_ASSERT ( p1 + sizeof ( MUP::body_control )
-	                + 128 == p2 );
-	add_to_free_body ( 200 );
-	MUP::body_control * body3 =
-	    MUP::new_body ( 128 );
-	char * p3 = (char *) body3
-	          + sizeof ( * body3 );
+	MIN_ASSERT ( p1 != p2 );
+	MINT::new_body ( stub3, 128 );
+	char * p3 = (char *) MUP::pointer_of ( stub3 );
 	memset ( p3, 0xCC, 128 );
-	MUP::body_control * body4 =
-	    MUP::new_body ( 128 );
-	char * p4 = (char *) body4
-	          + sizeof ( * body4 );
+	MINT::new_body ( stub4, 128 );
+	char * p4 = (char *) MUP::pointer_of ( stub4 );
 	memset ( p4, 0xCC, 128 );
 	MIN_ASSERT ( memcmp ( p3, p4, 128 ) == 0 );
-	MIN_ASSERT ( p3 + sizeof ( MUP::body_control )
-	                + 128 == p4 );
+	MIN_ASSERT ( p3 != p4 );
+	relocate_body ( stub4, 128 );
+	char * p5 = (char *) MUP::pointer_of ( stub4 );
+	MIN_ASSERT ( memcmp ( p3, p5, 128 ) == 0 );
+	MIN_ASSERT ( p4 != p5 );
+	min::deallocate ( stub4 );
+	MIN_ASSERT ( min::type_of ( stub4 )
+	             == min::DEALLOCATED );
+	char * p6 = (char *) MUP::pointer_of ( stub4 );
+	MIN_ASSERT ( p5 != p6 );
+	MIN_ASSERT ( p6[0] == 0
+	             &&
+		     memcmp ( p6, p6+1, 127 ) == 0 );
 
 	cout << endl;
-	cout << "Finish Garbage Collector"
+	cout << "Finish Allocator/Collector/Compactor"
 	        " Interface Test!" << endl;
     }
 
@@ -1471,15 +1495,9 @@ int main ()
 	cout << "Test string pointers:" << endl;
 
 	// Test body relocation first.
-	MUP::set_pointer_of
-	    ( stub13,
-	        relocate_body
-		    (   (MUP::body_control *)
-		        MUP::pointer_of ( stub13 )
-		      - 1,
-		        ::strlen ( s13 )
-		      + sizeof (MUP::long_str) )
-		+ 1 );
+	relocate_body
+	    ( stub13,   ::strlen ( s13 )
+	              + sizeof (MUP::long_str) );
 	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen13 ) == s13hash );
@@ -1541,15 +1559,9 @@ int main ()
 	    min::unprotected::str_of ( p13 );
 	MIN_ASSERT
 	    ( strcmp ( p13str_before, s13 ) == 0 );
-	MUP::set_pointer_of
-	    ( stub13,
-	        relocate_body
-		    (   (MUP::body_control *)
-		        MUP::pointer_of ( stub13 )
-		      - 1,
-		        ::strlen ( s13 )
-		      + sizeof (MUP::long_str) )
-		+ 1 );
+	relocate_body
+	    ( stub13,   ::strlen ( s13 )
+	              + sizeof (MUP::long_str) );
 	const char * p13str_after =
 	    min::unprotected::str_of ( p13 );
 	MIN_ASSERT ( p13str_after != p13str_before );
@@ -2492,6 +2504,16 @@ int main ()
 
 // Finish
 // ------
+
+    // Check that deallocated_body_region is still zero.
+    //
+    MIN_ASSERT
+        ( deallocated_body_region[0] == 0
+	  &&
+	  memcmp ( deallocated_body_region,
+		   deallocated_body_region + 1,
+		   sizeof ( deallocated_body_region )
+		   - 1 ) == 0 );
 
     } catch ( min_assert_exception * x ) {
         cout << "EXITING BECAUSE OF FAILED MIN_ASSERT"

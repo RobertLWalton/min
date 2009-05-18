@@ -489,21 +489,21 @@ min_interface_test.cc:XXXX assert:
 
 Finish Process Interface Test!
 
-Start Garbage Collector Interface Test!
+Start Allocator/Collector/Compactor Interface Test!
 
 Test mutator functions:
 min_interface_test.cc:XXXX assert:
-    MINT::acc_stack == stack true.
+    MINT::acc_stack == ::acc_stack true.
 min_interface_test.cc:XXXX assert:
-    MINT::acc_stack == stack + 2 true.
+    MINT::acc_stack == ::acc_stack + 2 true.
 min_interface_test.cc:XXXX assert:
-    stack[0] == &s1 true.
+    ::acc_stack[0] == &s1 true.
 min_interface_test.cc:XXXX assert:
-    stack[1] == &s2 true.
+    ::acc_stack[1] == &s2 true.
 min_interface_test.cc:XXXX assert:
-    MINT::acc_stack == stack + 2 true.
+    MINT::acc_stack == ::acc_stack + 2 true.
 min_interface_test.cc:XXXX assert:
-    MINT::acc_stack == stack + 2 true.
+    MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
 MUP::acc_expand_stub_free_list (1) called
@@ -512,7 +512,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     stub1 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
-    region_stubs_allocated == 2 true.
+    stubs_allocated == 2 true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( stub1 ) == min::FREE true.
 min_interface_test.cc:XXXX assert:
@@ -521,7 +521,7 @@ MUP::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub2 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
-    region_stubs_allocated == 3 true.
+    stubs_allocated == 3 true.
 min_interface_test.cc:XXXX assert:
     stub2 == begin_stub_region + 2 true.
 min_interface_test.cc:XXXX assert:
@@ -530,37 +530,57 @@ min_interface_test.cc:XXXX assert:
     MUP::test_flags_of ( stub2, unmarked_flag ) true.
 MUP::acc_expand_stub_free_list (2) called
 min_interface_test.cc:XXXX assert:
-    region_stubs_allocated == 5 true.
+    stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
     stub2 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
     stub3 == begin_stub_region + 4 true.
 min_interface_test.cc:XXXX assert:
-    region_stubs_allocated == 5 true.
+    stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
     stub2 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
     stub4 == begin_stub_region + 3 true.
 min_interface_test.cc:XXXX assert:
-    region_stubs_allocated == 5 true.
+    stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
     stub4 == MINT::last_allocated_stub true.
 
 Test body allocator functions:
-add_to_free_body (144) called
-add_to_free_body (144) called
+MINT::new_fixed_body ( stub 1, 128 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_bodies[4] and assigning begin_body_region[0 .. 15]
 min_interface_test.cc:XXXX assert:
     memcmp ( p1, p2, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    p1 + sizeof ( MUP::body_control ) + 128 == p2 true.
-add_to_free_body (200) called
-add_to_free_body (88) called
+    p1 != p2 true.
+MINT::new_fixed_body ( stub 4, 128 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_bodies[4] and assigning begin_body_region[32 .. 47]
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    p3 + sizeof ( MUP::body_control ) + 128 == p4 true.
+    p3 != p4 true.
+relocate_body ( stub 3, 128 ) called
+MINT::new_fixed_body ( stub in stack, 128 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_bodies[4] and assigning begin_body_region[64 .. 79]
+min_interface_test.cc:XXXX assert:
+    memcmp ( p3, p5, 128 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    p4 != p5 true.
+MINT::deallocate ( stub 3 ) called
+min_interface_test.cc:XXXX assert:
+    min::type_of ( stub4 ) == min::DEALLOCATED true.
+min_interface_test.cc:XXXX assert:
+    p5 != p6 true.
+min_interface_test.cc:XXXX assert:
+    p6[0] == 0 && memcmp ( p6, p6+1, 127 ) == 0 true.
 
-Finish Garbage Collector Interface Test!
+Finish Allocator/Collector/Compactor Interface Test!
 
 Start Numbers Test!
 
@@ -660,7 +680,10 @@ Test string general values:
 MUP::acc_expand_stub_free_list (1) called
 MUP::acc_expand_stub_free_list (1) called
 MUP::acc_expand_stub_free_list (1) called
-add_to_free_body (40) called
+MINT::new_fixed_body ( stub 7, 22 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_bodies[2] and assigning begin_body_region[96 .. 99]
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 8 ) == strgen8 true.
 min_interface_test.cc:XXXX assert:
@@ -803,7 +826,7 @@ min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen13, 12 ) == 0 true.
 
 Test string pointers:
-add_to_free_body (40) called
+relocate_body ( stub 7, 21 ) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -886,7 +909,11 @@ min_interface_test.cc:XXXX assert:
     min::strhash ( p13 ) == min::strhash ( s13 ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
-add_to_free_body (40) called
+relocate_body ( stub 7, 21 ) called
+MINT::new_fixed_body ( stub in stack, 21 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_bodies[2] and assigning begin_body_region[104 .. 107]
 min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
 min_interface_test.cc:XXXX assert:
@@ -911,7 +938,6 @@ Test labels:
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 MUP::acc_expand_stub_free_list (1) called
-add_to_free_body (48) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
@@ -977,7 +1003,10 @@ min_interface_test.cc:XXXX assert:
 
 Test short objects:
 MUP::acc_expand_stub_free_list (1) called
-add_to_free_body (4848) called
+MINT::new_fixed_body ( stub 9, 4832 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_bodies[10] and assigning begin_body_region[112 .. 1135]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -996,7 +1025,9 @@ min_interface_test.cc:XXXX assert:
 
 Test long objects:
 MUP::acc_expand_stub_free_list (1) called
-add_to_free_body (616520) called
+MINT::new_non_fixed_body ( stub 10, 616504 ) called
+min_interface_test.cc:XXXX assert:
+    next_body + m <= end_body_region true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1922,5 +1953,7 @@ min_interface_test.cc:XXXX assert:
 Finish Object List Level Test!
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
+min_interface_test.cc:XXXX assert:
+    deallocated_body_region[0] == 0 && memcmp ( deallocated_body_region, deallocated_body_region + 1, sizeof ( deallocated_body_region ) - 1 ) == 0 true.
 
 Finished Test!
