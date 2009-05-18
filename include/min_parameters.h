@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/17 16:47:35 $
+//   $Date: 2009/05/18 13:36:10 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.30 $
+//   $Revision: 1.31 $
 
 // Table of Contents
 //
@@ -243,18 +243,41 @@
 # endif
 
 // Maximum size of a fixed block for the ACC fixed block
-// allocator.
+// allocator, and the log of that size.
 //
-# define MAX_FIXED_BODY_SIZE ( 1 << 17 )
+# define MIN_MAX_FIXED_BODY_SIZE_LOG 17
+# define MIN_MAX_FIXED_BODY_SIZE \
+         ( 1 << MIN_MAX_FIXED_BODY_SIZE_LOG )
 
 namespace min { namespace internal {
+
+    // Return j such that (1<<j) <= u <= (1<<(j+1)),
+    // assuming 0 < u <= MAX_FIXED_BODY_SIZE/8.
+    //
+    inline unsigned fixed_bodies_log ( unsigned u )
+    {
 #   ifdef __GNUC__
-	inline unsigned clz ( unsigned u )
-	{
-	    return __builtin_clz ( u );
-	}
+	return   8 * sizeof ( unsigned ) - 1
+	       - __builtin_clz ( u );
 #   else
+	return
+	  ( u < (1<<8) ?
+	      ( u < (1<<4) ?
+	          ( u < (1<<2) ?
+		      ( u < (1<<1) ? 0 : 1 ) :
+		      ( u < (1<<3) ? 2 : 3 ) ) :
+	          ( u < (1<<6) ?
+		      ( u < (1<<5) ? 4 : 5 ) :
+		      ( u < (1<<7) ? 6 : 7 ) ) ) :
+	      ( u < (1<<12) ?
+	          ( u < (1<<10) ?
+		      ( u < (1<<9) ? 8 : 9 ) :
+		      ( u < (1<<11) ? 10 : 11 ) ) :
+	          ( u < (1<<14) ?
+		      ( u < (1<<13) ? 12 : 13 ) :
+		      ( u < (1<<15) ? 14 : 15 ) ) ) );
 #   endif
+    }
 } }
         
 

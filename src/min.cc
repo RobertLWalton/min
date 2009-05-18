@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 16 08:32:03 EDT 2009
+// Date:	Mon May 18 07:19:11 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/16 13:42:30 $
+//   $Date: 2009/05/18 13:36:27 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.92 $
+//   $Revision: 1.93 $
 
 // Table of Contents:
 //
@@ -21,7 +21,7 @@
 //	Initialization
 //	Stub Functions
 //	Process Management
-//	Garbage Collector Management
+//	Allocator/Collector/Compactor
 //	Numbers
 //	Strings
 //	Labels
@@ -117,9 +117,6 @@ min::uns32 min::hash ( min::gen v )
 	return 0;
 }
 
-void min::deallocate ( min::stub * s )
-    { }
-
 
 // Process Management
 // ------- ----------
@@ -132,15 +129,12 @@ namespace min { namespace unprotected {
 
 } }
 
-// Garbage Collector Management
-// ------- --------- ----------
-
-// Data.
+// Allocator/Collector/Compactor 
+// -----------------------------
 
 namespace min { namespace unprotected {
 
     unsigned number_of_free_stubs;
-    body_control * free_body_control;
 
     min::stub ** str_hash;
     unsigned str_hash_size;
@@ -160,6 +154,9 @@ namespace min { namespace internal {
 
     min::uns64 acc_new_stub_flags;
     min::stub * last_allocated_stub;
+
+    MINT::fixed_body_list fixed_bodies
+	    [MIN_MAX_FIXED_BODY_SIZE_LOG-2];
 
 } }
 
@@ -445,28 +442,30 @@ min::gen MUP::new_str_stub_gen_internal
     int type;
     if ( n <= 8 )
     {
-	type = min::SHORT_STR;
+	MUP::set_control_of
+	    ( s,
+	      MUP::new_acc_control
+		  ( min::SHORT_STR,
+		    MUP::str_hash[h],
+		    MINT::acc_new_stub_flags ));
 	s->v.u64 = 0;
 	::strncpy ( s->v.c8, p, n );
     }
     else
     {
-	type = min::LONG_STR;
-	MUP::body_control * b = MUP::new_body
-	    ( sizeof ( MUP::long_str ) + n + 1 );
-	b->control = MINT::pointer_to_uns64 ( s );
-	s->v.u64 = MINT::pointer_to_uns64 ( b + 1 );
-	MUP::long_str * ls =
-	    (MUP::long_str *) ( b + 1 );
+	MUP::set_control_of
+	    ( s,
+	      MUP::new_acc_control
+		  ( min::LONG_STR,
+		    MUP::str_hash[h],
+		    MINT::acc_new_stub_flags ));
+	MINT::new_body
+	    ( s, sizeof ( MUP::long_str ) + n + 1 );
+	MUP::long_str * ls = MUP::long_str_of ( s );
 	ls->length = n;
 	ls->hash = hash;
 	::strcpy ( (char *) MUP::str_of ( ls ), p );
     }
-    MUP::set_control_of
-	( s,
-	  MUP::new_acc_control
-	      ( type, MUP::str_hash[h],
-	        MINT::acc_new_stub_flags ));
     MUP::str_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -530,24 +529,19 @@ min::gen min::new_lab_gen
     // Allocate new label.
     //
     s = MINT::new_aux_stub ();
-    MUP::body_control * b = MUP::new_body
-	(   sizeof ( MINT::lab_header )
-	  + n * sizeof (min::gen) );
-    b->control = MINT::pointer_to_uns64 ( s );
-    s->v.u64 = MINT::pointer_to_uns64 ( b + 1 );
-
-    MINT::lab_header * lh =
-	(MINT::lab_header *) ( b + 1 );
-    lh->length = n;
-    lh->hash = hash;
-    memcpy ( (min::gen *) lh + MINT::lab_header_size,
-             p, n * sizeof ( min::gen ) );
-
     MUP::set_control_of
 	( s,
 	  MUP::new_acc_control
 	      ( min::LABEL, MUP::lab_hash[h],
 	        MINT::acc_new_stub_flags ));
+    MINT::new_body ( s,   sizeof ( MINT::lab_header )
+	                + n * sizeof (min::gen) );
+    MINT::lab_header * lh = MINT::lab_header_of ( s );
+    lh->length = n;
+    lh->hash = hash;
+    memcpy ( (min::gen *) lh + MINT::lab_header_size,
+             p, n * sizeof ( min::gen ) );
+
     MUP::lab_hash[h] = s;
     return min::new_gen ( s );
 }
@@ -1216,15 +1210,11 @@ min::gen min::new_obj_gen
          < ( 1 << 16 ) )
     {
         total_size += MUP::short_obj_header_size;
-	MUP::body_control * bc =
-	    MUP::new_body
-		( sizeof (min::gen) * total_size );
-	bc->control =
-	    MUP::new_control ( min::SHORT_OBJ, s );
-	MUP::short_obj * so =
-	    (MUP::short_obj *) ( bc + 1 );
-	MUP::set_pointer_of ( s, so );
+
 	MUP::set_type_of ( s, min::SHORT_OBJ );
+	MINT::new_body
+	    ( s, sizeof (min::gen) * total_size );
+	MUP::short_obj * so = MUP::short_obj_of ( s );
 	so->flags = hi << MUP::SHORT_OBJ_FLAG_BITS;
 	so->hash_offset = MUP::short_obj_header_size;
 	so->unused_offset =
@@ -1238,15 +1228,11 @@ min::gen min::new_obj_gen
     else
     {
         total_size += MUP::long_obj_header_size;
-	MUP::body_control * bc =
-	    MUP::new_body
-		( sizeof (min::gen) * total_size );
-	bc->control =
-	    MUP::new_control ( min::LONG_OBJ, s );
-	MUP::long_obj * lo =
-	    (MUP::long_obj *) ( bc + 1 );
-	MUP::set_pointer_of ( s, lo );
+
 	MUP::set_type_of ( s, min::LONG_OBJ );
+	MINT::new_body
+	    ( s, sizeof (min::gen) * total_size );
+	MUP::long_obj * lo = MUP::long_obj_of ( s );
 	lo->flags = hi << MUP::LONG_OBJ_FLAG_BITS;
 	lo->hash_offset = MUP::long_obj_header_size;
 	lo->unused_offset =
