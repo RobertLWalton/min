@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 17 11:46:22 EDT 2009
+// Date:	Tue May 19 21:29:14 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/18 13:36:10 $
+//   $Date: 2009/05/20 16:41:52 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // Table of Contents
 //
 //	Usage and Setup
 //	Software Parameters
+//	Hardware Functions
 //	Hardware Parameters
 
 // Usage and Setup
@@ -94,6 +95,54 @@
 # ifndef MIN_USES_OBJ_AUX_STUBS
 #   define MIN_USES_OBJ_AUX_STUBS 0
 # endif
+
+// ACC Parameters
+//
+// Compiled algorithm variations.
+//
+# define MIN_ALLOCATOR_VARIANT 1
+# define MIN_COMPACTOR_VARIANT 1
+# define MIN_COLLECTOR_VARIANT 1
+
+// Maximum nunber of ephemeral levels possible with the
+// compiled code.
+//
+# define MIN_MAX_EPHEMERAL_LEVELS \
+    ( MIN_POINTER_SIZE <= 32 ? 5 : 2 )
+
+// Maximum number of stubs possible with the compiled
+// code.
+//
+# define MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+    ( MIN_POINTER_SIZE <= 32 ? 1 << 28 : \
+      MIN_IS_COMPACT ? 0xDFFFFFFF : 1ull << 40  )
+
+// The maximum number of stubs M is set when the program
+// starts.  It must be less than or equal the absolute
+// maximum above.  16*M bytes of virtual memory are
+// reserved for the stub vector when the program starts,
+// but only pages at the beginning of the vector are
+// used.  The following is the default for M:
+//
+# define MIN_DEFAULT_MAX_NUMBER_OF_STUBS \
+    ( MIN_POINTER_SIZE <= 32 ? 1 << 25 : 1ull << 30  )
+
+// Certain memory space inefficiencies
+//
+//	M + allocated-memory/F
+//
+// where F = the memory space factor and M is the
+// minimum amount of MIN heap memory allocated
+//
+//	M = (F**2 * pagesize) * log2 ( F * pagesize ).
+//
+// For a pagesize of 4096 and F = 16, M = 16 Mbytes.
+//
+// More specifically, object bodies larger than F pages
+// are allocated as separate memory pools, and regions
+// are F**2 pages long.
+//
+# define MIN_DEFAULT_MEMORY_SPACE_FACTOR 16
 
 // All addresses are 64 bits except stub addresses,
 // which are packed.  All stub address packing schemes
@@ -248,6 +297,9 @@
 # define MIN_MAX_FIXED_BODY_SIZE_LOG 17
 # define MIN_MAX_FIXED_BODY_SIZE \
          ( 1 << MIN_MAX_FIXED_BODY_SIZE_LOG )
+
+// Hardware Functions
+// -------- ---------
 
 namespace min { namespace internal {
 
@@ -279,8 +331,6 @@ namespace min { namespace internal {
 #   endif
     }
 } }
-        
-
 
 // Hardware Parameters
 // -------- ----------
