@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 19 21:29:14 EDT 2009
+// Date:	Thu May 21 05:34:48 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/20 16:41:52 $
+//   $Date: 2009/05/21 09:37:25 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // Table of Contents
 //
@@ -163,7 +163,7 @@
 //
 //	stub address = (min::stub *)
 //		       (   relative stub address
-//		         + MIN_STUB_BASE )
+//		         + min::internal::stub_base )
 //
 // and are in the range:
 //
@@ -171,8 +171,9 @@
 //
 // Stub indices are defined by the formula:
 //
-//	stub address = (min::stub *) MIN_STUB_BASE
-//		     + stub index
+//	stub address =
+//		  (min::stub *) min::internal::stub_base
+//		+ stub index
 //
 // and are in the range:
 //
@@ -248,15 +249,6 @@
 	( (    MIN_POINTER_BITS <= 32 \
             || MIN_IS_COMPACT ) ? \
           0xDFFFFFFFul : 0xFFFFFFFFFFFull )
-# endif
-
-// Base for relative stub addresses.  Can be a non-
-// negative constant or global variable.  If a global
-// variable, should be of unsigned type large enough
-// to hold a pointer.
-//
-# ifndef MIN_STUB_BASE
-#   define MIN_STUB_BASE 0
 # endif
 
 // Number of ACC flag bits.  The ACC needs 4N+4 flag

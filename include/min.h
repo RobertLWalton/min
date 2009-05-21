@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 18 07:19:34 EDT 2009
+// Date:	Thu May 21 05:17:39 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/18 13:36:09 $
+//   $Date: 2009/05/21 09:37:24 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.165 $
+//   $Revision: 1.166 $
 
 // Table of Contents:
 //
 //	Setup
-//	Parameter Checking
+//	Parameter Computation and Checking
 //	C++ Number Types
 //	General Value Types and Data
 //	Stub Types and Data
@@ -56,8 +56,8 @@
 #define MIN_ABORT(string) assert ( ! string )
 #define MIN_REQUIRE(expr) assert ( expr )
 
-// Parameter Checking
-// --------- --------
+// Parameter Computation and Checking
+// --------- ----------- --- --------
 
 namespace min { namespace internal {
 
@@ -291,6 +291,10 @@ namespace min { namespace internal {
 	typedef uns64 pointer_uns;
 #   endif
 
+    // Address of first stub (stub with index 0).
+    //
+    extern min::internal::pointer_uns stub_base;
+
     inline void * uns64_to_pointer ( min::uns64 v )
     {
 	return (void *)
@@ -331,15 +335,9 @@ namespace min { namespace internal {
 		return ( min::stub * ) p;
 #           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
                  <= 0xDFFFFFFF
-		return
-		    (min::stub *)
-		    ( p + (min::internal::pointer_uns)
-			  MIN_STUB_BASE );
+		return (min::stub *) ( p + stub_base );
 #           elif MIN_MAXIMUM_STUB_INDEX <= 0xDFFFFFFF
-		return
-		    (min::stub *)
-		    (min::internal::pointer_uns)
-		    MIN_STUB_BASE + p;
+		return (min::stub *) stub_base + p;
 #           else
 #	        error   MIN_MAXIMUM_STUB_INDEX \
                       > 0xDFFFFFFF
@@ -354,12 +352,9 @@ namespace min { namespace internal {
 #           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
                  <= 0xDFFFFFFF
 	        return   (min::internal::pointer_uns) s
-		       - (min::internal::pointer_uns)
-		         MIN_STUB_BASE;
+		       - stub_base;
 #           elif MIN_MAXIMUM_STUB_INDEX <= 0xDFFFFFFF
-	        return s - (min::stub *)
-	                   (min::internal::pointer_uns)
-		           MIN_STUB_BASE;
+	        return s - (min::stub *) stub_base;
 #           else
 #	        error   MIN_MAXIMUM_STUB_INDEX \
                       > 0xDFFFFFFF
@@ -377,15 +372,9 @@ namespace min { namespace internal {
 	        return ( min::stub * ) p;
 #           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
                  <= 0xFFFFFFFFFFF
-	        return
-	            (min::stub *)
-		    ( p + (min::internal::pointer_uns)
-		          MIN_STUB_BASE );
+	        return (min::stub *) ( p + stub_base );
 #           elif MIN_MAXIMUM_STUB_INDEX <= 0xFFFFFFFFFFF
-	        return
-	            (min::stub *)
-		    (min::internal::pointer_uns)
-		    MIN_STUB_BASE + p;
+	        return (min::stub *) stub_base + p;
 #           else
 #	        error   MIN_MAXIMUM_STUB_INDEX \
                       > 0xFFFFFFFFFFF
@@ -400,15 +389,10 @@ namespace min { namespace internal {
 	        return (min::internal::pointer_uns) s;
 #           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
                  <= 0xFFFFFFFFFFF
-	        return
-	               (min::internal::pointer_uns) s
-	             - (min::internal::pointer_uns)
-		       MIN_STUB_BASE;
+	        return   (min::internal::pointer_uns) s
+	               - stub_base;
 #           elif MIN_MAXIMUM_STUB_INDEX <= 0xFFFFFFFFFFF
-	        return   s
-	               - (min::stub *)
-		         (min::internal::pointer_uns)
-		         MIN_STUB_BASE;
+	        return s - (min::stub *) stub_base;
 #           else
 #	        error   MIN_MAXIMUM_STUB_INDEX \
                       > 0xFFFFFFFFFFF
@@ -1062,10 +1046,8 @@ namespace min { namespace unprotected {
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
 	       (c & MIN_CONTROL_VALUE_MASK );
-	    return
-	        (min::stub *)
-		( p + (min::internal::pointer_uns)
-		      MIN_STUB_BASE );
+	    return (min::stub *)
+	           ( p + min::internal::stub_base );
 	}
 
 	inline min::uns64 new_control
@@ -1075,8 +1057,7 @@ namespace min { namespace unprotected {
 	    return ( min::uns64 ( type_code ) << 56 )
 		   |
 	           (   (min::internal::pointer_uns) s
-	             - (min::internal::pointer_uns)
-		       MIN_STUB_BASE )
+	             - min::internal::stub_base )
 		   |
 		   flags;
 	}
@@ -1086,8 +1067,7 @@ namespace min { namespace unprotected {
 	{
 	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
 		   | (   (min::internal::pointer_uns) s
-		       - (min::internal::pointer_uns)
-		         MIN_STUB_BASE );
+		       - min::internal::stub_base );
 	}
 
 #   elif    MIN_MAXIMUM_STUB_INDEX \
@@ -1099,33 +1079,26 @@ namespace min { namespace unprotected {
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
 	       (c & MIN_CONTROL_VALUE_MASK );
-	    return
-	        (min::stub *)
-		(min::internal::pointer_uns)
-		MIN_STUB_BASE + p;
+	    return (min::stub *)
+	           min::internal::stub_base + p;
 	}
 
 	inline min::uns64 new_control
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return ( min::uns64 ( type_code ) << 56 )
-	           | (   s
-	               - (min::stub *)
-		         (min::internal::pointer_uns)
-		         MIN_STUB_BASE )
-		   |
-		   flags;
+	    return   ( min::uns64 ( type_code ) << 56 )
+	           | ( s - (min::stub *)
+		           min::internal::stub_base )
+		   | flags;
 	}
 
 	inline min::uns64 renew_control_stub
 		( min::uns64 c, min::stub * s )
 	{
-	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
-	           | (   s
-	               - (min::stub *)
-		         (min::internal::pointer_uns)
-		         MIN_STUB_BASE );
+	    return   ( c & ~ MIN_CONTROL_VALUE_MASK )
+	           | ( s - (min::stub *)
+		           min::internal::stub_base );
 	}
 #   else
 #	error   MIN_MAXIMUM_STUB_INDEX \
@@ -1170,32 +1143,26 @@ namespace min { namespace unprotected {
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
 	       (c & MIN_ACC_CONTROL_VALUE_MASK );
-	    return
-	        (min::stub *)
-		( p + (min::internal::pointer_uns)
-		      MIN_STUB_BASE );
+	    return (min::stub *)
+	           ( p + min::internal::stub_base );
 	}
 
 	inline min::uns64 new_acc_control
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return ( min::uns64 ( type_code ) << 56 )
-		   |
-	           (   (min::internal::pointer_uns) s
-	             - (min::internal::pointer_uns)
-		       MIN_STUB_BASE )
-		   |
-		   flags;
+	    return   ( min::uns64 ( type_code ) << 56 )
+		   | (   (min::internal::pointer_uns) s
+	               - min::internal::stub_base )
+		   | flags;
 	}
 
 	inline min::uns64 renew_acc_control_stub
 		( min::uns64 c, min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
-		   | (   (min::internal::pointer_uns) s
-		       - (min::internal::pointer_uns)
-		         MIN_STUB_BASE );
+		 | (   (min::internal::pointer_uns) s
+		     - min::internal::stub_base );
 	}
 
 #   elif    MIN_MAXIMUM_STUB_INDEX \
@@ -1207,33 +1174,26 @@ namespace min { namespace unprotected {
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
 	       (c & MIN_ACC_CONTROL_VALUE_MASK );
-	    return
-	        (min::stub *)
-		(min::internal::pointer_uns)
-		MIN_STUB_BASE + p;
+	    return (min::stub *)
+	           min::internal::stub_base + p;
 	}
 
 	inline min::uns64 new_acc_control
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return ( min::uns64 ( type_code ) << 56 )
-	           | (   s
-	               - (min::stub *)
-		         (min::internal::pointer_uns)
-		         MIN_STUB_BASE )
-		   |
-		   flags;
+	    return   ( min::uns64 ( type_code ) << 56 )
+	           | ( s - (min::stub *)
+		           min::internal::stub_base )
+		   | flags;
 	}
 
 	inline min::uns64 renew_acc_control_stub
 		( min::uns64 c, min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
-	           | (   s
-	               - (min::stub *)
-		         (min::internal::pointer_uns)
-		         MIN_STUB_BASE );
+	         | ( s - (min::stub *)
+		         min::internal::stub_base );
 	}
 #   else
 #	error   MIN_MAXIMUM_STUB_INDEX \
