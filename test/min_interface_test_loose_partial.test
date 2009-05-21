@@ -27,8 +27,8 @@ Finish Internal Pointer Conversion Test!
 Start General Value Constructor//Test/Read Function Test!
 
 Test stub general values:
-stub: 10
-stubgen: 7ff4000000000010
+stub: 0
+stubgen: 7ff4000000000000
 min_interface_test.cc:XXXX assert:
     min::is_stub ( stubgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -335,7 +335,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 8580000000000010
+control2: 85800000009f6ce0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -346,7 +346,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 8580000000000050
+re-control2: 85800000009f6cf0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -359,7 +359,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 8580000000000010
+control3: 85800000009f6ce0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -370,7 +370,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 8580000000000050
+re-control3: 85800000009f6cf0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:

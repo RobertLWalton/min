@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 21 05:34:48 EDT 2009
+// Date:	Thu May 21 08:54:13 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/21 09:37:25 $
+//   $Date: 2009/05/21 19:16:08 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // Table of Contents
 //
@@ -349,6 +349,11 @@ namespace min { namespace internal {
 //	MIN_DEALLOCATED_LIMIT
 //	    Minimum size of unimplemented memory at
 //	    which deallocated body pointers are pointed.
+//	MIN_STUB_BASE
+//	    Base address of stub vector: an optional
+//	    constant.  Most useful for compact systems,
+//	    and never required, as the base address
+//	    will be a variable if this is not defined.
 //
 # if __i386__
 #   define MIN_INT32_TYPE int
