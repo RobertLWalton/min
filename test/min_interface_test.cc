@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 17 13:48:45 EDT 2009
+// Date:	Thu May 21 09:00:20 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/18 13:37:27 $
+//   $Date: 2009/05/21 19:19:17 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.85 $
+//   $Revision: 1.86 $
 
 // Table of Contents:
 //
@@ -180,6 +180,18 @@ void initialize_stub_region ( void )
     p += sizeof (min::stub) - 1;
     p &= ~ (sizeof (min::stub) - 1 ) ;
     begin_stub_region = (min::stub *) p;
+
+#   ifndef MIN_STUB_BASE
+	min::internal::stub_base =
+	    (MINT::pointer_uns) begin_stub_region;
+	min::internal::end_stub = begin_stub_region;
+#   else
+	MIN_ASSERT
+	    (    begin_stub_region
+	      >= (min::stub *)
+	         min::internal::stub_base );
+#   endif
+
     stp += sizeof stub_region;
     unsigned n = ( stp - p ) / ( sizeof (min::stub) );
     p += ( sizeof (min::stub) ) * n;
@@ -190,7 +202,7 @@ void initialize_stub_region ( void )
     MUP::number_of_free_stubs = 0;
     ++ stubs_allocated;
     min::uns64 c = MUP::new_acc_control
-	( min::FREE, (min::stub *) NULL );
+	( min::FREE, MINT::end_stub );
     MUP::set_control_of
 	( MINT::last_allocated_stub, c );
     MUP::set_value_of
@@ -388,17 +400,17 @@ void initialize_hash_tables ( void )
     MUP::str_hash =
         new stubp[MUP::str_hash_size];
     for ( int i = 0; i < MUP::str_hash_size; ++ i )
-        MUP::str_hash[i] = NULL;
+        MUP::str_hash[i] = MINT::end_stub;
     MUP::num_hash_size = 101;
     MUP::num_hash =
         new stubp[MUP::num_hash_size];
     for ( int i = 0; i < MUP::num_hash_size; ++ i )
-        MUP::num_hash[i] = NULL;
+        MUP::num_hash[i] = MINT::end_stub;
     MUP::lab_hash_size = 101;
     MUP::lab_hash =
         new stubp[MUP::lab_hash_size];
     for ( int i = 0; i < MUP::lab_hash_size; ++ i )
-        MUP::lab_hash[i] = NULL;
+        MUP::lab_hash[i] = MINT::end_stub;
 }
 
 // Acc stack.
@@ -463,8 +475,7 @@ int main ()
 	cout << "Start Internal Pointer Conversion"
 	        " Test!" << endl;
     	char buffer[1];
-	min::stub * stub =
-	    (min::stub *) (sizeof (min::stub));
+	min::stub * stub = MINT::end_stub;
 
 	cout << endl;
 	cout << "Test pointer/uns64 conversions:"
@@ -512,8 +523,7 @@ int main ()
 	cout << endl;
 	cout << "Start General Value Constructor/"
 	        "/Test/Read Function Test!" << endl;
-	min::stub * stub =
-	    (min::stub *) (sizeof (min::stub));
+	min::stub * stub = MINT::end_stub;
 
 	cout << endl;
 	cout << "Test stub general values:" << endl;
@@ -915,10 +925,9 @@ int main ()
 	int type2 = 127;
 	void * p1 = (void *) 353456321;
 	void * p2 = (void *) 651946503;
-	min::stub * stub1 =
-	    (min::stub *) (sizeof (min::stub));
-	min::stub * stub2 =
-	    (min::stub *) (5 * sizeof (min::stub));
+	static min::stub stubs[10];
+	min::stub * stub1 = & stubs[0];
+	min::stub * stub2 = & stubs[1];
 
 	cout << endl;
 	cout << "Test controls sans stub addresses:"
@@ -1040,8 +1049,8 @@ int main ()
     {
 	cout << endl;
 	cout << "Start Stub Functions Test!" << endl;
-	min::stub stub_struct;
-	min::stub * stub = & stub_struct;
+	static min::stub stubs[1];
+	min::stub * stub = & stubs[0];
 
         cout << endl;
 	cout << "Test stub value set/read functions:"
@@ -1184,7 +1193,7 @@ int main ()
 	initialize_body_region();
 	initialize_hash_tables();
 	initialize_acc_stack();
-	min::stub s1, s2;
+	static min::stub s1, s2;
 	const min::uns64 unmarked_flag =
 	       min::uns64(1)
 	    << ( 56 - MIN_ACC_FLAG_BITS );

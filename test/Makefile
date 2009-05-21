@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Tue Feb 24 02:52:57 EST 2009
+# Date:		Thu May 21 15:14:02 EDT 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/02/24 08:01:19 $
+#   $Date: 2009/05/21 19:19:17 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.17 $
+#   $Revision: 1.18 $
 
 # We need the following to mask RCS lines
 #
@@ -75,6 +75,9 @@ test:	${PROGRAMS:=.test}
 min.o:	../src/min.cc
 	g++ -I ../include -c ../src/min.cc
 
+# Note: MIN_STUB_BASE if set must be LESS than any
+#       data address.
+
 min_interface_test_loose:	\
 	GFLAGS = -DMIN_IS_COMPACT=0 \
 	         -DMIN_USES_OBJ_AUX_STUBS=1
@@ -85,11 +88,13 @@ min_interface_test_compact:	\
 
 min_interface_test_loose_stretch:	\
 	GFLAGS = -DMIN_IS_COMPACT=0 -DMIN_STRETCH=1 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	         -DMIN_USES_OBJ_AUX_STUBS=1 \
+		 -DMIN_STUB_BASE=0x100
 
 min_interface_test_compact_stretch:	\
 	GFLAGS = -DMIN_IS_COMPACT=1 -DMIN_STRETCH=1 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	         -DMIN_USES_OBJ_AUX_STUBS=1 \
+		 -DMIN_STUB_BASE=0x100
 
 min_interface_test_loose_partial:	\
 	GFLAGS = -DMIN_IS_COMPACT=0 \

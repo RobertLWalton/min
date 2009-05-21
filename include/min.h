@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 21 05:17:39 EDT 2009
+// Date:	Thu May 21 08:39:07 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/21 09:37:24 $
+//   $Date: 2009/05/21 19:16:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.166 $
+//   $Revision: 1.167 $
 
 // Table of Contents:
 //
@@ -287,13 +287,32 @@ namespace min { namespace internal {
 
 #   if MIN_POINTER_BITS <= 32
 	typedef uns32 pointer_uns;
+
+	// For the 32 bit pointer size there is no point
+	// in having a non-zero stub base.
+#	ifndef MIN_STUB_BASE
+#	    define MIN_STUB_BASE 0
+#	endif
+
 #   else
 	typedef uns64 pointer_uns;
 #   endif
 
-    // Address of first stub (stub with index 0).
+    // Address of first stub (stub with index 0),
+    // equals address of the `end_stub', whose address
+    // is used in place of NULL to end lists of stubs
+    // (because NULL cannot be represented by some
+    // stub address representation schemes).
     //
-    extern min::internal::pointer_uns stub_base;
+#   ifdef MIN_STUB_BASE
+	const min::internal::pointer_uns stub_base =
+	    MIN_STUB_BASE;
+	min::stub * const end_stub =
+	    (min::stub *) stub_base;
+#   else
+	extern min::internal::pointer_uns stub_base;
+	extern min::stub * end_stub;
+#   endif
 
     inline void * uns64_to_pointer ( min::uns64 v )
     {
