@@ -508,6 +508,8 @@ min_interface_test.cc:XXXX assert:
 Finish Process Interface Test!
 
 Start Allocator/Collector/Compactor Interface Test!
+min_interface_test.cc:XXXX assert:
+    begin_stub_region >= (min::stub *) min::internal::stub_base true.
 
 Test mutator functions:
 min_interface_test.cc:XXXX assert:

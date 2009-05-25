@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 21 08:54:13 EDT 2009
+// Date:	Sun May 24 21:23:11 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/21 19:16:08 $
+//   $Date: 2009/05/25 01:52:44 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.34 $
+//   $Revision: 1.35 $
 
 // Table of Contents
 //
@@ -97,37 +97,65 @@
 # endif
 
 // ACC Parameters
-//
-// Compiled algorithm variations.
-//
-# define MIN_ALLOCATOR_VARIANT 1
-# define MIN_COMPACTOR_VARIANT 1
-# define MIN_COLLECTOR_VARIANT 1
 
-// Maximum nunber of ephemeral levels possible with the
-// compiled code.
+// Maximum number of ephemeral levels possible with the
+// compiled code.  See below if you want to set this
+// explicitly (there is no point in reducing it from
+// the default value given here).
 //
-# define MIN_MAX_EPHEMERAL_LEVELS \
-    ( MIN_POINTER_SIZE <= 32 ? 5 : 2 )
+# ifndef MIN_MAX_EPHEMERAL_LEVELS
+#   define MIN_MAX_EPHEMERAL_LEVELS \
+	( MIN_POINTER_SIZE <= 32 ? 4 : 2 )
+# endif
 
 // Maximum number of stubs possible with the compiled
-// code.
+// code.  The defaults specified here permit stub
+// addresses to be stored in min::gen values and in
+// stub and other control values.  You can multiply
+// these defaults by as much as 16 if stub indices
+// are to be stored instead of addresses.
 //
-# define MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
-    ( MIN_POINTER_SIZE <= 32 ? 1 << 28 : \
-      MIN_IS_COMPACT ? 0xDFFFFFFF : 1ull << 40  )
+// The actual maximum number of stubs allowed is
+// determined when the program starts, and must be
+// smaller than the absolute maximum here if memory
+// for stubs is to be successfully allocated.  See
+// MIN_DEFAUT_MAX_NUMBER_OF_STUBS below.
+//
+# ifndef MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
+#   define MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+	( MIN_IS_COMPACT ? 0x0DFFFFFF : \
+	  MIN_POINTER_SIZE <= 32 ? 1 << 28 : \
+	  MIN_MAX_EPHEMERAL_LEVELS <= 2 : 1ull << 40 \
+	     ( 1ull << ( 52 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) )
+#   ifndef MIN_STUB_BASE
+#	define MIN_STUB_BASE 0
+#   endif
+# endif
 
 // The maximum number of stubs M is set when the program
 // starts.  It must be less than or equal the absolute
 // maximum above.  16*M bytes of virtual memory are
 // reserved for the stub vector when the program starts,
 // but only pages at the beginning of the vector are
-// used.  The following is the default for M:
+// used for stubs.  M must be small enough so that 
+// the allocation to virtual memory succeeds.  The
+// following is the default for M:
 //
-# define MIN_DEFAULT_MAX_NUMBER_OF_STUBS \
-    ( MIN_POINTER_SIZE <= 32 ? 1 << 25 : 1ull << 30  )
+# ifndef MIN_DEFAULT_MAX_NUMBER_OF_STUBS
+#    define MIN_DEFAULT_MAX_NUMBER_OF_STUBS \
+        ( MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+	                 <= ( 1 << 27 ) ? \
+              MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS : \
+          MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+	                 <= ( 1 << 28 ) ? \
+              1 << 27 : \
+          MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+	                 <= ( 1 << 36 ) ? \
+              MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS / 2 : \
+	  1 << 35 )
+# endif
 
-// Certain memory space inefficiencies
+// Certain memory space inefficiencies are approximately
 //
 //	M + allocated-memory/F
 //
