@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Thu May 21 15:14:02 EDT 2009
+# Date:		Mon May 25 04:47:24 EDT 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/05/21 19:19:17 $
+#   $Date: 2009/05/25 08:59:45 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.18 $
+#   $Revision: 1.19 $
 
 # We need the following to mask RCS lines
 #
@@ -86,15 +86,18 @@ min_interface_test_compact:	\
 	GFLAGS = -DMIN_IS_COMPACT=1 \
 	         -DMIN_USES_OBJ_AUX_STUBS=1
 
+N=MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
 min_interface_test_loose_stretch:	\
-	GFLAGS = -DMIN_IS_COMPACT=0 -DMIN_STRETCH=1 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1 \
-		 -DMIN_STUB_BASE=0x100
+	GFLAGS = -DMIN_IS_COMPACT=0 \
+	         -D$N=0xFFFFFFF0000ull \
+		 -DMIN_STUB_BASE=0x100 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_interface_test_compact_stretch:	\
-	GFLAGS = -DMIN_IS_COMPACT=1 -DMIN_STRETCH=1 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1 \
-		 -DMIN_STUB_BASE=0x100
+	GFLAGS = -DMIN_IS_COMPACT=1 \
+	         -D$N=0xDFFFFFFF \
+		 -DMIN_STUB_BASE=0x100 \
+	         -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_interface_test_loose_partial:	\
 	GFLAGS = -DMIN_IS_COMPACT=0 \

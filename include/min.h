@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 21 08:39:07 EDT 2009
+// Date:	Mon May 25 02:57:06 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/21 19:16:08 $
+//   $Date: 2009/05/25 08:59:25 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.167 $
+//   $Revision: 1.168 $
 
 // Table of Contents:
 //
@@ -349,33 +349,33 @@ namespace min { namespace internal {
 	{
 	    min::internal::pointer_uns p =
 		(min::internal::pointer_uns) v;
-#           if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-               <= 0xDFFFFFFF
+#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+               <= 0xDFFFFFFFull
 		return ( min::stub * ) p;
-#           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-                 <= 0xDFFFFFFF
+#           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
+                 <= 0xDFFFFFFFull
 		return (min::stub *) ( p + stub_base );
-#           elif MIN_MAXIMUM_STUB_INDEX <= 0xDFFFFFFF
+#           elif MIN_MAX_STUB_INDEX <= 0xDFFFFFFFull
 		return (min::stub *) stub_base + p;
 #           else
-#	        error   MIN_MAXIMUM_STUB_INDEX \
+#	        error   MIN_MAX_STUB_INDEX \
                       > 0xDFFFFFFF
 #           endif
 	}
 	inline min::uns32 general_stub_to_uns32
 		( min::stub * s )
 	{
-#           if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-               <= 0xDFFFFFFF
+#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+               <= 0xDFFFFFFFull
 	        return (min::internal::pointer_uns) s;
-#           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-                 <= 0xDFFFFFFF
+#           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
+                 <= 0xDFFFFFFFull
 	        return   (min::internal::pointer_uns) s
 		       - stub_base;
-#           elif MIN_MAXIMUM_STUB_INDEX <= 0xDFFFFFFF
+#           elif MIN_MAX_STUB_INDEX <= 0xDFFFFFFFull
 	        return s - (min::stub *) stub_base;
 #           else
-#	        error   MIN_MAXIMUM_STUB_INDEX \
+#	        error   MIN_MAX_STUB_INDEX \
                       > 0xDFFFFFFF
 #           endif
 	}
@@ -386,35 +386,35 @@ namespace min { namespace internal {
 	    min::internal::pointer_uns p =
 	       (min::internal::pointer_uns)
 	       (v & ( ( min::uns64(1) << 44 ) - 1 ) );
-#           if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-               <= 0xFFFFFFFFFFF
+#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+               <= 0xFFFFFFFFFFFull
 	        return ( min::stub * ) p;
-#           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-                 <= 0xFFFFFFFFFFF
+#           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
+                 <= 0xFFFFFFFFFFFull
 	        return (min::stub *) ( p + stub_base );
-#           elif MIN_MAXIMUM_STUB_INDEX <= 0xFFFFFFFFFFF
+#           elif MIN_MAX_STUB_INDEX <= 0xFFFFFFFFFFFull
 	        return (min::stub *) stub_base + p;
 #           else
-#	        error   MIN_MAXIMUM_STUB_INDEX \
-                      > 0xFFFFFFFFFFF
+#	        error   MIN_MAX_STUB_INDEX \
+                      > 0xFFFFFFFFFFFull
 #           endif
         }
 
         inline min::uns64 general_stub_to_uns64
 	        ( min::stub * s )
         {
-#           if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-               <= 0xFFFFFFFFFFF
+#           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+               <= 0xFFFFFFFFFFFull
 	        return (min::internal::pointer_uns) s;
-#           elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-                 <= 0xFFFFFFFFFFF
+#           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
+                 <= 0xFFFFFFFFFFFull
 	        return   (min::internal::pointer_uns) s
 	               - stub_base;
-#           elif MIN_MAXIMUM_STUB_INDEX <= 0xFFFFFFFFFFF
+#           elif MIN_MAX_STUB_INDEX <= 0xFFFFFFFFFFFull
 	        return s - (min::stub *) stub_base;
 #           else
-#	        error   MIN_MAXIMUM_STUB_INDEX \
-                      > 0xFFFFFFFFFFF
+#	        error   MIN_MAX_STUB_INDEX \
+                      > 0xFFFFFFFFFFFull
 #           endif
         }
 
@@ -1027,7 +1027,7 @@ namespace min { namespace unprotected {
 	       | v;
     }
 
-#   if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
+#   if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
        <= MIN_CONTROL_VALUE_MASK
 
 	inline min::stub * stub_of_control
@@ -1056,7 +1056,7 @@ namespace min { namespace unprotected {
 		   | (min::internal::pointer_uns) s;
 	}
 
-#   elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
+#   elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
          <= MIN_CONTROL_VALUE_MASK
 
 	inline min::stub * stub_of_control
@@ -1089,7 +1089,7 @@ namespace min { namespace unprotected {
 		       - min::internal::stub_base );
 	}
 
-#   elif    MIN_MAXIMUM_STUB_INDEX \
+#   elif    MIN_MAX_STUB_INDEX \
          <= MIN_CONTROL_VALUE_MASK
 
 	inline min::stub * stub_of_control
@@ -1120,11 +1120,11 @@ namespace min { namespace unprotected {
 		           min::internal::stub_base );
 	}
 #   else
-#	error   MIN_MAXIMUM_STUB_INDEX \
+#	error   MIN_MAX_STUB_INDEX \
               > MIN_CONTROL_VALUE_MASK
 #   endif
 
-#   if    MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
+#   if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
        <= MIN_ACC_CONTROL_VALUE_MASK
 
 	inline min::stub * stub_of_acc_control
@@ -1153,7 +1153,7 @@ namespace min { namespace unprotected {
 		   | (min::internal::pointer_uns) s;
 	}
 
-#   elif    MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
+#   elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
          <= MIN_ACC_CONTROL_VALUE_MASK
 
 	inline min::stub * stub_of_acc_control
@@ -1184,7 +1184,7 @@ namespace min { namespace unprotected {
 		     - min::internal::stub_base );
 	}
 
-#   elif    MIN_MAXIMUM_STUB_INDEX \
+#   elif    MIN_MAX_STUB_INDEX \
          <= MIN_ACC_CONTROL_VALUE_MASK
 
 	inline min::stub * stub_of_acc_control
@@ -1215,7 +1215,7 @@ namespace min { namespace unprotected {
 		         min::internal::stub_base );
 	}
 #   else
-#	error   MIN_MAXIMUM_STUB_INDEX \
+#	error   MIN_MAX_STUB_INDEX \
               > MIN_ACC_CONTROL_VALUE_MASK
 #   endif
 
