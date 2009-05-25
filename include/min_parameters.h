@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 24 21:23:11 EDT 2009
+// Date:	Mon May 25 02:56:52 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/25 01:52:44 $
+//   $Date: 2009/05/25 08:59:25 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // Table of Contents
 //
 //	Usage and Setup
-//	Software Parameters
+//	Settable Software Parameters
+//	Rarely Set Software Parameters
 //	Hardware Functions
 //	Hardware Parameters
 
@@ -37,11 +38,11 @@
 // -DMIN_PROTECT=0
 // -DMIN_IS_COMPACT=1
 // -DMIN_USES_OBJ_AUX_STUBS=1
-// -DMIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFFFFFFull
+// -DMIN_MAX_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFFFFFFull
 //	// 2**48 - 1; forces use of stub relative
 //	// addresses or indices in 64 bit general
 //	// values.
-// -DMIN_MAXIMUM_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFFull
+// -DMIN_MAX_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFFull
 //	// 2**48 - 1; forces use of stub indices in 64
 //	// bit general values.
 // -DMIN_ACC_FLAG_BITS=16
@@ -53,8 +54,8 @@
 # ifndef MIN_PARAMETERS_H
 # define MIN_PARAMETERS_H
 
-// Software Parameters
-// -------- ----------
+// Settable Software Parameters
+// -------- -------- ----------
 
 // 1 to add extra debugging code; 0 not to.
 //
@@ -105,7 +106,7 @@
 //
 # ifndef MIN_MAX_EPHEMERAL_LEVELS
 #   define MIN_MAX_EPHEMERAL_LEVELS \
-	( MIN_POINTER_SIZE <= 32 ? 4 : 2 )
+	( MIN_POINTER_BITS <= 32 ? 4 : 2 )
 # endif
 
 // Maximum number of stubs possible with the compiled
@@ -119,14 +120,21 @@
 // determined when the program starts, and must be
 // smaller than the absolute maximum here if memory
 // for stubs is to be successfully allocated.  See
-// MIN_DEFAUT_MAX_NUMBER_OF_STUBS below.
+// MIN_DEFAULT_MAX_NUMBER_OF_STUBS below.
+//
+// NOTE: the g++ pre-processor has an operator
+// grouping bug and requires that x ? y : z ? w : v
+// be expressed as x ? y : ( z ? w : v ).
 //
 # ifndef MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
 #   define MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
 	( MIN_IS_COMPACT ? 0x0DFFFFFF : \
-	  MIN_POINTER_SIZE <= 32 ? 1 << 28 : \
-	  MIN_MAX_EPHEMERAL_LEVELS <= 2 : 1ull << 40 \
-	     ( 1ull << ( 52 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) )
+	  ( MIN_POINTER_BITS <= 32 ? 1 << 28 : \
+	  ( MIN_MAX_EPHEMERAL_LEVELS <= 2 ? \
+	          0xFFFFFFFFFFull : \
+	  ( ( 1ull << \
+	      ( 52 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) ) \
+	    - 1 ) ) ) )
 #   ifndef MIN_STUB_BASE
 #	define MIN_STUB_BASE 0
 #   endif
@@ -141,19 +149,29 @@
 // the allocation to virtual memory succeeds.  The
 // following is the default for M:
 //
+// See NOTE above.
+//
 # ifndef MIN_DEFAULT_MAX_NUMBER_OF_STUBS
 #    define MIN_DEFAULT_MAX_NUMBER_OF_STUBS \
         ( MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
 	                 <= ( 1 << 27 ) ? \
               MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS : \
-          MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+          ( MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
 	                 <= ( 1 << 28 ) ? \
               1 << 27 : \
-          MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
-	                 <= ( 1 << 36 ) ? \
+          ( MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+	                 <= ( 1ull << 36 ) ? \
               MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS / 2 : \
-	  1 << 35 )
+	  ( 1ull << 35 ) ) ) )
 # endif
+
+// Optional hard-coded address of the stub vector.  De-
+// faults to zero when MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
+// is allowed to default above.  Otherwise not set by
+// default, and when not set the base of the stub vector
+// is determined at run time.
+//
+// # define MIN_STUB_BASE xxx
 
 // Certain memory space inefficiencies are approximately
 //
@@ -171,6 +189,12 @@
 // are F**2 pages long.
 //
 # define MIN_DEFAULT_MEMORY_SPACE_FACTOR 16
+
+// Rarely Set Software Parameters
+// ------ --- -------- ----------
+
+// Normally you will not define the following, and so
+// will get the defaults.
 
 // All addresses are 64 bits except stub addresses,
 // which are packed.  All stub address packing schemes
@@ -185,7 +209,7 @@
 //
 // and are in the range:
 //
-//	0 .. MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS
+//	0 .. MIN_MAX_ABSOLUTE_STUB_ADDRESS
 //
 // Relative stub addresses are defined by the formula:
 //
@@ -195,7 +219,7 @@
 //
 // and are in the range:
 //
-//	0 .. MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
+//	0 .. MIN_MAX_RELATIVE_STUB_ADDRESS
 //
 // Stub indices are defined by the formula:
 //
@@ -205,7 +229,7 @@
 //
 // and are in the range:
 //
-//	0 .. MIN_MAXIMUM_RELATIVE_STUB_ADDRESS / 16
+//	0 .. MIN_MAX_RELATIVE_STUB_ADDRESS / 16
 //
 // where 16 is the number of bytes in a stub.
 //
@@ -243,59 +267,41 @@
 // determined by hardware: See Hardware Parameters
 // below.
 
-// Maximum absolute stub address.  Defaults to:
+// Maximum relative stub address.
 //
-//	2**32 - 2**29 - 1    if MIN_POINTER_BITS <= 32
-//
-//	2**44 - 1	     if MIN_POINTER_BITS > 32
-//
-// The defaults permit absolute stub addresses to be
-// stored in COMPACT general values when pointers are
-// 32 bits long and in LOOSE general values when
-// pointers are more than 32 bits long.
-//
-# ifndef MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS
-#   define MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
-	   ( MIN_POINTER_BITS <= 32 ? 0xDFFFFFFFul : \
-	     0xFFFFFFFFFFFull )
+# ifndef MIN_MAX_RELATIVE_STUB_ADDRESS
+#   define MIN_MAX_RELATIVE_STUB_ADDRESS \
+	( 16 * MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS )
 # endif
 
-// Maximum relative stub address.  Defaults to:
+// Maximum absolute stub address.
 //
-//	2**32 - 2**29 - 1    if MIN_POINTER_BITS <= 32
-//			     or MIN_IS_COMPACT
-//
-//	2**44 - 1	     if MIN_POINTER_BITS > 32
-//
-// The defaults permit relative stub addresses to be
-// stored in COMPACT general values when pointers are
-// 32 bits long and in LOOSE general values when
-// pointers are more than 32 bits long.
-//
-# ifndef MIN_MAXIMUM_RELATIVE_STUB_ADDRESS
-#   define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
-	( (    MIN_POINTER_BITS <= 32 \
-            || MIN_IS_COMPACT ) ? \
-          0xDFFFFFFFul : 0xFFFFFFFFFFFull )
+# ifndef MIN_MAX_ABSOLUTE_STUB_ADDRESS
+#   ifdef MIN_STUB_BASE
+#	define MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+	    (   MIN_STUB_BASE \
+	      + MIN_MAX_RELATIVE_STUB_ADDRESS )
+#   else
+#	define MIN_MAX_ABSOLUTE_STUB_ADDRESS \
+	   ( MIN_POINTER_BITS <= 32 ? 0xDFFFFFFFull : \
+	     ( ( 1ull << 44 ) - 1 ) )
+#   endif
 # endif
 
 // Number of ACC flag bits.  The ACC needs 4N+4 flag
 // bits to implement N ephemeral levels and 1 non-
-// ephemeral level of garbage collection.  Defaults to
-// 12.
+// ephemeral level of garbage collection.
 //
-// NOTE: if MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS >=
+// NOTE: if MIN_MAX_ABSOLUTE_STUB_ADDRESS >=
 // ( 1 << ( 56 - MIN_ACC_FLAG_BITS ) ) then the
 // control value of a stub cannot hold an absolute
 // stub address.  It may still be able to hold a
 // relative stub address or a stub index.
 //
 # ifndef MIN_ACC_FLAG_BITS
-#   define MIN_ACC_FLAG_BITS 12
+#   define MIN_ACC_FLAG_BITS \
+        ( 4 + 4 * MIN_MAX_EPHEMERAL_LEVELS )
 # endif
-
-// Normally you will not define the following, and so
-// will get the defaults.
 
 // Number of low order zero bits in a stub relative
 // address.  Sizeof stub = 1 << MIN_STUB_SHIFT.
@@ -306,9 +312,9 @@
 
 // Maximum stub index.
 //
-# ifndef MIN_MAXIMUM_STUB_INDEX
-#   define MIN_MAXIMUM_STUB_INDEX \
-           ( MIN_MAXIMUM_RELATIVE_STUB_ADDRESS / 16 )
+# ifndef MIN_MAX_STUB_INDEX
+#   define MIN_MAX_STUB_INDEX \
+           MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
 # endif
 
 // Maximum size of a fixed block for the ACC fixed block
@@ -324,7 +330,7 @@
 namespace min { namespace internal {
 
     // Return j such that (1<<j) <= u <= (1<<(j+1)),
-    // assuming 0 < u <= MAX_FIXED_BODY_SIZE/8.
+    // assuming 0 < u <= MIN_MAX_FIXED_BODY_SIZE/8.
     //
     inline unsigned fixed_bodies_log ( unsigned u )
     {
@@ -377,11 +383,6 @@ namespace min { namespace internal {
 //	MIN_DEALLOCATED_LIMIT
 //	    Minimum size of unimplemented memory at
 //	    which deallocated body pointers are pointed.
-//	MIN_STUB_BASE
-//	    Base address of stub vector: an optional
-//	    constant.  Most useful for compact systems,
-//	    and never required, as the base address
-//	    will be a variable if this is not defined.
 //
 # if __i386__
 #   define MIN_INT32_TYPE int

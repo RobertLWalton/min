@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/21 19:19:17 $
+//   $Date: 2009/05/25 08:59:45 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.86 $
+//   $Revision: 1.87 $
 
 // Table of Contents:
 //
@@ -49,27 +49,6 @@ using std::endl;
 using std::hex;
 using std::dec;
 using std::ostream;
-
-// Artificial increase in pointer size for stretch test.
-//
-// If MIN_STRETCH defined, set
-//
-//	MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS = 2**60 - 1
-//	MIN_MAXIMUM_RELATIVE_STUB_ADDRESS =
-//		2**36 - 2**33 - 1  if MIN_IS_COMPACT
-//		2**48 - 1  if not MIN_IS_COMPACT
-//
-# ifdef MIN_STRETCH
-#   define MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS \
- 	       0xFFFFFFFFFFFFFFFull
-#   if MIN_IS_COMPACT
-#	define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
- 	       0xDFFFFFFFFull
-#   else
-#	define MIN_MAXIMUM_RELATIVE_STUB_ADDRESS \
- 	       0xFFFFFFFFFFFFull
-#   endif
-# endif
 
 // Redefinition of MIN_ASSERT for use in min.h.
 //
