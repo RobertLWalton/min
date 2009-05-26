@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 19 10:09:19 EDT 2009
+// Date:	Mon May 25 22:03:07 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/25 20:34:25 $
+//   $Date: 2009/05/26 02:07:03 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents
 //
@@ -43,7 +43,9 @@ namespace min { namespace os {
 
     // Allocate a segment of virtual memory with the
     // given number of pages and return its address.
-    // If there is an error return NULL.
+    // If there is the value returned is not really
+    // an address but is an error code: see pool_
+    // error below.
     //
     void * new_pool ( min::uns64 pages );
 
@@ -54,11 +56,19 @@ namespace min { namespace os {
     //
     void * new_pool ( min::uns64 pages, void * start );
 
+    // Return NULL if the argument is really the address
+    // of a segment returned by new_pool, and return
+    // a character string giving a short description of
+    // the error if the argument is really an error code
+    // returned by new_pool.
+    //
+    const char * pool_error ( void * start );
+
     // Free the segment with given number of pages and
     // start address.  The segment must have been
     // allocated with new_pool, and may not be used
-    // again (the same virtual memory pages may be
-    // reallocated by another call to new_pool).
+    // again (the same virtual memory pages may or may
+    // not be reallocable by another call to new_pool).
     //
     void free_pool ( min::uns64 pages, void * start );
 
