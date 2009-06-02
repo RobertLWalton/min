@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun  1 06:20:31 EDT 2009
+// Date:	Tue Jun  2 03:54:01 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/02 07:53:34 $
+//   $Date: 2009/06/02 08:15:27 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -258,18 +258,14 @@ namespace min { namespace acc {
 	    // type of the region and the value field
 	    // is the size of the region in bytes.
 
-	MACC::region * previous, * next;
-	    // Previous and next region on a doubly
-	    // linked list of regions.  There is one
-	    // such list for every multi-page region
-	    // which includes that region and all of its
-	    // subregions.
-
 	min::uns64 offset;
 	    // For variable size block and multi-page
 	    // block regions, the offset of the first
 	    // free byte in the region.  New blocks are
 	    // always allocated at that offset.
+
+	min::uns64 region_size;
+	    // The size of the region.
 
 	min::uns32 block_size;
 	    // For fixed size block regions, the size
@@ -279,14 +275,35 @@ namespace min { namespace acc {
 	    // For fixed size block regions, the number
 	    // of free blocks.
 
-        min::uns64 stunted_block_control;
-	    // Block control word for the stunted block
-	    // that follows this region control struct
-	    // in a fixed block region.
-	    //
-	    // WARNING: This must be the last thing in
-	    // a region control stuct and must be
-	    // aligned.
+	MACC::region * subregion_previous,
+		     * subregion_next;
+	    // Previous and next region on a doubly
+	    // linked list of subregions.  There is one
+	    // such list for every multi-page region
+	    // which includes that region and all of its
+	    // subregions.
+
+	MACC::region * free_previous,
+		     * free_next;
+	    // Previous and next region on a doubly
+	    // linked list of fixed size block regions.
+	    // There is one such list for every size
+	    // of fixed block, so that the regions
+	    // containing fixed blocks of a particular
+	    // size can be located.  The order of this
+	    // list also determines the order in which
+	    // free blocks from regions will be used.
+
+	void * free_first,
+	     * free_last;
+	    // The first and last free block for a fixed
+	    // size block region.  Each free block is
+	    // chained to the next by a `void *' pointer
+	    // at the very beginning of the block (there
+	    // is no block control word).  The list is
+	    // NULL terminated and if the list is empty
+	    // these members are NULL.
+
 } }
 
 
@@ -391,114 +408,6 @@ namespace min { namespace acc {
     // If a brand new stub is created, it can be added
     // to S by clearing its scavenged flag and setting
     // its unmarked flag.
-
-    // Allocation of bodies is from a stack-like region
-    // of memory.  Bodies are separated by body control
-    // structures.
-    //
-    struct body_control {
-        uns64 control;
-	    // If not free, the type is any value but
-	    // min::FREE, and the control contains a
-	    // pointer to stub associated with the
-	    // following body.  The stub and body itself
-	    // must contain enough information to deter-
-	    // mine the size of the body (in particular
-	    // the location of the body_control follow-
-	    // ing the body).
-	    //
-	    // If free, the type is min::FREE and the
-	    // control value is the length of the free
-	    // body following the body_control.
-	int64 size_difference;
-	    // Size of the body following the body_
-	    // control - size of the body preceding the
-	    // body_control, in bytes.  If there is no
-	    // body after the body control, that size
-	    // is 0, and if there is body before the
-	    // body control, that size is 0.
-    };
-
-    // Free_body_control is the body_control before a
-    // free body that is used as a stack to allocate
-    // new bodies.  A new body is allocated to the
-    // beginning of the free body, and free_body_control
-    // is moved to the end of the newly allocated body.
-    //
-    extern body_control * free_body_control;
-
-    // Out of line function to returns a value which
-    // may be directly returned by new_body (see
-    // below).  This function is called by new_body
-    // when the body stack is too short to service an
-    // allocation request.  This function may or may not
-    // reset free_body_control.
-    //
-    // Here n must be the argument to new_body rounded
-    // up to a multiple of 8.
-    //
-    body_control * acc_new_body ( unsigned n );
-
-    // Function to return the address of the body_con-
-    // trol in front of a newly allocated body with n'
-    // bytes, where n' is n rounded up to a multiple of
-    // 8.  The control member of the returned body
-    // control is set to zero.
-    //
-    inline body_control * new_body ( unsigned n )
-    {
-        // We must be careful to convert unsigned and
-	// sizeof values to int64 BEFORE negating them.
-
-        n = ( n + 7 ) & ~ 07;
-	body_control * head = free_body_control;
-	min::internal::pointer_uns size =
-	    value_of_control ( head->control );
-	if ( size < n + sizeof ( body_control ) )
-	    return acc_new_body ( n );
-
-	// The pointers are:
-	//
-	//	head --------->	body_control
-	//			n bytes		---+
-	//	free ---------> body_control       |
-	//			size - n           | ifb
-	//			     - sizeof bc   |
-	//			   bytes        ---+
-	//	tail ---------> body_control
-	//		
-	// where
-	//
-	//	head = initial free_body_control
-	//	     = body_control before returned body
-	//	free = final free_body_control
-	//	     = body_control after returned body
-	//	     = body_control before new free body
-	//	tail = body_control after original and
-	//	       new free bodies
-	//	sizeof bc = sizeof ( body_control )
-	//	ifb = initial free body
-
-	uns8 * address = (uns8 *) head
-	               + sizeof ( body_control );
-	body_control * free =
-	    (body_control *) ( address + n );
-	body_control * tail =
-	    (body_control *) ( address + size );
-	// Reset size to size of new free body.
-	size -= min::internal::pointer_uns 
-		    ( n + sizeof ( body_control ) );
-	head->size_difference -=
-	    int64 ( size + sizeof ( body_control ) );
-	free->size_difference =
-	    int64 ( size ) - int64 ( n );
-	tail->size_difference +=
-	    int64 ( n + sizeof ( body_control ) );
-	head->control = 0;
-	free->control = new_control ( min::FREE, size );
-	free_body_control = free;
-	return head;
-    }
 
 } }
 
