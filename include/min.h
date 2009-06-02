@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 25 02:57:06 EDT 2009
+// Date:	Thu May 28 16:50:17 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/25 08:59:25 $
+//   $Date: 2009/06/02 07:40:52 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.168 $
+//   $Revision: 1.169 $
 
 // Table of Contents:
 //
@@ -962,21 +962,30 @@ namespace min {
 // Control Values
 // ------- ------
 
-// Control value layout:
+// ACC control value layout:
 //
 //	Bits		Use
 //
-//	0 .. m-1	Stub absolute or relative
+//	0 .. 47		Stub absolute or relative
 //			address or stub index.
 //
 //	m .. 55		ACC flag bits
 //
 //	56 .. 63	Type code.
 //
-// where m == 56 - MIN_ACC_FLAG_BITS.
+// Non-ACC control value layout:
+//
+//	Bits		Use
+//
+//	0 .. 47		Stub absolute or relative
+//			address or stub index.
+//
+//	48 .. 55	Flag bits
+//
+//	56 .. 63	Type code.
 
-// CONTROL MASK is 2**48 - 1.
 // ACC CONTROL MASK is 2**(56 - MIN_ACC_FLAG_BITS) - 1.
+// CONTROL MASK is 2**48 - 1.
 //
 # define MIN_CONTROL_VALUE_MASK 0xFFFFFFFFFFFFull
 # define MIN_ACC_CONTROL_VALUE_MASK \
@@ -1422,7 +1431,8 @@ namespace min {
 // Allocator/Collector/Compactor Interface
 // ----------------------------- ---------
 
-namespace min { namespace unprotected {
+
+namespace min { namespace internal {
 
     // Number of free stubs that can be allocated with-
     // out requiring a call to acc_expand_stub_free_
@@ -1435,9 +1445,18 @@ namespace min { namespace unprotected {
     //
     void acc_expand_stub_free_list ( unsigned n );
 
-} }
+    // Hash tables for atoms.  The stubs in these tables
+    // are chained together by the acc chain pointer and
+    // are garbage collectible.
 
-namespace min { namespace internal {
+    extern min::stub ** str_hash;
+    extern unsigned str_hash_size;
+
+    extern min::stub ** num_hash;
+    extern unsigned num_hash_size;
+
+    extern min::stub ** lab_hash;
+    extern unsigned lab_hash_size;
 
     // The ACC Flag Bit layout is:
     //
@@ -1566,11 +1585,11 @@ namespace min { namespace internal {
     //
     inline min::stub * new_stub ( void )
     {
-	if ( min::unprotected
+	if ( min::internal
 	        ::number_of_free_stubs == 0 )
-	    min::unprotected
+	    min::internal
 	       ::acc_expand_stub_free_list ( 1 );
-	-- min::unprotected::number_of_free_stubs;
+	-- min::internal::number_of_free_stubs;
 	uns64 c = min::unprotected::control_of
 			( last_allocated_stub );
 	min::stub * s = min::unprotected
@@ -1589,11 +1608,11 @@ namespace min { namespace internal {
     //
     inline min::stub * new_aux_stub ( void )
     {
-	if ( min::unprotected
+	if ( min::internal
 	        ::number_of_free_stubs == 0 )
-	    min::unprotected
+	    min::internal
 	       ::acc_expand_stub_free_list ( 1 );
-	-- min::unprotected::number_of_free_stubs;
+	-- min::internal::number_of_free_stubs;
 	uns64 c = min::unprotected::control_of
 			( last_allocated_stub );
 	min::stub * s = min::unprotected
@@ -1629,7 +1648,7 @@ namespace min { namespace internal {
 	       ::renew_acc_control_stub ( c, s );
 	min::unprotected::set_control_of
 		( last_allocated_stub, c );
-	++ min::unprotected::number_of_free_stubs;
+	++ min::internal::number_of_free_stubs;
     }
 
     // fixed_bodies[j] is the head of a free list of
@@ -1771,237 +1790,6 @@ namespace min {
     }
 
 }
-
-// Collector Compactor Interface
-// --------- --------- ---------
-
-// This interface includes high performance inline
-// functions that allocate and deallocate stubs and
-// bodies and that write general values containing
-// pointers into stubs or bodies.
-
-namespace min { namespace unprotected {
-
-    // Mutator (non-acc execution engine) action:
-    //
-    // If a pointer to stub s2 is stored in a datum with
-    // stub s1, then for each pair of ACC flags the sca-
-    // venged flag of the pair of s1 and the unmarked
-    // flag of the pair s2 are logically ANDed, and if
-    // the corresponding bit is on in MUP::acc_stack_
-    // mask, then push a pointer to s1 and then a
-    // pointer to s2 into the MUP::acc_stack.
-    //
-    // When a new stub is allocated, it is given the
-    // flags in MUP::acc_new_stub_flags.
-    //
-    // One use of this mutator action is as follows.
-    //
-    // To mark the those members of a set of stubs S
-    // that are pointed at by members of a set of stubs
-    // R, use a pair of ACC flags, and set the corres-
-    // ponding bit in MUP::acc_stack_mask.  Clear the
-    // scavenged flag of the flag pair in each stub in
-    // R or S, set the unmarked flag in every stub in S
-    // that is not in R, and clear the unmarked flag of
-    // EVERY other stub.
-    //
-    // At the end of the algorithm, the scavenged flag
-    // will be set for each stub in R, and the unmarked
-    // flag will be cleared for each stub of S pointed
-    // at by a stub of R, and for each such stub of S,
-    // that stub will have been added to the set R.
-    // The algorithm may err by clearing the unmarked
-    // flag of a few additional stubs in S.
-    //
-    // The algorithm does the following until done.  For
-    // each stub s1 in R whose scavenged flag is off,
-    // s1's scavenged flag is set, and then for each
-    // pointer from s1's object to a stub s2 in S, if
-    // the unmarked flag of s2 is set, it is cleared and
-    // s2 is added to the set R.  If a pair of pointers
-    // s1, s2 appears in the MUP::acc_stack with the
-    // scavenged flag of s1 on and the unmarked flag of
-    // s2 on, the unmarked and scavenged flags of s2 are
-    // cleared, and s2 is added to the set R.
-    //
-    // It is only necessary to keep track of the stubs
-    // in R whose scavenged flag is off.  These can be
-    // listed in a stack of stub pointers, set initially
-    // to contain pointers to all the stubs in R.  Then
-    // to add a stub to R, merely push a pointer to the
-    // stub into this stack.  The above algorithm can
-    // then pop a pointer of this stack and proceed as
-    // above for stubs in R whose scavenged flag was
-    // is not set.
-    //
-    // If a brand new stub is created, it can be added
-    // to S by clearing its scavenged flag and setting
-    // its unmarked flag, as being new it cannot yet be
-    // pointed at by a stub in R.
-    // 
-    // Another use of the mutator action is as follows.
-    //
-    // To mark members of a set of stubs R that point at
-    // members of a set of stubs S, use a pair of ACC
-    // pointers, and set the corresponding bit in MUP::
-    // acc_stack_mask.  Set the unmarked flag of the
-    // flag pair in every stub of S, and clear that flag
-    // in EVERY other stub.  Clear the scavenged flag of
-    // EVERY stub.
-    //
-    // At the end of the algorithm the unmarked flags
-    // will not have been changed, and the scavenged
-    // flags will set for every member of R that does
-    // NOT point at a member of S.  The algorithm may
-    // err by setting the scavenged flag of a few
-    // additional stubs in R.
-    //
-    // The algorithm does the following until done.  For
-    // each stub s1 in R, taken in some pre-determined
-    // order, the scavenged flag of s1 is turned on, the
-    // object is checked to see if it has any pointers
-    // to stubs in S, and if so, its scavenged flag is
-    // turned back off.  If a pair of pointers s1, s2
-    // appears in the MUP::acc_stack with the scavenged
-    // flag of s1 on and the unmarked flag of s2 on, the
-    // scavenged flag of s1 is cleared.
-    //
-    // A stack of pointers to stubs in R whose scavenged
-    // flags have been cleared at some point in the
-    // above algorithm can be easily kept.  After all
-    // the stubs in R have been gone through in the
-    // pre-determined order, this will include all stubs
-    // in R whose object point at stubs in S, whenever
-    // the MUP::acc_stack is empty.
-    //
-    // If a brand new stub is created, it can be added
-    // to S by clearing its scavenged flag and setting
-    // its unmarked flag.
-
-    // Allocation of bodies is from a stack-like region
-    // of memory.  Bodies are separated by body control
-    // structures.
-    //
-    struct body_control {
-        uns64 control;
-	    // If not free, the type is any value but
-	    // min::FREE, and the control contains a
-	    // pointer to stub associated with the
-	    // following body.  The stub and body itself
-	    // must contain enough information to deter-
-	    // mine the size of the body (in particular
-	    // the location of the body_control follow-
-	    // ing the body).
-	    //
-	    // If free, the type is min::FREE and the
-	    // control value is the length of the free
-	    // body following the body_control.
-	int64 size_difference;
-	    // Size of the body following the body_
-	    // control - size of the body preceding the
-	    // body_control, in bytes.  If there is no
-	    // body after the body control, that size
-	    // is 0, and if there is body before the
-	    // body control, that size is 0.
-    };
-
-
-    // Free_body_control is the body_control before a
-    // free body that is used as a stack to allocate
-    // new bodies.  A new body is allocated to the
-    // beginning of the free body, and free_body_control
-    // is moved to the end of the newly allocated body.
-    //
-    extern body_control * free_body_control;
-
-    // Out of line function to returns a value which
-    // may be directly returned by new_body (see
-    // below).  This function is called by new_body
-    // when the body stack is too short to service an
-    // allocation request.  This function may or may not
-    // reset free_body_control.
-    //
-    // Here n must be the argument to new_body rounded
-    // up to a multiple of 8.
-    //
-    body_control * acc_new_body ( unsigned n );
-
-    // Function to return the address of the body_con-
-    // trol in front of a newly allocated body with n'
-    // bytes, where n' is n rounded up to a multiple of
-    // 8.  The control member of the returned body
-    // control is set to zero.
-    //
-    inline body_control * new_body ( unsigned n )
-    {
-        // We must be careful to convert unsigned and
-	// sizeof values to int64 BEFORE negating them.
-
-        n = ( n + 7 ) & ~ 07;
-	body_control * head = free_body_control;
-	min::internal::pointer_uns size =
-	    value_of_control ( head->control );
-	if ( size < n + sizeof ( body_control ) )
-	    return acc_new_body ( n );
-
-	// The pointers are:
-	//
-	//	head --------->	body_control
-	//			n bytes		---+
-	//	free ---------> body_control       |
-	//			size - n           | ifb
-	//			     - sizeof bc   |
-	//			   bytes        ---+
-	//	tail ---------> body_control
-	//		
-	// where
-	//
-	//	head = initial free_body_control
-	//	     = body_control before returned body
-	//	free = final free_body_control
-	//	     = body_control after returned body
-	//	     = body_control before new free body
-	//	tail = body_control after original and
-	//	       new free bodies
-	//	sizeof bc = sizeof ( body_control )
-	//	ifb = initial free body
-
-	uns8 * address = (uns8 *) head
-	               + sizeof ( body_control );
-	body_control * free =
-	    (body_control *) ( address + n );
-	body_control * tail =
-	    (body_control *) ( address + size );
-	// Reset size to size of new free body.
-	size -= min::internal::pointer_uns 
-		    ( n + sizeof ( body_control ) );
-	head->size_difference -=
-	    int64 ( size + sizeof ( body_control ) );
-	free->size_difference =
-	    int64 ( size ) - int64 ( n );
-	tail->size_difference +=
-	    int64 ( n + sizeof ( body_control ) );
-	head->control = 0;
-	free->control = new_control ( min::FREE, size );
-	free_body_control = free;
-	return head;
-    }
-
-    // Hash tables for atoms.  The stubs in these tables
-    // are chained together by the acc chain pointer and
-    // are garbage collectible.
-
-    extern min::stub ** str_hash;
-    extern unsigned str_hash_size;
-
-    extern min::stub ** num_hash;
-    extern unsigned num_hash_size;
-
-    extern min::stub ** lab_hash;
-    extern unsigned lab_hash_size;
-
-} }
 
 // Numbers
 // -------
@@ -4607,8 +4395,8 @@ namespace min {
 	        < 2 * insertions + elements
 #	    if MIN_USES_OBJ_AUX_STUBS
 	     && (    ! use_obj_aux_stubs
-	          ||   min::unprotected::
-			    number_of_free_stubs
+	          ||   min::internal
+			  ::number_of_free_stubs
 		     < insertions + elements )
 #	    endif
 	   )

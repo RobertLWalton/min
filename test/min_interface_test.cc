@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 21 09:00:20 EDT 2009
+// Date:	Tue Jun  2 03:42:12 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/25 08:59:45 $
+//   $Date: 2009/06/02 07:42:41 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.87 $
+//   $Revision: 1.88 $
 
 // Table of Contents:
 //
@@ -178,7 +178,7 @@ void initialize_stub_region ( void )
     assert ( begin_stub_region < end_stub_region );
 
     MINT::last_allocated_stub = begin_stub_region;
-    MUP::number_of_free_stubs = 0;
+    MINT::number_of_free_stubs = 0;
     ++ stubs_allocated;
     min::uns64 c = MUP::new_acc_control
 	( min::FREE, MINT::end_stub );
@@ -208,12 +208,12 @@ ostream & operator << ( ostream & out, min::stub * s )
 // stubs to the stub_region and attach them to the
 // free list just after the last_allocated_stub.
 //
-void MUP::acc_expand_stub_free_list ( unsigned n )
+void MINT::acc_expand_stub_free_list ( unsigned n )
 {
-    cout << "MUP::acc_expand_stub_free_list (" << n
+    cout << "MINT::acc_expand_stub_free_list (" << n
          << ") called" << endl;
-    if ( n <= MUP::number_of_free_stubs ) return;
-    n -= MUP::number_of_free_stubs;
+    if ( n <= MINT::number_of_free_stubs ) return;
+    n -= MINT::number_of_free_stubs;
 
     min::uns64 lastc = MUP::control_of
 	( MINT::last_allocated_stub );
@@ -225,7 +225,7 @@ void MUP::acc_expand_stub_free_list ( unsigned n )
 	              + stubs_allocated;
 	assert ( s < end_stub_region );
 	++ stubs_allocated;
-	++ MUP::number_of_free_stubs;
+	++ MINT::number_of_free_stubs;
 	min::uns64 c = MUP::new_acc_control
 	    ( min::FREE, free );
 	MUP::set_control_of ( s, c );
@@ -375,21 +375,21 @@ static void relocate_body
 void initialize_hash_tables ( void )
 {
     typedef min::stub * stubp;
-    MUP::str_hash_size = 101;
-    MUP::str_hash =
-        new stubp[MUP::str_hash_size];
-    for ( int i = 0; i < MUP::str_hash_size; ++ i )
-        MUP::str_hash[i] = MINT::end_stub;
-    MUP::num_hash_size = 101;
-    MUP::num_hash =
-        new stubp[MUP::num_hash_size];
-    for ( int i = 0; i < MUP::num_hash_size; ++ i )
-        MUP::num_hash[i] = MINT::end_stub;
-    MUP::lab_hash_size = 101;
-    MUP::lab_hash =
-        new stubp[MUP::lab_hash_size];
-    for ( int i = 0; i < MUP::lab_hash_size; ++ i )
-        MUP::lab_hash[i] = MINT::end_stub;
+    MINT::str_hash_size = 101;
+    MINT::str_hash =
+        new stubp[MINT::str_hash_size];
+    for ( int i = 0; i < MINT::str_hash_size; ++ i )
+        MINT::str_hash[i] = MINT::end_stub;
+    MINT::num_hash_size = 101;
+    MINT::num_hash =
+        new stubp[MINT::num_hash_size];
+    for ( int i = 0; i < MINT::num_hash_size; ++ i )
+        MINT::num_hash[i] = MINT::end_stub;
+    MINT::lab_hash_size = 101;
+    MINT::lab_hash =
+        new stubp[MINT::lab_hash_size];
+    for ( int i = 0; i < MINT::lab_hash_size; ++ i )
+        MINT::lab_hash[i] = MINT::end_stub;
 }
 
 // Acc stack.
@@ -1231,7 +1231,7 @@ int main ()
 	MIN_ASSERT
 	    ( MUP::test_flags_of
 	    	     ( stub2, unmarked_flag ) );
-	MUP::acc_expand_stub_free_list ( 2 );
+	MINT::acc_expand_stub_free_list ( 2 );
 	MIN_ASSERT ( stubs_allocated == 5 );
 	MIN_ASSERT
 	    ( stub2 == MINT::last_allocated_stub );
