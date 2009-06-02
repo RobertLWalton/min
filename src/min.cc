@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 21 08:53:38 EDT 2009
+// Date:	Thu May 28 17:37:44 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/21 19:15:10 $
+//   $Date: 2009/06/02 07:41:30 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.95 $
+//   $Revision: 1.96 $
 
 // Table of Contents:
 //
@@ -132,7 +132,8 @@ namespace min { namespace unprotected {
 // Allocator/Collector/Compactor 
 // -----------------------------
 
-namespace min { namespace unprotected {
+
+namespace min { namespace internal {
 
     unsigned number_of_free_stubs;
 
@@ -144,10 +145,6 @@ namespace min { namespace unprotected {
 
     min::stub ** lab_hash;
     unsigned lab_hash_size;
-
-} }
-
-namespace min { namespace internal {
 
 #   ifndef MIN_STUB_BASE
 	MINT::pointer_uns stub_base;
@@ -174,8 +171,8 @@ namespace min { namespace internal {
 	    ( min::float64 v )
     {
 	unsigned hash = floathash ( v );
-	unsigned h = hash % MUP::num_hash_size;
-	min::stub * s = MUP::num_hash[h];
+	unsigned h = hash % MINT::num_hash_size;
+	min::stub * s = MINT::num_hash[h];
 	while ( s != MINT::end_stub )
 	{
 	    if ( MUP::float_of ( s ) == v )
@@ -190,9 +187,9 @@ namespace min { namespace internal {
 	MUP::set_control_of
 	    ( s,
 	      MUP::new_acc_control
-	          ( min::NUMBER, MUP::num_hash[h],
+	          ( min::NUMBER, MINT::num_hash[h],
 		    MINT::acc_new_stub_flags ));
-	MUP::num_hash[h] = s;
+	MINT::num_hash[h] = s;
 	return min::new_gen ( s );
     }
 # endif
@@ -417,8 +414,8 @@ min::gen MUP::new_str_stub_gen_internal
 	( const char * p, unsigned n )
 {
     unsigned hash = min::strnhash ( p, n );
-    unsigned h = hash % MUP::str_hash_size;
-    min::stub * s = MUP::str_hash[h];
+    unsigned h = hash % MINT::str_hash_size;
+    min::stub * s = MINT::str_hash[h];
     const char * q;
     while ( s != MINT::end_stub )
     {
@@ -451,7 +448,7 @@ min::gen MUP::new_str_stub_gen_internal
 	    ( s,
 	      MUP::new_acc_control
 		  ( min::SHORT_STR,
-		    MUP::str_hash[h],
+		    MINT::str_hash[h],
 		    MINT::acc_new_stub_flags ));
 	s->v.u64 = 0;
 	::strncpy ( s->v.c8, p, n );
@@ -462,7 +459,7 @@ min::gen MUP::new_str_stub_gen_internal
 	    ( s,
 	      MUP::new_acc_control
 		  ( min::LONG_STR,
-		    MUP::str_hash[h],
+		    MINT::str_hash[h],
 		    MINT::acc_new_stub_flags ));
 	MINT::new_body
 	    ( s, sizeof ( MUP::long_str ) + n + 1 );
@@ -471,7 +468,7 @@ min::gen MUP::new_str_stub_gen_internal
 	ls->hash = hash;
 	::strcpy ( (char *) MUP::str_of ( ls ), p );
     }
-    MUP::str_hash[h] = s;
+    MINT::str_hash[h] = s;
     return min::new_gen ( s );
 }
 
@@ -509,12 +506,12 @@ min::gen min::new_lab_gen
 	( const min::gen * p, unsigned n )
 {
     uns32 hash = labhash ( p, n );
-    unsigned h = hash % MUP::lab_hash_size;
+    unsigned h = hash % MINT::lab_hash_size;
 
     // Search for existing label stub with given
     // elements.
     //
-    min::stub * s = MUP::lab_hash[h];
+    min::stub * s = MINT::lab_hash[h];
     for ( ; s != MINT::end_stub;
             s = MUP::stub_of_acc_control
 			( MUP::control_of ( s ) ) )
@@ -538,7 +535,7 @@ min::gen min::new_lab_gen
     MUP::set_control_of
 	( s,
 	  MUP::new_acc_control
-	      ( min::LABEL, MUP::lab_hash[h],
+	      ( min::LABEL, MINT::lab_hash[h],
 	        MINT::acc_new_stub_flags ));
     MINT::new_body ( s,   sizeof ( MINT::lab_header )
 	                + n * sizeof (min::gen) );
@@ -548,7 +545,7 @@ min::gen min::new_lab_gen
     memcpy ( (min::gen *) lh + MINT::lab_header_size,
              p, n * sizeof ( min::gen ) );
 
-    MUP::lab_hash[h] = s;
+    MINT::lab_hash[h] = s;
     return min::new_gen ( s );
 }
 
@@ -2236,7 +2233,7 @@ void MINT::insert_reserve
 {
 #   if MIN_USES_OBJ_AUX_STUBS
 	if ( use_obj_aux_stubs )
-	    MUP::acc_expand_stub_free_list
+	    MINT::acc_expand_stub_free_list
 		( insertions + elements );
 	else
 #   endif

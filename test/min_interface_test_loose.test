@@ -508,7 +508,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-MUP::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + 1 true.
 min_interface_test.cc:XXXX assert:
@@ -519,7 +519,7 @@ min_interface_test.cc:XXXX assert:
     min::type_of ( stub1 ) == min::FREE true.
 min_interface_test.cc:XXXX assert:
     ! MUP::test_flags_of ( stub1, unmarked_flag ) true.
-MUP::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub2 == MINT::last_allocated_stub true.
 min_interface_test.cc:XXXX assert:
@@ -530,7 +530,7 @@ min_interface_test.cc:XXXX assert:
     min::type_of ( stub2 ) == min::FREE true.
 min_interface_test.cc:XXXX assert:
     MUP::test_flags_of ( stub2, unmarked_flag ) true.
-MUP::acc_expand_stub_free_list (2) called
+MINT::acc_expand_stub_free_list (2) called
 min_interface_test.cc:XXXX assert:
     stubs_allocated == 5 true.
 min_interface_test.cc:XXXX assert:
@@ -679,9 +679,9 @@ min_interface_test.cc:XXXX assert:
     min::strnhash ( s13, 3 ) == s3hash true.
 
 Test string general values:
-MUP::acc_expand_stub_free_list (1) called
-MUP::acc_expand_stub_free_list (1) called
-MUP::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 7, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -939,7 +939,7 @@ labhash1: 95375049
 Test labels:
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
-MUP::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
@@ -1004,7 +1004,7 @@ min_interface_test.cc:XXXX assert:
     lmaxht >= 4000000 true.
 
 Test short objects:
-MUP::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 9, 4832 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -1026,7 +1026,7 @@ min_interface_test.cc:XXXX assert:
     st == sh + sht + sav + sua + saa true.
 
 Test long objects:
-MUP::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
 MINT::new_non_fixed_body ( stub 10, 616504 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
@@ -1380,7 +1380,7 @@ min_interface_test.cc:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::acc_expand_stub_free_list (4) called
+MINT::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 min_interface_test.cc:XXXX assert:
@@ -1405,7 +1405,7 @@ min_interface_test.cc:XXXX assert:
     is_sublist_aux ( v ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::acc_expand_stub_free_list (4) called
+MINT::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
@@ -1820,7 +1820,7 @@ min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num107 true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::acc_expand_stub_free_list (4) called
+MINT::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
@@ -1876,7 +1876,7 @@ min_interface_test.cc:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::acc_expand_stub_free_list (3) called
+MINT::acc_expand_stub_free_list (3) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 min_interface_test.cc:XXXX assert:
@@ -1891,7 +1891,7 @@ min_interface_test.cc:XXXX assert:
     min::unused_size_of ( long_vp ) == 3 true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::acc_expand_stub_free_list (3) called
+MINT::acc_expand_stub_free_list (3) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
@@ -1912,7 +1912,7 @@ min_interface_test.cc:XXXX assert:
     min::next ( wllp ) == num107 true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-MUP::acc_expand_stub_free_list (4) called
+MINT::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:

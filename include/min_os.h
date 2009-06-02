@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 25 22:03:07 EDT 2009
+// Date:	Thu May 28 06:25:34 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/26 02:07:03 $
+//   $Date: 2009/06/02 07:40:52 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents
 //
@@ -43,9 +43,9 @@ namespace min { namespace os {
 
     // Allocate a segment of virtual memory with the
     // given number of pages and return its address.
-    // If there is the value returned is not really
-    // an address but is an error code: see pool_
-    // error below.
+    // If there is an error, a value is returned that
+    // is not really an address but is an error code:
+    // see pool_error below.
     //
     void * new_pool ( min::uns64 pages );
 
@@ -57,10 +57,10 @@ namespace min { namespace os {
     void * new_pool ( min::uns64 pages, void * start );
 
     // Return NULL if the argument is really the address
-    // of a segment returned by new_pool, and return
-    // a character string giving a short description of
-    // the error if the argument is really an error code
-    // returned by new_pool.
+    // of a segment returned by new_pool, and not an
+    // error code.  Return a character string giving a
+    // short description of the error if the argument is
+    // really an error code returned by new_pool.
     //
     const char * pool_error ( void * start );
 
@@ -69,6 +69,8 @@ namespace min { namespace os {
     // allocated with new_pool, and may not be used
     // again (the same virtual memory pages may or may
     // not be reallocable by another call to new_pool).
+    // Errors will be fatal if detected, but may not be
+    // detected.
     //
     void free_pool ( min::uns64 pages, void * start );
 
@@ -78,11 +80,41 @@ namespace min { namespace os {
     // and the source segment will likely lose its
     // contents, but will remain allocated.  Both source
     // and target segments must contain pages allocated
-    // by new_pool.
+    // by new_pool.  Errors will be fatal if detected,
+    // but may not be detected.
     //
     void move_pool
         ( min::uns64 pages,
 	  void * new_start, void * old_start );
+
+    // Segment protection modes.
+    //
+    enum {
+        NOACCESS	= 0,	// No read, no write.
+	RDWR		= 3	// Read/write.
+    };
+
+    // Change the protection mode of a segment.  The
+    // segment must have been allocated with new_pool.
+    // If the mode is changed to NOACCESS, the contents
+    // of the segment may or may not be lost.  Errors
+    // will be fatal if detected, but may not be
+    // detected.  New_pool returns RDWR segments.
+    //
+    void protect_pool
+        ( min::uns64 pages, void * start,
+	  unsigned mode );
+
+    // Mark a segment as being existing memory.  The
+    // pages of the segment will become readable and
+    // writable.  The segment must have been allocated
+    // with new_pool.  Any pages of the segment pre-
+    // viously marked non-existant will be given
+    // arbitrary contents.  Errors will be fatal if
+    // detected, but may not be detected.
+    //
+    void existant_pool
+        ( min::uns64 pages, void * start );
 
 } }
 
