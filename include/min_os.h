@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 28 06:25:34 EDT 2009
+// Date:	Wed Jun  3 13:07:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/02 07:40:52 $
+//   $Date: 2009/06/03 20:32:01 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents
 //
@@ -87,33 +87,24 @@ namespace min { namespace os {
         ( min::uns64 pages,
 	  void * new_start, void * old_start );
 
-    // Segment protection modes.
+    // Mark a segment as being non-extant memory.  The
+    // pages of the segment will become inaccessible,
+    // and any contents they previously had will be
+    // lost.  The segment must have been allocated with
+    // new_pool.  Errors will be fatal if detected, but
+    // may not be detected.
     //
-    enum {
-        NOACCESS	= 0,	// No read, no write.
-	RDWR		= 3	// Read/write.
-    };
+    void non_extant_pool
+        ( min::uns64 pages, void * start );
 
-    // Change the protection mode of a segment.  The
-    // segment must have been allocated with new_pool.
-    // If the mode is changed to NOACCESS, the contents
-    // of the segment may or may not be lost.  Errors
-    // will be fatal if detected, but may not be
-    // detected.  New_pool returns RDWR segments.
+    // Mark a segment as being extant memory.  The pages
+    // of the segment will become readable and writable.
+    // The segment must have been allocated with new_
+    // pool.  The pages will be given arbitrary con-
+    // tents.  Errors will be fatal if detected, but may
+    // not be detected.
     //
-    void protect_pool
-        ( min::uns64 pages, void * start,
-	  unsigned mode );
-
-    // Mark a segment as being existing memory.  The
-    // pages of the segment will become readable and
-    // writable.  The segment must have been allocated
-    // with new_pool.  Any pages of the segment pre-
-    // viously marked non-existant will be given
-    // arbitrary contents.  Errors will be fatal if
-    // detected, but may not be detected.
-    //
-    void existant_pool
+    void extant_pool
         ( min::uns64 pages, void * start );
 
 } }
