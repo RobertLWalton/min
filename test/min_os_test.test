@@ -1,0 +1,6 @@
+Start min_os Test
+min_os_test.cc:XXXX assert:
+    error == NULL true.
+min_os_test.cc:XXXX assert:
+    new_count == 1 true.
+Finish min_os Test
