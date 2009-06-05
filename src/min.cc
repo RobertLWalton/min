@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 28 17:37:44 EDT 2009
+// Date:	Thu Jun  4 20:45:31 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/02 07:41:30 $
+//   $Date: 2009/06/05 07:25:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.96 $
+//   $Revision: 1.97 $
 
 // Table of Contents:
 //
@@ -1376,11 +1376,12 @@ void min::insert_before
 	if ( lp.previous_index != 0 )
 	    previous_is_list_head =
 	        ! lp.previous_is_sublist_head;
-	else if ( lp.previous_stub == NULL )
-	    contiguous =
-		( lp.current_index == aux_offset );
 
 #	if MIN_USES_OBJ_AUX_STUBS
+	    else if ( lp.previous_stub == NULL )
+		contiguous =
+		    ( lp.current_index == aux_offset );
+
 	    if (    lp.use_obj_aux_stubs
 		 &&     unused_offset
 		      + n + ( ! contiguous )
