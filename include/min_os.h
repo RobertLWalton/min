@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun  3 13:07:50 EDT 2009
+// Date:	Fri Jun  5 03:25:31 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/03 20:32:01 $
+//   $Date: 2009/06/05 07:25:51 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -49,12 +49,21 @@ namespace min { namespace os {
     //
     void * new_pool ( min::uns64 pages );
 
-    // Ditto but allocate the segment at a given
-    // address.  This will fail if any part of the
-    // new segment is already in use.  The new
+    // Ditto but allocate the segment at a given start
+    // address.  This is guaranteed to fail if any part
+    // of the new segment is already in use.  The start
     // address must be a multiple of the page size.
     //
-    void * new_pool ( min::uns64 pages, void * start );
+    void * new_pool_at
+        ( min::uns64 pages, void * start );
+
+    // Ditto but allocate the segment so it is complete-
+    // ly below the given end address.  The end address
+    // must be a multiple of the page size.  This may
+    // fail when new_pool would succeed.
+    //
+    void * new_pool_below
+        ( min::uns64 pages, void * end );
 
     // Return NULL if the argument is really the address
     // of a segment returned by new_pool, and not an
@@ -68,7 +77,7 @@ namespace min { namespace os {
     // start address.  The segment must have been
     // allocated with new_pool, and may not be used
     // again (the same virtual memory pages may or may
-    // not be reallocable by another call to new_pool).
+    // not be reallocated by another call to new_pool).
     // Errors will be fatal if detected, but may not be
     // detected.
     //

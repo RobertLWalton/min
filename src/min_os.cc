@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jun  4 07:29:12 EDT 2009
+// Date:	Fri Jun  5 03:24:59 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/04 20:36:21 $
+//   $Date: 2009/06/05 07:25:08 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents:
 //
@@ -83,7 +83,7 @@ min::uns64 MOS::pagesize ( void )
 
 // new_poolXX error messages:
 //
-static const int pool_limit = 5;
+static const int pool_limit = 7;
 static const char * pool_message[pool_limit] = {
 /*0*/
     "",
@@ -94,8 +94,14 @@ static const char * pool_message[pool_limit] = {
     "new_pool: requested pool size"
              " not a multiple of page size"
 /*3*/
-    "new_pool: requested pool size is too large"
+    "new_pool: requested pool start address"
+             " not a multiple of page size"
 /*4*/
+    "new_pool: requested memory pool overlaps"
+             " existing memory pool"
+/*5*/
+    "new_pool: requested pool size is too large"
+/*6*/
     "new_pool: not enough memory or page map space"
              " is available"
 };
@@ -171,7 +177,8 @@ static void read_used_pools ( void )
 	istringstream str ( line );
 	min::uns64 start, end;
 	char c1, c2;
-	str >> hex >> start >> c1 >> end >> c2;
+	str >> hex >> start >> c1 >> end;
+	c2 = str.peek();
 	if ( ! str || c1 != '-' || ! isspace ( c2 )
 	           || start > end
 #		   if MIN_POINTER_BITS < 64
@@ -205,9 +212,9 @@ static void dump_used_pools ( void )
 	     << dec << endl;
 }
 
-// Check if segment overlaps NO used pool.
+// Check if segment overlaps an existing used pool.
 //
-static bool no_overlap ( void * start, min::uns64 size )
+static bool overlap ( void * start, min::uns64 size )
 {
     void * end = (void *)
         ( (char *) start + (MINT::pointer_uns) size );
@@ -216,9 +223,41 @@ static bool no_overlap ( void * start, min::uns64 size )
     {
         if ( end <= used_pools[i].start ) continue;
         if ( used_pools[i].end <= start ) continue;
-	return false;
+	return true;
     }
-    return true;
+    return false;
+}
+
+// Find the lowest address that ends a used pool, has
+// size unused bytes following it, and preceeds some
+// used pool.
+//
+static void * find_unused ( min::uns64 size )
+{
+    MINT::pointer_uns s = (MINT::pointer_uns) size;
+    void * best = NULL;
+    for ( unsigned i = 0; i < used_pools_count; ++ i )
+    {
+        void * start = used_pools[i].end;
+	if ( best != NULL && best < start ) continue;
+	void * end = (void *) ( (char *) start + s );
+	if ( end < start ) continue;
+	    // Wraparound check.
+
+	bool above_found = false;
+	unsigned j;
+	for ( j = 0; j < used_pools_count; ++ j )
+	{
+	    if ( i == j ) continue;
+	    if ( used_pools[j].start >= end )
+	        above_found = true;
+	    else if ( used_pools[j].end >= start )
+	        break;
+	}
+	if ( above_found && j == used_pools_count ) 
+	    best = start;
+    }
+    return best;
 }
 
 void * MOS::new_pool ( min::uns64 size )
@@ -235,8 +274,8 @@ void * MOS::new_pool ( min::uns64 size )
     {
         switch ( errno )
 	{
-	case EINVAL:	return error(3);
-	case ENOMEM:	return error(4);
+	case EINVAL:	return error(5);
+	case ENOMEM:	return error(6);
 	default:
 	    fatal_error ( errno );
 	}
@@ -246,3 +285,71 @@ void * MOS::new_pool ( min::uns64 size )
     return result;
 }
 
+void * MOS::new_pool_at
+	( min::uns64 size, void * start )
+{
+    MINT::pointer_uns mask = ::pagesize() - 1;
+    if ( size & mask != 0 )
+        return error(2);
+    if ( (MINT::pointer_uns) start & mask != 0 )
+        return error(3);
+
+    read_used_pools();
+    if ( overlap ( start, size ) )
+        return error(4);
+
+    void * result = mmap ( start, (size_t) size,
+    			   PROT_READ | PROT_WRITE,
+			   MAP_FIXED | MAP_PRIVATE
+			             | MAP_ANONYMOUS,
+			   -1, 0 );
+
+    if ( result == MAP_FAILED )
+    {
+        switch ( errno )
+	{
+	case EINVAL:	return error(5);
+	case ENOMEM:	return error(6);
+	default:
+	    fatal_error ( errno );
+	}
+    }
+
+    assert ( result == start );
+    return result;
+}
+
+void * MOS::new_pool_below
+	( min::uns64 size, void * end )
+{
+    MINT::pointer_uns mask = ::pagesize() - 1;
+    if ( size & mask != 0 )
+        return error(2);
+
+    read_used_pools();
+    void * start = find_unused ( size );
+    if ( start == NULL )
+        return error(6);
+    if ( (void *) ( (char *) start + size ) > end )
+        return error(6);
+
+    void * result = mmap ( start, (size_t) size,
+    			   PROT_READ | PROT_WRITE,
+			   MAP_FIXED | MAP_PRIVATE
+			             | MAP_ANONYMOUS,
+			   -1, 0 );
+
+    if ( result == MAP_FAILED )
+    {
+        switch ( errno )
+	{
+	case EINVAL:	return error(5);
+	case ENOMEM:	return error(6);
+	default:
+	    fatal_error ( errno );
+	}
+    }
+
+    assert ( result == start );
+    return result;
+}
