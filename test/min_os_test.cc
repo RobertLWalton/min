@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jun  5 13:09:19 EDT 2009
+// Date:	Fri Jun  5 13:58:55 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/05 17:14:06 $
+//   $Date: 2009/06/05 17:59:02 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents:
 //
@@ -86,7 +86,7 @@ int main ( )
 
     bool print = false;
 
-    read_used_pools ( print );
+    read_used_pools ( "read_used_pools", print );
     unsigned pages = 10;
     void * start = MOS::new_pool ( pages );
     const char * error = MOS::pool_error ( start );
