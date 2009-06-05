@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jun  5 07:29:34 EDT 2009
+// Date:	Fri Jun  5 13:59:25 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/05 17:08:54 $
+//   $Date: 2009/06/05 17:59:32 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents:
 //
@@ -48,21 +48,24 @@ using std::cout;
 using std::hex;
 using std::dec;
 
-// Annouce fatal OS error and return error output
-// stream.
+// Annouce fatal OS error for function named fname and
+// return error output stream.
 //
-ostream & fatal_error ( void )
+ostream & fatal_error ( const char * fname )
 {
-    return cerr << "FATAL OPERATING SYSTEM ERROR:"
+    return cerr << fname
+                << ": FATAL OPERATING SYSTEM ERROR:"
                 << endl << "    ";
 }
 
 // Announce fatal OS error involving errno code and exit
 // program with errno code as status.
 //
-static void fatal_error ( int errno_code )
+static void fatal_error
+	( const char * fname, int errno_code )
 {
-    fatal_error() << strerror ( errno_code ) << endl;
+    fatal_error ( fname ) << strerror ( errno_code )
+    			  << endl;
     exit ( errno_code );
 }
 
@@ -88,20 +91,11 @@ static const char * pool_message[pool_limit] = {
 /*0*/
     "",
 /*1*/
-    "new_pool: address returned by operating"
-             " system is not on a page boundary",
-/*2*/
-    "new_pool: requested pool size"
-             " not a multiple of page size"
-/*3*/
-    "new_pool: requested pool start address"
-             " not a multiple of page size"
-/*4*/
     "new_pool: requested memory pool overlaps"
              " existing memory pool"
-/*5*/
+/*2*/
     "new_pool: requested pool size is too large"
-/*6*/
+/*3*/
     "new_pool: not enough memory or page map space"
              " is available"
 };
@@ -131,14 +125,16 @@ static unsigned used_pools_size;
 
 // Push entry into used_pools.
 //
-static void used_pools_push ( void * start, void * end )
+static void used_pools_push
+	( void * start, void * end,
+	  const char * fname )
 {
     if ( used_pools_count >= used_pools_size )
     {
         used_pool * new_used_pools =
 	    new used_pool[used_pools_size + 100];
 	if ( new_used_pools == NULL )
-	    fatal_error ( ENOMEM );
+	    fatal_error ( fname, ENOMEM );
 	memcpy ( new_used_pools, used_pools,
 		   used_pools_count
 		 * sizeof ( used_pool ) );
@@ -166,14 +162,17 @@ static bool overlap ( void * start, void * end )
 
 // Read /proc/<process-id>/maps into used_pools.
 //
-static void read_used_pools ( bool print = false )
+static void read_used_pools
+	( const char * fname = "read_used_pools",
+	  bool print = false )
 {
     char name[100];
     sprintf ( name, "/proc/%d/maps", (int) getpid() );
     ifstream maps ( name );
     if ( ! maps )
     {
-        fatal_error() << "cannot read " << name << endl;
+        fatal_error ( fname )
+	    << "cannot read " << name << endl;
 	exit ( 1 );
     }
     used_pools_count = 0;
@@ -183,9 +182,9 @@ static void read_used_pools ( bool print = false )
         line[999] = 0;
 	if ( strlen ( line ) >= 999 )
 	{
-	    fatal_error() << "bad " << name << " line:"
-	                  << endl << "    " << line
-			  << endl;
+	    fatal_error ( fname )
+		<< "bad " << name << " line:" << endl
+		<< "    " << line << endl;
 	    exit ( 2 );
 	}
 	istringstream str ( line );
@@ -195,10 +194,9 @@ static void read_used_pools ( bool print = false )
 	c2 = str.peek();
 	if ( ! str || c1 != '-' || ! isspace ( c2 ) )
 	{
-	    fatal_error() << "bad " << name
-	    		  << " line format:"
-	                  << endl << "    " << line
-			  << endl;
+	    fatal_error ( fname )
+		<< "bad " << name << " line format:"
+		<< endl << "    " << line << endl;
 	    exit ( 2 );
 	}
 	if ( start > end
@@ -210,10 +208,9 @@ static void read_used_pools ( bool print = false )
 #	   endif
 	  )
 	{
-	    fatal_error() << "bad " << name
-	    		  << " line values:"
-	                  << endl << "    " << line
-			  << endl;
+	    fatal_error ( fname )
+		<< "bad " << name << " line values:"
+		<< endl << "    " << line << endl;
 	    exit ( 2 );
 	}
 	if ( overlap ( (void *)
@@ -221,15 +218,16 @@ static void read_used_pools ( bool print = false )
 		       (void *)
 	               (MINT::pointer_uns) end ) )
 	{
-	    fatal_error() << "bad " << name
-	    		  << " line: overlaps previous:"
-	                  << endl << "    " << line
-			  << endl;
+	    fatal_error ( fname )
+	        << "bad " << name
+		<< " line: overlaps previous:"
+		<< endl << "    " << line << endl;
 	    exit ( 2 );
 	}
 	used_pools_push
 	    ( (void *)(MINT::pointer_uns) start,
-	      (void *)(MINT::pointer_uns) end );
+	      (void *)(MINT::pointer_uns) end,
+	      fname );
 	if ( print ) cout << line << endl;
     }
     maps.close();
@@ -267,7 +265,7 @@ static void compare_pools
     memcpy ( old_pools, used_pools,
              count * sizeof ( used_pool ) );
 
-    read_used_pools ( print );
+    read_used_pools ( "compare_pools", print );
 
     // Iterate over new used pools.
     //
@@ -312,7 +310,8 @@ static void compare_pools
     {
         if ( old_pools[j].end == NULL ) continue;
 	used_pools_push
-	    ( old_pools[j].start, old_pools[j].end );
+	    ( old_pools[j].start, old_pools[j].end,
+	      "compare_pools" );
 	++ old_count;
     }
 }
@@ -364,14 +363,19 @@ void * MOS::new_pool ( min::uns64 pages )
     {
         switch ( errno )
 	{
-	case EINVAL:	return error(5);
-	case ENOMEM:	return error(6);
+	case EINVAL:	return error(2);
+	case ENOMEM:	return error(3);
 	default:
-	    fatal_error ( errno );
+	    fatal_error ( "new_pool", errno );
 	}
     }
     else if ( ( mask & (MINT::pointer_uns) result ) != 0 )
-	return error(1);
+    {
+	fatal_error ( "new_pool" )
+	    << "OS returned pool address that is not on a page"
+	       " boundary" << endl;
+	exit ( 2 );
+    }
     return result;
 }
 
@@ -385,8 +389,8 @@ void * MOS::new_pool_at
     if ( ( (MINT::pointer_uns) start & mask ) != 0 )
         return error(3);
 
-    read_used_pools();
-    if ( overlap ( start, end ) ) return error(4);
+    read_used_pools ( "new_pool_at" );
+    if ( overlap ( start, end ) ) return error(1);
 
     void * result = mmap ( start, (size_t) size,
     			   PROT_READ | PROT_WRITE,
@@ -398,10 +402,10 @@ void * MOS::new_pool_at
     {
         switch ( errno )
 	{
-	case EINVAL:	return error(5);
-	case ENOMEM:	return error(6);
+	case EINVAL:	return error(2);
+	case ENOMEM:	return error(3);
 	default:
-	    fatal_error ( errno );
+	    fatal_error ( "new_pool_at", errno );
 	}
     }
 
@@ -416,13 +420,13 @@ void * MOS::new_pool_below
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
 
-    read_used_pools();
+    read_used_pools ( "new_pool_below" );
 
     void * start = find_unused ( pages );
     if ( start == NULL )
-        return error(6);
+        return error(3);
     if ( (void *) ( (char *) start + size ) > end )
-        return error(6);
+        return error(3);
 
     void * result = mmap ( start, (size_t) size,
     			   PROT_READ | PROT_WRITE,
@@ -434,13 +438,33 @@ void * MOS::new_pool_below
     {
         switch ( errno )
 	{
-	case EINVAL:	return error(5);
-	case ENOMEM:	return error(6);
+	case EINVAL:	return error(2);
+	case ENOMEM:	return error(3);
 	default:
-	    fatal_error ( errno );
+	    fatal_error ( "new_pool_below", errno );
 	}
     }
 
     assert ( result == start );
     return result;
+}
+
+void MOS::free_pool
+	( min::uns64 pages, void * start )
+{
+    MINT::pointer_uns size =
+        (MINT::pointer_uns) pages * ::pagesize();
+    MINT::pointer_uns mask = ::pagesize() - 1;
+    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    {
+        fatal_error ( "free_pool" )
+	    << "start address is not a multiple of page"
+	       " size" << endl;
+	exit ( 2 );
+    }
+
+    int result = munmap ( start, (size_t) size );
+
+    if ( result == -1 )
+	fatal_error ( "free_pool", errno );
 }
