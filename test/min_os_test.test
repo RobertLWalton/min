@@ -1,6 +1,10 @@
 Start min_os Test
-min_os_test.cc:XXXX assert:
-    error == NULL true.
-min_os_test.cc:XXXX assert:
-    new_count == 1 true.
+
+Start Memory Management Test
+10 pages successfully allocated
+100 pages successfully allocated
+1000 pages successfully allocated
+10000 pages successfully allocated
+Finish Memory Management Test
+
 Finish min_os Test

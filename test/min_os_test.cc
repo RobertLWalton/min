@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 02:43:51 EDT 2009
+// Date:	Sat Jun  6 10:38:54 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/06 12:24:18 $
+//   $Date: 2009/06/06 14:39:20 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents:
 //
@@ -102,9 +102,6 @@ void check_allocation ( min::uns64 pages, void * start )
     void * end = (void *)
 	( (char *) start + pages * MOS::pagesize() );
 
-    unsigned new_count, old_count;
-    compare_pools ( new_count, old_count, print );
-
     // New segment must include allocated memory
     // and any old segment it replaces.  However,
     // the /proc/#/maps entry may extend beyond
@@ -114,22 +111,30 @@ void check_allocation ( min::uns64 pages, void * start )
     if ( new_count != 1 ) ok = false;
     else if ( old_count == 0 )
     {
-        if ( start < used_pools[0].start
+        if ( start != used_pools[0].start
 	     ||
-             end > used_pools[0].end )
+             end != used_pools[0].end )
 	    ok = false;
     }
     else if ( old_count == 1 )
     {
 	used_pool & n = used_pools[0];
 	used_pool & o = used_pools[1];
-	if ( o.start < n.start
-	     ||
-	     o.end > n.end )
-	    ok = false;
-	if ( start < n.start
-	     ||
-	     end > n.end )
+	if ( o.start == n.start )
+	{
+	    if ( o.end != start
+	         ||
+		 n.end != end )
+		ok = false;
+	}
+	else if ( o.end == n.end )
+	{
+	    if ( n.start != start
+	         ||
+		 o.end != end )
+		ok = false;
+	}
+	else
 	    ok = false;
     }
     else
@@ -143,14 +148,9 @@ void check_allocation ( min::uns64 pages, void * start )
         cout << "ERROR:" << pages
 	     << " pages NOT successfully allocated"
 	     << endl;
-	cout << "Allocated: " << hex
-	     << (MINT::pointer_uns) start << '-'
-	     << (MINT::pointer_uns) end
-	     << dec << endl;
-	cout << "New map entries:" << endl;
-	dump_used_pools ( 0, new_count );
-	cout << "Old map entries:" << endl;
-	dump_used_pools ( new_count, old_count );
+	cout << "Allocated: "
+	     << used_pool ( start, end ) << endl;
+	dump_compare_pools();
     }
 }
 
@@ -161,19 +161,32 @@ int main ( )
 // Memory Management Tests
 // ------ ---------- -----
 
-    bool print = false;
+    cout << endl
+         << "Start Memory Management Test" << endl;
+
+    MOS::trace_pools = false;
+    create_compare = true;
 
     void * limit = (void *) 0xFFFF0000;
-    read_used_pools ( "read_used_pools", print );
-    void * start10 = MOS::new_pool_below ( 10, limit );
-    check_allocation ( 10, start10 );
-    read_used_pools ( "read_used_pools", print );
-    void * start100 = MOS::new_pool_below ( 100, limit );
-    check_allocation ( 100, start10 );
-    read_used_pools ( "read_used_pools", print );
-    void * start1000 = MOS::new_pool_below ( 1000, limit );
-    check_allocation ( 1000, start100 );
 
+    void * start10 =
+        MOS::new_pool_below ( 10, limit );
+    check_allocation ( 10, start10 );
+
+    void * start100 =
+        MOS::new_pool ( 100 );
+    check_allocation ( 100, start100 );
+
+    void * start1000 =
+        MOS::new_pool_below ( 1000, limit );
+    check_allocation ( 1000, start1000 );
+
+    void * start10000 =
+        MOS::new_pool_below ( 10000, limit );
+    check_allocation ( 10000, start10000 );
+
+    cout << "Finish Memory Management Test" << endl
+         << endl;
 
 
 // Finish
