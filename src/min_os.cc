@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jun  5 13:59:25 EDT 2009
+// Date:	Sat Jun  6 02:09:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/05 17:59:32 $
+//   $Date: 2009/06/06 06:10:13 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents:
 //
@@ -387,7 +387,12 @@ void * MOS::new_pool_at
     void * end = (void *) ( (char *) start + size );
     MINT::pointer_uns mask = ::pagesize() - 1;
     if ( ( (MINT::pointer_uns) start & mask ) != 0 )
-        return error(3);
+    {
+        fatal_error ( "new_pool_at" )
+	    << "start address is not a multiple of page"
+	       " size" << endl;
+	exit ( 2 );
+    }
 
     read_used_pools ( "new_pool_at" );
     if ( overlap ( start, end ) ) return error(1);
@@ -467,4 +472,154 @@ void MOS::free_pool
 
     if ( result == -1 )
 	fatal_error ( "free_pool", errno );
+}
+
+inline void remap
+	( void * new_start, void * old_start,
+	  size_t size )
+{
+    void * result =
+	mremap ( old_start, size, size,
+		 MREMAP_MAYMOVE | MREMAP_FIXED,
+		 new_start );
+
+    if ( result == MAP_FAILED )
+	fatal_error ( "move_pool", errno );
+
+    assert ( result == new_start );
+}
+
+inline void renew
+	( void * start, size_t size,
+	  int protection = PROT_READ | PROT_WRITE )
+{
+    void * result = mmap ( start, size,
+    			   protection,
+			   MAP_FIXED | MAP_PRIVATE
+			             | MAP_ANONYMOUS,
+			   -1, 0 );
+
+    if ( result == MAP_FAILED )
+	fatal_error ( "move_pool", errno );
+
+    assert ( result == start );
+}
+
+void MOS::move_pool
+	( min::uns64 pages,
+	  void * new_start, void * old_start )
+
+{
+    MINT::pointer_uns size =
+        (MINT::pointer_uns) pages * ::pagesize();
+    MINT::pointer_uns mask = ::pagesize() - 1;
+
+    if ( ( (MINT::pointer_uns) new_start & mask ) != 0 )
+    {
+        fatal_error ( "move_pool" )
+	    << "new start address is not a multiple of"
+	       " page size" << endl;
+	exit ( 2 );
+    }
+
+    if ( ( (MINT::pointer_uns) old_start & mask ) != 0 )
+    {
+        fatal_error ( "move_pool" )
+	    << "old start address is not a multiple of"
+	       " page size" << endl;
+	exit ( 2 );
+    }
+
+    void * new_end =
+        (void *) ( (char *) new_start + size );
+    void * old_end =
+        (void *) ( (char *) old_start + size );
+
+    if ( new_end > old_start
+         &&
+	 old_end > new_start )
+    {
+        // Overlap: we must eliminate it.
+
+	if ( new_start < old_start )
+	{
+	    // Move lower addresses first.
+	    //
+	    size_t step =
+	        (char *) old_start - (char *) new_start;
+	    while ( size > 0 )
+	    {
+		size_t s = step;
+		if ( s > size ) s = size;
+		remap ( new_start, old_start, s );
+		new_start =
+		    (void *) ( (char *) new_start + s );
+		old_start =
+		    (void *) ( (char *) old_start + s );
+		size -= s;
+	    }
+	    renew ( new_end, step );
+	}
+	else if ( new_start > old_start )
+	{
+	    // Move higher addresses first.
+	    //
+	    size_t step =
+	        (char *) new_start - (char *) old_start;
+	    while ( size > 0 )
+	    {
+		size_t s = step;
+		if ( s > size ) s = size;
+		new_end =
+		    (void *) ( (char *) new_end - s );
+		old_end =
+		    (void *) ( (char *) old_end - s );
+		remap ( new_end, old_end, s );
+		size -= s;
+	    }
+	    renew ( old_start, step );
+	}
+	else return;
+    }
+    else
+    {
+	remap ( new_start, old_start, size );
+	renew ( old_start, size );
+    }
+}
+
+void MOS::non_extant_pool
+	( min::uns64 pages, void * start )
+
+{
+    MINT::pointer_uns size =
+        (MINT::pointer_uns) pages * ::pagesize();
+    MINT::pointer_uns mask = ::pagesize() - 1;
+
+    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    {
+        fatal_error ( "non_extant_pool" )
+	    << "start address is not a multiple of"
+	       " page size" << endl;
+	exit ( 2 );
+    }
+    renew ( start, size, PROT_NONE );
+}
+
+void MOS::extant_pool
+	( min::uns64 pages, void * start )
+
+{
+    MINT::pointer_uns size =
+        (MINT::pointer_uns) pages * ::pagesize();
+    MINT::pointer_uns mask = ::pagesize() - 1;
+
+    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    {
+        fatal_error ( "extant_pool" )
+	    << "start address is not a multiple of"
+	       " page size" << endl;
+	exit ( 2 );
+    }
+    renew ( start, size );
 }
