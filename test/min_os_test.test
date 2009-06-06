@@ -5,6 +5,9 @@ Start Memory Management Test
 100 pages successfully allocated
 1000 pages successfully allocated
 10000 pages successfully allocated
+300 pages successfully deallocated
+250 pages successfully allocated
+50 pages successfully allocated
 Finish Memory Management Test
 
 Finish min_os Test
