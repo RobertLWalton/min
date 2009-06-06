@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 10:38:54 EDT 2009
+// Date:	Sat Jun  6 16:23:11 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/06 14:39:20 $
+//   $Date: 2009/06/06 23:28:43 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents:
 //
@@ -102,10 +102,8 @@ void check_allocation ( min::uns64 pages, void * start )
     void * end = (void *)
 	( (char *) start + pages * MOS::pagesize() );
 
-    // New segment must include allocated memory
-    // and any old segment it replaces.  However,
-    // the /proc/#/maps entry may extend beyond
-    // memory acctually allocated.
+    // New segment must be allocated segment or
+    // concatenation of that and old segment.
     //
     bool ok = true;
     if ( new_count != 1 ) ok = false;
@@ -131,10 +129,25 @@ void check_allocation ( min::uns64 pages, void * start )
 	{
 	    if ( n.start != start
 	         ||
-		 o.end != end )
+		 o.start != end )
 		ok = false;
 	}
 	else
+	    ok = false;
+    }
+    else if ( old_count == 2 )
+    {
+	used_pool & n = used_pools[0];
+	unsigned i = start == used_pools[1].end ? 1 : 2;
+	used_pool & olow = used_pools[i];
+	used_pool & ohigh = used_pools[3-i];
+	if ( n.start != olow.start
+	     ||
+	     n.end != ohigh.end
+	     ||
+	     start != olow.end
+	     ||
+	     end != ohigh.start )
 	    ok = false;
     }
     else
@@ -149,6 +162,82 @@ void check_allocation ( min::uns64 pages, void * start )
 	     << " pages NOT successfully allocated"
 	     << endl;
 	cout << "Allocated: "
+	     << used_pool ( start, end ) << endl;
+	dump_compare_pools();
+    }
+}
+
+// Check that the last memory operation deallocated a
+// segment with given start address and number of
+// pages.
+//
+void check_deallocation
+	( min::uns64 pages, void * start )
+{
+    void * end = (void *)
+	( (char *) start + pages * MOS::pagesize() );
+
+    // New segments concatenated with deallocated
+    // segment must equal old segment.
+    //
+    bool ok = true;
+    if ( old_count != 1 ) ok = false;
+    else if ( new_count == 0 )
+    {
+        if ( start != used_pools[0].start
+	     ||
+             end != used_pools[0].end )
+	    ok = false;
+    }
+    else if ( new_count == 1 )
+    {
+	used_pool & n = used_pools[0];
+	used_pool & o = used_pools[1];
+	if ( o.start == n.start )
+	{
+	    if ( n.end != start
+	         ||
+		 o.end != end )
+		ok = false;
+	}
+	else if ( o.end == n.end )
+	{
+	    if ( o.start != start
+	         ||
+		 n.start != end )
+		ok = false;
+	}
+	else
+	    ok = false;
+    }
+    else if ( new_count == 2 )
+    {
+	used_pool & o = used_pools[2];
+	unsigned i = start == used_pools[0].end ? 0 : 1;
+	used_pool & nlow = used_pools[i];
+	used_pool & nhigh = used_pools[1-i];
+	if ( o.start != nlow.start
+	     ||
+	     o.end != nhigh.end
+	     ||
+	     start != nlow.end
+	     ||
+	     end != nhigh.start )
+	    ok = false;
+    }
+    else
+        ok = false;
+
+    if ( ok )
+        cout << pages
+	     << " pages successfully deallocated"
+	     << endl;
+    else
+    {
+        cout << "ERROR:" << pages
+	     << " pages NOT successfully deallocated"
+	     << endl;
+	cout << "Deallocated: "
 	     << used_pool ( start, end ) << endl;
 	dump_compare_pools();
     }
@@ -184,6 +273,21 @@ int main ( )
     void * start10000 =
         MOS::new_pool_below ( 10000, limit );
     check_allocation ( 10000, start10000 );
+
+    void * free300 = (void *)
+        ( (char *) start1000 + 200 * MOS::pagesize() );
+    MOS::free_pool ( 300, free300 );
+    check_deallocation ( 300, free300 );
+
+    void * start250 =
+        MOS::new_pool_at ( 250, free300 );
+    check_allocation ( 250, start250 );
+
+    void * free50 = (void *)
+        ( (char *) start250 + 250 * MOS::pagesize() );
+    void * start50 =
+        MOS::new_pool_at ( 50, free50 );
+    check_allocation ( 50, start50 );
 
     cout << "Finish Memory Management Test" << endl
          << endl;
