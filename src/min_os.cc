@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 02:09:43 EDT 2009
+// Date:	Sat Jun  6 02:56:35 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/06 06:10:13 $
+//   $Date: 2009/06/06 12:24:01 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents:
 //
@@ -233,11 +233,13 @@ static void read_used_pools
     maps.close();
 }
 
-// Dump used_pools for debugging.
+// Dump used_pools entries for debugging.
 //
-static void dump_used_pools ( void )
+static void dump_used_pools
+    ( unsigned first = 0,
+      unsigned count = used_pools_count )
 {
-    for ( unsigned i = 0; i < used_pools_count; ++ i )
+    for ( unsigned i = first; i < first + count; ++ i )
         cout << hex
 	     << (MINT::pointer_uns) used_pools[i].start
 	     << "-"
@@ -314,6 +316,7 @@ static void compare_pools
 	      "compare_pools" );
 	++ old_count;
     }
+    delete[] old_pools;
 }
 
 // Find the lowest address that ends a used pool, has
