@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 02:56:35 EDT 2009
+// Date:	Sat Jun  6 08:24:38 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/06 12:24:01 $
+//   $Date: 2009/06/06 14:38:43 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents:
 //
@@ -48,10 +48,14 @@ using std::cout;
 using std::hex;
 using std::dec;
 
+// Function name for error messages.
+//
+static const char * fname;
+
 // Annouce fatal OS error for function named fname and
 // return error output stream.
 //
-ostream & fatal_error ( const char * fname )
+ostream & fatal_error ( void )
 {
     return cerr << fname
                 << ": FATAL OPERATING SYSTEM ERROR:"
@@ -61,16 +65,23 @@ ostream & fatal_error ( const char * fname )
 // Announce fatal OS error involving errno code and exit
 // program with errno code as status.
 //
-static void fatal_error
-	( const char * fname, int errno_code )
+static void fatal_error ( int errno_code )
 {
-    fatal_error ( fname ) << strerror ( errno_code )
+    fatal_error() << strerror ( errno_code )
     			  << endl;
     exit ( errno_code );
 }
 
 // Memory Management
 // ------ ----------
+
+bool MOS::trace_pools = false;
+
+// Switch used by min_os_test to create compare_pools
+// output without the printouts associated with trace_
+// pools.
+//
+static bool create_compare = false;
 
 static MINT::pointer_uns saved_pagesize;
 inline MINT::pointer_uns pagesize ( void )
@@ -117,24 +128,43 @@ static struct used_pool
     // List of memory pools in use.
 {
     void * start, * end;
+
+    used_pool ( void ) {}
+
+    used_pool ( void * start, void * end )
+        : start ( start ), end ( end ) {}
+
+    used_pool ( min::uns64 pages, void * start )
+        : start ( start )
+    {
+        end = (void *)
+	    ( (char *) start + pages * ::pagesize() );
+    }
 } * used_pools;
 static unsigned used_pools_count;
     // Current number of used_pools.
 static unsigned used_pools_size;
     // Current limit on used_pools vector index.
 
+static ostream & operator <<
+	( ostream & out, const used_pool & p )
+{
+    return out << hex
+               << (MINT::pointer_uns) p.start << "-"
+               << (MINT::pointer_uns) p.end << dec;
+}
+
 // Push entry into used_pools.
 //
 static void used_pools_push
-	( void * start, void * end,
-	  const char * fname )
+	( void * start, void * end )
 {
     if ( used_pools_count >= used_pools_size )
     {
         used_pool * new_used_pools =
 	    new used_pool[used_pools_size + 100];
 	if ( new_used_pools == NULL )
-	    fatal_error ( fname, ENOMEM );
+	    fatal_error ( ENOMEM );
 	memcpy ( new_used_pools, used_pools,
 		   used_pools_count
 		 * sizeof ( used_pool ) );
@@ -162,16 +192,14 @@ static bool overlap ( void * start, void * end )
 
 // Read /proc/<process-id>/maps into used_pools.
 //
-static void read_used_pools
-	( const char * fname = "read_used_pools",
-	  bool print = false )
+static void read_used_pools ( void )
 {
     char name[100];
     sprintf ( name, "/proc/%d/maps", (int) getpid() );
     ifstream maps ( name );
     if ( ! maps )
     {
-        fatal_error ( fname )
+        fatal_error()
 	    << "cannot read " << name << endl;
 	exit ( 1 );
     }
@@ -182,7 +210,7 @@ static void read_used_pools
         line[999] = 0;
 	if ( strlen ( line ) >= 999 )
 	{
-	    fatal_error ( fname )
+	    fatal_error()
 		<< "bad " << name << " line:" << endl
 		<< "    " << line << endl;
 	    exit ( 2 );
@@ -194,7 +222,7 @@ static void read_used_pools
 	c2 = str.peek();
 	if ( ! str || c1 != '-' || ! isspace ( c2 ) )
 	{
-	    fatal_error ( fname )
+	    fatal_error()
 		<< "bad " << name << " line format:"
 		<< endl << "    " << line << endl;
 	    exit ( 2 );
@@ -208,7 +236,7 @@ static void read_used_pools
 #	   endif
 	  )
 	{
-	    fatal_error ( fname )
+	    fatal_error()
 		<< "bad " << name << " line values:"
 		<< endl << "    " << line << endl;
 	    exit ( 2 );
@@ -218,7 +246,7 @@ static void read_used_pools
 		       (void *)
 	               (MINT::pointer_uns) end ) )
 	{
-	    fatal_error ( fname )
+	    fatal_error()
 	        << "bad " << name
 		<< " line: overlaps previous:"
 		<< endl << "    " << line << endl;
@@ -226,9 +254,7 @@ static void read_used_pools
 	}
 	used_pools_push
 	    ( (void *)(MINT::pointer_uns) start,
-	      (void *)(MINT::pointer_uns) end,
-	      fname );
-	if ( print ) cout << line << endl;
+	      (void *)(MINT::pointer_uns) end );
     }
     maps.close();
 }
@@ -240,11 +266,7 @@ static void dump_used_pools
       unsigned count = used_pools_count )
 {
     for ( unsigned i = first; i < first + count; ++ i )
-        cout << hex
-	     << (MINT::pointer_uns) used_pools[i].start
-	     << "-"
-	     << (MINT::pointer_uns) used_pools[i].end
-	     << dec << endl;
+        cout << used_pools[i] << endl;
 }
 
 // Compare current pools to what is in used_pools.
@@ -258,16 +280,15 @@ static void dump_used_pools
 // used pools in new_count and the number of remaining
 // old used pools in old_count.
 //
-static void compare_pools
-	( unsigned & new_count, unsigned & old_count,
-	  bool print = false )
+static unsigned new_count, old_count;
+static void compare_pools ( void )
 {
     unsigned count = used_pools_count;
     used_pool * old_pools = new used_pool[count];
     memcpy ( old_pools, used_pools,
              count * sizeof ( used_pool ) );
 
-    read_used_pools ( "compare_pools", print );
+    read_used_pools();
 
     // Iterate over new used pools.
     //
@@ -312,11 +333,20 @@ static void compare_pools
     {
         if ( old_pools[j].end == NULL ) continue;
 	used_pools_push
-	    ( old_pools[j].start, old_pools[j].end,
-	      "compare_pools" );
+	    ( old_pools[j].start, old_pools[j].end );
 	++ old_count;
     }
     delete[] old_pools;
+}
+
+// Output results of compare_pools.
+//
+static void dump_compare_pools ( void )
+{
+    cout << "NEW MAP ENTIRES:" << endl;
+    dump_used_pools ( 0, new_count );
+    cout << "OLD MAP ENTIRES:" << endl;
+    dump_used_pools ( new_count, old_count );
 }
 
 // Find the lowest address that ends a used pool, has
@@ -354,9 +384,22 @@ static void * find_unused ( min::uns64 pages )
 
 void * MOS::new_pool ( min::uns64 pages )
 {
+    fname = "new_pool";
+
+    if ( trace_pools )
+        cout << "TRACE: new_pool ( " << pages << " )"
+	     << endl;
+    if ( trace_pools || create_compare )
+	read_used_pools();
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE ALLOCATION:"
+	     << endl;
+	dump_used_pools();
+    }
+
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
-    MINT::pointer_uns mask = ::pagesize() - 1;
     void * result = mmap ( NULL, (size_t) size,
     			   PROT_READ | PROT_WRITE,
 			   MAP_PRIVATE | MAP_ANONYMOUS,
@@ -369,12 +412,24 @@ void * MOS::new_pool ( min::uns64 pages )
 	case EINVAL:	return error(2);
 	case ENOMEM:	return error(3);
 	default:
-	    fatal_error ( "new_pool", errno );
+	    fatal_error ( errno );
 	}
     }
-    else if ( ( mask & (MINT::pointer_uns) result ) != 0 )
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
     {
-	fatal_error ( "new_pool" )
+        cout << "Allocated: "
+	     << used_pool ( pages, result ) << endl;
+	dump_compare_pools();
+    }
+
+    MINT::pointer_uns mask = ::pagesize() - 1;
+    if ( ( mask & (MINT::pointer_uns) result ) != 0 )
+    {
+	fatal_error()
 	    << "OS returned pool address that is not on a page"
 	       " boundary" << endl;
 	exit ( 2 );
@@ -385,19 +440,35 @@ void * MOS::new_pool ( min::uns64 pages )
 void * MOS::new_pool_at
 	( min::uns64 pages, void * start )
 {
+    fname = "new_pool_at";
+
+    if ( trace_pools )
+        cout << "TRACE: new_pool_at ( "
+	     << pages << ", 0x" << hex
+	     << (MINT::pointer_uns) start << " )"
+	     << dec << endl;
+
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     void * end = (void *) ( (char *) start + size );
     MINT::pointer_uns mask = ::pagesize() - 1;
     if ( ( (MINT::pointer_uns) start & mask ) != 0 )
     {
-        fatal_error ( "new_pool_at" )
+        fatal_error()
 	    << "start address is not a multiple of page"
 	       " size" << endl;
 	exit ( 2 );
     }
 
-    read_used_pools ( "new_pool_at" );
+    read_used_pools();
+
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE ALLOCATION:"
+	     << endl;
+	dump_used_pools();
+    }
+
     if ( overlap ( start, end ) ) return error(1);
 
     void * result = mmap ( start, (size_t) size,
@@ -413,8 +484,18 @@ void * MOS::new_pool_at
 	case EINVAL:	return error(2);
 	case ENOMEM:	return error(3);
 	default:
-	    fatal_error ( "new_pool_at", errno );
+	    fatal_error( errno );
 	}
+    }
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
+    {
+        cout << "Allocated: "
+	     << used_pool ( pages, start ) << endl;
+	dump_compare_pools();
     }
 
     assert ( result == start );
@@ -424,11 +505,26 @@ void * MOS::new_pool_at
 void * MOS::new_pool_below
 	( min::uns64 pages, void * end )
 {
+    fname = "new_pool_below";
+
+    if ( trace_pools )
+        cout << "TRACE: new_pool_below ( "
+	     << pages << ", 0x" << hex
+	     << (MINT::pointer_uns) end << " )"
+	     << dec << endl;
+
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
 
-    read_used_pools ( "new_pool_below" );
+    read_used_pools();
+
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE ALLOCATION:"
+	     << endl;
+	dump_used_pools();
+    }
 
     void * start = find_unused ( pages );
     if ( start == NULL )
@@ -449,8 +545,18 @@ void * MOS::new_pool_below
 	case EINVAL:	return error(2);
 	case ENOMEM:	return error(3);
 	default:
-	    fatal_error ( "new_pool_below", errno );
+	    fatal_error ( errno );
 	}
+    }
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
+    {
+        cout << "Allocated: "
+	     << used_pool ( pages, start ) << endl;
+	dump_compare_pools();
     }
 
     assert ( result == start );
@@ -460,21 +566,49 @@ void * MOS::new_pool_below
 void MOS::free_pool
 	( min::uns64 pages, void * start )
 {
+    fname = "free_pool";
+
+    if ( trace_pools )
+        cout << "TRACE: free_pool ( "
+	     << pages << ", 0x" << hex
+	     << (MINT::pointer_uns) start << " )"
+	     << dec << endl;
+
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
     if ( ( (MINT::pointer_uns) start & mask ) != 0 )
     {
-        fatal_error ( "free_pool" )
+        fatal_error()
 	    << "start address is not a multiple of page"
 	       " size" << endl;
 	exit ( 2 );
     }
 
+    if ( trace_pools || create_compare )
+	read_used_pools();
+
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE DEALLOCATION:"
+	     << endl;
+	dump_used_pools();
+    }
+
     int result = munmap ( start, (size_t) size );
 
     if ( result == -1 )
-	fatal_error ( "free_pool", errno );
+	fatal_error(errno );
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
+    {
+        cout << "Deallocated: "
+	     << used_pool ( pages, start ) << endl;
+	dump_compare_pools();
+    }
 }
 
 inline void remap
@@ -487,7 +621,7 @@ inline void remap
 		 new_start );
 
     if ( result == MAP_FAILED )
-	fatal_error ( "move_pool", errno );
+	fatal_error( errno );
 
     assert ( result == new_start );
 }
@@ -503,7 +637,7 @@ inline void renew
 			   -1, 0 );
 
     if ( result == MAP_FAILED )
-	fatal_error ( "move_pool", errno );
+	fatal_error( errno );
 
     assert ( result == start );
 }
@@ -513,13 +647,14 @@ void MOS::move_pool
 	  void * new_start, void * old_start )
 
 {
+    fname = "move_pool";
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
 
     if ( ( (MINT::pointer_uns) new_start & mask ) != 0 )
     {
-        fatal_error ( "move_pool" )
+        fatal_error()
 	    << "new start address is not a multiple of"
 	       " page size" << endl;
 	exit ( 2 );
@@ -527,7 +662,7 @@ void MOS::move_pool
 
     if ( ( (MINT::pointer_uns) old_start & mask ) != 0 )
     {
-        fatal_error ( "move_pool" )
+        fatal_error()
 	    << "old start address is not a multiple of"
 	       " page size" << endl;
 	exit ( 2 );
@@ -595,13 +730,14 @@ void MOS::non_extant_pool
 	( min::uns64 pages, void * start )
 
 {
+    fname = "non_extant_pool";
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
 
     if ( ( (MINT::pointer_uns) start & mask ) != 0 )
     {
-        fatal_error ( "non_extant_pool" )
+        fatal_error()
 	    << "start address is not a multiple of"
 	       " page size" << endl;
 	exit ( 2 );
@@ -613,13 +749,14 @@ void MOS::extant_pool
 	( min::uns64 pages, void * start )
 
 {
+    fname = "extant_pool";
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
 
     if ( ( (MINT::pointer_uns) start & mask ) != 0 )
     {
-        fatal_error ( "extant_pool" )
+        fatal_error()
 	    << "start address is not a multiple of"
 	       " page size" << endl;
 	exit ( 2 );
