@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jun  5 03:25:31 EDT 2009
+// Date:	Sat Jun  6 08:47:01 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/05 07:25:51 $
+//   $Date: 2009/06/06 12:47:22 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents
 //
@@ -115,6 +115,12 @@ namespace min { namespace os {
     //
     void extant_pool
         ( min::uns64 pages, void * start );
+
+    // If the following switch is set to true, a trace
+    // is printed of each of the above operations.  The
+    // default is false.
+    //
+    extern bool trace_pools;
 
 } }
 
