@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  7 08:17:08 EDT 2009
+// Date:	Sun Jun  7 09:22:07 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/07 12:17:32 $
+//   $Date: 2009/06/07 13:39:11 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents:
 //
@@ -97,7 +97,7 @@ min::uns64 MOS::pagesize ( void )
 
 // new_poolXX error messages:
 //
-static const int pool_limit = 7;
+static const int pool_limit = 4;
 static const char * pool_message[pool_limit] = {
 /*0*/
     "",
@@ -129,16 +129,22 @@ static struct used_pool
 {
     void * start, * end;
 
+    char permissions[10];
+
     used_pool ( void ) {}
 
     used_pool ( void * start, void * end )
-        : start ( start ), end ( end ) {}
+        : start ( start ), end ( end )
+    {
+        permissions[0] = 0;
+    }
 
     used_pool ( min::uns64 pages, void * start )
         : start ( start )
     {
         end = (void *)
 	    ( (char *) start + pages * ::pagesize() );
+        permissions[0] = 0;
     }
 } * used_pools;
 static unsigned used_pools_count;
@@ -149,15 +155,19 @@ static unsigned used_pools_size;
 static ostream & operator <<
 	( ostream & out, const used_pool & p )
 {
-    return out << hex
-               << (MINT::pointer_uns) p.start << "-"
-               << (MINT::pointer_uns) p.end << dec;
+    out << hex
+        << (MINT::pointer_uns) p.start << "-"
+        << (MINT::pointer_uns) p.end << dec;
+    if ( p.permissions[0] != 0 )
+        out << " " << p.permissions;
+    return out;
 }
 
 // Push entry into used_pools.
 //
 static void used_pools_push
-	( void * start, void * end )
+	( void * start, void * end,
+	  const char * permissions = "" )
 {
     if ( used_pools_count >= used_pools_size )
     {
@@ -173,6 +183,8 @@ static void used_pools_push
     }
     used_pools[used_pools_count].start = start;
     used_pools[used_pools_count].end   = end;
+    strcpy ( used_pools[used_pools_count].permissions,
+             permissions );
     ++ used_pools_count;
 }
 
@@ -204,7 +216,7 @@ static void read_used_pools ( void )
 	exit ( 1 );
     }
     used_pools_count = 0;
-    char line[1000];
+    char line[1000], permissions[1000];
     while ( maps.getline ( line, 1000 ) )
     {
         line[999] = 0;
@@ -217,10 +229,10 @@ static void read_used_pools ( void )
 	}
 	istringstream str ( line );
 	min::uns64 start, end;
-	char c1, c2;
-	str >> hex >> start >> c1 >> end;
-	c2 = str.peek();
-	if ( ! str || c1 != '-' || ! isspace ( c2 ) )
+	char c1;
+	str >> hex >> start >> c1 >> end >> permissions;
+	if ( ! str || c1 != '-'
+	           || strlen ( permissions ) > 5 )
 	{
 	    fatal_error()
 		<< "bad " << name << " line format:"
@@ -254,7 +266,8 @@ static void read_used_pools ( void )
 	}
 	used_pools_push
 	    ( (void *)(MINT::pointer_uns) start,
-	      (void *)(MINT::pointer_uns) end );
+	      (void *)(MINT::pointer_uns) end,
+	      permissions );
     }
     maps.close();
 }
@@ -319,8 +332,9 @@ static void compare_pools ( void )
 	    // used_pools[i] not found
 	    // move it toward beginning of used_pools.
 	    //
-	    used_pools[new_count].start = start;
-	    used_pools[new_count].end   = end;
+	    memcpy ( & used_pools[new_count],
+	    	     & used_pools[i],
+		     sizeof ( used_pool ) );
 	    ++ new_count;
 	}
     }
@@ -333,7 +347,8 @@ static void compare_pools ( void )
     {
         if ( old_pools[j].end == NULL ) continue;
 	used_pools_push
-	    ( old_pools[j].start, old_pools[j].end );
+	    ( old_pools[j].start, old_pools[j].end,
+	      old_pools[j].permissions );
 	++ old_count;
     }
     delete[] old_pools;
@@ -349,12 +364,12 @@ static void dump_compare_pools ( void )
     {
 	if ( old_count > 0 )
 	{
-	    cout << "MAP ENTIRES DELETED:" << endl;
+	    cout << "MAP ENTRIES DELETED:" << endl;
 	    dump_used_pools ( new_count, old_count );
 	}
 	if ( new_count > 0 )
 	{
-	    cout << "MAP ENTIRES CREATED:" << endl;
+	    cout << "MAP ENTRIES CREATED:" << endl;
 	    dump_used_pools ( 0, new_count );
 	}
     }
