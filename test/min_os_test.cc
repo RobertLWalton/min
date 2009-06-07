@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 21:35:00 EDT 2009
+// Date:	Sun Jun  7 09:39:36 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/07 12:16:56 $
+//   $Date: 2009/06/07 13:39:49 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents:
 //
