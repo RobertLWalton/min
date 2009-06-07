@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  7 09:39:36 EDT 2009
+// Date:	Sun Jun  7 13:14:38 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/07 13:39:49 $
+//   $Date: 2009/06/07 20:27:54 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents:
 //
@@ -84,6 +84,11 @@ bool print = false;
 // Memory Management Functions
 // ------ ---------- ---------
 
+inline void * page ( void * start, int i )
+{
+    return (void *) ( (char *) start + i * ::pagesize() );
+}
+
 extern "C" {
 #   include <signal.h>
 #   include <setjmp.h>
@@ -132,6 +137,41 @@ extern "C" {
     {
         longjmp ( test_address_env, 1 );
     }
+}
+
+// Given a sequence of pages, store i, i+1, i+2, ...
+// in the 1st, 2nd, 3rd, page, in the first and
+// last `int' in each page.  But if i is 0, store
+// 0's instead.
+//
+void set_pages ( min::uns64 pages, void * start, int i )
+{
+    unsigned length = ::pagesize() / sizeof ( int );
+    int * p = (int *) start;
+    while ( pages -- )
+    {
+        p[0] = p[length-1] = i;
+	p += length;
+	if ( i != 0 ) ++ i;
+    }
+}
+
+// Return true if and only if a sequence of pages
+// contains the `int' values set by set_pages.
+//
+bool check_pages
+	( min::uns64 pages, void * start, int i )
+{
+    unsigned length = ::pagesize() / sizeof ( int );
+    int * p = (int *) start;
+    while ( pages -- )
+    {
+	if ( p[0] != i ) return false;
+	if ( p[length-1] != i ) return false;
+	p += length;
+	if ( i != 0 ) ++ i;
+    }
+    return true;
 }
 
 // Check that the last memory operation allocated a
@@ -370,9 +410,6 @@ int main ( )
     MOS::trace_pools = false;
     create_compare = true;
 
-    char * id = "0123456789";
-    char * zero = "\0\0\0\0\0\0\0\0\0\0";
-
     void * limit = (void *) 0xFFFF0000;
 
     void * start10 =
@@ -391,34 +428,33 @@ int main ( )
         MOS::new_pool_below ( 10000, limit );
     check_allocation ( 10000, start10000 );
 
-    void * free300 = (void *)
-        ( (char *) start1000 + 200 * MOS::pagesize() );
+#   define P(i) page ( start1000, i )
+    set_pages ( 1000, P(0), 1000000 );
 
-    memcpy ( free300, id, 10 );
+    MOS::free_pool ( 300, P(200) );
+    check_deallocation ( 300, P(200) );
 
-    MOS::free_pool ( 300, free300 );
-    check_deallocation ( 300, free300 );
+    MIN_ASSERT ( ! test_address ( P(200) ) );
 
-    MIN_ASSERT ( ! test_address ( free300 ) );
+    void * start1200 = MOS::new_pool_at ( 250, P(200) );
+    check_allocation ( 250, start1200 );
 
-    void * start250 =
-        MOS::new_pool_at ( 250, free300 );
-    check_allocation ( 250, start250 );
+    void * start1450 = MOS::new_pool_at ( 50, P(450) );
+    check_allocation ( 50, start1450 );
 
-    MIN_ASSERT ( memcmp ( free300, zero, 10 ) == 0 );
+    MIN_ASSERT ( check_pages ( 200, P(0), 1000000 ) );
+    MIN_ASSERT ( check_pages ( 300, P(200), 0 ) );
+    MIN_ASSERT ( check_pages ( 500, P(500), 1000500 ) );
 
-    void * free50 = (void *)
-        ( (char *) start250 + 250 * MOS::pagesize() );
-    void * start50 =
-        MOS::new_pool_at ( 50, free50 );
-    check_allocation ( 50, start50 );
+    set_pages ( 1000, P(0), 1000000 );
 
-    memcpy ( start1000, id, 5 );
-    memcpy ( free300, id+5, 5 );
-    MOS::move_pool ( 300, start1000, free300 );
-    check_move ( 300, start1000, free300 );
-    MIN_ASSERT ( memcmp ( start1000, id+5, 5 ) == 0 );
-    MIN_ASSERT ( memcmp ( free300, zero, 5 ) == 0 );
+    MOS::move_pool ( 100, P(0), P(200) );
+    check_move ( 100, P(0), P(200) );
+
+    MIN_ASSERT ( check_pages ( 100, P(0), 1000200 ) );
+    MIN_ASSERT ( check_pages ( 100, P(100), 1000100 ) );
+    MIN_ASSERT ( check_pages ( 100, P(200), 0 ) );
+    MIN_ASSERT ( check_pages ( 700, P(300), 1000300 ) );
 
     cout << "Finish Memory Management Test" << endl
          << endl;
