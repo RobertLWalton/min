@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 08:24:38 EDT 2009
+// Date:	Sun Jun  7 08:17:08 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/07 01:44:11 $
+//   $Date: 2009/06/07 12:17:32 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents:
 //
@@ -694,6 +694,14 @@ void MOS::move_pool
 
     if ( trace_pools || create_compare )
 	read_used_pools();
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE MOVE:"
+	     << endl;
+	dump_used_pools();
+    }
+    void * original_new_start = new_start;
+    void * original_old_start = old_start;
 
     if ( new_end > old_start
          &&
@@ -752,9 +760,9 @@ void MOS::move_pool
     if ( trace_pools )
     {
         cout << "MOVED: "
-	     << used_pool ( pages, old_start )
+	     << used_pool ( pages, original_old_start )
 	     << " TO "
-	     << used_pool ( pages, new_start )
+	     << used_pool ( pages, original_new_start )
 	     << endl;
 	dump_compare_pools();
     }

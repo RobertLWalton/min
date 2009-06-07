@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 16:23:11 EDT 2009
+// Date:	Sat Jun  6 21:35:00 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/06 23:28:43 $
+//   $Date: 2009/06/07 12:16:56 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents:
 //
@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cstring>
 using std::cout;
 using std::endl;
 
@@ -82,6 +83,56 @@ bool print = false;
 
 // Memory Management Functions
 // ------ ---------- ---------
+
+extern "C" {
+#   include <signal.h>
+#   include <setjmp.h>
+
+    // Note: an attempt to throw an exception from a
+    // SIGSEGV handler failed (as if the handler
+    // search routine could not find handlers
+    // installed before the signal), so we have had
+    // to use longjmp.
+
+    // Return true if a read of a byte from the address
+    // does NOT cause a segment violation, and false if
+    // it does.
+    //
+    static char test_address_value;
+    static void test_address_handler ( int );
+    static jmp_buf test_address_env;
+    bool test_address ( void * address )
+    {
+	fname = "test_address";
+
+	if ( setjmp ( test_address_env ) != 0 )
+	    return false;
+
+	struct sigaction sa, old_sa;
+	sa.sa_handler = test_address_handler;
+	sigemptyset ( & sa.sa_mask );
+	sa.sa_flags = 0;
+	if (    sigaction ( SIGSEGV, & sa, & old_sa )
+	     == -1 )
+	    fatal_error ( errno );
+
+	// Save value read so this cannot be optimized
+	// away.
+	//
+	test_address_value = * (char *) address;
+
+	if (    sigaction ( SIGSEGV, & old_sa, NULL )
+	     == -1 )
+	    fatal_error ( errno );
+
+	return true;
+    }
+
+    static void test_address_handler ( int )
+    {
+        longjmp ( test_address_env, 1 );
+    }
+}
 
 // Check that the last memory operation allocated a
 // segment with given start address and number of
@@ -243,6 +294,69 @@ void check_deallocation
     }
 }
 
+// Check that the last move memory operation but did
+// not change allocated segments.
+//
+void check_move
+	( min::uns64 pages,
+	  void * new_start, void * old_start )
+{
+    bool ok = true;
+
+    if ( new_count + old_count > 0 )
+    {
+        // Check that new entries concatenate to a
+	// contiguous segment and old entries
+	// concatenate to the same segment.
+	//
+	// Note that new entries are in ascending
+	// address order, and ditto old entries.
+	//
+        if ( new_count == 0 || old_count == 0 )
+	    ok = false;
+	else
+	{
+	    void * start = used_pools[0].start;
+	    void * end   = used_pools[0].end;
+	    unsigned i = 0;
+	    while ( ok && ++ i < new_count )
+	    {
+	        if ( used_pools[i].start != end )
+		    ok = false;
+		else
+		    end = used_pools[i].end;
+	    }
+	    if ( start != used_pools[i].start )
+	        ok = false;
+	    void * next   = used_pools[i].end;
+	    while ( ok && ++ i < new_count + old_count )
+	    {
+	        if ( used_pools[i].start != next )
+		    ok = false;
+		else
+		    next = used_pools[i].end;
+	    }
+	    if ( next != end )
+	        ok = false;
+	}
+    }
+
+    if ( ok )
+        cout << pages
+	     << " pages successfully moved"
+	     << endl;
+    else
+    {
+        cout << "ERROR:" << pages
+	     << " pages NOT successfully moved"
+	     << endl;
+	cout << "Moved: "
+	     << used_pool ( pages, old_start ) << " to "
+	     << used_pool ( pages, new_start ) << endl;
+	dump_compare_pools();
+    }
+}
+
 int main ( )
 {
     cout << "Start min_os Test" << endl;
@@ -255,6 +369,9 @@ int main ( )
 
     MOS::trace_pools = false;
     create_compare = true;
+
+    char * id = "0123456789";
+    char * zero = "\0\0\0\0\0\0\0\0\0\0";
 
     void * limit = (void *) 0xFFFF0000;
 
@@ -276,18 +393,32 @@ int main ( )
 
     void * free300 = (void *)
         ( (char *) start1000 + 200 * MOS::pagesize() );
+
+    memcpy ( free300, id, 10 );
+
     MOS::free_pool ( 300, free300 );
     check_deallocation ( 300, free300 );
+
+    MIN_ASSERT ( ! test_address ( free300 ) );
 
     void * start250 =
         MOS::new_pool_at ( 250, free300 );
     check_allocation ( 250, start250 );
+
+    MIN_ASSERT ( memcmp ( free300, zero, 10 ) == 0 );
 
     void * free50 = (void *)
         ( (char *) start250 + 250 * MOS::pagesize() );
     void * start50 =
         MOS::new_pool_at ( 50, free50 );
     check_allocation ( 50, start50 );
+
+    memcpy ( start1000, id, 5 );
+    memcpy ( free300, id+5, 5 );
+    MOS::move_pool ( 300, start1000, free300 );
+    check_move ( 300, start1000, free300 );
+    MIN_ASSERT ( memcmp ( start1000, id+5, 5 ) == 0 );
+    MIN_ASSERT ( memcmp ( free300, zero, 5 ) == 0 );
 
     cout << "Finish Memory Management Test" << endl
          << endl;
