@@ -7,16 +7,24 @@ Start Memory Management Test
 10000 pages successfully allocated
 300 pages successfully deallocated
 min_os_test.cc:XXXX assert:
-    ! test_address ( start1200 ) true.
+    ! test_address ( P(200) ) true.
 250 pages successfully allocated
 50 pages successfully allocated
 min_os_test.cc:XXXX assert:
-    check_pages ( 200, start1000, 1000000 ) true.
+    check_pages ( 200, P(0), 1000000 ) true.
 min_os_test.cc:XXXX assert:
-    check_pages ( 300, start1200, 0 ) true.
+    check_pages ( 300, P(200), 0 ) true.
 min_os_test.cc:XXXX assert:
-    check_pages ( 500, start1500, 1000500 ) true.
-300 pages successfully moved
+    check_pages ( 500, P(500), 1000500 ) true.
+100 pages successfully moved
+min_os_test.cc:XXXX assert:
+    check_pages ( 100, P(0), 1000200 ) true.
+min_os_test.cc:XXXX assert:
+    check_pages ( 100, P(100), 1000100 ) true.
+min_os_test.cc:XXXX assert:
+    check_pages ( 100, P(200), 0 ) true.
+min_os_test.cc:XXXX assert:
+    check_pages ( 700, P(300), 1000300 ) true.
 Finish Memory Management Test
 
 Finish min_os Test
