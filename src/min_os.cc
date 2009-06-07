@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/06 14:38:43 $
+//   $Date: 2009/06/07 01:44:11 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents:
 //
@@ -343,10 +343,21 @@ static void compare_pools ( void )
 //
 static void dump_compare_pools ( void )
 {
-    cout << "NEW MAP ENTIRES:" << endl;
-    dump_used_pools ( 0, new_count );
-    cout << "OLD MAP ENTIRES:" << endl;
-    dump_used_pools ( new_count, old_count );
+    if ( new_count + old_count == 0 )
+        cout << "MAP NOT CHANGED" << endl;
+    else
+    {
+	if ( old_count > 0 )
+	{
+	    cout << "MAP ENTIRES DELETED:" << endl;
+	    dump_used_pools ( new_count, old_count );
+	}
+	if ( new_count > 0 )
+	{
+	    cout << "MAP ENTIRES CREATED:" << endl;
+	    dump_used_pools ( 0, new_count );
+	}
+    }
 }
 
 // Find the lowest address that ends a used pool, has
@@ -421,7 +432,7 @@ void * MOS::new_pool ( min::uns64 pages )
 
     if ( trace_pools )
     {
-        cout << "Allocated: "
+        cout << "ALLOCATED: "
 	     << used_pool ( pages, result ) << endl;
 	dump_compare_pools();
     }
@@ -493,7 +504,7 @@ void * MOS::new_pool_at
 
     if ( trace_pools )
     {
-        cout << "Allocated: "
+        cout << "ALLOCATED: "
 	     << used_pool ( pages, start ) << endl;
 	dump_compare_pools();
     }
@@ -554,7 +565,7 @@ void * MOS::new_pool_below
 
     if ( trace_pools )
     {
-        cout << "Allocated: "
+        cout << "ALLOCATED: "
 	     << used_pool ( pages, start ) << endl;
 	dump_compare_pools();
     }
@@ -605,7 +616,7 @@ void MOS::free_pool
 
     if ( trace_pools )
     {
-        cout << "Deallocated: "
+        cout << "DEALLOCATED: "
 	     << used_pool ( pages, start ) << endl;
 	dump_compare_pools();
     }
@@ -648,6 +659,14 @@ void MOS::move_pool
 
 {
     fname = "move_pool";
+
+    if ( trace_pools )
+        cout << "TRACE: move_pool ( "
+	     << pages << ", 0x" << hex
+	     << (MINT::pointer_uns) new_start << ", 0x"
+	     << (MINT::pointer_uns) old_start << " )"
+	     << dec << endl;
+
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
@@ -672,6 +691,9 @@ void MOS::move_pool
         (void *) ( (char *) new_start + size );
     void * old_end =
         (void *) ( (char *) old_start + size );
+
+    if ( trace_pools || create_compare )
+	read_used_pools();
 
     if ( new_end > old_start
          &&
@@ -717,12 +739,24 @@ void MOS::move_pool
 	    }
 	    renew ( old_start, step );
 	}
-	else return;
     }
     else
     {
 	remap ( new_start, old_start, size );
 	renew ( old_start, size );
+    }
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
+    {
+        cout << "MOVED: "
+	     << used_pool ( pages, old_start )
+	     << " TO "
+	     << used_pool ( pages, new_start )
+	     << endl;
+	dump_compare_pools();
     }
 }
 
