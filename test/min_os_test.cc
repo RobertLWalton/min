@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  7 21:13:48 EDT 2009
+// Date:	Mon Jun  8 07:01:42 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/08 01:14:12 $
+//   $Date: 2009/06/08 12:02:28 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents:
 //
@@ -78,8 +78,6 @@ void min_assert
 # include "../src/min_os.cc"
 
 MINT::initializer::initializer ( void ) {}
-
-bool print = false;
 
 // Memory Management Functions
 // ------ ---------- ---------
@@ -110,27 +108,32 @@ extern "C" {
     {
 	fname = "test_address";
 
-	if ( setjmp ( test_address_env ) != 0 )
-	    return false;
-
 	struct sigaction sa, old_sa;
+
 	sa.sa_handler = test_address_handler;
 	sigemptyset ( & sa.sa_mask );
-	sa.sa_flags = 0;
+	sa.sa_flags = SA_RESTART + SA_NODEFER;
 	if (    sigaction ( SIGSEGV, & sa, & old_sa )
 	     == -1 )
 	    fatal_error ( errno );
 
-	// Save value read so this cannot be optimized
-	// away.
-	//
-	test_address_value = * (char *) address;
+	bool result = true;
+
+	if ( setjmp ( test_address_env ) != 0 )
+	    result = false;
+	else
+	{
+	    // Save value read so this cannot be
+	    // optimized away.
+	    //
+	    test_address_value = * (char *) address;
+	}
 
 	if (    sigaction ( SIGSEGV, & old_sa, NULL )
 	     == -1 )
 	    fatal_error ( errno );
 
-	return true;
+	return result;
     }
 
     static void test_address_handler ( int )
@@ -334,15 +337,14 @@ void check_deallocation
     }
 }
 
-// Check that the last move memory operation but did
-// not change allocated segments.
+// Check that there has been no change in the pages
+// that are in segments, though there may be changes
+// in the segments (some pages may have changed access
+// status or been moved within existing segments).
+// Return true if no change, false if change.
 //
-void check_move
-	( min::uns64 pages,
-	  void * new_start, void * old_start )
+inline bool check_no_change ( void )
 {
-    bool ok = true;
-
     if ( new_count + old_count > 0 )
     {
         // Check that new entries concatenate to a
@@ -353,33 +355,45 @@ void check_move
 	// address order, and ditto old entries.
 	//
         if ( new_count == 0 || old_count == 0 )
-	    ok = false;
+	    return false;
 	else
 	{
 	    void * start = used_pools[0].start;
 	    void * end   = used_pools[0].end;
 	    unsigned i = 0;
-	    while ( ok && ++ i < new_count )
+	    while ( ++ i < new_count )
 	    {
 	        if ( used_pools[i].start != end )
-		    ok = false;
+		    return false;
 		else
 		    end = used_pools[i].end;
 	    }
 	    if ( start != used_pools[i].start )
-	        ok = false;
+	        return false;
 	    void * next   = used_pools[i].end;
-	    while ( ok && ++ i < new_count + old_count )
+	    while ( ++ i < new_count + old_count )
 	    {
 	        if ( used_pools[i].start != next )
-		    ok = false;
+		    return false;
 		else
 		    next = used_pools[i].end;
 	    }
 	    if ( next != end )
-	        ok = false;
+	        return false;
 	}
     }
+
+    return true;
+}
+
+// Check that the last move memory operation but did
+// not change allocated segments.
+//
+void check_move
+	( min::uns64 pages,
+	  void * new_start, void * old_start )
+{
+    bool ok = check_no_change();
 
     if ( ok )
         cout << pages
@@ -397,6 +411,30 @@ void check_move
     }
 }
 
+// Check that the last memory operation access change
+// properly changed allocated segments.  Type is
+// "accessible" or "inaccessible".
+//
+void check_reaccess ( min::uns64 pages, void * start,
+                      const char * type )
+{
+    bool ok = check_no_change();
+
+    if ( ok )
+        cout << pages
+	     << " pages successfully made " << type
+	     << endl;
+    else
+    {
+        cout << "ERROR:" << pages
+	     << " pages NOT successfully made "
+	     << type << endl;
+	cout << "Made " << type << ": "
+	     << used_pool ( pages, start ) << endl;
+	dump_compare_pools();
+    }
+}
+
 int main ( )
 {
     cout << "Start min_os Test" << endl;
@@ -407,7 +445,7 @@ int main ( )
     cout << endl
          << "Start Memory Management Test" << endl;
 
-    MOS::trace_pools = false;
+    MOS::trace_pools = true;
     create_compare = true;
 
     void * limit = (void *) 0xFFFF0000;
@@ -434,7 +472,9 @@ int main ( )
     MOS::free_pool ( 300, P(200) );
     check_deallocation ( 300, P(200) );
 
+    MIN_ASSERT ( test_address ( P(0) ) );
     MIN_ASSERT ( ! test_address ( P(200) ) );
+    MIN_ASSERT ( ! test_address ( P(499) ) );
 
     void * start1200 = MOS::new_pool_at ( 250, P(200) );
     check_allocation ( 250, start1200 );
@@ -473,6 +513,15 @@ int main ( )
     MIN_ASSERT ( check_pages ( 100, P(0), 0 ) );
     MIN_ASSERT ( check_pages ( 500, P(100), 1000000 ) );
     MIN_ASSERT ( check_pages ( 400, P(600), 1000600 ) );
+
+    set_pages ( 1000, P(0), 1000000 );
+
+    MOS::inaccess_pool ( 100, P(100) );
+    check_reaccess ( 100, P(100), "inaccessible" );
+    MIN_ASSERT ( check_pages ( 100, P(0), 1000000 ) );
+    MIN_ASSERT ( ! test_address ( P(100) ) );
+    MIN_ASSERT ( ! test_address ( P(199) ) );
+    MIN_ASSERT ( check_pages ( 800, P(200), 1000200 ) );
 
     cout << "Finish Memory Management Test" << endl
          << endl;
