@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun  8 07:01:42 EDT 2009
+// Date:	Mon Jun  8 08:20:49 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/08 12:02:28 $
+//   $Date: 2009/06/08 12:21:58 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents:
 //
@@ -445,7 +445,7 @@ int main ( )
     cout << endl
          << "Start Memory Management Test" << endl;
 
-    MOS::trace_pools = true;
+    MOS::trace_pools = false;
     create_compare = true;
 
     void * limit = (void *) 0xFFFF0000;
