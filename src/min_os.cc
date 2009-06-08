@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  7 21:58:29 EDT 2009
+// Date:	Mon Jun  8 08:14:13 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/08 02:56:17 $
+//   $Date: 2009/06/08 12:14:30 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents:
 //
@@ -783,14 +783,14 @@ void MOS::move_pool
     }
 }
 
-void MOS::non_extant_pool
+void MOS::inaccess_pool
 	( min::uns64 pages, void * start )
 
 {
-    fname = "non_extant_pool";
+    fname = "inaccess_pool";
 
     if ( trace_pools )
-        cout << "TRACE: non_extant_pool ( "
+        cout << "TRACE: inaccess_pool ( "
 	     << pages << ", 0x" << hex
 	     << (MINT::pointer_uns) start << " )"
 	     << dec << endl;
@@ -823,21 +823,21 @@ void MOS::non_extant_pool
 
     if ( trace_pools )
     {
-        cout << "MADE NON-EXTANT: "
+        cout << "MADE INACCESSIBLE: "
 	     << used_pool ( pages, start )
 	     << endl;
 	dump_compare_pools();
     }
 }
 
-void MOS::extant_pool
+void MOS::access_pool
 	( min::uns64 pages, void * start )
 
 {
-    fname = "extant_pool";
+    fname = "access_pool";
 
     if ( trace_pools )
-        cout << "TRACE: extant_pool ( "
+        cout << "TRACE: access_pool ( "
 	     << pages << ", 0x" << hex
 	     << (MINT::pointer_uns) start << " )"
 	     << dec << endl;
@@ -870,7 +870,7 @@ void MOS::extant_pool
 
     if ( trace_pools )
     {
-        cout << "MADE EXTANT: "
+        cout << "MADE ACCESSIBLE: "
 	     << used_pool ( pages, start )
 	     << endl;
 	dump_compare_pools();
