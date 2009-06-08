@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  7 13:14:38 EDT 2009
+// Date:	Sun Jun  7 21:13:48 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/07 20:27:54 $
+//   $Date: 2009/06/08 01:14:12 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents:
 //
@@ -455,6 +455,24 @@ int main ( )
     MIN_ASSERT ( check_pages ( 100, P(100), 1000100 ) );
     MIN_ASSERT ( check_pages ( 100, P(200), 0 ) );
     MIN_ASSERT ( check_pages ( 700, P(300), 1000300 ) );
+
+    set_pages ( 1000, P(0), 1000000 );
+
+    MOS::move_pool ( 500, P(0), P(100) );
+    check_move ( 500, P(0), P(100) );
+
+    MIN_ASSERT ( check_pages ( 500, P(0), 1000100 ) );
+    MIN_ASSERT ( check_pages ( 100, P(500), 0 ) );
+    MIN_ASSERT ( check_pages ( 400, P(600), 1000600 ) );
+
+    set_pages ( 1000, P(0), 1000000 );
+
+    MOS::move_pool ( 500, P(100), P(0) );
+    check_move ( 500, P(100), P(0) );
+
+    MIN_ASSERT ( check_pages ( 100, P(0), 0 ) );
+    MIN_ASSERT ( check_pages ( 500, P(100), 1000000 ) );
+    MIN_ASSERT ( check_pages ( 400, P(600), 1000600 ) );
 
     cout << "Finish Memory Management Test" << endl
          << endl;
