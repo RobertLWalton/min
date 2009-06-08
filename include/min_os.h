@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  6 08:47:01 EDT 2009
+// Date:	Mon Jun  8 08:12:33 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/06 12:47:22 $
+//   $Date: 2009/06/08 12:13:52 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents
 //
@@ -96,24 +96,25 @@ namespace min { namespace os {
         ( min::uns64 pages,
 	  void * new_start, void * old_start );
 
-    // Mark a segment as being non-extant memory.  The
-    // pages of the segment will become inaccessible,
-    // and any contents they previously had will be
-    // lost.  The segment must have been allocated with
-    // new_pool.  Errors will be fatal if detected, but
+    // Mark a segment as being inaccessible memory.  Any
+    // contents they previously had will be lost.  The
+    // segment must have been allocated with new_pool.
+    // The segment will remain allocated, so it cannot
+    // be reallocated, but it will not be readable or
+    // writable.  Errors will be fatal if detected, but
     // may not be detected.
     //
-    void non_extant_pool
+    void inaccess_pool
         ( min::uns64 pages, void * start );
 
-    // Mark a segment as being extant memory.  The pages
-    // of the segment will become readable and writable.
-    // The segment must have been allocated with new_
-    // pool.  The pages will be given arbitrary con-
-    // tents.  Errors will be fatal if detected, but may
-    // not be detected.
+    // Mark a segment as being accessible memory.  The
+    // pages of the segment will become readable and
+    // writable.  The segment must have been allocated
+    // with new_pool.  The pages will be given arbitrary
+    // contents.  Errors will be fatal if detected, but
+    // may not be detected.
     //
-    void extant_pool
+    void access_pool
         ( min::uns64 pages, void * start );
 
     // If the following switch is set to true, a trace
