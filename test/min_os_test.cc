@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun  8 08:20:49 EDT 2009
+// Date:	Mon Jun  8 08:22:59 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/08 12:21:58 $
+//   $Date: 2009/06/08 12:30:50 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents:
 //
@@ -95,7 +95,9 @@ extern "C" {
     // SIGSEGV handler failed (as if the handler
     // search routine could not find handlers
     // installed before the signal), so we have had
-    // to use longjmp.
+    // to use longjmp.  (Possibly this could have
+    // been fixed by adding SA_RESTART and SA_NODEFER
+    // flags, which we did not do till later.)
 
     // Return true if a read of a byte from the address
     // does NOT cause a segment violation, and false if
@@ -113,6 +115,11 @@ extern "C" {
 	sa.sa_handler = test_address_handler;
 	sigemptyset ( & sa.sa_mask );
 	sa.sa_flags = SA_RESTART + SA_NODEFER;
+	    // These flags are necessary or else the
+	    // second call to test_address with an
+	    // inaccessible address fails to catch
+	    // the SIGSEGV and exits the program.
+
 	if (    sigaction ( SIGSEGV, & sa, & old_sa )
 	     == -1 )
 	    fatal_error ( errno );
@@ -521,6 +528,12 @@ int main ( )
     MIN_ASSERT ( check_pages ( 100, P(0), 1000000 ) );
     MIN_ASSERT ( ! test_address ( P(100) ) );
     MIN_ASSERT ( ! test_address ( P(199) ) );
+    MIN_ASSERT ( check_pages ( 800, P(200), 1000200 ) );
+
+    MOS::access_pool ( 100, P(100) );
+    check_reaccess ( 100, P(100), "accessible" );
+    MIN_ASSERT ( check_pages ( 100, P(0), 1000000 ) );
+    MIN_ASSERT ( check_pages ( 100, P(100), 0 ) );
     MIN_ASSERT ( check_pages ( 800, P(200), 1000200 ) );
 
     cout << "Finish Memory Management Test" << endl

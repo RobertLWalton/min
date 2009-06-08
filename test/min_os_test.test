@@ -52,6 +52,13 @@ min_os_test.cc:XXXX assert:
     ! test_address ( P(199) ) true.
 min_os_test.cc:XXXX assert:
     check_pages ( 800, P(200), 1000200 ) true.
+100 pages successfully made accessible
+min_os_test.cc:XXXX assert:
+    check_pages ( 100, P(0), 1000000 ) true.
+min_os_test.cc:XXXX assert:
+    check_pages ( 100, P(100), 0 ) true.
+min_os_test.cc:XXXX assert:
+    check_pages ( 800, P(200), 1000200 ) true.
 Finish Memory Management Test
 
 Finish min_os Test
