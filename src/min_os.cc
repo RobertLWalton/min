@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  7 09:22:07 EDT 2009
+// Date:	Sun Jun  7 21:58:29 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/07 13:39:11 $
+//   $Date: 2009/06/08 02:56:17 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents:
 //
@@ -788,6 +788,13 @@ void MOS::non_extant_pool
 
 {
     fname = "non_extant_pool";
+
+    if ( trace_pools )
+        cout << "TRACE: non_extant_pool ( "
+	     << pages << ", 0x" << hex
+	     << (MINT::pointer_uns) start << " )"
+	     << dec << endl;
+
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
@@ -799,7 +806,28 @@ void MOS::non_extant_pool
 	       " page size" << endl;
 	exit ( 2 );
     }
+
+    if ( trace_pools || create_compare )
+	read_used_pools();
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE PERMISSION CHANGE:"
+	     << endl;
+	dump_used_pools();
+    }
+
     renew ( start, size, PROT_NONE );
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
+    {
+        cout << "MADE NON-EXTANT: "
+	     << used_pool ( pages, start )
+	     << endl;
+	dump_compare_pools();
+    }
 }
 
 void MOS::extant_pool
@@ -807,6 +835,13 @@ void MOS::extant_pool
 
 {
     fname = "extant_pool";
+
+    if ( trace_pools )
+        cout << "TRACE: extant_pool ( "
+	     << pages << ", 0x" << hex
+	     << (MINT::pointer_uns) start << " )"
+	     << dec << endl;
+
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
@@ -818,5 +853,26 @@ void MOS::extant_pool
 	       " page size" << endl;
 	exit ( 2 );
     }
+
+    if ( trace_pools || create_compare )
+	read_used_pools();
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE PERMISSION CHANGE:"
+	     << endl;
+	dump_used_pools();
+    }
+
     renew ( start, size );
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
+    {
+        cout << "MADE EXTANT: "
+	     << used_pool ( pages, start )
+	     << endl;
+	dump_compare_pools();
+    }
 }
