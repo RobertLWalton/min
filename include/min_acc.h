@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jun  2 03:54:01 EDT 2009
+// Date:	Sat Jun 20 23:38:07 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/02 08:15:27 $
+//   $Date: 2009/06/22 16:46:06 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -36,7 +36,7 @@
 # include <min.h>
 # define MACC min::acc
 
-// Allocator Inferface
+// Allocator Interface
 // --------- ---------
 
 namespace min { namespace acc {
@@ -61,9 +61,9 @@ namespace min { namespace acc {
     // control struct for the region that contains the
     // block.  L is interpreted as follows:
     //
-    //	 if L >= 0:	R = pageaddress + pagesize * L
+    //	 if L < 0:	R = pageaddress + pagesize * L
     //
-    //   if L < 0:	R = & MACC::region_table[-L]
+    //   if L >= 0:	R = & MACC::region_table[L]
     //
     // where `pageaddress' is the address of the page
     // containing the body control word containing L.
@@ -73,11 +73,12 @@ namespace min { namespace acc {
     // the stub address == MINT::end_stub and the block
     // control word is immediately followed in memory
     // by a block subcontrol word whose type field
-    // gives the block type and whose value field
+    // gives the block_type and whose value field
     // specifies the size in bytes of the block.
-    // region containing the block 
     //
     enum block_type
+        // Stored in block subcontrol word of blocks
+	// that are NOT object bodies.
     {
         FREE			= 1,
 	FIXED_SIZE_REGION	= 2,
@@ -145,8 +146,7 @@ namespace min { namespace acc {
     //		S bytes			object body
     //		B - S - 8 bytes		unused padding
     //
-    //	     There are fewer than 8 unused padding
-    //	     bytes.
+    //	     		B - 8 < S + 8 <= B
     //
     //	     The MACC::region control struct for the
     //	     region is allocated at the beginning of the
@@ -179,6 +179,8 @@ namespace min { namespace acc {
     //		8 bytes			control word
     //		S bytes			object body
     //		B - S - 8 bytes		unused padding
+    //
+    //	     		B - pagesize < S + 8 <= B
     //
     //	     As B is a multiple of the page size, there
     //	     may be up to just under one page of unused
@@ -218,19 +220,19 @@ namespace min { namespace acc {
     //	     There is a limit of about 2**15 such
     //	     regions.
     //
-    //	     Multi-page blocks in a region are always
-    //	     allocated after the last block allocated in
-    //	     the region.  When a multi-page block is
-    //	     is freed, the block is marked as free, but
-    //	     cannot be reused until the multi-page block
-    //	     region is compacted.  Compaction moves all
-    //	     used blocks in the region to the beginning
-    //	     of the region, or to another region, thus
-    //	     reclaiming the space occupied by multi-page
-    //	     free blocks.  Because all blocks are multi-
-    //	     page, moving a block can be done by moving
-    //	     page table entries, which is faster than
-    //	     moving bytes.
+    //	     Blocks in a multi-page block region are
+    //	     always allocated after the last block allo-
+    //	     cated in the region.  When a multi-page
+    //	     block is is freed, the block is marked as
+    //	     free, but cannot be reused until the multi-
+    //	     page block region is compacted.  Compaction
+    //	     moves all used blocks in the region to the
+    //	     beginning of the region, or to another
+    //	     region, thus reclaiming the space occupied
+    //	     by multi-page free blocks.  Because all
+    //	     blocks are multi-page, moving a block can
+    //	     be done by moving page table entries, which
+    //	     is faster than moving bytes.
 
     struct region
     { 
@@ -262,14 +264,14 @@ namespace min { namespace acc {
 	    // For variable size block and multi-page
 	    // block regions, the offset of the first
 	    // free byte in the region.  New blocks are
-	    // always allocated at that offset.
+	    // always allocated at this offset.
 
 	min::uns64 region_size;
 	    // The size of the region.
 
 	min::uns32 block_size;
 	    // For fixed size block regions, the size
-	    // in bytes of fixed size blocks.
+	    // in bytes of the fixed size blocks.
 
 	min::uns32 free_count;
 	    // For fixed size block regions, the number
@@ -312,102 +314,171 @@ namespace min { namespace acc {
 
 namespace min { namespace acc {
 
-    // Mutator (non-acc execution engine) action:
+    // The `collector' segregates objects into N+1
+    // levels, with level 0 being the `base level',
+    // and levels 1, ..., N being `ephemeral levels'.
+    // Objects in lower levels are older than objects
+    // in higher levels.
+    //
+    // The collector can run one collector marking
+    // algorithm execution for each level independently
+    // and in parallel.  These are known as `markings'.
+    // A level L marking marks all objects in levels
+    // >= L that are pointed to by objects in the level
+    // L root list, and recursively marks any object
+    // pointed at by a marked object.
+    //
+    // For each level L the collector maintains three
+    // lists:
+    //
+    //	    Level List
+    //		List of all objects in level L.
+    //	
+    //	    Root List
+    //		List of all objects in levels < L
+    //		that might point at objects in levels
+    //		>= L.
+    //
+    //	    To Be Scavenged List
+    //		List of all objects that remain to be
+    //		scavenged during the currently executing
+    //		mark algorithm for levels >= L.
+    //
+    // The `mutator' refers to all code outside the
+    // collector algorithm execution.  The mutator may
+    // write pointers to objects into other objects.
+    //
+    // The to-be-scavenged lists of all levels and the
+    // root lists of all ephemeral levels are maintained
+    // with the help of the following mutator action.
+    //
+    // Each stub has a set of ACC flags grouped into
+    // pairs.  Each pair has a `scavenged flag' and an
+    // `unmarked flag'.
     //
     // If a pointer to stub s2 is stored in a datum with
     // stub s1, then for each pair of ACC flags the sca-
     // venged flag of the pair of s1 and the unmarked
-    // flag of the pair s2 are logically ANDed, and if
-    // the corresponding bit is on in MUP::acc_stack_
-    // mask, then push a pointer to s1 and then a
-    // pointer to s2 into the MUP::acc_stack.
+    // flag of the pair of s2 are logically ANDed, and
+    // if the corresponding bit for any pair is on in
+    // MUP::acc_stack_mask, a pointer to s1 and then a
+    // pointer to s2 are pushed into the MUP::acc_stack.
     //
     // When a new stub is allocated, it is given the
     // flags in MUP::acc_new_stub_flags.
     //
-    // One use of this mutator action is as follows.
+    // Each level L has a pair of ACC flags associated
+    // for use by level L markings (only one level L
+    // marking executes at a time).  The result of the
+    // marking is to set the unmarked flag on all level
+    // >= L objects that can be reached from the level L
+    // root list objects or from current threads via
+    // pointers between objects, and clear the unmarked
+    // flag on all other objects.  The scavenged flags
+    // of all level < L objects not on the level L root
+    // list are always kept cleared.
     //
-    // To mark the those members of a set of stubs S
-    // that are pointed at by members of a set of stubs
-    // R, use a pair of ACC flags, and set the corres-
-    // ponding bit in MUP::acc_stack_mask.  Clear the
-    // scavenged flag of the flag pair in each stub in
-    // R or S, set the unmarked flag in every stub in S
-    // that is not in R, and clear the unmarked flag of
-    // EVERY other stub.
+    // A level L marking begins by setting the unmarked
+    // flag of all level >= L objects (the level L
+    // marking unmarked flag of a level < L object is
+    // always clear), and clearing the scavenged flag of
+    // all objects.  The level L to-be-scavenged list is
+    // set to empty.  The level L marking then scavenges
+    // all objects on the level L root list, all objects
+    // on the to-be-scavenged list, and all current
+    // thread pseudo-objects.  To scavenge an object s1,
+    // each pointer in s1 to another object s2 is
+    // examined, and if the unmarked flag of s2 is
+    // on, it is cleared and s2 is put on the to-be-
+    // scavenged list.  A current thread has a list of
+    // pointers to objects it is using, and is treated
+    // as a pseudo-object equal to this list of
+    // pointers.
     //
-    // At the end of the algorithm, the scavenged flag
-    // will be set for each stub in R, and the unmarked
-    // flag will be cleared for each stub of S pointed
-    // at by a stub of R, and for each such stub of S,
-    // that stub will have been added to the set R.
-    // The algorithm may err by clearing the unmarked
-    // flag of a few additional stubs in S.
+    // Note that at the end of a level L marking a
+    // `marking termination' algorithm is run that
+    // consists of scavenging the current thread pseudo
+    // objects and then scavenging objects in the to-be-
+    // scavenged list until that list is empty.  If this
+    // marking termination takes too long, it is
+    // interrupted by further execution of threads, and
+    // if this happens, the marking termination
+    // algorithm must be repeated.  Thrashing is
+    // theoretically possible, but should not occur in
+    // practice as each iteration should generate fewer
+    // objects in the to-be-scavenged list.  Thrashing
+    // can be avoided by refusing to interrupt the
+    // termination algorithm if it is being run too
+    // many times at the end of a marking.
     //
-    // The algorithm does the following until done.  For
-    // each stub s1 in R whose scavenged flag is off,
-    // s1's scavenged flag is set, and then for each
-    // pointer from s1's object to a stub s2 in S, if
-    // the unmarked flag of s2 is set, it is cleared and
-    // s2 is added to the set R.  If a pair of pointers
-    // s1, s2 appears in the MUP::acc_stack with the
-    // scavenged flag of s1 on and the unmarked flag of
-    // s2 on, the unmarked and scavenged flags of s2 are
-    // cleared, and s2 is added to the set R.
+    // The following actions affect the level L marking
+    // flags and the level L to-be-scavenged list:
     //
-    // It is only necessary to keep track of the stubs
-    // in R whose scavenged flag is off.  These can be
-    // listed in a stack of stub pointers, set initially
-    // to contain pointers to all the stubs in R.  Then
-    // to add a stub to R, merely push a pointer to the
-    // stub into this stack.  The above algorithm can
-    // then pop a pointer of this stack and proceed as
-    // above for stubs in R whose scavenged flag was
-    // is not set.
+    // 	Object Creation: The unmarked flag is set and
+    //  the scavenged flag is cleared.  Note that the
+    //  object will be added to the list of objects the
+    //  current thread is using.
     //
-    // If a brand new stub is created, it can be added
-    // to S by clearing its scavenged flag and setting
-    // its unmarked flag, as being new it cannot yet be
-    // pointed at by a stub in R.
-    // 
-    // Another use of the mutator action is as follows.
+    //  Moving an Object from Level L1 to Level L1-1:
+    //  This cannot happen during a level L1 marking,
+    //  and so no marking flags are changed.  Below
+    //  we will see that the object is put on the level
+    //  L1 root list so its level L marking scavenged
+    //  flag need not be cleared.
     //
-    // To mark members of a set of stubs R that point at
-    // members of a set of stubs S, use a pair of ACC
-    // pointers, and set the corresponding bit in MUP::
-    // acc_stack_mask.  Set the unmarked flag of the
-    // flag pair in every stub of S, and clear that flag
-    // in EVERY other stub.  Clear the scavenged flag of
-    // EVERY stub.
+    //  Level L Scavenging of an Object s1:  The
+    //  scavenged flag of the object is set before the
+    //  object is scavenged, and the object is removed
+    //  from the to-be-scavenged list if it was taken
+    //  from that list.
     //
-    // At the end of the algorithm the unmarked flags
-    // will not have been changed, and the scavenged
-    // flags will set for every member of R that does
-    // NOT point at a member of S.  The algorithm may
-    // err by setting the scavenged flag of a few
-    // additional stubs in R.
+    //  Removing an ACC::acc_stack Pointer Pair for an
+    //  Object s1 Pointing at an Object s2:  If the
+    //  level L marking list scavenged flag of s1 and
+    //  the level L marking list unmarked flag of s2
+    //  are both on, the unmarked flag of s2 is cleared.
     //
-    // The algorithm does the following until done.  For
-    // each stub s1 in R, taken in some pre-determined
-    // order, the scavenged flag of s1 is turned on, the
-    // object is checked to see if it has any pointers
-    // to stubs in S, and if so, its scavenged flag is
-    // turned back off.  If a pair of pointers s1, s2
-    // appears in the MUP::acc_stack with the scavenged
-    // flag of s1 on and the unmarked flag of s2 on, the
-    // scavenged flag of s1 is cleared.
+    //  Clearing the Unmarked Flag of an Object s2:
+    //  s2 is put on the to-be-scavenged list.  Its
+    //  scavenged flag should already be cleared.
     //
-    // A stack of pointers to stubs in R whose scavenged
-    // flags have been cleared at some point in the
-    // above algorithm can be easily kept.  After all
-    // the stubs in R have been gone through in the
-    // pre-determined order, this will include all stubs
-    // in R whose object point at stubs in S, whenever
-    // the MUP::acc_stack is empty.
+    // To maintain the level L root list a pair of ACC
+    // flags is used, the level L root list flags.  The
+    // unmarked flag is set for every level >= L object
+    // and cleared for all other objects.  The
+    // scavenged flag is set for all level < L objects
+    // that are NOT on the level L root list, and
+    // cleared for all other objects.  These flags
+    // and the root list are maintained at ALL times.
     //
-    // If a brand new stub is created, it can be added
-    // to S by clearing its scavenged flag and setting
-    // its unmarked flag.
+    // The following actions affect the level L root
+    // list and its flags:
+    //
+    // 	Object Creation: The unmarked flag is set if L
+    //  is the highest level and cleared otherwise (all
+    //  newly created objects are put in the highest
+    //  level).  Assuming a new object has no pointers
+    //  to other objects, its scavenged flag is cleared
+    //  if L is the highest level and cleared otherwise.
+    //
+    //  Moving an Object from Level L1 to Level L1-1:
+    //  If L == L1-1 the level L root unmarked flag is
+    //  set.  If L == L1 the level L root scavenged
+    //  flag is object is put on the level L root list
+    //  (its scavenged flag should already be off).
+    //
+    //  Level L Scavenging of a Level L Root List
+    //  Object:  If the object is found not to have any
+    //  pointers to objects of level >= L, the object is
+    //  removed from the root list and its scavenged
+    //  flag is set.
+    //
+    //  Removing an ACC::acc_stack pointer Pair for an
+    //  Object s1 Pointing at an Object s2:  If the
+    //  level L root list scavenged flag of s1 is on and
+    //  the level L root list unmarked flag of s1 is on,
+    //  s1 is put on the level L root list and its
+    //  scavenged flag is cleared.
 
 } }
 
