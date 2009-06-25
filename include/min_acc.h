@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun 20 23:38:07 EDT 2009
+// Date:	Thu Jun 25 07:22:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/22 16:46:06 $
+//   $Date: 2009/06/25 13:59:46 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -325,8 +325,9 @@ namespace min { namespace acc {
     // and in parallel.  These are known as `markings'.
     // A level L marking marks all objects in levels
     // >= L that are pointed to by objects in the level
-    // L root list, and recursively marks any object
-    // pointed at by a marked object.
+    // L root list or by executing threads, and recur-
+    // sively marks any object pointed at by a marked
+    // object.
     //
     // For each level L the collector maintains three
     // lists:
@@ -342,7 +343,7 @@ namespace min { namespace acc {
     //	    To Be Scavenged List
     //		List of all objects that remain to be
     //		scavenged during the currently executing
-    //		mark algorithm for levels >= L.
+    //		level L marking.
     //
     // The `mutator' refers to all code outside the
     // collector algorithm execution.  The mutator may
@@ -371,12 +372,14 @@ namespace min { namespace acc {
     // for use by level L markings (only one level L
     // marking executes at a time).  The result of the
     // marking is to set the unmarked flag on all level
-    // >= L objects that can be reached from the level L
-    // root list objects or from current threads via
-    // pointers between objects, and clear the unmarked
-    // flag on all other objects.  The scavenged flags
-    // of all level < L objects not on the level L root
-    // list are always kept cleared.
+    // >= L objects that CANNOT be reached from the
+    // level L root list objects or from current threads
+    // via pointers between objects, and clear the
+    // unmarked flag on all other objects.  At the end
+    // of the marking, the scavenged flag of each object
+    // is on only if and only if the object is on the
+    // level L root list or the object is >= level L and
+    // its unmarked flag is cleared.
     //
     // A level L marking begins by setting the unmarked
     // flag of all level >= L objects (the level L
@@ -386,30 +389,32 @@ namespace min { namespace acc {
     // set to empty.  The level L marking then scavenges
     // all objects on the level L root list, all objects
     // on the to-be-scavenged list, and all current
-    // thread pseudo-objects.  To scavenge an object s1,
-    // each pointer in s1 to another object s2 is
-    // examined, and if the unmarked flag of s2 is
-    // on, it is cleared and s2 is put on the to-be-
-    // scavenged list.  A current thread has a list of
-    // pointers to objects it is using, and is treated
-    // as a pseudo-object equal to this list of
-    // pointers.
+    // threads.  To scavenge an object s1, each pointer
+    // in s1 to another object s2 is examined, and if
+    // the unmarked flag of s2 is on, it is cleared and
+    // s2 is put on the to-be-scavenged list.  To
+    // scavange a thread, the tread's list of objects
+    // it points at is treated as a list object to be
+    // scavenged.
     //
     // Note that at the end of a level L marking a
     // `marking termination' algorithm is run that
-    // consists of scavenging the current thread pseudo
-    // objects and then scavenging objects in the to-be-
-    // scavenged list until that list is empty.  If this
-    // marking termination takes too long, it is
-    // interrupted by further execution of threads, and
-    // if this happens, the marking termination
-    // algorithm must be repeated.  Thrashing is
-    // theoretically possible, but should not occur in
-    // practice as each iteration should generate fewer
-    // objects in the to-be-scavenged list.  Thrashing
-    // can be avoided by refusing to interrupt the
-    // termination algorithm if it is being run too
-    // many times at the end of a marking.
+    // consists of scavenging the current threads and
+    // then scavenging objects in the to-be-scavenged
+    // list until that list is empty.  If this marking
+    // termination takes too long, it is interrupted by
+    // further execution of threads, and if this
+    // happens, the marking termination algorithm must
+    // be repeated.  Thrashing is theoretically
+    // possible, but should rarely occur in practice as
+    // each iteration should generate fewer objects in
+    // the to-be-scavenged list.  Thrashing can be
+    // avoided by refusing to interrupt the termination
+    // algorithm if it has been run too many times at
+    // the end of a marking.  Another option is to
+    // switch to a new mode in which new objects are
+    // given a clear unmarked flag and a set scavenged
+    // flag.
     //
     // The following actions affect the level L marking
     // flags and the level L to-be-scavenged list:
@@ -421,10 +426,11 @@ namespace min { namespace acc {
     //
     //  Moving an Object from Level L1 to Level L1-1:
     //  This cannot happen during a level L1 marking,
-    //  and so no marking flags are changed.  Below
-    //  we will see that the object is put on the level
-    //  L1 root list so its level L marking scavenged
-    //  flag need not be cleared.
+    //  and so no marking flags are changed.  Note
+    //  that below we will learn that the moved object
+    //  will be put on the level L1 root list, so it
+    //  can be found later to clear its scavenged flag
+    //  before the next level L1 marking.
     //
     //  Level L Scavenging of an Object s1:  The
     //  scavenged flag of the object is set before the
@@ -457,15 +463,13 @@ namespace min { namespace acc {
     // 	Object Creation: The unmarked flag is set if L
     //  is the highest level and cleared otherwise (all
     //  newly created objects are put in the highest
-    //  level).  Assuming a new object has no pointers
-    //  to other objects, its scavenged flag is cleared
-    //  if L is the highest level and cleared otherwise.
+    //  level).
     //
     //  Moving an Object from Level L1 to Level L1-1:
     //  If L == L1-1 the level L root unmarked flag is
-    //  set.  If L == L1 the level L root scavenged
-    //  flag is object is put on the level L root list
-    //  (its scavenged flag should already be off).
+    //  set.  If L == L1 the object is put on the level
+    //  L root list (its scavenged flag should already
+    //  be off).
     //
     //  Level L Scavenging of a Level L Root List
     //  Object:  If the object is found not to have any
@@ -475,10 +479,10 @@ namespace min { namespace acc {
     //
     //  Removing an ACC::acc_stack pointer Pair for an
     //  Object s1 Pointing at an Object s2:  If the
-    //  level L root list scavenged flag of s1 is on and
-    //  the level L root list unmarked flag of s1 is on,
-    //  s1 is put on the level L root list and its
-    //  scavenged flag is cleared.
+    //  level L root list scavenged flag of s1 and
+    //  the level L root list unmarked flag of s1 are
+    //  both on, s1 is put on the level L root list and
+    //  its scavenged flag is cleared.
 
 } }
 
