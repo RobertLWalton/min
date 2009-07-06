@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jun  2 03:42:12 EDT 2009
+// Date:	Mon Jul  6 00:19:58 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/02 07:42:41 $
+//   $Date: 2009/07/06 04:21:44 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.88 $
+//   $Revision: 1.89 $
 
 // Table of Contents:
 //
@@ -298,20 +298,14 @@ void MINT::new_non_fixed_body
 // Performs MINT::new_body when count of fixed bodies
 // is zero.
 //
-void MINT::new_fixed_body ( min::stub * s, unsigned n )
+void MINT::new_fixed_body
+    ( min::stub * s, unsigned n,
+      MINT::fixed_body_list * fbl )
 {
     cout << "MINT::new_fixed_body ( " << s
          << ", " << n << " ) called" << endl;
 
-    unsigned m = n + 7;
-    m >>= 3;
-
-    // See min_parameters.h for fixed_bodies_log.
-    fixed_body_list * fbl =
-	    fixed_bodies + fixed_bodies_log ( m );
-    if ( fbl->size < n ) ++ fbl;
-
-    m = fbl->size >> 3;
+    unsigned m = fbl->size >> 3;
     min::uns64 * next = next_body;
     MIN_ASSERT ( next + 2 * m <= end_body_region );
 
