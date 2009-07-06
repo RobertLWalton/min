@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jun 25 07:22:43 EDT 2009
+// Date:	Mon Jul  6 03:55:55 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/25 13:59:46 $
+//   $Date: 2009/07/06 11:50:42 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -23,7 +23,8 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Allocator Interface
+//	Stub Allocator Interface
+//	Block Allocator Interface
 //	Collector Interface
 //	Compactor Interface
 
@@ -35,9 +36,19 @@
 
 # include <min.h>
 # define MACC min::acc
+# define MINT min::internal
 
-// Allocator Interface
-// --------- ---------
+// Stub Allocator Interface
+// ---- --------- ---------
+
+namespace min { namespace acc {
+
+
+}
+
+
+// Block Allocator Interface
+// ----- --------- ---------
 
 namespace min { namespace acc {
 
@@ -125,8 +136,8 @@ namespace min { namespace acc {
     //	     list.  When an object body in a fixed size
     //	     block is freed, the block is put back on a
     //	     free list and becomes immediately available
-    //	     for reuse.  See `Free List Management'
-    //	     below.
+    //	     for reuse.  See fixed_body_list_extension
+    //	     struct below.
     //
     //	     The compactor may move all allocated blocks
     //	     in a fixed size block region to another
@@ -153,17 +164,17 @@ namespace min { namespace acc {
     //	     region.  There is no limit to the number of
     //	     variable size block regions.
     //
-    //	     Variable size blocks in a region are always
-    //	     allocated after the last block allocated in
-    //	     the region.  When an object body in a var-
-    //	     iable size block is freed, the block is
-    //	     marked as free, but cannot be reused until
-    //	     the variable size block region is compac-
-    //	     ted.  Compaction moves all used blocks in
-    //	     the region to the beginning of the region,
-    //	     or to another region, thus reclaiming the
-    //	     space occupied by variable size free
-    //	     blocks.
+    //	     A variable size block in a region is always
+    //	     allocated after the last block previously
+    //	     allocated to the region.  When an object
+    //	     body in a variable size block is freed, the
+    //	     block is marked as free, but cannot be re-
+    //	     used until the variable size block region
+    //	     is compacted.  Compaction moves all used
+    //	     blocks in the region to the beginning of
+    //	     the region, or to another region, thus
+    //	     reclaiming the space occupied by variable
+    //	     size free blocks.
     //
     //	     Variable size block regions are intended
     //	     for longer lived object bodies.
@@ -215,24 +226,24 @@ namespace min { namespace acc {
     //	     begins with a body control word (see
     //	     below).
     //
-    //	     A multi-page block region has a control
-    //	     block in the MACC::region_table vector.
-    //	     There is a limit of about 2**15 such
-    //	     regions.
+    //	     A multi-page block region has a region
+    //	     control block in the MACC::region_table
+    //	     vector.  There is a limit of about 2**15
+    //	     such regions.
     //
-    //	     Blocks in a multi-page block region are
-    //	     always allocated after the last block allo-
-    //	     cated in the region.  When a multi-page
-    //	     block is is freed, the block is marked as
-    //	     free, but cannot be reused until the multi-
-    //	     page block region is compacted.  Compaction
-    //	     moves all used blocks in the region to the
-    //	     beginning of the region, or to another
-    //	     region, thus reclaiming the space occupied
-    //	     by multi-page free blocks.  Because all
-    //	     blocks are multi-page, moving a block can
-    //	     be done by moving page table entries, which
-    //	     is faster than moving bytes.
+    //	     A block in a multi-page block region is
+    //	     always allocated after the last block prev-
+    //	     iously allocated to the region.  When a
+    //	     multi-page block is is freed, the block is
+    //	     marked as free, but cannot be reused until
+    //	     the multi-page block region is compacted.
+    //	     Compaction moves all used blocks in the
+    //	     region to the beginning of the region, or
+    //	     to another region, thus reclaiming the
+    // 	     space occupied by multi-page free blocks.
+    //	     Because all blocks are multi-page, moving
+    //	     a block can be done by moving page table
+    //	     entries, which is faster than moving bytes.
 
     struct region
     { 
@@ -245,7 +256,7 @@ namespace min { namespace acc {
 	    // region.  In this case the locator field
 	    // L of this word is such that
 	    //
-	    //	   MACC::region_table[-L]
+	    //	   MACC::region_table[L]
 	    //
 	    // is the  multi-page region containing
 	    // this region, and the pointer field of
@@ -267,7 +278,9 @@ namespace min { namespace acc {
 	    // always allocated at this offset.
 
 	min::uns64 region_size;
-	    // The size of the region.
+	    // The size of the region in bytes.  Dupli-
+	    // cates the value field of block_sub-
+	    // control.
 
 	min::uns32 block_size;
 	    // For fixed size block regions, the size
@@ -305,6 +318,41 @@ namespace min { namespace acc {
 	    // is no block control word).  The list is
 	    // NULL terminated and if the list is empty
 	    // these members are NULL.
+
+    };
+
+    // Free List Management
+    // ---- ---- ----------
+
+    struct fixed_body_list_extension
+        // Extension of fixed_body_list struct with data
+	// specific to this allocator.
+    {
+        MINT::fixed_body_list * fbl;
+	    // Address of associated fixed_body_list.
+	    // fbl->size is size in bytes of fixed
+	    // blocks controlled by this struct.
+
+	MACC::region * first_region;
+	MACC::region * current_region;
+	    // First region from which free blocks are
+	    // being allocated, and current region from
+	    // which free blocks are being allocated,
+	    // in the list of all fixed block regions
+	    // for this size block.  The regions in the
+	    // list are chained together with their
+	    // free_previous/next fields.
+	    //
+	    // After a GC current_region is reset to
+	    // first_region, then moved forward in
+	    // list to first region with some free
+	    // blocks.
+	    //
+	    // This strategy allows free blocks to
+	    // accumulate in regions near end of list.
+	    //
+	    // fbl is set from info in current_region.
+    };
 
 } }
 
@@ -485,5 +533,9 @@ namespace min { namespace acc {
     //  its scavenged flag is cleared.
 
 } }
+
+
+// Compactor Interface
+// --------- ---------
 
 # endif // MIN_ACC_H
