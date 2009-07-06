@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul  5 23:26:00 EDT 2009
+// Date:	Mon Jul  6 04:01:32 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/06 04:22:10 $
+//   $Date: 2009/07/06 08:04:33 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.170 $
+//   $Revision: 1.171 $
 
 // Table of Contents:
 //
@@ -1655,10 +1655,9 @@ namespace min { namespace internal {
     // fixed bodies of size 1 << ( j + 3 ), for 0 <= j
     // and (1<<j) <= MIN_MAX_FIXED_BODY_SIZE/8.
     //
-    typedef struct fixed_body_control;
-        // Control structure for fixed bodies of a
-	// given size.  Defined by the Allocator
-	// (and not by min.h).
+    typedef struct fixed_body_list_extension;
+        // Allocator specific extension of fixed_body_
+	// list struct.
     extern struct fixed_body_list
     {
 	unsigned size;	// Size of fixed body.
@@ -1669,11 +1668,10 @@ namespace min { namespace internal {
 			// a void * pointing at the next
 			// body on the list.  The list
 			// is NULL terminated.
-	fixed_body_control * control;
-			// Address of control structure
-			// for fixed bodies of the given
-			// size.  Set during allocator
-			// initialization.
+	fixed_body_list_extension * extension;
+			// Address of extension of this
+			// structure.  Set during
+			// allocator initialization.
     } fixed_bodies[MIN_MAX_FIXED_BODY_SIZE_LOG-2];
 
     void new_non_fixed_body
