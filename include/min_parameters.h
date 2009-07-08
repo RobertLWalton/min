@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 25 02:56:52 EDT 2009
+// Date:	Wed Jul  8 09:49:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/05/25 08:59:25 $
+//   $Date: 2009/07/08 17:37:30 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.36 $
+//   $Revision: 1.37 $
 
 // Table of Contents
 //
@@ -38,11 +38,11 @@
 // -DMIN_PROTECT=0
 // -DMIN_IS_COMPACT=1
 // -DMIN_USES_OBJ_AUX_STUBS=1
-// -DMIN_MAX_ABSOLUTE_STUB_ADDRESS=0xFFFFFFFFFFFFull
+// -DMIN_MAX_ABSOLUTE_STUB_ADDRESS="((1ull << 48) - 1)"
 //	// 2**48 - 1; forces use of stub relative
 //	// addresses or indices in 64 bit general
 //	// values.
-// -DMIN_MAX_RELATIVE_STUB_ADDRESS=0xFFFFFFFFFFFFull
+// -DMIN_MAX_RELATIVE_STUB_ADDRESS="((1ull << 48) - 1)"
 //	// 2**48 - 1; forces use of stub indices in 64
 //	// bit general values.
 // -DMIN_ACC_FLAG_BITS=16
@@ -131,38 +131,13 @@
 	( MIN_IS_COMPACT ? 0x0DFFFFFF : \
 	  ( MIN_POINTER_BITS <= 32 ? 1 << 28 : \
 	  ( MIN_MAX_EPHEMERAL_LEVELS <= 2 ? \
-	          0xFFFFFFFFFFull : \
+	          ( ( 1ull << 40 ) - 1 ) : \
 	  ( ( 1ull << \
 	      ( 52 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) ) \
 	    - 1 ) ) ) )
 #   ifndef MIN_STUB_BASE
 #	define MIN_STUB_BASE 0
 #   endif
-# endif
-
-// The maximum number of stubs M is set when the program
-// starts.  It must be less than or equal the absolute
-// maximum above.  16*M bytes of virtual memory are
-// reserved for the stub vector when the program starts,
-// but only pages at the beginning of the vector are
-// used for stubs.  M must be small enough so that 
-// the allocation to virtual memory succeeds.  The
-// following is the default for M:
-//
-// See NOTE above.
-//
-# ifndef MIN_DEFAULT_MAX_NUMBER_OF_STUBS
-#    define MIN_DEFAULT_MAX_NUMBER_OF_STUBS \
-        ( MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
-	                 <= ( 1 << 27 ) ? \
-              MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS : \
-          ( MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
-	                 <= ( 1 << 28 ) ? \
-              1 << 27 : \
-          ( MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
-	                 <= ( 1ull << 36 ) ? \
-              MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS / 2 : \
-	  ( 1ull << 35 ) ) ) )
 # endif
 
 // Optional hard-coded address of the stub vector.  De-
@@ -172,23 +147,6 @@
 // is determined at run time.
 //
 // # define MIN_STUB_BASE xxx
-
-// Certain memory space inefficiencies are approximately
-//
-//	M + allocated-memory/F
-//
-// where F = the memory space factor and M is the
-// minimum amount of MIN heap memory allocated
-//
-//	M = (F**2 * pagesize) * log2 ( F * pagesize ).
-//
-// For a pagesize of 4096 and F = 16, M = 16 Mbytes.
-//
-// More specifically, object bodies larger than F pages
-// are allocated as separate memory pools, and regions
-// are F**2 pages long.
-//
-# define MIN_DEFAULT_MEMORY_SPACE_FACTOR 16
 
 // Rarely Set Software Parameters
 // ------ --- -------- ----------
@@ -318,11 +276,14 @@
 # endif
 
 // Maximum size of a fixed block for the ACC fixed block
-// allocator, and the log of that size.
+// allocator, and the log of that size.  The size here
+// is very much an overestimate of the actual maximum
+// size.  The logrithm base 2 of the size is used as the
+// size of a table.
 //
-# define MIN_MAX_FIXED_BODY_SIZE_LOG 17
-# define MIN_MAX_FIXED_BODY_SIZE \
-         ( 1 << MIN_MAX_FIXED_BODY_SIZE_LOG )
+# define MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG 30
+# define MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE \
+         ( 1 << MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG )
 
 // Hardware Functions
 // -------- ---------
@@ -330,7 +291,8 @@
 namespace min { namespace internal {
 
     // Return j such that (1<<j) <= u <= (1<<(j+1)),
-    // assuming 0 < u <= MIN_MAX_FIXED_BODY_SIZE/8.
+    // assuming
+    //    0 < u <= MIN_MAX_ABSOLUTE_FIXED_BODY_SIZE/8.
     //
     inline unsigned fixed_bodies_log ( unsigned u )
     {

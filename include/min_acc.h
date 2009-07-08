@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jul  6 03:55:55 EDT 2009
+// Date:	Mon Jul  6 08:13:23 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/06 11:50:42 $
+//   $Date: 2009/07/08 17:36:53 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -23,6 +23,7 @@
 // Table of Contents
 //
 //	Usage and Setup
+//	Parameters
 //	Stub Allocator Interface
 //	Block Allocator Interface
 //	Collector Interface
