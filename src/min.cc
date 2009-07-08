@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jun  4 20:45:31 EDT 2009
+// Date:	Wed Jul  8 10:24:57 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/05 07:25:08 $
+//   $Date: 2009/07/08 14:47:51 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.97 $
+//   $Revision: 1.98 $
 
 // Table of Contents:
 //
@@ -158,7 +158,9 @@ namespace min { namespace internal {
     min::stub * last_allocated_stub;
 
     MINT::fixed_body_list fixed_bodies
-	    [MIN_MAX_FIXED_BODY_SIZE_LOG-2];
+	    [MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG-2];
+
+    unsigned max_fixed_body_size;
 
 } }
 

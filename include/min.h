@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jul  6 04:01:32 EDT 2009
+// Date:	Wed Jul  8 09:48:47 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/06 08:04:33 $
+//   $Date: 2009/07/08 14:48:15 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.171 $
+//   $Revision: 1.172 $
 
 // Table of Contents:
 //
@@ -1653,7 +1653,7 @@ namespace min { namespace internal {
 
     // fixed_bodies[j] is the head of a free list of
     // fixed bodies of size 1 << ( j + 3 ), for 0 <= j
-    // and (1<<j) <= MIN_MAX_FIXED_BODY_SIZE/8.
+    // and (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE/8.
     //
     typedef struct fixed_body_list_extension;
         // Allocator specific extension of fixed_body_
@@ -1672,7 +1672,8 @@ namespace min { namespace internal {
 			// Address of extension of this
 			// structure.  Set during
 			// allocator initialization.
-    } fixed_bodies[MIN_MAX_FIXED_BODY_SIZE_LOG-2];
+    } fixed_bodies
+          [MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG-2];
 
     void new_non_fixed_body
 	( min::stub * s, unsigned n );
@@ -1680,13 +1681,17 @@ namespace min { namespace internal {
 	( min::stub * s, unsigned n,
 	  fixed_body_list * fbl );
 
+    extern unsigned max_fixed_body_size;
+
     // Allocate a body to a stub.  n is the minimum size
     // of the body in bytes.  The stub control must be
     // set: its ACC flags may be changed.
     //
     inline void new_body ( min::stub * s, unsigned n )
     {
-        if ( n == 0 || n > MIN_MAX_FIXED_BODY_SIZE )
+        if ( n == 0
+	     ||
+	     n > max_fixed_body_size )
 	{
 	     new_non_fixed_body ( s, n );
 	     return;
