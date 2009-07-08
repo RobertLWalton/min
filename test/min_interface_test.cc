@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jul  6 00:19:58 EDT 2009
+// Date:	Wed Jul  8 09:50:53 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/06 04:21:44 $
+//   $Date: 2009/07/08 14:47:33 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.89 $
+//   $Revision: 1.90 $
 
 // Table of Contents:
 //
@@ -258,6 +258,8 @@ min::uns64 * next_body;
 //
 void initialize_body_region ( void )
 {
+    MINT::max_fixed_body_size = 1 << 17;
+
     MINT::pointer_uns stp =
 	(MINT::pointer_uns) body_region;
     MINT::pointer_uns p = stp;
@@ -270,7 +272,8 @@ void initialize_body_region ( void )
     end_body_region = (min::uns64 *) p;
 
     for ( unsigned j = 0;
-          j < MIN_MAX_FIXED_BODY_SIZE_LOG-2; ++ j )
+          j < MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG-2;
+	  ++ j )
     {
 	MINT::fixed_bodies[j].size = 1 << ( j + 3 );
 	MINT::fixed_bodies[j].count = 0;
