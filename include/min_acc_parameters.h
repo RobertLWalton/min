@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jul  8 05:02:19 EDT 2009
+// Date:	Thu Jul  9 00:58:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/08 17:36:53 $
+//   $Date: 2009/07/10 20:48:28 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents
 //
@@ -95,7 +95,8 @@
 //
 //   More specifically, object bodies larger than F
 //   pages are allocated as separate memory pools, and
-//   regions are F**2 pages long.
+//   fixed block and variable block regions are F**2
+//   pages long.
 //
 //   F must be a power of two >= 4.
 //
