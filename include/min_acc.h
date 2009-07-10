@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jul  6 08:13:23 EDT 2009
+// Date:	Fri Jul 10 07:19:03 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/08 17:36:53 $
+//   $Date: 2009/07/10 20:48:28 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -44,8 +44,40 @@
 
 namespace min { namespace acc {
 
+    // The stub allocator begins by allocating the
+    // stub region, a contiguous sequence of pages
+    // that can hold MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
+    // stubs.  It then allocates new stubs as needed
+    // from the beginning of this region and working
+    // up.  Newly added stubs are appended to the
+    // list of free stubs headed by the control word
+    // of MINT::last_allocated_stub.
+    //
+    // The Collector, and NOT the Allocator, frees
+    // stubs and adds the free stubs to the list of
+    // free stubs.  The Allocator is only called to
+    // allocate stubs when the list of free stubs is
+    // exhausted.  The following, defined in min.h,
+    // interface to the stub allocator:
+    //
+    //	MINT::acc_expand_free_stub_list
+    //	  // Function to allocate new stubs.
+    //  MINT::number_of_free_stubs
+    //    // Count of stubs on free stub list.
+    //  MINT::last_allocated_stub
+    //    // The control word of this list points
+    //    // at the first free stub.
 
-}
+    min::stub * stub_begin;
+    min::stub * stub_next;
+    min::stub * stub_end;
+        // Beginning and end of stub region, and next
+	// location to be allocated in the region.
+	// The end is the address just after the
+	// region.  Note that MINT::stub_base if it
+	// exists must be set equal to stub_begin
+	// (see min.h).
+} }
 
 
 // Block Allocator Interface
