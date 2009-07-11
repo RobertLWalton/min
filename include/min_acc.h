@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jul 10 07:19:03 EDT 2009
+// Date:	Sat Jul 11 09:57:41 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/10 20:48:28 $
+//   $Date: 2009/07/11 13:58:34 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -45,28 +45,47 @@
 namespace min { namespace acc {
 
     // The stub allocator begins by allocating the
-    // stub region, a contiguous sequence of pages
-    // that can hold MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
-    // stubs.  It then allocates new stubs as needed
-    // from the beginning of this region and working
-    // up.  Newly added stubs are appended to the
-    // list of free stubs headed by the control word
-    // of MINT::last_allocated_stub.
+    // stub region, a contiguous sequence of pages that
+    // can hold MACC::max_stubs stubs.  It then allo-
+    // cates new stubs as needed from the beginning of
+    // this region working up.  Newly added stubs are
+    // appended to the list of free stubs headed by the
+    // control word of MINT::last_allocated_stub.
     //
     // The Collector, and NOT the Allocator, frees
-    // stubs and adds the free stubs to the list of
+    // stubs and adds the freed stubs to the list of
     // free stubs.  The Allocator is only called to
     // allocate stubs when the list of free stubs is
     // exhausted.  The following, defined in min.h,
     // interface to the stub allocator:
     //
+    //  MINT::end_stub
+    //    // Address of the first stub (stub with
+    //	  // index 0).  This address is used instead
+    //    // of the value NULL to end lists when a
+    //    // real stub address is required.  The
+    //	  // first stub should have DEALLOCATED type
+    //    // and is always `allocated' and never freed.
+    //  MINT::end_stub
+    //    // Ditto but as an unsigned integer.
     //	MINT::acc_expand_free_stub_list
     //	  // Function to allocate new stubs.
     //  MINT::number_of_free_stubs
     //    // Count of stubs on free stub list.
     //  MINT::last_allocated_stub
-    //    // The control word of this list points
-    //    // at the first free stub.
+    //    // The control word of this stub points at the
+    //    // first free stub or is MINT::end_stub if
+    //    // there are no free stubs.
+
+    unsigned max_stubs = MIN_DEFAULT_MAX_STUBS;
+        // The value of the max_stubs parameter.  The
+	// number of stubs that can be allocated to the
+	// stub region.  Value may be changed when the
+	// program starts.
+
+    unsigned stub_increment = MIN_DEFAULT_STUB_INCREMENT;
+        // The number of new stubs allocated by a call
+        // to MINT::acc_expand_free_stub_list.
 
     min::stub * stub_begin;
     min::stub * stub_next;
@@ -74,9 +93,7 @@ namespace min { namespace acc {
         // Beginning and end of stub region, and next
 	// location to be allocated in the region.
 	// The end is the address just after the
-	// region.  Note that MINT::stub_base if it
-	// exists must be set equal to stub_begin
-	// (see min.h).
+	// region: stub_end = stub_begin + max_stubs.
 } }
 
 
