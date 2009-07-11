@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun  8 08:12:33 EDT 2009
+// Date:	Sat Jul 11 05:59:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,13 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/08 12:13:52 $
+//   $Date: 2009/07/11 13:58:35 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents
 //
 //	Usage and Setup
+//	Parameters
 //	Memory Management
 
 // Usage and Setup
@@ -27,6 +28,24 @@
 # define MIN_OS_H
 
 # include <min.h>
+
+// Parameters
+// ----------
+
+namespace min { namespace os {
+
+    // Return the named program parameter value as a
+    // pointer to a character string that is terminated
+    // by either whitespace or a NUL.  This character
+    // string can then be input to the strtod, strtoll,
+    // or strtoul cstdlib functions as desired.
+    //
+    // Return NULL if there is no parameter of the given
+    // name.
+    //
+    const char * get_parameter ( const char * name );
+
+} }
 
 // Memory Management
 // ------ ----------

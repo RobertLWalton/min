@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/10 20:48:28 $
+//   $Date: 2009/07/11 13:58:35 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents
 //
@@ -75,6 +75,15 @@
 	                 <= ( 1ull << 32 ) ? \
             MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS : \
 	  ( 1ull << 32 ) )
+# endif
+
+// stub_increment
+//   The number of stubs added at one time when stubs
+//   run out.  The number of new pages allocated is
+//   16 * stub_increment / pagesize.
+//
+# ifndef MIN_DEFAULT_STUB_INCREMENT
+#    define MIN_DEFAULT_STUB_INCREMENT 1024
 # endif
 
 // space_factor
