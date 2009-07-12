@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jul  8 09:50:53 EDT 2009
+// Date:	Sun Jul 12 08:09:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/08 14:47:33 $
+//   $Date: 2009/07/12 12:15:08 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.90 $
+//   $Revision: 1.91 $
 
 // Table of Contents:
 //
@@ -399,6 +399,14 @@ static min::stub ** acc_stack_end = acc_stack + 1000;
 void initialize_acc_stack ( void )
 {
     MINT::acc_stack = ::acc_stack;
+}
+
+void MINT::acc_initializer ( void )
+{
+    initialize_stub_region();
+    initialize_body_region();
+    initialize_hash_tables();
+    initialize_acc_stack();
 }
 
 // Main Program
@@ -1165,10 +1173,6 @@ int main ()
 	cout << endl;
 	cout << "Start Allocator/Collector/Compactor"
 	        " Interface Test!" << endl;
-	initialize_stub_region();
-	initialize_body_region();
-	initialize_hash_tables();
-	initialize_acc_stack();
 	static min::stub s1, s2;
 	const min::uns64 unmarked_flag =
 	       min::uns64(1)

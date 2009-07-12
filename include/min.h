@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jul  8 09:48:47 EDT 2009
+// Date:	Sun Jul 12 08:07:55 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/08 14:48:15 $
+//   $Date: 2009/07/12 12:14:52 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.172 $
+//   $Revision: 1.173 $
 
 // Table of Contents:
 //
@@ -66,6 +66,8 @@ namespace min { namespace internal {
         public:
 
 	initializer ( void );
+	    // NOTE: This calls acc_initializer()
+	    // defined below.
     };
     static initializer initializer_instance;
 
@@ -1433,6 +1435,11 @@ namespace min {
 
 
 namespace min { namespace internal {
+
+    // Function called by the the initializer (see
+    // above) to initialize the acc.
+    //
+    void acc_initializer ( void );
 
     // Number of free stubs that can be allocated with-
     // out requiring a call to acc_expand_stub_free_

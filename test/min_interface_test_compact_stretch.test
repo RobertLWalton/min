@@ -1,3 +1,5 @@
+min_interface_test.cc:XXXX assert:
+    begin_stub_region >= (min::stub *) min::internal::stub_base true.
 
 Start Test!
 
@@ -353,7 +355,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f5ae0
+control2: 85800000009f5b00
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -364,7 +366,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f5af0
+re-control2: 85800000009f5b10
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -377,7 +379,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f5ae0
+control3: 85800000009f5b00
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -388,7 +390,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f5af0
+re-control3: 85800000009f5b10
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -508,8 +510,6 @@ min_interface_test.cc:XXXX assert:
 Finish Process Interface Test!
 
 Start Allocator/Collector/Compactor Interface Test!
-min_interface_test.cc:XXXX assert:
-    begin_stub_region >= (min::stub *) min::internal::stub_base true.
 
 Test mutator functions:
 min_interface_test.cc:XXXX assert:
