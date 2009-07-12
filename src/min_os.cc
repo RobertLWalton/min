@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun  8 08:14:13 EDT 2009
+// Date:	Sun Jul 12 04:41:35 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,13 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/08 12:14:30 $
+//   $Date: 2009/07/12 08:42:14 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents:
 //
 //	Setup
+//	Parameters
 //	Memory Management
 
 // Setup
@@ -37,7 +38,9 @@ extern "C" {
 # include <iomanip>
 # include <fstream>
 # include <sstream>
+# include <cstdlib>
 # include <cstring>
+# include <cctype>
 # include <cassert>
 using std::cerr;
 using std::endl;
@@ -71,6 +74,42 @@ static void fatal_error ( int errno_code )
     			  << endl;
     exit ( errno_code );
 }
+
+// Parameters
+// ----------
+
+static const char * MIN_CONFIG_value = NULL;
+    // The value of the MIN_CONFIG environment parameter
+    // obtained from getenv in cstdlib.  NULL if not yet
+    // gotten.  If getenv returns NULL, this is set to
+    // "".
+const char * MOS::get_parameter ( const char * name )
+{
+    if ( MIN_CONFIG_value == NULL )
+    {
+        MIN_CONFIG_value = getenv ( "MIN_CONFIG" );
+	if ( MIN_CONFIG_value == NULL )
+	    MIN_CONFIG_value = "";
+    }
+
+    int length = ::strlen ( name );
+    const char * p = MIN_CONFIG_value;
+    while ( * p )
+    {
+        while ( isspace ( * p ) ) ++ p;
+	const char * q = p;
+	while ( * q && ! isspace ( * q ) ) ++ q;
+	if ( q >= p + length + 1
+	     &&
+	     p[length] == '='
+	     &&
+	     ::strncmp ( name, p, length ) == 0 )
+	    return p + length + 1;
+	p = q;
+    }
+    return NULL;
+}
+
 
 // Memory Management
 // ------ ----------
@@ -456,8 +495,8 @@ void * MOS::new_pool ( min::uns64 pages )
     if ( ( mask & (MINT::pointer_uns) result ) != 0 )
     {
 	fatal_error()
-	    << "OS returned pool address that is not on a page"
-	       " boundary" << endl;
+	    << "OS returned pool address that is not"
+	       " on a page boundary" << endl;
 	exit ( 2 );
     }
     return result;

@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun  8 08:22:59 EDT 2009
+// Date:	Sun Jul 12 04:24:14 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/06/08 12:30:50 $
+//   $Date: 2009/07/12 08:43:08 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents:
 //
@@ -445,6 +445,29 @@ void check_reaccess ( min::uns64 pages, void * start,
 int main ( )
 {
     cout << "Start min_os Test" << endl;
+
+// Parameter Tests
+// --------- -----
+
+    cout << endl
+         << "Start Parameter Test" << endl;
+
+    const char * parameter1 =
+        MOS::get_parameter ( "parameter1" );
+    const char * parameter2 =
+        MOS::get_parameter ( "parameter2" );
+    const char * parameter3 =
+        MOS::get_parameter ( "parameter3" );
+    MIN_ASSERT ( parameter1 != NULL );
+    MIN_ASSERT ( parameter2 != NULL );
+    MIN_ASSERT ( parameter3 == NULL );
+    MIN_ASSERT
+        ( strncmp ( parameter1, "123 ", 4 ) == 0 );
+    MIN_ASSERT
+        ( strcmp ( parameter2, "3.21" ) == 0 );
+
+    cout << "Finish Parameter Test" << endl
+         << endl;
 
 // Memory Management Tests
 // ------ ---------- -----

@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jul  8 09:49:50 EDT 2009
+// Date:	Sun Jul 12 03:48:51 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/08 17:37:30 $
+//   $Date: 2009/07/12 08:42:37 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // Table of Contents
 //
@@ -120,7 +120,7 @@
 // determined when the program starts, and must be
 // smaller than the absolute maximum here if memory
 // for stubs is to be successfully allocated.  See
-// MIN_DEFAULT_MAX_NUMBER_OF_STUBS below.
+// min_acc_parameters.h.
 //
 // NOTE: the g++ pre-processor has an operator
 // grouping bug and requires that x ? y : z ? w : v

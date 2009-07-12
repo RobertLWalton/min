@@ -1,5 +1,19 @@
 Start min_os Test
 
+Start Parameter Test
+min_os_test.cc:XXXX assert:
+    parameter1 != NULL true.
+min_os_test.cc:XXXX assert:
+    parameter2 != NULL true.
+min_os_test.cc:XXXX assert:
+    parameter3 == NULL true.
+min_os_test.cc:XXXX assert:
+    strncmp ( parameter1, "123 ", 4 ) == 0 true.
+min_os_test.cc:XXXX assert:
+    strcmp ( parameter2, "3.21" ) == 0 true.
+Finish Parameter Test
+
+
 Start Memory Management Test
 10 pages successfully allocated
 100 pages successfully allocated
