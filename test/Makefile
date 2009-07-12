@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Fri Jun  5 13:09:37 EDT 2009
+# Date:		Sun Jul 12 04:14:57 EDT 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/06/05 17:14:06 $
+#   $Date: 2009/07/12 08:43:08 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.21 $
+#   $Revision: 1.22 $
 
 # We need the following to mask RCS lines
 #
@@ -73,7 +73,7 @@ test:	${PROGRAMS:=.test}
 
 %.out:	%
 	rm -f $*.out
-	$* > $*.out
+	${RUNENV} $* > $*.out
 
 min.o:	../src/min.cc
 	g++ -I ../include -c ../src/min.cc
@@ -112,6 +112,9 @@ min_interface_test_compact_partial:	\
 		 -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
 	         -DMIN_USES_OBJ_AUX_STUBS=1
 
+min_os_test.out:	\
+	RUNENV = MIN_CONFIG="parameter1=123 parameter2=3.21"
+
 ${INTERFACE_PROGRAMS}:		\
 		min_interface_test.cc ../src/min.cc \
 		${INCLUDE_FILES} Makefile
@@ -124,7 +127,7 @@ min_os_test:		\
 		min_os_test.cc \
 		../src/min_os.cc \
 		${INCLUDE_FILES} Makefile
-	g++ -g \
+	g++ -g ${GFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    min_os_test.cc
