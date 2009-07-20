@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 12 08:08:17 EDT 2009
+// Date:	Sun Jul 19 22:08:57 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/12 12:14:19 $
+//   $Date: 2009/07/20 02:11:09 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.99 $
+//   $Revision: 1.100 $
 
 // Table of Contents:
 //
@@ -149,7 +149,7 @@ namespace min { namespace internal {
 
 #   ifndef MIN_STUB_BASE
 	MINT::pointer_uns stub_base;
-	min::stub * end_stub;
+	min::stub * null_stub;
 #   endif
 
     min::uns64 acc_stack_mask;
@@ -176,7 +176,7 @@ namespace min { namespace internal {
 	unsigned hash = floathash ( v );
 	unsigned h = hash % MINT::num_hash_size;
 	min::stub * s = MINT::num_hash[h];
-	while ( s != MINT::end_stub )
+	while ( s != MINT::null_stub )
 	{
 	    if ( MUP::float_of ( s ) == v )
 		return min::new_gen ( s );
@@ -420,7 +420,7 @@ min::gen MUP::new_str_stub_gen_internal
     unsigned h = hash % MINT::str_hash_size;
     min::stub * s = MINT::str_hash[h];
     const char * q;
-    while ( s != MINT::end_stub )
+    while ( s != MINT::null_stub )
     {
         if (    n <= 8
 	     && min::type_of ( s ) == min::SHORT_STR
@@ -515,7 +515,7 @@ min::gen min::new_lab_gen
     // elements.
     //
     min::stub * s = MINT::lab_hash[h];
-    for ( ; s != MINT::end_stub;
+    for ( ; s != MINT::null_stub;
             s = MUP::stub_of_acc_control
 			( MUP::control_of ( s ) ) )
     {

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jul 11 09:57:41 EDT 2009
+// Date:	Sun Jul 19 22:02:35 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/11 13:58:34 $
+//   $Date: 2009/07/20 02:11:21 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -59,23 +59,27 @@ namespace min { namespace acc {
     // exhausted.  The following, defined in min.h,
     // interface to the stub allocator:
     //
-    //  MINT::end_stub
+    //  min::stub * MINT::null_stub
     //    // Address of the first stub (stub with
     //	  // index 0).  This address is used instead
     //    // of the value NULL to end lists when a
     //    // real stub address is required.  The
     //	  // first stub should have DEALLOCATED type
     //    // and is always `allocated' and never freed.
-    //  MINT::end_stub
+    //  MINT::pointer_uns MINT::stub_base
     //    // Ditto but as an unsigned integer.
-    //	MINT::acc_expand_free_stub_list
-    //	  // Function to allocate new stubs.
-    //  MINT::number_of_free_stubs
+    //	void MINT::acc_expand_free_stub_list
+    //		( unsigned n )
+    //	  // Function to allocate n new stubs.
+    //  unsigned MINT::number_of_free_stubs
     //    // Count of stubs on free stub list.
-    //  MINT::last_allocated_stub
+    //  min::stub * MINT::last_allocated_stub
     //    // The control word of this stub points at the
     //    // first free stub or is MINT::end_stub if
     //    // there are no free stubs.
+    //  min::uns64 MINT::acc_new_stub_flags
+    //    // Flags for newly allocated garbage
+    //	  // collectable stubs.
 
     unsigned max_stubs = MIN_DEFAULT_MAX_STUBS;
         // The value of the max_stubs parameter.  The

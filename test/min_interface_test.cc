@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 12 08:09:50 EDT 2009
+// Date:	Sun Jul 19 22:09:27 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/12 12:15:08 $
+//   $Date: 2009/07/20 02:11:03 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.91 $
+//   $Revision: 1.92 $
 
 // Table of Contents:
 //
@@ -163,7 +163,7 @@ void initialize_stub_region ( void )
 #   ifndef MIN_STUB_BASE
 	min::internal::stub_base =
 	    (MINT::pointer_uns) begin_stub_region;
-	min::internal::end_stub = begin_stub_region;
+	min::internal::null_stub = begin_stub_region;
 #   else
 	MIN_ASSERT
 	    (    begin_stub_region
@@ -181,7 +181,7 @@ void initialize_stub_region ( void )
     MINT::number_of_free_stubs = 0;
     ++ stubs_allocated;
     min::uns64 c = MUP::new_acc_control
-	( min::FREE, MINT::end_stub );
+	( min::FREE, MINT::null_stub );
     MUP::set_control_of
 	( MINT::last_allocated_stub, c );
     MUP::set_value_of
@@ -376,17 +376,17 @@ void initialize_hash_tables ( void )
     MINT::str_hash =
         new stubp[MINT::str_hash_size];
     for ( int i = 0; i < MINT::str_hash_size; ++ i )
-        MINT::str_hash[i] = MINT::end_stub;
+        MINT::str_hash[i] = MINT::null_stub;
     MINT::num_hash_size = 101;
     MINT::num_hash =
         new stubp[MINT::num_hash_size];
     for ( int i = 0; i < MINT::num_hash_size; ++ i )
-        MINT::num_hash[i] = MINT::end_stub;
+        MINT::num_hash[i] = MINT::null_stub;
     MINT::lab_hash_size = 101;
     MINT::lab_hash =
         new stubp[MINT::lab_hash_size];
     for ( int i = 0; i < MINT::lab_hash_size; ++ i )
-        MINT::lab_hash[i] = MINT::end_stub;
+        MINT::lab_hash[i] = MINT::null_stub;
 }
 
 // Acc stack.
@@ -459,7 +459,7 @@ int main ()
 	cout << "Start Internal Pointer Conversion"
 	        " Test!" << endl;
     	char buffer[1];
-	min::stub * stub = MINT::end_stub;
+	min::stub * stub = MINT::null_stub;
 
 	cout << endl;
 	cout << "Test pointer/uns64 conversions:"
@@ -507,7 +507,7 @@ int main ()
 	cout << endl;
 	cout << "Start General Value Constructor/"
 	        "/Test/Read Function Test!" << endl;
-	min::stub * stub = MINT::end_stub;
+	min::stub * stub = MINT::null_stub;
 
 	cout << endl;
 	cout << "Test stub general values:" << endl;
