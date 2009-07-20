@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 19 22:02:35 EDT 2009
+// Date:	Mon Jul 20 07:28:38 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/20 02:11:21 $
+//   $Date: 2009/07/20 20:08:33 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -585,6 +585,32 @@ namespace min { namespace acc {
     //  the level L root list unmarked flag of s1 are
     //  both on, s1 is put on the level L root list and
     //  its scavenged flag is cleared.
+
+    // Object stubs are kept in a list, oldest stub
+    // first, with the very first stub always being
+    // MINT::null_stub.  Stubs are assigned generations,
+    // which identified by a pair (L,S) of indices,
+    // where L is the object level, and S, the senority,
+    // is the number of garbage collections at level L
+    // that the object must survive in order to be
+    // premoted to level L-1.  For base level L = 0
+    // there is no S (it is as if S were infinity).
+    // Thus the indices of stubs on the list have the
+    // order (0), (1,1), (1,2), (1,3), ..., (2,1),
+    // (2,2), ...
+    //
+    struct generation
+    {
+        unsigned level;
+	unsigned seniority;
+	stub * last_before;
+	min::uns64 count;
+    } * generations;
+    struct level
+    {
+        generation * g;
+	min::uns64 count;
+    }
 
 } }
 
