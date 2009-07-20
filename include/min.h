@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 12 08:07:55 EDT 2009
+// Date:	Sun Jul 19 22:01:37 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/12 12:14:52 $
+//   $Date: 2009/07/20 02:11:21 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.173 $
+//   $Revision: 1.174 $
 
 // Table of Contents:
 //
@@ -301,7 +301,7 @@ namespace min { namespace internal {
 #   endif
 
     // Address of first stub (stub with index 0),
-    // equals address of the `end_stub', whose address
+    // equals address of the `null_stub', whose address
     // is used in place of NULL to end lists of stubs
     // (because NULL cannot be represented by some
     // stub address representation schemes).
@@ -309,11 +309,11 @@ namespace min { namespace internal {
 #   ifdef MIN_STUB_BASE
 	const min::internal::pointer_uns stub_base =
 	    MIN_STUB_BASE;
-	min::stub * const end_stub =
+	min::stub * const null_stub =
 	    (min::stub *) stub_base;
 #   else
 	extern min::internal::pointer_uns stub_base;
-	extern min::stub * end_stub;
+	extern min::stub * null_stub;
 #   endif
 
     inline void * uns64_to_pointer ( min::uns64 v )
@@ -1505,14 +1505,13 @@ namespace min { namespace internal {
     // the acc_stackk is used by the collector to adjust
     // the marks it makes on objects.
     //
-    // For efficiency, acc_stack_mask is ann uns64 that
+    // For efficiency, acc_stack_mask is an uns64 that
     // only has ON bits in the unmarked flag positions.
     // Then the unshifted control value of s2 and the
     // control value value of s1 left shifted by 1 can
     // be bitwise ANDed with the acc_stack_mask and the
     // result checked for zero.
     //
-
     // WARNING: only unmarked flag bits may be on in
     // MUP::acc_stack_mask.
     //
