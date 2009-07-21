@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jul 20 07:28:38 EDT 2009
+// Date:	Tue Jul 21 04:09:44 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/20 20:08:33 $
+//   $Date: 2009/07/21 08:28:09 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -87,7 +87,8 @@ namespace min { namespace acc {
 	// stub region.  Value may be changed when the
 	// program starts.
 
-    unsigned stub_increment = MIN_DEFAULT_STUB_INCREMENT;
+    unsigned stub_increment =
+	    MIN_DEFAULT_STUB_INCREMENT;
         // The number of new stubs allocated by a call
         // to MINT::acc_expand_free_stub_list.
 
@@ -603,14 +604,41 @@ namespace min { namespace acc {
     {
         unsigned level;
 	unsigned seniority;
+	    // Level (L) and seniority (S) of this
+	    // generation.  If L == 0 then S == 0.
+
 	stub * last_before;
+	    // Last stub on the stub list BEFORE the
+	    // first stub on the list whose generation
+	    // is the same as or later than (L,S).
+	    //
+	    // Note: MINT::null_stub is the last stub
+	    // before generation (0).
+
 	min::uns64 count;
+	    // Number of stubs currently in this
+	    // generation.
+
     } * generations;
+        // Vector of all generations in ascending order
+	// (0, (1,1), (1,2), ..., (2,1), (2,2), ...
+
     struct level
     {
         generation * g;
+	    // First generation with this level in the
+	    // generations vector.
+
+	number_of_generations;
+	    // Number of generations on this level.
+	    // If N, then the seniorities of the
+	    // generations of this level run from
+	    // 1 through N, with N being the youngest.
+
 	min::uns64 count;
-    }
+	    // Number of stubs in this generation.
+
+    } * levels;
 
 } }
 
