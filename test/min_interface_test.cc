@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 19 22:09:27 EDT 2009
+// Date:	Thu Jul 23 15:24:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/20 02:11:03 $
+//   $Date: 2009/07/23 19:30:58 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.92 $
+//   $Revision: 1.93 $
 
 // Table of Contents:
 //
@@ -372,17 +372,20 @@ static void relocate_body
 void initialize_hash_tables ( void )
 {
     typedef min::stub * stubp;
-    MINT::str_hash_size = 101;
+    MINT::str_hash_size = 128;
+    MINT::str_hash_mask = 128 - 1;
     MINT::str_hash =
         new stubp[MINT::str_hash_size];
     for ( int i = 0; i < MINT::str_hash_size; ++ i )
         MINT::str_hash[i] = MINT::null_stub;
-    MINT::num_hash_size = 101;
+    MINT::num_hash_size = 128;
+    MINT::num_hash_mask = 128 - 1;
     MINT::num_hash =
         new stubp[MINT::num_hash_size];
     for ( int i = 0; i < MINT::num_hash_size; ++ i )
         MINT::num_hash[i] = MINT::null_stub;
-    MINT::lab_hash_size = 101;
+    MINT::lab_hash_size = 128;
+    MINT::lab_hash_mask = 128 - 1;
     MINT::lab_hash =
         new stubp[MINT::lab_hash_size];
     for ( int i = 0; i < MINT::lab_hash_size; ++ i )
