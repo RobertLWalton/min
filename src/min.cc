@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 19 22:08:57 EDT 2009
+// Date:	Thu Jul 23 15:32:20 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/20 02:11:09 $
+//   $Date: 2009/07/23 19:35:32 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.100 $
+//   $Revision: 1.101 $
 
 // Table of Contents:
 //
@@ -140,12 +140,15 @@ namespace min { namespace internal {
 
     min::stub ** str_hash;
     unsigned str_hash_size;
+    unsigned str_hash_mask;
 
     min::stub ** num_hash;
     unsigned num_hash_size;
+    unsigned num_hash_mask;
 
     min::stub ** lab_hash;
     unsigned lab_hash_size;
+    unsigned lab_hash_mask;
 
 #   ifndef MIN_STUB_BASE
 	MINT::pointer_uns stub_base;
@@ -174,26 +177,47 @@ namespace min { namespace internal {
 	    ( min::float64 v )
     {
 	unsigned hash = floathash ( v );
-	unsigned h = hash % MINT::num_hash_size;
+	unsigned h = hash & MINT::num_hash_mask;
 	min::stub * s = MINT::num_hash[h];
 	while ( s != MINT::null_stub )
 	{
-	    if ( MUP::float_of ( s ) == v )
-		return min::new_gen ( s );
-	    s = (min::stub *)
-	        MUP::stub_of_acc_control
-		    ( MUP::control_of ( s ) );
+	    min::stub * s2;
+	    if (    min::type_of ( s )
+	         == min::HASHTABLE_AUX )
+	    {
+	        s2 = (min::stub *)
+		     MUP::pointer_of ( s );
+		s = (min::stub *)
+		    MUP::stub_of_control
+			( MUP::control_of ( s ) );
+	    }
+	    else
+	    {
+	    	s2 = s;
+		s = (min::stub *)
+		    MUP::stub_of_acc_control
+			( MUP::control_of ( s ) );
+	    }
+
+	    if ( MUP::float_of ( s2 ) == v )
+		return min::new_gen ( s2 );
+
 	}
 
+	min::stub * s2 = MINT::new_stub();
+	MUP::set_float_of ( s2, v );
+	MUP::set_type_of ( s2, min::NUMBER );
+
 	s = MINT::new_aux_stub ();
-	MUP::set_float_of ( s, v );
+	MUP::set_pointer_of ( s, s2 );
 	MUP::set_control_of
 	    ( s,
-	      MUP::new_acc_control
-	          ( min::NUMBER, MINT::num_hash[h],
-		    MINT::acc_new_stub_flags ));
+	      MUP::new_control
+	          ( min::HASHTABLE_AUX,
+		    MINT::num_hash[h] ) );
 	MINT::num_hash[h] = s;
-	return min::new_gen ( s );
+
+	return min::new_gen ( s2 );
     }
 # endif
 
@@ -417,62 +441,74 @@ min::gen MUP::new_str_stub_gen_internal
 	( const char * p, unsigned n )
 {
     unsigned hash = min::strnhash ( p, n );
-    unsigned h = hash % MINT::str_hash_size;
+    unsigned h = hash & MINT::str_hash_mask;
     min::stub * s = MINT::str_hash[h];
     const char * q;
     while ( s != MINT::null_stub )
     {
+	min::stub * s2;
+	if ( min::type_of ( s ) == min::HASHTABLE_AUX )
+	{
+	    s2 = (min::stub *) MUP::pointer_of ( s );
+	    s = (min::stub *)
+		MUP::stub_of_control
+		    ( MUP::control_of ( s ) );
+	}
+	else
+	{
+	    s2 = s;
+	    s = (min::stub *)
+		MUP::stub_of_acc_control
+		    ( MUP::control_of ( s ) );
+	}
+
         if (    n <= 8
-	     && min::type_of ( s ) == min::SHORT_STR
-	     && ::strncmp ( p, s->v.c8, n ) == 0
+	     && min::type_of ( s2 ) == min::SHORT_STR
+	     && ::strncmp ( p, s2->v.c8, n ) == 0
 	     && (    n == 8
-	          || s->v.c8[n] == 0 ) )
-	    return min::new_gen ( s );
+	          || s2->v.c8[n] == 0 ) )
+	    return min::new_gen ( s2 );
 	else if (    n > 8
-	          && min::type_of ( s ) == min::LONG_STR
+	          &&    min::type_of ( s2 )
+		     == min::LONG_STR
 	          && ::strncmp
 		       ( p, q = MUP::str_of (
 			            MUP::long_str_of
-				        ( s ) ),
+				        ( s2 ) ),
 			    n )
 		     == 0
 		  && q[n] == 0 )
-	    return min::new_gen ( s );
-	s = (min::stub *)
-	    MUP::stub_of_acc_control
-		( MUP::control_of ( s ) );
+	    return min::new_gen ( s2 );
     }
 
-    s = MINT::new_aux_stub ();
-    int type;
+    min::stub * s2 = MINT::new_stub();
     if ( n <= 8 )
     {
-	MUP::set_control_of
-	    ( s,
-	      MUP::new_acc_control
-		  ( min::SHORT_STR,
-		    MINT::str_hash[h],
-		    MINT::acc_new_stub_flags ));
-	s->v.u64 = 0;
-	::strncpy ( s->v.c8, p, n );
+	MUP::set_type_of ( s2, min::SHORT_STR );
+	s2->v.u64 = 0;
+	::strncpy ( s2->v.c8, p, n );
     }
     else
     {
-	MUP::set_control_of
-	    ( s,
-	      MUP::new_acc_control
-		  ( min::LONG_STR,
-		    MINT::str_hash[h],
-		    MINT::acc_new_stub_flags ));
+	MUP::set_type_of ( s2, min::LONG_STR );
 	MINT::new_body
-	    ( s, sizeof ( MUP::long_str ) + n + 1 );
-	MUP::long_str * ls = MUP::long_str_of ( s );
+	    ( s2, sizeof ( MUP::long_str ) + n + 1 );
+	MUP::long_str * ls = MUP::long_str_of ( s2 );
 	ls->length = n;
 	ls->hash = hash;
 	::strcpy ( (char *) MUP::str_of ( ls ), p );
     }
+
+    s = MINT::new_aux_stub ();
+    MUP::set_pointer_of ( s, s2 );
+    MUP::set_control_of
+	( s,
+	  MUP::new_control
+	      ( min::HASHTABLE_AUX,
+		MINT::str_hash[h] ));
     MINT::str_hash[h] = s;
-    return min::new_gen ( s );
+
+    return min::new_gen ( s2 );
 }
 
 // Labels
@@ -509,47 +545,63 @@ min::gen min::new_lab_gen
 	( const min::gen * p, unsigned n )
 {
     uns32 hash = labhash ( p, n );
-    unsigned h = hash % MINT::lab_hash_size;
+    unsigned h = hash & MINT::lab_hash_mask;
 
     // Search for existing label stub with given
     // elements.
     //
     min::stub * s = MINT::lab_hash[h];
-    for ( ; s != MINT::null_stub;
-            s = MUP::stub_of_acc_control
-			( MUP::control_of ( s ) ) )
+    while ( s != MINT::null_stub )
     {
-	MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
+        min::stub * s2;
+	if ( min::type_of ( s ) == min::HASHTABLE_AUX )
+	{
+	    s2 = (min::stub *) MUP::pointer_of ( s );
+            s = MUP::stub_of_control
+			( MUP::control_of ( s ) );
+	}
+	else
+	{
+	    s2 = s;
+            s = MUP::stub_of_acc_control
+			( MUP::control_of ( s ) );
+	}
+
+	MIN_ASSERT ( min::type_of ( s2 ) == min::LABEL );
 	MINT::lab_header * lh =
-	    MINT::lab_header_of ( s );
+	    MINT::lab_header_of ( s2 );
 
 	if ( hash != MINT::labhash ( lh ) ) continue;
-	if ( n != MINT::lablen ( lh ) ) continue;
 
+	if ( n != MINT::lablen ( lh ) ) continue;
 	const min::gen * q = MINT::vector_of ( lh );
 	int i;
 	for ( i = 0; i < n && p[i] == q[i]; ++ i );
-	if ( i == n ) return new_gen ( s );
+	if ( i == n ) return new_gen ( s2 );
     }
 
     // Allocate new label.
     //
-    s = MINT::new_aux_stub ();
-    MUP::set_control_of
-	( s,
-	  MUP::new_acc_control
-	      ( min::LABEL, MINT::lab_hash[h],
-	        MINT::acc_new_stub_flags ));
-    MINT::new_body ( s,   sizeof ( MINT::lab_header )
-	                + n * sizeof (min::gen) );
-    MINT::lab_header * lh = MINT::lab_header_of ( s );
+    min::stub * s2 = MINT::new_stub ();
+    MUP::set_type_of ( s2, min::LABEL );
+    MINT::new_body ( s2,   sizeof ( MINT::lab_header )
+	                 + n * sizeof (min::gen) );
+    MINT::lab_header * lh = MINT::lab_header_of ( s2 );
     lh->length = n;
     lh->hash = hash;
     memcpy ( (min::gen *) lh + MINT::lab_header_size,
              p, n * sizeof ( min::gen ) );
 
+    s = MINT::new_aux_stub ();
+    MUP::set_pointer_of ( s, s2 );
+    MUP::set_control_of
+	( s,
+	  MUP::new_control
+	      ( min::HASHTABLE_AUX,
+		MINT::lab_hash[h] ));
     MINT::lab_hash[h] = s;
-    return min::new_gen ( s );
+
+    return min::new_gen ( s2 );
 }
 
 // Objects

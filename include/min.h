@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 19 22:01:37 EDT 2009
+// Date:	Wed Jul 22 06:22:11 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/20 02:11:21 $
+//   $Date: 2009/07/23 19:35:46 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.174 $
+//   $Revision: 1.175 $
 
 // Table of Contents:
 //
@@ -250,6 +250,7 @@ namespace min {
     const int LABEL_AUX			= -1;
     const int LIST_AUX			= -2;
     const int SUBLIST_AUX		= -3;
+    const int HASHTABLE_AUX		= -4;
 
     namespace unprotected {
 	// Non-acc flags for uncollectible controls.
@@ -1452,18 +1453,36 @@ namespace min { namespace internal {
     //
     void acc_expand_stub_free_list ( unsigned n );
 
-    // Hash tables for atoms.  The stubs in these tables
-    // are chained together by the acc chain pointer and
-    // are garbage collectible.
+    // Hash tables for atoms.  The elements of these
+    // tables head a list of stubs chained together
+    // by their stub control word stub pointers.  The
+    // first stubs in each list are HASHTABLE_AUX
+    // stubs whose value words point at the stubs of
+    // ephemeral objects hashed to the list.  The last
+    // stubs on each list are the stubs of non-ephemeral
+    // garbage collectable objects hashed to the list.
+    //
+    // Xxx_hash_sizes are powers of 2, and each xxx_
+    // hash_mask = xxx_hash_size - 1;
+    //
+    // When a hashed object is created it is ephemeral
+    // and gets a HASHTABLE_AUX stub pointing at it
+    // at the beginning of the hashtable list headed
+    // by the hash table element indexed by the hashed
+    // object's hash value masked by the xxx_hash_mask
+    // value.
 
     extern min::stub ** str_hash;
     extern unsigned str_hash_size;
+    extern unsigned str_hash_mask;
 
     extern min::stub ** num_hash;
     extern unsigned num_hash_size;
+    extern unsigned num_hash_mask;
 
     extern min::stub ** lab_hash;
     extern unsigned lab_hash_size;
+    extern unsigned lab_hash_mask;
 
     // The ACC Flag Bit layout is:
     //

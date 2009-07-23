@@ -355,7 +355,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f5c20
+control2: 85800000009f5c00
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -366,7 +366,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f5c30
+re-control2: 85800000009f5c10
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -379,7 +379,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f5c20
+control3: 85800000009f5c00
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -390,7 +390,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f5c30
+re-control3: 85800000009f5c10
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
