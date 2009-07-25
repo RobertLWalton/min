@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jul 22 06:15:11 EDT 2009
+// Date:	Fri Jul 24 10:12:10 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/23 19:35:46 $
+//   $Date: 2009/07/25 01:15:21 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -639,6 +639,28 @@ namespace min { namespace acc {
 	    // Number of stubs in this generation.
 
     } * levels;
+
+    // The collector maintains several lists of min::
+    // stub * values.  These are stored in stub list
+    // segments, which are doubly linked to each other,
+    // and which each hold a vector of min::stub *
+    // values.  The size of these segments is a multiple
+    // of the page size.  If a segment becomes empty,
+    // it is put on a free list, from which it may be
+    // allocated to any list that needs it.
+    //
+    struct stub_list_segment
+    {
+        stub_list_segment * previous, * next;
+	    // Previous and next on the doubly linked
+	    // list of segments.
+	min::stub ** next, ** end;
+	    // Next element of segment vector to be
+	    // used, and address just after end of
+	    // vector.
+	min::stub * begin[];
+	    // Beginning element of segment vector.
+    };
 
 } }
 
