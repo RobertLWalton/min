@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jul 24 10:12:10 EDT 2009
+// Date:	Sat Jul 25 00:50:34 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/25 01:15:21 $
+//   $Date: 2009/07/25 04:50:56 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -149,7 +149,8 @@ namespace min { namespace acc {
         FREE			= 1,
 	FIXED_SIZE_REGION	= 2,
 	VARIABLE_SIZE_REGION	= 3,
-	MULTI_BLOCK_REGION	= 4
+	MULTI_BLOCK_REGION	= 4,
+	LIST_SEGMENT		= 5
     };
 
     // Bodies are organized into regions which are
@@ -417,6 +418,49 @@ namespace min { namespace acc {
 
 namespace min { namespace acc {
 
+    // The `collector' maintains lists of min::stub *
+    // values.  These are stored in stub list segments,
+    // which are doubly linked to each other, and which
+    // each hold a vector of min::stub * values.  These
+    // segments all have the same size, which is a
+    // multiple of the page size.  The segments are all
+    // stored as blocks in multi-block regions.  If a
+    // segment becomes empty, it is put on a free list,
+    // from which it may be allocated to any list that
+    // needs it.
+    //
+    struct stub_list_segment
+    {
+        min::uns64 block_control;
+	    // This is the block control word for the
+	    // multi-page block containing the segment.
+	    // The locator field L of this word is such
+	    // that
+	    //
+	    //	   MACC::region_table[L]
+	    //
+	    // is the  multi-page region containing
+	    // this segment, and the pointer field of
+	    // the word equals MINT::end_stub.
+
+        min::uns64 block_subcontrol;
+	    // The type code field of this word is
+	    // MACC::LIST_SEGMENT and the value field
+	    // is the size of the segment in bytes.
+
+        stub_list_segment * previous, * next;
+	    // Previous and next on the doubly linked
+	    // list of segments.
+
+	min::stub ** next, ** end;
+	    // Next element of segment vector to be
+	    // used, and address just after end of
+	    // vector.
+
+	min::stub * begin[];
+	    // Beginning element of segment vector.
+    };
+
     // The `collector' segregates objects into N+1
     // levels, with level 0 being the `base level',
     // and levels 1, ..., N being `ephemeral levels'.
@@ -639,28 +683,6 @@ namespace min { namespace acc {
 	    // Number of stubs in this generation.
 
     } * levels;
-
-    // The collector maintains several lists of min::
-    // stub * values.  These are stored in stub list
-    // segments, which are doubly linked to each other,
-    // and which each hold a vector of min::stub *
-    // values.  The size of these segments is a multiple
-    // of the page size.  If a segment becomes empty,
-    // it is put on a free list, from which it may be
-    // allocated to any list that needs it.
-    //
-    struct stub_list_segment
-    {
-        stub_list_segment * previous, * next;
-	    // Previous and next on the doubly linked
-	    // list of segments.
-	min::stub ** next, ** end;
-	    // Next element of segment vector to be
-	    // used, and address just after end of
-	    // vector.
-	min::stub * begin[];
-	    // Beginning element of segment vector.
-    };
 
 } }
 
