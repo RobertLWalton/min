@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jul 22 06:22:11 EDT 2009
+// Date:	Sun Jul 26 16:53:49 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/23 19:35:46 $
+//   $Date: 2009/07/26 20:54:31 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.175 $
+//   $Revision: 1.176 $
 
 // Table of Contents:
 //
@@ -1434,6 +1434,36 @@ namespace min {
 // Allocator/Collector/Compactor Interface
 // ----------------------------- ---------
 
+namespace min {
+
+    template < unsigned len > struct protect
+    {
+        protect * previous;
+	unsigned length;
+	min::gen values[len];
+
+	static protect * last = NULL;
+
+	protect ( void )
+	{
+	    this->length = len;
+	    previous = last;
+	    last = this;
+	    memset ( values, 0, sizeof ( values ) );
+	}
+
+	~ protect ( void )
+	{
+	    last = previous;
+	}
+
+	min::gen & value ( unsigned i )
+	{
+	    assert ( i < len );
+	    return values[i];
+	}
+    };
+}
 
 namespace min { namespace internal {
 
