@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jul 25 00:50:34 EDT 2009
+// Date:	Sun Jul 26 16:54:01 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/25 04:50:56 $
+//   $Date: 2009/07/26 20:54:31 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -681,6 +681,12 @@ namespace min { namespace acc {
 
 	min::uns64 count;
 	    // Number of stubs in this generation.
+
+	MACC::stub_list_segment * to_be_scavenged;
+	MACC::stub_list_segment * root;
+	    // Pointers to the LAST segments in the
+	    // to-be-scavenged and root lists for
+	    // the level.  NULL if a list is empty.
 
     } * levels;
 
