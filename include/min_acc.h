@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 26 16:54:01 EDT 2009
+// Date:	Mon Jul 27 07:38:17 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/26 20:54:31 $
+//   $Date: 2009/07/27 13:01:35 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -81,13 +81,13 @@ namespace min { namespace acc {
     //    // Flags for newly allocated garbage
     //	  // collectable stubs.
 
-    unsigned max_stubs = MIN_DEFAULT_MAX_STUBS;
+    min::uns64 max_stubs = MIN_DEFAULT_MAX_STUBS;
         // The value of the max_stubs parameter.  The
 	// number of stubs that can be allocated to the
 	// stub region.  Value may be changed when the
 	// program starts.
 
-    unsigned stub_increment =
+    min::uns64 stub_increment =
 	    MIN_DEFAULT_STUB_INCREMENT;
         // The number of new stubs allocated by a call
         // to MINT::acc_expand_free_stub_list.
