@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jul 27 07:38:17 EDT 2009
+// Date:	Tue Jul 28 07:44:31 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/27 13:01:35 $
+//   $Date: 2009/07/28 17:52:40 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -87,7 +87,7 @@ namespace min { namespace acc {
 	// stub region.  Value may be changed when the
 	// program starts.
 
-    min::uns64 stub_increment =
+    unsigned stub_increment =
 	    MIN_DEFAULT_STUB_INCREMENT;
         // The number of new stubs allocated by a call
         // to MINT::acc_expand_free_stub_list.
@@ -410,6 +410,19 @@ namespace min { namespace acc {
 	    // fbl is set from info in current_region.
     };
 
+    // The space factor F controls some aspects of the
+    // block allocator:
+    //
+    //	  The maximum sized block in a fixed or variable
+    //	  size block region is F pages.
+    //
+    //    The size of a fixed or variable size block
+    //	  region is F**2 pages.
+    //
+    // See min_acc_parameters.h for more info.
+    //
+    extern unsigned space_factor;
+
 } }
 
 
@@ -635,20 +648,23 @@ namespace min { namespace acc {
     // first, with the very first stub always being
     // MINT::null_stub.  Stubs are assigned generations,
     // which identified by a pair (L,S) of indices,
-    // where L is the object level, and S, the senority,
-    // is the number of garbage collections at level L
-    // that the object must survive in order to be
-    // premoted to level L-1.  For base level L = 0
-    // there is no S (it is as if S were infinity).
-    // Thus the indices of stubs on the list have the
-    // order (0), (1,1), (1,2), (1,3), ..., (2,1),
-    // (2,2), ...
+    // where L is the object level, and S is the
+    // sublevel.  An object in generation (L,S) that
+    // survives a level L garbage collection is promoted
+    // to generation (L,S-1) is S>0, or to generation
+    // (L-1,T) if L>0, S=0, T is the highest sublevel of
+    // level L-1, or is not promoted if L=0, S=0.
+    //
+    // Level 0 has only one sublevel S=0 and one
+    // generation and objects are never promoted from
+    // this generation even if they survive a level 0
+    // garbage collection.
     //
     struct generation
     {
         unsigned level;
-	unsigned seniority;
-	    // Level (L) and seniority (S) of this
+	unsigned sublevel;
+	    // Level (L) and sublevel (S) of this
 	    // generation.  If L == 0 then S == 0.
 
 	stub * last_before;
@@ -664,8 +680,10 @@ namespace min { namespace acc {
 	    // generation.
 
     } * generations;
-        // Vector of all generations in ascending order
-	// (0, (1,1), (1,2), ..., (2,1), (2,2), ...
+        // Vector of all generations in the order
+	// (0,0), (1,0), (1,1), ..., (2,0), (2,1), ...
+	// so promotions of objects are from
+	// generations[i] to generations[i-1].
 
     struct level
     {
@@ -673,9 +691,9 @@ namespace min { namespace acc {
 	    // First generation with this level in the
 	    // generations vector.
 
-	number_of_generations;
-	    // Number of generations on this level.
-	    // If N, then the seniorities of the
+	number_of_sublevels;
+	    // Number of sublevels (generations) on this
+	    // level.  If N, then the sublevels of the
 	    // generations of this level run from
 	    // 1 through N, with N being the youngest.
 
@@ -689,6 +707,9 @@ namespace min { namespace acc {
 	    // the level.  NULL if a list is empty.
 
     } * levels;
+
+    // Number of ephemeral levels actually used, and
+    // for each, the number of senority
 
 } }
 
