@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul  9 00:58:50 EDT 2009
+// Date:	Thu Jul 30 10:24:04 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/11 13:58:35 $
+//   $Date: 2009/07/30 17:03:29 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents
 //
@@ -41,6 +41,8 @@
 
 # ifndef MIN_ACC_PARAMETERS_H
 # define MIN_ACC_PARAMETERS_H
+
+# include <min.h>
 
 // Allocator Parameters
 // --------- ----------

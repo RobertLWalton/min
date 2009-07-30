@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Sun Jul 12 04:14:57 EDT 2009
+# Date:		Thu Jul 30 10:08:34 EDT 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/07/12 08:43:08 $
+#   $Date: 2009/07/30 17:02:50 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.22 $
+#   $Revision: 1.23 $
 
 # We need the following to mask RCS lines
 #
@@ -131,6 +131,18 @@ min_os_test:		\
 	    -I ../include \
 	    -o $@ \
 	    min_os_test.cc
+
+min_acc_test:		\
+		min_acc_test.cc \
+		../src/min_acc.cc \
+		../include/min_acc.h \
+		../include/min_acc_parameters.h \
+		${INCLUDE_FILES} Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include \
+	    -o $@ \
+	    ../src/min_acc.cc ../src/min.cc \
+	    ../src/min_os.cc min_acc_test.cc
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} min.o

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jul 28 13:53:11 EDT 2009
+// Date:	Thu Jul 30 10:22:57 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/28 17:53:19 $
+//   $Date: 2009/07/30 17:03:16 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.2 $
+//   $Revision: 1.3 $
 
 // Table of Contents:
 //
@@ -26,7 +26,8 @@
 // Setup
 // -----
 
-# include <min.h>
+# include <min_acc.h>
+# include <min_os.h>
 # define MUP min::unprotected
 # define MOS min::os
 # define MINT min::internal
@@ -61,14 +62,15 @@ static bool get_param
     const char * s = MOS::get_parameter ( name );
     if ( s == NULL ) return false;
 
-    const char * p;
+    char * p;
     min::int64 v = ::strtoll ( s, & p, 10 );
     if ( * p && ! isspace ( * p ) )
     {
-        for ( p = s; * p && ! isspace ( * p ); ++ p );
+	const char * q;
+        for ( q = s; * q && ! isspace ( * q ); ++ q );
         cout << "ERROR: bad " << name
 	     << " program parameter value: "
-	     << setw ( p - s ) << s 
+	     << setw ( q - s ) << s 
 	     << endl;
 	exit ( 1 );
     }
@@ -76,17 +78,17 @@ static bool get_param
     {
         cout << "ERROR: " << name
 	     << " program parameter value too small: "
-	     << v << " < " minimum << endl;
+	     << v << " < " << minimum << endl;
 	exit ( 1 );
     }
     if ( v > maximum )
     {
         cout << "ERROR: " << name
 	     << " program parameter value too large: "
-	     << v << " > " maximum << endl;
+	     << v << " > " << maximum << endl;
 	exit ( 1 );
     }
-    if ( power_of_type
+    if ( power_of_two
          &&
 	 ( v & ( v - 1 ) ) != 0 )
     {
@@ -139,7 +141,7 @@ static bool get_param
 static void stub_allocator_initializer ( void );
 static void block_allocator_initializer ( void );
 static void collector_initializer ( void );
-MINT::acc_initializer ( void )
+void MINT::acc_initializer ( void )
 {
     stub_allocator_initializer();
     collector_initializer();
@@ -150,8 +152,10 @@ MINT::acc_initializer ( void )
 // Stub Allocator
 // ---- ---------
 
-min::uns64 MACC::max_stubs;
-unsigned MACC::stub_increment;
+min::uns64 MACC::max_stubs =
+    MIN_DEFAULT_MAX_STUBS;
+unsigned MACC::stub_increment =
+    MIN_DEFAULT_STUB_INCREMENT;
 
 static void stub_allocator_initializer ( void )
 {
@@ -179,7 +183,8 @@ static void block_allocator_initializer ( void )
 // Collector
 // ---------
 
-unsigned MACC::ephemeral_levels;
+unsigned MACC::ephemeral_levels =
+    MIN_MAX_EPHEMERAL_LEVELS;
 
 static void collector_initializer ( void )
 {
