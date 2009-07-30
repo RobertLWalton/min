@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jul 28 07:44:31 EDT 2009
+// Date:	Thu Jul 30 10:24:20 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/28 17:52:40 $
+//   $Date: 2009/07/30 17:03:29 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -35,7 +35,7 @@
 # ifndef MIN_ACC_H
 # define MIN_ACC_H
 
-# include <min.h>
+# include <min_acc_parameters.h>
 # define MACC min::acc
 # define MINT min::internal
 
@@ -81,20 +81,19 @@ namespace min { namespace acc {
     //    // Flags for newly allocated garbage
     //	  // collectable stubs.
 
-    min::uns64 max_stubs = MIN_DEFAULT_MAX_STUBS;
+    extern min::uns64 max_stubs;
         // The value of the max_stubs parameter.  The
 	// number of stubs that can be allocated to the
 	// stub region.  Value may be changed when the
 	// program starts.
 
-    unsigned stub_increment =
-	    MIN_DEFAULT_STUB_INCREMENT;
+    extern unsigned stub_increment;
         // The number of new stubs allocated by a call
         // to MINT::acc_expand_free_stub_list.
 
-    min::stub * stub_begin;
-    min::stub * stub_next;
-    min::stub * stub_end;
+    extern min::stub * stub_begin;
+    extern min::stub * stub_next;
+    extern min::stub * stub_end;
         // Beginning and end of stub region, and next
 	// location to be allocated in the region.
 	// The end is the address just after the
@@ -461,7 +460,8 @@ namespace min { namespace acc {
 	    // MACC::LIST_SEGMENT and the value field
 	    // is the size of the segment in bytes.
 
-        stub_list_segment * previous, * next;
+        stub_list_segment * previous_segment,
+			  * next_segment;
 	    // Previous and next on the doubly linked
 	    // list of segments.
 
@@ -679,7 +679,8 @@ namespace min { namespace acc {
 	    // Number of stubs currently in this
 	    // generation.
 
-    } * generations;
+    };
+    extern min::acc::generation * generations;
         // Vector of all generations in the order
 	// (0,0), (1,0), (1,1), ..., (2,0), (2,1), ...
 	// so promotions of objects are from
@@ -691,7 +692,7 @@ namespace min { namespace acc {
 	    // First generation with this level in the
 	    // generations vector.
 
-	number_of_sublevels;
+	unsigned number_of_sublevels;
 	    // Number of sublevels (generations) on this
 	    // level.  If N, then the sublevels of the
 	    // generations of this level run from
@@ -706,10 +707,16 @@ namespace min { namespace acc {
 	    // to-be-scavenged and root lists for
 	    // the level.  NULL if a list is empty.
 
-    } * levels;
+    };
+    extern min::acc::level * levels;
 
-    // Number of ephemeral levels actually used, and
-    // for each, the number of senority
+    // Ephemeral_levels is the actual number of
+    // ephemeral levels, and for each ephemeral level L,
+    // ephemeral_sublevels[L] is the number of sublevels
+    // of ephemeral level L.
+    //
+    extern unsigned ephemeral_levels;
+    extern unsigned * ephemeral_sublevels;
 
 } }
 
