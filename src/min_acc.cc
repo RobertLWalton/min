@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul 30 10:22:57 EDT 2009
+// Date:	Thu Jul 30 22:02:21 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/30 17:03:16 $
+//   $Date: 2009/07/31 21:03:07 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents:
 //
@@ -137,12 +137,24 @@ static bool get_param
     return true;
 }
 
+// Convert a size in number of bytes into a size in
+// number of pages, rounding up.
+//
+static min::uns64 pagesize;
+inline min::uns64 number_of_pages
+    ( min::uns64 number_of_bytes )
+{
+    return ( number_of_bytes + pagesize - 1 )
+           / pagesize;
+}
 
 static void stub_allocator_initializer ( void );
 static void block_allocator_initializer ( void );
 static void collector_initializer ( void );
 void MINT::acc_initializer ( void )
 {
+    pagesize = MOS::pagesize();
+
     stub_allocator_initializer();
     collector_initializer();
     block_allocator_initializer();
@@ -156,6 +168,9 @@ min::uns64 MACC::max_stubs =
     MIN_DEFAULT_MAX_STUBS;
 unsigned MACC::stub_increment =
     MIN_DEFAULT_STUB_INCREMENT;
+min::stub * MACC::stub_begin;
+min::stub * MACC::stub_next;
+min::stub * MACC::stub_end;
 
 static void stub_allocator_initializer ( void )
 {
@@ -163,6 +178,41 @@ static void stub_allocator_initializer ( void )
                 MACC::max_stubs );
     get_param ( "stub_increment",
                 MACC::stub_increment, 100 );
+
+    void * stubs = MOS::new_pool_below
+        ( number_of_pages ( 16 * max_stubs ),
+	  (void *) MIN_MAX_ABSOLUTE_STUB_ADDRESS );
+
+    const char * error = MOS::pool_error ( stubs );
+    if ( error != NULL )
+    {
+        cout << "ERROR: " << error << endl
+	     << "       while allocating vector to"
+	        " hold" << max_stubs << " stubs"
+		" below address "
+	     << (min::uns64)
+	        MIN_MAX_ABSOLUTE_STUB_ADDRESS
+	     << endl;
+	exit ( 1 );
+    }
+
+    MACC::stub_begin = (min::stub *) stubs;
+    MACC::stub_next = MACC::stub_begin;
+    MACC::stub_end = MACC::stub_begin + max_stubs;
+
+    MINT::null_stub = MACC::stub_next ++;
+    MUP::set_control_of
+        ( MINT::null_stub,
+	  MUP::new_acc_control
+	      ( min::DEALLOCATED,
+	        MINT::null_stub ) );
+
+    MINT::last_allocated_stub = MINT::null_stub;
+
+}
+
+void MINT::acc_expand_stub_free_list ( unsigned n )
+{
 }
 
 
