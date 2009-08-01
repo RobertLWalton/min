@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul 30 22:02:21 EDT 2009
+// Date:	Sat Aug  1 04:44:17 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/31 21:03:07 $
+//   $Date: 2009/08/01 09:34:27 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents:
 //
@@ -175,12 +175,15 @@ min::stub * MACC::stub_end;
 static void stub_allocator_initializer ( void )
 {
     get_param ( "max_stubs",
-                MACC::max_stubs );
+                MACC::max_stubs, 1000,
+		MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS );
     get_param ( "stub_increment",
-                MACC::stub_increment, 100 );
+                MACC::stub_increment, 100, 1000000 );
 
+    min::uns64 pages =
+        number_of_pages ( 16 * MACC::max_stubs );
     void * stubs = MOS::new_pool_below
-        ( number_of_pages ( 16 * max_stubs ),
+        ( pages,
 	  (void *) MIN_MAX_ABSOLUTE_STUB_ADDRESS );
 
     const char * error = MOS::pool_error ( stubs );
@@ -188,31 +191,114 @@ static void stub_allocator_initializer ( void )
     {
         cout << "ERROR: " << error << endl
 	     << "       while allocating vector to"
-	        " hold" << max_stubs << " stubs"
-		" below address "
+	        " hold max_stubs = " << MACC::max_stubs
+	     << " stubs" << endl
+	     << "       below address "
 	     << (min::uns64)
 	        MIN_MAX_ABSOLUTE_STUB_ADDRESS
+	     << endl
+	     << "       Suggest decreasing max_stubs."
 	     << endl;
 	exit ( 1 );
     }
 
+#   ifndef MIN_STUB_BASE
+	MINT::null_stub = (min::stub *) stubs;
+	MINT::stub_base = (MINT::pointer_uns) stubs;
+#   else
+	if ( (MINT::pointer_uns) stubs < MIN_STUB_BASE )
+	{
+	    // Oops, stub vector too low in memory.
+	    // Assume that we are supposed to allocate
+	    // vector beginning at MIN_STUB_BASE.
+
+	    // Note: in this case MIN_MAX_ABSOLUTE_STUB_
+	    // ADDRESS is defined to be large enough
+	    // to accommodate stub vector.
+
+	    MOS::free_pool ( pages, stubs );
+
+	    stubs = MOS::new_pool_at
+	        ( pages, (void *) MIN_STUB_BASE );
+
+	    error = MOS::pool_error ( stubs );
+	    if ( error != NULL )
+	    {
+		cout << "ERROR: " << error << endl
+		     << "       while allocating vector"
+		        " to hold max_stubs = "
+		     << MACC::max_stubs << " stubs"
+		     << endl
+		     << "       at address"
+		        " MIN_STUB_BASE = "
+		     << (min::uns64) MIN_STUB_BASE
+		     << endl
+		     << "       Suggest decreasing"
+			" max_stubs."
+		     << endl;
+		exit ( 1 );
+	    }
+
+	}
+#   endif
+
     MACC::stub_begin = (min::stub *) stubs;
     MACC::stub_next = MACC::stub_begin;
-    MACC::stub_end = MACC::stub_begin + max_stubs;
+    MACC::stub_end = MACC::stub_begin + MACC::max_stubs;
 
-    MINT::null_stub = MACC::stub_next ++;
     MUP::set_control_of
-        ( MINT::null_stub,
+        ( MACC::stub_next,
 	  MUP::new_acc_control
 	      ( min::DEALLOCATED,
-	        MINT::null_stub ) );
+	        MACC::stub_next ) );
 
-    MINT::last_allocated_stub = MINT::null_stub;
+    MINT::last_allocated_stub = MACC::stub_next;
+    MINT::number_of_free_stubs = 0;
+
+    ++ MACC::stub_next;
 
 }
 
 void MINT::acc_expand_stub_free_list ( unsigned n )
 {
+    if ( n == 0 ) return;
+
+    min::uns64 max_n = MACC::stub_end - MACC::stub_next;
+    if ( n > max_n )
+    {
+        cout << "ERROR: too many stubs required."
+	     << endl
+             << "       At most max_stubs = "
+	     << MACC::max_stubs << " are allowed."
+	     << endl
+	     << "       Increase max_stubs or make"
+	        " the garbage collector more efficient."
+	     << endl;
+	exit ( 1 );
+    }
+    n += MACC::stub_increment;
+    if ( n > max_n ) n = max_n;
+    MUP::set_control_of
+        ( MINT::last_allocated_stub,
+	  MUP::renew_acc_control_stub
+	      ( MUP::control_of
+	            ( MINT::last_allocated_stub ),
+		MACC::stub_next ) );
+    while ( n > 0 )
+    {
+	MUP::set_value_of ( MACC::stub_next, 0ull );
+        MUP::set_control_of
+	    ( MACC::stub_next,
+	      MUP::new_acc_control
+	          ( min::FREE, MACC::stub_next + 1 ) );
+	++ MACC::stub_next;
+	-- n;
+	++ MINT::number_of_free_stubs;
+    }
+    MUP::set_control_of
+	( MACC::stub_next - 1 ,
+	  MUP::new_acc_control
+	      ( min::FREE, MINT::null_stub ) );
 }
 
 
