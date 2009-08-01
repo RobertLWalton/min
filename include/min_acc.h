@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul 30 10:24:20 EDT 2009
+// Date:	Sat Aug  1 04:47:23 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/30 17:03:29 $
+//   $Date: 2009/08/01 09:34:08 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -60,12 +60,16 @@ namespace min { namespace acc {
     // interface to the stub allocator:
     //
     //  min::stub * MINT::null_stub
-    //    // Address of the first stub (stub with
-    //	  // index 0).  This address is used instead
-    //    // of the value NULL to end lists when a
-    //    // real stub address is required.  The
-    //	  // first stub should have DEALLOCATED type
-    //    // and is always `allocated' and never freed.
+    //    // Address of stub with index 0.  This address
+    //    // is used instead of the value NULL to end
+    //    // lists when a real stub address is required.
+    //	  // If MIN_BASE is defined this is defined to
+    //    // be a constant equal to MIN_BASE; otherwise
+    //    // it is the first real stub (== stub_begin
+    //	  // below) and is given the DEALLOCATED type.
+    //    // It is possible that MIN_BASE == stub_begin
+    //    // and null_stub is both a constant and the
+    //    // first real stub.
     //  MINT::pointer_uns MINT::stub_base
     //    // Ditto but as an unsigned integer.
     //	void MINT::acc_expand_free_stub_list

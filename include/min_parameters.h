@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 12 03:48:51 EDT 2009
+// Date:	Sat Aug  1 05:02:24 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/12 08:42:37 $
+//   $Date: 2009/08/01 09:34:08 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.38 $
+//   $Revision: 1.39 $
 
 // Table of Contents
 //
@@ -144,7 +144,8 @@
 // faults to zero when MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
 // is allowed to default above.  Otherwise not set by
 // default, and when not set the base of the stub vector
-// is determined at run time.
+// is determined at run time.  Should be an unsigned
+// integer.
 //
 // # define MIN_STUB_BASE xxx
 
@@ -229,7 +230,7 @@
 //
 # ifndef MIN_MAX_RELATIVE_STUB_ADDRESS
 #   define MIN_MAX_RELATIVE_STUB_ADDRESS \
-	( 16 * MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS )
+	( 16 * MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS - 1 )
 # endif
 
 // Maximum absolute stub address.

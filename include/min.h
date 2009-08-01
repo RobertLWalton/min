@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 26 16:53:49 EDT 2009
+// Date:	Sat Aug  1 04:38:28 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/26 20:54:31 $
+//   $Date: 2009/08/01 09:34:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.176 $
+//   $Revision: 1.177 $
 
 // Table of Contents:
 //
@@ -306,6 +306,10 @@ namespace min { namespace internal {
     // is used in place of NULL to end lists of stubs
     // (because NULL cannot be represented by some
     // stub address representation schemes).
+    //
+    // WARNING: null_stub may not be an actual stub,
+    // e.g., its address may be NULL, and it may not
+    // be in accessible memory.
     //
 #   ifdef MIN_STUB_BASE
 	const min::internal::pointer_uns stub_base =
