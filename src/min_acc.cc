@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug  1 04:44:17 EDT 2009
+// Date:	Sun Aug  2 08:15:37 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/01 09:34:27 $
+//   $Date: 2009/08/02 15:10:45 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents:
 //
@@ -307,14 +307,52 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 
 unsigned MACC::space_factor;
 
+static MACC::region initial_region_table[16];
+
+static MACC::region * new_multi_page_region
+	( min::uns64 pages );
+
 static void block_allocator_initializer ( void )
 {
     get_param ( "space_factor",
                 MACC::space_factor, 8,
 		( MIN_POINTER_BITS <= 32 ? 32 : 256 ),
 		true );
+
+    MACC::region_table = initial_region_table;
+    MACC::region_next = 0;
+    MACC::region_end = 15;
+        // Reserve one entry at end of table for moving
+	// table.
+
+    min::uns64 M = 0;
+    for ( unsigned t = MACC::space_factor * pagesize;
+    	  t >= 2; t /= 2 ) ++ M;
+    M *= MACC::space_factor
+       * MACC::space_factor
+       * pagesize;
+
+    MACC::region * r = new_multi_page_region ( M );
+    if ( r == NULL )
+    {
+	cout << "ERROR: could not allocate "
+	     << M << " page initial heap." << endl
+	     << "       Try reducing space_factor (= "
+	     << MACC::space_factor
+	     << ") or max_stubs (= "
+	     << MACC::max_stubs << ")." << endl;
+	     << endl;
+	exit ( 1 );
+    }
 }
 
+// Allocate a new multi-page region with the given
+// number of pages.
+//
+static MACC::region * new_multi_page_region
+	( min::uns64 pages )
+{
+}
 
 // Collector
 // ---------
