@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug  2 08:15:37 EDT 2009
+// Date:	Mon Aug  3 15:32:14 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/02 15:10:45 $
+//   $Date: 2009/08/03 19:32:22 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents:
 //
@@ -310,7 +310,7 @@ unsigned MACC::space_factor;
 static MACC::region initial_region_table[16];
 
 static MACC::region * new_multi_page_region
-	( min::uns64 pages );
+	( min::uns64 size );
 
 static void block_allocator_initializer ( void )
 {
@@ -341,18 +341,47 @@ static void block_allocator_initializer ( void )
 	     << MACC::space_factor
 	     << ") or max_stubs (= "
 	     << MACC::max_stubs << ")." << endl;
-	     << endl;
 	exit ( 1 );
     }
+
+    MACC::last_superregion = r - MACC::region_table;
 }
 
 // Allocate a new multi-page region with the given
 // number of pages.
 //
+static void expand_region_table ( void );
 static MACC::region * new_multi_page_region
-	( min::uns64 pages )
+	( min::uns64 size )
 {
+    min::uns64 pages = number_of_pages ( size );
+    size = pages * pagesize;
+    void * m = MOS::new_pool ( pages );
+    const char * error = MOS::pool_error ( m );
+    if ( error != NULL ) return NULL;
+
+    if ( MACC::region_next == MACC::region_end )
+        expand_region_table();
+
+    MACC::region * r = MACC::region_table
+                     + ( MACC::region_next ++ );
+    r->block_control = 0;
+    r->block_subcontrol = MUP::new_control
+        ( MACC::MULTI_PAGE_REGION, size );
+    r->offset = 0;
+    r->region_size = size;
+    r->block_size = 0;
+    r->free_count = 0;
+    r->region_previous = r;
+    r->region_next = r;
+    r->subregion_previous = r;
+    r->subregion_next = r;
+    r->free_first = NULL;
+    r->free_last = NULL;
+
+    return r;
 }
+
 
 // Collector
 // ---------

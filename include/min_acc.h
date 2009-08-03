@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug  1 04:47:23 EDT 2009
+// Date:	Mon Aug  3 03:11:39 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/01 09:34:08 $
+//   $Date: 2009/08/03 19:31:48 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -152,7 +152,7 @@ namespace min { namespace acc {
         FREE			= 1,
 	FIXED_SIZE_REGION	= 2,
 	VARIABLE_SIZE_REGION	= 3,
-	MULTI_BLOCK_REGION	= 4,
+	MULTI_PAGE_REGION	= 4,
 	LIST_SEGMENT		= 5
     };
 
@@ -349,24 +349,34 @@ namespace min { namespace acc {
 	    // For fixed size block regions, the number
 	    // of free blocks.
 
+	MACC::region * region_previous,
+		     * region_next;
+	    // For fixed size block regions, the pre-
+	    // vious and next region on a doubly
+	    // linked list of fixed size block regions
+	    // for a given size of fixed block, so that
+	    // all regions containing fixed blocks of a
+	    // particular size can be located.  The
+	    // order of this list also determines the
+	    // order in which free blocks from regions
+	    // will be used.
+	    //
+	    // For super-regions (multi-page block
+	    // regions that contain fixed block and
+	    // variable block regions), the previous and
+	    // next super-region on a doubly linked list
+	    // of all super-regions.  The order of this
+	    // list also determines the order in which
+	    // these regions will be used to create
+	    // new subregions.
+
 	MACC::region * subregion_previous,
 		     * subregion_next;
 	    // Previous and next region on a doubly
 	    // linked list of subregions.  There is one
-	    // such list for every multi-page region
-	    // which includes that region and all of its
+	    // such list for every super-region which
+	    // includes that super-region and all of its
 	    // subregions.
-
-	MACC::region * free_previous,
-		     * free_next;
-	    // Previous and next region on a doubly
-	    // linked list of fixed size block regions.
-	    // There is one such list for every size
-	    // of fixed block, so that the regions
-	    // containing fixed blocks of a particular
-	    // size can be located.  The order of this
-	    // list also determines the order in which
-	    // free blocks from regions will be used.
 
 	void * free_first,
 	     * free_last;
@@ -379,6 +389,32 @@ namespace min { namespace acc {
 	    // these members are NULL.
 
     };
+
+    // Beginning, end, and next to be used region table
+    // entry.  The region table is initially a small
+    // preallocated table.  It can be expanded by moving
+    // it to an object body.  To permit this, there is
+    // an extra invisible entry at the end with is added
+    // only when the object body to which the expanded
+    // table is being moved is being allocated.
+    //
+    // Region_next and region_end are expressed as
+    // indices into region_table.
+    //
+    extern region * region_table;
+    extern unsigned region_next;
+    extern unsigned region_end;
+
+    // Multi-page regions to which fixed block and
+    // variable block regions are allocated.  These are
+    // called super-regions.  They are on a doubly
+    // linked list chained via their region_previous/
+    // next pointers.  Given here is the region_table
+    // index of the last (most recently created)
+    // super-region (whose region_next pointer points
+    // at the first, or oldest, super-region).
+    //
+    extern unsigned last_superregion;
 
     // Free List Management
     // ---- ---- ----------
