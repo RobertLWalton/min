@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Aug  3 03:11:39 EDT 2009
+// Date:	Tue Aug  4 13:18:48 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/03 19:31:48 $
+//   $Date: 2009/08/04 17:18:57 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -391,19 +391,18 @@ namespace min { namespace acc {
     };
 
     // Beginning, end, and next to be used region table
-    // entry.  The region table is initially a small
-    // preallocated table.  It can be expanded by moving
-    // it to an object body.  To permit this, there is
-    // an extra invisible entry at the end with is added
-    // only when the object body to which the expanded
-    // table is being moved is being allocated.
-    //
-    // Region_next and region_end are expressed as
-    // indices into region_table.
+    // entry.  The region table can be an initially
+    // table that can be moved and expanded later, or it
+    // can be an initially maximum sized table that
+    // adds physical pages as it grows.  Region indices
+    // in the region table are limited to non-negative
+    // int16's.
     //
     extern region * region_table;
-    extern unsigned region_next;
-    extern unsigned region_end;
+    extern region * region_next;
+    extern region * region_end;
+
+    const unsigned MAX_REGIONS = 1 << 16;
 
     // Multi-page regions to which fixed block and
     // variable block regions are allocated.  These are
@@ -414,7 +413,7 @@ namespace min { namespace acc {
     // super-region (whose region_next pointer points
     // at the first, or oldest, super-region).
     //
-    extern unsigned last_superregion;
+    extern region * last_superregion;
 
     // Free List Management
     // ---- ---- ----------
