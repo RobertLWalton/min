@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Aug  3 15:32:14 EDT 2009
+// Date:	Tue Aug  4 04:33:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/03 19:32:22 $
+//   $Date: 2009/08/04 17:18:34 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents:
 //
@@ -48,6 +48,23 @@ using std::setw;
 // Initializer
 // -----------
 
+// Trace switches.
+//
+bool trace_parameters = false;
+bool trace_fixed_block_allocation = false;
+bool trace_variable_block_allocation = false;
+bool trace_multi_page_block_allocation = false;
+
+// Find the number of characters in a string before
+// the first white space or end of string.
+//
+static int before_space ( const char * p )
+{
+    const char * q = p;
+    for ( ; * q && ! isspace ( * q ); ++ q );
+    return ( q - p );
+}
+
 // Get and set parameter.  Return false if nothing
 // done and true if parameter set.  Announce error
 // and exit program if parameter too small, too
@@ -57,7 +74,8 @@ static bool get_param
 	( const char * name, min::int64 & parameter,
 	  min::int64 minimum = 0,
 	  min::int64 maximum = 0x7FFFFFFFFFFFFFFFll,
-	  bool power_of_two = false )
+	  bool power_of_two = false,
+	  bool trace = trace_parameters )
 {
     const char * s = MOS::get_parameter ( name );
     if ( s == NULL ) return false;
@@ -66,11 +84,9 @@ static bool get_param
     min::int64 v = ::strtoll ( s, & p, 10 );
     if ( * p && ! isspace ( * p ) )
     {
-	const char * q;
-        for ( q = s; * q && ! isspace ( * q ); ++ q );
         cout << "ERROR: bad " << name
 	     << " program parameter value: "
-	     << setw ( q - s ) << s 
+	     << setw ( before_space ( s ) ) << s 
 	     << endl;
 	exit ( 1 );
     }
@@ -97,6 +113,11 @@ static bool get_param
 	        " power of two: " << v << endl;
 	exit ( 1 );
     }
+
+    if ( trace )
+        cout << "TRACE: setting " << name
+	     << "=" << v << endl;
+
     parameter = v;
     return true;
 }
@@ -108,13 +129,14 @@ static bool get_param
 	( const char * name, min::uns64 & parameter,
 	  min::uns64 minimum = 0,
 	  min::uns64 maximum = 0x7FFFFFFFFFFFFFFFull,
-	  bool power_of_two = false )
+	  bool power_of_two = false,
+	  bool trace = trace_parameters )
 {
     assert ( maximum <= 0x7FFFFFFFFFFFFFFFull );
     min::int64 v;
     if ( ! get_param ( name, v,
                        minimum, maximum,
-		       power_of_two ) )
+		       power_of_two, trace ) )
          return false;
     parameter = (min::uns64) v;
     return true;
@@ -126,12 +148,13 @@ static bool get_param
 	( const char * name, unsigned & parameter,
 	  unsigned minimum = 0,
 	  unsigned maximum = unsigned ( -1 ),
-	  bool power_of_two = false )
+	  bool power_of_two = false,
+	  bool trace = trace_parameters )
 {
     min::int64 v;
     if ( ! get_param ( name, v,
                        minimum, maximum,
-		       power_of_two ) )
+		       power_of_two, trace ) )
          return false;
     parameter = (unsigned) v;
     return true;
@@ -153,6 +176,36 @@ static void block_allocator_initializer ( void );
 static void collector_initializer ( void );
 void MINT::acc_initializer ( void )
 {
+    const char * deb =
+        MOS::get_parameter ( "debug" );
+    if ( deb != NULL )
+    {
+        for ( const char * p = deb;
+	      * p && ! isspace ( * p ); ++ p )
+	{
+	    switch ( * p )
+	    {
+	    case 'p':
+	        trace_parameters = true;
+		break;
+	    case 'm':
+	        trace_multi_page_block_allocation = true;
+	    case 'f':
+	        trace_fixed_block_allocation = true;
+	    case 'v':
+	        trace_variable_block_allocation = true;
+		break;
+	    default:
+	        cout << "ERROR: cannot understand debug"
+		        " = ..." << *p << "..." << endl;
+		exit ( 1 );
+	    }
+	}
+	if ( trace_parameters )
+	    cout << "TRACE: debug="
+	         << setw ( before_space ( deb ) ) << deb
+		 << endl;
+    }
     pagesize = MOS::pagesize();
 
     stub_allocator_initializer();
@@ -306,6 +359,11 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 // ----- ---------
 
 unsigned MACC::space_factor;
+MACC::region * MACC::region_table;
+MACC::region * MACC::region_next;
+MACC::region * MACC::region_end;
+MACC::region * MACC::last_superregion;
+
 
 static MACC::region initial_region_table[16];
 
@@ -319,11 +377,32 @@ static void block_allocator_initializer ( void )
 		( MIN_POINTER_BITS <= 32 ? 32 : 256 ),
 		true );
 
-    MACC::region_table = initial_region_table;
-    MACC::region_next = 0;
-    MACC::region_end = 15;
-        // Reserve one entry at end of table for moving
-	// table.
+    // We allocate a maximum sized region table, on the
+    // grounds that it is < 4 megabytes, its silly not
+    // to do this for a 64 bit computer, and affordable
+    // for a 32 bit computer.
+
+    min::uns64 rtpages =
+        number_of_pages (   MACC::MAX_REGIONS
+	                  * sizeof ( MACC::region ) );
+    void * rt = MOS::new_pool ( rtpages );
+    const char * rterror = MOS::pool_error ( rt );
+    if ( rterror != NULL )
+    {
+    	cout << "ERROR: could not allocate "
+	     << rtpages << " page region table"
+	     << endl;
+	exit ( 1 );
+    }
+
+    if ( trace_multi_page_block_allocation )
+        cout << "TRACE: allocated " << rtpages
+	     << " page region table" << endl;
+
+    MACC::region_table = (MACC::region *) rt;
+    MACC::region_next = MACC::region_table;
+    MACC::region_end =
+        MACC::region_table + MACC::MAX_REGIONS;
 
     min::uns64 M = 0;
     for ( unsigned t = MACC::space_factor * pagesize;
@@ -344,13 +423,12 @@ static void block_allocator_initializer ( void )
 	exit ( 1 );
     }
 
-    MACC::last_superregion = r - MACC::region_table;
+    MACC::last_superregion = r;
 }
 
 // Allocate a new multi-page region with the given
 // number of pages.
 //
-static void expand_region_table ( void );
 static MACC::region * new_multi_page_region
 	( min::uns64 size )
 {
@@ -361,10 +439,15 @@ static MACC::region * new_multi_page_region
     if ( error != NULL ) return NULL;
 
     if ( MACC::region_next == MACC::region_end )
-        expand_region_table();
+    {
+        cout << "ERROR: trying to allocate more than "
+	     << (   MACC::region_end
+	          - MACC::region_table )
+	     << " multi-page block regions" << endl;
+	exit ( 1 );
+    }
 
-    MACC::region * r = MACC::region_table
-                     + ( MACC::region_next ++ );
+    MACC::region * r = MACC::region_next ++;
     r->block_control = 0;
     r->block_subcontrol = MUP::new_control
         ( MACC::MULTI_PAGE_REGION, size );
@@ -379,8 +462,15 @@ static MACC::region * new_multi_page_region
     r->free_first = NULL;
     r->free_last = NULL;
 
+    if ( trace_multi_page_block_allocation )
+        cout << "TRACE: allocated " << pages
+	     << " page ( " << size << " byte)"
+	     << " multi-page block region"
+	     << endl;
+
     return r;
 }
+
 
 
 // Collector
