@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug  4 13:18:48 EDT 2009
+// Date:	Wed Aug  5 07:43:07 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/04 17:18:57 $
+//   $Date: 2009/08/05 21:04:06 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -402,21 +402,41 @@ namespace min { namespace acc {
     extern region * region_next;
     extern region * region_end;
 
-    const unsigned MAX_REGIONS = 1 << 16;
+    const unsigned
+          MAX_MULTI_PAGE_BLOCK_REGIONS = 1 << 15;
 
     // Multi-page regions to which fixed block and
-    // variable block regions are allocated.  These are
+    // variable block regions are allocated are
     // called super-regions.  They are on a doubly
     // linked list chained via their region_previous/
-    // next pointers.  Given here is the region_table
-    // index of the last (most recently created)
-    // super-region (whose region_next pointer points
-    // at the first, or oldest, super-region).
+    // next pointers.  Given here is the last (most
+    // recently created) super-region (whose
+    // region_next pointer points at the first, or
+    // oldest, super-region).
     //
     extern region * last_superregion;
 
+    // Fixed block and variable block regions all have
+    // the same size, so that if one is freed, it can
+    // be reused more freely.
+    //
+    extern unsigned subregion_size;
+    
+    // All freed fixed block and variable block regions
+    // are on a circular list chained by their region_
+    // previous/next pointers, in the order they were
+    // freed.  They are used in reverse order.  The
+    // following points at the last region freed, or
+    // is NULL if none have been freed.
+    //
+    extern region * last_free_subregion;
+
     // Free List Management
     // ---- ---- ----------
+
+} }    
+
+namespace min { namespace internal {
 
     struct fixed_body_list_extension
         // Extension of fixed_body_list struct with data
@@ -447,6 +467,10 @@ namespace min { namespace acc {
 	    //
 	    // fbl is set from info in current_region.
     };
+
+} }    
+
+namespace min { namespace acc {
 
     // The space factor F controls some aspects of the
     // block allocator:

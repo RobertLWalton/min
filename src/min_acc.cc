@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug  4 04:33:43 EDT 2009
+// Date:	Wed Aug  5 06:20:26 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/04 17:18:34 $
+//   $Date: 2009/08/05 21:04:18 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents:
 //
@@ -359,13 +359,16 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 // ----- ---------
 
 unsigned MACC::space_factor;
+unsigned MACC::subregion_size;
+
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
 MACC::region * MACC::region_end;
 MACC::region * MACC::last_superregion;
 
+MACC::region *
+    MACC::last_free_subregion = NULL;
 
-static MACC::region initial_region_table[16];
 
 static MACC::region * new_multi_page_region
 	( min::uns64 size );
@@ -377,14 +380,19 @@ static void block_allocator_initializer ( void )
 		( MIN_POINTER_BITS <= 32 ? 32 : 256 ),
 		true );
 
+    MACC::subregion_size = MACC::space_factor
+                         * MACC::space_factor
+	                 * pagesize;
+
     // We allocate a maximum sized region table, on the
     // grounds that it is < 4 megabytes, its silly not
     // to do this for a 64 bit computer, and affordable
     // for a 32 bit computer.
 
     min::uns64 rtpages =
-        number_of_pages (   MACC::MAX_REGIONS
-	                  * sizeof ( MACC::region ) );
+        number_of_pages
+	    (   MACC::MAX_MULTI_PAGE_BLOCK_REGIONS
+	      * sizeof ( MACC::region ) );
     void * rt = MOS::new_pool ( rtpages );
     const char * rterror = MOS::pool_error ( rt );
     if ( rterror != NULL )
@@ -402,7 +410,8 @@ static void block_allocator_initializer ( void )
     MACC::region_table = (MACC::region *) rt;
     MACC::region_next = MACC::region_table;
     MACC::region_end =
-        MACC::region_table + MACC::MAX_REGIONS;
+          MACC::region_table
+	+ MACC::MAX_MULTI_PAGE_BLOCK_REGIONS;
 
     min::uns64 M = 0;
     for ( unsigned t = MACC::space_factor * pagesize;
@@ -469,6 +478,42 @@ static MACC::region * new_multi_page_region
 	     << endl;
 
     return r;
+}
+
+void MINT::new_fixed_body
+    ( min::stub * s, unsigned n,
+      MINT::fixed_body_list * fbl )
+{
+    MINT::fixed_body_list_extension * fblext =
+        fbl->extension;
+    MACC::region * r = fblext->current_region;
+    while ( r != NULL )
+    {
+        if ( r->free_first != NULL ) break;
+	r = r->region_next;
+	if ( r == fblext->current_region ) r = NULL;
+    }
+    if ( r == NULL )
+    {
+        r = MACC::last_free_subregion;
+	if ( r == NULL )
+	{
+	    MACC::region * sr = MACC::last_superregion;
+	    min::uns64 new_offset = sr->offset
+	        + MACC::subregion_size;
+	    if ( new_offset > sr->region_size )
+	    {
+	    }
+	}
+        // r = new_multi_page_block_region ( xxx );
+	r->region_next = fblext->first_region;
+	r->region_previous =
+	    fblext->first_region->region_previous;
+	r->region_next->region_previous = r;
+	r->region_previous->region_next = r;
+    }
+    fblext->current_region = r;
+        
 }
 
 
