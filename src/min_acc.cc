@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug  5 06:20:26 EDT 2009
+// Date:	Thu Aug  6 03:37:56 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/05 21:04:18 $
+//   $Date: 2009/08/06 19:16:48 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents:
 //
@@ -360,6 +360,7 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 
 unsigned MACC::space_factor;
 unsigned MACC::subregion_size;
+unsigned MACC::superregion_size;
 
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
@@ -370,8 +371,7 @@ MACC::region *
     MACC::last_free_subregion = NULL;
 
 
-static MACC::region * new_multi_page_region
-	( min::uns64 size );
+static void allocate_new_superregion ( void );
 
 static void block_allocator_initializer ( void )
 {
@@ -416,23 +416,12 @@ static void block_allocator_initializer ( void )
     min::uns64 M = 0;
     for ( unsigned t = MACC::space_factor * pagesize;
     	  t >= 2; t /= 2 ) ++ M;
-    M *= MACC::space_factor
-       * MACC::space_factor
-       * pagesize;
+    MACC::superregion_size = (min::uns64) M
+                           * MACC::space_factor
+			   * MACC::space_factor
+			   * pagesize;
 
-    MACC::region * r = new_multi_page_region ( M );
-    if ( r == NULL )
-    {
-	cout << "ERROR: could not allocate "
-	     << M << " page initial heap." << endl
-	     << "       Try reducing space_factor (= "
-	     << MACC::space_factor
-	     << ") or max_stubs (= "
-	     << MACC::max_stubs << ")." << endl;
-	exit ( 1 );
-    }
-
-    MACC::last_superregion = r;
+    allocate_new_superregion();
 }
 
 // Allocate a new multi-page region with the given
@@ -460,14 +449,13 @@ static MACC::region * new_multi_page_region
     r->block_control = 0;
     r->block_subcontrol = MUP::new_control
         ( MACC::MULTI_PAGE_REGION, size );
-    r->offset = 0;
-    r->region_size = size;
+    r->begin = (char *) m;
+    r->next = r->begin;
+    r->end = r->begin + size;
     r->block_size = 0;
     r->free_count = 0;
     r->region_previous = r;
     r->region_next = r;
-    r->subregion_previous = r;
-    r->subregion_next = r;
     r->free_first = NULL;
     r->free_last = NULL;
 
@@ -480,6 +468,35 @@ static MACC::region * new_multi_page_region
     return r;
 }
 
+// Call this when we are out of superregions.
+//
+static void allocate_new_superregion ( void )
+{
+    MACC::region * r = new_multi_page_region
+                           ( MACC::superregion_size );
+    if ( r == NULL && MACC::last_superregion != NULL )
+	r = new_multi_page_region
+	        ( 4 * MACC::subregion_size );
+    if ( r == NULL && MACC::last_superregion != NULL )
+	r = new_multi_page_region
+	        ( MACC::subregion_size );
+    if ( r == NULL )
+    {
+        if ( MACC::last_superregion == NULL )
+	    cout << "ERROR: could not allocate "
+		 << MACC::superregion_size / pagesize
+		 << " page initial heap." << endl;
+	else
+	    cout << "ERROR: out of virtual memory."
+	         << endl;
+	exit ( 1 );
+    }
+
+    if ( MACC::last_superregion != NULL )
+        MACC::insert_after ( r, MACC::last_superregion );
+    MACC::last_superregion = r;
+}
+
 void MINT::new_fixed_body
     ( min::stub * s, unsigned n,
       MINT::fixed_body_list * fbl )
@@ -490,20 +507,43 @@ void MINT::new_fixed_body
     while ( r != NULL )
     {
         if ( r->free_first != NULL ) break;
+	if ( r->next < r->end ) break;
 	r = r->region_next;
 	if ( r == fblext->current_region ) r = NULL;
     }
     if ( r == NULL )
     {
+	MACC::region * sr;	// Superregion of r.
+
         r = MACC::last_free_subregion;
-	if ( r == NULL )
+	if ( r != NULL )
+	{
+	    if ( r == r->region_previous )
+		MACC::last_free_subregion = NULL;
+	    else
+	    {
+		MACC::last_free_subregion =
+		    r->region_previous;
+		MACC::remove ( r );
+	    }
+	}
+	else
 	{
 	    MACC::region * sr = MACC::last_superregion;
-	    min::uns64 new_offset = sr->offset
-	        + MACC::subregion_size;
-	    if ( new_offset > sr->region_size )
+	    char * new_next = sr->next
+	                    + MACC::subregion_size;
+	    if ( new_next > sr->end )
 	    {
+	        allocate_new_superregion();
+		sr = MACC::last_superregion;
+		new_next = sr->next
+	                 + MACC::subregion_size;
+		assert ( new_next <= sr->end );
 	    }
+	    r = (MACC::region *) sr->next;
+	    sr->next = new_next;
+
+
 	}
         // r = new_multi_page_block_region ( xxx );
 	r->region_next = fblext->first_region;
@@ -513,7 +553,6 @@ void MINT::new_fixed_body
 	r->region_previous->region_next = r;
     }
     fblext->current_region = r;
-        
 }
 
 

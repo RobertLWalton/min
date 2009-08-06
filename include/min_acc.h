@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug  5 07:43:07 EDT 2009
+// Date:	Thu Aug  6 06:53:05 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/05 21:04:06 $
+//   $Date: 2009/08/06 19:16:58 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -330,16 +330,10 @@ namespace min { namespace acc {
 	    // type of the region and the value field
 	    // is the size of the region in bytes.
 
-	min::uns64 offset;
-	    // For variable size block and multi-page
-	    // block regions, the offset of the first
-	    // free byte in the region.  New blocks are
-	    // always allocated at this offset.
-
-	min::uns64 region_size;
-	    // The size of the region in bytes.  Dupli-
-	    // cates the value field of block_sub-
-	    // control.
+	char * begin, * next, * end;
+	    // Location of the first byte of the region,
+	    // the next byte to be allocated, and the
+	    // first byte after the region.
 
 	min::uns32 block_size;
 	    // For fixed size block regions, the size
@@ -370,14 +364,6 @@ namespace min { namespace acc {
 	    // these regions will be used to create
 	    // new subregions.
 
-	MACC::region * subregion_previous,
-		     * subregion_next;
-	    // Previous and next region on a doubly
-	    // linked list of subregions.  There is one
-	    // such list for every super-region which
-	    // includes that super-region and all of its
-	    // subregions.
-
 	void * free_first,
 	     * free_last;
 	    // The first and last free block for a fixed
@@ -389,6 +375,31 @@ namespace min { namespace acc {
 	    // these members are NULL.
 
     };
+
+    // Put region1 on the doubly linked region_previous/
+    // next list after region2.
+    //
+    inline void insert_after
+        ( region * region1, region * region2 )
+    {
+        region1->region_previous = region2;
+	region1->region_next = region2->region_next;
+	region1->region_previous->region_next = region1;
+	region1->region_next->region_previous = region1;
+    }
+
+    // Remove region1 from the retion_previous/next list
+    // it is on and link it to itself.
+    //
+    inline void remove ( region * region1 )
+    {
+	region1->region_previous->region_next =
+	    region1->region_next;
+	region1->region_next->region_previous =
+	    region1->region_previous;
+        region1->region_previous = region1;
+	region1->region_next = region1;
+    }
 
     // Beginning, end, and next to be used region table
     // entry.  The region table can be an initially
@@ -421,6 +432,13 @@ namespace min { namespace acc {
     // be reused more freely.
     //
     extern unsigned subregion_size;
+
+    // Standard size of a superregion that holds fixed
+    // and variable block regions.   If not enough
+    // memory is available, less may be allocated to
+    // a superregion.
+    //
+    extern unsigned superregion_size;
     
     // All freed fixed block and variable block regions
     // are on a circular list chained by their region_
