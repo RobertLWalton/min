@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul 23 15:32:20 EDT 2009
+// Date:	Fri Aug  7 21:46:45 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/23 19:35:32 $
+//   $Date: 2009/08/08 01:49:17 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.101 $
+//   $Revision: 1.102 $
 
 // Table of Contents:
 //
@@ -212,7 +212,7 @@ namespace min { namespace internal {
 	MUP::set_pointer_of ( s, s2 );
 	MUP::set_control_of
 	    ( s,
-	      MUP::new_control
+	      MUP::new_control_with_type
 	          ( min::HASHTABLE_AUX,
 		    MINT::num_hash[h] ) );
 	MINT::num_hash[h] = s;
@@ -503,7 +503,7 @@ min::gen MUP::new_str_stub_gen_internal
     MUP::set_pointer_of ( s, s2 );
     MUP::set_control_of
 	( s,
-	  MUP::new_control
+	  MUP::new_control_with_type
 	      ( min::HASHTABLE_AUX,
 		MINT::str_hash[h] ));
     MINT::str_hash[h] = s;
@@ -596,7 +596,7 @@ min::gen min::new_lab_gen
     MUP::set_pointer_of ( s, s2 );
     MUP::set_control_of
 	( s,
-	  MUP::new_control
+	  MUP::new_control_with_type
 	      ( min::HASHTABLE_AUX,
 		MINT::lab_hash[h] ));
     MINT::lab_hash[h] = s;
@@ -1352,7 +1352,7 @@ void MINT::allocate_stub_list
 	MUP::set_gen_of ( last, * p ++ );
 	MUP::set_control_of
 	     ( previous,
-	       MUP::new_control
+	       MUP::new_control_with_type
 	           ( type, last, MUP::STUB_POINTER ) );
 	type = min::LIST_AUX;
 	previous = last;
@@ -1454,7 +1454,7 @@ void min::insert_before
 			  min::SUBLIST_AUX :
 		          min::LIST_AUX,
 		      p, n,
-		      MUP::new_control
+		      MUP::new_control_with_type
 			( 0, (min::uns64) 0 ) );
 
 		fgen = min::new_gen ( first );
@@ -1470,7 +1470,7 @@ void min::insert_before
 				( lp.previous_stub );
 			MUP::set_control_of
 			    ( lp.previous_stub,
-			      MUP::new_control
+			      MUP::new_control_with_type
 				  ( type, first,
 				    MUP::STUB_POINTER )
 			    );
@@ -1488,7 +1488,7 @@ void min::insert_before
 				[lp.previous_index] );
 			MUP::set_control_of
 			    ( s,
-			      MUP::new_control
+			      MUP::new_control_with_type
 			        ( min::LIST_AUX,
 				  first,
 				  MUP::STUB_POINTER ) );
@@ -1530,7 +1530,7 @@ void min::insert_before
 			    ( lp.previous_stub );
 		    MUP::set_control_of
 		        ( lp.previous_stub,
-			  MUP::new_control
+			  MUP::new_control_with_type
 			      ( type,
 			        aux_offset - 1 ) );
 		}
@@ -1602,7 +1602,7 @@ void min::insert_before
 		type = min::type_of ( lp.current_stub );
 		MUP::set_type_of
 		    ( lp.current_stub, min::LIST_AUX );
-		end = MUP::new_control
+		end = MUP::new_control_with_type
 		   ( 0, lp.current_stub,
 		     MUP::STUB_POINTER );
 		MIN_ASSERT ( previous );
@@ -1611,7 +1611,7 @@ void min::insert_before
 	    {
 	        s = MINT::new_aux_stub();
 		MUP::set_gen_of ( s, lp.current );
-		end = MUP::new_control
+		end = MUP::new_control_with_type
 		    ( 0, s, MUP::STUB_POINTER );
 		unsigned next = lp.current_index;
 		if ( next < unused_offset )
@@ -1631,14 +1631,14 @@ void min::insert_before
 		}
 		MUP::set_control_of
 		    ( s,
-		      MUP::new_control
+		      MUP::new_control_with_type
 		        ( min::LIST_AUX, next ) );
 	    }
 	    else
 	    {
 	        if ( lp.previous_is_sublist_head )
 		    type == min::SUBLIST_AUX;
-		end = MUP::new_control
+		end = MUP::new_control_with_type
 		   ( 0, lp.current_index );
 	    }
 
@@ -1664,7 +1664,7 @@ void min::insert_before
 			      ( lp.previous_stub );
 		    MUP::set_control_of
 			( lp.previous_stub,
-			  MUP::new_control
+			  MUP::new_control_with_type
 			      ( type, first,
 				MUP::STUB_POINTER ) );
 		}
@@ -1744,7 +1744,7 @@ void min::insert_before
 		    min::type_of ( lp.previous_stub );
 		MUP::set_control_of
 		    ( lp.previous_stub,
-		      MUP::new_control
+		      MUP::new_control_with_type
 			  ( type, first ) );
 	    }
 	    lp.previous_index = aux_offset;
@@ -1819,7 +1819,7 @@ void min::insert_after
 		          ( lp.current_stub ) );
 		MUP::set_control_of
 		    ( lp.current_stub,
-		      MUP::new_control
+		      MUP::new_control_with_type
 			 ( min::type_of
 			       ( lp.current_stub ),
 			   first,
@@ -1837,7 +1837,8 @@ void min::insert_after
 	    if ( lp.current_index < unused_offset )
 	        next = 0;
 	    min::uns64 end =
-		MUP::new_control ( type, next );
+		MUP::new_control_with_type
+		    ( type, next );
 
 	    if ( n > previous )
 		MINT::allocate_stub_list
@@ -1851,7 +1852,7 @@ void min::insert_after
 		// element.
 		//
 		if ( n > 1 )
-		    end = MUP::new_control
+		    end = MUP::new_control_with_type
 		              ( type, first,
 			        MUP::STUB_POINTER );
 		MUP::set_control_of ( s, end );
@@ -1872,7 +1873,7 @@ void min::insert_after
 				( lp.previous_stub );
 			MUP::set_control_of
 			  ( lp.previous_stub,
-			    MUP::new_control
+			    MUP::new_control_with_type
 			      ( type, s,
 			        MUP::STUB_POINTER ) );
 		    }
@@ -1891,7 +1892,7 @@ void min::insert_after
 
 		MUP::set_control_of
 		    ( s,
-		      MUP::new_control
+		      MUP::new_control_with_type
 		          ( min::LIST_AUX, first,
 			    MUP::STUB_POINTER ) );
 		lp.base[lp.current_index] =
@@ -1933,7 +1934,7 @@ void min::insert_after
 		    ( MUP::value_of_control ( c ) );
 	MUP::set_control_of
 	    ( lp.current_stub,
-	      MUP::new_control
+	      MUP::new_control_with_type
 	         ( min::type_of ( lp.current_stub ),
 		   first ) );
     }
@@ -1964,7 +1965,7 @@ void min::insert_after
 		{
 		    MUP::set_control_of
 			( lp.previous_stub,
-			  MUP::new_control
+			  MUP::new_control_with_type
 			      ( min::type_of
 				  ( lp.previous_stub ),
 				first ) );
@@ -2119,7 +2120,7 @@ unsigned min::remove
 		        min::type_of ( previous_stub );
 		    MUP::set_control_of
 		        ( previous_stub,
-			  MUP::new_control
+			  MUP::new_control_with_type
 			      ( type, lp.current_stub,
 			        MUP::STUB_POINTER ) );
 		}
@@ -2136,7 +2137,7 @@ unsigned min::remove
 		        min::type_of ( previous_stub );
 		    MUP::set_control_of
 		        ( previous_stub,
-			  MUP::new_control
+			  MUP::new_control_with_type
 			      ( type, min::uns64(0) ) );
 		}
 		if ( lp.current_index != 0 )
@@ -2161,7 +2162,7 @@ unsigned min::remove
 		        min::type_of ( previous_stub );
 		    MUP::set_control_of
 		        ( previous_stub,
-			  MUP::new_control
+			  MUP::new_control_with_type
 			      ( type,
 			        lp.current_index ) );
 		}

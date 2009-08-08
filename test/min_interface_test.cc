@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul 23 15:24:43 EDT 2009
+// Date:	Fri Aug  7 21:47:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/23 19:30:58 $
+//   $Date: 2009/08/08 01:49:34 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.93 $
+//   $Revision: 1.94 $
 
 // Table of Contents:
 //
@@ -920,7 +920,8 @@ int main ()
 	cout << "Test controls sans stub addresses:"
 	     << endl;
 	min::uns64 control1 =
-	    MUP::new_control ( type1, v1, flags );
+	    MUP::new_control_with_type
+	        ( type1, v1, flags );
 	cout << "control1: " << hex << control1 << dec
 	     << endl;
         MIN_ASSERT
@@ -965,7 +966,8 @@ int main ()
 	cout << "Test non-acc controls with stub"
 	        " addresses:" << endl;
 	min::uns64 control2 =
-	    MUP::new_control ( type1, stub1, hiflag );
+	    MUP::new_control_with_type
+	        ( type1, stub1, hiflag );
 	cout << "control2: " << hex << control2 << dec
 	     << endl;
         MIN_ASSERT

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug  1 04:38:28 EDT 2009
+// Date:	Fri Aug  7 21:32:04 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/01 09:34:08 $
+//   $Date: 2009/08/08 01:48:45 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.177 $
+//   $Revision: 1.178 $
 
 // Table of Contents:
 //
@@ -973,7 +973,7 @@ namespace min {
 //
 //	Bits		Use
 //
-//	0 .. 47		Stub absolute or relative
+//	0 .. m-1		Stub absolute or relative
 //			address or stub index.
 //
 //	m .. 55		ACC flag bits
@@ -989,7 +989,9 @@ namespace min {
 //
 //	48 .. 55	Flag bits
 //
-//	56 .. 63	Type code.
+//	56 .. 63	Type code
+//
+//	48 .. 63	Locator (overlaps flag and type)
 
 // ACC CONTROL MASK is 2**(56 - MIN_ACC_FLAG_BITS) - 1.
 // CONTROL MASK is 2**48 - 1.
@@ -1002,6 +1004,9 @@ namespace min { namespace internal {
 
     const min::uns64 TYPE_MASK =
 	~ ( ( uns64(1) << 56 ) - 1 );
+
+    const min::uns64 LOCATOR_MASK =
+	~ ( ( uns64(1) << 48 ) - 1 );
 } }
 
 namespace min { namespace unprotected {
@@ -1011,6 +1016,11 @@ namespace min { namespace unprotected {
 	return int ( min::int64 ( c ) >> 56 );
     }
 
+    inline int locator_of_control ( min::uns64 c )
+    {
+	return int ( min::int64 ( c ) >> 48 );
+    }
+
     inline unsigned value_of_control
 	    ( min::uns64 c )
     {
@@ -1018,7 +1028,7 @@ namespace min { namespace unprotected {
 	  ( c & MIN_CONTROL_VALUE_MASK );
     }
 
-    inline min::uns64 new_control
+    inline min::uns64 new_control_with_type
 	    ( int type_code, min::uns64 v,
 	      min::uns64 flags = 0 )
     {
@@ -1029,11 +1039,26 @@ namespace min { namespace unprotected {
 	       flags;
     }
 
+    inline min::uns64 new_control_with_locator
+	    ( int locator, min::uns64 v )
+    {
+	return ( min::uns64 ( locator ) << 48 )
+	       |
+	       v;
+    }
+
     inline min::uns64 renew_control_type
 	    ( min::uns64 c, int type )
     {
 	return ( c & ~ min::internal::TYPE_MASK )
 	       | ( min::uns64 (type) << 56 );
+    }
+
+    inline min::uns64 renew_control_locator
+	    ( min::uns64 c, int locator )
+    {
+	return ( c & ~ min::internal::LOCATOR_MASK )
+	       | ( min::uns64 (locator) << 48 );
     }
 
     inline min::uns64 renew_control_value
@@ -1054,7 +1079,7 @@ namespace min { namespace unprotected {
 	           (c & MIN_CONTROL_VALUE_MASK );
 	}
 
-	inline min::uns64 new_control
+	inline min::uns64 new_control_with_type
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
@@ -1063,6 +1088,14 @@ namespace min { namespace unprotected {
 		   (min::internal::pointer_uns) s
 		   |
 		   flags;
+	}
+
+	inline min::uns64 new_control_with_locator
+		( int locator, min::stub * s )
+	{
+	    return ( min::uns64 ( locator ) << 48 )
+		   |
+		   (min::internal::pointer_uns) s;
 	}
 
 	inline min::uns64 renew_control_stub
@@ -1085,7 +1118,7 @@ namespace min { namespace unprotected {
 	           ( p + min::internal::stub_base );
 	}
 
-	inline min::uns64 new_control
+	inline min::uns64 new_control_with_type
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
@@ -1095,6 +1128,15 @@ namespace min { namespace unprotected {
 	             - min::internal::stub_base )
 		   |
 		   flags;
+	}
+
+	inline min::uns64 new_control_with_locator
+		( int locator, min::stub * s )
+	{
+	    return ( min::uns64 ( locator ) << 48 )
+		   |
+	           (   (min::internal::pointer_uns) s
+	             - min::internal::stub_base );
 	}
 
 	inline min::uns64 renew_control_stub
@@ -1118,7 +1160,7 @@ namespace min { namespace unprotected {
 	           min::internal::stub_base + p;
 	}
 
-	inline min::uns64 new_control
+	inline min::uns64 new_control_with_type
 		( int type_code, min::stub * s,
 		  min::uns64 flags = 0 )
 	{
@@ -1126,6 +1168,14 @@ namespace min { namespace unprotected {
 	           | ( s - (min::stub *)
 		           min::internal::stub_base )
 		   | flags;
+	}
+
+	inline min::uns64 new_control_with_locator
+		( int locator, min::stub * s )
+	{
+	    return   ( min::uns64 ( locator ) << 48 )
+	           | ( s - (min::stub *)
+		           min::internal::stub_base );
 	}
 
 	inline min::uns64 renew_control_stub
