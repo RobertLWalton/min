@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Aug  6 03:37:56 EDT 2009
+// Date:	Fri Aug  7 21:21:37 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/06 19:16:48 $
+//   $Date: 2009/08/09 21:20:59 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents:
 //
@@ -447,7 +447,7 @@ static MACC::region * new_multi_page_region
 
     MACC::region * r = MACC::region_next ++;
     r->block_control = 0;
-    r->block_subcontrol = MUP::new_control
+    r->block_subcontrol = MUP::new_control_with_type
         ( MACC::MULTI_PAGE_REGION, size );
     r->begin = (char *) m;
     r->next = r->begin;
@@ -518,6 +518,13 @@ void MINT::new_fixed_body
         r = MACC::last_free_subregion;
 	if ( r != NULL )
 	{
+	    int locator = MUP::locator_of_control
+	                       ( r->block_control );
+	    sr = MACC::region_table + locator;
+	    assert ( MACC::region_table <= sr
+	             &&
+		     sr < MACC::region_end );
+
 	    if ( r == r->region_previous )
 		MACC::last_free_subregion = NULL;
 	    else
@@ -532,6 +539,7 @@ void MINT::new_fixed_body
 	    MACC::region * sr = MACC::last_superregion;
 	    char * new_next = sr->next
 	                    + MACC::subregion_size;
+
 	    if ( new_next > sr->end )
 	    {
 	        allocate_new_superregion();
@@ -540,12 +548,13 @@ void MINT::new_fixed_body
 	                 + MACC::subregion_size;
 		assert ( new_next <= sr->end );
 	    }
+
 	    r = (MACC::region *) sr->next;
 	    sr->next = new_next;
-
-
 	}
-        // r = new_multi_page_block_region ( xxx );
+
+	// r->block_control = ??
+
 	r->region_next = fblext->first_region;
 	r->region_previous =
 	    fblext->first_region->region_previous;
