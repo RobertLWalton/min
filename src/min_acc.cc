@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug  7 21:21:37 EDT 2009
+// Date:	Mon Aug 10 09:49:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/09 21:20:59 $
+//   $Date: 2009/08/10 20:38:12 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents:
 //
@@ -553,15 +553,71 @@ void MINT::new_fixed_body
 	    sr->next = new_next;
 	}
 
-	// r->block_control = ??
+	r->block_control =
+	    MUP::new_control_with_locator
+	        ( sr - MACC::region_table,
+		  MINT::null_stub );
+	r->block_subcontrol =
+	    MUP::new_control_with_type
+	        ( MACC::FIXED_SIZE_BLOCK_REGION,
+		  MACC::subregion_size );
+
+	unsigned s = fbl->size;
+	s = s
+	  * ( ( sizeof ( MACC::region ) + s - 1 ) / s );
+	r->begin = r->next = (char *) r + s;
+	r->end = (char *) r + MACC::subregion_size;
+
+	assert
+	    ( ( r->end - r->begin ) % fbl->size == 0 );
+		  
 
 	r->region_next = fblext->first_region;
 	r->region_previous =
 	    fblext->first_region->region_previous;
 	r->region_next->region_previous = r;
-	r->region_previous->region_next = r;
+
+	r->block_size = fbl->size;
+	r->free_count = 0;
+	r->region_previous = r->region_next = r;
+	if ( fblext->current_region != NULL )
+	    MACC::insert_after
+	        ( r, fblext->current_region );
+
+	r->free_first = r->free_last = NULL;
     }
+
     fblext->current_region = r;
+
+    if ( r->free_count > 0 )
+    {
+        fbl->count = r->free_count;
+	fbl->first = r->free_first;
+	r->free_count = 0;
+	r->free_first = r->free_last = NULL;
+    }
+    else
+    {
+    	unsigned count = 16 * pagesize / fbl->size;
+	if ( count == 0 ) count = 1;
+	void * last = NULL;
+	while ( count -- > 0 )
+	{
+	    if ( r->next + fbl->size > r->end )
+	    {
+	        r->next = r->end;
+		break;
+	    }
+	    if ( last == NULL )
+	        fbl->first = r->next;
+	    else
+	        * ( void **) last = r->next;
+	    r->next += fbl->size;
+	    ++ fbl->count;
+	}
+	if ( last != NULL )
+	        * ( void **) last = NULL;
+    }
 }
 
 

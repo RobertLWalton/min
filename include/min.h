@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug  7 21:32:04 EDT 2009
+// Date:	Mon Aug 10 10:57:03 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/08 01:48:45 $
+//   $Date: 2009/08/10 20:36:45 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.178 $
+//   $Revision: 1.179 $
 
 // Table of Contents:
 //
@@ -1819,12 +1819,16 @@ namespace min { namespace internal {
 	     return;
 	}
 
+	min::uns64 * b = (min::uns64 *) fbl->first;
+	fbl->first = * ( void ** ) fbl->first;
+	-- fbl->count;
+
+	* b = MUP::new_control_with_locator
+	    ( 00000, s );
 	min::unprotected
-	   ::set_pointer_of ( s, fbl->first );
+	   ::set_pointer_of ( s, ++ b );
 	min::unprotected
 	   ::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
-	-- fbl->count;
-	fbl->first = * ( void ** ) fbl->first;
     }
 
     // Deallocate the body of a stub, and reset the stub
