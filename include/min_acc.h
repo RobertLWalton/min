@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Aug  6 06:53:05 EDT 2009
+// Date:	Mon Aug 10 09:53:07 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/06 19:16:58 $
+//   $Date: 2009/08/10 20:36:45 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -149,11 +149,11 @@ namespace min { namespace acc {
         // Stored in block subcontrol word of blocks
 	// that are NOT object bodies.
     {
-        FREE			= 1,
-	FIXED_SIZE_REGION	= 2,
-	VARIABLE_SIZE_REGION	= 3,
-	MULTI_PAGE_REGION	= 4,
-	LIST_SEGMENT		= 5
+        FREE				= 1,
+	FIXED_SIZE_BLOCK_REGION		= 2,
+	VARIABLE_SIZE_BLOCK_REGION	= 3,
+	MULTI_PAGE_BLOCK_REGION		= 4,
+	LIST_SEGMENT			= 5
     };
 
     // Bodies are organized into regions which are
