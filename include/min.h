@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Aug 10 10:57:03 EDT 2009
+// Date:	Mon Aug 10 16:37:35 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/10 20:36:45 $
+//   $Date: 2009/08/11 17:35:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.179 $
+//   $Revision: 1.180 $
 
 // Table of Contents:
 //
@@ -1763,20 +1763,31 @@ namespace min { namespace internal {
     // fixed_bodies[j] is the head of a free list of
     // fixed bodies of size 1 << ( j + 3 ), for 0 <= j
     // and (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE/8.
+    // Each fixed body begins with a control word whose
+    // locator is provided by the allocator and whose
+    // stub address is set to the stub the body is
+    // attached to.  When the body is on the free
+    // list, the location after the control word is
+    // a (void *) pointer to the next free body, or is
+    // NULL.  When the body is in use, the object body
+    // begins just after the control word, and the size
+    // of the object body can be derived by using the
+    // locator to find the region containing the body
+    // (this is the domain of ACC code).
     //
     typedef struct fixed_body_list_extension;
         // Allocator specific extension of fixed_body_
 	// list struct.
     extern struct fixed_body_list
     {
-	unsigned size;	// Size of fixed body.
+	unsigned size;	// Size of fixed body, including
+			// control word.  For fixed_
+			// bodies[j] this equals
+			// 1 << (j+3).
         unsigned count;	// Number of fixed bodies on the
 			// list.
-	void * first;	// First fixed body on the list.
-			// Each fixed body begins with
-			// a void * pointing at the next
-			// body on the list.  The list
-			// is NULL terminated.
+	void * first;	// First fixed body on the list,
+			// or NULL if list empty.
 	fixed_body_list_extension * extension;
 			// Address of extension of this
 			// structure.  Set during
@@ -1793,26 +1804,31 @@ namespace min { namespace internal {
     extern unsigned max_fixed_body_size;
 
     // Allocate a body to a stub.  n is the minimum size
-    // of the body in bytes.  The stub control must be
-    // set: its ACC flags may be changed.
+    // of the body in bytes, not including the control
+    // word that begins the body.  The stub control is
+    // set and its ACC flags may be changed.
     //
     inline void new_body ( min::stub * s, unsigned n )
     {
-        if ( n == 0
-	     ||
-	     n > max_fixed_body_size )
+	unsigned m = n + sizeof ( min::uns64);
+
+        assert ( m >=   sizeof ( min::uns64 )
+	              + sizeof ( void * ) );
+
+	if ( m > max_fixed_body_size )
 	{
 	     new_non_fixed_body ( s, n );
 	     return;
 	}
 
-	unsigned m = n + 7;
-	m >>= 3;
 
 	// See min_parameters.h for fixed_bodies_log.
+	//
+	m = ( m - 1 ) >> 3;
 	fixed_body_list * fbl =
-		fixed_bodies + fixed_bodies_log ( m );
-	if ( fbl->size < n ) ++ fbl;
+		  fixed_bodies
+		+ fixed_bodies_log ( m ) + 1;
+
 	if ( fbl->count == 0 )
 	{
 	     new_fixed_body ( s, n, fbl );
@@ -1820,13 +1836,15 @@ namespace min { namespace internal {
 	}
 
 	min::uns64 * b = (min::uns64 *) fbl->first;
-	fbl->first = * ( void ** ) fbl->first;
+
+	* b = min::unprotected
+	         ::renew_control_stub ( * b, s );
+
+	fbl->first = * ( void ** ) ++ b;
 	-- fbl->count;
 
-	* b = MUP::new_control_with_locator
-	    ( 00000, s );
 	min::unprotected
-	   ::set_pointer_of ( s, ++ b );
+	   ::set_pointer_of ( s, b );
 	min::unprotected
 	   ::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
     }

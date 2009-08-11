@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug  1 05:02:24 EDT 2009
+// Date:	Tue Aug 11 13:34:53 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/01 09:34:08 $
+//   $Date: 2009/08/11 17:35:08 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.39 $
+//   $Revision: 1.40 $
 
 // Table of Contents
 //
@@ -291,7 +291,7 @@
 
 namespace min { namespace internal {
 
-    // Return j such that (1<<j) <= u <= (1<<(j+1)),
+    // Return j such that (1<<j) <= u < (1<<(j+1)),
     // assuming
     //    0 < u <= MIN_MAX_ABSOLUTE_FIXED_BODY_SIZE/8.
     //
