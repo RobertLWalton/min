@@ -570,7 +570,7 @@ Test body allocator functions:
 MINT::new_fixed_body ( stub 1, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[4] and assigning begin_body_region[0 .. 15]
+Using fixed_bodies[5] and assigning begin_body_region[0 .. 31]
 min_interface_test.cc:XXXX assert:
     memcmp ( p1, p2, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -578,7 +578,7 @@ min_interface_test.cc:XXXX assert:
 MINT::new_fixed_body ( stub 4, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[4] and assigning begin_body_region[32 .. 47]
+Using fixed_bodies[5] and assigning begin_body_region[64 .. 95]
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -587,7 +587,7 @@ relocate_body ( stub 3, 128 ) called
 MINT::new_fixed_body ( stub in stack, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[4] and assigning begin_body_region[64 .. 79]
+Using fixed_bodies[5] and assigning begin_body_region[128 .. 159]
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p5, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -695,7 +695,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 13, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[2] and assigning begin_body_region[96 .. 99]
+Using fixed_bodies[2] and assigning begin_body_region[192 .. 195]
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 8 ) == strgen8 true.
@@ -926,7 +926,7 @@ relocate_body ( stub 13, 21 ) called
 MINT::new_fixed_body ( stub in stack, 21 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[2] and assigning begin_body_region[104 .. 107]
+Using fixed_bodies[2] and assigning begin_body_region[200 .. 203]
 min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
 min_interface_test.cc:XXXX assert:
@@ -1022,7 +1022,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 19, 2420 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[9] and assigning begin_body_region[112 .. 623]
+Using fixed_bodies[9] and assigning begin_body_region[208 .. 719]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:

@@ -337,7 +337,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f65a0
+control2: 85800000009f6700
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -348,7 +348,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f65b0
+re-control2: 85800000009f6710
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -361,7 +361,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f65a0
+control3: 85800000009f6700
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -372,7 +372,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f65b0
+re-control3: 85800000009f6710
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -552,7 +552,7 @@ Test body allocator functions:
 MINT::new_fixed_body ( stub 1, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[4] and assigning begin_body_region[0 .. 15]
+Using fixed_bodies[5] and assigning begin_body_region[0 .. 31]
 min_interface_test.cc:XXXX assert:
     memcmp ( p1, p2, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -560,7 +560,7 @@ min_interface_test.cc:XXXX assert:
 MINT::new_fixed_body ( stub 4, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[4] and assigning begin_body_region[32 .. 47]
+Using fixed_bodies[5] and assigning begin_body_region[64 .. 95]
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -569,7 +569,7 @@ relocate_body ( stub 3, 128 ) called
 MINT::new_fixed_body ( stub in stack, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[4] and assigning begin_body_region[64 .. 79]
+Using fixed_bodies[5] and assigning begin_body_region[128 .. 159]
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p5, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -687,7 +687,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 9, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[2] and assigning begin_body_region[96 .. 99]
+Using fixed_bodies[2] and assigning begin_body_region[192 .. 195]
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 8 ) == strgen8 true.
@@ -918,7 +918,7 @@ relocate_body ( stub 9, 21 ) called
 MINT::new_fixed_body ( stub in stack, 21 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[2] and assigning begin_body_region[104 .. 107]
+Using fixed_bodies[2] and assigning begin_body_region[200 .. 203]
 min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
 min_interface_test.cc:XXXX assert:
@@ -943,6 +943,10 @@ Test labels:
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 11, 32 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_bodies[3] and assigning begin_body_region[208 .. 215]
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
@@ -1012,7 +1016,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 13, 4832 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_bodies[10] and assigning begin_body_region[112 .. 1135]
+Using fixed_bodies[10] and assigning begin_body_region[224 .. 1247]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
