@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug 11 07:50:28 EDT 2009
+// Date:	Wed Aug 12 07:48:31 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/11 17:38:41 $
+//   $Date: 2009/08/12 16:23:36 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.95 $
+//   $Revision: 1.96 $
 
 // Table of Contents:
 //
@@ -327,9 +327,12 @@ void MINT::new_fixed_body
        ::set_flags_of ( s, MINT::ACC_FIXED_BODY_FLAG );
 
     next += m;
-    * next = 0;
-    * (void **) ( next + 1 ) = NULL;
-    fbl->first = (void *) next;
+
+    MINT::free_fixed_size_body * fb =
+        (MINT::free_fixed_size_body *) next;
+    fb->body_control = 0;
+    fb->next = NULL;
+    fbl->first = fb;
     fbl->count = 1;
 
     next_body = next + m;

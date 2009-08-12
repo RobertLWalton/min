@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Aug 10 09:49:43 EDT 2009
+// Date:	Wed Aug 12 07:58:30 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/10 20:38:12 $
+//   $Date: 2009/08/12 16:24:27 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents:
 //
@@ -448,7 +448,7 @@ static MACC::region * new_multi_page_region
     MACC::region * r = MACC::region_next ++;
     r->block_control = 0;
     r->block_subcontrol = MUP::new_control_with_type
-        ( MACC::MULTI_PAGE_REGION, size );
+        ( MACC::MULTI_PAGE_BLOCK_REGION, size );
     r->begin = (char *) m;
     r->next = r->begin;
     r->end = r->begin + size;
@@ -507,7 +507,7 @@ void MINT::new_fixed_body
     while ( r != NULL )
     {
         if ( r->free_first != NULL ) break;
-	if ( r->next < r->end ) break;
+	if ( r->next + fbl->size <= r->end ) break;
 	r = r->region_next;
 	if ( r == fblext->current_region ) r = NULL;
     }
@@ -571,12 +571,6 @@ void MINT::new_fixed_body
 	assert
 	    ( ( r->end - r->begin ) % fbl->size == 0 );
 		  
-
-	r->region_next = fblext->first_region;
-	r->region_previous =
-	    fblext->first_region->region_previous;
-	r->region_next->region_previous = r;
-
 	r->block_size = fbl->size;
 	r->free_count = 0;
 	r->region_previous = r->region_next = r;
@@ -598,9 +592,12 @@ void MINT::new_fixed_body
     }
     else
     {
+	// Add up to 16 pages worth of bodies to the
+	// fbl free list.
+	//
     	unsigned count = 16 * pagesize / fbl->size;
 	if ( count == 0 ) count = 1;
-	void * last = NULL;
+	MINT::free_fixed_size_body * last = NULL;
 	while ( count -- > 0 )
 	{
 	    if ( r->next + fbl->size > r->end )
@@ -608,16 +605,36 @@ void MINT::new_fixed_body
 	        r->next = r->end;
 		break;
 	    }
+
+	    MINT::free_fixed_size_body * b =
+	        (MINT::free_fixed_size_body *) r->next;
+	    b->body_control =
+	        MUP::new_control_with_locator
+		    (   ( (char *) r - r->next )
+		      / pagesize,
+		      MINT::null_stub );
+
 	    if ( last == NULL )
-	        fbl->first = r->next;
+	        fbl->first = b;
 	    else
-	        * ( void **) last = r->next;
+	        last->next = b;
+
+	    last = b;
+
 	    r->next += fbl->size;
 	    ++ fbl->count;
 	}
-	if ( last != NULL )
-	        * ( void **) last = NULL;
+	if ( last != NULL ) last->next = NULL;
     }
+
+    MINT::free_fixed_size_body * b = fbl->first;
+    fbl->first = b->next;
+    -- fbl->count;
+
+    b->body_control = MUP::renew_control_stub
+        ( b->body_control, s );
+    MUP::set_pointer_of ( s, & b->body_control + 1 );
+    MUP::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
 }
 
 

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Aug 10 09:53:07 EDT 2009
+// Date:	Wed Aug 12 12:24:48 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/10 20:36:45 $
+//   $Date: 2009/08/12 16:24:59 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -364,15 +364,10 @@ namespace min { namespace acc {
 	    // these regions will be used to create
 	    // new subregions.
 
-	void * free_first,
-	     * free_last;
+	MINT::free_fixed_size_body * free_first;
+	MINT::free_fixed_size_body * free_last;
 	    // The first and last free block for a fixed
-	    // size block region.  Each free block is
-	    // chained to the next by a `void *' pointer
-	    // at the very beginning of the block (there
-	    // is no block control word).  The list is
-	    // NULL terminated and if the list is empty
-	    // these members are NULL.
+	    // size block region.
 
     };
 
