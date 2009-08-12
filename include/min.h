@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Aug 10 16:37:35 EDT 2009
+// Date:	Wed Aug 12 07:48:07 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/11 17:35:08 $
+//   $Date: 2009/08/12 16:24:59 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.180 $
+//   $Revision: 1.181 $
 
 // Table of Contents:
 //
@@ -38,6 +38,16 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+
+// Namespaces:
+//
+//   			Abbreviation
+//   Full Name		      Use and defining file.
+//
+//   min		min   Public protected min.h.
+//   min::unprotected	MUP   Public unprotected min.h.
+//   min::internal	MINT  Private min.h.
+//   min::acc		MACC  Private min_acc.h.
 
 // Setup
 // -----
@@ -1775,6 +1785,16 @@ namespace min { namespace internal {
     // locator to find the region containing the body
     // (this is the domain of ACC code).
     //
+    struct free_fixed_size_body
+    {
+        min::uns64	body_control;
+	    // Body control word that is at the
+	    // beginning of every fixed size_body.
+
+	free_fixed_size_body * next;
+	    // Next in NULL terminated list of free
+	    // fixed size_bodies.
+    };
     typedef struct fixed_body_list_extension;
         // Allocator specific extension of fixed_body_
 	// list struct.
@@ -1786,7 +1806,8 @@ namespace min { namespace internal {
 			// 1 << (j+3).
         unsigned count;	// Number of fixed bodies on the
 			// list.
-	void * first;	// First fixed body on the list,
+	free_fixed_size_body * first;
+			// First fixed body on the list,
 			// or NULL if list empty.
 	fixed_body_list_extension * extension;
 			// Address of extension of this
@@ -1821,7 +1842,6 @@ namespace min { namespace internal {
 	     return;
 	}
 
-
 	// See min_parameters.h for fixed_bodies_log.
 	//
 	m = ( m - 1 ) >> 3;
@@ -1835,16 +1855,18 @@ namespace min { namespace internal {
 	     return;
 	}
 
-	min::uns64 * b = (min::uns64 *) fbl->first;
+	min::internal::free_fixed_size_body * b =
+	    fbl->first;
 
-	* b = min::unprotected
-	         ::renew_control_stub ( * b, s );
-
-	fbl->first = * ( void ** ) ++ b;
+	fbl->first = b->next;
 	-- fbl->count;
 
+	b->body_control =
+	    min::unprotected::renew_control_stub
+	        ( b->body_control, s );
 	min::unprotected
-	   ::set_pointer_of ( s, b );
+	   ::set_pointer_of
+	       ( s, & b->body_control + 1 );
 	min::unprotected
 	   ::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
     }
