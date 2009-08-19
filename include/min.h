@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 12 07:48:07 EDT 2009
+// Date:	Tue Aug 18 00:04:29 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/12 16:24:59 $
+//   $Date: 2009/08/19 08:40:01 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.181 $
+//   $Revision: 1.182 $
 
 // Table of Contents:
 //
@@ -983,7 +983,7 @@ namespace min {
 //
 //	Bits		Use
 //
-//	0 .. m-1		Stub absolute or relative
+//	0 .. m-1	Stub absolute or relative
 //			address or stub index.
 //
 //	m .. 55		ACC flag bits

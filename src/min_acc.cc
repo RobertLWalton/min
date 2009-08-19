@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 12 07:58:30 EDT 2009
+// Date:	Tue Aug 18 00:53:10 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/12 16:24:27 $
+//   $Date: 2009/08/19 08:40:40 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents:
 //
@@ -163,12 +163,12 @@ static bool get_param
 // Convert a size in number of bytes into a size in
 // number of pages, rounding up.
 //
-static min::uns64 pagesize;
+static min::uns64 page_size;
 inline min::uns64 number_of_pages
     ( min::uns64 number_of_bytes )
 {
-    return ( number_of_bytes + pagesize - 1 )
-           / pagesize;
+    return ( number_of_bytes + page_size - 1 )
+           / page_size;
 }
 
 static void stub_allocator_initializer ( void );
@@ -206,7 +206,7 @@ void MINT::acc_initializer ( void )
 	         << setw ( before_space ( deb ) ) << deb
 		 << endl;
     }
-    pagesize = MOS::pagesize();
+    page_size = MOS::pagesize();
 
     stub_allocator_initializer();
     collector_initializer();
@@ -359,6 +359,7 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 // ----- ---------
 
 unsigned MACC::space_factor;
+unsigned MACC::cache_line_size;
 unsigned MACC::subregion_size;
 unsigned MACC::superregion_size;
 
@@ -379,10 +380,13 @@ static void block_allocator_initializer ( void )
                 MACC::space_factor, 8,
 		( MIN_POINTER_BITS <= 32 ? 32 : 256 ),
 		true );
+    get_param ( "cache_line_size",
+                MACC::cache_line_size,
+		8, 4096, true );
 
     MACC::subregion_size = MACC::space_factor
                          * MACC::space_factor
-	                 * pagesize;
+	                 * page_size;
 
     // We allocate a maximum sized region table, on the
     // grounds that it is < 4 megabytes, its silly not
@@ -408,18 +412,18 @@ static void block_allocator_initializer ( void )
 	     << " page region table" << endl;
 
     MACC::region_table = (MACC::region *) rt;
-    MACC::region_next = MACC::region_table;
+    MACC::region_next = MACC::region_table + 1;
     MACC::region_end =
           MACC::region_table
 	+ MACC::MAX_MULTI_PAGE_BLOCK_REGIONS;
 
     min::uns64 M = 0;
-    for ( unsigned t = MACC::space_factor * pagesize;
+    for ( unsigned t = MACC::space_factor * page_size;
     	  t >= 2; t /= 2 ) ++ M;
     MACC::superregion_size = (min::uns64) M
                            * MACC::space_factor
 			   * MACC::space_factor
-			   * pagesize;
+			   * page_size;
 
     allocate_new_superregion();
 }
@@ -431,7 +435,7 @@ static MACC::region * new_multi_page_region
 	( min::uns64 size )
 {
     min::uns64 pages = number_of_pages ( size );
-    size = pages * pagesize;
+    size = pages * page_size;
     void * m = MOS::new_pool ( pages );
     const char * error = MOS::pool_error ( m );
     if ( error != NULL ) return NULL;
@@ -484,7 +488,7 @@ static void allocate_new_superregion ( void )
     {
         if ( MACC::last_superregion == NULL )
 	    cout << "ERROR: could not allocate "
-		 << MACC::superregion_size / pagesize
+		 << MACC::superregion_size / page_size
 		 << " page initial heap." << endl;
 	else
 	    cout << "ERROR: out of virtual memory."
@@ -563,11 +567,16 @@ void MINT::new_fixed_body
 		  MACC::subregion_size );
 
 	unsigned s = fbl->size;
+	if ( s > MACC::cache_line_size )
+	    s = MACC::cache_line_size;
 	s = s
 	  * ( ( sizeof ( MACC::region ) + s - 1 ) / s );
 	r->begin = r->next = (char *) r + s;
-	r->end = (char *) r + MACC::subregion_size;
+	r->end = (char *) r + MACC::subregion_size
+	       -   ( MACC::subregion_size - s )
+	         % fbl->size;
 
+	assert ( r->end > r->begin );
 	assert
 	    ( ( r->end - r->begin ) % fbl->size == 0 );
 		  
@@ -595,14 +604,15 @@ void MINT::new_fixed_body
 	// Add up to 16 pages worth of bodies to the
 	// fbl free list.
 	//
-    	unsigned count = 16 * pagesize / fbl->size;
+    	unsigned count = 16 * page_size / fbl->size;
 	if ( count == 0 ) count = 1;
 	MINT::free_fixed_size_body * last = NULL;
 	while ( count -- > 0 )
 	{
 	    if ( r->next + fbl->size > r->end )
 	    {
-	        r->next = r->end;
+		assert
+		    ( r->next + fbl->size == r->end );
 		break;
 	    }
 
@@ -611,7 +621,7 @@ void MINT::new_fixed_body
 	    b->body_control =
 	        MUP::new_control_with_locator
 		    (   ( (char *) r - r->next )
-		      / pagesize,
+		      / page_size,
 		      MINT::null_stub );
 
 	    if ( last == NULL )
@@ -626,6 +636,8 @@ void MINT::new_fixed_body
 	}
 	if ( last != NULL ) last->next = NULL;
     }
+
+    assert ( fbl->count > 0 );
 
     MINT::free_fixed_size_body * b = fbl->first;
     fbl->first = b->next;

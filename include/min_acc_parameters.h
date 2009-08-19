@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul 30 10:24:04 EDT 2009
+// Date:	Tue Aug 18 02:49:33 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/30 17:03:29 $
+//   $Date: 2009/08/19 08:40:02 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents
 //
@@ -114,6 +114,16 @@
 # ifndef MIN_DEFAULT_SPACE_FACTOR
 #    define MIN_DEFAULT_SPACE_FACTOR \
 	( MIN_POINTER_BITS <= 32 ? 16 : 64 )
+# endif
+
+// cache_line_size
+//   This is a power of two that is the assumed size
+//   of a cache line.  Object bodies of the same or
+//   smaller size are aligned if reasonable so they
+//   are inside a cache line.
+//
+# ifndef MIN_CACHE_LINE_SIZE
+#    define MIN_CACHE_LINE_SIZE 256
 # endif
 
 
