@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 12 12:24:48 EDT 2009
+// Date:	Tue Aug 18 00:05:58 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/12 16:24:59 $
+//   $Date: 2009/08/19 08:40:02 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
-// and Compactor.  There interfaces are subject to
-// change without notice.
+// and Compactor.  These interfaces are private and
+// subject to change without notice.
 
 // Table of Contents
 //
@@ -60,9 +60,11 @@ namespace min { namespace acc {
     // interface to the stub allocator:
     //
     //  min::stub * MINT::null_stub
-    //    // Address of stub with index 0.  This address
-    //    // is used instead of the value NULL to end
-    //    // lists when a real stub address is required.
+    //    // Address of stub with index 0.  This stub
+    //    // may not exist in real memory.
+    //    //
+    //    // This address is used instead of the value
+    //    // NULL when a real stub address is required.
     //	  // If MIN_BASE is defined this is defined to
     //    // be a constant equal to MIN_BASE; otherwise
     //    // it is the first real stub (== stub_begin
@@ -79,7 +81,7 @@ namespace min { namespace acc {
     //    // Count of stubs on free stub list.
     //  min::stub * MINT::last_allocated_stub
     //    // The control word of this stub points at the
-    //    // first free stub or is MINT::end_stub if
+    //    // first free stub or is MINT::null_stub if
     //    // there are no free stubs.
     //  min::uns64 MINT::acc_new_stub_flags
     //    // Flags for newly allocated garbage
@@ -102,6 +104,10 @@ namespace min { namespace acc {
 	// location to be allocated in the region.
 	// The end is the address just after the
 	// region: stub_end = stub_begin + max_stubs.
+
+    // Deficiency: If MIN_POINTER_SIZE <= 32 stub
+    // memory should be allocated as needed and not
+    // all at once.
 } }
 
 
@@ -130,20 +136,28 @@ namespace min { namespace acc {
     // control struct for the region that contains the
     // block.  L is interpreted as follows:
     //
-    //	 if L < 0:	R = pageaddress + pagesize * L
+    //	 if L <= 0:	R = page_address + page_size * L
     //
-    //   if L >= 0:	R = & MACC::region_table[L]
+    //   if L > 0:	R = & MACC::region_table[L]
     //
-    // where `pageaddress' is the address of the page
+    // where `page_address' is the address of the page
     // containing the body control word containing L.
     //
     // If a block contains an object body, the stub
     // address points at the object's stub.  Otherwise
-    // the stub address == MINT::end_stub and the block
+    // the stub address == MINT::null_stub and the block
     // control word is immediately followed in memory
     // by a block subcontrol word whose type field
     // gives the block_type and whose value field
     // specifies the size in bytes of the block.
+    //
+    // Note: free fixed size blocks differ in NOT having
+    // a subcontrol word.  Their control word has
+    // MINT::null_stub as its stub address, and that
+    // is sufficient to indicate that the block is
+    // free, while looking up the block's region gives
+    // the blocks size.  See MINT::free_fixed_size_body
+    // in min.h.
     //
     enum block_type
         // Stored in block subcontrol word of blocks
@@ -184,12 +198,15 @@ namespace min { namespace acc {
     //
     //	     The MACC::region control struct for the
     //	     region is allocated at the very beginning
-    //	     of the region, in the first fixed sized
-    //	     block of the region.  The rest of this
-    //	     block is called the `stunted block' of the
-    //	     region and can be used to hold an object
-    //	     body.  There is no limit to the number of
-    //	     fixed block regions.
+    //	     of the region.  This MACC::region struct
+    //	     is padded at its end until its size is a
+    //       multiple of the block size of the region
+    //       or of the cache_line_size, whichever is
+    //	     smaller, and then the fixed size blocks
+    //	     are allocated after this padding.
+    //
+    //	     There is no limit to the number of fixed
+    //       size block regions.
     //
     //	     Fixed size blocks are allocated from a free
     //	     list.  When an object body in a fixed size
@@ -203,6 +220,18 @@ namespace min { namespace acc {
     //	     region (which may have fixed or variable
     //	     size blocks), thus permitting the emptied
     //	     region itself to be freed.
+    //
+    //	     Fixed size blocks hold either an object
+    //       body or are free blocks on the free list
+    //       of their region.  Free fixed size blocks
+    //       do NOT have a subcontrol word: see
+    //       MINT::free_fixed_size_body in min.h.
+    //	     A fixed size block is free if and only if
+    //	     its block control word stub address is
+    //	     MINT::null_stub.  The size of a free fixed
+    //       size block can always be found by using
+    //       its block control word locator to find its
+    //       region.
     //
     //	 Variable Size Block Regions
     //
@@ -250,7 +279,7 @@ namespace min { namespace acc {
     //		S bytes			object body
     //		B - S - 8 bytes		unused padding
     //
-    //	     		B - pagesize < S + 8 <= B
+    //	     		B - page_size < S + 8 <= B
     //
     //	     As B is a multiple of the page size, there
     //	     may be up to just under one page of unused
@@ -270,20 +299,22 @@ namespace min { namespace acc {
     //	     Multi-page block regions are intended for
     //	     larger object bodies.  When a multi-page
     //	     block is freed, the pages of a block are
-    //	     typically freed, even though the surround-
-    //	     ing pages may still be in use.  Also, the
-    //	     pages of a multi-page block are not
-    //	     generally allocated until they are first
-    //	     used.
+    //	     typically freed, except for the first page
+    //       which holds the block header, even though
+    //       the surrounding pages may still be in use.
+    //       Also, the pages of a multi-page block are
+    //       not generally allocated until they are
+    //       first used.
     //
     //	     Fixed and variable size block regions may
     //	     be allocated as multi-page block region
     //	     blocks.  The fixed and variable size
     //	     regions are `subregions' of the multi-page
-    //	     block region.  These subregions begin with
-    //	     a MACC::region control struct which in turn
-    //	     begins with a body control word (see
-    //	     below).
+    //	     block region, which is the `superregion'.
+    //       Subregions begin with a MACC::region
+    //       struct which in turn begins with a body
+    //       control word followed by a body subcontrol
+    //       word (see below).
     //
     //	     A multi-page block region has a region
     //	     control block in the MACC::region_table
@@ -293,7 +324,7 @@ namespace min { namespace acc {
     //	     A block in a multi-page block region is
     //	     always allocated after the last block prev-
     //	     iously allocated to the region.  When a
-    //	     multi-page block is is freed, the block is
+    //	     multi-page block is freed, the block is
     //	     marked as free, but cannot be reused until
     //	     the multi-page block region is compacted.
     //	     Compaction moves all used blocks in the
@@ -319,7 +350,7 @@ namespace min { namespace acc {
 	    //
 	    // is the  multi-page region containing
 	    // this region, and the pointer field of
-	    // the word equals MINT::end_stub.
+	    // the word equals MINT::null_stub.
 	    //
 	    // In other cases, where this region control
 	    // block is in the MACC::region_table, this
@@ -330,18 +361,28 @@ namespace min { namespace acc {
 	    // type of the region and the value field
 	    // is the size of the region in bytes.
 
-	char * begin, * next, * end;
-	    // Location of the first byte of the region,
-	    // the next byte to be allocated, and the
-	    // first byte after the region.
-
 	min::uns32 block_size;
 	    // For fixed size block regions, the size
 	    // in bytes of the fixed size blocks.
+	    //
+	    // For variable size block regions, the
+	    // maximum size in bytes of the variable
+	    // size blocks.
 
 	min::uns32 free_count;
 	    // For fixed size block regions, the number
 	    // of free blocks.
+
+	char * begin, * next, * end;
+	    // Location of the first allocatable byte of
+	    // the region, the next byte to be alloca-
+	    // ted, and the first byte after the last
+	    // allocatable byte of the region.  For
+	    // fixed and variable size block regions,
+	    // the first allocatable byte is the first
+	    // byte after the region's MACC::region
+	    // struct that is on a MACC::cache_size
+	    // boundary.
 
 	MACC::region * region_previous,
 		     * region_next;
@@ -403,6 +444,9 @@ namespace min { namespace acc {
     // adds physical pages as it grows.  Region indices
     // in the region table are limited to non-negative
     // int16's.
+    //
+    // Region_table[0] is unused as it cannot be
+    // accessed by a block control word locator.
     //
     extern region * region_table;
     extern region * region_next;
@@ -498,6 +542,12 @@ namespace min { namespace acc {
     //
     extern unsigned space_factor;
 
+    // Cache Line Size.  Fixed blocks of equal or
+    // smaller size are aligned so they are inside a
+    // cache line.
+    //
+    extern unsigned cache_line_size;
+
 } }
 
 
@@ -529,7 +579,7 @@ namespace min { namespace acc {
 	    //
 	    // is the  multi-page region containing
 	    // this segment, and the pointer field of
-	    // the word equals MINT::end_stub.
+	    // the word equals MINT::null_stub.
 
         min::uns64 block_subcontrol;
 	    // The type code field of this word is
