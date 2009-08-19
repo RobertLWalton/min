@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug 18 00:05:58 EDT 2009
+// Date:	Wed Aug 19 04:41:47 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/19 08:40:02 $
+//   $Date: 2009/08/19 18:45:35 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -335,6 +335,59 @@ namespace min { namespace acc {
     //	     a block can be done by moving page table
     //	     entries, which is faster than moving bytes.
 
+    // The following are variants of the above kinds
+    // of regions:
+    //
+    //    Subregions
+    //
+    //	     A subregion is a fixed size block region
+    //       or a variable size block region that is
+    //       allocated to a superregion.  All subregions
+    //       have the same size, so if one is freed, it
+    //       can be put on a free list and reused.
+    //       subregions are used to hold smaller object
+    //       bodies, typically bodies up to F pages in
+    //       size, where F is the space factor.  The
+    //       size of a subregion is typically F**2
+    //	     pages.
+    //
+    //    Superregions
+    //
+    //	     A superregion is multi-block region that
+    //       holds subregions.  Superregions are put
+    //       on a list, and never freed.
+    //
+    //    Paged Body Regions
+    //
+    //	     A paged body region is a multi-page block
+    //       region used to hold object bodies whose
+    //       size is an integral number of pages.  These
+    //       are intermediate size object bodies, too
+    //       large for variable or fixed size regions
+    //       and too small for mono-body regions.
+    //       Typically the bodies are F to F**2 pages
+    //       in size.
+    //
+    //       Paged Body Regions are put on a list so the
+    //       oldest object bodies are toward the begin-
+    //       ning of the first (and oldest) paged body
+    //       regions on the list.  The compactor copies
+    //       bodies toward the beginning of this list
+    //       and paged body regions may be freed from
+    //       either the end or middle of the list.
+    //	     Freed paged body regions may be deallocated
+    //       or may be moved to the end of the list.
+    //
+    //    Mono Body Regions
+    //
+    //       A mono body region is a multi-page block
+    //       region that holds nothing but a single
+    //       object body.  These are used for very large
+    //       object bodies, typicall those larger than
+    //       F**2 pages.
+    //
+    // TBD: deallocation
+    //    
     struct region
     { 
 
