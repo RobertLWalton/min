@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug 18 00:53:10 EDT 2009
+// Date:	Thu Aug 20 07:29:15 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/19 08:40:40 $
+//   $Date: 2009/08/20 20:16:08 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents:
 //
@@ -362,11 +362,15 @@ unsigned MACC::space_factor;
 unsigned MACC::cache_line_size;
 unsigned MACC::subregion_size;
 unsigned MACC::superregion_size;
+unsigned MACC::max_paged_body_size;
+unsigned MACC::paged_body_region_size;
 
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
 MACC::region * MACC::region_end;
 MACC::region * MACC::last_superregion;
+MACC::region * MACC::last_paged_body_region;
+MACC::region * MACC::last_mono_body_region;
 
 MACC::region *
     MACC::last_free_subregion = NULL;
@@ -431,8 +435,8 @@ static void block_allocator_initializer ( void )
 // Allocate a new multi-page region with the given
 // number of pages.
 //
-static MACC::region * new_multi_page_region
-	( min::uns64 size )
+static MACC::region * new_multi_page_block_region
+	( min::uns64 size, int type )
 {
     min::uns64 pages = number_of_pages ( size );
     size = pages * page_size;
@@ -452,8 +456,8 @@ static MACC::region * new_multi_page_region
     MACC::region * r = MACC::region_next ++;
     r->block_control = 0;
     r->block_subcontrol = MUP::new_control_with_type
-        ( MACC::MULTI_PAGE_BLOCK_REGION, size );
-    r->begin = (char *) m;
+        ( type, size );
+    r->begin = (min::uns8 *) m;
     r->next = r->begin;
     r->end = r->begin + size;
     r->block_size = 0;
@@ -476,14 +480,16 @@ static MACC::region * new_multi_page_region
 //
 static void allocate_new_superregion ( void )
 {
-    MACC::region * r = new_multi_page_region
-                           ( MACC::superregion_size );
+    MACC::region * r = new_multi_page_block_region
+	( MACC::superregion_size, MACC::SUPERREGION );
     if ( r == NULL && MACC::last_superregion != NULL )
-	r = new_multi_page_region
-	        ( 4 * MACC::subregion_size );
+	r = new_multi_page_block_region
+	        ( 4 * MACC::subregion_size,
+		  MACC::SUPERREGION );
     if ( r == NULL && MACC::last_superregion != NULL )
-	r = new_multi_page_region
-	        ( MACC::subregion_size );
+	r = new_multi_page_block_region
+	        ( MACC::subregion_size,
+		  MACC::SUPERREGION );
     if ( r == NULL )
     {
         if ( MACC::last_superregion == NULL )
@@ -541,8 +547,8 @@ void MINT::new_fixed_body
 	else
 	{
 	    MACC::region * sr = MACC::last_superregion;
-	    char * new_next = sr->next
-	                    + MACC::subregion_size;
+	    min::uns8 * new_next = sr->next
+	                         + MACC::subregion_size;
 
 	    if ( new_next > sr->end )
 	    {
@@ -571,8 +577,8 @@ void MINT::new_fixed_body
 	    s = MACC::cache_line_size;
 	s = s
 	  * ( ( sizeof ( MACC::region ) + s - 1 ) / s );
-	r->begin = r->next = (char *) r + s;
-	r->end = (char *) r + MACC::subregion_size
+	r->begin = r->next = (min::uns8 *) r + s;
+	r->end = (min::uns8 *) r + MACC::subregion_size
 	       -   ( MACC::subregion_size - s )
 	         % fbl->size;
 
@@ -620,7 +626,7 @@ void MINT::new_fixed_body
 	        (MINT::free_fixed_size_body *) r->next;
 	    b->body_control =
 	        MUP::new_control_with_locator
-		    (   ( (char *) r - r->next )
+		    (   ( (min::uns8 *) r - r->next )
 		      / page_size,
 		      MINT::null_stub );
 
@@ -648,6 +654,115 @@ void MINT::new_fixed_body
     MUP::set_pointer_of ( s, & b->body_control + 1 );
     MUP::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
 }
+
+// Call this when we are out of paged body regions.
+//
+static void allocate_new_paged_body_region ( void )
+{
+    MACC::region * r = new_multi_page_block_region
+	( MACC::paged_body_region_size,
+	  MACC::PAGED_BODY_REGION );
+    if ( r == NULL )
+	r = new_multi_page_block_region
+	        ( 4 * MACC::max_paged_body_size,
+		  MACC::PAGED_BODY_REGION );
+    if ( r == NULL )
+	r = new_multi_page_block_region
+	        ( MACC::max_paged_body_size,
+		  MACC::PAGED_BODY_REGION );
+    if ( r == NULL )
+    {
+	cout << "ERROR: out of virtual memory."
+	     << endl;
+	exit ( 1 );
+    }
+
+    r->block_size = MACC::max_paged_body_size;
+
+    if ( MACC::last_paged_body_region != NULL )
+        MACC::insert_after
+	    ( r, MACC::last_paged_body_region );
+    MACC::last_paged_body_region = r;
+}
+
+// Execute new_non_fixed_body for bodies of size at most
+// MACC::max_paged_body_size.  n is size of body + body
+// control rounded up to a multiple of page_size.
+// Return address to store in stub.
+//
+inline void * new_paged_body
+    ( min::stub * s, unsigned n )
+{
+    MACC::region * r = MACC::last_paged_body_region;
+    if ( r == NULL || r->next + n > r->end )
+    {
+        allocate_new_paged_body_region();
+	r = MACC::last_paged_body_region;
+    }
+
+    int locator = r - MACC::region_table;
+
+    min::uns64 * b = (min::uns64 *) r->next;
+    r->next += n;
+    assert ( r->next <= r->end );
+
+    * b = MUP::new_control_with_locator
+	    ( locator, s );
+
+    return ++ b;
+}
+// Execute new_non_fixed_body for bodies of size greater
+// than MACC::max_paged_body_size.  n is size of body
+// + body control rounded up to a multiple of page_size.
+// Return address to store in stub.
+//
+inline void * new_mono_body
+    ( min::stub * s, unsigned n )
+{
+    MACC::region * r = new_multi_page_block_region
+	( n, MACC::MONO_BODY_REGION );
+    if ( r == NULL )
+    {
+	cout << "ERROR: out of virtual memory."
+	     << endl;
+	exit ( 1 );
+    }
+
+    if ( MACC::last_mono_body_region != NULL )
+        MACC::insert_after
+	    ( r, MACC::last_mono_body_region );
+    MACC::last_mono_body_region = r;
+
+    int locator = r - MACC::region_table;
+
+    min::uns64 * b = (min::uns64 *) r->next;
+    r->next += n;
+    assert ( r->next <= r->end );
+
+    * b = MUP::new_control_with_locator
+	    ( locator, s );
+
+    return ++ b;
+}
+
+void MINT::new_non_fixed_body
+    ( min::stub * s, unsigned n )
+{
+    // Add space for body control and round up to
+    // multiple of page_size.
+    //
+    n += sizeof ( min::uns64 );
+    n = page_size
+      * ( ( n + page_size - 1 ) / page_size );
+
+    void * body =
+	n <= MACC::max_paged_body_size ?
+	    new_paged_body ( s, n ) :
+	    new_mono_body ( s, n );
+
+    MUP::set_pointer_of ( s, body );
+}
+
 
 
 

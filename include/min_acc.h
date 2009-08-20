@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 19 04:41:47 EDT 2009
+// Date:	Thu Aug 20 02:03:20 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/19 18:45:35 $
+//   $Date: 2009/08/20 20:15:05 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.27 $
+//   $Revision: 1.28 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -166,8 +166,10 @@ namespace min { namespace acc {
         FREE				= 1,
 	FIXED_SIZE_BLOCK_REGION		= 2,
 	VARIABLE_SIZE_BLOCK_REGION	= 3,
-	MULTI_PAGE_BLOCK_REGION		= 4,
-	LIST_SEGMENT			= 5
+	SUPERREGION			= 4,
+	PAGED_BODY_REGION		= 5,
+	MONO_BODY_REGION		= 6,
+	LIST_SEGMENT			= 7
     };
 
     // Bodies are organized into regions which are
@@ -386,8 +388,9 @@ namespace min { namespace acc {
     //       object bodies, typicall those larger than
     //       F**2 pages.
     //
-    // TBD: deallocation
-    //    
+    //	     Mono body regions are put on the mono body
+    //	     region list.
+    //
     struct region
     { 
 
@@ -426,7 +429,7 @@ namespace min { namespace acc {
 	    // For fixed size block regions, the number
 	    // of free blocks.
 
-	char * begin, * next, * end;
+	min::uns8 * begin, * next, * end;
 	    // Location of the first allocatable byte of
 	    // the region, the next byte to be alloca-
 	    // ted, and the first byte after the last
@@ -541,8 +544,25 @@ namespace min { namespace acc {
     //
     extern region * last_free_subregion;
 
-    // Free List Management
-    // ---- ---- ----------
+    // Paged body regions a put on a list of such.
+    // The following is the last member of this list,
+    // or NULL if the list is empty.
+    //
+    extern region * last_paged_body_region;
+
+    // Maximum size of a block in a paged body region.
+    //
+    extern unsigned max_paged_body_size;
+
+    // Size of a paged body region.
+    //
+    extern unsigned paged_body_region_size;
+
+    // Mono body regions a put on a list of such.
+    // The following is the last member of this list,
+    // or NULL if the list is empty.
+    //
+    extern region * last_mono_body_region;
 
 } }    
 
