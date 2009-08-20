@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jul 12 04:41:35 EDT 2009
+// Date:	Thu Aug 20 16:12:01 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/12 08:42:14 $
+//   $Date: 2009/08/20 20:16:08 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents:
 //
@@ -142,9 +142,9 @@ static const char * pool_message[pool_limit] = {
     "",
 /*1*/
     "new_pool: requested memory pool overlaps"
-             " existing memory pool"
+             " existing memory pool",
 /*2*/
-    "new_pool: requested pool size is too large"
+    "new_pool: requested pool size is too large",
 /*3*/
     "new_pool: not enough memory or page map space"
              " is available"
