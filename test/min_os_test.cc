@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug 21 15:49:14 EDT 2009
+// Date:	Fri Aug 21 06:19:32 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/21 19:50:08 $
+//   $Date: 2009/08/21 19:47:48 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.15 $
 
 // Table of Contents:
 //
@@ -558,6 +558,10 @@ int main ( )
     MIN_ASSERT ( check_pages ( 100, P(0), 1000000 ) );
     MIN_ASSERT ( check_pages ( 100, P(100), 0 ) );
     MIN_ASSERT ( check_pages ( 800, P(200), 1000200 ) );
+
+    cout << endl;
+    MOS::dump_error_info ( cout );
+    cout << endl;
 
     cout << "Finish Memory Management Test" << endl
          << endl;
