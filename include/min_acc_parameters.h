@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug 18 02:49:33 EDT 2009
+// Date:	Fri Aug 21 07:43:19 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/19 08:40:02 $
+//   $Date: 2009/08/21 19:47:40 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.5 $
+//   $Revision: 1.6 $
 
 // Table of Contents
 //
@@ -122,8 +122,8 @@
 //   smaller size are aligned if reasonable so they
 //   are inside a cache line.
 //
-# ifndef MIN_CACHE_LINE_SIZE
-#    define MIN_CACHE_LINE_SIZE 256
+# ifndef MIN_DEFAULT_CACHE_LINE_SIZE
+#    define MIN_DEFAULT_CACHE_LINE_SIZE 256
 # endif
 
 
