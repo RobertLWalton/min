@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Aug 20 16:12:01 EDT 2009
+// Date:	Fri Aug 21 05:22:22 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/20 20:16:08 $
+//   $Date: 2009/08/21 19:47:40 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents:
 //
@@ -149,7 +149,12 @@ static const char * pool_message[pool_limit] = {
     "new_pool: not enough memory or page map space"
              " is available"
 };
-inline void * error ( int n ) { return (void *) n; }
+static int saved_errno;
+inline void * error ( int n )
+{
+    saved_errno = errno;
+    return (void *) n;
+}
 
 const char * MOS::pool_error ( void * address )
 {
@@ -158,6 +163,49 @@ const char * MOS::pool_error ( void * address )
     if ( n == 0 ) return NULL;
     assert ( n < pool_limit );
     return pool_message[n];
+}
+
+void MOS::dump_error_info ( ostream & s )
+{
+    s << "Operating System (OS) Extra Error"
+         " Information:" << endl;
+    if ( saved_errno == 0 )
+        s << "    There was NO OS error." << endl;
+    else
+        s << "    Last OS Error: "
+	  << strerror ( saved_errno ) << endl;
+
+    char name[100];
+    sprintf ( name, "/proc/%d/maps", (int) getpid() );
+    s << "    OS Process Memory Map (" << name << "):"
+       << endl;
+    ifstream maps ( name );
+    if ( ! maps )
+        s << "    Cannot read " << name << endl;
+    else
+    {
+	char line[1000];
+	while ( maps.getline ( line, 1000 ) )
+	{
+	    if ( isspace ( line[71] ) )
+	    {
+		char * p = line + 71;
+		while ( p > line && isspace ( p[-1] ) )
+		    -- p;
+		if ( p == line ) continue;
+	        * p = 0;
+		p = line + 72;
+		while ( isspace ( * p ) ) ++ p;
+		if ( * p )
+		    s << "      " << line << " \\" << endl
+		      << "        " << p << endl;
+		else
+		    s << "      " << line << endl;
+	    }
+	    else
+		s << "      " << line << endl;
+	}
+    }
 }
 
 // Read /proc/<this-process-id>/maps and save the info
@@ -592,6 +640,7 @@ void * MOS::new_pool_below
     }
 
     void * start = find_unused ( pages );
+    errno = 0;
     if ( start == NULL )
         return error(3);
     if ( (void *) ( (char *) start + size ) > end )

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Aug 20 07:29:15 EDT 2009
+// Date:	Fri Aug 21 06:55:01 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/20 20:16:08 $
+//   $Date: 2009/08/21 19:47:39 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents:
 //
@@ -252,6 +252,7 @@ static void stub_allocator_initializer ( void )
 	     << endl
 	     << "       Suggest decreasing max_stubs."
 	     << endl;
+	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
 
@@ -289,6 +290,7 @@ static void stub_allocator_initializer ( void )
 		     << "       Suggest decreasing"
 			" max_stubs."
 		     << endl;
+		MOS::dump_error_info ( cout );
 		exit ( 1 );
 	    }
 
@@ -327,6 +329,7 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 	     << "       Increase max_stubs or make"
 	        " the garbage collector more efficient."
 	     << endl;
+	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
     n += MACC::stub_increment;
@@ -358,8 +361,10 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 // Block Allocator
 // ----- ---------
 
-unsigned MACC::space_factor;
-unsigned MACC::cache_line_size;
+unsigned MACC::space_factor =
+    MIN_DEFAULT_SPACE_FACTOR;
+unsigned MACC::cache_line_size =
+    MIN_DEFAULT_CACHE_LINE_SIZE;
 unsigned MACC::subregion_size;
 unsigned MACC::superregion_size;
 unsigned MACC::max_paged_body_size;
@@ -408,6 +413,7 @@ static void block_allocator_initializer ( void )
     	cout << "ERROR: could not allocate "
 	     << rtpages << " page region table"
 	     << endl;
+	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
 
@@ -494,11 +500,13 @@ static void allocate_new_superregion ( void )
     {
         if ( MACC::last_superregion == NULL )
 	    cout << "ERROR: could not allocate "
-		 << MACC::superregion_size / page_size
+		 << ( MACC::subregion_size
+		      / page_size )
 		 << " page initial heap." << endl;
 	else
 	    cout << "ERROR: out of virtual memory."
 	         << endl;
+	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
 
@@ -674,6 +682,7 @@ static void allocate_new_paged_body_region ( void )
     {
 	cout << "ERROR: out of virtual memory."
 	     << endl;
+	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
 
@@ -725,6 +734,7 @@ inline void * new_mono_body
     {
 	cout << "ERROR: out of virtual memory."
 	     << endl;
+	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
 
@@ -770,7 +780,7 @@ void MINT::new_non_fixed_body
 // ---------
 
 unsigned MACC::ephemeral_levels =
-    MIN_MAX_EPHEMERAL_LEVELS;
+    MIN_DEFAULT_EPHEMERAL_LEVELS;
 
 static void collector_initializer ( void )
 {

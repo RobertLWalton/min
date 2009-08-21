@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jul 11 05:59:43 EDT 2009
+// Date:	Fri Aug 21 05:18:45 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/11 13:58:35 $
+//   $Date: 2009/08/21 19:47:40 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents
 //
@@ -28,6 +28,7 @@
 # define MIN_OS_H
 
 # include <min.h>
+# include <iostream>
 
 // Parameters
 // ----------
@@ -91,6 +92,12 @@ namespace min { namespace os {
     // really an error code returned by new_pool.
     //
     const char * pool_error ( void * start );
+
+    // Dump error information, including details of last
+    // error and memory layout.  Useful when exiting
+    // because of error.
+    //
+    void dump_error_info ( std::ostream & s );
 
     // Free the segment with given number of pages and
     // start address.  The segment must have been
