@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug 21 06:55:01 EDT 2009
+// Date:	Sat Aug 22 12:38:50 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/21 19:47:39 $
+//   $Date: 2009/08/22 16:38:57 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents:
 //
@@ -194,6 +194,9 @@ void MINT::acc_initializer ( void )
 	        trace_fixed_block_allocation = true;
 	    case 'v':
 	        trace_variable_block_allocation = true;
+		break;
+	    case 'o':
+	        MOS::trace_pools = true;
 		break;
 	    default:
 	        cout << "ERROR: cannot understand debug"
