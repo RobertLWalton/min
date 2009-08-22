@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug 21 06:19:32 EDT 2009
+// Date:	Sat Aug 22 12:39:38 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/21 19:47:48 $
+//   $Date: 2009/08/22 16:40:03 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.17 $
 
 // Table of Contents:
 //
@@ -559,9 +559,26 @@ int main ( )
     MIN_ASSERT ( check_pages ( 100, P(100), 0 ) );
     MIN_ASSERT ( check_pages ( 800, P(200), 1000200 ) );
 
-    cout << endl;
-    MOS::dump_error_info ( cout );
-    cout << endl;
+    // Find largest size of memory that can be
+    // allocated.
+    //
+    MOS::trace_pools = false;
+    {
+        unsigned n = 0;
+	while ( true )
+	{
+	    min::uns64 pages = 1ull << n;
+	    void * start = MOS::new_pool ( pages );
+	    const char * error =
+	        MOS::pool_error ( start );
+	    if ( error != NULL ) break;
+	    MOS::free_pool ( pages, start );
+	    ++ n;
+	}
+	-- n;
+	cout << "new_pool will allocate at most 1 << "
+	     << n << " pages." << endl;
+    }
 
     cout << "Finish Memory Management Test" << endl
          << endl;
