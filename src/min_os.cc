@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 10:20:04 EDT 2009
+// Date:	Sun Aug 23 10:50:01 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/23 14:44:53 $
+//   $Date: 2009/08/23 14:58:40 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents:
 //
@@ -474,18 +474,18 @@ static void dump_compare_pools ( void )
     }
 }
 
-// Find the lowest address not less than start that ends
+// Find the lowest address not less than begin that ends
 // a used pool, has size unused bytes following it, and
 // preceeds some used pool.
 //
 static void * find_unused
-    ( void * start, MINT::pointer_uns size )
+    ( void * begin, MINT::pointer_uns size )
 {
     void * best = NULL;
     for ( unsigned i = 0; i < used_pools_count; ++ i )
     {
         void * next = used_pools[i].end;
-	if ( next < start ) continue;
+	if ( next < begin ) continue;
 	if ( best != NULL && best < next ) continue;
 	void * end = (void *) ( (char *) next + size );
 	if ( end < next ) continue;
@@ -597,13 +597,15 @@ void * MOS::new_pool_at
     void * result =
         new_pool_at_internal ( size, start );
 
-    if ( trace_pools || create_compare )
+    if (    ( trace_pools || create_compare )
+         && MOS::pool_error ( result ) == NULL )
 	compare_pools();
 
-    if ( trace_pools )
+    if (    trace_pools
+         && MOS::pool_error ( result ) == NULL )
     {
         cout << "ALLOCATED: "
-	     << used_pool ( pages, start ) << endl;
+	     << used_pool ( pages, result ) << endl;
 	dump_compare_pools();
     }
 
@@ -611,35 +613,22 @@ void * MOS::new_pool_at
 }
 
 void * MOS::new_pool_between
-	( min::uns64 pages, void * start, void * end )
+	( min::uns64 pages, void * begin, void * end )
 {
     fname = "new_pool_between";
 
     if ( trace_pools )
         cout << "TRACE: new_pool_between ( "
-	     << pages << ", 0x" << hex
-	     << (MINT::pointer_uns) end << " )"
-	     << dec << endl;
+	     << pages
+	     << ", 0x" << hex
+	     << (MINT::pointer_uns) begin
+	     << ", 0x" << hex
+	     << (MINT::pointer_uns) end
+	     << " )" << dec << endl;
 
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
-
-    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
-    {
-        fatal_error()
-	    << "start address is not a multiple of page"
-	       " size" << endl;
-	exit ( 2 );
-    }
-
-    if ( ( (MINT::pointer_uns) end & mask ) != 0 )
-    {
-        fatal_error()
-	    << "end address is not a multiple of page"
-	       " size" << endl;
-	exit ( 2 );
-    }
 
     read_used_pools();
 
@@ -650,7 +639,7 @@ void * MOS::new_pool_between
 	dump_used_pools();
     }
 
-    void * address = find_unused ( start, size );
+    void * address = find_unused ( begin, size );
     errno = 0;
     if ( address == NULL )
         return error(3);
@@ -662,13 +651,15 @@ void * MOS::new_pool_between
     void * result =
         new_pool_at_internal ( size, address );
 
-    if ( trace_pools || create_compare )
+    if (    ( trace_pools || create_compare )
+         && MOS::pool_error ( result ) == NULL )
 	compare_pools();
 
-    if ( trace_pools )
+    if (    trace_pools
+         && MOS::pool_error ( result ) == NULL )
     {
         cout << "ALLOCATED: "
-	     << used_pool ( pages, start ) << endl;
+	     << used_pool ( pages, result ) << endl;
 	dump_compare_pools();
     }
 
@@ -735,10 +726,12 @@ void * MOS::new_pool ( min::uns64 pages )
 	result = new_pool_at_internal ( size, address );
     }
 
-    if ( trace_pools || create_compare )
+    if (    ( trace_pools || create_compare )
+         && MOS::pool_error ( result ) == NULL )
 	compare_pools();
 
-    if ( trace_pools )
+    if (    trace_pools
+         && MOS::pool_error ( result ) == NULL )
     {
         cout << "ALLOCATED: "
 	     << used_pool ( pages, result ) << endl;
