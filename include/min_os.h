@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug 21 05:18:45 EDT 2009
+// Date:	Sun Aug 23 08:10:48 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/21 19:47:40 $
+//   $Date: 2009/08/23 14:42:50 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents
 //
@@ -78,12 +78,16 @@ namespace min { namespace os {
         ( min::uns64 pages, void * start );
 
     // Ditto but allocate the segment so it is complete-
-    // ly below the given end address.  The end address
-    // must be a multiple of the page size.  This may
-    // fail when new_pool would succeed.
+    // ly at or above the given start address and below
+    // the given end address.  The start and end
+    // addresses must be multiples of the page size.
+    // An end address of NULL is treated as if it were
+    // infinitely large.  New_pool_between may fail when
+    // new_pool would succeed.
     //
-    void * new_pool_below
-        ( min::uns64 pages, void * end );
+    void * new_pool_between
+        ( min::uns64 pages, void * start,
+	                    void * end = NULL );
 
     // Return NULL if the argument is really the address
     // of a segment returned by new_pool, and not an

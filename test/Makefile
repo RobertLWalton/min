@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Sat Aug  1 05:39:41 EDT 2009
+# Date:		Sun Aug 23 10:13:29 EDT 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/08/01 09:40:15 $
+#   $Date: 2009/08/23 14:45:28 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.24 $
+#   $Revision: 1.25 $
 
 # We need the following to mask RCS lines
 #
@@ -120,17 +120,28 @@ min_interface_test_compact_stretch:	\
 	         -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_interface_test_loose_partial:	\
-	GFLAGS = -DMIN_IS_COMPACT=0 \
-		 -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	GFLAGS = \
+	    -DMIN_IS_COMPACT=0 \
+	    -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
+	    -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_interface_test_compact_partial:	\
-	GFLAGS = -DMIN_IS_COMPACT=1 \
-		 -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	GFLAGS = \
+	    -DMIN_IS_COMPACT=1 \
+	    -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
+	    -DMIN_USES_OBJ_AUX_STUBS=1
 
 min_os_test.out:	\
-	RUNENV = MIN_CONFIG="parameter1=123 parameter2=3.21"
+	RUNENV = \
+	    MIN_CONFIG="parameter1=123 parameter2=3.21"
+
+min_os_test.dump:	\
+	RUNENV = \
+	    MIN_CONFIG="parameter1=123 parameter2=3.21"
+
+min_os_test.dump:	min_os_test
+	rm -f min_os_test.out
+	${RUNENV} min_os_test dump
 
 ${INTERFACE_PROGRAMS}:		\
 		min_interface_test.cc ../src/min.cc \

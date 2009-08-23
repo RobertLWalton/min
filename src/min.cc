@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug  7 21:46:45 EDT 2009
+// Date:	Sun Aug 23 10:19:36 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/08 01:49:17 $
+//   $Date: 2009/08/23 14:44:53 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.102 $
+//   $Revision: 1.103 $
 
 // Table of Contents:
 //
@@ -567,7 +567,8 @@ min::gen min::new_lab_gen
 			( MUP::control_of ( s ) );
 	}
 
-	MIN_ASSERT ( min::type_of ( s2 ) == min::LABEL );
+	MIN_ASSERT
+	    ( min::type_of ( s2 ) == min::LABEL );
 	MINT::lab_header * lh =
 	    MINT::lab_header_of ( s2 );
 
