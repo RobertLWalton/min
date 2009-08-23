@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug 22 12:38:50 EDT 2009
+// Date:	Sun Aug 23 10:20:30 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/22 16:38:57 $
+//   $Date: 2009/08/23 14:44:53 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents:
 //
@@ -189,7 +189,8 @@ void MINT::acc_initializer ( void )
 	        trace_parameters = true;
 		break;
 	    case 'm':
-	        trace_multi_page_block_allocation = true;
+	        trace_multi_page_block_allocation
+		    = true;
 	    case 'f':
 	        trace_fixed_block_allocation = true;
 	    case 'v':
@@ -238,8 +239,8 @@ static void stub_allocator_initializer ( void )
 
     min::uns64 pages =
         number_of_pages ( 16 * MACC::max_stubs );
-    void * stubs = MOS::new_pool_below
-        ( pages,
+    void * stubs = MOS::new_pool_between
+        ( pages, NULL,
 	  (void *) MIN_MAX_ABSOLUTE_STUB_ADDRESS );
 
     const char * error = MOS::pool_error ( stubs );
@@ -514,7 +515,8 @@ static void allocate_new_superregion ( void )
     }
 
     if ( MACC::last_superregion != NULL )
-        MACC::insert_after ( r, MACC::last_superregion );
+        MACC::insert_after
+	    ( r, MACC::last_superregion );
     MACC::last_superregion = r;
 }
 

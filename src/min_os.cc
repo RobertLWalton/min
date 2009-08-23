@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug 22 04:56:57 EDT 2009
+// Date:	Sun Aug 23 10:20:04 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/22 16:38:57 $
+//   $Date: 2009/08/23 14:44:53 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents:
 //
@@ -116,7 +116,7 @@ const char * MOS::get_parameter ( const char * name )
 
 bool MOS::trace_pools = false;
 
-static min::uns64 max_mmap_size = 1ull << 31;
+static MINT::pointer_uns max_mmap_size = 1ul << 31;
     // Largest size that can be given to mmap
     // without it returning an ENOMEM error.
     // This is because the system does not support
@@ -160,6 +160,10 @@ static int saved_errno;
 inline void * error ( int n )
 {
     saved_errno = errno;
+    if ( MOS::trace_pools )
+        cout << "TRACE: " << fname
+	     << " failed due to error:" << endl
+	     << "       " << pool_message[n] << endl;
     return (void *) n;
 }
 
@@ -204,7 +208,8 @@ void MOS::dump_error_info ( ostream & s )
 		p = line + 72;
 		while ( isspace ( * p ) ) ++ p;
 		if ( * p )
-		    s << "      " << line << " \\" << endl
+		    s << "      " << line << " \\"
+		      << endl
 		      << "        " << p << endl;
 		else
 		    s << "      " << line << endl;
@@ -469,21 +474,21 @@ static void dump_compare_pools ( void )
     }
 }
 
-// Find the lowest address that ends a used pool, has
-// size unused bytes following it, and preceeds some
-// used pool.
+// Find the lowest address not less than start that ends
+// a used pool, has size unused bytes following it, and
+// preceeds some used pool.
 //
-static void * find_unused ( min::uns64 pages )
+static void * find_unused
+    ( void * start, MINT::pointer_uns size )
 {
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
     void * best = NULL;
     for ( unsigned i = 0; i < used_pools_count; ++ i )
     {
-        void * start = used_pools[i].end;
-	if ( best != NULL && best < start ) continue;
-	void * end = (void *) ( (char *) start + size );
-	if ( end < start ) continue;
+        void * next = used_pools[i].end;
+	if ( next < start ) continue;
+	if ( best != NULL && best < next ) continue;
+	void * end = (void *) ( (char *) next + size );
+	if ( end < next ) continue;
 	    // Wraparound check.
 
 	bool above_found = false;
@@ -493,68 +498,66 @@ static void * find_unused ( min::uns64 pages )
 	    if ( i == j ) continue;
 	    if ( used_pools[j].start >= end )
 	        above_found = true;
-	    else if ( used_pools[j].end >= start )
+	    else if ( used_pools[j].end > next )
 	        break;
 	}
 	if ( above_found && j == used_pools_count ) 
-	    best = start;
+	    best = next;
     }
     return best;
 }
 
-void * MOS::new_pool ( min::uns64 pages )
+// Execute new_pool_at without tracing.
+//
+static void * new_pool_at_internal
+	( MINT::pointer_uns size, void * start )
 {
-    fname = "new_pool";
-
-    if ( trace_pools )
-        cout << "TRACE: new_pool ( " << pages << " )"
-	     << endl;
-    if ( trace_pools || create_compare )
-	read_used_pools();
-    if ( trace_pools )
+    MINT::pointer_uns offset = 0;
+    while ( offset < size )
     {
-        cout << "MEMORY MAP BEFORE ALLOCATION:"
-	     << endl;
-	dump_used_pools();
-    }
+        MINT::pointer_uns increment = size - offset;
+	if ( increment > max_mmap_size )
+	    increment = max_mmap_size;
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
-    void * result = mmap ( NULL, (size_t) size,
-    			   PROT_READ | PROT_WRITE,
-			   MAP_PRIVATE | MAP_ANONYMOUS,
-			   -1, 0 );
+	void * result =
+	    mmap ( (min::uns8 *) start + offset,
+	           (size_t) increment,
+		   PROT_READ | PROT_WRITE,
+		   MAP_FIXED | MAP_PRIVATE
+		             | MAP_ANONYMOUS,
+		    -1, 0 );
 
-    if ( result == MAP_FAILED )
-    {
-        switch ( errno )
+	if ( result == MAP_FAILED )
 	{
-	case EINVAL:	return error(2);
-	case ENOMEM:	return error(3);
-	default:
-	    fatal_error ( errno );
+	    while ( offset > 0 )
+	    {
+	        offset -= max_mmap_size;
+
+		int saved_errno = errno;
+		if (    munmap (   (min::uns8 *) start
+		                 + offset,
+		                 (size_t)
+				     max_mmap_size )
+		     == -1 ) fatal_error ( errno );
+		errno = saved_errno;
+	    }
+
+	    switch ( errno )
+	    {
+	    case EINVAL:	return error(2);
+	    case ENOMEM:	return error(3);
+	    default:
+		fatal_error ( errno );
+	    }
 	}
+
+	assert (    result
+	         == (min::uns8 *) start + offset );
+
+	offset += increment;
     }
 
-    if ( trace_pools || create_compare )
-	compare_pools();
-
-    if ( trace_pools )
-    {
-        cout << "ALLOCATED: "
-	     << used_pool ( pages, result ) << endl;
-	dump_compare_pools();
-    }
-
-    MINT::pointer_uns mask = ::pagesize() - 1;
-    if ( ( mask & (MINT::pointer_uns) result ) != 0 )
-    {
-	fatal_error()
-	    << "OS returned pool address that is not"
-	       " on a page boundary" << endl;
-	exit ( 2 );
-    }
-    return result;
+    return start;
 }
 
 void * MOS::new_pool_at
@@ -591,22 +594,8 @@ void * MOS::new_pool_at
 
     if ( overlap ( start, end ) ) return error(1);
 
-    void * result = mmap ( start, (size_t) size,
-    			   PROT_READ | PROT_WRITE,
-			   MAP_FIXED | MAP_PRIVATE
-			             | MAP_ANONYMOUS,
-			   -1, 0 );
-
-    if ( result == MAP_FAILED )
-    {
-        switch ( errno )
-	{
-	case EINVAL:	return error(2);
-	case ENOMEM:	return error(3);
-	default:
-	    fatal_error( errno );
-	}
-    }
+    void * result =
+        new_pool_at_internal ( size, start );
 
     if ( trace_pools || create_compare )
 	compare_pools();
@@ -618,17 +607,16 @@ void * MOS::new_pool_at
 	dump_compare_pools();
     }
 
-    assert ( result == start );
     return result;
 }
 
-void * MOS::new_pool_below
-	( min::uns64 pages, void * end )
+void * MOS::new_pool_between
+	( min::uns64 pages, void * start, void * end )
 {
-    fname = "new_pool_below";
+    fname = "new_pool_between";
 
     if ( trace_pools )
-        cout << "TRACE: new_pool_below ( "
+        cout << "TRACE: new_pool_between ( "
 	     << pages << ", 0x" << hex
 	     << (MINT::pointer_uns) end << " )"
 	     << dec << endl;
@@ -636,6 +624,22 @@ void * MOS::new_pool_below
     MINT::pointer_uns size =
         (MINT::pointer_uns) pages * ::pagesize();
     MINT::pointer_uns mask = ::pagesize() - 1;
+
+    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    {
+        fatal_error()
+	    << "start address is not a multiple of page"
+	       " size" << endl;
+	exit ( 2 );
+    }
+
+    if ( ( (MINT::pointer_uns) end & mask ) != 0 )
+    {
+        fatal_error()
+	    << "end address is not a multiple of page"
+	       " size" << endl;
+	exit ( 2 );
+    }
 
     read_used_pools();
 
@@ -646,29 +650,17 @@ void * MOS::new_pool_below
 	dump_used_pools();
     }
 
-    void * start = find_unused ( pages );
+    void * address = find_unused ( start, size );
     errno = 0;
-    if ( start == NULL )
+    if ( address == NULL )
         return error(3);
-    if ( (void *) ( (char *) start + size ) > end )
+    if ( end != NULL 
+         &&
+	 (void *) ( (char *) address + size ) > end )
         return error(3);
 
-    void * result = mmap ( start, (size_t) size,
-    			   PROT_READ | PROT_WRITE,
-			   MAP_FIXED | MAP_PRIVATE
-			             | MAP_ANONYMOUS,
-			   -1, 0 );
-
-    if ( result == MAP_FAILED )
-    {
-        switch ( errno )
-	{
-	case EINVAL:	return error(2);
-	case ENOMEM:	return error(3);
-	default:
-	    fatal_error ( errno );
-	}
-    }
+    void * result =
+        new_pool_at_internal ( size, address );
 
     if ( trace_pools || create_compare )
 	compare_pools();
@@ -680,7 +672,79 @@ void * MOS::new_pool_below
 	dump_compare_pools();
     }
 
-    assert ( result == start );
+    return result;
+}
+
+void * MOS::new_pool ( min::uns64 pages )
+{
+    fname = "new_pool";
+
+    if ( trace_pools )
+        cout << "TRACE: new_pool ( " << pages << " )"
+	     << endl;
+    if ( trace_pools || create_compare )
+	read_used_pools();
+    if ( trace_pools )
+    {
+        cout << "MEMORY MAP BEFORE ALLOCATION:"
+	     << endl;
+	dump_used_pools();
+    }
+
+    MINT::pointer_uns size =
+        (MINT::pointer_uns) pages * ::pagesize();
+
+    void * result;
+
+    if ( size <= max_mmap_size )
+    {
+    	// As an optimization, call mmap directory if
+	// size is not too large.
+
+	result = mmap ( NULL, (size_t) size,
+    			PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS,
+			-1, 0 );
+
+	if ( result == MAP_FAILED )
+	{
+	    switch ( errno )
+	    {
+	    case EINVAL:	return error(2);
+	    case ENOMEM:	return error(3);
+	    default:
+		fatal_error ( errno );
+	    }
+	}
+
+	MINT::pointer_uns mask = ::pagesize() - 1;
+	if (    ( mask & (MINT::pointer_uns) result )
+	     != 0 )
+	{
+	    fatal_error()
+		<< "OS returned pool address that is"
+		   " not on a page boundary" << endl;
+	    exit ( 2 );
+	}
+    }
+    else
+    {
+	void * address = find_unused ( NULL, size );
+	errno = 0;
+	if ( address == NULL ) return error(3);
+	result = new_pool_at_internal ( size, address );
+    }
+
+    if ( trace_pools || create_compare )
+	compare_pools();
+
+    if ( trace_pools )
+    {
+        cout << "ALLOCATED: "
+	     << used_pool ( pages, result ) << endl;
+	dump_compare_pools();
+    }
+
     return result;
 }
 
@@ -719,7 +783,7 @@ void MOS::free_pool
     int result = munmap ( start, (size_t) size );
 
     if ( result == -1 )
-	fatal_error(errno );
+	fatal_error ( errno );
 
     if ( trace_pools || create_compare )
 	compare_pools();
@@ -742,7 +806,7 @@ inline void remap
 		 new_start );
 
     if ( result == MAP_FAILED )
-	fatal_error( errno );
+	fatal_error ( errno );
 
     assert ( result == new_start );
 }
@@ -758,7 +822,7 @@ inline void renew
 			   -1, 0 );
 
     if ( result == MAP_FAILED )
-	fatal_error( errno );
+	fatal_error ( errno );
 
     assert ( result == start );
 }

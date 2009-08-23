@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug 22 12:39:38 EDT 2009
+// Date:	Sun Aug 23 09:28:44 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/22 16:40:03 $
+//   $Date: 2009/08/23 14:45:28 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents:
 //
@@ -84,7 +84,8 @@ MINT::initializer::initializer ( void ) {}
 
 inline void * page ( void * start, int i )
 {
-    return (void *) ( (char *) start + i * ::pagesize() );
+    return (void *)
+           ( (char *) start + i * ::pagesize() );
 }
 
 extern "C" {
@@ -442,7 +443,7 @@ void check_reaccess ( min::uns64 pages, void * start,
     }
 }
 
-int main ( )
+int main ( int argc, const char ** argv )
 {
     cout << "Start min_os Test" << endl;
 
@@ -478,10 +479,11 @@ int main ( )
     MOS::trace_pools = false;
     create_compare = true;
 
-    void * limit = (void *) 0xFFFF0000;
+    void * lower = (void *) 0x00FF0000;
+    void * upper = (void *) 0xFFFF0000;
 
     void * start10 =
-        MOS::new_pool_below ( 10, limit );
+        MOS::new_pool_between ( 10, lower, upper );
     check_allocation ( 10, start10 );
 
     void * start100 =
@@ -489,11 +491,11 @@ int main ( )
     check_allocation ( 100, start100 );
 
     void * start1000 =
-        MOS::new_pool_below ( 1000, limit );
+        MOS::new_pool_between ( 1000, lower, upper );
     check_allocation ( 1000, start1000 );
 
     void * start10000 =
-        MOS::new_pool_below ( 10000, limit );
+        MOS::new_pool_between ( 10000, lower, upper );
     check_allocation ( 10000, start10000 );
 
 #   define P(i) page ( start1000, i )
@@ -579,6 +581,8 @@ int main ( )
 	cout << "new_pool will allocate at most 1 << "
 	     << n << " pages." << endl;
     }
+
+    if ( argc > 1 ) MOS::dump_error_info ( cout );
 
     cout << "Finish Memory Management Test" << endl
          << endl;
