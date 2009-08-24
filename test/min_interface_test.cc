@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 12 07:48:31 EDT 2009
+// Date:	Sun Aug 23 21:09:43 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/12 16:23:36 $
+//   $Date: 2009/08/24 02:31:02 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.96 $
+//   $Revision: 1.97 $
 
 // Table of Contents:
 //
@@ -258,7 +258,7 @@ min::uns64 * next_body;
 //
 void initialize_body_region ( void )
 {
-    MINT::max_fixed_body_size = 1 << 17;
+    MINT::max_fixed_block_size = 1 << 17;
 
     MINT::pointer_uns stp =
 	(MINT::pointer_uns) body_region;
@@ -272,12 +272,12 @@ void initialize_body_region ( void )
     end_body_region = (min::uns64 *) p;
 
     for ( unsigned j = 0;
-          j < MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG-2;
+          j < MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2;
 	  ++ j )
     {
-	MINT::fixed_bodies[j].size = 1 << ( j + 3 );
-	MINT::fixed_bodies[j].count = 0;
-	MINT::fixed_bodies[j].first = NULL;
+	MINT::fixed_blocks[j].size = 1 << ( j + 3 );
+	MINT::fixed_blocks[j].count = 0;
+	MINT::fixed_blocks[j].first = NULL;
     }
     next_body = begin_body_region;
 }
@@ -303,7 +303,7 @@ void MINT::new_non_fixed_body
 //
 void MINT::new_fixed_body
     ( min::stub * s, unsigned n,
-      MINT::fixed_body_list * fbl )
+      MINT::fixed_block_list * fbl )
 {
     cout << "MINT::new_fixed_body ( " << s
          << ", " << n << " ) called" << endl;
@@ -312,8 +312,8 @@ void MINT::new_fixed_body
     min::uns64 * next = next_body;
     MIN_ASSERT ( next + 2 * m <= end_body_region );
 
-    cout << "Using fixed_bodies["
-         << fbl - fixed_bodies << "]"
+    cout << "Using fixed_blocks["
+         << fbl - fixed_blocks << "]"
 	 << " and assigning begin_body_region["
 	 << next - begin_body_region
 	 << " .. "
@@ -328,9 +328,10 @@ void MINT::new_fixed_body
 
     next += m;
 
-    MINT::free_fixed_size_body * fb =
-        (MINT::free_fixed_size_body *) next;
-    fb->body_control = 0;
+    MINT::free_fixed_size_block * fb =
+        (MINT::free_fixed_size_block *) next;
+    fb->block_control = 0;
+    fb->block_subcontrol = 0;
     fb->next = NULL;
     fbl->first = fb;
     fbl->count = 1;
