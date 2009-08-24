@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Aug 20 02:03:20 EDT 2009
+// Date:	Sun Aug 23 22:30:04 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/20 20:15:05 $
+//   $Date: 2009/08/24 02:30:15 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -141,7 +141,7 @@ namespace min { namespace acc {
     //   if L > 0:	R = & MACC::region_table[L]
     //
     // where `page_address' is the address of the page
-    // containing the body control word containing L.
+    // containing the block control word containing L.
     //
     // If a block contains an object body, the stub
     // address points at the object's stub.  Otherwise
@@ -156,7 +156,7 @@ namespace min { namespace acc {
     // MINT::null_stub as its stub address, and that
     // is sufficient to indicate that the block is
     // free, while looking up the block's region gives
-    // the blocks size.  See MINT::free_fixed_size_body
+    // the blocks size.  See MINT::free_fixed_size_block
     // in min.h.
     //
     enum block_type
@@ -214,7 +214,7 @@ namespace min { namespace acc {
     //	     list.  When an object body in a fixed size
     //	     block is freed, the block is put back on a
     //	     free list and becomes immediately available
-    //	     for reuse.  See fixed_body_list_extension
+    //	     for reuse.  See fixed_block_list_extension
     //	     struct below.
     //
     //	     The compactor may move all allocated blocks
@@ -222,18 +222,6 @@ namespace min { namespace acc {
     //	     region (which may have fixed or variable
     //	     size blocks), thus permitting the emptied
     //	     region itself to be freed.
-    //
-    //	     Fixed size blocks hold either an object
-    //       body or are free blocks on the free list
-    //       of their region.  Free fixed size blocks
-    //       do NOT have a subcontrol word: see
-    //       MINT::free_fixed_size_body in min.h.
-    //	     A fixed size block is free if and only if
-    //	     its block control word stub address is
-    //	     MINT::null_stub.  The size of a free fixed
-    //       size block can always be found by using
-    //       its block control word locator to find its
-    //       region.
     //
     //	 Variable Size Block Regions
     //
@@ -314,8 +302,8 @@ namespace min { namespace acc {
     //	     regions are `subregions' of the multi-page
     //	     block region, which is the `superregion'.
     //       Subregions begin with a MACC::region
-    //       struct which in turn begins with a body
-    //       control word followed by a body subcontrol
+    //       struct which in turn begins with a block
+    //       control word followed by a block subcontrol
     //       word (see below).
     //
     //	     A multi-page block region has a region
@@ -461,8 +449,8 @@ namespace min { namespace acc {
 	    // these regions will be used to create
 	    // new subregions.
 
-	MINT::free_fixed_size_body * free_first;
-	MINT::free_fixed_size_body * free_last;
+	MINT::free_fixed_size_block * free_first;
+	MINT::free_fixed_size_block * free_last;
 	    // The first and last free block for a fixed
 	    // size block region.
 
@@ -568,12 +556,12 @@ namespace min { namespace acc {
 
 namespace min { namespace internal {
 
-    struct fixed_body_list_extension
-        // Extension of fixed_body_list struct with data
-	// specific to this allocator.
+    struct fixed_block_list_extension
+        // Extension of fixed_block_list struct with
+	// data specific to this allocator.
     {
-        MINT::fixed_body_list * fbl;
-	    // Address of associated fixed_body_list.
+        MINT::fixed_block_list * fbl;
+	    // Address of associated fixed_block_list.
 	    // fbl->size is size in bytes of fixed
 	    // blocks controlled by this struct.
 

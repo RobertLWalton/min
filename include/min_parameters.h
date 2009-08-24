@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug 11 13:34:53 EDT 2009
+// Date:	Sun Aug 23 21:09:05 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/11 17:35:08 $
+//   $Date: 2009/08/24 02:30:15 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.40 $
+//   $Revision: 1.41 $
 
 // Table of Contents
 //
@@ -282,9 +282,9 @@
 // size.  The logrithm base 2 of the size is used as the
 // size of a table.
 //
-# define MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG 30
-# define MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE \
-         ( 1 << MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG )
+# define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG 30
+# define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE \
+         ( 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG )
 
 // Hardware Functions
 // -------- ---------
@@ -293,7 +293,7 @@ namespace min { namespace internal {
 
     // Return j such that (1<<j) <= u < (1<<(j+1)),
     // assuming
-    //    0 < u <= MIN_MAX_ABSOLUTE_FIXED_BODY_SIZE/8.
+    //    0 < u <= MIN_MAX_ABSOLUTE_FIXED_BLOCK_SIZE/8.
     //
     inline unsigned fixed_bodies_log ( unsigned u )
     {

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 10:20:30 EDT 2009
+// Date:	Sun Aug 23 22:17:47 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/23 14:44:53 $
+//   $Date: 2009/08/24 02:30:22 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents:
 //
@@ -522,9 +522,9 @@ static void allocate_new_superregion ( void )
 
 void MINT::new_fixed_body
     ( min::stub * s, unsigned n,
-      MINT::fixed_body_list * fbl )
+      MINT::fixed_block_list * fbl )
 {
-    MINT::fixed_body_list_extension * fblext =
+    MINT::fixed_block_list_extension * fblext =
         fbl->extension;
     MACC::region * r = fblext->current_region;
     while ( r != NULL )
@@ -625,7 +625,7 @@ void MINT::new_fixed_body
 	//
     	unsigned count = 16 * page_size / fbl->size;
 	if ( count == 0 ) count = 1;
-	MINT::free_fixed_size_body * last = NULL;
+	MINT::free_fixed_size_block * last = NULL;
 	while ( count -- > 0 )
 	{
 	    if ( r->next + fbl->size > r->end )
@@ -635,13 +635,16 @@ void MINT::new_fixed_body
 		break;
 	    }
 
-	    MINT::free_fixed_size_body * b =
-	        (MINT::free_fixed_size_body *) r->next;
-	    b->body_control =
+	    MINT::free_fixed_size_block * b =
+	        (MINT::free_fixed_size_block *) r->next;
+	    b->block_control =
 	        MUP::new_control_with_locator
 		    (   ( (min::uns8 *) r - r->next )
 		      / page_size,
 		      MINT::null_stub );
+	    b->block_subcontrol =
+	        MUP::new_control_with_type
+		    ( MACC::FREE, fbl->size );
 
 	    if ( last == NULL )
 	        fbl->first = b;
@@ -658,13 +661,13 @@ void MINT::new_fixed_body
 
     assert ( fbl->count > 0 );
 
-    MINT::free_fixed_size_body * b = fbl->first;
+    MINT::free_fixed_size_block * b = fbl->first;
     fbl->first = b->next;
     -- fbl->count;
 
-    b->body_control = MUP::renew_control_stub
-        ( b->body_control, s );
-    MUP::set_pointer_of ( s, & b->body_control + 1 );
+    b->block_control = MUP::renew_control_stub
+        ( b->block_control, s );
+    MUP::set_pointer_of ( s, & b->block_control + 1 );
     MUP::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
 }
 

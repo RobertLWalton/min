@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Aug 18 00:04:29 EDT 2009
+// Date:	Sun Aug 23 20:45:58 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/19 08:40:01 $
+//   $Date: 2009/08/24 02:30:15 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.182 $
+//   $Revision: 1.183 $
 
 // Table of Contents:
 //
@@ -1770,59 +1770,61 @@ namespace min { namespace internal {
 	++ min::internal::number_of_free_stubs;
     }
 
-    // fixed_bodies[j] is the head of a free list of
-    // fixed bodies of size 1 << ( j + 3 ), for 0 <= j
-    // and (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE/8.
-    // Each fixed body begins with a control word whose
+    // fixed_blocks[j] is the head of a free list of
+    // fixed blocks of size 1 << ( j + 3 ), for 0 <= j,
+    // (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE/8.
+    // Each fixed block begins with a control word whose
     // locator is provided by the allocator and whose
-    // stub address is set to the stub the body is
-    // attached to.  When the body is on the free
-    // list, the location after the control word is
-    // a (void *) pointer to the next free body, or is
-    // NULL.  When the body is in use, the object body
-    // begins just after the control word, and the size
-    // of the object body can be derived by using the
-    // locator to find the region containing the body
-    // (this is the domain of ACC code).
+    // stub address is set to the stub whose body the
+    // block contains, if there is such a stub, or
+    // equals the address of MINT::null_stub otherwise.
+    // When the block is on the free list, the control
+    // word and the words following is are specified by
+    // the free_fixed_size_block struct.
     //
-    struct free_fixed_size_body
+    struct free_fixed_size_block
     {
-        min::uns64	body_control;
-	    // Body control word that is at the
-	    // beginning of every fixed size_body.
+        min::uns64	block_control;
+	    // Block control word that is at the
+	    // beginning of every fixed size block.
 
-	free_fixed_size_body * next;
+        min::uns64	block_subcontrol;
+	    // Block subcontrol word that tells the type
+	    // and size of a block that does NOT contain
+	    // an object body.
+
+	free_fixed_size_block * next;
 	    // Next in NULL terminated list of free
-	    // fixed size_bodies.
+	    // fixed size blocks.
     };
-    typedef struct fixed_body_list_extension;
-        // Allocator specific extension of fixed_body_
+    typedef struct fixed_block_list_extension;
+        // Allocator specific extension of fixed_block_
 	// list struct.
-    extern struct fixed_body_list
+    extern struct fixed_block_list
     {
-	unsigned size;	// Size of fixed body, including
-			// control word.  For fixed_
-			// bodies[j] this equals
+	unsigned size;	// Size of fixed block, includ-
+	                // ing control word.  For fixed_
+			// blocks[j] this equals
 			// 1 << (j+3).
-        unsigned count;	// Number of fixed bodies on the
+        unsigned count;	// Number of fixed blocks on the
 			// list.
-	free_fixed_size_body * first;
-			// First fixed body on the list,
-			// or NULL if list empty.
-	fixed_body_list_extension * extension;
+	free_fixed_size_block * first;
+			// First fixed block on the
+			// list, or NULL if list empty.
+	fixed_block_list_extension * extension;
 			// Address of extension of this
 			// structure.  Set during
 			// allocator initialization.
-    } fixed_bodies
-          [MIN_ABSOLUTE_MAX_FIXED_BODY_SIZE_LOG-2];
+    } fixed_blocks
+          [MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2];
 
     void new_non_fixed_body
 	( min::stub * s, unsigned n );
     void new_fixed_body
 	( min::stub * s, unsigned n,
-	  fixed_body_list * fbl );
+	  fixed_block_list * fbl );
 
-    extern unsigned max_fixed_body_size;
+    extern unsigned max_fixed_block_size;
 
     // Allocate a body to a stub.  n is the minimum size
     // of the body in bytes, not including the control
@@ -1836,7 +1838,7 @@ namespace min { namespace internal {
         assert ( m >=   sizeof ( min::uns64 )
 	              + sizeof ( void * ) );
 
-	if ( m > max_fixed_body_size )
+	if ( m > max_fixed_block_size )
 	{
 	     new_non_fixed_body ( s, n );
 	     return;
@@ -1845,8 +1847,8 @@ namespace min { namespace internal {
 	// See min_parameters.h for fixed_bodies_log.
 	//
 	m = ( m - 1 ) >> 3;
-	fixed_body_list * fbl =
-		  fixed_bodies
+	fixed_block_list * fbl =
+		  fixed_blocks
 		+ fixed_bodies_log ( m ) + 1;
 
 	if ( fbl->count == 0 )
@@ -1855,18 +1857,18 @@ namespace min { namespace internal {
 	     return;
 	}
 
-	min::internal::free_fixed_size_body * b =
+	min::internal::free_fixed_size_block * b =
 	    fbl->first;
 
 	fbl->first = b->next;
 	-- fbl->count;
 
-	b->body_control =
+	b->block_control =
 	    min::unprotected::renew_control_stub
-	        ( b->body_control, s );
+	        ( b->block_control, s );
 	min::unprotected
 	   ::set_pointer_of
-	       ( s, & b->body_control + 1 );
+	       ( s, & b->block_control + 1 );
 	min::unprotected
 	   ::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
     }
