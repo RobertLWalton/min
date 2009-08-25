@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 22:17:47 EDT 2009
+// Date:	Sun Aug 23 23:45:31 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/24 02:30:22 $
+//   $Date: 2009/08/25 06:42:34 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents:
 //
@@ -373,13 +373,16 @@ unsigned MACC::subregion_size;
 unsigned MACC::superregion_size;
 unsigned MACC::max_paged_body_size;
 unsigned MACC::paged_body_region_size;
+unsigned MACC::stack_region_size;
 
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
 MACC::region * MACC::region_end;
 MACC::region * MACC::last_superregion;
+MACC::region * MACC::last_variable_body_region;
 MACC::region * MACC::last_paged_body_region;
 MACC::region * MACC::last_mono_body_region;
+MACC::region * MACC::last_stack_region;
 
 MACC::region *
     MACC::last_free_subregion = NULL;
@@ -514,10 +517,7 @@ static void allocate_new_superregion ( void )
 	exit ( 1 );
     }
 
-    if ( MACC::last_superregion != NULL )
-        MACC::insert_after
-	    ( r, MACC::last_superregion );
-    MACC::last_superregion = r;
+    MACC::insert ( MACC::last_superregion, r );
 }
 
 void MINT::new_fixed_body

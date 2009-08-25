@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 22:30:04 EDT 2009
+// Date:	Mon Aug 24 05:52:34 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/24 02:30:15 $
+//   $Date: 2009/08/25 06:42:34 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -116,6 +116,29 @@ namespace min { namespace acc {
 
 namespace min { namespace acc {
 
+    // Parameters:
+
+    // The space factor F controls some aspects of the
+    // block allocator:
+    //
+    //	  The maximum sized block in a fixed or variable
+    //	  size block region is F pages.
+    //
+    //    The size of a fixed or variable size block
+    //	  region is F**2 pages.
+    //
+    // See min_acc_parameters.h for more info.
+    //
+    extern unsigned space_factor;
+
+    // Cache Line Size.  Fixed blocks of equal or
+    // smaller size are aligned so they are inside a
+    // cache line.
+    //
+    extern unsigned cache_line_size;
+
+    // Blocks:
+
     // Bodies are stored in blocks.  Each block begins
     // with a block control word, and this is followed
     // by either an object body or, if the block does
@@ -171,6 +194,8 @@ namespace min { namespace acc {
 	MONO_BODY_REGION		= 6,
 	LIST_SEGMENT			= 7
     };
+
+    // Regions:
 
     // Bodies are organized into regions which are
     // contiguous sequences of pages.
@@ -379,6 +404,23 @@ namespace min { namespace acc {
     //	     Mono body regions are put on the mono body
     //	     region list.
     //
+    //    Stack Regions
+    //
+    //	     A stack region holds various stacks of
+    //	     pointers to stubs.  These stacks are used
+    //	     as lists; additions are made only at the
+    //	     end of the stack; and deletions are made
+    //	     either at the end of the stack, or by
+    //       scanning the stack from beginning to end
+    //       and deleting elements along the way,
+    //       thereby `compacting' the stack.
+    //
+    //	     The stacks are made from stack segments
+    //	     that all have the same size, a multiple
+    //	     of the page size, and are stored in stack
+    //       regions.  See the stack_segment stuct
+    //	     below.
+    //
     struct region
     { 
 
@@ -430,24 +472,15 @@ namespace min { namespace acc {
 
 	MACC::region * region_previous,
 		     * region_next;
-	    // For fixed size block regions, the pre-
-	    // vious and next region on a doubly
-	    // linked list of fixed size block regions
-	    // for a given size of fixed block, so that
-	    // all regions containing fixed blocks of a
-	    // particular size can be located.  The
-	    // order of this list also determines the
-	    // order in which free blocks from regions
-	    // will be used.
-	    //
-	    // For super-regions (multi-page block
-	    // regions that contain fixed block and
-	    // variable block regions), the previous and
-	    // next super-region on a doubly linked list
-	    // of all super-regions.  The order of this
-	    // list also determines the order in which
-	    // these regions will be used to create
-	    // new subregions.
+	    // Regions of different kinds are put on
+	    // doubly linked circular lists using these
+	    // members.  E.g., there are lists for
+	    // fixed size block regions of a given
+	    // block size, for all variable size block
+	    // regions, for superregions, for paged
+	    // body regions, for mono body regions,
+	    // for free subregions, and for stack
+	    // regions.
 
 	MINT::free_fixed_size_block * free_first;
 	MINT::free_fixed_size_block * free_last;
@@ -468,7 +501,19 @@ namespace min { namespace acc {
 	region1->region_next->region_previous = region1;
     }
 
-    // Remove region1 from the retion_previous/next list
+    // Put region1 on the end of the doubly linked list
+    // whose last member is pointed at by `last', and
+    // make region1 the new last member of the list.
+    //
+    inline void insert
+        ( region * & last, region * region1 )
+    {
+        if ( last != NULL )
+	    insert_after ( region1, last );
+	last = region1;
+    }
+
+    // Remove region1 from the region_previous/next list
     // it is on and link it to itself.
     //
     inline void remove ( region * region1 )
@@ -479,6 +524,22 @@ namespace min { namespace acc {
 	    region1->region_previous;
         region1->region_previous = region1;
 	region1->region_next = region1;
+    }
+
+    // Remove region1 from the end of the doubly linked
+    // list whose last member is pointed at by `last'.
+    //
+    inline void remove
+        ( region * & last, region * region1 )
+    {
+	if ( region1->region_previous == region1 )
+	    last = NULL;
+	else
+	{
+	    if ( region1 == last )
+	       last = region1->region_previous;
+	    remove ( region1 );
+	}
     }
 
     // Beginning, end, and next to be used region table
@@ -499,58 +560,59 @@ namespace min { namespace acc {
     const unsigned
           MAX_MULTI_PAGE_BLOCK_REGIONS = 1 << 15;
 
-    // Multi-page regions to which fixed block and
-    // variable block regions are allocated are
-    // called super-regions.  They are on a doubly
-    // linked list chained via their region_previous/
-    // next pointers.  Given here is the last (most
-    // recently created) super-region (whose
-    // region_next pointer points at the first, or
-    // oldest, super-region).
-    //
+    // Pointers at the last region in various lists of
+    // regions:
+
     extern region * last_superregion;
+        // List of all superregions in order of
+	// creation.
 
-    // Fixed block and variable block regions all have
-    // the same size, so that if one is freed, it can
-    // be reused more freely.
-    //
-    extern unsigned subregion_size;
-
-    // Standard size of a superregion that holds fixed
-    // and variable block regions.   If not enough
-    // memory is available, less may be allocated to
-    // a superregion.
-    //
-    extern unsigned superregion_size;
-    
-    // All freed fixed block and variable block regions
-    // are on a circular list chained by their region_
-    // previous/next pointers, in the order they were
-    // freed.  They are used in reverse order.  The
-    // following points at the last region freed, or
-    // is NULL if none have been freed.
-    //
     extern region * last_free_subregion;
+	// Freed subregions (fixed and variable block
+	// regions), in the order they are freed.  They
+	// are used in reverse order.
 
-    // Paged body regions a put on a list of such.
-    // The following is the last member of this list,
-    // or NULL if the list is empty.
-    //
+    extern region * last_variable_body_region;
+        // All variable size block regions used for
+	// object bodies, in the order they were
+	// created, which is the order that the
+	// object bodies in them were created.
+
     extern region * last_paged_body_region;
+        // Ditto for paged body regions.
 
-    // Maximum size of a block in a paged body region.
-    //
-    extern unsigned max_paged_body_size;
-
-    // Size of a paged body region.
-    //
-    extern unsigned paged_body_region_size;
-
-    // Mono body regions a put on a list of such.
-    // The following is the last member of this list,
-    // or NULL if the list is empty.
-    //
     extern region * last_mono_body_region;
+        // Ditto for mono body regions.
+
+    extern region * last_stack_region;
+        // Ditto for stack regions.
+
+    // Sizes of various kind of region and size limits
+    // on their contents:
+
+    extern unsigned subregion_size;
+        // Fixed block and variable block regions, which
+	// have the same size so they can be freed and
+	// converted from fixed to variable block or
+	// vice versa.  Must be multiple of page size.
+
+    extern unsigned superregion_size;
+        // Normal size of superregion.  Superregions
+	// may be as small as subregion_size if there
+	// is a memory shortage.  Must be multiple of
+	// page size.
+
+    extern unsigned paged_body_region_size;
+        // Size of paged body region.  Must be multiple
+	// of page size.
+
+    extern unsigned max_paged_body_size;
+        // Maximum size of a paged body.  Must be
+	// multiple of page size.
+
+    extern unsigned stack_region_size;
+        // Size of stack region.  Must be multiple of
+	// page size.
 
 } }    
 
@@ -587,29 +649,6 @@ namespace min { namespace internal {
     };
 
 } }    
-
-namespace min { namespace acc {
-
-    // The space factor F controls some aspects of the
-    // block allocator:
-    //
-    //	  The maximum sized block in a fixed or variable
-    //	  size block region is F pages.
-    //
-    //    The size of a fixed or variable size block
-    //	  region is F**2 pages.
-    //
-    // See min_acc_parameters.h for more info.
-    //
-    extern unsigned space_factor;
-
-    // Cache Line Size.  Fixed blocks of equal or
-    // smaller size are aligned so they are inside a
-    // cache line.
-    //
-    extern unsigned cache_line_size;
-
-} }
 
 
 // Collector Interface
