@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 23:45:31 EDT 2009
+// Date:	Wed Aug 26 06:30:01 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/25 06:42:34 $
+//   $Date: 2009/08/26 12:30:11 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents:
 //
@@ -21,6 +21,7 @@
 //	Initializer
 //	Stub Allocator
 //	Block Allocator
+//	Stub Stack Manager
 //	Collector
 
 // Setup
@@ -378,11 +379,12 @@ unsigned MACC::stack_region_size;
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
 MACC::region * MACC::region_end;
-MACC::region * MACC::last_superregion;
-MACC::region * MACC::last_variable_body_region;
-MACC::region * MACC::last_paged_body_region;
-MACC::region * MACC::last_mono_body_region;
-MACC::region * MACC::last_stack_region;
+MACC::region * MACC::last_superregion = NULL;
+MACC::region * MACC::last_variable_body_region = NULL;
+MACC::region * MACC::last_paged_body_region = NULL;
+MACC::region * MACC::last_mono_body_region = NULL;
+MACC::region * MACC::last_stack_region = NULL;
+MACC::region * MACC::current_stack_region = NULL;
 
 MACC::region *
     MACC::last_free_subregion = NULL;
@@ -780,8 +782,101 @@ void MINT::new_non_fixed_body
 
     MUP::set_pointer_of ( s, body );
 }
+
+// Stub Stack Manager
+// ---- ----- -------
 
+void MACC::stub_stack
+         ::allocate_stub_stack_segment ( void )
+{
+    if ( current_stack_region != NULL )
+    {
+        region * r = current_stack_region;
+	if ( r->free_count == 0
+	     &&
+	     r->next == r->end )
+	{
+	    r = last_stack_region->region_previous;
+	    while ( r->free_count == 0
+	            &&
+		    r != last_stack_region )
+	        r = r->region_next;
+	    if ( r->free_count == 0
+	         &&
+		 r->next == r->end )
+	    {
+    		r = new_multi_page_block_region
+		    ( MACC::stack_region_size,
+		      MACC::STACK_REGION );
+		if ( r == NULL )
+		{
+		    cout << "ERROR: out of virtual"
+		            " memory." << endl;
+		    MOS::dump_error_info ( cout );
+		    exit ( 1 );
+		}
+		insert ( last_stack_region, r );
+		current_stack_region = r;
+	    }
+	}
 
+    }
+    // TBD stub_stack_segment * sss =
+	allocate_stub_stack_segment();
+
+    if ( last_segment == NULL )
+    {
+	last_segment = input_segment
+		     = output_segment = sss;
+	input = output = sss->begin;
+    }
+    else
+    {
+	sss->previous_segment =
+	    last_segment;
+	sss->next_segment =
+	    last_segment->next_segment;
+	sss->previous_segment
+	   ->last_segment = sss;
+	sss->last_segment
+	   ->previous_segment = sss;
+	if ( input_segment == last_segment
+	     &&
+	     input == last_segment->next )
+	{
+	    input_segment == sss;
+	    input = sss->begin;
+	}
+	if ( output_segment == last_segment
+	     &&
+	     output == last_segment->next )
+	{
+	    output_segment == sss;
+	    output = sss->begin;
+	}
+	last_segment = sss;
+    }
+}
+
+void MACC::stub_stack::flush ( void )
+{
+    while ( output_segment != last_segment )
+	free_stub_stack_segment ( last_segment );
+    last_segment = output_segment;
+    if ( last_segment->next
+	 ==
+	 last_segment->begin )
+    {
+	stub_stack_segment * sss =
+	    last_segment->previous_segment;
+	if ( sss == last_segment )
+	    last_segment = NULL;
+	else
+	    last_segment = sss;
+	free_stub_stack_segment ( last_segment );
+    }
+    rewind();
+}
 
 
 // Collector

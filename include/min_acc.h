@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Aug 24 05:52:34 EDT 2009
+// Date:	Wed Aug 26 06:24:39 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/25 06:42:34 $
+//   $Date: 2009/08/26 12:30:33 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.30 $
+//   $Revision: 1.31 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -192,7 +192,8 @@ namespace min { namespace acc {
 	SUPERREGION			= 4,
 	PAGED_BODY_REGION		= 5,
 	MONO_BODY_REGION		= 6,
-	LIST_SEGMENT			= 7
+	STACK_SEGMENT			= 7,
+	STACK_REGION			= 8
     };
 
     // Regions:
@@ -542,13 +543,13 @@ namespace min { namespace acc {
 	}
     }
 
-    // Beginning, end, and next to be used region table
-    // entry.  The region table can be an initially
-    // table that can be moved and expanded later, or it
-    // can be an initially maximum sized table that
-    // adds physical pages as it grows.  Region indices
-    // in the region table are limited to non-negative
-    // int16's.
+    // Beginning, end, and next-to-be-used region table
+    // entry.  The region table can be an initial table
+    // that can be moved and expanded later, or it can
+    // be an initially maximum sized table that adds
+    // physical pages as it grows.  Region indices in
+    // the region table are limited to int16's > 0
+    // (the entry at index 0 is unused).
     //
     // Region_table[0] is unused as it cannot be
     // accessed by a block control word locator.
@@ -587,6 +588,10 @@ namespace min { namespace acc {
     extern region * last_stack_region;
         // Ditto for stack regions.
 
+    extern region * current_stack_region;
+        // Stack region from which stack segments are
+	// currently being allocated.
+
     // Sizes of various kind of region and size limits
     // on their contents:
 
@@ -612,7 +617,11 @@ namespace min { namespace acc {
 
     extern unsigned stack_region_size;
         // Size of stack region.  Must be multiple of
-	// page size.
+	// MACC::stack_segment_size.
+
+    extern unsigned stack_region_size;
+        // Size of a stack segment in a stack region.
+	// Must be a multiple of page size.
 
 } }    
 
@@ -650,55 +659,180 @@ namespace min { namespace internal {
 
 } }    
 
+namespace min { namespace acc {
+
+    // Stub Stack Segments:
+
+    // See Stack Regions above.
+
+    struct stub_stack_segment
+    {
+        min::uns64 block_control;
+	    // This is the block control word for the
+	    // multi-page block containing the segment.
+	    // The stub address of this field equals
+	    // MINT::null_stub and the locator is the
+	    // index of the Stack Region containing
+	    // the segment.
+
+        min::uns64 block_subcontrol;
+	    // The type code field of this word is
+	    // MACC::STACK_SEGMENT and the value field
+	    // is the size of the segment in bytes.
+
+        stack_segment * segment_previous,
+	              * segment_next;
+	    // Previous and next on the doubly linked
+	    // list of stack segments.
+
+	min::stub ** next, ** end;
+	    // Next element of segment vector to be
+	    // used, and address just after end of
+	    // vector (i.e., end of segment).
+	    //
+	    // Note: every segment in a stack but the
+	    // last must be FULL.
+
+	min::stub * begin[];
+	    // Beginning element of segment vector.
+    };
+
+
+    // A stub stack can be accessed in two ways.
+    //
+    // First, a value can be pushed into the stack using
+    // push().
+    //
+    // Second, the stack comes with two pointers, named
+    // `input' and `output'.  rewind() resets both
+    // pointers to the beginning of the stack.  at_end()
+    // is true if the input pointer is at the end of the
+    // stack.  Otherwise current() is the value pointed
+    // at by the input pointer.  remove() simply skips
+    // this value.  keep() copies the value to the
+    // output pointer location and increments both input
+    // and output pointers.  The output pointer always
+    // equals or trails the input pointer.  flush()
+    // makes the output pointer position the current
+    // end of the stack (the last element in the stack
+    // is the last element kept by keep(), if any) and
+    // then rewinds the stack.
+    //
+    struct stub_stack
+    {
+        stub_stack_segment * last_segment;
+	    // Pointer to the last segment of the stack,
+	    // or NULL if stack has no segments.
+
+	stub_stack_segment * input_segment,
+	                   * output_segment;
+	unsigned min::stub ** input, ** output;
+	    // Current input and output positions in the
+	    // stack.  Each position is given by a
+	    // segment and a pointer to an element in
+	    // the segment.
+
+	bool is_at_end;
+	    // Value for at_end().
+
+
+	stub_stack ( void ) :
+	    last_segment ( NULL ),
+	    input_segment ( NULL ),
+	    output_segment ( NULL ),
+	    input ( NULL ),
+	    output ( NULL ),
+	    is_at_end ( true ) {}
+
+	void rewind ( void )
+	{
+	    if ( last_segment == NULL )
+	    {
+		input_segment = output_segment = NULL;
+		input = output = NULL;
+		is_at_end = true;
+	    }
+	    else
+	    {
+	        input_segment =
+		    last_segment->next_segment;
+		input = input_segment->begin;
+		output_segment = input_segment;
+		output = input;
+		is_at_end =
+		    ( input == input_segment->next );
+	    }
+	}
+
+	bool at_end ( void )
+	{
+	    return is_at_end;
+	}
+
+	min::stub * current ( void )
+	{
+	    return * input;
+	}
+
+	void allocate_stub_stack_segment ( void );
+	void push ( min::stub * s )
+	{
+	    if ( is_at_end
+	         &&
+	         (  last_segment == NULL
+	            ||
+		       last_segment->next
+		    == last_segment->end ) )
+	        allocate_stub_stack_segment();
+
+	    * last_segment->next ++ = s;
+	    is_at_end = false;
+	}
+
+	void remove ( void )
+	{
+	    assert ( ! is_at_end );
+
+	    if ( ++ input == input_segment->next )
+	    {
+	        if ( input_segment != last_segment )
+		{
+		    input_segment =
+		        input_segment->next_segment;
+		    input = input_segment->begin;
+		    is_at_end =
+		        (    input
+			  == input_segment->next );
+		}
+		else
+		    is_at_end = true;
+	    }
+	}
+
+	void keep ( void )
+	{
+	    min::stub * value = * input;
+	    remove();
+	    * output = value;
+	    if ( ++ output == output_segment->next )
+	         &&
+	         output_segment != last_segment )
+	    {
+		output_segment =
+		    output_segment->next_segment;
+		output = output_segment->begin;
+	    }
+	}
+    };
+
+
+} }
 
 // Collector Interface
 // --------- ---------
 
 namespace min { namespace acc {
 
-    // The `collector' maintains lists of min::stub *
-    // values.  These are stored in stub list segments,
-    // which are doubly linked to each other, and which
-    // each hold a vector of min::stub * values.  These
-    // segments all have the same size, which is a
-    // multiple of the page size.  The segments are all
-    // stored as blocks in multi-block regions.  If a
-    // segment becomes empty, it is put on a free list,
-    // from which it may be allocated to any list that
-    // needs it.
-    //
-    struct stub_list_segment
-    {
-        min::uns64 block_control;
-	    // This is the block control word for the
-	    // multi-page block containing the segment.
-	    // The locator field L of this word is such
-	    // that
-	    //
-	    //	   MACC::region_table[L]
-	    //
-	    // is the  multi-page region containing
-	    // this segment, and the pointer field of
-	    // the word equals MINT::null_stub.
-
-        min::uns64 block_subcontrol;
-	    // The type code field of this word is
-	    // MACC::LIST_SEGMENT and the value field
-	    // is the size of the segment in bytes.
-
-        stub_list_segment * previous_segment,
-			  * next_segment;
-	    // Previous and next on the doubly linked
-	    // list of segments.
-
-	min::stub ** next, ** end;
-	    // Next element of segment vector to be
-	    // used, and address just after end of
-	    // vector.
-
-	min::stub * begin[];
-	    // Beginning element of segment vector.
-    };
 
     // The `collector' segregates objects into N+1
     // levels, with level 0 being the `base level',
@@ -927,8 +1061,8 @@ namespace min { namespace acc {
 	min::uns64 count;
 	    // Number of stubs in this generation.
 
-	MACC::stub_list_segment * to_be_scavenged;
-	MACC::stub_list_segment * root;
+	MACC::stack_segment * to_be_scavenged;
+	MACC::stack_segment * root;
 	    // Pointers to the LAST segments in the
 	    // to-be-scavenged and root lists for
 	    // the level.  NULL if a list is empty.
