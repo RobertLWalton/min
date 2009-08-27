@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 26 06:24:39 EDT 2009
+// Date:	Thu Aug 27 07:42:09 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/26 12:30:33 $
+//   $Date: 2009/08/27 20:07:26 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -618,6 +618,10 @@ namespace min { namespace acc {
     extern unsigned stack_region_size;
         // Size of stack region.  Must be multiple of
 	// MACC::stack_segment_size.
+
+    extern unsigned stack_segment_size;
+        // Size of a stack segment.  Must be a multiple
+	// of the page size.
 
     extern unsigned stack_region_size;
         // Size of a stack segment in a stack region.

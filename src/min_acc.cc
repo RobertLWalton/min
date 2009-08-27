@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 26 06:30:01 EDT 2009
+// Date:	Wed Aug 26 22:05:05 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/26 12:30:11 $
+//   $Date: 2009/08/27 20:07:44 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents:
 //
@@ -375,6 +375,7 @@ unsigned MACC::superregion_size;
 unsigned MACC::max_paged_body_size;
 unsigned MACC::paged_body_region_size;
 unsigned MACC::stack_region_size;
+unsigned MACC::stack_segment_size;
 
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
@@ -789,43 +790,72 @@ void MINT::new_non_fixed_body
 void MACC::stub_stack
          ::allocate_stub_stack_segment ( void )
 {
-    if ( current_stack_region != NULL )
+    region * r = current_stack_region;
+    if ( r != NULL
+         &&
+	 r->free_count == 0
+	 &&
+	 r->next == r->end )
     {
-        region * r = current_stack_region;
+	r = last_stack_region->region_previous;
+	while ( r->free_count == 0
+		&&
+		r != last_stack_region )
+	    r = r->region_next;
 	if ( r->free_count == 0
 	     &&
 	     r->next == r->end )
-	{
-	    r = last_stack_region->region_previous;
-	    while ( r->free_count == 0
-	            &&
-		    r != last_stack_region )
-	        r = r->region_next;
-	    if ( r->free_count == 0
-	         &&
-		 r->next == r->end )
-	    {
-    		r = new_multi_page_block_region
-		    ( MACC::stack_region_size,
-		      MACC::STACK_REGION );
-		if ( r == NULL )
-		{
-		    cout << "ERROR: out of virtual"
-		            " memory." << endl;
-		    MOS::dump_error_info ( cout );
-		    exit ( 1 );
-		}
-		insert ( last_stack_region, r );
-		current_stack_region = r;
-	    }
-	}
-
+	    r = NULL;
+	else
+	    current_stack_region = r;
     }
-    // TBD stub_stack_segment * sss =
-	allocate_stub_stack_segment();
+    if ( r == NULL )
+    {
+	r = new_multi_page_block_region
+	    ( MACC::stack_region_size,
+	      MACC::STACK_REGION );
+	if ( r == NULL )
+	{
+	    cout << "ERROR: out of virtual"
+		    " memory." << endl;
+	    MOS::dump_error_info ( cout );
+	    exit ( 1 );
+	}
+	insert ( last_stack_region, r );
+	current_stack_region = r;
+    }
+
+    // Now r has a free segment or room to allocate
+    // a new segment.
+
+    stub_stack_segment * sss;
+    if ( r->free_count > 0 )
+    {
+        MINT::free_fixed_sized_block * b =
+	    r->free_first;
+	if ( ( r->free_first = b->next ) == NULL )
+	    r->free_last = NULL;
+	-- r->free_count;
+	sss = (stub_stack_segment *) b;
+    }
+    else
+    {
+        sss = (stub_stack_segment *) r->next;
+	r->next += stack_segment_size;
+    }
+
+    sss->block_control = MUP::new_control_with_locator
+        ( r - region_table, MINT::null_stub );
+    sss->block->subcontrol = MUP::new_control_with_type
+        ( STACK_SEGMENT, stack_segment_size );
+
+    sss->next = sss->begin;
+    sss->end = (min::stub *)
+               ( (char *) sss + stack_segment_size );
 
     if ( last_segment == NULL )
     {
+        sss->previous_segment = sss->next_segment = sss;
 	last_segment = input_segment
 		     = output_segment = sss;
 	input = output = sss->begin;
