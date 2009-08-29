@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Aug 26 22:05:05 EDT 2009
+// Date:	Sat Aug 29 07:31:06 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/27 20:07:44 $
+//   $Date: 2009/08/29 12:08:51 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // Table of Contents:
 //
@@ -831,7 +831,7 @@ void MACC::stub_stack
     stub_stack_segment * sss;
     if ( r->free_count > 0 )
     {
-        MINT::free_fixed_sized_block * b =
+        MINT::free_fixed_size_block * b =
 	    r->free_first;
 	if ( ( r->free_first = b->next ) == NULL )
 	    r->free_last = NULL;
@@ -846,11 +846,11 @@ void MACC::stub_stack
 
     sss->block_control = MUP::new_control_with_locator
         ( r - region_table, MINT::null_stub );
-    sss->block->subcontrol = MUP::new_control_with_type
+    sss->block_subcontrol = MUP::new_control_with_type
         ( STACK_SEGMENT, stack_segment_size );
 
     sss->next = sss->begin;
-    sss->end = (min::stub *)
+    sss->end = (min::stub **)
                ( (char *) sss + stack_segment_size );
 
     if ( last_segment == NULL )
@@ -867,8 +867,8 @@ void MACC::stub_stack
 	sss->next_segment =
 	    last_segment->next_segment;
 	sss->previous_segment
-	   ->last_segment = sss;
-	sss->last_segment
+	   ->next_segment = sss;
+	sss->next_segment
 	   ->previous_segment = sss;
 	if ( input_segment == last_segment
 	     &&
@@ -891,19 +891,31 @@ void MACC::stub_stack
 void MACC::stub_stack::flush ( void )
 {
     while ( output_segment != last_segment )
-	free_stub_stack_segment ( last_segment );
-    last_segment = output_segment;
-    if ( last_segment->next
-	 ==
-	 last_segment->begin )
     {
-	stub_stack_segment * sss =
-	    last_segment->previous_segment;
-	if ( sss == last_segment )
-	    last_segment = NULL;
+        stub_stack_segment * sss = last_segment;
+	assert ( sss->next_segment != sss );
+	last_segment = sss->previous_segment;
+
+	sss->previous_segment->next_segment =
+	    sss->next_segment;
+	sss->next_segment->previous_segment =
+	    sss->previous_segment;
+
+	MINT::free_fixed_size_block * b =
+	    (MINT::free_fixed_size_block *) sss;
+	b->next = NULL;
+	b->block_subcontrol = MUP::new_control_with_type
+	    ( min::FREE, stack_segment_size );
+
+	int locator = MUP::locator_of_control
+	    ( sss->block_control );
+	region * r = & region_table[locator];
+	if ( r->free_count ++ == 0 )
+	    r->free_first = r->free_last = b;
 	else
-	    last_segment = sss;
-	free_stub_stack_segment ( last_segment );
+	    r->free_last->next = b;
+
+	// TBD: if all segments in r are free, free r.
     }
     rewind();
 }
