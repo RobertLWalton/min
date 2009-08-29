@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Aug 27 07:42:09 EDT 2009
+// Date:	Sat Aug 29 08:08:00 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/27 20:07:26 $
+//   $Date: 2009/08/29 12:08:31 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -684,8 +684,8 @@ namespace min { namespace acc {
 	    // MACC::STACK_SEGMENT and the value field
 	    // is the size of the segment in bytes.
 
-        stack_segment * segment_previous,
-	              * segment_next;
+        stub_stack_segment * previous_segment,
+	                   * next_segment;
 	    // Previous and next on the doubly linked
 	    // list of stack segments.
 
@@ -730,7 +730,7 @@ namespace min { namespace acc {
 
 	stub_stack_segment * input_segment,
 	                   * output_segment;
-	unsigned min::stub ** input, ** output;
+	min::stub ** input, ** output;
 	    // Current input and output positions in the
 	    // stack.  Each position is given by a
 	    // segment and a pointer to an element in
@@ -818,7 +818,7 @@ namespace min { namespace acc {
 	    min::stub * value = * input;
 	    remove();
 	    * output = value;
-	    if ( ++ output == output_segment->next )
+	    if ( ++ output == output_segment->next
 	         &&
 	         output_segment != last_segment )
 	    {
@@ -827,6 +827,7 @@ namespace min { namespace acc {
 		output = output_segment->begin;
 	    }
 	}
+	void flush ( void );
     };
 
 
@@ -1065,11 +1066,10 @@ namespace min { namespace acc {
 	min::uns64 count;
 	    // Number of stubs in this generation.
 
-	MACC::stack_segment * to_be_scavenged;
-	MACC::stack_segment * root;
-	    // Pointers to the LAST segments in the
-	    // to-be-scavenged and root lists for
-	    // the level.  NULL if a list is empty.
+	MACC::stub_stack to_be_scavenged;
+	MACC::stub_stack root;
+	    // To-be-scavenged and root lists for
+	    // the level.
 
     };
     extern min::acc::level * levels;
