@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 21:09:43 EDT 2009
+// Date:	Sun Sep 13 01:02:44 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/24 02:31:02 $
+//   $Date: 2009/09/13 05:15:13 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.97 $
+//   $Revision: 1.98 $
 
 // Table of Contents:
 //
@@ -122,7 +122,7 @@ struct print_gen {
 // sets the `interrupt_called' variable to true.
 //
 bool interrupt_called;
-bool MUP::interrupt ( void )
+bool MINT::interrupt ( void )
 {
     interrupt_called = true;
     return true;
@@ -408,6 +408,7 @@ static min::stub ** acc_stack_end = acc_stack + 1000;
 void initialize_acc_stack ( void )
 {
     MINT::acc_stack = ::acc_stack;
+    MINT::acc_stack_limit = ::acc_stack_end - 6;
 }
 
 void MINT::acc_initializer ( void )
@@ -1127,8 +1128,7 @@ int main ()
     {
 	cout << endl;
 	cout << "Start Process Interface Test!" << endl;
-	MUP::interrupt_flag = false;
-	MUP::relocated_flag = false;
+	MINT::relocated_flag = false;
 
 	// Process control testing is TBD.
 
@@ -1137,9 +1137,11 @@ int main ()
 	interrupt_called = false;
 	min::interrupt();
 	MIN_ASSERT ( ! interrupt_called );
-	MUP::interrupt_flag = true;
+	min::stub ** limit_save = MINT::acc_stack_limit;
+	MINT::acc_stack_limit = MINT::acc_stack;
 	min::interrupt();
 	MIN_ASSERT ( interrupt_called );
+	MINT::acc_stack_limit = limit_save;
 
         cout << endl;
 	cout << "Test relocate flag functions:"
