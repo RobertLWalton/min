@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 21:00:30 EDT 2009
+// Date:	Sun Sep 13 01:00:49 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/24 02:30:22 $
+//   $Date: 2009/09/13 05:12:26 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.104 $
+//   $Revision: 1.105 $
 
 // Table of Contents:
 //
@@ -122,11 +122,9 @@ min::uns32 min::hash ( min::gen v )
 // Process Management
 // ------- ----------
 
-namespace min { namespace unprotected {
+namespace min { namespace internal {
 
-    bool interrupt_flag;
     bool relocated_flag;
-    process_control * current_process;
 
 } }
 
@@ -157,6 +155,7 @@ namespace min { namespace internal {
 
     min::uns64 acc_stack_mask;
     min::stub ** acc_stack;
+    min::stub ** acc_stack_limit;
 
     min::uns64 acc_new_stub_flags;
     min::stub * last_allocated_stub;

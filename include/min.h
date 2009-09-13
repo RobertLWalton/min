@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 20:45:58 EDT 2009
+// Date:	Sun Sep 13 00:54:41 EDT 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/24 02:30:15 $
+//   $Date: 2009/09/13 05:12:44 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.183 $
+//   $Revision: 1.184 $
 
 // Table of Contents:
 //
@@ -1425,21 +1425,28 @@ namespace min {
 // and functions to test for interrupts.  The process
 // control block contains pointers to stacks.
 
-namespace min { namespace unprotected {
+namespace min { namespace internal {
 
-    extern bool interrupt_flag;
-	// On if interrupt should occur.
 
     extern bool relocated_flag;
 	// On if bodies have been relocated.
 
-    struct process_control {
-
-        // Pointers to stacks: TBD.
-
-    };
-
-    extern process_control * current_process;
+    extern min::stub ** acc_stack;
+    extern min::stub ** acc_stack_limit;
+        // If acc_stack >= acc_stack_limit, an interrupt
+	// is invoked.  Min::stub * values can be pushed
+	// into the acc stack, increasing the acc_stack
+	// value.  The acc_stack_limit is much less than
+	// the actual end of the acc stack.  Interrupts
+	// may be scheduled by setting acc_stack_limit
+	// =< acc_stack, and work that leads to inter-
+	// rupts may be counted by decreasing acc_stack_
+	// limit.
+	//
+	// Interrupts perform acc actions such as
+	// emptying the acc_stack (and resetting acc_
+	// stack_limit), and may perform thread
+	// switches.
 
     // Out of line function to execute interrupt.
     // Returns true.
@@ -1452,20 +1459,21 @@ namespace min {
 
     inline bool interrupt ( void )
     {
-        if ( unprotected::interrupt_flag )
-	    return unprotected::interrupt();
+        if (    internal::acc_stack
+	     >= internal::acc_stack_limit )
+	    return internal::interrupt();
 	else return false;
     }
 
     inline bool relocated_flag ( void )
     {
-         return unprotected::relocated_flag;
+         return internal::relocated_flag;
     }
     inline bool set_relocated_flag ( bool value )
     {
          bool old_value =
-	     unprotected::relocated_flag;
-	 unprotected::relocated_flag =
+	     internal::relocated_flag;
+	 internal::relocated_flag =
 	     value;
 	 return old_value;
     }
