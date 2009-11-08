@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov  8 03:12:43 EST 2009
+// Date:	Sun Nov  8 07:11:39 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/08 08:26:26 $
+//   $Date: 2009/11/08 12:50:24 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.42 $
+//   $Revision: 1.43 $
 
 // Table of Contents
 //
@@ -140,12 +140,12 @@
 #   endif
 # endif
 
-// Optional hard-coded address of the stub vector.  De-
-// faults to zero when MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
-// is allowed to default above.  Otherwise not set by
-// default, and when not set the base of the stub vector
-// is determined at run time.  Should be an unsigned
-// integer.
+// Optional hard-coded numeric address of the stub
+// vector.  Defaults to zero when MIN_ABSOLUTE_MAX_
+// NUMBER_OF_STUBS is allowed to default above.
+// Otherwise not set by default, and when not set the
+// base of the stub vector is determined at run time.
+// Must be an unsigned integer if set.
 //
 // # define MIN_STUB_BASE xxx
 
@@ -250,10 +250,10 @@
 // ephemeral level of garbage collection.
 //
 // NOTE: if MIN_MAX_ABSOLUTE_STUB_ADDRESS >=
-// ( 1 << ( 56 - MIN_ACC_FLAG_BITS ) ) then the
-// control value of a stub cannot hold an absolute
-// stub address.  It may still be able to hold a
-// relative stub address or a stub index.
+// ( 1 << ( 56 - MIN_ACC_FLAG_BITS ) ) then an acc
+// control value cannot hold an absolute stub address.
+// It may still be able to hold a relative stub address
+// or a stub index.
 //
 # ifndef MIN_ACC_FLAG_BITS
 #   define MIN_ACC_FLAG_BITS \
@@ -287,34 +287,34 @@
 // Hardware Functions
 // -------- ---------
 
+#ifndef MIN_USE_GNUC_BUILTINS
+#   ifdef __GNUC__
+#	define MIN_USE_GNUC_BUILTINS 1
+#   else
+#	define MIN_USE_GNUC_BUILTINS 0
+#   endif
+#endif
+
 namespace min { namespace internal {
 
     // Return j such that (1<<j) <= u < (1<<(j+1)),
     // assuming
     //    0 < u <= MIN_MAX_ABSOLUTE_FIXED_BLOCK_SIZE/8.
     //
+
     inline unsigned fixed_bodies_log ( unsigned u )
     {
-#   ifdef __GNUC__
+#   if MIN_USE_GNUC_BUILTINS
 	return   8 * sizeof ( unsigned ) - 1
 	       - __builtin_clz ( u );
 #   else
-	return
-	  ( u < (1<<8) ?
-	      ( u < (1<<4) ?
-	          ( u < (1<<2) ?
-		      ( u < (1<<1) ? 0 : 1 ) :
-		      ( u < (1<<3) ? 2 : 3 ) ) :
-	          ( u < (1<<6) ?
-		      ( u < (1<<5) ? 4 : 5 ) :
-		      ( u < (1<<7) ? 6 : 7 ) ) ) :
-	      ( u < (1<<12) ?
-	          ( u < (1<<10) ?
-		      ( u < (1<<9) ? 8 : 9 ) :
-		      ( u < (1<<11) ? 10 : 11 ) ) :
-	          ( u < (1<<14) ?
-		      ( u < (1<<13) ? 12 : 13 ) :
-		      ( u < (1<<15) ? 14 : 15 ) ) ) );
+        unsigned c = 0;
+	if ( u >= (1 << 16) ) c += 16, u >>= 16;
+	if ( u >= (1 << 8) ) c += 8, u >>= 8;
+	if ( u >= (1 << 4) ) c += 4, u >>= 4;
+	if ( u >= (1 << 2) ) c += 2, u >>= 2;
+	if ( u >= (1 << 1) ) c += 1;
+	return c;
 #   endif
     }
 } }
@@ -342,8 +342,9 @@ namespace min { namespace internal {
 //	    unsigned binary integer) 64 bit floating
 //	    point signalling NAN.
 //	MIN_DEALLOCATED_LIMIT
-//	    Minimum size of unimplemented memory at
-//	    which deallocated body pointers are pointed.
+//	    Size of unimplemented memory at which
+//	    deallocated body pointers are pointed
+//	    if MIN_POINTER_BITS <= 32.
 //
 # if __i386__
 #   define MIN_INT32_TYPE int
@@ -361,7 +362,6 @@ namespace min { namespace internal {
 #   define MIN_IS_LITTLE_ENDIAN 1
 #   define MIN_POINTER_BITS 64
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
-#   define MIN_DEALLOCATED_LIMIT (1 << 20)
 # endif
 
 # endif // MIN_PARAMETERS_H

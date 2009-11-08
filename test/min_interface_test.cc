@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Sep 13 01:02:44 EDT 2009
+// Date:	Sun Nov  8 07:41:22 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/09/13 05:15:13 $
+//   $Date: 2009/11/08 12:48:17 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.98 $
+//   $Revision: 1.99 $
 
 // Table of Contents:
 //
@@ -1108,16 +1108,8 @@ int main ()
 	    ( ! min::is_collectible ( min::LIST_AUX ) );
 	MUP::set_type_of ( stub, min::NUMBER );
 	MIN_ASSERT ( ! min::is_deallocated ( stub ) );
-	desire_success (
-	    assert_allocated
-	        ( stub, MIN_DEALLOCATED_LIMIT + 1 )
-	);
 	MUP::set_type_of ( stub, min::DEALLOCATED );
 	MIN_ASSERT ( min::is_deallocated ( stub ) );
-	desire_failure (
-	    assert_allocated
-	        ( stub, MIN_DEALLOCATED_LIMIT + 1 )
-	);
 
 	cout << endl;
 	cout << "Finish Stub Functions Test!" << endl;

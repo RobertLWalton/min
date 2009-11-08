@@ -434,16 +434,8 @@ min_interface_test.cc:XXXX assert:
     ! min::is_collectible ( min::LIST_AUX ) true.
 min_interface_test.cc:XXXX assert:
     ! min::is_deallocated ( stub ) true.
-min_interface_test.cc:XXXX desire success:
-    assert_allocated ( stub, MIN_DEALLOCATED_LIMIT + 1 )
-../include/min.h:XXXX assert:
-    ! is_deallocated ( s ) true.
 min_interface_test.cc:XXXX assert:
     min::is_deallocated ( stub ) true.
-min_interface_test.cc:XXXX desire failure:
-    assert_allocated ( stub, MIN_DEALLOCATED_LIMIT + 1 )
-../include/min.h:XXXX assert:
-    ! is_deallocated ( s ) false.
 
 Finish Stub Functions Test!
 

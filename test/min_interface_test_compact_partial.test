@@ -355,7 +355,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6600
+control2: 85800000009f63e0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -366,7 +366,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6610
+re-control2: 85800000009f63f0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -379,7 +379,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f6600
+control3: 85800000009f63e0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -390,7 +390,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6610
+re-control3: 85800000009f63f0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -452,16 +452,8 @@ min_interface_test.cc:XXXX assert:
     ! min::is_collectible ( min::LIST_AUX ) true.
 min_interface_test.cc:XXXX assert:
     ! min::is_deallocated ( stub ) true.
-min_interface_test.cc:XXXX desire success:
-    assert_allocated ( stub, MIN_DEALLOCATED_LIMIT + 1 )
-../include/min.h:XXXX assert:
-    ! is_deallocated ( s ) true.
 min_interface_test.cc:XXXX assert:
     min::is_deallocated ( stub ) true.
-min_interface_test.cc:XXXX desire failure:
-    assert_allocated ( stub, MIN_DEALLOCATED_LIMIT + 1 )
-../include/min.h:XXXX assert:
-    ! is_deallocated ( s ) false.
 
 Finish Stub Functions Test!
 
