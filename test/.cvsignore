@@ -11,3 +11,6 @@ min_interface_test_loose_stretch.out
 min_interface_test_loose_partial
 min_interface_test_loose_partial.out
 min_os_test
+min_builtin_test
+min_builtin_replacement_test
+min_acc_test

@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov  8 07:11:39 EST 2009
+// Date:	Sun Nov  8 08:21:10 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/08 12:50:24 $
+//   $Date: 2009/11/08 13:24:30 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.43 $
+//   $Revision: 1.44 $
 
 // Table of Contents
 //
@@ -280,6 +280,10 @@
 // size.  The logrithm base 2 of the size is used as the
 // size of a table.
 //
+// May NOT be larger than 1 << 33 so that fixed_bodies_
+// log may be used on MIN_ABSOLUTE_MAX_FIXED_BLOCK_
+// SIZE/8.
+//
 # define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG 30
 # define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE \
          ( 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG )
@@ -298,10 +302,8 @@
 namespace min { namespace internal {
 
     // Return j such that (1<<j) <= u < (1<<(j+1)),
-    // assuming
-    //    0 < u <= MIN_MAX_ABSOLUTE_FIXED_BLOCK_SIZE/8.
+    // assuming 0 < u <= (1<<31)-1.
     //
-
     inline unsigned fixed_bodies_log ( unsigned u )
     {
 #   if MIN_USE_GNUC_BUILTINS

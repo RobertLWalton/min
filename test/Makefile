@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Sun Aug 23 10:13:29 EDT 2009
+# Date:		Sun Nov  8 08:16:46 EST 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/08/23 14:45:28 $
+#   $Date: 2009/11/08 13:25:50 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.25 $
+#   $Revision: 1.26 $
 
 # We need the following to mask RCS lines
 #
@@ -36,11 +36,14 @@ INTERFACE_PROGRAMS = \
     ${foreach c,${TEST_CASES},min_interface_test_$c} 
 OS_PROGRAMS = \
     min_os_test
+BUILTIN_PROGRAMS = \
+    min_builtin_test min_builtin_replacement_test
 ACC_PROGRAMS = \
     min_acc_test
 
 PROGRAMS = ${INTERFACE_PROGRAMS} \
            ${OS_PROGRAMS} \
+           ${BUILTIN_PROGRAMS} \
            ${ACC_PROGRAMS}
 
 .SECONDARY:	${PROGRAMS:=.out}
@@ -48,21 +51,25 @@ PROGRAMS = ${INTERFACE_PROGRAMS} \
 all:		diff
 interface:	interface_diff
 os:		os_diff
+builtin:	builtin_diff
 acc:		acc_diff
 
 diff:		${PROGRAMS:=.diff}
 interface_diff:	${INTERFACE_PROGRAMS:=.diff}
 os_diff:	${OS_PROGRAMS:=.diff}
+builtin_diff:	${BUILTIN_PROGRAMS:=.diff}
 acc_diff:	${ACC_PROGRAMS:=.diff}
 
 out:		${PROGRAMS:=.out}
 interface_out:	${INTERFACE_PROGRAMS:=.out}
 os_out:		${OS_PROGRAMS:=.out}
+builtin_out:	${BUILTIN_PROGRAMS:=.out}
 acc_out:	${ACC_PROGRAMS:=.out}
 
 test:		${PROGRAMS:=.test}
 interface_test:	${INTERFACE_PROGRAMS:=.test}
 os_test:	${OS_PROGRAMS:=.test}
+builtin_test:	${BUILTIN_PROGRAMS:=.test}
 acc_test:	${ACC_PROGRAMS:=.test}
 
 
@@ -159,6 +166,23 @@ min_os_test:		\
 	    -I ../include \
 	    -o $@ \
 	    min_os_test.cc
+
+min_builtin_test:		\
+		min_builtin_test.cc \
+		${INCLUDE_FILES} Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include \
+	    -o $@ \
+	    min_builtin_test.cc
+
+min_builtin_replacement_test:		\
+		min_builtin_test.cc \
+		${INCLUDE_FILES} Makefile
+	g++ -g ${GFLAGS} \
+	    -I ../include \
+	    -o $@ \
+	    -DMIN_USE_GNUC_BUILTINS=0 \
+	    min_builtin_test.cc
 
 min_acc_test:		\
 		min_acc_test.cc \
