@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Sep 13 01:00:49 EDT 2009
+// Date:	Sun Nov  8 08:22:32 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/09/13 05:12:26 $
+//   $Date: 2009/11/08 13:25:17 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.105 $
+//   $Revision: 1.106 $
 
 // Table of Contents:
 //
@@ -59,6 +59,9 @@ MINT::initializer::initializer ( void )
     assert ( sizeof ( MIN_INT64_TYPE ) == 8 );
     assert
         ( sizeof ( void * ) == MIN_POINTER_BITS / 8 );
+
+    assert
+      ( MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG <= 33 );
 
     min::uns32 u = 1;
     char * up = (char *) & u;
