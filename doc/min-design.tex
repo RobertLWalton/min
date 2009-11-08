@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 24, 2009}
+\date{November 8, 2009}
  
 \maketitle
 
@@ -1229,7 +1229,7 @@ The code to do all this has the form:
     if ( min::set_relocated_flag( false ) )
     {
         relocated = true;
-        assert_allocated ( s, MAX_SIZE_OF_BODY_OF_S );
+        assert ( ! is_deallocated ( s ) );
         p = MUP::some_function_returning_a_body_pointer ( s );
     }
     . . . . . use p . . . . .
@@ -1254,8 +1254,6 @@ check the type code of the object stub pointing at the body.  The type
 code must be checked separately before the pointer is computed.  If the
 pointer is being recomputed after possible relocation, the only check
 required relates to the possibility that the object has been deallocated.
-This check is most efficiently done by the {\tt min::assert\_allocated}
-function (\pagref{MIN::ASSERT_ALLOCATED}).
 
 To simplify code, the following is defined:
 
@@ -1300,7 +1298,7 @@ as:
     some_relocating_function ( ... );
     if ( relocated )
     {
-        assert_allocated ( s, MAX_SIZE_OF_BODY_OF_S );
+        assert ( ! is_deallocated ( s ) );
         p = MUP::some_function_returning_a_body_pointer ( s );
     }
     . . . . . use p . . . . .
@@ -1345,36 +1343,7 @@ deallocated:
 \LABEL{MIN_DEALLOCATED_LIMIT}
 \end{tabular}\end{center}
 
-This macro is used to optimize the inline function:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{assert\_allocated}\verb| ( min::stub * s, unsigned size )|
-\LABEL{MIN::ASSERT_ALLOCATED}
-\end{tabular}\end{center}
-
-which expands to the code:
-
-\begin{indpar}\begin{verbatim}
-if ( MIN_DEALLOCATED_LIMIT < size || MIN_DEBUG )
-{
-    assert ( ! min::is_deallocate ( s ) );
-}
-\end{verbatim}\end{indpar}
-
-If {\tt size} is a constant (such as a {\tt size\_of} expression)
-not greater than {\tt MIN\_DEALLOCATED\_\EOL LIMIT},
-this code will normally be optimized away by the compiler.
-
-However if {\tt MIN\_DEBUG} is set {\tt min::assert\_allocated} always
-executes
-
-\begin{indpar}\begin{verbatim}
-assert ( ! min::is_deallocate ( s ) );
-\end{verbatim}\end{indpar}
-
-because this is useful for debugging improper accesses to deallocated
-bodies.
+TBD: above is used only as size of deallocated block.
 
 \subsection{Stub Control}
 \label{STUB-CONTROL}
@@ -4950,9 +4919,6 @@ struct min
 \LABEL{MIN::TYPE_OF} \\[1ex]
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
 \LABEL{MIN::IS_COLLECTIBLE} \\[1ex]
-\verb|void min::| & \MINKEY{assert\_allocated}\ARGBREAK
-               \verb| ( min::stub * s, unsigned size )|
-\LABEL{MIN::ASSERT_ALLOCATED} \\
 \verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
 \LABEL{MIN::RELOCATED_FLAG} \\
 \verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool value )|

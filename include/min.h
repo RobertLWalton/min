@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Sep 13 00:54:41 EDT 2009
+// Date:	Sun Nov  8 07:37:13 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/09/13 05:12:44 $
+//   $Date: 2009/11/08 12:50:24 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.184 $
+//   $Revision: 1.185 $
 
 // Table of Contents:
 //
@@ -1315,15 +1315,6 @@ namespace min {
     inline bool is_deallocated ( min::stub * s )
     {
         return type_of ( s ) == min::DEALLOCATED;
-    }
-
-    inline void assert_allocated
-	    ( min::stub * s, unsigned size )
-    {
-        if ( MIN_DEALLOCATED_LIMIT < size || MIN_DEBUG )
-	{
-	    MIN_ASSERT ( ! is_deallocated ( s ) );
-	}
     }
 
     namespace unprotected {
