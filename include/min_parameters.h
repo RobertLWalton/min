@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 21:09:05 EDT 2009
+// Date:	Sun Nov  8 03:12:43 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/24 02:30:15 $
+//   $Date: 2009/11/08 08:26:26 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.41 $
+//   $Revision: 1.42 $
 
 // Table of Contents
 //
@@ -112,7 +112,7 @@
 // Maximum number of stubs possible with the compiled
 // code.  The defaults specified here permit stub
 // addresses to be stored in min::gen values and in
-// stub and other control values.  You can multiply
+// acc and other control values.  You can multiply
 // these defaults by as much as 16 if stub indices
 // are to be stored instead of addresses.
 //
@@ -131,10 +131,10 @@
 	( MIN_IS_COMPACT ? 0x0DFFFFFF : \
 	  ( MIN_POINTER_BITS <= 32 ? 1 << 28 : \
 	  ( MIN_MAX_EPHEMERAL_LEVELS <= 2 ? \
-	          ( ( 1ull << 40 ) - 1 ) : \
-	  ( ( 1ull << \
-	      ( 52 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) ) \
-	    - 1 ) ) ) )
+	          ( 1ull << 40 ) : \
+	  ( 1ull << \
+	    ( 52 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) ) \
+	    ) ) )
 #   ifndef MIN_STUB_BASE
 #	define MIN_STUB_BASE 0
 #   endif
@@ -157,10 +157,10 @@
 
 // All addresses are 64 bits except stub addresses,
 // which are packed.  All stub address packing schemes
-// represent stub addresses as unsigned integers that
-// need less than 64 bits of storage.  Stub addresses
-// can be packed as absolute stub addresses, relative
-// stub addresses, or stub indices.
+// represent stub addresses as unsigned integer values
+// that need less than 64 bits of storage.  Stub
+// addresses can be packed as absolute stub addresses,
+// relative stub addresses, or stub indices.
 //
 // Absolute stub addresses are defined by the formula:
 //
@@ -192,12 +192,10 @@
 //
 // where 16 is the number of bytes in a stub.
 //
-// When stub addresses are stored in a certain number of
-// bits as much packing is used as is required to fit
-// the stub address into the available bits.  This is
-// determined as follows:
+// The range of integer values available to store stub
+// addresses is determined as follows:
 //
-//    stub address in:        range:
+//    stub address in:        integer value range
 //
 //    compact general value   0 .. 2**32 - 2**29 - 1
 //
@@ -206,7 +204,8 @@
 //    acc control value	      0 .. 2**G - 1 where
 //			      G = 56 - MIN_ACC_FLAG_BITS
 //
-//    (other) control value   0 .. 2**48-1
+//    (non-acc) control       0 .. 2**48-1
+//              value
 //
 // MIN_ACC_FLAG_BITS (which defaults to 12) controls how
 // many ephemeral levels of garbage collector are
@@ -216,8 +215,7 @@
 // pointing into stub bodies can always be stored in
 // 64 bit locations if pointers are as big as 64 bits.
 // Thus only stub addresses are constrained to be
-// storable in less than 64 bits (they must in fact be
-// storable in at most 44 bits).
+// storable in less than 64 bits.
 
 // The values you need to set to control all this
 // follow.  All must be constant integer expressions
