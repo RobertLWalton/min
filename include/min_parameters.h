@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov  8 08:21:10 EST 2009
+// Date:	Mon Nov  9 04:04:12 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/08 13:24:30 $
+//   $Date: 2009/11/09 09:04:40 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.44 $
+//   $Revision: 1.45 $
 
 // Table of Contents
 //
@@ -192,8 +192,8 @@
 //
 // where 16 is the number of bytes in a stub.
 //
-// The range of integer values available to store stub
-// addresses is determined as follows:
+// The range of integer values available to store packed
+// stub addresses is determined as follows:
 //
 //    stub address in:        integer value range
 //
@@ -215,7 +215,8 @@
 // pointing into stub bodies can always be stored in
 // 64 bit locations if pointers are as big as 64 bits.
 // Thus only stub addresses are constrained to be
-// storable in less than 64 bits.
+// storable in less than 64 bits, and only stub
+// addresses are packed.
 
 // The values you need to set to control all this
 // follow.  All must be constant integer expressions
