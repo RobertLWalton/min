@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Nov  9 05:33:41 EST 2009
+// Date:	Mon Nov  9 04:59:15 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/09 10:35:10 $
+//   $Date: 2009/11/09 10:32:00 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.101 $
+//   $Revision: 1.100 $
 
 // Table of Contents:
 //
@@ -497,7 +497,6 @@ int main ()
 	    min::stub * s64 =
 		MINT::unsgen_to_stub ( u64 );
 	    MIN_ASSERT ( s64 == stub );
-	    u64 += min::uns64(min::GEN_STUB) << 44;
 	    min::uns64 g64 =
 		MINT::stub_into_gen ( u64, stub );
 	    MIN_ASSERT ( u64 == g64 );
