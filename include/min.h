@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Nov  9 03:56:12 EST 2009
+// Date:	Mon Nov  9 04:07:07 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/09 09:04:40 $
+//   $Date: 2009/11/09 10:31:29 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.186 $
+//   $Revision: 1.187 $
 
 // Table of Contents:
 //
@@ -361,10 +361,16 @@ namespace min { namespace internal {
 	}
 #   endif
 
+    // We need to be able to pack/unpack a stub address
+    // into/from the appropriate part of a general
+    // value.  The packed stub address is stored in an
+    // unsgen value that equals the min::gen value
+    // stripped of its subtype.
+
 #   if MIN_IS_COMPACT
 
-	inline min::stub * general_uns32_to_stub
-		( min::uns32 v )
+	inline min::stub * unsgen_to_stub
+		( min::unsgen v )
 	{
 	    min::internal::pointer_uns p =
 		(min::internal::pointer_uns) v;
@@ -381,7 +387,7 @@ namespace min { namespace internal {
                       > 0xDFFFFFFF
 #           endif
 	}
-	inline min::uns32 general_stub_to_uns32
+	inline min::unsgen stub_to_unsgen
 		( min::stub * s )
 	{
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
@@ -399,27 +405,24 @@ namespace min { namespace internal {
 #           endif
 	}
 #   elif MIN_IS_LOOSE
-        inline min::stub * general_uns64_to_stub
-	        ( min::uns64 v )
+        inline min::stub * unsgen_to_stub
+	        ( min::unsgen v )
         {
-	    min::internal::pointer_uns p =
-	       (min::internal::pointer_uns)
-	       (v & ( ( min::uns64(1) << 44 ) - 1 ) );
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= 0xFFFFFFFFFFFull
-	        return ( min::stub * ) p;
+	        return ( min::stub * ) v;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
                  <= 0xFFFFFFFFFFFull
-	        return (min::stub *) ( p + stub_base );
+	        return (min::stub *) ( v + stub_base );
 #           elif MIN_MAX_STUB_INDEX <= 0xFFFFFFFFFFFull
-	        return (min::stub *) stub_base + p;
+	        return (min::stub *) stub_base + v;
 #           else
 #	        error   MIN_MAX_STUB_INDEX \
                       > 0xFFFFFFFFFFFull
 #           endif
         }
 
-        inline min::uns64 general_stub_to_uns64
+        inline min::unsgen stub_to_unsgen
 	        ( min::stub * s )
         {
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
@@ -437,11 +440,14 @@ namespace min { namespace internal {
 #           endif
         }
 
-        inline min::uns64 general_stub_into_uns64
-	        ( min::uns64 v, min::stub * s )
+	// Insert packed stub address into general
+	// value.
+	//
+        inline min::gen stub_into_gen
+	        ( min::gen v, min::stub * s )
         {
 	    v &= ~ ( ( min::uns64(1) << 44 ) - 1 );
-	    return v + general_stub_to_uns64 ( s );
+	    return v + stub_to_unsgen ( s );
         }
 #   endif
 } }
@@ -470,7 +476,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_gen ( min::stub * s )
 	{
 	    return (min::gen)
-	        internal::general_stub_to_uns32 ( s );
+	        internal::stub_to_unsgen ( s );
 	}
 	inline min::gen new_direct_int_gen ( int v )
 	{
@@ -508,8 +514,7 @@ namespace min { namespace unprotected {
 	inline min::gen new_gen ( min::stub * s )
 	{
 	    return (min::gen)
-		   (     internal
-		       ::general_stub_to_uns64 ( s )
+		   (   internal::stub_to_unsgen ( s )
 		     + ( (uns64) GEN_STUB << VSIZE )  );
 	}
 	// Unimplemented for LOOSE:
@@ -815,8 +820,7 @@ namespace min { namespace unprotected {
 #   if MIN_IS_COMPACT
 	inline min::stub * stub_of ( min::gen v )
 	{
-	    return   internal
-	           ::general_uns32_to_stub ( v );
+	    return internal::unsgen_to_stub ( v );
 	}
 	// Unimplemented for COMPACT:
 	//   float64 direct_float_of ( min::gen v )
@@ -837,8 +841,8 @@ namespace min { namespace unprotected {
 #   elif MIN_IS_LOOSE
 	inline min::stub * stub_of ( min::gen v )
 	{
-	    return internal::general_uns64_to_stub
-	    		( v & 0xFFFFFFFFFFull );
+	    return internal::unsgen_to_stub
+	    		( v & 0xFFFFFFFFFFFull );
 	}
 	inline float64 direct_float_of ( min::gen v )
 	{
@@ -1991,8 +1995,7 @@ namespace min {
 	    else
 	        return
 		  ( type_of
-		      ( internal::general_uns32_to_stub
-		      		( v ) )
+		      ( internal::unsgen_to_stub ( v ) )
 		        == min::NUMBER );
 	}
 	inline min::gen new_num_gen ( int v )
@@ -2019,8 +2022,7 @@ namespace min {
 	    if ( v < ( min::GEN_DIRECT_INT << VSIZE ) )
 	    {
 		min::stub * s =
-		    internal::
-		    general_uns32_to_stub ( v );
+		    internal::unsgen_to_stub ( v );
 		MIN_ASSERT (    type_of ( s )
 			     == min::NUMBER );
 		min::float64 f = s->v.f64;
@@ -2045,8 +2047,7 @@ namespace min {
 	    if ( v < ( min::GEN_DIRECT_INT << VSIZE ) )
 	    {
 		min::stub * s =
-		    internal::
-		    general_uns32_to_stub ( v );
+		    internal::unsgen_to_stub ( v );
 		return float_of ( s );
 	    }
 	    else if

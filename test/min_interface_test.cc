@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov  8 07:41:22 EST 2009
+// Date:	Mon Nov  9 05:33:41 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/08 12:48:17 $
+//   $Date: 2009/11/09 10:35:10 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.99 $
+//   $Revision: 1.101 $
 
 // Table of Contents:
 //
@@ -485,23 +485,21 @@ int main ()
 	    cout << "Test stub/uns32 conversions:"
 		 << endl;
 	    min::uns32 u32 =
-	        MINT::general_stub_to_uns32 ( stub );
+	        MINT::stub_to_unsgen ( stub );
 	    min::stub * s32 =
-		MINT::general_uns32_to_stub ( u32 );
+		MINT::unsgen_to_stub ( u32 );
 	    MIN_ASSERT ( s32 == stub );
 #	elif MIN_IS_LOOSE
 	    cout << endl;
 	    cout << "Test general stub/uns64"
 	            " conversions:" << endl;
-	    u64 =
-	        MINT::general_stub_to_uns64 ( stub );
-	    u64 += min::uns64(min::GEN_STUB) << 44;
+	    u64 = MINT::stub_to_unsgen ( stub );
 	    min::stub * s64 =
-		MINT::general_uns64_to_stub ( u64 );
+		MINT::unsgen_to_stub ( u64 );
 	    MIN_ASSERT ( s64 == stub );
+	    u64 += min::uns64(min::GEN_STUB) << 44;
 	    min::uns64 g64 =
-		MINT::general_stub_into_uns64
-		   	( u64, stub );
+		MINT::stub_into_gen ( u64, stub );
 	    MIN_ASSERT ( u64 == g64 );
 #	endif
 
