@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov  8 07:37:13 EST 2009
+// Date:	Mon Nov  9 03:56:12 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/08 12:50:24 $
+//   $Date: 2009/11/09 09:04:40 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.185 $
+//   $Revision: 1.186 $
 
 // Table of Contents:
 //
@@ -121,11 +121,11 @@ namespace min {
 
 #   if MIN_IS_COMPACT
 
-	// Layout (high order 8 bits)
+	// General Value Subtype (high order 8 bits)
 	//   0x00-0xDF	stubs
 	//   0xE0-0xEF  direct integers
-	//   0xF0-0xF6  direct string and other
-	//   0xF7-0xFF  illegal
+	//   0xF0-0xF7  direct string and other
+	//   0xF8-0xFF  illegal
 
 	const unsigned GEN_STUB
 	    = 0;
@@ -164,12 +164,12 @@ namespace min {
 
 #   elif MIN_IS_LOOSE
 
-	// Layout (high order 24 bits) with base
-	// MIN_FLOAT_SIGNALLING_NAN:
+	// General Value Subtype (high order 24 bits)
+	// with base MIN_FLOAT_SIGNALLING_NAN:
 	//
 	//   0x00-0x0F	stub
-	//   0x10-0x16	direct string and others
-	//   0x17-0x1F	illegal
+	//   0x10-0x17	direct string and others
+	//   0x18-0x1F	illegal
 	//   other	floating point
 
 	const unsigned GEN_STUB
@@ -263,10 +263,12 @@ namespace min {
     const int HASHTABLE_AUX		= -4;
 
     namespace unprotected {
-	// Non-acc flags for uncollectible controls.
+	// Flags for non-acc control values.
 	//
 	const min::uns64 STUB_POINTER =
 	    min::uns64(1) << 55;
+	    // Indicates value part of control value is
+	    // a packed stub address.
     }
 
     struct stub
