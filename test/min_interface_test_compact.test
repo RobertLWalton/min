@@ -109,11 +109,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     strngen = min::new_direct_str_gen ( str, 2 );
 ../include/min.h:XXXX assert:
-    strnlen ( p, n ) <= 3 true.
+    internal::strnlen ( p, n ) <= 3 true.
 min_interface_test.cc:XXXX desire failure:
     strngen = min::new_direct_str_gen ( overflowstrn, strlimit + 1 );
 ../include/min.h:XXXX assert:
-    strnlen ( p, n ) <= 3 false.
+    internal::strnlen ( p, n ) <= 3 false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( strngen ) true.
 
@@ -355,7 +355,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f5b80
+control2: 85800000009f5b40
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -366,7 +366,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f5b90
+re-control2: 85800000009f5b50
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -379,7 +379,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f5b80
+control3: 85800000009f5b40
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -390,7 +390,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f5b90
+re-control3: 85800000009f5b50
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:

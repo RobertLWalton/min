@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Nov  9 04:07:07 EST 2009
+// Date:	Tue Nov 10 02:56:53 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/09 10:31:29 $
+//   $Date: 2009/11/10 08:05:57 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.187 $
+//   $Revision: 1.188 $
 
 // Table of Contents:
 //
@@ -455,7 +455,7 @@ namespace min { namespace internal {
 // General Value Constructor Functions
 // ------- ----- ----------- ---------
 
-namespace min {
+namespace min { namespace internal {
 
     // Helper function.
 
@@ -466,7 +466,7 @@ namespace min {
 	while ( * q && n > 0 ) ++ q, -- n;
 	return q - p;
     }
-}
+} }
 
 namespace min { namespace unprotected {
 
@@ -658,9 +658,11 @@ namespace min {
 	    ( const char * p, unsigned n )
     {
 #       if MIN_IS_COMPACT
-	    MIN_ASSERT ( strnlen ( p, n ) <= 3 );
+	    MIN_ASSERT
+	        ( internal::strnlen ( p, n ) <= 3 );
 #	elif MIN_IS_LOOSE
-	    MIN_ASSERT ( strnlen ( p, n ) <= 5 );
+	    MIN_ASSERT
+	        ( internal::strnlen ( p, n ) <= 5 );
 #	endif
 	return unprotected::new_direct_str_gen ( p );
     }
@@ -2363,7 +2365,7 @@ namespace min {
 	    ( const char * p, unsigned n )
 	{
 	    return new_str_stub_gen_internal
-	        ( p, ::strnlen ( p, n ) );
+	        ( p, min::internal::strnlen ( p, n ) );
 	}
     }
 
@@ -2386,7 +2388,7 @@ namespace min {
     inline min::gen new_str_gen
             ( const char * p, unsigned n )
     {
-	n = strnlen ( p, n );
+	n = internal::strnlen ( p, n );
 #	if MIN_IS_COMPACT
 	    if ( n <= 3 )
 		return min::unprotected::
