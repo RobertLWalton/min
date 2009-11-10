@@ -91,11 +91,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX desire success:
     strngen = min::new_direct_str_gen ( str, 2 );
 ../include/min.h:XXXX assert:
-    strnlen ( p, n ) <= 5 true.
+    internal::strnlen ( p, n ) <= 5 true.
 min_interface_test.cc:XXXX desire failure:
     strngen = min::new_direct_str_gen ( overflowstrn, strlimit + 1 );
 ../include/min.h:XXXX assert:
-    strnlen ( p, n ) <= 5 false.
+    internal::strnlen ( p, n ) <= 5 false.
 min_interface_test.cc:XXXX assert:
     ! min::is_stub ( strngen ) true.
 
