@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 14 03:57:53 EST 2009
+// Date:	Sat Nov 14 04:07:02 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/14 09:00:36 $
+//   $Date: 2009/11/14 09:37:55 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.189 $
+//   $Revision: 1.190 $
 
 // Table of Contents:
 //
@@ -161,6 +161,9 @@ namespace min {
 	const unsigned VSIZE = 24;
 	    // Sized of type and value field in a
 	    // min:gen.
+#	define MIN_AMAX 0xDFFFFFFFu
+	    // Maximum packed stub address value in
+	    // general value.
 
 #   elif MIN_IS_LOOSE
 
@@ -209,6 +212,10 @@ namespace min {
 	    // Sized of type and value field in a
 	    // min:gen.
 
+#	define MIN_AMAX 0xFFFFFFFFFFFull
+	    // Maximum packed stub address value in
+	    // general value.
+
 #   endif
 
     namespace internal {
@@ -218,6 +225,12 @@ namespace min {
 	const unsgen VHALFMASK =
 	    ( (unsgen) 1 << ( VSIZE / 2 ) ) - 1;
 	    // Half value mask.
+#       if MIN_IS_LOOSE
+	    const unsgen AMASK =
+		( (unsgen) 1 << ( VSIZE + 4 ) ) - 1;
+		// Mask for packed stub address in
+		// general value.
+#	endif
     }
 
 #   define MIN_NEW_SPECIAL_GEN(i) \
@@ -384,33 +397,31 @@ namespace min { namespace internal {
 	    min::internal::pointer_uns p =
 		(min::internal::pointer_uns) v;
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= 0xDFFFFFFFull
+               <= MIN_AMAX
 		return ( min::stub * ) p;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= 0xDFFFFFFFull
+                 <= MIN_AMAX
 		return (min::stub *) ( p + stub_base );
-#           elif MIN_MAX_STUB_INDEX <= 0xDFFFFFFFull
+#           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 		return (min::stub *) stub_base + p;
 #           else
-#	        error   MIN_MAX_STUB_INDEX \
-                      > 0xDFFFFFFF
+#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
 #           endif
 	}
 	inline min::unsgen stub_to_unsgen
 		( min::stub * s )
 	{
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= 0xDFFFFFFFull
+               <= MIN_AMAX
 	        return (min::internal::pointer_uns) s;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= 0xDFFFFFFFull
+                 <= MIN_AMAX
 	        return   (min::internal::pointer_uns) s
 		       - stub_base;
-#           elif MIN_MAX_STUB_INDEX <= 0xDFFFFFFFull
+#           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 	        return s - (min::stub *) stub_base;
 #           else
-#	        error   MIN_MAX_STUB_INDEX \
-                      > 0xDFFFFFFF
+#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
 #           endif
 	}
 #   elif MIN_IS_LOOSE
@@ -418,16 +429,15 @@ namespace min { namespace internal {
 	        ( min::unsgen v )
         {
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= 0xFFFFFFFFFFFull
+               <= MIN_AMAX
 	        return ( min::stub * ) v;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= 0xFFFFFFFFFFFull
+                 <= MIN_AMAX
 	        return (min::stub *) ( v + stub_base );
-#           elif MIN_MAX_STUB_INDEX <= 0xFFFFFFFFFFFull
+#           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 	        return (min::stub *) stub_base + v;
 #           else
-#	        error   MIN_MAX_STUB_INDEX \
-                      > 0xFFFFFFFFFFFull
+#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
 #           endif
         }
 
@@ -435,17 +445,16 @@ namespace min { namespace internal {
 	        ( min::stub * s )
         {
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-               <= 0xFFFFFFFFFFFull
+               <= MIN_AMAX
 	        return (min::internal::pointer_uns) s;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
-                 <= 0xFFFFFFFFFFFull
+                 <= MIN_AMAX
 	        return   (min::internal::pointer_uns) s
 	               - stub_base;
-#           elif MIN_MAX_STUB_INDEX <= 0xFFFFFFFFFFFull
+#           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 	        return s - (min::stub *) stub_base;
 #           else
-#	        error   MIN_MAX_STUB_INDEX \
-                      > 0xFFFFFFFFFFFull
+#	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
 #           endif
         }
 
@@ -847,7 +856,7 @@ namespace min { namespace unprotected {
 	inline uns64 direct_str_of ( min::gen v )
 	{
 #	    if MIN_IS_BIG_ENDIAN
-		return ( uns64 ( v ) << VSIZE );
+		return ( uns64 ( v ) << TSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
 		return ( uns64 ( v & 0xFFFFFF ) );
 #	    endif
@@ -856,7 +865,7 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of ( min::gen v )
 	{
 	    return internal::unsgen_to_stub
-	    		( v & 0xFFFFFFFFFFFull );
+	    		( v & min::internal::AMASK );
 	}
 	inline float64 direct_float_of ( min::gen v )
 	{
@@ -875,9 +884,9 @@ namespace min { namespace unprotected {
 	inline uns64 direct_str_of ( min::gen v )
 	{
 #	    if MIN_IS_BIG_ENDIAN
-		return ( v << VSIZE );
+		return ( v << TSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
-		return ( v & 0xFFFFFFFFFFull );
+		return ( v & min::internal::VMASK );
 #	    endif
 	}
 #   endif
@@ -927,18 +936,17 @@ namespace min {
 	MIN_ASSERT ( is_stub ( v ) );
 	return unprotected::stub_of ( v );
     }
-#   if MIN_IS_LOOSE
-	inline float64 direct_float_of ( min::gen v )
-	{
-	    MIN_ASSERT ( is_direct_float ( v ) );
-	    return unprotected::direct_float_of ( v );
-	}
-#   endif
 #   if MIN_IS_COMPACT
 	inline int direct_int_of ( min::gen v )
 	{
 	    MIN_ASSERT ( is_direct_int ( v ) );
 	    return unprotected::direct_int_of ( v );
+	}
+#   elif MIN_IS_LOOSE
+	inline float64 direct_float_of ( min::gen v )
+	{
+	    MIN_ASSERT ( is_direct_float ( v ) );
+	    return unprotected::direct_float_of ( v );
 	}
 #   endif
     inline uns64 direct_str_of ( min::gen v )
