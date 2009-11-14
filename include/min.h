@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 10 02:56:53 EST 2009
+// Date:	Sat Nov 14 03:57:53 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/10 08:05:57 $
+//   $Date: 2009/11/14 09:00:36 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.188 $
+//   $Revision: 1.189 $
 
 // Table of Contents:
 //
@@ -210,6 +210,15 @@ namespace min {
 	    // min:gen.
 
 #   endif
+
+    namespace internal {
+	const unsgen VMASK =
+	    ( (unsgen) 1 << VSIZE ) - 1;
+	    // Value mask.
+	const unsgen VHALFMASK =
+	    ( (unsgen) 1 << ( VSIZE / 2 ) ) - 1;
+	    // Half value mask.
+    }
 
 #   define MIN_NEW_SPECIAL_GEN(i) \
 	( min::gen ( (   min::unsgen \
@@ -719,7 +728,8 @@ namespace min {
 #   if MIN_IS_COMPACT
 	inline bool is_stub ( min::gen v )
 	{
-	    return ( v < ( GEN_DIRECT_INT << VSIZE ) );
+	    return   (min::unsgen) v
+	           < ( GEN_DIRECT_INT << VSIZE );
 	}
 	// Unimplemented for COMPACT:
 	//  bool is_direct_float ( min::gen v )
@@ -729,7 +739,7 @@ namespace min {
 	}
 	inline unsigned gen_subtype_of ( min::gen v )
 	{
-	    v = (min::uns32) v >> VSIZE;
+	    v = (min::unsgen) v >> VSIZE;
 	    if ( v < GEN_DIRECT_INT )
 	        return GEN_STUB;
 	    else if ( v < GEN_DIRECT_STR)
@@ -742,7 +752,9 @@ namespace min {
 #   elif MIN_IS_LOOSE
 	inline bool is_stub ( min::gen v )
 	{
-	    return ( v >> 44 == GEN_STUB >> 4 );
+	    return    (    (min::unsgen) v
+	                >> ( VSIZE + 4 ) )
+	           == GEN_STUB >> 4;
 	}
 	inline bool is_direct_float ( min::gen v )
 	{
@@ -869,13 +881,6 @@ namespace min { namespace unprotected {
 #	    endif
 	}
 #   endif
-
-    namespace internal {
-	const unsgen VMASK =
-	    ( (unsgen) 1 << VSIZE ) - 1;
-	const unsgen VHALFMASK =
-	    ( (unsgen) 1 << ( VSIZE / 2 ) ) - 1;
-    }
 
     inline unsgen list_aux_of ( min::gen v )
     {
