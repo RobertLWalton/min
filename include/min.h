@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 24 07:44:51 EST 2009
+// Date:	Tue Nov 24 08:33:02 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/24 13:24:08 $
+//   $Date: 2009/11/24 13:54:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.191 $
+//   $Revision: 1.192 $
 
 // Table of Contents:
 //
@@ -1553,7 +1553,7 @@ namespace min {
 
 	min::gen & operator[] ( unsigned i )
 	{
-	    assert ( i < len );
+	    MIN_ASSERT ( i < len );
 	    return values[i];
 	}
 
@@ -1711,7 +1711,8 @@ namespace min { namespace internal {
 
     // Stub allocation is from a single list of stubs
     // chained together by the chain part of the stub
-    // control.
+    // control.  This is referred to as the `ACC stub
+    // list'.
     //
     // A pointer to the last allocated stub is maintain-
     // ed.  To allocate a new stub, this is updated to
@@ -1721,9 +1722,7 @@ namespace min { namespace internal {
     // the end of the list.
     //
     // Unallocated stubs have stub type min::FREE, zero
-    // stub control flags, and min:MISSING value.
-
-    extern min::uns64 acc_new_stub_flags;
+    // stub control flags, and min:NONE value.
 
     // Pointer to the last allocated stub, which must
     // exist (it can be a dummy).
@@ -1738,6 +1737,7 @@ namespace min { namespace internal {
     // non-type part of the stub control is maintained
     // by the ACC.
     //
+    extern min::uns64 acc_new_stub_flags;
     inline min::stub * new_stub ( void )
     {
 	if ( min::internal
@@ -1755,7 +1755,7 @@ namespace min { namespace internal {
     }
     
     // Function to return the next free stub while
-    // removing this stub from the ACC list of stubs.
+    // removing this stub from the ACC stub list.
     //
     // This function does NOT set any part of the stub
     // returned.  The stub returned is ignored by the
@@ -1782,13 +1782,15 @@ namespace min { namespace internal {
 	return s;
     }
 
-    // Function to put a stub on the free list right
-    // after the last allocated stub.  Note this means
-    // that stubs that have been previously allocated
-    // are preferred for new allocations over stubs
-    // that have never been allocated.
+    // Function to put a stub on the ACC stub list right
+    // after the last allocated stub.  Stub must NOT be
+    // on the ACC list (it should be an auxiliary stub).
     //
-    inline void free_stub ( min::stub * s )
+    // Note that stubs that have been previously
+    // allocated are preferred for new stub allocations
+    // over stubs that have never been allocated.
+    //
+    inline void free_aux_stub ( min::stub * s )
     {
         min::unprotected::set_gen_of
 	    ( s, min::NONE );
@@ -1807,7 +1809,7 @@ namespace min { namespace internal {
     }
 
     // fixed_blocks[j] is the head of a free list of
-    // fixed blocks of size 1 << ( j + 3 ), for 0 <= j,
+    // fixed blocks of size 1 << ( j + 3 ), for 2 <= j,
     // (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE/8.
     // Each fixed block begins with a control word whose
     // locator is provided by the allocator and whose
@@ -1815,7 +1817,7 @@ namespace min { namespace internal {
     // block contains, if there is such a stub, or
     // equals the address of MINT::null_stub otherwise.
     // When the block is on the free list, the control
-    // word and the words following is are specified by
+    // word and the words following it are specified by
     // the free_fixed_size_block struct.
     //
     struct free_fixed_size_block
@@ -1852,8 +1854,10 @@ namespace min { namespace internal {
 			// structure.  Set during
 			// allocator initialization.
     } fixed_blocks
-          [MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2];
+          [MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG+1-3];
 
+    // Out of line allocators:
+    //
     void new_non_fixed_body
 	( min::stub * s, unsigned n );
     void new_fixed_body
@@ -1861,6 +1865,7 @@ namespace min { namespace internal {
 	  fixed_block_list * fbl );
 
     extern unsigned max_fixed_block_size;
+        // 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
 
     // Allocate a body to a stub.  n is the minimum size
     // of the body in bytes, not including the control
@@ -1871,8 +1876,8 @@ namespace min { namespace internal {
     {
 	unsigned m = n + sizeof ( min::uns64);
 
-        assert ( m >=   sizeof ( min::uns64 )
-	              + sizeof ( void * ) );
+        MIN_ASSERT
+	  ( m >= sizeof ( free_fixed_size_block ) );
 
 	if ( m > max_fixed_block_size )
 	{
@@ -1882,10 +1887,10 @@ namespace min { namespace internal {
 
 	// See min_parameters.h for fixed_bodies_log.
 	//
-	m = ( m - 1 ) >> 3;
+	m = m - 1;
 	fixed_block_list * fbl =
 		  fixed_blocks
-		+ fixed_bodies_log ( m ) + 1;
+		+ fixed_bodies_log ( m ) + 1 - 3;
 
 	if ( fbl->count == 0 )
 	{
