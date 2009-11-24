@@ -337,7 +337,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6540
+control2: 85800000009f64e0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -348,7 +348,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6550
+re-control2: 85800000009f64f0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -361,7 +361,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 858000000009f644
+control3: 858000000009f63e
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -372,7 +372,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6550
+re-control3: 85800000009f64f0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -541,23 +541,33 @@ min_interface_test.cc:XXXX assert:
     stub4 == MINT::last_allocated_stub true.
 
 Test body allocator functions:
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 1, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[5] and assigning begin_body_region[0 .. 31]
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 min_interface_test.cc:XXXX assert:
     memcmp ( p1, p2, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     p1 != p2 true.
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 4, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[5] and assigning begin_body_region[64 .. 95]
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     p3 != p4 true.
 relocate_body ( stub 3, 128 ) called
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub in stack, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -676,6 +686,8 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 9, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -825,6 +837,8 @@ min_interface_test.cc:XXXX assert:
 Test string pointers:
 relocate_body ( stub 9, 21 ) called
 ../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
+../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
@@ -907,6 +921,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
 relocate_body ( stub 9, 21 ) called
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub in stack, 21 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -935,6 +951,8 @@ Test labels:
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 11, 32 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -1005,6 +1023,8 @@ min_interface_test.cc:XXXX assert:
 
 Test short objects:
 MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 13, 4832 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -1027,6 +1047,8 @@ min_interface_test.cc:XXXX assert:
 
 Test long objects:
 MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    m >= sizeof ( free_fixed_size_block ) true.
 MINT::new_non_fixed_body ( stub 14, 616504 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.

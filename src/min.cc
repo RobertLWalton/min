@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov  8 08:22:32 EST 2009
+// Date:	Tue Nov 24 08:36:31 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/08 13:25:17 $
+//   $Date: 2009/11/24 13:53:43 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.106 $
+//   $Revision: 1.107 $
 
 // Table of Contents:
 //
@@ -1376,7 +1376,7 @@ void MINT::collect_aux_stub_helper ( min::stub * s )
 	MINT::collect_aux_stub ( MUP::gen_of ( s ) );
 	min::uns64 c = MUP::control_of ( s );
 
-	MINT::free_stub ( s );
+	MINT::free_aux_stub ( s );
 
 	if ( ( c & MUP::STUB_POINTER ) == 0 ) break;
 	s =  MUP::stub_of_control ( c );
@@ -2071,7 +2071,7 @@ unsigned min::remove
 		next ( lp );
 		MINT::collect_aux_stub
 		    ( MUP::gen_of ( last_stub ) );
-		MINT::free_stub ( last_stub );
+		MINT::free_aux_stub ( last_stub );
 	    }
 	    else
 #       endif
