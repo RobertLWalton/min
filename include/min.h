@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 14 04:07:02 EST 2009
+// Date:	Tue Nov 24 07:44:51 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,14 +11,14 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/14 09:37:55 $
+//   $Date: 2009/11/24 13:24:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.190 $
+//   $Revision: 1.191 $
 
 // Table of Contents:
 //
 //	Setup
-//	Parameter Computation and Checking
+//	Initialization
 //	C++ Number Types
 //	General Value Types and Data
 //	Stub Types and Data
@@ -66,8 +66,8 @@
 #define MIN_ABORT(string) assert ( ! string )
 #define MIN_REQUIRE(expr) assert ( expr )
 
-// Parameter Computation and Checking
-// --------- ----------- --- --------
+// Initialization
+// --------------
 
 namespace min { namespace internal {
 
@@ -1000,6 +1000,15 @@ namespace min {
 // Control Values
 // ------- ------
 
+// ACC control values are used as the second word of
+// garbage collectable stubs.
+//
+// Non-ACC control values are used as the second word
+// of non-garbage-collectable stubs, and as the first
+// word of object bodies (actually, the body proper
+// begins right after this word).  The ACC may use them
+// elsewhere (see min_acc.h).
+
 // ACC control value layout:
 //
 //	Bits		Use
@@ -1025,7 +1034,8 @@ namespace min {
 //	48 .. 63	Locator (overlaps flag and type)
 
 // ACC CONTROL MASK is 2**(56 - MIN_ACC_FLAG_BITS) - 1.
-// CONTROL MASK is 2**48 - 1.
+// CONTROL MASK is 2**48 - 1.  These are used in ifdefs
+// and must be macro constants.
 //
 # define MIN_CONTROL_VALUE_MASK 0xFFFFFFFFFFFFull
 # define MIN_ACC_CONTROL_VALUE_MASK \
@@ -1520,15 +1530,15 @@ namespace min {
 
 namespace min {
 
-    template < unsigned len > struct protect
+    template < unsigned len > struct genstack
     {
-        protect * previous;
+        genstack * previous;
 	unsigned length;
 	min::gen values[len];
 
-	static protect * last = NULL;
+	static genstack * last = NULL;
 
-	protect ( void )
+	genstack ( void )
 	{
 	    this->length = len;
 	    previous = last;
@@ -1536,23 +1546,25 @@ namespace min {
 	    memset ( values, 0, sizeof ( values ) );
 	}
 
-	~ protect ( void )
+	~ genstack ( void )
 	{
 	    last = previous;
 	}
 
-	min::gen & value ( unsigned i )
+	min::gen & operator[] ( unsigned i )
 	{
 	    assert ( i < len );
 	    return values[i];
 	}
+
+
     };
 }
 
 namespace min { namespace internal {
 
     // Function called by the the initializer (see
-    // above) to initialize the acc.
+    // `Initialization' above) to initialize the acc.
     //
     void acc_initializer ( void );
 
@@ -1571,7 +1583,7 @@ namespace min { namespace internal {
     // tables head a list of stubs chained together
     // by their stub control word stub pointers.  The
     // first stubs in each list are HASHTABLE_AUX
-    // stubs whose value words point at the stubs of
+    // stubs whose values point at the stubs of
     // ephemeral objects hashed to the list.  The last
     // stubs on each list are the stubs of non-ephemeral
     // garbage collectable objects hashed to the list.
@@ -1598,7 +1610,11 @@ namespace min { namespace internal {
     extern unsigned lab_hash_size;
     extern unsigned lab_hash_mask;
 
-    // The ACC Flag Bit layout is:
+    // ACC flags are bits 55 .. m of an acc control
+    // value, where 56 - m == MIN_ACC_FLAG_BITS.
+    //
+    // The ACC Flag Bit layout (bit 0 is lowest order)
+    // is:
     //
     //	Bit		Use
     //
@@ -1618,7 +1634,7 @@ namespace min { namespace internal {
     const uns64 ACC_SCAVENGED_MASK =
     	  ACC_FLAG_MASK
 	& (    uns64(0xAAAAAAAAAA)
-	    << ( 56 - MIN_ACC_FLAG_BITS ) + 1 );
+	    << ( 56 - MIN_ACC_FLAG_BITS ) + 2 );
     const uns64 ACC_UNMARKED_MASK =
         ACC_SCAVENGED_MASK >> 1;
     const uns64 ACC_FIXED_BODY_FLAG =
@@ -1635,13 +1651,13 @@ namespace min { namespace internal {
     // is non-zero, and if so, pushes first s1 and then
     // s2 into the acc_stack.  This call is made when
     // a pointer to s2 is stored in the s1 object, and
-    // the acc_stackk is used by the collector to adjust
+    // the acc_stack is used by the collector to adjust
     // the marks it makes on objects.
     //
     // For efficiency, acc_stack_mask is an uns64 that
     // only has ON bits in the unmarked flag positions.
     // Then the unshifted control value of s2 and the
-    // control value value of s1 left shifted by 1 can
+    // control value value of s1 right shifted by 1 can
     // be bitwise ANDed with the acc_stack_mask and the
     // result checked for zero.
     //
