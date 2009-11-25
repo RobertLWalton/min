@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov 25 01:02:41 EST 2009
+// Date:	Wed Nov 25 00:26:17 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/25 06:03:18 $
+//   $Date: 2009/11/25 06:02:05 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.103 $
+//   $Revision: 1.102 $
 
 // Table of Contents:
 //
@@ -353,9 +353,6 @@ void MINT::deallocate_body ( min::stub * s )
     MUP::set_pointer_of ( s, deallocated_body_region );
     MUP::set_type_of ( s, min::DEALLOCATED );
 }
-
-// TBD: relocate_body has just been rewritten and needs
-// more debugging.
 
 // Function to relocate a body.  Just allocates a new
 // body, copies the contents of the old body to the
