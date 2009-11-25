@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Nov  9 04:59:15 EST 2009
+// Date:	Wed Nov 25 01:02:41 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/09 10:32:00 $
+//   $Date: 2009/11/25 06:03:18 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.100 $
+//   $Revision: 1.103 $
 
 // Table of Contents:
 //
@@ -354,6 +354,9 @@ void MINT::deallocate_body ( min::stub * s )
     MUP::set_type_of ( s, min::DEALLOCATED );
 }
 
+// TBD: relocate_body has just been rewritten and needs
+// more debugging.
+
 // Function to relocate a body.  Just allocates a new
 // body, copies the contents of the old body to the
 // new body, and zeros the old body, and deallocates
@@ -366,9 +369,9 @@ static void relocate_body
          << s - begin_stub_region << ", " << length
          << " ) called" << endl;
 
-    MINT::relocate_body rbody ( s, length );
+    MUP::relocate_body rbody ( s, length );
 
-    memcpy ( MINT::new_body_pointer ( rbody ),
+    memcpy ( MUP::new_body_pointer ( rbody ),
              MUP::pointer_of ( s ), length );
     memset ( MUP::pointer_of ( s ), 0, length );
 }
@@ -417,6 +420,8 @@ void MINT::acc_initializer ( void )
     initialize_body_region();
     initialize_hash_tables();
     initialize_acc_stack();
+
+    MINT::acc_initialize_relocate_body();
 }
 
 // Main Program
@@ -497,6 +502,7 @@ int main ()
 	    min::stub * s64 =
 		MINT::unsgen_to_stub ( u64 );
 	    MIN_ASSERT ( s64 == stub );
+	    u64 += min::uns64(min::GEN_STUB) << 44;
 	    min::uns64 g64 =
 		MINT::stub_into_gen ( u64, stub );
 	    MIN_ASSERT ( u64 == g64 );
@@ -1214,10 +1220,10 @@ int main ()
 	     << endl;
 	MINT::acc_new_stub_flags = 0;
 	min::stub * stub1 = MINT::new_stub();
-	MIN_ASSERT ( stub1 == begin_stub_region + 1 );
+	MIN_ASSERT ( stub1 == begin_stub_region + 2 );
 	MIN_ASSERT
 	    ( stub1 == MINT::last_allocated_stub );
-	MIN_ASSERT ( stubs_allocated == 2 );
+	MIN_ASSERT ( stubs_allocated == 3 );
 	MIN_ASSERT
 	    ( min::type_of ( stub1 ) == min::FREE );
 	MIN_ASSERT
@@ -1227,25 +1233,25 @@ int main ()
 	min::stub * stub2 = MINT::new_stub();
 	MIN_ASSERT
 	    ( stub2 == MINT::last_allocated_stub );
-	MIN_ASSERT ( stubs_allocated == 3 );
-	MIN_ASSERT ( stub2 == begin_stub_region + 2 );
+	MIN_ASSERT ( stubs_allocated == 4 );
+	MIN_ASSERT ( stub2 == begin_stub_region + 3 );
 	MIN_ASSERT
 	    ( min::type_of ( stub2 ) == min::FREE );
 	MIN_ASSERT
 	    ( MUP::test_flags_of
 	    	     ( stub2, unmarked_flag ) );
 	MINT::acc_expand_stub_free_list ( 2 );
-	MIN_ASSERT ( stubs_allocated == 5 );
+	MIN_ASSERT ( stubs_allocated == 6 );
 	MIN_ASSERT
 	    ( stub2 == MINT::last_allocated_stub );
 	min::stub * stub3 = MINT::new_aux_stub();
-	MIN_ASSERT ( stub3 == begin_stub_region + 4 );
-	MIN_ASSERT ( stubs_allocated == 5 );
+	MIN_ASSERT ( stub3 == begin_stub_region + 5 );
+	MIN_ASSERT ( stubs_allocated == 6 );
 	MIN_ASSERT
 	    ( stub2 == MINT::last_allocated_stub );
 	min::stub * stub4 = MINT::new_stub();
-	MIN_ASSERT ( stub4 == begin_stub_region + 3 );
-	MIN_ASSERT ( stubs_allocated == 5 );
+	MIN_ASSERT ( stub4 == begin_stub_region + 4 );
+	MIN_ASSERT ( stubs_allocated == 6 );
 	MIN_ASSERT
 	    ( stub4 == MINT::last_allocated_stub );
 

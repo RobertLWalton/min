@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 24 08:36:31 EST 2009
+// Date:	Wed Nov 25 00:27:40 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/24 13:53:43 $
+//   $Date: 2009/11/25 06:01:26 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.107 $
+//   $Revision: 1.108 $
 
 // Table of Contents:
 //
@@ -169,6 +169,48 @@ namespace min { namespace internal {
     unsigned max_fixed_block_size;
 
 } }
+
+namespace min { namespace unprotected {
+
+    min::stub * relocate_body::last_allocated;
+
+    min::stub * relocate_body::rstub_allocate ( void )
+    {
+	min::stub * endstub = last_allocated;
+	for ( int i = 0; i < 5; ++ i )
+	{
+	    min::stub * rstub = MINT::new_aux_stub();
+	    MUP::set_control_of
+	         ( endstub, MUP::renew_control_stub
+	                        ( MUP::control_of
+				    ( endstub ),
+				  rstub ) );
+	    endstub = rstub;
+	}
+	return MUP::stub_of_control
+	            ( MUP::control_of
+		        ( last_allocated ) );
+    }
+
+} }
+
+namespace min { namespace internal {
+
+    void acc_initialize_relocate_body ( void )
+    {
+	min::stub * s = MINT::new_aux_stub();
+	MUP::relocate_body::last_allocated = s;
+	MUP::set_control_of ( s,
+	    MUP::renew_control_stub
+		( MUP::control_of ( s ),
+		  MINT::null_stub ) );
+	MUP::set_type_of ( s, min::FREE );
+    }
+
+} }
+
+
+
 
 
 // Numbers
