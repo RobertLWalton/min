@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 24 08:33:02 EST 2009
+// Date:	Tue Nov 24 09:06:42 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/24 13:54:03 $
+//   $Date: 2009/11/25 06:01:05 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.192 $
+//   $Revision: 1.193 $
 
 // Table of Contents:
 //
@@ -1916,13 +1916,25 @@ namespace min { namespace internal {
 
     // Deallocate the body of a stub, and reset the stub
     // type to min::DEALLOCATED.  The stub body pointer
-    // is pointed at inaccessible memory of at least the
-    // same size as the old stub body.  The previous
-    // stub type must specify that the stub has a body,
-    // or it must equal min::DEALLOCATED (in which case
-    // nothing is done).
+    // is pointed at inaccessible memory of a large size
+    // that is usually as big or bigger than the old
+    // stub body.  The previous stub type must specify
+    // that the stub has a body, or it must equal min::
+    // DEALLOCATED (in which case nothing is done).
     //
     void deallocate_body ( min::stub * s );
+
+} }
+
+namespace min { namespace internal {
+
+    // Initialize relocate_body stub list.
+    //
+    void acc_initialize_relocate_body ( void );
+
+} }
+
+namespace min { namespace unprotected {
 
     // When constructed the relocate_body struct allo-
     // cates a new body for a stub s, and when descon-
@@ -1948,29 +1960,90 @@ namespace min { namespace internal {
         relocate_body ( min::stub * s, unsigned n )
 	    : s ( s )
 	{
+	    // Allocate rstub and its body, which is
+	    // the new body.
+
+	    uns64 c = min::unprotected::control_of
+		( last_allocated );
+	    rstub = min::unprotected
+		       ::stub_of_control ( c );
+	    if ( rstub == min::internal::null_stub )
+	        rstub = rstub_allocate();
+
+	    last_allocated_save = last_allocated;
+	    last_allocated = rstub;
+
 	    min::unprotected
-	       ::set_type_of ( & stub, min::FREE );
-	    new_body ( & stub, n );
+	       ::set_type_of ( rstub, min::FREE );
+	    min::internal::new_body ( rstub, n );
 	}
+
+	// Deconstruct relocated_body, switching the
+	// body pointers in s and rstub, and then
+	// deallocating rstub.  But do nothing if
+	// rstub deallocated.
+	//
+	// When switching, switch ACC_FIXED_BODY_FLAG.
+	//
+	// When switching, assumes s is NOT deallocated.
+	//
 	~relocate_body ( void )
 	{
-	    if ( s == NULL ) return;
-	    s->v.u64 = stub.v.u64;
-	    s->c.u64 ^= ( stub.c.u64 ^ s->c.u64 )
-	                &
-			ACC_FIXED_BODY_FLAG;
+	    if ( type_of ( rstub ) == min::DEALLOCATED )
+	        return;
+
+	    min::uns64 v = rstub->v.u64;
+	    rstub->v.u64 = s->v.u64;
+	    s->v.u64 = v;
+
+	    min::uns64 c = ( rstub->c.u64 ^ s->c.u64 )
+	                   &
+			   min::internal
+			      ::ACC_FIXED_BODY_FLAG;
+	    rstub->c.u64 ^= c;
+	    s->c.u64 ^= c;
+
+	    min::uns64 * bp = (min::uns64 *)
+	        min::unprotected::pointer_of ( s );
+	    * bp = min::unprotected::renew_control_stub
+	             ( * bp, s );
+	    bp = (min::uns64 *)
+	        min::unprotected::pointer_of ( rstub );
+	    * bp = min::unprotected::renew_control_stub
+	             ( * bp, rstub );
+
+	    min::internal::deallocate_body ( rstub );
+
+	    last_allocated = last_allocated_save;
 	}
 
 	friend void * new_body_pointer
 			( relocate_body & r );
 	friend void void_relocate_body
 			( relocate_body & r );
+	friend void min::internal
+	               ::acc_initialize_relocate_body
+		             ( void );
 
     private:
 
-	min::stub * s;
-        min::stub stub;
+        // Out of line rstub allocator.  Expands
+	// relocate_body stub list.
+	//
+	min::stub * rstub_allocate ( void );
 
+	min::stub * s;
+	    // Stub whose body is being relocated.
+        min::stub * rstub;
+	    // Temporary stub for new body.  Type is
+	    // min::DEALLOCATED if relocate_body is
+	    // voided.
+	min::stub * last_allocated_save;
+	    // Save of last_allocated.
+
+	static min::stub * last_allocated;
+	    // Last allocated stub on the relocated
+	    // body stub list.
     };
 
     // Return a pointer to the new body.
@@ -1978,7 +2051,7 @@ namespace min { namespace internal {
     inline void * new_body_pointer ( relocate_body & r )
     {
 	return min::unprotected
-		  ::pointer_of ( & r.stub );
+		  ::pointer_of ( r.rstub );
     }
     // Void the relocate_body struct so it will not
     // change anything when deconstructed.  The
@@ -1986,8 +2059,7 @@ namespace min { namespace internal {
     //
     inline void void_relocate_body ( relocate_body & r )
     {
-	deallocate_body ( & r.stub );
-	r.s = NULL;
+	min::internal::deallocate_body ( r.rstub );
     }
 
 } }
