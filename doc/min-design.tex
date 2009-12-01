@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 8, 2009}
+\date{November 28, 2009}
  
 \maketitle
 
@@ -282,6 +282,9 @@ and the corresponding code:
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
 \ttmkey{lab}{abbreviation}	& label (\pagref{LABELS}) \\
 \ttmkey{min}{abbreviation}	& the MIN system \\
+\ttmkey{MACC}{abbreviation}	& {\tt min::acc} (\pagref{MACC}) \\
+\ttmkey{MINT}{abbreviation}	& {\tt min::internal} (\pagref{MINT}) \\
+\ttmkey{MOS}{abbreviation}	& {\tt min::os} (\pagref{MOS}) \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
 \ttmkey{num}{abbreviation}	& number (\pagref{NUMBERS}) \\
 \ttmkey{obj}{abbreviation}	& object (\pagref{OBJECTS}) \\
@@ -300,16 +303,7 @@ accessed by C++ code that contains the following inclusion:
 \end{center}
 
 There are some macros that can be defined to control compilation.
-These have names beginning with \ttkey{MIN\_}.  One of these
-is:
-
-\begin{center}
-\begin{tabular}{lp{4.0in}}
-\TTNBKEY{MIN\_DEBUG}	& 1 if extra debugging checks are to be compiled;
-			  0 (the default) if not
-\LABEL{MIN_DEBUG} \\
-\end{tabular}
-\end{center}
+These have names beginning with \ttnbkey{MIN\_}.
 
 Parts of MIN provide protection against bugs by using the {\tt MIN\_ASSERT}
 macro:
@@ -333,15 +327,14 @@ macro:
 \end{tabular}
 \end{center}
 
-By setting {\tt MIN\_PROTECT} to {\tt 0}, a compilation can optimized
+By setting {\tt MIN\_PROTECT} to {\tt 0}, a compilation can optimize
 debugged code.  Alternatively,
 a compilation can provide its own definition for the
 {\tt MIN\_ASSERT} macro,
 such as a definition printing extra information
 in case of an assertion failure.
 
-The above macros ({\tt MIN\_DEBUG}, {\tt MIN\_ASSERT},
-{\tt MIN\_PROTECT})
+The above macros ({\tt MIN\_ASSERT}, {\tt MIN\_PROTECT})
 can be defined independently for each separately compiled
 part of a program, but most \verb|MIN_| macros must be defined identically
 for all separately compiled parts of a single program.
@@ -352,8 +345,6 @@ redefine {\tt MIN\_} macros:
 \begin{center}
 \begin{tabular}{lll}
 Macro Name		& Meaning	& Page Reference \\[1ex]
-\verb|-DMIN_DEBUG=1|	& add debugging checks
-					& \pagref{MIN_DEBUG} \\
 \verb|-DMIN_PROTECT=0|	& delete assert checks
 					& \pagref{MIN_PROTECT} \\
 \verb|-DMIN_IS_COMPACT=1|
@@ -362,9 +353,17 @@ Macro Name		& Meaning	& Page Reference \\[1ex]
 \end{tabular}
 \end{center}
 
-The other compilation parameters involve technical details of the
-implementation.  For details see the file
+The other compilation parameters involve technical details of
+memory management.  For specifics see the file
 \ttkey{include/min\_parameters.h}.
+
+Code in \verb|include/min.h| that is not meant to be accessed
+by users is in the \ttkey{min::internal} namespace, which in
+\verb|src/min.cc| is abbreviated by 
+`\verb|#define |\ttnbmkey{MINT}{abbreviates {\tt min::internal}}'%
+\label{MINT}\verb| min::internal|'.
+This code and its interfaces are \underline{not} described
+in this document.
 
 \section{Data}
 
@@ -379,11 +378,11 @@ follow certain protocols to be sure the memory is not damaged.
 
 From the syntactic point of view the
 only distinction between these interfaces is that all unprotected
-interface names begin with `\minkey{unprotected::}'.  Code
-that uses the unprotected interface typically abbreviates this long
-prefix to `\ttmkey{MUP::}{abbreviates {\tt min::unprotected::}}'\label{MUP}
+interface names begin with `\minkey{unprotected}{\tt ::}'.  User code
+that accesses the unprotected interface typically abbreviates this long
+prefix to
+`\ttnbmkey{MUP}{abbreviates {\tt min::unprotected}}{\tt ::}'\label{MUP}
 by including the following definition:
-
 \begin{center}
 \verb|#define  MUP  min::unprotected|
 \end{center}
@@ -404,9 +403,14 @@ unless the documentation explicitly says otherwise.
 
 Some, but not all, of the protection provided by the protected interface
 is obtained by the functions of that interface using the
-{\tt MIN\_ASSERT} macro.
+{\tt MIN\_ASSERT} macro.  The
+`\verb|-DMIN_PROTECT=0|' compiler option (see \pagref{MIN_PROTECT})
+disables \verb|MIN_ASSERT| and removes much of the
+protection provided by the protected interface.
 
-The data of MIN is defined using C-compatible \ttmkey{struct}{C compatible}'s
+The heap data (i.e., data not in the stack)
+of MIN is defined using C-compatible
+\ttmkey{struct}{C compatible}'s
 and \ttmkey{union}{C compatible}'s.  C++ implicitly guarantees the layout of
 C-compatible \verb|struct|'s and \verb|union|'s to be C-compatible,
 and C has implicit guarantees because of historical C code that
@@ -416,16 +420,22 @@ MIN depends upon its absence, as does any code that reads and writes
 binary files.
 
 As a consequence of using only C-compatible \verb|struct|'s and
-\verb|union|'s to define data, MIN does not use member functions.
+\verb|union|'s to define heap data, MIN does not use member functions
+for such data.
 Protected functions are in the \ttmkey{min}{namespace} namespace
 and have names beginning with
 `\ttmkey{min::}{in function name}', while
-unprotected MIN functions are in the \ttmkey{MUP}{namespace} namespace
-and have names beginning with `\ttmkey{MUP::}{in function name}'.
+unprotected MIN functions are in the \ttnbmkey{MUP}{namespace} namespace
+and have names beginning with `\ttnbmkey{MUP::}{in function name}'.
+
+The {\tt min} and {\tt min::unprotected} namespaces hold \underline{all}
+the stable interfaces of the MIN implementation.  Other namespaces
+({\tt min::os} or {\tt MOS}, {\tt min::acc} or {\tt MACC},
+{\tt min::internal} or {\tt MINT})
+hold code whose interfaces are subject to change without notice.
 
 In defining MIN data the following number types are used to be sure
 the size of each number is clear:
-
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
 \minkey{uns8}	& unsigned 8-bit integer \\
@@ -607,12 +617,14 @@ See~\pagref{VARIABLE-VECTORS}.
 A \key{control code} is an integer that represents flags and codes
 stored in a general value.  Control codes can have different
 interpretations in different contexts.
+For example, see `Attribute Flags', \pagref{ATTRIBUTE-FLAGS}.
 
 A \key{special value} is a unique value that has some
 special meaning.  \verb|min::MISSING|, for example, is a special
 value that may be input or output to indicate that data is missing,
 and \verb|min::NONE| is a special value used only to
 indicate that a function argument or result does not exist.
+See \secref{SPECIAL-VALUES}.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}\label{COMPACT-OR-LOOSE}
@@ -4847,8 +4859,6 @@ struct min
 \LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS} \\
 \TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
 \LABEL{MIN_DEALLOCATED_LIMIT} \\
-\TTNBKEY{MIN\_DEBUG}
-\LABEL{MIN_DEBUG} \\
 \TTNBKEY{MIN\_PROTECT}
 \LABEL{MIN_PROTECT} \\
 \TTNBKEY{MIN\_ASSERT($e$)}
@@ -6408,6 +6418,72 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 
 
 } % end of renewcommand for \LABEL, \{TT,MIN,MUP}KEY.
+
+\section{Operating System Interface}
+\label{OPERATING-SYSTEM-INTERFACE}
+
+The interface between MIN implementation code and the operating system
+consists of standard C++/C functions available on all operating
+systems, such as \verb|iostreams|, plus \ttkey{min::os}
+namespace interface functions that are
+declared in \verb|include/min_os.h| and defined in \verb|src/min_os.cc|.
+This code division is intended to make it easy to port MIN to different
+operating systems by placing all the code that must be
+changed in the small \verb|src/min_os.cc| file.
+\verb|min::os| is commonly abbreviated to
+`\ttnbmkey{MOS}{abbreviates {\tt min::os}}'\label{MOS}
+by including the following definition in code that accesses
+the interface:
+
+\begin{center}
+\verb|#define  MOS  min::os|
+\end{center}
+
+Details of the \verb|min::os| interface are in \verb|include/min_os.h|.  The
+following is an overview.
+
+\subsection{Configuration Parameters}
+\label{CONFIGURATION-PARAMETERS}
+
+In UNIX the \ttnbkey{MIN\_CONFIG} environment variable value consists
+of whitespace separated entries of the form `{\em name}\verb|=|{\em value}'
+that specify configuration parameters, most of which control the
+Allocator/Collector/Compactor.
+
+\subsection{Memory Pools}
+
+A memory pool is a contiguous block of pages of \underline{virtual}
+memory.  Memory pools may be allocated, and it is possible to
+specify that a pool being allocated has its starting address in
+a particular range (e.g., so stub addresses can be limited to
+44 bits).  Segments of memory pools may be freed, may be made
+into inaccessible virtual memory, and may be made reaccessible.
+Segments of memory pools may be moved by copying page table entries,
+which is faster than copying bytes.
+
+\section{Allocator/Collector/Compactor}
+\label{ALLOCATOR/COLLECTOR/COMPACTOR}
+
+The \key{Allocator/Collector/Compactor}, or \ttnbkey{ACC}, 
+is a replaceable component of the MIN code, which should not
+normally be accessed directly.  It can be controlled by parameters
+passed to the program (see Configuration Parameters,
+\pagref{CONFIGURATION-PARAMETERS}), or by defaults for these
+provided at compile time in \verb|include/min_acc_parameters.h|.
+Documention for these parameters is in this last file.
+The ACC code is in the 
+\verb|min::acc| namespace which is abbreviated to
+`\ttnbmkey{MACC}{abbreviates {\tt min::acc}}'\label{MACC}
+by including the following definition in ACC code:
+
+\begin{center}
+\verb|#define  MACC  min::acc|
+\end{center}
+
+Details of the ACC code are in \verb|include/min_acc.h|.  The
+following is an overview.
+
+TBD
 
 \bibliographystyle{plain}
 \bibliography{min}

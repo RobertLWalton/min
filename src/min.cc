@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Nov 25 00:27:40 EST 2009
+// Date:	Sat Nov 28 04:48:27 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/25 06:01:26 $
+//   $Date: 2009/12/01 00:31:24 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.108 $
+//   $Revision: 1.109 $
 
 // Table of Contents:
 //
@@ -217,7 +217,7 @@ namespace min { namespace internal {
 // -------
 
 # if MIN_IS_COMPACT
-    min::gen MUP::new_num_stub_gen
+    min::gen MINT::new_num_stub_gen
 	    ( min::float64 v )
     {
 	unsigned hash = floathash ( v );
@@ -481,7 +481,7 @@ int min::strncmp
 // (instead of the maximum).  There must be no NULs in
 // the first n characters of p.
 //
-min::gen MUP::new_str_stub_gen_internal
+min::gen MINT::new_str_stub_gen
 	( const char * p, unsigned n )
 {
     unsigned hash = min::strnhash ( p, n );
