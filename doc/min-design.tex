@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 28, 2009}
+\date{December 1, 2009}
  
 \maketitle
 
@@ -717,19 +717,14 @@ macros:
 
 \begin{center}
 \begin{tabular}{lp{3.0in}}
-\TTNBKEY{MIN\_\EOL MAXIMUM\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
+\TTNBKEY{MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
 	& The maximum absolute address of any stub as an unsigned integer
-	  constant.
-\LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS} \\[1ex]
-\TTNBKEY{MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
+	  constant.  See \pagref{MIN_MAX_ABSOLUTE_STUB_ADDRESS} for
+	  defaults. \\[1ex]
+\TTNBKEY{MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
 	& The maximum relative address of any stub as an unsigned integer
-	  constant.
-\LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS} \\[1ex]
-\TTNBKEY{MIN\_STUB\_BASE}
-	& The stub base address for relative addressing.  This can be
-          a non-negative integer constant or the name of a global
-          variable holding an unsigned integer.
-\LABEL{MIN_STUB_BASE}
+	  constant.  See \pagref{MIN_MAX_RELATIVE_STUB_ADDRESS} for
+	  defaults.
 \end{tabular}
 \end{center}
 
@@ -740,41 +735,45 @@ just a matter of inserting the stub address into the low order 44 bits
 of the value.  For 32 bit general values this is just a matter of
 using the stub address as the general value.
 This scheme can be used if
-{\tt MIN\_\EOL MAXIMUM\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
+{\tt MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
 can be stored in 44 bits for 64 bit general values, or is at most
 $2^{32}-2^{29}-1$ for 32 bit general values.
 
-The second fastest scheme is the \key{relative stub address} scheme, where the
+The second fastest scheme is the \key{relative stub address}
+\label{RELATIVE-STUB-ADDRESS} scheme, where the
 stub address relative to a constant \key{stub base}
-address is stored.  The stub base is stored in {\tt MIN\_STUB\_BASE}, and
-the relation between the absolute and relative stub addresses is:
+address is stored.
+The relation between the absolute and relative stub addresses is:
 
 \begin{center}
-stub absolute address = {\tt MIN\_STUB\_BASE} + stub relative address
+stub absolute address = stub base + stub relative address
 \end{center}
 
+where `stub base' is a constant determined when the program is
+initialized.
 This scheme can be used if
-{\tt MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
+{\tt MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
 can be stored in 44 bits for 64 bit general values, or is at most
 $2^{32}-2^{29}-1$ for 32 bit general values.
 
 The slowest scheme is the \key{stub index} scheme, where the
 relative stub address divided by the stub length is stored.
 The stub length is chosen to be a power of 2 so that this
-scheme will be efficient.  Again, this scheme can be used if
+scheme will be efficient.  Again, this scheme can be used
 if the relative address of the stub is not too large, but since
 the stub length is 16, the relative address can be 16 times larger
 for the stub index packing scheme than it is for the stub relative address
 packing scheme.
 Thus the index scheme can be used if
-{\tt MIN\_\EOL MAXIMUM\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS/16}
+{\tt MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS/16}
 can be stored in 44 bits for 64 bit general values, or is at most
 $2^{32}-2^{29}-1$ for 32 bit general values.
 
 Note that on machines that have 32 bit addresses (e.g.,
 the IA32\footnote{Intel Architecture 32-bit, a.k.a, i386 machines.}
-machines), there is little to gain by the stub index packing scheme,
-so that scheme should not be used on such machines.
+machines), there is nothing to gain by either the relative stub address
+or stub index packing schemes,
+so only the absolute stub address scheme should be used on such machines.
 
 A 32-bit general value direct integer consists of a high order 4-bit
 subtype code and a low order 28-bit signed integer stored in offset form,
@@ -853,24 +852,73 @@ Decisions must also be made determining the stub address packing
 parameters (\pagref{STUB-ADDRESS-PACKING}).
 The following macros, which must be defined identically
 for all separately compiled parts of a single program, describe
-these decisions:
+these decisions.  These macros are in two groups, first the macros
+that are set by the programmer, and then the macros which by default
+are computed from the settings of the first group of macros.
+
+The macros set by the programmer are:
 
 \begin{center}
-\begin{tabular}{ll}
-\TTNBKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose
-\LABEL{MIN_IS_COMPACT} \\
-\TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact
-\LABEL{MIN_IS_LOOSE}	 \\
+\begin{tabular}{lp{4in}}
+\TTNBKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose;
+				  defaults to 0.
+\LABEL{MIN_IS_COMPACT} \\[1ex]
+\TTNBKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
+				& Maximum number of garbage collector
+				  ephemeral levels allowed in
+				  \underline{any} execution of the
+				  compiled binary; defaults to 2.
+\LABEL{MIN_MAX_EPHEMERAL_LEVELS} \\
 \end{tabular}
 \end{center}
 
+The macros which are normally set to default values computed from
+the above macro settings are:
 \begin{center}
-\begin{tabular}{ll}
-\TTNBKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
-			& See \pagref{STUB-ADDRESS-PACKING} \\
-\TTNBKEY{MIN\_STUB\_BASE} & See \pagref{STUB-ADDRESS-PACKING} \\
-\TTNBKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
-			& See \pagref{STUB-ADDRESS-PACKING} \\
+\begin{tabular}{@{}lp{3.5in}@{}}
+\TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
+				  defaults to `\verb|! MIN_IS_COMPACT|\,'.
+\LABEL{MIN_IS_LOOSE} \\[1ex]
+\TTNBKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
+				& The maximum number of stubs that can
+				  exist in \underline{any} execution
+				  of the compiled binary.  Defaults as
+				  follows: \\
+& \hspace*{1em}\begin{tabular}{ll}
+if \verb|MIN_IS_COMPACT| = 1:	& $2^{28} - 2^{25}$ \\
+else pointers are 32 bits:	& $2^{28}$ \\
+else:				& $2^{40-4e}$ \\
+\end{tabular} \\
+& where \\
+& ~~$e = max(0,\mbox{\tt MIN\_MAX\_EPHEMERAL\_LEVELS}-2)$.
+\LABEL{MIN_MAX_NUMBER_OF_STUBS} \\[1ex]
+\TTNBKEY{MIN\_STUB\_BASE}
+	& The value of the `stub base' for relative addressing
+          (see \pagref{RELATIVE-STUB-ADDRESS}).  If defined
+          this must be a non-negative integer constant.  Defaults to
+	  \verb|0| if \verb|MIN_MAX_NUMBER_OF_STUBS| is allowed to
+	  default, and otherwise is undefined by default.
+\LABEL{MIN_STUB_BASE} \\[1ex]
+\TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
+	& The maximum address of any stub relative to the `stub base' (address
+	  of the first stub), as an unsigned integer constant.  Defaults to: \\
+	& ~~\verb|16*MIN_MAX_NUMBER_OF_STUBS - 1|.
+\LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS} \\[1ex]
+\TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
+	& The maximum absolute address of any stub.  Defaults to: \\
+	& ~~~~ if \verb|MIN_STUB_BASE| defined: \\
+	& ~~~~~~~~ \verb|  MIN_STUB_BASE| \\
+	& ~~~~~~~~ \verb|+ MIN_MAX_RELATIVE_STUB_ADDRESS| \\
+	& ~~~~ else if \begin{tabular}[t]{l}
+	               \verb|MIN_IS_COMPACT| = 1 and \\
+		       pointers are 32 bits:
+		       \end{tabular} \\
+	& ~~~~~~~~ $2^{32}-2^{29}-1$ \\
+	& ~~~~ else if pointers are 32 bits: \\
+	& ~~~~~~~~ $2^{32}-1$ \\
+	& ~~~~ else: \\
+	& ~~~~~~~~ $2^{48}-1$
+\LABEL{MIN_MAX_ABSOLUTE_STUB_ADDRESS}
 \end{tabular}
 \end{center}
 
@@ -4849,14 +4897,18 @@ struct min
 \begin{tabular}{@{}p{6.2in}@{}}
 \TTNBKEY{MIN\_IS\_COMPACT}
 \LABEL{MIN_IS_COMPACT} \\
+\TTNBKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
+\LABEL{MIN_MAX_EPHEMERAL_LEVELS} \\
 \TTNBKEY{MIN\_IS\_LOOSE}
 \LABEL{MIN_IS_LOOSE}	 \\
-\TTNBKEY{MIN\_MAXIMUM\_ABSOLUTE\_STUB\_ADDRESS}
-\LABEL{MIN_MAXIMUM_ABSOLUTE_STUB_ADDRESS} \\
+\TTNBKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
+\LABEL{MIN_MAX_NUMBER_OF_STUBS} \\
 \TTNBKEY{MIN\_STUB\_BASE}
 \LABEL{MIN_STUB_BASE} \\
-\TTNBKEY{MIN\_MAXIMUM\_RELATIVE\_STUB\_ADDRESS}
-\LABEL{MIN_MAXIMUM_RELATIVE_STUB_ADDRESS} \\
+\TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
+\LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS} \\
+\TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
+\LABEL{MIN_MAX_ABSOLUTE_STUB_ADDRESS} \\
 \TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
 \LABEL{MIN_DEALLOCATED_LIMIT} \\
 \TTNBKEY{MIN\_PROTECT}
