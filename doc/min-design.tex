@@ -846,7 +846,7 @@ following definitions are provided in {\tt min.h} to facilitate coding:
 \label{GENERAL-VALUE-COMPILATION}
 
 The decisions on whether an implementation is
-compact or loose (\pagref{COMPACT-OR-LOOSE}) and
+compact or loose (\pagref{COMPACT-OR-LOOSE})
 must be made before C++ code is compiled.
 Decisions must also be made determining the stub address packing
 parameters (\pagref{STUB-ADDRESS-PACKING}).
@@ -855,6 +855,8 @@ for all separately compiled parts of a single program, describe
 these decisions.  These macros are in two groups, first the macros
 that are set by the programmer, and then the macros which by default
 are computed from the settings of the first group of macros.
+All these macros are defined in
+\ttkey{include/min\_parameters.h}\ttindex{min\_parameters.h}.
 
 The macros set by the programmer are:
 
@@ -877,13 +879,12 @@ the above macro settings are:
 \begin{center}
 \begin{tabular}{@{}lp{3.5in}@{}}
 \TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
-				  defaults to `\verb|! MIN_IS_COMPACT|\,'.
+				  Must equal `\verb|! MIN_IS_COMPACT|\,'.
 \LABEL{MIN_IS_LOOSE} \\[1ex]
 \TTNBKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
 				& The maximum number of stubs that can
 				  exist in \underline{any} execution
-				  of the compiled binary.  Defaults as
-				  follows: \\
+				  of the compiled binary.  Defaults: \\
 & \hspace*{1em}\begin{tabular}{ll}
 if \verb|MIN_IS_COMPACT| = 1:	& $2^{28} - 2^{25}$ \\
 else pointers are 32 bits:	& $2^{28}$ \\
@@ -896,20 +897,20 @@ else:				& $2^{40-4e}$ \\
 	& The value of the `stub base' for relative addressing
           (see \pagref{RELATIVE-STUB-ADDRESS}).  If defined
           this must be a non-negative integer constant.  Defaults to
-	  \verb|0| if \verb|MIN_MAX_NUMBER_OF_STUBS| is allowed to
-	  default, and otherwise is undefined by default.
+	  \verb|0| if \verb|MIN_MAX_NUMBER_OF_STUBS| is set by
+	  default, and otherwise is left undefined.
 \LABEL{MIN_STUB_BASE} \\[1ex]
 \TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
 	& The maximum address of any stub relative to the `stub base' (address
-	  of the first stub), as an unsigned integer constant.  Defaults to: \\
+	  of the first stub), as an unsigned integer constant.  Default: \\
 	& ~~\verb|16*MIN_MAX_NUMBER_OF_STUBS - 1|.
 \LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS} \\[1ex]
 \TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
-	& The maximum absolute address of any stub.  Defaults to: \\
+	& The maximum absolute address of any stub.  Defaults: \\
 	& ~~~~ if \verb|MIN_STUB_BASE| defined: \\
 	& ~~~~~~~~ \verb|  MIN_STUB_BASE| \\
 	& ~~~~~~~~ \verb|+ MIN_MAX_RELATIVE_STUB_ADDRESS| \\
-	& ~~~~ else if \begin{tabular}[t]{l}
+	& ~~~~ else if \begin{tabular}[t]{@{}l@{}}
 	               \verb|MIN_IS_COMPACT| = 1 and \\
 		       pointers are 32 bits:
 		       \end{tabular} \\
