@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Nov  9 04:04:12 EST 2009
+// Date:	Sat Nov 28 15:15:41 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/09 09:04:40 $
+//   $Date: 2009/12/01 00:31:11 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.45 $
+//   $Revision: 1.46 $
 
 // Table of Contents
 //
@@ -34,19 +34,10 @@
 // The following compiler options illustrate typical use
 // in overriding defaults:
 //
-// -DMIN_DEBUG=1
 // -DMIN_PROTECT=0
 // -DMIN_IS_COMPACT=1
 // -DMIN_USES_OBJ_AUX_STUBS=1
-// -DMIN_MAX_ABSOLUTE_STUB_ADDRESS="((1ull << 48) - 1)"
-//	// 2**48 - 1; forces use of stub relative
-//	// addresses or indices in 64 bit general
-//	// values.
-// -DMIN_MAX_RELATIVE_STUB_ADDRESS="((1ull << 48) - 1)"
-//	// 2**48 - 1; forces use of stub indices in 64
-//	// bit general values.
-// -DMIN_ACC_FLAG_BITS=16
-//	// Adds an ephemeral ACC level.
+// -DMIN_MAX_EPHEMERAL_LEVELS=1
 // 
 // See below for the definition of these parameters.
 // Other parameters are computed from these.
@@ -56,12 +47,6 @@
 
 // Settable Software Parameters
 // -------- -------- ----------
-
-// 1 to add extra debugging code; 0 not to.
-//
-# ifndef MIN_DEBUG
-#   define MIN_DEBUG 0
-# endif
 
 // 1 to include checks in protected functions; 0 not to.
 //

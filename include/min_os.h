@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 10:55:36 EDT 2009
+// Date:	Sat Nov 28 06:26:30 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/23 14:57:59 $
+//   $Date: 2009/12/01 00:31:11 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents
 //
@@ -43,6 +43,11 @@ namespace min { namespace os {
     //
     // Return NULL if there is no parameter of the given
     // name.
+    //
+    // For UNIX parameters are supplied by the
+    // MIN_CONFIG environment variable value.  This
+    // value consists of whitespace separated fields
+    // each of the form `name=value'.
     //
     const char * get_parameter ( const char * name );
 

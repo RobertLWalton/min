@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Nov 24 09:06:42 EST 2009
+// Date:	Sat Nov 28 04:46:23 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/25 06:01:05 $
+//   $Date: 2009/12/01 00:31:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.193 $
+//   $Revision: 1.194 $
 
 // Table of Contents:
 //
@@ -47,6 +47,7 @@
 //   min		min   Public protected min.h.
 //   min::unprotected	MUP   Public unprotected min.h.
 //   min::internal	MINT  Private min.h.
+//   min::os		MOS   Private min_os.h.
 //   min::acc		MACC  Private min_acc.h.
 
 // Setup
@@ -283,6 +284,7 @@ namespace min {
     const int LIST_AUX			= -2;
     const int SUBLIST_AUX		= -3;
     const int HASHTABLE_AUX		= -4;
+    const int RELOCATE_BODY		= -5;
 
     namespace unprotected {
 	// Flags for non-acc control values.
@@ -1974,7 +1976,8 @@ namespace min { namespace unprotected {
 	    last_allocated = rstub;
 
 	    min::unprotected
-	       ::set_type_of ( rstub, min::FREE );
+	       ::set_type_of ( rstub,
+	                       min::RELOCATE_BODY );
 	    min::internal::new_body ( rstub, n );
 	}
 
@@ -1989,30 +1992,38 @@ namespace min { namespace unprotected {
 	//
 	~relocate_body ( void )
 	{
-	    if ( type_of ( rstub ) == min::DEALLOCATED )
-	        return;
+	    if ( type_of ( rstub ) != min::DEALLOCATED )
+	    {
 
-	    min::uns64 v = rstub->v.u64;
-	    rstub->v.u64 = s->v.u64;
-	    s->v.u64 = v;
+		min::uns64 v =
+		    unprotected::value_of ( s );
+		min::uns64 rv =
+		    unprotected::value_of ( rstub );
+		unprotected::set_value_of ( s, rv );
+		unprotected::set_value_of ( rstub, v );
 
-	    min::uns64 c = ( rstub->c.u64 ^ s->c.u64 )
-	                   &
-			   min::internal
-			      ::ACC_FIXED_BODY_FLAG;
-	    rstub->c.u64 ^= c;
-	    s->c.u64 ^= c;
+		min::uns64 c =
+		    ( unprotected::control_of ( rstub )
+		      ^
+		      unprotected::control_of ( s ) )
+		    &
+		    min::internal
+		       ::ACC_FIXED_BODY_FLAG;
+		rstub->c.u64 ^= c;
+		s->c.u64 ^= c;
 
-	    min::uns64 * bp = (min::uns64 *)
-	        min::unprotected::pointer_of ( s );
-	    * bp = min::unprotected::renew_control_stub
-	             ( * bp, s );
-	    bp = (min::uns64 *)
-	        min::unprotected::pointer_of ( rstub );
-	    * bp = min::unprotected::renew_control_stub
-	             ( * bp, rstub );
+		min::uns64 * bp = (min::uns64 *)
+		    unprotected::pointer_of ( s ) - 1;
+		* bp = unprotected::renew_control_stub
+			 ( * bp, s );
+		bp = (min::uns64 *)
+		    unprotected::pointer_of ( rstub )
+		    - 1;
+		* bp = unprotected::renew_control_stub
+			 ( * bp, rstub );
 
-	    min::internal::deallocate_body ( rstub );
+		internal::deallocate_body ( rstub );
+	    }
 
 	    last_allocated = last_allocated_save;
 	}
@@ -2079,7 +2090,7 @@ namespace min {
 namespace min {
 
 #   if MIN_IS_COMPACT
-	namespace unprotected {
+	namespace internal {
 
 	    // Function to create new number stub or
 	    // return an existing stub.
@@ -2104,14 +2115,14 @@ namespace min {
 	        return
 		  ( type_of
 		      ( internal::unsgen_to_stub ( v ) )
-		        == min::NUMBER );
+		    == min::NUMBER );
 	}
 	inline min::gen new_num_gen ( int v )
 	{
 	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
 		return unprotected::new_direct_int_gen
 				( v );
-	    return unprotected::new_num_stub_gen ( v );
+	    return internal::new_num_stub_gen ( v );
 	}
 	inline min::gen new_num_gen ( float64 v )
 	{
@@ -2122,18 +2133,19 @@ namespace min {
 		    return unprotected::
 		           new_direct_int_gen ( i );
 	    }
-	    return unprotected::
+	    return internal::
 		   new_num_stub_gen ( v );
 	}
 	inline int int_of ( min::gen v )
 	{
-	    if ( v < ( min::GEN_DIRECT_INT << VSIZE ) )
+	    if ( is_stub ( v ) )
 	    {
 		min::stub * s =
 		    internal::unsgen_to_stub ( v );
 		MIN_ASSERT (    type_of ( s )
 			     == min::NUMBER );
-		min::float64 f = s->v.f64;
+		min::float64 f =
+		    unprotected::float_of ( s );
 		MIN_ASSERT (    INT_MIN <= f
 			     && f <= INT_MAX );
 		int i = (int) f;
@@ -2147,12 +2159,12 @@ namespace min {
 		       direct_int_of ( v );
 	    else
 	    {
-		MIN_ASSERT ( is_num ( v ) );
+		MIN_ABORT ( "int_of non number" );
 	    }
 	}
 	inline float64 float_of ( min::gen v )
 	{
-	    if ( v < ( min::GEN_DIRECT_INT << VSIZE ) )
+	    if ( is_stub ( v ) )
 	    {
 		min::stub * s =
 		    internal::unsgen_to_stub ( v );
@@ -2165,7 +2177,7 @@ namespace min {
 		       direct_int_of ( v );
 	    else
 	    {
-		MIN_ASSERT ( is_num ( v ) );
+		MIN_ABORT ( "float_of non number" );
 	    }
 	}
 #   elif MIN_IS_LOOSE
@@ -2273,19 +2285,22 @@ namespace min {
     //
     class str_pointer;
     namespace unprotected {
-	const char * str_of ( min::str_pointer & sp );
+	const char * str_of
+	    ( const min::str_pointer & sp );
     }
     void initialize
 	( min::str_pointer & sp, min::gen v );
-    unsigned strlen ( min::str_pointer & sp );
-    min::uns32 strhash ( min::str_pointer & sp );
-    char * strcpy ( char * p, min::str_pointer & sp );
-    char * strncpy ( char * p, min::str_pointer & sp,
-    			       unsigned n );
+    unsigned strlen ( const min::str_pointer & sp );
+    min::uns32 strhash ( const min::str_pointer & sp );
+    char * strcpy ( char * p,
+                    const min::str_pointer & sp );
+    char * strncpy ( char * p,
+                     const min::str_pointer & sp,
+		     unsigned n );
     int strcmp
-        ( const char * p, min::str_pointer & sp );
+        ( const char * p, const min::str_pointer & sp );
     int strncmp
-        ( const char * p, min::str_pointer & sp );
+        ( const char * p, const min::str_pointer & sp );
 
     class str_pointer
     {
@@ -2336,23 +2351,25 @@ namespace min {
 	}
 
 	friend const char * min::unprotected::str_of
-	    ( str_pointer & sp );
+	    ( const str_pointer & sp );
 	friend void min::initialize
 	    ( str_pointer & sp, min::gen v );
 	friend unsigned min::strlen
-	    ( min::str_pointer & sp );
+	    ( const min::str_pointer & sp );
 	friend min::uns32 min::strhash
-	    ( min::str_pointer & sp );
+	    ( const min::str_pointer & sp );
 	friend char * min::strcpy
-	    ( char * p, min::str_pointer & sp );
+	    ( char * p, const min::str_pointer & sp );
 	friend char * min::strncpy
-	    ( char * p, min::str_pointer & sp,
+	    ( char * p, const min::str_pointer & sp,
 	                unsigned n );
 	friend int min::strcmp
-	    ( const char * p, min::str_pointer & sp );
+	    ( const char * p,
+	      const min::str_pointer & sp );
 	friend int min::strncmp
-	    ( const char * p, min::str_pointer & sp,
-	                      unsigned n );
+	    ( const char * p,
+	      const min::str_pointer & sp,
+	      unsigned n );
 
     private:
 
@@ -2364,7 +2381,7 @@ namespace min {
 	min::stub pseudo_stub;
 	    // Pseudo-stub for short or direct
 	    // string; only value is used to point
-	    // at buf + sizeof ( MUP::long_str ).
+	    // at pseudo_body.buf.
 
 	struct
 	{
@@ -2381,7 +2398,7 @@ namespace min {
     };
 
     inline const char * unprotected::str_of
-	    ( min::str_pointer & sp )
+	    ( const min::str_pointer & sp )
     {
 	return (const char * )
 	       min::unprotected::long_str_of ( sp.s )
@@ -2396,50 +2413,52 @@ namespace min {
     }
 
     inline unsigned strlen
-        ( min::str_pointer & sp )
+        ( const min::str_pointer & sp )
     {
         if ( sp.s == & sp.pseudo_stub )
 	    return ::strlen ( sp.pseudo_body.u.buf );
 	else
-	    return min::unprotected
-	              ::long_str_of ( sp.s )
-		      -> length;
+	    return unprotected::length_of
+	              ( unprotected::long_str_of
+		            ( sp.s ) );
     }
 
-    inline min::uns32 strhash ( min::str_pointer & sp )
+    inline min::uns32 strhash
+	    ( const min::str_pointer & sp )
     {
         if ( sp.s == & sp.pseudo_stub )
 	    return min::strhash
 	        ( sp.pseudo_body.u.buf );
 	else
-	    return min::unprotected
-	              ::long_str_of ( sp.s )
-		      -> hash;
+	    return unprotected::hash_of
+	              ( unprotected::long_str_of
+		            ( sp.s ) );
     }
 
     inline char * strcpy
-    	( char * p, min::str_pointer & sp )
+    	( char * p, const min::str_pointer & sp )
     {
         return ::strcpy
 	    ( p, min::unprotected::str_of ( sp ) );
     }
 
     inline char * strncpy
-    	( char * p, min::str_pointer & sp, unsigned n )
+    	( char * p, const min::str_pointer & sp,
+	            unsigned n )
     {
         return ::strncpy
 	    ( p, min::unprotected::str_of ( sp ), n );
     }
 
     inline int strcmp
-    	( const char * p, min::str_pointer & sp )
+    	( const char * p, const min::str_pointer & sp )
     {
         return ::strcmp
 	    ( p, min::unprotected::str_of ( sp ) );
     }
 
     inline int strncmp
-    	( const char * p, min::str_pointer & sp,
+    	( const char * p, const min::str_pointer & sp,
 	                  unsigned n )
     {
         return ::strncmp
@@ -2458,21 +2477,9 @@ namespace min {
 	       min::type_of ( s ) == min::LONG_STR;
     }
 
-    namespace unprotected {
-	min::gen new_str_stub_gen_internal
+    namespace internal {
+	min::gen new_str_stub_gen
 	    ( const char * p, unsigned n );
-	inline min::gen new_str_stub_gen
-		( const char * p )
-	{
-	    return new_str_stub_gen_internal
-	        ( p, ::strlen ( p ) );
-	}
-	inline min::gen new_str_stub_gen
-	    ( const char * p, unsigned n )
-	{
-	    return new_str_stub_gen_internal
-	        ( p, min::internal::strnlen ( p, n ) );
-	}
     }
 
     inline min::gen new_str_gen ( const char * p )
@@ -2487,8 +2494,7 @@ namespace min {
 		return min::unprotected::
 		       new_direct_str_gen ( p );
 #	endif
-	return min::unprotected::
-	       new_str_stub_gen ( p );
+	return internal::new_str_stub_gen ( p, n );
     }
 
     inline min::gen new_str_gen
@@ -2504,8 +2510,7 @@ namespace min {
 		return min::unprotected::
 		       new_direct_str_gen ( p, n );
 #	endif
-	return min::unprotected::
-	       new_str_stub_gen ( p, n );
+	return internal::new_str_stub_gen ( p, n );
     }
 }
 
