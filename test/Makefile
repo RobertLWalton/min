@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Sun Nov  8 08:16:46 EST 2009
+# Date:		Tue Dec  1 02:54:53 EST 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/11/08 13:25:50 $
+#   $Date: 2009/12/01 11:25:34 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.26 $
+#   $Revision: 1.27 $
 
 # We need the following to mask RCS lines
 #
@@ -113,7 +113,7 @@ min_interface_test_compact:	\
 	GFLAGS = -DMIN_IS_COMPACT=1 \
 	         -DMIN_USES_OBJ_AUX_STUBS=1
 
-N=MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
+N=MIN_MAX_NUMBER_OF_STUBS
 min_interface_test_loose_stretch:	\
 	GFLAGS = -DMIN_IS_COMPACT=0 \
 	         -D$N=0xFFFFFFF0000ull \

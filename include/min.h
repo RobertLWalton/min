@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 28 04:46:23 EST 2009
+// Date:	Tue Dec  1 01:51:55 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 00:31:10 $
+//   $Date: 2009/12/01 11:27:37 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.194 $
+//   $Revision: 1.195 $
 
 // Table of Contents:
 //
@@ -351,7 +351,7 @@ namespace min { namespace internal {
 	const min::internal::pointer_uns stub_base =
 	    MIN_STUB_BASE;
 	min::stub * const null_stub =
-	    (min::stub *) stub_base;
+	    (min::stub *) MIN_STUB_BASE;
 #   else
 	extern min::internal::pointer_uns stub_base;
 	extern min::stub * null_stub;
