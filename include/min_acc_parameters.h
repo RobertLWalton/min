@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Aug 21 07:43:19 EDT 2009
+// Date:	Tue Dec  1 02:54:07 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/21 19:47:40 $
+//   $Date: 2009/12/01 11:27:38 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents
 //
@@ -65,18 +65,16 @@
 //   48 implemented virtual address bits, however, max_
 //   stubs can be set very large.
 //
-//   max_stubs must be less than MIN_ABSOLUTE_MAX_
-//   NUMBER_OF_STUBS defined in min_parameters.h which
-//   is determined by the number of bits available for
+//   max_stubs must be less than MIN_MAX_NUMBER_OF_STUBS
+//   defined in min_parameters.h which by default is
+//   determined by the number of bits available for
 //   packing stub addresses into stub control words.
 //
 # ifndef MIN_DEFAULT_MAX_STUBS
 #    define MIN_DEFAULT_MAX_STUBS \
 	( MIN_POINTER_BITS <= 32 ? 1 << 25 : \
-          MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
-	                 <= ( 1ull << 32 ) ? \
-            MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS : \
-	  ( 1ull << 32 ) )
+          MIN_MAX_NUMBER_OF_STUBS <= ( 1ull << 32 ) ? \
+            MIN_MAX_NUMBER_OF_STUBS : ( 1ull << 32 ) )
 # endif
 
 // stub_increment

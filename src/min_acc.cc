@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug 29 07:31:06 EDT 2009
+// Date:	Tue Dec  1 02:55:51 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/29 12:08:51 $
+//   $Date: 2009/12/01 11:26:05 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents:
 //
@@ -234,7 +234,7 @@ static void stub_allocator_initializer ( void )
 {
     get_param ( "max_stubs",
                 MACC::max_stubs, 1000,
-		MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS );
+		MIN_MAX_NUMBER_OF_STUBS );
     get_param ( "stub_increment",
                 MACC::stub_increment, 100, 1000000 );
 

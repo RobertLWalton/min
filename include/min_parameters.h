@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 00:31:11 $
+//   $Date: 2009/12/01 11:27:38 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.46 $
+//   $Revision: 1.47 $
 
 // Table of Contents
 //
@@ -111,26 +111,26 @@
 // grouping bug and requires that x ? y : z ? w : v
 // be expressed as x ? y : ( z ? w : v ).
 //
-# ifndef MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
-#   define MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS \
+# ifndef MIN_MAX_NUMBER_OF_STUBS
+#   define MIN_MAX_NUMBER_OF_STUBS \
 	( MIN_IS_COMPACT ? 0x0DFFFFFF : \
 	  ( MIN_POINTER_BITS <= 32 ? 1 << 28 : \
 	  ( MIN_MAX_EPHEMERAL_LEVELS <= 2 ? \
 	          ( 1ull << 40 ) : \
 	  ( 1ull << \
-	    ( 52 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) ) \
+	    ( 48 - 4 * MIN_MAX_EPHEMERAL_LEVELS ) ) \
 	    ) ) )
 #   ifndef MIN_STUB_BASE
 #	define MIN_STUB_BASE 0
 #   endif
 # endif
 
-// Optional hard-coded numeric address of the stub
-// vector.  Defaults to zero when MIN_ABSOLUTE_MAX_
-// NUMBER_OF_STUBS is allowed to default above.
-// Otherwise not set by default, and when not set the
-// base of the stub vector is determined at run time.
-// Must be an unsigned integer if set.
+// Optional hard-coded numeric address of the stub vec-
+// tor.  Defaults to zero when MIN_MAX_NUMBER_OF_STUBS
+// is allowed to default above.  Otherwise not set by
+// default, and when not set the base of the stub vector
+// is determined at run time.  Must be an unsigned
+// integer constant if set.
 //
 // # define MIN_STUB_BASE xxx
 
@@ -214,7 +214,7 @@
 //
 # ifndef MIN_MAX_RELATIVE_STUB_ADDRESS
 #   define MIN_MAX_RELATIVE_STUB_ADDRESS \
-	( 16 * MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS - 1 )
+	( 16 * MIN_MAX_NUMBER_OF_STUBS - 1 )
 # endif
 
 // Maximum absolute stub address.
@@ -226,8 +226,10 @@
 	      + MIN_MAX_RELATIVE_STUB_ADDRESS )
 #   else
 #	define MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-	   ( MIN_POINTER_BITS <= 32 ? 0xDFFFFFFFull : \
-	     ( ( 1ull << 44 ) - 1 ) )
+	   ( MIN_IS_COMPACT && MIN_POINTERS <= 32 ? \
+	       0xDFFFFFFFull : \
+	     MIN_POINTER_BITS <= 32 ? 0xFFFFFFFFull : \
+	     ( ( 1ull << 48 ) - 1 ) )
 #   endif
 # endif
 
@@ -257,7 +259,7 @@
 //
 # ifndef MIN_MAX_STUB_INDEX
 #   define MIN_MAX_STUB_INDEX \
-           MIN_ABSOLUTE_MAX_NUMBER_OF_STUBS
+           MIN_MAX_NUMBER_OF_STUBS
 # endif
 
 // Maximum size of a fixed block for the ACC fixed block
