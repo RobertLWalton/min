@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 2, 2009}
+\date{December 5, 2009}
  
 \maketitle
 
@@ -1236,14 +1236,55 @@ is usable as a name component, and returns zero otherwise.
 \label{BODY-POINTERS}
 
 Body pointers are relocatable and require special handling to
-ensure that they are up-to-date.  Because of this, functions
-that obtain body pointers from stubs are unprotected, and
-names of relocating functions, which might relocate bodies, are marked
+ensure that they are up-to-date.  There are two ways of managing
+this: the protected way and the unprotected way.
+
+\subsubsection{Protected Body Pointer Management}
+\label{PROTECTED-BODY-POINTER-MANAGEMENT}
+
+The protected way uses special pointer data that is adapted to
+the type of datum being pointed at.  For example, the following
+code can access any string:
+\begin{indpar}\begin{verbatim}
+min::gen x = . . .  // set x to some string
+min::str_pointer xp ( x );
+int length = min::strlen ( xp );
+for ( int i = 0; i < length; ++ i )
+{
+    . . . xp[i] . . .
+}
+\end{verbatim}\end{indpar}
+
+For strings that are long enough to have a body, the
+\verb|str_pointer| stores a pointer to the stub of the string,
+and `\verb|xp[i]|' is an inline function that expands to
+code that reads the body pointer from the stub and adds both
+an appropriate constant offset and then the index `\verb|i|'
+to that pointer in order to get the address of the character.
+
+It might be thought that this is inefficient as the body pointer
+is re-read for every different iteration of the `\verb|for|'
+loop.  However, if no out-of-line functions are called in the
+loop, an optimizing compiler will very often be able to eliminate
+the excess reads and load the body pointer plus constant offset
+into a register before the loop begins.  The key here is to
+avoid out-of-line function calls, as for each such call the
+optimizer must assume that the body pointer in the stub might
+change.
+
+TBW
+
+\subsubsection{Unprotected Body Pointer Management}
+\label{UNPROTECTED-BODY-POINTER-MANAGEMENT}
+
+Functions that obtain body pointers from stubs are unprotected because
+the body pointers they return are invalidated if the body pointed as
+it relocated.  In order to track possible relocation,
+names of functions that might relocate bodies are marked
 with the superscript {\REL} in this document.
 
-
-Relocation can only happen inside relocating functions
-(\pagref{RELOCATING-FUNCTIONS}).  When it happens,
+Relocation can only happen inside such relocating functions
+(\pagref{RELOCATING-FUNCTIONS}).  When relocation happens,
 the `\key{relocated flag}\,'\label{RELOCATED-FLAG},
 which is one of the execution flags
 described in~\secref{EXECUTION-FLAGS}, is set.  Deallocation
