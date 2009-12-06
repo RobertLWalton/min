@@ -489,7 +489,7 @@ an 8 {\tt char} string, or, as we will soon see, a pointer to a body.
 It is also possible for a stub value to hold any other 8 bytes of information.
 
 The stub control holds a 1 byte \key{type code} and other information used,
-for example, by the garbage collector.
+for example, by the allocator/collector/compactor (acc).
 
 The type name of a stub is `\minkey{stub}', and a pointer to a stub
 has type `\verb|min::stub *|'.\LABEL{MIN::STUB}
@@ -1533,20 +1533,22 @@ If the stub control is viewed as a 64 bit integer, its high order byte
 is the \mkey{type code}{high order byte!of stub control}.
 The \mkey{high order bit}{of stub type code} of this, which is the high order
 bit of the 64 bit stub control integer, is off if the stub is managed by
-the garbage collector (gc), and on otherwise.  In the former case the
+the allocator/collector/compactor (acc, of which the garbage collector is
+a part), and on otherwise.  In the former case the
 stub is said to be `\key{collectible}'.  In the latter case it is
 said to be `\key{uncollectable}'.
 
 If the stub is collectible,
-the stub control is used exclusively by the garbage collector,
-except for the type code, which is shared between the garbage collector
-and the rest of the system.  A typical (but not required)
-garbage collector organization of the stub control of a collectible stub is:
+the stub control is used exclusively by the acc,
+except for the type code, which is shared between the acc
+and the rest of the system.  Such a control word is called
+an `\key{acc control}\,'.  A typical (but not required)
+organization of an acc control is:
 
 \begin{center}
 \begin{tabular}{ll}
 high order 8 bits:	& type code \\
-next 12-24 bits:	& gc flags \\
+next 12-24 bits:	& acc flags \\
 low order 44-32 bits:	& chain pointer \\
 \end{tabular}
 \end{center}
@@ -1554,11 +1556,12 @@ low order 44-32 bits:	& chain pointer \\
 Here the chain pointer is a packed stub address
 (see \pagref{STUB-ADDRESS-PACKING})
 that is used to build lists of allocated stubs which
-the garbage collector manages.
+the acc manages.
 
-If a stub is uncollectable, its stub control can be organized in different
+If a stub is uncollectable, its stub control, which is called
+a `\key{non-acc control}\,', can be organized in different
 ways according to the type code value.  The standard way of organizing
-an uncollectable stub control is:
+a non-acc control is:
 
 \begin{center}
 \begin{tabular}{ll}
@@ -1578,10 +1581,11 @@ When the object is garbage collected, the auxiliary stub is freed.  Auxiliary
 stubs are a means of adding memory to an object without relocating the object.
 For example, if the object stores 64-bit IEEE floating point numbers,
 a chain of auxiliary stubs can be used to add memory to the object
-for additional numbers.  Note that the auxiliary stub itself may not
-contain enough information to tell the type of the value it stores;
-one may have to trace the reference from the object pointing at the
-auxiliary stub to determine this type.  See \secref{STUB-FUNCTIONS}
+for additional numbers.  Note that the auxiliary stub itself does not
+contain information that tells the type of the value it stores;
+one has to trace the reference from the object pointing at the
+auxiliary stub to determine this type.  Usually auxiliary stub
+values are general values.  See \secref{STUB-FUNCTIONS}
 for functions that can read and write auxiliary stubs.
 
 \subsection{Stub Type Codes}
