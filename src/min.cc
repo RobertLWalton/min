@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 28 04:48:27 EST 2009
+// Date:	Sun Dec  6 08:26:34 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 00:31:24 $
+//   $Date: 2009/12/06 14:02:40 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.109 $
+//   $Revision: 1.110 $
 
 // Table of Contents:
 //
@@ -323,11 +323,11 @@ unsigned min::strlen ( min::gen v )
 	return ::strlen ( u.buf );
     }
 
-    min::stub * s = min::stub_of ( v );
+    const min::stub * s = min::stub_of ( v );
     if ( type_of ( s ) == min::SHORT_STR )
     {
-	char * p = s->v.c8;
-	char * endp = p + 8;
+	const char * p = s->v.c8;
+	const char * endp = p + 8;
 	while ( * p && p < endp ) ++ p;
 	return p - s->v.c8;
     }
@@ -347,7 +347,7 @@ min::uns32 min::strhash ( min::gen v )
 	return min::strhash ( u.buf );
     }
 
-    min::stub * s = min::stub_of ( v );
+    const min::stub * s = min::stub_of ( v );
     if ( type_of ( s ) == min::SHORT_STR )
 	return min::strnhash ( s->v.c8, 8 );
     else
@@ -366,7 +366,7 @@ char * min::strcpy ( char * p, min::gen v )
 	return ::strcpy ( p, u.buf );
     }
 
-    min::stub * s = min::stub_of ( v );
+    const min::stub * s = min::stub_of ( v );
     if ( type_of ( s ) == min::SHORT_STR )
     {
 	if ( s->v.c8[7] )
@@ -394,7 +394,7 @@ char * min::strncpy ( char * p, min::gen v, unsigned n )
 	return ::strncpy ( p, u.buf, n );
     }
 
-    min::stub * s = min::stub_of ( v );
+    const min::stub * s = min::stub_of ( v );
     if ( type_of ( s ) == min::SHORT_STR )
     {
 	if ( s->v.c8[7] && n >= 9 )
@@ -421,7 +421,7 @@ int min::strcmp ( const char * p, min::gen v )
 	return ::strcmp ( p, u.buf );
     }
 
-    min::stub * s = min::stub_of ( v );
+    const min::stub * s = min::stub_of ( v );
     if ( type_of ( s ) == min::SHORT_STR )
     {
 	if ( s->v.c8[7] )
@@ -453,7 +453,7 @@ int min::strncmp
 	return ::strncmp ( p, u.buf, n );
     }
 
-    min::stub * s = min::stub_of ( v );
+    const min::stub * s = min::stub_of ( v );
     if ( type_of ( s ) == min::SHORT_STR )
     {
 	if ( s->v.c8[7] && n >= 9 )
@@ -1450,7 +1450,7 @@ void min::insert_before
     lp.reserved_elements -= n;
 
     MINT::acc_write_update
-            ( stub_of ( lp.vecp ), p, n );
+            ( (min::stub *) stub_of ( lp.vecp ), p, n );
 
     if ( lp.current == min::LIST_END )
     {
@@ -1837,7 +1837,7 @@ void min::insert_after
     lp.reserved_elements -= n;
 
     MINT::acc_write_update
-	    ( stub_of ( lp.vecp ), p, n );
+	    ( (min::stub *) stub_of ( lp.vecp ), p, n );
 
     bool previous = ( lp.previous_index != 0 );
 #   if MIN_USES_OBJ_AUX_STUBS

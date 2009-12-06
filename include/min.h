@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Dec  1 01:51:55 EST 2009
+// Date:	Sun Dec  6 05:24:19 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 11:27:37 $
+//   $Date: 2009/12/06 14:01:59 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.195 $
+//   $Revision: 1.196 $
 
 // Table of Contents:
 //
@@ -411,7 +411,7 @@ namespace min { namespace internal {
 #           endif
 	}
 	inline min::unsgen stub_to_unsgen
-		( min::stub * s )
+		( const min::stub * s )
 	{
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
@@ -444,7 +444,7 @@ namespace min { namespace internal {
         }
 
         inline min::unsgen stub_to_unsgen
-	        ( min::stub * s )
+	        ( const min::stub * s )
         {
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
@@ -464,7 +464,7 @@ namespace min { namespace internal {
 	// value.
 	//
         inline min::gen stub_into_gen
-	        ( min::gen v, min::stub * s )
+	        ( min::gen v, const min::stub * s )
         {
 	    v &= ~ ( ( min::uns64(1) << 44 ) - 1 );
 	    return v + stub_to_unsgen ( s );
@@ -493,7 +493,7 @@ namespace min { namespace unprotected {
     // MUP:: constructors
 
 #   if MIN_IS_COMPACT
-	inline min::gen new_gen ( min::stub * s )
+	inline min::gen new_gen ( const min::stub * s )
 	{
 	    return (min::gen)
 	        internal::stub_to_unsgen ( s );
@@ -531,7 +531,7 @@ namespace min { namespace unprotected {
 	}
 
 #   elif MIN_IS_LOOSE
-	inline min::gen new_gen ( min::stub * s )
+	inline min::gen new_gen ( const min::stub * s )
 	{
 	    return (min::gen)
 		   (   internal::stub_to_unsgen ( s )
@@ -645,7 +645,7 @@ namespace min {
 
     // min:: constructors
 
-    inline min::gen new_gen ( min::stub * s )
+    inline min::gen new_gen ( const min::stub * s )
     {
 	return unprotected::new_gen ( s );
     }
@@ -933,7 +933,7 @@ namespace min {
 
     // min:: functions
 
-    inline min::stub * stub_of ( min::gen v )
+    inline const min::stub * stub_of ( min::gen v )
     {
 	MIN_ASSERT ( is_stub ( v ) );
 	return unprotected::stub_of ( v );
@@ -1162,7 +1162,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_control_with_type
-		( int type_code, min::stub * s,
+		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
@@ -1174,7 +1174,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_control_with_locator
-		( int locator, min::stub * s )
+		( int locator, const min::stub * s )
 	{
 	    return ( min::uns64 ( locator ) << 48 )
 		   |
@@ -1183,7 +1183,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 renew_control_stub
-		( min::uns64 c, min::stub * s )
+		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
 		   | (   (min::internal::pointer_uns) s
@@ -1204,7 +1204,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_control_with_type
-		( int type_code, min::stub * s,
+		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return   ( min::uns64 ( type_code ) << 56 )
@@ -1214,7 +1214,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_control_with_locator
-		( int locator, min::stub * s )
+		( int locator, const min::stub * s )
 	{
 	    return   ( min::uns64 ( locator ) << 48 )
 	           | ( s - (min::stub *)
@@ -1222,7 +1222,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 renew_control_stub
-		( min::uns64 c, min::stub * s )
+		( min::uns64 c, const min::stub * s )
 	{
 	    return   ( c & ~ MIN_CONTROL_VALUE_MASK )
 	           | ( s - (min::stub *)
@@ -1245,7 +1245,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_acc_control
-		( int type_code, min::stub * s,
+		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
@@ -1256,7 +1256,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 renew_acc_control_stub
-		( min::uns64 c, min::stub * s )
+		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
 		   | (min::internal::pointer_uns) s;
@@ -1276,7 +1276,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_acc_control
-		( int type_code, min::stub * s,
+		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return   ( min::uns64 ( type_code ) << 56 )
@@ -1286,7 +1286,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 renew_acc_control_stub
-		( min::uns64 c, min::stub * s )
+		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
 		 | (   (min::internal::pointer_uns) s
@@ -1307,7 +1307,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_acc_control
-		( int type_code, min::stub * s,
+		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return   ( min::uns64 ( type_code ) << 56 )
@@ -1317,7 +1317,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 renew_acc_control_stub
-		( min::uns64 c, min::stub * s )
+		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
 	         | ( s - (min::stub *)
@@ -1335,7 +1335,7 @@ namespace min { namespace unprotected {
 
 namespace min {
 
-    inline int type_of ( min::stub * s )
+    inline int type_of ( const min::stub * s )
     {
         return s->c.i8[7*MIN_IS_LITTLE_ENDIAN];
     }
@@ -1345,29 +1345,31 @@ namespace min {
     	return type >= 0;
     }
 
-    inline bool is_deallocated ( min::stub * s )
+    inline bool is_deallocated ( const min::stub * s )
     {
         return type_of ( s ) == min::DEALLOCATED;
     }
 
     namespace unprotected {
 
-        inline min::uns64 value_of ( min::stub * s )
+        inline min::uns64 value_of
+		( const min::stub * s )
 	{
 	    return s->v.u64;
 	}
 
-        inline min::float64 float_of ( min::stub * s )
+        inline min::float64 float_of
+		( const min::stub * s )
 	{
 	    return s->v.f64;
 	}
 
-        inline min::gen gen_of ( min::stub * s )
+        inline min::gen gen_of ( const min::stub * s )
 	{
 	    return s->v.g;
 	}
 
-        inline void * pointer_of ( min::stub * s )
+        inline void * pointer_of ( const min::stub * s )
 	{
 	    return min::internal::
 	           uns64_to_pointer ( s->v.u64 );
@@ -1380,13 +1382,15 @@ namespace min {
 		       ( s->v.u64 );
 	}
 
-        inline min::uns64 control_of ( min::stub * s )
+        inline min::uns64 control_of
+	    ( const min::stub * s )
 	{
 	    return s->c.u64;
 	}
 
         inline bool test_flags_of
-		( min::stub * s, min::uns64 flags )
+		( const min::stub * s,
+		  min::uns64 flags )
 	{
 	    return s->c.u64 & flags;
 	}
@@ -1707,7 +1711,8 @@ namespace min { namespace internal {
 	    min::gen v = * p ++;
 	    if ( min::is_stub ( v ) )
 	        acc_write_update
-		    ( s1, min::stub_of ( v ) );
+		    ( s1, min::unprotected
+		             ::stub_of ( v ) );
 	}
     }
 
@@ -2099,7 +2104,8 @@ namespace min {
 		( min::float64 v );
 	}
 
-	inline min::float64 float_of ( min::stub * s )
+	inline min::float64 float_of
+	    ( const min::stub * s )
 	{
 	    MIN_ASSERT ( type_of ( s ) == min::NUMBER );
 	    return unprotected::float_of ( s );
@@ -2140,7 +2146,7 @@ namespace min {
 	{
 	    if ( is_stub ( v ) )
 	    {
-		min::stub * s =
+		const min::stub * s =
 		    internal::unsgen_to_stub ( v );
 		MIN_ASSERT (    type_of ( s )
 			     == min::NUMBER );
@@ -2166,7 +2172,7 @@ namespace min {
 	{
 	    if ( is_stub ( v ) )
 	    {
-		min::stub * s =
+		const min::stub * s =
 		    internal::unsgen_to_stub ( v );
 		return float_of ( s );
 	    }
@@ -2229,12 +2235,13 @@ namespace min { namespace unprotected {
 	min::uns32 hash;
     };
 
-    inline min::uns64 short_str_of ( min::stub * s )
+    inline min::uns64 short_str_of
+            ( const min::stub * s )
     {
 	return s->v.u64;
     }
     inline min::unprotected::long_str * long_str_of
-	    ( min::stub * s )
+	    ( const min::stub * s )
     {
 	return (min::unprotected::long_str *)
 	       min::internal
@@ -2373,7 +2380,7 @@ namespace min {
 
     private:
 
-	min::stub * s;
+	const min::stub * s;
 	    // Stub pointer if long string, or
 	    // pointer to pseudo_stub for short
 	    // or direct string.
@@ -2471,7 +2478,8 @@ namespace min {
 	    return true;
 	if ( ! min::is_stub ( v ) )
 	    return false;
-	min::stub * s = min::unprotected::stub_of ( v );
+	const min::stub * s =
+	    min::unprotected::stub_of ( v );
 	return min::type_of ( s ) == min::SHORT_STR
 	       ||
 	       min::type_of ( s ) == min::LONG_STR;
@@ -2537,7 +2545,7 @@ namespace min { namespace internal {
         sizeof ( lab_header ) / sizeof ( min::gen );
 
     inline min::internal::lab_header * lab_header_of
-	    ( min::stub * s )
+	    ( const min::stub * s )
     {
         return (min::internal::lab_header *)
 	       min::unprotected::pointer_of ( s );
@@ -2567,7 +2575,8 @@ namespace min { namespace internal {
 namespace min {
 
     inline unsigned lab_of
-	    ( min::gen * p, unsigned n, min::stub * s )
+	    ( min::gen * p, unsigned n,
+	      const min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	min::internal::lab_header * lh =
@@ -2591,7 +2600,7 @@ namespace min {
 	return min::lab_of ( p, n, min::stub_of ( v ) );
     }
 
-    inline unsigned lablen ( min::stub * s )
+    inline unsigned lablen ( const min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	return min::internal::lablen
@@ -2603,7 +2612,7 @@ namespace min {
 	return min::lablen ( min::stub_of ( v ) );
     }
 
-    inline unsigned labhash ( min::stub * s )
+    inline unsigned labhash ( const min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
 	return min::internal::labhash
@@ -2625,7 +2634,8 @@ namespace min {
     {
 	if ( ! min::is_stub ( v ) )
 	    return false;
-	min::stub * s = min::unprotected::stub_of ( v );
+	const min::stub * s =
+	    min::unprotected::stub_of ( v );
 	return min::type_of ( s ) == min::LABEL;
     }
 }
@@ -2712,14 +2722,14 @@ namespace min { namespace unprotected {
         sizeof ( long_obj ) / sizeof ( min::gen );
 
     inline min::unprotected::short_obj * short_obj_of
-	    ( min::stub * s )
+	    ( const min::stub * s )
     {
         return (min::unprotected::short_obj *)
 	       min::unprotected::pointer_of ( s );
     }
 
     inline min::unprotected::long_obj * long_obj_of
-	    ( min::stub * s )
+	    ( const min::stub * s )
     {
         return (min::unprotected::long_obj *)
 	       min::unprotected::pointer_of ( s );
@@ -2858,7 +2868,7 @@ namespace min {
     class insertable_vec_pointer;
 
     void initialize
-	( min::vec_pointer & vp, min::stub * s );
+	( min::vec_pointer & vp, const min::stub * s );
     void initialize
 	( min::vec_pointer & vp, min::gen v );
 
@@ -2876,7 +2886,7 @@ namespace min {
 	unsigned aux_offset_of
 	    ( min::vec_pointer & vp );
     }
-    min::stub * stub_of
+    const min::stub * stub_of
 	( min::vec_pointer & vp );
     unsigned hash_size_of
 	( min::vec_pointer & vp );
@@ -2962,17 +2972,19 @@ namespace min {
 
 	const int type;
 
-	vec_pointer ( min::stub * s )
-	    : s ( s ), type ( PLAIN )
+	vec_pointer ( const min::stub * s )
+	    : s ( (min::stub *) s ), type ( PLAIN )
 	    { init(); }
 	vec_pointer ( min::gen v )
-	    : s ( min::stub_of ( v ) ), type ( PLAIN )
+	    : s ( (min::stub *) min::stub_of ( v ) ),
+	      type ( PLAIN )
 	    { init(); }
 
         // Friends
 	//
 	friend void initialize
-	    ( min::vec_pointer & vp, min::stub * s );
+	    ( min::vec_pointer & vp,
+	      const min::stub * s );
 	friend void initialize
 	    ( min::vec_pointer & vp, min::gen v );
 
@@ -2989,7 +3001,7 @@ namespace min {
 	friend unsigned unprotected::aux_offset_of
 	    ( min::vec_pointer & vp );
 
-	friend min::stub * stub_of
+	friend const min::stub * stub_of
 	    ( min::vec_pointer & vp );
 	friend unsigned hash_size_of
 	    ( min::vec_pointer & vp );
@@ -3062,8 +3074,8 @@ namespace min {
 
     protected:
 
-	vec_pointer ( min::stub * s, int type )
-	    : s ( s ), type ( type )
+	vec_pointer ( const min::stub * s, int type )
+	    : s ( (min::stub *) s ), type ( type )
 	    { init(); }
 
 	~ vec_pointer ( void )
@@ -3214,12 +3226,13 @@ namespace min {
 	    {}
 	insertable_vec_pointer ( min::gen v )
 	    : updatable_vec_pointer
-	          ( min::stub_of ( v ), INSERTABLE )
+	          ( (min::stub *) min::stub_of ( v ),
+		    INSERTABLE )
 	    {}
     };
 
     inline void initialize
-	( min::vec_pointer & vp, min::stub * s )
+	( min::vec_pointer & vp, const min::stub * s )
     {
         new ( & vp ) min::vec_pointer ( s );
     }
@@ -3263,7 +3276,7 @@ namespace min {
         return vp.aux_offset;
     }
 
-    inline min::stub * stub_of
+    inline const min::stub * stub_of
 	( min::vec_pointer & vp )
     {
         return vp.s;
@@ -3939,7 +3952,8 @@ namespace min { namespace internal {
 	inline void collect_aux_stub ( min::gen v )
 	{
 	    if ( ! is_stub ( v ) ) return;
-	    min::stub * s = min::stub_of ( v );
+	    min::stub * s = min::unprotected
+	                       ::stub_of ( v );
 	    int type = min::type_of ( s );
 	    if ( type == min::LIST_AUX
 	         ||
@@ -3978,7 +3992,8 @@ namespace min {
 		   ||
 		   ( min::is_stub ( v )
 		     &&
-		     min::type_of ( min::stub_of ( v ) )
+		     min::type_of ( min::unprotected
+		                       ::stub_of ( v ) )
 		     == min::SUBLIST_AUX )
 #	       endif
 	       ;
@@ -4383,7 +4398,8 @@ namespace min { namespace internal {
 		else if ( min::is_stub ( current ) )
 		{
 		    min::stub * s =
-		        min::stub_of ( current );
+		        min::unprotected
+			   ::stub_of ( current );
 		    int type = min::type_of ( s );
 
 		    if ( type == min::LIST_AUX )
