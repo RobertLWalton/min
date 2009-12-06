@@ -338,7 +338,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f7240
+control2: 85800000009f7260
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -349,7 +349,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f7250
+re-control2: 85800000009f7270
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -362,7 +362,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f7240
+control3: 85800000009f7260
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -373,7 +373,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f7250
+re-control3: 85800000009f7270
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -1466,14 +1466,10 @@ min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -1544,8 +1540,6 @@ min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -1556,16 +1550,12 @@ min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     1 == min::remove ( wlp, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -1871,8 +1861,6 @@ min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -1889,8 +1877,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num105 true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num106 true.
 min_interface_test.cc:XXXX assert:
@@ -1963,8 +1949,6 @@ min_interface_test.cc:XXXX assert:
     min::next ( wllp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wllp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -1981,8 +1965,6 @@ min_interface_test.cc:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wllp ) == num105 true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wllp ) == num106 true.
 min_interface_test.cc:XXXX assert:

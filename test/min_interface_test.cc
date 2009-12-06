@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Nov 26 05:13:13 EST 2009
+// Date:	Sun Dec  6 07:37:34 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 00:32:15 $
+//   $Date: 2009/12/06 14:03:30 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.104 $
+//   $Revision: 1.105 $
 
 // Table of Contents:
 //
@@ -188,7 +188,8 @@ void initialize_stub_region ( void )
 	( MINT::last_allocated_stub, 0 );
 }
 
-ostream & operator << ( ostream & out, min::stub * s )
+ostream & operator <<
+	( ostream & out, const min::stub * s )
 {
     min::stub locate;
     out << "stub ";
@@ -493,7 +494,7 @@ int main ()
 	cout << "Start Internal Pointer Conversion"
 	        " Test!" << endl;
     	char buffer[1];
-	min::stub * stub = MINT::null_stub;
+	const min::stub * stub = MINT::null_stub;
 
 	cout << endl;
 	cout << "Test pointer/uns64 conversions:"
@@ -539,7 +540,7 @@ int main ()
 	cout << endl;
 	cout << "Start General Value Constructor/"
 	        "/Test/Read Function Test!" << endl;
-	min::stub * stub = MINT::null_stub;
+	const min::stub * stub = MINT::null_stub;
 
 	cout << endl;
 	cout << "Test stub general values:" << endl;
@@ -1622,7 +1623,7 @@ int main ()
 	MIN_ASSERT ( min::is_lab ( lab ) );
 	MIN_ASSERT ( min::is_name ( lab ) );
 	MIN_ASSERT ( min::is_stub ( lab ) );
-	min::stub * s = min::stub_of ( lab );
+	const min::stub * s = min::stub_of ( lab );
 	MIN_ASSERT ( min::labhash ( s ) == labhash1 );
 	MIN_ASSERT ( min::lablen ( s ) == 3 );
 	MIN_ASSERT ( min::labhash ( lab ) == labhash1 );
@@ -1698,7 +1699,7 @@ int main ()
 	cout << "Test short objects:" << endl;
 	short_obj_gen = min::new_obj_gen ( 100, 500 );
 	min::gen sgen = short_obj_gen;
-	min::stub * sstub = min::stub_of ( sgen );
+	const min::stub * sstub = min::stub_of ( sgen );
 	MIN_ASSERT
 	    (    min::type_of ( sstub )
 	      == min::SHORT_OBJ );
@@ -1725,7 +1726,7 @@ int main ()
 	cout << "Test long objects:" << endl;
 	long_obj_gen = min::new_obj_gen ( 7000, 70000 );
 	min::gen lgen = long_obj_gen;
-	min::stub * lstub = min::stub_of ( lgen );
+	const min::stub * lstub = min::stub_of ( lgen );
 	MIN_ASSERT
 	    ( min::type_of ( lstub ) == min::LONG_OBJ );
 	MUP::long_obj * lo =
@@ -1774,7 +1775,7 @@ int main ()
 	cout << "Test short object vector level:"
 	     << endl;
 	min::gen sgen = short_obj_gen;
-	min::stub * sstub = min::stub_of ( sgen );
+	const min::stub * sstub = min::stub_of ( sgen );
 	MUP::short_obj * so =
 	    MUP::short_obj_of ( sstub );
 	const min::gen * srb =
@@ -1903,7 +1904,7 @@ int main ()
 	cout << "Test long object vector level:"
 	     << endl;
 	min::gen lgen = long_obj_gen;
-	min::stub * lstub = min::stub_of ( lgen );
+	const min::stub * lstub = min::stub_of ( lgen );
 	MUP::long_obj * lo =
 	    MUP::long_obj_of ( lstub );
 	const min::gen * lrb =
