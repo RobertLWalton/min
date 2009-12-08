@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Dec  6 07:37:34 EST 2009
+// Date:	Tue Dec  8 07:09:40 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/06 14:03:30 $
+//   $Date: 2009/12/08 12:12:41 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.105 $
+//   $Revision: 1.106 $
 
 // Table of Contents:
 //
@@ -1337,6 +1337,7 @@ int main ()
 	MIN_ASSERT ( min::is_name ( n1 ) );
 	MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
 	MIN_ASSERT ( min::float_of ( n1 ) == 12345 );
+	MIN_ASSERT ( MUP::float_of ( n1 ) == 12345 );
 	min::uns32 n1hash = min::numhash ( n1 );
 	cout << "n1hash: " << hex << n1hash << dec
 	     << endl;
@@ -1353,6 +1354,7 @@ int main ()
 	MIN_ASSERT ( min::is_num ( n2 ) );
 	MIN_ASSERT ( min::is_name ( n2 ) );
 	MIN_ASSERT ( min::float_of ( n2 ) == 1.2345 );
+	MIN_ASSERT ( MUP::float_of ( n2 ) == 1.2345 );
 	min::uns32 n2hash = min::numhash ( n2 );
 	cout << "n2hash: " << hex << n2hash << dec
 	     << endl;
@@ -1371,6 +1373,7 @@ int main ()
 	MIN_ASSERT ( min::is_name ( n3 ) );
 	MIN_ASSERT ( min::int_of ( n3 ) == 1 << 30 );
 	MIN_ASSERT ( min::float_of ( n3 ) == 1 << 30 );
+	MIN_ASSERT ( MUP::float_of ( n3 ) == 1 << 30 );
 	min::uns32 n3hash = min::numhash ( n3 );
 	cout << "n3hash: " << hex << n3hash << dec
 	     << endl;
