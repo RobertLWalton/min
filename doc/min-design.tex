@@ -1455,295 +1455,6 @@ auxiliary stub to determine this type.  Usually auxiliary stub
 values are general values.  See \secref{UNPROTECTED-STUB-FUNCTIONS}
 for functions that can read and write auxiliary stubs.
 
-\subsubsection{Body Pointers}
-\label{BODY-POINTERS}
-
-Object bodies are relocatable
-(\pagref{RELOCATABLE-BODY}) and and pointers into object bodies,
-called \skey{body pointer}s,
-require special handling to
-ensure that they are up-to-date.  There are two ways of managing
-this: the protected way and the unprotected way.
-
-Note also that deallocation of an object body is treated as
-reallocation of the body to inaccessible virtual memory.
-
-\subsubsubsection{Protected Body Pointers}
-\label{PROTECTED-BODY-POINTERS}
-
-The protected way of handling body pointers
-uses special pointer data that is adapted to
-the type of datum being pointed at.  For example, the following
-code can access any string:
-\begin{indpar}\begin{verbatim}
-min::gen x = . . .  // set x to some string
-min::str_pointer xp ( x );
-int length = min::strlen ( xp );
-for ( int i = 0; i < length; ++ i )
-{
-    . . . xp[i] . . .
-}
-\end{verbatim}\end{indpar}
-
-Here the \verb|str_pointer| datum is a \key{protected body pointer}.
-For strings that are long enough to have a body, the
-\verb|str_pointer| stores a pointer to the stub of the string,
-and `\verb|xp[i]|' is an inline function that expands to
-code that reads the body pointer from the stub and adds both
-an appropriate constant offset and then the index `\verb|i|'
-to that pointer in order to get the address of the character.
-
-It might be thought that this is inefficient as the body pointer
-is re-read from the stub for every different iteration of the `\verb|for|'
-loop.  However, if no out-of-line functions are called in the
-loop, an optimizing compiler will very often be able to eliminate
-the excess reads and load the body pointer plus constant offset
-into a register before the loop begins.  The key here is to
-avoid out-of-line function calls, as for each such call the
-optimizer must assume that the body pointer in the stub might
-change.
-
-Protected pointer types are provided for each type of object
-that has a body.
-
-\subsubsubsection{Unprotected Body Pointers}
-\label{UNPROTECTED-BODY-POINTERS}
-
-\hfill
-\ikey{Unprotected body pointers}{unprotected body pointer}%
-\index{pointer!unprotected body}\index{body pointer!unprotected}
-are C/C++ pointers that point directly into an object body.
-Functions that obtain body unprotected
-pointers from stubs are unprotected (\verb|MUP|) functions because
-the unprotected body pointers they return are invalidated
-if the body pointed at
-is relocated.
-
-In order to track possible relocation,
-names of functions that might relocate bodies are marked
-with the superscript {\REL} in this document.
-Relocation can only happen inside such \skey{relocating function}s
-(\pagref{RELOCATING-FUNCTIONS}).
-
-The following uses unprotected body pointers to point at a character
-string stored in a body:
-\begin{indpar}\begin{verbatim}
-min::gen x = . . .  // set x to some long string
-const min::stub * xstub = min::stub_of ( x );
-// The following only works if the string is longer
-// than 8 characters.
-MUP::long_str * xstr = MUP::long_str_of ( xstub );
-const char * xp = MUP::str_of ( xstr );
-int length = MUP::length_of ( xstr );
-for ( int i = 0; i < length; ++ i )
-{
-    // Relocating functions must NOT be called in this loop.
-    . . . xp[i] . . .
-}
-\end{verbatim}\end{indpar}
-
-Strings are in fact of three types, direct which stores characters
-in the general value, short which stores up to 8 characters in the stub
-value, and long which stores more than 8 characters in the object body.  The
-above code only works for long strings.
-
-
-When relocation happens inside a relocating function,
-the `\key{relocated flag}\,'\label{RELOCATED-FLAG},
-which is one of the execution flags
-described in~\secref{EXECUTION-FLAGS}, is set.
-Upon return from the call to any relocating function,
-a caller who is using unprotected body pointers must check the relocated flag,
-and if on, the caller must:
-
-\begin{center}
-\begin{tabular}{l}
-optionally check that object bodies pointed at have not been deallocated
-(see \secref{DEALLOCATION}) \\
-recompute all local variables containing unprotected body pointers \\
-clear the relocated flag \\
-remember it has cleared the relocated flag
-\end{tabular}
-\end{center}
-
-When a function returns to its caller,
-it must set the relocated flag if that flag was ever cleared by
-the returning function.
-
-Relocating functions update body pointers that are not stored
-in local variables, in particular those stored in stubs.
-The local variables are then recomputed from the pointers stored in
-the stubs.
-
-If the example above is modified to call a relocating function
-in its loop, the resulting code would be:
-\begin{indpar}\begin{verbatim}
-min::gen x = . . .  // set x to some long string
-const min::stub * xstub = min::stub_of ( x );
-// The following only works if the string is longer
-// than 8 characters.
-MUP::long_str * xstr = MUP::long_str_of ( xstub );
-const char * xp = MUP::str_of ( xstr );
-int length = MUP::length_of ( xstr );
-bool relocated = min::set_relocated_flag ( false );
-for ( int i = 0; i < length; ++ i )
-{
-    . . . xp[i] . . .
-    some_relocating_function ( . . . );
-    if ( min::set_relocated_flag( false ) )
-    {
-        relocated = true;
-        assert ( ! is_deallocated ( xstub ) );
-        xstr = MUP::long_str_of ( xstub );
-        xp = MUP::str_of ( xstr );
-    }
-    . . . xp[i] . . .
-}
-min::set_relocated_flag ( relocated );
-\end{verbatim}\end{indpar}
-
-The following functions get and set the relocated flag:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
-\LABEL{MIN::RELOCATED_FLAG} \\
-\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool value )|
-\LABEL{MIN::SET_RELOCATED_FLAG}
-\end{tabular}\end{center}
-
-The function to set the flag returns the flag's previous value.
-
-A function that computes an unprotected pointer into an object body does not
-check the type code of the object stub pointing at the body.  The type
-code must be checked separately before the pointer is computed.  If the
-pointer is being recomputed after possible relocation, the only check
-required relates to the possibility that the object has been deallocated.
-
-Code to handle relocating function calls and unprotected body
-pointers has the general form:
-
-\begin{indpar}\begin{verbatim}
-... some_function ( ... )
-{
-    bool relocated = min::set_relocated_flag ( false );
-    . . . . .
-    min::stub * s = min::stub_of ( ... );
-    . . . . .
-    assert ( ... == type_of ( s ) );
-    MUP::some_body_type * p =
-        MUP::some_function_returning_a_body_pointer ( s );
-    . . . . . use p . . . . .
-    some_relocating_function ( ... );
-    if ( min::set_relocated_flag( false ) )
-    {
-        relocated = true;
-        assert ( ! is_deallocated ( s ) );
-        p = MUP::some_function_returning_a_body_pointer ( s );
-    }
-    . . . . . use p . . . . .
-    min::set_relocated_flag ( relocated );
-    return ...;
-}
-\end{verbatim}\end{indpar}
-
-To simplify this code, the following is defined:
-
-\begin{indpar}\begin{verbatim}
-class min::relocated
-{
-public:
-    bool relocated_flag;
-    relocated ( void )
-    {
-        relocated_flag = min::set_relocated_flag ( false );
-    }
-    ~ relocated ( void )
-    {
-        min::set_relocated_flag ( relocated_flag );
-    }
-    operator bool ()
-    {
-        if ( min::set_relocated_flag ( false ) )
-            return relocated_flag = true;
-        else
-            return false;
-    }
-}
-\end{verbatim}\end{indpar}
-
-which permits the general code given above to be rewritten more conveniently
-as:
-
-\begin{indpar}\begin{verbatim}
-... some_function ( ... )
-{
-    // relocated constructor saves the relocated flag.
-    min::relocated relocated;
-    . . . . .
-    min::stub * s = min::stub_of ( ... );
-    . . . . .
-    assert ( ... == type_of ( s ) );
-    MUP::some_body_type * p =
-        MUP::some_function_returning_a_body_pointer ( s );
-    . . . . . use p . . . . .
-    some_relocating_function ( ... );
-    if ( relocated )
-    {
-        assert ( ! is_deallocated ( s ) );
-        p = MUP::some_function_returning_a_body_pointer ( s );
-    }
-    . . . . . use p . . . . .
-    return ...;
-    // relocated deconstructor restores relocated flag.
-}
-\end{verbatim}\end{indpar}
-
-\subsubsubsection{Deallocation}
-\label{DEALLOCATION}
-
-The operation of \ikey{deallocating a body}{deallocate!body}\index{deallocation}
-is considered to be a relocation of the body.  The body pointer in the
-stub is pointed at inaccessible virtual memory, and the type code in the stub
-is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
-
-The following function tests whether a stub
-has a deallocated body:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( const min::stub * s )|
-\LABEL{MIN::IS_DEALLOCATED}
-\end{tabular}\end{center}
-
-This function just checks the stub type code to see if it equals
-{\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
-
-A check that an object body has not been deallocated may be needed before
-a pointer into the body is recomputed after a relocating function has
-been called.  Using a deallocated body is
-considered to be a fatal programming error, so often no check is necessary,
-as a program that uses a deallocated body simply
-crashes when it tries to access the inaccessible
-virtual memory.
-
-In some implementations there is a limit to the size of inaccessible memory.
-These implementations define the macro:
-
-\begin{center}\begin{tabular}{r@{}l}
-(unsigned integer macro)~~ & \TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
-\LABEL{MIN_DEALLOCATED_LIMIT}
-\end{tabular}\end{center}
-
-to be the maximum size of inaccessible memory to which the stub of
-a deallocated object is pointed.  If this macro is undefined, there
-is no limit.  If the macro is defined, an attempt to
-access any part of a deallocated object body beyond the specified limit
-will give undefined results.
-
-The \verb|MIN_DEALLOCATED_LIMIT|
-macro is generally left undefined for implementations
-with 64 bit addresses, but may be defined for implementations with
-32 bit addresses in order to conserve virtual memory.
-
 \subsubsection{Allocator/Collector/Compactor Interface}
 \label{ACC-INTERFACE}
 
@@ -1968,6 +1679,294 @@ the `{\tt renew}' functions modify control values
 by inserting a new type, value, or stub address, and
 the other functions return the parts of a control value.
 None of these functions check the ranges of their arguments.
+
+\subsection{Body Pointers}
+\label{BODY-POINTERS}
+
+Object bodies are relocatable
+(\pagref{RELOCATABLE-BODY}) and and pointers into object bodies,
+called \skey{body pointer}s,
+require special handling to
+ensure that they are up-to-date.  There are two ways of managing
+this: the protected way and the unprotected way.
+
+Note also that deallocation of an object body is treated as
+reallocation of the body to inaccessible virtual memory.
+
+\subsubsection{Protected Body Pointers}
+\label{PROTECTED-BODY-POINTERS}
+
+The protected way of handling body pointers
+uses special pointer data that is adapted to
+the type of datum being pointed at.  For example, the following
+code can access any string:
+\begin{indpar}\begin{verbatim}
+min::gen x = . . .  // set x to some string
+min::str_pointer xp ( x );
+int length = min::strlen ( xp );
+for ( int i = 0; i < length; ++ i )
+{
+    . . . xp[i] . . .
+}
+\end{verbatim}\end{indpar}
+
+Here the \verb|str_pointer| datum is a \key{protected body pointer}.
+For strings that are long enough to have a body, the
+\verb|str_pointer| stores a pointer to the stub of the string,
+and `\verb|xp[i]|' is an inline function that expands to
+code that reads the body pointer from the stub and adds both
+an appropriate constant offset and then the index `\verb|i|'
+to that pointer in order to get the address of the character.
+
+It might be thought that this is inefficient as the body pointer
+is re-read from the stub for every different iteration of the `\verb|for|'
+loop.  However, if no out-of-line functions are called in the
+loop, an optimizing compiler will very often be able to eliminate
+the excess reads and load the body pointer plus constant offset
+into a register before the loop begins.  The key here is to
+avoid out-of-line function calls, as for each such call the
+optimizer must assume that the body pointer in the stub might
+change.
+
+Protected pointer types are provided for each type of object
+that has a body.
+
+\subsubsection{Unprotected Body Pointers}
+\label{UNPROTECTED-BODY-POINTERS}
+
+\ikey{Unprotected body pointers}{unprotected body pointer}%
+\index{pointer!unprotected body}\index{body pointer!unprotected}
+are C/C++ pointers that point directly into an object body.
+Functions that obtain body unprotected
+pointers from stubs are unprotected (\verb|MUP|) functions because
+the unprotected body pointers they return are invalidated
+if the body pointed at
+is relocated.
+
+In order to track possible relocation,
+names of functions that might relocate bodies are marked
+with the superscript {\REL} in this document.
+Relocation can only happen inside such \skey{relocating function}s
+(\pagref{RELOCATING-FUNCTIONS}).
+
+The following uses unprotected body pointers to point at a character
+string stored in a body:
+\begin{indpar}\begin{verbatim}
+min::gen x = . . .  // set x to some long string
+const min::stub * xstub = min::stub_of ( x );
+// The following only works if the string is longer
+// than 8 characters.
+MUP::long_str * xstr = MUP::long_str_of ( xstub );
+const char * xp = MUP::str_of ( xstr );
+int length = MUP::length_of ( xstr );
+for ( int i = 0; i < length; ++ i )
+{
+    // Relocating functions must NOT be called in this loop.
+    . . . xp[i] . . .
+}
+\end{verbatim}\end{indpar}
+
+Strings are in fact of three types, direct which stores characters
+in the general value, short which stores up to 8 characters in the stub
+value, and long which stores more than 8 characters in the object body.  The
+above code only works for long strings.
+
+
+When relocation happens inside a relocating function,
+the `\key{relocated flag}\,'\label{RELOCATED-FLAG},
+which is one of the execution flags
+described in~\secref{EXECUTION-FLAGS}, is set.
+Upon return from the call to any relocating function,
+a caller who is using unprotected body pointers must check the relocated flag,
+and if on, the caller must:
+
+\begin{center}
+\begin{tabular}{l}
+optionally check that object bodies pointed at have not been deallocated
+(see \secref{DEALLOCATION}) \\
+recompute all local variables containing unprotected body pointers \\
+clear the relocated flag \\
+remember it has cleared the relocated flag
+\end{tabular}
+\end{center}
+
+When a function returns to its caller,
+it must set the relocated flag if that flag was ever cleared by
+the returning function.
+
+Relocating functions update body pointers that are not stored
+in local variables, in particular those stored in stubs.
+The local variables are then recomputed from the pointers stored in
+the stubs.
+
+If the example above is modified to call a relocating function
+in its loop, the resulting code would be:
+\begin{indpar}\begin{verbatim}
+min::gen x = . . .  // set x to some long string
+const min::stub * xstub = min::stub_of ( x );
+// The following only works if the string is longer
+// than 8 characters.
+MUP::long_str * xstr = MUP::long_str_of ( xstub );
+const char * xp = MUP::str_of ( xstr );
+int length = MUP::length_of ( xstr );
+bool relocated = min::set_relocated_flag ( false );
+for ( int i = 0; i < length; ++ i )
+{
+    . . . xp[i] . . .
+    some_relocating_function ( . . . );
+    if ( min::set_relocated_flag( false ) )
+    {
+        relocated = true;
+        assert ( ! is_deallocated ( xstub ) );
+        xstr = MUP::long_str_of ( xstub );
+        xp = MUP::str_of ( xstr );
+    }
+    . . . xp[i] . . .
+}
+min::set_relocated_flag ( relocated );
+\end{verbatim}\end{indpar}
+
+The following functions get and set the relocated flag:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
+\LABEL{MIN::RELOCATED_FLAG} \\
+\verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool value )|
+\LABEL{MIN::SET_RELOCATED_FLAG}
+\end{tabular}\end{center}
+
+The function to set the flag returns the flag's previous value.
+
+A function that computes an unprotected pointer into an object body does not
+check the type code of the object stub pointing at the body.  The type
+code must be checked separately before the pointer is computed.  If the
+pointer is being recomputed after possible relocation, the only check
+required relates to the possibility that the object has been deallocated.
+
+Code to handle relocating function calls and unprotected body
+pointers has the general form:
+
+\begin{indpar}\begin{verbatim}
+... some_function ( ... )
+{
+    bool relocated = min::set_relocated_flag ( false );
+    . . . . .
+    min::stub * s = min::stub_of ( ... );
+    . . . . .
+    assert ( ... == type_of ( s ) );
+    MUP::some_body_type * p =
+        MUP::some_function_returning_a_body_pointer ( s );
+    . . . . . use p . . . . .
+    some_relocating_function ( ... );
+    if ( min::set_relocated_flag( false ) )
+    {
+        relocated = true;
+        assert ( ! is_deallocated ( s ) );
+        p = MUP::some_function_returning_a_body_pointer ( s );
+    }
+    . . . . . use p . . . . .
+    min::set_relocated_flag ( relocated );
+    return ...;
+}
+\end{verbatim}\end{indpar}
+
+To simplify this code, the following is defined:
+
+\begin{indpar}\begin{verbatim}
+class min::relocated
+{
+public:
+    bool relocated_flag;
+    relocated ( void )
+    {
+        relocated_flag = min::set_relocated_flag ( false );
+    }
+    ~ relocated ( void )
+    {
+        min::set_relocated_flag ( relocated_flag );
+    }
+    operator bool ()
+    {
+        if ( min::set_relocated_flag ( false ) )
+            return relocated_flag = true;
+        else
+            return false;
+    }
+}
+\end{verbatim}\end{indpar}
+
+which permits the general code given above to be rewritten more conveniently
+as:
+
+\begin{indpar}\begin{verbatim}
+... some_function ( ... )
+{
+    // relocated constructor saves the relocated flag.
+    min::relocated relocated;
+    . . . . .
+    min::stub * s = min::stub_of ( ... );
+    . . . . .
+    assert ( ... == type_of ( s ) );
+    MUP::some_body_type * p =
+        MUP::some_function_returning_a_body_pointer ( s );
+    . . . . . use p . . . . .
+    some_relocating_function ( ... );
+    if ( relocated )
+    {
+        assert ( ! is_deallocated ( s ) );
+        p = MUP::some_function_returning_a_body_pointer ( s );
+    }
+    . . . . . use p . . . . .
+    return ...;
+    // relocated deconstructor restores relocated flag.
+}
+\end{verbatim}\end{indpar}
+
+\subsubsection{Deallocation}
+\label{DEALLOCATION}
+
+The operation of \ikey{deallocating a body}{deallocate!body}\index{deallocation}
+is considered to be a relocation of the body.  The body pointer in the
+stub is pointed at inaccessible virtual memory, and the type code in the stub
+is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
+
+The following function tests whether a stub
+has a deallocated body:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( const min::stub * s )|
+\LABEL{MIN::IS_DEALLOCATED}
+\end{tabular}\end{center}
+
+This function just checks the stub type code to see if it equals
+{\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
+
+A check that an object body has not been deallocated may be needed before
+a pointer into the body is recomputed after a relocating function has
+been called.  Using a deallocated body is
+considered to be a fatal programming error, so often no check is necessary,
+as a program that uses a deallocated body simply
+crashes when it tries to access the inaccessible
+virtual memory.
+
+In some implementations there is a limit to the size of inaccessible memory.
+These implementations define the macro:
+
+\begin{center}\begin{tabular}{r@{}l}
+(unsigned integer macro)~~ & \TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
+\LABEL{MIN_DEALLOCATED_LIMIT}
+\end{tabular}\end{center}
+
+to be the maximum size of inaccessible memory to which the stub of
+a deallocated object is pointed.  If this macro is undefined, there
+is no limit.  If the macro is defined, an attempt to
+access any part of a deallocated object body beyond the specified limit
+will give undefined results.
+
+The \verb|MIN_DEALLOCATED_LIMIT|
+macro is generally left undefined for implementations
+with 64 bit addresses, but may be defined for implementations with
+32 bit addresses in order to conserve virtual memory.
 
 \subsection{Numbers}
 \label{NUMBERS}
