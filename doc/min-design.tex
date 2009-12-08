@@ -2084,7 +2084,7 @@ that its argument is a number without doing any \verb|MIN_ASSERT| check:
 
 In MIN all \verb|char| \skey{string}s\index{char strings@{\tt char} strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
-UTF-8 encodes 16 bit UNICODE characters in 1, 2, or 3 \verb|char|'s.
+\key{UTF-8} encodes 32-bit UNICODE characters in 1 to 6 \verb|char|'s.
 
 All ASCII characters are encoded as themselves in
 the UTF-8 encoding.  This implies that
@@ -2096,6 +2096,14 @@ this by assigning meaning to codes from 128 to 255.}
 It is possible for a \verb|char| string to be miscoded UTF-8.  None
 of the functions given below, including the protected functions,
 check for this.
+
+A MIN string value cannot store the NUL character as legal UTF-8.
+But it is possible to use the `\key{modified UTF-8}' encoding instead of
+strict UTF-8.  The difference is that strict UTF-8 encodes the NUL
+character in a single byte as an ASCII NUL, whereas modified UTF-8
+encodes the NUL character as the 2-byte string `\verb|0xC0,0x80|'
+(which is not legal in strict UTF-8 because it is not the shortest
+possible encoding of NUL in UTF-8).
 
 There are two kinds of string stubs: short strings and long strings.
 In addition, a string of up to 3 {\tt char}'s can be stored within a 32-bit
@@ -2209,10 +2217,9 @@ if hash = 0, then hash = 2**32 - 1
 \end{verbatim}\end{indpar}
 
 where the final result is truncated to 32 bits.  The constant
-is a prime such that multiplication by it is turned into
-shifts and adds by compilers: $65599=2^{16}+2^6-1$.\footnote{Another good
-constant that could be used is $33$.}  A hash value is never zero
-(so zero can be used to denote a missing hash value).
+is a prime such that multiplication by it may be turned into
+shifts and adds by compilers: $65599=2^{16}+2^6-1$.
+A hash value is never zero (so zero can be used to denote a missing hash value).
 
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
