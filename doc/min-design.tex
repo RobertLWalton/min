@@ -1977,7 +1977,8 @@ stub type code, and has
 an immutable \verb|min::float64| stub value that can be read by
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|min::float64 min::| & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
+\verb|min::float64 min::|
+    & \MINKEY{float\_of\COMPACT}\verb| ( const min::stub * s )|
 \LABEL{MIN::FLOAT_OF} \\
 \end{tabular}\end{center}
 
@@ -2006,18 +2007,18 @@ by the following protected functions:
 \LABEL{MIN::NUMHASH_OF_GEN} \\
 \end{tabular}\end{center}
 
-The \verb|min::is_num| function for a 64-bit \verb|min::gen| argument
+The \verb|min::is_num| function for a loose 64-bit \verb|min::gen| argument
 is just another name for the \verb|min::is_direct_float| function of the same
-argument.  For a 32-bit argument the function returns
+argument.  For a compact 32-bit \verb|min::gen| argument the function returns
 true if the argument is a direct integer or a stub pointer
 pointing at a number stub.
 
 The \verb|min::new_num_gen| function with \verb|min::float64| argument
-and 64-bit \verb|min::gen| value
+and loose 64-bit \verb|min::gen| value
 is just another name for {\tt min::new\_\EOL direct\_\EOL gen}, which
 simply changes the type of its argument.
 The \verb|min::new_num_gen| function with \verb|min::float64| argument
-and 32-bit \verb|min::gen| value creates a direct integer
+and compact 32-bit \verb|min::gen| value creates a direct integer
 if the argument is an integer in the
 require range; otherwise the function returns a \verb|min::gen| value
 that is a pointer to a number stub.  If a pointer to a number stub is
@@ -2033,10 +2034,11 @@ value, but is more efficient in the case where \verb|min::gen| values
 are 32 bits and the argument is in the range of a direct integer general
 value.
 
-The \verb|min::float_of| function for a 64-bit \verb|min::gen|
+The \verb|min::float_of| function for a loose 64-bit \verb|min::gen|
 argument is just another name for the \verb|min::direct_float_of| function
 of the same argument, which after checking the subtype of the argument,
-simply changes the type of the argument.  For a 32-bit argument the
+simply changes the type of the argument.
+For a compact 32-bit \verb|min::gen| argument the
 function returns any integer stored directly
 in the argument converted to a 64-bit IEEE floating point number, or
 returns the stub value for any number stub pointed at by the argument.
@@ -2051,7 +2053,8 @@ range of the \verb|int| type, and
 \verb|min::int_of| is more efficient when given a 32-bit direct integer
 \verb|min::gen| argument.
 
-Lastly, the \verb|min::numhash| returns the hash value of a \verb|min::gen|
+Lastly, the \verb|min::numhash| function
+returns the hash value of a \verb|min::gen|
 value that is a number.  This value is computed by considering
 the \verb|min::float_of| value of the number
 to be a \underline{big endian} string of 8 characters and using the algorithm
@@ -2066,10 +2069,15 @@ the following function is provided:
 \LABEL{MIN::FLOATHASH} \\
 \end{tabular}\end{center}
 
-\begin{quote}
-The Hash Table Implementation Note on \pagref{HASH-TABLE-IMPLEMENTATION-NOTE}
-also applies to number stubs created by {\tt min::new\_num\_gen}.
-\end{quote}
+The above \verb|min::float_of|, \verb|min::int_of|, and \verb|min::numhash|
+functions of a \verb|min::gen| argument apply \verb|MIN_ASSERT| to check
+that their argument is a number.  The following unprotected function assumes
+that its argument is a number without doing any \verb|MIN_ASSERT| check:
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::gen v )|
+\LABEL{MUP::FLOAT_OF_GEN}
+\end{tabular}\end{center}
 
 \subsection{Strings}
 \label{STRINGS}
@@ -2339,18 +2347,6 @@ and the length and hash of the string.
 
 These functions are unprotected because \verb|long_str *| pointers
 are relocatable.
-
-\begin{quote}
-\key{Hash Table Implementation Note}:\label{HASH-TABLE-IMPLEMENTATION-NOTE}
-To ensure that no two string stubs have the same
-\verb|char| string, a hash table is required.
-This is integrated with the garbage
-collector (ACC).  The ACC has to maintain a list of all allocated stubs,
-which it does (normally) using the chain pointers in the stub.  For
-the case of strings, the ACC maintains this list as a hash table, which
-uses a vector to hold the heads of lists threaded through the string stub
-chain pointers.
-\end{quote}
 
 
 \subsection{Labels}
@@ -5413,7 +5409,7 @@ struct min
 
 \end{indpar}
 
-\INDEXHEADER{Unprotected Stub Functions}
+\INDEXHEADER{Unprotected Stub Declarations}
 
 \begin{indpar}[0.2in]
 
@@ -5477,7 +5473,7 @@ struct min
 
 \end{indpar}
 
-\INDEXHEADER{Control Value Functions (Unprotected)}
+\INDEXHEADER{Control Value Declarations (Unprotected)}
 
 \begin{indpar}[0.2in]
 
@@ -5546,7 +5542,8 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|min::float64 min::| & \MINKEY{float\_of\COMPACT}\verb| ( min::stub * s )|
+\verb|min::float64 min::|
+    & \MINKEY{float\_of\COMPACT}\verb| ( const min::stub * s )|
 \LABEL{MIN::FLOAT_OF} \\
 \end{TABULAR}
 
@@ -5571,7 +5568,16 @@ struct min
 
 \end{indpar}
 
+\INDEXHEADER{Number Unprotected Declarations}
 
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::gen v )|
+\LABEL{MUP::FLOAT_OF_GEN} \\
+\end{TABULAR}
+
+\end{indpar}
 
 
 \INDEXHEADER{String Protected Declarations}
