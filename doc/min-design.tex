@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 6, 2009}
+\date{December 8, 2009}
  
 \maketitle
 
@@ -276,6 +276,8 @@ and the corresponding code:
 
 \begin{center}
 \begin{tabular}{ll}
+\ttmkey{acc}{abbreviation}	& allocator/collector/compactor
+			          (\secref{ACC-INTERFACE},\secref{ACC}) \\
 \ttmkey{aux}{abbreviation}	& auxiliary (\secref{AUXILIARY}) \\
 \ttmkey{attr}{abbreviation}	& attribute (\secref{OBJECT-VECTOR-LEVEL}) \\
 \ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
@@ -1235,12 +1237,229 @@ The \verb|min::hash| function returns a non-zero
 \key{hash value}\label{HASH-VALUE} if its argument
 is usable as a name component, and returns zero otherwise.
 
+\subsection{Special Values}
+\label{SPECIAL-VALUES}
 
-\subsection{Body Pointers}
+Special general values are \verb|min::gen| values that are unique
+and not equal to any value that can be generated during
+program execution.  Special general values are C/C++ {\tt const}
+values, and are never to be used unless documentation specifies
+a specific use.  They are used as return or argument
+values by some functions.
+
+The special values defined by MIN are:
+
+\begin{indpar}
+\begin{list}{}{}
+\item[{\tt const min::gen min::}\MINKEY{MISSING}]~%
+	\LABEL{MIN::MISSING}\\
+Denotes a missing value or an empty set of values, and may be input
+or output and used as an attribute value.
+\item[{\tt const min::gen min::}\MINKEY{NONE}]~%
+	\LABEL{MIN::NONE}\\
+Denotes a non-existent function value or result, and may not be
+input or output or used as an attribute value or label.
+\item[{\tt const min::gen min::}\MINKEY{ANY}]~%
+	\LABEL{MIN::ANY}\\
+Denotes any value from a set of values.
+\item[{\tt const min::gen min::}\MINKEY{MULTI\_VALUED}]~%
+	\LABEL{MIN::MULTI_VALUED}\\
+Indicates a set of values has more than one element.
+\item[{\tt const min::gen min::}\MINKEY{UNDEFINED}]~%
+	\LABEL{MIN::UNDEFINED}\\
+A value given to a variable vector variable (\secref{VARIABLE-VECTORS})
+that has no value and can be indirected.
+\item[{\tt const min::gen min::}\MINKEY{SUCCESS}]~%
+	\LABEL{MIN::SUCCESS}\\
+A value returned to indicate a function has succeeded.
+\item[{\tt const min::gen min::}\MINKEY{FAILURE}]~%
+	\LABEL{MIN::FAILURE}\\
+A value returned to indicate a function has failed.
+\end{list}
+\end{indpar}
+
+Special general values each have a unique \ikey{index}{of special value}
+that identifies them relative to other special values.  These
+indices are in the range $0$ through $2^{24}-1$.  The last 256 indices of this
+range, $2^{24}-256$ through $2^{24}-1$ are reserved for use by the MIN
+system.  Other special values can be created by other systems,
+and indices near 0 are reserved for non-system users.
+
+For efficiency reasons it is desirable for special values to be
+compile time constants.  Because compilers generally do not run
+inline functions at compile time, a macro is needed to compute special
+values.  This macro is
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|(macro) min::gen |
+	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
+\LABEL{MIN_NEW_SPECIAL_GEN} \\
+\end{tabular}\end{center}
+
+where \verb|i| is the index of the special value to be
+created, and must be an unsigned integer compile time constant
+expression.  This macro does \underline{not} check the range
+of the index, and is unprotected in this sense.  A typical usage
+would be
+
+\begin{indpar}\begin{verbatim}
+const min::gen MISSING = MIN_NEW_SPECIAL_GEN ( 0xFFFFFF );
+\end{verbatim}\end{indpar}
+
+
+\subsection{Stubs}
+\label{STUBS}
+
+General values may point at object stubs, which are 16 byte structures
+that are \underline{not} relocated during execution.
+Some stubs have pointers to object bodies, which can be
+relocated during execution, either
+because the object is being expanded or contracted, or because
+memory is being compacted.
+
+
+The high order 8 bits of the stub control contains the stub type code.
+If the high order bit of the type code (which is also the high order
+bit of the stub control) is off, the stub is said to be
+
+A stub contains an 8 byte stub value and an 8 byte stub control.
+
+If the stub control is viewed as a 64 bit integer, its high order byte
+is the type code.  The high order bit of this type code,
+which is the high order
+bit of the 64 bit stub control integer, is off if the stub is managed by
+the allocator/collector/compactor (acc, of which the garbage collector is
+a part).  In this case the stub is said to be `\key{collectible}'.
+In the other case, where the bit is on, the stub is
+said to be `\key{uncollectible}'.
+
+If an object has a body, its stub value is a pointer at that body.
+Any pointer into an object body is called a `body pointer'.
+
+\subsubsection{Stub Type Codes}
+\label{STUB-TYPE-CODES}
+
+The \key{type code} of a stub may be returned by
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|int min::| & \MINKEY{type\_of}\verb| ( const min::stub * s )|
+\LABEL{MIN::TYPE_OF}
+\end{tabular}\end{center}
+
+A determination of whether or not a stub is collectible may be made
+by applying the function
+
+\begin{center}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
+\LABEL{MIN::IS_COLLECTIBLE}
+\end{tabular}\end{center}
+
+to the type code of the stub.  Notice that type codes are \underline{signed}
+integers, so that negative type codes are uncollectible and positive type codes
+are collectible.
+
+A partial list of stub type codes is:
+
+\begin{indpar}
+\begin{list}{}{}
+\item[{\tt const int min::NUMBER}]~\\
+Stub value is an IEEE 64-bit floating point number.
+\item[{\tt const int min::SHORT\_STR}]~\\
+Stub value is 0-8 \verb|const char| string, NUL padded.
+\item[{\tt const int min::LONG\_STR}]~\\
+Stub value is a pointer at a body of type {\tt min::long\_\EOL string}
+that contains a \verb|const char| vector and its size. 
+\item[{\tt const int min::DEALLOCATED}]~\\
+Stub has a deallocated body.
+\end{list}
+\end{indpar}
+
+A full list of stub type codes complete with page references
+is given on \pagref{STUB-TYPE-CODE-LIST}.
+
+\subsubsection{Stub Values}
+\label{STUB-VALUES}
+
+A stub contains a 64-bit \key{stub value}.  If the stub is collectible
+(as determined by its type), the type of this value
+is determined by the stub type code (\secref{STUB-TYPE-CODES}).
+Otherwise the stub is attached to an object and the type of the stub
+value is determined by how it is attached; in this case the type of the
+stub value is most often just \verb|min::gen|.
+
+Many stubs are immutable
+and their stub values cannot be written after the stub has been created;
+nevertheless we describe unprotected functions
+below (\secref{UNPROTECTED-STUB-FUNCTIONS}) that
+write these values.  Unprotected functions are also provided to obtain
+body pointers from stubs when these are the stub values of the stubs.
+This cannot be done by protected
+functions as body pointers are relocatable and require special
+programming be sure they are up-to-date (\secref{BODY-POINTERS}).
+
+\subsubsection{Stub Control}
+\label{STUB-CONTROL}
+
+A stub contains a 64-bit \key{stub control}.  The high order 8 bits
+of this is the stub type code, and the high order bit of this type
+code determines whether the stub is collectible (bit is off)
+or uncollectible (bit is on).
+
+If the stub is collectible,
+the stub control is used exclusively by the acc,
+except for the type code, which is shared between the acc
+and the rest of the system.  Such a control word is called
+an `\key{acc control}\,'.  A typical (but not required)
+organization of an acc control is:
+
+\begin{center}
+\begin{tabular}{ll}
+high order 8 bits:	& type code \\
+next 12-24 bits:	& acc flags \\
+low order 44-32 bits:	& chain pointer \\
+\end{tabular}
+\end{center}
+
+Here the chain pointer is a packed stub address
+(see \pagref{STUB-ADDRESS-PACKING})
+that is used to build lists of allocated stubs which
+the acc manages.
+
+If a stub is uncollectible, its stub control, which is called
+a `\key{non-acc control}\,', can be organized in different
+ways according to the type code value.  The standard way of organizing
+a non-acc control is:
+
+\begin{center}
+\begin{tabular}{ll}
+high order 8 bits:	& type code \\
+next 8 bits:		& subtype code \\
+low order 48 bits:	& chain pointer \\
+\end{tabular}
+\end{center}
+
+Again the chain pointer is a packed stub address
+(see \pagref{STUB-ADDRESS-PACKING}),
+but now it has enough bits to be packed with the fastest packing scheme.
+
+The main use of uncollectible stubs is as auxiliary stubs.
+An `\key{auxiliary stub}' is an uncollectible stub attached to an object.
+When the object is garbage collected, the auxiliary stub is freed.  Auxiliary
+stubs are a means of adding memory to an object without relocating the object.
+For example, if the object stores 64-bit IEEE floating point numbers,
+a chain of auxiliary stubs can be used to add memory to the object
+for additional numbers.  Note that the auxiliary stub itself does not
+contain information that tells the type of the value it stores;
+one has to trace the reference from the object pointing at the
+auxiliary stub to determine this type.  Usually auxiliary stub
+values are general values.  See \secref{UNPROTECTED-STUB-FUNCTIONS}
+for functions that can read and write auxiliary stubs.
+
+\subsubsection{Body Pointers}
 \label{BODY-POINTERS}
 
-Bodies are relocatable
-(\pagref{RELOCATABLE-BODY}) and and pointers into bodies,
+Object bodies are relocatable
+(\pagref{RELOCATABLE-BODY}) and and pointers into object bodies,
 called \skey{body pointer}s,
 require special handling to
 ensure that they are up-to-date.  There are two ways of managing
@@ -1249,8 +1468,8 @@ this: the protected way and the unprotected way.
 Note also that deallocation of an object body is treated as
 reallocation of the body to inaccessible virtual memory.
 
-\subsubsection{Protected Body Pointer Management}
-\label{PROTECTED-BODY-POINTER-MANAGEMENT}
+\subsubsubsection{Protected Body Pointers}
+\label{PROTECTED-BODY-POINTERS}
 
 The protected way of handling body pointers
 uses special pointer data that is adapted to
@@ -1287,9 +1506,10 @@ change.
 Protected pointer types are provided for each type of object
 that has a body.
 
-\subsubsection{Unprotected Body Pointer Management}
-\label{UNPROTECTED-BODY-POINTER-MANAGEMENT}
+\subsubsubsection{Unprotected Body Pointers}
+\label{UNPROTECTED-BODY-POINTERS}
 
+\hfill
 \ikey{Unprotected body pointers}{unprotected body pointer}%
 \index{pointer!unprotected body}\index{body pointer!unprotected}
 are C/C++ pointers that point directly into an object body.
@@ -1478,7 +1698,7 @@ as:
 }
 \end{verbatim}\end{indpar}
 
-\subsubsection{Deallocation}
+\subsubsubsection{Deallocation}
 \label{DEALLOCATION}
 
 The operation of \ikey{deallocating a body}{deallocate!body}\index{deallocation}
@@ -1490,7 +1710,7 @@ The following function tests whether a stub
 has a deallocated body:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( min::stub * s )|
+\verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED}
 \end{tabular}\end{center}
 
@@ -1524,123 +1744,230 @@ macro is generally left undefined for implementations
 with 64 bit addresses, but may be defined for implementations with
 32 bit addresses in order to conserve virtual memory.
 
-\subsection{Stub Control}
-\label{STUB-CONTROL}
+\subsubsection{Allocator/Collector/Compactor Interface}
+\label{ACC-INTERFACE}
 
-A stub contains an 8 byte stub value and an 8 byte
-\key{stub control}\index{control!of stub}.
-If the stub control is viewed as a 64 bit integer, its high order byte
-is the \mkey{type code}{high order byte!of stub control}.
-The \mkey{high order bit}{of stub type code} of this, which is the high order
-bit of the 64 bit stub control integer, is off if the stub is managed by
-the allocator/collector/compactor (acc, of which the garbage collector is
-a part), and on otherwise.  In the former case the
-stub is said to be `\key{collectible}'.  In the latter case it is
-said to be `\key{uncollectable}'.
+\subsubsection{Unprotected Stub Functions}
+\label{UNPROTECTED-STUB-FUNCTIONS}
 
-If the stub is collectible,
-the stub control is used exclusively by the acc,
-except for the type code, which is shared between the acc
-and the rest of the system.  Such a control word is called
-an `\key{acc control}\,'.  A typical (but not required)
-organization of an acc control is:
+In this section we describe unprotected functions that can be used to read
+or write stubs.  These functions do not check type codes of stubs.
 
-\begin{center}
-\begin{tabular}{ll}
-high order 8 bits:	& type code \\
-next 12-24 bits:	& acc flags \\
-low order 44-32 bits:	& chain pointer \\
-\end{tabular}
-\end{center}
+These functions are only useful for debugging or for constructing protected
+functions.
 
-Here the chain pointer is a packed stub address
-(see \pagref{STUB-ADDRESS-PACKING})
-that is used to build lists of allocated stubs which
-the acc manages.
-
-If a stub is uncollectable, its stub control, which is called
-a `\key{non-acc control}\,', can be organized in different
-ways according to the type code value.  The standard way of organizing
-a non-acc control is:
-
-\begin{center}
-\begin{tabular}{ll}
-high order 8 bits:	& type code \\
-next 8 bits:		& subtype code \\
-low order 48 bits:	& chain pointer \\
-\end{tabular}
-\end{center}
-
-Again the chain pointer is a packed stub address
-(see \pagref{STUB-ADDRESS-PACKING}),
-but now it has enough bits to be packed with the fastest packing scheme.
-
-The main use of uncollectable stubs is as auxiliary stubs.
-An `\key{auxiliary stub}' is an uncollectable stub attached to an object.
-When the object is garbage collected, the auxiliary stub is freed.  Auxiliary
-stubs are a means of adding memory to an object without relocating the object.
-For example, if the object stores 64-bit IEEE floating point numbers,
-a chain of auxiliary stubs can be used to add memory to the object
-for additional numbers.  Note that the auxiliary stub itself does not
-contain information that tells the type of the value it stores;
-one has to trace the reference from the object pointing at the
-auxiliary stub to determine this type.  Usually auxiliary stub
-values are general values.  See \secref{STUB-FUNCTIONS}
-for functions that can read and write auxiliary stubs.
-
-\subsection{Stub Type Codes}
-\label{STUB-TYPE-CODES}
-
-The type code of a stub may be returned by
+The following functions read or write the stub value part of a stub:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
-\LABEL{MIN::TYPE_OF}
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::VALUE_OF} \\
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::FLOAT_OF} \\
+\verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::GEN_OF} \\
+\verb|void * MUP::| & \MUPKEY{pointer\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::POINTER_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_value\_of}\verb| ( min::stub * s, min::uns64 v )|
+\LABEL{MUP::SET_VALUE_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_float\_of}\verb| ( min::stub * s, min::float64 f )|
+\LABEL{MUP::SET_FLOAT_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_gen\_of}\verb| ( min::stub * s, min::gen v )|
+\LABEL{MUP::SET_GEN_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_pointer\_of}\verb| ( min::stub * s, void * p )|
+\LABEL{MUP::SET_POINTER_OF} \\
 \end{tabular}\end{center}
 
-A determination of whether or not a stub is collectible may be made
-by applying the function
+Thus the stub value can be taken to be of type \verb|min::uns64|,
+\verb|min::float64|, \verb|min::gen|, or
+of some pointer type.
+
+These functions do \underline{not} check type codes, nor do they check
+that values read or written are within legal range for a particular
+stub.  Thus a stub value that is not a floating point number can be
+read by \verb|MUP::float_of| with undefined results.
+
+The following functions read or write the stub control part of a stub:
 
 \begin{center}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
-\LABEL{MIN::IS_COLLECTIBLE}
+\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::CONTROL_OF} \\
+\verb|int min::| & \MINKEY{type\_of}\verb| ( const min::stub * s )| \\
+\verb|bool MUP::|
+    & \MUPKEY{test\_flags\_of}\verb| ( const min::stub * s, min::uns64 flags )|
+\LABEL{MUP::TEST_FLAGS_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 c )|
+\LABEL{MUP::SET_CONTROL_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_type\_of}\verb| ( min::stub * s, int type )|
+\LABEL{MUP::SET_TYPE_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
+\LABEL{MUP::SET_FLAGS_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{clear\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
+\LABEL{MUP::CLEAR_FLAGS_OF} \\
 \end{tabular}\end{center}
 
-to the type code of the stub.  Notice that type codes are \underline{signed}
-integers, so that negative type codes are uncollectable and positive type codes
-are collectible.
+The \verb|MUP::control_of| and \verb|MUP::set_control_of| functions
+deal with the entire 64 bit stub control value of a stub.  The other
+functions deal only with parts.
 
-A partial list of stub type codes is:
+The stub control in a stub is an example of a MIN \key{control value}.
+A MIN control value holds a stub address or an unsigned integer
+in its low order bits.  It may hold an 8 bit type code in its highest order
+bits.  Any bits left over are flag bits.  Control values have type
+\verb|min::uns64|.
+
+Thus control values contain an address/value low order field, and optional
+type code high order field, and flag bits.  There are two kinds of
+control values: (ordinary) control values and ACC control values.
+Ordinary control values
+have 48 bits for the address/value field, 8 bits for the type,
+and 8 bits for flags.
+ACC control values have 56 - G bits for a stub address, 8 bits
+for the type, and G bits for the ACC flags, where G is some value from 8
+through 24.  The larger G, the more ACC flags, which may permit the
+garbage collector to be more efficient.
+
+Addresses stored in a control value must be stub addresses, as only they
+can be packed into less than 64 bits.
+
+The control values used as stub controls do have a type code field which
+can be read by \verb|min::type_of| (which is protected) and
+written by \verb|MUP::set_type_of|.  For stub controls,
+ACC control values are used with
+garbage collectible types, and ordinary control values with
+non-garbage-collectible types.
+
+The flag bits are set, cleared, and tested individually.  They are
+defined by constants of type \verb|min::uns64|, such as
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const int min::NUMBER}]~\\
-Stub value is an IEEE 64-bit floating point number.
-\item[{\tt const int min::SHORT\_STR}]~\\
-Stub value is 0-8 \verb|const char| string, NUL padded.
-\item[{\tt const int min::LONG\_STR}]~\\
-Stub value is a pointer at a body of type {\tt min::long\_\EOL string}
-that contains a \verb|const char| vector and its size. 
-\item[{\tt const int min::DEALLOCATED}]~\\
-Stub has a deallocated body.
+\item[{\tt const min::uns64 MUP::}\MUPKEY{STUB\_ADDRESS}]~%
+	\LABEL{MIN::STUB_ADDRESS}\\
+Indicates that the address/value field of an ordinary (non-acc)
+control holds a stub address.
 \end{list}
 \end{indpar}
 
-A full list of stub type codes complete with page references
-is given on \pagref{STUB-TYPE-CODE-LIST}.
+These flag constants are defined by expressions of the form
 
-\subsection{Stub Values}
-\label{STUB-VALUES}
+\begin{center}
+\verb|( min::uns64(1) << |$K$\verb| )|
+\end{center}
 
-A stub contains a 64-bit \key{stub value} whose type depends upon the stub
-type code (\secref{STUB-TYPE-CODES}).  Many stubs are immutable
-and their stub values cannot be written after the stub has been created;
-nevertheless we describe unprotected functions below that
-write these values.  Unprotected functions are also provided to obtain
-body pointers from stubs when these are the stub values of the stubs.
-This cannot be done by protected
-functions as body pointers are relocatable and require special
-programming be sure they are up-to-date (\secref{BODY-POINTERS}).
+where
+
+\begin{center}
+\begin{tabular}{l@{~~~~~}l}
+$M\leq K\leq 63$ & if there is no type code field \\
+$M\leq K\leq 55$ & if there is a type code field \\
+\\
+\multicolumn{2}{l}{$M$ is the size of the address/value field} \\
+\\
+$32\leq M\leq 48$ & depending on hardware \\
+\end{tabular}
+\end{center}
+
+The above functions assume that any flag constants select bits
+in a control value that are not inside the address/value field,
+or inside the type code field if that is used.
+
+The flags in the stub control value of a stub can be tested, set, or
+cleared by some of the above functions.
+The \verb|MUP::test_flags_of| function
+returns true if and only if the logical AND of the \verb|flags| arguments
+and the flags in the stub's control is non-zero.  The \verb|MUP::set_flags_of|
+function sets one or more individual flags by logically ORing its
+argument into the stub's control, and the
+\verb|MUP::clear_flags_of| function clears flags by logically ANDing
+the complement of its argument into the stub's control.
+
+The above functions do \underline{not} check type codes, nor do they check
+that values read or written are within legal range for a particular
+stub.  Thus a stub control value
+can be written by \verb|MUP::set_control_of| even if the written
+control datum is incompatible with the garbage collector implementation,
+and may produce undefined results when the garbage collector
+next executes.  Flag bits must not be inside the address/value field
+or inside the type code field if that is used.
+
+The high order byte of any control written by \verb|MUP::set_control_of|
+is the type code, and the high order bit is clear if the stub is collectible
+and set if the stub is uncollectible (\secref{STUB-CONTROL}).
+Changing a stub from collectible to uncollectible or vice versa requires
+removing or adding the stub to garbage collector lists that are threaded
+through the pointer field of the stub control.  So one cannot simply
+change the type code field of a stub from collectible to uncollectible
+or vice versa.
+
+Ordinary (non-acc) control values can be manipulated by the following functions:
+
+\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control} \\
+    & \verb|    ( int type_code, min::uns64 v,| \\
+    & \verb|                     min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control} \\
+    & \verb|    ( int type_code, const min::stub * s,| \\
+    & \verb|                     min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_value}\verb| ( min::uns64 c, min::uns64 v )|
+\LABEL{MUP::RENEW_CONTROL_VALUE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_stub} \\
+    & \verb|    ( min::uns64 c, const min::stub * s )|
+\LABEL{MUP::RENEW_CONTROL_STUB} \\
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::VALUE_OF_CONTROL} \\
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::STUB_OF_CONTROL} \\
+\end{tabular}\end{center}
+
+ACC control values can be manipulated by the following functions:
+
+\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_acc\_control} \\
+    & \verb|    ( int type_code, const min::stub * s,| \\
+    & \verb|                     min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_ACC_CONTROL_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_acc\_control\_stub} \\
+    & \verb|    ( min::uns64 c, const min::stub * s )|
+\LABEL{MUP::RENEW_ACC_CONTROL_STUB} \\
+\verb|min::stub * MUP::|
+    & \MUPKEY{stub\_of\_acc\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::STUB_OF_ACC_CONTROL} \\
+\end{tabular}\end{center}
+
+Either ordinary or ACC control values can be
+manipulated by the following functions:
+
+\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_type}\verb| ( min::uns64 c, int type )|
+\LABEL{MUP::RENEW_CONTROL_TYPE} \\
+\verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::TYPE_OF_CONTROL} \\
+\end{tabular}\end{center}
+
+Here the 8-bit type code is represented as an {\tt int} in
+the range from $-128$ through $127$.
+The `{\tt new}' functions compute a control value,
+the `{\tt renew}' functions modify control values
+by inserting a new type, value, or stub address, and
+the other functions return the parts of a control value.
+None of these functions check the ranges of their arguments.
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -2018,9 +2345,9 @@ are relocatable.
 To ensure that no two string stubs have the same
 \verb|char| string, a hash table is required.
 This is integrated with the garbage
-collector (GC).  The GC has to maintain a list of all allocated stubs,
+collector (ACC).  The ACC has to maintain a list of all allocated stubs,
 which it does (normally) using the chain pointers in the stub.  For
-the case of strings, the GC maintains this list as a hash table, which
+the case of strings, the ACC maintains this list as a hash table, which
 uses a vector to hold the heads of lists threaded through the string stub
 chain pointers.
 \end{quote}
@@ -3433,7 +3760,7 @@ consecutive elements of the object auxiliary area, with the control
 preceding the value in the area, and therefore
 following the value in list order.
 
-An object auxiliary stub has one of the following two uncollectable stub type
+An object auxiliary stub has one of the following two uncollectible stub type
 codes:
 
 \begin{indpar}
@@ -3525,7 +3852,7 @@ The use of object auxiliary stubs by an implementation is hidden from
 the user of MIN by object list level functions.  There are no functions
 for dealing explicitly with object auxiliary stubs.  There are, however,
 functions to read and write stubs of all kinds in
-\secref{STUB-FUNCTIONS}, though the only use of these functions on
+\secref{UNPROTECTED-STUB-FUNCTIONS}, though the only use of these functions on
 object auxiliary stubs would be for debugging.
 
 \subsubsection{Object Attribute Level}
@@ -4661,290 +4988,6 @@ off.
 
 
 
-\subsection{Special Values}
-\label{SPECIAL-VALUES}
-
-Special general values are \verb|min::gen| values that are unique
-and not equal to any value that can be generated during
-program execution.  Special general values are C/C++ {\tt const}
-values, and are never to be used unless documentation specifies
-a specific use.  They are used as return or argument
-values by some functions.
-
-The special values defined by MIN are:
-
-\begin{indpar}
-\begin{list}{}{}
-\item[{\tt const min::gen min::}\MINKEY{MISSING}]~%
-	\LABEL{MIN::MISSING}\\
-Denotes a missing value or an empty set of values, and may be input
-or output and used as an attribute value.
-\item[{\tt const min::gen min::}\MINKEY{NONE}]~%
-	\LABEL{MIN::NONE}\\
-Denotes a non-existent function value or result, and may not be
-input or output or used as an attribute value or label.
-\item[{\tt const min::gen min::}\MINKEY{ANY}]~%
-	\LABEL{MIN::ANY}\\
-Denotes any value from a set of values.
-\item[{\tt const min::gen min::}\MINKEY{MULTI\_VALUED}]~%
-	\LABEL{MIN::MULTI_VALUED}\\
-Indicates a set of values has more than one element.
-\item[{\tt const min::gen min::}\MINKEY{UNDEFINED}]~%
-	\LABEL{MIN::UNDEFINED}\\
-A value given to a variable vector variable (\secref{VARIABLE-VECTORS})
-that has no value and can be indirected.
-\item[{\tt const min::gen min::}\MINKEY{SUCCESS}]~%
-	\LABEL{MIN::SUCCESS}\\
-A value returned to indicate a function has succeeded.
-\item[{\tt const min::gen min::}\MINKEY{FAILURE}]~%
-	\LABEL{MIN::FAILURE}\\
-A value returned to indicate a function has failed.
-\end{list}
-\end{indpar}
-
-Special general values each have a unique \ikey{index}{of special value}
-that identifies them relative to other special values.  These
-indices are in the range $0$ through $2^{24}-1$.  The last 256 indices of this
-range, $2^{24}-256$ through $2^{24}-1$ are reserved for use by the MIN
-system.  Other special values can be created by other systems,
-and indices near 0 are reserved for non-system users.
-
-For efficiency reasons it is desirable for special values to be
-compile time constants.  Because compilers generally do not run
-inline functions at compile time, a macro is needed to compute special
-values.  This macro is
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|(macro) min::gen |
-	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
-\LABEL{MIN_NEW_SPECIAL_GEN} \\
-\end{tabular}\end{center}
-
-where \verb|i| is the index of the special value to be
-created, and must be an unsigned integer compile time constant
-expression.  This macro does \underline{not} check the range
-of the index, and is unprotected in this sense.  A typical usage
-would be
-
-\begin{indpar}\begin{verbatim}
-const min::gen MISSING = MIN_NEW_SPECIAL_GEN ( 0xFFFFFF );
-\end{verbatim}\end{indpar}
-
-\subsection{Stub Functions}
-\label{STUB-FUNCTIONS}
-
-In this section we describe unprotected functions that can be used to read
-or write stubs for purposes of debugging or of constructing other higher level
-functions.  These functions do not check type codes of stubs.
-
-The following functions read or write the stub value part of a stub:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::VALUE_OF} \\
-\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::FLOAT_OF} \\
-\verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::GEN_OF} \\
-\verb|void * MUP::| & \MUPKEY{pointer\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::POINTER_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_value\_of}\verb| ( min::stub * s, min::uns64 v )|
-\LABEL{MUP::SET_VALUE_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_float\_of}\verb| ( min::stub * s, min::float64 f )|
-\LABEL{MUP::SET_FLOAT_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_gen\_of}\verb| ( min::stub * s, min::gen v )|
-\LABEL{MUP::SET_GEN_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_pointer\_of}\verb| ( min::stub * s, void * p )|
-\LABEL{MUP::SET_POINTER_OF} \\
-\end{tabular}\end{center}
-
-Thus the stub value can be taken to be of type \verb|min::uns64|,
-\verb|min::float64|, \verb|min::gen|, or
-of some pointer type.
-
-These functions do \underline{not} check type codes, nor do they check
-that values read or written are within legal range for a particular
-stub.  Thus a stub value that is not a floating point number can be
-read by \verb|MUP::float_of| with undefined results.
-
-The following functions read or write the stub control part of a stub:
-
-\begin{center}\begin{tabular}{r@{}l}
-\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::CONTROL_OF} \\
-\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )| \\
-\verb|bool MUP::|
-    & \MUPKEY{test\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
-\LABEL{MUP::TEST_FLAGS_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 c )|
-\LABEL{MUP::SET_CONTROL_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_type\_of}\verb| ( min::stub * s, int type )|
-\LABEL{MUP::SET_TYPE_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
-\LABEL{MUP::SET_FLAGS_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{clear\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
-\LABEL{MUP::CLEAR_FLAGS_OF} \\
-\end{tabular}\end{center}
-
-The \verb|MUP::control_of| and \verb|MUP::set_control_of| functions
-deal with the entire 64 bit stub control value of a stub.  The other
-functions deal only with parts.
-
-The stub control in a stub is an example of a MIN \key{control value}.
-A MIN control value holds a stub address or an unsigned integer
-in its low order bits.  It may hold an 8 bit type code in its highest order
-bits.  Any bits left over are flag bits.  Control values have type
-\verb|min::uns64|.
-
-Thus control values contain an address/value low order field, and optional
-type code high order field, and flag bits.  There are two kinds of
-control values: (ordinary) control values and GC control values.
-Ordinary control values
-have 48 bits for the address/value field, 8 bits for the type,
-and 8 bits for flags.
-GC control values have 56 - G bits for a stub address, 8 bits
-for the type, and G bits for the GC flags, where G is some value from 8
-through 24.  The larger G, the more GC flags, which may permit the
-garbage collector to be more efficient.
-
-Addresses stored in a control value must be stub addresses, as only they
-can be packed into less than 64 bits.
-
-The control values used as stub controls do have a type code field which
-can be read by \verb|min::type_of| (which is protected) and
-written by \verb|MUP::set_type_of|.  For stub controls,
-GC control values are used with
-garbage collectible types, and ordinary control values with
-non-garbage-collectible types.
-
-The flag bits are set, cleared, and tested individually.  They are
-defined by constants of type \verb|min::uns64|, such as
-
-\begin{indpar}
-\begin{list}{}{}
-\item[{\tt const min::uns64 MUP::}\MUPKEY{STUB\_ADDRESS}]~%
-	\LABEL{MIN::STUB_ADDRESS}\\
-Indicates that the address/value field of an ordinary (non-gc)
-control holds a stub address.
-\end{list}
-\end{indpar}
-
-These flag constants are defined by expressions of the form
-
-\begin{center}
-\verb|( min::uns64(1) << |$K$\verb| )|
-\end{center}
-
-where
-
-\begin{center}
-\begin{tabular}{l@{~~~~~}l}
-$M\leq K\leq 63$ & if there is no type code field \\
-$M\leq K\leq 55$ & if there is a type code field \\
-\\
-\multicolumn{2}{l}{$M$ is the size of the address/value field} \\
-\\
-$32\leq M\leq 48$ & depending on hardware \\
-\end{tabular}
-\end{center}
-
-The above functions assume that any flag constants select bits
-in a control value that are not inside the address/value field,
-or inside the type code field if that is used.
-
-The flags in the stub control value of a stub can be tested, set, or
-cleared by some of the above functions.
-The \verb|MUP::test_flags_of| function
-returns true if and only if the logical AND of the \verb|flags| arguments
-and the flags in the stub's control is non-zero.  The \verb|MUP::set_flags_of|
-function sets one or more individual flags by logically ORing its
-argument into the stub's control, and the
-\verb|MUP::clear_flags_of| function clears flags by logically ANDing
-the complement of its argument into the stub's control.
-
-The above functions do \underline{not} check type codes, nor do they check
-that values read or written are within legal range for a particular
-stub.  Thus a stub control value
-can be written by \verb|MUP::set_control_of| even if the written
-control datum is incompatible with the garbage collector implementation,
-and may produce undefined results when the garbage collector
-next executes.  Flag bits must not be inside the address/value field
-or inside the type code field if that is used.
-
-The high order byte of any control written by \verb|MUP::set_control_of|
-is the type code, and the high order bit is clear if the stub is collectible
-and set if the stub is uncollectable (\secref{STUB-CONTROL}).
-Changing a stub from collectible to uncollectable or vice versa requires
-removing or adding the stub to garbage collector lists that are threaded
-through the pointer field of the stub control.  So one cannot simply
-change the type code field of a stub from collectible to uncollectable
-or vice versa.
-
-Ordinary (non-gc) control values can be manipulated by the following functions:
-
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
-\verb|min::uns64 MUP::|
-    & \MUPKEY{new\_control} \\
-    & \verb|    ( int type_code, min::uns64 v, min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{new\_control} \\
-    & \verb|    ( int type_code, min::stub * s, min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_control\_value}\verb| ( min::uns64 c, min::uns64 v )|
-\LABEL{MUP::RENEW_CONTROL_VALUE} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_control\_stub}\verb| ( min::uns64 c, min::stub * s )|
-\LABEL{MUP::RENEW_CONTROL_STUB} \\
-\verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::VALUE_OF_CONTROL} \\
-\verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::STUB_OF_CONTROL} \\
-\end{tabular}\end{center}
-
-GC control values can be manipulated by the following functions:
-
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
-\verb|min::uns64 MUP::|
-    & \MUPKEY{new\_gc\_control} \\
-    & \verb|    ( int type_code, min::stub * s, min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_GC_CONTROL_OF_STUB} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_gc\_control\_stub}\verb| ( min::uns64 c, min::stub * s )|
-\LABEL{MUP::RENEW_GC_CONTROL_STUB} \\
-\verb|min::stub * MUP::|
-    & \MUPKEY{stub\_of\_gc\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::STUB_OF_GC_CONTROL} \\
-\end{tabular}\end{center}
-
-Either ordinary or GC control values can be
-manipulated by the following functions:
-
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_control\_type}\verb| ( min::uns64 c, int type )|
-\LABEL{MUP::RENEW_CONTROL_TYPE} \\
-\verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::TYPE_OF_CONTROL} \\
-\end{tabular}\end{center}
-
-Here the 8-bit type code is represented as an {\tt int} in
-the range from $-128$ through $127$.
-The `{\tt new}' functions compute a control value,
-the `{\tt renew}' functions modify control values
-by inserting a new type, value, or stub address, and
-the other functions return the parts of a control value.
-None of these functions check the ranges of their arguments.
-
 \clearpage
 
 \section{Code and Execution}
@@ -4966,8 +5009,6 @@ of tracing what it points at to make its target non-stack is paid.
 This is a logical time to pay this cost.
 
 \section{To Do}
-
-Interface to gc, including stack for protecting values.
 
 \clearpage
 
@@ -5100,7 +5141,7 @@ struct min
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.2in}
-\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
+\verb|int min::| & \MINKEY{type\_of}\verb| ( const min::stub * s )|
 \LABEL{MIN::TYPE_OF} \\[1ex]
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
 \LABEL{MIN::IS_COLLECTIBLE} \\[1ex]
@@ -5112,7 +5153,7 @@ struct min
 \LABEL{MIN::INTERRUPT} \\
 \verb|void min::| & \MINKEY{deallocate\REL}\verb| ( min::stub * s )|
 \LABEL{MIN::DEALLOCATE} \\
-\verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( min::stub * s )|
+\verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
 \end{TABULAR}
 
@@ -5345,6 +5386,157 @@ struct min
 \LABEL{MIN::GEN_SPECIAL} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
 \LABEL{MIN::GEN_ILLEGAL} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Special Values}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::| & \MINKEY{MISSING}
+\LABEL{MIN::MISSING} \\
+\verb|min::gen min::| & \MINKEY{NONE}
+\LABEL{MIN::NONE} \\
+\verb|min::gen min::| & \MINKEY{ANY}
+\LABEL{MIN::ANY} \\
+\verb|min::gen min::| & \MINKEY{MULTI\_VALUED}
+\LABEL{MIN::MULTI_VALUED} \\
+\verb|min::gen min::| & \MINKEY{UNDEFINED}
+\LABEL{MIN::UNDEFINED} \\
+\verb|min::gen min::| & \MINKEY{SUCCESS}
+\LABEL{MIN::SUCCESS} \\
+\verb|min::gen min::| & \MINKEY{FAILURE}
+\LABEL{MIN::FAILURE} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Unprotected Stub Functions}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::VALUE_OF} \\
+\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::FLOAT_OF} \\
+\verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::GEN_OF} \\
+\verb|void * MUP::| & \MUPKEY{pointer\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::POINTER_OF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|void MUP::|
+    & \MUPKEY{set\_value\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 v )|
+\LABEL{MUP::SET_VALUE_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_float\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::float64 f )|
+\LABEL{MUP::SET_FLOAT_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_gen\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::gen v )|
+\LABEL{MUP::SET_GEN_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_pointer\_of}\ARGBREAK
+      \verb| ( min::stub * s, void * p )|
+\LABEL{MUP::SET_POINTER_OF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::CONTROL_OF} \\
+\verb|bool MUP::|
+    & \MUPKEY{test\_flags\_of}\ARGBREAK
+      \verb| ( const min::stub * s, min::uns64 flags )|
+\LABEL{MUP::TEST_FLAGS_OF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|void MUP::|
+    & \MUPKEY{set\_control\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 c )|
+\LABEL{MUP::SET_CONTROL_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_type\_of}\ARGBREAK
+      \verb| ( min::stub * s, int type )|
+\LABEL{MUP::SET_TYPE_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{set\_flags\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 flags )|
+\LABEL{MUP::SET_FLAGS_OF} \\
+\verb|void MUP::|
+    & \MUPKEY{clear\_flags\_of}\ARGBREAK
+      \verb| ( min::stub * s, min::uns64 flags )|
+\LABEL{MUP::CLEAR_FLAGS_OF} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Control Value Functions (Unprotected)}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control} \\
+    & \verb|    ( int type_code, min::uns64 v,|\ARGBREAK
+      \verb|      min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control} \\
+    & \verb|    ( int type_code, const min::stub * s,|\ARGBREAK
+      \verb|      min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_value}\ARGBREAK
+      \verb| ( min::uns64 c, min::uns64 v )|
+\LABEL{MUP::RENEW_CONTROL_VALUE} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_stub}\ARGBREAK
+      \verb| ( min::uns64 c, const min::stub * s )|
+\LABEL{MUP::RENEW_CONTROL_STUB} \\
+\verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::VALUE_OF_CONTROL} \\
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::STUB_OF_CONTROL} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_acc\_control} \\
+    & \verb|    ( int type_code, const min::stub * s,|\ARGBREAK
+      \verb|      min::uns64 flags = 0 )|
+\LABEL{MUP::NEW_ACC_CONTROL_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_acc\_control\_stub}\ARGBREAK
+      \verb| ( min::uns64 c, const min::stub * s )|
+\LABEL{MUP::RENEW_ACC_CONTROL_STUB} \\
+\verb|min::stub * MUP::|
+    & \MUPKEY{stub\_of\_acc\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::STUB_OF_ACC_CONTROL} \\
+[1ex]
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_type}\ARGBREAK
+      \verb| ( min::uns64 c, int type )|
+\LABEL{MUP::RENEW_CONTROL_TYPE} \\
+\verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::TYPE_OF_CONTROL} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Control Flags}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.0in}
+\verb|const min::uns64 MUP::| & \MUPKEY{STUB\_ADDRESS}
+\LABEL{MIN::STUB_ADDRESS}\\
 \end{TABULAR}
 
 \end{indpar}
@@ -6445,153 +6637,6 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 
 \end{indpar}
 
-\newpage
-
-\INDEXHEADER{Special Values}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.2in}
-\verb|min::gen min::| & \MINKEY{MISSING}
-\LABEL{MIN::MISSING} \\
-\verb|min::gen min::| & \MINKEY{NONE}
-\LABEL{MIN::NONE} \\
-\verb|min::gen min::| & \MINKEY{ANY}
-\LABEL{MIN::ANY} \\
-\verb|min::gen min::| & \MINKEY{MULTI\_VALUED}
-\LABEL{MIN::MULTI_VALUED} \\
-\verb|min::gen min::| & \MINKEY{UNDEFINED}
-\LABEL{MIN::UNDEFINED} \\
-\verb|min::gen min::| & \MINKEY{SUCCESS}
-\LABEL{MIN::SUCCESS} \\
-\verb|min::gen min::| & \MINKEY{FAILURE}
-\LABEL{MIN::FAILURE} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\INDEXHEADER{Stub Functions}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::VALUE_OF} \\
-\verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::FLOAT_OF} \\
-\verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::GEN_OF} \\
-\verb|void * MUP::| & \MUPKEY{pointer\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::POINTER_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_value\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::uns64 v )|
-\LABEL{MUP::SET_VALUE_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_float\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::float64 f )|
-\LABEL{MUP::SET_FLOAT_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_gen\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::gen v )|
-\LABEL{MUP::SET_GEN_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_pointer\_of}\ARGBREAK
-      \verb| ( min::stub * s, void * p )|
-\LABEL{MUP::SET_POINTER_OF} \\[1ex]
-
-\verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::CONTROL_OF} \\
-\verb|int min::| & \MINKEY{type\_of}\verb| ( min::stub * s )|
-\LABEL{MIN::TYPE_OF} \\
-\verb|bool MUP::|
-    & \MUPKEY{test\_flags\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::uns64 flags )|
-\LABEL{MUP::TEST_FLAGS_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_control\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::uns64 c )|
-\LABEL{MUP::SET_CONTROL_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_type\_of}\ARGBREAK
-      \verb| ( min::stub * s, int type )|
-\LABEL{MUP::SET_TYPE_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{set\_flags\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::uns64 flags )|
-\LABEL{MUP::SET_FLAGS_OF} \\
-\verb|void MUP::|
-    & \MUPKEY{clear\_flags\_of}\ARGBREAK
-      \verb| ( min::stub * s, min::uns64 flags )|
-\LABEL{MUP::CLEAR_FLAGS_OF} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\newpage
-
-\INDEXHEADER{Control Values}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns64 MUP::|
-    & \MUPKEY{new\_control} \\
-    & \verb|    ( int type_code, min::uns64 v,|\ARGBREAK
-      \verb|      min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{new\_control} \\
-    & \verb|    ( int type_code, min::stub * s,|\ARGBREAK
-      \verb|      min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_control\_value}\ARGBREAK
-      \verb| ( min::uns64 c, min::uns64 v )|
-\LABEL{MUP::RENEW_CONTROL_VALUE} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_control\_stub}\ARGBREAK
-      \verb| ( min::uns64 c, min::stub * s )|
-\LABEL{MUP::RENEW_CONTROL_STUB} \\
-\verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::VALUE_OF_CONTROL} \\
-\verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::STUB_OF_CONTROL} \\
-[1ex]
-\verb|min::uns64 MUP::|
-    & \MUPKEY{new\_gc\_control} \\
-    & \verb|    ( int type_code, min::stub * s,|\ARGBREAK
-      \verb|      min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_GC_CONTROL_OF_STUB} \\
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_gc\_control\_stub}\ARGBREAK
-      \verb| ( min::uns64 c, min::stub * s )|
-\LABEL{MUP::RENEW_GC_CONTROL_STUB} \\
-\verb|min::stub * MUP::|
-    & \MUPKEY{stub\_of\_gc\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::STUB_OF_GC_CONTROL} \\
-[1ex]
-\verb|min::uns64 MUP::|
-    & \MUPKEY{renew\_control\_type}\ARGBREAK
-      \verb| ( min::uns64 c, int type )|
-\LABEL{MUP::RENEW_CONTROL_TYPE} \\
-\verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
-\LABEL{MUP::TYPE_OF_CONTROL} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\INDEXHEADER{Control Flags}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{2.0in}
-\verb|const min::uns64 MUP::| & \MUPKEY{STUB\_ADDRESS}
-\LABEL{MIN::STUB_ADDRESS}\\
-\end{TABULAR}
-
-\end{indpar}
-
 
 } % end of renewcommand for \LABEL, \{TT,MIN,MUP}KEY.
 
@@ -6638,7 +6683,7 @@ Segments of memory pools may be moved by copying page table entries,
 which is faster than copying bytes.
 
 \section{Allocator/Collector/Compactor}
-\label{ALLOCATOR/COLLECTOR/COMPACTOR}
+\label{ALLOCATOR/COLLECTOR/COMPACTOR}\label{ACC}
 
 The \key{Allocator/Collector/Compactor}, or \ttnbkey{ACC}, 
 is a replaceable component of the MIN code, which should not
