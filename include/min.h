@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Dec  6 05:24:19 EST 2009
+// Date:	Tue Dec  8 02:16:16 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/06 14:01:59 $
+//   $Date: 2009/12/08 07:18:11 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.196 $
+//   $Revision: 1.197 $
 
 // Table of Contents:
 //
@@ -1123,7 +1123,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_control_with_type
-		( int type_code, min::stub * s,
+		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
@@ -1134,7 +1134,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 new_control_with_locator
-		( int locator, min::stub * s )
+		( int locator, const min::stub * s )
 	{
 	    return ( min::uns64 ( locator ) << 48 )
 		   |
@@ -1142,7 +1142,7 @@ namespace min { namespace unprotected {
 	}
 
 	inline min::uns64 renew_control_stub
-		( min::uns64 c, min::stub * s )
+		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
 		   | (min::internal::pointer_uns) s;
