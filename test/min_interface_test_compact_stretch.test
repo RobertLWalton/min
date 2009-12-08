@@ -356,7 +356,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6120
+control2: 85800000009f6280
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -367,7 +367,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6130
+re-control2: 85800000009f6290
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -380,7 +380,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f6120
+control3: 85800000009f6280
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -391,7 +391,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6130
+re-control3: 85800000009f6290
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -626,6 +626,8 @@ min_interface_test.cc:XXXX assert:
     min::int_of ( n1 ) == 12345 true.
 min_interface_test.cc:XXXX assert:
     min::float_of ( n1 ) == 12345 true.
+min_interface_test.cc:XXXX assert:
+    MUP::float_of ( n1 ) == 12345 true.
 n1hash: 7900e7ec
 min_interface_test.cc:XXXX assert:
     n1hash == min::floathash ( 12345 ) true.
@@ -643,6 +645,8 @@ min_interface_test.cc:XXXX assert:
     type_of ( s ) == min::NUMBER true.
 min_interface_test.cc:XXXX assert:
     min::float_of ( n2 ) == 1.2345 true.
+min_interface_test.cc:XXXX assert:
+    MUP::float_of ( n2 ) == 1.2345 true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::NUMBER true.
 n2hash: 4b952bc9
@@ -672,6 +676,8 @@ min_interface_test.cc:XXXX assert:
     type_of ( s ) == min::NUMBER true.
 min_interface_test.cc:XXXX assert:
     min::float_of ( n3 ) == 1 << 30 true.
+min_interface_test.cc:XXXX assert:
+    MUP::float_of ( n3 ) == 1 << 30 true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::NUMBER true.
 n3hash: 6a5fea4f

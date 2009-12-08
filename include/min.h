@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Dec  8 02:16:16 EST 2009
+// Date:	Tue Dec  8 07:09:11 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/08 07:18:11 $
+//   $Date: 2009/12/08 12:12:36 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.197 $
+//   $Revision: 1.198 $
 
 // Table of Contents:
 //
@@ -2168,6 +2168,21 @@ namespace min {
 		MIN_ABORT ( "int_of non number" );
 	    }
 	}
+	namespace unprotected {
+	    inline float64 float_of ( min::gen v )
+	    {
+		if ( is_stub ( v ) )
+		{
+		    const min::stub * s =
+			internal::unsgen_to_stub ( v );
+		    return min::unprotected
+		              ::float_of ( s );
+		}
+		else
+		    return unprotected::
+			   direct_int_of ( v );
+	    }
+	}
 	inline float64 float_of ( min::gen v )
 	{
 	    if ( is_stub ( v ) )
@@ -2209,6 +2224,13 @@ namespace min {
 	    int i = (int) f;
 	    MIN_ASSERT ( i == f );
 	    return i;
+	}
+	namespace unprotected {
+	    inline float64 float_of ( min::gen v )
+	    {
+		return unprotected
+		       ::direct_float_of ( v );
+	    }
 	}
 	inline float64 float_of ( min::gen v )
 	{
