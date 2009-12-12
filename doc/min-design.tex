@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 11, 2009}
+\date{December 12, 2009}
  
 \maketitle
 
@@ -2644,7 +2644,7 @@ body vector is returned by the following protected functions:
 \LABEL{MIN::ATTR_SIZE_OF_VEC_POINTER} \\
 \verb|unsigned | & \MINKEY{unused\_size\_of}\verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::UNUSED_SIZE_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{aux\_size\_of}\verb| ( min::vec_pointer & vp )|
+\verb|unsigned | & \MINKEY{aux\_offset\_of}\verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::AUX_SIZE_OF_VEC_POINTER} \\
 \verb|unsigned | & \MINKEY{total\_size\_of}\verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::TOTAL_SIZE_OF_VEC_POINTER} \\[1ex]
@@ -2663,10 +2663,26 @@ body vector is returned by the following protected functions:
     \verb| ( min::vec_pointer & vp, unsigned index )|
 \LABEL{MIN::ATTR_OF_VEC_POINTER} \\
 \verb|const min::gen & | & \MINKEY{aux}%
-    \verb| ( min::vec_pointer & vp, unsigned index )|
+    \verb| ( min::vec_pointer & vp, unsigned aux_pointer )|
 \LABEL{MIN::AUX_OF_VEC_POINTER} \\
 
 \end{tabular}\end{indpar}
+
+Given a vector pointer \verb|vp|, \verb|min::var(vp,i)| can be used
+to access the \verb|i+1|'st variable in the object pointed at
+by \verb|vp|, for $0\leq i<\mbox{\tt min::var\_size\_of(vp)}$.
+Similarly, \verb|min::hash(vp,i)| can be used
+to access the \verb|i+1|'st hash table entry
+for $0\leq i<\mbox{\tt min::hash\_size\_of(vp)}$,
+and \verb|min::attr(vp,i)| can be used
+to access the \verb|i+1|'st attribute vector entry
+for $0\leq i<\mbox{\tt min::attr\_size\_of(vp)}$.
+\verb|min::aux(vp,p)| differs in that it accesses
+the auxilary area element pointed at by the auxilary
+pointer \verb|p|, where
+\begin{center}
+$\mbox{\tt min::aux\_offset\_of(vp)}\leq p<\mbox{\tt min::total\_size\_of(vp)}$
+\end{center}
 
 \subsubsection{Object List Level}
 \label{OBJECT-LIST-LEVEL}
