@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 12, 2009}
+\date{December 13, 2009}
  
 \maketitle
 
@@ -2601,8 +2601,9 @@ there is an unprotected vector level interface
 \label{OBJECT-VECTOR-LEVEL}
 
 At the \key{vector level}, the body is viewed as
-a \key{body vector} of \verb|min::gen| values.  A pointer to the
-body vector is returned by the following protected functions:
+a \key{body vector} of \verb|min::gen| values.
+A \minkey{vec\_\EOL pointer}
+to the body vector is returned by the following protected functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| ( min::gen v )|
@@ -2683,6 +2684,164 @@ pointer \verb|p|, where
 \begin{center}
 $\mbox{\tt min::aux\_offset\_of(vp)}\leq p<\mbox{\tt min::total\_size\_of(vp)}$
 \end{center}
+Note that all these accesses are read-only.
+
+A \minkey{updatable\_vec\_pointer} is like a \verb|min::vec_pointer|
+but has additional functions which support writting object body vector
+elements.  The additional functions for this type of pointer are:
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{updatable\_vec\_pointer}%
+    \verb| ( min::gen v )|
+\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{updatable\_vec\_pointer}%
+    \verb| ( const min::stub * s )|
+\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_STUB} \\
+
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
+\verb|void min::| & \MINKEY{set\_var}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::updatable_vec_pointer & vp,| \\
+      \verb|   unsigned index,| \\
+      \verb|   min::gen value )| \\
+      \end{tabular}
+\LABEL{MIN::SET_VAR_OF_UPDATABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{set\_hash}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::updatable_vec_pointer & vp,| \\
+      \verb|   unsigned index,| \\
+      \verb|   min::gen value )| \\
+      \end{tabular}
+\LABEL{MIN::SET_HASH_OF_UPDATABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{set\_attr}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::updatable_vec_pointer & vp,| \\
+      \verb|   unsigned index,| \\
+      \verb|   min::gen value )| \\
+      \end{tabular}
+\LABEL{MIN::SET_ATTR_OF_UPDATABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{set\_aux}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::updatable_vec_pointer & vp,| \\
+      \verb|   unsigned aux_pointer,| \\
+      \verb|   min::gen value )| \\
+      \end{tabular}
+\LABEL{MIN::SET_AUX_OF_UPDATABLE_VEC_POINTER} \\
+
+\end{tabular}\end{indpar}
+
+All the non-constructor functions applicable to
+{\tt min::\EOL vec\_\EOL pointer}'s
+are applicable to
+{\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s, including the
+{\tt min::\EOL initialize} functions.
+The {\tt min::set\_}\,\ldots{} functions here invoke the
+Accumulator/\EOL Collector/\EOL Compactor function that must
+be called when a \verb|min::gen| value is written into an object.
+The need to do this is why it is not possible to have versions
+of the {\tt min::var}, \ldots, {\tt min::aux} that return
+writable non-{\tt const} references to object body vector elements.
+
+A \minkey{insertable\_vec\_pointer} is like a
+{\tt min::updatable\_\EOL vec\_\EOL pointer}
+but has additional functions which support pushing or popping elements
+from the end of the object body attribute vector or the beginning
+of the object body auxiliary area.
+The additional functions for this type of pointer are:
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
+    \verb| ( min::gen v )|
+\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
+    \verb| ( const min::stub * s )|
+\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
+
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
+\verb|void min::| & \MINKEY{attr\_push}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::gen value )| \\
+      \end{tabular}
+\LABEL{MIN::ATTR_PUSH_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{attr\_push}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   const min::gen * p, unsigned n )| \\
+      \end{tabular}
+\LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+
+\verb|void min::| & \MINKEY{aux\_push}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::gen value )| \\
+      \end{tabular}
+\LABEL{MIN::AUX_PUSH_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{aux\_push}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   const min::gen * p, unsigned n )| \\
+      \end{tabular}
+\LABEL{MIN::AUX_PUSH_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
+\verb|void min::| & \MINKEY{attr\_pop}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::gen & value )| \\
+      \end{tabular}
+\LABEL{MIN::ATTR_POP_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{attr\_pop}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::gen * p, unsigned n )| \\
+      \end{tabular}
+\LABEL{MIN::ATTR_POP_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+
+\verb|void min::| & \MINKEY{aux\_pop}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::gen & value )| \\
+      \end{tabular}
+\LABEL{MIN::AUX_POP_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{aux\_pop}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::gen * p, unsigned n )| \\
+      \end{tabular}
+\LABEL{MIN::AUX_POP_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+
+\end{tabular}\end{indpar}
+
+Here there are two versions of each push or pop: one that
+handles a single {\tt min::gen} value, and one that handles
+{\tt n} values stored in a C/C++ vector pointed at by {\tt p}.
+The order of the elements of {\tt p} in memory is the same
+as the order of the elements in the object body.  For the
+attribute vector this means the {\tt min::attr\_\EOL push}
+function pushes elements starting at the beginning of the {\tt p}
+vector, while {\tt min::attr\_\EOL pop} pops elements starting
+at the \underline{end} of the {\tt p} vector.  But for the auxiliary
+area, the push starts at the end of the {\tt p} vector and the
+pop at the beginning.
+
+All the non-constructor functions applicable to
+{\tt min::updatable\_\EOL \EOL vec\_\EOL pointer}'s
+are applicable to
+{\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}'s, including the
+{\tt min::\EOL initialize} functions.
+The {\tt min::}\,\ldots{\tt \_push} functions here invoke the
+Accumulator/\EOL Collector/\EOL Compactor function that must
+be called when a \verb|min::gen| value is written into an object.
 
 \subsubsection{Object List Level}
 \label{OBJECT-LIST-LEVEL}
