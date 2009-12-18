@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Dec  1 02:55:51 EST 2009
+// Date:	Fri Dec 18 13:21:59 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 11:26:05 $
+//   $Date: 2009/12/18 19:27:54 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents:
 //
@@ -351,7 +351,8 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
         MUP::set_control_of
 	    ( MACC::stub_next,
 	      MUP::new_acc_control
-	          ( min::FREE, MACC::stub_next + 1 ) );
+	          ( min::ACC_FREE,
+		    MACC::stub_next + 1 ) );
 	++ MACC::stub_next;
 	-- n;
 	++ MINT::number_of_free_stubs;
@@ -359,7 +360,7 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
     MUP::set_control_of
 	( MACC::stub_next - 1 ,
 	  MUP::new_acc_control
-	      ( min::FREE, MINT::null_stub ) );
+	      ( min::ACC_FREE, MINT::null_stub ) );
 }
 
 
@@ -905,7 +906,7 @@ void MACC::stub_stack::flush ( void )
 	    (MINT::free_fixed_size_block *) sss;
 	b->next = NULL;
 	b->block_subcontrol = MUP::new_control_with_type
-	    ( min::FREE, stack_segment_size );
+	    ( MACC::FREE, stack_segment_size );
 
 	int locator = MUP::locator_of_control
 	    ( sss->block_control );

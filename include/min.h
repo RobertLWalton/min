@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Dec  8 07:09:11 EST 2009
+// Date:	Fri Dec 18 13:27:06 EST 2009
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/08 12:12:36 $
+//   $Date: 2009/12/18 19:31:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.198 $
+//   $Revision: 1.199 $
 
 // Table of Contents:
 //
@@ -268,7 +268,7 @@ namespace min {
 
     // Collectable.
     //
-    const int FREE			= 1;
+    const int ACC_FREE			= 1;
     const int DEALLOCATED		= 2;
     const int NUMBER			= 3;
     const int SHORT_STR			= 4;
@@ -280,11 +280,12 @@ namespace min {
 
     // Uncollectible.
     //
-    const int LABEL_AUX			= -1;
-    const int LIST_AUX			= -2;
-    const int SUBLIST_AUX		= -3;
-    const int HASHTABLE_AUX		= -4;
-    const int RELOCATE_BODY		= -5;
+    const int AUX_FREE			= -1;
+    const int LABEL_AUX			= -2;
+    const int LIST_AUX			= -3;
+    const int SUBLIST_AUX		= -4;
+    const int HASHTABLE_AUX		= -5;
+    const int RELOCATE_BODY		= -6;
 
     namespace unprotected {
 	// Flags for non-acc control values.
@@ -1002,27 +1003,27 @@ namespace min {
 // Control Values
 // ------- ------
 
-// ACC control values are used as the second word of
+// Acc control values are used as the second word of
 // garbage collectable stubs.
 //
-// Non-ACC control values are used as the second word
+// Non-acc control values are used as the second word
 // of non-garbage-collectable stubs, and as the first
 // word of object bodies (actually, the body proper
-// begins right after this word).  The ACC may use them
+// begins right after this word).  The acc may use them
 // elsewhere (see min_acc.h).
 
-// ACC control value layout:
+// Acc control value layout:
 //
 //	Bits		Use
 //
 //	0 .. m-1	Stub absolute or relative
 //			address or stub index.
 //
-//	m .. 55		ACC flag bits
+//	m .. 55		acc flag bits
 //
 //	56 .. 63	Type code.
 //
-// Non-ACC control value layout:
+// Non-acc control value layout:
 //
 //	Bits		Use
 //
@@ -1536,15 +1537,15 @@ namespace min {
 
 namespace min {
 
-    template < unsigned len > struct genstack
+    template < unsigned len > struct gen_root
     {
-        genstack * previous;
+        gen_root * previous;
 	unsigned length;
 	min::gen values[len];
 
-	static genstack * last = NULL;
+	static gen_root * last = NULL;
 
-	genstack ( void )
+	gen_root ( void )
 	{
 	    this->length = len;
 	    previous = last;
@@ -1552,7 +1553,7 @@ namespace min {
 	    memset ( values, 0, sizeof ( values ) );
 	}
 
-	~ genstack ( void )
+	~ gen_root ( void )
 	{
 	    last = previous;
 	}
@@ -1562,8 +1563,34 @@ namespace min {
 	    MIN_ASSERT ( i < len );
 	    return values[i];
 	}
+    };
 
+    template < unsigned len > struct gen_stack
+    {
+        gen_stack * previous;
+	unsigned length;
+	min::gen values[len];
 
+	static gen_stack * last = NULL;
+
+	gen_stack ( void )
+	{
+	    this->length = len;
+	    previous = last;
+	    last = this;
+	    memset ( values, 0, sizeof ( values ) );
+	}
+
+	~ gen_stack ( void )
+	{
+	    last = previous;
+	}
+
+	min::gen & operator[] ( unsigned i )
+	{
+	    MIN_ASSERT ( i < len );
+	    return values[i];
+	}
     };
 }
 
@@ -1616,10 +1643,10 @@ namespace min { namespace internal {
     extern unsigned lab_hash_size;
     extern unsigned lab_hash_mask;
 
-    // ACC flags are bits 55 .. m of an acc control
+    // Acc flags are bits 55 .. m of an acc control
     // value, where 56 - m == MIN_ACC_FLAG_BITS.
     //
-    // The ACC Flag Bit layout (bit 0 is lowest order)
+    // The acc flag bit layout (bit 0 is lowest order)
     // is:
     //
     //	Bit		Use
@@ -1645,6 +1672,10 @@ namespace min { namespace internal {
         ACC_SCAVENGED_MASK >> 1;
     const uns64 ACC_FIXED_BODY_FLAG =
 	( uns64(1) << ( 56 - MIN_ACC_FLAG_BITS ) );
+
+} }
+
+namespace min { namespace internal {
 
     // acc_write_update ( s1, s2 ) checks whether
     //
@@ -1673,6 +1704,10 @@ namespace min { namespace internal {
     extern min::uns64 acc_stack_mask;
     extern min::stub ** acc_stack;
 
+} }
+
+namespace min { namespace unprotected {
+
     // Function executed whenever a pointer to stub s2
     // is stored in a datum with stub s1.  s1 is the
     // source of the written pointer and s2 is the
@@ -1690,8 +1725,8 @@ namespace min { namespace internal {
 
 	if ( f != 0 )
 	{
-	    * acc_stack ++ = s1;
-	    * acc_stack ++ = s2;
+	    * min::internal::acc_stack ++ = s1;
+	    * min::internal::acc_stack ++ = s2;
 	}
     }
 
@@ -1716,9 +1751,13 @@ namespace min { namespace internal {
 	}
     }
 
+} }
+
+namespace min { namespace internal {
+
     // Stub allocation is from a single list of stubs
     // chained together by the chain part of the stub
-    // control.  This is referred to as the `ACC stub
+    // control.  This is referred to as the `acc stub
     // list'.
     //
     // A pointer to the last allocated stub is maintain-
@@ -1728,24 +1767,32 @@ namespace min { namespace internal {
     // acc_expand_stub_free_list, is called to add to
     // the end of the list.
     //
-    // Unallocated stubs have stub type min::FREE, zero
-    // stub control flags, and min:NONE value.
+    // Unallocated acc stubs have stub type min::
+    // ACC_FREE, zero stub control flags, and min::NONE
+    // value.
 
     // Pointer to the last allocated stub, which must
     // exist (it can be a dummy).
     //
     extern min::stub * last_allocated_stub;
 
-    // Function to return the next free stub as a
-    // garbage collectible stub.  The type is set to
-    // min::FREE and may be changed to any garbage
-    // collectible type.  The value is NOT set.  The ACC
-    // flags are set to MUP::acc_new_stub_flags, and the
-    // non-type part of the stub control is maintained
-    // by the ACC.
+    // Flags of stub returned by new_acc_stub.
     //
-    extern min::uns64 acc_new_stub_flags;
-    inline min::stub * new_stub ( void )
+    extern min::uns64 new_acc_stub_flags;
+
+} }
+
+namespace min { namespace unprotected {
+
+    // Function to return the next free stub as a acc
+    // (garbage collectible) stub.  The type is set to
+    // min::ACC_FREE and may be changed to any garbage
+    // collectible type.  The value is NOT set.  The acc
+    // flags are set to MINT::new_acc_stub_flags, and
+    // the non-type part of the stub control is main-
+    // tained by the acc.
+    //
+    inline min::stub * new_acc_stub ( void )
     {
 	if ( min::internal
 	        ::number_of_free_stubs == 0 )
@@ -1753,20 +1800,22 @@ namespace min { namespace internal {
 	       ::acc_expand_stub_free_list ( 1 );
 	-- min::internal::number_of_free_stubs;
 	uns64 c = min::unprotected::control_of
-			( last_allocated_stub );
+			( min::internal
+			     ::last_allocated_stub );
 	min::stub * s = min::unprotected
 	                   ::stub_of_acc_control ( c );
 	min::unprotected::set_flags_of
-	    ( s, acc_new_stub_flags );
-	return last_allocated_stub = s;
+	    ( s, min::internal::new_acc_stub_flags );
+	return min::internal::last_allocated_stub = s;
     }
     
     // Function to return the next free stub while
-    // removing this stub from the ACC stub list.
+    // removing this stub from the acc stub list.
     //
-    // This function does NOT set any part of the stub
-    // returned.  The stub returned is ignored by the
-    // ACC.
+    // The type is set to min::AUX_FREE.  This function
+    // does NOT set any other part of the stub returned.
+    // The stub returned is a non-acc stub ignored by
+    // the garbage collector.
     //
     inline min::stub * new_aux_stub ( void )
     {
@@ -1776,7 +1825,8 @@ namespace min { namespace internal {
 	       ::acc_expand_stub_free_list ( 1 );
 	-- min::internal::number_of_free_stubs;
 	uns64 c = min::unprotected::control_of
-			( last_allocated_stub );
+			( min::internal
+			     ::last_allocated_stub );
 	min::stub * s = min::unprotected
 	                   ::stub_of_acc_control ( c );
 	c = min::unprotected::renew_acc_control_stub
@@ -1785,13 +1835,15 @@ namespace min { namespace internal {
 			    ( min::unprotected
 			         ::control_of ( s ) ) );
 	min::unprotected::set_control_of
-		( last_allocated_stub, c );
+	    ( min::internal::last_allocated_stub, c );
+	min::unprotected::set_type_of
+	    ( s, min::AUX_FREE );
 	return s;
     }
 
-    // Function to put a stub on the ACC stub list right
+    // Function to put a stub on the acc stub list right
     // after the last allocated stub.  Stub must NOT be
-    // on the ACC list (it should be an auxiliary stub).
+    // on the acc list (it should be an auxiliary stub).
     //
     // Note that stubs that have been previously
     // allocated are preferred for new stub allocations
@@ -1802,18 +1854,24 @@ namespace min { namespace internal {
         min::unprotected::set_gen_of
 	    ( s, min::NONE );
 	uns64 c = min::unprotected::control_of
-			( last_allocated_stub );
+			( min::internal
+			     ::last_allocated_stub );
 	min::stub * next =
 	    min::unprotected::stub_of_acc_control ( c );
 	min::unprotected::set_control_of
 	    ( s, min::unprotected::new_acc_control
-		  ( min::FREE, next ) );
+		  ( min::ACC_FREE, next ) );
 	c = min::unprotected
 	       ::renew_acc_control_stub ( c, s );
 	min::unprotected::set_control_of
-		( last_allocated_stub, c );
+		( min::internal
+		     ::last_allocated_stub, c );
 	++ min::internal::number_of_free_stubs;
     }
+
+} }
+
+namespace min { namespace internal {
 
     // fixed_blocks[j] is the head of a free list of
     // fixed blocks of size 1 << ( j + 3 ), for 2 <= j,
@@ -1874,34 +1932,42 @@ namespace min { namespace internal {
     extern unsigned max_fixed_block_size;
         // 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
 
+} }
+
+namespace min { namespace unprotected {
+
     // Allocate a body to a stub.  n is the minimum size
     // of the body in bytes, not including the control
     // word that begins the body.  The stub control is
-    // set and its ACC flags may be changed.
+    // set and its acc flags may be changed.
     //
     inline void new_body ( min::stub * s, unsigned n )
     {
 	unsigned m = n + sizeof ( min::uns64);
 
         MIN_ASSERT
-	  ( m >= sizeof ( free_fixed_size_block ) );
+	  ( m >= sizeof
+	             ( min::internal
+	                  ::free_fixed_size_block ) );
 
-	if ( m > max_fixed_block_size )
+	if ( m > min::internal::max_fixed_block_size )
 	{
-	     new_non_fixed_body ( s, n );
+	     min::internal::new_non_fixed_body ( s, n );
 	     return;
 	}
 
 	// See min_parameters.h for fixed_bodies_log.
 	//
 	m = m - 1;
-	fixed_block_list * fbl =
-		  fixed_blocks
-		+ fixed_bodies_log ( m ) + 1 - 3;
+	min::internal::fixed_block_list * fbl =
+		  min::internal::fixed_blocks
+		+ min::internal::fixed_bodies_log ( m )
+		+ 1 - 3;
 
 	if ( fbl->count == 0 )
 	{
-	     new_fixed_body ( s, n, fbl );
+	     min::internal::new_fixed_body
+	          ( s, n, fbl );
 	     return;
 	}
 
@@ -1918,7 +1984,9 @@ namespace min { namespace internal {
 	   ::set_pointer_of
 	       ( s, & b->block_control + 1 );
 	min::unprotected
-	   ::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
+	   ::set_flags_of
+	       ( s, min::internal
+	               ::ACC_FIXED_BODY_FLAG );
     }
 
     // Deallocate the body of a stub, and reset the stub
@@ -1983,7 +2051,7 @@ namespace min { namespace unprotected {
 	    min::unprotected
 	       ::set_type_of ( rstub,
 	                       min::RELOCATE_BODY );
-	    min::internal::new_body ( rstub, n );
+	    min::unprotected::new_body ( rstub, n );
 	}
 
 	// Deconstruct relocated_body, switching the
@@ -2027,7 +2095,7 @@ namespace min { namespace unprotected {
 		* bp = unprotected::renew_control_stub
 			 ( * bp, rstub );
 
-		internal::deallocate_body ( rstub );
+		unprotected::deallocate_body ( rstub );
 	    }
 
 	    last_allocated = last_allocated_save;
@@ -2075,7 +2143,7 @@ namespace min { namespace unprotected {
     //
     inline void void_relocate_body ( relocate_body & r )
     {
-	min::internal::deallocate_body ( r.rstub );
+	min::unprotected::deallocate_body ( r.rstub );
     }
 
 } }
@@ -2084,7 +2152,7 @@ namespace min {
 
     inline void deallocate ( min::stub * s )
     {
-    	min::internal::deallocate_body ( s );
+    	min::unprotected::deallocate_body ( s );
     }
 
 }
