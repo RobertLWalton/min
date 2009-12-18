@@ -356,7 +356,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6280
+control2: 85800000009f62a0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -367,7 +367,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6290
+re-control2: 85800000009f62b0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -380,7 +380,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f6280
+control3: 85800000009f62a0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -391,7 +391,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6290
+re-control3: 85800000009f62b0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -528,7 +528,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     stubs_allocated == sbase + 1 true.
 min_interface_test.cc:XXXX assert:
-    min::type_of ( stub1 ) == min::FREE true.
+    min::type_of ( stub1 ) == min::ACC_FREE true.
 min_interface_test.cc:XXXX assert:
     ! MUP::test_flags_of ( stub1, unmarked_flag ) true.
 MINT::acc_expand_stub_free_list (1) called
@@ -539,7 +539,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     stub2 == begin_stub_region + sbase + 1 true.
 min_interface_test.cc:XXXX assert:
-    min::type_of ( stub2 ) == min::FREE true.
+    min::type_of ( stub2 ) == min::ACC_FREE true.
 min_interface_test.cc:XXXX assert:
     MUP::test_flags_of ( stub2, unmarked_flag ) true.
 MINT::acc_expand_stub_free_list (2) called
@@ -562,25 +562,25 @@ min_interface_test.cc:XXXX assert:
 
 Test body allocator functions:
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 2, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[5] and assigning begin_body_region[0 .. 31]
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 min_interface_test.cc:XXXX assert:
     memcmp ( p1, p2, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     p1 != p2 true.
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 5, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[5] and assigning begin_body_region[64 .. 95]
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -592,7 +592,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -711,7 +711,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 19, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -861,7 +861,7 @@ min_interface_test.cc:XXXX assert:
 Test string pointers:
 relocate_body ( stub 19, 21 ) called
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 copying body_region[193 .. 194] to body_region[197 .. 198]
 zeroing body_region[193 .. 194]
 MINT::deallocate ( stub 6 ) called
@@ -949,7 +949,7 @@ min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
 relocate_body ( stub 19, 21 ) called
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 21 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -984,7 +984,7 @@ Test labels:
     is_stub ( v ) true.
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
@@ -1052,7 +1052,7 @@ min_interface_test.cc:XXXX assert:
 Test short objects:
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 25, 2420 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -1076,7 +1076,7 @@ min_interface_test.cc:XXXX assert:
 Test long objects:
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
-    m >= sizeof ( free_fixed_size_block ) true.
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_non_fixed_body ( stub 26, 308260 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
