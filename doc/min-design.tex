@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 18, 2009}
+\date{December 19, 2009}
  
 \maketitle
 
@@ -1762,6 +1762,14 @@ to update garbage collection flags associated with stubs.
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
 
+There are unprotected functions to allocate and free stubs, 
+read and write stub values, and read, write, and modify
+stub controls.
+
+
+\subsubsubsection{Stub Allocation Functions}
+\label{STUB-ALLOCATION-FUNCTIONS}
+
 The following functions are used to allocate stubs:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1771,14 +1779,14 @@ The following functions are used to allocate stubs:
 \LABEL{MUP::NEW_AUX_STUB} \\
 \end{tabular}\end{center}
 
-The \verb|new_acc_stub| function returns a garbage collectable (acc)
+The \verb|min::new_acc_stub| function returns a garbage collectable (acc)
 stub with its type set to \minkey{ACC\_FREE}.  This kind of stub is
 automatically freed by the garbage collector.  Its address must be
 stored in a \verb|min::gen| value that is protected from garbage
 collection by being accessible from a \verb|min::gen_stack|
 or \verb|min::gen_root| location.
 
-The \verb|new_aux_stub| function returns a non-acc (i.e.,
+The \verb|min::new_aux_stub| function returns a non-acc (i.e.,
 not garbage collectable)
 stub with its type set to \minkey{AUX\_FREE}.  This kind of stub is
 is \underline{not} freed by the garbage collector.  It must be
@@ -1789,8 +1797,15 @@ freed only by calling:
 \LABEL{MUP::FREE_AUX_STUB} \\
 \end{tabular}\end{center}
 
+A non-acc stub is most often attached to an acc stub in such a way
+that when the acc stub is garbage collected, the non-acc stub is
+freed.  Such a non-acc stub is called an \key{auxiliary stub}, and
+because most non-acc stubs are of this kind, functions dealing with
+non-acc stubs have names containing `\ttkey{aux}' instead of
+`\verb|non_acc|'.
 
-
+\subsubsubsection{Stub Value Read/Write Functions}
+\label{STUB-VALUE-READ-WRITE-FUNCTIONS}
 
 The following functions read or write the stub value part of a stub:
 
@@ -1826,6 +1841,9 @@ that values read or written are within legal range for a particular
 stub.  Thus a stub value that is not a floating point number can be
 read by \verb|MUP::float_of| with undefined results.
 
+\subsubsubsection{Stub Control Functions}
+\label{STUB-CONTROL-FUNCTIONS}
+
 The following functions read or write the stub control part of a stub:
 
 \begin{center}\begin{tabular}{r@{}l}
@@ -1853,21 +1871,28 @@ The \verb|MUP::control_of| and \verb|MUP::set_control_of| functions
 deal with the entire 64 bit stub control value of a stub.  The other
 functions deal only with parts.
 
+For acc stubs, only the type part of the control should be read or
+written.  The other parts of the control are for use by the
+acc, and should not be accessed, in order to be sure that the acc is
+independent of other code.
+
 The stub control in a stub is an example of a MIN \key{control value}.
 A MIN control value holds a stub address or an unsigned integer
 in its low order bits.  It may hold an 8 bit type code in its highest order
 bits.  Any bits left over are flag bits.  Control values have type
-\verb|min::uns64|.
+\verb|min::uns64|.  Control values are used as stub controls, and
+may be use in other places, e.g., by the acc to hold pointers from
+a block that holds a body back to the stub pointing at the body.
 
 Thus control values contain an address/value low order field, and optional
 type code high order field, and flag bits.  There are two kinds of
-control values: (ordinary) control values and ACC control values.
+control values: (ordinary) control values and acc control values.
 Ordinary control values
 have 48 bits for the address/value field, 8 bits for the type,
 and 8 bits for flags.
-ACC control values have 56 - G bits for a stub address, 8 bits
-for the type, and G bits for the ACC flags, where G is some value from 8
-through 24.  The larger G, the more ACC flags, which may permit the
+acc control values have 56 - G bits for a stub address, 8 bits
+for the type, and G bits for the acc flags, where G is some value from 8
+through 24.  The larger G, the more acc flags, which may permit the
 garbage collector to be more efficient.
 
 Addresses stored in a control value must be stub addresses, as only they
@@ -1876,7 +1901,7 @@ can be packed into less than 64 bits.
 The control values used as stub controls do have a type code field which
 can be read by \verb|min::type_of| (which is protected) and
 written by \verb|MUP::set_type_of|.  For stub controls,
-ACC control values are used with
+acc control values are used with
 garbage collectible types, and ordinary control values with
 non-garbage-collectible types.
 
@@ -1903,6 +1928,7 @@ where
 \begin{center}
 \begin{tabular}{l@{~~~~~}l}
 $M\leq K\leq 63$ & if there is no type code field \\
+		 & (does not apply to stub controls) \\
 $M\leq K\leq 55$ & if there is a type code field \\
 \\
 \multicolumn{2}{l}{$M$ is the size of the address/value field} \\
@@ -1912,8 +1938,8 @@ $32\leq M\leq 48$ & depending on hardware \\
 \end{center}
 
 The above functions assume that any flag constants select bits
-in a control value that are not inside the address/value field,
-or inside the type code field if that is used.
+in a control value that are not inside the address/value field
+or inside the type code field.
 
 The flags in the stub control value of a stub can be tested, set, or
 cleared by some of the above functions.
@@ -1932,7 +1958,7 @@ can be written by \verb|MUP::set_control_of| even if the written
 control datum is incompatible with the garbage collector implementation,
 and may produce undefined results when the garbage collector
 next executes.  Flag bits must not be inside the address/value field
-or inside the type code field if that is used.
+or inside the type code field.
 
 The high order byte of any control written by \verb|MUP::set_control_of|
 is the type code, and the high order bit is clear if the stub is collectible
@@ -1969,7 +1995,8 @@ Ordinary (non-acc) control values can be manipulated by the following functions:
 \LABEL{MUP::STUB_OF_CONTROL} \\
 \end{tabular}\end{center}
 
-ACC control values can be manipulated by the following functions:
+Acc control values can be manipulated by the following functions
+(this is only done by acc code):
 
 \begin{center}\begin{tabular}{@{}r@{}l@{}}
 \verb|min::uns64 MUP::|
@@ -1986,7 +2013,7 @@ ACC control values can be manipulated by the following functions:
 \LABEL{MUP::STUB_OF_ACC_CONTROL} \\
 \end{tabular}\end{center}
 
-Either ordinary or ACC control values can be
+Either ordinary or acc control values can be
 manipulated by the following functions:
 
 \begin{center}\begin{tabular}{@{}r@{}l@{}}
@@ -2004,6 +2031,23 @@ the `{\tt renew}' functions modify control values
 by inserting a new type, value, or stub address, and
 the other functions return the parts of a control value.
 None of these functions check the ranges of their arguments.
+
+\subsubsection{Unprotected Body Functions}
+\label{UNPROTECTED-BODY-FUNCTIONS}
+
+The following functions allocate and free bodies:
+
+\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\verb|void MUP::|
+    & \MUPKEY{new\_body}\verb| ( min::stub * s, unsigned n )|
+\LABEL{MUP::NEW_BODY} \\
+\end{tabular}\end{center}
+
+\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\verb|void MUP::|
+    & \MUPKEY{free\_body}\verb| ( min::stub * s, unsigned n )|
+\LABEL{MUP::FREE_BODY} \\
+\end{tabular}\end{center}
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -7060,23 +7104,23 @@ which is faster than copying bytes.
 \section{Allocator/Collector/Compactor}
 \label{ALLOCATOR/COLLECTOR/COMPACTOR}\label{ACC}
 
-The \key{Allocator/Collector/Compactor}, or \ttnbkey{ACC}, 
+The \key{Allocator/Collector/Compactor}, or \ttnbkey{acc}, 
 is a replaceable component of the MIN code, which should not
 normally be accessed directly.  It can be controlled by parameters
 passed to the program (see Configuration Parameters,
 \pagref{CONFIGURATION-PARAMETERS}), or by defaults for these
 provided at compile time in \verb|include/min_acc_parameters.h|.
 Documentation for these parameters is in this last file.
-The ACC code is in the 
+The acc code is in the 
 \verb|min::acc| namespace which is abbreviated to
 `\ttnbmkey{MACC}{abbreviates {\tt min::acc}}'\label{MACC}
-by including the following definition in ACC code:
+by including the following definition in acc code:
 
 \begin{center}
 \verb|#define  MACC  min::acc|
 \end{center}
 
-Details of the ACC code are in \verb|include/min_acc.h|.  The
+Details of the acc code are in \verb|include/min_acc.h|.  The
 following is an overview.
 
 TBD
