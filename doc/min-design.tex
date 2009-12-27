@@ -1,4 +1,4 @@
-% Minimal Descriptive Programming Language Design
+% Minimal Descriptive Programming System Design
 %
 % File:         min-design.tex
 % Author:       Bob Walton (walton@deas.harvard.edu)
@@ -244,12 +244,12 @@
 \begin{document}
         
 \title{Internal Design\\[2ex]of the\\[2ex]
-       Minimal\\Descriptive Programming\\Language\\[2ex]MIN\\[2ex]
+       Minimal\\Descriptive Programming\\System\\[2ex]MIN\\[2ex]
        (Draft 1a)}
 
 \author{Robert L. Walton}
 
-\date{December 19, 2009}
+\date{December 25, 2009}
  
 \maketitle
 
@@ -267,9 +267,19 @@
 \section{Introduction}
 
 This document describes the internal design of MIN,
-the Minimal Descriptive Programming Language.
+the Minimal Descriptive Programming System.
 This document is written for readers who wish to add C++ code
 to a MIN implementation, or who wish to maintain an implementation.
+
+A programming system provides run time and compile time support
+for programming languages.
+A programming system, such as MIN, is
+built on top of an underlying programming system provided by the
+implementation language, in this case C++.
+MIN consists of a data store, of the single-thread execution system
+inherited from C++, and of MIN compatible threads.
+Other programming language specific
+programming systems can be built on top of MIN.
 
 A small number of \skey{abbreviation}s are used throughout this document
 and the corresponding code:
@@ -282,9 +292,11 @@ and the corresponding code:
 \ttmkey{attr}{abbreviation}	& attribute (\secref{OBJECT-VECTOR-LEVEL}) \\
 \ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
-\ttmkey{lab}{abbreviation}	& label (\pagref{LABELS}) \\
-\ttmkey{min}{abbreviation}	& the MIN system \\
+\ttmkey{lab}{abbreviation}	& label (\secref{LABELS}) \\
+\ttmkey{min}{abbreviation}	& the `{\tt min}' namespace (\pagref{min::}) \\
 \ttmkey{MACC}{abbreviation}	& {\tt min::acc} (\pagref{MACC}) \\
+\ttmkey{MIN}{abbreviation}	& the {\tt MIN\_} macro preface
+				  (\pagref{MIN_}) \\
 \ttmkey{MINT}{abbreviation}	& {\tt min::internal} (\pagref{MINT}) \\
 \ttmkey{MOS}{abbreviation}	& {\tt min::os} (\pagref{MOS}) \\
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
@@ -297,6 +309,10 @@ and the corresponding code:
 \end{tabular}
 \end{center}
 
+
+\section{Interfaces}
+\label{INTERFACES}
+
 The C++ data and functions described in this document can be
 accessed by C++ code that contains the following inclusion:
 
@@ -304,11 +320,47 @@ accessed by C++ code that contains the following inclusion:
 \verb|#include  <min.h>|
 \end{center}
 
-There are some macros that can be defined to control compilation.
-These have names beginning with \ttnbkey{MIN\_}.
+External MIN data and functions are placed in the
+\ttnbmkey{min}{namespace}\label{min::} namespace.
+There are some macros that can be defined to control compilation, and
+these have names beginning with \ttnbkey{MIN\_}\label{MIN_}.
 
-Parts of MIN provide protection against bugs by using the {\tt MIN\_ASSERT}
-macro:
+MIN has two interfaces:
+the \key{protected interface}, which can be used
+by C++ code to access MIN while maintaining the integrity
+of MIN data, and the \key{unprotected interface}, which provides
+more efficient access to MIN data but requires the user to
+follow certain protocols to be sure that data are not damaged.
+
+From the syntactic point of view the
+only distinction between these interfaces is that the unprotected
+interface is in the with \minkey{unprotected} namespace, whereas
+the protected interface is in the \ttkey{min} namespace.  User code
+that accesses the unprotected interface typically abbreviates the long
+`{\tt min::unprotected::}' prefix to
+`\ttnbmkey{MUP}{abbreviates {\tt min::unprotected}}{\tt ::}'\label{MUP}
+by including the following definition:
+\begin{center}
+\verb|#define  MUP  min::unprotected|
+\end{center}
+
+In this document we will use the abbreviation `\verb|MUP|' for
+`\verb|min::unprotected|'.
+
+Most {\tt MUP} functions `produce \key{undefined results}' when their arguments
+are out of legal range.
+This means that when the arguments are out of range,
+function execution may lose control and crash, or may produce result
+values that are wrong or out of legal range.
+When documentation of a {\tt MUP} function
+states that particular argument range checks are not performed,
+then the {\tt MUP} function always produces undefined results when its
+arguments would not pass these checks,
+unless the documentation explicitly says otherwise.
+
+Most, but not all, of the protection provided by the protected interface
+is obtained by the functions of that interface using the
+{\tt MIN\_ASSERT} macro:
 
 \begin{center}
 \begin{tabular}{lp{4.0in}}
@@ -330,7 +382,8 @@ macro:
 \end{center}
 
 By setting {\tt MIN\_PROTECT} to {\tt 0}, a compilation can optimize
-debugged code.  Alternatively,
+debugged code, although this will remove the protection
+provided by the protected interface.  Alternatively,
 a compilation can provide its own definition for the
 {\tt MIN\_ASSERT} macro,
 such as a definition printing extra information
@@ -359,82 +412,40 @@ The other compilation parameters involve technical details of
 memory management.  For specifics see the file
 \ttkey{include/min\_parameters.h}.
 
-Code in \verb|include/min.h| that is not meant to be accessed
-by users is in the \ttkey{min::internal} namespace, which in
-\verb|src/min.cc| is abbreviated by 
-`\verb|#define |\ttnbmkey{MINT}{abbreviates {\tt min::internal}}'%
-\label{MINT}\verb| min::internal|'.
-This code and its interfaces are \underline{not} described
-in this document.
-
-\section{Data}
-
-We first describe MIN data memory.
-
-We give two interfaces to MIN data memory:
-the \key{protected interface}, which can be used
-by C++ code to access MIN data memory while maintaining the integrity
-of that memory, and the \key{unprotected interface}, which provides
-more efficient access to MIN data memory but requires the user to
-follow certain protocols to be sure the memory is not damaged.
-
-From the syntactic point of view the
-only distinction between these interfaces is that all unprotected
-interface names begin with `\minkey{unprotected}{\tt ::}'.  User code
-that accesses the unprotected interface typically abbreviates this long
-prefix to
-`\ttnbmkey{MUP}{abbreviates {\tt min::unprotected}}{\tt ::}'\label{MUP}
-by including the following definition:
-\begin{center}
-\verb|#define  MUP  min::unprotected|
-\end{center}
-
-In this document we will use the abbreviation `\verb|MUP|' for
-`\verb|min::unprotected|'.
-
-Some {\tt MUP} functions `produce \key{undefined results}' when their arguments
-are out of legal range.
-This means that when the arguments are out of range,
-function execution may lose control and crash, or may produce result
-values that are wrong or out of legal range.
-When documentation of a {\tt MUP} function
-states that particular argument range checks are not performed,
-then the {\tt MUP} function always produces undefined results when its
-arguments would not pass these checks,
-unless the documentation explicitly says otherwise.
-
-Some, but not all, of the protection provided by the protected interface
-is obtained by the functions of that interface using the
-{\tt MIN\_ASSERT} macro.  The
-`\verb|-DMIN_PROTECT=0|' compiler option (see \pagref{MIN_PROTECT})
-disables \verb|MIN_ASSERT| and removes much of the
-protection provided by the protected interface.
-
-The heap data (i.e., data not in the stack)
-of MIN is defined using C-compatible
-\ttmkey{struct}{C compatible}'s
-and \ttmkey{union}{C compatible}'s.  C++ implicitly guarantees the layout of
-C-compatible \verb|struct|'s and \verb|union|'s to be C-compatible,
-and C has implicit guarantees because of historical C code that
-such data will not contain unnecessary unnamed padding.  Neither the
-C or C++ standards guarantee the absence of unnecessary unnamed padding, but
-MIN depends upon its absence, as does any code that reads and writes
-binary files.
-
-As a consequence of using only C-compatible \verb|struct|'s and
-\verb|union|'s to define heap data, MIN does not use member functions
-for such data.
 Protected functions are in the \ttmkey{min}{namespace} namespace
 and have names beginning with
 `\ttmkey{min::}{in function name}', while
-unprotected MIN functions are in the \ttnbmkey{MUP}{namespace} namespace
-and have names beginning with `\ttnbmkey{MUP::}{in function name}'.
-
+unprotected MIN functions are in the \ttmkey{min::unprotected}{namespace}
+namespace and have names beginning with
+`\ttnbmkey{min::unprotected::}{in function name}'.
 The {\tt min} and {\tt min::unprotected} namespaces hold \underline{all}
-the stable interfaces of the MIN implementation.  Other namespaces
-({\tt min::os} or {\tt MOS}, {\tt min::acc} or {\tt MACC},
-{\tt min::internal} or {\tt MINT})
-hold code whose interfaces are subject to change without notice.
+the stable interfaces of the MIN implementation.
+
+Code in \verb|include/min.h| that is not meant to be accessed
+by users is in the following namespaces:
+
+\begin{center}
+\begin{tabular}{llp{4.0in}}
+\tt min::os & \tt MOS	& Operating system independent interface to
+			  operating system functions
+			  not covered by C++ standards.
+			  See Appendix \secref{MOS}.
+\\[1ex]
+\tt min::acc & \tt MACC & The part of the interface to the
+			  Allocator/\EOL Collector/\EOL Compactor
+			  that can be
+			  changed when the acc is changed.
+			  See Appendix \secref{ACC}.
+\\[1ex]
+\tt min::internal & \ttnbkey{MINT}\label{MINT}
+		        & Interface to internal MIN code that can
+			  be changed without notice at any time.
+			  Not described in this document; see
+			  {\tt .h} files.
+\end{tabular}
+\end{center}
+
+\section{Data}
 
 In defining MIN data the following number types are used to be sure
 the size of each number is clear:
@@ -468,6 +479,21 @@ the size of each number is clear:
 Currently planned implementations of MIN assume a compiler that has
 direct support for 64 bit integers.  It is possible, but not recommended,
 to modify the implementations to use compilers without such support.
+
+The heap data (i.e., data not in the stack)
+of MIN is defined using C-compatible
+\ttmkey{struct}{C compatible}'s
+and \ttmkey{union}{C compatible}'s.  C++ implicitly guarantees the layout of
+C-compatible \verb|struct|'s and \verb|union|'s to be C-compatible,
+and C has implicit guarantees because of historical C code that
+such data will not contain unnecessary unnamed padding.  Neither the
+C or C++ standards guarantee the absence of unnecessary unnamed padding, but
+MIN depends upon its absence, as does any code that reads and writes
+binary files.
+
+As a consequence of using only C-compatible \verb|struct|'s and
+\verb|union|'s to define heap data, MIN does not use member functions
+for such data.
 
 \subsection{Stubs and Bodies}
 
