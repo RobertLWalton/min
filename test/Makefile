@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Tue Dec  1 02:54:53 EST 2009
+# Date:		Tue Dec 29 09:39:10 EST 2009
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/12/01 11:25:34 $
+#   $Date: 2009/12/29 14:39:35 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.27 $
+#   $Revision: 1.28 $
 
 # We need the following to mask RCS lines
 #
@@ -21,6 +21,10 @@ D = $$
 
 .SUFFIXES:
 .SUFFIXES: .out .test .diff
+
+# O3 is needed to inline functions.
+#
+OPTIMIZE = -O3
 
 INCLUDE_FILES = \
 	../include/min_parameters.h \
@@ -40,37 +44,48 @@ BUILTIN_PROGRAMS = \
     min_builtin_test min_builtin_replacement_test
 ACC_PROGRAMS = \
     min_acc_test
+OPTIMIZATION_NON_PROGRAMS = \
+    min_relocation_optimization_test
 
 PROGRAMS = ${INTERFACE_PROGRAMS} \
            ${OS_PROGRAMS} \
            ${BUILTIN_PROGRAMS} \
            ${ACC_PROGRAMS}
 
-.SECONDARY:	${PROGRAMS:=.out}
+NON_PROGRAMS = ${OPTIMIZATION_NON_PROGRAMS}
+
+TESTS = ${PROGRAMS} ${NON_PROGRAMS}
+
+.SECONDARY:	${TESTS:=.out}
 
 all:		diff
 interface:	interface_diff
 os:		os_diff
 builtin:	builtin_diff
 acc:		acc_diff
+optimization:	optimization_diff
 
-diff:		${PROGRAMS:=.diff}
+diff:		${TESTS:=.diff}
 interface_diff:	${INTERFACE_PROGRAMS:=.diff}
 os_diff:	${OS_PROGRAMS:=.diff}
 builtin_diff:	${BUILTIN_PROGRAMS:=.diff}
 acc_diff:	${ACC_PROGRAMS:=.diff}
+optimization_diff:	${OPTIMIZATION_NON_PROGRAMS:=.diff}
 
 out:		${PROGRAMS:=.out}
 interface_out:	${INTERFACE_PROGRAMS:=.out}
 os_out:		${OS_PROGRAMS:=.out}
 builtin_out:	${BUILTIN_PROGRAMS:=.out}
 acc_out:	${ACC_PROGRAMS:=.out}
+optimization_out:	${OPTIMIZATION_NON_PROGRAMS:=.out}
 
 test:		${PROGRAMS:=.test}
 interface_test:	${INTERFACE_PROGRAMS:=.test}
 os_test:	${OS_PROGRAMS:=.test}
 builtin_test:	${BUILTIN_PROGRAMS:=.test}
 acc_test:	${ACC_PROGRAMS:=.test}
+optimization_test:	\
+                ${OPTIMIZATION_NON_PROGRAMS:=.test}
 
 
 %.test:	%.out Makefile
@@ -195,6 +210,16 @@ min_acc_test:		\
 	    -o $@ \
 	    ../src/min_acc.cc ../src/min.cc \
 	    ../src/min_os.cc min_acc_test.cc
+
+min_relocation_optimization_test.out:	\
+		min_relocation_optimization_test.cc \
+		${INCLUDE_FILES} Makefile
+	rm -f min_relocation_optimization_test.s \
+	      min_relocation_optimization_test.out
+	g++ -S ${OPTIMIZE} -I ../include \
+	       min_relocation_optimization_test.cc
+	mv min_relocation_optimization_test.s \
+	   min_relocation_optimization_test.out
 
 clean:
 	rm -f ${PROGRAMS} ${PROGRAMS:=.out} min.o
