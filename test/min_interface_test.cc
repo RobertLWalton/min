@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Dec 18 13:27:44 EST 2009
+// Date:	Sun Jan  3 06:26:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/18 19:27:18 $
+//   $Date: 2010/01/03 11:33:03 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.107 $
+//   $Revision: 1.108 $
 
 // Table of Contents:
 //
@@ -757,34 +757,34 @@ int main ()
 	    ( ! min::is_direct_str ( sublistauxgen ) );
  
         cout << endl;
-	cout << "Test indirect pair aux general values:"
+	cout << "Test indirect aux general values:"
 	     << endl;
-	min::gen pairauxgen =
-	    MUP::new_indirect_pair_aux_gen ( aux );
-	cout << "pairauxgen: "
-	     << print_gen ( pairauxgen ) << endl;
+	min::gen indirectauxgen =
+	    MUP::new_indirect_aux_gen ( aux );
+	cout << "indirectauxgen: "
+	     << print_gen ( indirectauxgen ) << endl;
 	MIN_ASSERT
-	    ( min::is_indirect_pair_aux
-	    		( pairauxgen ) );
+	    ( min::is_indirect_aux
+	    		( indirectauxgen ) );
 	MIN_ASSERT
-	    (    min::gen_subtype_of ( pairauxgen )
-	      == min::GEN_INDIRECT_PAIR_AUX );
+	    (    min::gen_subtype_of ( indirectauxgen )
+	      == min::GEN_INDIRECT_AUX );
 	MIN_ASSERT
-	    (    min::indirect_pair_aux_of
-	              ( pairauxgen )
+	    (    min::indirect_aux_of
+	              ( indirectauxgen )
 	      == aux );
 	desire_success (
-	    pairauxgen =
-	    	min::new_indirect_pair_aux_gen ( aux );
+	    indirectauxgen =
+	    	min::new_indirect_aux_gen ( aux );
 	);
 	desire_failure (
-	    pairauxgen = min::new_indirect_pair_aux_gen
+	    indirectauxgen = min::new_indirect_aux_gen
 		( (min::unsgen) 1 << min::VSIZE );
 	);
 	MIN_ASSERT
-	    ( ! min::is_stub ( pairauxgen ) );
+	    ( ! min::is_stub ( indirectauxgen ) );
 	MIN_ASSERT
-	    ( ! min::is_direct_str ( pairauxgen ) );
+	    ( ! min::is_direct_str ( indirectauxgen ) );
  
         cout << endl;
 	cout << "Test indexed aux general values:"
