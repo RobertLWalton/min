@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan  3 10:09:58 EST 2010
+// Date:	Sun Jan  3 10:31:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/03 15:17:14 $
+//   $Date: 2010/01/03 15:34:52 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.110 $
+//   $Revision: 1.111 $
 
 // Table of Contents:
 //
@@ -829,10 +829,9 @@ int main ()
 	MIN_ASSERT
 	    ( ! min::is_direct_str ( packedauxgen ) );
 	packed_aux = 321;
-	packed_index = 987;
 	packedauxgen =
 	    MUP::renew_packed_aux_gen
-		( packedauxgen, packed_aux, packed_index );
+		( packedauxgen, packed_aux );
 	MIN_ASSERT
 	    ( min::is_packed_aux ( packedauxgen ) );
 	MIN_ASSERT
