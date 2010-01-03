@@ -374,7 +374,10 @@ is obtained by the functions of that interface using the
 	  may be defined by the compilation before
 	  \verb|#include <min.h>|.
 \LABEL{MIN_ASSERT}
-\\[1ex]
+\end{tabular}
+\end{indpar}
+\begin{indpar}
+\begin{tabular}{lp{4.0in}}
 \TTNBKEY{MIN\_PROTECT}	& 1 (the default)
                           if {\tt MIN\_ASSERT} is to be mapped to
 			  the C++ \ttkey{assert} macro if {\tt MIN\_ASSERT}
@@ -413,7 +416,7 @@ Macro Name		& Meaning	& Page Reference \\[1ex]
 
 The other compilation parameters involve technical details of
 memory management.  For specifics see the file
-\ttkey{min\_parameters.h}.
+\ttkey{min\_parameters.h}\ttindex{min\_parameters.h}.
 
 Protected functions are in the \ttmkey{min}{namespace} namespace
 and have names beginning with
@@ -695,10 +698,9 @@ loose implementations permit up to about $2^{44}$ objects.
 
 A \key{general value} has type \minkey{gen}\LABEL{MIN::GEN} and
 is a 32 or 64 bit aligned value that can be of one of the following
-subtypes
+subtypes;
 
-\begin{center}
-\begin{tabular}{l}
+\begin{indpar}[3em]
 a pointer to a stub \\
 a 64-bit IEEE floating point direct number atom\LOOSE \\
 a 28-bit direct integer atom\COMPACT \\
@@ -710,9 +712,8 @@ a VSIZE-bit indirect auxiliary pointer \\
 a VSIZE/2-bit+VSIZE/2-bit packed indirect auxiliary pointer \\
 a VSIZE-bit index \\
 a VSIZE-bit control code \\
-a VSIZE-bit special value \\
-\end{tabular}
-\end{center}
+a VSIZE-bit special value
+\end{indpar}
 \hspace*{1in}\begin{minipage}{4.5in}
 where \key{VSIZE} equals 24 for a compact implementation
 and 40 for a loose implementation
@@ -752,19 +753,19 @@ is selected for each type of general value.  The scheme selection is
 controlled by the following `\skey{stub address packing parameter}\,'
 macros:
 
-\begin{indpar}
-\begin{tabular}{lp{3.0in}}
+\begin{indpar}\begin{tabular}{lp{3.0in}}
 \TTNBKEY{MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
 	& The maximum absolute address of any stub as an unsigned integer
 	  constant.  See \pagref{MIN_MAX_ABSOLUTE_STUB_ADDRESS} for
-	  defaults. \\[1ex]
+	  defaults.
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{lp{3.0in}}
 \TTNBKEY{MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
 	& The maximum address of any stub relative to a constant
 	  stub base address, as an unsigned integer
 	  constant.  See \pagref{MIN_MAX_RELATIVE_STUB_ADDRESS} for
 	  defaults.
-\end{tabular}
-\end{indpar}
+\end{tabular}\end{indpar}
 
 The fastest scheme is the \key{absolute stub address} scheme,
 where the absolute stub
@@ -899,31 +900,31 @@ All these macros are defined in
 
 The macros set by the programmer are:
 
-\begin{indpar}
-\begin{tabular}{lp{3.8in}}
+\begin{indpar}\begin{tabular}{p{2.0in}p{3.5in}}
 \TTNBKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose;
 				  defaults to 0.
-\LABEL{MIN_IS_COMPACT} \\[1ex]
+\LABEL{MIN_IS_COMPACT}
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{p{2.0in}p{3.5in}}
 \TTNBKEY{MIN\_MAX\_EPHEMERAL\_LEVELS}
 				& Maximum number of garbage collector
 				  ephemeral levels allowed in
 				  \underline{any} execution of the
 				  compiled binary; defaults to 2.
 \LABEL{MIN_MAX_EPHEMERAL_LEVELS} \\
-\end{tabular}
-\end{indpar}
+\end{tabular}\end{indpar}
 
 The macros which are normally set to default values computed from
 the above macro settings are:
 \begin{indpar}
-\begin{tabular}{@{}lp{3.5in}@{}}
+\begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
 \TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
 				  Must equal `\verb|! MIN_IS_COMPACT|\,'.
 \LABEL{MIN_IS_LOOSE}
 \end{tabular}
 \end{indpar}
 \begin{indpar}
-\begin{tabular}{@{}lp{3.5in}@{}}
+\begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
 \TTNBKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
 				& The maximum number of stubs that can
 				  exist in \underline{any} execution
@@ -939,7 +940,7 @@ else:				& $2^{40-4e}$ \\
 \end{tabular}
 \end{indpar}
 \begin{indpar}
-\begin{tabular}{@{}lp{3.5in}@{}}
+\begin{tabular}{@{}p{2.0in}p{3.5in}@{}}
 \TTNBKEY{MIN\_STUB\_BASE}
 	& The value of the `stub base' for relative addressing
           (see \pagref{RELATIVE-STUB-ADDRESS}).  If defined
@@ -950,7 +951,7 @@ else:				& $2^{40-4e}$ \\
 \end{tabular}
 \end{indpar}
 \begin{indpar}
-\begin{tabular}{@{}lp{3.5in}@{}}
+\begin{tabular}{@{}p{2.5in}p{3.0in}@{}}
 \TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
 	& The maximum address of any stub relative to the `stub base' (address
 	  of the first stub), as an unsigned integer constant.  Default: \\
@@ -959,7 +960,7 @@ else:				& $2^{40-4e}$ \\
 \end{tabular}
 \end{indpar}
 \begin{indpar}
-\begin{tabular}{@{}lp{3.5in}@{}}
+\begin{tabular}{@{}p{2.5in}p{3.0in}@{}}
 \TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
 	& The maximum absolute address of any stub.  Defaults: \\
 	& ~~~~ if \verb|MIN_STUB_BASE| defined: \\
@@ -984,30 +985,30 @@ else:				& $2^{40-4e}$ \\
 The following functions return {\tt true} if a {\tt min::gen} datum is of the
 indicated subtype and {\tt false} otherwise:
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
+\begin{indpar}
+\verb|bool min::|\MINKEY{is\_stub}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STUB} \\
-\verb|bool min::| & \MINKEY{is\_direct\_float\LOOSE}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_direct\_float\LOOSE}\verb| ( min::gen v )|
 \LABEL{MIN::IS_DIRECT_FLOAT} \\
-\verb|bool min::| & \MINKEY{is\_direct\_int\COMPACT}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_direct\_int\COMPACT}\verb| ( min::gen v )|
 \LABEL{MIN::IS_DIRECT_INT} \\
-\verb|bool min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_direct\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_DIRECT_STR} \\
-\verb|bool min::| & \MINKEY{is\_list\_aux}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_list\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LIST_AUX} \\
-\verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST_AUX} \\
-\verb|bool min::| & \MINKEY{is\_indirect\_aux}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_indirect\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_INDIRECT_AUX} \\
-\verb|bool min::| & \MINKEY{is\_packed\_aux}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_packed\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_PACKED_AUX} \\
-\verb|bool min::| & \MINKEY{is\_index}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_index}\verb| ( min::gen v )|
 \LABEL{MIN::IS_INDEX} \\
-\verb|bool min::| & \MINKEY{is\_control\_code}\verb| ( min::gen v )|
+\verb|bool min::|\MINKEY{is\_control\_code}\verb| ( min::gen v )|
 \LABEL{MIN::IS_CONTROL_CODE} \\
-\verb|bool min::| & \MINKEY{is\_special}\verb| ( min::gen v )|
-\LABEL{MIN::IS_SPECIAL_CODE} \\
-\end{tabular}\end{indpar}
+\verb|bool min::|\MINKEY{is\_special}\verb| ( min::gen v )|
+\LABEL{MIN::IS_SPECIAL_CODE}
+\end{indpar}
 
 For a 32-bit general value {\tt is\_direct\_float\LOOSE} is unimplemented.
 For a 64-bit general value {\tt is\_direct\_int\COMPACT} is unimplemented.
@@ -1173,37 +1174,35 @@ functions.
 The following unprotected functions are analogous but do not check for
 range errors.
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen MUP::| & \MUPKEY{new\_gen}\verb| ( min::stub * s )|
+\begin{indpar}
+\verb|min::gen MUP::|\MUPKEY{new\_gen}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN_OF_STUB} \\
-\verb|min::gen MUP::|
-    & \MUPKEY{new\_direct\_float\_gen\LOOSE}\verb| ( min::float64 v )|
+\verb|min::gen MUP::|\MUPKEY{new\_direct\_float\_gen\LOOSE}%
+    \verb| ( min::float64 v )|
 \LABEL{MUP::NEW_DIRECT_FLOAT_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_direct\_int\_gen\COMPACT}\verb| ( int v )|
+\verb|min::gen MUP::|\MUPKEY{new\_direct\_int\_gen\COMPACT}\verb| ( int v )|
 \LABEL{MUP::NEW_DIRECT_INT_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_direct\_str\_gen}\verb| ( const char * p )|
+\verb|min::gen MUP::|\MUPKEY{new\_direct\_str\_gen}\verb| ( const char * p )|
 \LABEL{MUP::NEW_DIRECT_STR_GEN} \\
-\verb|min::gen MUP::|
-    & \MUPKEY{new\_direct\_str\_gen}\verb| ( const char * p, unsigned n )|
+\verb|min::gen MUP::|\MUPKEY{new\_direct\_str\_gen}%
+    \verb| ( const char * p, unsigned n )|
 \LABEL{MUP::NEW_DIRECT_STR_GEN_WITH_N} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_list\_aux\_gen}\verb| ( min::unsgen p )|
+\verb|min::gen MUP::|\MUPKEY{new\_list\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( min::unsgen p )|
+\verb|min::gen MUP::|\MUPKEY{new\_sublist\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MUP::NEW_SUBLIST_AUX_GEN} \\
-\verb|min::gen MUP::|
-    & \MUPKEY{new\_indirect\_aux\_gen}\verb| ( min::unsgen p )|
+\verb|min::gen MUP::|\MUPKEY{new\_indirect\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MUP::NEW_INDIRECT_AUX_GEN} \\
-\verb|min::gen MUP::|
-    & \MUPKEY{new\_packed\_aux\_gen}%
+\verb|min::gen MUP::|\MUPKEY{new\_packed\_aux\_gen}%
       \verb| ( unsigned p, unsigned i )|
 \LABEL{MUP::NEW_PACKED_AUX_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_index\_gen}\verb| ( min::unsgen i )|
+\verb|min::gen MUP::|\MUPKEY{new\_index\_gen}\verb| ( min::unsgen i )|
 \LABEL{MUP::NEW_INDEX_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_control\_code\_gen}\verb| ( min::unsgen c )|
+\verb|min::gen MUP::|\MUPKEY{new\_control\_code\_gen}\verb| ( min::unsgen c )|
 \LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
-\verb|min::gen MUP::| & \MUPKEY{new\_special\_gen}\verb| ( min::unsgen i )|
-\LABEL{MUP::NEW_SPECIAL_GEN} \\
-\end{tabular}\end{indpar}
+\verb|min::gen MUP::|\MUPKEY{new\_special\_gen}\verb| ( min::unsgen i )|
+\LABEL{MUP::NEW_SPECIAL_GEN}
+\end{indpar}
 
 The following unprotected function can be used to replace the data
 (non-subtype)
@@ -1224,32 +1223,32 @@ and control code
 are implementation dependent.  The following constants equal these
 subtype codes:
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const unsigned min::| & \MINKEY{GEN\_STUB}
+\begin{indpar}
+\verb|const unsigned min::|\MINKEY{GEN\_STUB}
 \LABEL{MIN::GEN_STUB} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_FLOAT\LOOSE}
+\verb|const unsigned min::|\MINKEY{GEN\_DIRECT\_FLOAT\LOOSE}
 \LABEL{MIN::GEN_DIRECT_FLOAT} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_INT\COMPACT}
+\verb|const unsigned min::|\MINKEY{GEN\_DIRECT\_INT\COMPACT}
 \LABEL{MIN::GEN_DIRECT_INT} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_STR}
+\verb|const unsigned min::|\MINKEY{GEN\_DIRECT\_STR}
 \LABEL{MIN::GEN_DIRECT_STR} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_LIST\_AUX}
+\verb|const unsigned min::|\MINKEY{GEN\_LIST\_AUX}
 \LABEL{MIN::GEN_LIST_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_SUBLIST\_AUX}
+\verb|const unsigned min::|\MINKEY{GEN\_SUBLIST\_AUX}
 \LABEL{MIN::GEN_SUBLIST_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_INDIRECT\_AUX}
+\verb|const unsigned min::|\MINKEY{GEN\_INDIRECT\_AUX}
 \LABEL{MIN::GEN_INDIRECT_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_PACKED\_AUX}
+\verb|const unsigned min::|\MINKEY{GEN\_PACKED\_AUX}
 \LABEL{MIN::GEN_PACKED_AUX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_INDEX}
+\verb|const unsigned min::|\MINKEY{GEN\_INDEX}
 \LABEL{MIN::GEN_INDEX} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_CONTROL\_CODE}
+\verb|const unsigned min::|\MINKEY{GEN\_CONTROL\_CODE}
 \LABEL{MIN::GEN_CONTROL_CODE} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_SPECIAL}
+\verb|const unsigned min::|\MINKEY{GEN\_SPECIAL}
 \LABEL{MIN::GEN_SPECIAL} \\
-\verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
-\LABEL{MIN::GEN_ILLEGAL} \\
-\end{tabular}\end{indpar}
+\verb|const unsigned min::|\MINKEY{GEN\_ILLEGAL}
+\LABEL{MIN::GEN_ILLEGAL}
+\end{indpar}
 
 \verb|min::GEN_ILLEGAL| is actually illegal as a subtype code but may
 be returned by the following function which be used to retrieve
