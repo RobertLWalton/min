@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Dec 18 13:27:06 EST 2009
+// Date:	Sun Jan  3 06:25:09 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/18 19:31:56 $
+//   $Date: 2010/01/03 11:32:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.199 $
+//   $Revision: 1.200 $
 
 // Table of Contents:
 //
@@ -140,7 +140,7 @@ namespace min {
 	    = 0xF1;
 	const unsigned GEN_SUBLIST_AUX
 	    = 0xF2;
-	const unsigned GEN_INDIRECT_PAIR_AUX
+	const unsigned GEN_INDIRECT_AUX
 	    = 0xF3;
 	const unsigned GEN_INDEXED_AUX
 	    = 0xF4;
@@ -188,7 +188,7 @@ namespace min {
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x11;
 	const unsigned GEN_SUBLIST_AUX
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x12;
-	const unsigned GEN_INDIRECT_PAIR_AUX
+	const unsigned GEN_INDIRECT_AUX
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
 	const unsigned GEN_INDEXED_AUX
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x14;
@@ -596,12 +596,12 @@ namespace min { namespace unprotected {
 		 + ( (unsgen) GEN_SUBLIST_AUX
 		     << VSIZE ) );
     }
-    inline min::gen new_indirect_pair_aux_gen
+    inline min::gen new_indirect_aux_gen
 	    ( unsgen p )
     {
 	return (min::gen)
 	       (   p
-		 + ( (unsgen) GEN_INDIRECT_PAIR_AUX
+		 + ( (unsgen) GEN_INDIRECT_AUX
 		     << VSIZE ) );
     }
     inline min::gen new_indexed_aux_gen
@@ -698,11 +698,11 @@ namespace min {
 	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
 	return unprotected::new_sublist_aux_gen ( p );
     }
-    inline min::gen new_indirect_pair_aux_gen
+    inline min::gen new_indirect_aux_gen
 	    ( unsgen p )
     {
 	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
-	return unprotected::new_indirect_pair_aux_gen
+	return unprotected::new_indirect_aux_gen
 			( p );
     }
     inline min::gen new_indexed_aux_gen
@@ -810,11 +810,11 @@ namespace min {
 	return
 	    ( (unsgen) v >> VSIZE == GEN_SUBLIST_AUX );
     }
-    inline bool is_indirect_pair_aux ( min::gen v )
+    inline bool is_indirect_aux ( min::gen v )
     {
 	return
 	    (    (unsgen) v >> VSIZE
-	      == GEN_INDIRECT_PAIR_AUX );
+	      == GEN_INDIRECT_AUX );
     }
     inline bool is_indexed_aux ( min::gen v )
     {
@@ -902,7 +902,7 @@ namespace min { namespace unprotected {
     {
 	return (unsgen) v & internal::VMASK;
     }
-    inline unsgen indirect_pair_aux_of
+    inline unsgen indirect_aux_of
 	    ( min::gen v )
     {
 	return (unsgen) v & internal::VMASK;
@@ -967,11 +967,11 @@ namespace min {
 	MIN_ASSERT ( is_sublist_aux ( v ) );
 	return unprotected::sublist_aux_of ( v );
     }
-    inline unsgen indirect_pair_aux_of
+    inline unsgen indirect_aux_of
 	    ( min::gen v )
     {
-	MIN_ASSERT ( is_indirect_pair_aux ( v ) );
-	return unprotected::indirect_pair_aux_of ( v );
+	MIN_ASSERT ( is_indirect_aux ( v ) );
+	return unprotected::indirect_aux_of ( v );
     }
     inline unsigned indexed_aux_of ( min::gen v )
     {

@@ -159,28 +159,28 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( sublistauxgen ) true.
 
-Test indirect pair aux general values:
-pairauxgen: 7ff41300000b353b
+Test indirect aux general values:
+indirectauxgen: 7ff41300000b353b
 min_interface_test.cc:XXXX assert:
-    min::is_indirect_pair_aux ( pairauxgen ) true.
+    min::is_indirect_aux ( indirectauxgen ) true.
 min_interface_test.cc:XXXX assert:
-    min::gen_subtype_of ( pairauxgen ) == min::GEN_INDIRECT_PAIR_AUX true.
+    min::gen_subtype_of ( indirectauxgen ) == min::GEN_INDIRECT_AUX true.
 ../include/min.h:XXXX assert:
-    is_indirect_pair_aux ( v ) true.
+    is_indirect_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
-    min::indirect_pair_aux_of ( pairauxgen ) == aux true.
+    min::indirect_aux_of ( indirectauxgen ) == aux true.
 min_interface_test.cc:XXXX desire success:
-    pairauxgen = min::new_indirect_pair_aux_gen ( aux );
+    indirectauxgen = min::new_indirect_aux_gen ( aux );
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX desire failure:
-    pairauxgen = min::new_indirect_pair_aux_gen ( (min::unsgen) 1 << min::VSIZE );
+    indirectauxgen = min::new_indirect_aux_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE false.
 min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( pairauxgen ) true.
+    ! min::is_stub ( indirectauxgen ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( pairauxgen ) true.
+    ! min::is_direct_str ( indirectauxgen ) true.
 
 Test indexed aux general values:
 indexedauxgen: 7ff4140027d00119
