@@ -200,40 +200,40 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( indirectauxgen ) true.
 
-Test indexed aux general values:
-indexedauxgen: f427d119
+Test packed aux general values:
+packedauxgen: f427d119
 min_interface_test.cc:XXXX assert:
-    min::is_indexed_aux ( indexedauxgen ) true.
+    min::is_packed_aux ( packedauxgen ) true.
 min_interface_test.cc:XXXX assert:
-    min::gen_subtype_of ( indexedauxgen ) == min::GEN_INDEXED_AUX true.
+    min::gen_subtype_of ( packedauxgen ) == min::GEN_PACKED_AUX true.
 ../include/min.h:XXXX assert:
-    is_indexed_aux ( v ) true.
+    is_packed_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
-    min::indexed_aux_of ( indexedauxgen ) == indexed_aux true.
+    min::packed_aux_of ( packedauxgen ) == packed_aux true.
 ../include/min.h:XXXX assert:
-    is_indexed_aux ( v ) true.
+    is_packed_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
-    min::indexed_index_of ( indexedauxgen ) == indexed_index true.
+    min::packed_index_of ( packedauxgen ) == packed_index true.
 min_interface_test.cc:XXXX desire success:
-    indexedauxgen = min::new_indexed_aux_gen ( indexed_aux, indexed_index );
+    packedauxgen = min::new_packed_aux_gen ( packed_aux, packed_index );
 ../include/min.h:XXXX assert:
     p < 1 << ( VSIZE / 2 ) true.
 ../include/min.h:XXXX assert:
     i < 1 << ( VSIZE / 2 ) true.
 min_interface_test.cc:XXXX desire failure:
-    indexedauxgen = min::new_indexed_aux_gen ( 1 << (min::VSIZE/2), indexed_index );
+    packedauxgen = min::new_packed_aux_gen ( 1 << (min::VSIZE/2), packed_index );
 ../include/min.h:XXXX assert:
     p < 1 << ( VSIZE / 2 ) false.
 min_interface_test.cc:XXXX desire failure:
-    indexedauxgen = min::new_indexed_aux_gen ( indexed_aux, 1 << (min::VSIZE/2) );
+    packedauxgen = min::new_packed_aux_gen ( packed_aux, 1 << (min::VSIZE/2) );
 ../include/min.h:XXXX assert:
     p < 1 << ( VSIZE / 2 ) true.
 ../include/min.h:XXXX assert:
     i < 1 << ( VSIZE / 2 ) false.
 min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( indexedauxgen ) true.
+    ! min::is_stub ( packedauxgen ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( indexedauxgen ) true.
+    ! min::is_direct_str ( packedauxgen ) true.
 
 Test index general values:
 indexgen: f50b353b
@@ -356,7 +356,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6ae0
+control2: 85800000009f6aa0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -367,7 +367,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6af0
+re-control2: 85800000009f6ab0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -380,7 +380,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f6ae0
+control3: 85800000009f6aa0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -391,7 +391,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6af0
+re-control3: 85800000009f6ab0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
