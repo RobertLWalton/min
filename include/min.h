@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan  3 10:16:31 EST 2010
+// Date:	Sun Jan  3 10:22:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/03 15:16:47 $
+//   $Date: 2010/01/03 15:34:42 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.202 $
+//   $Revision: 1.203 $
 
 // Table of Contents:
 //
@@ -226,6 +226,9 @@ namespace min {
 	const unsgen VHALFMASK =
 	    ( (unsgen) 1 << ( VSIZE / 2 ) ) - 1;
 	    // Half value mask.
+	const unsgen VHIHALFMASK =
+	    VHALFMASK << ( VSIZE / 2 );
+	    // Ditto for upper half of VSIZE datum.
 #       if MIN_IS_LOOSE
 	    const unsgen AMASK =
 		( (unsgen) 1 << ( VSIZE + 4 ) ) - 1;
@@ -637,15 +640,15 @@ namespace min { namespace unprotected {
 	    ( min::gen v, min::unsgen p )
     {
 	return (min::gen)
-	    ( ( (unsgen ) v & ( (unsgen) -1 << VSIZE ) )
+	    ( ( (unsgen ) v & ~ internal::VMASK )
 	      + p );
     }
     inline min::gen renew_packed_aux_gen
-	    ( min::gen v, unsigned p, unsigned i )
+	    ( min::gen v, unsigned p )
     {
 	return (min::gen)
-	    ( ( (unsgen ) v & ( (unsgen) -1 << VSIZE ) )
-	      + ( (unsgen) p << (VSIZE/2) ) + i );
+	    ( ( (unsgen ) v & ~ internal::VHIHALFMASK )
+	      + ( (unsgen) p << (VSIZE/2) ) );
     }
 } }
 
