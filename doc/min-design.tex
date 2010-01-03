@@ -365,7 +365,7 @@ Most, but not all, of the protection provided by the protected interface
 is obtained by the functions of that interface using the
 {\tt MIN\_ASSERT} macro:
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{lp{4.0in}}
 \TTNBKEY{MIN\_ASSERT}{\tt (}$e${\tt )}
 	& By default defined as `{\tt assert(}$e${\tt )}' if
@@ -382,7 +382,7 @@ is obtained by the functions of that interface using the
 			  to a no operation if it is not otherwise defined.
 \LABEL{MIN_PROTECT} \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 By setting {\tt MIN\_PROTECT} to {\tt 0}, a compilation can optimize
 debugged code, although this will remove the protection
@@ -400,7 +400,7 @@ for all separately compiled parts of a single program.
 The following are the most commonly used compiler options that
 redefine {\tt MIN\_} macros:
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{lll}
 Macro Name		& Meaning	& Page Reference \\[1ex]
 \verb|-DMIN_PROTECT=0|	& delete assert checks
@@ -409,11 +409,11 @@ Macro Name		& Meaning	& Page Reference \\[1ex]
 			& make implementation compact
 					& \pagref{MIN_IS_COMPACT} \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 The other compilation parameters involve technical details of
 memory management.  For specifics see the file
-\ttkey{include/min\_parameters.h}.
+\ttkey{min\_parameters.h}.
 
 Protected functions are in the \ttmkey{min}{namespace} namespace
 and have names beginning with
@@ -424,10 +424,10 @@ namespace and have names beginning with
 The {\tt min} and {\tt min::unprotected} namespaces hold \underline{all}
 the stable interfaces of the MIN implementation.
 
-Code in \verb|include/min.h| that is not meant to be accessed
+Code in \verb|min.h| that is not meant to be accessed
 by users is in the following namespaces:
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{llp{4.0in}}
 	    & Abbre- \\
 Namespace   & viation   & Use
@@ -449,7 +449,7 @@ Namespace   & viation   & Use
 			  Not described in this document; see
 			  {\tt .h} files.
 \end{tabular}
-\end{center}
+\end{indpar}
 
 \section{Data}
 
@@ -549,10 +549,10 @@ the pointer must be maintained if a relocating function is called.
 Therefore interrupts are only allowed
 at specific points in the code.  The inline function
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{interrupt\REL}\verb| ( void )|
 \LABEL{MIN::INTERRUPT} \\
-\end{tabular}\end{center}%
+\end{tabular}\end{indpar}%
 \index{interrupt!relocating}
 
 checks an interrupt
@@ -568,10 +568,10 @@ is reset to the value \minnbkey{DEALLOCATED}\LABEL{MIN::DEALLOCATED},
 which indicates the body is deallocated.
 The function that deallocates a body is:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{deallocate\REL}\verb| ( min::stub * s )|
 \LABEL{MIN::DEALLOCATE} \\
-\end{tabular}\end{center}%
+\end{tabular}\end{indpar}%
 \index{deallocate!relocating}
 
 Deallocation is considered to be a variant of relocation.
@@ -752,18 +752,19 @@ is selected for each type of general value.  The scheme selection is
 controlled by the following `\skey{stub address packing parameter}\,'
 macros:
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{lp{3.0in}}
 \TTNBKEY{MIN\_\EOL MAX\_\EOL ABSOLUTE\_\EOL STUB\_\EOL ADDRESS}
 	& The maximum absolute address of any stub as an unsigned integer
 	  constant.  See \pagref{MIN_MAX_ABSOLUTE_STUB_ADDRESS} for
 	  defaults. \\[1ex]
 \TTNBKEY{MIN\_\EOL MAX\_\EOL RELATIVE\_\EOL STUB\_\EOL ADDRESS}
-	& The maximum relative address of any stub as an unsigned integer
+	& The maximum address of any stub relative to a constant
+	  stub base address, as an unsigned integer
 	  constant.  See \pagref{MIN_MAX_RELATIVE_STUB_ADDRESS} for
 	  defaults.
 \end{tabular}
-\end{center}
+\end{indpar}
 
 The fastest scheme is the \key{absolute stub address} scheme,
 where the absolute stub
@@ -808,7 +809,7 @@ $2^{32}-2^{29}-1$ for 32 bit general values.
 
 Note that on machines that have 32 bit addresses (e.g.,
 the IA32\footnote{Intel Architecture 32-bit, a.k.a, i386 machines.}
-machines), there is nothing to gain by either the relative stub address
+machines), there is little to gain by either the relative stub address
 or stub index packing schemes,
 so only the absolute stub address scheme should be used on such machines.
 
@@ -858,13 +859,14 @@ of these two types.  Therefore a function that has only
 {\tt min::gen} and non-{\tt min} (e.g. number and {\tt char *}) arguments
 cannot be \ikey{overloaded}{overloading!rationale}\label{OVERLOADING-RATIONALE},
 and must have a name beginning with `{\tt min::}'.
+To avoid confusion, all MIN function names begin with `{\tt min::}'.
 
 Many {\tt min:gen} values, which are 32 or 64 bits, are divided into a subtype,
 either 8 or 24 bits, and a datum, either 24 or 40 bits.  In this context the
 datum is called the `\mkey{value}{part of a {\tt min::gen} value}'.  The
 following definitions are provided in {\tt min.h} to facilitate coding:
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{r@{}l@{\hspace*{2em}}l}
 \verb|min::| & \MINKEY{unsgen}
 	& typedef'ed to {\tt min::uns32}\COMPACT or {\tt min::uns64}\LOOSE
@@ -876,7 +878,7 @@ following definitions are provided in {\tt min.h} to facilitate coding:
 	& Value size; equal to {\tt 24}\COMPACT or {\tt 40}\LOOSE.
 \LABEL{MIN::VSIZE}
 \end{tabular}
-\end{center}
+\end{indpar}
 
 
 \subsubsection{General Value Compilation}
@@ -893,12 +895,12 @@ these decisions.  These macros are in two groups, first the macros
 that are set by the programmer, and then the macros which by default
 are computed from the settings of the first group of macros.
 All these macros are defined in
-\ttkey{include/min\_parameters.h}\ttindex{min\_parameters.h}.
+\ttkey{min\_parameters.h}\ttindex{min\_parameters.h}.
 
 The macros set by the programmer are:
 
-\begin{center}
-\begin{tabular}{lp{4in}}
+\begin{indpar}
+\begin{tabular}{lp{3.8in}}
 \TTNBKEY{MIN\_IS\_COMPACT}	& 1 if compact implementation; 0 if loose;
 				  defaults to 0.
 \LABEL{MIN_IS_COMPACT} \\[1ex]
@@ -909,15 +911,19 @@ The macros set by the programmer are:
 				  compiled binary; defaults to 2.
 \LABEL{MIN_MAX_EPHEMERAL_LEVELS} \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 The macros which are normally set to default values computed from
 the above macro settings are:
-\begin{center}
+\begin{indpar}
 \begin{tabular}{@{}lp{3.5in}@{}}
 \TTNBKEY{MIN\_IS\_LOOSE}	& 1 if loose implementation; 0 if compact;
 				  Must equal `\verb|! MIN_IS_COMPACT|\,'.
-\LABEL{MIN_IS_LOOSE} \\[1ex]
+\LABEL{MIN_IS_LOOSE}
+\end{tabular}
+\end{indpar}
+\begin{indpar}
+\begin{tabular}{@{}lp{3.5in}@{}}
 \TTNBKEY{MIN\_MAX\_NUMBER\_OF\_STUBS}
 				& The maximum number of stubs that can
 				  exist in \underline{any} execution
@@ -929,19 +935,31 @@ else:				& $2^{40-4e}$ \\
 \end{tabular} \\
 & where \\
 & ~~$e = max(0,\mbox{\tt MIN\_MAX\_EPHEMERAL\_LEVELS}-2)$.
-\LABEL{MIN_MAX_NUMBER_OF_STUBS} \\[1ex]
+\LABEL{MIN_MAX_NUMBER_OF_STUBS}
+\end{tabular}
+\end{indpar}
+\begin{indpar}
+\begin{tabular}{@{}lp{3.5in}@{}}
 \TTNBKEY{MIN\_STUB\_BASE}
 	& The value of the `stub base' for relative addressing
           (see \pagref{RELATIVE-STUB-ADDRESS}).  If defined
           this must be a non-negative integer constant.  Defaults to
 	  \verb|0| if \verb|MIN_MAX_NUMBER_OF_STUBS| is set by
 	  default, and otherwise is left undefined.
-\LABEL{MIN_STUB_BASE} \\[1ex]
+\LABEL{MIN_STUB_BASE}
+\end{tabular}
+\end{indpar}
+\begin{indpar}
+\begin{tabular}{@{}lp{3.5in}@{}}
 \TTNBKEY{MIN\_MAX\_RELATIVE\_STUB\_ADDRESS}
 	& The maximum address of any stub relative to the `stub base' (address
 	  of the first stub), as an unsigned integer constant.  Default: \\
 	& ~~\verb|16*MIN_MAX_NUMBER_OF_STUBS - 1|.
-\LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS} \\[1ex]
+\LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS}
+\end{tabular}
+\end{indpar}
+\begin{indpar}
+\begin{tabular}{@{}lp{3.5in}@{}}
 \TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
 	& The maximum absolute address of any stub.  Defaults: \\
 	& ~~~~ if \verb|MIN_STUB_BASE| defined: \\
@@ -958,7 +976,7 @@ else:				& $2^{40-4e}$ \\
 	& ~~~~~~~~ $2^{48}-1$
 \LABEL{MIN_MAX_ABSOLUTE_STUB_ADDRESS}
 \end{tabular}
-\end{center}
+\end{indpar}
 
 \subsubsection{General Value Functions}
 \label{GENERAL-VALUE-FUNCTIONS}
@@ -966,7 +984,7 @@ else:				& $2^{40-4e}$ \\
 The following functions return {\tt true} if a {\tt min::gen} datum is of the
 indicated subtype and {\tt false} otherwise:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STUB} \\
 \verb|bool min::| & \MINKEY{is\_direct\_float\LOOSE}\verb| ( min::gen v )|
@@ -989,7 +1007,7 @@ indicated subtype and {\tt false} otherwise:
 \LABEL{MIN::IS_CONTROL_CODE} \\
 \verb|bool min::| & \MINKEY{is\_special}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SPECIAL_CODE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 For a 32-bit general value {\tt is\_direct\_float\LOOSE} is unimplemented.
 For a 64-bit general value {\tt is\_direct\_int\COMPACT} is unimplemented.
@@ -997,7 +1015,7 @@ For a 64-bit general value {\tt is\_direct\_int\COMPACT} is unimplemented.
 The following protected functions return the value appropriate for a given
 subtype, after checking the subtype with an {\tt MIN\_ASSERT} statement:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MIN::STUB_OF} \\
 \verb|min::float64 min::|
@@ -1026,7 +1044,7 @@ subtype, after checking the subtype with an {\tt MIN\_ASSERT} statement:
 \LABEL{MIN::CONTROL_CODE_OF} \\
 \verb|min::unsgen min::| & \MINKEY{special\_index\_of}\verb| ( min::gen v )|
 \LABEL{MIN::SPECIAL_INDEX_OF} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Here the \verb|min::uns64| value returned by \minkey{direct\_str\_of}
 should be overlaid by a union with a \verb|char[]| buffer, as in
@@ -1059,7 +1077,7 @@ both return 12-bit unsigned integers when general values are 32-bits, and
 The following unprotected functions return the value appropriate for a given
 subtype, \underline{without} checking the subtype:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MUP::STUB_OF} \\
 \verb|min::float64 MUP::|
@@ -1088,7 +1106,7 @@ subtype, \underline{without} checking the subtype:
 \LABEL{MUP::CONTROL_CODE_OF} \\
 \verb|min::unsgen MUP::| & \MUPKEY{special\_index\_of}\verb| ( min::gen v )|
 \LABEL{MUP::SPECIAL_INDEX_OF} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Note that \verb|MUP::stub_of| returns a `\verb|min::stub *|' pointer
 whereas \verb|min::stub_of| returns a `\verb|const min::stub *|' pointer.
@@ -1096,7 +1114,7 @@ whereas \verb|min::stub_of| returns a `\verb|const min::stub *|' pointer.
 New {\tt min::gen} values can be generated by the following protected
 functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_gen}\verb| ( min::stub * s )|
 \LABEL{MIN::NEW_GEN_OF_STUB} \\
 \verb|min::gen min::|
@@ -1126,7 +1144,7 @@ functions:
 \LABEL{MIN::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen min::| & \MINKEY{new\_special\_gen}\verb| ( min::unsgen i )|
 \LABEL{MIN::NEW_SPECIAL_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 These protected functions check for argument range errors.  Stubs are
 \underline{not} allocated by these functions, so an {\tt int}
@@ -1155,7 +1173,7 @@ functions.
 The following unprotected functions are analogous but do not check for
 range errors.
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen MUP::| & \MUPKEY{new\_gen}\verb| ( min::stub * s )|
 \LABEL{MUP::NEW_GEN_OF_STUB} \\
 \verb|min::gen MUP::|
@@ -1185,7 +1203,7 @@ range errors.
 \LABEL{MUP::NEW_CONTROL_CODE_GEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_special\_gen}\verb| ( min::unsgen i )|
 \LABEL{MUP::NEW_SPECIAL_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The following unprotected function can be used to replace the data
 (non-subtype)
@@ -1194,11 +1212,11 @@ a pointer to a stub or a number (direct float or direct integer).
 The intended use is for changing the value of an auxiliary pointer
 in a general value that has one of several subtype codes.
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen MUP::|
     & \MUPKEY{renew\_gen}\verb| ( min::gen v, min::unsgen p )|
 \LABEL{MUP::RENEW_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The actual direct atom, stub pointer, auxiliary pointer, index,
 and control code
@@ -1206,7 +1224,7 @@ and control code
 are implementation dependent.  The following constants equal these
 subtype codes:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const unsigned min::| & \MINKEY{GEN\_STUB}
 \LABEL{MIN::GEN_STUB} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_DIRECT\_FLOAT\LOOSE}
@@ -1231,16 +1249,16 @@ subtype codes:
 \LABEL{MIN::GEN_SPECIAL} \\
 \verb|const unsigned min::| & \MINKEY{GEN\_ILLEGAL}
 \LABEL{MIN::GEN_ILLEGAL} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 \verb|min::GEN_ILLEGAL| is actually illegal as a subtype code but may
 be returned by the following function which be used to retrieve
 the subtype code field:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{gen\_subtype\_of}\verb| ( min::gen v )|
 \LABEL{MIN::GEN_SUBTYPE_OF} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 For 64-bit \verb|min::gen| values, this retrieves the high order
 24 bits of the value, and then zeros any low order bits that are not
@@ -1253,12 +1271,12 @@ value is not a legal general value.
 
 There are a few general value functions that accept any atom.
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_name}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NAME} \\
 \verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
 \LABEL{MIN::HASH} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The \verb|min::is_name| function returns true if and only if its argument is
 an immutable value that has a hash value and therefore can be used as
@@ -1324,11 +1342,11 @@ compile time constants.  Because compilers generally do not run
 inline functions at compile time, a macro is needed to compute special
 values.  This macro is
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|(macro) min::gen |
 	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
 \LABEL{MIN_NEW_SPECIAL_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 where \verb|i| is the index of the special value to be
 created, and must be an unsigned integer compile time constant
@@ -1375,18 +1393,18 @@ Any pointer into an object body is called a `body pointer'.
 
 The \key{type code} of a stub may be returned by
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|int min::| & \MINKEY{type\_of}\verb| ( const min::stub * s )|
 \LABEL{MIN::TYPE_OF}
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 A determination of whether or not a stub is collectible may be made
 by applying the function
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
 \LABEL{MIN::IS_COLLECTIBLE}
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 to the type code of the stub.  Notice that type codes are \underline{signed}
 integers, so that negative type codes are uncollectible and positive type codes
@@ -1637,12 +1655,12 @@ min::set_relocated_flag ( relocated );
 
 The following functions get and set the relocated flag:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
 \LABEL{MIN::RELOCATED_FLAG} \\
 \verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool value )|
 \LABEL{MIN::SET_RELOCATED_FLAG}
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The function to set the flag returns the flag's previous value.
 
@@ -1742,10 +1760,10 @@ is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 The following function tests whether a stub
 has a deallocated body:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED}
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 This function just checks the stub type code to see if it equals
 {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
@@ -1761,10 +1779,10 @@ virtual memory.
 In some implementations there is a limit to the size of inaccessible memory.
 These implementations define the macro:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 (unsigned integer macro)~~ & \TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
 \LABEL{MIN_DEALLOCATED_LIMIT}
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 to be the maximum size of inaccessible memory to which the stub of
 a deallocated object is pointed.  If this macro is undefined, there
@@ -1806,12 +1824,12 @@ stub controls.
 
 The following functions are used to allocate stubs:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::stub * MUP::| & \MUPKEY{new\_acc\_stub}\verb| ( void )|
 \LABEL{MUP::NEW_ACC_STUB} \\
 \verb|min::stub * MUP::| & \MUPKEY{new\_aux\_stub}\verb| ( void )|
 \LABEL{MUP::NEW_AUX_STUB} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The \verb|min::new_acc_stub| function returns a garbage collectable (acc)
 stub with its type set to \minkey{ACC\_FREE}.  This kind of stub is
@@ -1826,10 +1844,10 @@ stub with its type set to \minkey{AUX\_FREE}.  This kind of stub is
 is \underline{not} freed by the garbage collector.  It must be
 freed only by calling:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void MUP::| & \MUPKEY{new\_aux\_stub}\verb| ( min::stub * s )|
 \LABEL{MUP::FREE_AUX_STUB} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 A non-acc stub is most often attached to an acc stub in such a way
 that when the acc stub is garbage collected, the non-acc stub is
@@ -1843,7 +1861,7 @@ non-acc stubs have names containing `\ttkey{aux}' instead of
 
 The following functions read or write the stub value part of a stub:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::VALUE_OF} \\
 \verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( const min::stub * s )|
@@ -1864,7 +1882,7 @@ The following functions read or write the stub value part of a stub:
 \verb|void MUP::|
     & \MUPKEY{set\_pointer\_of}\verb| ( min::stub * s, void * p )|
 \LABEL{MUP::SET_POINTER_OF} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Thus the stub value can be taken to be of type \verb|min::uns64|,
 \verb|min::float64|, \verb|min::gen|, or
@@ -1880,12 +1898,16 @@ read by \verb|MUP::float_of| with undefined results.
 
 The following functions read or write the stub control part of a stub:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::CONTROL_OF} \\
 \verb|int min::| & \MINKEY{type\_of}\verb| ( const min::stub * s )| \\
 \verb|bool MUP::|
-    & \MUPKEY{test\_flags\_of}\verb| ( const min::stub * s, min::uns64 flags )|
+    & \MUPKEY{test\_flags\_of}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( const min::stub * s,| \\
+      \verb|   min::uns64 flags )|
+      \end{tabular}
 \LABEL{MUP::TEST_FLAGS_OF} \\
 \verb|void MUP::|
     & \MUPKEY{set\_control\_of}\verb| ( min::stub * s, min::uns64 c )|
@@ -1899,7 +1921,7 @@ The following functions read or write the stub control part of a stub:
 \verb|void MUP::|
     & \MUPKEY{clear\_flags\_of}\verb| ( min::stub * s, min::uns64 flags )|
 \LABEL{MUP::CLEAR_FLAGS_OF} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The \verb|MUP::control_of| and \verb|MUP::set_control_of| functions
 deal with the entire 64 bit stub control value of a stub.  The other
@@ -2005,7 +2027,7 @@ or vice versa.
 
 Ordinary (non-acc) control values can be manipulated by the following functions:
 
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|min::uns64 MUP::|
     & \MUPKEY{new\_control} \\
     & \verb|    ( int type_code, min::uns64 v,| \\
@@ -2027,12 +2049,12 @@ Ordinary (non-acc) control values can be manipulated by the following functions:
 \LABEL{MUP::VALUE_OF_CONTROL} \\
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::STUB_OF_CONTROL} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Acc control values can be manipulated by the following functions
 (this is only done by acc code):
 
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|min::uns64 MUP::|
     & \MUPKEY{new\_acc\_control} \\
     & \verb|    ( int type_code, const min::stub * s,| \\
@@ -2045,18 +2067,18 @@ Acc control values can be manipulated by the following functions
 \verb|min::stub * MUP::|
     & \MUPKEY{stub\_of\_acc\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::STUB_OF_ACC_CONTROL} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Either ordinary or acc control values can be
 manipulated by the following functions:
 
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|min::uns64 MUP::|
     & \MUPKEY{renew\_control\_type}\verb| ( min::uns64 c, int type )|
 \LABEL{MUP::RENEW_CONTROL_TYPE} \\
 \verb|int MUP::| & \MUPKEY{type\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::TYPE_OF_CONTROL} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Here the 8-bit type code is represented as an {\tt int} in
 the range from $-128$ through $127$.
@@ -2071,17 +2093,17 @@ None of these functions check the ranges of their arguments.
 
 The following functions allocate and free bodies:
 
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|void MUP::|
     & \MUPKEY{new\_body}\verb| ( min::stub * s, unsigned n )|
 \LABEL{MUP::NEW_BODY} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|void MUP::|
     & \MUPKEY{free\_body}\verb| ( min::stub * s, unsigned n )|
 \LABEL{MUP::FREE_BODY} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -2090,11 +2112,11 @@ A \key{number stub} is collectible, has \minnbkey{NUMBER}\LABEL{MIN::NUMBER}
 stub type code, and has
 an immutable \verb|min::float64| stub value that can be read by
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::float64 min::|
     & \MINKEY{float\_of\COMPACT}\verb| ( const min::stub * s )|
 \LABEL{MIN::FLOAT_OF} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Number stubs exist only in compact implementations;
 in loose implementations number atoms are stored exclusively
@@ -2104,7 +2126,7 @@ in direct number general values
 General values that are numbers can be tested, created, and read
 by the following protected functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_num}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NUM} \\[1ex]
 \verb|min::gen min::|
@@ -2119,7 +2141,7 @@ by the following protected functions:
 \LABEL{MIN::FLOAT_OF_GEN} \\[1ex]
 \verb|min::uns32 min::| & \MINKEY{numhash}\verb| ( min::gen v )|
 \LABEL{MIN::NUMHASH_OF_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The \verb|min::is_num| function for a loose 64-bit \verb|min::gen| argument
 is just another name for the \verb|min::is_direct_float| function of the same
@@ -2178,20 +2200,20 @@ on \pagref{HASH-ALGORITHM} to compute the hash value of this string.%
 To permit hash values of arbitrary floating point numbers to be computed,
 the following function is provided:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::| & \MINKEY{floathash}\verb| ( min::float64 f )|
 \LABEL{MIN::FLOATHASH} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The above \verb|min::float_of|, \verb|min::int_of|, and \verb|min::numhash|
 functions of a \verb|min::gen| argument apply \verb|MIN_ASSERT| to check
 that their argument is a number.  The following unprotected function assumes
 that its argument is a number without doing any \verb|MIN_ASSERT| check:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( min::gen v )|
 \LABEL{MUP::FLOAT_OF_GEN}
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 \subsection{Strings}
 \label{STRINGS}
@@ -2245,14 +2267,14 @@ types of string are described later in this section.
 
 The following functions create new general string values:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_STR_GEN} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p, unsigned n )|
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The \verb|min::new_str_gen| functions copy the input string after the
 manner of \verb|strcpy| and \verb|strncpy|, respectively.  That is,
@@ -2277,7 +2299,7 @@ The following functions test a \verb|min::gen| value to see if it
 is a string and obtain information from
 a string \verb|min::gen| value.
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
 \verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
@@ -2294,7 +2316,7 @@ a string \verb|min::gen| value.
 \verb|int min::|
     & \MINKEY{strncmp}\verb| ( const char * p, min::gen v, unsigned n )|
 \LABEL{MIN::STRNCMP_OF_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Five of these functions correspond to the standard C/C++
 {\tt strlen}, {\tt strcpy}, {\tt strncpy}, {\tt strcmp},
@@ -2306,13 +2328,13 @@ To permit hash values of arbitrary strings to be computed,
 without creating {\tt min::gen} values from them first,
 the following functions are provided:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( const char * p )|
 \LABEL{MIN::STRHASH} \\
 \verb|min::uns32 min::|
     & \MINKEY{strnhash}\verb| ( const char * p, unsigned n )|
 \LABEL{MIN::STRNHASH} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Both \verb|strhash| and \verb|strnhash| accept NUL terminated strings, but
 \verb|strnhash| stops reading the string after the first \verb|n| characters
@@ -2342,7 +2364,7 @@ A read-only pointer to the characters of a string {\tt min::gen} value can
 be obtained using the following functions to create and use
 a \key{string pointer}:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| ( min::gen v )|
 \LABEL{MIN::STR_POINTER_OF_GEN} \\
 \verb|void min::|
@@ -2376,7 +2398,7 @@ a \key{string pointer}:
 \LABEL{MUP::[]_OF_STR_POINTER} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::str_pointer & sp )|
 \LABEL{MUP::STR_OF_STR_POINTER} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The constructor creates a string pointer pointing to the {\tt char}'s
 of the string specified by the \verb|min::gen| argument.  This argument
@@ -2415,11 +2437,11 @@ A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
 an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
 8 \verb|char| vector and can be read by
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::|
     & \MUPKEY{short\_str\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::SHORT_STR_OF}
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Here the \verb|min::uns64| value returned by \MUPkey{short\_str\_of}
 should be overlaid by a union with a \verb|char[ ]| buffer, as in
@@ -2454,7 +2476,7 @@ The following are unprotected functions to return a relocatable pointer to the
 long string body, a relocatable pointer to the string itself,
 and the length and hash of the string.
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|MUP::long_str * MUP::|
     & \MUPKEY{long\_str\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::LONG_STR_OF} \\
@@ -2464,7 +2486,7 @@ and the length and hash of the string.
 \LABEL{MUP::LENGTH_OF_LONG_STR} \\
 \verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 These functions are unprotected because \verb|long_str *| pointers
 are relocatable.
@@ -2503,14 +2525,20 @@ has \minnbkey{LABEL}\LABEL{MIN::LABEL} stub type code,
 and has an immutable value.
 The label value may be read by the protected functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{lab\_of}%
-    \verb| ( min::gen * p, unsigned n, const min::stub * s )|
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::gen * p, unsigned n,| \\
+	  \verb|   const min::stub * s )|
+	  \end{tabular}
 \LABEL{MIN::LAB_OF} \\
 \verb|unsigned min::| & \MINKEY{lab\_of}%
-    \verb| ( min::gen * p, unsigned n, min::gen v )|
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::gen * p, unsigned n,| \\
+	  \verb|   min::gen v )|
+	  \end{tabular}
 \LABEL{MIN::LAB_OF_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 These read an initial segment of the label vector into the location
 addressed by {\tt p}.  If the label vector has {\tt n} or more elements,
@@ -2528,16 +2556,16 @@ attribute labels, but would detect illegally long ones.
 
 The length of a label may be read by the following functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
 \LABEL{MIN::LABLEN} \\
 \verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The hash value of a label may be computed by the following functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( const min::stub * s )|
 \LABEL{MIN::LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
@@ -2545,7 +2573,7 @@ The hash value of a label may be computed by the following functions:
 \verb|min::uns32 min::| & \MINKEY{labhash}%
     \verb| ( const min::gen * p, unsigned n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The last function computes the hash value for a label that could be created
 from the given vector {\tt p} of {\tt n} general values, where each
@@ -2575,11 +2603,11 @@ hash value {\tt 1009}.
 
 A label may be created by the following protected function:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}%
     \verb| ( const min::gen * p, unsigned n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Here {\tt p} must point to a vector of {\tt n} \verb|min::gen|
 values that becomes the value vector of the label.  Each
@@ -2592,10 +2620,10 @@ label.  Thus two \verb|min::gen| label values with equal elements are
 The following function returns true if and only if its argument is
 a label:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_lab}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 
 
@@ -3156,7 +3184,7 @@ different.
 A pointer to the body and the sizes can be obtained by the following
 functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|MUP::short_obj * MUP::|
     & \MUPKEY{short\_obj\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::SHORT_OBJ_OF} \\
@@ -3195,7 +3223,7 @@ functions:
 \LABEL{MIN::TOTAL_SIZE_OF_SHORT_OBJ} \\
 \verb|unsigned min::| & \MINKEY{total\_size\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::TOTAL_SIZE_OF_LONG_OBJ} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Here the functions that return pointers do \underline{not} check the type
 of the stub, and the pointers returned will become obsolete if the body of
@@ -3209,7 +3237,7 @@ in which case the largest possible size is returned.  The caller of
 one of these functions must check the returned value to be sure it is
 as large as the function argument.
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::|
     & \MINKEY{short\_obj\_hash\_size}\verb| ( unsigned u )|
 \LABEL{MIN::SHORT_OBJ_HASH_TABLE_SIZE} \\
@@ -3222,7 +3250,7 @@ as large as the function argument.
 \verb|unsigned min::|
     & \MINKEY{long\_obj\_total\_size}\verb| ( unsigned u )|
 \LABEL{MIN::LONG_OBJ_TOTAL_SIZE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Maximum possible total and hash table size values can be determined
 by presenting these functions with the \verb|u| argument value
@@ -3230,14 +3258,14 @@ by presenting these functions with the \verb|u| argument value
 
 An object can be created by the protected function:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( unsigned hash_size,| \\
     \verb|   unsigned unused_size )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The hash table size of the returned object is the smallest possible
 hash table size that is at least as large as that given.  The total
@@ -3261,7 +3289,7 @@ At the \key{unprotected vector level}, the body is viewed as
 a \key{body vector} of \verb|min::gen| values.  A pointer to the
 body vector is returned by the following unprotected functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::gen * MUP::|
 	& \MUPKEY{body\_vector\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MUP::BODY_VECTOR_OF_SHORT_OBJ} \\
@@ -3274,7 +3302,7 @@ body vector is returned by the following unprotected functions:
 \verb|min::gen * MUP::|
 	& \MUPKEY{writable\_body\_vector\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MUP::WRITABLE_BODY_VECTOR_OF_LONG_OBJ} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt MUP::body\_vector\_of} function allows only reading of elements.
 The {\tt MUP::\EOL writable\_\EOL body\_\EOL vector\_\EOL of}
@@ -3300,7 +3328,7 @@ The indices of the beginning of the hash table, beginning of the
 attribute vector, and beginning of the auxiliary area can be
 obtained by the following protected functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::|
 	& \MINKEY{hash\_offset\_of}\verb| ( MUP::short_obj * so )|
 \LABEL{MIN::HASH_OFFSET_OF_SHORT_OBJ} \\
@@ -3319,7 +3347,7 @@ obtained by the following protected functions:
 \verb|unsigned min::|
 	& \MINKEY{aux\_offset\_of}\verb| ( MUP::long_obj * lo )|
 \LABEL{MIN::AUX_OFFSET_OF_LONG_OBJ} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The attribute vector can be grown by pushing values onto its end.
 The auxiliary area can be grown by pushing values onto its beginning;
@@ -3330,7 +3358,7 @@ In both cases, unused area is consumed.  The values pushed are
 \verb|min::gen| values.  The following protected functions are
 provided:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::|
 	& \MINKEY{attr\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
@@ -3363,7 +3391,7 @@ provided:
 	& \MINKEY{aux\_push} \\
 	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
 \LABEL{MIN::LONG_AUX_PUSH_OF_GENS} \\
-\end{tabular}\end{center}\label{OBJECT_PUSH_FUNCTIONS}
+\end{tabular}\end{indpar}\label{OBJECT_PUSH_FUNCTIONS}
 
 Here the attribute vector push functions add to the end of the attribute
 vector, and the auxiliary area push functions add to the beginning of
@@ -3398,7 +3426,7 @@ The following unprotected push functions are identical to the
 similarly named protected functions, but include no check on the unused
 area size:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned MUP::|
 	& \MUPKEY{attr\_push} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
@@ -3431,12 +3459,12 @@ area size:
 	& \MUPKEY{aux\_push} \\
 	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
 \LABEL{MUP::LONG_AUX_PUSH_OF_GENS} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The following (little used) pop
 functions are the inverse of the above push functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::|
 	& \MINKEY{attr\_pop} \\
 	& \verb|    ( MUP::short_obj * so, min::gen & value )|
@@ -3469,7 +3497,7 @@ functions are the inverse of the above push functions:
 	& \MINKEY{aux\_pop} \\
 	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
 \LABEL{MIN::LONG_AUX_POP_OF_GENS} \\
-\end{tabular}\end{center}\label{OBJECT_POP_FUNCTIONS}
+\end{tabular}\end{indpar}\label{OBJECT_POP_FUNCTIONS}
 
 These functions undo the effects of the corresponding push functions,
 and copy data in the reverse direction.
@@ -3485,7 +3513,7 @@ and signal a fatal program error if not.
 The following unprotected functions are identical to the above
 functions but do not include this check.
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned MUP::|
 	& \MUPKEY{attr\_pop} \\
 	& \verb|    ( MUP::short_obj * so, min::gen value )|
@@ -3518,7 +3546,7 @@ functions but do not include this check.
 	& \MUPKEY{aux\_pop} \\
 	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
 \LABEL{MUP::LONG_AUX_POP_OF_GENS} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 
 \subsubsection{Object List Level}
@@ -3642,7 +3670,7 @@ A \MUPkey{list\_pointer} can be used to move around in a object at
 the list level.  The functions for using a list pointer to do this
 are:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{list\_pointer}\verb| ( min::stub * s )|
 \LABEL{MUP::LIST_POINTER_OF_STUB} \\
@@ -3651,11 +3679,17 @@ are:
 \LABEL{MUP::LIST_POINTER_OF_GEN} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}%
-	  \verb| ( min::list_pointer & lp, unsigned index )|
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp,| \\
+	  \verb|   unsigned index )|
+	  \end{tabular}
 \LABEL{MIN::START_HASH} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_vector}%
-	  \verb| ( min::list_pointer & lp, unsigned index )|
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp,| \\
+	  \verb|   unsigned index )|
+	  \end{tabular}
 \LABEL{MIN::START_VECTOR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}%
@@ -3682,7 +3716,7 @@ are:
 \verb|bool min::|
 	& \MINKEY{is\_empty\_sublist}\verb| ( min::gen v )|
 \LABEL{MIN::IS_EMPTY_SUBLIST} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 A list pointer is created to move around in a particular object.
 Once created it can be started on a new list by one of the
@@ -3774,7 +3808,7 @@ or attribute vector before calling {\tt start\_hash} or
 pointers, it is most efficiently done by using the following unprotected
 functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void MUP::|
 	& \MUPKEY{start}\verb| ( min::list_pointer & lp )|
 \LABEL{MUP::START_LIST_POINTER} \\
@@ -3792,7 +3826,7 @@ functions:
 	& \MUPKEY{start\_vector}%
 	  \verb| ( min::list_pointer & lp, unsigned index )|
 \LABEL{MUP::START_VECTOR} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt MUP::start} function \underline{must} be called before
 any of the other functions.  Then the {\tt MUP::hash\_size\_of}
@@ -3815,7 +3849,7 @@ All the functions
 defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
 {\tt MUP::updat\-able\_\EOL list\_\EOL pointer}'s:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{updatable\_list\_pointer}\verb| ( min::stub * s )|
 \LABEL{MUP::UPDATABLE_LIST_POINTER_OF_STUB} \\
@@ -3837,11 +3871,9 @@ defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
 	  \end{tabular}
 \LABEL{MIN::START_VECTOR_OF_UPDATABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::updatable_list_pointer & lp,| \\
-	  \verb|   const min::updatable_list_pointer & lp2 )|
-	  \end{tabular}
+	& \MINKEY{start\_copy} \\
+	& \verb|    ( min::updatable_list_pointer & lp,| \\
+	& \verb|      const min::updatable_list_pointer & lp2 )|
 \LABEL{MIN::START_COPY_OF_UPDATABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::updatable_list_pointer & lp )|
@@ -3852,9 +3884,9 @@ defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::START_SUBLIST_OF_UPDATABLE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void MUP::|
 	& \MUPKEY{start}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MUP::START_LIST_POINTER_OF_UPDATABLE} \\
@@ -3878,12 +3910,12 @@ defined for {\tt MUP::list\_\EOL pointer}'s are also defined for
 	  \verb|   unsigned index )| \\
 	  \end{tabular}
 \LABEL{MUP::START_VECTOR_OF_UPDATABLE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 In addition the following function can be used to change the
 current element:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{update}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3891,7 +3923,7 @@ current element:
 	  \verb|   min::gen value )| \\
 	  \end{tabular}
 \LABEL{MIN::SET_OF_UPDATABLE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Neither the previous value of the element nor the
 new value of the element may be {\tt min::LIST\_\EOL END}.
@@ -3910,7 +3942,7 @@ pointers that have been made invalid in this way
 can be quickly made valid again by the following function that
 refreshes the cache and returns the current element:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min:gen min::|
 	& \MINKEY{refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -3923,7 +3955,7 @@ refreshes the cache and returns the current element:
 	  \verb| ( min::updatable_list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_UPDATABLE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Inserting and removing elements from a list requires yet another
 kind of list pointer, a {\tt MUP::insert\-able\_\EOL list\_\EOL pointer}.
@@ -3931,7 +3963,7 @@ All functions
 defined for {\tt MUP::updat\-able\_list\_\EOL point\-er}'s are also defined for
 {\tt MUP::insert\-able\_\EOL list\_\EOL pointer}'s:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{insertable\_list\_pointer}\verb| ( min::stub * s )|
 \LABEL{MUP::INSERTABLE_LIST_POINTER_OF_STUB} \\
@@ -3953,11 +3985,9 @@ defined for {\tt MUP::updat\-able\_list\_\EOL point\-er}'s are also defined for
 	  \end{tabular}
 \LABEL{MIN::START_VECTOR_OF_INSERTABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   const min::insertable_list_pointer & lp2 )|
-	  \end{tabular}
+	& \MINKEY{start\_copy} \\
+	& \verb|    ( min::insertable_list_pointer & lp,| \\
+	& \verb|      const min::insertable_list_pointer & lp2 )|
 \LABEL{MIN::START_COPY_OF_INSERTABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::insertable_list_pointer & lp )|
@@ -3981,9 +4011,9 @@ defined for {\tt MUP::updat\-able\_list\_\EOL point\-er}'s are also defined for
 	  \verb| ( min::insertable_list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_LIST_POINTER_OF_INSERTABLE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void MUP::|
 	& \MUPKEY{start}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MUP::START_LIST_POINTER_OF_INSERTABLE} \\
@@ -4007,18 +4037,19 @@ defined for {\tt MUP::updat\-able\_list\_\EOL point\-er}'s are also defined for
 	  \verb|   unsigned index )| \\
 	  \end{tabular}
 \LABEL{MUP::START_VECTOR_OF_INSERTABLE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Making insertions in object lists requires reservation of the necessary
 space first, in order to be sure that a sequence of insertions will
 all succeed.  The functions used are:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   unsigned insertions, unsigned elements = 0,| \\
+	  \verb|   unsigned insertions,| \\
+	  \verb|   unsigned elements = 0,| \\
 	  \verb|   bool use_object_aux_stubs =| \\
 	  \verb|       min::use_object_aux_stubs )| \\
 	  \end{tabular}
@@ -4037,7 +4068,7 @@ all succeed.  The functions used are:
 	  \verb|   min::gen * p, unsigned n )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_AFTER} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt min::insert\_reserve} function reserves space for the given number
 of insertion function calls and the given total number of list elements
@@ -4107,7 +4138,7 @@ The following function can be used to remove {\tt n} consecutive elements
 of a list, the first of which is the element currently pointed at by
 the list pointer:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::|
 	& \MINKEY{remove}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -4115,7 +4146,7 @@ the list pointer:
 	  \verb|   unsigned n = 1 )|
 	  \end{tabular}
 \LABEL{MIN::REMOVE_FROM_LIST} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 After removal, the list pointer points at the first element after the
 elements removed, or at the end of the list if there is no such element.
@@ -4186,7 +4217,7 @@ The {\tt min::start\_copy} function can be used to downgrade the
 kind of a list pointer, e.g., going from an insertable to a writable
 list pointer:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -4208,7 +4239,7 @@ $xx$ & $yy$ \\[1ex]
 `\verb|insertable_|'		& `\verb|insertable_|' \\
 \end{tabular}
 
-\end{center}
+\end{indpar}
 
 The two argument {\tt min::start\_sublist} function is equivalent
 to {\tt start\_copy} followed by {\tt start\_sublist} on just the
@@ -4217,7 +4248,7 @@ pointer can be either downgraded or upgraded,
 e.g., going from an ordinary (read-only) list
 pointer to an insertable list pointer or vice versa:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -4231,13 +4262,13 @@ where $xx$ is one of `', `\verb|writable_|', or `\verb|insertable_|', \\
 and $yy$ is independently
 one of `', `\verb|writable_|', or `\verb|insertable_|'.
 
-\end{center}
+\end{indpar}
 
 As a matter of convenience, the pointer to the stub of the object
 that a list pointer is associated with can be retrieved
 by the {\tt min::stub\_of} function:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::stub * min::|
 	& \MINKEY{stub\_of}\verb| ( min::|$xx$\verb|list_pointer & lp )|
 \LABEL{MIN::STUB_OF_LIST_POINTER_XX} \\
@@ -4245,7 +4276,7 @@ by the {\tt min::stub\_of} function:
 
 where $xx$ is one of `', `\verb|writable_|', or `\verb|insertable_|'.
 
-\end{center}
+\end{indpar}
 
 \subsubsubsection{Object Auxiliary Stubs}
 \label{OBJECT-AUXILIARY-STUBS}
@@ -4264,14 +4295,14 @@ The code implementing object auxiliary stubs can be compiled into a program
 or left out of a program according to the setting of the macro:
 
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{l}
 \TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS} \\
 ~~~~~ 1 if code to use object auxiliary stubs is to be compiled; \\
 ~~~~~ 0 if this code is not to be compiled.
 \LABEL{MIN_USES_OBJECT_AUX_STUBS} \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 The value of an object
 auxiliary stub is treated like an auxiliary area element value that is
@@ -4395,14 +4426,14 @@ numbers, strings, or labels.  The object map is stored in a set of lists which
 are entries in the hash table or attribute vector.  These lists have
 one of two syntaxes depending upon the setting of the following macro:
 
-\begin{center}
+\begin{indpar}
 \begin{tabular}{l}
 \TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS} \\
 ~~~~~ 1 if partial attribute labels are supported; \\
 ~~~~~ 0 if partial attribute labels are not supported.
 \LABEL{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS} \\
 \end{tabular}
-\end{center}
+\end{indpar}
 
 If partial attribute labels are supported, the attribute name given to
 a function that locates an attribute may be too long,
@@ -4667,7 +4698,7 @@ name stored in the pointer.
 
 The \skey{attribute locator function}s\index{locator function!attribute} are:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{attribute\_pointer}\verb| ( min::stub * s )|
 \LABEL{MUP::ATTRIBUTE_POINTER_OF_STUB} \\
@@ -4677,7 +4708,8 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 \verb|min::gen min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::attribute_pointer & ap, min::gen name )|
+	  \verb| ( min::attribute_pointer & ap,| \\
+	  \verb|   min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_ATTRIBUTE} \\
 \verb|min::gen min::|
@@ -4706,9 +4738,9 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	  \verb| ( min::attribute_pointer & ap )| \\
 	  \end{tabular}
 \LABEL{MIN::RELOCATE_ATTRIBUTE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{writable\_attribute\_pointer}\verb| ( min::stub * s )|
 \LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_STUB} \\
@@ -4737,11 +4769,9 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	  \end{tabular}
 \LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
 \verb|min::gen min::|
-	& \MINKEY{locate\_reverse}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_attribute_pointer & wap,| \\
-	  \verb|   min::gen reverse_name )|
-	  \end{tabular}
+	& \MINKEY{locate\_reverse} \\
+	& \verb|    ( min::writable_attribute_pointer & wap,| \\
+	& \verb|      min::gen reverse_name )|
 \LABEL{MIN::LOCATE_REVERSE_WRITABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{relocate}%
@@ -4749,7 +4779,7 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	  \verb| ( min::writable_attribute_pointer & wap )| \\
 	  \end{tabular}
 \LABEL{MIN::RELOCATE_ATTRIBUTE_WRITABLE} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 \newpage
 
@@ -4807,7 +4837,7 @@ restore the pointer.
 The \skey{attribute accessor function}s\index{accessor function!attribute} that
 can be used for reading attribute values and flags are:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{count}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::attribute_pointer ap )| \\
@@ -4830,9 +4860,9 @@ can be used for reading attribute values and flags are:
     \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE_POINTER} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{count}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap )| \\
@@ -4855,7 +4885,7 @@ can be used for reading attribute values and flags are:
     \verb|   min::writable_attribute_pointer wap )| \\
     \end{tabular}
 \LABEL{MIN::GET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt count} function returns the number of values in the value
 set pointed at.
@@ -4882,7 +4912,7 @@ and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
 The \skey{attribute accessor function}s\index{accessor function!attribute} that
 can be used for writing attribute values and flags are:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap,| \\
@@ -4895,7 +4925,7 @@ can be used for writing attribute values and flags are:
     \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::SET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt set} function sets all the values in the value set the
 attribute pointer is pointing at, deleting any previous values.
@@ -4930,7 +4960,7 @@ The following functions are more optimized versions of the above
 functions for the special case that the attribute has, or should
 have, only one value:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{get}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::attribute_pointer ap )| \\
@@ -4947,7 +4977,7 @@ have, only one value:
     \verb|   const min::gen v )|
     \end{tabular}
 \LABEL{MIN::SET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 This version of the {\tt get} function returns the single value $V$ if
 the set of values pointed at
@@ -4970,7 +5000,7 @@ but cannot be \verb|min::ANY|.
 The following functions may be used to add values to the set of values
 pointed at:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add\_to\_set\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap,| \\
@@ -4983,7 +5013,7 @@ pointed at:
     \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::ADD_TO_MULTISET} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt add\_to\_set} function adds a value to the set of
 values if and only if the value is not already in the set,
@@ -4996,7 +5026,7 @@ but cannot be \verb|min::ANY|.
 The following functions may be used to set, or clear, or flip
 the flags turned on in the {\tt in} vector:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_some\_flags\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap,| \\
@@ -5015,12 +5045,12 @@ the flags turned on in the {\tt in} vector:
     \verb|   const min::gen * in, unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::FLIP_SOME_FLAGS} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The following functions may be used to test, set, or clear, or flip
 individual flag number {\tt n}:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{test\_flag}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::attribute_pointer wap, unsigned n )| \\
@@ -5028,32 +5058,36 @@ individual flag number {\tt n}:
 \LABEL{MIN::TEST_FLAG} \\
 \verb|bool min::| & \MINKEY{test\_flag}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::TEST_FLAG_OF_WRITABLE} \\
 \verb|void min::| & \MINKEY{set\_flag\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::SET_FLAG} \\
 \verb|void min::| & \MINKEY{clear\_flag\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::CLEAR_FLAG} \\
 \verb|void min::| & \MINKEY{flip\_flag\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap, unsigned n )| \\
+    \verb| ( min::writable_attribute_pointer wap,| \\
+    \verb|   unsigned n )| \\
     \end{tabular}
 \LABEL{MIN::FLIP_FLAG} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 It is possible to discover all the attribute names associated with
 an object, and all the reverse attribute names associated with an
 attribute of an object.  This can be done with the following
 functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{get\_attributes}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
@@ -5076,7 +5110,7 @@ functions:
     \verb| ( min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::REWIND_REVERSE_ATTRIBUTES} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt get\_attributes} function gets up to {\tt n} attribute
 names of the object associated with the {\tt attribute\_pointer},
@@ -5213,7 +5247,7 @@ size does \underline{not} include the header.
 A pointer to the body and the sizes can be obtained by the following
 functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::variable_vector * MUP::|
     & \MUPKEY{variable\_vector\_of}\verb| ( min::stub * s )|
 \LABEL{MUP::VARIABLE_VECTOR_OF} \\
@@ -5232,7 +5266,7 @@ functions:
 \verb|unsigned | & \TTKEY{total\_size\_of} \\
     & \verb|    ( min::variable_vector * vv )|
 \LABEL{TOTAL_SIZE_OF_VARIABLE_VECTOR} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 Here the function that returns a pointer does \underline{not} check the type
 of the stub, and the total size is exactly the sum of the other three sizes.
@@ -5249,15 +5283,16 @@ At the \key{vector level}\,, the variable vector body is viewed as
 a \key{body vector} of \verb|min::gen| values.  A pointer to the
 body vector is returned by the following unprotected functions:
 
-\begin{center}\begin{tabular}{@{}r@{}l@{}}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|const min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of}\verb| ( min::variable_vector * vv )|
+	& \MUPKEY{body\_vector\_of} \\
+	& \verb|    ( min::variable_vector * vv )|
 \LABEL{MUP::BODY_VECTOR_OF_VARIABLE_VECTOR} \\
 \verb|min::gen * MUP::|
-	& \MUPKEY{writable\_body\_vector\_of}%
-		\verb| ( min::variable_vector * vv )|
+	& \MUPKEY{writable\_body\_vector\_of} \\
+	& \verb|    ( min::variable_vector * vv )|
 \LABEL{MUP::WRITABLE_BODY_VECTOR_OF_VARIABLE_VECTOR} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt MUP::body\_vector\_of} function allows only reading of elements.
 The {\tt MUP::\EOL writable\_\EOL body\_\EOL vector\_\EOL of}
@@ -5279,11 +5314,11 @@ Details are below in \secref{VARIABLE-VECTOR-VARIABLE-LEVEL}.
 The index of the beginning of the variable vector part of a variable vector
 can be obtained by the following protected function:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned |
 	& \TTKEY{variable\_vector\_of}\verb| ( min::variable_vector * vv )|
 \LABEL{VARIABLE_VECTOR_OF_VARIABLE_VECTOR} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 \subsubsection{Variable Vector Variable Level}
 \label{VARIABLE-VECTOR-VARIABLE-LEVEL}
@@ -5499,14 +5534,14 @@ the function resets $X$ to point at $Z$.  The
 variable forward optimization control parameter can itself
 be gotten or set by the functions:
 
-\begin{center}\begin{tabular}{r@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
 	& \TTKEY{variable\_forward\_optimization}\verb| ( )|
 \\
 \verb|bool min::|
 	& \TTKEY{variable\_forward\_optimization}\verb| ( bool value )|
 \LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
-\end{tabular}\end{center}
+\end{tabular}\end{indpar}
 
 The {\tt variable\_forward\_optimization} function with no argument gets
 the value of the control parameter, while the function with an argument
@@ -7186,7 +7221,7 @@ The interface between MIN implementation code and the operating system
 consists of standard C++/C functions available on all operating
 systems, such as \verb|iostreams|, plus \ttkey{min::os}
 namespace interface functions that are
-declared in \verb|include/min_os.h| and defined in \verb|src/min_os.cc|.
+declared in \verb|min_os.h| and defined in \verb|src/min_os.cc|.
 This code division is intended to make it easy to port MIN to different
 operating systems by placing all the code that must be
 changed in the small \verb|src/min_os.cc| file.
@@ -7199,7 +7234,7 @@ the interface:
 \verb|#define  MOS  min::os|
 \end{center}
 
-Details of the \verb|min::os| interface are in \verb|include/min_os.h|.  The
+Details of the \verb|min::os| interface are in \verb|min_os.h|.  The
 following is an overview.
 
 \subsection{Configuration Parameters}
@@ -7229,7 +7264,7 @@ is a replaceable component of the MIN code, which should not
 normally be accessed directly.  It can be controlled by parameters
 passed to the program (see Configuration Parameters,
 \pagref{CONFIGURATION-PARAMETERS}), or by defaults for these
-provided at compile time in \verb|include/min_acc_parameters.h|.
+provided at compile time in \verb|min_acc_parameters.h|.
 Documentation for these parameters is in this last file.
 The acc code is in the 
 \verb|min::acc| namespace which is abbreviated to
@@ -7240,7 +7275,7 @@ by including the following definition in acc code:
 \verb|#define  MACC  min::acc|
 \end{center}
 
-Details of the acc code are in \verb|include/min_acc.h|.  The
+Details of the acc code are in \verb|min_acc.h|.  The
 following is an overview.
 
 TBD
