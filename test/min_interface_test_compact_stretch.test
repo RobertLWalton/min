@@ -234,6 +234,18 @@ min_interface_test.cc:XXXX assert:
     ! min::is_stub ( packedauxgen ) true.
 min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( packedauxgen ) true.
+min_interface_test.cc:XXXX assert:
+    min::is_packed_aux ( packedauxgen ) true.
+min_interface_test.cc:XXXX assert:
+    min::gen_subtype_of ( packedauxgen ) == min::GEN_PACKED_AUX true.
+../include/min.h:XXXX assert:
+    is_packed_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::packed_aux_of ( packedauxgen ) == packed_aux true.
+../include/min.h:XXXX assert:
+    is_packed_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::packed_index_of ( packedauxgen ) == packed_index true.
 
 Test index general values:
 indexgen: f50b353b
@@ -356,7 +368,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6260
+control2: 85800000009f6380
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -367,7 +379,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6270
+re-control2: 85800000009f6390
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -380,7 +392,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f6260
+control3: 85800000009f6380
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -391,7 +403,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6270
+re-control3: 85800000009f6390
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
