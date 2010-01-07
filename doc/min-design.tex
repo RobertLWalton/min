@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 3, 2010}
+\date{January 6, 2010}
  
 \maketitle
 
@@ -643,9 +643,9 @@ atom values will fit into a general value, and those that do not must
 be stored in stubs or in bodies pointed at by stubs.
 
 An \key{auxiliary pointer} is an integer that is used by a general value
-stored inside an object body to point at some part, called an
+stored inside a body to point at some part, called an
 \key{auxiliary},\label{AUXILIARY} of the same body.
-There are several subtypes of auxiliary pointers storable in object bodies.
+There are several subtypes of auxiliary pointers storable in bodies.
 See~\pagref{OBJECT-BODY-AUXILIARY-POINTER}.
 
 An \key{index} is an integer that is used to give the index of a variable
@@ -1327,8 +1327,8 @@ Denotes any value from a set of values.
 Indicates a set of values has more than one element.
 \item[{\tt const min::gen min::}\MINKEY{UNDEFINED}]~%
 	\LABEL{MIN::UNDEFINED}\\
-A value given to a variable vector variable (\secref{VARIABLE-VECTORS})
-that has no value and can be indirected.
+A value given to an object variable vector element
+(\secref{OBJECT-INDIRECT-POINTERS}) that has no value and can be indirected.
 \item[{\tt const min::gen min::}\MINKEY{SUCCESS}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
@@ -1377,11 +1377,6 @@ relocated during execution, either
 because the object is being expanded or contracted, or because
 memory is being compacted.
 
-
-The high order 8 bits of the stub control contains the stub type code.
-If the high order bit of the type code (which is also the high order
-bit of the stub control) is off, the stub is said to be
-
 A stub contains an 8 byte stub value and an 8 byte stub control.
 
 If the stub control is viewed as a 64 bit integer, its high order byte
@@ -1391,10 +1386,12 @@ bit of the 64 bit stub control integer, is off if the stub is managed by
 the allocator/collector/compactor (acc, of which the garbage collector is
 a part).  In this case the stub is said to be `\key{collectible}'.
 In the other case, where the bit is on, the stub is
-said to be `\key{uncollectible}'.
+said to be `\key{uncollectible}', and the stub is allocated and freed
+by explicit calls to the acc, but is not garbage collected or compacted by the
+acc.
 
-If an object has a body, its stub value is a pointer at that body.
-Any pointer into an object body is called a `body pointer'.
+If an stub has a body, its stub value is a pointer at that body.
+Any pointer into a body is called a `body pointer'.
 
 \subsubsection{Stub Type Codes}
 \label{STUB-TYPE-CODES}
@@ -1443,7 +1440,7 @@ is given on \pagref{STUB-TYPE-CODE-LIST}.
 A stub contains a 64-bit \key{stub value}.  If the stub is collectible
 (as determined by its type), the type of this value
 is determined by the stub type code (\secref{STUB-TYPE-CODES}).
-Otherwise the stub is attached to an object and the type of the stub
+Otherwise the stub is typically attached to an object and the type of the stub
 value is determined by how it is attached; in this case the type of the
 stub value is most often just \verb|min::gen|.
 
@@ -1512,7 +1509,7 @@ for additional numbers.  Note that the auxiliary stub itself does not
 contain information that tells the type of the value it stores;
 one has to trace the reference from the object pointing at the
 auxiliary stub to determine this type.  Usually auxiliary stub
-values are general values.  See \secref{UNPROTECTED-STUB-FUNCTIONS}
+values are \verb|min::gen| values.  See \secref{UNPROTECTED-STUB-FUNCTIONS}
 for functions that can read and write auxiliary stubs.
 
 \subsection{Body Pointers}
@@ -1525,7 +1522,7 @@ require special handling to
 ensure that they are up-to-date.  There are two ways of managing
 this: the protected way and the unprotected way.
 
-Note also that deallocation of an object body is treated as
+Note also that deallocation of a body is treated as
 reallocation of the body to inaccessible virtual memory.
 
 \subsubsection{Protected Body Pointers}
@@ -1537,6 +1534,7 @@ the type of datum being pointed at.  For example, the following
 code can access any string:
 \begin{indpar}\begin{verbatim}
 min::gen x = . . .  // set x to some string
+assert ( min::is_str ( x ) );
 min::str_pointer xp ( x );
 int length = min::strlen ( xp );
 for ( int i = 0; i < length; ++ i )
@@ -1571,7 +1569,7 @@ that has a body.
 
 \ikey{Unprotected body pointers}{unprotected body pointer}%
 \index{pointer!unprotected body}\index{body pointer!unprotected}
-are C/C++ pointers that point directly into an object body.
+are C/C++ pointers that point directly into a body.
 Functions that obtain body unprotected
 pointers from stubs are unprotected (\verb|MUP|) functions because
 the unprotected body pointers they return are invalidated
@@ -1588,9 +1586,9 @@ The following uses unprotected body pointers to point at a character
 string stored in a body:
 \begin{indpar}\begin{verbatim}
 min::gen x = . . .  // set x to some long string
+assert ( min::is_stub ( x ) );
 const min::stub * xstub = min::stub_of ( x );
-// The following only works if the string is longer
-// than 8 characters.
+assert ( min::type_of ( xstub ) == min::LONG_STR );
 MUP::long_str * xstr = MUP::long_str_of ( xstub );
 const char * xp = MUP::str_of ( xstr );
 int length = MUP::length_of ( xstr );
@@ -1601,46 +1599,73 @@ for ( int i = 0; i < length; ++ i )
 }
 \end{verbatim}\end{indpar}
 
-Strings are in fact of three types, direct which stores characters
-in the general value, short which stores up to 8 characters in the stub
-value, and long which stores more than 8 characters in the object body.  The
-above code only works for long strings.
+Strings are in fact of three types, `direct' which stores characters
+in the general value, `short' which stores up to 8 characters in the stub
+value, and `long' which stores more than 8 characters in the body.  The
+above code only works for long strings (\pagref{LONG-STRING-STUB}).
 
 
 When relocation happens inside a relocating function,
 the `\key{relocated flag}\,'\label{RELOCATED-FLAG},
 which is one of the execution flags
 described in~\secref{EXECUTION-FLAGS}, is set.
-Upon return from the call to any relocating function,
-a caller who is using unprotected body pointers must check the relocated flag,
-and if on, the caller must:
+Functions that use unprotected pointers must obey the following
+protocol:
 
-\begin{center}
-\begin{tabular}{l}
-optionally check that object bodies pointed at have not been deallocated
-(see \secref{DEALLOCATION}) \\
-recompute all local variables containing unprotected body pointers \\
-clear the relocated flag \\
-remember it has cleared the relocated flag
-\end{tabular}
-\end{center}
+\begin{indpar}
+save the relocated flag \\
+\ldots\ldots \\
+compute local variables containing unprotected body pointers \\
+use these local varibles \\
+\ldots\ldots \\
+to call a relocating function: \\
+\hspace*{3em}\begin{tabular}{l}
+    clear the relocated flag and call the relocating function \\
+    if the relocated flag is now set: \\
+    \hspace*{3em}\begin{tabular}{l}
+	optionally check that object bodies pointed at \\
+	\hspace*{3em}have not been deallocated (see \secref{DEALLOCATION}) \\
+	set the saved relocated flag \\
+	recompute all local variables containing unprotected body pointers \\
+    \end{tabular} \\
+\end{tabular} \\
+\ldots\ldots \\
+restore the saved relocated flag
+\end{indpar}
 
-When a function returns to its caller,
-it must set the relocated flag if that flag was ever cleared by
-the returning function.
+When a function that calls relocating functions returns to its caller,
+it must set the relocated
+flag if that flag was set when the function started or if the
+flag was set during function execution.
 
 Relocating functions update body pointers that are not stored
 in local variables, in particular those stored in stubs.
-The local variables are then recomputed from the pointers stored in
+The local variables must then be recomputed from the pointers stored in
 the stubs.
+
+If a stub body is deallocated by a relocating function,
+the stub's type will be changed to
+\verb|min::DEALLOCATED|, and the body will be relocated to inaccessible
+virtual memory so references to it will cause program terminating
+memory fault.  For many stubs, this is the only possible 
+type change.  However some bodies may not only be relocated, but
+may be reorganized, causing their stub to change type.  An example
+is objects, which can have stub type \verb|min::SHORT_OBJ| or
+\verb|min::LONG_OBJ|, and may be reorganized during relocation to
+become more compact.  Usually such stubs are marked when they
+are in use by a function that calls relocating functions so that
+they will not change type (except for deallocation) and their
+bodies will not be reorganized.  For example, objects have a state
+which indicates if protected object pointers are pointing at the
+object.
 
 If the example above is modified to call a relocating function
 in its loop, the resulting code would be:
 \begin{indpar}\begin{verbatim}
 min::gen x = . . .  // set x to some long string
+assert ( min::is_stub ( x ) );
 const min::stub * xstub = min::stub_of ( x );
-// The following only works if the string is longer
-// than 8 characters.
+assert ( min::type_of ( xstub ) == min::LONG_STR );
 MUP::long_str * xstr = MUP::long_str_of ( xstub );
 const char * xp = MUP::str_of ( xstr );
 int length = MUP::length_of ( xstr );
@@ -1672,11 +1697,12 @@ The following functions get and set the relocated flag:
 
 The function to set the flag returns the flag's previous value.
 
-A function that computes an unprotected pointer into an object body does not
-check the type code of the object stub pointing at the body.  The type
+A function that computes an unprotected pointer into a stub body does not
+check the type code of the stub pointing at the body.  The type
 code must be checked separately before the pointer is computed.  If the
-pointer is being recomputed after possible relocation, the only check
-required relates to the possibility that the object has been deallocated.
+pointer is being recomputed after possible relocation, the stub type
+code may have to be checked.  For most stub types, the only check
+required relates to the possibility that the boty has been deallocated.
 
 Code to handle relocating function calls and unprotected body
 pointers has the general form:
@@ -1686,7 +1712,7 @@ pointers has the general form:
 {
     bool relocated = min::set_relocated_flag ( false );
     . . . . .
-    min::stub * s = min::stub_of ( ... );
+    const min::stub * s = min::stub_of ( ... );
     . . . . .
     assert ( ... == type_of ( s ) );
     MUP::some_body_type * p =
@@ -1739,7 +1765,7 @@ as:
     // relocated constructor saves the relocated flag.
     min::relocated relocated;
     . . . . .
-    min::stub * s = min::stub_of ( ... );
+    const min::stub * s = min::stub_of ( ... );
     . . . . .
     assert ( ... == type_of ( s ) );
     MUP::some_body_type * p =
@@ -1776,7 +1802,7 @@ has a deallocated body:
 This function just checks the stub type code to see if it equals
 {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 
-A check that an object body has not been deallocated may be needed before
+A check that a body has not been deallocated may be needed before
 a pointer into the body is recomputed after a relocating function has
 been called.  Using a deallocated body is
 considered to be a fatal programming error, so often no check is necessary,
@@ -1795,7 +1821,7 @@ These implementations define the macro:
 to be the maximum size of inaccessible memory to which the stub of
 a deallocated object is pointed.  If this macro is undefined, there
 is no limit.  If the macro is defined, an attempt to
-access any part of a deallocated object body beyond the specified limit
+access any part of a deallocated body beyond the specified limit
 will give undefined results.
 
 The \verb|MIN_DEALLOCATED_LIMIT|
@@ -2748,8 +2774,10 @@ The interfaces to all of these levels is protected.  In addition
 there is an unprotected vector level interface
 (\secref{OBJECT-UNPROTECTED-VECTOR-LEVEL}).
 
-\subsubsection{Special Object Pointers}
-\label{SPECIAL-OBJECT-POINTERS}
+\subsubsection{Object Indirect Pointers}
+\label{OBJECT-INDIRECT-POINTERS}
+
+TBD
 
 There are two kinds of special pointers that can be used with objects:
 indirect pointers and typed pointers.  An object element can contain
@@ -3327,7 +3355,7 @@ The value of an \key{auxiliary pointer}\label{OBJECT-BODY-AUXILIARY-POINTER}
 stored in an object body (or in an object auxiliary stub attached to
 the object: see~\secref{OBJECT-AUXILIARY-STUBS}) is an unsigned integer
 that is the index of a \verb|min::gen|
-value in the body vector.
+value in the object body vector.
 Auxiliary pointers with zero value do not address a body vector
 element, since they point into the header, and these are given
 special meanings.
