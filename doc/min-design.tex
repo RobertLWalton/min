@@ -472,16 +472,16 @@ the size of each number is clear:
 \minkey{float64}	& 64-bit IEEE floating point number \\
 \end{tabular}
 \end{center}%
-\label{MIN::UNS8}%
-\label{MIN::INT8}%
-\label{MIN::UNS16}%
-\label{MIN::INT16}%
-\label{MIN::UNS32}%
-\label{MIN::INT32}%
-\label{MIN::FLOAT32}%
-\label{MIN::UNS64}%
-\label{MIN::INT64}%
-\label{MIN::FLOAT64}%
+\LABEL{MIN::UNS8}%
+\LABEL{MIN::INT8}%
+\LABEL{MIN::UNS16}%
+\LABEL{MIN::INT16}%
+\LABEL{MIN::UNS32}%
+\LABEL{MIN::INT32}%
+\LABEL{MIN::FLOAT32}%
+\LABEL{MIN::UNS64}%
+\LABEL{MIN::INT64}%
+\LABEL{MIN::FLOAT64}%
 \label{INT}%
 \label{UNS}
 
@@ -1924,7 +1924,7 @@ of some pointer type.
 
 These functions do \underline{not} check type codes, nor do they check
 that values read or written are within legal range for a particular
-stub.  Thus a stub value that is not a floating point number can be
+stub.  For example, a stub value that is not a floating point number can be
 read by \verb|MUP::float_of| with undefined results.
 
 \subsubsubsection{Stub Control Functions}
@@ -1963,13 +1963,16 @@ functions deal only with parts.
 
 For acc stubs, only the type part of the control should be read or
 written.  The other parts of the control are for use by the
-acc, and should not be accessed, in order to be sure that the acc is
-independent of other code.
+acc, and should not be accessed by non-acc code,
+in order to ensure that the acc is independent of other code.
 
 The stub control in a stub is an example of a MIN \key{control value}.
 A MIN control value holds a stub address or an unsigned integer
 in its low order bits.  It may hold an 8 bit type code in its highest order
-bits.  Any bits left over are flag bits.  Control values have type
+bits.  Any bits left over are flag bits, or if there is no 8 bit type
+code, the high order 16 bits may be a signed integer field called the
+`\mkey{locator}{field of control value}'
+which is used only by some acc code.  Control values have type
 \verb|min::uns64|.  Control values are used as stub controls, and
 may be use in other places, e.g., by the acc to hold pointers from
 a block that holds a body back to the stub pointing at the body.
@@ -2068,10 +2071,19 @@ Ordinary (non-acc) control values can be manipulated by the following functions:
     & \verb|                     min::uns64 flags = 0 )|
 \LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
 \verb|min::uns64 MUP::|
-    & \MUPKEY{new\_control} \\
+    & \MUPKEY{new\_control\_with\_type} \\
     & \verb|    ( int type_code, const min::stub * s,| \\
     & \verb|                     min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
+\LABEL{MUP::NEW_CONTROL_WITH_TYPE_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control\_with\_locator} \\
+    & \verb|    ( int locator, const min::stub * s )|
+\LABEL{MUP::NEW_CONTROL_WITH_LOCATOR_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_locator}\verb| ( min::uns64 c, int locator )|
+\LABEL{MUP::RENEW_CONTROL_LOCATOR} \\
 \verb|min::uns64 MUP::|
     & \MUPKEY{renew\_control\_value}\verb| ( min::uns64 c, min::uns64 v )|
 \LABEL{MUP::RENEW_CONTROL_VALUE} \\
@@ -2079,6 +2091,10 @@ Ordinary (non-acc) control values can be manipulated by the following functions:
     & \MUPKEY{renew\_control\_stub} \\
     & \verb|    ( min::uns64 c, const min::stub * s )|
 \LABEL{MUP::RENEW_CONTROL_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
+\verb|int MUP::| & \MUPKEY{locator\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::LOCATOR_OF_CONTROL} \\
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::VALUE_OF_CONTROL} \\
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
@@ -5618,24 +5634,6 @@ This is a logical time to pay this cost.
 \section{C/C++ Interface}
 \label{C/C++-Interface}
 
-The declarations here differ from legal C/C++ code in that
-we write
-
-\begin{indpar}\begin{verbatim}
-struct min::stub;
-bool min::is_collectible ( int type );
-\end{verbatim}\end{indpar}
-
-which is not legal C or C++ when what we mean is
-
-\begin{indpar}\begin{verbatim}
-struct min
-{
-    struct stub;
-    bool is_collectible ( int type );
-};
-\end{verbatim}\end{indpar}
-
 {
 \renewcommand{\LABEL}[1]{\dotfill~\pagref{#1}}
 \renewcommand{\TTKEY}[1]{{\tt ~~#1~~}}
@@ -5653,7 +5651,29 @@ struct min
    \hspace*{#1} & \hspace*{\TABULARLEN} \\[-4ex]}%
   {\end{tabular}}
 
+Unless otherwise noted, this interface is defined by \verb|min.h|.
+
+\INDEXHEADER{Abbreviations}
+
+These are to be included in user's code, and are \underline{not}
+in \verb|min|\ldots\verb|.h| files.
+
+\begin{indpar}[0.2in]
+\begin{tabular}{@{}p{6.2in}@{}}
+\verb|#define MUP  min::unprotected|
+\LABEL{MUP} \\
+\verb|#define MOS  min::os|
+\LABEL{MOS} \\
+\verb|#define MACC min::acc|
+\LABEL{MACC} \\
+\verb|#define MINT min::internal|
+\LABEL{MINT} \\
+\end{tabular}
+\end{indpar}
+
 \INDEXHEADER{Compilation Macros}
+
+These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
@@ -5686,9 +5706,34 @@ struct min
 
 \end{indpar}
 
-\INDEXHEADER{Data Declarations}
+\newpage
+
+\INDEXHEADER{Types}
 
 \begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.0in}
+\verb|min::| & \MINKEY{uns8}
+\LABEL{MIN::UNS8} \\
+\verb|min::| & \MINKEY{int8}
+\LABEL{MIN::INT8} \\
+\verb|min::| & \MINKEY{uns8}
+\LABEL{MIN::UNS16} \\
+\verb|min::| & \MINKEY{int8}
+\LABEL{MIN::INT16} \\
+\verb|min::| & \MINKEY{uns8}
+\LABEL{MIN::UNS32} \\
+\verb|min::| & \MINKEY{int8}
+\LABEL{MIN::INT32} \\
+\verb|min::| & \MINKEY{float8}
+\LABEL{MIN::FLOAT32} \\
+\verb|min::| & \MINKEY{uns8}
+\LABEL{MIN::UNS64} \\
+\verb|min::| & \MINKEY{int8}
+\LABEL{MIN::INT64} \\
+\verb|min::| & \MINKEY{float8}
+\LABEL{MIN::FLOAT64}
+\end{TABULAR}
 
 \begin{TABULAR}{2.0in}
 \verb|min::| & \MINKEY{stub}
@@ -5696,7 +5741,16 @@ struct min
 \verb|min::| & \MINKEY{gen}
 \LABEL{MIN::GEN} \\
 \verb|min::| & \MINKEY{unsgen}
-\LABEL{MIN::UNSGEN} \\
+\LABEL{MIN::UNSGEN}
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Constants}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.0in}
 \verb|const unsigned min::| & \MINKEY{TSIZE}
 \LABEL{MIN::TSIZE} \\
 \verb|const unsigned min::| & \MINKEY{VSIZE}
@@ -5704,8 +5758,6 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Stub Type Codes}\label{STUB-TYPE-CODE-LIST}
 
@@ -5734,6 +5786,8 @@ struct min
 \LABEL{MIN::VARIABLE_VECTOR} 
 \end{TABULAR}
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Stub Related Declarations}
 
@@ -5867,8 +5921,6 @@ struct min
 
 \end{indpar}
 
-\newpage
-
 \INDEXHEADER{Gen Value Unprotected Declarations}
 
 \begin{indpar}[0.2in]
@@ -5954,8 +6006,6 @@ struct min
 
 \end{indpar}
 
-\newpage
-
 \INDEXHEADER{Gen Value Subtype Codes}
 
 \begin{indpar}[0.2in]
@@ -5988,6 +6038,8 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Special Values}
 
@@ -6076,6 +6128,8 @@ struct min
 
 \end{indpar}
 
+\newpage
+
 \INDEXHEADER{Control Value Declarations (Unprotected)}
 
 \begin{indpar}[0.2in]
@@ -6087,10 +6141,21 @@ struct min
       \verb|      min::uns64 flags = 0 )|
 \LABEL{MUP::NEW_CONTROL_OF_VALUE} \\
 \verb|min::uns64 MUP::|
-    & \MUPKEY{new\_control} \\
+    & \MUPKEY{new\_control\_with\_type} \\
     & \verb|    ( int type_code, const min::stub * s,|\ARGBREAK
       \verb|      min::uns64 flags = 0 )|
-\LABEL{MUP::NEW_CONTROL_OF_STUB} \\
+\LABEL{MUP::NEW_CONTROL_WITH_TYPE_OF_STUB} \\
+\verb|min::uns64 MUP::|
+    & \MUPKEY{new\_control\_with\_locator} \\
+    & \verb|    ( int locator, const min::stub * s )|
+\LABEL{MUP::NEW_CONTROL_WITH_LOCATOR_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns64 MUP::|
+    & \MUPKEY{renew\_control\_locator}\ARGBREAK
+      \verb| ( min::uns64 c, int locator )|
+\LABEL{MUP::RENEW_CONTROL_LOCATOR} \\
 \verb|min::uns64 MUP::|
     & \MUPKEY{renew\_control\_value}\ARGBREAK
       \verb| ( min::uns64 c, min::uns64 v )|
@@ -6099,6 +6164,11 @@ struct min
     & \MUPKEY{renew\_control\_stub}\ARGBREAK
       \verb| ( min::uns64 c, const min::stub * s )|
 \LABEL{MUP::RENEW_CONTROL_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|int MUP::| & \MUPKEY{locator\_of\_control}\verb| ( min::uns64 c )|
+\LABEL{MUP::LOCATOR_OF_CONTROL} \\
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of\_control}\verb| ( min::uns64 c )|
 \LABEL{MUP::VALUE_OF_CONTROL} \\
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of\_control}\verb| ( min::uns64 c )|
@@ -6139,6 +6209,8 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{Number Protected Declarations}
 
@@ -6230,6 +6302,8 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
+
+\newpage
 
 \INDEXHEADER{String Pointer Declarations}
 
@@ -6435,8 +6509,6 @@ struct min
 \end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Object Vector Level Declarations}
 
@@ -6958,8 +7030,6 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 
 \end{indpar}
 
-\newpage
-
 \INDEXHEADER{Object Attribute Level Declarations}
 
 \begin{indpar}[0.2in]
@@ -7174,8 +7244,6 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 \end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Variable Vector Variable Level Declarations}
 
