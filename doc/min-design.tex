@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 6, 2010}
+\date{January 7, 2010}
  
 \maketitle
 
@@ -1485,19 +1485,29 @@ the acc manages.
 If a stub is uncollectible, its stub control, which is called
 a `\key{non-acc control}\,', can be organized in different
 ways according to the type code value.  The standard way of organizing
-a non-acc control is:
+a non-acc stub control is:
 
 \begin{center}
 \begin{tabular}{ll}
 high order 8 bits:	& type code \\
 next 8 bits:		& subtype code \\
-low order 48 bits:	& chain pointer \\
+low order 48 bits:	& chain pointer or unsigned integer value \\
 \end{tabular}
 \end{center}
 
 Again the chain pointer is a packed stub address
 (see \pagref{STUB-ADDRESS-PACKING}),
 but now it has enough bits to be packed with the fastest packing scheme.
+
+A non-acc control may also be used outside a stub, say by the acc, and
+in this case it may be alternatively organized as:
+
+\begin{center}
+\begin{tabular}{ll}
+high order 16 bits:	& locator \\
+low order 48 bits:	& stub pointer \\
+\end{tabular}
+\end{center}
 
 The main use of uncollectible stubs is as auxiliary stubs.
 An `\key{auxiliary stub}' is an uncollectible stub attached to an object.
@@ -1754,7 +1764,7 @@ public:
             return false;
     }
 }
-\end{verbatim}\end{indpar}
+\end{verbatim}\end{indpar}\LABEL{MIN::RELOCATED}
 
 which permits the general code given above to be rewritten more conveniently
 as:
@@ -1981,12 +1991,13 @@ Thus control values contain an address/value low order field, and optional
 type code high order field, and flag bits.  There are two kinds of
 control values: (ordinary) control values and acc control values.
 Ordinary control values
-have 48 bits for the address/value field, 8 bits for the type,
-and 8 bits for flags.
-acc control values have 56 - G bits for a stub address, 8 bits
+have 48 bits for the address/value field, and either 8 bits for the type
+and 8 bits for flags, or 16 bits for the locator.
+Acc control values have 56 - G bits for a stub address, 8 bits
 for the type, and G bits for the acc flags, where G is some value from 8
 through 24.  The larger G, the more acc flags, which may permit the
-garbage collector to be more efficient.
+garbage collector to be more efficient (e.g., to have more ephemeral
+levels).
 
 Addresses stored in a control value must be stub addresses, as only they
 can be packed into less than 64 bits.
@@ -1995,8 +2006,8 @@ The control values used as stub controls do have a type code field which
 can be read by \verb|min::type_of| (which is protected) and
 written by \verb|MUP::set_type_of|.  For stub controls,
 acc control values are used with
-garbage collectible types, and ordinary control values with
-non-garbage-collectible types.
+collectible types, and ordinary control values with
+uncollectible types.
 
 The flag bits are set, cleared, and tested individually.  They are
 defined by constants of type \verb|min::uns64|, such as
@@ -2006,7 +2017,9 @@ defined by constants of type \verb|min::uns64|, such as
 \item[{\tt const min::uns64 MUP::}\MUPKEY{STUB\_ADDRESS}]~%
 	\LABEL{MIN::STUB_ADDRESS}\\
 Indicates that the address/value field of an ordinary (non-acc)
-control holds a stub address.
+control holds a stub address.  This flag is only used for
+uncollectible stubs whose control address/value field might
+be either a stub address or an unsigned integer.
 \end{list}
 \end{indpar}
 
@@ -2101,7 +2114,16 @@ Ordinary (non-acc) control values can be manipulated by the following functions:
 \LABEL{MUP::STUB_OF_CONTROL} \\
 \end{tabular}\end{indpar}
 
-Acc control values can be manipulated by the following functions
+The `{\tt new}' functions compute a control value,
+the `{\tt renew}' functions modify control values
+by inserting a new locator, value, or stub address, and
+the other functions return the parts of a control value.
+Here the 16-bit locator is represented as an \verb|int|
+in the range from $-2^{15}$ through $2^{15}-1$.
+
+None of these functions check the ranges of their arguments.
+
+Acc control values can be manipulated by the following similar functions
 (this is only done by acc code):
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
@@ -2132,11 +2154,6 @@ manipulated by the following functions:
 
 Here the 8-bit type code is represented as an {\tt int} in
 the range from $-128$ through $127$.
-The `{\tt new}' functions compute a control value,
-the `{\tt renew}' functions modify control values
-by inserting a new type, value, or stub address, and
-the other functions return the parts of a control value.
-None of these functions check the ranges of their arguments.
 
 \subsubsection{Unprotected Body Functions}
 \label{UNPROTECTED-BODY-FUNCTIONS}
@@ -5802,6 +5819,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::RELOCATED_FLAG} \\
 \verb|bool min::| & \MINKEY{set\_relocated\_flag}\verb| ( bool value )|
 \LABEL{MIN::SET_RELOCATED_FLAG} \\
+\verb|class min::| & \MINKEY{relocated}
+\LABEL{MIN::RELOCATED} \\
 \verb|void min::| & \MINKEY{interrupt\REL}\verb| ( void )|
 \LABEL{MIN::INTERRUPT} \\
 \verb|void min::| & \MINKEY{deallocate\REL}\verb| ( min::stub * s )|
@@ -5829,7 +5848,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_LIST_AUX} \\
 \verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST_AUX} \\
-\verb|bool min::| & \MINKEY{is\_indirect\_pair\_aux}\verb| ( min::gen v )|
+\verb|bool min::| & \MINKEY{is\_indirect\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_INDIRECT_AUX} \\
 \verb|bool min::| & \MINKEY{is\_packed\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_PACKED_AUX} \\
@@ -5857,7 +5876,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::unsgen min::| & \MINKEY{sublist\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MIN::SUBLIST_AUX_OF} \\
 \verb|min::unsgen min::|
-    & \MINKEY{indirect\_pair\_aux\_of}\verb| ( min::gen v )|
+    & \MINKEY{indirect\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INDIRECT_AUX_OF} \\
 \verb|min::unsgen min::|
     & \MINKEY{packed\_aux\_of}\verb| ( min::gen v )|
@@ -5893,7 +5912,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen min::| & \MINKEY{new\_sublist\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MIN::NEW_SUBLIST_AUX_GEN} \\
 \verb|min::gen min::|
-    & \MINKEY{new\_indirect\_pair\_aux\_gen}\verb| ( min::unsgen p )|
+    & \MINKEY{new\_indirect\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MIN::NEW_INDIRECT_AUX_GEN} \\
 \verb|min::gen min::|
     & \MINKEY{new\_packed\_aux\_gen}\ARGBREAK
@@ -5941,7 +5960,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::unsgen MUP::| & \MUPKEY{sublist\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::SUBLIST_AUX_OF} \\
 \verb|min::unsgen MUP::|
-    & \MUPKEY{indirect\_pair\_aux\_of}\verb| ( min::gen v )|
+    & \MUPKEY{indirect\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MUP::INDIRECT_AUX_OF} \\
 \verb|unsigned MUP::|
     & \MUPKEY{packed\_aux\_of}\verb| ( min::gen v )|
@@ -5977,7 +5996,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen MUP::| & \MUPKEY{new\_sublist\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MUP::NEW_SUBLIST_AUX_GEN} \\
 \verb|min::gen MUP::|
-    & \MUPKEY{new\_indirect\_pair\_aux\_gen}\verb| ( min::unsgen p )|
+    & \MUPKEY{new\_indirect\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MUP::NEW_INDIRECT_AUX_GEN} \\
 \verb|min::gen MUP::|
     & \MUPKEY{new\_packed\_aux\_gen}\ARGBREAK
@@ -5996,12 +6015,6 @@ These are in \verb|min_parameters.h|.
     & \MUPKEY{renew\_gen}\verb| ( min::gen v, min::unsgen p )|
 \LABEL{MUP::RENEW_GEN} \\
 
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|(macro) min::gen|
-	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
-\LABEL{MIN_NEW_SPECIAL_GEN} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -6045,7 +6058,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{1.8in}
 \verb|min::gen min::| & \MINKEY{MISSING}
 \LABEL{MIN::MISSING} \\
 \verb|min::gen min::| & \MINKEY{NONE}
@@ -6060,6 +6073,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SUCCESS} \\
 \verb|min::gen min::| & \MINKEY{FAILURE}
 \LABEL{MIN::FAILURE} \\
+\verb|(macro) min::gen|
+	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
+\LABEL{MIN_NEW_SPECIAL_GEN} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -6211,6 +6227,19 @@ These are in \verb|min_parameters.h|.
 \end{indpar}
 
 \newpage
+
+\INDEXHEADER{Allocator/Collector/Compactor Interface}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::stub * MUP::| & \MUPKEY{new\_acc\_stub}\verb| ( void )|
+\LABEL{MUP::NEW_ACC_STUB} \\
+\verb|min::stub * MUP::| & \MUPKEY{new\_aux\_stub}\verb| ( void )|
+\LABEL{MUP::NEW_AUX_STUB} \\
+\end{TABULAR}
+
+\end{indpar}
 
 \INDEXHEADER{Number Protected Declarations}
 
