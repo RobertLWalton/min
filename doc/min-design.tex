@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 7, 2010}
+\date{January 8, 2010}
  
 \maketitle
 
@@ -2158,7 +2158,7 @@ the range from $-128$ through $127$.
 \subsubsection{Unprotected Body Functions}
 \label{UNPROTECTED-BODY-FUNCTIONS}
 
-The following functions allocate and free bodies:
+The following functions allocate and deallocate bodies:
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|void MUP::|
@@ -2168,9 +2168,25 @@ The following functions allocate and free bodies:
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|void MUP::|
-    & \MUPKEY{free\_body}\verb| ( min::stub * s, unsigned n )|
-\LABEL{MUP::FREE_BODY} \\
+    & \MUPKEY{deallocate\_body}\verb| ( min::stub * s, unsigned n )|
+\LABEL{MUP::DEALLOCATE_BODY} \\
 \end{tabular}\end{indpar}
+
+Here \verb|n| is the size in bytes of the body to be allocated or deallocated.
+The allocator is not required to remember the size of a body,
+so when deallocating the body the caller must provide the same size
+as was used to allocate the body.  The allocator will likely
+run a check that will likely catch a wrong size, but it may not
+be able to determine the right size.
+
+Bodies are always aligned on 8 byte boundaries.
+
+When a body is deallocated, the stub type is set to
+\verb|min::DEALLOCATED| and the stub pointer is set to
+point at a block of inaccessible memory whose size is at least
+the smaller of \verb|n| and
+{\tt MIN\_\EOL DEALLOCATED\_\EOL LIMIT}
+(\pagref{MIN_DEALLOCATED_LIMIT}).
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -6080,7 +6096,20 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Unprotected Stub Declarations}
+\INDEXHEADER{Unprotected Stub Allocation Functions}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.6in}
+\verb|min::stub * MUP::| & \MUPKEY{new\_acc\_stub}\verb| ( void )|
+\LABEL{MUP::NEW_ACC_STUB} \\
+\verb|min::stub * MUP::| & \MUPKEY{new\_aux\_stub}\verb| ( void )|
+\LABEL{MUP::NEW_AUX_STUB} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Unprotected Stub Read/Write Functions}
 
 \begin{indpar}[0.2in]
 
@@ -6114,6 +6143,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MUP::SET_POINTER_OF} \\
 \end{TABULAR}
 
+\end{indpar}
+
+\INDEXHEADER{Unprotected Stub Control Functions}
+
+\begin{indpar}[0.2in]
+
+
 \begin{TABULAR}{1.6in}
 \verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::CONTROL_OF} \\
@@ -6141,14 +6177,6 @@ These are in \verb|min_parameters.h|.
       \verb| ( min::stub * s, min::uns64 flags )|
 \LABEL{MUP::CLEAR_FLAGS_OF} \\
 \end{TABULAR}
-
-\end{indpar}
-
-\newpage
-
-\INDEXHEADER{Control Value Declarations (Unprotected)}
-
-\begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.6in}
 \verb|min::uns64 MUP::|
@@ -6226,17 +6254,17 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\newpage
-
-\INDEXHEADER{Allocator/Collector/Compactor Interface}
+\INDEXHEADER{Unprotected Body Allocation Functions}
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.8in}
-\verb|min::stub * MUP::| & \MUPKEY{new\_acc\_stub}\verb| ( void )|
-\LABEL{MUP::NEW_ACC_STUB} \\
-\verb|min::stub * MUP::| & \MUPKEY{new\_aux\_stub}\verb| ( void )|
-\LABEL{MUP::NEW_AUX_STUB} \\
+\begin{TABULAR}{1.6in}
+\verb|void MUP::|
+    & \MUPKEY{new\_body}\verb| ( min::stub * s, unsigned n )|
+\LABEL{MUP::NEW_BODY} \\
+\verb|void MUP::|
+    & \MUPKEY{deallocate\_body}\verb| ( min::stub * s, unsigned n )|
+\LABEL{MUP::DEALLOCATE_BODY} \\
 \end{TABULAR}
 
 \end{indpar}
