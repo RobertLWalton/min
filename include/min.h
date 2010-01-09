@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  9 01:35:06 EST 2010
+// Date:	Sat Jan  9 12:27:56 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/09 10:50:52 $
+//   $Date: 2010/01/09 17:31:47 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.204 $
+//   $Revision: 1.205 $
 
 // Table of Contents:
 //
@@ -2026,46 +2026,46 @@ namespace min { namespace unprotected {
 
 namespace min { namespace internal {
 
-    // Initialize relocate_body stub list.
+    // Initialize resize_body stub list.
     //
-    void acc_initialize_relocate_body ( void );
+    void acc_initialize_resize_body ( void );
 
 } }
 
 namespace min { namespace unprotected {
 
-    // When constructed the relocate_body struct allo-
+    // When constructed the resize_body struct allo-
     // cates a new body for a stub s, and when descon-
-    // structed the relocate_body struct installs the
+    // structed the resize_body struct installs the
     // new body in the stub s  while deallocating the
     // old body of s.  Stub s is not altered until the
-    // relocate_body struct is deconstructed (the
-    // void_relocate_body function can be used to
+    // resize_body struct is deconstructed (the
+    // void_resize_body function can be used to
     // prevent stub s from ever being altered).
     //
     // After the new body is obtained, information
     // should be copied from the old body to the new
-    // body, before the relocate_body struct is decon-
+    // body, before the resize_body struct is decon-
     // structed.  The new body will not be touched by
-    // the garbage collector while the relocate_body
+    // the garbage collector while the resize_body
     // struct exists.  However, it may be relocated.
     // The existing stub s MUST be protected by the
-    // relocate_body user from garbage collection and
+    // resize_body user from garbage collection and
     // its body protected from reorganization while the
-    // relocate_body struct exists, but that body may
+    // resize_body struct exists, but that body may
     // also be relocated.  s must NOT be deallocated
-    // while the relocate_body struct exists, unless
-    // void_relocate_body has been called.
+    // while the resize_body struct exists, unless
+    // void_resize_body has been called.
     // 
-    struct relocate_body;
-    void void_relocate_body ( relocate_body & r );
-    struct relocate_body {
+    struct resize_body;
+    void void_resize_body ( resize_body & r );
+    struct resize_body {
 
-	// Construct relocate_body for stub s with new
+	// Construct resize_body for stub s with new
 	// body size new_size and old body size
 	// old_size.
 	//
-        relocate_body ( min::stub * s,
+        resize_body ( min::stub * s,
 	                unsigned new_size,
 			unsigned old_size )
 	    : s ( s ), new_size ( new_size ),
@@ -2100,7 +2100,7 @@ namespace min { namespace unprotected {
 	//
 	// When switching, assumes s is NOT deallocated.
 	//
-	~relocate_body ( void )
+	~resize_body ( void )
 	{
 	    if ( type_of ( rstub ) != min::DEALLOCATED )
 	    {
@@ -2144,17 +2144,17 @@ namespace min { namespace unprotected {
 	}
 
 	friend void * & new_body_pointer_ref
-			( relocate_body & r );
-	friend void void_relocate_body
-			( relocate_body & r );
+			( resize_body & r );
+	friend void void_resize_body
+			( resize_body & r );
 	friend void min::internal
-	               ::acc_initialize_relocate_body
+	               ::acc_initialize_resize_body
 		             ( void );
 
     private:
 
         // Out of line rstub allocator.  Expands
-	// relocate_body stub list.
+	// resize_body stub list.
 	//
 	min::stub * rstub_allocate ( void );
 
@@ -2162,7 +2162,7 @@ namespace min { namespace unprotected {
 	    // Stub whose body is being relocated.
         min::stub * rstub;
 	    // Temporary stub for new body.  Type is
-	    // min::DEALLOCATED if relocate_body is
+	    // min::DEALLOCATED if resize_body is
 	    // voided.
 	unsigned old_size;
 	    // Size of old body (body being
@@ -2180,16 +2180,16 @@ namespace min { namespace unprotected {
     // Return a pointer to the new body.
     //
     inline void * & new_body_pointer_ref
-	    ( relocate_body & r )
+	    ( resize_body & r )
     {
 	return min::unprotected
 		  ::pointer_ref_of ( r.rstub );
     }
-    // Void the relocate_body struct so it will not
+    // Void the resize_body struct so it will not
     // change anything when deconstructed.  The
     // new body is deallocated.
     //
-    inline void void_relocate_body ( relocate_body & r )
+    inline void void_resize_body ( resize_body & r )
     {
 	min::unprotected::deallocate_body
 	    ( r.rstub, r.new_size );

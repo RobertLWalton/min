@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Dec 18 13:27:15 EST 2009
+// Date:	Sat Jan  9 12:29:18 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/18 19:27:53 $
+//   $Date: 2010/01/09 17:31:54 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.111 $
+//   $Revision: 1.112 $
 
 // Table of Contents:
 //
@@ -172,9 +172,9 @@ namespace min { namespace internal {
 
 namespace min { namespace unprotected {
 
-    min::stub * relocate_body::last_allocated;
+    min::stub * resize_body::last_allocated;
 
-    min::stub * relocate_body::rstub_allocate ( void )
+    min::stub * resize_body::rstub_allocate ( void )
     {
 	min::stub * endstub = last_allocated;
 	for ( int i = 0; i < 5; ++ i )
@@ -196,10 +196,10 @@ namespace min { namespace unprotected {
 
 namespace min { namespace internal {
 
-    void acc_initialize_relocate_body ( void )
+    void acc_initialize_resize_body ( void )
     {
 	min::stub * s = MUP::new_aux_stub();
-	MUP::relocate_body::last_allocated = s;
+	MUP::resize_body::last_allocated = s;
 	MUP::set_control_of ( s,
 	    MUP::renew_control_stub
 		( MUP::control_of ( s ),
