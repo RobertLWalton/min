@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan  3 10:31:26 EST 2010
+// Date:	Sat Jan  9 04:10:27 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/03 15:34:52 $
+//   $Date: 2010/01/09 10:52:38 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.111 $
+//   $Revision: 1.112 $
 
 // Table of Contents:
 //
@@ -343,13 +343,12 @@ void MINT::new_fixed_body
 // Deallocate the stub body.  Repoints the body to the
 // all zero deallocated_body_region.
 //
-void MUP::deallocate_body ( min::stub * s )
+void MUP::deallocate_body ( min::stub * s, unsigned n )
 {
+    if ( n == 0 ) return;
+
     cout << "MINT::deallocate ( " << s
          << " ) called" << endl;
-
-    if ( min::type_of ( s ) == min::DEALLOCATED )
-        return;
 
     MUP::set_pointer_of ( s, deallocated_body_region );
     MUP::set_type_of ( s, min::DEALLOCATED );
@@ -361,21 +360,26 @@ void MUP::deallocate_body ( min::stub * s )
 // Function to relocate a body.  Just allocates a new
 // body, copies the contents of the old body to the
 // new body, and zeros the old body, and deallocates
-// the old body.
+// the old body.  Sizes of new and old bodies are given.
+// The minimum of these is copied.
 //
 static void relocate_body
-	( min::stub * s, unsigned length )
+	( min::stub * s, unsigned new_size,
+	                 unsigned old_size )
 {
     cout << "relocate_body ( stub "
-         << s - begin_stub_region << ", " << length
-         << " ) called" << endl;
+         << s - begin_stub_region << ", " << new_size
+         << ", " << old_size << " ) called" << endl;
     {
-	MUP::relocate_body rbody ( s, length );
+	MUP::relocate_body rbody
+	    ( s, new_size, old_size );
+	unsigned length = new_size >= old_size ?
+	                  old_size : new_size;
 
 	min::uns64 * from = (min::uns64 *)
 	    MUP::pointer_of ( s );
 	min::uns64 * to   = (min::uns64 *)
-	    MUP::new_body_pointer ( rbody );
+	    MUP::new_body_pointer_ref ( rbody );
 	cout << "copying body_region["
 	     << from - begin_body_region
 	     << " .. "
@@ -389,9 +393,10 @@ static void relocate_body
 	cout << "zeroing body_region["
 	     << from - begin_body_region
 	     << " .. "
-	     << from - begin_body_region + length/8 - 1
+	     << from - begin_body_region
+	             + old_size/8 - 1
 	     << "]" << endl;
-	memset ( from, 0, length );
+	memset ( from, 0, old_size );
     }
 
 }
@@ -1317,11 +1322,11 @@ int main ()
 	memset ( p4, 0xCC, 128 );
 	MIN_ASSERT ( memcmp ( p3, p4, 128 ) == 0 );
 	MIN_ASSERT ( p3 != p4 );
-	relocate_body ( stub4, 128 );
+	relocate_body ( stub4, 128, 128 );
 	char * p5 = (char *) MUP::pointer_of ( stub4 );
 	MIN_ASSERT ( memcmp ( p3, p5, 128 ) == 0 );
 	MIN_ASSERT ( p4 != p5 );
-	min::deallocate ( stub4 );
+	MUP::deallocate_body ( stub4, 128 );
 	MIN_ASSERT ( min::type_of ( stub4 )
 	             == min::DEALLOCATED );
 	char * p6 = (char *) MUP::pointer_of ( stub4 );
@@ -1537,9 +1542,13 @@ int main ()
 	cout << "Test string pointers:" << endl;
 
 	// Test body relocation first.
+	MIN_ASSERT
+	    ( MUP::body_size_of ( stub13 )
+	      ==
+	      sizeof ( MUP::long_str ) + 13 + 1 );
 	relocate_body
-	    ( stub13,   ::strlen ( s13 )
-	              + sizeof (MUP::long_str) );
+	    ( stub13, MUP::body_size_of ( stub13 ),
+	              MUP::body_size_of ( stub13 ) );
 	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
 	MIN_ASSERT
 	    ( min::strhash ( strgen13 ) == s13hash );
@@ -1602,8 +1611,8 @@ int main ()
 	MIN_ASSERT
 	    ( strcmp ( p13str_before, s13 ) == 0 );
 	relocate_body
-	    ( stub13,   ::strlen ( s13 )
-	              + sizeof (MUP::long_str) );
+	    ( stub13, MUP::body_size_of ( stub13 ),
+	              MUP::body_size_of ( stub13 ) );
 	const char * p13str_after =
 	    min::unprotected::str_of ( p13 );
 	MIN_ASSERT ( p13str_after != p13str_before );
