@@ -368,7 +368,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6340
+control2: 85800000009f64c0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -379,7 +379,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6350
+re-control2: 85800000009f64d0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -392,7 +392,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f6340
+control3: 85800000009f64c0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -403,7 +403,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6350
+re-control3: 85800000009f64d0
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -597,7 +597,7 @@ min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     p3 != p4 true.
-relocate_body ( stub 4, 128 ) called
+relocate_body ( stub 4, 128, 128 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
@@ -871,7 +871,9 @@ min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen13, 12 ) == 0 true.
 
 Test string pointers:
-relocate_body ( stub 19, 21 ) called
+min_interface_test.cc:XXXX assert:
+    MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
+relocate_body ( stub 19, 22, 22 ) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 copying body_region[193 .. 194] to body_region[197 .. 198]
@@ -959,10 +961,10 @@ min_interface_test.cc:XXXX assert:
     min::strhash ( p13 ) == min::strhash ( s13 ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
-relocate_body ( stub 19, 21 ) called
+relocate_body ( stub 19, 22, 22 ) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_fixed_body ( stub 6, 21 ) called
+MINT::new_fixed_body ( stub 6, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[2] and assigning begin_body_region[200 .. 203]
