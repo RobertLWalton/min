@@ -579,7 +579,7 @@ min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     p3 != p4 true.
-relocate_body ( stub 4, 128, 128 ) called
+resize_body ( stub 4, 128, 128 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
@@ -865,7 +865,7 @@ min_interface_test.cc:XXXX assert:
 Test string pointers:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
-relocate_body ( stub 15, 22, 22 ) called
+resize_body ( stub 15, 22, 22 ) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 copying body_region[193 .. 194] to body_region[197 .. 198]
@@ -953,7 +953,7 @@ min_interface_test.cc:XXXX assert:
     min::strhash ( p13 ) == min::strhash ( s13 ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
-relocate_body ( stub 15, 22, 22 ) called
+resize_body ( stub 15, 22, 22 ) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 22 ) called

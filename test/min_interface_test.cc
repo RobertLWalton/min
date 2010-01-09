@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  9 05:53:08 EST 2010
+// Date:	Sat Jan  9 12:30:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/09 10:58:16 $
+//   $Date: 2010/01/09 17:32:03 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.113 $
+//   $Revision: 1.114 $
 
 // Table of Contents:
 //
@@ -354,24 +354,21 @@ void MUP::deallocate_body ( min::stub * s, unsigned n )
     MUP::set_type_of ( s, min::DEALLOCATED );
 }
 
-// TBD: relocate_body has just been rewritten and needs
-// more debugging.
-
 // Function to relocate a body.  Just allocates a new
 // body, copies the contents of the old body to the
 // new body, and zeros the old body, and deallocates
 // the old body.  Sizes of new and old bodies are given.
 // The minimum of these is copied.
 //
-static void relocate_body
+static void resize_body
 	( min::stub * s, unsigned new_size,
 	                 unsigned old_size )
 {
-    cout << "relocate_body ( stub "
+    cout << "resize_body ( stub "
          << s - begin_stub_region << ", " << new_size
          << ", " << old_size << " ) called" << endl;
     {
-	MUP::relocate_body rbody
+	MUP::resize_body rbody
 	    ( s, new_size, old_size );
 	unsigned length = new_size >= old_size ?
 	                  old_size : new_size;
@@ -446,7 +443,7 @@ void MINT::acc_initializer ( void )
     initialize_hash_tables();
     initialize_acc_stack();
 
-    MINT::acc_initialize_relocate_body();
+    MINT::acc_initialize_resize_body();
 }
 
 // Main Program
@@ -1322,7 +1319,7 @@ int main ()
 	memset ( p4, 0xCC, 128 );
 	MIN_ASSERT ( memcmp ( p3, p4, 128 ) == 0 );
 	MIN_ASSERT ( p3 != p4 );
-	relocate_body ( stub4, 128, 128 );
+	resize_body ( stub4, 128, 128 );
 	char * p5 = (char *) MUP::pointer_of ( stub4 );
 	MIN_ASSERT ( memcmp ( p3, p5, 128 ) == 0 );
 	MIN_ASSERT ( p4 != p5 );
@@ -1546,7 +1543,7 @@ int main ()
 	    ( MUP::body_size_of ( stub13 )
 	      ==
 	      sizeof ( MUP::long_str ) + 13 + 1 );
-	relocate_body
+	resize_body
 	    ( stub13, MUP::body_size_of ( stub13 ),
 	              MUP::body_size_of ( stub13 ) );
 	MIN_ASSERT ( min::strlen ( strgen13 ) == 13 );
@@ -1610,7 +1607,7 @@ int main ()
 	    min::unprotected::str_of ( p13 );
 	MIN_ASSERT
 	    ( strcmp ( p13str_before, s13 ) == 0 );
-	relocate_body
+	resize_body
 	    ( stub13, MUP::body_size_of ( stub13 ),
 	              MUP::body_size_of ( stub13 ) );
 	const char * p13str_after =
