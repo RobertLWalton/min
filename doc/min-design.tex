@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 8, 2010}
+\date{January 9, 2010}
  
 \maketitle
 
@@ -2164,9 +2164,6 @@ The following functions allocate and deallocate bodies:
 \verb|void MUP::|
     & \MUPKEY{new\_body}\verb| ( min::stub * s, unsigned n )|
 \LABEL{MUP::NEW_BODY} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|void MUP::|
     & \MUPKEY{deallocate\_body}\verb| ( min::stub * s, unsigned n )|
 \LABEL{MUP::DEALLOCATE_BODY} \\
@@ -2187,6 +2184,90 @@ point at a block of inaccessible memory whose size is at least
 the smaller of \verb|n| and
 {\tt MIN\_\EOL DEALLOCATED\_\EOL LIMIT}
 (\pagref{MIN_DEALLOCATED_LIMIT}).
+
+The function
+
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
+\verb|unsigned MUP::|
+    & \MUPKEY{body\_size\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::BODY_SIZE_OF} \\
+\end{tabular}\end{indpar}
+
+returns the size of the stub body, that is, the same size
+as that passed to {\tt MUP::new\_\EOL body} when the
+body was allocated.  This is necessary as the acc does
+\underline{not} keep track of body sizes, and depends upon
+this {\tt MUP::body\_\EOL size\_\EOL of} function to
+find body sizes.  If the stub is deallocated (of type
+\verb|min::DEALLOCATED|) or if the stub has no body,
+\verb|0| is returned.
+
+The function
+
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
+\verb|void * & MUP::| & \MUPKEY{pointer\_ref\_of}%
+	     \verb| ( min::stub * s )| 
+\LABEL{MUP::POINTER_REF_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+returns a pointer to a pointer to the stub body.
+The first pointer points to a location P with a fixed address
+(P is the stub value); P holds
+a pointer to the stub body, which may be relocated by a call to
+a relocating function (\pagref{RELOCATING-FUNCTIONS}).
+Whenever the body is relocated the value of P is changed to
+point to the new body location.
+
+In order to change the size of a stub body, the following
+can be used:
+
+\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
+\verb|(constructor) MUP::| & \MUPKEY{resize\_body} \\
+    & \verb|    ( min::stub * s,| \\
+    & \verb|      unsigned new_size, unsigned old_size )|
+\LABEL{MUP::RESIZE_BODY} \\
+\verb|void * & MUP::| & \MUPKEY{new\_body\_pointer\_ref}%
+	     \verb| ( MUP::resize_body & rb )| 
+\LABEL{MUP::NEW_BODY_POINTER_REF} \\
+\verb|void MUP::| & \MUPKEY{void\_resize\_body}%
+	     \verb| ( MUP::resize_body & rb )| 
+\LABEL{MUP::VOID_RESIZE_BODY} \\
+\end{tabular}\end{indpar}
+
+When constructed the \verb|MUP::resize_body| datum allocates
+a new body for a stub \verb|s|, and when desconstructed the datum
+installs the new body in the stub \verb|s| while deallocating the
+old body of \verb|s|.  Stub \verb|s|
+is not altered until the {\tt resize\_\EOL body}
+datum is deconstructed, and the {\tt void\_\EOL resize\_\EOL body}
+function can be used to prevent stub s from ever being altered.
+The sizes of the old and new body of \verb|s| must be passed to
+the {\tt resize\_\EOL body} constructor.
+
+Given a {\tt resize\_\EOL body} datum \verb|rb|,
+\begin{center}
+\verb|MUP::new_body_pointer_ref ( rb )|
+\end{center}
+returns a pointer to a pointer to the new body.  The first pointer
+points to a location P with a fixed address that exists as long
+as the {\tt resize\_\EOL body} datum \verb|rb| exists.   P holds
+a pointer to the new body, which may be relocated by a call to
+a relocating function (\pagref{RELOCATING-FUNCTIONS})
+as all stub bodies
+can be, and will be pointed to by a changed value of P if it is
+relocated.
+
+After the new body is obtained, information should be copied from
+the old body to the new body before the {\tt resize\_\EOL body}
+datum is deconstructed.  The new body will not be touched by
+the garbage collector while the {\tt resize\_\EOL body} datum
+exists, but it may be relocated.  The existing stub \verb|s|
+\underline{must} be protected by the from garbage collection and
+its body protected from reorganization by the user while the
+{\tt resize\_\EOL body} datum exists, but that body may
+also be relocated.  \verb|s| must NOT be deallocated
+while the {\tt resize\_\EOL body} datum exists, unless
+{\tt void\_\EOL resize\_\EOL body} has been called.
 
 \subsection{Numbers}
 \label{NUMBERS}
@@ -6263,8 +6344,32 @@ These are in \verb|min_parameters.h|.
     & \MUPKEY{new\_body}\verb| ( min::stub * s, unsigned n )|
 \LABEL{MUP::NEW_BODY} \\
 \verb|void MUP::|
-    & \MUPKEY{deallocate\_body}\verb| ( min::stub * s, unsigned n )|
+    & \MUPKEY{deallocate\_body}\ARGBREAK
+      \verb|    ( min::stub * s, unsigned n )|
 \LABEL{MUP::DEALLOCATE_BODY} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|unsigned MUP::|
+    & \MUPKEY{body\_size\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::BODY_SIZE_OF} \\
+\verb|void * & MUP::| & \MUPKEY{pointer\_ref\_of}%
+	     \verb| ( min::stub * s )| 
+\LABEL{MUP::POINTER_REF_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) MUP::| & \MUPKEY{resize\_body}\ARGBREAK
+    \verb|    ( min::stub * s,|\ARGBREAK
+    \verb|      unsigned new_size,|\ARGBREAK
+    \verb|      unsigned old_size )|
+\LABEL{MUP::RESIZE_BODY} \\
+\verb|void * & MUP::| & \MUPKEY{new\_body\_pointer\_ref}\ARGBREAK
+	     \verb|    ( MUP::resize_body & rb )| 
+\LABEL{MUP::NEW_BODY_POINTER_REF} \\
+\verb|void MUP::| & \MUPKEY{void\_resize\_body}\ARGBREAK
+	     \verb|    ( MUP::resize_body & rb )| 
+\LABEL{MUP::VOID_RESIZE_BODY} \\
 \end{TABULAR}
 
 \end{indpar}
