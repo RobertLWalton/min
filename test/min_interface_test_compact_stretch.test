@@ -368,7 +368,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f6500
+control2: 85800000009f6660
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -379,7 +379,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f6510
+re-control2: 85800000009f6670
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -392,7 +392,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f6500
+control3: 85800000009f6660
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -403,7 +403,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f6510
+re-control3: 85800000009f6670
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -1028,6 +1028,8 @@ min_interface_test.cc:XXXX assert:
     min::type_of ( s ) == min::LABEL true.
 min_interface_test.cc:XXXX assert:
     min::lablen ( lab ) == 3 true.
+min_interface_test.cc:XXXX assert:
+    MUP::body_size_of ( s ) == 3 * sizeof ( min::gen ) + sizeof ( MINT::lab_header ) true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1086,6 +1088,8 @@ min_interface_test.cc:XXXX assert:
     saa == 0 true.
 min_interface_test.cc:XXXX assert:
     st == sh + sht + sav + sua + saa true.
+min_interface_test.cc:XXXX assert:
+    MUP::body_size_of ( sstub ) == st * sizeof ( min::gen ) true.
 
 Test long objects:
 MINT::acc_expand_stub_free_list (1) called
@@ -1109,6 +1113,8 @@ min_interface_test.cc:XXXX assert:
     laa == 0 true.
 min_interface_test.cc:XXXX assert:
     lt == lh + lht + lav + lua + laa true.
+min_interface_test.cc:XXXX assert:
+    MUP::body_size_of ( lstub ) == lt * sizeof ( min::gen ) true.
 
 Finish Objects Test!
 
