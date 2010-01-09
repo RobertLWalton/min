@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan  3 10:22:55 EST 2010
+// Date:	Sat Jan  9 01:35:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/03 15:34:42 $
+//   $Date: 2010/01/09 10:50:52 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.203 $
+//   $Revision: 1.204 $
 
 // Table of Contents:
 //
@@ -38,6 +38,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	More Allocator/Collector/Compactor Interface
 
 // Namespaces:
 //
@@ -1946,6 +1947,17 @@ namespace min { namespace internal {
 
 namespace min { namespace unprotected {
 
+    // Return the size of the body associated with the
+    // stub.  0 is returned for deallocated stubs (of
+    // type min::DEALLOCATED) and stubs with no body.
+    // For stubs with a body, the size must be the same
+    // as the size passed to new_body to allocated
+    // the body.  This function is NOT provided by the
+    // acc; it is used by the acc.  The acc is NOT
+    // responsible for keeping track of body sizes.
+    //
+    unsigned body_size_of ( const min::stub * s );
+
     // Allocate a body to a stub.  n is the minimum size
     // of the body in bytes, not including the control
     // word that begins the body.  The stub control is
@@ -2000,16 +2012,17 @@ namespace min { namespace unprotected {
     }
 
     // Deallocate the body of a stub, and reset the stub
-    // type to min::DEALLOCATED.  The stub body pointer
-    // is pointed at inaccessible memory of a large size
-    // that is usually as big or bigger than the old
-    // stub body.  The previous stub type must specify
-    // that the stub has a body, or it must equal min::
-    // DEALLOCATED (in which case nothing is done).
+    // type to min::DEALLOCATED.  The size n of the body
+    // must be given.  The stub body pointer is pointed
+    // at inaccessible memory of a size that is usually
+    // as big or bigger than the old stub body.  If
+    // n == 0 it is assumed that the stub has no body,
+    // and nothing is done.
     //
-    void deallocate_body ( min::stub * s );
+    void deallocate_body ( min::stub * s, unsigned n );
 
 } }
+
 
 namespace min { namespace internal {
 
@@ -2033,17 +2046,30 @@ namespace min { namespace unprotected {
     // After the new body is obtained, information
     // should be copied from the old body to the new
     // body, before the relocate_body struct is decon-
-    // structed.
+    // structed.  The new body will not be touched by
+    // the garbage collector while the relocate_body
+    // struct exists.  However, it may be relocated.
+    // The existing stub s MUST be protected by the
+    // relocate_body user from garbage collection and
+    // its body protected from reorganization while the
+    // relocate_body struct exists, but that body may
+    // also be relocated.  s must NOT be deallocated
+    // while the relocate_body struct exists, unless
+    // void_relocate_body has been called.
     // 
     struct relocate_body;
-    void void_relocate_body ( relocate_body * r );
+    void void_relocate_body ( relocate_body & r );
     struct relocate_body {
 
 	// Construct relocate_body for stub s with new
-	// body size n.
+	// body size new_size and old body size
+	// old_size.
 	//
-        relocate_body ( min::stub * s, unsigned n )
-	    : s ( s )
+        relocate_body ( min::stub * s,
+	                unsigned new_size,
+			unsigned old_size )
+	    : s ( s ), new_size ( new_size ),
+	      old_size ( old_size )
 	{
 	    // Allocate rstub and its body, which is
 	    // the new body.
@@ -2061,7 +2087,8 @@ namespace min { namespace unprotected {
 	    min::unprotected
 	       ::set_type_of ( rstub,
 	                       min::RELOCATE_BODY );
-	    min::unprotected::new_body ( rstub, n );
+	    min::unprotected::new_body
+	        ( rstub, new_size );
 	}
 
 	// Deconstruct relocated_body, switching the
@@ -2095,6 +2122,10 @@ namespace min { namespace unprotected {
 		rstub->c.u64 ^= c;
 		s->c.u64 ^= c;
 
+		int type = min::type_of ( s );
+		unprotected::set_type_of
+		    ( rstub, type );
+
 		min::uns64 * bp = (min::uns64 *)
 		    unprotected::pointer_of ( s ) - 1;
 		* bp = unprotected::renew_control_stub
@@ -2105,13 +2136,14 @@ namespace min { namespace unprotected {
 		* bp = unprotected::renew_control_stub
 			 ( * bp, rstub );
 
-		unprotected::deallocate_body ( rstub );
+		unprotected::deallocate_body
+		    ( rstub, old_size );
 	    }
 
 	    last_allocated = last_allocated_save;
 	}
 
-	friend void * new_body_pointer
+	friend void * & new_body_pointer_ref
 			( relocate_body & r );
 	friend void void_relocate_body
 			( relocate_body & r );
@@ -2132,6 +2164,11 @@ namespace min { namespace unprotected {
 	    // Temporary stub for new body.  Type is
 	    // min::DEALLOCATED if relocate_body is
 	    // voided.
+	unsigned old_size;
+	    // Size of old body (body being
+	    // reallocated).
+	unsigned new_size;
+	    // Size of new body.
 	min::stub * last_allocated_save;
 	    // Save of last_allocated.
 
@@ -2142,10 +2179,11 @@ namespace min { namespace unprotected {
 
     // Return a pointer to the new body.
     //
-    inline void * new_body_pointer ( relocate_body & r )
+    inline void * & new_body_pointer_ref
+	    ( relocate_body & r )
     {
 	return min::unprotected
-		  ::pointer_of ( r.rstub );
+		  ::pointer_ref_of ( r.rstub );
     }
     // Void the relocate_body struct so it will not
     // change anything when deconstructed.  The
@@ -2153,19 +2191,11 @@ namespace min { namespace unprotected {
     //
     inline void void_relocate_body ( relocate_body & r )
     {
-	min::unprotected::deallocate_body ( r.rstub );
+	min::unprotected::deallocate_body
+	    ( r.rstub, r.new_size );
     }
 
 } }
-
-namespace min {
-
-    inline void deallocate ( min::stub * s )
-    {
-    	min::unprotected::deallocate_body ( s );
-    }
-
-}
 
 // Numbers
 // -------
@@ -5545,5 +5575,61 @@ namespace min {
 
 namespace min {
 }
+
+// More Allocator/Collector/Compactor Interface
+// ---- ----------------------------- ---------
+
+#ifndef MIN_NON_STANDARD_UNPROTECTED_BODY_SIZE_OF
+
+// Min::unprotected::body_size_of function for standard
+// min types.  There are macros that permit adding
+// additional stub type cases or completely redefining
+// the function.
+//
+inline unsigned min::unprotected::body_size_of
+	( const min::stub * s )
+{
+    switch ( min::type_of ( s ) )
+    {
+    case min::LONG_STR:
+	return   unprotected::length_of
+		     ( unprotected::long_str_of ( s ) )
+	       + 1
+	       + sizeof ( long_str );
+    case min::LABEL:
+	return   internal::lablen
+		     ( internal::lab_header_of ( s ) )
+	       * sizeof ( min::gen )
+	       + sizeof ( internal::lab_header );
+    case min::SHORT_OBJ:
+	return   min::total_size_of
+		     ( unprotected::short_obj_of ( s ) )
+	       * sizeof ( min::gen );
+    case min::LONG_OBJ:
+	return   min::total_size_of
+		     ( unprotected::long_obj_of ( s ) )
+	       * sizeof ( min::gen );
+#   ifdef MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
+    MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
+#   endif
+    default:
+        return 0;
+    }
+}
+#else // def MIN_NON_STANDARD_UNPROTECTED_BODY_SIZE_OF
+    // Define the following as empty to put function
+    // out of line.
+    MIN_NON_STANDARD_UNPROTECTED_BODY_SIZE_OF
+#endif // ndef MIN_NON_STANDARD_UNPROTECTED_BODY_SIZE_OF
+
+namespace min {
+
+    inline void deallocate ( min::stub * s )
+    {
+    	min::unprotected::deallocate_body
+	    ( s, min::unprotected::body_size_of ( s ) );
+    }
+}
+
 
 # endif // MIN_H
