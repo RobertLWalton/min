@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  9 04:10:27 EST 2010
+// Date:	Sat Jan  9 05:53:08 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/09 10:52:38 $
+//   $Date: 2010/01/09 10:58:16 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.112 $
+//   $Revision: 1.113 $
 
 // Table of Contents:
 //
@@ -1655,6 +1655,11 @@ int main ()
 	MIN_ASSERT ( min::lablen ( s ) == 3 );
 	MIN_ASSERT ( min::labhash ( lab ) == labhash1 );
 	MIN_ASSERT ( min::lablen ( lab ) == 3 );
+	MIN_ASSERT ( MUP::body_size_of ( s )
+	             ==
+		     3 * sizeof ( min::gen )
+		     +
+		     sizeof ( MINT::lab_header ) );
 	MIN_ASSERT ( min::hash ( lab ) == labhash1 );
 	MIN_ASSERT
 	    ( min::lab_of ( labv2, 5, s ) == 3 );
@@ -1748,6 +1753,9 @@ int main ()
 	MIN_ASSERT ( sav == 0 );
 	MIN_ASSERT ( saa == 0 );
 	MIN_ASSERT ( st == sh + sht + sav + sua + saa );
+	MIN_ASSERT ( MUP::body_size_of ( sstub )
+	             ==
+		     st * sizeof ( min::gen ) );
 
 	cout << endl;
 	cout << "Test long objects:" << endl;
@@ -1774,6 +1782,9 @@ int main ()
 	MIN_ASSERT ( lav == 0 );
 	MIN_ASSERT ( laa == 0 );
 	MIN_ASSERT ( lt == lh + lht + lav + lua + laa );
+	MIN_ASSERT ( MUP::body_size_of ( lstub )
+	             ==
+		     lt * sizeof ( min::gen ) );
 
 	cout << endl;
 	cout << "Finish Objects Test!" << endl;
