@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  9 12:30:22 EST 2010
+// Date:	Mon Jan 11 04:02:48 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/09 17:32:03 $
+//   $Date: 2010/01/11 09:18:26 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.114 $
+//   $Revision: 1.115 $
 
 // Table of Contents:
 //
@@ -1412,6 +1412,7 @@ int main ()
 	cout << "Start Strings Test!" << endl;
 
 	char buffer[20];
+	union { min::uns64 str; char buf[9]; } u;
 	const char * s13 = "ABCDEFGHIJKLM";
 	const char * s8 = "ABCDEFGH";
 	const char * s7 = "ABCDEFG";
@@ -1453,21 +1454,12 @@ int main ()
 	MIN_ASSERT ( min::is_str ( strgen7 ) );
 	MIN_ASSERT ( min::is_name ( strgen7 ) );
 	MIN_ASSERT ( min::is_stub ( strgen7 ) );
-	min::stub * stub7 = MUP::stub_of ( strgen7 );
-	MIN_ASSERT (    min::type_of ( stub7 )
-	             == min::SHORT_STR );
 	MIN_ASSERT ( min::is_str ( strgen8 ) );
 	MIN_ASSERT ( min::is_name ( strgen8 ) );
 	MIN_ASSERT ( min::is_stub ( strgen8 ) );
-	min::stub * stub8 = MUP::stub_of ( strgen8 );
-	MIN_ASSERT (    min::type_of ( stub8 )
-	             == min::SHORT_STR );
 	MIN_ASSERT ( min::is_str ( strgen13 ) );
 	MIN_ASSERT ( min::is_name ( strgen13 ) );
 	MIN_ASSERT ( min::is_stub ( strgen13 ) );
-	min::stub * stub13 = MUP::stub_of ( strgen13 );
-	MIN_ASSERT (    min::type_of ( stub13 )
-	             == min::LONG_STR );
 
 	MIN_ASSERT ( min::strlen ( strgen3 ) == 3 );
 	MIN_ASSERT
@@ -1536,7 +1528,37 @@ int main ()
 	      == 0 );
 
 	cout << endl;
-	cout << "Test string pointers:" << endl;
+	cout << "Test unprotected string functions:"
+	     << endl;
+
+	min::stub * stub7 = MUP::stub_of ( strgen7 );
+	MIN_ASSERT (    min::type_of ( stub7 )
+	             == min::SHORT_STR );
+	u.str = MUP::short_str_of ( stub7 );
+	u.buf[8] = 0;
+	MIN_ASSERT ( strcmp ( u.buf, s7 ) == 0 );
+	min::stub * stub8 = MUP::stub_of ( strgen8 );
+	MIN_ASSERT (    min::type_of ( stub8 )
+	             == min::SHORT_STR );
+	u.str = MUP::short_str_of ( stub8 );
+	u.buf[8] = 0;
+	MIN_ASSERT ( strcmp ( u.buf, s8 ) == 0 );
+
+	min::stub * stub13 = MUP::stub_of ( strgen13 );
+	MIN_ASSERT (    min::type_of ( stub13 )
+	             == min::LONG_STR );
+	MUP::long_str * lstr13 =
+	    MUP::long_str_of ( stub13 );
+	MIN_ASSERT ( MUP::length_of ( lstr13 ) == 13 );
+	MIN_ASSERT
+	    ( MUP::hash_of ( lstr13 ) == s13hash );
+	MIN_ASSERT
+	    (    strcmp ( MUP::str_of ( lstr13 ), s13 )
+	      == 0 );
+
+	cout << endl;
+	cout << "Test protected string pointers:"
+	     << endl;
 
 	// Test body relocation first.
 	MIN_ASSERT

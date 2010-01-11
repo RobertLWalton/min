@@ -350,7 +350,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control1 & midflag ) true.
 
 Test non-acc controls with stub addresses:
-control2: 85800000009f70a0
+control2: 85800000009f7180
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -361,7 +361,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
-re-control2: 85800000009f70b0
+re-control2: 85800000009f7190
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control2 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -374,7 +374,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control2 & midflag ) true.
 
 Test acc controls with stub addresses:
-control3: 85800000009f70a0
+control3: 85800000009f7180
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -385,7 +385,7 @@ min_interface_test.cc:XXXX assert:
     ! ( control3 & loflag ) true.
 min_interface_test.cc:XXXX assert:
     ! ( control3 & midflag ) true.
-re-control3: 85800000009f70b0
+re-control3: 85800000009f7190
 min_interface_test.cc:XXXX assert:
     MUP::type_of_control ( control3 ) == type1 true.
 min_interface_test.cc:XXXX assert:
@@ -738,23 +738,17 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_stub ( strgen7 ) true.
 min_interface_test.cc:XXXX assert:
-    min::type_of ( stub7 ) == min::SHORT_STR true.
-min_interface_test.cc:XXXX assert:
     min::is_str ( strgen8 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_name ( strgen8 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( strgen8 ) true.
 min_interface_test.cc:XXXX assert:
-    min::type_of ( stub8 ) == min::SHORT_STR true.
-min_interface_test.cc:XXXX assert:
     min::is_str ( strgen13 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_name ( strgen13 ) true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( strgen13 ) true.
-min_interface_test.cc:XXXX assert:
-    min::type_of ( stub13 ) == min::LONG_STR true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen3 ) == 3 true.
 min_interface_test.cc:XXXX assert:
@@ -862,7 +856,25 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen13, 12 ) == 0 true.
 
-Test string pointers:
+Test unprotected string functions:
+min_interface_test.cc:XXXX assert:
+    min::type_of ( stub7 ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( u.buf, s7 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::type_of ( stub8 ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( u.buf, s8 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::type_of ( stub13 ) == min::LONG_STR true.
+min_interface_test.cc:XXXX assert:
+    MUP::length_of ( lstr13 ) == 13 true.
+min_interface_test.cc:XXXX assert:
+    MUP::hash_of ( lstr13 ) == s13hash true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( MUP::str_of ( lstr13 ), s13 ) == 0 true.
+
+Test protected string pointers:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
 resize_body ( stub 15, 22, 22 ) called
