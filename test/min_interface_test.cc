@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 11 04:02:48 EST 2010
+// Date:	Mon Jan 11 04:24:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/11 09:18:26 $
+//   $Date: 2010/01/11 10:00:42 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.115 $
+//   $Revision: 1.116 $
 
 // Table of Contents:
 //
@@ -959,7 +959,12 @@ int main ()
 	int type2 = 127;
 	void * p1 = (void *) 353456321;
 	void * p2 = (void *) 651946503;
-	static min::stub stubs[10];
+	static char stubsarea[3*sizeof(min::stub)];
+        MINT::pointer_uns stubp =
+	    MINT::pointer_uns ( stubsarea );
+	stubp += sizeof (min::stub) - 1;
+	stubp &= ~ (sizeof (min::stub) - 1 ) ;
+	min::stub * stubs = (min::stub * ) stubp;
 	min::stub * stub1 = & stubs[0];
 	min::stub * stub2 = & stubs[1];
 
@@ -1015,8 +1020,10 @@ int main ()
 	min::uns64 control2 =
 	    MUP::new_control_with_type
 	        ( type1, stub1, hiflag );
-	cout << "control2: " << hex << control2 << dec
-	     << endl;
+	min::uns64 stubbase =
+	    control2 & MIN_CONTROL_VALUE_MASK;
+	cout << "control2: " << hex
+	     << control2 - stubbase << dec << endl;
         MIN_ASSERT
 	    (    MUP::type_of_control ( control2 )
 	      == type1 );
@@ -1030,8 +1037,8 @@ int main ()
 	control2 =
 	    MUP::renew_control_stub
 		( control2, stub2 );
-	cout << "re-control2: " << hex << control2
-	     << dec << endl;
+	cout << "re-control2: " << hex
+	     << control2 - stubbase << dec << endl;
         MIN_ASSERT
 	    (    MUP::type_of_control ( control2 )
 	      == type1 );
@@ -1048,8 +1055,10 @@ int main ()
 	min::uns64 control3 =
 	    MUP::new_acc_control
 	    	( type1, stub1, hiflag );
-	cout << "control3: " << hex << control3 << dec
-	     << endl;
+	stubbase =
+	    control3 & MIN_ACC_CONTROL_VALUE_MASK;
+	cout << "control3: " << hex
+	     << control3 - stubbase << dec << endl;
         MIN_ASSERT
 	    (    MUP::type_of_control ( control3 )
 	      == type1 );
@@ -1061,15 +1070,15 @@ int main ()
         MIN_ASSERT ( ! ( control3 & midflag ) );
 
 	control3 =
-	    MUP::renew_control_stub
+	    MUP::renew_acc_control_stub
 		( control3, stub2 );
-	cout << "re-control3: " << hex << control3
-	     << dec << endl;
+	cout << "re-control3: " << hex
+	     << control3 - stubbase << dec << endl;
         MIN_ASSERT
 	    (    MUP::type_of_control ( control3 )
 	      == type1 );
         MIN_ASSERT
-	    (    MUP::stub_of_control ( control3 )
+	    (    MUP::stub_of_acc_control ( control3 )
 	      == stub2 );
         MIN_ASSERT ( control3 & hiflag );
         MIN_ASSERT ( ! ( control3 & loflag ) );
