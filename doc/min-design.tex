@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 9, 2010}
+\date{January 12, 2010}
  
 \maketitle
 
@@ -1328,7 +1328,7 @@ Indicates a set of values has more than one element.
 \item[{\tt const min::gen min::}\MINKEY{UNDEFINED}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
-(\secref{OBJECT-INDIRECT-POINTERS}) that has no value and can be indirected.
+(\secref{TYPED-OBJECTS}) that has no value and can be indirected.
 \item[{\tt const min::gen min::}\MINKEY{SUCCESS}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
@@ -2382,7 +2382,7 @@ that its argument is a number without doing any \verb|MIN_ASSERT| check:
 \subsection{Strings}
 \label{STRINGS}
 
-In MIN all \verb|char| \skey{string}s\index{char strings@{\tt char} strings}
+In MIN all \skey{string}s\index{strings@strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
 \key{UTF-8} encodes 32-bit UNICODE characters in 1 to 6 \verb|char|'s.
 
@@ -2393,7 +2393,7 @@ strings with the same characters as their ASCII representation indicates.%
 \footnote{ASCII character codes range from 0 through 127.  UTF-8 extends
 this by assigning meaning to codes from 128 to 255.}
 
-It is possible for a \verb|char| string to be miscoded UTF-8.  None
+It is possible for a string to be miscoded UTF-8.  None
 of the functions given below, including the protected functions,
 check for this.
 
@@ -2423,6 +2423,9 @@ along with the string length and hash value.
 
 All three kinds of strings, direct, short, and long, are immutable
 and have hash values (\pagref{HASH-VALUE}).
+
+\subsubsection{Protected String Functions}
+\label{PROTECTED-STRING-FUNCTIONS}
 
 There are protected functions accessing general values that denote
 strings of any kind without distinction, and these are described next.
@@ -2524,6 +2527,9 @@ A hash value is never zero (so zero can be used to denote a missing hash value).
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
 
+\subsubsection{Protected String Pointers}
+\label{PROTECTED-STRING-POINTERS}
+
 A read-only pointer to the characters of a string {\tt min::gen} value can
 be obtained using the following functions to create and use
 a \key{string pointer}:
@@ -2579,7 +2585,7 @@ The {\tt MUP::str\_of} function returns a standard C++ pointer to the string,
 taking care to ensure the vector of {\tt char}'s is NUL-terminated.
 The value of {\tt min::str\_of} will become obsolete if the string is
 relocated, and in particular, may become obsolete if a relocating
-function is called.
+function is called.  This is why this function is unprotected.
 
 The \verb|[ ]| operator can be used to access individual characters
 in a string.  If {\tt sp} is a string pointer, `\verb|sp[i]|' is
@@ -2593,8 +2599,11 @@ In long string cases no copying is done, and the string pointer
 is essentially just a pointer to the string stub, which in turn points
 at the string proper inside a relocatable string body.
 
-The rest of this section describes unprotected functions that access the
-internals of short and long strings.
+\subsubsection{Unprotected String Functions}
+\label{UNPROTECTED-STRING-FUNCTIONS}
+
+Unprotected functions may be used to access the internals of short
+and long strings.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
 \minnbkey{SHORT\_STR}\LABEL{MIN::SHORT_STR} stub type code, and has
@@ -2607,7 +2616,8 @@ an immutable {\tt min::\EOL uns64} stub value that holds a NUL padded
 \LABEL{MUP::SHORT_STR_OF}
 \end{tabular}\end{indpar}
 
-Here the \verb|min::uns64| value returned by \MUPkey{short\_str\_of}
+This function does \underline{not} check the type of the stub \verb|s|.
+The \verb|min::uns64| value returned by \MUPkey{short\_str\_of}
 should be overlaid by a union with a \verb|char[ ]| buffer, as in
 
 \begin{indpar}\begin{verbatim}
@@ -2827,27 +2837,12 @@ Flags, called \key{attribute flags}, can be attached to an attribute name.
 Note that flags are attached to object attribute names, and not to arrows,
 values, or reverse attribute names.
 
-An object can also hold a vector of \skey{variable}s.  An attribute
-value may be an indirect pointer at an object variable, either in the
-same or a different object.  A variable can hold a value, or can hold
-an indirect pointer to another variable in the same or in a different
-object, or can hold the special value \verb|min::UNDEFINED| indicating
-the value is not yet specified.
-
-In addition to indirect pointers, attribute and variable values may be
-`\skey{typed object pointer}s', which point at a pair of objects,
-X, the `\key{typed object}', and T, the `\key{type object}'.
-Given a typed object pointer X:T, the attribute values in T
-may be indirect pointers to variables in X without T itself containing
-any pointer to X.  Thus T provides a mapping of attribute labels to variables
-in X, and therefore T is like a type of X.  A typical usage is for
-the first variable of X to point at the root of a tree of type objects
-that form a labelled graph some of whose leaves map to variables of X,
-so that the typed object X is just a vector of variables,
-while the type objects hold
-all the attribute labels and graph connections.  Then the same graph of
-type objects may be used with many different typed objects that have
-the same graph structure.
+There are also typed objects, each of which is a pair of objects,
+one called the type that is constant, is shared among many typed objects,
+and contains attribute labels, and one called the typed object or
+context, which contains a vector of \skey{variable}s that hold the attribute
+values.  Typed objects are described in more detail in
+\secref{TYPED-OBJECTS}.
 
 An object has a body that consists of the following 6 parts in
 the order given:
@@ -2863,7 +2858,9 @@ auxiliary area
 \end{tabular}
 \end{center}
 
-The \mkey{header}{of object} contains the sizes of the other 5 parts.
+The \mkey{header}{of object} contains object flags
+(\verb|min::PRIVATE|, \verb|min::PUBLIC|, and \verb|min::TYPED|)
+and the sizes of the other 5 parts.
 The \mkey{variable vector}{of object} stores the object's variables.
 The \mkey{hash table}{of object}
 stores attribute name/value pairs, for attributes whose names do not
@@ -2902,101 +2899,129 @@ list level (\secref{OBJECT-LIST-LEVEL}),
 and attribute level (\secref{OBJECT-ATTRIBUTE-LEVEL}).
 The interfaces to all of these levels is protected.  In addition
 there is an unprotected vector level interface
-(\secref{OBJECT-UNPROTECTED-VECTOR-LEVEL}).
+(\secref{OBJECT-UNPROTECTED-VECTOR-LEVEL}) and a
+typed object interface (\secref{TYPED-OBJECTS}).
 
-\subsubsection{Object Indirect Pointers}
-\label{OBJECT-INDIRECT-POINTERS}
+\subsubsection{Object Creation}
+\label{OBJECT-CREATION}
 
-TBD
+An object header encodes the hash table size and total size of the
+object indirectly using a logrithmic code.  Therefore not every
+hash table size or total size is possible.
+In order to create an object it is necessary to determine possible
+hash table and total sizes.
 
-There are two kinds of special pointers that can be used with objects:
-indirect pointers and typed pointers.  An object element can contain
-either kind of pointer, but because most values of these special pointers
-are larger than a single \verb|min::gen| value, the object element
-usually has to contain an auxiliary special pointer that points at two
-auxiliary elements of the object that hold the value of the special
-pointer.  The goal of both kinds of special pointer is to permit
-an object element to hold an indirect pointer to a variable in some
-other object.  Indirect special pointers are just such indirectly pointers
-in a straight forward way, but typed pointers
-are more complex and permit a constant object called the type to
-have an element indirectly pointing at variable in a second object called
-the typed object.
+The following functions return the smallest
+possible size equal to or greater than the function argument,
+\underline{unless} all possible sizes are less than the function argument,
+in which case the largest possible size is returned.  The caller of
+one of these functions must check the returned value to be sure it is
+as large as the function argument.
 
-An \key{indirect pointer} consists of an unsigned integer index $I$ and
-a pointer to the stub of an object $O$.  The indirect pointer specifies
-that the element containing it is to be treated as if its value were
-the value of the variable with index $I$ in object $O$.
-There are two formats of indirect pointer: unpacked and packed.
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|unsigned min::|
+    & \MINKEY{short\_obj\_hash\_size}\verb| ( unsigned u )|
+\LABEL{MIN::SHORT_OBJ_HASH_TABLE_SIZE} \\
+\verb|unsigned min::|
+    & \MINKEY{short\_obj\_total\_size}\verb| ( unsigned u )|
+\LABEL{MIN::SHORT_OBJ_TOTAL_SIZE} \\
+\verb|unsigned min::|
+    & \MINKEY{long\_obj\_hash\_size}\verb| ( unsigned u )|
+\LABEL{MIN::LONG_OBJ_HASH_TABLE_SIZE} \\
+\verb|unsigned min::|
+    & \MINKEY{long\_obj\_total\_size}\verb| ( unsigned u )|
+\LABEL{MIN::LONG_OBJ_TOTAL_SIZE} \\
+\end{tabular}\end{indpar}
 
-An \key{unpacked indirect pointer} consists of an auxiliary special pointer
-pointing at two consecutive auxiliary elements of the object containing
-the auxiliary special pointer (\underline{not} the object $O$).
-The first of these holds an index \verb|min::gen| value containing $I$.
-The second holds a \verb|min::gen| value containing a pointer to the
-stub of $O$.
+Maximum possible total and hash table size values can be determined
+by presenting these functions with the \verb|u| argument value
+`\verb|unsigned(-1)|'.
 
-A \key{packed indirect pointer} is a \verb|min::gen| value that contains
-the index $I$ and an auxiliary pointer to a single auxiliary element
-of the object containing the packed indirect pointer
-(\underline{not} the object $O$).  This auxiliary element
-holds a \verb|min::gen| value containing a pointer to the
-stub of $O$.  Packed indirect pointers can be very efficient if
-one object $O'$ holds many indirect pointers targeting variables
-in the same object $O$.
+An object can be created by the protected function:
 
-A \key{typed pointer} consists of two pointers to object stubs.
-One of these objects, $O$, is the \key{typed object}, and the other,
-$T$, is the \key{type object}.
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( unsigned hash_size,| \\
+    \verb|   unsigned unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::NEW_OBJ_GEN} \\
+\end{tabular}\end{indpar}
 
+The hash table size of the returned object is the smallest possible
+hash table size that is at least as large as that given.  The total
+size of the returned object is the smallest possible total size
+that is at least as large as the sum of the actual hash table size,
+the unused area size given, and the header size.
+The returned object is short if this total size is less than
+$2^{16}$, and long otherwise.
+It is a fatal programming error if no possible hash table or total size
+is large enough, but this is unlikely, given the large sizes allowed
+by a long object.
 
-TBD
-
-value of the element to be stored in a variable in another object.  Variables
-can themselves contain indirect pointers.  Variables can also be set
-to the \minnbkey{UNDEFINED} special value to indicate that the values of
-elements indirected to the variable has not yet been determined.
-
-Indirect pointers are standardly used only at the object list
-and attribute levels, but can in theory be used with non-standard
-object organizations.
-
-\subsubsection{Objects and Threads}
-\label{OBJECTS-AND-THREADS}
-
-[Objects have state:
-
-\begin{center}
-\begin{tabular}{lp{4.0in}}
-NONE	& No list pointers. \\
-PRIVATE  & Single thread. \\
-PUBLIC & Multi-thread, insert pointers prohibited forever, all other
-            pointers allowed.
-\end{tabular}
-\end{center}
-
-A list pointer applied to an object in NONE state changes the
-state to PRIVATE and makes it impossible to open any other list
-pointer, except as a subpointer of the given list pointer (i.e.,
-construct a new list pointer from the existing one and not from
-just the object).  Subpointers can have reduced permissions:
-insert > update > readonly.  Destructing a list pointer in 
-PRIVATE state changes the state to NONE.
-
-There is an operation to change from NONE to PUBLIC state.
-Once in PUBLIC state the state cannot be changed.  In PUBLIC
-state insert pointers cannot be opened on the object.
-
-There are separate operations read\_sync, write\_sync, readwrite\_sync
-to synchronize caches.
-
-]
+The hash table of the returned object is filled with \verb|min::LIST_END|
+values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
+The attribute vector and auxiliary areas of the returned object are
+zero length, and all space not used by the header and hash table is
+allocated to the unused area.  The attribute vector and auxiliary area can be
+filled by `push' instructions described below (\pagref{OBJECT_PUSH_FUNCTIONS}).
+The variables vector of the returned object is filled with
+\verb|min::UNDEFINED| values.
 
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
 
 At the \key{vector level}, the body is viewed as
 a \key{body vector} of \verb|min::gen| values.
+There are three kinds of vector level protected object pointers.
+A read-only \verb|min::vec_pointer| permits read-only access to the body
+vector elements.
+A read-write or updatable
+{\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}
+permits read-write access to the body the body vector elemets,
+but does not permit pushing or popping elements from the
+object's attibute vector or auxiliary area.
+An insertable {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}
+does permit these pushes and pops, in addition to permitting
+read-write access to body vector elements.
+
+A vector level protected object pointer can be either a
+`\mkey{master}{object pointer}' or a `\mkey{slave}{object pointer}'.
+An object has two flags that regulate the creation of such
+pointers: \minnbkey{PRIVATE} and \minnbkey{PUBLIC}.
+
+If an object has neither of these flags, a master pointer
+to the object may be created, and this will set the \verb|min::PRIVATE|
+flag.  When the pointer is destructed, this flag will be cleared.
+While this flag is set, no other master pointer to the object may be
+created.  The object is therefore private to the code possessing the
+master pointer.
+
+If an object has neither flag, its \verb|min::PUBLIC| flag may be set.
+When this is set, any number of read-only and read-write (updatable) master
+pointers to the object may be created, but no insertable master pointers
+to the object may be created.  Creating pointers in this case does not
+set object flags.  The \verb|min::PUBLIC| flag may not be cleared by
+protected functions.  The idea here is that setting the \verb|min::PUBLIC|
+flag fixes the attribute label structure of an object, and the size of
+the value set of each attribute, but permits the existing values of an
+attribute to be read or written.  This permits read-only and limited
+read-write sharing of the object.
+
+A slave pointer $S$ of any other pointer $P$ may be created as long
+as $P$ exists during the lifetime of $S$, subject to the following
+restrictions.  If $P$ is read-only, $S$ must be read-only.
+If $P$ is read-write, $S$ may not be insertable.  Thus $S$
+cannot have greater access to the object than $P$ has.
+
+Note that object bodies can be relocated whenever a
+relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
+Also object bodies may be reorganized if neither the
+\verb|min::PRIVATE| or \verb|min::PUBLIC| flags are set, or
+if the reorganization is needed by an insertable pointer.
+When the \verb|min::PUBIC| is set, the object is reorganized to
+compact it before setting the flag.
+
 A \minkey{vec\_\EOL pointer}
 to the body vector is managed by the following protected functions:
 
@@ -3395,62 +3420,6 @@ Here the functions that return pointers do \underline{not} check the type
 of the stub, and the pointers returned will become obsolete if the body of
 the object is relocated (\secref{BODY-POINTERS}).
 
-In order to create an object it is necessary to determine possible
-hash table and total sizes.  The following functions return the smallest
-possible size equal to or greater than the function argument,
-\underline{unless} all possible sizes are less than the function argument,
-in which case the largest possible size is returned.  The caller of
-one of these functions must check the returned value to be sure it is
-as large as the function argument.
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::|
-    & \MINKEY{short\_obj\_hash\_size}\verb| ( unsigned u )|
-\LABEL{MIN::SHORT_OBJ_HASH_TABLE_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{short\_obj\_total\_size}\verb| ( unsigned u )|
-\LABEL{MIN::SHORT_OBJ_TOTAL_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{long\_obj\_hash\_size}\verb| ( unsigned u )|
-\LABEL{MIN::LONG_OBJ_HASH_TABLE_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{long\_obj\_total\_size}\verb| ( unsigned u )|
-\LABEL{MIN::LONG_OBJ_TOTAL_SIZE} \\
-\end{tabular}\end{indpar}
-
-Maximum possible total and hash table size values can be determined
-by presenting these functions with the \verb|u| argument value
-`\verb|unsigned(-1)|'.
-
-An object can be created by the protected function:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned hash_size,| \\
-    \verb|   unsigned unused_size )| \\
-    \end{tabular}
-\LABEL{MIN::NEW_OBJ_GEN} \\
-\end{tabular}\end{indpar}
-
-The hash table size of the returned object is the smallest possible
-hash table size that is at least as large as that given.  The total
-size of the returned object is the smallest possible total size
-that is at least as large as the sum of the actual hash table size,
-the unused area size given, and the header size.
-The returned object is short if this total size is less than
-$2^{16}$, and long otherwise.
-It is a fatal programming error if no possible hash table or total size
-is large enough, but this is unlikely, given the large sizes allowed
-by a long object.
-
-The hash table of the returned object is filled with \verb|min::LIST_END|
-values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
-The attribute vector and auxiliary areas of the returned object are
-zero length, and all space not used by the header and hash table is
-allocated to the unused area.  The attribute vector and auxiliary area can be
-filled by `push' instructions described below (\pagref{OBJECT_PUSH_FUNCTIONS}).
-
 At the \key{unprotected vector level}, the body is viewed as
 a \key{body vector} of \verb|min::gen| values.  A pointer to the
 body vector is returned by the following unprotected functions:
@@ -3714,6 +3683,94 @@ functions but do not include this check.
 \LABEL{MUP::LONG_AUX_POP_OF_GENS} \\
 \end{tabular}\end{indpar}
 
+
+\subsubsection{Typed Objects}
+\label{TYPED-OBJECTS}
+
+TBD
+
+There are two kinds of special pointers that can be used with objects:
+indirect pointers and typed pointers.  An object element can contain
+either kind of pointer, but because most values of these special pointers
+are larger than a single \verb|min::gen| value, the object element
+usually has to contain an auxiliary special pointer that points at two
+auxiliary elements of the object that hold the value of the special
+pointer.  The goal of both kinds of special pointer is to permit
+an object element to hold an indirect pointer to a variable in some
+other object.  Indirect special pointers are just such indirectly pointers
+in a straight forward way, but typed pointers
+are more complex and permit a constant object called the type to
+have an element indirectly pointing at variable in a second object called
+the typed object.
+
+An \key{indirect pointer} consists of an unsigned integer index $I$ and
+a pointer to the stub of an object $O$.  The indirect pointer specifies
+that the element containing it is to be treated as if its value were
+the value of the variable with index $I$ in object $O$.
+There are two formats of indirect pointer: unpacked and packed.
+
+An \key{unpacked indirect pointer} consists of an auxiliary special pointer
+pointing at two consecutive auxiliary elements of the object containing
+the auxiliary special pointer (\underline{not} the object $O$).
+The first of these holds an index \verb|min::gen| value containing $I$.
+The second holds a \verb|min::gen| value containing a pointer to the
+stub of $O$.
+
+A \key{packed indirect pointer} is a \verb|min::gen| value that contains
+the index $I$ and an auxiliary pointer to a single auxiliary element
+of the object containing the packed indirect pointer
+(\underline{not} the object $O$).  This auxiliary element
+holds a \verb|min::gen| value containing a pointer to the
+stub of $O$.  Packed indirect pointers can be very efficient if
+one object $O'$ holds many indirect pointers targeting variables
+in the same object $O$.
+
+A \key{typed pointer} consists of two pointers to object stubs.
+One of these objects, $O$, is the \key{typed object}, and the other,
+$T$, is the \key{type object}.
+
+
+TBD
+
+value of the element to be stored in a variable in another object.  Variables
+can themselves contain indirect pointers.  Variables can also be set
+to the \minnbkey{UNDEFINED} special value to indicate that the values of
+elements indirected to the variable has not yet been determined.
+
+Indirect pointers are standardly used only at the object list
+and attribute levels, but can in theory be used with non-standard
+object organizations.
+
+\subsubsection{Objects and Threads}
+\label{OBJECTS-AND-THREADS}
+
+[Objects have state:
+
+\begin{center}
+\begin{tabular}{lp{4.0in}}
+NONE	& No list pointers. \\
+PRIVATE  & Single thread. \\
+PUBLIC & Multi-thread, insert pointers prohibited forever, all other
+            pointers allowed.
+\end{tabular}
+\end{center}
+
+A list pointer applied to an object in NONE state changes the
+state to PRIVATE and makes it impossible to open any other list
+pointer, except as a subpointer of the given list pointer (i.e.,
+construct a new list pointer from the existing one and not from
+just the object).  Subpointers can have reduced permissions:
+insert > update > readonly.  Destructing a list pointer in 
+PRIVATE state changes the state to NONE.
+
+There is an operation to change from NONE to PUBLIC state.
+Once in PUBLIC state the state cannot be changed.  In PUBLIC
+state insert pointers cannot be opened on the object.
+
+There are separate operations read\_sync, write\_sync, readwrite\_sync
+to synchronize caches.
+
+]
 
 \subsubsection{Object List Level}
 \label{OBJECT-LIST-LEVEL}
