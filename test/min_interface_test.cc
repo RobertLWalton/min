@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 11 04:24:20 EST 2010
+// Date:	Wed Jan 13 14:11:35 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/11 10:00:42 $
+//   $Date: 2010/01/13 19:11:58 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.116 $
+//   $Revision: 1.117 $
 
 // Table of Contents:
 //
@@ -1227,6 +1227,7 @@ int main ()
 	cout << endl;
 	cout << "Start Allocator/Collector/Compactor"
 	        " Interface Test!" << endl;
+
 	static min::stub s1, s2;
 	const min::uns64 unmarked_flag =
 	       min::uns64(1)
@@ -1340,6 +1341,12 @@ int main ()
 	MIN_ASSERT ( p6[0] == 0
 	             &&
 		     memcmp ( p6, p6+1, 127 ) == 0 );
+
+        cout << endl;
+	cout << "Test General Value Locators:"
+	     << endl;
+
+	static min::static_gen<3> staticg;
 
 	cout << endl;
 	cout << "Finish Allocator/Collector/Compactor"
