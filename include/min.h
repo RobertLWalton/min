@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan  9 12:27:56 EST 2010
+// Date:	Wed Jan 13 11:11:29 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/09 17:31:47 $
+//   $Date: 2010/01/13 19:12:12 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.205 $
+//   $Revision: 1.206 $
 
 // Table of Contents:
 //
@@ -1548,25 +1548,39 @@ namespace min {
 
 namespace min {
 
-    template < unsigned len > struct gen_root
+    namespace internal {
+
+        struct gen_locator
+	{
+	    gen_locator * previous;
+	    unsigned length;
+	    min::gen * values;
+	};
+
+        extern gen_locator * static_gen_last;
+        extern gen_locator * stack_gen_last;
+    }
+
+    template < unsigned len > struct static_gen
     {
-        gen_root * previous;
-	unsigned length;
+        min::internal::gen_locator locator;
 	min::gen values[len];
 
-	static gen_root * last = NULL;
-
-	gen_root ( void )
+	static_gen ( void )
 	{
-	    this->length = len;
-	    previous = last;
-	    last = this;
+	    this->locator.length = len;
+	    this->locator.values = values;
+	    this->locator.previous =
+	        min::internal::static_gen_last;
+	    min::internal::static_gen_last =
+	        & this->locator;
 	    memset ( values, 0, sizeof ( values ) );
 	}
 
-	~ gen_root ( void )
+	~ static_gen ( void )
 	{
-	    last = previous;
+	    min::internal::static_gen_last =
+	        this->locator.previous;
 	}
 
 	min::gen & operator[] ( unsigned i )
@@ -1576,15 +1590,15 @@ namespace min {
 	}
     };
 
-    template < unsigned len > struct gen_stack
+    template < unsigned len > struct stack_gen
     {
-        gen_stack * previous;
+        stack_gen * previous;
 	unsigned length;
 	min::gen values[len];
 
-	static gen_stack * last = NULL;
+	static stack_gen * last = NULL;
 
-	gen_stack ( void )
+	stack_gen ( void )
 	{
 	    this->length = len;
 	    previous = last;
@@ -1592,7 +1606,7 @@ namespace min {
 	    memset ( values, 0, sizeof ( values ) );
 	}
 
-	~ gen_stack ( void )
+	~ stack_gen ( void )
 	{
 	    last = previous;
 	}
