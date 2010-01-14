@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 13 18:37:00 EST 2010
+// Date:	Thu Jan 14 03:26:00 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/14 00:08:44 $
+//   $Date: 2010/01/14 08:27:19 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.207 $
+//   $Revision: 1.208 $
 
 // Table of Contents:
 //
@@ -1611,6 +1611,41 @@ namespace min {
 	    min::internal::stack_gen_last =
 	        this->locator.previous;
 	}
+
+	min::gen & operator[] ( unsigned i )
+	{
+	    MIN_ASSERT ( i < len );
+	    return values[i];
+	}
+    };
+
+    template < unsigned len > struct static_num_gen
+    {
+#       if MIN_IS_COMPACT
+	    min::internal::gen_locator locator;
+#	endif
+	min::gen values[len];
+
+	static_num_gen ( void )
+	{
+#           if MIN_IS_COMPACT
+		this->locator.length = len;
+		this->locator.values = values;
+		this->locator.previous =
+		    min::internal::static_gen_last;
+		min::internal::static_gen_last =
+		    & this->locator;
+#	    endif
+	    memset ( values, 0, sizeof ( values ) );
+	}
+
+#       if MIN_IS_COMPACT
+	~ static_num_gen ( void )
+	{
+	    min::internal::static_gen_last =
+	        this->locator.previous;
+	}
+#	endif
 
 	min::gen & operator[] ( unsigned i )
 	{

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 13 14:11:35 EST 2010
+// Date:	Thu Jan 14 02:47:37 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/13 19:11:58 $
+//   $Date: 2010/01/14 08:26:24 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.117 $
+//   $Revision: 1.118 $
 
 // Table of Contents:
 //
@@ -444,6 +444,34 @@ void MINT::acc_initializer ( void )
     initialize_acc_stack();
 
     MINT::acc_initialize_resize_body();
+}
+
+// Find a values address in a MINT::gen_locator list.
+//
+bool find_locator
+    ( min::gen * address, MINT::gen_locator * locator )
+{
+    while ( locator )
+    {
+        if ( locator->values == address )
+	    return true;
+	locator = locator->previous;
+    }
+    return false;
+}
+
+// Count the number of locators on a MINT::gen_locator
+// list.
+//
+int count_locators ( MINT::gen_locator * locator )
+{
+    int count = 0;
+    while ( locator )
+    {
+        ++ count;
+	locator = locator->previous;
+    }
+    return count;
 }
 
 // Main Program
@@ -1346,7 +1374,55 @@ int main ()
 	cout << "Test General Value Locators:"
 	     << endl;
 
-	static min::static_gen<3> staticg;
+	static min::static_gen<3> staticg1;
+	static min::static_num_gen<5> staticg2;
+
+	MIN_ASSERT
+	    ( find_locator ( & staticg1[0],
+	                     MINT::static_gen_last ) );
+	MIN_ASSERT
+	    ( find_locator ( & staticg2[0],
+	                     MINT::static_gen_last )
+	      == MIN_IS_COMPACT );
+	MIN_ASSERT
+	    ( count_locators ( MINT::static_gen_last )
+	      == 1 + MIN_IS_COMPACT );
+	{
+	    MIN_ASSERT ( MINT::stack_gen_last == NULL );
+	    min::stack_gen<2> stackg1;
+	    MIN_ASSERT
+		( find_locator
+		      ( & stackg1[0],
+			MINT::stack_gen_last ) );
+	    MIN_ASSERT
+		( count_locators
+		      ( MINT::stack_gen_last )
+		  == 1 );
+	    {
+		min::stack_num_gen<10> stackg2;
+		MIN_ASSERT
+		    ( find_locator
+			  ( & stackg1[0],
+			    MINT::stack_gen_last ) );
+		MIN_ASSERT
+		    ( find_locator
+			  ( & stackg2[0],
+			    MINT::stack_gen_last )
+		      == MIN_IS_COMPACT );
+		MIN_ASSERT
+		    ( count_locators
+			  ( MINT::stack_gen_last )
+		      == 1 + MIN_IS_COMPACT );
+	    }
+	    MIN_ASSERT
+		( find_locator
+		      ( & stackg1[0],
+			MINT::stack_gen_last ) );
+	    MIN_ASSERT
+		( count_locators
+		      ( MINT::stack_gen_last )
+		  == 1 );
+	}
 
 	cout << endl;
 	cout << "Finish Allocator/Collector/Compactor"
