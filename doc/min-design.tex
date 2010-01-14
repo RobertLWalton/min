@@ -1973,6 +1973,20 @@ stub attached to \verb|s1|.  This is done by the follwing functions:
 \LABEL{MUP::ACC_WRITE_NUM_UPDATE} \\
 \end{tabular}\end{indpar}
 
+The last two of these functions look at all the \verb|min::gen|
+values \verb|p[0]|, \ldots, \verb|p[n-1]|, and for each of these
+that holds a pointer to a collectible stub \verb|s2|, the first of
+the above functions is called.  The {\tt acc\_\EOL write\_\EOL
+num\_\EOL update} function should only be used if all the
+\verb|min::gen| values are numeric; in a loose implementation this
+function is a no operation.
+
+These \verb|min::acc_write_update| functions need and indeed
+\underline{must not} be called if \verb|s1| is of
+{\tt min::ACC\_\EOL FREE} type.  However \verb|min::gen| and
+other pointers to stubs can be stored in such a stub and any
+body or auxiliary stubs associated with it.
+
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
 
@@ -1994,11 +2008,27 @@ The following functions are used to allocate stubs:
 \end{tabular}\end{indpar}
 
 The \verb|min::new_acc_stub| function returns a garbage collectable (acc)
-stub with its type set to \minkey{ACC\_FREE}.  This kind of stub is
-automatically freed by the garbage collector.  Its address must be
-stored in a \verb|min::gen| value that is protected from garbage
-collection by being accessible from a \verb|min::gen_stack|
-or \verb|min::gen_root| location.
+stub with its type set to \minkey{ACC\_FREE}.  A stub with this type
+is invisible to the garbage collector; it will not be garbage collected,
+and \verb|min::gen| values stored in it or its body will not be locatable
+by the garbage collector.  The {\tt MUP::acc\_\EOL write\_\EOL update}
+function should \underline{not} be called when \verb|min::gen| values
+are stored in a stub with {\tt min::ACC\_\EOL FREE} type
+or any body or auxiliary stub associated with it.
+Furthermore, no \verb|min::gen| value locatable
+by the garbage collector should point to a stub of {\tt min::ACC\_\EOL FREE}
+type when a relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
+The actions of changing
+the type of the stub to another collectible type and storing a
+\verb|min::gen| value pointing at the stub in a garbage collector
+locatable variable should be taken together and not separated by any
+call to a relocating function.
+
+It is permissible to allocate and build a graph of stubs with
+{\tt min::ACC\_\EOL FREE} type, calling stub and body allocators,
+and then without calling any relocatable functions, change the types
+of all the stubs to other collectible types, and store \verb|min::gen|
+values pointing at a root set of the graph in locatable variables.
 
 The \verb|min::new_aux_stub| function returns a non-acc (i.e.,
 not garbage collectable)
