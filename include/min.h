@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 13 11:11:29 EST 2010
+// Date:	Wed Jan 13 18:37:00 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/13 19:12:12 $
+//   $Date: 2010/01/14 00:08:44 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.206 $
+//   $Revision: 1.207 $
 
 // Table of Contents:
 //
@@ -1592,24 +1592,60 @@ namespace min {
 
     template < unsigned len > struct stack_gen
     {
-        stack_gen * previous;
-	unsigned length;
+        min::internal::gen_locator locator;
 	min::gen values[len];
-
-	static stack_gen * last = NULL;
 
 	stack_gen ( void )
 	{
-	    this->length = len;
-	    previous = last;
-	    last = this;
+	    this->locator.length = len;
+	    this->locator.values = values;
+	    this->locator.previous =
+	        min::internal::stack_gen_last;
+	    min::internal::stack_gen_last =
+	        & this->locator;
 	    memset ( values, 0, sizeof ( values ) );
 	}
 
 	~ stack_gen ( void )
 	{
-	    last = previous;
+	    min::internal::stack_gen_last =
+	        this->locator.previous;
 	}
+
+	min::gen & operator[] ( unsigned i )
+	{
+	    MIN_ASSERT ( i < len );
+	    return values[i];
+	}
+    };
+
+    template < unsigned len > struct stack_num_gen
+    {
+#       if MIN_IS_COMPACT
+	    min::internal::gen_locator locator;
+#	endif
+	min::gen values[len];
+
+	stack_num_gen ( void )
+	{
+#           if MIN_IS_COMPACT
+		this->locator.length = len;
+		this->locator.values = values;
+		this->locator.previous =
+		    min::internal::stack_gen_last;
+		min::internal::stack_gen_last =
+		    & this->locator;
+#	    endif
+	    memset ( values, 0, sizeof ( values ) );
+	}
+
+#       if MIN_IS_COMPACT
+	~ stack_num_gen ( void )
+	{
+	    min::internal::stack_gen_last =
+	        this->locator.previous;
+	}
+#	endif
 
 	min::gen & operator[] ( unsigned i )
 	{
