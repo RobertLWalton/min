@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 13, 2010}
+\date{January 14, 2010}
  
 \maketitle
 
@@ -1844,23 +1844,27 @@ with 64 bit addresses, but may be defined for implementations with
 
 The garbage collector needs to be able to locate all
 \verb|min::gen| values that are in use and that might
-contain stub pointers.  The first subsection of this
-section specifies how this is done, and includes
+contain stub pointers.
+When you write general
+values into stubs or bodies, you need to call an acc function
+to update garbage collection flags associated with stubs.
+The first subsection of this
+section specifies how these things are done, and includes
 data types that must be used to hold \verb|min::gen|
-values is static or stack memory.
+values in static or stack memory, and functions that must
+be called when a \verb|min::gen| value that might point
+at a stub is written into a stub or body.
 
 If you are implementing a new type of stub and maybe bodies
 associated with that stub type, you need to use the unprotected
-interface described in the following subsections.
+interface described in the subsequent subsections.
 You need to be able to allocate stubs, read and write stub values,
 and read and write stub types.  If you are allocating non-acc
 stubs (i.e., stubs that are not garbage collected), then you
 also need to be able to read and write the entire stub control
 and to free the stubs.
 If your stubs have bodies, you need to be able to allocate,
-relocate, and deallocate the bodies.  When you write general
-values into stubs or bodies, you need to call an acc function
-to update garbage collection flags associated with stubs.
+relocate, and deallocate the bodies.
 
 \subsubsection{Storing General Values}
 \label{STORING-GENERAL-VALUES}
@@ -1872,12 +1876,38 @@ represented by \verb|min::gen| values pointing at stubs, this means
 the just about all general values must be locatable.  However,
 in order to benefit loose implementations, a distinction is made
 between \verb|min::gen| values known to be numeric and those
-that might not be, so in loose implementations less overhead need
-be encountered in tracking the former.
+that might not be, so loose implementations can encounter less overhead
+when dealing with numeric \verb|min::gen| values.
 
-When \verb|min::gen| values are stored in static memory, they
-should be stored in \verb|min::static_gen| vectors declared
-as follows:
+When \verb|min::gen| values are stored in static or stack memory, they
+should be stored in vectors constructed and accessed using the following:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{static\_gen}\verb|<unsigned size> ( void )|
+\LABEL{MIN::STATIC_GEN} \\
+\verb|(constructor) min::| & \MINKEY{static\_num\_gen}%
+    \verb|<unsigned size> ( void )|
+\LABEL{MIN::STATIC_NUM_GEN} \\
+\verb|(constructor) min::| & \MINKEY{stack\_gen}\verb|<unsigned size> ( void )|
+\LABEL{MIN::STACK_GEN} \\
+\verb|(constructor) min::| & \MINKEY{stack\_num\_gen}%
+    \verb|<unsigned size> ( void )|
+\LABEL{MIN::STACK_NUM_GEN} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen & min::| & \ttkey{operator [ ]} \\
+               & \verb|    ( min::static_gen<> & vec, unsigned i )|
+\LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]} \\
+               & \verb|    ( min::static_num_gen<> & vec, unsigned i )|
+\LABEL{MIN::STATIC_NUM_GEN_OPERATOR[]} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]} \\
+               & \verb|    ( min::stack_gen<> & vec, unsigned i )|
+\LABEL{MIN::STACK_GEN_OPERATOR[]} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]} \\
+               & \verb|    ( min::stack_num_gen<> & vec, unsigned i )|
+\LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
+\end{tabular}\end{indpar}
 
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
