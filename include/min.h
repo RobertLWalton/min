@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan 14 03:26:00 EST 2010
+// Date:	Thu Jan 14 13:16:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/14 08:27:19 $
+//   $Date: 2010/01/14 18:16:27 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.208 $
+//   $Revision: 1.209 $
 
 // Table of Contents:
 //
@@ -1845,6 +1845,17 @@ namespace min { namespace unprotected {
 		    ( s1, min::unprotected
 		             ::stub_of ( v ) );
 	}
+    }
+
+    // Ditto but does nothing for loose implementation.
+    //
+    inline void acc_write_num_update
+	    ( min::stub * s1,
+	      const min::gen * p, unsigned n )
+    {
+#       if MIN_IS_COMPACT
+	    acc_write_update ( s1, p, n );
+#	endif
     }
 
 } }
