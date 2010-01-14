@@ -1909,6 +1909,70 @@ should be stored in vectors constructed and accessed using the following:
 \LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
 \end{tabular}\end{indpar}
 
+An example usage is:
+
+\begin{indpar}\begin{verbatim}
+static min::static_gen<2> gpq;
+static min::gen & p = gpq[0];
+static min::gen & q = gpq[1];
+. . . . . . . . . .
+... some_function ( ... )
+{
+    min::stack_num_gen<3> g_area;
+    min::gen & x = g_area[0];
+    min::gen & y = g_area[1];
+    min::gen & z = g_area[2];
+    . . . use p, q, x, y, z . . .
+}
+\end{verbatim}\end{indpar}
+
+Here \verb|p| and \verb|q| are static variables that may hold
+any \verb|min::gen| values and \verb|x|, \verb|y|, and \verb|z|
+are stack variables that may only hold numeric \verb|min::gen|
+values.  These variables are called `\skey{acc locatable
+variable}s'.  Static variable may also be global; i.e., they
+can be defined without the `\verb|static|' keyword as long
+as they are defined outside functions.
+
+Importantly a \verb|min::gen| value need \underline{not} be stored
+in a locatable variable if it can be located by the acc by some
+other means.  For example, if it is stored in one locatable variable,
+it need not be stored in another.  Or if a \verb|min::gen| value
+$V$ is stored in an object pointed at by another \verb|min::gen|
+value $P$, and $P$ is stored in a locatable variable, then $V$ need not
+be stored in a locatable variable.
+
+A very important rule is that when a function is called, the caller
+must be sure every \verb|min::gen| value passed to the called
+function can be located by the acc \underline{without} the called
+function needing to store the value in a locatable variable.
+For example, the caller can store the value in its own locatable
+variable.  This is called the `\key{caller locating convention}.
+
+Also \verb|min::gen| values need only be locatable by
+the acc when a relocating function (\pagref{RELOCATING-FUNCTIONS})
+is called.  In between such calls \verb|min::gen| values can be
+stored in other places.
+
+In addition to needing to locate \verb|min::gen| values, the acc
+must be notified whenever a pointer to a collectible stub \verb|s2|
+is stored in a collectible stub \verb|s1| or in a body or uncollectable
+stub attached to \verb|s1|.  This is done by the follwing functions:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\verb| ( min::stub * s1, min::stub * s2 )|
+\LABEL{MUP::ACC_WRITE_STUB_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update} \\
+    & \verb|    ( min::stub * s1, min::gen * p, unsigned n )|
+\LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_num\_update} \\
+    & \verb|    ( min::stub * s1, min::gen * p, unsigned n )|
+\LABEL{MUP::ACC_WRITE_NUM_UPDATE} \\
+\end{tabular}\end{indpar}
+
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
 
