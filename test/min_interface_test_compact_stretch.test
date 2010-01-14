@@ -624,6 +624,42 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     p6[0] == 0 && memcmp ( p6, p6+1, 127 ) == 0 true.
 
+Test General Value Locators:
+../include/min.h:XXXX assert:
+    i < len true.
+min_interface_test.cc:XXXX assert:
+    find_locator ( & staticg1[0], MINT::static_gen_last ) true.
+../include/min.h:XXXX assert:
+    i < len true.
+min_interface_test.cc:XXXX assert:
+    find_locator ( & staticg2[0], MINT::static_gen_last ) == MIN_IS_COMPACT true.
+min_interface_test.cc:XXXX assert:
+    count_locators ( MINT::static_gen_last ) == 1 + MIN_IS_COMPACT true.
+min_interface_test.cc:XXXX assert:
+    MINT::stack_gen_last == NULL true.
+../include/min.h:XXXX assert:
+    i < len true.
+min_interface_test.cc:XXXX assert:
+    find_locator ( & stackg1[0], MINT::stack_gen_last ) true.
+min_interface_test.cc:XXXX assert:
+    count_locators ( MINT::stack_gen_last ) == 1 true.
+../include/min.h:XXXX assert:
+    i < len true.
+min_interface_test.cc:XXXX assert:
+    find_locator ( & stackg1[0], MINT::stack_gen_last ) true.
+../include/min.h:XXXX assert:
+    i < len true.
+min_interface_test.cc:XXXX assert:
+    find_locator ( & stackg2[0], MINT::stack_gen_last ) == MIN_IS_COMPACT true.
+min_interface_test.cc:XXXX assert:
+    count_locators ( MINT::stack_gen_last ) == 1 + MIN_IS_COMPACT true.
+../include/min.h:XXXX assert:
+    i < len true.
+min_interface_test.cc:XXXX assert:
+    find_locator ( & stackg1[0], MINT::stack_gen_last ) true.
+min_interface_test.cc:XXXX assert:
+    count_locators ( MINT::stack_gen_last ) == 1 true.
+
 Finish Allocator/Collector/Compactor Interface Test!
 
 Start Numbers Test!

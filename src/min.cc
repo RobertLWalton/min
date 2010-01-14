@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 13 11:22:39 EST 2010
+// Date:	Thu Jan 14 03:00:01 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/13 19:12:02 $
+//   $Date: 2010/01/14 08:26:36 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.113 $
+//   $Revision: 1.114 $
 
 // Table of Contents:
 //
@@ -134,7 +134,8 @@ namespace min { namespace internal {
 // Allocator/Collector/Compactor 
 // -----------------------------
 
-MINT::gen_locator * MINT::static_gen_last = NULL;
+MINT::gen_locator * MINT::static_gen_last;
+MINT::gen_locator * MINT::stack_gen_last;
 
 namespace min { namespace internal {
 
