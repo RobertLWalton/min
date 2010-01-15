@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 14, 2010}
+\date{January 15, 2010}
  
 \maketitle
 
@@ -2958,27 +2958,31 @@ The part of the hash table that maps small
 unsigned integer attribute names is actually a vector.
 
 Each map of an attribute name to an attribute value represents an
-arrow in the data base.
+arrow in the data base.  Some arrows can be double arrows pointing
+both to and from another object.
 If the arrow is a double arrow,
 a reverse direction label, called the \key{reverse attribute name}
-is attached to the arrow.
-There can be several arrows with the same attribute name.
+is attached to the arrow, and the object at the other end of the
+arrow has an arrow with directions and direction names reversed.
+
+There can be several arrows with the same attribute name,
+and even several arrows with both the same attribute name and the
+same value.
 There can be several double arrows with the same attribute name and
 the same reverse attribute name.
-
-Several arrows can have both the same attribute name and the
-same value.  Several double arrows can have the same
-attribute and reverse attribute names and the same value.
 
 Therefore an attribute name and reverse attribute name together name a
 multi-set of values, where the reverse attribute name can be missing to
 indicate that only single arrows are to be considered, and is present to
 indicate that only double arrows are to be considered.
-It is possible to add a value to this multi-set or delete a value from the
-multi-set.  It is possible to delete the entire multi-set.
-It is possible to treat the multi-set as a set, by adding a value
+For single arrows the values are any \verb|min::gen| values, but for
+double arrows the values are always other objects.
+It is possible to add a value to one of these multi-sets
+or delete a value from a
+multi-set.  It is possible to delete an entire multi-set.
+It is possible to treat a multi-set as a set, by adding a value
 to it only if the value does not already occur in the multi-set.
-When testing for value equality, {\tt ==} is used, as this tests for
+When testing for value equality, {\tt ==} is normally used, as this tests for
 equality of both name components and objects.
 
 Flags, called \key{attribute flags}, can be attached to an attribute name.
@@ -3007,7 +3011,8 @@ auxiliary area
 \end{center}
 
 The \mkey{header}{of object} contains object flags
-(\verb|min::PRIVATE|, \verb|min::PUBLIC|, and \verb|min::TYPED|)
+(including {\tt min::OBJ\_\EOL PRIVATE}, {\tt min::OBJ\_\EOL PUBLIC},
+and {\tt min::OBJ\_\EOL TYPED})
 and the sizes of the other 5 parts.
 The \mkey{variable vector}{of object} stores the object's variables.
 The \mkey{hash table}{of object}
@@ -3016,21 +3021,24 @@ begin with small unsigned integers.
 The \mkey{attribute vector}{of object} stores attribute values
 for attributes whose names begin with small unsigned integers.
 The \mkey{auxiliary area}{of object}
-stores various overflow data from the hash table and attribute vector.
+stores elements of lists headed by hash table and attribute vector
+elements, and any other data that would overflow a single
+\verb|min::gen| value.
 The \mkey{unused area}{of object}
 provides for growth of the attribute vector and auxiliary area.
 
 The variable vector and hash table are of fixed size;
-their size can only be changed by relocating
+their size can only be changed by resizing, reorganizing, and often relocating
 the object body.  The attribute vector
 grows up from the end of the hash table into the unused
 area, and the auxiliary storage grows down from the end of the body into
 the unused area.
 
 An object may be grown or compacted by relocating its body.  It may be
-grown to expand its unused area or hash table, or less commonly,
+grown to expand its unused area or hash table, or, less commonly,
 its variable vector.  An object may be compacted to eliminate, or less
-commonly to shrink, its unused area.
+commonly to shrink, its unused area, and possibly to shrink its hash
+table.
 
 There are two kinds of objects: short and long.  A \key{short object}
 has a header that stores 8 bit and 16 bit unsigned sizes.  A \key{long object}
@@ -3039,7 +3047,8 @@ no essential difference between a short and a long object.  The functions
 that create attributes convert automatically from short to
 long objects when required.  Conversion in either direction, and compaction
 of objects, may occur whenever object bodies are relocated, as they
-may be during garbage collection.
+may be when during garbage collection, or when the objects are
+published (\pagref{PUBLISH}).
 
 The data structure of an object body can be viewed at any of three levels:
 vector level (\secref{OBJECT-VECTOR-LEVEL}),
@@ -3054,7 +3063,8 @@ typed object interface (\secref{TYPED-OBJECTS}).
 \label{OBJECT-CREATION}
 
 An object header encodes the hash table size and total size of the
-object indirectly using a logrithmic code.  Therefore not every
+object indirectly using a logrithmic or pseudo-floating-point
+code.  Therefore not every
 hash table size or total size is possible.
 In order to create an object it is necessary to determine possible
 hash table and total sizes.
@@ -3090,17 +3100,19 @@ An object can be created by the protected function:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned hash_size,| \\
-    \verb|   unsigned unused_size )| \\
+    \verb| ( unsigned unused_size,| \\
+    \verb|   unsigned hash_size = 0,| \\
+    \verb|   unsigned variables_size = 0 )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
 
+The exact unused area and variables vector sizes are given.
 The hash table size of the returned object is the smallest possible
 hash table size that is at least as large as that given.  The total
 size of the returned object is the smallest possible total size
 that is at least as large as the sum of the actual hash table size,
-the unused area size given, and the header size.
+the unused area and variables vector sizes given, and the header size.
 The returned object is short if this total size is less than
 $2^{16}$, and long otherwise.
 It is a fatal programming error if no possible hash table or total size
@@ -3109,12 +3121,12 @@ by a long object.
 
 The hash table of the returned object is filled with \verb|min::LIST_END|
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
+The variables vector is filled with \verb|min::UNDEFINED| values.
 The attribute vector and auxiliary areas of the returned object are
-zero length, and all space not used by the header and hash table is
-allocated to the unused area.  The attribute vector and auxiliary area can be
+zero length, and all space not used by the header, hash table, and
+variables vector is allocated to the unused area.
+The attribute vector and auxiliary area can be
 filled by `push' instructions described below (\pagref{OBJECT_PUSH_FUNCTIONS}).
-The variables vector of the returned object is filled with
-\verb|min::UNDEFINED| values.
 
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
@@ -3126,7 +3138,7 @@ A read-only \verb|min::vec_pointer| permits read-only access to the body
 vector elements.
 A read-write or updatable
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}
-permits read-write access to the body the body vector elemets,
+permits read-write access to the body the body vector elements,
 but does not permit pushing or popping elements from the
 object's attibute vector or auxiliary area.
 An insertable {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}
@@ -3135,23 +3147,25 @@ read-write access to body vector elements.
 
 A vector level protected object pointer can be either a
 `\mkey{master}{object pointer}' or a `\mkey{slave}{object pointer}'.
-An object has two flags that regulate the creation of such
-pointers: \minnbkey{PRIVATE} and \minnbkey{PUBLIC}.
+An object has two flags that regulate the creation of vector level
+pointers: \minnbkey{OBJ\_PRIVATE} and \minnbkey{OBJ\_PUBLIC}.
 
 If an object has neither of these flags, a master pointer
-to the object may be created, and this will set the \verb|min::PRIVATE|
+to the object may be created, and this will set the \verb|min::OBJ_PRIVATE|
 flag.  When the pointer is destructed, this flag will be cleared.
 While this flag is set, no other master pointer to the object may be
 created.  The object is therefore private to the code possessing the
 master pointer.
 
-If an object has neither flag, its \verb|min::PUBLIC| flag may be set.
+If an object has neither flag, its \verb|min::OBJ_PUBLIC| flag may be set
+by calling the `\verb|publish|' function
+(\pagref{PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) master
 pointers to the object may be created, but no insertable master pointers
 to the object may be created.  Creating pointers in this case does not
-set object flags.  The \verb|min::PUBLIC| flag may not be cleared by
-protected functions.  The idea here is that setting the \verb|min::PUBLIC|
-flag fixes the attribute label structure of an object, and the size of
+set object flags.  The \verb|min::OBJ_PUBLIC| flag may not be cleared by
+protected functions.  The idea here is that setting the \verb|min::OBJ_PUBLIC|
+flag fixes the attribute label structure of the object, and the size of
 the value set of each attribute, but permits the existing values of an
 attribute to be read or written.  This permits read-only and limited
 read-write sharing of the object.
@@ -3161,17 +3175,21 @@ as $P$ exists during the lifetime of $S$, subject to the following
 restrictions.  If $P$ is read-only, $S$ must be read-only.
 If $P$ is read-write, $S$ may not be insertable.  Thus $S$
 cannot have greater access to the object than $P$ has.
+Note that $P$ need not be a master pointer; it may be a slave of
+yet another pointer.  $P$ is called the `\mkey{parent}{of pointer}'
+of $S$ and $S$ is called the `\mkey{child}{of pointer}' of $P$.
 
 Note that object bodies can be relocated whenever a
 relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
-Also object bodies may be reorganized if neither the
-\verb|min::PRIVATE| or \verb|min::PUBLIC| flags are set, or
-if the reorganization is needed by an insertable pointer.
-When the \verb|min::PUBIC| is set, the object is reorganized to
-compact it before setting the flag.
+However object bodies may be reorganized by a relocating
+function only if neither the
+\verb|min::OBJ_PRIVATE| or \verb|min::OBJ_PUBLIC| flags are set.
+Object bodies may be reorganization when insertions are made
+using an insertable pointer, or when the \verb|publish| function
+is called to set the \verb|min::OBJ_PUBLIC| flag.
 
-A \minkey{vec\_\EOL pointer}
-to the body vector is managed by the following protected functions:
+A master read-only \minkey{vec\_\EOL pointer}
+to the body vector may be created by the following functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| ( min::gen v )|
@@ -3179,7 +3197,6 @@ to the body vector is managed by the following protected functions:
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}%
        \verb| ( const min::stub * s )|
 \LABEL{MIN::VEC_POINTER_OF_STUB} \\
-
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3197,9 +3214,53 @@ to the body vector is managed by the following protected functions:
       \verb| ( min::vec_pointer & vp,| \\
       \verb|   const min::stub * s )| \\
       \end{tabular}
-\LABEL{MIN::INIT_OF_VEC_POINTER_OF_STUB} \\[1ex]
-
+\LABEL{MIN::INIT_OF_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
+
+The {\tt initialize} functions destruct the vector pointer and then
+reconstruct it.
+
+A slave read-only \minkey{vec\_\EOL pointer}
+can be created by the following functions:
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
+       \verb| ( min::vec_pointer & pvp )|
+\LABEL{MIN::VEC_POINTER_OF_VEC_POINTER} \\
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
+       \verb| ( min::updatable_vec_pointer & pvp )|
+\LABEL{MIN::VEC_POINTER_OF_UPDATABLE_VEC_POINTER} \\
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
+       \verb| ( min::insertable_vec_pointer & pvp )|
+\LABEL{MIN::VEC_POINTER_OF_INSERTABLE_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{initialize}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::vec_pointer & cvp,| \\
+      \verb|   min::vec_pointer & pvp )| \\
+      \end{tabular}
+\LABEL{MIN::INIT_OF_VEC_POINTER_OF_VEC_POINTER} \\
+\verb|void min::|
+    & \MINKEY{initialize}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::vec_pointer & cvp,| \\
+      \verb|   min::updatable_vec_pointer & pvp )| \\
+      \end{tabular}
+\LABEL{MIN::INIT_OF_VEC_POINTER_OF_UPDATABLE_VEC_POINTER} \\
+\verb|void min::|
+    & \MINKEY{initialize}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::vec_pointer & cvp,| \\
+      \verb|   min::insertable_vec_pointer & pvp )| \\
+      \end{tabular}
+\LABEL{MIN::INIT_OF_VEC_POINTER_OF_INSERTABLE_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+
+Here \verb|pvp| is the parent pointer, and \verb|cvp| or
+the created pointer is the child or slave pointer.
 
 The following protected functions may be used to discover information
 about the object pointed at by a {\tt min::vec\_pointer}:
@@ -6869,8 +6930,9 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.4in}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned hash_size,| \\
-    \verb|   unsigned unused_size )| \\
+    \verb| ( unsigned unused_size,| \\
+    \verb|   unsigned hash_size = 0,| \\
+    \verb|   unsigned variables_size = 0 )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{TABULAR}
