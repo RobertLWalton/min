@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan 14 03:00:01 EST 2010
+// Date:	Fri Jan 15 06:44:52 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/14 08:26:36 $
+//   $Date: 2010/01/15 11:45:36 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.114 $
+//   $Revision: 1.115 $
 
 // Table of Contents:
 //
@@ -629,7 +629,6 @@ min::gen min::new_lab_gen
     // Allocate new label.
     //
     min::stub * s2 = MUP::new_acc_stub ();
-    MUP::set_type_of ( s2, min::LABEL );
     MUP::new_body ( s2,   sizeof ( MINT::lab_header )
 	                + n * sizeof (min::gen) );
     MINT::lab_header * lh = MINT::lab_header_of ( s2 );
@@ -647,6 +646,7 @@ min::gen min::new_lab_gen
 		MINT::lab_hash[h] ));
     MINT::lab_hash[h] = s;
 
+    MUP::set_type_of ( s2, min::LABEL );
     return min::new_gen ( s2 );
 }
 
