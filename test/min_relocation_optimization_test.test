@@ -7,7 +7,7 @@
 	.p2align 4,,15
 	.type	_Z41__static_initialization_and_destruction_0ii, @function
 _Z41__static_initialization_and_destruction_0ii:
-.LFB1782:
+.LFB1786:
 	subq	$8, %rsp
 .LCFI0:
 	subl	$1, %edi
@@ -28,34 +28,34 @@ _Z41__static_initialization_and_destruction_0ii:
 	movl	$_ZN3min8internal20initializer_instanceE, %edi
 	addq	$8, %rsp
 	jmp	_ZN3min8internal11initializerC1Ev
-.LFE1782:
+.LFE1786:
 	.size	_Z41__static_initialization_and_destruction_0ii, .-_Z41__static_initialization_and_destruction_0ii
 .globl __gxx_personality_v0
 	.align 2
 	.p2align 4,,15
 	.type	_GLOBAL__I__Z4testPKN3min4stubEi, @function
 _GLOBAL__I__Z4testPKN3min4stubEi:
-.LFB1784:
+.LFB1788:
 	movl	$65535, %esi
 	movl	$1, %edi
 	jmp	_Z41__static_initialization_and_destruction_0ii
-.LFE1784:
+.LFE1788:
 	.size	_GLOBAL__I__Z4testPKN3min4stubEi, .-_GLOBAL__I__Z4testPKN3min4stubEi
 	.align 2
 	.p2align 4,,15
 	.type	__tcf_0, @function
 __tcf_0:
-.LFB1783:
+.LFB1787:
 	movl	$_ZSt8__ioinit, %edi
 	jmp	_ZNSt8ios_base4InitD1Ev
-.LFE1783:
+.LFE1787:
 	.size	__tcf_0, .-__tcf_0
 	.align 2
 	.p2align 4,,15
 .globl _Z4testPKN3min4stubEi
 	.type	_Z4testPKN3min4stubEi, @function
 _Z4testPKN3min4stubEi:
-.LFB1764:
+.LFB1768:
 	pushq	%r13
 .LCFI1:
 	movq	%rdi, %r13
@@ -115,7 +115,7 @@ _Z4testPKN3min4stubEi:
 	popq	%r12
 	popq	%r13
 	ret
-.LFE1764:
+.LFE1768:
 	.size	_Z4testPKN3min4stubEi, .-_Z4testPKN3min4stubEi
 	.local	_ZSt8__ioinit
 	.comm	_ZSt8__ioinit,1,1
@@ -162,11 +162,11 @@ _Z4testPKN3min4stubEi:
 	.long	.LEFDE1-.LASFDE1
 .LASFDE1:
 	.long	.LASFDE1-.Lframe1
-	.long	.LFB1782
-	.long	.LFE1782-.LFB1782
+	.long	.LFB1786
+	.long	.LFE1786-.LFB1786
 	.uleb128 0x0
 	.byte	0x4
-	.long	.LCFI0-.LFB1782
+	.long	.LCFI0-.LFB1786
 	.byte	0xe
 	.uleb128 0x10
 	.align 8
@@ -175,8 +175,8 @@ _Z4testPKN3min4stubEi:
 	.long	.LEFDE3-.LASFDE3
 .LASFDE3:
 	.long	.LASFDE3-.Lframe1
-	.long	.LFB1784
-	.long	.LFE1784-.LFB1784
+	.long	.LFB1788
+	.long	.LFE1788-.LFB1788
 	.uleb128 0x0
 	.align 8
 .LEFDE3:
@@ -184,8 +184,8 @@ _Z4testPKN3min4stubEi:
 	.long	.LEFDE5-.LASFDE5
 .LASFDE5:
 	.long	.LASFDE5-.Lframe1
-	.long	.LFB1783
-	.long	.LFE1783-.LFB1783
+	.long	.LFB1787
+	.long	.LFE1787-.LFB1787
 	.uleb128 0x0
 	.align 8
 .LEFDE5:
@@ -193,11 +193,11 @@ _Z4testPKN3min4stubEi:
 	.long	.LEFDE7-.LASFDE7
 .LASFDE7:
 	.long	.LASFDE7-.Lframe1
-	.long	.LFB1764
-	.long	.LFE1764-.LFB1764
+	.long	.LFB1768
+	.long	.LFE1768-.LFB1768
 	.uleb128 0x0
 	.byte	0x4
-	.long	.LCFI1-.LFB1764
+	.long	.LCFI1-.LFB1768
 	.byte	0xe
 	.uleb128 0x10
 	.byte	0x8d
