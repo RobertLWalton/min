@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan 14 13:16:14 EST 2010
+// Date:	Sat Jan 16 06:39:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/14 18:16:27 $
+//   $Date: 2010/01/16 14:08:40 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.209 $
+//   $Revision: 1.210 $
 
 // Table of Contents:
 //
@@ -2890,9 +2890,9 @@ namespace min { namespace unprotected {
 
     // Flags Bits:
     //
-    //    0:		OBJ_OPEN
-    //    1:    	OBJ_INSERT_MODE
-    //    2:		reserved for future use
+    //    0:		OBJ_TYPED
+    //    1:    	OBJ_PUBLIC
+    //    2:		OBJ_PRIVATE
     //    3-4:		long objects only,
     //			reserved for future use
     //
@@ -2903,18 +2903,31 @@ namespace min { namespace unprotected {
     // hash_size[I] is the size of the hash table in an
     // object body, in min::gen units.
     //
-    // OBJ_OPEN is on if a vec_pointer, updatable_vec_
-    // pointer, or insertable_vec_pointer exists for the
-    // object.
+    // If more flag bits are needed for short objects,
+    // suggest encoding total_size as
     //
-    // OBJ_INSERT_MODE is on if an insertable_vec_
-    // pointer exists for the object.
-    // 
-    const unsigned OBJ_OPEN = 1;
-    const unsigned OBJ_INSERT_MODE = 2;
+    //		4 bits S
+    //		8 bits N
+    //	        4 bits flags
+    //
+    //     where total_size = N << S.
+    //
+    // OBJ_TYPE means object first variable (var[0])
+    // points at the object's type.
+    //
+    // OBJ_PUBLIC means insertable_vec_pointers not
+    // allowed for object.
+    //
+    // OBJ_PRIVATE means a xxx_vec_pointer exists for
+    // the object and other xxx_vec_pointers may not
+    // be created for the object.
+    //
+    const unsigned OBJ_TYPED   = 1;
+    const unsigned OBJ_PUBLIC  = 2;
+    const unsigned OBJ_PRIVATE = 4;
 
     const unsigned SHORT_OBJ_FLAG_BITS = 3;
-    const unsigned LONG_OBJ_FLAG_BITS = 5;
+    const unsigned LONG_OBJ_FLAG_BITS  = 5;
 
     const unsigned SHORT_OBJ_HASH_SIZE_CODE_BITS =
         8 - SHORT_OBJ_FLAG_BITS;
@@ -2980,6 +2993,26 @@ namespace min { namespace unprotected {
 
 namespace min {
 
+    inline unsigned var_size_of
+	    ( min::unprotected::short_obj * so )
+    {
+        return   so->hash_offset
+               - min::unprotected
+		    ::short_obj_hash_size_of_flags
+		        (so->flags)
+	       - unprotected::short_obj_header_size;
+    }
+
+    inline unsigned var_size_of
+	    ( min::unprotected::long_obj * lo )
+    {
+        return   lo->hash_offset
+               - min::unprotected
+		    ::long_obj_hash_size_of_flags
+		        (lo->flags)
+	       - unprotected::long_obj_header_size;
+    }
+
     inline unsigned hash_size_of
 	    ( min::unprotected::short_obj * so )
     {
@@ -3003,7 +3036,7 @@ namespace min {
                - min::unprotected
 		    ::short_obj_hash_size_of_flags
 		        (so->flags)
-	       - unprotected::short_obj_header_size;
+	       - so->hash_offset;
     }
 
     inline unsigned attr_size_of
@@ -3013,7 +3046,7 @@ namespace min {
                - min::unprotected
 		    ::long_obj_hash_size_of_flags
 		        (lo->flags)
-	       - unprotected::long_obj_header_size;
+	       - lo->hash_offset;
     }
 
     inline unsigned aux_size_of
@@ -3074,8 +3107,9 @@ namespace min {
     unsigned long_obj_total_size ( unsigned u );
 
     min::gen new_obj_gen
-	    ( unsigned hash_size,
-	      unsigned unused_size );
+	    ( unsigned unused_size,
+	      unsigned hash_size = 0,
+	      unsigned var_size = 0 );
 }
 
 // Object Vector Level
@@ -3129,6 +3163,13 @@ namespace min {
     const min::gen & aux
 	( min::vec_pointer & vp, unsigned index );
 
+    void initialize
+	( min::updatable_vec_pointer & vp,
+	  min::stub * s );
+    void initialize
+	( min::updatable_vec_pointer & vp,
+	  min::gen v );
+
     namespace unprotected {
 	min::gen * & base
 	    ( min::updatable_vec_pointer & vp );
@@ -3146,19 +3187,19 @@ namespace min {
 	( min::updatable_vec_pointer & vp,
 	  unsigned index );
 
-    namespace unprotected {
-	unsigned & unused_offset_of
-	    ( min::insertable_vec_pointer & vp );
-	unsigned & aux_offset_of
-	    ( min::insertable_vec_pointer & vp );
-    }
-
     void initialize
 	( min::insertable_vec_pointer & vp,
 	  min::stub * s );
     void initialize
 	( min::insertable_vec_pointer & vp,
 	  min::gen v );
+
+    namespace unprotected {
+	unsigned & unused_offset_of
+	    ( min::insertable_vec_pointer & vp );
+	unsigned & aux_offset_of
+	    ( min::insertable_vec_pointer & vp );
+    }
 
     unsigned attr_push
 	( min::insertable_vec_pointer & vp,
@@ -3192,18 +3233,18 @@ namespace min {
     public:
 
         enum {
-	    PLAIN = 1,
+	    READONLY = 1,
 	    UPDATABLE = 2,
 	    INSERTABLE = 3 };
 
 	const int type;
 
 	vec_pointer ( const min::stub * s )
-	    : s ( (min::stub *) s ), type ( PLAIN )
+	    : s ( (min::stub *) s ), type ( READONLY )
 	    { init(); }
 	vec_pointer ( min::gen v )
 	    : s ( (min::stub *) min::stub_of ( v ) ),
-	      type ( PLAIN )
+	      type ( READONLY )
 	    { init(); }
 
         // Friends
@@ -3245,6 +3286,13 @@ namespace min {
 	friend const min::gen & aux
 	    ( min::vec_pointer & vp, unsigned index );
 
+	friend void initialize
+	    ( min::updatable_vec_pointer & vp,
+	      min::stub * s );
+	friend void initialize
+	    ( min::updatable_vec_pointer & vp,
+	      min::gen v );
+
 	friend min::gen * & unprotected::base
 	    ( min::updatable_vec_pointer & vp );
 	friend min::gen & var
@@ -3260,17 +3308,17 @@ namespace min {
 	    ( min::updatable_vec_pointer & vp,
 	      unsigned index );
 
-	friend unsigned & unprotected::unused_offset_of
-	    ( min::insertable_vec_pointer & vp );
-	friend unsigned & unprotected::aux_offset_of
-	    ( min::insertable_vec_pointer & vp );
-
 	friend void initialize
 	    ( min::insertable_vec_pointer & vp,
 	      min::stub * s );
 	friend void initialize
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen v );
+
+	friend unsigned & unprotected::unused_offset_of
+	    ( min::insertable_vec_pointer & vp );
+	friend unsigned & unprotected::aux_offset_of
+	    ( min::insertable_vec_pointer & vp );
 
 	friend unsigned attr_push
 	    ( min::insertable_vec_pointer & vp,
@@ -3313,7 +3361,7 @@ namespace min {
 		    min::unprotected
 		       ::short_obj_of ( s );
 
-		so->flags	  = flags;
+		so->flags &= ~ unprotected::OBJ_PRIVATE;
 		if ( type == INSERTABLE )
 		{
 		    so->unused_offset = unused_offset;
@@ -3327,7 +3375,7 @@ namespace min {
 		    min::unprotected
 		       ::long_obj_of ( s );
 
-		lo->flags	  = flags;
+		lo->flags &= ~ unprotected::OBJ_PRIVATE;
 		if ( type == INSERTABLE )
 		{
 		    lo->unused_offset = unused_offset;
@@ -3340,17 +3388,16 @@ namespace min {
 	    // Stub of object; set by constructor or
 	    // init function.
 
-        min::uns32	flags;
+	min::uns32	hash_offset;
         min::uns32	unused_offset;
         min::uns32	aux_offset;
-        min::uns32	total_size;
-	    // Cache of object header.
+	    // Cached from object header.
 
 	min::uns32	hash_size;
-	    // Hash table size.
+        min::uns32	total_size;
+	    // Hash table and total size.
 
 	min::uns32	var_offset;
-	min::uns32	hash_offset;
 	min::uns32	attr_offset;
 	    // Offsets of variable vector, hash table,
 	    // and attribute vector.
@@ -3360,26 +3407,15 @@ namespace min {
         void init ( void )
 	{
 	    int t = min::type_of ( s );
-	    unsigned forbidden =
-	        type == INSERTABLE ?
-		      unprotected::OBJ_OPEN
-		    + unprotected::OBJ_INSERT_MODE :
-		    unprotected::OBJ_INSERT_MODE;
-	    unsigned new_flags =
-	        type == INSERTABLE ?
-		      unprotected::OBJ_OPEN
-		    + unprotected::OBJ_INSERT_MODE :
-		    unprotected::OBJ_OPEN;
+	    min::uns8 * flags_p;
 	    if ( t == min::SHORT_OBJ )
 	    {
 		min::unprotected::short_obj * so =
 		    min::unprotected
 		       ::short_obj_of ( s );
 
-		flags		= so->flags;
-		MIN_ASSERT
-		    ( ( flags & forbidden ) == 0 );
-		so->flags 	= flags | new_flags;
+	        flags_p = (min::uns8 *) & so->flags
+		        + MIN_IS_BIG_ENDIAN;
 
 		hash_offset	= so->hash_offset;
 		unused_offset	= so->unused_offset;
@@ -3391,7 +3427,7 @@ namespace min {
 		hash_size =
 		    unprotected
 		        ::short_obj_hash_size_of_flags
-			    ( flags );
+			    ( so->flags );
 	    }
 	    else
 	    {
@@ -3400,10 +3436,8 @@ namespace min {
 		    min::unprotected
 		       ::long_obj_of ( s );
 
-		flags		= lo->flags;
-		MIN_ASSERT
-		    ( ( flags & forbidden ) == 0 );
-		lo->flags 	= flags | new_flags;
+	        flags_p = (min::uns8 *) & lo->flags
+		        + 3 * MIN_IS_BIG_ENDIAN;
 
 		hash_offset	= lo->hash_offset;
 		unused_offset	= lo->unused_offset;
@@ -3415,9 +3449,19 @@ namespace min {
 		hash_size =
 		    unprotected
 		        ::long_obj_hash_size_of_flags
-			    ( flags );
+			    ( lo->flags );
 	    }
 	    attr_offset = hash_offset + hash_size;
+
+	    MIN_ASSERT ( (   * flags_p
+	                   & unprotected::OBJ_PRIVATE )
+			 == 0 );
+	    if ( * flags_p & unprotected::OBJ_PUBLIC )
+	    {
+	        MIN_ASSERT ( type != INSERTABLE );
+	    }
+	    else
+	        * flags_p |= unprotected::OBJ_PRIVATE;
 	}
     };
 
@@ -3436,7 +3480,7 @@ namespace min {
     protected:
 
 	updatable_vec_pointer
-		( min::stub * s, int type )
+		( const min::stub * s, int type )
 	    : vec_pointer ( s, type )
 	    {}
 
@@ -3452,7 +3496,7 @@ namespace min {
 	    {}
 	insertable_vec_pointer ( min::gen v )
 	    : updatable_vec_pointer
-	          ( (min::stub *) min::stub_of ( v ),
+	          ( min::stub_of ( v ),
 		    INSERTABLE )
 	    {}
     };
@@ -3460,12 +3504,16 @@ namespace min {
     inline void initialize
 	( min::vec_pointer & vp, const min::stub * s )
     {
+	MIN_ASSERT ( vp.type == vec_pointer::READONLY );
+	vp.~vec_pointer();
         new ( & vp ) min::vec_pointer ( s );
     }
 
     inline void initialize
 	( min::vec_pointer & vp, min::gen v )
     {
+	MIN_ASSERT ( vp.type == vec_pointer::READONLY );
+	vp.~vec_pointer();
         new ( & vp ) min::vec_pointer ( v );
     }
 
@@ -3555,6 +3603,25 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
+    inline void initialize
+	( min::updatable_vec_pointer & vp,
+	  min::stub * s )
+    {
+	MIN_ASSERT
+	    ( vp.type == vec_pointer::UPDATABLE );
+	vp.~updatable_vec_pointer();
+        new ( & vp ) min::updatable_vec_pointer ( s );
+    }
+
+    inline void initialize
+	( min::updatable_vec_pointer & vp, min::gen v )
+    {
+	MIN_ASSERT
+	    ( vp.type == vec_pointer::UPDATABLE );
+	vp.~updatable_vec_pointer();
+        new ( & vp ) min::updatable_vec_pointer ( v );
+    }
+
     inline min::gen * & unprotected::base
 	( min::updatable_vec_pointer & vp )
     {
@@ -3599,17 +3666,6 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline unsigned & unprotected::unused_offset_of
-	( min::insertable_vec_pointer & vp )
-    {
-        return vp.unused_offset;
-    }
-    inline unsigned & unprotected::aux_offset_of
-	( min::insertable_vec_pointer & vp )
-    {
-        return vp.aux_offset;
-    }
-
     inline void initialize
 	( min::insertable_vec_pointer & vp,
 	  min::stub * s )
@@ -3624,6 +3680,17 @@ namespace min {
     {
 	vp.~insertable_vec_pointer();
         new ( & vp ) min::vec_pointer ( v );
+    }
+
+    inline unsigned & unprotected::unused_offset_of
+	( min::insertable_vec_pointer & vp )
+    {
+        return vp.unused_offset;
+    }
+    inline unsigned & unprotected::aux_offset_of
+	( min::insertable_vec_pointer & vp )
+    {
+        return vp.aux_offset;
     }
 
     inline unsigned attr_push

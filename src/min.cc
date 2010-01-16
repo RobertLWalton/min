@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jan 15 06:44:52 EST 2010
+// Date:	Sat Jan 16 06:59:56 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/15 11:45:36 $
+//   $Date: 2010/01/16 14:08:49 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.115 $
+//   $Revision: 1.116 $
 
 // Table of Contents:
 //
@@ -1280,8 +1280,9 @@ unsigned min::long_obj_total_size ( unsigned u )
 }
 
 min::gen min::new_obj_gen
-	    ( unsigned hash_size,
-	      unsigned unused_size )
+	    ( unsigned unused_size,
+	      unsigned hash_size,
+	      unsigned var_size )
 {
     int lo = 0, hi = long_obj_max_hi;
     if ( hash_size <= 1 ) hi = hash_size;
@@ -1306,23 +1307,27 @@ min::gen min::new_obj_gen
     MIN_ASSERT (    unused_size
                  <=   min::uns32(-1)
 		    - hash_size
+		    - var_size
 		    - MUP::long_obj_header_size );
-    unsigned total_size = unused_size + hash_size;
+    unsigned total_size =
+        unused_size + hash_size + var_size;
     min::stub * s = MUP::new_acc_stub();
     min::gen * p;
+    int type;
     if (   total_size + MUP::short_obj_header_size
          < ( 1 << 16 ) )
     {
         total_size += MUP::short_obj_header_size;
 
-	MUP::set_type_of ( s, min::SHORT_OBJ );
+	type = min::SHORT_OBJ;
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
 	MUP::short_obj * so = MUP::short_obj_of ( s );
 	so->flags = hi << MUP::SHORT_OBJ_FLAG_BITS;
-	so->hash_offset = MUP::short_obj_header_size;
+	so->hash_offset = MUP::short_obj_header_size
+	                + var_size;
 	so->unused_offset =
-	       MUP::short_obj_header_size
+	       so->hash_offset
 	     + hash_size;
 	so->aux_offset	= total_size;
 	so->total_size  = total_size;
@@ -1333,22 +1338,26 @@ min::gen min::new_obj_gen
     {
         total_size += MUP::long_obj_header_size;
 
-	MUP::set_type_of ( s, min::LONG_OBJ );
+	type = min::LONG_OBJ;
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
 	MUP::long_obj * lo = MUP::long_obj_of ( s );
 	lo->flags = hi << MUP::LONG_OBJ_FLAG_BITS;
-	lo->hash_offset = MUP::long_obj_header_size;
+	lo->hash_offset = MUP::long_obj_header_size
+	                + var_size;
 	lo->unused_offset =
-	       MUP::long_obj_header_size
+	       lo->hash_offset
 	     + hash_size;
 	lo->aux_offset	= total_size;
 	lo->total_size  = total_size;
 	p = (min::gen *) lo
 	  + MUP::long_obj_header_size;
     }
-    min::gen * endp = p + hash_size;
+    min::gen * endp = p + var_size;
+    while ( p < endp ) * p ++ = min::UNDEFINED;
+    endp += hash_size;
     while ( p < endp ) * p ++ = min::LIST_END;
+    MUP::set_type_of ( s, type );
     return min::new_gen ( s );
 }
 

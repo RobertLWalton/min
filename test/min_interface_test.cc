@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jan 14 02:47:37 EST 2010
+// Date:	Sat Jan 16 07:12:32 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/14 08:26:24 $
+//   $Date: 2010/01/16 14:08:54 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.118 $
+//   $Revision: 1.119 $
 
 // Table of Contents:
 //
@@ -1840,7 +1840,7 @@ int main ()
 
 	cout << endl;
 	cout << "Test short objects:" << endl;
-	short_obj_gen = min::new_obj_gen ( 100, 500 );
+	short_obj_gen = min::new_obj_gen ( 500, 100 );
 	min::gen sgen = short_obj_gen;
 	const min::stub * sstub = min::stub_of ( sgen );
 	MIN_ASSERT
@@ -1870,7 +1870,7 @@ int main ()
 
 	cout << endl;
 	cout << "Test long objects:" << endl;
-	long_obj_gen = min::new_obj_gen ( 7000, 70000 );
+	long_obj_gen = min::new_obj_gen ( 70000, 7000 );
 	min::gen lgen = long_obj_gen;
 	const min::stub * lstub = min::stub_of ( lgen );
 	MIN_ASSERT
