@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 15, 2010}
+\date{January 16, 2010}
  
 \maketitle
 
@@ -3145,23 +3145,20 @@ An insertable {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}
 does permit these pushes and pops, in addition to permitting
 read-write access to body vector elements.
 
-A vector level protected object pointer can be either a
-`\mkey{master}{object pointer}' or a `\mkey{slave}{object pointer}'.
 An object has two flags that regulate the creation of vector level
 pointers: \minnbkey{OBJ\_PRIVATE} and \minnbkey{OBJ\_PUBLIC}.
-
-If an object has neither of these flags, a master pointer
+If an object has neither of these flags, an object vector pointer
 to the object may be created, and this will set the \verb|min::OBJ_PRIVATE|
-flag.  When the pointer is destructed, this flag will be cleared.
-While this flag is set, no other master pointer to the object may be
+flag.  When the object vector pointer is destructed, this flag will be cleared.
+While this flag is set, no other vector pointer to the object may be
 created.  The object is therefore private to the code possessing the
-master pointer.
+vector pointer.
 
 If an object has neither flag, its \verb|min::OBJ_PUBLIC| flag may be set
 by calling the `\verb|publish|' function
 (\pagref{PUBLISH}).
-When this is set, any number of read-only and read-write (updatable) master
-pointers to the object may be created, but no insertable master pointers
+When this is set, any number of read-only and read-write (updatable) vector
+pointers to the object may be created, but no insertable vector pointers
 to the object may be created.  Creating pointers in this case does not
 set object flags.  The \verb|min::OBJ_PUBLIC| flag may not be cleared by
 protected functions.  The idea here is that setting the \verb|min::OBJ_PUBLIC|
@@ -3169,15 +3166,6 @@ flag fixes the attribute label structure of the object, and the size of
 the value set of each attribute, but permits the existing values of an
 attribute to be read or written.  This permits read-only and limited
 read-write sharing of the object.
-
-A slave pointer $S$ of any other pointer $P$ may be created as long
-as $P$ exists during the lifetime of $S$, subject to the following
-restrictions.  If $P$ is read-only, $S$ must be read-only.
-If $P$ is read-write, $S$ may not be insertable.  Thus $S$
-cannot have greater access to the object than $P$ has.
-Note that $P$ need not be a master pointer; it may be a slave of
-yet another pointer.  $P$ is called the `\mkey{parent}{of pointer}'
-of $S$ and $S$ is called the `\mkey{child}{of pointer}' of $P$.
 
 Note that object bodies can be relocated whenever a
 relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
@@ -3188,7 +3176,7 @@ Object bodies may be reorganization when insertions are made
 using an insertable pointer, or when the \verb|publish| function
 is called to set the \verb|min::OBJ_PUBLIC| flag.
 
-A master read-only \minkey{vec\_\EOL pointer}
+A read-only \minkey{vec\_\EOL pointer}
 to the body vector may be created by the following functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3220,50 +3208,8 @@ to the body vector may be created by the following functions:
 The {\tt initialize} functions destruct the vector pointer and then
 reconstruct it.
 
-A slave read-only \minkey{vec\_\EOL pointer}
-can be created by the following functions:
-
-\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
-       \verb| ( min::vec_pointer & pvp )|
-\LABEL{MIN::VEC_POINTER_OF_VEC_POINTER} \\
-\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
-       \verb| ( min::updatable_vec_pointer & pvp )|
-\LABEL{MIN::VEC_POINTER_OF_UPDATABLE_VEC_POINTER} \\
-\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
-       \verb| ( min::insertable_vec_pointer & pvp )|
-\LABEL{MIN::VEC_POINTER_OF_INSERTABLE_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{initialize}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_pointer & cvp,| \\
-      \verb|   min::vec_pointer & pvp )| \\
-      \end{tabular}
-\LABEL{MIN::INIT_OF_VEC_POINTER_OF_VEC_POINTER} \\
-\verb|void min::|
-    & \MINKEY{initialize}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_pointer & cvp,| \\
-      \verb|   min::updatable_vec_pointer & pvp )| \\
-      \end{tabular}
-\LABEL{MIN::INIT_OF_VEC_POINTER_OF_UPDATABLE_VEC_POINTER} \\
-\verb|void min::|
-    & \MINKEY{initialize}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_pointer & cvp,| \\
-      \verb|   min::insertable_vec_pointer & pvp )| \\
-      \end{tabular}
-\LABEL{MIN::INIT_OF_VEC_POINTER_OF_INSERTABLE_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-
-Here \verb|pvp| is the parent pointer, and \verb|cvp| or
-the created pointer is the child or slave pointer.
-
 The following protected functions may be used to discover information
-about the object pointed at by a {\tt min::vec\_pointer}:
+about the object pointed at by a read-only {\tt min::vec\_pointer}:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
@@ -3394,17 +3340,24 @@ elements.  The additional functions for this type of pointer are:
 
 \end{tabular}\end{indpar}
 
-All the non-constructor functions applicable to
+A {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer} may be automatically
+downcast to a {\tt min::\EOL vec\_\EOL pointer}.  This means that
+all the non-constructor functions applicable to
 {\tt min::\EOL vec\_\EOL pointer}'s
 are applicable to
-{\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s, including the
-{\tt min::\EOL initialize} functions.
-The {\tt min::set\_}\,\ldots{} functions here invoke the
+{\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s.
+An exception is the {\tt min::\EOL initialize} functions, which
+will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
+downcast object vector pointer.
+
+The {\tt min::set\_}\,\ldots{} functions above invoke the
 Accumulator/\EOL Collector/\EOL Compactor function that must
 be called when a \verb|min::gen| value is written into an object.
 The need to do this is why it is not possible to have versions
 of the {\tt min::var}, \ldots, {\tt min::aux} that return
 writable non-{\tt const} references to object body vector elements.
+
+TBD
 
 A \minkey{insertable\_vec\_pointer} is like a
 {\tt min::updatable\_\EOL vec\_\EOL pointer}
