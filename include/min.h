@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 18 05:23:26 EST 2010
+// Date:	Mon Jan 18 13:49:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/18 18:11:14 $
+//   $Date: 2010/01/18 18:58:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.211 $
+//   $Revision: 1.212 $
 
 // Table of Contents:
 //
@@ -1826,6 +1826,34 @@ namespace min { namespace unprotected {
 	}
     }
 
+    // Function executed whenever a general value v is
+    // stored in a datum with stub s1, and the general
+    // value may contain a stub pointer.  This function
+    // calls acc_write_update ( s1, s2 ) if the general
+    // value contains the stub pointer s2.
+    //
+    inline void acc_write_update
+	    ( min::stub * s1, min::gen v )
+    {
+	if ( min::is_stub ( v ) )
+	    acc_write_update
+		( s1, min::unprotected
+			 ::stub_of ( v ) );
+    }
+
+    // Ditto but does nothing for loose implementation.
+    //
+    inline void acc_write_num_update
+	    ( min::stub * s1, min::gen v )
+    {
+#	if MIN_IS_COMPACT
+	    if ( min::is_stub ( v ) )
+		acc_write_update
+		    ( s1, min::unprotected
+			     ::stub_of ( v ) );
+#	endif
+    }
+
     // Function executed whenever the n general values
     // pointed at by p are stored in a datum with stub
     // s1, and the general values may contain stub
@@ -3560,8 +3588,7 @@ namespace min {
 	index += vp.var_offset;
 	MIN_ASSERT ( index < vp.hash_offset );
 	unprotected::base(vp)[index] = value;
-	unprotected::acc_write_update
-	    ( vp.s, & value, 1 );
+	unprotected::acc_write_update ( vp.s, value );
     }
 
     inline void set_hash
@@ -3571,6 +3598,7 @@ namespace min {
 	index += vp.hash_offset;
 	MIN_ASSERT ( index < vp.attr_offset );
 	unprotected::base(vp)[index] = value;
+	unprotected::acc_write_update ( vp.s, value );
     }
 
     inline void set_attr
@@ -3580,6 +3608,7 @@ namespace min {
 	index += vp.attr_offset;
 	MIN_ASSERT ( index < vp.unused_offset );
 	unprotected::base(vp)[index] = value;
+	unprotected::acc_write_update ( vp.s, value );
     }
 
     inline void set_aux
@@ -3589,6 +3618,7 @@ namespace min {
 	MIN_ASSERT ( vp.aux_offset <= index );
 	MIN_ASSERT ( index < vp.total_size );
 	unprotected::base(vp)[index] = value;
+	unprotected::acc_write_update ( vp.s, value );
     }
 
     inline void initialize
@@ -3620,10 +3650,11 @@ namespace min {
 
     inline unsigned attr_push
 	( min::insertable_vec_pointer & vp,
-	  min::gen v )
+	  min::gen value )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	unprotected::base(vp)[vp.unused_offset] = v;
+	unprotected::base(vp)[vp.unused_offset] = value;
+	unprotected::acc_write_update ( vp.s, value );
 	return vp.unused_offset ++;
     }
 
@@ -3637,15 +3668,17 @@ namespace min {
 	memcpy ( unprotected::base(vp) + result,
 	         p, sizeof ( min::gen ) * n );
 	vp.unused_offset += n;
+	unprotected::acc_write_update ( vp.s, p, n );
 	return result;
     }
 
     inline unsigned aux_push
 	( min::insertable_vec_pointer & vp,
-	  min::gen v )
+	  min::gen value )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	unprotected::base(vp)[-- vp.aux_offset] = v;
+	unprotected::base(vp)[-- vp.aux_offset] = value;
+	unprotected::acc_write_update ( vp.s, value );
 	return vp.aux_offset;
     }
 
@@ -3658,6 +3691,7 @@ namespace min {
 	vp.aux_offset -= n;
 	memcpy ( unprotected::base(vp) + vp.aux_offset,
 	         p, sizeof ( min::gen ) * n );
+	unprotected::acc_write_update ( vp.s, p, n );
 	return vp.aux_offset;
     }
 
