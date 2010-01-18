@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 16 06:39:54 EST 2010
+// Date:	Mon Jan 18 05:23:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/16 14:08:40 $
+//   $Date: 2010/01/18 18:11:14 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.210 $
+//   $Revision: 1.211 $
 
 // Table of Contents:
 //
@@ -2888,6 +2888,14 @@ namespace min {
 
 namespace min { namespace unprotected {
 
+    const unsigned OBJ_TYPED   = 1;
+    const unsigned OBJ_PUBLIC  = 2;
+    const unsigned OBJ_PRIVATE = 4;
+
+} }
+
+namespace min { namespace internal {
+
     // Flags Bits:
     //
     //    0:		OBJ_TYPED
@@ -2921,10 +2929,6 @@ namespace min { namespace unprotected {
     // OBJ_PRIVATE means a xxx_vec_pointer exists for
     // the object and other xxx_vec_pointers may not
     // be created for the object.
-    //
-    const unsigned OBJ_TYPED   = 1;
-    const unsigned OBJ_PUBLIC  = 2;
-    const unsigned OBJ_PRIVATE = 4;
 
     const unsigned SHORT_OBJ_FLAG_BITS = 3;
     const unsigned LONG_OBJ_FLAG_BITS  = 5;
@@ -2960,156 +2964,48 @@ namespace min { namespace unprotected {
     const unsigned long_obj_header_size =
         sizeof ( long_obj ) / sizeof ( min::gen );
 
-    inline min::unprotected::short_obj * short_obj_of
+    inline min::internal::short_obj * short_obj_of
 	    ( const min::stub * s )
     {
-        return (min::unprotected::short_obj *)
+        return (min::internal::short_obj *)
 	       min::unprotected::pointer_of ( s );
     }
 
-    inline min::unprotected::long_obj * long_obj_of
+    inline min::internal::long_obj * long_obj_of
 	    ( const min::stub * s )
     {
-        return (min::unprotected::long_obj *)
+        return (min::internal::long_obj *)
 	       min::unprotected::pointer_of ( s );
     }
 
     inline unsigned short_obj_hash_size_of_flags
 	    ( unsigned flags )
     {
-        return min::unprotected::hash_size
-		[ flags >> min::unprotected
+        return min::internal::hash_size
+		[ flags >> min::internal
 		              ::SHORT_OBJ_FLAG_BITS ];
     }
 
     inline unsigned long_obj_hash_size_of_flags
 	    ( unsigned flags )
     {
-        return min::unprotected::hash_size
-		[ flags >> min::unprotected
+        return min::internal::hash_size
+		[ flags >> min::internal
 		              ::LONG_OBJ_FLAG_BITS ];
     }
 } }
 
 namespace min {
 
-    inline unsigned var_size_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return   so->hash_offset
-               - min::unprotected
-		    ::short_obj_hash_size_of_flags
-		        (so->flags)
-	       - unprotected::short_obj_header_size;
-    }
-
-    inline unsigned var_size_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return   lo->hash_offset
-               - min::unprotected
-		    ::long_obj_hash_size_of_flags
-		        (lo->flags)
-	       - unprotected::long_obj_header_size;
-    }
-
-    inline unsigned hash_size_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return   min::unprotected::
-		      short_obj_hash_size_of_flags
-		          (so->flags);
-    }
-
-    inline unsigned hash_size_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return   min::unprotected::
-		      long_obj_hash_size_of_flags
-		          (lo->flags);
-    }
-
-    inline unsigned attr_size_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return   so->unused_offset
-               - min::unprotected
-		    ::short_obj_hash_size_of_flags
-		        (so->flags)
-	       - so->hash_offset;
-    }
-
-    inline unsigned attr_size_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return   lo->unused_offset
-               - min::unprotected
-		    ::long_obj_hash_size_of_flags
-		        (lo->flags)
-	       - lo->hash_offset;
-    }
-
-    inline unsigned aux_size_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return   so->total_size
-	       - so->aux_offset;
-    }
-
-    inline unsigned aux_size_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return   lo->total_size
-	       - lo->aux_offset;
-    }
-
-    inline unsigned unused_size_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return   so->aux_offset
-	       - so->unused_offset;
-    }
-
-    inline unsigned unused_size_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return   lo->aux_offset
-	       - lo->unused_offset;
-    }
-
-    inline unsigned header_size_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return unprotected::short_obj_header_size;
-    }
-
-    inline unsigned header_size_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return unprotected::long_obj_header_size;
-    }
-
-    inline unsigned total_size_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return so->total_size;
-    }
-
-    inline unsigned total_size_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return lo->total_size;
-    }
-
-    unsigned short_obj_hash_size ( unsigned u );
-    unsigned short_obj_total_size ( unsigned u );
-    unsigned long_obj_hash_size ( unsigned u );
-    unsigned long_obj_total_size ( unsigned u );
+    min::uns32 short_obj_hash_size ( min::uns32 u );
+    min::uns32 short_obj_total_size ( min::uns32 u );
+    min::uns32 long_obj_hash_size ( min::uns32 u );
+    min::uns32 long_obj_total_size ( min::uns32 u );
 
     min::gen new_obj_gen
-	    ( unsigned unused_size,
-	      unsigned hash_size = 0,
-	      unsigned var_size = 0 );
+	    ( min::uns32 unused_size,
+	      min::uns32 hash_size = 0,
+	      min::uns32 var_size = 0 );
 }
 
 // Object Vector Level
@@ -3135,33 +3031,39 @@ namespace min {
     namespace unprotected {
 	min::gen * & base
 	    ( min::vec_pointer & vp );
-	unsigned var_offset_of
+	min::uns32 var_offset_of
 	    ( min::vec_pointer & vp );
-	unsigned hash_offset_of
+	min::uns32 hash_offset_of
 	    ( min::vec_pointer & vp );
-	unsigned attr_offset_of
+	min::uns32 attr_offset_of
 	    ( min::vec_pointer & vp );
-	unsigned unused_offset_of
+	min::uns32 unused_offset_of
 	    ( min::vec_pointer & vp );
-	unsigned aux_offset_of
+	min::uns32 aux_offset_of
 	    ( min::vec_pointer & vp );
     }
     const min::stub * stub_of
 	( min::vec_pointer & vp );
-    unsigned hash_size_of
+    min::uns32 var_size_of
 	( min::vec_pointer & vp );
-    unsigned attr_size_of
+    min::uns32 hash_size_of
 	( min::vec_pointer & vp );
-    unsigned unused_size_of
+    min::uns32 attr_size_of
 	( min::vec_pointer & vp );
-    const min::gen & var
-	( min::vec_pointer & vp, unsigned index );
-    const min::gen & hash
-	( min::vec_pointer & vp, unsigned index );
-    const min::gen & attr
-	( min::vec_pointer & vp, unsigned index );
-    const min::gen & aux
-	( min::vec_pointer & vp, unsigned index );
+    min::uns32 unused_size_of
+	( min::vec_pointer & vp );
+    min::uns32 aux_size_of
+	( min::vec_pointer & vp );
+    min::uns32 total_size_of
+	( min::vec_pointer & vp );
+    min::gen var
+	( min::vec_pointer & vp, min::uns32 index );
+    min::gen hash
+	( min::vec_pointer & vp, min::uns32 index );
+    min::gen attr
+	( min::vec_pointer & vp, min::uns32 index );
+    min::gen aux
+	( min::vec_pointer & vp, min::uns32 index );
 
     void initialize
 	( min::updatable_vec_pointer & vp,
@@ -3174,18 +3076,18 @@ namespace min {
 	min::gen * & base
 	    ( min::updatable_vec_pointer & vp );
     }
-    min::gen & var
+    void set_var
 	( min::updatable_vec_pointer & vp,
-	  unsigned index );
-    min::gen & hash
+	  unsigned index, min::gen value );
+    void set_hash
 	( min::updatable_vec_pointer & vp,
-	  unsigned index );
-    min::gen & attr
+	  unsigned index, min::gen value );
+    void set_attr
 	( min::updatable_vec_pointer & vp,
-	  unsigned index );
-    min::gen & aux
+	  unsigned index, min::gen value );
+    void set_aux
 	( min::updatable_vec_pointer & vp,
-	  unsigned index );
+	  unsigned index, min::gen value );
 
     void initialize
 	( min::insertable_vec_pointer & vp,
@@ -3228,7 +3130,7 @@ namespace min {
 	  min::gen * p, unsigned n );
 
 
-    struct vec_pointer
+    class vec_pointer
     {
     public:
 
@@ -3270,20 +3172,26 @@ namespace min {
 
 	friend const min::stub * stub_of
 	    ( min::vec_pointer & vp );
+	friend unsigned var_size_of
+	    ( min::vec_pointer & vp );
 	friend unsigned hash_size_of
 	    ( min::vec_pointer & vp );
 	friend unsigned attr_size_of
 	    ( min::vec_pointer & vp );
 	friend unsigned unused_size_of
 	    ( min::vec_pointer & vp );
+	friend unsigned aux_size_of
+	    ( min::vec_pointer & vp );
+	friend unsigned total_size_of
+	    ( min::vec_pointer & vp );
 
-	friend const min::gen & var
+	friend min::gen var
 	    ( min::vec_pointer & vp, unsigned index );
-	friend const min::gen & hash
+	friend min::gen hash
 	    ( min::vec_pointer & vp, unsigned index );
-	friend const min::gen & attr
+	friend min::gen attr
 	    ( min::vec_pointer & vp, unsigned index );
-	friend const min::gen & aux
+	friend min::gen aux
 	    ( min::vec_pointer & vp, unsigned index );
 
 	friend void initialize
@@ -3295,18 +3203,18 @@ namespace min {
 
 	friend min::gen * & unprotected::base
 	    ( min::updatable_vec_pointer & vp );
-	friend min::gen & var
+	friend void set_var
 	    ( min::updatable_vec_pointer & vp,
-	      unsigned index );
-	friend min::gen & hash
+	      unsigned index, min::gen value );
+	friend void set_hash
 	    ( min::updatable_vec_pointer & vp,
-	      unsigned index );
-	friend min::gen & attr
+	      unsigned index, min::gen value );
+	friend void set_attr
 	    ( min::updatable_vec_pointer & vp,
-	      unsigned index );
-	friend min::gen & aux
+	      unsigned index, min::gen value );
+	friend void set_aux
 	    ( min::updatable_vec_pointer & vp,
-	      unsigned index );
+	      unsigned index, min::gen value );
 
 	friend void initialize
 	    ( min::insertable_vec_pointer & vp,
@@ -3346,19 +3254,13 @@ namespace min {
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen * p, unsigned n );
 
-    protected:
-
-	vec_pointer ( const min::stub * s, int type )
-	    : s ( (min::stub *) s ), type ( type )
-	    { init(); }
-
 	~ vec_pointer ( void )
 	{
 	    int t = min::type_of ( s );
 	    if ( t == min::SHORT_OBJ )
 	    {
-		min::unprotected::short_obj * so =
-		    min::unprotected
+		min::internal::short_obj * so =
+		    min::internal
 		       ::short_obj_of ( s );
 
 		so->flags &= ~ unprotected::OBJ_PRIVATE;
@@ -3371,8 +3273,8 @@ namespace min {
 	    else
 	    {
 	        MIN_ASSERT ( t == min::LONG_OBJ );
-		min::unprotected::long_obj * lo =
-		    min::unprotected
+		min::internal::long_obj * lo =
+		    min::internal
 		       ::long_obj_of ( s );
 
 		lo->flags &= ~ unprotected::OBJ_PRIVATE;
@@ -3383,6 +3285,12 @@ namespace min {
 		}
 	    }
 	}
+
+    protected:
+
+	vec_pointer ( const min::stub * s, int type )
+	    : s ( (min::stub *) s ), type ( type )
+	    { init(); }
 
     	min::stub * s;
 	    // Stub of object; set by constructor or
@@ -3410,8 +3318,8 @@ namespace min {
 	    min::uns8 * flags_p;
 	    if ( t == min::SHORT_OBJ )
 	    {
-		min::unprotected::short_obj * so =
-		    min::unprotected
+		min::internal::short_obj * so =
+		    min::internal
 		       ::short_obj_of ( s );
 
 	        flags_p = (min::uns8 *) & so->flags
@@ -3423,17 +3331,17 @@ namespace min {
 		total_size	= so->total_size;
 
 		var_offset =
-		    unprotected::short_obj_header_size;
+		    internal::short_obj_header_size;
 		hash_size =
-		    unprotected
+		    internal
 		        ::short_obj_hash_size_of_flags
 			    ( so->flags );
 	    }
 	    else
 	    {
 	        MIN_ASSERT ( t == min::LONG_OBJ );
-		min::unprotected::long_obj * lo =
-		    min::unprotected
+		min::internal::long_obj * lo =
+		    min::internal
 		       ::long_obj_of ( s );
 
 	        flags_p = (min::uns8 *) & lo->flags
@@ -3445,9 +3353,9 @@ namespace min {
 		total_size	= lo->total_size;
 
 		var_offset =
-		    unprotected::long_obj_header_size;
+		    internal::long_obj_header_size;
 		hash_size =
-		    unprotected
+		    internal
 		        ::long_obj_hash_size_of_flags
 			    ( lo->flags );
 	    }
@@ -3555,6 +3463,11 @@ namespace min {
     {
         return vp.s;
     }
+    inline unsigned var_size_of
+	( min::vec_pointer & vp )
+    {
+        return vp.hash_offset - vp.var_offset;
+    }
     inline unsigned hash_size_of
 	( min::vec_pointer & vp )
     {
@@ -3570,8 +3483,18 @@ namespace min {
     {
         return vp.aux_offset - vp.unused_offset;
     }
+    inline unsigned aux_size_of
+	( min::vec_pointer & vp )
+    {
+        return vp.total_size - vp.aux_offset;
+    }
+    inline unsigned total_size_of
+	( min::vec_pointer & vp )
+    {
+        return vp.total_size;
+    }
 
-    inline const min::gen & var
+    inline min::gen var
 	( min::vec_pointer & vp, unsigned index )
     {
 	index += vp.var_offset;
@@ -3579,7 +3502,7 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline const min::gen & hash
+    inline min::gen hash
 	( min::vec_pointer & vp, unsigned index )
     {
 	index += vp.hash_offset;
@@ -3587,7 +3510,7 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline const min::gen & attr
+    inline min::gen attr
 	( min::vec_pointer & vp, unsigned index )
     {
 	index += vp.attr_offset;
@@ -3595,7 +3518,7 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline const min::gen & aux
+    inline min::gen aux
 	( min::vec_pointer & vp, unsigned index )
     {
 	MIN_ASSERT ( vp.aux_offset <= index );
@@ -3630,40 +3553,42 @@ namespace min {
 	           ( vp.s );
     }
 
-    inline min::gen & var
+    inline void set_var
 	( min::updatable_vec_pointer & vp,
-	  unsigned index )
+	  unsigned index, min::gen value )
     {
 	index += vp.var_offset;
 	MIN_ASSERT ( index < vp.hash_offset );
-	return unprotected::base(vp)[index];
+	unprotected::base(vp)[index] = value;
+	unprotected::acc_write_update
+	    ( vp.s, & value, 1 );
     }
 
-    inline min::gen & hash
+    inline void set_hash
 	( min::updatable_vec_pointer & vp,
-	  unsigned index )
+	  unsigned index, min::gen value )
     {
 	index += vp.hash_offset;
 	MIN_ASSERT ( index < vp.attr_offset );
-	return unprotected::base(vp)[index];
+	unprotected::base(vp)[index] = value;
     }
 
-    inline min::gen & attr
+    inline void set_attr
 	( min::updatable_vec_pointer & vp,
-	  unsigned index )
+	  unsigned index, min::gen value )
     {
 	index += vp.attr_offset;
 	MIN_ASSERT ( index < vp.unused_offset );
-	return unprotected::base(vp)[index];
+	unprotected::base(vp)[index] = value;
     }
 
-    inline min::gen & aux
+    inline void set_aux
 	( min::updatable_vec_pointer & vp,
-	  unsigned index )
+	  unsigned index, min::gen value )
     {
 	MIN_ASSERT ( vp.aux_offset <= index );
 	MIN_ASSERT ( index < vp.total_size );
-	return unprotected::base(vp)[index];
+	unprotected::base(vp)[index] = value;
     }
 
     inline void initialize
@@ -3783,386 +3708,6 @@ namespace min {
     }
 }
 
-namespace min { namespace unprotected {
-
-    inline const min::gen * body_vector_of
-    	    ( min::unprotected::short_obj * so )
-    {
-        return (const min::gen *) so;
-    }
-
-    inline const min::gen * body_vector_of
-    	    ( min::unprotected::long_obj * lo )
-    {
-        return (const min::gen *) lo;
-    }
-
-    inline min::gen * writable_body_vector_of
-    	    ( min::unprotected::short_obj * so )
-    {
-        return (min::gen *) so;
-    }
-
-    inline min::gen * writable_body_vector_of
-    	    ( min::unprotected::long_obj * lo )
-    {
-        return (min::gen *) lo;
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen value )
-    {
-        min::gen * q = (min::gen *) so;
-	q[so->unused_offset] = value;
-	return so->unused_offset ++;
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen value )
-    {
-        min::gen * q = (min::gen *) lo;
-	q[lo->unused_offset] = value;
-	return lo->unused_offset ++;
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) so;
-	unsigned result = so->unused_offset;
-	while ( n -- )
-	    q[so->unused_offset ++] = * p ++;
-	return result;
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) lo;
-	unsigned result = lo->unused_offset;
-	while ( n -- )
-	    q[lo->unused_offset ++] = * p ++;
-	return result;
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen value )
-    {
-        min::gen * q = (min::gen *) so;
-	q[-- so->aux_offset] = value;
-	return so->aux_offset;
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen value )
-    {
-        min::gen * q = (min::gen *) lo;
-	q[-- lo->aux_offset] = value;
-	return lo->aux_offset;
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) so;
-	p += n;
-	while ( n -- )
-	    q[-- so->aux_offset] = * -- p;
-	return so->aux_offset;
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) lo;
-	p += n;
-	while ( n -- )
-	    q[-- lo->aux_offset] = * -- p;
-	return lo->aux_offset;
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen & value )
-    {
-        min::gen * q = (min::gen *) so;
-	value = q[-- so->unused_offset];
-	return so->unused_offset;
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen & value )
-    {
-        min::gen * q = (min::gen *) lo;
-	value = q[-- lo->unused_offset];
-	return lo->unused_offset;
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) so;
-	p += n;
-	while ( n -- )
-	    * -- p = q[-- so->unused_offset];
-	return so->unused_offset;
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) lo;
-	p += n;
-	while ( n -- )
-	    * -- p = q[-- lo->unused_offset];
-	return lo->unused_offset;
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen & value )
-    {
-        min::gen * q = (min::gen *) so;
-	value = q[so->aux_offset ++];
-	return so->aux_offset;
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen & value )
-    {
-        min::gen * q = (min::gen *) lo;
-	value = q[lo->aux_offset ++];
-	return lo->aux_offset;
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) so;
-	while ( n -- )
-	    * p ++ = q[so->aux_offset ++];
-	return so->aux_offset;
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-        min::gen * q = (min::gen *) lo;
-	while ( n -- )
-	    * p ++ = q[lo->aux_offset ++];
-	return lo->aux_offset;
-    }
-} }
-
-namespace min {
-
-    inline unsigned hash_offset_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return  unprotected::short_obj_header_size;
-    }
-
-    inline unsigned hash_offset_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return  unprotected::long_obj_header_size;
-    }
-
-    inline unsigned attr_offset_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return   unprotected::
-		 short_obj_hash_size_of_flags
-		     (so->flags)
-	       + unprotected::short_obj_header_size;
-    }
-
-    inline unsigned attr_offset_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return   unprotected::
-		 long_obj_hash_size_of_flags (lo->flags)
-	       + unprotected::long_obj_header_size;
-    }
-
-    inline unsigned aux_of
-	    ( min::unprotected::short_obj * so )
-    {
-        return so->aux_offset;
-    }
-
-    inline unsigned aux_of
-	    ( min::unprotected::long_obj * lo )
-    {
-        return lo->aux_offset;
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen value )
-    {
-	MIN_ASSERT (   so->unused_offset
-	             < so->aux_offset );
-	return unprotected::attr_push
-	    ( so, value );
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen value )
-    {
-	MIN_ASSERT (   lo->unused_offset
-	             < lo->aux_offset );
-	return unprotected::attr_push
-	    ( lo, value );
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    so->unused_offset + n
-	             <= so->aux_offset );
-	return unprotected::attr_push
-	    ( so, p, n );
-    }
-
-    inline unsigned attr_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    lo->unused_offset + n
-	             <= lo->aux_offset );
-	return unprotected::attr_push
-	    ( lo, p, n );
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen value )
-    {
-	MIN_ASSERT (   so->unused_offset
-	             < so->aux_offset );
-	return unprotected::aux_push ( so, value );
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen value )
-    {
-	MIN_ASSERT (   lo->unused_offset
-	             < lo->aux_offset );
-	return unprotected::aux_push ( lo, value );
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    so->unused_offset + n
-	             <= so->aux_offset );
-	return unprotected::aux_push ( so, p, n );
-    }
-
-    inline unsigned aux_push
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    lo->unused_offset + n
-	             <= lo->aux_offset );
-	return unprotected::aux_push ( lo, p, n );
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen & value )
-    {
-	MIN_ASSERT (   attr_offset_of ( so )
-	             < so->unused_offset );
-	return unprotected::attr_pop
-	    ( so, value );
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen & value )
-    {
-	MIN_ASSERT (   attr_offset_of ( lo )
-	             < lo->unused_offset );
-	return unprotected::attr_pop
-	    ( lo, value );
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    attr_offset_of ( so ) + n
-	             <= so->unused_offset );
-	return unprotected::attr_pop
-	    ( so, p, n );
-    }
-
-    inline unsigned attr_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    attr_offset_of ( lo ) + n
-	             <= lo->unused_offset );
-	return unprotected::attr_pop
-	    ( lo, p, n );
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen & value )
-    {
-	MIN_ASSERT (   so->aux_offset
-	             < so->total_size );
-	return unprotected::aux_pop ( so, value );
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen & value )
-    {
-	MIN_ASSERT (   lo->aux_offset
-	             < lo->total_size );
-	return unprotected::aux_pop ( lo, value );
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::short_obj * so,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    so->aux_offset + n
-	             <= so->total_size );
-	return unprotected::aux_pop ( so, p, n );
-    }
-
-    inline unsigned aux_pop
-    	    ( min::unprotected::long_obj * lo,
-	      min::gen * p, unsigned n )
-    {
-	MIN_ASSERT (    lo->aux_offset + n
-	             <= lo->total_size );
-	return unprotected::aux_pop ( lo, p, n );
-    }
-}
 
 // Object List Level
 // ------ ---- -----
@@ -5765,12 +5310,12 @@ inline unsigned min::unprotected::body_size_of
 	       * sizeof ( min::gen )
 	       + sizeof ( internal::lab_header );
     case min::SHORT_OBJ:
-	return   min::total_size_of
-		     ( unprotected::short_obj_of ( s ) )
+	return   internal::short_obj_of ( s )
+			-> total_size
 	       * sizeof ( min::gen );
     case min::LONG_OBJ:
-	return   min::total_size_of
-		     ( unprotected::long_obj_of ( s ) )
+	return   internal::long_obj_of ( s )
+			-> total_size
 	       * sizeof ( min::gen );
 #   ifdef MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
     MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES

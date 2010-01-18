@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 16 07:12:32 EST 2010
+// Date:	Mon Jan 18 05:18:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/16 14:08:54 $
+//   $Date: 2010/01/18 18:10:40 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.119 $
+//   $Revision: 1.120 $
 
 // Table of Contents:
 //
@@ -1841,61 +1841,63 @@ int main ()
 	cout << endl;
 	cout << "Test short objects:" << endl;
 	short_obj_gen = min::new_obj_gen ( 500, 100 );
-	min::gen sgen = short_obj_gen;
-	const min::stub * sstub = min::stub_of ( sgen );
+	const min::stub * sstub =
+	    min::stub_of ( short_obj_gen );
 	MIN_ASSERT
 	    (    min::type_of ( sstub )
 	      == min::SHORT_OBJ );
-	MUP::short_obj * so =
-	    MUP::short_obj_of ( sstub );
-	unsigned sh = min::header_size_of ( so );
-	unsigned sht = min::hash_size_of ( so );
-	unsigned sav = min::attr_size_of ( so );
-	unsigned sua = min::unused_size_of ( so );
-	unsigned saa = min::aux_size_of ( so );
-	unsigned st = min::total_size_of ( so );
-	cout << "sh: " << sh << " sht: " << sht
-	     << " sua: " << sua
-	     << " sav: " << sav
-	     << " saa: " << saa
-	     << " st: " << st << endl;
-	MIN_ASSERT ( sht >= 100 );
-	MIN_ASSERT ( sua >= 500 );
-	MIN_ASSERT ( sav == 0 );
-	MIN_ASSERT ( saa == 0 );
-	MIN_ASSERT ( st == sh + sht + sav + sua + saa );
-	MIN_ASSERT ( MUP::body_size_of ( sstub )
-	             ==
-		     st * sizeof ( min::gen ) );
+	{
+	    min::vec_pointer svp ( sstub );
+	    unsigned sh = MUP::var_offset_of ( svp );
+	    unsigned sht = min::hash_size_of ( svp );
+	    unsigned sav = min::attr_size_of ( svp );
+	    unsigned sua = min::unused_size_of ( svp );
+	    unsigned saa = min::aux_size_of ( svp );
+	    unsigned st = min::total_size_of ( svp );
+	    cout << "sh: " << sh << " sht: " << sht
+		 << " sua: " << sua
+		 << " sav: " << sav
+		 << " saa: " << saa
+		 << " st: " << st << endl;
+	    MIN_ASSERT ( sht >= 100 );
+	    MIN_ASSERT ( sua >= 500 );
+	    MIN_ASSERT ( sav == 0 );
+	    MIN_ASSERT ( saa == 0 );
+	    MIN_ASSERT ( st == sh + sht + sav + sua + saa );
+	    MIN_ASSERT ( MUP::body_size_of ( sstub )
+			 ==
+			 st * sizeof ( min::gen ) );
+	}
 
 	cout << endl;
 	cout << "Test long objects:" << endl;
 	long_obj_gen = min::new_obj_gen ( 70000, 7000 );
-	min::gen lgen = long_obj_gen;
-	const min::stub * lstub = min::stub_of ( lgen );
+	const min::stub * lstub =
+	    min::stub_of ( long_obj_gen );
 	MIN_ASSERT
 	    ( min::type_of ( lstub ) == min::LONG_OBJ );
-	MUP::long_obj * lo =
-	    MUP::long_obj_of ( lstub );
-	unsigned lh = min::header_size_of ( lo );
-	unsigned lht = min::hash_size_of ( lo );
-	unsigned lav = min::attr_size_of ( lo );
-	unsigned lua = min::unused_size_of ( lo );
-	unsigned laa = min::aux_size_of ( lo );
-	unsigned lt = min::total_size_of ( lo );
-	cout << "lh: " << lh << " lht: " << lht
-	     << " lua: " << lua
-	     << " lav: " << lav
-	     << " laa: " << laa
-	     << " lt: " << lt << endl;
-	MIN_ASSERT ( lht >= 7000 );
-	MIN_ASSERT ( lua >= 70000 );
-	MIN_ASSERT ( lav == 0 );
-	MIN_ASSERT ( laa == 0 );
-	MIN_ASSERT ( lt == lh + lht + lav + lua + laa );
-	MIN_ASSERT ( MUP::body_size_of ( lstub )
-	             ==
-		     lt * sizeof ( min::gen ) );
+	{
+	    min::vec_pointer lvp ( long_obj_gen );
+	    min::uns32 lh = MUP::var_offset_of ( lvp );
+	    min::uns32 lht = min::hash_size_of ( lvp );
+	    min::uns32 lav = min::attr_size_of ( lvp );
+	    min::uns32 lua = min::unused_size_of ( lvp );
+	    min::uns32 laa = min::aux_size_of ( lvp );
+	    min::uns32 lt = min::total_size_of ( lvp );
+	    cout << "lh: " << lh << " lht: " << lht
+		 << " lua: " << lua
+		 << " lav: " << lav
+		 << " laa: " << laa
+		 << " lt: " << lt << endl;
+	    MIN_ASSERT ( lht >= 7000 );
+	    MIN_ASSERT ( lua >= 70000 );
+	    MIN_ASSERT ( lav == 0 );
+	    MIN_ASSERT ( laa == 0 );
+	    MIN_ASSERT ( lt == lh + lht + lav + lua + laa );
+	    MIN_ASSERT ( MUP::body_size_of ( lstub )
+			 ==
+			 lt * sizeof ( min::gen ) );
+	}
 
 	cout << endl;
 	cout << "Finish Objects Test!" << endl;
@@ -1923,264 +1925,307 @@ int main ()
 	cout << endl;
 	cout << "Test short object vector level:"
 	     << endl;
-	min::gen sgen = short_obj_gen;
-	const min::stub * sstub = min::stub_of ( sgen );
-	MUP::short_obj * so =
-	    MUP::short_obj_of ( sstub );
-	const min::gen * srb =
-	    MUP::body_vector_of ( so );
-	min::gen * swb =
-	    MUP::writable_body_vector_of ( so );
-	unsigned ht = min::hash_offset_of ( so );
-	unsigned av = min::attr_offset_of ( so );
-	MIN_ASSERT ( srb[ht] == min::LIST_END );
-	swb[ht] = min::EMPTY_SUBLIST;
-	MIN_ASSERT ( srb[ht] == min::EMPTY_SUBLIST );
-	MIN_ASSERT
-	    (    min::unused_size_of ( so )
-	      == 500 );
-	swb[av] = num0;
-	MIN_ASSERT ( srb[av] == num0 );
-	MIN_ASSERT ( min::attr_size_of ( so ) == 0 );
-	MIN_ASSERT
-	    ( min::attr_push ( so, num1 ) == av );
-	MIN_ASSERT ( srb[av] == num1 );
-	MIN_ASSERT ( min::attr_size_of ( so ) == 1 );
-	swb[av+1] = num0;
-	swb[av+2] = num0;
-	swb[av+3] = num0;
-	MIN_ASSERT ( srb[av+1] == num0 );
-	MIN_ASSERT ( srb[av+2] == num0 );
-	MIN_ASSERT ( srb[av+3] == num0 );
-	MIN_ASSERT (    min::attr_push ( so, numv, 3 )
-		     == av + 1 );
-	MIN_ASSERT ( srb[av+1] == num1 );
-	MIN_ASSERT ( srb[av+2] == num2 );
-	MIN_ASSERT ( srb[av+3] == num3 );
-	MIN_ASSERT ( min::attr_size_of ( so ) == 4 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( so )
-	      == 500 - 4 );
+	min::stub * sstub =
+	    MUP::stub_of ( short_obj_gen );
+	{
+	    min::insertable_vec_pointer svp ( sstub );
+	    min::gen * & sbase = MUP::base ( svp );
+	    min::uns32 ht = MUP::hash_offset_of ( svp );
+	    min::uns32 av = MUP::attr_offset_of ( svp );
+	    min::uns32 & cua =
+	        MUP::unused_offset_of ( svp );
+	    MIN_ASSERT ( sbase[ht] == min::LIST_END );
+	    min::set_hash
+	        ( svp, 0, min::EMPTY_SUBLIST );
+	    MIN_ASSERT
+	        ( sbase[ht] == min::EMPTY_SUBLIST );
+	    MIN_ASSERT
+	        (    min::hash(svp,0)
+		  == min::EMPTY_SUBLIST );
+	    MIN_ASSERT
+		(    min::unused_size_of ( svp )
+		  == 500 );
+	    sbase[av] = num0;
+	    MIN_ASSERT
+	        ( sbase[av+0] == num0 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( svp ) == 0 );
+	    MIN_ASSERT ( cua == av + 0 );
+	    MIN_ASSERT
+		( min::attr_push ( svp, num1 ) == av );
+	    MIN_ASSERT ( sbase[av] == num1 );
+	    MIN_ASSERT ( attr ( svp, 0 ) == num1 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( svp ) == 1 );
+	    MIN_ASSERT ( cua == av + 1 );
+	    sbase[av+1] = num0;
+	    sbase[av+2] = num0;
+	    sbase[av+3] = num0;
+	    MIN_ASSERT ( sbase[av+1] == num0 );
+	    MIN_ASSERT ( sbase[av+2] == num0 );
+	    MIN_ASSERT ( sbase[av+3] == num0 );
+	    MIN_ASSERT
+	         (    min::attr_push ( svp, numv, 3 )
+		   == av + 1 );
+	    MIN_ASSERT ( sbase[av+1] == num1 );
+	    MIN_ASSERT ( sbase[av+2] == num2 );
+	    MIN_ASSERT ( sbase[av+3] == num3 );
+	    MIN_ASSERT ( attr ( svp, 3 ) == num3 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( svp ) == 4 );
+	    MIN_ASSERT ( cua == av + 4 );
+	    MIN_ASSERT
+		(    min::unused_size_of ( svp )
+		  == 500 - 4 );
 
-	unsigned aa = min::aux_of ( so );
-	swb[aa-1] = num0;
-	MIN_ASSERT ( srb[aa-1] == num0 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( so ) == 0 );
-	MIN_ASSERT (    min::aux_push ( so, num1 )
-	             == aa - 1 );
-	MIN_ASSERT ( srb[aa-1] == num1 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( so ) == 1 );
-	swb[aa-2] = num0;
-	swb[aa-3] = num0;
-	swb[aa-4] = num0;
-	MIN_ASSERT ( srb[aa-2] == num0 );
-	MIN_ASSERT ( srb[aa-3] == num0 );
-	MIN_ASSERT ( srb[aa-4] == num0 );
-	MIN_ASSERT (    min::aux_push
-	                     ( so, numv, 3 )
-		     == aa - 4 );
-	MIN_ASSERT ( srb[aa-4] == num1 );
-	MIN_ASSERT ( srb[aa-3] == num2 );
-	MIN_ASSERT ( srb[aa-2] == num3 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( so ) == 4 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( so )
-	      == 500 - 8 );
+	    min::uns32 aa = MUP::aux_offset_of ( svp );
+	    min::uns32 & caa =
+	        MUP::aux_offset_of ( svp );
+	    sbase[aa-1] = num0;
+	    MIN_ASSERT ( sbase[aa-1] == num0 );
+	    MIN_ASSERT
+		( min::aux_size_of ( svp ) == 0 );
+	    MIN_ASSERT ( caa == aa );
+	    MIN_ASSERT (    min::aux_push ( svp, num1 )
+			 == aa - 1 );
+	    MIN_ASSERT ( sbase[aa-1] == num1 );
+	    MIN_ASSERT
+	        ( min::aux ( svp, aa-1 ) == num1 );
+	    MIN_ASSERT
+		( min::aux_size_of ( svp ) == 1 );
+	    MIN_ASSERT ( caa == aa - 1 );
+	    sbase[aa-2] = num0;
+	    sbase[aa-3] = num0;
+	    sbase[aa-4] = num0;
+	    MIN_ASSERT ( sbase[aa-2] == num0 );
+	    MIN_ASSERT ( sbase[aa-3] == num0 );
+	    MIN_ASSERT ( sbase[aa-4] == num0 );
+	    MIN_ASSERT (    min::aux_push
+				 ( svp, numv, 3 )
+			 == aa - 4 );
+	    MIN_ASSERT ( sbase[aa-4] == num1 );
+	    MIN_ASSERT ( sbase[aa-3] == num2 );
+	    MIN_ASSERT ( sbase[aa-2] == num3 );
+	    MIN_ASSERT ( aux ( svp, aa-2 ) == num3 );
+	    MIN_ASSERT
+		( min::aux_size_of ( svp ) == 4 );
+	    MIN_ASSERT ( caa == aa - 4 );
+	    MIN_ASSERT
+		(    min::unused_size_of ( svp )
+		  == 500 - 8 );
 
-	MIN_ASSERT
-	    (    min::attr_pop ( so, outv + 1, 3 )
-	      == min::attr_offset_of ( so ) + 1 );
-	MIN_ASSERT
-	    (    min::attr_pop ( so, outv[0] )
-	      == min::attr_offset_of ( so ) );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT ( min::attr_size_of ( so ) == 0 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( so )
-	      == 500 - 4 );
-	desire_failure (
-	    min::attr_pop ( so, outv[0] );
-	);
-	desire_failure (
-	    min::attr_pop ( so, outv + 1, 3 );
-	);
-	min::attr_push ( so, fillv, 4 );
+	    MIN_ASSERT
+		(    min::attr_pop ( svp, outv + 1, 3 )
+		  == MUP::attr_offset_of ( svp ) + 1 );
+	    MIN_ASSERT
+		(    min::attr_pop ( svp, outv[0] )
+		  == MUP::attr_offset_of ( svp ) );
+	    MIN_ASSERT ( outv[0] == num1 );
+	    MIN_ASSERT ( outv[1] == num1 );
+	    MIN_ASSERT ( outv[2] == num2 );
+	    MIN_ASSERT ( outv[3] == num3 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( svp ) == 0 );
+	    MIN_ASSERT ( cua == av + 0 );
+	    MIN_ASSERT
+		(    min::unused_size_of ( svp )
+		  == 500 - 4 );
+	    desire_failure (
+		min::attr_pop ( svp, outv[0] );
+	    );
+	    desire_failure (
+		min::attr_pop ( svp, outv + 1, 3 );
+	    );
+	    min::attr_push ( svp, fillv, 4 );
 
-	MIN_ASSERT
-	    (    min::aux_pop
-	    		( so, outv + 1, 3 )
-	      == min::aux_of ( so ) );
-	MIN_ASSERT
-	    (    min::aux_pop ( so, outv[0] )
-	      == min::aux_of ( so ) );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT
-	    (    min::aux_size_of ( so )
-	      == 0 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( so )
-	      == 500 - 4 );
-	desire_failure (
-	    min::aux_pop ( so, outv[0] );
-	);
-	desire_failure (
-	    min::aux_pop ( so, outv + 1, 3 );
-	);
-	min::aux_push
-	    ( so, fillv, 4 );
+	    MIN_ASSERT
+		(    min::aux_pop
+			    ( svp, outv + 1, 3 )
+		  == MUP::aux_offset_of ( svp ) );
+	    MIN_ASSERT
+		(    min::aux_pop ( svp, outv[0] )
+		  == MUP::aux_offset_of ( svp ) );
+	    MIN_ASSERT ( outv[0] == num1 );
+	    MIN_ASSERT ( outv[1] == num1 );
+	    MIN_ASSERT ( outv[2] == num2 );
+	    MIN_ASSERT ( outv[3] == num3 );
+	    MIN_ASSERT
+		(    min::aux_size_of ( svp )
+		  == 0 );
+	    MIN_ASSERT ( caa == aa );
+	    MIN_ASSERT
+		(    min::unused_size_of ( svp )
+		  == 500 - 4 );
+	    desire_failure (
+		min::aux_pop ( svp, outv[0] );
+	    );
+	    desire_failure (
+		min::aux_pop ( svp, outv + 1, 3 );
+	    );
+	    min::aux_push
+		( svp, fillv, 4 );
 
-	min::attr_push ( so, fillv, 250 - 4 );
-	min::aux_push ( so, fillv, 250 - 4 );
-	MIN_ASSERT ( min::unused_size_of ( so ) == 0 );
-	desire_failure (
-	    min::attr_push ( so, num3 );
-	);
-	desire_failure (
-	    min::aux_push ( so, num3 );
-	);
-
+	    min::attr_push ( svp, fillv, 250 - 4 );
+	    min::aux_push ( svp, fillv, 250 - 4 );
+	    MIN_ASSERT
+	        ( min::unused_size_of ( svp ) == 0 );
+	    MIN_ASSERT ( cua == caa );
+	    desire_failure (
+		min::attr_push ( svp, num3 );
+	    );
+	    desire_failure (
+		min::aux_push ( svp, num3 );
+	    );
+	}
 
 	cout << endl;
 	cout << "Test long object vector level:"
 	     << endl;
-	min::gen lgen = long_obj_gen;
-	const min::stub * lstub = min::stub_of ( lgen );
-	MUP::long_obj * lo =
-	    MUP::long_obj_of ( lstub );
-	const min::gen * lrb =
-	    MUP::body_vector_of ( lo );
-	min::gen * lwb =
-	    MUP::writable_body_vector_of ( lo );
-	ht = min::hash_offset_of ( lo );
-	av = min::attr_offset_of ( lo );
-	MIN_ASSERT ( lrb[ht] == min::LIST_END );
-	lwb[ht] = min::EMPTY_SUBLIST;
-	MIN_ASSERT ( lrb[ht] == min::EMPTY_SUBLIST );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lo )
-	      == 70000 );
-	lwb[av] = num0;
-	MIN_ASSERT ( lrb[av] == num0 );
-	MIN_ASSERT ( min::attr_size_of ( lo ) == 0 );
-	MIN_ASSERT (    min::attr_push ( lo, num1 )
-		     == av );
-	MIN_ASSERT ( lrb[av] == num1 );
-	MIN_ASSERT ( min::attr_size_of ( lo ) == 1 );
-	lwb[av+1] = num0;
-	lwb[av+2] = num0;
-	lwb[av+3] = num0;
-	MIN_ASSERT ( lrb[av+1] == num0 );
-	MIN_ASSERT ( lrb[av+2] == num0 );
-	MIN_ASSERT ( lrb[av+3] == num0 );
-	MIN_ASSERT (    min::attr_push ( lo, numv, 3 )
-		     == av + 1 );
-	MIN_ASSERT ( lrb[av+1] == num1 );
-	MIN_ASSERT ( lrb[av+2] == num2 );
-	MIN_ASSERT ( lrb[av+3] == num3 );
-	MIN_ASSERT ( min::attr_size_of ( lo ) == 4 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lo )
-	      == 70000 - 4 );
-	aa = min::aux_of ( lo );
-	lwb[aa-1] = num0;
-	MIN_ASSERT ( lrb[aa-1] == num0 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( lo ) == 0 );
-	MIN_ASSERT (    min::aux_push ( lo, num1 )
-	             == aa - 1 );
-	MIN_ASSERT ( lrb[aa-1] == num1 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( lo ) == 1 );
-	lwb[aa-2] = num0;
-	lwb[aa-3] = num0;
-	lwb[aa-4] = num0;
-	MIN_ASSERT ( lrb[aa-2] == num0 );
-	MIN_ASSERT ( lrb[aa-3] == num0 );
-	MIN_ASSERT ( lrb[aa-4] == num0 );
-	MIN_ASSERT (    min::aux_push
-	                     ( lo, numv, 3 )
-		     == aa - 4 );
-	MIN_ASSERT ( lrb[aa-4] == num1 );
-	MIN_ASSERT ( lrb[aa-3] == num2 );
-	MIN_ASSERT ( lrb[aa-2] == num3 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( lo ) == 4 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lo )
-	      == 70000 - 8 );
+	{
+	    min::insertable_vec_pointer lvp
+	        ( long_obj_gen );
+	    min::gen * & lbase = MUP::base ( lvp );
+	    min::uns32 ht = MUP::hash_offset_of ( lvp );
+	    min::uns32 av = MUP::attr_offset_of ( lvp );
+	    min::uns32 & cua =
+	        MUP::unused_offset_of ( lvp );
+	    MIN_ASSERT ( lbase[ht] == min::LIST_END );
+	    min::set_hash
+	        ( lvp, 0, min::EMPTY_SUBLIST );
+	    MIN_ASSERT
+	        ( lbase[ht] == min::EMPTY_SUBLIST );
+	    MIN_ASSERT
+	        (    min::hash(lvp,0)
+		  == min::EMPTY_SUBLIST );
+	    MIN_ASSERT
+		(    min::unused_size_of ( lvp )
+		  == 70000 );
+	    lbase[av] = num0;
+	    MIN_ASSERT ( lbase[av + 0] == num0 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( lvp ) == 0 );
+	    MIN_ASSERT (    min::attr_push ( lvp, num1 )
+			 == av );
+	    MIN_ASSERT ( lbase[av] == num1 );
+	    MIN_ASSERT ( min::attr_size_of ( lvp ) == 1 );
+	    MIN_ASSERT ( cua == av + 1 );
+	    lbase[av+1] = num0;
+	    lbase[av+2] = num0;
+	    lbase[av+3] = num0;
+	    MIN_ASSERT ( lbase[av+1] == num0 );
+	    MIN_ASSERT ( lbase[av+2] == num0 );
+	    MIN_ASSERT ( lbase[av+3] == num0 );
+	    MIN_ASSERT (    min::attr_push ( lvp, numv, 3 )
+			 == av + 1 );
+	    MIN_ASSERT ( lbase[av+1] == num1 );
+	    MIN_ASSERT ( lbase[av+2] == num2 );
+	    MIN_ASSERT ( lbase[av+3] == num3 );
+	    MIN_ASSERT ( attr ( lvp, 3 ) == num3 );
+	    MIN_ASSERT ( min::attr_size_of ( lvp ) == 4 );
+	    MIN_ASSERT ( cua == av + 4 );
+	    MIN_ASSERT
+		(    min::unused_size_of ( lvp )
+		  == 70000 - 4 );
+	    min::uns32 aa = MUP::aux_offset_of ( lvp );
+	    min::uns32 & caa =
+	        MUP::aux_offset_of ( lvp );
+	    lbase[aa-1] = num0;
+	    MIN_ASSERT ( lbase[aa-1] == num0 );
+	    MIN_ASSERT
+		( min::aux_size_of ( lvp ) == 0 );
+	    MIN_ASSERT ( caa == aa );
+	    MIN_ASSERT (    min::aux_push ( lvp, num1 )
+			 == aa - 1 );
+	    MIN_ASSERT ( lbase[aa-1] == num1 );
+	    MIN_ASSERT
+		( min::aux_size_of ( lvp ) == 1 );
+	    lbase[aa-2] = num0;
+	    lbase[aa-3] = num0;
+	    lbase[aa-4] = num0;
+	    MIN_ASSERT ( lbase[aa-2] == num0 );
+	    MIN_ASSERT ( lbase[aa-3] == num0 );
+	    MIN_ASSERT ( lbase[aa-4] == num0 );
+	    MIN_ASSERT (    min::aux_push
+				 ( lvp, numv, 3 )
+			 == aa - 4 );
+	    MIN_ASSERT ( lbase[aa-4] == num1 );
+	    MIN_ASSERT ( lbase[aa-3] == num2 );
+	    MIN_ASSERT ( lbase[aa-2] == num3 );
+	    MIN_ASSERT ( aux ( lvp, aa-2 ) == num3 );
+	    MIN_ASSERT
+		( min::aux_size_of ( lvp ) == 4 );
+	    MIN_ASSERT ( caa == aa - 4 );
+	    MIN_ASSERT
+		(    min::unused_size_of ( lvp )
+		  == 70000 - 8 );
 
-	MIN_ASSERT
-	    (    min::attr_pop ( lo, outv + 1, 3 )
-	      == min::attr_offset_of ( lo ) + 1 );
-	MIN_ASSERT
-	    (    min::attr_pop ( lo, outv[0] )
-	      == min::attr_offset_of ( lo ) );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT ( min::attr_size_of ( lo ) == 0 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lo )
-	      == 70000 - 4 );
-	desire_failure (
-	    min::attr_pop ( lo, outv[0] );
-	);
-	desire_failure (
-	    min::attr_pop ( lo, outv + 1, 3 );
-	);
-	min::attr_push ( lo, fillv, 4 );
+	    MIN_ASSERT
+		(    min::attr_pop ( lvp, outv + 1, 3 )
+		  == MUP::attr_offset_of ( lvp ) + 1 );
+	    MIN_ASSERT
+		(    min::attr_pop ( lvp, outv[0] )
+		  == MUP::attr_offset_of ( lvp ) );
+	    MIN_ASSERT ( outv[0] == num1 );
+	    MIN_ASSERT ( outv[1] == num1 );
+	    MIN_ASSERT ( outv[2] == num2 );
+	    MIN_ASSERT ( outv[3] == num3 );
+	    MIN_ASSERT ( min::attr_size_of ( lvp ) == 0 );
+	    MIN_ASSERT ( cua == av );
+	    MIN_ASSERT
+		(    min::unused_size_of ( lvp )
+		  == 70000 - 4 );
+	    desire_failure (
+		min::attr_pop ( lvp, outv[0] );
+	    );
+	    desire_failure (
+		min::attr_pop ( lvp, outv + 1, 3 );
+	    );
+	    min::attr_push ( lvp, fillv, 4 );
 
-	MIN_ASSERT
-	    (    min::aux_pop
-	    		( lo, outv + 1, 3 )
-	      == min::aux_of ( lo ) );
-	MIN_ASSERT
-	    (    min::aux_pop ( lo, outv[0] )
-	      == min::aux_of ( lo ) );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT
-	    (    min::aux_size_of ( lo )
-	      == 0 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lo )
-	      == 70000 - 4 );
-	desire_failure (
-	    min::aux_pop ( lo, outv[0] );
-	);
-	desire_failure (
-	    min::aux_pop ( lo, outv + 1, 3 );
-	);
-	min::aux_push
-	    ( lo, fillv, 4 );
+	    MIN_ASSERT
+		(    min::aux_pop
+			    ( lvp, outv + 1, 3 )
+		  == MUP::aux_offset_of ( lvp ) );
+	    MIN_ASSERT
+		(    min::aux_pop ( lvp, outv[0] )
+		  == MUP::aux_offset_of ( lvp ) );
+	    MIN_ASSERT ( outv[0] == num1 );
+	    MIN_ASSERT ( outv[1] == num1 );
+	    MIN_ASSERT ( outv[2] == num2 );
+	    MIN_ASSERT ( outv[3] == num3 );
+	    MIN_ASSERT
+		(    min::aux_size_of ( lvp )
+		  == 0 );
+	    MIN_ASSERT ( caa == aa );
+	    MIN_ASSERT
+		(    min::unused_size_of ( lvp )
+		  == 70000 - 4 );
+	    desire_failure (
+		min::aux_pop ( lvp, outv[0] );
+	    );
+	    desire_failure (
+		min::aux_pop ( lvp, outv + 1, 3 );
+	    );
+	    min::aux_push
+		( lvp, fillv, 4 );
 
-	min::attr_push ( lo, fillv, 35000 - 4 );
-	min::aux_push ( lo, fillv, 35000 - 4 );
-	MIN_ASSERT ( min::unused_size_of ( lo ) == 0 );
-	desire_failure (
-	    min::attr_push ( lo, num3 );
-	);
-	desire_failure (
-	    min::attr_push ( lo, numv, 3 );
-	);
-	desire_failure (
-	    min::aux_push ( lo, num3 );
-	);
-	desire_failure (
-	    min::aux_push ( lo, numv, 3 );
-	);
+	    min::attr_push ( lvp, fillv, 35000 - 4 );
+	    min::aux_push ( lvp, fillv, 35000 - 4 );
+	    MIN_ASSERT ( min::unused_size_of ( lvp ) == 0 );
+	    MIN_ASSERT ( cua == caa );
+	    desire_failure (
+		min::attr_push ( lvp, num3 );
+	    );
+	    desire_failure (
+		min::attr_push ( lvp, numv, 3 );
+	    );
+	    desire_failure (
+		min::aux_push ( lvp, num3 );
+	    );
+	    desire_failure (
+		min::aux_push ( lvp, numv, 3 );
+	    );
+	}
 
 	cout << endl;
 	cout << "Finish Object Vector Level Test!"

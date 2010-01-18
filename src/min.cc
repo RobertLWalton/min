@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 16 06:59:56 EST 2010
+// Date:	Mon Jan 18 12:31:38 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/16 14:08:49 $
+//   $Date: 2010/01/18 18:10:10 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.116 $
+//   $Revision: 1.117 $
 
 // Table of Contents:
 //
@@ -653,7 +653,7 @@ min::gen min::new_lab_gen
 // Objects
 // -------
 
-namespace min { namespace unprotected {
+namespace min { namespace internal {
 
     min::uns32 hash_size [] =
     {
@@ -1214,15 +1214,15 @@ namespace min { namespace unprotected {
 bool min::use_obj_aux_stubs = false;
 
 static int short_obj_max_hi =
-    ( 1 << MUP::SHORT_OBJ_HASH_SIZE_CODE_BITS ) - 1;
+    ( 1 << MINT::SHORT_OBJ_HASH_SIZE_CODE_BITS ) - 1;
 static unsigned short_obj_max_hash_size =
-    MUP::hash_size[short_obj_max_hi];
+    MINT::hash_size[short_obj_max_hi];
 static int long_obj_max_hi =
-    (   sizeof ( MUP::hash_size )
+    (   sizeof ( MINT::hash_size )
       / sizeof ( min::uns32 ) )
     - 1;
 static unsigned long_obj_max_hash_size =
-    MUP::hash_size[long_obj_max_hi];
+    MINT::hash_size[long_obj_max_hi];
 
 unsigned min::short_obj_hash_size ( unsigned u )
 {
@@ -1233,14 +1233,14 @@ unsigned min::short_obj_hash_size ( unsigned u )
 	{
 	    // Invariant:
 	    //
-	    //    MUP::hash_size[hi] >= u
+	    //    MINT::hash_size[hi] >= u
 	    //
 	    int mid = ( lo + hi ) / 2;
-	    if ( MUP::hash_size[mid] >= u ) hi = mid;
+	    if ( MINT::hash_size[mid] >= u ) hi = mid;
 	    else if ( lo == mid ) break;
 	    else lo = mid;
 	}
-    return MUP::hash_size[hi];
+    return MINT::hash_size[hi];
 }
 
 unsigned min::short_obj_total_size ( unsigned u )
@@ -1258,14 +1258,14 @@ unsigned min::long_obj_hash_size ( unsigned u )
 	{
 	    // Invariant:
 	    //
-	    //    MUP::hash_size[hi] >= u
+	    //    MINT::hash_size[hi] >= u
 	    //
 	    int mid = ( lo + hi ) / 2;
-	    if ( MUP::hash_size[mid] >= u ) hi = mid;
+	    if ( MINT::hash_size[mid] >= u ) hi = mid;
 	    else if ( lo == mid ) break;
 	    else lo = mid;
 	}
-    return MUP::hash_size[hi];
+    return MINT::hash_size[hi];
 }
 
 unsigned min::long_obj_total_size ( unsigned u )
@@ -1291,10 +1291,10 @@ min::gen min::new_obj_gen
 	{
 	    // Invariant:
 	    //
-	    //    MUP::hash_size[hi] >= u
+	    //    MINT::hash_size[hi] >= u
 	    //
 	    int mid = ( lo + hi ) / 2;
-	    if ( MUP::hash_size[mid] >= hash_size )
+	    if ( MINT::hash_size[mid] >= hash_size )
 	        hi = mid;
 	    else if ( lo == mid )
 	        break;
@@ -1302,29 +1302,29 @@ min::gen min::new_obj_gen
 	        lo = mid;
 	}
 
-    hash_size = MUP::hash_size[hi];
+    hash_size = MINT::hash_size[hi];
 
     MIN_ASSERT (    unused_size
                  <=   min::uns32(-1)
 		    - hash_size
 		    - var_size
-		    - MUP::long_obj_header_size );
+		    - MINT::long_obj_header_size );
     unsigned total_size =
         unused_size + hash_size + var_size;
     min::stub * s = MUP::new_acc_stub();
     min::gen * p;
     int type;
-    if (   total_size + MUP::short_obj_header_size
+    if (   total_size + MINT::short_obj_header_size
          < ( 1 << 16 ) )
     {
-        total_size += MUP::short_obj_header_size;
+        total_size += MINT::short_obj_header_size;
 
 	type = min::SHORT_OBJ;
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
-	MUP::short_obj * so = MUP::short_obj_of ( s );
-	so->flags = hi << MUP::SHORT_OBJ_FLAG_BITS;
-	so->hash_offset = MUP::short_obj_header_size
+	MINT::short_obj * so = MINT::short_obj_of ( s );
+	so->flags = hi << MINT::SHORT_OBJ_FLAG_BITS;
+	so->hash_offset = MINT::short_obj_header_size
 	                + var_size;
 	so->unused_offset =
 	       so->hash_offset
@@ -1332,18 +1332,18 @@ min::gen min::new_obj_gen
 	so->aux_offset	= total_size;
 	so->total_size  = total_size;
 	p = (min::gen *) so
-	  + MUP::short_obj_header_size;
+	  + MINT::short_obj_header_size;
     }
     else
     {
-        total_size += MUP::long_obj_header_size;
+        total_size += MINT::long_obj_header_size;
 
 	type = min::LONG_OBJ;
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
-	MUP::long_obj * lo = MUP::long_obj_of ( s );
-	lo->flags = hi << MUP::LONG_OBJ_FLAG_BITS;
-	lo->hash_offset = MUP::long_obj_header_size
+	MINT::long_obj * lo = MINT::long_obj_of ( s );
+	lo->flags = hi << MINT::LONG_OBJ_FLAG_BITS;
+	lo->hash_offset = MINT::long_obj_header_size
 	                + var_size;
 	lo->unused_offset =
 	       lo->hash_offset
@@ -1351,7 +1351,7 @@ min::gen min::new_obj_gen
 	lo->aux_offset	= total_size;
 	lo->total_size  = total_size;
 	p = (min::gen *) lo
-	  + MUP::long_obj_header_size;
+	  + MINT::long_obj_header_size;
     }
     min::gen * endp = p + var_size;
     while ( p < endp ) * p ++ = min::UNDEFINED;
