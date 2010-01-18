@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Tue Dec 29 09:39:10 EST 2009
+# Date:		Mon Jan 18 06:20:27 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2009/12/29 14:39:35 $
+#   $Date: 2010/01/18 11:24:06 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.28 $
+#   $Revision: 1.29 $
 
 # We need the following to mask RCS lines
 #
@@ -94,6 +94,7 @@ optimization_test:	\
 	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
 	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
+	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
@@ -105,6 +106,7 @@ optimization_test:	\
 	    -e '/\.cc:[0-9]* assert/s//.cc:XXXX assert/' \
 	    -e '/\.h:[0-9]* assert/s//.h:XXXX assert/' \
 	    -e '/\.cc:[0-9]* desire/s//.cc:XXXX desire/' \
+	    -e '/\.L/s/\(\.L[A-Z][A-Z]*\)[0-9][0-9]*/\1XXX/g' \
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
