@@ -249,7 +249,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 16, 2010}
+\date{January 18, 2010}
  
 \maketitle
 
@@ -3213,66 +3213,50 @@ about the object pointed at by a read-only {\tt min::vec\_pointer}:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
-\verb|const min::| & \MINKEY{stub\_of}\verb| ( min::vec_pointer & vp )|
+\verb|const min::stub * min::| & \MINKEY{stub\_of}%
+    \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::STUB_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{var\_size\_of}\verb| ( min::vec_pointer & vp )|
+\verb|min::uns32 min::| & \MINKEY{var\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::VAR_SIZE_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{hash\_size\_of}\verb| ( min::vec_pointer & vp )|
+\verb|min::uns32 min::| & \MINKEY{hash\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::HASH_SIZE_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{attr\_size\_of}\verb| ( min::vec_pointer & vp )|
+\verb|min::uns32 min::| & \MINKEY{attr\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::ATTR_SIZE_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{unused\_size\_of}\verb| ( min::vec_pointer & vp )|
+\verb|min::uns32 min::| & \MINKEY{unused\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::UNUSED_SIZE_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{aux\_size\_of}\verb| ( min::vec_pointer & vp )|
+\verb|min::uns32 min::| & \MINKEY{aux\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::AUX_SIZE_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{total\_size\_of}\verb| ( min::vec_pointer & vp )|
+\verb|min::uns32 min::| & \MINKEY{total\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::TOTAL_SIZE_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{var\_offset\_of}\verb| ( min::vec_pointer & vp )|
-\LABEL{MIN::VAR_OFFSET_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{attr\_offset\_of}\verb| ( min::vec_pointer & vp )|
-\LABEL{MIN::ATTR_OFFSET_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{unused\_offset\_of}\verb| ( min::vec_pointer & vp )|
-\LABEL{MIN::UNUSED_OFFSET_OF_VEC_POINTER} \\
-\verb|unsigned | & \MINKEY{aux\_offset\_of}\verb| ( min::vec_pointer & vp )|
-\LABEL{MIN::AUX_OFFSET_OF_VEC_POINTER} \\
 
 \end{tabular}\end{indpar}
 
-The size and offset values returned by the above are those of the
-variable vector({\tt var}), hash table({\tt hash}),
-attribute vector({\tt attr}), unused area ({\tt unused}), 
-and auxiliary area({\tt aux}).  These are related by
-
-\begin{center}
-\begin{tabular}{rcl}
-variable vector offset	& = & header size \\
-hash table offset       & = & variable vector offset + variable vector size \\
-attribute vector offset & = & hash table offset + hash table size \\
-unused area offset      & = & attribute vector offset + attribute vector size \\
-auxiliary area offset   & = & unused area offset + unused area size \\
-total size              & = & auxiliary area offset + auxiliary area size \\
-\end{tabular}
-\end{center}
-
-Note that when an object is expanded or compacted, all these values may
-change, including the header size.
+Here the sizes are in \verb|min::gen| units.  When an object
+body is reorganized, some of these sizes may change, but simply
+relocating the object body does not change these sizes.
 
 The following functions can be used for \underline{read-only}
 access to object elements:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
-\verb|const min::gen & | & \MINKEY{var}%
-    \verb| ( min::vec_pointer & vp, unsigned index )|
+\verb|min::gen | & \MINKEY{var}%
+    \verb| ( min::vec_pointer & vp, min::uns32 index )|
 \LABEL{MIN::VAR_OF_VEC_POINTER} \\
-\verb|const min::gen & | & \MINKEY{hash}%
-    \verb| ( min::vec_pointer & vp, unsigned index )|
+\verb|min::gen | & \MINKEY{hash}%
+    \verb| ( min::vec_pointer & vp, min::uns32 index )|
 \LABEL{MIN::HASH_OF_VEC_POINTER} \\
-\verb|const min::gen & | & \MINKEY{attr}%
-    \verb| ( min::vec_pointer & vp, unsigned index )|
+\verb|min::gen | & \MINKEY{attr}%
+    \verb| ( min::vec_pointer & vp, min::uns32 index )|
 \LABEL{MIN::ATTR_OF_VEC_POINTER} \\
-\verb|const min::gen & | & \MINKEY{aux}%
-    \verb| ( min::vec_pointer & vp, unsigned aux_pointer )|
+\verb|min::gen | & \MINKEY{aux}%
+    \verb| ( min::vec_pointer & vp, min::uns32 aux_pointer )|
 \LABEL{MIN::AUX_OF_VEC_POINTER} \\
 
 \end{tabular}\end{indpar}
@@ -3290,8 +3274,10 @@ for $0\leq i<\mbox{\tt min::attr\_size\_of(vp)}$.
 the auxilary area element pointed at by the auxilary
 pointer \verb|p|, where
 \begin{center}
-$\mbox{\tt min::aux\_offset\_of(vp)}\leq p<\mbox{\tt min::total\_size\_of(vp)}$
+$\mbox{\tt MUP::aux\_offset\_of(vp)}\leq p<\mbox{\tt min::total\_size\_of(vp)}$
 \end{center}
+(See \pagref{MUP::AUX_OFFSET_OF_VEC_POINTER} for 
+{\tt MUP::aux\_offset\_of(vp)}).
 
 A \minkey{updatable\_vec\_pointer} is like a \verb|min::vec_pointer|
 but has additional functions which support writting object body vector
@@ -3478,6 +3464,44 @@ required functions are:
 \LABEL{MUP::BASE_OF_UPDATABLE_VEC_POINTER} \\
 
 \end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::STUB_OF_VEC_POINTER} \\
+\verb|min::uns32 MUP::| & \MUPKEY{var\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::VAR_OFFSET_OF_VEC_POINTER} \\
+\verb|min::uns32 MUP::| & \MUPKEY{attr\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::ATTR_OFFSET_OF_VEC_POINTER} \\
+\verb|min::uns32 MUP::| & \MUPKEY{unused\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::UNUSED_OFFSET_OF_VEC_POINTER} \\
+\verb|min::uns32 MUP::| & \MUPKEY{aux\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::AUX_OFFSET_OF_VEC_POINTER} \\
+
+\end{tabular}\end{indpar}
+
+The size and offset values returned by the above are those of the
+variable vector({\tt var}), hash table({\tt hash}),
+attribute vector({\tt attr}), unused area ({\tt unused}), 
+and auxiliary area({\tt aux}).  These are related by
+
+\begin{center}
+\begin{tabular}{rcl}
+variable vector offset	& = & header size \\
+hash table offset       & = & variable vector offset + variable vector size \\
+attribute vector offset & = & hash table offset + hash table size \\
+unused area offset      & = & attribute vector offset + attribute vector size \\
+auxiliary area offset   & = & unused area offset + unused area size \\
+total size              & = & auxiliary area offset + auxiliary area size \\
+\end{tabular}
+\end{center}
+
+Note that when an object is expanded or compacted, all these values may
+change, including the header size.
 
 A \key{short object stub}\label{SHORT-OBJECT-STUB} is collectible, has
 \minnbkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code, and has
@@ -3903,36 +3927,6 @@ Indirect pointers are standardly used only at the object list
 and attribute levels, but can in theory be used with non-standard
 object organizations.
 
-\subsubsection{Objects and Threads}
-\label{OBJECTS-AND-THREADS}
-
-[Objects have state:
-
-\begin{center}
-\begin{tabular}{lp{4.0in}}
-NONE	& No list pointers. \\
-PRIVATE  & Single thread. \\
-PUBLIC & Multi-thread, insert pointers prohibited forever, all other
-            pointers allowed.
-\end{tabular}
-\end{center}
-
-A list pointer applied to an object in NONE state changes the
-state to PRIVATE and makes it impossible to open any other list
-pointer, except as a subpointer of the given list pointer (i.e.,
-construct a new list pointer from the existing one and not from
-just the object).  Subpointers can have reduced permissions:
-insert > update > readonly.  Destructing a list pointer in 
-PRIVATE state changes the state to NONE.
-
-There is an operation to change from NONE to PUBLIC state.
-Once in PUBLIC state the state cannot be changed.  In PUBLIC
-state insert pointers cannot be opened on the object.
-
-There are separate operations read\_sync, write\_sync, readwrite\_sync
-to synchronize caches.
-
-]
 
 \subsubsection{Object List Level}
 \label{OBJECT-LIST-LEVEL}
