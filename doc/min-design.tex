@@ -72,6 +72,7 @@
 \newcommand{\key}[1]{{\bf \em #1}\index{#1}}
 \newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
 \newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
 \newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
 \newcommand{\ttkey}[1]{{\tt \bf #1}\index{#1@{\tt #1}}}
 % < and > do not work for \tt \bf, hence:
@@ -2969,7 +2970,8 @@ There can be several arrows with the same attribute name,
 and even several arrows with both the same attribute name and the
 same value.
 There can be several double arrows with the same attribute name and
-the same reverse attribute name.
+the same reverse attribute name, and even several double arrows with
+the same names and target object.
 
 Therefore an attribute name and reverse attribute name together name a
 multi-set of values, where the reverse attribute name can be missing to
@@ -2992,7 +2994,7 @@ values, or reverse attribute names.
 There are also typed objects, each of which is a pair of objects,
 one called the type that is constant, is shared among many typed objects,
 and contains attribute labels, and one called the typed object or
-context, which contains a vector of \skey{variable}s that hold the attribute
+context, which contains a vector of \skey{variable}s that hold attribute
 values.  Typed objects are described in more detail in
 \secref{TYPED-OBJECTS}.
 
@@ -3043,12 +3045,22 @@ table.
 There are two kinds of objects: short and long.  A \key{short object}
 has a header that stores 8 bit and 16 bit unsigned sizes.  A \key{long object}
 has a header that stores 16 bit and 32 bit unsigned sizes.  Otherwise there is
-no essential difference between a short and a long object.  The functions
-that create attributes convert automatically from short to
-long objects when required.  Conversion in either direction, and compaction
-of objects, may occur whenever object bodies are relocated, as they
-may be when during garbage collection, or when the objects are
-published (\pagref{PUBLISH}).
+no essential difference between a short and a long object.
+
+An object body may be \smkey{relocate}d{object body}, which means the
+body is simply copied to a new address, or
+\smkey{reorganize}d{object body}, which means the object body is reformatted,
+and possible converted from short to long or vice versa.  Frequently an
+object whose attribute labels and number of values for each label are no
+longer subject to change will be compacted, to make it as small as possible,
+and this is one kind of object body reorganization.
+Objects are compacted by the `{\tt publish}' function that sets the
+object {\tt OBJ\_\EOL PUBLISH} flag which prevents changes to the
+attribute labels, attribute label flags, and number of attribute values
+of an object.
+Reorganization can also occur whenever an object is relocated,
+provided that the {\tt OBJ\_\EOL PRIVATE} and
+{\tt OBJ\_\EOL PUBLIC} object flags are not set.
 
 The data structure of an object body can be viewed at any of three levels:
 vector level (\secref{OBJECT-VECTOR-LEVEL}),
@@ -3077,32 +3089,32 @@ one of these functions must check the returned value to be sure it is
 as large as the function argument.
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::|
-    & \MINKEY{short\_obj\_hash\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{short\_obj\_hash\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::SHORT_OBJ_HASH_TABLE_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{short\_obj\_total\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{short\_obj\_total\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::SHORT_OBJ_TOTAL_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{long\_obj\_hash\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{long\_obj\_hash\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::LONG_OBJ_HASH_TABLE_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{long\_obj\_total\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{long\_obj\_total\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::LONG_OBJ_TOTAL_SIZE} \\
 \end{tabular}\end{indpar}
 
 Maximum possible total and hash table size values can be determined
 by presenting these functions with the \verb|u| argument value
-`\verb|unsigned(-1)|'.
+`\verb|min::uns32(-1)|'.
 
 An object can be created by the protected function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned unused_size,| \\
-    \verb|   unsigned hash_size = 0,| \\
-    \verb|   unsigned variables_size = 0 )| \\
+    \verb| ( min::uns32 unused_size,| \\
+    \verb|   min::uns32 hash_size = 0,| \\
+    \verb|   min::uns32 variables_size = 0 )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
@@ -3298,28 +3310,28 @@ elements.  The additional functions for this type of pointer are:
 \verb|void min::| & \MINKEY{set\_var}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   unsigned index,| \\
+      \verb|   min::uns32 index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_VAR_OF_UPDATABLE_VEC_POINTER} \\
 \verb|void min::| & \MINKEY{set\_hash}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   unsigned index,| \\
+      \verb|   min::uns32 index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_HASH_OF_UPDATABLE_VEC_POINTER} \\
 \verb|void min::| & \MINKEY{set\_attr}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   unsigned index,| \\
+      \verb|   min::uns32 index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_ATTR_OF_UPDATABLE_VEC_POINTER} \\
 \verb|void min::| & \MINKEY{set\_aux}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   unsigned aux_pointer,| \\
+      \verb|   min::uns32 aux_pointer,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_AUX_OF_UPDATABLE_VEC_POINTER} \\
@@ -3558,76 +3570,7 @@ are 32-bit unsigned integers instead of 16-bit unsigned integers,
 and extra implementation dependent information in the header may be
 different.
 
-A pointer to the body and the sizes can be obtained by the following
-functions:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|MUP::short_obj * MUP::|
-    & \MUPKEY{short\_obj\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::SHORT_OBJ_OF} \\
-\verb|MUP::long_obj * MUP::|
-    & \MUPKEY{long\_obj\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::LONG_OBJ_OF} \\
-\verb|unsigned min::|
-    & \MINKEY{hash\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{hash\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::HASH_TABLE_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::| &
-    \MINKEY{attr\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::ATTR_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{attr\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::ATTR_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{aux\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::AUX_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{aux\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::AUX_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{unused\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::UNUSED_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{unused\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::UNUSED_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::| & \MINKEY{header\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::HEADER_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::| & \MINKEY{header\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::HEADER_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::| & \MINKEY{total\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::TOTAL_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::| & \MINKEY{total\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::TOTAL_SIZE_OF_LONG_OBJ} \\
-\end{tabular}\end{indpar}
-
-Here the functions that return pointers do \underline{not} check the type
-of the stub, and the pointers returned will become obsolete if the body of
-the object is relocated (\secref{BODY-POINTERS}).
-
-At the \key{unprotected vector level}, the body is viewed as
-a \key{body vector} of \verb|min::gen| values.  A pointer to the
-body vector is returned by the following unprotected functions:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MUP::BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|const min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MUP::BODY_VECTOR_OF_LONG_OBJ} \\
-\verb|min::gen * MUP::|
-	& \MUPKEY{writable\_body\_vector\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|min::gen * MUP::|
-	& \MUPKEY{writable\_body\_vector\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_LONG_OBJ} \\
-\end{tabular}\end{indpar}
-
-The {\tt MUP::body\_vector\_of} function allows only reading of elements.
-The {\tt MUP::\EOL writable\_\EOL body\_\EOL vector\_\EOL of}
-function allows reading and writing of elements.
+TBD
 
 The body vector is divided into 5 parts,
 which are, in order, the body header,
@@ -3645,30 +3588,7 @@ Auxiliary pointers with zero value do not address a body vector
 element, since they point into the header, and these are given
 special meanings.
 
-The indices of the beginning of the hash table, beginning of the
-attribute vector, and beginning of the auxiliary area can be
-obtained by the following protected functions:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::|
-	& \MINKEY{hash\_offset\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::HASH_OFFSET_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_offset\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::HASH_OFFSET_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_offset\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::ATTR_OFFSET_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_offset\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::ATTR_OFFSET_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_offset\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::AUX_OFFSET_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_offset\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::AUX_OFFSET_OF_LONG_OBJ} \\
-\end{tabular}\end{indpar}
+TBD
 
 The attribute vector can be grown by pushing values onto its end.
 The auxiliary area can be grown by pushing values onto its beginning;
@@ -3676,51 +3596,9 @@ The auxiliary area can be grown by pushing values onto its beginning;
 the auxiliary area.
 In both cases, unused area is consumed.  The values pushed are
 \verb|min::gen| values, and all sizes are calculated in units of
-\verb|min::gen| values.  The following protected functions are
-provided:
+\verb|min::gen| values.
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::|
-	& \MINKEY{attr\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::SHORT_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::SHORT_AUX_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_AUX_PUSH_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MIN::LONG_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MIN::LONG_AUX_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_AUX_PUSH_OF_GENS} \\
-\end{tabular}\end{indpar}\label{OBJECT_PUSH_FUNCTIONS}
-
-Here the attribute vector push functions add to the end of the attribute
-vector, and the auxiliary area push functions add to the beginning of
-the auxiliary area.  Thus if values $V_1$ and $V_2$ are consecutively
-pushed into the attribute vector, $V_1$ will be immediately before $V_2$
-in the body vector,
-but if they are consecutively pushed into the auxiliary area, $V_1$
-will be immediately after $V_2$ in the body vector.
+TBD
 
 Four of the above functions push multiple values given by a vector
 \verb|p| of \verb|n| \verb|min::gen| values.  These functions
@@ -3742,132 +3620,6 @@ of values that can be pushed without signaling this error is just
 the size of the unused area, which can be determined by the
 \verb|min::unused_size_of| function
 (\pagref{MIN::UNUSED_SIZE_OF_SHORT_OBJ}).
-
-The following unprotected push functions are identical to the
-similarly named protected functions, but include no check on the unused
-area size:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::SHORT_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::SHORT_AUX_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_AUX_PUSH_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MUP::LONG_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MUP::LONG_AUX_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_AUX_PUSH_OF_GENS} \\
-\end{tabular}\end{indpar}
-
-The following (little used) pop
-functions are the inverse of the above push functions:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen & value )|
-\LABEL{MIN::SHORT_ATTR_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_ATTR_POP_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen & value )|
-\LABEL{MIN::SHORT_AUX_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_AUX_POP_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen & value )|
-\LABEL{MIN::LONG_ATTR_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_ATTR_POP_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen & value )|
-\LABEL{MIN::LONG_AUX_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_AUX_POP_OF_GENS} \\
-\end{tabular}\end{indpar}\label{OBJECT_POP_FUNCTIONS}
-
-These functions undo the effects of the corresponding push functions,
-and copy data in the reverse direction.
-They respectively return the index of the
-first body element after the attribute vector
-(same value as {\tt min::attribute\_\EOL vector\_\EOL of\_\EOL ()
-+ min::attribute\_\EOL vector\_\EOL size\_\EOL of()})
-and the first auxiliary area element
-(same value as {\tt min::aux\_\EOL area\_\EOL of\_\EOL ()}).
-
-These functions check that there are enough elements left to pop,
-and signal a fatal program error if not.
-The following unprotected functions are identical to the above
-functions but do not include this check.
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::SHORT_ATTR_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_ATTR_POP_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::SHORT_AUX_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop} \\
-	& \verb|    ( MUP::short_obj * so, min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_AUX_POP_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MUP::LONG_ATTR_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_ATTR_POP_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MUP::LONG_AUX_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop} \\
-	& \verb|    ( MUP::long_obj * lo, min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_AUX_POP_OF_GENS} \\
-\end{tabular}\end{indpar}
 
 
 \subsubsection{Typed Objects}
@@ -6795,76 +6547,18 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{2.0in}
-\verb|MUP::short_obj * MUP::|
-    & \MUPKEY{short\_obj\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::SHORT_OBJ_OF} \\
-\verb|MUP::long_obj * MUP::|
-    & \MUPKEY{long\_obj\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::LONG_OBJ_OF} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\medskip
-
-\begin{indpar}[0.2in]
-
 \begin{TABULAR}{1.4in}
-\verb|unsigned min::|
-    & \MINKEY{hash\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::HASH_TABLE_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{hash\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::HASH_TABLE_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{attr\_size\_of}\ARGBREAK
-    		\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::ATTR_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{attr\_size\_of}\ARGBREAK
-    		\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::ATTR_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{aux\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::AUX_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{aux\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::AUX_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{unused\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::UNUSED_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-    & \MINKEY{unused\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::UNUSED_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::| & \MINKEY{header\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::HEADER_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::| & \MINKEY{header\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::HEADER_SIZE_OF_LONG_OBJ} \\
-\verb|unsigned min::| & \MINKEY{total\_size\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::TOTAL_SIZE_OF_SHORT_OBJ} \\
-\verb|unsigned min::| & \MINKEY{total\_size\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::TOTAL_SIZE_OF_LONG_OBJ} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\medskip
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned min::|
-    & \MINKEY{short\_obj\_hash\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{short\_obj\_hash\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::SHORT_OBJ_HASH_TABLE_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{short\_obj\_total\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{short\_obj\_total\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::SHORT_OBJ_TOTAL_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{long\_obj\_hash\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{long\_obj\_hash\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::LONG_OBJ_HASH_TABLE_SIZE} \\
-\verb|unsigned min::|
-    & \MINKEY{long\_obj\_total\_size}\verb| ( unsigned u )|
+\verb|min::uns32 min::|
+    & \MINKEY{long\_obj\_total\_size}\verb| ( min::uns32 u )|
 \LABEL{MIN::LONG_OBJ_TOTAL_SIZE} \\
 \end{TABULAR}
 
@@ -6877,9 +6571,9 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.4in}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( unsigned unused_size,| \\
-    \verb|   unsigned hash_size = 0,| \\
-    \verb|   unsigned variables_size = 0 )| \\
+    \verb| ( min::uns32 unused_size,| \\
+    \verb|   min::uns32 hash_size = 0,| \\
+    \verb|   min::uns32 variables_size = 0 )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{TABULAR}
@@ -6890,223 +6584,6 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{2.0in}
-\verb|const min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of}\ARGBREAK
-		\verb| ( MUP::short_obj * so )|
-\LABEL{MUP::BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|const min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of}\ARGBREAK
-		\verb| ( MUP::long_obj * lo )|
-\LABEL{MUP::BODY_VECTOR_OF_LONG_OBJ} \\
-\verb|min::gen * MUP::|
-	& \MUPKEY{writable\_body\_vector\_of}\ARGBREAK
-		\verb| ( MUP::short_obj * so )|
-\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_SHORT_OBJ} \\
-\verb|min::gen * MUP::|
-	& \MUPKEY{writable\_body\_vector\_of}\ARGBREAK
-		\verb| ( MUP::long_obj * lo )|
-\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_LONG_OBJ} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned min::|
-	& \MINKEY{hash\_offset\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::HASH_OFFSET_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{hash\_offset\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::HASH_OFFSET_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_offset\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::ATTR_OFFSET_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_offset\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::ATTR_OFFSET_OF_LONG_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_offset\_of}\verb| ( MUP::short_obj * so )|
-\LABEL{MIN::AUX_OFFSET_OF_SHORT_OBJ} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_offset\_of}\verb| ( MUP::long_obj * lo )|
-\LABEL{MIN::AUX_OFFSET_OF_LONG_OBJ} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned min::|
-	& \MINKEY{attr\_push}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::SHORT_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_push} \\
-	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MIN::SHORT_AUX_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_AUX_PUSH_OF_GENS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned min::|
-	& \MINKEY{attr\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MIN::LONG_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MIN::LONG_AUX_PUSH_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_AUX_PUSH_OF_GENS} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::SHORT_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push} \\
-	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen value )|
-\LABEL{MUP::SHORT_AUX_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_AUX_PUSH_OF_GENS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MUP::LONG_ATTR_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_ATTR_PUSH_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen value )|
-\LABEL{MUP::LONG_AUX_PUSH_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_push}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_AUX_PUSH_OF_GENS} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen & value )|
-\LABEL{MIN::SHORT_ATTR_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop} \\
-	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_ATTR_POP_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen & value )|
-\LABEL{MIN::SHORT_AUX_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::SHORT_AUX_POP_OF_GENS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
-\LABEL{MIN::LONG_ATTR_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{attr\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_ATTR_POP_OF_GENS} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
-\LABEL{MIN::LONG_AUX_POP_OF_GEN} \\
-\verb|unsigned min::|
-	& \MINKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MIN::LONG_AUX_POP_OF_GENS} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen & value )|
-\LABEL{MUP::SHORT_ATTR_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop} \\
-	& \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_ATTR_POP_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so, min::gen & value )|
-\LABEL{MUP::SHORT_AUX_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::short_obj * so,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::SHORT_AUX_POP_OF_GENS} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
-\LABEL{MUP::LONG_ATTR_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{attr\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_ATTR_POP_OF_GENS} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo, min::gen & value )|
-\LABEL{MUP::LONG_AUX_POP_OF_GEN} \\
-\verb|unsigned MUP::|
-	& \MUPKEY{aux\_pop}\ARGBREAK
-	  \verb|    ( MUP::long_obj * lo,|\ARGBREAK
-	  \verb|      min::gen * p, unsigned n )|
-\LABEL{MUP::LONG_AUX_POP_OF_GENS} \\
-\end{TABULAR}
 
 \end{indpar}
 
