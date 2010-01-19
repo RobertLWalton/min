@@ -1126,7 +1126,7 @@ Using fixed_blocks[9] and assigning begin_body_region[208 .. 719]
 min_interface_test.cc:XXXX assert:
     min::type_of ( sstub ) == min::SHORT_OBJ true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & unprotected::OBJ_PRIVATE ) == 0 true.
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 sh: 2 sht: 103 sua: 500 sav: 0 saa: 0 st: 605
 min_interface_test.cc:XXXX assert:
     sht >= 100 true.
@@ -1157,7 +1157,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & unprotected::OBJ_PRIVATE ) == 0 true.
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 lh: 4 lht: 7061 lua: 70000 lav: 0 laa: 0 lt: 77065
 min_interface_test.cc:XXXX assert:
     lht >= 7000 true.
@@ -1180,7 +1180,7 @@ Start Object Vector Level Test!
 
 Test short object vector level:
 ../include/min.h:XXXX assert:
-    ( * flags_p & unprotected::OBJ_PRIVATE ) == 0 true.
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     sbase[ht] == min::LIST_END true.
 ../include/min.h:XXXX assert:
@@ -1360,7 +1360,7 @@ Test long object vector level:
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & unprotected::OBJ_PRIVATE ) == 0 true.
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     lbase[ht] == min::LIST_END true.
 ../include/min.h:XXXX assert:
@@ -1536,7 +1536,7 @@ Start Object List Level Test!
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & unprotected::OBJ_PRIVATE ) == 0 true.
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 VSIZE 250 VORG 105 USIZE 0
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
@@ -2026,7 +2026,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & unprotected::OBJ_PRIVATE ) == 0 true.
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 VSIZE 35000 VORG 7065 USIZE 0
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
