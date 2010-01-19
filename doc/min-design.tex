@@ -3036,6 +3036,16 @@ grows up from the end of the hash table into the unused
 area, and the auxiliary storage grows down from the end of the body into
 the unused area.
 
+A variable vector, hash table, and attribute vector element is accessed
+using an index relative to the beginning of the vector or table that
+contains the element.  Auxiliary area elements are accessed by
+\skey{auxiliary pointer}s\label{OBJECT-BODY-AUXILIARY-POINTER}
+that give the index of the element relative to the beginning of the
+object body.
+Auxiliary pointers with zero index do not address a body vector
+element, since they point into the header, and these are given
+special meanings (e.g., {\tt  min::\EOL LIST\_\EOL END}).
+
 An object may be grown or compacted by relocating its body.  It may be
 grown to expand its unused area or hash table, or, less commonly,
 its variable vector.  An object may be compacted to eliminate, or less
@@ -3575,6 +3585,31 @@ total size              & = & auxiliary area offset + auxiliary area size \\
 Note that when an object is reorganized all these values may
 change, including the header size.
 
+Note that the {\tt min::\EOL unused\_\EOL offset\_\EOL of} and
+{\tt min::\EOL aux\_\EOL offset\_\EOL of} functions for a
+{\tt min::\EOL insertable\_\EOL vector\_\EOL pointer} return an
+lvalue.  For insertable pointers these offsets change when
+values are pushed into or popped from the attribute vector or
+auxiliary area.  The following are equivalences except for
+the omission of {\tt MIN\_\EOL ASSERT} checks that the unused area
+is non-empty for pushes or that the attribute vector or auxiliary area
+is non-empty for pops,
+and for push operation calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+(\pagref{MUP::ACC_WRITE_GEN_UPDATE}):
+
+\begin{indpar}\begin{tabular}{rcl}
+\verb|attr_push ( vp, v )| & $\equiv$
+    & \verb|base(vp)[unused_offset_of(vp)++] = v| \\
+\verb|attr_pop ( vp, v )| & $\equiv$
+    & \verb|v = base(vp)[--unused_offset_of(vp)]| \\
+\verb|aux_push ( vp, v )| & $\equiv$
+    & \verb|base(vp)[--aux_offset_of(vp)] = v| \\
+\verb|aux_pop ( vp, v )| & $\equiv$
+    & \verb|v = base(vp)[aux_offset_of(vp)++]| \\
+\end{tabular}\end{indpar}
+
+
+
 Recall that there are two kinds of objects: short and long.
 A \key{short object stub}\label{SHORT-OBJECT-STUB} is collectible, has
 \minnbkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code, and has
@@ -3614,25 +3649,6 @@ hash table or all possible total sizes, but should support
 sizes that permit objects that are read-only to be efficiently compacted.
 Within the limits set by the total and hash table sizes, arbitrary sizes
 of the vector, unused, and auxiliary areas should be supported.
-
-TBD
-
-The value of an \key{auxiliary pointer}\label{OBJECT-BODY-AUXILIARY-POINTER}
-stored in an object body (or in an object auxiliary stub attached to
-the object: see~\secref{OBJECT-AUXILIARY-STUBS}) is an unsigned integer
-that is the index of a \verb|min::gen|
-value in the object body vector.
-Auxiliary pointers with zero value do not address a body vector
-element, since they point into the header, and these are given
-special meanings.
-
-The attribute vector can be grown by pushing values onto its end.
-The auxiliary area can be grown by pushing values onto its beginning;
-\verb|aux_offset_of| returns the index of the last value pushed into
-the auxiliary area.
-In both cases, unused area is consumed.  The values pushed are
-\verb|min::gen| values, and all sizes are calculated in units of
-\verb|min::gen| values.
 
 
 \subsubsection{Typed Objects}

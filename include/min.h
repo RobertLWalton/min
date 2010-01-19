@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jan 19 01:21:04 EST 2010
+// Date:	Tue Jan 19 05:02:59 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/19 06:21:56 $
+//   $Date: 2010/01/19 10:05:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.214 $
+//   $Revision: 1.215 $
 
 // Table of Contents:
 //
@@ -2914,13 +2914,13 @@ namespace min {
 // Objects
 // -------
 
-namespace min { namespace unprotected {
+namespace min {
 
     const unsigned OBJ_TYPED   = 1;
     const unsigned OBJ_PUBLIC  = 2;
     const unsigned OBJ_PRIVATE = 4;
 
-} }
+}
 
 namespace min { namespace internal {
 
@@ -3292,7 +3292,7 @@ namespace min {
 		    min::internal
 		       ::short_obj_of ( s );
 
-		so->flags &= ~ unprotected::OBJ_PRIVATE;
+		so->flags &= ~ OBJ_PRIVATE;
 		if ( type == INSERTABLE )
 		{
 		    so->unused_offset = unused_offset;
@@ -3306,7 +3306,7 @@ namespace min {
 		    min::internal
 		       ::long_obj_of ( s );
 
-		lo->flags &= ~ unprotected::OBJ_PRIVATE;
+		lo->flags &= ~ OBJ_PRIVATE;
 		if ( type == INSERTABLE )
 		{
 		    lo->unused_offset = unused_offset;
@@ -3390,15 +3390,14 @@ namespace min {
 	    }
 	    attr_offset = hash_offset + hash_size;
 
-	    MIN_ASSERT ( (   * flags_p
-	                   & unprotected::OBJ_PRIVATE )
-			 == 0 );
-	    if ( * flags_p & unprotected::OBJ_PUBLIC )
+	    MIN_ASSERT
+	        ( ( * flags_p & OBJ_PRIVATE ) == 0 );
+	    if ( * flags_p & OBJ_PUBLIC )
 	    {
 	        MIN_ASSERT ( type != INSERTABLE );
 	    }
 	    else
-	        * flags_p |= unprotected::OBJ_PRIVATE;
+	        * flags_p |= OBJ_PRIVATE;
 	}
     };
 
