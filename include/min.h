@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jan 19 05:02:59 EST 2010
+// Date:	Tue Jan 19 05:43:37 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/19 10:05:49 $
+//   $Date: 2010/01/19 10:43:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.215 $
+//   $Revision: 1.216 $
 
 // Table of Contents:
 //
@@ -280,7 +280,6 @@ namespace min {
     const int LABEL			= 6;
     const int SHORT_OBJ			= 7;
     const int LONG_OBJ			= 8;
-    const int VARIABLE_VECTOR		= 9;
 
     // Uncollectible.
     //
