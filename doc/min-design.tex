@@ -826,7 +826,6 @@ Other 32-bit general values consist of a high order
 8-bit subtype code and a low order 24-bit datum.  For most auxiliary pointer
 general values the datum is a 24-bit auxiliary pointer
 (see~\pagref{OBJECT-BODY-AUXILIARY-POINTER}
-and~\pagref{VARIABLE-VECTOR-AUXILIARY-POINTER}
 for a definition of auxiliary pointers).  For packed indirect
 auxiliary pointer values the datum is a 12-bit auxiliary pointer and
 a 12-bit index.  For index and special
@@ -3651,63 +3650,6 @@ Within the limits set by the total and hash table sizes, arbitrary sizes
 of the vector, unused, and auxiliary areas should be supported.
 
 
-\subsubsection{Typed Objects}
-\label{TYPED-OBJECTS}
-
-TBD
-
-There are two kinds of special pointers that can be used with objects:
-indirect pointers and typed pointers.  An object element can contain
-either kind of pointer, but because most values of these special pointers
-are larger than a single \verb|min::gen| value, the object element
-usually has to contain an auxiliary special pointer that points at two
-auxiliary elements of the object that hold the value of the special
-pointer.  The goal of both kinds of special pointer is to permit
-an object element to hold an indirect pointer to a variable in some
-other object.  Indirect special pointers are just such indirectly pointers
-in a straight forward way, but typed pointers
-are more complex and permit a constant object called the type to
-have an element indirectly pointing at variable in a second object called
-the typed object.
-
-An \key{indirect pointer} consists of an unsigned integer index $I$ and
-a pointer to the stub of an object $O$.  The indirect pointer specifies
-that the element containing it is to be treated as if its value were
-the value of the variable with index $I$ in object $O$.
-There are two formats of indirect pointer: unpacked and packed.
-
-An \key{unpacked indirect pointer} consists of an auxiliary special pointer
-pointing at two consecutive auxiliary elements of the object containing
-the auxiliary special pointer (\underline{not} the object $O$).
-The first of these holds an index \verb|min::gen| value containing $I$.
-The second holds a \verb|min::gen| value containing a pointer to the
-stub of $O$.
-
-A \key{packed indirect pointer} is a \verb|min::gen| value that contains
-the index $I$ and an auxiliary pointer to a single auxiliary element
-of the object containing the packed indirect pointer
-(\underline{not} the object $O$).  This auxiliary element
-holds a \verb|min::gen| value containing a pointer to the
-stub of $O$.  Packed indirect pointers can be very efficient if
-one object $O'$ holds many indirect pointers targeting variables
-in the same object $O$.
-
-A \key{typed pointer} consists of two pointers to object stubs.
-One of these objects, $O$, is the \key{typed object}, and the other,
-$T$, is the \key{type object}.
-
-
-TBD
-
-value of the element to be stored in a variable in another object.  Variables
-can themselves contain indirect pointers.  Variables can also be set
-to the \minnbkey{UNDEFINED} special value to indicate that the values of
-elements indirected to the variable has not yet been determined.
-
-Indirect pointers are standardly used only at the object list
-and attribute levels, but can in theory be used with non-standard
-object organizations.
-
 
 \subsubsection{Object List Level}
 \label{OBJECT-LIST-LEVEL}
@@ -4575,6 +4517,37 @@ functions to read and write stubs of all kinds in
 \secref{UNPROTECTED-STUB-FUNCTIONS}, though the only use of these functions on
 object auxiliary stubs would be for debugging.
 
+\subsubsection{Typed Objects}
+\label{TYPED-OBJECTS}
+
+A typed object is a pair of objects: the \mkey{type}{of typed object}
+which provides attribute labels, and the \mkey{context}{of typed object}
+which provides variables that give attribute values.  They type
+contains variable indices that act as indirect pointers to the
+variables in the context.  By abuse of language the context may be
+called the `typed object'.
+
+Typed objects may be introduced in two different ways.  In the first
+method the context is given the {\tt min::\EOL OBJ\_\EOL TYPED} flag
+and its first variable points at the type.  In the second method
+the typed object is represented by a stub of {\tt min::\EOL TYPED\_\EOL OBJECT}
+type which in turn points at an auxiliary stub that holds two pointers
+to stubs: one pointing at the type and the second pointing at the context.
+
+Typed objects make use of two kinds of indirect pointer.  The first is
+just a single index \verb|min::gen| value that hold the index of a
+variable vector element.  This always refers to a variable in the context.
+The second is an indirect \verb|min::gen| value that points at a pair
+of values in an auxiliary area: the first being an index \verb|min::gen|
+value and the second a pointer-to-object-stub \verb|min::gen| value.
+This refers the the variable vector element of the object pointed to
+that is indexed by the given index.  If an attribute value is an indirect
+pointer, the indirection is taken to the variable element referred to.
+If that in turn has an indirect pointer value, that indirection is also
+taken, to any depth.
+
+TBD
+
 \subsubsection{Object Attribute Level}
 \label{OBJECT-ATTRIBUTE-LEVEL}
 
@@ -4829,6 +4802,8 @@ number of bits in a control code integer.  $B$ is 24 if \verb|min::gen|
 values are 32-bits, and 40 if \verb|min::gen| values are 64-bits.
 A flag is set for an attribute name if and only if its corresponding
 bit is present and set and in the attribute's {\em flag-set}.
+
+TBD: The `publish' function.\label{PUBLISH}
 
 \subsubsubsection{Attribute Functions}
 \label{ATTRIBUTE-FUNCTIONS}
@@ -5296,419 +5271,6 @@ with a particular object and the attribute name stored in the attribute
 pointer.  A reverse attribute name is returned
 only if its value set is non-empty.
 
-\subsection{Variable Vectors}
-\label{VARIABLE-VECTORS}
-
-A variable vector is used to represent a set of objects whose structure
-is fixed but whose attribute values are variable.  The vector elements
-are variables.  By convention each vector has an associated set of constant
-objects whose attribute values are indirect pointers to the variables in
-the vector.
-
-Thus a vector represents a labeled graph.  There is one variable for
-each node of the graph.  That variable may point at an object that
-defines the labeled arrows sourced at the node.  Or the variable may be
-set to a number or string that is the value of a leaf node that sources
-no arrows.  Or the variable may be set to the special value
-\minnbkey{UNDEFINED} that indicates the node is not yet defined, and might
-later become either a source of arrows or a leaf.
-
-When a variable $X$
-points at an object, and $N$ is the name of an attribute of the object,
-values for attribute $N$ of the object
-can be \skey{index general value}s that hold indices of variables
-in the vector that represent nodes one gets to when one starts at
-$X$ and follows arrows labeled $N$.
-
-Typically the vector variable with index {\tt 0} points at the object which
-is the root of the labeled graph represented by a variable vector.
-
-As the objects are constant, and the same objects
-may be used with many different variable vectors.  Thus
-one can think of the variable vector as a structure and the objects as the
-type of the structure.
-
-Variable vectors must be initialized with values for each variable.  If a
-vector represents a graph some of whose nodes source no arrows and have
-no string or number associated with them, the variables of these nodes are
-given the initial value \minnbkey{UNDEFINED},
-which signifies a node that is not defined
-yet.  These variables can be set later to define their nodes.
-
-A primary use of variable vectors is with graphs that are to be unified.
-In the process of unification some graph nodes are set to indirect pointers
-to other graph nodes, so every reference to nodes so set is forwarded to
-the target of the indirect pointers.  Therefore, since variables represent
-graph nodes, a variable in a variable
-vector can store an indirect pointer at another variable in another variable
-vector, so that all references to the variable storing the indirect pointer
-are forwarded to the pointer's target variable.
-
-Objects associated with a variable vector can have attribute values that
-are not indices, but are instead numbers, strings, or pointers other
-objects associated with the vector.  Such attribute values are
-not variable and cannot be indirected by unification algorithms.
-
-Thus in summary, a variable vector is a vector whose elements are variables,
-and whose element indices are unsigned integers beginning at {\tt 0}.  Each
-variable can store either a \verb|min::gen| value, or an indirect pointer
-at some variable in some variable vector.
-
-A variable vector is structured somewhat like an object (\secref{OBJECTS}).
-It has a body that consists of the following 4 parts in the order given:
-
-\begin{center}
-\begin{tabular}{l}
-header \\
-variable vector \\
-unused area\\
-auxiliary area
-\end{tabular}
-\end{center}
-
-The header contains the sizes of the other 3 parts.
-The \key{variable vector} stores the variables.  The \key{auxiliary area}
-stores overflow data from the variable vector.
-
-The variable vector
-grows up from the end of the header into the unused
-area, and the auxiliary storage grows down from the end of the body into
-the unused area.
-
-The header of a variable vector stores 32 bit sizes; variable vectors are
-all like long objects in this respect, and there is no variable vector
-analogue of short objects.
-
-A \key{variable vector stub}\label{VARIABLE-VECTOR-STUB} is collectible, has
-\minnbkey{VARIABLE\_VECTOR}\LABEL{MIN::VARIABLE_VECTOR} stub type code, and has
-a value that is a pointer to a \minkey{variable\_vector} type body
-which holds the 4 parts of the object.
-The header consists of 3 32-bit unsigned integers which are, in order:
-
-\begin{center}
-\begin{tabular}{lllllllll}
-header size & + & variable vector size \\
-header size & + & variable vector size
-	& + & unused area size \\
-header size & +  & variable vector size
-	& + & unused area size \\
-        & + & auxiliary area size \\
-	& = & header size & + & total size
-\end{tabular}
-\end{center}
-
-The header may contain other implementation dependent information used
-for optimization.
-
-All sizes are in units of \verb|min::gen| values.  Aside from its header,
-the variable vector body is just a vector of \verb|min::gen| values.  The total
-size does \underline{not} include the header.
-
-A pointer to the body and the sizes can be obtained by the following
-functions:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::variable_vector * MUP::|
-    & \MUPKEY{variable\_vector\_of}\verb| ( min::stub * s )|
-\LABEL{MUP::VARIABLE_VECTOR_OF} \\
-\verb|unsigned | &
-    \TTKEY{variable\_vector\_size\_of} \\
-    & \verb|    ( min::variable_vector * vv )|
-\LABEL{VARIABLE_VECTOR_SIZE_OF_VARIABLE_VECTOR} \\
-\verb|unsigned |
-    & \TTKEY{aux\_size\_of} \\
-    & \verb|    ( min::variable_vector * vv )|
-\LABEL{AUX_SIZE_OF_VARIABLE_VECTOR} \\
-\verb|unsigned |
-    & \TTKEY{unused\_size\_of} \\
-    & \verb|    ( min::variable_vector * vv )|
-\LABEL{UNUSED_SIZE_OF_VARIABLE_VECTOR} \\
-\verb|unsigned | & \TTKEY{total\_size\_of} \\
-    & \verb|    ( min::variable_vector * vv )|
-\LABEL{TOTAL_SIZE_OF_VARIABLE_VECTOR} \\
-\end{tabular}\end{indpar}
-
-Here the function that returns a pointer does \underline{not} check the type
-of the stub, and the total size is exactly the sum of the other three sizes.
-
-The data structure of a variable vector body can be viewed at any of
-two levels:
-vector level (\secref{VARIABLE-VECTOR-VECTOR-LEVEL})
-and variable level (\secref{VARIABLE-VECTOR-VARIABLE-LEVEL}).
-
-\subsubsection{Variable Vector Vector Level}
-\label{VARIABLE-VECTOR-VECTOR-LEVEL}
-
-At the \key{vector level}\,, the variable vector body is viewed as
-a \key{body vector} of \verb|min::gen| values.  A pointer to the
-body vector is returned by the following unprotected functions:
-
-\begin{indpar}\begin{tabular}{@{}r@{}l@{}}
-\verb|const min::gen * MUP::|
-	& \MUPKEY{body\_vector\_of} \\
-	& \verb|    ( min::variable_vector * vv )|
-\LABEL{MUP::BODY_VECTOR_OF_VARIABLE_VECTOR} \\
-\verb|min::gen * MUP::|
-	& \MUPKEY{writable\_body\_vector\_of} \\
-	& \verb|    ( min::variable_vector * vv )|
-\LABEL{MUP::WRITABLE_BODY_VECTOR_OF_VARIABLE_VECTOR} \\
-\end{tabular}\end{indpar}
-
-The {\tt MUP::body\_vector\_of} function allows only reading of elements.
-The {\tt MUP::\EOL writable\_\EOL body\_\EOL vector\_\EOL of}
-function allows reading and writing of elements.
-
-The body vector is divided into 4 parts,
-which are, in order, the body header,
-variable vector, unused area, and auxiliary area.
-The header and unused area are not actually \verb|min::gen| values,
-and should not be accessed using a body vector pointer.
-
-The value of an auxiliary pointer
-is an unsigned integer of which part is the index of a \verb|min::gen|
-value in the body vector.  This is distinct from the use of
-auxiliary pointers in objects, as in that case the entire auxiliary pointer
-integer is the index.
-Details are below in \secref{VARIABLE-VECTOR-VARIABLE-LEVEL}.
-
-The index of the beginning of the variable vector part of a variable vector
-can be obtained by the following protected function:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned |
-	& \TTKEY{variable\_vector\_of}\verb| ( min::variable_vector * vv )|
-\LABEL{VARIABLE_VECTOR_OF_VARIABLE_VECTOR} \\
-\end{tabular}\end{indpar}
-
-\subsubsection{Variable Vector Variable Level}
-\label{VARIABLE-VECTOR-VARIABLE-LEVEL}
-
-At the \key{variable level},\label{VARIABLE-LEVEL}
-the body of a variable vector consists of a vector of variables.
-Each variable stores a \verb|min::gen| value, or an auxiliary pointer
-that represents an indirect pointer to another variable in the same
-variable vector or in some other variable vector.  An indirect pointer
-is a pair consisting of a pointer to a variable vector and an index
-of a variable in that vector.  Variable vectors use two kinds
-\skey{auxiliary pointer}s to represent indirect pointers:%
-\label{VARIABLE-VECTOR-AUXILIARY-POINTER}
-
-\begin{indpar}
-\key{indirect auxiliary pointer} ~~~
-This is an auxiliary pointer that points at an \key{indirect pair},
-which is a pair of \verb|min::gen| values the first of which points at
-a variable vector and the second of which is an
-\ikey{index}{index general value} \verb|min::gen| value
-that is the index of a variable in the vector pointed at.
-The indirect pair is stored in auxiliary memory, and the entire indirect
-pair pointer integer value is the index in auxiliary memory
-of the first \verb|min::gen| value of the indirect pair.
-
-\key{packed indirect auxiliary pointer} ~~~
-The integer value of this auxiliary value is
-split evenly into two parts.  For 32-bit general values each part is
-12 bits, whereas for 64-bit general values each part is 20 bits.  The high
-order part is the index in auxiliary memory of a \verb|min::gen| value that
-is the pointer to the variable vector.  The low order part is the index of
-a variable in that vector.  As a special case, if the high order part
-is zero, the variable vector is that same as the variable vector containing
-the auxiliary pointer.
-\end{indpar}
-
-Packed indirect pointers are used when the integers that must be stored
-will fit into them.  Otherwise indirect pointers are used.  An
-implementation typically allocates enough auxiliary memory to a new variable
-vector to permit every variable to efficiently store an indirect pointer.
-After the variable vector has aged, it may be reorganized during garbage
-collection to minimize use of auxiliary memory.
-
-\subsubsubsection{Variable Pointers}
-\label{VARIABLE-POINTERS}
-
-Variable vectors are accessed at the variable letter
-by using \skey{variable pointer}s.
-
-A \MUPkey{variable\_pointer} is used to move around in objects at
-the variable level, and get or set the values of variables.  A variable
-pointer points at a variable in a variable vector.
-The functions for using a variable pointer are:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{variable\_pointer}\verb| ( )|
-\LABEL{MUP::VARIABLE_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{point}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_pointer & vp,| \\
-    \verb|   min::gen vector, unsigned index )|
-    \end{tabular}
-\LABEL{POINT_VARIABLE_POINTER} \\
-\verb|void min::|
-	& \TTKEY{clear}\verb| ( min::variable_pointer & vp )|
-\LABEL{CLEAR_VARIABLE_POINTER} \\
-\verb|void min::|
-	& \MINKEY{relocate}\verb| ( min::variable_pointer & vp )|
-\LABEL{MIN::RELOCATE_VARIABLE_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::|
-	& \TTKEY{get}\verb| ( min::variable_pointer & vp )|
-\LABEL{GET_VARIABLE_POINTER} \\
-\verb|void min::|
-	& \TTKEY{set}\verb| ( min::variable_pointer & vp, min::gen value )|
-\LABEL{SET_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{indirect\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_pointer & vp1,| \\
-    \verb|   min::variable_pointer & vp2 )|
-    \end{tabular}
-\LABEL{MIN::INDIRECT_VARIABLE_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{moveg}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_pointer & vp,| \\
-    \verb|   min::gen name )|
-    \end{tabular}
-\LABEL{MIN::MOVEG_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{move}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_pointer & vp,| \\
-    \verb|   unsigned index )|
-    \end{tabular}
-\LABEL{MOVE_VARIABLE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{countg}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_pointer & vp,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
-    \end{tabular}
-\LABEL{MIN::COUNTG_OF_VARIABLE_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{getg}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, unsigned n,| \\
-    \verb|   min::variable_pointer & vp,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
-    \end{tabular}
-\LABEL{MIN::GETG_OF_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{getg}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::variable_pointer & vp,| \\
-    \verb|   min::gen name, min::gen reverse_name )|
-    \end{tabular}
-\LABEL{MIN::GETG1_OF_VARIABLE_POINTER} \\
-\end{tabular}\end{indpar}
-
-The {\tt point} function points a variable pointer at a particular
-variable in a given variable vector.  The variable is determined by
-its index as a vector element.
-
-The {\tt clear} function clears a variable pointer so that it does
-not point at any variable.  This is the state the pointer is in
-just after it is constructed.
-It is an undefined operation to access a variable pointer that
-is cleared.
-
-In order to optimize things,
-a {\tt MUP::variable\_pointer} contains an internal pointer that points
-directly at a variable in the body of a variable vector.  As this pointer
-is relocatable, it must be adjusted if the relocated flag is raised
-(\pagref{RELOCATED-FLAG}).  This is done by applying the {\tt min::relocate}
-function to the pointer.  Because this is necessary, the constructor for
-a variable pointer is unprotected.
-
-The {\tt get} function returns the value of the variable pointed at,
-after following all indirections.  That is, if the variable pointer
-points at $X$ and the value of $X$ is an indirect pointer to another
-variable $Y$, the {\tt get} function proceeds as if the variable pointer pointed
-at $Y$.
-
-The {\tt set} function sets the value of the variable pointed at,
-after following all indirections.  That is, if the variable pointer
-points at $X$ and the value of $X$ is an indirect pointer to
-another variable $Y$, the {\tt set} function proceeds as if the variable pointer
-pointed at $Y$.
-
-The {\tt indirect} function sets the value of the variable pointed at by
-the first variable pointer (\verb|vp1|),
-after following all indirections,
-to point indirectly at the variable pointed at by the second variable
-pointer (\verb|vp2|).
-If \verb|vp1| points at $X$ and the value of $X$ is an indirect pointer to
-another variable $Y$, the {\tt indirect} function proceeds as if \verb|vp1|
-pointed at $Y$.
-
-The {\tt moveg} function works if {\tt get} returns a pointer to an object
-stub.  In this case, {\tt moveg} finds the values of the attribute of the
-object with the given attribute name
-and no reverse attribute name, and proceeds as follows:
-\begin{indpar}
-If there are no values, \verb|min::MISSING| is returned and the variable
-pointer is left unchanged.
-
-If there is only one value and that is an index, the variable pointer is
-re-pointed at the variable with that index in the variable vector the
-variable pointer is currently pointing at, and \verb|min::SUCCESS|
-is returned.
-
-If there is only one value and that is \underline{not} an index,
-that value is returned, and the variable pointer is left unchanged.
-
-If there is more than one value, \verb|min::MULTI_VALUED|
-is returned, and the variable pointer is left unchanged.
-\end{indpar}
-
-Note that the variable pointer is changed only if the attribute has
-a single index value.
-
-The {\tt countg} and {\tt getg} functions applied to a variable pointer
-work the same way the would if they were applied to result of applying
-{\tt get} to the variable pointer.  These functions will \underline{not}
-change the variable pointer no matter what the attribute value is, and
-will return any index attribute value as a \verb|min::gen| result.
-
-The {\tt move} function can be used with any index value returned to
-point the variable pointer at the variable referred to by the index,
-without changing the variable vector referenced by the variable pointer.
-Thus for an attribute with a single index value, {\tt moveg} is equivalent
-to applying {\tt getg} to retrieve the index value, and then applying
-{\tt move} to that value.
-
-The {\tt moveg}, {\tt countg}, and {\tt getg} functions have associates
-named \minmkey{movei}{of variable pointer},
-\minmkey{counti}{of variable pointer},
-and \minmkey{geti}{of variable pointer} that are identical except their
-attribute name argument is of type {\tt int} instead of \verb|min::gen|.
-
-The \key{variable forward optimization}\index{forward!variable optimization}
-system control parameter effects
-the operation of functions that trace indirect pointers stored in
-variables.  If set, the optimization applies to the {\tt get}, {\tt set}, and
-{\tt indirect} functions, and to other functions that implicitly use {\tt get}.
-Whenever one of these functions discovers a variable $X$ that
-points indirectly at a variable $Y$ that points indirectly at a variable $Z$,
-the function resets $X$ to point at $Z$.  The
-variable forward optimization control parameter can itself
-be gotten or set by the functions:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|bool min::|
-	& \TTKEY{variable\_forward\_optimization}\verb| ( )|
-\\
-\verb|bool min::|
-	& \TTKEY{variable\_forward\_optimization}\verb| ( bool value )|
-\LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
-\end{tabular}\end{indpar}
-
-The {\tt variable\_forward\_optimization} function with no argument gets
-the value of the control parameter, while the function with an argument
-sets the value and returns the previous value.  By default the parameter
-is on (value is {\tt true}), so optimizations are performed unless turned
-off.
-
 
 
 \clearpage
@@ -5890,8 +5452,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LIST_AUX} \\
 \verb|const int min::| & \MINKEY{SUBLIST\_AUX}
 \LABEL{MIN::SUBLIST_AUX} \\
-\verb|const int min::| & \MINKEY{VARIABLE\_VECTOR}
-\LABEL{MIN::VARIABLE_VECTOR} 
 \end{TABULAR}
 \end{indpar}
 
@@ -7123,76 +6683,6 @@ where $xx$ and $yy$ may be `', `{\tt writable\_}', or `{\tt insertable\_}'}
 \verb|void min::| & \MINKEY{rewind\_reverse\_attributes}\ARGBREAK
     \verb| ( min::attribute_pointer ap )|
 \LABEL{MIN::REWIND_REVERSE_ATTRIBUTES} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\INDEXHEADER{Variable Vector Variable Level Declarations}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.4in}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{variable\_pointer}\verb| ( )|
-\LABEL{MUP::VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{point}\ARGBREAK
-    \verb| ( min::variable_pointer & vp,|\ARGBREAK
-    \verb|   min::gen vector, unsigned index )|
-\LABEL{POINT_VARIABLE_POINTER} \\
-\verb|void min::|
-	& \TTKEY{clear}\verb| ( min::variable_pointer & vp )|
-\LABEL{CLEAR_VARIABLE_POINTER} \\
-\verb|void min::|
-	& \MINKEY{relocate}\verb| ( min::variable_pointer & vp )|
-\LABEL{MIN::RELOCATE_VARIABLE_POINTER} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|min::gen min::|
-	& \TTKEY{get}\verb| ( min::variable_pointer & vp )|
-\LABEL{GET_VARIABLE_POINTER} \\
-\verb|void min::|
-	& \TTKEY{set}\ARGBREAK
-    \verb| ( min::variable_pointer & vp,|\ARGBREAK
-    \verb|   min::gen value )|
-\LABEL{SET_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{indirect\REL}\ARGBREAK
-    \verb| ( min::variable_pointer & vp1,|\ARGBREAK
-    \verb|   min::variable_pointer & vp2 )|
-\LABEL{MIN::INDIRECT_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{moveg}\ARGBREAK
-    \verb| ( min::variable_pointer & vp,|\ARGBREAK
-    \verb|   min::gen name )|
-\LABEL{MIN::MOVEG_VARIABLE_POINTER} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|min::gen min::| & \MINKEY{move}\ARGBREAK
-    \verb| ( min::variable_pointer & vp,|\ARGBREAK
-    \verb|   unsigned index )|
-\LABEL{MOVE_VARIABLE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{countg}\ARGBREAK
-    \verb| ( min::variable_pointer & vp,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::COUNTG_OF_VARIABLE_POINTER} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|unsigned min::| & \MINKEY{getg}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
-    \verb|   min::variable_pointer & vp,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::GETG_OF_VARIABLE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{getg}\ARGBREAK
-    \verb| ( min::variable_pointer & vp,|\ARGBREAK
-    \verb|   min::gen name, min::gen reverse_name )|
-\LABEL{MIN::GETG1_OF_VARIABLE_POINTER} \\
-\verb|bool min::|
-	& \TTKEY{variable\_forward\_optimization}\verb| ( )|
-\LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
-\verb|bool min::|
-	& \TTKEY{variable\_forward\_optimization}\verb| ( bool value )|
-\LABEL{VARIABLE_FORWARD_OPTIMIZATION} \\
 \end{TABULAR}
 
 \end{indpar}
