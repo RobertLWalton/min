@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 18 05:18:55 EST 2010
+// Date:	Tue Jan 19 01:14:24 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/18 18:10:40 $
+//   $Date: 2010/01/19 06:21:33 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.120 $
+//   $Revision: 1.121 $
 
 // Table of Contents:
 //
@@ -1951,8 +1951,7 @@ int main ()
 	    MIN_ASSERT
 	        ( min::attr_size_of ( svp ) == 0 );
 	    MIN_ASSERT ( cua == av + 0 );
-	    MIN_ASSERT
-		( min::attr_push ( svp, num1 ) == av );
+	    min::attr_push ( svp, num1 );
 	    MIN_ASSERT ( sbase[av] == num1 );
 	    MIN_ASSERT ( attr ( svp, 0 ) == num1 );
 	    MIN_ASSERT
@@ -1964,9 +1963,7 @@ int main ()
 	    MIN_ASSERT ( sbase[av+1] == num0 );
 	    MIN_ASSERT ( sbase[av+2] == num0 );
 	    MIN_ASSERT ( sbase[av+3] == num0 );
-	    MIN_ASSERT
-	         (    min::attr_push ( svp, numv, 3 )
-		   == av + 1 );
+	    min::attr_push ( svp, numv, 3 );
 	    MIN_ASSERT ( sbase[av+1] == num1 );
 	    MIN_ASSERT ( sbase[av+2] == num2 );
 	    MIN_ASSERT ( sbase[av+3] == num3 );
@@ -1986,8 +1983,7 @@ int main ()
 	    MIN_ASSERT
 		( min::aux_size_of ( svp ) == 0 );
 	    MIN_ASSERT ( caa == aa );
-	    MIN_ASSERT (    min::aux_push ( svp, num1 )
-			 == aa - 1 );
+	    min::aux_push ( svp, num1 );
 	    MIN_ASSERT ( sbase[aa-1] == num1 );
 	    MIN_ASSERT
 	        ( min::aux ( svp, aa-1 ) == num1 );
@@ -2000,9 +1996,7 @@ int main ()
 	    MIN_ASSERT ( sbase[aa-2] == num0 );
 	    MIN_ASSERT ( sbase[aa-3] == num0 );
 	    MIN_ASSERT ( sbase[aa-4] == num0 );
-	    MIN_ASSERT (    min::aux_push
-				 ( svp, numv, 3 )
-			 == aa - 4 );
+	    min::aux_push ( svp, numv, 3 );
 	    MIN_ASSERT ( sbase[aa-4] == num1 );
 	    MIN_ASSERT ( sbase[aa-3] == num2 );
 	    MIN_ASSERT ( sbase[aa-2] == num3 );
@@ -2014,12 +2008,8 @@ int main ()
 		(    min::unused_size_of ( svp )
 		  == 500 - 8 );
 
-	    MIN_ASSERT
-		(    min::attr_pop ( svp, outv + 1, 3 )
-		  == MUP::attr_offset_of ( svp ) + 1 );
-	    MIN_ASSERT
-		(    min::attr_pop ( svp, outv[0] )
-		  == MUP::attr_offset_of ( svp ) );
+	    min::attr_pop ( svp, outv + 1, 3 );
+	    min::attr_pop ( svp, outv[0] );
 	    MIN_ASSERT ( outv[0] == num1 );
 	    MIN_ASSERT ( outv[1] == num1 );
 	    MIN_ASSERT ( outv[2] == num2 );
@@ -2038,13 +2028,8 @@ int main ()
 	    );
 	    min::attr_push ( svp, fillv, 4 );
 
-	    MIN_ASSERT
-		(    min::aux_pop
-			    ( svp, outv + 1, 3 )
-		  == MUP::aux_offset_of ( svp ) );
-	    MIN_ASSERT
-		(    min::aux_pop ( svp, outv[0] )
-		  == MUP::aux_offset_of ( svp ) );
+	    min::aux_pop ( svp, outv + 1, 3 );
+	    min::aux_pop ( svp, outv[0] );
 	    MIN_ASSERT ( outv[0] == num1 );
 	    MIN_ASSERT ( outv[1] == num1 );
 	    MIN_ASSERT ( outv[2] == num2 );
@@ -2062,8 +2047,7 @@ int main ()
 	    desire_failure (
 		min::aux_pop ( svp, outv + 1, 3 );
 	    );
-	    min::aux_push
-		( svp, fillv, 4 );
+	    min::aux_push ( svp, fillv, 4 );
 
 	    min::attr_push ( svp, fillv, 250 - 4 );
 	    min::aux_push ( svp, fillv, 250 - 4 );
@@ -2104,8 +2088,7 @@ int main ()
 	    MIN_ASSERT ( lbase[av + 0] == num0 );
 	    MIN_ASSERT
 	        ( min::attr_size_of ( lvp ) == 0 );
-	    MIN_ASSERT (    min::attr_push ( lvp, num1 )
-			 == av );
+	    min::attr_push ( lvp, num1 );
 	    MIN_ASSERT ( lbase[av] == num1 );
 	    MIN_ASSERT ( min::attr_size_of ( lvp ) == 1 );
 	    MIN_ASSERT ( cua == av + 1 );
@@ -2115,8 +2098,7 @@ int main ()
 	    MIN_ASSERT ( lbase[av+1] == num0 );
 	    MIN_ASSERT ( lbase[av+2] == num0 );
 	    MIN_ASSERT ( lbase[av+3] == num0 );
-	    MIN_ASSERT (    min::attr_push ( lvp, numv, 3 )
-			 == av + 1 );
+	    min::attr_push ( lvp, numv, 3 );
 	    MIN_ASSERT ( lbase[av+1] == num1 );
 	    MIN_ASSERT ( lbase[av+2] == num2 );
 	    MIN_ASSERT ( lbase[av+3] == num3 );
@@ -2134,8 +2116,7 @@ int main ()
 	    MIN_ASSERT
 		( min::aux_size_of ( lvp ) == 0 );
 	    MIN_ASSERT ( caa == aa );
-	    MIN_ASSERT (    min::aux_push ( lvp, num1 )
-			 == aa - 1 );
+	    min::aux_push ( lvp, num1 );
 	    MIN_ASSERT ( lbase[aa-1] == num1 );
 	    MIN_ASSERT
 		( min::aux_size_of ( lvp ) == 1 );
@@ -2145,9 +2126,7 @@ int main ()
 	    MIN_ASSERT ( lbase[aa-2] == num0 );
 	    MIN_ASSERT ( lbase[aa-3] == num0 );
 	    MIN_ASSERT ( lbase[aa-4] == num0 );
-	    MIN_ASSERT (    min::aux_push
-				 ( lvp, numv, 3 )
-			 == aa - 4 );
+	    min::aux_push ( lvp, numv, 3 );
 	    MIN_ASSERT ( lbase[aa-4] == num1 );
 	    MIN_ASSERT ( lbase[aa-3] == num2 );
 	    MIN_ASSERT ( lbase[aa-2] == num3 );
@@ -2159,12 +2138,8 @@ int main ()
 		(    min::unused_size_of ( lvp )
 		  == 70000 - 8 );
 
-	    MIN_ASSERT
-		(    min::attr_pop ( lvp, outv + 1, 3 )
-		  == MUP::attr_offset_of ( lvp ) + 1 );
-	    MIN_ASSERT
-		(    min::attr_pop ( lvp, outv[0] )
-		  == MUP::attr_offset_of ( lvp ) );
+	    min::attr_pop ( lvp, outv + 1, 3 );
+	    min::attr_pop ( lvp, outv[0] );
 	    MIN_ASSERT ( outv[0] == num1 );
 	    MIN_ASSERT ( outv[1] == num1 );
 	    MIN_ASSERT ( outv[2] == num2 );
@@ -2182,13 +2157,8 @@ int main ()
 	    );
 	    min::attr_push ( lvp, fillv, 4 );
 
-	    MIN_ASSERT
-		(    min::aux_pop
-			    ( lvp, outv + 1, 3 )
-		  == MUP::aux_offset_of ( lvp ) );
-	    MIN_ASSERT
-		(    min::aux_pop ( lvp, outv[0] )
-		  == MUP::aux_offset_of ( lvp ) );
+	    min::aux_pop ( lvp, outv + 1, 3 );
+	    min::aux_pop ( lvp, outv[0] );
 	    MIN_ASSERT ( outv[0] == num1 );
 	    MIN_ASSERT ( outv[1] == num1 );
 	    MIN_ASSERT ( outv[2] == num2 );
@@ -2206,8 +2176,7 @@ int main ()
 	    desire_failure (
 		min::aux_pop ( lvp, outv + 1, 3 );
 	    );
-	    min::aux_push
-		( lvp, fillv, 4 );
+	    min::aux_push ( lvp, fillv, 4 );
 
 	    min::attr_push ( lvp, fillv, 35000 - 4 );
 	    min::aux_push ( lvp, fillv, 35000 - 4 );
