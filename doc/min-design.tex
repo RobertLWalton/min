@@ -250,7 +250,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 18, 2010}
+\date{January 19, 2010}
  
 \maketitle
 
@@ -3114,12 +3114,12 @@ An object can be created by the protected function:
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::uns32 unused_size,| \\
     \verb|   min::uns32 hash_size = 0,| \\
-    \verb|   min::uns32 variables_size = 0 )| \\
+    \verb|   min::uns32 variable_size = 0 )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
 
-The exact unused area and variables vector sizes are given.
+The exact unused area and variable vector sizes are given.
 The hash table size of the returned object is the smallest possible
 hash table size that is at least as large as that given.  The total
 size of the returned object is the smallest possible total size
@@ -3138,7 +3138,8 @@ The attribute vector and auxiliary areas of the returned object are
 zero length, and all space not used by the header, hash table, and
 variables vector is allocated to the unused area.
 The attribute vector and auxiliary area can be
-filled by `push' instructions described below (\pagref{OBJECT_PUSH_FUNCTIONS}).
+filled by `push' instructions described below
+(\pagref{OBJECT_PUSH_FUNCTIONS}).
 
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
@@ -3146,11 +3147,11 @@ filled by `push' instructions described below (\pagref{OBJECT_PUSH_FUNCTIONS}).
 At the \key{vector level}, the body is viewed as
 a \key{body vector} of \verb|min::gen| values.
 There are three kinds of vector level protected object pointers.
-A read-only \verb|min::vec_pointer| permits read-only access to the body
+A read-only \verb|min::vec_pointer| permits read-only access to body
 vector elements.
 A read-write or updatable
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}
-permits read-write access to the body the body vector elements,
+permits read-write access to body vector elements,
 but does not permit pushing or popping elements from the
 object's attibute vector or auxiliary area.
 An insertable {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}
@@ -3171,8 +3172,9 @@ by calling the `\verb|publish|' function
 (\pagref{PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
-to the object may be created.  Creating pointers in this case does not
-set object flags.  The \verb|min::OBJ_PUBLIC| flag may not be cleared by
+to the object may be created.  Constructing and destructing
+pointers in this case does not set or clear object flags.
+The \verb|min::OBJ_PUBLIC| flag may not be cleared by
 protected functions.  The idea here is that setting the \verb|min::OBJ_PUBLIC|
 flag fixes the attribute label structure of the object, and the size of
 the value set of each attribute, but permits the existing values of an
@@ -3189,7 +3191,9 @@ using an insertable pointer, or when the \verb|publish| function
 is called to set the \verb|min::OBJ_PUBLIC| flag.
 
 A read-only \minkey{vec\_\EOL pointer}
-to the body vector may be created by the following functions:
+to the body vector of an object with stub \verb|s| or with
+general value \verb|v| pointing to its stub
+may be created by the following functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| ( min::gen v )|
@@ -3247,7 +3251,7 @@ about the object pointed at by a read-only {\tt min::vec\_pointer}:
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::TOTAL_SIZE_OF_VEC_POINTER} \\
 
-\end{tabular}\end{indpar}
+\end{tabular}\end{indpar}\label{OBJECT_SIZE_FUNCTIONS}
 
 Here the sizes are in \verb|min::gen| units.  When an object
 body is reorganized, some of these sizes may change, but simply
@@ -3306,6 +3310,23 @@ elements.  The additional functions for this type of pointer are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{initialize}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::updatable_vec_pointer & vp,| \\
+      \verb|   min::gen v )| \\
+      \end{tabular}
+\LABEL{MIN::INIT_OF_UPDATABLE_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+    & \MINKEY{initialize}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::updatable_vec_pointer & vp,| \\
+      \verb|   const min::stub * s )| \\
+      \end{tabular}
+\LABEL{MIN::INIT_OF_UPDATABLE_VEC_POINTER_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
 \verb|void min::| & \MINKEY{set\_var}%
       \begin{tabular}[t]{@{}l@{}}
@@ -3351,11 +3372,6 @@ downcast object vector pointer.
 The {\tt min::set\_}\,\ldots{} functions above invoke the
 Accumulator/\EOL Collector/\EOL Compactor function that must
 be called when a \verb|min::gen| value is written into an object.
-The need to do this is why it is not possible to have versions
-of the {\tt min::var}, \ldots, {\tt min::aux} that return
-writable non-{\tt const} references to object body vector elements.
-
-TBD
 
 A \minkey{insertable\_vec\_pointer} is like a
 {\tt min::updatable\_\EOL vec\_\EOL pointer}
@@ -3372,6 +3388,23 @@ The additional functions for this type of pointer are:
     \verb| ( const min::stub * s )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
 
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{initialize}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::gen v )| \\
+      \end{tabular}
+\LABEL{MIN::INIT_OF_INSERTABLE_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+    & \MINKEY{initialize}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   const min::stub * s )| \\
+      \end{tabular}
+\LABEL{MIN::INIT_OF_INSERTABLE_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3402,7 +3435,7 @@ The additional functions for this type of pointer are:
       \end{tabular}
 \LABEL{MIN::AUX_PUSH_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
 
-\end{tabular}\end{indpar}
+\end{tabular}\end{indpar}\label{OBJECT_PUSH_FUNCTIONS}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
@@ -3437,27 +3470,36 @@ The additional functions for this type of pointer are:
 Here there are two versions of each push or pop: one that
 handles a single {\tt min::gen} value, and one that handles
 {\tt n} values stored in a C/C++ vector pointed at by {\tt p}.
+These push and pop functions preserve the order of the values in memory,
+so \verb|p[0]| is pushed into or popped from a body vector location immediately
+before the location into which \verb|p[1]| is pushed into or popped from, etc.
+Thus the attribute vector push function pushes
+in the order \verb|p[0]|, \verb|p[1]|, \verb|p[2]|, \ldots; while the
+auxiliary vector push function pushes
+in the order \verb|p[n-1]|, \verb|p[n-2]|, \verb|p[n-3]|, \ldots.
 The order of the elements of {\tt p} in memory is the same
-as the order of the elements in the object body.  For the
-attribute vector this means the {\tt min::attr\_\EOL push}
-function pushes elements starting at the beginning of the {\tt p}
-vector, while {\tt min::attr\_\EOL pop} pops elements starting
-at the \underline{end} of the {\tt p} vector.  But for the auxiliary
-area, the push starts at the end of the {\tt p} vector and the
-pop at the beginning.
+as the order of the elements in the object body.
 
 The push functions fail (via \verb|MIN_ASSERT|) if the unused
 area size is smaller
 than the number of {\tt min::gen} values being pushed.
-
-All the non-constructor functions applicable to
-{\tt min::updatable\_\EOL \EOL vec\_\EOL pointer}'s
-are applicable to
-{\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}'s, including the
-{\tt min::\EOL initialize} functions.
-The {\tt min::}\,\ldots{\tt \_push} functions here invoke the
+The size of the unused area can be determined by the
+\verb|min::unused_size_of| function
+(\pagref{MIN::UNUSED_SIZE_OF_VEC_POINTER}).
+These push functions invoke the
 Accumulator/\EOL Collector/\EOL Compactor function that must
 be called when a \verb|min::gen| value is written into an object.
+
+A {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer} may be automatically
+downcast to either a {\tt min::\EOL up\-datable\_\EOL vec\_\EOL pointer}
+or a {\tt min::\EOL vec\_\EOL pointer}.  This means that
+all the non-constructor functions applicable to
+{\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s or
+{\tt min::\EOL vec\_\EOL pointer}'s are applicable to
+{\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}'s.
+An exception is the {\tt min::\EOL initialize} functions, which
+will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
+downcast object vector pointer.
 
 \subsubsubsection{Unprotected Object Vector Level}
 \label{OBJECT-UNPROTECTED-VECTOR-LEVEL}
@@ -3481,6 +3523,11 @@ required functions are:
 
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::vec_pointer & vp )|
 \LABEL{MUP::STUB_OF_VEC_POINTER} \\
+
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
 \verb|min::uns32 MUP::| & \MUPKEY{var\_offset\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MUP::VAR_OFFSET_OF_VEC_POINTER} \\
@@ -3496,10 +3543,23 @@ required functions are:
 
 \end{tabular}\end{indpar}
 
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
+\verb|min::uns32 & MUP::| & \MUPKEY{unused\_offset\_of}%
+    \verb| ( min::insertable_vec_pointer & vp )|
+\LABEL{MUP::UNUSED_OFFSET_OF_INSERTABLE_VEC_POINTER} \\
+\verb|min::uns32 & MUP::| & \MUPKEY{aux\_offset\_of}%
+    \verb| ( min::insertable_vec_pointer & vp )|
+\LABEL{MUP::AUX_OFFSET_OF_INSERTABLE_VEC_POINTER} \\
+
+\end{tabular}\end{indpar}
+
 The size and offset values returned by the above are those of the
 variable vector({\tt var}), hash table({\tt hash}),
 attribute vector({\tt attr}), unused area ({\tt unused}), 
-and auxiliary area({\tt aux}).  These are related by
+and auxiliary area({\tt aux}).  These offsets are in \verb|min::gen|
+units, and these offsets and the sizes returned by the functions
+on page \pagref{OBJECT_SIZE_FUNCTIONS} are related by
 
 \begin{center}
 \begin{tabular}{rcl}
@@ -3512,43 +3572,42 @@ total size              & = & auxiliary area offset + auxiliary area size \\
 \end{tabular}
 \end{center}
 
-Note that when an object is expanded or compacted, all these values may
+Note that when an object is reorganized all these values may
 change, including the header size.
 
+Recall that there are two kinds of objects: short and long.
 A \key{short object stub}\label{SHORT-OBJECT-STUB} is collectible, has
 \minnbkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code, and has
-a value that is a pointer to a \MUPkey{short\_obj} type body
-which holds the 5 parts of the object.
-The header encodes 4 16-bit unsigned integers, which are, in order:
+a value that is a pointer to a body with an 8 byte object header
+that allows an object with total size up to $2^{16}$ \verb|min::gen|
+values.
+A \key{long object stub}\label{LONG-OBJECT-STUB} is collectible, has
+\minnbkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} stub type code, and has
+a value that is a pointer to a body with a 16 byte object header
+that allows an object with total size up to $2^{32}$ \verb|min::gen|
+values.
 
-\begin{center}
-\begin{tabular}{lllllllll}
-header size & + & hash table size \\
-header size & + & hash table size & + & attribute vector size \\
-header size & + & hash table size & + & attribute vector size
-	& + & unused area size \\
-header size & + & hash table size & + & attribute vector size
-	& + & unused area size \\
-        & + & auxiliary area size \\
-	& = & total size
-\end{tabular}
-\end{center}
+The header is the only part of an object body that is
+\underline{not} \verb|min::gen| values.  Even so it is
+sizes in \verb|min::gen| units; e.g., a short object header size
+is {\tt 2} for a compact implementation and {\tt 1}
+for a loose implementation (\pagref{COMPACT-OR-LOOSE}).
 
-Here all sizes are in \verb|min::gen| units.  Thus the header size,
-which is 64 bits, is {\tt 1} for a loose implementation and {\tt 2}
-for a compact implementation (\pagref{COMPACT-OR-LOOSE}).
-
-The header may contain other implementation dependent information used
-for optimization.  Most implementations do not
-contain the above sizes directly.  For example, an
-implementation may permit only particular hash table sizes,
-and use 8 bits to encode a reference to a table
-of hash table sizes, freeing up at least 8 bits in the header for
-use as flags.  These flags may be used to optimize garbage collection.
+The header may contain implementation dependent information used
+for optimization.  Most implementations do not all the required
+sizes directly.  For example, an implementation usually permits only
+particular hash table sizes, and uses 5 bits for short objects
+or 11 bits for long object to encode a reference to a table
+of hash table sizes, freeing up at 3 bits for short objects and
+5 for long objects to be used
+as flags.  The {\tt min::\EOL OBJ\_\EOL PRIVATE},
+{\tt min::\EOL OBJ\_\EOL PUBLIC},
+and {\tt min::\EOL OBJ\_\EOL TYPED} flags are stored in this way.
+Additional flags may be used to optimize garbage collection.
 For example, objects which have auxiliary stubs
 (\pagref{OBJECT-AUXILIARY-STUBS})
 may be flagged, thereby identifying objects that need extra work
-when deallocated or relocated.
+when deallocated or reorganized.
 
 An implementation is not required to support all possible sizes of
 hash table or all possible total sizes, but should support
@@ -3556,28 +3615,7 @@ sizes that permit objects that are read-only to be efficiently compacted.
 Within the limits set by the total and hash table sizes, arbitrary sizes
 of the vector, unused, and auxiliary areas should be supported.
 
-\underline{All sizes are in units of {\tt min::gen} values}.
-Aside from its header,
-the object body is just a vector of \verb|min::gen| values.  The total
-size \underline{includes} the header.
-
-A \key{long object stub}\label{LONG-OBJECT-STUB} is collectible, has
-\minnbkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} stub type code, and has
-a value that is a pointer to a \MUPkey{long\_obj} type body
-which holds the 5 parts of the object.  A long object body is
-the same as a short object body except the 4 area sizes
-are 32-bit unsigned integers instead of 16-bit unsigned integers,
-and extra implementation dependent information in the header may be
-different.
-
 TBD
-
-The body vector is divided into 5 parts,
-which are, in order, the body header,
-hash table, attribute vector,
-unused area, and auxiliary area.
-The header and unused area are not actually \verb|min::gen| values,
-and should not be accessed using a body vector pointer.
 
 The value of an \key{auxiliary pointer}\label{OBJECT-BODY-AUXILIARY-POINTER}
 stored in an object body (or in an object auxiliary stub attached to
@@ -3588,8 +3626,6 @@ Auxiliary pointers with zero value do not address a body vector
 element, since they point into the header, and these are given
 special meanings.
 
-TBD
-
 The attribute vector can be grown by pushing values onto its end.
 The auxiliary area can be grown by pushing values onto its beginning;
 \verb|aux_offset_of| returns the index of the last value pushed into
@@ -3597,29 +3633,6 @@ the auxiliary area.
 In both cases, unused area is consumed.  The values pushed are
 \verb|min::gen| values, and all sizes are calculated in units of
 \verb|min::gen| values.
-
-TBD
-
-Four of the above functions push multiple values given by a vector
-\verb|p| of \verb|n| \verb|min::gen| values.  These functions
-preserve the order of the values in memory, so \verb|p[0]| is pushed
-into a body vector location immediately before the location into which
-\verb|p[1]| is pushed, etc.
-Thus the attribute vector push function pushes
-in the order \verb|p[0]|, \verb|p[1]|, \verb|p[2]|, \ldots; while the
-auxiliary vector push function pushes
-in the order \verb|p[n-1]|, \verb|p[n-2]|, \verb|p[n-3]|, \ldots.
-
-All these functions return the index of the value pushed that is first
-in memory (e.g., the index of the location into which \verb|p[0]| is
-pushed).
-
-All these functions check that the unused area has sufficient space for
-the pushes, and signal a fatal program error if it does not.  The number
-of values that can be pushed without signaling this error is just
-the size of the unused area, which can be determined by the
-\verb|min::unused_size_of| function
-(\pagref{MIN::UNUSED_SIZE_OF_SHORT_OBJ}).
 
 
 \subsubsection{Typed Objects}
