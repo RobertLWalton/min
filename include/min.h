@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 18 19:29:23 EST 2010
+// Date:	Tue Jan 19 01:21:04 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/19 00:31:05 $
+//   $Date: 2010/01/19 06:21:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.213 $
+//   $Revision: 1.214 $
 
 // Table of Contents:
 //
@@ -3131,29 +3131,29 @@ namespace min {
 	    ( min::insertable_vec_pointer & vp );
     }
 
-    min::uns32 attr_push
+    void attr_push
 	( min::insertable_vec_pointer & vp,
 	  min::gen v );
-    min::uns32 attr_push
+    void attr_push
 	( min::insertable_vec_pointer & vp,
 	  const min::gen * p, unsigned n );
-    min::uns32 aux_push
+    void aux_push
 	( min::insertable_vec_pointer & vp,
 	  min::gen v );
-    min::uns32 aux_push
+    void aux_push
 	( min::insertable_vec_pointer & vp,
 	  const min::gen * p, unsigned n );
 
-    min::uns32 attr_pop
+    void attr_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen & v );
-    min::uns32 attr_pop
+    void attr_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen * p, unsigned n );
-    min::uns32 aux_pop
+    void aux_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen & v );
-    min::uns32 aux_pop
+    void aux_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen * p, unsigned n );
 
@@ -3257,29 +3257,29 @@ namespace min {
 	friend min::uns32 & unprotected::aux_offset_of
 	    ( min::insertable_vec_pointer & vp );
 
-	friend min::uns32 attr_push
+	friend void attr_push
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen v );
-	friend min::uns32 attr_push
+	friend void attr_push
 	    ( min::insertable_vec_pointer & vp,
 	      const min::gen * p, unsigned n );
-	friend min::uns32 aux_push
+	friend void aux_push
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen v );
-	friend min::uns32 aux_push
+	friend void aux_push
 	    ( min::insertable_vec_pointer & vp,
 	      const min::gen * p, unsigned n );
 
-	friend min::uns32 attr_pop
+	friend void attr_pop
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen & v );
-	friend min::uns32 attr_pop
+	friend void attr_pop
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen * p, unsigned n );
-	friend min::uns32 aux_pop
+	friend void aux_pop
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen & v );
-	friend min::uns32 aux_pop
+	friend void aux_pop
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen * p, unsigned n );
 
@@ -3649,41 +3649,38 @@ namespace min {
         return vp.aux_offset;
     }
 
-    inline min::uns32 attr_push
+    inline void attr_push
 	( min::insertable_vec_pointer & vp,
 	  min::gen value )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	unprotected::base(vp)[vp.unused_offset] = value;
+	unprotected::base(vp)[vp.unused_offset ++] = value;
 	unprotected::acc_write_update ( vp.s, value );
-	return vp.unused_offset ++;
     }
 
-    inline min::uns32 attr_push
+    inline void attr_push
 	( min::insertable_vec_pointer & vp,
 	  const min::gen * p, unsigned n )
     {
 	MIN_ASSERT
 	    ( vp.unused_offset + n <= vp.aux_offset );
-	min::uns32 result = vp.unused_offset;
-	memcpy ( unprotected::base(vp) + result,
+	memcpy (   unprotected::base(vp)
+	         + vp.unused_offset,
 	         p, sizeof ( min::gen ) * n );
 	vp.unused_offset += n;
 	unprotected::acc_write_update ( vp.s, p, n );
-	return result;
     }
 
-    inline min::uns32 aux_push
+    inline void aux_push
 	( min::insertable_vec_pointer & vp,
 	  min::gen value )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
 	unprotected::base(vp)[-- vp.aux_offset] = value;
 	unprotected::acc_write_update ( vp.s, value );
-	return vp.aux_offset;
     }
 
-    inline min::uns32 aux_push
+    inline void aux_push
 	( min::insertable_vec_pointer & vp,
 	  const min::gen * p, unsigned n )
     {
@@ -3693,20 +3690,18 @@ namespace min {
 	memcpy ( unprotected::base(vp) + vp.aux_offset,
 	         p, sizeof ( min::gen ) * n );
 	unprotected::acc_write_update ( vp.s, p, n );
-	return vp.aux_offset;
     }
 
-    inline min::uns32 attr_pop
+    inline void attr_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen & v )
     {
 	MIN_ASSERT
 	    ( vp.attr_offset < vp.unused_offset );
 	v = unprotected::base(vp)[-- vp.unused_offset];
-	return vp.unused_offset;
     }
 
-    inline min::uns32 attr_pop
+    inline void attr_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen * p, unsigned n )
     {
@@ -3717,19 +3712,17 @@ namespace min {
 	    ( p,
 	      unprotected::base(vp) + vp.unused_offset,
 	      sizeof ( min::gen ) * n );
-	return vp.unused_offset;
     }
 
-    inline min::uns32 aux_pop
+    inline void aux_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen & v )
     {
 	MIN_ASSERT ( vp.aux_offset < vp.total_size );
 	v = unprotected::base(vp)[vp.aux_offset ++];
-	return vp.aux_offset;
     }
 
-    inline min::uns32 aux_pop
+    inline void aux_pop
 	( min::insertable_vec_pointer & vp,
 	  min::gen * p, unsigned n )
     {
@@ -3739,7 +3732,6 @@ namespace min {
 		 unprotected::base(vp) + vp.aux_offset,
 	         sizeof ( min::gen ) * n );
 	vp.aux_offset += n;
-	return vp.aux_offset;
     }
 }
 
