@@ -250,7 +250,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 22, 2010}
+\date{January 23, 2010}
  
 \maketitle
 
@@ -460,7 +460,7 @@ Namespace   & viation   & Use
 In defining MIN data the following number types are used to be sure
 the size of each number is clear:
 \begin{center}
-\begin{tabular}{l@{~~~~~}l}
+\begin{tabular}{l@{~~~~~}p{4.5in}}
 \minkey{uns8}	& unsigned 8-bit integer \\
 \minkey{int8}	& signed 8-bit integer \\
 \minkey{uns16}	& unsigned 16-bit integer \\
@@ -471,6 +471,11 @@ the size of each number is clear:
 \minkey{uns64}	& unsigned 64-bit integer \\
 \minkey{int64}	& signed 64-bit integer \\
 \minkey{float64}	& 64-bit IEEE floating point number \\
+\minkey{unsptr}	& unsigned integer of same length as a pointer (32 or 64 bits)
+                  \\
+\minkey{unsgen}	& unsigned integer of same length as a general value
+                  (32 or 64 bits, see \secref{GENERAL-VALUES})
+                  \\
 \end{tabular}
 \end{center}%
 \LABEL{MIN::UNS8}%
@@ -483,6 +488,7 @@ the size of each number is clear:
 \LABEL{MIN::UNS64}%
 \LABEL{MIN::INT64}%
 \LABEL{MIN::FLOAT64}%
+\LABEL{MIN::UNSPTR}%
 \label{INT}%
 \label{UNS}
 
@@ -5349,22 +5355,26 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::UNS8} \\
 \verb|min::| & \MINKEY{int8}
 \LABEL{MIN::INT8} \\
-\verb|min::| & \MINKEY{uns8}
+\verb|min::| & \MINKEY{uns16}
 \LABEL{MIN::UNS16} \\
-\verb|min::| & \MINKEY{int8}
+\verb|min::| & \MINKEY{int16}
 \LABEL{MIN::INT16} \\
-\verb|min::| & \MINKEY{uns8}
+\verb|min::| & \MINKEY{uns32}
 \LABEL{MIN::UNS32} \\
-\verb|min::| & \MINKEY{int8}
+\verb|min::| & \MINKEY{int32}
 \LABEL{MIN::INT32} \\
-\verb|min::| & \MINKEY{float8}
+\verb|min::| & \MINKEY{float32}
 \LABEL{MIN::FLOAT32} \\
-\verb|min::| & \MINKEY{uns8}
+\verb|min::| & \MINKEY{uns64}
 \LABEL{MIN::UNS64} \\
-\verb|min::| & \MINKEY{int8}
+\verb|min::| & \MINKEY{int64}
 \LABEL{MIN::INT64} \\
-\verb|min::| & \MINKEY{float8}
-\LABEL{MIN::FLOAT64}
+\verb|min::| & \MINKEY{float64}
+\LABEL{MIN::FLOAT64} \\
+\verb|min::| & \MINKEY{unsptr}
+\LABEL{MIN::UNSPTR} \\
+\verb|min::| & \MINKEY{unsgen}
+\LABEL{MIN::UNSGEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
