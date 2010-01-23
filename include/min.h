@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 11:47:27 EST 2010
+// Date:	Sat Jan 23 13:59:07 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 16:56:27 $
+//   $Date: 2010/01/23 18:59:29 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.223 $
+//   $Revision: 1.224 $
 
 // Table of Contents:
 //
@@ -3010,6 +3010,8 @@ namespace min {
     namespace unprotected {
 	min::gen * & base
 	    ( min::vec_pointer & vp );
+	min::stub * stub_of
+	    ( min::vec_pointer & vp );
 	min::unsptr var_offset_of
 	    ( min::vec_pointer & vp );
 	min::unsptr hash_offset_of
@@ -3137,6 +3139,8 @@ namespace min {
 	    ( min::vec_pointer & vp, min::gen v );
 
 	friend min::gen * & unprotected::base
+	    ( min::vec_pointer & vp );
+	friend min::stub * unprotected::stub_of
 	    ( min::vec_pointer & vp );
 	friend min::unsptr unprotected::var_offset_of
 	    ( min::vec_pointer & vp );
@@ -3414,6 +3418,11 @@ namespace min {
 	return * (min::gen **) &
 	       min::unprotected::pointer_ref_of
 	           ( vp.s );
+    }
+    inline min::stub * unprotected::stub_of
+	( min::vec_pointer & vp )
+    {
+        return vp.s;
     }
     inline min::unsptr unprotected::var_offset_of
 	( min::vec_pointer & vp )
@@ -4431,7 +4440,7 @@ namespace min {
     }
 
     // start_copy is declared as a friend only for
-    // legal compinations of list_pointers, e.g.,
+    // legal combinations of list_pointers, e.g.,
     //
     // start_copy ( updatable_list_pointer & lp,
     //		    insertable_list_pointer & lp2 )
@@ -4451,8 +4460,7 @@ namespace min {
 	      min::internal
 	         ::list_pointer_type<vecpt2> & lp2 )
     {
-        MIN_ASSERT (    stub_of ( lp.vecp )
-	             == stub_of ( lp2.vecp ) );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
 	lp.current_index = lp2.current_index;
 #       if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
@@ -4466,8 +4474,7 @@ namespace min {
 	      const
 	      min::insertable_list_pointer & lp2 )
     {
-        MIN_ASSERT (    stub_of ( lp.vecp )
-	             == stub_of ( lp2.vecp ) );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
 	lp.current_index = lp2.current_index;
 	lp.previous_index = lp2.previous_index;
 	lp.previous_is_sublist_head =
@@ -4480,7 +4487,7 @@ namespace min {
     }
 
     // start_sublist is declared as a friend only for
-    // legal compinations of list_pointers, just like
+    // legal combinations of list_pointers, just like
     // start_copy above.
     //
     template < class vecpt, class vecpt2 >
@@ -4490,8 +4497,7 @@ namespace min {
     	      const min::internal
 	         ::list_pointer_type<vecpt2> & lp2 )
     {
-        MIN_ASSERT (    stub_of ( lp.vecp )
-	             == stub_of ( lp2.vecp ) );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if ( min::is_stub ( lp2.current ) )
@@ -4527,8 +4533,7 @@ namespace min {
     	      const min::internal
 	         ::list_pointer_type<vecpt> & lp2 )
     {
-        MIN_ASSERT (    stub_of ( lp.vecp )
-	             == stub_of ( lp2.vecp ) );
+        MIN_ASSERT ( & lp.vecp == & lp2.vecp );
 
 	lp.previous_index = lp2.current_index;
 	lp.previous_is_sublist_head = true;
@@ -4736,9 +4741,10 @@ namespace min {
     {
         MIN_ASSERT ( value != min::LIST_END );
         MIN_ASSERT ( lp.current != min::LIST_END );
-        MIN_ASSERT ( value == min::EMPTY_SUBLIST
-	             ||
-		     ! is_sublist ( value ) );
+        MIN_ASSERT ( ! is_sublist ( lp.current ) );
+        MIN_ASSERT ( ! is_sublist ( value ) );
+	unprotected::acc_write_update
+	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USES_OBJ_AUX_STUBS
 	    min::internal
@@ -4769,6 +4775,8 @@ namespace min {
         MIN_ASSERT ( value == min::EMPTY_SUBLIST
 	             ||
 		     ! is_sublist ( value ) );
+	unprotected::acc_write_update
+	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USES_OBJ_AUX_STUBS
 	    min::internal
