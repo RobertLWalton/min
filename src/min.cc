@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 04:14:48 EST 2010
+// Date:	Sat Jan 23 10:01:01 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 10:28:39 $
+//   $Date: 2010/01/23 16:10:11 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.119 $
+//   $Revision: 1.120 $
 
 // Table of Contents:
 //
@@ -3056,13 +3056,13 @@ void MINT::set
 	    MINT::set ( wap, in, n );
 	    return;
 	}
-	update ( lp, min::EMPTY_SUBLIST );
+	set ( lp, min::EMPTY_SUBLIST );
 	start_sublist ( lp );
 	insert_before ( lp, in, n );
     }
     else if ( is_empty_sublist ( c ) && n == 1 )
     {
-	update ( wap.dlp, * in );
+	set ( wap.dlp, * in );
 	return;
     }
     else
@@ -3075,7 +3075,7 @@ void MINT::set
 	for ( c = current ( lp );
 	      ! is_list_end ( c ) && n > 0;
 	      c = next ( lp ) )
-	    update ( lp, ( -- n, * in ++ ) );
+	    set ( lp, ( -- n, * in ++ ) );
 	if ( n > 0 )
 	{
 	    min::relocated relocated;
@@ -3130,14 +3130,14 @@ void min::add_to_multiset
 	    min::add_to_multiset ( wap, in, n );
 	    return;
 	}
-	update ( lp, min::EMPTY_SUBLIST );
+	set ( lp, min::EMPTY_SUBLIST );
 	start_sublist ( lp );
 	min::gen element[1] = { c };
 	insert_before ( lp, element, 1 );
 	insert_before ( lp, in, n );
     }
     else if ( is_empty_sublist ( c ) && n == 1 )
-        update ( lp, * in );
+        set ( lp, * in );
     else
     {
         start_sublist ( lp );
@@ -3203,7 +3203,7 @@ void min::add_to_set
 	    min::add_to_set ( wap, in, n );
 	    return;
 	}
-	update ( lp, min::EMPTY_SUBLIST );
+	set ( lp, min::EMPTY_SUBLIST );
 	start_sublist ( lp );
 	if ( include_c )
 	{
@@ -3213,7 +3213,7 @@ void min::add_to_set
 	insert_before ( lp, in, n );
     }
     else if ( is_empty_sublist ( c ) && n == 1 )
-        update ( lp, * in );
+        set ( lp, * in );
     else
     {
         start_sublist ( lp );
@@ -3297,7 +3297,7 @@ void MINT::set_flags
 	    MINT::set_flags ( wap, in, n );
 	    return;
 	}
-	update ( lp, min::EMPTY_SUBLIST );
+	set ( lp, min::EMPTY_SUBLIST );
 	start_sublist ( lp );
 	insert_before ( lp, in, n );
 	min::gen element[1] = { c };
@@ -3311,7 +3311,7 @@ void MINT::set_flags
 	for ( c = current ( lp );
 	      is_control_code ( c ) && n > 0;
 	      c = next ( lp ) )
-	    -- n, update ( lp, * in ++ );
+	    -- n, set ( lp, * in ++ );
 	if ( n > 0 )
 	{
 	    min::relocated relocated;
@@ -3327,7 +3327,7 @@ void MINT::set_flags
 	else for ( c = current ( lp );
 	           is_control_code ( c );
 		   c = next ( lp ) )
-	    update ( lp, new_control_code_gen ( 0 ) );
+	    set ( lp, new_control_code_gen ( 0 ) );
     }
 }
 
@@ -3456,7 +3456,7 @@ void MINT::set_more_flags
 
 	    if ( ! is_sublist ( c ) )
 	    {
-		update ( lp, min::EMPTY_SUBLIST );
+		set ( lp, min::EMPTY_SUBLIST );
 		start_sublist ( lp );
 		min::gen elements[2] =
 		    { min::EMPTY_SUBLIST, c };
@@ -3559,8 +3559,8 @@ void MINT::reverse_attribute_create
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 	    min::insert_reserve ( lp, 1, 3 );
 	    if ( relocated ) min::relocate ( wap );
-	    update ( wap.locate_dlp,
-	             min::EMPTY_SUBLIST );
+	    set ( wap.locate_dlp,
+	          min::EMPTY_SUBLIST );
 	    start_sublist ( lp, wap.locate_dlp );
 	    min::gen elements[3] =
 	        { min::EMPTY_SUBLIST,
@@ -3572,8 +3572,8 @@ void MINT::reverse_attribute_create
 #	else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 	    min::insert_reserve ( lp, 1, 2 );
 	    if ( relocated ) min::relocate ( wap );
-	    update ( wap.locate_dlp,
-	             min::EMPTY_SUBLIST );
+	    set ( wap.locate_dlp,
+	          min::EMPTY_SUBLIST );
 	    start_sublist ( lp, wap.locate_dlp );
 	    min::gen elements[2] =
 	        { min::EMPTY_SUBLIST, c };
