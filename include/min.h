@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 16:10:37 $
+//   $Date: 2010/01/23 16:35:59 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.221 $
+//   $Revision: 1.222 $
 
 // Table of Contents:
 //
@@ -4053,7 +4053,8 @@ namespace min { namespace internal {
 	//      previous == EMPTY_SUBLIST
 	//
 	//   Current pointer does NOT exist,
-	//   previous pointer exists and points at a stub,
+	//   previous pointer exists and points at a
+	//            stub,
 	//   previous_is_sublist_header == false:
 	//      [current is the LIST_END in the stub
 	//       control]
@@ -4204,62 +4205,326 @@ namespace min { namespace internal {
 	// exist.  Return current.  Index argument must
 	// not be 0.
 	//
-	min::gen forward ( min::unsptr index );
+	min::gen forward ( min::unsptr index )
+	{
+	    current_index = index;
+	    current = base[current_index];
+
+	    previous_index = 0;
+	    previous_is_sublist_head = false;
+
+#           if MIN_USES_OBJ_AUX_STUBS
+		current_stub = NULL;
+		previous_stub = NULL;
+#	    endif
+
+	    if ( min::is_list_aux ( current ) )
+	    {
+		if ( current != min::LIST_END )
+		{
+		    previous_index = current_index;
+		    current_index =
+			min::list_aux_of ( current );
+		    current = base[current_index];
+		}
+	    }
+#           if MIN_USES_OBJ_AUX_STUBS
+		else if ( min::is_stub ( current ) )
+		{
+		    min::stub * s =
+		        min::unprotected
+			   ::stub_of ( current );
+		    int type = min::type_of ( s );
+
+		    if ( type == min::LIST_AUX )
+		    {
+		        previous_index = current_index;
+			current_index = 0;
+			current_stub = s;
+			current = min::unprotected::
+			               gen_of ( s );
+		    }
+		}
+#           endif
+
+	    return current;
+	}
     };
 
-    template <class vecpt>
-      inline min::gen min::internal
-                         ::list_pointer_type<vecpt>
-			 ::forward
-	    ( min::unsptr index )
-	{
-	    current_index = index;
-	    current = base[current_index];
-
-	    previous_index = 0;
-	    previous_is_sublist_head = false;
-
-#           if MIN_USES_OBJ_AUX_STUBS
-		current_stub = NULL;
-		previous_stub = NULL;
-#	    endif
-
-	    if ( min::is_list_aux ( current ) )
-	    {
-		if ( current != min::LIST_END )
-		{
-		    previous_index = current_index;
-		    current_index =
-			min::list_aux_of ( current );
-		    current = base[current_index];
-		}
-	    }
-#           if MIN_USES_OBJ_AUX_STUBS
-		else if ( min::is_stub ( current ) )
-		{
-		    min::stub * s =
-		        min::unprotected
-			   ::stub_of ( current );
-		    int type = min::type_of ( s );
-
-		    if ( type == min::LIST_AUX )
-		    {
-		        previous_index = current_index;
-			current_index = 0;
-			current_stub = s;
-			current = min::unprotected::
-			               gen_of ( s );
-		    }
-		}
-#           endif
-
-	    return current;
-	}
-
     template <>
-      inline min::gen min::insertable_list_pointer
-			 ::forward
-	    ( min::unsptr index )
+	class list_pointer_type
+	          <min::insertable_vec_pointer> {
+
+    public:
+
+        list_pointer_type
+		( min::insertable_vec_pointer & vecp )
+	    : vecp ( vecp ),
+	      base ( min::unprotected::base ( vecp ) )
+	{
+	    // An unstarted list pointer behaves as if
+	    // it were pointing at the end of a list
+	    // for which insertions are illegal.
+	    //
+	    current = min::LIST_END;
+
+	    // Reservations can be made anytime after a
+	    // pointer is created, and can be made
+	    // before start()ing a pointer.
+	    //
+	    reserved_insertions = 0;
+	    reserved_elements = 0;
+#	    if MIN_USES_OBJ_AUX_STUBS
+		use_obj_aux_stubs = false;
+#	    endif
+
+	    current_index = 0;
+	    previous_index = 0;
+#	    if MIN_USES_OBJ_AUX_STUBS
+		current_stub = NULL;
+		previous_stub = NULL;
+#	    endif
+	    previous_is_sublist_head = false;
+	}
+
+    private:
+
+    // Private Data:
+
+	min::insertable_vec_pointer & vecp;
+	min::gen * & base;
+	    // Vector pointer to object and base(vecp).
+
+	min::gen current;
+	    // Value of current element, as returned by
+	    // the min::current function.  Set to LIST_
+	    // END by constructor.
+
+	min::unsptr current_index;
+	min::unsptr previous_index;
+	    // See below.
+	bool previous_is_sublist_head;
+	    // True if previous pointer exists and
+	    // points at a sublist pointer.  See below.
+
+#	if MIN_USES_OBJ_AUX_STUBS
+	    min::stub * current_stub;
+	    min::stub * previous_stub;
+	        // See below.
+	    bool use_obj_aux_stubs;
+		// True if list auxiliary stubs are to
+		// be used for insertions if space in
+		// the object auxiliary area runs out.
+#	endif
+
+	min::unsptr reserved_insertions;
+	min::unsptr reserved_elements;
+	    // Set by insert_reserve and decremented by
+	    // insert_{before,after}.  The latter dec-
+	    // rement reserved_insertions once and
+	    // decrement reserved_elements once for
+	    // each element inserted.  These counters
+	    // must never become less than 0 (else
+	    // assert violation).
+
+	// Abstractly there is a current pointer and a
+	// previous pointer.  The current pointer points
+	// at the current value.  This current value may
+	// be pointed at by a list or sublist pointer,
+	// and in this case the previous pointer is set
+	// to point at the list or sublist pointer, so
+	// it can be updated if there is an insert
+	// before the current position or a removal of
+	// the current element.
+	//
+	// The gen_of value of the auxiliary stub is
+	// equivalent to an auxiliary area element
+	// pointed at by a sublist or list pointer.  The
+	// control_of value of the stub is equivalent
+	// to the next value after that in a list, but
+	// that next value must be a list or sublist
+	// pointer or LIST_END.
+	//
+	// The current pointer is in one of the follow-
+	// ing states (here `current' means `current
+	// value'):
+	//
+	//	       current_index != 0
+	//	   and current = base[current_index]
+	//	   and current_stub == NULL
+	//      or
+	//	       current_stub != NULL
+	//	   and current = gen_of ( current_stub )
+	//	   and current_index == 0
+	//      or
+	//	       current_index == 0
+	//	   and current_stub == NULL
+	//	   and current pointer does not exist
+	//	   and current == LIST_END
+	//
+	// The previous pointer is similar, but also
+	// differs when it points at a stub, since it
+	// could be pointing at either a sublist or
+	// list head:
+	//
+	//	       previous_index != 0
+	//	   and previous = base[previous_index]
+	//	   and previous_stub == NULL
+	//      or
+	//	       previous_stub != NULL
+	//	   and previous =
+	//		   previous_is_sublist_head ?
+	//		   gen_of ( previous_stub ) :
+	//		   control_of ( previous_stub )
+	//	   and previous_index == 0
+	//      or
+	//	       previous_index == 0
+	//	   and previous_stub == NULL
+	//	   and previous pointer does not exist
+	//
+	// If a previous value is a stub pointer, then
+	// it points at an auxiliary stub, and is
+	// treated as a sublist pointer if the auxiliary
+	// stub is of type SUBLIST_AUX, and is treated
+	// as a list pointer if the stub is of type
+	// LIST_AUX.
+	//
+	// If current == LIST_END one of the following
+	// special cases applies.
+	//
+	//   Current pointer exists:
+	//	current_index != 0
+	//	base[current_index] == LIST_END
+	//	previous pointer does NOT exist
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer points at list head in the
+	//	    attribute vector or hash table:
+	//      [current is the virtual LIST_END after
+	//       a 1-element list whose first element
+	//       is the list head]
+	//      previous_index != 0
+	//      previous_index < unused_offset
+	//	base[previous_index] is the sole element
+	//	    of a 1-element list
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer exists,
+	//   previous_is_sublist_header == true:
+	//      [current is the virtual LIST_END at the
+	//	 end of an EMPTY_SUBLIST]
+	//      previous == EMPTY_SUBLIST
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer exists and points at a
+	//            stub,
+	//   previous_is_sublist_header == false:
+	//      [current is the LIST_END in the stub
+	//       control]
+	//      control_of ( previous_stub ) == LIST_END
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer does NOT exist:
+	//      [current is virtual LIST end of a list
+	//       pointer that has never been started]
+	//      The list pointer has never been started
+	//      by a start_... function.   All
+	//      operations should treat the pointer
+	//      as pointing at an empty list.
+	//
+	// If the current pointer points at a stub, the
+	// previous pointer must exist.
+	//
+	// If the current value is not LIST_END, the
+	// current pointer must exist.
+	//
+	// A current value can be LIST_END or EMPTY_
+	// SUBLIST, but cannot be a list or sublist
+	// pointer (and in particular cannot point
+	// at a stub of LIST_AUX or SUBLIST_AUX type).
+
+    // Friends:
+
+	friend min::insertable_vec_pointer &
+	    vec_pointer_of<>
+		( min::insertable_list_pointer & lp );
+
+	friend min::gen min::start_hash<>
+		( min::insertable_list_pointer & lp,
+		  min::unsptr index );
+	friend min::gen min::start_vector<>
+		( min::insertable_list_pointer & lp,
+		  min::unsptr index );
+
+	friend min::gen start_copy<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+
+	friend min::gen start_sublist<>
+		( min::list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::updatable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+
+	friend min::gen min::next<>
+		( min::insertable_list_pointer & lp );
+	friend min::gen min::current<>
+		( min::insertable_list_pointer & lp );
+	friend min::gen min::refresh<>
+		( min::insertable_list_pointer & lp );
+
+	friend void min::set<>
+		( min::insertable_list_pointer & lp,
+		  min::gen value );
+	friend void min::insert_reserve
+		( min::insertable_list_pointer & lp,
+		  min::unsptr insertions,
+		  min::unsptr elements,
+		  bool use_obj_aux_stubs );
+	friend void min::internal::insert_reserve
+		( min::insertable_list_pointer & lp,
+		  min::unsptr insertions,
+		  min::unsptr elements,
+		  bool use_obj_aux_stubs );
+	friend void min::insert_before
+		( min::insertable_list_pointer & lp,
+		  const min::gen * p, min::unsptr n );
+	friend void min::insert_after
+		( min::insertable_list_pointer & lp,
+		  const min::gen * p, min::unsptr n );
+	friend min::unsptr min::remove
+		( min::insertable_list_pointer & lp,
+		  min::unsptr n );
+
+    // Private Helper Functions:
+
+	// Set current pointer to the index argument,
+	// and then set current.  Do fowarding if
+	// current is a list pointer: i.e., a list aux
+	// pointer or a pointer to a stub with type
+	// LIST_AUX.  Set previous_index and previous_
+	// stub; if there is no forwarding, set these
+	// to indicate the previous pointer does not
+	// exist.  Return current.  Index argument must
+	// not be 0.
+	//
+	min::gen forward ( min::unsptr index )
 	{
 	    current_index = index;
 	    current = base[current_index];
@@ -4303,6 +4568,8 @@ namespace min { namespace internal {
 
 	    return current;
 	}
+    };
+
 
 } }
 
