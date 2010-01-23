@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 13:59:07 EST 2010
+// Date:	Sat Jan 23 14:33:01 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 18:59:29 $
+//   $Date: 2010/01/23 19:34:47 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.224 $
+//   $Revision: 1.225 $
 
 // Table of Contents:
 //
@@ -4747,8 +4747,6 @@ namespace min {
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USES_OBJ_AUX_STUBS
-	    min::internal
-	       ::collect_aux_stub ( lp.current );
 	    if ( lp.current_stub != NULL )
 	    {
 		min::unprotected::set_gen_of
