@@ -1520,9 +1520,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::EMPTY_SUBLIST true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1531,9 +1531,9 @@ MINT::acc_expand_stub_free_list (4) called
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
@@ -1557,9 +1557,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
@@ -1573,9 +1573,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
@@ -1585,9 +1585,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
@@ -1597,9 +1597,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
@@ -1607,9 +1607,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
 min_interface_test.cc:XXXX assert:
@@ -1718,9 +1718,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::EMPTY_SUBLIST true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1730,9 +1730,9 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1758,9 +1758,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1776,9 +1776,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1790,9 +1790,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1806,9 +1806,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1816,9 +1816,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
-    stub_of ( lp.vecp ) == stub_of ( lp2.vecp ) true.
+    & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
