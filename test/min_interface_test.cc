@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 03:43:02 EST 2010
+// Date:	Sat Jan 23 04:14:57 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 08:52:40 $
+//   $Date: 2010/01/23 10:29:05 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.122 $
+//   $Revision: 1.123 $
 
 // Table of Contents:
 //
@@ -140,7 +140,7 @@ char stub_region[10000];
 // address of the first location beyond the last
 // possible stub in the region.
 //
-unsigned stubs_allocated = 0;
+min::unsptr stubs_allocated = 0;
 min::stub * begin_stub_region;
 min::stub * end_stub_region;
 
@@ -171,7 +171,8 @@ void initialize_stub_region ( void )
 #   endif
 
     stp += sizeof stub_region;
-    unsigned n = ( stp - p ) / ( sizeof (min::stub) );
+    min::unsptr n =
+        ( stp - p ) / ( sizeof (min::stub) );
     p += ( sizeof (min::stub) ) * n;
     end_stub_region = (min::stub *) p;
     assert ( begin_stub_region < end_stub_region );
@@ -208,7 +209,7 @@ ostream & operator <<
 // stubs to the stub_region and attach them to the
 // free list just after the last_allocated_stub.
 //
-void MINT::acc_expand_stub_free_list ( unsigned n )
+void MINT::acc_expand_stub_free_list ( min::unsptr n )
 {
     cout << "MINT::acc_expand_stub_free_list (" << n
          << ") called" << endl;
@@ -266,11 +267,11 @@ void initialize_body_region ( void )
     p &= ~ 7;
     begin_body_region = (min::uns64 *) p;
     stp += sizeof body_region;
-    unsigned n = ( stp - p ) / 8;
+    min::unsptr n = ( stp - p ) / 8;
     p += 8 * n;
     end_body_region = (min::uns64 *) p;
 
-    for ( unsigned j = 0;
+    for ( min::unsptr j = 0;
           j < MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2;
 	  ++ j )
     {
@@ -282,12 +283,12 @@ void initialize_body_region ( void )
 }
 
 void MINT::new_non_fixed_body
-	( min::stub * s, unsigned n )
+	( min::stub * s, min::unsptr n )
 {
     cout << "MINT::new_non_fixed_body ( " << s
          << ", " << n << " ) called" << endl;
 
-    unsigned m = n + 7;
+    min::unsptr m = n + 7;
     m >>= 3;
     MIN_ASSERT ( next_body + m <= end_body_region );
 
@@ -301,13 +302,13 @@ void MINT::new_non_fixed_body
 // is zero.
 //
 void MINT::new_fixed_body
-    ( min::stub * s, unsigned n,
+    ( min::stub * s, min::unsptr n,
       MINT::fixed_block_list * fbl )
 {
     cout << "MINT::new_fixed_body ( " << s
          << ", " << n << " ) called" << endl;
 
-    unsigned m = fbl->size >> 3;
+    min::unsptr m = fbl->size >> 3;
     min::uns64 * next = next_body;
     MIN_ASSERT ( next + 2 * m <= end_body_region );
 
@@ -341,7 +342,8 @@ void MINT::new_fixed_body
 // Deallocate the stub body.  Repoints the body to the
 // all zero deallocated_body_region.
 //
-void MUP::deallocate_body ( min::stub * s, unsigned n )
+void MUP::deallocate_body
+	( min::stub * s, min::unsptr n )
 {
     if ( n == 0 ) return;
 
@@ -359,8 +361,8 @@ void MUP::deallocate_body ( min::stub * s, unsigned n )
 // The minimum of these is copied.
 //
 static void resize_body
-	( min::stub * s, unsigned new_size,
-	                 unsigned old_size )
+	( min::stub * s, min::unsptr new_size,
+	                 min::unsptr old_size )
 {
     cout << "resize_body ( stub "
          << s - begin_stub_region << ", " << new_size
@@ -368,7 +370,7 @@ static void resize_body
     {
 	MUP::resize_body rbody
 	    ( s, new_size, old_size );
-	unsigned length = new_size >= old_size ?
+	min::unsptr length = new_size >= old_size ?
 	                  old_size : new_size;
 
 	min::uns64 * from = (min::uns64 *)
@@ -1291,7 +1293,7 @@ int main ()
 	cout << "Test stub allocator functions:"
 	     << endl;
 	MINT::new_acc_stub_flags = 0;
-	unsigned sbase = stubs_allocated;
+	min::unsptr sbase = stubs_allocated;
 	cout << "initial stubs allocated = "
 	     << sbase << endl;
 	min::stub * stub1 = MUP::new_acc_stub();
@@ -1796,43 +1798,22 @@ int main ()
 	cout << endl;
 	cout << "Test object size functions:" << endl;
 
-	unsigned slast = 0;
-	unsigned smaxht =
-	    min::short_obj_hash_size
-		( unsigned(-1) );
-	cout << "smaxht: " << smaxht << endl;
-	for ( unsigned u = 0; u < ( 1 << 16 ); ++ u )
+	min::unsptr lastht = 0;
+	min::unsptr maxht =
+	    min::obj_hash_size ( min::unsptr(-1) );
+	cout << "maxht: " << maxht << endl;
+	MIN_ASSERT ( maxht >= 4000000 );
+	// Note: maxht < ( 1 << 22 ) is possible.
+	for ( min::unsptr u = 0; u <= 4000000; ++ u )
 	{
-	    unsigned t =
-	        min::short_obj_total_size ( u );
+	    min::unsptr t = min::obj_total_size ( u );
 	    assert ( t == u );
-	    unsigned ht =
-	        min::short_obj_hash_size ( u );
+	    min::unsptr ht = min::obj_hash_size ( u );
 	    if ( u > ht )
-	        assert ( ht == smaxht );
+	        assert ( ht == maxht );
 	    else
-	        assert ( slast < u || slast == ht );
-	    slast = ht;
-	}
-
-	unsigned llast = 0;
-	unsigned lmaxht =
-	    min::long_obj_hash_size
-		( unsigned(-1) );
-	cout << "lmaxht: " << lmaxht << endl;
-	MIN_ASSERT ( lmaxht >= 4000000 );
-	// Note: lmaxht < ( 1 << 22 ) is possible.
-	for ( unsigned u = 0; u <= 4000000; ++ u )
-	{
-	    unsigned t = min::long_obj_total_size ( u );
-	    assert ( t == u );
-	    unsigned ht =
-	        min::long_obj_hash_size ( u );
-	    if ( u > ht )
-	        assert ( ht == lmaxht );
-	    else
-	        assert ( llast < u || llast == ht );
-	    llast = ht;
+	        assert ( lastht < u || lastht == ht );
+	    lastht = ht;
 	}
 
 	cout << endl;
@@ -1845,12 +1826,13 @@ int main ()
 	      == min::SHORT_OBJ );
 	{
 	    min::vec_pointer svp ( sstub );
-	    unsigned sh = MUP::var_offset_of ( svp );
-	    unsigned sht = min::hash_size_of ( svp );
-	    unsigned sav = min::attr_size_of ( svp );
-	    unsigned sua = min::unused_size_of ( svp );
-	    unsigned saa = min::aux_size_of ( svp );
-	    unsigned st = min::total_size_of ( svp );
+	    min::unsptr sh = MUP::var_offset_of ( svp );
+	    min::unsptr sht = min::hash_size_of ( svp );
+	    min::unsptr sav = min::attr_size_of ( svp );
+	    min::unsptr sua =
+	        min::unused_size_of ( svp );
+	    min::unsptr saa = min::aux_size_of ( svp );
+	    min::unsptr st = min::total_size_of ( svp );
 	    cout << "sh: " << sh << " sht: " << sht
 		 << " sua: " << sua
 		 << " sav: " << sav
@@ -1930,9 +1912,11 @@ int main ()
 	{
 	    min::insertable_vec_pointer svp ( sstub );
 	    min::gen * & sbase = MUP::base ( svp );
-	    min::uns32 ht = MUP::hash_offset_of ( svp );
-	    min::uns32 av = MUP::attr_offset_of ( svp );
-	    min::uns32 & cua =
+	    min::unsptr ht =
+	        MUP::hash_offset_of ( svp );
+	    min::unsptr av =
+	        MUP::attr_offset_of ( svp );
+	    min::unsptr & cua =
 	        MUP::unused_offset_of ( svp );
 	    MIN_ASSERT ( sbase[ht] == min::LIST_END );
 	    min::set_hash
@@ -1975,8 +1959,8 @@ int main ()
 		(    min::unused_size_of ( svp )
 		  == 500 - 4 );
 
-	    min::uns32 aa = MUP::aux_offset_of ( svp );
-	    min::uns32 & caa =
+	    min::unsptr aa = MUP::aux_offset_of ( svp );
+	    min::unsptr & caa =
 	        MUP::aux_offset_of ( svp );
 	    sbase[aa-1] = num0;
 	    MIN_ASSERT ( sbase[aa-1] == num0 );
@@ -2069,9 +2053,11 @@ int main ()
 	    min::insertable_vec_pointer lvp
 	        ( long_obj_gen );
 	    min::gen * & lbase = MUP::base ( lvp );
-	    min::uns32 ht = MUP::hash_offset_of ( lvp );
-	    min::uns32 av = MUP::attr_offset_of ( lvp );
-	    min::uns32 & cua =
+	    min::unsptr ht =
+	        MUP::hash_offset_of ( lvp );
+	    min::unsptr av =
+	        MUP::attr_offset_of ( lvp );
+	    min::unsptr & cua =
 	        MUP::unused_offset_of ( lvp );
 	    MIN_ASSERT ( lbase[ht] == min::LIST_END );
 	    min::set_hash
@@ -2110,8 +2096,8 @@ int main ()
 	    MIN_ASSERT
 		(    min::unused_size_of ( lvp )
 		  == 70000 - 4 );
-	    min::uns32 aa = MUP::aux_offset_of ( lvp );
-	    min::uns32 & caa =
+	    min::unsptr aa = MUP::aux_offset_of ( lvp );
+	    min::unsptr & caa =
 	        MUP::aux_offset_of ( lvp );
 	    lbase[aa-1] = num0;
 	    MIN_ASSERT ( lbase[aa-1] == num0 );
@@ -2218,11 +2204,11 @@ int main ()
 	min::insertable_vec_pointer short_vp
 		( short_obj_gen );
 	min::gen * & sbase = MUP::base ( short_vp );
-	unsigned vsize =
+	min::unsptr vsize =
 	    min::attr_size_of ( short_vp );
-	unsigned vorg =
+	min::unsptr vorg =
 	    MUP::attr_offset_of ( short_vp );
-	unsigned usize =
+	min::unsptr usize =
 	    min::unused_size_of ( short_vp );
 	cout << "VSIZE " << vsize << " VORG " << vorg
 	     << " USIZE " << usize << endl;

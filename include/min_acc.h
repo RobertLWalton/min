@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Aug 29 08:08:00 EDT 2009
+// Date:	Sat Jan 23 04:36:58 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/29 12:08:31 $
+//   $Date: 2010/01/23 10:28:03 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -72,12 +72,12 @@ namespace min { namespace acc {
     //    // It is possible that MIN_BASE == stub_begin
     //    // and null_stub is both a constant and the
     //    // first real stub.
-    //  MINT::pointer_uns MINT::stub_base
-    //    // Ditto but as an unsigned integer.
+    //  min::unsptr MINT::stub_base
+    //    // Ditto but as a min::unsptr integer.
     //	void MINT::acc_expand_free_stub_list
-    //		( unsigned n )
+    //		( min::unsptr n )
     //	  // Function to allocate n new stubs.
-    //  unsigned MINT::number_of_free_stubs
+    //  min::unsptr MINT::number_of_free_stubs
     //    // Count of stubs on free stub list.
     //  min::stub * MINT::last_allocated_stub
     //    // The control word of this stub points at the
@@ -93,7 +93,7 @@ namespace min { namespace acc {
 	// stub region.  Value may be changed when the
 	// program starts.
 
-    extern unsigned stub_increment;
+    extern min::unsptr stub_increment;
         // The number of new stubs allocated by a call
         // to MINT::acc_expand_free_stub_list.
 
@@ -129,13 +129,13 @@ namespace min { namespace acc {
     //
     // See min_acc_parameters.h for more info.
     //
-    extern unsigned space_factor;
+    extern min::unsptr space_factor;
 
     // Cache Line Size.  Fixed blocks of equal or
     // smaller size are aligned so they are inside a
     // cache line.
     //
-    extern unsigned cache_line_size;
+    extern min::unsptr cache_line_size;
 
     // Blocks:
 
@@ -558,7 +558,7 @@ namespace min { namespace acc {
     extern region * region_next;
     extern region * region_end;
 
-    const unsigned
+    const min::unsptr
           MAX_MULTI_PAGE_BLOCK_REGIONS = 1 << 15;
 
     // Pointers at the last region in various lists of
@@ -595,35 +595,35 @@ namespace min { namespace acc {
     // Sizes of various kind of region and size limits
     // on their contents:
 
-    extern unsigned subregion_size;
+    extern min::unsptr subregion_size;
         // Fixed block and variable block regions, which
 	// have the same size so they can be freed and
 	// converted from fixed to variable block or
 	// vice versa.  Must be multiple of page size.
 
-    extern unsigned superregion_size;
+    extern min::unsptr superregion_size;
         // Normal size of superregion.  Superregions
 	// may be as small as subregion_size if there
 	// is a memory shortage.  Must be multiple of
 	// page size.
 
-    extern unsigned paged_body_region_size;
+    extern min::unsptr paged_body_region_size;
         // Size of paged body region.  Must be multiple
 	// of page size.
 
-    extern unsigned max_paged_body_size;
+    extern min::unsptr max_paged_body_size;
         // Maximum size of a paged body.  Must be
 	// multiple of page size.
 
-    extern unsigned stack_region_size;
+    extern min::unsptr stack_region_size;
         // Size of stack region.  Must be multiple of
 	// MACC::stack_segment_size.
 
-    extern unsigned stack_segment_size;
+    extern min::unsptr stack_segment_size;
         // Size of a stack segment.  Must be a multiple
 	// of the page size.
 
-    extern unsigned stack_region_size;
+    extern min::unsptr stack_region_size;
         // Size of a stack segment in a stack region.
 	// Must be a multiple of page size.
 

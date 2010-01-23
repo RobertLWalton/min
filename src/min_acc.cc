@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 08:52:10 $
+//   $Date: 2010/01/23 10:28:39 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.26 $
+//   $Revision: 1.27 $
 
 // Table of Contents:
 //
@@ -123,13 +123,13 @@ static bool get_param
     return true;
 }
 
-// Ditto but for `min::uns64' parameter.  maximum
+// Ditto but for `min::unsptr' parameter.  maximum
 // may not be larger than 2**63 - 1.
 //
 static bool get_param
-	( const char * name, min::uns64 & parameter,
-	  min::uns64 minimum = 0,
-	  min::uns64 maximum = 0x7FFFFFFFFFFFFFFFull,
+	( const char * name, min::unsptr & parameter,
+	  min::unsptr minimum = 0,
+	  min::unsptr maximum = 0x7FFFFFFFFFFFFFFFull,
 	  bool power_of_two = false,
 	  bool trace = trace_parameters )
 {
@@ -139,16 +139,18 @@ static bool get_param
                        minimum, maximum,
 		       power_of_two, trace ) )
          return false;
-    parameter = (min::uns64) v;
+    parameter = (min::unsptr) v;
     return true;
 }
 
-// Ditto but for `unsigned' parameter.
+// Ditto but for `unsigned' parameter if `unsigned'
+// not the same as `min::unsptr'.
 //
+#if MIN_POINTER_BITS > 32
 static bool get_param
 	( const char * name, unsigned & parameter,
 	  unsigned minimum = 0,
-	  unsigned maximum = unsigned ( -1 ),
+	  unsigned maximum = 0xFFFFFFFFu,
 	  bool power_of_two = false,
 	  bool trace = trace_parameters )
 {
@@ -160,13 +162,14 @@ static bool get_param
     parameter = (unsigned) v;
     return true;
 }
+#endif
 
 // Convert a size in number of bytes into a size in
 // number of pages, rounding up.
 //
-static min::uns64 page_size;
-inline min::uns64 number_of_pages
-    ( min::uns64 number_of_bytes )
+static min::unsptr page_size;
+inline min::unsptr number_of_pages
+    ( min::unsptr number_of_bytes )
 {
     return ( number_of_bytes + page_size - 1 )
            / page_size;
@@ -222,9 +225,9 @@ void MINT::acc_initializer ( void )
 // Stub Allocator
 // ---- ---------
 
-min::uns64 MACC::max_stubs =
+min::unsptr MACC::max_stubs =
     MIN_DEFAULT_MAX_STUBS;
-unsigned MACC::stub_increment =
+min::unsptr MACC::stub_increment =
     MIN_DEFAULT_STUB_INCREMENT;
 min::stub * MACC::stub_begin;
 min::stub * MACC::stub_next;
@@ -238,7 +241,7 @@ static void stub_allocator_initializer ( void )
     get_param ( "stub_increment",
                 MACC::stub_increment, 100, 1000000 );
 
-    min::uns64 pages =
+    min::unsptr pages =
         number_of_pages ( 16 * MACC::max_stubs );
     void * stubs = MOS::new_pool_between
         ( pages, NULL,
@@ -252,7 +255,7 @@ static void stub_allocator_initializer ( void )
 	        " hold max_stubs = " << MACC::max_stubs
 	     << " stubs" << endl
 	     << "       below address "
-	     << (min::uns64)
+	     << (min::unsptr)
 	        MIN_MAX_ABSOLUTE_STUB_ADDRESS
 	     << endl
 	     << "       Suggest decreasing max_stubs."
@@ -290,7 +293,7 @@ static void stub_allocator_initializer ( void )
 		     << endl
 		     << "       at address"
 		        " MIN_STUB_BASE = "
-		     << (min::uns64) MIN_STUB_BASE
+		     << (min::unsptr) MIN_STUB_BASE
 		     << endl
 		     << "       Suggest decreasing"
 			" max_stubs."
@@ -319,11 +322,12 @@ static void stub_allocator_initializer ( void )
 
 }
 
-void MINT::acc_expand_stub_free_list ( unsigned n )
+void MINT::acc_expand_stub_free_list ( min::unsptr n )
 {
     if ( n == 0 ) return;
 
-    min::uns64 max_n = MACC::stub_end - MACC::stub_next;
+    min::unsptr max_n =
+        MACC::stub_end - MACC::stub_next;
     if ( n > max_n )
     {
         cout << "ERROR: too many stubs required."
@@ -367,16 +371,16 @@ void MINT::acc_expand_stub_free_list ( unsigned n )
 // Block Allocator
 // ----- ---------
 
-unsigned MACC::space_factor =
+min::unsptr MACC::space_factor =
     MIN_DEFAULT_SPACE_FACTOR;
-unsigned MACC::cache_line_size =
+min::unsptr MACC::cache_line_size =
     MIN_DEFAULT_CACHE_LINE_SIZE;
-unsigned MACC::subregion_size;
-unsigned MACC::superregion_size;
-unsigned MACC::max_paged_body_size;
-unsigned MACC::paged_body_region_size;
-unsigned MACC::stack_region_size;
-unsigned MACC::stack_segment_size;
+min::unsptr MACC::subregion_size;
+min::unsptr MACC::superregion_size;
+min::unsptr MACC::max_paged_body_size;
+min::unsptr MACC::paged_body_region_size;
+min::unsptr MACC::stack_region_size;
+min::unsptr MACC::stack_segment_size;
 
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
@@ -413,7 +417,7 @@ static void block_allocator_initializer ( void )
     // to do this for a 64 bit computer, and affordable
     // for a 32 bit computer.
 
-    min::uns64 rtpages =
+    min::unsptr rtpages =
         number_of_pages
 	    (   MACC::MAX_MULTI_PAGE_BLOCK_REGIONS
 	      * sizeof ( MACC::region ) );
@@ -438,10 +442,11 @@ static void block_allocator_initializer ( void )
           MACC::region_table
 	+ MACC::MAX_MULTI_PAGE_BLOCK_REGIONS;
 
-    min::uns64 M = 0;
-    for ( unsigned t = MACC::space_factor * page_size;
+    min::unsptr M = 0;
+    for ( min::unsptr t =
+              MACC::space_factor * page_size;
     	  t >= 2; t /= 2 ) ++ M;
-    MACC::superregion_size = (min::uns64) M
+    MACC::superregion_size = (min::unsptr) M
                            * MACC::space_factor
 			   * MACC::space_factor
 			   * page_size;
@@ -453,9 +458,9 @@ static void block_allocator_initializer ( void )
 // number of pages.
 //
 static MACC::region * new_multi_page_block_region
-	( min::uns64 size, int type )
+	( min::unsptr size, int type )
 {
-    min::uns64 pages = number_of_pages ( size );
+    min::unsptr pages = number_of_pages ( size );
     size = pages * page_size;
     void * m = MOS::new_pool ( pages );
     const char * error = MOS::pool_error ( m );
@@ -525,7 +530,7 @@ static void allocate_new_superregion ( void )
 }
 
 void MINT::new_fixed_body
-    ( min::stub * s, unsigned n,
+    ( min::stub * s, min::unsptr n,
       MINT::fixed_block_list * fbl )
 {
     MINT::fixed_block_list_extension * fblext =
@@ -589,7 +594,7 @@ void MINT::new_fixed_body
 	        ( MACC::FIXED_SIZE_BLOCK_REGION,
 		  MACC::subregion_size );
 
-	unsigned s = fbl->size;
+	min::unsptr s = fbl->size;
 	if ( s > MACC::cache_line_size )
 	    s = MACC::cache_line_size;
 	s = s
@@ -627,7 +632,7 @@ void MINT::new_fixed_body
 	// Add up to 16 pages worth of bodies to the
 	// fbl free list.
 	//
-    	unsigned count = 16 * page_size / fbl->size;
+    	min::unsptr count = 16 * page_size / fbl->size;
 	if ( count == 0 ) count = 1;
 	MINT::free_fixed_size_block * last = NULL;
 	while ( count -- > 0 )
@@ -712,7 +717,7 @@ static void allocate_new_paged_body_region ( void )
 // Return address to store in stub.
 //
 inline void * new_paged_body
-    ( min::stub * s, unsigned n )
+    ( min::stub * s, min::unsptr n )
 {
     MACC::region * r = MACC::last_paged_body_region;
     if ( r == NULL || r->next + n > r->end )
@@ -723,7 +728,7 @@ inline void * new_paged_body
 
     int locator = r - MACC::region_table;
 
-    min::uns64 * b = (min::uns64 *) r->next;
+    min::unsptr * b = (min::unsptr *) r->next;
     r->next += n;
     assert ( r->next <= r->end );
 
@@ -738,7 +743,7 @@ inline void * new_paged_body
 // Return address to store in stub.
 //
 inline void * new_mono_body
-    ( min::stub * s, unsigned n )
+    ( min::stub * s, min::unsptr n )
 {
     MACC::region * r = new_multi_page_block_region
 	( n, MACC::MONO_BODY_REGION );
@@ -757,7 +762,7 @@ inline void * new_mono_body
 
     int locator = r - MACC::region_table;
 
-    min::uns64 * b = (min::uns64 *) r->next;
+    min::unsptr * b = (min::unsptr *) r->next;
     r->next += n;
     assert ( r->next <= r->end );
 
@@ -768,12 +773,12 @@ inline void * new_mono_body
 }
 
 void MINT::new_non_fixed_body
-    ( min::stub * s, unsigned n )
+    ( min::stub * s, min::unsptr n )
 {
     // Add space for body control and round up to
     // multiple of page_size.
     //
-    n += sizeof ( min::uns64 );
+    n += sizeof ( min::unsptr );
     n = page_size
       * ( ( n + page_size - 1 ) / page_size );
 
