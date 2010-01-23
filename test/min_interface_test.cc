@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 04:14:57 EST 2010
+// Date:	Sat Jan 23 06:24:46 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 10:29:05 $
+//   $Date: 2010/01/23 11:29:14 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.123 $
+//   $Revision: 1.124 $
 
 // Table of Contents:
 //
@@ -815,64 +815,6 @@ int main ()
 	    ( ! min::is_stub ( indirectauxgen ) );
 	MIN_ASSERT
 	    ( ! min::is_direct_str ( indirectauxgen ) );
- 
-        cout << endl;
-	cout << "Test packed aux general values:"
-	     << endl;
-	unsigned packed_aux = 637;
-	unsigned packed_index = 281;
-	min::gen packedauxgen =
-	    MUP::new_packed_aux_gen
-		( packed_aux, packed_index );
-	cout << "packedauxgen: "
-	     << print_gen ( packedauxgen ) << endl;
-	MIN_ASSERT
-	    ( min::is_packed_aux ( packedauxgen ) );
-	MIN_ASSERT
-	    (    min::gen_subtype_of ( packedauxgen )
-	      == min::GEN_PACKED_AUX );
-	MIN_ASSERT
-	    (    min::packed_aux_of ( packedauxgen )
-	      == packed_aux );
-	MIN_ASSERT
-	    (    min::packed_index_of ( packedauxgen )
-	      == packed_index );
-	desire_success (
-	    packedauxgen =
-	    	min::new_packed_aux_gen
-		    ( packed_aux, packed_index );
-	);
-	desire_failure (
-	    packedauxgen =
-	        min::new_packed_aux_gen
-		    ( 1 << (min::VSIZE/2),
-		      packed_index );
-	);
-	desire_failure (
-	    packedauxgen =
-	        min::new_packed_aux_gen
-		    ( packed_aux,
-		      1 << (min::VSIZE/2) );
-	);
-	MIN_ASSERT
-	    ( ! min::is_stub ( packedauxgen ) );
-	MIN_ASSERT
-	    ( ! min::is_direct_str ( packedauxgen ) );
-	packed_aux = 321;
-	packedauxgen =
-	    MUP::renew_packed_aux_gen
-		( packedauxgen, packed_aux );
-	MIN_ASSERT
-	    ( min::is_packed_aux ( packedauxgen ) );
-	MIN_ASSERT
-	    (    min::gen_subtype_of ( packedauxgen )
-	      == min::GEN_PACKED_AUX );
-	MIN_ASSERT
-	    (    min::packed_aux_of ( packedauxgen )
-	      == packed_aux );
-	MIN_ASSERT
-	    (    min::packed_index_of ( packedauxgen )
-	      == packed_index );
  
         cout << endl;
 	cout << "Test index general values:" << endl;

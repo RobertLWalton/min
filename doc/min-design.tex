@@ -233,6 +233,7 @@
 	{\end{list}}
 
 \newcommand{\LABEL}[1]{\label{#1}}
+\newcommand{\ARGBREAK}{\\&{\tt ~~~~}}
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
 \newcommand{\TTNBKEY}[1]{\ttnbkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
@@ -1849,29 +1850,31 @@ When \verb|min::gen| values are stored in static or stack memory, they
 should be stored in vectors constructed and accessed using the following:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{static\_gen}\verb|<unsigned size> ( void )|
+\verb|(constructor) min::| & \MINKEY{static\_gen}%
+    \verb|<min::unsptr size> ( void )|
 \LABEL{MIN::STATIC_GEN} \\
 \verb|(constructor) min::| & \MINKEY{static\_num\_gen}%
-    \verb|<unsigned size> ( void )|
+    \verb|<min::unsptr size> ( void )|
 \LABEL{MIN::STATIC_NUM_GEN} \\
-\verb|(constructor) min::| & \MINKEY{stack\_gen}\verb|<unsigned size> ( void )|
+\verb|(constructor) min::| & \MINKEY{stack\_gen}%
+    \verb|<min::unsptr size> ( void )|
 \LABEL{MIN::STACK_GEN} \\
 \verb|(constructor) min::| & \MINKEY{stack\_num\_gen}%
-    \verb|<unsigned size> ( void )|
+    \verb|<min::unsptr size> ( void )|
 \LABEL{MIN::STACK_NUM_GEN} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen & min::| & \ttkey{operator [ ]} \\
-               & \verb|    ( min::static_gen<> & vec, unsigned i )|
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::static_gen<> & vec, min::unsptr i )|
 \LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]} \\
-               & \verb|    ( min::static_num_gen<> & vec, unsigned i )|
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::static_num_gen<> & vec, min::unsptr i )|
 \LABEL{MIN::STATIC_NUM_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]} \\
-               & \verb|    ( min::stack_gen<> & vec, unsigned i )|
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::stack_gen<> & vec, min::unsptr i )|
 \LABEL{MIN::STACK_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]} \\
-               & \verb|    ( min::stack_num_gen<> & vec, unsigned i )|
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::stack_num_gen<> & vec, min::unsptr i )|
 \LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
 \end{tabular}\end{indpar}
 
@@ -1931,11 +1934,11 @@ stub attached to \verb|s1|.  This is done by the follwing functions:
 \LABEL{MUP::ACC_WRITE_STUB_UPDATE} \\
 \verb|void MUP::|
     & \MUPKEY{acc\_write\_update} \\
-    & \verb|    ( min::stub * s1, min::gen * p, unsigned n )|
+    & \verb|    ( min::stub * s1, min::gen * p, min::unsptr n )|
 \LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
 \verb|void MUP::|
     & \MUPKEY{acc\_write\_num\_update} \\
-    & \verb|    ( min::stub * s1, min::gen * p, unsigned n )|
+    & \verb|    ( min::stub * s1, min::gen * p, min::unsptr n )|
 \LABEL{MUP::ACC_WRITE_NUM_UPDATE} \\
 \end{tabular}\end{indpar}
 
@@ -2276,10 +2279,10 @@ The following functions allocate and deallocate bodies:
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|void MUP::|
-    & \MUPKEY{new\_body}\verb| ( min::stub * s, unsigned n )|
+    & \MUPKEY{new\_body}\verb| ( min::stub * s, min::unsptr n )|
 \LABEL{MUP::NEW_BODY} \\
 \verb|void MUP::|
-    & \MUPKEY{deallocate\_body}\verb| ( min::stub * s, unsigned n )|
+    & \MUPKEY{deallocate\_body}\verb| ( min::stub * s, min::unsptr n )|
 \LABEL{MUP::DEALLOCATE_BODY} \\
 \end{tabular}\end{indpar}
 
@@ -2302,7 +2305,7 @@ the smaller of \verb|n| and
 The function
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
-\verb|unsigned MUP::|
+\verb|min::unsptr MUP::|
     & \MUPKEY{body\_size\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::BODY_SIZE_OF} \\
 \end{tabular}\end{indpar}
@@ -2338,7 +2341,7 @@ can be used:
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
 \verb|(constructor) MUP::| & \MUPKEY{resize\_body} \\
     & \verb|    ( min::stub * s,| \\
-    & \verb|      unsigned new_size, unsigned old_size )|
+    & \verb|      min::unsptr new_size, min::unsptr old_size )|
 \LABEL{MUP::RESIZE_BODY} \\
 \verb|void * & MUP::| & \MUPKEY{new\_body\_pointer\_ref}%
 	     \verb| ( MUP::resize_body & rb )| 
@@ -2553,7 +2556,7 @@ The following functions create new general string values:
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_STR_GEN} \\
 \verb|min::gen min::|
-    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p, unsigned n )|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
 \end{tabular}\end{indpar}
 
@@ -2583,19 +2586,20 @@ a string \verb|min::gen| value.
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
+\verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( min::gen v )|
 \LABEL{MIN::STRHASH_OF_GEN} \\[1ex]
 \verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen v )|
 \LABEL{MIN::STRCPY_OF_GEN} \\
 \verb|char * min::|
-    & \MINKEY{strncpy}\verb| ( char * p, min::gen v, unsigned n )|
+    & \MINKEY{strncpy}\verb| ( char * p, min::gen v, min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_GEN} \\[1ex]
 \verb|int min::| & \MINKEY{strcmp}\verb| ( const char * p, min::gen v )|
 \LABEL{MIN::STRCMP_OF_GEN} \\
 \verb|int min::|
-    & \MINKEY{strncmp}\verb| ( const char * p, min::gen v, unsigned n )|
+    & \MINKEY{strncmp} \\
+    & \verb|    ( const char * p, min::gen v, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -2613,7 +2617,7 @@ the following functions are provided:
 \verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( const char * p )|
 \LABEL{MIN::STRHASH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{strnhash}\verb| ( const char * p, unsigned n )|
+    & \MINKEY{strnhash}\verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::STRNHASH} \\
 \end{tabular}\end{indpar}
 
@@ -2654,9 +2658,9 @@ a \key{string pointer}:
 \verb|void min::|
     & \MINKEY{initialize}\verb| ( min::str_pointer & sp, min::gen v )|
 \LABEL{MIN::INIT_OF_STR_POINTER} \\[1ex]
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::str_pointer & sp )|
+\verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::str_pointer & sp )|
 \LABEL{MIN::STRLEN_OF_STR_POINTER} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::str_pointer & sp )|
+\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( min::str_pointer & sp )|
 \LABEL{MIN::STRHASH_OF_STR_POINTER} \\[1ex]
 \verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::str_pointer & sp )|
 \LABEL{MIN::STRCPY_OF_STR_POINTER} \\
@@ -2664,7 +2668,7 @@ a \key{string pointer}:
     & \MINKEY{strncpy}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( char * p,| \\
-      \verb|   min::str_pointer & sp, unsigned n )| \\[1ex]
+      \verb|   min::str_pointer & sp, min::unsptr n )| \\[1ex]
       \end{tabular}
 \LABEL{MIN::STRNCPY_OF_STR_POINTER} \\[1ex]
 \verb|int min::|
@@ -2674,7 +2678,7 @@ a \key{string pointer}:
     & \MINKEY{strncmp}%
       \begin{tabular}[t]{@{}l@{}}
       \verb|( const char * p,| \\
-      \verb|  min::str_pointer & sp, unsigned n )| \\[1ex]
+      \verb|  min::str_pointer & sp, min::unsptr n )| \\[1ex]
       \end{tabular}
 \LABEL{MIN::STRNCMP_OF_STR_POINTER} \\[1ex]
 \verb|const char      |
@@ -2770,9 +2774,9 @@ and the length and hash of the string.
 \LABEL{MUP::LONG_STR_OF} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
-\verb|unsigned MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
+\verb|min::unsptr MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::LENGTH_OF_LONG_STR} \\
-\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
+\verb|min::uns32 MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
 \end{tabular}\end{indpar}
 
@@ -2814,15 +2818,15 @@ and has an immutable value.
 The label value may be read by the protected functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{lab\_of}%
+\verb|min::unsptr min::| & \MINKEY{lab\_of}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::gen * p, unsigned n,| \\
+	  \verb| ( min::gen * p, min::unsptr n,| \\
 	  \verb|   const min::stub * s )|
 	  \end{tabular}
 \LABEL{MIN::LAB_OF} \\
-\verb|unsigned min::| & \MINKEY{lab\_of}%
+\verb|min::unsptr min::| & \MINKEY{lab\_of}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::gen * p, unsigned n,| \\
+	  \verb| ( min::gen * p, min::unsptr n,| \\
 	  \verb|   min::gen v )|
 	  \end{tabular}
 \LABEL{MIN::LAB_OF_GEN} \\
@@ -2845,9 +2849,9 @@ attribute labels, but would detect illegally long ones.
 The length of a label may be read by the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
+\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
 \LABEL{MIN::LABLEN} \\
-\verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
+\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -2859,7 +2863,7 @@ The hash value of a label may be computed by the following functions:
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}%
-    \verb| ( const min::gen * p, unsigned n )|
+    \verb| ( const min::gen * p, min::unsptr n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
 \end{tabular}\end{indpar}
 
@@ -2893,7 +2897,7 @@ A label may be created by the following protected function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}%
-    \verb| ( const min::gen * p, unsigned n )|
+    \verb| ( const min::gen * p, min::unsptr n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -3393,7 +3397,7 @@ The additional functions for this type of pointer are:
 \verb|void min::| & \MINKEY{attr\_push}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::insertable_vec_pointer & vp,| \\
-      \verb|   const min::gen * p, unsigned n )| \\
+      \verb|   const min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
 
@@ -3406,7 +3410,7 @@ The additional functions for this type of pointer are:
 \verb|void min::| & \MINKEY{aux\_push}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::insertable_vec_pointer & vp,| \\
-      \verb|   const min::gen * p, unsigned n )| \\
+      \verb|   const min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::AUX_PUSH_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
 
@@ -3423,7 +3427,7 @@ The additional functions for this type of pointer are:
 \verb|void min::| & \MINKEY{attr\_pop}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::insertable_vec_pointer & vp,| \\
-      \verb|   min::gen * p, unsigned n )| \\
+      \verb|   min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::ATTR_POP_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
 
@@ -3436,7 +3440,7 @@ The additional functions for this type of pointer are:
 \verb|void min::| & \MINKEY{aux\_pop}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::insertable_vec_pointer & vp,| \\
-      \verb|   min::gen * p, unsigned n )| \\
+      \verb|   min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::AUX_POP_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
 
@@ -4113,14 +4117,14 @@ The functions defined for this are:
 	& \MINKEY{insert\_before}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   min::gen * p, unsigned n )| \\
+	  \verb|   min::gen * p, min::unsptr n )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_BEFORE} \\
 \verb|void min::|
 	& \MINKEY{insert\_after}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   min::gen * p, unsigned n )| \\
+	  \verb|   min::gen * p, min::unsptr n )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_AFTER} \\
 \end{tabular}\end{indpar}
@@ -4785,7 +4789,7 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attribute_pointer & ap,| \\
-	  \verb|   unsigned & length, min::gen name )|
+	  \verb|   min::unsptr & length, min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_PARTIAL} \\
 \verb|min::gen min::|
@@ -4828,7 +4832,7 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::writable_attribute_pointer & wap,| \\
-	  \verb|   unsigned & length, min::gen name )|
+	  \verb|   min::unsptr & length, min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
 \verb|min::gen min::|
@@ -4901,14 +4905,14 @@ The \skey{attribute accessor function}s\index{accessor function!attribute} that
 can be used for reading attribute values and flags are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{count}%
+\verb|min::unsptr min::| & \MINKEY{count}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::COUNT_OF_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{get}%
+\verb|min::unsptr min::| & \MINKEY{get}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, unsigned n,| \\
+    \verb| ( min::gen * out, min::unsptr n,| \\
     \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::GET_OF_ATTRIBUTE_POINTER} \\
@@ -4926,14 +4930,14 @@ can be used for reading attribute values and flags are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{count}%
+\verb|min::unsptr min::| & \MINKEY{count}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap )| \\
     \end{tabular}
 \LABEL{MIN::COUNT_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{get}%
+\verb|min::unsptr min::| & \MINKEY{get}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, unsigned n,| \\
+    \verb| ( min::gen * out, min::unsptr n,| \\
     \verb|   min::writable_attribute_pointer wap )| \\
     \end{tabular}
 \LABEL{MIN::GET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
@@ -4979,7 +4983,7 @@ can be used for writing attribute values and flags are:
 \verb|void min::| & \MINKEY{set\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, unsigned n )| \\
+    \verb|   const min::gen * in, min::unsptr n )| \\
     \end{tabular}
 \LABEL{MIN::SET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|void min::| & \MINKEY{set\_flags\REL}%
@@ -5067,13 +5071,13 @@ pointed at:
 \verb|void min::| & \MINKEY{add\_to\_set\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, unsigned n )| \\
+    \verb|   const min::gen * in, min::unsptr n )| \\
     \end{tabular}
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, unsigned n )| \\
+    \verb|   const min::gen * in, min::unsptr n )| \\
     \end{tabular}
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \end{tabular}\end{indpar}
@@ -5150,10 +5154,10 @@ an object, and all the reverse attribute names associated with an
 attribute of an object.  This can be done with the following
 functions:
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{get\_attributes}%
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{get\_attributes}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, unsigned n,| \\
+    \verb| ( min::gen * out, min::unsptr n,| \\
     \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::GET_ATTRIBUTES} \\
@@ -5162,9 +5166,9 @@ functions:
     \verb| ( min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::REWIND_ATTRIBUTES} \\
-\verb|unsigned min::| & \MINKEY{get\_reverse\_attributes}%
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, unsigned n,| \\
+    \verb| ( min::gen * out, min::unsptr n,| \\
     \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
 \LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
@@ -5239,7 +5243,7 @@ This is a logical time to pay this cost.
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\ttkey}[1]{{\tt ~~#1~~}}
-\newcommand{\ARGBREAK}{\\&{\tt ~~~~~}}
+\renewcommand{\ARGBREAK}{\\&{\tt ~~~~}}
 \newcommand{\INDEXHEADER}[1]{{\bf #1}:\vspace{1ex}}
 \newlength{\TABULARLEN}
 \newenvironment{TABULAR}[1]%
@@ -5459,7 +5463,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::unsgen min::|
     & \MINKEY{indirect\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INDIRECT_AUX_OF} \\
-\verb|unsigned min::| & \MINKEY{index\_of}\verb| ( min::gen v )|
+\verb|min::unsgen min::| & \MINKEY{index\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INDEX_OF} \\
 \verb|min::unsgen min::| & \MINKEY{control\_code\_of}\verb| ( min::gen v )|
 \LABEL{MIN::CONTROL_CODE_OF} \\
@@ -5805,16 +5809,16 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 \verb|void MUP::|
-    & \MUPKEY{new\_body}\verb| ( min::stub * s, unsigned n )|
+    & \MUPKEY{new\_body}\verb| ( min::stub * s, min::unsptr n )|
 \LABEL{MUP::NEW_BODY} \\
 \verb|void MUP::|
     & \MUPKEY{deallocate\_body}\ARGBREAK
-      \verb|    ( min::stub * s, unsigned n )|
+      \verb|    ( min::stub * s, min::unsptr n )|
 \LABEL{MUP::DEALLOCATE_BODY} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|unsigned MUP::|
+\verb|min::unsptr MUP::|
     & \MUPKEY{body\_size\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::BODY_SIZE_OF} \\
 \verb|void * & MUP::| & \MUPKEY{pointer\_ref\_of}%
@@ -5825,8 +5829,8 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|(constructor) MUP::| & \MUPKEY{resize\_body}\ARGBREAK
     \verb|    ( min::stub * s,|\ARGBREAK
-    \verb|      unsigned new_size,|\ARGBREAK
-    \verb|      unsigned old_size )|
+    \verb|      min::unsptr new_size,|\ARGBREAK
+    \verb|      min::unsptr old_size )|
 \LABEL{MUP::RESIZE_BODY} \\
 \verb|void * & MUP::| & \MUPKEY{new\_body\_pointer\_ref}\ARGBREAK
 	     \verb|    ( MUP::resize_body & rb )| 
@@ -5891,7 +5895,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::NEW_STR_GEN} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb| ( const char * p, unsigned n )|
+      \verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
 \end{TABULAR}
 
@@ -5901,21 +5905,21 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::gen v )|
+\verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::gen v )|
+\verb|min:uns32 min::| & \MINKEY{strhash}\verb| ( min::gen v )|
 \LABEL{MIN::STRHASH_OF_GEN} \\
 \verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen v )|
 \LABEL{MIN::STRCPY_OF_GEN} \\
 \verb|char * min::| & \MINKEY{strncpy}\ARGBREAK
                       \verb| ( char * p,|\ARGBREAK
-		      \verb|   min::gen v, unsigned n )|
+		      \verb|   min::gen v, min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_GEN} \\
 \verb|int min::| & \MINKEY{strcmp}\verb| ( const char * p, min::gen v )|
 \LABEL{MIN::STRCMP_OF_GEN} \\
 \verb|int min::| & \MINKEY{strncmp}\ARGBREAK
                    \verb| ( const char * p,|\ARGBREAK
-		   \verb|   min::gen v, unsigned n )|
+		   \verb|   min::gen v, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_GEN} \\
 \end{TABULAR}
 
@@ -5923,7 +5927,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( const char * p )|
 \LABEL{MIN::STRHASH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{strnhash}\verb| ( const char * p, unsigned n )|
+    & \MINKEY{strnhash}\verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::STRNHASH} \\
 \end{TABULAR}
 
@@ -5942,9 +5946,9 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{initialize}\ARGBREAK
       \verb| ( min::str_pointer & sp, min::gen v )|
 \LABEL{MIN::INIT_OF_STR_POINTER} \\[1ex]
-\verb|unsigned min::| & \MINKEY{strlen}\verb| ( min::str_pointer & sp )|
+\verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::str_pointer & sp )|
 \LABEL{MIN::STRLEN_OF_STR_POINTER} \\
-\verb|unsigned min::| & \MINKEY{strhash}\verb| ( min::str_pointer & sp )|
+\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( min::str_pointer & sp )|
 \LABEL{MIN::STRHASH_OF_STR_POINTER} \\[1ex]
 \verb|char * min::| & \MINKEY{strcpy}\ARGBREAK
       \verb| ( char * p, min::str_pointer & sp )|
@@ -5952,7 +5956,7 @@ These are in \verb|min_parameters.h|.
 \verb|char * min::|
     & \MINKEY{strncpy}\ARGBREAK
       \verb| ( char * p,|\ARGBREAK
-      \verb|   min::str_pointer & sp, unsigned n )|
+      \verb|   min::str_pointer & sp, min::unsptr n )|
 \LABEL{MIN::STRNCPY_OF_STR_POINTER} \\[1ex]
 \verb|int min::|
     & \MINKEY{strcmp}\ARGBREAK
@@ -5962,7 +5966,7 @@ These are in \verb|min_parameters.h|.
 \verb|int min::|
     & \MINKEY{strncmp}\ARGBREAK
       \verb|( const char * p,|\ARGBREAK
-      \verb|  min::str_pointer & sp, unsigned n )|
+      \verb|  min::str_pointer & sp, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_STR_POINTER} \\[1ex]
 \verb|const char      |
     & \ttkey{operator [ ]}\ARGBREAK
@@ -5990,9 +5994,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MUP::LONG_STR_OF} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
-\verb|unsigned MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
+\verb|min::uns32 MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::LENGTH_OF_LONG_STR} \\
-\verb|unsigned MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
+\verb|min::uns32 MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
 \end{TABULAR}
 
@@ -6003,19 +6007,19 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
-    \verb| ( min::gen * p, unsigned n,|\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{lab\_of}\ARGBREAK
+    \verb| ( min::gen * p, min::unsptr n,|\ARGBREAK
     \verb|   const min::stub * s )|
 \LABEL{MIN::LAB_OF} \\
-\verb|unsigned min::| & \MINKEY{lab\_of}\ARGBREAK
-    \verb| ( min::gen * p, unsigned n,|\ARGBREAK\verb|   min::gen v )|
+\verb|min::unsptr min::| & \MINKEY{lab\_of}\ARGBREAK
+    \verb| ( min::gen * p, min::unsptr n,|\ARGBREAK\verb|   min::gen v )|
 \LABEL{MIN::LAB_OF_GEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|unsigned min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
+\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
 \LABEL{MIN::LABLEN} \\
-\verb|unsigned min::| & \MINKEY{lablen}\verb| ( min::gen v )|
+\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\
 \end{TABULAR}
 
@@ -6025,13 +6029,13 @@ These are in \verb|min_parameters.h|.
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
-    \verb| ( const min::gen * p, unsigned n )|
+    \verb| ( const min::gen * p, min::unsptr n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
-    \verb| ( const min::gen * p, unsigned n )|
+    \verb| ( const min::gen * p, min::unsptr n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
 \end{TABULAR}
 
@@ -6367,12 +6371,12 @@ These are in \verb|min_parameters.h|.
 \verb|void min::|
 	& \MINKEY{insert\_before}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::gen * p, unsigned n )|
+	  \verb|   min::gen * p, min::unsptr n )|
 \LABEL{MIN::INSERT_BEFORE} \\
 \verb|void min::|
 	& \MINKEY{insert\_after}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::gen * p, unsigned n )|
+	  \verb|   min::gen * p, min::unsptr n )|
 \LABEL{MIN::INSERT_AFTER} \\
 \end{TABULAR}
 
@@ -6414,7 +6418,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
-	  \verb|   unsigned & length, min::gen name )|
+	  \verb|   min::unsptr & length, min::gen name )|
 \LABEL{MIN::LOCATE_PARTIAL} \\
 \verb|min::gen min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
@@ -6451,7 +6455,7 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
-	  \verb|   unsigned & length, min::gen name )|
+	  \verb|   min::unsptr & length, min::gen name )|
 \LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
 \verb|min::gen min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
@@ -6466,12 +6470,12 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.2in}
-\verb|unsigned min::| & \MINKEY{count}%
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
     \verb| ( min::attribute_pointer ap )|
 \LABEL{MIN::COUNT_OF_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{get}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
     \verb|   min::attribute_pointer ap )|
 \LABEL{MIN::GET_OF_ATTRIBUTE_POINTER} \\
 \verb|unsigned min::| & \MINKEY{count\_flags}%
@@ -6485,12 +6489,12 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.2in}
-\verb|unsigned min::| & \MINKEY{count}%
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
     \verb| ( min::writable_attribute_pointer wap )|
 \LABEL{MIN::COUNT_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{get}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
     \verb|   min::writable_attribute_pointer wap )|
 \LABEL{MIN::GET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
@@ -6507,7 +6511,7 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{set\REL}\ARGBREAK
     \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, unsigned n )|
+    \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::SET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
 \verb|void min::| & \MINKEY{set\_flags\REL}\ARGBREAK
     \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
@@ -6535,11 +6539,11 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
     \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, unsigned n )|
+    \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
     \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, unsigned n )|
+    \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \end{TABULAR}
 
@@ -6586,16 +6590,16 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\begin{TABULAR}{1.2in}
-\verb|unsigned min::| & \MINKEY{get\_attributes}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
     \verb|   min::attribute_pointer ap )|
 \LABEL{MIN::GET_ATTRIBUTES} \\
 \verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
     \verb| ( min::attribute_pointer ap )|
 \LABEL{MIN::REWIND_ATTRIBUTES} \\
-\verb|unsigned min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
     \verb|   min::attribute_pointer ap )|
 \LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
 \verb|void min::| & \MINKEY{rewind\_reverse\_attributes}\ARGBREAK
