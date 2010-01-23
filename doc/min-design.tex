@@ -4175,13 +4175,17 @@ applicable to insertable list pointers with the
 same results.  However, insertable list pointers
 can\underline{not} be converted to be updatable or read-only list pointers
 (unlike the situation with vector pointers).
-
+Also, there is one function, {\tt min::set}, that can do more for
+an insertable list pointer than it can for an updatable list pointer.  For
+an insertable list pointer (but not for an updatable list pointer)
+the current value replaced by {\tt min::set}
+may be a sublist, and the replacing value may be
+{\tt min::\EOL EMPTY\_\EOL SUBLIST}.  Thus {\tt min::set} can be used
+to remove a sublist or to create and empty sublist.
 
 Making insertions in object lists requires reservation of the necessary
 space first, in order to be sure that a sequence of insertions will
-all succeed.  The functions used are:
-
-
+all succeed.
 The {\tt min::insert\_reserve} function reserves space for the given number
 of insertion function calls and the given total number of list elements
 to be inserted.  If the later is {\tt 0}, the default, it is taken to
@@ -4189,23 +4193,18 @@ be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
 
-The {\tt min::insert\_reserve} function may \underline{not}
-be called for a pointer before any {\tt start}
-function is called to set the pointer (but \verb|MUP::start| will do).
-However, calling a {\tt start} function after {\tt min::insert\_reserve}
-does \underline{not} cancel or alter the reservation made by
-{\tt min::insert\_\EOL reserve}.
-
 Only one pointer at a time for a given object may have an effective reservation.
 Each call to {\tt min::insert\_reserve} for a list pointer
-to an object invalidates
-all previous calls to {\tt min::insert\_reserve} for any list pointer
+to an object invalidates all previous calls to
+{\tt min::insert\_reserve} for any list pointer
 to the same object.  Errors in this regard involving two different
-list pointers are not detected.
+list pointers will be detected if unsufficient memory is reserved,
+but not otherwise.
 
 Note that {\tt min::insert\_reserve} is the only list pointer
 function that may cause a relocation, and if a relocation occurs,
-all list pointers become invalid and must be restarted.
+all list pointers become invalid and must be refreshed by
+a call to {\tt min::refresh}.
 
 The {\tt min::insert\_reserve} function can increase the size of the object
 if it is insufficient, or instead it can depend upon using
@@ -4218,7 +4217,6 @@ used.  It defaults to the value of \minkey{use\_object\_aux\_stubs}.%
 argument is treated as if it was always {\tt false}:
 see {\tt MIN\_\EOL USES\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
 \pagref{MIN_USES_OBJECT_AUX_STUBS}.}
-
 
 The {\tt min::insert\_before} function inserts list elements
 just before the current position of a list pointer.
@@ -4246,11 +4244,10 @@ be no call to {\tt min::interrupt\REL} (\pagref{MIN::INTERRUPT}) and no
 second call to {\tt min::insert\_reserve\REL}.  There can be calls to
 create and position list pointers.
 
-The following function can be used to remove {\tt n} consecutive elements
+The {\tt min::remove} function can be used to remove
+{\tt n} consecutive elements
 of a list, the first of which is the element currently pointed at by
-the list pointer:
-
-
+the list pointer.
 After removal, the list pointer points at the first element after the
 elements removed, or at the end of the list if there is no such element.
 If there are fewer than {\tt n} elements in the list at and after
@@ -4260,42 +4257,32 @@ pointer is pointed at the end of the list.  The returned value is the
 number of elements actually removed (and is less than {\tt n} if the
 list was too short).  Element removal requires no reservation.
 
-If there are two list pointers, $P_1$ and $P_2$, pointing at list
-elements in the same object, and $P_1$
-is used to insert or remove elements from the list it points at,
-then $P_2$ will be invalidated if:
+If an insertable list pointer {\tt lp2} is used to add or remove
+elements or remove sublists, and there is another list pointer {\tt lp1}
+pointing at the same object, then {\tt lp1} is invalidated and must
+be restarted with a
+{\tt min::\EOL start\_}\,\ldots function\label{RESTARTING_LIST_POINTER}
+if {\tt lp1} is pointing at:
 
 \begin{enumerate}
-\item
-$P_2$ points at a removed element.  This includes elements explicitly
-removed by the operation on $P_1$, and also elements reachable via
-sublists from these elements.  The list structure of an object is a tree
-(and \underline{not} a more general acyclic directed graph), and removing
-any element removes all descendants of that element.
-
-\item
-The $P_1$ operation does an {\tt insert\_before} element $e$
-or an {\tt insert\_after} element
-$e$, and:
-\begin{enumerate}
-\item $P_2$ pointed at $e$.
-\item $e$ is a sublist and $P_2$ is an insertable pointer that
-pointed at $e$'s first element.
-\item $e$ is an empty sublist and $P_2$ is an insertable pointer that
-pointed at $e$'s end.
-\end{enumerate}
-
+\item an element that is removed
+\item an element in a removed sublist
+\item the end of a removed sublist
+\item an element adjacent to an element that is inserted or removed
+\item the end of a list whose last element is inserted or removed
+\item the first element of a sublist that is adjacent to
+      an element that is inserted or removed
+\item the end of an empty sublist that is adjacent to
+      an element that is inserted or removed
 \end{enumerate}
 
 The effects can be subtle
-and not obvious: for example, using $P_1$ to insert before or after
-a list element that is an empty sublist can invalidate $P_2$
-if it points at the end of that sublist.
+and not obvious: for example, using {\tt lp2} to insert before or after
+a list element that is an empty sublist can invalidate {\tt lp1}
+if {\tt lp1} points at the end of that empty sublist.
 
-The invalidation of $P_2$ in the above situations
-is \underline{not} a detectable error
-(just as the invalidation of list pointers by relocation is not
-detectable).
+The invalidation of {\tt lp1} in the above situations
+is \underline{not} a detectable error.
 
 \begin{quote}
 \key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
@@ -4316,33 +4303,7 @@ Any insertion before the end of a list of such a single element list
 is transformed into an insertion after the list's single element.
 \end{quote}
 
-The {\tt min::start\_copy} function can be used to downgrade the
-kind of a list pointer, e.g., going from an insertable to a writable
-list pointer:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::|$xx$\verb|list_pointer & lp,| \\
-	  \verb|   const min::|$yy$\verb|list_pointer & lp2 )|
-	  \end{tabular}
-\LABEL{MIN::START_COPY_XX_YY} \\
-\end{tabular}
-
-where the permitted values of the list pointer `kinds', $xx$ and $yy$, are:
-
-\begin{tabular}{ll}
-$xx$ & $yy$ \\[1ex]
-`'				& `' \\
-`'				& `\verb|writable_|' \\
-`'				& `\verb|insertable_|' \\
-`\verb|writable_|'		& `\verb|writable_|' \\
-`\verb|writable_|'		& `\verb|insertable_|' \\
-`\verb|insertable_|'		& `\verb|insertable_|' \\
-\end{tabular}
-
-\end{indpar}
+TBD
 
 The two argument {\tt min::start\_sublist} function is equivalent
 to {\tt start\_copy} followed by {\tt start\_sublist} on just the
