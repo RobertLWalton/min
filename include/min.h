@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 13:30:08 $
+//   $Date: 2010/01/23 16:10:37 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.220 $
+//   $Revision: 1.221 $
 
 // Table of Contents:
 //
@@ -3846,6 +3846,11 @@ namespace min {
 	         ::list_pointer_type<vecpt> & lp,
     	      const min::internal
 	         ::list_pointer_type<vecpt2> & lp2 );
+    template < class vecpt >
+    min::gen start_sublist
+    	    ( min::insertable_list_pointer & lp,
+    	      const min::internal
+	         ::list_pointer_type<vecpt> & lp2 );
 
     template < class vecpt >
     min::gen next
@@ -3861,7 +3866,7 @@ namespace min {
 	         ::list_pointer_type<vecpt> & lp );
 
     template < class vecpt >
-    void update
+    void set
     	    ( min::internal
 	         ::list_pointer_type<vecpt> & lp,
 	      min::gen value );
@@ -4076,15 +4081,6 @@ namespace min { namespace internal {
 
     // Friends:
 
-#	if MIN_USES_OBJ_AUX_STUBS
-	    friend void min::internal
-	                   ::allocate_stub_list
-		    ( min::stub * & first,
-		      min::stub * & last,
-		      int type,
-		      const min::gen * p, min::unsptr n,
-		      min::uns64 end );
-#	endif
 	friend vecpt & vec_pointer_of<>
 		( min::internal
 		     ::list_pointer_type<vecpt> & lp );
@@ -4138,11 +4134,23 @@ namespace min { namespace internal {
 	friend min::gen start_sublist<>
 		( min::updatable_list_pointer & lp,
 		  const
+		  min::list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::updatable_list_pointer & lp,
+		  const
 		  min::updatable_list_pointer & lp2 );
 	friend min::gen start_sublist<>
 		( min::updatable_list_pointer & lp,
 		  const
 		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::list_pointer & lp2 );
+	friend min::gen start_sublist<>
+		( min::insertable_list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
 	friend min::gen start_sublist<>
 		( min::insertable_list_pointer & lp,
 		  const
@@ -4158,10 +4166,10 @@ namespace min { namespace internal {
 		( min::internal
 		     ::list_pointer_type<vecpt> & lp );
 
-	friend void min::update<>
+	friend void min::set<>
 		( min::updatable_list_pointer & lp,
 		  min::gen value );
-	friend void min::update<>
+	friend void min::set<>
 		( min::insertable_list_pointer & lp,
 		  min::gen value );
 	friend void min::insert_reserve
@@ -4196,7 +4204,14 @@ namespace min { namespace internal {
 	// exist.  Return current.  Index argument must
 	// not be 0.
 	//
-	min::gen forward ( min::unsptr index )
+	min::gen forward ( min::unsptr index );
+    };
+
+    template <class vecpt>
+      inline min::gen min::internal
+                         ::list_pointer_type<vecpt>
+			 ::forward
+	    ( min::unsptr index )
 	{
 	    current_index = index;
 	    current = base[current_index];
@@ -4240,7 +4255,54 @@ namespace min { namespace internal {
 
 	    return current;
 	}
-    };
+
+    template <>
+      inline min::gen min::insertable_list_pointer
+			 ::forward
+	    ( min::unsptr index )
+	{
+	    current_index = index;
+	    current = base[current_index];
+
+	    previous_index = 0;
+	    previous_is_sublist_head = false;
+
+#           if MIN_USES_OBJ_AUX_STUBS
+		current_stub = NULL;
+		previous_stub = NULL;
+#	    endif
+
+	    if ( min::is_list_aux ( current ) )
+	    {
+		if ( current != min::LIST_END )
+		{
+		    previous_index = current_index;
+		    current_index =
+			min::list_aux_of ( current );
+		    current = base[current_index];
+		}
+	    }
+#           if MIN_USES_OBJ_AUX_STUBS
+		else if ( min::is_stub ( current ) )
+		{
+		    min::stub * s =
+		        min::unprotected
+			   ::stub_of ( current );
+		    int type = min::type_of ( s );
+
+		    if ( type == min::LIST_AUX )
+		    {
+		        previous_index = current_index;
+			current_index = 0;
+			current_stub = s;
+			current = min::unprotected::
+			               gen_of ( s );
+		    }
+		}
+#           endif
+
+	    return current;
+	}
 
 } }
 
@@ -4316,6 +4378,25 @@ namespace min {
 	return lp.current = lp2.current;
     }
 
+    template <>
+    inline min::gen start_copy
+            ( min::insertable_list_pointer & lp,
+	      const
+	      min::insertable_list_pointer & lp2 )
+    {
+        MIN_ASSERT (    stub_of ( lp.vecp )
+	             == stub_of ( lp2.vecp ) );
+	lp.current_index = lp2.current_index;
+	lp.previous_index = lp2.previous_index;
+	lp.previous_is_sublist_head =
+	    lp2.previous_is_sublist_head;
+#       if MIN_USES_OBJ_AUX_STUBS
+	    lp.current_stub = lp2.current_stub;
+	    lp.previous_stub = lp2.previous_stub;
+#       endif
+	return lp.current = lp2.current;
+    }
+
     // start_sublist is declared as a friend only for
     // legal compinations of list_pointers, just like
     // start_copy above.
@@ -4326,6 +4407,47 @@ namespace min {
 	         ::list_pointer_type<vecpt> & lp,
     	      const min::internal
 	         ::list_pointer_type<vecpt2> & lp2 )
+    {
+        MIN_ASSERT (    stub_of ( lp.vecp )
+	             == stub_of ( lp2.vecp ) );
+
+	lp.previous_index = lp2.current_index;
+	lp.previous_is_sublist_head = true;
+
+#	if MIN_USES_OBJ_AUX_STUBS
+	    lp.previous_stub = lp2.current_stub;
+	    if ( min::is_stub ( lp2.current ) )
+	    {
+		lp.current_stub =
+		    min::unprotected::
+		         stub_of ( lp2.current );
+		lp.current_index = 0;
+		MIN_ASSERT
+		    (    min::type_of
+		             ( lp.current_stub )
+		      == min::SUBLIST_AUX );
+		lp.current =
+		    min::unprotected::
+			 gen_of ( lp.current_stub );
+		return lp.current;
+	    }
+	    lp.current_stub = NULL;
+#	endif
+
+	lp.current_index =
+	    sublist_aux_of ( lp2.current );
+	if ( lp.current_index == 0 )
+	    lp.current = min::LIST_END;
+	else
+	    lp.current =
+		lp.base[lp.current_index];
+	return lp.current;
+    }
+    template <class vecpt> 
+    inline min::gen start_sublist
+    	    ( min::insertable_list_pointer & lp,
+    	      const min::internal
+	         ::list_pointer_type<vecpt> & lp2 )
     {
         MIN_ASSERT (    stub_of ( lp.vecp )
 	             == stub_of ( lp2.vecp ) );
@@ -4430,6 +4552,72 @@ namespace min {
 	else
 	    return lp.forward ( lp.current_index - 1 );
     }
+    template <>
+    inline min::gen next
+    	    ( min::insertable_list_pointer & lp )
+    {
+        // The code of remove ( lp ) depends upon the
+	// fact that this function does not READ
+	// lp.previous_stub.
+
+
+        if ( lp.current == min::LIST_END )
+	    return min::LIST_END;
+
+#       if MIN_USES_OBJ_AUX_STUBS
+	    if ( lp.current_stub != NULL )
+	    {
+		lp.previous_index = 0;
+		lp.previous_is_sublist_head = false;
+		lp.previous_stub = lp.current_stub;
+
+	        min::uns64 c =
+		    min::unprotected::control_of
+		    	( lp.current_stub );
+		if ( c & min::unprotected::
+			      STUB_POINTER )
+		{
+		    lp.current_stub =
+		        min::unprotected::
+			     stub_of_control ( c );
+		    return
+		        lp.current =
+			    min::unprotected::
+			         gen_of
+				   ( lp.current_stub );
+		}
+		else
+		{
+		    lp.current_index =
+		        min::unprotected::
+			     value_of_control ( c );
+		    lp.current_stub = NULL;
+		    if ( lp.current_index == 0 )
+			lp.current = min::LIST_END;
+		    else
+			lp.current
+			    = lp.base[lp.current_index];
+		    return lp.current;
+		}
+	    }
+#       endif
+
+	if (   lp.current_index
+	     < unprotected::unused_offset_of
+	           ( lp.vecp ) )
+	{
+	    // Current is list (not sublist) head.
+	    //
+	    // Previous does not exist as current is
+	    // not LIST_END.
+	    //
+	    lp.previous_index = lp.current_index;
+	    lp.current_index = 0;
+	    return lp.current = min::LIST_END;
+	}
+	else
+	    return lp.forward ( lp.current_index - 1 );
+    }
 
     template < class vecpt >
     inline min::gen current
@@ -4468,13 +4656,42 @@ namespace min {
 	return start_sublist ( lp, lp );
     }
 
-    // update is declared as a friend only for
+    // Set is declared as a friend only for
     // updatable_ and insertable_ list_pointers.
     //
-    template < class vecpt >
-    inline void update
-    	    ( min::internal
-	         ::list_pointer_type<vecpt> & lp,
+    template <>
+    inline void set
+    	    ( min::updatable_list_pointer & lp,
+	      min::gen value )
+    {
+        MIN_ASSERT ( value != min::LIST_END );
+        MIN_ASSERT ( lp.current != min::LIST_END );
+        MIN_ASSERT ( value == min::EMPTY_SUBLIST
+	             ||
+		     ! is_sublist ( value ) );
+
+#       if MIN_USES_OBJ_AUX_STUBS
+	    min::internal
+	       ::collect_aux_stub ( lp.current );
+	    if ( lp.current_stub != NULL )
+	    {
+		min::unprotected::set_gen_of
+		    ( lp.current_stub, value );
+		lp.current = value;
+	    }
+	    else
+#	endif
+	if ( lp.current_index != 0 )
+	    lp.current =
+	        lp.base[lp.current_index] = value;
+	else
+	{
+	    MIN_ABORT ( "inconsistent list_pointer" );
+	}
+    }
+    template <>
+    inline void set
+    	    ( min::insertable_list_pointer & lp,
 	      min::gen value )
     {
         MIN_ASSERT ( value != min::LIST_END );
@@ -5206,7 +5423,7 @@ namespace min {
 	case ap_type::LOCATE_NONE:
 		if ( ! is_sublist ( c ) )
 		{
-		    update ( wap.dlp, * in );
+		    set ( wap.dlp, * in );
 		    return;
 		}
 	}
@@ -5246,14 +5463,14 @@ namespace min {
 			MIN_ASSERT
 			    ( is_control_code
 			          ( * in ) );
-			update ( lp, * in ++ );
+			set ( lp, * in ++ );
 		    }
 		    if ( n > 0 )
 		        internal::set_more_flags
 			    ( wap, in, n );
 		    else for ( ; is_control_code ( c );
 		                 c = next ( lp ) )
-		        update ( lp,
+		        set ( lp,
 			         new_control_code_gen
 				     ( 0 ) );
 		    return;
