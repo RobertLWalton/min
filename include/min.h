@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 06:23:25 EST 2010
+// Date:	Sat Jan 23 08:04:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 11:29:35 $
+//   $Date: 2010/01/23 13:30:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.219 $
+//   $Revision: 1.220 $
 
 // Table of Contents:
 //
@@ -3910,11 +3910,13 @@ namespace min { namespace internal {
 		use_obj_aux_stubs = false;
 #	    endif
 
-	    // Other members are initialized by start()
-	    // (see below), which sets so or lo.  This
-	    // means that functions that assume a
-	    // pointer has been started should first
-	    // assert that so or lo is not NULL.
+	    current_index = 0;
+	    previous_index = 0;
+#	    if MIN_USES_OBJ_AUX_STUBS
+		current_stub = NULL;
+		previous_stub = NULL;
+#	    endif
+	    previous_is_sublist_head = false;
 	}
 
     private:
@@ -3930,11 +3932,32 @@ namespace min { namespace internal {
 	    // the min::current function.  Set to LIST_
 	    // END by constructor.
 
-	// The remaining members are NOT set by the
-	// constructor.  After construction, a list_
-	// pointer should behave as if it pointed at
-	// the end of an empty list for which insertions
-	// are programming errors.
+	min::unsptr current_index;
+	min::unsptr previous_index;
+	    // See below.
+	bool previous_is_sublist_head;
+	    // True if previous pointer exists and
+	    // points at a sublist pointer.  See below.
+
+#	if MIN_USES_OBJ_AUX_STUBS
+	    min::stub * current_stub;
+	    min::stub * previous_stub;
+	        // See below.
+	    bool use_obj_aux_stubs;
+		// True if list auxiliary stubs are to
+		// be used for insertions if space in
+		// the object auxiliary area runs out.
+#	endif
+
+	min::unsptr reserved_insertions;
+	min::unsptr reserved_elements;
+	    // Set by insert_reserve and decremented by
+	    // insert_{before,after}.  The latter dec-
+	    // rement reserved_insertions once and
+	    // decrement reserved_elements once for
+	    // each element inserted.  These counters
+	    // must never become less than 0 (else
+	    // assert violation).
 
 	// Abstractly there is a current pointer and a
 	// previous pointer.  The current pointer points
@@ -3946,32 +3969,13 @@ namespace min { namespace internal {
 	// before the current position or a removal of
 	// the current element.
 	//
-	// There are also some special cases:
-	//
-	//	The current value is the LIST_END that
-	//	exists when a list_pointer has never
-	//	been started.  There is no current or
-	//	previous pointer.  lo == so == NULL.
-	//
-	//	The current value is the LIST_END that
-	//	is after a list head in an attribute
-	//	vector or hash table entry.  The current
-	//	pointer does not exist, but the previous
-	//	pointer points at the list header.
-	//	previous_is_sublist_head == false.
-	//
-	//	The current value is the LIST_END that
-	//	is after an element in a stub.  The
-	//	current pointer does not exist, but the
-	//	previous pointer points at the stub.
-	//	previous_is_sublist_head == false.
-	//
-	//	The current value is the LIST_END that
-	//	is the end of an empty sublist.  The
-	//	current pointer does not exist, but the
-	//	previous pointer points at the element
-	//	containing EMPTY_SUBLIST.  previous_is_
-	//	sublist_head == true.
+	// The gen_of value of the auxiliary stub is
+	// equivalent to an auxiliary area element
+	// pointed at by a sublist or list pointer.  The
+	// control_of value of the stub is equivalent
+	// to the next value after that in a list, but
+	// that next value must be a list or sublist
+	// pointer or LIST_END.
 	//
 	// The current pointer is in one of the follow-
 	// ing states (here `current' means `current
@@ -4017,13 +4021,47 @@ namespace min { namespace internal {
 	// as a list pointer if the stub is of type
 	// LIST_AUX.
 	//
-	// The gen_of value of the auxiliary stub is
-	// equivalent to an auxiliary area element
-	// pointed at by a sublist or list pointer.  The
-	// control_of value of the stub is equivalent
-	// to the next value after that in a list, but
-	// that next value must be a list or sublist
-	// pointer or LIST_END.
+	// If current == LIST_END one of the following
+	// special cases applies.
+	//
+	//   Current pointer exists:
+	//	current_index != 0
+	//	base[current_index] == LIST_END
+	//	previous pointer does NOT exist
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer points at list head in the
+	//	    attribute vector or hash table:
+	//      [current is the virtual LIST_END after
+	//       a 1-element list whose first element
+	//       is the list head]
+	//      previous_index != 0
+	//      previous_index < unused_offset
+	//	base[previous_index] is the sole element
+	//	    of a 1-element list
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer exists,
+	//   previous_is_sublist_header == true:
+	//      [current is the virtual LIST_END at the
+	//	 end of an EMPTY_SUBLIST]
+	//      previous == EMPTY_SUBLIST
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer exists and points at a stub,
+	//   previous_is_sublist_header == false:
+	//      [current is the LIST_END in the stub
+	//       control]
+	//      control_of ( previous_stub ) == LIST_END
+	//
+	//   Current pointer does NOT exist,
+	//   previous pointer does NOT exist:
+	//      [current is virtual LIST end of a list
+	//       pointer that has never been started]
+	//      The list pointer has never been started
+	//      by a start_... function.   All
+	//      operations should treat the pointer
+	//      as pointing at an empty list.
 	//
 	// If the current pointer points at a stub, the
 	// previous pointer must exist.
@@ -4035,31 +4073,6 @@ namespace min { namespace internal {
 	// SUBLIST, but cannot be a list or sublist
 	// pointer (and in particular cannot point
 	// at a stub of LIST_AUX or SUBLIST_AUX type).
-	//
-	min::unsptr current_index;
-	min::unsptr previous_index;
-	bool previous_is_sublist_head;
-	    // True if previous pointer exists and
-	    // points at a sublist pointer.
-
-#	if MIN_USES_OBJ_AUX_STUBS
-	    min::stub * current_stub;
-	    min::stub * previous_stub;
-	    bool use_obj_aux_stubs;
-		// True if list auxiliary stubs are to
-		// be used for insertions if space in
-		// the object auxiliary area runs out.
-#	endif
-
-	min::unsptr reserved_insertions;
-	min::unsptr reserved_elements;
-	    // Set by insert_reserve and decremented by
-	    // insert_{before,after}.  The latter dec-
-	    // rement reserved_insertions once and
-	    // decrement reserved_elements once for
-	    // each element inserted.  These counters
-	    // must never become less than 0 (else
-	    // assert violation).
 
     // Friends:
 
