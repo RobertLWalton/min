@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jan 19 05:43:37 EST 2010
+// Date:	Sat Jan 23 03:26:47 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/19 10:43:51 $
+//   $Date: 2010/01/23 08:52:24 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.216 $
+//   $Revision: 1.217 $
 
 // Table of Contents:
 //
@@ -104,6 +104,12 @@ namespace min {
     typedef unsigned MIN_INT64_TYPE uns64;
     typedef signed MIN_INT64_TYPE int64;
     typedef double float64;
+
+#   if MIN_POINTER_BITS <= 32
+	typedef uns32 unsptr;
+#   else
+	typedef uns64 unsptr;
+#   endif
 }
 
 // General Value Types and Data
@@ -329,16 +335,11 @@ namespace min { namespace internal {
     // to pointers and vice versa.
 
 #   if MIN_POINTER_BITS <= 32
-	typedef uns32 pointer_uns;
-
 	// For the 32 bit pointer size there is no point
 	// in having a non-zero stub base.
 #	ifndef MIN_STUB_BASE
 #	    define MIN_STUB_BASE 0
 #	endif
-
-#   else
-	typedef uns64 pointer_uns;
 #   endif
 
     // Address of first stub (stub with index 0),
@@ -352,24 +353,22 @@ namespace min { namespace internal {
     // be in accessible memory.
     //
 #   ifdef MIN_STUB_BASE
-	const min::internal::pointer_uns stub_base =
+	const min::unsptr stub_base =
 	    MIN_STUB_BASE;
 	min::stub * const null_stub =
 	    (min::stub *) MIN_STUB_BASE;
 #   else
-	extern min::internal::pointer_uns stub_base;
+	extern min::unsptr stub_base;
 	extern min::stub * null_stub;
 #   endif
 
     inline void * uns64_to_pointer ( min::uns64 v )
     {
-	return (void *)
-	       (min::internal::pointer_uns) v;
+	return (void *) (min::unsptr) v;
     }
     inline min::uns64 pointer_to_uns64 ( void * p )
     {
-	return (min::uns64)
-	       (min::internal::pointer_uns) p;
+	return (min::uns64) (min::unsptr) p;
     }
 
     // Given a ref to an uns64 we need to convert it to
@@ -400,11 +399,10 @@ namespace min { namespace internal {
 	inline min::stub * unsgen_to_stub
 		( min::unsgen v )
 	{
-	    min::internal::pointer_uns p =
-		(min::internal::pointer_uns) v;
+	    min::unsptr p = (min::unsptr) v;
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
-		return ( min::stub * ) p;
+		return (min::stub *) p;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
                  <= MIN_AMAX
 		return (min::stub *) ( p + stub_base );
@@ -419,11 +417,10 @@ namespace min { namespace internal {
 	{
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
-	        return (min::internal::pointer_uns) s;
+	        return (min::unsptr) s;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
                  <= MIN_AMAX
-	        return   (min::internal::pointer_uns) s
-		       - stub_base;
+	        return   (min::unsptr) s - stub_base;
 #           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 	        return s - (min::stub *) stub_base;
 #           else
@@ -436,7 +433,7 @@ namespace min { namespace internal {
         {
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
-	        return ( min::stub * ) v;
+	        return (min::stub *) v;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
                  <= MIN_AMAX
 	        return (min::stub *) ( v + stub_base );
@@ -452,11 +449,10 @@ namespace min { namespace internal {
         {
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
-	        return (min::internal::pointer_uns) s;
+	        return (min::unsptr) s;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
                  <= MIN_AMAX
-	        return   (min::internal::pointer_uns) s
-	               - stub_base;
+	        return   (min::unsptr) s - stub_base;
 #           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 	        return s - (min::stub *) stub_base;
 #           else
@@ -1128,8 +1124,8 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_control
 		( min::uns64 c )
 	{
-	    return ( min::stub * )
-	           (min::internal::pointer_uns)
+	    return (min::stub *)
+	           (min::unsptr)
 	           (c & MIN_CONTROL_VALUE_MASK );
 	}
 
@@ -1139,7 +1135,7 @@ namespace min { namespace unprotected {
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
 		   |
-		   (min::internal::pointer_uns) s
+		   (min::unsptr) s
 		   |
 		   flags;
 	}
@@ -1149,14 +1145,14 @@ namespace min { namespace unprotected {
 	{
 	    return ( min::uns64 ( locator ) << 48 )
 		   |
-		   (min::internal::pointer_uns) s;
+		   (min::unsptr) s;
 	}
 
 	inline min::uns64 renew_control_stub
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
-		   | (min::internal::pointer_uns) s;
+		   | (min::unsptr) s;
 	}
 
 #   elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
@@ -1165,8 +1161,8 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_control
 		( min::uns64 c )
 	{
-	    min::internal::pointer_uns p =
-	       (min::internal::pointer_uns)
+	    min::unsptr p =
+	       (min::unsptr)
 	       (c & MIN_CONTROL_VALUE_MASK );
 	    return (min::stub *)
 	           ( p + min::internal::stub_base );
@@ -1178,7 +1174,7 @@ namespace min { namespace unprotected {
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
 		   |
-	           (   (min::internal::pointer_uns) s
+	           (   (min::unsptr) s
 	             - min::internal::stub_base )
 		   |
 		   flags;
@@ -1189,7 +1185,7 @@ namespace min { namespace unprotected {
 	{
 	    return ( min::uns64 ( locator ) << 48 )
 		   |
-	           (   (min::internal::pointer_uns) s
+	           (   (min::unsptr) s
 	             - min::internal::stub_base );
 	}
 
@@ -1197,7 +1193,7 @@ namespace min { namespace unprotected {
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
-		   | (   (min::internal::pointer_uns) s
+		   | (   (min::unsptr) s
 		       - min::internal::stub_base );
 	}
 
@@ -1207,8 +1203,8 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_control
 		( min::uns64 c )
 	{
-	    min::internal::pointer_uns p =
-	       (min::internal::pointer_uns)
+	    min::unsptr p =
+	       (min::unsptr)
 	       (c & MIN_CONTROL_VALUE_MASK );
 	    return (min::stub *)
 	           min::internal::stub_base + p;
@@ -1250,8 +1246,8 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
-	    return ( min::stub * )
-	           (min::internal::pointer_uns)
+	    return (min::stub *)
+	           (min::unsptr)
 	           (c & MIN_ACC_CONTROL_VALUE_MASK );
 	}
 
@@ -1261,7 +1257,7 @@ namespace min { namespace unprotected {
 	{
 	    return ( min::uns64 ( type_code ) << 56 )
 		   |
-		   (min::internal::pointer_uns) s
+		   (min::unsptr) s
 		   |
 		   flags;
 	}
@@ -1270,7 +1266,7 @@ namespace min { namespace unprotected {
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
-		   | (min::internal::pointer_uns) s;
+		   | (min::unsptr) s;
 	}
 
 #   elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
@@ -1279,8 +1275,8 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
-	    min::internal::pointer_uns p =
-	       (min::internal::pointer_uns)
+	    min::unsptr p =
+	       (min::unsptr)
 	       (c & MIN_ACC_CONTROL_VALUE_MASK );
 	    return (min::stub *)
 	           ( p + min::internal::stub_base );
@@ -1291,7 +1287,7 @@ namespace min { namespace unprotected {
 		  min::uns64 flags = 0 )
 	{
 	    return   ( min::uns64 ( type_code ) << 56 )
-		   | (   (min::internal::pointer_uns) s
+		   | (   (min::unsptr) s
 	               - min::internal::stub_base )
 		   | flags;
 	}
@@ -1300,7 +1296,7 @@ namespace min { namespace unprotected {
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
-		 | (   (min::internal::pointer_uns) s
+		 | (   (min::unsptr) s
 		     - min::internal::stub_base );
 	}
 
@@ -1310,8 +1306,8 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
-	    min::internal::pointer_uns p =
-	       (min::internal::pointer_uns)
+	    min::unsptr p =
+	       (min::unsptr)
 	       (c & MIN_ACC_CONTROL_VALUE_MASK );
 	    return (min::stub *)
 	           min::internal::stub_base + p;
@@ -3652,7 +3648,8 @@ namespace min {
 	  min::gen value )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	unprotected::base(vp)[vp.unused_offset ++] = value;
+	unprotected::base(vp)[vp.unused_offset ++] =
+	    value;
 	unprotected::acc_write_update ( vp.s, value );
     }
 

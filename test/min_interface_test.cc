@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jan 19 01:14:24 EST 2010
+// Date:	Sat Jan 23 03:43:02 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/19 06:21:33 $
+//   $Date: 2010/01/23 08:52:40 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.121 $
+//   $Revision: 1.122 $
 
 // Table of Contents:
 //
@@ -149,20 +149,19 @@ min::stub * end_stub_region;
 //
 void initialize_stub_region ( void )
 {
-    MINT::pointer_uns stp =
-	(MINT::pointer_uns) stub_region;
+    min::unsptr stp = (min::unsptr) stub_region;
     // Check that sizeof min::stub is a power of 2.
     assert ( (   sizeof (min::stub) - 1
 	       & sizeof (min::stub) )
 	     == 0 );
-    MINT::pointer_uns p = stp;
+    min::unsptr p = stp;
     p += sizeof (min::stub) - 1;
     p &= ~ (sizeof (min::stub) - 1 ) ;
     begin_stub_region = (min::stub *) p;
 
 #   ifndef MIN_STUB_BASE
 	min::internal::stub_base =
-	    (MINT::pointer_uns) begin_stub_region;
+	    (min::unsptr) begin_stub_region;
 	min::internal::null_stub = begin_stub_region;
 #   else
 	MIN_ASSERT
@@ -261,9 +260,8 @@ void initialize_body_region ( void )
 {
     MINT::max_fixed_block_size = 1 << 17;
 
-    MINT::pointer_uns stp =
-	(MINT::pointer_uns) body_region;
-    MINT::pointer_uns p = stp;
+    min::unsptr stp = (min::unsptr) body_region;
+    min::unsptr p = stp;
     p += 7;
     p &= ~ 7;
     begin_body_region = (min::uns64 *) p;
@@ -575,7 +573,7 @@ int main ()
 	cout << endl;
 	cout << "Test stub general values:" << endl;
 	cout << "stub: " << hex
-	     << MINT::pointer_uns ( stub )
+	     << min::unsptr ( stub )
 	     << dec << endl;
 	min::gen stubgen = MUP::new_gen ( stub );
 	cout << "stubgen: " << print_gen ( stubgen )
@@ -988,8 +986,7 @@ int main ()
 	void * p1 = (void *) 353456321;
 	void * p2 = (void *) 651946503;
 	static char stubsarea[3*sizeof(min::stub)];
-        MINT::pointer_uns stubp =
-	    MINT::pointer_uns ( stubsarea );
+        min::unsptr stubp = min::unsptr ( stubsarea );
 	stubp += sizeof (min::stub) - 1;
 	stubp &= ~ (sizeof (min::stub) - 1 ) ;
 	min::stub * stubs = (min::stub * ) stubp;
@@ -1863,7 +1860,8 @@ int main ()
 	    MIN_ASSERT ( sua >= 500 );
 	    MIN_ASSERT ( sav == 0 );
 	    MIN_ASSERT ( saa == 0 );
-	    MIN_ASSERT ( st == sh + sht + sav + sua + saa );
+	    MIN_ASSERT
+	        ( st == sh + sht + sav + sua + saa );
 	    MIN_ASSERT ( MUP::body_size_of ( sstub )
 			 ==
 			 st * sizeof ( min::gen ) );
@@ -1881,7 +1879,8 @@ int main ()
 	    min::uns32 lh = MUP::var_offset_of ( lvp );
 	    min::uns32 lht = min::hash_size_of ( lvp );
 	    min::uns32 lav = min::attr_size_of ( lvp );
-	    min::uns32 lua = min::unused_size_of ( lvp );
+	    min::uns32 lua =
+	        min::unused_size_of ( lvp );
 	    min::uns32 laa = min::aux_size_of ( lvp );
 	    min::uns32 lt = min::total_size_of ( lvp );
 	    cout << "lh: " << lh << " lht: " << lht
@@ -1893,7 +1892,8 @@ int main ()
 	    MIN_ASSERT ( lua >= 70000 );
 	    MIN_ASSERT ( lav == 0 );
 	    MIN_ASSERT ( laa == 0 );
-	    MIN_ASSERT ( lt == lh + lht + lav + lua + laa );
+	    MIN_ASSERT
+	        ( lt == lh + lht + lav + lua + laa );
 	    MIN_ASSERT ( MUP::body_size_of ( lstub )
 			 ==
 			 lt * sizeof ( min::gen ) );
@@ -2090,7 +2090,8 @@ int main ()
 	        ( min::attr_size_of ( lvp ) == 0 );
 	    min::attr_push ( lvp, num1 );
 	    MIN_ASSERT ( lbase[av] == num1 );
-	    MIN_ASSERT ( min::attr_size_of ( lvp ) == 1 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( lvp ) == 1 );
 	    MIN_ASSERT ( cua == av + 1 );
 	    lbase[av+1] = num0;
 	    lbase[av+2] = num0;
@@ -2103,7 +2104,8 @@ int main ()
 	    MIN_ASSERT ( lbase[av+2] == num2 );
 	    MIN_ASSERT ( lbase[av+3] == num3 );
 	    MIN_ASSERT ( attr ( lvp, 3 ) == num3 );
-	    MIN_ASSERT ( min::attr_size_of ( lvp ) == 4 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( lvp ) == 4 );
 	    MIN_ASSERT ( cua == av + 4 );
 	    MIN_ASSERT
 		(    min::unused_size_of ( lvp )
@@ -2144,7 +2146,8 @@ int main ()
 	    MIN_ASSERT ( outv[1] == num1 );
 	    MIN_ASSERT ( outv[2] == num2 );
 	    MIN_ASSERT ( outv[3] == num3 );
-	    MIN_ASSERT ( min::attr_size_of ( lvp ) == 0 );
+	    MIN_ASSERT
+	        ( min::attr_size_of ( lvp ) == 0 );
 	    MIN_ASSERT ( cua == av );
 	    MIN_ASSERT
 		(    min::unused_size_of ( lvp )
@@ -2180,7 +2183,8 @@ int main ()
 
 	    min::attr_push ( lvp, fillv, 35000 - 4 );
 	    min::aux_push ( lvp, fillv, 35000 - 4 );
-	    MIN_ASSERT ( min::unused_size_of ( lvp ) == 0 );
+	    MIN_ASSERT
+	        ( min::unused_size_of ( lvp ) == 0 );
 	    MIN_ASSERT ( cua == caa );
 	    desire_failure (
 		min::attr_push ( lvp, num3 );
