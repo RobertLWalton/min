@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 04:05:18 EST 2010
+// Date:	Sat Jan 23 06:23:25 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 10:28:03 $
+//   $Date: 2010/01/23 11:29:35 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.218 $
+//   $Revision: 1.219 $
 
 // Table of Contents:
 //
@@ -603,14 +603,6 @@ namespace min { namespace unprotected {
 		 + ( (unsgen) GEN_INDIRECT_AUX
 		     << VSIZE ) );
     }
-    inline min::gen new_packed_aux_gen
-	    ( unsigned p, unsigned i )
-    {
-	return (min::gen)
-	       (   ( (unsgen) p << (VSIZE/2) ) + i
-		 + ( (unsgen)
-		     GEN_PACKED_AUX << VSIZE ) );
-    }
     inline min::gen new_index_gen ( unsgen i )
     {
 	return (min::gen)
@@ -638,13 +630,6 @@ namespace min { namespace unprotected {
 	return (min::gen)
 	    ( ( (unsgen ) v & ~ internal::VMASK )
 	      + p );
-    }
-    inline min::gen renew_packed_aux_gen
-	    ( min::gen v, unsigned p )
-    {
-	return (min::gen)
-	    ( ( (unsgen ) v & ~ internal::VHIHALFMASK )
-	      + ( (unsgen) p << (VSIZE/2) ) );
     }
 } }
 
@@ -710,14 +695,6 @@ namespace min {
 	MIN_ASSERT ( p < (unsgen) 1 << VSIZE );
 	return unprotected::new_indirect_aux_gen
 			( p );
-    }
-    inline min::gen new_packed_aux_gen
-	    ( unsigned p, unsigned i )
-    {
-	MIN_ASSERT ( p < 1 << ( VSIZE / 2 ) );
-	MIN_ASSERT ( i < 1 << ( VSIZE / 2 ) );
-	return unprotected::
-	       new_packed_aux_gen ( p, i );
     }
     inline min::gen new_index_gen ( unsgen i )
     {
@@ -822,11 +799,6 @@ namespace min {
 	    (    (unsgen) v >> VSIZE
 	      == GEN_INDIRECT_AUX );
     }
-    inline bool is_packed_aux ( min::gen v )
-    {
-	return
-	    ( (unsgen) v >> VSIZE == GEN_PACKED_AUX );
-    }
     inline bool is_index ( min::gen v )
     {
 	return ( (unsgen) v >> VSIZE == GEN_INDEX );
@@ -913,15 +885,6 @@ namespace min { namespace unprotected {
     {
 	return (unsgen) v & internal::VMASK;
     }
-    inline unsigned packed_aux_of ( min::gen v )
-    {
-	return   ( (unsgen) v >> ( VSIZE / 2 ) )
-	       & internal::VHALFMASK;
-    }
-    inline unsigned packed_index_of ( min::gen v )
-    {
-	return (unsgen) v & internal::VHALFMASK;
-    }
     inline unsgen index_of ( min::gen v )
     {
 	return (unsgen) v & internal::VMASK;
@@ -978,16 +941,6 @@ namespace min {
     {
 	MIN_ASSERT ( is_indirect_aux ( v ) );
 	return unprotected::indirect_aux_of ( v );
-    }
-    inline unsigned packed_aux_of ( min::gen v )
-    {
-	MIN_ASSERT ( is_packed_aux ( v ) );
-	return unprotected::packed_aux_of ( v );
-    }
-    inline unsigned packed_index_of ( min::gen v )
-    {
-	MIN_ASSERT ( is_packed_aux ( v ) );
-	return unprotected::packed_index_of ( v );
     }
     inline unsgen index_of ( min::gen v )
     {
