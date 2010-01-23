@@ -1102,10 +1102,9 @@ Finish Labels Test!
 Start Objects Test!
 
 Test object size functions:
-smaxht: 107
-lmaxht: 4294967295
+maxht: 4294967295
 min_interface_test.cc:XXXX assert:
-    lmaxht >= 4000000 true.
+    maxht >= 4000000 true.
 
 Test short objects:
 MINT::acc_expand_stub_free_list (1) called
