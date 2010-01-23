@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 10:50:01 EDT 2009
+// Date:	Sat Jan 23 03:40:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/23 14:58:40 $
+//   $Date: 2010/01/23 08:52:10 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents:
 //
@@ -116,7 +116,7 @@ const char * MOS::get_parameter ( const char * name )
 
 bool MOS::trace_pools = false;
 
-static MINT::pointer_uns max_mmap_size = 1ul << 31;
+static min::unsptr max_mmap_size = 1ul << 31;
     // Largest size that can be given to mmap
     // without it returning an ENOMEM error.
     // This is because the system does not support
@@ -129,8 +129,8 @@ static MINT::pointer_uns max_mmap_size = 1ul << 31;
 //
 static bool create_compare = false;
 
-static MINT::pointer_uns saved_pagesize;
-inline MINT::pointer_uns pagesize ( void )
+static min::unsptr saved_pagesize;
+inline min::unsptr pagesize ( void )
 {
     if ( saved_pagesize == 0 )
         saved_pagesize = sysconf ( _SC_PAGESIZE );
@@ -169,8 +169,8 @@ inline void * error ( int n )
 
 const char * MOS::pool_error ( void * address )
 {
-    MINT::pointer_uns mask = ::pagesize() - 1;
-    unsigned n = (MINT::pointer_uns) address & mask;
+    min::unsptr mask = ::pagesize() - 1;
+    unsigned n = (min::unsptr) address & mask;
     if ( n == 0 ) return NULL;
     assert ( n < pool_limit );
     return pool_message[n];
@@ -255,8 +255,8 @@ static ostream & operator <<
 	( ostream & out, const used_pool & p )
 {
     out << hex
-        << (MINT::pointer_uns) p.start << "-"
-        << (MINT::pointer_uns) p.end << dec;
+        << (min::unsptr) p.start << "-"
+        << (min::unsptr) p.end << dec;
     if ( p.permissions[0] != 0 )
         out << " " << p.permissions;
     return out;
@@ -352,10 +352,8 @@ static void read_used_pools ( void )
 		<< endl << "    " << line << endl;
 	    exit ( 2 );
 	}
-	if ( overlap ( (void *)
-	               (MINT::pointer_uns) start,
-		       (void *)
-	               (MINT::pointer_uns) end ) )
+	if ( overlap ( (void *) (min::unsptr) start,
+		       (void *) (min::unsptr) end ) )
 	{
 	    fatal_error()
 	        << "bad " << name
@@ -364,8 +362,8 @@ static void read_used_pools ( void )
 	    exit ( 2 );
 	}
 	used_pools_push
-	    ( (void *)(MINT::pointer_uns) start,
-	      (void *)(MINT::pointer_uns) end,
+	    ( (void *)(min::unsptr) start,
+	      (void *)(min::unsptr) end,
 	      permissions );
     }
     maps.close();
@@ -479,7 +477,7 @@ static void dump_compare_pools ( void )
 // preceeds some used pool.
 //
 static void * find_unused
-    ( void * begin, MINT::pointer_uns size )
+    ( void * begin, min::unsptr size )
 {
     void * best = NULL;
     for ( unsigned i = 0; i < used_pools_count; ++ i )
@@ -510,12 +508,12 @@ static void * find_unused
 // Execute new_pool_at without tracing.
 //
 static void * new_pool_at_internal
-	( MINT::pointer_uns size, void * start )
+	( min::unsptr size, void * start )
 {
-    MINT::pointer_uns offset = 0;
+    min::unsptr offset = 0;
     while ( offset < size )
     {
-        MINT::pointer_uns increment = size - offset;
+        min::unsptr increment = size - offset;
 	if ( increment > max_mmap_size )
 	    increment = max_mmap_size;
 
@@ -568,14 +566,14 @@ void * MOS::new_pool_at
     if ( trace_pools )
         cout << "TRACE: new_pool_at ( "
 	     << pages << ", 0x" << hex
-	     << (MINT::pointer_uns) start << " )"
+	     << (min::unsptr) start << " )"
 	     << dec << endl;
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
     void * end = (void *) ( (char *) start + size );
-    MINT::pointer_uns mask = ::pagesize() - 1;
-    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    min::unsptr mask = ::pagesize() - 1;
+    if ( ( (min::unsptr) start & mask ) != 0 )
     {
         fatal_error()
 	    << "start address is not a multiple of page"
@@ -621,14 +619,14 @@ void * MOS::new_pool_between
         cout << "TRACE: new_pool_between ( "
 	     << pages
 	     << ", 0x" << hex
-	     << (MINT::pointer_uns) begin
+	     << (min::unsptr) begin
 	     << ", 0x" << hex
-	     << (MINT::pointer_uns) end
+	     << (min::unsptr) end
 	     << " )" << dec << endl;
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
-    MINT::pointer_uns mask = ::pagesize() - 1;
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
+    min::unsptr mask = ::pagesize() - 1;
 
     read_used_pools();
 
@@ -682,8 +680,8 @@ void * MOS::new_pool ( min::uns64 pages )
 	dump_used_pools();
     }
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
 
     void * result;
 
@@ -708,8 +706,8 @@ void * MOS::new_pool ( min::uns64 pages )
 	    }
 	}
 
-	MINT::pointer_uns mask = ::pagesize() - 1;
-	if (    ( mask & (MINT::pointer_uns) result )
+	min::unsptr mask = ::pagesize() - 1;
+	if (    ( mask & (min::unsptr) result )
 	     != 0 )
 	{
 	    fatal_error()
@@ -749,13 +747,13 @@ void MOS::free_pool
     if ( trace_pools )
         cout << "TRACE: free_pool ( "
 	     << pages << ", 0x" << hex
-	     << (MINT::pointer_uns) start << " )"
+	     << (min::unsptr) start << " )"
 	     << dec << endl;
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
-    MINT::pointer_uns mask = ::pagesize() - 1;
-    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
+    min::unsptr mask = ::pagesize() - 1;
+    if ( ( (min::unsptr) start & mask ) != 0 )
     {
         fatal_error()
 	    << "start address is not a multiple of page"
@@ -830,15 +828,15 @@ void MOS::move_pool
     if ( trace_pools )
         cout << "TRACE: move_pool ( "
 	     << pages << ", 0x" << hex
-	     << (MINT::pointer_uns) new_start << ", 0x"
-	     << (MINT::pointer_uns) old_start << " )"
+	     << (min::unsptr) new_start << ", 0x"
+	     << (min::unsptr) old_start << " )"
 	     << dec << endl;
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
-    MINT::pointer_uns mask = ::pagesize() - 1;
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
+    min::unsptr mask = ::pagesize() - 1;
 
-    if ( ( (MINT::pointer_uns) new_start & mask ) != 0 )
+    if ( ( (min::unsptr) new_start & mask ) != 0 )
     {
         fatal_error()
 	    << "new start address is not a multiple of"
@@ -846,7 +844,7 @@ void MOS::move_pool
 	exit ( 2 );
     }
 
-    if ( ( (MINT::pointer_uns) old_start & mask ) != 0 )
+    if ( ( (min::unsptr) old_start & mask ) != 0 )
     {
         fatal_error()
 	    << "old start address is not a multiple of"
@@ -944,14 +942,14 @@ void MOS::inaccess_pool
     if ( trace_pools )
         cout << "TRACE: inaccess_pool ( "
 	     << pages << ", 0x" << hex
-	     << (MINT::pointer_uns) start << " )"
+	     << (min::unsptr) start << " )"
 	     << dec << endl;
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
-    MINT::pointer_uns mask = ::pagesize() - 1;
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
+    min::unsptr mask = ::pagesize() - 1;
 
-    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    if ( ( (min::unsptr) start & mask ) != 0 )
     {
         fatal_error()
 	    << "start address is not a multiple of"
@@ -991,14 +989,14 @@ void MOS::access_pool
     if ( trace_pools )
         cout << "TRACE: access_pool ( "
 	     << pages << ", 0x" << hex
-	     << (MINT::pointer_uns) start << " )"
+	     << (min::unsptr) start << " )"
 	     << dec << endl;
 
-    MINT::pointer_uns size =
-        (MINT::pointer_uns) pages * ::pagesize();
-    MINT::pointer_uns mask = ::pagesize() - 1;
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
+    min::unsptr mask = ::pagesize() - 1;
 
-    if ( ( (MINT::pointer_uns) start & mask ) != 0 )
+    if ( ( (min::unsptr) start & mask ) != 0 )
     {
         fatal_error()
 	    << "start address is not a multiple of"

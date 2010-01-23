@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Dec 18 13:21:59 EST 2009
+// Date:	Sat Jan 23 03:42:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/18 19:27:54 $
+//   $Date: 2010/01/23 08:52:10 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.25 $
+//   $Revision: 1.26 $
 
 // Table of Contents:
 //
@@ -263,9 +263,9 @@ static void stub_allocator_initializer ( void )
 
 #   ifndef MIN_STUB_BASE
 	MINT::null_stub = (min::stub *) stubs;
-	MINT::stub_base = (MINT::pointer_uns) stubs;
+	MINT::stub_base = (min::unsptr) stubs;
 #   else
-	if ( (MINT::pointer_uns) stubs < MIN_STUB_BASE )
+	if ( (min::unsptr) stubs < MIN_STUB_BASE )
 	{
 	    // Oops, stub vector too low in memory.
 	    // Assume that we are supposed to allocate

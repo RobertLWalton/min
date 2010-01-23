@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 18 12:31:38 EST 2010
+// Date:	Sat Jan 23 03:40:18 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/18 18:10:10 $
+//   $Date: 2010/01/23 08:52:10 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.117 $
+//   $Revision: 1.118 $
 
 // Table of Contents:
 //
@@ -154,7 +154,7 @@ namespace min { namespace internal {
     unsigned lab_hash_mask;
 
 #   ifndef MIN_STUB_BASE
-	MINT::pointer_uns stub_base;
+	min::unsptr stub_base;
 	min::stub * null_stub;
 #   endif
 
