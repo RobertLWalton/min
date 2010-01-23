@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 10:01:01 EST 2010
+// Date:	Sat Jan 23 14:01:44 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 16:10:11 $
+//   $Date: 2010/01/23 19:10:27 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.120 $
+//   $Revision: 1.121 $
 
 // Table of Contents:
 //
@@ -1232,9 +1232,10 @@ min::unsptr min::obj_hash_size ( min::unsptr u )
     else if ( u < long_obj_max_hash_size )
 	while ( true )
 	{
-	    // Invariant:
+	    // Invariants:
 	    //
 	    //    MINT::hash_size[hi] >= u
+	    //    MINT::hash_size[lo] < u
 	    //
 	    int mid = ( lo + hi ) / 2;
 	    if ( MINT::hash_size[mid] >= u ) hi = mid;
@@ -1265,9 +1266,10 @@ min::gen min::new_obj_gen
     else if ( hash_size < long_obj_max_hash_size )
 	while ( true )
 	{
-	    // Invariant:
+	    // Invariants:
 	    //
 	    //    MINT::hash_size[hi] >= u
+	    //    MINT::hash_size[lo] < u
 	    //
 	    int mid = ( lo + hi ) / 2;
 	    if ( MINT::hash_size[mid] >= hash_size )
@@ -1343,10 +1345,10 @@ min::gen min::new_obj_gen
 
 # if MIN_USES_OBJ_AUX_STUBS
 
-// Allocate a chain of stubs containing the n min::gen
-// values in p.  The type of the first stub is given
-// and the other stubs have type min::LIST_AUX.  Each
-// stub but the last points at the next stub.  The
+// Allocate a chain of aux stubs containing the n
+// min::gen values in p.  The type of the first stub is
+// given and the other stubs have type min::LIST_AUX.
+// Each stub but the last points at the next stub.  The
 // control of the last, except for its type field,
 // equals the end value, which may be a list aux value
 // or a pointer to a stub.
@@ -1354,10 +1356,9 @@ min::gen min::new_obj_gen
 // This function returns pointers to the first and last
 // stubs allocated.  n > 0 is required.
 //
-// This function asserts that the relocated flag is
-// off both before and after any stub allocations
-// this function performs.  Sufficient stubs should
-// have been reserved in advance.
+// This function asserts that the relocated flag is not
+// set during the execution of this function.  Suffi-
+// cient stubs should have been reserved in advance.
 //
 void MINT::allocate_stub_list
 	( min::stub * & first,
@@ -1371,7 +1372,8 @@ void MINT::allocate_stub_list
     // Check for failure to use min::insert_reserve
     // properly.
     //
-    MIN_ASSERT ( ! min::relocated_flag () );
+    bool saved_relocated_flag =
+        min::set_relocated_flag ( false );
 
     first = MUP::new_aux_stub ();
     MUP::set_gen_of ( first, * p ++ );
@@ -1394,7 +1396,8 @@ void MINT::allocate_stub_list
     // Check for failure to use min::insert_reserve
     // properly.
     //
-    MIN_ASSERT ( ! min::relocated_flag () );
+    MIN_ASSERT ( ! min::set_relocated_flag
+                     ( saved_relocated_flag ) );
 }
 
 void MINT::collect_aux_stub_helper ( min::stub * s )
@@ -1436,7 +1439,7 @@ void min::insert_before
     lp.reserved_elements -= n;
 
     MUP::acc_write_update
-            ( (min::stub *) stub_of ( lp.vecp ), p, n );
+            ( MUP::stub_of ( lp.vecp ), p, n );
 
     if ( lp.current == min::LIST_END )
     {
@@ -1823,7 +1826,7 @@ void min::insert_after
     lp.reserved_elements -= n;
 
     MUP::acc_write_update
-	    ( (min::stub *) stub_of ( lp.vecp ), p, n );
+	    ( MUP::stub_of ( lp.vecp ), p, n );
 
     bool previous = ( lp.previous_index != 0 );
 #   if MIN_USES_OBJ_AUX_STUBS
