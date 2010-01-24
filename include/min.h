@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 14:33:01 EST 2010
+// Date:	Sun Jan 24 02:11:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 19:34:47 $
+//   $Date: 2010/01/24 07:54:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.225 $
+//   $Revision: 1.226 $
 
 // Table of Contents:
 //
@@ -479,8 +479,8 @@ namespace min { namespace internal {
 
     // Helper function.
 
-    inline unsigned strnlen
-	    ( const char * p, unsigned n )
+    inline min::unsptr strnlen
+	    ( const char * p, min::unsptr n )
     {
         const char * q = p;
 	while ( * q && n > 0 ) ++ q, -- n;
@@ -519,7 +519,7 @@ namespace min { namespace unprotected {
 	    return (min::gen) v;
 	}
 	inline min::gen new_direct_str_gen
-		( const char * p, unsigned n )
+		( const char * p, min::unsptr n )
 	{
 	    uns32 v = (uns32) GEN_DIRECT_STR << VSIZE;
 	    char * s = ( (char *) & v )
@@ -566,7 +566,7 @@ namespace min { namespace unprotected {
 	    return (min::gen) v;
 	}
 	inline min::gen new_direct_str_gen
-		( const char * p, unsigned n )
+		( const char * p, min::unsptr n )
 	{
 	    uns64 v = (uns64) GEN_DIRECT_STR << VSIZE;
 	    char * s = ( (char *) & v )
@@ -667,7 +667,7 @@ namespace min {
 	return unprotected::new_direct_str_gen ( p );
     }
     inline min::gen new_direct_str_gen
-	    ( const char * p, unsigned n )
+	    ( const char * p, min::unsptr n )
     {
 #       if MIN_IS_COMPACT
 	    MIN_ASSERT
@@ -1024,10 +1024,10 @@ namespace min { namespace unprotected {
 	return int ( min::int64 ( c ) >> 48 );
     }
 
-    inline unsigned value_of_control
+    inline min::unsptr value_of_control
 	    ( min::uns64 c )
     {
-	return unsigned
+	return min::unsptr
 	  ( c & MIN_CONTROL_VALUE_MASK );
     }
 
@@ -3762,34 +3762,37 @@ namespace min { namespace internal {
 	      min::unsptr elements,
 	      bool use_obj_aux_stubs );
 
-#   if MIN_USES_OBJ_AUX_STUBS
+    void remove_list
+	    ( min::gen * & base,
+	      min::unsptr index
+#	      if MIN_USES_OBJ_AUX_STUBS
+	          , min::stub * s = NULL
+#	      endif
+	      );
 
-	// Any aux stubs used by an object MUST always
-	// be reachable from min::gen elements in the
-	// object vector body, although these elements
-	// can be disconnected from the list structure
-	// and therefore garbage.  If a min::gen value
-	// is being completely removed from the object
-	// vector body and it points at an aux stub,
-	// then that aux stub and any aux stubs it
-	// points at must be garbage collected.  This
-	// function checks a min::gen value that is
-	// being completely removed and performs the
-	// appropriate aux stub collections.
-	//
-	void collect_aux_stub_helper ( min::stub * s );
-	inline void collect_aux_stub ( min::gen v )
-	{
-	    if ( ! is_stub ( v ) ) return;
-	    min::stub * s = min::unprotected
-	                       ::stub_of ( v );
-	    int type = min::type_of ( s );
-	    if ( type == min::LIST_AUX
-	         ||
-		 type == min::SUBLIST_AUX )
-	        collect_aux_stub_helper ( s );
-	}
-#   endif
+    // If v is a non-empty sublist pointer, remove
+    // the sublist.  Base is a list pointer base.
+    //
+    inline void remove_sublist
+        ( min::gen * & base, min::gen v )
+    {
+#       if MIN_USES_OBJ_AUX_STUBS
+	    if ( min::is_stub ( v ) )
+	    {
+		min::stub * s =
+		    min::unprotected::stub_of ( v );
+		if (    min::type_of ( s )
+		     == min::SUBLIST_AUX )
+		    remove_list ( base, 0, s );
+	    }
+	    else
+#       endif
+	if ( min::is_sublist_aux ( v )
+	     &&
+	     v != min::EMPTY_SUBLIST )
+	    remove_list
+	        ( base, min::sublist_aux_of ( v  ) );
+    }
 } }
 
 namespace min {
@@ -4174,6 +4177,12 @@ namespace min { namespace internal {
 	//
 	min::gen forward ( min::unsptr index )
 	{
+	    // The code of remove ( lp ) depends upon
+	    // the fact that this function does not READ
+	    // lp.previous_stub or lp.previous_index
+	    // (forward is called from next is called
+	    // from remove).
+
 	    current_index = index;
 	    current = base[current_index];
 
@@ -4573,11 +4582,6 @@ namespace min {
     	    ( min::internal
 	         ::list_pointer_type<vecpt> & lp )
     {
-        // The code of remove ( lp ) depends upon the
-	// fact that this function does not READ
-	// lp.previous_stub.
-
-
         if ( lp.current == min::LIST_END )
 	    return min::LIST_END;
 
@@ -4633,8 +4637,7 @@ namespace min {
     {
         // The code of remove ( lp ) depends upon the
 	// fact that this function does not READ
-	// lp.previous_stub.
-
+	// lp.previous_stub or lp.previous_index.
 
         if ( lp.current == min::LIST_END )
 	    return min::LIST_END;
@@ -4773,12 +4776,12 @@ namespace min {
         MIN_ASSERT ( value == min::EMPTY_SUBLIST
 	             ||
 		     ! is_sublist ( value ) );
+	min::internal
+	   ::remove_sublist ( lp.base, lp.current );
 	unprotected::acc_write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
 #       if MIN_USES_OBJ_AUX_STUBS
-	    min::internal
-	       ::collect_aux_stub ( lp.current );
 	    if ( lp.current_stub != NULL )
 	    {
 		min::unprotected::set_gen_of
