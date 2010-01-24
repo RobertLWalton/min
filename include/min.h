@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 02:11:34 EST 2010
+// Date:	Sun Jan 24 02:55:10 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 07:54:03 $
+//   $Date: 2010/01/24 07:57:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.226 $
+//   $Revision: 1.227 $
 
 // Table of Contents:
 //
@@ -3739,6 +3739,18 @@ namespace min {
     typedef min::internal::list_pointer_type
 	    < min::insertable_vec_pointer >
         insertable_list_pointer;
+
+    // List constants.
+
+    const min::gen LIST_END = (min::gen)
+	( (min::unsgen) min::GEN_LIST_AUX << VSIZE );
+    const min::gen EMPTY_SUBLIST = (min::gen)
+	(    (min::unsgen) min::GEN_SUBLIST_AUX
+	  << VSIZE );
+
+    // Global data.
+
+    extern bool use_obj_aux_stubs;
 }
 
 namespace min { namespace internal {
@@ -3796,14 +3808,6 @@ namespace min { namespace internal {
 } }
 
 namespace min {
-
-    const min::gen LIST_END = (min::gen)
-	( (min::unsgen) min::GEN_LIST_AUX << VSIZE );
-    const min::gen EMPTY_SUBLIST = (min::gen)
-	(    (min::unsgen) min::GEN_SUBLIST_AUX
-	  << VSIZE );
-
-    extern bool use_obj_aux_stubs;
 
     inline bool is_list_end ( min::gen v )
     {

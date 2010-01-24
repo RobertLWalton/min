@@ -251,7 +251,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 23, 2010}
+\date{January 24, 2010}
  
 \maketitle
 
@@ -1108,7 +1108,7 @@ functions:
 \verb|min::gen min::| & \MINKEY{new\_direct\_str\_gen}\verb| ( const char * p )|
 \LABEL{MIN::NEW_DIRECT_STR_GEN} \\
 \verb|min::gen min::|
-    & \MINKEY{new\_direct\_str\_gen}\verb| ( const char * p, unsigned n )|
+    & \MINKEY{new\_direct\_str\_gen}\verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen min::| & \MINKEY{new\_list\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
@@ -1161,7 +1161,7 @@ range errors.
 \verb|min::gen MUP::|\MUPKEY{new\_direct\_str\_gen}\verb| ( const char * p )|
 \LABEL{MUP::NEW_DIRECT_STR_GEN} \\
 \verb|min::gen MUP::|\MUPKEY{new\_direct\_str\_gen}%
-    \verb| ( const char * p, unsigned n )|
+    \verb| ( const char * p, min::unsptr n )|
 \LABEL{MUP::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen MUP::|\MUPKEY{new\_list\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\
@@ -5484,7 +5484,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::NEW_DIRECT_STR_GEN} \\
 \verb|min::gen min::|
     & \MINKEY{new\_direct\_str\_gen}\ARGBREAK
-      \verb| ( const char * p, unsigned n )|
+      \verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen min::| & \MINKEY{new\_list\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MIN::NEW_LIST_AUX_GEN} \\
@@ -5558,7 +5558,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MUP::NEW_DIRECT_STR_GEN} \\
 \verb|min::gen MUP::|
     & \MUPKEY{new\_direct\_str\_gen}\ARGBREAK
-      \verb| ( const char * p, unsigned n )|
+      \verb| ( const char * p, min::unsptr n )|
 \LABEL{MUP::NEW_DIRECT_STR_GEN_WITH_N} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_list\_aux\_gen}\verb| ( min::unsgen p )|
 \LABEL{MUP::NEW_LIST_AUX_GEN} \\

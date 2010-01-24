@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 14:01:44 EST 2010
+// Date:	Sun Jan 24 02:50:33 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 19:10:27 $
+//   $Date: 2010/01/24 07:54:45 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.121 $
+//   $Revision: 1.122 $
 
 // Table of Contents:
 //
@@ -1400,26 +1400,87 @@ void MINT::allocate_stub_list
                      ( saved_relocated_flag ) );
 }
 
-void MINT::collect_aux_stub_helper ( min::stub * s )
-{
-    while ( true )
-    {
-	MINT::collect_aux_stub ( MUP::gen_of ( s ) );
-	min::uns64 c = MUP::control_of ( s );
-
-	MUP::free_aux_stub ( s );
-
-	if ( ( c & MUP::STUB_POINTER ) == 0 ) break;
-	s =  MUP::stub_of_control ( c );
-	int type = min::type_of ( s );
-	if ( type != min::LIST_AUX
-	     &&
-	     type != min::SUBLIST_AUX )
-	    break;
-    }
-}
-
 # endif // MIN_USES_OBJ_AUX_STUBS
+
+// Remove a list.  Free any aux stubs used and
+// set any auxiliary area elements use to min::NONE.
+// Index/s point at the first element of the list.
+// Either index != 0 and s == NULL or index == 0
+// and s != NULL.  Base is the base of a vector
+// pointer.
+//
+void MINT::remove_list
+	( min::gen * & base,
+	  min::unsptr index
+#	if MIN_USES_OBJ_AUX_STUBS
+	  , min::stub * s // = NULL
+#	endif
+	)
+{
+#	if MIN_USES_OBJ_AUX_STUBS
+	    if ( s != NULL )
+	    {
+		min::gen v =
+		    min::unprotected::value_of ( s );
+		if ( min::is_stub ( v ) )
+		{
+		    min::stub * s2 =
+			min::unprotected::stub_of ( v );
+		    if (    min::type_of ( s2 )
+			 == min::SUBLIST_AUX )
+			MINT::remove_list
+			    ( base, 0, s2 );
+		}
+		min::uns64 c = MUP::control_of ( s );
+		MUP::free_aux_stub ( s );
+		if ( c & MUP::STUB_POINTER)
+		    s = MUP::stub_of ( c );
+		else
+		{
+		    min::unsptr vc =
+			MUP::value_of_control ( c );
+		    if ( vc == 0 ) return;
+		    index = c;
+		    s = NULL;
+		}
+	    }
+	    else
+#	endif
+	{
+	    MIN_ASSERT ( index != 0 );
+	    min::gen v = base[index];
+#	    if MIN_USES_OBJ_AUX_STUBS
+		if ( min::is_stub ( v ) )
+		{
+		    min::stub * s2 =
+			min::unprotected::stub_of ( v );
+		    if (    min::type_of ( s2 )
+			 == min::SUBLIST_AUX )
+			MINT::remove_list
+			    ( base, 0, s2 );
+		}
+		else
+#	    endif
+	    if ( min::is_sublist_aux ( v ) )
+	        MINT::remove_list
+		    ( base, min::sublist_aux_of ( v ) );
+	    base[index] = min::NONE;
+	    v = base[--index];
+#	    if MIN_USES_OBJ_AUX_STUBS
+		if ( min::is_stub ( v ) )
+		{
+		    min::stub * s2 =
+			min::unprotected::stub_of ( v );
+		    if (    min::type_of ( s2 )
+			 == min::LIST_AUX )
+		        s = s2, index = 0;
+		}
+		else
+#	    endif
+	    if ( min::is_list_aux ( v ) )
+	        index = min::list_aux_of ( v  );
+	}
+}
 
 void min::insert_before
 	( min::insertable_list_pointer & lp,
@@ -2094,32 +2155,30 @@ min::unsptr min::remove
     {
 	if ( lp.current == min::LIST_END ) break;
 	++ count;
+	MINT::remove_sublist ( lp.base, lp.current );
 
 #       if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		min::stub * last_stub = lp.current_stub;
 		next ( lp );
-		MINT::collect_aux_stub
-		    ( MUP::gen_of ( last_stub ) );
 		MUP::free_aux_stub ( last_stub );
 	    }
 	    else
 #       endif
 	{
 	    MIN_ASSERT ( lp.current_index != 0 );
+	    lp.base[lp.current_index] = min::NONE;
 	    lp.current =
 		lp.base[-- lp.current_index];
-	    if ( lp.current == min::LIST_END )
-	        break;
-	    else if ( min::is_list_aux ( lp.current ) )
+	    if ( min::is_list_aux ( lp.current ) )
 	    {
-		lp.base[lp.current_index] =
-		    min::NONE;
+		if ( lp.current == min::LIST_END )
+		    break;
+		lp.base[lp.current_index] = min::NONE;
 		lp.current_index =
 		    min::list_aux_of ( lp.current );
-		lp.current =
-		    lp.base[lp.current_index];
+		lp.current = lp.base[lp.current_index];
 	    }
 	    else if ( min::is_stub ( lp.current ) )
 		lp.forward ( lp.current_index );
@@ -2279,9 +2338,6 @@ min::unsptr min::remove
 
 #       if MIN_USES_OBJ_AUX_STUBS
 	    lp.previous_stub = NULL;
-	    MINT::collect_aux_stub
-		( lp.base[current_index] );
-
 	    if ( lp.current_stub != NULL )
 	    {
 		lp.base[current_index] =
