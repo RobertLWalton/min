@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 02:50:33 EST 2010
+// Date:	Sun Jan 24 05:03:27 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 07:54:45 $
+//   $Date: 2010/01/24 10:20:12 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.122 $
+//   $Revision: 1.123 $
 
 // Table of Contents:
 //
@@ -1505,9 +1505,10 @@ void min::insert_before
     if ( lp.current == min::LIST_END )
     {
 	// Contiguous means the previous pointer does
-	// not exists and current_index == aux_
+	// not exist and current_index == aux_
 	// offset so we can add elements by copying them
-	// into tha aux area just before current_index.
+	// into the aux area at and just before current_
+	// index.
 	//
 	bool contiguous = false;
 
@@ -1526,12 +1527,19 @@ void min::insert_before
 	if ( lp.previous_index != 0 )
 	    previous_is_list_head =
 	        ! lp.previous_is_sublist_head;
+		// If previous_index != 0 then only
+		// two cases are possible:
+		//    1) previous is a list head
+		//    2) previous is a sublist head
 
+	else
 #	if MIN_USES_OBJ_AUX_STUBS
-	    else if ( lp.previous_stub == NULL )
+	    if ( lp.previous_stub == NULL )
+#       endif
 		contiguous =
 		    ( lp.current_index == aux_offset );
 
+#	if MIN_USES_OBJ_AUX_STUBS
 	    if (    lp.use_obj_aux_stubs
 		 &&     unused_offset
 		      + n + ( ! contiguous )
@@ -1573,6 +1581,9 @@ void min::insert_before
 		}
 		else if ( lp.previous_index != 0 )
 		{
+		    // previous is list head or sublist
+		    // head, as noted above.
+
 		    if ( previous_is_list_head )
 		    {
 		        min::stub * s =
@@ -1589,6 +1600,7 @@ void min::insert_before
 				  MUP::STUB_POINTER ) );
 			fgen = min::new_gen ( s );
 		    }
+
 		    lp.base[lp.previous_index] = fgen;
 		    lp.previous_index = 0;
 		}
@@ -1688,10 +1700,17 @@ void min::insert_before
 	    // Not enough aux area available for all the
 	    // new elements, and aux stubs are allowed.
 	    // Prepare to call allocate_stub_list.
-	    //
-	    min::uns64 end;
+
 	    min::stub * s;
+	        // Stub to which current value is moved
+		// if there is previous pointer does not
+		// exist.
+
+	    min::uns64 end;
 	    int type = min::LIST_AUX;
+	        // Parameters for call to allocate_stub_
+		// list below.
+
 	    if ( lp.current_stub != NULL )
 	    {
 		type = min::type_of ( lp.current_stub );
