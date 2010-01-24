@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 05:27:50 EST 2010
+// Date:	Sun Jan 24 09:28:18 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 10:35:08 $
+//   $Date: 2010/01/24 15:00:59 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.124 $
+//   $Revision: 1.125 $
 
 // Table of Contents:
 //
@@ -26,6 +26,7 @@
 //	Strings
 //	Labels
 //	Objects
+//	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
 
@@ -1337,6 +1338,40 @@ min::gen min::new_obj_gen
     while ( p < endp ) * p ++ = min::LIST_END;
     MUP::set_type_of ( s, type );
     return min::new_gen ( s );
+}
+
+
+// Object Vector Level
+// ------ ------ -----
+
+void min::resize
+    ( min::insertable_vec_pointer & vp,
+      min::unsptr unused_size,
+      min::unsptr var_size )
+{
+    min::stub * s = MUP::stub_of ( vp );
+    min::unsptr old_size = min::total_size_of ( vp );
+    min::unsptr new_size =
+        ( unused_size + var_size + old_size )
+	-
+	(   min::var_size_of ( vp )
+	  + min::hash_size_of ( vp ) );
+    MUP::resize_body r ( s, old_size, new_size );
+    min::gen * & oldb = MUP::base ( vp );
+    min::gen * & newb = * ( min::gen **) &
+	MUP::new_body_pointer_ref ( r );
+
+    // TBD short to long change?
+
+
+
+}
+void min::resize
+    ( min::insertable_vec_pointer & vp,
+      min::unsptr unused_size )
+{
+    min::resize ( vp, unused_size,
+                      min::var_size_of ( vp ) );
 }
 
 

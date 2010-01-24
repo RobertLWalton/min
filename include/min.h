@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 05:08:20 EST 2010
+// Date:	Sun Jan 24 09:24:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 10:20:30 $
+//   $Date: 2010/01/24 15:00:48 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.228 $
+//   $Revision: 1.230 $
 
 // Table of Contents:
 //
@@ -3110,6 +3110,13 @@ namespace min {
 	( min::insertable_vec_pointer & vp,
 	  min::gen * p, min::unsptr n );
 
+    void resize
+	( min::insertable_vec_pointer & vp,
+	  min::unsptr unused_size );
+    void resize
+	( min::insertable_vec_pointer & vp,
+	  min::unsptr unused_size,
+	  min::unsptr var_size );
 
     class vec_pointer
     {
@@ -3241,6 +3248,14 @@ namespace min {
 	friend void aux_pop
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen * p, min::unsptr n );
+
+	friend void resize
+	    ( min::insertable_vec_pointer & vp,
+	      min::unsptr unused_size );
+	friend void resize
+	    ( min::insertable_vec_pointer & vp,
+	      min::unsptr unused_size,
+	      min::unsptr var_size );
 
 	~ vec_pointer ( void )
 	{
@@ -4060,7 +4075,7 @@ namespace min { namespace internal {
 	//       is the list head]
 	//      previous_index != 0
 	//      previous_index < unused_offset
-	//      previous_is_sublist_header == true:
+	//      previous_is_sublist_header == false
 	//	base[previous_index] is the sole element
 	//	    of a 1-element list
 	//
