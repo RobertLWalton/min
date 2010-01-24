@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jul 30 10:11:36 EDT 2009
+// Date:	Sun Jan 24 10:11:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,9 +12,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/07/30 17:02:50 $
+//   $Date: 2010/01/24 15:11:36 $
 //   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents:
 //
@@ -91,6 +91,13 @@ struct print_gen {
 	return s << hex << pg.g << dec;
     }
 };
+
+// Temporary functions until real acc installed.
+// --------------------------------------------
+
+void MUP::deallocate_body
+	( min::stub * s, min::unsptr size )
+{}
 
 // Main Program
 // ---- -------
