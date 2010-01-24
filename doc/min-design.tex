@@ -2379,7 +2379,7 @@ the old body to the new body before the {\tt resize\_\EOL body}
 datum is deconstructed.  The new body will not be touched by
 the garbage collector while the {\tt resize\_\EOL body} datum
 exists, but it may be relocated.  The existing stub \verb|s|
-\underline{must} be protected by the from garbage collection and
+\underline{must} be protected from garbage collection and
 its body protected from reorganization by the user while the
 {\tt resize\_\EOL body} datum exists, but that body may
 also be relocated.  \verb|s| must NOT be deallocated
@@ -3068,23 +3068,17 @@ one of these functions must check the returned value to be sure it is
 as large as the function argument.
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{short\_obj\_hash\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::SHORT_OBJ_HASH_TABLE_SIZE} \\
-\verb|min::uns32 min::|
-    & \MINKEY{short\_obj\_total\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::SHORT_OBJ_TOTAL_SIZE} \\
-\verb|min::uns32 min::|
-    & \MINKEY{long\_obj\_hash\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::LONG_OBJ_HASH_TABLE_SIZE} \\
-\verb|min::uns32 min::|
-    & \MINKEY{long\_obj\_total\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::LONG_OBJ_TOTAL_SIZE} \\
+\verb|min::unsptr min::|
+    & \MINKEY{obj\_hash\_size}\verb| ( min::unsptr u )|
+\LABEL{MIN::OBJ_HASH_TABLE_SIZE} \\
+\verb|min::unsptr min::|
+    & \MINKEY{obj\_total\_size}\verb| ( min::unsptr u )|
+\LABEL{MIN::OBJ_TOTAL_SIZE} \\
 \end{tabular}\end{indpar}
 
 Maximum possible total and hash table size values can be determined
 by presenting these functions with the \verb|u| argument value
-`\verb|min::uns32(-1)|'.
+`\verb|min::unsptr(-1)|'.
 
 An object can be created by the protected function:
 
@@ -6050,19 +6044,13 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.4in}
-\verb|min::uns32 min::|
-    & \MINKEY{short\_obj\_hash\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::SHORT_OBJ_HASH_TABLE_SIZE} \\
-\verb|min::uns32 min::|
-    & \MINKEY{short\_obj\_total\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::SHORT_OBJ_TOTAL_SIZE} \\
-\verb|min::uns32 min::|
-    & \MINKEY{long\_obj\_hash\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::LONG_OBJ_HASH_TABLE_SIZE} \\
-\verb|min::uns32 min::|
-    & \MINKEY{long\_obj\_total\_size}\verb| ( min::uns32 u )|
-\LABEL{MIN::LONG_OBJ_TOTAL_SIZE} \\
+\begin{TABULAR}{1.5in}
+\verb|min::unsptr min::|
+    & \MINKEY{obj\_hash\_size}\verb| ( min::unsptr u )|
+\LABEL{MIN::OBJ_HASH_TABLE_SIZE} \\
+\verb|min::unsptr min::|
+    & \MINKEY{obj\_total\_size}\verb| ( min::unsptr u )|
+\LABEL{MIN::OBJ_TOTAL_SIZE} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -6071,13 +6059,11 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.4in}
-\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::uns32 unused_size,| \\
-    \verb|   min::uns32 hash_size = 0,| \\
-    \verb|   min::uns32 variables_size = 0 )| \\
-    \end{tabular}
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}\ARGBREAK
+    \verb| ( min::uns32 unused_size,|\ARGBREAK
+    \verb|   min::uns32 hash_size = 0,|\ARGBREAK
+    \verb|   min::uns32 variables_size = 0 )|
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{TABULAR}
 
