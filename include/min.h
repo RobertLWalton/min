@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 05:21:14 EST 2010
+// Date:	Sun Jan 24 05:08:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 10:21:23 $
+//   $Date: 2010/01/24 10:20:30 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.229 $
+//   $Revision: 1.228 $
 
 // Table of Contents:
 //
@@ -4060,7 +4060,7 @@ namespace min { namespace internal {
 	//       is the list head]
 	//      previous_index != 0
 	//      previous_index < unused_offset
-	//      previous_is_sublist_header == false
+	//      previous_is_sublist_header == true:
 	//	base[previous_index] is the sole element
 	//	    of a 1-element list
 	//
