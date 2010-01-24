@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 05:03:27 EST 2010
+// Date:	Sun Jan 24 05:27:50 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 10:20:12 $
+//   $Date: 2010/01/24 10:35:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.123 $
+//   $Revision: 1.124 $
 
 // Table of Contents:
 //
@@ -1613,12 +1613,14 @@ void min::insert_before
 		lp.previous_is_sublist_head = false;
 		return;
 	    }
-	    else
 #	endif
-		MIN_ASSERT (      unused_offset
-			        + n + ( ! contiguous )
-		                + previous_is_list_head
-			     <= aux_offset );
+
+	// Insertion will use aux area.
+
+	MIN_ASSERT (      unused_offset
+			+ n + ( ! contiguous )
+			+ previous_is_list_head
+		     <= aux_offset );
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
@@ -1796,11 +1798,13 @@ void min::insert_before
 	    lp.previous_is_sublist_head = false;
 	    return;
 	}
-	else
 #   endif
-	    MIN_ASSERT (      unused_offset
-			    + n + 1 + ( ! previous )
-			 <= aux_offset );
+
+    // Insertion will use aux area.
+
+    MIN_ASSERT (      unused_offset
+		    + n + 1 + ( ! previous )
+		 <= aux_offset );
 
     min::unsptr first = aux_offset - 1;
 
@@ -2019,6 +2023,10 @@ void min::insert_after
 #   endif
 
     // Insertion will use aux area.
+
+    MIN_ASSERT (      unused_offset
+		    + ( n + 1 + ! previous )
+		 <= aux_offset );
 
     min::unsptr first = aux_offset - 1;
 
