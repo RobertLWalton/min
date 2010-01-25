@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 10:02:44 EST 2010
+// Date:	Mon Jan 25 10:47:39 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 16:10:02 $
+//   $Date: 2010/01/25 16:11:37 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.125 $
+//   $Revision: 1.126 $
 
 // Table of Contents:
 //
@@ -1748,8 +1748,11 @@ int main ()
 	// Note: maxht < ( 1 << 22 ) is possible.
 	for ( min::unsptr u = 0; u <= 4000000; ++ u )
 	{
+	    // Use `assert' to avoid to many .out
+	    // lines.
+
 	    min::unsptr t = min::obj_total_size ( u );
-	    assert ( t == u );
+	    assert ( u <= t );
 	    min::unsptr ht = min::obj_hash_size ( u );
 	    if ( u > ht )
 	        assert ( ht == maxht );
@@ -1860,6 +1863,8 @@ int main ()
 	        MUP::attr_offset_of ( svp );
 	    min::unsptr & cua =
 	        MUP::unused_offset_of ( svp );
+	    min::unsptr unused_size =
+		min::unused_size_of ( svp );
 	    MIN_ASSERT ( sbase[ht] == min::LIST_END );
 	    min::set_hash
 	        ( svp, 0, min::EMPTY_SUBLIST );
@@ -1868,9 +1873,7 @@ int main ()
 	    MIN_ASSERT
 	        (    min::hash(svp,0)
 		  == min::EMPTY_SUBLIST );
-	    MIN_ASSERT
-		(    min::unused_size_of ( svp )
-		  == 500 );
+	    MIN_ASSERT ( unused_size >= 500 );
 	    sbase[av] = num0;
 	    MIN_ASSERT
 	        ( sbase[av+0] == num0 );
@@ -1899,7 +1902,7 @@ int main ()
 	    MIN_ASSERT ( cua == av + 4 );
 	    MIN_ASSERT
 		(    min::unused_size_of ( svp )
-		  == 500 - 4 );
+		  == unused_size - 4 );
 
 	    min::unsptr aa = MUP::aux_offset_of ( svp );
 	    min::unsptr & caa =
@@ -1932,7 +1935,7 @@ int main ()
 	    MIN_ASSERT ( caa == aa - 4 );
 	    MIN_ASSERT
 		(    min::unused_size_of ( svp )
-		  == 500 - 8 );
+		  == unused_size - 8 );
 
 	    min::attr_pop ( svp, outv + 1, 3 );
 	    min::attr_pop ( svp, outv[0] );
@@ -1945,7 +1948,7 @@ int main ()
 	    MIN_ASSERT ( cua == av + 0 );
 	    MIN_ASSERT
 		(    min::unused_size_of ( svp )
-		  == 500 - 4 );
+		  == unused_size - 4 );
 	    desire_failure (
 		min::attr_pop ( svp, outv[0] );
 	    );
@@ -1976,7 +1979,8 @@ int main ()
 	    min::aux_push ( svp, fillv, 4 );
 
 	    min::attr_push ( svp, fillv, 250 - 4 );
-	    min::aux_push ( svp, fillv, 250 - 4 );
+	    min::aux_push ( svp, fillv,
+	                    unused_size - 250 - 4 );
 	    MIN_ASSERT
 	        ( min::unused_size_of ( svp ) == 0 );
 	    MIN_ASSERT ( cua == caa );
@@ -2001,6 +2005,8 @@ int main ()
 	        MUP::attr_offset_of ( lvp );
 	    min::unsptr & cua =
 	        MUP::unused_offset_of ( lvp );
+	    min::unsptr unused_size =
+		min::unused_size_of ( lvp );
 	    MIN_ASSERT ( lbase[ht] == min::LIST_END );
 	    min::set_hash
 	        ( lvp, 0, min::EMPTY_SUBLIST );
@@ -2009,9 +2015,7 @@ int main ()
 	    MIN_ASSERT
 	        (    min::hash(lvp,0)
 		  == min::EMPTY_SUBLIST );
-	    MIN_ASSERT
-		(    min::unused_size_of ( lvp )
-		  == 70000 );
+	    MIN_ASSERT ( unused_size >= 70000 );
 	    lbase[av] = num0;
 	    MIN_ASSERT ( lbase[av + 0] == num0 );
 	    MIN_ASSERT
@@ -2037,7 +2041,7 @@ int main ()
 	    MIN_ASSERT ( cua == av + 4 );
 	    MIN_ASSERT
 		(    min::unused_size_of ( lvp )
-		  == 70000 - 4 );
+		  == unused_size - 4 );
 	    min::unsptr aa = MUP::aux_offset_of ( lvp );
 	    min::unsptr & caa =
 	        MUP::aux_offset_of ( lvp );
@@ -2066,7 +2070,7 @@ int main ()
 	    MIN_ASSERT ( caa == aa - 4 );
 	    MIN_ASSERT
 		(    min::unused_size_of ( lvp )
-		  == 70000 - 8 );
+		  == unused_size - 8 );
 
 	    min::attr_pop ( lvp, outv + 1, 3 );
 	    min::attr_pop ( lvp, outv[0] );
@@ -2079,7 +2083,7 @@ int main ()
 	    MIN_ASSERT ( cua == av );
 	    MIN_ASSERT
 		(    min::unused_size_of ( lvp )
-		  == 70000 - 4 );
+		  == unused_size - 4 );
 	    desire_failure (
 		min::attr_pop ( lvp, outv[0] );
 	    );
@@ -2100,7 +2104,7 @@ int main ()
 	    MIN_ASSERT ( caa == aa );
 	    MIN_ASSERT
 		(    min::unused_size_of ( lvp )
-		  == 70000 - 4 );
+		  == unused_size - 4 );
 	    desire_failure (
 		min::aux_pop ( lvp, outv[0] );
 	    );
@@ -2110,7 +2114,8 @@ int main ()
 	    min::aux_push ( lvp, fillv, 4 );
 
 	    min::attr_push ( lvp, fillv, 35000 - 4 );
-	    min::aux_push ( lvp, fillv, 35000 - 4 );
+	    min::aux_push ( lvp, fillv,
+	                    unused_size - 35000 - 4 );
 	    MIN_ASSERT
 	        ( min::unused_size_of ( lvp ) == 0 );
 	    MIN_ASSERT ( cua == caa );
