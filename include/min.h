@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 09:24:15 EST 2010
+// Date:	Mon Jan 25 06:55:23 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 15:00:48 $
+//   $Date: 2010/01/25 16:09:29 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.230 $
+//   $Revision: 1.231 $
 
 // Table of Contents:
 //
@@ -168,7 +168,7 @@ namespace min {
 	const unsigned TSIZE = 8;
 	const unsigned VSIZE = 24;
 	    // Sized of type and value field in a
-	    // min:gen.
+	    // min::gen.
 #	define MIN_AMAX 0xDFFFFFFFu
 	    // Maximum packed stub address value in
 	    // general value.
@@ -218,7 +218,7 @@ namespace min {
 	const unsigned TSIZE = 24;
 	const unsigned VSIZE = 40;
 	    // Sized of type and value field in a
-	    // min:gen.
+	    // min::gen.
 
 #	define MIN_AMAX 0xFFFFFFFFFFFull
 	    // Maximum packed stub address value in
@@ -2879,27 +2879,19 @@ namespace min { namespace internal {
 
     // Flags Bits:
     //
-    //    0:		OBJ_TYPED
-    //    1:    	OBJ_PUBLIC
-    //    2:		OBJ_PRIVATE
-    //    3-4:		long objects only,
-    //			reserved for future use
+    //    Short	    Long
+    //	  Objects   Objects
     //
-    // The flag bits are the low order XXX_OBJ_FLAG_BITS
-    // of the flags, and the higher order bits are the
-    // hash size code I.
+    //    0	    0		OBJ_TYPED
+    //    1    	    1		OBJ_PUBLIC
+    //    2         1		OBJ_PRIVATE
+    //	  3-5	    3-5		reserved for future use
+    //              6-11	long objects only,
+    //				reserved for future use
+    //    3-11      12-27	total size mantissa (M)
+    //    12-15     28-31	total size exponent (E)
     //
-    // hash_size[I] is the size of the hash table in an
-    // object body, in min::gen units.
-    //
-    // If more flag bits are needed for short objects,
-    // suggest encoding total_size as
-    //
-    //		4 bits S
-    //		8 bits N
-    //	        4 bits flags
-    //
-    //     where total_size = N << S.
+    //	    total_size = M << E
     //
     // OBJ_TYPE means object first variable (var[0])
     // points at the object's type.
@@ -2911,68 +2903,91 @@ namespace min { namespace internal {
     // the object and other xxx_vec_pointers may not
     // be created for the object.
 
-    const unsigned SHORT_OBJ_FLAG_BITS = 3;
-    const unsigned LONG_OBJ_FLAG_BITS  = 5;
+    const unsigned SHORT_OBJ_HEADER_SIZE =
+        1 + MIN_IS_COMPACT;
+    const unsigned LONG_OBJ_HEADER_SIZE =
+        2 + 2*MIN_IS_COMPACT;
 
-    const unsigned SHORT_OBJ_HASH_SIZE_CODE_BITS =
-        8 - SHORT_OBJ_FLAG_BITS;
-    const unsigned LONG_OBJ_HASH_SIZE_CODE_BITS =
-        16 - LONG_OBJ_FLAG_BITS;
+    const unsigned SHORT_OBJ_FLAG_BITS = 6;
+    const unsigned LONG_OBJ_FLAG_BITS  = 12;
+    const unsigned SHORT_OBJ_MANTISSA_BITS = 13;
+    const unsigned LONG_OBJ_MANTISSA_BITS  = 16;
+    const unsigned SHORT_OBJ_EXPONENT_BITS = 4;
+    const unsigned LONG_OBJ_EXPONENT_BITS  = 4;
 
+    const min::unsptr SHORT_OBJ_MANTISSA_MASK =
+        ( ( 1 << SHORT_OBJ_MANTISSA_BITS ) - 1 );
+    const min::unsptr LONG_OBJ_MANTISSA_MASK  =
+        ( ( 1 << LONG_OBJ_MANTISSA_BITS ) - 1 );
+
+    const min::unsptr SHORT_OBJ_MAX_VAR_SIZE =
+        ( 1 << 8 ) - 1 - SHORT_OBJ_HEADER_SIZE;
+    const min::unsptr LONG_OBJ_MAX_VAR_SIZE =
+        ( 1 << 16 ) - 1 - LONG_OBJ_HEADER_SIZE;
+    const min::unsptr SHORT_OBJ_MAX_HASH_SIZE_CODE =
+        ( 1 << 8 ) - 1;
+    const min::unsptr LONG_OBJ_MAX_HASH_SIZE_CODE =
+        ( 1 << 16 ) - 1;
+    const min::unsptr SHORT_OBJ_MAX_TOTAL_SIZE =
+        1 << 16;
+    const min::unsptr LONG_OBJ_MAX_TOTAL_SIZE =
+    	LONG_OBJ_MANTISSA_MASK << 15;
+	// This must be <= (1 << 32) in this implemen-
+	// tation because of offsets are stored in
+	// min::uns32's.
+
+    //    hash table size = hash_size[hash_size_code]
+    //
     extern min::uns32 hash_size[];
 
     struct short_obj
     {
-        min::uns8	flags;
         min::uns8	hash_offset;
+        min::uns8	hash_size_code;
         min::uns16	unused_offset;
         min::uns16	aux_offset;
-        min::uns16	total_size;
+        min::uns16	flags;
     };
-
-    const unsigned short_obj_header_size =
-        sizeof ( short_obj ) / sizeof ( min::gen );
 
     struct long_obj
     {
-        min::uns16	flags;
         min::uns16	hash_offset;
+        min::uns16	hash_size_code;
         min::uns32	unused_offset;
         min::uns32	aux_offset;
-        min::uns32	total_size;
+        min::uns32	flags;
     };
-
-    const unsigned long_obj_header_size =
-        sizeof ( long_obj ) / sizeof ( min::gen );
 
     inline min::internal::short_obj * short_obj_of
 	    ( const min::stub * s )
     {
         return (min::internal::short_obj *)
-	       min::unprotected::pointer_of ( s );
+	       unprotected::pointer_of ( s );
     }
 
     inline min::internal::long_obj * long_obj_of
 	    ( const min::stub * s )
     {
         return (min::internal::long_obj *)
-	       min::unprotected::pointer_of ( s );
+	       unprotected::pointer_of ( s );
     }
 
-    inline min::unsptr short_obj_hash_size_of_flags
-	    ( unsigned flags )
+    inline min::unsptr short_obj_total_size_of_flags
+	    ( min::unsptr flags )
     {
-        return min::internal::hash_size
-		[ flags >> min::internal
-		              ::SHORT_OBJ_FLAG_BITS ];
+	flags >>= SHORT_OBJ_FLAG_BITS;
+	return ( flags & SHORT_OBJ_MANTISSA_MASK )
+	       <<
+	       ( flags >> SHORT_OBJ_MANTISSA_BITS );
     }
 
-    inline min::unsptr long_obj_hash_size_of_flags
-	    ( unsigned flags )
+    inline min::unsptr long_obj_total_size_of_flags
+	    ( min::unsptr flags )
     {
-        return min::internal::hash_size
-		[ flags >> min::internal
-		              ::LONG_OBJ_FLAG_BITS ];
+	flags >>= LONG_OBJ_FLAG_BITS;
+	return ( flags & LONG_OBJ_MANTISSA_MASK )
+	       <<
+	       ( flags >> LONG_OBJ_MANTISSA_BITS );
     }
 } }
 
@@ -3262,9 +3277,8 @@ namespace min {
 	    int t = min::type_of ( s );
 	    if ( t == min::SHORT_OBJ )
 	    {
-		min::internal::short_obj * so =
-		    min::internal
-		       ::short_obj_of ( s );
+		internal::short_obj * so =
+		    internal::short_obj_of ( s );
 
 		so->flags &= ~ OBJ_PRIVATE;
 		if ( type == INSERTABLE )
@@ -3276,9 +3290,8 @@ namespace min {
 	    else
 	    {
 	        MIN_ASSERT ( t == min::LONG_OBJ );
-		min::internal::long_obj * lo =
-		    min::internal
-		       ::long_obj_of ( s );
+		internal::long_obj * lo =
+		    internal::long_obj_of ( s );
 
 		lo->flags &= ~ OBJ_PRIVATE;
 		if ( type == INSERTABLE )
@@ -3310,8 +3323,8 @@ namespace min {
 
 	min::unsptr	var_offset;
 	min::unsptr	attr_offset;
-	    // Offsets of variable vector, hash table,
-	    // and attribute vector.
+	    // Offsets of variable vector and attribute
+	    // vector.
 
     private:
 
@@ -3319,6 +3332,7 @@ namespace min {
 	{
 	    int t = min::type_of ( s );
 	    min::uns8 * flags_p;
+	    unsigned hash_size_code;
 	    if ( t == min::SHORT_OBJ )
 	    {
 		min::internal::short_obj * so =
@@ -3331,14 +3345,14 @@ namespace min {
 		hash_offset	= so->hash_offset;
 		unused_offset	= so->unused_offset;
 		aux_offset	= so->aux_offset;
-		total_size	= so->total_size;
 
-		var_offset =
-		    internal::short_obj_header_size;
-		hash_size =
-		    internal
-		        ::short_obj_hash_size_of_flags
-			    ( so->flags );
+		var_offset = internal::
+		             SHORT_OBJ_HEADER_SIZE;
+		hash_size_code = so->hash_size_code;
+		total_size =
+		    internal::
+		    short_obj_total_size_of_flags
+		        ( so->flags );
 	    }
 	    else
 	    {
@@ -3353,15 +3367,17 @@ namespace min {
 		hash_offset	= lo->hash_offset;
 		unused_offset	= lo->unused_offset;
 		aux_offset	= lo->aux_offset;
-		total_size	= lo->total_size;
 
 		var_offset =
-		    internal::long_obj_header_size;
-		hash_size =
-		    internal
-		        ::long_obj_hash_size_of_flags
-			    ( lo->flags );
+		    internal::LONG_OBJ_HEADER_SIZE;
+		hash_size_code = lo->hash_size_code;
+		total_size =
+		    internal::
+		    long_obj_total_size_of_flags
+		        ( lo->flags );
 	    }
+	    hash_size =
+	        internal::hash_size[hash_size_code];
 	    attr_offset = hash_offset + hash_size;
 
 	    MIN_ASSERT
@@ -5613,12 +5629,14 @@ inline min::unsptr min::unprotected::body_size_of
 	       * sizeof ( min::gen )
 	       + sizeof ( internal::lab_header );
     case min::SHORT_OBJ:
-	return   internal::short_obj_of ( s )
-			-> total_size
+	return   internal::short_obj_total_size_of_flags
+	             ( internal::short_obj_of ( s )
+			-> flags )
 	       * sizeof ( min::gen );
     case min::LONG_OBJ:
-	return   internal::long_obj_of ( s )
-			-> total_size
+	return   internal::long_obj_total_size_of_flags
+	             ( internal::long_obj_of ( s )
+			-> flags )
 	       * sizeof ( min::gen );
 #   ifdef MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
     MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES

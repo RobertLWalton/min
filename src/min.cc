@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jan 24 09:28:18 EST 2010
+// Date:	Mon Jan 25 08:25:00 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/24 15:00:59 $
+//   $Date: 2010/01/25 16:09:40 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.125 $
+//   $Revision: 1.126 $
 
 // Table of Contents:
 //
@@ -1215,10 +1215,6 @@ namespace min { namespace internal {
 
 bool min::use_obj_aux_stubs = false;
 
-static int short_obj_max_hi =
-    ( 1 << MINT::SHORT_OBJ_HASH_SIZE_CODE_BITS ) - 1;
-static min::unsptr short_obj_max_hash_size =
-    MINT::hash_size[short_obj_max_hi];
 static int long_obj_max_hi =
     (   sizeof ( MINT::hash_size )
       / sizeof ( min::uns32 ) )
@@ -1248,13 +1244,13 @@ min::unsptr min::obj_hash_size ( min::unsptr u )
 
 min::unsptr min::obj_total_size ( min::unsptr u )
 {
-    if ( sizeof (min::uns32) < sizeof (min::unsptr) )
-    {
-        if ( u < min::uns32(-1) ) return u;
-	else return min::uns32(-1);
-    }
-    else
-        return u;
+    unsigned exponent = 0;
+    while ( u > MINT::LONG_OBJ_MANTISSA_MASK )
+        ++ u, u >>= 1, ++ exponent;
+    u <<= exponent;
+    if ( u > MINT::LONG_OBJ_MAX_TOTAL_SIZE )
+        u = MINT::LONG_OBJ_MAX_TOTAL_SIZE;
+    return u;
 }
 
 min::gen min::new_obj_gen
@@ -1283,55 +1279,80 @@ min::gen min::new_obj_gen
 
     hash_size = MINT::hash_size[hi];
 
-    MIN_ASSERT (    unused_size
-                 <=   min::uns32(-1)
-		    - hash_size
-		    - var_size
-		    - MINT::long_obj_header_size );
     min::unsptr total_size =
         unused_size + hash_size + var_size;
+
     min::stub * s = MUP::new_acc_stub();
     min::gen * p;
     int type;
-    if (   total_size + MINT::short_obj_header_size
-         < ( 1 << 16 ) )
+    if ( var_size <= MINT::SHORT_OBJ_MAX_VAR_SIZE
+         &&
+	 hi <= MINT::SHORT_OBJ_MAX_HASH_SIZE_CODE
+	 &&
+	   total_size + MINT::SHORT_OBJ_HEADER_SIZE
+         < MINT::SHORT_OBJ_MAX_TOTAL_SIZE )
     {
-        total_size += MINT::short_obj_header_size;
+        total_size += MINT::SHORT_OBJ_HEADER_SIZE;
+	unsigned exponent = 0;
+	min::unsptr mantissa = total_size;
+	while (   mantissa
+	        > MINT::SHORT_OBJ_MANTISSA_MASK )
+	    ++ mantissa, mantissa >>= 1, ++ exponent;
+	total_size = mantissa << exponent;
 
 	type = min::SHORT_OBJ;
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
 	MINT::short_obj * so = MINT::short_obj_of ( s );
-	so->flags = hi << MINT::SHORT_OBJ_FLAG_BITS;
-	so->hash_offset = MINT::short_obj_header_size
+	so->hash_offset = MINT::SHORT_OBJ_HEADER_SIZE
 	                + var_size;
-	so->unused_offset =
-	       so->hash_offset
-	     + hash_size;
-	so->aux_offset	= total_size;
-	so->total_size  = total_size;
+	so->hash_size_code = hi;
+	so->unused_offset = so->hash_offset + hash_size;
+	so->aux_offset = total_size;
+	so->flags =
+	      (   (    exponent
+	            << MINT::SHORT_OBJ_MANTISSA_BITS )
+	        + mantissa )
+	    << MINT::SHORT_OBJ_FLAG_BITS;
 	p = (min::gen *) so
-	  + MINT::short_obj_header_size;
+	  + MINT::SHORT_OBJ_HEADER_SIZE;
     }
     else
     {
-        total_size += MINT::long_obj_header_size;
+        total_size += MINT::LONG_OBJ_HEADER_SIZE;
+	unsigned exponent = 0;
+	min::unsptr mantissa = total_size;
+	while (   mantissa
+	        > MINT::LONG_OBJ_MANTISSA_MASK )
+	    ++ mantissa, mantissa >>= 1, ++ exponent;
+	total_size = mantissa << exponent;
+
+	MIN_ASSERT
+	    ( var_size <= MINT::LONG_OBJ_MAX_VAR_SIZE
+	      &&
+	      hi <= MINT::LONG_OBJ_MAX_HASH_SIZE_CODE
+	      &&
+	        total_size
+	      < MINT::LONG_OBJ_MAX_TOTAL_SIZE );
 
 	type = min::LONG_OBJ;
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
 	MINT::long_obj * lo = MINT::long_obj_of ( s );
-	lo->flags = hi << MINT::LONG_OBJ_FLAG_BITS;
-	lo->hash_offset = MINT::long_obj_header_size
+	lo->hash_offset = MINT::LONG_OBJ_HEADER_SIZE
 	                + var_size;
-	lo->unused_offset =
-	       lo->hash_offset
-	     + hash_size;
-	lo->aux_offset	= total_size;
-	lo->total_size  = total_size;
+	lo->hash_size_code = hi;
+	lo->unused_offset = lo->hash_offset + hash_size;
+	lo->aux_offset = total_size;
+	lo->flags =
+	      (   (    exponent
+	            << MINT::LONG_OBJ_MANTISSA_BITS )
+	        + mantissa )
+	    << MINT::LONG_OBJ_FLAG_BITS;
 	p = (min::gen *) lo
-	  + MINT::long_obj_header_size;
+	  + MINT::LONG_OBJ_HEADER_SIZE;
     }
+
     min::gen * endp = p + var_size;
     while ( p < endp ) * p ++ = min::UNDEFINED;
     endp += hash_size;
