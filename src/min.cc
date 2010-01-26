@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 25 08:25:00 EST 2010
+// Date:	Mon Jan 25 22:00:33 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/25 16:09:40 $
+//   $Date: 2010/01/26 03:21:41 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.126 $
+//   $Revision: 1.127 $
 
 // Table of Contents:
 //
@@ -1215,12 +1215,22 @@ namespace min { namespace internal {
 
 bool min::use_obj_aux_stubs = false;
 
+static min::uns32 short_obj_max_hash_size =
+    MINT::hash_size[MINT::SHORT_OBJ_MAX_HASH_SIZE_CODE];
 static int long_obj_max_hi =
     (   sizeof ( MINT::hash_size )
       / sizeof ( min::uns32 ) )
     - 1;
 static min::uns32 long_obj_max_hash_size =
     MINT::hash_size[long_obj_max_hi];
+
+min::unsptr min::obj_var_size ( min::unsptr u )
+{
+    if ( u > MINT::LONG_OBJ_MAX_VAR_SIZE )
+        return MINT::LONG_OBJ_MAX_VAR_SIZE;
+    else
+        return u;
+}
 
 min::unsptr min::obj_hash_size ( min::unsptr u )
 {
@@ -1245,11 +1255,14 @@ min::unsptr min::obj_hash_size ( min::unsptr u )
 min::unsptr min::obj_total_size ( min::unsptr u )
 {
     unsigned exponent = 0;
-    while ( u > MINT::LONG_OBJ_MANTISSA_MASK )
-        ++ u, u >>= 1, ++ exponent;
-    u <<= exponent;
     if ( u > MINT::LONG_OBJ_MAX_TOTAL_SIZE )
         u = MINT::LONG_OBJ_MAX_TOTAL_SIZE;
+    else
+    {
+	while ( u > MINT::LONG_OBJ_MANTISSA_MASK )
+	    ++ u, u >>= 1, ++ exponent;
+	u <<= exponent;
+    }
     return u;
 }
 
@@ -1293,6 +1306,7 @@ min::gen min::new_obj_gen
          < MINT::SHORT_OBJ_MAX_TOTAL_SIZE )
     {
         total_size += MINT::SHORT_OBJ_HEADER_SIZE;
+
 	unsigned exponent = 0;
 	min::unsptr mantissa = total_size;
 	while (   mantissa
@@ -1304,28 +1318,27 @@ min::gen min::new_obj_gen
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
 	MINT::short_obj * so = MINT::short_obj_of ( s );
-	so->hash_offset = MINT::SHORT_OBJ_HEADER_SIZE
-	                + var_size;
-	so->hash_size_code = hi;
-	so->unused_offset = so->hash_offset + hash_size;
-	so->aux_offset = total_size;
+
 	so->flags =
 	      (   (    exponent
 	            << MINT::SHORT_OBJ_MANTISSA_BITS )
 	        + mantissa )
 	    << MINT::SHORT_OBJ_FLAG_BITS;
+	so->codes =
+	      (    var_size
+	        << MINT::SHORT_OBJ_HASH_CODE_BITS )
+	    + hi;
+	so->unused_offset = MINT::SHORT_OBJ_HEADER_SIZE
+	                  + var_size
+			  + hash_size;
+	so->aux_offset = total_size;
+
 	p = (min::gen *) so
 	  + MINT::SHORT_OBJ_HEADER_SIZE;
     }
     else
     {
         total_size += MINT::LONG_OBJ_HEADER_SIZE;
-	unsigned exponent = 0;
-	min::unsptr mantissa = total_size;
-	while (   mantissa
-	        > MINT::LONG_OBJ_MANTISSA_MASK )
-	    ++ mantissa, mantissa >>= 1, ++ exponent;
-	total_size = mantissa << exponent;
 
 	MIN_ASSERT
 	    ( var_size <= MINT::LONG_OBJ_MAX_VAR_SIZE
@@ -1335,20 +1348,32 @@ min::gen min::new_obj_gen
 	        total_size
 	      < MINT::LONG_OBJ_MAX_TOTAL_SIZE );
 
+	unsigned exponent = 0;
+	min::unsptr mantissa = total_size;
+	while (   mantissa
+	        > MINT::LONG_OBJ_MANTISSA_MASK )
+	    ++ mantissa, mantissa >>= 1, ++ exponent;
+	total_size = mantissa << exponent;
+
 	type = min::LONG_OBJ;
 	MUP::new_body
 	    ( s, sizeof (min::gen) * total_size );
 	MINT::long_obj * lo = MINT::long_obj_of ( s );
-	lo->hash_offset = MINT::LONG_OBJ_HEADER_SIZE
-	                + var_size;
-	lo->hash_size_code = hi;
-	lo->unused_offset = lo->hash_offset + hash_size;
-	lo->aux_offset = total_size;
+
 	lo->flags =
 	      (   (    exponent
 	            << MINT::LONG_OBJ_MANTISSA_BITS )
 	        + mantissa )
 	    << MINT::LONG_OBJ_FLAG_BITS;
+	lo->codes =
+	      (    var_size
+	        << MINT::LONG_OBJ_HASH_CODE_BITS )
+	    + hi;
+	lo->unused_offset = MINT::LONG_OBJ_HEADER_SIZE
+	                  + var_size
+			  + hash_size;
+	lo->aux_offset = total_size;
+
 	p = (min::gen *) lo
 	  + MINT::LONG_OBJ_HEADER_SIZE;
     }
@@ -1357,6 +1382,7 @@ min::gen min::new_obj_gen
     while ( p < endp ) * p ++ = min::UNDEFINED;
     endp += hash_size;
     while ( p < endp ) * p ++ = min::LIST_END;
+
     MUP::set_type_of ( s, type );
     return min::new_gen ( s );
 }

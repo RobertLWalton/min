@@ -1107,7 +1107,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    t == min::LONG_OBJ true.
+    type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 lh: 4 lht: 7061 lua: 70001 lav: 0 laa: 0 lt: 77066
@@ -1310,7 +1310,7 @@ Test long object vector level:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    t == min::LONG_OBJ true.
+    type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1976,7 +1976,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    t == min::LONG_OBJ true.
+    type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 VSIZE 35000 VORG 7065 USIZE 0

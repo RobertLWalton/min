@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/25 16:09:29 $
+//   $Date: 2010/01/26 03:23:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.231 $
+//   $Revision: 1.232 $
 
 // Table of Contents:
 //
@@ -2879,12 +2879,14 @@ namespace min { namespace internal {
 
     // Flags Bits:
     //
+    // Bit 0 is low order, 15 or 31 is high order.
+    //
     //    Short	    Long
     //	  Objects   Objects
     //
     //    0	    0		OBJ_TYPED
     //    1    	    1		OBJ_PUBLIC
-    //    2         1		OBJ_PRIVATE
+    //    2         2		OBJ_PRIVATE
     //	  3-5	    3-5		reserved for future use
     //              6-11	long objects only,
     //				reserved for future use
@@ -2903,6 +2905,19 @@ namespace min { namespace internal {
     // the object and other xxx_vec_pointers may not
     // be created for the object.
 
+    // Codes Bits:
+    //
+    // Bit 0 is low order, 15 or 31 is high order.
+    //
+    //    Short	    Long
+    //	  Objects   Objects
+    //
+    //    0-6       0-11	hash size code
+    //    7-15      12-31	var size code
+    //
+    //	    hash size = hash_size[hash size code]
+    //	    var size = var size code
+
     const unsigned SHORT_OBJ_HEADER_SIZE =
         1 + MIN_IS_COMPACT;
     const unsigned LONG_OBJ_HEADER_SIZE =
@@ -2915,19 +2930,28 @@ namespace min { namespace internal {
     const unsigned SHORT_OBJ_EXPONENT_BITS = 4;
     const unsigned LONG_OBJ_EXPONENT_BITS  = 4;
 
+    const unsigned SHORT_OBJ_HASH_CODE_BITS = 7;
+    const unsigned LONG_OBJ_HASH_CODE_BITS  = 12;
+    const unsigned SHORT_OBJ_VAR_CODE_BITS = 9;
+    const unsigned LONG_OBJ_VAR_CODE_BITS  = 20;
+
     const min::unsptr SHORT_OBJ_MANTISSA_MASK =
         ( ( 1 << SHORT_OBJ_MANTISSA_BITS ) - 1 );
     const min::unsptr LONG_OBJ_MANTISSA_MASK  =
         ( ( 1 << LONG_OBJ_MANTISSA_BITS ) - 1 );
+    const min::unsptr SHORT_OBJ_HASH_CODE_MASK =
+        ( ( 1 << SHORT_OBJ_HASH_CODE_BITS ) - 1 );
+    const min::unsptr LONG_OBJ_HASH_CODE_MASK  =
+        ( ( 1 << LONG_OBJ_HASH_CODE_BITS ) - 1 );
 
     const min::unsptr SHORT_OBJ_MAX_VAR_SIZE =
-        ( 1 << 8 ) - 1 - SHORT_OBJ_HEADER_SIZE;
+        ( 1 << SHORT_OBJ_VAR_CODE_BITS ) - 1;
     const min::unsptr LONG_OBJ_MAX_VAR_SIZE =
-        ( 1 << 16 ) - 1 - LONG_OBJ_HEADER_SIZE;
+        ( 1 << LONG_OBJ_VAR_CODE_BITS ) - 1;
     const min::unsptr SHORT_OBJ_MAX_HASH_SIZE_CODE =
-        ( 1 << 8 ) - 1;
+        ( 1 << SHORT_OBJ_HASH_CODE_BITS ) - 1;
     const min::unsptr LONG_OBJ_MAX_HASH_SIZE_CODE =
-        ( 1 << 16 ) - 1;
+        ( 1 << LONG_OBJ_HASH_CODE_BITS ) - 1;
     const min::unsptr SHORT_OBJ_MAX_TOTAL_SIZE =
         1 << 16;
     const min::unsptr LONG_OBJ_MAX_TOTAL_SIZE =
@@ -2936,26 +2960,24 @@ namespace min { namespace internal {
 	// tation because of offsets are stored in
 	// min::uns32's.
 
-    //    hash table size = hash_size[hash_size_code]
+    //    hash table size = hash_size[hash size code]
     //
     extern min::uns32 hash_size[];
 
     struct short_obj
     {
-        min::uns8	hash_offset;
-        min::uns8	hash_size_code;
+        min::uns16	flags;
+        min::uns16	codes;
         min::uns16	unused_offset;
         min::uns16	aux_offset;
-        min::uns16	flags;
     };
 
     struct long_obj
     {
-        min::uns16	hash_offset;
-        min::uns16	hash_size_code;
+        min::uns32	flags;
+        min::uns32	codes;
         min::uns32	unused_offset;
         min::uns32	aux_offset;
-        min::uns32	flags;
     };
 
     inline min::internal::short_obj * short_obj_of
@@ -2989,10 +3011,38 @@ namespace min { namespace internal {
 	       <<
 	       ( flags >> LONG_OBJ_MANTISSA_BITS );
     }
+
+    inline min::unsptr short_obj_hash_size_of_codes
+	    ( min::unsptr codes )
+    {
+	return hash_size
+	    [codes & SHORT_OBJ_HASH_CODE_MASK];
+    }
+
+    inline min::unsptr long_obj_hash_size_of_codes
+	    ( min::unsptr codes )
+    {
+	return hash_size
+	    [codes & LONG_OBJ_HASH_CODE_MASK];
+    }
+
+    inline min::unsptr short_obj_var_size_of_codes
+	    ( min::unsptr codes )
+    {
+	return codes >> SHORT_OBJ_HASH_CODE_BITS;
+    }
+
+    inline min::unsptr long_obj_var_size_of_codes
+	    ( min::unsptr codes )
+    {
+	return codes >> LONG_OBJ_HASH_CODE_BITS;
+    }
+
 } }
 
 namespace min {
 
+    min::unsptr obj_var_size ( min::unsptr u );
     min::unsptr obj_hash_size ( min::unsptr u );
     min::unsptr obj_total_size ( min::unsptr u );
 
@@ -3312,7 +3362,6 @@ namespace min {
 	    // Stub of object; set by constructor or
 	    // init function.
 
-	min::unsptr	hash_offset;
         min::unsptr	unused_offset;
         min::unsptr	aux_offset;
 	    // Cached from object header.
@@ -3322,18 +3371,18 @@ namespace min {
 	    // Hash table and total size.
 
 	min::unsptr	var_offset;
+	min::unsptr	hash_offset;
 	min::unsptr	attr_offset;
-	    // Offsets of variable vector and attribute
-	    // vector.
+	    // Offsets of variable vector, hash table,
+	    // and attribute vector.
 
     private:
 
         void init ( void )
 	{
-	    int t = min::type_of ( s );
+	    int type = min::type_of ( s );
 	    min::uns8 * flags_p;
-	    unsigned hash_size_code;
-	    if ( t == min::SHORT_OBJ )
+	    if ( type == min::SHORT_OBJ )
 	    {
 		min::internal::short_obj * so =
 		    min::internal
@@ -3342,13 +3391,19 @@ namespace min {
 	        flags_p = (min::uns8 *) & so->flags
 		        + MIN_IS_BIG_ENDIAN;
 
-		hash_offset	= so->hash_offset;
 		unused_offset	= so->unused_offset;
 		aux_offset	= so->aux_offset;
 
 		var_offset = internal::
 		             SHORT_OBJ_HEADER_SIZE;
-		hash_size_code = so->hash_size_code;
+		hash_offset = var_offset +
+		    internal::
+		    short_obj_var_size_of_codes
+		        ( so->codes );
+		hash_size =
+		    internal::
+		    short_obj_hash_size_of_codes
+		        ( so->codes );
 		total_size =
 		    internal::
 		    short_obj_total_size_of_flags
@@ -3356,7 +3411,7 @@ namespace min {
 	    }
 	    else
 	    {
-	        MIN_ASSERT ( t == min::LONG_OBJ );
+	        MIN_ASSERT ( type == min::LONG_OBJ );
 		min::internal::long_obj * lo =
 		    min::internal
 		       ::long_obj_of ( s );
@@ -3364,20 +3419,24 @@ namespace min {
 	        flags_p = (min::uns8 *) & lo->flags
 		        + 3 * MIN_IS_BIG_ENDIAN;
 
-		hash_offset	= lo->hash_offset;
 		unused_offset	= lo->unused_offset;
 		aux_offset	= lo->aux_offset;
 
 		var_offset =
 		    internal::LONG_OBJ_HEADER_SIZE;
-		hash_size_code = lo->hash_size_code;
+		hash_offset = var_offset +
+		    internal::
+		    long_obj_var_size_of_codes
+		        ( lo->codes );
+		hash_size =
+		    internal::
+		    long_obj_hash_size_of_codes
+		        ( lo->codes );
 		total_size =
 		    internal::
 		    long_obj_total_size_of_flags
 		        ( lo->flags );
 	    }
-	    hash_size =
-	        internal::hash_size[hash_size_code];
 	    attr_offset = hash_offset + hash_size;
 
 	    MIN_ASSERT
