@@ -1061,7 +1061,7 @@ Finish Labels Test!
 Start Objects Test!
 
 Test object size functions:
-maxht: 4294967295
+maxht: 4265299790
 min_interface_test.cc:XXXX assert:
     maxht >= 4000000 true.
 
@@ -1069,7 +1069,7 @@ Test short objects:
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_fixed_body ( stub 25, 2420 ) called
+MINT::new_fixed_body ( stub 25, 2408 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[9] and assigning begin_body_region[208 .. 719]
@@ -1079,7 +1079,7 @@ min_interface_test.cc:XXXX assert:
     min::type_of ( sstub ) == min::SHORT_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
-sh: 2 sht: 103 sua: 500 sav: 0 saa: 0 st: 605
+sh: 2 sht: 100 sua: 500 sav: 0 saa: 0 st: 602
 min_interface_test.cc:XXXX assert:
     sht >= 100 true.
 min_interface_test.cc:XXXX assert:
@@ -1097,7 +1097,7 @@ Test long objects:
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_non_fixed_body ( stub 26, 308264 ) called
+MINT::new_non_fixed_body ( stub 26, 308152 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
 ../include/min.h:XXXX assert:
@@ -1110,7 +1110,7 @@ min_interface_test.cc:XXXX assert:
     type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
-lh: 4 lht: 7061 lua: 70001 lav: 0 laa: 0 lt: 77066
+lh: 4 lht: 7033 lua: 70001 lav: 0 laa: 0 lt: 77038
 min_interface_test.cc:XXXX assert:
     lht >= 7000 true.
 min_interface_test.cc:XXXX assert:
@@ -1489,7 +1489,7 @@ Start Object List Level Test!
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
-VSIZE 250 VORG 105 USIZE 0
+VSIZE 250 VORG 102 USIZE 0
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -1979,7 +1979,7 @@ min_interface_test.cc:XXXX assert:
     type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
-VSIZE 35000 VORG 7065 USIZE 0
+VSIZE 35000 VORG 7037 USIZE 0
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
