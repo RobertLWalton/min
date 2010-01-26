@@ -251,7 +251,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 24, 2010}
+\date{January 26, 2010}
  
 \maketitle
 
@@ -2924,8 +2924,11 @@ a label:
 
 An \key{object} is conceptually a hash table that maps
 \skey{attribute name}s to \skey{attribute value}s.
-The part of the hash table that maps small
-unsigned integer attribute names is actually a vector.
+An attribute name is a sequence of name components, which
+are numbers, strings, and labels.
+The part of the hash table that maps attribute names that are equal to
+or begin with small unsigned integers is actually a vector.
+An attribute value is a \verb|min::gen| datum.
 
 Each map of an attribute name to an attribute value represents an
 arrow in the data base.  Some arrows can be double arrows pointing
@@ -2962,7 +2965,7 @@ values, or reverse attribute names.
 
 There are also typed objects, each of which is a pair of objects,
 one called the type that is constant, is shared among many typed objects,
-and contains attribute labels, and one called the typed object or
+and contains attribute labels, and one called the
 context, which contains a vector of \skey{variable}s that hold attribute
 values.  Typed objects are described in more detail in
 \secref{TYPED-OBJECTS}.
@@ -3015,7 +3018,8 @@ Auxiliary pointers with zero index do not address a body vector
 element, since they point into the header, and these are given
 special meanings (e.g., {\tt  min::\EOL LIST\_\EOL END}).
 
-An object may be grown or compacted by relocating its body.  It may be
+An object may be grown or compacted by relocating and reorganizing its body.
+It may be
 grown to expand its unused area or hash table, or, less commonly,
 its variable vector.  An object may be compacted to eliminate, or less
 commonly to shrink, its unused area, and possibly to shrink its hash
@@ -3029,11 +3033,12 @@ no essential difference between a short and a long object.
 An object body may be \smkey{relocate}d{object body}, which means the
 body is simply copied to a new address, or
 \smkey{reorganize}d{object body}, which means the object body is reformatted,
-and possible converted from short to long or vice versa.  Frequently an
+and possibly converted from short to long or vice versa.  Frequently an
 object whose attribute labels and number of values for each label are no
 longer subject to change will be compacted, to make it as small as possible,
 and this is one kind of object body reorganization.
-Objects are compacted by the `{\tt publish}' function that sets the
+Objects are compacted by the `{\tt min::\EOL publish\REL}'
+function that sets the
 object {\tt OBJ\_\EOL PUBLISH} flag which prevents changes to the
 attribute labels, attribute label flags, and number of attribute values
 of an object.
@@ -3053,12 +3058,15 @@ typed object interface (\secref{TYPED-OBJECTS}).
 \subsubsection{Object Creation}
 \label{OBJECT-CREATION}
 
-An object header encodes the hash table size and total size of the
-object indirectly using a logrithmic or pseudo-floating-point
-code.  Therefore not every
-hash table size or total size is possible.
+An object header encodes the variables vector size,
+hash table size, and total size of the object
+indirectly using a logrithmic or pseudo-floating-point code.
+Therefore not every variables vector size,
+hash table size, or total size is supported.
 In order to create an object it is necessary to determine possible
-hash table and total sizes.
+variable vector, hash table, and total sizes.
+
+Note that all sizes are in \verb|min::gen| units.
 
 The following functions return the smallest
 possible size equal to or greater than the function argument,
@@ -3069,37 +3077,55 @@ as large as the function argument.
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
+    & \MINKEY{obj\_var\_size}\verb| ( min::unsptr u )|
+\LABEL{MIN::OBJ_VAR_SIZE} \\
+\verb|min::unsptr min::|
     & \MINKEY{obj\_hash\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_HASH_TABLE_SIZE} \\
+\LABEL{MIN::OBJ_HASH_SIZE} \\
 \verb|min::unsptr min::|
     & \MINKEY{obj\_total\_size}\verb| ( min::unsptr u )|
 \LABEL{MIN::OBJ_TOTAL_SIZE} \\
 \end{tabular}\end{indpar}
 
-Maximum possible total and hash table size values can be determined
+Maximum possible total, hash table, and variables vector
+size values can be determined
 by presenting these functions with the \verb|u| argument value
 `\verb|min::unsptr(-1)|'.
+
+All power of two sizes not larger than the maximum sizes are
+supported.  In particular, hash table sizes that are powers
+of two are supported, so hash values can be mapped to
+hash table indices by simple masking.
 
 An object can be created by the protected function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::uns32 unused_size,| \\
-    \verb|   min::uns32 hash_size = 0,| \\
-    \verb|   min::uns32 variable_size = 0 )| \\
+    \verb| ( min::unsptr unused_size,| \\
+    \verb|   min::unsptr hash_size = 0,| \\
+    \verb|   min::unsptr variable_size = 0 )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
 
-The exact unused area and variable vector sizes are given.
+The exact unused area size is given.
+The variables vector size of the returned object is the smallest possible
+variables vector size that is at least as large as that given.
 The hash table size of the returned object is the smallest possible
 hash table size that is at least as large as that given.  The total
 size of the returned object is the smallest possible total size
-that is at least as large as the sum of the actual hash table size,
-the unused area and variables vector sizes given, and the header size.
-The returned object is short if this total size is less than
-$2^{16}$, and long otherwise.
+that is at least as large as the sum of
+the actual variables vector size,
+the actual hash table size,
+the unused area size given,
+and the header size.  Note that if the given sizes are powers of two
+not greater than the maximums allowed, the corresponding actual sizes will
+be equal to the given sizes.
+
+The returned object is short if the total size is less than
+$2^{16}$ and the actual variables vector and hash table sizes
+are permitted for short objects.  Otherwise the object is long.
 It is a fatal programming error if no possible hash table or total size
 is large enough, but this is unlikely, given the large sizes allowed
 by a long object.
@@ -3117,10 +3143,22 @@ filled by `push' instructions described below
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
 
-At the \key{vector level}, the body is viewed as
+At the \key{vector level}, the object body is viewed as
 a \key{body vector} of \verb|min::gen| values.
+The entire body vector, except
+for the header, consists of \verb|min::gen| elements of the
+body vector.
+A \key{body vector index} is an index of an element in this vector,
+and ranges from 0
+to one less than the total size of the object, which is the size of
+the body vector.
+An auxiliary pointer is a body vector index.
+The 0 body vector index points into the header, and is
+therefore not usable as the index of a \verb|min::gen| value, so it
+can be used as a form of null pointer.
+
 There are three kinds of vector level protected object pointers.
-A read-only \verb|min::vec_pointer| permits read-only access to body
+A read-only {\tt min::\EOL vec\_\EOL pointer} permits read-only access to body
 vector elements.
 A read-write or updatable
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}
@@ -3141,8 +3179,8 @@ created.  The object is therefore private to the code possessing the
 vector pointer.
 
 If an object has neither flag, its \verb|min::OBJ_PUBLIC| flag may be set
-by calling the `\verb|publish|' function
-(\pagref{PUBLISH}).
+by calling the `{\tt min::\EOL publish\REL}' function
+(\pagref{MIN::PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
 to the object may be created.  Constructing and destructing
@@ -3159,9 +3197,14 @@ relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
 However object bodies may be reorganized by a relocating
 function only if neither the
 \verb|min::OBJ_PRIVATE| or \verb|min::OBJ_PUBLIC| flags are set.
-Object bodies may be reorganization when insertions are made
-using an insertable pointer, or when the \verb|publish| function
-is called to set the \verb|min::OBJ_PUBLIC| flag.
+Object bodies may also be reorganization when insertions are made
+using the {\tt min::\EOL insert\_\EOL reserve\REL} function
+(\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
+or the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
+by the {\tt min::\EOL publish\REL} function (\pagref{MIN::PUBLISH}).
+
+\subsubsubsection{Protected Object Vector Pointers}
+\label{PROTECTED-OBJECT-VECTOR-POINTERS}
 
 A read-only \minkey{vec\_\EOL pointer}
 to the body vector of an object with stub \verb|s| or with
@@ -3205,22 +3248,22 @@ about the object pointed at by a read-only {\tt min::vec\_pointer}:
 \verb|const min::stub * min::| & \MINKEY{stub\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::STUB_OF_VEC_POINTER} \\
-\verb|min::uns32 min::| & \MINKEY{var\_size\_of}%
+\verb|min::unsptr min::| & \MINKEY{var\_size\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::VAR_SIZE_OF_VEC_POINTER} \\
-\verb|min::uns32 min::| & \MINKEY{hash\_size\_of}%
+\verb|min::unsptr min::| & \MINKEY{hash\_size\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::HASH_SIZE_OF_VEC_POINTER} \\
-\verb|min::uns32 min::| & \MINKEY{attr\_size\_of}%
+\verb|min::unsptr min::| & \MINKEY{attr\_size\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::ATTR_SIZE_OF_VEC_POINTER} \\
-\verb|min::uns32 min::| & \MINKEY{unused\_size\_of}%
+\verb|min::unsptr min::| & \MINKEY{unused\_size\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::UNUSED_SIZE_OF_VEC_POINTER} \\
-\verb|min::uns32 min::| & \MINKEY{aux\_size\_of}%
+\verb|min::unsptr min::| & \MINKEY{aux\_size\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::AUX_SIZE_OF_VEC_POINTER} \\
-\verb|min::uns32 min::| & \MINKEY{total\_size\_of}%
+\verb|min::unsptr min::| & \MINKEY{total\_size\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::TOTAL_SIZE_OF_VEC_POINTER} \\
 
@@ -3236,16 +3279,16 @@ access to object elements:
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
 \verb|min::gen | & \MINKEY{var}%
-    \verb| ( min::vec_pointer & vp, min::uns32 index )|
+    \verb| ( min::vec_pointer & vp, min::unsptr index )|
 \LABEL{MIN::VAR_OF_VEC_POINTER} \\
 \verb|min::gen | & \MINKEY{hash}%
-    \verb| ( min::vec_pointer & vp, min::uns32 index )|
+    \verb| ( min::vec_pointer & vp, min::unsptr index )|
 \LABEL{MIN::HASH_OF_VEC_POINTER} \\
 \verb|min::gen | & \MINKEY{attr}%
-    \verb| ( min::vec_pointer & vp, min::uns32 index )|
+    \verb| ( min::vec_pointer & vp, min::unsptr index )|
 \LABEL{MIN::ATTR_OF_VEC_POINTER} \\
 \verb|min::gen | & \MINKEY{aux}%
-    \verb| ( min::vec_pointer & vp, min::uns32 aux_pointer )|
+    \verb| ( min::vec_pointer & vp, min::unsptr aux_pointer )|
 \LABEL{MIN::AUX_OF_VEC_POINTER} \\
 
 \end{tabular}\end{indpar}
@@ -3277,7 +3320,7 @@ elements.  The additional functions for this type of pointer are:
     \verb| ( min::gen v )|
 \LABEL{MIN::UPDATABLE_VEC_POINTER_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{updatable\_vec\_pointer}%
-    \verb| ( const min::stub * s )|
+    \verb| ( min::stub * s )|
 \LABEL{MIN::UPDATABLE_VEC_POINTER_OF_STUB} \\
 
 \end{tabular}\end{indpar}
@@ -3294,7 +3337,7 @@ elements.  The additional functions for this type of pointer are:
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   const min::stub * s )| \\
+      \verb|   min::stub * s )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_UPDATABLE_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
@@ -3304,28 +3347,28 @@ elements.  The additional functions for this type of pointer are:
 \verb|void min::| & \MINKEY{set\_var}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   min::uns32 index,| \\
+      \verb|   min::unsptr index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_VAR_OF_UPDATABLE_VEC_POINTER} \\
 \verb|void min::| & \MINKEY{set\_hash}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   min::uns32 index,| \\
+      \verb|   min::unsptr index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_HASH_OF_UPDATABLE_VEC_POINTER} \\
 \verb|void min::| & \MINKEY{set\_attr}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   min::uns32 index,| \\
+      \verb|   min::unsptr index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_ATTR_OF_UPDATABLE_VEC_POINTER} \\
 \verb|void min::| & \MINKEY{set\_aux}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::updatable_vec_pointer & vp,| \\
-      \verb|   min::uns32 aux_pointer,| \\
+      \verb|   min::unsptr aux_pointer,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_AUX_OF_UPDATABLE_VEC_POINTER} \\
@@ -3343,14 +3386,17 @@ will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
 downcast object vector pointer.
 
 The {\tt min::set\_}\,\ldots{} functions above invoke the
-Accumulator/\EOL Collector/\EOL Compactor function that must
+{\tt min::\EOL acc\_\EOL write\_\EOL update}
+Accumu\-la\-tor/\EOL Col\-lec\-tor/\EOL Com\-pac\-tor function
+(\pagref{MUP::ACC_WRITE_GEN_UPDATE}) that must
 be called when a \verb|min::gen| value is written into an object.
 
 A \minkey{insertable\_vec\_pointer} is like a
 {\tt min::updatable\_\EOL vec\_\EOL pointer}
 but has additional functions which support pushing or popping elements
 from the end of the object body attribute vector or the beginning
-of the object body auxiliary area.
+of the object body auxiliary area and resizing the unused area and
+variables vector portions of the object body.
 The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3358,7 +3404,7 @@ The additional functions for this type of pointer are:
     \verb| ( min::gen v )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
-    \verb| ( const min::stub * s )|
+    \verb| ( min::stub * s )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
 
 \end{tabular}\end{indpar}
@@ -3375,7 +3421,7 @@ The additional functions for this type of pointer are:
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::insertable_vec_pointer & vp,| \\
-      \verb|   const min::stub * s )| \\
+      \verb|   min::stub * s )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_INSERTABLE_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
@@ -3501,16 +3547,16 @@ required functions are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
-\verb|min::uns32 MUP::| & \MUPKEY{var\_offset\_of}%
+\verb|min::unsptr MUP::| & \MUPKEY{var\_offset\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MUP::VAR_OFFSET_OF_VEC_POINTER} \\
-\verb|min::uns32 MUP::| & \MUPKEY{attr\_offset\_of}%
+\verb|min::unsptr MUP::| & \MUPKEY{attr\_offset\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MUP::ATTR_OFFSET_OF_VEC_POINTER} \\
-\verb|min::uns32 MUP::| & \MUPKEY{unused\_offset\_of}%
+\verb|min::unsptr MUP::| & \MUPKEY{unused\_offset\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MUP::UNUSED_OFFSET_OF_VEC_POINTER} \\
-\verb|min::uns32 MUP::| & \MUPKEY{aux\_offset\_of}%
+\verb|min::unsptr MUP::| & \MUPKEY{aux\_offset\_of}%
     \verb| ( min::vec_pointer & vp )|
 \LABEL{MUP::AUX_OFFSET_OF_VEC_POINTER} \\
 
@@ -3518,10 +3564,10 @@ required functions are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
-\verb|min::uns32 & MUP::| & \MUPKEY{unused\_offset\_of}%
+\verb|min::unsptr & MUP::| & \MUPKEY{unused\_offset\_of}\ARGBREAK
     \verb| ( min::insertable_vec_pointer & vp )|
 \LABEL{MUP::UNUSED_OFFSET_OF_INSERTABLE_VEC_POINTER} \\
-\verb|min::uns32 & MUP::| & \MUPKEY{aux\_offset\_of}%
+\verb|min::unsptr & MUP::| & \MUPKEY{aux\_offset\_of}\ARGBREAK
     \verb| ( min::insertable_vec_pointer & vp )|
 \LABEL{MUP::AUX_OFFSET_OF_INSERTABLE_VEC_POINTER} \\
 
@@ -3760,14 +3806,14 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 	& \MINKEY{start\_hash}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::list_pointer & lp,| \\
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_HASH} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_attr}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::list_pointer & lp,| \\
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_ATTR} \\
 \verb|min::gen min::|
@@ -3793,10 +3839,10 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 \LABEL{MIN::START_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::HASH_SIZE_OF_LIST_POINTER} \\
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{attr\_size\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_LIST_POINTER} \\
 \end{tabular}\end{indpar}
@@ -3947,14 +3993,14 @@ from lists.  The functions for using this are:
 	& \MINKEY{start\_hash}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::updatable_list_pointer & lp,| \\
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_HASH_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_attr}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::updatable_list_pointer & lp,| \\
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_ATTR_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
@@ -3973,10 +4019,10 @@ from lists.  The functions for using this are:
 \LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{hash\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::HASH_SIZE_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{attr\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
@@ -4044,14 +4090,14 @@ The functions defined for this are:
 	& \MINKEY{start\_hash}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_HASH_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_attr}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_ATTR_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
@@ -4063,10 +4109,10 @@ The functions defined for this are:
 \LABEL{MIN::START_INSERTABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{hash\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::HASH_SIZE_OF_INSERTABLE_LIST_POINTER} \\
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{attr\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
@@ -4101,8 +4147,8 @@ The functions defined for this are:
 	& \MINKEY{insert\_reserve\REL}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   min::uns32 insertions,| \\
-	  \verb|   min::uns32 elements = 0,| \\
+	  \verb|   min::unsptr insertions,| \\
+	  \verb|   min::unsptr elements = 0,| \\
 	  \verb|   bool use_object_aux_stubs =| \\
 	  \verb|       min::use_object_aux_stubs )| \\
 	  \end{tabular}
@@ -4123,11 +4169,11 @@ The functions defined for this are:
 \LABEL{MIN::INSERT_AFTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{remove}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   min::uns32 n = 1 )|
+	  \verb|   min::unsptr n = 1 )|
 	  \end{tabular}
 \LABEL{MIN::REMOVE_FROM_INSERTABLE_LIST} \\
 \end{tabular}\end{indpar}
@@ -4729,7 +4775,7 @@ values are 32-bits, and 40 if \verb|min::gen| values are 64-bits.
 A flag is set for an attribute name if and only if its corresponding
 bit is present and set and in the attribute's {\em flag-set}.
 
-TBD: The `publish' function.\label{PUBLISH}
+TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
 
 \subsubsubsection{Attribute Functions}
 \label{ATTRIBUTE-FUNCTIONS}
@@ -5988,7 +6034,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MUP::LONG_STR_OF} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::STR_OF_LONG_STR} \\
-\verb|min::uns32 MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
+\verb|min::unsptr MUP::| & \MUPKEY{length\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::LENGTH_OF_LONG_STR} \\
 \verb|min::uns32 MUP::| & \MUPKEY{hash\_of}\verb| ( MUP::long_str * str )|
 \LABEL{MUP::HASH_OF_LONG_STR} \\
@@ -6046,8 +6092,11 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.5in}
 \verb|min::unsptr min::|
+    & \MINKEY{obj\_var\_size}\verb| ( min::unsptr u )|
+\LABEL{MIN::OBJ_VAR_SIZE} \\
+\verb|min::unsptr min::|
     & \MINKEY{obj\_hash\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_HASH_TABLE_SIZE} \\
+\LABEL{MIN::OBJ_HASH_SIZE} \\
 \verb|min::unsptr min::|
     & \MINKEY{obj\_total\_size}\verb| ( min::unsptr u )|
 \LABEL{MIN::OBJ_TOTAL_SIZE} \\
@@ -6061,9 +6110,9 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.2in}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}\ARGBREAK
-    \verb| ( min::uns32 unused_size,|\ARGBREAK
-    \verb|   min::uns32 hash_size = 0,|\ARGBREAK
-    \verb|   min::uns32 variables_size = 0 )|
+    \verb| ( min::unsptr unused_size,|\ARGBREAK
+    \verb|   min::unsptr hash_size = 0,|\ARGBREAK
+    \verb|   min::unsptr variables_size = 0 )|
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{TABULAR}
 
@@ -6116,12 +6165,12 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_HASH} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_attr}\ARGBREAK
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
@@ -6143,10 +6192,10 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::HASH_SIZE_OF_LIST_POINTER} \\
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{attr\_size\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_LIST_POINTER} \\
 \end{TABULAR}
@@ -6198,16 +6247,16 @@ These are in \verb|min_parameters.h|.
 
 \medskip
 
-\begin{TABULAR}{1.2in}
+\begin{TABULAR}{1.4in}
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_HASH_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_attr}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_ATTR_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
@@ -6223,12 +6272,12 @@ These are in \verb|min_parameters.h|.
 
 \medskip
 
-\begin{TABULAR}{1.4in}
-\verb|min::uns32 min::|
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr min::|
 	& \MINKEY{hash\_size\_of}\ARGBREAK
 	  \verb|    ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::HASH_SIZE_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{attr\_size\_of}\ARGBREAK
 	  \verb|    ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_UPDATABLE_LIST_POINTER} \\
@@ -6285,12 +6334,12 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen min::|
 	& \MINKEY{start\_hash}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_HASH_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_attr}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 index )|
+	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_ATTR_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
@@ -6301,12 +6350,12 @@ These are in \verb|min_parameters.h|.
 
 \medskip
 
-\begin{TABULAR}{1.4in}
-\verb|min::uns32 min::|
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr min::|
 	& \MINKEY{hash\_size\_of}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::HASH_SIZE_OF_INSERTABLE_LIST_POINTER} \\
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{attr\_size\_of}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_INSERTABLE_LIST_POINTER} \\
@@ -6349,8 +6398,8 @@ These are in \verb|min_parameters.h|.
 \verb|void min::|
 	& \MINKEY{insert\_reserve\REL}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 insertions,|\ARGBREAK
-	  \verb|   min::uns32 elements = 0,|\ARGBREAK
+	  \verb|   min::unsptr insertions,|\ARGBREAK
+	  \verb|   min::unsptr elements = 0,|\ARGBREAK
 	  \verb|   bool use_object_aux_stubs =|\ARGBREAK
 	  \verb|       min::use_object_aux_stubs )|
 \LABEL{MIN::INSERT_RESERVE} \\
@@ -6369,10 +6418,10 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{1.8in}
-\verb|min::uns32 min::|
+\verb|min::unsptr min::|
 	& \MINKEY{remove}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
-	  \verb|   min::uns32 n = 1 )|
+	  \verb|   min::unsptr n = 1 )|
 \LABEL{MIN::REMOVE_FROM_INSERTABLE_LIST} \\
 \end{TABULAR}
 
