@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 25 06:55:23 EST 2010
+// Date:	Wed Jan 27 01:21:19 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/26 03:23:17 $
+//   $Date: 2010/01/27 06:39:46 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.232 $
+//   $Revision: 1.233 $
 
 // Table of Contents:
 //
@@ -2890,7 +2890,7 @@ namespace min { namespace internal {
     //	  3-5	    3-5		reserved for future use
     //              6-11	long objects only,
     //				reserved for future use
-    //    3-11      12-27	total size mantissa (M)
+    //    6-11      12-27	total size mantissa (M)
     //    12-15     28-31	total size exponent (E)
     //
     //	    total_size = M << E
@@ -2923,11 +2923,11 @@ namespace min { namespace internal {
     const unsigned LONG_OBJ_HEADER_SIZE =
         2 + 2*MIN_IS_COMPACT;
 
-    const unsigned SHORT_OBJ_FLAG_BITS = 6;
+    const unsigned SHORT_OBJ_FLAG_BITS = 5;
     const unsigned LONG_OBJ_FLAG_BITS  = 12;
-    const unsigned SHORT_OBJ_MANTISSA_BITS = 13;
+    const unsigned SHORT_OBJ_MANTISSA_BITS = 8;
     const unsigned LONG_OBJ_MANTISSA_BITS  = 16;
-    const unsigned SHORT_OBJ_EXPONENT_BITS = 4;
+    const unsigned SHORT_OBJ_EXPONENT_BITS = 3;
     const unsigned LONG_OBJ_EXPONENT_BITS  = 4;
 
     const unsigned SHORT_OBJ_HASH_CODE_BITS = 7;
@@ -2953,9 +2953,16 @@ namespace min { namespace internal {
     const min::unsptr LONG_OBJ_MAX_HASH_SIZE_CODE =
         ( 1 << LONG_OBJ_HASH_CODE_BITS ) - 1;
     const min::unsptr SHORT_OBJ_MAX_TOTAL_SIZE =
-        1 << 16;
+    	SHORT_OBJ_MANTISSA_MASK
+	<<
+	( ( 1 << SHORT_OBJ_EXPONENT_BITS ) - 1 );
+	// This must be <= (1 << 32) in this implemen-
+	// tation because of offsets are stored in
+	// min::uns32's.
     const min::unsptr LONG_OBJ_MAX_TOTAL_SIZE =
-    	LONG_OBJ_MANTISSA_MASK << 15;
+    	LONG_OBJ_MANTISSA_MASK
+	<<
+	( ( 1 << LONG_OBJ_EXPONENT_BITS ) - 1 );
 	// This must be <= (1 << 32) in this implemen-
 	// tation because of offsets are stored in
 	// min::uns32's.
