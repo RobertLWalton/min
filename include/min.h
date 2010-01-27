@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 07:08:08 EST 2010
+// Date:	Wed Jan 27 07:34:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 12:18:09 $
+//   $Date: 2010/01/27 12:35:04 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.237 $
+//   $Revision: 1.238 $
 
 // Table of Contents:
 //
@@ -3946,13 +3946,13 @@ namespace min {
             ( min::internal
 	         ::list_pointer_type<vecpt> & lp,
 	      min::unsptr index );
-    template < class vecpt >
+    template < class vecpt, class vecpt2 >
     min::gen start_copy
             ( min::internal
 	         ::list_pointer_type<vecpt> & lp,
 	      const
 	      min::internal
-	         ::list_pointer_type<vecpt> & lp2 );
+	         ::list_pointer_type<vecpt2> & lp2 );
     template < class vecpt, class vecpt2 >
     min::gen start_sublist
     	    ( min::internal
@@ -4380,10 +4380,25 @@ namespace min { namespace internal {
 		  min::unsptr index );
 
 	friend min::gen start_copy<>
-		( min::internal
-		     ::list_pointer_type<vecpt> & lp,
-		  const min::internal
-		     ::list_pointer_type<vecpt> & lp2 );
+		( min::list_pointer & lp,
+		  const
+		  min::list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::updatable_list_pointer & lp,
+		  const
+		  min::updatable_list_pointer & lp2 );
+	friend min::gen start_copy<>
+		( min::updatable_list_pointer & lp,
+		  const
+		  min::insertable_list_pointer & lp2 );
 
 	friend min::gen start_sublist<>
 		( min::list_pointer & lp,
@@ -4535,13 +4550,26 @@ namespace min {
 	return lp.forward ( index );
     }
 
-    template < class vecpt >
+    // start_copy is declared as a friend only for
+    // legal combinations of list_pointers, e.g.,
+    //
+    // start_copy ( updatable_list_pointer & lp,
+    //		    insertable_list_pointer & lp2 )
+    //
+    // is allowed but
+    //
+    // start_copy ( insertable_list_pointer & lp,
+    //		    updatable_list_pointer & lp2 )
+    //
+    // is not allowed (not a friend).
+    //
+    template < class vecpt, class vecpt2 >
     inline min::gen start_copy
             ( min::internal
 	         ::list_pointer_type<vecpt> & lp,
 	      const
 	      min::internal
-	         ::list_pointer_type<vecpt> & lp2 )
+	         ::list_pointer_type<vecpt2> & lp2 )
     {
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
 	lp.current_index = lp2.current_index;
