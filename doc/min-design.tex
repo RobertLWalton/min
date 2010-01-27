@@ -1353,7 +1353,7 @@ bit of the 64 bit stub control integer, is off if the stub is managed by
 the allocator/collector/compactor (acc, of which the garbage collector is
 a part).  In this case the stub is said to be `\key{collectible}'.
 In the other case, where the bit is on, the stub is
-said to be `\key{uncollectible}', and the stub is allocated and freed
+said to be `\key{uncollectable}', and the stub is allocated and freed
 by explicit calls to the acc, but is not garbage collected or compacted by the
 acc.
 
@@ -1379,7 +1379,7 @@ by applying the function
 \end{tabular}\end{indpar}
 
 to the type code of the stub.  Notice that type codes are \underline{signed}
-integers, so that negative type codes are uncollectible and positive type codes
+integers, so that negative type codes are uncollectable and positive type codes
 are collectible.
 
 A partial list of stub type codes is:
@@ -1427,7 +1427,7 @@ programming be sure they are up-to-date (\secref{BODY-POINTERS}).
 A stub contains a 64-bit \key{stub control}.  The high order 8 bits
 of this is the stub type code, and the high order bit of this type
 code determines whether the stub is collectible (bit is off)
-or uncollectible (bit is on).
+or uncollectable (bit is on).
 
 If the stub is collectible,
 the stub control is used exclusively by the acc,
@@ -1449,7 +1449,7 @@ Here the chain pointer is a packed stub address
 that is used to build lists of allocated stubs which
 the acc manages.
 
-If a stub is uncollectible, its stub control, which is called
+If a stub is uncollectable, its stub control, which is called
 a `\key{non-acc control}\,', can be organized in different
 ways according to the type code value.  The standard way of organizing
 a non-acc stub control is:
@@ -1476,8 +1476,8 @@ low order 48 bits:	& stub pointer \\
 \end{tabular}
 \end{center}
 
-The main use of uncollectible stubs is as auxiliary stubs.
-An `\key{auxiliary stub}' is an uncollectible stub attached to an object.
+The main use of uncollectable stubs is as auxiliary stubs.
+An `\key{auxiliary stub}' is an uncollectable stub attached to an object.
 When the object is garbage collected, the auxiliary stub is freed.  Auxiliary
 stubs are a means of adding memory to an object without relocating the object.
 For example, if the object stores 64-bit IEEE floating point numbers,
@@ -1593,7 +1593,7 @@ protocol:
 save the relocated flag \\
 \ldots\ldots \\
 compute local variables containing unprotected body pointers \\
-use these local varibles \\
+use these local variables \\
 \ldots\ldots \\
 to call a relocating function: \\
 \hspace*{3em}\begin{tabular}{l}
@@ -1679,7 +1679,7 @@ check the type code of the stub pointing at the body.  The type
 code must be checked separately before the pointer is computed.  If the
 pointer is being recomputed after possible relocation, the stub type
 code may have to be checked.  For most stub types, the only check
-required relates to the possibility that the boty has been deallocated.
+required relates to the possibility that the body has been deallocated.
 
 Code to handle relocating function calls and unprotected body
 pointers has the general form:
@@ -1926,7 +1926,7 @@ stored in other places.
 In addition to needing to locate \verb|min::gen| values, the acc
 must be notified whenever a pointer to a collectible stub \verb|s2|
 is stored in a collectible stub \verb|s1| or in a body or uncollectable
-stub attached to \verb|s1|.  This is done by the follwing functions:
+stub attached to \verb|s1|.  This is done by the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void MUP::|
@@ -2124,7 +2124,7 @@ can be read by \verb|min::type_of| (which is protected) and
 written by \verb|MUP::set_type_of|.  For stub controls,
 acc control values are used with
 collectible types, and ordinary control values with
-uncollectible types.
+uncollectable types.
 
 The flag bits are set, cleared, and tested individually.  They are
 defined by constants of type \verb|min::uns64|, such as
@@ -2135,7 +2135,7 @@ defined by constants of type \verb|min::uns64|, such as
 	\LABEL{MIN::STUB_ADDRESS}\\
 Indicates that the address/value field of an ordinary (non-acc)
 control holds a stub address.  This flag is only used for
-uncollectible stubs whose control address/value field might
+uncollectable stubs whose control address/value field might
 be either a stub address or an unsigned integer.
 \end{list}
 \end{indpar}
@@ -2185,11 +2185,11 @@ or inside the type code field.
 
 The high order byte of any control written by \verb|MUP::set_control_of|
 is the type code, and the high order bit is clear if the stub is collectible
-and set if the stub is uncollectible (\secref{STUB-CONTROL}).
-Changing a stub from collectible to uncollectible or vice versa requires
+and set if the stub is uncollectable (\secref{STUB-CONTROL}).
+Changing a stub from collectible to uncollectable or vice versa requires
 removing or adding the stub to garbage collector lists that are threaded
 through the pointer field of the stub control.  So one cannot simply
-change the type code field of a stub from collectible to uncollectible
+change the type code field of a stub from collectible to uncollectable
 or vice versa.
 
 Ordinary (non-acc) control values can be manipulated by the following functions:
@@ -2352,7 +2352,7 @@ can be used:
 \end{tabular}\end{indpar}
 
 When constructed the \verb|MUP::resize_body| datum allocates
-a new body for a stub \verb|s|, and when desconstructed the datum
+a new body for a stub \verb|s|, and when deconstructed the datum
 installs the new body in the stub \verb|s| while deallocating the
 old body of \verb|s|.  Stub \verb|s|
 is not altered until the {\tt resize\_\EOL body}
@@ -3060,7 +3060,7 @@ typed object interface (\secref{TYPED-OBJECTS}).
 
 An object header encodes the variables vector size,
 hash table size, and total size of the object
-indirectly using a logrithmic or pseudo-floating-point code.
+indirectly using a logarithmic or pseudo-floating-point code.
 Therefore not every variables vector size,
 hash table size, or total size is supported.
 In order to create an object it is necessary to determine possible
@@ -3166,7 +3166,7 @@ A read-write or updatable
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}
 permits read-write access to body vector elements,
 but does not permit pushing or popping elements from the
-object's attibute vector or auxiliary area.
+object's attribute vector or auxiliary area.
 An insertable {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}
 does permit these pushes and pops, in addition to permitting
 read-write access to body vector elements.
@@ -3305,7 +3305,7 @@ and \verb|min::attr(vp,i)| can be used
 to access the \verb|i+1|'st attribute vector entry
 for $0\leq i<\mbox{\tt min::attr\_size\_of(vp)}$.
 \verb|min::aux(vp,p)| differs in that it accesses
-the auxilary area element pointed at by the auxilary
+the auxiliary area element pointed at by the auxiliary
 pointer \verb|p|, where
 \begin{center}
 $\mbox{\tt MUP::aux\_offset\_of(vp)}\leq p<\mbox{\tt min::total\_size\_of(vp)}$
@@ -3314,7 +3314,7 @@ $\mbox{\tt MUP::aux\_offset\_of(vp)}\leq p<\mbox{\tt min::total\_size\_of(vp)}$
 {\tt MUP::aux\_offset\_of(vp)}).
 
 A \minkey{updatable\_vec\_pointer} is like a \verb|min::vec_pointer|
-but has additional functions which support writting object body vector
+but has additional functions which support writing object body vector
 elements.  The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -4103,9 +4103,9 @@ from lists.  The functions for using this are:
 \LABEL{MIN::UPDATABLE_LIST_POINTER_OF_UPDATABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::updatable\_vec\_pointer \&} \\
 \verb|min::|
-	& \MINKEY{updatable\_vec\_pointer\_of} \\
+	& \MINKEY{vec\_pointer\_of} \\
 	& \verb|    ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_UPDATABLE_LIST_POINTER} \\
+\LABEL{MIN::VEC_POINTER_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
@@ -4219,9 +4219,9 @@ The functions defined for this are:
 \LABEL{MIN::INSERTABLE_LIST_POINTER_OF_INSERTABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::insertable\_vec\_pointer \&} \\
 \verb|min::|
-	& \MINKEY{insertable\_vec\_pointer\_of} \\
+	& \MINKEY{vec\_pointer\_of} \\
 	& \verb|    ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::VEC_POINTER_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
@@ -4367,7 +4367,7 @@ Each call to {\tt min::insert\_reserve} for a list pointer
 to an object invalidates all previous calls to
 {\tt min::insert\_reserve} for any list pointer
 to the same object.  Errors in this regard involving two different
-list pointers will be detected if unsufficient memory is reserved,
+list pointers will be detected if insufficient memory is reserved,
 but not otherwise.
 
 Note that {\tt min::insert\_reserve} is the only list pointer
@@ -4461,13 +4461,13 @@ is \underline{not} a detectable error.
 \key{List Implementation Note}:\label{LIST-IMPLEMENTATION-NOTE}
 In order to enforce the `No Superfluous' rules on 
 \pagref{NO-SUPERFLUOUS-LIST}, {\tt MUP::insertable\_list\_pointer}'s keep
-track of any auxiliary value
+track of the location of any auxiliary pointer
 (or equivalent as per \secref{OBJECT-AUXILIARY-STUBS})
 pointing a the current
 element.  Insertions before or after the current element may change
-this auxiliary value, and may move the current element to another
+this auxiliary pointer, and may move the current element to another
 location.  Otherwise insertions replace the current element
-by an auxiliary value (or equivalent)
+by an auxiliary pointer (or equivalent)
 pointing at a vector of elements (or equivalent),
 one of which is a copy of the replaced element.
 This last is done for insertions after the single element of a one
@@ -4518,7 +4518,7 @@ consecutive elements of the object auxiliary area, with the control
 preceding the value in the area, and therefore
 following the value in list order.
 
-An object auxiliary stub has one of the following two uncollectible stub type
+An object auxiliary stub has one of the following two uncollectable stub type
 codes:
 
 \begin{indpar}
@@ -6602,9 +6602,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::UPDATABLE_LIST_POINTER_OF_UPDATABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::updatable\_vec\_pointer \&} \\
 \verb|min::|
-	& \MINKEY{updatable\_vec\_pointer\_of}\ARGBREAK
+	& \MINKEY{vec\_pointer\_of}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_UPDATABLE_LIST_POINTER} \\
+\LABEL{MIN::VEC_POINTER_OF_UPDATABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -6705,9 +6705,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::INSERTABLE_LIST_POINTER_OF_INSERTABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::insertable\_vec\_pointer \&} \\
 \verb|min::|
-	& \MINKEY{insertable\_vec\_pointer\_of}\ARGBREAK
+	& \MINKEY{vec\_pointer\_of}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::VEC_POINTER_OF_INSERTABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
