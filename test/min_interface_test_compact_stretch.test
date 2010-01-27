@@ -413,9 +413,9 @@ min_interface_test.cc:XXXX assert:
 
 Test stub ACC related functions:
 min_interface_test.cc:XXXX assert:
-    min::is_collectible ( min::NUMBER ) true.
+    min::is_collectable ( min::NUMBER ) true.
 min_interface_test.cc:XXXX assert:
-    ! min::is_collectible ( min::LIST_AUX ) true.
+    ! min::is_collectable ( min::LIST_AUX ) true.
 min_interface_test.cc:XXXX assert:
     ! min::is_deallocated ( stub ) true.
 min_interface_test.cc:XXXX assert:

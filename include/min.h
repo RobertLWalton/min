@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 07:34:54 EST 2010
+// Date:	Wed Jan 27 09:22:45 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 12:35:04 $
+//   $Date: 2010/01/27 14:23:15 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.238 $
+//   $Revision: 1.239 $
 
 // Table of Contents:
 //
@@ -287,7 +287,7 @@ namespace min {
     const int SHORT_OBJ			= 7;
     const int LONG_OBJ			= 8;
 
-    // Uncollectible.
+    // Uncollectable.
     //
     const int AUX_FREE			= -1;
     const int LABEL_AUX			= -2;
@@ -1300,7 +1300,7 @@ namespace min {
         return s->c.i8[7*MIN_IS_LITTLE_ENDIAN];
     }
 
-    inline bool is_collectible ( int type )
+    inline bool is_collectable ( int type )
     {
     	return type >= 0;
     }
@@ -1868,9 +1868,9 @@ namespace min { namespace internal {
 namespace min { namespace unprotected {
 
     // Function to return the next free stub as a acc
-    // (garbage collectible) stub.  The type is set to
+    // (garbage collectable) stub.  The type is set to
     // min::ACC_FREE and may be changed to any garbage
-    // collectible type.  The value is NOT set.  The acc
+    // collectable type.  The value is NOT set.  The acc
     // flags are set to MINT::new_acc_stub_flags, and
     // the non-type part of the stub control is main-
     // tained by the acc.
@@ -2738,7 +2738,7 @@ namespace min {
 // hash value.
 //
 // This implementation is hidden so an implementation
-// using uncollectible stubs is also possible.
+// using uncollectable stubs is also possible.
 
 namespace min { namespace internal {
 

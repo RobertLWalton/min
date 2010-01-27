@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 01:38:39 EST 2010
+// Date:	Wed Jan 27 09:24:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 07:31:52 $
+//   $Date: 2010/01/27 14:25:23 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.127 $
+//   $Revision: 1.128 $
 
 // Table of Contents:
 //
@@ -1121,9 +1121,9 @@ int main ()
 	cout << "Test stub ACC related functions:"
 	     << endl;
 	MIN_ASSERT
-	    ( min::is_collectible ( min::NUMBER ) );
+	    ( min::is_collectable ( min::NUMBER ) );
 	MIN_ASSERT
-	    ( ! min::is_collectible ( min::LIST_AUX ) );
+	    ( ! min::is_collectable ( min::LIST_AUX ) );
 	MUP::set_type_of ( stub, min::NUMBER );
 	MIN_ASSERT ( ! min::is_deallocated ( stub ) );
 	MUP::set_type_of ( stub, min::DEALLOCATED );
