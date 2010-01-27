@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 09:22:45 EST 2010
+// Date:	Wed Jan 27 09:39:00 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 14:23:15 $
+//   $Date: 2010/01/27 15:16:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.239 $
+//   $Revision: 1.240 $
 
 // Table of Contents:
 //
@@ -4037,6 +4037,8 @@ namespace min { namespace internal {
 		previous_stub = NULL;
 #	    endif
 	    previous_is_sublist_head = false;
+	    saved_total_size =
+	        min::total_size_of ( vecp );
 	}
 
     private:
@@ -4078,6 +4080,14 @@ namespace min { namespace internal {
 	    // each element inserted.  These counters
 	    // must never become less than 0 (else
 	    // assert violation).
+
+	min::unsptr saved_total_size;
+	    // Save of total_size from vec pointer.
+	    // Used by refresh to check if resize has
+	    // been called for another list pointer to
+	    // the same object, and to adjust the
+	    // current_index and previous_index if
+	    // the total_size has changed.
 
 	// Abstractly there is a current pointer and a
 	// previous pointer.  The current pointer points
@@ -4349,6 +4359,8 @@ namespace min { namespace internal {
 #	    if MIN_USES_OBJ_AUX_STUBS
 		current_stub = NULL;
 #	    endif
+	    saved_total_size =
+	        min::total_size_of ( vecp );
 	}
 
     private:
@@ -4363,6 +4375,8 @@ namespace min { namespace internal {
 #	if MIN_USES_OBJ_AUX_STUBS
 	    min::stub * current_stub;
 #	endif
+
+	min::unsptr saved_total_size;
 
     // Friends:
 
@@ -4812,6 +4826,43 @@ namespace min {
     	    ( min::internal
 	         ::list_pointer_type<vecpt> & lp )
     {
+	min::unsptr new_total_size =
+	    min::total_size_of ( lp.vecp );
+	if ( lp.current_index != 0 )
+	    lp.current_index += new_total_size
+			      - lp.saved_total_size;
+	lp.saved_total_size = new_total_size;
+
+	if ( lp.current_index != 0 )
+	    return lp.current =
+	    		lp.base[lp.current_index];
+#       if MIN_USES_OBJ_AUX_STUBS
+	    else if ( lp.current_stub != NULL )
+		return lp.current =
+			   min::unprotected::
+			        gen_of
+			          ( lp.current_stub );
+#	endif
+	else if ( lp.current == min::LIST_END )
+	    return lp.current;
+
+	MIN_ABORT ( "inconsistent list_pointer" );
+    }
+
+    template <>
+    inline min::gen refresh
+    	    ( min::insertable_list_pointer & lp )
+    {
+	min::unsptr new_total_size =
+	    min::total_size_of ( lp.vecp );
+	if ( lp.current_index != 0 )
+	    lp.current_index += new_total_size
+			      - lp.saved_total_size;
+	if ( lp.previous_index != 0 )
+	    lp.previous_index += new_total_size
+			       - lp.saved_total_size;
+	lp.saved_total_size = new_total_size;
+
 	if ( lp.current_index != 0 )
 	    return lp.current =
 	    		lp.base[lp.current_index];
