@@ -3872,6 +3872,17 @@ An insertable {\tt min::\EOL insertable\_\EOL list\_\EOL pointer}
 permits adding and removing elements, in addition to permitting
 read-write access to elements.
 
+Note that unlike vector pointers, you cannot downcast more capable
+list pointers to less capable list pointers.  E.g., an
+{\tt min::\EOL insertable\_\EOL vec\_\EOL pointer} may be
+explicitly or implicitly downcast to an
+{\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}
+or {\tt min::\EOL vec\_\EOL pointer}, but 
+a {\tt min::\EOL insertable\_\EOL list\_\EOL pointer} may \underline{not} be
+explicitly or implicitly downcast to an
+{\tt min::\EOL updat\-able\_\EOL list\_\EOL pointer}
+or {\tt min::\EOL list\_\EOL pointer}.
+
 The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4111,29 +4122,44 @@ from lists.  The functions for using this are:
 	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_ATTR_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::updatable_list_pointer & lp,| \\
-	  \verb|   const min::updatable_list_pointer & lp2 )|
-	  \end{tabular}
-\LABEL{MIN::START_COPY_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::|
-	& \MINKEY{hash\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::unsptr min::|
-	& \MINKEY{attr\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::ATTR_SIZE_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_SUBLIST_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{current}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_UPDATABLE_LIST_POINTER} \\
@@ -4143,6 +4169,14 @@ from lists.  The functions for using this are:
 	  \verb| ( min::updatable_list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_UPDATABLE_LIST_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::|
+	& \MINKEY{hash\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::HASH_SIZE_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::unsptr min::|
+	& \MINKEY{attr\_size\_of}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::ATTR_SIZE_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -4159,12 +4193,15 @@ applicable to updatable (read-write) list pointers with the
 same results.  However, updatable list pointers
 can\underline{not} be converted to be read-only list pointers
 (unlike the situation with vector pointers).
+Also note that {\tt min::start\_\EOL sublist} works when
+\verb|lp2| is a read-only list pointer, but {\tt min::start\_\EOL copy}
+does not.
 
 The {\tt min::set} function can be used to replace the
 value of the current element of a list.
 Neither the previous value of the element nor the
 new value of the element may be {\tt min::\EOL LIST\_\EOL END},
-and neither may be the head of a sublist (even an empty sublist).
+and neither may represent a sublist (even an empty sublist).
 
 If a list pointer {\tt lp2} points at a element that is
 {\tt min::set} using a different updatable list pointer {\tt lp1},
@@ -4201,29 +4238,39 @@ The functions defined for this are:
 	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_ATTR_OF_INSERTABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::insertable_list_pointer & lp,| \\
-	  \verb|   const min::insertable_list_pointer & lp2 )|
-	  \end{tabular}
-\LABEL{MIN::START_COPY_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::|
-	& \MINKEY{hash\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_INSERTABLE_LIST_POINTER} \\
-\verb|min::unsptr min::|
-	& \MINKEY{attr\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::ATTR_SIZE_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::list_pointer & lp2 )|
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_SUBLIST_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_INSERTABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{current}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_INSERTABLE_LIST_POINTER} \\
@@ -4233,6 +4280,14 @@ The functions defined for this are:
 	  \verb| ( min::insertable_list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_INSERTABLE_LIST_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::|
+	& \MINKEY{hash\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::HASH_SIZE_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::unsptr min::|
+	& \MINKEY{attr\_size\_of}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::ATTR_SIZE_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -4279,13 +4334,16 @@ The functions defined for this are:
 \LABEL{MIN::REMOVE_FROM_INSERTABLE_LIST} \\
 \end{tabular}\end{indpar}
 
-TBD
-
 Functions defined for updatable (and read-only) list pointers are also
 applicable to insertable list pointers with the
 same results.  However, insertable list pointers
 can\underline{not} be converted to be updatable or read-only list pointers
 (unlike the situation with vector pointers).
+Note that {\tt min::start\_\EOL sublist} works when
+\verb|lp2| is a read-only or updatable
+list pointer, but {\tt min::start\_\EOL copy}
+does not.
+
 Also, there is one function, {\tt min::set}, that can do more for
 an insertable list pointer than it can for an updatable list pointer.  For
 an insertable list pointer (but not for an updatable list pointer)
@@ -4313,7 +4371,8 @@ list pointers will be detected if unsufficient memory is reserved,
 but not otherwise.
 
 Note that {\tt min::insert\_reserve} is the only list pointer
-function that may cause a relocation, and if a relocation occurs,
+function that may cause a relocation and/or reorganization of
+the object pointed at, and if a reorganization occurs,
 all list pointers become invalid and must be refreshed by
 a call to {\tt min::refresh}.
 
@@ -4338,11 +4397,14 @@ current position.  If the list pointer is at the end of list,
 at the list element it pointed at before elements were inserted.
 The elements are specified by a length {\tt n}
 vector {\tt p} of {\tt min::gen} values.
+\verb|p[0]| is inserted into the list before \verb|p[1]|, etc.
 
 To insert a sublist, first insert {\tt min::EMPTY\_SUBLIST}, then
 position the pointer to the sublist and use
 {\tt min::start\_sublist} to enter the sublist, and then use
 {\tt min::insert\_before} to insert the elements of the sublist.
+Also, as noted above, you can use {\tt min::\EOL set} to change
+the current element to {\tt min::\EOL EMPTY\_\EOL SUBLIST}.
 
 A sequence of instructions that begins with a
 call to {\tt min::insert\_reserve} and ends with the last
@@ -4413,45 +4475,6 @@ element list headed in the hash table or attribute vector.
 Any insertion before the end of a list of such a single element list
 is transformed into an insertion after the list's single element.
 \end{quote}
-
-TBD
-
-The two argument {\tt min::start\_sublist} function is equivalent
-to {\tt start\_copy} followed by {\tt start\_sublist} on just the
-first argument of {\tt start\_copy}, except the kind of the list
-pointer can be either downgraded or upgraded,
-e.g., going from an ordinary (read-only) list
-pointer to an insertable list pointer or vice versa:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::|
-	& \MINKEY{start\_sublist}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::|$xx$\verb|list_pointer & lp,| \\
-	  \verb|   const min::|$yy$\verb|list_pointer & lp2 )|
-	  \end{tabular}
-\LABEL{MIN::START_SUBLIST_XX_YY} \\
-\end{tabular}
-
-where $xx$ is one of `', `\verb|writable_|', or `\verb|insertable_|', \\
-and $yy$ is independently
-one of `', `\verb|writable_|', or `\verb|insertable_|'.
-
-\end{indpar}
-
-As a matter of convenience, the pointer to the stub of the object
-that a list pointer is associated with can be retrieved
-by the {\tt min::stub\_of} function:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::stub * min::|
-	& \MINKEY{stub\_of}\verb| ( min::|$xx$\verb|list_pointer & lp )|
-\LABEL{MIN::STUB_OF_LIST_POINTER_XX} \\
-\end{tabular}
-
-where $xx$ is one of `', `\verb|writable_|', or `\verb|insertable_|'.
-
-\end{indpar}
 
 \subsubsubsection{Object Auxiliary Stubs}
 \label{OBJECT-AUXILIARY-STUBS}
@@ -6597,11 +6620,57 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_ATTR_OF_UPDATABLE_LIST_POINTER} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.2in}
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::updatable_list_pointer & lp2 )|
-\LABEL{MIN::START_COPY_OF_UPDATABLE_LIST_POINTER} \\
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_SUBLIST_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_UPDATABLE_LIST_POINTER_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.4in}
+\verb|min::gen min::|
+	& \MINKEY{next}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{current}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{refresh}\ARGBREAK
+	  \verb|    ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::REFRESH_OF_UPDATABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -6615,27 +6684,6 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{attr\_size\_of}\ARGBREAK
 	  \verb|    ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_UPDATABLE_LIST_POINTER} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.4in}
-\verb|min::gen min::|
-	& \MINKEY{next}\ARGBREAK
-	  \verb| ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::NEXT_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_sublist}\ARGBREAK
-	  \verb|    ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{current}\ARGBREAK
-	  \verb| ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::CURRENT_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{refresh}\ARGBREAK
-	  \verb|    ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::REFRESH_OF_UPDATABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -6675,11 +6723,35 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_ATTR_OF_INSERTABLE_LIST_POINTER} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.2in}
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::insertable_list_pointer & lp2 )|
-\LABEL{MIN::START_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::list_pointer & lp2 )|
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_SUBLIST_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_INSERTABLE_LIST_POINTER_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
