@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 01:21:33 EST 2010
+// Date:	Wed Jan 27 01:57:21 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 06:44:52 $
+//   $Date: 2010/01/27 07:15:05 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.129 $
+//   $Revision: 1.130 $
 
 // Table of Contents:
 //
@@ -83,11 +83,28 @@ MINT::initializer::initializer ( void )
         + MINT::LONG_OBJ_VAR_CODE_BITS
 	== 32 );
 
+    // Check that max total sizes are representable
+    // and small enough for representable offsets.
+    //
+    min::uns64 short_max_representable =
+    	(min::uns64) MINT::SHORT_OBJ_MANTISSA_MASK
+	<<
+	( ( 1 << MINT::SHORT_OBJ_EXPONENT_BITS ) - 1 );
+    min::uns64 long_max_representable =
+    	(min::uns64) MINT::LONG_OBJ_MANTISSA_MASK
+	<<
+	( ( 1 << MINT::LONG_OBJ_EXPONENT_BITS ) - 1 );
     assert
       ( MINT::SHORT_OBJ_MAX_TOTAL_SIZE <= ( 1 << 16 ) );
     assert
+      (    MINT::SHORT_OBJ_MAX_TOTAL_SIZE
+        <= short_max_representable );
+    assert
       (    MINT::LONG_OBJ_MAX_TOTAL_SIZE
         <= ( 1ull << 32 ) );
+    assert
+      (    MINT::LONG_OBJ_MAX_TOTAL_SIZE
+        <= long_max_representable );
 
     min::uns32 u = 1;
     char * up = (char *) & u;
@@ -1777,8 +1794,8 @@ min::gen min::new_obj_gen
          &&
 	 hi <= MINT::SHORT_OBJ_MAX_HASH_SIZE_CODE
 	 &&
-	   total_size + MINT::SHORT_OBJ_HEADER_SIZE
-         < MINT::SHORT_OBJ_MAX_TOTAL_SIZE )
+	    total_size + MINT::SHORT_OBJ_HEADER_SIZE
+         <= MINT::SHORT_OBJ_MAX_TOTAL_SIZE )
     {
         total_size += MINT::SHORT_OBJ_HEADER_SIZE;
 
@@ -1820,8 +1837,8 @@ min::gen min::new_obj_gen
 	      &&
 	      hi <= MINT::LONG_OBJ_MAX_HASH_SIZE_CODE
 	      &&
-	        total_size
-	      < MINT::LONG_OBJ_MAX_TOTAL_SIZE );
+	         total_size
+	      <= MINT::LONG_OBJ_MAX_TOTAL_SIZE );
 
 	unsigned exponent = 0;
 	min::unsptr mantissa = total_size;
