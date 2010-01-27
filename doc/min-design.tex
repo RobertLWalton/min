@@ -251,7 +251,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 26, 2010}
+\date{January 27, 2010}
  
 \maketitle
 
@@ -3133,6 +3133,8 @@ by a long object.
 The hash table of the returned object is filled with \verb|min::LIST_END|
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
 The variables vector is filled with \verb|min::UNDEFINED| values.
+Unused area elements are initialized to some implementation defined
+value like \verb|0| or \verb|min::NONE|.
 The attribute vector and auxiliary areas of the returned object are
 zero length, and all space not used by the header, hash table, and
 variables vector is allocated to the unused area.
@@ -3486,7 +3488,30 @@ The additional functions for this type of pointer are:
 
 \end{tabular}\end{indpar}
 
-Here there are two versions of each push or pop: one that
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+
+\verb|void min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::unsptr unused_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::insertable_vec_pointer & vp,| \\
+      \verb|   min::unsptr unused_size,| \\
+      \verb|   min::unsptr var_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED_AND_VAR_OF_INSERTABLE_VEC_POINTER} \\
+
+\end{tabular}\end{indpar}
+
+The push functions push values to the end of the attribute vector
+and the beginning of the unused area.  The pop functions pop values
+from the end of the attribute vector and the beginning of the unused
+area.
+
+There are two versions of each push or pop: one that
 handles a single {\tt min::gen} value, and one that handles
 {\tt n} values stored in a C/C++ vector pointed at by {\tt p}.
 These push and pop functions preserve the order of the values in memory,
@@ -3506,8 +3531,32 @@ The size of the unused area can be determined by the
 \verb|min::unused_size_of| function
 (\pagref{MIN::UNUSED_SIZE_OF_VEC_POINTER}).
 These push functions invoke the
-Accumulator/\EOL Collector/\EOL Compactor function that must
+{\tt min::\EOL acc\_\EOL write\_\EOL update}
+Accumu\-la\-tor/\EOL Col\-lec\-tor/\EOL Com\-pac\-tor function
+(\pagref{MUP::ACC_WRITE_GEN_UPDATE}) that must
 be called when a \verb|min::gen| value is written into an object.
+
+The {\tt min::resize\REL} functions change the size of the unused
+area and variables vector.  The sizes can be either increased or
+decreased.  Elements added to the variables vector are added to
+its end and initialized with the value {\tt min::\EOL UNDEFINED}.
+The object body may be relocated by these functions in order to
+resize it, and may be converted from a short object to a long
+object or vice versa.  The sizes of the attribute vector and
+auxiliary area are not changed, but can be changed by later pushes
+and pops.  All auxiliary pointers in the object will
+be adjusted by adding to each the new total size minus the old total size.
+Otherwise no change is made to object contents, outside the unused
+area, whose elements are reinitialized to some implementation defined
+value like \verb|0| or \verb|min::NONE|.
+
+It is \underline{not}
+possible to resize the hash table with these functions because
+this involves moving data from a hash table entry with a given index
+to another hash table entry with a different index, and the vector level
+does not have enough information to do this.  The hash table can be
+resized at the
+attribute level (\pagref{MIN::RESIZE_OF_ATTR}).
 
 A {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer} may be automatically
 downcast to either a {\tt min::\EOL up\-datable\_\EOL vec\_\EOL pointer}
@@ -3573,7 +3622,7 @@ required functions are:
 
 \end{tabular}\end{indpar}
 
-The size and offset values returned by the above are those of the
+The offset values returned by the above are those of the
 variable vector({\tt var}), hash table({\tt hash}),
 attribute vector({\tt attr}), unused area ({\tt unused}), 
 and auxiliary area({\tt aux}).  These offsets are in \verb|min::gen|
@@ -3600,13 +3649,40 @@ Note that the {\tt min::\EOL unused\_\EOL offset\_\EOL of} and
 lvalue.  For insertable pointers these offsets change when
 values are pushed into or popped from the attribute vector or
 auxiliary area.  The following are equivalences except for
-the omission of {\tt MIN\_\EOL ASSERT} checks that the unused area
-is non-empty for pushes or that the attribute vector or auxiliary area
+the omission of {\tt MIN\_\EOL ASSERT} checks that the index \verb|i|
+is not too large, that the auxiliary pointer \verb|p| is within the
+auxiliary area,
+that the unused area
+is non-empty for pushes, and that the attribute vector or auxiliary area
 is non-empty for pops,
-and for push operation calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+and for set and push operation
+calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
 (\pagref{MUP::ACC_WRITE_GEN_UPDATE}):
 
 \begin{indpar}\begin{tabular}{rcl}
+\hspace*{2.0in} \\[-3ex]
+\verb|var ( vp, i )| & $\equiv$
+    & \verb|return base(vp)[var_offset_of(vp) + i]| \\
+\verb|hash ( vp, i )| & $\equiv$
+    & \verb|return base(vp)[hash_offset_of(vp) + i]| \\
+\verb|attr ( vp, i )| & $\equiv$
+    & \verb|return base(vp)[attr_offset_of(vp) + i]| \\
+\verb|aux ( vp, p )| & $\equiv$
+    & \verb|return base(vp)[p]| \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{rcl}
+\hspace*{2.0in} \\[-3ex]
+\verb|set_var ( vp, i, v )| & $\equiv$
+    & \verb|base(vp)[var_offset_of(vp) + i] = v| \\
+\verb|set_hash ( vp, i, v )| & $\equiv$
+    & \verb|base(vp)[hash_offset_of(vp) + i] = v| \\
+\verb|set_attr ( vp, i, v )| & $\equiv$
+    & \verb|base(vp)[attr_offset_of(vp) + i] = v| \\
+\verb|set_aux ( vp, p, v )| & $\equiv$
+    & \verb|base(vp)[p] = v| \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{rcl}
+\hspace*{2.0in} \\[-3ex]
 \verb|attr_push ( vp, v )| & $\equiv$
     & \verb|base(vp)[unused_offset_of(vp)++] = v| \\
 \verb|attr_pop ( vp, v )| & $\equiv$
@@ -3633,31 +3709,36 @@ values.
 
 The header is the only part of an object body that is
 \underline{not} \verb|min::gen| values.  Even so it is
-sizes in \verb|min::gen| units; e.g., a short object header size
+sized in \verb|min::gen| units; e.g., a short object header size
 is {\tt 2} for a compact implementation and {\tt 1}
 for a loose implementation (\pagref{COMPACT-OR-LOOSE}).
 
 The header may contain implementation dependent information used
-for optimization.  Most implementations do not all the required
+for optimization.  Most implementations do not store all the required
 sizes directly.  For example, an implementation usually permits only
-particular hash table sizes, and uses 5 bits for short objects
-or 11 bits for long object to encode a reference to a table
-of hash table sizes, freeing up at 3 bits for short objects and
-5 for long objects to be used
-as flags.  The {\tt min::\EOL OBJ\_\EOL PRIVATE},
+particular hash table sizes, and uses 7 bits for short objects
+and 12 bits for long objects to encode a reference to a table
+of hash table sizes.  Similarly and implementation typically stores
+a total size as a 12 bits in a short object and as a 15 bit integer
+mantissa and 5 bit exponent in a long object.
+The {\tt min::\EOL OBJ\_\EOL PRIVATE},
 {\tt min::\EOL OBJ\_\EOL PUBLIC},
-and {\tt min::\EOL OBJ\_\EOL TYPED} flags are stored in this way.
+and {\tt min::\EOL OBJ\_\EOL TYPED} flags are stored in bits made
+available by these packed size encodings.
 Additional flags may be used to optimize garbage collection.
 For example, objects which have auxiliary stubs
 (\pagref{OBJECT-AUXILIARY-STUBS})
 may be flagged, thereby identifying objects that need extra work
 when deallocated or reorganized.
 
-An implementation is not required to support all possible sizes of
-hash table or all possible total sizes, but should support
-sizes that permit objects that are read-only to be efficiently compacted.
-Within the limits set by the total and hash table sizes, arbitrary sizes
-of the vector, unused, and auxiliary areas should be supported.
+An implementation is not required to support all possible value of
+the variables vector size, hash table size, or total size, but should support
+values that permit objects that are read-only to be efficiently compacted.
+Size values that are powers of two and not
+greater than the maximum supported sizes must be supported.
+Within the bounds set by these size values, arbitrary sizes
+of the attribute vector, unused area, and auxiliary area must
+be supported.
 
 
 
@@ -5244,6 +5325,7 @@ pointer.  A reverse attribute name is returned
 only if its value set is non-empty.
 
 
+TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
 \clearpage
 
@@ -6118,10 +6200,227 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Object Vector Level Declarations}
+\INDEXHEADER{Protected Object Vector Level}
 
 \begin{indpar}[0.2in]
 
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| ( min::gen v )|
+\LABEL{MIN::VEC_POINTER_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
+       \verb| ( const min::stub * s )|
+\LABEL{MIN::VEC_POINTER_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::|
+    & \MINKEY{initialize}\ARGBREAK
+      \verb| ( min::vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen v )|
+\LABEL{MIN::INIT_OF_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+    & \MINKEY{initialize}\ARGBREAK
+      \verb| ( min::vec_pointer & vp,|\ARGBREAK
+      \verb|   const min::stub * s )|
+\LABEL{MIN::INIT_OF_VEC_POINTER_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.0in}
+\verb|const min::stub * min::| & \MINKEY{stub\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::STUB_OF_VEC_POINTER} \\
+\verb|min::unsptr min::| & \MINKEY{var\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::VAR_SIZE_OF_VEC_POINTER} \\
+\verb|min::unsptr min::| & \MINKEY{hash\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::HASH_SIZE_OF_VEC_POINTER} \\
+\verb|min::unsptr min::| & \MINKEY{attr\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::ATTR_SIZE_OF_VEC_POINTER} \\
+\verb|min::unsptr min::| & \MINKEY{unused\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::UNUSED_SIZE_OF_VEC_POINTER} \\
+\verb|min::unsptr min::| & \MINKEY{aux\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::AUX_SIZE_OF_VEC_POINTER} \\
+\verb|min::unsptr min::| & \MINKEY{total\_size\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::TOTAL_SIZE_OF_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|min::gen | & \MINKEY{var}\ARGBREAK
+    \verb| ( min::vec_pointer & vp,|\ARGBREAK
+    \verb|   min::unsptr index )|
+\LABEL{MIN::VAR_OF_VEC_POINTER} \\
+\verb|min::gen | & \MINKEY{hash}\ARGBREAK
+    \verb| ( min::vec_pointer & vp,|\ARGBREAK
+    \verb|   min::unsptr index )|
+\LABEL{MIN::HASH_OF_VEC_POINTER} \\
+\verb|min::gen | & \MINKEY{attr}\ARGBREAK
+    \verb| ( min::vec_pointer & vp,|\ARGBREAK
+    \verb|   min::unsptr index )|
+\LABEL{MIN::ATTR_OF_VEC_POINTER} \\
+\verb|min::gen | & \MINKEY{aux}\ARGBREAK
+    \verb| ( min::vec_pointer & vp,|\ARGBREAK
+    \verb|   min::unsptr aux_pointer )|
+\LABEL{MIN::AUX_OF_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{initialize}\ARGBREAK
+      \verb| ( min::updatable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen v )|
+\LABEL{MIN::INIT_OF_UPDATABLE_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+    & \MINKEY{initialize}\ARGBREAK
+      \verb| ( min::updatable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::stub * s )|
+\LABEL{MIN::INIT_OF_UPDATABLE_VEC_POINTER_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{set\_var}\ARGBREAK
+      \verb| ( min::updatable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::unsptr index,|\ARGBREAK
+      \verb|   min::gen value )|
+\LABEL{MIN::SET_VAR_OF_UPDATABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{set\_hash}\ARGBREAK
+      \verb| ( min::updatable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::unsptr index,|\ARGBREAK
+      \verb|   min::gen value )|
+\LABEL{MIN::SET_HASH_OF_UPDATABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{set\_attr}\ARGBREAK
+      \verb| ( min::updatable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::unsptr index,|\ARGBREAK
+      \verb|   min::gen value )|
+\LABEL{MIN::SET_ATTR_OF_UPDATABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{set\_aux}\ARGBREAK
+      \verb| ( min::updatable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::unsptr aux_pointer,|\ARGBREAK
+      \verb|   min::gen value )|
+\LABEL{MIN::SET_AUX_OF_UPDATABLE_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
+    \verb| ( min::gen v )|
+\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
+    \verb| ( min::stub * s )|
+\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{initialize}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen v )|
+\LABEL{MIN::INIT_OF_INSERTABLE_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+    & \MINKEY{initialize}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::stub * s )|
+\LABEL{MIN::INIT_OF_INSERTABLE_VEC_POINTER_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{attr\_push}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen value )|
+\LABEL{MIN::ATTR_PUSH_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{attr\_push}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   const min::gen * p, min::unsptr n )|
+\LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+
+\verb|void min::| & \MINKEY{aux\_push}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen value )|
+\LABEL{MIN::AUX_PUSH_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{aux\_push}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   const min::gen * p, min::unsptr n )|
+\LABEL{MIN::AUX_PUSH_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{attr\_pop}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen & value )|
+\LABEL{MIN::ATTR_POP_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{attr\_pop}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen * p, min::unsptr n )|
+\LABEL{MIN::ATTR_POP_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+
+\verb|void min::| & \MINKEY{aux\_pop}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen & value )|
+\LABEL{MIN::AUX_POP_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{aux\_pop}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::gen * p, min::unsptr n )|
+\LABEL{MIN::AUX_POP_MULTIPLE_OF_INSERTABLE_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{resize\REL}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::unsptr unused_size )|
+\LABEL{MIN::RESIZE_UNUSED_OF_INSERTABLE_VEC_POINTER} \\
+\verb|void min::| & \MINKEY{resize\REL}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
+      \verb|   min::unsptr unused_size,|\ARGBREAK
+      \verb|   min::unsptr var_size )|
+\LABEL{MIN::RESIZE_UNUSED_AND_VAR_OF_INSERTABLE_VEC_POINTER} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Unprotected Object Vector Level}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{2.2in}
+\verb|const min::gen * & MUP::| & \MUPKEY{base}\ARGBREAK
+    \verb| ( min::vec_pointer & v )|
+\LABEL{MUP::BASE_OF_VEC_POINTER} \\
+\verb|min::gen * & MUP::| & \MUPKEY{base}\ARGBREAK
+    \verb| ( min::updatable_vec_pointer & v )|
+\LABEL{MUP::BASE_OF_UPDATABLE_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::STUB_OF_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::unsptr MUP::| & \MUPKEY{var\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::VAR_OFFSET_OF_VEC_POINTER} \\
+\verb|min::unsptr MUP::| & \MUPKEY{attr\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::ATTR_OFFSET_OF_VEC_POINTER} \\
+\verb|min::unsptr MUP::| & \MUPKEY{unused\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::UNUSED_OFFSET_OF_VEC_POINTER} \\
+\verb|min::unsptr MUP::| & \MUPKEY{aux\_offset\_of}%
+    \verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::AUX_OFFSET_OF_VEC_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::unsptr & MUP::| & \MUPKEY{unused\_offset\_of}\ARGBREAK
+    \verb| ( min::insertable_vec_pointer & vp )|
+\LABEL{MUP::UNUSED_OFFSET_OF_INSERTABLE_VEC_POINTER} \\
+\verb|min::unsptr & MUP::| & \MUPKEY{aux\_offset\_of}\ARGBREAK
+    \verb| ( min::insertable_vec_pointer & vp )|
+\LABEL{MUP::AUX_OFFSET_OF_INSERTABLE_VEC_POINTER} \\
+\end{TABULAR}
 
 \end{indpar}
 
