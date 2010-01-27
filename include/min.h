@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 01:21:19 EST 2010
+// Date:	Wed Jan 27 01:44:27 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 06:39:46 $
+//   $Date: 2010/01/27 06:44:58 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.233 $
+//   $Revision: 1.234 $
 
 // Table of Contents:
 //
@@ -2887,11 +2887,9 @@ namespace min { namespace internal {
     //    0	    0		OBJ_TYPED
     //    1    	    1		OBJ_PUBLIC
     //    2         2		OBJ_PRIVATE
-    //	  3-5	    3-5		reserved for future use
-    //              6-11	long objects only,
-    //				reserved for future use
-    //    6-11      12-27	total size mantissa (M)
-    //    12-15     28-31	total size exponent (E)
+    //	  3-4	    3-11	reserved for future use
+    //    5-12      12-27	total size mantissa (M)
+    //    13-15     28-31	total size exponent (E)
     //
     //	    total_size = M << E
     //
