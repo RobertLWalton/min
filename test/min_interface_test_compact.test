@@ -1059,6 +1059,8 @@ min_interface_test.cc:XXXX assert:
 Finish Labels Test!
 
 Start Objects Test!
+SHORT_OBJ_MAX_TOTAL_SIZE = 0xfff
+LONG_OBJ_MAX_TOTAL_SIZE = 0xffffffff
 
 Test object size functions:
 maxht: 4265299790
@@ -1097,7 +1099,7 @@ Test long objects:
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_non_fixed_body ( stub 26, 308152 ) called
+MINT::new_non_fixed_body ( stub 26, 308160 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
 ../include/min.h:XXXX assert:
@@ -1110,7 +1112,7 @@ min_interface_test.cc:XXXX assert:
     type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
-lh: 4 lht: 7033 lua: 70001 lav: 0 laa: 0 lt: 77038
+lh: 4 lht: 7033 lua: 70003 lav: 0 laa: 0 lt: 77040
 min_interface_test.cc:XXXX assert:
     lht >= 7000 true.
 min_interface_test.cc:XXXX assert:
@@ -1278,7 +1280,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     caa == aa true.
 min_interface_test.cc:XXXX assert:
-    min::unused_size_of ( svp ) == 500 - 4 true.
+    min::unused_size_of ( svp ) == unused_size - 4 true.
 min_interface_test.cc:XXXX desire failure:
     min::aux_pop ( svp, outv[0] );
 ../include/min.h:XXXX assert:
