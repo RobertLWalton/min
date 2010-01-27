@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jan 26 00:58:12 EST 2010
+// Date:	Wed Jan 27 01:21:33 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/26 05:58:18 $
+//   $Date: 2010/01/27 06:44:52 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.128 $
+//   $Revision: 1.129 $
 
 // Table of Contents:
 //
@@ -63,6 +63,31 @@ MINT::initializer::initializer ( void )
 
     assert
       ( MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG <= 33 );
+
+    assert
+      (   MINT::SHORT_OBJ_FLAG_BITS
+        + MINT::SHORT_OBJ_MANTISSA_BITS
+	+ MINT::SHORT_OBJ_EXPONENT_BITS
+	== 16 );
+    assert
+      (   MINT::SHORT_OBJ_HASH_CODE_BITS
+        + MINT::SHORT_OBJ_VAR_CODE_BITS
+	== 16 );
+    assert
+      (   MINT::LONG_OBJ_FLAG_BITS
+        + MINT::LONG_OBJ_MANTISSA_BITS
+	+ MINT::LONG_OBJ_EXPONENT_BITS
+	== 32 );
+    assert
+      (   MINT::LONG_OBJ_HASH_CODE_BITS
+        + MINT::LONG_OBJ_VAR_CODE_BITS
+	== 32 );
+
+    assert
+      ( MINT::SHORT_OBJ_MAX_TOTAL_SIZE <= ( 1 << 16 ) );
+    assert
+      (    MINT::LONG_OBJ_MAX_TOTAL_SIZE
+        <= ( 1ull << 32 ) );
 
     min::uns32 u = 1;
     char * up = (char *) & u;
