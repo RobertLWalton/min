@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 01:44:27 EST 2010
+// Date:	Wed Jan 27 02:01:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 06:44:58 $
+//   $Date: 2010/01/27 07:13:55 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.234 $
+//   $Revision: 1.235 $
 
 // Table of Contents:
 //
@@ -2921,12 +2921,12 @@ namespace min { namespace internal {
     const unsigned LONG_OBJ_HEADER_SIZE =
         2 + 2*MIN_IS_COMPACT;
 
-    const unsigned SHORT_OBJ_FLAG_BITS = 5;
+    const unsigned SHORT_OBJ_FLAG_BITS = 6;
     const unsigned LONG_OBJ_FLAG_BITS  = 12;
-    const unsigned SHORT_OBJ_MANTISSA_BITS = 8;
-    const unsigned LONG_OBJ_MANTISSA_BITS  = 16;
-    const unsigned SHORT_OBJ_EXPONENT_BITS = 3;
-    const unsigned LONG_OBJ_EXPONENT_BITS  = 4;
+    const unsigned SHORT_OBJ_MANTISSA_BITS = 10;
+    const unsigned LONG_OBJ_MANTISSA_BITS  = 15;
+    const unsigned SHORT_OBJ_EXPONENT_BITS = 0;
+    const unsigned LONG_OBJ_EXPONENT_BITS  = 5;
 
     const unsigned SHORT_OBJ_HASH_CODE_BITS = 7;
     const unsigned LONG_OBJ_HASH_CODE_BITS  = 12;
@@ -2954,16 +2954,15 @@ namespace min { namespace internal {
     	SHORT_OBJ_MANTISSA_MASK
 	<<
 	( ( 1 << SHORT_OBJ_EXPONENT_BITS ) - 1 );
-	// This must be <= (1 << 32) in this implemen-
+	// This must be <= (1 << 16) in this implemen-
 	// tation because of offsets are stored in
-	// min::uns32's.
+	// min::uns16's.
     const min::unsptr LONG_OBJ_MAX_TOTAL_SIZE =
-    	LONG_OBJ_MANTISSA_MASK
-	<<
-	( ( 1 << LONG_OBJ_EXPONENT_BITS ) - 1 );
+    	0xFFFFFFFFu;
 	// This must be <= (1 << 32) in this implemen-
 	// tation because of offsets are stored in
-	// min::uns32's.
+	// min::uns32's.  It must also be representable
+	// in a min::unsptr value.
 
     //    hash table size = hash_size[hash size code]
     //
