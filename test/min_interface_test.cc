@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jan 25 10:47:39 EST 2010
+// Date:	Wed Jan 27 01:38:39 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/25 16:11:37 $
+//   $Date: 2010/01/27 07:31:52 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.126 $
+//   $Revision: 1.127 $
 
 // Table of Contents:
 //
@@ -1737,6 +1737,13 @@ int main ()
 	cout << endl;
 	cout << "Start Objects Test!" << endl;
 
+	cout << "SHORT_OBJ_MAX_TOTAL_SIZE = 0x"
+	    << hex << MINT::SHORT_OBJ_MAX_TOTAL_SIZE
+	    << dec << endl;
+	cout << "LONG_OBJ_MAX_TOTAL_SIZE = 0x"
+	    << hex << MINT::LONG_OBJ_MAX_TOTAL_SIZE
+	    << dec << endl;
+
 	cout << endl;
 	cout << "Test object size functions:" << endl;
 
@@ -1969,7 +1976,7 @@ int main ()
 	    MIN_ASSERT ( caa == aa );
 	    MIN_ASSERT
 		(    min::unused_size_of ( svp )
-		  == 500 - 4 );
+		  == unused_size - 4 );
 	    desire_failure (
 		min::aux_pop ( svp, outv[0] );
 	    );

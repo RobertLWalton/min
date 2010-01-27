@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 02:01:20 EST 2010
+// Date:	Wed Jan 27 02:27:37 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 07:13:55 $
+//   $Date: 2010/01/27 07:30:22 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.235 $
+//   $Revision: 1.236 $
 
 // Table of Contents:
 //
@@ -2887,11 +2887,14 @@ namespace min { namespace internal {
     //    0	    0		OBJ_TYPED
     //    1    	    1		OBJ_PUBLIC
     //    2         2		OBJ_PRIVATE
-    //	  3-4	    3-11	reserved for future use
-    //    5-12      12-27	total size mantissa (M)
-    //    13-15     28-31	total size exponent (E)
+    //	  3	    3-11	reserved for future use
+    //    4-15      12-27	total size mantissa (M)
+    //    ---       28-31	total size exponent (E)
     //
     //	    total_size = M << E
+    //
+    // For short objects more flags could be added to
+    // the offsets as only 12 bits of offset is needed.
     //
     // OBJ_TYPE means object first variable (var[0])
     // points at the object's type.
@@ -2921,9 +2924,9 @@ namespace min { namespace internal {
     const unsigned LONG_OBJ_HEADER_SIZE =
         2 + 2*MIN_IS_COMPACT;
 
-    const unsigned SHORT_OBJ_FLAG_BITS = 6;
+    const unsigned SHORT_OBJ_FLAG_BITS = 4;
     const unsigned LONG_OBJ_FLAG_BITS  = 12;
-    const unsigned SHORT_OBJ_MANTISSA_BITS = 10;
+    const unsigned SHORT_OBJ_MANTISSA_BITS = 12;
     const unsigned LONG_OBJ_MANTISSA_BITS  = 15;
     const unsigned SHORT_OBJ_EXPONENT_BITS = 0;
     const unsigned LONG_OBJ_EXPONENT_BITS  = 5;
