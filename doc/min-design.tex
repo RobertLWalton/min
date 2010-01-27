@@ -3897,43 +3897,48 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 	  \verb|   min::unsptr index )|
 	  \end{tabular}
 \LABEL{MIN::START_ATTR} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::list_pointer & lp,| \\
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::list_pointer & lp2 )|
-	  \end{tabular}
 \LABEL{MIN::START_LIST_POINTER_COPY_OF_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::list_pointer & lp,| \\
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::updatable_list_pointer & lp2 )|
-	  \end{tabular}
 \LABEL{MIN::START_LIST_POINTER_COPY_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::list_pointer & lp,| \\
+	& \MINKEY{start\_copy}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::insertable_list_pointer & lp2 )|
-	  \end{tabular}
 \LABEL{MIN::START_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::|
-	& \MINKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER} \\
-\verb|min::unsptr min::|
-	& \MINKEY{attr\_size\_of}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::ATTR_SIZE_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::list_pointer & lp2 )|
+\LABEL{MIN::START_LIST_POINTER_SUBLIST_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_LIST_POINTER_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_LIST_POINTER_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST} \\
 \verb|min::gen min::|
 	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
@@ -3943,6 +3948,14 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 	  \verb| ( min::list_pointer & lp )| \\
 	  \end{tabular}
 \LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::|
+	& \MINKEY{hash\_size\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::HASH_SIZE_OF_LIST_POINTER} \\
+\verb|min::unsptr min::|
+	& \MINKEY{attr\_size\_of}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::ATTR_SIZE_OF_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
@@ -3958,23 +3971,27 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 
 A list pointer is created to move around in a particular object.
 Once created it can be started on a new list by one of the
-list \skey{start list function}s,
-{\tt start\_hash}, {\tt start\_attr}, or {\tt start\_copy}
-(note {\tt start\_sublist} is \underline{not} a start list function).
-The `{\tt next}' function moves forward in the current list, and
-the {\tt start\_sublist} function starts down a sublist.
+\skey{start list function}s:
+{\tt min::\EOL start\_\EOL hash}, {\tt min::\EOL start\_\EOL attr},
+{\tt min::\EOL start\_\EOL copy}, or
+the 2-argument {\tt min::\EOL start\_\EOL sublist}.
+The {\tt min::\EOL next} function moves forward in the current list.
 The list is always pointing at a current element, whose value is
-returned by the `{\tt current}' function.  If the current element
+returned by the {\tt min::\EOL current} function.  If the current element
 is written using another updatable or insertable list pointer,
-the `{\tt refresh}' function must be used to reestablish the
+the {\tt min::\EOL refresh} function must be used to reestablish the
 current element's value, which is cached in the list pointer.
-This `{\tt refresh}' function must also be used if list elements
+This {\tt min::\EOL refresh} function must also be used if list elements
 are inserted into or removed from the object by using another
 insertable list pointer, but in some such situations using
-`{\tt refresh}' is not adequate and the list pointer must be
+{\tt min::\EOL refresh} is not adequate and the list pointer must be
 restarted (see \pagref{RESTARTING_LIST_POINTER}).
 
-The {\tt min::\EOL start\_hash} function positions
+A list pointer that has been created but not started by one of the
+list start functions appears to the
+at the end of an immutable empty list.
+
+The {\tt min::\EOL start\_\EOL hash} function positions
 a list pointer at the beginning of the
 list whose head is at the given index within the hash table, treating the
 hash table as a vector.  This function returns the value of the first
@@ -3990,20 +4007,38 @@ The size of the hash table may be obtained from the
 {\tt min::\EOL hash\_\EOL size\_\EOL of} function.
 The index is \underline{not} a body vector index.
 
-The {\tt min::\EOL start\_attr} function is analogous except it is given
+The {\tt min::\EOL start\_\EOL attr} function is analogous except it is given
 an index within the object attribute vector and positions the list pointer
 at the beginning of the list whose head is the attribute vector element
 at that index.  Index 0 refers to the first element of the attribute vector,
 and the maximum index is the size of the attribute vector minus 1.
-The size of the hash table may be obtained from the
+The size of the attribute vector may be obtained from the
 {\tt min::\EOL attr\_\EOL size\_\EOL of} function.
 The index is \underline{not} a body vector index.
 
-The {\tt min::\EOL start\_copy} function positions a list pointer ({\tt lp})
+The {\tt min::\EOL start\_\EOL copy} function
+positions a list pointer ({\tt lp})
 to the same place as another list pointer ({\tt lp2}).
 The two list pointers must have been constructed from the same
-vector pointer, but {\tt lp2} may be a read-only, updatable, or
-insertable list pointer.
+vector pointer.
+
+The value of a list element can represent a sublist
+(see the {\tt min::\EOL is\_\EOL sublist} function described below).
+The 2-argument {\tt min::\EOL start\_\EOL sublist} function
+positions a list pointer ({\tt lp})
+to the first element of the sublist represented by the current
+element of another list pointer ({\tt lp2}).
+The current element of the second pointer must represent a sublist.
+This function returns the value of the first element of
+the sublist, or returns {\tt min::\EOL LIST\_\EOL END} if the sublist is empty.
+The two list pointers must have been constructed from the same
+vector pointer.
+
+The 1-argument {\tt min::\EOL start\_\EOL sublist} function
+positions a list pointer
+to the first element of the sublist represented by the current
+element of the pointer (it is equivalent to 2-argument
+{\tt min::\EOL start\_\EOL sublist} with \verb|lp2|$\equiv$\verb|lp|).
 
 The {\tt min::\EOL next} function moves the list pointer
 to the next list element of the
@@ -4014,22 +4049,20 @@ Thus after the end of a list has been reached, additional
 calls to {\tt min::next}
 will do nothing but return {\tt min::\EOL LIST\_\EOL END}.
 
-The value of a list element can represent a sublist.  When a list pointer
-points at a list element representing a sublist, the
-{\tt min::\EOL start\_\EOL sublist} function can be called to position the
-list pointer at the first element of the sublist.
-This function returns the value of the first element of
-the sublist, or returns {\tt min::\EOL LIST\_\EOL END} if the sublist is empty.
-
-It is an error to call {\tt min::start\_sublist}
-if the list pointer points at an
-element E that is not a sublist, or if the list pointer
-points at the end of a list.
-
 The {\tt min::current} function just returns the value of the list
 element the list pointer currently points at, or returns
 {\tt min::\EOL LIST\_\EOL END}
 if there is no such element because the pointer is at the end of a list.
+
+The {\tt min::refresh} function must be called if the object
+may have been resized by the addition of an element to some part of
+the object, as by use of an insertable list pointer, or if
+the element the list pointer is pointing at is written, as by use
+of an updatable list pointer.  It returns the current element.
+In some situations in which another insertable list pointer has
+been used to insert or remove an element, calling {\tt min::\EOL refresh}
+is not adequate and the list pointer must be
+restarted (see \pagref{RESTARTING_LIST_POINTER}).
 
 Determining whether a list pointer current element value
 represents a sublist requires
@@ -4048,13 +4081,7 @@ simply checking whether the value equals {\tt min::\EOL LIST\_\EOL END},
 or can be done equivalently
 with the {\tt min::\EOL is\_\EOL list\_\EOL end} function.
 
-The {\tt min::refresh} function must be called if the object
-may have been resized by the addition of an element to some part of
-the object, as by use of an insertable list pointer, or if
-the element the list pointer is pointing at is written, as by use
-of an updatable list pointer.  It returns the current element.
-
-An {\tt min::updatable\_list\_pointer} allows read-write access to
+An {\tt min::updatable\_\EOL list\_\EOL pointer} allows read-write access to
 list elements without permitting insertion or removal of elements
 from lists.  The functions for using this are:
 
@@ -4090,14 +4117,7 @@ from lists.  The functions for using this are:
 	  \verb| ( min::updatable_list_pointer & lp,| \\
 	  \verb|   const min::updatable_list_pointer & lp2 )|
 	  \end{tabular}
-\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_copy}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::updatable_list_pointer & lp,| \\
-	  \verb|   const min::insertable_list_pointer & lp2 )|
-	  \end{tabular}
-\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::START_COPY_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
@@ -4187,7 +4207,7 @@ The functions defined for this are:
 	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   const min::insertable_list_pointer & lp2 )|
 	  \end{tabular}
-\LABEL{MIN::START_INSERTABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::START_COPY_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
@@ -6471,6 +6491,11 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
 	  \verb|   min::unsptr index )|
 \LABEL{MIN::START_ATTR} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.2in}
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
@@ -6486,6 +6511,38 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( min::list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::insertable_list_pointer & lp2 )|
 \LABEL{MIN::START_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::list_pointer & lp2 )|
+\LABEL{MIN::START_LIST_POINTER_SUBLIST_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::updatable_list_pointer & lp2 )|
+\LABEL{MIN::START_LIST_POINTER_SUBLIST_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\ARGBREAK
+	  \verb| ( min::list_pointer & lp,|\ARGBREAK
+	  \verb|   const min::insertable_list_pointer & lp2 )|
+\LABEL{MIN::START_LIST_POINTER_SUBLIST_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::START_SUBLIST_OF_LIST_POINTER} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.2in}
+\verb|min::gen min::|
+	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::NEXT_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{refresh}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -6497,23 +6554,6 @@ These are in \verb|min_parameters.h|.
 \verb|min::unsptr min::|
 	& \MINKEY{attr\_size\_of}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::ATTR_SIZE_OF_LIST_POINTER} \\
-\end{TABULAR}
-
-\medskip
-
-\begin{TABULAR}{1.8in}
-\verb|min::gen min::|
-	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::NEXT_OF_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_sublist}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::START_SUBLIST} \\
-\verb|min::gen min::|
-	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{refresh}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -6561,12 +6601,7 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::updatable_list_pointer & lp2 )|
-\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_UPDATABLE_LIST_POINTER} \\
-\verb|min::gen min::|
-	& \MINKEY{start\_copy}\ARGBREAK
-	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
-	  \verb|   const min::insertable_list_pointer & lp2 )|
-\LABEL{MIN::START_UPDATABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::START_COPY_OF_UPDATABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -6644,7 +6679,7 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   const min::insertable_list_pointer & lp2 )|
-\LABEL{MIN::START_INSERTABLE_LIST_POINTER_COPY_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::START_COPY_OF_INSERTABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
