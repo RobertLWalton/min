@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 09:39:00 EST 2010
+// Date:	Thu Feb  4 11:14:39 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 15:16:10 $
+//   $Date: 2010/02/04 16:50:09 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.240 $
+//   $Revision: 1.241 $
 
 // Table of Contents:
 //
@@ -2145,7 +2145,8 @@ namespace min { namespace unprotected {
 	              min::unsptr new_size,
 		      min::unsptr old_size )
 	    : s ( s ), new_size ( new_size ),
-	      old_size ( old_size )
+	      old_size ( old_size ),
+	      new_type ( min::type_of ( s ) )
 	{
 	    // Allocate rstub and its body, which is
 	    // the new body.
@@ -2201,6 +2202,8 @@ namespace min { namespace unprotected {
 		int type = min::type_of ( s );
 		unprotected::set_type_of
 		    ( rstub, type );
+		unprotected::set_type_of
+		    ( s, new_type );
 
 		min::uns64 * bp = (min::uns64 *)
 		    unprotected::pointer_of ( s ) - 1;
@@ -2223,6 +2226,9 @@ namespace min { namespace unprotected {
 			( resize_body & r );
 	friend void void_resize_body
 			( resize_body & r );
+	friend void retype_resize_body
+			( resize_body & r,
+			  int new_type );
 	friend void min::internal
 	               ::acc_initialize_resize_body
 		             ( void );
@@ -2245,6 +2251,11 @@ namespace min { namespace unprotected {
 	    // reallocated).
 	min::unsptr new_size;
 	    // Size of new body.
+	int new_type;
+	    // Type to be installed in stub s when new
+	    // body is installed in stub.  Initialized
+	    // to type of stub s and reset by retype_
+	    // resize_body.
 	min::stub * last_allocated_save;
 	    // Save of last_allocated.
 
@@ -2269,6 +2280,14 @@ namespace min { namespace unprotected {
     {
 	min::unprotected::deallocate_body
 	    ( r.rstub, r.new_size );
+    }
+    // Set type to be installed in stub when new body
+    // body is installed in stub.
+    //
+    inline void retype_resize_body
+	    ( resize_body & r, int new_type )
+    {
+	r.new_type = new_type;
     }
 
 } }
