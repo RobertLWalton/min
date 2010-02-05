@@ -251,7 +251,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 4, 2010}
+\date{February 5, 2010}
  
 \maketitle
 
@@ -474,6 +474,8 @@ the size of each number is clear:
 \minkey{float64}	& 64-bit IEEE floating point number \\
 \minkey{unsptr}	& unsigned integer of same length as a pointer (32 or 64 bits)
                   \\
+\minkey{intptr}	& signed integer of same length as a pointer (32 or 64 bits)
+                  \\
 \minkey{unsgen}	& unsigned integer of same length as a general value
                   (32 or 64 bits, see \secref{GENERAL-VALUES})
                   \\
@@ -490,6 +492,7 @@ the size of each number is clear:
 \LABEL{MIN::INT64}%
 \LABEL{MIN::FLOAT64}%
 \LABEL{MIN::UNSPTR}%
+\LABEL{MIN::INTPTR}%
 \label{INT}%
 \label{UNS}
 
@@ -714,12 +717,12 @@ a 64-bit IEEE floating point direct number atom\LOOSE \\
 a 28-bit direct integer atom\COMPACT \\
 a 0-5 {\tt char} direct string atom\LOOSE \\
 a 0-3 {\tt char} direct string atom\COMPACT \\
-a VSIZE-bit list auxiliary pointer \\
-a VSIZE-bit sublist auxiliary pointer \\
-a VSIZE-bit indirect auxiliary pointer \\
 a VSIZE-bit index \\
 a VSIZE-bit control code \\
-a VSIZE-bit special value
+a VSIZE-bit special value \\
+a VSIZE-bit list auxiliary pointer \\
+a VSIZE-bit sublist auxiliary pointer \\
+a VSIZE-bit indirect auxiliary pointer
 \end{indpar}
 \hspace*{1in}\begin{minipage}{4.5in}
 where \key{VSIZE} equals 24 for a compact implementation
@@ -829,7 +832,8 @@ The range of such a direct integer is the same as the range of a 28-bit
 two's complement integer: $-2^{27}$ to $2^{27}-1$, inclusive.
 
 Other 32-bit general values consist of a high order
-8-bit subtype code and a low order 24-bit datum.  For most auxiliary pointer
+8-bit subtype code and a low order 24-bit datum.
+For most auxiliary pointer
 general values the datum is a 24-bit auxiliary pointer
 (see~\pagref{OBJECT-BODY-AUXILIARY-POINTER}
 for a definition of auxiliary pointers).
@@ -995,22 +999,26 @@ indicated subtype and {\tt false} otherwise:
 \LABEL{MIN::IS_DIRECT_INT} \\
 \verb|bool min::|\MINKEY{is\_direct\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_DIRECT_STR} \\
+\verb|bool min::|\MINKEY{is\_index}\verb| ( min::gen v )|
+\LABEL{MIN::IS_INDEX} \\
+\verb|bool min::|\MINKEY{is\_control\_code}\verb| ( min::gen v )|
+\LABEL{MIN::IS_CONTROL_CODE} \\
+\verb|bool min::|\MINKEY{is\_special}\verb| ( min::gen v )|
+\LABEL{MIN::IS_SPECIAL_CODE} \\
 \verb|bool min::|\MINKEY{is\_list\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LIST_AUX} \\
 \verb|bool min::|\MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SUBLIST_AUX} \\
 \verb|bool min::|\MINKEY{is\_indirect\_aux}\verb| ( min::gen v )|
 \LABEL{MIN::IS_INDIRECT_AUX} \\
-\verb|bool min::|\MINKEY{is\_index}\verb| ( min::gen v )|
-\LABEL{MIN::IS_INDEX} \\
-\verb|bool min::|\MINKEY{is\_control\_code}\verb| ( min::gen v )|
-\LABEL{MIN::IS_CONTROL_CODE} \\
-\verb|bool min::|\MINKEY{is\_special}\verb| ( min::gen v )|
-\LABEL{MIN::IS_SPECIAL_CODE}
+\verb|bool min::|\MINKEY{is\_aux}\verb| ( min::gen v )|
+\LABEL{MIN::IS_AUX}
 \end{indpar}
 
 For a 32-bit general value {\tt is\_direct\_float\LOOSE} is unimplemented.
 For a 64-bit general value {\tt is\_direct\_int\COMPACT} is unimplemented.
+The {\tt min::\EOL is\_\EOL aux} function returns true if the general
+value is any auxiliarly pointer (i.e., list, sublist, etc.).
 
 The following protected functions return the value appropriate for a given
 subtype, after checking the subtype with a {\tt MIN\_ASSERT} statement:
@@ -5511,6 +5519,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::FLOAT64} \\
 \verb|min::| & \MINKEY{unsptr}
 \LABEL{MIN::UNSPTR} \\
+\verb|min::| & \MINKEY{intptr}
+\LABEL{MIN::INTPTR} \\
 \verb|min::| & \MINKEY{unsgen}
 \LABEL{MIN::UNSGEN} \\
 \end{TABULAR}
@@ -5605,19 +5615,23 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_DIRECT_INT} \\
 \verb|bool min::| & \MINKEY{is\_direct\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_DIRECT_STR} \\
-\verb|bool min::| & \MINKEY{is\_list\_aux}\verb| ( min::gen v )|
-\LABEL{MIN::IS_LIST_AUX} \\
-\verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
-\LABEL{MIN::IS_SUBLIST_AUX} \\
-\verb|bool min::| & \MINKEY{is\_indirect\_aux}\verb| ( min::gen v )|
-\LABEL{MIN::IS_INDIRECT_AUX} \\
 \verb|bool min::| & \MINKEY{is\_index}\verb| ( min::gen v )|
 \LABEL{MIN::IS_INDEX} \\
 \verb|bool min::| & \MINKEY{is\_control\_code}\verb| ( min::gen v )|
 \LABEL{MIN::IS_CONTROL_CODE} \\
 \verb|bool min::| & \MINKEY{is\_special}\verb| ( min::gen v )|
 \LABEL{MIN::IS_SPECIAL_CODE} \\
+\verb|bool min::| & \MINKEY{is\_list\_aux}\verb| ( min::gen v )|
+\LABEL{MIN::IS_LIST_AUX} \\
+\verb|bool min::| & \MINKEY{is\_sublist\_aux}\verb| ( min::gen v )|
+\LABEL{MIN::IS_SUBLIST_AUX} \\
+\verb|bool min::| & \MINKEY{is\_indirect\_aux}\verb| ( min::gen v )|
+\LABEL{MIN::IS_INDIRECT_AUX} \\
+\verb|bool min::| & \MINKEY{is\_aux}\verb| ( min::gen v )|
+\LABEL{MIN::IS_AUX} \\
 \end{TABULAR}
+
+\medskip
 
 \begin{TABULAR}{2.4in}
 \verb|const min::stub * min::| & \MINKEY{stub\_of}\ARGBREAK

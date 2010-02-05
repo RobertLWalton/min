@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb  4 11:14:39 EST 2010
+// Date:	Fri Feb  5 09:17:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/04 16:50:09 $
+//   $Date: 2010/02/05 16:18:15 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.241 $
+//   $Revision: 1.242 $
 
 // Table of Contents:
 //
@@ -107,8 +107,10 @@ namespace min {
 
 #   if MIN_POINTER_BITS <= 32
 	typedef uns32 unsptr;
+	typedef int32 intptr;
 #   else
 	typedef uns64 unsptr;
+	typedef int64 intptr;
 #   endif
 }
 
@@ -133,7 +135,8 @@ namespace min {
 	//   0x00-0xDF	stubs
 	//   0xE0-0xEF  direct integers
 	//   0xF0-0xF7  direct string and other
-	//   0xF8-0xFF  illegal
+	//   0xF8-0xFC  illegal
+	//   0xFD-0xFF  auxiliary pointers
 
 	const unsigned GEN_STUB
 	    = 0;
@@ -143,22 +146,28 @@ namespace min {
 	    = 0xE0;
 	const unsigned GEN_DIRECT_STR
 	    = 0xF0;
-	const unsigned GEN_LIST_AUX
-	    = 0xF1;
-	const unsigned GEN_SUBLIST_AUX
-	    = 0xF2;
-	const unsigned GEN_INDIRECT_AUX
-	    = 0xF3;
-	const unsigned GEN_PACKED_AUX
-	    = 0xF4;
 	const unsigned GEN_INDEX
-	    = 0xF5;
+	    = 0xF1;
 	const unsigned GEN_CONTROL_CODE
-	    = 0xF6;
+	    = 0xF2;
 	const unsigned GEN_SPECIAL
-	    = 0xF7;
+	    = 0xF3;
 	const unsigned GEN_ILLEGAL
-	    = 0xF8;  // First illegal subtype code.
+	    = 0xF4;  // First illegal subtype code
+	             // below GEN_AUX_LOWER.
+
+	// Auxiliary pointer subtype codes are at the
+	// end.
+	//
+	const unsigned GEN_AUX_LOWER
+	    = 0xFD;  // Lowest AUX subtype code.
+	const unsigned GEN_INDIRECT_AUX
+	    = 0xFD;
+	const unsigned GEN_SUBLIST_AUX
+	    = 0xFE;
+	const unsigned GEN_LIST_AUX
+	    = 0xFF;
+
 	const unsigned GEN_UPPER
 	    = 0xFF; // Largest subtype code.
 
@@ -179,8 +188,9 @@ namespace min {
 	// with base MIN_FLOAT_SIGNALLING_NAN:
 	//
 	//   0x00-0x0F	stub
-	//   0x10-0x17	direct string and others
-	//   0x18-0x1F	illegal
+	//   0x10-0x13	direct string and others
+	//   0x14-0x1C	illegal
+	//   0x1D-0x1F	auxiliary pointers
 	//   other	floating point
 
 	const unsigned GEN_STUB
@@ -191,23 +201,29 @@ namespace min {
 	//   unsigned GEN_DIRECT_INT // illegal
 	const unsigned GEN_DIRECT_STR
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x10;
-	const unsigned GEN_LIST_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x11;
-	const unsigned GEN_SUBLIST_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x12;
-	const unsigned GEN_INDIRECT_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
-	const unsigned GEN_PACKED_AUX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x14;
 	const unsigned GEN_INDEX
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x15;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x11;
 	const unsigned GEN_CONTROL_CODE
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x16;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x12;
 	const unsigned GEN_SPECIAL
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x17;
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x13;
 	const unsigned GEN_ILLEGAL
-	    = MIN_FLOAT64_SIGNALLING_NAN + 0x18;
-	    // First illegal subtype code.
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x14;
+	    // First illegal subtype code below
+	    // aux subtype codes.
+
+	// Auxiliary pointer subtype codes are at the
+	// end.
+	//
+	const unsigned GEN_AUX_LOWER
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1D;
+	const unsigned GEN_INDIRECT_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1D;
+	const unsigned GEN_SUBLIST_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1E;
+	const unsigned GEN_LIST_AUX
+	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
+
 	const unsigned GEN_UPPER
 	    = MIN_FLOAT64_SIGNALLING_NAN + 0x1F;
 	    // Largest subtype code.
@@ -741,8 +757,15 @@ namespace min {
 	        return GEN_DIRECT_INT;
 	    else if ( v < GEN_ILLEGAL)
 	        return v;
-	    else
+	    else if ( v < GEN_AUX_LOWER)
 	        return GEN_ILLEGAL;
+	    else
+	        return v;
+	}
+	inline bool is_aux ( min::gen v )
+	{
+	    return (min::unsgen) v
+	           >= (GEN_AUX_LOWER << VSIZE);
 	}
 #   elif MIN_IS_LOOSE
 	inline bool is_stub ( min::gen v )
@@ -772,10 +795,20 @@ namespace min {
 	        return GEN_STUB;
 	    else if ( v < GEN_ILLEGAL)
 	        return v;
-	    else if ( v <= GEN_UPPER)
+	    else if ( v < GEN_AUX_LOWER)
 	        return GEN_ILLEGAL;
+	    else if ( v <= GEN_UPPER)
+	        return v;
 	    else
 	        return GEN_DIRECT_FLOAT;
+	}
+	inline bool is_aux ( min::gen v )
+	{
+	    min::unsgen subtype =
+	        (min::unsgen) v >> VSIZE;
+	    return GEN_AUX_LOWER <= subtype
+	           &&
+		   subtype <= GEN_UPPER;
 	}
 #   endif
 
@@ -3410,9 +3443,8 @@ namespace min {
 	    min::uns8 * flags_p;
 	    if ( type == min::SHORT_OBJ )
 	    {
-		min::internal::short_obj * so =
-		    min::internal
-		       ::short_obj_of ( s );
+		internal::short_obj * so =
+		    internal::short_obj_of ( s );
 
 	        flags_p = (min::uns8 *) & so->flags
 		        + MIN_IS_BIG_ENDIAN;
@@ -3438,9 +3470,8 @@ namespace min {
 	    else
 	    {
 	        MIN_ASSERT ( type == min::LONG_OBJ );
-		min::internal::long_obj * lo =
-		    min::internal
-		       ::long_obj_of ( s );
+		internal::long_obj * lo =
+		    internal::long_obj_of ( s );
 
 	        flags_p = (min::uns8 *) & lo->flags
 		        + 3 * MIN_IS_BIG_ENDIAN;
