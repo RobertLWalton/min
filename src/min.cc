@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 01:57:21 EST 2010
+// Date:	Fri Feb  5 11:17:59 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 07:15:05 $
+//   $Date: 2010/02/05 16:18:28 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.130 $
+//   $Revision: 1.131 $
 
 // Table of Contents:
 //
@@ -1883,6 +1883,29 @@ min::gen min::new_obj_gen
 // Object Vector Level
 // ------ ------ -----
 
+static const min::unsptr OBJ_HEADER_SIZE_DIFFERENCE =
+       sizeof ( min::gen )
+     * (   MINT::LONG_OBJ_HEADER_SIZE
+	 - MINT::SHORT_OBJ_HEADER_SIZE );
+
+// Copy n min::gen values from the `from' address to the
+// `to' address.  Add offset to any that are auxiliarly
+// pointers.
+//
+inline void resize_helper
+    ( min::gen * to, min::gen * from,
+      min::unsgen offset, min::unsptr n )
+{
+    while ( n -- )
+    {
+        min::gen v = * from ++;
+	if ( min::is_aux ( v ) )
+	    v = (min::gen)
+	        ( (min::unsgen) v + offset );
+	* to ++ = v;
+    }
+}
+
 void min::resize
     ( min::insertable_vec_pointer & vp,
       min::unsptr unused_size,
@@ -1894,17 +1917,60 @@ void min::resize
         ( unused_size + var_size + old_size )
 	-
 	(   min::var_size_of ( vp )
-	  + min::hash_size_of ( vp ) );
+	  + min::unused_size_of ( vp ) );
+
+    int new_type = min::type_of ( s );
+    min::unsptr hash_code;
+    if ( new_type == min::SHORT_OBJ )
+    {
+	hash_code =   MINT::short_obj_of(s)->codes
+	            & MINT::SHORT_OBJ_HASH_CODE_MASK;
+
+	if ( var_size > MINT::SHORT_OBJ_MAX_VAR_SIZE
+	     ||
+		new_size
+	     > MINT::SHORT_OBJ_MAX_TOTAL_SIZE )
+	{
+	     new_type = min::LONG_OBJ;
+	     new_size += OBJ_HEADER_SIZE_DIFFERENCE;
+	}
+    }
+    else
+    {
+	MIN_ASSERT ( new_type == min::LONG_OBJ );
+	hash_code =   MINT::long_obj_of(s)->codes
+	            & MINT::LONG_OBJ_HASH_CODE_MASK;
+
+	min::unsptr new_short_size =
+	     new_size
+	       -   sizeof ( min::gen )
+	         * (   MINT::LONG_OBJ_HEADER_SIZE
+		     - MINT::SHORT_OBJ_HEADER_SIZE );
+
+	if ( var_size <= MINT::SHORT_OBJ_MAX_VAR_SIZE
+	     &&
+	        hash_code
+	     <= MINT::SHORT_OBJ_MAX_HASH_SIZE_CODE
+	     &&
+		new_size
+	     <=   MINT::SHORT_OBJ_MAX_TOTAL_SIZE
+	        + OBJ_HEADER_SIZE_DIFFERENCE )
+	{
+	     new_type = min::SHORT_OBJ;
+	     new_size -= OBJ_HEADER_SIZE_DIFFERENCE;
+	}
+    }
+
     MUP::resize_body r ( s, old_size, new_size );
+    MUP::retype_resize_body ( r, new_type );
+
     min::gen * & oldb = MUP::base ( vp );
     min::gen * & newb = * ( min::gen **) &
 	MUP::new_body_pointer_ref ( r );
 
-    // TBD short to long change?
-
-
-
+    // TBD
 }
+
 void min::resize
     ( min::insertable_vec_pointer & vp,
       min::unsptr unused_size )
