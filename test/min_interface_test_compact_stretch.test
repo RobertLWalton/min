@@ -119,7 +119,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_stub ( strngen ) true.
 
 Test list aux general values:
-listauxgen: f10b353b
+listauxgen: ff0b353b
 min_interface_test.cc:XXXX assert:
     min::is_list_aux ( listauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -140,7 +140,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_stub ( listauxgen ) true.
 min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( listauxgen ) true.
-re-listauxgen: f10eb551
+re-listauxgen: ff0eb551
 min_interface_test.cc:XXXX assert:
     min::is_list_aux ( listauxgen ) true.
 ../include/min.h:XXXX assert:
@@ -155,7 +155,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( listauxgen ) true.
 
 Test sublist aux general values:
-sublistauxgen: f20b353b
+sublistauxgen: fe0b353b
 min_interface_test.cc:XXXX assert:
     min::is_sublist_aux ( sublistauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -178,7 +178,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( sublistauxgen ) true.
 
 Test indirect aux general values:
-indirectauxgen: f30b353b
+indirectauxgen: fd0b353b
 min_interface_test.cc:XXXX assert:
     min::is_indirect_aux ( indirectauxgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -201,7 +201,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( indirectauxgen ) true.
 
 Test index general values:
-indexgen: f50b353b
+indexgen: f10b353b
 min_interface_test.cc:XXXX assert:
     min::is_index ( indexgen ) true.
 min_interface_test.cc:XXXX assert:
@@ -224,7 +224,7 @@ min_interface_test.cc:XXXX assert:
     ! min::is_direct_str ( indexgen ) true.
 
 Test control code general values:
-codegen: f60b353b
+codegen: f20b353b
 min_interface_test.cc:XXXX assert:
     min::is_control_code ( codegen ) true.
 min_interface_test.cc:XXXX assert:
@@ -259,7 +259,7 @@ min_interface_test.cc:XXXX assert:
     min::is_special ( min::SUCCESS ) true.
 min_interface_test.cc:XXXX assert:
     min::is_special ( min::FAILURE ) true.
-specialgen: f708471c
+specialgen: f308471c
 min_interface_test.cc:XXXX assert:
     min::is_special ( specialgen ) true.
 min_interface_test.cc:XXXX assert:
