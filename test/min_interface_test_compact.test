@@ -1094,6 +1094,8 @@ min_interface_test.cc:XXXX assert:
     st == sh + sht + sav + sua + saa true.
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( sstub ) == st * sizeof ( min::gen ) true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
 
 Test long objects:
 MINT::acc_expand_stub_free_list (1) called
@@ -1125,6 +1127,8 @@ min_interface_test.cc:XXXX assert:
     lt == lh + lht + lav + lua + laa true.
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( lstub ) == lt * sizeof ( min::gen ) true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 
@@ -1307,6 +1311,10 @@ min_interface_test.cc:XXXX desire failure:
     min::aux_push ( svp, num3 );
 ../include/min.h:XXXX assert:
     vp.unused_offset < vp.aux_offset false.
+../include/min.h:XXXX assert:
+    type == UPDATABLE true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
 
 Test long object vector level:
 ../include/min.h:XXXX assert:
@@ -1481,6 +1489,12 @@ min_interface_test.cc:XXXX desire failure:
     min::aux_push ( lvp, numv, 3 );
 ../include/min.h:XXXX assert:
     vp.unused_offset + n <= vp.aux_offset false.
+../include/min.h:XXXX assert:
+    t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    type == UPDATABLE true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 
@@ -2067,6 +2081,16 @@ min_interface_test.cc:XXXX assert:
 Finish Object List Level Test!
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    type == UPDATABLE true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
+../include/min.h:XXXX assert:
+    t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    type == UPDATABLE true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
 min_interface_test.cc:XXXX assert:
     deallocated_body_region[0] == 0 && memcmp ( deallocated_body_region, deallocated_body_region + 1, sizeof ( deallocated_body_region ) - 1 ) == 0 true.
 
