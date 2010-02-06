@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb  5 13:33:19 EST 2010
+// Date:	Sat Feb  6 12:55:25 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/05 20:17:29 $
+//   $Date: 2010/02/06 17:57:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.132 $
+//   $Revision: 1.133 $
 
 // Table of Contents:
 //
@@ -1814,7 +1814,7 @@ min::gen min::new_obj_gen
 	so->flags =
 	      (   (    exponent
 	            << MINT::SHORT_OBJ_MANTISSA_BITS )
-	        + mantissa )
+	        + mantissa - 1 )
 	    << MINT::SHORT_OBJ_FLAG_BITS;
 	so->codes =
 	      (    var_size
@@ -1855,7 +1855,7 @@ min::gen min::new_obj_gen
 	lo->flags =
 	      (   (    exponent
 	            << MINT::LONG_OBJ_MANTISSA_BITS )
-	        + mantissa )
+	        + mantissa - 1 )
 	    << MINT::LONG_OBJ_FLAG_BITS;
 	lo->codes =
 	      (    var_size
@@ -2065,7 +2065,7 @@ void min::resize
 	flags +=
 	       (  (    exponent
 	            << MINT::SHORT_OBJ_MANTISSA_BITS )
-	        + mantissa )
+	        + mantissa - 1 )
 	    << MINT::SHORT_OBJ_FLAG_BITS;
 	so->flags = (min::uns16) flags;
 	so->unused_offset =
@@ -2083,7 +2083,7 @@ void min::resize
 	flags +=
 	       (  (    exponent
 	            << MINT::LONG_OBJ_MANTISSA_BITS )
-	        + mantissa )
+	        + mantissa - 1 )
 	    << MINT::LONG_OBJ_FLAG_BITS;
 	lo->flags = (min::uns16) flags;
 	lo->unused_offset =

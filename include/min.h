@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb  6 07:57:35 EST 2010
+// Date:	Sat Feb  6 12:47:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/06 17:39:40 $
+//   $Date: 2010/02/06 17:56:47 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.243 $
+//   $Revision: 1.244 $
 
 // Table of Contents:
 //
@@ -2947,7 +2947,7 @@ namespace min { namespace internal {
     //    4-15      12-27	total size mantissa (M)
     //    ---       28-31	total size exponent (E)
     //
-    //	    total_size = M << E
+    //	    total_size = (M+1) << E
     //
     // For short objects more flags could be added to
     // the offsets as only 12 bits of offset is needed.
@@ -3065,7 +3065,8 @@ namespace min { namespace internal {
 	    ( min::unsptr flags )
     {
 	flags >>= SHORT_OBJ_FLAG_BITS;
-	return ( flags & SHORT_OBJ_MANTISSA_MASK )
+	return (   ( flags & SHORT_OBJ_MANTISSA_MASK )
+	         + 1 )
 	       <<
 	       ( flags >> SHORT_OBJ_MANTISSA_BITS );
     }
@@ -3074,7 +3075,8 @@ namespace min { namespace internal {
 	    ( min::unsptr flags )
     {
 	flags >>= LONG_OBJ_FLAG_BITS;
-	return ( flags & LONG_OBJ_MANTISSA_MASK )
+	return (   ( flags & LONG_OBJ_MANTISSA_MASK )
+	         + 1 )
 	       <<
 	       ( flags >> LONG_OBJ_MANTISSA_BITS );
     }
