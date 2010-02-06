@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb  5 09:17:03 EST 2010
+// Date:	Sat Feb  6 07:57:35 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/05 16:18:15 $
+//   $Date: 2010/02/06 17:39:40 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.242 $
+//   $Revision: 1.243 $
 
 // Table of Contents:
 //
@@ -300,8 +300,12 @@ namespace min {
     const int SHORT_STR			= 4;
     const int LONG_STR			= 5;
     const int LABEL			= 6;
-    const int SHORT_OBJ			= 7;
-    const int LONG_OBJ			= 8;
+    const int TINY_OBJ			= 7;
+        // Unimplemented.
+    const int SHORT_OBJ			= 8;
+    const int LONG_OBJ			= 9;
+    const int HUGE_OBJ			= 10;
+        // Unimplemented.
 
     // Uncollectable.
     //
@@ -2149,7 +2153,7 @@ namespace min { namespace unprotected {
     // new body in the stub s  while deallocating the
     // old body of s.  Stub s is not altered until the
     // resize_body struct is deconstructed (the
-    // void_resize_body function can be used to
+    // abort_resize_body function can be used to
     // prevent stub s from ever being altered).
     //
     // After the new body is obtained, information
@@ -2164,10 +2168,10 @@ namespace min { namespace unprotected {
     // resize_body struct exists, but that body may
     // also be relocated.  s must NOT be deallocated
     // while the resize_body struct exists, unless
-    // void_resize_body has been called.
+    // abort_resize_body has been called.
     // 
     struct resize_body;
-    void void_resize_body ( resize_body & r );
+    void abort_resize_body ( resize_body & r );
     struct resize_body {
 
 	// Construct resize_body for stub s with new
@@ -2257,7 +2261,7 @@ namespace min { namespace unprotected {
 
 	friend void * & new_body_pointer_ref
 			( resize_body & r );
-	friend void void_resize_body
+	friend void abort_resize_body
 			( resize_body & r );
 	friend void retype_resize_body
 			( resize_body & r,
@@ -2309,7 +2313,7 @@ namespace min { namespace unprotected {
     // change anything when deconstructed.  The
     // new body is deallocated.
     //
-    inline void void_resize_body ( resize_body & r )
+    inline void abort_resize_body ( resize_body & r )
     {
 	min::unprotected::deallocate_body
 	    ( r.rstub, r.new_size );
@@ -2992,6 +2996,10 @@ namespace min { namespace internal {
         ( ( 1 << SHORT_OBJ_MANTISSA_BITS ) - 1 );
     const min::unsptr LONG_OBJ_MANTISSA_MASK  =
         ( ( 1 << LONG_OBJ_MANTISSA_BITS ) - 1 );
+    const min::unsptr SHORT_OBJ_FLAG_MASK =
+        ( ( 1 << SHORT_OBJ_FLAG_BITS ) - 1 );
+    const min::unsptr LONG_OBJ_FLAG_MASK  =
+        ( ( 1 << LONG_OBJ_FLAG_BITS ) - 1 );
     const min::unsptr SHORT_OBJ_HASH_CODE_MASK =
         ( ( 1 << SHORT_OBJ_HASH_CODE_BITS ) - 1 );
     const min::unsptr LONG_OBJ_HASH_CODE_MASK  =
@@ -3246,13 +3254,6 @@ namespace min {
     {
     public:
 
-        enum {
-	    READONLY = 1,
-	    UPDATABLE = 2,
-	    INSERTABLE = 3 };
-
-	const int type;
-
 	vec_pointer ( const min::stub * s )
 	    : s ( (min::stub *) s ), type ( READONLY )
 	    { init(); }
@@ -3383,6 +3384,7 @@ namespace min {
 
 	~ vec_pointer ( void )
 	{
+	    MIN_ASSERT ( type == READONLY );
 	    int t = min::type_of ( s );
 	    if ( t == min::SHORT_OBJ )
 	    {
@@ -3390,11 +3392,6 @@ namespace min {
 		    internal::short_obj_of ( s );
 
 		so->flags &= ~ OBJ_PRIVATE;
-		if ( type == INSERTABLE )
-		{
-		    so->unused_offset = unused_offset;
-		    so->aux_offset    = aux_offset;
-		}
 	    }
 	    else
 	    {
@@ -3403,11 +3400,6 @@ namespace min {
 		    internal::long_obj_of ( s );
 
 		lo->flags &= ~ OBJ_PRIVATE;
-		if ( type == INSERTABLE )
-		{
-		    lo->unused_offset = unused_offset;
-		    lo->aux_offset    = aux_offset;
-		}
 	    }
 	}
 
@@ -3416,6 +3408,15 @@ namespace min {
 	vec_pointer ( const min::stub * s, int type )
 	    : s ( (min::stub *) s ), type ( type )
 	    { init(); }
+
+        enum {
+	    READONLY = 1,
+	    UPDATABLE = 2,
+	    INSERTABLE = 3 };
+	int type;
+	    // Higher level destructors change this so
+	    // the lower level destructors they
+	    // implicitly call will not have errors.
 
     	min::stub * s;
 	    // Stub of object; set by constructor or
@@ -3519,6 +3520,12 @@ namespace min {
 	                    UPDATABLE )
 	    {}
 
+	~ updatable_vec_pointer ( void )
+	{
+	    MIN_ASSERT ( type == UPDATABLE );
+	    type = READONLY;
+	}
+
     protected:
 
 	updatable_vec_pointer
@@ -3541,12 +3548,33 @@ namespace min {
 	          ( min::stub_of ( v ),
 		    INSERTABLE )
 	    {}
+
+	~ insertable_vec_pointer ( void )
+	{
+	    int t = min::type_of ( s );
+	    if ( t == min::SHORT_OBJ )
+	    {
+		internal::short_obj * so =
+		    internal::short_obj_of ( s );
+		so->unused_offset = unused_offset;
+		so->aux_offset    = aux_offset;
+	    }
+	    else
+	    {
+	        MIN_ASSERT ( t == min::LONG_OBJ );
+		internal::long_obj * lo =
+		    internal::long_obj_of ( s );
+
+		lo->unused_offset = unused_offset;
+		lo->aux_offset    = aux_offset;
+	    }
+	    type = UPDATABLE;
+	}
     };
 
     inline void initialize
 	( min::vec_pointer & vp, const min::stub * s )
     {
-	MIN_ASSERT ( vp.type == vec_pointer::READONLY );
 	vp.~vec_pointer();
         new ( & vp ) min::vec_pointer ( s );
     }
@@ -3554,7 +3582,6 @@ namespace min {
     inline void initialize
 	( min::vec_pointer & vp, min::gen v )
     {
-	MIN_ASSERT ( vp.type == vec_pointer::READONLY );
 	vp.~vec_pointer();
         new ( & vp ) min::vec_pointer ( v );
     }
@@ -3669,8 +3696,6 @@ namespace min {
 	( min::updatable_vec_pointer & vp,
 	  min::stub * s )
     {
-	MIN_ASSERT
-	    ( vp.type == vec_pointer::UPDATABLE );
 	vp.~updatable_vec_pointer();
         new ( & vp ) min::updatable_vec_pointer ( s );
     }
@@ -3678,8 +3703,6 @@ namespace min {
     inline void initialize
 	( min::updatable_vec_pointer & vp, min::gen v )
     {
-	MIN_ASSERT
-	    ( vp.type == vec_pointer::UPDATABLE );
 	vp.~updatable_vec_pointer();
         new ( & vp ) min::updatable_vec_pointer ( v );
     }
