@@ -237,6 +237,7 @@
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
 \newcommand{\TTNBKEY}[1]{\ttnbkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
+\newcommand{\MINNBKEY}[1]{{\tt #1}\minindex{#1}}
 \newcommand{\MUPKEY}[1]{{\tt \bf #1}\MUPindex{#1}}
 
 \newcommand{\REL}{$\,^R$}
@@ -251,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 5, 2010}
+\date{February 6, 2010}
  
 \maketitle
 
@@ -735,7 +736,7 @@ loose implementations (\pagref{COMPACT-OR-LOOSE}).
 
 Numbers and character strings stored inside a \verb|min::gen| value are
 called `\skey{direct atom}s\,'.  Numbers and character strings
-stored in stubs or stub bodies which are pointed at by a
+stored in stubs or bodies which are pointed at by a
 \verb|min::gen| value are called `\skey{indirect atom}s'.  An atom is
 always stored in only one way by an implementation.  If a number will fit
 into a direct atom, it is stored as a direct atom, and never as an
@@ -1628,15 +1629,15 @@ in local variables, in particular those stored in stubs.
 The local variables must then be recomputed from the pointers stored in
 the stubs.
 
-If a stub body is deallocated by a relocating function,
+If a body is deallocated by a relocating function,
 the stub's type will be changed to
-\verb|min::DEALLOCATED|, and the body will be relocated to inaccessible
+{\tt min::\EOL DEALLOCATED}, and the body will be relocated to inaccessible
 virtual memory so references to it will cause program terminating
 memory fault.  For many stubs, this is the only possible 
 type change.  However some bodies may not only be relocated, but
 may be reorganized, causing their stub to change type.  An example
-is objects, which can have stub type \verb|min::SHORT_OBJ| or
-\verb|min::LONG_OBJ|, and may be reorganized during relocation to
+is objects, which can have stub type {\tt min::\EOL SHORT\_\EOL OBJ} or
+{\tt min::\EOL LONG\_\EOL OBJ}, and may be reorganized during relocation to
 become more compact.  Usually such stubs are marked when they
 are in use by a function that calls relocating functions so that
 they will not change type (except for deallocation) and their
@@ -1682,7 +1683,7 @@ The following functions get and set the relocated flag:
 
 The function to set the flag returns the flag's previous value.
 
-A function that computes an unprotected pointer into a stub body does not
+A function that computes an unprotected pointer into a body does not
 check the type code of the stub pointing at the body.  The type
 code must be checked separately before the pointer is computed.  If the
 pointer is being recomputed after possible relocation, the stub type
@@ -2301,7 +2302,8 @@ as was used to allocate the body.  The allocator will likely
 run a check that will likely catch a wrong size, but it may not
 be able to determine the right size.
 
-Bodies are always aligned on 8 byte boundaries.
+Bodies are always aligned on 8 byte boundaries, but the size \verb|n|
+need \underline{not} be a multiple of 8.
 
 When a body is deallocated, the stub type is set to
 \verb|min::DEALLOCATED| and the stub pointer is set to
@@ -2309,6 +2311,10 @@ point at a block of inaccessible memory whose size is at least
 the smaller of \verb|n| and
 {\tt MIN\_\EOL DEALLOCATED\_\EOL LIMIT}
 (\pagref{MIN_DEALLOCATED_LIMIT}).
+As a special case, if the body size \verb|n| is zero,
+{\tt MUP::\EOL deallocate\_\EOL body} does nothing
+(see {\tt MIN::\EOL body\_\EOL size\_\EOL of} below).
+
 
 The function
 
@@ -2318,14 +2324,17 @@ The function
 \LABEL{MUP::BODY_SIZE_OF} \\
 \end{tabular}\end{indpar}
 
-returns the size of the stub body, that is, the same size
+returns the size of the body, that is, the same size
 as that passed to {\tt MUP::new\_\EOL body} when the
 body was allocated.  This is necessary as the acc does
 \underline{not} keep track of body sizes, and depends upon
 this {\tt MUP::body\_\EOL size\_\EOL of} function to
 find body sizes.  If the stub is deallocated (of type
 \verb|min::DEALLOCATED|) or if the stub has no body,
-\verb|0| is returned.
+\verb|0| is returned.  This enables the code
+\begin{center}
+\verb|MUP::deallocate_body ( s, MUP::body_size_of ( s ) )|
+\end{center}
 
 The function
 
@@ -2335,15 +2344,15 @@ The function
 \LABEL{MUP::POINTER_REF_OF_STUB} \\
 \end{tabular}\end{indpar}
 
-returns a pointer to a pointer to the stub body.
+returns a pointer to a pointer to the body.
 The first pointer points to a location P with a fixed address
 (P is the stub value); P holds
-a pointer to the stub body, which may be relocated by a call to
+a pointer to the body, which may be relocated by a call to
 a relocating function (\pagref{RELOCATING-FUNCTIONS}).
 Whenever the body is relocated the value of P is changed to
 point to the new body location.
 
-In order to change the size of a stub body, the following
+In order to change the size of a body, the following
 can be used:
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
@@ -2354,9 +2363,9 @@ can be used:
 \verb|void * & MUP::| & \MUPKEY{new\_body\_pointer\_ref}%
 	     \verb| ( MUP::resize_body & rb )| 
 \LABEL{MUP::NEW_BODY_POINTER_REF} \\
-\verb|void MUP::| & \MUPKEY{void\_resize\_body}%
+\verb|void MUP::| & \MUPKEY{abort\_resize\_body}%
 	     \verb| ( MUP::resize_body & rb )| 
-\LABEL{MUP::VOID_RESIZE_BODY} \\
+\LABEL{MUP::ABORT_RESIZE_BODY} \\
 \verb|void MUP::| & \MUPKEY{retype\_resize\_body}\ARGBREAK
 	     \verb| ( MUP::resize_body & rb, int new_type )| 
 \LABEL{MUP::RETYPE_RESIZE_BODY} \\
@@ -2367,7 +2376,7 @@ a new body for a stub \verb|s|, and when deconstructed the datum
 installs the new body in the stub \verb|s| while deallocating the
 old body of \verb|s|.  Stub \verb|s|
 is not altered until the {\tt MUP::\EOL resize\_\EOL body}
-datum is deconstructed, and the {\tt MUP::\EOL void\_\EOL resize\_\EOL body}
+datum is deconstructed, and the {\tt MUP::\EOL abort\_\EOL resize\_\EOL body}
 function can be used to abort the body resizing
 and prevent stub \verb|s| from ever being altered.
 The sizes of the old and new body of \verb|s| must be passed to
@@ -2382,7 +2391,7 @@ points to a location P with a fixed address that exists as long
 as the {\tt MUP::\EOL resize\_\EOL body} datum \verb|rb| exists.   P holds
 a pointer to the new body, which may be relocated by a call to
 a relocating function (\pagref{RELOCATING-FUNCTIONS})
-as all stub bodies
+as all bodies
 can be, and will be pointed to by a changed value of P if it is
 relocated.
 
@@ -2396,7 +2405,7 @@ its body protected from reorganization by the user while the
 {\tt MUP::\EOL resize\_\EOL body} datum exists, but that body may
 also be relocated.  \verb|s| must NOT be deallocated
 while the {\tt MUP::\EOL resize\_\EOL body} datum exists, unless
-{\tt MUP::\EOL void\_\EOL resize\_\EOL body} has been called.
+{\tt MUP::\EOL abort\_\EOL resize\_\EOL body} has been called.
 
 Normally the type of stub \verb|s| is not changed, but
 if the {\tt MUP::\EOL retype\_\EOL resize\_\EOL body} function is called
@@ -2547,7 +2556,7 @@ without using a stub
 (see \secref{GENERAL-VALUE-SUBTYPES} and
 \secref{GENERAL-VALUE-FUNCTIONS}).
 Such strings are called \skey{direct string}s, while strings stored in
-stubs or stub bodies which are pointed at by \verb|min::gen| values,
+stubs or bodies which are pointed at by \verb|min::gen| values,
 the short and long strings, are called \skey{indirect string}s.
 A short string holds up to 8 characters inside the string stub
 (there must be more characters than a direct string will hold).
@@ -2953,7 +2962,7 @@ both to and from another object.
 If the arrow is a double arrow,
 a reverse direction label, called the \key{reverse attribute name}
 is attached to the arrow, and the object at the other end of the
-arrow has an arrow with directions and direction names reversed.
+arrow has the same arrow but with directions and direction names reversed.
 
 There can be several arrows with the same attribute name,
 and even several arrows with both the same attribute name and the
@@ -3043,9 +3052,21 @@ commonly to shrink, its unused area, and possibly to shrink its hash
 table.
 
 There are two kinds of objects: short and long.  A \key{short object}
-has a header that stores 8 bit and 16 bit unsigned sizes.  A \key{long object}
-has a header that stores 16 bit and 32 bit unsigned sizes.  Otherwise there is
-no essential difference between a short and a long object.
+has an 8 byte header that stores 16 bit unsigned sizes.
+A \key{long object}
+has a 16 byte header that stores 32 bit unsigned sizes.
+Otherwise there is
+no essential difference between a short and a long object.%
+\footnote{Provision is made to permit future implement of two
+additional kinds of objects, a \key{tiny object} with 4 byte header
+and 8 bit unsigned sizes that can only be implemented for
+compact implementations with 32 bit {\tt min::gen} values because
+otherwise the header size would a 1/2, and
+a \key{huge object}\label{HUGE_OBJECT}
+with 32 byte header and 64 bit unsigned sizes that
+can only be implemented for loose implementations with 64 bit
+{\tt min::gen} values because otherwise auxiliary pointers would not
+be able to point into the auxiliary area.}
 
 An object body may be \smkey{relocate}d{object body}, which means the
 body is simply copied to a new address, or
@@ -3126,26 +3147,55 @@ An object can be created by the protected function:
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
 
-The exact unused area size is given.
 The variables vector size of the returned object is the smallest possible
 variables vector size that is at least as large as that given.
 The hash table size of the returned object is the smallest possible
 hash table size that is at least as large as that given.  The total
 size of the returned object is the smallest possible total size
 that is at least as large as the sum of
-the actual variables vector size,
-the actual hash table size,
-the unused area size given,
-and the header size.  Note that if the given sizes are powers of two
+the actual variables vector size, the actual hash table size,
+the unused area size given, and the header size.
+Then the actual unused size is set by subtracting the other sizes from
+the total size; this actual size is never smaller than the given size.
+Note that if the given sizes of the variables vector and hash table
+are powers of two
 not greater than the maximums allowed, the corresponding actual sizes will
 be equal to the given sizes.
 
-The returned object is short if the total size is less than
-$2^{16}$ and the actual variables vector and hash table sizes
-are permitted for short objects.  Otherwise the object is long.
+The returned object is short if the given sizes are small enough.
+Otherwise the object is long.
 It is a fatal programming error if no possible hash table or total size
 is large enough, but this is unlikely, given the large sizes allowed
 by a long object.
+
+The sizes allowed for short and long objects are implementation dependent.
+The maximum sizes are available as the value of the following:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::unsptr min::| & \MINNBKEY{SHORT\_OBJ\_MAX\_VAR\_SIZE}
+\LABEL{MIN::SHORT_OBJ_MAX_VAR_SIZE} \\
+\verb|const min::unsptr min::| & \MINNBKEY{SHORT\_OBJ\_MAX\_HASH\_SIZE}
+\LABEL{MIN::SHORT_OBJ_MAX_HASH_SIZE} \\
+\verb|const min::unsptr min::| & \MINNBKEY{SHORT\_OBJ\_MAX\_TOTAL\_SIZE}
+\LABEL{MIN::SHORT_OBJ_MAX_TOTAL_SIZE} \\
+\verb|const min::unsptr min::| & \MINNBKEY{LONG\_OBJ\_MAX\_VAR\_SIZE}
+\LABEL{MIN::LONG_OBJ_MAX_VAR_SIZE} \\
+\verb|const min::unsptr min::| & \MINNBKEY{LONG\_OBJ\_MAX\_HASH\_SIZE}
+\LABEL{MIN::LONG_OBJ_MAX_HASH_SIZE} \\
+\verb|const min::unsptr min::| & \MINNBKEY{LONG\_OBJ\_MAX\_TOTAL\_SIZE}
+\LABEL{MIN::LONG_OBJ_MAX_TOTAL_SIZE} \\
+\end{tabular}\end{indpar}
+
+{\tt MIN::LONG\_OBJ\_MAX\_TOTAL\_SIZE} is $2^{24}$ for a compact implementation
+(as auxiliary pointers are 24 bits)
+and $2^{32}$ for a loose implementation (as long object headers store at most
+32 bit unused and auxiliary area offsets).%
+\footnote{{\tt MIN::LONG\_OBJ\_MAX\_TOTAL\_SIZE} could be $2^{40}$ for
+a loose implementation with 40 bit auxiliary pointers if
+huge objects were implemented (\pagref{HUGE_OBJECT}).}
+{\tt MIN::SHORT\_OBJ\_MAX\_TOTAL\_SIZE} is typically $2^{12}$ as having a
+smaller header is not important for larger sizes and the left over header bits
+are needed for flags.
 
 The hash table of the returned object is filled with \verb|min::LIST_END|
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
@@ -3206,7 +3256,8 @@ to the object may be created.  Constructing and destructing
 pointers in this case does not set or clear object flags.
 The \verb|min::OBJ_PUBLIC| flag may not be cleared by
 protected functions.  The idea here is that setting the \verb|min::OBJ_PUBLIC|
-flag fixes the attribute label structure of the object, and the size of
+flag fixes the attribute label structure of the object, the flags attached
+to attribute labels, and the size of
 the value set of each attribute, but permits the existing values of an
 attribute to be read or written.  This permits read-only and limited
 read-write sharing of the object.
@@ -3219,7 +3270,7 @@ function only if neither the
 Object bodies may also be reorganization when insertions are made
 using the {\tt min::\EOL insert\_\EOL reserve\REL} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
-or the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
+or when the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
 by the {\tt min::\EOL publish\REL} function (\pagref{MIN::PUBLISH}).
 
 \subsubsubsection{Protected Object Vector Pointers}
@@ -3313,15 +3364,15 @@ access to object elements:
 \end{tabular}\end{indpar}
 
 Given a vector pointer \verb|vp|, \verb|min::var(vp,i)| can be used
-to access the \verb|i+1|'st variable in the object pointed at
+to read the \verb|i+1|'st variable in the object pointed at
 by \verb|vp|, for $0\leq i<\mbox{\tt min::var\_size\_of(vp)}$.
 Similarly, \verb|min::hash(vp,i)| can be used
-to access the \verb|i+1|'st hash table entry
+to read the \verb|i+1|'st hash table entry
 for $0\leq i<\mbox{\tt min::hash\_size\_of(vp)}$,
 and \verb|min::attr(vp,i)| can be used
-to access the \verb|i+1|'st attribute vector entry
+to read the \verb|i+1|'st attribute vector entry
 for $0\leq i<\mbox{\tt min::attr\_size\_of(vp)}$.
-\verb|min::aux(vp,p)| differs in that it accesses
+\verb|min::aux(vp,p)| differs in that it reads
 the auxiliary area element pointed at by the auxiliary
 pointer \verb|p|, where
 \begin{center}
@@ -3394,21 +3445,26 @@ elements.  The additional functions for this type of pointer are:
 
 \end{tabular}\end{indpar}
 
+A {\tt min::set\_var/\EOL hash/\EOL attr/\EOL aux}
+function writes its \verb|min::gen|
+value argument into the same body vector element as is read by the
+corresponding {\tt min::\EOL var/\EOL hash/\EOL attr/\EOL aux} function.
+The set function invokes the
+{\tt min::\EOL acc\_\EOL write\_\EOL update}
+Accumu\-la\-tor/\EOL Col\-lec\-tor/\EOL Com\-pac\-tor function
+(\pagref{MUP::ACC_WRITE_GEN_UPDATE}) that must
+be called when a \verb|min::gen| value is written into an object.
+
 A {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer} may be automatically
 downcast to a {\tt min::\EOL vec\_\EOL pointer}.  This means that
 all the non-constructor functions applicable to
 {\tt min::\EOL vec\_\EOL pointer}'s
 are applicable to
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s.
-An exception is the {\tt min::\EOL initialize} functions, which
+Exceptions are destructors and the {\tt min::\EOL ini\-tial\-ize}
+functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
 downcast object vector pointer.
-
-The {\tt min::set\_}\,\ldots{} functions above invoke the
-{\tt min::\EOL acc\_\EOL write\_\EOL update}
-Accumu\-la\-tor/\EOL Col\-lec\-tor/\EOL Com\-pac\-tor function
-(\pagref{MUP::ACC_WRITE_GEN_UPDATE}) that must
-be called when a \verb|min::gen| value is written into an object.
 
 A \minkey{insertable\_vec\_pointer} is like a
 {\tt min::updatable\_\EOL vec\_\EOL pointer}
@@ -3531,7 +3587,7 @@ area.
 There are two versions of each push or pop: one that
 handles a single {\tt min::gen} value, and one that handles
 {\tt n} values stored in a C/C++ vector pointed at by {\tt p}.
-These push and pop functions preserve the order of the values in memory,
+These latter push and pop functions preserve the order of the values in memory,
 so \verb|p[0]| is pushed into or popped from a body vector location immediately
 before the location into which \verb|p[1]| is pushed into or popped from, etc.
 Thus the attribute vector push function pushes
@@ -3582,7 +3638,8 @@ all the non-constructor functions applicable to
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s or
 {\tt min::\EOL vec\_\EOL pointer}'s are applicable to
 {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}'s.
-An exception is the {\tt min::\EOL initialize} functions, which
+Exceptions are destructors and the {\tt min::\EOL ini\-tial\-ize}
+functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
 downcast object vector pointer.
 
@@ -3665,7 +3722,9 @@ Note that the {\tt min::\EOL unused\_\EOL offset\_\EOL of} and
 {\tt min::\EOL insertable\_\EOL vector\_\EOL pointer} return an
 lvalue.  For insertable pointers these offsets change when
 values are pushed into or popped from the attribute vector or
-auxiliary area.  The following are equivalences except for
+auxiliary area.
+
+The following are equivalences except for
 the omission of {\tt MIN\_\EOL ASSERT} checks that the index \verb|i|
 is not too large, that the auxiliary pointer \verb|p| is within the
 auxiliary area,
@@ -3742,13 +3801,14 @@ The {\tt min::\EOL OBJ\_\EOL PRIVATE},
 {\tt min::\EOL OBJ\_\EOL PUBLIC},
 and {\tt min::\EOL OBJ\_\EOL TYPED} flags are stored in bits made
 available by these packed size encodings.
-Additional flags may be used to optimize garbage collection.
+Additional implementation dependent
+flags may be used to optimize garbage collection.
 For example, objects which have auxiliary stubs
 (\pagref{OBJECT-AUXILIARY-STUBS})
 may be flagged, thereby identifying objects that need extra work
 when deallocated or reorganized.
 
-An implementation is not required to support all possible value of
+An implementation is not required to support all possible values of
 the variables vector size, hash table size, or total size, but should support
 values that permit objects that are read-only to be efficiently compacted.
 Size values that are powers of two and not
@@ -5423,6 +5483,7 @@ This is a logical time to pay this cost.
 \renewcommand{\TTKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\TTNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
+\renewcommand{\MINNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\ttkey}[1]{{\tt ~~#1~~}}
 \renewcommand{\ARGBREAK}{\\&{\tt ~~~~}}
@@ -6023,9 +6084,9 @@ These are in \verb|min_parameters.h|.
 \verb|void * & MUP::| & \MUPKEY{new\_body\_pointer\_ref}\ARGBREAK
 	     \verb|    ( MUP::resize_body & rb )| 
 \LABEL{MUP::NEW_BODY_POINTER_REF} \\
-\verb|void MUP::| & \MUPKEY{void\_resize\_body}\ARGBREAK
+\verb|void MUP::| & \MUPKEY{abort\_resize\_body}\ARGBREAK
 	     \verb|    ( MUP::resize_body & rb )| 
-\LABEL{MUP::VOID_RESIZE_BODY} \\
+\LABEL{MUP::ABORT_RESIZE_BODY} \\
 \end{TABULAR}
 
 \end{indpar}
