@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 14:26:13 $
+//   $Date: 2010/02/07 16:00:40 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.135 $
+//   $Revision: 1.136 $
 
 // Table of Contents:
 //
@@ -1707,6 +1707,9 @@ namespace min { namespace internal {
 
 } }
 
+static int hash_size_length =
+    sizeof ( MINT::hash_size ) / sizeof ( min::uns32 );
+
 const min::unsptr min::SHORT_OBJ_MAX_VAR_SIZE =
     MINT::SHORT_OBJ_MAX_VAR_SIZE;
 const min::unsptr min::SHORT_OBJ_MAX_HASH_SIZE =
@@ -1717,23 +1720,11 @@ const min::unsptr min::SHORT_OBJ_MAX_TOTAL_SIZE =
 const min::unsptr min::LONG_OBJ_MAX_VAR_SIZE =
     MINT::LONG_OBJ_MAX_VAR_SIZE;
 const min::unsptr min::LONG_OBJ_MAX_HASH_SIZE =
-    MINT::hash_size
-        [  sizeof ( MINT::hash_size )
-	 / sizeof ( min::uns32 )
-	 - 1];
+    MINT::hash_size[hash_size_length - 1];
 const min::unsptr min::LONG_OBJ_MAX_TOTAL_SIZE =
     MINT::LONG_OBJ_MAX_TOTAL_SIZE;
 
 bool min::use_obj_aux_stubs = false;
-
-static min::uns32 short_obj_max_hash_size =
-    MINT::hash_size[MINT::SHORT_OBJ_MAX_HASH_SIZE_CODE];
-static int long_obj_max_hi =
-    (   sizeof ( MINT::hash_size )
-      / sizeof ( min::uns32 ) )
-    - 1;
-static min::uns32 long_obj_max_hash_size =
-    MINT::hash_size[long_obj_max_hi];
 
 min::unsptr min::obj_var_size ( min::unsptr u )
 {
@@ -1745,9 +1736,9 @@ min::unsptr min::obj_var_size ( min::unsptr u )
 
 min::unsptr min::obj_hash_size ( min::unsptr u )
 {
-    int lo = 0, hi = long_obj_max_hi;
+    int lo = 0, hi = hash_size_length - 1;
     if ( u <= 1 ) hi = u;
-    else if ( u < long_obj_max_hash_size )
+    else if ( u < min::LONG_OBJ_MAX_HASH_SIZE )
 	while ( true )
 	{
 	    // Invariants:
@@ -1782,9 +1773,9 @@ min::gen min::new_obj_gen
 	      min::unsptr hash_size,
 	      min::unsptr var_size )
 {
-    int lo = 0, hi = long_obj_max_hi;
+    int lo = 0, hi = hash_size_length - 1;
     if ( hash_size <= 1 ) hi = hash_size;
-    else if ( hash_size < long_obj_max_hash_size )
+    else if ( hash_size < min::LONG_OBJ_MAX_HASH_SIZE )
 	while ( true )
 	{
 	    // Invariants:
@@ -1965,12 +1956,14 @@ void min::resize
 
     unsigned exponent = 0;
     min::unsptr mantissa = new_size;
+    min::unsptr new_var_offset;
     if ( new_type == min::SHORT_OBJ )
     {
 	MIN_ASSERT
 	    (    flags
 	      == ( flags & MINT::SHORT_OBJ_FLAG_MASK )
 	    );
+	new_var_offset = MINT::SHORT_OBJ_HEADER_SIZE;
 	while (   mantissa
 	        > MINT::SHORT_OBJ_MANTISSA_MASK )
 	    ++ mantissa, mantissa >>= 1, ++ exponent;
@@ -1982,6 +1975,7 @@ void min::resize
 	      &&
 	         new_size
 	      <= MINT::LONG_OBJ_MAX_TOTAL_SIZE );
+	new_var_offset = MINT::LONG_OBJ_HEADER_SIZE;
 	while (   mantissa
 	        > MINT::LONG_OBJ_MANTISSA_MASK )
 	    ++ mantissa, mantissa >>= 1, ++ exponent;
@@ -1999,20 +1993,16 @@ void min::resize
 
     // Compute aux pointer offset.
     //
-    min::unsgen offset = (min::unsgen) new_size
-	               - (min::unsgen) old_size;
+    min::unsgen aux_offset = (min::unsgen) new_size
+	                   - (min::unsgen) old_size;
 
     // Initialize copy pointers.
     //
     min::unsptr from = MUP::var_offset_of ( vp );
-    min::unsptr to =
-        ( new_type == min::SHORT_OBJ ?
-	  MINT::SHORT_OBJ_HEADER_SIZE :
-	  MINT::LONG_OBJ_HEADER_SIZE );
+    min::unsptr to = new_var_offset;
 
     // Copy variables vector.
     //
-    min::unsptr new_var_offset = to;
     min::unsptr from_end =
         from + min::var_size_of ( vp );
     min::unsptr to_end = to + var_size;
@@ -2022,7 +2012,7 @@ void min::resize
         min::gen v = oldb[from++];
 	if ( min::is_aux ( v ) )
 	    v = (min::gen)
-	        ( (min::unsgen) v + offset );
+	        ( (min::unsgen) v + aux_offset );
 	newb[to++] = v;
     }
     while ( to < to_end )
@@ -2038,7 +2028,7 @@ void min::resize
         min::gen v = oldb[from++];
 	if ( min::is_aux ( v ) )
 	    v = (min::gen)
-	        ( (min::unsgen) v + offset );
+	        ( (min::unsgen) v + aux_offset );
 	newb[to++] = v;
     }
 
@@ -2056,7 +2046,7 @@ void min::resize
         min::gen v = oldb[from++];
 	if ( min::is_aux ( v ) )
 	    v = (min::gen)
-	        ( (min::unsgen) v + offset );
+	        ( (min::unsgen) v + aux_offset );
 	newb[to++] = v;
     }
 
@@ -2067,7 +2057,8 @@ void min::resize
     //
     vp.var_offset = new_var_offset;
     vp.hash_offset = vp.var_offset + var_size;
-    min::unsptr attr_size = min::attr_size_of ( vp );
+    min::unsptr attr_size = vp.unused_offset
+                          - vp.attr_offset;
     vp.attr_offset = vp.hash_offset
                    + vp.hash_size;
     vp.unused_offset = vp.attr_offset
@@ -2108,10 +2099,8 @@ void min::resize
 	        + mantissa - 1 )
 	    << MINT::LONG_OBJ_FLAG_BITS;
 	lo->flags = flags;
-	lo->unused_offset =
-	    (min::uns16) vp.unused_offset;
-	lo->aux_offset =
-	    (min::uns16) vp.aux_offset;
+	lo->unused_offset = vp.unused_offset;
+	lo->aux_offset = vp.aux_offset;
     }
 }
 
