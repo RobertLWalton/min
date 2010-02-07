@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 14:25:59 $
+//   $Date: 2010/02/07 18:39:28 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.129 $
+//   $Revision: 1.130 $
 
 // Table of Contents:
 //
@@ -626,7 +626,8 @@ int main ()
 	        ( MUP::direct_int_of ( igen ) == i );
 	    igen = min::new_direct_int_gen ( i );
 	    MIN_ASSERT ( min::is_direct_int ( igen ) );
-	    MIN_ASSERT ( count_gen_tests ( igen ) == 1 );
+	    MIN_ASSERT
+	        ( count_gen_tests ( igen ) == 1 );
 	    MIN_ASSERT
 	        (    min::gen_subtype_of ( igen )
 		  == min::GEN_DIRECT_INT );
@@ -2031,6 +2032,49 @@ int main ()
 	    desire_failure (
 		min::aux_push ( svp, num3 );
 	    );
+
+	    min::unsptr attr_offset =
+	        MUP::attr_offset_of ( svp );
+	    min::unsptr aux_offset =
+	        MUP::aux_offset_of ( svp );
+	    unused_size = min::unused_size_of ( svp );
+
+	    min::set_attr ( svp, 0, min::LIST_END );
+	    min::set_attr ( svp, 1,
+	        min::new_list_aux_gen ( aux_offset ) );
+	    min::set_aux
+	        ( svp, aux_offset, min::LIST_END );
+	    MIN_ASSERT
+	        ( sbase[attr_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        ( sbase[aux_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        (    min::list_aux_of
+		       ( sbase[attr_offset + 1] )
+		  == aux_offset );
+
+	    min::resize
+	        ( svp,
+		  min::unused_size_of ( svp ) + 10,
+		  20 );
+
+	    MIN_ASSERT
+	        ( min::var_size_of ( svp ) == 20 );
+	    MIN_ASSERT
+	        ( min::unused_size_of ( svp ) >=
+		  unused_size + 10 );
+	    attr_offset = MUP::attr_offset_of ( svp );
+	    aux_offset = MUP::aux_offset_of ( svp );
+	    MIN_ASSERT
+	        ( sbase[attr_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        ( sbase[aux_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        (    min::list_aux_of
+		       ( sbase[attr_offset + 1] )
+		  == aux_offset );
+
+
 	}
 
 	cout << endl;

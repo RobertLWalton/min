@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  7 07:56:40 EST 2010
+// Date:	Sun Feb  7 11:38:19 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 14:26:31 $
+//   $Date: 2010/02/07 18:40:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.246 $
+//   $Revision: 1.247 $
 
 // Table of Contents:
 //
@@ -909,6 +909,10 @@ namespace min { namespace unprotected {
 	}
 #   endif
 
+    inline unsgen aux_of ( min::gen v )
+    {
+	return (unsgen) v & internal::VMASK;
+    }
     inline unsgen list_aux_of ( min::gen v )
     {
 	return (unsgen) v & internal::VMASK;
