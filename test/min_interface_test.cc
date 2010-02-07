@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jan 27 09:24:15 EST 2010
+// Date:	Sun Feb  7 08:04:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/27 14:25:23 $
+//   $Date: 2010/02/07 14:25:59 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.128 $
+//   $Revision: 1.129 $
 
 // Table of Contents:
 //
@@ -473,6 +473,26 @@ int count_locators ( MINT::gen_locator * locator )
     }
     return count;
 }
+
+// Count the number of gen_tests that are true.
+//
+int count_gen_tests ( min::gen v )
+{
+    return   min::is_stub ( v )
+#          if MIN_IS_COMPACT
+               + min::is_direct_int ( v )
+#          else
+               + min::is_direct_float ( v )
+#          endif
+           + min::is_direct_str ( v )
+           + min::is_index ( v )
+           + min::is_control_code ( v )
+           + min::is_special ( v )
+           + min::is_list_aux ( v )
+           + min::is_sublist_aux ( v )
+           + min::is_indirect_aux ( v )
+           + min::is_aux ( v );
+}
 
 // Main Program
 // ---- -------
@@ -581,13 +601,14 @@ int main ()
 	cout << "stubgen: " << print_gen ( stubgen )
 	     << endl;
 	MIN_ASSERT ( min::is_stub ( stubgen ) );
+	MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
 	MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
 	stubgen = min::new_gen ( stub );
 	MIN_ASSERT ( min::is_stub ( stubgen ) );
+	MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
 	MIN_ASSERT (    min::gen_subtype_of ( stubgen )
 	             == min::GEN_STUB );
 	MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
-	MIN_ASSERT ( ! min::is_direct_str ( stubgen ) );
 
 #	if MIN_IS_COMPACT
 	    cout << endl;
@@ -600,9 +621,12 @@ int main ()
 		 << endl;
 	    MIN_ASSERT ( min::is_direct_int ( igen ) );
 	    MIN_ASSERT
+	        ( count_gen_tests ( igen ) == 1 );
+	    MIN_ASSERT
 	        ( MUP::direct_int_of ( igen ) == i );
 	    igen = min::new_direct_int_gen ( i );
 	    MIN_ASSERT ( min::is_direct_int ( igen ) );
+	    MIN_ASSERT ( count_gen_tests ( igen ) == 1 );
 	    MIN_ASSERT
 	        (    min::gen_subtype_of ( igen )
 		  == min::GEN_DIRECT_INT );
@@ -627,9 +651,6 @@ int main ()
 	    MIN_ASSERT
 	        (    MUP::direct_int_of ( igen )
 		  == -1 << 27 );
-	    MIN_ASSERT ( ! min::is_stub ( igen ) );
-	    MIN_ASSERT
-	    	( ! min::is_direct_str ( igen ) );
 #	endif
 
 #	if MIN_IS_LOOSE
@@ -644,18 +665,19 @@ int main ()
 	    MIN_ASSERT
 	        ( min::is_direct_float ( fgen ) );
 	    MIN_ASSERT
+	        ( count_gen_tests ( fgen ) == 1 );
+	    MIN_ASSERT
 	        ( MUP::direct_float_of ( fgen ) == f );
 	    fgen = min::new_direct_float_gen ( f );
 	    MIN_ASSERT
 	        ( min::is_direct_float ( fgen ) );
 	    MIN_ASSERT
+	        ( count_gen_tests ( fgen ) == 1 );
+	    MIN_ASSERT
 	        (    min::gen_subtype_of ( fgen )
 		  == min::GEN_DIRECT_FLOAT );
 	    MIN_ASSERT
 	        ( MUP::direct_float_of ( fgen ) == f );
-	    MIN_ASSERT ( ! min::is_stub ( fgen ) );
-	    MIN_ASSERT
-	    	( ! min::is_direct_str ( fgen ) );
 #	endif
     
         cout << endl;
@@ -682,6 +704,7 @@ int main ()
 	cout << "strgen: " << print_gen ( strgen )
 	     << endl;
 	MIN_ASSERT ( min::is_direct_str ( strgen ) );
+	MIN_ASSERT ( count_gen_tests ( strgen ) == 1 );
 	MIN_ASSERT (    min::gen_subtype_of ( strgen )
 	             == min::GEN_DIRECT_STR );
 	value.u64 = MUP::direct_str_of ( strgen );
@@ -693,13 +716,13 @@ int main ()
 	    strgen = min::new_direct_str_gen
 	    			( overflowstr );
 	);
-	MIN_ASSERT ( ! min::is_stub ( strgen ) );
 
 	min::gen strngen =
 	    MUP::new_direct_str_gen ( str, 2 );
 	cout << "strngen: " << print_gen ( strngen )
 	     << endl;
 	MIN_ASSERT ( min::is_direct_str ( strngen ) );
+	MIN_ASSERT ( count_gen_tests ( strngen ) == 1 );
 	MIN_ASSERT (    min::gen_subtype_of ( strngen )
 	             == min::GEN_DIRECT_STR );
 	value.u64 = MUP::direct_str_of ( strngen );
@@ -715,7 +738,6 @@ int main ()
 	    			( overflowstrn,
 				  strlimit + 1 );
 	);
-	MIN_ASSERT ( ! min::is_stub ( strngen ) );
  
         cout << endl;
 	cout << "Test list aux general values:"
@@ -726,6 +748,8 @@ int main ()
 	cout << "listauxgen: "
 	     << print_gen ( listauxgen ) << endl;
 	MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( listauxgen ) == 2 );
 	MIN_ASSERT (    min::gen_subtype_of
 				( listauxgen )
 	             == min::GEN_LIST_AUX );
@@ -738,10 +762,6 @@ int main ()
 	    listauxgen = min::new_list_aux_gen
 		( (min::unsgen) 1 << min::VSIZE );
 	);
-	MIN_ASSERT
-	    ( ! min::is_stub ( listauxgen ) );
-	MIN_ASSERT
-	    ( ! min::is_direct_str ( listauxgen ) );
 	unsigned reaux = 963921;
 	listauxgen =
 	    MUP::renew_gen ( listauxgen, reaux );
@@ -749,14 +769,10 @@ int main ()
 	     << print_gen ( listauxgen ) << endl;
 	MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
 	MIN_ASSERT
+	    ( count_gen_tests ( listauxgen ) == 2 );
+	MIN_ASSERT
 	    (    min::list_aux_of ( listauxgen )
 	      == reaux );
-	MIN_ASSERT
-	    ( ! min::is_sublist_aux ( listauxgen ) );
-	MIN_ASSERT
-	    ( ! min::is_stub ( listauxgen ) );
-	MIN_ASSERT
-	    ( ! min::is_direct_str ( listauxgen ) );
  
         cout << endl;
 	cout << "Test sublist aux general values:"
@@ -767,6 +783,8 @@ int main ()
 	     << print_gen ( sublistauxgen ) << endl;
 	MIN_ASSERT
 	    ( min::is_sublist_aux ( sublistauxgen ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( sublistauxgen ) == 2 );
 	MIN_ASSERT
 	    (    min::gen_subtype_of ( sublistauxgen )
 	      == min::GEN_SUBLIST_AUX );
@@ -781,10 +799,6 @@ int main ()
 	    sublistauxgen = min::new_sublist_aux_gen
 		( (min::unsgen) 1 << min::VSIZE );
 	);
-	MIN_ASSERT
-	    ( ! min::is_stub ( sublistauxgen ) );
-	MIN_ASSERT
-	    ( ! min::is_direct_str ( sublistauxgen ) );
  
         cout << endl;
 	cout << "Test indirect aux general values:"
@@ -796,6 +810,8 @@ int main ()
 	MIN_ASSERT
 	    ( min::is_indirect_aux
 	    		( indirectauxgen ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( indirectauxgen ) == 2 );
 	MIN_ASSERT
 	    (    min::gen_subtype_of ( indirectauxgen )
 	      == min::GEN_INDIRECT_AUX );
@@ -811,10 +827,6 @@ int main ()
 	    indirectauxgen = min::new_indirect_aux_gen
 		( (min::unsgen) 1 << min::VSIZE );
 	);
-	MIN_ASSERT
-	    ( ! min::is_stub ( indirectauxgen ) );
-	MIN_ASSERT
-	    ( ! min::is_direct_str ( indirectauxgen ) );
  
         cout << endl;
 	cout << "Test index general values:" << endl;
@@ -824,6 +836,8 @@ int main ()
 	cout << "indexgen: "
 	     << print_gen ( indexgen ) << endl;
 	MIN_ASSERT ( min::is_index ( indexgen ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( indexgen ) == 1 );
 	MIN_ASSERT
 	    (    min::gen_subtype_of ( indexgen )
 	      == min::GEN_INDEX );
@@ -836,9 +850,6 @@ int main ()
 	    indexgen = min::new_index_gen
 		( (min::unsgen) 1 << min::VSIZE );
 	);
-	MIN_ASSERT ( ! min::is_stub ( indexgen ) );
-	MIN_ASSERT
-	    ( ! min::is_direct_str ( indexgen ) );
  
         cout << endl;
 	cout << "Test control code general values:"
@@ -849,6 +860,7 @@ int main ()
 	cout << "codegen: "
 	     << print_gen ( codegen ) << endl;
 	MIN_ASSERT ( min::is_control_code ( codegen ) );
+	MIN_ASSERT ( count_gen_tests ( codegen ) == 1 );
 	MIN_ASSERT
 	    (    min::gen_subtype_of ( codegen )
 	      == min::GEN_CONTROL_CODE );
@@ -863,8 +875,6 @@ int main ()
 	    codegen = min::new_control_code_gen
 		( (min::unsgen) 1 << min::VSIZE );
 	);
-	MIN_ASSERT ( ! min::is_stub ( codegen ) );
-	MIN_ASSERT ( ! min::is_direct_str ( codegen ) );
  
         cout << endl;
 	cout << "Test special general values:"
@@ -873,15 +883,28 @@ int main ()
 	MIN_ASSERT
 	    ( min::is_special ( min::MISSING ) );
 	MIN_ASSERT
+	    ( count_gen_tests ( min::MISSING ) == 1 );
+	MIN_ASSERT
 	    ( min::is_special ( min::ANY ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( min::ANY ) == 1 );
 	MIN_ASSERT
 	    ( min::is_special ( min::MULTI_VALUED ) );
 	MIN_ASSERT
+	    ( count_gen_tests
+	          ( min::MULTI_VALUED ) == 1 );
+	MIN_ASSERT
 	    ( min::is_special ( min::UNDEFINED ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( min::UNDEFINED ) == 1 );
 	MIN_ASSERT
 	    ( min::is_special ( min::SUCCESS ) );
 	MIN_ASSERT
+	    ( count_gen_tests ( min::SUCCESS ) == 1 );
+	MIN_ASSERT
 	    ( min::is_special ( min::FAILURE ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( min::FAILURE ) == 1 );
 
 	unsigned special = 542492;
 	min::gen specialgen =
@@ -889,6 +912,8 @@ int main ()
 	cout << "specialgen: "
 	     << print_gen ( specialgen ) << endl;
 	MIN_ASSERT ( min::is_special ( specialgen ) );
+	MIN_ASSERT
+	    ( count_gen_tests ( specialgen ) == 1 );
 	MIN_ASSERT
 	    (    min::gen_subtype_of ( specialgen )
 	      == min::GEN_SPECIAL );
@@ -904,9 +929,6 @@ int main ()
 	        min::new_special_gen
 		    ( (min::unsgen) 1 << min::VSIZE );
 	);
-	MIN_ASSERT ( ! min::is_stub ( specialgen ) );
-	MIN_ASSERT
-	    ( ! min::is_direct_str ( specialgen ) );
 
 	cout << endl;
 	cout << "Finish General Value Constructor/"
@@ -1737,11 +1759,23 @@ int main ()
 	cout << endl;
 	cout << "Start Objects Test!" << endl;
 
+	cout << "SHORT_OBJ_MAX_VAR_SIZE = 0x"
+	    << hex << min::SHORT_OBJ_MAX_VAR_SIZE
+	    << dec << endl;
+	cout << "SHORT_OBJ_MAX_HASH_SIZE = 0x"
+	    << hex << min::SHORT_OBJ_MAX_HASH_SIZE
+	    << dec << endl;
 	cout << "SHORT_OBJ_MAX_TOTAL_SIZE = 0x"
-	    << hex << MINT::SHORT_OBJ_MAX_TOTAL_SIZE
+	    << hex << min::SHORT_OBJ_MAX_TOTAL_SIZE
+	    << dec << endl;
+	cout << "LONG_OBJ_MAX_VAR_SIZE = 0x"
+	    << hex << min::LONG_OBJ_MAX_VAR_SIZE
+	    << dec << endl;
+	cout << "LONG_OBJ_MAX_HASH_SIZE = 0x"
+	    << hex << min::LONG_OBJ_MAX_HASH_SIZE
 	    << dec << endl;
 	cout << "LONG_OBJ_MAX_TOTAL_SIZE = 0x"
-	    << hex << MINT::LONG_OBJ_MAX_TOTAL_SIZE
+	    << hex << min::LONG_OBJ_MAX_TOTAL_SIZE
 	    << dec << endl;
 
 	cout << endl;

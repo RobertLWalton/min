@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb  6 18:22:28 EST 2010
+// Date:	Sun Feb  7 07:56:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 00:01:37 $
+//   $Date: 2010/02/07 14:26:13 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.134 $
+//   $Revision: 1.135 $
 
 // Table of Contents:
 //
@@ -1706,6 +1706,23 @@ namespace min { namespace internal {
     };
 
 } }
+
+const min::unsptr min::SHORT_OBJ_MAX_VAR_SIZE =
+    MINT::SHORT_OBJ_MAX_VAR_SIZE;
+const min::unsptr min::SHORT_OBJ_MAX_HASH_SIZE =
+    MINT::hash_size
+        [MINT::SHORT_OBJ_MAX_HASH_SIZE_CODE];
+const min::unsptr min::SHORT_OBJ_MAX_TOTAL_SIZE =
+    MINT::SHORT_OBJ_MAX_TOTAL_SIZE;
+const min::unsptr min::LONG_OBJ_MAX_VAR_SIZE =
+    MINT::LONG_OBJ_MAX_VAR_SIZE;
+const min::unsptr min::LONG_OBJ_MAX_HASH_SIZE =
+    MINT::hash_size
+        [  sizeof ( MINT::hash_size )
+	 / sizeof ( min::uns32 )
+	 - 1];
+const min::unsptr min::LONG_OBJ_MAX_TOTAL_SIZE =
+    MINT::LONG_OBJ_MAX_TOTAL_SIZE;
 
 bool min::use_obj_aux_stubs = false;
 
