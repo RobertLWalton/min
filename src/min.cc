@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  7 07:56:54 EST 2010
+// Date:	Sun Feb  7 13:39:48 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 16:00:40 $
+//   $Date: 2010/02/07 18:39:58 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.136 $
+//   $Revision: 1.137 $
 
 // Table of Contents:
 //
@@ -2010,7 +2010,9 @@ void min::resize
     while ( from < from_end && to < to_end )
     {
         min::gen v = oldb[from++];
-	if ( min::is_aux ( v ) )
+	if ( min::is_aux ( v )
+	     &&
+	     MUP::aux_of ( v ) != 0 )
 	    v = (min::gen)
 	        ( (min::unsgen) v + aux_offset );
 	newb[to++] = v;
@@ -2026,7 +2028,9 @@ void min::resize
     while ( from < from_end )
     {
         min::gen v = oldb[from++];
-	if ( min::is_aux ( v ) )
+	if ( min::is_aux ( v )
+	     &&
+	     MUP::aux_of ( v ) != 0 )
 	    v = (min::gen)
 	        ( (min::unsgen) v + aux_offset );
 	newb[to++] = v;
@@ -2044,7 +2048,9 @@ void min::resize
     while ( from < from_end )
     {
         min::gen v = oldb[from++];
-	if ( min::is_aux ( v ) )
+	if ( min::is_aux ( v )
+	     &&
+	     MUP::aux_of ( v ) != 0 )
 	    v = (min::gen)
 	        ( (min::unsgen) v + aux_offset );
 	newb[to++] = v;
