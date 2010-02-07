@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb  6 18:48:43 EST 2010
+// Date:	Sun Feb  7 07:56:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 00:01:45 $
+//   $Date: 2010/02/07 14:26:31 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.245 $
+//   $Revision: 1.246 $
 
 // Table of Contents:
 //
@@ -3116,6 +3116,13 @@ namespace min { namespace internal {
 } }
 
 namespace min {
+
+    extern const min::unsptr SHORT_OBJ_MAX_VAR_SIZE;
+    extern const min::unsptr SHORT_OBJ_MAX_HASH_SIZE;
+    extern const min::unsptr SHORT_OBJ_MAX_TOTAL_SIZE;
+    extern const min::unsptr LONG_OBJ_MAX_VAR_SIZE;
+    extern const min::unsptr LONG_OBJ_MAX_HASH_SIZE;
+    extern const min::unsptr LONG_OBJ_MAX_TOTAL_SIZE;
 
     min::unsptr obj_var_size ( min::unsptr u );
     min::unsptr obj_hash_size ( min::unsptr u );
