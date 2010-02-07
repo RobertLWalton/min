@@ -1059,7 +1059,11 @@ min_interface_test.cc:XXXX assert:
 Finish Labels Test!
 
 Start Objects Test!
+SHORT_OBJ_MAX_VAR_SIZE = 0x1ff
+SHORT_OBJ_MAX_HASH_SIZE = 0x7f
 SHORT_OBJ_MAX_TOTAL_SIZE = 0x1000
+LONG_OBJ_MAX_VAR_SIZE = 0xfffff
+LONG_OBJ_MAX_HASH_SIZE = 0xfe3b4f4e
 LONG_OBJ_MAX_TOTAL_SIZE = 0x1000000
 
 Test object size functions:
