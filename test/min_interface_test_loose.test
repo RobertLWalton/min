@@ -35,37 +35,41 @@ stubgen: 7ff4000000000000
 min_interface_test.cc:XXXX assert:
     min::is_stub ( stubgen ) true.
 min_interface_test.cc:XXXX assert:
+    count_gen_tests ( stubgen ) == 1 true.
+min_interface_test.cc:XXXX assert:
     MUP::stub_of ( stubgen ) == stub true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( stubgen ) true.
 min_interface_test.cc:XXXX assert:
+    count_gen_tests ( stubgen ) == 1 true.
+min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( stubgen ) == min::GEN_STUB true.
 min_interface_test.cc:XXXX assert:
     MUP::stub_of ( stubgen ) == stub true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( stubgen ) true.
 
 Test direct float general values:
 fgen: c0207d9b399304e6
 min_interface_test.cc:XXXX assert:
     min::is_direct_float ( fgen ) true.
 min_interface_test.cc:XXXX assert:
+    count_gen_tests ( fgen ) == 1 true.
+min_interface_test.cc:XXXX assert:
     MUP::direct_float_of ( fgen ) == f true.
 min_interface_test.cc:XXXX assert:
     min::is_direct_float ( fgen ) true.
 min_interface_test.cc:XXXX assert:
+    count_gen_tests ( fgen ) == 1 true.
+min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( fgen ) == min::GEN_DIRECT_FLOAT true.
 min_interface_test.cc:XXXX assert:
     MUP::direct_float_of ( fgen ) == f true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( fgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( fgen ) true.
 
 Test direct string general values:
 strgen: 7ff4104544434241
 min_interface_test.cc:XXXX assert:
     min::is_direct_str ( strgen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( strgen ) == 1 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( strgen ) == min::GEN_DIRECT_STR true.
 min_interface_test.cc:XXXX assert:
@@ -78,11 +82,11 @@ min_interface_test.cc:XXXX desire failure:
     strgen = min::new_direct_str_gen ( overflowstr );
 ../include/min.h:XXXX assert:
     strlen ( p ) <= 5 false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( strgen ) true.
 strngen: 7ff4100000004241
 min_interface_test.cc:XXXX assert:
     min::is_direct_str ( strngen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( strngen ) == 1 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( strngen ) == min::GEN_DIRECT_STR true.
 min_interface_test.cc:XXXX assert:
@@ -97,13 +101,13 @@ min_interface_test.cc:XXXX desire failure:
     strngen = min::new_direct_str_gen ( overflowstrn, strlimit + 1 );
 ../include/min.h:XXXX assert:
     internal::strnlen ( p, n ) <= 5 false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( strngen ) true.
 
 Test list aux general values:
 listauxgen: 7ff41f00000b353b
 min_interface_test.cc:XXXX assert:
     min::is_list_aux ( listauxgen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( listauxgen ) == 2 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( listauxgen ) == min::GEN_LIST_AUX true.
 ../include/min.h:XXXX assert:
@@ -118,28 +122,22 @@ min_interface_test.cc:XXXX desire failure:
     listauxgen = min::new_list_aux_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( listauxgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( listauxgen ) true.
 re-listauxgen: 7ff41f00000eb551
 min_interface_test.cc:XXXX assert:
     min::is_list_aux ( listauxgen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( listauxgen ) == 2 true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
     min::list_aux_of ( listauxgen ) == reaux true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_sublist_aux ( listauxgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( listauxgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( listauxgen ) true.
 
 Test sublist aux general values:
 sublistauxgen: 7ff41e00000b353b
 min_interface_test.cc:XXXX assert:
     min::is_sublist_aux ( sublistauxgen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( sublistauxgen ) == 2 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( sublistauxgen ) == min::GEN_SUBLIST_AUX true.
 ../include/min.h:XXXX assert:
@@ -154,15 +152,13 @@ min_interface_test.cc:XXXX desire failure:
     sublistauxgen = min::new_sublist_aux_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( sublistauxgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( sublistauxgen ) true.
 
 Test indirect aux general values:
 indirectauxgen: 7ff41d00000b353b
 min_interface_test.cc:XXXX assert:
     min::is_indirect_aux ( indirectauxgen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( indirectauxgen ) == 2 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( indirectauxgen ) == min::GEN_INDIRECT_AUX true.
 ../include/min.h:XXXX assert:
@@ -177,15 +173,13 @@ min_interface_test.cc:XXXX desire failure:
     indirectauxgen = min::new_indirect_aux_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( indirectauxgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( indirectauxgen ) true.
 
 Test index general values:
 indexgen: 7ff41100000b353b
 min_interface_test.cc:XXXX assert:
     min::is_index ( indexgen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( indexgen ) == 1 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( indexgen ) == min::GEN_INDEX true.
 ../include/min.h:XXXX assert:
@@ -200,15 +194,13 @@ min_interface_test.cc:XXXX desire failure:
     indexgen = min::new_index_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
     i < (unsgen) 1 << VSIZE false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( indexgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( indexgen ) true.
 
 Test control code general values:
 codegen: 7ff41200000b353b
 min_interface_test.cc:XXXX assert:
     min::is_control_code ( codegen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( codegen ) == 1 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( codegen ) == min::GEN_CONTROL_CODE true.
 ../include/min.h:XXXX assert:
@@ -223,27 +215,37 @@ min_interface_test.cc:XXXX desire failure:
     codegen = min::new_control_code_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
     c < (unsgen) 1 << VSIZE false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( codegen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( codegen ) true.
 
 Test special general values:
 min_interface_test.cc:XXXX assert:
     min::is_special ( min::MISSING ) true.
 min_interface_test.cc:XXXX assert:
+    count_gen_tests ( min::MISSING ) == 1 true.
+min_interface_test.cc:XXXX assert:
     min::is_special ( min::ANY ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( min::ANY ) == 1 true.
 min_interface_test.cc:XXXX assert:
     min::is_special ( min::MULTI_VALUED ) true.
 min_interface_test.cc:XXXX assert:
+    count_gen_tests ( min::MULTI_VALUED ) == 1 true.
+min_interface_test.cc:XXXX assert:
     min::is_special ( min::UNDEFINED ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( min::UNDEFINED ) == 1 true.
 min_interface_test.cc:XXXX assert:
     min::is_special ( min::SUCCESS ) true.
 min_interface_test.cc:XXXX assert:
+    count_gen_tests ( min::SUCCESS ) == 1 true.
+min_interface_test.cc:XXXX assert:
     min::is_special ( min::FAILURE ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( min::FAILURE ) == 1 true.
 specialgen: 7ff413000008471c
 min_interface_test.cc:XXXX assert:
     min::is_special ( specialgen ) true.
+min_interface_test.cc:XXXX assert:
+    count_gen_tests ( specialgen ) == 1 true.
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( specialgen ) == min::GEN_SPECIAL true.
 ../include/min.h:XXXX assert:
@@ -258,10 +260,6 @@ min_interface_test.cc:XXXX desire failure:
     specialgen = min::new_special_gen ( (min::unsgen) 1 << min::VSIZE );
 ../include/min.h:XXXX assert:
     i < (unsgen) 1 << VSIZE false.
-min_interface_test.cc:XXXX assert:
-    ! min::is_stub ( specialgen ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::is_direct_str ( specialgen ) true.
 
 Finish General Value Constructor//Test/Read Function Test!
 
