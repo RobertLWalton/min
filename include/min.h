@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb  6 12:47:43 EST 2010
+// Date:	Sat Feb  6 18:48:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/06 17:56:47 $
+//   $Date: 2010/02/07 00:01:45 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.244 $
+//   $Revision: 1.245 $
 
 // Table of Contents:
 //
@@ -3014,18 +3014,24 @@ namespace min { namespace internal {
     const min::unsptr LONG_OBJ_MAX_HASH_SIZE_CODE =
         ( 1 << LONG_OBJ_HASH_CODE_BITS ) - 1;
     const min::unsptr SHORT_OBJ_MAX_TOTAL_SIZE =
-    	SHORT_OBJ_MANTISSA_MASK
+    	( 1 << SHORT_OBJ_MANTISSA_BITS )
 	<<
 	( ( 1 << SHORT_OBJ_EXPONENT_BITS ) - 1 );
 	// This must be <= (1 << 16) in this implemen-
 	// tation because of offsets are stored in
 	// min::uns16's.
     const min::unsptr LONG_OBJ_MAX_TOTAL_SIZE =
-    	0xFFFFFFFFu;
+    	( MIN_IS_COMPACT ? ( 1 << 24 ) :
+	  MIN_POINTER_BITS <= 32 ?
+	  (    (min::unsptr) (-1)
+	    << ( 32 - LONG_OBJ_MANTISSA_BITS ) ) :
+	  ( 1ull << 32 ) );
 	// This must be <= (1 << 32) in this implemen-
 	// tation because of offsets are stored in
 	// min::uns32's.  It must also be representable
-	// in a min::unsptr value.
+	// in a min::unsptr value and values less than
+	// it must be representable in auxiliary
+	// pointers.
 
     //    hash table size = hash_size[hash size code]
     //

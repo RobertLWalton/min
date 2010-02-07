@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb  6 12:55:25 EST 2010
+// Date:	Sat Feb  6 18:22:28 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/06 17:57:08 $
+//   $Date: 2010/02/07 00:01:37 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.133 $
+//   $Revision: 1.134 $
 
 // Table of Contents:
 //
@@ -87,11 +87,13 @@ MINT::initializer::initializer ( void )
     // and small enough for representable offsets.
     //
     min::uns64 short_max_representable =
-    	(min::uns64) MINT::SHORT_OBJ_MANTISSA_MASK
+    	(    (min::uns64) 1
+	  << MINT::SHORT_OBJ_MANTISSA_BITS )
 	<<
 	( ( 1 << MINT::SHORT_OBJ_EXPONENT_BITS ) - 1 );
     min::uns64 long_max_representable =
-    	(min::uns64) MINT::LONG_OBJ_MANTISSA_MASK
+    	(    (min::uns64) 1
+	  << MINT::LONG_OBJ_MANTISSA_BITS )
 	<<
 	( ( 1 << MINT::LONG_OBJ_EXPONENT_BITS ) - 1 );
     assert
@@ -2041,6 +2043,9 @@ void min::resize
 	newb[to++] = v;
     }
 
+    MIN_ASSERT ( from == old_size );
+    MIN_ASSERT ( to == new_size );
+
     // Fix vector pointer.
     //
     vp.var_offset = new_var_offset;
@@ -2085,7 +2090,7 @@ void min::resize
 	            << MINT::LONG_OBJ_MANTISSA_BITS )
 	        + mantissa - 1 )
 	    << MINT::LONG_OBJ_FLAG_BITS;
-	lo->flags = (min::uns16) flags;
+	lo->flags = flags;
 	lo->unused_offset =
 	    (min::uns16) vp.unused_offset;
 	lo->aux_offset =

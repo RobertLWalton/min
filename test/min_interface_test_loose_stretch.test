@@ -1053,8 +1053,8 @@ min_interface_test.cc:XXXX assert:
 Finish Labels Test!
 
 Start Objects Test!
-SHORT_OBJ_MAX_TOTAL_SIZE = 0xfff
-LONG_OBJ_MAX_TOTAL_SIZE = 0xffffffff
+SHORT_OBJ_MAX_TOTAL_SIZE = 0x1000
+LONG_OBJ_MAX_TOTAL_SIZE = 0x100000000
 
 Test object size functions:
 maxht: 4265299790
