@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  7 13:39:48 EST 2010
+// Date:	Mon Feb  8 07:24:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 18:39:58 $
+//   $Date: 2010/02/08 13:08:45 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.137 $
+//   $Revision: 1.138 $
 
 // Table of Contents:
 //
@@ -3191,7 +3191,19 @@ void MINT::insert_reserve
 	else
 #   endif
     {
-	MIN_ABORT ( "insert reserve not implemented" );
+	min::unsptr desired_size =
+	    2 * insertions + elements;
+	min::unsptr total_size =
+	    min::total_size_of ( lp.vecp );
+	if ( desired_size < 1000 )
+	{
+	    if ( desired_size < total_size / 2 )
+		desired_size = total_size / 2;
+	    if ( desired_size > 1000 )
+	        desired_size = 1000;
+	}
+	min::resize ( lp.vecp, desired_size );
+	min::refresh ( lp );
     }
 
     lp.reserved_insertions = insertions;
