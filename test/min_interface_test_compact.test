@@ -1328,9 +1328,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     sbase[aux_offset] == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
-    min::list_aux_of ( sbase[attr_offset + 1] ) == aux_offset true.
+    sbase[attr_offset + 1] == min::new_list_aux_gen ( aux_offset ) true.
+min_interface_test.cc:XXXX assert:
+    min::unused_size_of ( svp ) == 0 true.
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 602 ) called
@@ -1338,20 +1340,24 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[7] and assigning begin_body_region[39752 .. 39879]
 MINT::deallocate ( stub 6 ) called
+../include/min.h:XXXX assert:
+    type == UPDATABLE true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
+../include/min.h:XXXX assert:
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::var_size_of ( svp ) == 20 true.
 min_interface_test.cc:XXXX assert:
-    min::unused_size_of ( svp ) >= unused_size + 10 true.
+    min::unused_size_of ( svp ) >= 10 true.
 min_interface_test.cc:XXXX assert:
     sbase[attr_offset] == min::LIST_END true.
 min_interface_test.cc:XXXX assert:
     sbase[aux_offset] == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
-    min::list_aux_of ( sbase[attr_offset + 1] ) == aux_offset true.
-../include/min.h:XXXX assert:
-    type == UPDATABLE true.
+    sbase[attr_offset + 1] == min::new_list_aux_gen ( aux_offset ) true.
 ../include/min.h:XXXX assert:
     type == READONLY true.
 
