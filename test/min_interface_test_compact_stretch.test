@@ -1535,6 +1535,33 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX assert:
     vp.unused_offset + n <= vp.aux_offset false.
 ../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    lbase[attr_offset] == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
+    lbase[aux_offset] == min::LIST_END true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+min_interface_test.cc:XXXX assert:
+    lbase[attr_offset + 1] == min::new_list_aux_gen ( aux_offset ) true.
+min_interface_test.cc:XXXX assert:
+    min::unused_size_of ( lvp ) == 0 true.
+../include/min.h:XXXX assert:
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
+MINT::new_fixed_body ( stub 6, 77040 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[14] and assigning begin_body_region[40008 .. 56391]
+MINT::deallocate ( stub 6 ) called
+../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     type == UPDATABLE true.
@@ -1542,6 +1569,22 @@ min_interface_test.cc:XXXX desire failure:
     type == READONLY true.
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::var_size_of ( lvp ) == 20 true.
+min_interface_test.cc:XXXX assert:
+    min::unused_size_of ( lvp ) >= 10 true.
+min_interface_test.cc:XXXX assert:
+    lbase[attr_offset] == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
+    lbase[aux_offset] == min::LIST_END true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+min_interface_test.cc:XXXX assert:
+    lbase[attr_offset + 1] == min::new_list_aux_gen ( aux_offset ) true.
+../include/min.h:XXXX assert:
+    type == READONLY true.
 
 Finish Object Vector Level Test!
 
@@ -2066,7 +2109,31 @@ min_interface_test.cc:XXXX assert:
     type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
-VSIZE 35000 VORG 7037 USIZE 0
+VSIZE 35000 VORG 7057 USIZE 12
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
+../include/min.h:XXXX assert:
+    vp.unused_offset < vp.aux_offset true.
 ../include/min.h:XXXX assert:
     index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
