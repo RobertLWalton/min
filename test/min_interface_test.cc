@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  7 08:04:14 EST 2010
+// Date:	Sun Feb  7 19:02:58 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 18:39:28 $
+//   $Date: 2010/02/08 03:04:52 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.130 $
+//   $Revision: 1.131 $
 
 // Table of Contents:
 //
@@ -2037,7 +2037,6 @@ int main ()
 	        MUP::attr_offset_of ( svp );
 	    min::unsptr aux_offset =
 	        MUP::aux_offset_of ( svp );
-	    unused_size = min::unused_size_of ( svp );
 
 	    min::set_attr ( svp, 0, min::LIST_END );
 	    min::set_attr ( svp, 1,
@@ -2049,32 +2048,35 @@ int main ()
 	    MIN_ASSERT
 	        ( sbase[aux_offset] == min::LIST_END );
 	    MIN_ASSERT
-	        (    min::list_aux_of
-		       ( sbase[attr_offset + 1] )
-		  == aux_offset );
+	        (    sbase[attr_offset + 1]
+	          == min::new_list_aux_gen
+		         ( aux_offset ) );
 
-	    min::resize
-	        ( svp,
-		  min::unused_size_of ( svp ) + 10,
-		  20 );
+	    MIN_ASSERT
+	        ( min::unused_size_of ( svp ) == 0 );
+	    min::resize ( svp, 10, 20 );
+	}
+
+	{
+	    min::vec_pointer svp ( sstub );
+	    min::gen * & sbase = MUP::base ( svp );
 
 	    MIN_ASSERT
 	        ( min::var_size_of ( svp ) == 20 );
 	    MIN_ASSERT
-	        ( min::unused_size_of ( svp ) >=
-		  unused_size + 10 );
-	    attr_offset = MUP::attr_offset_of ( svp );
-	    aux_offset = MUP::aux_offset_of ( svp );
+	        ( min::unused_size_of ( svp ) >= 10 );
+	    min::unsptr attr_offset =
+	        MUP::attr_offset_of ( svp );
+	    min::unsptr aux_offset =
+	        MUP::aux_offset_of ( svp );
 	    MIN_ASSERT
 	        ( sbase[attr_offset] == min::LIST_END );
 	    MIN_ASSERT
 	        ( sbase[aux_offset] == min::LIST_END );
 	    MIN_ASSERT
-	        (    min::list_aux_of
-		       ( sbase[attr_offset + 1] )
-		  == aux_offset );
-
-
+	        (    sbase[attr_offset + 1]
+	          == min::new_list_aux_gen
+		         ( aux_offset ) );
 	}
 
 	cout << endl;
@@ -2216,6 +2218,51 @@ int main ()
 	    desire_failure (
 		min::aux_push ( lvp, numv, 3 );
 	    );
+
+	    min::unsptr attr_offset =
+	        MUP::attr_offset_of ( lvp );
+	    min::unsptr aux_offset =
+	        MUP::aux_offset_of ( lvp );
+
+	    min::set_attr ( lvp, 0, min::LIST_END );
+	    min::set_attr ( lvp, 1,
+	        min::new_list_aux_gen ( aux_offset ) );
+	    min::set_aux
+	        ( lvp, aux_offset, min::LIST_END );
+	    MIN_ASSERT
+	        ( lbase[attr_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        ( lbase[aux_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        (    lbase[attr_offset + 1]
+	          == min::new_list_aux_gen
+		         ( aux_offset ) );
+
+	    MIN_ASSERT
+	        ( min::unused_size_of ( lvp ) == 0 );
+	    min::resize ( lvp, 10, 20 );
+	}
+
+	{
+	    min::vec_pointer lvp ( sstub );
+	    min::gen * & lbase = MUP::base ( lvp );
+
+	    MIN_ASSERT
+	        ( min::var_size_of ( lvp ) == 20 );
+	    MIN_ASSERT
+	        ( min::unused_size_of ( lvp ) >= 10 );
+	    min::unsptr attr_offset =
+	        MUP::attr_offset_of ( lvp );
+	    min::unsptr aux_offset =
+	        MUP::aux_offset_of ( lvp );
+	    MIN_ASSERT
+	        ( lbase[attr_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        ( lbase[aux_offset] == min::LIST_END );
+	    MIN_ASSERT
+	        (    lbase[attr_offset + 1]
+	          == min::new_list_aux_gen
+		         ( aux_offset ) );
 	}
 
 	cout << endl;
@@ -2543,7 +2590,7 @@ int main ()
 
 	// Now use a mixture of aux area and aux stubs.
 
-	 while ( min::unused_size_of ( short_vp ) != 0 )
+	while ( min::unused_size_of ( short_vp ) != 0 )
 	    min::attr_push ( short_vp, numtest );
 
 	sbase[vorg+0] = numtest;
@@ -2630,11 +2677,15 @@ int main ()
 	min::insertable_vec_pointer long_vp
 		( long_obj_gen );
 	min::gen * & lbase = MUP::base ( long_vp );
+
 	vsize = min::attr_size_of ( long_vp );
 	vorg = MUP::attr_offset_of ( long_vp );
 	usize = min::unused_size_of ( long_vp );
 	cout << "VSIZE " << vsize << " VORG " << vorg
 	     << " USIZE " << usize << endl;
+
+	while ( min::unused_size_of ( long_vp ) != 0 )
+	    min::attr_push ( long_vp, numtest );
 
 	min::list_pointer llp ( long_vp );
 	min::insertable_list_pointer wllp ( long_vp );
@@ -2655,7 +2706,6 @@ int main ()
 	//	  num105		In aux area
 	//	  num106		In aux stub
 	//	  num107 }		In aux area
-
 
         MIN_ASSERT
 	    ( min::unused_size_of ( long_vp ) == 0 );
