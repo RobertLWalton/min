@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb  9 06:03:37 EST 2010
+// Date:	Tue Feb  9 06:33:29 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/09 11:22:10 $
+//   $Date: 2010/02/09 12:06:50 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.132 $
+//   $Revision: 1.133 $
 
 // Table of Contents:
 //
@@ -472,26 +472,6 @@ int count_locators ( MINT::gen_locator * locator )
     }
     return count;
 }
-
-// Count the number of gen_tests that are true.
-//
-int count_gen_tests ( min::gen v )
-{
-    return   min::is_stub ( v )
-#          if MIN_IS_COMPACT
-               + min::is_direct_int ( v )
-#          else
-               + min::is_direct_float ( v )
-#          endif
-           + min::is_direct_str ( v )
-           + min::is_index ( v )
-           + min::is_control_code ( v )
-           + min::is_special ( v )
-           + min::is_list_aux ( v )
-           + min::is_sublist_aux ( v )
-           + min::is_indirect_aux ( v )
-           + min::is_aux ( v );
-}
 
 // C++ Number Types
 // --- ------ -----
@@ -582,6 +562,26 @@ void test_pointer_conversions ( void )
 
 // General Value Constructor/Test/Read Functions
 // ------- ----- --------------------- ---------
+
+// Count the number of gen_tests that are true.
+//
+int count_gen_tests ( min::gen v )
+{
+    return   min::is_stub ( v )
+#          if MIN_IS_COMPACT
+               + min::is_direct_int ( v )
+#          else
+               + min::is_direct_float ( v )
+#          endif
+           + min::is_direct_str ( v )
+           + min::is_index ( v )
+           + min::is_control_code ( v )
+           + min::is_special ( v )
+           + min::is_list_aux ( v )
+           + min::is_sublist_aux ( v )
+           + min::is_indirect_aux ( v )
+           + min::is_aux ( v );
+}
 
 void test_general_value_functions ( void )
 {
@@ -1886,11 +1886,16 @@ void test_objects ( void )
 // min::gen short_obj_gen;
 // min::gen long_obj_gen;
 
-void test_object_vector_level ( void )
+// Test vector level for object v given unused size.
+// Attribute vector must be empty.
+// Auxiliary area must be empty.
+// Unused size must be >= 20.
+//
+void test_object_vector_level
+     ( const char * name, min::gen v )
 {
-    cout << endl;
-    cout << "Start Object Vector Level Test!"
-	 << endl;
+    cout << endl << name << endl;
+
     min::gen num0 = min::new_num_gen ( 0 );
     min::gen num1 = min::new_num_gen ( 1 );
     min::gen num2 = min::new_num_gen ( 2 );
@@ -1901,379 +1906,212 @@ void test_object_vector_level ( void )
 	fillv[i] = num0;
     min::gen outv[4];
 
-    cout << endl;
-    cout << "Test short object vector level:"
-	 << endl;
-    min::stub * sstub =
-	MUP::stub_of ( short_obj_gen );
+    min::stub * sstub = MUP::stub_of ( v );
+
     {
-	min::insertable_vec_pointer svp ( sstub );
-	min::gen * & sbase = MUP::base ( svp );
+	min::insertable_vec_pointer vp ( sstub );
+	MIN_ASSERT
+	    ( min::attr_size_of ( vp ) == 0 );
+	MIN_ASSERT
+	    ( min::unused_size_of ( vp ) >= 20 );
+	MIN_ASSERT
+	    ( min::aux_size_of ( vp ) == 0 );
+
+	min::gen * & base = MUP::base ( vp );
 	min::unsptr ht =
-	    MUP::hash_offset_of ( svp );
+	    MUP::hash_offset_of ( vp );
 	min::unsptr av =
-	    MUP::attr_offset_of ( svp );
+	    MUP::attr_offset_of ( vp );
 	min::unsptr & cua =
-	    MUP::unused_offset_of ( svp );
+	    MUP::unused_offset_of ( vp );
 	min::unsptr unused_size =
-	    min::unused_size_of ( svp );
-	MIN_ASSERT ( sbase[ht] == min::LIST_END );
+	    min::unused_size_of ( vp );
+	min::unsptr half_unused_size =
+	    unused_size / 2;
+
+	MIN_ASSERT ( base[ht] == min::LIST_END );
 	min::set_hash
-	    ( svp, 0, min::EMPTY_SUBLIST );
+	    ( vp, 0, min::EMPTY_SUBLIST );
 	MIN_ASSERT
-	    ( sbase[ht] == min::EMPTY_SUBLIST );
+	    ( base[ht] == min::EMPTY_SUBLIST );
 	MIN_ASSERT
-	    (    min::hash(svp,0)
+	    (    min::hash(vp,0)
 	      == min::EMPTY_SUBLIST );
-	MIN_ASSERT ( unused_size >= 500 );
-	sbase[av] = num0;
+
+	base[av] = num0;
 	MIN_ASSERT
-	    ( sbase[av+0] == num0 );
-	MIN_ASSERT
-	    ( min::attr_size_of ( svp ) == 0 );
+	    ( base[av+0] == num0 );
 	MIN_ASSERT ( cua == av + 0 );
-	min::attr_push ( svp, num1 );
-	MIN_ASSERT ( sbase[av] == num1 );
-	MIN_ASSERT ( attr ( svp, 0 ) == num1 );
+	min::attr_push ( vp, num1 );
+	MIN_ASSERT ( base[av] == num1 );
+	MIN_ASSERT ( attr ( vp, 0 ) == num1 );
 	MIN_ASSERT
-	    ( min::attr_size_of ( svp ) == 1 );
+	    ( min::attr_size_of ( vp ) == 1 );
 	MIN_ASSERT ( cua == av + 1 );
-	sbase[av+1] = num0;
-	sbase[av+2] = num0;
-	sbase[av+3] = num0;
-	MIN_ASSERT ( sbase[av+1] == num0 );
-	MIN_ASSERT ( sbase[av+2] == num0 );
-	MIN_ASSERT ( sbase[av+3] == num0 );
-	min::attr_push ( svp, numv, 3 );
-	MIN_ASSERT ( sbase[av+1] == num1 );
-	MIN_ASSERT ( sbase[av+2] == num2 );
-	MIN_ASSERT ( sbase[av+3] == num3 );
-	MIN_ASSERT ( attr ( svp, 3 ) == num3 );
+	base[av+1] = num0;
+	base[av+2] = num0;
+	base[av+3] = num0;
+	MIN_ASSERT ( base[av+1] == num0 );
+	MIN_ASSERT ( base[av+2] == num0 );
+	MIN_ASSERT ( base[av+3] == num0 );
+	min::attr_push ( vp, numv, 3 );
+	MIN_ASSERT ( base[av+1] == num1 );
+	MIN_ASSERT ( base[av+2] == num2 );
+	MIN_ASSERT ( base[av+3] == num3 );
+	MIN_ASSERT ( attr ( vp, 3 ) == num3 );
 	MIN_ASSERT
-	    ( min::attr_size_of ( svp ) == 4 );
+	    ( min::attr_size_of ( vp ) == 4 );
 	MIN_ASSERT ( cua == av + 4 );
 	MIN_ASSERT
-	    (    min::unused_size_of ( svp )
+	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 
-	min::unsptr aa = MUP::aux_offset_of ( svp );
+	min::unsptr aa = MUP::aux_offset_of ( vp );
 	min::unsptr & caa =
-	    MUP::aux_offset_of ( svp );
-	sbase[aa-1] = num0;
-	MIN_ASSERT ( sbase[aa-1] == num0 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( svp ) == 0 );
+	    MUP::aux_offset_of ( vp );
+	base[aa-1] = num0;
+	MIN_ASSERT ( base[aa-1] == num0 );
 	MIN_ASSERT ( caa == aa );
-	min::aux_push ( svp, num1 );
-	MIN_ASSERT ( sbase[aa-1] == num1 );
+	min::aux_push ( vp, num1 );
+	MIN_ASSERT ( base[aa-1] == num1 );
 	MIN_ASSERT
-	    ( min::aux ( svp, aa-1 ) == num1 );
+	    ( min::aux ( vp, aa-1 ) == num1 );
 	MIN_ASSERT
-	    ( min::aux_size_of ( svp ) == 1 );
+	    ( min::aux_size_of ( vp ) == 1 );
 	MIN_ASSERT ( caa == aa - 1 );
-	sbase[aa-2] = num0;
-	sbase[aa-3] = num0;
-	sbase[aa-4] = num0;
-	MIN_ASSERT ( sbase[aa-2] == num0 );
-	MIN_ASSERT ( sbase[aa-3] == num0 );
-	MIN_ASSERT ( sbase[aa-4] == num0 );
-	min::aux_push ( svp, numv, 3 );
-	MIN_ASSERT ( sbase[aa-4] == num1 );
-	MIN_ASSERT ( sbase[aa-3] == num2 );
-	MIN_ASSERT ( sbase[aa-2] == num3 );
-	MIN_ASSERT ( aux ( svp, aa-2 ) == num3 );
+	base[aa-2] = num0;
+	base[aa-3] = num0;
+	base[aa-4] = num0;
+	MIN_ASSERT ( base[aa-2] == num0 );
+	MIN_ASSERT ( base[aa-3] == num0 );
+	MIN_ASSERT ( base[aa-4] == num0 );
+	min::aux_push ( vp, numv, 3 );
+	MIN_ASSERT ( base[aa-4] == num1 );
+	MIN_ASSERT ( base[aa-3] == num2 );
+	MIN_ASSERT ( base[aa-2] == num3 );
+	MIN_ASSERT ( aux ( vp, aa-2 ) == num3 );
 	MIN_ASSERT
-	    ( min::aux_size_of ( svp ) == 4 );
+	    ( min::aux_size_of ( vp ) == 4 );
 	MIN_ASSERT ( caa == aa - 4 );
 	MIN_ASSERT
-	    (    min::unused_size_of ( svp )
+	    (    min::unused_size_of ( vp )
 	      == unused_size - 8 );
 
-	min::attr_pop ( svp, outv + 1, 3 );
-	min::attr_pop ( svp, outv[0] );
+	min::attr_pop ( vp, outv + 1, 3 );
+	min::attr_pop ( vp, outv[0] );
 	MIN_ASSERT ( outv[0] == num1 );
 	MIN_ASSERT ( outv[1] == num1 );
 	MIN_ASSERT ( outv[2] == num2 );
 	MIN_ASSERT ( outv[3] == num3 );
 	MIN_ASSERT
-	    ( min::attr_size_of ( svp ) == 0 );
+	    ( min::attr_size_of ( vp ) == 0 );
 	MIN_ASSERT ( cua == av + 0 );
 	MIN_ASSERT
-	    (    min::unused_size_of ( svp )
+	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 	desire_failure (
-	    min::attr_pop ( svp, outv[0] );
+	    min::attr_pop ( vp, outv[0] );
 	);
 	desire_failure (
-	    min::attr_pop ( svp, outv + 1, 3 );
+	    min::attr_pop ( vp, outv + 1, 3 );
 	);
-	min::attr_push ( svp, fillv, 4 );
+	min::attr_push ( vp, fillv, 4 );
 
-	min::aux_pop ( svp, outv + 1, 3 );
-	min::aux_pop ( svp, outv[0] );
+	min::aux_pop ( vp, outv + 1, 3 );
+	min::aux_pop ( vp, outv[0] );
 	MIN_ASSERT ( outv[0] == num1 );
 	MIN_ASSERT ( outv[1] == num1 );
 	MIN_ASSERT ( outv[2] == num2 );
 	MIN_ASSERT ( outv[3] == num3 );
 	MIN_ASSERT
-	    (    min::aux_size_of ( svp )
+	    (    min::aux_size_of ( vp )
 	      == 0 );
 	MIN_ASSERT ( caa == aa );
 	MIN_ASSERT
-	    (    min::unused_size_of ( svp )
+	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 	desire_failure (
-	    min::aux_pop ( svp, outv[0] );
+	    min::aux_pop ( vp, outv[0] );
 	);
 	desire_failure (
-	    min::aux_pop ( svp, outv + 1, 3 );
+	    min::aux_pop ( vp, outv + 1, 3 );
 	);
-	min::aux_push ( svp, fillv, 4 );
+	min::aux_push ( vp, fillv, 4 );
 
-	min::attr_push ( svp, fillv, 250 - 4 );
-	min::aux_push ( svp, fillv,
-			unused_size - 250 - 4 );
+	min::attr_push
+	    ( vp, fillv, half_unused_size - 4 );
+	min::aux_push
+	    ( vp, fillv,
+	      unused_size - half_unused_size - 4 );
 	MIN_ASSERT
-	    ( min::unused_size_of ( svp ) == 0 );
+	    ( min::unused_size_of ( vp ) == 0 );
 	MIN_ASSERT ( cua == caa );
 	desire_failure (
-	    min::attr_push ( svp, num3 );
+	    min::attr_push ( vp, num3 );
 	);
 	desire_failure (
-	    min::aux_push ( svp, num3 );
+	    min::aux_push ( vp, num3 );
 	);
 
 	min::unsptr attr_offset =
-	    MUP::attr_offset_of ( svp );
+	    MUP::attr_offset_of ( vp );
 	min::unsptr aux_offset =
-	    MUP::aux_offset_of ( svp );
+	    MUP::aux_offset_of ( vp );
 
-	min::set_attr ( svp, 0, min::LIST_END );
-	min::set_attr ( svp, 1,
+	min::set_attr ( vp, 0, min::LIST_END );
+	min::set_attr ( vp, 1,
 	    min::new_list_aux_gen ( aux_offset ) );
 	min::set_aux
-	    ( svp, aux_offset, min::LIST_END );
+	    ( vp, aux_offset, min::LIST_END );
 	MIN_ASSERT
-	    ( sbase[attr_offset] == min::LIST_END );
+	    ( base[attr_offset] == min::LIST_END );
 	MIN_ASSERT
-	    ( sbase[aux_offset] == min::LIST_END );
+	    ( base[aux_offset] == min::LIST_END );
 	MIN_ASSERT
-	    (    sbase[attr_offset + 1]
+	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
 		     ( aux_offset ) );
 
 	MIN_ASSERT
-	    ( min::unused_size_of ( svp ) == 0 );
-	min::resize ( svp, 10, 20 );
+	    ( min::unused_size_of ( vp ) == 0 );
+	min::resize ( vp, 10, 20 );
     }
 
     {
-	min::vec_pointer svp ( sstub );
-	min::gen * & sbase = MUP::base ( svp );
+	min::vec_pointer vp ( sstub );
+	min::gen * & base = MUP::base ( vp );
 
 	MIN_ASSERT
-	    ( min::var_size_of ( svp ) == 20 );
+	    ( min::var_size_of ( vp ) == 20 );
 	MIN_ASSERT
-	    ( min::unused_size_of ( svp ) >= 10 );
+	    ( min::unused_size_of ( vp ) >= 10 );
 	min::unsptr attr_offset =
-	    MUP::attr_offset_of ( svp );
+	    MUP::attr_offset_of ( vp );
 	min::unsptr aux_offset =
-	    MUP::aux_offset_of ( svp );
+	    MUP::aux_offset_of ( vp );
 	MIN_ASSERT
-	    ( sbase[attr_offset] == min::LIST_END );
+	    ( base[attr_offset] == min::LIST_END );
 	MIN_ASSERT
-	    ( sbase[aux_offset] == min::LIST_END );
+	    ( base[aux_offset] == min::LIST_END );
 	MIN_ASSERT
-	    (    sbase[attr_offset + 1]
+	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
 		     ( aux_offset ) );
     }
+}
 
+void test_object_vector_level ( void )
+{
     cout << endl;
-    cout << "Test long object vector level:"
+    cout << "Start Object Vector Level Test!"
 	 << endl;
-    {
-	min::insertable_vec_pointer lvp
-	    ( long_obj_gen );
-	min::gen * & lbase = MUP::base ( lvp );
-	min::unsptr ht =
-	    MUP::hash_offset_of ( lvp );
-	min::unsptr av =
-	    MUP::attr_offset_of ( lvp );
-	min::unsptr & cua =
-	    MUP::unused_offset_of ( lvp );
-	min::unsptr unused_size =
-	    min::unused_size_of ( lvp );
-	MIN_ASSERT ( lbase[ht] == min::LIST_END );
-	min::set_hash
-	    ( lvp, 0, min::EMPTY_SUBLIST );
-	MIN_ASSERT
-	    ( lbase[ht] == min::EMPTY_SUBLIST );
-	MIN_ASSERT
-	    (    min::hash(lvp,0)
-	      == min::EMPTY_SUBLIST );
-	MIN_ASSERT ( unused_size >= 70000 );
-	lbase[av] = num0;
-	MIN_ASSERT ( lbase[av + 0] == num0 );
-	MIN_ASSERT
-	    ( min::attr_size_of ( lvp ) == 0 );
-	min::attr_push ( lvp, num1 );
-	MIN_ASSERT ( lbase[av] == num1 );
-	MIN_ASSERT
-	    ( min::attr_size_of ( lvp ) == 1 );
-	MIN_ASSERT ( cua == av + 1 );
-	lbase[av+1] = num0;
-	lbase[av+2] = num0;
-	lbase[av+3] = num0;
-	MIN_ASSERT ( lbase[av+1] == num0 );
-	MIN_ASSERT ( lbase[av+2] == num0 );
-	MIN_ASSERT ( lbase[av+3] == num0 );
-	min::attr_push ( lvp, numv, 3 );
-	MIN_ASSERT ( lbase[av+1] == num1 );
-	MIN_ASSERT ( lbase[av+2] == num2 );
-	MIN_ASSERT ( lbase[av+3] == num3 );
-	MIN_ASSERT ( attr ( lvp, 3 ) == num3 );
-	MIN_ASSERT
-	    ( min::attr_size_of ( lvp ) == 4 );
-	MIN_ASSERT ( cua == av + 4 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lvp )
-	      == unused_size - 4 );
-	min::unsptr aa = MUP::aux_offset_of ( lvp );
-	min::unsptr & caa =
-	    MUP::aux_offset_of ( lvp );
-	lbase[aa-1] = num0;
-	MIN_ASSERT ( lbase[aa-1] == num0 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( lvp ) == 0 );
-	MIN_ASSERT ( caa == aa );
-	min::aux_push ( lvp, num1 );
-	MIN_ASSERT ( lbase[aa-1] == num1 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( lvp ) == 1 );
-	lbase[aa-2] = num0;
-	lbase[aa-3] = num0;
-	lbase[aa-4] = num0;
-	MIN_ASSERT ( lbase[aa-2] == num0 );
-	MIN_ASSERT ( lbase[aa-3] == num0 );
-	MIN_ASSERT ( lbase[aa-4] == num0 );
-	min::aux_push ( lvp, numv, 3 );
-	MIN_ASSERT ( lbase[aa-4] == num1 );
-	MIN_ASSERT ( lbase[aa-3] == num2 );
-	MIN_ASSERT ( lbase[aa-2] == num3 );
-	MIN_ASSERT ( aux ( lvp, aa-2 ) == num3 );
-	MIN_ASSERT
-	    ( min::aux_size_of ( lvp ) == 4 );
-	MIN_ASSERT ( caa == aa - 4 );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lvp )
-	      == unused_size - 8 );
 
-	min::attr_pop ( lvp, outv + 1, 3 );
-	min::attr_pop ( lvp, outv[0] );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT
-	    ( min::attr_size_of ( lvp ) == 0 );
-	MIN_ASSERT ( cua == av );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lvp )
-	      == unused_size - 4 );
-	desire_failure (
-	    min::attr_pop ( lvp, outv[0] );
-	);
-	desire_failure (
-	    min::attr_pop ( lvp, outv + 1, 3 );
-	);
-	min::attr_push ( lvp, fillv, 4 );
-
-	min::aux_pop ( lvp, outv + 1, 3 );
-	min::aux_pop ( lvp, outv[0] );
-	MIN_ASSERT ( outv[0] == num1 );
-	MIN_ASSERT ( outv[1] == num1 );
-	MIN_ASSERT ( outv[2] == num2 );
-	MIN_ASSERT ( outv[3] == num3 );
-	MIN_ASSERT
-	    (    min::aux_size_of ( lvp )
-	      == 0 );
-	MIN_ASSERT ( caa == aa );
-	MIN_ASSERT
-	    (    min::unused_size_of ( lvp )
-	      == unused_size - 4 );
-	desire_failure (
-	    min::aux_pop ( lvp, outv[0] );
-	);
-	desire_failure (
-	    min::aux_pop ( lvp, outv + 1, 3 );
-	);
-	min::aux_push ( lvp, fillv, 4 );
-
-	min::attr_push ( lvp, fillv, 35000 - 4 );
-	min::aux_push ( lvp, fillv,
-			unused_size - 35000 - 4 );
-	MIN_ASSERT
-	    ( min::unused_size_of ( lvp ) == 0 );
-	MIN_ASSERT ( cua == caa );
-	desire_failure (
-	    min::attr_push ( lvp, num3 );
-	);
-	desire_failure (
-	    min::attr_push ( lvp, numv, 3 );
-	);
-	desire_failure (
-	    min::aux_push ( lvp, num3 );
-	);
-	desire_failure (
-	    min::aux_push ( lvp, numv, 3 );
-	);
-
-	min::unsptr attr_offset =
-	    MUP::attr_offset_of ( lvp );
-	min::unsptr aux_offset =
-	    MUP::aux_offset_of ( lvp );
-
-	min::set_attr ( lvp, 0, min::LIST_END );
-	min::set_attr ( lvp, 1,
-	    min::new_list_aux_gen ( aux_offset ) );
-	min::set_aux
-	    ( lvp, aux_offset, min::LIST_END );
-	MIN_ASSERT
-	    ( lbase[attr_offset] == min::LIST_END );
-	MIN_ASSERT
-	    ( lbase[aux_offset] == min::LIST_END );
-	MIN_ASSERT
-	    (    lbase[attr_offset + 1]
-	      == min::new_list_aux_gen
-		     ( aux_offset ) );
-
-	MIN_ASSERT
-	    ( min::unused_size_of ( lvp ) == 0 );
-	min::resize ( lvp, 10, 20 );
-    }
-
-    {
-	min::vec_pointer lvp ( sstub );
-	min::gen * & lbase = MUP::base ( lvp );
-
-	MIN_ASSERT
-	    ( min::var_size_of ( lvp ) == 20 );
-	MIN_ASSERT
-	    ( min::unused_size_of ( lvp ) >= 10 );
-	min::unsptr attr_offset =
-	    MUP::attr_offset_of ( lvp );
-	min::unsptr aux_offset =
-	    MUP::aux_offset_of ( lvp );
-	MIN_ASSERT
-	    ( lbase[attr_offset] == min::LIST_END );
-	MIN_ASSERT
-	    ( lbase[aux_offset] == min::LIST_END );
-	MIN_ASSERT
-	    (    lbase[attr_offset + 1]
-	      == min::new_list_aux_gen
-		     ( aux_offset ) );
-    }
+    test_object_vector_level
+        ( "Test short object vector level:",
+	  short_obj_gen );
+    test_object_vector_level
+        ( "Test long object vector level:",
+	  long_obj_gen );
 
     cout << endl;
     cout << "Finish Object Vector Level Test!"
