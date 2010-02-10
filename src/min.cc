@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb  8 07:24:55 EST 2010
+// Date:	Tue Feb  9 09:35:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/08 13:08:45 $
+//   $Date: 2010/02/10 08:17:25 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.138 $
+//   $Revision: 1.139 $
 
 // Table of Contents:
 //
@@ -1898,7 +1898,7 @@ static const min::unsptr OBJ_HEADER_SIZE_DIFFERENCE =
      * (   MINT::LONG_OBJ_HEADER_SIZE
 	 - MINT::SHORT_OBJ_HEADER_SIZE );
 
-void min::resize
+bool min::resize
     ( min::insertable_vec_pointer & vp,
       min::unsptr unused_size,
       min::unsptr var_size )
@@ -1984,7 +1984,9 @@ void min::resize
     new_size = mantissa << exponent;
     unused_size += new_size - initial_new_size;
 
-    MUP::resize_body r ( s, old_size, new_size );
+    MUP::resize_body r
+        ( s, old_size * sizeof ( min::gen),
+	     new_size * sizeof ( min::gen) );
     MUP::retype_resize_body ( r, new_type );
 
     min::gen * & oldb = MUP::base ( vp );
@@ -2071,6 +2073,7 @@ void min::resize
                      + attr_size;
     vp.aux_offset = vp.unused_offset
 		  + unused_size;
+    vp.total_size = new_size;
 
     // Fill in header.
     //
@@ -2108,14 +2111,18 @@ void min::resize
 	lo->unused_offset = vp.unused_offset;
 	lo->aux_offset = vp.aux_offset;
     }
+
+    // Currently `resize' always relocates.
+    //
+    return true;
 }
 
-void min::resize
+bool min::resize
     ( min::insertable_vec_pointer & vp,
       min::unsptr unused_size )
 {
-    min::resize ( vp, unused_size,
-                      min::var_size_of ( vp ) );
+    return min::resize ( vp, unused_size,
+                         min::var_size_of ( vp ) );
 }
 
 
@@ -2794,6 +2801,7 @@ void min::insert_after
 			    MUP::STUB_POINTER ) );
 		lp.base[lp.current_index] =
 		    min::new_gen ( s );
+		lp.previous_index = lp.current_index;
 		lp.current_index = 0;
 		lp.current_stub = s;
 	    }
@@ -2909,6 +2917,7 @@ void min::insert_after
 
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( first );
+	lp.previous_index = lp.current_index;
 	lp.current_index = first;
     }
 
@@ -3178,12 +3187,14 @@ min::unsptr min::remove
     return count;
 }
 
-void MINT::insert_reserve
+bool MINT::insert_reserve
 	( min::insertable_list_pointer & lp,
 	  min::unsptr insertions,
 	  min::unsptr elements,
 	  bool use_obj_aux_stubs )
 {
+    bool result = false;
+
 #   if MIN_USES_OBJ_AUX_STUBS
 	if ( use_obj_aux_stubs )
 	    MINT::acc_expand_stub_free_list
@@ -3202,7 +3213,7 @@ void MINT::insert_reserve
 	    if ( desired_size > 1000 )
 	        desired_size = 1000;
 	}
-	min::resize ( lp.vecp, desired_size );
+	result = min::resize ( lp.vecp, desired_size );
 	min::refresh ( lp );
     }
 
@@ -3211,6 +3222,8 @@ void MINT::insert_reserve
 #   if MIN_USES_OBJ_AUX_STUBS
 	lp.use_obj_aux_stubs = use_obj_aux_stubs;
 #   endif
+
+    return result;
 }
 
 // Object Attribute Level

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb  9 06:33:29 EST 2010
+// Date:	Tue Feb  9 07:14:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/09 12:06:50 $
+//   $Date: 2010/02/10 08:18:13 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.133 $
+//   $Revision: 1.134 $
 
 // Table of Contents:
 //
@@ -2124,90 +2124,130 @@ void test_object_vector_level ( void )
 // min::gen short_obj_gen;
 // min::gen long_obj_gen;
 
-void test_object_list_level ( void )
+// List level test for object v using/not-using aux
+// stubs or alternate between aux stubs and aux area.
+//
+// Helper to insert.
+//
+static bool use_obj_aux_stubs;
+static bool alternate_aux;
+static bool resize;  // Set true to resize just once.
+static void insert
+    ( min::insertable_list_pointer & wlp,
+      bool before, min::gen * p, unsigned n )
 {
-    cout << endl;
-    cout << "Start Object List Level Test!"
-	 << endl;
+    min::insertable_vec_pointer & vp =
+        min::vec_pointer_of ( wlp );
+    min::gen numtest = min::new_num_gen ( 123456789 );
+    min::gen out;
 
-    min::insertable_vec_pointer short_vp
-	    ( short_obj_gen );
-    min::gen * & sbase = MUP::base ( short_vp );
-    min::unsptr vsize =
-	min::attr_size_of ( short_vp );
-    min::unsptr vorg =
-	MUP::attr_offset_of ( short_vp );
-    min::unsptr usize =
-	min::unused_size_of ( short_vp );
-    cout << "VSIZE " << vsize << " VORG " << vorg
-	 << " USIZE " << usize << endl;
+    if ( use_obj_aux_stubs || resize )
+        while ( min::unused_size_of ( vp ) > 0 )
+	    min::attr_push ( vp, numtest );
+    else
+        while ( min::unused_size_of ( vp ) < 20 )
+	    min::attr_pop ( vp, out );
+    bool resize_happened =
+        min::insert_reserve
+	      ( wlp, 1, n, use_obj_aux_stubs );
+    MIN_ASSERT
+        ( resize_happened ==
+	  ( ! use_obj_aux_stubs && resize ) );
+    if ( resize_happened )
+    {
+        cout << "RESIZE HAPPENED" << endl;
+        resize = false;
+    }
+
+    use_obj_aux_stubs ^= alternate_aux;
+    MIN_ASSERT ( ! min::relocated_flag() );
+    if ( before )
+	min::insert_before ( wlp, p, n );
+    else
+	min::insert_after ( wlp, p, n );
+}
+     
+void test_object_list_level
+    ( const char * name, min::gen v,
+      bool use_obj_aux_stubs, bool alternate_aux )
+{
+#   if ! MIN_USES_OBJ_AUX_STUBS
+	if ( use_obj_aux_stubs || alternate_aux ) return;
+#   endif
+
+    cout << endl << name << endl;
+
+    min::gen numtest = min::new_num_gen ( 123456789 );
+    min::gen num100 = min::new_num_gen ( 100 );
+    min::gen num101 = min::new_num_gen ( 101 );
+    min::gen num102 = min::new_num_gen ( 102 );
+    min::gen p[3] = { num100, num101, num102 };
+    min::gen out[6];
+
+    ::use_obj_aux_stubs = use_obj_aux_stubs;
+    ::alternate_aux = alternate_aux;
+    ::resize = false;
+
+    min::insertable_vec_pointer vp ( v );
+
+    min::gen * & base = MUP::base ( vp );
+
+    // Empty aux area.
+    //
+    while ( min::aux_size_of ( vp ) > 0 )
+        min::aux_pop ( vp, out[0] );
+
+    // Fill attr vector with numbers, consuming all
+    // of unused area.
+    //
+    while ( min::unused_size_of ( vp ) > 0 )
+	min::attr_push ( vp, num100 );
+
+    min::unsptr vorg = MUP::attr_offset_of ( vp );
+    min::unsptr vsize = min::attr_size_of ( vp );
+    min::unsptr usize = min::unused_size_of ( vp );
+    min::unsptr tsize = min::total_size_of ( vp );
+
+    cout << " VORG " << vorg << " VSIZE " << vsize
+	 << " USIZE " << usize << " TSIZE " << tsize
+	 << endl;
 
     min::set_relocated_flag ( false );
 
-    min::list_pointer lp ( short_vp );
+    min::list_pointer lp ( vp );
     min::start_vector ( lp, 0 );
     MIN_ASSERT
-	( min::current ( lp ) == sbase[vorg+0] );
+	( min::current ( lp ) == base[vorg+0] );
     MIN_ASSERT
 	( min::next ( lp ) == min::LIST_END );
     MIN_ASSERT
 	( min::current ( lp ) == min::LIST_END );
     MIN_ASSERT
 	( min::next ( lp ) == min::LIST_END );
-    min::gen numtest =
-	min::new_num_gen ( 123456789 );
-    sbase[vorg+0] = numtest;
+    base[vorg+0] = numtest;
     min::start_vector ( lp, 0 );
     MIN_ASSERT
-	( min::current ( lp ) == sbase[vorg+0] );
+	( min::current ( lp ) == base[vorg+0] );
 
-    min::insertable_list_pointer wlp ( short_vp );
+    min::insertable_list_pointer wlp ( vp );
     min::start_vector ( wlp, 0 );
-    min::insert_reserve ( wlp, 1, 3, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-
-    min::gen num100 = min::new_num_gen ( 100 );
-    min::gen num101 = min::new_num_gen ( 101 );
-    min::gen num102 = min::new_num_gen ( 102 );
-    min::gen p[3] = { num100, num101, num102 };
-    min::insert_after ( wlp, p, 3 );
-
+    insert ( wlp, false, p+2, 1 );
+    insert ( wlp, false, p+1, 1 );
+    insert ( wlp, false, p+0, 1 );
+    //
     // Vector[0] list now is
     //	{ numtest, num100, num101, num102 }
-    //
+
     MIN_ASSERT ( min::current ( wlp ) == numtest );
     MIN_ASSERT ( min::next ( wlp ) == num100 );
     MIN_ASSERT ( min::next ( wlp ) == num101 );
+
     min::set ( wlp, min::EMPTY_SUBLIST );
     MIN_ASSERT (    min::current ( wlp )
 		 == min::EMPTY_SUBLIST );
-
+    //
     // Vector[0] list now is
     //	{ numtest, num100, {}, num102 }
-    //
-    min::insertable_list_pointer wslp ( short_vp );
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
-    min::insert_reserve ( wslp, 1, 3, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_before ( wslp, p, 3 );
-    min::refresh ( wlp );
-
-    // Vector[0] list now is
-    //	{ numtest, num100,
-    //        { num100, num101, num102 }, num102 }
-    //
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
-    MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT ( min::next ( wslp ) == num101 );
-    MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
-
-    MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( min::current ( wlp ) == numtest );
@@ -2215,139 +2255,32 @@ void test_object_list_level ( void )
     MIN_ASSERT
 	( min::is_sublist ( min::next ( wlp ) ) );
 
+    min::insertable_list_pointer wslp ( vp );
     min::start_copy ( wslp, wlp );
     min::start_sublist ( wslp );
-    MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT ( min::next ( wslp ) == num101 );
-    MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
+    insert ( wslp, true, p, 1 );
     min::refresh ( wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
-
-    // Vector[0] list now is
-    //	{ numtest, num100,
-    //        { num100, num102 }, num102 }
-    //
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
-    MIN_ASSERT ( min::current ( wslp ) == num100 );
+    ::resize = true;
+    min::start_sublist ( wslp, wlp );
+    insert ( wslp, false, p+2, 1 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
-
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
-    MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
+    insert ( wslp, true, p+1, 1 );
     min::refresh ( wlp );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
-
-    // Vector[0] list now is
-    //	{ numtest, num100,
-    //        { num102 }, num102 }
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
     //
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
-
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( 1 == min::remove ( wslp, 5 ) );
-    min::refresh ( wlp );
-
-    // Vector[0] list now is
-    //	{ numtest, num100, { }, num102 }
-    //
-    MIN_ASSERT (    min::current ( wlp )
-		 == min::EMPTY_SUBLIST );
-    MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
-
-    min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( 3 == min::remove ( wlp, 3 ) );
-    MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
-
-    // Vector[0] list now is { num102 }
-    //
-    min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
-
-    min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( 1 == min::remove ( wlp, 3 ) );
-    MIN_ASSERT
-	( min::current ( wlp ) == min::LIST_END );
-
-    // Vector[0] list now is { }
-    //
-    min::start_vector ( wlp, 0 );
-    MIN_ASSERT
-	( min::current ( wlp ) == min::LIST_END );
-
-    // Repeat the above using aux area.
-
-    min::gen tmp;
-    for ( int i = 0; i < 20; ++ i )
-	min::attr_pop ( short_vp, tmp );
-
-    cout << "USIZE BEFORE USING AUX "
-	 << min::unused_size_of ( short_vp )
-	 << endl;
-    sbase[vorg+0] = numtest;
-    min::start_vector ( lp, 0 );
-    MIN_ASSERT
-	( min::current ( lp ) == sbase[vorg+0] );
-
-    min::start_vector ( wlp, 0 );
-    min::insert_reserve ( wlp, 1, 3, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_after ( wlp, p, 3 );
-
-    // Vector[0] list now is
-    //	{ numtest, num100, num101, num102 }
-    //
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( min::next ( wlp ) == num100 );
-    MIN_ASSERT ( min::next ( wlp ) == num101 );
-    min::set ( wlp, min::EMPTY_SUBLIST );
-    MIN_ASSERT (    min::current ( wlp )
-		 == min::EMPTY_SUBLIST );
-
-    // Vector[0] list now is
-    //	{ numtest, num100, {}, num102 }
-    //
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
-    min::insert_reserve ( wslp, 1, 3, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_before ( wslp, p, 3 );
-    min::refresh ( wlp );
-
     // Vector[0] list now is
     //	{ numtest, num100,
     //        { num100, num101, num102 }, num102 }
-    //
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
+
+    min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num100 );
     MIN_ASSERT ( min::next ( wslp ) == num101 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
 
     MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( min::current ( wlp ) == numtest );
@@ -2355,254 +2288,92 @@ void test_object_list_level ( void )
     MIN_ASSERT
 	( min::is_sublist ( min::next ( wlp ) ) );
 
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
+    min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num100 );
     MIN_ASSERT ( min::next ( wslp ) == num101 );
     MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
     min::refresh ( wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
-
+    //
     // Vector[0] list now is
     //	{ numtest, num100,
     //        { num100, num102 }, num102 }
     //
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
+    MIN_ASSERT ( min::current ( wslp ) == num102 );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+
+    min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num100 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
 
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
+    min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
     min::refresh ( wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
-
+    //
     // Vector[0] list now is
     //	{ numtest, num100,
     //        { num102 }, num102 }
     //
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
 
-    min::start_copy ( wslp, wlp );
-    min::start_sublist ( wslp );
+    min::start_sublist ( wslp, wlp );
+    MIN_ASSERT ( min::current ( wslp ) == num102 );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+
+    min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
     MIN_ASSERT ( 1 == min::remove ( wslp, 5 ) );
     min::refresh ( wlp );
-
+    //
     // Vector[0] list now is
     //	{ numtest, num100, { }, num102 }
     //
-    MIN_ASSERT (    min::current ( wlp )
-		 == min::EMPTY_SUBLIST );
+    MIN_ASSERT ( min::is_list_end
+                      ( min::current ( wslp ) ) );
     MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( min::current ( wlp ) == numtest );
     MIN_ASSERT ( 3 == min::remove ( wlp, 3 ) );
-    MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
-
+    //
     // Vector[0] list now is { num102 }
     //
+    MIN_ASSERT ( min::current ( wlp ) == num102 );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( 1 == min::remove ( wlp, 3 ) );
-    MIN_ASSERT
-	( min::current ( wlp ) == min::LIST_END );
-
+    //
     // Vector[0] list now is { }
     //
+    MIN_ASSERT
+	( min::current ( wlp ) == min::LIST_END );
     min::start_vector ( wlp, 0 );
     MIN_ASSERT
 	( min::current ( wlp ) == min::LIST_END );
+}
 
-    cout << "USIZE AFTER USING AUX "
-	 << min::unused_size_of ( short_vp )
+void test_object_list_level ( void )
+{
+    cout << endl;
+    cout << "Start Object List Level Test!"
 	 << endl;
 
-    // Now use a mixture of aux area and aux stubs.
-
-    while ( min::unused_size_of ( short_vp ) != 0 )
-	min::attr_push ( short_vp, numtest );
-
-    sbase[vorg+0] = numtest;
-    min::start_vector ( lp, 0 );
-    MIN_ASSERT
-	( min::current ( lp ) == sbase[vorg+0] );
-
-    min::gen num103 = min::new_num_gen ( 103 );
-    min::gen num104 = min::new_num_gen ( 104 );
-    min::gen num105 = min::new_num_gen ( 105 );
-    min::gen num106 = min::new_num_gen ( 106 );
-    min::gen num107 = min::new_num_gen ( 107 );
-
-    min::gen pv[8] =
-	{ num100, num101, num102, num103,
-	  num104, num105, num106, num107 };
-    min::gen psplit[2] = { num104, num107 };
-
-    // Build the following list:
-    //
-    //	{ numtest		In list head
-    //	  num100		In aux stub
-    //	  num101		In aux stub
-    //	  num102		In aux stub
-    //	  num103		In aux stub
-    //	  num104		In aux area
-    //	  num105		In aux area
-    //	  num106		In aux stub
-    //	  num107 }		In aux area
-
-
-    MIN_ASSERT
-	( min::unused_size_of ( short_vp ) == 0 );
-    min::gen tmpv [20];
-    min::start_vector ( wlp, 0 );
-    min::insert_reserve ( wlp, 1, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_after ( wlp, pv, 2 );
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( min::next ( wlp ) == num100 );
-    MIN_ASSERT ( min::next ( wlp ) == num101 );
-    min::attr_pop ( short_vp, tmpv, 3 );
-    MIN_ASSERT
-	( min::unused_size_of ( short_vp ) == 3 );
-    min::insert_reserve ( wlp, 1, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_after ( wlp, psplit, 2 );
-    MIN_ASSERT
-	( min::unused_size_of ( short_vp ) == 0 );
-    MIN_ASSERT ( min::next ( wlp ) == num104 );
-    min::insert_reserve ( wlp, 1, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_before ( wlp, pv + 2, 2 );
-    min::attr_pop ( short_vp, tmpv, 3 );
-    MIN_ASSERT
-	( min::unused_size_of ( short_vp ) == 3 );
-    MIN_ASSERT ( min::next ( wlp ) == num107 );
-    min::insert_reserve ( wlp, 2, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_before ( wlp, pv + 5, 1 );
-    MIN_ASSERT
-	( min::unused_size_of ( short_vp ) == 0 );
-    min::insert_before ( wlp, pv + 6, 1 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
-
-    min::start_vector ( wlp, 0 );
-    MIN_ASSERT ( min::current ( wlp ) == numtest );
-    MIN_ASSERT ( min::next ( wlp ) == num100 );
-    MIN_ASSERT ( min::next ( wlp ) == num101 );
-    MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT ( min::next ( wlp ) == num103 );
-    MIN_ASSERT ( min::next ( wlp ) == num104 );
-    MIN_ASSERT ( min::next ( wlp ) == num105 );
-    MIN_ASSERT ( min::next ( wlp ) == num106 );
-    MIN_ASSERT ( min::next ( wlp ) == num107 );
-    MIN_ASSERT
-	( min::next ( wlp ) == min::LIST_END );
-
-    // Repeat the test using a mixture of aux area
-    // and aux stubs but using long object instead
-    // of short object.
-
-    min::insertable_vec_pointer long_vp
-	    ( long_obj_gen );
-    min::gen * & lbase = MUP::base ( long_vp );
-
-    vsize = min::attr_size_of ( long_vp );
-    vorg = MUP::attr_offset_of ( long_vp );
-    usize = min::unused_size_of ( long_vp );
-    cout << "VSIZE " << vsize << " VORG " << vorg
-	 << " USIZE " << usize << endl;
-
-    while ( min::unused_size_of ( long_vp ) != 0 )
-	min::attr_push ( long_vp, numtest );
-
-    min::list_pointer llp ( long_vp );
-    min::insertable_list_pointer wllp ( long_vp );
-
-    lbase[vorg+0] = numtest;
-    min::start_vector ( llp, 0 );
-    MIN_ASSERT
-	( min::current ( llp ) == lbase[vorg+0] );
-
-    // Build the following list:
-    //
-    //	{ numtest		In list head
-    //	  num100		In aux stub
-    //	  num101		In aux stub
-    //	  num102		In aux stub
-    //	  num103		In aux stub
-    //	  num104		In aux area
-    //	  num105		In aux area
-    //	  num106		In aux stub
-    //	  num107 }		In aux area
-
-    MIN_ASSERT
-	( min::unused_size_of ( long_vp ) == 0 );
-    min::start_vector ( wllp, 0 );
-    min::insert_reserve ( wllp, 1, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_after ( wllp, pv, 2 );
-    MIN_ASSERT ( min::current ( wllp ) == numtest );
-    MIN_ASSERT ( min::next ( wllp ) == num100 );
-    MIN_ASSERT ( min::next ( wllp ) == num101 );
-    min::attr_pop ( long_vp, tmpv, 3 );
-    MIN_ASSERT
-	( min::unused_size_of ( long_vp ) == 3 );
-    min::insert_reserve ( wllp, 1, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_after ( wllp, psplit, 2 );
-    MIN_ASSERT
-	( min::unused_size_of ( long_vp ) == 0 );
-    MIN_ASSERT ( min::next ( wllp ) == num104 );
-    min::insert_reserve ( wllp, 1, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_before ( wllp, pv + 2, 2 );
-    min::attr_pop ( long_vp, tmpv, 3 );
-    MIN_ASSERT
-	( min::unused_size_of ( long_vp ) == 3 );
-    MIN_ASSERT ( min::next ( wllp ) == num107 );
-    min::insert_reserve ( wllp, 2, 2, true );
-    MIN_ASSERT ( ! min::relocated_flag() );
-    min::insert_before ( wllp, pv + 5, 1 );
-    MIN_ASSERT
-	( min::unused_size_of ( long_vp ) == 0 );
-    min::insert_before ( wllp, pv + 6, 1 );
-    MIN_ASSERT
-	( min::next ( wllp ) == min::LIST_END );
-
-    min::start_vector ( wllp, 0 );
-    MIN_ASSERT ( min::current ( wllp ) == numtest );
-    MIN_ASSERT ( min::next ( wllp ) == num100 );
-    MIN_ASSERT ( min::next ( wllp ) == num101 );
-    MIN_ASSERT ( min::next ( wllp ) == num102 );
-    MIN_ASSERT ( min::next ( wllp ) == num103 );
-    MIN_ASSERT ( min::next ( wllp ) == num104 );
-    MIN_ASSERT ( min::next ( wllp ) == num105 );
-    MIN_ASSERT ( min::next ( wllp ) == num106 );
-    MIN_ASSERT ( min::next ( wllp ) == num107 );
-    MIN_ASSERT
-	( min::next ( wllp ) == min::LIST_END );
+    test_object_list_level
+        ( "Test short object aux stubs list level:",
+	  short_obj_gen, true, false );
+    test_object_list_level
+        ( "Test short object aux area list level:",
+	  short_obj_gen, false, false );
+    test_object_list_level
+        ( "Test short object alternate aux list level:",
+	  short_obj_gen, false, true );
 
     cout << endl;
     cout << "Finish Object List Level Test!"
