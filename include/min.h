@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb  7 11:38:19 EST 2010
+// Date:	Tue Feb  9 18:56:49 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/07 18:40:08 $
+//   $Date: 2010/02/10 08:09:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.247 $
+//   $Revision: 1.248 $
 
 // Table of Contents:
 //
@@ -2222,7 +2222,6 @@ namespace min { namespace unprotected {
 	{
 	    if ( type_of ( rstub ) != min::DEALLOCATED )
 	    {
-
 		min::uns64 v =
 		    unprotected::value_of ( s );
 		min::uns64 rv =
@@ -3261,10 +3260,10 @@ namespace min {
 	( min::insertable_vec_pointer & vp,
 	  min::gen * p, min::unsptr n );
 
-    void resize
+    bool resize
 	( min::insertable_vec_pointer & vp,
 	  min::unsptr unused_size );
-    void resize
+    bool resize
 	( min::insertable_vec_pointer & vp,
 	  min::unsptr unused_size,
 	  min::unsptr var_size );
@@ -3393,10 +3392,10 @@ namespace min {
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen * p, min::unsptr n );
 
-	friend void resize
+	friend bool resize
 	    ( min::insertable_vec_pointer & vp,
 	      min::unsptr unused_size );
-	friend void resize
+	friend bool resize
 	    ( min::insertable_vec_pointer & vp,
 	      min::unsptr unused_size,
 	      min::unsptr var_size );
@@ -3957,7 +3956,7 @@ namespace min { namespace internal {
 
     // Out of line versions of functions: see min.cc.
     //
-    void insert_reserve
+    bool insert_reserve
     	    ( min::insertable_list_pointer & lp,
 	      min::unsptr insertions,
 	      min::unsptr elements,
@@ -4076,7 +4075,7 @@ namespace min {
 	         ::list_pointer_type<vecpt> & lp,
 	      min::gen value );
 
-    void insert_reserve
+    bool insert_reserve
     	    ( min::insertable_list_pointer & lp,
 	      min::unsptr insertions,
 	      min::unsptr elements = 0,
@@ -4129,6 +4128,9 @@ namespace min { namespace internal {
 		previous_stub = NULL;
 #	    endif
 	    previous_is_sublist_head = false;
+	    saved_hash_offset =
+	        min::unprotected
+		   ::hash_offset_of ( vecp );
 	    saved_total_size =
 	        min::total_size_of ( vecp );
 	}
@@ -4173,13 +4175,16 @@ namespace min { namespace internal {
 	    // must never become less than 0 (else
 	    // assert violation).
 
+	min::unsptr saved_hash_offset;
 	min::unsptr saved_total_size;
-	    // Save of total_size from vec pointer.
+	    // Save of hash_offset and total_size from
+	    // vec pointer.
+	    //
 	    // Used by refresh to check if resize has
 	    // been called for another list pointer to
 	    // the same object, and to adjust the
-	    // current_index and previous_index if
-	    // the total_size has changed.
+	    // current_index and previous_index if the
+	    // hash_offset or total_size has changed.
 
 	// Abstractly there is a current pointer and a
 	// previous pointer.  The current pointer points
@@ -4347,12 +4352,12 @@ namespace min { namespace internal {
 	friend void min::set<>
 		( min::insertable_list_pointer & lp,
 		  min::gen value );
-	friend void min::insert_reserve
+	friend bool min::insert_reserve
 		( min::insertable_list_pointer & lp,
 		  min::unsptr insertions,
 		  min::unsptr elements,
 		  bool use_obj_aux_stubs );
-	friend void min::internal::insert_reserve
+	friend bool min::internal::insert_reserve
 		( min::insertable_list_pointer & lp,
 		  min::unsptr insertions,
 		  min::unsptr elements,
@@ -4451,6 +4456,9 @@ namespace min { namespace internal {
 #	    if MIN_USES_OBJ_AUX_STUBS
 		current_stub = NULL;
 #	    endif
+	    saved_hash_offset =
+	        min::unprotected
+		   ::hash_offset_of ( vecp );
 	    saved_total_size =
 	        min::total_size_of ( vecp );
 	}
@@ -4468,6 +4476,7 @@ namespace min { namespace internal {
 	    min::stub * current_stub;
 #	endif
 
+	min::unsptr saved_hash_offset;
 	min::unsptr saved_total_size;
 
     // Friends:
@@ -4555,12 +4564,12 @@ namespace min { namespace internal {
 	friend void min::set<>
 		( min::insertable_list_pointer & lp,
 		  min::gen value );
-	friend void min::insert_reserve
+	friend bool min::insert_reserve
 		( min::insertable_list_pointer & lp,
 		  min::unsptr insertions,
 		  min::unsptr elements,
 		  bool use_obj_aux_stubs );
-	friend void min::internal::insert_reserve
+	friend bool min::internal::insert_reserve
 		( min::insertable_list_pointer & lp,
 		  min::unsptr insertions,
 		  min::unsptr elements,
@@ -4918,11 +4927,26 @@ namespace min {
     	    ( min::internal
 	         ::list_pointer_type<vecpt> & lp )
     {
+	min::unsptr new_hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
 	min::unsptr new_total_size =
 	    min::total_size_of ( lp.vecp );
 	if ( lp.current_index != 0 )
-	    lp.current_index += new_total_size
-			      - lp.saved_total_size;
+	{
+	     min::unsptr adjusted_current =
+	            lp.current_index
+		  + new_hash_offset
+		  - lp.saved_hash_offset;
+	    if (   adjusted_current
+	         < min::unprotected
+		      ::unused_offset_of ( lp.vecp ) )
+	        lp.current_index = adjusted_current;
+	    else
+	        lp.current_index += new_total_size
+		                  - lp.saved_total_size;
+	}
+	lp.saved_hash_offset = new_hash_offset;
 	lp.saved_total_size = new_total_size;
 
 	if ( lp.current_index != 0 )
@@ -4945,14 +4969,40 @@ namespace min {
     inline min::gen refresh
     	    ( min::insertable_list_pointer & lp )
     {
+	min::unsptr new_hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
 	min::unsptr new_total_size =
 	    min::total_size_of ( lp.vecp );
 	if ( lp.current_index != 0 )
-	    lp.current_index += new_total_size
-			      - lp.saved_total_size;
+	{
+	     min::unsptr adjusted_current =
+	            lp.current_index
+		  + new_hash_offset
+		  - lp.saved_hash_offset;
+	    if (   adjusted_current
+	         < min::unprotected
+		      ::unused_offset_of ( lp.vecp ) )
+	        lp.current_index = adjusted_current;
+	    else
+	        lp.current_index += new_total_size
+		                  - lp.saved_total_size;
+	}
 	if ( lp.previous_index != 0 )
-	    lp.previous_index += new_total_size
-			       - lp.saved_total_size;
+	{
+	     min::unsptr adjusted_previous =
+	            lp.previous_index
+		  + new_hash_offset
+		  - lp.saved_hash_offset;
+	    if (   adjusted_previous
+	         < min::unprotected
+		      ::unused_offset_of ( lp.vecp ) )
+	        lp.previous_index = adjusted_previous;
+	    else
+	        lp.previous_index += new_total_size
+		                  - lp.saved_total_size;
+	}
+	lp.saved_hash_offset = new_hash_offset;
 	lp.saved_total_size = new_total_size;
 
 	if ( lp.current_index != 0 )
@@ -5044,7 +5094,7 @@ namespace min {
 	}
     }
 
-    inline void insert_reserve
+    inline bool insert_reserve
     	    ( min::insertable_list_pointer & lp,
 	      min::unsptr insertions,
 	      min::unsptr elements,
@@ -5066,7 +5116,7 @@ namespace min {
 		     < insertions + elements )
 #	    endif
 	   )
-	    min::internal::insert_reserve
+	    return min::internal::insert_reserve
 	        ( lp, insertions, elements,
 		  use_obj_aux_stubs );
 	else
@@ -5077,6 +5127,7 @@ namespace min {
 		lp.use_obj_aux_stubs =
 		   use_obj_aux_stubs;
 #	    endif
+	    return false;
 	}
     }
 }
