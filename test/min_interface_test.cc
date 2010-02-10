@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb  9 07:14:55 EST 2010
+// Date:	Wed Feb 10 08:51:28 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/10 08:18:13 $
+//   $Date: 2010/02/10 14:01:00 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.134 $
+//   $Revision: 1.135 $
 
 // Table of Contents:
 //
@@ -1928,6 +1928,8 @@ void test_object_vector_level
 	    min::unused_size_of ( vp );
 	min::unsptr half_unused_size =
 	    unused_size / 2;
+	min::unsptr total_size =
+	    min::total_size_of ( vp );
 
 	MIN_ASSERT ( base[ht] == min::LIST_END );
 	min::set_hash
@@ -1975,7 +1977,8 @@ void test_object_vector_level
 	min::aux_push ( vp, num1 );
 	MIN_ASSERT ( base[aa-1] == num1 );
 	MIN_ASSERT
-	    ( min::aux ( vp, aa-1 ) == num1 );
+	    (    min::aux ( vp, total_size-aa+1 )
+	      == num1 );
 	MIN_ASSERT
 	    ( min::aux_size_of ( vp ) == 1 );
 	MIN_ASSERT ( caa == aa - 1 );
@@ -1989,7 +1992,9 @@ void test_object_vector_level
 	MIN_ASSERT ( base[aa-4] == num1 );
 	MIN_ASSERT ( base[aa-3] == num2 );
 	MIN_ASSERT ( base[aa-2] == num3 );
-	MIN_ASSERT ( aux ( vp, aa-2 ) == num3 );
+	MIN_ASSERT
+	    (    min::aux ( vp, total_size-aa+2 )
+	      == num3 );
 	MIN_ASSERT
 	    ( min::aux_size_of ( vp ) == 4 );
 	MIN_ASSERT ( caa == aa - 4 );
@@ -2060,9 +2065,11 @@ void test_object_vector_level
 
 	min::set_attr ( vp, 0, min::LIST_END );
 	min::set_attr ( vp, 1,
-	    min::new_list_aux_gen ( aux_offset ) );
+	    min::new_list_aux_gen
+	        ( total_size - aux_offset ) );
 	min::set_aux
-	    ( vp, aux_offset, min::LIST_END );
+	    ( vp, total_size - aux_offset,
+	          min::LIST_END );
 	MIN_ASSERT
 	    ( base[attr_offset] == min::LIST_END );
 	MIN_ASSERT
@@ -2070,7 +2077,7 @@ void test_object_vector_level
 	MIN_ASSERT
 	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
-		     ( aux_offset ) );
+		     ( total_size - aux_offset ) );
 
 	MIN_ASSERT
 	    ( min::unused_size_of ( vp ) == 0 );
@@ -2080,6 +2087,8 @@ void test_object_vector_level
     {
 	min::vec_pointer vp ( sstub );
 	min::gen * & base = MUP::base ( vp );
+	min::unsptr total_size =
+	    min::total_size_of ( vp );
 
 	MIN_ASSERT
 	    ( min::var_size_of ( vp ) == 20 );
@@ -2096,7 +2105,7 @@ void test_object_vector_level
 	MIN_ASSERT
 	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
-		     ( aux_offset ) );
+		     ( total_size - aux_offset ) );
     }
 }
 
@@ -2141,12 +2150,23 @@ static void insert
     min::gen numtest = min::new_num_gen ( 123456789 );
     min::gen out;
 
+    bool saved_min_assert_print = min_assert_print;
+    min_assert_print = false;
     if ( use_obj_aux_stubs || resize )
+    {
+	cout << "EMPTYING UNUSED AREA" << endl;
         while ( min::unused_size_of ( vp ) > 0 )
 	    min::attr_push ( vp, numtest );
+    }
     else
+    {
+	cout << "ADDING 20 ELEMENTS TO UNUSED AREA"
+	     << endl;
         while ( min::unused_size_of ( vp ) < 20 )
 	    min::attr_pop ( vp, out );
+    }
+    min_assert_print = saved_min_assert_print;
+
     bool resize_happened =
         min::insert_reserve
 	      ( wlp, 1, n, use_obj_aux_stubs );
@@ -2266,6 +2286,7 @@ void test_object_list_level
     MIN_ASSERT ( min::next ( wslp ) == num102 );
     insert ( wslp, true, p+1, 1 );
     min::refresh ( wlp );
+    MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
     //
