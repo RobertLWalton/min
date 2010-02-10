@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb  9 09:35:55 EST 2010
+// Date:	Wed Feb 10 05:31:18 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/10 08:17:25 $
+//   $Date: 2010/02/10 10:31:35 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.139 $
+//   $Revision: 1.140 $
 
 // Table of Contents:
 //
@@ -2305,7 +2305,7 @@ void min::insert_before
 	//
 	bool previous_is_list_head = false;
 
-	// Pointer to the first new element; replaces
+	// Pointer to the first new element; may replace
 	// LIST_END in current.
 	//
 	min::gen fgen;
@@ -2491,8 +2491,7 @@ void min::insert_before
 
 	    min::stub * s;
 	        // Stub to which current value is moved
-		// if there is previous pointer does not
-		// exist.
+		// if previous pointer does not exist.
 
 	    min::uns64 end;
 	    int type = min::LIST_AUX;
@@ -2660,9 +2659,9 @@ void min::insert_before
     if ( lp.previous_index != 0 )
     {
 	lp.base[lp.previous_index] =
-	    MUP::renew_gen
-		( lp.base[lp.previous_index],
-		  first );
+	    lp.previous_is_sublist_head ?
+	    min::new_sublist_aux_gen ( first ) :
+	    min::new_list_aux_gen ( first );
 	lp.previous_index = aux_offset;
 	lp.previous_is_sublist_head = false;
     }
