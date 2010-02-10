@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 10 05:31:18 EST 2010
+// Date:	Wed Feb 10 07:33:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/10 10:31:35 $
+//   $Date: 2010/02/10 14:00:10 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.140 $
+//   $Revision: 1.141 $
 
 // Table of Contents:
 //
@@ -2010,15 +2010,7 @@ bool min::resize
     min::unsptr to_end = to + var_size;
 
     while ( from < from_end && to < to_end )
-    {
-        min::gen v = oldb[from++];
-	if ( min::is_aux ( v )
-	     &&
-	     MUP::aux_of ( v ) != 0 )
-	    v = (min::gen)
-	        ( (min::unsgen) v + aux_offset );
-	newb[to++] = v;
-    }
+        newb[to++] = oldb[from++];
     while ( to < to_end )
         newb[to++] = min::UNDEFINED;
     from = from_end;
@@ -2028,15 +2020,7 @@ bool min::resize
     from_end = from + min::hash_size_of ( vp )
                     + min::attr_size_of ( vp );
     while ( from < from_end )
-    {
-        min::gen v = oldb[from++];
-	if ( min::is_aux ( v )
-	     &&
-	     MUP::aux_of ( v ) != 0 )
-	    v = (min::gen)
-	        ( (min::unsgen) v + aux_offset );
-	newb[to++] = v;
-    }
+        newb[to++] = oldb[from++];
 
     // Initialize unused area.
     //
@@ -2048,15 +2032,7 @@ bool min::resize
     //
     from_end = from + min::aux_size_of ( vp );
     while ( from < from_end )
-    {
-        min::gen v = oldb[from++];
-	if ( min::is_aux ( v )
-	     &&
-	     MUP::aux_of ( v ) != 0 )
-	    v = (min::gen)
-	        ( (min::unsgen) v + aux_offset );
-	newb[to++] = v;
-    }
+        newb[to++] = oldb[from++];
 
     MIN_ASSERT ( from == old_size );
     MIN_ASSERT ( to == new_size );
@@ -2193,30 +2169,25 @@ void MINT::allocate_stub_list
 // Index/s point at the first element of the list.
 // Either index != 0 and s == NULL or index == 0
 // and s != NULL.  Base is the base of a vector
-// pointer.
+// pointer and total_size is its total size.
 //
 void MINT::remove_list
 	( min::gen * & base,
+	  min::unsptr total_size,
 	  min::unsptr index
 #	if MIN_USES_OBJ_AUX_STUBS
 	  , min::stub * s // = NULL
 #	endif
 	)
 {
+    while ( true )
+    {
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if ( s != NULL )
 	    {
-		min::gen v =
-		    min::unprotected::value_of ( s );
-		if ( min::is_stub ( v ) )
-		{
-		    min::stub * s2 =
-			min::unprotected::stub_of ( v );
-		    if (    min::type_of ( s2 )
-			 == min::SUBLIST_AUX )
-			MINT::remove_list
-			    ( base, 0, s2 );
-		}
+		MINT::remove_sublist
+		    ( base, total_size,
+		      min::unprotected::value_of ( s ) );
 		min::uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
 		if ( c & MUP::STUB_POINTER)
@@ -2226,7 +2197,7 @@ void MINT::remove_list
 		    min::unsptr vc =
 			MUP::value_of_control ( c );
 		    if ( vc == 0 ) return;
-		    index = c;
+		    index = total_size - c;
 		    s = NULL;
 		}
 	    }
@@ -2234,24 +2205,10 @@ void MINT::remove_list
 #	endif
 	{
 	    MIN_ASSERT ( index != 0 );
-	    min::gen v = base[index];
-#	    if MIN_USES_OBJ_AUX_STUBS
-		if ( min::is_stub ( v ) )
-		{
-		    min::stub * s2 =
-			min::unprotected::stub_of ( v );
-		    if (    min::type_of ( s2 )
-			 == min::SUBLIST_AUX )
-			MINT::remove_list
-			    ( base, 0, s2 );
-		}
-		else
-#	    endif
-	    if ( min::is_sublist_aux ( v ) )
-	        MINT::remove_list
-		    ( base, min::sublist_aux_of ( v ) );
+	    MINT::remove_sublist
+	        ( base, total_size, base[index] );
 	    base[index] = min::NONE;
-	    v = base[--index];
+	    min::gen v = base[--index];
 #	    if MIN_USES_OBJ_AUX_STUBS
 		if ( min::is_stub ( v ) )
 		{
@@ -2264,8 +2221,13 @@ void MINT::remove_list
 		else
 #	    endif
 	    if ( min::is_list_aux ( v ) )
-	        index = min::list_aux_of ( v  );
+	    {
+		index = min::list_aux_of ( v  );
+		if ( index == 0 ) return;
+		index = total_size - index;
+	    }
 	}
+    }
 }
 
 void min::insert_before
@@ -2278,6 +2240,7 @@ void min::insert_before
         unprotected::unused_offset_of ( lp.vecp );
     min::unsptr aux_offset =
         unprotected::aux_offset_of ( lp.vecp );
+    min::unsptr total_size = lp.total_size;
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -2414,7 +2377,8 @@ void min::insert_before
 	        if ( lp.previous_is_sublist_head )
 		{
 		    fgen = min::new_list_aux_gen
-			       ( aux_offset - 1 );
+			       (   total_size
+			         - aux_offset + 1 );
 		    MUP::set_gen_of
 			( lp.previous_stub, fgen );
 		}
@@ -2427,7 +2391,8 @@ void min::insert_before
 		        ( lp.previous_stub,
 			  MUP::new_control_with_type
 			      ( type,
-			        aux_offset - 1 ) );
+			          total_size
+				- aux_offset + 1 ) );
 		}
 		lp.previous_stub = NULL;
 	    }
@@ -2440,11 +2405,11 @@ void min::insert_before
 	        lp.base[-- aux_offset] =
 		    lp.base[lp.previous_index];
 		fgen = min::new_list_aux_gen
-		    ( aux_offset );
+		    ( total_size - aux_offset );
 	    }
 	    else
 		fgen = min::new_sublist_aux_gen
-		    ( aux_offset - 1 );
+		    ( total_size - aux_offset + 1 );
 	    lp.base[lp.previous_index] = fgen;
 	}
 	else if ( contiguous )
@@ -2452,7 +2417,7 @@ void min::insert_before
 	else
 	{
 	    fgen = min::new_list_aux_gen
-		       ( aux_offset - 1 );
+		       ( total_size - aux_offset + 1 );
 	    lp.base[lp.current_index] = fgen;
 	}
 
@@ -2530,6 +2495,8 @@ void min::insert_before
 
 		    next = 0;
 		}
+		else
+		    next = total_size - next;
 		MUP::set_control_of
 		    ( s,
 		      MUP::new_control_with_type
@@ -2540,7 +2507,7 @@ void min::insert_before
 	        if ( lp.previous_is_sublist_head )
 		    type == min::SUBLIST_AUX;
 		end = MUP::new_control_with_type
-		   ( 0, lp.current_index );
+		   ( 0, total_size - lp.current_index );
 	    }
 
 	    min::stub * first, * last;
@@ -2591,7 +2558,7 @@ void min::insert_before
 		    + n + 1 + ( ! previous )
 		 <= aux_offset );
 
-    min::unsptr first = aux_offset - 1;
+    min::unsptr first = total_size - aux_offset + 1;
 
     while ( n -- )
 	lp.base[-- aux_offset] = * p ++;
@@ -2627,6 +2594,7 @@ void min::insert_before
 		next = 0;
 	    }
 	}
+	if ( next != 0 ) next = total_size - next;
         lp.base[-- aux_offset] =
 	    min::new_list_aux_gen ( next );
     }
@@ -2686,6 +2654,7 @@ void min::insert_after
         unprotected::unused_offset_of ( lp.vecp );
     min::unsptr aux_offset =
         unprotected::aux_offset_of ( lp.vecp );
+    min::unsptr total_size = lp.total_size;
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -2739,6 +2708,8 @@ void min::insert_after
 	        lp.current_index - ! previous;
 	    if ( lp.current_index < unused_offset )
 	        next = 0;
+	    else
+	        next = total_size - next;
 	    min::uns64 end =
 		MUP::new_control_with_type
 		    ( type, next );
@@ -2844,7 +2815,7 @@ void min::insert_after
 	    ( lp.current_stub,
 	      MUP::new_control_with_type
 	         ( min::type_of ( lp.current_stub ),
-		   first ) );
+		   total_size - first ) );
     }
     else
 #   endif
@@ -2855,7 +2826,8 @@ void min::insert_after
 	//
 
 	lp.base[-- aux_offset] =
-	    min::new_list_aux_gen ( lp.current_index );
+	    min::new_list_aux_gen
+	        ( total_size - lp.current_index );
 	lp.base[lp.current_index] = * p ++;
 	lp.current_index = first;
 
@@ -2867,7 +2839,7 @@ void min::insert_after
 		    MUP::set_gen_of
 			( lp.previous_stub,
 			  min::new_sublist_aux_gen
-			      ( first ) );
+			      ( total_size - first ) );
 		}
 		else
 		{
@@ -2876,7 +2848,7 @@ void min::insert_after
 			  MUP::new_control_with_type
 			      ( min::type_of
 				  ( lp.previous_stub ),
-				first ) );
+				total_size - first ) );
 		}
 	    }
 	    else
@@ -2885,7 +2857,7 @@ void min::insert_after
 	    lp.base[lp.previous_index] =
 		MUP::renew_gen
 		    ( lp.base[lp.previous_index],
-		      first );
+		      total_size - first );
 	}
     }
     else
@@ -2911,11 +2883,14 @@ void min::insert_after
 
 	    next = 0;
 	}
+	else
+	    next = total_size - next;
 	lp.base[-- aux_offset] =
 	    min::new_list_aux_gen ( next );
 
 	lp.base[lp.current_index] =
-	    min::new_list_aux_gen ( first );
+	    min::new_list_aux_gen
+	        ( total_size - first );
 	lp.previous_index = lp.current_index;
 	lp.current_index = first;
     }
@@ -2947,6 +2922,8 @@ min::unsptr min::remove
 	return 1;
     }
 
+    min::unsptr total_size = lp.total_size;
+
     // Save the current previous pointer and current
     // index.
     //
@@ -2969,7 +2946,8 @@ min::unsptr min::remove
     {
 	if ( lp.current == min::LIST_END ) break;
 	++ count;
-	MINT::remove_sublist ( lp.base, lp.current );
+	MINT::remove_sublist
+	    ( lp.base, total_size, lp.current );
 
 #       if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
@@ -2991,7 +2969,8 @@ min::unsptr min::remove
 		    break;
 		lp.base[lp.current_index] = min::NONE;
 		lp.current_index =
-		    min::list_aux_of ( lp.current );
+		      total_size
+		    - min::list_aux_of ( lp.current );
 		lp.current = lp.base[lp.current_index];
 	    }
 	    else if ( min::is_stub ( lp.current ) )
@@ -3062,7 +3041,8 @@ min::unsptr min::remove
 		    MUP::set_gen_of
 		        ( previous_stub,
 			  min::new_sublist_aux_gen
-			      ( lp.current_index ) );
+			      (   total_size
+			        - lp.current_index ) );
 		else
 		{
 		    int type =
@@ -3071,7 +3051,8 @@ min::unsptr min::remove
 		        ( previous_stub,
 			  MUP::new_control_with_type
 			      ( type,
-			        lp.current_index ) );
+			          total_size
+				- lp.current_index ) );
 		}
 	    }
 
@@ -3131,11 +3112,13 @@ min::unsptr min::remove
 	    if ( previous_is_sublist_head )
 		lp.base[previous_index] =
 		    min::new_sublist_aux_gen
-			( lp.current_index );
+			(   total_size
+			  - lp.current_index );
 	    else
 		lp.base[previous_index] =
 		    min::new_list_aux_gen
-			( lp.current_index );
+			(   total_size
+			  - lp.current_index );
 
 	    lp.previous_index = previous_index;
 	    lp.previous_is_sublist_head =
@@ -3176,7 +3159,7 @@ min::unsptr min::remove
 		         ( lp.vecp ) );
 	    lp.base[current_index] =
 		min::new_list_aux_gen
-		    ( lp.current_index );
+		    ( total_size - lp.current_index );
 	    lp.previous_index = current_index;
 	}
 
