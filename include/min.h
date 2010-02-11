@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 11 06:09:04 EST 2010
+// Date:	Thu Feb 11 14:12:04 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/11 13:26:02 $
+//   $Date: 2010/02/11 20:01:57 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.250 $
+//   $Revision: 1.251 $
 
 // Table of Contents:
 //
@@ -4133,10 +4133,12 @@ namespace min { namespace internal {
 
 	    current_index = 0;
 	    previous_index = 0;
+	    current_is_list_head = false;
 #	    if MIN_USES_OBJ_AUX_STUBS
 		current_stub = NULL;
 		previous_stub = NULL;
 #	    endif
+	    previous_is_list_head = false;
 	    previous_is_sublist_head = false;
 	}
 
@@ -4159,8 +4161,18 @@ namespace min { namespace internal {
 	    // aux pointers, these indices are relative
 	    // to the base even if they point into the
 	    // aux area.
+	bool current_is_list_head;
+	bool previous_is_list_head;
+	    // If the corresponding index is non-zero,
+	    // these are true iff the corresponding
+	    // index is < unused_size and the object has
+	    // not been resized since the last refresh.
+	    // When the object is resized, this
+	    // information is needed by refresh to
+	    // relocate the pointers.  This information
+	    // is otherwise redundant.
 	bool previous_is_sublist_head;
-	    // True if previous pointer exists and
+	    // True if previous pointer, if it exists,
 	    // points at a sublist pointer.  See below.
 
 #	if MIN_USES_OBJ_AUX_STUBS
@@ -4332,6 +4344,11 @@ namespace min { namespace internal {
 	//
 	// A list or sublist pointer cannot point at
 	// a list pointer or LIST_END.
+	//
+	// The current/previous_is_list_head values are
+	// redundant, except in the case where the
+	// object has been resized since the last
+	// refresh of the pointer.
 
     // Friends:
 
@@ -4411,10 +4428,15 @@ namespace min { namespace internal {
 	// LIST_AUX.  Set previous_index and previous_
 	// stub; if there is no forwarding, set these
 	// to indicate the previous pointer does not
-	// exist.  Return current.  Index argument must
-	// not be 0.
+	// exist.  Return current.
 	//
-	min::gen forward ( min::unsptr index )
+	// Index argument must not be 0.  The caller
+	// must set
+	//
+	//    is_list_head == index < unused_offset
+	//
+	min::gen forward ( min::unsptr index,
+	                   bool is_list_head = false )
 	{
 	    // The code of remove depends upon the fact
 	    // that this function does not READ
@@ -4423,6 +4445,7 @@ namespace min { namespace internal {
 	    // from remove).
 
 	    current_index = index;
+	    current_is_list_head = is_list_head;
 	    current = base[current_index];
 
 	    previous_index = 0;
@@ -4438,9 +4461,12 @@ namespace min { namespace internal {
 		if ( current != min::LIST_END )
 		{
 		    previous_index = current_index;
+		    previous_is_list_head =
+		        current_is_list_head;
 		    current_index =
 			  total_size
 			- min::list_aux_of ( current );
+		    current_is_list_head = false;
 		    current = base[current_index];
 		}
 	    }
@@ -4455,6 +4481,8 @@ namespace min { namespace internal {
 		    if ( type == min::LIST_AUX )
 		    {
 		        previous_index = current_index;
+			previous_is_list_head =
+			    current_is_list_head;
 			current_index = 0;
 			current_stub = s;
 			current = min::unprotected::
@@ -4498,6 +4526,7 @@ namespace min { namespace internal {
 	min::gen * & base;
 	min::gen current;
 	min::unsptr current_index;
+	bool current_is_list_head;
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    min::stub * current_stub;
@@ -4589,9 +4618,11 @@ namespace min { namespace internal {
 		( min::updatable_list_pointer & lp,
 		  min::gen value );
 
-	min::gen forward ( min::unsptr index )
+	min::gen forward ( min::unsptr index,
+	                   bool is_list_head = false )
 	{
 	    current_index = index;
+	    current_is_list_head = is_list_head;
 	    current = base[current_index];
 
 #           if MIN_USES_OBJ_AUX_STUBS
@@ -4605,6 +4636,7 @@ namespace min { namespace internal {
 		    current_index =
 		          total_size
 			- min::list_aux_of ( current );
+		    current_is_list_head = false;
 		    current = base[current_index];
 		}
 	    }
@@ -4660,7 +4692,8 @@ namespace min {
 
 	return lp.forward
 	    (   unprotected::hash_offset_of ( lp.vecp )
-	      + index );
+	      + index,
+	      true );
     }
 
     template < class vecpt >
@@ -4679,7 +4712,7 @@ namespace min {
 	MIN_ASSERT
 	    ( index < unprotected::unused_offset_of
 	                  ( lp.vecp ) );
-	return lp.forward ( index );
+	return lp.forward ( index, true );
     }
 
     // start_copy is declared as a friend only for
@@ -4712,6 +4745,8 @@ namespace min {
 	MIN_ASSERT ( lp.total_size == lp2.total_size );
 
 	lp.current_index = lp2.current_index;
+	lp.current_is_list_head =
+	    lp2.current_is_list_head;
 #       if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 #       endif
@@ -4733,7 +4768,11 @@ namespace min {
 	MIN_ASSERT ( lp.total_size == lp2.total_size );
 
 	lp.current_index = lp2.current_index;
+	lp.current_is_list_head =
+	    lp2.current_is_list_head;
 	lp.previous_index = lp2.previous_index;
+	lp.previous_is_list_head =
+	    lp2.previous_is_list_head;
 	lp.previous_is_sublist_head =
 	    lp2.previous_is_sublist_head;
 #       if MIN_USES_OBJ_AUX_STUBS
@@ -4795,6 +4834,7 @@ namespace min {
 	    lp.current_index =
 		  lp.total_size
 		- lp.current_index;
+	    lp.current_is_list_head = false;
 	    lp.current =
 		lp.base[lp.current_index];
 	}
@@ -4821,6 +4861,8 @@ namespace min {
 	lp.total_size = total_size;
 
 	lp.previous_index = lp2.current_index;
+	lp.previous_is_list_head =
+	    lp2.current_is_list_head;
 	lp.previous_is_sublist_head = true;
 
 #	if MIN_USES_OBJ_AUX_STUBS
@@ -4852,6 +4894,7 @@ namespace min {
 	    lp.current_index =
 		  lp.total_size
 		- lp.current_index;
+	    lp.current_is_list_head = false;
 	    lp.current =
 		lp.base[lp.current_index];
 	}
@@ -4898,6 +4941,7 @@ namespace min {
 		        lp.current_index =
 			      lp.total_size
 			    - lp.current_index;
+			lp.current_is_list_head = false;
 			lp.current
 			    = lp.base[lp.current_index];
 		    }
@@ -4966,6 +5010,7 @@ namespace min {
 			lp.current_index =
 			      lp.total_size
 			    - lp.current_index;
+			lp.current_is_list_head = false;
 			lp.current
 			    = lp.base[lp.current_index];
 		    }
@@ -4974,6 +5019,8 @@ namespace min {
 		}
 	    }
 #       endif
+
+// TBD
 
 	if (   lp.current_index
 	     < unprotected::unused_offset_of
@@ -4985,6 +5032,7 @@ namespace min {
 	    // not LIST_END.
 	    //
 	    lp.previous_index = lp.current_index;
+	    lp.previous_is_list_head = true;
 	    lp.current_index = 0;
 	    return lp.current = min::LIST_END;
 	}
@@ -5012,14 +5060,9 @@ namespace min {
 	    min::total_size_of ( lp.vecp );
 	if ( lp.current_index != 0 )
 	{
-	     min::unsptr adjusted_current =
-	            lp.current_index
-		  + new_hash_offset
-		  - lp.hash_offset;
-	    if (   adjusted_current
-	         < min::unprotected
-		      ::unused_offset_of ( lp.vecp ) )
-	        lp.current_index = adjusted_current;
+	    if ( lp.current_is_list_head )
+	        lp.current_index += new_hash_offset
+		                  - lp.hash_offset;
 	    else
 	        lp.current_index += new_total_size
 		                  - lp.total_size;
@@ -5054,31 +5097,21 @@ namespace min {
 	    min::total_size_of ( lp.vecp );
 	if ( lp.current_index != 0 )
 	{
-	     min::unsptr adjusted_current =
-	            lp.current_index
-		  + new_hash_offset
-		  - lp.hash_offset;
-	    if (   adjusted_current
-	         < min::unprotected
-		      ::unused_offset_of ( lp.vecp ) )
-	        lp.current_index = adjusted_current;
+	    if ( lp.current_is_list_head )
+	        lp.current_index += new_hash_offset
+		                  - lp.hash_offset;
 	    else
 	        lp.current_index += new_total_size
 		                  - lp.total_size;
 	}
 	if ( lp.previous_index != 0 )
 	{
-	     min::unsptr adjusted_previous =
-	            lp.previous_index
-		  + new_hash_offset
-		  - lp.hash_offset;
-	    if (   adjusted_previous
-	         < min::unprotected
-		      ::unused_offset_of ( lp.vecp ) )
-	        lp.previous_index = adjusted_previous;
+	    if ( lp.previous_is_list_head )
+	        lp.previous_index += new_hash_offset
+		                   - lp.hash_offset;
 	    else
 	        lp.previous_index += new_total_size
-		                  - lp.total_size;
+		                   - lp.total_size;
 	}
 	lp.hash_offset = new_hash_offset;
 	lp.total_size = new_total_size;
