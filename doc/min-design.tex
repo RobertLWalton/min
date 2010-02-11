@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 7, 2010}
+\date{February 11, 2010}
  
 \maketitle
 
@@ -3043,11 +3043,12 @@ A variable vector, hash table, and attribute vector element is accessed
 using an index relative to the beginning of the vector or table that
 contains the element.  Auxiliary area elements are accessed by
 \skey{auxiliary pointer}s\label{OBJECT-BODY-AUXILIARY-POINTER}
-that give the index of the element relative to the beginning of the
-object body.
-Auxiliary pointers with zero index do not address a body vector
-element, since they point into the header, and these are given
-special meanings (e.g., {\tt  min::\EOL LIST\_\EOL END}).
+that give the index of the element relative to the end of the
+object body.  Auxiliary pointers with zero index do not address
+a body vector element.
+For more details see the {\tt var/\EOL hash/\EOL attr/\EOL aux}
+functions on \pagref{MIN::VAR_OF_VEC_POINTER}, and their equivalents on
+\pagref{OBJECT-VECTOR-EQUIVALENTS}.
 
 An object may be grown or compacted by relocating and reorganizing its body.
 It may be
@@ -3225,11 +3226,17 @@ body vector.
 A \key{body vector index} is an index of an element in this vector,
 and ranges from 0
 to one less than the total size of the object, which is the size of
-the body vector.
-An auxiliary pointer is a body vector index.
-The 0 body vector index points into the header, and is
-therefore not usable as the index of a \verb|min::gen| value, so it
-can be used as a form of null pointer.
+the body vector.  The index 0 cannot be used, as it corresponds to the
+header, which does not contain \verb|min::gen| values.
+It can be used as a form of null pointer.
+
+An auxiliary pointer index \verb|i| corresponds to the
+body vector index \verb|total_size - i|, so \verb|i=1| corresponds
+to the last element of the auxiliary area.
+The 0 auxiliary pointer index corresponds to the location just
+beyond the body vector and is not
+usable as the index of auxiliary area element, so it
+can also be used as a form of null pointer.
 
 There are three kinds of vector level protected object pointers.
 A read-only {\tt min::\EOL vec\_\EOL pointer} permits read-only access to body
@@ -3374,17 +3381,17 @@ by \verb|vp|, for $0\leq i<\mbox{\tt min::var\_size\_of(vp)}$.
 Similarly, \verb|min::hash(vp,i)| can be used
 to read the \verb|i+1|'st hash table entry
 for $0\leq i<\mbox{\tt min::hash\_size\_of(vp)}$,
-and \verb|min::attr(vp,i)| can be used
+\verb|min::attr(vp,i)| can be used
 to read the \verb|i+1|'st attribute vector entry
 for $0\leq i<\mbox{\tt min::attr\_size\_of(vp)}$.
-\verb|min::aux(vp,p)| differs in that it reads
-the auxiliary area element pointed at by the auxiliary
-pointer \verb|p|, where
-\begin{center}
-$\mbox{\tt MUP::aux\_offset\_of(vp)}\leq p<\mbox{\tt min::total\_size\_of(vp)}$
-\end{center}
-(See \pagref{MUP::AUX_OFFSET_OF_VEC_POINTER} for 
-{\tt MUP::aux\_offset\_of(vp)}).
+\verb|min::aux(vp,p)| differs slightly in that it reads
+the \verb|i|'th auxiliary area element ordering the
+elements from the end of the auxiliary area to its beginning,
+for $1\leq i\leq\mbox{\tt min::attr\_size\_of(vp)}$.
+Auxiliary area indeces are defined in this manner
+so that an object body may be resized by simply
+expanding or contracting its unused area, without modifying
+the contents of the other parts of the object body.
 
 A \minkey{updatable\_vec\_pointer} is like a \verb|min::vec_pointer|
 but has additional functions which support writing object body vector
@@ -3568,7 +3575,7 @@ The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|bool min::| & \MINKEY{resize\REL}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::insertable_vec_pointer & vp,| \\
       \verb|   min::unsptr unused_size )| \\
@@ -3622,11 +3629,16 @@ The object body may be relocated by these functions in order to
 resize it, and may be converted from a short object to a long
 object or vice versa.  The sizes of the attribute vector and
 auxiliary area are not changed, but can be changed by later pushes
-and pops.  All auxiliary pointers in the object will
-be adjusted by adding to each the new total size minus the old total size.
-Otherwise no change is made to object contents, outside the unused
+and pops.
+No change is made to object contents outside the unused
 area, whose elements are reinitialized to some implementation defined
 value like \verb|0| or \verb|min::NONE|.
+
+The {\tt min::resize\REL} functions return \verb|true| if they
+relocate the object's body, and \verb|false| if they do not.
+They set the relocated flag (\pagref{RELOCATED-FLAG}) if they
+relocate any \underline{other} body, but not if they just relocate
+the body being resized.
 
 It is \underline{not}
 possible to resize the hash table with these functions because
@@ -3731,13 +3743,12 @@ auxiliary area.
 
 The following are equivalences except for
 the omission of {\tt MIN\_\EOL ASSERT} checks that the index \verb|i|
-is not too large, that the auxiliary pointer \verb|p| is within the
-auxiliary area,
-that the unused area
-is non-empty for pushes, and that the attribute vector or auxiliary area
+is not too large or two small (auxiliary area indices may not be 0),
+checks that the unused area
+is non-empty for pushes and that the attribute vector or auxiliary area
 is non-empty for pops,
-and for set and push operation
-calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+and calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+for set and push operations
 (\pagref{MUP::ACC_WRITE_GEN_UPDATE}):
 
 \begin{indpar}\begin{tabular}{rcl}
@@ -3748,9 +3759,9 @@ calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
     & \verb|return base(vp)[hash_offset_of(vp) + i]| \\
 \verb|attr ( vp, i )| & $\equiv$
     & \verb|return base(vp)[attr_offset_of(vp) + i]| \\
-\verb|aux ( vp, p )| & $\equiv$
-    & \verb|return base(vp)[p]| \\
-\end{tabular}\end{indpar}
+\verb|aux ( vp, i )| & $\equiv$
+    & \verb|return base(vp)[total_size_of(vp) - i]| \\
+\end{tabular}\end{indpar}\label{OBJECT-VECTOR-EQUIVALENTS}
 \begin{indpar}\begin{tabular}{rcl}
 \hspace*{2.0in} \\[-3ex]
 \verb|set_var ( vp, i, v )| & $\equiv$
@@ -3759,8 +3770,8 @@ calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
     & \verb|base(vp)[hash_offset_of(vp) + i] = v| \\
 \verb|set_attr ( vp, i, v )| & $\equiv$
     & \verb|base(vp)[attr_offset_of(vp) + i] = v| \\
-\verb|set_aux ( vp, p, v )| & $\equiv$
-    & \verb|base(vp)[p] = v| \\
+\verb|set_aux ( vp, i, v )| & $\equiv$
+    & \verb|base(vp)[total_size_of(vp) - i] = v| \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{rcl}
 \hspace*{2.0in} \\[-3ex]
@@ -3845,9 +3856,6 @@ The list is continued at the target of the list auxiliary pointer.
 A sublist starts at the target of the sublist auxiliary pointer.
 \end{tabular}
 \end{center}
-
-Each auxiliary pointer contains the object body vector element index
-of the auxiliary area element that is the target of the auxiliary pointer.
 
 Lists also make use of two constant values:
 
@@ -4381,7 +4389,7 @@ The functions defined for this are:
 \LABEL{MIN::SET_OF_INSERTABLE} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
+\verb|bool min::|
 	& \MINKEY{insert\_reserve\REL}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
@@ -4444,7 +4452,19 @@ be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
 
-Only one pointer at a time for a given object may have an effective reservation.
+The {\tt min::insert\_reserve\REL} function may resize the body of
+the object in which space is being reserved
+(using {\tt min::\EOL resize},
+\pagref{MIN::RESIZE_UNUSED_OF_INSERTABLE_VEC_POINTER}).
+It returns \verb|true| if it
+resizes the object's body, and \verb|false| if it does not.
+It sets the relocated flag (\pagref{RELOCATED-FLAG}) if it
+resizes the body and must relocate any \underline{other} body,
+but not if it just resizes and possibly relocates
+the body of the object in which space is being reserved.
+
+Only one pointer at a time
+for a given object may have an effective reservation.
 Each call to {\tt min::insert\_reserve} for a list pointer
 to an object invalidates all previous calls to
 {\tt min::insert\_reserve} for any list pointer
@@ -6501,11 +6521,11 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{resize\REL}\ARGBREAK
+\verb|bool min::| & \MINKEY{resize\REL}\ARGBREAK
       \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
       \verb|   min::unsptr unused_size )|
 \LABEL{MIN::RESIZE_UNUSED_OF_INSERTABLE_VEC_POINTER} \\
-\verb|void min::| & \MINKEY{resize\REL}\ARGBREAK
+\verb|bool min::| & \MINKEY{resize\REL}\ARGBREAK
       \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
       \verb|   min::unsptr unused_size,|\ARGBREAK
       \verb|   min::unsptr var_size )|
@@ -6892,7 +6912,7 @@ These are in \verb|min_parameters.h|.
 \medskip
 
 \begin{TABULAR}{1.8in}
-\verb|void min::|
+\verb|bool min::|
 	& \MINKEY{insert\_reserve\REL}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::unsptr insertions,|\ARGBREAK
