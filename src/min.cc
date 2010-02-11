@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 10 07:33:22 EST 2010
+// Date:	Thu Feb 11 08:04:53 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/10 14:00:10 $
+//   $Date: 2010/02/11 13:52:50 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.141 $
+//   $Revision: 1.142 $
 
 // Table of Contents:
 //
@@ -2241,6 +2241,8 @@ void min::insert_before
     min::unsptr aux_offset =
         unprotected::aux_offset_of ( lp.vecp );
     min::unsptr total_size = lp.total_size;
+    MIN_ASSERT (    total_size
+                 == min::total_size_of ( lp.vecp ) );
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -2276,8 +2278,9 @@ void min::insert_before
 	if ( lp.previous_index != 0 )
 	    previous_is_list_head =
 	        ! lp.previous_is_sublist_head;
-		// If previous_index != 0 then only
-		// two cases are possible:
+		// If previous_index != 0 and current ==
+		// LIST_END then only two cases are
+		// possible:
 		//    1) previous is a list head
 		//    2) previous is a sublist head
 
@@ -2411,6 +2414,7 @@ void min::insert_before
 		fgen = min::new_sublist_aux_gen
 		    ( total_size - aux_offset + 1 );
 	    lp.base[lp.previous_index] = fgen;
+	    lp.previous_index = 0;
 	}
 	else if ( contiguous )
 	    ++ aux_offset;
@@ -2426,7 +2430,6 @@ void min::insert_before
 	    
 	lp.base[-- aux_offset] = min::LIST_END;
 	lp.current_index = aux_offset;
-	lp.previous_index = 0;
 	lp.previous_is_sublist_head = false;
 	unprotected::aux_offset_of ( lp.vecp ) =
 	    aux_offset;
@@ -2655,6 +2658,8 @@ void min::insert_after
     min::unsptr aux_offset =
         unprotected::aux_offset_of ( lp.vecp );
     min::unsptr total_size = lp.total_size;
+    MIN_ASSERT (    total_size
+                 == min::total_size_of ( lp.vecp ) );
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
@@ -2704,12 +2709,15 @@ void min::insert_after
 	    int type = lp.previous_is_sublist_head ?
 	    	       min::SUBLIST_AUX :
 		       min::LIST_AUX;
+
+	    // If previous, we can copy the last new
+	    // element to the old current element.
+
 	    min::unsptr next =
-	        lp.current_index - ! previous;
-	    if ( lp.current_index < unused_offset )
-	        next = 0;
-	    else
-	        next = total_size - next;
+	        lp.current_index < unused_offset ?
+	        0 :
+	          total_size
+	        - lp.current_index + ! previous;
 	    min::uns64 end =
 		MUP::new_control_with_type
 		    ( type, next );
@@ -2721,10 +2729,6 @@ void min::insert_after
 
 	    if ( previous )
 	    {
-		// Given previous, we can copy the last
-		// new element to the old current
-		// element.
-		//
 		if ( n > 1 )
 		    end = MUP::new_control_with_type
 		              ( type, first,
@@ -2790,6 +2794,9 @@ void min::insert_after
     if ( lp.current_index != 0 )
 	lp.base[-- aux_offset] = lp.current;
 
+    // If previous, we can copy the last new element to
+    // the old current element.
+
     // Copy all the new elements BUT the last new
     // element.
     //
@@ -2821,10 +2828,6 @@ void min::insert_after
 #   endif
     if ( previous )
     {
-	// Given previous, we can copy the last new
-	// element to the old current element.
-	//
-
 	lp.base[-- aux_offset] =
 	    min::new_list_aux_gen
 	        ( total_size - lp.current_index );
@@ -2902,17 +2905,18 @@ min::unsptr min::remove
 	( min::insertable_list_pointer & lp,
 	  min::unsptr n )
 {
-    // Note: current code does NOT set orphaned elements
-    // to NONE.  Note some of these may be pointers
-    // to orphaned sublist aux stubs.
-
     if ( n == 0 || lp.current == min::LIST_END )
         return 0;
-    else if ( lp.current_index != 0
-              &&
-	        lp.current_index
-	      < unprotected::unused_offset_of
-	            ( lp.vecp ) )
+
+    min::unsptr total_size = lp.total_size;
+    MIN_ASSERT (    total_size
+                 == min::total_size_of ( lp.vecp ) );
+
+    if ( lp.current_index != 0
+         &&
+	   lp.current_index
+	 < unprotected::unused_offset_of
+	       ( lp.vecp ) )
     {
 	// Special case: deleting list head of a list
 	// with just 1 element.
@@ -2921,8 +2925,6 @@ min::unsptr min::remove
 	           = min::LIST_END;
 	return 1;
     }
-
-    min::unsptr total_size = lp.total_size;
 
     // Save the current previous pointer and current
     // index.
@@ -2941,6 +2943,8 @@ min::unsptr min::remove
     min::unsptr count = 0;
 
     // Skip n elements (or until end of list).
+    // Remove sublists and free aux stubs.
+    // Set aux area elements to NONE.
     //
     while ( n -- )
     {
@@ -3195,8 +3199,9 @@ bool MINT::insert_reserve
 	    if ( desired_size > 1000 )
 	        desired_size = 1000;
 	}
-	result = min::resize ( lp.vecp, desired_size );
+	min::resize ( lp.vecp, desired_size );
 	min::refresh ( lp );
+	result = true;
     }
 
     lp.reserved_insertions = insertions;
