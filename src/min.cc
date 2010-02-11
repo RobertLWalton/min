@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/11 13:52:50 $
+//   $Date: 2010/02/11 20:19:25 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.142 $
+//   $Revision: 1.143 $
 
 // Table of Contents:
 //
@@ -2430,6 +2430,7 @@ void min::insert_before
 	    
 	lp.base[-- aux_offset] = min::LIST_END;
 	lp.current_index = aux_offset;
+	lp.current_is_list_head = false;
 	lp.previous_is_sublist_head = false;
 	unprotected::aux_offset_of ( lp.vecp ) =
 	    aux_offset;
@@ -2622,6 +2623,7 @@ void min::insert_before
 			  ( type, first ) );
 	    }
 	    lp.previous_index = aux_offset;
+	    lp.previous_is_list_head = false;
 	    lp.previous_stub = NULL;
 	    lp.previous_is_sublist_head = false;
 	}
@@ -2634,6 +2636,7 @@ void min::insert_before
 	    min::new_sublist_aux_gen ( first ) :
 	    min::new_list_aux_gen ( first );
 	lp.previous_index = aux_offset;
+	lp.previous_is_list_head = false;
 	lp.previous_is_sublist_head = false;
     }
     else
@@ -2642,6 +2645,7 @@ void min::insert_before
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( first );
 	lp.current_index = aux_offset + 1;
+	lp.current_is_list_head = false;
     }
 
     unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
@@ -2776,6 +2780,8 @@ void min::insert_after
 		lp.base[lp.current_index] =
 		    min::new_gen ( s );
 		lp.previous_index = lp.current_index;
+		lp.previous_is_list_head =
+		    lp.current_is_list_head;
 		lp.current_index = 0;
 		lp.current_stub = s;
 	    }
@@ -2833,6 +2839,7 @@ void min::insert_after
 	        ( total_size - lp.current_index );
 	lp.base[lp.current_index] = * p ++;
 	lp.current_index = first;
+	lp.current_is_list_head = false;
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
@@ -2895,7 +2902,10 @@ void min::insert_after
 	    min::new_list_aux_gen
 	        ( total_size - first );
 	lp.previous_index = lp.current_index;
+	lp.previous_is_list_head =
+	    lp.current_is_list_head;
 	lp.current_index = first;
+	lp.current_is_list_head = false;
     }
 
     unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
@@ -2930,6 +2940,8 @@ min::unsptr min::remove
     // index.
     //
     min::unsptr previous_index = lp.previous_index;
+    bool previous_is_list_head =
+	lp.previous_is_list_head;
     bool previous_is_sublist_head =
 	lp.previous_is_sublist_head;
     min::unsptr current_index = lp.current_index;
@@ -3082,6 +3094,8 @@ min::unsptr min::remove
 		    min::new_gen ( lp.current_stub );
 
 		lp.previous_index = previous_index;
+		lp.previous_is_list_head =
+		    previous_is_list_head;
 		lp.previous_is_sublist_head =
 		    previous_is_sublist_head;
 	    }
@@ -3098,6 +3112,8 @@ min::unsptr min::remove
 		    min::EMPTY_SUBLIST;
 		lp.current_index = 0;
 		lp.previous_index = previous_index;
+		lp.previous_is_list_head =
+		    previous_is_list_head;
 		lp.previous_is_sublist_head = true;
 	    }
 	    else
@@ -3105,6 +3121,8 @@ min::unsptr min::remove
 		lp.base[previous_index] =
 		    min::LIST_END;
 		lp.current_index = previous_index;
+		lp.current_is_list_head =
+		    previous_is_list_head;
 		lp.previous_index = 0;
 		lp.previous_is_sublist_head = false;
 	    }
@@ -3125,6 +3143,8 @@ min::unsptr min::remove
 			  - lp.current_index );
 
 	    lp.previous_index = previous_index;
+	    lp.previous_is_list_head =
+		previous_is_list_head;
 	    lp.previous_is_sublist_head =
 		previous_is_sublist_head;
 	}
@@ -3144,6 +3164,7 @@ min::unsptr min::remove
 		lp.base[current_index] =
 		    min::new_gen ( lp.current_stub );
 		lp.previous_index = current_index;
+		lp.previous_is_list_head = false;
 	    }
 	    else
 #       endif
@@ -3153,6 +3174,7 @@ min::unsptr min::remove
 		lp.base[lp.current_index] = min::NONE;
 	    lp.base[current_index] = min::LIST_END;
 	    lp.current_index = current_index;
+	    lp.current_is_list_head = false;
 	    lp.previous_index = 0;
 	}
 	else
@@ -3165,6 +3187,7 @@ min::unsptr min::remove
 		min::new_list_aux_gen
 		    ( total_size - lp.current_index );
 	    lp.previous_index = current_index;
+	    lp.previous_is_list_head = false;
 	}
 
 	lp.previous_is_sublist_head = false;
