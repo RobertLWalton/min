@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 10 06:46:20 EST 2010
+// Date:	Thu Feb 11 06:09:04 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/10 13:59:17 $
+//   $Date: 2010/02/11 13:26:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.249 $
+//   $Revision: 1.250 $
 
 // Table of Contents:
 //
@@ -3908,8 +3908,8 @@ namespace min {
 
 namespace min { namespace internal {
 
-    // This is the generic attribute pointer type from
-    // which specific attribute pointer types are made.
+    // This is the generic list pointer type from which
+    // specific list pointer types are made.
 
     template < class vec_pointer_type >
         class list_pointer_type;
@@ -4112,7 +4112,8 @@ namespace min { namespace internal {
         list_pointer_type
 		( min::insertable_vec_pointer & vecp )
 	    : vecp ( vecp ),
-	      base ( min::unprotected::base ( vecp ) )
+	      base ( min::unprotected::base ( vecp ) ),
+	      hash_offset ( 0 ), total_size ( 0 )
 	{
 	    // An unstarted list pointer behaves as if
 	    // it were pointing at the end of a list
@@ -4137,10 +4138,6 @@ namespace min { namespace internal {
 		previous_stub = NULL;
 #	    endif
 	    previous_is_sublist_head = false;
-	    hash_offset =
-	        min::unprotected
-		   ::hash_offset_of ( vecp );
-	    total_size = min::total_size_of ( vecp );
 	}
 
     private:
@@ -4189,31 +4186,49 @@ namespace min { namespace internal {
 	min::unsptr hash_offset;
 	min::unsptr total_size;
 	    // Save of hash_offset and total_size from
-	    // vec pointer.
+	    // vec pointer.  0 if list pointer has not
+	    // yet been started.
 	    //
 	    // Used by refresh to check if resize has
 	    // been called for another list pointer to
 	    // the same object, and to adjust the
 	    // current_index and previous_index if the
 	    // hash_offset or total_size has changed.
+	    //
+	    // Adjusting an index is done by as follows:
+	    //
+	    //   Let offset_adjust =
+	    //         new_hash_offset - old_hash_offset
+	    //       size_adjust =
+	    //         new_total_size - old_total_size
+	    //   If old_index == 0:
+	    //	   new_index = 0
+	    //	 Else if old_index + offset_adjust
+	    //        < current unused_offset
+	    //      new_index =
+	    //        old_index + offset_adjust
+	    //   Else
+	    //      new_index =
+	    //        old_index + size_adjust
 
 	// Abstractly there is a current pointer and a
 	// previous pointer.  The current pointer points
-	// at the current value.  This current value may
-	// be pointed at by a list or sublist pointer,
-	// and in this case the previous pointer is set
-	// to point at the list or sublist pointer, so
-	// it can be updated if there is an insert
-	// before the current position or a removal of
-	// the current element.
+	// at the current value.  This current value
+	// might also be pointed at by a list or sublist
+	// pointer in the object, and in this case the
+	// previous pointer in the list pointer is set
+	// to point at this list or sublist pointer,
+	// so the latter can be updated if there is an
+	// insert before the current position or a
+	// removal of the current element.
 	//
 	// The gen_of value of the auxiliary stub is
 	// equivalent to an auxiliary area element
 	// pointed at by a sublist or list pointer.  The
 	// control_of value of the stub is equivalent
 	// to the next value after that in a list, but
-	// that next value must be a list or sublist
-	// pointer or LIST_END.
+	// that next value must be a list pointer or
+	// LIST_END (and cannot be a sublist pointer).
 	//
 	// The current pointer is in one of the follow-
 	// ing states (here `current' means `current
@@ -4296,12 +4311,13 @@ namespace min { namespace internal {
 	//
 	//   Current pointer does NOT exist,
 	//   previous pointer does NOT exist:
-	//      [current is virtual LIST end of a list
+	//      [current is virtual LIST_END of a list
 	//       pointer that has never been started]
 	//      The list pointer has never been started
 	//      by a start_... function.   All
 	//      operations should treat the pointer
-	//      as pointing at an empty list.
+	//      as pointing at an empty list into
+	//      which insertions CANNOT be made.
 	//
 	// If the current pointer points at a stub, the
 	// previous pointer must exist.
@@ -4313,6 +4329,9 @@ namespace min { namespace internal {
 	// SUBLIST, but cannot be a list or sublist
 	// pointer (and in particular cannot point
 	// at a stub of LIST_AUX or SUBLIST_AUX type).
+	//
+	// A list or sublist pointer cannot point at
+	// a list pointer or LIST_END.
 
     // Friends:
 
@@ -4397,8 +4416,8 @@ namespace min { namespace internal {
 	//
 	min::gen forward ( min::unsptr index )
 	{
-	    // The code of remove ( lp ) depends upon
-	    // the fact that this function does not READ
+	    // The code of remove depends upon the fact
+	    // that this function does not READ
 	    // lp.previous_stub or lp.previous_index
 	    // (forward is called from next is called
 	    // from remove).
@@ -4461,17 +4480,14 @@ namespace min { namespace internal {
 
         list_pointer_type ( vecpt & vecp )
 	    : vecp ( vecp ),
-	      base ( min::unprotected::base ( vecp ) )
+	      base ( min::unprotected::base ( vecp ) ),
+	      hash_offset ( 0 ), total_size ( 0 )
 	{
 	    current = min::LIST_END;
 	    current_index = 0;
 #	    if MIN_USES_OBJ_AUX_STUBS
 		current_stub = NULL;
 #	    endif
-	    hash_offset =
-	        min::unprotected
-		   ::hash_offset_of ( vecp );
-	    total_size = min::total_size_of ( vecp );
 	}
 
     private:
@@ -4572,28 +4588,6 @@ namespace min { namespace internal {
 	friend void min::set<>
 		( min::updatable_list_pointer & lp,
 		  min::gen value );
-	friend void min::set<>
-		( min::insertable_list_pointer & lp,
-		  min::gen value );
-	friend bool min::insert_reserve
-		( min::insertable_list_pointer & lp,
-		  min::unsptr insertions,
-		  min::unsptr elements,
-		  bool use_obj_aux_stubs );
-	friend bool min::internal::insert_reserve
-		( min::insertable_list_pointer & lp,
-		  min::unsptr insertions,
-		  min::unsptr elements,
-		  bool use_obj_aux_stubs );
-	friend void min::insert_before
-		( min::insertable_list_pointer & lp,
-		  const min::gen * p, min::unsptr n );
-	friend void min::insert_after
-		( min::insertable_list_pointer & lp,
-		  const min::gen * p, min::unsptr n );
-	friend min::unsptr min::remove
-		( min::insertable_list_pointer & lp,
-		  min::unsptr n );
 
 	min::gen forward ( min::unsptr index )
 	{
@@ -4657,7 +4651,13 @@ namespace min {
 	         ::list_pointer_type<vecpt> & lp,
 	      min::unsptr index )
     {
+	lp.hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
+	lp.total_size = min::total_size_of ( lp.vecp );
+
 	MIN_ASSERT ( index < hash_size_of ( lp.vecp ) );
+
 	return lp.forward
 	    (   unprotected::hash_offset_of ( lp.vecp )
 	      + index );
@@ -4669,6 +4669,11 @@ namespace min {
 	         ::list_pointer_type<vecpt> & lp,
 	      min::unsptr index )
     {
+	lp.hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
+	lp.total_size = min::total_size_of ( lp.vecp );
+
 	index += unprotected::attr_offset_of
 	             ( lp.vecp );
 	MIN_ASSERT
@@ -4698,7 +4703,14 @@ namespace min {
 	      min::internal
 	         ::list_pointer_type<vecpt2> & lp2 )
     {
+	lp.hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
+	lp.total_size = min::total_size_of ( lp.vecp );
+
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
+	MIN_ASSERT ( lp.total_size == lp2.total_size );
+
 	lp.current_index = lp2.current_index;
 #       if MIN_USES_OBJ_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
@@ -4712,7 +4724,14 @@ namespace min {
 	      const
 	      min::insertable_list_pointer & lp2 )
     {
+	lp.hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
+	lp.total_size = min::total_size_of ( lp.vecp );
+
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
+	MIN_ASSERT ( lp.total_size == lp2.total_size );
+
 	lp.current_index = lp2.current_index;
 	lp.previous_index = lp2.previous_index;
 	lp.previous_is_sublist_head =
@@ -4735,7 +4754,18 @@ namespace min {
     	      const min::internal
 	         ::list_pointer_type<vecpt2> & lp2 )
     {
+	// We want the total size check to work even
+	// if & lp == & lp2.
+	//
+	lp.hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
+	min::unsptr total_size =
+	    min::total_size_of ( lp.vecp );
+
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
+	MIN_ASSERT ( total_size == lp2.total_size );
+	lp.total_size = total_size;
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if ( min::is_stub ( lp2.current ) )
@@ -4777,7 +4807,18 @@ namespace min {
     	      const min::internal
 	         ::list_pointer_type<vecpt> & lp2 )
     {
+	// We want the total size check to work even
+	// if & lp == & lp2.
+	//
+	lp.hash_offset =
+	    min::unprotected
+	       ::hash_offset_of ( lp.vecp );
+	min::unsptr total_size =
+	    min::total_size_of ( lp.vecp );
+
         MIN_ASSERT ( & lp.vecp == & lp2.vecp );
+	MIN_ASSERT ( total_size == lp2.total_size );
+	lp.total_size = total_size;
 
 	lp.previous_index = lp2.current_index;
 	lp.previous_is_sublist_head = true;
