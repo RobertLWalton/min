@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 10 08:51:28 EST 2010
+// Date:	Thu Feb 11 12:32:13 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/10 14:01:00 $
+//   $Date: 2010/02/11 17:32:43 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.135 $
+//   $Revision: 1.136 $
 
 // Table of Contents:
 //
@@ -2212,6 +2212,9 @@ void test_object_list_level
 
     min::gen * & base = MUP::base ( vp );
 
+    bool saved_min_assert_print = min_assert_print;
+    min_assert_print = false;
+
     // Empty aux area.
     //
     while ( min::aux_size_of ( vp ) > 0 )
@@ -2222,6 +2225,8 @@ void test_object_list_level
     //
     while ( min::unused_size_of ( vp ) > 0 )
 	min::attr_push ( vp, num100 );
+
+    min_assert_print = saved_min_assert_print;
 
     min::unsptr vorg = MUP::attr_offset_of ( vp );
     min::unsptr vsize = min::attr_size_of ( vp );
@@ -2280,12 +2285,17 @@ void test_object_list_level
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
     min::refresh ( wlp );
-    ::resize = true;
+    MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
+    // ::resize = true;
     min::start_sublist ( wslp, wlp );
     insert ( wslp, false, p+2, 1 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
     insert ( wslp, true, p+1, 1 );
     min::refresh ( wlp );
+    // if ( alternate_aux) abort();
+    // the above refresh fails with resize because
+    // the attr vec has expanded and now covers the
+    // index range that was previously aux area
     MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
