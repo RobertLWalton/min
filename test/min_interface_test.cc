@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 11 12:32:13 EST 2010
+// Date:	Thu Feb 11 19:38:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/11 17:32:43 $
+//   $Date: 2010/02/12 00:38:33 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.136 $
+//   $Revision: 1.137 $
 
 // Table of Contents:
 //
@@ -2286,16 +2286,12 @@ void test_object_list_level
     insert ( wslp, true, p, 1 );
     min::refresh ( wlp );
     MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
-    // ::resize = true;
+    ::resize = true;
     min::start_sublist ( wslp, wlp );
     insert ( wslp, false, p+2, 1 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
     insert ( wslp, true, p+1, 1 );
     min::refresh ( wlp );
-    // if ( alternate_aux) abort();
-    // the above refresh fails with resize because
-    // the attr vec has expanded and now covers the
-    // index range that was previously aux area
     MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );

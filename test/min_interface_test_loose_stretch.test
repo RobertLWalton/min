@@ -1938,11 +1938,19 @@ min_interface_test.cc:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
     is_sublist_aux ( v ) true.
-ADDING 20 ELEMENTS TO UNUSED AREA
+EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
+../include/min.h:XXXX assert:
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
+MINT::new_fixed_body ( stub 6, 5048 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[10] and assigning begin_body_region[156344 .. 157367]
+MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
+RESIZE HAPPENED
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
@@ -2130,7 +2138,7 @@ Test short object alternate aux list level:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
- VORG 121 VSIZE 510 USIZE 0 TSIZE 631
+ VORG 121 VSIZE 825 USIZE 0 TSIZE 946
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2225,11 +2233,15 @@ min_interface_test.cc:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
     min::type_of ( lp.current_stub ) == min::SUBLIST_AUX true.
-ADDING 20 ELEMENTS TO UNUSED AREA
+EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
+../include/min.h:XXXX assert:
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
+MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
+RESIZE HAPPENED
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
