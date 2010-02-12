@@ -4738,9 +4738,9 @@ object auxiliary stubs would be for debugging.
 \subsubsection{Typed Objects}
 \label{TYPED-OBJECTS}
 
-A typed object is a pair of objects: the \mkey{type}{of typed object}
+A \key{typed object} is a pair of objects: the \mkey{type}{of typed object}
 which provides attribute labels, and the \mkey{context}{of typed object}
-which provides variables that give attribute values.  They type
+which provides variables that give attribute values.  The type
 contains variable indices that act as indirect pointers to the
 variables in the context.  By abuse of language the context may be
 called the `typed object'.
@@ -4751,9 +4751,11 @@ and its first variable points at the type.  In the second method
 the typed object is represented by a stub of {\tt min::\EOL TYPED\_\EOL OBJECT}
 type which in turn points at an auxiliary stub that holds two pointers
 to stubs: one pointing at the type and the second pointing at the context.
+The type is pointed at by the control of the auxiliary stub, the context
+is pointed at by the value of the auxiliary stub.
 
 Typed objects make use of two kinds of indirect pointer.  The first is
-just a single index \verb|min::gen| value that hold the index of a
+just a single index \verb|min::gen| value that holds the index of a
 variable vector element.  This always refers to a variable in the context.
 The second is an indirect \verb|min::gen| value that points at a pair
 of values in an auxiliary area: the first being an index \verb|min::gen|
@@ -4763,8 +4765,6 @@ that is indexed by the given index.  If an attribute value is an indirect
 pointer, the indirection is taken to the variable element referred to.
 If that in turn has an indirect pointer value, that indirection is also
 taken, to any depth.
-
-TBD
 
 \subsubsection{Object Attribute Level}
 \label{OBJECT-ATTRIBUTE-LEVEL}
@@ -4827,7 +4827,11 @@ the object lists have the syntax:
 \\[1ex]
 \emkey{flag-set} ::= {\em control-code}$\,^\star$
 \\[1ex]
-\emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object} $|$ {\em index}
+\emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object}
+                             $|$ {\em indirect-pointer}
+\\[1ex]
+\emkey{indirect-pointer} ::= {\em index} $|$ {\em label}
+    $|$ {\em indirect-auxiliary}
 \end{indpar}
 
 Here the syntactic categories represent \verb|min::gen| values
@@ -4846,13 +4850,14 @@ it is not omitted.
 
 Everything else is a single list element or
 a sequence of elements in some list or sublist.
-{\em Map-pairs} are sequences of two elements.
+{\em X-pairs} are sequences of two elements.
 {\em Flag-sets} are sequences of {\em control-codes}.
 
 An {\em atom} is a \verb|min::gen| number or string.
 An {\em object} is a \verb|min::gen| value pointing at an object stub.
 A {\em control-code} is a \verb|min::gen| control code value.
 An {\em index} is a \verb|min::gen| index value.
+An {\em indirect-auxiliary} is a \verb|min::gen| indirect auxiliary value.
 
 The above form of object map maps an {\em attribute-name} to a set of
 values, a set of flags, and a optional
@@ -4896,12 +4901,19 @@ and {\em value-sets}.  The former are just like {\em attribute-names}
 and the latter are just like {\em attribute-descriptors} that have no
 flags or {\em double-arrow-sublists}.
 
+When partial attribute names are \underline{not} supported, multi-component
+attribute names are represented in object data lists as labels.
+Thus an {\em attribute-name} is an {\em atom} if it represents a 1-component
+attribute name, and a {\em label} if it represents a several component
+attribute name, or if it represents a 1-component name whose one component
+is itself a label.
+
 In the interests of compatibility with the case where partial attribute
 names are supported, {\em attribute-names} and {\em reverse-attribute-names}
 that are {\em labels} whose sole element is an {\em atom} are not
 permitted in the object data lists, and when functions are presented with
 such names, the functions replace them with their sole element, namely the
-{\em atom}.  In addition, {\em attribute-names} that have no elements
+{\em atom}.  In addition, {\em attribute-names} that are labels with no elements
 are forbidden, for reasons of compatibility.
 
 If partial attribute names \underline{are} supported
@@ -4950,7 +4962,11 @@ the object lists have the following alternative syntax:
 \\[1ex]
 \emkey{flag-set} ::= {\em control-code}$\,^\star$
 \\[1ex]
-\emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object} $|$ {\em index}
+\emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object}
+                             $|$ {\em indirect-pointer}
+\\[1ex]
+\emkey{indirect-pointer} ::= {\em index} $|$ {\em label}
+    $|$ {\em indirect-auxiliary}
 \end{indpar}
 
 This differs from the previous representation in that the object map
@@ -5000,11 +5016,13 @@ the {\em node-descriptor} structure is the same was as that of the
 not allowed.  The {\em double-arrow-sublist} structure is exactly
 the same.
 
-In this data structure attribute names must be sequences and cannot be
-atoms.  Functions that access this structure convert any atom attribute name
-to a label whose sole component is the atom.  Furthermore, attribute names
-that are labels with no elements, and therefore would produce zero length
-sequences, are forbidden.
+When partial attribute names are supported, an attribure name is viewed
+as a sequence of {\em attribute-name-components}.  If this sequence is
+a single {\em atom}, function arguments representing the name can be
+either this {\em atom} or a {\em label} whose only element is the {\em atom}.
+Otherwise function arguments must be non-empty
+{\em labels} whose elements are the {\em attribute-name-components}.
+Note that zero length attribute names are forbidden.
 
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
 are represented by a {\em flag-set} in an {\em attribute-sublist} or
@@ -5020,8 +5038,6 @@ number of bits in a control code integer.  $B$ is 24 if \verb|min::gen|
 values are 32-bits, and 40 if \verb|min::gen| values are 64-bits.
 A flag is set for an attribute name if and only if its corresponding
 bit is present and set and in the attribute's {\em flag-set}.
-
-TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
 
 \subsubsubsection{Attribute Functions}
 \label{ATTRIBUTE-FUNCTIONS}
@@ -5489,6 +5505,8 @@ with a particular object and the attribute name stored in the attribute
 pointer.  A reverse attribute name is returned
 only if its value set is non-empty.
 
+
+TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
 
 TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
