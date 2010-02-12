@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 11 19:05:29 EST 2010
+// Date:	Thu Feb 11 19:43:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/12 00:29:19 $
+//   $Date: 2010/02/12 00:44:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.252 $
+//   $Revision: 1.253 $
 
 // Table of Contents:
 //
@@ -4202,11 +4202,9 @@ namespace min { namespace internal {
 	    // vec pointer.  0 if list pointer has not
 	    // yet been started.
 	    //
-	    // Used by refresh to check if resize has
-	    // been called for another list pointer to
-	    // the same object, and to adjust the
-	    // current_index and previous_index if the
-	    // hash_offset or total_size has changed.
+	    // Used by refresh to adjust indices if
+	    // resize has been called for another list
+	    // pointer to the same object.
 	    //
 	    // Adjusting an index is done by as follows:
 	    //
@@ -4216,8 +4214,7 @@ namespace min { namespace internal {
 	    //         new_total_size - old_total_size
 	    //   If old_index == 0:
 	    //	   new_index = 0
-	    //	 Else if old_index + offset_adjust
-	    //        < current unused_offset
+	    //	 Else if old_index == head_index
 	    //      new_index =
 	    //        old_index + offset_adjust
 	    //   Else
@@ -4928,9 +4925,7 @@ namespace min {
 	    }
 #       endif
 
-	if (   lp.current_index
-	     < unprotected::unused_offset_of
-	           ( lp.vecp ) )
+	if ( lp.current_index == lp.head_index )
 	{
 	    // Current is list (not sublist) head.
 	    //
@@ -4996,9 +4991,7 @@ namespace min {
 	    }
 #       endif
 
-	if (   lp.current_index
-	     < unprotected::unused_offset_of
-	           ( lp.vecp ) )
+	if ( lp.current_index == lp.head_index )
 	{
 	    // Current is list (not sublist) head.
 	    //
