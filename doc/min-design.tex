@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 11, 2010}
+\date{February 12, 2010}
  
 \maketitle
 
@@ -3931,17 +3931,19 @@ two list or sublist auxiliary pointers are not permitted to point
 at the same auxiliary
 area element, and an auxiliary area element that is followed
 in the auxiliary area by a list element may not be pointed at by
-a list or sublist auxiliary pointer (because the list element
+a list or sublist auxiliary pointer (because the following list element
 in effect points at the auxiliary area element as being the
-continuation of the list containing the list element).
+continuation of the list containing the following list element).
 \end{indpar}
 
 Thus if the one way to reach an element of
 the auxiliary area is deleted, the element may be put on a list of
 free elements for the auxiliary area.  As an optimization,
 an implementation may use the unused area or space in the object's header
-to hold the head of a list of free elements of the auxiliary
-area.
+to hold a count of the freed elements as an aid to determine when to
+reorganize the object.  It is even possible to establish a list of
+free elements for reuse, but due to auxiliary area fragmentation this
+may not be efficient.
 
 As an optimization, \skey{auxiliary stub}s can be used in place of object
 auxiliary area elements.  When this is done, the description of this
@@ -3962,7 +3964,7 @@ An insertable {\tt min::\EOL insertable\_\EOL list\_\EOL pointer}
 permits adding and removing elements, in addition to permitting
 read-write access to elements.
 
-Note that unlike vector pointers, you cannot downcast more capable
+Note that unlike vector pointers, you \underline{cannot} downcast more capable
 list pointers to less capable list pointers.  E.g., an
 {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer} may be
 explicitly or implicitly downcast to an
@@ -4089,7 +4091,7 @@ insertable list pointer, but in some such situations using
 restarted (see \pagref{RESTARTING_LIST_POINTER}).
 
 A list pointer that has been created but not started by one of the
-list start functions appears to the
+list start functions appears to be
 at the end of an immutable empty list.
 
 The {\tt min::\EOL start\_\EOL hash} function positions
@@ -4146,7 +4148,7 @@ to the next list element of the
 list the pointer points at, and returns the value of that
 list element.  It returns {\tt min::\EOL LIST\_\EOL END} if there is
 no next list element because the end of the list has been reached.
-Thus after the end of a list has been reached, additional
+After the end of a list has been reached, additional
 calls to {\tt min::next}
 will do nothing but return {\tt min::\EOL LIST\_\EOL END}.
 
@@ -4163,7 +4165,8 @@ of an updatable list pointer.  It returns the current element.
 In some situations in which another insertable list pointer has
 been used to insert or remove an element, calling {\tt min::\EOL refresh}
 is not adequate and the list pointer must be
-restarted (see \pagref{RESTARTING_LIST_POINTER}).
+restarted by a {\tt min::\EOL start\_\ldots} function:
+see \pagref{RESTARTING_LIST_POINTER}.
 
 Determining whether a list pointer current element value
 represents a sublist requires
@@ -4395,8 +4398,8 @@ The functions defined for this are:
 	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   min::unsptr insertions,| \\
 	  \verb|   min::unsptr elements = 0,| \\
-	  \verb|   bool use_object_aux_stubs =| \\
-	  \verb|       min::use_object_aux_stubs )| \\
+	  \verb|   bool use_obj_aux_stubs =| \\
+	  \verb|       min::use_obj_aux_stubs )| \\
 	  \end{tabular}
 \LABEL{MIN::INSERT_RESERVE} \\
 \verb|void min::|
@@ -4438,9 +4441,9 @@ Also, there is one function, {\tt min::set}, that can do more for
 an insertable list pointer than it can for an updatable list pointer.  For
 an insertable list pointer (but not for an updatable list pointer)
 the current value replaced by {\tt min::set}
-may be a sublist, and the replacing value may be
+may be a sublist, and/or the replacing value may be
 {\tt min::\EOL EMPTY\_\EOL SUBLIST}.  Thus {\tt min::set} can be used
-to remove a sublist or to create and empty sublist.
+to remove a sublist or to create an empty sublist.
 
 Making insertions in object lists requires reservation of the necessary
 space first, in order to be sure that a sequence of insertions will
@@ -4473,8 +4476,8 @@ list pointers will be detected if insufficient memory is reserved,
 but not otherwise.
 
 Note that {\tt min::insert\_reserve} is the only list pointer
-function that may cause a relocation and/or reorganization of
-the object pointed at, and if a reorganization occurs,
+function that may cause a relocation and/or resizing of
+the object pointed at, and if a resizing occurs,
 all list pointers become invalid and must be refreshed by
 a call to {\tt min::refresh}.
 
@@ -4484,11 +4487,12 @@ object auxiliary stubs (\secref{OBJECT-AUXILIARY-STUBS}) if the object
 runs out of space, in which case {\tt min::insert\_reserve} must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
 last argument to {\tt min::insert\_reserve} determines which strategy is
-used.  It defaults to the value of \minkey{use\_object\_aux\_stubs}.%
+used.  It defaults to the value of \minkey{use\_obj\_aux\_stubs}
+(see \pagref{MIN::USE_OBJ_AUX_STUBS}).%
 \footnote{But if the auxiliary stub code is not compiled in, the last
 argument is treated as if it was always {\tt false}:
-see {\tt MIN\_\EOL USES\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
-\pagref{MIN_USES_OBJECT_AUX_STUBS}.}
+see {\tt MIN\_\EOL USE\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
+\pagref{MIN_USE_OBJ_AUX_STUBS}.}
 
 The {\tt min::insert\_before} function inserts list elements
 just before the current position of a list pointer.
@@ -4505,7 +4509,8 @@ To insert a sublist, first insert {\tt min::EMPTY\_SUBLIST}, then
 position the pointer to the sublist and use
 {\tt min::start\_sublist} to enter the sublist, and then use
 {\tt min::insert\_before} to insert the elements of the sublist.
-Also, as noted above, you can use {\tt min::\EOL set} to change
+Also, as noted above, you can use {\tt min::\EOL set} with an
+insertable pointer to change
 the current element to {\tt min::\EOL EMPTY\_\EOL SUBLIST}.
 
 A sequence of instructions that begins with a
@@ -4517,7 +4522,8 @@ a relocating (\REL) function (\pagref{RELOCATING-FUNCTIONS}), aside from
 the beginning call to {\tt min::insert\_reserve}.  In particular, there can
 be no call to {\tt min::interrupt\REL} (\pagref{MIN::INTERRUPT}) and no
 second call to {\tt min::insert\_reserve\REL}.  There can be calls to
-create and position list pointers.
+create and position list pointers, and to read, set, and remove
+list elements.
 
 The {\tt min::remove} function can be used to remove
 {\tt n} consecutive elements
@@ -4545,10 +4551,14 @@ if {\tt lp1} is pointing at:
 \item the end of a removed sublist
 \item an element adjacent to an element that is inserted or removed
 \item the end of a list whose last element is inserted or removed
-\item the first element of a sublist that is adjacent to
-      an element that is inserted or removed
-\item the end of an empty sublist that is adjacent to
-      an element that is inserted or removed
+\item the first element of a sublist
+      when that sublist, viewed as an element of the list containing
+      it, is adjacent in that containing list to
+      an element that is inserted into or removed from that containing list
+\item the end of an empty sublist
+      when that sublist, viewed as an element of the list containing
+      it, is adjacent in that containing list to
+      an element that is inserted into or removed from that containing list
 \end{enumerate}
 
 The effects can be subtle
@@ -4597,12 +4607,24 @@ or left out of a program according to the setting of the macro:
 
 \begin{indpar}
 \begin{tabular}{l}
-\TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS} \\
+\TTNBKEY{MIN\_USE\_OBJ\_AUX\_STUBS} \\
 ~~~~~ 1 if code to use object auxiliary stubs is to be compiled; \\
-~~~~~ 0 if this code is not to be compiled.
-\LABEL{MIN_USES_OBJECT_AUX_STUBS} \\
+~~~~~ 0 if this code is not to be compiled; the default.
+\LABEL{MIN_USE_OBJ_AUX_STUBS} \\
 \end{tabular}
 \end{indpar}
+
+If compliled, the code can be enabled or disabled by setting the
+following variable:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::|
+	& \MINKEY{use\_obj\_aux\_stubs}
+\LABEL{MIN::USE_OBJ_AUX_STUBS} \\
+\end{tabular}\end{indpar}
+
+The variable is set to \verb|true|, the default, to enable use
+of auxiliary stubs, and set to \verb|false| to disable their use.
 
 The value of an object
 auxiliary stub is treated like an auxiliary area element value that is
@@ -5568,8 +5590,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN_PROTECT} \\
 \TTNBKEY{MIN\_ASSERT($e$)}
 \LABEL{MIN_ASSERT} \\
-\TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
-\LABEL{MIN_USES_OBJECT_AUX_STUBS} \\
+\TTNBKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
+\LABEL{MIN_USE_OBJ_AUX_STUBS} \\
 \TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS}
 \LABEL{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS} \\
 \end{tabular}
@@ -6581,10 +6603,13 @@ These are in \verb|min_parameters.h|.
 \INDEXHEADER{Object List Level Declarations}
 
 \begin{indpar}[0.2in]
-\begin{tabular}{@{}p{6.2in}@{}}
-\TTNBKEY{MIN\_USES\_OBJECT\_AUX\_STUBS}
-\LABEL{MIN_USES_OBJECT_AUX_STUBS}
-\end{tabular}
+\begin{TABULAR}{1.8in}
+(macro) & \TTNBKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
+\LABEL{MIN_USE_OBJ_AUX_STUBS} \\
+\verb|bool min::|
+	& \MINKEY{use\_obj\_aux\_stubs}
+\LABEL{MIN::USE_OBJ_AUX_STUBS} \\
+\end{TABULAR}
 \end{indpar}
 
 \begin{indpar}[0.2in]
@@ -6917,8 +6942,8 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::unsptr insertions,|\ARGBREAK
 	  \verb|   min::unsptr elements = 0,|\ARGBREAK
-	  \verb|   bool use_object_aux_stubs =|\ARGBREAK
-	  \verb|       min::use_object_aux_stubs )|
+	  \verb|   bool use_obj_aux_stubs =|\ARGBREAK
+	  \verb|       min::use_obj_aux_stubs )|
 \LABEL{MIN::INSERT_RESERVE} \\
 \verb|void min::|
 	& \MINKEY{insert\_before}\ARGBREAK
