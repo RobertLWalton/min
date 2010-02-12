@@ -1600,7 +1600,7 @@ Test short object aux stubs list level:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 510 USIZE 0 TSIZE 632
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 min_interface_test.cc:XXXX assert:
@@ -1610,11 +1610,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( lp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -1654,7 +1654,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::EMPTY_SUBLIST true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -1730,7 +1730,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -1804,7 +1804,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -1814,19 +1814,19 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     1 == min::remove ( wlp, 3 ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
@@ -1841,7 +1841,7 @@ Test short object aux area list level:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 510 USIZE 0 TSIZE 632
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 min_interface_test.cc:XXXX assert:
@@ -1851,11 +1851,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( lp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ADDING 20 ELEMENTS TO UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -1904,7 +1904,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::EMPTY_SUBLIST true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1997,7 +1997,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -2089,7 +2089,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -2107,7 +2107,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -2115,7 +2115,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -2123,7 +2123,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
@@ -2138,7 +2138,7 @@ Test short object alternate aux list level:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 510 USIZE 0 TSIZE 632
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 min_interface_test.cc:XXXX assert:
@@ -2148,11 +2148,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( lp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ADDING 20 ELEMENTS TO UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -2197,7 +2197,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::EMPTY_SUBLIST true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -2274,7 +2274,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 min_interface_test.cc:XXXX assert:
@@ -2352,7 +2352,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
@@ -2366,7 +2366,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -2374,7 +2374,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -2382,7 +2382,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    index < unprotected::unused_offset_of ( lp.vecp ) true.
+    lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
