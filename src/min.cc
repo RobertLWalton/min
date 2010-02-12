@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 11 08:04:53 EST 2010
+// Date:	Thu Feb 11 19:51:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/11 20:19:25 $
+//   $Date: 2010/02/12 00:53:10 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.143 $
+//   $Revision: 1.144 $
 
 // Table of Contents:
 //
@@ -2430,7 +2430,6 @@ void min::insert_before
 	    
 	lp.base[-- aux_offset] = min::LIST_END;
 	lp.current_index = aux_offset;
-	lp.current_is_list_head = false;
 	lp.previous_is_sublist_head = false;
 	unprotected::aux_offset_of ( lp.vecp ) =
 	    aux_offset;
@@ -2484,7 +2483,7 @@ void min::insert_before
 		end = MUP::new_control_with_type
 		    ( 0, s, MUP::STUB_POINTER );
 		min::unsptr next = lp.current_index;
-		if ( next < unused_offset )
+		if ( next == lp.head_index )
 		    next = 0;
 		else if (    lp.base[-- next]
 		          == min::LIST_END )
@@ -2583,7 +2582,7 @@ void min::insert_before
         if ( ! previous )
 	{
 	    lp.base[-- aux_offset] = lp.current;
-	    if ( next < unused_offset )
+	    if ( next == lp.head_index )
 	        next = 0;
 	    else if (    lp.base[-- next]
 	              == min::LIST_END )
@@ -2623,7 +2622,6 @@ void min::insert_before
 			  ( type, first ) );
 	    }
 	    lp.previous_index = aux_offset;
-	    lp.previous_is_list_head = false;
 	    lp.previous_stub = NULL;
 	    lp.previous_is_sublist_head = false;
 	}
@@ -2636,7 +2634,6 @@ void min::insert_before
 	    min::new_sublist_aux_gen ( first ) :
 	    min::new_list_aux_gen ( first );
 	lp.previous_index = aux_offset;
-	lp.previous_is_list_head = false;
 	lp.previous_is_sublist_head = false;
     }
     else
@@ -2645,7 +2642,6 @@ void min::insert_before
 	lp.base[lp.current_index] =
 	    min::new_list_aux_gen ( first );
 	lp.current_index = aux_offset + 1;
-	lp.current_is_list_head = false;
     }
 
     unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
@@ -2718,7 +2714,7 @@ void min::insert_after
 	    // element to the old current element.
 
 	    min::unsptr next =
-	        lp.current_index < unused_offset ?
+	        lp.current_index == lp.head_index ?
 	        0 :
 	          total_size
 	        - lp.current_index + ! previous;
@@ -2780,8 +2776,6 @@ void min::insert_after
 		lp.base[lp.current_index] =
 		    min::new_gen ( s );
 		lp.previous_index = lp.current_index;
-		lp.previous_is_list_head =
-		    lp.current_is_list_head;
 		lp.current_index = 0;
 		lp.current_stub = s;
 	    }
@@ -2839,7 +2833,6 @@ void min::insert_after
 	        ( total_size - lp.current_index );
 	lp.base[lp.current_index] = * p ++;
 	lp.current_index = first;
-	lp.current_is_list_head = false;
 
 #	if MIN_USES_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
@@ -2880,7 +2873,7 @@ void min::insert_after
 
 	lp.base[-- aux_offset] = * p ++;
 	min::unsptr next = lp.current_index;
-	if ( next < unused_offset )
+	if ( next == lp.head_index )
 	    next = 0;
 	else if ( lp.base[-- next] == min::LIST_END )
 	{
@@ -2902,10 +2895,7 @@ void min::insert_after
 	    min::new_list_aux_gen
 	        ( total_size - first );
 	lp.previous_index = lp.current_index;
-	lp.previous_is_list_head =
-	    lp.current_is_list_head;
 	lp.current_index = first;
-	lp.current_is_list_head = false;
     }
 
     unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
@@ -2924,9 +2914,7 @@ min::unsptr min::remove
 
     if ( lp.current_index != 0
          &&
-	   lp.current_index
-	 < unprotected::unused_offset_of
-	       ( lp.vecp ) )
+	 lp.current_index == lp.head_index )
     {
 	// Special case: deleting list head of a list
 	// with just 1 element.
@@ -2940,8 +2928,6 @@ min::unsptr min::remove
     // index.
     //
     min::unsptr previous_index = lp.previous_index;
-    bool previous_is_list_head =
-	lp.previous_is_list_head;
     bool previous_is_sublist_head =
 	lp.previous_is_sublist_head;
     min::unsptr current_index = lp.current_index;
@@ -3094,8 +3080,6 @@ min::unsptr min::remove
 		    min::new_gen ( lp.current_stub );
 
 		lp.previous_index = previous_index;
-		lp.previous_is_list_head =
-		    previous_is_list_head;
 		lp.previous_is_sublist_head =
 		    previous_is_sublist_head;
 	    }
@@ -3112,8 +3096,6 @@ min::unsptr min::remove
 		    min::EMPTY_SUBLIST;
 		lp.current_index = 0;
 		lp.previous_index = previous_index;
-		lp.previous_is_list_head =
-		    previous_is_list_head;
 		lp.previous_is_sublist_head = true;
 	    }
 	    else
@@ -3121,8 +3103,6 @@ min::unsptr min::remove
 		lp.base[previous_index] =
 		    min::LIST_END;
 		lp.current_index = previous_index;
-		lp.current_is_list_head =
-		    previous_is_list_head;
 		lp.previous_index = 0;
 		lp.previous_is_sublist_head = false;
 	    }
@@ -3143,8 +3123,6 @@ min::unsptr min::remove
 			  - lp.current_index );
 
 	    lp.previous_index = previous_index;
-	    lp.previous_is_list_head =
-		previous_is_list_head;
 	    lp.previous_is_sublist_head =
 		previous_is_sublist_head;
 	}
@@ -3164,7 +3142,6 @@ min::unsptr min::remove
 		lp.base[current_index] =
 		    min::new_gen ( lp.current_stub );
 		lp.previous_index = current_index;
-		lp.previous_is_list_head = false;
 	    }
 	    else
 #       endif
@@ -3174,20 +3151,16 @@ min::unsptr min::remove
 		lp.base[lp.current_index] = min::NONE;
 	    lp.base[current_index] = min::LIST_END;
 	    lp.current_index = current_index;
-	    lp.current_is_list_head = false;
 	    lp.previous_index = 0;
 	}
 	else
 	{
 	    MIN_ASSERT
-	        (    current_index
-		  >= unprotected::unused_offset_of
-		         ( lp.vecp ) );
+	        ( current_index != lp.head_index );
 	    lp.base[current_index] =
 		min::new_list_aux_gen
 		    ( total_size - lp.current_index );
 	    lp.previous_index = current_index;
-	    lp.previous_is_list_head = false;
 	}
 
 	lp.previous_is_sublist_head = false;
