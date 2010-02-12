@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Mon Jan 18 06:20:27 EST 2010
+# Date:		Fri Feb 12 08:29:53 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2010/01/18 11:24:06 $
+#   $Date: 2010/02/12 13:32:40 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.29 $
+#   $Revision: 1.30 $
 
 # We need the following to mask RCS lines
 #
@@ -124,36 +124,36 @@ min.o:	../src/min.cc
 
 min_interface_test_loose:	\
 	GFLAGS = -DMIN_IS_COMPACT=0 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	         -DMIN_USE_OBJ_AUX_STUBS=1
 
 min_interface_test_compact:	\
 	GFLAGS = -DMIN_IS_COMPACT=1 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	         -DMIN_USE_OBJ_AUX_STUBS=1
 
 N=MIN_MAX_NUMBER_OF_STUBS
 min_interface_test_loose_stretch:	\
 	GFLAGS = -DMIN_IS_COMPACT=0 \
 	         -D$N=0xFFFFFFF0000ull \
 		 -DMIN_STUB_BASE=0x100 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	         -DMIN_USE_OBJ_AUX_STUBS=1
 
 min_interface_test_compact_stretch:	\
 	GFLAGS = -DMIN_IS_COMPACT=1 \
 	         -D$N=0xDFFFFFFF \
 		 -DMIN_STUB_BASE=0x100 \
-	         -DMIN_USES_OBJ_AUX_STUBS=1
+	         -DMIN_USE_OBJ_AUX_STUBS=1
 
 min_interface_test_loose_partial:	\
 	GFLAGS = \
 	    -DMIN_IS_COMPACT=0 \
 	    -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
-	    -DMIN_USES_OBJ_AUX_STUBS=1
+	    -DMIN_USE_OBJ_AUX_STUBS=1
 
 min_interface_test_compact_partial:	\
 	GFLAGS = \
 	    -DMIN_IS_COMPACT=1 \
 	    -DMIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS=1 \
-	    -DMIN_USES_OBJ_AUX_STUBS=1
+	    -DMIN_USE_OBJ_AUX_STUBS=1
 
 min_os_test.out:	\
 	RUNENV = \

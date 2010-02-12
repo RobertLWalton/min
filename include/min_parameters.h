@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 28 15:15:41 EST 2009
+// Date:	Fri Feb 12 08:25:38 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 11:27:38 $
+//   $Date: 2010/02/12 13:31:54 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.47 $
+//   $Revision: 1.48 $
 
 // Table of Contents
 //
@@ -36,7 +36,7 @@
 //
 // -DMIN_PROTECT=0
 // -DMIN_IS_COMPACT=1
-// -DMIN_USES_OBJ_AUX_STUBS=1
+// -DMIN_USE_OBJ_AUX_STUBS=1
 // -DMIN_MAX_EPHEMERAL_LEVELS=1
 // 
 // See below for the definition of these parameters.
@@ -78,8 +78,8 @@
 
 // 1 to enable use of list auxiliary stubs; 0 not to.
 //
-# ifndef MIN_USES_OBJ_AUX_STUBS
-#   define MIN_USES_OBJ_AUX_STUBS 0
+# ifndef MIN_USE_OBJ_AUX_STUBS
+#   define MIN_USE_OBJ_AUX_STUBS 0
 # endif
 
 // ACC Parameters

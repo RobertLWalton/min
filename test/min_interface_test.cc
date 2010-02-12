@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 11 19:38:20 EST 2010
+// Date:	Fri Feb 12 08:29:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/12 00:38:33 $
+//   $Date: 2010/02/12 13:32:40 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.137 $
+//   $Revision: 1.138 $
 
 // Table of Contents:
 //
@@ -2191,7 +2191,7 @@ void test_object_list_level
     ( const char * name, min::gen v,
       bool use_obj_aux_stubs, bool alternate_aux )
 {
-#   if ! MIN_USES_OBJ_AUX_STUBS
+#   if ! MIN_USE_OBJ_AUX_STUBS
 	if ( use_obj_aux_stubs || alternate_aux ) return;
 #   endif
 

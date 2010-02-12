@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 11 19:51:16 EST 2010
+// Date:	Fri Feb 12 08:27:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/12 00:53:10 $
+//   $Date: 2010/02/12 13:32:24 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.144 $
+//   $Revision: 1.145 $
 
 // Table of Contents:
 //
@@ -2105,7 +2105,7 @@ bool min::resize
 // Object List Level
 // ------ ---- -----
 
-# if MIN_USES_OBJ_AUX_STUBS
+# if MIN_USE_OBJ_AUX_STUBS
 
 // Allocate a chain of aux stubs containing the n
 // min::gen values in p.  The type of the first stub is
@@ -2162,7 +2162,7 @@ void MINT::allocate_stub_list
                      ( saved_relocated_flag ) );
 }
 
-# endif // MIN_USES_OBJ_AUX_STUBS
+# endif // MIN_USE_OBJ_AUX_STUBS
 
 // Remove a list.  Free any aux stubs used and
 // set any auxiliary area elements use to min::NONE.
@@ -2175,14 +2175,14 @@ void MINT::remove_list
 	( min::gen * & base,
 	  min::unsptr total_size,
 	  min::unsptr index
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	  , min::stub * s // = NULL
 #	endif
 	)
 {
     while ( true )
     {
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    if ( s != NULL )
 	    {
 		MINT::remove_sublist
@@ -2209,7 +2209,7 @@ void MINT::remove_list
 	        ( base, total_size, base[index] );
 	    base[index] = min::NONE;
 	    min::gen v = base[--index];
-#	    if MIN_USES_OBJ_AUX_STUBS
+#	    if MIN_USE_OBJ_AUX_STUBS
 		if ( min::is_stub ( v ) )
 		{
 		    min::stub * s2 =
@@ -2285,13 +2285,13 @@ void min::insert_before
 		//    2) previous is a sublist head
 
 	else
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.previous_stub == NULL )
 #       endif
 		contiguous =
 		    ( lp.current_index == aux_offset );
 
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    if (    lp.use_obj_aux_stubs
 		 &&     unused_offset
 		      + n + ( ! contiguous )
@@ -2374,7 +2374,7 @@ void min::insert_before
 			+ previous_is_list_head
 		     <= aux_offset );
 
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
 	    {
 	        if ( lp.previous_is_sublist_head )
@@ -2445,7 +2445,7 @@ void min::insert_before
     //
     bool previous = ( lp.previous_index != 0 );
 
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
         if ( lp.previous_stub != NULL )
 	    previous = true;
 	if (    lp.use_obj_aux_stubs
@@ -2566,7 +2566,7 @@ void min::insert_before
     while ( n -- )
 	lp.base[-- aux_offset] = * p ++;
 
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 	if ( lp.current_stub != NULL )
 	{
 	    MIN_ASSERT ( previous );
@@ -2602,7 +2602,7 @@ void min::insert_before
 	    min::new_list_aux_gen ( next );
     }
 
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 	if ( lp.previous_stub != NULL )
 	{
 	    if ( lp.previous_is_sublist_head )
@@ -2672,7 +2672,7 @@ void min::insert_after
 	    ( MUP::stub_of ( lp.vecp ), p, n );
 
     bool previous = ( lp.previous_index != 0 );
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 	if ( lp.previous_stub != NULL )
 	    previous = true;
 
@@ -2803,7 +2803,7 @@ void min::insert_after
     while ( -- n )
 	lp.base[-- aux_offset] = * p ++;
 
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
     if ( lp.current_stub != NULL )
     {
 	MIN_ASSERT ( previous );
@@ -2834,7 +2834,7 @@ void min::insert_after
 	lp.base[lp.current_index] = * p ++;
 	lp.current_index = first;
 
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.previous_stub != NULL )
 	    {
 		if ( lp.previous_is_sublist_head )
@@ -2931,7 +2931,7 @@ min::unsptr min::remove
     bool previous_is_sublist_head =
 	lp.previous_is_sublist_head;
     min::unsptr current_index = lp.current_index;
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 	min::stub * previous_stub = lp.previous_stub;
 #   endif
 
@@ -2951,7 +2951,7 @@ min::unsptr min::remove
 	MINT::remove_sublist
 	    ( lp.base, total_size, lp.current );
 
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		min::stub * last_stub = lp.current_stub;
@@ -2986,7 +2986,7 @@ min::unsptr min::remove
     // was no old previous element, we must make the
     // old current element into a previous element.
 
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 
 	if ( previous_stub != NULL )
 	{
@@ -3067,7 +3067,7 @@ min::unsptr min::remove
 #   endif
     if ( previous_index != 0 )
     {
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    lp.previous_stub = NULL;
 
 	    if ( lp.current_stub != NULL )
@@ -3135,7 +3135,7 @@ min::unsptr min::remove
 
 	MIN_ASSERT ( current_index != 0 );
 
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    lp.previous_stub = NULL;
 	    if ( lp.current_stub != NULL )
 	    {
@@ -3177,7 +3177,7 @@ bool MINT::insert_reserve
 {
     bool result = false;
 
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 	if ( use_obj_aux_stubs )
 	    MINT::acc_expand_stub_free_list
 		( insertions + elements );
@@ -3202,7 +3202,7 @@ bool MINT::insert_reserve
 
     lp.reserved_insertions = insertions;
     lp.reserved_elements = elements;
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 	lp.use_obj_aux_stubs = use_obj_aux_stubs;
 #   endif
 

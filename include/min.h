@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 11 19:43:26 EST 2010
+// Date:	Fri Feb 12 08:26:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/12 00:44:17 $
+//   $Date: 2010/02/12 13:31:54 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.253 $
+//   $Revision: 1.254 $
 
 // Table of Contents:
 //
@@ -3947,7 +3947,7 @@ namespace min { namespace internal {
 
     // Internal functions: see min.cc.
     //
-#   if MIN_USES_OBJ_AUX_STUBS
+#   if MIN_USE_OBJ_AUX_STUBS
 	void allocate_stub_list
 	    ( min::stub * & first,
 	      min::stub * & last,
@@ -3968,7 +3968,7 @@ namespace min { namespace internal {
 	    ( min::gen * & base,
 	      min::unsptr total_size,
 	      min::unsptr index
-#	      if MIN_USES_OBJ_AUX_STUBS
+#	      if MIN_USE_OBJ_AUX_STUBS
 	          , min::stub * s = NULL
 #	      endif
 	      );
@@ -3982,7 +3982,7 @@ namespace min { namespace internal {
 	  min::unsptr total_size,
 	  min::gen v )
     {
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    if ( min::is_stub ( v ) )
 	    {
 		min::stub * s =
@@ -4013,7 +4013,7 @@ namespace min {
     inline bool is_sublist ( min::gen v )
     {
         return min::is_sublist_aux ( v )
-#              if MIN_USES_OBJ_AUX_STUBS
+#              if MIN_USE_OBJ_AUX_STUBS
 		   ||
 		   ( min::is_stub ( v )
 		     &&
@@ -4127,14 +4127,14 @@ namespace min { namespace internal {
 	    //
 	    reserved_insertions = 0;
 	    reserved_elements = 0;
-#	    if MIN_USES_OBJ_AUX_STUBS
+#	    if MIN_USE_OBJ_AUX_STUBS
 		use_obj_aux_stubs = false;
 #	    endif
 
 	    current_index = 0;
 	    previous_index = 0;
 	    head_index = 0;
-#	    if MIN_USES_OBJ_AUX_STUBS
+#	    if MIN_USE_OBJ_AUX_STUBS
 		current_stub = NULL;
 		previous_stub = NULL;
 #	    endif
@@ -4176,7 +4176,7 @@ namespace min { namespace internal {
 	    // they equal head_index.  0 if list pointer
 	    // has not yet been started.
 
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    min::stub * current_stub;
 	    min::stub * previous_stub;
 	        // See below.
@@ -4438,7 +4438,7 @@ namespace min { namespace internal {
 	    previous_index = 0;
 	    previous_is_sublist_head = false;
 
-#           if MIN_USES_OBJ_AUX_STUBS
+#           if MIN_USE_OBJ_AUX_STUBS
 		current_stub = NULL;
 		previous_stub = NULL;
 #	    endif
@@ -4454,7 +4454,7 @@ namespace min { namespace internal {
 		    current = base[current_index];
 		}
 	    }
-#           if MIN_USES_OBJ_AUX_STUBS
+#           if MIN_USE_OBJ_AUX_STUBS
 		else if ( min::is_stub ( current ) )
 		{
 		    min::stub * s =
@@ -4496,7 +4496,7 @@ namespace min { namespace internal {
 	    current = min::LIST_END;
 	    current_index = 0;
 	    head_index = 0;
-#	    if MIN_USES_OBJ_AUX_STUBS
+#	    if MIN_USE_OBJ_AUX_STUBS
 		current_stub = NULL;
 #	    endif
 	}
@@ -4511,7 +4511,7 @@ namespace min { namespace internal {
 	min::unsptr current_index;
 	min::unsptr head_index;
 
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    min::stub * current_stub;
 #	endif
 
@@ -4606,7 +4606,7 @@ namespace min { namespace internal {
 	    current_index = index;
 	    current = base[current_index];
 
-#           if MIN_USES_OBJ_AUX_STUBS
+#           if MIN_USE_OBJ_AUX_STUBS
 		current_stub = NULL;
 #	    endif
 
@@ -4620,7 +4620,7 @@ namespace min { namespace internal {
 		    current = base[current_index];
 		}
 	    }
-#           if MIN_USES_OBJ_AUX_STUBS
+#           if MIN_USE_OBJ_AUX_STUBS
 		else if ( min::is_stub ( current ) )
 		{
 		    min::stub * s =
@@ -4726,7 +4726,7 @@ namespace min {
 
 	lp.current_index = lp2.current_index;
 	lp.head_index = lp2.head_index;
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 #       endif
 	return lp.current = lp2.current;
@@ -4751,7 +4751,7 @@ namespace min {
 	lp.head_index = lp2.head_index;
 	lp.previous_is_sublist_head =
 	    lp2.previous_is_sublist_head;
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    lp.current_stub = lp2.current_stub;
 	    lp.previous_stub = lp2.previous_stub;
 #       endif
@@ -4784,7 +4784,7 @@ namespace min {
 
 	lp.head_index = lp2.head_index;
 
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    if ( min::is_stub ( lp2.current ) )
 	    {
 		lp.current_stub =
@@ -4841,7 +4841,7 @@ namespace min {
 	lp.head_index = lp2.head_index;
 	lp.previous_is_sublist_head = true;
 
-#	if MIN_USES_OBJ_AUX_STUBS
+#	if MIN_USE_OBJ_AUX_STUBS
 	    lp.previous_stub = lp2.current_stub;
 	    if ( min::is_stub ( lp2.current ) )
 	    {
@@ -4885,7 +4885,7 @@ namespace min {
         if ( lp.current == min::LIST_END )
 	    return min::LIST_END;
 
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 	        min::uns64 c =
@@ -4946,7 +4946,7 @@ namespace min {
         if ( lp.current == min::LIST_END )
 	    return min::LIST_END;
 
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		lp.previous_index = 0;
@@ -5044,7 +5044,7 @@ namespace min {
 	if ( lp.current_index != 0 )
 	    return lp.current =
 	    		lp.base[lp.current_index];
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    else if ( lp.current_stub != NULL )
 		return lp.current =
 			   min::unprotected::
@@ -5094,7 +5094,7 @@ namespace min {
 	if ( lp.current_index != 0 )
 	    return lp.current =
 	    		lp.base[lp.current_index];
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    else if ( lp.current_stub != NULL )
 		return lp.current =
 			   min::unprotected::
@@ -5130,7 +5130,7 @@ namespace min {
 	unprotected::acc_write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		min::unprotected::set_gen_of
@@ -5163,7 +5163,7 @@ namespace min {
 	unprotected::acc_write_update
 	    ( unprotected::stub_of ( lp.vecp ), value );
 
-#       if MIN_USES_OBJ_AUX_STUBS
+#       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
 	    {
 		min::unprotected::set_gen_of
@@ -5196,7 +5196,7 @@ namespace min {
 
 	if (      unused_size
 	        < 2 * insertions + elements
-#	    if MIN_USES_OBJ_AUX_STUBS
+#	    if MIN_USE_OBJ_AUX_STUBS
 	     && (    ! use_obj_aux_stubs
 	          ||   min::internal
 			  ::number_of_free_stubs
@@ -5210,7 +5210,7 @@ namespace min {
 	{
 	    lp.reserved_insertions = insertions;
 	    lp.reserved_elements = elements;
-#	    if MIN_USES_OBJ_AUX_STUBS
+#	    if MIN_USE_OBJ_AUX_STUBS
 		lp.use_obj_aux_stubs =
 		   use_obj_aux_stubs;
 #	    endif
