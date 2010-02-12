@@ -4596,7 +4596,8 @@ can be used instead of object
 auxiliary area elements.  Object auxiliary stubs are a way of adding
 list elements to
 an object whose unused area has been exhausted, without relocating the
-object, and are considered to be \skey{extension}s of the object.
+object.  Object auxiliary stubs
+are considered to be \skey{extension}s of the object.
 If the object is later relocated, it can be reorganized to
 eliminate the use of any object auxiliary stubs that extend the object
 by moving information from these into a new larger object auxiliary area.
@@ -4619,12 +4620,11 @@ following variable:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
-	& \MINKEY{use\_obj\_aux\_stubs}
+	& \MINKEY{use\_obj\_aux\_stubs} \\
+& ~~~~\verb|true| to enable use of object auxiliary stubs; the default \\
+& ~~~~\verb|false| to disable use of object auxiliary stubs
 \LABEL{MIN::USE_OBJ_AUX_STUBS} \\
 \end{tabular}\end{indpar}
-
-The variable is set to \verb|true|, the default, to enable use
-of auxiliary stubs, and set to \verb|false| to disable their use.
 
 The value of an object
 auxiliary stub is treated like an auxiliary area element value that is
@@ -4720,10 +4720,8 @@ an object auxiliary stub, and in this latter case $S$ must be of type
 
 \end{indpar}
 
-If the auxiliary area of an object has enough space, these rules
-by themselves may be used to relocate all the information in the
-object's auxiliary stubs to the object's auxiliary area.  The result
-must obey the object list level rules of \secref{OBJECT-LIST-LEVEL}.
+Object auxiliary stubs
+must obey the object list level rules on \pagref{NO-SUPERFLUOUS-LIST}.
 This means, for example, that a list auxiliary pointer cannot point
 at an auxiliary area element that holds a \verb|min::gen| value
 pointing at an object auxiliary stub of type \verb|min::LIST_AUX|,
