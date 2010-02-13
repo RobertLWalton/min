@@ -5039,16 +5039,12 @@ values are 32-bits, and 40 if \verb|min::gen| values are 64-bits.
 A flag is set for an attribute name if and only if its corresponding
 bit is present and set and in the attribute's {\em flag-set}.
 
-\subsubsubsection{Attribute Functions}
-\label{ATTRIBUTE-FUNCTIONS}
+\subsubsubsection{Attribute Pointers}
+\label{ATTRIBUTE-POINTERS}
 
-The functions that access attributes are of two kinds: locator functions
-that find attributes within an object, and accessor functions
-that read or write attribute flags and values.  The locator functions set an
-{\em attribute\_pointer} that the accessor functions
-use to identify the attribute being read or written.
-
-An \key{attribute pointer} can be thought of as storing an attribute name
+An \key{attribute pointer} can be used to access attribute flags and values
+in an object.
+An attribute pointer can be thought of as storing an attribute name
 and a reverse attribute name.  The latter can take the special
 values {\tt min::NONE} and {\tt min::ANY}.  The attribute name designates
 the object attribute pointed at.  The flag set pointed at is always
@@ -5065,15 +5061,23 @@ set pointed at is the set of values
 associated with the particular reverse attribute
 name stored in the pointer.
 
-The \skey{attribute locator function}s\index{locator function!attribute} are:
+There are three kinds of attribute pointers.
+A read-only {\tt min::\EOL attribute\_\EOL pointer}
+permits read-only access to read attribute values and flags.
+An updatable {\tt min::\EOL updatable\_\EOL attribute\_\EOL pointer}
+permits read-write access to attribute values, and read-only access
+to flags, but does not permit values to be added or removed from attributes.
+An insertable {\tt min::\EOL insertable\_\EOL attribute\_\EOL pointer}
+permits read-write access to attribute values and flags
+and also permits values to be added or removed from attributes.
+
+The functions for using a read-only {\tt min::\EOL attribute\_\EOL pointer}
+are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{attribute\_pointer}\verb| ( min::stub * s )|
-\LABEL{MUP::ATTRIBUTE_POINTER_OF_STUB} \\
-(constructor)~\verb|MUP::|
-	& \MUPKEY{attribute\_pointer}\verb| ( min::gen obj )|
-\LABEL{MUP::ATTRIBUTE_POINTER_OF_GEN} \\
+	& \MUPKEY{attribute\_pointer}\verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::ATTRIBUTE_POINTER_OF_VEC_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -5110,103 +5114,6 @@ The \skey{attribute locator function}s\index{locator function!attribute} are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_attribute\_pointer}\verb| ( min::stub * s )|
-\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_STUB} \\
-(constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_attribute\_pointer}\verb| ( min::gen obj )|
-\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_GEN} \\
-\verb|min::gen min::|
-	& \MINKEY{locate}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_attribute_pointer & wap,| \\
-	  \verb|   min::gen name )|
-	  \end{tabular}
-\LABEL{MIN::LOCATE_ATTRIBUTE_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{locatei}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_attribute_pointer & wap,| \\
-	  \verb|   int name )|
-	  \end{tabular}
-\LABEL{MIN::LOCATEI_ATTRIBUTE_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{locate}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_attribute_pointer & wap,| \\
-	  \verb|   min::unsptr & length, min::gen name )|
-	  \end{tabular}
-\LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{locate\_reverse} \\
-	& \verb|    ( min::writable_attribute_pointer & wap,| \\
-	& \verb|      min::gen reverse_name )|
-\LABEL{MIN::LOCATE_REVERSE_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{relocate}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::writable_attribute_pointer & wap )| \\
-	  \end{tabular}
-\LABEL{MIN::RELOCATE_ATTRIBUTE_WRITABLE} \\
-\end{tabular}\end{indpar}
-
-\newpage
-
-There are two kinds of attribute pointers.  A {\tt min::attribute\_pointer}
-can be used to read attribute values and flags, but not write them.
-A {\tt min::writable\_attribute\_pointer}
-can be used to read or write attribute values and flags.  The locator
-functions for the two kinds of pointer are the same.
-
-Attribute pointers are tied to an object, which may be specified by
-giving either the object's stub or a \verb|min::gen| value pointing
-at the object's stub.
-
-The {\tt locate} function sets the attribute name of the pointer.
-If the `{\tt length}' argument is \underline{not} given, {\tt locate}
-uses the complete attribute name.  The {\tt locatei} function does the
-same thing as {\tt locate} but is optimized for the case where the attribute
-name is a sequence consisting of a single integer.\footnote{
-In some implementations {\tt min::gen} is defined to be {\tt min::uns64},
-and in these implementation {\tt int} is incorrectly convertible to
-{\tt min::gen} by a C++ implicit conversion.  As a consequence of this
-the {\tt locatei} function must have a different name from the
-{\tt locate} function.}
-
-The form of the {\tt locate} function that takes a `{\tt length}'
-argument exists only if the
-{\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTRIBUTE\_\EOL LABELS}
-(\pagref{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS}) macro is set to {\tt 1}.
-This form of {\tt locate} uses the longest initial segment of the
-attribute name that locates an attribute which has either a non-empty
-set of values, or at least one set flag, or at least one value
-associated with a reverse attribute name.  The
-length of this initial segment is returned in the `\verb|length|'
-argument.  If \verb|0| is returned in `\verb|length|',
-no initial segment meeting the requirements was found.
-
-The {\tt locate\_reverse} function sets the reverse attribute name of
-a pointer.  This can take the special value {\tt min::NONE} or
-{\tt min::ANY}, as noted above.  A call to {\tt locate} sets the
-reverse attribute name to {\tt min::NONE}.
-
-Both the {\tt locate} and {\tt locate\_reverse} functions take name
-arguments that are labels (\secref{LABELS}).  If an atom (number or
-string) is given instead, this is treated as an abbreviation for the
-label whose only element is the atom.
-
-If the object is reorganized or relocated as per Section~\secref{BODY-POINTERS},
-the attribute pointers of the object
-will become obsolete, and must be be reset either by calling the
-{\tt locate} and if necessary {\tt locate\_reverse} functions, or by
-calling the {\tt relocate} function.  This last function uses the
-attribute and reverse attribute names stored in the pointer to
-restore the pointer.
-
-The \skey{attribute accessor function}s\index{accessor function!attribute} that
-can be used for reading attribute values and flags are:
-
-\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{count}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::attribute_pointer ap )| \\
@@ -5231,30 +5138,59 @@ can be used for reading attribute values and flags are:
 \LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE_POINTER} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{count}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap )| \\
-    \end{tabular}
-\LABEL{MIN::COUNT_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|min::unsptr min::| & \MINKEY{get}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, min::unsptr n,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
-    \end{tabular}
-\LABEL{MIN::GET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{count\_flags}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap )| \\
-    \end{tabular}
-\LABEL{MIN::COUNT_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{get\_flags}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, unsigned n,| \\
-    \verb|   min::writable_attribute_pointer wap )| \\
-    \end{tabular}
-\LABEL{MIN::GET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{tabular}\end{indpar}
+Attribute pointers are tied to an object, which is specified by
+giving a vector pointer to the object to the constructor of the
+attribute pointer.
+
+Locator functions find attributes within an object and set the current
+attribute name and reverse attribute name of an attribute pointer.
+The {\tt min::\EOL locate} function sets the attribute name of the pointer.
+If the `{\tt length}' argument is \underline{not} given, {\tt min::\EOL locate}
+uses the complete attribute name.
+The {\tt min::\EOL locatei} function does the
+same thing as {\tt min::\EOL locate}
+but is optimized for the case where the attribute
+name is a sequence consisting of a single integer.\footnote{
+In some implementations {\tt min::gen} is defined to be {\tt min::uns64},
+and in these implementation {\tt int} is incorrectly convertible to
+{\tt min::gen} by a C++ implicit conversion.  As a consequence of this
+the {\tt min::\EOL locatei} function must have a different name from the
+{\tt min::\EOL locate} function.}
+
+The form of the {\tt min::\EOL locate} function that takes a `{\tt length}'
+argument exists only if the
+{\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTRIBUTE\_\EOL LABELS}
+(\pagref{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS}) macro is set to {\tt 1}.
+This form of {\tt min::\EOL locate} uses the longest initial segment of the
+attribute name that locates an attribute which has either a non-empty
+set of values, or at least one set flag, or at least one value
+associated with a reverse attribute name.  The
+length of this initial segment is returned in the `\verb|length|'
+argument.  If \verb|0| is returned in `\verb|length|',
+no initial segment meeting the requirements was found.
+
+The {\tt min::\EOL locate\_reverse} function sets the reverse attribute name of
+a pointer.  This can take the special value {\tt min::NONE} or
+{\tt min::ANY}, as noted above.  A call to {\tt min::\EOL locate} or
+{\tt min::\EOL locatei} sets the
+reverse attribute name to {\tt min::NONE}.
+
+Both the {\tt min::\EOL locate} and {\tt min::\EOL locate\_reverse}
+functions take name
+arguments that are labels (\secref{LABELS}).  If an atom (number or
+string) is given instead, this is treated as an abbreviation for the
+label whose only element is the atom.
+
+If the object is reorganized or relocated as per Section~\secref{BODY-POINTERS},
+the attribute pointers of the object
+will become obsolete, and must be be reset either by calling the
+{\tt min::\EOL locate} and if necessary {\tt min::\EOL locate\_reverse} functions, or by
+calling the {\tt min::\EOL relocate} function.  This last function uses the
+attribute and reverse attribute names stored in the pointer to
+restore the pointer.
+
+The \skey{attribute accessor function}s\index{accessor function!attribute} that
+can be used for reading attribute values and flags are:
 
 The {\tt count} function returns the number of values in the value
 set pointed at.
