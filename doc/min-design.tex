@@ -4389,7 +4389,7 @@ The functions defined for this are:
 	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   min::gen value )| \\
 	  \end{tabular}
-\LABEL{MIN::SET_OF_INSERTABLE} \\
+\LABEL{MIN::SET_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
@@ -5097,14 +5097,14 @@ are:
 	  \verb| ( min::attribute_pointer & ap,| \\
 	  \verb|   min::unsptr & length, min::gen name )|
 	  \end{tabular}
-\LABEL{MIN::LOCATE_PARTIAL} \\
+\LABEL{MIN::LOCATE_PARTIAL_ATTRIBUTE} \\
 \verb|min::gen min::|
 	& \MINKEY{locate\_reverse}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attribute_pointer & ap,| \\
 	  \verb|   min::gen reverse_name )|
 	  \end{tabular}
-\LABEL{MIN::LOCATE_REVERSE} \\
+\LABEL{MIN::LOCATE_REVERSE_ATTRIBUTE} \\
 \verb|min::gen min::|
 	& \MINKEY{relocate}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -5118,31 +5118,56 @@ are:
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::attribute_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::COUNT_OF_ATTRIBUTE_POINTER} \\
+\LABEL{MIN::COUNT_OF_ATTRIBUTE} \\
 \verb|min::unsptr min::| & \MINKEY{get}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, min::unsptr n,| \\
     \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::GET_OF_ATTRIBUTE_POINTER} \\
+\LABEL{MIN::GET_OF_ATTRIBUTE} \\
+\verb|min::gen min::| & \MINKEY{get}%
+    \verb| ( min::attribute_pointer ap )|
+\LABEL{MIN::GET1_OF_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{count\_flags}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::attribute_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::COUNT_FLAGS_OF_ATTRIBUTE_POINTER} \\
+\LABEL{MIN::COUNT_FLAGS_OF_ATTRIBUTE} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
     \verb|   min::attribute_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE_POINTER} \\
+\LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE} \\
+\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
+    \verb| ( min::attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
+\LABEL{MIN::TEST_FLAG_OF_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb|   min::attribute_pointer ap )|
+\LABEL{MIN::GET_ATTRIBUTES} \\
+\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
+    \verb| ( min::attribute_pointer ap )|
+\LABEL{MIN::REWIND_ATTRIBUTES} \\
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb|   min::attribute_pointer ap )|
+\LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
 \end{tabular}\end{indpar}
 
 Attribute pointers are tied to an object, which is specified by
 giving a vector pointer to the object to the constructor of the
 attribute pointer.
 
-Locator functions find attributes within an object and set the current
+\ikey{Locator functions}{locator function}
+find attributes within an object and set the current
 attribute name and reverse attribute name of an attribute pointer.
 The {\tt min::\EOL locate} function sets the attribute name of the pointer.
 If the `{\tt length}' argument is \underline{not} given, {\tt min::\EOL locate}
@@ -5178,8 +5203,8 @@ reverse attribute name to {\tt min::NONE}.
 Both the {\tt min::\EOL locate} and {\tt min::\EOL locate\_reverse}
 functions take name
 arguments that are labels (\secref{LABELS}).  If an atom (number or
-string) is given instead, this is treated as an abbreviation for the
-label whose only element is the atom.
+string) is given instead, this is treated as the equivalent of
+a label whose only element is the atom.
 
 If the object is reorganized or relocated as per Section~\secref{BODY-POINTERS},
 the attribute pointers of the object
@@ -5189,54 +5214,421 @@ calling the {\tt min::\EOL relocate} function.  This last function uses the
 attribute and reverse attribute names stored in the pointer to
 restore the pointer.
 
-The \skey{attribute accessor function}s\index{accessor function!attribute} that
-can be used for reading attribute values and flags are:
-
-The {\tt count} function returns the number of values in the value
+\ikey{Accessor functions}{accessor function}
+can be used for reading attribute values and flags.
+The {\tt min::\EOL count} function returns the number of values in the value
 set pointed at.
-The {\tt get} function gets these values and stores them
-in the {\tt out} vector.  The number of values
-stored is the {\tt get} return value.  The argument {\tt n} is the
-maximum number of values that may be returned, the length of {\tt out}.
+The 3-argument {\tt min::\EOL get} function gets these values and stores them
+in the `{\tt out}' vector, and returns the number of values stored.
+The argument {\tt n} is the
+maximum number of values that may be returned, the length of `{\tt out}'.
 If there are more then {\tt n} values, only {\tt n} values are returned.
 
-The {\tt count\_flags} function returns the length of the smallest
+The 1-argument {\tt min::\EOL get} function assumes that there is exactly
+one value and returns that value, or returns the special value
+\verb|min::NONE| (\pagref{MIN::NONE}) if there are no values,
+or returns the special value
+\verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) if there is
+more than one value.
+
+The {\tt min::\EOL count\_\EOL flags}
+function returns the length of the smallest
 \verb|min::gen| vector required to store all the flags in the flag
 set pointed at as \verb|min::gen| control code values.
 It returns {\tt 0} if no flags are set.
-The {\tt get\_flags} function returns these flags in the \verb|min::gen|
-vector {\tt out}.  The argument {\tt n} is the maximum number of
-vector elements that may be written, the length of {\tt out}.
-The return value is the same as that of {\tt count\_flags} if this is
+
+The {\tt min::\EOL get\_\EOL flags}
+function returns these flags in the \verb|min::gen|
+vector `{\tt out}'.  The argument {\tt n} is the maximum number of
+vector elements that may be written, the length of `{\tt out}'.
+The return value is the same as that of {\tt count\_\EOL flags} if this is
 not greater than {\tt n}, or is {\tt n} otherwise, and is in any case
-the number of elements of the {\tt out} vector written.
-In the {\tt out} vector, flag $N$ is the bit selected by mask $2^K$
+the number of elements of the `{\tt out}' vector written.
+In the `{\tt out}' vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
 and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
+The {\tt min::\EOL test\_\EOL flag} function returns the value
+of flag {\tt n}.
 
-The \skey{attribute accessor function}s\index{accessor function!attribute} that
-can be used for writing attribute values and flags are:
+The attribute names for an object form a list ordered in an implementation
+dependent fashion.  The current attribute name of an attribute
+pointer is a pointer into this list.
+The {\tt min::\EOL get\_\EOL attributes} function gets up to {\tt n}
+of these attribute names, starting at the current attribute name.
+The names are returned as {\em atoms} or {\em labels} in the `{\tt out}'
+vector, and the number of names returned is returned from the function.
+If a name as only one component that is an {\em atom}, the name is returned
+as that {\em atom}; all other names are returned as {\em labels}.
+After the last name is returned the pointer is put in a special state
+where it has no attribute name and calling
+{\tt min::\EOL get\_\EOL attributes} again will return nothing but {\tt 0}.
+The {\tt min::\EOL rewind\_\EOL attributes} function resets the pointer
+to point at the first name.  Setting the attribute pointer to point
+at an attribute name is the equivalent of calling {\tt min::\EOL locate}
+to set the current attribute name of the pointer.
+
+The {\tt min::\EOL get\_\EOL reverse\_\EOL attributes}
+function is analogous but involves the list of
+reverse attribute names associated
+with a particular object and the attribute name stored in the attribute
+pointer.  However in this case there is no rewind function, and
+instead setting the reverse attribute name to \verb|min::NONE|
+using {\tt min::\EOL locate\_\EOL reverse} has the effect of setting
+the pointer so the next call to
+{\tt min::\EOL get\_\EOL reverse\_\EOL attributes} will get the first
+reverse name in the list.
+
+An attribute name or reverse attribute name is returned
+only if its value set is non-empty or it has a set flag.
+
+The implementation dependent order of names may change if values are
+added to or removed from the object or attribute flags are set or cleared,
+so after any of these actions the 
+{\tt min::\EOL rewind\_\EOL attributes} function should be called before
+any names are gotten.
+
+Updatable attribute pointers can set existing values as well as perform
+the operations of read-only attribute pointers.
+The functions for using a
+{\tt min::\EOL updatable\_\EOL attribute\_\EOL pointer}
+are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{set\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, min::unsptr n )| \\
-    \end{tabular}
-\LABEL{MIN::SET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|void min::| & \MINKEY{set\_flags\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::SET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{updatable\_attribute\_pointer}\ARGBREAK
+	  \verb| ( min::updatable_vec_pointer & vp )|
+\LABEL{MUP::UPDATABLE_ATTRIBUTE_OF_UPDATABLE_VEC_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::gen name )|
+\LABEL{MIN::LOCATE_ATTRIBUTE_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locatei}\ARGBREAK
+	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   int name )|
+\LABEL{MIN::LOCATEI_ATTRIBUTE_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::unsptr & length, min::gen name )|
+\LABEL{MIN::LOCATE_PARTIAL_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate\_reverse}\ARGBREAK
+	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::gen reverse_name )|
+\LABEL{MIN::LOCATE_REVERSE_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{relocate}\ARGBREAK
+	  \verb| ( min::updatable_attribute_pointer & ap )|
+\LABEL{MIN::RELOCATE_ATTRIBUTE_OF_UPDATABLE_ATTRIBUTE} \\
 \end{tabular}\end{indpar}
 
-The {\tt set} function sets all the values in the value set the
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
+    \verb| ( min::updatable_attribute_pointer ap )|
+\LABEL{MIN::COUNT_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK 
+    \verb|   min::updatable_attribute_pointer ap )|
+\LABEL{MIN::GET_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|min::gen min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::updatable_attribute_pointer ap )|
+\LABEL{MIN::GET1_OF_UPDATABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
+    \verb| ( min::updatable_attribute_pointer ap )|
+\LABEL{MIN::COUNT_FLAGS_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::updatable_attribute_pointer ap )|
+\LABEL{MIN::GET_FLAGS_OF_UPDATABLE_ATTRIBUTE} \\
+\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
+    \verb| ( min::updatable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
+\LABEL{MIN::TEST_FLAG_OF_UPDATABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb|   min::updatable_attribute_pointer ap )|
+\LABEL{MIN::GET_ATTRIBUTES_OF_UPDATABLE} \\
+\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
+    \verb| ( min::updatable_attribute_pointer ap )|
+\LABEL{MIN::REWIND_ATTRIBUTES_OF_UPDATABLE} \\
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb|   min::updatable_attribute_pointer ap )|
+\LABEL{MIN::GET_REVERSE_ATTRIBUTES_OF_UPDATABLE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{update}\ARGBREAK
+    \verb| ( min::updatable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
+\LABEL{MIN::UPDATE_OF_UPDATABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+Functions defined for read-only attribute pointers are also
+applicable to updatable list pointers with the
+same results.  However, updatable list pointers
+can\underline{not} be converted to be read-only list pointers
+(unlike the situation with vector pointers).
+
+The {\tt min::\EOL update} function requires that the current
+value set have a single value, which this function replaces.
+It is an error if the value set is empty or has more than one
+value.
+
+Insertable attribute pointers can remove and insert values and
+set and clear flags,
+as well as perform the operations of updatable attribute pointers.
+The functions for using a
+{\tt min::\EOL insertable\_\EOL attribute\_\EOL pointer}
+are:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{insertable\_attribute\_pointer}\ARGBREAK
+	  \verb| ( min::insertable_vec_pointer & vp )|
+\LABEL{MUP::INSERTABLE_ATTRIBUTE_OF_INSERTABLE_VEC_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::gen name )|
+\LABEL{MIN::LOCATE_ATTRIBUTE_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locatei}\ARGBREAK
+	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   int name )|
+\LABEL{MIN::LOCATEI_ATTRIBUTE_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate}\ARGBREAK
+	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::unsptr & length, min::gen name )|
+\LABEL{MIN::LOCATE_PARTIAL_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{locate\_reverse}\ARGBREAK
+	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb|   min::gen reverse_name )|
+\LABEL{MIN::LOCATE_REVERSE_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|min::gen min::|
+	& \MINKEY{relocate}\ARGBREAK
+	  \verb| ( min::insertable_attribute_pointer & ap )|
+\LABEL{MIN::RELOCATE_ATTRIBUTE_OF_INSERTABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer ap )|
+\LABEL{MIN::COUNT_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK 
+    \verb|   min::insertable_attribute_pointer ap )|
+\LABEL{MIN::GET_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|min::gen min::| & \MINKEY{get}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer ap )|
+\LABEL{MIN::GET1_OF_INSERTABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer ap )|
+\LABEL{MIN::COUNT_FLAGS_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
+    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
+    \verb|   min::insertable_attribute_pointer ap )|
+\LABEL{MIN::GET_FLAGS_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
+\LABEL{MIN::TEST_FLAG_OF_INSERTABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb|   min::insertable_attribute_pointer ap )|
+\LABEL{MIN::GET_ATTRIBUTES_OF_INSERTABLE} \\
+\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer ap )|
+\LABEL{MIN::REWIND_ATTRIBUTES_OF_INSERTABLE} \\
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb|   min::insertable_attribute_pointer ap )|
+\LABEL{MIN::GET_REVERSE_ATTRIBUTES_OF_INSERTABLE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{update}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
+\LABEL{MIN::UPDATE_OF_INSERTABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, min::unsptr n )|
+\LABEL{MIN::SET_OF_INSERTABLE_ATTRIBUTE} \\
+\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
+\LABEL{MIN::SET1_OF_INSERTABLE_ATTRIBUTE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, min::unsptr n )|
+\LABEL{MIN::ADD_TO_SET} \\
+\verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
+\LABEL{MIN::ADD1_TO_SET} \\
+\verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, min::unsptr n )|
+\LABEL{MIN::ADD_TO_MULTISET} \\
+\verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
+\LABEL{MIN::ADD1_TO_MULTISET} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{remove\_one}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, min::unsptr n )|
+\LABEL{MIN::REMOVE_ONE} \\
+\verb|void min::| & \MINKEY{remove\_one}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
+\LABEL{MIN::REMOVE_ONE1} \\
+\verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, min::unsptr n )|
+\LABEL{MIN::REMOVE_ALL} \\
+\verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen v )|
+\LABEL{MIN::REMOVE_ALL1} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{set\_flags\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
+\LABEL{MIN::SET_FLAGS_OF_INSERTABLE} \\
+\verb|void min::| & \MINKEY{set\_some\_flags\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
+\LABEL{MIN::SET_SOME_FLAGS} \\
+\verb|void min::| & \MINKEY{clear\_some\_flags\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
+\LABEL{MIN::CLEAR_SOME_FLAGS} \\
+\verb|void min::| & \MINKEY{flip\_some\_flags\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   const min::gen * in, unsigned n )|
+\LABEL{MIN::FLIP_SOME_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{set\_flag\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
+\LABEL{MIN::SET_FLAG} \\
+\verb|bool min::| & \MINKEY{clear\_flag\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
+\LABEL{MIN::CLEAR_FLAG} \\
+\verb|bool min::| & \MINKEY{flip\_flag\REL}\ARGBREAK
+    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb|   unsigned n )|
+\LABEL{MIN::FLIP_FLAG} \\
+\end{tabular}\end{indpar}
+
+Functions defined for updatable attribute pointers are also
+applicable to insertable list pointers with the
+same results.  However, insertable list pointers
+can\underline{not} be converted to be updatable or read-only list pointers
+(unlike the situation with vector pointers).
+
+The {\tt min::\EOL set}
+function sets all the values in the value set the
 attribute pointer is pointing at, deleting any previous values.
-The values are given in the {\tt in} vector, and
+For 3-argument {\tt min::\EOL set}
+the new values are given in the `{\tt in}' vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
+For 2-argument {\tt min::\EOL set} there is one new value given as an
+argument, unless {\tt v} is \verb|min::NONE|,
+in which case there are no new value and all previous values are simply
+deleted.
+
+For the {\tt min::\EOL set} function the
+pointer's reverse attribute name can be \verb|min::NONE|
+but cannot be \verb|min::ANY|.
+
+The {\tt min::\EOL add\_\EOL to\_\EOL set} function
+adds values to the multiset set of value,
+but adds each value if and only if the value is not already in the multiset set,
+using {\tt ==} to compare values for equality.
+The {\tt min::\EOL add\_\EOL to\_\EOL multiset} function
+adds values even if they are already in the multiset set.
+Both functions have a 3-argument version with a vector of new values,
+and a 2-argument version with a single new value.  In the latter case
+if {\tt v} is \verb|min::NONE| there is no new value and the function
+is a no-operation.
+For these functions the pointer's reverse attribute name
+can be \verb|min::NONE|
+but cannot be \verb|min::ANY|.
+
+The {\tt min::\EOL remove\_\EOL one} function
+removes values from the multiset set of values, removing only one copy of
+each value,
+using {\tt ==} to compare values for equality.
+The {\tt min::\EOL remove\_\EOL all} function
+removes all copies of each value  
+from the multiset of values (it is less efficient if
+the multiset is actually a set).
+Both functions have a 3-argument version with a vector of values to remove,
+and a 2-argument version with a single value to remove.  In the latter case
+if {\tt v} is \verb|min::NONE| there is no value to remove and the function
+is a no-operation.
+For these functions the pointer's reverse attribute name
+can be \verb|min::NONE|
+but cannot be \verb|min::ANY|.
+
+The {\tt min::\EOL set\_\EOL flags} function sets the flags of the flag set the attribute
+pointer points at.
+The flags are given in the `{\tt in}' vector which
+has length {\tt n}: see the discussion of
+{\tt min::\EOL get\_\EOL flags} on \pagref{MIN::GET_FLAGS_OF_ATTRIBUTE}
+for the format of this vector.
+All flags are zeroed before the new set of flags
+is written.  If {\tt n} is zero, all flags are zeroed.
+
+The {\tt min::\EOL set\_\EOL some\_\EOL flags},
+{\tt min::\EOL clear\_\EOL some\_\EOL flags},
+and {\tt min::\EOL flip\_\EOL some\_\EOL flags}
+functions can be used to alter flags.  If the bit corresponding
+to the flag is on in the `{\tt in}' vector, it is set, cleared,
+or flipped, respectively.
+
+The {\tt min::\EOL set\_\EOL flag},
+{\tt min::\EOL clear\_EOL flag},
+and {\tt min::\EOL flip\_\EOL flag}
+functions can be used to alter a single flag whose number is
+given as the argument {\tt n}.  The flag is set, cleared,
+or flipped, respectively.  The previous value of the flag is
+returned.
+
+TBD
 
 If the attribute pointer is pointing at values associated with
 a reverse attribute name, the values set or deleted represent double arrows.
@@ -5251,195 +5643,10 @@ the double arrow will also be set (or deleted).  Recall that the value
 associated with a reverse name must consist only of values that point at
 other objects.
 
-For the {\tt set} function the
-pointer's reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
-
-The {\tt set\_flags} function sets the flags of the flag set the attribute
-pointer points at.
-The flags are given in the {\tt in} vector which
-has length {\tt n}.  All flags are zeroed before the new set of flags
-is written.  If {\tt n} is zero, all flags are zeroed.
-
-The following functions are more optimized versions of the above
-functions for the special case that the attribute has, or should
-have, only one value:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{get}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attribute_pointer ap )| \\
-    \end{tabular}
-\LABEL{MIN::GET1_OF_ATTRIBUTE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{get}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap )| \\
-    \end{tabular}
-\LABEL{MIN::GET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|void min::| & \MINKEY{set\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen v )|
-    \end{tabular}
-\LABEL{MIN::SET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{tabular}\end{indpar}
-
-This version of the {\tt get} function returns the single value $V$ if
-the set of values pointed at
-consists of a single value $V$.  If the set is empty, the special value
-\verb|min::NONE| (\pagref{MIN::NONE}) is returned,
-and if the set has more than one value, the special value
-\verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) is returned.
-
-This version of the {\tt set} function deletes any previous values of
-the value set pointed at
-and makes the one value {\tt v} the only value of the value set.
-But if {\tt v} is
-\verb|min::NONE|, all previous values are deleted and no values
-are added.
-For the {\tt set} function the
-pointer's reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
-
-
-The following functions may be used to add values to the set of values
-pointed at:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{add\_to\_set\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, min::unsptr n )| \\
-    \end{tabular}
-\LABEL{MIN::ADD_TO_SET} \\
-\verb|void min::| & \MINKEY{add\_to\_multiset\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, min::unsptr n )| \\
-    \end{tabular}
-\LABEL{MIN::ADD_TO_MULTISET} \\
-\end{tabular}\end{indpar}
-
-The {\tt add\_to\_set} function adds a value to the set of
-values if and only if the value is not already in the set,
-using {\tt ==} to compare values for equality.
-The {\tt add\_to\_multiset} function adds a value even if the
-value is already in the set.
-For these functions pointer's reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
-
-The following functions may be used to set, or clear, or flip
-the flags turned on in the {\tt in} vector:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{set\_some\_flags\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::SET_SOME_FLAGS} \\
-\verb|void min::| & \MINKEY{clear\_some\_flags\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::CLEAR_SOME_FLAGS} \\
-\verb|void min::| & \MINKEY{flip\_some\_flags\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   const min::gen * in, unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::FLIP_SOME_FLAGS} \\
-\end{tabular}\end{indpar}
-
-The following functions may be used to test, set, or clear, or flip
-individual flag number {\tt n}:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{test\_flag}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attribute_pointer wap, unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::TEST_FLAG} \\
-\verb|bool min::| & \MINKEY{test\_flag}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::TEST_FLAG_OF_WRITABLE} \\
-\verb|void min::| & \MINKEY{set\_flag\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::SET_FLAG} \\
-\verb|void min::| & \MINKEY{clear\_flag\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::CLEAR_FLAG} \\
-\verb|void min::| & \MINKEY{flip\_flag\REL}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::writable_attribute_pointer wap,| \\
-    \verb|   unsigned n )| \\
-    \end{tabular}
-\LABEL{MIN::FLIP_FLAG} \\
-\end{tabular}\end{indpar}
-
 It is possible to discover all the attribute names associated with
 an object, and all the reverse attribute names associated with an
 attribute of an object.  This can be done with the following
 functions:
-
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_attributes}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, min::unsptr n,| \\
-    \verb|   min::attribute_pointer ap )| \\
-    \end{tabular}
-\LABEL{MIN::GET_ATTRIBUTES} \\
-\verb|void min::| & \MINKEY{rewind\_attributes}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attribute_pointer ap )| \\
-    \end{tabular}
-\LABEL{MIN::REWIND_ATTRIBUTES} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::gen * out, min::unsptr n,| \\
-    \verb|   min::attribute_pointer ap )| \\
-    \end{tabular}
-\LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
-\verb|void min::| & \MINKEY{rewind\_reverse\_attributes}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attribute_pointer ap )| \\
-    \end{tabular}
-\LABEL{MIN::REWIND_REVERSE_ATTRIBUTES} \\
-\end{tabular}\end{indpar}
-
-The {\tt get\_attributes} function gets up to {\tt n} attribute
-names of the object associated with the {\tt attribute\_pointer},
-and returns the number of names gotten.  If called multiple times,
-it gets successive names until all the names are returned.  To be
-sure all names have been returned, it should be called repeatedly
-until it returns fewer than {\tt n} names (if there are no names
-left {\tt 0} will be returned).  An attribute name is returned
-only if the attribute has a non-empty value set, or has a non-zero flag,
-or has an attribute value associated with a reverse attribute name.
-
-If you want to restart at the
-beginning, {\tt rewind\_attributes} can be called.  If
-the object is reorganized or relocated as per Section~\secref{BODY-POINTERS},
-the attribute pointers of the object will become obsolete,
-and either the {\tt relocate} function (\pagref{MIN::RELOCATE_ATTRIBUTE})
-should be called before continuing, or the {\tt rewind\_attributes}
-function should be called to start over.
-
-The {\tt get\_reverse\_attributes} and {\tt rewind\_reverse\_attribute}
-functions are analogous but return reverse attribute names associated
-with a particular object and the attribute name stored in the attribute
-pointer.  A reverse attribute name is returned
-only if its value set is non-empty.
 
 
 TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
@@ -6883,7 +7090,7 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{set}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen value )|
-\LABEL{MIN::SET_OF_INSERTABLE} \\
+\LABEL{MIN::SET_OF_INSERTABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -6928,212 +7135,6 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{attribute\_pointer}\verb| ( min::stub * s )|
-\LABEL{MUP::ATTRIBUTE_POINTER_OF_STUB} \\
-(constructor)~\verb|MUP::|
-	& \MUPKEY{attribute\_pointer}\verb| ( min::gen obj )|
-\LABEL{MUP::ATTRIBUTE_POINTER_OF_GEN} \\
-\verb|min::gen min::|
-	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
-	  \verb|   min::gen name )|
-\LABEL{MIN::LOCATE_ATTRIBUTE} \\
-\verb|min::gen min::|
-	& \MINKEY{locatei}\ARGBREAK
-	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
-	  \verb|   int name )|
-\LABEL{MIN::LOCATEI_ATTRIBUTE} \\
-\verb|min::gen min::|
-	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
-	  \verb|   min::unsptr & length, min::gen name )|
-\LABEL{MIN::LOCATE_PARTIAL} \\
-\verb|min::gen min::|
-	& \MINKEY{locate\_reverse}\ARGBREAK
-	  \verb| ( min::attribute_pointer & ap,|\ARGBREAK
-	  \verb|   min::gen reverse_name )|
-\LABEL{MIN::LOCATE_REVERSE} \\
-\verb|min::gen min::|
-	& \MINKEY{relocate}%
-	  \verb| ( min::attribute_pointer & ap )|
-\LABEL{MIN::RELOCATE_ATTRIBUTE} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.8in}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_attribute\_pointer}\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_STUB} \\
-(constructor)~\verb|MUP::|
-	& \MUPKEY{writable\_attribute\_pointer}\ARGBREAK
-	  \verb| ( min::gen obj )|
-\LABEL{MUP::WRITABLE_ATTRIBUTE_POINTER_OF_GEN} \\
-\verb|min::gen min::|
-	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
-	  \verb|   min::gen name )|
-\LABEL{MIN::LOCATE_ATTRIBUTE_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{locatei}\ARGBREAK
-	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
-	  \verb|   int name )|
-\LABEL{MIN::LOCATEI_ATTRIBUTE_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
-	  \verb|   min::unsptr & length, min::gen name )|
-\LABEL{MIN::LOCATE_PARTIAL_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{locate\_reverse}\ARGBREAK
-	  \verb| ( min::writable_attribute_pointer & wap,|\ARGBREAK
-	  \verb|   min::gen reverse_name )|
-\LABEL{MIN::LOCATE_REVERSE_WRITABLE} \\
-\verb|min::gen min::|
-	& \MINKEY{relocate}\ARGBREAK
-	  \verb| ( min::writable_attribute_pointer & wap )|
-\LABEL{MIN::RELOCATE_ATTRIBUTE_WRITABLE} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.6in}
-\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
-    \verb| ( min::attribute_pointer ap )|
-\LABEL{MIN::COUNT_OF_ATTRIBUTE_POINTER} \\
-\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::attribute_pointer ap )|
-\LABEL{MIN::GET_OF_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{count\_flags}%
-    \verb| ( min::attribute_pointer ap )|
-\LABEL{MIN::COUNT_FLAGS_OF_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
-    \verb|   min::attribute_pointer ap )|
-\LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE_POINTER} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.6in}
-\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap )|
-\LABEL{MIN::COUNT_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
-\LABEL{MIN::GET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap )|
-\LABEL{MIN::COUNT_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
-    \verb| ( min::gen * out, unsigned n,|\ARGBREAK
-    \verb|   min::writable_attribute_pointer wap )|
-\LABEL{MIN::GET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, min::unsptr n )|
-\LABEL{MIN::SET_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|void min::| & \MINKEY{set\_flags\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, unsigned n )|
-\LABEL{MIN::SET_FLAGS_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|min::gen min::| & \MINKEY{get}%
-    \verb| ( min::attribute_pointer ap )|
-\LABEL{MIN::GET1_OF_ATTRIBUTE_POINTER} \\
-\verb|min::gen min::| & \MINKEY{get}%
-    \verb| ( min::writable_attribute_pointer wap )|
-\LABEL{MIN::GET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
-\LABEL{MIN::SET1_OF_WRITABLE_ATTRIBUTE_POINTER} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, min::unsptr n )|
-\LABEL{MIN::ADD_TO_SET} \\
-\verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, min::unsptr n )|
-\LABEL{MIN::ADD_TO_MULTISET} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{set\_some\_flags\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, unsigned n )|
-\LABEL{MIN::SET_SOME_FLAGS} \\
-\verb|void min::| & \MINKEY{clear\_some\_flags\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, unsigned n )|
-\LABEL{MIN::CLEAR_SOME_FLAGS} \\
-\verb|void min::| & \MINKEY{flip\_some\_flags\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   const min::gen * in, unsigned n )|
-\LABEL{MIN::FLIP_SOME_FLAGS} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.2in}
-\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb| ( min::attribute_pointer ap, unsigned n )|
-\LABEL{MIN::TEST_FLAG} \\
-\verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   unsigned n )|
-\LABEL{MIN::TEST_FLAG_OF_WRITABLE} \\
-\verb|void min::| & \MINKEY{set\_flag\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   unsigned n )|
-\LABEL{MIN::SET_FLAG} \\
-\verb|void min::| & \MINKEY{clear\_flag\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   unsigned n )|
-\LABEL{MIN::CLEAR_FLAG} \\
-\verb|void min::| & \MINKEY{flip\_flag\REL}\ARGBREAK
-    \verb| ( min::writable_attribute_pointer wap,|\ARGBREAK
-    \verb|   unsigned n )|
-\LABEL{MIN::FLIP_FLAG} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.6in}
-\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::attribute_pointer ap )|
-\LABEL{MIN::GET_ATTRIBUTES} \\
-\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
-    \verb| ( min::attribute_pointer ap )|
-\LABEL{MIN::REWIND_ATTRIBUTES} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::attribute_pointer ap )|
-\LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
-\verb|void min::| & \MINKEY{rewind\_reverse\_attributes}\ARGBREAK
-    \verb| ( min::attribute_pointer ap )|
-\LABEL{MIN::REWIND_REVERSE_ATTRIBUTES} \\
 \end{TABULAR}
 
 \end{indpar}
