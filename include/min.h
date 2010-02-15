@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 15 07:00:41 EST 2010
+// Date:	Mon Feb 15 07:20:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 12:20:29 $
+//   $Date: 2010/02/15 12:39:11 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.255 $
+//   $Revision: 1.256 $
 
 // Table of Contents:
 //
@@ -5223,7 +5223,7 @@ namespace min {
 // ------ --------- -----
 
 
-namespace min { namespace internal {
+namespace min { namespace unprotected {
 
     // This is the generic attribute pointer type from
     // which specific attribute pointer types are made.
@@ -5233,49 +5233,46 @@ namespace min { namespace internal {
 
 } }
 
-namespace min { namespace unprotected {
+namespace min {
 
-    // Public unprotected attribute pointer types.
+    // Public protected attribute pointer types.
 
-    typedef min::internal::attribute_pointer_type
+    typedef min::unprotected::attribute_pointer_type
 	    < min::list_pointer >
         attribute_pointer;
-    typedef min::internal::attribute_pointer_type
+    typedef min::unprotected::attribute_pointer_type
 	    < min::insertable_list_pointer >
         writable_attribute_pointer;
 
-} }
-
-namespace min { 
 
     // We must declare these before we make them
     // friends.
 
     template < class list_pointer_type >
     void locate
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      min::gen name );
     template < class list_pointer_type >
     void locatei
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      int name );
     template < class list_pointer_type >
     void locate_reverse
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      min::gen reverse_name );
     template < class list_pointer_type >
     void relocate
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap );
 
 #   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
 	template < class list_pointer_type >
 	void locate
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  min::unsptr & length, min::gen name );
 
@@ -5283,44 +5280,40 @@ namespace min {
 
     template < class list_pointer_type >
     min::unsptr count
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap );
 
     template < class list_pointer_type >
     min::unsptr get
 	    ( min::gen * out, min::unsptr n,
-	      internal::attribute_pointer_type
+	      unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap );
 
     template < class list_pointer_type >
     unsigned count_flags
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap );
 
     template < class list_pointer_type >
     unsigned get_flags
 	    ( min::gen * out, unsigned n,
-	      internal::attribute_pointer_type
+	      unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap );
     void set
-	    ( min::unprotected
-	         ::writable_attribute_pointer
+	    ( min::writable_attribute_pointer
 		  & wap,
 	      const min::gen * in, min::unsptr n );
     void add_to_set
-	    ( min::unprotected
-	         ::writable_attribute_pointer
+	    ( min::writable_attribute_pointer
 		  & wap,
 	      const min::gen * in, min::unsptr n );
     void add_to_multiset
-	    ( min::unprotected
-	         ::writable_attribute_pointer
+	    ( min::writable_attribute_pointer
 		  & wap,
 	      const min::gen * in, min::unsptr n );
 
     void set_flags
-	    ( min::unprotected
-	         ::writable_attribute_pointer
+	    ( min::writable_attribute_pointer
 		  & wap,
 	      const min::gen * in, unsigned n );
 
@@ -5330,7 +5323,7 @@ namespace min {
 
 	    template < class list_pointer_type >
 	    void locate
-		    ( internal::attribute_pointer_type
+		    ( unprotected::attribute_pointer_type
 			  < list_pointer_type > & ap,
 		      min::gen name,
 		      bool allow_partial_label = false
@@ -5340,59 +5333,54 @@ namespace min {
 
 	    template < class list_pointer_type >
 	    void locate
-		    ( internal::attribute_pointer_type
+		    ( unprotected::attribute_pointer_type
 			  < list_pointer_type > & ap,
 		      min::gen name );
 #	endif
 
 	template < class list_pointer_type >
 	void relocate
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	template < class list_pointer_type >
 	min::unsptr count
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	template < class list_pointer_type >
 	min::unsptr get
 		( min::gen * out, min::unsptr n,
-		  internal::attribute_pointer_type
+		  unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	void set
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, min::unsptr n );
 
 	void set_flags
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, unsigned n );
 
 	void set_more_flags
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, unsigned n );
 
 	void attribute_create
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap );
 
 	void reverse_attribute_create
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap );
     }
 
 }
 
-namespace min { namespace internal {
+namespace min { namespace unprotected {
 
 
     template < class list_pointer_type >
@@ -5528,31 +5516,31 @@ namespace min { namespace internal {
     // Friends:
 
 	friend void min::locate<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  min::gen name );
 	friend void min::locatei<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  int name );
 	friend void min::locate_reverse<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  min::gen reverse_name );
 	friend void min::relocate<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
 	    friend void min::locate<>
-		    ( internal::attribute_pointer_type
+		    ( unprotected::attribute_pointer_type
 			  < list_pointer_type > & ap,
 		      min::unsptr & length,
 		      min::gen name );
 
 	    friend void min::internal::locate<>
-		    ( internal::attribute_pointer_type
+		    ( unprotected::attribute_pointer_type
 			  < list_pointer_type > & ap,
 		      min::gen name,
 		      bool allow_partial_labels );
@@ -5560,94 +5548,85 @@ namespace min { namespace internal {
 #	else
 
 	    friend void min::internal::locate<>
-		    ( internal::attribute_pointer_type
+		    ( unprotected::attribute_pointer_type
 			  < list_pointer_type > & ap,
 		      min::gen name );
 
 #	endif
 
 	friend void min::internal::relocate<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	friend min::unsptr min::count<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	friend min::unsptr min::get<>
 		( min::gen * out, min::unsptr n,
-		  internal::attribute_pointer_type
+		  unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	friend unsigned min::count_flags<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	friend unsigned min::get_flags<>
 		( min::gen * out, unsigned n,
-		  internal::attribute_pointer_type
+		  unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	friend void min::set
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::add_to_set
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::add_to_multiset
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::set_flags
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, unsigned n );
 
 	friend min::unsptr min::internal::count<>
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	friend min::unsptr min::internal::get<>
 		( min::gen * out, min::unsptr n,
-		  internal::attribute_pointer_type
+		  unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap );
 
 	friend void min::internal::set
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::internal::set_flags
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, unsigned n );
 
 	friend void min::internal::set_more_flags
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap,
 		  const min::gen * in, unsigned n );
 
 	friend void min::internal::attribute_create
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap );
 
 	friend void min::internal
 	               ::reverse_attribute_create
-		( min::unprotected
-		     ::writable_attribute_pointer
+		( min::writable_attribute_pointer
 		      & wap );
 
     };
@@ -5660,11 +5639,11 @@ namespace min {
 
     template < class list_pointer_type >
     inline void locatei
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 		  < list_pointer_type > & ap,
 	      int name )
     {
-	typedef internal::attribute_pointer_type
+	typedef unprotected::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	ap.attribute_name = min::new_num_gen ( name );
@@ -5695,7 +5674,7 @@ namespace min {
 
     template < class list_pointer_type >
     inline void locate
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 		  < list_pointer_type > & ap,
 	      min::gen name )
     {
@@ -5720,7 +5699,7 @@ namespace min {
 
 	template < class list_pointer_type >
 	inline void locate
-		( internal::attribute_pointer_type
+		( unprotected::attribute_pointer_type
 		      < list_pointer_type > & ap,
 		  min::unsptr & length,
 		  min::gen name )
@@ -5762,10 +5741,10 @@ namespace min {
 
     template < class list_pointer_type >
     inline min::unsptr count
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
-	typedef internal::attribute_pointer_type
+	typedef unprotected::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	min::gen c = refresh ( ap.dlp );
@@ -5785,10 +5764,10 @@ namespace min {
     template < class list_pointer_type >
     inline min::unsptr get
 	    ( min::gen * out, min::unsptr n,
-	      internal::attribute_pointer_type
+	      unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
-	typedef internal::attribute_pointer_type
+	typedef unprotected::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	if ( n == 0 ) return 0;
@@ -5812,10 +5791,10 @@ namespace min {
 
     template < class list_pointer_type >
     inline unsigned count_flags
-	    ( internal::attribute_pointer_type
+	    ( unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
-	typedef internal::attribute_pointer_type
+	typedef unprotected::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	switch ( ap.state )
@@ -5842,10 +5821,10 @@ namespace min {
     template < class list_pointer_type >
     inline unsigned get_flags
 	    ( min::gen * out, unsigned n,
-	      internal::attribute_pointer_type
+	      unprotected::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
-	typedef internal::attribute_pointer_type
+	typedef unprotected::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	switch ( ap.state )
@@ -5871,12 +5850,10 @@ namespace min {
     }
 
     inline void set
-	    ( min::unprotected
-		 ::writable_attribute_pointer & wap,
+	    ( min::writable_attribute_pointer & wap,
 	      const min::gen * in, min::unsptr n )
     {
-	typedef unprotected::writable_attribute_pointer
-		    ap_type;
+	typedef writable_attribute_pointer ap_type;
 
 	min::gen c =  refresh ( wap.dlp );
 	if ( n == 1 ) switch ( wap.state )
@@ -5894,12 +5871,10 @@ namespace min {
     }
 
     inline void set_flags
-	    ( min::unprotected
-		 ::writable_attribute_pointer & wap,
+	    ( min::writable_attribute_pointer & wap,
 	      const min::gen * in, unsigned n )
     {
-	typedef unprotected::writable_attribute_pointer
-		    ap_type;
+	typedef writable_attribute_pointer ap_type;
 
 	min::gen c = refresh ( wap.locate_dlp );
 	switch ( wap.state )
