@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 15 10:09:55 EST 2010
+// Date:	Mon Feb 15 10:16:28 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 15:15:52 $
+//   $Date: 2010/02/15 15:17:05 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.258 $
+//   $Revision: 1.259 $
 
 // Table of Contents:
 //
@@ -5269,7 +5269,7 @@ namespace min {
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
 
-#   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
 	template < class vecpt >
 	void locate
@@ -5316,7 +5316,7 @@ namespace min {
 
     namespace internal {
 
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
 	    template < class vecpt >
 	    void locate
@@ -5326,7 +5326,7 @@ namespace min {
 		      bool allow_partial_label = false
 		    );
 
-#	else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 
 	    template < class vecpt >
 	    void locate
@@ -5401,7 +5401,7 @@ namespace min { namespace unprotected {
 	    // also reset to NONE by a locate function
 	    // call.
 
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::unsptr length;
 	        // Length that would be returned by the
 		// last locate if that locate had a
@@ -5515,7 +5515,7 @@ namespace min { namespace unprotected {
 		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
 	    friend void min::locate<>
 		    ( unprotected::attr_pointer_type
@@ -5637,7 +5637,7 @@ namespace min {
 	    ap.state = ap_type::LOCATE_NONE;
 	    ap.reverse_attr_name = min::NONE;
 
-#	    if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		ap.length = 1;
 #	    endif
 
@@ -5670,7 +5670,7 @@ namespace min {
 	internal::locate ( ap, name );
     }
 
-#   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
 	template < class vecpt >
 	inline void locate

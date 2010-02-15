@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 15 07:42:32 EST 2010
+// Date:	Mon Feb 15 10:05:24 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 14:57:06 $
+//   $Date: 2010/02/15 15:16:11 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.147 $
+//   $Revision: 1.148 $
 
 // Table of Contents:
 //
@@ -3217,7 +3217,7 @@ bool MINT::insert_reserve
 // functions as refresh() must be called by the min::
 // functions before they call the MINT:: functions.
 
-# if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+# if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
     // Handle all cases except where the name is an
     // integer number atom in the range of an attribute
@@ -3225,16 +3225,14 @@ bool MINT::insert_reserve
     //
     template < class vecpt >
     void MINT::locate
-	    ( MUP::attribute_pointer_type
-	          < vecpt > & ap,
+	    ( MUP::attr_pointer_type<vecpt> & ap,
 	      min::gen name,
 	      bool allow_partial_labels )
     {
-	typedef MUP::attribute_pointer_type
-		    < vecpt > ap_type;
+	typedef MUP::attr_pointer_type<vecpt> ap_type;
 
-	ap.attribute_name = name;
-	ap.reverse_attribute_name = min::NONE;
+	ap.attr_name = name;
+	ap.reverse_attr_name = min::NONE;
 
 	// Set len to the number of elements in the
 	// label and element[] to the vector of
@@ -3362,23 +3360,21 @@ bool MINT::insert_reserve
     // 
     template < class vecpt >
     inline void MINT::relocate
-	    ( MUP::attribute_pointer_type
-	          < vecpt > & ap )
+	    ( MUP::attr_pointer_type<vecpt> & ap )
     {
-	typedef MUP::attribute_pointer_type
-		    < vecpt > ap_type;
+	typedef MUP::attr_pointer_type<vecpt> ap_type;
 
 	MIN_ASSERT ( ap.length > 0 );
 
-	bool is_label = is_lab ( ap.attribute_name );
+	bool is_label = is_lab ( ap.attr_name );
 	min::unsptr len;
 	if ( is_label )
-	    len = min::lablen ( ap.attribute_name );
+	    len = min::lablen ( ap.attr_name );
 	else len = 1;
 	min::gen element[len];
 	if ( is_label )
-	    lab_of ( element, len, ap.attribute_name );
-	else element[0] = ap.attribute_name;
+	    lab_of ( element, len, ap.attr_name );
+	else element[0] = ap.attr_name;
 
 	min::gen c;
 	if ( ! ( ap.flags & ap_type::IN_VECTOR ) )
@@ -3430,18 +3426,16 @@ bool MINT::insert_reserve
 	MIN_REQUIRE ( length == ap.length );
     }
 
-# else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+# else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 
     template < class vecpt >
     void MINT::locate
-	    ( MUP::attribute_pointer_type
-		  < vecpt > & ap,
+	    ( MUP::attr_pointer_type<vecpt> & ap,
 	      min::gen name )
     {
-	typedef MUP::attribute_pointer_type
-		    < vecpt > ap_type;
+	typedef MUP::attr_pointer_type<vecpt> ap_type;
 
-	ap.reverse_attribute_name = min::NONE;
+	ap.reverse_attr_name = min::NONE;
 
 	// If name is label whose only element is an
 	// atom, set name = the atom.
@@ -3462,7 +3456,7 @@ bool MINT::insert_reserve
 	    MIN_ASSERT
 		( is_str ( name ) || is_num ( name ) );
 
-	ap.attribute_name = name;
+	ap.attr_name = name;
 
 	// If name is an integer in the right range,
 	// locate attribute vector entry and return.
@@ -3522,18 +3516,16 @@ bool MINT::insert_reserve
     // 
     template < class vecpt >
     inline void MINT::relocate
-	    ( MUP::attribute_pointer_type
-		  < vecpt > & ap )
+	    ( MUP::attr_pointer_type<vecpt> & ap )
     {
-	typedef MUP::attribute_pointer_type
-		    < vecpt > ap_type;
+	typedef MUP::attr_pointer_type<vecpt> ap_type;
 
 	for ( min::gen c = current ( ap.locate_dlp );
 	      ! is_list_end ( c );
 	      next ( ap.locate_dlp),
 	      c = next ( ap.locate_dlp ) )
 	{
-	    if ( c == ap.attribute_name )
+	    if ( c == ap.attr_name )
 	    {
 		c = next ( ap.locate_dlp );
 		MIN_ASSERT ( ! is_list_end ( c ) );
@@ -3549,12 +3541,10 @@ bool MINT::insert_reserve
 
 template < class vecpt >
 void min::locate_reverse
-	( MUP::attribute_pointer_type
-	      < vecpt > & ap,
+	( MUP::attr_pointer_type<vecpt> & ap,
 	  min::gen reverse_name )
 {
-    typedef MUP::attribute_pointer_type
-		< vecpt > ap_type;
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
 
     // If reverse_name is label whose only element is an
     // atom, set reverse_name = the atom.
@@ -3571,10 +3561,10 @@ void min::locate_reverse
 	    reverse_name = atom;
     }
 
-    if ( reverse_name == ap.reverse_attribute_name )
+    if ( reverse_name == ap.reverse_attr_name )
         return;
 
-    ap.reverse_attribute_name = reverse_name;
+    ap.reverse_attr_name = reverse_name;
 
     switch ( ap.state )
     {
@@ -3623,7 +3613,7 @@ void min::locate_reverse
 	 ||
 	 ! ( start_sublist ( ap.dlp ),
 	     is_sublist ( current ( ap.dlp ) ) )
-#	   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	 ||
 	 ! is_sublist ( next ( ap.dlp ) )
 #	   endif
@@ -3654,18 +3644,16 @@ void min::locate_reverse
 
 template < class vecpt >
 void min::relocate
-	( MUP::attribute_pointer_type
-	      < vecpt > & ap )
+	( MUP::attr_pointer_type<vecpt> & ap )
 {
-    typedef MUP::attribute_pointer_type
-		< vecpt > ap_type;
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
     case ap_type::INIT:
         return;
     case ap_type::LOCATE_FAIL:
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    ap.length = 0;
 #	endif
 	return;
@@ -3674,7 +3662,7 @@ void min::relocate
     if ( ap.flags & ap_type::IN_VECTOR )
     {
         start_vector ( ap.locate_dlp, ap.index );
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    if ( ap.length != 1 ) MINT::relocate ( ap );
 #	endif
     }
@@ -3700,7 +3688,7 @@ void min::relocate
 	 ||
 	 ! ( start_sublist ( ap.dlp ),
 	     is_sublist ( current ( ap.dlp ) ) )
-#	   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	 ||
 	 ! is_sublist ( next ( ap.dlp ) )
 #	   endif
@@ -3714,7 +3702,7 @@ void min::relocate
 	  ! is_list_end ( c );
 	  next ( ap.dlp), c = next ( ap.dlp ) )
     {
-	if ( c == ap.reverse_attribute_name )
+	if ( c == ap.reverse_attr_name )
 	{
 	    c = next ( ap.dlp );
 	    MIN_REQUIRE ( ! is_list_end ( c ) );
@@ -3727,11 +3715,9 @@ void min::relocate
 
 template < class vecpt >
 inline min::unsptr MINT::count
-	( MUP::attribute_pointer_type
-	      < vecpt > & ap )
+	( MUP::attr_pointer_type<vecpt> & ap )
 {
-    typedef MUP::attribute_pointer_type
-		< vecpt > ap_type;
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
 
     min:gen c;
     list_pointer lp ( min::vec_pointer_of ( ap.dlp ) );
@@ -3767,7 +3753,7 @@ inline min::unsptr MINT::count
 		 ||
 		 ! ( start_sublist ( lp ),
 		     is_sublist ( current ( lp ) ) )
-#	    if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		 ||
 		 ! is_sublist ( next ( lp ) )
 #	    endif
@@ -3808,11 +3794,9 @@ inline min::unsptr MINT::count
 template < class vecpt >
 inline min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  MUP::attribute_pointer_type
-	      < vecpt > & ap )
+	  MUP::attr_pointer_type<vecpt> & ap )
 {
-    typedef MUP::attribute_pointer_type
-		< vecpt > ap_type;
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
 
     min:gen c;
     list_pointer lp ( vec_pointer_of ( ap.dlp ) );
@@ -3848,7 +3832,7 @@ inline min::unsptr MINT::get
 		 ||
 		 ! ( start_sublist ( lp ),
 		     is_sublist ( current ( lp ) ) )
-#	    if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		 ||
 		 ! is_sublist ( next ( lp ) )
 #	    endif
@@ -3888,25 +3872,25 @@ inline min::unsptr MINT::get
 }
 
 void MINT::set
-	( min::writable_attribute_pointer & wap,
+	( min::writable_attr_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::writable_attribute_pointer ap_type;
+    typedef min::writable_attr_pointer ap_type;
 
     MIN_ASSERT
-        ( wap.reverse_attribute_name != min::ANY );
+        ( wap.reverse_attr_name != min::ANY );
 
     switch ( wap.state )
     {
     case ap_type::INIT:
 	    MIN_ABORT ( "bad attribute set call" );
     case ap_type::LOCATE_FAIL:
-    	    MINT::attribute_create ( wap );
-	    if (    wap.reverse_attribute_name
+    	    MINT::attr_create ( wap );
+	    if (    wap.reverse_attr_name
 	         == min::NONE )
 	        break;
     case ap_type::REVERSE_LOCATE_FAIL:
-	    MINT::reverse_attribute_create ( wap );
+	    MINT::reverse_attr_create ( wap );
     }
 
     // WARNING: Attribute create may have relocated
@@ -3968,13 +3952,13 @@ void MINT::set
 }
 
 void min::add_to_multiset
-	( min::writable_attribute_pointer & wap,
+	( min::writable_attr_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::writable_attribute_pointer ap_type;
+    typedef min::writable_attr_pointer ap_type;
 
     MIN_ASSERT
-        ( wap.reverse_attribute_name != min::ANY );
+        ( wap.reverse_attr_name != min::ANY );
 
     if ( n == 0 ) return;
 
@@ -4034,13 +4018,13 @@ void min::add_to_multiset
 }
 
 void min::add_to_set
-	( min::writable_attribute_pointer & wap,
+	( min::writable_attr_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::writable_attribute_pointer ap_type;
+    typedef min::writable_attr_pointer ap_type;
 
     MIN_ASSERT
-        ( wap.reverse_attribute_name != min::ANY );
+        ( wap.reverse_attr_name != min::ANY );
 
     if ( n == 0 ) return;
 
@@ -4133,10 +4117,10 @@ void min::add_to_set
 }
 
 void MINT::set_flags
-	( min::writable_attribute_pointer & wap,
+	( min::writable_attr_pointer & wap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::writable_attribute_pointer ap_type;
+    typedef min::writable_attr_pointer ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -4147,7 +4131,7 @@ void MINT::set_flags
 	    MIN_ABORT
 	        ( "bad attribute set flags call" );
     case ap_type::LOCATE_FAIL:
-    	    MINT::attribute_create ( wap );
+    	    MINT::attr_create ( wap );
     }
 
     // WARNING: Attribute create may have relocated
@@ -4209,10 +4193,10 @@ void MINT::set_flags
 // already have a descriptor that is a sublist.
 //
 void MINT::set_more_flags
-	( min::writable_attribute_pointer & wap,
+	( min::writable_attr_pointer & wap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::writable_attribute_pointer ap_type;
+    typedef min::writable_attr_pointer ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -4248,26 +4232,26 @@ void MINT::set_more_flags
     insert_before ( lp, in, n );
 }
 
-#if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
-    void MINT::attribute_create
-	    ( min::writable_attribute_pointer & wap )
+    void MINT::attr_create
+	    ( min::writable_attr_pointer & wap )
     {
-	typedef min::writable_attribute_pointer ap_type;
+	typedef min::writable_attr_pointer ap_type;
 
 	MIN_ASSERT
 	    ( wap.state == ap_type::LOCATE_FAIL );
 
-	bool is_label = is_lab ( wap.attribute_name );
+	bool is_label = is_lab ( wap.attr_name );
 	min::unsptr len;
 	if ( is_label )
-	    len = min::lablen ( wap.attribute_name );
+	    len = min::lablen ( wap.attr_name );
 	else
 	    len = 1;
 	min::gen element[len];
 	if ( is_label )
-	    lab_of ( element, len, wap.attribute_name );
-	else element[0] = wap.attribute_name;
+	    lab_of ( element, len, wap.attr_name );
+	else element[0] = wap.attr_name;
 
 	MIN_ASSERT ( wap.length < len );
 
@@ -4360,21 +4344,21 @@ void MINT::set_more_flags
 	}
 
 	start_copy ( wap.dlp, wap.locate_dlp );
-	if ( wap.reverse_attribute_name == min::NONE )
+	if ( wap.reverse_attr_name == min::NONE )
 	    wap.state = ap_type::LOCATE_NONE;
-	else if (    wap.reverse_attribute_name
+	else if (    wap.reverse_attr_name
 	          == min::ANY )
 	    wap.state = ap_type::LOCATE_ANY;
 	else
 	    wap.state = ap_type::REVERSE_LOCATE_FAIL;
     }
 
-#else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 
-    void MINT::attribute_create
-	    ( min::writable_attribute_pointer & wap )
+    void MINT::attr_create
+	    ( min::writable_attr_pointer & wap )
     {
-	typedef min::writable_attribute_pointer ap_type;
+	typedef min::writable_attr_pointer ap_type;
 
 	MIN_ASSERT
 	    ( wap.state == ap_type::LOCATE_FAIL );
@@ -4394,16 +4378,16 @@ void MINT::set_more_flags
 	}
 
 	min::gen elements[2] =
-	    { wap.attribute_name, min::EMPTY_SUBLIST };
+	    { wap.attr_name, min::EMPTY_SUBLIST };
 	insert_before ( lp, elements, 2 );
 
         start_hash ( wap.dlp, wap.index );
 	next ( wap.dlp );
 	start_copy ( wap.locate_dlp, wap.dlp );
 
-	if ( wap.reverse_attribute_name == min::NONE )
+	if ( wap.reverse_attr_name == min::NONE )
 	    wap.state = ap_type::LOCATE_NONE;
-	else if (    wap.reverse_attribute_name
+	else if (    wap.reverse_attr_name
 	          == min::ANY )
 	    wap.state = ap_type::LOCATE_ANY;
 	else
@@ -4412,10 +4396,10 @@ void MINT::set_more_flags
 
 #endif
 
-void MINT::reverse_attribute_create
-	( min::writable_attribute_pointer & wap )
+void MINT::reverse_attr_create
+	( min::writable_attr_pointer & wap )
 {
-    typedef min::writable_attribute_pointer ap_type;
+    typedef min::writable_attr_pointer ap_type;
 
     MIN_ASSERT
 	( wap.state == ap_type::REVERSE_LOCATE_FAIL );
@@ -4429,7 +4413,7 @@ void MINT::reverse_attribute_create
 
     if ( ! is_sublist ( c ) )
     {
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::insert_reserve ( lp, 1, 3 );
 	    if ( relocated ) min::relocate ( wap );
 	    set ( wap.locate_dlp,
@@ -4442,7 +4426,7 @@ void MINT::reverse_attribute_create
 	    insert_before ( lp, elements, 3 );
 	    start_sublist ( lp, wap.locate_dlp );
 	    next ( lp );
-#	else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::insert_reserve ( lp, 1, 2 );
 	    if ( relocated ) min::relocate ( wap );
 	    set ( wap.locate_dlp,
@@ -4457,7 +4441,7 @@ void MINT::reverse_attribute_create
     else if ( start_sublist ( lp ),
               ! is_sublist ( current ( lp ) ) )
     {
-#	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::insert_reserve ( lp, 1, 2 );
 	    if ( relocated )
 	    {
@@ -4470,7 +4454,7 @@ void MINT::reverse_attribute_create
 	    insert_before ( lp, elements, 2 );
 	    start_sublist ( lp, wap.locate_dlp );
 	    next ( lp );
-#	else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::insert_reserve ( lp, 1, 1 );
 	    if ( relocated )
 	    {
@@ -4484,7 +4468,7 @@ void MINT::reverse_attribute_create
 #	endif
     }
 
-#   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	else if ( ! is_sublist ( next ( lp ) ) )
 	{
 	    min::insert_reserve ( lp, 1, 1 );
@@ -4504,12 +4488,12 @@ void MINT::reverse_attribute_create
 
     start_sublist ( lp );
     min::gen elements[2] =
-	{ wap.reverse_attribute_name,
+	{ wap.reverse_attr_name,
 	  min::EMPTY_SUBLIST };
     insert_before ( lp, elements, 2 );
 
     start_sublist ( wap.dlp, wap.locate_dlp );
-#   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	next ( wap.dlp );
 #   endif
     start_sublist ( wap.dlp );
