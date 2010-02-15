@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 15 07:33:40 EST 2010
+// Date:	Mon Feb 15 07:42:32 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 12:38:35 $
+//   $Date: 2010/02/15 14:57:06 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.146 $
+//   $Revision: 1.147 $
 
 // Table of Contents:
 //
@@ -3223,15 +3223,15 @@ bool MINT::insert_reserve
     // integer number atom in the range of an attribute
     // vector subscript.
     //
-    template < class list_pointer_type >
+    template < class vecpt >
     void MINT::locate
 	    ( MUP::attribute_pointer_type
-	          < list_pointer_type > & ap,
+	          < vecpt > & ap,
 	      min::gen name,
 	      bool allow_partial_labels )
     {
 	typedef MUP::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	ap.attribute_name = name;
 	ap.reverse_attribute_name = min::NONE;
@@ -3360,13 +3360,13 @@ bool MINT::insert_reserve
     // positioned at beginning of hash-list or
     // vector-list.  State must be >= LOCATE_NONE.
     // 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline void MINT::relocate
 	    ( MUP::attribute_pointer_type
-	          < list_pointer_type > & ap )
+	          < vecpt > & ap )
     {
 	typedef MUP::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	MIN_ASSERT ( ap.length > 0 );
 
@@ -3432,14 +3432,14 @@ bool MINT::insert_reserve
 
 # else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
-    template < class list_pointer_type >
+    template < class vecpt >
     void MINT::locate
 	    ( MUP::attribute_pointer_type
-		  < list_pointer_type > & ap,
+		  < vecpt > & ap,
 	      min::gen name )
     {
 	typedef MUP::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	ap.reverse_attribute_name = min::NONE;
 
@@ -3520,13 +3520,13 @@ bool MINT::insert_reserve
     // vector-list.  State must be >= LOCATE_NONE.
     // Is NOT called if IN_VECTOR flag is set.
     // 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline void MINT::relocate
 	    ( MUP::attribute_pointer_type
-		  < list_pointer_type > & ap )
+		  < vecpt > & ap )
     {
 	typedef MUP::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	for ( min::gen c = current ( ap.locate_dlp );
 	      ! is_list_end ( c );
@@ -3547,14 +3547,14 @@ bool MINT::insert_reserve
 
 # endif
 
-template < class list_pointer_type >
+template < class vecpt >
 void min::locate_reverse
 	( MUP::attribute_pointer_type
-	      < list_pointer_type > & ap,
+	      < vecpt > & ap,
 	  min::gen reverse_name )
 {
     typedef MUP::attribute_pointer_type
-		< list_pointer_type > ap_type;
+		< vecpt > ap_type;
 
     // If reverse_name is label whose only element is an
     // atom, set reverse_name = the atom.
@@ -3652,13 +3652,13 @@ void min::locate_reverse
     ap.state = ap_type::REVERSE_LOCATE_FAIL;
 }
 
-template < class list_pointer_type >
+template < class vecpt >
 void min::relocate
 	( MUP::attribute_pointer_type
-	      < list_pointer_type > & ap )
+	      < vecpt > & ap )
 {
     typedef MUP::attribute_pointer_type
-		< list_pointer_type > ap_type;
+		< vecpt > ap_type;
 
     switch ( ap.state )
     {
@@ -3725,13 +3725,13 @@ void min::relocate
                 " attribute" );
 }
 
-template < class list_pointer_type >
+template < class vecpt >
 inline min::unsptr MINT::count
 	( MUP::attribute_pointer_type
-	      < list_pointer_type > & ap )
+	      < vecpt > & ap )
 {
     typedef MUP::attribute_pointer_type
-		< list_pointer_type > ap_type;
+		< vecpt > ap_type;
 
     min:gen c;
     list_pointer lp ( min::vec_pointer_of ( ap.dlp ) );
@@ -3805,14 +3805,14 @@ inline min::unsptr MINT::count
     return result;
 }
 
-template < class list_pointer_type >
+template < class vecpt >
 inline min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
 	  MUP::attribute_pointer_type
-	      < list_pointer_type > & ap )
+	      < vecpt > & ap )
 {
     typedef MUP::attribute_pointer_type
-		< list_pointer_type > ap_type;
+		< vecpt > ap_type;
 
     min:gen c;
     list_pointer lp ( vec_pointer_of ( ap.dlp ) );
