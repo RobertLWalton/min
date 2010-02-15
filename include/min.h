@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 12:39:11 $
+//   $Date: 2010/02/15 14:56:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.256 $
+//   $Revision: 1.257 $
 
 // Table of Contents:
 //
@@ -3911,7 +3911,7 @@ namespace min { namespace unprotected {
     // This is the generic list pointer type from which
     // specific list pointer types are made.
 
-    template < class vec_pointer_type >
+    template < class vecpt >
         class list_pointer_type;
 
 } }
@@ -5218,6 +5218,7 @@ namespace min {
 	}
     }
 }
+
 
 // Object Attribute Level
 // ------ --------- -----
@@ -5228,7 +5229,7 @@ namespace min { namespace unprotected {
     // This is the generic attribute pointer type from
     // which specific attribute pointer types are made.
 
-    template < class list_pointer_type >
+    template < class vecpt >
         class attribute_pointer_type;
 
 } }
@@ -5238,67 +5239,67 @@ namespace min {
     // Public protected attribute pointer types.
 
     typedef min::unprotected::attribute_pointer_type
-	    < min::list_pointer >
+	    < min::vec_pointer >
         attribute_pointer;
     typedef min::unprotected::attribute_pointer_type
-	    < min::insertable_list_pointer >
+	    < min::insertable_vec_pointer >
         writable_attribute_pointer;
 
 
     // We must declare these before we make them
     // friends.
 
-    template < class list_pointer_type >
+    template < class vecpt >
     void locate
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap,
+	          < vecpt > & ap,
 	      min::gen name );
-    template < class list_pointer_type >
+    template < class vecpt >
     void locatei
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap,
+	          < vecpt > & ap,
 	      int name );
-    template < class list_pointer_type >
+    template < class vecpt >
     void locate_reverse
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap,
+	          < vecpt > & ap,
 	      min::gen reverse_name );
-    template < class list_pointer_type >
+    template < class vecpt >
     void relocate
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap );
+	          < vecpt > & ap );
 
 #   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
-	template < class list_pointer_type >
+	template < class vecpt >
 	void locate
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap,
+		      < vecpt > & ap,
 		  min::unsptr & length, min::gen name );
 
 #   endif
 
-    template < class list_pointer_type >
+    template < class vecpt >
     min::unsptr count
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap );
+	          < vecpt > & ap );
 
-    template < class list_pointer_type >
+    template < class vecpt >
     min::unsptr get
 	    ( min::gen * out, min::unsptr n,
 	      unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap );
+	          < vecpt > & ap );
 
-    template < class list_pointer_type >
+    template < class vecpt >
     unsigned count_flags
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap );
+	          < vecpt > & ap );
 
-    template < class list_pointer_type >
+    template < class vecpt >
     unsigned get_flags
 	    ( min::gen * out, unsigned n,
 	      unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap );
+	          < vecpt > & ap );
     void set
 	    ( min::writable_attribute_pointer
 		  & wap,
@@ -5321,38 +5322,38 @@ namespace min {
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
-	    template < class list_pointer_type >
+	    template < class vecpt >
 	    void locate
 		    ( unprotected::attribute_pointer_type
-			  < list_pointer_type > & ap,
+			  < vecpt > & ap,
 		      min::gen name,
 		      bool allow_partial_label = false
 		    );
 
 #	else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
-	    template < class list_pointer_type >
+	    template < class vecpt >
 	    void locate
 		    ( unprotected::attribute_pointer_type
-			  < list_pointer_type > & ap,
+			  < vecpt > & ap,
 		      min::gen name );
 #	endif
 
-	template < class list_pointer_type >
+	template < class vecpt >
 	void relocate
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
-	template < class list_pointer_type >
+	template < class vecpt >
 	min::unsptr count
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
-	template < class list_pointer_type >
+	template < class vecpt >
 	min::unsptr get
 		( min::gen * out, min::unsptr n,
 		  unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	void set
 		( min::writable_attribute_pointer
@@ -5383,21 +5384,13 @@ namespace min {
 namespace min { namespace unprotected {
 
 
-    template < class list_pointer_type >
+    template < class vecpt >
     class attribute_pointer_type {
 
     public:
 
-        attribute_pointer_type ( min::stub * s )
-	    : dlp ( s ), locate_dlp ( s ),
-	      attribute_name ( min::NONE ),
-	      reverse_attribute_name ( min::NONE ),
-	      state ( INIT )
-	{
-	}
-
-        attribute_pointer_type ( min::gen v )
-	    : dlp ( v ), locate_dlp ( v ),
+        attribute_pointer_type ( vecpt & vecp )
+	    : dlp ( vecp ), locate_dlp ( vecp ),
 	      attribute_name ( min::NONE ),
 	      reverse_attribute_name ( min::NONE ),
 	      state ( INIT )
@@ -5486,14 +5479,14 @@ namespace min { namespace unprotected {
 		    // index or no locate yet.
 	    };
 
-    	list_pointer_type dlp;
+    	list_pointer_type<vecpt> dlp;
 	    // Descriptor list pointer.  Points at the
 	    // list element containing the attribute- or
 	    // node- descriptor found, unless the state
 	    // is INIT, LOCATE_FAIL, or REVERSE_LOCATE_
 	    // FAIL, in which case this is not set.
 
-    	list_pointer_type locate_dlp;
+    	list_pointer_type<vecpt> locate_dlp;
 	    // This is the value of dlp after the last
 	    // successful locate, or the value dlp
 	    // would have had if the last unsuccessful
@@ -5517,31 +5510,31 @@ namespace min { namespace unprotected {
 
 	friend void min::locate<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap,
+		      < vecpt > & ap,
 		  min::gen name );
 	friend void min::locatei<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap,
+		      < vecpt > & ap,
 		  int name );
 	friend void min::locate_reverse<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap,
+		      < vecpt > & ap,
 		  min::gen reverse_name );
 	friend void min::relocate<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
 	    friend void min::locate<>
 		    ( unprotected::attribute_pointer_type
-			  < list_pointer_type > & ap,
+			  < vecpt > & ap,
 		      min::unsptr & length,
 		      min::gen name );
 
 	    friend void min::internal::locate<>
 		    ( unprotected::attribute_pointer_type
-			  < list_pointer_type > & ap,
+			  < vecpt > & ap,
 		      min::gen name,
 		      bool allow_partial_labels );
 
@@ -5549,32 +5542,32 @@ namespace min { namespace unprotected {
 
 	    friend void min::internal::locate<>
 		    ( unprotected::attribute_pointer_type
-			  < list_pointer_type > & ap,
+			  < vecpt > & ap,
 		      min::gen name );
 
 #	endif
 
 	friend void min::internal::relocate<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	friend min::unsptr min::count<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	friend min::unsptr min::get<>
 		( min::gen * out, min::unsptr n,
 		  unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	friend unsigned min::count_flags<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	friend unsigned min::get_flags<>
 		( min::gen * out, unsigned n,
 		  unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	friend void min::set
 		( min::writable_attribute_pointer
@@ -5598,12 +5591,12 @@ namespace min { namespace unprotected {
 
 	friend min::unsptr min::internal::count<>
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	friend min::unsptr min::internal::get<>
 		( min::gen * out, min::unsptr n,
 		  unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap );
+		      < vecpt > & ap );
 
 	friend void min::internal::set
 		( min::writable_attribute_pointer
@@ -5637,14 +5630,14 @@ namespace min {
 
     // Inline functions.  See MIN design document.
 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline void locatei
 	    ( unprotected::attribute_pointer_type
-		  < list_pointer_type > & ap,
+		  < vecpt > & ap,
 	      int name )
     {
 	typedef unprotected::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	ap.attribute_name = min::new_num_gen ( name );
 
@@ -5672,10 +5665,10 @@ namespace min {
 	internal::locate ( ap, ap.attribute_name );
     }
 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline void locate
 	    ( unprotected::attribute_pointer_type
-		  < list_pointer_type > & ap,
+		  < vecpt > & ap,
 	      min::gen name )
     {
 
@@ -5697,10 +5690,10 @@ namespace min {
 
 #   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
-	template < class list_pointer_type >
+	template < class vecpt >
 	inline void locate
 		( unprotected::attribute_pointer_type
-		      < list_pointer_type > & ap,
+		      < vecpt > & ap,
 		  min::unsptr & length,
 		  min::gen name )
 	{
@@ -5739,13 +5732,13 @@ namespace min {
     // must be called before calling any internal
     // function.
 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline min::unsptr count
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap )
+	          < vecpt > & ap )
     {
 	typedef unprotected::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	min::gen c = refresh ( ap.dlp );
 	switch ( ap.state )
@@ -5761,14 +5754,14 @@ namespace min {
 	return internal::count ( ap );
     }
 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline min::unsptr get
 	    ( min::gen * out, min::unsptr n,
 	      unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap )
+	          < vecpt > & ap )
     {
 	typedef unprotected::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	if ( n == 0 ) return 0;
 	min::gen c =  refresh ( ap.dlp );
@@ -5789,13 +5782,13 @@ namespace min {
 	internal::get ( out, n, ap );
     }
 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline unsigned count_flags
 	    ( unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap )
+	          < vecpt > & ap )
     {
 	typedef unprotected::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	switch ( ap.state )
 	{
@@ -5818,14 +5811,14 @@ namespace min {
 	return result;
     }
 
-    template < class list_pointer_type >
+    template < class vecpt >
     inline unsigned get_flags
 	    ( min::gen * out, unsigned n,
 	      unprotected::attribute_pointer_type
-	          < list_pointer_type > & ap )
+	          < vecpt > & ap )
     {
 	typedef unprotected::attribute_pointer_type
-		    < list_pointer_type > ap_type;
+		    < vecpt > ap_type;
 
 	switch ( ap.state )
 	{
