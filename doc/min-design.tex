@@ -4798,10 +4798,10 @@ one of two syntaxes depending upon the setting of the following macro:
 
 \begin{indpar}
 \begin{tabular}{l}
-\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS} \\
+\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS} \\
 ~~~~~ 1 if partial attribute labels are supported; \\
 ~~~~~ 0 if partial attribute labels are not supported.
-\LABEL{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS} \\
+\LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
 \end{tabular}
 \end{indpar}
 
@@ -5081,104 +5081,104 @@ associated with the particular reverse attribute
 name stored in the pointer.
 
 There are three kinds of attribute pointers.
-A read-only {\tt min::\EOL attribute\_\EOL pointer}
+A read-only {\tt min::\EOL attr\_\EOL pointer}
 permits read-only access to read attribute values and flags.
-An updatable {\tt min::\EOL updatable\_\EOL attribute\_\EOL pointer}
+An updatable {\tt min::\EOL updatable\_\EOL attr\_\EOL pointer}
 permits read-write access to attribute values, and read-only access
 to flags, but does not permit values to be added or removed from attributes.
-An insertable {\tt min::\EOL insertable\_\EOL attribute\_\EOL pointer}
+An insertable {\tt min::\EOL insertable\_\EOL attr\_\EOL pointer}
 permits read-write access to attribute values and flags
 and also permits values to be added or removed from attributes.
 
-The functions for using a read-only {\tt min::\EOL attribute\_\EOL pointer}
+The functions for using a read-only {\tt min::\EOL attr\_\EOL pointer}
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{attribute\_pointer}\verb| ( min::vec_pointer & vp )|
-\LABEL{MUP::ATTRIBUTE_POINTER_OF_VEC_POINTER} \\
+	& \MUPKEY{attr\_pointer}\verb| ( min::vec_pointer & vp )|
+\LABEL{MUP::ATTR_POINTER_OF_VEC_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::attribute_pointer & ap,| \\
+	  \verb| ( min::attr_pointer & ap,| \\
 	  \verb|   min::gen name )|
 	  \end{tabular}
-\LABEL{MIN::LOCATE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locatei}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::attribute_pointer & ap, int name )|
+	  \verb| ( min::attr_pointer & ap, int name )|
 	  \end{tabular}
-\LABEL{MIN::LOCATEI_ATTRIBUTE} \\
+\LABEL{MIN::LOCATEI_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::attribute_pointer & ap,| \\
+	  \verb| ( min::attr_pointer & ap,| \\
 	  \verb|   min::unsptr & length, min::gen name )|
 	  \end{tabular}
-\LABEL{MIN::LOCATE_PARTIAL_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_PARTIAL_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locate\_reverse}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::attribute_pointer & ap,| \\
+	  \verb| ( min::attr_pointer & ap,| \\
 	  \verb|   min::gen reverse_name )|
 	  \end{tabular}
-\LABEL{MIN::LOCATE_REVERSE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_REVERSE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{relocate}%
 	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::attribute_pointer & ap )| \\
+	  \verb| ( min::attr_pointer & ap )| \\
 	  \end{tabular}
-\LABEL{MIN::RELOCATE_ATTRIBUTE} \\
+\LABEL{MIN::RELOCATE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{count}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attribute_pointer ap )| \\
+    \verb| ( min::attr_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::COUNT_OF_ATTRIBUTE} \\
+\LABEL{MIN::COUNT_OF_ATTR} \\
 \verb|min::unsptr min::| & \MINKEY{get}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, min::unsptr n,| \\
-    \verb|   min::attribute_pointer ap )| \\
+    \verb|   min::attr_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::GET_OF_ATTRIBUTE} \\
+\LABEL{MIN::GET_OF_ATTR} \\
 \verb|min::gen min::| & \MINKEY{get}%
-    \verb| ( min::attribute_pointer ap )|
-\LABEL{MIN::GET1_OF_ATTRIBUTE} \\
+    \verb| ( min::attr_pointer ap )|
+\LABEL{MIN::GET1_OF_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{count\_flags}%
     \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attribute_pointer ap )| \\
+    \verb| ( min::attr_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::COUNT_FLAGS_OF_ATTRIBUTE} \\
+\LABEL{MIN::COUNT_FLAGS_OF_ATTR} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
-    \verb|   min::attribute_pointer ap )| \\
+    \verb|   min::attr_pointer ap )| \\
     \end{tabular}
-\LABEL{MIN::GET_FLAGS_OF_ATTRIBUTE} \\
+\LABEL{MIN::GET_FLAGS_OF_ATTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb| ( min::attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::attr_pointer wap,|\ARGBREAK
     \verb|   unsigned n )|
-\LABEL{MIN::TEST_FLAG_OF_ATTRIBUTE} \\
+\LABEL{MIN::TEST_FLAG_OF_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::attribute_pointer ap )|
-\LABEL{MIN::GET_ATTRIBUTES} \\
-\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
-    \verb| ( min::attribute_pointer ap )|
-\LABEL{MIN::REWIND_ATTRIBUTES} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb|   min::attr_pointer ap )|
+\LABEL{MIN::GET_ATTRS} \\
+\verb|void min::| & \MINKEY{rewind\_attrs}\ARGBREAK
+    \verb| ( min::attr_pointer ap )|
+\LABEL{MIN::REWIND_ATTRS} \\
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::attribute_pointer ap )|
-\LABEL{MIN::GET_REVERSE_ATTRIBUTES} \\
+    \verb|   min::attr_pointer ap )|
+\LABEL{MIN::GET_REVERSE_ATTRS} \\
 \end{tabular}\end{indpar}
 
 Attribute pointers are tied to an object, which is specified by
@@ -5203,8 +5203,8 @@ the {\tt min::\EOL locatei} function must have a different name from the
 
 The form of the {\tt min::\EOL locate} function that takes a `{\tt length}'
 argument exists only if the
-{\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTRIBUTE\_\EOL LABELS}
-(\pagref{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS}) macro is set to {\tt 1}.
+{\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
+(\pagref{MIN_ALLOW_PARTIAL_ATTR_LABELS}) macro is set to {\tt 1}.
 This form of {\tt min::\EOL locate} uses the longest initial segment of the
 attribute name that locates an attribute which has either a non-empty
 set of values, or at least one set flag, or at least one value
@@ -5309,86 +5309,86 @@ any names are gotten.
 Updatable attribute pointers can set existing values as well as perform
 the operations of read-only attribute pointers.
 The functions for using a
-{\tt min::\EOL updatable\_\EOL attribute\_\EOL pointer}
+{\tt min::\EOL updatable\_\EOL attr\_\EOL pointer}
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{updatable\_attribute\_pointer}\ARGBREAK
+	& \MUPKEY{updatable\_attr\_pointer}\ARGBREAK
 	  \verb| ( min::updatable_vec_pointer & vp )|
-\LABEL{MUP::UPDATABLE_ATTRIBUTE_OF_UPDATABLE_VEC_POINTER} \\
+\LABEL{MUP::UPDATABLE_ATTR_OF_UPDATABLE_VEC_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen name )|
-\LABEL{MIN::LOCATE_ATTRIBUTE_OF_UPDATABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_ATTR_OF_UPDATABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locatei}\ARGBREAK
-	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   int name )|
-\LABEL{MIN::LOCATEI_ATTRIBUTE_OF_UPDATABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATEI_ATTR_OF_UPDATABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::unsptr & length, min::gen name )|
-\LABEL{MIN::LOCATE_PARTIAL_OF_UPDATABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_PARTIAL_OF_UPDATABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
-	  \verb| ( min::updatable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen reverse_name )|
-\LABEL{MIN::LOCATE_REVERSE_OF_UPDATABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_REVERSE_OF_UPDATABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{relocate}\ARGBREAK
-	  \verb| ( min::updatable_attribute_pointer & ap )|
-\LABEL{MIN::RELOCATE_ATTRIBUTE_OF_UPDATABLE_ATTRIBUTE} \\
+	  \verb| ( min::updatable_attr_pointer & ap )|
+\LABEL{MIN::RELOCATE_ATTR_OF_UPDATABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
-    \verb| ( min::updatable_attribute_pointer ap )|
-\LABEL{MIN::COUNT_OF_UPDATABLE_ATTRIBUTE} \\
+    \verb| ( min::updatable_attr_pointer ap )|
+\LABEL{MIN::COUNT_OF_UPDATABLE_ATTR} \\
 \verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK 
-    \verb|   min::updatable_attribute_pointer ap )|
-\LABEL{MIN::GET_OF_UPDATABLE_ATTRIBUTE} \\
+    \verb|   min::updatable_attr_pointer ap )|
+\LABEL{MIN::GET_OF_UPDATABLE_ATTR} \\
 \verb|min::gen min::| & \MINKEY{get}\ARGBREAK
-    \verb| ( min::updatable_attribute_pointer ap )|
-\LABEL{MIN::GET1_OF_UPDATABLE_ATTRIBUTE} \\
+    \verb| ( min::updatable_attr_pointer ap )|
+\LABEL{MIN::GET1_OF_UPDATABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
-    \verb| ( min::updatable_attribute_pointer ap )|
-\LABEL{MIN::COUNT_FLAGS_OF_UPDATABLE_ATTRIBUTE} \\
+    \verb| ( min::updatable_attr_pointer ap )|
+\LABEL{MIN::COUNT_FLAGS_OF_UPDATABLE_ATTR} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
     \verb| ( min::gen * out, unsigned n,|\ARGBREAK
-    \verb|   min::updatable_attribute_pointer ap )|
-\LABEL{MIN::GET_FLAGS_OF_UPDATABLE_ATTRIBUTE} \\
+    \verb|   min::updatable_attr_pointer ap )|
+\LABEL{MIN::GET_FLAGS_OF_UPDATABLE_ATTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb| ( min::updatable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::updatable_attr_pointer wap,|\ARGBREAK
     \verb|   unsigned n )|
-\LABEL{MIN::TEST_FLAG_OF_UPDATABLE_ATTRIBUTE} \\
+\LABEL{MIN::TEST_FLAG_OF_UPDATABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::updatable_attribute_pointer ap )|
-\LABEL{MIN::GET_ATTRIBUTES_OF_UPDATABLE} \\
-\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
-    \verb| ( min::updatable_attribute_pointer ap )|
-\LABEL{MIN::REWIND_ATTRIBUTES_OF_UPDATABLE} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb|   min::updatable_attr_pointer ap )|
+\LABEL{MIN::GET_ATTRS_OF_UPDATABLE} \\
+\verb|void min::| & \MINKEY{rewind\_attrs}\ARGBREAK
+    \verb| ( min::updatable_attr_pointer ap )|
+\LABEL{MIN::REWIND_ATTRS_OF_UPDATABLE} \\
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::updatable_attribute_pointer ap )|
-\LABEL{MIN::GET_REVERSE_ATTRIBUTES_OF_UPDATABLE} \\
+    \verb|   min::updatable_attr_pointer ap )|
+\LABEL{MIN::GET_REVERSE_ATTRS_OF_UPDATABLE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{update}\ARGBREAK
-    \verb| ( min::updatable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::updatable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen v )|
-\LABEL{MIN::UPDATE_OF_UPDATABLE_ATTRIBUTE} \\
+\LABEL{MIN::UPDATE_OF_UPDATABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 Functions defined for read-only attribute pointers are also
@@ -5406,167 +5406,167 @@ Insertable attribute pointers can remove and insert values and
 set and clear flags,
 as well as perform the operations of updatable attribute pointers.
 The functions for using a
-{\tt min::\EOL insertable\_\EOL attribute\_\EOL pointer}
+{\tt min::\EOL insertable\_\EOL attr\_\EOL pointer}
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{insertable\_attribute\_pointer}\ARGBREAK
+	& \MUPKEY{insertable\_attr\_pointer}\ARGBREAK
 	  \verb| ( min::insertable_vec_pointer & vp )|
-\LABEL{MUP::INSERTABLE_ATTRIBUTE_OF_INSERTABLE_VEC_POINTER} \\
+\LABEL{MUP::INSERTABLE_ATTR_OF_INSERTABLE_VEC_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen name )|
-\LABEL{MIN::LOCATE_ATTRIBUTE_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_ATTR_OF_INSERTABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locatei}\ARGBREAK
-	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   int name )|
-\LABEL{MIN::LOCATEI_ATTRIBUTE_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATEI_ATTR_OF_INSERTABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locate}\ARGBREAK
-	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::unsptr & length, min::gen name )|
-\LABEL{MIN::LOCATE_PARTIAL_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_PARTIAL_OF_INSERTABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
-	  \verb| ( min::insertable_attribute_pointer & ap,|\ARGBREAK
+	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen reverse_name )|
-\LABEL{MIN::LOCATE_REVERSE_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::LOCATE_REVERSE_OF_INSERTABLE_ATTR} \\
 \verb|min::gen min::|
 	& \MINKEY{relocate}\ARGBREAK
-	  \verb| ( min::insertable_attribute_pointer & ap )|
-\LABEL{MIN::RELOCATE_ATTRIBUTE_OF_INSERTABLE_ATTRIBUTE} \\
+	  \verb| ( min::insertable_attr_pointer & ap )|
+\LABEL{MIN::RELOCATE_ATTR_OF_INSERTABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer ap )|
-\LABEL{MIN::COUNT_OF_INSERTABLE_ATTRIBUTE} \\
+    \verb| ( min::insertable_attr_pointer ap )|
+\LABEL{MIN::COUNT_OF_INSERTABLE_ATTR} \\
 \verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK 
-    \verb|   min::insertable_attribute_pointer ap )|
-\LABEL{MIN::GET_OF_INSERTABLE_ATTRIBUTE} \\
+    \verb|   min::insertable_attr_pointer ap )|
+\LABEL{MIN::GET_OF_INSERTABLE_ATTR} \\
 \verb|min::gen min::| & \MINKEY{get}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer ap )|
-\LABEL{MIN::GET1_OF_INSERTABLE_ATTRIBUTE} \\
+    \verb| ( min::insertable_attr_pointer ap )|
+\LABEL{MIN::GET1_OF_INSERTABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer ap )|
-\LABEL{MIN::COUNT_FLAGS_OF_INSERTABLE_ATTRIBUTE} \\
+    \verb| ( min::insertable_attr_pointer ap )|
+\LABEL{MIN::COUNT_FLAGS_OF_INSERTABLE_ATTR} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
     \verb| ( min::gen * out, unsigned n,|\ARGBREAK
-    \verb|   min::insertable_attribute_pointer ap )|
-\LABEL{MIN::GET_FLAGS_OF_INSERTABLE_ATTRIBUTE} \\
+    \verb|   min::insertable_attr_pointer ap )|
+\LABEL{MIN::GET_FLAGS_OF_INSERTABLE_ATTR} \\
 \verb|bool min::| & \MINKEY{test\_flag}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   unsigned n )|
-\LABEL{MIN::TEST_FLAG_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::TEST_FLAG_OF_INSERTABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{get\_attributes}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::insertable_attribute_pointer ap )|
-\LABEL{MIN::GET_ATTRIBUTES_OF_INSERTABLE} \\
-\verb|void min::| & \MINKEY{rewind\_attributes}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer ap )|
-\LABEL{MIN::REWIND_ATTRIBUTES_OF_INSERTABLE} \\
-\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attributes}\ARGBREAK
+    \verb|   min::insertable_attr_pointer ap )|
+\LABEL{MIN::GET_ATTRS_OF_INSERTABLE} \\
+\verb|void min::| & \MINKEY{rewind\_attrs}\ARGBREAK
+    \verb| ( min::insertable_attr_pointer ap )|
+\LABEL{MIN::REWIND_ATTRS_OF_INSERTABLE} \\
+\verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
-    \verb|   min::insertable_attribute_pointer ap )|
-\LABEL{MIN::GET_REVERSE_ATTRIBUTES_OF_INSERTABLE} \\
+    \verb|   min::insertable_attr_pointer ap )|
+\LABEL{MIN::GET_REVERSE_ATTRS_OF_INSERTABLE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{update}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen v )|
-\LABEL{MIN::UPDATE_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::UPDATE_OF_INSERTABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
-\LABEL{MIN::SET_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::SET_OF_INSERTABLE_ATTR} \\
 \verb|void min::| & \MINKEY{set\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen v )|
-\LABEL{MIN::SET1_OF_INSERTABLE_ATTRIBUTE} \\
+\LABEL{MIN::SET1_OF_INSERTABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen v )|
 \LABEL{MIN::ADD1_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen v )|
 \LABEL{MIN::ADD1_TO_MULTISET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{remove\_one}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ONE} \\
 \verb|void min::| & \MINKEY{remove\_one}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen v )|
 \LABEL{MIN::REMOVE_ONE1} \\
 \verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ALL} \\
 \verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen v )|
 \LABEL{MIN::REMOVE_ALL1} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_flags\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_FLAGS_OF_INSERTABLE} \\
 \verb|void min::| & \MINKEY{set\_some\_flags\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{clear\_some\_flags\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::CLEAR_SOME_FLAGS} \\
 \verb|void min::| & \MINKEY{flip\_some\_flags\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::FLIP_SOME_FLAGS} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{set\_flag\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   unsigned n )|
 \LABEL{MIN::SET_FLAG} \\
 \verb|bool min::| & \MINKEY{clear\_flag\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   unsigned n )|
 \LABEL{MIN::CLEAR_FLAG} \\
 \verb|bool min::| & \MINKEY{flip\_flag\REL}\ARGBREAK
-    \verb| ( min::insertable_attribute_pointer wap,|\ARGBREAK
+    \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   unsigned n )|
 \LABEL{MIN::FLIP_FLAG} \\
 \end{tabular}\end{indpar}
@@ -5627,7 +5627,7 @@ The {\tt min::\EOL set\_\EOL flags} function sets the flags of the flag set the 
 pointer points at.
 The flags are given in the `{\tt in}' vector which
 has length {\tt n}: see the discussion of
-{\tt min::\EOL get\_\EOL flags} on \pagref{MIN::GET_FLAGS_OF_ATTRIBUTE}
+{\tt min::\EOL get\_\EOL flags} on \pagref{MIN::GET_FLAGS_OF_ATTR}
 for the format of this vector.
 All flags are zeroed before the new set of flags
 is written.  If {\tt n} is zero, all flags are zeroed.
@@ -5770,8 +5770,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN_ASSERT} \\
 \TTNBKEY{MIN\_USE\_OBJ\_AUX\_STUBS}
 \LABEL{MIN_USE_OBJ_AUX_STUBS} \\
-\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTRIBUTE\_LABELS}
-\LABEL{MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS} \\
+\TTNBKEY{MIN\_ALLOW\_PARTIAL\_ATTR\_LABELS}
+\LABEL{MIN_ALLOW_PARTIAL_ATTR_LABELS} \\
 \end{tabular}
 
 \end{indpar}
