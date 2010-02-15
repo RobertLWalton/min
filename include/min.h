@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 15 07:20:40 EST 2010
+// Date:	Mon Feb 15 10:09:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 14:56:49 $
+//   $Date: 2010/02/15 15:15:52 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.257 $
+//   $Revision: 1.258 $
 
 // Table of Contents:
 //
@@ -5230,7 +5230,7 @@ namespace min { namespace unprotected {
     // which specific attribute pointer types are made.
 
     template < class vecpt >
-        class attribute_pointer_type;
+        class attr_pointer_type;
 
 } }
 
@@ -5238,12 +5238,12 @@ namespace min {
 
     // Public protected attribute pointer types.
 
-    typedef min::unprotected::attribute_pointer_type
+    typedef min::unprotected::attr_pointer_type
 	    < min::vec_pointer >
-        attribute_pointer;
-    typedef min::unprotected::attribute_pointer_type
+        attr_pointer;
+    typedef min::unprotected::attr_pointer_type
 	    < min::insertable_vec_pointer >
-        writable_attribute_pointer;
+        writable_attr_pointer;
 
 
     // We must declare these before we make them
@@ -5251,29 +5251,29 @@ namespace min {
 
     template < class vecpt >
     void locate
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      min::gen name );
     template < class vecpt >
     void locatei
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      int name );
     template < class vecpt >
     void locate_reverse
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      min::gen reverse_name );
     template < class vecpt >
     void relocate
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
 
 #   if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
 	template < class vecpt >
 	void locate
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
 		  min::unsptr & length, min::gen name );
 
@@ -5281,41 +5281,37 @@ namespace min {
 
     template < class vecpt >
     min::unsptr count
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
 
     template < class vecpt >
     min::unsptr get
 	    ( min::gen * out, min::unsptr n,
-	      unprotected::attribute_pointer_type
+	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
 
     template < class vecpt >
     unsigned count_flags
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
 
     template < class vecpt >
     unsigned get_flags
 	    ( min::gen * out, unsigned n,
-	      unprotected::attribute_pointer_type
+	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
     void set
-	    ( min::writable_attribute_pointer
-		  & wap,
+	    ( min::writable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n );
     void add_to_set
-	    ( min::writable_attribute_pointer
-		  & wap,
+	    ( min::writable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n );
     void add_to_multiset
-	    ( min::writable_attribute_pointer
-		  & wap,
+	    ( min::writable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n );
 
     void set_flags
-	    ( min::writable_attribute_pointer
-		  & wap,
+	    ( min::writable_attr_pointer & wap,
 	      const min::gen * in, unsigned n );
 
     namespace internal {
@@ -5324,7 +5320,7 @@ namespace min {
 
 	    template < class vecpt >
 	    void locate
-		    ( unprotected::attribute_pointer_type
+		    ( unprotected::attr_pointer_type
 			  < vecpt > & ap,
 		      min::gen name,
 		      bool allow_partial_label = false
@@ -5334,49 +5330,44 @@ namespace min {
 
 	    template < class vecpt >
 	    void locate
-		    ( unprotected::attribute_pointer_type
+		    ( unprotected::attr_pointer_type
 			  < vecpt > & ap,
 		      min::gen name );
 #	endif
 
 	template < class vecpt >
 	void relocate
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	template < class vecpt >
 	min::unsptr count
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	template < class vecpt >
 	min::unsptr get
 		( min::gen * out, min::unsptr n,
-		  unprotected::attribute_pointer_type
+		  unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	void set
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	void set_flags
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	void set_more_flags
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
-	void attribute_create
-		( min::writable_attribute_pointer
-		      & wap );
+	void attr_create
+		( min::writable_attr_pointer & wap );
 
-	void reverse_attribute_create
-		( min::writable_attribute_pointer
-		      & wap );
+	void reverse_attr_create
+		( min::writable_attr_pointer & wap );
     }
 
 }
@@ -5385,14 +5376,14 @@ namespace min { namespace unprotected {
 
 
     template < class vecpt >
-    class attribute_pointer_type {
+    class attr_pointer_type {
 
     public:
 
-        attribute_pointer_type ( vecpt & vecp )
+        attr_pointer_type ( vecpt & vecp )
 	    : dlp ( vecp ), locate_dlp ( vecp ),
-	      attribute_name ( min::NONE ),
-	      reverse_attribute_name ( min::NONE ),
+	      attr_name ( min::NONE ),
+	      reverse_attr_name ( min::NONE ),
 	      state ( INIT )
 	{
 	}
@@ -5401,10 +5392,10 @@ namespace min { namespace unprotected {
 
     // Private Data:
 
-        min::gen attribute_name;
+        min::gen attr_name;
 	    // The attribute name given to the last
 	    // locate function call.
-        min::gen reverse_attribute_name;
+        min::gen reverse_attr_name;
 	    // The reverse attribute name given to the
 	    // last reverse_locate function call, and
 	    // also reset to NONE by a locate function
@@ -5509,31 +5500,31 @@ namespace min { namespace unprotected {
     // Friends:
 
 	friend void min::locate<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
 		  min::gen name );
 	friend void min::locatei<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
 		  int name );
 	friend void min::locate_reverse<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
 		  min::gen reverse_name );
 	friend void min::relocate<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 #	if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
 	    friend void min::locate<>
-		    ( unprotected::attribute_pointer_type
+		    ( unprotected::attr_pointer_type
 			  < vecpt > & ap,
 		      min::unsptr & length,
 		      min::gen name );
 
 	    friend void min::internal::locate<>
-		    ( unprotected::attribute_pointer_type
+		    ( unprotected::attr_pointer_type
 			  < vecpt > & ap,
 		      min::gen name,
 		      bool allow_partial_labels );
@@ -5541,86 +5532,77 @@ namespace min { namespace unprotected {
 #	else
 
 	    friend void min::internal::locate<>
-		    ( unprotected::attribute_pointer_type
+		    ( unprotected::attr_pointer_type
 			  < vecpt > & ap,
 		      min::gen name );
 
 #	endif
 
 	friend void min::internal::relocate<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	friend min::unsptr min::count<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	friend min::unsptr min::get<>
 		( min::gen * out, min::unsptr n,
-		  unprotected::attribute_pointer_type
+		  unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	friend unsigned min::count_flags<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	friend unsigned min::get_flags<>
 		( min::gen * out, unsigned n,
-		  unprotected::attribute_pointer_type
+		  unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	friend void min::set
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::add_to_set
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::add_to_multiset
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::set_flags
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	friend min::unsptr min::internal::count<>
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	friend min::unsptr min::internal::get<>
 		( min::gen * out, min::unsptr n,
-		  unprotected::attribute_pointer_type
+		  unprotected::attr_pointer_type
 		      < vecpt > & ap );
 
 	friend void min::internal::set
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::internal::set_flags
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	friend void min::internal::set_more_flags
-		( min::writable_attribute_pointer
-		      & wap,
+		( min::writable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
-	friend void min::internal::attribute_create
-		( min::writable_attribute_pointer
-		      & wap );
+	friend void min::internal::attr_create
+		( min::writable_attr_pointer & wap );
 
 	friend void min::internal
-	               ::reverse_attribute_create
-		( min::writable_attribute_pointer
-		      & wap );
+	               ::reverse_attr_create
+		( min::writable_attr_pointer & wap );
 
     };
 
@@ -5632,14 +5614,14 @@ namespace min {
 
     template < class vecpt >
     inline void locatei
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 		  < vecpt > & ap,
 	      int name )
     {
-	typedef unprotected::attribute_pointer_type
+	typedef unprotected::attr_pointer_type
 		    < vecpt > ap_type;
 
-	ap.attribute_name = min::new_num_gen ( name );
+	ap.attr_name = min::new_num_gen ( name );
 
 	if ( 0 <= name
 	     &&
@@ -5653,7 +5635,7 @@ namespace min {
 	    ap.index = name;
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.state = ap_type::LOCATE_NONE;
-	    ap.reverse_attribute_name = min::NONE;
+	    ap.reverse_attr_name = min::NONE;
 
 #	    if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 		ap.length = 1;
@@ -5662,12 +5644,12 @@ namespace min {
 	    return;
 	}
 	
-	internal::locate ( ap, ap.attribute_name );
+	internal::locate ( ap, ap.attr_name );
     }
 
     template < class vecpt >
     inline void locate
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 		  < vecpt > & ap,
 	      min::gen name )
     {
@@ -5692,7 +5674,7 @@ namespace min {
 
 	template < class vecpt >
 	inline void locate
-		( unprotected::attribute_pointer_type
+		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
 		  min::unsptr & length,
 		  min::gen name )
@@ -5734,10 +5716,10 @@ namespace min {
 
     template < class vecpt >
     inline min::unsptr count
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap )
     {
-	typedef unprotected::attribute_pointer_type
+	typedef unprotected::attr_pointer_type
 		    < vecpt > ap_type;
 
 	min::gen c = refresh ( ap.dlp );
@@ -5757,10 +5739,10 @@ namespace min {
     template < class vecpt >
     inline min::unsptr get
 	    ( min::gen * out, min::unsptr n,
-	      unprotected::attribute_pointer_type
+	      unprotected::attr_pointer_type
 	          < vecpt > & ap )
     {
-	typedef unprotected::attribute_pointer_type
+	typedef unprotected::attr_pointer_type
 		    < vecpt > ap_type;
 
 	if ( n == 0 ) return 0;
@@ -5784,10 +5766,10 @@ namespace min {
 
     template < class vecpt >
     inline unsigned count_flags
-	    ( unprotected::attribute_pointer_type
+	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap )
     {
-	typedef unprotected::attribute_pointer_type
+	typedef unprotected::attr_pointer_type
 		    < vecpt > ap_type;
 
 	switch ( ap.state )
@@ -5814,10 +5796,10 @@ namespace min {
     template < class vecpt >
     inline unsigned get_flags
 	    ( min::gen * out, unsigned n,
-	      unprotected::attribute_pointer_type
+	      unprotected::attr_pointer_type
 	          < vecpt > & ap )
     {
-	typedef unprotected::attribute_pointer_type
+	typedef unprotected::attr_pointer_type
 		    < vecpt > ap_type;
 
 	switch ( ap.state )
@@ -5843,10 +5825,10 @@ namespace min {
     }
 
     inline void set
-	    ( min::writable_attribute_pointer & wap,
+	    ( min::writable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n )
     {
-	typedef writable_attribute_pointer ap_type;
+	typedef writable_attr_pointer ap_type;
 
 	min::gen c =  refresh ( wap.dlp );
 	if ( n == 1 ) switch ( wap.state )
@@ -5864,10 +5846,10 @@ namespace min {
     }
 
     inline void set_flags
-	    ( min::writable_attribute_pointer & wap,
+	    ( min::writable_attr_pointer & wap,
 	      const min::gen * in, unsigned n )
     {
-	typedef writable_attribute_pointer ap_type;
+	typedef writable_attr_pointer ap_type;
 
 	min::gen c = refresh ( wap.locate_dlp );
 	switch ( wap.state )
