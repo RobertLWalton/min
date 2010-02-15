@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 16:00:37 $
+//   $Date: 2010/02/15 18:53:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.261 $
+//   $Revision: 1.262 $
 
 // Table of Contents:
 //
@@ -5278,82 +5278,107 @@ namespace min {
     void relocate
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     min::unsptr count
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     min::unsptr get
 	    ( min::gen * out, min::unsptr n,
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     min::unsgen get
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     unsigned count_flags
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     unsigned get_flags
 	    ( min::gen * out, unsigned n,
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     bool test_flag
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      unsigned n );
-
     template < class vecpt >
     unsigned get_attrs
 	    ( min::gen * out, unsigned n,
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     bool rewind_attrs
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     unsigned get_reverse_attrs
 	    ( min::gen * out, unsigned n,
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
-
     template < class vecpt >
     bool update
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      min::gen v );
-
     void set
 	    ( min::insertable_attr_pointer & ap,
 	      const min::gen * in, min::unsptr n );
-
+    void set
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v );
     void add_to_set
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, min::unsptr n );
+    void add_to_set
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v );
+    void add_to_multiset
 	    ( min::insertable_attr_pointer & ap,
 	      const min::gen * in, min::unsptr n );
     void add_to_multiset
 	    ( min::insertable_attr_pointer & ap,
+	      min::gen v );
+    void remove_one
+	    ( min::insertable_attr_pointer & ap,
 	      const min::gen * in, min::unsptr n );
-
+    void remove_one
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v );
+    void remove_all
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, min::unsptr n );
+    void remove_all
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v );
     void set_flags
 	    ( min::insertable_attr_pointer & ap,
 	      const min::gen * in, unsigned n );
+    void set_some_flags
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, unsigned n );
+    void clear_some_flags
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, unsigned n );
+    void flip_some_flags
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, unsigned n );
+    bool set_flag
+	    ( min::insertable_attr_pointer & ap,
+	      unsigned n );
+    bool clear_flag
+	    ( min::insertable_attr_pointer & ap,
+	      unsigned n );
+    bool flip_flag
+	    ( min::insertable_attr_pointer & ap,
+	      unsigned n );
 
     namespace internal {
 
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
-
 	    template < class vecpt >
 	    void locate
 		    ( unprotected::attr_pointer_type
@@ -5361,47 +5386,37 @@ namespace min {
 		      min::gen name,
 		      bool allow_partial_label = false
 		    );
-
 #	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
-
 	    template < class vecpt >
 	    void locate
 		    ( unprotected::attr_pointer_type
 			  < vecpt > & ap,
 		      min::gen name );
 #	endif
-
 	template < class vecpt >
 	void relocate
 		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
-
 	template < class vecpt >
 	min::unsptr count
 		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
-
 	template < class vecpt >
 	min::unsptr get
 		( min::gen * out, min::unsptr n,
 		  unprotected::attr_pointer_type
 		      < vecpt > & ap );
-
 	void set
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, min::unsptr n );
-
 	void set_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
-
 	void set_more_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
-
 	void attr_create
 		( min::insertable_attr_pointer & ap );
-
 	void reverse_attr_create
 		( min::insertable_attr_pointer & ap );
     }
@@ -5535,109 +5550,154 @@ namespace min { namespace unprotected {
 
     // Friends:
 
-	friend void min::locate<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap,
+	friend void locate<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap,
 		  min::gen name );
-	friend void min::locatei<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap,
+	friend void locatei<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap,
 		  int name );
-	friend void min::locate_reverse<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap,
-		  min::gen reverse_name );
-	friend void min::relocate<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
-#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
-
-	    friend void min::locate<>
-		    ( unprotected::attr_pointer_type
-			  < vecpt > & ap,
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    friend void locate<>
+		    ( min::unprotected
+			 ::attr_pointer_type<vecpt>
+			     & ap,
 		      min::unsptr & length,
 		      min::gen name );
-
-	    friend void min::internal::locate<>
-		    ( unprotected::attr_pointer_type
-			  < vecpt > & ap,
-		      min::gen name,
-		      bool allow_partial_labels );
-
-#	else
-
-	    friend void min::internal::locate<>
-		    ( unprotected::attr_pointer_type
-			  < vecpt > & ap,
-		      min::gen name );
-
-#	endif
-
-	friend void min::internal::relocate<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
+#   endif
+	friend void min::locate_reverse<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap,
+		  min::gen reverse_name );
+	friend void min::relocate<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend min::unsptr min::count<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend min::unsptr min::get<>
 		( min::gen * out, min::unsptr n,
-		  unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
+		  min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
+	friend min::unsgen min::get<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend unsigned min::count_flags<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend unsigned min::get_flags<>
 		( min::gen * out, unsigned n,
-		  unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
+		  min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
+	friend bool min::test_flag<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap,
+		  unsigned n );
+	friend unsigned min::get_attrs<>
+		( min::gen * out, unsigned n,
+		  min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
+	friend bool min::rewind_attrs<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
+	friend unsigned min::get_reverse_attrs<>
+		( min::gen * out, unsigned n,
+		  min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
+	friend bool min::update<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap,
+		  min::gen v );
 	friend void min::set
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, min::unsptr n );
-
+	friend void min::set
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
 	friend void min::add_to_set
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, min::unsptr n );
-
+	friend void min::add_to_set
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
 	friend void min::add_to_multiset
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, min::unsptr n );
-
+	friend void min::add_to_multiset
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
+	friend void min::remove_one
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, min::unsptr n );
+	friend void min::remove_one
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
+	friend void min::remove_all
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, min::unsptr n );
+	friend void min::remove_all
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
 	friend void min::set_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
+	friend void min::set_some_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	friend void min::clear_some_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	friend void min::flip_some_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	friend bool min::set_flag
+		( min::insertable_attr_pointer & ap,
+		  unsigned n );
+	friend bool min::clear_flag
+		( min::insertable_attr_pointer & ap,
+		  unsigned n );
+	friend bool min::flip_flag
+		( min::insertable_attr_pointer & ap,
+		  unsigned n );
 
+    #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    friend void min::internal::locate<>
+		    ( min::unprotected
+			 ::attr_pointer_type<vecpt>
+			     & ap,
+		      min::gen name,
+		      bool allow_partial_label
+		    );
+#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    friend void min::internal::locate<>
+		    ( min::unprotected
+			 ::attr_pointer_type<vecpt>
+			     & ap,
+		      min::gen name );
+#	endif
+	friend void min::internal::relocate<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend min::unsptr min::internal::count<>
-		( unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend min::unsptr min::internal::get<>
 		( min::gen * out, min::unsptr n,
-		  unprotected::attr_pointer_type
-		      < vecpt > & ap );
-
+		  min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend void min::internal::set
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, min::unsptr n );
-
 	friend void min::internal::set_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
-
 	friend void min::internal::set_more_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
-
 	friend void min::internal::attr_create
 		( min::insertable_attr_pointer & ap );
-
-	friend void min::internal
-	               ::reverse_attr_create
+	friend void min::internal::reverse_attr_create
 		( min::insertable_attr_pointer & ap );
 
     };
