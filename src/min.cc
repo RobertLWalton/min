@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 12 08:27:22 EST 2010
+// Date:	Mon Feb 15 07:33:40 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/12 13:32:24 $
+//   $Date: 2010/02/15 12:38:35 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.145 $
+//   $Revision: 1.146 $
 
 // Table of Contents:
 //
@@ -3225,12 +3225,12 @@ bool MINT::insert_reserve
     //
     template < class list_pointer_type >
     void MINT::locate
-	    ( MINT::attribute_pointer_type
+	    ( MUP::attribute_pointer_type
 	          < list_pointer_type > & ap,
 	      min::gen name,
 	      bool allow_partial_labels )
     {
-	typedef MINT::attribute_pointer_type
+	typedef MUP::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	ap.attribute_name = name;
@@ -3362,10 +3362,10 @@ bool MINT::insert_reserve
     // 
     template < class list_pointer_type >
     inline void MINT::relocate
-	    ( MINT::attribute_pointer_type
+	    ( MUP::attribute_pointer_type
 	          < list_pointer_type > & ap )
     {
-	typedef MINT::attribute_pointer_type
+	typedef MUP::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	MIN_ASSERT ( ap.length > 0 );
@@ -3434,11 +3434,11 @@ bool MINT::insert_reserve
 
     template < class list_pointer_type >
     void MINT::locate
-	    ( MINT::attribute_pointer_type
+	    ( MUP::attribute_pointer_type
 		  < list_pointer_type > & ap,
 	      min::gen name )
     {
-	typedef MINT::attribute_pointer_type
+	typedef MUP::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	ap.reverse_attribute_name = min::NONE;
@@ -3522,10 +3522,10 @@ bool MINT::insert_reserve
     // 
     template < class list_pointer_type >
     inline void MINT::relocate
-	    ( MINT::attribute_pointer_type
+	    ( MUP::attribute_pointer_type
 		  < list_pointer_type > & ap )
     {
-	typedef MINT::attribute_pointer_type
+	typedef MUP::attribute_pointer_type
 		    < list_pointer_type > ap_type;
 
 	for ( min::gen c = current ( ap.locate_dlp );
@@ -3549,11 +3549,11 @@ bool MINT::insert_reserve
 
 template < class list_pointer_type >
 void min::locate_reverse
-	( MINT::attribute_pointer_type
+	( MUP::attribute_pointer_type
 	      < list_pointer_type > & ap,
 	  min::gen reverse_name )
 {
-    typedef MINT::attribute_pointer_type
+    typedef MUP::attribute_pointer_type
 		< list_pointer_type > ap_type;
 
     // If reverse_name is label whose only element is an
@@ -3654,10 +3654,10 @@ void min::locate_reverse
 
 template < class list_pointer_type >
 void min::relocate
-	( MINT::attribute_pointer_type
+	( MUP::attribute_pointer_type
 	      < list_pointer_type > & ap )
 {
-    typedef MINT::attribute_pointer_type
+    typedef MUP::attribute_pointer_type
 		< list_pointer_type > ap_type;
 
     switch ( ap.state )
@@ -3727,10 +3727,10 @@ void min::relocate
 
 template < class list_pointer_type >
 inline min::unsptr MINT::count
-	( MINT::attribute_pointer_type
+	( MUP::attribute_pointer_type
 	      < list_pointer_type > & ap )
 {
-    typedef MINT::attribute_pointer_type
+    typedef MUP::attribute_pointer_type
 		< list_pointer_type > ap_type;
 
     min:gen c;
@@ -3808,10 +3808,10 @@ inline min::unsptr MINT::count
 template < class list_pointer_type >
 inline min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  MINT::attribute_pointer_type
+	  MUP::attribute_pointer_type
 	      < list_pointer_type > & ap )
 {
-    typedef MINT::attribute_pointer_type
+    typedef MUP::attribute_pointer_type
 		< list_pointer_type > ap_type;
 
     min:gen c;
@@ -3888,10 +3888,10 @@ inline min::unsptr MINT::get
 }
 
 void MINT::set
-	( MUP::writable_attribute_pointer & wap,
+	( min::writable_attribute_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef MUP::writable_attribute_pointer ap_type;
+    typedef min::writable_attribute_pointer ap_type;
 
     MIN_ASSERT
         ( wap.reverse_attribute_name != min::ANY );
@@ -3968,10 +3968,10 @@ void MINT::set
 }
 
 void min::add_to_multiset
-	( MUP::writable_attribute_pointer & wap,
+	( min::writable_attribute_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef MUP::writable_attribute_pointer ap_type;
+    typedef min::writable_attribute_pointer ap_type;
 
     MIN_ASSERT
         ( wap.reverse_attribute_name != min::ANY );
@@ -4034,10 +4034,10 @@ void min::add_to_multiset
 }
 
 void min::add_to_set
-	( MUP::writable_attribute_pointer & wap,
+	( min::writable_attribute_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef MUP::writable_attribute_pointer ap_type;
+    typedef min::writable_attribute_pointer ap_type;
 
     MIN_ASSERT
         ( wap.reverse_attribute_name != min::ANY );
@@ -4133,10 +4133,10 @@ void min::add_to_set
 }
 
 void MINT::set_flags
-	( MUP::writable_attribute_pointer & wap,
+	( min::writable_attribute_pointer & wap,
 	  const min::gen * in, unsigned n )
 {
-    typedef MUP::writable_attribute_pointer ap_type;
+    typedef min::writable_attribute_pointer ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -4209,10 +4209,10 @@ void MINT::set_flags
 // already have a descriptor that is a sublist.
 //
 void MINT::set_more_flags
-	( MUP::writable_attribute_pointer & wap,
+	( min::writable_attribute_pointer & wap,
 	  const min::gen * in, unsigned n )
 {
-    typedef MUP::writable_attribute_pointer ap_type;
+    typedef min::writable_attribute_pointer ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -4251,9 +4251,9 @@ void MINT::set_more_flags
 #if MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
     void MINT::attribute_create
-	    ( MUP::writable_attribute_pointer & wap )
+	    ( min::writable_attribute_pointer & wap )
     {
-	typedef MUP::writable_attribute_pointer ap_type;
+	typedef min::writable_attribute_pointer ap_type;
 
 	MIN_ASSERT
 	    ( wap.state == ap_type::LOCATE_FAIL );
@@ -4372,9 +4372,9 @@ void MINT::set_more_flags
 #else // ! MIN_ALLOW_PARTIAL_ATTRIBUTE_LABELS
 
     void MINT::attribute_create
-	    ( MUP::writable_attribute_pointer & wap )
+	    ( min::writable_attribute_pointer & wap )
     {
-	typedef MUP::writable_attribute_pointer ap_type;
+	typedef min::writable_attribute_pointer ap_type;
 
 	MIN_ASSERT
 	    ( wap.state == ap_type::LOCATE_FAIL );
@@ -4413,9 +4413,9 @@ void MINT::set_more_flags
 #endif
 
 void MINT::reverse_attribute_create
-	( MUP::writable_attribute_pointer & wap )
+	( min::writable_attribute_pointer & wap )
 {
-    typedef MUP::writable_attribute_pointer ap_type;
+    typedef min::writable_attribute_pointer ap_type;
 
     MIN_ASSERT
 	( wap.state == ap_type::REVERSE_LOCATE_FAIL );
