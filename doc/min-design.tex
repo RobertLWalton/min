@@ -5385,9 +5385,9 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{update}\ARGBREAK
+\verb|min::gen min::| & \MINKEY{update}\ARGBREAK
     \verb| ( min::updatable_attr_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
+    \verb|   min::gen v )|
 \LABEL{MIN::UPDATE_OF_UPDATABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
@@ -5398,7 +5398,8 @@ can\underline{not} be converted to be read-only list pointers
 (unlike the situation with vector pointers).
 
 The {\tt min::\EOL update} function requires that the current
-value set have a single value, which this function replaces.
+value set have a single value.  This function replaces this
+single value, returning the previous value.
 It is an error if the value set is empty or has more than one
 value.
 
@@ -5482,9 +5483,9 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{update}\ARGBREAK
+\verb|min::gen min::| & \MINKEY{update}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
+    \verb|   min::gen v )|
 \LABEL{MIN::UPDATE_OF_INSERTABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
@@ -5495,7 +5496,7 @@ are:
 \LABEL{MIN::SET_OF_INSERTABLE_ATTR} \\
 \verb|void min::| & \MINKEY{set\REL}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
+    \verb|   min::gen v )|
 \LABEL{MIN::SET1_OF_INSERTABLE_ATTR} \\
 \end{tabular}\end{indpar}
 
@@ -5506,7 +5507,7 @@ are:
 \LABEL{MIN::ADD_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
+    \verb|   min::gen v )|
 \LABEL{MIN::ADD1_TO_SET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
@@ -5514,7 +5515,7 @@ are:
 \LABEL{MIN::ADD_TO_MULTISET} \\
 \verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
+    \verb|   min::gen v )|
 \LABEL{MIN::ADD1_TO_MULTISET} \\
 \end{tabular}\end{indpar}
 
@@ -5525,7 +5526,7 @@ are:
 \LABEL{MIN::REMOVE_ONE} \\
 \verb|void min::| & \MINKEY{remove\_one}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
+    \verb|   min::gen v )|
 \LABEL{MIN::REMOVE_ONE1} \\
 \verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
@@ -5533,7 +5534,7 @@ are:
 \LABEL{MIN::REMOVE_ALL} \\
 \verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
-    \verb|   const min::gen v )|
+    \verb|   min::gen v )|
 \LABEL{MIN::REMOVE_ALL1} \\
 \end{tabular}\end{indpar}
 

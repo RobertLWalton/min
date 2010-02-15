@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 18:53:03 $
+//   $Date: 2010/02/15 18:56:29 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.262 $
+//   $Revision: 1.263 $
 
 // Table of Contents:
 //
@@ -5320,7 +5320,7 @@ namespace min {
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
     template < class vecpt >
-    bool update
+    min::gen update
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      min::gen v );
@@ -5605,7 +5605,7 @@ namespace min { namespace unprotected {
 		( min::gen * out, unsigned n,
 		  min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
-	friend bool min::update<>
+	friend min::gen min::update<>
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap,
 		  min::gen v );
