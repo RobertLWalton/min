@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 12 08:26:22 EST 2010
+// Date:	Mon Feb 15 07:00:41 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/12 13:31:54 $
+//   $Date: 2010/02/15 12:20:29 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.254 $
+//   $Revision: 1.255 $
 
 // Table of Contents:
 //
@@ -3906,7 +3906,7 @@ namespace min {
 // isolated, no attempt is made to put them on a free
 // list.
 
-namespace min { namespace internal {
+namespace min { namespace unprotected {
 
     // This is the generic list pointer type from which
     // specific list pointer types are made.
@@ -3920,13 +3920,13 @@ namespace min {
 
     // Public list pointer types.
 
-    typedef min::internal::list_pointer_type
+    typedef min::unprotected::list_pointer_type
 	    < min::vec_pointer >
         list_pointer;
-    typedef min::internal::list_pointer_type
+    typedef min::unprotected::list_pointer_type
 	    < min::updatable_vec_pointer >
         updatable_list_pointer;
-    typedef min::internal::list_pointer_type
+    typedef min::unprotected::list_pointer_type
 	    < min::insertable_vec_pointer >
         insertable_list_pointer;
 
@@ -4033,54 +4033,54 @@ namespace min {
 
     template < class vecpt >
     vecpt & vec_pointer_of
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
 
     template < class vecpt >
     min::gen start_hash
-            ( min::internal
+            ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      min::unsptr index );
     template < class vecpt >
     min::gen start_vector
-            ( min::internal
+            ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      min::unsptr index );
     template < class vecpt, class vecpt2 >
     min::gen start_copy
-            ( min::internal
+            ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      const
-	      min::internal
+	      min::unprotected
 	         ::list_pointer_type<vecpt2> & lp2 );
     template < class vecpt, class vecpt2 >
     min::gen start_sublist
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
-    	      const min::internal
+    	      const min::unprotected
 	         ::list_pointer_type<vecpt2> & lp2 );
     template < class vecpt >
     min::gen start_sublist
     	    ( min::insertable_list_pointer & lp,
-    	      const min::internal
+    	      const min::unprotected
 	         ::list_pointer_type<vecpt> & lp2 );
 
     template < class vecpt >
     min::gen next
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
     template < class vecpt >
     min::gen current
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
     template < class vecpt >
     min::gen refresh
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
 
     template < class vecpt >
     void set
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      min::gen value );
 
@@ -4101,7 +4101,7 @@ namespace min {
 	      min::unsptr n = 1 );
 }
 
-namespace min { namespace internal {
+namespace min { namespace unprotected {
 
     template <>
 	class list_pointer_type
@@ -4521,15 +4521,15 @@ namespace min { namespace internal {
     // Friends:
 
 	friend vecpt & vec_pointer_of<>
-		( min::internal
+		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp );
 
 	friend min::gen min::start_hash<>
-		( min::internal
+		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp,
 		  min::unsptr index );
 	friend min::gen min::start_vector<>
-		( min::internal
+		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp,
 		  min::unsptr index );
 
@@ -4588,13 +4588,13 @@ namespace min { namespace internal {
 		  min::updatable_list_pointer & lp2 );
 
 	friend min::gen min::next<>
-		( min::internal
+		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp );
 	friend min::gen min::current<>
-		( min::internal
+		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp );
 	friend min::gen min::refresh<>
-		( min::internal
+		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp );
 
 	friend void min::set<>
@@ -4651,7 +4651,7 @@ namespace min {
 
     template < class vecpt >
     inline vecpt & vec_pointer_of
-	    ( min::internal
+	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp )
     {
     	return lp.vecp;
@@ -4659,7 +4659,7 @@ namespace min {
 
     template < class vecpt >
     inline min::gen start_hash
-            ( min::internal
+            ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      min::unsptr index )
     {
@@ -4676,7 +4676,7 @@ namespace min {
 
     template < class vecpt >
     inline min::gen start_vector
-            ( min::internal
+            ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      min::unsptr index )
     {
@@ -4710,10 +4710,10 @@ namespace min {
     //
     template < class vecpt, class vecpt2 >
     inline min::gen start_copy
-            ( min::internal
+            ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      const
-	      min::internal
+	      min::unprotected
 	         ::list_pointer_type<vecpt2> & lp2 )
     {
 	lp.hash_offset =
@@ -4764,9 +4764,9 @@ namespace min {
     //
     template < class vecpt, class vecpt2 >
     inline min::gen start_sublist
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
-    	      const min::internal
+    	      const min::unprotected
 	         ::list_pointer_type<vecpt2> & lp2 )
     {
 	// We want the total size check to work even
@@ -4821,7 +4821,7 @@ namespace min {
     template <class vecpt> 
     inline min::gen start_sublist
     	    ( min::insertable_list_pointer & lp,
-    	      const min::internal
+    	      const min::unprotected
 	         ::list_pointer_type<vecpt> & lp2 )
     {
 	// We want the total size check to work even
@@ -4879,7 +4879,7 @@ namespace min {
 
     template < class vecpt >
     inline min::gen next
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp )
     {
         if ( lp.current == min::LIST_END )
@@ -5008,7 +5008,7 @@ namespace min {
 
     template < class vecpt >
     inline min::gen current
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp )
     {
     	return lp.current;
@@ -5016,7 +5016,7 @@ namespace min {
 
     template < class vecpt >
     inline min::gen refresh
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp )
     {
 	min::unsptr new_hash_offset =
@@ -5109,7 +5109,7 @@ namespace min {
 
     template < class vecpt >
     inline min::gen start_sublist
-    	    ( min::internal
+    	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp )
     {
 	return start_sublist ( lp, lp );

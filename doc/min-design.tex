@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 12, 2010}
+\date{February 15, 2010}
  
 \maketitle
 
@@ -4587,6 +4587,25 @@ element list headed in the hash table or attribute vector.
 Any insertion before the end of a list of such a single element list
 is transformed into an insertion after the list's single element.
 \end{quote}
+
+The various list pointer types are instances of
+\verb|MUP::|\MUPKEY{list\_pointer\_type} defined as follows:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|typedef MUP::|
+	& \verb|list_pointer_type<min::vec_pointer>|\ARGBREAK
+	  \verb|min::|\MINKEY{list\_pointer}\verb|;| \\
+\verb|typedef MUP::|
+	& \verb|list_pointer_type<min::updatable_vec_pointer>|\ARGBREAK
+	  \verb|min::|\MINKEY{list\_updatable\_pointer}\verb|;| \\
+\verb|typedef MUP::|
+	& \verb|list_pointer_type<min::insertable_vec_pointer>|\ARGBREAK
+	  \verb|min::|\MINKEY{list\_insertable\_pointer}\verb|;| \\
+\end{tabular}\end{indpar}
+
+It is important not to instantiate {\tt MUP::list\_pointer\_type}
+with any parameter that is not a vector pointer type (which is why
+it is unprotected).
 
 \subsubsubsection{Object Auxiliary Stubs}
 \label{OBJECT-AUXILIARY-STUBS}
