@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 15 10:16:28 EST 2010
+// Date:	Mon Feb 15 10:48:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 15:17:05 $
+//   $Date: 2010/02/15 15:48:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.259 $
+//   $Revision: 1.260 $
 
 // Table of Contents:
 //
@@ -5242,8 +5242,11 @@ namespace min {
 	    < min::vec_pointer >
         attr_pointer;
     typedef min::unprotected::attr_pointer_type
+	    < min::updatable_vec_pointer >
+        updatable_attr_pointer;
+    typedef min::unprotected::attr_pointer_type
 	    < min::insertable_vec_pointer >
-        writable_attr_pointer;
+        insertable_attr_pointer;
 
 
     // We must declare these before we make them
@@ -5301,17 +5304,17 @@ namespace min {
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
     void set
-	    ( min::writable_attr_pointer & wap,
+	    ( min::insertable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n );
     void add_to_set
-	    ( min::writable_attr_pointer & wap,
+	    ( min::insertable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n );
     void add_to_multiset
-	    ( min::writable_attr_pointer & wap,
+	    ( min::insertable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n );
 
     void set_flags
-	    ( min::writable_attr_pointer & wap,
+	    ( min::insertable_attr_pointer & wap,
 	      const min::gen * in, unsigned n );
 
     namespace internal {
@@ -5352,22 +5355,22 @@ namespace min {
 		      < vecpt > & ap );
 
 	void set
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	void set_flags
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	void set_more_flags
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	void attr_create
-		( min::writable_attr_pointer & wap );
+		( min::insertable_attr_pointer & wap );
 
 	void reverse_attr_create
-		( min::writable_attr_pointer & wap );
+		( min::insertable_attr_pointer & wap );
     }
 
 }
@@ -5561,19 +5564,19 @@ namespace min { namespace unprotected {
 		      < vecpt > & ap );
 
 	friend void min::set
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::add_to_set
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::add_to_multiset
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::set_flags
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	friend min::unsptr min::internal::count<>
@@ -5586,23 +5589,23 @@ namespace min { namespace unprotected {
 		      < vecpt > & ap );
 
 	friend void min::internal::set
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, min::unsptr n );
 
 	friend void min::internal::set_flags
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	friend void min::internal::set_more_flags
-		( min::writable_attr_pointer & wap,
+		( min::insertable_attr_pointer & wap,
 		  const min::gen * in, unsigned n );
 
 	friend void min::internal::attr_create
-		( min::writable_attr_pointer & wap );
+		( min::insertable_attr_pointer & wap );
 
 	friend void min::internal
 	               ::reverse_attr_create
-		( min::writable_attr_pointer & wap );
+		( min::insertable_attr_pointer & wap );
 
     };
 
@@ -5825,10 +5828,10 @@ namespace min {
     }
 
     inline void set
-	    ( min::writable_attr_pointer & wap,
+	    ( min::insertable_attr_pointer & wap,
 	      const min::gen * in, min::unsptr n )
     {
-	typedef writable_attr_pointer ap_type;
+	typedef insertable_attr_pointer ap_type;
 
 	min::gen c =  refresh ( wap.dlp );
 	if ( n == 1 ) switch ( wap.state )
@@ -5846,10 +5849,10 @@ namespace min {
     }
 
     inline void set_flags
-	    ( min::writable_attr_pointer & wap,
+	    ( min::insertable_attr_pointer & wap,
 	      const min::gen * in, unsigned n )
     {
-	typedef writable_attr_pointer ap_type;
+	typedef insertable_attr_pointer ap_type;
 
 	min::gen c = refresh ( wap.locate_dlp );
 	switch ( wap.state )

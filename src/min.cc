@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 15:16:11 $
+//   $Date: 2010/02/15 15:48:40 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.148 $
+//   $Revision: 1.149 $
 
 // Table of Contents:
 //
@@ -3872,10 +3872,10 @@ inline min::unsptr MINT::get
 }
 
 void MINT::set
-	( min::writable_attr_pointer & wap,
+	( min::insertable_attr_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::writable_attr_pointer ap_type;
+    typedef min::insertable_attr_pointer ap_type;
 
     MIN_ASSERT
         ( wap.reverse_attr_name != min::ANY );
@@ -3952,10 +3952,10 @@ void MINT::set
 }
 
 void min::add_to_multiset
-	( min::writable_attr_pointer & wap,
+	( min::insertable_attr_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::writable_attr_pointer ap_type;
+    typedef min::insertable_attr_pointer ap_type;
 
     MIN_ASSERT
         ( wap.reverse_attr_name != min::ANY );
@@ -4018,10 +4018,10 @@ void min::add_to_multiset
 }
 
 void min::add_to_set
-	( min::writable_attr_pointer & wap,
+	( min::insertable_attr_pointer & wap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::writable_attr_pointer ap_type;
+    typedef min::insertable_attr_pointer ap_type;
 
     MIN_ASSERT
         ( wap.reverse_attr_name != min::ANY );
@@ -4117,10 +4117,10 @@ void min::add_to_set
 }
 
 void MINT::set_flags
-	( min::writable_attr_pointer & wap,
+	( min::insertable_attr_pointer & wap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::writable_attr_pointer ap_type;
+    typedef min::insertable_attr_pointer ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -4193,10 +4193,10 @@ void MINT::set_flags
 // already have a descriptor that is a sublist.
 //
 void MINT::set_more_flags
-	( min::writable_attr_pointer & wap,
+	( min::insertable_attr_pointer & wap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::writable_attr_pointer ap_type;
+    typedef min::insertable_attr_pointer ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -4235,9 +4235,9 @@ void MINT::set_more_flags
 #if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
     void MINT::attr_create
-	    ( min::writable_attr_pointer & wap )
+	    ( min::insertable_attr_pointer & wap )
     {
-	typedef min::writable_attr_pointer ap_type;
+	typedef min::insertable_attr_pointer ap_type;
 
 	MIN_ASSERT
 	    ( wap.state == ap_type::LOCATE_FAIL );
@@ -4356,9 +4356,9 @@ void MINT::set_more_flags
 #else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 
     void MINT::attr_create
-	    ( min::writable_attr_pointer & wap )
+	    ( min::insertable_attr_pointer & wap )
     {
-	typedef min::writable_attr_pointer ap_type;
+	typedef min::insertable_attr_pointer ap_type;
 
 	MIN_ASSERT
 	    ( wap.state == ap_type::LOCATE_FAIL );
@@ -4397,9 +4397,9 @@ void MINT::set_more_flags
 #endif
 
 void MINT::reverse_attr_create
-	( min::writable_attr_pointer & wap )
+	( min::insertable_attr_pointer & wap )
 {
-    typedef min::writable_attr_pointer ap_type;
+    typedef min::insertable_attr_pointer ap_type;
 
     MIN_ASSERT
 	( wap.state == ap_type::REVERSE_LOCATE_FAIL );
