@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 15, 2010}
+\date{February 16, 2010}
  
 \maketitle
 
@@ -4043,6 +4043,9 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_LIST_POINTER} \\
 \verb|min::gen min::|
+	& \MINKEY{peek}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::PEEK_OF_LIST_POINTER} \\
+\verb|min::gen min::|
 	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
 \verb|min::gen min::|
@@ -4078,7 +4081,10 @@ Once created it can be started on a new list by one of the
 {\tt min::\EOL start\_\EOL hash}, {\tt min::\EOL start\_\EOL attr},
 {\tt min::\EOL start\_\EOL copy}, or
 the 2-argument {\tt min::\EOL start\_\EOL sublist}.
-The {\tt min::\EOL next} function moves forward in the current list.
+The {\tt min::\EOL next} function moves forward one element
+in the current list,
+while the {\tt min::\EOL peek} function returns the next element without
+moving to it.
 The list is always pointing at a current element, whose value is
 returned by the {\tt min::\EOL current} function.  If the current element
 is written using another updatable or insertable list pointer,
@@ -4152,10 +4158,17 @@ After the end of a list has been reached, additional
 calls to {\tt min::next}
 will do nothing but return {\tt min::\EOL LIST\_\EOL END}.
 
+The {\tt min::\EOL peek} function returns the next element of the
+list, i.e., the
+same value as the {\tt min::\EOL next} function would return, but does not
+change the element the list pointer is pointing at, i.e., does not
+modify the list pointer.
+
 The {\tt min::current} function just returns the value of the list
 element the list pointer currently points at, or returns
 {\tt min::\EOL LIST\_\EOL END}
 if there is no such element because the pointer is at the end of a list.
+This function does not modify the list pointer.
 
 The {\tt min::refresh} function must be called if the object
 may have been resized by the addition of an element to some part of
@@ -4253,6 +4266,9 @@ from lists.  The functions for using this are:
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{peek}\verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::PEEK_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{current}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_UPDATABLE_LIST_POINTER} \\
@@ -4364,6 +4380,9 @@ The functions defined for this are:
 \verb|min::gen min::|
 	& \MINKEY{next}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{peek}\verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::PEEK_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{current}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_INSERTABLE_LIST_POINTER} \\
@@ -6876,6 +6895,9 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{next}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_LIST_POINTER} \\
 \verb|min::gen min::|
+	& \MINKEY{peek}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::PEEK_OF_LIST_POINTER} \\
+\verb|min::gen min::|
 	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
 \verb|min::gen min::|
@@ -6978,6 +7000,10 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{next}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{peek}\ARGBREAK
+	  \verb| ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::PEEK_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{current}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp )|
@@ -7089,6 +7115,10 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{next}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::NEXT_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{peek}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::PEEK_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
