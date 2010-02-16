@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 16 10:19:39 EST 2010
+// Date:	Tue Feb 16 10:27:47 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/16 15:19:56 $
+//   $Date: 2010/02/16 15:28:09 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.153 $
+//   $Revision: 1.154 $
 
 // Table of Contents:
 //
@@ -3179,16 +3179,8 @@ bool MINT::insert_reserve
 
 #   if MIN_USE_OBJ_AUX_STUBS
 	if ( use_obj_aux_stubs )
-	{
-	    bool rflag = min::set_relocated_flag
-	    			( false );
 	    MINT::acc_expand_stub_free_list
 		( insertions + elements );
-	    if ( min::relocated_flag() )
-		result = true;
-	    else
-		min::set_relocated_flag ( rflag );
-	}
 	else
 #   endif
     {
