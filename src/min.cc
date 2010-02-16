@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 15 10:56:55 EST 2010
+// Date:	Tue Feb 16 02:32:02 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/15 16:00:14 $
+//   $Date: 2010/02/16 08:00:06 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.150 $
+//   $Revision: 1.151 $
 
 // Table of Contents:
 //
@@ -3869,6 +3869,58 @@ inline min::unsptr MINT::get
 	++ result, * out ++ = c;
 
     return result;
+}
+
+template < class vecpt >
+inline min::gen MINT::update
+	( MUP::attr_pointer_type<vecpt> & ap,
+	  min::gen v )
+{
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+    case ap_type::LOCATE_FAIL:
+    case ap_type::REVERSE_LOCATE_FAIL:
+	MIN_ABORT ( "attribute update called after"
+	            " locate failed" );
+	return min::NONE;
+    case ap_type::LOCATE_ANY:
+	MIN_ABORT ( "attribute update called after"
+	            " reverse locate to ANY" );
+	return min::NONE;
+    }
+
+    min::gen c = current ( ap.dlp );
+    MIN_ASSERT ( is_sublist ( c ) );
+    updatable_list_pointer lp
+        ( vec_pointer_of ( ap.dlp ) );
+    start_sublist ( lp, ap.dlp );
+    c = current ( lp );
+    while ( is_sublist ( c ) )
+	c = next ( lp );
+    while ( is_control_code ( c ) )
+	c = next ( lp );
+    if ( ! is_list_end ( c ) )
+    {
+	MIN_ABORT ( "attribute update called"
+		    " when there are no (reverse)"
+		    " attribute values" );
+	return min::NONE;
+    }
+    list_pointer lp2 ( vec_pointer_of ( lp ) );
+    start_copy ( lp2, lp );
+    if ( ! is_list_end ( next ( lp2 ) ) )
+    {
+	MIN_ABORT ( "attribute update called when there"
+		    " is more than one (reverse)"
+		    " attribute value" );
+	return min::NONE;
+    }
+    set ( lp, v );
+    return c;
 }
 
 void MINT::set
