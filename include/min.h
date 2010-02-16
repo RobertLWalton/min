@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 16 07:58:34 EST 2010
+// Date:	Tue Feb 16 09:33:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/16 13:24:55 $
+//   $Date: 2010/02/16 14:34:07 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.265 $
+//   $Revision: 1.266 $
 
 // Table of Contents:
 //
@@ -4078,12 +4078,16 @@ namespace min {
     	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
     template < class vecpt >
-    min::gen refresh
+    min::gen update_refresh
+    	    ( min::unprotected
+	         ::list_pointer_type<vecpt> & lp );
+    template < class vecpt >
+    min::gen insert_refresh
     	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
 
     template < class vecpt >
-    void set
+    void update
     	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp,
 	      min::gen value );
@@ -4392,10 +4396,12 @@ namespace min { namespace unprotected {
 		( min::insertable_list_pointer & lp );
 	friend min::gen min::current<>
 		( min::insertable_list_pointer & lp );
-	friend min::gen min::refresh<>
+	friend min::gen min::update_refresh<>
+		( min::insertable_list_pointer & lp );
+	friend min::gen min::insert_refresh<>
 		( min::insertable_list_pointer & lp );
 
-	friend void min::set<>
+	friend void min::update<>
 		( min::insertable_list_pointer & lp,
 		  min::gen value );
 	friend bool min::insert_reserve
@@ -4602,11 +4608,14 @@ namespace min { namespace unprotected {
 	friend min::gen min::current<>
 		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp );
-	friend min::gen min::refresh<>
+	friend min::gen min::update_refresh<>
+		( min::unprotected
+		     ::list_pointer_type<vecpt> & lp );
+	friend min::gen min::insert_refresh<>
 		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp );
 
-	friend void min::set<>
+	friend void min::update<>
 		( min::updatable_list_pointer & lp,
 		  min::gen value );
 
@@ -5110,7 +5119,28 @@ namespace min {
     }
 
     template < class vecpt >
-    inline min::gen refresh
+    inline min::gen update_refresh
+    	    ( min::unprotected
+	         ::list_pointer_type<vecpt> & lp )
+    {
+	if ( lp.current_index != 0 )
+	    return lp.current =
+	    		lp.base[lp.current_index];
+#       if MIN_USE_OBJ_AUX_STUBS
+	    else if ( lp.current_stub != NULL )
+		return lp.current =
+			   min::unprotected::
+			        gen_of
+			          ( lp.current_stub );
+#	endif
+	else if ( lp.current == min::LIST_END )
+	    return lp.current;
+
+	MIN_ABORT ( "inconsistent list_pointer" );
+    }
+
+    template < class vecpt >
+    inline min::gen insert_refresh
     	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp )
     {
@@ -5153,7 +5183,7 @@ namespace min {
     }
 
     template <>
-    inline min::gen refresh
+    inline min::gen insert_refresh
     	    ( min::insertable_list_pointer & lp )
     {
 	min::unsptr new_hash_offset =
@@ -5214,7 +5244,7 @@ namespace min {
     // updatable_ and insertable_ list_pointers.
     //
     template <>
-    inline void set
+    inline void update
     	    ( min::updatable_list_pointer & lp,
 	      min::gen value )
     {
@@ -5243,7 +5273,7 @@ namespace min {
 	}
     }
     template <>
-    inline void set
+    inline void update
     	    ( min::insertable_list_pointer & lp,
 	      min::gen value )
     {
@@ -6051,8 +6081,8 @@ namespace min {
 	{
 	case ap_type::REVERSE_LOCATE_SUCCEED:
 	case ap_type::LOCATE_NONE:
-		set ( ap.dlp, v );
-		refresh ( ap.locate_dlp );
+		update ( ap.dlp, v );
+		update_refresh ( ap.locate_dlp );
 		return c;
 	}
 
@@ -6072,8 +6102,8 @@ namespace min {
 	case ap_type::LOCATE_NONE:
 		if ( ! is_sublist ( c ) )
 		{
-		    set ( ap.dlp, * in );
-		    refresh ( ap.locate_dlp );
+		    update ( ap.dlp, * in );
+		    update_refresh ( ap.locate_dlp );
 		    return;
 		}
 	}
@@ -6087,7 +6117,7 @@ namespace min {
     {
 	typedef insertable_attr_pointer ap_type;
 
-	min::gen c = refresh ( ap.locate_dlp );
+	min::gen c = current ( ap.locate_dlp );
 	switch ( ap.state )
 	{
 	case ap_type::LOCATE_NONE:
@@ -6111,14 +6141,14 @@ namespace min {
 			MIN_ASSERT
 			    ( is_control_code
 			          ( * in ) );
-			set ( lp, * in ++ );
+			update ( lp, * in ++ );
 		    }
 		    if ( n > 0 )
 		        internal::set_more_flags
 			    ( ap, in, n );
 		    else for ( ; is_control_code ( c );
 		                 c = next ( lp ) )
-		        set ( lp,
+		        update ( lp,
 			         new_control_code_gen
 				     ( 0 ) );
 		    return;

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 16 08:25:27 EST 2010
+// Date:	Tue Feb 16 09:32:01 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/16 13:25:55 $
+//   $Date: 2010/02/16 14:34:41 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.139 $
+//   $Revision: 1.140 $
 
 // Table of Contents:
 //
@@ -2273,7 +2273,7 @@ void test_object_list_level
     MIN_ASSERT ( min::peek ( wlp ) == num101 );
     MIN_ASSERT ( min::next ( wlp ) == num101 );
 
-    min::set ( wlp, min::EMPTY_SUBLIST );
+    min::update ( wlp, min::EMPTY_SUBLIST );
     MIN_ASSERT (    min::current ( wlp )
 		 == min::EMPTY_SUBLIST );
     //
@@ -2290,7 +2290,7 @@ void test_object_list_level
     min::start_copy ( wslp, wlp );
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
-    min::refresh ( wlp );
+    min::insert_refresh ( wlp );
     MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     ::resize = true;
     min::start_sublist ( wslp, wlp );
@@ -2298,7 +2298,7 @@ void test_object_list_level
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
     insert ( wslp, true, p+1, 1 );
-    min::refresh ( wlp );
+    min::insert_refresh ( wlp );
     MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
     MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
@@ -2336,7 +2336,7 @@ void test_object_list_level
     MIN_ASSERT ( min::peek ( wslp ) == num101 );
     MIN_ASSERT ( min::next ( wslp ) == num101 );
     MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
-    min::refresh ( wlp );
+    min::insert_refresh ( wlp );
     //
     // Vector[0] list now is
     //	{ numtest, num100,
@@ -2355,7 +2355,7 @@ void test_object_list_level
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
-    min::refresh ( wlp );
+    min::insert_refresh ( wlp );
     //
     // Vector[0] list now is
     //	{ numtest, num100,
@@ -2373,7 +2373,7 @@ void test_object_list_level
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
     MIN_ASSERT ( 1 == min::remove ( wslp, 5 ) );
-    min::refresh ( wlp );
+    min::insert_refresh ( wlp );
     //
     // Vector[0] list now is
     //	{ numtest, num100, { }, num102 }
