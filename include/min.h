@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 16 02:59:40 EST 2010
+// Date:	Tue Feb 16 07:58:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/16 08:00:52 $
+//   $Date: 2010/02/16 13:24:55 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.264 $
+//   $Revision: 1.265 $
 
 // Table of Contents:
 //
@@ -4070,6 +4070,10 @@ namespace min {
     	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
     template < class vecpt >
+    min::gen peek
+    	    ( min::unprotected
+	         ::list_pointer_type<vecpt> & lp );
+    template < class vecpt >
     min::gen current
     	    ( min::unprotected
 	         ::list_pointer_type<vecpt> & lp );
@@ -4384,6 +4388,8 @@ namespace min { namespace unprotected {
 
 	friend min::gen min::next<>
 		( min::insertable_list_pointer & lp );
+	friend min::gen min::peek<>
+		( min::insertable_list_pointer & lp );
 	friend min::gen min::current<>
 		( min::insertable_list_pointer & lp );
 	friend min::gen min::refresh<>
@@ -4588,6 +4594,9 @@ namespace min { namespace unprotected {
 		  min::updatable_list_pointer & lp2 );
 
 	friend min::gen min::next<>
+		( min::unprotected
+		     ::list_pointer_type<vecpt> & lp );
+	friend min::gen min::peek<>
 		( min::unprotected
 		     ::list_pointer_type<vecpt> & lp );
 	friend min::gen min::current<>
@@ -5004,6 +5013,92 @@ namespace min {
 	}
 	else
 	    return lp.forward ( lp.current_index - 1 );
+    }
+
+    template < class vecpt >
+    inline min::gen peek
+    	    ( min::unprotected
+	         ::list_pointer_type<vecpt> & lp )
+    {
+        if ( lp.current == min::LIST_END )
+	    return min::LIST_END;
+
+#       if MIN_USE_OBJ_AUX_STUBS
+	    if ( lp.current_stub != NULL )
+	    {
+	        min::uns64 c =
+		    min::unprotected::control_of
+		    	( lp.current_stub );
+		if ( c & min::unprotected
+			    ::STUB_POINTER )
+		{
+		    min::stub * s =
+		        min::unprotected
+			   ::stub_of_control ( c );
+		    return min::unprotected
+		              ::gen_of ( s );
+		}
+		else
+		{
+		    min::unsptr index =
+		        min::unprotected
+			   ::value_of_control ( c );
+		    if ( index == 0 )
+			return min::LIST_END;
+		    else
+		    {
+		        index =
+			      lp.total_size
+			    - index;
+			return lp.base[index];
+		    }
+		}
+	    }
+#       endif
+
+	if ( lp.current_index == lp.head_index )
+	{
+	    // Current is list (not sublist) head.
+	    //
+	    return min::LIST_END;
+	}
+	else
+	{
+	    min::unsptr index = lp.current_index;
+	    MIN_ASSERT ( index != 0 );
+	    -- index;
+	    min::gen c = lp.base[index];
+
+	    if ( min::is_list_aux ( c ) )
+	    {
+		index = min::list_aux_of ( c );
+		if ( index == 0 )
+		    return min::LIST_END;
+		else
+		{
+		    index = lp.total_size - index;
+		    return lp.base[index];
+		}
+	    }
+#           if MIN_USE_OBJ_AUX_STUBS
+		else if ( min::is_stub ( c ) )
+		{
+		    min::stub * s =
+		        min::unprotected
+			   ::stub_of ( c );
+		    int type = min::type_of ( s );
+
+		    if ( type == min::LIST_AUX )
+		    {
+			return min::unprotected::
+			            gen_of ( s );
+		    }
+		}
+#           endif
+
+	    else
+		return c;
+        }
     }
 
     template < class vecpt >
