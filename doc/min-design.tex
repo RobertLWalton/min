@@ -4049,11 +4049,17 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{refresh}%
+	& \MINKEY{update\_refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::list_pointer & lp )| \\
 	  \end{tabular}
-\LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
+\LABEL{MIN::UPDATE_REFRESH_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{insert\_refresh}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::list_pointer & lp )| \\
+	  \end{tabular}
+\LABEL{MIN::INSERT_REFRESH_OF_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
@@ -4087,13 +4093,17 @@ while the {\tt min::\EOL peek} function returns the next element without
 moving to it.
 The list is always pointing at a current element, whose value is
 returned by the {\tt min::\EOL current} function.  If the current element
-is written using another updatable or insertable list pointer,
-the {\tt min::\EOL refresh} function must be used to reestablish the
+is updated using {\tt min::\EOL update}
+on another updatable or insertable list pointer,
+the {\tt min::\EOL update\_\EOL refresh} function
+must be used to reestablish the
 current element's value, which is cached in the list pointer.
-This {\tt min::\EOL refresh} function must also be used if list elements
+The {\tt min::\EOL insert\_\EOL refresh} function
+must be used if list elements
 are inserted into or removed from the object by using another
 insertable list pointer, but in some such situations using
-{\tt min::\EOL refresh} is not adequate and the list pointer must be
+{\tt min::\EOL insert\_\EOL refresh}
+is not adequate and the list pointer must be
 restarted (see \pagref{RESTARTING_LIST_POINTER}).
 
 A list pointer that has been created but not started by one of the
@@ -4170,13 +4180,22 @@ element the list pointer currently points at, or returns
 if there is no such element because the pointer is at the end of a list.
 This function does not modify the list pointer.
 
-The {\tt min::refresh} function must be called if the object
-may have been resized by the addition of an element to some part of
-the object, as by use of an insertable list pointer, or if
-the element the list pointer is pointing at is written, as by use
-of an updatable list pointer.  It returns the current element.
+The {\tt min::update\_\EOL refresh} function must be called if and element
+of the object has been updated by applying the
+{\tt min::\EOL update} or {\tt min::\EOL remove} functions
+to \underline{another} pointer.
+The {\tt min::\EOL insert\_\EOL refresh} function must be called if the object
+may have been resized by the insertion of an element into some part of
+the object by use of \underline{another} insertable list pointer, or
+more specifically, if the {\tt min::\EOL insert\_\EOL reserve} function was
+called for another pointer and that function call returned \verb|true|.
+The {\tt min::\EOL insert\_\EOL refresh} function also adjusts the pointer
+as the {\tt min::\EOL update\_\EOL refresh} function would, so there is
+no need to call both functions.
+Both functions return the current element.
 In some situations in which another insertable list pointer has
-been used to insert or remove an element, calling {\tt min::\EOL refresh}
+been used to insert or remove an element,
+calling a {\tt min::\EOL \ldots\_\EOL refresh} function
 is not adequate and the list pointer must be
 restarted by a {\tt min::\EOL start\_\ldots} function:
 see \pagref{RESTARTING_LIST_POINTER}.
@@ -4273,11 +4292,17 @@ from lists.  The functions for using this are:
 	& \MINKEY{current}\verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{refresh}%
+	& \MINKEY{update\_refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::updatable_list_pointer & lp )| \\
 	  \end{tabular}
-\LABEL{MIN::REFRESH_OF_UPDATABLE_LIST_POINTER} \\
+\LABEL{MIN::UPDATE_REFRESH_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{insert\_refresh}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::updatable_list_pointer & lp )| \\
+	  \end{tabular}
+\LABEL{MIN::INSERT_REFRESH_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
@@ -4289,12 +4314,12 @@ from lists.  The functions for using this are:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
-	& \MINKEY{set}%
+	& \MINKEY{update}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::updatable_list_pointer & lp,| \\
 	  \verb|   min::gen value )| \\
 	  \end{tabular}
-\LABEL{MIN::SET_OF_UPDATABLE} \\
+\LABEL{MIN::UPDATE_OF_UPDATABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 
 Functions defined for read-only list pointers are also
@@ -4306,16 +4331,18 @@ Also note that {\tt min::start\_\EOL sublist} works when
 \verb|lp2| is a read-only list pointer, but {\tt min::start\_\EOL copy}
 does not.
 
-The {\tt min::set} function can be used to replace the
+The {\tt min::update} function can be used to replace the
 value of the current element of a list.
 Neither the previous value of the element nor the
 new value of the element may be {\tt min::\EOL LIST\_\EOL END},
 and neither may represent a sublist (even an empty sublist).
 
 If a list pointer {\tt lp2} points at a element that is
-{\tt min::set} using a different updatable list pointer {\tt lp1},
+{\tt min::update} using a different updatable list pointer {\tt lp1},
 then {\tt lp2} will not have valid current value until
-{\tt min::refresh~(~lp2~)} has been executed.
+{\tt min::\EOL update\_\EOL refresh~(~lp2~)} or
+{\tt min::\EOL insert\_\EOL refresh~(~lp2~)}
+has been executed.
 
 Inserting and removing elements from a list requires yet another
 kind of list pointer, a {\tt min::insert\-able\_\EOL list\_\EOL pointer}.
@@ -4387,11 +4414,17 @@ The functions defined for this are:
 	& \MINKEY{current}\verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{refresh}%
+	& \MINKEY{update\_refresh}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp )| \\
 	  \end{tabular}
-\LABEL{MIN::REFRESH_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::UPDATE_REFRESH_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{insert\_refresh}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::insertable_list_pointer & lp )| \\
+	  \end{tabular}
+\LABEL{MIN::INSERT_REFRESH_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
@@ -4403,12 +4436,12 @@ The functions defined for this are:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
-	& \MINKEY{set}%
+	& \MINKEY{update}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::insertable_list_pointer & lp,| \\
 	  \verb|   min::gen value )| \\
 	  \end{tabular}
-\LABEL{MIN::SET_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::UPDATE_OF_INSERTABLE_LIST_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
@@ -4456,12 +4489,12 @@ Note that {\tt min::start\_\EOL sublist} works when
 list pointer, but {\tt min::start\_\EOL copy}
 does not.
 
-Also, there is one function, {\tt min::set}, that can do more for
+Also, there is one function, {\tt min::update}, that can do more for
 an insertable list pointer than it can for an updatable list pointer.  For
 an insertable list pointer (but not for an updatable list pointer)
-the current value replaced by {\tt min::set}
+the current value replaced by {\tt min::update}
 may be a sublist, and/or the replacing value may be
-{\tt min::\EOL EMPTY\_\EOL SUBLIST}.  Thus {\tt min::set} can be used
+{\tt min::\EOL EMPTY\_\EOL SUBLIST}.  Thus {\tt min::update} can be used
 to remove a sublist or to create an empty sublist.
 
 Making insertions in object lists requires reservation of the necessary
@@ -4484,28 +4517,32 @@ It sets the relocated flag (\pagref{RELOCATED-FLAG}) if it
 resizes the body and must relocate any \underline{other} body,
 but not if it just resizes and possibly relocates
 the body of the object in which space is being reserved.
+It returns \verb|false| if it relocates the body but does
+\underline{not} resize it.
 
 Only one pointer at a time
 for a given object may have an effective reservation.
-Each call to {\tt min::insert\_reserve} for a list pointer
+Each call to {\tt min::\EOL insert\_reserve} for a list pointer
 to an object invalidates all previous calls to
-{\tt min::insert\_reserve} for any list pointer
+{\tt min::\EOL insert\_reserve} for any list pointer
 to the same object.  Errors in this regard involving two different
 list pointers will be detected if insufficient memory is reserved,
 but not otherwise.
 
-Note that {\tt min::insert\_reserve} is the only list pointer
+Note that {\tt min::\EOL insert\_reserve} is the only list pointer
 function that may cause a relocation and/or resizing of
-the object pointed at, and if a resizing occurs,
-all list pointers become invalid and must be refreshed by
-a call to {\tt min::refresh}.
+the object pointed at, and if a resizing occurs (i.e., if \verb|true|
+is returned),
+all other list pointers to the same object
+become invalid and must be refreshed by
+a call to {\tt min::\EOL insert\_\EOL refresh}.
 
-The {\tt min::insert\_reserve} function can increase the size of the object
+The {\tt min::\EOL insert\_reserve} function can increase the size of the object
 if it is insufficient, or instead it can depend upon using
 object auxiliary stubs (\secref{OBJECT-AUXILIARY-STUBS}) if the object
-runs out of space, in which case {\tt min::insert\_reserve} must be sure
+runs out of space, in which case {\tt min::\EOL insert\_reserve} must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
-last argument to {\tt min::insert\_reserve} determines which strategy is
+last argument to {\tt min::\EOL insert\_reserve} determines which strategy is
 used.  It defaults to the value of \minkey{use\_obj\_aux\_stubs}
 (see \pagref{MIN::USE_OBJ_AUX_STUBS}).%
 \footnote{But if the auxiliary stub code is not compiled in, the last
@@ -4513,38 +4550,38 @@ argument is treated as if it was always {\tt false}:
 see {\tt MIN\_\EOL USE\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
 \pagref{MIN_USE_OBJ_AUX_STUBS}.}
 
-The {\tt min::insert\_before} function inserts list elements
+The {\tt min::\EOL insert\_before} function inserts list elements
 just before the current position of a list pointer.
-The {\tt min::insert\_after} function inserts list elements just after the
+The {\tt min::\EOL insert\_after} function inserts list elements just after the
 current position.  If the list pointer is at the end of list,
-{\tt min::insert\_before} inserts the elements at the end of the list, and
-{\tt min::insert\_after} is in error.  The list pointer continues to point
+{\tt min::\EOL insert\_before} inserts the elements at the end of the list, and
+{\tt min::\EOL insert\_after} is in error.  The list pointer continues to point
 at the list element it pointed at before elements were inserted.
 The elements are specified by a length {\tt n}
 vector {\tt p} of {\tt min::gen} values.
 \verb|p[0]| is inserted into the list before \verb|p[1]|, etc.
 
-To insert a sublist, first insert {\tt min::EMPTY\_SUBLIST}, then
+To insert a sublist, first insert {\tt min::\EOL EMPTY\_SUBLIST}, then
 position the pointer to the sublist and use
-{\tt min::start\_sublist} to enter the sublist, and then use
-{\tt min::insert\_before} to insert the elements of the sublist.
-Also, as noted above, you can use {\tt min::\EOL set} with an
+{\tt min::\EOL start\_sublist} to enter the sublist, and then use
+{\tt min::\EOL insert\_before} to insert the elements of the sublist.
+Also, as noted above, you can use {\tt min::\EOL update} with an
 insertable pointer to change
 the current element to {\tt min::\EOL EMPTY\_\EOL SUBLIST}.
 
 A sequence of instructions that begins with a
-call to {\tt min::insert\_reserve} and ends with the last
+call to {\tt min::\EOL insert\_reserve} and ends with the last
 list insertion function for which the beginning call made a reservation
 is called a `\key{list insertion sequence}'.  A list insertion sequence
 must not contain any call to
 a relocating (\REL) function (\pagref{RELOCATING-FUNCTIONS}), aside from
-the beginning call to {\tt min::insert\_reserve}.  In particular, there can
-be no call to {\tt min::interrupt\REL} (\pagref{MIN::INTERRUPT}) and no
-second call to {\tt min::insert\_reserve\REL}.  There can be calls to
-create and position list pointers, and to read, set, and remove
+the beginning call to {\tt min::\EOL insert\_reserve}.  In particular, there can
+be no call to {\tt min::\EOL interrupt\REL} (\pagref{MIN::INTERRUPT}) and no
+second call to {\tt min::\EOL insert\_reserve\REL}.  There can be calls to
+create and position list pointers, and to read, update, and remove
 list elements.
 
-The {\tt min::remove} function can be used to remove
+The {\tt min::\EOL remove} function can be used to remove
 {\tt n} consecutive elements
 of a list, the first of which is the element currently pointed at by
 the list pointer.
@@ -4556,6 +4593,14 @@ elements at and after the current element are removed, and the list
 pointer is pointed at the end of the list.  The returned value is the
 number of elements actually removed (and is less than {\tt n} if the
 list was too short).  Element removal requires no reservation.
+
+If {\tt min::\EOL remove} is used to remove the first element of
+a sublist,
+all list pointers pointing at the sublist viewed as an element
+inside its containing list
+become invalid and must be refreshed by
+a call to {\tt min::\EOL update\_\EOL refresh} or
+{\tt min::\EOL insert\_\EOL refresh}.
 
 If an insertable list pointer {\tt lp2} is used to add or remove
 elements or remove sublists, and there is another list pointer {\tt lp1}
@@ -6901,8 +6946,11 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{current}\verb| ( min::list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{refresh}\verb| ( min::list_pointer & lp )|
-\LABEL{MIN::REFRESH_OF_LIST_POINTER} \\
+	& \MINKEY{update\_refresh}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::UPDATE_REFRESH_OF_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{insert\_refresh}\verb| ( min::list_pointer & lp )|
+\LABEL{MIN::INSERT_REFRESH_OF_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -7009,9 +7057,13 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( min::updatable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_UPDATABLE_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{refresh}\ARGBREAK
+	& \MINKEY{update\_refresh}\ARGBREAK
 	  \verb|    ( min::updatable_list_pointer & lp )|
-\LABEL{MIN::REFRESH_OF_UPDATABLE_LIST_POINTER} \\
+\LABEL{MIN::UPDATE_REFRESH_OF_UPDATABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{insert\_refresh}\ARGBREAK
+	  \verb|    ( min::updatable_list_pointer & lp )|
+\LABEL{MIN::INSERT_REFRESH_OF_UPDATABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -7031,10 +7083,10 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 \verb|void min::|
-	& \MINKEY{set}\ARGBREAK
+	& \MINKEY{update}\ARGBREAK
 	  \verb| ( min::updatable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen value )|
-\LABEL{MIN::SET_OF_UPDATABLE} \\
+\LABEL{MIN::UPDATE_OF_UPDATABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
@@ -7128,19 +7180,23 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( min::insertable_list_pointer & lp )|
 \LABEL{MIN::CURRENT_OF_INSERTABLE_LIST_POINTER} \\
 \verb|min::gen min::|
-	& \MINKEY{refresh}\ARGBREAK
+	& \MINKEY{update\_refresh}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp )|
-\LABEL{MIN::REFRESH_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::UPDATE_REFRESH_OF_INSERTABLE_LIST_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{insert\_refresh}\ARGBREAK
+	  \verb| ( min::insertable_list_pointer & lp )|
+\LABEL{MIN::INSERT_REFRESH_OF_INSERTABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
 
 \begin{TABULAR}{1.8in}
 \verb|void min::|
-	& \MINKEY{set}\ARGBREAK
+	& \MINKEY{update}\ARGBREAK
 	  \verb| ( min::insertable_list_pointer & lp,|\ARGBREAK
 	  \verb|   min::gen value )|
-\LABEL{MIN::SET_OF_INSERTABLE_LIST_POINTER} \\
+\LABEL{MIN::UPDATE_OF_INSERTABLE_LIST_POINTER} \\
 \end{TABULAR}
 
 \medskip
