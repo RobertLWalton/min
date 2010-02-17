@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 16 09:33:03 EST 2010
+// Date:	Wed Feb 17 02:35:25 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/16 14:34:07 $
+//   $Date: 2010/02/17 08:07:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.266 $
+//   $Revision: 1.267 $
 
 // Table of Contents:
 //
@@ -5532,6 +5532,10 @@ namespace min {
 		  unprotected::attr_pointer_type
 		      < vecpt > & ap );
 	template < class vecpt >
+	min::gen get
+		( unprotected::attr_pointer_type
+		      < vecpt > & ap );
+	template < class vecpt >
 	min::gen update
 		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
@@ -5723,7 +5727,7 @@ namespace min { namespace unprotected {
 		( min::gen * out, min::unsptr n,
 		  min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
-	friend min::unsgen min::get<>
+	friend min::gen min::get<>
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
 	friend unsigned min::count_flags<>
@@ -5831,6 +5835,9 @@ namespace min { namespace unprotected {
 		( min::gen * out, min::unsptr n,
 		  min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
+	friend min::gen min::internal::get<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend min::gen min::internal::update<>
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap,
@@ -5856,6 +5863,8 @@ namespace min { namespace unprotected {
 namespace min {
 
     // Inline functions.  See MIN design document.
+
+    // Locate Functions:
 
     template < class vecpt >
     inline void locatei
@@ -5951,6 +5960,13 @@ namespace min {
 	}
 #   endif
 
+    // Access Functions:
+
+    // We begin each function with an update_refresh as
+    // this permits us to avoid calls to relocate when
+    // only updates are performed, and such calls are
+    // very cheap.
+
     template < class vecpt >
     inline min::unsptr count
 	    ( min::unprotected
@@ -5959,19 +5975,28 @@ namespace min {
 	typedef min::unprotected
 	           ::attr_pointer_type<vecpt> ap_type;
 
-	min::gen c = current ( ap.dlp );
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_FAIL:
-		return 0;
-	case ap_type::LOCATE_NONE:
-	case ap_type::REVERSE_LOCATE_SUCCEED:
-		if ( ! is_sublist ( c ) ) return 1;
+	    return 0;
+	case ap_type::LOCATE_ANY:
+	    return internal::count ( ap );
 	}
-	return internal::count ( ap );
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) ) return 1;
+	list_pointer lp ( vec_pointer_of ( ap.dlp ) );
+	start_sublist ( lp, ap.dlp );
+	for ( c = current ( lp );
+	      is_sublist ( c ); c = next ( lp ) );
+	for ( ; is_control_code ( c );
+	        c = next ( lp ) );
+	unsigned result = 0;
+	for ( ; ! is_list_end ( c ); c = next ( lp ) );
+	    ++ result;
+	return result;
     }
 
     template < class vecpt >
@@ -5980,27 +6005,73 @@ namespace min {
 	      min::unprotected
 	         ::attr_pointer_type<vecpt> & ap )
     {
-	typedef unprotected::attr_pointer_type
-		    < vecpt > ap_type;
+	typedef min::unprotected
+	           ::attr_pointer_type<vecpt> ap_type;
 
 	if ( n == 0 ) return 0;
-	min::gen c =  current ( ap.dlp );
+
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
-	case ap_type::REVERSE_LOCATE_FAIL:
-		return 0;
-	case ap_type::LOCATE_NONE:
-	case ap_type::REVERSE_LOCATE_SUCCEED:
-		if ( ! is_sublist ( c ) )
-		{
-		    out[0] = c;
-		    return 1;
-		}
+	    return 0;
+	case ap_type::LOCATE_ANY:
+	    return internal::get ( out, n, ap );
 	}
-	internal::get ( out, n, ap );
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	{
+	    out[0] = c;
+	    return 1;
+	}
+	list_pointer lp ( vec_pointer_of ( ap.dlp ) );
+	start_sublist ( lp, ap.dlp );
+	for ( c = current ( lp );
+	      is_sublist ( c ); c = next ( lp ) );
+	for ( ; is_control_code ( c );
+	        c = next ( lp ) );
+	unsigned result = 0;
+	for ( ; result < n && ! is_list_end ( c );
+	        c = next ( lp ) );
+	{
+	    * out ++ = c;
+	    ++ result;
+	}
+	return result;
+    }
+
+    template < class vecpt >
+    inline min::gen get
+	    ( min::unprotected
+	         ::attr_pointer_type<vecpt> & ap )
+    {
+	typedef min::unprotected
+	           ::attr_pointer_type<vecpt> ap_type;
+
+	switch ( ap.state )
+	{
+	case ap_type::INIT:
+	case ap_type::END_INIT:
+	case ap_type::LOCATE_FAIL:
+	    return min::NONE;
+	case ap_type::LOCATE_ANY:
+	    return internal::get ( ap );
+	}
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	    return c;
+	list_pointer lp ( vec_pointer_of ( ap.dlp ) );
+	start_sublist ( lp, ap.dlp );
+	for ( c = current ( lp );
+	      is_sublist ( c ); c = next ( lp ) );
+	for ( ; is_control_code ( c );
+	        c = next ( lp ) );
+	if ( c == min::LIST_END ) return min::NONE;
+	if ( peek ( lp ) == min::LIST_END ) return c;
+	return min::MULTI_VALUED;
     }
 
     template < class vecpt >
@@ -6019,14 +6090,13 @@ namespace min {
 		return 0;
 	}
 
-	min::gen c = current ( ap.locate_dlp );
+	min::gen c = update_refresh ( ap.locate_dlp );
 	if ( ! is_sublist ( c ) ) return 0;
 	list_pointer lp
 	    ( vec_pointer_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
 	for ( c = current ( lp );
-	      is_sublist ( c );
-	      c = next ( lp ) );
+	      is_sublist ( c ); c = next ( lp ) );
 	unsigned result = 0;
 	for ( ; is_control_code ( c ); c = next ( lp ) )
 	    ++ result;
@@ -6050,22 +6120,19 @@ namespace min {
 		return 0;
 	}
 
-	min::gen c =  current ( ap.locate_dlp );
+	min::gen c =  update_refresh ( ap.locate_dlp );
 	if ( ! is_sublist ( c ) ) return 0;
 	list_pointer lp
 	    ( vec_pointer_of ( ap.locate_dlp ) );
 	start_sublist ( lp, ap.locate_dlp );
 	for ( c = current ( lp );
-	      is_sublist ( c );
-	      c = next ( lp ) );
+	      is_sublist ( c ); c = next ( lp ) );
 	unsigned result = 0;
 	for ( ; result < n && is_control_code ( c );
 	        c = next ( lp ) )
 	    ++ result, * out ++ = c;
 	return result;
     }
-
-// TBD
 
     template < class vecpt >
     inline min::gen update
@@ -6076,18 +6143,40 @@ namespace min {
 	typedef min::unprotected
 	           ::attr_pointer_type<vecpt> ap_type;
 
-	min::gen c =  current ( ap.dlp );
-	if ( ! is_sublist ( c ) ) switch ( ap.state )
+	switch ( ap.state )
 	{
-	case ap_type::REVERSE_LOCATE_SUCCEED:
-	case ap_type::LOCATE_NONE:
-		update ( ap.dlp, v );
-		update_refresh ( ap.locate_dlp );
-		return c;
+	case ap_type::INIT:
+	case ap_type::END_INIT:
+	case ap_type::LOCATE_FAIL:
+	case ap_type::LOCATE_ANY:
+	    return internal::update ( ap, v );
 	}
 
-	return internal::update ( ap, v ); 
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	{
+	    update ( ap.dlp, v );
+	    update_refresh ( ap.locate_dlp );
+	    return c;
+	}
+	updatable_list_pointer lp
+	    ( vec_pointer_of ( ap.locate_dlp ) );
+	start_sublist ( lp, ap.dlp );
+	for ( c = current ( lp );
+	      is_sublist ( c ); c = next ( lp ) );
+	for ( ; is_control_code ( c );
+	        c = next ( lp ) );
+	if (    c != min::LIST_END
+	     && peek ( lp ) == min::LIST_END )
+	{
+	    update ( lp, v );
+	    return c;
+	}
+	return internal::update ( ap, v );
     }
+
+// TBD
+
 
     inline void set
 	    ( min::insertable_attr_pointer & ap,
@@ -6095,7 +6184,7 @@ namespace min {
     {
 	typedef min::insertable_attr_pointer ap_type;
 
-	min::gen c =  current ( ap.dlp );
+	min::gen c = update_refresh ( ap.dlp );
 	if ( n == 1 ) switch ( ap.state )
 	{
 	case ap_type::REVERSE_LOCATE_SUCCEED:
@@ -6117,7 +6206,7 @@ namespace min {
     {
 	typedef insertable_attr_pointer ap_type;
 
-	min::gen c = current ( ap.locate_dlp );
+	min::gen c = update_refresh ( ap.locate_dlp );
 	switch ( ap.state )
 	{
 	case ap_type::LOCATE_NONE:
