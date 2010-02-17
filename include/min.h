@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 17 02:35:25 EST 2010
+// Date:	Wed Feb 17 03:29:00 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/17 08:07:56 $
+//   $Date: 2010/02/17 18:05:58 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.267 $
+//   $Revision: 1.268 $
 
 // Table of Contents:
 //
@@ -5536,6 +5536,15 @@ namespace min {
 		( unprotected::attr_pointer_type
 		      < vecpt > & ap );
 	template < class vecpt >
+	min::unsptr count_flags
+		( unprotected::attr_pointer_type
+		      < vecpt > & ap );
+	template < class vecpt >
+	min::unsptr get_flags
+		( min::gen * out, min::unsptr n,
+		  unprotected::attr_pointer_type
+		      < vecpt > & ap );
+	template < class vecpt >
 	min::gen update
 		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
@@ -5620,31 +5629,38 @@ namespace min { namespace unprotected {
 		    // to get_attrs that delivers the
 		    // last label.
 
-		LOCATE_FAIL		= 2,
+		RELOCATE		= 2,
+		    // Relocate must be called before
+		    // performing any operation.  We
+		    // delay calls to relocate because
+		    // often they are not needed (e.g.,
+		    // when removing an attribute).
+
+		LOCATE_FAIL		= 3,
 		    // Last call to locate failed.
 
 		// Note: states >= LOCATE_NONE imply
 		// the last call to locate succeeded.
 
-		LOCATE_NONE		= 3,
+		LOCATE_NONE		= 4,
 		    // Last call to locate succeeded,
 		    // and no call to reverse_locate
 		    // has been made or the last call
 		    // to reverse_locate set the
 		    // reverse_attribute to NONE.
 
-		LOCATE_ANY		= 4,
+		LOCATE_ANY		= 5,
 		    // Last call to reverse_locate set
 		    // the reverse attribute to ANY.
 
-		REVERSE_LOCATE_FAIL	= 5,
+		REVERSE_LOCATE_FAIL	= 6,
 		    // Last call to reverse_locate when
 		    // the state was >= LOCATE_NONE set
 		    // the reverse attribute to a value
 		    // other than NONE or ANY and
 		    // failed.
 
-		REVERSE_LOCATE_SUCCEED	= 6
+		REVERSE_LOCATE_SUCCEED	= 7
 		    // Last call to reverse_locate when
 		    // the state was >= LOCATE_NONE set
 		    // the reverse attribute to a value
@@ -5838,6 +5854,13 @@ namespace min { namespace unprotected {
 	friend min::gen min::internal::get<>
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
+	friend min::unsptr min::internal::count_flags<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
+	friend min::unsptr min::internal::get_flags<>
+		( min::gen * out, min::unsptr n,
+		  min::unprotected
+		     ::attr_pointer_type<vecpt> & ap );
 	friend min::gen min::internal::update<>
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap,
@@ -5981,6 +6004,7 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	    return 0;
+	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::count ( ap );
 	}
@@ -6016,6 +6040,7 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	    return 0;
+	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( out, n, ap );
 	}
@@ -6056,6 +6081,8 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	    return min::NONE;
+
+	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( ap );
 	}
@@ -6088,6 +6115,9 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 		return 0;
+
+	case ap_type::RELOCATE:
+	    return internal::count_flags ( ap );
 	}
 
 	min::gen c = update_refresh ( ap.locate_dlp );
@@ -6118,6 +6148,9 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 		return 0;
+
+	case ap_type::RELOCATE:
+	    return internal::get_flags ( ap );
 	}
 
 	min::gen c =  update_refresh ( ap.locate_dlp );
@@ -6148,6 +6181,7 @@ namespace min {
 	case ap_type::INIT:
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
+	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::update ( ap, v );
 	}
@@ -6175,29 +6209,33 @@ namespace min {
 	return internal::update ( ap, v );
     }
 
-// TBD
-
-
     inline void set
 	    ( min::insertable_attr_pointer & ap,
 	      const min::gen * in, min::unsptr n )
     {
 	typedef min::insertable_attr_pointer ap_type;
 
-	min::gen c = update_refresh ( ap.dlp );
-	if ( n == 1 ) switch ( ap.state )
+	switch ( ap.state )
 	{
-	case ap_type::REVERSE_LOCATE_SUCCEED:
-	case ap_type::LOCATE_NONE:
-		if ( ! is_sublist ( c ) )
-		{
-		    update ( ap.dlp, * in );
-		    update_refresh ( ap.locate_dlp );
-		    return;
-		}
+	case ap_type::INIT:
+	case ap_type::END_INIT:
+	case ap_type::LOCATE_FAIL:
+	case ap_type::RELOCATE:
+	case ap_type::LOCATE_ANY:
+	    internal::set ( ap, in, n );
+	    return;
 	}
-
-	internal::set ( ap, in, n  ); 
+	if ( n > 1 )
+	{
+	    internal::set ( ap, in, n );
+	    return;
+	}
+	else if ( n == 1 )
+	{
+	    update ( ap, * in );
+	    return;
+	}
+	internal::set ( ap, in, n );
     }
 
     inline void set_flags
