@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 16, 2010}
+\date{February 17, 2010}
  
 \maketitle
 
@@ -4098,13 +4098,12 @@ on another updatable or insertable list pointer,
 the {\tt min::\EOL update\_\EOL refresh} function
 must be used to reestablish the
 current element's value, which is cached in the list pointer.
-The {\tt min::\EOL insert\_\EOL refresh} function
-must be used if list elements
-are inserted into or removed from the object by using another
-insertable list pointer, but in some such situations using
-{\tt min::\EOL insert\_\EOL refresh}
-is not adequate and the list pointer must be
-restarted (see \pagref{RESTARTING_LIST_POINTER}).
+Similarly one of the {\tt min::\EOL\ldots\_refresh} functions may
+need to be used when another pointer is used to insert elements into
+or remove elements
+from the object, though in some situations this is
+not adequate and the list pointer must be restarted
+with a {\tt min::\EOL start\_\dots} function.
 
 A list pointer that has been created but not started by one of the
 list start functions appears to be
@@ -4180,25 +4179,25 @@ element the list pointer currently points at, or returns
 if there is no such element because the pointer is at the end of a list.
 This function does not modify the list pointer.
 
-The {\tt min::update\_\EOL refresh} function must be called if and element
-of the object has been updated by applying the
-{\tt min::\EOL update} or {\tt min::\EOL remove} functions
-to \underline{another} pointer.
-The {\tt min::\EOL insert\_\EOL refresh} function must be called if the object
-may have been resized by the insertion of an element into some part of
-the object by use of \underline{another} insertable list pointer, or
-more specifically, if the {\tt min::\EOL insert\_\EOL reserve} function was
-called for another pointer and that function call returned \verb|true|.
-The {\tt min::\EOL insert\_\EOL refresh} function also adjusts the pointer
-as the {\tt min::\EOL update\_\EOL refresh} function would, so there is
-no need to call both functions.
-Both functions return the current element.
-In some situations in which another insertable list pointer has
-been used to insert or remove an element,
-calling a {\tt min::\EOL \ldots\_\EOL refresh} function
-is not adequate and the list pointer must be
-restarted by a {\tt min::\EOL start\_\ldots} function:
-see \pagref{RESTARTING_LIST_POINTER}.
+The {\tt min::update\_\EOL refresh} function must be called for
+a pointer that points at an element if the {\tt min::\EOL update} function
+is used with \underline{another} pointer to the same object to update
+the element, or if the element is a sublist head and a function is used
+to remove the first element of the sublist or insert elements at the
+beginning of the sublist or after the first element of the sublist.
+The {\tt min::\EOL insert\_\EOL refresh} function must be called if the
+{\tt min::\EOL insert\_\EOL reserve} function is used with \underline{another}
+pointer to the same object and that function returned \verb|true| indicating
+that it resized the object.  The 
+{\tt min::\EOL insert\_\EOL reserve} function also does what the
+{\tt min::\EOL update\_\EOL reserve} function does, and therefore it is
+never necessary to call both functions.
+There are also situations detailed on \pagref{RESTARTING_LIST_POINTER}
+in which use of {\tt min::\EOL insert\_\EOL before},
+{\tt min::\EOL insert\_\EOL after}, or
+{\tt min::\EOL remove} with \underline{another} pointer to the same object
+absolutely requires that the current pointer be
+restarted by a {\tt min::\EOL start\_\ldots} function.
 
 Determining whether a list pointer current element value
 represents a sublist requires
@@ -4339,9 +4338,10 @@ and neither may represent a sublist (even an empty sublist).
 
 If a list pointer {\tt lp2} points at a element that is
 {\tt min::update} using a different updatable list pointer {\tt lp1},
-then {\tt lp2} will not have valid current value until
-{\tt min::\EOL update\_\EOL refresh~(~lp2~)} or
-{\tt min::\EOL insert\_\EOL refresh~(~lp2~)}
+then {\tt lp2} will be invalid until
+{\tt min::\EOL update\_\EOL refresh(lp2)},
+{\tt min::\EOL insert\_\EOL refresh(lp2)}, or
+{\tt min::\EOL start\_\ldots(lp2,\ldots)}
 has been executed.
 
 Inserting and removing elements from a list requires yet another
@@ -4581,6 +4581,17 @@ second call to {\tt min::\EOL insert\_reserve\REL}.  There can be calls to
 create and position list pointers, and to read, update, and remove
 list elements.
 
+If {\tt min::\EOL insert\_\EOL before}
+or {\tt min::\EOL insert\_\EOL after}
+are used to insert elements at the beginning of a sublist or elements
+just after the first element of a sublist,
+all list pointers pointing at the sublist viewed as an element
+inside its containing list
+become invalid and must be refreshed by
+a call to {\tt min::\EOL update\_\EOL refresh} or
+{\tt min::\EOL insert\_\EOL refresh} or restarted with a call to a
+{\tt min::\EOL start\_\ldots} function.
+
 The {\tt min::\EOL remove} function can be used to remove
 {\tt n} consecutive elements
 of a list, the first of which is the element currently pointed at by
@@ -4600,7 +4611,8 @@ all list pointers pointing at the sublist viewed as an element
 inside its containing list
 become invalid and must be refreshed by
 a call to {\tt min::\EOL update\_\EOL refresh} or
-{\tt min::\EOL insert\_\EOL refresh}.
+{\tt min::\EOL insert\_\EOL refresh} or restarted with a call to a
+{\tt min::\EOL start\_\ldots} function.
 
 If an insertable list pointer {\tt lp2} is used to add or remove
 elements or remove sublists, and there is another list pointer {\tt lp1}
