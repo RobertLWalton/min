@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 17 03:29:00 EST 2010
+// Date:	Fri Feb 19 08:02:45 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/17 18:05:58 $
+//   $Date: 2010/02/19 13:03:09 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.268 $
+//   $Revision: 1.269 $
 
 // Table of Contents:
 //
@@ -5575,7 +5575,9 @@ namespace min { namespace unprotected {
     public:
 
         attr_pointer_type ( vecpt & vecp )
-	    : dlp ( vecp ), locate_dlp ( vecp ),
+	    : dlp ( vecp ),
+	      locate_dlp ( vecp ),
+	      lp ( vecp ),
 	      attr_name ( min::NONE ),
 	      reverse_attr_name ( min::NONE ),
 	      state ( INIT )
@@ -5629,38 +5631,31 @@ namespace min { namespace unprotected {
 		    // to get_attrs that delivers the
 		    // last label.
 
-		RELOCATE		= 2,
-		    // Relocate must be called before
-		    // performing any operation.  We
-		    // delay calls to relocate because
-		    // often they are not needed (e.g.,
-		    // when removing an attribute).
-
-		LOCATE_FAIL		= 3,
+		LOCATE_FAIL		= 2,
 		    // Last call to locate failed.
 
 		// Note: states >= LOCATE_NONE imply
 		// the last call to locate succeeded.
 
-		LOCATE_NONE		= 4,
+		LOCATE_NONE		= 3,
 		    // Last call to locate succeeded,
 		    // and no call to reverse_locate
 		    // has been made or the last call
 		    // to reverse_locate set the
 		    // reverse_attribute to NONE.
 
-		LOCATE_ANY		= 5,
+		LOCATE_ANY		= 4,
 		    // Last call to reverse_locate set
 		    // the reverse attribute to ANY.
 
-		REVERSE_LOCATE_FAIL	= 6,
+		REVERSE_LOCATE_FAIL	= 5,
 		    // Last call to reverse_locate when
 		    // the state was >= LOCATE_NONE set
 		    // the reverse attribute to a value
 		    // other than NONE or ANY and
 		    // failed.
 
-		REVERSE_LOCATE_SUCCEED	= 7
+		REVERSE_LOCATE_SUCCEED	= 6
 		    // Last call to reverse_locate when
 		    // the state was >= LOCATE_NONE set
 		    // the reverse attribute to a value
@@ -5703,6 +5698,9 @@ namespace min { namespace unprotected {
 	    // END_INIT or if the state is LOCATE_FAIL
 	    // and length member does not exist or is
 	    // == 0.
+
+    	list_pointer_type<vecpt> lp;
+	    // A working pointer for temporary use.
 
 	min::unsptr index;
 	    // Hash or attribute vector index passed to
@@ -6004,21 +6002,21 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	    return 0;
-	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::count ( ap );
 	}
 
 	min::gen c = update_refresh ( ap.dlp );
 	if ( ! is_sublist ( c ) ) return 1;
-	list_pointer lp ( vec_pointer_of ( ap.dlp ) );
-	start_sublist ( lp, ap.dlp );
-	for ( c = current ( lp );
-	      is_sublist ( c ); c = next ( lp ) );
-	for ( ; is_control_code ( c );
-	        c = next ( lp ) );
+	start_sublist ( ap.lp, ap.dlp );
 	unsigned result = 0;
-	for ( ; ! is_list_end ( c ); c = next ( lp ) );
+	for ( c = current ( ap.lp );
+	      ! is_list_end ( c )
+	      &&
+	      ! is_sublist ( c )
+	      &&
+	      ! is_control_code ( c );
+	      c = next ( ap.lp ) );
 	    ++ result;
 	return result;
     }
@@ -6040,7 +6038,6 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	    return 0;
-	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( out, n, ap );
 	}
@@ -6051,19 +6048,18 @@ namespace min {
 	    out[0] = c;
 	    return 1;
 	}
-	list_pointer lp ( vec_pointer_of ( ap.dlp ) );
-	start_sublist ( lp, ap.dlp );
-	for ( c = current ( lp );
-	      is_sublist ( c ); c = next ( lp ) );
-	for ( ; is_control_code ( c );
-	        c = next ( lp ) );
+	start_sublist ( ap.lp, ap.dlp );
 	unsigned result = 0;
-	for ( ; result < n && ! is_list_end ( c );
-	        c = next ( lp ) );
-	{
-	    * out ++ = c;
-	    ++ result;
-	}
+	for ( c = current ( ap.lp );
+	      result < n
+	      &&
+	      ! is_list_end ( c )
+	      &&
+	      ! is_sublist ( c )
+	      &&
+	      ! is_control_code ( c );
+	      c = next ( ap.lp ) );
+	    * out ++ = c, ++ result;
 	return result;
     }
 
@@ -6082,7 +6078,6 @@ namespace min {
 	case ap_type::LOCATE_FAIL:
 	    return min::NONE;
 
-	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( ap );
 	}
@@ -6090,15 +6085,21 @@ namespace min {
 	min::gen c = update_refresh ( ap.dlp );
 	if ( ! is_sublist ( c ) )
 	    return c;
-	list_pointer lp ( vec_pointer_of ( ap.dlp ) );
-	start_sublist ( lp, ap.dlp );
-	for ( c = current ( lp );
-	      is_sublist ( c ); c = next ( lp ) );
-	for ( ; is_control_code ( c );
-	        c = next ( lp ) );
-	if ( c == min::LIST_END ) return min::NONE;
-	if ( peek ( lp ) == min::LIST_END ) return c;
-	return min::MULTI_VALUED;
+	start_sublist ( ap.lp, ap.dlp );
+	c = current ( ap.lp );
+	if ( is_sublist ( c )
+	     ||
+	     is_control_code ( c ) )
+	    return min::NONE;
+	min::gen d = next ( ap.lp );
+	if ( is_list_end ( d )
+	     ||
+	     is_sublist ( d )
+	     ||
+	     is_control_code ( d ) )
+	    return c;
+	else
+	    return min::MULTI_VALUED;
     }
 
     template < class vecpt >
@@ -6115,21 +6116,19 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 		return 0;
-
-	case ap_type::RELOCATE:
-	    return internal::count_flags ( ap );
 	}
 
 	min::gen c = update_refresh ( ap.locate_dlp );
 	if ( ! is_sublist ( c ) ) return 0;
-	list_pointer lp
-	    ( vec_pointer_of ( ap.locate_dlp ) );
-	start_sublist ( lp, ap.locate_dlp );
-	for ( c = current ( lp );
-	      is_sublist ( c ); c = next ( lp ) );
+	start_sublist ( ap.lp, ap.locate_dlp );
 	unsigned result = 0;
-	for ( ; is_control_code ( c ); c = next ( lp ) )
-	    ++ result;
+	for ( c = current ( ap.lp );
+	      ! is_list_end ( c );
+	      c = next ( ap.lp ) )
+	{
+	    if ( is_control_code ( c ) )
+		++ result;
+	}
 	return result;
     }
 
@@ -6148,22 +6147,19 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 		return 0;
-
-	case ap_type::RELOCATE:
-	    return internal::get_flags ( ap );
 	}
 
 	min::gen c =  update_refresh ( ap.locate_dlp );
 	if ( ! is_sublist ( c ) ) return 0;
-	list_pointer lp
-	    ( vec_pointer_of ( ap.locate_dlp ) );
-	start_sublist ( lp, ap.locate_dlp );
-	for ( c = current ( lp );
-	      is_sublist ( c ); c = next ( lp ) );
+	start_sublist ( ap.lp, ap.locate_dlp );
 	unsigned result = 0;
-	for ( ; result < n && is_control_code ( c );
-	        c = next ( lp ) )
-	    ++ result, * out ++ = c;
+	for ( c = current ( ap.lp );
+	      ! is_list_end ( c ) && result < n;
+	      c = next ( ap.lp ) )
+	{
+	    if ( is_control_code ( c ) )
+	        ++ result, * out ++ = c;
+	}
 	return result;
     }
 
@@ -6181,7 +6177,6 @@ namespace min {
 	case ap_type::INIT:
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
-	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    return internal::update ( ap, v );
 	}
@@ -6193,18 +6188,22 @@ namespace min {
 	    update_refresh ( ap.locate_dlp );
 	    return c;
 	}
-	updatable_list_pointer lp
-	    ( vec_pointer_of ( ap.locate_dlp ) );
-	start_sublist ( lp, ap.dlp );
-	for ( c = current ( lp );
-	      is_sublist ( c ); c = next ( lp ) );
-	for ( ; is_control_code ( c );
-	        c = next ( lp ) );
-	if (    c != min::LIST_END
-	     && peek ( lp ) == min::LIST_END )
+	start_sublist ( ap.lp, ap.dlp );
+	c = current ( ap.lp );
+	if ( ! is_sublist ( c )
+	     &&
+	     ! is_control_code ( c ) )
 	{
-	    update ( lp, v );
-	    return c;
+	    min::gen d = peek ( ap.lp );
+	    if ( is_list_end ( d )
+		 ||
+		 is_sublist ( d )
+		 ||
+		 is_control_code ( d ) )
+	    {
+		update ( ap.lp, v );
+		return c;
+	    }
 	}
 	return internal::update ( ap, v );
     }
@@ -6220,20 +6219,39 @@ namespace min {
 	case ap_type::INIT:
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
-	case ap_type::RELOCATE:
 	case ap_type::LOCATE_ANY:
 	    internal::set ( ap, in, n );
 	    return;
 	}
-	if ( n > 1 )
+	if ( n != 1 )
 	{
 	    internal::set ( ap, in, n );
 	    return;
 	}
-	else if ( n == 1 )
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
 	{
-	    update ( ap, * in );
+	    update ( ap.dlp, * in );
+	    update_refresh ( ap.locate_dlp );
 	    return;
+	}
+	start_sublist ( ap.lp, ap.dlp );
+	c = current ( ap.lp );
+	if ( ! is_sublist ( c )
+	     &&
+	     ! is_control_code ( c ) )
+	{
+	    min::gen d = peek ( ap.lp );
+	    if ( is_list_end ( d )
+		 ||
+		 is_sublist ( d )
+		 ||
+		 is_control_code ( d ) )
+	    {
+		update ( ap.lp, * in );
+		return;
+	    }
 	}
 	internal::set ( ap, in, n );
     }
@@ -6253,29 +6271,27 @@ namespace min {
 	case ap_type::REVERSE_LOCATE_FAIL:
 		if ( is_sublist ( c ) )
 		{
-		    updatable_list_pointer
-		        lp ( vec_pointer_of
-				( ap.locate_dlp ) );
 		    start_sublist
-		        ( lp, ap.locate_dlp );
-		    for ( c = current ( lp );
-			  is_sublist ( c );
-			  c = next ( lp ) );
-		    for ( ;    n > 0
-		            && is_control_code ( c );
-			   -- n, c = next ( lp ) )
+		        ( ap.lp, ap.locate_dlp );
+		    for ( c = current ( ap.lp );
+			  n > 0 && ! is_list_end ( c );
+			  c = next ( ap.lp ) );
 		    {
-			MIN_ASSERT
-			    ( is_control_code
-			          ( * in ) );
-			update ( lp, * in ++ );
+			if ( is_control_code ( c ) )
+			{
+			    MIN_ASSERT
+				( is_control_code
+				      ( * in ) );
+			    update ( ap.lp, * in ++ );
+			    -- n;
+			}
 		    }
 		    if ( n > 0 )
 		        internal::set_more_flags
 			    ( ap, in, n );
 		    else for ( ; is_control_code ( c );
-		                 c = next ( lp ) )
-		        update ( lp,
+		                 c = next ( ap.lp ) )
+		        update ( ap.lp,
 			         new_control_code_gen
 				     ( 0 ) );
 		    return;
