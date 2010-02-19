@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 16 10:27:47 EST 2010
+// Date:	Fri Feb 19 08:07:19 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/16 15:28:09 $
+//   $Date: 2010/02/19 18:29:15 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.154 $
+//   $Revision: 1.155 $
 
 // Table of Contents:
 //
@@ -3212,17 +3212,8 @@ bool MINT::insert_reserve
 // Object Attribute Level
 // ------ --------- -----
 
-// Note: refresh ( ap.dlp) or refresh ( ap.locate_dlp )
-// is never used instead of current() in MINT::
-// functions as refresh() must be called by the min::
-// functions before they call the MINT:: functions.
-
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
-    // Handle all cases except where the name is an
-    // integer number atom in the range of an attribute
-    // vector subscript.
-    //
     template < class vecpt >
     void MINT::locate
 	    ( MUP::attr_pointer_type<vecpt> & ap,
@@ -3252,7 +3243,16 @@ bool MINT::insert_reserve
 	    len = 1;
 	}
 	min::gen element[len];
-	if ( is_label ) lab_of ( element, len, name );
+	if ( is_label )
+	{
+	    lab_of ( element, len, name );
+	    if ( len == 1
+	         &&
+		 ( is_str ( element[0] )
+		   ||
+		   is_num ( element[0] ) ) )
+	        ap.attr_name = element[0];
+	}
 	else element[0] = name;
 
 	// Process element[0] and if found set
@@ -3271,34 +3271,29 @@ bool MINT::insert_reserve
 	     &&
 	     ( i = (int) f ) == f
 	     &&
-	     i < attr_size_of ( ap.dlp ) )
+	     i < attr_size_of ( ap.locate_dlp ) )
 	{
-	    start_vector ( ap.dlp, i );
+	    start_vector ( ap.locate_dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.index = i;
 	    ap.length = 1;
-	    if ( len == 1 )
-	    {
-		start_copy ( ap.locate_dlp, ap.dlp );
-	        ap.state = ap_type::LOCATE_NONE;
-		return;
-	    }
 	}
 	else
 	{
 	    ap.index = min::hash ( element[0] )
-	             % hash_size_of ( ap.dlp );
+	             % hash_size_of ( ap.locate_dlp );
 	    ap.flags = 0;
 
-	    start_hash ( ap.dlp, ap.index );
+	    start_hash ( ap.locate_dlp, ap.index );
 
-	    for ( c = current ( ap.dlp );
+	    for ( c = current ( ap.locate_dlp );
 		  ! is_list_end ( c );
-		  next ( ap.dlp), c = next ( ap.dlp ) )
+		  next ( ap.locate_dlp),
+		  c = next ( ap.locate_dlp ) )
 	    {
 		if ( c == element[0] )
 		{
-		    c = next ( ap.dlp );
+		    c = next ( ap.locate_dlp );
 		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
@@ -3313,13 +3308,16 @@ bool MINT::insert_reserve
 	    else ap.length = 1;
 	}
 
-	start_copy ( ap.locate_dlp, ap.dlp );
+	start_copy ( ap.dlp, ap.locate_dlp );
 	while ( ap.length < len )
 	{
 	    if ( ! is_sublist ( current ( ap.dlp ) ) )
 	        break;
 	    start_sublist ( ap.dlp );
-	    if ( ! is_sublist ( current ( ap.dlp ) ) )
+	    for ( c = current ( ap.dlp );
+	          ! is_sublist && ! is_list_end ( c );
+		  c = next ( ap.dlp ) );
+	    if ( ! is_sublist ( c ) )
 	        break;
 	    start_sublist ( ap.dlp );
 
@@ -3337,8 +3335,8 @@ bool MINT::insert_reserve
 	    }
 	    if ( is_list_end ( c ) ) break;
 
-	    ++ ap.length;
 	    start_copy ( ap.locate_dlp, ap.dlp );
+	    ++ ap.length;
 	}
 
 	if ( ap.length == len )
@@ -3357,6 +3355,7 @@ bool MINT::insert_reserve
     // Continue relocation after ap.locate_dlp is
     // positioned at beginning of hash-list or
     // vector-list.  State must be >= LOCATE_NONE.
+    // Result is a setting of ap.locate_dlp only.
     // 
     template < class vecpt >
     inline void MINT::relocate
@@ -3401,7 +3400,10 @@ bool MINT::insert_reserve
 	    if ( ! is_sublist ( current ( ap.dlp ) ) )
 	        break;
 	    start_sublist ( ap.dlp );
-	    if ( ! is_sublist ( current ( ap.dlp ) ) )
+	    for ( c = current ( ap.dlp );
+	          ! is_sublist && ! is_list_end ( c );
+		  c = next ( ap.dlp ) );
+	    if ( ! is_sublist ( c ) )
 	        break;
 	    start_sublist ( ap.dlp );
 
@@ -3423,7 +3425,7 @@ bool MINT::insert_reserve
 	    ++ length;
 	}
 
-	MIN_REQUIRE ( length == ap.length );
+	MIN_ASSERT ( length == ap.length );
     }
 
 # else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -3472,8 +3474,8 @@ bool MINT::insert_reserve
 		 &&
 		 i < attr_size_of ( ap.dlp.vecp ) )
 	    {
-		start_vector ( ap.dlp, i );
-		start_copy ( ap.locate_dlp, ap.dlp );
+		start_vector ( ap.locate_dlp, i );
+		start_copy ( ap.dlp, ap.locate_dlp );
 		ap.index = i;
 		ap.flags = ap_type::IN_VECTOR;
 		ap.state = ap_type::LOCATE_NONE;
@@ -3483,18 +3485,20 @@ bool MINT::insert_reserve
 
 	ap.index = min::hash ( name )
 		 % hash_size_of
-			  ( vec_pointer_of ( ap.dlp ) );
-	start_hash ( ap.dlp, ap.index );
+			  ( vec_pointer_of
+			        ( ap.locate_dlp ) );
+	start_hash ( ap.locate_dlp, ap.index );
 
-	for ( min::gen c = current ( ap.dlp );
+	for ( min::gen c = current ( ap.locate_dlp );
 	      ! is_list_end ( c );
-	      next ( ap.dlp), c = next ( ap.dlp ) )
+	      next ( ap.locate_dlp),
+	      c = next ( ap.locate_dlp ) )
 	{
 	    if ( c == name )
 	    {
-		c = next ( ap.dlp );
+		c = next ( ap.locate_dlp );
 		MIN_ASSERT ( ! is_list_end ( c ) );
-		start_copy ( ap.locate_dlp, ap.dlp );
+		start_copy ( ap.dlp, ap.locate_dlp );
 		ap.flags = 0;
 		ap.state = ap_type::LOCATE_NONE;
 		return;
@@ -3513,6 +3517,7 @@ bool MINT::insert_reserve
     // positioned at beginning of hash-list or
     // vector-list.  State must be >= LOCATE_NONE.
     // Is NOT called if IN_VECTOR flag is set.
+    // Result is a setting of ap.locate_dlp only.
     // 
     template < class vecpt >
     inline void MINT::relocate
@@ -3538,6 +3543,8 @@ bool MINT::insert_reserve
     }
 
 # endif
+
+// TBD
 
 template < class vecpt >
 void min::locate_reverse
@@ -3705,7 +3712,7 @@ void min::relocate
 	if ( c == ap.reverse_attr_name )
 	{
 	    c = next ( ap.dlp );
-	    MIN_REQUIRE ( ! is_list_end ( c ) );
+	    MIN_ASSERT ( ! is_list_end ( c ) );
 	    return;
 	}
     }
