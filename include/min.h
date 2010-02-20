@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 19 08:02:45 EST 2010
+// Date:	Sat Feb 20 08:15:56 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/19 13:03:09 $
+//   $Date: 2010/02/20 14:52:20 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.269 $
+//   $Revision: 1.270 $
 
 // Table of Contents:
 //
@@ -5985,8 +5985,8 @@ namespace min {
 
     // We begin each function with an update_refresh as
     // this permits us to avoid calls to relocate when
-    // only updates are performed, and such calls are
-    // very cheap.
+    // only updates are performed, and calls to update_
+    // refresh are very cheap.
 
     template < class vecpt >
     inline min::unsptr count
@@ -5998,10 +5998,11 @@ namespace min {
 
 	switch ( ap.state )
 	{
+	case ap_type::LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    return 0;
 	case ap_type::INIT:
 	case ap_type::END_INIT:
-	case ap_type::LOCATE_FAIL:
-	    return 0;
 	case ap_type::LOCATE_ANY:
 	    return internal::count ( ap );
 	}
@@ -6034,10 +6035,11 @@ namespace min {
 
 	switch ( ap.state )
 	{
+	case ap_type::LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    return 0;
 	case ap_type::INIT:
 	case ap_type::END_INIT:
-	case ap_type::LOCATE_FAIL:
-	    return 0;
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( out, n, ap );
 	}
@@ -6075,11 +6077,12 @@ namespace min {
 	{
 	case ap_type::INIT:
 	case ap_type::END_INIT:
-	case ap_type::LOCATE_FAIL:
-	    return min::NONE;
-
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( ap );
+
+	case ap_type::LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    return min::NONE;
 	}
 
 	min::gen c = update_refresh ( ap.dlp );
@@ -6114,8 +6117,10 @@ namespace min {
 	{
 	case ap_type::INIT:
 	case ap_type::END_INIT:
+	    return internal::count_flags ( ap );
+
 	case ap_type::LOCATE_FAIL:
-		return 0;
+	    return 0;
 	}
 
 	min::gen c = update_refresh ( ap.locate_dlp );
@@ -6145,8 +6150,10 @@ namespace min {
 	{
 	case ap_type::INIT:
 	case ap_type::END_INIT:
+	    return internal::get_flags ( out, n, ap );
+
 	case ap_type::LOCATE_FAIL:
-		return 0;
+	    return 0;
 	}
 
 	min::gen c =  update_refresh ( ap.locate_dlp );
@@ -6177,6 +6184,7 @@ namespace min {
 	case ap_type::INIT:
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_FAIL:
 	case ap_type::LOCATE_ANY:
 	    return internal::update ( ap, v );
 	}

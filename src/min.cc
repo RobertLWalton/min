@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 19 08:07:19 EST 2010
+// Date:	Sat Feb 20 09:29:46 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/19 18:29:15 $
+//   $Date: 2010/02/20 14:52:46 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.155 $
+//   $Revision: 1.156 $
 
 // Table of Contents:
 //
@@ -3354,7 +3354,7 @@ bool MINT::insert_reserve
 
     // Continue relocation after ap.locate_dlp is
     // positioned at beginning of hash-list or
-    // vector-list.  State must be >= LOCATE_NONE.
+    // vector-list.  ap.length must be >= 1.
     // Result is a setting of ap.locate_dlp only.
     // 
     template < class vecpt >
@@ -3544,8 +3544,6 @@ bool MINT::insert_reserve
 
 # endif
 
-// TBD
-
 template < class vecpt >
 void min::locate_reverse
 	( MUP::attr_pointer_type<vecpt> & ap,
@@ -3576,6 +3574,7 @@ void min::locate_reverse
     switch ( ap.state )
     {
     case ap_type::INIT:
+    case ap_type::END_INIT:
 	    MIN_ABORT
 	        ( "bad attribute reverse_locate call" );
     case ap_type::LOCATE_FAIL:
@@ -3616,20 +3615,29 @@ void min::locate_reverse
 
     start_copy ( ap.dlp, ap.locate_dlp );
 
-    if ( ! is_sublist ( current ( ap.dlp ) )
-	 ||
-	 ! ( start_sublist ( ap.dlp ),
-	     is_sublist ( current ( ap.dlp ) ) )
-#	   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	 ||
-	 ! is_sublist ( next ( ap.dlp ) )
-#	   endif
-       )
+    min::gen c = current ( ap.dlp );
+    if ( ! is_sublist ( c ) )
     {
 	ap.state = ap_type::REVERSE_LOCATE_FAIL;
 	return;
     }
-
+    start_sublist ( ap.dlp );
+    for ( c = current ( ap.dlp );
+	  ! is_sublist && ! is_list_end ( c );
+	  c = next ( ap.dlp ) );
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    if ( ! is_sublist ( c ) )
+    {
+	ap.state = ap_type::REVERSE_LOCATE_FAIL;
+	return;
+    }
+    c = next ( ap.dlp );
+#   endif
+    if ( ! is_sublist ( c ) )
+    {
+	ap.state = ap_type::REVERSE_LOCATE_FAIL;
+	return;
+    }
     start_sublist ( ap.dlp );
 
     for ( min::gen c = current ( ap.dlp );
@@ -3658,12 +3666,14 @@ void min::relocate
     switch ( ap.state )
     {
     case ap_type::INIT:
+    case ap_type::END_INIT:
         return;
     case ap_type::LOCATE_FAIL:
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    ap.length = 0;
+	    if ( ap.length == 0 ) return;
+#	else
+	    return;
 #	endif
-	return;
     }
 
     if ( ap.flags & ap_type::IN_VECTOR )
@@ -3683,6 +3693,7 @@ void min::relocate
 
     switch ( ap.state )
     {
+    case ap_type::LOCATE_FAIL:
     case ap_type::LOCATE_NONE:
     case ap_type::LOCATE_ANY:
     case ap_type::REVERSE_LOCATE_FAIL:
@@ -3691,18 +3702,31 @@ void min::relocate
 
     // state == REVERSE_LOCATE_SUCCEED
 
-    if ( ! is_sublist ( current ( ap.dlp ) )
-	 ||
-	 ! ( start_sublist ( ap.dlp ),
-	     is_sublist ( current ( ap.dlp ) ) )
-#	   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	 ||
-	 ! is_sublist ( next ( ap.dlp ) )
-#	   endif
-       )
+    start_copy ( ap.dlp, ap.locate_dlp );
+
+    min::gen c = current ( ap.dlp );
+    if ( ! is_sublist ( c ) )
+    {
 	MIN_ABORT ( "relocate could not find"
 	            " reverse attribute" );
-
+    }
+    start_sublist ( ap.dlp );
+    for ( c = current ( ap.dlp );
+	  ! is_sublist && ! is_list_end ( c );
+	  c = next ( ap.dlp ) );
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    if ( ! is_sublist ( c ) )
+    {
+	MIN_ABORT ( "relocate could not find"
+	            " reverse attribute" );
+    }
+    c = next ( ap.dlp );
+#   endif
+    if ( ! is_sublist ( c ) )
+    {
+	MIN_ABORT ( "relocate could not find"
+	            " reverse attribute" );
+    }
     start_sublist ( ap.dlp );
 
     for ( min::gen c = current ( ap.dlp );
@@ -3716,6 +3740,7 @@ void min::relocate
 	    return;
 	}
     }
+
     MIN_ABORT ( "relocate could not find reverse"
                 " attribute" );
 }
@@ -3726,74 +3751,54 @@ inline min::unsptr MINT::count
 {
     typedef MUP::attr_pointer_type<vecpt> ap_type;
 
-    min:gen c;
-    list_pointer lp ( min::vec_pointer_of ( ap.dlp ) );
-
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::LOCATE_FAIL:
-    case ap_type::REVERSE_LOCATE_FAIL:
-	    MIN_ABORT ( "min::count failed" );
-    case ap_type::LOCATE_NONE:
-	    // We handled case of a non-sublist single
-	    // value in the min::count function that
-	    // called this function.
-	    //
-	    start_sublist ( lp, ap.dlp );
-	    while ( is_sublist ( current ( lp ) ) )
-		next ( lp );
-	    while ( is_control_code ( current ( lp ) ) )
-		next ( lp );
-    	    break;
-    case ap_type::REVERSE_LOCATE_SUCCEED:
-	    // We handled case of a non-sublist single
-	    // value in the min::count function that
-	    // called this function.
-	    //
-	    start_sublist ( lp, ap.dlp );
-    	    break;
+    case ap_type::END_INIT:
+	MIN_ABORT ( "min::count called before locate" );
     case ap_type::LOCATE_ANY:
-        {
-	    start_copy ( lp, ap.dlp );
-	    if ( ! is_sublist ( current ( lp ) )
-		 ||
-		 ! ( start_sublist ( lp ),
-		     is_sublist ( current ( lp ) ) )
-#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		 ||
-		 ! is_sublist ( next ( lp ) )
-#	    endif
-	       )
-		return 0;
-
-	    min::unsptr result = 0;
-	    list_pointer lp2 ( vec_pointer_of ( lp ) );
-
-	    start_sublist ( lp );
-	    for ( c = next ( lp );
-		  ! is_list_end ( c );
-		  next ( ap.lp), c = next ( ap.lp ) )
-	    {
-		if ( is_sublist ( c  ) )
-		{
-		    start_sublist ( lp2, lp );
-		    for ( c = current ( lp2 );
-		          ! is_list_end ( c );
-			  c = next ( lp2 ) )
-			++ result;
-		}
-		else ++ result;
-	    }
-	    return result;
-	}
+        break;
+    default:
+	MIN_ABORT ( "abnormal call to min::count" );
     }
 
+    // state == LOCATE_ANY:
+
+    min::gen c;
+    update_refresh ( ap.locate_dlp );
+    start_copy ( ap.dlp, ap.locate_dlp );
+
+    if ( ! is_sublist ( current ( ap.dlp ) ) )
+        return 0;
+    start_sublist ( ap.dlp );
+    for ( c = current ( ap.dlp );
+	  ! is_sublist && ! is_list_end ( c );
+	  c = next ( ap.dlp ) );
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    if ( ! is_sublist ( c ) ) return 0;
+    c = next ( ap.dlp );
+#   endif
+    if ( ! is_sublist ( c ) ) return 0;
+    start_sublist ( ap.dlp );
+
     min::unsptr result = 0;
-    for ( c = current ( lp );
-          ! is_list_end ( c );
-	  c = next ( lp ) )
-	++ result;
+    for ( min::gen c = current ( ap.dlp );
+	  ! is_list_end ( c );
+	  c = next ( ap.dlp ) )
+    {
+        c = next ( ap.dlp );
+	if ( ! is_sublist ( c ) ) ++ result;
+	else
+	{
+	    start_sublist ( ap.lp, ap.dlp );
+	    c = current ( ap.lp );
+	    while ( ! is_list_end ( c ) )
+	    {
+	        ++ result;
+		c = next ( ap.lp );
+	    }
+	}
+    }
 
     return result;
 }
@@ -3805,77 +3810,165 @@ inline min::unsptr MINT::get
 {
     typedef MUP::attr_pointer_type<vecpt> ap_type;
 
-    min:gen c;
-    list_pointer lp ( vec_pointer_of ( ap.dlp ) );
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT ( "min::get called before locate" );
+    case ap_type::LOCATE_ANY:
+        break;
+    default:
+	MIN_ABORT ( "abnormal call to min::get" );
+    }
+
+    // state == LOCATE_ANY:
+
+    min::gen c;
+    update_refresh ( ap.locate_dlp );
+    start_copy ( ap.dlp, ap.locate_dlp );
+
+    if ( ! is_sublist ( current ( ap.dlp ) ) )
+        return 0;
+    start_sublist ( ap.dlp );
+    for ( c = current ( ap.dlp );
+	  ! is_sublist && ! is_list_end ( c );
+	  c = next ( ap.dlp ) );
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    if ( ! is_sublist ( c ) ) return 0;
+    c = next ( ap.dlp );
+#   endif
+    if ( ! is_sublist ( c ) ) return 0;
+    start_sublist ( ap.dlp );
+
+    min::unsptr result = 0;
+    for ( min::gen c = current ( ap.dlp );
+	  result < n && ! is_list_end ( c );
+	  c = next ( ap.dlp ) )
+    {
+        c = next ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	{
+	    * out ++ = c;
+	    ++ result;
+	}
+	else
+	{
+	    start_sublist ( ap.lp, ap.dlp );
+	    c = current ( ap.lp );
+	    while (    result < n
+	            && ! is_list_end ( c ) )
+	    {
+	        * out = c;
+		++ result;
+		c = next ( ap.lp );
+	    }
+	}
+    }
+
+    return result;
+}
+
+template < class vecpt >
+inline min::gen MINT::get
+	( MUP::attr_pointer_type<vecpt> & ap )
+{
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::LOCATE_FAIL:
-    case ap_type::REVERSE_LOCATE_FAIL:
-	    MIN_ABORT ( "min::get failed" );
-    case ap_type::LOCATE_NONE:
-	    // We handled case of a non-sublist single
-	    // value in the min::count function that
-	    // called this function.
-	    //
-	    start_sublist ( lp, ap.dlp );
-	    while ( is_sublist ( current ( lp ) ) )
-		next ( lp );
-	    while ( is_control_code ( current ( lp ) ) )
-		next ( lp );
-    	    break;
-    case ap_type::REVERSE_LOCATE_SUCCEED:
-	    // We handled case of a non-sublist single
-	    // value in the min::count function that
-	    // called this function.
-	    //
-	    start_sublist ( lp, ap.dlp );
-    	    break;
+    case ap_type::END_INIT:
+	MIN_ABORT ( "min::get called before locate" );
     case ap_type::LOCATE_ANY:
-        {
-	    start_copy ( lp, ap.dlp );
-	    if ( ! is_sublist ( current ( lp ) )
-		 ||
-		 ! ( start_sublist ( lp ),
-		     is_sublist ( current ( lp ) ) )
-#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		 ||
-		 ! is_sublist ( next ( lp ) )
-#	    endif
-	       )
-		return 0;
+        break;
+    default:
+	MIN_ABORT ( "abnormal call to min::get" );
+    }
 
-	    min::unsptr result = 0;
-	    list_pointer lp2 ( vec_pointer_of ( lp ) );
+    // state == LOCATE_ANY:
 
-	    start_sublist ( lp );
-	    for ( c = next ( lp );
-		  ! is_list_end ( c ) && result < n;
-		  next ( ap.lp), c = next ( ap.lp ) )
+    min::gen c;
+    update_refresh ( ap.locate_dlp );
+    start_copy ( ap.dlp, ap.locate_dlp );
+
+    if ( ! is_sublist ( current ( ap.dlp ) ) )
+        return min::NONE;
+    start_sublist ( ap.dlp );
+    for ( c = current ( ap.dlp );
+	  ! is_sublist && ! is_list_end ( c );
+	  c = next ( ap.dlp ) );
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    if ( ! is_sublist ( c ) ) return min::NONE;
+    c = next ( ap.dlp );
+#   endif
+    if ( ! is_sublist ( c ) ) return min::NONE;
+    start_sublist ( ap.dlp );
+
+    min::gen result = min::NONE;
+    for ( min::gen c = current ( ap.dlp );
+	  ! is_list_end ( c );
+	  c = next ( ap.dlp ) )
+    {
+        c = next ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	{
+	    if ( result == min::NONE )
+	        result = c;
+	    else
+	        return min::MULTI_VALUED;
+	}
+	else
+	{
+	    start_sublist ( ap.lp, ap.dlp );
+	    c = current ( ap.lp );
+	    while ( ! is_list_end ( c ) )
 	    {
-		if ( is_sublist ( c  ) )
-		{
-		    start_sublist ( lp2, lp );
-		    for ( c = current ( lp2 );
-		             ! is_list_end ( c )
-			  && result < n;
-			  c = next ( lp2 ) )
-			* out ++ = c, ++ result;
-		}
-		else ++ result, * out ++ = c;
+		if ( result == min::NONE )
+		    result = c;
+		else
+		    return min::MULTI_VALUED;
+		c = next ( ap.lp );
 	    }
-	    return result;
 	}
     }
 
-    min::unsptr result = 0;
-    for ( c = current ( lp );
-          ! is_list_end ( c ) && result < n;
-	  c = next ( lp ) )
-	++ result, * out ++ = c;
-
     return result;
+}
+
+template < class vecpt >
+inline min::unsptr MINT::count_flags
+	( MUP::attr_pointer_type<vecpt> & ap )
+{
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::count_flags called before locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::count_flags" );
+    }
+}
+
+template < class vecpt >
+inline min::unsptr MINT::get_flags
+	( MUP::attr_pointer_type<vecpt> & ap )
+{
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::get_flags called before locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::get_flags" );
+    }
 }
 
 template < class vecpt >
@@ -3889,46 +3982,25 @@ inline min::gen MINT::update
     {
     case ap_type::INIT:
     case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::update called before locate" );
     case ap_type::LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_FAIL:
-	MIN_ABORT ( "attribute update called after"
-	            " locate failed" );
-	return min::NONE;
+	MIN_ABORT
+	    ( "min::update called with no previous"
+	      " value" );
     case ap_type::LOCATE_ANY:
-	MIN_ABORT ( "attribute update called after"
-	            " reverse locate to ANY" );
-	return min::NONE;
+	MIN_ABORT
+	    ( "min::update called after reverse locate"
+	      " of min::ANY" );
+    default:
+	MIN_ABORT
+	    ( "min::update called with >= 2 previous"
+	      " values" );
     }
-
-    min::gen c = current ( ap.dlp );
-    MIN_ASSERT ( is_sublist ( c ) );
-    updatable_list_pointer lp
-        ( vec_pointer_of ( ap.dlp ) );
-    start_sublist ( lp, ap.dlp );
-    c = current ( lp );
-    while ( is_sublist ( c ) )
-	c = next ( lp );
-    while ( is_control_code ( c ) )
-	c = next ( lp );
-    if ( ! is_list_end ( c ) )
-    {
-	MIN_ABORT ( "attribute update called"
-		    " when there are no (reverse)"
-		    " attribute values" );
-	return min::NONE;
-    }
-    list_pointer lp2 ( vec_pointer_of ( lp ) );
-    start_copy ( lp2, lp );
-    if ( ! is_list_end ( next ( lp2 ) ) )
-    {
-	MIN_ABORT ( "attribute update called when there"
-		    " is more than one (reverse)"
-		    " attribute value" );
-	return min::NONE;
-    }
-    update ( lp, v );
-    return c;
 }
+
+// TBD
 
 void MINT::set
 	( min::insertable_attr_pointer & ap,
@@ -3957,7 +4029,7 @@ void MINT::set
 
     insertable_list_pointer
         lp ( vec_pointer_of ( ap.dlp ) );
-    min:gen c = insert_refresh ( ap.dlp );
+    min::gen c = insert_refresh ( ap.dlp );
     start_copy ( lp, ap.dlp );
 
     if ( ! is_sublist ( c ) )
@@ -4033,7 +4105,7 @@ void min::add_to_multiset
 
     insertable_list_pointer
         lp ( vec_pointer_of ( ap.dlp ) );
-    min:gen c = insert_refresh ( ap.dlp );
+    min::gen c = insert_refresh ( ap.dlp );
     start_copy ( lp, ap.dlp );
 
     if ( ! is_sublist ( c ) )
@@ -4099,7 +4171,7 @@ void min::add_to_set
 
     insertable_list_pointer
         lp ( vec_pointer_of ( ap.dlp ) );
-    min:gen c = insert_refresh ( ap.dlp );
+    min::gen c = insert_refresh ( ap.dlp );
     start_copy ( lp, ap.dlp );
 
     if ( ! is_sublist ( c ) )
@@ -4198,7 +4270,7 @@ void MINT::set_flags
 
     insertable_list_pointer
         lp ( vec_pointer_of ( ap.locate_dlp ) );
-    min:gen c = insert_refresh ( ap.locate_dlp );
+    min::gen c = insert_refresh ( ap.locate_dlp );
     start_copy ( lp, ap.locate_dlp );
 
     if ( ! is_sublist ( c ) )
@@ -4270,7 +4342,7 @@ void MINT::set_more_flags
 
     insertable_list_pointer
         lp ( vec_pointer_of ( ap.locate_dlp ) );
-    min:gen c = insert_refresh ( ap.locate_dlp );
+    min::gen c = insert_refresh ( ap.locate_dlp );
     start_copy ( lp, ap.locate_dlp );
 
     min::relocated relocated;
