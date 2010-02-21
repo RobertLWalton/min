@@ -4551,15 +4551,19 @@ see {\tt MIN\_\EOL USE\_\EOL OBJECT\_\EOL AUX\_\EOL STUBS} on
 \pagref{MIN_USE_OBJ_AUX_STUBS}.}
 
 The {\tt min::\EOL insert\_before} function inserts list elements
-just before the current position of a list pointer.
+just before the current position of a list pointer and positions the
+list pointer to the first element inserted.
 The {\tt min::\EOL insert\_after} function inserts list elements just after the
-current position.  If the list pointer is at the end of list,
+current position and leaves the pointer position unchanged (pointing at
+the element before the first inserted element).
+If the list pointer is at the end of list,
 {\tt min::\EOL insert\_before} inserts the elements at the end of the list, and
-{\tt min::\EOL insert\_after} is in error.  The list pointer continues to point
-at the list element it pointed at before elements were inserted.
+{\tt min::\EOL insert\_after} is in error.
 The elements are specified by a length {\tt n}
 vector {\tt p} of {\tt min::gen} values.
 \verb|p[0]| is inserted into the list before \verb|p[1]|, etc.
+If \verb|n=0| elements are to be inserted, both insert
+functions are no operations.
 
 To insert a sublist, first insert {\tt min::\EOL EMPTY\_SUBLIST}, then
 position the pointer to the sublist and use
@@ -4906,7 +4910,7 @@ the object lists have the syntax:
 \emkey{attribute-descriptor} ::= {\em value} $|$ {\em attribute-sublist}
 \\[1ex]
 \emkey{attribute-sublist} ::=
-    {\em double-arrow-sublist-option} {\em flag-set} {\em value}$\,^\star$
+    {\em value}$\,^\star$ {\em double-arrow-sublist-option} {\em flag-set}
 \\[1ex]
 \emkey{double-arrow-sublist} ::=
     {\em double-arrow-name-descriptor-pair}$\,^\star$
@@ -4962,12 +4966,19 @@ to sets of values.
 A {\em hash-list} is simply a list of alternating {\em attribute-names}
 and {\em attribute-descriptors}.
 The long form of an {\em attribute-descriptor} is an
-{\em attribute-sublist} that gives a list of flags, a list of {\em values},
-and an optional {\em double-arrow-sublist}.  If the
+{\em attribute-sublist} that gives  a possibly empty list of {\em values},
+an optional {\em double-arrow-sublist}, and a possibly empty
+list of flags.
 {\em attribute-sublist} would be nothing but a one element list containing
 a single {\em value}, a common case, the {\em attribute-sublist}
 may be replaced by this single
 {\em value}, in the interests of optimizing memory.
+
+An empty {\em attribute-sublist} is equivalent to a missing
+{\em attribute-name-descriptor-pair}.
+{\em Attri\-bute-name-descriptor-pairs} are not
+removed from the object until the object is completely reorganized,
+in order to avoid invalidating other attribute pointers referencing the object.
 
 A {\em vector-list} always has exactly one element that is
 the {\em attribute-descriptor} which is associated with the
@@ -4995,6 +5006,12 @@ simply a sublist of alternating {\em reverse-attribute-names}
 and {\em value-sets}.  The former are just like {\em attribute-names}
 and the latter are just like {\em attribute-descriptors} that have no
 flags or {\em double-arrow-sublists}.
+
+An empty {\em value-set} is equivalent to a missing
+{\em double-arrow-name-descriptor-pair}.
+{\em Double-arrow-name-descriptor-pairs} are not
+removed from the object until the object is completely reorganized,
+in order to avoid invalidating other attribute pointers referencing the object.
 
 When partial attribute names are \underline{not} supported, multi-component
 attribute names are represented in object data lists as labels.
@@ -5032,13 +5049,12 @@ the object lists have the following alternative syntax:
 \\[1ex]
 \emkey{node-sublist}
     \begin{tabular}[t]{@{}r@{~}l@{}}
-    ::= & {\em flag-set}
-	  {\em value}$\,^\star$ \\
-    $|$ & {\em child-sublist}
-	  \begin{tabular}[t]{@{}l@{}}
-	  {\em double-arrow-sublist-option} \\
-	  {\em flag-set} {\em value}$\,^\star$
-	  \end{tabular}
+    ::= & {\em value}$\,^\star$
+          {\em flag-set} \\
+    $|$ & {\em value}$\,^\star$
+          {\em child-sublist}
+	  {\em double-arrow-sublist-option}
+	  {\em flag-set}
     \end{tabular}
 \\[1ex]
 \emkey{child-sublist} ::= {\em node-name-descriptor-pair}$\,^\star$
@@ -5071,8 +5087,8 @@ An {\em attribute-name} is viewed as a sequence of
 {\em attribute-name-components}, so the {\em attribute-name}
 defines a path in the tree from the root to a node.
 Each node has an associated {\em node-descriptor} that
-contains the node {\em values}, flags,
-and optional {\em double-arrow-sublist} which are associated
+contains the node {\em values},
+optional {\em double-arrow-sublist}, and flags, which are associated
 with the {\em attribute-name} that names the path from the root to the
 node.  The {\em node-descriptor} also may contain
 an optional {\em child-sublist}
@@ -5099,17 +5115,25 @@ whose index in the object's hash table equals the hash of the
 
 A {\em node-descriptor} that consists of nothing but a single {\em value}
 can be represented by just that {\em value}; otherwise it is represented
-by a {\em node-sublist}.  If this last begins with a sublist, that must
+by a {\em node-sublist}.  If this last contains a sublist, the first
+such sublist must
 be the {\em child-sublist}, which has the same structure as a {\em node-list}
 and describes the children of the node.  Otherwise neither the
 {\em child-sublist} nor the {\em double-arrow-sublist} can be present.
 Note that to avoid ambiguity it is not permitted to omit the
 {\em child-sublist} without also omitting
-the {\em double-arrow-sublist}.  Except for these details
+the {\em double-arrow-sublist}, but the
+{\em child-sublist} can be empty.  Except for these details
 the {\em node-descriptor} structure is the same was as that of the
 {\em attribute-descriptor} in the case where partial attribute names are
 not allowed.  The {\em double-arrow-sublist} structure is exactly
 the same.
+
+An empty {\em node-sublist} is equivalent to a missing
+{\em node-name-descriptor-pair}.
+{\em Node-name-descriptor-pairs} are not
+removed from the object until the object is completely reorganized,
+in order to avoid invalidating other attribute pointers referencing the object.
 
 When partial attribute names are supported, an attribure name is viewed
 as a sequence of {\em attribute-name-components}.  If this sequence is
