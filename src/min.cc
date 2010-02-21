@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 21 09:29:42 EST 2010
+// Date:	Sun Feb 21 10:23:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/21 15:16:16 $
+//   $Date: 2010/02/21 19:30:47 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.157 $
+//   $Revision: 1.158 $
 
 // Table of Contents:
 //
@@ -2187,7 +2187,8 @@ void MINT::remove_list
 	    {
 		MINT::remove_sublist
 		    ( base, total_size,
-		      min::unprotected::value_of ( s ) );
+		      min::unprotected
+		         ::value_of ( s ) );
 		min::uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
 		if ( c & MUP::STUB_POINTER)
@@ -2271,7 +2272,7 @@ void min::insert_before
 	bool previous_is_list_head = false;
 
 	// Pointer to the first new element; may replace
-	// LIST_END in current.
+	// LIST_END in current or previous pointer.
 	//
 	min::gen fgen;
 
@@ -2350,19 +2351,25 @@ void min::insert_before
 			        ( min::LIST_AUX,
 				  first,
 				  MUP::STUB_POINTER ) );
-			fgen = min::new_gen ( s );
+			lp.base[lp.previous_index] =
+			    min::new_gen ( s );
+			lp.previous_index = 0;
+			lp.previous_stub = s;
 		    }
-
-		    lp.base[lp.previous_index] = fgen;
-		    lp.previous_index = 0;
+		    else
+			lp.base[lp.previous_index] =
+			    fgen;
 		}
 		else
 		{
 		    lp.base[lp.current_index] = fgen;
-		    lp.current_index = 0;
+		    lp.previous_index =
+		        lp.current_index; 
+		    lp.previous_is_sublist_head = false;
 		}
-		lp.previous_stub = last;
-		lp.previous_is_sublist_head = false;
+		lp.current_stub = first;
+		lp.current = MUP::gen_of ( first );
+		lp.current_index = 0;
 		return;
 	    }
 #	endif
@@ -2397,7 +2404,6 @@ void min::insert_before
 			          total_size
 				- aux_offset + 1 ) );
 		}
-		lp.previous_stub = NULL;
 	    }
 	    else
 #	endif
@@ -2407,30 +2413,35 @@ void min::insert_before
 	    {
 	        lp.base[-- aux_offset] =
 		    lp.base[lp.previous_index];
-		fgen = min::new_list_aux_gen
-		    ( total_size - aux_offset );
+		lp.base[lp.previous_index] =
+		    min::new_list_aux_gen
+			( total_size - aux_offset );
+		lp.previous_index = 0;
 	    }
 	    else
-		fgen = min::new_sublist_aux_gen
-		    ( total_size - aux_offset + 1 );
-	    lp.base[lp.previous_index] = fgen;
-	    lp.previous_index = 0;
+	    {
+		lp.base[lp.previous_index] =
+		    min::new_sublist_aux_gen
+			( total_size - aux_offset + 1 );
+	    }
 	}
 	else if ( contiguous )
 	    ++ aux_offset;
 	else
 	{
-	    fgen = min::new_list_aux_gen
-		       ( total_size - aux_offset + 1 );
-	    lp.base[lp.current_index] = fgen;
+	    lp.base[lp.current_index] =
+		min::new_list_aux_gen
+		   ( total_size - aux_offset + 1 );
+	    lp.previous_index = lp.current_index;
+	    lp.previous_is_sublist_head = false;
 	}
 
+	lp.current_index = aux_offset - 1;
+	lp.current = p[0];
 	while ( n -- )
 	    lp.base[-- aux_offset] = * p ++;
-	    
 	lp.base[-- aux_offset] = min::LIST_END;
-	lp.current_index = aux_offset;
-	lp.previous_is_sublist_head = false;
+
 	unprotected::aux_offset_of ( lp.vecp ) =
 	    aux_offset;
 	return;
@@ -2508,7 +2519,7 @@ void min::insert_before
 	    else
 	    {
 	        if ( lp.previous_is_sublist_head )
-		    type == min::SUBLIST_AUX;
+		    type = min::SUBLIST_AUX;
 		end = MUP::new_control_with_type
 		   ( 0, total_size - lp.current_index );
 	    }
@@ -2518,11 +2529,8 @@ void min::insert_before
 		( first, last, type, p, n, end );
 
 	    if ( lp.previous_index != 0 )
-	    {
 		lp.base[lp.previous_index] =
 		    min::new_gen ( first );
-		lp.previous_index = 0;
-	    }
 	    else if ( lp.previous_stub != NULL )
 	    {
 		if ( lp.previous_is_sublist_head )
@@ -2546,11 +2554,12 @@ void min::insert_before
 
 		lp.base[lp.current_index] =
 		    min::new_gen ( first );
-		lp.current_index = 0;
-		lp.current_stub = s;
+		lp.previous_index = lp.current_index;
+		lp.previous_is_sublist_head = false;
 	    }
-	    lp.previous_stub = last;
-	    lp.previous_is_sublist_head = false;
+	    lp.current_stub = first;
+	    lp.current_index = 0;
+	    lp.current = MUP::gen_of ( first );
 	    return;
 	}
 #   endif
@@ -2561,7 +2570,8 @@ void min::insert_before
 		    + n + 1 + ( ! previous )
 		 <= aux_offset );
 
-    min::unsptr first = total_size - aux_offset + 1;
+    min::unsptr first = aux_offset - 1;
+    min::unsptr aux_first = total_size - first;
 
     while ( n -- )
 	lp.base[-- aux_offset] = * p ++;
@@ -2610,7 +2620,7 @@ void min::insert_before
 	        MUP::set_gen_of
 		    ( lp.previous_stub,
 		      min::new_sublist_aux_gen
-			  ( first ) );
+			  ( aux_first ) );
 	    }
 	    else
 	    {
@@ -2619,11 +2629,8 @@ void min::insert_before
 		MUP::set_control_of
 		    ( lp.previous_stub,
 		      MUP::new_control_with_type
-			  ( type, first ) );
+			  ( type, aux_first ) );
 	    }
-	    lp.previous_index = aux_offset;
-	    lp.previous_stub = NULL;
-	    lp.previous_is_sublist_head = false;
 	}
 	else
 #   endif
@@ -2631,18 +2638,21 @@ void min::insert_before
     {
 	lp.base[lp.previous_index] =
 	    lp.previous_is_sublist_head ?
-	    min::new_sublist_aux_gen ( first ) :
-	    min::new_list_aux_gen ( first );
-	lp.previous_index = aux_offset;
-	lp.previous_is_sublist_head = false;
+	    min::new_sublist_aux_gen ( aux_first ) :
+	    min::new_list_aux_gen ( aux_first );
     }
     else
     {
 	MIN_ASSERT ( lp.current_index != 0 );
 	lp.base[lp.current_index] =
-	    min::new_list_aux_gen ( first );
-	lp.current_index = aux_offset + 1;
+	    min::new_list_aux_gen ( aux_first );
+	lp.previous_index = lp.current_index;
+	lp.previous_is_sublist_head = false;
     }
+
+    lp.current_index = first;
+    lp.current = lp.base[first];
+    lp.current_stub = NULL;
 
     unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
 }
