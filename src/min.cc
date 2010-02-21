@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 20 09:29:46 EST 2010
+// Date:	Sun Feb 21 09:29:42 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/20 14:52:46 $
+//   $Date: 2010/02/21 15:16:16 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.156 $
+//   $Revision: 1.157 $
 
 // Table of Contents:
 //
@@ -3428,6 +3428,129 @@ bool MINT::insert_reserve
 	MIN_ASSERT ( length == ap.length );
     }
 
+    void MINT::attr_create
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v )
+    {
+	typedef min::insertable_attr_pointer ap_type;
+
+	MIN_ASSERT
+	    ( ap.state == ap_type::LOCATE_FAIL );
+
+	bool is_label = is_lab ( ap.attr_name );
+	min::unsptr len;
+	if ( is_label )
+	    len = min::lablen ( ap.attr_name );
+	else
+	    len = 1;
+	min::gen element[len];
+	if ( is_label )
+	    lab_of ( element, len, ap.attr_name );
+	else element[0] = ap.attr_name;
+
+	MIN_ASSERT ( ap.length < len );
+
+	if ( min::insert_reserve
+	          ( ap.dlp, 2 * ( len - ap.length ),
+		              3 * ( len - ap.length )
+			    + 1 ) )
+	    insert_refresh ( ap.locate_dlp );
+
+	if ( ap.length == 0 )
+	{
+	    float64 f;
+	    int i;
+	    if ( is_num ( element[0] )
+	         &&
+		 0 <= ( f = float_of ( element[0] ) )
+		 &&
+		 ( i = (int) f ) == f
+		 &&
+		 i < attr_size_of
+		         ( vec_pointer_of
+			      ( ap.locate_dlp ) ) )
+	    {
+		ap.flags = ap_type::IN_VECTOR;
+		ap.index = i;
+		start_vector ( ap.locate_dlp, i );
+	    }
+	    else
+	    {
+		ap.flags = 0;
+		ap.index = min::hash ( element[0] )
+			  % hash_size_of
+			        ( vec_pointer_of
+				    ( ap.locate_dlp ) );
+		start_hash ( ap.locate_dlp, ap.index );
+		min::gen elements[2] =
+		    { element[0], min::EMPTY_SUBLIST };
+		insert_before ( ap.locate_dlp,
+		                elements, 2 );
+		min::start_hash
+		    ( ap.locate_dlp, ap.index );
+		next ( ap.locate_dlp );
+	    }
+
+	    ap.length = 1;
+	}
+	else insert_refresh ( ap.locate_dlp );
+
+	while ( ap.length < len )
+	{
+	    min::gen c = current ( ap.locate_dlp );
+	    start_copy ( ap.dlp, ap.locate_dlp );
+
+	    if ( ! is_sublist ( c ) )
+	    {
+		update ( ap.dlp, min::EMPTY_SUBLIST );
+		start_sublist ( ap.dlp );
+		min::gen elements[2] =
+		    { c, min::EMPTY_SUBLIST };
+		insert_before ( ap.dlp, elements, 2 );
+		update_refresh ( ap.locate_dlp );
+		start_sublist ( ap.dlp, ap.locate_dlp );
+	    }
+	    else
+	    {
+	    // TBD
+	        start_sublist ( ap.dlp );
+		for ( c = current ( ap.dlp );
+		         ! is_sublist
+		      && ! is_list_end ( c );
+		      c = next ( ap.dlp ) );
+		if ( ! is_sublist ( c ) )
+		{
+		    min::gen elements[1] =
+			{ min::EMPTY_SUBLIST };
+		    insert_before
+		        ( ap.dlp, elements, 1 );
+		    update_refresh ( ap.locate_dlp );
+		}
+		start_sublist ( ap.dlp, ap.locate_dlp );
+	    }
+	    start_copy ( ap.locate_dlp, ap.dlp );
+
+	    start_sublist ( ap.dlp );
+	    min::gen elements[2] =
+		{ element[ap.length],
+		  min::EMPTY_SUBLIST };
+	    insert_before ( ap.dlp, elements, 2 );
+
+	    start_sublist ( ap.locate_dlp );
+	    next ( ap.locate_dlp );
+	    ++ ap.length;
+	}
+
+	start_copy ( ap.dlp, ap.locate_dlp );
+	if ( ap.reverse_attr_name == min::NONE )
+	    ap.state = ap_type::LOCATE_NONE;
+	else if (    ap.reverse_attr_name
+	          == min::ANY )
+	    ap.state = ap_type::LOCATE_ANY;
+	else
+	    ap.state = ap_type::REVERSE_LOCATE_FAIL;
+    }
+
 # else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
 
     template < class vecpt >
@@ -3540,6 +3663,46 @@ bool MINT::insert_reserve
 
 	MIN_ABORT ( "relocate could not find"
 	            " attribute" );
+    }
+
+    void MINT::attr_create
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v )
+    {
+	typedef min::insertable_attr_pointer ap_type;
+
+	MIN_ASSERT
+	    ( ap.state == ap_type::LOCATE_FAIL );
+	MIN_ASSERT
+	    ( ! ( ap.flags & ap_type::IN_VECTOR ) );
+
+	insertable_list_pointer lp
+	    ( vec_pointer_of ( ap.dlp ) );
+        min::start_hash ( lp, ap.index );
+
+	min::relocated relocated;
+	min::insert_reserve ( lp, 1, 2 );
+	if ( relocated )
+	{
+	    min::relocate ( ap );
+	    min::start_hash ( lp, ap.index );
+	}
+
+	min::gen elements[2] =
+	    { ap.attr_name, min::EMPTY_SUBLIST };
+	insert_before ( lp, elements, 2 );
+
+        start_hash ( ap.dlp, ap.index );
+	next ( ap.dlp );
+	start_copy ( ap.locate_dlp, ap.dlp );
+
+	if ( ap.reverse_attr_name == min::NONE )
+	    ap.state = ap_type::LOCATE_NONE;
+	else if (    ap.reverse_attr_name
+	          == min::ANY )
+	    ap.state = ap_type::LOCATE_ANY;
+	else
+	    ap.state = ap_type::REVERSE_LOCATE_FAIL;
     }
 
 # endif
@@ -3743,6 +3906,113 @@ void min::relocate
 
     MIN_ABORT ( "relocate could not find reverse"
                 " attribute" );
+}
+
+void MINT::reverse_attr_create
+	( min::insertable_attr_pointer & ap,
+	  min::gen v )
+{
+    typedef min::insertable_attr_pointer ap_type;
+
+    MIN_ASSERT
+	( ap.state == ap_type::REVERSE_LOCATE_FAIL );
+
+    min::relocated relocated;
+
+    insertable_list_pointer lp
+	( vec_pointer_of ( ap.locate_dlp ) );
+    min::gen c = insert_refresh ( ap.locate_dlp );
+    start_copy ( lp, ap.locate_dlp );
+
+    if ( ! is_sublist ( c ) )
+    {
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    min::insert_reserve ( lp, 1, 3 );
+	    if ( relocated ) min::relocate ( ap );
+	    update ( ap.locate_dlp,
+	             min::EMPTY_SUBLIST );
+	    start_sublist ( lp, ap.locate_dlp );
+	    min::gen elements[3] =
+	        { min::EMPTY_SUBLIST,
+		  min::EMPTY_SUBLIST,
+		  c };
+	    insert_before ( lp, elements, 3 );
+	    start_sublist ( lp, ap.locate_dlp );
+	    next ( lp );
+#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    min::insert_reserve ( lp, 1, 2 );
+	    if ( relocated ) min::relocate ( ap );
+	    update ( ap.locate_dlp,
+	             min::EMPTY_SUBLIST );
+	    start_sublist ( lp, ap.locate_dlp );
+	    min::gen elements[2] =
+	        { min::EMPTY_SUBLIST, c };
+	    insert_before ( lp, elements, 2 );
+	    start_sublist ( lp, ap.locate_dlp );
+#	endif
+    }
+    else if ( start_sublist ( lp ),
+              ! is_sublist ( current ( lp ) ) )
+    {
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    min::insert_reserve ( lp, 1, 2 );
+	    if ( relocated )
+	    {
+	        min::relocate ( ap );
+		start_sublist ( lp, ap.locate_dlp );
+	    }
+	    min::gen elements[2] =
+	        { min::EMPTY_SUBLIST,
+		  min::EMPTY_SUBLIST };
+	    insert_before ( lp, elements, 2 );
+	    start_sublist ( lp, ap.locate_dlp );
+	    next ( lp );
+#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    min::insert_reserve ( lp, 1, 1 );
+	    if ( relocated )
+	    {
+	        min::relocate ( ap );
+		start_sublist ( lp, ap.locate_dlp );
+	    }
+	    min::gen elements[1] =
+	        { min::EMPTY_SUBLIST };
+	    insert_before ( lp, elements, 1 );
+	    start_sublist ( lp, ap.locate_dlp );
+#	endif
+    }
+
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	else if ( ! is_sublist ( next ( lp ) ) )
+	{
+	    min::insert_reserve ( lp, 1, 1 );
+	    if ( relocated )
+	    {
+	        min::relocate ( ap );
+		start_sublist ( lp, ap.locate_dlp );
+		next ( lp );
+	    }
+	    min::gen elements[1] =
+	        { min::EMPTY_SUBLIST };
+	    insert_before ( lp, elements, 1 );
+	    start_sublist ( lp, ap.locate_dlp );
+	    next ( lp );
+	}
+#   endif
+
+    start_sublist ( lp );
+    min::gen elements[2] =
+	{ ap.reverse_attr_name,
+	  min::EMPTY_SUBLIST };
+    insert_before ( lp, elements, 2 );
+
+    start_sublist ( ap.dlp, ap.locate_dlp );
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	next ( ap.dlp );
+#   endif
+    start_sublist ( ap.dlp );
+    next ( ap.dlp );
+
+    ap.state = ap_type::REVERSE_LOCATE_SUCCEED;
 }
 
 template < class vecpt >
@@ -4014,39 +4284,42 @@ void MINT::set
     switch ( ap.state )
     {
     case ap_type::INIT:
-	    MIN_ABORT ( "bad attribute set call" );
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::set called before locate" );
+    case ap_type::LOCATE_ANY:
+	MIN_ABORT
+	    ( "min::set called after reverse locate"
+	      " of min::ANY" );
     case ap_type::LOCATE_FAIL:
-    	    MINT::attr_create ( ap );
-	    if (    ap.reverse_attr_name
-	         == min::NONE )
-	        break;
+        if ( n > 0 ) MINT::attr_create
+			( ap, min::EMPTY_SUBLIST );
+	if ( ap.reverse_attr_name == min::NONE )
+	    break;
     case ap_type::REVERSE_LOCATE_FAIL:
-	    MINT::reverse_attr_create ( ap );
+	if ( n > 0 ) MINT::reverse_attr_create
+			( ap, min::EMPTY_SUBLIST );
     }
 
-    // WARNING: Attribute create may have relocated
-    //	        object.
-
-    insertable_list_pointer
-        lp ( vec_pointer_of ( ap.dlp ) );
-    min::gen c = insert_refresh ( ap.dlp );
-    start_copy ( lp, ap.dlp );
+    min::gen c = update_refresh ( ap.dlp );
+    start_copy ( ap.lp, ap.dlp );
 
     if ( ! is_sublist ( c ) )
     {
-        if ( n == 1 ) MIN_ABORT ( "min::set failed" );
+        if ( n == 1 )
+	    MIN_ABORT ( "abnormal call to min::set" );
     
 	min::relocated relocated;
-        min::insert_reserve ( lp, 1, n );
+        min::insert_reserve ( ap.lp, 1, n );
 	if ( relocated )
 	{
 	    min::relocate ( ap );
 	    MINT::set ( ap, in, n );
 	    return;
 	}
-	update ( lp, min::EMPTY_SUBLIST );
-	start_sublist ( lp );
-	insert_before ( lp, in, n );
+	update ( ap.lp, min::EMPTY_SUBLIST );
+	start_sublist ( ap.lp );
+	insert_before ( ap.lp, in, n );
     }
     else if ( is_empty_sublist ( c ) && n == 1 )
     {
@@ -4055,30 +4328,30 @@ void MINT::set
     }
     else
     {
-        start_sublist ( lp );
-	while ( is_sublist ( current ( lp ) ) )
-	    next ( lp );
-	while ( is_control_code ( current ( lp ) ) )
-	    next ( lp );
-	for ( c = current ( lp );
+        start_sublist ( ap.lp );
+	while ( is_sublist ( current ( ap.lp ) ) )
+	    next ( ap.lp );
+	while ( is_control_code ( current ( ap.lp ) ) )
+	    next ( ap.lp );
+	for ( c = current ( ap.lp );
 	      ! is_list_end ( c ) && n > 0;
-	      c = next ( lp ) )
-	    update ( lp, ( -- n, * in ++ ) );
+	      c = next ( ap.lp ) )
+	    update ( ap.lp, ( -- n, * in ++ ) );
 	if ( n > 0 )
 	{
 	    min::relocated relocated;
-	    min::insert_reserve ( lp, 1, n );
+	    min::insert_reserve ( ap.lp, 1, n );
 	    if ( relocated )
 	    {
 		min::relocate ( ap );
 		add_to_multiset ( ap, in, n );
 		return;
 	    }
-	    insert_before ( lp, in, n );
+	    insert_before ( ap.lp, in, n );
 	}
 	else for ( ; ! is_list_end ( c );
-		     c = current ( lp ) )
-	    remove ( lp, 100 );
+		     c = current ( ap.lp ) )
+	    remove ( ap.lp, 100 );
     }
 }
 
@@ -4262,7 +4535,8 @@ void MINT::set_flags
 	    MIN_ABORT
 	        ( "bad attribute set flags call" );
     case ap_type::LOCATE_FAIL:
-    	    MINT::attr_create ( ap );
+    	    MINT::attr_create
+	              ( ap, min::EMPTY_SUBLIST );
     }
 
     // WARNING: Attribute create may have relocated
@@ -4361,274 +4635,4 @@ void MINT::set_more_flags
     while ( is_control_code ( current ( lp ) ) )
         next ( lp );
     insert_before ( lp, in, n );
-}
-
-#if MIN_ALLOW_PARTIAL_ATTR_LABELS
-
-    void MINT::attr_create
-	    ( min::insertable_attr_pointer & ap )
-    {
-	typedef min::insertable_attr_pointer ap_type;
-
-	MIN_ASSERT
-	    ( ap.state == ap_type::LOCATE_FAIL );
-
-	bool is_label = is_lab ( ap.attr_name );
-	min::unsptr len;
-	if ( is_label )
-	    len = min::lablen ( ap.attr_name );
-	else
-	    len = 1;
-	min::gen element[len];
-	if ( is_label )
-	    lab_of ( element, len, ap.attr_name );
-	else element[0] = ap.attr_name;
-
-	MIN_ASSERT ( ap.length < len );
-
-	insertable_list_pointer lp
-	    ( vec_pointer_of ( ap.locate_dlp ) );
-
-	min::relocated relocated;
-	while ( true )
-	{
-	    min::insert_reserve
-	        ( lp, 2 * ( len - ap.length ),
-		      3 * ( len - ap.length ) + 1 );
-	    if ( ! relocated ) break;
-	    min::relocate ( ap );
-	}
-
-	if ( ap.length == 0 )
-	{
-	    float64 f;
-	    int i;
-	    if ( is_num ( element[0] )
-	         &&
-		 0 <= ( f = float_of ( element[0] ) )
-		 &&
-		 ( i = (int) f ) == f
-		 &&
-		 i < attr_size_of
-		         ( vec_pointer_of ( lp ) ) )
-	    {
-		ap.flags = ap_type::IN_VECTOR;
-		ap.index = i;
-		start_vector ( ap.locate_dlp, i );
-	    }
-	    else
-	    {
-
-		ap.flags = 0;
-		ap.index = min::hash ( element[0] )
-			  % hash_size_of
-			        ( vec_pointer_of
-				       ( lp ) );
-		start_hash ( lp, ap.index );
-		min::gen elements[2] =
-		    { element[0], min::EMPTY_SUBLIST };
-		insert_before ( lp, elements, 2 );
-		min::start_hash
-		    ( ap.locate_dlp, ap.index );
-		next ( ap.locate_dlp );
-	    }
-
-	    ap.length = 1;
-	}
-	else insert_refresh ( ap.locate_dlp );
-
-	while ( ap.length < len )
-	{
-	    min::gen c = current ( ap.locate_dlp );
-	    start_copy ( lp, ap.locate_dlp );
-
-	    if ( ! is_sublist ( c ) )
-	    {
-		update ( lp, min::EMPTY_SUBLIST );
-		start_sublist ( lp );
-		min::gen elements[2] =
-		    { min::EMPTY_SUBLIST, c };
-		insert_before ( lp, elements, 2 );
-		insert_refresh ( ap.locate_dlp );
-		start_sublist ( lp, ap.locate_dlp );
-	    }
-	    else if ( start_sublist ( lp ),
-	         ! is_sublist ( current ( lp ) ) )
-	    {
-		min::gen elements[1] =
-		    { min::EMPTY_SUBLIST };
-		insert_before ( lp, elements, 1 );
-		insert_refresh ( ap.locate_dlp );
-		start_sublist ( lp, ap.locate_dlp );
-	    }
-	    start_copy ( ap.locate_dlp, lp );
-
-	    start_sublist ( lp );
-	    min::gen elements[2] =
-		{ element[ap.length],
-		  min::EMPTY_SUBLIST };
-	    insert_before ( lp, elements, 2 );
-
-	    start_sublist ( ap.locate_dlp );
-	    next ( ap.locate_dlp );
-	    ++ ap.length;
-	}
-
-	start_copy ( ap.dlp, ap.locate_dlp );
-	if ( ap.reverse_attr_name == min::NONE )
-	    ap.state = ap_type::LOCATE_NONE;
-	else if (    ap.reverse_attr_name
-	          == min::ANY )
-	    ap.state = ap_type::LOCATE_ANY;
-	else
-	    ap.state = ap_type::REVERSE_LOCATE_FAIL;
-    }
-
-#else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
-
-    void MINT::attr_create
-	    ( min::insertable_attr_pointer & ap )
-    {
-	typedef min::insertable_attr_pointer ap_type;
-
-	MIN_ASSERT
-	    ( ap.state == ap_type::LOCATE_FAIL );
-	MIN_ASSERT
-	    ( ! ( ap.flags & ap_type::IN_VECTOR ) );
-
-	insertable_list_pointer lp
-	    ( vec_pointer_of ( ap.dlp ) );
-        min::start_hash ( lp, ap.index );
-
-	min::relocated relocated;
-	min::insert_reserve ( lp, 1, 2 );
-	if ( relocated )
-	{
-	    min::relocate ( ap );
-	    min::start_hash ( lp, ap.index );
-	}
-
-	min::gen elements[2] =
-	    { ap.attr_name, min::EMPTY_SUBLIST };
-	insert_before ( lp, elements, 2 );
-
-        start_hash ( ap.dlp, ap.index );
-	next ( ap.dlp );
-	start_copy ( ap.locate_dlp, ap.dlp );
-
-	if ( ap.reverse_attr_name == min::NONE )
-	    ap.state = ap_type::LOCATE_NONE;
-	else if (    ap.reverse_attr_name
-	          == min::ANY )
-	    ap.state = ap_type::LOCATE_ANY;
-	else
-	    ap.state = ap_type::REVERSE_LOCATE_FAIL;
-    }
-
-#endif
-
-void MINT::reverse_attr_create
-	( min::insertable_attr_pointer & ap )
-{
-    typedef min::insertable_attr_pointer ap_type;
-
-    MIN_ASSERT
-	( ap.state == ap_type::REVERSE_LOCATE_FAIL );
-
-    min::relocated relocated;
-
-    insertable_list_pointer lp
-	( vec_pointer_of ( ap.locate_dlp ) );
-    min::gen c = insert_refresh ( ap.locate_dlp );
-    start_copy ( lp, ap.locate_dlp );
-
-    if ( ! is_sublist ( c ) )
-    {
-#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    min::insert_reserve ( lp, 1, 3 );
-	    if ( relocated ) min::relocate ( ap );
-	    update ( ap.locate_dlp,
-	             min::EMPTY_SUBLIST );
-	    start_sublist ( lp, ap.locate_dlp );
-	    min::gen elements[3] =
-	        { min::EMPTY_SUBLIST,
-		  min::EMPTY_SUBLIST,
-		  c };
-	    insert_before ( lp, elements, 3 );
-	    start_sublist ( lp, ap.locate_dlp );
-	    next ( lp );
-#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    min::insert_reserve ( lp, 1, 2 );
-	    if ( relocated ) min::relocate ( ap );
-	    update ( ap.locate_dlp,
-	             min::EMPTY_SUBLIST );
-	    start_sublist ( lp, ap.locate_dlp );
-	    min::gen elements[2] =
-	        { min::EMPTY_SUBLIST, c };
-	    insert_before ( lp, elements, 2 );
-	    start_sublist ( lp, ap.locate_dlp );
-#	endif
-    }
-    else if ( start_sublist ( lp ),
-              ! is_sublist ( current ( lp ) ) )
-    {
-#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    min::insert_reserve ( lp, 1, 2 );
-	    if ( relocated )
-	    {
-	        min::relocate ( ap );
-		start_sublist ( lp, ap.locate_dlp );
-	    }
-	    min::gen elements[2] =
-	        { min::EMPTY_SUBLIST,
-		  min::EMPTY_SUBLIST };
-	    insert_before ( lp, elements, 2 );
-	    start_sublist ( lp, ap.locate_dlp );
-	    next ( lp );
-#	else // ! MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    min::insert_reserve ( lp, 1, 1 );
-	    if ( relocated )
-	    {
-	        min::relocate ( ap );
-		start_sublist ( lp, ap.locate_dlp );
-	    }
-	    min::gen elements[1] =
-	        { min::EMPTY_SUBLIST };
-	    insert_before ( lp, elements, 1 );
-	    start_sublist ( lp, ap.locate_dlp );
-#	endif
-    }
-
-#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	else if ( ! is_sublist ( next ( lp ) ) )
-	{
-	    min::insert_reserve ( lp, 1, 1 );
-	    if ( relocated )
-	    {
-	        min::relocate ( ap );
-		start_sublist ( lp, ap.locate_dlp );
-		next ( lp );
-	    }
-	    min::gen elements[1] =
-	        { min::EMPTY_SUBLIST };
-	    insert_before ( lp, elements, 1 );
-	    start_sublist ( lp, ap.locate_dlp );
-	    next ( lp );
-	}
-#   endif
-
-    start_sublist ( lp );
-    min::gen elements[2] =
-	{ ap.reverse_attr_name,
-	  min::EMPTY_SUBLIST };
-    insert_before ( lp, elements, 2 );
-
-    start_sublist ( ap.dlp, ap.locate_dlp );
-#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	next ( ap.dlp );
-#   endif
-    start_sublist ( ap.dlp );
-    next ( ap.dlp );
-
-    ap.state = ap_type::REVERSE_LOCATE_SUCCEED;
 }
