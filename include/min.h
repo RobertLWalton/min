@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 20 08:15:56 EST 2010
+// Date:	Sun Feb 21 09:29:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/20 14:52:20 $
+//   $Date: 2010/02/21 15:10:35 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.270 $
+//   $Revision: 1.271 $
 
 // Table of Contents:
 //
@@ -5558,10 +5558,41 @@ namespace min {
 	void set_more_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
+
+	// Create an attribute that does not exist and
+	// set its attribute-descriptor or node-descrip-
+	// tor v, which may be EMPTY_SUBLIST.  The state
+	// is not changed.  locate_dlp is set to point
+	// at the descriptor.
+	//
 	void attr_create
-		( min::insertable_attr_pointer & ap );
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
+
+	// Create a reverse attribute that does not exist
+	// and set its value-set to v, which may be
+	// EMPTY_SUBLIST.  The state is not changed.
+	// dlp is set to point at the value-set.
+	//
 	void reverse_attr_create
-		( min::insertable_attr_pointer & ap );
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
+
+	// Given a reverse attribute value v, remove it
+	// from the object at the other end of the
+	// double arrow.  Specifically, if O1 is the
+	// object pointed at by v, and O2 is the object
+	// pointed at by ap, then from O1 remove the
+	// reverse attribute value pointing at O2 that
+	// has the attribute name ap.reverse_attr_name
+	// and the reverse attribute name ap.attr_name.
+	// The removal is done by editing the value-set
+	// of the designated reverse attribute of O1,
+	// possibly making it empty.
+	//
+	void reverse_attr_value_remove
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
     }
 
 }
@@ -5873,9 +5904,15 @@ namespace min { namespace unprotected {
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::internal::attr_create
-		( min::insertable_attr_pointer & ap );
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
 	friend void min::internal::reverse_attr_create
-		( min::insertable_attr_pointer & ap );
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
+	friend void min::internal
+	               ::reverse_attr_value_remove
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
 
     };
 
