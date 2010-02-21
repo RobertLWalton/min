@@ -1688,6 +1688,10 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::peek ( wslp ) == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
@@ -1718,7 +1722,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wslp ) == num102 true.
+    min::current ( wslp ) == num101 true.
+min_interface_test.cc:XXXX assert:
+    min::peek ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == min::LIST_END true.
 min_interface_test.cc:XXXX assert:
@@ -1999,6 +2007,14 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num100 true.
+../include/min.h:XXXX assert:
+    index != 0 true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::peek ( wslp ) == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
@@ -2047,7 +2063,17 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wslp ) == num102 true.
+    min::current ( wslp ) == num101 true.
+../include/min.h:XXXX assert:
+    index != 0 true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::peek ( wslp ) == num102 true.
+../include/min.h:XXXX assert:
+    is_list_aux ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
@@ -2416,6 +2442,10 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! min::relocated_flag() true.
 min_interface_test.cc:XXXX assert:
+    min::current ( wslp ) == num100 true.
+min_interface_test.cc:XXXX assert:
+    min::peek ( wslp ) == min::LIST_END true.
+min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
@@ -2450,7 +2480,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wslp ) == num102 true.
+    min::current ( wslp ) == num101 true.
+min_interface_test.cc:XXXX assert:
+    min::peek ( wslp ) == num102 true.
+min_interface_test.cc:XXXX assert:
+    min::next ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
