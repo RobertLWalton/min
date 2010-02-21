@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 21 09:29:30 EST 2010
+// Date:	Sun Feb 21 10:12:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/21 15:10:35 $
+//   $Date: 2010/02/21 15:15:45 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.271 $
+//   $Revision: 1.272 $
 
 // Table of Contents:
 //
@@ -5561,9 +5561,9 @@ namespace min {
 
 	// Create an attribute that does not exist and
 	// set its attribute-descriptor or node-descrip-
-	// tor v, which may be EMPTY_SUBLIST.  The state
-	// is not changed.  locate_dlp is set to point
-	// at the descriptor.
+	// tor to v, which may be EMPTY_SUBLIST.  The
+	// state is not changed.  locate_dlp is set to
+	// point at the descriptor.
 	//
 	void attr_create
 		( min::insertable_attr_pointer & ap,
