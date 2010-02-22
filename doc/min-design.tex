@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 17, 2010}
+\date{February 22, 2010}
  
 \maketitle
 
@@ -5498,10 +5498,12 @@ can\underline{not} be converted to be read-only list pointers
 (unlike the situation with vector pointers).
 
 The {\tt min::\EOL update} function requires that the current
-value set have a single value.  This function replaces this
-single value, returning the previous value.
+value set have a single value and that it be the value set
+of an attribute, and not a reverse attribute.
+This function replaces the single value, returning the previous value.
 It is an error if the value set is empty or has more than one
-value.
+value, or if the attribute pointer
+reverse attribute name is not \verb|min::NONE|.
 
 Insertable attribute pointers can remove and insert values and
 set and clear flags,
