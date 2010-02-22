@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 21 10:12:03 EST 2010
+// Date:	Mon Feb 22 10:50:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/21 15:15:45 $
+//   $Date: 2010/02/22 20:12:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.272 $
+//   $Revision: 1.273 $
 
 // Table of Contents:
 //
@@ -5590,9 +5590,22 @@ namespace min {
 	// of the designated reverse attribute of O1,
 	// possibly making it empty.
 	//
-	void reverse_attr_value_remove
+	// Handles corner cases where O1 == O2 and
+	// ap.reverse_attr_name == ap.attr_name.
+	// Does nothing if BOTH these are true.
+	//
+	void remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
+
+	// Ditto but specify O1 by a vector pointer vp
+	// instead of by a min::gen value v.  Does NOT
+	// handle case where BOTH O1 == O2 AND
+	// ap.reverse_attr_name == ap.attr_name.
+	//
+	void remove_reverse_attr_value
+		( min::insertable_attr_pointer & ap,
+		  min::insertable_vec_pointer & vp );
     }
 
 }
@@ -5910,9 +5923,13 @@ namespace min { namespace unprotected {
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
 	friend void min::internal
-	               ::reverse_attr_value_remove
+	               ::remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
+	friend void min::internal
+	               ::remove_reverse_attr_value
+		( min::insertable_attr_pointer & ap,
+		  min::insertable_vec_pointer & vp );
 
     };
 
@@ -6222,6 +6239,7 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
 	case ap_type::LOCATE_ANY:
 	    return internal::update ( ap, v );
 	}
@@ -6265,6 +6283,8 @@ namespace min {
 	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
 	    internal::set ( ap, in, n );
 	    return;
 	}
