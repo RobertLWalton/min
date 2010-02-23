@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 22 10:52:39 EST 2010
+// Date:	Mon Feb 22 19:31:47 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/22 20:13:21 $
+//   $Date: 2010/02/23 01:35:37 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.159 $
+//   $Revision: 1.160 $
 
 // Table of Contents:
 //
@@ -4256,11 +4256,14 @@ void MINT::remove_reverse_attr_value
     typedef min::insertable_attr_pointer ap_type;
 
     insertable_attr_pointer rap ( vp );
+    min::gen v = min::new_gen
+        ( MUP::stub_of ( vec_pointer_of ( ap.dlp ) ) );
+
     min::locate ( rap, ap.reverse_attr_name );
     min::locate_reverse ( rap, ap.attr_name );
     MIN_ASSERT
         ( rap.state == ap_type::REVERSE_LOCATE_SUCCEED );
-    min::gen v = min::new_gen ( MUP::stub_of ( vp ) );
+
     min::gen c = current ( rap.dlp );
     if ( ! is_sublist ( c ) )
     {
@@ -4276,11 +4279,7 @@ void MINT::remove_reverse_attr_value
     min::remove ( rap.dlp, 1 );
 }
     
-// Handle corner cases where an object points at
-// itself and even does so with attr name ==
-// reverse attr name.
-//
-inline void MINT::remove_reverse_attr_value
+inline bool MINT::remove_reverse_attr_value
 	( min::insertable_attr_pointer & ap,
           min::gen v )
 {
@@ -4291,7 +4290,7 @@ inline void MINT::remove_reverse_attr_value
     if ( s == aps )
     {
         if ( ap.attr_name == ap.reverse_attr_name )
-	    return;
+	    return true;
 	MINT::remove_reverse_attr_value ( ap, apvp );
     }
     else
@@ -4299,6 +4298,68 @@ inline void MINT::remove_reverse_attr_value
         insertable_vec_pointer vp ( v );
 	MINT::remove_reverse_attr_value ( ap, vp );
     }
+    return false;
+}
+
+void MINT::add_reverse_attr_value
+	( min::insertable_attr_pointer & ap,
+	  min::insertable_vec_pointer & vp )
+{
+    typedef min::insertable_attr_pointer ap_type;
+
+    insertable_attr_pointer rap ( vp );
+    min::gen v = min::new_gen
+        ( MUP::stub_of ( vec_pointer_of ( ap.dlp ) ) );
+
+    min::locate ( rap, ap.reverse_attr_name );
+    if ( rap.state != ap_type::LOCATE_NONE )
+        attr_create ( rap, min::EMPTY_SUBLIST );
+    min::locate_reverse ( rap, ap.attr_name );
+    if ( rap.state != ap_type::REVERSE_LOCATE_SUCCEED )
+    {
+        reverse_attr_create ( rap, v );
+	return;
+    }
+    MIN_ASSERT
+        (    rap.state
+	  == ap_type::REVERSE_LOCATE_SUCCEED );
+
+    min::gen c = current ( rap.dlp );
+    if ( ! is_sublist ( c ) )
+    {
+	min::update ( rap.dlp, min::EMPTY_SUBLIST );
+	start_sublist ( rap.dlp );
+	insert_reserve ( rap.dlp, 1, 2 );
+	min::gen elements[2] = { c, v };
+	insert_before ( rap.dlp, elements, 2 );
+	return;
+    }
+    start_sublist ( rap.dlp );
+    insert_reserve ( rap.dlp, 1, 1 );
+    min::gen elements[1] = { v };
+    insert_before ( rap.dlp, elements, 1 );
+}
+    
+inline bool MINT::add_reverse_attr_value
+	( min::insertable_attr_pointer & ap,
+          min::gen v )
+{
+    insertable_vec_pointer & apvp =
+        vec_pointer_of ( ap.dlp );
+    min::stub * aps = MUP::stub_of ( apvp );
+    const min::stub * s = min::stub_of ( v );
+    if ( s == aps )
+    {
+        if ( ap.attr_name == ap.reverse_attr_name )
+	    return true;
+	MINT::add_reverse_attr_value ( ap, apvp );
+    }
+    else
+    {
+        insertable_vec_pointer vp ( v );
+	MINT::add_reverse_attr_value ( ap, vp );
+    }
+    return false;
 }
 
 void MINT::set
@@ -4320,6 +4381,7 @@ void MINT::set
 	    MIN_ABORT
 		( "min::set called after reverse locate"
 		  " of min::ANY" );
+	else
 	{
 	    min::gen c =
 	        update_refresh ( ap.dlp );
@@ -4393,20 +4455,34 @@ void MINT::set
 
     min::gen c = update_refresh ( ap.dlp );
 
+    bool is_reverse =
+         ( ap.state != ap_type::LOCATE_NONE );
     if ( n == 0 )
     {
         if ( is_sublist ( c ) )
 	{
+	    if ( is_reverse )
+	    {
+		start_sublist ( ap.lp, ap.dlp );
+		for ( c = current ( ap.lp );
+		      ! is_list_end ( c );
+		      c = next ( ap.lp ) )
+		    remove_reverse_attr_value
+		        ( ap, c );
+	    }
 	    start_sublist ( ap.lp, ap.dlp );
 	    remove ( ap.lp, (min::unsptr) -1 );
 	}
 	else
+	{
+	    if ( is_reverse )
+		remove_reverse_attr_value
+		    ( ap, current ( ap.dlp ) );
 	    update ( ap.dlp, min::EMPTY_SUBLIST );
+	}
 	return;
     }
 
-    bool is_reverse =
-         ( ap.state != ap_type::LOCATE_NONE );
     if ( ! is_sublist ( c ) )
     {
 	if ( is_reverse )
@@ -4425,6 +4501,11 @@ void MINT::set
 	    }
 	    insert_before ( ap.lp, in, n );
 	}
+
+	if ( is_reverse )
+	    for ( min::unsptr i = 0; i < n; ++ i )
+		add_reverse_attr_value
+		    ( ap, in[i] );
     }
     else
     {
@@ -4434,7 +4515,10 @@ void MINT::set
 	      c = next ( ap.lp ) )
 	{
 	    if ( is_reverse )
+	    {
 		remove_reverse_attr_value ( ap, c );
+		add_reverse_attr_value ( ap, * in );
+	    }
 	    update ( ap.lp, * in ++ );
 	    -- n;
 	}
@@ -4457,11 +4541,11 @@ void MINT::set
 		insert_refresh ( ap.locate_dlp );
 	    }
 	    insert_before ( ap.lp, in, n );
+	    if ( is_reverse )
+		for ( min::unsptr i = 0; i < n; ++ i )
+		    add_reverse_attr_value
+		        ( ap, in[i] );
 	}
-    }
-    if ( is_reverse )
-    {
-    // TBD
     }
 }
 
