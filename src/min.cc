@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 22 19:31:47 EST 2010
+// Date:	Mon Feb 22 20:54:07 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/23 01:35:37 $
+//   $Date: 2010/02/23 01:54:21 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.160 $
+//   $Revision: 1.161 $
 
 // Table of Contents:
 //
@@ -4501,26 +4501,18 @@ void MINT::set
 	    }
 	    insert_before ( ap.lp, in, n );
 	}
-
-	if ( is_reverse )
-	    for ( min::unsptr i = 0; i < n; ++ i )
-		add_reverse_attr_value
-		    ( ap, in[i] );
     }
     else
     {
     	start_sublist ( ap.lp, ap.dlp );
+	min::unsptr k = 0;
 	for ( c == current ( ap.lp );
-	      n > 0 && ! is_list_end ( c );
+	      n > k && ! is_list_end ( c );
 	      c = next ( ap.lp ) )
 	{
 	    if ( is_reverse )
-	    {
 		remove_reverse_attr_value ( ap, c );
-		add_reverse_attr_value ( ap, * in );
-	    }
-	    update ( ap.lp, * in ++ );
-	    -- n;
+	    update ( ap.lp, in[k++] );
 	}
 	if ( ! is_list_end ( c ) )
 	{
@@ -4533,18 +4525,40 @@ void MINT::set
 	    else
 		remove ( ap.lp, (min::unsptr) -1 );
 	}
-	else if ( n > 0 )
+	else if ( n > k )
 	{
 	    if ( insert_reserve ( ap.lp, 1, n ) )
 	    {
 		insert_refresh ( ap.dlp );
 		insert_refresh ( ap.locate_dlp );
 	    }
-	    insert_before ( ap.lp, in, n );
-	    if ( is_reverse )
-		for ( min::unsptr i = 0; i < n; ++ i )
-		    add_reverse_attr_value
-		        ( ap, in[i] );
+	    insert_before ( ap.lp, in + k, n - k );
+	}
+    }
+    if ( is_reverse )
+    {
+	min::gen duplicates[n+1];
+	min::unsptr j = 0;
+	while ( n -- )
+	{
+	    if ( add_reverse_attr_value ( ap, * in ++ ) )
+	        duplicates[j++] = in[-1];
+	}
+	if ( j > 0 )
+	{
+	    min::gen c = update_refresh ( ap.dlp );
+	    if ( ! is_sublist ( c ) )
+	    {
+	        duplicates[j++] = c;
+		update ( ap.dlp, min::EMPTY_SUBLIST );
+	    }
+	    start_sublist ( ap.lp, ap.dlp );
+	    if ( insert_reserve ( ap.lp, 1, j ) )
+	    {
+		insert_refresh ( ap.dlp );
+		insert_refresh ( ap.locate_dlp );
+	    }
+	    insert_before ( ap.lp, duplicates, j );
 	}
     }
 }
