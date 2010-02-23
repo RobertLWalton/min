@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 22 10:50:34 EST 2010
+// Date:	Mon Feb 22 19:19:59 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/22 20:12:51 $
+//   $Date: 2010/02/23 01:36:03 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.273 $
+//   $Revision: 1.274 $
 
 // Table of Contents:
 //
@@ -5592,9 +5592,12 @@ namespace min {
 	//
 	// Handles corner cases where O1 == O2 and
 	// ap.reverse_attr_name == ap.attr_name.
-	// Does nothing if BOTH these are true.
+	// Returns true and does nothing else if BOTH
+	// of these are true.  Otherwise returns false.
+	// If true is returned the caller should delete
+	// 2 copies of v from O2.
 	//
-	void remove_reverse_attr_value
+	bool remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
 
@@ -5604,6 +5607,38 @@ namespace min {
 	// ap.reverse_attr_name == ap.attr_name.
 	//
 	void remove_reverse_attr_value
+		( min::insertable_attr_pointer & ap,
+		  min::insertable_vec_pointer & vp );
+
+	// Given a reverse attribute value v, add it
+	// to the object at the other end of the
+	// double arrow.  Specifically, if O1 is the
+	// object pointed at by v, and O2 is the object
+	// pointed at by ap, then from O1 add the
+	// reverse attribute value pointing at O2 that
+	// has the attribute name ap.reverse_attr_name
+	// and the reverse attribute name ap.attr_name.
+	// The addition is done by editing the value-set
+	// of the designated reverse attribute of O1,
+	// adding to it a min::gen value pointing at O2.
+	//
+	// Handles corner cases where O1 == O2 and
+	// ap.reverse_attr_name == ap.attr_name.
+	// Returns true and does nothing else if BOTH
+	// of these are true.  Otherwise returns false.
+	// If true is returned the caller should add
+	// 2 copies of v to O2.
+	//
+	bool add_reverse_attr_value
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
+
+	// Ditto but specify O1 by a vector pointer vp
+	// instead of by a min::gen value v.  Does NOT
+	// handle case where BOTH O1 == O2 AND
+	// ap.reverse_attr_name == ap.attr_name.
+	//
+	void add_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::insertable_vec_pointer & vp );
     }
@@ -5922,7 +5957,7 @@ namespace min { namespace unprotected {
 	friend void min::internal::reverse_attr_create
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
-	friend void min::internal
+	friend bool min::internal
 	               ::remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
@@ -5930,7 +5965,14 @@ namespace min { namespace unprotected {
 	               ::remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::insertable_vec_pointer & vp );
-
+	friend bool min::internal
+	               ::add_reverse_attr_value
+		( min::insertable_attr_pointer & ap,
+		  min::gen v );
+	friend void min::internal
+	               ::add_reverse_attr_value
+		( min::insertable_attr_pointer & ap,
+		  min::insertable_vec_pointer & vp );
     };
 
 } }
