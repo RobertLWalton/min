@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/24 15:12:31 $
+//   $Date: 2010/02/24 18:15:30 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.162 $
+//   $Revision: 1.163 $
 
 // Table of Contents:
 //
@@ -4260,7 +4260,8 @@ void MINT::remove_reverse_attr_value
     min::locate ( rap, ap.reverse_attr_name );
     min::locate_reverse ( rap, ap.attr_name );
     MIN_ASSERT
-        ( rap.state == ap_type::REVERSE_LOCATE_SUCCEED );
+        (    rap.state
+	  == ap_type::REVERSE_LOCATE_SUCCEED );
 
     min::gen c = current ( rap.dlp );
     if ( ! is_sublist ( c ) )
@@ -4383,9 +4384,9 @@ void MINT::set
 	else
 	{
 	    min::gen c =
-	        update_refresh ( ap.dlp );
+	        update_refresh ( ap.locate_dlp );
 	    if ( ! is_sublist ( c ) ) return;
-	    start_sublist ( ap.dlp );
+	    start_sublist ( ap.dlp, ap.locate_dlp );
 	    for ( c = current ( ap.dlp );
 		     ! is_sublist ( c )
 		  && ! is_list_end ( c );
@@ -4433,7 +4434,8 @@ void MINT::set
 	    return;
 	}
         else
-	    MINT::attr_create ( ap, min::EMPTY_SUBLIST );
+	    MINT::attr_create
+	        ( ap, min::EMPTY_SUBLIST );
 
 	if ( ap.reverse_attr_name == min::NONE )
 	    break;
@@ -4455,11 +4457,14 @@ void MINT::set
     min::gen c = update_refresh ( ap.dlp );
 
     bool is_reverse =
-         ( ap.state != ap_type::LOCATE_NONE );
+         (    ap.state
+	   == ap_type::REVERSE_LOCATE_SUCCEED );
     if ( n == 0 )
     {
         if ( is_sublist ( c ) )
 	{
+	    if ( is_empty_sublist ( c ) ) return;
+
 	    if ( is_reverse )
 	    {
 		start_sublist ( ap.lp, ap.dlp );
@@ -4468,9 +4473,18 @@ void MINT::set
 		      c = next ( ap.lp ) )
 		    remove_reverse_attr_value
 		        ( ap, c );
+		update ( ap.dlp, min::EMPTY_SUBLIST );
 	    }
-	    start_sublist ( ap.lp, ap.dlp );
-	    remove ( ap.lp, (min::unsptr) -1 );
+	    else
+	    {
+		start_sublist ( ap.lp, ap.dlp );
+		for ( c = current ( ap.lp );
+		         ! is_list_end ( c )
+		      && ! is_sublist ( c )
+		      && ! is_control_code ( c );
+		    )
+		    remove ( ap.lp, 1 );
+	    }
 	}
 	else
 	{
@@ -4506,36 +4520,42 @@ void MINT::set
     	start_sublist ( ap.lp, ap.dlp );
 	min::unsptr k = 0;
 	for ( c == current ( ap.lp );
-	      n > k && ! is_list_end ( c );
+	         n > k
+	      && ! is_list_end ( c )
+	      && ! is_sublist ( c )
+	      && ! is_control_code ( c );
 	      c = next ( ap.lp ) )
 	{
 	    if ( is_reverse )
 		remove_reverse_attr_value ( ap, c );
 	    update ( ap.lp, in[k++] );
 	}
-	if ( ! is_list_end ( c ) )
+	if ( n > k )
 	{
-	    if ( is_reverse ) do
-	    {
-		remove_reverse_attr_value ( ap, c );
-		remove ( ap.lp, 1 );
-		c = current ( ap.lp );
-	    } while ( ! is_list_end ( c ) );
-	    else
-		remove ( ap.lp, (min::unsptr) -1 );
-	}
-	else if ( n > k )
-	{
-	    if ( insert_reserve ( ap.lp, 1, n ) )
+	    if ( insert_reserve ( ap.lp, 1, n - k ) )
 	    {
 		insert_refresh ( ap.dlp );
 		insert_refresh ( ap.locate_dlp );
 	    }
 	    insert_before ( ap.lp, in + k, n - k );
 	}
+	else if (    ! is_list_end ( c )
+	          && ! is_sublist ( c )
+		  && ! is_control_code ( c ) )
+	{
+	    do
+	    {
+		if ( is_reverse )
+		    remove_reverse_attr_value ( ap, c );
+		remove ( ap.lp, 1 );
+		c = current ( ap.lp );
+	    } while (    ! is_list_end ( c )
+	              && ! is_sublist ( c )
+		      && ! is_control_code ( c ) );
+	}
     }
     if ( is_reverse ) while ( n -- )
-    add_reverse_attr_value ( ap, * in ++ );
+	add_reverse_attr_value ( ap, * in ++ );
 }
 
 void min::add_to_multiset
