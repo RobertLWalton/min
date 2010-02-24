@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 22 20:54:07 EST 2010
+// Date:	Wed Feb 24 10:03:21 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/23 01:54:21 $
+//   $Date: 2010/02/24 15:12:31 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.161 $
+//   $Revision: 1.162 $
 
 // Table of Contents:
 //
@@ -4247,8 +4247,6 @@ inline min::gen MINT::update
     }
 }
 
-// TBD
-
 void MINT::remove_reverse_attr_value
 	( min::insertable_attr_pointer & ap,
 	  min::insertable_vec_pointer & vp )
@@ -4279,7 +4277,7 @@ void MINT::remove_reverse_attr_value
     min::remove ( rap.dlp, 1 );
 }
     
-inline bool MINT::remove_reverse_attr_value
+inline void MINT::remove_reverse_attr_value
 	( min::insertable_attr_pointer & ap,
           min::gen v )
 {
@@ -4290,7 +4288,7 @@ inline bool MINT::remove_reverse_attr_value
     if ( s == aps )
     {
         if ( ap.attr_name == ap.reverse_attr_name )
-	    return true;
+	    return;
 	MINT::remove_reverse_attr_value ( ap, apvp );
     }
     else
@@ -4298,7 +4296,6 @@ inline bool MINT::remove_reverse_attr_value
         insertable_vec_pointer vp ( v );
 	MINT::remove_reverse_attr_value ( ap, vp );
     }
-    return false;
 }
 
 void MINT::add_reverse_attr_value
@@ -4340,7 +4337,7 @@ void MINT::add_reverse_attr_value
     insert_before ( rap.dlp, elements, 1 );
 }
     
-inline bool MINT::add_reverse_attr_value
+inline void MINT::add_reverse_attr_value
 	( min::insertable_attr_pointer & ap,
           min::gen v )
 {
@@ -4351,15 +4348,17 @@ inline bool MINT::add_reverse_attr_value
     if ( s == aps )
     {
         if ( ap.attr_name == ap.reverse_attr_name )
-	    return true;
+	    return;
 	MINT::add_reverse_attr_value ( ap, apvp );
+	insert_refresh ( ap.locate_dlp );
+	insert_refresh ( ap.dlp );
+	insert_refresh ( ap.lp );
     }
     else
     {
         insertable_vec_pointer vp ( v );
 	MINT::add_reverse_attr_value ( ap, vp );
     }
-    return false;
 }
 
 void MINT::set
@@ -4535,32 +4534,8 @@ void MINT::set
 	    insert_before ( ap.lp, in + k, n - k );
 	}
     }
-    if ( is_reverse )
-    {
-	min::gen duplicates[n+1];
-	min::unsptr j = 0;
-	while ( n -- )
-	{
-	    if ( add_reverse_attr_value ( ap, * in ++ ) )
-	        duplicates[j++] = in[-1];
-	}
-	if ( j > 0 )
-	{
-	    min::gen c = update_refresh ( ap.dlp );
-	    if ( ! is_sublist ( c ) )
-	    {
-	        duplicates[j++] = c;
-		update ( ap.dlp, min::EMPTY_SUBLIST );
-	    }
-	    start_sublist ( ap.lp, ap.dlp );
-	    if ( insert_reserve ( ap.lp, 1, j ) )
-	    {
-		insert_refresh ( ap.dlp );
-		insert_refresh ( ap.locate_dlp );
-	    }
-	    insert_before ( ap.lp, duplicates, j );
-	}
-    }
+    if ( is_reverse ) while ( n -- )
+    add_reverse_attr_value ( ap, * in ++ );
 }
 
 void min::add_to_multiset
