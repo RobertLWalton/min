@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Feb 22 19:19:59 EST 2010
+// Date:	Wed Feb 24 09:52:57 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/23 01:36:03 $
+//   $Date: 2010/02/24 15:12:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.274 $
+//   $Revision: 1.275 $
 
 // Table of Contents:
 //
@@ -5562,17 +5562,21 @@ namespace min {
 	// Create an attribute that does not exist and
 	// set its attribute-descriptor or node-descrip-
 	// tor to v, which may be EMPTY_SUBLIST.  The
-	// state is not changed.  locate_dlp is set to
-	// point at the descriptor.
+	// state is not changed.  locate_dlp and dlp
+	// are set to point at the descriptor, and the
+	// state is set to LOCATE_NONE, LOCATE_ANY, or
+	// REVERSE_LOCATE_FAIL according to the setting
+	// of ap.reverse_attr_name.
 	//
 	void attr_create
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
 
-	// Create a reverse attribute that does not exist
-	// and set its value-set to v, which may be
-	// EMPTY_SUBLIST.  The state is not changed.
-	// dlp is set to point at the value-set.
+	// Create a reverse attribute that does not
+	// exist and set its value-set to v, which may
+	// be EMPTY_SUBLIST.  The state is set to
+	// REVERSE_LOCATE_SUCCEED and dlp is set to
+	// point at the value-set.
 	//
 	void reverse_attr_create
 		( min::insertable_attr_pointer & ap,
@@ -5592,12 +5596,13 @@ namespace min {
 	//
 	// Handles corner cases where O1 == O2 and
 	// ap.reverse_attr_name == ap.attr_name.
-	// Returns true and does nothing else if BOTH
-	// of these are true.  Otherwise returns false.
-	// If true is returned the caller should delete
-	// 2 copies of v from O2.
+	// Does nothing if BOTH of these are true,
+	// because in this case there is only one copy
+	// of the min::gen value stored in the reverse
+	// attribute set and no need to remove another
+	// copy.
 	//
-	bool remove_reverse_attr_value
+	void remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
 
@@ -5624,12 +5629,12 @@ namespace min {
 	//
 	// Handles corner cases where O1 == O2 and
 	// ap.reverse_attr_name == ap.attr_name.
-	// Returns true and does nothing else if BOTH
-	// of these are true.  Otherwise returns false.
-	// If true is returned the caller should add
-	// 2 copies of v to O2.
+	// Does nothing if BOTH of these are true, as
+	// in this case only one copy of the min::gen
+	// pointer is stored in the value set, and
+	// no second copy needs to be added.
 	//
-	bool add_reverse_attr_value
+	void add_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
 
@@ -5759,10 +5764,10 @@ namespace min { namespace unprotected {
     	list_pointer_type<vecpt> dlp;
 	    // Descriptor list pointer.  Points at the
 	    // list element containing the attribute- or
-	    // node- descriptor found, unless the state
-	    // is INIT, END_INIT, LOCATE_FAIL, or
-	    // REVERSE_LOCATE_FAIL, in which case this
-	    // is not set.
+	    // node- descriptor found, if the state
+	    // is LOCATE_NONE or REVERSE_LOCATE_SUCCEED.
+	    // Otherwise is free for use as a temporary
+	    // working pointer.
 
     	list_pointer_type<vecpt> locate_dlp;
 	    // This is the value of dlp after the last
@@ -5957,7 +5962,7 @@ namespace min { namespace unprotected {
 	friend void min::internal::reverse_attr_create
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
-	friend bool min::internal
+	friend void min::internal
 	               ::remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
@@ -5965,7 +5970,7 @@ namespace min { namespace unprotected {
 	               ::remove_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::insertable_vec_pointer & vp );
-	friend bool min::internal
+	friend void min::internal
 	               ::add_reverse_attr_value
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
