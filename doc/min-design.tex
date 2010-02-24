@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 22, 2010}
+\date{February 24, 2010}
  
 \maketitle
 
@@ -5694,7 +5694,12 @@ deleted.
 
 For the {\tt min::\EOL set} function the
 pointer's reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
+but cannot be \verb|min::ANY|, which the exception of the case
+where all values are being deleted.  If the reverse attribute name
+is \verb|min:ANY| and the {\tt min::\EOL set} function is called to
+delete all previous values,
+all double arrows with the current attribute name and any
+reverse attribute name are deleted.
 
 The {\tt min::\EOL add\_\EOL to\_\EOL set} function
 adds values to the multiset set of value,
