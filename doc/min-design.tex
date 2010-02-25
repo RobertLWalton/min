@@ -5631,19 +5631,19 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{remove\_one}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{remove\_one}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ONE} \\
-\verb|void min::| & \MINKEY{remove\_one}\ARGBREAK
+\verb|bool min::| & \MINKEY{remove\_one}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   min::gen v )|
 \LABEL{MIN::REMOVE_ONE1} \\
-\verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
+\verb|min::unsptr min::| & \MINKEY{remove\_all}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::REMOVE_ALL} \\
-\verb|void min::| & \MINKEY{remove\_all}\ARGBREAK
+\verb|bool min::| & \MINKEY{remove\_all}\ARGBREAK
     \verb| ( min::insertable_attr_pointer wap,|\ARGBREAK
     \verb|   min::gen v )|
 \LABEL{MIN::REMOVE_ALL1} \\
@@ -5735,7 +5735,10 @@ the multiset is actually a set).
 Both functions have a 3-argument version with a vector of values to remove,
 and a 2-argument version with a single value to remove.  In the latter case
 if {\tt v} is \verb|min::NONE| there is no value to remove and the function
-is a no-operation.
+is a no-operation.  The 2-argument versions return {\tt true} if they
+remove at least one value from the value set and {\tt false} if they
+did not find any value to remove.  The 3-argument versions return a count
+of the number of values removed from the value set.
 For these functions the pointer's reverse attribute name
 can be \verb|min::NONE|
 but cannot be \verb|min::ANY|.
