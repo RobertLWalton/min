@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 24, 2010}
+\date{February 25, 2010}
  
 \maketitle
 
@@ -4139,6 +4139,10 @@ positions a list pointer ({\tt lp})
 to the same place as another list pointer ({\tt lp2}).
 The two list pointers must have been constructed from the same
 vector pointer.
+Also note that the list pointer {\tt lp2}
+must be valid; that is, if it has been invalidated by
+an update, remove, or insert, it must be made valid by a refresh or restart
+before {\tt min::\EOL start\_\EOL copy} is executed.
 
 The value of a list element can represent a sublist
 (see the {\tt min::\EOL is\_\EOL sublist} function described below).
@@ -4151,12 +4155,17 @@ This function returns the value of the first element of
 the sublist, or returns {\tt min::\EOL LIST\_\EOL END} if the sublist is empty.
 The two list pointers must have been constructed from the same
 vector pointer.
+Also note that the list pointer {\tt lp2}
+must be valid; that is, if it has been invalidated by
+an update, remove, or insert, it must be made valid by a refresh or restart
+before {\tt min::\EOL start\_\EOL sublist} is executed.
 
 The 1-argument {\tt min::\EOL start\_\EOL sublist} function
 positions a list pointer
 to the first element of the sublist represented by the current
 element of the pointer (it is equivalent to 2-argument
 {\tt min::\EOL start\_\EOL sublist} with \verb|lp2|$\equiv$\verb|lp|).
+Again the list pointer must be valid before this function is executed.
 
 The {\tt min::\EOL next} function moves the list pointer
 to the next list element of the
