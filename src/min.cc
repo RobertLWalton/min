@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 24 10:03:21 EST 2010
+// Date:	Thu Feb 25 04:05:41 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/24 18:15:30 $
+//   $Date: 2010/02/25 09:06:05 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.163 $
+//   $Revision: 1.164 $
 
 // Table of Contents:
 //
@@ -4558,170 +4558,167 @@ void MINT::set
 	add_reverse_attr_value ( ap, * in ++ );
 }
 
-void min::add_to_multiset
-	( min::insertable_attr_pointer & ap,
-	  const min::gen * in, min::unsptr n )
-{
-    typedef min::insertable_attr_pointer ap_type;
-
-    MIN_ASSERT
-        ( ap.reverse_attr_name != min::ANY );
-
-    if ( n == 0 ) return;
-
-    switch ( ap.state )
-    {
-    case ap_type::INIT:
-	    MIN_ABORT ( "bad attribute set call" );
-    case ap_type::LOCATE_FAIL:
-    case ap_type::REVERSE_LOCATE_FAIL:
-	    min::set ( ap, in, n );
-	    return;
-    }
-
-    insertable_list_pointer
-        lp ( vec_pointer_of ( ap.dlp ) );
-    min::gen c = insert_refresh ( ap.dlp );
-    start_copy ( lp, ap.dlp );
-
-    if ( ! is_sublist ( c ) )
-    {
-	min::relocated relocated;
-        min::insert_reserve ( lp, 2, n + 1 );
-	if ( relocated )
-	{
-	    min::relocate ( ap );
-	    min::add_to_multiset ( ap, in, n );
-	    return;
-	}
-	update ( lp, min::EMPTY_SUBLIST );
-	start_sublist ( lp );
-	min::gen element[1] = { c };
-	insert_before ( lp, element, 1 );
-	insert_before ( lp, in, n );
-    }
-    else if ( is_empty_sublist ( c ) && n == 1 )
-        update ( lp, * in );
-    else
-    {
-        start_sublist ( lp );
-	while ( is_sublist ( current ( lp ) ) )
-	    next ( lp );
-	while ( is_control_code ( current ( lp ) ) )
-	    next ( lp );
-	while ( ! is_list_end ( current ( lp ) ) )
-	    next ( lp );
-
-	min::relocated relocated;
-	min::insert_reserve ( lp, 1, n );
-	if ( relocated )
-	{
-	    min::relocate ( ap );
-	    add_to_multiset ( ap, in, n );
-	    return;
-	}
-	insert_before ( lp, in, n );
-    }
-}
-
 void min::add_to_set
 	( min::insertable_attr_pointer & ap,
 	  const min::gen * in, min::unsptr n )
 {
     typedef min::insertable_attr_pointer ap_type;
 
-    MIN_ASSERT
-        ( ap.reverse_attr_name != min::ANY );
+    if ( n == 0 ) return;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::add_to_set called before"
+	      " locate" );
+
+    case ap_type::LOCATE_ANY:
+	MIN_ABORT
+	    ( "min::add_to_set called after"
+		  " reverse locate of min::ANY" );
+
+    case ap_type::LOCATE_FAIL:
+	if ( ap.reverse_attr_name == min::ANY )
+	    MIN_ABORT
+		( "min::add_to_set called after"
+		  " reverse locate of min::ANY" );
+    case ap_type::REVERSE_LOCATE_FAIL:
+	add_to_multiset ( ap, in, n );
+	return;
+    }
+
+    min::gen c = update_refresh ( ap.dlp );
+
+    if ( ! is_sublist ( c ) )
+    {
+        min::gen additions[n];
+	min::unsptr m = 0;
+	while ( n -- )
+	{
+	    min::gen v = * in ++;
+	    if ( c != v ) additions[m++] = v;
+	}
+	if ( m > 0 ) add_to_multiset
+	                 ( ap, additions, m );
+    }
+    else
+    {
+	// Copy input to additions, and then replace
+	// every value already in multiset by
+	// min::NONE.  Lastly compact additions and
+	// call add_to_multiset.
+	//
+        min::gen additions[n];
+	min::unsptr m = 0;
+	while ( n -- ) additions[m++] = * in ++;
+	start_sublist ( ap.lp, ap.dlp );
+	for ( c == current ( ap.lp );
+	         ! is_list_end ( c )
+	      && ! is_sublist ( c )
+	      && ! is_control_code ( c );
+	      c = next ( ap.lp ) )
+	for ( min::unsptr i = 0; i < m; ++ i )
+	{
+	    if ( additions[i] == c )
+	        additions[i] = min::NONE;
+	}
+	min::unsptr j = 0;
+	for ( min::unsptr k = 0; k < m; ++ k )
+	{
+	    if ( additions[k] != min::NONE )
+	        additions[j++] = additions[k];
+	}
+	add_to_multiset ( ap, additions, j );
+    }
+}
+
+void min::add_to_multiset
+	( min::insertable_attr_pointer & ap,
+	  const min::gen * in, min::unsptr n )
+{
+    typedef min::insertable_attr_pointer ap_type;
 
     if ( n == 0 ) return;
 
     switch ( ap.state )
     {
     case ap_type::INIT:
-	    MIN_ABORT ( "bad attribute set call" );
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::add_to_multiset called before"
+	      " locate" );
+
+    case ap_type::LOCATE_ANY:
+	MIN_ABORT
+	    ( "min::add_to_multiset called after"
+		  " reverse locate of min::ANY" );
+
     case ap_type::LOCATE_FAIL:
-    case ap_type::REVERSE_LOCATE_FAIL:
-	    min::set ( ap, in, n );
+	if ( ap.reverse_attr_name == min::ANY )
+	    MIN_ABORT
+		( "min::add_to_multiset called after"
+		  " reverse locate of min::ANY" );
+        else if ( n == 1
+	          &&
+		  ap.reverse_attr_name == min::NONE )
+	{
+	    MINT::attr_create ( ap, * in );
 	    return;
+	}
+        else
+	    MINT::attr_create
+	        ( ap, min::EMPTY_SUBLIST );
+
+	if ( ap.reverse_attr_name == min::NONE )
+	    break;
+
+    case ap_type::REVERSE_LOCATE_FAIL:
+        if ( n == 1 )
+	{
+	    MINT::reverse_attr_create ( ap, * in );
+	    return;
+	}
+        else
+	    MINT::reverse_attr_create
+	        ( ap, min::EMPTY_SUBLIST );
+	break;
     }
 
-    insertable_list_pointer
-        lp ( vec_pointer_of ( ap.dlp ) );
-    min::gen c = insert_refresh ( ap.dlp );
-    start_copy ( lp, ap.dlp );
+    min::gen c = update_refresh ( ap.dlp );
 
     if ( ! is_sublist ( c ) )
     {
-	if ( n == 1 && * in == c ) return;
-
-	min::relocated relocated;
-	bool include_c = true;
-	for ( int i = 0; include_c && i < n; ++ i )
-	    include_c = ( c != in[i] );
-
-        min::insert_reserve
-	    ( lp, 1 + include_c, n + include_c );
-	if ( relocated )
+	update ( ap.dlp, min::EMPTY_SUBLIST );
+	start_sublist ( ap.lp, ap.dlp );
+	if ( insert_reserve ( ap.lp, 2, n + 1 ) )
 	{
-	    min::relocate ( ap );
-	    min::add_to_set ( ap, in, n );
-	    return;
+	    insert_refresh ( ap.dlp );
+	    insert_refresh ( ap.locate_dlp );
 	}
-	update ( lp, min::EMPTY_SUBLIST );
-	start_sublist ( lp );
-	if ( include_c )
-	{
-	    min::gen element[1] = { c };
-	    insert_before ( lp, element, 1 );
-	}
-	insert_before ( lp, in, n );
+	min::gen element[1] = { c };
+	insert_before ( ap.lp, element, 1 );
+	insert_after ( ap.lp, in, n );
     }
-    else if ( is_empty_sublist ( c ) && n == 1 )
-        update ( lp, * in );
     else
     {
-        start_sublist ( lp );
-	while ( is_sublist ( current ( lp ) ) )
-	    next ( lp );
-	while ( is_control_code ( current ( lp ) ) )
-	    next ( lp );
-
-	// Copy in vector to kept vector.  Remove from
-	// kept vector all elements that are already
-	// in the values, decrementing n for each
-	// value removed.
-	//
-        min::gen kept[n];
-	memcpy ( kept, in, n * sizeof ( min::gen ) );
-
-	for ( c = current ( lp );
-	      ! is_list_end ( c );
-	      c = next ( lp ) )
-	for ( int i = 0; i < n; )
+    	start_sublist ( ap.lp, ap.dlp );
+	if ( insert_reserve ( ap.lp, 1, n ) )
 	{
-	    if ( c != kept[i] ) ++ i;
-	    else
-	    {
-		for ( int j = i + 1; j < n; )
-		    kept[i++] = kept[j++];
-		-- n;
-		break;
-	    }
+	    insert_refresh ( ap.dlp );
+	    insert_refresh ( ap.locate_dlp );
 	}
-
-	if ( n == 0 ) return;
-
-	min::relocated relocated;
-	min::insert_reserve ( lp, 1, n );
-	if ( relocated )
-	{
-	    min::relocate ( ap );
-	    add_to_multiset ( ap, kept, n );
-	    return;
-	}
-	insert_before ( lp, kept, n );
+	insert_before ( ap.lp, in, n );
     }
+
+    if (    ap.state
+	 == ap_type::REVERSE_LOCATE_SUCCEED )
+	while ( n -- )
+	    MINT::add_reverse_attr_value
+	        ( ap, * in ++ );
 }
+
 
 void MINT::set_flags
 	( min::insertable_attr_pointer & ap,
