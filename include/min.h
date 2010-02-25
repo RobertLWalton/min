@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Feb 24 09:52:57 EST 2010
+// Date:	Thu Feb 25 03:19:02 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/24 15:12:10 $
+//   $Date: 2010/02/25 09:05:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.275 $
+//   $Revision: 1.276 $
 
 // Table of Contents:
 //
@@ -6366,6 +6366,98 @@ namespace min {
 	    }
 	}
 	internal::set ( ap, in, n );
+    }
+
+    inline void set
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v )
+    {
+	typedef min::insertable_attr_pointer ap_type;
+
+	switch ( ap.state )
+	{
+	case ap_type::INIT:
+	case ap_type::END_INIT:
+	case ap_type::LOCATE_FAIL:
+	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
+	    internal::set ( ap, &v, 1 );
+	    return;
+	}
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	{
+	    update ( ap.dlp, v );
+	    update_refresh ( ap.locate_dlp );
+	    return;
+	}
+	start_sublist ( ap.lp, ap.dlp );
+	c = current ( ap.lp );
+	if ( ! is_sublist ( c )
+	     &&
+	     ! is_control_code ( c ) )
+	{
+	    min::gen d = peek ( ap.lp );
+	    if ( is_list_end ( d )
+		 ||
+		 is_sublist ( d )
+		 ||
+		 is_control_code ( d ) )
+	    {
+		update ( ap.lp, v );
+		return;
+	    }
+	}
+	internal::set ( ap, & v, 1 );
+    }
+
+    inline void add_to_set
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v )
+    {
+	typedef min::insertable_attr_pointer ap_type;
+
+	switch ( ap.state )
+	{
+	case ap_type::INIT:
+	case ap_type::END_INIT:
+	case ap_type::LOCATE_ANY:
+	    add_to_set ( ap, & v, 1 );
+
+	case ap_type::LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    add_to_multiset ( ap, & v, 1 );
+	    return;
+	}
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	{
+	    if ( c == v ) return;
+	}
+	else
+	{
+	    start_sublist ( ap.lp, ap.dlp );
+	    c = current ( ap.lp );
+	    for ( c = current ( ap.lp );
+		     ! is_list_end ( c )
+		  && ! is_sublist ( c )
+		  && ! is_control_code ( c );
+		  c = next ( ap.lp ) )
+	    {
+		if ( c == v ) return;
+	    }
+	}
+	add_to_multiset ( ap, & v, 1 );
+    }
+
+    inline void add_to_multiset
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v )
+    {
+	add_to_multiset ( ap, & v, 1 );
     }
 
     inline void set_flags
