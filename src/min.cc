@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 25 04:05:41 EST 2010
+// Date:	Thu Feb 25 05:22:21 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/25 09:06:05 $
+//   $Date: 2010/02/25 10:24:05 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.164 $
+//   $Revision: 1.165 $
 
 // Table of Contents:
 //
@@ -4021,8 +4021,8 @@ inline min::unsptr MINT::count
 	  ! is_sublist && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-    if ( ! is_sublist ( c ) ) return 0;
-    c = next ( ap.dlp );
+	if ( ! is_sublist ( c ) ) return 0;
+	c = next ( ap.dlp );
 #   endif
     if ( ! is_sublist ( c ) ) return 0;
     start_sublist ( ap.dlp );
@@ -4080,8 +4080,8 @@ inline min::unsptr MINT::get
 	  ! is_sublist && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-    if ( ! is_sublist ( c ) ) return 0;
-    c = next ( ap.dlp );
+	if ( ! is_sublist ( c ) ) return 0;
+	c = next ( ap.dlp );
 #   endif
     if ( ! is_sublist ( c ) ) return 0;
     start_sublist ( ap.dlp );
@@ -4104,7 +4104,7 @@ inline min::unsptr MINT::get
 	    while (    result < n
 	            && ! is_list_end ( c ) )
 	    {
-	        * out = c;
+	        * out ++ = c;
 		++ result;
 		c = next ( ap.lp );
 	    }
