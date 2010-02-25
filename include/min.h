@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 25 03:19:02 EST 2010
+// Date:	Thu Feb 25 10:49:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/25 09:05:17 $
+//   $Date: 2010/02/25 16:19:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.276 $
+//   $Revision: 1.277 $
 
 // Table of Contents:
 //
@@ -5467,16 +5467,16 @@ namespace min {
     void add_to_multiset
 	    ( min::insertable_attr_pointer & ap,
 	      min::gen v );
-    void remove_one
+    min::unsptr remove_one
 	    ( min::insertable_attr_pointer & ap,
 	      const min::gen * in, min::unsptr n );
-    void remove_one
+    bool remove_one
 	    ( min::insertable_attr_pointer & ap,
 	      min::gen v );
-    void remove_all
+    min::unsptr remove_all
 	    ( min::insertable_attr_pointer & ap,
 	      const min::gen * in, min::unsptr n );
-    void remove_all
+    bool remove_all
 	    ( min::insertable_attr_pointer & ap,
 	      min::gen v );
     void set_flags
@@ -5874,16 +5874,16 @@ namespace min { namespace unprotected {
 	friend void min::add_to_multiset
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
-	friend void min::remove_one
+	friend min::unsptr min::remove_one
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, min::unsptr n );
-	friend void min::remove_one
+	friend bool min::remove_one
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
-	friend void min::remove_all
+	friend min::unsptr min::remove_all
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, min::unsptr n );
-	friend void min::remove_all
+	friend bool min::remove_all
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
 	friend void min::set_flags
@@ -6458,6 +6458,52 @@ namespace min {
 	      min::gen v )
     {
 	add_to_multiset ( ap, & v, 1 );
+    }
+
+    inline bool remove_one
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen v )
+    {
+	if ( v == min::NONE ) return false;
+
+	typedef min::insertable_attr_pointer ap_type;
+
+	switch ( ap.state )
+	{
+	case ap_type::INIT:
+	case ap_type::END_INIT:
+	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
+	    return (bool) remove_one ( ap, & v, 1 );
+
+	case ap_type::LOCATE_FAIL:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    return false;
+	}
+
+	// We do NOT do double arrow removals here.
+
+	min::gen c = update_refresh ( ap.dlp );
+	if ( ! is_sublist ( c ) )
+	{
+	    if ( c != v ) return false;
+	    update ( ap.dlp, min::EMPTY_SUBLIST );
+	    return true;
+	}
+	start_sublist ( ap.lp, ap.dlp );
+	for ( c = current ( ap.lp );
+	         ! is_list_end ( c )
+	      && ! is_sublist ( c )
+	      && ! is_control_code ( c );
+	      c = next ( ap.lp ) )
+	{
+	    if ( c == v )
+	    {
+	        remove ( ap.lp, 1 );
+		return true;
+	    }
+	}
+	return false;
     }
 
     inline void set_flags
