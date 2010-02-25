@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Feb 16 09:32:01 EST 2010
+// Date:	Sun Feb 21 12:28:31 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/16 14:34:41 $
+//   $Date: 2010/02/25 10:25:08 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.140 $
+//   $Revision: 1.141 $
 
 // Table of Contents:
 //
@@ -2290,6 +2290,8 @@ void test_object_list_level
     min::start_copy ( wslp, wlp );
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
+    MIN_ASSERT ( min::current ( wslp ) == num100 );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
     min::insert_refresh ( wlp );
     MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     ::resize = true;
@@ -2300,7 +2302,9 @@ void test_object_list_level
     insert ( wslp, true, p+1, 1 );
     min::insert_refresh ( wlp );
     MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
+    MIN_ASSERT ( min::current ( wslp ) == num101 );
+    MIN_ASSERT ( min::peek ( wslp ) == num102 );
+    MIN_ASSERT ( min::next ( wslp ) == num102 );
     MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
     MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
     //
