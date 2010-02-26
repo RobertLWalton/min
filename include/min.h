@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 26 05:17:18 EST 2010
+// Date:	Fri Feb 26 05:55:41 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/26 10:26:20 $
+//   $Date: 2010/02/26 12:20:21 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.278 $
+//   $Revision: 1.279 $
 
 // Table of Contents:
 //
@@ -5545,6 +5545,11 @@ namespace min {
 		  unprotected::attr_pointer_type
 		      < vecpt > & ap );
 	template < class vecpt >
+	bool test_flag
+		( unprotected::attr_pointer_type
+		      < vecpt > & ap,
+		  unsigned n );
+	template < class vecpt >
 	min::gen update
 		( unprotected::attr_pointer_type
 		      < vecpt > & ap,
@@ -5556,6 +5561,15 @@ namespace min {
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
 	void set_more_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	void set_some_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	void clear_some_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	void flip_some_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
 
@@ -5943,6 +5957,10 @@ namespace min { namespace unprotected {
 		( min::gen * out, min::unsptr n,
 		  min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
+	friend bool min::internal::test_flag<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap,
+		  unsigned n );
 	friend min::gen min::internal::update<>
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap,
@@ -5954,6 +5972,15 @@ namespace min { namespace unprotected {
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::internal::set_more_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	friend void min::internal::set_some_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	friend void min::internal::clear_some_flags
+		( min::insertable_attr_pointer & ap,
+		  const min::gen * in, unsigned n );
+	friend void min::internal::flip_some_flags
 		( min::insertable_attr_pointer & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::internal::attr_create
@@ -6272,6 +6299,47 @@ namespace min {
     }
 
     template < class vecpt >
+    inline bool test_flag
+	    ( min::unprotected
+	         ::attr_pointer_type<vecpt> & ap,
+	      unsigned n )
+    {
+	typedef min::unprotected
+	           ::attr_pointer_type<vecpt> ap_type;
+
+	switch ( ap.state )
+	{
+	case ap_type::INIT:
+	case ap_type::END_INIT:
+	    return internal::test_flag ( ap, n );
+
+	case ap_type::LOCATE_FAIL:
+	    return false;
+	}
+
+	min::gen c =  update_refresh ( ap.locate_dlp );
+	if ( ! is_sublist ( c ) ) return false;
+	start_sublist ( ap.lp, ap.locate_dlp );
+	unsigned base = 0;
+	for ( c = current ( ap.lp );
+	      ! is_list_end ( c );
+	      c = next ( ap.lp ) )
+	{
+	    if ( is_control_code ( c ) )
+	    {
+	        unsigned next = base + VSIZE;
+		if ( n < next )
+		    return ( ( 1 << ( n - base ) ) 
+		             &
+			     control_code_of ( c ) )
+			   != 0;
+		base = next;
+	    }
+	}
+	return false;
+    }
+
+    template < class vecpt >
     inline min::gen update
 	    ( min::unprotected
 	         ::attr_pointer_type<vecpt> & ap,
@@ -6569,36 +6637,180 @@ namespace min {
 	case ap_type::LOCATE_ANY:
 	case ap_type::REVERSE_LOCATE_SUCCEED:
 	case ap_type::REVERSE_LOCATE_FAIL:
-		if ( is_sublist ( c ) )
+	    if ( is_sublist ( c ) )
+	    {
+		start_sublist
+		    ( ap.lp, ap.locate_dlp );
+		for ( c = current ( ap.lp );
+		      n > 0 && ! is_list_end ( c );
+		      c = next ( ap.lp ) );
 		{
-		    start_sublist
-		        ( ap.lp, ap.locate_dlp );
-		    for ( c = current ( ap.lp );
-			  n > 0 && ! is_list_end ( c );
-			  c = next ( ap.lp ) );
+		    if ( is_control_code ( c ) )
 		    {
-			if ( is_control_code ( c ) )
-			{
-			    MIN_ASSERT
-				( is_control_code
-				      ( * in ) );
-			    update ( ap.lp, * in ++ );
-			    -- n;
-			}
+			MIN_ASSERT
+			    ( is_control_code
+				  ( * in ) );
+			update ( ap.lp, * in ++ );
+			-- n;
 		    }
-		    if ( n > 0 )
-		        internal::set_more_flags
-			    ( ap, in, n );
-		    else for ( ; is_control_code ( c );
-		                 c = next ( ap.lp ) )
-		        update ( ap.lp,
-			         new_control_code_gen
-				     ( 0 ) );
-		    return;
 		}
+		if ( n > 0 )
+		    internal::set_more_flags
+			( ap, in, n );
+		else for ( ; is_control_code ( c );
+			     c = next ( ap.lp ) )
+		    update ( ap.lp,
+			     new_control_code_gen
+				 ( 0 ) );
+		return;
+	    }
 	}
 
 	internal::set_flags ( ap, in, n );
+    }
+
+    inline void set_some_flags
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, unsigned n )
+    {
+	typedef insertable_attr_pointer ap_type;
+
+	min::gen c = update_refresh ( ap.locate_dlp );
+	switch ( ap.state )
+	{
+	case ap_type::LOCATE_NONE:
+	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    if ( is_sublist ( c ) )
+	    {
+		start_sublist
+		    ( ap.lp, ap.locate_dlp );
+		for ( c = current ( ap.lp );
+		      n > 0 && ! is_list_end ( c );
+		      c = next ( ap.lp ) );
+		{
+		    if ( is_control_code ( c ) )
+		    {
+			MIN_ASSERT
+			    ( is_control_code
+				  ( * in ) );
+			min::unsgen uc =
+			    (min::unsgen) c
+			    |
+			    (min::unsgen) * in  ++;
+			update ( ap.lp, uc );
+			-- n;
+		    }
+		}
+		if ( n > 0 )
+		    internal::set_more_flags
+			( ap, in, n );
+	    }
+	    else
+		internal::set_flags ( ap, in, n );
+
+	    return;
+	}
+
+	internal::set_some_flags ( ap, in, n );
+    }
+
+    inline void clear_some_flags
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, unsigned n )
+    {
+	typedef insertable_attr_pointer ap_type;
+
+	min::gen c = update_refresh ( ap.locate_dlp );
+	switch ( ap.state )
+	{
+	case ap_type::LOCATE_NONE:
+	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    if ( is_sublist ( c ) )
+	    {
+		start_sublist
+		    ( ap.lp, ap.locate_dlp );
+		for ( c = current ( ap.lp );
+		      n > 0 && ! is_list_end ( c );
+		      c = next ( ap.lp ) );
+		{
+		    if ( is_control_code ( c ) )
+		    {
+			MIN_ASSERT
+			    ( is_control_code
+				  ( * in ) );
+			min::unsgen uc =
+			    control_code_of ( c )
+			    & ~
+			    control_code_of
+				( * in  ++ );
+			update
+			    ( ap.lp,
+			      new_control_code_gen
+				  ( uc ) );
+			-- n;
+		    }
+		}
+	    }
+
+	    return;
+	}
+
+	internal::clear_some_flags ( ap, in, n );
+    }
+
+    inline void flip_some_flags
+	    ( min::insertable_attr_pointer & ap,
+	      const min::gen * in, unsigned n )
+    {
+	typedef insertable_attr_pointer ap_type;
+
+	min::gen c = update_refresh ( ap.locate_dlp );
+	switch ( ap.state )
+	{
+	case ap_type::LOCATE_NONE:
+	case ap_type::LOCATE_ANY:
+	case ap_type::REVERSE_LOCATE_SUCCEED:
+	case ap_type::REVERSE_LOCATE_FAIL:
+	    if ( is_sublist ( c ) )
+	    {
+		start_sublist
+		    ( ap.lp, ap.locate_dlp );
+		for ( c = current ( ap.lp );
+		      n > 0 && ! is_list_end ( c );
+		      c = next ( ap.lp ) );
+		{
+		    if ( is_control_code ( c ) )
+		    {
+			MIN_ASSERT
+			    ( is_control_code
+				  ( * in ) );
+			min::unsgen uc =
+			    control_code_of ( c )
+			    ^
+			    control_code_of
+				( * in  ++ );
+			update
+			    ( ap.lp,
+			      new_control_code_gen
+				  ( uc ) );
+			update ( ap.lp, uc );
+			-- n;
+		    }
+		}
+		if ( n > 0 )
+		    internal::set_more_flags
+			( ap, in, n );
+	    }
+	    else
+		internal::set_flags ( ap, in, n );
+
+	    return;
+	}
+	internal::flip_some_flags ( ap, in, n );
     }
 
 }
