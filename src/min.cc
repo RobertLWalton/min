@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Feb 25 10:50:17 EST 2010
+// Date:	Fri Feb 26 04:43:13 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/25 16:19:30 $
+//   $Date: 2010/02/26 10:26:49 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.166 $
+//   $Revision: 1.167 $
 
 // Table of Contents:
 //
@@ -4773,25 +4773,29 @@ min::unsptr min::remove_one
     {
 	// Copy input to removals, and then replace
 	// every value already in removed by
-	// min::NONE.
+	// min::NONE.  If we have removed each input
+	// once, we can terminate early.
 	//
         min::gen removals[n];
-	min::unsptr m = 0, i;
+	for ( min::unsptr j = 0; j < n; )
+	    removals[j++] = * in ++;
+
 	min::unsptr result = 0;
-	while ( n -- ) removals[m++] = * in ++;
+	min::unsptr i;
 	start_sublist ( ap.lp, ap.dlp );
 	for ( c == current ( ap.lp );
 	         ! is_list_end ( c )
 	      && ! is_sublist ( c )
-	      && ! is_control_code ( c );
+	      && ! is_control_code ( c )
+	      && result < n;
 	    )
 	{
-	    for ( i = 0; i < m; ++ i )
+	    for ( i = 0; i < n; ++ i )
 	    {
 		if ( removals[i] == c )
 		    break;
 	    }
-	    if ( i < m )
+	    if ( i < n )
 	    {
 		if ( is_reverse )
 		    MINT::remove_reverse_attr_value
@@ -4807,6 +4811,86 @@ min::unsptr min::remove_one
     }
 }
 
+min::unsptr min::remove_all
+	( min::insertable_attr_pointer & ap,
+	  const min::gen * in, min::unsptr n )
+{
+    typedef min::insertable_attr_pointer ap_type;
+
+    if ( n == 0 ) return 0;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::remove_all called before"
+	      " locate" );
+
+    case ap_type::LOCATE_ANY:
+	MIN_ABORT
+	    ( "min::remove_all called after"
+		  " reverse locate of min::ANY" );
+
+    case ap_type::LOCATE_FAIL:
+	if ( ap.reverse_attr_name == min::ANY )
+	    MIN_ABORT
+		( "min::remove_all called after"
+		  " reverse locate of min::ANY" );
+    case ap_type::REVERSE_LOCATE_FAIL:
+	return 0;
+    }
+
+    min::gen c = update_refresh ( ap.dlp );
+
+    bool is_reverse =
+         (    ap.state
+	   == ap_type::REVERSE_LOCATE_SUCCEED );
+    if ( ! is_sublist ( c ) )
+    {
+	while ( n -- )
+	{
+	    if ( * in ++ == c )
+	    {
+		if ( is_reverse )
+		    MINT::remove_reverse_attr_value
+		        ( ap, c );
+	        update ( ap.dlp, min::EMPTY_SUBLIST );
+		return 1;
+	    }
+	}
+	return 0;
+    }
+    else
+    {
+	min::unsptr result = 0;
+	min::unsptr i;
+	start_sublist ( ap.lp, ap.dlp );
+	for ( c == current ( ap.lp );
+	         ! is_list_end ( c )
+	      && ! is_sublist ( c )
+	      && ! is_control_code ( c );
+	    )
+	{
+	    for ( i = 0; i < n; ++ i )
+	    {
+		if ( in[i] == c )
+		    break;
+	    }
+	    if ( i < n )
+	    {
+		if ( is_reverse )
+		    MINT::remove_reverse_attr_value
+			( ap, c );
+		remove ( ap.lp, 1 );
+		++ result;
+		c = current ( ap.lp );
+	    }
+	    else c = next ( ap.dlp );
+	}
+        return result;
+    }
+}
 
 void MINT::set_flags
 	( min::insertable_attr_pointer & ap,
