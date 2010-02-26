@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 26 04:43:13 EST 2010
+// Date:	Fri Feb 26 05:55:32 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/26 10:26:49 $
+//   $Date: 2010/02/26 12:20:34 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.167 $
+//   $Revision: 1.168 $
 
 // Table of Contents:
 //
@@ -4892,6 +4892,25 @@ min::unsptr min::remove_all
     }
 }
 
+template < class vecpt >
+inline min::unsptr MINT::test_flag
+	( MUP::attr_pointer_type<vecpt> & ap,
+	  unsigned n )
+{
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::test_flag called before locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::test_flag" );
+    }
+}
+
 void MINT::set_flags
 	( min::insertable_attr_pointer & ap,
 	  const min::gen * in, unsigned n )
@@ -4904,70 +4923,67 @@ void MINT::set_flags
     switch ( ap.state )
     {
     case ap_type::INIT:
-	    MIN_ABORT
-	        ( "bad attribute set flags call" );
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::set_flags called before locate" );
     case ap_type::LOCATE_FAIL:
     	    MINT::attr_create
 	              ( ap, min::EMPTY_SUBLIST );
     }
 
-    // WARNING: Attribute create may have relocated
-    //	        object.
-
-    insertable_list_pointer
-        lp ( vec_pointer_of ( ap.locate_dlp ) );
-    min::gen c = insert_refresh ( ap.locate_dlp );
-    start_copy ( lp, ap.locate_dlp );
-
+    min::gen c = update_refresh ( ap.locate_dlp );
+    start_copy ( ap.lp, ap.locate_dlp );
     if ( ! is_sublist ( c ) )
     {
         if ( n == 0 ) return;
 
-	min::relocated relocated;
-        min::insert_reserve ( lp, 2, n + 1 );
-	if ( relocated )
+        if ( min::insert_reserve ( ap.lp, 2, n + 1 ) )
 	{
-	    min::relocate ( ap );
-	    MINT::set_flags ( ap, in, n );
-	    return;
+	    insert_refresh ( ap.dlp );
+	    insert_refresh ( ap.locate_dlp );
 	}
-	update ( lp, min::EMPTY_SUBLIST );
-	start_sublist ( lp );
-	insert_before ( lp, in, n );
+	update ( ap.lp, min::EMPTY_SUBLIST );
+	start_sublist ( ap.lp );
 	min::gen element[1] = { c };
-	insert_before ( lp, element, 1 );
+	insert_before ( ap.lp, element, 1 );
+	insert_after ( ap.lp, in, n );
     }
     else
     {
-        start_sublist ( lp );
-	while ( is_sublist ( current ( lp ) ) )
-	    next ( lp );
-	for ( c = current ( lp );
-	      is_control_code ( c ) && n > 0;
-	      c = next ( lp ) )
-	    -- n, update ( lp, * in ++ );
+        start_sublist ( ap.lp );
+	for ( c = current ( ap.lp );
+	         ! is_list_end ( c )
+	      && ! is_control_code ( c );
+	      c = next ( ap.lp ) );
+	while ( is_control_code ( c ) )
+	{
+	    if ( n > 0 )
+	    {
+		update ( ap.lp, * in ++ );
+		-- n;
+		c = next ( ap.lp );
+	    }
+	    else
+	    {
+	        remove ( ap.lp );
+		c = current ( ap.lp );
+	    }
+	}
 	if ( n > 0 )
 	{
-	    min::relocated relocated;
-	    min::insert_reserve ( lp, 1, n );
-	    if ( relocated )
+	    if ( insert_reserve ( ap.lp, 1, n ) )
 	    {
-		min::relocate ( ap );
-		MINT::set_more_flags ( ap, in, n );
-		return;
+		insert_refresh ( ap.dlp );
+		insert_refresh ( ap.locate_dlp );
 	    }
-	    insert_before ( lp, in, n );
+	    insert_before ( ap.lp, in, n );
 	}
-	else for ( c = current ( lp );
-	           is_control_code ( c );
-		   c = next ( lp ) )
-	    update ( lp, new_control_code_gen ( 0 ) );
     }
 }
 
 // Appends control codes to the current attribute's
-// existing list of control codes.  Attribute must
-// already have a descriptor that is a sublist.
+// existing list of control codes.  ap.lp points at
+// place to do insertion.
 //
 void MINT::set_more_flags
 	( min::insertable_attr_pointer & ap,
@@ -4978,33 +4994,68 @@ void MINT::set_more_flags
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
 
+    if ( insert_reserve ( ap.lp, 1, n ) )
+    {
+	insert_refresh ( ap.dlp );
+	insert_refresh ( ap.locate_dlp );
+    }
+    insert_before ( ap.lp, in, n );
+}
+
+void MINT::set_some_flags
+	( min::insertable_attr_pointer & ap,
+	  const min::gen * in, unsigned n )
+{
+    typedef insertable_attr_pointer ap_type;
+
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::LOCATE_FAIL:
-	    MIN_ABORT
-	        ( "bad attribute set more flags call" );
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::set_some_flags called before"
+	      " locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::set_some_flags" );
     }
+}
 
-    insertable_list_pointer
-        lp ( vec_pointer_of ( ap.locate_dlp ) );
-    min::gen c = insert_refresh ( ap.locate_dlp );
-    start_copy ( lp, ap.locate_dlp );
+void MINT::clear_some_flags
+	( min::insertable_attr_pointer & ap,
+	  const min::gen * in, unsigned n )
+{
+    typedef insertable_attr_pointer ap_type;
 
-    min::relocated relocated;
-    min::insert_reserve ( lp, 1, n );
-    if ( relocated )
+    switch ( ap.state )
     {
-	min::relocate ( ap );
-	set_more_flags ( ap, in, n );
-	return;
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::clear_some_flags called before"
+	      " locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to"
+	      " min::clear_some_flags" );
     }
+}
 
-    MIN_ASSERT ( is_sublist ( c ) );
-    start_sublist ( lp );
-    while ( is_sublist ( current ( lp ) ) )
-	next ( lp );
-    while ( is_control_code ( current ( lp ) ) )
-        next ( lp );
-    insert_before ( lp, in, n );
+void MINT::flip_some_flags
+	( min::insertable_attr_pointer & ap,
+	  const min::gen * in, unsigned n )
+{
+    typedef insertable_attr_pointer ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+    case ap_type::END_INIT:
+	MIN_ABORT
+	    ( "min::flip_some_flags called before"
+	      " locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::flip_some_flags" );
+    }
 }
