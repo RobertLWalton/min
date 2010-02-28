@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 27 21:28:24 EST 2010
+// Date:	Sat Feb 27 15:45:36 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/28 02:31:53 $
+//   $Date: 2010/02/28 02:27:32 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.170 $
+//   $Revision: 1.169 $
 
 // Table of Contents:
 //
@@ -4260,8 +4260,8 @@ static bool compute_counts
 	      c = min::next ( lpv ) )
 	{
 #   	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		if ( min::is_sublist ( c ) )
-		    c = min::next ( lpv );
+		if ( is_sublist ( c ) )
+		    c = next ( lpv );
 #   	    endif
 	    if ( min::is_sublist ( c ) )
 	        info.reverse_attr_count =
@@ -4318,7 +4318,7 @@ min::unsptr min::get_attrs
 	    continue;
 	if ( compute_counts ( lp, info ) )
 	{
-	    info.name = new_num_gen ( i );
+	    info.name = new_num_gen ( (float64) i );
 	    if ( result < n ) * out ++ = info;
 	    ++ result;
 	}
