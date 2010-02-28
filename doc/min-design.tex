@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 26, 2010}
+\date{February 27, 2010}
  
 \maketitle
 
@@ -2445,6 +2445,9 @@ by the following protected functions:
     & \MINKEY{new\_num\_gen\REL} \verb| ( int v )|
 \LABEL{MIN::NEW_NUM_GEN_OF_INT} \\
 \verb|min::gen min::|
+    & \MINKEY{new\_num\_gen\REL} \verb| ( min::unsptr v )|
+\LABEL{MIN::NEW_NUM_GEN_OF_UNSPTR} \\
+\verb|min::gen min::|
     & \MINKEY{new\_num\_gen\REL} \verb| ( min::float64 v )|
 \LABEL{MIN::NEW_NUM_GEN_OF_FLOAT64} \\[1ex]
 \verb|int min::| & \MINKEY{int\_of}\verb| ( min::gen v )|
@@ -2476,7 +2479,8 @@ otherwise a new number stub is created and a pointer to it returned.
 Therefore two 32-bit \verb|min::gen| values that represent equal numbers are
 themselves \verb|==|.
 
-The \verb|min::new_num_gen| function with an \verb|int| argument does the
+The \verb|min::new_num_gen| function with an \verb|int| or \verb|min::unsptr|
+argument does the
 same thing as it would with its argument converted to a \verb|min::float64|
 value, but is more efficient in the case where \verb|min::gen| values
 are 32 bits and the argument is in the range of a direct integer general
@@ -6451,6 +6455,9 @@ These are in \verb|min_parameters.h|.
 \verb|min::gen min::|
     & \MINKEY{new\_num\_gen\REL} \verb| ( int v )|
 \LABEL{MIN::NEW_NUM_GEN_OF_INT} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_num\_gen\REL} \verb| ( min::unsptr v )|
+\LABEL{MIN::NEW_NUM_GEN_OF_UNSPTR} \\
 \verb|min::gen min::|
     & \MINKEY{new\_num\_gen\REL} \verb| ( min::float64 v )|
 \LABEL{MIN::NEW_NUM_GEN_OF_FLOAT64} \\[1ex]

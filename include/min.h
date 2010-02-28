@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 27 15:47:32 EST 2010
+// Date:	Sat Feb 27 21:28:39 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/28 02:27:13 $
+//   $Date: 2010/02/28 02:31:43 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.280 $
+//   $Revision: 1.281 $
 
 // Table of Contents:
 //
@@ -2373,6 +2373,13 @@ namespace min {
 				( v );
 	    return internal::new_num_stub_gen ( v );
 	}
+	inline min::gen new_num_gen ( min::unsptr v )
+	{
+	    if ( v < ( 1 << 27 ) )
+		return unprotected::new_direct_int_gen
+				( (int) v );
+	    return internal::new_num_stub_gen ( v );
+	}
 	inline min::gen new_num_gen ( float64 v )
 	{
 	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
@@ -2450,6 +2457,10 @@ namespace min {
 	    return min::is_direct_float ( v );
 	}
 	inline min::gen new_num_gen ( int v )
+	{
+	    return new_direct_float_gen ( v );
+	}
+	inline min::gen new_num_gen ( min::unsptr v )
 	{
 	    return new_direct_float_gen ( v );
 	}
