@@ -5246,11 +5246,6 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{count}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attr_pointer ap )| \\
-    \end{tabular}
-\LABEL{MIN::COUNT_OF_ATTR} \\
 \verb|min::unsptr min::| & \MINKEY{get}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, min::unsptr n,| \\
@@ -5263,11 +5258,6 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{count\_flags}%
-    \begin{tabular}[t]{@{}l@{}}
-    \verb| ( min::attr_pointer ap )| \\
-    \end{tabular}
-\LABEL{MIN::COUNT_FLAGS_OF_ATTR} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen * out, unsigned n,| \\
@@ -5348,13 +5338,15 @@ restore the pointer.
 
 \ikey{Accessor functions}{accessor function}
 can be used for reading attribute values and flags.
-The {\tt min::\EOL count} function returns the number of values in the value
-set pointed at.
-The 3-argument {\tt min::\EOL get} function gets these values and stores them
-in the `{\tt out}' vector, and returns the number of values stored.
-The argument {\tt n} is the
-maximum number of values that may be returned, the length of `{\tt out}'.
-If there are more then {\tt n} values, only {\tt n} values are returned.
+
+The 3-argument {\tt min::\EOL get} function gets the values in the value
+set pointed at and stores them
+in the `{\tt out}' vector.   The total number of values in the value
+set is returned (regardless of the value of {\tt n}).
+The argument {\tt n} the length of `{\tt out}',
+the maximum number of values that may be returned in `{\tt out}'.
+If there are more then {\tt n} values, only the first {\tt n}
+are returned in `{\tt out}'.
 
 The 1-argument {\tt min::\EOL get} function assumes that there is exactly
 one value and returns that value, or returns the special value
@@ -5363,22 +5355,22 @@ or returns the special value
 \verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) if there is
 more than one value.
 
-The {\tt min::\EOL count\_\EOL flags}
-function returns the length of the smallest
-\verb|min::gen| vector required to store all the flags in the flag
-set pointed at as \verb|min::gen| control code values.
-It returns {\tt 0} if no flags are set.
-
 The {\tt min::\EOL get\_\EOL flags}
-function returns these flags in the \verb|min::gen|
-vector `{\tt out}'.  The argument {\tt n} is the maximum number of
-vector elements that may be written, the length of `{\tt out}'.
-The return value is the same as that of {\tt count\_\EOL flags} if this is
-not greater than {\tt n}, or is {\tt n} otherwise, and is in any case
-the number of elements of the `{\tt out}' vector written.
+function returns the flags in the flag set pointed at and stores
+these as control code
+values in the \verb|min::gen| vector `{\tt out}'.
+The total number of control codes in the flag set is returned
+(regardless of the value of {\tt n}).
+The argument {\tt n} the length of `{\tt out}',
+the maximum number of control codes that may be returned in `{\tt out}'.
+If there are more then {\tt n} control codes, only the first {\tt n}
+are returned in `{\tt out}'.
 In the `{\tt out}' vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
 and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
+If there are $J$ flags in the flag set, and $N\geq J*\mbox{\tt VSIZE}$, then
+flag $N$ is zero.
+
 The {\tt min::\EOL test\_\EOL flag} function returns the value
 of flag {\tt n}.
 
@@ -5457,9 +5449,6 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
-    \verb| ( min::updatable_attr_pointer ap )|
-\LABEL{MIN::COUNT_OF_UPDATABLE_ATTR} \\
 \verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK 
     \verb|   min::updatable_attr_pointer ap )|
@@ -5470,9 +5459,6 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
-    \verb| ( min::updatable_attr_pointer ap )|
-\LABEL{MIN::COUNT_FLAGS_OF_UPDATABLE_ATTR} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
     \verb| ( min::gen * out, unsigned n,|\ARGBREAK
     \verb|   min::updatable_attr_pointer ap )|
@@ -5557,9 +5543,6 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{count}\ARGBREAK
-    \verb| ( min::insertable_attr_pointer ap )|
-\LABEL{MIN::COUNT_OF_INSERTABLE_ATTR} \\
 \verb|min::unsptr min::| & \MINKEY{get}\ARGBREAK
     \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK 
     \verb|   min::insertable_attr_pointer ap )|
@@ -5570,9 +5553,6 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|unsigned min::| & \MINKEY{count\_flags}\ARGBREAK
-    \verb| ( min::insertable_attr_pointer ap )|
-\LABEL{MIN::COUNT_FLAGS_OF_INSERTABLE_ATTR} \\
 \verb|unsigned min::| & \MINKEY{get\_flags}\ARGBREAK
     \verb| ( min::gen * out, unsigned n,|\ARGBREAK
     \verb|   min::insertable_attr_pointer ap )|
