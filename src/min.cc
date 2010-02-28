@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 28 00:25:23 EST 2010
+// Date:	Sun Feb 28 06:09:47 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/28 05:30:34 $
+//   $Date: 2010/02/28 15:07:47 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.171 $
+//   $Revision: 1.172 $
 
 // Table of Contents:
 //
@@ -4137,7 +4137,7 @@ inline min::unsptr MINT::get_flags
 
 // Helper functions for min::get_attrs.
 //
-// Called with current ( lp ) being start of
+// Called with current(lp) being start of
 // double-arrow-sublist.  Return number of reverse
 // attribute names with non-empty value sets.
 //
@@ -4159,9 +4159,9 @@ static min::unsptr count_reverse_attrs
     return result;
 }
 
-// Called with current ( lp ) equal to attribute-/node-
+// Called with current(lp) equal to attribute-/node-
 // descriptor for attribute.  Compute counts for
-// attribute in info.  Do NOT set info.name.
+// attribute in info.  Does NOT set info.name.
 // Return true if some count is non-zero and false if
 // all counts are zero.
 //
@@ -4172,9 +4172,15 @@ static bool compute_counts
     info.value_count = 0;
     info.flag_count = 0;
     info.reverse_attr_count = 0;
+
     min::gen c = min::current ( lp );
     if ( ! min::is_sublist ( c ) )
+    {
         ++ info.value_count;
+	return true;
+    }
+    else if ( c == min::EMPTY_SUBLIST )
+        return false;
     else
     {
         min::list_pointer lpv
@@ -4196,10 +4202,11 @@ static bool compute_counts
 	    else
 	        ++ info.value_count;
 	}
+
+	return (    info.value_count > 0
+		 || info.flag_count > 0
+		 || info.reverse_attr_count > 0 );
     }
-    return (    info.value_count > 0
-	     || info.flag_count > 0
-	     || info.reverse_attr_count > 0 );
 }
 
 template < class vecpt >
@@ -4212,7 +4219,6 @@ min::unsptr min::get_attrs
 
     vecpt & vp = vec_pointer_of ( ap );
     min::list_pointer lp ( vp );
-    min::list_pointer lp2 ( vp );
 
     min::unsptr result = 0;
     for ( min::unsptr i = 0;
