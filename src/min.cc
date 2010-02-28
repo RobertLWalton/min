@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 26 05:55:32 EST 2010
+// Date:	Sat Feb 27 21:28:24 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/26 12:20:34 $
+//   $Date: 2010/02/28 02:31:53 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.168 $
+//   $Revision: 1.170 $
 
 // Table of Contents:
 //
@@ -3820,7 +3820,6 @@ void min::locate_reverse
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	    MIN_ABORT
 	        ( "bad attribute reverse_locate call" );
     case ap_type::LOCATE_FAIL:
@@ -3912,7 +3911,6 @@ void min::relocate
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
         return;
     case ap_type::LOCATE_FAIL:
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -4000,7 +3998,6 @@ inline min::unsptr MINT::count
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT ( "min::count called before locate" );
     case ap_type::LOCATE_ANY:
         break;
@@ -4059,7 +4056,6 @@ inline min::unsptr MINT::get
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT ( "min::get called before locate" );
     case ap_type::LOCATE_ANY:
         break;
@@ -4123,7 +4119,6 @@ inline min::gen MINT::get
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT ( "min::get called before locate" );
     case ap_type::LOCATE_ANY:
         break;
@@ -4190,7 +4185,6 @@ inline min::unsptr MINT::count_flags
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::count_flags called before locate" );
     default:
@@ -4208,13 +4202,137 @@ inline min::unsptr MINT::get_flags
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::get_flags called before locate" );
     default:
 	MIN_ABORT
 	    ( "abnormal call to min::get_flags" );
     }
+}
+
+// Helper functions for min::get_attrs.
+//
+// Called with current ( lp ) being start of
+// double-arrow-sublist.  Return number of reverse
+// attribute names with non-empty value sets.
+//
+static min::unsptr count_reverse_attrs
+	( min::list_pointer & lp )
+{
+    min::unsptr result = 0;
+    min::list_pointer lpr
+        ( min::vec_pointer_of ( lp ) );
+    start_sublist ( lpr, lp );
+    for ( min::gen c = min::current ( lpr );
+          ! min::is_list_end ( c );
+	  c = min::next ( lpr ) )
+    {
+        c = min::next ( lpr );
+	if ( c != min::EMPTY_SUBLIST )
+	    ++ result;
+    }
+    return result;
+}
+
+// Called with current ( lp ) equal to attribute-/node-
+// descriptor for attribute.  Compute counts for
+// attribute in info.  Do NOT set info.name.
+// Return true if some count is non-zero and false if
+// all counts are zero.
+//
+static bool compute_counts
+	( min::list_pointer & lp,
+	  min::attr_info & info )
+{
+    info.value_count = 0;
+    info.flag_count = 0;
+    info.reverse_attr_count = 0;
+    min::gen c = min::current ( lp );
+    if ( ! min::is_sublist ( c ) )
+        ++ info.value_count;
+    else
+    {
+        min::list_pointer lpv
+	    ( min::vec_pointer_of ( lp ) );
+	min::start_sublist ( lpv, lp );
+	for ( c = min::current ( lpv );
+	      ! min::is_list_end ( c );
+	      c = min::next ( lpv ) )
+	{
+#   	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		if ( min::is_sublist ( c ) )
+		    c = min::next ( lpv );
+#   	    endif
+	    if ( min::is_sublist ( c ) )
+	        info.reverse_attr_count =
+		    count_reverse_attrs ( lpv );
+	    else if ( min::is_control_code ( c ) )
+	        ++ info.flag_count;
+	    else
+	        ++ info.value_count;
+	}
+    }
+    return (    info.value_count > 0
+	     || info.flag_count > 0
+	     || info.reverse_attr_count > 0 );
+}
+
+template < class vecpt >
+min::unsptr min::get_attrs
+	( min::attr_info * out, min::unsptr n,
+	  unprotected::attr_pointer_type
+	      < vecpt > & ap )
+{
+    attr_info info;
+
+    vecpt & vp = vec_pointer_of ( ap );
+    min::list_pointer lp ( vp );
+    min::list_pointer lp2 ( vp );
+
+    min::unsptr result = 0;
+    for ( min::unsptr i = 0;
+          i < hash_size_of ( vp );
+	  ++ i )
+    {
+	start_hash ( lp, i );
+	for ( min::gen c = current ( lp );
+	      ! is_list_end ( c );
+	      c = next ( lp ) )
+	{
+	    info.name = c;
+	    next ( lp );
+	    if ( compute_counts ( lp, info ) )
+	    {
+		if ( result < n )
+		    * out ++ = info;
+		++ result;
+	    }
+	}
+    }
+    for ( min::unsptr i = 0;
+          i < attr_size_of ( vp );
+	  ++ i )
+    {
+	start_vector ( lp, i );
+	if ( is_list_end ( current ( lp ) ) )
+	    continue;
+	if ( compute_counts ( lp, info ) )
+	{
+	    info.name = new_num_gen ( i );
+	    if ( result < n ) * out ++ = info;
+	    ++ result;
+	}
+    }
+}
+
+template < class vecpt >
+min::unsptr min::get_reverse_attrs
+	( min::reverse_attr_info * out, min::unsptr n,
+	  unprotected::attr_pointer_type
+	      < vecpt > & ap )
+{
+
+
 }
 
 template < class vecpt >
@@ -4227,7 +4345,6 @@ inline min::gen MINT::update
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::update called before locate" );
     case ap_type::LOCATE_FAIL:
@@ -4371,7 +4488,6 @@ void MINT::set
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::set called before locate" );
 
@@ -4569,7 +4685,6 @@ void min::add_to_set
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::add_to_set called before"
 	      " locate" );
@@ -4645,7 +4760,6 @@ void min::add_to_multiset
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::add_to_multiset called before"
 	      " locate" );
@@ -4730,7 +4844,6 @@ min::unsptr min::remove_one
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::remove_one called before"
 	      " locate" );
@@ -4822,7 +4935,6 @@ min::unsptr min::remove_all
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::remove_all called before"
 	      " locate" );
@@ -4902,7 +5014,6 @@ inline min::unsptr MINT::test_flag
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::test_flag called before locate" );
     default:
@@ -4923,7 +5034,6 @@ void MINT::set_flags
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::set_flags called before locate" );
     case ap_type::LOCATE_FAIL:
@@ -5011,7 +5121,6 @@ void MINT::set_some_flags
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::set_some_flags called before"
 	      " locate" );
@@ -5030,7 +5139,6 @@ void MINT::clear_some_flags
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::clear_some_flags called before"
 	      " locate" );
@@ -5050,7 +5158,6 @@ void MINT::flip_some_flags
     switch ( ap.state )
     {
     case ap_type::INIT:
-    case ap_type::END_INIT:
 	MIN_ABORT
 	    ( "min::flip_some_flags called before"
 	      " locate" );

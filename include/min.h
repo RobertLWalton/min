@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 26 05:55:41 EST 2010
+// Date:	Sat Feb 27 15:47:32 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/26 12:20:21 $
+//   $Date: 2010/02/28 02:27:13 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.279 $
+//   $Revision: 1.280 $
 
 // Table of Contents:
 //
@@ -5430,18 +5430,28 @@ namespace min {
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      unsigned n );
+
+    struct attr_info
+    {
+        min::gen name;
+	min::unsptr value_count;
+	min::unsptr reverse_attr_count;
+	min::unsptr flag_count;
+    };
+    struct reverse_attr_info
+    {
+        min::gen name;
+	min::unsptr value_count;
+    };
     template < class vecpt >
-    unsigned get_attrs
-	    ( min::gen * out, unsigned n,
+    min::unsptr get_attrs
+	    ( min::attr_info * out, min::unsptr n,
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
     template < class vecpt >
-    bool rewind_attrs
-	    ( unprotected::attr_pointer_type
-	          < vecpt > & ap );
-    template < class vecpt >
-    unsigned get_reverse_attrs
-	    ( min::gen * out, unsigned n,
+    min::unsptr get_reverse_attrs
+	    ( min::reverse_attr_info * out,
+	      min::unsptr n,
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
     template < class vecpt >
@@ -5717,43 +5727,32 @@ namespace min { namespace unprotected {
 		    // A locate with a length argument
 		    // succeeds if it returns length > 0
 		    // and fails otherwise.
-		    //
-		    // A call to get_attrs moves to the
-		    // first label.  A call go rewind_
-		    // attrs sets this state.
 
-		END_INIT		= 1,
-		    // Like INIT but a call to get_attrs
-		    // does not deliver any labels.
-		    // This state is only set by a call
-		    // to get_attrs that delivers the
-		    // last label.
-
-		LOCATE_FAIL		= 2,
+		LOCATE_FAIL		= 1,
 		    // Last call to locate failed.
 
 		// Note: states >= LOCATE_NONE imply
 		// the last call to locate succeeded.
 
-		LOCATE_NONE		= 3,
+		LOCATE_NONE		= 2,
 		    // Last call to locate succeeded,
 		    // and no call to reverse_locate
 		    // has been made or the last call
 		    // to reverse_locate set the
 		    // reverse_attribute to NONE.
 
-		LOCATE_ANY		= 4,
+		LOCATE_ANY		= 3,
 		    // Last call to reverse_locate set
 		    // the reverse attribute to ANY.
 
-		REVERSE_LOCATE_FAIL	= 5,
+		REVERSE_LOCATE_FAIL	= 4,
 		    // Last call to reverse_locate when
 		    // the state was >= LOCATE_NONE set
 		    // the reverse attribute to a value
 		    // other than NONE or ANY and
 		    // failed.
 
-		REVERSE_LOCATE_SUCCEED	= 6
+		REVERSE_LOCATE_SUCCEED	= 5
 		    // Last call to reverse_locate when
 		    // the state was >= LOCATE_NONE set
 		    // the reverse attribute to a value
@@ -5793,9 +5792,8 @@ namespace min { namespace unprotected {
 	    // optimized.
 	    //
 	    // This is not set if the state is INIT or
-	    // END_INIT or if the state is LOCATE_FAIL
-	    // and length member does not exist or is
-	    // == 0.
+	    // if the state is LOCATE_FAIL and length
+	    // member does not exist or is == 0.
 
     	list_pointer_type<vecpt> lp;
 	    // A working pointer for temporary use.
@@ -5853,15 +5851,13 @@ namespace min { namespace unprotected {
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap,
 		  unsigned n );
-	friend unsigned min::get_attrs<>
-		( min::gen * out, unsigned n,
+	friend min::unsptr min::get_attrs<>
+		( min::attr_info * out, min::unsptr n,
 		  min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
-	friend bool min::rewind_attrs<>
-		( min::unprotected
-		     ::attr_pointer_type<vecpt> & ap );
-	friend unsigned min::get_reverse_attrs<>
-		( min::gen * out, unsigned n,
+	friend min::unsptr min::get_reverse_attrs<>
+		( min::reverse_attr_info * out,
+		  min::unsptr n,
 		  min::unprotected
 		     ::attr_pointer_type<vecpt> & ap );
 	friend min::gen min::update<>
@@ -6130,7 +6126,6 @@ namespace min {
 	case ap_type::REVERSE_LOCATE_FAIL:
 	    return 0;
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_ANY:
 	    return internal::count ( ap );
 	}
@@ -6167,7 +6162,6 @@ namespace min {
 	case ap_type::REVERSE_LOCATE_FAIL:
 	    return 0;
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( out, n, ap );
 	}
@@ -6204,7 +6198,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_ANY:
 	    return internal::get ( ap );
 
@@ -6244,7 +6237,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	    return internal::count_flags ( ap );
 
 	case ap_type::LOCATE_FAIL:
@@ -6277,7 +6269,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	    return internal::get_flags ( out, n, ap );
 
 	case ap_type::LOCATE_FAIL:
@@ -6310,7 +6301,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	    return internal::test_flag ( ap, n );
 
 	case ap_type::LOCATE_FAIL:
@@ -6351,7 +6341,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_SUCCEED:
@@ -6395,7 +6384,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	case ap_type::LOCATE_ANY:
 	case ap_type::REVERSE_LOCATE_FAIL:
@@ -6445,7 +6433,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_FAIL:
 	case ap_type::LOCATE_ANY:
 	case ap_type::REVERSE_LOCATE_FAIL:
@@ -6490,7 +6477,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_ANY:
 	    add_to_set ( ap, & v, 1 );
 
@@ -6539,7 +6525,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_ANY:
 	case ap_type::REVERSE_LOCATE_SUCCEED:
 	    return remove_one ( ap, & v, 1 );
@@ -6585,7 +6570,6 @@ namespace min {
 	switch ( ap.state )
 	{
 	case ap_type::INIT:
-	case ap_type::END_INIT:
 	case ap_type::LOCATE_ANY:
 	case ap_type::REVERSE_LOCATE_SUCCEED:
 	    return remove_all ( ap, & v, 1 );
