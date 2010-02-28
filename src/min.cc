@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Feb 27 15:45:36 EST 2010
+// Date:	Sun Feb 28 00:25:23 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/28 02:27:32 $
+//   $Date: 2010/02/28 05:30:34 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.169 $
+//   $Revision: 1.171 $
 
 // Table of Contents:
 //
@@ -3990,63 +3990,6 @@ void min::relocate
 }
 
 template < class vecpt >
-inline min::unsptr MINT::count
-	( MUP::attr_pointer_type<vecpt> & ap )
-{
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
-
-    switch ( ap.state )
-    {
-    case ap_type::INIT:
-	MIN_ABORT ( "min::count called before locate" );
-    case ap_type::LOCATE_ANY:
-        break;
-    default:
-	MIN_ABORT ( "abnormal call to min::count" );
-    }
-
-    // state == LOCATE_ANY:
-
-    min::gen c;
-    update_refresh ( ap.locate_dlp );
-    start_copy ( ap.dlp, ap.locate_dlp );
-
-    if ( ! is_sublist ( current ( ap.dlp ) ) )
-        return 0;
-    start_sublist ( ap.dlp );
-    for ( c = current ( ap.dlp );
-	  ! is_sublist && ! is_list_end ( c );
-	  c = next ( ap.dlp ) );
-#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	if ( ! is_sublist ( c ) ) return 0;
-	c = next ( ap.dlp );
-#   endif
-    if ( ! is_sublist ( c ) ) return 0;
-    start_sublist ( ap.dlp );
-
-    min::unsptr result = 0;
-    for ( min::gen c = current ( ap.dlp );
-	  ! is_list_end ( c );
-	  c = next ( ap.dlp ) )
-    {
-        c = next ( ap.dlp );
-	if ( ! is_sublist ( c ) ) ++ result;
-	else
-	{
-	    start_sublist ( ap.lp, ap.dlp );
-	    c = current ( ap.lp );
-	    while ( ! is_list_end ( c ) )
-	    {
-	        ++ result;
-		c = next ( ap.lp );
-	    }
-	}
-    }
-
-    return result;
-}
-
-template < class vecpt >
 inline min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
 	  MUP::attr_pointer_type<vecpt> & ap )
@@ -4084,23 +4027,22 @@ inline min::unsptr MINT::get
 
     min::unsptr result = 0;
     for ( min::gen c = current ( ap.dlp );
-	  result < n && ! is_list_end ( c );
+	  ! is_list_end ( c );
 	  c = next ( ap.dlp ) )
     {
         c = next ( ap.dlp );
 	if ( ! is_sublist ( c ) )
 	{
-	    * out ++ = c;
+	    if ( result < n ) * out ++ = c;
 	    ++ result;
 	}
 	else
 	{
 	    start_sublist ( ap.lp, ap.dlp );
 	    c = current ( ap.lp );
-	    while (    result < n
-	            && ! is_list_end ( c ) )
+	    while ( ! is_list_end ( c ) )
 	    {
-	        * out ++ = c;
+		if ( result < n ) * out ++ = c;
 		++ result;
 		c = next ( ap.lp );
 	    }
@@ -4177,23 +4119,6 @@ inline min::gen MINT::get
 }
 
 template < class vecpt >
-inline min::unsptr MINT::count_flags
-	( MUP::attr_pointer_type<vecpt> & ap )
-{
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
-
-    switch ( ap.state )
-    {
-    case ap_type::INIT:
-	MIN_ABORT
-	    ( "min::count_flags called before locate" );
-    default:
-	MIN_ABORT
-	    ( "abnormal call to min::count_flags" );
-    }
-}
-
-template < class vecpt >
 inline min::unsptr MINT::get_flags
 	( MUP::attr_pointer_type<vecpt> & ap )
 {
@@ -4260,8 +4185,8 @@ static bool compute_counts
 	      c = min::next ( lpv ) )
 	{
 #   	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		if ( is_sublist ( c ) )
-		    c = next ( lpv );
+		if ( min::is_sublist ( c ) )
+		    c = min::next ( lpv );
 #   	    endif
 	    if ( min::is_sublist ( c ) )
 	        info.reverse_attr_count =
@@ -4318,7 +4243,7 @@ min::unsptr min::get_attrs
 	    continue;
 	if ( compute_counts ( lp, info ) )
 	{
-	    info.name = new_num_gen ( (float64) i );
+	    info.name = new_num_gen ( i );
 	    if ( result < n ) * out ++ = info;
 	    ++ result;
 	}
