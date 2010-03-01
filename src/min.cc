@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 28 06:09:47 EST 2010
+// Date:	Sun Feb 28 18:10:57 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/28 15:07:47 $
+//   $Date: 2010/03/01 00:07:39 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.172 $
+//   $Revision: 1.173 $
 
 // Table of Contents:
 //
@@ -4209,6 +4209,53 @@ static bool compute_counts
     }
 }
 
+# if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    static void compute_children
+	( min::list_pointer & lp,
+	  min::gen * components, min::unsptr depth,
+	  min::attr_info * & out, min::unsptr & result,
+	  min::unsptr n )
+{
+    min::gen c = min::current ( lp );
+    if ( ! min::is_sublist ( c ) ) return;
+    min::list_pointer lpv
+        ( min::vec_pointer_of ( lp ) );
+    min::start_sublist ( lpv, lp );
+    for ( c = min::current ( lpv );
+             ! min::is_list_end ( c )
+          && ! min::is_sublist ( c );
+	  c = min::next ( lpv ) );
+    if ( ! min::is_sublist ( c ) ) return;
+    if ( c == min::EMPTY_SUBLIST ) return;
+    start_sublist ( lpv );
+
+    min::gen labvec[depth+1];
+    for ( min::unsptr i = 0; i < depth; ++ i )
+        labvec[i] = * components ++;
+
+    for ( c = min::current ( lpv );
+          ! min::is_list_end ( c );
+	  c = min::next ( lpv ) )
+    {
+        labvec[depth] = c;
+	min::next ( lpv );
+	min::attr_info info;
+	if ( compute_counts ( lpv, info ) )
+	{
+	    if ( result < n )
+	    {
+	        info.name = min::new_lab_gen
+	                       ( labvec, depth + 1 );
+	        * out ++ = info;
+	    }
+	    ++ result;
+	}
+	compute_children ( lpv, labvec, depth + 1,
+	                   out, result, n );
+    }
+}
+# endif
+
 template < class vecpt >
 min::unsptr min::get_attrs
 	( min::attr_info * out, min::unsptr n,
@@ -4238,6 +4285,10 @@ min::unsptr min::get_attrs
 		    * out ++ = info;
 		++ result;
 	    }
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		compute_children ( lp, & info.name, 1,
+				   out, result, n );
+#	    endif
 	}
     }
     for ( min::unsptr i = 0;
@@ -4247,12 +4298,17 @@ min::unsptr min::get_attrs
 	start_vector ( lp, i );
 	if ( is_list_end ( current ( lp ) ) )
 	    continue;
+
+	info.name = new_num_gen ( i );
 	if ( compute_counts ( lp, info ) )
 	{
-	    info.name = new_num_gen ( i );
 	    if ( result < n ) * out ++ = info;
 	    ++ result;
 	}
+#	if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	    compute_children ( lp, & info.name, 1,
+			       out, result, n );
+#	endif
     }
 }
 
