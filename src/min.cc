@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 28 18:10:57 EST 2010
+// Date:	Sun Feb 28 20:16:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/01 00:07:39 $
+//   $Date: 2010/03/01 01:48:56 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.173 $
+//   $Revision: 1.174 $
 
 // Table of Contents:
 //
@@ -5152,4 +5152,98 @@ void MINT::flip_some_flags
 	MIN_ABORT
 	    ( "abnormal call to min::flip_some_flags" );
     }
+}
+
+// n is the flag number within otherwise 0 control codes
+// that are to be added to the end of the attribute-/
+// node-descriptor.
+//
+bool MINT::set_flag
+	( min::insertable_attr_pointer & ap,
+	  unsigned n )
+{
+    typedef insertable_attr_pointer ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+	MIN_ABORT
+	    ( "min::set_flag called before locate" );
+    case ap_type::LOCATE_FAIL:
+    	    MINT::attr_create
+	              ( ap, min::EMPTY_SUBLIST );
+    }
+
+    min::gen elements[(n+VSIZE-1)/VSIZE + 1];
+    min::unsptr j = 0;
+    min::gen c = current ( ap.locate_dlp );
+    if ( ! is_sublist ( c ) )
+    {
+        elements[j++] = c;
+	update ( ap.locate_dlp, min::EMPTY_SUBLIST );
+    }
+    start_sublist ( ap.lp, ap.locate_dlp );
+    for ( c = current ( ap.lp );
+          ! is_list_end ( c );
+	  c = next ( ap.lp ) );
+    unsigned base = 0;
+    while ( base < n )
+    {
+        unsigned next = base + VSIZE;
+	if ( n < next )
+	{
+	    elements[j++] = new_control_code_gen
+	        ( 1 << ( n - base ) );
+	    break;
+	}
+	else
+	    elements[j++] = new_control_code_gen ( 0 );
+
+	base = next;
+    }
+    if ( insert_reserve ( ap.lp, 1, j ) )
+    {
+        insert_refresh ( ap.locate_dlp );
+        insert_refresh ( ap.dlp );
+    }
+    insert_before ( ap.lp, elements, j );
+    return false;
+}
+
+bool MINT::clear_flag
+	( min::insertable_attr_pointer & ap,
+	  unsigned n )
+{
+    typedef insertable_attr_pointer ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+	MIN_ABORT
+	    ( "min::clear_flag called before"
+	      " locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::clear_flag" );
+    }
+    return false;
+}
+
+bool MINT::flip_flag
+	( min::insertable_attr_pointer & ap,
+	  unsigned n )
+{
+    typedef insertable_attr_pointer ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+	MIN_ABORT
+	    ( "min::flip_flag called before"
+	      " locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::flip_flag" );
+    }
+    return false;
 }
