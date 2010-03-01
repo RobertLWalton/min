@@ -97,6 +97,7 @@
 \newcommand{\MUPmkey}[2]%
            {{\tt \bf MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
 \newcommand{\minindex}[1]{\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\minmindex}[2]{\ttindex{min::#1!#2}\ttindex{#1!#2}}
 \newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
 
 
@@ -252,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 27, 2010}
+\date{March 1, 2010}
  
 \maketitle
 
@@ -5271,15 +5272,32 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{attr\_info}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::gen    name;|\ARGBREAK
+    \verb|  min::unsptr value_count;|\ARGBREAK
+    \verb|  min::unsptr flag_count;|\ARGBREAK
+    \verb|  min::unsptr reverse_attr_count;|\ARGBREAK
+    \verb|};|
+\ttmindex{name}{in {\tt min::attr\_info}}
+\ttmindex{value\_count}{in {\tt min::attr\_info}}
+\ttmindex{flag\_count}{in {\tt min::attr\_info}}
+\ttmindex{reverse\_attr\_count}{in {\tt min::attr\_info}}
+\LABEL{MIN::ATTR_INFO} \\
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb| ( min::attr_info * out, min::unsptr n,|\ARGBREAK
     \verb|   min::attr_pointer ap )|
 \LABEL{MIN::GET_ATTRS} \\
-\verb|void min::| & \MINKEY{rewind\_attrs}\ARGBREAK
-    \verb| ( min::attr_pointer ap )|
-\LABEL{MIN::REWIND_ATTRS} \\
+\verb|struct min::| & \MINKEY{reverse\_attr\_info}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::gen    name;|\ARGBREAK
+    \verb|  min::unsptr value_count;|\ARGBREAK
+    \verb|};|
+\ttmindex{name}{in {\tt min::reverse\_attr\_info}}
+\ttmindex{value\_count}{in {\tt min::reverse\_attr\_info}}
+\LABEL{MIN::REVERSE_ATTR_INFO} \\
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb| ( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
     \verb|   min::attr_pointer ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS} \\
 \end{tabular}\end{indpar}
@@ -5338,33 +5356,65 @@ restore the pointer.
 
 \ikey{Accessor functions}{accessor function}
 can be used for reading attribute values and flags.
+For the purposes of describing these functions,
+an attribute pointer is considered to point at the attribute
+named by the pointer's attribute name, and the reverse attribute
+pointed at by the pointer's attribute and reverse attribute names,
+unless the latter are \verb|min::NONE| or \verb|min::ANY|.
+If these names have never been set it is an error to call an accessor
+function for the pointer.
+
+The value set pointed at by a pointer is that of the attribute pointed
+at if the reverse attribute name is \verb|min::NONE|, or is that of
+the reverse attribute pointed at if the reverse attribute name is not
+\verb|min::NONE| or \verb|min::ANY|.  It is an error to access a value
+set when the reverse attribute name is \verb|min::ANY| unless documented
+otherwise.
+
+The flag set pointed at by a pointer is that of the attribute pointed
+at regardless of the setting of the reverse attribute name.
+If there are $N$ control codes in a flag set, $N${\tt *VSIZE} flags are
+represented by the set, and any flag with number $\geq N${\tt *VSIZE} is
+read as zero.  `High order' control codes may contain all zero flags,
+and such zero high order control code may be removed when an object
+is reorganized.
+
+Attributes whose value and flag sets have never been set are treated
+as if they has empty value and flag sets.  Similarly reverse attributes
+whose value sets have never been set are treated as having empty value
+sets.
 
 The 3-argument {\tt min::\EOL get} function gets the values in the value
 set pointed at and stores them
-in the `{\tt out}' vector.   The total number of values in the value
+in the `{\tt out}' vector.
+The total number of values in the value
 set is returned (regardless of the value of {\tt n}).
 The argument {\tt n} the length of `{\tt out}',
 the maximum number of values that may be returned in `{\tt out}'.
 If there are more then {\tt n} values, only the first {\tt n}
 are returned in `{\tt out}'.
+If {\tt n==0} the function just returns
+the number of values in the value set.
 
 The 1-argument {\tt min::\EOL get} function assumes that there is exactly
-one value and returns that value, or returns the special value
-\verb|min::NONE| (\pagref{MIN::NONE}) if there are no values,
+one value in the value set and returns that value, or returns the special value
+\verb|min::NONE| (\pagref{MIN::NONE}) if the value set is empty,
 or returns the special value
-\verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) if there is
-more than one value.
+\verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) if the value set
+has more than one value.
 
 The {\tt min::\EOL get\_\EOL flags}
-function returns the flags in the flag set pointed at and stores
-these as control code
-values in the \verb|min::gen| vector `{\tt out}'.
+function returns the control codes in the flag set pointed at and stores
+these in the \verb|min::gen| vector `{\tt out}'.
 The total number of control codes in the flag set is returned
 (regardless of the value of {\tt n}).
 The argument {\tt n} the length of `{\tt out}',
 the maximum number of control codes that may be returned in `{\tt out}'.
 If there are more then {\tt n} control codes, only the first {\tt n}
 are returned in `{\tt out}'.
+If {\tt n==0} the function just returns
+the number of control codes in the flag set.
+
 In the `{\tt out}' vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
 and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
@@ -5375,41 +5425,46 @@ The {\tt min::\EOL test\_\EOL flag} function returns the value
 of flag {\tt n}.
 
 The attribute names for an object form a list ordered in an implementation
-dependent fashion.  The current attribute name of an attribute
-pointer is a pointer into this list.
-The {\tt min::\EOL get\_\EOL attributes} function gets up to {\tt n}
-of these attribute names, starting at the current attribute name.
-The names are returned as {\em atoms} or {\em labels} in the `{\tt out}'
-vector, and the number of names returned is returned from the function.
+dependent fashion.  
+The {\tt min::\EOL get\_\EOL attrs} function gets information about each
+attribute in this list.  The information about an attribute is stored in a
+{\tt min::\EOL attr\_\EOL info} structure and includes the attribute
+name in the {\tt name} member,
+the number of values in the attribute value set in the {\tt value\_count}
+member, the number of control codes in the attribute flag set in
+the {\tt flag\_count} member, and the number of associated
+reverse attribute names which have non-empty value sets in the
+{\tt reverse\_attr\_count} member.
 If a name as only one component that is an {\em atom}, the name is returned
 as that {\em atom}; all other names are returned as {\em labels}.
-After the last name is returned the pointer is put in a special state
-where it has no attribute name and calling
-{\tt min::\EOL get\_\EOL attributes} again will return nothing but {\tt 0}.
-The {\tt min::\EOL rewind\_\EOL attributes} function resets the pointer
-to point at the first name.  Setting the attribute pointer to point
-at an attribute name is the equivalent of calling {\tt min::\EOL locate}
-to set the current attribute name of the pointer.
+At least one of the three counts must be
+non-zero for an attribute, or else the attribute is treated as if it
+were not in the list of all attribute names.  However, note that if
+the {\tt flag\_count} is non-zero, it is still
+possible that all flags will be zero.
 
-The {\tt min::\EOL get\_\EOL reverse\_\EOL attributes}
+The {\tt min::\EOL attr\_\EOL info} structs for the first {\tt n}
+attribute names in the list of such are returned in the `{\tt out}'
+vector, and the total number of attribute names in the list
+is returned as the function call value (regardless of the value of {\tt n}).
+If {\tt n==0} the function just returns
+the number of attribute names in the list.
+
+The {\tt min::\EOL get\_\EOL reverse\_\EOL attrs}
 function is analogous but involves the list of
 reverse attribute names associated
-with a particular object and the attribute name stored in the attribute
-pointer.  However in this case there is no rewind function, and
-instead setting the reverse attribute name to \verb|min::NONE|
-using {\tt min::\EOL locate\_\EOL reverse} has the effect of setting
-the pointer so the next call to
-{\tt min::\EOL get\_\EOL reverse\_\EOL attributes} will get the first
-reverse name in the list.
+with a particular object and attribute name stored in the attribute
+pointer.  In this case there is a {\tt min::\EOL reverse\_\EOL
+attr\_\EOL info} struct for each reverse attribute name, and there is only
+one count member in this, the {\tt value\_count} member that is the number
+of values in the value set of the reverse attribute pointed at.
+A reverse attribute name with an empty value set is treated as if it
+were not in the list of reverse attribute names.
 
-An attribute name or reverse attribute name is returned
-only if its value set is non-empty or it has a set flag.
-
-The implementation dependent order of names may change if values are
+The implementation dependent order of names may change if attribute or
+reverse atttribute values are
 added to or removed from the object or attribute flags are set or cleared,
-so after any of these actions the 
-{\tt min::\EOL rewind\_\EOL attributes} function should be called before
-any names are gotten.
+or if the object is reorganized.
 
 Updatable attribute pointers can set existing values as well as perform
 the operations of read-only attribute pointers.
@@ -5471,14 +5526,11 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb| ( min::attr_info * out, min::unsptr n,|\ARGBREAK
     \verb|   min::updatable_attr_pointer ap )|
 \LABEL{MIN::GET_ATTRS_OF_UPDATABLE} \\
-\verb|void min::| & \MINKEY{rewind\_attrs}\ARGBREAK
-    \verb| ( min::updatable_attr_pointer ap )|
-\LABEL{MIN::REWIND_ATTRS_OF_UPDATABLE} \\
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb| ( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
     \verb|   min::updatable_attr_pointer ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_UPDATABLE} \\
 \end{tabular}\end{indpar}
@@ -5565,14 +5617,11 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{get\_attrs}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb| ( min::attr_info * out, min::unsptr n,|\ARGBREAK
     \verb|   min::insertable_attr_pointer ap )|
 \LABEL{MIN::GET_ATTRS_OF_INSERTABLE} \\
-\verb|void min::| & \MINKEY{rewind\_attrs}\ARGBREAK
-    \verb| ( min::insertable_attr_pointer ap )|
-\LABEL{MIN::REWIND_ATTRS_OF_INSERTABLE} \\
 \verb|min::unsptr min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
-    \verb| ( min::gen * out, min::unsptr n,|\ARGBREAK
+    \verb| ( min::reverse_attr_info * out, min::unsptr n,|\ARGBREAK
     \verb|   min::insertable_attr_pointer ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS_OF_INSERTABLE} \\
 \end{tabular}\end{indpar}
