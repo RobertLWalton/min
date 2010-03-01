@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 28 20:16:14 EST 2010
+// Date:	Mon Mar  1 05:47:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/01 01:48:56 $
+//   $Date: 2010/03/01 11:02:10 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.174 $
+//   $Revision: 1.175 $
 
 // Table of Contents:
 //
@@ -4318,8 +4318,59 @@ min::unsptr min::get_reverse_attrs
 	  unprotected::attr_pointer_type
 	      < vecpt > & ap )
 {
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
 
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+	MIN_ABORT
+	    ( "min::get_reverse_attrs called before"
+	      " locate" );
+    case ap_type::LOCATE_FAIL:
+        return 0;
+    }
 
+    min::gen c = update_refresh ( ap.locate_dlp );
+    if ( ! is_sublist ( c ) ) return 0;
+    start_sublist ( ap.lp, ap.locate_dlp );
+    for ( c = current ( ap.lp );
+             ! is_sublist ( c )
+	  && ! is_list_end ( c );
+	  c = next ( ap.lp ) );
+#   if MIN_ALLOW_PARTIAL_ATTR_LABELS
+	if ( ! is_sublist ( c ) ) return 0;
+        next ( ap.lp );
+#   endif
+    if ( ! is_sublist ( c ) ) return 0;
+    start_sublist ( ap.lp );
+
+    list_pointer lpv ( vec_pointer_of ( ap.lp ) );
+    reverse_attr_info info;
+    min::unsptr result = 0;
+    for ( c = current ( ap.lp );
+          ! is_list_end ( c );
+	  c = next ( ap.lp ) )
+    {
+        info.name = c;
+	info.value_count = 0;
+	c = next ( ap.lp );
+	if ( ! is_sublist ( c ) )
+	    ++ info.value_count;
+	else if ( c == min::EMPTY_SUBLIST )
+	    continue;
+	else
+	{
+	    start_sublist ( lpv, ap.lp );
+	    for ( c = current ( lpv );
+	          ! is_list_end ( c );
+		  c = next ( lpv ) )
+	        ++ info.value_count;
+	}
+	if ( result < n ) * out ++ = info;
+	++ result;
+    }
+
+    return result;
 }
 
 template < class vecpt >
