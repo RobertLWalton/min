@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 28 20:49:11 EST 2010
+// Date:	Mon Mar  1 06:54:46 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/01 01:49:40 $
+//   $Date: 2010/03/01 11:54:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.283 $
+//   $Revision: 1.284 $
 
 // Table of Contents:
 //
@@ -5436,14 +5436,14 @@ namespace min {
 
     struct attr_info
     {
-        min::gen name;
+        min::gen    name;
 	min::unsptr value_count;
-	min::unsptr reverse_attr_count;
 	min::unsptr flag_count;
+	min::unsptr reverse_attr_count;
     };
     struct reverse_attr_info
     {
-        min::gen name;
+        min::gen    name;
 	min::unsptr value_count;
     };
     template < class vecpt >
