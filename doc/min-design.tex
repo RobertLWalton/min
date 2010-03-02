@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 1, 2010}
+\date{March 2, 2010}
  
 \maketitle
 
@@ -3275,7 +3275,7 @@ The \verb|min::OBJ_PUBLIC| flag may not be cleared by
 protected functions.  The idea here is that setting the \verb|min::OBJ_PUBLIC|
 flag fixes the attribute label structure of the object, the flags attached
 to attribute labels, and the size of
-the value set of each attribute, but permits the existing values of an
+the value multiset of each attribute, but permits the existing values of an
 attribute to be read or written.  This permits read-only and limited
 read-write sharing of the object.
 
@@ -4914,7 +4914,7 @@ the object lists have the syntax:
 \\[1ex]
 \emkey{hash-list} ::= {\em attribute-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{vector-list} ::= {\em attribute-descriptor}
+\emkey{vector-list} ::= {\em attribute-descriptor-option}
 \\[1ex]
 \emkey{attribute-name-descriptor-pair} ::=
     {\em attribute-name } {\em attribute-descriptor}
@@ -4930,11 +4930,11 @@ the object lists have the syntax:
     {\em double-arrow-name-descriptor-pair}$\,^\star$
 \\[1ex]
 \emkey{double-arrow-name-descriptor-pair} ::=
-    {\em reverse-attribute-name } {\em value-set}
+    {\em reverse-attribute-name } {\em value-multiset}
 \\[1ex]
 \emkey{reverse-attribute-name} ::= {\em atom } $|$ {\em label}
 \\[1ex]
-\emkey{value-set} ::= {\em value} $|$ {\em value-sublist}
+\emkey{value-multiset} ::= {\em value} $|$ {\em value-sublist}
 \\[1ex]
 \emkey{value-sublist} ::= {\em value}$\,^\star$
 \\[1ex]
@@ -4943,8 +4943,7 @@ the object lists have the syntax:
 \emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object}
                              $|$ {\em indirect-pointer}
 \\[1ex]
-\emkey{indirect-pointer} ::= {\em index} $|$ {\em label}
-    $|$ {\em indirect-auxiliary}
+\emkey{indirect-pointer} ::= {\em index} $|$ {\em indirect-auxiliary}
 \end{indpar}
 
 Here the syntactic categories represent \verb|min::gen| values
@@ -4967,23 +4966,35 @@ a sequence of elements in some list or sublist.
 {\em Flag-sets} are sequences of {\em control-codes}.
 
 An {\em atom} is a \verb|min::gen| number or string.
+An {\em label} is a \verb|min::gen| label.
 An {\em object} is a \verb|min::gen| value pointing at an object stub.
 A {\em control-code} is a \verb|min::gen| control code value.
 An {\em index} is a \verb|min::gen| index value.
 An {\em indirect-auxiliary} is a \verb|min::gen| indirect auxiliary value.
 
-The above form of object map maps an {\em attribute-name} to a set of
-values, a set of flags, and a optional
+The above form of object map maps an {\em attribute-name} to a list of
+{\em values}, a list of flag {\em control codes}, and a optional
 {\em double-arrow-sublist}.  This last maps {\em reverse-attribute-names}
-to sets of values.
+to lists of values.
+
+The lists of {\em values} here represent multisets of {\em values}.
+That is, the
+order of the {\em values} in the list is not meaningful.
+Similarly the order of {\em attribute-name-descriptor-pairs}
+in a {\em hash-list}
+or the order of {\em double-arrow-name-descriptor-pairs}
+in a {\em double-arrow-sublist} is not meaninful.
+On the other hand, a {\em flag-set} is actually an ordered list
+of {\em control-codes}; here order matters.
 
 A {\em hash-list} is simply a list of alternating {\em attribute-names}
 and {\em attribute-descriptors}.
 The long form of an {\em attribute-descriptor} is an
 {\em attribute-sublist} that gives  a possibly empty list of {\em values},
 an optional {\em double-arrow-sublist}, and a possibly empty
-list of flags.
-{\em attribute-sublist} would be nothing but a one element list containing
+list of flag control codes.
+If the {\em attribute-sublist}
+would be nothing but a one element list containing
 a single {\em value}, a common case, the {\em attribute-sublist}
 may be replaced by this single
 {\em value}, in the interests of optimizing memory.
@@ -4994,12 +5005,14 @@ An empty {\em attribute-sublist} is equivalent to a missing
 removed from the object until the object is completely reorganized,
 in order to avoid invalidating other attribute pointers referencing the object.
 
-A {\em vector-list} always has exactly one element that is
+A {\em vector-list} may either be empty or have exactly one element.
+If it has one element, that element is
 the {\em attribute-descriptor} which is associated with the
 {\em attribute-name} that equals the vector index of the
 attribute vector element in which the {\em vector-list} is stored.
-This {\em attribute-descriptor} will be an empty sublist
-if the vector index has no associated attribute.
+If a vector index has no associated attribute, either its
+{\em vector-list} can be empty, or its
+{\em attribute-descriptor} can be the empty sublist.
 
 {\em Attribute-names} can be either {\em atoms} or {\em labels}.
 If an {\em attribute-name} is an integer {\em atom}
@@ -5017,13 +5030,13 @@ hash table.
 
 A {\em double-arrow-sublist} is 
 simply a sublist of alternating {\em reverse-attribute-names}
-and {\em value-sets}.  The former are just like {\em attribute-names}
+and {\em value-multisets}.  The former are just like {\em attribute-names}
 and the latter are just like {\em attribute-descriptors} that have no
-flags or {\em double-arrow-sublists}.
+flag control codes or {\em double-arrow-sublists}.
 
-An empty {\em value-set} is equivalent to a missing
+An empty {\em value-multiset} is equivalent to a missing
 {\em double-arrow-name-descriptor-pair}.
-{\em Double-arrow-name-descriptor-pairs} are not
+{\em Dou\-ble-arrow-name-descriptor-pairs} are not
 removed from the object until the object is completely reorganized,
 in order to avoid invalidating other attribute pointers referencing the object.
 
@@ -5052,7 +5065,7 @@ the object lists have the following alternative syntax:
 \\[1ex]
 \emkey{node-list} ::= {\em node-name-descriptor-pair}$\,^\star$
 \\[1ex]
-\emkey{vector-list} ::= {\em node-descriptor}
+\emkey{vector-list} ::= {\em node-descriptor-option}
 \\[1ex]
 \emkey{node-name-descriptor-pair} ::=
     {\em attribute-name-component } {\em node-descriptor}
@@ -5077,11 +5090,11 @@ the object lists have the following alternative syntax:
     {\em double-arrow-name-descriptor-pair}$\,^\star$
 \\[1ex]
 \emkey{double-arrow-name-descriptor-pair} ::=
-    {\em reverse-attribute-name } {\em value-set}
+    {\em reverse-attribute-name } {\em value-multiset}
 \\[1ex]
 \emkey{reverse-attribute-name} ::= {\em atom } $|$ {\em label}
 \\[1ex]
-\emkey{value-set} ::= {\em value} $|$ {\em value-sublist}
+\emkey{value-multiset} ::= {\em value} $|$ {\em value-sublist}
 \\[1ex]
 \emkey{value-sublist} ::= {\em value}$\,^\star$
 \\[1ex]
@@ -5090,8 +5103,7 @@ the object lists have the following alternative syntax:
 \emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object}
                              $|$ {\em indirect-pointer}
 \\[1ex]
-\emkey{indirect-pointer} ::= {\em index} $|$ {\em label}
-    $|$ {\em indirect-auxiliary}
+\emkey{indirect-pointer} ::= {\em index} $|$ {\em indirect-auxiliary}
 \end{indpar}
 
 This differs from the previous representation in that the object map
@@ -5102,7 +5114,8 @@ An {\em attribute-name} is viewed as a sequence of
 defines a path in the tree from the root to a node.
 Each node has an associated {\em node-descriptor} that
 contains the node {\em values},
-optional {\em double-arrow-sublist}, and flags, which are associated
+optional {\em double-arrow-sublist}, and flag control codes,
+which are associated
 with the {\em attribute-name} that names the path from the root to the
 node.  The {\em node-descriptor} also may contain
 an optional {\em child-sublist}
@@ -5114,13 +5127,17 @@ children of the object root node.  A {\em attribute-vector-entry}
 just describes one node that is a child of the root, namely the node
 whose {\em attribute-name-component} equals the vector index of the
 {\em attribute-vector-entry} in the object's attribute vector.
-For a child of the object root,
+For a node that is a child of the object root,
 if the child nodes's {\em attribute-name-component} is an integer in the legal
-range of the object's attribute vector indices, then the nodes's
+range of the object's attribute vector indices, then the child nodes's
 {\em node-descriptor} is stored in the {\em vector-list}
 that is stored in the object's attribute vector element.
-A {\em vector-list} is always a one element list whose element is a
-{\em node-descriptor} that may be an empty sublist.
+A {\em vector-list} is either empty or is a one element list whose element is a
+{\em node-descriptor}.  If a vector index is not the first component of
+any of the object's attribute names, then the corresponding {\em vector-list}
+can either be empty or can consist of just an empty {\em node-descriptor}
+{\em node-sublist}.
+
 For a child of the root whose name component is not a legal attribute
 vector index, its {\em attribute-name-component} and
 {\em node-descriptor} is placed in the {\em hash-table-entry}
@@ -5165,17 +5182,22 @@ control codes.
 
 The flags are numbered 0, 1, 2, \ldots.  Flag $N$ corresponds to
 the bit in the $I+1$'st control code
-selected by the mask $2^K$ where $I=\mbox{floor}(N/B)$,
-$K=N~\mbox{mod}~B$, and $B$ is the
-number of bits in a control code integer.  $B$ is 24 if \verb|min::gen|
+selected by the mask $2^K$ where $I=\mbox{floor}(N/\mbox{\tt VSIZE})$,
+$K=N~\mbox{mod}~\mbox{\tt VSIZE}$, where {\tt VSIZE},
+the number of bits in a control code integer,
+is the value of the \verb|min::VSIZE| constant (\pagref{MIN::VSIZE}),
+which is 24 if \verb|min::gen|
 values are 32-bits, and 40 if \verb|min::gen| values are 64-bits.
 A flag is set for an attribute name if and only if its corresponding
 bit is present and set and in the attribute's {\em flag-set}.
+If a flag's bit is not present in the {\em flag-set}, the flag is
+treated as if its bit were present and cleared.
 
 \subsubsubsection{Attribute Pointers}
 \label{ATTRIBUTE-POINTERS}
 
-An \key{attribute pointer} can be used to access attribute flags and values
+An \key{attribute pointer} can be used to access attribute
+flags and values
 in an object.
 An attribute pointer can be thought of as storing an attribute name
 and a reverse attribute name.  The latter can take the special
@@ -5184,13 +5206,13 @@ the object attribute pointed at.  The flag set pointed at is always
 the flag set of this attribute, regardless of the setting of the
 reverse attribute name.  The attribute name and
 reverse attribute name together designate the
-value set pointed at.  If the reverse attribute name
-is {\tt min::NONE}, the value set pointed at is the set of all values
+value multiset pointed at.  If the reverse attribute name
+is {\tt min::NONE}, the value multiset pointed at is the set of all values
 \underline{not} associated with any particular reverse attribute name.  If the
 reverse attribute name is {\tt min::ANY},
-the value set is the set of all
+the value multiset is the set of all
 values that are associated with reverse attribute names.  Otherwise the value
-set pointed at is the set of values
+multiset pointed at is the set of values
 associated with the particular reverse attribute
 name stored in the pointer.
 
@@ -5328,7 +5350,7 @@ argument exists only if the
 (\pagref{MIN_ALLOW_PARTIAL_ATTR_LABELS}) macro is set to {\tt 1}.
 This form of {\tt min::\EOL locate} uses the longest initial segment of the
 attribute name that locates an attribute which has either a non-empty
-set of values, or at least one set flag, or at least one value
+multiset of values, or at least one set flag, or at least one value
 associated with a reverse attribute name.  The
 length of this initial segment is returned in the `\verb|length|'
 argument.  If \verb|0| is returned in `\verb|length|',
@@ -5364,11 +5386,11 @@ unless the latter are \verb|min::NONE| or \verb|min::ANY|.
 If these names have never been set it is an error to call an accessor
 function for the pointer.
 
-The value set pointed at by a pointer is that of the attribute pointed
+The value multiset pointed at by a pointer is that of the attribute pointed
 at if the reverse attribute name is \verb|min::NONE|, or is that of
 the reverse attribute pointed at if the reverse attribute name is not
 \verb|min::NONE| or \verb|min::ANY|.  It is an error to access a value
-set when the reverse attribute name is \verb|min::ANY| unless documented
+multiset when the reverse attribute name is \verb|min::ANY| unless documented
 otherwise.
 
 The flag set pointed at by a pointer is that of the attribute pointed
@@ -5380,27 +5402,29 @@ and such zero high order control code may be removed when an object
 is reorganized.
 
 Attributes whose value and flag sets have never been set are treated
-as if they has empty value and flag sets.  Similarly reverse attributes
-whose value sets have never been set are treated as having empty value
-sets.
+as if they has empty value multisets and flag control code lists.
+Similarly reverse attributes
+whose value multisets have never been set are treated as having empty value
+multisets.
 
 The 3-argument {\tt min::\EOL get} function gets the values in the value
-set pointed at and stores them
+multiset pointed at and stores them
 in the `{\tt out}' vector.
 The total number of values in the value
-set is returned (regardless of the value of {\tt n}).
+multiset is returned (regardless of the value of {\tt n}).
 The argument {\tt n} the length of `{\tt out}',
 the maximum number of values that may be returned in `{\tt out}'.
 If there are more then {\tt n} values, only the first {\tt n}
 are returned in `{\tt out}'.
 If {\tt n==0} the function just returns
-the number of values in the value set.
+the number of values in the value multiset.
 
 The 1-argument {\tt min::\EOL get} function assumes that there is exactly
-one value in the value set and returns that value, or returns the special value
-\verb|min::NONE| (\pagref{MIN::NONE}) if the value set is empty,
+one value in the value multiset
+and returns that value, or returns the special value
+\verb|min::NONE| (\pagref{MIN::NONE}) if the value multiset is empty,
 or returns the special value
-\verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) if the value set
+\verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) if the value multiset
 has more than one value.
 
 The {\tt min::\EOL get\_\EOL flags}
@@ -5418,7 +5442,8 @@ the number of control codes in the flag set.
 In the `{\tt out}' vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
 and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
-If there are $J$ flags in the flag set, and $N\geq J*\mbox{\tt VSIZE}$, then
+If there are $J$ flag control codes
+in the flag set, and $N\geq J*\mbox{\tt VSIZE}$, then
 flag $N$ is zero.
 
 The {\tt min::\EOL test\_\EOL flag} function returns the value
@@ -5430,10 +5455,10 @@ The {\tt min::\EOL get\_\EOL attrs} function gets information about each
 attribute in this list.  The information about an attribute is stored in a
 {\tt min::\EOL attr\_\EOL info} structure and includes the attribute
 name in the {\tt name} member,
-the number of values in the attribute value set in the {\tt value\_count}
+the number of values in the attribute value multiset in the {\tt value\_count}
 member, the number of control codes in the attribute flag set in
 the {\tt flag\_count} member, and the number of associated
-reverse attribute names which have non-empty value sets in the
+reverse attribute names which have non-empty value multisets in the
 {\tt reverse\_attr\_count} member.
 If a name as only one component that is an {\em atom}, the name is returned
 as that {\em atom}; all other names are returned as {\em labels}.
@@ -5457,8 +5482,8 @@ with a particular object and attribute name stored in the attribute
 pointer.  In this case there is a {\tt min::\EOL reverse\_\EOL
 attr\_\EOL info} struct for each reverse attribute name, and there is only
 one count member in this, the {\tt value\_count} member that is the number
-of values in the value set of the reverse attribute pointed at.
-A reverse attribute name with an empty value set is treated as if it
+of values in the value multiset of the reverse attribute pointed at.
+A reverse attribute name with an empty value multiset is treated as if it
 were not in the list of reverse attribute names.
 
 The implementation dependent order of names may change if attribute or
@@ -5549,10 +5574,10 @@ can\underline{not} be converted to be read-only list pointers
 (unlike the situation with vector pointers).
 
 The {\tt min::\EOL update} function requires that the current
-value set have a single value and that it be the value set
+value multiset have a single value and that it be the value multiset
 of an attribute, and not a reverse attribute.
 This function replaces the single value, returning the previous value.
-It is an error if the value set is empty or has more than one
+It is an error if the value multiset is empty or has more than one
 value, or if the attribute pointer
 reverse attribute name is not \verb|min::NONE|.
 
@@ -5723,7 +5748,7 @@ can\underline{not} be converted to be updatable or read-only list pointers
 (unlike the situation with vector pointers).
 
 The {\tt min::\EOL set}
-function sets all the values in the value set the
+function sets all the values in the value multiset the
 attribute pointer is pointing at, deleting any previous values.
 For 3-argument {\tt min::\EOL set}
 the new values are given in the `{\tt in}' vector, and
@@ -5775,7 +5800,7 @@ can be \verb|min::NONE| but cannot be \verb|min::ANY|.
 
 The {\tt min::\EOL set\_\EOL flags} function sets the flags of the flag set the attribute
 pointer points at.
-The flags are given in the `{\tt in}' vector which
+The flag set control codes are given in the `{\tt in}' vector which
 has length {\tt n}: see the discussion of
 {\tt min::\EOL get\_\EOL flags} on \pagref{MIN::GET_FLAGS_OF_ATTR}
 for the format of this vector.
