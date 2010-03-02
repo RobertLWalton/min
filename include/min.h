@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar  1 06:54:46 EST 2010
+// Date:	Tue Mar  2 10:34:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/01 11:54:56 $
+//   $Date: 2010/03/02 15:37:26 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.284 $
+//   $Revision: 1.285 $
 
 // Table of Contents:
 //
@@ -5398,6 +5398,11 @@ namespace min {
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap,
 	      int name );
+    template < class vecpt >
+    void locatei
+	    ( unprotected::attr_pointer_type
+	          < vecpt > & ap,
+	      min::unsptr name );
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	template < class vecpt >
 	void locate
@@ -5819,6 +5824,10 @@ namespace min { namespace unprotected {
 		( min::unprotected
 		     ::attr_pointer_type<vecpt> & ap,
 		  int name );
+	friend void locatei<>
+		( min::unprotected
+		     ::attr_pointer_type<vecpt> & ap,
+		  min::unsptr name );
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    friend void locate<>
 		    ( min::unprotected
@@ -6026,6 +6035,39 @@ namespace min {
 	if ( 0 <= name
 	     &&
 	     name < min::attr_size_of
+	                ( min::vec_pointer_of
+			      ( ap.dlp ) ) )
+	{
+	    start_vector ( ap.dlp, name );
+	    start_copy ( ap.locate_dlp, ap.dlp );
+
+	    ap.index = name;
+	    ap.flags = ap_type::IN_VECTOR;
+	    ap.state = ap_type::LOCATE_NONE;
+	    ap.reverse_attr_name = min::NONE;
+
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		ap.length = 1;
+#	    endif
+
+	    return;
+	}
+	
+	internal::locate ( ap, ap.attr_name );
+    }
+
+    template < class vecpt >
+    inline void locatei
+	    ( min::unprotected
+	         ::attr_pointer_type<vecpt> & ap,
+	      min::unsptr name )
+    {
+	typedef min::unprotected
+	           ::attr_pointer_type<vecpt> ap_type;
+
+	ap.attr_name = min::new_num_gen ( name );
+
+	if ( name < min::attr_size_of
 	                ( min::vec_pointer_of
 			      ( ap.dlp ) ) )
 	{
