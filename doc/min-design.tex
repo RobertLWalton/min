@@ -5199,26 +5199,26 @@ treated as if its bit were present and cleared.
 An \key{attribute pointer} can be used to access attribute
 flags and values
 in an object.
-An attribute pointer can be thought of as storing an attribute name
+An attribute pointer stores an attribute name
 and a reverse attribute name.  The latter can take the special
 values {\tt min::NONE} and {\tt min::ANY}.  The attribute name designates
-the object attribute pointed at.  The flag set pointed at is always
+the object attribute pointed at by the attribute pointer.
+The flag set pointed at is always
 the flag set of this attribute, regardless of the setting of the
 reverse attribute name.  The attribute name and
 reverse attribute name together designate the
 value multiset pointed at.  If the reverse attribute name
 is {\tt min::NONE}, the value multiset pointed at is the set of all values
-\underline{not} associated with any particular reverse attribute name.  If the
+\underline{not} associated with any reverse attribute name.  If the
 reverse attribute name is {\tt min::ANY},
 the value multiset is the set of all
-values that are associated with reverse attribute names.  Otherwise the value
-multiset pointed at is the set of values
-associated with the particular reverse attribute
-name stored in the pointer.
+values that are associated with any reverse attribute name.
+Otherwise the value multiset pointed at is the set of values
+associated with the reverse attribute name stored in the pointer.
 
 There are three kinds of attribute pointers.
 A read-only {\tt min::\EOL attr\_\EOL pointer}
-permits read-only access to read attribute values and flags.
+permits read-only access to attribute values and flags.
 An updatable {\tt min::\EOL updatable\_\EOL attr\_\EOL pointer}
 permits read-write access to attribute values, and read-only access
 to flags, but does not permit values to be added or removed from attributes.
@@ -5233,34 +5233,40 @@ are:
 (constructor)~\verb|MUP::|
 	& \MUPKEY{attr\_pointer}\verb| ( min::vec_pointer & vp )|
 \LABEL{MUP::ATTR_POINTER_OF_VEC_POINTER} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attr_pointer & ap,| \\
 	  \verb|   min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locatei}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attr_pointer & ap, int name )|
 	  \end{tabular}
-\LABEL{MIN::LOCATEI_ATTR} \\
-\verb|min::gen min::|
+\LABEL{MIN::LOCATEI_ATTR_OF_INT} \\
+\verb|void min::|
+	& \MINKEY{locatei}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::attr_pointer & ap, min::unsptr name )|
+	  \end{tabular}
+\LABEL{MIN::LOCATEI_ATTR_OF_UNSPTR} \\
+\verb|void min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attr_pointer & ap,| \\
 	  \verb|   min::unsptr & length, min::gen name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_PARTIAL_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locate\_reverse}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attr_pointer & ap,| \\
 	  \verb|   min::gen reverse_name )|
 	  \end{tabular}
 \LABEL{MIN::LOCATE_REVERSE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{relocate}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::attr_pointer & ap )| \\
@@ -5502,27 +5508,32 @@ are:
 	& \MUPKEY{updatable\_attr\_pointer}\ARGBREAK
 	  \verb| ( min::updatable_vec_pointer & vp )|
 \LABEL{MUP::UPDATABLE_ATTR_OF_UPDATABLE_VEC_POINTER} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen name )|
 \LABEL{MIN::LOCATE_ATTR_OF_UPDATABLE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locatei}\ARGBREAK
 	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   int name )|
-\LABEL{MIN::LOCATEI_ATTR_OF_UPDATABLE_ATTR} \\
-\verb|min::gen min::|
+\LABEL{MIN::LOCATEI_ATTR_OF_UPDATABLE_ATTR_OF_INT} \\
+\verb|void min::|
+	& \MINKEY{locatei}\ARGBREAK
+	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
+	  \verb|   min::unsptr name )|
+\LABEL{MIN::LOCATEI_ATTR_OF_UPDATABLE_ATTR_OF_UNSPTR} \\
+\verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::unsptr & length, min::gen name )|
 \LABEL{MIN::LOCATE_PARTIAL_OF_UPDATABLE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
 	  \verb| ( min::updatable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen reverse_name )|
 \LABEL{MIN::LOCATE_REVERSE_OF_UPDATABLE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{relocate}\ARGBREAK
 	  \verb| ( min::updatable_attr_pointer & ap )|
 \LABEL{MIN::RELOCATE_ATTR_OF_UPDATABLE_ATTR} \\
@@ -5593,27 +5604,32 @@ are:
 	& \MUPKEY{insertable\_attr\_pointer}\ARGBREAK
 	  \verb| ( min::insertable_vec_pointer & vp )|
 \LABEL{MUP::INSERTABLE_ATTR_OF_INSERTABLE_VEC_POINTER} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen name )|
 \LABEL{MIN::LOCATE_ATTR_OF_INSERTABLE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locatei}\ARGBREAK
 	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   int name )|
-\LABEL{MIN::LOCATEI_ATTR_OF_INSERTABLE_ATTR} \\
-\verb|min::gen min::|
+\LABEL{MIN::LOCATEI_ATTR_OF_INSERTABLE_ATTR_OF_INT} \\
+\verb|void min::|
+	& \MINKEY{locatei}\ARGBREAK
+	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
+	  \verb|   min::unsptr name )|
+\LABEL{MIN::LOCATEI_ATTR_OF_INSERTABLE_ATTR_OF_UNSPTR} \\
+\verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::unsptr & length, min::gen name )|
 \LABEL{MIN::LOCATE_PARTIAL_OF_INSERTABLE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{locate\_reverse}\ARGBREAK
 	  \verb| ( min::insertable_attr_pointer & ap,|\ARGBREAK
 	  \verb|   min::gen reverse_name )|
 \LABEL{MIN::LOCATE_REVERSE_OF_INSERTABLE_ATTR} \\
-\verb|min::gen min::|
+\verb|void min::|
 	& \MINKEY{relocate}\ARGBREAK
 	  \verb| ( min::insertable_attr_pointer & ap )|
 \LABEL{MIN::RELOCATE_ATTR_OF_INSERTABLE_ATTR} \\
