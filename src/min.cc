@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar  1 05:47:55 EST 2010
+// Date:	Wed Mar  3 15:46:18 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/01 11:02:10 $
+//   $Date: 2010/03/03 22:21:54 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.175 $
+//   $Revision: 1.176 $
 
 // Table of Contents:
 //
@@ -3260,9 +3260,9 @@ bool MINT::insert_reserve
 	    lab_of ( element, len, name );
 	    if ( len == 1
 	         &&
-		 ( is_str ( element[0] )
+		 ( is_num ( element[0] )
 		   ||
-		   is_num ( element[0] ) ) )
+		   is_str ( element[0] ) ) )
 	        ap.attr_name = element[0];
 	}
 	else element[0] = name;
@@ -3273,6 +3273,8 @@ bool MINT::insert_reserve
 	// If element[0] is an integer in the right
 	// range, locate attribute vector entry.
 	// Otherwise locate hash table entry.
+	// Set c to the node-descriptor if that is
+	// found, and to LIST_END if not.
 	//
 	float64 f;
 	int i;
@@ -3285,80 +3287,106 @@ bool MINT::insert_reserve
 	     &&
 	     i < attr_size_of
 	             ( vec_pointer_of
-		           ( ap.locate_dlp ) ) )
+		           ( ap.dlp ) ) )
 	{
-	    start_vector ( ap.locate_dlp, i );
+	    start_vector ( ap.dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.index = i;
-	    ap.length = 1;
+	    c = current ( ap.dlp );
 	}
 	else
 	{
 	    ap.index = min::hash ( element[0] )
 	             % hash_size_of
 		         ( vec_pointer_of
-			       ( ap.locate_dlp ) );
+			       ( ap.dlp ) );
 	    ap.flags = 0;
 
-	    start_hash ( ap.locate_dlp, ap.index );
+	    start_hash ( ap.dlp, ap.index );
 
-	    for ( c = current ( ap.locate_dlp );
+	    for ( c = current ( ap.dlp );
 		  ! is_list_end ( c );
-		  next ( ap.locate_dlp),
-		  c = next ( ap.locate_dlp ) )
+		  c = next ( ap.dlp ) )
 	    {
+	        next ( ap.dlp);
 		if ( c == element[0] )
 		{
-		    c = next ( ap.locate_dlp );
+		    c = current ( ap.dlp );
 		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
-
-	    if ( is_list_end ( c ) )
-	    {
-		ap.length = 0;
-		ap.state = ap_type::LOCATE_FAIL;
-		return;
-	    }
-	    else ap.length = 1;
 	}
 
-	start_copy ( ap.dlp, ap.locate_dlp );
-	while ( ap.length < len )
+	if ( is_list_end ( c ) )
+	{
+	    ap.length = 0;
+	    ap.state = ap_type::LOCATE_FAIL;
+	    return;
+	}
+	else ap.length = 1;
+
+	min::unsptr locate_length = 0;
+	    // ap.length for the last node descriptor
+	    // with a non-empty value set.
+	    // locate_dlp is value of dlp for this
+	    // length.
+
+	while ( true )
 	{
 	    if ( ! is_sublist ( current ( ap.dlp ) ) )
+	    {
+	        locate_length = ap.length;
+		start_copy ( ap.locate_dlp, ap.dlp );
 	        break;
-	    start_sublist ( ap.dlp );
-	    for ( c = current ( ap.dlp );
+	    }
+	    start_sublist ( ap.lp, ap.dlp );
+	    c = current ( ap.lp );
+	    if (    ! is_list_end ( c )
+	         && ! is_sublist ( c )
+		 && ! is_control_code ( c ) )
+	    {
+	        locate_length = ap.length;
+		start_copy ( ap.locate_dlp, ap.dlp );
+	    }
+
+	    if ( ap.length >= len ) break;
+
+	    for ( ;
 	          ! is_sublist && ! is_list_end ( c );
-		  c = next ( ap.dlp ) );
+		  c = next ( ap.lp ) );
 	    if ( ! is_sublist ( c ) )
 	        break;
-	    start_sublist ( ap.dlp );
+	    start_sublist ( ap.lp );
 
-	    for ( c = current ( ap.dlp );
+	    for ( c = current ( ap.lp );
 	          ! is_list_end ( c );
-		  next ( ap.dlp),
-		  c = next ( ap.dlp ) )
+		  c = next ( ap.lp ) )
 	    {
+	        next ( ap.dlp);
 		if ( c == element[ap.length] )
 		{
-		    c = next ( ap.dlp );
+		    c = next ( ap.lp );
 		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
 	    }
 	    if ( is_list_end ( c ) ) break;
 
-	    start_copy ( ap.locate_dlp, ap.dlp );
+	    start_copy ( ap.dlp, ap.lp );
 	    ++ ap.length;
 	}
 
-	if ( ap.length == len )
-	    ap.state = ap_type::LOCATE_NONE;
-	else if ( allow_partial_labels )
+	if ( locate_length == len )
 	{
+	    MIN_ASSERT ( ap.length == locate_length );
+	    ap.state = ap_type::LOCATE_NONE;
+	}
+	else if ( allow_partial_labels
+	          &&
+		  locate_length > 0 )
+	{
+	    ap.length = locate_length;
 	    start_copy ( ap.dlp, ap.locate_dlp );
 	    ap.state = ap_type::LOCATE_NONE;
 	}
