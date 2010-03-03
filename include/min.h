@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar  2 10:34:22 EST 2010
+// Date:	Tue Mar  2 19:19:35 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/02 15:37:26 $
+//   $Date: 2010/03/03 13:55:42 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.285 $
+//   $Revision: 1.286 $
 
 // Table of Contents:
 //
@@ -6038,17 +6038,27 @@ namespace min {
 	                ( min::vec_pointer_of
 			      ( ap.dlp ) ) )
 	{
-	    start_vector ( ap.dlp, name );
-	    start_copy ( ap.locate_dlp, ap.dlp );
-
 	    ap.index = name;
 	    ap.flags = ap_type::IN_VECTOR;
-	    ap.state = ap_type::LOCATE_NONE;
 	    ap.reverse_attr_name = min::NONE;
 
-#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		ap.length = 1;
-#	    endif
+	    start_vector ( ap.dlp, name );
+	    min::gen c = current ( ap.dlp );
+	    if ( is_list_end ( c ) )
+	    {
+		ap.state = ap_type::LOCATE_FAIL;
+#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		    ap.length = 0;
+#	        endif
+	    }
+	    else
+	    {
+		start_copy ( ap.locate_dlp, ap.dlp );
+		ap.state = ap_type::LOCATE_NONE;
+#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		    ap.length = 1;
+#	        endif
+	    }
 
 	    return;
 	}
@@ -6071,17 +6081,27 @@ namespace min {
 	                ( min::vec_pointer_of
 			      ( ap.dlp ) ) )
 	{
-	    start_vector ( ap.dlp, name );
-	    start_copy ( ap.locate_dlp, ap.dlp );
-
 	    ap.index = name;
 	    ap.flags = ap_type::IN_VECTOR;
-	    ap.state = ap_type::LOCATE_NONE;
 	    ap.reverse_attr_name = min::NONE;
 
-#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		ap.length = 1;
-#	    endif
+	    start_vector ( ap.dlp, name );
+	    min::gen c = current ( ap.dlp );
+	    if ( is_list_end ( c ) )
+	    {
+		ap.state = ap_type::LOCATE_FAIL;
+#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		    ap.length = 0;
+#	        endif
+	    }
+	    else
+	    {
+		start_copy ( ap.locate_dlp, ap.dlp );
+		ap.state = ap_type::LOCATE_NONE;
+#	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		    ap.length = 1;
+#	        endif
+	    }
 
 	    return;
 	}
@@ -6120,6 +6140,9 @@ namespace min {
 		  min::unsptr & length,
 		  min::gen name )
 	{
+	    typedef min::unprotected
+		       ::attr_pointer_type<vecpt>
+		         ap_type;
 
 	    // We only handle the case of vector
 	    // elements inline.
@@ -6130,21 +6153,45 @@ namespace min {
 		int i = (int) f;
 		if ( i == f )
 		{
-		    // Because name has only one
-		    // component, there is no difference
-		    // between
-		    // internal::locate
-		    //	   ( ap, name, true )
-		    // and
-		    // internal::locate
-		    //	   ( ap, name, false ).
-		    //
-		    locatei ( ap, i );
-		    return;
+		    ap.attr_name = name;
+
+		    if ( 0 <= i
+		         &&
+			 i < attr_size_of
+				( vec_pointer_of
+				      ( ap.dlp ) ) )
+		    {
+			ap.index = i;
+			ap.flags = ap_type::IN_VECTOR;
+			ap.reverse_attr_name =
+			    min::NONE;
+
+			start_vector ( ap.dlp, i );
+			min::gen c = current ( ap.dlp );
+			if ( is_list_end ( c ) )
+			{
+			    ap.state =
+			        ap_type::LOCATE_FAIL;
+			    ap.length = 0;
+			}
+			else
+			{
+			    start_copy ( ap.locate_dlp,
+			                 ap.dlp );
+			    ap.state =
+			        ap_type::LOCATE_NONE;
+			    ap.length = 1;
+			}
+
+			return;
+		    }
 		}
 	    }
 	    internal::locate ( ap, name, true );
-	    length = ap.length;
+	    if ( ap.state == ap_type::LOCATE_NONE )
+		length = ap.length;
+	    else
+	        length = 0;
 	}
 #   endif
 
