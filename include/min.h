@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar  2 19:19:35 EST 2010
+// Date:	Wed Mar  3 13:34:07 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/03 13:55:42 $
+//   $Date: 2010/03/03 22:22:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.286 $
+//   $Revision: 1.287 $
 
 // Table of Contents:
 //
@@ -5425,7 +5425,7 @@ namespace min {
 	      unprotected::attr_pointer_type
 	          < vecpt > & ap );
     template < class vecpt >
-    min::unsgen get
+    min::gen get
 	    ( unprotected::attr_pointer_type
 	          < vecpt > & ap );
     template < class vecpt >
@@ -5594,22 +5594,22 @@ namespace min {
 
 	// Create an attribute that does not exist and
 	// set its attribute-descriptor or node-descrip-
-	// tor to v, which may be EMPTY_SUBLIST.  The
-	// state is not changed.  locate_dlp and dlp
-	// are set to point at the descriptor, and the
-	// state is set to LOCATE_NONE, LOCATE_ANY, or
-	// REVERSE_LOCATE_FAIL according to the setting
-	// of ap.reverse_attr_name.
+	// tor to v, which may be EMPTY_SUBLIST.
+	// locate_dlp and dlp are set to point at the
+	// descriptor, and the state is set to LOCATE_
+	// NONE, LOCATE_ANY, or REVERSE_LOCATE_FAIL
+	// according to the setting of ap.reverse_attr_
+	// name.
 	//
 	void attr_create
 		( min::insertable_attr_pointer & ap,
 		  min::gen v );
 
 	// Create a reverse attribute that does not
-	// exist and set its value-set to v, which may
-	// be EMPTY_SUBLIST.  The state is set to
+	// exist and set its value-multiset to v, which
+	// may be EMPTY_SUBLIST.  The state is set to
 	// REVERSE_LOCATE_SUCCEED and dlp is set to
-	// point at the value-set.
+	// point at the value-multiset.
 	//
 	void reverse_attr_create
 		( min::insertable_attr_pointer & ap,
@@ -5623,9 +5623,11 @@ namespace min {
 	// reverse attribute value pointing at O2 that
 	// has the attribute name ap.reverse_attr_name
 	// and the reverse attribute name ap.attr_name.
-	// The removal is done by editing the value-set
-	// of the designated reverse attribute of O1,
-	// possibly making it empty.
+	// The removal is done by editing the value-
+	// multiset of the designated reverse attribute
+	// of O1, possibly making it empty.  In order to
+	// do this, and insertable vector pointer to O1
+	// is temporarily created, if O1 != O2.
 	//
 	// Handles corner cases where O1 == O2 and
 	// ap.reverse_attr_name == ap.attr_name.
@@ -5652,19 +5654,22 @@ namespace min {
 	// to the object at the other end of the
 	// double arrow.  Specifically, if O1 is the
 	// object pointed at by v, and O2 is the object
-	// pointed at by ap, then from O1 add the
+	// pointed at by ap, then to O1 add the
 	// reverse attribute value pointing at O2 that
 	// has the attribute name ap.reverse_attr_name
 	// and the reverse attribute name ap.attr_name.
-	// The addition is done by editing the value-set
-	// of the designated reverse attribute of O1,
-	// adding to it a min::gen value pointing at O2.
+	// The addition is done by editing the value-
+	// multiset of the designated reverse attribute
+	// of O1, adding to it a min::gen value pointing
+	// at O2.  In order to do this an an insertable
+	// vector pointer to O1 is temporarily created,
+	// if O1 != O2.
 	//
 	// Handles corner cases where O1 == O2 and
 	// ap.reverse_attr_name == ap.attr_name.
 	// Does nothing if BOTH of these are true, as
 	// in this case only one copy of the min::gen
-	// pointer is stored in the value set, and
+	// pointer is stored in the value-multiset, and
 	// no second copy needs to be added.
 	//
 	void add_reverse_attr_value
@@ -5710,15 +5715,23 @@ namespace min { namespace unprotected {
 	    // locate function call.
         min::gen reverse_attr_name;
 	    // The reverse attribute name given to the
-	    // last reverse_locate function call, and
+	    // last reverse_locate function call;
 	    // also reset to NONE by a locate function
 	    // call.  Can be NONE or ANY.
 
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::unsptr length;
-	        // Length that would be returned by the
-		// last locate if that locate had a
-		// length argument.
+		// If the state is not INIT or LOCATE_
+		// FAIL, then if the last call to locate
+		// had a length argument, this is the
+		// value returned in that argument, and
+		// otherwise this is the length of the
+		// attr_name.  If the the state is
+		// LOCATE_FAIL, this is the length of
+		// the longest initial segment of attr_
+		// name for which there is any node-
+		// descriptor, with or without an empty
+		// value-multiset.
 #	endif
 
 	unsigned state;  // One of:
@@ -5728,7 +5741,7 @@ namespace min { namespace unprotected {
 
 	        INIT			= 0,
 		    // No locate function called.
-		    //
+
 		    // A call to locate succeeds if it
 		    // finds an attribute- or node-
 		    // descriptor, and fails otherwise.
@@ -5746,26 +5759,31 @@ namespace min { namespace unprotected {
 		LOCATE_NONE		= 2,
 		    // Last call to locate succeeded,
 		    // and no call to reverse_locate
-		    // has been made or the last call
-		    // to reverse_locate set the
-		    // reverse_attribute to NONE.
+		    // has been made since or the last
+		    // subsequent call to reverse_
+		    // locate set the reverse_attribute
+		    // to NONE.
 
 		LOCATE_ANY		= 3,
-		    // Last call to reverse_locate set
-		    // the reverse attribute to ANY.
+		    // Last call to locate succeeded,
+		    // and the last subsequent call to
+		    // reverse_locate set the reverse
+		    // attribute to ANY.
 
 		REVERSE_LOCATE_FAIL	= 4,
-		    // Last call to reverse_locate when
-		    // the state was >= LOCATE_NONE set
-		    // the reverse attribute to a value
-		    // other than NONE or ANY and
+		    // Last call to locate succeeded,
+		    // the last subsequent call to
+		    // reverse_locate set the reverse
+		    // attribute to a value other than
+		    // NONE or ANY, and this call
 		    // failed.
 
 		REVERSE_LOCATE_SUCCEED	= 5
-		    // Last call to reverse_locate when
-		    // the state was >= LOCATE_NONE set
-		    // the reverse attribute to a value
-		    // other than NONE or ANY and
+		    // Last call to locate succeeded,
+		    // the last subsequent call to
+		    // reverse_locate set the reverse
+		    // attribute to a value other than
+		    // NONE or ANY, and this call
 		    // succeeded.
 
 	    };
@@ -5783,6 +5801,12 @@ namespace min { namespace unprotected {
 		    // index or no locate yet.
 	    };
 
+	min::unsptr index;
+	    // Hash or attribute vector index passed to
+	    // the start_hash or start_vector functions
+	    // by the last call to locate.  See the
+	    // IN_VECTOR flag above.
+
     	list_pointer_type<vecpt> dlp;
 	    // Descriptor list pointer.  Points at the
 	    // list element containing the attribute- or
@@ -5793,25 +5817,18 @@ namespace min { namespace unprotected {
 
     	list_pointer_type<vecpt> locate_dlp;
 	    // This is the value of dlp after the last
-	    // successful locate, or the value dlp
-	    // would have had if the last unsuccessful
-	    // locate had a length argument, in the case
-	    // where partial labels are allowed.  This
-	    // last permits the `set' function to be
-	    // optimized.
+	    // successful locate, if state >= LOCATE_
+	    // NONE.
 	    //
-	    // This is not set if the state is INIT or
-	    // if the state is LOCATE_FAIL and length
-	    // member does not exist or is == 0.
+	    // If partial attributes are allowed and the
+	    // state is LOCATE_FAIL, this points at the
+	    // node-descriptor associated with the
+	    // longest initial segment of attr_name
+	    // which has an associted node-descriptor.
+	    // This permits create_attr to be optimized.
 
     	list_pointer_type<vecpt> lp;
 	    // A working pointer for temporary use.
-
-	min::unsptr index;
-	    // Hash or attribute vector index passed to
-	    // the start_hash or start_vector functions
-	    // by the last call to locate.  See the
-	    // IN_VECTOR flag above.
 	        
 
     // Friends:
@@ -6027,23 +6044,23 @@ namespace min {
 	         ::attr_pointer_type<vecpt> & ap,
 	      int name )
     {
-	typedef min::unprotected
-	           ::attr_pointer_type<vecpt> ap_type;
+	typedef unprotected::attr_pointer_type<vecpt>
+	    ap_type;
 
-	ap.attr_name = min::new_num_gen ( name );
+	ap.attr_name = new_num_gen ( name );
 
 	if ( 0 <= name
 	     &&
-	     name < min::attr_size_of
-	                ( min::vec_pointer_of
-			      ( ap.dlp ) ) )
+	     name < attr_size_of
+	                ( vec_pointer_of
+			    ( ap.locate_dlp ) ) )
 	{
 	    ap.index = name;
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.reverse_attr_name = min::NONE;
 
-	    start_vector ( ap.dlp, name );
-	    min::gen c = current ( ap.dlp );
+	    start_vector ( ap.locate_dlp, name );
+	    min::gen c = current ( ap.locate_dlp );
 	    if ( is_list_end ( c ) )
 	    {
 		ap.state = ap_type::LOCATE_FAIL;
@@ -6053,7 +6070,7 @@ namespace min {
 	    }
 	    else
 	    {
-		start_copy ( ap.locate_dlp, ap.dlp );
+		start_copy ( ap.dlp, ap.locate_dlp );
 		ap.state = ap_type::LOCATE_NONE;
 #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		    ap.length = 1;
@@ -6072,21 +6089,21 @@ namespace min {
 	         ::attr_pointer_type<vecpt> & ap,
 	      min::unsptr name )
     {
-	typedef min::unprotected
-	           ::attr_pointer_type<vecpt> ap_type;
+	typedef unprotected::attr_pointer_type<vecpt>
+	    ap_type;
 
-	ap.attr_name = min::new_num_gen ( name );
+	ap.attr_name = new_num_gen ( name );
 
-	if ( name < min::attr_size_of
-	                ( min::vec_pointer_of
-			      ( ap.dlp ) ) )
+	if ( name < attr_size_of
+	                ( vec_pointer_of
+			    ( ap.locate_dlp ) ) )
 	{
 	    ap.index = name;
 	    ap.flags = ap_type::IN_VECTOR;
 	    ap.reverse_attr_name = min::NONE;
 
-	    start_vector ( ap.dlp, name );
-	    min::gen c = current ( ap.dlp );
+	    start_vector ( ap.locate_dlp, name );
+	    min::gen c = current ( ap.locate_dlp );
 	    if ( is_list_end ( c ) )
 	    {
 		ap.state = ap_type::LOCATE_FAIL;
@@ -6096,7 +6113,7 @@ namespace min {
 	    }
 	    else
 	    {
-		start_copy ( ap.locate_dlp, ap.dlp );
+		start_copy ( ap.dlp, ap.locate_dlp );
 		ap.state = ap_type::LOCATE_NONE;
 #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		    ap.length = 1;
@@ -6115,6 +6132,8 @@ namespace min {
 	         ::attr_pointer_type<vecpt> & ap,
 	      min::gen name )
     {
+	typedef unprotected::attr_pointer_type<vecpt>
+	    ap_type;
 
 	// We only handle the case of vector elements
 	// inline.
@@ -6123,12 +6142,41 @@ namespace min {
 	{
 	    float64 f = float_of ( name );
 	    int i = (int) f;
-	    if ( i == f )
+	    if ( i == f
+		 &&
+		 0 <= i
+		 &&
+		 i < attr_size_of
+			( vec_pointer_of
+			    ( ap.locate_dlp ) ) )
 	    {
-		locatei ( ap, i );
+		ap.attr_name = name;
+		ap.index = i;
+		ap.flags = ap_type::IN_VECTOR;
+		ap.reverse_attr_name = min::NONE;
+
+		start_vector ( ap.locate_dlp, i );
+		min::gen c = current ( ap.locate_dlp );
+		if ( is_list_end ( c ) )
+		{
+		    ap.state = ap_type::LOCATE_FAIL;
+    #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+			ap.length = 0;
+    #	        endif
+		}
+		else
+		{
+		    start_copy ( ap.dlp, ap.locate_dlp );
+		    ap.state = ap_type::LOCATE_NONE;
+    #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
+			ap.length = 1;
+    #	        endif
+		}
+
 		return;
 	    }
 	}
+
 	internal::locate ( ap, name );
     }
 
@@ -6151,42 +6199,39 @@ namespace min {
 	    {
 		float64 f = float_of ( name );
 		int i = (int) f;
-		if ( i == f )
+		if ( i == f
+		     &&
+		     0 <= i
+		     &&
+		     i < attr_size_of
+			    ( vec_pointer_of
+				  ( ap.locate_dlp ) ) )
 		{
 		    ap.attr_name = name;
+		    ap.index = i;
+		    ap.flags = ap_type::IN_VECTOR;
+		    ap.reverse_attr_name = min::NONE;
 
-		    if ( 0 <= i
-		         &&
-			 i < attr_size_of
-				( vec_pointer_of
-				      ( ap.dlp ) ) )
+		    start_vector ( ap.locate_dlp, i );
+		    min::gen c =
+		        current ( ap.locate_dlp );
+		    if ( is_list_end ( c ) )
 		    {
-			ap.index = i;
-			ap.flags = ap_type::IN_VECTOR;
-			ap.reverse_attr_name =
-			    min::NONE;
-
-			start_vector ( ap.dlp, i );
-			min::gen c = current ( ap.dlp );
-			if ( is_list_end ( c ) )
-			{
-			    ap.state =
-			        ap_type::LOCATE_FAIL;
-			    ap.length = 0;
-			}
-			else
-			{
-			    start_copy ( ap.locate_dlp,
-			                 ap.dlp );
-			    ap.state =
-			        ap_type::LOCATE_NONE;
-			    ap.length = 1;
-			}
-
-			return;
+			ap.state = ap_type::LOCATE_FAIL;
+			ap.length = 0;
 		    }
+		    else
+		    {
+			start_copy
+			    ( ap.dlp, ap.locate_dlp );
+			ap.state = ap_type::LOCATE_NONE;
+			ap.length = 1;
+		    }
+
+		    return;
 		}
 	    }
+
 	    internal::locate ( ap, name, true );
 	    if ( ap.state == ap_type::LOCATE_NONE )
 		length = ap.length;
