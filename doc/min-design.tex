@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 2, 2010}
+\date{March 3, 2010}
  
 \maketitle
 
@@ -5343,10 +5343,11 @@ uses the complete attribute name.
 The {\tt min::\EOL locatei} function does the
 same thing as {\tt min::\EOL locate}
 but is optimized for the case where the attribute
-name is a sequence consisting of a single integer.\footnote{
+name has a single component that is an integer.\footnote{
 In some implementations {\tt min::gen} is defined to be {\tt min::uns64},
-and in these implementation {\tt int} is incorrectly convertible to
-{\tt min::gen} by a C++ implicit conversion.  As a consequence of this
+and in these implementations {\tt int} and {\tt min::unsptr} are
+incorrectly convertible to the
+{\tt min::gen} type by a C++ implicit conversion.  As a consequence of this
 the {\tt min::\EOL locatei} function must have a different name from the
 {\tt min::\EOL locate} function.}
 
@@ -5355,12 +5356,11 @@ argument exists only if the
 {\tt MIN\_\EOL ALLOW\_\EOL PARTIAL\_\EOL ATTR\_\EOL LABELS}
 (\pagref{MIN_ALLOW_PARTIAL_ATTR_LABELS}) macro is set to {\tt 1}.
 This form of {\tt min::\EOL locate} uses the longest initial segment of the
-attribute name that locates an attribute which has either a non-empty
-multiset of values, or at least one set flag, or at least one value
-associated with a reverse attribute name.  The
+attribute name that locates an attribute that has a non-empty
+multiset of values.  The
 length of this initial segment is returned in the `\verb|length|'
 argument.  If \verb|0| is returned in `\verb|length|',
-no initial segment meeting the requirements was found.
+no initial segment having a non-empty multiset of values was found.
 
 The {\tt min::\EOL locate\_reverse} function sets the reverse attribute name of
 a pointer.  This can take the special value {\tt min::NONE} or
@@ -5374,13 +5374,16 @@ arguments that are labels (\secref{LABELS}).  If an atom (number or
 string) is given instead, this is treated as the equivalent of
 a label whose only element is the atom.
 
-If the object is reorganized or relocated as per Section~\secref{BODY-POINTERS},
-the attribute pointers of the object
-will become obsolete, and must be be reset either by calling the
-{\tt min::\EOL locate} and if necessary {\tt min::\EOL locate\_reverse} functions, or by
-calling the {\tt min::\EOL relocate} function.  This last function uses the
-attribute and reverse attribute names stored in the pointer to
-restore the pointer.
+If ab object is reorganized by the \verb|min::publish| function or
+relocated by use of an insertable pointer to set attribute values or
+flags, every attribute pointer to the object other than the insertable
+pointer used to set values or flags will become invalid.
+When an attribute pointer becomes invalid, it may be restored to
+validity by calling the {\tt min::\EOL relocate} function, without
+changing the pointer's attribute and reverse attribute names.  Alternatively,
+the {\tt min::\EOL locate} and if necessary {\tt min::\EOL locate\_reverse}
+functions may be called for the pointer to reset or change
+the pointer's attribute and reverse attribute names.
 
 \ikey{Accessor functions}{accessor function}
 can be used for reading attribute values and flags.
@@ -5395,9 +5398,13 @@ function for the pointer.
 The value multiset pointed at by a pointer is that of the attribute pointed
 at if the reverse attribute name is \verb|min::NONE|, or is that of
 the reverse attribute pointed at if the reverse attribute name is not
-\verb|min::NONE| or \verb|min::ANY|.  It is an error to access a value
-multiset when the reverse attribute name is \verb|min::ANY| unless documented
-otherwise.
+\verb|min::NONE| or \verb|min::ANY|.
+If the reverse attribute name is \verb|min::ANY| the value multiset is
+the set of all values associated with any reverse attribute name, but
+this \verb||min::ANY|
+value set can only be read by the 3-argument \verb|min::get|
+function, and made empty by the \verb|min::set| function with 0 new values.
+It is an error to attempt any other access to this \verb|min::ANY| value set.
 
 The flag set pointed at by a pointer is that of the attribute pointed
 at regardless of the setting of the reverse attribute name.
@@ -5408,17 +5415,16 @@ and such zero high order control code may be removed when an object
 is reorganized.
 
 Attributes whose value and flag sets have never been set are treated
-as if they has empty value multisets and flag control code lists.
+as if they have empty value multisets and flag control code lists.
 Similarly reverse attributes
 whose value multisets have never been set are treated as having empty value
 multisets.
 
 The 3-argument {\tt min::\EOL get} function gets the values in the value
-multiset pointed at and stores them
-in the `{\tt out}' vector.
+multiset pointed at and stores them in the `{\tt out}' vector.
 The total number of values in the value
 multiset is returned (regardless of the value of {\tt n}).
-The argument {\tt n} the length of `{\tt out}',
+The argument {\tt n}, the length of `{\tt out}',
 the maximum number of values that may be returned in `{\tt out}'.
 If there are more then {\tt n} values, only the first {\tt n}
 are returned in `{\tt out}'.
@@ -5438,7 +5444,7 @@ function returns the control codes in the flag set pointed at and stores
 these in the \verb|min::gen| vector `{\tt out}'.
 The total number of control codes in the flag set is returned
 (regardless of the value of {\tt n}).
-The argument {\tt n} the length of `{\tt out}',
+The argument {\tt n}, the length of `{\tt out}',
 the maximum number of control codes that may be returned in `{\tt out}'.
 If there are more then {\tt n} control codes, only the first {\tt n}
 are returned in `{\tt out}'.
@@ -5448,7 +5454,7 @@ the number of control codes in the flag set.
 In the `{\tt out}' vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
 and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
-If there are $J$ flag control codes
+If there are $J$ control codes
 in the flag set, and $N\geq J*\mbox{\tt VSIZE}$, then
 flag $N$ is zero.
 
