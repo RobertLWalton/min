@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar  3 13:34:07 EST 2010
+// Date:	Sat Mar  6 08:40:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/03 22:22:18 $
+//   $Date: 2010/03/06 13:47:24 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.287 $
+//   $Revision: 1.288 $
 
 // Table of Contents:
 //
@@ -6166,7 +6166,8 @@ namespace min {
 		}
 		else
 		{
-		    start_copy ( ap.dlp, ap.locate_dlp );
+		    start_copy
+		        ( ap.dlp, ap.locate_dlp );
 		    ap.state = ap_type::LOCATE_NONE;
     #	        if MIN_ALLOW_PARTIAL_ATTR_LABELS
 			ap.length = 1;
@@ -6427,12 +6428,13 @@ namespace min {
 	if ( ! is_sublist ( c ) )
 	{
 	    update ( ap.dlp, v );
-	    update_refresh ( ap.locate_dlp );
 	    return c;
 	}
 	start_sublist ( ap.lp, ap.dlp );
 	c = current ( ap.lp );
-	if ( ! is_sublist ( c )
+	if ( ! is_list_end ( c )
+	     &&
+	     ! is_sublist ( c )
 	     &&
 	     ! is_control_code ( c ) )
 	{
@@ -6476,12 +6478,13 @@ namespace min {
 	if ( ! is_sublist ( c ) )
 	{
 	    update ( ap.dlp, * in );
-	    update_refresh ( ap.locate_dlp );
 	    return;
 	}
 	start_sublist ( ap.lp, ap.dlp );
 	c = current ( ap.lp );
-	if ( ! is_sublist ( c )
+	if ( ! is_list_end ( c )
+	     &&
+	     ! is_sublist ( c )
 	     &&
 	     ! is_control_code ( c ) )
 	{
@@ -6520,12 +6523,13 @@ namespace min {
 	if ( ! is_sublist ( c ) )
 	{
 	    update ( ap.dlp, v );
-	    update_refresh ( ap.locate_dlp );
 	    return;
 	}
 	start_sublist ( ap.lp, ap.dlp );
 	c = current ( ap.lp );
-	if ( ! is_sublist ( c )
+	if ( ! is_list_end ( c )
+	     &&
+	     ! is_sublist ( c )
 	     &&
 	     ! is_control_code ( c ) )
 	{
@@ -6755,10 +6759,12 @@ namespace min {
 			    ( is_control_code
 				  ( * in ) );
 			min::unsgen uc =
-			    (min::unsgen) c
+			    control_code_of ( c )
 			    |
-			    (min::unsgen) * in  ++;
-			update ( ap.lp, uc );
+			    control_code_of ( * in ++ );
+			update ( ap.lp,
+			         new_control_code_gen
+				     ( uc ) );
 			-- n;
 		    }
 		}
@@ -6856,7 +6862,6 @@ namespace min {
 			    ( ap.lp,
 			      new_control_code_gen
 				  ( uc ) );
-			update ( ap.lp, uc );
 			-- n;
 		    }
 		}
