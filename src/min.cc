@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar  3 15:46:18 EST 2010
+// Date:	Sat Mar  6 08:47:35 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/03 22:21:54 $
+//   $Date: 2010/03/06 17:02:22 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.176 $
+//   $Revision: 1.177 $
 
 // Table of Contents:
 //
@@ -3398,7 +3398,7 @@ bool MINT::insert_reserve
 
     // Continue relocation after ap.locate_dlp is
     // positioned at beginning of hash-list or
-    // vector-list.  ap.length must be >= 1.
+    // non-empty vector-list.  ap.length must be >= 1.
     // Result is a setting of ap.locate_dlp only.
     // 
     template < class vecpt >
@@ -3494,36 +3494,34 @@ bool MINT::insert_reserve
 
 	MIN_ASSERT ( ap.length < len );
 
-	insert_reserve
-	      ( ap.locate_dlp,
-	        2 * ( len - ap.length ),
-	        3 * ( len - ap.length ) + 1 );
+	update_refresh ( ap.locate_dlp );
+	if ( insert_reserve
+	           ( ap.locate_dlp,
+	             2 * ( len - ap.length ),
+	             4 * ( len - ap.length ) + 1 ) )
+	{
+	    insert_refresh ( ap.dlp );
+	    insert_refresh ( ap.lp );
+	}
 
 	if ( ap.length == 0 )
 	{
-	    float64 f;
-	    int i;
-	    if ( is_num ( element[0] )
-	         &&
-		 0 <= ( f = float_of ( element[0] ) )
-		 &&
-		 ( i = (int) f ) == f
-		 &&
-		 i < attr_size_of
-		         ( vec_pointer_of
-			      ( ap.locate_dlp ) ) )
+	    if ( ap.flags & ap_type::IN_VECTOR )
 	    {
-		ap.flags = ap_type::IN_VECTOR;
-		ap.index = i;
-		start_vector ( ap.locate_dlp, i );
+		start_vector
+		    ( ap.locate_dlp, ap.index );
+		min::gen c = current ( ap.locate_dlp );
+		if ( is_list_end ( c ) )
+		{
+		    min::gen elements[1] =
+			{ len == 1 ? v :
+			  min::EMPTY_SUBLIST };
+		    insert_before ( ap.locate_dlp,
+				    elements, 1 );
+		}
 	    }
 	    else
 	    {
-		ap.flags = 0;
-		ap.index = min::hash ( element[0] )
-			  % hash_size_of
-			        ( vec_pointer_of
-				    ( ap.locate_dlp ) );
 		start_hash ( ap.locate_dlp, ap.index );
 		min::gen elements[2] =
 		    { element[0], len == 1 ? v :
@@ -3535,7 +3533,6 @@ bool MINT::insert_reserve
 
 	    ap.length = 1;
 	}
-	else update_refresh ( ap.locate_dlp );
 
 	while ( ap.length < len )
 	{
@@ -3550,9 +3547,7 @@ bool MINT::insert_reserve
 		    { c, min::EMPTY_SUBLIST };
 		insert_before
 		    ( ap.locate_dlp, elements, 2 );
-		update_refresh ( ap.locate_dlp );
 		next ( ap.locate_dlp );
-		start_sublist ( ap.locate_dlp );
 	    }
 	    else
 	    {
@@ -3569,11 +3564,12 @@ bool MINT::insert_reserve
 		    insert_before
 		        ( ap.locate_dlp, elements, 1 );
 		}
-		start_sublist ( ap.locate_dlp );
 	    }
+	    start_sublist ( ap.locate_dlp );
+
 	    min::gen elements[2] =
 		{ element[ap.length],
-		  len == ap.length - 1 ? v :
+		  len == ap.length + 1 ? v :
 	          min::EMPTY_SUBLIST };
 	    insert_before
 	        ( ap.locate_dlp, elements, 2 );
@@ -3640,10 +3636,18 @@ bool MINT::insert_reserve
 		        ( vec_pointer_of ( ap.dlp ) ) )
 	    {
 		start_vector ( ap.locate_dlp, i );
-		start_copy ( ap.dlp, ap.locate_dlp );
 		ap.index = i;
 		ap.flags = ap_type::IN_VECTOR;
-		ap.state = ap_type::LOCATE_NONE;
+
+		min::gen c = current ( ap.locate_dlp );
+		if ( is_list_end ( c ) )
+		    ap.state = ap_type::LOCATE_FAIL;
+		else
+		{
+		    ap.state = ap_type::LOCATE_NONE;
+		    start_copy
+		        ( ap.dlp, ap.locate_dlp );
+		}
 		return;
 	    }
 	}
@@ -3652,6 +3656,7 @@ bool MINT::insert_reserve
 		 % hash_size_of
 			  ( vec_pointer_of
 			        ( ap.locate_dlp ) );
+	ap.flags = 0;
 	start_hash ( ap.locate_dlp, ap.index );
 
 	for ( min::gen c = current ( ap.locate_dlp );
@@ -3672,17 +3677,16 @@ bool MINT::insert_reserve
 
         // Name not found.
 	//
-	ap.flags = 0;
 	ap.state = ap_type::LOCATE_FAIL;
 	return;
 
     }
 
     // Continue relocation after ap.relocate_dlp is
-    // positioned at beginning of hash-list or
-    // vector-list.  State must be >= LOCATE_NONE.
-    // Is NOT called if IN_VECTOR flag is set.
-    // Result is a setting of ap.locate_dlp only.
+    // positioned at beginning of hash-list.  State
+    // must be >= LOCATE_NONE.  Is NOT called if IN_
+    // VECTOR flag is set.  Result is a setting of
+    // ap.locate_dlp only.
     // 
     template < class vecpt >
     inline void MINT::relocate
@@ -3715,12 +3719,30 @@ bool MINT::insert_reserve
 
 	MIN_ASSERT
 	    ( ap.state == ap_type::LOCATE_FAIL );
-	MIN_ASSERT
-	    ( ! ( ap.flags & ap_type::IN_VECTOR ) );
+
+	if ( ap.flags & ap_type::IN_VECTOR )
+	{
+	    start_vector ( ap.locate_dlp, ap.index );
+	    min::gen c = current ( ap.locate_dlp );
+	    MIN_ASSERT ( is_list_end ( c ) );
+	    if ( insert_reserve
+	             ( ap.locate_dlp, 1, 1 ) )
+	    {
+	        insert_refresh ( ap.dlp );
+	        insert_refresh ( ap.lp );
+	    }
+	    insert_before ( ap.locate_dlp, & v, 1 );
+	    start_copy ( ap.dlp, ap.locate_dlp );
+	    return;
+	}
 
         start_hash ( ap.locate_dlp, ap.index );
 
-	insert_reserve ( ap.locate_dlp, 1, 2 );
+	if ( insert_reserve ( ap.locate_dlp, 1, 2 ) )
+	{
+	    insert_refresh ( ap.dlp );
+	    insert_refresh ( ap.lp );
+	}
 
 	min::gen elements[2] = { ap.attr_name, v };
 	insert_before ( ap.locate_dlp, elements, 2 );
@@ -3753,13 +3775,15 @@ void MINT::reverse_attr_create
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	if ( insert_reserve ( ap.dlp, 2, 5 ) )
-	    insert_refresh ( ap.locate_dlp );
 #   else
 	if ( insert_reserve ( ap.dlp, 2, 4 ) )
-	    insert_refresh ( ap.locate_dlp );
 #   endif
+	{
+	    insert_refresh ( ap.locate_dlp );
+	    insert_refresh ( ap.lp );
+	}
 
-    min::gen c = update_refresh ( ap.dlp );
+    min::gen c = current ( ap.dlp );
     if ( ! is_sublist ( c ) )
     {
 	update ( ap.dlp, min::EMPTY_SUBLIST );
@@ -3840,8 +3864,7 @@ void min::locate_reverse
 	    reverse_name = atom;
     }
 
-    if ( reverse_name == ap.reverse_attr_name )
-        return;
+    update_refresh ( ap.locate_dlp );
 
     ap.reverse_attr_name = reverse_name;
 
@@ -3853,14 +3876,18 @@ void min::locate_reverse
     case ap_type::LOCATE_FAIL:
     	    return;
     case ap_type::LOCATE_NONE:
-	    if ( reverse_name == min::ANY )
+	    if ( reverse_name == min::NONE )
+	        return;
+	    else if ( reverse_name == min::ANY )
 	    {
 	        ap.state = ap_type::LOCATE_ANY;
 		return;
 	    }
 	    break;
     case ap_type::LOCATE_ANY:
-	    if ( reverse_name == min::NONE )
+	    if ( reverse_name == min::ANY )
+	        return;
+	    else if ( reverse_name == min::NONE )
 	    {
 	        ap.state = ap_type::LOCATE_NONE;
 		return;
@@ -4163,6 +4190,24 @@ inline min::unsptr MINT::get_flags
     }
 }
 
+template < class vecpt >
+inline min::unsptr MINT::test_flag
+	( MUP::attr_pointer_type<vecpt> & ap,
+	  unsigned n )
+{
+    typedef MUP::attr_pointer_type<vecpt> ap_type;
+
+    switch ( ap.state )
+    {
+    case ap_type::INIT:
+	MIN_ABORT
+	    ( "min::test_flag called before locate" );
+    default:
+	MIN_ABORT
+	    ( "abnormal call to min::test_flag" );
+    }
+}
+
 // Helper functions for min::get_attrs.
 //
 // Called with current(lp) being start of
@@ -4238,50 +4283,57 @@ static bool compute_counts
 }
 
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
+    // Compute labels associated with the children of
+    // the node whose node-descriptor is pointed at
+    // by lp.  The label of the node is
+    // components[0 .. depth-1].  Output is to go into
+    // `* out ++' if `result < n' and result is to be
+    // incremented regardless.
+    //
     static void compute_children
 	( min::list_pointer & lp,
 	  min::gen * components, min::unsptr depth,
 	  min::attr_info * & out, min::unsptr & result,
 	  min::unsptr n )
-{
-    min::gen c = min::current ( lp );
-    if ( ! min::is_sublist ( c ) ) return;
-    min::list_pointer lpv
-        ( min::vec_pointer_of ( lp ) );
-    min::start_sublist ( lpv, lp );
-    for ( c = min::current ( lpv );
-             ! min::is_list_end ( c )
-          && ! min::is_sublist ( c );
-	  c = min::next ( lpv ) );
-    if ( ! min::is_sublist ( c ) ) return;
-    if ( c == min::EMPTY_SUBLIST ) return;
-    start_sublist ( lpv );
-
-    min::gen labvec[depth+1];
-    for ( min::unsptr i = 0; i < depth; ++ i )
-        labvec[i] = * components ++;
-
-    for ( c = min::current ( lpv );
-          ! min::is_list_end ( c );
-	  c = min::next ( lpv ) )
     {
-        labvec[depth] = c;
-	min::next ( lpv );
-	min::attr_info info;
-	if ( compute_counts ( lpv, info ) )
+	min::gen c = min::current ( lp );
+	if ( ! min::is_sublist ( c ) ) return;
+	min::list_pointer lpv
+	    ( min::vec_pointer_of ( lp ) );
+	min::start_sublist ( lpv, lp );
+	for ( c = min::current ( lpv );
+		 ! min::is_list_end ( c )
+	      && ! min::is_sublist ( c );
+	      c = min::next ( lpv ) );
+	if ( ! min::is_sublist ( c ) ) return;
+	if ( c == min::EMPTY_SUBLIST ) return;
+	start_sublist ( lpv );
+
+	min::gen labvec[depth+1];
+	for ( min::unsptr i = 0; i < depth; ++ i )
+	    labvec[i] = * components ++;
+
+	for ( c = min::current ( lpv );
+	      ! min::is_list_end ( c );
+	      c = min::next ( lpv ) )
 	{
-	    if ( result < n )
+	    labvec[depth] = c;
+	    min::next ( lpv );
+	    min::attr_info info;
+	    if ( compute_counts ( lpv, info ) )
 	    {
-	        info.name = min::new_lab_gen
-	                       ( labvec, depth + 1 );
-	        * out ++ = info;
+		if ( result < n )
+		{
+		    info.name = min::new_lab_gen
+				  ( labvec, depth + 1 );
+		    * out ++ = info;
+		}
+		++ result;
 	    }
-	    ++ result;
+	    compute_children ( lpv, labvec, depth + 1,
+			       out, result, n );
 	}
-	compute_children ( lpv, labvec, depth + 1,
-	                   out, result, n );
     }
-}
 # endif
 
 template < class vecpt >
@@ -4306,6 +4358,15 @@ min::unsptr min::get_attrs
 	      c = next ( lp ) )
 	{
 	    info.name = c;
+#	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
+		// If info.name is a label then being a
+		// the first component of a one
+		// component name it must be embedded
+		// in a label.
+		if ( is_lab ( info.name ) )
+		    info.name =
+		        new_lab_gen ( & info.name, 1 );
+#	    endif
 	    next ( lp );
 	    if ( compute_counts ( lp, info ) )
 	    {
@@ -4314,7 +4375,7 @@ min::unsptr min::get_attrs
 		++ result;
 	    }
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		compute_children ( lp, & info.name, 1,
+		compute_children ( lp, & c, 1,
 				   out, result, n );
 #	    endif
 	}
@@ -4430,6 +4491,9 @@ inline min::gen MINT::update
     }
 }
 
+// Helper functions for various set and remove
+// functions.  See min.h for documentation.
+//
 void MINT::remove_reverse_attr_value
 	( min::insertable_attr_pointer & ap,
 	  min::insertable_vec_pointer & vp )
@@ -4979,8 +5043,8 @@ min::unsptr min::remove_one
 		if ( is_reverse )
 		    MINT::remove_reverse_attr_value
 			( ap, c );
-		removals[i] = min::NONE;
 		remove ( ap.lp, 1 );
+		removals[i] = min::NONE;
 		++ result;
 		c = current ( ap.lp );
 	    }
@@ -5070,24 +5134,6 @@ min::unsptr min::remove_all
     }
 }
 
-template < class vecpt >
-inline min::unsptr MINT::test_flag
-	( MUP::attr_pointer_type<vecpt> & ap,
-	  unsigned n )
-{
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
-
-    switch ( ap.state )
-    {
-    case ap_type::INIT:
-	MIN_ABORT
-	    ( "min::test_flag called before locate" );
-    default:
-	MIN_ABORT
-	    ( "abnormal call to min::test_flag" );
-    }
-}
-
 void MINT::set_flags
 	( min::insertable_attr_pointer & ap,
 	  const min::gen * in, unsigned n )
@@ -5113,7 +5159,7 @@ void MINT::set_flags
     {
         if ( n == 0 ) return;
 
-        if ( min::insert_reserve ( ap.lp, 2, n + 1 ) )
+        if ( insert_reserve ( ap.lp, 2, n + 1 ) )
 	{
 	    insert_refresh ( ap.dlp );
 	    insert_refresh ( ap.locate_dlp );
