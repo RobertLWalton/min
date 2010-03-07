@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 3, 2010}
+\date{March 7, 2010}
  
 \maketitle
 
@@ -5870,6 +5870,18 @@ TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
 TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
 \clearpage
+
+\subsection{Raw Vectors}
+\label{RAW-VECTORS}
+
+A \key{raw vector} is a variable sized vector whose elements
+are C language characters, numbers, or structs.  Elements or struct members
+may also be \verb|min::gen| values (or values of any type that is
+\verb|typedef|'ed from a C language characer, number, or struct).
+All elements must have the same size.
+
+TBD
+
 
 \section{Code and Execution}
 

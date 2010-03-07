@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Feb 21 12:28:31 EST 2010
+// Date:	Sun Mar  7 10:53:49 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/25 10:25:08 $
+//   $Date: 2010/03/07 16:56:44 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.141 $
+//   $Revision: 1.142 $
 
 // Table of Contents:
 //
@@ -31,6 +31,7 @@
 //	Numbers
 //	Strings
 //	Labels
+//	Raw Vectors
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -1754,6 +1755,34 @@ void test_labels ( void )
     cout << endl;
     cout << "Finish Labels Test!" << endl;
 }
+
+// Raw Vectors
+// --- -------
+
+struct rvs {
+    min::gen g;
+    min::uns32 u;
+    min::int32 i;
+};
+
+typedef min::raw_vec_pointer<rvs> rvs_pointer;
+
+template<>
+const min::raw_vec_type_info rvs_pointer::type_info =
+    { "rvs", "g", sizeof ( rvs ), 20, 1.5 };
+
+void test_raw_vectors ( void )
+{
+    cout << endl;
+    cout << "Start Raw Vectors Test!" << endl;
+
+    min::gen rv = rvs_pointer::new_raw_vec_gen();
+    rvs_pointer rvp ( rv );
+
+    cout << endl;
+    cout << "Finish Raw Vectors Test!" << endl;
+}
+
 
 // Objects
 // -------
