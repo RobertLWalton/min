@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar  6 08:40:30 EST 2010
+// Date:	Sun Mar  7 07:31:11 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/06 13:47:24 $
+//   $Date: 2010/03/07 16:55:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.288 $
+//   $Revision: 1.289 $
 
 // Table of Contents:
 //
@@ -34,6 +34,7 @@
 //	Strings
 //	Labels
 //	Name Functions
+//	Raw Vectors
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -2934,6 +2935,113 @@ namespace min {
     min::uns32 hash ( min::gen v );
 }
 
+// Raw Vectors
+// -----------
+
+namespace min {
+
+    struct raw_vec_type_info
+    {
+	const char * name;
+	const char * signature;
+	min::unsptr element_size;
+	min::unsptr initial_length;
+	min::float64 increment_ratio;
+    };
+
+    namespace internal {
+
+        struct raw_vec_header
+	{
+	    const raw_vec_type_info * type_info;
+	    min::unsptr length;
+	    min::unsptr max_length;
+#	    if MIN_IS_LOOSE && MIN_POINTER_BITS <= 32
+		min::unsptr padding;
+#	    endif
+	};
+
+	const unsigned RAW_VEC_HEADER_SIZE =
+	      sizeof ( raw_vec_header )
+	    / sizeof ( min::gen );
+    }
+
+    template < class T >
+    class raw_vec_pointer
+    {
+    public:
+
+        raw_vec_pointer ( min::gen v ) :
+	    base ( * (T **) &
+		       unprotected::pointer_ref_of
+			   ( (min::stub *)
+			     stub_of ( v ) ) ) {}
+
+    	typedef T type;
+
+	const T & operator [] ( min::unsptr i )
+	{
+	    MIN_ASSERT ( i < header()->length );
+	    return base
+	        [internal::RAW_VEC_HEADER_SIZE + i];
+	}
+	friend min::unsptr length_of
+	        ( raw_vec_pointer<T> rp )
+	{
+	    return rp.header()->length;
+	}
+
+	static const raw_vec_type_info type_info;
+
+	static min::gen new_raw_vec_gen ( void )
+	{
+	    min::stub * s = unprotected::new_acc_stub();
+	    unprotected::new_body
+		( s,
+		    sizeof ( internal::raw_vec_header )
+		  +   type_info.element_size
+		    * type_info.initial_length );
+	    internal::raw_vec_header & h =
+		* (internal::raw_vec_header *)
+		  unprotected::pointer_of ( s );
+	    h.type_info = & type_info;
+	    h.length = 0;
+	    h.max_length = type_info.initial_length;
+	    return new_gen ( s );
+	}
+
+    protected:
+
+	T * & base;
+
+	internal::raw_vec_header & header ( void )
+	{
+	    return * ( internal::raw_vec_header *) base;
+	}
+    };
+
+    template < class T >
+    class updatable_raw_vec_pointer :
+        public raw_vec_pointer<T>
+    {
+    public:
+
+	T & operator [] ( min::unsptr i )
+	{
+	    MIN_ASSERT ( i < this->header()->length );
+	    return this->base
+	        [internal::RAW_VEC_HEADER_SIZE + i];
+	}
+	friend min::unsptr max_length_of
+	        ( updatable_raw_vec_pointer<T> rp )
+	{
+	    return rp.header()->max_length;
+	}
+    };
+
+}
+
+
 // Objects
 // -------
 
@@ -5446,11 +5554,19 @@ namespace min {
 	min::unsptr flag_count;
 	min::unsptr reverse_attr_count;
     };
+    typedef raw_vec_pointer<attr_info>
+        attr_info_pointer;
+    typedef updatable_raw_vec_pointer<attr_info>
+        updatable_attr_info_pointer;
     struct reverse_attr_info
     {
         min::gen    name;
 	min::unsptr value_count;
     };
+    typedef raw_vec_pointer<reverse_attr_info>
+        reverse_attr_info_pointer;
+    typedef updatable_raw_vec_pointer<reverse_attr_info>
+        updatable_reverse_attr_info_pointer;
     template < class vecpt >
     min::unsptr get_attrs
 	    ( min::attr_info * out, min::unsptr n,
@@ -5791,7 +5907,8 @@ namespace min { namespace unprotected {
 	unsigned flags;
 	    // All flags are zeroed when the attribute
 	    // pointer is created, and remain zeroed
-	    // until set by the first locate.
+	    // until set by a locate.  Set even if
+	    // locate failed.
 
 	    enum {
 
@@ -5805,7 +5922,8 @@ namespace min { namespace unprotected {
 	    // Hash or attribute vector index passed to
 	    // the start_hash or start_vector functions
 	    // by the last call to locate.  See the
-	    // IN_VECTOR flag above.
+	    // IN_VECTOR flag above.  Set even if
+	    // locate failed.
 
     	list_pointer_type<vecpt> dlp;
 	    // Descriptor list pointer.  Points at the
