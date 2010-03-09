@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar  7 10:53:49 EST 2010
+// Date:	Tue Mar  9 10:38:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/07 16:56:44 $
+//   $Date: 2010/03/09 15:38:27 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.142 $
+//   $Revision: 1.143 $
 
 // Table of Contents:
 //
@@ -1768,8 +1768,9 @@ struct rvs {
 typedef min::raw_vec_pointer<rvs> rvs_pointer;
 
 template<>
-const min::raw_vec_type_info rvs_pointer::type_info =
-    { "rvs", "g", sizeof ( rvs ), 20, 1.5 };
+const min::raw_vec_type_info
+	rvs_pointer::type_info =
+    { "rvs", "g", sizeof ( rvs ), 20, 0.5, 50 };
 
 void test_raw_vectors ( void )
 {

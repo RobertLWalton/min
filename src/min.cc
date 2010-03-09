@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar  7 11:56:13 EST 2010
+// Date:	Tue Mar  9 07:00:19 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/07 16:56:26 $
+//   $Date: 2010/03/09 15:38:03 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.178 $
+//   $Revision: 1.179 $
 
 // Table of Contents:
 //
@@ -63,6 +63,11 @@ MINT::initializer::initializer ( void )
 
     assert
       ( MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG <= 33 );
+
+    assert
+      (    sizeof ( MINT::raw_vec_header )
+        ==   sizeof ( min::gen )
+	   * MINT::RAW_VEC_HEADER_SIZE );
 
     assert
       (   MINT::SHORT_OBJ_FLAG_BITS
@@ -3228,12 +3233,14 @@ template<>
 const min::raw_vec_type_info
 	min::attr_info_pointer::type_info
     = { "min::attr_info", "g",
-        sizeof ( min::attr_info ), 100, 2.0 };
+        sizeof ( min::attr_info ),
+	100, 1.0, 1000 };
 template<>
 const min::raw_vec_type_info
 	min::reverse_attr_info_pointer::type_info
     = { "min::reverse_attr_info", "g",
-        sizeof ( min::reverse_attr_info ), 100, 2.0 };
+        sizeof ( min::reverse_attr_info ),
+	100, 1.0, 1000 };
 
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
