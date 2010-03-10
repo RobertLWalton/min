@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar  9 17:52:54 EST 2010
+// Date:	Wed Mar 10 02:50:49 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 01:34:41 $
+//   $Date: 2010/03/10 08:25:54 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.292 $
+//   $Revision: 1.293 $
 
 // Table of Contents:
 //
@@ -2952,19 +2952,33 @@ namespace min {
     {
 	const char * name;
 	    // A unique name, typically the name T
-	    // of the C type of the element.
+	    // of the C type of the element.  Will be
+	    // output to identify the element type if
+	    // the raw vector is output.
 	const char * signature;
-	    // For each min::gen sized part of
-	    // an element, a control character
-	    // as follows:
+	    // Contains for each consecutive part of an
+	    // element, a control character typing the
+	    // part, from the point of view of the
+	    // garbage collector, as follows:
 	    //
 	    //	  'g'	A min::gen value.
-	    //	  's'   Beginning of a min:stub *
-	    //	        pointer.
-	    //    '.'   Other: ignored by garbage
+	    //	  's'   A min:stub * pointer.
+	    //    'p'   A pointer sized number, ignored
+	    //		by the garbage collector.
+	    //    'b'   An 8-bit number (byte), ignored
+	    //	        by the garbage collector.
+	    //    's'   A 32-bit number (single),
+	    //		ignored by the garbage
+	    //		collector.
+	    //    'd'   A 64bit number (double),
+	    //		ignored by the garbage
 	    //		collector.
 	    //
-	    // '.'s at the end may be omitted.
+	    // 'b's at the end may be omitted.
+	    //
+	    // Vector elements are aligned next to each
+	    // other with no padding between.  The first
+	    // element is aligned on a 8 byte boundary.
 	min::unsptr element_size;
 	    // sizeof ( T )
 	min::unsptr initial_max_length;
@@ -2987,14 +3001,10 @@ namespace min {
 	    const raw_vec_type_info * type_info;
 	    min::unsptr length;
 	    min::unsptr max_length;
-#	    if MIN_IS_LOOSE && MIN_POINTER_BITS <= 32
+#	    if MIN_POINTER_BITS <= 32
 		min::unsptr padding;
 #	    endif
 	};
-
-	const unsigned RAW_VEC_HEADER_SIZE =
-	      sizeof ( raw_vec_header )
-	    / sizeof ( min::gen );
 
 	min::gen new_raw_vec_gen
 		( const raw_vec_type_info & type_info );
@@ -3014,24 +3024,23 @@ namespace min {
     public:
 
         raw_vec_pointer ( min::gen v ) :
-	    base ( * (T **) &
+	    stub ( (min::stub *) stub_of ( v ) ),
+	    header ( * (internal::raw_vec_header **) &
 		       unprotected::pointer_ref_of
-			   ( (min::stub *)
-			     stub_of ( v ) ) ) {}
+			   ( stub ) ) {}
 
     	typedef T type;
 
 	const T & operator [] ( min::unsptr i )
 	{
-	    MIN_ASSERT ( i < header()->length );
-	    return base
-	        [internal::RAW_VEC_HEADER_SIZE + i];
+	    MIN_ASSERT ( i < header->length );
+	    return base()[i];
 	}
 
 	friend min::unsptr length_of
 	        ( raw_vec_pointer<T> & rvp )
 	{
-	    return rvp.header()->length;
+	    return rvp.header->length;
 	}
 
 	static const raw_vec_type_info type_info;
@@ -3044,11 +3053,12 @@ namespace min {
 
     protected:
 
-	T * & base;
+	min::stub * stub;
+	internal::raw_vec_header * & header;
 
-	internal::raw_vec_header & header ( void )
+	T * base ( void )
 	{
-	    return * ( internal::raw_vec_header *) base;
+	    return (T *) ( header + 1 );
 	}
 
     private:
@@ -3069,9 +3079,8 @@ namespace min {
 
 	T & operator [] ( min::unsptr i )
 	{
-	    MIN_ASSERT ( i < this->header()->length );
-	    return this->base
-	        [internal::RAW_VEC_HEADER_SIZE + i];
+	    MIN_ASSERT ( i < this->header->length );
+	    return this->base()[i];
 	}
     };
 
@@ -3087,71 +3096,61 @@ namespace min {
 	friend min::unsptr max_length_of
 	        ( insertable_raw_vec_pointer<T> & rvp )
 	{
-	    return rvp.header()->max_length;
+	    return rvp.header->max_length;
 	}
 
 	friend min::unsptr unused_of
 	        ( insertable_raw_vec_pointer<T> & rvp )
 	{
-	    return   rvp.header()->max_length
-	           - rvp.header()->length;
+	    return   rvp.header->max_length
+	           - rvp.header->length;
 	}
 
 	friend void push 
 	        ( insertable_raw_vec_pointer<T> & rvp,
 		  T & v )
 	{
-	    if (   rvp.header().length + 1
-	         > rvp.header().max_length )
+	    if (   rvp.header->length + 1
+	         > rvp.header->max_length )
 	        expand ( rvp, 1 );
 
-	    rvp.base[  internal::RAW_VEC_HEADER_SIZE
-		     + rvp.header().length]
-		= v;
-	    ++ rvp.header().length;
+	    rvp.base()[rvp.header->length++] = v;
 	}
 	friend T pop
 	        ( insertable_raw_vec_pointer<T> & rvp )
 	{
-	    MIN_ASSERT ( rvp.header().length > 0 );
-	    -- rvp.header().length;
-	    return rvp.base[  internal
-			          ::RAW_VEC_HEADER_SIZE
-			    + rvp.header().length];
+	    MIN_ASSERT ( rvp.header->length > 0 );
+	    return rvp.base()[-- rvp.header->length];
 	}
 
 	friend void push 
 	        ( insertable_raw_vec_pointer<T> & rvp,
 		  T * p, min::unsptr n )
 	{
-	    if (   rvp.header().length + n
-	         > rvp.header().max_length )
+	    if (   rvp.header->length + n
+	         > rvp.header->max_length )
 	        expand ( rvp, n );
 
-	    min::unsptr i =
-		  internal::RAW_VEC_HEADER_SIZE
-		+ rvp.header().length;
-	    rvp.header().length += n;
-	    while ( n -- ) rvp.base[i++] = * p ++;
+	    memcpy ( & rvp.base()[rvp.header->length],
+	             p, n * sizeof ( T ) );
+	    rvp.header->length += n;
 	}
 	friend void pop
 	        ( T * p, min::unsptr n,
 		  insertable_raw_vec_pointer<T> & rvp )
 	{
-	    MIN_ASSERT ( rvp.header().length >= n );
-	    rvp.header().length -= n;
-	    for ( min::unsptr i = 0; i < n; ++ i )
-		* p ++ =
-		    rvp.base[  internal
-				   ::RAW_VEC_HEADER_SIZE
-			     + rvp.header().length + i];
+	    MIN_ASSERT ( rvp.header->length >= n );
+	    rvp.header->length -= n;
+	    memcpy ( p,
+	             & rvp.base()[rvp.header->length],
+	             n * sizeof ( T ) );
 	}
 
 	friend void resize
 		( insertable_raw_vec_pointer<T> & rvp,
 		  min::unsptr new_max_length )
 	{
-	    resize ( (min::stub *) & rvp.base,
+	    resize ( rvp.stub,
 	             new_max_length,
 	             raw_vec_pointer<T>::type_info );
 	}
@@ -3159,7 +3158,7 @@ namespace min {
 		( insertable_raw_vec_pointer<T> & rvp,
 		  min::unsptr required_increment )
 	{
-	    expand ( (min::stub *) & rvp.base,
+	    expand ( rvp.stub,
 	             required_increment,
 	             raw_vec_pointer<T>::type_info );
 	}

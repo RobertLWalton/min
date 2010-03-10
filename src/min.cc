@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar  9 20:11:55 EST 2010
+// Date:	Wed Mar 10 02:56:13 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 01:34:54 $
+//   $Date: 2010/03/10 08:26:07 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.180 $
+//   $Revision: 1.181 $
 
 // Table of Contents:
 //
@@ -64,11 +64,6 @@ MINT::initializer::initializer ( void )
 
     assert
       ( MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG <= 33 );
-
-    assert
-      (    sizeof ( MINT::raw_vec_header )
-        ==   sizeof ( min::gen )
-	   * MINT::RAW_VEC_HEADER_SIZE );
 
     assert
       (   MINT::SHORT_OBJ_FLAG_BITS
