@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 04:16:11 EST 2010
+// Date:	Wed Mar 10 12:40:21 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 09:18:35 $
+//   $Date: 2010/03/10 20:18:25 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.144 $
+//   $Revision: 1.145 $
 
 // Table of Contents:
 //
@@ -60,7 +60,7 @@ void min_assert
 	  const char * file, unsigned line,
 	  const char * expression )
 {
-    if ( min_assert_print )
+    if ( min_assert_print || ! value )
     {
 	cout << file << ":" << line
              << " assert:" << endl 
@@ -1764,6 +1764,13 @@ struct rvs {
     min::uns32 u;
 };
 
+static bool operator ==
+	( const rvs & rvs1, const rvs & rvs2 )
+{
+    return memcmp ( & rvs1, & rvs2,
+                    sizeof ( rvs ) ) == 0;
+}
+
 typedef min::raw_vec_pointer<rvs> rvs_pointer;
 typedef min::updatable_raw_vec_pointer<rvs>
     updatable_rvs_pointer;
@@ -1780,8 +1787,9 @@ void test_raw_vectors ( void )
     cout << endl;
     cout << "Start Raw Vectors Test!" << endl;
 
-    min::gen rv = insertable_rvs_pointer::new_raw_vec_gen();
-    insertable_rvs_pointer rvp ( rv );
+    min::gen rv =
+        insertable_rvs_pointer::new_raw_vec_gen();
+    insertable_rvs_pointer irvp ( rv );
     rvs rvs1 = { min::new_num_gen ( 1.1 ), 12 };
     rvs rvs2 = { min::new_num_gen ( 2.1 ), 22 };
     rvs rvs3 = { min::new_num_gen ( 3.1 ), 32 };
@@ -1789,13 +1797,48 @@ void test_raw_vectors ( void )
     rvs rvsp[2] = { rvs2, rvs3 };
     rvs rvst[4];
 
-    MIN_ASSERT ( min::length_of ( rvp ) == 0 );
-    push ( rvp, rvs1 );
-    MIN_ASSERT ( min::length_of ( rvp ) == 1 );
-    push ( rvp, rvsp, 2 );
-    MIN_ASSERT ( min::length_of ( rvp ) == 3 );
-    push ( rvp, rvs4 );
-    MIN_ASSERT ( min::length_of ( rvp ) == 4 );
+    MIN_ASSERT ( min::length_of ( irvp ) == 0 );
+    push ( irvp, rvs1 );
+    MIN_ASSERT ( min::length_of ( irvp ) == 1 );
+    push ( irvp, rvsp, 2 );
+    MIN_ASSERT ( min::length_of ( irvp ) == 3 );
+    push ( irvp, rvs4 );
+    MIN_ASSERT ( min::length_of ( irvp ) == 4 );
+
+    updatable_rvs_pointer urvp ( rv );
+    MIN_ASSERT ( urvp[0] == rvs1 );
+    MIN_ASSERT ( urvp[1] == rvs2 );
+    MIN_ASSERT ( urvp[2] == rvs3 );
+    MIN_ASSERT ( urvp[3] == rvs4 );
+
+    urvp[1] = rvs4;
+
+    MIN_ASSERT ( pop ( irvp ) == rvs4 );
+    MIN_ASSERT ( min::length_of ( irvp ) == 3 );
+    pop ( rvst, 3, irvp );
+    MIN_ASSERT ( min::length_of ( irvp ) == 0 );
+    MIN_ASSERT ( rvst[0] == rvs1 );
+    MIN_ASSERT ( rvst[1] == rvs4 );
+    MIN_ASSERT ( rvst[2] == rvs3 );
+
+    for ( int i = 0; i < 200; ++ i )
+    {
+        cout << i << " being pushed" << endl;
+        push ( irvp, rvs2 );
+    }
+    MIN_ASSERT ( min::length_of ( irvp ) == 200 );
+    urvp[0] = urvp[100] = rvs3;
+    min_assert_print = false;
+    for ( int i = 199; i >= 0; -- i )
+    {
+	rvst[0] = pop ( irvp );
+	cout << i << " " << rvst[0].u << endl;
+        // MIN_ASSERT ( pop ( irvp ) ==
+	    // ( i%100 == 0 ? rvs3 : rvs2 ) );
+    }
+    abort();
+    min_assert_print = true;
+    MIN_ASSERT ( min::length_of ( irvp ) == 0 );
 
     cout << endl;
     cout << "Finish Raw Vectors Test!" << endl;

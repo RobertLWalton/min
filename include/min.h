@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 04:00:44 EST 2010
+// Date:	Wed Mar 10 12:36:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 09:15:56 $
+//   $Date: 2010/03/10 20:17:55 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.294 $
+//   $Revision: 1.295 $
 
 // Table of Contents:
 //
@@ -307,6 +307,7 @@ namespace min {
     const int LONG_OBJ			= 9;
     const int HUGE_OBJ			= 10;
         // Unimplemented.
+    const int RAW_VEC			= 11;
 
     // Uncollectable.
     //
@@ -2970,7 +2971,7 @@ namespace min {
 	    //    's'   A 32-bit number (single),
 	    //		ignored by the garbage
 	    //		collector.
-	    //    'd'   A 64bit number (double),
+	    //    'd'   A 64-bit number (double),
 	    //		ignored by the garbage
 	    //		collector.
 	    //
@@ -3018,9 +3019,15 @@ namespace min {
 		  const raw_vec_type_info & type_info );
     }
 
+    // We need these declarations in order to permit
+    // an out-of-line code definition + friend
+    // declaration for length_of so that the out-of-line
+    // definition will be triggered if length_of is used
+    // on a type derived from raw_vec_pointer, such as
+    // insertable_raw_vec_pointer.
+    //
     template < class T >
     class raw_vec_pointer;
-
     template < class T >
     min::unsptr length_of ( raw_vec_pointer<T> & rvp );
 
@@ -3033,7 +3040,11 @@ namespace min {
 	    stub ( (min::stub *) stub_of ( v ) ),
 	    header ( * (internal::raw_vec_header **) &
 		       unprotected::pointer_ref_of
-			   ( stub ) ) {}
+			   ( stub ) )
+	{
+	    MIN_ASSERT (    min::type_of ( stub )
+	                 == min::RAW_VEC );
+	}
 
     	typedef T type;
 
@@ -3141,7 +3152,8 @@ namespace min {
 	         > rvp.header->max_length )
 	        expand ( rvp, n );
 
-	    memcpy ( & rvp.base()[rvp.header->length],
+	    memcpy ( & ( rvp.base()
+	    		      [rvp.header->length] ),
 	             p, n * sizeof ( T ) );
 	    rvp.header->length += n;
 	}
@@ -3152,7 +3164,8 @@ namespace min {
 	    MIN_ASSERT ( rvp.header->length >= n );
 	    rvp.header->length -= n;
 	    memcpy ( p,
-	             & rvp.base()[rvp.header->length],
+	             & ( rvp.base()
+		             [rvp.header->length] ),
 	             n * sizeof ( T ) );
 	}
 
@@ -3178,7 +3191,7 @@ namespace min {
 }
 
 template < class T >
-min::unsptr min::length_of
+inline min::unsptr min::length_of
 	( min::raw_vec_pointer<T> & rvp )
 {
     return rvp.header->length;
