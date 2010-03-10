@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 02:56:13 EST 2010
+// Date:	Wed Mar 10 04:21:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 08:26:07 $
+//   $Date: 2010/03/10 09:21:57 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.181 $
+//   $Revision: 1.182 $
 
 // Table of Contents:
 //
@@ -697,7 +697,6 @@ min::gen min::new_lab_gen
     return min::new_gen ( s2 );
 }
 
-// 
 // Raw Vectors
 // --- -------
 
