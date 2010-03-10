@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar  9 10:38:16 EST 2010
+// Date:	Wed Mar 10 04:16:11 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/09 15:38:27 $
+//   $Date: 2010/03/10 09:18:35 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.143 $
+//   $Revision: 1.144 $
 
 // Table of Contents:
 //
@@ -1762,23 +1762,40 @@ void test_labels ( void )
 struct rvs {
     min::gen g;
     min::uns32 u;
-    min::int32 i;
 };
 
 typedef min::raw_vec_pointer<rvs> rvs_pointer;
+typedef min::updatable_raw_vec_pointer<rvs>
+    updatable_rvs_pointer;
+typedef min::insertable_raw_vec_pointer<rvs>
+    insertable_rvs_pointer;
 
 template<>
 const min::raw_vec_type_info
 	rvs_pointer::type_info =
-    { "rvs", "g", sizeof ( rvs ), 20, 0.5, 50 };
+    { "rvs", "gs", sizeof ( rvs ), 20, 0.5, 50 };
 
 void test_raw_vectors ( void )
 {
     cout << endl;
     cout << "Start Raw Vectors Test!" << endl;
 
-    min::gen rv = rvs_pointer::new_raw_vec_gen();
-    rvs_pointer rvp ( rv );
+    min::gen rv = insertable_rvs_pointer::new_raw_vec_gen();
+    insertable_rvs_pointer rvp ( rv );
+    rvs rvs1 = { min::new_num_gen ( 1.1 ), 12 };
+    rvs rvs2 = { min::new_num_gen ( 2.1 ), 22 };
+    rvs rvs3 = { min::new_num_gen ( 3.1 ), 32 };
+    rvs rvs4 = { min::new_num_gen ( 4.1 ), 42 };
+    rvs rvsp[2] = { rvs2, rvs3 };
+    rvs rvst[4];
+
+    MIN_ASSERT ( min::length_of ( rvp ) == 0 );
+    push ( rvp, rvs1 );
+    MIN_ASSERT ( min::length_of ( rvp ) == 1 );
+    push ( rvp, rvsp, 2 );
+    MIN_ASSERT ( min::length_of ( rvp ) == 3 );
+    push ( rvp, rvs4 );
+    MIN_ASSERT ( min::length_of ( rvp ) == 4 );
 
     cout << endl;
     cout << "Finish Raw Vectors Test!" << endl;
@@ -2495,6 +2512,7 @@ int main ()
 	test_numbers();
 	test_strings();
 	test_labels();
+	test_raw_vectors();
 	test_objects();
 	test_object_vector_level();
 	test_object_list_level();

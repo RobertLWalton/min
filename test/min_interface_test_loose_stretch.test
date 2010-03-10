@@ -1050,6 +1050,27 @@ min_interface_test.cc:XXXX assert:
 
 Finish Labels Test!
 
+Start Raw Vectors Test!
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
+MINT::new_fixed_body ( stub 19, 344 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[6] and assigning begin_body_region[224 .. 287]
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+min_interface_test.cc:XXXX assert:
+    min::length_of ( rvp ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::length_of ( rvp ) == 1 true.
+min_interface_test.cc:XXXX assert:
+    min::length_of ( rvp ) == 3 true.
+min_interface_test.cc:XXXX assert:
+    min::length_of ( rvp ) == 4 true.
+
+Finish Raw Vectors Test!
+
 Start Objects Test!
 SHORT_OBJ_MAX_VAR_SIZE = 0x1ff
 SHORT_OBJ_MAX_HASH_SIZE = 0x7f
@@ -1067,10 +1088,10 @@ Test short objects:
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_fixed_body ( stub 19, 4808 ) called
+MINT::new_fixed_body ( stub 20, 4808 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[10] and assigning begin_body_region[224 .. 1247]
+Using fixed_blocks[10] and assigning begin_body_region[352 .. 1375]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1097,7 +1118,7 @@ Test long objects:
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_non_fixed_body ( stub 20, 616288 ) called
+MINT::new_non_fixed_body ( stub 21, 616288 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
 ../include/min.h:XXXX assert:
@@ -2024,7 +2045,7 @@ EMPTYING UNUSED AREA
 MINT::new_fixed_body ( stub 6, 5048 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[10] and assigning begin_body_region[156344 .. 157367]
+Using fixed_blocks[10] and assigning begin_body_region[156472 .. 157495]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
