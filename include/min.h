@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar  9 13:38:12 EST 2010
+// Date:	Tue Mar  9 17:52:54 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/09 18:38:32 $
+//   $Date: 2010/03/10 01:34:41 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.291 $
+//   $Revision: 1.292 $
 
 // Table of Contents:
 //
@@ -2951,8 +2951,8 @@ namespace min {
     struct raw_vec_type_info
     {
 	const char * name;
-	    // A unique name, typically the
-	    // name of the C type of the element.
+	    // A unique name, typically the name T
+	    // of the C type of the element.
 	const char * signature;
 	    // For each min::gen sized part of
 	    // an element, a control character
@@ -2966,7 +2966,7 @@ namespace min {
 	    //
 	    // '.'s at the end may be omitted.
 	min::unsptr element_size;
-	    // sizeof ( element-type )
+	    // sizeof ( T )
 	min::unsptr initial_max_length;
 	    // Value of max_length when raw vector
 	    // of the given element type is created.
@@ -2975,9 +2975,9 @@ namespace min {
 	    // When a raw vector of the given element
 	    // type is expanded, the expansion is by:
 	    //
-	    //    max_length +=
-	    //	      min ( increment_ratio * max_length,
-	    //		    max_increment )
+	    //   max_length +=
+	    //	   min ( increment_ratio * max_length,
+	    //	         max_increment )
     };
 
     namespace internal {
@@ -2995,6 +2995,17 @@ namespace min {
 	const unsigned RAW_VEC_HEADER_SIZE =
 	      sizeof ( raw_vec_header )
 	    / sizeof ( min::gen );
+
+	min::gen new_raw_vec_gen
+		( const raw_vec_type_info & type_info );
+	void resize
+		( min::stub * s,
+		  min::unsptr new_max_length,
+		  const raw_vec_type_info & type_info );
+	void expand
+		( min::stub * s,
+		  min::unsptr required_increment,
+		  const raw_vec_type_info & type_info );
     }
 
     template < class T >
@@ -3025,24 +3036,10 @@ namespace min {
 
 	static const raw_vec_type_info type_info;
 
-	// As this is a template function, it must
-	// be in the .h file.
-	//
 	static min::gen new_raw_vec_gen ( void )
 	{
-	    min::stub * s = unprotected::new_acc_stub();
-	    unprotected::new_body
-		( s,
-		    sizeof ( internal::raw_vec_header )
-		  +   type_info.element_size
-		    * type_info.initial_max_length );
-	    internal::raw_vec_header & h =
-		* (internal::raw_vec_header *)
-		  unprotected::pointer_of ( s );
-	    h.type_info = & type_info;
-	    h.length = 0;
-	    h.max_length = type_info.initial_max_length;
-	    return new_gen ( s );
+	    return internal::new_raw_vec_gen
+	    	( type_info );
 	}
 
     protected:
@@ -3077,18 +3074,6 @@ namespace min {
 	        [internal::RAW_VEC_HEADER_SIZE + i];
 	}
     };
-
-    template < class T >
-    class insertable_raw_vec_pointer;
-
-    template < class T >
-    void resize
-	    ( insertable_raw_vec_pointer<T> & rvp,
-	      min::unsptr new_max_length );
-    template < class T >
-    void expand
-	    ( insertable_raw_vec_pointer<T> & rvp,
-	      min::unsptr required_increment );
 
     template < class T >
     class insertable_raw_vec_pointer :
@@ -3162,65 +3147,23 @@ namespace min {
 			     + rvp.header().length + i];
 	}
 
-	friend void resize<>
+	friend void resize
 		( insertable_raw_vec_pointer<T> & rvp,
-		  min::unsptr new_max_length );
-	friend void expand<>
+		  min::unsptr new_max_length )
+	{
+	    resize ( (min::stub *) & rvp.base,
+	             new_max_length,
+	             raw_vec_pointer<T>::type_info );
+	}
+	friend void expand
 		( insertable_raw_vec_pointer<T> & rvp,
-		  min::unsptr required_increment );
+		  min::unsptr required_increment )
+	{
+	    expand ( (min::stub *) & rvp.base,
+	             required_increment,
+	             raw_vec_pointer<T>::type_info );
+	}
     };
-}
-
-template < class T >
-void min::resize 
-	( insertable_raw_vec_pointer<T> & rvp,
-	  min::unsptr new_max_length )
-{
-    const min::raw_vec_type_info & info =
-	insertable_raw_vec_pointer<T>
-	    ::type_info;
-
-    min::unsptr old_size =
-	  sizeof ( internal::raw_vec_header )
-	+ rvp.header().max_length * info.element_size;
-    min::unsptr new_size =
-	  sizeof ( internal::raw_vec_header )
-	+ new_max_length * info.element_size;
-    min::unsptr min_size =
-	old_size < new_size ? old_size :
-			      new_size;
-    min::stub * s = (min::stub *) & rvp.base;
-
-    unprotected::resize_body r
-	( s, old_size, new_size );
-    internal::raw_vec_header * & hp =
-	* ( internal::raw_vec_header **) &
-	unprotected::new_body_pointer_ref ( r );
-    memcpy ( hp, rvp.base, min_size );
-    hp->max_length = new_max_length;
-    if ( hp->length > new_max_length )
-	hp->length = new_max_length;
-}
-
-template < class T >
-void min::expand 
-	( insertable_raw_vec_pointer<T> & rvp,
-	  min::unsptr required_increment )
-{
-    const min::raw_vec_type_info & info =
-	insertable_raw_vec_pointer<T>
-	    ::type_info;
-
-    min::unsptr max_length =
-	rvp.header().max_length;
-    min::unsptr increment =
-	(min::unsptr) (   info.increment_ratio
-			* max_length );
-    if ( increment > info.max_increment )
-	increment = info.max_increment;
-    if ( increment < required_increment )
-	increment = required_increment;
-    resize ( rvp, max_length + increment );
 }
 
 // Objects
