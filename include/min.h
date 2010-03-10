@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 02:50:49 EST 2010
+// Date:	Wed Mar 10 04:00:44 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 08:25:54 $
+//   $Date: 2010/03/10 09:15:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.293 $
+//   $Revision: 1.294 $
 
 // Table of Contents:
 //
@@ -3019,6 +3019,12 @@ namespace min {
     }
 
     template < class T >
+    class raw_vec_pointer;
+
+    template < class T >
+    min::unsptr length_of ( raw_vec_pointer<T> & rvp );
+
+    template < class T >
     class raw_vec_pointer
     {
     public:
@@ -3037,11 +3043,15 @@ namespace min {
 	    return base()[i];
 	}
 
-	friend min::unsptr length_of
-	        ( raw_vec_pointer<T> & rvp )
-	{
-	    return rvp.header->length;
-	}
+	friend min::unsptr length_of<>
+	        ( raw_vec_pointer<T> & rvp );
+	    //
+	    // Oddly enough we cannot put the
+	    // code for this function here or else
+	    // the function binary will not be
+	    // created if the function is applied
+	    // to a derived class (e.g. insertable_
+	    // raw_vec_pointer).
 
 	static const raw_vec_type_info type_info;
 
@@ -3150,19 +3160,28 @@ namespace min {
 		( insertable_raw_vec_pointer<T> & rvp,
 		  min::unsptr new_max_length )
 	{
-	    resize ( rvp.stub,
-	             new_max_length,
-	             raw_vec_pointer<T>::type_info );
+	    internal::resize
+	        ( rvp.stub,
+	          new_max_length,
+	          raw_vec_pointer<T>::type_info );
 	}
 	friend void expand
 		( insertable_raw_vec_pointer<T> & rvp,
 		  min::unsptr required_increment )
 	{
-	    expand ( rvp.stub,
-	             required_increment,
-	             raw_vec_pointer<T>::type_info );
+	    internal::expand
+	        ( rvp.stub,
+	          required_increment,
+	          raw_vec_pointer<T>::type_info );
 	}
     };
+}
+
+template < class T >
+min::unsptr min::length_of
+	( min::raw_vec_pointer<T> & rvp )
+{
+    return rvp.header->length;
 }
 
 // Objects
