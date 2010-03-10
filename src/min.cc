@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar  9 07:00:19 EST 2010
+// Date:	Tue Mar  9 20:11:55 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/09 15:38:03 $
+//   $Date: 2010/03/10 01:34:54 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.179 $
+//   $Revision: 1.180 $
 
 // Table of Contents:
 //
@@ -25,6 +25,7 @@
 //	Numbers
 //	Strings
 //	Labels
+//	Raw Vectors
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -699,6 +700,76 @@ min::gen min::new_lab_gen
 
     MUP::set_type_of ( s2, min::LABEL );
     return min::new_gen ( s2 );
+}
+
+// 
+// Raw Vectors
+// --- -------
+
+min::gen min::internal::new_raw_vec_gen
+	( const min::raw_vec_type_info & type_info )
+{
+    min::stub * s = unprotected::new_acc_stub();
+    unprotected::new_body
+	( s,
+	    sizeof ( internal::raw_vec_header )
+	  +   type_info.element_size
+	    * type_info.initial_max_length );
+    internal::raw_vec_header & h =
+	* (internal::raw_vec_header *)
+	  unprotected::pointer_of ( s );
+    h.type_info = & type_info;
+    h.length = 0;
+    h.max_length = type_info.initial_max_length;
+    return new_gen ( s );
+}
+
+void min::internal::resize 
+	( min::stub * s,
+	  min::unsptr new_max_length,
+	  const min::raw_vec_type_info & type_info )
+{
+    raw_vec_header * & oldhp =
+        * (raw_vec_header **) &
+	unprotected::pointer_ref_of ( s );
+    min::unsptr old_size =
+	  sizeof ( raw_vec_header )
+	+   oldhp->max_length
+	  * type_info.element_size;
+    min::unsptr new_size =
+	  sizeof ( raw_vec_header )
+	+ new_max_length * type_info.element_size;
+    min::unsptr min_size =
+	old_size < new_size ? old_size :
+			      new_size;
+    unprotected::resize_body r
+	( s, old_size, new_size );
+    raw_vec_header * & newhp =
+	* ( raw_vec_header **) &
+	unprotected::new_body_pointer_ref ( r );
+    memcpy ( newhp, oldhp, min_size );
+    newhp->max_length = new_max_length;
+    if ( newhp->length > new_max_length )
+	newhp->length = new_max_length;
+}
+
+void min::internal::expand 
+	( min::stub * s,
+	  min::unsptr required_increment,
+	  const min::raw_vec_type_info & type_info )
+{
+    raw_vec_header * & oldhp =
+        * (raw_vec_header **) &
+	unprotected::pointer_ref_of ( s );
+    min::unsptr max_length = oldhp->max_length;
+    min::unsptr increment =
+	(min::unsptr) (   type_info.increment_ratio
+			* max_length );
+    if ( increment > type_info.max_increment )
+	increment = type_info.max_increment;
+    if ( increment < required_increment )
+	increment = required_increment;
+    resize ( s, max_length + increment, type_info );
 }
 
 // Objects
