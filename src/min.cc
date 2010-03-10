@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 04:21:26 EST 2010
+// Date:	Wed Mar 10 12:43:28 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 09:21:57 $
+//   $Date: 2010/03/10 20:18:05 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.182 $
+//   $Revision: 1.183 $
 
 // Table of Contents:
 //
@@ -715,6 +715,7 @@ min::gen min::internal::new_raw_vec_gen
     h.type_info = & type_info;
     h.length = 0;
     h.max_length = type_info.initial_max_length;
+    unprotected::set_type_of ( s, min::RAW_VEC );
     return new_gen ( s );
 }
 
