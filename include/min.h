@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 12:36:26 EST 2010
+// Date:	Wed Mar 10 20:03:42 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 20:17:55 $
+//   $Date: 2010/03/11 16:41:27 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.295 $
+//   $Revision: 1.296 $
 
 // Table of Contents:
 //
@@ -1799,7 +1799,7 @@ namespace min { namespace unprotected {
     // is stored in a datum with stub s1.  s1 is the
     // source of the written pointer and s2 is the
     // target.
-    // 
+    //
     inline void acc_write_update
 	    ( min::stub * s1, min::stub * s2 )
     {
@@ -1934,7 +1934,7 @@ namespace min { namespace unprotected {
 	    ( s, min::internal::new_acc_stub_flags );
 	return min::internal::last_allocated_stub = s;
     }
-    
+
     // Function to return the next free stub while
     // removing this stub from the acc stub list.
     //
@@ -2175,7 +2175,7 @@ namespace min { namespace unprotected {
     // also be relocated.  s must NOT be deallocated
     // while the resize_body struct exists, unless
     // abort_resize_body has been called.
-    // 
+    //
     struct resize_body;
     void abort_resize_body ( resize_body & r );
     struct resize_body {
@@ -3019,17 +3019,44 @@ namespace min {
 		  const raw_vec_type_info & type_info );
     }
 
-    // We need these declarations in order to permit
-    // an out-of-line code definition + friend
-    // declaration for length_of so that the out-of-line
-    // definition will be triggered if length_of is used
-    // on a type derived from raw_vec_pointer, such as
-    // insertable_raw_vec_pointer.
+    // Declarations for reference in friend
+    // declarations.
     //
     template < class T >
     class raw_vec_pointer;
     template < class T >
     min::unsptr length_of ( raw_vec_pointer<T> & rvp );
+    template < class T >
+    class insertable_raw_vec_pointer;
+    template < class T >
+    min::unsptr max_length_of
+	    ( insertable_raw_vec_pointer<T> & rvp );
+    template < class T >
+    min::unsptr unused_of
+	    ( insertable_raw_vec_pointer<T> & rvp );
+    template < class T >
+    void push
+	    ( insertable_raw_vec_pointer<T> & rvp,
+	      T & v );
+    template < class T >
+    T pop
+	    ( insertable_raw_vec_pointer<T> & rvp );
+    template < class T >
+    void push
+	    ( insertable_raw_vec_pointer<T> & rvp,
+	      T * p, min::unsptr n );
+    template < class T >
+    void pop
+	    ( T * p, min::unsptr n,
+	      insertable_raw_vec_pointer<T> & rvp );
+    template < class T >
+    void resize
+	    ( insertable_raw_vec_pointer<T> & rvp,
+	      min::unsptr new_max_length );
+    template < class T >
+    void expand
+	    ( insertable_raw_vec_pointer<T> & rvp,
+	      min::unsptr required_increment );
 
     template < class T >
     class raw_vec_pointer
@@ -3054,7 +3081,7 @@ namespace min {
 	    return base()[i];
 	}
 
-	friend min::unsptr length_of<>
+	friend min::unsptr min::length_of<>
 	        ( raw_vec_pointer<T> & rvp );
 	    //
 	    // Oddly enough we cannot put the
@@ -3114,79 +3141,27 @@ namespace min {
         insertable_raw_vec_pointer ( min::gen v ) :
 	    updatable_raw_vec_pointer<T> ( v ) {}
 
-	friend min::unsptr max_length_of
-	        ( insertable_raw_vec_pointer<T> & rvp )
-	{
-	    return rvp.header->max_length;
-	}
-
-	friend min::unsptr unused_of
-	        ( insertable_raw_vec_pointer<T> & rvp )
-	{
-	    return   rvp.header->max_length
-	           - rvp.header->length;
-	}
-
-	friend void push 
+	friend min::unsptr min::max_length_of<>
+	        ( insertable_raw_vec_pointer<T> & rvp );
+	friend min::unsptr min::unused_of<>
+	        ( insertable_raw_vec_pointer<T> & rvp );
+	friend void min::push<>
 	        ( insertable_raw_vec_pointer<T> & rvp,
-		  T & v )
-	{
-	    if (   rvp.header->length + 1
-	         > rvp.header->max_length )
-	        expand ( rvp, 1 );
-
-	    rvp.base()[rvp.header->length++] = v;
-	}
-	friend T pop
-	        ( insertable_raw_vec_pointer<T> & rvp )
-	{
-	    MIN_ASSERT ( rvp.header->length > 0 );
-	    return rvp.base()[-- rvp.header->length];
-	}
-
-	friend void push 
+		  T & v );
+	friend T min::pop<>
+	        ( insertable_raw_vec_pointer<T> & rvp );
+	friend void min::push<>
 	        ( insertable_raw_vec_pointer<T> & rvp,
-		  T * p, min::unsptr n )
-	{
-	    if (   rvp.header->length + n
-	         > rvp.header->max_length )
-	        expand ( rvp, n );
-
-	    memcpy ( & ( rvp.base()
-	    		      [rvp.header->length] ),
-	             p, n * sizeof ( T ) );
-	    rvp.header->length += n;
-	}
-	friend void pop
+		  T * p, min::unsptr n );
+	friend void min::pop<>
 	        ( T * p, min::unsptr n,
-		  insertable_raw_vec_pointer<T> & rvp )
-	{
-	    MIN_ASSERT ( rvp.header->length >= n );
-	    rvp.header->length -= n;
-	    memcpy ( p,
-	             & ( rvp.base()
-		             [rvp.header->length] ),
-	             n * sizeof ( T ) );
-	}
-
-	friend void resize
+		  insertable_raw_vec_pointer<T> & rvp );
+	friend void min::resize<>
 		( insertable_raw_vec_pointer<T> & rvp,
-		  min::unsptr new_max_length )
-	{
-	    internal::resize
-	        ( rvp.stub,
-	          new_max_length,
-	          raw_vec_pointer<T>::type_info );
-	}
-	friend void expand
+		  min::unsptr new_max_length );
+	friend void min::expand<>
 		( insertable_raw_vec_pointer<T> & rvp,
-		  min::unsptr required_increment )
-	{
-	    internal::expand
-	        ( rvp.stub,
-	          required_increment,
-	          raw_vec_pointer<T>::type_info );
-	}
+		  min::unsptr required_increment );
     };
 }
 
@@ -3195,6 +3170,91 @@ inline min::unsptr min::length_of
 	( min::raw_vec_pointer<T> & rvp )
 {
     return rvp.header->length;
+}
+
+template < class T >
+inline min::unsptr min::max_length_of
+	( insertable_raw_vec_pointer<T> & rvp )
+{
+    return rvp.header->max_length;
+}
+
+template < class T >
+inline min::unsptr min::unused_of
+	( insertable_raw_vec_pointer<T> & rvp )
+{
+    return   rvp.header->max_length
+	   - rvp.header->length;
+}
+
+template < class T >
+inline void min::push
+	( insertable_raw_vec_pointer<T> & rvp,
+	  T & v )
+{
+    if (   rvp.header->length + 1
+	 > rvp.header->max_length )
+	expand ( rvp, 1 );
+
+    rvp.base()[rvp.header->length++] = v;
+}
+
+template < class T >
+inline T min::pop
+	( insertable_raw_vec_pointer<T> & rvp )
+{
+    MIN_ASSERT ( rvp.header->length > 0 );
+    return rvp.base()[-- rvp.header->length];
+}
+
+template < class T >
+inline void min::push
+	( insertable_raw_vec_pointer<T> & rvp,
+	  T * p, min::unsptr n )
+{
+    if (   rvp.header->length + n
+	 > rvp.header->max_length )
+	expand ( rvp, n );
+
+    memcpy ( & ( rvp.base()
+		      [rvp.header->length] ),
+	     p, n * sizeof ( T ) );
+    rvp.header->length += n;
+}
+
+template < class T >
+inline void min::pop
+	( T * p, min::unsptr n,
+	  insertable_raw_vec_pointer<T> & rvp )
+{
+    MIN_ASSERT ( rvp.header->length >= n );
+    rvp.header->length -= n;
+    memcpy ( p,
+	     & ( rvp.base()
+		     [rvp.header->length] ),
+	     n * sizeof ( T ) );
+}
+
+template < class T >
+inline void min::resize
+	( insertable_raw_vec_pointer<T> & rvp,
+	  min::unsptr new_max_length )
+{
+    internal::resize
+	( rvp.stub,
+	  new_max_length,
+	  raw_vec_pointer<T>::type_info );
+}
+
+template < class T >
+inline void min::expand
+	( insertable_raw_vec_pointer<T> & rvp,
+	  min::unsptr required_increment )
+{
+    internal::expand
+	( rvp.stub,
+	  required_increment,
+	  raw_vec_pointer<T>::type_info );
 }
 
 // Objects
@@ -5110,7 +5170,7 @@ namespace min {
 
 	return lp.current;
     }
-    template <class vecpt> 
+    template <class vecpt>
     inline min::gen start_sublist
     	    ( min::insertable_list_pointer & lp,
     	      const min::unprotected
@@ -6102,7 +6162,6 @@ namespace min { namespace unprotected {
 
     	list_pointer_type<vecpt> lp;
 	    // A working pointer for temporary use.
-	        
 
     // Friends:
 
@@ -6668,7 +6727,7 @@ namespace min {
 	    {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
-		    return ( ( 1 << ( n - base ) ) 
+		    return ( ( 1 << ( n - base ) )
 		             &
 			     control_code_of ( c ) )
 			   != 0;
@@ -7318,6 +7377,15 @@ inline min::unsptr min::unprotected::body_size_of
 	             ( internal::long_obj_of ( s )
 			-> flags )
 	       * sizeof ( min::gen );
+    case min::RAW_VEC:
+        {
+	    internal::raw_vec_header & header =
+	        * ( internal::raw_vec_header *)
+		unprotected::pointer_of ( s );
+	    return   sizeof ( header )
+	           +   header.type_info->element_size
+		     * header.max_length;
+	}
 #   ifdef MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
     MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
 #   endif
