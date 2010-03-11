@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 20:33:39 EST 2010
+// Date:	Thu Mar 11 11:44:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/11 01:34:46 $
+//   $Date: 2010/03/11 16:44:33 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.184 $
+//   $Revision: 1.185 $
 
 // Table of Contents:
 //
@@ -733,7 +733,7 @@ void min::internal::resize
 	old_size < new_size ? old_size :
 			      new_size;
     unprotected::resize_body r
-	( s, old_size, new_size );
+	( s, new_size, old_size );
     raw_vec_header * & newhp =
 	* ( raw_vec_header **) &
 	unprotected::new_body_pointer_ref ( r );
@@ -2050,8 +2050,8 @@ bool min::resize
     unused_size += new_size - initial_new_size;
 
     MUP::resize_body r
-        ( s, old_size * sizeof ( min::gen),
-	     new_size * sizeof ( min::gen) );
+        ( s, new_size * sizeof ( min::gen),
+	     old_size * sizeof ( min::gen) );
     MUP::retype_resize_body ( r, new_type );
 
     min::gen * & oldb = MUP::base ( vp );
