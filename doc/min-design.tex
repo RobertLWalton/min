@@ -1,7 +1,7 @@
 % Minimal Descriptive Programming System Design
 %
 % File:         min-design.tex
-% Author:       Bob Walton (walton@deas.harvard.edu)
+% Author:       Bob Walton (walton@seas.harvard.edu)
 % Date:		See \date below.
   
 \documentclass[12pt]{article}
@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 7, 2010}
+\date{March 11, 2010}
  
 \maketitle
 
@@ -1866,16 +1866,16 @@ should be stored in vectors constructed and accessed using the following:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{static\_gen}%
-    \verb|<min::unsptr size> ( void )|
+    \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STATIC_GEN} \\
 \verb|(constructor) min::| & \MINKEY{static\_num\_gen}%
-    \verb|<min::unsptr size> ( void )|
+    \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STATIC_NUM_GEN} \\
 \verb|(constructor) min::| & \MINKEY{stack\_gen}%
-    \verb|<min::unsptr size> ( void )|
+    \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STACK_GEN} \\
 \verb|(constructor) min::| & \MINKEY{stack\_num\_gen}%
-    \verb|<min::unsptr size> ( void )|
+    \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STACK_NUM_GEN} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -2362,7 +2362,7 @@ In order to change the size of a body, the following
 can be used:
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
-\verb|(constructor) MUP::| & \MUPKEY{resize\_body} \\
+\verb|(constructor) MUP::| & \MUPKEY{resize\_body} \verb|rb|\\
     & \verb|    ( min::stub * s,| \\
     & \verb|      min::unsptr new_size, min::unsptr old_size )|
 \LABEL{MUP::RESIZE_BODY} \\
@@ -2689,7 +2689,7 @@ be obtained using the following functions to create and use
 a \key{string pointer}:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| ( min::gen v )|
+\verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| sp ( min::gen v )|
 \LABEL{MIN::STR_POINTER_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}\verb| ( min::str_pointer & sp, min::gen v )|
@@ -3299,10 +3299,10 @@ general value \verb|v| pointing to its stub
 may be created by the following functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| ( min::gen v )|
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| vp ( min::gen v )|
 \LABEL{MIN::VEC_POINTER_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}%
-       \verb| ( const min::stub * s )|
+       \verb| vp ( const min::stub * s )|
 \LABEL{MIN::VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
 
@@ -3404,10 +3404,10 @@ elements.  The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{updatable\_vec\_pointer}%
-    \verb| ( min::gen v )|
+    \verb| vp ( min::gen v )|
 \LABEL{MIN::UPDATABLE_VEC_POINTER_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{updatable\_vec\_pointer}%
-    \verb| ( min::stub * s )|
+    \verb| vp ( min::stub * s )|
 \LABEL{MIN::UPDATABLE_VEC_POINTER_OF_STUB} \\
 
 \end{tabular}\end{indpar}
@@ -3493,10 +3493,10 @@ The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
-    \verb| ( min::gen v )|
+    \verb| vp ( min::gen v )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
-    \verb| ( min::stub * s )|
+    \verb| vp ( min::stub * s )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
 
 \end{tabular}\end{indpar}
@@ -3984,7 +3984,7 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{list\_pointer}\verb| ( min::vec_pointer & vp )|
+	& \MINKEY{list\_pointer}\verb| lp ( min::vec_pointer & vp )|
 \LABEL{MIN::LIST_POINTER_OF_VEC_POINTER} \\
 \verb|min::vec_pointer & min::|
 	& \MINKEY{vec\_pointer\_of}\verb| ( min::list_pointer & lp )|
@@ -4236,7 +4236,7 @@ from lists.  The functions for using this are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{updatable\_list\_pointer} \\
+	& \MINKEY{updatable\_list\_pointer} \verb|lp| \\
 	& \verb|    ( min::updatable_vec_pointer & vp )|
 \LABEL{MIN::UPDATABLE_LIST_POINTER_OF_UPDATABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::updatable\_vec\_pointer \&} \\
@@ -4364,7 +4364,7 @@ The functions defined for this are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{insertable\_list\_pointer} \\
+	& \MINKEY{insertable\_list\_pointer} \verb|lp| \\
 	& \verb|    ( min::insertable_vec_pointer & vp )|
 \LABEL{MIN::INSERTABLE_LIST_POINTER_OF_INSERTABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::insertable\_vec\_pointer \&} \\
@@ -5231,7 +5231,7 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{attr\_pointer}\verb| ( min::vec_pointer & vp )|
+	& \MUPKEY{attr\_pointer}\verb| ap ( min::vec_pointer & vp )|
 \LABEL{MUP::ATTR_POINTER_OF_VEC_POINTER} \\
 \verb|void min::|
 	& \MINKEY{locate}%
@@ -5511,7 +5511,7 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{updatable\_attr\_pointer}\ARGBREAK
+	& \MUPKEY{updatable\_attr\_pointer} \verb|ap|\ARGBREAK
 	  \verb| ( min::updatable_vec_pointer & vp )|
 \LABEL{MUP::UPDATABLE_ATTR_OF_UPDATABLE_VEC_POINTER} \\
 \verb|void min::|
@@ -5607,7 +5607,7 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{insertable\_attr\_pointer}\ARGBREAK
+	& \MUPKEY{insertable\_attr\_pointer} \verb|ap|\ARGBREAK
 	  \verb| ( min::insertable_vec_pointer & vp )|
 \LABEL{MUP::INSERTABLE_ATTR_OF_INSERTABLE_VEC_POINTER} \\
 \verb|void min::|
@@ -5876,9 +5876,76 @@ TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
 A \key{raw vector} is a variable sized vector whose elements
 are C language characters, numbers, or structs.  Elements or struct members
-may also be \verb|min::gen| values (or values of any type that is
-\verb|typedef|'ed from a C language characer, number, or struct).
-All elements must have the same size.
+may also be \verb|min::gen| values, \verb|min::stub *|
+pointers, or values of any type that is
+\verb|typedef|'ed from a C language character, number, or struct.
+All elements must have the same size.  Elements may \underline{not}
+be C++ classes.
+
+There are three kinds of raw vector pointers that can be used to
+access elements of raw vectors.
+A read-only {\tt min::\EOL raw\_\EOL vec\_\EOL pointer}
+permits read-only access to raw vector elements.
+An updatable {\tt min::\EOL updatable\_\EOL raw\_\EOL vec\_\EOL pointer}
+permits read-write access to raw vector elements.
+An insertable {\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer}
+permits creation of raw vectors,
+read-write access to raw vector elements, and operations that push
+and pop elements from the end of a a raw vector.
+
+All three types of raw vector pointer are templates based on the
+type \verb|T| of the raw vector element.
+
+\newcommand{\TARG}{{\tt \LESSTHAN T\GREATERTHAN}}
+
+The functions for using a read-only
+{\tt min::\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINKEY{raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( min::gen v )|
+\LABEL{MIN::RAW_VEC_POINTER} \\
+\verb|T min::|
+	& \ttkey{operator [ ]}\ARGBREAK
+	  \verb| ( min::raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb|   min::unsptr i )|
+\LABEL{MIN::RAW_VEC_POINTER[]} \\
+\verb|min::unsptr min::|
+	& \MINKEY{length\_of}\ARGBREAK
+	  \verb| ( min::raw_vec_pointer<T> & rvp )|
+\LABEL{MIN::LENGTH_OF_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+
+Here \verb|v| must point at the stub of a raw vector,
+and given a raw vector pointer \verb|rvp| pointing at
+this raw vector, \verb|rvp[i]| is the \verb|i|+1's
+element of the vector.  Note this is read-only, and
+that $0\leq$\verb|i|$<$\verb|min::length_of(rvp)|,
+where the {\tt min::\EOL length\_\EOL of} function
+returns the number of elements in a raw vector.
+
+The functions for using a read-write
+{\tt min::\EOL updatable\_\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINKEY{updateable\_raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( min::gen v )|
+\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER} \\
+\verb|T & min::|
+	& \ttkey{operator [ ]}\ARGBREAK
+	  \verb| ( min::updatable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb|   min::unsptr i )|
+\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER[]} \\
+\verb|min::unsptr min::|
+	& \MINKEY{length\_of}\ARGBREAK
+	  \verb| ( min::updatable_raw_vec_pointer<T> & rvp )|
+\LABEL{MIN::LENGTH_OF_UPDATABLE_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+
+These functions are the same as for a read-only raw vector pointer
+except that \verb|rvp[i]| can now be both read and written.
 
 TBD
 
@@ -6512,7 +6579,7 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) MUP::| & \MUPKEY{resize\_body}\ARGBREAK
+\verb|(constructor) MUP::| & \MUPKEY{resize\_body} \verb|rb|\ARGBREAK
     \verb|    ( min::stub * s,|\ARGBREAK
     \verb|      min::unsptr new_size,|\ARGBREAK
     \verb|      min::unsptr old_size )|
@@ -6628,7 +6695,7 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| ( min::gen v )|
+\verb|(constructor) min::| & \MINKEY{str\_pointer}\verb| sp ( min::gen v )|
 \LABEL{MIN::STR_POINTER_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
@@ -6771,10 +6838,10 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| ( min::gen v )|
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}\verb| vp ( min::gen v )|
 \LABEL{MIN::VEC_POINTER_OF_GEN} \\
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}%
-       \verb| ( const min::stub * s )|
+       \verb| vp ( const min::stub * s )|
 \LABEL{MIN::VEC_POINTER_OF_STUB} \\
 \end{TABULAR}
 
@@ -6871,10 +6938,12 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
+\verb|(constructor) min::|
+    & \MINKEY{insertable\_vec\_pointer} \verb|vp|\ARGBREAK
     \verb| ( min::gen v )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_GEN} \\
-\verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
+\verb|(constructor) min::|
+    & \MINKEY{insertable\_vec\_pointer} \verb|vp|\ARGBREAK%
     \verb| ( min::stub * s )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
 \end{TABULAR}
@@ -7018,7 +7087,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.2in}
 (constructor)~\verb|min::|
-	& \MINKEY{list\_pointer}\ARGBREAK
+	& \MINKEY{list\_pointer} \verb|lp|\ARGBREAK
 	  \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::LIST_POINTER_OF_VEC_POINTER} \\
 \verb|min::vec_pointer & min::|
@@ -7129,7 +7198,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 (constructor)~\verb|min::|
-	& \MINKEY{updatable\_list\_pointer}\ARGBREAK
+	& \MINKEY{updatable\_list\_pointer} \verb|lp|\ARGBREAK
 	  \verb| ( min::updatable_vec_pointer & vp )|
 \LABEL{MIN::UPDATABLE_LIST_POINTER_OF_UPDATABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::updatable\_vec\_pointer \&} \\
@@ -7240,7 +7309,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{insertable\_list\_pointer}\ARGBREAK
+	& \MINKEY{insertable\_list\_pointer} \verb|lp|\ARGBREAK
 	  \verb| ( min::insertable_vec_pointer & vp )|
 \LABEL{MIN::INSERTABLE_LIST_POINTER_OF_INSERTABLE_VEC_POINTER} \\
 \multicolumn{2}{@{}l}{\tt min::insertable\_vec\_pointer \&} \\
