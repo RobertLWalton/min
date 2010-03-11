@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 11 11:42:03 EST 2010
+// Date:	Thu Mar 11 12:47:31 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/11 16:42:24 $
+//   $Date: 2010/03/11 17:50:13 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.297 $
+//   $Revision: 1.298 $
 
 // Table of Contents:
 //
@@ -3069,8 +3069,14 @@ namespace min {
 		       unprotected::pointer_ref_of
 			   ( stub ) )
 	{
-	    MIN_ASSERT (    min::type_of ( stub )
-	                 == min::RAW_VEC );
+	    MIN_ASSERT
+	        (    min::type_of ( stub )
+		  == min::RAW_VEC );
+	    MIN_ASSERT
+	        (    header->type_info
+		  == & min::
+		       insertable_raw_vec_pointer<T>::
+		       type_info );
 	}
 
     	typedef T type;
@@ -3083,14 +3089,6 @@ namespace min {
 
 	friend min::unsptr min::length_of<>
 	        ( raw_vec_pointer<T> & rvp );
-
-	static const raw_vec_type_info type_info;
-
-	static min::gen new_raw_vec_gen ( void )
-	{
-	    return internal::new_raw_vec_gen
-	    	( type_info );
-	}
 
     protected:
 
@@ -3133,6 +3131,14 @@ namespace min {
 
         insertable_raw_vec_pointer ( min::gen v ) :
 	    updatable_raw_vec_pointer<T> ( v ) {}
+
+	static const raw_vec_type_info type_info;
+
+	static min::gen new_raw_vec_gen ( void )
+	{
+	    return internal::new_raw_vec_gen
+	    	( type_info );
+	}
 
 	friend min::unsptr min::max_length_of<>
 	        ( insertable_raw_vec_pointer<T> & rvp );
@@ -3236,7 +3242,7 @@ inline void min::resize
     internal::resize
 	( rvp.stub,
 	  new_max_length,
-	  raw_vec_pointer<T>::type_info );
+	  insertable_raw_vec_pointer<T>::type_info );
 }
 
 template < class T >
@@ -3247,7 +3253,7 @@ inline void min::expand
     internal::expand
 	( rvp.stub,
 	  required_increment,
-	  raw_vec_pointer<T>::type_info );
+	  insertable_raw_vec_pointer<T>::type_info );
 }
 
 // Objects
@@ -5766,6 +5772,8 @@ namespace min {
         attr_info_pointer;
     typedef updatable_raw_vec_pointer<attr_info>
         updatable_attr_info_pointer;
+    typedef insertable_raw_vec_pointer<attr_info>
+        insertable_attr_info_pointer;
     struct reverse_attr_info
     {
         min::gen    name;
@@ -5775,6 +5783,8 @@ namespace min {
         reverse_attr_info_pointer;
     typedef updatable_raw_vec_pointer<reverse_attr_info>
         updatable_reverse_attr_info_pointer;
+    typedef insertable_raw_vec_pointer<reverse_attr_info>
+        insertable_reverse_attr_info_pointer;
     template < class vecpt >
     min::unsptr get_attrs
 	    ( min::attr_info * out, min::unsptr n,

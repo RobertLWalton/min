@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 11 11:44:22 EST 2010
+// Date:	Thu Mar 11 12:36:35 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/11 16:44:33 $
+//   $Date: 2010/03/11 17:50:19 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.185 $
+//   $Revision: 1.186 $
 
 // Table of Contents:
 //
@@ -3290,13 +3290,14 @@ bool MINT::insert_reserve
 
 template<>
 const min::raw_vec_type_info
-	min::attr_info_pointer::type_info
+	min::insertable_attr_info_pointer::type_info
     = { "min::attr_info", "g",
         sizeof ( min::attr_info ),
 	100, 1.0, 1000 };
 template<>
 const min::raw_vec_type_info
-	min::reverse_attr_info_pointer::type_info
+	min::insertable_reverse_attr_info_pointer
+	   ::type_info
     = { "min::reverse_attr_info", "g",
         sizeof ( min::reverse_attr_info ),
 	100, 1.0, 1000 };
