@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 20:03:42 EST 2010
+// Date:	Thu Mar 11 11:42:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/11 16:41:27 $
+//   $Date: 2010/03/11 16:42:24 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.296 $
+//   $Revision: 1.297 $
 
 // Table of Contents:
 //
@@ -3083,13 +3083,6 @@ namespace min {
 
 	friend min::unsptr min::length_of<>
 	        ( raw_vec_pointer<T> & rvp );
-	    //
-	    // Oddly enough we cannot put the
-	    // code for this function here or else
-	    // the function binary will not be
-	    // created if the function is applied
-	    // to a derived class (e.g. insertable_
-	    // raw_vec_pointer).
 
 	static const raw_vec_type_info type_info;
 
