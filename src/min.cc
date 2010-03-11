@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Mar 10 12:43:28 EST 2010
+// Date:	Wed Mar 10 20:33:39 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/10 20:18:05 $
+//   $Date: 2010/03/11 01:34:46 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.183 $
+//   $Revision: 1.184 $
 
 // Table of Contents:
 //
@@ -166,7 +166,6 @@ min::uns32 min::hash ( min::gen v )
     else
 	return 0;
 }
-
 
 // Process Management
 // ------- ----------
@@ -255,10 +254,6 @@ namespace min { namespace internal {
     }
 
 } }
-
-
-
-
 
 // Numbers
 // -------
@@ -1959,7 +1954,6 @@ min::gen min::new_obj_gen
     MUP::set_type_of ( s, type );
     return min::new_gen ( s );
 }
-
 
 // Object Vector Level
 // ------ ------ -----
@@ -2171,7 +2165,6 @@ bool min::resize
     return min::resize ( vp, unused_size,
                          min::var_size_of ( vp ) );
 }
-
 
 // Object List Level
 // ------ ---- -----
