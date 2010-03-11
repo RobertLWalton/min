@@ -1063,6 +1063,8 @@ Using fixed_blocks[6] and assigning begin_body_region[224 .. 287]
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
+../include/min.h:XXXX assert:
+    header->type_info == & min:: insertable_raw_vec_pointer<T>:: type_info true.
 min_interface_test.cc:XXXX assert:
     min::length_of ( irvp ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1075,6 +1077,8 @@ min_interface_test.cc:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
+../include/min.h:XXXX assert:
+    header->type_info == & min:: insertable_raw_vec_pointer<T>:: type_info true.
 ../include/min.h:XXXX assert:
     i < this->header->length true.
 min_interface_test.cc:XXXX assert:
