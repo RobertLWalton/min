@@ -5947,7 +5947,53 @@ The functions for using a read-write
 These functions are the same as for a read-only raw vector pointer
 except that \verb|rvp[i]| can now be both read and written.
 
+The functions for using a
+{\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
+
 TBD
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min|
+	& {\tt ::insertable\_raw\_vec\_pointer\TARG} \\
+	& {\tt ::}\ttkey{new\_raw\_vec\_gen}\verb| ( void )|
+\LABEL{MIN::NEW_RAW_VEC_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{insertable\_raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( min::gen v )|
+\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER} \\
+\verb|T & min::|
+	& \ttkey{operator [ ]}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb|   min::unsptr i )|
+\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER[]} \\
+\verb|min::unsptr min::|
+	& \MINKEY{length\_of}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+\LABEL{MIN::LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|void min::|
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::PUSH_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|void min::|
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|\ARGBREAK
+	  \verb|   min::gen * p, min::unsptr n )|
+\LABEL{MIN::PUSH_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|min::gen min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+\LABEL{MIN::POP_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|void min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( min::gen * p, min::unsptr n,|\ARGBREAK
+	  \verb|   min::insertable_raw_vec_pointer<T> & rvp )|
+\LABEL{MIN::POP_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|min::unsptr min::|
+	& \MINKEY{max\_length\_of}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+\LABEL{MIN::MAX_LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
 
 
 \section{Code and Execution}
