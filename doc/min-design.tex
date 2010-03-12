@@ -5897,9 +5897,20 @@ read-write access to raw vector elements, and operations that push
 and pop elements from the end of a a raw vector.
 
 All three types of raw vector pointer are templates based on the
-type \verb|T| of the raw vector element.
+following parameterization:
 
-\newcommand{\TARG}{{\tt \LESSTHAN T\GREATERTHAN}}
+\newcommand{\BRACKETED}[1]{{\tt \LESSTHAN #1\GREATERTHAN}}
+\newcommand{\TARG}{\BRACKETED{T,I}}
+\begin{center}
+\tt template
+    \BRACKETED{class T, const min::raw\_vec\_type\_info \& I}
+\LABEL{MIN::TEMPLATE_OF_RAW_VEC_POINTER} \\
+\end{center}
+
+Here {\tt T} is the C language type of the vector element, and
+{\tt I} is a {\tt min::\EOL type\_\EOL info} structure descibed
+at the end of this section that gives run-time information
+needed to create and resize raw vectors.
 
 The functions for using a read-only
 {\tt min::\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
@@ -5911,12 +5922,12 @@ The functions for using a read-only
 \LABEL{MIN::RAW_VEC_POINTER} \\
 \verb|T min::|
 	& \ttkey{operator [ ]}\ARGBREAK
-	  \verb| ( min::raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
 	  \verb|   min::unsptr i )|
 \LABEL{MIN::RAW_VEC_POINTER[]} \\
 \verb|min::unsptr min::|
 	& \MINKEY{length\_of}\ARGBREAK
-	  \verb| ( min::raw_vec_pointer<T> & rvp )|
+	  \verb| ( min::raw_vec_pointer<T,I> & rvp )|
 \LABEL{MIN::LENGTH_OF_RAW_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 
@@ -5938,12 +5949,12 @@ The functions for using a read-write
 \LABEL{MIN::UPDATABLE_RAW_VEC_POINTER} \\
 \verb|T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
-	  \verb| ( min::updatable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
 	  \verb|   min::unsptr i )|
 \LABEL{MIN::UPDATABLE_RAW_VEC_POINTER[]} \\
 \verb|min::unsptr min::|
 	& \MINKEY{length\_of}\ARGBREAK
-	  \verb| ( min::updatable_raw_vec_pointer<T> & rvp )|
+	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp )|
 \LABEL{MIN::LENGTH_OF_UPDATABLE_RAW_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 
@@ -5966,54 +5977,55 @@ The functions for using a
 \LABEL{MIN::INSERTABLE_RAW_VEC_POINTER} \\
 \verb|T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
 	  \verb|   min::unsptr i )|
 \LABEL{MIN::INSERTABLE_RAW_VEC_POINTER[]} \\
 \verb|min::unsptr min::|
 	& \MINKEY{length\_of}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
 \LABEL{MIN::LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{push}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|\ARGBREAK
 	  \verb|   const & T v )|
 \LABEL{MIN::PUSH_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|void min::|
 	& \MINKEY{push}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|\ARGBREAK
 	  \verb|   const T * p, min::unsptr n )|
 \LABEL{MIN::PUSH_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|T min::|
 	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
 \LABEL{MIN::POP_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|void min::|
 	& \MINKEY{pop}\ARGBREAK
 	  \verb| ( T * p, min::unsptr n,|\ARGBREAK
-	  \verb|   min::insertable_raw_vec_pointer<T> & rvp )|
+	  \verb|   min::insertable_raw_vec_pointer<T,I> & rvp )|
 \LABEL{MIN::POP_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
 	& \MINKEY{max\_length\_of}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
 \LABEL{MIN::MAX_LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|min::unsptr min::|
 	& \MINKEY{unused\_of}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
 \LABEL{MIN::UNUSED_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|void min::|
 	& \MINKEY{resize}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
 	  \verb|   min::unsptr new_max_length )|
 \LABEL{MIN::RESIZE_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|void min::|
 	& \MINKEY{reserve}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
 	  \verb|   min::unsptr required_unused )|
 \end{tabular}\end{indpar}
+
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{raw\_vec\_type\_info}\ARGBREAK
     \verb|{|\ARGBREAK
@@ -6026,13 +6038,7 @@ The functions for using a
     \verb|};|
 \ttmindex{name}{in {\tt min::raw\_vec\_type\_info}}
 \LABEL{MIN::RAW_VEC_TYPE_INFO} \\
-\multicolumn{2}{l}{\tt const min::raw\_vec\_type\_info} \\
-\verb|min|
-	& {\tt ::insertable\_raw\_vec\_pointer\TARG} \\
-	& {\tt ::}\ttkey{type\_info}
-\LABEL{MIN::TYPE_INFO_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \end{tabular}\end{indpar}
-
 
 \section{Code and Execution}
 
