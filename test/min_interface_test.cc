@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 12 09:31:12 EST 2010
+// Date:	Fri Mar 12 09:29:38 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/12 14:31:25 $
+//   $Date: 2010/03/12 14:29:55 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.149 $
+//   $Revision: 1.148 $
 
 // Table of Contents:
 //
@@ -2284,8 +2284,7 @@ void test_object_list_level
       bool use_obj_aux_stubs, bool alternate_aux )
 {
 #   if ! MIN_USE_OBJ_AUX_STUBS
-	if ( use_obj_aux_stubs || alternate_aux )
-	    return;
+	if ( use_obj_aux_stubs || alternate_aux ) return;
 #   endif
 
     cout << endl << name << endl;
@@ -2386,8 +2385,7 @@ void test_object_list_level
     MIN_ASSERT ( min::current ( wslp ) == num100 );
     MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
     min::insert_refresh ( wlp );
-    MIN_ASSERT
-        ( min::is_sublist ( min::current ( wlp ) ) );
+    MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     ::resize = true;
     min::start_sublist ( wslp, wlp );
     insert ( wslp, false, p+2, 1 );
@@ -2395,8 +2393,7 @@ void test_object_list_level
     MIN_ASSERT ( min::next ( wslp ) == num102 );
     insert ( wslp, true, p+1, 1 );
     min::insert_refresh ( wlp );
-    MIN_ASSERT
-        ( min::is_sublist ( min::current ( wlp ) ) );
+    MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
     MIN_ASSERT ( min::current ( wslp ) == num101 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
