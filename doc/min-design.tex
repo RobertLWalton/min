@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 11, 2010}
+\date{March 12, 2010}
  
 \maketitle
 
@@ -5879,8 +5879,11 @@ are C language characters, numbers, or structs.  Elements or struct members
 may also be \verb|min::gen| values, \verb|min::stub *|
 pointers, or values of any type that is
 \verb|typedef|'ed from a C language character, number, or struct.
-All elements must have the same size.  Elements may \underline{not}
-be C++ classes.
+All elements must have the same size.
+
+Elements may \underline{not} be C++ classes.  In particular,
+they may \underline{not} have constructors or destructors, and must
+be copyable with a simple `{\tt =}' operator.
 
 There are three kinds of raw vector pointers that can be used to
 access elements of raw vectors.
@@ -5923,7 +5926,7 @@ this raw vector, \verb|rvp[i]| is the \verb|i|+1's
 element of the vector.  Note this is read-only, and
 that $0\leq$\verb|i|$<$\verb|min::length_of(rvp)|,
 where the {\tt min::\EOL length\_\EOL of} function
-returns the number of elements in a raw vector.
+returns the number of elements in the raw vector.
 
 The functions for using a read-write
 {\tt min::\EOL updatable\_\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
@@ -5950,13 +5953,13 @@ except that \verb|rvp[i]| can now be both read and written.
 The functions for using a
 {\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
 
-TBD
-
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min|
 	& {\tt ::insertable\_raw\_vec\_pointer\TARG} \\
 	& {\tt ::}\ttkey{new\_raw\_vec\_gen}\verb| ( void )|
 \LABEL{MIN::NEW_RAW_VEC_GEN} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
 	& \MINKEY{insertable\_raw\_vec\_pointer\TARG}%
 	  \verb| rvp ( min::gen v )|
@@ -5970,29 +5973,64 @@ TBD
 	& \MINKEY{length\_of}\ARGBREAK
 	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
 \LABEL{MIN::LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{push}\ARGBREAK
 	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|\ARGBREAK
-	  \verb|   min::gen v )|
+	  \verb|   const & T v )|
 \LABEL{MIN::PUSH_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|void min::|
 	& \MINKEY{push}\ARGBREAK
 	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|\ARGBREAK
-	  \verb|   min::gen * p, min::unsptr n )|
+	  \verb|   const T * p, min::unsptr n )|
 \LABEL{MIN::PUSH_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\verb|min::gen min::|
+\verb|T min::|
 	& \MINKEY{pop}\ARGBREAK
 	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
 \LABEL{MIN::POP_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \verb|void min::|
 	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( min::gen * p, min::unsptr n,|\ARGBREAK
+	  \verb| ( T * p, min::unsptr n,|\ARGBREAK
 	  \verb|   min::insertable_raw_vec_pointer<T> & rvp )|
 \LABEL{MIN::POP_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::|
 	& \MINKEY{max\_length\_of}\ARGBREAK
 	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
 \LABEL{MIN::MAX_LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|min::unsptr min::|
+	& \MINKEY{unused\_of}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp )|
+\LABEL{MIN::UNUSED_OF_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|void min::|
+	& \MINKEY{resize}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb|   min::unsptr new_max_length )|
+\LABEL{MIN::RESIZE_INSERTABLE_RAW_VEC_POINTER} \\
+\verb|void min::|
+	& \MINKEY{reserve}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T> & rvp,|\ARGBREAK
+	  \verb|   min::unsptr required_unused )|
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{raw\_vec\_type\_info}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const char *    name;|\ARGBREAK
+    \verb|  const char *    signature;|\ARGBREAK
+    \verb|  min::unsptr     element_size;|\ARGBREAK
+    \verb|  min::unsptr     initial_max_length;|\ARGBREAK
+    \verb|  min::float64    increment_ratio;|\ARGBREAK
+    \verb|  min::unsptr     max_increment;|\ARGBREAK
+    \verb|};|
+\ttmindex{name}{in {\tt min::raw\_vec\_type\_info}}
+\LABEL{MIN::RAW_VEC_TYPE_INFO} \\
+\multicolumn{2}{l}{\tt const min::raw\_vec\_type\_info} \\
+\verb|min|
+	& {\tt ::insertable\_raw\_vec\_pointer\TARG} \\
+	& {\tt ::}\ttkey{type\_info}
+\LABEL{MIN::TYPE_INFO_OF_INSERTABLE_RAW_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 
 
