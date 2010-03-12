@@ -1066,7 +1066,7 @@ MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
-    header->type_info == & min:: insertable_raw_vec_pointer<T>:: type_info true.
+    header->type_info == & type_info true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
@@ -1088,7 +1088,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
-    header->type_info == & min:: insertable_raw_vec_pointer<T>:: type_info true.
+    header->type_info == & type_info true.
 ../include/min.h:XXXX assert:
     i < this->header->length true.
 min_interface_test.cc:XXXX assert:
