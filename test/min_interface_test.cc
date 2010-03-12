@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 11 12:39:26 EST 2010
+// Date:	Fri Mar 12 09:31:12 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/11 18:48:33 $
+//   $Date: 2010/03/12 14:31:25 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.147 $
+//   $Revision: 1.149 $
 
 // Table of Contents:
 //
@@ -1771,16 +1771,19 @@ static bool operator ==
                     sizeof ( rvs ) ) == 0;
 }
 
-typedef min::raw_vec_pointer<rvs> rvs_pointer;
-typedef min::updatable_raw_vec_pointer<rvs>
-    updatable_rvs_pointer;
-typedef min::insertable_raw_vec_pointer<rvs>
-    insertable_rvs_pointer;
-
-template<>
-const min::raw_vec_type_info
-	insertable_rvs_pointer::type_info =
+extern const min::raw_vec_type_info rvs_type_info;
+const min::raw_vec_type_info rvs_type_info =
     { "rvs", "gs", sizeof ( rvs ), 20, 0.5, 50 };
+
+typedef min::raw_vec_pointer
+	<rvs,rvs_type_info>
+    rvs_pointer;
+typedef min::updatable_raw_vec_pointer
+	<rvs,rvs_type_info>
+    updatable_rvs_pointer;
+typedef min::insertable_raw_vec_pointer
+	<rvs,rvs_type_info>
+    insertable_rvs_pointer;
 
 void test_raw_vectors ( void )
 {
@@ -2281,7 +2284,8 @@ void test_object_list_level
       bool use_obj_aux_stubs, bool alternate_aux )
 {
 #   if ! MIN_USE_OBJ_AUX_STUBS
-	if ( use_obj_aux_stubs || alternate_aux ) return;
+	if ( use_obj_aux_stubs || alternate_aux )
+	    return;
 #   endif
 
     cout << endl << name << endl;
@@ -2382,7 +2386,8 @@ void test_object_list_level
     MIN_ASSERT ( min::current ( wslp ) == num100 );
     MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
     min::insert_refresh ( wlp );
-    MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
+    MIN_ASSERT
+        ( min::is_sublist ( min::current ( wlp ) ) );
     ::resize = true;
     min::start_sublist ( wslp, wlp );
     insert ( wslp, false, p+2, 1 );
@@ -2390,7 +2395,8 @@ void test_object_list_level
     MIN_ASSERT ( min::next ( wslp ) == num102 );
     insert ( wslp, true, p+1, 1 );
     min::insert_refresh ( wlp );
-    MIN_ASSERT ( min::is_sublist ( min::current ( wlp ) ) );
+    MIN_ASSERT
+        ( min::is_sublist ( min::current ( wlp ) ) );
     MIN_ASSERT ( min::current ( wslp ) == num101 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
