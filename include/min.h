@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 11 12:47:31 EST 2010
+// Date:	Fri Mar 12 05:33:24 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/11 17:50:13 $
+//   $Date: 2010/03/12 10:50:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.298 $
+//   $Revision: 1.299 $
 
 // Table of Contents:
 //
@@ -3013,9 +3013,9 @@ namespace min {
 		( min::stub * s,
 		  min::unsptr new_max_length,
 		  const raw_vec_type_info & type_info );
-	void expand
+	void reserve
 		( min::stub * s,
-		  min::unsptr required_increment,
+		  min::unsptr required_unused,
 		  const raw_vec_type_info & type_info );
     }
 
@@ -3037,14 +3037,14 @@ namespace min {
     template < class T >
     void push
 	    ( insertable_raw_vec_pointer<T> & rvp,
-	      T & v );
+	      const T & v );
     template < class T >
     T pop
 	    ( insertable_raw_vec_pointer<T> & rvp );
     template < class T >
     void push
 	    ( insertable_raw_vec_pointer<T> & rvp,
-	      T * p, min::unsptr n );
+	      const T * p, min::unsptr n );
     template < class T >
     void pop
 	    ( T * p, min::unsptr n,
@@ -3054,9 +3054,9 @@ namespace min {
 	    ( insertable_raw_vec_pointer<T> & rvp,
 	      min::unsptr new_max_length );
     template < class T >
-    void expand
+    void reserve
 	    ( insertable_raw_vec_pointer<T> & rvp,
-	      min::unsptr required_increment );
+	      min::unsptr required_unused );
 
     template < class T >
     class raw_vec_pointer
@@ -3146,21 +3146,21 @@ namespace min {
 	        ( insertable_raw_vec_pointer<T> & rvp );
 	friend void min::push<>
 	        ( insertable_raw_vec_pointer<T> & rvp,
-		  T & v );
+		  const T & v );
 	friend T min::pop<>
 	        ( insertable_raw_vec_pointer<T> & rvp );
 	friend void min::push<>
 	        ( insertable_raw_vec_pointer<T> & rvp,
-		  T * p, min::unsptr n );
+		  const T * p, min::unsptr n );
 	friend void min::pop<>
 	        ( T * p, min::unsptr n,
 		  insertable_raw_vec_pointer<T> & rvp );
 	friend void min::resize<>
 		( insertable_raw_vec_pointer<T> & rvp,
 		  min::unsptr new_max_length );
-	friend void min::expand<>
+	friend void min::reserve<>
 		( insertable_raw_vec_pointer<T> & rvp,
-		  min::unsptr required_increment );
+		  min::unsptr required_unused );
     };
 }
 
@@ -3187,14 +3187,36 @@ inline min::unsptr min::unused_of
 }
 
 template < class T >
+inline void min::resize
+	( insertable_raw_vec_pointer<T> & rvp,
+	  min::unsptr new_max_length )
+{
+    internal::resize
+	( rvp.stub,
+	  new_max_length,
+	  insertable_raw_vec_pointer<T>::type_info );
+}
+
+template < class T >
+inline void min::reserve
+	( insertable_raw_vec_pointer<T> & rvp,
+	  min::unsptr required_unused )
+{
+    if (   rvp.header->length + required_unused
+         > rvp.header->max_length )
+	internal::reserve
+	    ( rvp.stub,
+	      required_unused,
+	      insertable_raw_vec_pointer<T>
+	          ::type_info );
+}
+
+template < class T >
 inline void min::push
 	( insertable_raw_vec_pointer<T> & rvp,
-	  T & v )
+	  const T & v )
 {
-    if (   rvp.header->length + 1
-	 > rvp.header->max_length )
-	expand ( rvp, 1 );
-
+    reserve ( rvp, 1 );
     rvp.base()[rvp.header->length++] = v;
 }
 
@@ -3209,12 +3231,9 @@ inline T min::pop
 template < class T >
 inline void min::push
 	( insertable_raw_vec_pointer<T> & rvp,
-	  T * p, min::unsptr n )
+	  const T * p, min::unsptr n )
 {
-    if (   rvp.header->length + n
-	 > rvp.header->max_length )
-	expand ( rvp, n );
-
+    reserve ( rvp, n );
     memcpy ( & ( rvp.base()
 		      [rvp.header->length] ),
 	     p, n * sizeof ( T ) );
@@ -3232,28 +3251,6 @@ inline void min::pop
 	     & ( rvp.base()
 		     [rvp.header->length] ),
 	     n * sizeof ( T ) );
-}
-
-template < class T >
-inline void min::resize
-	( insertable_raw_vec_pointer<T> & rvp,
-	  min::unsptr new_max_length )
-{
-    internal::resize
-	( rvp.stub,
-	  new_max_length,
-	  insertable_raw_vec_pointer<T>::type_info );
-}
-
-template < class T >
-inline void min::expand
-	( insertable_raw_vec_pointer<T> & rvp,
-	  min::unsptr required_increment )
-{
-    internal::expand
-	( rvp.stub,
-	  required_increment,
-	  insertable_raw_vec_pointer<T>::type_info );
 }
 
 // Objects
@@ -5783,7 +5780,8 @@ namespace min {
         reverse_attr_info_pointer;
     typedef updatable_raw_vec_pointer<reverse_attr_info>
         updatable_reverse_attr_info_pointer;
-    typedef insertable_raw_vec_pointer<reverse_attr_info>
+    typedef insertable_raw_vec_pointer
+                <reverse_attr_info>
         insertable_reverse_attr_info_pointer;
     template < class vecpt >
     min::unsptr get_attrs

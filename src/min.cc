@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 11 12:36:35 EST 2010
+// Date:	Fri Mar 12 05:43:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/11 17:50:19 $
+//   $Date: 2010/03/12 10:50:26 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.186 $
+//   $Revision: 1.187 $
 
 // Table of Contents:
 //
@@ -743,23 +743,28 @@ void min::internal::resize
 	newhp->length = new_max_length;
 }
 
-void min::internal::expand 
+void min::internal::reserve 
 	( min::stub * s,
-	  min::unsptr required_increment,
+	  min::unsptr required_unused,
 	  const min::raw_vec_type_info & type_info )
 {
     raw_vec_header * & oldhp =
         * (raw_vec_header **) &
 	unprotected::pointer_ref_of ( s );
-    min::unsptr max_length = oldhp->max_length;
+    min::unsptr old_max_length = oldhp->max_length;
+    min::unsptr new_max_length =
+        oldhp->length + required_unused;
+    MIN_ASSERT( new_max_length > old_max_length );
+    min::unsptr required_increment =
+        new_max_length - old_max_length;
     min::unsptr increment =
 	(min::unsptr) (   type_info.increment_ratio
-			* max_length );
+			* old_max_length );
     if ( increment > type_info.max_increment )
 	increment = type_info.max_increment;
     if ( increment < required_increment )
 	increment = required_increment;
-    resize ( s, max_length + increment, type_info );
+    resize ( s, old_max_length + increment, type_info );
 }
 
 // Objects
