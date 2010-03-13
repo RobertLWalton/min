@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 12, 2010}
+\date{March 13, 2010}
  
 \maketitle
 
@@ -4097,12 +4097,16 @@ in the current list,
 while the {\tt min::\EOL peek} function returns the next element without
 moving to it.
 The list is always pointing at a current element, whose value is
-returned by the {\tt min::\EOL current} function.  If the current element
+returned by the {\tt min::\EOL current} function.
+
+If the current element
 is updated using {\tt min::\EOL update}
 on another updatable or insertable list pointer,
 the {\tt min::\EOL update\_\EOL refresh} function
 must be used to reestablish the
-current element's value, which is cached in the list pointer.
+current element's value,
+which is \ikey{cached}{cache!list pointer}\label{LIST-POINTER-CACHE}
+in the list pointer.
 Similarly one of the {\tt min::\EOL\ldots\_refresh} functions may
 need to be used when another pointer is used to insert elements into
 or remove elements
@@ -4193,7 +4197,8 @@ element the list pointer currently points at, or returns
 if there is no such element because the pointer is at the end of a list.
 This function does not modify the list pointer.
 
-The {\tt min::update\_\EOL refresh} function must be called for
+The {\tt min::update\_\EOL refresh}
+function must be called for
 a pointer that points at an element if the {\tt min::\EOL update} function
 is used with \underline{another} pointer to the same object to update
 the element, or if the element is a sublist head and a function is used
@@ -5874,6 +5879,9 @@ TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 \subsection{Raw Vectors}
 \label{RAW-VECTORS}
 
+\newcommand{\BRACKETED}[1]{{\tt \LESSTHAN #1\GREATERTHAN}}
+\newcommand{\TARG}{\BRACKETED{T,I}}
+
 A \key{raw vector} is a variable sized vector whose elements
 are C language characters, numbers, or structs.  Elements or struct members
 may also be \verb|min::gen| values, \verb|min::stub *|
@@ -5887,20 +5895,17 @@ be copyable with a simple `{\tt =}' operator.
 
 There are three kinds of raw vector pointers that can be used to
 access elements of raw vectors.
-A read-only {\tt min::\EOL raw\_\EOL vec\_\EOL pointer}
+A read-only {\tt min::\EOL raw\_\EOL vec\_\EOL pointer\TARG}
 permits read-only access to raw vector elements.
-An updatable {\tt min::\EOL updatable\_\EOL raw\_\EOL vec\_\EOL pointer}
+An updatable {\tt min::\EOL updatable\_\EOL raw\_\EOL vec\_\EOL pointer\TARG}
 permits read-write access to raw vector elements.
-An insertable {\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer}
+An insertable {\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer\TARG}
 permits creation of raw vectors,
 read-write access to raw vector elements, and operations that push
 and pop elements from the end of a a raw vector.
 
 All three types of raw vector pointer are templates based on the
 following parameterization:
-
-\newcommand{\BRACKETED}[1]{{\tt \LESSTHAN #1\GREATERTHAN}}
-\newcommand{\TARG}{\BRACKETED{T,I}}
 \begin{center}
 \tt template
     \BRACKETED{class T, const min::raw\_vec\_type\_info \& I}
@@ -5908,9 +5913,99 @@ following parameterization:
 \end{center}
 
 Here {\tt T} is the C language type of the vector element, and
-{\tt I} is a {\tt min::\EOL type\_\EOL info} structure descibed
-at the end of this section that gives run-time information
-needed to create and resize raw vectors.
+{\tt I} is a {\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info}
+structure defined as follows:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{raw\_vec\_type\_info}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const char *    name;|\ARGBREAK
+    \verb|  const char *    format;|\ARGBREAK
+    \verb|  min::unsptr     element_size;|\ARGBREAK
+    \verb|  min::unsptr     initial_max_length;|\ARGBREAK
+    \verb|  min::float64    increment_ratio;|\ARGBREAK
+    \verb|  min::unsptr     max_increment;|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::RAW_VEC_TYPE_INFO} \\
+\end{tabular}\end{indpar}
+
+The elements of this structure are:
+
+\begin{indpar}[1in]
+\begin{itemize}
+
+\item[\ttmkey{name}{in {\tt type\_info}}]
+A name unique to the element type \verb|T|, typically the
+fully qualified name of this type.  This character string may
+be output to identify the element type if the raw vector is
+output.
+
+\item[\ttmkey{format}{in {\tt type\_info}}]
+A character string containing for each part of an element
+a character specifying the format of the part from the point
+of view of the garbage collector.  The possible characters
+are:
+\begin{indpar}
+\begin{tabular}{lp{3.0in}}
+\ttmkey{g}{in raw vector {\tt type\_info} format}
+	& Part is \verb|min::gen| value. \\
+\ttmkey{s}{in raw vector {\tt type\_info} format}
+	& Part is \verb|min::stub *| value. \\
+\ttmkey{p}{in raw vector {\tt type\_info} format}
+	& Part is a number the size of a pointer. \\ 
+\ttmkey{.}{in raw vector {\tt type\_info} format}
+	& Part is 1-byte piece of a number. \\
+\end{tabular}
+\end{indpar}
+
+`{\tt .}'s at the end of a format may be omitted.
+
+\item[\ttmkey{element\_size}{in {\tt type\_info}}]
+Must equal `{\tt sizeof ( T )}'.
+
+\item[\ttmkey{initial\_max\_length}{in {\tt type\_info}}]
+Value of the raw vector maximum length parameter
+when the raw vector is created by a \verb|new_gen|
+function with no arguments: see \pagref{MIN::RAW_VEC_NEW_GEN}.
+
+\newsavebox{\RAWVECINCREMENT}
+\begin{lrbox}{\RAWVECINCREMENT}
+\begin{tabular}[b]{r}
+\ttmkey{increment\_ratio}{in {\tt type\_info}} \\
+\ttmkey{max\_increment}{in {\tt type\_info}}
+\end{tabular}
+\end{lrbox}
+\item[\usebox{\RAWVECINCREMENT}]
+Parameters used in the formula for automatically
+expanding raw vectors: see \pagref{RAW-VEC-EXPANSION-FORMULA}.
+
+\end{itemize}
+\end{indpar}
+
+In order to be used as a template type parameter, a
+{\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info} structure
+must be external.  The following is an example usage:
+\begin{indpar}\begin{verbatim}
+struct rvs {
+    min::gen g;
+    min::uns32 u;
+};
+// Note: if min::gen values are 8 bytes, sizeof ( rvs ) may
+//       actually be 16, and there may be 4 bytes of hidden
+//       padding at the end of the structure.
+
+extern const min::raw_vec_type_info rvs_type_info;
+const min::raw_vec_type_info rvs_type_info =
+    { "rvs", "g", sizeof ( rvs ), 20, 0.5, 50 };
+
+typedef min::raw_vec_pointer<rvs,rvs_type_info>
+    rvs_pointer;
+typedef min::updatable_raw_vec_pointer<rvs,rvs_type_info>
+    updatable_rvs_pointer;
+typedef min::insertable_raw_vec_pointer<rvs,rvs_type_info>
+    insertable_rvs_pointer;
+\end{verbatim}\end{indpar}\label{RAW-VEC-TYPE-INFO-EXAMPLE}
+
 
 The functions for using a read-only
 {\tt min::\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
@@ -6073,17 +6168,18 @@ The \verb|new_gen| function with a vector of \verb|n| \verb|min::gen|
 values specified by arguments creates a new raw vector whose length
 and maximum length both equal \verb|n| and whose elements are given by
 the argument specified vector.  Here memory order is preserved: if
-\verb|rvp| is a raw vector pointer at the new vector,
+\verb|rvp| is a raw vector pointer at the new raw vector,
 \verb|rvp[0]| takes the value \verb|p[0]| and
 \verb|rvp[n-1]| takes the value \verb|p[n-1]|.
 
 The {\tt min::\EOL max\_\EOL length\_\EOL of} function returns the
-maximum length of the raw vector pointed at, and the
-The {\tt min::\EOL unused\_\EOL length\_\EOL of} function returns the
+maximum length of the raw vector pointed at, and
+the {\tt min::\EOL unused\_\EOL length\_\EOL of} function returns the
 difference of the maximum length and length of this raw vector.
 The {\tt min::\EOL resize} function resets the maximum length of the
 vector, and if the new maximum length is less than that old length,
 also resets the length to the new maximum length.
+Resizing usually causes the raw vector to be relocated in memory.
 The {\tt min::\EOL reserve} function checks if the unused length
 is at least as large as the {\tt required\_\EOL unused} argument,
 and if not, resizes the raw vector so the unused length is at least
@@ -6095,28 +6191,16 @@ new_maximum_length = old_maximum_length
                            min ( max_increment,
                                    increment_ratio
                                  * old_maximum_length ) )
-\end{verbatim}\end{indpar}
+\end{verbatim}\end{indpar}\label{RAW-VEC-EXPANSION-FORMULA}
 
 Here {\tt max\_\EOL increment} and {\tt increment\_\EOL ratio}
-are given by the {\tt type\_\EOL info} structure \verb|I|.
+are given by the {\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info}
+structure \verb|I| (\pagref{MIN::RAW_VEC_TYPE_INFO}).
 
-TBD
+Raw vector pointers do no caching and there is \underline{no need} for
+a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
+functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 
-
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{raw\_vec\_type\_info}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  const char *    name;|\ARGBREAK
-    \verb|  const char *    signature;|\ARGBREAK
-    \verb|  min::unsptr     element_size;|\ARGBREAK
-    \verb|  min::unsptr     initial_max_length;|\ARGBREAK
-    \verb|  min::float64    increment_ratio;|\ARGBREAK
-    \verb|  min::unsptr     max_increment;|\ARGBREAK
-    \verb|};|
-\ttmindex{name}{in {\tt min::raw\_vec\_type\_info}}
-\LABEL{MIN::RAW_VEC_TYPE_INFO} \\
-\end{tabular}\end{indpar}
 
 \section{Code and Execution}
 
