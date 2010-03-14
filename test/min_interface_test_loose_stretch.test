@@ -2127,7 +2127,7 @@ EMPTYING UNUSED AREA
 MINT::new_fixed_body ( stub 6, 7568 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[10] and assigning begin_body_region[158328 .. 159351]
+Using fixed_blocks[10] and assigning begin_body_region[158330 .. 159353]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
@@ -2558,7 +2558,7 @@ EMPTYING UNUSED AREA
 MINT::new_fixed_body ( stub 6, 11352 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[11] and assigning begin_body_region[160376 .. 162423]
+Using fixed_blocks[11] and assigning begin_body_region[160378 .. 162425]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
