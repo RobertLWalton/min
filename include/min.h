@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 13 20:24:58 EST 2010
+// Date:	Sun Mar 14 06:14:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 01:44:55 $
+//   $Date: 2010/03/14 10:31:43 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.305 $
+//   $Revision: 1.306 $
 
 // Table of Contents:
 //
@@ -1550,135 +1550,80 @@ namespace min {
 
         extern gen_locator * static_gen_last;
         extern gen_locator * stack_gen_last;
+
+	template < min::unsptr len,
+	           gen_locator * & last >
+	struct non_num_gen
+	{
+	    min::internal::gen_locator locator;
+	    min::gen values[len];
+
+	    non_num_gen ( void )
+	    {
+		this->locator.length = len;
+		this->locator.values = values;
+		this->locator.previous = last;
+		last = & this->locator;
+		memset ( values, 0, sizeof ( values ) );
+	    }
+
+	    ~ non_num_gen ( void )
+	    {
+		last = this->locator.previous;
+	    }
+
+	    min::gen & operator[] ( min::unsptr i )
+	    {
+		MIN_ASSERT ( i < len );
+		return values[i];
+	    }
+	};
+
+#       if MIN_IS_LOOSE
+	    template < min::unsptr len,
+		       gen_locator * & last >
+	    struct num_gen
+	    {
+		min::gen values[len];
+
+		num_gen ( void )
+		{
+		    memset ( values, 0,
+		             sizeof ( values ) );
+		}
+
+		min::gen & operator[] ( min::unsptr i )
+		{
+		    MIN_ASSERT ( i < len );
+		    return values[i];
+		}
+	    };
+#       endif
     }
 
-    template < min::unsptr len > struct static_gen
-    {
-        min::internal::gen_locator locator;
-	min::gen values[len];
+    template < min::unsptr len >
+	struct static_gen : internal::non_num_gen
+		<len,internal::static_gen_last> {};
+    template < min::unsptr len >
+	struct stack_gen : internal::non_num_gen
+		<len,internal::stack_gen_last> {};
 
-	static_gen ( void )
-	{
-	    this->locator.length = len;
-	    this->locator.values = values;
-	    this->locator.previous =
-	        min::internal::static_gen_last;
-	    min::internal::static_gen_last =
-	        & this->locator;
-	    memset ( values, 0, sizeof ( values ) );
-	}
+#   if MIN_IS_LOOSE
+	template < min::unsptr len >
+	  struct static_num_gen : internal::num_gen
+		<len,internal::static_gen_last> {};
+	template < min::unsptr len >
+	  struct stack_num_gen : internal::num_gen
+		<len,internal::stack_gen_last> {};
+#   else // if MIN_IS_COMPACT
+	template < min::unsptr len >
+	  struct static_num_gen : internal::non_num_gen
+		<len,internal::static_gen_last> {};
+	template < min::unsptr len >
+	  struct stack_num_gen : internal::non_num_gen
+		<len,internal::stack_gen_last> {};
+#   endif
 
-	~ static_gen ( void )
-	{
-	    min::internal::static_gen_last =
-	        this->locator.previous;
-	}
-
-	min::gen & operator[] ( min::unsptr i )
-	{
-	    MIN_ASSERT ( i < len );
-	    return values[i];
-	}
-    };
-
-    template < min::unsptr len > struct stack_gen
-    {
-        min::internal::gen_locator locator;
-	min::gen values[len];
-
-	stack_gen ( void )
-	{
-	    this->locator.length = len;
-	    this->locator.values = values;
-	    this->locator.previous =
-	        min::internal::stack_gen_last;
-	    min::internal::stack_gen_last =
-	        & this->locator;
-	    memset ( values, 0, sizeof ( values ) );
-	}
-
-	~ stack_gen ( void )
-	{
-	    min::internal::stack_gen_last =
-	        this->locator.previous;
-	}
-
-	min::gen & operator[] ( min::unsptr i )
-	{
-	    MIN_ASSERT ( i < len );
-	    return values[i];
-	}
-    };
-
-    template < min::unsptr len > struct static_num_gen
-    {
-#       if MIN_IS_COMPACT
-	    min::internal::gen_locator locator;
-#	endif
-	min::gen values[len];
-
-	static_num_gen ( void )
-	{
-#           if MIN_IS_COMPACT
-		this->locator.length = len;
-		this->locator.values = values;
-		this->locator.previous =
-		    min::internal::static_gen_last;
-		min::internal::static_gen_last =
-		    & this->locator;
-#	    endif
-	    memset ( values, 0, sizeof ( values ) );
-	}
-
-#       if MIN_IS_COMPACT
-	~ static_num_gen ( void )
-	{
-	    min::internal::static_gen_last =
-	        this->locator.previous;
-	}
-#	endif
-
-	min::gen & operator[] ( min::unsptr i )
-	{
-	    MIN_ASSERT ( i < len );
-	    return values[i];
-	}
-    };
-
-    template < min::unsptr len > struct stack_num_gen
-    {
-#       if MIN_IS_COMPACT
-	    min::internal::gen_locator locator;
-#	endif
-	min::gen values[len];
-
-	stack_num_gen ( void )
-	{
-#           if MIN_IS_COMPACT
-		this->locator.length = len;
-		this->locator.values = values;
-		this->locator.previous =
-		    min::internal::stack_gen_last;
-		min::internal::stack_gen_last =
-		    & this->locator;
-#	    endif
-	    memset ( values, 0, sizeof ( values ) );
-	}
-
-#       if MIN_IS_COMPACT
-	~ stack_num_gen ( void )
-	{
-	    min::internal::stack_gen_last =
-	        this->locator.previous;
-	}
-#	endif
-
-	min::gen & operator[] ( min::unsptr i )
-	{
-	    MIN_ASSERT ( i < len );
-	    return values[i];
-	}
-    };
 }
 
 namespace min { namespace internal {
