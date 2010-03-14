@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 13 19:06:53 EST 2010
+// Date:	Sun Mar 14 06:03:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 00:38:14 $
+//   $Date: 2010/03/14 10:07:42 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.151 $
+//   $Revision: 1.152 $
 
 // Table of Contents:
 //
@@ -290,10 +290,14 @@ void MINT::new_non_fixed_body
 
     min::unsptr m = n + 7;
     m >>= 3;
+    ++ m;
     MIN_ASSERT ( next_body + m <= end_body_region );
 
+    * next_body =
+        MUP::new_control_with_locator ( 0, s );
+    	
     min::unprotected
-       ::set_pointer_of ( s, next_body );
+       ::set_pointer_of ( s, next_body + 1 );
 
     next_body += m;
 }
@@ -320,7 +324,8 @@ void MINT::new_fixed_body
 	 << next - begin_body_region + m - 1
 	 << "]" << endl;
 
-    * next = 0;
+    * next =
+        MUP::new_control_with_locator ( 0, s );
     min::unprotected
        ::set_pointer_of ( s, next + 1 );
     min::unprotected
