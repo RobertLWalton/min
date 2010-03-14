@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 13 20:27:15 EST 2010
+// Date:	Sun Mar 14 05:58:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 01:45:43 $
+//   $Date: 2010/03/14 10:01:37 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.191 $
+//   $Revision: 1.192 $
 
 // Table of Contents:
 //
@@ -228,12 +228,17 @@ namespace min { namespace unprotected {
 	{
 	    min::stub * rstub = MUP::new_aux_stub();
 	    MUP::set_control_of
-	         ( endstub, MUP::renew_control_stub
-	                        ( MUP::control_of
-				    ( endstub ),
-				  rstub ) );
+	         ( endstub,
+		   MUP::renew_control_stub
+			( MUP::control_of ( endstub ),
+			  rstub ) );
 	    endstub = rstub;
 	}
+	MUP::set_control_of
+	     ( endstub,
+	       MUP::renew_control_stub
+		    ( MUP::control_of ( endstub ),
+		      MINT::null_stub ) );
 	return MUP::stub_of_control
 	            ( MUP::control_of
 		        ( last_allocated ) );
