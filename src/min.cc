@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 13 19:33:57 EST 2010
+// Date:	Sat Mar 13 20:27:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 00:38:23 $
+//   $Date: 2010/03/14 01:45:43 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.190 $
+//   $Revision: 1.191 $
 
 // Table of Contents:
 //
@@ -4296,7 +4296,7 @@ inline min::unsptr MINT::test_flag
 }
 
 // Helper functions for min::get_attrs.
-//
+
 // Called with current(lp) being start of
 // double-arrow-sublist.  Return number of reverse
 // attribute names with non-empty value sets.
@@ -4372,16 +4372,14 @@ static bool compute_counts
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
     // Compute labels associated with the children of
     // the node whose node-descriptor is pointed at
-    // by lp.  The label of the node is
-    // components[0 .. depth-1].  Output is to go into
-    // `* out ++' if `result < n' and result is to be
-    // incremented regardless.
+    // by lp.  The node label is
+    //		components[0 .. depth-1].
+    // Output is goes into aip.
     //
     static void compute_children
 	( min::list_pointer & lp,
 	  min::gen * components, min::unsptr depth,
-	  min::attr_info * & out, min::unsptr & result,
-	  min::unsptr n )
+	  min::insertable_attr_info_pointer & aip )
     {
 	min::gen c = min::current ( lp );
 	if ( ! min::is_sublist ( c ) ) return;
@@ -4400,6 +4398,8 @@ static bool compute_counts
 	for ( min::unsptr i = 0; i < depth; ++ i )
 	    labvec[i] = * components ++;
 
+	min::stack_gen<1> sgen;
+	min::gen & new_label = sgen[1];
 	for ( c = min::current ( lpv );
 	      ! min::is_list_end ( c );
 	      c = min::next ( lpv ) )
@@ -4409,32 +4409,30 @@ static bool compute_counts
 	    min::attr_info info;
 	    if ( compute_counts ( lpv, info ) )
 	    {
-		if ( result < n )
-		{
-		    info.name = min::new_lab_gen
-				  ( labvec, depth + 1 );
-		    * out ++ = info;
-		}
-		++ result;
+		info.name = new_label =
+		    min::new_lab_gen
+			  ( labvec, depth + 1 );
+		min::push ( aip, info );
 	    }
-	    compute_children ( lpv, labvec, depth + 1,
-			       out, result, n );
+	    compute_children
+	        ( lpv, labvec, depth + 1, aip );
 	}
     }
 # endif
 
 template < class vecpt >
-min::unsptr min::get_attrs
-	( min::attr_info * out, min::unsptr n,
-	  unprotected::attr_pointer_type
+min::gen min::get_attrs
+	( unprotected::attr_pointer_type
 	      < vecpt > & ap )
 {
+    min::gen airv = min::insertable_attr_info_pointer
+                       ::new_gen();
+    min::insertable_attr_info_pointer aip ( airv );
     attr_info info;
 
     vecpt & vp = vec_pointer_of ( ap );
     min::list_pointer lp ( vp );
 
-    min::unsptr result = 0;
     for ( min::unsptr i = 0;
           i < hash_size_of ( vp );
 	  ++ i )
@@ -4456,14 +4454,9 @@ min::unsptr min::get_attrs
 #	    endif
 	    next ( lp );
 	    if ( compute_counts ( lp, info ) )
-	    {
-		if ( result < n )
-		    * out ++ = info;
-		++ result;
-	    }
+		push ( aip, info );
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
-		compute_children ( lp, & c, 1,
-				   out, result, n );
+		compute_children ( lp, & c, 1, aip );
 #	    endif
 	}
     }
@@ -4477,23 +4470,27 @@ min::unsptr min::get_attrs
 
 	info.name = new_num_gen ( i );
 	if ( compute_counts ( lp, info ) )
-	{
-	    if ( result < n ) * out ++ = info;
-	    ++ result;
-	}
+	    push ( aip, info );
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	    compute_children ( lp, & info.name, 1,
-			       out, result, n );
+	    compute_children
+	        ( lp, & info.name, 1, aip );
 #	endif
     }
+
+    return airv;
 }
 
 template < class vecpt >
-min::unsptr min::get_reverse_attrs
-	( min::reverse_attr_info * out, min::unsptr n,
-	  unprotected::attr_pointer_type
+min::gen min::get_reverse_attrs
+	( unprotected::attr_pointer_type
 	      < vecpt > & ap )
 {
+    min::gen rairv =
+        min::insertable_reverse_attr_info_pointer
+           ::new_gen();
+    min::insertable_reverse_attr_info_pointer raip
+        ( rairv );
+
     typedef MUP::attr_pointer_type<vecpt> ap_type;
 
     switch ( ap.state )
@@ -4503,7 +4500,7 @@ min::unsptr min::get_reverse_attrs
 	    ( "min::get_reverse_attrs called before"
 	      " locate" );
     case ap_type::LOCATE_FAIL:
-        return 0;
+        return rairv;
     }
 
     min::gen c = update_refresh ( ap.locate_dlp );
@@ -4514,15 +4511,14 @@ min::unsptr min::get_reverse_attrs
 	  && ! is_list_end ( c );
 	  c = next ( ap.lp ) );
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-	if ( ! is_sublist ( c ) ) return 0;
+	if ( ! is_sublist ( c ) ) return rairv;
         next ( ap.lp );
 #   endif
-    if ( ! is_sublist ( c ) ) return 0;
+    if ( ! is_sublist ( c ) ) return rairv;
     start_sublist ( ap.lp );
 
     list_pointer lpv ( vec_pointer_of ( ap.lp ) );
     reverse_attr_info info;
-    min::unsptr result = 0;
     for ( c = current ( ap.lp );
           ! is_list_end ( c );
 	  c = next ( ap.lp ) )
@@ -4542,11 +4538,10 @@ min::unsptr min::get_reverse_attrs
 		  c = next ( lpv ) )
 	        ++ info.value_count;
 	}
-	if ( result < n ) * out ++ = info;
-	++ result;
+	push ( raip, info );
     }
 
-    return result;
+    return rairv;
 }
 
 template < class vecpt >
