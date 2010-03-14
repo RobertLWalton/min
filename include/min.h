@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 12 09:33:05 EST 2010
+// Date:	Sat Mar 13 17:46:18 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/12 14:38:26 $
+//   $Date: 2010/03/14 00:22:47 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.301 $
+//   $Revision: 1.302 $
 
 // Table of Contents:
 //
@@ -2965,16 +2965,11 @@ namespace min {
 	    //	  's'   A min:stub * pointer.
 	    //    'p'   A pointer sized number, ignored
 	    //		by the garbage collector.
-	    //    'b'   An 8-bit number (byte), ignored
-	    //	        by the garbage collector.
-	    //    's'   A 32-bit number (single),
-	    //		ignored by the garbage
-	    //		collector.
-	    //    'd'   A 64-bit number (double),
-	    //		ignored by the garbage
+	    //    '.'   An 8-bit piece of a number
+	    //		(byte), ignored by the garbage
 	    //		collector.
 	    //
-	    // 'b's at the end may be omitted.
+	    // '.'s at the end may be omitted.
 	    //
 	    // Vector elements are aligned next to each
 	    // other with no padding between.  The first
@@ -3007,7 +3002,9 @@ namespace min {
 	};
 
 	min::gen new_raw_vec_gen
-		( const raw_vec_type_info & type_info );
+		( const raw_vec_type_info & type_info,
+		  min::unsptr max_length,
+		  void * p );
 	void resize
 		( min::stub * s,
 		  min::unsptr new_max_length,
@@ -3038,7 +3035,7 @@ namespace min {
 	          & rvp );
     template < class T,
                const raw_vec_type_info & type_info >
-    min::unsptr unused_of
+    min::unsptr unused_length_of
 	    ( insertable_raw_vec_pointer<T,type_info>
 	          & rvp );
     template < class T,
@@ -3153,16 +3150,30 @@ namespace min {
 	    updatable_raw_vec_pointer<T,type_info>
 	        ( v ) {}
 
-	static min::gen new_raw_vec_gen ( void )
+	static min::gen new_gen ( void )
 	{
 	    return internal::new_raw_vec_gen
-	    		( type_info );
+	    		( type_info,
+			  type_info.initial_max_length,
+			  NULL );
+	}
+	static min::gen new_gen
+	    ( min::unsptr max_length )
+	{
+	    return internal::new_raw_vec_gen
+	    		( type_info, max_length, NULL );
+	}
+	static min::gen new_gen
+	    ( const T * p, min::unsptr n )
+	{
+	    return internal::new_raw_vec_gen
+	    		( type_info, n, p );
 	}
 
 	friend min::unsptr min::max_length_of<>
 	        ( insertable_raw_vec_pointer
 		      <T,type_info> & rvp );
-	friend min::unsptr min::unused_of<>
+	friend min::unsptr min::unused_length_of<>
 	        ( insertable_raw_vec_pointer
 		      <T,type_info> & rvp );
 	friend void min::push<>
@@ -3210,7 +3221,7 @@ inline min::unsptr min::max_length_of
 
 template < class T,
 	   const min::raw_vec_type_info & type_info >
-inline min::unsptr min::unused_of
+inline min::unsptr min::unused_length_of
 	( insertable_raw_vec_pointer<T,type_info>
 	      & rvp )
 {

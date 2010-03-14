@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 12 08:48:10 EST 2010
+// Date:	Sat Mar 13 19:16:30 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/12 14:29:26 $
+//   $Date: 2010/03/14 00:21:04 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.188 $
+//   $Revision: 1.189 $
 
 // Table of Contents:
 //
@@ -696,20 +696,27 @@ min::gen min::new_lab_gen
 // --- -------
 
 min::gen min::internal::new_raw_vec_gen
-	( const min::raw_vec_type_info & type_info )
+	( const min::raw_vec_type_info & type_info,
+	  min::unsptr max_length, void * p )
 {
     min::stub * s = unprotected::new_acc_stub();
     unprotected::new_body
 	( s,
 	    sizeof ( internal::raw_vec_header )
 	  +   type_info.element_size
-	    * type_info.initial_max_length );
+	    * max_length );
     internal::raw_vec_header & h =
 	* (internal::raw_vec_header *)
 	  unprotected::pointer_of ( s );
     h.type_info = & type_info;
+    h.max_length = max_length;
     h.length = 0;
-    h.max_length = type_info.initial_max_length;
+    if ( p != NULL )
+    {
+        memcpy ( ( & h ) + 1, p,
+	         max_length * type_info.element_size );
+        h.length = max_length;
+    }
     unprotected::set_type_of ( s, min::RAW_VEC );
     return new_gen ( s );
 }
