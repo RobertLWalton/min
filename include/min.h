@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 13 19:33:25 EST 2010
+// Date:	Sat Mar 13 19:38:53 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 00:38:27 $
+//   $Date: 2010/03/14 00:39:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.303 $
+//   $Revision: 1.304 $
 
 // Table of Contents:
 //
@@ -2955,7 +2955,7 @@ namespace min {
 	    // of the C type of the element.  Will be
 	    // output to identify the element type if
 	    // the raw vector is output.
-	const char * signature;
+	const char * format;
 	    // Contains for each consecutive part of an
 	    // element, a control character typing the
 	    // part, from the point of view of the
