@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 14 06:14:21 EDT 2010
+// Date:	Sun Mar 14 07:21:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 10:31:43 $
+//   $Date: 2010/03/14 11:29:05 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.306 $
+//   $Revision: 1.307 $
 
 // Table of Contents:
 //
@@ -1662,6 +1662,11 @@ namespace min { namespace internal {
     // by the hash table element indexed by the hashed
     // object's hash value masked by the xxx_hash_mask
     // value.
+    //
+    // When a hashed object is no longer ephemeral, its
+    // HASHTABLE_AUX stub is discarded and the hashed
+    // object itself is put at the end of its hashtable
+    // list.
 
     extern min::stub ** str_hash;
     extern min::unsptr str_hash_size;
@@ -1829,7 +1834,7 @@ namespace min { namespace internal {
     // Stub allocation is from a single list of stubs
     // chained together by the chain part of the stub
     // control.  This is referred to as the `acc stub
-    // list'.
+    // list'.  It is null_stub terminated.
     //
     // A pointer to the last allocated stub is maintain-
     // ed.  To allocate a new stub, this is updated to
@@ -1971,7 +1976,7 @@ namespace min { namespace internal {
 	    // Next in NULL terminated list of free
 	    // fixed size blocks.
     };
-    typedef struct fixed_block_list_extension;
+    struct fixed_block_list_extension;
         // Allocator specific extension of fixed_block_
 	// list struct.
     extern struct fixed_block_list
