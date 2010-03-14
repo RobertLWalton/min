@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 13 17:48:30 EST 2010
+// Date:	Sat Mar 13 19:06:53 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/13 22:48:42 $
+//   $Date: 2010/03/14 00:38:14 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.150 $
+//   $Revision: 1.151 $
 
 // Table of Contents:
 //
@@ -1792,8 +1792,7 @@ void test_raw_vectors ( void )
 
     cout << "rvs size = " << sizeof ( rvs ) << endl;
 
-    min::gen rv =
-        insertable_rvs_pointer::new_raw_vec_gen();
+    min::gen rv = insertable_rvs_pointer::new_gen();
     insertable_rvs_pointer irvp ( rv );
     rvs rvs1 = { min::new_num_gen ( 1.1 ), 12 };
     rvs rvs2 = { min::new_num_gen ( 2.1 ), 22 };
@@ -1842,6 +1841,19 @@ void test_raw_vectors ( void )
     min_assert_print = true;
     MIN_ASSERT ( min::length_of ( irvp ) == 0 );
 
+    rvs rvsi[6] =
+        { rvs1, rvs2, rvs3, rvs4, rvs1, rvs2 };
+    min::gen rvi = insertable_rvs_pointer
+                       ::new_gen ( rvsi, 6 );
+    insertable_rvs_pointer rvip ( rvi );
+    MIN_ASSERT ( min::length_of ( rvip ) == 6 );
+    MIN_ASSERT ( min::max_length_of ( rvip ) == 6 );
+    min_assert_print = false;
+    for ( int i = 0; i < 6; ++ i )
+    {
+        MIN_ASSERT ( rvip[i] == rvsi[i] );
+    }
+    min_assert_print = true;
     cout << endl;
     cout << "Finish Raw Vectors Test!" << endl;
 }

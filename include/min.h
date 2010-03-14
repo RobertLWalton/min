@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 13 17:46:18 EST 2010
+// Date:	Sat Mar 13 19:33:25 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 00:22:47 $
+//   $Date: 2010/03/14 00:38:27 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.302 $
+//   $Revision: 1.303 $
 
 // Table of Contents:
 //
@@ -3004,7 +3004,7 @@ namespace min {
 	min::gen new_raw_vec_gen
 		( const raw_vec_type_info & type_info,
 		  min::unsptr max_length,
-		  void * p );
+		  const void * p );
 	void resize
 		( min::stub * s,
 		  min::unsptr new_max_length,
