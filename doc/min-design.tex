@@ -5891,7 +5891,8 @@ All elements must have the same size.
 
 Elements may \underline{not} be C++ classes.  In particular,
 they may \underline{not} have constructors or destructors, and must
-be copyable with a simple `{\tt =}' operator.
+be copyable with a simple `{\tt =}' operator or with the C language
+\verb|memcpy| function.
 
 There are three kinds of raw vector pointers that can be used to
 access elements of raw vectors.
