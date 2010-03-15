@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 15 08:01:02 EDT 2010
+// Date:	Mon Mar 15 09:11:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/15 12:05:01 $
+//   $Date: 2010/03/15 13:21:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.308 $
+//   $Revision: 1.309 $
 
 // Table of Contents:
 //
@@ -2891,52 +2891,14 @@ namespace min {
 
 namespace min {
 
-    // Raw vector templates are parameterized by the
-    // vector element type T and a type info structure:
-    //
-    //	  const min::raw_vec_type_info xxx;
-    //
-    // The latter is as follows:
-    //
     struct raw_vec_type_info
     {
 	const char * name;
-	    // A unique name, typically the name T
-	    // of the C type of the element.  Will be
-	    // output to identify the element type if
-	    // the raw vector is output.
 	const char * format;
-	    // Contains for each consecutive part of an
-	    // element, a control character typing the
-	    // part, from the point of view of the
-	    // garbage collector, as follows:
-	    //
-	    //	  'g'	A min::gen value.
-	    //	  's'   A min:stub * pointer.
-	    //    'p'   A pointer sized number, ignored
-	    //		by the garbage collector.
-	    //    '.'   An 8-bit piece of a number
-	    //		(byte), ignored by the garbage
-	    //		collector.
-	    //
-	    // '.'s at the end may be omitted.
-	    //
-	    // Vector elements are aligned next to each
-	    // other with no padding between.  The first
-	    // element is aligned on a 8 byte boundary.
 	min::unsptr element_size;
-	    // sizeof ( T )
 	min::unsptr initial_max_length;
-	    // Value of max_length when raw vector
-	    // of the given element type is created.
 	min::float64 increment_ratio;
 	min::unsptr max_increment;
-	    // When a raw vector of the given element
-	    // type is expanded, the expansion is by:
-	    //
-	    //   max_length +=
-	    //	   min ( increment_ratio * max_length,
-	    //	         max_increment )
     };
 
     namespace internal {
@@ -2951,14 +2913,36 @@ namespace min {
 #	    endif
 	};
 
+	// Create a new raw vector and return a min::gen
+	// value pointing to its stub.  The max_length
+	// of the new raw vector is explicitly given.
+	// If p == NULL, the length is 0.  Otherwise the
+	// length is the max_length and the bytes of
+	// the vector are filled by
+	//
+	//   memcpy ( & first-element-of-raw-vector,
+	//            p,
+	//              type_info.element_size
+	//	      * max_length );
+	//
 	min::gen new_raw_vec_gen
 		( const raw_vec_type_info & type_info,
 		  min::unsptr max_length,
 		  const void * p );
+
+	// Perform resize operation on a raw vector that
+	// is specified by its stub address s and its
+	// type_info.
+	//
 	void resize
 		( min::stub * s,
 		  min::unsptr new_max_length,
 		  const raw_vec_type_info & type_info );
+
+	// Perform reserve operation on a raw vector
+	// that is specified by its stub address s and
+	// its type_info.
+	//
 	void reserve
 		( min::stub * s,
 		  min::unsptr required_unused,
@@ -2970,24 +2954,17 @@ namespace min {
     //
     template < typename T,
                const raw_vec_type_info & type_info >
-	class raw_vec_pointer;
+    class raw_vec_pointer;
+
     template < typename T,
                const raw_vec_type_info & type_info >
     min::unsptr length_of
 	    ( raw_vec_pointer<T,type_info> & rvp );
+
     template < typename T,
                const raw_vec_type_info & type_info >
     class insertable_raw_vec_pointer;
-    template < typename T,
-               const raw_vec_type_info & type_info >
-    min::unsptr max_length_of
-	    ( insertable_raw_vec_pointer<T,type_info>
-	          & rvp );
-    template < typename T,
-               const raw_vec_type_info & type_info >
-    min::unsptr unused_length_of
-	    ( insertable_raw_vec_pointer<T,type_info>
-	          & rvp );
+
     template < typename T,
                const raw_vec_type_info & type_info >
     void push
@@ -3011,6 +2988,17 @@ namespace min {
 	    ( T * p, min::unsptr n,
 	      insertable_raw_vec_pointer<T,type_info>
 	            & rvp );
+
+    template < typename T,
+               const raw_vec_type_info & type_info >
+    min::unsptr max_length_of
+	    ( insertable_raw_vec_pointer<T,type_info>
+	          & rvp );
+    template < typename T,
+               const raw_vec_type_info & type_info >
+    min::unsptr unused_length_of
+	    ( insertable_raw_vec_pointer<T,type_info>
+	          & rvp );
     template < typename T,
                const raw_vec_type_info & type_info >
     void resize
@@ -3042,9 +3030,12 @@ namespace min {
 	    MIN_ASSERT
 	        (    header->type_info
 		  == & type_info );
+	    MIN_ASSERT
+	        (    type_info.element_size
+		  == sizeof ( T ) );
 	}
 
-    	typedef T type;
+    	typedef T element_type;
 
 	const T & operator [] ( min::unsptr i )
 	{
@@ -3120,12 +3111,6 @@ namespace min {
 	    		( type_info, n, p );
 	}
 
-	friend min::unsptr min::max_length_of<>
-	        ( insertable_raw_vec_pointer
-		      <T,type_info> & rvp );
-	friend min::unsptr min::unused_length_of<>
-	        ( insertable_raw_vec_pointer
-		      <T,type_info> & rvp );
 	friend void min::push<>
 	        ( insertable_raw_vec_pointer
 		      <T,type_info> & rvp,
@@ -3141,6 +3126,13 @@ namespace min {
 	        ( T * p, min::unsptr n,
 		  insertable_raw_vec_pointer
 		        <T,type_info> & rvp );
+
+	friend min::unsptr min::max_length_of<>
+	        ( insertable_raw_vec_pointer
+		      <T,type_info> & rvp );
+	friend min::unsptr min::unused_length_of<>
+	        ( insertable_raw_vec_pointer
+		      <T,type_info> & rvp );
 	friend void min::resize<>
 		( insertable_raw_vec_pointer
 		      <T,type_info> & rvp,
