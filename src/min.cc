@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 14 05:58:31 EDT 2010
+// Date:	Mon Mar 15 19:30:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 10:01:37 $
+//   $Date: 2010/03/15 23:43:06 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.192 $
+//   $Revision: 1.193 $
 
 // Table of Contents:
 //
@@ -3487,6 +3487,18 @@ const min::raw_vec_type_info
 
 	return;
     }
+    template void MINT::locate
+	    ( min::attr_pointer & ap,
+	      min::gen name,
+	      bool allow_partial_labels );
+    template void MINT::locate
+	    ( min::updatable_attr_pointer & ap,
+	      min::gen name,
+	      bool allow_partial_labels );
+    template void MINT::locate
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen name,
+	      bool allow_partial_labels );
 
     // Continue relocation after ap.locate_dlp is
     // positioned at beginning of hash-list or
@@ -3494,7 +3506,7 @@ const min::raw_vec_type_info
     // Result is a setting of ap.locate_dlp only.
     // 
     template < class vecpt >
-    inline void MINT::relocate
+    void MINT::relocate
 	    ( MUP::attr_pointer_type<vecpt> & ap )
     {
 	typedef MUP::attr_pointer_type<vecpt> ap_type;
@@ -3563,6 +3575,12 @@ const min::raw_vec_type_info
 
 	MIN_ASSERT ( length == ap.length );
     }
+    template void MINT::relocate
+	    ( min::attr_pointer & ap );
+    template void MINT::relocate
+	    ( min::updatable_attr_pointer & ap );
+    template void MINT::relocate
+	    ( min::insertable_attr_pointer & ap );
 
     void MINT::attr_create
 	    ( min::insertable_attr_pointer & ap,
@@ -3773,6 +3791,15 @@ const min::raw_vec_type_info
 	return;
 
     }
+    template void MINT::locate
+	    ( min::attr_pointer & ap,
+	      min::gen name );
+    template void MINT::locate
+	    ( min::updatable_attr_pointer & ap,
+	      min::gen name );
+    template void MINT::locate
+	    ( min::insertable_attr_pointer & ap,
+	      min::gen name );
 
     // Continue relocation after ap.relocate_dlp is
     // positioned at beginning of hash-list.  State
@@ -3781,7 +3808,7 @@ const min::raw_vec_type_info
     // ap.locate_dlp only.
     // 
     template < class vecpt >
-    inline void MINT::relocate
+    void MINT::relocate
 	    ( MUP::attr_pointer_type<vecpt> & ap )
     {
 	typedef MUP::attr_pointer_type<vecpt> ap_type;
@@ -3802,6 +3829,12 @@ const min::raw_vec_type_info
 	MIN_ABORT ( "relocate could not find"
 	            " attribute" );
     }
+    template void MINT::relocate
+	    ( min::attr_pointer & ap );
+    template void MINT::relocate
+	    ( min::updatable_attr_pointer & ap );
+    template void MINT::relocate
+	    ( min::insertable_attr_pointer & ap );
 
     void MINT::attr_create
 	    ( min::insertable_attr_pointer & ap,
@@ -4048,6 +4081,15 @@ void min::locate_reverse
 
     ap.state = ap_type::REVERSE_LOCATE_FAIL;
 }
+template void min::locate_reverse
+	( min::attr_pointer & ap,
+	  min::gen reverse_name );
+template void min::locate_reverse
+	( min::updatable_attr_pointer & ap,
+	  min::gen reverse_name );
+template void min::locate_reverse
+	( min::insertable_attr_pointer & ap,
+	  min::gen reverse_name );
 
 template < class vecpt >
 void min::relocate
@@ -4135,9 +4177,15 @@ void min::relocate
     MIN_ABORT ( "relocate could not find reverse"
                 " attribute" );
 }
+template void min::relocate
+	( min::attr_pointer & ap );
+template void min::relocate
+	( min::updatable_attr_pointer & ap );
+template void min::relocate
+	( min::insertable_attr_pointer & ap );
 
 template < class vecpt >
-inline min::unsptr MINT::get
+min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
 	  MUP::attr_pointer_type<vecpt> & ap )
 {
@@ -4198,9 +4246,18 @@ inline min::unsptr MINT::get
 
     return result;
 }
+template min::unsptr MINT::get
+	( min::gen * out, min::unsptr n,
+	  min::attr_pointer & ap );
+template min::unsptr MINT::get
+	( min::gen * out, min::unsptr n,
+	  min::updatable_attr_pointer & ap );
+template min::unsptr MINT::get
+	( min::gen * out, min::unsptr n,
+	  min::insertable_attr_pointer & ap );
 
 template < class vecpt >
-inline min::gen MINT::get
+min::gen MINT::get
 	( MUP::attr_pointer_type<vecpt> & ap )
 {
     typedef MUP::attr_pointer_type<vecpt> ap_type;
@@ -4264,10 +4321,17 @@ inline min::gen MINT::get
 
     return result;
 }
+template min::gen MINT::get
+	( min::attr_pointer & ap );
+template min::gen MINT::get
+	( min::updatable_attr_pointer & ap );
+template min::gen MINT::get
+	( min::insertable_attr_pointer & ap );
 
 template < class vecpt >
-inline min::unsptr MINT::get_flags
-	( MUP::attr_pointer_type<vecpt> & ap )
+min::unsptr MINT::get_flags
+	( min::gen * p, min::unsptr n,
+	  MUP::attr_pointer_type<vecpt> & ap )
 {
     typedef MUP::attr_pointer_type<vecpt> ap_type;
 
@@ -4281,9 +4345,18 @@ inline min::unsptr MINT::get_flags
 	    ( "abnormal call to min::get_flags" );
     }
 }
+template min::unsptr MINT::get_flags
+	( min::gen * p, min::unsptr n,
+	  min::attr_pointer & ap );
+template min::unsptr MINT::get_flags
+	( min::gen * p, min::unsptr n,
+	  min::updatable_attr_pointer & ap );
+template min::unsptr MINT::get_flags
+	( min::gen * p, min::unsptr n,
+	  min::insertable_attr_pointer & ap );
 
 template < class vecpt >
-inline min::unsptr MINT::test_flag
+bool MINT::test_flag
 	( MUP::attr_pointer_type<vecpt> & ap,
 	  unsigned n )
 {
@@ -4299,6 +4372,15 @@ inline min::unsptr MINT::test_flag
 	    ( "abnormal call to min::test_flag" );
     }
 }
+template bool MINT::test_flag
+	( min::attr_pointer & ap,
+	  unsigned n );
+template bool MINT::test_flag
+	( min::updatable_attr_pointer & ap,
+	  unsigned n );
+template bool MINT::test_flag
+	( min::insertable_attr_pointer & ap,
+	  unsigned n );
 
 // Helper functions for min::get_attrs.
 
@@ -4435,7 +4517,7 @@ min::gen min::get_attrs
     min::insertable_attr_info_pointer aip ( airv );
     attr_info info;
 
-    vecpt & vp = vec_pointer_of ( ap );
+    vecpt & vp = vec_pointer_of ( ap.locate_dlp );
     min::list_pointer lp ( vp );
 
     for ( min::unsptr i = 0;
@@ -4484,6 +4566,12 @@ min::gen min::get_attrs
 
     return airv;
 }
+template min::gen min::get_attrs
+	( min::attr_pointer & ap );
+template min::gen min::get_attrs
+	( min::updatable_attr_pointer & ap );
+template min::gen min::get_attrs
+	( min::insertable_attr_pointer & ap );
 
 template < class vecpt >
 min::gen min::get_reverse_attrs
@@ -4548,9 +4636,15 @@ min::gen min::get_reverse_attrs
 
     return rairv;
 }
+template min::gen min::get_reverse_attrs
+	( min::attr_pointer & ap );
+template min::gen min::get_reverse_attrs
+	( min::updatable_attr_pointer & ap );
+template min::gen min::get_reverse_attrs
+	( min::insertable_attr_pointer & ap );
 
 template < class vecpt >
-inline min::gen MINT::update
+min::gen MINT::update
 	( MUP::attr_pointer_type<vecpt> & ap,
 	  min::gen v )
 {
@@ -4577,6 +4671,12 @@ inline min::gen MINT::update
 	      " values" );
     }
 }
+template min::gen MINT::update
+	( min::updatable_attr_pointer & ap,
+	  min::gen v );
+template min::gen MINT::update
+	( min::insertable_attr_pointer & ap,
+	  min::gen v );
 
 // Helper functions for various set and remove
 // functions.  See min.h for documentation.
@@ -4612,7 +4712,7 @@ void MINT::remove_reverse_attr_value
     min::remove ( rap.dlp, 1 );
 }
     
-inline void MINT::remove_reverse_attr_value
+void MINT::remove_reverse_attr_value
 	( min::insertable_attr_pointer & ap,
           min::gen v )
 {
@@ -4672,7 +4772,7 @@ void MINT::add_reverse_attr_value
     insert_before ( rap.dlp, elements, 1 );
 }
     
-inline void MINT::add_reverse_attr_value
+void MINT::add_reverse_attr_value
 	( min::insertable_attr_pointer & ap,
           min::gen v )
 {

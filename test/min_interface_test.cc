@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 14 06:03:06 EDT 2010
+// Date:	Mon Mar 15 19:43:25 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/14 10:07:42 $
+//   $Date: 2010/03/15 23:43:43 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.152 $
+//   $Revision: 1.153 $
 
 // Table of Contents:
 //
@@ -2553,6 +2553,31 @@ void test_object_list_level ( void )
 
 void test_object_attribute_level ( void )
 {
+    cout << endl;
+    cout << "Start Object Attribute Level Test!"
+	 << endl;
+
+    min::gen obj_gen = min::new_obj_gen ( 500, 100 );
+    min::insertable_vec_pointer vp ( obj_gen );
+    min::insertable_attr_pointer ap ( vp );
+
+    min::gen lab1 = min::new_str_gen ( "label1" );
+    min::gen lab2 = min::new_str_gen ( "label2" );
+    min::gen lab3 = min::new_str_gen ( "label3" );
+    min::gen lab4 = min::new_str_gen ( "label4" );
+
+    min::gen int1 = min::new_num_gen ( 1 );
+    min::gen int2 = min::new_num_gen ( 2 );
+    min::gen int3 = min::new_num_gen ( 3 );
+    min::gen int4 = min::new_num_gen ( 4 );
+
+    min::locate ( ap, lab1 );
+    min::set ( ap, int1 );
+    MIN_ASSERT ( min::get ( ap ) == int1 );
+
+    cout << endl;
+    cout << "Finish Object Attribute Level Test!"
+	 << endl;
 }
 
 // Main Program
