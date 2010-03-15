@@ -1065,6 +1065,8 @@ Using fixed_blocks[6] and assigning begin_body_region[224 .. 287]
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
     header->type_info == & type_info true.
+../include/min.h:XXXX assert:
+    type_info.element_size == sizeof ( T ) true.
 min_interface_test.cc:XXXX assert:
     min::length_of ( irvp ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1079,6 +1081,8 @@ min_interface_test.cc:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
     header->type_info == & type_info true.
+../include/min.h:XXXX assert:
+    type_info.element_size == sizeof ( T ) true.
 ../include/min.h:XXXX assert:
     i < this->header->length true.
 min_interface_test.cc:XXXX assert:
@@ -1146,6 +1150,8 @@ Using fixed_blocks[4] and assigning begin_body_region[2144 .. 2159]
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
     header->type_info == & type_info true.
+../include/min.h:XXXX assert:
+    type_info.element_size == sizeof ( T ) true.
 min_interface_test.cc:XXXX assert:
     min::length_of ( rvip ) == 6 true.
 min_interface_test.cc:XXXX assert:
