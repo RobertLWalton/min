@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 15 19:30:57 EDT 2010
+// Date:	Tue Mar 16 11:07:20 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/15 23:43:06 $
+//   $Date: 2010/03/16 15:08:33 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.193 $
+//   $Revision: 1.194 $
 
 // Table of Contents:
 //
@@ -3858,22 +3858,25 @@ const min::raw_vec_type_info
 	    }
 	    insert_before ( ap.locate_dlp, & v, 1 );
 	    start_copy ( ap.dlp, ap.locate_dlp );
-	    return;
 	}
-
-        start_hash ( ap.locate_dlp, ap.index );
-
-	if ( insert_reserve ( ap.locate_dlp, 1, 2 ) )
+	else
 	{
-	    insert_refresh ( ap.dlp );
-	    insert_refresh ( ap.lp );
+	    start_hash ( ap.locate_dlp, ap.index );
+
+	    if ( insert_reserve
+	             ( ap.locate_dlp, 1, 2 ) )
+	    {
+		insert_refresh ( ap.dlp );
+		insert_refresh ( ap.lp );
+	    }
+
+	    min::gen elements[2] = { ap.attr_name, v };
+	    insert_before
+	        ( ap.locate_dlp, elements, 2 );
+
+	    next ( ap.locate_dlp );
+	    start_copy ( ap.dlp, ap.locate_dlp );
 	}
-
-	min::gen elements[2] = { ap.attr_name, v };
-	insert_before ( ap.locate_dlp, elements, 2 );
-
-	next ( ap.locate_dlp );
-	start_copy ( ap.dlp, ap.locate_dlp );
 
 	if ( ap.reverse_attr_name == min::NONE )
 	    ap.state = ap_type::LOCATE_NONE;

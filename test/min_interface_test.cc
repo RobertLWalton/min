@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 15 19:43:25 EDT 2010
+// Date:	Tue Mar 16 02:32:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/15 23:43:43 $
+//   $Date: 2010/03/16 15:10:14 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.153 $
+//   $Revision: 1.154 $
 
 // Table of Contents:
 //
@@ -2574,6 +2574,49 @@ void test_object_attribute_level ( void )
     min::locate ( ap, lab1 );
     min::set ( ap, int1 );
     MIN_ASSERT ( min::get ( ap ) == int1 );
+
+    min::locate ( ap, lab2 );
+    min::set ( ap, int2 );
+    min::locate ( ap, lab3 );
+    min::set ( ap, int3 );
+    min::locate ( ap, lab4 );
+    min::set ( ap, int4 );
+
+    min::locate ( ap, lab1 );
+    MIN_ASSERT ( min::get ( ap ) == int1 );
+    min::locate ( ap, lab2 );
+    MIN_ASSERT ( min::get ( ap ) == int2 );
+    min::locate ( ap, lab3 );
+    MIN_ASSERT ( min::get ( ap ) == int3 );
+    min::locate ( ap, lab4 );
+    MIN_ASSERT ( min::get ( ap ) == int4 );
+
+    min_assert_print = false;
+    for ( unsigned i = 0; i < 50; ++ i )
+        min::attr_push ( vp, min::LIST_END );
+    min_assert_print = true;
+    MIN_ASSERT ( min::attr_size_of ( vp ) == 50 );
+    MIN_ASSERT ( min::attr ( vp, 21 ) == min::LIST_END );
+
+    min::locatei ( ap, 1 );
+    MIN_ASSERT ( min::get ( ap ) == min::NONE );
+    min::set ( ap, lab1 );
+    MIN_ASSERT ( min::get ( ap ) == lab1 );
+    min::locatei ( ap, 2 );
+    min::set ( ap, lab2 );
+    min::locatei ( ap, 3 );
+    min::set ( ap, lab3 );
+    min::locatei ( ap, 4 );
+    min::set ( ap, lab4 );
+
+    min::locate ( ap, int1 );
+    MIN_ASSERT ( min::get ( ap ) == lab1 );
+    min::locate ( ap, int2 );
+    MIN_ASSERT ( min::get ( ap ) == lab2 );
+    min::locate ( ap, int3 );
+    MIN_ASSERT ( min::get ( ap ) == lab3 );
+    min::locate ( ap, int4 );
+    MIN_ASSERT ( min::get ( ap ) == lab4 );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
