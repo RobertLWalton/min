@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 16 11:07:20 EDT 2010
+// Date:	Thu Mar 18 07:48:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,15 +11,15 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/16 15:08:33 $
+//   $Date: 2010/03/18 13:50:51 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.194 $
+//   $Revision: 1.195 $
 
 // Table of Contents:
 //
 //	Setup
 //	Initialization
-//	Stub Functions
+//	Name Functions
 //	Process Management
 //	Allocator/Collector/Compactor
 //	Numbers
@@ -50,6 +50,8 @@ using std::endl;
 
 // Initialization
 // --------------
+
+min::unsptr MINT::min_fixed_block_size;
 
 static bool initializer_called = false;
 MINT::initializer::initializer ( void )
@@ -149,10 +151,17 @@ MINT::initializer::initializer ( void )
 		 v2p[3*little_endian] );
 #   endif
 
+    MINT::min_fixed_block_size =
+        1
+	<<
+	( MINT::fixed_bodies_log
+		( sizeof ( MINT::free_fixed_size_block )
+		  - 1 )
+	  + 1 );
     MINT::acc_initializer();
 }
 
-// Stub Functions
+// Name Functions
 // ---- ---------
 
 min::uns32 min::hash ( min::gen v )
@@ -165,6 +174,62 @@ min::uns32 min::hash ( min::gen v )
         return min::labhash ( v );
     else
 	return 0;
+}
+
+int min::compare ( min::gen v1, min::gen v2 )
+{
+    if ( is_num ( v1 ) )
+    {
+        if ( is_str ( v2 ) ) return -1;
+        else if ( is_lab ( v2 ) ) return -1;
+        else if ( ! is_num ( v2 ) )
+	    MIN_ABORT
+	      ( "2nd min::compare arg is not name" );
+	float64 f1 = float_of ( v1 );
+	float64 f2 = float_of ( v2 );
+	if ( f1 < f2 ) return -1;
+	else if ( f1 == f2 ) return 0;
+	else return +1;
+    }
+    else
+    if ( is_str ( v1 ) )
+    {
+        if ( is_num ( v2 ) ) return +1;
+	else if ( is_lab ( v2 ) ) return -1;
+        else if ( ! is_str ( v2 ) )
+	    MIN_ABORT
+	      ( "2nd min::compare arg is not name" );
+	str_pointer p1 ( v1 );
+	str_pointer p2 ( v2 );
+	return ::strcmp ( unprotected::str_of ( p1 ),
+	                  unprotected::str_of ( p2 ) );
+    }
+    else
+    if ( is_lab ( v1 ) )
+    {
+        if ( is_num ( v2 ) ) return +1;
+	else if ( is_str ( v2 ) ) return +1;
+        else if ( ! is_lab ( v2 ) )
+	    MIN_ABORT
+	      ( "2nd min::compare arg is not name" );
+	unsptr len1 = lablen ( v1 );
+	unsptr len2 = lablen ( v2 );
+	min::gen lab1[len1];
+	min::gen lab2[len2];
+	lab_of ( lab1, len1, v1 );
+	lab_of ( lab2, len2, v2 );
+	for ( unsptr i = 0; i < len1; ++ i )
+	{
+	    if ( i >= len2 ) return +1;
+	    int t = min::compare ( lab1[i], lab2[i] );
+	    if ( t != 0 ) return t;
+	}
+	if ( len1 == len2 ) return 0;
+	else return -1;
+    }
+    else
+	MIN_ABORT
+	  ( "1st min::compare arg is not name" );
 }
 
 // Process Management

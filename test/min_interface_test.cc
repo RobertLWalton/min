@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 16 02:32:54 EDT 2010
+// Date:	Thu Mar 18 08:19:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/16 15:10:14 $
+//   $Date: 2010/03/18 13:51:21 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.154 $
+//   $Revision: 1.155 $
 
 // Table of Contents:
 //
@@ -31,6 +31,7 @@
 //	Numbers
 //	Strings
 //	Labels
+//	Names
 //	Raw Vectors
 //	Objects
 //	Object Vector Level
@@ -1761,6 +1762,66 @@ void test_labels ( void )
     cout << "Finish Labels Test!" << endl;
 }
 
+// Names
+// -----
+
+void test_names ( void )
+{
+    cout << endl;
+    cout << "Start Names Test!" << endl;
+
+    min::gen num1 = min::new_num_gen ( 1 );
+    min::gen num2 = min::new_num_gen ( 2 );
+    min::gen num3 = min::new_num_gen ( 3 );
+
+    min::gen str1 = min::new_str_gen ( "str 1" );
+    min::gen str2 = min::new_str_gen ( "str 2" );
+    min::gen str3 = min::new_str_gen ( "str 3" );
+
+    min::gen l11[1] = { num1 };
+    min::gen l12[1] = { num2 };
+    min::gen l21[2] = { num1, str1 };
+    min::gen l22[2] = { num1, str2 };
+    min::gen l23[2] = { num2, str1 };
+    min::gen l24[2] = { num2, str2 };
+
+    min::gen lab11 = min::new_lab_gen ( l11, 1 );
+    min::gen lab12 = min::new_lab_gen ( l12, 1 );
+    min::gen lab21 = min::new_lab_gen ( l21, 2 );
+    min::gen lab22 = min::new_lab_gen ( l22, 2 );
+    min::gen lab23 = min::new_lab_gen ( l23, 2 );
+    min::gen lab24 = min::new_lab_gen ( l24, 2 );
+
+    MIN_ASSERT ( min::compare ( num1, num1 ) == 0 );
+    MIN_ASSERT ( min::compare ( num1, num2 ) < 0 );
+    MIN_ASSERT ( min::compare ( num2, num1 ) > 0 );
+
+    MIN_ASSERT ( min::compare ( str1, str1 ) == 0 );
+    MIN_ASSERT ( min::compare ( str1, str2 ) < 0 );
+    MIN_ASSERT ( min::compare ( str2, str1 ) > 0 );
+
+    MIN_ASSERT ( min::compare ( lab11, lab11 ) == 0 );
+    MIN_ASSERT ( min::compare ( lab11, lab12 ) < 0 );
+    MIN_ASSERT ( min::compare ( lab12, lab11 ) > 0 );
+
+    MIN_ASSERT ( min::compare ( lab21, lab21 ) == 0 );
+    MIN_ASSERT ( min::compare ( lab11, lab21 ) < 0 );
+    MIN_ASSERT ( min::compare ( lab21, lab11 ) > 0 );
+
+    MIN_ASSERT ( min::compare ( lab21, lab21 ) == 0 );
+    MIN_ASSERT ( min::compare ( lab21, lab23 ) < 0 );
+    MIN_ASSERT ( min::compare ( lab23, lab21 ) > 0 );
+
+    MIN_ASSERT ( min::compare ( lab23, lab23 ) == 0 );
+    MIN_ASSERT ( min::compare ( lab23, lab24 ) < 0 );
+    MIN_ASSERT ( min::compare ( lab24, lab23 ) > 0 );
+    
+    cout << endl;
+    cout << "Finish Names Test!" << endl;
+}
+
+
+
 // Raw Vectors
 // --- -------
 
@@ -2645,6 +2706,7 @@ int main ()
 	test_numbers();
 	test_strings();
 	test_labels();
+	test_names();
 	test_raw_vectors();
 	test_objects();
 	test_object_vector_level();
