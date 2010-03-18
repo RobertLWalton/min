@@ -1258,26 +1258,48 @@ part of the subtype code (similarly the 32-bits are right shifted by
 \verb|min::GEN_ILLEGAL| is returned by this function if the \verb|min::gen|
 value is not a legal general value.
 
-There are a few more general value functions that accept any \verb|min::gen|
-value:
+\subsection{Name Components}
+\label{NAME-COMPONENTS}
+
+A \verb|min::gen| value can be used as a
+\ikey{component of a name}{name component}\index{component!of name}
+if and only if it is a
+a number (\secref{NUMBERS}),
+a string (\secref{STRINGS}),
+or a label (\secref{LABELS}), i.e., it is an atom or a label.
+Name components are all immutable values which have an associated
+hash value.
+
+The following functions concern name components:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_name}\verb| ( min::gen v )|
 \LABEL{MIN::IS_NAME} \\
 \verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
 \LABEL{MIN::HASH} \\
+\verb|int min::| & \MINKEY{compare}\verb| ( min::gen v1, min::gen v2 )|
+\LABEL{MIN::COMPARE} \\
 \end{tabular}\end{indpar}
 
 The \verb|min::is_name| function returns true if and only if its argument is
-an immutable value that has a hash value and therefore can be used as
-a \key{name component}.  More specifically,
-\verb|min::is_name| returns true if and only if its argument is
-a number (\secref{NUMBERS}),
-a string (\secref{STRINGS}),
-or a label (\secref{LABELS}), i.e., is an atom or a label.
+a name component (number, string, or label).
+
 The \verb|min::hash| function returns a non-zero
 \key{hash value}\label{HASH-VALUE} if its argument
-is usable as a name component, and returns zero otherwise.
+is a name component.
+
+The \verb|min::compare| function returns an integer $<0$, $=0$, or $>0$
+according to whether its \verb|v1| argument is less than, equal to, or
+greater than its \verb|v2| argument.  Both arguments must be name
+components.  In this ordering numbers are
+before strings and strings are before labels.  Numbers are ordered
+numerically, strings are ordered lexigraphically as per the
+C language \verb|strcmp| function, and labels are ordered lexigraphically
+using the {\tt min::\EOL compare} function recursively to compare
+label elements.
+
+The \verb|min::hash| and \verb|min::compare| functions produce
+\verb|MIN_ASSERT| errors if passed non-name-component arguments.
 
 \subsection{Special Values}
 \label{SPECIAL-VALUES}
@@ -6530,6 +6552,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::IS_NAME} \\
 \verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
 \LABEL{MIN::HASH} \\
+\verb|int min::| & \MINKEY{compare}\verb| ( min::gen v1, min::gen v2 )|
+\LABEL{MIN::COMPARE} \\
 \end{TABULAR}
 
 \end{indpar}
