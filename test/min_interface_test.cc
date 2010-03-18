@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 18 08:19:15 EDT 2010
+// Date:	Thu Mar 18 09:51:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/18 13:51:21 $
+//   $Date: 2010/03/18 13:58:20 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.155 $
+//   $Revision: 1.156 $
 
 // Table of Contents:
 //
@@ -1791,6 +1791,25 @@ void test_names ( void )
     min::gen lab22 = min::new_lab_gen ( l22, 2 );
     min::gen lab23 = min::new_lab_gen ( l23, 2 );
     min::gen lab24 = min::new_lab_gen ( l24, 2 );
+
+    cout << "HASH of new_num_gen ( 1 ) = "
+         << min::hash ( num1 ) << endl;
+    cout << "HASH of new_num_gen ( 2 ) = "
+         << min::hash ( num2 ) << endl;
+    cout << "HASH of new_str_gen ( \"str 1\" ) = "
+         << min::hash ( str1 ) << endl;
+    cout << "HASH of new_str_gen ( \"str 2\" ) = "
+         << min::hash ( str2 ) << endl;
+    cout << "HASH of new_lab_gen ( { 1.0 }, 1 ) = "
+         << min::hash ( lab11 ) << endl;
+    cout << "HASH of new_lab_gen ( { 2.0 }, 1 ) = "
+         << min::hash ( lab12 ) << endl;
+    cout << "HASH of new_lab_gen"
+              " ( { 1.0, \"str 1\" }, 2 ) = "
+         << min::hash ( lab21 ) << endl;
+    cout << "HASH of new_lab_gen"
+              " ( { 1.0, \"str 2\" }, 2 ) = "
+         << min::hash ( lab22 ) << endl;
 
     MIN_ASSERT ( min::compare ( num1, num1 ) == 0 );
     MIN_ASSERT ( min::compare ( num1, num2 ) < 0 );

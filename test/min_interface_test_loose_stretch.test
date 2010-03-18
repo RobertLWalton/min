@@ -1071,6 +1071,34 @@ Using fixed_blocks[2] and assigning begin_body_region[240 .. 243]
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+HASH of new_num_gen ( 1 ) = 3919206129
+../include/min.h:XXXX assert:
+    is_num ( v ) true.
+HASH of new_num_gen ( 2 ) = 3295440832
+HASH of new_str_gen ( "str 1" ) = 3498587010
+HASH of new_str_gen ( "str 2" ) = 3498587011
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+HASH of new_lab_gen ( { 1.0 }, 1 ) = 1239175266
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+HASH of new_lab_gen ( { 2.0 }, 1 ) = 615409969
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+HASH of new_lab_gen ( { 1.0, "str 1" }, 2 ) = 991637220
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+HASH of new_lab_gen ( { 1.0, "str 2" }, 2 ) = 991637221
+../include/min.h:XXXX assert:
+    is_num ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 min_interface_test.cc:XXXX assert:
