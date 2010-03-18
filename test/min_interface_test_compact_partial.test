@@ -524,26 +524,18 @@ min_interface_test.cc:XXXX assert:
     stub4 == MINT::last_allocated_stub true.
 
 Test body allocator functions:
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 2, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[5] and assigning begin_body_region[0 .. 31]
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 min_interface_test.cc:XXXX assert:
     memcmp ( p1, p2, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     p1 != p2 true.
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 5, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[5] and assigning begin_body_region[64 .. 95]
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 min_interface_test.cc:XXXX assert:
     memcmp ( p3, p4, 128 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -554,8 +546,6 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -709,8 +699,6 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 19, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -873,8 +861,6 @@ Test protected string pointers:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
 resize_body ( stub 19, 22, 22 ) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 copying body_region[193 .. 194] to body_region[197 .. 198]
 zeroing body_region[193 .. 194]
 MINT::deallocate ( stub 6 ) called
@@ -961,8 +947,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
 resize_body ( stub 19, 22, 22 ) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 22 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
@@ -996,8 +980,6 @@ Test labels:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 MINT::acc_expand_stub_free_list (1) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
@@ -1056,11 +1038,311 @@ min_interface_test.cc:XXXX assert:
 
 Finish Labels Test!
 
+Start Names Test!
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 31, 12 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[2] and assigning begin_body_region[208 .. 211]
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 35, 16 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[2] and assigning begin_body_region[216 .. 219]
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 39, 16 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[2] and assigning begin_body_region[224 .. 227]
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+min_interface_test.cc:XXXX assert:
+    min::compare ( num1, num1 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( num1, num2 ) < 0 true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( num2, num1 ) > 0 true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( str1, str1 ) == 0 true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( str1, str2 ) < 0 true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( str2, str1 ) > 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab11, lab11 ) == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab11, lab12 ) < 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab12, lab11 ) > 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab21, lab21 ) == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab11, lab21 ) < 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab21, lab11 ) > 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab21, lab21 ) == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab21, lab23 ) < 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab23, lab21 ) > 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab23, lab23 ) == 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab23, lab24 ) < 0 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+../include/min.h:XXXX assert:
+    min::type_of ( s ) == min::SHORT_STR true.
+min_interface_test.cc:XXXX assert:
+    min::compare ( lab24, lab23 ) > 0 true.
+
+Finish Names Test!
+
 Start Raw Vectors Test!
 rvs size = 8
 MINT::acc_expand_stub_free_list (1) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1128,15 +1410,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     rvst[2] == rvs3 true.
 MINT::new_fixed_body ( stub 6, 264 ) called
-Using fixed_blocks[6] and assigning begin_body_region[208 .. 271]
+Using fixed_blocks[6] and assigning begin_body_region[232 .. 295]
 MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 MINT::new_fixed_body ( stub 6, 560 ) called
-Using fixed_blocks[7] and assigning begin_body_region[336 .. 463]
+Using fixed_blocks[7] and assigning begin_body_region[360 .. 487]
 MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 MINT::new_fixed_body ( stub 6, 1224 ) called
-Using fixed_blocks[8] and assigning begin_body_region[592 .. 847]
+Using fixed_blocks[8] and assigning begin_body_region[616 .. 871]
 MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
@@ -1148,12 +1430,10 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::length_of ( irvp ) == 0 true.
 MINT::acc_expand_stub_free_list (1) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_fixed_body ( stub 34, 72 ) called
+MINT::new_fixed_body ( stub 52, 72 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[4] and assigning begin_body_region[1104 .. 1119]
+Using fixed_blocks[4] and assigning begin_body_region[1128 .. 1143]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1184,12 +1464,10 @@ min_interface_test.cc:XXXX assert:
 
 Test short objects:
 MINT::acc_expand_stub_free_list (1) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_fixed_body ( stub 35, 2408 ) called
+MINT::new_fixed_body ( stub 53, 2408 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[9] and assigning begin_body_region[1136 .. 1647]
+Using fixed_blocks[9] and assigning begin_body_region[1160 .. 1671]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1214,9 +1492,7 @@ min_interface_test.cc:XXXX assert:
 
 Test long objects:
 MINT::acc_expand_stub_free_list (1) called
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
-MINT::new_non_fixed_body ( stub 36, 308160 ) called
+MINT::new_non_fixed_body ( stub 54, 308160 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
 ../include/min.h:XXXX assert:
@@ -1446,8 +1722,6 @@ min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == 0 true.
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::deallocate ( stub 6 ) called
 ../include/min.h:XXXX assert:
     type == UPDATABLE true.
@@ -1667,8 +1941,6 @@ min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == 0 true.
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_non_fixed_body ( stub 6, 308288 ) called
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
@@ -2138,12 +2410,10 @@ min_interface_test.cc:XXXX assert:
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 3792 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[9] and assigning begin_body_region[79218 .. 79729]
+Using fixed_blocks[9] and assigning begin_body_region[79242 .. 79753]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
@@ -2569,12 +2839,10 @@ min_interface_test.cc:XXXX assert:
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 MINT::new_fixed_body ( stub 6, 5688 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[10] and assigning begin_body_region[80242 .. 81265]
+Using fixed_blocks[10] and assigning begin_body_region[80266 .. 81289]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
@@ -2826,8 +3094,6 @@ min_interface_test.cc:XXXX assert:
 Finish Object List Level Test!
 
 Start Object Attribute Level Test!
-../include/min.h:XXXX assert:
-    m >= sizeof ( min::internal ::free_fixed_size_block ) true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:

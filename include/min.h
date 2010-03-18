@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 15 09:11:40 EDT 2010
+// Date:	Thu Mar 18 08:18:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/15 13:21:06 $
+//   $Date: 2010/03/18 13:50:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.309 $
+//   $Revision: 1.310 $
 
 // Table of Contents:
 //
@@ -2007,6 +2007,9 @@ namespace min { namespace internal {
 	( min::stub * s, min::unsptr n,
 	  fixed_block_list * fbl );
 
+    extern min::unsptr min_fixed_block_size;
+        // The smallest power of 2 not smaller than the
+	// size of min::internal::free_fixed_size_block.
     extern min::unsptr max_fixed_block_size;
         // 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
 
@@ -2035,10 +2038,8 @@ namespace min { namespace unprotected {
     {
 	min::unsptr m = n + sizeof ( min::uns64);
 
-        MIN_ASSERT
-	  ( m >= sizeof
-	             ( min::internal
-	                  ::free_fixed_size_block ) );
+        if ( m < min::internal::min_fixed_block_size )
+            m = min::internal::min_fixed_block_size;
 
 	if ( m > min::internal::max_fixed_block_size )
 	{
@@ -2884,6 +2885,8 @@ namespace min {
     }
 
     min::uns32 hash ( min::gen v );
+
+    int compare ( min::gen v1, min::gen v2 );
 }
 
 // Raw Vectors
