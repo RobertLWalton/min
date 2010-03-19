@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 18 10:17:41 EDT 2010
+// Date:	Fri Mar 19 04:13:50 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/18 14:17:55 $
+//   $Date: 2010/03/19 16:42:02 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.196 $
+//   $Revision: 1.197 $
 
 // Table of Contents:
 //
@@ -53,11 +53,37 @@ using std::endl;
 
 min::unsptr MINT::min_fixed_block_size;
 
+static char const * type_name_vector[256];
+char const ** min::type_name = type_name_vector + 128;
+
+char const * min::special_name
+                      [min::SPECIAL_NAME_LENGTH] =
+    { "MISSING", "NONE", "ANY", "MULTI_VALUED",
+      "UNDEFINED", "SUCCESS", "FAILURE" };
+
 static bool initializer_called = false;
 MINT::initializer::initializer ( void )
 {
     if ( initializer_called ) return;
     initializer_called = true;
+
+    type_name[min::ACC_FREE] = "ACC_FREE";
+    type_name[min::DEALLOCATED] = "DEALLOCATED";
+    type_name[min::NUMBER] = "NUMBER";
+    type_name[min::SHORT_STR] = "SHORT_STR";
+    type_name[min::LONG_STR] = "LONG_STR";
+    type_name[min::LABEL] = "LABEL";
+    type_name[min::TINY_OBJ] = "TINY_OBJ";
+    type_name[min::SHORT_OBJ] = "SHORT_OBJ";
+    type_name[min::LONG_OBJ] = "LONG_OBJ";
+    type_name[min::HUGE_OBJ] = "HUGE_OBJ";
+    type_name[min::RAW_VEC] = "RAW_VEC";
+    type_name[min::AUX_FREE] = "AUX_FREE";
+    type_name[min::LABEL_AUX] = "LABEL_AUX";
+    type_name[min::LIST_AUX] = "LIST_AUX";
+    type_name[min::SUBLIST_AUX] = "SUBLIST_AUX";
+    type_name[min::HASHTABLE_AUX] = "HASHTABLE_AUX";
+    type_name[min::RELOCATE_BODY] = "RELOCATE_BODY";
 
     assert ( sizeof ( MIN_INT32_TYPE ) == 4 );
     assert ( sizeof ( MIN_INT64_TYPE ) == 8 );
@@ -235,6 +261,95 @@ int min::compare ( min::gen v1, min::gen v2 )
 	MIN_ABORT
 	  ( "1st min::compare arg"
 	    " is not name component" );
+}
+
+min::pr_format min::default_pr_format =
+{
+    "%.15g",
+    "`","'",
+    "[","]",
+    "", "",
+    NULL
+};
+
+std::ostream & operator <<
+	( std::ostream & out, const min::pr & prv )
+{
+    min::gen v = prv.value;
+    min::pr_format & f = prv.format;
+    if ( min::is_num ( v ) )
+    {
+        min::float64 vf = min::float_of ( v );
+	char buffer[100];
+	sprintf ( buffer, f.number_format, vf );
+	return out << buffer;
+    }
+    else if ( min::is_str ( v ) )
+    {
+        min::str_pointer sp ( v );
+        return out << f.str_prefix
+	           << min::unprotected::str_of ( sp )
+		   << f.str_postfix;
+    }
+    else if ( min::is_lab ( v ) )
+    {
+        min::unsptr len = min::lablen ( v );
+	min::gen lab[len];
+	min::lab_of ( lab, len, v );
+	out << f.lab_prefix;
+	for ( min::unsptr i = 0; i < len; ++ i )
+	{
+	    if ( i != 0 ) out << ",";
+	    out << min::pr ( lab[i], f );
+	}
+	return out << f.lab_postfix;
+    }
+    else if ( min::is_special ( v ) )
+    {
+        min::unsgen index = min::special_index_of ( v );
+	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
+	     < index
+	     &&
+	     index <= 0xFFFFFF )
+	    return out << f.special_prefix
+	        << min::special_name[0xFFFFFF - index]
+		<< f.special_postfix;
+	else
+	    return out << "SPECIAL(0x" << std::hex
+	        << index << std::dec << ")";
+    }
+    else if ( min::is_stub ( v ) )
+    {
+        const min::stub * s = min::stub_of ( v );
+        int type = min::type_of ( s );
+	const char * type_name = min::type_name[type];
+	if ( type_name != NULL )
+	    out << type_name;
+	else
+	    out << "TYPE(" << type << ")";
+	if ( f.pr_stub != NULL ) f.pr_stub ( out, s );
+	return out;
+    }
+    else if ( min::is_list_aux ( v ) )
+        return out << "LIST_AUX("
+	           << min::list_aux_of ( v ) << ")";
+    else if ( min::is_sublist_aux ( v ) )
+        return out << "SUBLIST_AUX("
+	           << min::sublist_aux_of ( v ) << ")";
+    else if ( min::is_indirect_aux ( v ) )
+        return out << "INDIRECT_AUX("
+	           << min::indirect_aux_of ( v ) << ")";
+    else if ( min::is_index ( v ) )
+        return out << "INDEX("
+	           << min::index_of ( v ) << ")";
+    else if ( min::is_control_code ( v ) )
+        return out << "CONTROL_CODE(0x" << std::hex
+	           << min::control_code_of ( v )
+		   << std::dec << ")";
+    else
+        return out << "UNDEFINED_GEN(0x" << std::hex
+	           << (min::unsgen) v
+		   << std::dec << ")";
 }
 
 // Process Management
