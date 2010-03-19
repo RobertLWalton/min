@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 18 09:51:47 EDT 2010
+// Date:	Thu Mar 18 19:03:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/18 13:58:20 $
+//   $Date: 2010/03/19 16:41:50 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.156 $
+//   $Revision: 1.157 $
 
 // Table of Contents:
 //
@@ -32,6 +32,7 @@
 //	Strings
 //	Labels
 //	Names
+//	Print
 //	Raw Vectors
 //	Objects
 //	Object Vector Level
@@ -1838,8 +1839,78 @@ void test_names ( void )
     cout << endl;
     cout << "Finish Names Test!" << endl;
 }
+
+// Print
+// -----
 
+void test_print ( void )
+{
+    cout << endl;
+    cout << "Start Print Test!" << endl;
+    min_assert_print = false;
 
+    cout << min::pr ( min::new_num_gen ( 1 ) ) << endl;
+    cout << min::pr ( min::new_num_gen ( 1.23456789 ) )
+         << endl;
+    cout << min::pr ( min::new_num_gen
+    			( 1.23456789012345 ) )
+         << endl;
+
+    cout << min::pr ( min::new_str_gen
+    			( "this is a string" ) )
+         << endl;
+
+    min::gen lab1[2] =
+        { min::new_num_gen ( 1.234 ),
+	  min::new_str_gen ( "str 1" ) };
+    min::gen lab2[3] =
+        { min::new_num_gen ( 5.6 ),
+	  min::new_lab_gen ( lab1, 2 ),
+	  min::new_str_gen ( "str 2" ) };
+    cout << min::pr ( min::new_lab_gen ( lab2, 3 ) )
+         << endl;
+
+    cout << min::pr ( min::MISSING ) << endl;
+    cout << min::pr ( min::NONE ) << endl;
+    cout << min::pr ( min::ANY ) << endl;
+    cout << min::pr ( min::MULTI_VALUED ) << endl;
+    cout << min::pr ( min::UNDEFINED ) << endl;
+    cout << min::pr ( min::SUCCESS ) << endl;
+    cout << min::pr ( min::FAILURE ) << endl;
+    cout << min::pr ( MIN_NEW_SPECIAL_GEN (0xABCDEF) )
+         << endl;
+    
+    min::stub * s = MUP::new_aux_stub();
+    cout << min::pr ( min::new_gen ( s ) ) << endl;
+    MUP::set_type_of ( s, min::RELOCATE_BODY );
+    cout << min::pr ( min::new_gen ( s ) ) << endl;
+    MUP::set_type_of ( s, 0 );
+    cout << min::pr ( min::new_gen ( s ) ) << endl;
+
+    cout << min::pr ( min::new_obj_gen ( 10, 10 ) )
+         << endl;
+
+    cout << min::pr ( min::new_list_aux_gen ( 10 ) )
+         << endl;
+    cout << min::pr ( min::new_sublist_aux_gen ( 20 ) )
+         << endl;
+    cout << min::pr ( min::new_indirect_aux_gen ( 30 ) )
+         << endl;
+    cout << min::pr ( min::new_index_gen ( 40 ) )
+         << endl;
+    cout << min::pr ( min::new_control_code_gen
+                           ( 0xFEDCBA ) )
+         << endl;
+
+    cout << min::pr ( (min::gen)
+                      ( (min::unsgen ) min::GEN_ILLEGAL
+		        << min::VSIZE ) )
+         << endl;
+
+    min_assert_print = true;
+    cout << endl;
+    cout << "Finish Print Test!" << endl;
+}
 
 // Raw Vectors
 // --- -------
@@ -2631,6 +2702,32 @@ void test_object_list_level ( void )
 
 // Object Attribute Level
 
+// Sort attr_info raw vector.
+//
+static int compare_attr_info
+	( const void * aip1, const void * aip2 )
+{
+    min::gen name1 = ( (min::attr_info *) aip1 )->name;
+    min::gen name2 = ( (min::attr_info *) aip2 )->name;
+    return min::compare ( name1, name2 );
+}
+
+static bool check_attr_info
+        ( min::gen aiv,
+	  min::attr_info * aip, unsigned n )
+{
+    min::updatable_attr_info_pointer aivp ( aiv );
+    qsort ( & aivp[0], min::length_of ( aivp ),
+            sizeof ( min::attr_info ),
+	    compare_attr_info );
+    for ( unsigned i = 0; i < min::length_of ( aivp );
+                          ++ i )
+    {
+        if ( aivp[i].name != aip[i].name)
+	    cout << "BAD NAME: " << endl;
+    }
+}
+
 void test_object_attribute_level ( void )
 {
     cout << endl;
@@ -2698,6 +2795,20 @@ void test_object_attribute_level ( void )
     min::locate ( ap, int4 );
     MIN_ASSERT ( min::get ( ap ) == lab4 );
 
+    min::attr_info ai[8] = {
+        { int1, 1, 0, 0 },
+        { int2, 1, 0, 0 },
+        { int3, 1, 0, 0 },
+        { int4, 1, 0, 0 },
+        { lab1, 1, 0, 0 },
+        { lab2, 1, 0, 0 },
+        { lab3, 1, 0, 0 },
+        { lab4, 1, 0, 0 } };
+
+    // MIN_ASSERT
+        // ( check_attr_info
+	      // ( min::get_attrs ( ap ), ai, 8 ) );
+
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
 	 << endl;
@@ -2726,6 +2837,7 @@ int main ()
 	test_strings();
 	test_labels();
 	test_names();
+	test_print();
 	test_raw_vectors();
 	test_objects();
 	test_object_vector_level();

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 18 08:18:55 EDT 2010
+// Date:	Fri Mar 19 04:11:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/18 13:50:17 $
+//   $Date: 2010/03/19 16:42:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.310 $
+//   $Revision: 1.311 $
 
 // Table of Contents:
 //
@@ -61,6 +61,7 @@
 // Include parameters.
 //
 # include "min_parameters.h"
+# include <ostream>
 # include <climits>
 # include <cstring>
 # include <cassert>
@@ -284,6 +285,13 @@ namespace min {
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFFA );
     const min::gen FAILURE =
 	MIN_NEW_SPECIAL_GEN ( 0xFFFFF9 );
+
+    const unsigned SPECIAL_NAME_LENGTH = 7;
+    extern const char * special_name
+                            [SPECIAL_NAME_LENGTH];
+        // special_name[0xFFFFFF-i] is the name of
+	// MIN_NEW_SPECIAL_GEN(i).  E.g.,
+	// special_name[0] == "MISSING".
 }
 
 // Stub Types and Data
@@ -317,6 +325,11 @@ namespace min {
     const int SUBLIST_AUX		= -4;
     const int HASHTABLE_AUX		= -5;
     const int RELOCATE_BODY		= -6;
+
+    extern const char ** type_name;
+        // type_name[i] is the name of type i.  E.g.,
+	// type_name[1] == "ACC_FREE" and
+	// type_name[-1] == "AUX_FREE".
 
     namespace unprotected {
 	// Flags for non-acc control values.
@@ -2887,6 +2900,47 @@ namespace min {
     min::uns32 hash ( min::gen v );
 
     int compare ( min::gen v1, min::gen v2 );
+
+    struct pr_format
+    {
+        const char * number_format;
+	const char * str_prefix;
+	const char * str_postfix;
+	const char * lab_prefix;
+	const char * lab_postfix;
+	const char * special_prefix;
+	const char * special_postfix;
+	std::ostream & ( * pr_stub )
+	    ( std::ostream & out, const min::stub * s );
+    };
+
+    extern pr_format default_pr_format;
+
+    class pr;
+}
+
+std::ostream & operator <<
+	( std::ostream & out, const min::pr & prv );
+
+namespace min {
+
+    class pr
+    {
+    public:
+
+	pr ( min::gen value,
+	     min::pr_format & format =
+	         min::default_pr_format ) :
+	    value ( value ), format ( format ) {}
+
+	friend std::ostream & ::operator <<
+	    ( std::ostream & out, const min::pr & prv );
+
+    private:
+
+        min::gen value;
+	min::pr_format & format;
+    };
 }
 
 // Raw Vectors
