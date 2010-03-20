@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 19 04:11:06 EDT 2010
+// Date:	Sat Mar 20 02:32:45 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/19 16:42:17 $
+//   $Date: 2010/03/20 06:38:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.311 $
+//   $Revision: 1.312 $
 
 // Table of Contents:
 //
@@ -33,7 +33,8 @@
 //	Numbers
 //	Strings
 //	Labels
-//	Name Functions
+//	Names
+//	Printing
 //	Raw Vectors
 //	Objects
 //	Object Vector Level
@@ -2883,8 +2884,8 @@ namespace min {
     }
 }
 
-// Name Functions
-// ---- ---------
+// Names
+// -----
 
 namespace min {
 
@@ -2900,6 +2901,12 @@ namespace min {
     min::uns32 hash ( min::gen v );
 
     int compare ( min::gen v1, min::gen v2 );
+}
+
+// Printing
+// --------
+
+namespace min {
 
     struct pr_format
     {

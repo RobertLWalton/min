@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 19 04:13:50 EDT 2010
+// Date:	Sat Mar 20 02:33:38 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,15 +11,16 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/19 16:42:02 $
+//   $Date: 2010/03/20 06:36:51 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.197 $
+//   $Revision: 1.198 $
 
 // Table of Contents:
 //
 //	Setup
 //	Initialization
-//	Name Functions
+//	Names
+//	Printing
 //	Process Management
 //	Allocator/Collector/Compactor
 //	Numbers
@@ -187,8 +188,8 @@ MINT::initializer::initializer ( void )
     MINT::acc_initializer();
 }
 
-// Name Functions
-// ---- ---------
+// Names
+// -----
 
 min::uns32 min::hash ( min::gen v )
 {
@@ -200,7 +201,7 @@ min::uns32 min::hash ( min::gen v )
         return min::labhash ( v );
     else
 	MIN_ABORT ( "argument to min::hash"
-	            " is not a name component" );
+	            " is not a name" );
 }
 
 int min::compare ( min::gen v1, min::gen v2 )
@@ -211,8 +212,7 @@ int min::compare ( min::gen v1, min::gen v2 )
         else if ( is_lab ( v2 ) ) return -1;
         else if ( ! is_num ( v2 ) )
 	    MIN_ABORT
-	      ( "2nd min::compare arg"
-	        " is not name component" );
+	      ( "2nd min::compare arg is not name" );
 	float64 f1 = float_of ( v1 );
 	float64 f2 = float_of ( v2 );
 	if ( f1 < f2 ) return -1;
@@ -226,8 +226,7 @@ int min::compare ( min::gen v1, min::gen v2 )
 	else if ( is_lab ( v2 ) ) return -1;
         else if ( ! is_str ( v2 ) )
 	    MIN_ABORT
-	      ( "2nd min::compare arg"
-	        " is not name component" );
+	      ( "2nd min::compare arg is not name" );
 	str_pointer p1 ( v1 );
 	str_pointer p2 ( v2 );
 	return ::strcmp ( unprotected::str_of ( p1 ),
@@ -240,8 +239,7 @@ int min::compare ( min::gen v1, min::gen v2 )
 	else if ( is_str ( v2 ) ) return +1;
         else if ( ! is_lab ( v2 ) )
 	    MIN_ABORT
-	      ( "2nd min::compare arg"
-	        " is not name component" );
+	      ( "2nd min::compare arg is not name" );
 	unsptr len1 = lablen ( v1 );
 	unsptr len2 = lablen ( v2 );
 	min::gen lab1[len1];
@@ -259,9 +257,11 @@ int min::compare ( min::gen v1, min::gen v2 )
     }
     else
 	MIN_ABORT
-	  ( "1st min::compare arg"
-	    " is not name component" );
+	  ( "1st min::compare arg is not name" );
 }
+
+// Printing
+// --------
 
 min::pr_format min::default_pr_format =
 {
