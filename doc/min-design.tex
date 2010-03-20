@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 18, 2010}
+\date{March 20, 2010}
  
 \maketitle
 
@@ -2932,19 +2932,27 @@ a label:
 \LABEL{MIN::IS_LAB_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-\subsection{Name Components}
-\label{NAME-COMPONENTS}
+\subsection{Names}
+\label{NAMES}
 
-A \verb|min::gen| value can be used as a
-\ikey{component of a name}{name component}\index{component!of name}
-if and only if it is a
-a number (\secref{NUMBERS}),
-a string (\secref{STRINGS}),
-or a label (\secref{LABELS}), i.e., it is an atom or a label.
-Name components are all immutable values which have an associated
+A \key{name} is a
+number (\secref{NUMBERS}),
+string (\secref{STRINGS}),
+or label (\secref{LABELS}), i.e., it is an atom or a label.
+A name can also be viewed as
+a sequence of \skey{name component}s, each of which is a number, string,
+or label.
+Names and name components are all immutable values which have an associated
 hash value.
 
-The following functions concern name components:
+A number or string is used to represent a 1-component name whose
+only component is the number or string.  Other names are represented
+by labels whose elements are the components of the names.  A label whose
+only component is a number or string is \underline{not}
+used to represent a name, in order to ensure that each name has a unique
+representation.
+
+The following functions concern names:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_name}\verb| ( min::gen v )|
@@ -2956,25 +2964,122 @@ The following functions concern name components:
 \end{tabular}\end{indpar}
 
 The \verb|min::is_name| function returns true if and only if its argument is
-a name component (number, string, or label).
+a name (number, string, or label).
 
 The \verb|min::hash| function returns a non-zero
-\key{hash value}\label{HASH-VALUE} if its argument
-is a name component.
+\key{hash value}\label{HASH-VALUE} of its argument, which must be
+a name.
 
 The \verb|min::compare| function returns an integer $<0$, $=0$, or $>0$
 according to whether its \verb|v1| argument is less than, equal to, or
-greater than its \verb|v2| argument.  Both arguments must be name
-components.  In this ordering numbers are
+greater than its \verb|v2| argument.  Both arguments must be names.
+In this ordering numbers are
 before strings and strings are before labels.  Numbers are ordered
 numerically, strings are ordered lexigraphically as per the
 C language \verb|strcmp| function, and labels are ordered lexigraphically
 using the {\tt min::\EOL compare} function recursively to compare
 label elements.
 
-The \verb|min::hash| and \verb|min::compare| functions produce
-\verb|MIN_ASSERT| errors if passed non-name-component arguments.
+It is an error to pass a non-name argument to
+either the \verb|min::hash| and \verb|min::compare| function.
 
+
+\subsection{Printing General Values}
+\label{PRINTING-GENERAL-VALUES}
+
+A \verb|min::gen| value may be printed using the following:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pr}\\&{\tt ~~}
+    \verb| ( min::gen v,|\\&{\tt ~~}
+    \verb|   min::pr_format & f = min::default_pr_format )|
+\LABEL{MIN::PR} \\
+\verb|std::ostream & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( std ostream & out, min::pr & prv )|
+\LABEL{OPERATOR<<_OF_PR} \\[2ex]
+\verb|struct min::| & \MINKEY{pr\_format}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const char * number_format;|\ARGBREAK
+    \verb|  const char * str_prefix;|\ARGBREAK
+    \verb|  const char * str_postfix;|\ARGBREAK
+    \verb|  const char * lab_prefix;|\ARGBREAK
+    \verb|  const char * lab_postfix;|\ARGBREAK
+    \verb|  const char * special_prefix;|\ARGBREAK
+    \verb|  const char * special_postfix;|\ARGBREAK
+    \verb|  std::ostream & ( * pr_stub )|\ARGBREAK
+    \verb|       ( std::ostream & out,|\ARGBREAK
+    \verb|         const min::stub * s );|\ARGBREAK
+    \verb|};|
+\ttmindex{number\_format}{in {\tt min::pr\_format}}
+\ttmindex{str\_prefix}{in {\tt min::pr\_format}}
+\ttmindex{str\_postfix}{in {\tt min::pr\_format}}
+\ttmindex{lab\_prefix}{in {\tt min::pr\_format}}
+\ttmindex{lab\_postfix}{in {\tt min::pr\_format}}
+\ttmindex{special\_prefix}{in {\tt min::pr\_format}}
+\ttmindex{special\_postfix}{in {\tt min::pr\_format}}
+\ttmindex{pr\_stub}{in {\tt min::pr\_format}}
+\LABEL{MIN::PR_FORMAT} \\[2ex]
+\verb|struct min::| & \MINKEY{default\_pr\_format}\verb| =|\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  "%.15g",     // number_format|\ARGBREAK
+    \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
+    \verb|  "[","]",     // lab_prefix/postfix|\ARGBREAK
+    \verb|  "","",       // special_prefix/postfix|\ARGBREAK
+    \verb|  NULL         // pr_stub|\ARGBREAK
+    \verb|};|
+\end{tabular}\end{indpar}
+
+An example use is:
+\begin{indpar}\begin{verbatim}
+min::gen v = . . .
+std::cout << "V = " << min::pr ( v ) << std::endl;
+\end{verbatim}\end{indpar}\label{PR-EXAMPLE}
+
+which prints the \verb|min::gen| value \verb|v| on a line
+prefaced with `\verb|V = |'.
+
+Printing is controlled by the \verb|min::pr_format| value.
+
+Numbers are treated as \verb|min::float64| values printed according
+to the {\tt prv.number\_\EOL format} value as interpreted by the
+C \verb|sprintf| function.  The default uses \verb|%.15g|
+to print 15 significant
+digits with low order fraction \verb|0|'s omitted and exponential
+notation used if there would be more than 15 integer digits.
+
+Strings are printed as they are immediately preceeded by
+{\tt prv.str\_\EOL prefix} and followed by
+{\tt prv.str\_\EOL postfix}.  The default is to enclose strings in
+\verb|`'| quotes.
+
+Labels are printed as comma separated lists of their elements preceeded by
+{\tt prv.lab\_\EOL prefix} and followed by
+{\tt prv.lab\_\EOL postfix}.  The default is to enclose labels in
+\verb|[ ]| brackets.
+
+Special values \verb|min:XXXX| are printed as \verb|XXXX|
+preceeded by {\tt prv.special\_\EOL prefix} and followed by
+{\tt prv.special\_\EOL postfix}.  The default is not to have any prefix
+or postfix for special values.  For example, \verb|min::MISSING| prints
+as just \verb|MISSING|.
+
+Stubs other than numbers, strings, and labels
+are printed as their stub type name followed by whatever
+the {\tt prv.pr\_\EOL stub} function prints, if that function is
+not \verb|NULL|.  The default is to just print the type name.
+For example, a short object will print as just \verb|SHORT_OBJ|.
+
+Auxiliary and index values print as the name of the value subtype followed
+by the value index in parentheses.  Control codes are similar
+but the control code value is printed in hexadecimal (preceeded by
+\verb|0x|).  Examples are \verb|LIST_AUX(35)| and
+\verb|CONTROL_CODE(0x10)|.
+
+Otherwise unrecognized values are printed as \verb|UNDEFINED_GEN| followed
+by the \verb|min::gen| value viewed as a \verb|min::unsgen| value
+printed in hexadecimal (prefaced by \verb|0x|) and surrounded with
+parentheses.  For example, \verb|UNDEFINED_GEN(0xf4000000)|.
 
 
 \subsection{Objects}
