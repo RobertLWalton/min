@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 18 19:03:36 EDT 2010
+// Date:	Sat Mar 20 09:02:23 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/19 16:41:50 $
+//   $Date: 2010/03/20 13:18:23 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.157 $
+//   $Revision: 1.158 $
 
 // Table of Contents:
 //
@@ -2716,16 +2716,56 @@ static bool check_attr_info
         ( min::gen aiv,
 	  min::attr_info * aip, unsigned n )
 {
+    bool save_min_assert_print = min_assert_print;
+    min_assert_print = false;
     min::updatable_attr_info_pointer aivp ( aiv );
     qsort ( & aivp[0], min::length_of ( aivp ),
             sizeof ( min::attr_info ),
 	    compare_attr_info );
+    bool ok = true;
     for ( unsigned i = 0; i < min::length_of ( aivp );
                           ++ i )
     {
-        if ( aivp[i].name != aip[i].name)
-	    cout << "BAD NAME: " << endl;
+        if ( aivp[i].name != aip[i].name )
+	{
+	    cout << i << ": BAD NAME: "
+	         << min::pr ( aivp[i].name ) << " != "
+		 << min::pr ( aip[i].name ) << endl;
+	    ok = false;
+	    continue;
+	}
+        if ( aivp[i].value_count != aip[i].value_count)
+	{
+	    cout << i << ": "
+	         << min::pr ( aivp[i].name )
+	         << ": BAD VALUE COUNT: "
+	         << aivp[i].value_count << " != "
+		 << aip[i].value_count << endl;
+	    ok = false;
+	}
+        if ( aivp[i].flag_count != aip[i].flag_count)
+	{
+	    cout << i << ": "
+	         << min::pr ( aivp[i].name )
+	         << ": BAD FLAG COUNT: "
+	         << aivp[i].flag_count << " != "
+		 << aip[i].flag_count << endl;
+	    ok = false;
+	}
+        if (    aivp[i].reverse_attr_count
+	     != aip[i].reverse_attr_count)
+	{
+	    cout << i << ": "
+	         << min::pr ( aivp[i].name )
+	         << ": BAD REVERSE ATTR COUNT: "
+	         << aivp[i].reverse_attr_count << " != "
+		 << aip[i].reverse_attr_count << endl;
+	    ok = false;
+	}
     }
+
+    min_assert_print = save_min_assert_print;
+    return ok;
 }
 
 void test_object_attribute_level ( void )
@@ -2805,9 +2845,10 @@ void test_object_attribute_level ( void )
         { lab3, 1, 0, 0 },
         { lab4, 1, 0, 0 } };
 
-    // MIN_ASSERT
-        // ( check_attr_info
-	      // ( min::get_attrs ( ap ), ai, 8 ) );
+    min_assert_print = false;
+    min::gen rv = min::get_attrs ( ap );
+    min_assert_print = true;
+    MIN_ASSERT ( check_attr_info ( rv, ai, 8 ) );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"

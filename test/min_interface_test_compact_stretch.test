@@ -3352,6 +3352,11 @@ min_interface_test.cc:XXXX assert:
     lp.total_size == lp2.total_size true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab4 true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 80, 3224 ) called
+Using fixed_blocks[9] and assigning begin_body_region[82338 .. 82849]
+min_interface_test.cc:XXXX assert:
+    check_attr_info ( rv, ai, 8 ) true.
 
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:
