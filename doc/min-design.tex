@@ -6535,7 +6535,7 @@ These are in \verb|min_parameters.h|.
 
 \newpage
 
-\INDEXHEADER{Stub Related Declarations}
+\INDEXHEADER{Stub Related Functions}
 
 \begin{indpar}[0.2in]
 
@@ -6560,7 +6560,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Gen Value Protected Declarations}
+\INDEXHEADER{Gen Value Protected Functions}
 
 \begin{indpar}[0.2in]
 
@@ -6652,18 +6652,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::GEN_SUBTYPE_OF} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
-\verb|bool min::| & \MINKEY{is\_name}\verb| ( min::gen v )|
-\LABEL{MIN::IS_NAME} \\
-\verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
-\LABEL{MIN::HASH} \\
-\verb|int min::| & \MINKEY{compare}\verb| ( min::gen v1, min::gen v2 )|
-\LABEL{MIN::COMPARE} \\
-\end{TABULAR}
-
 \end{indpar}
 
-\INDEXHEADER{Gen Value Unprotected Declarations}
+\INDEXHEADER{Gen Value Unprotected Functions}
 
 \begin{indpar}[0.2in]
 
@@ -6992,7 +6983,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Number Protected Declarations}
+\INDEXHEADER{Number Protected Functions}
 
 \begin{indpar}[0.2in]
 
@@ -7026,7 +7017,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Number Unprotected Declarations}
+\INDEXHEADER{Number Unprotected Functions}
 
 \begin{indpar}[0.2in]
 
@@ -7038,7 +7029,7 @@ These are in \verb|min_parameters.h|.
 \end{indpar}
 
 
-\INDEXHEADER{String Protected Declarations}
+\INDEXHEADER{String Protected Functions}
 
 \begin{indpar}[0.2in]
 
@@ -7088,7 +7079,7 @@ These are in \verb|min_parameters.h|.
 
 \newpage
 
-\INDEXHEADER{String Pointer Declarations}
+\INDEXHEADER{String Pointers}
 
 \begin{indpar}[0.2in]
 
@@ -7131,7 +7122,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{String Unprotected Declarations}
+\INDEXHEADER{String Unprotected Functions}
 
 \begin{indpar}[0.2in]
 
@@ -7155,7 +7146,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Label Declarations}
+\INDEXHEADER{Labels}
 
 \begin{indpar}[0.2in]
 
@@ -7199,7 +7190,68 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Object Declarations}
+\INDEXHEADER{Names}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.6in}
+\verb|bool min::| & \MINKEY{is\_name}\verb| ( min::gen v )|
+\LABEL{MIN::IS_NAME} \\
+\verb|min::uns32 min::| & \MINKEY{hash}\verb| ( min::gen v )|
+\LABEL{MIN::HASH} \\
+\verb|int min::| & \MINKEY{compare}\verb| ( min::gen v1, min::gen v2 )|
+\LABEL{MIN::COMPARE} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Printing General Values}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{pr}\\&{\tt ~~}
+    \verb| ( min::gen v,|\\&{\tt ~~}
+    \verb|   min::pr_format & f =|\ARGBREAK
+    \verb|        min::default_pr_format )|
+\LABEL{MIN::PR} \\
+\verb|std::ostream & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( std ostream & out, min::pr & prv )|
+\LABEL{OPERATOR<<_OF_PR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|struct min::| & \MINKEY{pr\_format}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const char * number_format;|\ARGBREAK
+    \verb|  const char * str_prefix;|\ARGBREAK
+    \verb|  const char * str_postfix;|\ARGBREAK
+    \verb|  const char * lab_prefix;|\ARGBREAK
+    \verb|  const char * lab_postfix;|\ARGBREAK
+    \verb|  const char * special_prefix;|\ARGBREAK
+    \verb|  const char * special_postfix;|\ARGBREAK
+    \verb|  std::ostream & ( * pr_stub )|\ARGBREAK
+    \verb|       ( std::ostream & out,|\ARGBREAK
+    \verb|         const min::stub * s );|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::PR_FORMAT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|struct min::| & \MINKEY{default\_pr\_format}\verb| =|\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  "%.15g",     // number_format|\ARGBREAK
+    \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
+    \verb|  "[","]",     // lab_prefix/postfix|\ARGBREAK
+    \verb|  "","",       // special_prefix/postfix|\ARGBREAK
+    \verb|  NULL         // pr_stub|\ARGBREAK
+    \verb|};|
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Objects}
 
 \begin{indpar}[0.2in]
 
@@ -7457,7 +7509,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Object List Level Declarations}
+\INDEXHEADER{Object List Level}
 
 \begin{indpar}[0.2in]
 \begin{TABULAR}{1.8in}
@@ -7850,7 +7902,7 @@ These are in \verb|min_parameters.h|.
 
 \bigskip
 
-\INDEXHEADER{Object Attribute Level Declarations}
+\INDEXHEADER{Object Attribute Level}
 
 \begin{indpar}[0.2in]
 
