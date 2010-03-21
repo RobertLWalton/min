@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 20 02:33:38 EDT 2010
+// Date:	Sun Mar 21 10:27:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/20 06:36:51 $
+//   $Date: 2010/03/21 14:27:44 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.198 $
+//   $Revision: 1.199 $
 
 // Table of Contents:
 //
@@ -5234,7 +5234,7 @@ void min::add_to_set
 	min::unsptr m = 0;
 	while ( n -- ) additions[m++] = * in ++;
 	start_sublist ( ap.lp, ap.dlp );
-	for ( c == current ( ap.lp );
+	for ( c = current ( ap.lp );
 	         ! is_list_end ( c )
 	      && ! is_sublist ( c )
 	      && ! is_control_code ( c );
