@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 20 09:02:23 EDT 2010
+// Date:	Sun Mar 21 04:28:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/20 13:18:23 $
+//   $Date: 2010/03/21 14:29:14 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.158 $
+//   $Revision: 1.159 $
 
 // Table of Contents:
 //
@@ -2768,6 +2768,53 @@ static bool check_attr_info
     return ok;
 }
 
+static int compare_gen
+	( const void * vp1, const void * vp2 )
+{
+    return min::compare ( * (min::gen *) vp1,
+                          * (min::gen *) vp2 );
+}
+
+static bool check_values
+        ( min::insertable_attr_pointer & ap,
+	  min::gen * p, unsigned n )
+{
+    bool save_min_assert_print = min_assert_print;
+    min_assert_print = false;
+    bool ok = true;
+
+    min::gen values[n];
+    min::unsptr m = min::get ( values, n, ap );
+
+    if ( m != n )
+    {
+        cout << "BAD NUMBER OF VALUES: "
+	     << m << " != " << n << endl;
+	ok = false;
+    }
+    else
+    {
+        qsort ( values, n, sizeof ( min::gen ),
+	        compare_gen );
+	for ( min::unsptr i = 0; i < n; ++ i )
+	{
+	    if ( values[i] != p[i] )
+	    {
+	        cout << i << ": BAD VALUE: "
+		    << min::pr ( values[i] )
+		    << " != "
+		    << min::pr ( p[i] )
+		    << endl;
+		ok = false;
+		break;
+	    }
+	}
+    }
+
+    min_assert_print = save_min_assert_print;
+    return ok;
+}
+
 void test_object_attribute_level ( void )
 {
     cout << endl;
@@ -2849,6 +2896,23 @@ void test_object_attribute_level ( void )
     min::gen rv = min::get_attrs ( ap );
     min_assert_print = true;
     MIN_ASSERT ( check_attr_info ( rv, ai, 8 ) );
+
+    min_assert_print = false;
+    min::gen values1[8] = { int1, int1, int2, int2,
+                            lab1, lab2, lab2, lab2 };
+    min::locate ( ap, lab1 );
+    min::set ( ap, values1, 3 );
+    min_assert_print = true;
+    MIN_ASSERT ( check_values ( ap, values1, 3 ) );
+    min_assert_print = false;
+    min::add_to_multiset ( ap, values1 + 3, 3 );
+    min_assert_print = true;
+    MIN_ASSERT ( check_values ( ap, values1, 6 ) );
+    min_assert_print = false;
+    min::add_to_set ( ap, values1 + 4, 2 );
+    min_assert_print = true;
+    MIN_ASSERT ( check_values ( ap, values1, 6 ) );
+    min_assert_print = false;
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
