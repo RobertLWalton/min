@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 21 04:28:42 EDT 2010
+// Date:	Thu Mar 25 07:51:01 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/21 14:29:14 $
+//   $Date: 2010/03/25 14:27:58 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.159 $
+//   $Revision: 1.160 $
 
 // Table of Contents:
 //
@@ -73,6 +73,11 @@ void min_assert
     if ( ! value )
 	throw ( new min_assert_exception );
 }
+
+#define PRINTING_MIN_ASSERT(x) \
+    min_assert_print = true; \
+    MIN_ASSERT ( x ); \
+    min_assert_print = false;
 
 # define desire_success(statement) \
     { cout << __FILE__ << ":" << __LINE__ \
@@ -2902,17 +2907,35 @@ void test_object_attribute_level ( void )
                             lab1, lab2, lab2, lab2 };
     min::locate ( ap, lab1 );
     min::set ( ap, values1, 3 );
-    min_assert_print = true;
-    MIN_ASSERT ( check_values ( ap, values1, 3 ) );
-    min_assert_print = false;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 3 ) );
     min::add_to_multiset ( ap, values1 + 3, 3 );
-    min_assert_print = true;
-    MIN_ASSERT ( check_values ( ap, values1, 6 ) );
-    min_assert_print = false;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 6 ) );
     min::add_to_set ( ap, values1 + 4, 2 );
-    min_assert_print = true;
-    MIN_ASSERT ( check_values ( ap, values1, 6 ) );
-    min_assert_print = false;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 6 ) );
+    min::add_to_multiset ( ap, values1 + 6, 2 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 8 ) );
+    min::add_to_set ( ap, values1, 8 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 8 ) );
+    cout << "REMOVED "
+         << min::remove_one ( ap, values1+7, 1 )
+	 << endl;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 7 ) );
+    cout << "REMOVED "
+         << min::remove_one ( ap, values1, 1 )
+	 << endl;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1+1, 6 ) );
+    cout << "REMOVED "
+         << min::remove_all ( ap, values1+7, 1 )
+	 << endl;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1+1, 4 ) );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
