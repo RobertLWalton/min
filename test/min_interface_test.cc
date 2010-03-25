@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 25 07:51:01 EDT 2010
+// Date:	Thu Mar 25 19:00:00 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/25 14:27:58 $
+//   $Date: 2010/03/25 23:25:51 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.160 $
+//   $Revision: 1.161 $
 
 // Table of Contents:
 //
@@ -2936,6 +2936,20 @@ void test_object_attribute_level ( void )
 	 << endl;
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1+1, 4 ) );
+    cout << "REMOVED "
+         << min::remove_all ( ap, int2 )
+	 << endl;
+    min::gen values2[6] = { int1, int1,
+                            lab1, lab2, lab2, lab2 };
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2+1, 2 ) );
+    min::add_to_set ( ap, values2+1, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2+1, 3 ) );
+    min::add_to_multiset ( ap, values2+3, 2 );
+    min::add_to_multiset ( ap, int1 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2, 6 ) );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"

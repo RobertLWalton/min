@@ -3424,6 +3424,13 @@ min_interface_test.cc:XXXX assert:
 REMOVED 2
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1+1, 4 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2, 6 ) true.
 
 Finish Object Attribute Level Test!
 
