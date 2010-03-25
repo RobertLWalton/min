@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 21 10:31:18 EDT 2010
+// Date:	Thu Mar 25 09:14:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/21 14:32:34 $
+//   $Date: 2010/03/25 13:15:11 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.200 $
+//   $Revision: 1.201 $
 
 // Table of Contents:
 //
@@ -5423,7 +5423,7 @@ min::unsptr min::remove_one
 		++ result;
 		c = current ( ap.lp );
 	    }
-	    else c = next ( ap.dlp );
+	    else c = next ( ap.lp );
 	}
         return result;
     }
@@ -5503,7 +5503,7 @@ min::unsptr min::remove_all
 		++ result;
 		c = current ( ap.lp );
 	    }
-	    else c = next ( ap.dlp );
+	    else c = next ( ap.lp );
 	}
         return result;
     }
