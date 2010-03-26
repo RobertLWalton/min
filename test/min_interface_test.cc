@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 25 19:00:00 EDT 2010
+// Date:	Fri Mar 26 04:53:28 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/25 23:25:51 $
+//   $Date: 2010/03/26 09:18:15 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.161 $
+//   $Revision: 1.162 $
 
 // Table of Contents:
 //
@@ -2820,6 +2820,73 @@ static bool check_values
     return ok;
 }
 
+void test_attribute_values
+	( min::insertable_attr_pointer & ap,
+	  min::gen label1, min::gen label2 )
+{
+    min_assert_print = false;
+
+    min::gen val1 = min::new_num_gen ( 1 );
+    min::gen val2 = min::new_num_gen ( 2 );
+    min::gen val3 = min::new_num_gen ( 3 );
+    min::gen val4 = min::new_num_gen ( 4 );
+
+    min::gen val5 = min::new_str_gen ( "value5" );
+    min::gen val6 = min::new_str_gen ( "value6" );
+    min::gen val7 = min::new_str_gen ( "value7" );
+    min::gen val8 = min::new_str_gen ( "value8" );
+
+    min::gen values1[8] = { val1, val1, val2, val2,
+                            val5, val6, val6, val6 };
+    min::locate ( ap, label1 );
+    min::set ( ap, values1, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 3 ) );
+    min::add_to_multiset ( ap, values1 + 3, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 6 ) );
+    min::add_to_set ( ap, values1 + 4, 2 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 6 ) );
+    min::add_to_multiset ( ap, values1 + 6, 2 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 8 ) );
+    min::add_to_set ( ap, values1, 8 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 8 ) );
+    cout << "REMOVED "
+         << min::remove_one ( ap, values1+7, 1 )
+	 << endl;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 7 ) );
+    cout << "REMOVED "
+         << min::remove_one ( ap, values1, 1 )
+	 << endl;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1+1, 6 ) );
+    cout << "REMOVED "
+         << min::remove_all ( ap, values1+7, 1 )
+	 << endl;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1+1, 4 ) );
+    cout << "REMOVED "
+         << min::remove_all ( ap, val2 )
+	 << endl;
+    min::gen values2[6] = { val1, val1,
+                            val5, val6, val6, val6 };
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2+1, 2 ) );
+    min::add_to_set ( ap, values2+1, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2+1, 3 ) );
+    min::add_to_multiset ( ap, values2+3, 2 );
+    min::add_to_multiset ( ap, val1 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2, 6 ) );
+
+    min_assert_print = true;
+}
+
 void test_object_attribute_level ( void )
 {
     cout << endl;
@@ -2902,54 +2969,7 @@ void test_object_attribute_level ( void )
     min_assert_print = true;
     MIN_ASSERT ( check_attr_info ( rv, ai, 8 ) );
 
-    min_assert_print = false;
-    min::gen values1[8] = { int1, int1, int2, int2,
-                            lab1, lab2, lab2, lab2 };
-    min::locate ( ap, lab1 );
-    min::set ( ap, values1, 3 );
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1, 3 ) );
-    min::add_to_multiset ( ap, values1 + 3, 3 );
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1, 6 ) );
-    min::add_to_set ( ap, values1 + 4, 2 );
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1, 6 ) );
-    min::add_to_multiset ( ap, values1 + 6, 2 );
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1, 8 ) );
-    min::add_to_set ( ap, values1, 8 );
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1, 8 ) );
-    cout << "REMOVED "
-         << min::remove_one ( ap, values1+7, 1 )
-	 << endl;
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1, 7 ) );
-    cout << "REMOVED "
-         << min::remove_one ( ap, values1, 1 )
-	 << endl;
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1+1, 6 ) );
-    cout << "REMOVED "
-         << min::remove_all ( ap, values1+7, 1 )
-	 << endl;
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values1+1, 4 ) );
-    cout << "REMOVED "
-         << min::remove_all ( ap, int2 )
-	 << endl;
-    min::gen values2[6] = { int1, int1,
-                            lab1, lab2, lab2, lab2 };
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values2+1, 2 ) );
-    min::add_to_set ( ap, values2+1, 3 );
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values2+1, 3 ) );
-    min::add_to_multiset ( ap, values2+3, 2 );
-    min::add_to_multiset ( ap, int1 );
-    PRINTING_MIN_ASSERT
-        ( check_values ( ap, values2, 6 ) );
+    test_attribute_values ( ap, lab1, lab2 );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
