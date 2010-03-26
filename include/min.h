@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 09:33:46 EDT 2010
+// Date:	Fri Mar 26 11:40:13 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 13:35:06 $
+//   $Date: 2010/03/26 16:55:40 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.313 $
+//   $Revision: 1.314 $
 
 // Table of Contents:
 //
@@ -62,7 +62,7 @@
 // Include parameters.
 //
 # include "min_parameters.h"
-# include <ostream>
+# include <iostream>
 # include <climits>
 # include <cstring>
 # include <cassert>
@@ -7113,27 +7113,29 @@ namespace min {
 	    {
 		start_sublist
 		    ( ap.lp, ap.locate_dlp );
+		const min::gen zero_cc =
+		     new_control_code_gen ( 0 );
 		for ( c = current ( ap.lp );
-		      n > 0 && ! is_list_end ( c );
-		      c = next ( ap.lp ) );
+		      ! is_list_end ( c );
+		      c = next ( ap.lp ) )
 		{
 		    if ( is_control_code ( c ) )
 		    {
-			MIN_ASSERT
-			    ( is_control_code
-				  ( * in ) );
-			update ( ap.lp, * in ++ );
-			-- n;
+		        if ( n > 0 ) 
+			{
+			    MIN_ASSERT
+				( is_control_code
+				      ( * in ) );
+			    update ( ap.lp, * in ++ );
+			    -- n;
+			}
+			else
+			    update ( ap.lp, zero_cc );
 		    }
 		}
 		if ( n > 0 )
 		    internal::set_more_flags
 			( ap, in, n );
-		else for ( ; is_control_code ( c );
-			     c = next ( ap.lp ) )
-		    update ( ap.lp,
-			     new_control_code_gen
-				 ( 0 ) );
 		return;
 	    }
 	}

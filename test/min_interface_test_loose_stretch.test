@@ -3457,6 +3457,10 @@ MINT::new_fixed_body ( stub 62, 3224 ) called
 Using fixed_blocks[9] and assigning begin_body_region[165538 .. 166049]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 0 ) true.
 
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:

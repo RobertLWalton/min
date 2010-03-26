@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 09:10:22 EDT 2010
+// Date:	Fri Mar 26 10:44:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 13:35:11 $
+//   $Date: 2010/03/26 16:55:14 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.203 $
+//   $Revision: 1.204 $
 
 // Table of Contents:
 //
@@ -5592,6 +5592,7 @@ void MINT::set_flags
 		c = current ( ap.lp );
 	    }
 	}
+	MIN_ASSERT ( c == min::LIST_END );
 	if ( n > 0 )
 	{
 	    if ( insert_reserve ( ap.lp, 1, n ) )

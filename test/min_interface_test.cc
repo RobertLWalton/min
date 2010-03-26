@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 05:18:30 EDT 2010
+// Date:	Fri Mar 26 09:56:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 09:44:32 $
+//   $Date: 2010/03/26 16:55:05 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.163 $
+//   $Revision: 1.164 $
 
 // Table of Contents:
 //
@@ -2911,6 +2911,80 @@ void test_attribute_values
     min_assert_print = true;
 }
 
+// Use get_flags ( ap ) to get a vector of control codes
+// and compare this to p[0 .. n-1].  Print differences.
+// Return true if no differences, and false if there are
+// differences.
+//
+static bool check_flags
+        ( min::insertable_attr_pointer & ap,
+	  min::gen * p, unsigned n )
+{
+    bool save_min_assert_print = min_assert_print;
+    min_assert_print = false;
+    bool ok = true;
+
+    min::gen flags[n];
+    unsigned m = min::get_flags ( flags, n, ap );
+
+    if ( m != n )
+    {
+        cout << "BAD NUMBER OF FLAGS: "
+	     << m << " != " << n << endl;
+	ok = false;
+    }
+    else
+    {
+	for ( unsigned i = 0; i < n; ++ i )
+	for ( unsigned j = 0; j < min::VSIZE; ++ j )
+	{
+	    bool flag =
+		( (      flags[i]
+		       & ( (min::unsgen) 1 << j ) )
+		    != 0 );
+	    bool pflag =
+		( (      p[i]
+		       & ( (min::unsgen) 1 << j ) )
+		    != 0 );
+	    if ( flag == pflag ) continue;
+	    cout << "(" << i << "," << j
+		 << "): BAD FLAG: " << flag
+		 << " != " << pflag << endl;
+	    ok = false;
+	}
+    }
+
+    min_assert_print = save_min_assert_print;
+    return ok;
+}
+
+// Set, clear, flip, and test flags for the attribute
+// with label1.  Exit 2 control non-zero flag control
+// words.  Switch temporarily to the attribute with
+// label2 occassionally, but do not change that
+// attribute.
+//
+void test_attribute_flags
+	( min::insertable_attr_pointer & ap,
+	  min::gen label1, min::gen label2 )
+{
+    min_assert_print = false;
+
+    min::gen cc1 = min::new_control_code_gen ( 1 );
+    min::gen cc2 = min::new_control_code_gen ( 8 );
+
+    min::gen codes1[2] = { cc1, cc2 };
+    min::locate ( ap, label1 );
+    min::set_flags ( ap, codes1, 2 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 2 ) );
+    min::set_flags ( ap, codes1, 0 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 0 ) );
+
+    min_assert_print = true;
+}
+
 void test_object_attribute_level ( void )
 {
     cout << endl;
@@ -2997,6 +3071,8 @@ void test_object_attribute_level ( void )
     test_attribute_values ( ap, int3, lab1 );
     ai[2].value_count = 6;
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
+
+    test_attribute_flags ( ap, lab1, lab2 );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
