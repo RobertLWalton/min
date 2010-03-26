@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Mar 25 09:14:47 EDT 2010
+// Date:	Fri Mar 26 08:53:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/25 13:15:11 $
+//   $Date: 2010/03/26 12:54:47 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.201 $
+//   $Revision: 1.202 $
 
 // Table of Contents:
 //
@@ -2501,7 +2501,31 @@ void min::insert_before
 	( min::insertable_list_pointer & lp,
 	  const min::gen * p, min::unsptr n )
 {
+
+    MIN_ASSERT ( lp.reserved_insertions >= 1 );
+    MIN_ASSERT ( lp.reserved_elements >= n );
+
+    lp.reserved_insertions -= 1;
+    lp.reserved_elements -= n;
+
     if ( n == 0 ) return;
+    else if ( n == 1
+              &&
+	      lp.current == min::LIST_END
+	      &&
+	      lp.current_index == lp.head_index
+	      &&
+	      lp.current_index != 0 )
+    {
+	// Special case: empty list with LIST_END stored
+	// in the list head and only 1 element to
+	// insert.
+	//
+	MUP::acc_write_update
+		( MUP::stub_of ( lp.vecp ), * p );
+	lp.current = lp.base[lp.current_index] = * p;
+	return;
+    }
 
     min::unsptr unused_offset =
         unprotected::unused_offset_of ( lp.vecp );
@@ -2511,17 +2535,12 @@ void min::insert_before
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
 
-    MIN_ASSERT ( lp.reserved_insertions >= 1 );
-    MIN_ASSERT ( lp.reserved_elements >= n );
-
-    lp.reserved_insertions -= 1;
-    lp.reserved_elements -= n;
-
     MUP::acc_write_update
             ( MUP::stub_of ( lp.vecp ), p, n );
 
     if ( lp.current == min::LIST_END )
     {
+
 	// Contiguous means the previous pointer does
 	// not exist and current_index == aux_
 	// offset so we can add elements by copying them
