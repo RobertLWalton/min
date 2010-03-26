@@ -3442,6 +3442,37 @@ min_interface_test.cc:XXXX assert:
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 7 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 6 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 4 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2, 6 ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 62, 3224 ) called
+Using fixed_blocks[9] and assigning begin_body_region[165538 .. 166049]
+min_interface_test.cc:XXXX assert:
+    check_attr_info ( ap, ai, 8 ) true.
 
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:

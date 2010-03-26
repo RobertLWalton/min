@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 04:53:28 EDT 2010
+// Date:	Fri Mar 26 05:18:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 09:18:15 $
+//   $Date: 2010/03/26 09:44:32 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.162 $
+//   $Revision: 1.163 $
 
 // Table of Contents:
 //
@@ -2707,7 +2707,7 @@ void test_object_list_level ( void )
 
 // Object Attribute Level
 
-// Sort attr_info raw vector.
+// Compare function to qsort attr_info raw vector.
 //
 static int compare_attr_info
 	( const void * aip1, const void * aip2 )
@@ -2717,12 +2717,19 @@ static int compare_attr_info
     return min::compare ( name1, name2 );
 }
 
+// Call get_attrs ( ap ), sort the resulting raw vector
+// entries by label, and compare to aip[0 .. n-1].
+// Print differences and return false if there are any
+// differences.  Return true if there are no
+// differences.
+//
 static bool check_attr_info
-        ( min::gen aiv,
+        ( min::insertable_attr_pointer & ap,
 	  min::attr_info * aip, unsigned n )
 {
     bool save_min_assert_print = min_assert_print;
     min_assert_print = false;
+    min::gen aiv = min::get_attrs ( ap );
     min::updatable_attr_info_pointer aivp ( aiv );
     qsort ( & aivp[0], min::length_of ( aivp ),
             sizeof ( min::attr_info ),
@@ -2773,6 +2780,8 @@ static bool check_attr_info
     return ok;
 }
 
+// Compare function to qsort vector of min::gen values.
+//
 static int compare_gen
 	( const void * vp1, const void * vp2 )
 {
@@ -2780,6 +2789,11 @@ static int compare_gen
                           * (min::gen *) vp2 );
 }
 
+// Use get ( ap ) to get a vector of values and compare
+// this to p[0 .. n-1].  Print differences.  Return
+// true if no differences, and false if there are
+// differences.
+//
 static bool check_values
         ( min::insertable_attr_pointer & ap,
 	  min::gen * p, unsigned n )
@@ -2820,6 +2834,12 @@ static bool check_values
     return ok;
 }
 
+// Set, add, and remove from the value set of the
+// attribute with label1.  Exit with 6 values for
+// the attribute.  Switch temporarily to the
+// attribute with label2 occassionally, but do not
+// change that attribute.
+//
 void test_attribute_values
 	( min::insertable_attr_pointer & ap,
 	  min::gen label1, min::gen label2 )
@@ -2857,6 +2877,8 @@ void test_attribute_values
     cout << "REMOVED "
          << min::remove_one ( ap, values1+7, 1 )
 	 << endl;
+    min::locate ( ap, label2 );
+    min::locate ( ap, label1 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1, 7 ) );
     cout << "REMOVED "
@@ -2867,6 +2889,8 @@ void test_attribute_values
     cout << "REMOVED "
          << min::remove_all ( ap, values1+7, 1 )
 	 << endl;
+    min::locate ( ap, label2 );
+    min::locate ( ap, label1 );
     PRINTING_MIN_ASSERT
         ( check_values ( ap, values1+1, 4 ) );
     cout << "REMOVED "
@@ -2964,12 +2988,15 @@ void test_object_attribute_level ( void )
         { lab3, 1, 0, 0 },
         { lab4, 1, 0, 0 } };
 
-    min_assert_print = false;
-    min::gen rv = min::get_attrs ( ap );
-    min_assert_print = true;
-    MIN_ASSERT ( check_attr_info ( rv, ai, 8 ) );
+    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_values ( ap, lab1, lab2 );
+    ai[4].value_count = 6;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
+
+    test_attribute_values ( ap, int3, lab1 );
+    ai[2].value_count = 6;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
