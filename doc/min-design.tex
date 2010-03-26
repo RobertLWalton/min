@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 20, 2010}
+\date{March 26, 2010}
  
 \maketitle
 
@@ -5585,6 +5585,12 @@ are returned in `{\tt out}'.
 If {\tt n==0} the function just returns
 the number of control codes in the flag set.
 
+In all of this, high order zero control codes are treated as if
+they did not exist (control codes are stored lowest order first
+in `{\tt out}').  If there are no non-zero flags, no control codes
+are stored in `{\tt out}', and {\tt 0} is returned as the number of
+control codes.
+
 In the `{\tt out}' vector, flag $N$ is the bit selected by mask $2^K$
 in the vector element with index $I$, where $K=N~\mbox{mod}~\mbox{\tt VSIZE}$
 and $I=\mbox{floor}(N/\mbox{\tt VSIZE})$.
@@ -5610,9 +5616,10 @@ If a name as only one component that is an {\em atom}, the name is returned
 as that {\em atom}; all other names are returned as {\em labels}.
 At least one of the three counts must be
 non-zero for an attribute, or else the attribute is treated as if it
-were not in the list of all attribute names.  However, note that if
-the {\tt flag\_count} is non-zero, it is still
-possible that all flags will be zero.
+were not in the list of all attribute names.  In computing
+{\tt flag\_count}, high order zero control codes are treated as if they
+did not exist, and the value of {\tt flag\_count} is the
+same as the value that would be returned by {\tt min::\EOL get\_\EOL flags}.
 
 The {\tt min::\EOL attr\_\EOL info} structs are stored in a raw vector
 returned by the {\tt min::\EOL get\_\EOL attrs} function
