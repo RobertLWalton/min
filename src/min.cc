@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 08:53:07 EDT 2010
+// Date:	Fri Mar 26 09:10:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 12:54:47 $
+//   $Date: 2010/03/26 13:35:11 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.202 $
+//   $Revision: 1.203 $
 
 // Table of Contents:
 //
@@ -4640,6 +4640,9 @@ static bool compute_counts
         min::list_pointer lpv
 	    ( min::vec_pointer_of ( lp ) );
 	min::start_sublist ( lpv, lp );
+	min::unsptr flag_count = 0;
+	const min::gen zero_cc =
+	    min::new_control_code_gen ( 0 );
 	for ( c = min::current ( lpv );
 	      ! min::is_list_end ( c );
 	      c = min::next ( lpv ) )
@@ -4652,7 +4655,11 @@ static bool compute_counts
 	        info.reverse_attr_count =
 		    count_reverse_attrs ( lpv );
 	    else if ( min::is_control_code ( c ) )
-	        ++ info.flag_count;
+	    {
+	        ++ flag_count;
+		if ( c != zero_cc )
+	            info.flag_count = flag_count;
+	    }
 	    else
 	        ++ info.value_count;
 	}
