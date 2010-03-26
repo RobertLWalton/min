@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Mar 20 02:32:45 EDT 2010
+// Date:	Fri Mar 26 09:33:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/20 06:38:06 $
+//   $Date: 2010/03/26 13:35:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.312 $
+//   $Revision: 1.313 $
 
 // Table of Contents:
 //
@@ -6749,14 +6749,26 @@ namespace min {
 	if ( ! is_sublist ( c ) ) return 0;
 	start_sublist ( ap.lp, ap.locate_dlp );
 	unsigned result = 0;
+	unsigned count = 0;
+	const min::gen zero_cc =
+	    min::new_control_code_gen ( 0 );
 	for ( c = current ( ap.lp );
 	      ! is_list_end ( c );
 	      c = next ( ap.lp ) )
 	{
 	    if ( is_control_code ( c ) )
 	    {
-		if ( result < n ) * out ++ = c;
-	        ++ result;
+	    	++ count;
+		if ( c != zero_cc )
+		{
+		    while ( ++ result != count
+		            &&
+			    result <= n )
+			* out ++ = zero_cc;
+		    result = count;
+		    if ( result <= n )
+			* out ++ = c;
+		}
 	    }
 	}
 	return result;
