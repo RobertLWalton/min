@@ -22,7 +22,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 26, 2010}
+\date{March 27, 2010}
  
 \maketitle
 
@@ -54,8 +54,8 @@ The interpreter state consists of:
 \begin{list}{}{}
 \item {\bf Input Stream}. A source of {\tt min::uns8} bytes.
 
-\item {\bf Atom Buffer}.  Holds the sequence of bytes that when
-finished forms the current atom.
+\item {\bf Input Buffer}.  Holds the sequence of bytes that includes
+an initial part of the current atom.
 
 \item {\bf Lexeme Buffer}.  Holds the sequence of bytes that when
 finished forms the current lexeme.
