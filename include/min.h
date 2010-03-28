@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 11:40:13 EDT 2010
+// Date:	Sun Mar 28 03:15:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 16:55:40 $
+//   $Date: 2010/03/28 07:20:31 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.314 $
+//   $Revision: 1.315 $
 
 // Table of Contents:
 //
@@ -7162,7 +7162,7 @@ namespace min {
 		    ( ap.lp, ap.locate_dlp );
 		for ( c = current ( ap.lp );
 		      n > 0 && ! is_list_end ( c );
-		      c = next ( ap.lp ) );
+		      c = next ( ap.lp ) )
 		{
 		    if ( is_control_code ( c ) )
 		    {
@@ -7211,7 +7211,7 @@ namespace min {
 		    ( ap.lp, ap.locate_dlp );
 		for ( c = current ( ap.lp );
 		      n > 0 && ! is_list_end ( c );
-		      c = next ( ap.lp ) );
+		      c = next ( ap.lp ) )
 		{
 		    if ( is_control_code ( c ) )
 		    {
@@ -7257,7 +7257,7 @@ namespace min {
 		    ( ap.lp, ap.locate_dlp );
 		for ( c = current ( ap.lp );
 		      n > 0 && ! is_list_end ( c );
-		      c = next ( ap.lp ) );
+		      c = next ( ap.lp ) )
 		{
 		    if ( is_control_code ( c ) )
 		    {
