@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 09:56:39 EDT 2010
+// Date:	Sun Mar 28 02:42:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 16:55:05 $
+//   $Date: 2010/03/28 07:20:58 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.164 $
+//   $Revision: 1.165 $
 
 // Table of Contents:
 //
@@ -2929,7 +2929,7 @@ static bool check_flags
 
     if ( m != n )
     {
-        cout << "BAD NUMBER OF FLAGS: "
+        cout << "BAD NUMBER OF FLAG CONTROL CODES: "
 	     << m << " != " << n << endl;
 	ok = false;
     }
@@ -2970,10 +2970,12 @@ void test_attribute_flags
 {
     min_assert_print = false;
 
-    min::gen cc1 = min::new_control_code_gen ( 1 );
-    min::gen cc2 = min::new_control_code_gen ( 8 );
+    min::gen cc0 = min::new_control_code_gen ( 1 << 0 );
+    min::gen cc3 = min::new_control_code_gen ( 1 << 3 );
+    min::gen cc5 = min::new_control_code_gen ( 1 << 5 );
+    min::gen cc10 = min::new_control_code_gen ( 1 << 10 );
 
-    min::gen codes1[2] = { cc1, cc2 };
+    min::gen codes1[4] = { cc0, cc3, cc5, cc10 };
     min::locate ( ap, label1 );
     min::set_flags ( ap, codes1, 2 );
     PRINTING_MIN_ASSERT
@@ -2981,6 +2983,33 @@ void test_attribute_flags
     min::set_flags ( ap, codes1, 0 );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 0 ) );
+    min::set_some_flags ( ap, codes1, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 3 ) );
+    min::clear_some_flags ( ap, codes1, 4 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 0 ) );
+    min::flip_some_flags ( ap, codes1, 4 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 4 ) );
+    min::flip_some_flags ( ap, codes1, 4 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 0 ) );
+
+    min::set_flag ( ap, 0 );
+    min::set_flag ( ap, min::VSIZE + 3 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 2 ) );
+    bool flag0 = test_flag ( ap, 0 );
+    bool flag1 = test_flag ( ap, 1 );
+    bool flagV2 = test_flag ( ap, min::VSIZE + 2 );
+    bool flagV3 = test_flag ( ap, min::VSIZE + 3 );
+    bool flagV4 = test_flag ( ap, min::VSIZE + 4 );
+    PRINTING_MIN_ASSERT ( flag0 );
+    PRINTING_MIN_ASSERT ( ! flag1 );
+    PRINTING_MIN_ASSERT ( ! flagV2 );
+    PRINTING_MIN_ASSERT ( flagV3 );
+    PRINTING_MIN_ASSERT ( ! flagV4 );
 
     min_assert_print = true;
 }

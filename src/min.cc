@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 28 02:42:37 EDT 2010
+// Date:	Sun Mar 28 03:19:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/28 06:46:22 $
+//   $Date: 2010/03/28 07:20:11 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.205 $
+//   $Revision: 1.206 $
 
 // Table of Contents:
 //
@@ -3651,6 +3651,7 @@ const min::raw_vec_type_info
 	    for ( ;
 	          ! is_sublist && ! is_list_end ( c );
 		  c = next ( ap.lp ) );
+
 	    if ( ! is_sublist ( c ) )
 	        break;
 	    start_sublist ( ap.lp );
@@ -3755,6 +3756,7 @@ const min::raw_vec_type_info
 	    for ( c = current ( ap.dlp );
 	          ! is_sublist && ! is_list_end ( c );
 		  c = next ( ap.dlp ) );
+
 	    if ( ! is_sublist ( c ) )
 	        break;
 	    start_sublist ( ap.dlp );
@@ -3871,6 +3873,7 @@ const min::raw_vec_type_info
 		      && ! is_control_code ( c )
 		      && ! is_list_end ( c );
 		      c = next ( ap.locate_dlp ) );
+
 		if ( ! is_sublist ( c ) )
 		{
 		    min::gen elements[1] =
@@ -4141,6 +4144,7 @@ void MINT::reverse_attr_create
 	      && ! is_control_code ( c )
 	      && ! is_list_end ( c );
 	      c = next ( ap.dlp ) );
+
 #       if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    if ( ! is_sublist ( c ) )
 	    {
@@ -4257,6 +4261,7 @@ void min::locate_reverse
     for ( c = current ( ap.dlp );
 	  ! is_sublist && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
+
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
     if ( ! is_sublist ( c ) )
     {
@@ -4354,6 +4359,7 @@ void min::relocate
     for ( c = current ( ap.dlp );
 	  ! is_sublist && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
+
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
     if ( ! is_sublist ( c ) )
     {
@@ -4420,6 +4426,7 @@ min::unsptr MINT::get
     for ( c = current ( ap.dlp );
 	  ! is_sublist && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
+
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	if ( ! is_sublist ( c ) ) return 0;
 	c = next ( ap.dlp );
@@ -4491,6 +4498,7 @@ min::gen MINT::get
     for ( c = current ( ap.dlp );
 	  ! is_sublist && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
+
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
     if ( ! is_sublist ( c ) ) return min::NONE;
     c = next ( ap.dlp );
@@ -4691,6 +4699,7 @@ static bool compute_counts
 		 ! min::is_list_end ( c )
 	      && ! min::is_sublist ( c );
 	      c = min::next ( lpv ) );
+
 	if ( ! min::is_sublist ( c ) ) return;
 	if ( c == min::EMPTY_SUBLIST ) return;
 	start_sublist ( lpv );
@@ -4817,6 +4826,7 @@ min::gen min::get_reverse_attrs
              ! is_sublist ( c )
 	  && ! is_list_end ( c );
 	  c = next ( ap.lp ) );
+
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	if ( ! is_sublist ( c ) ) return rairv;
         next ( ap.lp );
@@ -4922,6 +4932,7 @@ void MINT::remove_reverse_attr_value
     for ( c = current ( rap.dlp );
           c != v && ! is_list_end ( c );
 	  c = next ( rap.dlp ) );
+
     MIN_ASSERT ( c == v );
     min::remove ( rap.dlp, 1 );
 }
@@ -5038,6 +5049,7 @@ void MINT::set
 		     ! is_sublist ( c )
 		  && ! is_list_end ( c );
 		  c = next ( ap.dlp ) );
+
 	    if ( ! is_sublist ( c ) ) return;
 #   	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		c = next ( ap.dlp );
@@ -5715,6 +5727,7 @@ bool MINT::set_flag
     for ( c = current ( ap.lp );
           ! is_list_end ( c );
 	  c = next ( ap.lp ) );
+
     unsigned base = 0;
     while ( base < n )
     {
