@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Mar 26 10:44:22 EDT 2010
+// Date:	Sun Mar 28 02:42:37 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/26 16:55:14 $
+//   $Date: 2010/03/28 06:46:22 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.204 $
+//   $Revision: 1.205 $
 
 // Table of Contents:
 //
@@ -5574,25 +5574,27 @@ void MINT::set_flags
     else
     {
         start_sublist ( ap.lp );
+	const min::gen zero_cc =
+	    new_control_code_gen ( 0 );
+
 	for ( c = current ( ap.lp );
 	         ! is_list_end ( c )
 	      && ! is_control_code ( c );
 	      c = next ( ap.lp ) );
-	while ( is_control_code ( c ) )
+
+	for ( ; is_control_code ( c );
+	        c = next ( ap.lp ) )
 	{
 	    if ( n > 0 )
 	    {
 		update ( ap.lp, * in ++ );
 		-- n;
-		c = next ( ap.lp );
 	    }
 	    else
-	    {
-	        remove ( ap.lp );
-		c = current ( ap.lp );
-	    }
+		update ( ap.lp, zero_cc );
 	}
 	MIN_ASSERT ( c == min::LIST_END );
+
 	if ( n > 0 )
 	{
 	    if ( insert_reserve ( ap.lp, 1, n ) )
