@@ -3461,6 +3461,26 @@ min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 0 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 4 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 0 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    flag0 true.
+min_interface_test.cc:XXXX assert:
+    ! flag1 true.
+min_interface_test.cc:XXXX assert:
+    ! flagV2 true.
+min_interface_test.cc:XXXX assert:
+    flagV3 true.
+min_interface_test.cc:XXXX assert:
+    ! flagV4 true.
 
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:
