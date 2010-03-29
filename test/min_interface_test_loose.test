@@ -3490,11 +3490,23 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! flag[1][2] true.
 min_interface_test.cc:XXXX assert:
+    flag[4][1] true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 5 ) true.
+min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 4 ) true.
+min_interface_test.cc:XXXX assert:
+    flag[4][1] true.
+min_interface_test.cc:XXXX assert:
+    ! flag[0][0] && ! flag[1][3] true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
+    flag[0][0] && ! flag[4][0] true.
+min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 1 ) true.
+min_interface_test.cc:XXXX assert:
+    flag[0][0] true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3530,11 +3542,23 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ! flag[1][2] true.
 min_interface_test.cc:XXXX assert:
+    flag[4][1] true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 5 ) true.
+min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 4 ) true.
+min_interface_test.cc:XXXX assert:
+    flag[4][1] true.
+min_interface_test.cc:XXXX assert:
+    ! flag[0][0] && ! flag[1][3] true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
+    flag[0][0] && ! flag[4][0] true.
+min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 1 ) true.
+min_interface_test.cc:XXXX assert:
+    flag[0][0] true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
 MINT::acc_expand_stub_free_list (1) called
