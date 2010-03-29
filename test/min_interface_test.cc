@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 28 02:42:17 EDT 2010
+// Date:	Mon Mar 29 05:36:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/28 07:20:58 $
+//   $Date: 2010/03/29 09:38:36 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.165 $
+//   $Revision: 1.166 $
 
 // Table of Contents:
 //
@@ -2958,25 +2958,29 @@ static bool check_flags
     return ok;
 }
 
-// Set, clear, flip, and test flags for the attribute
-// with label1.  Exit 2 control non-zero flag control
-// words.  Switch temporarily to the attribute with
-// label2 occassionally, but do not change that
-// attribute.
+// Set, clear, flip, and test flags for the attributes
+// with label1 and label2.  Exit with 4 control non-zero
+// flag control words for label1 and 2 for label 2.
+// Switch temporarily to the attribute with label3
+// occassionally, but do not change that attribute.
 //
 void test_attribute_flags
 	( min::insertable_attr_pointer & ap,
-	  min::gen label1, min::gen label2 )
+	  min::gen label1, min::gen label2,
+	  min::gen label3 )
 {
     min_assert_print = false;
 
     min::gen cc0 = min::new_control_code_gen ( 1 << 0 );
+    min::gen cc1 = min::new_control_code_gen ( 1 << 1 );
     min::gen cc3 = min::new_control_code_gen ( 1 << 3 );
     min::gen cc5 = min::new_control_code_gen ( 1 << 5 );
     min::gen cc10 = min::new_control_code_gen ( 1 << 10 );
 
-    min::gen codes1[4] = { cc0, cc3, cc5, cc10 };
+    min::gen codes1[5] = { cc0, cc3, cc5, cc10, cc1 };
+
     min::locate ( ap, label1 );
+
     min::set_flags ( ap, codes1, 2 );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 2 ) );
@@ -2984,12 +2988,16 @@ void test_attribute_flags
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 0 ) );
     min::set_some_flags ( ap, codes1, 3 );
+    locate ( ap, label3 );
+    locate ( ap, label1 );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 3 ) );
     min::clear_some_flags ( ap, codes1, 4 );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 0 ) );
     min::flip_some_flags ( ap, codes1, 4 );
+    locate ( ap, label3 );
+    locate ( ap, label1 );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 4 ) );
     min::flip_some_flags ( ap, codes1, 4 );
@@ -2998,18 +3006,47 @@ void test_attribute_flags
 
     min::set_flag ( ap, 0 );
     min::set_flag ( ap, min::VSIZE + 3 );
+    min::set_flag ( ap, 2*min::VSIZE + 5 );
+    min::set_flag ( ap, 3*min::VSIZE + 10 );
+    min::set_flag ( ap, 4*min::VSIZE + 1 );
     PRINTING_MIN_ASSERT
-        ( check_flags ( ap, codes1, 2 ) );
+        ( check_flags ( ap, codes1, 5 ) );
     bool flag0 = test_flag ( ap, 0 );
     bool flag1 = test_flag ( ap, 1 );
     bool flagV2 = test_flag ( ap, min::VSIZE + 2 );
     bool flagV3 = test_flag ( ap, min::VSIZE + 3 );
     bool flagV4 = test_flag ( ap, min::VSIZE + 4 );
+    locate ( ap, label3 );
+    locate ( ap, label1 );
+    bool flag4V0 = test_flag ( ap, 4*min::VSIZE + 0 );
+    bool flag4V1 = test_flag ( ap, 4*min::VSIZE + 1 );
+    bool flag4V2 = test_flag ( ap, 4*min::VSIZE + 2 );
     PRINTING_MIN_ASSERT ( flag0 );
     PRINTING_MIN_ASSERT ( ! flag1 );
     PRINTING_MIN_ASSERT ( ! flagV2 );
     PRINTING_MIN_ASSERT ( flagV3 );
     PRINTING_MIN_ASSERT ( ! flagV4 );
+    PRINTING_MIN_ASSERT ( ! flag4V0 );
+    PRINTING_MIN_ASSERT ( flag4V1 );
+    PRINTING_MIN_ASSERT ( ! flag4V2 );
+    min::flip_flag ( ap, 4*min::VSIZE + 1 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 4 ) );
+
+    locate ( ap, label2 );
+    min::flip_flag ( ap, 0 );
+    min::flip_flag ( ap, min::VSIZE + 3 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 2 ) );
+    min::clear_flag ( ap, min::VSIZE + 3 );
+    min::clear_flag ( ap, 4*min::VSIZE );
+    locate ( ap, label3 );
+    locate ( ap, label2 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 1 ) );
+    min::flip_flag ( ap, 0 );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 0 ) );
 
     min_assert_print = true;
 }
@@ -3101,7 +3138,7 @@ void test_object_attribute_level ( void )
     ai[2].value_count = 6;
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
-    test_attribute_flags ( ap, lab1, lab2 );
+    test_attribute_flags ( ap, lab1, lab2, lab3 );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
