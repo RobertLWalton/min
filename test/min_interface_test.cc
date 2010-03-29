@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 29 05:36:34 EDT 2010
+// Date:	Mon Mar 29 05:51:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/29 09:38:36 $
+//   $Date: 2010/03/29 09:51:32 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.166 $
+//   $Revision: 1.167 $
 
 // Table of Contents:
 //
@@ -2960,7 +2960,7 @@ static bool check_flags
 
 // Set, clear, flip, and test flags for the attributes
 // with label1 and label2.  Exit with 4 control non-zero
-// flag control words for label1 and 2 for label 2.
+// flag control words for label1 and 0 for label 2.
 // Switch temporarily to the attribute with label3
 // occassionally, but do not change that attribute.
 //
@@ -3139,6 +3139,10 @@ void test_object_attribute_level ( void )
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
     test_attribute_flags ( ap, lab1, lab2, lab3 );
+    ai[4].flag_count = 4;
+    test_attribute_flags ( ap, lab2, int1, int2 );
+    ai[5].flag_count = 4;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
