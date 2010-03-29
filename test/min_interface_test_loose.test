@@ -3495,6 +3495,47 @@ min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 1 ) true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 0 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 0 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 4 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 0 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 5 ) true.
+min_interface_test.cc:XXXX assert:
+    flag0 true.
+min_interface_test.cc:XXXX assert:
+    ! flag1 true.
+min_interface_test.cc:XXXX assert:
+    ! flagV2 true.
+min_interface_test.cc:XXXX assert:
+    flagV3 true.
+min_interface_test.cc:XXXX assert:
+    ! flagV4 true.
+min_interface_test.cc:XXXX assert:
+    ! flag4V0 true.
+min_interface_test.cc:XXXX assert:
+    flag4V1 true.
+min_interface_test.cc:XXXX assert:
+    ! flag4V2 true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 4 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 1 ) true.
+min_interface_test.cc:XXXX assert:
+    check_flags ( ap, codes1, 0 ) true.
+MINT::acc_expand_stub_free_list (1) called
+min_interface_test.cc:XXXX assert:
+    check_attr_info ( ap, ai, 8 ) true.
 
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:
