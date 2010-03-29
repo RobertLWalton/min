@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 28 03:19:54 EDT 2010
+// Date:	Mon Mar 29 05:34:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/28 07:20:11 $
+//   $Date: 2010/03/29 09:36:02 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.206 $
+//   $Revision: 1.207 $
 
 // Table of Contents:
 //
@@ -5715,7 +5715,7 @@ bool MINT::set_flag
 	              ( ap, min::EMPTY_SUBLIST );
     }
 
-    min::gen elements[(n+VSIZE-1)/VSIZE + 1];
+    min::gen elements[n/VSIZE + 2];
     min::unsptr j = 0;
     min::gen c = current ( ap.locate_dlp );
     if ( ! is_sublist ( c ) )
@@ -5729,7 +5729,7 @@ bool MINT::set_flag
 	  c = next ( ap.lp ) );
 
     unsigned base = 0;
-    while ( base < n )
+    while ( base <= n )
     {
         unsigned next = base + VSIZE;
 	if ( n < next )
