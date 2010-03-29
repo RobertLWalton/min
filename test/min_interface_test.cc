@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 29 14:18:25 EDT 2010
+// Date:	Mon Mar 29 14:29:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/29 18:28:45 $
+//   $Date: 2010/03/29 18:34:11 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.168 $
+//   $Revision: 1.169 $
 
 // Table of Contents:
 //
@@ -3034,22 +3034,34 @@ void test_attribute_flags
     PRINTING_MIN_ASSERT ( ! flag[4][0] );
     PRINTING_MIN_ASSERT ( flag[4][1] );
     PRINTING_MIN_ASSERT ( ! flag[1][2]);
-    min::flip_flag ( ap, 4*min::VSIZE + 1 );
+    flag[4][1] =
+        min::set_flag ( ap, 4*min::VSIZE + 1 );
+    PRINTING_MIN_ASSERT ( flag[4][1] );
+    PRINTING_MIN_ASSERT
+        ( check_flags ( ap, codes1, 5 ) );
+    flag[4][1] =
+        min::flip_flag ( ap, 4*min::VSIZE + 1 );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 4 ) );
+    PRINTING_MIN_ASSERT ( flag[4][1] );
 
     locate ( ap, label2 );
-    min::flip_flag ( ap, 0 );
-    min::flip_flag ( ap, min::VSIZE + 3 );
+    flag[0][0] = min::flip_flag ( ap, 0 );
+    flag[1][3] = min::flip_flag ( ap, min::VSIZE + 3 );
+    PRINTING_MIN_ASSERT
+        ( ! flag[0][0] && ! flag[1][3] );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 2 ) );
-    min::clear_flag ( ap, min::VSIZE + 3 );
-    min::clear_flag ( ap, 4*min::VSIZE );
+    flag[0][0] = min::clear_flag ( ap, min::VSIZE + 3 );
+    flag[4][0] = min::clear_flag ( ap, 4*min::VSIZE );
+    PRINTING_MIN_ASSERT
+        ( flag[0][0] && ! flag[4][0] );
     locate ( ap, label3 );
     locate ( ap, label2 );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 1 ) );
-    min::flip_flag ( ap, 0 );
+    flag[0][0] = min::flip_flag ( ap, 0 );
+    PRINTING_MIN_ASSERT ( flag[0][0] );
     PRINTING_MIN_ASSERT
         ( check_flags ( ap, codes1, 0 ) );
 
