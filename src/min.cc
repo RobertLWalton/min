@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 29 05:34:26 EDT 2010
+// Date:	Mon Mar 29 16:42:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/29 09:36:02 $
+//   $Date: 2010/03/29 20:49:17 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.207 $
+//   $Revision: 1.208 $
 
 // Table of Contents:
 //
@@ -3602,12 +3602,12 @@ const min::raw_vec_type_info
 
 	    for ( c = current ( ap.dlp );
 		  ! is_list_end ( c );
+	          next ( ap.dlp),
 		  c = next ( ap.dlp ) )
 	    {
-	        next ( ap.dlp);
 		if ( c == element[0] )
 		{
-		    c = current ( ap.dlp );
+		    c = next ( ap.dlp );
 		    MIN_ASSERT ( ! is_list_end ( c ) );
 		    break;
 		}
@@ -3658,9 +3658,9 @@ const min::raw_vec_type_info
 
 	    for ( c = current ( ap.lp );
 	          ! is_list_end ( c );
+	          next ( ap.lp),
 		  c = next ( ap.lp ) )
 	    {
-	        next ( ap.dlp);
 		if ( c == element[ap.length] )
 		{
 		    c = next ( ap.lp );
@@ -3688,7 +3688,13 @@ const min::raw_vec_type_info
 	    ap.state = ap_type::LOCATE_NONE;
 	}
 	else
+	{
+	    start_copy ( ap.locate_dlp, ap.dlp );
 	    ap.state = ap_type::LOCATE_FAIL;
+	    // ap.length and ap.locate_dlp define
+	    // recognized partial label even if
+	    // this has empty value set.
+	}
 
 	return;
     }
