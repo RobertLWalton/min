@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/29 20:49:17 $
+//   $Date: 2010/03/29 23:20:46 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.208 $
+//   $Revision: 1.209 $
 
 // Table of Contents:
 //
@@ -3636,6 +3636,7 @@ const min::raw_vec_type_info
 		start_copy ( ap.locate_dlp, ap.dlp );
 	        break;
 	    }
+
 	    start_sublist ( ap.lp, ap.dlp );
 	    c = current ( ap.lp );
 	    if (    ! is_list_end ( c )
@@ -3649,11 +3650,13 @@ const min::raw_vec_type_info
 	    if ( ap.length >= len ) break;
 
 	    for ( ;
-	          ! is_sublist && ! is_list_end ( c );
+	             ! is_sublist ( c )
+		  && ! is_list_end ( c );
 		  c = next ( ap.lp ) );
 
 	    if ( ! is_sublist ( c ) )
 	        break;
+
 	    start_sublist ( ap.lp );
 
 	    for ( c = current ( ap.lp );
@@ -4715,7 +4718,7 @@ static bool compute_counts
 	    labvec[i] = * components ++;
 
 	min::stack_gen<1> sgen;
-	min::gen & new_label = sgen[1];
+	min::gen & new_label = sgen[0];
 	for ( c = min::current ( lpv );
 	      ! min::is_list_end ( c );
 	      c = min::next ( lpv ) )
