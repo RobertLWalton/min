@@ -3377,6 +3377,7 @@ MINT::new_fixed_body ( stub 92, 3224 ) called
 Using fixed_blocks[9] and assigning begin_body_region[82362 .. 82873]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
+TEST ATTRIBUTE VALUES ( `label1', `label2')
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
@@ -3414,6 +3415,7 @@ min_interface_test.cc:XXXX assert:
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
+TEST ATTRIBUTE VALUES ( 3, `label1')
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3445,6 +3447,7 @@ MINT::new_fixed_body ( stub 102, 3224 ) called
 Using fixed_blocks[9] and assigning begin_body_region[83386 .. 83897]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
+TEST ATTRIBUTE VALUES ( [1,`label1'], [1,`label2'])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3474,6 +3477,101 @@ min_interface_test.cc:XXXX assert:
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 9 ) true.
+TEST ATTRIBUTE VALUES ( [1,`label2'], [1,`label1'])
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 7 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 6 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 4 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2, 6 ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 104, 3224 ) called
+Using fixed_blocks[9] and assigning begin_body_region[84410 .. 84921]
+min_interface_test.cc:XXXX assert:
+    check_attr_info ( ap, ai, 10 ) true.
+TEST ATTRIBUTE VALUES ( [`label1',1], [`label1',2])
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 7 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 6 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 4 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2, 6 ) true.
+MINT::acc_expand_stub_free_list (1) called
+min_interface_test.cc:XXXX assert:
+    check_attr_info ( ap, ai, 11 ) true.
+TEST ATTRIBUTE VALUES ( [`label1',2], [`label1',1])
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 7 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 6 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 4 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2, 6 ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 106, 3224 ) called
+Using fixed_blocks[9] and assigning begin_body_region[85434 .. 85945]
+min_interface_test.cc:XXXX assert:
+    check_attr_info ( ap, ai, 12 ) true.
+TEST ATTRIBUTE FLAGS ( `label1', `label2', `label3')
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3526,6 +3624,7 @@ min_interface_test.cc:XXXX assert:
     flag[0][0] true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
+TEST ATTRIBUTE FLAGS ( `label2', 1, 2)
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3579,8 +3678,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub 104, 3224 ) called
-Using fixed_blocks[9] and assigning begin_body_region[84410 .. 84921]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 
