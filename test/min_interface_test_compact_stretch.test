@@ -3174,6 +3174,42 @@ Start Object Attribute Level Test!
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 80, 16 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[2] and assigning begin_body_region[82338 .. 82341]
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 84, 16 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[2] and assigning begin_body_region[82346 .. 82349]
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 88, 16 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[2] and assigning begin_body_region[82354 .. 82357]
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
@@ -3337,8 +3373,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab4 true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub 80, 3224 ) called
-Using fixed_blocks[9] and assigning begin_body_region[82338 .. 82849]
+MINT::new_fixed_body ( stub 92, 3224 ) called
+Using fixed_blocks[9] and assigning begin_body_region[82362 .. 82873]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 MINT::acc_expand_stub_free_list (1) called
@@ -3405,10 +3441,39 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub 90, 3224 ) called
-Using fixed_blocks[9] and assigning begin_body_region[83362 .. 83873]
+MINT::new_fixed_body ( stub 102, 3224 ) called
+Using fixed_blocks[9] and assigning begin_body_region[83386 .. 83897]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 6 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 8 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 7 ) true.
+REMOVED 1
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 6 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1+1, 4 ) true.
+REMOVED 2
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 2 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2+1, 3 ) true.
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values2, 6 ) true.
+MINT::acc_expand_stub_free_list (1) called
+min_interface_test.cc:XXXX assert:
+    check_attr_info ( ap, ai, 9 ) true.
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3514,6 +3579,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 104, 3224 ) called
+Using fixed_blocks[9] and assigning begin_body_region[84410 .. 84921]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 
