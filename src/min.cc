@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Mar 29 16:42:47 EDT 2010
+// Date:	Tue Mar 30 03:07:35 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/29 23:20:46 $
+//   $Date: 2010/03/30 07:07:55 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.209 $
+//   $Revision: 1.210 $
 
 // Table of Contents:
 //
@@ -4666,7 +4666,11 @@ static bool compute_counts
 	{
 #   	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		if ( min::is_sublist ( c ) )
+		{
 		    c = min::next ( lpv );
+		    if ( min::is_list_end ( c ) )
+			break;
+		}
 #   	    endif
 	    if ( min::is_sublist ( c ) )
 	        info.reverse_attr_count =
