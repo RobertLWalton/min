@@ -3680,6 +3680,20 @@ min_interface_test.cc:XXXX assert:
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 108, 208 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[5] and assigning begin_body_region[86458 .. 86489]
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 110, 208 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[5] and assigning begin_body_region[86522 .. 86553]
+TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
+min_interface_test.cc:XXXX assert:
+    check_values ( ap, values1, 3 ) true.
 
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:
