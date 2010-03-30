@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 30 03:17:15 EDT 2010
+// Date:	Tue Mar 30 03:47:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/30 07:17:32 $
+//   $Date: 2010/03/30 07:56:07 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.170 $
+//   $Revision: 1.171 $
 
 // Table of Contents:
 //
@@ -2846,6 +2846,10 @@ void test_attribute_values
 {
     min_assert_print = false;
 
+    cout << "TEST ATTRIBUTE VALUES ( "
+         << min::pr ( label1 ) << ", "
+         << min::pr ( label2 ) << ")" << endl;
+
     min::gen val1 = min::new_num_gen ( 1 );
     min::gen val2 = min::new_num_gen ( 2 );
     min::gen val3 = min::new_num_gen ( 3 );
@@ -2970,6 +2974,11 @@ void test_attribute_flags
 	  min::gen label3 )
 {
     min_assert_print = false;
+
+    cout << "TEST ATTRIBUTE FLAGS ( "
+         << min::pr ( label1 ) << ", "
+         << min::pr ( label2 ) << ", "
+         << min::pr ( label3 ) << ")" << endl;
 
     min::gen cc0 = min::new_control_code_gen ( 1 << 0 );
     min::gen cc1 = min::new_control_code_gen ( 1 << 1 );
@@ -3154,7 +3163,7 @@ void test_object_attribute_level ( void )
     min::locate ( ap, int4 );
     MIN_ASSERT ( min::get ( ap ) == lab4 );
 
-    min::attr_info ai[9] = {
+    min::attr_info ai[12] = {
         { int1, 1, 0, 0 },
         { int2, 1, 0, 0 },
         { int3, 1, 0, 0 },
@@ -3163,7 +3172,10 @@ void test_object_attribute_level ( void )
         { lab2, 1, 0, 0 },
         { lab3, 1, 0, 0 },
         { lab4, 1, 0, 0 },
-	{ int1lab1, 0, 0 } };
+	{ int1lab1, 0, 0 },
+	{ int1lab2, 0, 0 },
+	{ lab1int1, 0, 0 },
+	{ lab1int2, 0, 0 } };
 
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 
@@ -3178,6 +3190,15 @@ void test_object_attribute_level ( void )
     test_attribute_values ( ap, int1lab1, int1lab2 );
     ai[8].value_count = 6;
     MIN_ASSERT ( check_attr_info ( ap, ai, 9 ) );
+    test_attribute_values ( ap, int1lab2, int1lab1 );
+    ai[9].value_count = 6;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 10 ) );
+    test_attribute_values ( ap, lab1int1, lab1int2 );
+    ai[10].value_count = 6;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 11 ) );
+    test_attribute_values ( ap, lab1int2, lab1int1 );
+    ai[11].value_count = 6;
+    MIN_ASSERT ( check_attr_info ( ap, ai, 12 ) );
 
     test_attribute_flags ( ap, lab1, lab2, lab3 );
     ai[4].flag_count = 4;
