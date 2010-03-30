@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 30 03:07:35 EDT 2010
+// Date:	Tue Mar 30 11:57:38 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/30 07:07:55 $
+//   $Date: 2010/03/30 16:55:58 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.210 $
+//   $Revision: 1.211 $
 
 // Table of Contents:
 //
@@ -208,11 +208,7 @@ int min::compare ( min::gen v1, min::gen v2 )
 {
     if ( is_num ( v1 ) )
     {
-        if ( is_str ( v2 ) ) return -1;
-        else if ( is_lab ( v2 ) ) return -1;
-        else if ( ! is_num ( v2 ) )
-	    MIN_ABORT
-	      ( "2nd min::compare arg is not name" );
+        if ( ! is_num ( v2 ) ) return -1;
 	float64 f1 = float_of ( v1 );
 	float64 f2 = float_of ( v2 );
 	if ( f1 < f2 ) return -1;
@@ -223,10 +219,7 @@ int min::compare ( min::gen v1, min::gen v2 )
     if ( is_str ( v1 ) )
     {
         if ( is_num ( v2 ) ) return +1;
-	else if ( is_lab ( v2 ) ) return -1;
-        else if ( ! is_str ( v2 ) )
-	    MIN_ABORT
-	      ( "2nd min::compare arg is not name" );
+        else if ( ! is_str ( v2 ) ) return -1;
 	str_pointer p1 ( v1 );
 	str_pointer p2 ( v2 );
 	return ::strcmp ( unprotected::str_of ( p1 ),
@@ -237,9 +230,7 @@ int min::compare ( min::gen v1, min::gen v2 )
     {
         if ( is_num ( v2 ) ) return +1;
 	else if ( is_str ( v2 ) ) return +1;
-        else if ( ! is_lab ( v2 ) )
-	    MIN_ABORT
-	      ( "2nd min::compare arg is not name" );
+        else if ( ! is_lab ( v2 ) ) return -1;
 	unsptr len1 = lablen ( v1 );
 	unsptr len2 = lablen ( v2 );
 	min::gen lab1[len1];
@@ -255,9 +246,10 @@ int min::compare ( min::gen v1, min::gen v2 )
 	if ( len1 == len2 ) return 0;
 	else return -1;
     }
-    else
-	MIN_ABORT
-	  ( "1st min::compare arg is not name" );
+    else if ( is_name ( v2 ) ) return +1;
+    else return (unsgen) v1  < (unsgen) v2 ? -1 :
+                (unsgen) v1 == (unsgen) v2 ? 0 :
+		                             +1;
 }
 
 // Printing

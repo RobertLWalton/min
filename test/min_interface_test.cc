@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 30 03:47:26 EDT 2010
+// Date:	Tue Mar 30 08:58:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/30 07:56:07 $
+//   $Date: 2010/03/30 16:56:13 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.171 $
+//   $Revision: 1.172 $
 
 // Table of Contents:
 //
@@ -3077,6 +3077,85 @@ void test_attribute_flags
     min_assert_print = true;
 }
 
+// Set, add, and remove reverse attribute values with
+// attribute name label1 and reverse attribute name
+// rlabel1.  Exit with 3 reverse attribute values for
+// these.  Temporary switch to attribute name label2,
+// but do not change that attribute.  Use obj1, obj2,
+// and obj3 as values and leave each with one value
+// with attribute name rlabel1 and reverse attribute
+// name rlabel2.
+//
+void test_reverse_attribute_values
+	( min::insertable_attr_pointer & ap,
+	  min::gen label1, min::gen rlabel1,
+	  min::gen label2,
+	  min::gen obj1, min::gen obj2, min::gen obj3 )
+{
+    min_assert_print = false;
+
+    cout << "TEST REVERSE ATTRIBUTE VALUES ( "
+         << min::pr ( label1 ) << ", "
+         << min::pr ( rlabel1 ) << ", "
+         << min::pr ( label2 ) << ")" << endl;
+
+    min::gen values1[3] = { obj1, obj2, obj3 };
+    min::locate ( ap, label1 );
+    min::locate_reverse ( ap, rlabel1 );
+    min::set ( ap, values1, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 3 ) );
+#ifdef UNDEFINED_FOO
+    min::add_to_multiset ( ap, values1 + 3, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 6 ) );
+    min::add_to_set ( ap, values1 + 4, 2 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 6 ) );
+    min::add_to_multiset ( ap, values1 + 6, 2 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 8 ) );
+    min::add_to_set ( ap, values1, 8 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 8 ) );
+    cout << "REMOVED "
+         << min::remove_one ( ap, values1+7, 1 )
+	 << endl;
+    min::locate ( ap, label2 );
+    min::locate ( ap, label1 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1, 7 ) );
+    cout << "REMOVED "
+         << min::remove_one ( ap, values1, 1 )
+	 << endl;
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1+1, 6 ) );
+    cout << "REMOVED "
+         << min::remove_all ( ap, values1+7, 1 )
+	 << endl;
+    min::locate ( ap, label2 );
+    min::locate ( ap, label1 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values1+1, 4 ) );
+    cout << "REMOVED "
+         << min::remove_all ( ap, val2 )
+	 << endl;
+    min::gen values2[6] = { val1, val1,
+                            val5, val6, val6, val6 };
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2+1, 2 ) );
+    min::add_to_set ( ap, values2+1, 3 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2+1, 3 ) );
+    min::add_to_multiset ( ap, values2+3, 2 );
+    min::add_to_multiset ( ap, val1 );
+    PRINTING_MIN_ASSERT
+        ( check_values ( ap, values2, 6 ) );
+#endif // UNDEFINED_FOO
+
+    min_assert_print = true;
+}
+
 void test_object_attribute_level ( void )
 {
     cout << endl;
@@ -3205,6 +3284,13 @@ void test_object_attribute_level ( void )
     test_attribute_flags ( ap, lab2, int1, int2 );
     ai[5].flag_count = 4;
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
+
+    min::gen obj1 = min::new_obj_gen ( 40, 10 );
+    min::gen obj2 = min::new_obj_gen ( 40, 10 );
+    min::gen obj3 = min::new_obj_gen ( 40, 10 );
+
+    test_reverse_attribute_values
+	( ap, lab1, lab2, int1, obj1, obj2, obj3 );
 
     cout << endl;
     cout << "Finish Object Attribute Level Test!"
