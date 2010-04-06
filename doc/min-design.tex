@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 30, 2010}
+\date{April 6, 2010}
  
 \maketitle
 
@@ -3453,10 +3453,16 @@ may be created by the following functions:
       \verb|   const min::stub * s )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+    & \MINKEY{deinitialize} \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::DEINIT_OF_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
 
-The {\tt initialize} functions destruct the vector pointer and then
-reconstruct it.
+The {\tt min::initialize} functions destruct the vector pointer and then
+reconstruct it.  The {\tt min::\EOL deinitialize} function destructs
+the vector pointer and leaves it not pointing at any object stub.
+Use of such a destructed pointer is undefined, but attempts to access
+object elements usually result in memory faults.
 
 The following protected functions may be used to discover information
 about the object pointed at by a read-only {\tt min::vec\_pointer}:
@@ -3558,6 +3564,10 @@ elements.  The additional functions for this type of pointer are:
       \verb|   min::stub * s )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_UPDATABLE_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+    & \MINKEY{deinitialize}%
+      \verb| ( min::updatable_vec_pointer & vp )|
+\LABEL{MIN::DEINIT_OF_UPDATABLE_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3609,8 +3619,8 @@ all the non-constructor functions applicable to
 {\tt min::\EOL vec\_\EOL pointer}'s
 are applicable to
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s.
-Exceptions are destructors and the {\tt min::\EOL ini\-tial\-ize}
-functions, which
+Exceptions are destructors, the {\tt min::\EOL ini\-tial\-ize}
+functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
 downcast object vector pointer.
 
@@ -3647,6 +3657,10 @@ The additional functions for this type of pointer are:
       \verb|   min::stub * s )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_INSERTABLE_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+    & \MINKEY{deinitialize}%
+      \verb| ( min::insertable_vec_pointer & vp )|
+\LABEL{MIN::DEINIT_OF_INSERTABLE_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3791,8 +3805,8 @@ all the non-constructor functions applicable to
 {\tt min::\EOL updatable\_\EOL vec\_\EOL pointer}'s or
 {\tt min::\EOL vec\_\EOL pointer}'s are applicable to
 {\tt min::\EOL insertable\_\EOL vec\_\EOL pointer}'s.
-Exceptions are destructors and the {\tt min::\EOL ini\-tial\-ize}
-functions, which
+Exceptions are destructors, the {\tt min::\EOL ini\-tial\-ize}
+functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
 downcast object vector pointer.
 
@@ -7317,6 +7331,9 @@ These are in \verb|min_parameters.h|.
       \verb| ( min::vec_pointer & vp,|\ARGBREAK
       \verb|   const min::stub * s )|
 \LABEL{MIN::INIT_OF_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+    & \MINKEY{deinitialize} \verb| ( min::vec_pointer & vp )|
+\LABEL{MIN::DEINIT_OF_VEC_POINTER_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
@@ -7373,6 +7390,10 @@ These are in \verb|min_parameters.h|.
       \verb| ( min::updatable_vec_pointer & vp,|\ARGBREAK
       \verb|   min::stub * s )|
 \LABEL{MIN::INIT_OF_UPDATABLE_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+    & \MINKEY{deinitialize}\ARGBREAK
+      \verb| ( min::updatable_vec_pointer & vp )|
+\LABEL{MIN::DEINIT_OF_UPDATABLE_VEC_POINTER_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
@@ -7420,6 +7441,10 @@ These are in \verb|min_parameters.h|.
       \verb| ( min::insertable_vec_pointer & vp,|\ARGBREAK
       \verb|   min::stub * s )|
 \LABEL{MIN::INIT_OF_INSERTABLE_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+    & \MINKEY{deinitialize}\ARGBREAK
+      \verb| ( min::insertable_vec_pointer & vp )|
+\LABEL{MIN::DEINIT_OF_INSERTABLE_VEC_POINTER_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
