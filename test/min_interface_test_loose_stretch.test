@@ -1601,7 +1601,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( sstub ) == st * sizeof ( min::gen ) true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= READONLY true.
 
 Test long objects:
 MINT::acc_expand_stub_free_list (1) called
@@ -1632,7 +1632,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( lstub ) == lt * sizeof ( min::gen ) true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= READONLY true.
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 
@@ -1683,6 +1683,22 @@ min_interface_test.cc:XXXX assert:
     base[av+3] == num0 true.
 ../include/min.h:XXXX assert:
     vp.unused_offset + n <= vp.aux_offset true.
+../include/min.h:XXXX assert:
+    type >= INSERTABLE true.
+../include/min.h:XXXX assert:
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    type >= INSERTABLE true.
+../include/min.h:XXXX assert:
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[av+1] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -1837,15 +1853,25 @@ min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == 0 true.
 MINT::deallocate ( stub 6 ) called
 ../include/min.h:XXXX assert:
-    type == UPDATABLE true.
+    type >= INSERTABLE true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::var_size_of ( vp ) == 20 true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) >= 10 true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[attr_offset] == min::LIST_END true.
 min_interface_test.cc:XXXX assert:
@@ -1855,7 +1881,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= READONLY true.
 
 Test long object vector level:
 ../include/min.h:XXXX assert:
@@ -1902,6 +1928,28 @@ min_interface_test.cc:XXXX assert:
     base[av+3] == num0 true.
 ../include/min.h:XXXX assert:
     vp.unused_offset + n <= vp.aux_offset true.
+../include/min.h:XXXX assert:
+    type >= INSERTABLE true.
+../include/min.h:XXXX assert:
+    t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    type >= INSERTABLE true.
+../include/min.h:XXXX assert:
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    type == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[av+1] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -2059,11 +2107,13 @@ min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
 MINT::deallocate ( stub 6 ) called
 ../include/min.h:XXXX assert:
+    type >= INSERTABLE true.
+../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    type == UPDATABLE true.
+    type >= UPDATABLE true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= READONLY true.
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
@@ -2074,6 +2124,18 @@ min_interface_test.cc:XXXX assert:
     min::var_size_of ( vp ) == 20 true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) >= 10 true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    t == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
+    type == min::LONG_OBJ true.
+../include/min.h:XXXX assert:
+    ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[attr_offset] == min::LIST_END true.
 min_interface_test.cc:XXXX assert:
@@ -2083,7 +2145,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= READONLY true.
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 
@@ -2382,9 +2444,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    type == UPDATABLE true.
+    type >= INSERTABLE true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
 
 Test short object aux area list level:
 ../include/min.h:XXXX assert:
@@ -2829,9 +2893,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    type == UPDATABLE true.
+    type >= INSERTABLE true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
 
 Test short object alternate aux list level:
 ../include/min.h:XXXX assert:
@@ -3200,9 +3266,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == min::LIST_END true.
 ../include/min.h:XXXX assert:
-    type == UPDATABLE true.
+    type >= INSERTABLE true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
 
 Finish Object List Level Test!
 
@@ -3757,9 +3825,11 @@ min_interface_test.cc:XXXX assert:
 
 Finish Object Attribute Level Test!
 ../include/min.h:XXXX assert:
-    type == UPDATABLE true.
+    type >= INSERTABLE true.
 ../include/min.h:XXXX assert:
-    type == READONLY true.
+    type >= UPDATABLE true.
+../include/min.h:XXXX assert:
+    type >= READONLY true.
 min_interface_test.cc:XXXX assert:
     deallocated_body_region[0] == 0 && memcmp ( deallocated_body_region, deallocated_body_region + 1, sizeof ( deallocated_body_region ) - 1 ) == 0 true.
 
