@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Mar 28 03:15:02 EDT 2010
+// Date:	Sat Apr  3 01:52:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/28 07:20:31 $
+//   $Date: 2010/04/06 03:49:17 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.315 $
+//   $Revision: 1.316 $
 
 // Table of Contents:
 //
@@ -3539,6 +3539,8 @@ namespace min {
 	( min::vec_pointer & vp, const min::stub * s );
     void initialize
 	( min::vec_pointer & vp, min::gen v );
+    void deinitialize
+	( min::vec_pointer & vp );
 
     namespace unprotected {
 	min::gen * & base
@@ -3585,6 +3587,8 @@ namespace min {
     void initialize
 	( min::updatable_vec_pointer & vp,
 	  min::gen v );
+    void deinitialize
+	( min::updatable_vec_pointer & vp );
 
     namespace unprotected {
 	min::gen * & base
@@ -3609,6 +3613,8 @@ namespace min {
     void initialize
 	( min::insertable_vec_pointer & vp,
 	  min::gen v );
+    void deinitialize
+	( min::insertable_vec_pointer & vp );
 
     namespace unprotected {
 	min::unsptr & unused_offset_of
@@ -3662,6 +3668,10 @@ namespace min {
 	    : s ( (min::stub *) min::stub_of ( v ) ),
 	      type ( READONLY )
 	    { init(); }
+	vec_pointer ( void )
+	    : s ( NULL ),
+	      type ( READONLY )
+	    { init(); }
 
         // Friends
 	//
@@ -3670,6 +3680,8 @@ namespace min {
 	      const min::stub * s );
 	friend void initialize
 	    ( min::vec_pointer & vp, min::gen v );
+	friend void deinitialize
+	    ( min::vec_pointer & vp );
 
 	friend min::gen * & unprotected::base
 	    ( min::vec_pointer & vp );
@@ -3720,6 +3732,8 @@ namespace min {
 	friend void initialize
 	    ( min::updatable_vec_pointer & vp,
 	      min::gen v );
+	friend void deinitialize
+	    ( min::updatable_vec_pointer & vp );
 
 	friend min::gen * & unprotected::base
 	    ( min::updatable_vec_pointer & vp );
@@ -3742,6 +3756,8 @@ namespace min {
 	friend void initialize
 	    ( min::insertable_vec_pointer & vp,
 	      min::gen v );
+	friend void deinitialize
+	    ( min::insertable_vec_pointer & vp );
 
 	friend min::unsptr &
 	  unprotected::unused_offset_of
@@ -3785,7 +3801,9 @@ namespace min {
 
 	~ vec_pointer ( void )
 	{
-	    MIN_ASSERT ( type == READONLY );
+	    MIN_ASSERT ( type >= READONLY );
+	    if ( s == NULL ) return;
+
 	    int t = min::type_of ( s );
 	    if ( t == min::SHORT_OBJ )
 	    {
@@ -3815,13 +3833,12 @@ namespace min {
 	    UPDATABLE = 2,
 	    INSERTABLE = 3 };
 	int type;
-	    // Higher level destructors change this so
-	    // the lower level destructors they
-	    // implicitly call will not have errors.
+	    // Set by construction.  Checked by
+	    // initializer and deinitializer.
 
     	min::stub * s;
-	    // Stub of object; set by constructor or
-	    // init function.
+	    // Stub of object; set by constructor.  NULL
+	    // if vector pointer is deinitialized.
 
         min::unsptr	unused_offset;
         min::unsptr	aux_offset;
@@ -3841,6 +3858,8 @@ namespace min {
 
         void init ( void )
 	{
+	    if ( s == NULL ) return;
+
 	    int type = min::type_of ( s );
 	    min::uns8 * flags_p;
 	    if ( type == min::SHORT_OBJ )
@@ -3920,11 +3939,13 @@ namespace min {
 	    : vec_pointer ( min::stub_of ( v ),
 	                    UPDATABLE )
 	    {}
+	updatable_vec_pointer ( void )
+	    : vec_pointer ( NULL, UPDATABLE )
+	    {}
 
 	~ updatable_vec_pointer ( void )
 	{
-	    MIN_ASSERT ( type == UPDATABLE );
-	    type = READONLY;
+	    MIN_ASSERT ( type >= UPDATABLE );
 	}
 
     protected:
@@ -3949,27 +3970,34 @@ namespace min {
 	          ( min::stub_of ( v ),
 		    INSERTABLE )
 	    {}
+	insertable_vec_pointer ( void )
+	    : updatable_vec_pointer ( NULL, INSERTABLE )
+	    {}
 
 	~ insertable_vec_pointer ( void )
 	{
-	    int t = min::type_of ( s );
-	    if ( t == min::SHORT_OBJ )
-	    {
-		internal::short_obj * so =
-		    internal::short_obj_of ( s );
-		so->unused_offset = unused_offset;
-		so->aux_offset    = aux_offset;
-	    }
-	    else
-	    {
-	        MIN_ASSERT ( t == min::LONG_OBJ );
-		internal::long_obj * lo =
-		    internal::long_obj_of ( s );
+	    MIN_ASSERT ( type >= INSERTABLE );
 
-		lo->unused_offset = unused_offset;
-		lo->aux_offset    = aux_offset;
+	    if ( s != NULL )
+	    {
+		int t = min::type_of ( s );
+		if ( t == min::SHORT_OBJ )
+		{
+		    internal::short_obj * so =
+			internal::short_obj_of ( s );
+		    so->unused_offset = unused_offset;
+		    so->aux_offset    = aux_offset;
+		}
+		else
+		{
+		    MIN_ASSERT ( t == min::LONG_OBJ );
+		    internal::long_obj * lo =
+			internal::long_obj_of ( s );
+
+		    lo->unused_offset = unused_offset;
+		    lo->aux_offset    = aux_offset;
+		}
 	    }
-	    type = UPDATABLE;
 	}
     };
 
@@ -3985,6 +4013,13 @@ namespace min {
     {
 	vp.~vec_pointer();
         new ( & vp ) min::vec_pointer ( v );
+    }
+
+    inline void deinitialize
+	( min::vec_pointer & vp )
+    {
+	vp.~vec_pointer();
+        new ( & vp ) min::vec_pointer();
     }
 
     inline min::gen * & unprotected::base
@@ -4109,6 +4144,13 @@ namespace min {
         new ( & vp ) min::updatable_vec_pointer ( v );
     }
 
+    inline void deinitialize
+	( min::updatable_vec_pointer & vp )
+    {
+	vp.~updatable_vec_pointer();
+        new ( & vp ) min::updatable_vec_pointer();
+    }
+
     inline min::gen * & unprotected::base
 	( min::updatable_vec_pointer & vp )
     {
@@ -4172,6 +4214,13 @@ namespace min {
     {
 	vp.~insertable_vec_pointer();
         new ( & vp ) min::vec_pointer ( v );
+    }
+
+    inline void deinitialize
+	( min::insertable_vec_pointer & vp )
+    {
+	vp.~insertable_vec_pointer();
+        new ( & vp ) min::vec_pointer();
     }
 
     inline min::unsptr & unprotected::unused_offset_of
