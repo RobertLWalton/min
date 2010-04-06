@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Mar 30 08:58:24 EDT 2010
+// Date:	Tue Apr  6 00:13:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/03/30 16:56:13 $
+//   $Date: 2010/04/06 04:15:22 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.172 $
+//   $Revision: 1.173 $
 
 // Table of Contents:
 //
@@ -2222,6 +2222,8 @@ void test_object_vector_level
 	MIN_ASSERT ( base[av+2] == num0 );
 	MIN_ASSERT ( base[av+3] == num0 );
 	min::attr_push ( vp, numv, 3 );
+	min::deinitialize ( vp );
+	min::initialize ( vp, v );
 	MIN_ASSERT ( base[av+1] == num1 );
 	MIN_ASSERT ( base[av+2] == num2 );
 	MIN_ASSERT ( base[av+3] == num3 );
@@ -2363,6 +2365,8 @@ void test_object_vector_level
 	    MUP::attr_offset_of ( vp );
 	min::unsptr aux_offset =
 	    MUP::aux_offset_of ( vp );
+	min::deinitialize ( vp );
+	min::initialize ( vp, v );
 	MIN_ASSERT
 	    ( base[attr_offset] == min::LIST_END );
 	MIN_ASSERT

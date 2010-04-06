@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Apr  3 01:52:53 EDT 2010
+// Date:	Tue Apr  6 00:00:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 03:49:17 $
+//   $Date: 2010/04/06 04:14:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.316 $
+//   $Revision: 1.317 $
 
 // Table of Contents:
 //
@@ -4205,7 +4205,7 @@ namespace min {
 	  min::stub * s )
     {
 	vp.~insertable_vec_pointer();
-        new ( & vp ) min::vec_pointer ( s );
+        new ( & vp ) min::insertable_vec_pointer ( s );
     }
 
     inline void initialize
@@ -4213,14 +4213,14 @@ namespace min {
 	  min::gen v )
     {
 	vp.~insertable_vec_pointer();
-        new ( & vp ) min::vec_pointer ( v );
+        new ( & vp ) min::insertable_vec_pointer ( v );
     }
 
     inline void deinitialize
 	( min::insertable_vec_pointer & vp )
     {
 	vp.~insertable_vec_pointer();
-        new ( & vp ) min::vec_pointer();
+        new ( & vp ) min::insertable_vec_pointer();
     }
 
     inline min::unsptr & unprotected::unused_offset_of
