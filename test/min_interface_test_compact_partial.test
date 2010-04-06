@@ -1425,7 +1425,7 @@ MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
-    header->type_info == & type_info true.
+    header()->type_info == & type_info true.
 ../include/min.h:XXXX assert:
     type_info.element_size == sizeof ( T ) true.
 MINT::acc_expand_stub_free_list (1) called
@@ -1449,35 +1449,35 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
-    header->type_info == & type_info true.
+    header()->type_info == & type_info true.
 ../include/min.h:XXXX assert:
     type_info.element_size == sizeof ( T ) true.
 ../include/min.h:XXXX assert:
-    i < this->header->length true.
+    i < this->header()->length true.
 min_interface_test.cc:XXXX assert:
     urvp[0] == rvs1 true.
 ../include/min.h:XXXX assert:
-    i < this->header->length true.
+    i < this->header()->length true.
 min_interface_test.cc:XXXX assert:
     urvp[1] == rvs2 true.
 ../include/min.h:XXXX assert:
-    i < this->header->length true.
+    i < this->header()->length true.
 min_interface_test.cc:XXXX assert:
     urvp[2] == rvs3 true.
 ../include/min.h:XXXX assert:
-    i < this->header->length true.
+    i < this->header()->length true.
 min_interface_test.cc:XXXX assert:
     urvp[3] == rvs4 true.
 ../include/min.h:XXXX assert:
-    i < this->header->length true.
+    i < this->header()->length true.
 ../include/min.h:XXXX assert:
-    rvp.header->length > 0 true.
+    rvp.header()->length > 0 true.
 min_interface_test.cc:XXXX assert:
     min::pop ( irvp ) == rvs4 true.
 min_interface_test.cc:XXXX assert:
     min::length_of ( irvp ) == 3 true.
 ../include/min.h:XXXX assert:
-    rvp.header->length >= n true.
+    rvp.header()->length >= n true.
 min_interface_test.cc:XXXX assert:
     min::length_of ( irvp ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1501,9 +1501,9 @@ MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     min::length_of ( irvp ) == 200 true.
 ../include/min.h:XXXX assert:
-    i < this->header->length true.
+    i < this->header()->length true.
 ../include/min.h:XXXX assert:
-    i < this->header->length true.
+    i < this->header()->length true.
 min_interface_test.cc:XXXX assert:
     min::length_of ( irvp ) == 0 true.
 MINT::acc_expand_stub_free_list (1) called
@@ -1512,7 +1512,7 @@ MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     min::type_of ( stub ) == min::RAW_VEC true.
 ../include/min.h:XXXX assert:
-    header->type_info == & type_info true.
+    header()->type_info == & type_info true.
 ../include/min.h:XXXX assert:
     type_info.element_size == sizeof ( T ) true.
 min_interface_test.cc:XXXX assert:
