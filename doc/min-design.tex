@@ -3435,6 +3435,9 @@ may be created by the following functions:
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}%
        \verb| vp ( const min::stub * s )|
 \LABEL{MIN::VEC_POINTER_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
+       \verb| vp ( void )|
+\LABEL{MIN::VEC_POINTER_OF_VOID} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3457,6 +3460,15 @@ may be created by the following functions:
     & \MINKEY{deinitialize} \verb| ( min::vec_pointer & vp )|
 \LABEL{MIN::DEINIT_OF_VEC_POINTER_OF_STUB} \\
 \end{tabular}\end{indpar}
+
+The constructors point the new vector pointer at an object designated
+by a \verb|min::gen| value or \verb|min::stub *| pointer, or in the
+case of the constructor with no argument, leave the vector pointer
+unpointed at any object.  In this last case the vector pointer must
+be initialized by a {\tt min::\EOL initialize} function before it is
+used; use before initialization will give undefined results, though
+access to object elements will usually result in a memory
+fault.
 
 The {\tt min::initialize} functions destruct the vector pointer and then
 reconstruct it.  The {\tt min::\EOL deinitialize} function destructs
@@ -3546,6 +3558,9 @@ elements.  The additional functions for this type of pointer are:
 \verb|(constructor) min::| & \MINKEY{updatable\_vec\_pointer}%
     \verb| vp ( min::stub * s )|
 \LABEL{MIN::UPDATABLE_VEC_POINTER_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{updatable\_vec\_pointer}%
+    \verb| vp ( void )|
+\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_VOID} \\
 
 \end{tabular}\end{indpar}
 
@@ -3639,6 +3654,9 @@ The additional functions for this type of pointer are:
 \verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
     \verb| vp ( min::stub * s )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{insertable\_vec\_pointer}%
+    \verb| vp ( void )|
+\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_VOID} \\
 
 \end{tabular}\end{indpar}
 
@@ -5642,7 +5660,7 @@ same as the value that would be returned by {\tt min::\EOL get\_\EOL flags}.
 The {\tt min::\EOL attr\_\EOL info} structs are stored in a raw vector
 returned by the {\tt min::\EOL get\_\EOL attrs} function
 as a \verb|min::gen| value.  This can be accessed by a read-only
-raw vector pointer (\pagref{MIN::RAW_VEC_POINTER})
+raw vector pointer (\pagref{MIN::RAW_VEC_POINTER_OF_GEN})
 of {\tt min::\EOL attr\_\EOL info\_\EOL pointer} type.
 Sample usage is:
 \begin{indpar}\begin{verbatim}
@@ -6177,7 +6195,17 @@ The functions for using a read-only
 (constructor)~\verb|min::|
 	& \MINKEY{raw\_vec\_pointer\TARG}%
 	  \verb| rvp ( min::gen v )|
-\LABEL{MIN::RAW_VEC_POINTER} \\
+\LABEL{MIN::RAW_VEC_POINTER_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( min::stub * s )|
+\LABEL{MIN::RAW_VEC_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( void )|
+\LABEL{MIN::RAW_VEC_POINTER_OF_VOID} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
 	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
@@ -7318,6 +7346,9 @@ These are in \verb|min_parameters.h|.
 \verb|(constructor) min::| & \MINKEY{vec\_pointer}%
        \verb| vp ( const min::stub * s )|
 \LABEL{MIN::VEC_POINTER_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{vec\_pointer}%
+       \verb| vp ( void )|
+\LABEL{MIN::VEC_POINTER_OF_VOID} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -7379,6 +7410,23 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::AUX_OF_VEC_POINTER} \\
 \end{TABULAR}
 
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::|
+    & \MINKEY{updatable\_vec\_pointer} \verb|vp|\ARGBREAK
+    \verb| ( min::gen v )|
+\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_GEN} \\
+\verb|(constructor) min::|
+    & \MINKEY{updatable\_vec\_pointer} \verb|vp|\ARGBREAK%
+    \verb| ( min::stub * s )|
+\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_STUB} \\
+\verb|(constructor) min::|
+    & \MINKEY{updatable\_vec\_pointer} \verb|vp|\ARGBREAK%
+    \verb| ( void )|
+\LABEL{MIN::UPDATABLE_VEC_POINTER_OF_VOID} \\
+\end{TABULAR}
+
 \begin{TABULAR}{1.2in}
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
@@ -7419,6 +7467,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SET_AUX_OF_UPDATABLE_VEC_POINTER} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::|
     & \MINKEY{insertable\_vec\_pointer} \verb|vp|\ARGBREAK
@@ -7428,6 +7478,10 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{insertable\_vec\_pointer} \verb|vp|\ARGBREAK%
     \verb| ( min::stub * s )|
 \LABEL{MIN::INSERTABLE_VEC_POINTER_OF_STUB} \\
+\verb|(constructor) min::|
+    & \MINKEY{insertable\_vec\_pointer} \verb|vp|\ARGBREAK%
+    \verb| ( void )|
+\LABEL{MIN::INSERTABLE_VEC_POINTER_OF_VOID} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
