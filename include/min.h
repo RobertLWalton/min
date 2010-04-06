@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr  6 07:57:09 EDT 2010
+// Date:	Tue Apr  6 10:47:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 12:22:10 $
+//   $Date: 2010/04/06 14:48:04 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.318 $
+//   $Revision: 1.319 $
 
 // Table of Contents:
 //
@@ -3022,6 +3022,21 @@ namespace min {
 
     template < typename T,
                const raw_vec_type_info & type_info >
+    void initialize
+	    ( raw_vec_pointer<T,type_info> & rvp,
+	      min::gen v );
+    template < typename T,
+               const raw_vec_type_info & type_info >
+    void initialize
+	    ( raw_vec_pointer<T,type_info> & rvp,
+	      min::stub * s );
+    template < typename T,
+               const raw_vec_type_info & type_info >
+    void deinitialize
+	    ( raw_vec_pointer<T,type_info> & rvp );
+
+    template < typename T,
+               const raw_vec_type_info & type_info >
     min::unsptr length_of
 	    ( raw_vec_pointer<T,type_info> & rvp );
 
@@ -3083,27 +3098,28 @@ namespace min {
     public:
 
         raw_vec_pointer ( min::gen v ) :
-	    stub ( (min::stub *) stub_of ( v ) ),
-	    header ( * (internal::raw_vec_header **) &
-		       unprotected::pointer_ref_of
-			   ( stub ) )
+	    stub ( (min::stub *) stub_of ( v ) )
 	{
-	    MIN_ASSERT
-	        (    min::type_of ( stub )
-		  == min::RAW_VEC );
-	    MIN_ASSERT
-	        (    header->type_info
-		  == & type_info );
-	    MIN_ASSERT
-	        (    type_info.element_size
-		  == sizeof ( T ) );
+	    init();
+	}
+        raw_vec_pointer ( min::stub * s ) :
+	    stub ( s )
+	{
+	    init();
+	}
+        raw_vec_pointer ( void ) :
+	    stub ( NULL )
+	{ }
+        ~raw_vec_pointer ( void )
+	{
+	    stub = NULL;
 	}
 
     	typedef T element_type;
 
 	const T & operator [] ( min::unsptr i )
 	{
-	    MIN_ASSERT ( i < header->length );
+	    MIN_ASSERT ( i < header()->length );
 	    return base()[i];
 	}
 
@@ -3113,18 +3129,32 @@ namespace min {
     protected:
 
 	min::stub * stub;
-	internal::raw_vec_header * & header;
+
+        void init ( void )
+	{
+	    MIN_ASSERT
+	        (    min::type_of ( stub )
+		  == min::RAW_VEC );
+	    MIN_ASSERT
+	        (    header()->type_info
+		  == & type_info );
+	    MIN_ASSERT
+	        (    type_info.element_size
+		  == sizeof ( T ) );
+	}
+
+	internal::raw_vec_header * header ( void )
+	{
+	    return
+	        * (internal::raw_vec_header **) &
+		  unprotected::pointer_ref_of ( stub );
+	}
 
 	T * base ( void )
 	{
-	    return (T *) ( header + 1 );
+	    return (T *) ( header() + 1 );
 	}
 
-    private:
-
-	// Disallow improperty constructed raw_vec's.
-	//
-        raw_vec_pointer ( void ) {}
     };
 
     template < typename T,
@@ -3139,7 +3169,7 @@ namespace min {
 
 	T & operator [] ( min::unsptr i )
 	{
-	    MIN_ASSERT ( i < this->header->length );
+	    MIN_ASSERT ( i < this->header()->length );
 	    return this->base()[i];
 	}
     };
@@ -3210,10 +3240,40 @@ namespace min {
 
 template < typename T,
 	   const min::raw_vec_type_info & type_info >
+inline void min::initialize
+	( min::raw_vec_pointer<T,type_info> & rv,
+	  min::gen v )
+{
+    rv.~raw_vec_pointer<T,type_info>();
+    new ( & rv )
+        min::raw_vec_pointer<T,type_info> ( v );
+}
+
+template < typename T,
+	   const min::raw_vec_type_info & type_info >
+inline void min::initialize
+	( min::raw_vec_pointer<T,type_info> & rv,
+	  min::stub * s )
+{
+    rv.~raw_vec_pointer<T,type_info>();
+    new ( & rv )
+        min::raw_vec_pointer<T,type_info> ( s );
+}
+
+template < typename T,
+	   const min::raw_vec_type_info & type_info >
+inline void min::deinitialize
+	( min::raw_vec_pointer<T,type_info> & rv )
+{
+    rv.~raw_vec_pointer<T,type_info>();
+}
+
+template < typename T,
+	   const min::raw_vec_type_info & type_info >
 inline min::unsptr min::length_of
 	( min::raw_vec_pointer<T,type_info> & rvp )
 {
-    return rvp.header->length;
+    return rvp.header()->length;
 }
 
 template < typename T,
@@ -3222,7 +3282,7 @@ inline min::unsptr min::max_length_of
 	( insertable_raw_vec_pointer<T,type_info>
 	      & rvp )
 {
-    return rvp.header->max_length;
+    return rvp.header()->max_length;
 }
 
 template < typename T,
@@ -3231,8 +3291,8 @@ inline min::unsptr min::unused_length_of
 	( insertable_raw_vec_pointer<T,type_info>
 	      & rvp )
 {
-    return   rvp.header->max_length
-	   - rvp.header->length;
+    return   rvp.header()->max_length
+	   - rvp.header()->length;
 }
 
 template < typename T,
@@ -3251,8 +3311,8 @@ inline void min::reserve
 	( insertable_raw_vec_pointer<T,type_info> & rvp,
 	  min::unsptr required_unused )
 {
-    if (   rvp.header->length + required_unused
-         > rvp.header->max_length )
+    if (   rvp.header()->length + required_unused
+         > rvp.header()->max_length )
 	internal::reserve
 	    ( rvp.stub, required_unused, type_info );
 }
@@ -3264,7 +3324,7 @@ inline void min::push
 	  const T & v )
 {
     reserve ( rvp, 1 );
-    rvp.base()[rvp.header->length++] = v;
+    rvp.base()[rvp.header()->length++] = v;
 }
 
 template < typename T,
@@ -3273,8 +3333,8 @@ inline T min::pop
 	( insertable_raw_vec_pointer<T,type_info>
 	      & rvp )
 {
-    MIN_ASSERT ( rvp.header->length > 0 );
-    return rvp.base()[-- rvp.header->length];
+    MIN_ASSERT ( rvp.header()->length > 0 );
+    return rvp.base()[-- rvp.header()->length];
 }
 
 template < typename T,
@@ -3286,9 +3346,9 @@ inline void min::push
 {
     reserve ( rvp, n );
     memcpy ( & ( rvp.base()
-		      [rvp.header->length] ),
+		      [rvp.header()->length] ),
 	     p, n * sizeof ( T ) );
-    rvp.header->length += n;
+    rvp.header()->length += n;
 }
 
 template < typename T,
@@ -3298,11 +3358,11 @@ inline void min::pop
 	  insertable_raw_vec_pointer<T,type_info>
 	        & rvp )
 {
-    MIN_ASSERT ( rvp.header->length >= n );
-    rvp.header->length -= n;
+    MIN_ASSERT ( rvp.header()->length >= n );
+    rvp.header()->length -= n;
     memcpy ( p,
 	     & ( rvp.base()
-		     [rvp.header->length] ),
+		     [rvp.header()->length] ),
 	     n * sizeof ( T ) );
 }
 
