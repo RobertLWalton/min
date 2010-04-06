@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr  6 10:47:31 EDT 2010
+// Date:	Tue Apr  6 11:36:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 14:48:04 $
+//   $Date: 2010/04/06 15:45:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.319 $
+//   $Revision: 1.320 $
 
 // Table of Contents:
 //
@@ -3022,21 +3022,6 @@ namespace min {
 
     template < typename T,
                const raw_vec_type_info & type_info >
-    void initialize
-	    ( raw_vec_pointer<T,type_info> & rvp,
-	      min::gen v );
-    template < typename T,
-               const raw_vec_type_info & type_info >
-    void initialize
-	    ( raw_vec_pointer<T,type_info> & rvp,
-	      min::stub * s );
-    template < typename T,
-               const raw_vec_type_info & type_info >
-    void deinitialize
-	    ( raw_vec_pointer<T,type_info> & rvp );
-
-    template < typename T,
-               const raw_vec_type_info & type_info >
     min::unsptr length_of
 	    ( raw_vec_pointer<T,type_info> & rvp );
 
@@ -3167,6 +3152,12 @@ namespace min {
         updatable_raw_vec_pointer ( min::gen v ) :
 	    raw_vec_pointer<T,type_info> ( v ) {}
 
+        updatable_raw_vec_pointer ( min::stub * s ) :
+	    raw_vec_pointer<T,type_info> ( s ) {}
+
+        updatable_raw_vec_pointer ( void ) :
+	    raw_vec_pointer<T,type_info>() {}
+
 	T & operator [] ( min::unsptr i )
 	{
 	    MIN_ASSERT ( i < this->header()->length );
@@ -3184,6 +3175,13 @@ namespace min {
         insertable_raw_vec_pointer ( min::gen v ) :
 	    updatable_raw_vec_pointer<T,type_info>
 	        ( v ) {}
+
+        insertable_raw_vec_pointer ( min::stub * s ) :
+	    updatable_raw_vec_pointer<T,type_info>
+	        ( s ) {}
+
+        insertable_raw_vec_pointer ( void ) :
+	    updatable_raw_vec_pointer<T,type_info>() {}
 
 	static min::gen new_gen ( void )
 	{
@@ -3238,34 +3236,41 @@ namespace min {
     };
 }
 
-template < typename T,
-	   const min::raw_vec_type_info & type_info >
-inline void min::initialize
-	( min::raw_vec_pointer<T,type_info> & rv,
-	  min::gen v )
-{
-    rv.~raw_vec_pointer<T,type_info>();
-    new ( & rv )
-        min::raw_vec_pointer<T,type_info> ( v );
-}
+namespace min {
 
-template < typename T,
-	   const min::raw_vec_type_info & type_info >
-inline void min::initialize
-	( min::raw_vec_pointer<T,type_info> & rv,
-	  min::stub * s )
-{
-    rv.~raw_vec_pointer<T,type_info>();
-    new ( & rv )
-        min::raw_vec_pointer<T,type_info> ( s );
-}
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void initialize
+	    ( min::raw_vec_pointer<T,type_info> & rv,
+	      min::gen v )
+    {
+	rv.~raw_vec_pointer<T,type_info>();
+	new ( & rv )
+	    min::raw_vec_pointer<T,type_info> ( v );
+    }
 
-template < typename T,
-	   const min::raw_vec_type_info & type_info >
-inline void min::deinitialize
-	( min::raw_vec_pointer<T,type_info> & rv )
-{
-    rv.~raw_vec_pointer<T,type_info>();
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void initialize
+	    ( min::raw_vec_pointer<T,type_info> & rv,
+	      min::stub * s )
+    {
+	rv.~raw_vec_pointer<T,type_info>();
+	new ( & rv )
+	    min::raw_vec_pointer<T,type_info> ( s );
+    }
+
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void deinitialize
+	    ( min::raw_vec_pointer<T,type_info> & rv )
+    {
+	rv.~raw_vec_pointer<T,type_info>();
+    }
+
 }
 
 template < typename T,
@@ -3274,6 +3279,90 @@ inline min::unsptr min::length_of
 	( min::raw_vec_pointer<T,type_info> & rvp )
 {
     return rvp.header()->length;
+}
+
+namespace min {
+
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void initialize
+	    ( min::updatable_raw_vec_pointer
+		      <T,type_info> & rv,
+	      min::gen v )
+    {
+	rv.~updatable_raw_vec_pointer<T,type_info>();
+	new ( & rv )
+	    min::updatable_raw_vec_pointer
+	            <T,type_info> ( v );
+    }
+
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void initialize
+	    ( min::updatable_raw_vec_pointer
+	              <T,type_info> & rv,
+	      min::stub * s )
+    {
+	rv.~updatable_raw_vec_pointer<T,type_info>();
+	new ( & rv )
+	    min::updatable_raw_vec_pointer
+	            <T,type_info> ( s );
+    }
+
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void deinitialize
+	    ( min::updatable_raw_vec_pointer
+	              <T,type_info> & rv )
+    {
+	rv.~updatable_raw_vec_pointer<T,type_info>();
+    }
+
+}
+
+namespace min {
+
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void initialize
+	    ( min::insertable_raw_vec_pointer
+		      <T,type_info> & rv,
+	      min::gen v )
+    {
+	rv.~insertable_raw_vec_pointer<T,type_info>();
+	new ( & rv )
+	    min::insertable_raw_vec_pointer
+	            <T,type_info> ( v );
+    }
+
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void initialize
+	    ( min::insertable_raw_vec_pointer
+	              <T,type_info> & rv,
+	      min::stub * s )
+    {
+	rv.~insertable_raw_vec_pointer<T,type_info>();
+	new ( & rv )
+	    min::insertable_raw_vec_pointer
+	            <T,type_info> ( s );
+    }
+
+    template < typename T,
+	       const min::raw_vec_type_info
+	           & type_info >
+    inline void deinitialize
+	    ( min::insertable_raw_vec_pointer
+	              <T,type_info> & rv )
+    {
+	rv.~insertable_raw_vec_pointer<T,type_info>();
+    }
+
 }
 
 template < typename T,
