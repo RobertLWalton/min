@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr  6 00:00:55 EDT 2010
+// Date:	Tue Apr  6 07:57:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 04:14:08 $
+//   $Date: 2010/04/06 12:22:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.317 $
+//   $Revision: 1.318 $
 
 // Table of Contents:
 //
@@ -3673,6 +3673,13 @@ namespace min {
 	      type ( READONLY )
 	    { init(); }
 
+	~ vec_pointer ( void )
+	{
+	    if ( s == NULL ) return;
+	    MIN_ASSERT ( type == READONLY );
+	    deinit();
+	}
+
         // Friends
 	//
 	friend void initialize
@@ -3799,29 +3806,6 @@ namespace min {
 	      min::unsptr unused_size,
 	      min::unsptr var_size );
 
-	~ vec_pointer ( void )
-	{
-	    MIN_ASSERT ( type >= READONLY );
-	    if ( s == NULL ) return;
-
-	    int t = min::type_of ( s );
-	    if ( t == min::SHORT_OBJ )
-	    {
-		internal::short_obj * so =
-		    internal::short_obj_of ( s );
-
-		so->flags &= ~ OBJ_PRIVATE;
-	    }
-	    else
-	    {
-	        MIN_ASSERT ( t == min::LONG_OBJ );
-		internal::long_obj * lo =
-		    internal::long_obj_of ( s );
-
-		lo->flags &= ~ OBJ_PRIVATE;
-	    }
-	}
-
     protected:
 
 	vec_pointer ( const min::stub * s, int type )
@@ -3926,6 +3910,39 @@ namespace min {
 	    else
 	        * flags_p |= OBJ_PRIVATE;
 	}
+
+    protected:
+
+	void deinit ( void  )
+	{
+	    int t = min::type_of ( s );
+	    if ( t == min::SHORT_OBJ )
+	    {
+		internal::short_obj * so =
+		    internal::short_obj_of ( s );
+
+		so->flags &= ~ OBJ_PRIVATE;
+		if ( type == INSERTABLE )
+		{
+		    so->unused_offset = unused_offset;
+		    so->aux_offset    = aux_offset;
+		}
+	    }
+	    else
+	    {
+	        MIN_ASSERT ( t == min::LONG_OBJ );
+		internal::long_obj * lo =
+		    internal::long_obj_of ( s );
+
+		lo->flags &= ~ OBJ_PRIVATE;
+		if ( type == INSERTABLE )
+		{
+		    lo->unused_offset = unused_offset;
+		    lo->aux_offset    = aux_offset;
+		}
+	    }
+	    s = NULL;
+	}
     };
 
     class updatable_vec_pointer : public vec_pointer {
@@ -3945,7 +3962,9 @@ namespace min {
 
 	~ updatable_vec_pointer ( void )
 	{
-	    MIN_ASSERT ( type >= UPDATABLE );
+	    if ( s == NULL ) return;
+	    MIN_ASSERT ( type == UPDATABLE );
+	    deinit();
 	}
 
     protected:
@@ -3976,28 +3995,9 @@ namespace min {
 
 	~ insertable_vec_pointer ( void )
 	{
-	    MIN_ASSERT ( type >= INSERTABLE );
-
-	    if ( s != NULL )
-	    {
-		int t = min::type_of ( s );
-		if ( t == min::SHORT_OBJ )
-		{
-		    internal::short_obj * so =
-			internal::short_obj_of ( s );
-		    so->unused_offset = unused_offset;
-		    so->aux_offset    = aux_offset;
-		}
-		else
-		{
-		    MIN_ASSERT ( t == min::LONG_OBJ );
-		    internal::long_obj * lo =
-			internal::long_obj_of ( s );
-
-		    lo->unused_offset = unused_offset;
-		    lo->aux_offset    = aux_offset;
-		}
-	    }
+	    if ( s == NULL ) return;
+	    MIN_ASSERT ( type == INSERTABLE );
+	    deinit();
 	}
     };
 
