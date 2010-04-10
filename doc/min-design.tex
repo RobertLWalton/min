@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 6, 2010}
+\date{April 10, 2010}
  
 \maketitle
 
@@ -6206,6 +6206,22 @@ The functions for using a read-only
 \LABEL{MIN::RAW_VEC_POINTER_OF_VOID} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_RAW_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_RAW_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::raw_vec_pointer<T,I> & rvp )|
+\LABEL{MIN::DEINITIALIZE_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
 	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
@@ -6217,9 +6233,9 @@ The functions for using a read-only
 \LABEL{MIN::LENGTH_OF_RAW_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 
-Here \verb|v| must point at the stub of a raw vector,
+Here \verb|v| or \verb|s| must point at the stub of a raw vector,
 and given a raw vector pointer \verb|rvp| pointing at
-this raw vector, \verb|rvp[i]| is the \verb|i|+1's
+a raw vector, \verb|rvp[i]| is the \verb|i|+1's
 element of the vector, for
 $0\leq$\verb|i|$<$\verb|min::length_of(rvp)|,
 where the {\tt min::\EOL length\_\EOL of} function
@@ -6230,6 +6246,20 @@ its address, as in:
 memcpy ( ..., & rvp[0], sizeof ( T ) * min::length_of ( rvp ) );
 \end{verbatim}\end{indpar}
 
+The form of constructor that has no argument creates a raw pointer
+that is not pointing at any raw vector.
+In this last case the raw vector pointer must
+be initialized by the {\tt min::\EOL initialize} function before the pointer
+is used; use before initialization will give undefined results, though
+attempts to access
+raw vector elements using the pointer usually result in memory faults.
+
+The {\tt min::initialize} functions destruct the raw vector pointer and then
+reconstruct it.  The {\tt min::\EOL deinitialize} function destructs
+the raw vector pointer and leaves it not pointing at any object stub.
+Use of such a destructed pointer is undefined, but attempts to access
+raw vector elements using it usually result in memory faults.
+
 The functions for using a read-write
 {\tt min::\EOL updatable\_\EOL raw\_\EOL vec\_\EOL pointer\TARG} are:
 
@@ -6238,6 +6268,32 @@ The functions for using a read-write
 	& \MINKEY{updateable\_raw\_vec\_pointer\TARG}%
 	  \verb| rvp ( min::gen v )|
 \LABEL{MIN::UPDATABLE_RAW_VEC_POINTER} \\
+(constructor)~\verb|min::|
+	& \MINKEY{updatable\_raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( min::stub * s )|
+\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{updatable\_raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( void )|
+\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER_OF_VOID} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_UPDATABLE_RAW_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_UPDATABLE_RAW_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp )|
+\LABEL{MIN::DEINITIALIZE_UPDATABLE_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
 	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
@@ -6261,6 +6317,32 @@ to access an existing raw vector are:
 	& \MINKEY{insertable\_raw\_vec\_pointer\TARG}%
 	  \verb| rvp ( min::gen v )|
 \LABEL{MIN::INSERTABLE_RAW_VEC_POINTER} \\
+(constructor)~\verb|min::|
+	& \MINKEY{insertable\_raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( min::stub * s )|
+\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{insertable\_raw\_vec\_pointer\TARG}%
+	  \verb| rvp ( void )|
+\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER_OF_VOID} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_INSERTABLE_RAW_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_INSERTABLE_RAW_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
+\LABEL{MIN::DEINITIALIZE_INSERTABLE_RAW_VEC_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
 	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
