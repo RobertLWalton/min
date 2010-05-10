@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Dec  1 02:54:07 EST 2009
+// Date:	Mon May 10 06:31:10 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 11:27:38 $
+//   $Date: 2010/05/10 10:50:00 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents
 //
@@ -48,7 +48,8 @@
 // --------- ----------
 
 // max_stubs
-//   The maximum number of stubs that can be allocate
+//
+//   The maximum number of stubs that can be allocated
 //   (and not yet freed by the garbage collector) at
 //   one time.  This is set when the program starts
 //   and cannot be changed during execution.
@@ -78,6 +79,7 @@
 # endif
 
 // stub_increment
+//
 //   The number of stubs added at one time when stubs
 //   run out.  The number of new pages allocated is
 //   16 * stub_increment / pagesize.
@@ -87,13 +89,14 @@
 # endif
 
 // space_factor
+//
 //   Certain memory space inefficiencies are
 //   approximately
 //
 //	M + allocated-memory/F
 //
 //   where F = the memory space factor and M is the
-//   minimum amount of heap memory allocated to VIRTUAL
+//   MINIMUM amount of heap memory allocated to VIRTUAL
 //   memory.
 //
 //	M = (F**2 * pagesize) * log2 ( F * pagesize ).
@@ -115,6 +118,7 @@
 # endif
 
 // cache_line_size
+//
 //   This is a power of two that is the assumed size
 //   of a cache line.  Object bodies of the same or
 //   smaller size are aligned if reasonable so they
@@ -130,12 +134,13 @@
 // --------- ----------
 
 // ephemeral_levels
+//
 //   The number of ephemeral garbage collector levels.
 //   In addition there is one non-ephemeral level.
-//   The value must be less that MIN_MAX_EPHEMERAL_/
-//   LEVELS defined in min_parameters.h (and determined
-//   by the number of ACC flags in the stub control
-//   word).
+//   The value must be less than or equal to MIN_MAX_
+//   EPHEMERAL_LEVELS defined in min_parameters.h (and
+//   determined by the number of ACC flags in the stub
+//   control word).
 //
 //   The number of ephemeral levels determines the
 //   efficiency of the garbage collector in ways to
