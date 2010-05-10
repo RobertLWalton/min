@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr  6 11:36:44 EDT 2010
+// Date:	Mon May 10 08:18:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 15:45:02 $
+//   $Date: 2010/05/10 15:32:48 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.320 $
+//   $Revision: 1.321 $
 
 // Table of Contents:
 //
@@ -1680,7 +1680,10 @@ namespace min { namespace internal {
     // When a hashed object is no longer ephemeral, its
     // HASHTABLE_AUX stub is discarded and the hashed
     // object itself is put at the end of its hashtable
-    // list.
+    // list.  This means that the stub is no longer on
+    // the usual list of all garbage collectable stubs,
+    // which is why this cannot be done when the object
+    // is still ephemeral.
 
     extern min::stub ** str_hash;
     extern min::unsptr str_hash_size;
@@ -1972,7 +1975,7 @@ namespace min { namespace internal {
     // block contains, if there is such a stub, or
     // equals the address of MINT::null_stub otherwise.
     // When the block is on the free list, the control
-    // word and the words following it are specified by
+    // word and the word following it are specified by
     // the free_fixed_size_block struct.
     //
     struct free_fixed_size_block
@@ -1980,11 +1983,6 @@ namespace min { namespace internal {
         min::uns64	block_control;
 	    // Block control word that is at the
 	    // beginning of every fixed size block.
-
-        min::uns64	block_subcontrol;
-	    // Block subcontrol word that tells the type
-	    // and size of a block that does NOT contain
-	    // an object body.
 
 	free_fixed_size_block * next;
 	    // Next in NULL terminated list of free
