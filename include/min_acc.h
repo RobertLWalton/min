@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 04:36:58 EST 2010
+// Date:	Mon May 10 06:58:03 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 10:28:03 $
+//   $Date: 2010/05/10 19:03:04 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.34 $
+//   $Revision: 1.35 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -57,7 +57,7 @@ namespace min { namespace acc {
     // free stubs.  The Allocator is only called to
     // allocate stubs when the list of free stubs is
     // exhausted.  The following, defined in min.h,
-    // interface to the stub allocator:
+    // is the interface to the stub allocator:
     //
     //  min::stub * MINT::null_stub
     //    // Address of stub with index 0.  This stub
@@ -76,7 +76,14 @@ namespace min { namespace acc {
     //    // Ditto but as a min::unsptr integer.
     //	void MINT::acc_expand_free_stub_list
     //		( min::unsptr n )
-    //	  // Function to allocate n new stubs.
+    //	  // Function to allocate n new stubs and add
+    //	  // them to the free list.
+    //
+    //    // (This actually tries to allocate n +
+    //    // MACC::stub_increment new stubs, increment-
+    //    // ing MACC::stub_next below, and announcing
+    //    // an error if it cannot allocate at least n
+    //    // new stubs.)
     //  min::unsptr MINT::number_of_free_stubs
     //    // Count of stubs on free stub list.
     //  min::stub * MINT::last_allocated_stub
@@ -89,13 +96,13 @@ namespace min { namespace acc {
 
     extern min::uns64 max_stubs;
         // The value of the max_stubs parameter.  The
-	// number of stubs that can be allocated to the
-	// stub region.  Value may be changed when the
-	// program starts.
+	// maximum number of stubs that can be allocated
+	// to the stub region.  Value may only be
+	// changed when the program starts.
 
     extern min::unsptr stub_increment;
-        // The number of new stubs allocated by a call
-        // to MINT::acc_expand_free_stub_list.
+        // The number of extra new stubs allocated by a
+	// call to MINT::acc_expand_free_stub_list.
 
     extern min::stub * stub_begin;
     extern min::stub * stub_next;
@@ -107,7 +114,10 @@ namespace min { namespace acc {
 
     // Deficiency: If MIN_POINTER_SIZE <= 32 stub
     // memory should be allocated as needed and not
-    // all at once.
+    // all at once.  Possibly this should also be done
+    // for larger pointer sizes, as reserving virtual
+    // memory may consume system resources proportional
+    // to the size of the reserved memory.
 } }
 
 
@@ -220,9 +230,11 @@ namespace min { namespace acc {
     //		where B/2 < S + 8 <= B
     //
     //	     Note that unused padding can take up 50% of
-    //	     a `full' fixed block region.  Fixed block
-    //	     regions are intended for ephemeral object
-    //	     bodies that will have short lifetimes.
+    //	     a `full' fixed block region.  Fixed size
+    //	     block regions are intended for ephemeral
+    //       object bodies that may have short life-
+    //	     times.  If an object lives longer, it will
+    //       be moved to a variable size block region.
     //
     //	     The MACC::region control struct for the
     //	     region is allocated at the very beginning
@@ -238,10 +250,10 @@ namespace min { namespace acc {
     //
     //	     Fixed size blocks are allocated from a free
     //	     list.  When an object body in a fixed size
-    //	     block is freed, the block is put back on a
-    //	     free list and becomes immediately available
-    //	     for reuse.  See fixed_block_list_extension
-    //	     struct below.
+    //	     block is freed, the block is put back on
+    //	     its region's free list and becomes immedi-
+    //       ately available for reuse.  See fixed_
+    //       block_list_extension struct below.
     //
     //	     The compactor may move all allocated blocks
     //	     in a fixed size block region to another
@@ -361,7 +373,7 @@ namespace min { namespace acc {
     //       allocated to a superregion.  All subregions
     //       have the same size, so if one is freed, it
     //       can be put on a free list and reused.
-    //       subregions are used to hold smaller object
+    //       Subregions are used to hold smaller object
     //       bodies, typically bodies up to F pages in
     //       size, where F is the space factor.  The
     //       size of a subregion is typically F**2
@@ -399,54 +411,60 @@ namespace min { namespace acc {
     //       A mono body region is a multi-page block
     //       region that holds nothing but a single
     //       object body.  These are used for very large
-    //       object bodies, typicall those larger than
+    //       object bodies, typically those larger than
     //       F**2 pages.
     //
     //	     Mono body regions are put on the mono body
-    //	     region list.
+    //	     region list.  Freed mono body regions are
+    //       deallocated and removed from this list.
     //
-    //    Stack Regions
+    //    Stub Stack Regions
     //
-    //	     A stack region holds various stacks of
+    //	     A stub stack is a stack whose elements are
     //	     pointers to stubs.  These stacks are used
     //	     as lists; additions are made only at the
     //	     end of the stack; and deletions are made
-    //	     either at the end of the stack, or by
-    //       scanning the stack from beginning to end
-    //       and deleting elements along the way,
-    //       thereby `compacting' the stack.
+    //	     either at the end of the stack, or by scan-
+    //       ning the stack from beginning to end and
+    ///      deleting elements along the way, thereby
+    //       `compacting' the stack.
     //
-    //	     The stacks are made from stack segments
-    //	     that all have the same size, a multiple
-    //	     of the page size, and are stored in stack
-    //       regions.  See the stack_segment stuct
-    //	     below.
+    //	     Stub stacks are made from stub stack
+    //	     segments that all have the same size, a
+    //       multiple of the page size.   Stub stack
+    //       segments are allocated to stub stack
+    //       regions which are multi-page block regions.
+    //
+    //       See the stub_stack_segment stuct below.
     //
     struct region
     { 
 
         min::uns64 block_control;
-	    // This is the block control word for the
-	    // multi-page block containing the region,
-	    // if the region is a fixed or variable
-	    // block subregion of a multi-page block
-	    // region.  In this case the locator field
-	    // L of this word is such that
+	    // If this region is a subregion, it is a
+	    // multi-page block allocated inside its
+	    // superregion, and this is the block
+	    // control word for this multi-page block.
+	    // In this case the locator field L of
+	    // this control word is such that
 	    //
 	    //	   MACC::region_table[L]
 	    //
-	    // is the  multi-page region containing
-	    // this region, and the pointer field of
-	    // the word equals MINT::null_stub.
+	    // is the region_table entry for the
+	    // superregion, and the pointer field of
+	    // this block control word equals MINT::
+	    // null_stub.
 	    //
-	    // In other cases, where this region control
-	    // block is in the MACC::region_table, this
-	    // word is unused.
+	    // If this region is NOT a subregion, then
+	    // this region control block is in the
+	    // MACC::region_table, and this block
+	    // control word is unused.
 
         min::uns64 block_subcontrol;
 	    // The type code field of this word is the
-	    // type of the region and the value field
-	    // is the size of the region in bytes.
+	    // type of the region (see block_type above)
+	    // and the value field is the size of the
+	    // region in bytes.
 
 	min::uns32 block_size;
 	    // For fixed size block regions, the size
@@ -465,28 +483,39 @@ namespace min { namespace acc {
 	    // the region, the next byte to be alloca-
 	    // ted, and the first byte after the last
 	    // allocatable byte of the region.  For
-	    // fixed and variable size block regions,
-	    // the first allocatable byte is the first
-	    // byte after the region's MACC::region
-	    // struct that is on a MACC::cache_size
-	    // boundary.
+	    // a fixed size block region, the first
+	    // allocatable byte is the first byte after
+	    // the region's MACC::region struct that is
+	    // on either a MACC::cache_size boundary or
+	    // is on a block size boundary.  For
+	    // variable size block regions the first
+	    // allocatable byte is the first byte after
+	    // the region's MACC:region struct that is
+	    // on an 8 byte boundary.
+	    //
+	    // For fixed size block regions the next
+	    // pointer points at memory that has never
+	    // been allocated to a block.  Blocks that
+	    // are on the region free list have
+	    // addresses that are >= begin and < next.
 
 	MACC::region * region_previous,
 		     * region_next;
-	    // Regions of different kinds are put on
-	    // doubly linked circular lists using these
-	    // members.  E.g., there are lists for
-	    // fixed size block regions of a given
-	    // block size, for all variable size block
-	    // regions, for superregions, for paged
-	    // body regions, for mono body regions,
-	    // for free subregions, and for stack
-	    // regions.
+	    // Regions are put on doubly linked circular
+	    // lists using these members.  Each kind of
+	    // region has a different list.  E.g., there
+	    // are lists for fixed size block regions of
+	    // a given block size, for all variable size
+	    // block regions, for superregions, for
+	    // paged body regions, for mono body
+	    // regions, for free subregions, and for
+	    // stub stack regions.
 
 	MINT::free_fixed_size_block * free_first;
 	MINT::free_fixed_size_block * free_last;
 	    // The first and last free block for a fixed
-	    // size block region.
+	    // size block region's free list.  Note that
+	    // these blocks have addresses `< next'.
 
     };
 
@@ -548,8 +577,7 @@ namespace min { namespace acc {
     // that can be moved and expanded later, or it can
     // be an initially maximum sized table that adds
     // physical pages as it grows.  Region indices in
-    // the region table are limited to int16's > 0
-    // (the entry at index 0 is unused).
+    // the region table are limited to int16's > 0.
     //
     // Region_table[0] is unused as it cannot be
     // accessed by a block control word locator.
@@ -570,8 +598,12 @@ namespace min { namespace acc {
 
     extern region * last_free_subregion;
 	// Freed subregions (fixed and variable block
-	// regions), in the order they are freed.  They
-	// are used in reverse order.
+	// regions), with the most recently freed first.
+	// The most recently freed region is the first
+	// one reused.  The compactor works to free more
+	// recently allocated regions first, so the
+	// order of this list is likely to be approxi-
+	// mately least recently allocated first.
 
     extern region * last_variable_body_region;
         // All variable size block regions used for
@@ -585,21 +617,23 @@ namespace min { namespace acc {
     extern region * last_mono_body_region;
         // Ditto for mono body regions.
 
-    extern region * last_stack_region;
-        // Ditto for stack regions.
+    extern region * last_stub_stack_region;
+        // Ditto for stub stack regions.
 
-    extern region * current_stack_region;
-        // Stack region from which stack segments are
-	// currently being allocated.
+    extern region * current_stub_stack_region;
+        // Stub stack region from which stub stack
+	// segments are currently being allocated.
 
-    // Sizes of various kind of region and size limits
-    // on their contents:
+    // Sizes of various kinds of region and size limits
+    // on their contents, in bytes:
 
     extern min::unsptr subregion_size;
-        // Fixed block and variable block regions, which
-	// have the same size so they can be freed and
-	// converted from fixed to variable block or
-	// vice versa.  Must be multiple of page size.
+        // The size of fixed size block and variable
+	// size block regions.  These regions have the
+	// same size so they can be freed and converted
+	// from fixed size to variable size block or
+	// vice versa.  Must be multiple of the page
+	// size.
 
     extern min::unsptr superregion_size;
         // Normal size of superregion.  Superregions
@@ -608,24 +642,20 @@ namespace min { namespace acc {
 	// page size.
 
     extern min::unsptr paged_body_region_size;
-        // Size of paged body region.  Must be multiple
+        // Size of paged body regions.  Must be multiple
 	// of page size.
 
     extern min::unsptr max_paged_body_size;
         // Maximum size of a paged body.  Must be
 	// multiple of page size.
 
-    extern min::unsptr stack_region_size;
-        // Size of stack region.  Must be multiple of
-	// MACC::stack_segment_size.
+    extern min::unsptr stub_stack_region_size;
+        // Size of stub stack regions.  Must be multiple
+	// of MACC::stub_stack_segment_size.
 
-    extern min::unsptr stack_segment_size;
-        // Size of a stack segment.  Must be a multiple
-	// of the page size.
-
-    extern min::unsptr stack_region_size;
-        // Size of a stack segment in a stack region.
-	// Must be a multiple of page size.
+    extern min::unsptr stub_stack_segment_size;
+        // Size of a stub stack segment.  Must be a
+	// multiple of the page size.
 
 } }    
 
