@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 03:42:15 EST 2010
+// Date:	Mon May 10 11:29:12 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 10:28:39 $
+//   $Date: 2010/05/10 15:40:22 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.27 $
+//   $Revision: 1.28 $
 
 // Table of Contents:
 //
@@ -651,9 +651,6 @@ void MINT::new_fixed_body
 		    (   ( (min::uns8 *) r - r->next )
 		      / page_size,
 		      MINT::null_stub );
-	    b->block_subcontrol =
-	        MUP::new_control_with_type
-		    ( MACC::FREE, fbl->size );
 
 	    if ( last == NULL )
 	        fbl->first = b;
@@ -910,8 +907,6 @@ void MACC::stub_stack::flush ( void )
 	MINT::free_fixed_size_block * b =
 	    (MINT::free_fixed_size_block *) sss;
 	b->next = NULL;
-	b->block_subcontrol = MUP::new_control_with_type
-	    ( MACC::FREE, stack_segment_size );
 
 	int locator = MUP::locator_of_control
 	    ( sss->block_control );

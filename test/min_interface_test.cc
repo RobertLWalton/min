@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Apr  6 00:13:47 EDT 2010
+// Date:	Mon May 10 11:30:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/04/06 04:15:22 $
+//   $Date: 2010/05/10 15:38:23 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.173 $
+//   $Revision: 1.174 $
 
 // Table of Contents:
 //
@@ -343,7 +343,6 @@ void MINT::new_fixed_body
     MINT::free_fixed_size_block * fb =
         (MINT::free_fixed_size_block *) next;
     fb->block_control = 0;
-    fb->block_subcontrol = 0;
     fb->next = NULL;
     fbl->first = fb;
     fbl->count = 1;
@@ -1320,6 +1319,11 @@ void test_acc_interface ( void )
 
     cout << endl;
     cout << "Test body allocator functions:"
+	 << endl;
+    cout << "MINT::min_fixed_block_size = "
+         << MINT::min_fixed_block_size
+         << " MINT::max_fixed_block_size = "
+         << MINT::max_fixed_block_size
 	 << endl;
     MUP::new_body ( stub1, 128 );
     char * p1 = (char *) MUP::pointer_of ( stub1 );
