@@ -506,6 +506,7 @@ min_interface_test.cc:XXXX assert:
     stub4 == MINT::last_allocated_stub true.
 
 Test body allocator functions:
+MINT::min_fixed_block_size = 16 MINT::max_fixed_block_size = 131072
 MINT::new_fixed_body ( stub 2, 128 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
