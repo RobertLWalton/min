@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 10 11:29:12 EDT 2010
+// Date:	Tue May 11 04:16:51 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/10 15:40:22 $
+//   $Date: 2010/05/11 09:33:31 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.28 $
+//   $Revision: 1.29 $
 
 // Table of Contents:
 //
@@ -379,8 +379,8 @@ min::unsptr MACC::subregion_size;
 min::unsptr MACC::superregion_size;
 min::unsptr MACC::max_paged_body_size;
 min::unsptr MACC::paged_body_region_size;
-min::unsptr MACC::stack_region_size;
-min::unsptr MACC::stack_segment_size;
+min::unsptr MACC::stub_stack_region_size;
+min::unsptr MACC::stub_stack_segment_size;
 
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
@@ -389,8 +389,8 @@ MACC::region * MACC::last_superregion = NULL;
 MACC::region * MACC::last_variable_body_region = NULL;
 MACC::region * MACC::last_paged_body_region = NULL;
 MACC::region * MACC::last_mono_body_region = NULL;
-MACC::region * MACC::last_stack_region = NULL;
-MACC::region * MACC::current_stack_region = NULL;
+MACC::region * MACC::last_stub_stack_region = NULL;
+MACC::region * MACC::current_stub_stack_region = NULL;
 
 MACC::region *
     MACC::last_free_subregion = NULL;
@@ -790,33 +790,45 @@ void MINT::new_non_fixed_body
 // Stub Stack Manager
 // ---- ----- -------
 
+// Called by push() when we are at the end of the
+// current segment, or there is no current segment
+// (stack has no segments yet).  Allocates another
+// segment for the stack.
+//
 void MACC::stub_stack
          ::allocate_stub_stack_segment ( void )
 {
-    region * r = current_stack_region;
+    region * r = current_stub_stack_region;
     if ( r != NULL
          &&
 	 r->free_count == 0
 	 &&
 	 r->next == r->end )
     {
-	r = last_stack_region->region_previous;
+        // Current stack region exists and has no free
+	// segments or room to allocate a new segment.
+
+	r = last_stub_stack_region->region_previous;
 	while ( r->free_count == 0
 		&&
-		r != last_stack_region )
+		r != last_stub_stack_region )
 	    r = r->region_next;
 	if ( r->free_count == 0
 	     &&
 	     r->next == r->end )
 	    r = NULL;
 	else
-	    current_stack_region = r;
+	    current_stub_stack_region = r;
     }
+
     if ( r == NULL )
     {
+        // No existing stack region has any free
+	// segments or room to allocate a new segment.
+
 	r = new_multi_page_block_region
-	    ( MACC::stack_region_size,
-	      MACC::STACK_REGION );
+	    ( stub_stack_region_size,
+	      STUB_STACK_REGION );
 	if ( r == NULL )
 	{
 	    cout << "ERROR: out of virtual"
@@ -824,8 +836,8 @@ void MACC::stub_stack
 	    MOS::dump_error_info ( cout );
 	    exit ( 1 );
 	}
-	insert ( last_stack_region, r );
-	current_stack_region = r;
+	insert ( last_stub_stack_region, r );
+	current_stub_stack_region = r;
     }
 
     // Now r has a free segment or room to allocate
@@ -836,7 +848,8 @@ void MACC::stub_stack
     {
         MINT::free_fixed_size_block * b =
 	    r->free_first;
-	if ( ( r->free_first = b->next ) == NULL )
+	r->free_first = b->next;
+	if ( r->free_first == NULL )
 	    r->free_last = NULL;
 	-- r->free_count;
 	sss = (stub_stack_segment *) b;
@@ -844,17 +857,19 @@ void MACC::stub_stack
     else
     {
         sss = (stub_stack_segment *) r->next;
-	r->next += stack_segment_size;
+	r->next += stub_stack_segment_size;
+	assert ( r->next <= r->end );
     }
 
     sss->block_control = MUP::new_control_with_locator
         ( r - region_table, MINT::null_stub );
     sss->block_subcontrol = MUP::new_control_with_type
-        ( STACK_SEGMENT, stack_segment_size );
+        ( STUB_STACK_SEGMENT, stub_stack_segment_size );
 
     sss->next = sss->begin;
-    sss->end = (min::stub **)
-               ( (char *) sss + stack_segment_size );
+    sss->end =
+        (min::stub **)
+        ( (uns8 *) sss + stub_stack_segment_size );
 
     if ( last_segment == NULL )
     {
@@ -893,16 +908,39 @@ void MACC::stub_stack
 
 void MACC::stub_stack::flush ( void )
 {
+    if ( output_segment == NULL ) return;
+
+    if ( output == output_segment->begin )
+    {
+	if ( output_segment
+	     ==
+	     output_segment->previous_segment )
+	    output_segment = NULL;
+	else
+	{
+	    output_segment =
+		output_segment->previous_segment;
+	    output = output_segment->next;
+	}
+    }
+
+    // Note: if we are to empty the stack at this
+    // point output_segment == NULL.
+
     while ( output_segment != last_segment )
     {
         stub_stack_segment * sss = last_segment;
-	assert ( sss->next_segment != sss );
-	last_segment = sss->previous_segment;
+	if ( sss->next_segment == sss )
+	    last_segment = NULL;
+	else
+	{
+	    last_segment = sss->previous_segment;
 
-	sss->previous_segment->next_segment =
-	    sss->next_segment;
-	sss->next_segment->previous_segment =
-	    sss->previous_segment;
+	    sss->previous_segment->next_segment =
+		sss->next_segment;
+	    sss->next_segment->previous_segment =
+		sss->previous_segment;
+	}
 
 	MINT::free_fixed_size_block * b =
 	    (MINT::free_fixed_size_block *) sss;
@@ -914,10 +952,17 @@ void MACC::stub_stack::flush ( void )
 	if ( r->free_count ++ == 0 )
 	    r->free_first = r->free_last = b;
 	else
+	{
 	    r->free_last->next = b;
+	    r->free_last = b;
+	}
 
 	// TBD: if all segments in r are free, free r.
     }
+
+    if ( output_segment != NULL )
+        output_segment->next = output;
+
     rewind();
 }
 
