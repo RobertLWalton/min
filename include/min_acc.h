@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 11 05:29:02 EDT 2010
+// Date:	Tue May 11 06:30:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/11 09:33:09 $
+//   $Date: 2010/05/11 11:21:54 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -922,6 +922,12 @@ namespace min { namespace acc {
     // The `mutator' refers to all code outside the
     // collector algorithm execution.  The mutator may
     // write pointers to objects into other objects.
+    //
+    // The operation of `scavenging' an object refers to
+    // examining all the pointers in the object and
+    // marking any objects pointed at if the objects are
+    // of the proper level.  Whenever an object is first
+    // marked it is put on a to-be-scavenged list.
     //
     // The to-be-scavenged lists of all levels and the
     // root lists of all ephemeral levels are maintained
