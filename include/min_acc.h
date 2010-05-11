@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 10 22:07:23 EDT 2010
+// Date:	Tue May 11 05:29:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/11 02:58:50 $
+//   $Date: 2010/05/11 09:33:09 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.36 $
+//   $Revision: 1.37 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -202,8 +202,8 @@ namespace min { namespace acc {
 	SUPERREGION			= 4,
 	PAGED_BODY_REGION		= 5,
 	MONO_BODY_REGION		= 6,
-	STACK_SEGMENT			= 7,
-	STACK_REGION			= 8
+	STUB_STACK_SEGMENT		= 7,
+	STUB_STACK_REGION		= 8
     };
 
     // Regions:
@@ -697,7 +697,7 @@ namespace min { namespace acc {
 
     // Stub Stack Segments:
 
-    // See Stack Regions above.
+    // See Stub Stack Regions above.
 
     struct stub_stack_segment
     {
@@ -706,18 +706,26 @@ namespace min { namespace acc {
 	    // multi-page block containing the segment.
 	    // The stub address of this field equals
 	    // MINT::null_stub and the locator is the
-	    // index of the Stack Region containing
+	    // index of the stub stack region containing
 	    // the segment.
 
         min::uns64 block_subcontrol;
 	    // The type code field of this word is
-	    // MACC::STACK_SEGMENT and the value field
-	    // is the size of the segment in bytes.
+	    // MACC::STUB_STACK_SEGMENT and the value
+	    // field is the size of the segment in
+	    // bytes, which equals MACC::stub_stack_
+	    // segment_size;
 
         stub_stack_segment * previous_segment,
 	                   * next_segment;
 	    // Previous and next on the doubly linked
-	    // list of stack segments.
+	    // list of stub stack segments that make
+	    // up a single stack.
+	    //
+	    // Note: There are no empty segments in
+	    // a stack.  If a segment becomes empty
+	    // it is freed, and an empty stack has
+	    // no segments.
 
 	min::stub ** next, ** end;
 	    // Next element of segment vector to be
@@ -725,7 +733,8 @@ namespace min { namespace acc {
 	    // vector (i.e., end of segment).
 	    //
 	    // Note: every segment in a stack but the
-	    // last must be FULL.
+	    // last must be FULL, and the last segment
+	    // cannot be empty.
 
 	min::stub * begin[];
 	    // Beginning element of segment vector.
@@ -742,21 +751,22 @@ namespace min { namespace acc {
     // pointers to the beginning of the stack.  at_end()
     // is true if the input pointer is at the end of the
     // stack.  Otherwise current() is the value pointed
-    // at by the input pointer.  remove() simply skips
-    // this value.  keep() copies the value to the
-    // output pointer location and increments both input
-    // and output pointers.  The output pointer always
-    // equals or trails the input pointer.  flush()
-    // makes the output pointer position the current
-    // end of the stack (the last element in the stack
-    // is the last element kept by keep(), if any) and
-    // then rewinds the stack.
+    // at by the input pointer.  remove() skips this
+    // value by incrementing just the input pointer.
+    // keep() copies the value to the output pointer
+    // location and increments both input and output
+    // pointers.  The output pointer always equals or
+    // trails the input pointer.  flush() makes the
+    // output pointer position the current end of the
+    // stack (the last element in the stack is the last
+    // element kept by keep(), if any) and then rewinds
+    // the stack.
     //
     struct stub_stack
     {
         stub_stack_segment * last_segment;
 	    // Pointer to the last segment of the stack,
-	    // or NULL if stack has no segments.
+	    // or NULL if stack is empty.
 
 	stub_stack_segment * input_segment,
 	                   * output_segment;
@@ -764,7 +774,14 @@ namespace min { namespace acc {
 	    // Current input and output positions in the
 	    // stack.  Each position is given by a
 	    // segment and a pointer to an element in
-	    // the segment.
+	    // the segment.  NULL if stack is empty.
+	    //
+	    // input == input_segment->next is possible
+	    // only if is_at_end is true.
+	    //
+	    // output == output_segment->next is
+	    // possible only if is_at_end is true and
+	    // output pointer equals input pointer.
 
 	bool is_at_end;
 	    // Value for at_end().
@@ -782,8 +799,8 @@ namespace min { namespace acc {
 	{
 	    if ( last_segment == NULL )
 	    {
-		input_segment = output_segment = NULL;
 		input = output = NULL;
+		input_segment = output_segment = NULL;
 		is_at_end = true;
 	    }
 	    else
@@ -794,7 +811,9 @@ namespace min { namespace acc {
 		output_segment = input_segment;
 		output = input;
 		is_at_end =
-		    ( input == input_segment->next );
+		    ( input_segment == last_segment
+		      &&
+		      input == input_segment->next );
 	    }
 	}
 
@@ -805,18 +824,18 @@ namespace min { namespace acc {
 
 	min::stub * current ( void )
 	{
+	    assert ( ! is_at_end );
 	    return * input;
 	}
 
 	void allocate_stub_stack_segment ( void );
+
 	void push ( min::stub * s )
 	{
-	    if ( is_at_end
-	         &&
-	         (  last_segment == NULL
-	            ||
-		       last_segment->next
-		    == last_segment->end ) )
+	    if ( last_segment == NULL
+	         ||
+		    last_segment->next
+		 == last_segment->end )
 	        allocate_stub_stack_segment();
 
 	    * last_segment->next ++ = s;
@@ -834,9 +853,8 @@ namespace min { namespace acc {
 		    input_segment =
 		        input_segment->next_segment;
 		    input = input_segment->begin;
-		    is_at_end =
-		        (    input
-			  == input_segment->next );
+		    assert (    input
+			     != input_segment->next );
 		}
 		else
 		    is_at_end = true;
@@ -857,6 +875,7 @@ namespace min { namespace acc {
 		output = output_segment->begin;
 	    }
 	}
+
 	void flush ( void );
     };
 
