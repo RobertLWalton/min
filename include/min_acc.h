@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 10 06:58:03 EDT 2010
+// Date:	Mon May 10 22:07:23 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/10 19:03:04 $
+//   $Date: 2010/05/11 02:58:50 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -678,9 +678,9 @@ namespace min { namespace internal {
 	    // in the list of all fixed block regions
 	    // for this size block.  The regions in the
 	    // list are chained together with their
-	    // free_previous/next fields.
+	    // region_previous/next fields.
 	    //
-	    // After a GC current_region is reset to
+	    // After a GC, current_region is reset to
 	    // first_region, then moved forward in
 	    // list to first region with some free
 	    // blocks.
