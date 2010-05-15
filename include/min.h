@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 10 08:18:04 EDT 2010
+// Date:	Sat May 15 09:50:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/10 15:32:48 $
+//   $Date: 2010/05/15 13:52:49 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.321 $
+//   $Revision: 1.322 $
 
 // Table of Contents:
 //
@@ -1864,9 +1864,24 @@ namespace min { namespace internal {
     // ACC_FREE, zero stub control flags, and min::NONE
     // value.
 
-    // Pointer to the last allocated stub, which must
-    // exist (it can be a dummy).
+    // Pointers to the first and last allocated stub.
+    // The first garbage collectible stub is the
+    // stub pointed at by the control word of the
+    // first_allocated_stub (which is not itself
+    // garbage collectible), and the last garbage
+    // collectible stub is pointed at by last_allocated_
+    // stub (unless there are non garbage collectible
+    // stubs, in which case last_allocated_stub equals
+    // first_allocated_stub.
     //
+    // First_allocated_stub may equal MINT::null_stub
+    // for some system configurations.
+    //
+    // The control word of last_allocated_stub points
+    // at the first free stub, or at MINT::null_stub
+    // if there are no free stubs.
+    //
+    extern min::stub * first_allocated_stub;
     extern min::stub * last_allocated_stub;
 
     // Flags of stub returned by new_acc_stub.

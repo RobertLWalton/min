@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 10 11:30:29 EDT 2010
+// Date:	Sat May 15 09:51:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/10 15:38:23 $
+//   $Date: 2010/05/15 13:52:16 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.174 $
+//   $Revision: 1.175 $
 
 // Table of Contents:
 //
@@ -184,6 +184,7 @@ void initialize_stub_region ( void )
     end_stub_region = (min::stub *) p;
     assert ( begin_stub_region < end_stub_region );
 
+    MINT::first_allocated_stub = begin_stub_region;
     MINT::last_allocated_stub = begin_stub_region;
     MINT::number_of_free_stubs = 0;
     ++ stubs_allocated;
