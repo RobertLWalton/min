@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 11 06:30:36 EDT 2010
+// Date:	Sat May 15 06:29:03 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/11 11:21:54 $
+//   $Date: 2010/05/15 13:52:49 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.38 $
+//   $Revision: 1.39 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -86,10 +86,18 @@ namespace min { namespace acc {
     //    // new stubs.)
     //  min::unsptr MINT::number_of_free_stubs
     //    // Count of stubs on free stub list.
+    //  min::stub * MINT::first_allocated_stub
+    //    // The control word of this stub points at the
+    //    // first garbage collectible stub or is MINT::
+    //    // null_stub if there are no garbage collec-
+    //    // tible stubs.
     //  min::stub * MINT::last_allocated_stub
     //    // The control word of this stub points at the
     //    // first free stub or is MINT::null_stub if
-    //    // there are no free stubs.
+    //    // there are no free stubs.  This is the
+    //    // last garbage collectible stub, or equals
+    //    // MINT::first_allocated_stub if there are
+    //    // no garbage collectable stubs.
     //  min::uns64 MINT::acc_new_stub_flags
     //    // Flags for newly allocated garbage
     //	  // collectable stubs.
@@ -887,24 +895,38 @@ namespace min { namespace acc {
 
 namespace min { namespace acc {
 
-
     // The `collector' segregates objects into N+1
     // levels, with level 0 being the `base level',
     // and levels 1, ..., N being `ephemeral levels'.
     // Objects in lower levels are older than objects
-    // in higher levels.
+    // in higher levels.  Newly allocated objects are
+    // put in the highest level N.
     //
     // The collector can run one collector marking
     // algorithm execution for each level independently
     // and in parallel.  These are known as `markings'.
     // A level L marking marks all objects in levels
     // >= L that are pointed to by objects in the level
-    // L root list or by executing threads, and recur-
-    // sively marks any object pointed at by a marked
-    // object.
+    // L root list or by executing threads or static
+    // memory, and recursively marks any object pointed
+    // at by a marked object.
     //
-    // For each level L the collector maintains three
-    // lists:
+    // The `mutator' refers to all code outside the
+    // collector algorithm execution.  The mutator may
+    // write pointers to objects into other objects,
+    // into threads (their stacks), or into static
+    // memory.
+    //
+    // The operation of `scavenging' an object refers to
+    // examining all the pointers in the object and
+    // marking any objects pointed at if the objects are
+    // of the proper level.  Whenever an object is first
+    // marked it is put on a to-be-scavenged list.
+    //
+    // Collector Lists:
+    //
+    //   For each level L the collector maintains three
+    //   lists:
     //
     //	    Level List
     //		List of all objects in level L.
@@ -915,171 +937,286 @@ namespace min { namespace acc {
     //		>= L.
     //
     //	    To Be Scavenged List
-    //		List of all objects that remain to be
-    //		scavenged during the currently executing
-    //		level L marking.
+    //		List of all objects of level >= L that
+    //		remain to be scavenged during the
+    //		current level L marking.
     //
-    // The `mutator' refers to all code outside the
-    // collector algorithm execution.  The mutator may
-    // write pointers to objects into other objects.
+    //   The collector also maintains lists not related
+    //	 to any level:
     //
-    // The operation of `scavenging' an object refers to
-    // examining all the pointers in the object and
-    // marking any objects pointed at if the objects are
-    // of the proper level.  Whenever an object is first
-    // marked it is put on a to-be-scavenged list.
+    //	     Thread List
+    //		For each thread, a list of objects
+    //		pointed at by data in the thread's
+    //		stack.  Maintained by the min::
+    //		stack_{num_}gen structures defined
+    //		in min.h.
     //
-    // The to-be-scavenged lists of all levels and the
-    // root lists of all ephemeral levels are maintained
-    // with the help of the following mutator action.
+    //	     Static List
+    //		A list of objects pointed at by static
+    //		data (e.g., data allocated at link
+    //		time).  Maintained by the min::static_
+    //		{num_}gen structures defined in min.h.
     //
-    // Each stub has a set of ACC flags grouped into
-    // pairs.  Each pair has a `scavenged flag' and an
-    // `unmarked flag'.
+    // Stub ACC Flags:
     //
-    // If a pointer to stub s2 is stored in a datum with
-    // stub s1, then for each pair of ACC flags the sca-
-    // venged flag of the pair of s1 and the unmarked
-    // flag of the pair of s2 are logically ANDed, and
-    // if the corresponding bit for any pair is on in
-    // MUP::acc_stack_mask, a pointer to s1 and then a
-    // pointer to s2 are pushed into the MUP::acc_stack.
     //
-    // When a new stub is allocated, it is given the
-    // flags in MUP::acc_new_stub_flags.
+    //   Each stub has 4 ACC flags for each ephemeral
+    //   level L > 0.  These are:
     //
-    // Each level L has a pair of ACC flags associated
-    // for use by level L markings (only one level L
-    // marking executes at a time).  The result of the
-    // marking is to set the unmarked flag on all level
-    // >= L objects that CANNOT be reached from the
-    // level L root list objects or from current threads
-    // via pointers between objects, and clear the
-    // unmarked flag on all other objects.  At the end
-    // of the marking, the scavenged flag of each object
-    // is on only if and only if the object is on the
-    // level L root list or the object is >= level L and
-    // its unmarked flag is cleared.
+    //	     scavenged	The stub's datum has been
+    //		        scavenged by the current level
+    //			L marking.  If the stub level is
+    //			>= L the stub must have been
+    //			marked by the current (or last)
+    //			level L marking, and if the stub
+    //			has level < L it must be on the
+    //			level L root list.
     //
-    // A level L marking begins by setting the unmarked
-    // flag of all level >= L objects (the level L
-    // marking unmarked flag of a level < L object is
-    // always clear), and clearing the scavenged flag of
-    // all objects.  The level L to-be-scavenged list is
-    // set to empty.  The level L marking then scavenges
-    // all objects on the level L root list, all objects
-    // on the to-be-scavenged list, and all current
-    // threads.  To scavenge an object s1, each pointer
-    // in s1 to another object s2 is examined, and if
-    // the unmarked flag of s2 is on, it is cleared and
-    // s2 is put on the to-be-scavenged list.  To
-    // scavange a thread, the tread's list of objects
-    // it points at is treated as a list object to be
-    // scavenged.
+    //	     unmarked	The stub level is >= L and the
+    //			stub has not yet been marked
+    //			by the current (or last) level
+    //			L marking.
     //
-    // Note that at the end of a level L marking a
-    // `marking termination' algorithm is run that
-    // consists of scavenging the current threads and
-    // then scavenging objects in the to-be-scavenged
-    // list until that list is empty.  If this marking
-    // termination takes too long, it is interrupted by
-    // further execution of threads, and if this
-    // happens, the marking termination algorithm must
-    // be repeated.  Thrashing is theoretically
-    // possible, but should rarely occur in practice as
-    // each iteration should generate fewer objects in
-    // the to-be-scavenged list.  Thrashing can be
-    // avoided by refusing to interrupt the termination
-    // algorithm if it has been run too many times at
-    // the end of a marking.  Another option is to
-    // switch to a new mode in which new objects are
-    // given a clear unmarked flag and a set scavenged
-    // flag.
+    //	     not-root	The stub level is < L and the
+    //			stub is not on the level L root
+    //			list.
     //
-    // The following actions affect the level L marking
-    // flags and the level L to-be-scavenged list:
+    //	     collectible  The stub level is >= L.  Note
+    //			  that collectible flags for all
+    //			  levels can be use to determine
+    //			  the level of a stub.
     //
-    // 	Object Creation: The unmarked flag is set and
-    //  the scavenged flag is cleared.  Note that the
-    //  object will be added to the list of objects the
-    //  current thread is using.
+    //   There are only 2 flags for level 0 (the non-
+    //   ephemeral level): the scavenged and unmarked
+    //   flags.
     //
-    //  Moving an Object from Level L1 to Level L1-1:
-    //  This cannot happen during a level L1 marking,
-    //  and so no marking flags are changed.  Note
-    //  that below we will learn that the moved object
-    //  will be put on the level L1 root list, so it
-    //  can be found later to clear its scavenged flag
-    //  before the next level L1 marking.
+    //   Whenever a pointer to stub s2 is stored in a
+    //   datum with stub s1, then:
     //
-    //  Level L Scavenging of an Object s1:  The
-    //  scavenged flag of the object is set before the
-    //  object is scavenged, and the object is removed
-    //  from the to-be-scavenged list if it was taken
-    //  from that list.
+    //     if for any level L:
     //
-    //  Removing an ACC::acc_stack Pointer Pair for an
-    //  Object s1 Pointing at an Object s2:  If the
-    //  level L marking list scavenged flag of s1 and
-    //  the level L marking list unmarked flag of s2
-    //  are both on, the unmarked flag of s2 is cleared.
+    //		the s1 level L scavenged flag is on
+    //		and
+    //		the s2 level L unmarked flag is on
+    //		and
+    //		the MUP::acc_stack_mask level L
+    //              scavenged/unmarked flag is on
+    //       or
+    //		the s1 level L non-root flag is on
+    //          and
+    //          the s2 level L collectible flag is on
+    //		and
+    //		the MUP::acc_stack_mask level L
+    //		    non-root/collectible flag is on
     //
-    //  Clearing the Unmarked Flag of an Object s2:
-    //  s2 is put on the to-be-scavenged list.  Its
-    //  scavenged flag should already be cleared.
+    //	    then the pointers to s1 and s2 are pushed
+    //      into the MUP::acc_stack; the pointer to s1
+    //	    is pushed first.
     //
-    // To maintain the level L root list a pair of ACC
-    // flags is used, the level L root list flags.  The
-    // unmarked flag is set for every level >= L object
-    // and cleared for all other objects.  The
-    // scavenged flag is set for all level < L objects
-    // that are NOT on the level L root list, and
-    // cleared for all other objects.  These flags
-    // and the root list are maintained at ALL times.
+    // MUP::acc_stack Processing:
     //
-    // The following actions affect the level L root
-    // list and its flags:
+    //   The MUP::acc_stack is processed separately
+    //   by the collector.  The stack contains stub
+    //   pointer pairs (s1,s2) such that a pointer to
+    //   s2 has been stored the datum of s1.  If the
+    //   collector finds a level L scavenged stub s1
+    //   pointing at a level L unmarked stub s2, it
+    //   turns off the s2 level L unmarked flag, and
+    //   puts s2 on the level L to-be-scavenged stack.
+    //   If it finds a level L non-root stub s1 pointing
+    //   at a level L collectible stub s2, it turns
+    //   off the s1 level L non-root flag and puts s1
+    //   on the level L root stack.
     //
-    // 	Object Creation: The unmarked flag is set if L
-    //  is the highest level and cleared otherwise (all
-    //  newly created objects are put in the highest
-    //  level).
+    // Stub Allocation:
     //
-    //  Moving an Object from Level L1 to Level L1-1:
-    //  If L == L1-1 the level L root unmarked flag is
-    //  set.  If L == L1 the object is put on the level
-    //  L root list (its scavenged flag should already
-    //  be off).
+    //   When a new stub is allocated, it is given the
+    //   flags in MUP::acc_new_stub_flags.  The new stub
+    //   is always put in the highest level.  Normally
+    //   the flags set are as follows:
     //
-    //  Level L Scavenging of a Level L Root List
-    //  Object:  If the object is found not to have any
-    //  pointers to objects of level >= L, the object is
-    //  removed from the root list and its scavenged
-    //  flag is set.
+    //	     all collectible flags are set
+    //	     all unmarked flags are set
+    //	     all scavenged flags are cleared
+    //	     all non-root flags are cleared
     //
-    //  Removing an ACC::acc_stack pointer Pair for an
-    //  Object s1 Pointing at an Object s2:  If the
-    //  level L root list scavenged flag of s1 and
-    //  the level L root list unmarked flag of s1 are
-    //  both on, s1 is put on the level L root list and
-    //  its scavenged flag is cleared.
+    //   In this case the new stub will remain unmarked
+    //   until a pointer to it is found in a thread,
+    //   in an object, or in static memory.  Many
+    //   temporary objects will never be marked and will
+    //   be collected promptly after becoming inacces-
+    //   sible from threads and static memory.
+    //
+    //   If a currently running level L marking is
+    //   having thrashing problems (see below), then
+    //   immediately after allocating the stub with the
+    //   flags given above it may be marked at level L.
+    //   This means its level L unmarked flag will be
+    //   cleared and it will be put on the level L
+    //   to-be-scavenged list.  This keeps pointers to
+    //   unmarked objects out of the thread stacks and
+    //   makes further thrashing less likely, at the
+    //   cost of retaining objects beyond when they are
+    //   accessible.
+    //   
+    // Marking Execution:
+    //
+    //   A level L marking begins by setting the level
+    //   L unmarked flag of all level >= L objects (this
+    //   flag is always clear for level < L objects) and
+    //   clearing the level L scavenged flag of all
+    //   objects (this flag is always clear for level
+    //   < L objects not on the level L root list).  The
+    //   level L to-be-scavenged list is set to empty.
+    //
+    //   The level L marking then scavenges all objects
+    //   on the level L root list and all objects on
+    //   the level L to-be-scavenged list.  It treats
+    //   the current thread and static lists as if they
+    //   were part of a level L root object.
+    //
+    //   To scavenge an object s1, each pointer in s1 to
+    //   another object s2 is examined, and if the level
+    //   L unmarked flag of s2 is on, it is cleared and
+    //   s2 is put on the level L to-be-scavenged list.
+    //   So scavenging can add to the level L to-be-
+    //   scavenged list.
+    //
+    //   Just before an object is scavenged by a level L
+    //   marking, the level L scavenged flag of the
+    //   object is set, and if the object is on the
+    //   level L root list, its not-root flag is set.
+    //   After begin scavenged, if the object is on the
+    //   level L to-be-scavenged list it is removed from
+    //   that list, and if it is on the level L root
+    //   list and no pointers to level L collectible
+    //   objects were found, it is removed from the
+    //   root list, but if pointers to level L collec-
+    //   tible objects were found, its not-root flag
+    //   is cleared and it is kept on the list.  While
+    //   an object is being scavenged the mutator may
+    //   run but the MUP::acc_stack processing algorithm
+    //   may not run.
+    //   
+    //   Marking grows the to-be-scavenged list, and
+    //   prefers scavenging objects in this list to keep
+    //   the list shorter.  The goal of level L marking
+    //   is to scavenge all objects in the level L root
+    //   list, have an empty level L to-be-scavenged
+    //   list, and have scavenged the thread and static
+    //   lists.  When the level L marking gets to the
+    //   point when the level L root list has been
+    //   scavenged and the level L to-be-scavenged list
+    //   is empty, it runs a `marking termination'
+    //   algorithm.
+    //
+    //   The marking termination algorithm scavenges the
+    //   thread and static lists and any objects put on
+    //   the initially empty to-be-scavenged list during
+    //   scavenging.  The mutator cannot run during
+    //   marking termination least it change the thread
+    //   or static lists.  If the marking termination
+    //   takes too long, it is aborted, the mutator is
+    //   allowed to run, and after the to-be-scavenged
+    //   list is empties, the marking termination
+    //   algorithm is restarted from the beginning.
+    //   Thrashing is theoretically possible, but should
+    //   rarely occur in practice as each repeat should
+    //   generate fewer objects in the to-be-scavenged
+    //   list.  Thrashing can be avoided by refusing to
+    //   stop and repeat marking termination if it has
+    //   been run too many times at the end of a
+    //   marking.  Another option is to switch to a new
+    //   mode in which new objects are level L marked
+    //   when they are created (and put on the to-be-
+    //   scavenged list).  This further limits the
+    //   number of objects that must be marked during
+    //   the termination algorithm.
+    //
+    // Level List:
+    //
+    //   Object stubs are kept in a list, oldest stub
+    //   first.  Stubs point at the next stub on the
+    //   list using their control words.  All stubs on
+    //   the list are garbage collectible.
+    //
+    //   The first stub on the level list is the stub
+    //   pointed at by the control word of MINT::first_
+    //   allocated_stub.  MINT::first_allocated_stub is
+    //   itself NOT part of the level list, and has no
+    //   use other than as pointing at the first stub
+    //   on the level list (and possibly doubling as
+    //   MINT::null_stub).
+    //
+    //   Newly allocated stubs are put on the end of
+    //   of this list, so the list is in order of stub
+    //   age.  The end of the list is MINT::last_
+    //   allocated_stub.  If this equals MINT::first_
+    //   allocated_stub the level list is empty (only
+    //   happens briefly at the start of program ini-
+    //   tialization.)
+    //
+    //   Stubs are assigned generations, each identified
+    //   by a pair (L,S) of indices, where L is the
+    //   object level, and S is the sublevel.  An object
+    //   in generation (L,S) that survives a level L
+    //   garbage collection is promoted to generation
+    //   (L,S-1) if S>0, or to generation (L-1,T) if
+    //   L>0, S=0, where T is the highest sublevel of
+    //   level L-1, or is not promoted if L=0, S=0.
+    //
+    //   Level 0 has only one sublevel, S=0, and one
+    //   generation and objects are never promoted from
+    //   this generation even if they survive a level 0
+    //   garbage collection.
+    //
+    //   The stubs in the level list are in order of
+    //   increasing (L,S) indices, with (L1,S1)<(L2,S2)
+    //   if and only if L1<L2 or L1=L2&S1<S2.
+    //
+    //   Level 0 objects in the hash tables for strings,
+    //   numbers, and labels are not included in the
+    //   level list.  The parts of the hash tables that
+    //   point at level 0 objects are conceptually part
+    //   of the level list for level 0 marking purposes,
+    //   but they are not physically part of the level
+    //   list.
+    //
+    // Collection:
+    //
+    //   After a level L marking, a level L collection
+    //   occurs.  Objects with the level L unmarked flag
+    //   are collected, beginning with the first (i.e.,
+    //   oldest) level L object in the level list and
+    //   ending with the last object allocated before
+    //   the end of the level L marking.  Objects allo-
+    //   cated after the end of the level L marking are
+    //   excluded from collection.
+    //
+    //   Although all objects with level L unmarked flag
+    //   may be collected, they have to be removed from
+    //   ANY root or to-be-scavenged lists they are on.
+    //   This is done by not running level L1 > L
+    //   markings during a level L collection and by
+    //   scanning the level L1 > L root lists and
+    //   removing objects with the level L unmarked
+    //   flag.
+    //
+    //   Collection moves objects in level L sublevels.
+    //   Each sublevel consists of a set of objects that
+    //   are contiguous in the level list and that have
+    //   survived a certain number of level L markings.
+    //   Level L objects in sublevels S > 0 are promoted
+    //   to the next lower sublevel S-1.  Objects in
+    //   sublevel 0 are promoted to the highest level of
+    //   the next lower level L-1.  These objects that
+    //   are promoted to level L-1 are put on the level
+    //   L root list so the next level L marking can
+    //   clear their level L scavenged flag and check to
+    //   see if they have any pointers to level >= L
+    //   objects.  These objects also have their level L
+    //   collectible flag and not-root flags cleared.
 
-    // Object stubs are kept in a list, oldest stub
-    // first, with the very first stub always being
-    // MINT::null_stub.  Stubs are assigned generations,
-    // which identified by a pair (L,S) of indices,
-    // where L is the object level, and S is the
-    // sublevel.  An object in generation (L,S) that
-    // survives a level L garbage collection is promoted
-    // to generation (L,S-1) is S>0, or to generation
-    // (L-1,T) if L>0, S=0, T is the highest sublevel of
-    // level L-1, or is not promoted if L=0, S=0.
-    //
-    // Level 0 has only one sublevel S=0 and one
-    // generation and objects are never promoted from
-    // this generation even if they survive a level 0
-    // garbage collection.
-    //
     struct generation
     {
         unsigned level;
@@ -1091,9 +1228,8 @@ namespace min { namespace acc {
 	    // Last stub on the stub list BEFORE the
 	    // first stub on the list whose generation
 	    // is the same as or later than (L,S).
-	    //
-	    // Note: MINT::null_stub is the last stub
-	    // before generation (0).
+	    // Equals MINT::first_allocated_stub if
+	    // (L,S)=(0,0).
 
 	min::uns64 count;
 	    // Number of stubs currently in this
