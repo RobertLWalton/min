@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Nov 28 06:26:30 EST 2009
+// Date:	Sun May 16 07:12:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/01 00:31:11 $
+//   $Date: 2010/05/16 11:15:19 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents
 //
@@ -107,6 +107,10 @@ namespace min { namespace os {
     // because of error.
     //
     void dump_error_info ( std::ostream & s );
+
+    // Dump just the memory layout.
+    //
+    void dump_memory_layout ( std::ostream & s );
 
     // Free the segment with given number of pages and
     // start address.  The segment must have been
