@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jan 23 03:40:40 EST 2010
+// Date:	Sun May 16 07:14:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/23 08:52:10 $
+//   $Date: 2010/05/16 11:15:26 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents:
 //
@@ -186,6 +186,11 @@ void MOS::dump_error_info ( ostream & s )
         s << "    Last OS Error: "
 	  << strerror ( saved_errno ) << endl;
 
+    dump_memory_layout ( s );
+}
+
+void MOS::dump_memory_layout ( ostream & s )
+{
     char name[100];
     sprintf ( name, "/proc/%d/maps", (int) getpid() );
     s << "    OS Process Memory Map (" << name << "):"
