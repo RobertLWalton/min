@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/10 10:50:00 $
+//   $Date: 2010/05/16 14:57:24 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents
 //
@@ -34,7 +34,20 @@
 // There are a few ACC parameters that must be compiled
 // in and these are NOT in this file, but are instead
 // in the min_parameters.h file.
-
+//
+// With the following exceptions all the parameters are
+// integers as described below.
+//
+//   debug	A list of characters each of which turns
+//		on a debugging print switch, as follows:
+//
+//	p   Trace parameter value changes.
+//	m   Trace memory pool allocations.
+//	f   Trace fixed size block free list
+//	    augmentations.
+//	v   Trace variable size block allocations.
+//
+//              E.g., debug=pv
 
 // Usage and Setup
 // ----- --- -----

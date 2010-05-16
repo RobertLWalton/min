@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 11 04:16:51 EDT 2010
+// Date:	Sun May 16 05:38:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/11 09:33:31 $
+//   $Date: 2010/05/16 15:00:12 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.29 $
+//   $Revision: 1.30 $
 
 // Table of Contents:
 //
@@ -51,10 +51,10 @@ using std::setw;
 
 // Trace switches.
 //
-bool trace_parameters = false;
-bool trace_fixed_block_allocation = false;
-bool trace_variable_block_allocation = false;
-bool trace_multi_page_block_allocation = false;
+static bool trace_parameters = false;
+static bool trace_fixed_block_allocation = false;
+static bool trace_variable_block_allocation = false;
+// MOS::trace_pools traces all pool related allocations.
 
 // Find the number of characters in a string before
 // the first white space or end of string.
@@ -192,15 +192,12 @@ void MINT::acc_initializer ( void )
 	    case 'p':
 	        trace_parameters = true;
 		break;
-	    case 'm':
-	        trace_multi_page_block_allocation
-		    = true;
 	    case 'f':
 	        trace_fixed_block_allocation = true;
 	    case 'v':
 	        trace_variable_block_allocation = true;
 		break;
-	    case 'o':
+	    case 'm':
 	        MOS::trace_pools = true;
 		break;
 	    default:
@@ -235,6 +232,9 @@ min::stub * MACC::stub_end;
 
 static void stub_allocator_initializer ( void )
 {
+    if ( MOS::trace_pools )
+        cout << "stub_allocator_initializer()" << endl;
+
     get_param ( "max_stubs",
                 MACC::max_stubs, 1000,
 		MIN_MAX_NUMBER_OF_STUBS );
@@ -278,6 +278,10 @@ static void stub_allocator_initializer ( void )
 	    // ADDRESS is defined to be large enough
 	    // to accommodate stub vector.
 
+	    assert ( MIN_STUB_BASE + page_size * pages
+		     <=
+	             MIN_MAX_ABSOLUTE_STUB_ADDRESS );
+
 	    MOS::free_pool ( pages, stubs );
 
 	    stubs = MOS::new_pool_at
@@ -313,8 +317,9 @@ static void stub_allocator_initializer ( void )
         ( MACC::stub_next,
 	  MUP::new_acc_control
 	      ( min::DEALLOCATED,
-	        MACC::stub_next ) );
+	        MINT::null_stub ) );
 
+    MINT::first_allocated_stub = MACC::stub_next;
     MINT::last_allocated_stub = MACC::stub_next;
     MINT::number_of_free_stubs = 0;
 
@@ -338,7 +343,7 @@ void MINT::acc_expand_stub_free_list ( min::unsptr n )
 	     << "       Increase max_stubs or make"
 	        " the garbage collector more efficient."
 	     << endl;
-	MOS::dump_error_info ( cout );
+	MOS::dump_memory_layout ( cout );
 	exit ( 1 );
     }
     n += MACC::stub_increment;
@@ -400,6 +405,9 @@ static void allocate_new_superregion ( void );
 
 static void block_allocator_initializer ( void )
 {
+    if ( MOS::trace_pools )
+        cout << "block_allocator_initializer()" << endl;
+
     get_param ( "space_factor",
                 MACC::space_factor, 8,
 		( MIN_POINTER_BITS <= 32 ? 32 : 256 ),
@@ -432,10 +440,6 @@ static void block_allocator_initializer ( void )
 	exit ( 1 );
     }
 
-    if ( trace_multi_page_block_allocation )
-        cout << "TRACE: allocated " << rtpages
-	     << " page region table" << endl;
-
     MACC::region_table = (MACC::region *) rt;
     MACC::region_next = MACC::region_table + 1;
     MACC::region_end =
@@ -460,6 +464,10 @@ static void block_allocator_initializer ( void )
 static MACC::region * new_multi_page_block_region
 	( min::unsptr size, int type )
 {
+    if ( MOS::trace_pools )
+        cout << "new_multi_page_block_region ("
+	     << size << ", " << type << ")" << endl;
+        
     min::unsptr pages = number_of_pages ( size );
     size = pages * page_size;
     void * m = MOS::new_pool ( pages );
@@ -489,12 +497,6 @@ static MACC::region * new_multi_page_block_region
     r->free_first = NULL;
     r->free_last = NULL;
 
-    if ( trace_multi_page_block_allocation )
-        cout << "TRACE: allocated " << pages
-	     << " page ( " << size << " byte)"
-	     << " multi-page block region"
-	     << endl;
-
     return r;
 }
 
@@ -502,8 +504,12 @@ static MACC::region * new_multi_page_block_region
 //
 static void allocate_new_superregion ( void )
 {
+    if ( MOS::trace_pools )
+        cout << "allocate_new_superregion()" << endl;
+        
     MACC::region * r = new_multi_page_block_region
-	( MACC::superregion_size, MACC::SUPERREGION );
+	( MACC::superregion_size,
+	  MACC::SUPERREGION );
     if ( r == NULL && MACC::last_superregion != NULL )
 	r = new_multi_page_block_region
 	        ( 4 * MACC::subregion_size,
@@ -520,7 +526,8 @@ static void allocate_new_superregion ( void )
 		      / page_size )
 		 << " page initial heap." << endl;
 	else
-	    cout << "ERROR: out of virtual memory."
+	    cout << "ERROR: out of virtual memory"
+	            " trying to allocate superregion."
 	         << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
