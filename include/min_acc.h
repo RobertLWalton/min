@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 15 06:29:03 EDT 2010
+// Date:	Sun May 16 16:31:23 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/15 13:52:49 $
+//   $Date: 2010/05/17 01:39:03 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.39 $
+//   $Revision: 1.40 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -929,7 +929,8 @@ namespace min { namespace acc {
     //   lists:
     //
     //	    Level List
-    //		List of all objects in level L.
+    //		List of all objects in level L.  This is
+    //		the ACC Stub List as per min.h.
     //	
     //	    Root List
     //		List of all objects in levels < L
@@ -1195,12 +1196,14 @@ namespace min { namespace acc {
     //
     //   Although all objects with level L unmarked flag
     //   may be collected, they have to be removed from
-    //   ANY root or to-be-scavenged lists they are on.
-    //   This is done by not running level L1 > L
-    //   markings during a level L collection and by
-    //   scanning the level L1 > L root lists and
-    //   removing objects with the level L unmarked
-    //   flag.
+    //   ANY root or to-be-scavenged lists they are on,
+    //   and any hash table entry pointing at them must
+    //   be removed.  Fo facilitate this, level L1 > L
+    //   markings are not run during a level L
+    //   collection.  Note that the hash tables are not
+    //   part of the root set, and having a hash table
+    //   entry does NOT prevent an object from being
+    //   collected.
     //
     //   Collection moves objects in level L sublevels.
     //   Each sublevel consists of a set of objects that
