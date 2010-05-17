@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 17 10:00:47 EDT 2010
+// Date:	Mon May 17 11:17:50 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 15:14:35 $
+//   $Date: 2010/05/17 15:41:43 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.22 $
+//   $Revision: 1.23 $
 
 // Table of Contents:
 //
@@ -563,6 +563,39 @@ static void * new_pool_at_internal
     return start;
 }
 
+inline void prolog
+	( const char * action, bool force_read = false )
+{
+    if ( MOS::trace_pools >= 2 )
+    {
+	read_used_pools();
+	if ( MOS::trace_pools >= 3 )
+	{
+	    cout << "MEMORY MAP BEFORE " << action
+	         << ":" << endl;
+	    dump_used_pools();
+	}
+    }
+    else if ( force_read || create_compare )
+	read_used_pools();
+}
+
+inline void postlog
+    ( const char * action, void * result,
+                           min::uns64 pages )
+{
+    if (    MOS::trace_pools >= 2
+         && MOS::pool_error ( result ) == NULL )
+    {
+	compare_pools();
+        cout << action << ": "
+	     << used_pool ( pages, result ) << endl;
+	dump_compare_pools();
+    }
+    else if ( create_compare )
+	compare_pools();
+}
+
 void * MOS::new_pool_at
 	( min::uns64 pages, void * start )
 {
@@ -586,30 +619,14 @@ void * MOS::new_pool_at
 	exit ( 2 );
     }
 
-    read_used_pools();
-
-    if ( trace_pools >= 3 )
-    {
-        cout << "MEMORY MAP BEFORE ALLOCATION:"
-	     << endl;
-	dump_used_pools();
-    }
+    prolog ( "ALLOCATION", true );
 
     if ( overlap ( start, end ) ) return error(1);
 
     void * result =
         new_pool_at_internal ( size, start );
 
-    if (    trace_pools >= 2
-         && MOS::pool_error ( result ) == NULL )
-    {
-	compare_pools();
-        cout << "ALLOCATED: "
-	     << used_pool ( pages, result ) << endl;
-	dump_compare_pools();
-    }
-    else if ( create_compare )
-	compare_pools();
+    postlog ( "ALLOCATED", result, pages );
 
     return result;
 }
@@ -632,14 +649,7 @@ void * MOS::new_pool_between
         (min::unsptr) pages * ::pagesize();
     min::unsptr mask = ::pagesize() - 1;
 
-    read_used_pools();
-
-    if ( trace_pools >= 3 )
-    {
-        cout << "MEMORY MAP BEFORE ALLOCATION:"
-	     << endl;
-	dump_used_pools();
-    }
+    prolog ( "ALLOCATION", true );
 
     void * address = find_unused ( begin, size );
     errno = 0;
@@ -653,16 +663,7 @@ void * MOS::new_pool_between
     void * result =
         new_pool_at_internal ( size, address );
 
-    if (    trace_pools >= 2
-         && MOS::pool_error ( result ) == NULL )
-    {
-	compare_pools();
-        cout << "ALLOCATED: "
-	     << used_pool ( pages, result ) << endl;
-	dump_compare_pools();
-    }
-    else if ( create_compare )
-	compare_pools();
+    postlog ( "ALLOCATED", result, pages );
 
     return result;
 }
@@ -675,19 +676,6 @@ void * MOS::new_pool ( min::uns64 pages )
         cout << "TRACE: new_pool ( " << pages << " )"
 	     << endl;
 
-    if ( trace_pools >= 2 )
-    {
-	read_used_pools();
-	if ( trace_pools >= 3 )
-	{
-	    cout << "MEMORY MAP BEFORE ALLOCATION:"
-		 << endl;
-	    dump_used_pools();
-	}
-    }
-    else if ( create_compare )
-	read_used_pools();
-
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
 
@@ -697,6 +685,8 @@ void * MOS::new_pool ( min::uns64 pages )
     {
     	// As an optimization, call mmap directly if
 	// size is not too large.
+
+	prolog ( "ALLOCATION" );
 
 	result = mmap ( NULL, (size_t) size,
     			PROT_READ | PROT_WRITE,
@@ -726,22 +716,15 @@ void * MOS::new_pool ( min::uns64 pages )
     }
     else
     {
+	prolog ( "ALLOCATION", true );
+
 	void * address = find_unused ( NULL, size );
 	errno = 0;
 	if ( address == NULL ) return error(3);
 	result = new_pool_at_internal ( size, address );
     }
 
-    if (    trace_pools >= 2
-         && MOS::pool_error ( result ) == NULL )
-    {
-	compare_pools();
-        cout << "ALLOCATED: "
-	     << used_pool ( pages, result ) << endl;
-	dump_compare_pools();
-    }
-    else if ( create_compare )
-	compare_pools();
+    postlog ( "ALLOCATED", result, pages );
 
     return result;
 }
@@ -768,32 +751,14 @@ void MOS::free_pool
 	exit ( 2 );
     }
 
-    if ( trace_pools >= 2 )
-        read_used_pools();
-    else if ( create_compare )
-	read_used_pools();
-
-    if ( trace_pools >= 3 )
-    {
-        cout << "MEMORY MAP BEFORE DEALLOCATION:"
-	     << endl;
-	dump_used_pools();
-    }
+    prolog ( "DEALLOCATION" );
 
     int result = munmap ( start, (size_t) size );
 
     if ( result == -1 )
 	fatal_error ( errno );
 
-    if ( trace_pools >= 2 )
-    {
-	compare_pools();
-        cout << "DEALLOCATED: "
-	     << used_pool ( pages, start ) << endl;
-	dump_compare_pools();
-    }
-    else if ( create_compare )
-	compare_pools();
+    postlog ( "DEALLOCATED", start, pages );
 }
 
 inline void remap
@@ -866,19 +831,7 @@ void MOS::move_pool
     void * old_end =
         (void *) ( (char *) old_start + size );
 
-    if ( trace_pools >= 2 )
-    {
-	read_used_pools();
-
-	if ( trace_pools >= 3 )
-	{
-	    cout << "MEMORY MAP BEFORE MOVE:"
-		 << endl;
-	    dump_used_pools();
-	}
-    }
-    else if ( create_compare )
-	read_used_pools();
+    prolog ( "MOVE" );
 
     void * original_new_start = new_start;
     void * original_old_start = old_start;
@@ -972,31 +925,11 @@ void MOS::inaccess_pool
 	exit ( 2 );
     }
 
-    if ( trace_pools >= 2 )
-    {
-	read_used_pools();
-	if ( trace_pools >= 3 )
-	{
-	    cout << "MEMORY MAP BEFORE PERMISSION"
-	            " CHANGE:" << endl;
-	    dump_used_pools();
-	}
-    }
-    else if ( create_compare )
-	read_used_pools();
+    prolog ( "PERMISSION CHANGE" );
 
     renew ( start, size, PROT_NONE );
 
-    if ( trace_pools >= 2 )
-    {
-	compare_pools();
-        cout << "MADE INACCESSIBLE: "
-	     << used_pool ( pages, start )
-	     << endl;
-	dump_compare_pools();
-    }
-    else if ( create_compare )
-	compare_pools();
+    postlog ( "MADE INACCESSIBLE", start, pages );
 }
 
 void MOS::access_pool
@@ -1023,29 +956,9 @@ void MOS::access_pool
 	exit ( 2 );
     }
 
-    if ( trace_pools >= 2 )
-    {
-	read_used_pools();
-	if ( trace_pools >= 3 )
-	{
-	    cout << "MEMORY MAP BEFORE PERMISSION"
-	            " CHANGE:" << endl;
-	    dump_used_pools();
-	}
-    }
-    else if ( create_compare )
-	read_used_pools();
+    prolog ( "PERMISSION CHANGE" );
 
     renew ( start, size );
 
-    if ( trace_pools >= 2 )
-    {
-	compare_pools();
-        cout << "MADE ACCESSIBLE: "
-	     << used_pool ( pages, start )
-	     << endl;
-	dump_compare_pools();
-    }
-    else if ( create_compare )
-	compare_pools();
+    postlog ( "MADE ACCESSIBLE", start, pages );
 }
