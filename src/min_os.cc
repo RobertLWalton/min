@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 16 07:14:15 EDT 2010
+// Date:	Mon May 17 10:00:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/16 11:15:26 $
+//   $Date: 2010/05/17 15:14:35 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.21 $
+//   $Revision: 1.22 $
 
 // Table of Contents:
 //
@@ -114,7 +114,7 @@ const char * MOS::get_parameter ( const char * name )
 // Memory Management
 // ------ ----------
 
-bool MOS::trace_pools = false;
+unsigned MOS::trace_pools = 0;
 
 static min::unsptr max_mmap_size = 1ul << 31;
     // Largest size that can be given to mmap
@@ -160,7 +160,7 @@ static int saved_errno;
 inline void * error ( int n )
 {
     saved_errno = errno;
-    if ( MOS::trace_pools )
+    if ( MOS::trace_pools >= 1 )
         cout << "TRACE: " << fname
 	     << " failed due to error:" << endl
 	     << "       " << pool_message[n] << endl;
@@ -225,8 +225,8 @@ void MOS::dump_memory_layout ( ostream & s )
     }
 }
 
-// Read /proc/<this-process-id>/maps and save the info
-// in used_pools.
+// /proc/<this-process-id>/maps can be read and its
+// information saved in used_pools.
 //
 static struct used_pool
     // List of memory pools in use.
@@ -568,7 +568,7 @@ void * MOS::new_pool_at
 {
     fname = "new_pool_at";
 
-    if ( trace_pools )
+    if ( trace_pools >= 1 )
         cout << "TRACE: new_pool_at ( "
 	     << pages << ", 0x" << hex
 	     << (min::unsptr) start << " )"
@@ -588,7 +588,7 @@ void * MOS::new_pool_at
 
     read_used_pools();
 
-    if ( trace_pools )
+    if ( trace_pools >= 3 )
     {
         cout << "MEMORY MAP BEFORE ALLOCATION:"
 	     << endl;
@@ -600,17 +600,16 @@ void * MOS::new_pool_at
     void * result =
         new_pool_at_internal ( size, start );
 
-    if (    ( trace_pools || create_compare )
-         && MOS::pool_error ( result ) == NULL )
-	compare_pools();
-
-    if (    trace_pools
+    if (    trace_pools >= 2
          && MOS::pool_error ( result ) == NULL )
     {
+	compare_pools();
         cout << "ALLOCATED: "
 	     << used_pool ( pages, result ) << endl;
 	dump_compare_pools();
     }
+    else if ( create_compare )
+	compare_pools();
 
     return result;
 }
@@ -620,7 +619,7 @@ void * MOS::new_pool_between
 {
     fname = "new_pool_between";
 
-    if ( trace_pools )
+    if ( trace_pools >= 1 )
         cout << "TRACE: new_pool_between ( "
 	     << pages
 	     << ", 0x" << hex
@@ -635,7 +634,7 @@ void * MOS::new_pool_between
 
     read_used_pools();
 
-    if ( trace_pools )
+    if ( trace_pools >= 3 )
     {
         cout << "MEMORY MAP BEFORE ALLOCATION:"
 	     << endl;
@@ -654,17 +653,16 @@ void * MOS::new_pool_between
     void * result =
         new_pool_at_internal ( size, address );
 
-    if (    ( trace_pools || create_compare )
-         && MOS::pool_error ( result ) == NULL )
-	compare_pools();
-
-    if (    trace_pools
+    if (    trace_pools >= 2
          && MOS::pool_error ( result ) == NULL )
     {
+	compare_pools();
         cout << "ALLOCATED: "
 	     << used_pool ( pages, result ) << endl;
 	dump_compare_pools();
     }
+    else if ( create_compare )
+	compare_pools();
 
     return result;
 }
@@ -673,17 +671,22 @@ void * MOS::new_pool ( min::uns64 pages )
 {
     fname = "new_pool";
 
-    if ( trace_pools )
+    if ( trace_pools >= 1 )
         cout << "TRACE: new_pool ( " << pages << " )"
 	     << endl;
-    if ( trace_pools || create_compare )
-	read_used_pools();
-    if ( trace_pools )
+
+    if ( trace_pools >= 2 )
     {
-        cout << "MEMORY MAP BEFORE ALLOCATION:"
-	     << endl;
-	dump_used_pools();
+	read_used_pools();
+	if ( trace_pools >= 3 )
+	{
+	    cout << "MEMORY MAP BEFORE ALLOCATION:"
+		 << endl;
+	    dump_used_pools();
+	}
     }
+    else if ( create_compare )
+	read_used_pools();
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
@@ -692,7 +695,7 @@ void * MOS::new_pool ( min::uns64 pages )
 
     if ( size <= max_mmap_size )
     {
-    	// As an optimization, call mmap directory if
+    	// As an optimization, call mmap directly if
 	// size is not too large.
 
 	result = mmap ( NULL, (size_t) size,
@@ -729,17 +732,16 @@ void * MOS::new_pool ( min::uns64 pages )
 	result = new_pool_at_internal ( size, address );
     }
 
-    if (    ( trace_pools || create_compare )
-         && MOS::pool_error ( result ) == NULL )
-	compare_pools();
-
-    if (    trace_pools
+    if (    trace_pools >= 2
          && MOS::pool_error ( result ) == NULL )
     {
+	compare_pools();
         cout << "ALLOCATED: "
 	     << used_pool ( pages, result ) << endl;
 	dump_compare_pools();
     }
+    else if ( create_compare )
+	compare_pools();
 
     return result;
 }
@@ -749,7 +751,7 @@ void MOS::free_pool
 {
     fname = "free_pool";
 
-    if ( trace_pools )
+    if ( trace_pools >= 1 )
         cout << "TRACE: free_pool ( "
 	     << pages << ", 0x" << hex
 	     << (min::unsptr) start << " )"
@@ -766,10 +768,12 @@ void MOS::free_pool
 	exit ( 2 );
     }
 
-    if ( trace_pools || create_compare )
+    if ( trace_pools >= 2 )
+        read_used_pools();
+    else if ( create_compare )
 	read_used_pools();
 
-    if ( trace_pools )
+    if ( trace_pools >= 3 )
     {
         cout << "MEMORY MAP BEFORE DEALLOCATION:"
 	     << endl;
@@ -781,15 +785,15 @@ void MOS::free_pool
     if ( result == -1 )
 	fatal_error ( errno );
 
-    if ( trace_pools || create_compare )
-	compare_pools();
-
-    if ( trace_pools )
+    if ( trace_pools >= 2 )
     {
+	compare_pools();
         cout << "DEALLOCATED: "
 	     << used_pool ( pages, start ) << endl;
 	dump_compare_pools();
     }
+    else if ( create_compare )
+	compare_pools();
 }
 
 inline void remap
@@ -830,7 +834,7 @@ void MOS::move_pool
 {
     fname = "move_pool";
 
-    if ( trace_pools )
+    if ( trace_pools >= 1 )
         cout << "TRACE: move_pool ( "
 	     << pages << ", 0x" << hex
 	     << (min::unsptr) new_start << ", 0x"
@@ -862,14 +866,20 @@ void MOS::move_pool
     void * old_end =
         (void *) ( (char *) old_start + size );
 
-    if ( trace_pools || create_compare )
-	read_used_pools();
-    if ( trace_pools )
+    if ( trace_pools >= 2 )
     {
-        cout << "MEMORY MAP BEFORE MOVE:"
-	     << endl;
-	dump_used_pools();
+	read_used_pools();
+
+	if ( trace_pools >= 3 )
+	{
+	    cout << "MEMORY MAP BEFORE MOVE:"
+		 << endl;
+	    dump_used_pools();
+	}
     }
+    else if ( create_compare )
+	read_used_pools();
+
     void * original_new_start = new_start;
     void * original_old_start = old_start;
 
@@ -924,11 +934,9 @@ void MOS::move_pool
 	renew ( old_start, size );
     }
 
-    if ( trace_pools || create_compare )
-	compare_pools();
-
-    if ( trace_pools )
+    if ( trace_pools >= 2 )
     {
+	compare_pools();
         cout << "MOVED: "
 	     << used_pool ( pages, original_old_start )
 	     << " TO "
@@ -936,6 +944,8 @@ void MOS::move_pool
 	     << endl;
 	dump_compare_pools();
     }
+    else if ( create_compare )
+	compare_pools();
 }
 
 void MOS::inaccess_pool
@@ -944,7 +954,7 @@ void MOS::inaccess_pool
 {
     fname = "inaccess_pool";
 
-    if ( trace_pools )
+    if ( trace_pools >= 1 )
         cout << "TRACE: inaccess_pool ( "
 	     << pages << ", 0x" << hex
 	     << (min::unsptr) start << " )"
@@ -962,27 +972,31 @@ void MOS::inaccess_pool
 	exit ( 2 );
     }
 
-    if ( trace_pools || create_compare )
-	read_used_pools();
-    if ( trace_pools )
+    if ( trace_pools >= 2 )
     {
-        cout << "MEMORY MAP BEFORE PERMISSION CHANGE:"
-	     << endl;
-	dump_used_pools();
+	read_used_pools();
+	if ( trace_pools >= 3 )
+	{
+	    cout << "MEMORY MAP BEFORE PERMISSION"
+	            " CHANGE:" << endl;
+	    dump_used_pools();
+	}
     }
+    else if ( create_compare )
+	read_used_pools();
 
     renew ( start, size, PROT_NONE );
 
-    if ( trace_pools || create_compare )
-	compare_pools();
-
-    if ( trace_pools )
+    if ( trace_pools >= 2 )
     {
+	compare_pools();
         cout << "MADE INACCESSIBLE: "
 	     << used_pool ( pages, start )
 	     << endl;
 	dump_compare_pools();
     }
+    else if ( create_compare )
+	compare_pools();
 }
 
 void MOS::access_pool
@@ -991,7 +1005,7 @@ void MOS::access_pool
 {
     fname = "access_pool";
 
-    if ( trace_pools )
+    if ( trace_pools >= 1 )
         cout << "TRACE: access_pool ( "
 	     << pages << ", 0x" << hex
 	     << (min::unsptr) start << " )"
@@ -1009,25 +1023,29 @@ void MOS::access_pool
 	exit ( 2 );
     }
 
-    if ( trace_pools || create_compare )
-	read_used_pools();
-    if ( trace_pools )
+    if ( trace_pools >= 2 )
     {
-        cout << "MEMORY MAP BEFORE PERMISSION CHANGE:"
-	     << endl;
-	dump_used_pools();
+	read_used_pools();
+	if ( trace_pools >= 3 )
+	{
+	    cout << "MEMORY MAP BEFORE PERMISSION"
+	            " CHANGE:" << endl;
+	    dump_used_pools();
+	}
     }
+    else if ( create_compare )
+	read_used_pools();
 
     renew ( start, size );
 
-    if ( trace_pools || create_compare )
-	compare_pools();
-
-    if ( trace_pools )
+    if ( trace_pools >= 2 )
     {
+	compare_pools();
         cout << "MADE ACCESSIBLE: "
 	     << used_pool ( pages, start )
 	     << endl;
 	dump_compare_pools();
     }
+    else if ( create_compare )
+	compare_pools();
 }

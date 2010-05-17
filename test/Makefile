@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@deas.harvard.edu)
-# Date:		Mon Feb 15 10:17:46 EST 2010
+# Date:		Mon May 17 11:14:53 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2010/02/16 13:25:55 $
+#   $Date: 2010/05/17 15:15:09 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.31 $
+#   $Revision: 1.32 $
 
 # We need the following to mask RCS lines
 #
@@ -166,6 +166,11 @@ min_os_test.dump:	\
 min_os_test.dump:	min_os_test
 	rm -f min_os_test.out
 	${RUNENV} min_os_test dump
+
+min_acc_test.out:	\
+	RUNENV = \
+	    MIN_CONFIG="debug=pm"
+
 
 ${INTERFACE_PROGRAMS}:		\
 		min_interface_test.cc ../src/min.cc \

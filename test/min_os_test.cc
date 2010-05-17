@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Aug 23 09:28:44 EDT 2009
+// Date:	Mon May 17 10:56:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/08/23 14:45:28 $
+//   $Date: 2010/05/17 15:15:10 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents:
 //
@@ -476,7 +476,7 @@ int main ( int argc, const char ** argv )
     cout << endl
          << "Start Memory Management Test" << endl;
 
-    MOS::trace_pools = false;
+    MOS::trace_pools = 0;
     create_compare = true;
 
     void * lower = (void *) 0x00FF0000;
@@ -564,7 +564,7 @@ int main ( int argc, const char ** argv )
     // Find largest size of memory that can be
     // allocated.
     //
-    MOS::trace_pools = false;
+    MOS::trace_pools = 0;
     {
         unsigned n = 0;
 	while ( true )
