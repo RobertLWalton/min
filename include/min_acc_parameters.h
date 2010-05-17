@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 10 06:31:10 EDT 2010
+// Date:	Mon May 17 11:17:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/16 14:57:24 $
+//   $Date: 2010/05/17 15:17:34 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents
 //
@@ -43,6 +43,9 @@
 //
 //	p   Trace parameter value changes.
 //	m   Trace memory pool allocations.
+//	M   Ditto with memory map changes.
+//	D   Ditto with memory map dumps before
+//	    operations.
 //	f   Trace fixed size block free list
 //	    augmentations.
 //	v   Trace variable size block allocations.

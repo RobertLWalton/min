@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 16 05:38:04 EDT 2010
+// Date:	Mon May 17 10:57:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/16 15:00:12 $
+//   $Date: 2010/05/17 15:14:35 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.30 $
+//   $Revision: 1.31 $
 
 // Table of Contents:
 //
@@ -54,7 +54,8 @@ using std::setw;
 static bool trace_parameters = false;
 static bool trace_fixed_block_allocation = false;
 static bool trace_variable_block_allocation = false;
-// MOS::trace_pools traces all pool related allocations.
+// MOS::trace_pools >= 1 traces all pool related
+// allocations.
 
 // Find the number of characters in a string before
 // the first white space or end of string.
@@ -198,7 +199,13 @@ void MINT::acc_initializer ( void )
 	        trace_variable_block_allocation = true;
 		break;
 	    case 'm':
-	        MOS::trace_pools = true;
+	        MOS::trace_pools = 1;
+		break;
+	    case 'M':
+	        MOS::trace_pools = 2;
+		break;
+	    case 'D':
+	        MOS::trace_pools = 3;
 		break;
 	    default:
 	        cout << "ERROR: cannot understand debug"
@@ -232,8 +239,9 @@ min::stub * MACC::stub_end;
 
 static void stub_allocator_initializer ( void )
 {
-    if ( MOS::trace_pools )
-        cout << "stub_allocator_initializer()" << endl;
+    if ( MOS::trace_pools >= 1 )
+        cout << "TRACE: stub_allocator_initializer()"
+	     << endl;
 
     get_param ( "max_stubs",
                 MACC::max_stubs, 1000,
@@ -405,8 +413,9 @@ static void allocate_new_superregion ( void );
 
 static void block_allocator_initializer ( void )
 {
-    if ( MOS::trace_pools )
-        cout << "block_allocator_initializer()" << endl;
+    if ( MOS::trace_pools >= 1 )
+        cout << "TRACE: block_allocator_initializer()"
+	     << endl;
 
     get_param ( "space_factor",
                 MACC::space_factor, 8,
@@ -464,8 +473,8 @@ static void block_allocator_initializer ( void )
 static MACC::region * new_multi_page_block_region
 	( min::unsptr size, int type )
 {
-    if ( MOS::trace_pools )
-        cout << "new_multi_page_block_region ("
+    if ( MOS::trace_pools >= 1 )
+        cout << "TRACE: new_multi_page_block_region ("
 	     << size << ", " << type << ")" << endl;
         
     min::unsptr pages = number_of_pages ( size );
@@ -504,8 +513,9 @@ static MACC::region * new_multi_page_block_region
 //
 static void allocate_new_superregion ( void )
 {
-    if ( MOS::trace_pools )
-        cout << "allocate_new_superregion()" << endl;
+    if ( MOS::trace_pools >= 1 )
+        cout << "TRACE: allocate_new_superregion()"
+	     << endl;
         
     MACC::region * r = new_multi_page_block_region
 	( MACC::superregion_size,

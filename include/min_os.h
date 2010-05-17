@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 16 07:12:41 EDT 2010
+// Date:	Mon May 17 09:58:25 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/16 11:15:19 $
+//   $Date: 2010/05/17 15:14:07 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents
 //
@@ -156,11 +156,17 @@ namespace min { namespace os {
     void access_pool
         ( min::uns64 pages, void * start );
 
-    // If the following switch is set to true, a trace
-    // is printed of each of the above operations.  The
-    // default is false.
+    // The following switch determines whether trace
+    // information is printed by each of the above
+    // operations.  The settings are:
     //
-    extern bool trace_pools;
+    //		0	Nothing printed.
+    //		>= 1	Calls printed.
+    //		>= 2	Changes to memory maps printed.
+    //		>= 3	Before and after memory maps
+    //			printed.
+    //
+    extern unsigned trace_pools;
 
 } }
 
