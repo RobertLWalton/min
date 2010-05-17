@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 15 09:50:18 EDT 2010
+// Date:	Sun May 16 16:26:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/15 13:52:49 $
+//   $Date: 2010/05/17 01:39:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.322 $
+//   $Revision: 1.323 $
 
 // Table of Contents:
 //
@@ -1642,8 +1642,8 @@ namespace min {
 
 namespace min { namespace internal {
 
-    // Function called by the the initializer (see
-    // `Initialization' above) to initialize the acc.
+    // Function called by the initializer (see `Initial-
+    // ization' above) to initialize the acc.
     //
     void acc_initializer ( void );
 
@@ -1705,27 +1705,24 @@ namespace min { namespace internal {
     //
     //	Bit		Use
     //
-    //	0		Fixed Body Flag
+    //	0		    Fixed Body Flag
     //
-    //	1		Reserved
+    //	1		    Reserved
     //
-    //	2, 4, 6, ...	Unmarked Flags
+    //	2, ..., 2+p-1	    Flag Pair Low Order Bits
     //
-    //	3, 5, 7, ...	Scavenged Flags
-
-    // Collector flags.
+    //	2+p, ..., 2+2p-1    Flag Pair High Order Bits
+    //
+    // p = ACC_FLAG_PAIRS = number of flag pairs
+    //			  = ( MIN_ACC_FLAG_BITS - 2 ) / 2
     //
     const uns64 ACC_FLAG_MASK =
            ( (uns64(1) << MIN_ACC_FLAG_BITS) - 1 )
 	<< ( 56 - MIN_ACC_FLAG_BITS );
-    const uns64 ACC_SCAVENGED_MASK =
-    	  ACC_FLAG_MASK
-	& (    uns64(0xAAAAAAAAAA)
-	    << ( 56 - MIN_ACC_FLAG_BITS ) + 2 );
-    const uns64 ACC_UNMARKED_MASK =
-        ACC_SCAVENGED_MASK >> 1;
     const uns64 ACC_FIXED_BODY_FLAG =
 	( uns64(1) << ( 56 - MIN_ACC_FLAG_BITS ) );
+    const unsigned ACC_FLAG_PAIRS =
+        ( MIN_ACC_FLAG_BITS - 2 ) / 2;
 
 } }
 
@@ -1733,9 +1730,9 @@ namespace min { namespace internal {
 
     // acc_write_update ( s1, s2 ) checks whether
     //
-    //		unmarked flags of *s2
+    //		flags of *s2
     //		&
-    //		scavenged flags of *s1
+    //		( flags of *s1 >> ACC_FLAG_PAIRS )
     //		&
     //		acc_stack_mask
     //
@@ -1746,14 +1743,15 @@ namespace min { namespace internal {
     // the marks it makes on objects.
     //
     // For efficiency, acc_stack_mask is an uns64 that
-    // only has ON bits in the unmarked flag positions.
-    // Then the unshifted control value of s2 and the
-    // control value value of s1 right shifted by 1 can
-    // be bitwise ANDed with the acc_stack_mask and the
+    // only has ON bits in the appropriate flag pair
+    // positions.  Then the unshifted control value of
+    // s2 and the control value value of s1 right
+    // shifted by the number of flag pairs can be
+    // bitwise ANDed with the acc_stack_mask and the
     // result checked for zero.
     //
-    // WARNING: only unmarked flag bits may be on in
-    // MUP::acc_stack_mask.
+    // WARNING: only low order flag pair bits may be on
+    // in MUP::acc_stack_mask.
     //
     extern min::uns64 acc_stack_mask;
     extern min::stub ** acc_stack;
@@ -1865,14 +1863,15 @@ namespace min { namespace internal {
     // value.
 
     // Pointers to the first and last allocated stub.
+    //
     // The first garbage collectible stub is the
     // stub pointed at by the control word of the
     // first_allocated_stub (which is not itself
     // garbage collectible), and the last garbage
     // collectible stub is pointed at by last_allocated_
-    // stub (unless there are non garbage collectible
+    // stub (unless there are no garbage collectible
     // stubs, in which case last_allocated_stub equals
-    // first_allocated_stub.
+    // first_allocated_stub).
     //
     // First_allocated_stub may equal MINT::null_stub
     // for some system configurations.
@@ -1884,7 +1883,7 @@ namespace min { namespace internal {
     extern min::stub * first_allocated_stub;
     extern min::stub * last_allocated_stub;
 
-    // Flags of stub returned by new_acc_stub.
+    // ACC flags of stub returned by new_acc_stub.
     //
     extern min::uns64 new_acc_stub_flags;
 
@@ -1892,7 +1891,7 @@ namespace min { namespace internal {
 
 namespace min { namespace unprotected {
 
-    // Function to return the next free stub as a acc
+    // Function to return the next free stub as an acc
     // (garbage collectable) stub.  The type is set to
     // min::ACC_FREE and may be changed to any garbage
     // collectable type.  The value is NOT set.  The acc
@@ -1949,9 +1948,10 @@ namespace min { namespace unprotected {
 	return s;
     }
 
-    // Function to put a stub on the acc stub list right
-    // after the last allocated stub.  Stub must NOT be
-    // on the acc list (it should be an auxiliary stub).
+    // Function to put a stub on the acc free stub list
+    // right after the last allocated stub.  Stub must
+    // NOT be on the acc stub list (it should be an
+    // auxiliary stub).
     //
     // Note that stubs that have been previously
     // allocated are preferred for new stub allocations
@@ -2015,9 +2015,9 @@ namespace min { namespace internal {
 			// 1 << (j+3).
         min::unsptr count;
 			// Number of fixed blocks on the
-			// list.
+			// free list.
 	free_fixed_size_block * first;
-			// First fixed block on the
+			// First fixed block on the free
 			// list, or NULL if list empty.
 	fixed_block_list_extension * extension;
 			// Address of extension of this
