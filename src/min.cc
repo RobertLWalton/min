@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 17 12:55:46 EDT 2010
+// Date:	Wed May 19 14:34:48 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 12:40:29 $
+//   $Date: 2010/05/19 18:35:01 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.213 $
+//   $Revision: 1.214 $
 
 // Table of Contents:
 //
@@ -51,8 +51,6 @@ using std::endl;
 
 // Initialization
 // --------------
-
-min::unsptr MINT::min_fixed_block_size;
 
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
@@ -183,6 +181,10 @@ MINT::initializer::initializer ( void )
 	<<
 	MINT::log2ceil
 	    ( sizeof ( MINT::free_fixed_size_block ) );
+    MINT::max_fixed_block_size =
+        1
+	<<
+	MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
     MINT::acc_initializer();
 }
 
@@ -389,6 +391,7 @@ namespace min { namespace internal {
     MINT::fixed_block_list fixed_blocks
 	    [MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2];
 
+    min::unsptr min_fixed_block_size;
     min::unsptr max_fixed_block_size;
 
 } }

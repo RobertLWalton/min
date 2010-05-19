@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 19 08:39:01 EDT 2010
+// Date:	Wed May 19 14:32:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 12:42:46 $
+//   $Date: 2010/05/19 18:32:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.324 $
+//   $Revision: 1.325 $
 
 // Table of Contents:
 //
@@ -1730,7 +1730,8 @@ namespace min { namespace internal {
     //	2+p, ..., 2+2p-1    Flag Pair High Order Bits
     //
     // p = ACC_FLAG_PAIRS = number of flag pairs
-    //			  = ( MIN_ACC_FLAG_BITS - 2 ) / 2
+    //			  = ( MIN_ACC_FLAG_BITS - 2 )
+    //			    / 2
     //
     const uns64 ACC_FLAG_MASK =
            ( (uns64(1) << MIN_ACC_FLAG_BITS) - 1 )
