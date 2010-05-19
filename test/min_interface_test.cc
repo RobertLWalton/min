@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 15 09:51:24 EDT 2010
+// Date:	Wed May 19 14:42:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/15 13:52:16 $
+//   $Date: 2010/05/19 18:45:17 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.175 $
+//   $Revision: 1.176 $
 
 // Table of Contents:
 //
@@ -278,15 +278,6 @@ void initialize_body_region ( void )
     min::unsptr n = ( stp - p ) / 8;
     p += 8 * n;
     end_body_region = (min::uns64 *) p;
-
-    for ( min::unsptr j = 0;
-          j < MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2;
-	  ++ j )
-    {
-	MINT::fixed_blocks[j].size = 1 << ( j + 3 );
-	MINT::fixed_blocks[j].count = 0;
-	MINT::fixed_blocks[j].first = NULL;
-    }
     next_body = begin_body_region;
 }
 
