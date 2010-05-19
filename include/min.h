@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 16 16:26:47 EDT 2010
+// Date:	Wed May 19 08:39:01 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 01:39:02 $
+//   $Date: 2010/05/19 12:42:46 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.323 $
+//   $Revision: 1.324 $
 
 // Table of Contents:
 //
@@ -70,6 +70,22 @@
 
 #define MIN_ABORT(string) assert ( ! string )
 #define MIN_REQUIRE(expr) assert ( expr )
+
+namespace min { namespace internal {
+
+    // Return j such that (1<<(j-1)) < u <= (1<<j),
+    // assuming 0 < u <= (1<<31).
+    //
+    inline unsigned log2ceil ( unsigned u )
+    {
+        assert ( u != 0 );
+        return u == 1 ? 0
+	              : 1 + log2floor ( u - 1 );
+    }
+
+} }
+
+
 
 // Initialization
 // --------------
@@ -1891,6 +1907,16 @@ namespace min { namespace internal {
 
 namespace min { namespace unprotected {
 
+    // Counters for statistics only.  Incremented when-
+    // ever an acc or aux stub is allocated or freed.
+    // The number of current acc or aux stubs is the
+    // number allocated minus the number freed.
+    //
+    extern min::uns64 acc_stubs_allocated;
+    extern min::uns64 acc_stubs_freed;
+    extern min::uns64 aux_stubs_allocated;
+    extern min::uns64 aux_stubs_freed;
+
     // Function to return the next free stub as an acc
     // (garbage collectable) stub.  The type is set to
     // min::ACC_FREE and may be changed to any garbage
@@ -1905,7 +1931,10 @@ namespace min { namespace unprotected {
 	        ::number_of_free_stubs == 0 )
 	    min::internal
 	       ::acc_expand_stub_free_list ( 1 );
+
 	-- min::internal::number_of_free_stubs;
+	++ min::unprotected::acc_stubs_allocated;
+
 	uns64 c = min::unprotected::control_of
 			( min::internal
 			     ::last_allocated_stub );
@@ -1930,7 +1959,10 @@ namespace min { namespace unprotected {
 	        ::number_of_free_stubs == 0 )
 	    min::internal
 	       ::acc_expand_stub_free_list ( 1 );
+
 	-- min::internal::number_of_free_stubs;
+	++ min::unprotected::aux_stubs_allocated;
+
 	uns64 c = min::unprotected::control_of
 			( min::internal
 			     ::last_allocated_stub );
@@ -1975,6 +2007,7 @@ namespace min { namespace unprotected {
 		( min::internal
 		     ::last_allocated_stub, c );
 	++ min::internal::number_of_free_stubs;
+	++ min::unprotected::aux_stubs_freed;
     }
 
 } }
@@ -2074,12 +2107,12 @@ namespace min { namespace unprotected {
 	     return;
 	}
 
-	// See min_parameters.h for fixed_bodies_log.
+	// See min_parameters.h for log2floor.
 	//
 	m = m - 1;
 	min::internal::fixed_block_list * fbl =
 		  min::internal::fixed_blocks
-		+ min::internal::fixed_bodies_log ( m )
+		+ min::internal::log2floor ( m )
 		+ 1 - 3;
 
 	if ( fbl->count == 0 )

@@ -2,7 +2,7 @@
 //
 // File:	min_builtin_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Nov  8 08:00:37 EST 2009
+// Date:	Wed May 19 08:37:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/11/08 13:26:39 $
+//   $Date: 2010/05/19 12:42:24 $
 //   $RCSfile: min_builtin_test.cc,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // Table of Contents:
 //
@@ -48,13 +48,11 @@ int main ()
     for ( int i = 0; i <= 30; ++ i )
     {
 	assert
-	  ( min::internal
-	       ::fixed_bodies_log ( 1u << i )
+	  ( min::internal ::log2floor ( 1u << i )
 	    == i );
 	assert
 	  ( min::internal
-	       ::fixed_bodies_log
-	           ( ( 1u << ( i + 1 ) ) - 1 )
+	       ::log2floor ( ( 1u << ( i + 1 ) ) - 1 )
 	    == i );
     }
 

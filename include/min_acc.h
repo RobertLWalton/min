@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 16 16:31:23 EDT 2010
+// Date:	Wed May 19 08:39:13 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 01:39:03 $
+//   $Date: 2010/05/19 12:42:46 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.40 $
+//   $Revision: 1.41 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -126,6 +126,7 @@ namespace min { namespace acc {
     // for larger pointer sizes, as reserving virtual
     // memory may consume system resources proportional
     // to the size of the reserved memory.
+
 } }
 
 
@@ -633,7 +634,8 @@ namespace min { namespace acc {
 	// segments are currently being allocated.
 
     // Sizes of various kinds of region and size limits
-    // on their contents, in bytes:
+    // on their contents, in bytes.  See min_acc_
+    // parameters.h for defaults.
 
     extern min::unsptr subregion_size;
         // The size of fixed size block and variable
@@ -647,23 +649,24 @@ namespace min { namespace acc {
         // Normal size of superregion.  Superregions
 	// may be as small as subregion_size if there
 	// is a memory shortage.  Must be multiple of
-	// page size.
-
-    extern min::unsptr paged_body_region_size;
-        // Size of paged body regions.  Must be multiple
-	// of page size.
+	// subregion_size.
 
     extern min::unsptr max_paged_body_size;
         // Maximum size of a paged body.  Must be
 	// multiple of page size.
 
-    extern min::unsptr stub_stack_region_size;
-        // Size of stub stack regions.  Must be multiple
-	// of MACC::stub_stack_segment_size.
+    extern min::unsptr paged_body_region_size;
+        // Size of paged body regions used for bodies
+	// (and not for subregions or stack segments).
+	// Must be multiple of page size.
 
     extern min::unsptr stub_stack_segment_size;
         // Size of a stub stack segment.  Must be a
 	// multiple of the page size.
+
+    extern min::unsptr stub_stack_region_size;
+        // Size of stub stack regions.  Must be multiple
+	// of MACC::stub_stack_segment_size.
 
 } }    
 

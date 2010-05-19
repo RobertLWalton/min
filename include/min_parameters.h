@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Feb 12 08:25:38 EST 2010
+// Date:	Wed May 19 08:41:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/02/12 13:31:54 $
+//   $Date: 2010/05/19 12:42:46 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.48 $
+//   $Revision: 1.49 $
 
 // Table of Contents
 //
@@ -268,13 +268,12 @@
 // size.  The logrithm base 2 of the size is used as the
 // size of a table.
 //
-// May NOT be larger than 1 << 33 so that fixed_bodies_
-// log may be used on MIN_ABSOLUTE_MAX_FIXED_BLOCK_
-// SIZE/8.
+// May NOT be larger than 1 << 33 so that log2floor may
+// be used on MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE/8.
 //
 # define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG 30
 # define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE \
-         ( 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG )
+     ( 1ull << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG )
 
 // Hardware Functions
 // -------- ---------
@@ -292,7 +291,7 @@ namespace min { namespace internal {
     // Return j such that (1<<j) <= u < (1<<(j+1)),
     // assuming 0 < u <= (1<<31)-1.
     //
-    inline unsigned fixed_bodies_log ( unsigned u )
+    inline unsigned log2floor ( unsigned u )
     {
 #   if MIN_USE_GNUC_BUILTINS
 	return   8 * sizeof ( unsigned ) - 1

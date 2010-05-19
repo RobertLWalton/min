@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 15 09:50:05 EDT 2010
+// Date:	Mon May 17 12:55:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/15 13:52:33 $
+//   $Date: 2010/05/19 12:40:29 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.212 $
+//   $Revision: 1.213 $
 
 // Table of Contents:
 //
@@ -181,10 +181,8 @@ MINT::initializer::initializer ( void )
     MINT::min_fixed_block_size =
         1
 	<<
-	( MINT::fixed_bodies_log
-		( sizeof ( MINT::free_fixed_size_block )
-		  - 1 )
-	  + 1 );
+	MINT::log2ceil
+	    ( sizeof ( MINT::free_fixed_size_block ) );
     MINT::acc_initializer();
 }
 
@@ -396,6 +394,11 @@ namespace min { namespace internal {
 } }
 
 namespace min { namespace unprotected {
+
+    min::uns64 acc_stubs_allocated = 0;
+    min::uns64 acc_stubs_freed = 0;
+    min::uns64 aux_stubs_allocated = 0;
+    min::uns64 aux_stubs_freed = 0;
 
     min::stub * resize_body::last_allocated;
 
