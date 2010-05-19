@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 17 11:17:21 EDT 2010
+// Date:	Tue May 18 18:50:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 15:17:34 $
+//   $Date: 2010/05/19 12:42:46 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.10 $
+//   $Revision: 1.11 $
 
 // Table of Contents
 //
@@ -144,6 +144,40 @@
 #    define MIN_DEFAULT_CACHE_LINE_SIZE 256
 # endif
 
+// Parameters not usually changed.  F = space_factor.
+//
+// subregion_size
+//
+//   Size of variable size block and fixed size block
+//   regions.  Default: F**2 * page_size.
+//
+// superregion_size
+//
+//   Size of superregion; should be multiple of size of
+//   subregion.  Default: 64 * subregion_size.
+//
+// max_paged_body_size
+//
+//   Maximum size of body allocated to a paged body
+//   region.  Default: F**2 * page_size.
+//
+// paged_body_region_size
+//
+//   Normal size of a paged body region.  Default:
+//   F * max_paged_body_size.
+//
+// stub_stack_segment_size
+//
+//   Size of stub stack segments.  A stub stack holds
+//   stub pointers for the Collector and consists of
+//   a list of stub stack segments each holding
+//   about stub_stack_segment_size/8 pointers.
+//   Default:: 4 * page_size.
+//
+// stub_stack_region_size
+//
+//   Size of stub stack region.  Default:
+//   16 * stub_stack_segment_size.
 
 
 // Collector Parameters

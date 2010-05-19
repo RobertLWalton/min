@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 17 10:57:22 EDT 2010
+// Date:	Wed May 19 00:57:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 15:14:35 $
+//   $Date: 2010/05/19 12:40:29 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.31 $
+//   $Revision: 1.32 $
 
 // Table of Contents:
 //
@@ -67,15 +67,28 @@ static int before_space ( const char * p )
     return ( q - p );
 }
 
+// Convert a size in number of bytes into a size in
+// number of pages, rounding up.
+//
+static min::unsptr page_size;
+inline min::unsptr number_of_pages
+    ( min::unsptr number_of_bytes )
+{
+    return ( number_of_bytes + page_size - 1 )
+           / page_size;
+}
+
 // Get and set parameter.  Return false if nothing
 // done and true if parameter set.  Announce error
 // and exit program if parameter too small, too
-// large, or not a power of two when that is required.
+// large, not a multiple of `unit', or not a power
+// of two when that is required.
 //
 static bool get_param
 	( const char * name, min::int64 & parameter,
 	  min::int64 minimum = 0,
 	  min::int64 maximum = 0x7FFFFFFFFFFFFFFFll,
+	  min::int64 unit = 1,
 	  bool power_of_two = false,
 	  bool trace = trace_parameters )
 {
@@ -106,6 +119,13 @@ static bool get_param
 	     << v << " > " << maximum << endl;
 	exit ( 1 );
     }
+    if ( v % unit != 0 )
+    {
+        cout << "ERROR: " << name
+	     << " program parameter " << v
+	     << " not a multiple of " << unit << endl;
+	exit ( 1 );
+    }
     if ( power_of_two
          &&
 	 ( v & ( v - 1 ) ) != 0 )
@@ -131,6 +151,7 @@ static bool get_param
 	( const char * name, min::unsptr & parameter,
 	  min::unsptr minimum = 0,
 	  min::unsptr maximum = 0x7FFFFFFFFFFFFFFFull,
+	  min::unsptr unit = 1,
 	  bool power_of_two = false,
 	  bool trace = trace_parameters )
 {
@@ -138,7 +159,7 @@ static bool get_param
     min::int64 v;
     if ( ! get_param ( name, v,
                        minimum, maximum,
-		       power_of_two, trace ) )
+		       unit, power_of_two, trace ) )
          return false;
     parameter = (min::unsptr) v;
     return true;
@@ -152,29 +173,19 @@ static bool get_param
 	( const char * name, unsigned & parameter,
 	  unsigned minimum = 0,
 	  unsigned maximum = 0xFFFFFFFFu,
+	  unsigned unit = 1,
 	  bool power_of_two = false,
 	  bool trace = trace_parameters )
 {
     min::int64 v;
     if ( ! get_param ( name, v,
                        minimum, maximum,
-		       power_of_two, trace ) )
+		       unit, power_of_two, trace ) )
          return false;
     parameter = (unsigned) v;
     return true;
 }
 #endif
-
-// Convert a size in number of bytes into a size in
-// number of pages, rounding up.
-//
-static min::unsptr page_size;
-inline min::unsptr number_of_pages
-    ( min::unsptr number_of_bytes )
-{
-    return ( number_of_bytes + page_size - 1 )
-           / page_size;
-}
 
 static void stub_allocator_initializer ( void );
 static void block_allocator_initializer ( void );
@@ -417,17 +428,67 @@ static void block_allocator_initializer ( void )
         cout << "TRACE: block_allocator_initializer()"
 	     << endl;
 
+    // Set parameters.
+
     get_param ( "space_factor",
                 MACC::space_factor, 8,
 		( MIN_POINTER_BITS <= 32 ? 32 : 256 ),
-		true );
+		1, true );
+
+    min::unsptr F = MACC::space_factor;
+
     get_param ( "cache_line_size",
                 MACC::cache_line_size,
-		8, 4096, true );
+		8, 4096, 1, true );
 
-    MACC::subregion_size = MACC::space_factor
-                         * MACC::space_factor
-	                 * page_size;
+    MACC::subregion_size = F * F * page_size;
+    get_param ( "subregion_size",
+                MACC::subregion_size,
+		4 * F * page_size,
+		F * F * F * page_size,
+		page_size );
+
+    MACC::superregion_size = 64 * MACC::subregion_size;
+    get_param ( "superregion_size",
+                MACC::superregion_size,
+		MACC::subregion_size,
+		( MIN_POINTER_BITS <= 32 ?
+		  1 << 28 : 1ull << 44 ),
+		MACC::subregion_size );
+
+    MACC::max_paged_body_size = F * F * page_size;
+    get_param ( "max_paged_body_size",
+                MACC::max_paged_body_size,
+		0,
+		( MIN_POINTER_BITS <= 32 ?
+		  1 << 24 : 1ull << 32 ),
+		page_size );
+
+    MACC::paged_body_region_size =
+        F * MACC::max_paged_body_size;
+    get_param ( "paged_body_region_size",
+                MACC::paged_body_region_size,
+		MACC::max_paged_body_size,
+		( MIN_POINTER_BITS <= 32 ?
+		  1 << 28 : 1ull << 44 ),
+		page_size );
+
+    MACC::stub_stack_segment_size = 4 * page_size;
+    get_param ( "stub_stack_segment_size",
+                MACC::stub_stack_segment_size,
+		page_size, 64 * page_size,
+		page_size );
+
+    MACC::stub_stack_region_size =
+        16 * MACC::stub_stack_segment_size;
+    get_param ( "stub_stack_region_size",
+                MACC::stub_stack_region_size,
+		MACC::stub_stack_segment_size,
+		64 * MACC::stub_stack_segment_size,
+		page_size );
+
+    if ( MINT::max_fixed_block_size > F * page_size )
+	MINT::max_fixed_block_size = F * page_size;
 
     // We allocate a maximum sized region table, on the
     // grounds that it is < 4 megabytes, its silly not
@@ -454,15 +515,6 @@ static void block_allocator_initializer ( void )
     MACC::region_end =
           MACC::region_table
 	+ MACC::MAX_MULTI_PAGE_BLOCK_REGIONS;
-
-    min::unsptr M = 0;
-    for ( min::unsptr t =
-              MACC::space_factor * page_size;
-    	  t >= 2; t /= 2 ) ++ M;
-    MACC::superregion_size = (min::unsptr) M
-                           * MACC::space_factor
-			   * MACC::space_factor
-			   * page_size;
 
     allocate_new_superregion();
 }
