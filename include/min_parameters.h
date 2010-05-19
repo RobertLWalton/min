@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 19 08:41:49 EDT 2010
+// Date:	Wed May 19 14:30:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 12:42:46 $
+//   $Date: 2010/05/19 18:32:05 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.49 $
+//   $Revision: 1.50 $
 
 // Table of Contents
 //
@@ -226,7 +226,8 @@
 	      + MIN_MAX_RELATIVE_STUB_ADDRESS )
 #   else
 #	define MIN_MAX_ABSOLUTE_STUB_ADDRESS \
-	   ( MIN_IS_COMPACT && MIN_POINTERS <= 32 ? \
+	   (    MIN_IS_COMPACT \
+	     && MIN_POINTER_BITS <= 32 ? \
 	       0xDFFFFFFFull : \
 	     MIN_POINTER_BITS <= 32 ? 0xFFFFFFFFull : \
 	     ( ( 1ull << 48 ) - 1 ) )
