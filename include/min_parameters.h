@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 19 14:30:41 EDT 2010
+// Date:	Wed May 19 14:34:08 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 18:32:05 $
+//   $Date: 2010/05/19 18:34:21 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.50 $
+//   $Revision: 1.51 $
 
 // Table of Contents
 //
@@ -271,6 +271,8 @@
 //
 // May NOT be larger than 1 << 33 so that log2floor may
 // be used on MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE/8.
+// May NOT be larger than 1 << 30 if pointers are only
+// 32 bits long.
 //
 # define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG 30
 # define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE \
