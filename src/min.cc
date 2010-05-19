@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 19 14:34:48 EDT 2010
+// Date:	Wed May 19 14:44:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 18:35:01 $
+//   $Date: 2010/05/19 18:45:08 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.214 $
+//   $Revision: 1.215 $
 
 // Table of Contents:
 //
@@ -176,6 +176,16 @@ MINT::initializer::initializer ( void )
 		 v2p[3*little_endian] );
 #   endif
 
+    for ( unsigned j = 0;
+          j < MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2;
+	  ++ j )
+    {
+        MINT::fixed_blocks[j].size = 1 << ( j + 3 );
+        MINT::fixed_blocks[j].count = 0;
+        MINT::fixed_blocks[j].first = NULL;
+        MINT::fixed_blocks[j].extension = NULL;
+    }
+
     MINT::min_fixed_block_size =
         1
 	<<
@@ -185,6 +195,7 @@ MINT::initializer::initializer ( void )
         1
 	<<
 	MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
+
     MINT::acc_initializer();
 }
 
