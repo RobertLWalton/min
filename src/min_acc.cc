@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 19 00:57:49 EDT 2010
+// Date:	Thu May 20 11:56:01 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 12:40:29 $
+//   $Date: 2010/05/20 17:03:33 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.32 $
+//   $Revision: 1.33 $
 
 // Table of Contents:
 //
@@ -409,16 +409,18 @@ min::unsptr MACC::stub_stack_segment_size;
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
 MACC::region * MACC::region_end;
+
 MACC::region * MACC::last_superregion = NULL;
+MACC::region * MACC::last_free_subregion = NULL;
 MACC::region * MACC::last_variable_body_region = NULL;
 MACC::region * MACC::last_paged_body_region = NULL;
 MACC::region * MACC::last_mono_body_region = NULL;
 MACC::region * MACC::last_stub_stack_region = NULL;
 MACC::region * MACC::current_stub_stack_region = NULL;
 
-MACC::region *
-    MACC::last_free_subregion = NULL;
-
+static MINT::fixed_block_list_extension
+    fixed_block_extensions
+	[MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2];
 
 static void allocate_new_superregion ( void );
 
@@ -517,6 +519,18 @@ static void block_allocator_initializer ( void )
 	+ MACC::MAX_MULTI_PAGE_BLOCK_REGIONS;
 
     allocate_new_superregion();
+
+    for ( unsigned j = 0;
+          j < MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2;
+	  ++ j )
+    {
+        MINT::fixed_blocks[j].extension =
+	    fixed_block_extensions + j;
+        fixed_block_extensions[j].fbl =
+	    MINT::fixed_blocks + j;
+        fixed_block_extensions[j].last_region = NULL;
+        fixed_block_extensions[j].current_region = NULL;
+    }
 }
 
 // Allocate a new multi-page region with the given
@@ -528,13 +542,19 @@ static MACC::region * new_multi_page_block_region
     if ( MOS::trace_pools >= 1 )
         cout << "TRACE: new_multi_page_block_region ("
 	     << size << ", " << type << ")" << endl;
-        
+
+    // Round up to a multiple of the page size and
+    // allocate.
+    //
     min::unsptr pages = number_of_pages ( size );
     size = pages * page_size;
     void * m = MOS::new_pool ( pages );
+
     const char * error = MOS::pool_error ( m );
     if ( error != NULL ) return NULL;
 
+    // Allocate region struct and fill it in.
+    //
     if ( MACC::region_next == MACC::region_end )
     {
         cout << "ERROR: trying to allocate more than "
@@ -568,7 +588,10 @@ static void allocate_new_superregion ( void )
     if ( MOS::trace_pools >= 1 )
         cout << "TRACE: allocate_new_superregion()"
 	     << endl;
-        
+
+    // Allocate as multi page block region.  If not the
+    // first superregion, try downsizing if necessary.
+    //
     MACC::region * r = new_multi_page_block_region
 	( MACC::superregion_size,
 	  MACC::SUPERREGION );
@@ -580,17 +603,20 @@ static void allocate_new_superregion ( void )
 	r = new_multi_page_block_region
 	        ( MACC::subregion_size,
 		  MACC::SUPERREGION );
+
     if ( r == NULL )
     {
         if ( MACC::last_superregion == NULL )
 	    cout << "ERROR: could not allocate "
-		 << ( MACC::subregion_size
+		 << ( MACC::superregion_size
 		      / page_size )
 		 << " page initial heap." << endl;
 	else
 	    cout << "ERROR: out of virtual memory"
-	            " trying to allocate superregion."
-	         << endl;
+	            " trying to allocate "
+		 << ( MACC::subregion_size
+		      / page_size )
+	         << " page subregion." << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
@@ -604,6 +630,12 @@ void MINT::new_fixed_body
 {
     MINT::fixed_block_list_extension * fblext =
         fbl->extension;
+
+    // Search current region and then next regions
+    // in the circular list of regions until one
+    // found with free blocks, and return it as r.
+    // But set r = NULL if no region has free blocks.
+    //
     MACC::region * r = fblext->current_region;
     while ( r != NULL )
     {
@@ -612,37 +644,41 @@ void MINT::new_fixed_body
 	r = r->region_next;
 	if ( r == fblext->current_region ) r = NULL;
     }
+
     if ( r == NULL )
     {
 	MACC::region * sr;	// Superregion of r.
 
+	// Allocate new subregion.
+	//
         r = MACC::last_free_subregion;
 	if ( r != NULL )
 	{
+	    // Found new subregion on the list of free
+	    // subregions.
+
 	    int locator = MUP::locator_of_control
 	                       ( r->block_control );
 	    sr = MACC::region_table + locator;
 	    assert ( MACC::region_table <= sr
 	             &&
-		     sr < MACC::region_end );
+		     sr < MACC::region_next );
 
-	    if ( r == r->region_previous )
-		MACC::last_free_subregion = NULL;
-	    else
-	    {
-		MACC::last_free_subregion =
-		    r->region_previous;
-		MACC::remove ( r );
-	    }
+	    MACC::remove
+	        ( MACC::last_free_subregion, r );
 	}
 	else
 	{
+	    // Try to allocate to last superregion.
+	    //
 	    MACC::region * sr = MACC::last_superregion;
 	    min::uns8 * new_next = sr->next
 	                         + MACC::subregion_size;
 
 	    if ( new_next > sr->end )
 	    {
+		// Need a new superregion.
+
 	        allocate_new_superregion();
 		sr = MACC::last_superregion;
 		new_next = sr->next
@@ -654,6 +690,9 @@ void MINT::new_fixed_body
 	    sr->next = new_next;
 	}
 
+	// Fill in region struct at beginning of new
+	// region.
+
 	r->block_control =
 	    MUP::new_control_with_locator
 	        ( sr - MACC::region_table,
@@ -663,6 +702,13 @@ void MINT::new_fixed_body
 	        ( MACC::FIXED_SIZE_BLOCK_REGION,
 		  MACC::subregion_size );
 
+	// Set the region to begin at the next block
+	// sized boundary if this is <= the cache line
+	// size, or at the next cache line boundary
+	// otherwise.  Set the end to the maximum
+	// integral number of block sizes after the
+	// beginning in the region.
+	//
 	min::unsptr s = fbl->size;
 	if ( s > MACC::cache_line_size )
 	    s = MACC::cache_line_size;
@@ -679,18 +725,23 @@ void MINT::new_fixed_body
 		  
 	r->block_size = fbl->size;
 	r->free_count = 0;
-	r->region_previous = r->region_next = r;
-	if ( fblext->current_region != NULL )
-	    MACC::insert_after
-	        ( r, fblext->current_region );
-
 	r->free_first = r->free_last = NULL;
+
+	// Insert the region at the end of the fixed
+	// size region list of the given block size.
+	//
+	r->region_previous = r->region_next = r;
+	MACC::insert_after ( fblext->last_region, r );
     }
 
+    // Make the found region current.
+    //
     fblext->current_region = r;
 
     if ( r->free_count > 0 )
     {
+        // Move region free list to fbl.
+	//
         fbl->count = r->free_count;
 	fbl->first = r->free_first;
 	r->free_count = 0;
@@ -708,8 +759,7 @@ void MINT::new_fixed_body
 	{
 	    if ( r->next + fbl->size > r->end )
 	    {
-		assert
-		    ( r->next + fbl->size == r->end );
+		assert ( r->next == r->end );
 		break;
 	    }
 
@@ -731,11 +781,15 @@ void MINT::new_fixed_body
 	    r->next += fbl->size;
 	    ++ fbl->count;
 	}
-	if ( last != NULL ) last->next = NULL;
+	assert ( last != NULL );
+	last->next = NULL;
     }
 
     assert ( fbl->count > 0 );
 
+    // Allocate first block from refurbished fbl free
+    // list.
+    //
     MINT::free_fixed_size_block * b = fbl->first;
     fbl->first = b->next;
     -- fbl->count;
@@ -1041,6 +1095,9 @@ void MACC::stub_stack::flush ( void )
 
 unsigned MACC::ephemeral_levels =
     MIN_DEFAULT_EPHEMERAL_LEVELS;
+min::unsptr  MACC::acc_stack_size;
+min::stub ** MACC::acc_stack_begin;
+min::stub ** MACC::acc_stack_end;
 
 static void collector_initializer ( void )
 {

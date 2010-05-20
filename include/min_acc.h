@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 19 08:39:13 EDT 2010
+// Date:	Thu May 20 11:53:59 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 12:42:46 $
+//   $Date: 2010/05/20 17:03:47 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.41 $
+//   $Revision: 1.42 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -565,8 +565,8 @@ namespace min { namespace acc {
 	region1->region_next = region1;
     }
 
-    // Remove region1 from the end of the doubly linked
-    // list whose last member is pointed at by `last'.
+    // Remove region1 from the doubly linked list whose
+    // last member is pointed at by `last'.
     //
     inline void remove
         ( region * & last, region * region1 )
@@ -681,9 +681,9 @@ namespace min { namespace internal {
 	    // fbl->size is size in bytes of fixed
 	    // blocks controlled by this struct.
 
-	MACC::region * first_region;
+	MACC::region * last_region;
 	MACC::region * current_region;
-	    // First region from which free blocks are
+	    // Last region from which free blocks are
 	    // being allocated, and current region from
 	    // which free blocks are being allocated,
 	    // in the list of all fixed block regions
@@ -1278,6 +1278,22 @@ namespace min { namespace acc {
     //
     extern unsigned ephemeral_levels;
     extern unsigned * ephemeral_sublevels;
+
+    // The acc stack is separately allocated from the
+    // memory pool, and is not a stub stack allocated
+    // by the garbage collector.  This is because there
+    // is no means to switch acc stack segments, and the
+    // acc stack can always be emptied, which will often
+    // move its pointers to to-be-scavenged or root
+    // stacks.
+    //
+    extern min::stub ** acc_stack_begin;
+    extern min::stub ** acc_stack_end;
+
+    // Size in bytes of the acc stack.  Must be a
+    // multiple of the page size.
+    //
+    extern min::unsptr acc_stack_size;
 
 } }
 
