@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 20 11:56:01 EDT 2010
+// Date:	Fri May 21 04:51:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/20 17:03:33 $
+//   $Date: 2010/05/21 08:51:52 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.33 $
+//   $Revision: 1.34 $
 
 // Table of Contents:
 //
@@ -610,13 +610,14 @@ static void allocate_new_superregion ( void )
 	    cout << "ERROR: could not allocate "
 		 << ( MACC::superregion_size
 		      / page_size )
-		 << " page initial heap." << endl;
+		 << " page initial superregion."
+		 << endl;
 	else
 	    cout << "ERROR: out of virtual memory"
 	            " trying to allocate "
 		 << ( MACC::subregion_size
 		      / page_size )
-	         << " page subregion." << endl;
+	         << " page superregion." << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
@@ -817,23 +818,24 @@ static void allocate_new_paged_body_region ( void )
 		  MACC::PAGED_BODY_REGION );
     if ( r == NULL )
     {
-	cout << "ERROR: out of virtual memory."
-	     << endl;
+	cout << "ERROR: out of virtual memory"
+		" trying to allocate "
+	     << ( MACC::max_paged_body_size
+		  / page_size )
+	     << " page paged body region." << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
 
     r->block_size = MACC::max_paged_body_size;
 
-    if ( MACC::last_paged_body_region != NULL )
-        MACC::insert_after
-	    ( r, MACC::last_paged_body_region );
-    MACC::last_paged_body_region = r;
+    MACC::insert ( MACC::last_paged_body_region, r );
 }
 
 // Execute new_non_fixed_body for bodies of size at most
 // MACC::max_paged_body_size.  n is size of body + body
-// control rounded up to a multiple of page_size.
+// control rounded up to a multiple of page_size.  n
+// should be larger than MINT::max_fixed_block_size.
 // Return address to store in stub.
 //
 inline void * new_paged_body
@@ -844,19 +846,20 @@ inline void * new_paged_body
     {
         allocate_new_paged_body_region();
 	r = MACC::last_paged_body_region;
+	MIN_ASSERT ( r->next + n <= r->end );
     }
 
-    int locator = r - MACC::region_table;
 
-    min::unsptr * b = (min::unsptr *) r->next;
+    min::uns64 * b = (min::uns64 *) r->next;
     r->next += n;
-    assert ( r->next <= r->end );
 
+    int locator = r - MACC::region_table;
     * b = MUP::new_control_with_locator
 	    ( locator, s );
 
-    return ++ b;
+    return b + 1;
 }
+
 // Execute new_non_fixed_body for bodies of size greater
 // than MACC::max_paged_body_size.  n is size of body
 // + body control rounded up to a multiple of page_size.
@@ -869,27 +872,25 @@ inline void * new_mono_body
 	( n, MACC::MONO_BODY_REGION );
     if ( r == NULL )
     {
-	cout << "ERROR: out of virtual memory."
-	     << endl;
+	cout << "ERROR: out of virtual memory"
+		" trying to allocate "
+	     << ( n / page_size )
+	     << " page mono body region." << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
 
-    if ( MACC::last_mono_body_region != NULL )
-        MACC::insert_after
-	    ( r, MACC::last_mono_body_region );
-    MACC::last_mono_body_region = r;
+    MACC::insert ( MACC::last_mono_body_region, r );
 
-    int locator = r - MACC::region_table;
-
-    min::unsptr * b = (min::unsptr *) r->next;
+    min::uns64 * b = (min::uns64 *) r->next;
     r->next += n;
     assert ( r->next <= r->end );
 
+    int locator = r - MACC::region_table;
     * b = MUP::new_control_with_locator
 	    ( locator, s );
 
-    return ++ b;
+    return b + 1;
 }
 
 void MINT::new_non_fixed_body
@@ -898,7 +899,7 @@ void MINT::new_non_fixed_body
     // Add space for body control and round up to
     // multiple of page_size.
     //
-    n += sizeof ( min::unsptr );
+    n += sizeof ( min::uns64 );
     n = page_size
       * ( ( n + page_size - 1 ) / page_size );
 
