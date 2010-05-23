@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 23 14:43:57 EDT 2010
+// Date:	Sun May 23 15:03:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 18:56:14 $
+//   $Date: 2010/05/23 19:33:23 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.177 $
+//   $Revision: 1.178 $
 
 // Table of Contents:
 //
@@ -1230,9 +1230,10 @@ void test_acc_interface ( void )
     static min::stub s1, s2;
     const min::uns64 unmarked_flag =
 	   min::uns64(1)
-	<< ( 56 - MIN_ACC_FLAG_BITS + 2 );
+	<< ( 56 - MIN_ACC_FLAG_BITS + 2
+	        + MIN_MAX_EPHEMERAL_LEVELS );
     const min::uns64 scavenged_flag =
-	scavenged_flag << MINT::ACC_FLAG_PAIRS;
+	unmarked_flag << MINT::ACC_FLAG_PAIRS;
 
     cout << endl;
     cout << "Test mutator functions:"
@@ -1244,7 +1245,7 @@ void test_acc_interface ( void )
     MINT::acc_stack_mask = 0;
     MUP::acc_write_update ( &s1, &s2 );
     MIN_ASSERT ( MINT::acc_stack == ::acc_stack );
-    MINT::acc_stack_mask = scavenged_flag;
+    MINT::acc_stack_mask = unmarked_flag;
     MUP::acc_write_update ( &s1, &s2 );
     MIN_ASSERT
 	( MINT::acc_stack == ::acc_stack + 2 );
