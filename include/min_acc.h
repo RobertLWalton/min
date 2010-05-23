@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 22 22:26:48 EDT 2010
+// Date:	Sun May 23 07:02:13 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 10:45:49 $
+//   $Date: 2010/05/23 11:31:15 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.43 $
+//   $Revision: 1.44 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1003,23 +1003,23 @@ namespace min { namespace acc {
     //		and
     //		the s2 level L unmarked flag is on
     //		and
-    //		the MUP::acc_stack_mask level L
+    //		the MINT::acc_stack_mask level L
     //              scavenged/unmarked flag is on
     //       or
     //		the s1 level L non-root flag is on
     //          and
     //          the s2 level L collectible flag is on
     //		and
-    //		the MUP::acc_stack_mask level L
+    //		the MINT::acc_stack_mask level L
     //		    non-root/collectible flag is on
     //
     //	    then the pointers to s1 and s2 are pushed
-    //      into the MUP::acc_stack; the pointer to s1
+    //      into the MINT::acc_stack; the pointer to s1
     //	    is pushed first.
     //
-    // MUP::acc_stack Processing:
+    // MINT::acc_stack Processing:
     //
-    //   The MUP::acc_stack is processed separately
+    //   The MINT::acc_stack is processed separately
     //   by the collector.  The stack contains stub
     //   pointer pairs (s1,s2) such that a pointer to
     //   s2 has been stored the datum of s1.  If the
@@ -1099,8 +1099,8 @@ namespace min { namespace acc {
     //   tible objects were found, its not-root flag
     //   is cleared and it is kept on the list.  While
     //   an object is being scavenged the mutator may
-    //   run but the MUP::acc_stack processing algorithm
-    //   may not run.
+    //   run but the MINT::acc_stack processing
+    //   algorithm may not run.
     //   
     //   Marking grows the to-be-scavenged list, and
     //   prefers scavenging objects in this list to keep
@@ -1299,7 +1299,9 @@ namespace min { namespace acc {
     // acc stack until the acc stack pointer is less
     // than or equal to acc_lower.
     //
-    void process_acc_stack ( min::stub ** acc_lower );
+    void process_acc_stack
+        ( min::stub ** acc_lower =
+	      min::acc::acc_stack_begin );
 
 } }
 
