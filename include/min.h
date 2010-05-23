@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 19 14:32:36 EDT 2010
+// Date:	Sun May 23 07:04:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 18:32:51 $
+//   $Date: 2010/05/23 11:04:47 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.325 $
+//   $Revision: 1.326 $
 
 // Table of Contents:
 //
@@ -1494,6 +1494,9 @@ namespace min { namespace internal {
 
     extern min::stub ** acc_stack;
     extern min::stub ** acc_stack_limit;
+        // acc_stack points at the first unused location
+	// in the acc stack.
+	//
         // If acc_stack >= acc_stack_limit, an interrupt
 	// is invoked.  Min::stub * values can be pushed
 	// into the acc stack, increasing the acc_stack
