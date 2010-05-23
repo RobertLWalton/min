@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 23 07:02:13 EDT 2010
+// Date:	Sun May 23 07:54:59 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 11:31:15 $
+//   $Date: 2010/05/23 19:19:25 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.44 $
+//   $Revision: 1.45 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1294,6 +1294,42 @@ namespace min { namespace acc {
     // multiple of the page size.
     //
     extern min::unsptr acc_stack_size;
+
+    // Flag bit assignments.
+    //
+    // Let m = 56 - MIN_ACC_FLAG_BITS + 2,
+    //     p = MINT::ACC_FLAG_PAIRS
+    //     e = MIN_MAX_EPHEMERAL_LEVELS
+    //
+    //		        Range
+    // Bit:	        of i:    Use:
+    //
+    // m - 1 + i        1 .. e   Level i collectible bit
+    // m + e + i        0 .. e   Level i unmarked bit
+    // m + 2e + i       1 .. e   Level i not-root bit
+    // m + 3e + 1 + i   0 .. e   Level i scavenged bit
+
+    // Given the control word of a stub return the
+    // ACC level of the stub, using the fact that the
+    // level i collectible flag is on iff the stub level
+    // is >= i.
+    //
+    inline unsigned stub_acc_level
+	    ( min:: uns64 stub_control )
+    {
+        unsigned c =
+	    stub_control
+	    >>
+	    ( 56 - MIN_ACC_FLAG_BITS + 2 - 1 );
+
+	// Bit 1 << i is not level i collectible bit
+	// for i = 1 .. e.
+
+	c &=   ( 1 << ( MIN_MAX_EPHEMERAL_LEVELS + 1 ) )
+	     - 1;
+	c |= 1;
+	return min::internal::log2floor ( c );
+    }
 
     // Process stub pointer pairs from the end of the
     // acc stack until the acc stack pointer is less
