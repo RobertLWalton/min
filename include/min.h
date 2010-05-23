@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 23 07:04:06 EDT 2010
+// Date:	Sun May 23 07:26:28 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 11:04:47 $
+//   $Date: 2010/05/23 11:26:43 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.326 $
+//   $Revision: 1.327 $
 
 // Table of Contents:
 //
@@ -1790,7 +1790,7 @@ namespace min { namespace unprotected {
     {
         uns64 f = (    min::unprotected
 	                  ::control_of ( s1 )
-	            >> 1 )
+	            >> min::internal::ACC_FLAG_PAIRS )
 	        & ( min::unprotected
 		       ::control_of ( s2 ) )
 		& min::internal::acc_stack_mask;
