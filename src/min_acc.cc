@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri May 21 04:51:17 EDT 2010
+// Date:	Sat May 22 22:27:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/21 08:51:52 $
+//   $Date: 2010/05/23 10:45:56 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.34 $
+//   $Revision: 1.35 $
 
 // Table of Contents:
 //
@@ -1096,6 +1096,22 @@ void MACC::stub_stack::flush ( void )
 
 unsigned MACC::ephemeral_levels =
     MIN_DEFAULT_EPHEMERAL_LEVELS;
+static unsigned ephemeral_sublevels
+                    [MIN_MAX_EPHEMERAL_LEVELS];
+unsigned * MACC::ephemeral_sublevels =
+    ::ephemeral_sublevels;
+
+static const unsigned MAX_GENERATIONS =
+    1 +   MIN_MAX_EPHEMERAL_LEVELS
+        * MIN_MAX_EPHEMERAL_SUBLEVELS;
+static MACC::generation generations[MAX_GENERATIONS];
+MACC::generation * MACC::generations = ::generations;
+
+static const unsigned MAX_LEVELS =
+    1 + MIN_MAX_EPHEMERAL_LEVELS;
+static MACC::level levels[MAX_GENERATIONS];
+MACC::level * MACC::levels = ::levels;
+
 min::unsptr  MACC::acc_stack_size;
 min::stub ** MACC::acc_stack_begin;
 min::stub ** MACC::acc_stack_end;
@@ -1105,4 +1121,35 @@ static void collector_initializer ( void )
     get_param ( "ephemeral_levels",
                 MACC::ephemeral_levels,
 		0, MIN_MAX_EPHEMERAL_LEVELS );
+
+    MACC::generation * g = MACC::generations;
+
+    levels[0].g = g ++;
+    levels[0].number_of_sublevels = 1;
+
+    char name[80];
+    for ( unsigned i = 1;
+          i < MACC::ephemeral_levels; ++ i )
+    {
+        sprintf ( name, "ephemeral_sublevels[%d]", i );
+	get_param ( name,
+	            MACC::ephemeral_sublevels[i],
+		    1, MIN_MAX_EPHEMERAL_SUBLEVELS );
+
+	levels[i].g = g;
+	levels[i].number_of_sublevels =
+	    MACC::ephemeral_sublevels[i];
+
+	for ( unsigned j = 0;
+	      j < MACC::ephemeral_sublevels[i]; ++ j )
+	{
+	    g->level = i;
+	    g->sublevel = j;
+	    g->last_before = MINT::first_allocated_stub;
+	    g->count = 0;
+
+	    ++ g;
+	}
+    }
+
 }

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 20 11:53:59 EDT 2010
+// Date:	Sat May 22 22:26:48 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/20 17:03:47 $
+//   $Date: 2010/05/23 10:45:49 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.42 $
+//   $Revision: 1.43 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1294,6 +1294,12 @@ namespace min { namespace acc {
     // multiple of the page size.
     //
     extern min::unsptr acc_stack_size;
+
+    // Process stub pointer pairs from the end of the
+    // acc stack until the acc stack pointer is less
+    // than or equal to acc_lower.
+    //
+    void process_acc_stack ( min::stub ** acc_lower );
 
 } }
 
