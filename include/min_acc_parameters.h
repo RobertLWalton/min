@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 18 18:50:49 EDT 2010
+// Date:	Sun May 23 05:16:58 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 12:42:46 $
+//   $Date: 2010/05/23 10:45:50 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.11 $
+//   $Revision: 1.12 $
 
 // Table of Contents
 //
@@ -202,6 +202,26 @@
 	  MIN_MAX_EPHEMERAL_LEVELS )
 # endif
 
+// ephemeral_sublevels[n]
+//
+//   The number of sublevels for ephemeral level n.
+//   Must be >= 1.  Ephemeral levels are numbered n =
+//   1 .. ephemeral_levels where the highest ephemeral
+//   level holds the most recently allocated objects.
+//
+//   The maximum value is compiled in and the actual
+//   value for each ephemeral level is a settable
+//   parameter subject to the compiled in maximum
+//   and given the below default value.  The maximum
+//   and default values are the same for each ephemeral
+//   level, but the set values need not be.
+//
+# ifndef MIN_MAX_EPHEMERAL_SUBLEVELS
+#   define MIN_MAX_EPHEMERAL_SUBLEVELS 10
+# endif
+# ifndef MIN_DEFAULT_EPHEMERAL_SUBLEVELS
+#   define MIN_DEFAULT_EPHEMERAL_SUBLEVELS 5
+# endif
 
 
 // Compactor Parameters
