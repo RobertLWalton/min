@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 22 22:27:04 EDT 2010
+// Date:	Sun May 23 07:05:16 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 10:45:56 $
+//   $Date: 2010/05/23 19:32:41 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.35 $
+//   $Revision: 1.36 $
 
 // Table of Contents:
 //
@@ -1152,4 +1152,48 @@ static void collector_initializer ( void )
 	}
     }
 
+}
+
+void MACC::process_acc_stack ( min::stub ** acc_lower )
+{
+    unsigned const M = 56 - MIN_ACC_FLAG_BITS + 2;
+    unsigned const E = MIN_MAX_EPHEMERAL_LEVELS;
+
+    while ( MINT::acc_stack > acc_lower )
+    {
+	// Stub s1 contains a pointer to stub s2.
+	//
+        min::stub * s2 = * -- MINT::acc_stack;
+        min::stub * s1 = * -- MINT::acc_stack;
+
+        uns64 f1 = (    min::unprotected
+	                   ::control_of ( s1 )
+	             >> MINT::ACC_FLAG_PAIRS )
+	         & ( min::unprotected
+		        ::control_of ( s2 ) )
+		 & min::internal::acc_stack_mask;
+
+	unsigned non_root =
+	    (unsigned) ( f1 >> ( M - 1 ) );
+	unsigned unmarked = non_root >> ( E + 1 );
+	non_root &= ( ( ( 1 << E ) - 1 ) << 1 );
+
+	while ( unmarked != 0 )
+	{
+	    unsigned i = MINT::log2floor ( unmarked );
+	    unmarked ^= 1 << i;
+	    levels[i].to_be_scavenged.push ( s2 );
+	    MUP::clear_flags_of
+	        ( s2, min::uns64(1) << ( M + E + i ) );
+	}
+	while ( non_root != 0 )
+	{
+	    unsigned i = MINT::log2floor ( non_root );
+	    non_root ^= 1 << i;
+	    levels[i].root.push ( s1 );
+	    MUP::clear_flags_of
+	        ( s1,
+		  min::uns64(1) << ( M + 2*E + i ) );
+	}
+    }
 }

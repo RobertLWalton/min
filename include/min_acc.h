@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 23 07:54:59 EDT 2010
+// Date:	Sun May 23 15:26:43 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 19:19:25 $
+//   $Date: 2010/05/23 19:32:47 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.45 $
+//   $Revision: 1.46 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -981,7 +981,7 @@ namespace min { namespace acc {
     //			by the current (or last) level
     //			L marking.
     //
-    //	     not-root	The stub level is < L and the
+    //	     non-root	The stub level is < L and the
     //			stub is not on the level L root
     //			list.
     //
@@ -1089,14 +1089,14 @@ namespace min { namespace acc {
     //   Just before an object is scavenged by a level L
     //   marking, the level L scavenged flag of the
     //   object is set, and if the object is on the
-    //   level L root list, its not-root flag is set.
+    //   level L root list, its non-root flag is set.
     //   After begin scavenged, if the object is on the
     //   level L to-be-scavenged list it is removed from
     //   that list, and if it is on the level L root
     //   list and no pointers to level L collectible
     //   objects were found, it is removed from the
     //   root list, but if pointers to level L collec-
-    //   tible objects were found, its not-root flag
+    //   tible objects were found, its non-root flag
     //   is cleared and it is kept on the list.  While
     //   an object is being scavenged the mutator may
     //   run but the MINT::acc_stack processing
@@ -1221,7 +1221,7 @@ namespace min { namespace acc {
     //   clear their level L scavenged flag and check to
     //   see if they have any pointers to level >= L
     //   objects.  These objects also have their level L
-    //   collectible flag and not-root flags cleared.
+    //   collectible flag and non-root flags cleared.
 
     struct generation
     {
@@ -1306,7 +1306,7 @@ namespace min { namespace acc {
     //
     // m - 1 + i        1 .. e   Level i collectible bit
     // m + e + i        0 .. e   Level i unmarked bit
-    // m + 2e + i       1 .. e   Level i not-root bit
+    // m + 2e + i       1 .. e   Level i non-root bit
     // m + 3e + 1 + i   0 .. e   Level i scavenged bit
 
     // Given the control word of a stub return the
