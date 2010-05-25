@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 24 14:12:01 EDT 2010
+// Date:	Tue May 25 08:44:28 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/24 18:12:18 $
+//   $Date: 2010/05/25 13:52:04 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.328 $
+//   $Revision: 1.329 $
 
 // Table of Contents:
 //
@@ -2353,57 +2353,96 @@ namespace min { namespace internal {
 
     // Scavenging a stub is done by calling a stub type
     // specific scavenger routine with a scavenge
-    // control struct as argument.  If the scavenger
-    // routine takes too long or runs out of resources
-    // (i.e., space in the to-be-scavenged stack) it
-    // returns before it is done and leaves state
-    // information allowing it to resume in the
-    // scavenge control struct.
+    // control struct as argument.
     //
+    struct scavenge_control;
+    typedef void (*scavenger_routine)
+        ( scavenge_control & sc );
+    
+    // The job of a scavenger routine is to scavenge
+    // a stub s1 which is pointed at by a scavenge
+    // control struct sc.  This means going through the
+    // stub, any body pointed at by the stub, and any
+    // auxiliary stubs pointed at by the stub, by the
+    // body, or by other auxiliary stubs so pointed
+    // at, and finding all pointers therein to acc
+    // stubs s2.  For each s2 found, two things are
+    // done.  First, a particular flag of s2, designated
+    // by sc.stub_flag, is checked to see if it is on.
+    // If it is, it is turned off and a pointer to s2
+    // is put in a to-be-scavenged stack.  The second
+    // thing is simply to logically OR the control word
+    // of s2 into an accumulator designed as sc.stub_
+    // flag_accumulator.  This may be set to 0 by the
+    // caller of the scavenger routine, when that
+    // routine returns after finishing scavenging s1,
+    // certain bits of this accumulator can be used to
+    // tell if s1 contained any pointer to an acc stub
+    // of level >= L, for each possible level L.
+    //
+    // It is also possible for the scavenger routine to
+    // return before it has finished scavenging s1.
+    // A work limit is placed on the scavenger routine
+    // so it does not execute for too long.  And the
+    // routine can also return because it runs out of
+    // space in the currently available portion of the
+    // to-be-scavenged stack.  When the routine returns
+    // early, it may be recalled to resume where it
+    // left off.  To allow this, there is a scavenge
+    // control datum sc.state which is initialized to
+    // 0 by the caller of the scavenger routine before
+    // starting the scavenging of s1, is left non-zero
+    // if the routine returns before finishing scaven-
+    // ging s1, and is set to 0 if the routine returns
+    // after finishing scavenging s1.
+    // 
     struct scavenge_control
     {
+        // For definitions of s1 and s2 see above.
+
 	min::uns64 state;
 	    // State of the scavenge of the stub being
 	    // scavenged.  Set to 0 by caller on first
-	    // call to scavenge a stub.  Returned as 0
-	    // by scavenger routine when scavenging of
-	    // stub is done.  Returns as non-0 by
-	    // scavenger routine if scavenging of the
-	    // stub must be continued.
+	    // call to scavenge s1.  Returned as 0 by
+	    // the scavenger routine when scavenging of
+	    // s1 is done.  Returned as non-zero by
+	    // scavenger routine if scavenging of s1
+	    // must be continued.
 	    //
-	    // Note that objects can be scavenged
-	    // multiple times without harm so if a
-	    // scavenger routine must return before it
-	    // is done with a stub can simply set the
-	    // state information to indicate it should
-	    // be rerun from the beginning.
+	    // Note that s1 can be scavenged multiple
+	    // times without harm, so if a scavenger
+	    // routine must return before it is done
+	    // with s1 it can simply set the state to
+	    // non-zero to indicate the routine should
+	    // be rerun from the beginning.  This is
+	    // adequate for small data.
 
 	min::uns64 stub_flag;
 	    // A word with a single bit set.  If this
-	    // bit is set in the stub control of a
-	    // stub s2 pointed at by the stub s1 below,
-	    // then the scavenger routine must clear the
-	    // bit in s2's control and put s2 on the to-
-	    // be-scavenged list.
+	    // bit is set in the stub control of s2 then
+	    // the scavenger routine must clear the bit
+	    // in s2's control and put s2 on the to-be-
+	    // scavenged stack.
 
 	min::uns64 stub_flag_accumulator;
 	    // Logical OR of all the stub controls of
-	    // all the stubs s2 pointed at by the stub
-	    // s1 below, as computed by the scavenger
-	    // routine.  The bits of this can be used
-	    // to tell if s1 points at an object of a
-	    // given acc level.
+	    // all the stubs s2 pointed at by s1.  This
+	    // is not initially set by the scavenger
+	    // routine; to initialize it to zero it must
+	    // be zeroed by the routine's caller before
+	    // beginning the scavenging of s1.
 
 	min::stub * s1;
 	   // Stub being scavenged.
 
 	min::stub ** to_be_scavenged;
 	min::stub ** to_be_scavenged_limit;
-	   // Pointer to first unused location in 
-	   // to-be-scavenged stack and to first
-	   // location after the stack.  When there
-	   // is no more room in the stack the
-	   // scavenger routine must return (with a
+	   // Pointer to the first unused location in
+	   // the to-be-scavenged stack and to the first
+	   // location after the stack.  The stack grows
+	   // in the direction of increasing addresses.
+	   // When there is no more room in the stack
+	   // the scavenger routine must return (with a
 	   // non-zero state if it is not done).
 
         min::uns32 level;
@@ -2412,19 +2451,24 @@ namespace min { namespace internal {
 	   // There can be at most one scavenge
 	   // operation per acc level, so a scavenger
 	   // routine that must return with non-zero
-	   // state to resume scavenging the same
-	   // object later can use the level to index
-	   // extra information saved about the state
-	   // of the scavenge operation.
+	   // state to resume scavenging s1 later can
+	   // use the level to index extra information
+	   // saved about the state of the scavenge
+	   // operation.
 
 	min::uns32 stub_count;
 	   // Counter incremented by the scavenger
 	   // routine when it finds a pointer to a
-	   // stub s2 in the stub s1 being scavenged.
+	   // stub s2 in s1.  Just used for statistics.
+
 	min::uns32 gen_count;
 	   // Counter incremented by the scavenger
-	   // routine when it finds min::gen value
-	   // in the stub s1 being scavenged.
+	   // routine when it inspects a min::gen value
+	   // or other place that an s2 stub pointer
+	   // may be stored.  Used both for statistics
+	   // and as a measure of scavenger routine
+	   // execution time (see gen_limit).
+
 	min::uns32 gen_limit;
 	   // Upper limit to gen_count.  If exceeded
 	   // the scavenger routine must return.  Used
