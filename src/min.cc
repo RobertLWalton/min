@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 25 21:20:54 EDT 2010
+// Date:	Wed May 26 03:54:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/26 01:27:20 $
+//   $Date: 2010/05/26 07:54:55 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.216 $
+//   $Revision: 1.218 $
 
 // Table of Contents:
 //
@@ -437,6 +437,71 @@ void MINT::acc_initialize_resize_body ( void )
 	MUP::renew_control_stub
 	    ( MUP::control_of ( s ),
 	      MINT::null_stub ) );
+}
+
+MINT::scavenger_routine MINT::scavenger_routines[128];
+MINT::scavenge_control MINT::scavenge_controls
+	[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
+unsigned MINT::number_of_acc_levels;
+
+// Scavenger routine for objects.  Setting state = 1
+// causes the object to be rescanned, and should be done
+// whenever the object is reorganized during an
+// interrupt of a scavange of the object.
+//
+static void object_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+    min::vec_pointer vp ( sc.s1 );
+    min::unsptr next;
+    if ( sc.state <= MUP::var_offset_of ( vp ) )
+        next = MUP::var_offset_of ( vp );
+    else
+        next = (min::unsptr ) sc.state;
+    if ( MUP::unused_offset_of ( vp ) <= next
+         &&
+	 next < MUP::aux_offset_of ( vp ) )
+	next = MUP::aux_offset_of ( vp );
+
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+    while ( next < min::total_size_of ( vp ) )
+    {
+        if ( sc.gen_count >= sc.gen_limit )
+	{
+            sc.stub_flag_accumulator = accumulator;
+	    sc.state = next;
+	    return;
+	}
+	min::gen v = MUP::base(vp)[next];
+	if ( min::is_stub ( v ) )
+	{
+	    if (    sc.to_be_scavenged
+	         >= sc.to_be_scavenged_limit )
+	    {
+		sc.stub_flag_accumulator = accumulator;
+	        sc.state = next;
+		return;
+	    }
+
+	    ++ sc.stub_count;
+	    min::stub * s2 = MUP::stub_of ( v );
+	    min::uns64 c = MUP::control_of ( s2 );
+	    accumulator |= c;
+
+	    if ( c & sc.stub_flag )
+	    {
+	        MUP::clear_flags_of
+		    ( s2, sc.stub_flag );
+		* sc.to_be_scavenged ++ = s2;
+	    }
+	}
+	++ sc.gen_count;
+	++ next;
+	if ( next == MUP::unused_offset_of ( vp ) )
+	    next = MUP::aux_offset_of ( vp );
+    }
+    sc.stub_flag_accumulator = accumulator;
+    sc.state = 0;
 }
 
 // Numbers
