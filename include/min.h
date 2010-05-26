@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 25 08:44:28 EDT 2010
+// Date:	Wed May 26 03:23:56 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/25 13:52:04 $
+//   $Date: 2010/05/26 07:51:22 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.329 $
+//   $Revision: 1.330 $
 
 // Table of Contents:
 //
@@ -2358,6 +2358,12 @@ namespace min { namespace internal {
     struct scavenge_control;
     typedef void (*scavenger_routine)
         ( scavenge_control & sc );
+
+    // scavenger_routine[t] is the scavenger routine
+    // for stubs of type t, with t >= 0 (i.e., t is
+    // for an acc stub and not an aux stub).
+    //
+    extern scavenger_routine scavenger_routines[128];
     
     // The job of a scavenger routine is to scavenge
     // a stub s1 which is pointed at by a scavenge
@@ -2475,6 +2481,32 @@ namespace min { namespace internal {
 	   // to bound the amount of time spent in a
 	   // single call to a scavenger routine.
     };
+
+    // scavenge_control[i] is the scavenge control
+    // struct for acc level i scavenge routine
+    // executions.
+    //
+    extern scavenge_control scavenge_controls
+    		[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
+
+    // Actual number of acc levels.
+    //
+    extern unsigned number_of_acc_levels;
+
+    inline scavenge_control * is_being_scavenged
+    	    ( min::stub * s1 )
+    {
+        for ( scavenge_control * sc = scavenge_controls;
+	      sc <   scavenge_controls
+	           + number_of_acc_levels;
+	      ++ sc )
+	{
+	    if ( sc->state != 0 && sc->s1 == s1 )
+	        return sc;
+	}
+	return NULL;
+    }
+
 } }
 
 // Numbers
