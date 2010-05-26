@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 26 03:54:24 EDT 2010
+// Date:	Tue May 25 23:22:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/26 07:54:55 $
+//   $Date: 2010/05/26 07:51:44 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.218 $
+//   $Revision: 1.217 $
 
 // Table of Contents:
 //
@@ -463,12 +463,10 @@ static void object_scavenger_routine
 	 next < MUP::aux_offset_of ( vp ) )
 	next = MUP::aux_offset_of ( vp );
 
-    min::uns64 accumulator = sc.stub_flag_accumulator;
     while ( next < min::total_size_of ( vp ) )
     {
         if ( sc.gen_count >= sc.gen_limit )
 	{
-            sc.stub_flag_accumulator = accumulator;
 	    sc.state = next;
 	    return;
 	}
@@ -478,16 +476,12 @@ static void object_scavenger_routine
 	    if (    sc.to_be_scavenged
 	         >= sc.to_be_scavenged_limit )
 	    {
-		sc.stub_flag_accumulator = accumulator;
 	        sc.state = next;
 		return;
 	    }
-
 	    ++ sc.stub_count;
 	    min::stub * s2 = MUP::stub_of ( v );
 	    min::uns64 c = MUP::control_of ( s2 );
-	    accumulator |= c;
-
 	    if ( c & sc.stub_flag )
 	    {
 	        MUP::clear_flags_of
@@ -500,7 +494,6 @@ static void object_scavenger_routine
 	if ( next == MUP::unused_offset_of ( vp ) )
 	    next = MUP::aux_offset_of ( vp );
     }
-    sc.stub_flag_accumulator = accumulator;
     sc.state = 0;
 }
 
