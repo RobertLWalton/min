@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue May 25 23:22:39 EDT 2010
+// Date:	Wed May 26 21:20:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/26 07:51:44 $
+//   $Date: 2010/05/27 09:13:34 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.217 $
+//   $Revision: 1.219 $
 
 // Table of Contents:
 //
@@ -60,6 +60,8 @@ char const * min::special_name
     { "MISSING", "NONE", "ANY", "MULTI_VALUED",
       "UNDEFINED", "SUCCESS", "FAILURE" };
 
+static void obj_scavenger_routine
+	( MINT::scavenge_control & sc );
 static bool initializer_called = false;
 MINT::initializer::initializer ( void )
 {
@@ -197,6 +199,11 @@ MINT::initializer::initializer ( void )
 	MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
 
     MINT::acc_initializer();
+
+    MINT::scavenger_routines[min::SHORT_OBJ]
+    	= & obj_scavenger_routine;
+    MINT::scavenger_routines[min::LONG_OBJ]
+    	= & obj_scavenger_routine;
 }
 
 // Names
@@ -444,12 +451,86 @@ MINT::scavenge_control MINT::scavenge_controls
 	[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
 unsigned MINT::number_of_acc_levels;
 
+# if MIN_USE_OBJ_AUX_STUBS
+    // Helper for obj_scavenger_routine that scavenges
+    // an object aux stub.  Recursively scavenges the
+    // value of the aux stub and of any pointer to stub
+    // in the control of the aux stub.  Assumes all
+    // aux stubs are LIST_AUX or SUBLIST_AUX stubs.
+    //
+    // Returns true if the to-be-scavenged stack is
+    // exhausted and the aux stub scavenging is not
+    // complete.  Returns false otherwise.  Increments
+    // gen_count but ignores gen_limit as the work
+    // required to save the state of an aux stub
+    // scavenge is not done by the current version of
+    // this routine (it could be done with an extra
+    // stack).
+    //
+    static bool obj_aux_scavenge
+            ( MINT::scavenge_control & sc,
+	      min::stub * aux_s )
+    {
+	min::uns64 accumulator =
+	    sc.stub_flag_accumulator;
+	while ( true )
+	{
+	    min::gen v = MUP::gen_of ( aux_s );
+	    if ( min::is_stub ( v ) )
+	    {
+
+		min::stub * s2 = MUP::stub_of ( v );
+		min::uns64 c = MUP::control_of ( s2 );
+
+		if ( MUP::type_of_control ( c ) < 0 )
+		{
+		    sc.stub_flag_accumulator =
+			accumulator;
+		    if ( obj_aux_scavenge ( sc, s2 ) )
+			return true;
+		    accumulator =
+			sc.stub_flag_accumulator;
+		}
+		else if (    sc.to_be_scavenged
+		          >= sc.to_be_scavenged_limit )
+		{
+		    sc.stub_flag_accumulator =
+		        accumulator;
+		    return true;
+		}
+		else
+		{
+		    ++ sc.gen_count;
+		    ++ sc.stub_count;
+		    accumulator |= c;
+
+		    if ( c & sc.stub_flag )
+		    {
+			MUP::clear_flags_of
+			    ( s2, sc.stub_flag );
+			* sc.to_be_scavenged ++ = s2;
+		    }
+		}
+	    }
+	    else
+		++ sc.gen_count;
+
+	    min::uns64 c = MUP::control_of ( aux_s );
+	    if ( c & MUP::STUB_POINTER )
+	        aux_s = MUP::stub_of_control ( c );
+	    else
+	        break;
+	}
+	sc.stub_flag_accumulator = accumulator;
+    }
+# endif
+
 // Scavenger routine for objects.  Setting state = 1
 // causes the object to be rescanned, and should be done
 // whenever the object is reorganized during an
 // interrupt of a scavange of the object.
 //
-static void object_scavenger_routine
+static void obj_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
     min::vec_pointer vp ( sc.s1 );
@@ -463,37 +544,65 @@ static void object_scavenger_routine
 	 next < MUP::aux_offset_of ( vp ) )
 	next = MUP::aux_offset_of ( vp );
 
+    min::uns64 accumulator = sc.stub_flag_accumulator;
     while ( next < min::total_size_of ( vp ) )
     {
         if ( sc.gen_count >= sc.gen_limit )
 	{
+            sc.stub_flag_accumulator = accumulator;
 	    sc.state = next;
 	    return;
 	}
 	min::gen v = MUP::base(vp)[next];
 	if ( min::is_stub ( v ) )
 	{
+	    min::stub * s2 = MUP::stub_of ( v );
+	    min::uns64 c = MUP::control_of ( s2 );
+
+#	    if MIN_USE_OBJ_AUX_STUBS
+		if ( MUP::type_of_control ( c ) < 0 )
+		{
+		    sc.stub_flag_accumulator =
+			accumulator;
+		    if ( obj_aux_scavenge ( sc, s2 ) )
+		    {
+			sc.state = next;
+			return;
+		    }
+		    accumulator =
+			sc.stub_flag_accumulator;
+		}
+		else
+#	    endif
 	    if (    sc.to_be_scavenged
 	         >= sc.to_be_scavenged_limit )
 	    {
+		sc.stub_flag_accumulator = accumulator;
 	        sc.state = next;
 		return;
 	    }
-	    ++ sc.stub_count;
-	    min::stub * s2 = MUP::stub_of ( v );
-	    min::uns64 c = MUP::control_of ( s2 );
-	    if ( c & sc.stub_flag )
+	    else
 	    {
-	        MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-		* sc.to_be_scavenged ++ = s2;
+		++ sc.gen_count;
+		++ sc.stub_count;
+		accumulator |= c;
+
+		if ( c & sc.stub_flag )
+		{
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		    * sc.to_be_scavenged ++ = s2;
+		}
 	    }
 	}
-	++ sc.gen_count;
+	else
+	    ++ sc.gen_count;
+
 	++ next;
 	if ( next == MUP::unused_offset_of ( vp ) )
 	    next = MUP::aux_offset_of ( vp );
     }
+    sc.stub_flag_accumulator = accumulator;
     sc.state = 0;
 }
 
