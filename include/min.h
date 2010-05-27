@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 26 03:23:56 EDT 2010
+// Date:	Thu May 27 06:56:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/26 07:51:22 $
+//   $Date: 2010/05/27 15:18:41 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.330 $
+//   $Revision: 1.331 $
 
 // Table of Contents:
 //
@@ -2983,20 +2983,16 @@ namespace min {
 // header followed by the label elements.  The header
 // contains the length (number of elements) and the
 // hash value.
-//
-// This implementation is hidden so an implementation
-// using uncollectable stubs is also possible.
 
 namespace min { namespace internal {
 
     struct lab_header
+        // This must be an integral number of min::gen
+	// units in length.
     {
         uns32		length;
         uns32		hash;
     };
-
-    const min::unsptr lab_header_size =
-        sizeof ( lab_header ) / sizeof ( min::gen );
 
     inline min::internal::lab_header * lab_header_of
 	    ( const min::stub * s )
@@ -3005,63 +3001,100 @@ namespace min { namespace internal {
 	       min::unprotected::pointer_of ( s );
     }
 
-    inline min::unsptr lablen
-	    ( min::internal::lab_header * lh )
-    {
-        return lh->length;
-    }
-
-    inline min::uns32 labhash
-	    ( min::internal::lab_header * lh )
-    {
-        return lh->hash;
-    }
-
-    inline const min::gen * vector_of
-	    ( min::internal::lab_header * lh )
-    {
-        return (const min::gen *) lh
-	     + min::internal::lab_header_size;
-    }
-
 } }
 
 namespace min {
 
-    inline min::unsptr lab_of
-	    ( min::gen * p, min::unsptr n,
-	      const min::stub * s )
+    class lab_pointer
     {
-        MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	min::internal::lab_header * lh =
-	    min::internal::lab_header_of ( s );
-	const min::gen * q =
-	    min::internal::vector_of ( lh );
-	min::unsptr len = min::internal::lablen ( lh );
+    public:
 
-	min::unsptr count = 0;
-        while ( count < n && len -- )
+        lab_pointer ( min::gen v )
 	{
-	    * p ++ = * q ++;
-	    ++ count;
+	    new ( this ) lab_pointer ( stub_of ( v ) );
 	}
-	return count;
-    }
 
-    inline min::unsptr lab_of
-	    ( min::gen * p, min::unsptr n, min::gen v )
+	lab_pointer ( const min::stub * s )
+	    : stub ( s )
+	{
+	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
+	}
+
+	lab_pointer ( void )
+	    : stub ( NULL ) {}
+
+	~ lab_pointer ( void )
+	{
+	    stub = NULL;
+	}
+
+	const min::gen operator [] ( min::uns32 i )
+	{
+	    MIN_ASSERT ( i < header()->length );
+	    return base()[i];
+	}
+
+	friend min::uns32 min::length_of
+		( min::lab_pointer & labp );
+	friend min::uns32 min::hash_of
+		( min::lab_pointer & labp );
+
+    protected:
+
+        const min::stub * stub;
+
+	internal::lab_header * header ( void )
+	{
+	    return
+	        * (internal::lab_header **) &
+		unprotected::pointer_ref_of
+		    ( (min::stub *) stub );
+	}
+
+	const min::gen * base ( void )
+	{
+	    return (const min::gen *) ( header() + 1 );
+	}
+    };
+
+    inline void initialize ( min::lab_pointer & labp,
+    			     min::gen v )
     {
-	return min::lab_of ( p, n, min::stub_of ( v ) );
+        labp.~lab_pointer();
+	new ( & labp ) min::lab_pointer ( v );
     }
 
-    inline min::unsptr lablen ( const min::stub * s )
+    inline void initialize ( min::lab_pointer & labp,
+    			     const min::stub * s )
+    {
+        labp.~lab_pointer();
+	new ( & labp ) min::lab_pointer ( s );
+    }
+
+    inline void deinitialize ( min::lab_pointer & labp )
+    {
+        labp.~lab_pointer();
+    }
+
+    inline min::uns32 length_of
+	    ( min::lab_pointer & labp )
+    {
+        return labp.header()->length;
+    }
+
+    inline min::uns32 hash_of
+	    ( min::lab_pointer & labp )
+    {
+        return labp.header()->hash;
+    }
+
+    inline min::uns32 lablen ( const min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	return min::internal::lablen
-	    ( min::internal::lab_header_of ( s ) );
+	return min::internal::lab_header_of(s)->length;
     }
 
-    inline min::unsptr lablen ( min::gen v )
+    inline min::uns32 lablen ( min::gen v )
     {
 	return min::lablen ( min::stub_of ( v ) );
     }
@@ -3069,8 +3102,7 @@ namespace min {
     inline min::uns32 labhash ( const min::stub * s )
     {
         MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	return min::internal::labhash
-	    ( min::internal::lab_header_of ( s ) );
+	return min::internal::lab_header_of(s)->hash;
     }
 
     inline min::uns32 labhash ( min::gen v )
@@ -3079,10 +3111,30 @@ namespace min {
     }
 
     min::uns32 labhash
-	    ( const min::gen * p, min::unsptr n );
+	    ( const min::gen * p, min::uns32 n );
+
+    inline min::uns32 lab_of
+	    ( min::gen * p, min::uns32 n,
+	      const min::stub * s )
+    {
+	lab_pointer labp ( s );
+	if ( n > length_of ( labp ) )
+	    n = length_of ( labp );
+        for ( uns32 i = 0; i < n; ++ i )
+	{
+	    * p ++ = labp[i];
+	}
+	return n;
+    }
+
+    inline min::uns32 lab_of
+	    ( min::gen * p, min::uns32 n, min::gen v )
+    {
+	return min::lab_of ( p, n, min::stub_of ( v ) );
+    }
 
     min::gen new_lab_gen
-	    ( const min::gen * p, min::unsptr n );
+	    ( const min::gen * p, min::uns32 n );
 
     inline bool is_lab ( min::gen v )
     {
@@ -7850,8 +7902,7 @@ inline min::unsptr min::unprotected::body_size_of
 	       + 1
 	       + sizeof ( long_str );
     case min::LABEL:
-	return   internal::lablen
-		     ( internal::lab_header_of ( s ) )
+	return   internal::lab_header_of ( s )->length
 	       * sizeof ( min::gen )
 	       + sizeof ( internal::lab_header );
     case min::SHORT_OBJ:

@@ -1013,21 +1013,49 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::hash ( lab ) == labhash1 true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, s ) == 3 true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::new_lab_gen ( labv2, 3 ) == lab true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, lab ) == 3 true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == min::LABEL true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::new_lab_gen ( labv2, 3 ) == lab true.
 
@@ -1137,19 +1165,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1159,19 +1183,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1181,19 +1201,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1203,23 +1219,23 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     min::is_direct_str ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1229,19 +1245,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1251,19 +1263,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1273,23 +1281,23 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     min::is_direct_str ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1299,19 +1307,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1321,19 +1325,15 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1343,23 +1343,23 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     min::is_direct_str ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1369,23 +1369,23 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     min::is_direct_str ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1395,23 +1395,23 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
 ../include/min.h:XXXX assert:
     min::is_direct_str ( v ) true.
 ../include/min.h:XXXX assert:
@@ -3263,12 +3263,16 @@ MINT::acc_expand_stub_free_list (1) called
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == min::LABEL true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == min::LABEL true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 60, 24 ) called
 min_interface_test.cc:XXXX assert:
@@ -3279,6 +3283,8 @@ MINT::acc_expand_stub_free_list (1) called
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     is_num ( v ) true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == min::LABEL true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
