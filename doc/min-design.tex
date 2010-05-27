@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 10, 2010}
+\date{May 27, 2010}
  
 \maketitle
 
@@ -2810,14 +2810,10 @@ be reused by many objects, and storing it inside each using object
 would be inefficient.  In addition labels are useful as function arguments.}
 Labels may also be elements of other labels.
 
-A label is essentially just a vector of name components, where a name
+A label is just a vector of name components, where a name
 component is an atom or a label.  However, labels are immutable and
 have the property that no two distinct label stubs can have equal vectors of
 name components.  
-
-A label vector may be stored in a chain of stubs,
-and not in a body.  The exact manner in which the vector is stored is
-hidden from the user.  
 
 Note that a label of one element
 is distinct from the element itself and has a different
@@ -2830,38 +2826,84 @@ and that proper labels with one element not be created.  But the
 A \key{label stub}\label{LABEL-STUB} is collectible,
 has \minnbkey{LABEL}\LABEL{MIN::LABEL} stub type code,
 and has an immutable value.
-The label value may be read by the protected functions:
+The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{lab\_of}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::gen * p, min::unsptr n,| \\
-	  \verb|   const min::stub * s )|
-	  \end{tabular}
-\LABEL{MIN::LAB_OF} \\
-\verb|min::unsptr min::| & \MINKEY{lab\_of}%
-	  \begin{tabular}[t]{@{}l@{}}
-	  \verb| ( min::gen * p, min::unsptr n,| \\
+(constructor)~\verb|min::|
+	& \MINKEY{lab\_pointer}%
+	  \verb| labp ( min::gen v )|
+\LABEL{MIN::LAB_POINTER_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{lab\_pointer}%
+	  \verb| labp ( min::stub * s )|
+\LABEL{MIN::LAB_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{lab\_pointer}%
+	  \verb| labp ( void )|
+\LABEL{MIN::LAB_POINTER_OF_VOID} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
 	  \verb|   min::gen v )|
-	  \end{tabular}
-\LABEL{MIN::LAB_OF_GEN} \\
+\LABEL{MIN::INITIALIZE_LAB_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_LAB_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp )|
+\LABEL{MIN::DEINITIALIZE_LAB_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const T & min::|
+	& \ttkey{operator [ ]}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
+	  \verb|   min::unsptr i )|
+\LABEL{MIN::LAB_POINTER[]} \\
+\verb|min::unsptr min::|
+	& \MINKEY{length\_of}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp )|
+\LABEL{MIN::LENGTH_OF_LAB_POINTER} \\
+\verb|min::unsptr min::|
+	& \MINKEY{hash\_of}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp )|
+\LABEL{MIN::HASH_OF_LAB_POINTER} \\
 \end{tabular}\end{indpar}
 
-These read an initial segment of the label vector into the location
-addressed by {\tt p}.  If the label vector has {\tt n} or more elements,
-the first {\tt n} elements are read.  Otherwise, as many elements as
-the label vector has are read.  The number of elements read is returned
-in any case.  The label can be denoted by either its stub address or
-by a general value pointing at its stub address.
+Here \verb|v| or \verb|s| must point at the stub of a label,
+and given a label pointer \verb|labp| pointing at
+a label, \verb|labp[i]| is the \verb|i|+1's
+element of the label, for
+$0\leq$\verb|i|$<$\verb|min::length_of(labp)|,
+where the {\tt min::\EOL length\_\EOL of} function
+returns the number of elements in the label.
+Note that \verb|labp[i]| is read-only, but one can take
+its address, as in:
+\begin{indpar}\begin{verbatim}
+memcpy ( ..., & labp[0], sizeof ( T ) * min::length_of ( labp ) );
+\end{verbatim}\end{indpar}
+
+The form of constructor that has no argument creates a label pointer
+that is not pointing at any label.
+In this last case the label pointer must
+be initialized by the {\tt min::\EOL initialize} function before the pointer
+is used; use before initialization will give undefined results, though
+attempts to access
+label elements using the pointer usually result in memory faults.
+
+The {\tt min::initialize} functions destruct the label pointer and then
+reconstruct it.  The {\tt min::\EOL deinitialize} function destructs
+the label pointer and leaves it not pointing at any object stub.
+Use of such a destructed pointer is undefined, but attempts to access
+label elements using it usually result in memory faults.
 
 The length of a label is the number of elements (general values) in the label.
-Usually this is found my just reading the label, as labels tend to be
-short.  For example, a convention might be adopted that
-attribute labels have at most 10 elements.  Then providing output vectors
-to the above functions with 11 elements would not only allow all legal
-attribute labels, but would detect illegally long ones.
-
-The length of a label may be read by the following functions:
+The length of a label may be read from a label pointer, or may be read
+directly by the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
@@ -2870,7 +2912,8 @@ The length of a label may be read by the following functions:
 \LABEL{MIN::LABLEN_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-The hash value of a label may be computed by the following functions:
+The hash value of a label may be computed from the label pointer, or
+directly by the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( const min::stub * s )|
@@ -6246,7 +6289,7 @@ its address, as in:
 memcpy ( ..., & rvp[0], sizeof ( T ) * min::length_of ( rvp ) );
 \end{verbatim}\end{indpar}
 
-The form of constructor that has no argument creates a raw pointer
+The form of constructor that has no argument creates a raw vector pointer
 that is not pointing at any raw vector.
 In this last case the raw vector pointer must
 be initialized by the {\tt min::\EOL initialize} function before the pointer
@@ -7286,13 +7329,51 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{lab\_of}\ARGBREAK
-    \verb| ( min::gen * p, min::unsptr n,|\ARGBREAK
-    \verb|   const min::stub * s )|
-\LABEL{MIN::LAB_OF} \\
-\verb|min::unsptr min::| & \MINKEY{lab\_of}\ARGBREAK
-    \verb| ( min::gen * p, min::unsptr n,|\ARGBREAK\verb|   min::gen v )|
-\LABEL{MIN::LAB_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{lab\_pointer}%
+	  \verb| labp ( min::gen v )|
+\LABEL{MIN::LAB_POINTER_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{lab\_pointer}%
+	  \verb| labp ( min::stub * s )|
+\LABEL{MIN::LAB_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{lab\_pointer}%
+	  \verb| labp ( void )|
+\LABEL{MIN::LAB_POINTER_OF_VOID} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_LAB_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_LAB_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp )|
+\LABEL{MIN::DEINITIALIZE_LAB_POINTER} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const T & min::|
+	& \ttkey{operator [ ]}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
+	  \verb|   min::unsptr i )|
+\LABEL{MIN::LAB_POINTER[]} \\
+\verb|min::unsptr min::|
+	& \MINKEY{length\_of}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp )|
+\LABEL{MIN::LENGTH_OF_LAB_POINTER} \\
+\verb|min::unsptr min::|
+	& \MINKEY{hash\_of}\ARGBREAK
+	  \verb| ( min::lab_pointer & labp )|
+\LABEL{MIN::HASH_OF_LAB_POINTER} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
