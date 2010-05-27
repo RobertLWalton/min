@@ -2862,13 +2862,13 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 \verb|const T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
 	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
-	  \verb|   min::unsptr i )|
+	  \verb|   min::uns32 i )|
 \LABEL{MIN::LAB_POINTER[]} \\
-\verb|min::unsptr min::|
+\verb|min::uns32 min::|
 	& \MINKEY{length\_of}\ARGBREAK
 	  \verb| ( min::lab_pointer & labp )|
 \LABEL{MIN::LENGTH_OF_LAB_POINTER} \\
-\verb|min::unsptr min::|
+\verb|min::uns32 min::|
 	& \MINKEY{hash\_of}\ARGBREAK
 	  \verb| ( min::lab_pointer & labp )|
 \LABEL{MIN::HASH_OF_LAB_POINTER} \\
@@ -2906,9 +2906,9 @@ The length of a label may be read from a label pointer, or may be read
 directly by the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
+\verb|min::uns32 min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
 \LABEL{MIN::LABLEN} \\
-\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -2921,7 +2921,7 @@ directly by the following functions:
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}%
-    \verb| ( const min::gen * p, min::unsptr n )|
+    \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
 \end{tabular}\end{indpar}
 
@@ -2951,11 +2951,36 @@ numbers are treated as 8 character strings; see
 \pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 character string with
 hash value {\tt 1009}.
 
+Although label values are generally read using lab pointers,
+a label value may be read by the protected functions:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::| & \MINKEY{lab\_of}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::gen * p, min::uns32 n,| \\
+	  \verb|   const min::stub * s )|
+	  \end{tabular}
+\LABEL{MIN::LAB_OF} \\
+\verb|min::uns32 min::| & \MINKEY{lab\_of}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::gen * p, min::uns32 n,| \\
+	  \verb|   min::gen v )|
+	  \end{tabular}
+\LABEL{MIN::LAB_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+These read an initial segment of the label vector into the location
+addressed by {\tt p}.  If the label vector has {\tt n} or more elements,
+the first {\tt n} elements are read.  Otherwise, as many elements as
+the label vector has are read.  The number of elements read is returned
+in any case.  The label can be denoted by either its stub address or
+by a general value pointing at its stub address.
+
 A label may be created by the following protected function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}%
-    \verb| ( const min::gen * p, min::unsptr n )|
+    \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
 \end{tabular}\end{indpar}
 
@@ -7364,22 +7389,22 @@ These are in \verb|min_parameters.h|.
 \verb|const T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
 	  \verb| ( min::lab_pointer & labp,|\ARGBREAK
-	  \verb|   min::unsptr i )|
+	  \verb|   min::uns32 i )|
 \LABEL{MIN::LAB_POINTER[]} \\
-\verb|min::unsptr min::|
+\verb|min::uns32 min::|
 	& \MINKEY{length\_of}\ARGBREAK
 	  \verb| ( min::lab_pointer & labp )|
 \LABEL{MIN::LENGTH_OF_LAB_POINTER} \\
-\verb|min::unsptr min::|
+\verb|min::uns32 min::|
 	& \MINKEY{hash\_of}\ARGBREAK
 	  \verb| ( min::lab_pointer & labp )|
 \LABEL{MIN::HASH_OF_LAB_POINTER} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
+\verb|min::uns32 min::| & \MINKEY{lablen}\verb| ( const min::stub * s )|
 \LABEL{MIN::LABLEN} \\
-\verb|min::unsptr min::| & \MINKEY{lablen}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{lablen}\verb| ( min::gen v )|
 \LABEL{MIN::LABLEN_OF_GEN} \\
 \end{TABULAR}
 
@@ -7389,13 +7414,28 @@ These are in \verb|min_parameters.h|.
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
-    \verb| ( const min::gen * p, min::unsptr n )|
+    \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
+\verb|min::uns32 min::| & \MINKEY{lab\_of}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::gen * p, min::uns32 n,| \\
+	  \verb|   const min::stub * s )|
+	  \end{tabular}
+\LABEL{MIN::LAB_OF} \\
+\verb|min::uns32 min::| & \MINKEY{lab\_of}%
+	  \begin{tabular}[t]{@{}l@{}}
+	  \verb| ( min::gen * p, min::uns32 n,| \\
+	  \verb|   min::gen v )|
+	  \end{tabular}
+\LABEL{MIN::LAB_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
-    \verb| ( const min::gen * p, min::unsptr n )|
+    \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
 \end{TABULAR}
 
