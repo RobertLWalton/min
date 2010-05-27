@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed May 26 21:20:26 EDT 2010
+// Date:	Thu May 27 09:25:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/27 09:13:34 $
+//   $Date: 2010/05/27 15:19:05 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.219 $
+//   $Revision: 1.220 $
 
 // Table of Contents:
 //
@@ -249,16 +249,14 @@ int min::compare ( min::gen v1, min::gen v2 )
         if ( is_num ( v2 ) ) return +1;
 	else if ( is_str ( v2 ) ) return +1;
         else if ( ! is_lab ( v2 ) ) return -1;
-	unsptr len1 = lablen ( v1 );
-	unsptr len2 = lablen ( v2 );
-	min::gen lab1[len1];
-	min::gen lab2[len2];
-	lab_of ( lab1, len1, v1 );
-	lab_of ( lab2, len2, v2 );
+	lab_pointer lp1 ( v1 );
+	lab_pointer lp2 ( v2 );
+	unsptr len1 = length_of ( lp1 );
+	unsptr len2 = length_of ( lp2 );
 	for ( unsptr i = 0; i < len1; ++ i )
 	{
 	    if ( i >= len2 ) return +1;
-	    int t = min::compare ( lab1[i], lab2[i] );
+	    int t = min::compare ( lp1[i], lp2[i] );
 	    if ( t != 0 ) return t;
 	}
 	if ( len1 == len2 ) return 0;
@@ -303,14 +301,13 @@ std::ostream & operator <<
     }
     else if ( min::is_lab ( v ) )
     {
-        min::unsptr len = min::lablen ( v );
-	min::gen lab[len];
-	min::lab_of ( lab, len, v );
+	min::lab_pointer labp ( v );
+        min::uns32 len = min::length_of ( labp );
 	out << f.lab_prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) out << ",";
-	    out << min::pr ( lab[i], f );
+	    out << min::pr ( labp[i], f );
 	}
 	return out << f.lab_postfix;
     }
@@ -967,7 +964,7 @@ const min::uns32 lab_multiplier =	// 65599**10
 	* min::uns32 ( 65599 );
 
 min::uns32 min::labhash
-	( const min::gen * p, min::unsptr n )
+	( const min::gen * p, min::uns32 n )
 {
     min::uns32 hash = 1009;
     while ( n -- )
@@ -980,7 +977,7 @@ min::uns32 min::labhash
 }
 
 min::gen min::new_lab_gen
-	( const min::gen * p, min::unsptr n )
+	( const min::gen * p, min::uns32 n )
 {
     min::uns32 hash = labhash ( p, n );
     min::uns32 h = hash & MINT::lab_hash_mask;
@@ -1005,17 +1002,13 @@ min::gen min::new_lab_gen
 			( MUP::control_of ( s ) );
 	}
 
-	MIN_ASSERT
-	    ( min::type_of ( s2 ) == min::LABEL );
-	MINT::lab_header * lh =
-	    MINT::lab_header_of ( s2 );
+	lab_pointer labp ( s2 );
 
-	if ( hash != MINT::labhash ( lh ) ) continue;
+	if ( hash != hash_of ( labp ) ) continue;
+	if ( n != length_of ( labp ) ) continue;
 
-	if ( n != MINT::lablen ( lh ) ) continue;
-	const min::gen * q = MINT::vector_of ( lh );
-	int i;
-	for ( i = 0; i < n && p[i] == q[i]; ++ i );
+	min::uns32 i;
+	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
 	if ( i == n ) return new_gen ( s2 );
     }
 
@@ -1027,8 +1020,7 @@ min::gen min::new_lab_gen
     MINT::lab_header * lh = MINT::lab_header_of ( s2 );
     lh->length = n;
     lh->hash = hash;
-    memcpy ( (min::gen *) lh + MINT::lab_header_size,
-             p, n * sizeof ( min::gen ) );
+    memcpy ( lh + 1, p, n * sizeof ( min::gen ) );
 
     s = MUP::new_aux_stub ();
     MUP::set_pointer_of ( s, s2 );
