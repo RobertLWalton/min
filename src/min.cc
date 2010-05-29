@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 29 08:11:18 EDT 2010
+// Date:	Sat May 29 10:18:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/29 12:11:45 $
+//   $Date: 2010/05/29 16:33:54 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.221 $
+//   $Revision: 1.222 $
 
 // Table of Contents:
 //
@@ -509,6 +509,137 @@ static void lab_scavenger_routine
     sc.state = 0;
 }
 
+// Scavenger routine for raw vectors.  Setting state = 1
+// causes the raw vector to be rescanned, and should be
+// done whenever the raw vector is reorganized during an
+// interrupt of a scavange of the raw vector, unless the
+// acc_write_update function is used to write pointers
+// into the reorganized raw vector.
+//
+static void raw_vec_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+    const unsigned SHIFT = 48;
+    const min::uns64 MASK = ( 1ull << SHIFT ) - 1;
+
+    // The scan has an outer loop that iterates through
+    // the format and an inner loop that iterates
+    // through the elements of the vector.  The high
+    // order 64-SHIFT bits of sc.state index the
+    // next format character to be processed within
+    // the format.  The low order SHIFT bits of sc.state
+    // index contain the index the next raw vector
+    // element to be processed plus 1.
+    //
+    unsigned fnext = (unsigned) ( sc.state >> SHIFT );
+    min::unsptr vnext = (min::unsptr) ( sc.state & MASK );
+
+    min::internal::raw_vec_header * & header =
+        * (min::internal::raw_vec_header **) &
+        min::unprotected::pointer_ref_of ( sc.s1 );
+    const min::raw_vec_type_info * type_info =
+        header->type_info;
+
+    if ( vnext < sizeof ( * header ) )
+        vnext = sizeof ( * header );
+
+    const min::uns8 * beginp =
+        (const min::uns8 *) header;
+    min::unsptr size =   type_info->element_size
+	               * header->length;
+    const min::uns8 * endp =
+        beginp + sizeof ( * header ) + size;
+
+    const char * format = type_info->format;
+
+    const min::uns8 * p = beginp + vnext;
+    const char * fp = format + fnext;
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+    while ( * fp )
+    {
+        switch ( * fp ++ )
+	{
+	case 'p':
+	    p += sizeof ( min::unsptr );
+	    break;
+
+	case '.':
+	    ++ p;
+	    break;
+
+	case 'g':
+	    while ( p < endp )
+	    {
+		if ( sc.gen_count >= sc.gen_limit )
+		{
+		    sc.stub_flag_accumulator =
+			accumulator;
+		    sc.state =
+			  (    ( fp - format )
+			    << SHIFT )
+			+ ( p - beginp );
+		    return;
+		}
+		min::gen v = * (min::gen *) p;
+		if ( min::is_stub ( v ) )
+		{
+		    min::stub * s2 =
+			MUP::stub_of ( v );
+		    min::uns64 c =
+			MUP::control_of ( s2 );
+
+		    if (    sc.to_be_scavenged
+			 >= sc.to_be_scavenged_limit )
+		    {
+			sc.stub_flag_accumulator =
+			    accumulator;
+			sc.state =
+			      (    ( fp - format )
+				<< SHIFT )
+			    + ( p - beginp );
+			return;
+		    }
+		    else
+		    {
+			++ sc.gen_count;
+			++ sc.stub_count;
+			accumulator |= c;
+
+			if ( c & sc.stub_flag )
+			{
+			    MUP::clear_flags_of
+				( s2,
+				  sc.stub_flag );
+			    * sc.to_be_scavenged ++ =
+			        s2;
+			}
+		    }
+		}
+		else
+		    ++ sc.gen_count;
+
+		p += type_info->element_size;
+	    }
+	    p -= size;
+	    p += sizeof ( min::gen );
+	    break;
+
+	case 's':
+	    // TBD
+	    p -= size;
+	    p += sizeof ( min::stub * );
+	    break;
+
+	default:
+	    MIN_ABORT
+	        ( "bad raw vector format character" );
+	}
+    }
+
+    sc.stub_flag_accumulator = accumulator;
+    sc.state = 0;
+}
+
 # if MIN_USE_OBJ_AUX_STUBS
     // Helper for obj_scavenger_routine that scavenges
     // an object aux stub.  Recursively scavenges the
@@ -586,7 +717,9 @@ static void lab_scavenger_routine
 // Scavenger routine for objects.  Setting state = 1
 // causes the object to be rescanned, and should be done
 // whenever the object is reorganized during an
-// interrupt of a scavange of the object.
+// interrupt of a scavange of the object, unless the
+// acc_write_update function is used to write pointers
+// into the reorganized object.
 //
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc )
