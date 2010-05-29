@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 27 09:25:54 EDT 2010
+// Date:	Sat May 29 08:11:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/27 15:19:05 $
+//   $Date: 2010/05/29 12:11:45 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.220 $
+//   $Revision: 1.221 $
 
 // Table of Contents:
 //
@@ -60,6 +60,8 @@ char const * min::special_name
     { "MISSING", "NONE", "ANY", "MULTI_VALUED",
       "UNDEFINED", "SUCCESS", "FAILURE" };
 
+static void lab_scavenger_routine
+	( MINT::scavenge_control & sc );
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
 static bool initializer_called = false;
@@ -200,6 +202,8 @@ MINT::initializer::initializer ( void )
 
     MINT::acc_initializer();
 
+    MINT::scavenger_routines[min::LABEL]
+    	= & lab_scavenger_routine;
     MINT::scavenger_routines[min::SHORT_OBJ]
     	= & obj_scavenger_routine;
     MINT::scavenger_routines[min::LONG_OBJ]
@@ -447,6 +451,63 @@ MINT::scavenger_routine MINT::scavenger_routines[128];
 MINT::scavenge_control MINT::scavenge_controls
 	[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
 unsigned MINT::number_of_acc_levels;
+
+// Scavenger routine for labels.
+//
+static void lab_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+    // sc.state is index of next element to be scanned
+    // + 1, or 0 to start at the beginning.
+    //
+    min::uns32 next = (min::uns32 ) sc.state;
+    if ( next > 0 ) -- next;
+
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+    min::lab_pointer labp ( sc.s1 );
+    while ( next < min::length_of ( labp ) )
+    {
+        if ( sc.gen_count >= sc.gen_limit )
+	{
+            sc.stub_flag_accumulator = accumulator;
+	    sc.state = next + 1;
+	    return;
+	}
+	min::gen v = labp[next];
+	if ( min::is_stub ( v ) )
+	{
+	    min::stub * s2 = MUP::stub_of ( v );
+	    min::uns64 c = MUP::control_of ( s2 );
+
+	    if (    sc.to_be_scavenged
+	         >= sc.to_be_scavenged_limit )
+	    {
+		sc.stub_flag_accumulator = accumulator;
+	        sc.state = next + 1;
+		return;
+	    }
+	    else
+	    {
+		++ sc.gen_count;
+		++ sc.stub_count;
+		accumulator |= c;
+
+		if ( c & sc.stub_flag )
+		{
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		    * sc.to_be_scavenged ++ = s2;
+		}
+	    }
+	}
+	else
+	    ++ sc.gen_count;
+
+	++ next;
+    }
+    sc.stub_flag_accumulator = accumulator;
+    sc.state = 0;
+}
 
 # if MIN_USE_OBJ_AUX_STUBS
     // Helper for obj_scavenger_routine that scavenges
