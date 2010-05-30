@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat May 29 10:18:34 EDT 2010
+// Date:	Sun May 30 01:00:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/29 16:33:54 $
+//   $Date: 2010/05/30 05:50:59 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.222 $
+//   $Revision: 1.223 $
 
 // Table of Contents:
 //
@@ -519,6 +519,15 @@ static void lab_scavenger_routine
 static void raw_vec_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
+    min::internal::raw_vec_header * & header =
+        * (min::internal::raw_vec_header **) &
+        min::unprotected::pointer_ref_of ( sc.s1 );
+    const min::uns8 * beginp =
+        (const min::uns8 *) header;
+    const min::raw_vec_type_info * type_info =
+        header->type_info;
+    const char * format = type_info->format;
+
     const unsigned SHIFT = 48;
     const min::uns64 MASK = ( 1ull << SHIFT ) - 1;
 
@@ -528,35 +537,34 @@ static void raw_vec_scavenger_routine
     // order 64-SHIFT bits of sc.state index the
     // next format character to be processed within
     // the format.  The low order SHIFT bits of sc.state
-    // index contain the index the next raw vector
-    // element to be processed plus 1.
+    // index contain the displacement the next raw
+    // vector element component to be processed,
+    // relative to the beginning of the raw vector
+    // header (this is never zero).
     //
-    unsigned fnext = (unsigned) ( sc.state >> SHIFT );
-    min::unsptr vnext = (min::unsptr) ( sc.state & MASK );
+    unsigned findex = (unsigned) ( sc.state >> SHIFT );
+    min::unsptr displacement =
+        (min::unsptr) ( sc.state & MASK );
 
-    min::internal::raw_vec_header * & header =
-        * (min::internal::raw_vec_header **) &
-        min::unprotected::pointer_ref_of ( sc.s1 );
-    const min::raw_vec_type_info * type_info =
-        header->type_info;
+    if ( displacement < sizeof ( * header ) )
+        displacement = sizeof ( * header );
 
-    if ( vnext < sizeof ( * header ) )
-        vnext = sizeof ( * header );
-
-    const min::uns8 * beginp =
-        (const min::uns8 *) header;
     min::unsptr size =   type_info->element_size
 	               * header->length;
     const min::uns8 * endp =
         beginp + sizeof ( * header ) + size;
+    const min::uns8 * checkp =
+          beginp + sizeof ( * header )
+	+ type_info->element_size;
 
-    const char * format = type_info->format;
 
-    const min::uns8 * p = beginp + vnext;
-    const char * fp = format + fnext;
+    const min::uns8 * p = beginp + displacement;
+    const char * fp = format + findex;
     min::uns64 accumulator = sc.stub_flag_accumulator;
     while ( * fp )
     {
+        assert ( p < checkp );
+
         switch ( * fp ++ )
 	{
 	case 'p':
@@ -580,6 +588,7 @@ static void raw_vec_scavenger_routine
 			+ ( p - beginp );
 		    return;
 		}
+
 		min::gen v = * (min::gen *) p;
 		if ( min::is_stub ( v ) )
 		{
@@ -587,8 +596,13 @@ static void raw_vec_scavenger_routine
 			MUP::stub_of ( v );
 		    min::uns64 c =
 			MUP::control_of ( s2 );
+		    int type =
+		        MUP::type_of_control ( c );
+		    assert ( type >= 0 );
 
-		    if (    sc.to_be_scavenged
+		    if ( ( c & sc.stub_flag ) == 0 )
+		        ; // Do nothing
+		    else if (    sc.to_be_scavenged
 			 >= sc.to_be_scavenged_limit )
 		    {
 			sc.stub_flag_accumulator =
@@ -601,23 +615,16 @@ static void raw_vec_scavenger_routine
 		    }
 		    else
 		    {
-			++ sc.gen_count;
-			++ sc.stub_count;
-			accumulator |= c;
-
-			if ( c & sc.stub_flag )
-			{
-			    MUP::clear_flags_of
-				( s2,
-				  sc.stub_flag );
-			    * sc.to_be_scavenged ++ =
-			        s2;
-			}
+			MUP::clear_flags_of
+			    ( s2, sc.stub_flag );
+			* sc.to_be_scavenged ++ = s2;
 		    }
-		}
-		else
-		    ++ sc.gen_count;
 
+		    ++ sc.stub_count;
+		    accumulator |= c;
+		}
+
+		++ sc.gen_count;
 		p += type_info->element_size;
 	    }
 	    p -= size;
@@ -625,7 +632,50 @@ static void raw_vec_scavenger_routine
 	    break;
 
 	case 's':
-	    // TBD
+	    while ( p < endp )
+	    {
+		if ( sc.gen_count >= sc.gen_limit )
+		{
+		    sc.stub_flag_accumulator =
+			accumulator;
+		    sc.state =
+			  (    ( fp - format )
+			    << SHIFT )
+			+ ( p - beginp );
+		    return;
+		}
+
+		min::stub * s2 = * (min::stub **) p;
+		min::uns64 c = MUP::control_of ( s2 );
+		int type = MUP::type_of_control ( c );
+		assert ( type >= 0 );
+
+		if ( ( c & sc.stub_flag ) == 0 )
+		    ; // Do nothing
+		else if (    sc.to_be_scavenged
+		     >= sc.to_be_scavenged_limit )
+		{
+		    sc.stub_flag_accumulator =
+			accumulator;
+		    sc.state =
+			  (    ( fp - format )
+			    << SHIFT )
+			+ ( p - beginp );
+		    return;
+		}
+		else
+		{
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		    * sc.to_be_scavenged ++ = s2;
+		}
+
+		++ sc.stub_count;
+		accumulator |= c;
+
+		++ sc.gen_count;
+		p += type_info->element_size;
+	    }
 	    p -= size;
 	    p += sizeof ( min::stub * );
 	    break;
@@ -680,6 +730,12 @@ static void raw_vec_scavenger_routine
 		    accumulator =
 			sc.stub_flag_accumulator;
 		}
+		else if ( ( c & sc.stub_flag ) == 0 )
+		{
+		    ++ sc.gen_count;
+		    ++ sc.stub_count;
+		    accumulator |= c;
+		}
 		else if (    sc.to_be_scavenged
 		          >= sc.to_be_scavenged_limit )
 		{
@@ -693,12 +749,9 @@ static void raw_vec_scavenger_routine
 		    ++ sc.stub_count;
 		    accumulator |= c;
 
-		    if ( c & sc.stub_flag )
-		    {
-			MUP::clear_flags_of
-			    ( s2, sc.stub_flag );
-			* sc.to_be_scavenged ++ = s2;
-		    }
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		    * sc.to_be_scavenged ++ = s2;
 		}
 	    }
 	    else
@@ -765,6 +818,12 @@ static void obj_scavenger_routine
 		}
 		else
 #	    endif
+	    if ( ( c & sc.stub_flag ) == 0 )
+	    {
+		++ sc.gen_count;
+		++ sc.stub_count;
+		accumulator |= c;
+	    }
 	    if (    sc.to_be_scavenged
 	         >= sc.to_be_scavenged_limit )
 	    {
@@ -778,12 +837,9 @@ static void obj_scavenger_routine
 		++ sc.stub_count;
 		accumulator |= c;
 
-		if ( c & sc.stub_flag )
-		{
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-		    * sc.to_be_scavenged ++ = s2;
-		}
+		MUP::clear_flags_of
+		    ( s2, sc.stub_flag );
+		* sc.to_be_scavenged ++ = s2;
 	    }
 	}
 	else

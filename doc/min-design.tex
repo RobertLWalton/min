@@ -253,7 +253,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 27, 2010}
+\date{May 30, 2010}
  
 \maketitle
 
@@ -6193,9 +6193,12 @@ are:
 \begin{indpar}
 \begin{tabular}{lp{3.0in}}
 \ttmkey{g}{in raw vector {\tt type\_info} format}
-	& Part is a \verb|min::gen| value. \\
+	& Part is a \verb|min::gen| value, which must
+	  \underline{not} point at an \underline{uncollectible}
+	  stub. \\
 \ttmkey{s}{in raw vector {\tt type\_info} format}
-	& Part is a \verb|min::stub *| value. \\
+	& Part is a \verb|min::stub *| value pointing at
+	  a \underline{collectible} stub. \\
 \ttmkey{p}{in raw vector {\tt type\_info} format}
 	& Part is a number the size of a pointer. \\ 
 \ttmkey{.}{in raw vector {\tt type\_info} format}
