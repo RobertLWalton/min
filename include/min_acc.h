@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 23 15:26:43 EDT 2010
+// Date:	Mon May 31 10:15:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 19:32:47 $
+//   $Date: 2010/06/01 17:19:47 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.46 $
+//   $Revision: 1.47 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -773,6 +773,12 @@ namespace min { namespace acc {
     // element kept by keep(), if any) and then rewinds
     // the stack.
     //
+    // It is possible to ignore the output pointer by
+    // using remove() as if it meant `go to next' and
+    // using rewind() at the end instead of flush().
+    // To facilitate this next() is defined as
+    // equivalent to remove().
+    //
     struct stub_stack
     {
         stub_stack_segment * last_segment;
@@ -870,6 +876,11 @@ namespace min { namespace acc {
 		else
 		    is_at_end = true;
 	    }
+	}
+
+	void next ( void )
+	{
+	    remove();
 	}
 
 	void keep ( void )
@@ -1223,6 +1234,57 @@ namespace min { namespace acc {
     //   objects.  These objects also have their level L
     //   collectible flag and non-root flags cleared.
 
+    // The collector execution is incremental, with a
+    // `collector increment' occuring whenever an
+    // allocation is done, whenever the acc_stack
+    // overflows, or whenever an appropriate time period
+    // has expired.  The amount of work done in a col-
+    // lector increment is controlled by the following
+    // parameters.
+    //
+    // Note then when a level L collection is running,
+    // all level L1 < L collections are suspended
+    // (interrupted).  So only one collection execution
+    // executes in each collector increment.
+    //
+    // Also note that at the end of a time period zero
+    // or more collector increments may be executed
+    // depending upon how many collector increments have
+    // been executed during the period.
+    //
+    extern min::uns64 scan_limit;
+        // Maximum number of stubs whose flags can be
+	// set during a collector increment when the
+	// collector is in itsflag initialization
+	// phases.
+	//
+	// Also maximum number of min::gen values to be
+	// scanned during a collector increment of the
+	// scavenger.
+	//
+	// Also maximum number of stubs to be scanned
+	// during a collector increment of the collec-
+	// tion phase of the collector.
+
+    extern min::uns64 scavenge_limit;
+        // Maximum number of stubs to be scavenged
+	// during a colector increment of the scavenger.
+
+    extern min::uns64 collection_limit;
+        // Maximum number of stubs to be collected
+	// during a collector increment of the collec-
+	// tion phase of the collector.
+
+    extern min::uns32 collector_period;
+        // Interval in milliseconds between timer
+	// interrupts.
+
+    extern min::uns32 period_increments;
+        // The number of collector increments that are
+	// to be executed each period.  If fewer have
+	// been executed by the end of the period, the
+	// remainder are executed when the period ends.
+
     struct generation
     {
         unsigned level;
@@ -1339,6 +1401,53 @@ namespace min { namespace acc {
         ( min::stub ** acc_lower =
 	      min::acc::acc_stack_begin );
 
+    // The scavenging and collection operations are run
+    // intermittently and save their state in a
+    // collector_state struct specific to the acc level.
+    //
+    struct collector_state
+    {
+
+        int8 state;
+	    // One of:
+	    //
+	    enum { INIT,
+	           INITING_ROOT_FLAGS,
+	           INITING_COLLECTIBLE_FLAGS,
+		   SCAVENGING,
+		   MARKING_TERMINATION,
+		   COLLECTING };
+
+	uns8 padding[7];
+
+	uns64 scavenge_count;
+	    // Number of non-root stubs scavenged so far
+	    // by the current scavenging.
+
+	uns64 allocated_count;
+	    // Number of stubs allocated to the level.
+	    // Scavenging is done when allocated_count
+	    // = the scavenging_count, all roots have
+	    // been scavenged, and thread and static
+	    // areas have been scavenged.
+
+	// Statistics.  These accumulate accross all
+	// collections.
+
+	uns64 root_flag_set_count;
+	    // Number of root stubs whose flags were
+	    // reset in the initial phase of collection.
+
+	uns64 level_flag_set_count;
+	    // Number of stubs collectible at this level
+	    // whose flags were reset in the initial
+	    // phase of collection.
+
+	uns64 scanned_count;
+	    // Number of min::gen or min::stub * values
+	    // scanned by the scavenger.
+
+    };
 } }
 
 

@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 23 05:16:58 EDT 2010
+// Date:	Tue Jun  1 09:46:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 10:45:50 $
+//   $Date: 2010/06/01 17:19:47 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.12 $
+//   $Revision: 1.13 $
 
 // Table of Contents
 //
@@ -221,6 +221,41 @@
 # endif
 # ifndef MIN_DEFAULT_EPHEMERAL_SUBLEVELS
 #   define MIN_DEFAULT_EPHEMERAL_SUBLEVELS 5
+# endif
+
+// Values that control the timing of collections.
+//
+// Collection algorithm execution are performed in
+// `collector increments', each of which does an amount
+// of work bounded by the following parameters.  A
+// complete understanding of these parameters requires
+// an understanding of the collector algorithm: see
+// min_acc.h.
+
+// scan_limit
+//     The maximum number of values that can be examined
+//     in a collection increment.  Examination of a
+//     value requires execution of a few tens of
+//     instructions.  E.g., examination of a min::gen
+//     value to see if it points at a stub, and if so
+//     to see if the stub it points at needs to be
+//     marked and put on a to-be-scavenged list.
+//
+# ifdef MIN_DEFAULT_ACC_SCAN_LIMIT
+#   define MIN_DEFAULT_ACC_SCAN_LIMIT 1000
+# endif
+
+// scavenge_limit
+//     The maximum number of stubs that can be scavenged
+//     in a collection increment.  Must be > 1.  If this
+//     is N, then if there are M stubs of the level of a
+//     collection when scavenging starts there will be
+//     at most M * ( N / ( N - 1 ) ) when scavenging
+//     finishes, assuming the scavenger is not
+//     interupted by higher level collections.
+//
+# ifdef MIN_DEFAULT_ACC_SCAVENGE_LIMIT
+#   define MIN_DEFAULT_ACC_SCAVENGE_LIMIT 4
 # endif
 
 
