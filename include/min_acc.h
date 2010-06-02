@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon May 31 10:15:27 EDT 2010
+// Date:	Wed Jun  2 05:56:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/01 17:19:47 $
+//   $Date: 2010/06/02 10:03:12 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.47 $
+//   $Revision: 1.48 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1312,6 +1312,45 @@ namespace min { namespace acc {
 
     struct level
     {
+	// Collector statistics.  These accumulate
+	// across all collections of this level.
+
+	uns64 root_flag_set_count;
+	    // Number of root stubs whose flags were
+	    // reset in the initial phase of collection.
+
+	uns64 level_flag_set_count;
+	    // Number of stubs collectible at this level
+	    // whose flags were reset in the initial
+	    // phase of collection.
+
+	uns64 scanned_count;
+	    // Number of min::gen or min::stub * values
+	    // scanned by the scavenger.
+
+	uns64 scavenge_count;
+	    // Number of stubs scavenged by the
+	    // scavenger.
+
+	uns64 allocated_count;
+	    // Number of stubs assigned to the level.
+
+	uns64 promoted_count;
+	    // Number of stubs promoted to next lower
+	    // level by the collection phase of the
+	    // collector.
+
+	uns64 collected_count;
+	    // Number of stubs collected by the
+	    // collection phase of the collector.
+
+	// Other counts.
+
+	min::uns64 count;
+	    // Number of stubs in this generation.
+
+	// Level working data.
+
         generation * g;
 	    // First generation with this level in the
 	    // generations vector.
@@ -1322,13 +1361,20 @@ namespace min { namespace acc {
 	    // generations of this level run from
 	    // 1 through N, with N being the youngest.
 
-	min::uns64 count;
-	    // Number of stubs in this generation.
-
 	MACC::stub_stack to_be_scavenged;
 	MACC::stub_stack root;
 	    // To-be-scavenged and root lists for
 	    // the level.
+
+        min::uns8 collector_state;
+	    // One of:
+	    //
+	    enum { INIT,
+	           INITING_ROOT_FLAGS,
+	           INITING_COLLECTIBLE_FLAGS,
+		   SCAVENGING,
+		   MARKING_TERMINATION,
+		   COLLECTING };
 
     };
     extern min::acc::level * levels;
@@ -1400,54 +1446,6 @@ namespace min { namespace acc {
     void process_acc_stack
         ( min::stub ** acc_lower =
 	      min::acc::acc_stack_begin );
-
-    // The scavenging and collection operations are run
-    // intermittently and save their state in a
-    // collector_state struct specific to the acc level.
-    //
-    struct collector_state
-    {
-
-        int8 state;
-	    // One of:
-	    //
-	    enum { INIT,
-	           INITING_ROOT_FLAGS,
-	           INITING_COLLECTIBLE_FLAGS,
-		   SCAVENGING,
-		   MARKING_TERMINATION,
-		   COLLECTING };
-
-	uns8 padding[7];
-
-	uns64 scavenge_count;
-	    // Number of non-root stubs scavenged so far
-	    // by the current scavenging.
-
-	uns64 allocated_count;
-	    // Number of stubs allocated to the level.
-	    // Scavenging is done when allocated_count
-	    // = the scavenging_count, all roots have
-	    // been scavenged, and thread and static
-	    // areas have been scavenged.
-
-	// Statistics.  These accumulate accross all
-	// collections.
-
-	uns64 root_flag_set_count;
-	    // Number of root stubs whose flags were
-	    // reset in the initial phase of collection.
-
-	uns64 level_flag_set_count;
-	    // Number of stubs collectible at this level
-	    // whose flags were reset in the initial
-	    // phase of collection.
-
-	uns64 scanned_count;
-	    // Number of min::gen or min::stub * values
-	    // scanned by the scavenger.
-
-    };
 } }
 
 
