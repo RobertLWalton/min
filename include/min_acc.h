@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun  2 05:56:31 EDT 2010
+// Date:	Wed Jun  2 13:00:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/02 10:03:12 $
+//   $Date: 2010/06/02 18:45:33 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.48 $
+//   $Revision: 1.49 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1255,7 +1255,7 @@ namespace min { namespace acc {
     extern min::uns64 scan_limit;
         // Maximum number of stubs whose flags can be
 	// set during a collector increment when the
-	// collector is in itsflag initialization
+	// collector is in its flag initialization
 	// phases.
 	//
 	// Also maximum number of min::gen values to be
@@ -1276,8 +1276,9 @@ namespace min { namespace acc {
 	// tion phase of the collector.
 
     extern min::uns32 collector_period;
-        // Interval in milliseconds between timer
-	// interrupts.
+        // Length in milliseconds of the collector
+	// time period.  There is an interrupt at
+	// the end of each such period.
 
     extern min::uns32 period_increments;
         // The number of collector increments that are
@@ -1285,6 +1286,9 @@ namespace min { namespace acc {
 	// been executed by the end of the period, the
 	// remainder are executed when the period ends.
 
+    // Each generation is described by a generation
+    // struct.
+    //
     struct generation
     {
         unsigned level;
@@ -1310,44 +1314,48 @@ namespace min { namespace acc {
 	// so promotions of objects are from
 	// generations[i] to generations[i-1].
 
+    // Each level is described by a level struct.
+    //
     struct level
     {
 	// Collector statistics.  These accumulate
 	// across all collections of this level.
 
-	uns64 root_flag_set_count;
+	min::uns64 root_flag_set_count;
 	    // Number of root stubs whose flags were
 	    // reset in the initial phase of collection.
 
-	uns64 level_flag_set_count;
+	min::uns64 level_flag_set_count;
 	    // Number of stubs collectible at this level
 	    // whose flags were reset in the initial
 	    // phase of collection.
 
-	uns64 scanned_count;
+	min::uns64 scanned_count;
 	    // Number of min::gen or min::stub * values
 	    // scanned by the scavenger.
 
-	uns64 scavenge_count;
+	min::uns64 scavenge_count;
 	    // Number of stubs scavenged by the
 	    // scavenger.
 
-	uns64 allocated_count;
+	min::uns64 allocated_count;
 	    // Number of stubs assigned to the level.
 
-	uns64 promoted_count;
+	min::uns64 promoted_count;
 	    // Number of stubs promoted to next lower
 	    // level by the collection phase of the
 	    // collector.
 
-	uns64 collected_count;
+	min::uns64 collected_count;
 	    // Number of stubs collected by the
 	    // collection phase of the collector.
 
-	// Other counts.
-
-	min::uns64 count;
-	    // Number of stubs in this generation.
+	// Level ACC flags.
+	//
+	min::uns64 scavenged_flag;
+	min::uns64 unmarked_flag;
+	min::uns64 non_root_flag;
+	min::uns64 collectible_flag;
 
 	// Level working data.
 
@@ -1369,12 +1377,14 @@ namespace min { namespace acc {
         min::uns8 collector_state;
 	    // One of:
 	    //
-	    enum { INIT,
+	    enum { START,
 	           INITING_ROOT_FLAGS,
 	           INITING_COLLECTIBLE_FLAGS,
 		   SCAVENGING,
 		   MARKING_TERMINATION,
-		   COLLECTING };
+		   ROOT_REMOVAL,
+		   COLLECTING,
+		   FINISHED };
 
     };
     extern min::acc::level * levels;

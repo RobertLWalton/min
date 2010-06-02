@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 23 07:05:16 EDT 2010
+// Date:	Wed Jun  2 14:45:45 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 19:32:41 $
+//   $Date: 2010/06/02 18:46:00 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.36 $
+//   $Revision: 1.37 $
 
 // Table of Contents:
 //
@@ -1196,4 +1196,58 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 		  min::uns64(1) << ( M + 2*E + i ) );
 	}
     }
+}
+
+// Perform one increment of the current collector execu-
+// tion.  To start a collector execution just set the
+// level state to START.  The collector execution is
+// finished when it returns with the level collector_
+// state set to FINISHED.
+//
+static void collector_increment ( unsigned level )
+{
+    MACC::level & lev = levels[level];
+
+    switch ( lev.collector_state )
+    {
+    case MACC::level::START:
+    	lev.root.rewind();
+	MINT::new_acc_stub_flags |=
+	    lev.unmarked_flag;
+	MINT::new_acc_stub_flags &=
+	    ~ lev.scavenged_flag;
+	lev.collector_state =
+	    MACC::level::INITING_ROOT_FLAGS;
+	//
+	// Fall throught to next collector_state.
+
+    case MACC::level::INITING_ROOT_FLAGS:
+	{
+	    min::uns64 scanned = 0;   
+	    while ( ! lev.root.at_end()
+	            &&
+		    scanned < MACC::scan_limit )
+	    {
+	        min::stub * s = lev.root.current();
+		lev.root.next();
+		++ scanned;
+		MUP::clear_flags_of
+		    ( s, lev.scavenged_flag );
+	    }
+	    lev.root_flag_set_count += scanned;
+	    if ( lev.root.at_end() )
+	        lev.collector_state =
+		    MACC::level
+		        ::INITING_COLLECTIBLE_FLAGS;
+	}
+	break;
+
+    case MACC::level::INITING_COLLECTIBLE_FLAGS:
+
+        break;
+
+    default:
+        MIN_ABORT ( "bad collector state" );
+    }
+
 }
