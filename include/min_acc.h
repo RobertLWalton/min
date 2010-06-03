@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun  2 13:00:40 EDT 2010
+// Date:	Thu Jun  3 08:15:10 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/02 18:45:33 $
+//   $Date: 2010/06/03 14:13:07 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.49 $
+//   $Revision: 1.50 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1234,6 +1234,20 @@ namespace min { namespace acc {
     //   objects.  These objects also have their level L
     //   collectible flag and non-root flags cleared.
 
+    // The collector execution is incremental, and as a
+    // result its state must be remembered.  It is one
+    // of the following:
+    //
+    enum { COLLECTOR_NOT_RUNNING = 0,
+           COLLECTOR_START,
+	   INITING_ROOT_FLAGS,
+	   INITING_COLLECTIBLE_FLAGS,
+	   SCAVENGING,
+	   COLLECTOR_TERMINATION,
+	   ROOT_REMOVAL,
+	   COLLECTING,
+	   COLLECTOR_FINISHED };
+
     // The collector execution is incremental, with a
     // `collector increment' occuring whenever an
     // allocation is done, whenever the acc_stack
@@ -1350,13 +1364,6 @@ namespace min { namespace acc {
 	    // Number of stubs collected by the
 	    // collection phase of the collector.
 
-	// Level ACC flags.
-	//
-	min::uns64 scavenged_flag;
-	min::uns64 unmarked_flag;
-	min::uns64 non_root_flag;
-	min::uns64 collectible_flag;
-
 	// Level working data.
 
         generation * g;
@@ -1374,17 +1381,17 @@ namespace min { namespace acc {
 	    // To-be-scavenged and root lists for
 	    // the level.
 
+	min::stub * last_allocated_stub;
+	    // MINT::last_allocated_stub at the time
+	    // a collector execution starts.
+	min::stub * last_stub;
+	    // Some collector phases iterate from
+	    // level.g->last_before throught
+	    // last_allocated_stub using this
+	    // as a pointer.
+
         min::uns8 collector_state;
-	    // One of:
-	    //
-	    enum { START,
-	           INITING_ROOT_FLAGS,
-	           INITING_COLLECTIBLE_FLAGS,
-		   SCAVENGING,
-		   MARKING_TERMINATION,
-		   ROOT_REMOVAL,
-		   COLLECTING,
-		   FINISHED };
+	    // One of MACC::collector_state.
 
     };
     extern min::acc::level * levels;
@@ -1415,17 +1422,33 @@ namespace min { namespace acc {
 
     // Flag bit assignments.
     //
-    // Let m = 56 - MIN_ACC_FLAG_BITS + 2,
-    //     p = MINT::ACC_FLAG_PAIRS
-    //     e = MIN_MAX_EPHEMERAL_LEVELS
+    const unsigned M = 56 - MIN_ACC_FLAG_BITS + 2;
+    const unsigned E = MIN_MAX_EPHEMERAL_LEVELS;
     //
     //		        Range
     // Bit:	        of i:    Use:
     //
-    // m - 1 + i        1 .. e   Level i collectible bit
-    // m + e + i        0 .. e   Level i unmarked bit
-    // m + 2e + i       1 .. e   Level i non-root bit
-    // m + 3e + 1 + i   0 .. e   Level i scavenged bit
+    // M - 1 + i        1 .. E   Level i collectible bit
+    // M + E + i        0 .. E   Level i unmarked bit
+    // M + 2E + i       1 .. E   Level i non-root bit
+    // M + 3E + 1 + i   0 .. E   Level i scavenged bit
+    //
+    inline min::uns64 COLLECTIBLE ( unsigned i )
+    {
+        return min::uns64(1) << ( M - 1 + i );
+    }
+    inline min::uns64 UNMARKED ( unsigned i )
+    {
+        return min::uns64(1) << ( M + E + i );
+    }
+    inline min::uns64 NON_ROOT ( unsigned i )
+    {
+        return min::uns64(1) << ( M + 2*E + i );
+    }
+    inline min::uns64 SCAVENGED ( unsigned i )
+    {
+        return min::uns64(1) << ( M + 3*E + 1 + i );
+    }
 
     // Given the control word of a stub return the
     // ACC level of the stub, using the fact that the

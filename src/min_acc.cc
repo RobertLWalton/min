@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun  2 14:45:45 EDT 2010
+// Date:	Thu Jun  3 08:15:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/02 18:46:00 $
+//   $Date: 2010/06/03 14:13:20 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.37 $
+//   $Revision: 1.38 $
 
 // Table of Contents:
 //
@@ -33,6 +33,8 @@
 # define MOS min::os
 # define MINT min::internal
 # define MACC min::acc
+
+using namespace MACC;
 
 // For debugging.
 //
@@ -1109,8 +1111,8 @@ MACC::generation * MACC::generations = ::generations;
 
 static const unsigned MAX_LEVELS =
     1 + MIN_MAX_EPHEMERAL_LEVELS;
-static MACC::level levels[MAX_GENERATIONS];
-MACC::level * MACC::levels = ::levels;
+static MACC::level levels_vector[MAX_GENERATIONS];
+MACC::level * MACC::levels = levels_vector;
 
 min::unsptr  MACC::acc_stack_size;
 min::stub ** MACC::acc_stack_begin;
@@ -1184,16 +1186,43 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 	    unmarked ^= 1 << i;
 	    levels[i].to_be_scavenged.push ( s2 );
 	    MUP::clear_flags_of
-	        ( s2, min::uns64(1) << ( M + E + i ) );
+	        ( s2, UNMARKED ( i ) );
 	}
 	while ( non_root != 0 )
 	{
 	    unsigned i = MINT::log2floor ( non_root );
 	    non_root ^= 1 << i;
-	    levels[i].root.push ( s1 );
+	    level & lev = levels[i];
+	    lev.root.push ( s1 );
 	    MUP::clear_flags_of
-	        ( s1,
-		  min::uns64(1) << ( M + 2*E + i ) );
+	        ( s1, NON_ROOT ( i ) );
+
+	    if (   lev.collector_state
+	         > INITING_ROOT_FLAGS )
+	    {
+	        // After initializing root flags, new
+		// roots are marked scavenged.  This is
+		// an efficiency measure, as new roots
+		// only contain a single pointer to
+		// a collectible stub.
+		//
+		MUP::set_flags_of
+		    ( s1, SCAVENGED ( i ) );
+		if (   MUP::test_flags_of
+		            ( s2, UNMARKED ( i ) )
+		     & UNMARKED ( i ) )
+		{
+		    // After termination unmarked
+		    // s2's should be unreachable.
+		    //
+		    assert (    lev.collector_state
+		             <= COLLECTOR_TERMINATION );
+
+		    lev.to_be_scavenged.push ( s2 );
+		    MUP::clear_flags_of
+			( s2, UNMARKED ( i ) );
+		}
+	    }
 	}
     }
 }
@@ -1206,22 +1235,55 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 //
 static void collector_increment ( unsigned level )
 {
+
     MACC::level & lev = levels[level];
 
     switch ( lev.collector_state )
     {
-    case MACC::level::START:
-    	lev.root.rewind();
+    case COLLECTOR_START:
 	MINT::new_acc_stub_flags |=
-	    lev.unmarked_flag;
+	    UNMARKED ( level );
 	MINT::new_acc_stub_flags &=
-	    ~ lev.scavenged_flag;
+	    ~ SCAVENGED ( level );
+	lev.last_allocated_stub =
+	    MINT::last_allocated_stub;
+
+	lev.last_stub = lev.g->last_before;
 	lev.collector_state =
-	    MACC::level::INITING_ROOT_FLAGS;
+	    INITING_COLLECTIBLE_FLAGS;
 	//
 	// Fall throught to next collector_state.
 
-    case MACC::level::INITING_ROOT_FLAGS:
+    case INITING_COLLECTIBLE_FLAGS:
+        {
+	    min::uns64 scanned = 0;   
+	    min::uns64 c =
+	        MUP::control_of ( lev.last_stub );
+	    while (    lev.last_stub
+	            != lev.last_allocated_stub
+	            &&
+		    scanned < MACC::scan_limit )
+	    {
+		min::stub * s =
+		    MUP::stub_of_acc_control ( c );
+		c = MUP::control_of ( s );
+		c |= UNMARKED ( level );
+		c &= ~ SCAVENGED ( level );
+		MUP::set_control_of ( s, c );
+		lev.last_stub = s;
+	    }
+	    lev.root_flag_set_count += scanned;
+	    if (    lev.last_stub
+	         == lev.last_allocated_stub )
+	    {
+		lev.root.rewind();
+	        lev.collector_state =
+		    INITING_ROOT_FLAGS;
+	    }
+	}
+        break;
+
+    case INITING_ROOT_FLAGS:
 	{
 	    min::uns64 scanned = 0;   
 	    while ( ! lev.root.at_end()
@@ -1232,19 +1294,26 @@ static void collector_increment ( unsigned level )
 		lev.root.next();
 		++ scanned;
 		MUP::clear_flags_of
-		    ( s, lev.scavenged_flag );
+		    ( s, SCAVENGED ( level ) );
 	    }
 	    lev.root_flag_set_count += scanned;
 	    if ( lev.root.at_end() )
+	    {
+		lev.root.rewind();
 	        lev.collector_state =
-		    MACC::level
-		        ::INITING_COLLECTIBLE_FLAGS;
+		    SCAVENGING;
+	    }
 	}
 	break;
 
-    case MACC::level::INITING_COLLECTIBLE_FLAGS:
-
-        break;
+    case SCAVENGING:
+        {
+	    min::uns64 scavenged = 0;   
+	    while ( true )
+	    {
+	    }
+	}
+	break;
 
     default:
         MIN_ABORT ( "bad collector state" );
