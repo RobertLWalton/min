@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jun  3 08:15:10 EDT 2010
+// Date:	Fri Jun  4 12:37:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/03 14:13:07 $
+//   $Date: 2010/06/04 17:15:00 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.50 $
+//   $Revision: 1.51 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -733,19 +733,16 @@ namespace min { namespace acc {
 	    // list of stub stack segments that make
 	    // up a single stack.
 	    //
-	    // Note: There are no empty segments in
-	    // a stack.  If a segment becomes empty
-	    // it is freed, and an empty stack has
-	    // no segments.
+	    // Note: All segments of a stack must be
+	    // full, but the last.  The last may be
+	    // empty.  An empty stack may have just
+	    // one empty segment or may have no
+	    // segments.
 
 	min::stub ** next, ** end;
 	    // Next element of segment vector to be
 	    // used, and address just after end of
 	    // vector (i.e., end of segment).
-	    //
-	    // Note: every segment in a stack but the
-	    // last must be FULL, and the last segment
-	    // cannot be empty.
 
 	min::stub * begin[];
 	    // Beginning element of segment vector.
@@ -755,7 +752,8 @@ namespace min { namespace acc {
     // A stub stack can be accessed in two ways.
     //
     // First, a value can be pushed into the stack using
-    // push().
+    // push().  It is also to batch push operations
+    // using begin_push() and end_push().
     //
     // Second, the stack comes with two pointers, named
     // `input' and `output'.  rewind() resets both
@@ -773,11 +771,16 @@ namespace min { namespace acc {
     // element kept by keep(), if any) and then rewinds
     // the stack.
     //
-    // It is possible to ignore the output pointer by
-    // using remove() as if it meant `go to next' and
-    // using rewind() at the end instead of flush().
-    // To facilitate this next() is defined as
-    // equivalent to remove().
+    // When remove() is used in this way stack segments
+    // are freed whenever they are between the output
+    // and input pointer.  That is, a segment is freed
+    // if the input pointer moves to the next segment
+    // and the output pointer is not in the segment.
+    //
+    // It is also possible to ignore the output pointer
+    // by using next() instead of remove.  This merely
+    // iterates through the stack without removing any
+    // elements.
     //
     struct stub_stack
     {
@@ -812,27 +815,7 @@ namespace min { namespace acc {
 	    output ( NULL ),
 	    is_at_end ( true ) {}
 
-	void rewind ( void )
-	{
-	    if ( last_segment == NULL )
-	    {
-		input = output = NULL;
-		input_segment = output_segment = NULL;
-		is_at_end = true;
-	    }
-	    else
-	    {
-	        input_segment =
-		    last_segment->next_segment;
-		input = input_segment->begin;
-		output_segment = input_segment;
-		output = input;
-		is_at_end =
-		    ( input_segment == last_segment
-		      &&
-		      input == input_segment->next );
-	    }
-	}
+	void rewind ( void );
 
 	bool at_end ( void )
 	{
@@ -859,7 +842,38 @@ namespace min { namespace acc {
 	    is_at_end = false;
 	}
 
+	void begin_push
+	    ( min::stub ** & next, min::stub ** &end )
+	{
+	    if ( last_segment == NULL
+	         ||
+		    last_segment->next
+		 == last_segment->end )
+	        allocate_stub_stack_segment();
+
+	    next = last_segment->next;
+	    end = last_segment->end;
+	}
+
+	void end_push ( min::stub ** next )
+	{
+	    if ( last_segment->next != next )
+	    {
+		last_segment->next = next;
+		is_at_end = false;
+	    }
+	}
+
+	void remove_jump ( void );
 	void remove ( void )
+	{
+	    assert ( ! is_at_end );
+
+	    if ( ++ input == input_segment->next )
+	        remove_jump();
+	}
+
+	void next ( void )
 	{
 	    assert ( ! is_at_end );
 
@@ -876,11 +890,6 @@ namespace min { namespace acc {
 		else
 		    is_at_end = true;
 	    }
-	}
-
-	void next ( void )
-	{
-	    remove();
 	}
 
 	void keep ( void )
@@ -900,8 +909,6 @@ namespace min { namespace acc {
 
 	void flush ( void );
     };
-
-
 } }
 
 // Collector Interface
