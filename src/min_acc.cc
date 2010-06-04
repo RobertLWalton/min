@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jun  3 08:15:21 EDT 2010
+// Date:	Fri Jun  4 13:14:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/03 14:13:20 $
+//   $Date: 2010/06/04 17:14:43 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.38 $
+//   $Revision: 1.39 $
 
 // Table of Contents:
 //
@@ -916,6 +916,29 @@ void MINT::new_non_fixed_body
 // Stub Stack Manager
 // ---- ----- -------
 
+
+void MACC::stub_stack::rewind ( void )
+{
+    if ( last_segment == NULL )
+    {
+	input = output = NULL;
+	input_segment = output_segment = NULL;
+	is_at_end = true;
+    }
+    else
+    {
+	input_segment =
+	    last_segment->next_segment;
+	input = input_segment->begin;
+	output_segment = input_segment;
+	output = input;
+	is_at_end =
+	    ( input_segment == last_segment
+	      &&
+	      input == input_segment->next );
+    }
+}
+
 // Called by push() when we are at the end of the
 // current segment, or there is no current segment
 // (stack has no segments yet).  Allocates another
@@ -934,7 +957,7 @@ void MACC::stub_stack
         // Current stack region exists and has no free
 	// segments or room to allocate a new segment.
 
-	r = last_stub_stack_region->region_previous;
+	r = last_stub_stack_region->region_next;
 	while ( r->free_count == 0
 		&&
 		r != last_stub_stack_region )
@@ -958,7 +981,9 @@ void MACC::stub_stack
 	if ( r == NULL )
 	{
 	    cout << "ERROR: out of virtual"
-		    " memory." << endl;
+		    " memory while attempting to"
+		    " allocate a stub stack"
+		    " region." << endl;
 	    MOS::dump_error_info ( cout );
 	    exit ( 1 );
 	}
@@ -1000,9 +1025,7 @@ void MACC::stub_stack
     if ( last_segment == NULL )
     {
         sss->previous_segment = sss->next_segment = sss;
-	last_segment = input_segment
-		     = output_segment = sss;
-	input = output = sss->begin;
+	last_segment = sss;
     }
     else
     {
@@ -1030,6 +1053,53 @@ void MACC::stub_stack
 	}
 	last_segment = sss;
     }
+}
+
+void MACC::stub_stack::remove_jump ( void )
+{
+    if ( input_segment != last_segment )
+    {
+	input_segment =
+	    input_segment->next_segment;
+	input = input_segment->begin;
+
+	is_at_end =
+	    ( input == input_segment->next );
+
+	if (    output_segment
+	     != input_segment->previous_segment )
+	{
+	    // Remove segment we just left.
+	    //
+	    MACC::stub_stack_segment * sss =
+	        input_segment->previous_segment;
+	    assert ( sss != sss->next_segment );
+	    sss->next_segment->previous_segment =
+	        sss->previous_segment;
+	    sss->previous_segment->next_segment =
+	        sss->next_segment;
+
+	    MINT::free_fixed_size_block * b =
+		(MINT::free_fixed_size_block *) sss;
+	    b->next = NULL;
+
+	    int locator = MUP::locator_of_control
+		( sss->block_control );
+	    region * r = & region_table[locator];
+	    if ( r->free_count ++ == 0 )
+		r->free_first = r->free_last = b;
+	    else
+	    {
+		r->free_last->next = b;
+		r->free_last = b;
+	    }
+
+	    // TBD: if all segments in r are free,
+	    // free r.
+	}
+    }
+    else
+	is_at_end = true;
 }
 
 void MACC::stub_stack::flush ( void )
@@ -1300,6 +1370,12 @@ static void collector_increment ( unsigned level )
 	    if ( lev.root.at_end() )
 	    {
 		lev.root.rewind();
+		MINT::scavenge_control & sc =
+		    MINT::scavenge_controls[level];
+		sc.state = 0;
+		sc.stub_flag = UNMARKED ( level );
+		sc.level = level;
+		sc.gen_limit = MACC::scan_limit;
 	        lev.collector_state =
 		    SCAVENGING;
 	    }
