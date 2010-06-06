@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  5 04:55:21 EDT 2010
+// Date:	Sun Jun  6 06:40:19 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/06 07:33:55 $
+//   $Date: 2010/06/06 11:14:51 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.52 $
+//   $Revision: 1.53 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1405,8 +1405,14 @@ namespace min { namespace acc {
 	    // scavenged.
 
 	min::uns32 termination_count;
-	    // Number of times the collector termination
-	    // phase has run.
+	    // Number of collector increments the
+	    // COLLECTOR_TERMINATING phase of the
+	    // collector has run.
+
+	min::uns8 root_removal_level;
+	    // Level whose root stack is being scanned
+	    // for removals during the ROOT_REMOVAL
+	    // pahse of theh collector.
 
     };
     extern min::acc::level * levels;

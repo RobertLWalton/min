@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sat Jun  5 03:37:09 EDT 2010
+// Date:	Sun Jun  6 07:14:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/06 07:37:10 $
+//   $Date: 2010/06/06 11:15:07 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.40 $
+//   $Revision: 1.41 $
 
 // Table of Contents:
 //
@@ -1528,6 +1528,8 @@ static void collector_increment ( unsigned level )
 		    }
 		    else
 		    {
+			lev.root_removal_level =
+			    level;
 		        lev.collector_state =
 			    ROOT_REMOVAL;
 			break;
@@ -1549,6 +1551,65 @@ static void collector_increment ( unsigned level )
 		( sc.to_be_scavenged );
 	    lev.scanned_count += sc.gen_count;
 	    lev.scavenged_count += scavenged;
+	}
+	break;
+
+    case ROOT_REMOVAL:
+        {
+	    bool force_rewind = false;
+	    if ( lev.root_removal_level == level )
+	    {
+		++ lev.root_removal_level;
+		force_rewind = true;
+	    }
+
+	    min::uns64 unmarked_flag =
+	        UNMARKED ( level );
+	    min::uns64 scanned = 0;
+	    while ( true )
+	    {
+	        if (   lev.root_removal_level
+		     > MINT::number_of_acc_levels )
+		{
+		    lev.collector_state = COLLECTING;
+		    break;
+		}
+
+		MACC::level & rrlev =
+		    MACC::levels[lev.root_removal_level];
+
+		if ( force_rewind )
+		{
+		    rrlev.root.rewind();
+		    force_rewind = false;
+		}
+
+		while ( scanned < MACC::scan_limit
+		        &&
+			! rrlev.root.at_end() )
+		{
+		    min::stub * s =
+		        rrlev.root.current();
+		    if ( MUP::test_flags_of
+		             ( s, unmarked_flag ) )
+		        rrlev.root.remove();
+		    else
+		        rrlev.root.keep();
+		    ++ scanned;
+		}
+
+		if ( scanned >= MACC::scan_limit )
+		    break;
+
+		if ( rrlev.root.at_end() )
+		{
+		    rrlev.root.flush();
+		    ++ lev.root_removal_level;
+		    force_rewind = true;
+		}
+
+	    }
+	    lev.scanned_count += scanned;
 	}
 	break;
 
