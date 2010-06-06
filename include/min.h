@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu May 27 06:56:07 EDT 2010
+// Date:	Sun Jun  6 02:53:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/27 15:18:41 $
+//   $Date: 2010/06/06 07:33:55 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.331 $
+//   $Revision: 1.332 $
 
 // Table of Contents:
 //
@@ -2364,6 +2364,21 @@ namespace min { namespace internal {
     // for an acc stub and not an aux stub).
     //
     extern scavenger_routine scavenger_routines[128];
+
+    // Function to scavenge the thread stack_gen and
+    // stack_num_gen structures and the static_gen
+    // and static_num_gen structures.  Returns with
+    // sc.state != 0 only if it runs out of to_be_
+    // scavenged stack, in which case it should be
+    // recalled with 0 sc.state after to_be_scavenged
+    // stack is emptied.
+    //
+    // This function ignores sc.gen_limit and sc.stub_
+    // flag_accumulator, but increments gen_count and
+    // stub_count.
+    //
+    void thread_scavenger_routine
+        ( scavenge_control & sc );
     
     // The job of a scavenger routine is to scavenge
     // a stub s1 which is pointed at by a scavenge

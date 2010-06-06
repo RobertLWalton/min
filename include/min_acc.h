@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jun  4 12:37:57 EDT 2010
+// Date:	Sat Jun  5 04:55:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/04 17:15:00 $
+//   $Date: 2010/06/06 07:33:55 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.51 $
+//   $Revision: 1.52 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1250,7 +1250,7 @@ namespace min { namespace acc {
 	   INITING_ROOT_FLAGS,
 	   INITING_COLLECTIBLE_FLAGS,
 	   SCAVENGING,
-	   COLLECTOR_TERMINATION,
+	   COLLECTOR_TERMINATING,
 	   ROOT_REMOVAL,
 	   COLLECTING,
 	   COLLECTOR_FINISHED };
@@ -1346,7 +1346,7 @@ namespace min { namespace acc {
 	    // Number of root stubs whose flags were
 	    // reset in the initial phase of collection.
 
-	min::uns64 level_flag_set_count;
+	min::uns64 collectible_flag_set_count;
 	    // Number of stubs collectible at this level
 	    // whose flags were reset in the initial
 	    // phase of collection.
@@ -1355,7 +1355,7 @@ namespace min { namespace acc {
 	    // Number of min::gen or min::stub * values
 	    // scanned by the scavenger.
 
-	min::uns64 scavenge_count;
+	min::uns64 scavenged_count;
 	    // Number of stubs scavenged by the
 	    // scavenger.
 
@@ -1399,6 +1399,14 @@ namespace min { namespace acc {
 
         min::uns8 collector_state;
 	    // One of MACC::collector_state.
+
+	bool root_scavenge;
+	    // True if a root stub is currently being
+	    // scavenged.
+
+	min::uns32 termination_count;
+	    // Number of times the collector termination
+	    // phase has run.
 
     };
     extern min::acc::level * levels;

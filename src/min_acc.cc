@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Fri Jun  4 13:14:27 EDT 2010
+// Date:	Sat Jun  5 03:37:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/04 17:14:43 $
+//   $Date: 2010/06/06 07:37:10 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.39 $
+//   $Revision: 1.40 $
 
 // Table of Contents:
 //
@@ -1286,7 +1286,7 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 		    // s2's should be unreachable.
 		    //
 		    assert (    lev.collector_state
-		             <= COLLECTOR_TERMINATION );
+		             <= COLLECTOR_TERMINATING );
 
 		    lev.to_be_scavenged.push ( s2 );
 		    MUP::clear_flags_of
@@ -1299,9 +1299,9 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 
 // Perform one increment of the current collector execu-
 // tion.  To start a collector execution just set the
-// level state to START.  The collector execution is
-// finished when it returns with the level collector_
-// state set to FINISHED.
+// level state to COLLECTOR_START.  The collector
+// execution is finished when it returns with the level
+// collector_state set to COLLECTOR_FINISHED.
 //
 static void collector_increment ( unsigned level )
 {
@@ -1384,15 +1384,175 @@ static void collector_increment ( unsigned level )
 
     case SCAVENGING:
         {
+	    MINT::scavenge_control & sc =
+		MINT::scavenge_controls[level];
+	    sc.gen_count = 0;
+	    sc.stub_count = 0;
+	    lev.to_be_scavenged.begin_push
+	        ( sc.to_be_scavenged,
+	          sc.to_be_scavenged_limit );
 	    min::uns64 scavenged = 0;   
 	    while ( true )
 	    {
+		if ( sc.state == 0 )
+		{
+		    if ( ! lev.to_be_scavenged
+		              .at_end() )
+		    {
+		        sc.s1 = lev.to_be_scavenged
+			           .current();
+		        lev.to_be_scavenged.remove();
+			lev.root_scavenge = false;
+			MUP::set_flags_of
+			    ( sc.s1,
+			      SCAVENGED ( level ) );
+		    }
+		    else if ( ! lev.root.at_end() )
+		    {
+			sc.stub_flag_accumulator = 0;
+		        sc.s1 = lev.root.current();
+
+			if ( MUP::test_flags_of
+			        ( sc.s1, SCAVENGED
+				           ( level ) ) )
+			{
+			    lev.collector_state =
+			        COLLECTOR_TERMINATING;
+			    break;
+			}
+
+			lev.root_scavenge = true;
+			MUP::set_flags_of
+			    ( sc.s1,
+			      SCAVENGED ( level )
+			      +
+			      NON_ROOT ( level ) );
+		    }
+		    else
+		    {
+		        lev.collector_state =
+			    COLLECTOR_TERMINATING;
+			break;
+		    }
+		}
+
+		int type = min::type_of ( sc.s1 );
+		assert ( type >= 0 );
+		MINT::scavenger_routine scav =
+		    MINT::scavenger_routines[type];
+		if ( scav != NULL) (* scav) ( sc );
+
+		if ( sc.state != 0 ) break;
+
+		++ scavenged;
+		if ( lev.root_scavenge )
+		{
+		    if ( ! MUP::test_flags_of
+		               ( sc.s1, NON_ROOT
+			                  ( level ) ) )
+		        lev.root.keep();
+		    else if ( sc.stub_flag_accumulator
+		              &
+			      COLLECTIBLE ( level ) )
+		    {
+		        MUP::clear_flags_of
+			    ( sc.s1,
+			      NON_ROOT ( level ) );
+			lev.root.keep();
+		    }
+		    else
+		    {
+		        MUP::clear_flags_of
+			    ( sc.s1,
+			      SCAVENGED ( level ) );
+			lev.root.remove();
+		    }
+		}
 	    }
+
+	    lev.to_be_scavenged.end_push
+		( sc.to_be_scavenged );
+	    lev.scanned_count += sc.gen_count;
+	    lev.scavenged_count += scavenged;
+
+	    if (    lev.collector_state
+	         == COLLECTOR_TERMINATING )
+	        lev.termination_count = 0;
+	}
+	break;
+
+    case COLLECTOR_TERMINATING:
+        {
+	    MINT::scavenge_control & sc =
+		MINT::scavenge_controls[level];
+	    sc.gen_count = 0;
+	    sc.stub_count = 0;
+	    lev.to_be_scavenged.begin_push
+	        ( sc.to_be_scavenged,
+	          sc.to_be_scavenged_limit );
+	    min::uns64 scavenged = 0;   
+	    bool thread_scavenged = false;
+
+	    while ( true )
+	    {
+		if ( sc.state == 0 )
+		{
+		    if ( ! lev.to_be_scavenged
+		              .at_end() )
+		    {
+		        sc.s1 = lev.to_be_scavenged
+			           .current();
+		        lev.to_be_scavenged.remove();
+			MUP::set_flags_of
+			    ( sc.s1,
+			      SCAVENGED ( level ) );
+		    }
+		    else if ( ! thread_scavenged )
+		    {
+			sc.state = 0;
+			MINT::thread_scavenger_routine
+			    ( sc );
+
+			if ( sc.state != 0 ) break;
+
+			thread_scavenged = true;
+			if ( lev.termination_count
+			     == 0 )
+			    sc.gen_limit +=
+			        sc.gen_count;
+			else if ( lev.termination_count
+			          % 4 == 0 )
+			    sc.gen_limit *= 2;
+			++ lev.termination_count;
+			continue;
+		    }
+		    else
+		    {
+		        lev.collector_state =
+			    ROOT_REMOVAL;
+			break;
+		    }
+		}
+
+		int type = min::type_of ( sc.s1 );
+		assert ( type >= 0 );
+		MINT::scavenger_routine scav =
+		    MINT::scavenger_routines[type];
+		if ( scav != NULL) (* scav) ( sc );
+
+		if ( sc.state != 0 ) break;
+
+		++ scavenged;
+	    }
+
+	    lev.to_be_scavenged.end_push
+		( sc.to_be_scavenged );
+	    lev.scanned_count += sc.gen_count;
+	    lev.scavenged_count += scavenged;
 	}
 	break;
 
     default:
         MIN_ABORT ( "bad collector state" );
     }
-
 }
