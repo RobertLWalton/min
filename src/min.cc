@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun May 30 01:00:36 EDT 2010
+// Date:	Sun Jun  6 02:50:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/30 05:50:59 $
+//   $Date: 2010/06/06 07:37:10 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.223 $
+//   $Revision: 1.224 $
 
 // Table of Contents:
 //
@@ -61,6 +61,8 @@ char const * min::special_name
       "UNDEFINED", "SUCCESS", "FAILURE" };
 
 static void lab_scavenger_routine
+	( MINT::scavenge_control & sc );
+static void raw_vec_scavenger_routine
 	( MINT::scavenge_control & sc );
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
@@ -204,6 +206,8 @@ MINT::initializer::initializer ( void )
 
     MINT::scavenger_routines[min::LABEL]
     	= & lab_scavenger_routine;
+    MINT::scavenger_routines[min::RAW_VEC]
+    	= & raw_vec_scavenger_routine;
     MINT::scavenger_routines[min::SHORT_OBJ]
     	= & obj_scavenger_routine;
     MINT::scavenger_routines[min::LONG_OBJ]
@@ -850,6 +854,63 @@ static void obj_scavenger_routine
 	    next = MUP::aux_offset_of ( vp );
     }
     sc.stub_flag_accumulator = accumulator;
+    sc.state = 0;
+}
+
+void MINT::thread_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+    int thread = 0;
+    gen_locator * locator = static_gen_last;
+    int index = 0;
+    while ( true )
+    {
+        if ( locator == NULL )
+	{
+	    if ( thread == 1 ) break;
+	    locator = stack_gen_last;
+	    thread = 1;
+	    continue;
+	}
+
+	if ( index == locator->length )
+	{
+	    locator = locator->previous;
+	    index = 0;
+	    continue;
+	}
+
+
+	min::gen v = locator->values[index];
+	if ( min::is_stub ( v ) )
+	{
+	    min::stub * s2 = MUP::stub_of ( v );
+	    min::uns64 c = MUP::control_of ( s2 );
+
+	    if (    sc.to_be_scavenged
+	         >= sc.to_be_scavenged_limit )
+	    {
+	        sc.state = 1;
+		return;
+	    }
+	    else
+	    {
+		++ sc.gen_count;
+		++ sc.stub_count;
+
+		if ( c & sc.stub_flag )
+		{
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		    * sc.to_be_scavenged ++ = s2;
+		}
+	    }
+	}
+	else
+	    ++ sc.gen_count;
+
+	++ index;
+    }
     sc.state = 0;
 }
 
