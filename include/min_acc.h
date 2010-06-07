@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  6 06:40:19 EDT 2010
+// Date:	Sun Jun  6 21:09:10 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/06 11:14:51 $
+//   $Date: 2010/06/07 03:24:28 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.53 $
+//   $Revision: 1.54 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1252,6 +1252,7 @@ namespace min { namespace acc {
 	   SCAVENGING,
 	   COLLECTOR_TERMINATING,
 	   ROOT_REMOVAL,
+	   PROMOTING,
 	   COLLECTING,
 	   COLLECTOR_FINISHED };
 
@@ -1376,6 +1377,9 @@ namespace min { namespace acc {
         generation * g;
 	    // First generation with this level in the
 	    // generations vector.
+
+	generation * gnext;
+	    // Next generation after g, or NULL if none.
 
 	unsigned number_of_sublevels;
 	    // Number of sublevels (generations) on this
