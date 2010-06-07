@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  6 07:14:29 EDT 2010
+// Date:	Sun Jun  6 20:03:38 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/06 11:15:07 $
+//   $Date: 2010/06/07 03:24:57 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.41 $
+//   $Revision: 1.42 $
 
 // Table of Contents:
 //
@@ -1571,7 +1571,10 @@ static void collector_increment ( unsigned level )
 	        if (   lev.root_removal_level
 		     > MINT::number_of_acc_levels )
 		{
-		    lev.collector_state = COLLECTING;
+		    lev.last_stub = lev.g->last_before;
+		    lev.collector_state =
+		        level == 0 ? COLLECTING :
+		                     PROMOTING;
 		    break;
 		}
 
@@ -1610,6 +1613,66 @@ static void collector_increment ( unsigned level )
 
 	    }
 	    lev.scanned_count += scanned;
+	}
+	break;
+
+    case PROMOTING:
+        {
+	    min::stub * end_stub =
+	        lev.gnext == NULL ?
+		lev.last_allocated_stub :
+		lev.gnext->last_before;
+	        
+	    min::uns64 collected = 0;   
+	    min::uns64 promoted = 0;   
+	    min::uns64 last_c =
+	        MUP::control_of ( lev.last_stub );
+	    while ( lev.last_stub != end_stub
+	            &&
+		      collected + promoted
+		    < MACC::scan_limit )
+	    {
+		min::stub * s =
+		    MUP::stub_of_acc_control ( last_c );
+		min::uns64 c = MUP::control_of ( s );
+		if ( c & UNMARKED ( level ) )
+		{
+		    if ( s == end_stub )
+		        end_stub = lev.last_stub;
+
+
+		    // TBD FREE BODY and STUB
+
+		    last_c = MUP::renew_control_stub
+				( last_c,
+				  MUP::stub_of_control
+				      ( c ) );
+		    MUP::set_control_of
+		        ( lev.last_stub, last_c );
+
+		    ++ collected;
+		}
+		else
+		{
+		    c &= ~ COLLECTIBLE ( level );
+		    c &= ~ NON_ROOT ( level );
+		    lev.root.push ( s );
+		    MUP::set_control_of ( s, c );
+		    last_c = c;
+		    lev.last_stub = s;
+		    ++ promoted;
+		}
+	    }
+	    lev.collected_count += collected;
+	    lev.promoted_count += promoted;
+
+	    if ( lev.last_stub == end_stub )
+	    {
+	        if ( lev.gnext != NULL )
+		    lev.gnext->last_before = end_stub;
+		// TBD
+	        lev.collector_state = COLLECTING;
+	    }
 	}
 	break;
 
