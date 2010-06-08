@@ -6,6 +6,7 @@ TRACE: new_pool ( 640 )
 TRACE: allocate_new_superregion()
 TRACE: new_multi_page_block_region (1073741824, 4)
 TRACE: new_pool ( 262144 )
+TRACE: new_multi_page_block_region  returns & region_table[1]
 
 Start Test!
 
