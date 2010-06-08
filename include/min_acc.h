@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  6 21:09:10 EDT 2010
+// Date:	Tue Jun  8 10:07:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/07 03:24:28 $
+//   $Date: 2010/06/08 16:40:38 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.54 $
+//   $Revision: 1.55 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -600,6 +600,11 @@ namespace min { namespace acc {
 
     // Pointers at the last region in various lists of
     // regions:
+
+    extern region * last_free_region;
+        // List of all free region struct's.  If empty,
+	// new regions structs are to be allocated
+	// at region_next.
 
     extern region * last_superregion;
         // List of all superregions in order of

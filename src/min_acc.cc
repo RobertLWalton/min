@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  6 20:03:38 EDT 2010
+// Date:	Tue Jun  8 09:43:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/07 03:24:57 $
+//   $Date: 2010/06/08 16:40:56 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.42 $
+//   $Revision: 1.43 $
 
 // Table of Contents:
 //
@@ -412,6 +412,7 @@ MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
 MACC::region * MACC::region_end;
 
+MACC::region * MACC::last_free_region = NULL;
 MACC::region * MACC::last_superregion = NULL;
 MACC::region * MACC::last_free_subregion = NULL;
 MACC::region * MACC::last_variable_body_region = NULL;
@@ -566,7 +567,10 @@ static MACC::region * new_multi_page_block_region
 	exit ( 1 );
     }
 
-    MACC::region * r = MACC::region_next ++;
+    MACC::region * r = MACC::last_free_region;
+    if ( r == NULL ) r = MACC::region_next ++;
+    else remove ( MACC::last_free_region, r );
+
     r->block_control = 0;
     r->block_subcontrol = MUP::new_control_with_type
         ( type, size );
@@ -580,7 +584,48 @@ static MACC::region * new_multi_page_block_region
     r->free_first = NULL;
     r->free_last = NULL;
 
+    if ( MOS::trace_pools >= 1 )
+        cout << "TRACE: new_multi_page_block_region "
+	        " returns & region_table["
+	     << r - MACC::region_table
+	     << "]" << endl;
+
     return r;
+}
+
+// Free new multi-page region.  Caller must first
+// remove region from any list it is on.
+//
+static void free_multi_page_block_region
+	( MACC::region * r )
+{
+    if ( MOS::trace_pools >= 1 )
+        cout << "TRACE: free_multi_page_block_region "
+	        " ( & region_table["
+	     << r - MACC::region_table
+	     << "] )" << endl;
+
+    min::uns64 length =
+        MUP::value_of_control ( r->block_subcontrol );
+    assert ( length % page_size == 0 );
+    min::uns64 pages = length / page_size;
+
+    MOS::free_pool ( pages, r->begin );
+
+    r->block_control = 0;
+    r->block_subcontrol = MUP::new_control_with_type
+        ( MACC::FREE, (min::uns64) 0 );
+    r->begin = NULL;
+    r->next = NULL;
+    r->end = NULL;
+    r->block_size = 0;
+    r->free_count = 0;
+    r->free_first = NULL;
+    r->free_last = NULL;
+
+    assert ( r->region_previous == r->region_next );
+
+    insert ( MACC::last_free_region, r );
 }
 
 // Call this when we are out of superregions.
