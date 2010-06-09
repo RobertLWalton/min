@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jun  8 10:07:26 EDT 2010
+// Date:	Wed Jun  9 03:02:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/08 16:40:38 $
+//   $Date: 2010/06/09 07:22:35 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.55 $
+//   $Revision: 1.56 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -475,7 +475,7 @@ namespace min { namespace acc {
 	    // and the value field is the size of the
 	    // region in bytes.
 
-	min::uns32 block_size;
+	min::unsptr block_size;
 	    // For fixed size block regions, the size
 	    // in bytes of the fixed size blocks.
 	    //
@@ -483,9 +483,15 @@ namespace min { namespace acc {
 	    // maximum size in bytes of the variable
 	    // size blocks.
 
-	min::uns32 free_count;
+	min::unsptr free_count;
 	    // For fixed size block regions, the number
 	    // of free blocks.
+
+	min::unsptr max_free_count;
+	    // For fixed size block regions, the value
+	    // of free_count that indicates that the
+	    // regions consists of nothing but free
+	    // blocks.
 
 	min::uns8 * begin, * next, * end;
 	    // Location of the first allocatable byte of
@@ -527,6 +533,12 @@ namespace min { namespace acc {
 	    // these blocks have addresses `< next'.
 
     };
+
+    inline min::unsptr size_of ( region * r )
+    {
+        return min::unprotected::value_of_control
+	     ( r->block_subcontrol );
+    }
 
     // Put region1 on the doubly linked region_previous/
     // next list after region2.

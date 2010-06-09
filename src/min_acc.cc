@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun  9 02:43:57 EDT 2010
+// Date:	Wed Jun  9 02:55:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/09 06:44:17 $
+//   $Date: 2010/06/09 07:25:49 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.44 $
+//   $Revision: 1.45 $
 
 // Table of Contents:
 //
@@ -537,7 +537,9 @@ static void block_allocator_initializer ( void )
 }
 
 // Allocate a new non-sub region with the given
-// number of pages.
+// number of pages.  Note that block_size and max_free_
+// count are set to 0 by this function, and must be
+// set by caller if they are used.
 //
 static MACC::region * new_region
 	( min::unsptr size, int type )
@@ -579,6 +581,7 @@ static MACC::region * new_region
     r->end = r->begin + size;
     r->block_size = 0;
     r->free_count = 0;
+    r->max_free_count = 0;
     r->region_previous = r;
     r->region_next = r;
     r->free_first = NULL;
@@ -604,8 +607,7 @@ static void free_region
 	     << r - MACC::region_table
 	     << "] )" << endl;
 
-    min::uns64 length =
-        MUP::value_of_control ( r->block_subcontrol );
+    min::uns64 length = MACC::size_of ( r );
     assert ( length % page_size == 0 );
     min::uns64 pages = length / page_size;
 
@@ -635,8 +637,8 @@ static void allocate_new_superregion ( void )
         cout << "TRACE: allocate_new_superregion()"
 	     << endl;
 
-    // Allocate as multi page block region.  If not the
-    // first superregion, try downsizing if necessary.
+    // Allocate as new region.  If not the first
+    // superregion, try downsizing if necessary.
     //
     MACC::region * r = new_region
 	( MACC::superregion_size,
@@ -665,6 +667,8 @@ static void allocate_new_superregion ( void )
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
+    r->block_size = MACC::subregion_size;
+    r->max_free_count = size_of ( r ) / r->block_size;
 
     MACC::insert ( MACC::last_superregion, r );
 }
@@ -1026,6 +1030,11 @@ void MACC::stub_stack
 	    MOS::dump_error_info ( cout );
 	    exit ( 1 );
 	}
+
+	r->block_size = MACC::stub_stack_segment_size;
+	r->max_free_count =
+	    size_of ( r ) / r->block_size;
+
 	insert ( last_stub_stack_region, r );
 	current_stub_stack_region = r;
     }
@@ -1133,8 +1142,19 @@ void MACC::stub_stack::remove_jump ( void )
 		r->free_last = b;
 	    }
 
-	    // TBD: if all segments in r are free,
-	    // free r.
+	    if ( r->free_count == r->max_free_count )
+	    {
+		// If all segments in r are free,
+		// free r.  But not if r is the current
+		// stub stack region, in order to
+		// prevent thrashing.
+		//
+		if ( r != MACC::
+		            current_stub_stack_region )
+		    MACC::remove
+		        ( MACC::last_stub_stack_region,
+			  r );
+	    }
 	}
     }
     else
@@ -1192,7 +1212,18 @@ void MACC::stub_stack::flush ( void )
 	    r->free_last = b;
 	}
 
-	// TBD: if all segments in r are free, free r.
+	if ( r->free_count == r->max_free_count )
+	{
+	    // If all segments in r are free,
+	    // free r.  But not if r is the current
+	    // stub stack region, in order to
+	    // prevent thrashing.
+	    //
+	    if ( r != MACC::
+			current_stub_stack_region )
+		MACC::remove
+		    ( MACC::last_stub_stack_region, r );
+	}
     }
 
     if ( output_segment != NULL )
