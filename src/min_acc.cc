@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun 14 05:34:27 EDT 2010
+// Date:	Mon Jun 14 06:29:12 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/14 09:34:47 $
+//   $Date: 2010/06/14 10:34:56 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.46 $
+//   $Revision: 1.47 $
 
 // Table of Contents:
 //
@@ -711,6 +711,7 @@ void MINT::new_fixed_body
 
 	    int locator = MUP::locator_of_control
 	                       ( r->block_control );
+	    assert ( locator > 0 );
 	    sr = MACC::region_table + locator;
 	    assert ( MACC::region_table <= sr
 	             &&
@@ -1010,7 +1011,11 @@ void MACC::stub_stack
 	while ( r->free_count == 0
 		&&
 		r != last_stub_stack_region )
+	{
+	    assert ( r->next == r->end );
 	    r = r->region_next;
+	}
+
 	if ( r->free_count == 0
 	     &&
 	     r->next == r->end )
@@ -1111,7 +1116,9 @@ void MACC::stub_stack
 
 void MACC::stub_stack::remove_jump ( void )
 {
-    if ( input_segment != last_segment )
+    if ( input_segment == last_segment )
+	is_at_end = true;
+    else
     {
 	input_segment =
 	    input_segment->next_segment;
@@ -1139,6 +1146,7 @@ void MACC::stub_stack::remove_jump ( void )
 
 	    int locator = MUP::locator_of_control
 		( sss->block_control );
+	    assert ( locator > 0 );
 	    region * r = & region_table[locator];
 	    if ( r->free_count ++ == 0 )
 		r->free_first = r->free_last = b;
@@ -1163,8 +1171,6 @@ void MACC::stub_stack::remove_jump ( void )
 	    }
 	}
     }
-    else
-	is_at_end = true;
 }
 
 void MACC::stub_stack::flush ( void )
@@ -1209,6 +1215,7 @@ void MACC::stub_stack::flush ( void )
 
 	int locator = MUP::locator_of_control
 	    ( sss->block_control );
+	assert ( locator > 0 );
 	region * r = & region_table[locator];
 	if ( r->free_count ++ == 0 )
 	    r->free_first = r->free_last = b;
