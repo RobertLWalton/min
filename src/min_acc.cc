@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun  9 02:55:39 EDT 2010
+// Date:	Mon Jun 14 05:34:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/09 07:25:49 $
+//   $Date: 2010/06/14 09:34:47 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.45 $
+//   $Revision: 1.46 $
 
 // Table of Contents:
 //
@@ -541,11 +541,11 @@ static void block_allocator_initializer ( void )
 // count are set to 0 by this function, and must be
 // set by caller if they are used.
 //
-static MACC::region * new_region
+static MACC::region * new_multi_page_block_region
 	( min::unsptr size, int type )
 {
     if ( MOS::trace_pools >= 1 )
-        cout << "TRACE: new_region ("
+        cout << "TRACE: new_multi_page_block_region ("
 	     << size << ", " << type << ")" << endl;
 
     // Round up to a multiple of the page size and
@@ -588,8 +588,8 @@ static MACC::region * new_region
     r->free_last = NULL;
 
     if ( MOS::trace_pools >= 1 )
-        cout << "TRACE: new_region returns"
-	        " & region_table["
+        cout << "TRACE: new_multi_page_block_region"
+	        " returns & region_table["
 	     << r - MACC::region_table
 	     << "]" << endl;
 
@@ -599,11 +599,12 @@ static MACC::region * new_region
 // Free new multi-page region.  Caller must first
 // remove region from any list it is on.
 //
-static void free_region
+static void free_multi_page_block_region
 	( MACC::region * r )
 {
     if ( MOS::trace_pools >= 1 )
-        cout << "TRACE: free_region ( & region_table["
+        cout << "TRACE: free_multi_page_block_region"
+	        " ( & region_table["
 	     << r - MACC::region_table
 	     << "] )" << endl;
 
@@ -640,15 +641,17 @@ static void allocate_new_superregion ( void )
     // Allocate as new region.  If not the first
     // superregion, try downsizing if necessary.
     //
-    MACC::region * r = new_region
+    MACC::region * r = new_multi_page_block_region
 	( MACC::superregion_size,
 	  MACC::SUPERREGION );
     if ( r == NULL && MACC::last_superregion != NULL )
-	r = new_region ( 4 * MACC::subregion_size,
-		         MACC::SUPERREGION );
+	r = new_multi_page_block_region
+	    ( 4 * MACC::subregion_size,
+	      MACC::SUPERREGION );
     if ( r == NULL && MACC::last_superregion != NULL )
-	r = new_region ( MACC::subregion_size,
-		         MACC::SUPERREGION );
+	r = new_multi_page_block_region
+	    ( MACC::subregion_size,
+	      MACC::SUPERREGION );
 
     if ( r == NULL )
     {
@@ -853,15 +856,17 @@ void MINT::new_fixed_body
 //
 static void allocate_new_paged_body_region ( void )
 {
-    MACC::region * r = new_region
+    MACC::region * r = new_multi_page_block_region
 	( MACC::paged_body_region_size,
 	  MACC::PAGED_BODY_REGION );
     if ( r == NULL )
-	r = new_region ( 4 * MACC::max_paged_body_size,
-		         MACC::PAGED_BODY_REGION );
+	r = new_multi_page_block_region
+		( 4 * MACC::max_paged_body_size,
+		  MACC::PAGED_BODY_REGION );
     if ( r == NULL )
-	r = new_region ( MACC::max_paged_body_size,
-		         MACC::PAGED_BODY_REGION );
+	r = new_multi_page_block_region
+	        ( MACC::max_paged_body_size,
+		  MACC::PAGED_BODY_REGION );
     if ( r == NULL )
     {
 	cout << "ERROR: out of virtual memory"
@@ -914,7 +919,7 @@ inline void * new_paged_body
 inline void * new_mono_body
     ( min::stub * s, min::unsptr n )
 {
-    MACC::region * r = new_region
+    MACC::region * r = new_multi_page_block_region
 	( n, MACC::MONO_BODY_REGION );
     if ( r == NULL )
     {
@@ -1019,8 +1024,9 @@ void MACC::stub_stack
         // No existing stack region has any free
 	// segments or room to allocate a new segment.
 
-	r = new_region ( stub_stack_region_size,
-	                 STUB_STACK_REGION );
+	r = new_multi_page_block_region
+		( stub_stack_region_size,
+		  STUB_STACK_REGION );
 	if ( r == NULL )
 	{
 	    cout << "ERROR: out of virtual"
