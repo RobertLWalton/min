@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun  9 03:02:34 EDT 2010
+// Date:	Mon Jun 14 05:35:10 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/09 07:22:35 $
+//   $Date: 2010/06/14 09:48:58 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.56 $
+//   $Revision: 1.57 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -390,9 +390,9 @@ namespace min { namespace acc {
     //
     //    Superregions
     //
-    //	     A superregion is multi-block region that
-    //       holds subregions.  Superregions are put
-    //       on a list, and never freed.
+    //	     A superregion is multi-page-block region
+    //	     that holds subregions.  Superregions are
+    //	     put on a list, and never freed.
     //
     //    Paged Body Regions
     //
@@ -755,6 +755,9 @@ namespace min { namespace acc {
 	    // empty.  An empty stack may have just
 	    // one empty segment or may have no
 	    // segments.
+	    //
+	    // Here `full' means `next == end' and
+	    // `empty' means `next == begin'.
 
 	min::stub ** next, ** end;
 	    // Next element of segment vector to be
@@ -769,8 +772,8 @@ namespace min { namespace acc {
     // A stub stack can be accessed in two ways.
     //
     // First, a value can be pushed into the stack using
-    // push().  It is also to batch push operations
-    // using begin_push() and end_push().
+    // push().  It is also possible to batch push
+    // operations using begin_push() and end_push().
     //
     // Second, the stack comes with two pointers, named
     // `input' and `output'.  rewind() resets both
@@ -791,13 +794,19 @@ namespace min { namespace acc {
     // When remove() is used in this way stack segments
     // are freed whenever they are between the output
     // and input pointer.  That is, a segment is freed
-    // if the input pointer moves to the next segment
-    // and the output pointer is not in the segment.
+    // if the output pointer is not in that segment when
+    // the input pointer moves from that segment to the
+    // next segment.
     //
     // It is also possible to ignore the output pointer
-    // by using next() instead of remove.  This merely
+    // by using next() instead of remove().  This merely
     // iterates through the stack without removing any
     // elements.
+    //
+    // Currently there is NO pop operation on stacks.
+    // So the stub stacks are closer to FIFO lists than
+    // true stacks.  A pop operation could easily be
+    // implemented.
     //
     struct stub_stack
     {
@@ -859,8 +868,15 @@ namespace min { namespace acc {
 	    is_at_end = false;
 	}
 
+	// ss.begin_push ( next, end ) returns the next
+	// and end pointers of the stub stack ss.  min::
+	// stub * values may be pushed into the stack
+	// by * next ++ = ... until next >= end.  Then
+	// ss.end_push ( next ) should be called to
+	// store next back into the stub stack.
+	//
 	void begin_push
-	    ( min::stub ** & next, min::stub ** &end )
+	    ( min::stub ** & next, min::stub ** & end )
 	{
 	    if ( last_segment == NULL
 	         ||
@@ -871,7 +887,6 @@ namespace min { namespace acc {
 	    next = last_segment->next;
 	    end = last_segment->end;
 	}
-
 	void end_push ( min::stub ** next )
 	{
 	    if ( last_segment->next != next )
@@ -901,8 +916,9 @@ namespace min { namespace acc {
 		    input_segment =
 		        input_segment->next_segment;
 		    input = input_segment->begin;
-		    assert (    input
-			     != input_segment->next );
+		    is_at_end =
+		        (    input
+			  == input_segment->next );
 		}
 		else
 		    is_at_end = true;
