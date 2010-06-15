@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun 14 06:29:12 EDT 2010
+// Date:	Tue Jun 15 11:04:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/14 10:34:56 $
+//   $Date: 2010/06/15 15:08:35 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.47 $
+//   $Revision: 1.48 $
 
 // Table of Contents:
 //
@@ -1351,7 +1351,7 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 	        ( s1, NON_ROOT ( i ) );
 
 	    if (   lev.collector_state
-	         > INITING_ROOT_FLAGS )
+	         >= SCAVENGING_ROOT )
 	    {
 	        // After initializing root flags, new
 		// roots are marked scavenged.  This is
@@ -1369,7 +1369,7 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 		    // s2's should be unreachable.
 		    //
 		    assert (    lev.collector_state
-		             <= COLLECTOR_TERMINATING );
+		             <= SCAVENGING_THREAD );
 
 		    lev.to_be_scavenged.push ( s2 );
 		    MUP::clear_flags_of
@@ -1384,7 +1384,7 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 // tion.  To start a collector execution just set the
 // level state to COLLECTOR_START.  The collector
 // execution is finished when it returns with the level
-// collector_state set to COLLECTOR_FINISHED.
+// collector_state set to COLLECTOR_NOT_RUNNING.
 //
 static void collector_increment ( unsigned level )
 {
@@ -1403,11 +1403,11 @@ static void collector_increment ( unsigned level )
 
 	lev.last_stub = lev.g->last_before;
 	lev.collector_state =
-	    INITING_COLLECTIBLE_FLAGS;
+	    INITING_COLLECTIBLE;
 	//
 	// Fall throught to next collector_state.
 
-    case INITING_COLLECTIBLE_FLAGS:
+    case INITING_COLLECTIBLE:
         {
 	    min::uns64 scanned = 0;   
 	    min::uns64 c =
@@ -1431,12 +1431,12 @@ static void collector_increment ( unsigned level )
 	    {
 		lev.root.rewind();
 	        lev.collector_state =
-		    INITING_ROOT_FLAGS;
+		    INITING_ROOT;
 	    }
 	}
         break;
 
-    case INITING_ROOT_FLAGS:
+    case INITING_ROOT:
 	{
 	    min::uns64 scanned = 0;   
 	    while ( ! lev.root.at_end()
@@ -1460,12 +1460,12 @@ static void collector_increment ( unsigned level )
 		sc.level = level;
 		sc.gen_limit = MACC::scan_limit;
 	        lev.collector_state =
-		    SCAVENGING;
+		    SCAVENGING_ROOT;
 	    }
 	}
 	break;
 
-    case SCAVENGING:
+    case SCAVENGING_ROOT:
         {
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
@@ -1500,7 +1500,7 @@ static void collector_increment ( unsigned level )
 				           ( level ) ) )
 			{
 			    lev.collector_state =
-			        COLLECTOR_TERMINATING;
+			        SCAVENGING_THREAD;
 			    break;
 			}
 
@@ -1514,7 +1514,7 @@ static void collector_increment ( unsigned level )
 		    else
 		    {
 		        lev.collector_state =
-			    COLLECTOR_TERMINATING;
+			    SCAVENGING_THREAD;
 			break;
 		    }
 		}
@@ -1559,12 +1559,12 @@ static void collector_increment ( unsigned level )
 	    lev.scavenged_count += scavenged;
 
 	    if (    lev.collector_state
-	         == COLLECTOR_TERMINATING )
+	         == SCAVENGING_THREAD )
 	        lev.termination_count = 0;
 	}
 	break;
 
-    case COLLECTOR_TERMINATING:
+    case SCAVENGING_THREAD:
         {
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
@@ -1614,7 +1614,7 @@ static void collector_increment ( unsigned level )
 			lev.root_removal_level =
 			    level;
 		        lev.collector_state =
-			    ROOT_REMOVAL;
+			    REMOVING_ROOT;
 			break;
 		    }
 		}
@@ -1637,7 +1637,7 @@ static void collector_increment ( unsigned level )
 	}
 	break;
 
-    case ROOT_REMOVAL:
+    case REMOVING_ROOT:
         {
 	    bool force_rewind = false;
 	    if ( lev.root_removal_level == level )

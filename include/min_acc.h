@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun 14 05:35:10 EDT 2010
+// Date:	Mon Jun 14 19:10:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/14 09:48:58 $
+//   $Date: 2010/06/15 15:08:28 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.57 $
+//   $Revision: 1.58 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -968,7 +968,7 @@ namespace min { namespace acc {
     // The `mutator' refers to all code outside the
     // collector algorithm execution.  The mutator may
     // write pointers to objects into other objects,
-    // into threads (their stacks), or into static
+    // into threads (i.e., their stacks), or into static
     // memory.
     //
     // The operation of `scavenging' an object refers to
@@ -984,7 +984,8 @@ namespace min { namespace acc {
     //
     //	    Level List
     //		List of all objects in level L.  This is
-    //		the ACC Stub List as per min.h.
+    //		a segment of the ACC Stub List as per
+    //		min.h.
     //	
     //	    Root List
     //		List of all objects in levels < L
@@ -1014,7 +1015,6 @@ namespace min { namespace acc {
     //
     // Stub ACC Flags:
     //
-    //
     //   Each stub has 4 ACC flags for each ephemeral
     //   level L > 0.  These are:
     //
@@ -1028,12 +1028,12 @@ namespace min { namespace acc {
     //			level L root list.
     //
     //	     unmarked	The stub level is >= L and the
-    //			stub has not yet been marked
+    //			stub has NOT yet been marked
     //			by the current (or last) level
     //			L marking.
     //
     //	     non-root	The stub level is < L and the
-    //			stub is not on the level L root
+    //			stub is NOT on the level L root
     //			list.
     //
     //	     collectible  The stub level is >= L.  Note
@@ -1081,7 +1081,16 @@ namespace min { namespace acc {
     //   If it finds a level L non-root stub s1 pointing
     //   at a level L collectible stub s2, it turns
     //   off the s1 level L non-root flag and puts s1
-    //   on the level L root stack.
+    //   on the level L root stack.  In addition, if a
+    //   level L collection is in progress and is in
+    //   the SCAVENGING_ROOT phase or a later phase,
+    //   then the s1 level L scavenged flag is turned
+    //   on, and if the s2 level L unmarked flag is on,
+    //   it is turned off and s2 is put on the level L
+    //   to-be-scavenged list.  This is an efficiency
+    //   measure as the new root s1 contains only one
+    //   pointer, that to s2, at an object of level
+    //   >= L.
     //
     // Stub Allocation:
     //
@@ -1091,7 +1100,9 @@ namespace min { namespace acc {
     //   the flags set are as follows:
     //
     //	     all collectible flags are set
-    //	     all unmarked flags are set
+    //	     all unmarked flags are set according to
+    //		 the state of the collector; most of
+    //		 the time each unmarked flag is cleared
     //	     all scavenged flags are cleared
     //	     all non-root flags are cleared
     //
@@ -1113,129 +1124,239 @@ namespace min { namespace acc {
     //   makes further thrashing less likely, at the
     //   cost of retaining objects beyond when they are
     //   accessible.
-    //   
-    // Marking Execution:
     //
-    //   A level L marking begins by setting the level
-    //   L unmarked flag of all level >= L objects (this
-    //   flag is always clear for level < L objects) and
-    //   clearing the level L scavenged flag of all
-    //   objects (this flag is always clear for level
-    //   < L objects not on the level L root list).  The
-    //   level L to-be-scavenged list is set to empty.
+    // Acc List:
     //
-    //   The level L marking then scavenges all objects
-    //   on the level L root list and all objects on
-    //   the level L to-be-scavenged list.  It treats
-    //   the current thread and static lists as if they
-    //   were part of a level L root object.
-    //
-    //   To scavenge an object s1, each pointer in s1 to
-    //   another object s2 is examined, and if the level
-    //   L unmarked flag of s2 is on, it is cleared and
-    //   s2 is put on the level L to-be-scavenged list.
-    //   So scavenging can add to the level L to-be-
-    //   scavenged list.
-    //
-    //   Just before an object is scavenged by a level L
-    //   marking, the level L scavenged flag of the
-    //   object is set, and if the object is on the
-    //   level L root list, its non-root flag is set.
-    //   After begin scavenged, if the object is on the
-    //   level L to-be-scavenged list it is removed from
-    //   that list, and if it is on the level L root
-    //   list and no pointers to level L collectible
-    //   objects were found, it is removed from the
-    //   root list, but if pointers to level L collec-
-    //   tible objects were found, its non-root flag
-    //   is cleared and it is kept on the list.  While
-    //   an object is being scavenged the mutator may
-    //   run but the MINT::acc_stack processing
-    //   algorithm may not run.
-    //   
-    //   Marking grows the to-be-scavenged list, and
-    //   prefers scavenging objects in this list to keep
-    //   the list shorter.  The goal of level L marking
-    //   is to scavenge all objects in the level L root
-    //   list, have an empty level L to-be-scavenged
-    //   list, and have scavenged the thread and static
-    //   lists.  When the level L marking gets to the
-    //   point when the level L root list has been
-    //   scavenged and the level L to-be-scavenged list
-    //   is empty, it runs a `marking termination'
-    //   algorithm.
-    //
-    //   The marking termination algorithm scavenges the
-    //   thread and static lists and any objects put on
-    //   the initially empty to-be-scavenged list during
-    //   scavenging.  The mutator cannot run during
-    //   marking termination least it change the thread
-    //   or static lists.  If the marking termination
-    //   takes too long, it is aborted, the mutator is
-    //   allowed to run, and after the to-be-scavenged
-    //   list is empties, the marking termination
-    //   algorithm is restarted from the beginning.
-    //   Thrashing is theoretically possible, but should
-    //   rarely occur in practice as each repeat should
-    //   generate fewer objects in the to-be-scavenged
-    //   list.  Thrashing can be avoided by refusing to
-    //   stop and repeat marking termination if it has
-    //   been run too many times at the end of a
-    //   marking.  Another option is to switch to a new
-    //   mode in which new objects are level L marked
-    //   when they are created (and put on the to-be-
-    //   scavenged list).  This further limits the
-    //   number of objects that must be marked during
-    //   the termination algorithm.
-    //
-    // Level List:
-    //
-    //   Object stubs are kept in a list, oldest stub
-    //   first.  Stubs point at the next stub on the
-    //   list using their control words.  All stubs on
-    //   the list are garbage collectible.
-    //
-    //   The first stub on the level list is the stub
-    //   pointed at by the control word of MINT::first_
-    //   allocated_stub.  MINT::first_allocated_stub is
-    //   itself NOT part of the level list, and has no
-    //   use other than as pointing at the first stub
-    //   on the level list (and possibly doubling as
-    //   MINT::null_stub).
-    //
-    //   Newly allocated stubs are put on the end of
-    //   of this list, so the list is in order of stub
-    //   age.  The end of the list is MINT::last_
-    //   allocated_stub.  If this equals MINT::first_
-    //   allocated_stub the level list is empty (only
-    //   happens briefly at the start of program ini-
-    //   tialization.)
+    //   ACC stubs are kept in a list, oldest stub
+    //   first, called the acc stub list.  Stubs point
+    //   at the next stub on this list using their
+    //   control words.
     //
     //   Stubs are assigned generations, each identified
-    //   by a pair (L,S) of indices, where L is the
-    //   object level, and S is the sublevel.  An object
-    //   in generation (L,S) that survives a level L
-    //   garbage collection is promoted to generation
-    //   (L,S-1) if S>0, or to generation (L-1,T) if
-    //   L>0, S=0, where T is the highest sublevel of
-    //   level L-1, or is not promoted if L=0, S=0.
+    //   by a pair (L,S) of indices, where L is the stub
+    //   level, and S is the sublevel.  A stub in gen-
+    //   eration (L,S) that survives a level L garbage
+    //   collection is promoted to generation (L,S-1) if
+    //   S>0, or to generation (L-1,T) if L>0, S=0,
+    //   where T is the highest sublevel of level L-1,
+    //   or is not promoted if L=0, S=0.
     //
     //   Level 0 has only one sublevel, S=0, and one
-    //   generation and objects are never promoted from
+    //   generation and stubs are never promoted from
     //   this generation even if they survive a level 0
     //   garbage collection.
     //
-    //   The stubs in the level list are in order of
+    //   The stubs in the acc list are in order of
     //   increasing (L,S) indices, with (L1,S1)<(L2,S2)
     //   if and only if L1<L2 or L1=L2&S1<S2.
     //
+    //   The first stub on the acc list is the stub
+    //   pointed at by the control word of MINT::first_
+    //   allocated_stub.  MINT::first_allocated_stub is
+    //   itself NOT part of the acc list, and has no use
+    //   other than as pointing at the first stub on the
+    //   acc list (and possibly doubling as MINT::null_
+    //   stub).
+    //
+    //   Newly allocated stubs are put on the end of the
+    //   acc list, thus keeping the acc list in order of
+    //   stub age.  The end of the acc list is MINT::
+    //   last_allocated_stub.  If this equals MINT::
+    //   first_allocated_stub the acc list is empty
+    //   (only happens briefly at the start of program
+    //   initialization.)
+    //
     //   Level 0 objects in the hash tables for strings,
-    //   numbers, and labels are not included in the
-    //   level list.  The parts of the hash tables that
-    //   point at level 0 objects are conceptually part
-    //   of the level list for level 0 marking purposes,
-    //   but they are not physically part of the level
-    //   list.
+    //   numbers, and labels are not included in the acc
+    //   list.  The parts of the hash tables that point
+    //   at level 0 objects are conceptually part of the
+    //   level 0 list, but they are not physically part
+    //   of the acc list.
+    //   
+    // Collector Increments:
+    //
+    //   The collector executes in increments called
+    //   `collector increments' of limited duration in
+    //   order to run in parallel with normal mutator
+    //   execution without consuming all the CPU time.
+    //   To implement collector implements the collector
+    //   must maintain state information for each level,
+    //   and this includes a `phase code' that specifies
+    //   which phase the collection at that level is in.
+    //   The possible phases for level L are:
+    //
+    enum { COLLECTOR_NOT_RUNNING = 0,
+    		// A level L collection is NOT in
+		// progress.
+           COLLECTOR_START,
+	       	// A level L collection is started and
+		// collection variables are initialized.
+		// The level L to-be-scavenged list
+		// should be empty at this point.
+		// The MINT::acc_stack_mask level L
+		// scavenged/unmarked flag is set to
+		// enable the mutator along with acc
+		// stack processing to add to the
+		// level L to-be-scavenged list.
+		// The level L unmarked flag is set in
+		// MUP::acc_new_stub_flags so it will be
+		// set in any newly allocated stubs.
+	   INITING_COLLECTIBLE,
+	        // The acc list is scanned for all stubs
+		// of levels >= L, and each scanned stub
+		// has its unmarked flag set and its
+		// scavenged flag cleared.
+	   INITING_ROOT,
+	   	// The level L root list is scanned and
+		// each stub on this list has its
+		// scavenged flag cleared.
+	   SCAVENGING_ROOT,
+	        // Each stub on the level L root list
+		// is scavenged.  In the process stubs
+		// are put on the to-be-scavenged list,
+		// and these are also scavenged.
+		//
+		// To scavenge an object s1, each
+		// pointer in s1 to another object s2 is
+		// examined, and if the level L unmarked
+		// flag of s2 is on, it is cleared and
+		// s2 is put on the level L to-be-sca-
+		// venged list.
+		//
+		// Scavenging a large object is done
+		// with multiple collector increments,
+		// so the mutator can interrupt the
+		// scavenging of a large object.
+		//
+		// The level L scavenged flag of s1 is
+		// set just before s1 is scavenged, so
+		// that if the mutator stores a pointer
+		// to a level L unmarked object s2 into
+		// s1 in the middle of scavenging s1, 
+		// the acc_stack mechanism will clear
+		// clear the level L unmarked flag of s2
+		// and put s2 on the level L to-be-sca-
+		// venged list.
+		//
+		// The level L not-root flag of s1 is
+		// set just before s1 is scavenged if
+		// s1 is on the level L root list.
+		// If any pointer to an object s2 that
+		// is of level >= L is discovered in
+		// s1, then after s1 is scavenged its
+		// non-root flag is cleared and it is
+		// left on the root list.  Also if s1's
+		// non-root flag is cleared while it is
+		// being scavenged by the action of the
+		// mutator and acc stack processing,
+		// then s1 is left of the root list.
+		// Otherwise s1 is removed from the root
+		// list (it may be restored to the root
+		// list by the action of the mutator
+		// and acc stack at any time).
+		// 
+		// The goal of this phase is to scavenge
+		// all the level L root list stubs and
+		// empty the level L to-be-scavenged
+		// list.  Emptying the to-be-scavenged
+		// list is given priority over scaveng-
+		// ing the next root stub, in order to
+		// keep the to-be-scavenged list short.
+		//
+		// Stubs may be added to the end of the
+		// level L root list by the mutator via
+		// the acc stack during this phase, but
+		// such stubs have their level L
+		// scavenged flag set when they are
+		// added to the root list (see acc
+		// stack processing above), and need not
+		// be scavenged by this phase.  When
+		// this phase encounters the first root
+		// list stub with its scavenged flag
+		// already set, this phase knows it has
+		// finished with the root list, and
+		// merely needs to empty the to-be-
+		// scavenged list to finish.
+	   SCAVENGING_THREAD,
+	        // The thread list of each thread and
+		// the static list (see above) are
+		// treated as if they were the body of
+		// a single root stub and scavenged.
+		// However, if this scavenging is
+		// interrupted by the mutator (i.e., if
+		// a phase collector increment termin-
+		// ates with the scavenging unfinished),
+		// the scavenging must be restarted at
+		// its beginning.  This can cause
+		// thrashing.  However, as this phase
+		// runs it decreases the number of
+		// pointers in the thread/static lists
+		// that point at unmarked stubs and
+		// thereby decreases the time required
+		// to scavenge the thread/static lists.
+		//
+		// To prevent indefinite thrashing, the
+		// duration of the collector increment
+		// is increased as a function of the
+		// number of times scavenging the
+		// thread/static lists has been restart-
+		// ed.
+		//
+		// As an alternative, the allocator may
+		// set set to both clear the level L
+		// unmarked flag of any newly allocated
+		// stub and to scavenge that stub by
+		// calling the MINT::scavenge routine
+		// provided by the ACC.  This can
+		// greatly reduce the number of level L
+		// unmarked stubs encountered when
+		// scavenging the thread/static lists.
+	        //
+	   REMOVING_ROOT,
+	        // At this point, all level L stubs with
+		// unmarked flag set cannot be reached
+		// by the mutator.  Exactly when this
+		// point is reached the level L unmarked
+		// flag is cleared in MUP::acc_new_stub_
+		// flags so any stubs allocated after
+		// this point will not be collected by
+		// the level L collection.
+		//
+	   	// The root lists of all levels L1 > L
+		// are iterated through and stubs with
+		// level L collectible and unmarked
+		// flags both set are removed.
+	   PROMOTING,
+	        // This is done only for levels L > 0.
+		// The portion of the acc list for level
+		// L and sublevel 0 is scanned.  Each
+		// scanned stub with unmarked flag set
+		// is deallocated.  Each scanned stub
+		// with unmarked flag clear is put on
+		// the level L root list.  Then the
+		// level L sublevel 0 portion of the acc
+		// list is promoted to be the end of the
+		// level L-1 sublevel T portion of the
+		// acc list, where T is the highest
+		// sublevel of level L-1.  This is done
+		// by modifying last_before pointers in
+		// generation stucts.
+	   COLLECTING };
+	        // The portion of the acc list for
+		// level L stubs that was not scanned
+		// in the PROMOTING phase is scanned and
+		// all scanned stubs with level L
+		// unmarked flag set are deallocated.
+		// The sublevel S of each stub is
+		// in effect decremented if S > 0; this
+		// is done by modifying last_before
+		// pointers in generation stucts.
+		//
+		// At the end of this phase the level L
+		// collector returns to the COLLECTOR_
+		// NOT_RUNNING state.
+    //	    
+    //   
     //
     // Collection:
     //
@@ -1273,21 +1394,6 @@ namespace min { namespace acc {
     //   see if they have any pointers to level >= L
     //   objects.  These objects also have their level L
     //   collectible flag and non-root flags cleared.
-
-    // The collector execution is incremental, and as a
-    // result its state must be remembered.  It is one
-    // of the following:
-    //
-    enum { COLLECTOR_NOT_RUNNING = 0,
-           COLLECTOR_START,
-	   INITING_ROOT_FLAGS,
-	   INITING_COLLECTIBLE_FLAGS,
-	   SCAVENGING,
-	   COLLECTOR_TERMINATING,
-	   ROOT_REMOVAL,
-	   PROMOTING,
-	   COLLECTING,
-	   COLLECTOR_FINISHED };
 
     // The collector execution is incremental, with a
     // `collector increment' occuring whenever an
@@ -1484,12 +1590,18 @@ namespace min { namespace acc {
     const unsigned E = MIN_MAX_EPHEMERAL_LEVELS;
     //
     //		        Range
-    // Bit:	        of i:    Use:
+    // Bit:	        of i:   Use:
     //
-    // M - 1 + i        1 .. E   Level i collectible bit
-    // M + E + i        0 .. E   Level i unmarked bit
-    // M + 2E + i       1 .. E   Level i non-root bit
-    // M + 3E + 1 + i   0 .. E   Level i scavenged bit
+    // M - 1 + i        1 .. E  Level i collectible flag
+    // M + E + i        0 .. E  Level i unmarked flag
+    // M + 2E + i       1 .. E  Level i non-root flag
+    // M + 3E + 1 + i   0 .. E  Level i scavenged flag
+    //
+    // Note: the MINT::acc_stack_mask flags that are
+    // used for level i are the collectible and unmarked
+    // flags, as the mask is applied after downshifting
+    // the non-root and scavenged flag to line up with
+    // the collectible and unmarked flags.
     //
     inline min::uns64 COLLECTIBLE ( unsigned i )
     {
