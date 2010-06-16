@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jun 15 11:04:41 EDT 2010
+// Date:	Wed Jun 16 09:15:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/15 15:08:35 $
+//   $Date: 2010/06/16 18:35:23 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.48 $
+//   $Revision: 1.49 $
 
 // Table of Contents:
 //
@@ -1283,10 +1283,16 @@ static void collector_initializer ( void )
     levels[0].number_of_sublevels = 1;
 
     char name[80];
+
+    MINT::new_acc_stub_flags = 0;
     for ( unsigned i = 1;
           i < MACC::ephemeral_levels; ++ i )
     {
+	MINT::new_acc_stub_flags |= COLLECTIBLE ( i );
+
         sprintf ( name, "ephemeral_sublevels[%d]", i );
+	MACC::ephemeral_sublevels[i] =
+	    MIN_DEFAULT_EPHEMERAL_SUBLEVELS;
 	get_param ( name,
 	            MACC::ephemeral_sublevels[i],
 		    1, MIN_MAX_EPHEMERAL_SUBLEVELS );
@@ -1307,6 +1313,35 @@ static void collector_initializer ( void )
 	}
     }
 
+    MACC::acc_stack_size =
+        page_size * number_of_pages
+	              ( MIN_DEFAULT_ACC_STACK_SIZE );
+    get_param ( "acc_stack_size",
+                MACC::acc_stack_size,
+		1 << 12, 1 << 24, page_size );
+    min::unsptr np =
+        number_of_pages ( MACC::acc_stack_size );
+    MACC::acc_stack_begin = MOS::new_pool ( np + 1 );
+    const char * error =
+        MOS::pool_error ( MACC::acc_stack_begin );
+    if ( error != NULL )
+    {
+        cout << "ERROR: " << error << endl
+	     << "       while allocating " << np
+	     << "page acc stack."
+	     << endl
+	     << "       Suggest decreasing"
+	        " acc_stack_size."
+	     << endl;
+	MOS::dump_error_info ( cout );
+	exit ( 1 );
+    }
+    MACC::acc_stack_end = (min::stub **)
+        (   (min::uns8 *) MACC::acc_stack_begin
+	  + ( np - 1 ) * page_size );
+    MOS::inaccess_pool ( 1, MACC::acc_stack_end );
+        // Allocate an inaccessible page after the
+	// acc stack to catch overflows.
 }
 
 void MACC::process_acc_stack ( min::stub ** acc_lower )
@@ -1394,14 +1429,19 @@ static void collector_increment ( unsigned level )
     switch ( lev.collector_state )
     {
     case COLLECTOR_START:
-	MINT::new_acc_stub_flags |=
-	    UNMARKED ( level );
-	MINT::new_acc_stub_flags &=
-	    ~ SCAVENGED ( level );
+
+	// Check that to-be-scavenged stack is empty.
+	//
+        lev.to_be_scavenged.rewind();
+	assert ( lev.to_be_scavenged.at_end() );
+
+	MINT::acc_stack_mask |= UNMARKED ( level );
+	MINT::new_acc_stub_flags |= UNMARKED ( level );
+
 	lev.last_allocated_stub =
 	    MINT::last_allocated_stub;
-
 	lev.last_stub = lev.g->last_before;
+
 	lev.collector_state =
 	    INITING_COLLECTIBLE;
 	//
@@ -1410,6 +1450,7 @@ static void collector_increment ( unsigned level )
     case INITING_COLLECTIBLE:
         {
 	    min::uns64 scanned = 0;   
+
 	    min::uns64 c =
 	        MUP::control_of ( lev.last_stub );
 	    while (    lev.last_stub
@@ -1425,20 +1466,22 @@ static void collector_increment ( unsigned level )
 		MUP::set_control_of ( s, c );
 		lev.last_stub = s;
 	    }
+
 	    lev.root_flag_set_count += scanned;
+
 	    if (    lev.last_stub
 	         == lev.last_allocated_stub )
 	    {
 		lev.root.rewind();
-	        lev.collector_state =
-		    INITING_ROOT;
+	        lev.collector_state = INITING_ROOT;
 	    }
 	}
         break;
 
     case INITING_ROOT:
 	{
-	    min::uns64 scanned = 0;   
+	    min::uns64 scanned = 0;
+
 	    while ( ! lev.root.at_end()
 	            &&
 		    scanned < MACC::scan_limit )
@@ -1449,7 +1492,9 @@ static void collector_increment ( unsigned level )
 		MUP::clear_flags_of
 		    ( s, SCAVENGED ( level ) );
 	    }
-	    lev.root_flag_set_count += scanned;
+
+	    lev.collectible_flag_set_count += scanned;
+
 	    if ( lev.root.at_end() )
 	    {
 		lev.root.rewind();
@@ -1459,8 +1504,7 @@ static void collector_increment ( unsigned level )
 		sc.stub_flag = UNMARKED ( level );
 		sc.level = level;
 		sc.gen_limit = MACC::scan_limit;
-	        lev.collector_state =
-		    SCAVENGING_ROOT;
+	        lev.collector_state = SCAVENGING_ROOT;
 	    }
 	}
 	break;
@@ -1469,18 +1513,23 @@ static void collector_increment ( unsigned level )
         {
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
+
 	    sc.gen_count = 0;
 	    sc.stub_count = 0;
 	    lev.to_be_scavenged.begin_push
 	        ( sc.to_be_scavenged,
 	          sc.to_be_scavenged_limit );
+
 	    min::uns64 scavenged = 0;   
 	    while ( true )
 	    {
 		if ( sc.state == 0 )
 		{
-		    if ( ! lev.to_be_scavenged
-		              .at_end() )
+		    if (    scavenged
+		         >= MACC::scavenged_limit )
+		        break;
+		    else if ( ! lev.to_be_scavenged
+		                   .at_end() )
 		    {
 		        sc.s1 = lev.to_be_scavenged
 			           .current();
@@ -1555,6 +1604,7 @@ static void collector_increment ( unsigned level )
 
 	    lev.to_be_scavenged.end_push
 		( sc.to_be_scavenged );
+
 	    lev.scanned_count += sc.gen_count;
 	    lev.scavenged_count += scavenged;
 

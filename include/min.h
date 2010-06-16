@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Sun Jun  6 02:53:09 EDT 2010
+// Date:	Wed Jun 16 14:34:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/06 07:33:55 $
+//   $Date: 2010/06/16 18:34:52 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.332 $
+//   $Revision: 1.333 $
 
 // Table of Contents:
 //
@@ -2367,10 +2367,16 @@ namespace min { namespace internal {
 
     // Function to scavenge the thread stack_gen and
     // stack_num_gen structures and the static_gen
-    // and static_num_gen structures.  Returns with
-    // sc.state != 0 only if it runs out of to_be_
-    // scavenged stack, in which case it should be
-    // recalled with 0 sc.state after to_be_scavenged
+    // and static_num_gen structures, finding all
+    // pointers therein to acc stubs s2.  For each s2
+    // found, a particular flag of s2, designated by
+    // sc.stub_flag, is checked to see if it is on.
+    // If it is, it is turned off and a pointer to s2
+    // is put in a to_be_scavenged stack.
+    //
+    // Returns with sc.state != 0 only if it runs out
+    // of to_be_scavenged stack, in which case it should
+    // be recalled with 0 sc.state after to_be_scavenged
     // stack is emptied.
     //
     // This function ignores sc.gen_limit and sc.stub_
