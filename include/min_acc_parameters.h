@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 09:35:16 EDT 2010
+// Date:	Wed Jun 16 15:56:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 18:44:18 $
+//   $Date: 2010/06/16 19:57:41 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents
 //
@@ -241,7 +241,7 @@
 //     to see if the stub it points at needs to be
 //     marked and put on a to-be-scavenged list.
 //
-# ifdef MIN_DEFAULT_ACC_SCAN_LIMIT
+# ifndef MIN_DEFAULT_ACC_SCAN_LIMIT
 #   define MIN_DEFAULT_ACC_SCAN_LIMIT 1000
 # endif
 
@@ -254,7 +254,7 @@
 //     finishes, assuming the scavenger is not
 //     interupted by higher level collections.
 //
-# ifdef MIN_DEFAULT_ACC_SCAVENGE_LIMIT
+# ifndef MIN_DEFAULT_ACC_SCAVENGE_LIMIT
 #   define MIN_DEFAULT_ACC_SCAVENGE_LIMIT 4
 # endif
 
@@ -267,7 +267,7 @@
 //     non-L-root stub.  Must be a multiple of page
 //     size.
 //
-# ifdef MIN_DEFAULT_ACC_STACK_SIZE
+# ifndef MIN_DEFAULT_ACC_STACK_SIZE
 #   define MIN_DEFAULT_ACC_STACK_SIZE (1<<20)
 # endif
 
