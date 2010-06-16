@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 15:56:53 EDT 2010
+// Date:	Wed Jun 16 16:03:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 19:57:41 $
+//   $Date: 2010/06/16 20:03:36 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents
 //
@@ -256,6 +256,15 @@
 //
 # ifndef MIN_DEFAULT_ACC_SCAVENGE_LIMIT
 #   define MIN_DEFAULT_ACC_SCAVENGE_LIMIT 4
+# endif
+
+// collection_limit
+//     The maximum number of stubs that can be collected
+//     (i.e., deallocated) in a collection increment.
+//     Must be >= 10.
+//
+# ifndef MIN_DEFAULT_ACC_COLLECTION_LIMIT
+#   define MIN_DEFAULT_ACC_COLLECTION_LIMIT 10
 # endif
 
 // acc_stack_size
