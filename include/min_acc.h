@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 10:47:31 EDT 2010
+// Date:	Wed Jun 16 15:00:00 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 18:44:18 $
+//   $Date: 2010/06/16 19:01:23 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.61 $
+//   $Revision: 1.62 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1221,7 +1221,10 @@ namespace min { namespace acc {
 		// examined, and if the level L unmarked
 		// flag of s2 is on, it is cleared and
 		// s2 is put on the level L to-be-sca-
-		// venged list.
+		// venged list if it is scavengable.  s2
+		// is scavengable if and only if
+		// MINT::scavenger_routine[type_of(s2)]
+		// is not NULL.
 		//
 		// Scavenging a large object is done
 		// with multiple collector increments,
