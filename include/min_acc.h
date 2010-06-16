@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jun 15 21:09:22 EDT 2010
+// Date:	Wed Jun 16 05:29:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 01:09:43 $
+//   $Date: 2010/06/16 13:09:35 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.59 $
+//   $Revision: 1.60 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1430,7 +1430,7 @@ namespace min { namespace acc {
 	    // generation.  If L == 0 then S == 0.
 
 	stub * last_before;
-	    // Last stub on the stub list BEFORE the
+	    // Last stub on the acc stub list BEFORE the
 	    // first stub on the list whose generation
 	    // is the same as or later than (L,S).
 	    // Equals MINT::first_allocated_stub if
@@ -1447,7 +1447,7 @@ namespace min { namespace acc {
 	// so promotions of objects are from
 	// generations[i] to generations[i-1].
 
-    // Each level is described by a level struct.
+    // Each acc level is described by a level struct.
     //
     struct level
     {
@@ -1489,45 +1489,44 @@ namespace min { namespace acc {
 	    // First generation with this level in the
 	    // generations vector.
 
-	generation * gnext;
-	    // Next generation after g, or NULL if none.
-
 	unsigned number_of_sublevels;
 	    // Number of sublevels (generations) on this
 	    // level.  If N, then the sublevels of the
-	    // generations of this level run from
-	    // 1 through N, with N being the youngest.
+	    // generations of this level run from 0
+	    // through N-1, with N-1 being the youngest.
 
 	MACC::stub_stack to_be_scavenged;
 	MACC::stub_stack root;
 	    // To-be-scavenged and root lists for
 	    // the level.
 
-	min::stub * last_allocated_stub;
+	min::stub * last_marked_stub;
 	    // MINT::last_allocated_stub at the time
-	    // a collector execution starts.
+	    // a collection stops scavenging.
 	min::stub * last_stub;
 	    // Some collector phases iterate from
-	    // level.g->last_before throught
-	    // last_allocated_stub using this
-	    // as a pointer.
+	    // level.g->last_before through either
+	    // MINT::last_allocated_stub or last_
+	    // marked_stub, using this as a pointer.
 
         min::uns8 collector_state;
-	    // One of MACC::collector_state.
+	    // One of COLLECTOR_NOT_RUNNING,
+	    // COLLECTOR_START, INITING_COLLECTIBLE,
+	    // etc.
 
 	bool root_scavenge;
-	    // True if a root stub is currently being
-	    // scavenged.
+	    // True if the stub currently being sca-
+	    // venged is from the root list.
 
-	min::uns32 termination_count;
-	    // Number of collector increments the
-	    // COLLECTOR_TERMINATING phase of the
-	    // collector has run.
+	min::uns32 scavenging_thread_count;
+	    // Number of times the current collection
+	    // has restarted scavenging the thread and
+	    // the static lists.
 
 	min::uns8 root_removal_level;
-	    // Level whose root stack is being scanned
-	    // for removals during the ROOT_REMOVAL
-	    // pahse of theh collector.
+	    // Level whose root list is being scanned
+	    // for removals during the REMOVALING_ROOT
+	    // phase of a collection.
 
     };
     extern min::acc::level * levels;
