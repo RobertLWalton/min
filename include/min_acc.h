@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 05:29:41 EDT 2010
+// Date:	Wed Jun 16 10:47:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 13:09:35 $
+//   $Date: 2010/06/16 18:44:18 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.60 $
+//   $Revision: 1.61 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -98,7 +98,7 @@ namespace min { namespace acc {
     //    // last garbage collectible stub, or equals
     //    // MINT::first_allocated_stub if there are
     //    // no garbage collectable stubs.
-    //  min::uns64 MINT::acc_new_stub_flags
+    //  min::uns64 MINT::new_acc_stub_flags
     //    // Flags for newly allocated garbage
     //	  // collectable stubs.
 
@@ -1095,7 +1095,7 @@ namespace min { namespace acc {
     // Stub Allocation:
     //
     //   When a new stub is allocated, it is given the
-    //   flags in MUP::acc_new_stub_flags.  The new stub
+    //   flags in MUP::new_acc_stub_flags.  The new stub
     //   is always put in the highest level.  Normally
     //   the flags set are as follows:
     //
@@ -1199,7 +1199,7 @@ namespace min { namespace acc {
 		// stack processing to add to the
 		// level L to-be-scavenged list.
 		// The level L unmarked flag is set in
-		// MUP::acc_new_stub_flags so it will be
+		// MUP::new_acc_stub_flags so it will be
 		// set in any newly allocated stubs.
 	   INITING_COLLECTIBLE,
 	        // The acc list is scanned for all stubs
@@ -1317,7 +1317,7 @@ namespace min { namespace acc {
 		// unmarked flag set cannot be reached
 		// by the mutator.  Exactly when this
 		// point is reached the level L unmarked
-		// flag is cleared in MUP::acc_new_stub_
+		// flag is cleared in MUP::new_acc_stub_
 		// flags so any stubs allocated after
 		// this point will not be collected by
 		// the level L collection.
@@ -1500,9 +1500,9 @@ namespace min { namespace acc {
 	    // To-be-scavenged and root lists for
 	    // the level.
 
-	min::stub * last_marked_stub;
-	    // MINT::last_allocated_stub at the time
-	    // a collection stops scavenging.
+	min::stub * last_allocated_stub;
+	    // MINT::last_allocated_stub is saved at
+	    // various times during collection.
 	min::stub * last_stub;
 	    // Some collector phases iterate from
 	    // level.g->last_before through either
