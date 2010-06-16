@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 19:01:23 $
+//   $Date: 2010/06/16 19:57:41 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.62 $
+//   $Revision: 1.63 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1486,6 +1486,11 @@ namespace min { namespace acc {
 	    // Number of stubs collected by the
 	    // collection phase of the collector.
 
+	min::uns64 thrash_count;
+	    // Number of times the this level's collec-
+	    // tion's have restarted scavenging the
+	    // thread and the static lists.
+
 	// Level working data.
 
         generation * g;
@@ -1521,7 +1526,7 @@ namespace min { namespace acc {
 	    // True if the stub currently being sca-
 	    // venged is from the root list.
 
-	min::uns32 scavenging_thread_count;
+	min::uns32 restart_count;
 	    // Number of times the current collection
 	    // has restarted scavenging the thread and
 	    // the static lists.
