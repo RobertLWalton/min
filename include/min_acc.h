@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Mon Jun 14 19:10:46 EDT 2010
+// Date:	Tue Jun 15 21:09:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/15 15:08:28 $
+//   $Date: 2010/06/16 01:09:43 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.58 $
+//   $Revision: 1.59 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1326,6 +1326,12 @@ namespace min { namespace acc {
 		// are iterated through and stubs with
 		// level L collectible and unmarked
 		// flags both set are removed.
+		//
+		// To facilitate this collections at
+		// levels L1 > L are not run during
+		// this phase.  That is, the state of
+		// all level L1 > L collections must
+		// be COLLECTOR_NOT_RUNNING.
 	   PROMOTING,
 	        // This is done only for levels L > 0.
 		// The portion of the acc list for level
@@ -1333,14 +1339,23 @@ namespace min { namespace acc {
 		// scanned stub with unmarked flag set
 		// is deallocated.  Each scanned stub
 		// with unmarked flag clear is put on
-		// the level L root list.  Then the
-		// level L sublevel 0 portion of the acc
-		// list is promoted to be the end of the
-		// level L-1 sublevel T portion of the
-		// acc list, where T is the highest
-		// sublevel of level L-1.  This is done
-		// by modifying last_before pointers in
-		// generation stucts.
+		// the level L root list, and its level
+		// L collectible and non-root flags are
+		// cleared.
+		//
+		// Then the level L sublevel 0 portion
+		// of the acc list is promoted to be the
+		// end of the level L-1 sublevel T por-
+		// tion of the acc list, where T is the
+		// highest sublevel of level L-1.  This
+		// is done by modifying last_before
+		// pointers in generation stucts.
+		//
+		// Note that any deallocated number,
+		// string, or label stub must be removed
+		// from its hash table.  Being in a hash
+		// table does not prevent collection of
+		// any stub.
 	   COLLECTING };
 	        // The portion of the acc list for
 		// level L stubs that was not scanned
@@ -1355,58 +1370,13 @@ namespace min { namespace acc {
 		// At the end of this phase the level L
 		// collector returns to the COLLECTOR_
 		// NOT_RUNNING state.
-    //	    
-    //   
-    //
-    // Collection:
-    //
-    //   After a level L marking, a level L collection
-    //   occurs.  Objects with the level L unmarked flag
-    //   are collected, beginning with the first (i.e.,
-    //   oldest) level L object in the level list and
-    //   ending with the last object allocated before
-    //   the end of the level L marking.  Objects allo-
-    //   cated after the end of the level L marking are
-    //   excluded from collection.
-    //
-    //   Although all objects with level L unmarked flag
-    //   may be collected, they have to be removed from
-    //   ANY root or to-be-scavenged lists they are on,
-    //   and any hash table entry pointing at them must
-    //   be removed.  Fo facilitate this, level L1 > L
-    //   markings are not run during a level L
-    //   collection.  Note that the hash tables are not
-    //   part of the root set, and having a hash table
-    //   entry does NOT prevent an object from being
-    //   collected.
-    //
-    //   Collection moves objects in level L sublevels.
-    //   Each sublevel consists of a set of objects that
-    //   are contiguous in the level list and that have
-    //   survived a certain number of level L markings.
-    //   Level L objects in sublevels S > 0 are promoted
-    //   to the next lower sublevel S-1.  Objects in
-    //   sublevel 0 are promoted to the highest level of
-    //   the next lower level L-1.  These objects that
-    //   are promoted to level L-1 are put on the level
-    //   L root list so the next level L marking can
-    //   clear their level L scavenged flag and check to
-    //   see if they have any pointers to level >= L
-    //   objects.  These objects also have their level L
-    //   collectible flag and non-root flags cleared.
 
-    // The collector execution is incremental, with a
-    // `collector increment' occuring whenever an
-    // allocation is done, whenever the acc_stack
-    // overflows, or whenever an appropriate time period
-    // has expired.  The amount of work done in a col-
-    // lector increment is controlled by the following
-    // parameters.
-    //
-    // Note then when a level L collection is running,
-    // all level L1 < L collections are suspended
-    // (interrupted).  So only one collection execution
-    // executes in each collector increment.
+    // The amount of work done in a collector increment
+    // is controlled by the following parameters.  Note
+    // that collection increments cannot be split among
+    // more than one collection execution, and each
+    // collection execution has its own level, so each
+    // collection increment has a unique level.
     //
     // Also note that at the end of a time period zero
     // or more collector increments may be executed
@@ -1416,30 +1386,32 @@ namespace min { namespace acc {
     extern min::uns64 scan_limit;
         // Maximum number of stubs whose flags can be
 	// set during a collector increment when the
-	// collector is in its flag initialization
-	// phases.
+	// collector is in its INITING_COLLECTIBLE or
+	// INITING_ROOT phases.
 	//
 	// Also maximum number of min::gen values to be
 	// scanned during a collector increment of the
-	// scavenger.
+	// SCAVENGE_ROOT or SCAVENGE_THREAD phases.
 	//
 	// Also maximum number of stubs to be scanned
-	// during a collector increment of the collec-
-	// tion phase of the collector.
+	// during a collector increment of the PROMOTING
+	// or COLLECTING phases.
 
     extern min::uns64 scavenge_limit;
         // Maximum number of stubs to be scavenged
-	// during a colector increment of the scavenger.
+	// during a colector increment of the SCAVENGE_
+	// ROOT or SCAVENGE_THREAD phases.
 
     extern min::uns64 collection_limit;
         // Maximum number of stubs to be collected
-	// during a collector increment of the collec-
-	// tion phase of the collector.
+	// during a collector increment of the PROMO-
+	// TING or COLLECTING phases.
 
     extern min::uns32 collector_period;
         // Length in milliseconds of the collector
 	// time period.  There is an interrupt at
-	// the end of each such period.
+	// the end of each such period.  0 if there
+	// is not collector time period.
 
     extern min::uns32 period_increments;
         // The number of collector increments that are
