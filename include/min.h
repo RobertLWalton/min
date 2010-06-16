@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 14:34:40 EDT 2010
+// Date:	Wed Jun 16 14:43:37 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 18:34:52 $
+//   $Date: 2010/06/16 18:44:18 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.333 $
+//   $Revision: 1.334 $
 
 // Table of Contents:
 //
@@ -2371,8 +2371,12 @@ namespace min { namespace internal {
     // pointers therein to acc stubs s2.  For each s2
     // found, a particular flag of s2, designated by
     // sc.stub_flag, is checked to see if it is on.
-    // If it is, it is turned off and a pointer to s2
-    // is put in a to_be_scavenged stack.
+    // If it is, it is turned off and if the s2 stub
+    // is scavengable, a pointer to s2 is pushed onto
+    // the to_be_scavenged stack.
+    //
+    // Note that s2 is scavengable if and only if
+    // scavenger_rountines[type_of(s2)] != NULL;
     //
     // Returns with sc.state != 0 only if it runs out
     // of to_be_scavenged stack, in which case it should
@@ -2394,18 +2398,23 @@ namespace min { namespace internal {
     // body, or by other auxiliary stubs so pointed
     // at, and finding all pointers therein to acc
     // stubs s2.  For each s2 found, two things are
-    // done.  First, a particular flag of s2, designated
-    // by sc.stub_flag, is checked to see if it is on.
-    // If it is, it is turned off and a pointer to s2
-    // is put in a to-be-scavenged stack.  The second
-    // thing is simply to logically OR the control word
-    // of s2 into an accumulator designed as sc.stub_
-    // flag_accumulator.  This may be set to 0 by the
-    // caller of the scavenger routine, when that
-    // routine returns after finishing scavenging s1,
-    // certain bits of this accumulator can be used to
-    // tell if s1 contained any pointer to an acc stub
-    // of level >= L, for each possible level L.
+    // done.
+    //
+    // First, a particular flag of s2, designated by
+    // sc.stub_flag, is checked to see if it is on.
+    // If it is, it is turned off and if s2 is scaven-
+    // gable a pointer to s2 is put in a to-be-scavenged
+    // stack.  s2 is scavengable if and only if
+    // scavenger_rountines[type_of(s2)] != NULL;
+    //
+    // The second thing is to logically OR the control
+    // word of s2 into an accumulator designed as
+    // sc.stub_flag_accumulator.  This may be set to 0
+    // by the caller of the scavenger routine, when
+    // that routine returns after finishing scavenging
+    // s1, certain bits of this accumulator can be used
+    // to tell if s1 contained any pointer to an acc
+    // stub of level >= L, for each possible level L.
     //
     // It is also possible for the scavenger routine to
     // return before it has finished scavenging s1.

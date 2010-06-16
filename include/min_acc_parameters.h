@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Tue Jun  1 09:46:36 EDT 2010
+// Date:	Wed Jun 16 09:35:16 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/01 17:19:47 $
+//   $Date: 2010/06/16 18:44:18 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.13 $
+//   $Revision: 1.14 $
 
 // Table of Contents
 //
@@ -256,6 +256,19 @@
 //
 # ifdef MIN_DEFAULT_ACC_SCAVENGE_LIMIT
 #   define MIN_DEFAULT_ACC_SCAVENGE_LIMIT 4
+# endif
+
+// acc_stack_size
+//     Max size of the stack into which pairs of
+//     pointers to stubs are pushed by the mutator when
+//     a pointer to an unmarked stub is stored in a
+//     pointer to a scavenged stub or a pointer to a
+//     level >= L stub is pushed into a level < L
+//     non-L-root stub.  Must be a multiple of page
+//     size.
+//
+# ifdef MIN_DEFAULT_ACC_STACK_SIZE
+#   define MIN_DEFAULT_ACC_STACK_SIZE (1<<20)
 # endif
 
 
