@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 09:15:09 EDT 2010
+// Date:	Wed Jun 16 14:37:08 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 18:35:23 $
+//   $Date: 2010/06/16 20:12:59 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.49 $
+//   $Revision: 1.50 $
 
 // Table of Contents:
 //
@@ -1271,6 +1271,10 @@ min::unsptr  MACC::acc_stack_size;
 min::stub ** MACC::acc_stack_begin;
 min::stub ** MACC::acc_stack_end;
 
+min::uns64 MACC::scan_limit;
+min::uns64 MACC::scavenge_limit;
+min::uns64 MACC::collection_limit;
+
 static void collector_initializer ( void )
 {
     get_param ( "ephemeral_levels",
@@ -1321,7 +1325,8 @@ static void collector_initializer ( void )
 		1 << 12, 1 << 24, page_size );
     min::unsptr np =
         number_of_pages ( MACC::acc_stack_size );
-    MACC::acc_stack_begin = MOS::new_pool ( np + 1 );
+    MACC::acc_stack_begin = (min::stub **)
+        MOS::new_pool ( np + 1 );
     const char * error =
         MOS::pool_error ( MACC::acc_stack_begin );
     if ( error != NULL )
@@ -1342,6 +1347,24 @@ static void collector_initializer ( void )
     MOS::inaccess_pool ( 1, MACC::acc_stack_end );
         // Allocate an inaccessible page after the
 	// acc stack to catch overflows.
+
+    MACC::scan_limit = MIN_DEFAULT_ACC_SCAN_LIMIT;
+    get_param ( "scan_limit",
+                MACC::scan_limit,
+		100, 1 << 30 );
+
+    MACC::scavenge_limit =
+        MIN_DEFAULT_ACC_SCAVENGE_LIMIT;
+    get_param ( "scavenge_limit",
+                MACC::scavenge_limit,
+		10, 1 << 30 );
+
+    MACC::collection_limit =
+        MIN_DEFAULT_ACC_COLLECTION_LIMIT;
+    get_param ( "collection_limit",
+                MACC::collection_limit,
+		10, 1 << 30 );
+
 }
 
 void MACC::process_acc_stack ( min::stub ** acc_lower )
@@ -1526,7 +1549,7 @@ static void collector_increment ( unsigned level )
 		if ( sc.state == 0 )
 		{
 		    if (    scavenged
-		         >= MACC::scavenged_limit )
+		         >= MACC::scavenge_limit )
 		        break;
 		    else if ( ! lev.to_be_scavenged
 		                   .at_end() )
@@ -1572,7 +1595,8 @@ static void collector_increment ( unsigned level )
 		assert ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
-		if ( scav != NULL) (* scav) ( sc );
+		assert ( scav != NULL );
+		(* scav) ( sc );
 
 		if ( sc.state != 0 ) break;
 
@@ -1580,8 +1604,8 @@ static void collector_increment ( unsigned level )
 		if ( lev.root_scavenge )
 		{
 		    if ( ! MUP::test_flags_of
-		               ( sc.s1, NON_ROOT
-			                  ( level ) ) )
+		               ( sc.s1,
+			         NON_ROOT ( level ) ) )
 		        lev.root.keep();
 		    else if ( sc.stub_flag_accumulator
 		              &
@@ -1610,7 +1634,7 @@ static void collector_increment ( unsigned level )
 
 	    if (    lev.collector_state
 	         == SCAVENGING_THREAD )
-	        lev.termination_count = 0;
+	        lev.restart_count = 0;
 	}
 	break;
 
@@ -1633,6 +1657,10 @@ static void collector_increment ( unsigned level )
 		    if ( ! lev.to_be_scavenged
 		              .at_end() )
 		    {
+			if (    scavenged
+			     >= MACC::scavenge_limit )
+			    break;
+
 		        sc.s1 = lev.to_be_scavenged
 			           .current();
 		        lev.to_be_scavenged.remove();
@@ -1642,21 +1670,25 @@ static void collector_increment ( unsigned level )
 		    }
 		    else if ( ! thread_scavenged )
 		    {
+			thread_scavenged = true;
+
 			sc.state = 0;
+			min::uns32 init_gen_count =
+			    sc.gen_count;
 			MINT::thread_scavenger_routine
 			    ( sc );
 
-			if ( sc.state != 0 ) break;
-
-			thread_scavenged = true;
-			if ( lev.termination_count
+			if ( lev.restart_count
 			     == 0 )
 			    sc.gen_limit +=
-			        sc.gen_count;
-			else if ( lev.termination_count
+			          sc.gen_count
+				- init_gen_count;
+			else if ( lev.restart_count
 			          % 4 == 0 )
 			    sc.gen_limit *= 2;
-			++ lev.termination_count;
+			++ lev.restart_count;
+
+			if ( sc.state != 0 ) break;
 			continue;
 		    }
 		    else
@@ -1673,7 +1705,8 @@ static void collector_increment ( unsigned level )
 		assert ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
-		if ( scav != NULL) (* scav) ( sc );
+		assert ( scav != NULL);
+		(* scav) ( sc );
 
 		if ( sc.state != 0 ) break;
 
@@ -1752,9 +1785,9 @@ static void collector_increment ( unsigned level )
     case PROMOTING:
         {
 	    min::stub * end_stub =
-	        lev.gnext == NULL ?
+	        level == MACC::ephemeral_levels ?
 		lev.last_allocated_stub :
-		lev.gnext->last_before;
+		lev.g[1].last_before;
 	        
 	    min::uns64 collected = 0;   
 	    min::uns64 promoted = 0;   
@@ -1801,8 +1834,8 @@ static void collector_increment ( unsigned level )
 
 	    if ( lev.last_stub == end_stub )
 	    {
-	        if ( lev.gnext != NULL )
-		    lev.gnext->last_before = end_stub;
+	        if ( level != 0 )
+		    lev.g->last_before = end_stub;
 		// TBD
 	        lev.collector_state = COLLECTING;
 	    }
