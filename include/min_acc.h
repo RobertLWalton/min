@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 15:00:00 EDT 2010
+// Date:	Thu Jun 17 06:37:32 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 19:57:41 $
+//   $Date: 2010/06/17 17:46:00 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.63 $
+//   $Revision: 1.64 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1474,8 +1474,13 @@ namespace min { namespace acc {
 	    // Number of stubs scavenged by the
 	    // scavenger.
 
-	min::uns64 allocated_count;
-	    // Number of stubs assigned to the level.
+	min::uns64 root_kept_count;
+	    // Number of root stubs kept during
+	    // REMOVING_ROOT phase.
+
+	min::uns64 root_removed_count;
+	    // Number of root stubs removed during
+	    // REMOVING_ROOT phase.
 
 	min::uns64 promoted_count;
 	    // Number of stubs promoted to next lower
@@ -1484,7 +1489,11 @@ namespace min { namespace acc {
 
 	min::uns64 collected_count;
 	    // Number of stubs collected by the
-	    // collection phase of the collector.
+	    // collection phases of the collector.
+
+	min::uns64 kept_count;
+	    // Number of stubs kept but not promoted by
+	    // the collection phases of the collector.
 
 	min::uns64 thrash_count;
 	    // Number of times the this level's collec-

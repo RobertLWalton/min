@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 14:43:37 EDT 2010
+// Date:	Thu Jun 17 11:52:56 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 18:44:18 $
+//   $Date: 2010/06/17 17:46:00 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.334 $
+//   $Revision: 1.335 $
 
 // Table of Contents:
 //
@@ -2017,6 +2017,30 @@ namespace min { namespace unprotected {
 } }
 
 namespace min { namespace internal {
+
+    // Ditto but for use by acc to put stub it has
+    // freed on acc stub list.  Same as above but
+    // does not increment aux_subs_freed.
+    //
+    inline void free_acc_stub ( min::stub * s )
+    {
+        min::unprotected::set_gen_of
+	    ( s, min::NONE );
+	uns64 c = min::unprotected::control_of
+			( min::internal
+			     ::last_allocated_stub );
+	min::stub * next =
+	    min::unprotected::stub_of_acc_control ( c );
+	min::unprotected::set_control_of
+	    ( s, min::unprotected::new_acc_control
+		  ( min::ACC_FREE, next ) );
+	c = min::unprotected
+	       ::renew_acc_control_stub ( c, s );
+	min::unprotected::set_control_of
+		( min::internal
+		     ::last_allocated_stub, c );
+	++ min::internal::number_of_free_stubs;
+    }
 
     // fixed_blocks[j] is the head of a free list of
     // fixed blocks of size 1 << ( j + 3 ), for 2 <= j,

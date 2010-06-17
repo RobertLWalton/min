@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Wed Jun 16 14:37:08 EDT 2010
+// Date:	Thu Jun 17 05:06:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 20:12:59 $
+//   $Date: 2010/06/17 17:46:32 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.50 $
+//   $Revision: 1.51 $
 
 // Table of Contents:
 //
@@ -103,7 +103,7 @@ static bool get_param
     {
         cout << "ERROR: bad " << name
 	     << " program parameter value: "
-	     << setw ( before_space ( s ) ) << s 
+	     << setw ( before_space ( s ) ) << s
 	     << endl;
 	exit ( 1 );
     }
@@ -775,7 +775,7 @@ void MINT::new_fixed_body
 	assert ( r->end > r->begin );
 	assert
 	    ( ( r->end - r->begin ) % fbl->size == 0 );
-		  
+
 	r->block_size = fbl->size;
 	r->free_count = 0;
 	r->free_first = r->free_last = NULL;
@@ -1393,45 +1393,47 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 
 	while ( unmarked != 0 )
 	{
-	    unsigned i = MINT::log2floor ( unmarked );
-	    unmarked ^= 1 << i;
-	    levels[i].to_be_scavenged.push ( s2 );
+	    unsigned level =
+	        MINT::log2floor ( unmarked );
+	    unmarked ^= 1 << level;
+	    levels[level].to_be_scavenged.push ( s2 );
 	    MUP::clear_flags_of
-	        ( s2, UNMARKED ( i ) );
+	        ( s2, UNMARKED ( level ) );
 	}
 	while ( non_root != 0 )
 	{
-	    unsigned i = MINT::log2floor ( non_root );
-	    non_root ^= 1 << i;
-	    level & lev = levels[i];
+	    unsigned level =
+	        MINT::log2floor ( non_root );
+	    non_root ^= 1 << level;
+	    MACC::level & lev = levels[level];
 	    lev.root.push ( s1 );
 	    MUP::clear_flags_of
-	        ( s1, NON_ROOT ( i ) );
+	        ( s1, NON_ROOT ( level ) );
 
-	    if (   lev.collector_state
-	         >= SCAVENGING_ROOT )
+	    if (    SCAVENGING_ROOT
+	         <= lev.collector_state
+		 &&
+	            lev.collector_state
+		 <= SCAVENGING_THREAD )
 	    {
-	        // After initializing root flags, new
-		// roots are marked scavenged.  This is
-		// an efficiency measure, as new roots
+	        // During scavenging, new roots are
+		// marked scavenged.  This is an
+		// efficiency measure, as new roots
 		// only contain a single pointer to
 		// a collectible stub.
 		//
 		MUP::set_flags_of
-		    ( s1, SCAVENGED ( i ) );
-		if (   MUP::test_flags_of
-		            ( s2, UNMARKED ( i ) )
-		     & UNMARKED ( i ) )
+		    ( s1, SCAVENGED ( level ) );
+		if ( MUP::test_flags_of
+		            ( s2, UNMARKED ( level ) ) )
 		{
-		    // After termination unmarked
-		    // s2's should be unreachable.
-		    //
-		    assert (    lev.collector_state
-		             <= SCAVENGING_THREAD );
-
-		    lev.to_be_scavenged.push ( s2 );
 		    MUP::clear_flags_of
-			( s2, UNMARKED ( i ) );
+			( s2, UNMARKED ( level ) );
+		    int type = min::type_of ( s2 );
+		    assert ( type >= 0 );
+		    if ( MINT::scavenger_routines[type]
+		         != NULL )
+			lev.to_be_scavenged.push ( s2 );
 		}
 	    }
 	}
@@ -1472,7 +1474,7 @@ static void collector_increment ( unsigned level )
 
     case INITING_COLLECTIBLE:
         {
-	    min::uns64 scanned = 0;   
+	    min::uns64 scanned = 0;
 
 	    min::uns64 c =
 	        MUP::control_of ( lev.last_stub );
@@ -1543,7 +1545,7 @@ static void collector_increment ( unsigned level )
 	        ( sc.to_be_scavenged,
 	          sc.to_be_scavenged_limit );
 
-	    min::uns64 scavenged = 0;   
+	    min::uns64 scavenged = 0;
 	    while ( true )
 	    {
 		if ( sc.state == 0 )
@@ -1647,7 +1649,9 @@ static void collector_increment ( unsigned level )
 	    lev.to_be_scavenged.begin_push
 	        ( sc.to_be_scavenged,
 	          sc.to_be_scavenged_limit );
-	    min::uns64 scavenged = 0;   
+	    min::uns64 scavenged = 0;
+	    min::uns64 scavenged_limit =
+		MACC::scavenge_limit;
 	    bool thread_scavenged = false;
 
 	    while ( true )
@@ -1658,7 +1662,7 @@ static void collector_increment ( unsigned level )
 		              .at_end() )
 		    {
 			if (    scavenged
-			     >= MACC::scavenge_limit )
+			     >= scavenge_limit )
 			    break;
 
 		        sc.s1 = lev.to_be_scavenged
@@ -1670,16 +1674,20 @@ static void collector_increment ( unsigned level )
 		    }
 		    else if ( ! thread_scavenged )
 		    {
-			thread_scavenged = true;
-
-			sc.state = 0;
 			min::uns32 init_gen_count =
 			    sc.gen_count;
 			MINT::thread_scavenger_routine
 			    ( sc );
 
-			if ( lev.restart_count
-			     == 0 )
+			if ( sc.state != 0 )
+			{
+			    sc.state = 0;
+			    continue;
+			}
+
+			thread_scavenged = true;
+
+			if ( lev.restart_count == 0 )
 			    sc.gen_limit +=
 			          sc.gen_count
 				- init_gen_count;
@@ -1688,13 +1696,16 @@ static void collector_increment ( unsigned level )
 			    sc.gen_limit *= 2;
 			++ lev.restart_count;
 
-			if ( sc.state != 0 ) break;
 			continue;
 		    }
 		    else
 		    {
 			lev.root_removal_level =
 			    level;
+			lev.last_allocated_stub =
+			    MINT::last_allocated_stub;
+			MINT::new_acc_stub_flags &=
+			    ~ UNMARKED ( level );
 		        lev.collector_state =
 			    REMOVING_ROOT;
 			break;
@@ -1729,13 +1740,12 @@ static void collector_increment ( unsigned level )
 		force_rewind = true;
 	    }
 
-	    min::uns64 unmarked_flag =
-	        UNMARKED ( level );
-	    min::uns64 scanned = 0;
+	    min::uns64 root_kept = 0;
+	    min::uns64 root_removed = 0;
 	    while ( true )
 	    {
-	        if (   lev.root_removal_level
-		     > MINT::number_of_acc_levels )
+	        if (    lev.root_removal_level
+		     >= MINT::number_of_acc_levels )
 		{
 		    lev.last_stub = lev.g->last_before;
 		    lev.collector_state =
@@ -1753,21 +1763,28 @@ static void collector_increment ( unsigned level )
 		    force_rewind = false;
 		}
 
-		while ( scanned < MACC::scan_limit
+		while (   root_kept + root_removed
+		        < MACC::scan_limit
 		        &&
 			! rrlev.root.at_end() )
 		{
 		    min::stub * s =
 		        rrlev.root.current();
 		    if ( MUP::test_flags_of
-		             ( s, unmarked_flag ) )
+		             ( s, UNMARKED ( level ) ) )
+		    {
 		        rrlev.root.remove();
+			++ root_removed;
+		    }
 		    else
+		    {
 		        rrlev.root.keep();
-		    ++ scanned;
+			++ root_kept;
+		    }
 		}
 
-		if ( scanned >= MACC::scan_limit )
+		if (    root_kept + root_removed
+		     >= MACC::scan_limit )
 		    break;
 
 		if ( rrlev.root.at_end() )
@@ -1778,19 +1795,22 @@ static void collector_increment ( unsigned level )
 		}
 
 	    }
-	    lev.scanned_count += scanned;
+	    lev.root_kept_count += root_kept;
+	    lev.root_removed_count += root_removed;
 	}
 	break;
 
     case PROMOTING:
         {
 	    min::stub * end_stub =
-	        level == MACC::ephemeral_levels ?
+	        level == MACC::ephemeral_levels
+		&&
+		lev.number_of_sublevels == 1 ?
 		lev.last_allocated_stub :
 		lev.g[1].last_before;
-	        
-	    min::uns64 collected = 0;   
-	    min::uns64 promoted = 0;   
+
+	    min::uns64 collected = 0;
+	    min::uns64 promoted = 0;
 	    min::uns64 last_c =
 	        MUP::control_of ( lev.last_stub );
 	    while ( lev.last_stub != end_stub
@@ -1807,8 +1827,6 @@ static void collector_increment ( unsigned level )
 		        end_stub = lev.last_stub;
 
 
-		    // TBD FREE BODY and STUB
-
 		    last_c = MUP::renew_control_stub
 				( last_c,
 				  MUP::stub_of_control
@@ -1816,6 +1834,12 @@ static void collector_increment ( unsigned level )
 		    MUP::set_control_of
 		        ( lev.last_stub, last_c );
 
+		    min::unsptr size =
+		        MUP::body_size_of ( s );
+		    if ( size != 0 )
+		        MUP::deallocate_body ( s, size );
+
+		    MINT::free_acc_stub ( s );
 		    ++ collected;
 		}
 		else
@@ -1829,13 +1853,13 @@ static void collector_increment ( unsigned level )
 		    ++ promoted;
 		}
 	    }
+
 	    lev.collected_count += collected;
 	    lev.promoted_count += promoted;
 
 	    if ( lev.last_stub == end_stub )
 	    {
-	        if ( level != 0 )
-		    lev.g->last_before = end_stub;
+		lev.g->last_before = end_stub;
 		// TBD
 	        lev.collector_state = COLLECTING;
 	    }
