@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@deas.harvard.edu)
-// Date:	Thu Jun 17 06:37:32 EDT 2010
+// Date:	Thu Jun 17 21:13:51 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/17 17:46:00 $
+//   $Date: 2010/06/18 09:43:00 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.64 $
+//   $Revision: 1.65 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1544,6 +1544,9 @@ namespace min { namespace acc {
 	    // Level whose root list is being scanned
 	    // for removals during the REMOVALING_ROOT
 	    // phase of a collection.
+
+	min::uns8 collecting_sublevel;
+	    // Sublevel being collected.
 
     };
     extern min::acc::level * levels;
