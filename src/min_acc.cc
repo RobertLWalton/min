@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 21:11:01 EDT 2010
+// Date:	Fri Jun 25 09:08:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:36:12 $
+//   $Date: 2010/06/25 19:28:19 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.53 $
+//   $Revision: 1.54 $
 
 // Table of Contents:
 //
@@ -436,9 +436,8 @@ static void block_allocator_initializer ( void )
     // Set parameters.
 
     get_param ( "space_factor",
-                MACC::space_factor, 8,
-		( MIN_POINTER_BITS <= 32 ? 32 : 256 ),
-		1, true );
+                MACC::space_factor,
+		4, 128, 1, true );
 
     min::unsptr F = MACC::space_factor;
 
@@ -541,11 +540,11 @@ static void block_allocator_initializer ( void )
 // count are set to 0 by this function, and must be
 // set by caller if they are used.
 //
-static MACC::region * new_multi_page_block_region
+static MACC::region * new_paged_block_region
 	( min::unsptr size, int type )
 {
     if ( MOS::trace_pools >= 1 )
-        cout << "TRACE: new_multi_page_block_region ("
+        cout << "TRACE: new_paged_block_region ("
 	     << size << ", " << type << ")" << endl;
 
     // Round up to a multiple of the page size and
@@ -565,7 +564,7 @@ static MACC::region * new_multi_page_block_region
         cout << "ERROR: trying to allocate more than "
 	     << (   MACC::region_end
 	          - MACC::region_table )
-	     << " multi-page block regions" << endl;
+	     << " paged block regions" << endl;
 	exit ( 1 );
     }
 
@@ -588,7 +587,7 @@ static MACC::region * new_multi_page_block_region
     r->free_last = NULL;
 
     if ( MOS::trace_pools >= 1 )
-        cout << "TRACE: new_multi_page_block_region"
+        cout << "TRACE: new_paged_block_region"
 	        " returns & region_table["
 	     << r - MACC::region_table
 	     << "]" << endl;
@@ -596,14 +595,14 @@ static MACC::region * new_multi_page_block_region
     return r;
 }
 
-// Free new multi-page region.  Caller must first
+// Free new paged block region.  Caller must first
 // remove region from any list it is on.
 //
-static void free_multi_page_block_region
+static void free_paged_block_region
 	( MACC::region * r )
 {
     if ( MOS::trace_pools >= 1 )
-        cout << "TRACE: free_multi_page_block_region"
+        cout << "TRACE: free_paged_block_region"
 	        " ( & region_table["
 	     << r - MACC::region_table
 	     << "] )" << endl;
@@ -641,15 +640,15 @@ static void allocate_new_superregion ( void )
     // Allocate as new region.  If not the first
     // superregion, try downsizing if necessary.
     //
-    MACC::region * r = new_multi_page_block_region
+    MACC::region * r = new_paged_block_region
 	( MACC::superregion_size,
 	  MACC::SUPERREGION );
     if ( r == NULL && MACC::last_superregion != NULL )
-	r = new_multi_page_block_region
+	r = new_paged_block_region
 	    ( 4 * MACC::subregion_size,
 	      MACC::SUPERREGION );
     if ( r == NULL && MACC::last_superregion != NULL )
-	r = new_multi_page_block_region
+	r = new_paged_block_region
 	    ( MACC::subregion_size,
 	      MACC::SUPERREGION );
 
@@ -857,15 +856,15 @@ void MINT::new_fixed_body
 //
 static void allocate_new_paged_body_region ( void )
 {
-    MACC::region * r = new_multi_page_block_region
+    MACC::region * r = new_paged_block_region
 	( MACC::paged_body_region_size,
 	  MACC::PAGED_BODY_REGION );
     if ( r == NULL )
-	r = new_multi_page_block_region
+	r = new_paged_block_region
 		( 4 * MACC::max_paged_body_size,
 		  MACC::PAGED_BODY_REGION );
     if ( r == NULL )
-	r = new_multi_page_block_region
+	r = new_paged_block_region
 	        ( MACC::max_paged_body_size,
 		  MACC::PAGED_BODY_REGION );
     if ( r == NULL )
@@ -920,7 +919,7 @@ inline void * new_paged_body
 inline void * new_mono_body
     ( min::stub * s, min::unsptr n )
 {
-    MACC::region * r = new_multi_page_block_region
+    MACC::region * r = new_paged_block_region
 	( n, MACC::MONO_BODY_REGION );
     if ( r == NULL )
     {
@@ -1029,7 +1028,7 @@ void MACC::stub_stack
         // No existing stack region has any free
 	// segments or room to allocate a new segment.
 
-	r = new_multi_page_block_region
+	r = new_paged_block_region
 		( stub_stack_region_size,
 		  STUB_STACK_REGION );
 	if ( r == NULL )

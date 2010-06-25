@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 16 16:03:27 EDT 2010
+// Date:	Fri Jun 25 09:10:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:35:02 $
+//   $Date: 2010/06/25 19:28:02 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.17 $
+//   $Revision: 1.18 $
 
 // Table of Contents
 //
@@ -126,7 +126,7 @@
 //   fixed block and variable block regions are F**2
 //   pages long.
 //
-//   F must be a power of two >= 4.
+//   F must be a power of two >= 4 and <= 128.
 //
 # ifndef MIN_DEFAULT_SPACE_FACTOR
 #    define MIN_DEFAULT_SPACE_FACTOR \
