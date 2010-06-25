@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 21:13:51 EDT 2010
+// Date:	Fri Jun 25 08:38:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:35:02 $
+//   $Date: 2010/06/25 19:28:02 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.66 $
+//   $Revision: 1.67 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -23,7 +23,6 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Parameters
 //	Stub Allocator Interface
 //	Block Allocator Interface
 //	Collector Interface
@@ -45,16 +44,17 @@
 namespace min { namespace acc {
 
     // The stub allocator begins by allocating the
-    // stub region, a contiguous sequence of pages that
-    // can hold MACC::max_stubs stubs.  It then allo-
-    // cates new stubs as needed from the beginning of
-    // this region working up.  Newly added stubs are
-    // appended to the list of free stubs headed by the
-    // control word of MINT::last_allocated_stub.
+    // stub region, a contiguous sequence of virtual
+    // pages that can hold MACC::max_stubs stubs.  It
+    // then allocates new stubs as needed from the
+    // beginning of this region working up.  Newly
+    // added stubs are appended to the list of free
+    // stubs headed by the control word of MINT::
+    // last_allocated_stub.
     //
     // The Collector, and NOT the Allocator, frees
-    // stubs and adds the freed stubs to the list of
-    // free stubs.  The Allocator is only called to
+    // acc stubs and adds the freed stubs to the list
+    // of free stubs.  The Allocator is only called to
     // allocate stubs when the list of free stubs is
     // exhausted.  The following, defined in min.h,
     // is the interface to the stub allocator:
@@ -88,19 +88,23 @@ namespace min { namespace acc {
     //    // Count of stubs on free stub list.
     //  min::stub * MINT::first_allocated_stub
     //    // The control word of this stub points at the
-    //    // first garbage collectible stub or is MINT::
-    //    // null_stub if there are no garbage collec-
-    //    // tible stubs.
+    //    // first acc or free stub or is MINT::
+    //    // null_stub if there are no acc stubs or
+    //    // free stubs.  MINT::first_allocated_stub
+    //    // may or may not equal MINT::null_stub.
     //  min::stub * MINT::last_allocated_stub
     //    // The control word of this stub points at the
     //    // first free stub or is MINT::null_stub if
     //    // there are no free stubs.  This is the
-    //    // last garbage collectible stub, or equals
-    //    // MINT::first_allocated_stub if there are
-    //    // no garbage collectable stubs.
+    //    // last acc stub, or equals MINT::first_
+    //    // allocated_stub if there are no acc stubs.
     //  min::uns64 MINT::new_acc_stub_flags
-    //    // Flags for newly allocated garbage
-    //	  // collectable stubs.
+    //    // Flags for newly allocated acc stubs.
+    //
+    // Auxiliary (aux) stubs are not managed by the
+    // acc.  They are allocated from and returned to
+    // the free list by non-acc code, and are NOT
+    // placed on the acc list (defined below).
 
     extern min::uns64 max_stubs;
         // The value of the max_stubs parameter.  The
@@ -144,7 +148,10 @@ namespace min { namespace acc {
     //	  size block region is F pages.
     //
     //    The size of a fixed or variable size block
-    //	  region is F**2 pages.
+    //	  region is F**2 pages.  As the size of a fixed
+    //    size block region must be <= 2**15 pages,
+    //    because locators are only 16 bits, and because
+    //    F must be a power of two, F <= 2**7 = 128.
     //
     // See min_acc_parameters.h for more info.
     //
@@ -160,9 +167,8 @@ namespace min { namespace acc {
 
     // Bodies are stored in blocks.  Each block begins
     // with a block control word, and this is followed
-    // by either an object body or, if the block does
-    // not contain an object body, by a block subcontrol
-    // word.
+    // by either a body or, if the block does not
+    // contain a body, by a block subcontrol word.
     //
     // The block control word is organized as follows:
     //
@@ -185,13 +191,13 @@ namespace min { namespace acc {
     // where `page_address' is the address of the page
     // containing the block control word containing L.
     //
-    // If a block contains an object body, the stub
-    // address points at the object's stub.  Otherwise
-    // the stub address == MINT::null_stub and the block
-    // control word is immediately followed in memory
-    // by a block subcontrol word whose type field
-    // gives the block_type and whose value field
-    // specifies the size in bytes of the block.
+    // If a block contains a body, the stub address
+    // points at the body's stub.  Otherwise the stub
+    // address == MINT::null_stub and the block control
+    // word is immediately followed in memory by a block
+    // subcontrol word whose type field gives the block_
+    // type and whose value field specifies the size in
+    // bytes of the block.
     //
     // Note: free fixed size blocks differ in NOT having
     // a subcontrol word.  Their control word has
@@ -203,7 +209,11 @@ namespace min { namespace acc {
     //
     enum block_type
         // Stored in block subcontrol word of blocks
-	// that are NOT object bodies.
+	// that are NOT bodies.
+	//
+	// Also stored in the block_subcontrol word of
+	// region structs that are elements of the
+	// region_table.
     {
         FREE				= 1,
 	FIXED_SIZE_BLOCK_REGION		= 2,
@@ -229,11 +239,11 @@ namespace min { namespace acc {
     //	     two.  These blocks are known as the fixed
     //	     size blocks of the region.
     //
-    //	     An object body of size S is allocated to
-    //	     fixed size block of size B as follows:
+    //	     A body of size S is allocated to fixed size
+    //       block of size B as follows:
     //
     //		8 bytes			control word
-    //		S bytes			object body
+    //		S bytes			body
     //		B - S - 8 bytes		unused padding
     //
     //		where B/2 < S + 8 <= B
@@ -241,9 +251,9 @@ namespace min { namespace acc {
     //	     Note that unused padding can take up 50% of
     //	     a `full' fixed block region.  Fixed size
     //	     block regions are intended for ephemeral
-    //       object bodies that may have short life-
-    //	     times.  If an object lives longer, it will
-    //       be moved to a variable size block region.
+    //       bodies that may have short life-times.  If
+    //       a body lives longer, it will be moved to a
+    //       variable size block region.
     //
     //	     The MACC::region control struct for the
     //	     region is allocated at the very beginning
@@ -258,11 +268,11 @@ namespace min { namespace acc {
     //       size block regions.
     //
     //	     Fixed size blocks are allocated from a free
-    //	     list.  When an object body in a fixed size
-    //	     block is freed, the block is put back on
-    //	     its region's free list and becomes immedi-
-    //       ately available for reuse.  See fixed_
-    //       block_list_extension struct below.
+    //	     list.  When an body in a fixed size block
+    //       is freed, the block is put back on its
+    //       region's free list and becomes immediately
+    //       available for reuse.  See fixed_block_list_
+    //       extension struct below.
     //
     //	     The compactor may move all allocated blocks
     //	     in a fixed size block region to another
@@ -275,11 +285,11 @@ namespace min { namespace acc {
     //	     The region consists of variable size blocks
     //	     each a multiple of 8 bytes in size.
     //
-    //	     An object body of size S is allocated to
-    //	     a variable size block of size B as follows:
+    //	     A body of size S is allocated to a variable
+    //       size block of size B as follows:
     //
     //		8 bytes			control word
-    //		S bytes			object body
+    //		S bytes			body
     //		B - S - 8 bytes		unused padding
     //
     //	     		B - 8 < S + 8 <= B
@@ -291,29 +301,29 @@ namespace min { namespace acc {
     //
     //	     A variable size block in a region is always
     //	     allocated after the last block previously
-    //	     allocated to the region.  When an object
-    //	     body in a variable size block is freed, the
-    //	     block is marked as free, but cannot be re-
-    //	     used until the variable size block region
-    //	     is compacted.  Compaction moves all used
-    //	     blocks in the region to the beginning of
-    //	     the region, or to another region, thus
-    //	     reclaiming the space occupied by variable
-    //	     size free blocks.
+    //	     allocated to the region.  When a body in a
+    //       variable size block is freed, the block is
+    //       marked as free, but cannot be reused until
+    //       the variable size block region is compac-
+    //       ted.  Compaction moves all used blocks in
+    //       the region to the beginning of the region,
+    //       or to another region, thus reclaiming the
+    //       space occupied by variable size free
+    //       blocks.
     //
     //	     Variable size block regions are intended
-    //	     for longer lived object bodies.
+    //	     for longer lived bodies.
     //
-    //	 Multi-Page Block Regions
+    //	 Paged Block Regions
     //
     //	     The region consists of variable size blocks
     //	     each of which is a sequence of pages.
     //  
-    //	     If an object body of size S is allocated to
-    //	     a variable size block of size B as follows:
+    //	     If a body of size S is allocated to a
+    //       variable size block of size B as follows:
     //
     //		8 bytes			control word
-    //		S bytes			object body
+    //		S bytes			body
     //		B - S - 8 bytes		unused padding
     //
     //	     		B - page_size < S + 8 <= B
@@ -333,41 +343,48 @@ namespace min { namespace acc {
     //	     and the percentage of unused padding when a
     //	     region is `full' is limited to roughly 1/F.
     //
-    //	     Multi-page block regions are intended for
-    //	     larger object bodies.  When a multi-page
-    //	     block is freed, the pages of a block are
-    //	     typically freed, except for the first page
-    //       which holds the block header, even though
-    //       the surrounding pages may still be in use.
-    //       Also, the pages of a multi-page block are
-    //       not generally allocated until they are
-    //       first used.
+    //	     Paged block regions may be used for larger
+    //       bodies.  When a paged block is freed, the
+    //       pages of a block are typically freed,
+    //       except for the first page which holds the
+    //       block header, even though pages surrounding
+    //       the block may still be in use.  Also, the
+    //	     pages of a paged block are not generally
+    //       allocated until they are first used.
     //
-    //	     Fixed and variable size block regions may
-    //	     be allocated as multi-page block region
-    //	     blocks.  The fixed and variable size
-    //	     regions are `subregions' of the multi-page
-    //	     block region, which is the `superregion'.
+    //	     Fixed and variable size block regions are
+    //	     allocated as paged blocks in a paged block
+    //       region.  The fixed and variable size
+    //	     regions are `subregions' of the paged block
+    //	     region, which is the `superregion'.
     //       Subregions begin with a MACC::region
     //       struct which in turn begins with a block
     //       control word followed by a block subcontrol
     //       word (see below).
     //
-    //	     A multi-page block region has a region
-    //	     control block in the MACC::region_table
-    //	     vector.  There is a limit of about 2**15
-    //	     such regions.
+    //       A paged block region may be used as a paged
+    //       body region (see below) in which large
+    //       bodies are directly allocated.  It may
+    //       also be used as a mono-body region (also
+    //       see below) in which just one very large
+    //       body is allocated.
     //
-    //	     A block in a multi-page block region is
-    //	     always allocated after the last block prev-
-    //	     iously allocated to the region.  When a
-    //	     multi-page block is freed, the block is
-    //	     marked as free, but cannot be reused until
-    //	     the multi-page block region is compacted.
-    //	     Compaction moves all used blocks in the
-    //	     region to the beginning of the region, or
-    //	     to another region, thus reclaiming the
-    // 	     space occupied by multi-page free blocks.
+    //	     A paged block region has a region control
+    //       block in the MACC::region_table vector.
+    //       This vector can have at most 2**15 ele-
+    //       ments, thereby limiting the number of
+    //       paged block regions.
+    //
+    //	     A block in a paged block region is always
+    //       allocated after the last block previously
+    //       allocated to the region.  When a paged
+    //       block is freed, the block is marked as
+    //       free, but cannot be reused until the paged
+    //       block region is compacted.  Compaction
+    //       moves all used blocks in the region to the
+    //       beginning of the region, or to another
+    //       region, thus reclaiming the virtual memory
+    //       space occupied by free paged blocks.
     //	     Because all blocks are multi-page, moving
     //	     a block can be done by moving page table
     //	     entries, which is faster than moving bytes.
@@ -382,46 +399,43 @@ namespace min { namespace acc {
     //       allocated to a superregion.  All subregions
     //       have the same size, so if one is freed, it
     //       can be put on a free list and reused.
-    //       Subregions are used to hold smaller object
-    //       bodies, typically bodies up to F pages in
-    //       size, where F is the space factor.  The
-    //       size of a subregion is typically F**2
-    //	     pages.
+    //       Subregions are used to hold smaller bodies,
+    //       typically bodies up to F pages in size,
+    //       where F is the space factor.  The size of a
+    //       subregion is typically F**2 pages.
     //
     //    Superregions
     //
-    //	     A superregion is multi-page-block region
-    //	     that holds subregions.  Superregions are
-    //	     put on a list, and never freed.
+    //	     A superregion is paged block region that
+    //       holds subregions.  Superregions are put on
+    //       a list, and never freed.
     //
     //    Paged Body Regions
     //
-    //	     A paged body region is a multi-page block
-    //       region used to hold object bodies whose
-    //       size is an integral number of pages.  These
-    //       are intermediate size object bodies, too
-    //       large for variable or fixed size regions
-    //       and too small for mono-body regions.
-    //       Typically the bodies are F to F**2 pages
-    //       in size.
+    //	     A paged body region is a paged block region
+    //       used to hold bodies whose size is an inte-
+    //       gral number of pages.  These are intermed-
+    //       iate size bodies, too large for variable or
+    //       fixed size regions and too small for mono-
+    //       body regions.  Typically the bodies are F
+    //       to F**2 pages in size.
     //
     //       Paged Body Regions are put on a list so the
-    //       oldest object bodies are toward the begin-
-    //       ning of the first (and oldest) paged body
-    //       regions on the list.  The compactor copies
-    //       bodies toward the beginning of this list
-    //       and paged body regions may be freed from
-    //       either the end or middle of the list.
-    //	     Freed paged body regions may be deallocated
-    //       or may be moved to the end of the list.
+    //       oldest bodies are toward the beginning of
+    //       the first (and oldest) paged body regions
+    //       on the list.  The compactor copies bodies
+    //       toward the beginning of this list and paged
+    //       body regions may be freed from either the
+    //       end or middle of the list.  Freed paged
+    //       body regions may be deallocated or may be
+    //       moved to the end of the list.
     //
     //    Mono Body Regions
     //
-    //       A mono body region is a multi-page block
-    //       region that holds nothing but a single
-    //       object body.  These are used for very large
-    //       object bodies, typically those larger than
-    //       F**2 pages.
+    //       A mono body region is a paged block region
+    //       that holds nothing but a single body.
+    //       These are used for very large bodies, typi-
+    //       cally those larger than F**2 pages.
     //
     //	     Mono body regions are put on the mono body
     //	     region list.  Freed mono body regions are
@@ -442,7 +456,7 @@ namespace min { namespace acc {
     //	     segments that all have the same size, a
     //       multiple of the page size.   Stub stack
     //       segments are allocated to stub stack
-    //       regions which are multi-page block regions.
+    //       regions which are paged block regions.
     //
     //       See the stub_stack_segment stuct below.
     //
@@ -451,7 +465,7 @@ namespace min { namespace acc {
 
         min::uns64 block_control;
 	    // If this region is a subregion, it is a
-	    // multi-page block allocated inside its
+	    // paged block allocated inside its
 	    // superregion, and this is the block
 	    // control word for this multi-page block.
 	    // In this case the locator field L of
@@ -633,9 +647,9 @@ namespace min { namespace acc {
 
     extern region * last_variable_body_region;
         // All variable size block regions used for
-	// object bodies, in the order they were
-	// created, which is the order that the
-	// object bodies in them were created.
+	// bodies, in the order they were created,
+	// which is the order that the bodies in them
+	// were created.
 
     extern region * last_paged_body_region;
         // Ditto for paged body regions.
@@ -949,32 +963,32 @@ namespace min { namespace acc {
 
 namespace min { namespace acc {
 
-    // The `collector' segregates objects into N+1
+    // The `collector' segregates stubs into N+1
     // levels, with level 0 being the `base level',
     // and levels 1, ..., N being `ephemeral levels'.
-    // Objects in lower levels are older than objects
-    // in higher levels.  Newly allocated objects are
+    // Stubs in lower levels are older than stubs
+    // in higher levels.  Newly allocated stubs are
     // put in the highest level N.
     //
     // The collector can run one collector marking
     // algorithm execution for each level independently
     // and in parallel.  These are known as `markings'.
-    // A level L marking marks all objects in levels
-    // >= L that are pointed to by objects in the level
+    // A level L marking marks all stubs in levels
+    // >= L that are pointed to by stubs in the level
     // L root list or by executing threads or static
-    // memory, and recursively marks any object pointed
-    // at by a marked object.
+    // memory, and recursively marks any stub pointed
+    // at by a marked stub.
     //
     // The `mutator' refers to all code outside the
     // collector algorithm execution.  The mutator may
-    // write pointers to objects into other objects,
-    // into threads (i.e., their stacks), or into static
-    // memory.
+    // write pointers to stubs into other stubs or
+    // their bodies, into threads (i.e., their stacks),
+    // or into static memory.
     //
-    // The operation of `scavenging' an object refers to
-    // examining all the pointers in the object and
-    // marking any objects pointed at if the objects are
-    // of the proper level.  Whenever an object is first
+    // The operation of `scavenging' a stub refers to
+    // examining all the pointers in the stub and
+    // marking any stubs pointed at if the stubs are
+    // of the proper level.  Whenever a stub is first
     // marked it is put on a to-be-scavenged list.
     //
     // Collector Lists:
@@ -983,17 +997,17 @@ namespace min { namespace acc {
     //   lists:
     //
     //	    Level List
-    //		List of all objects in level L.  This is
+    //		List of all stubs in level L.  This is
     //		a segment of the ACC Stub List as per
     //		min.h.
     //	
     //	    Root List
-    //		List of all objects in levels < L
-    //		that might point at objects in levels
+    //		List of all stubs in levels < L
+    //		that might point at stubs in levels
     //		>= L.
     //
     //	    To Be Scavenged List
-    //		List of all objects of level >= L that
+    //		List of all stubs of level >= L that
     //		remain to be scavenged during the
     //		current level L marking.
     //
@@ -1001,14 +1015,13 @@ namespace min { namespace acc {
     //	 to any level:
     //
     //	     Thread List
-    //		For each thread, a list of objects
-    //		pointed at by data in the thread's
-    //		stack.  Maintained by the min::
-    //		stack_{num_}gen structures defined
-    //		in min.h.
+    //		For each thread, a list of stubs pointed
+    //          at by data in the thread's stack.
+    //          Maintained by the min::stack_{num_}gen
+    //          structures defined in min.h.
     //
     //	     Static List
-    //		A list of objects pointed at by static
+    //		A list of stubs pointed at by static
     //		data (e.g., data allocated at link
     //		time).  Maintained by the min::static_
     //		{num_}gen structures defined in min.h.
@@ -1089,8 +1102,7 @@ namespace min { namespace acc {
     //   it is turned off and s2 is put on the level L
     //   to-be-scavenged list.  This is an efficiency
     //   measure as the new root s1 contains only one
-    //   pointer, that to s2, at an object of level
-    //   >= L.
+    //   pointer, that to s2, at a stub of level >= L.
     //
     // Stub Allocation:
     //
@@ -1108,8 +1120,8 @@ namespace min { namespace acc {
     //
     //   In this case the new stub will remain unmarked
     //   until a pointer to it is found in a thread,
-    //   in an object, or in static memory.  Many
-    //   temporary objects will never be marked and will
+    //   in a stub, or in static memory.  Many
+    //   temporary stubs will never be marked and will
     //   be collected promptly after becoming inacces-
     //   sible from threads and static memory.
     //
@@ -1120,9 +1132,9 @@ namespace min { namespace acc {
     //   This means its level L unmarked flag will be
     //   cleared and it will be put on the level L
     //   to-be-scavenged list.  This keeps pointers to
-    //   unmarked objects out of the thread stacks and
+    //   unmarked stubs out of the thread stacks and
     //   makes further thrashing less likely, at the
-    //   cost of retaining objects beyond when they are
+    //   cost of retaining stubs beyond when they are
     //   accessible.
     //
     // Acc List:
@@ -1135,16 +1147,16 @@ namespace min { namespace acc {
     //   Stubs are assigned generations, each identified
     //   by a pair (L,S) of indices, where L is the stub
     //   level, and S is the sublevel.  A stub in gen-
-    //   eration (L,S) that survives a level L garbage
-    //   collection is promoted to generation (L,S-1) if
-    //   S>0, or to generation (L-1,T) if L>0, S=0,
-    //   where T is the highest sublevel of level L-1,
-    //   or is not promoted if L=0, S=0.
+    //   eration (L,S) that survives a level L collec-
+    //   tion is promoted to generation (L,S-1) if S>0,
+    //   or to generation (L-1,H) if L>0, S=0, where H
+    //   is the highest sublevel of level L-1, or is not
+    //   promoted if L=0, S=0.
     //
     //   Level 0 has only one sublevel, S=0, and one
     //   generation and stubs are never promoted from
     //   this generation even if they survive a level 0
-    //   garbage collection.
+    //   collection.
     //
     //   The stubs in the acc list are in order of
     //   increasing (L,S) indices, with (L1,S1)<(L2,S2)
@@ -1166,10 +1178,10 @@ namespace min { namespace acc {
     //   (only happens briefly at the start of program
     //   initialization.)
     //
-    //   Level 0 objects in the hash tables for strings,
+    //   Level 0 stubs in the hash tables for strings,
     //   numbers, and labels are not included in the acc
     //   list.  The parts of the hash tables that point
-    //   at level 0 objects are conceptually part of the
+    //   at level 0 stubs are conceptually part of the
     //   level 0 list, but they are not physically part
     //   of the acc list.
     //   
@@ -1216,25 +1228,25 @@ namespace min { namespace acc {
 		// are put on the to-be-scavenged list,
 		// and these are also scavenged.
 		//
-		// To scavenge an object s1, each
-		// pointer in s1 to another object s2 is
-		// examined, and if the level L unmarked
-		// flag of s2 is on, it is cleared and
-		// s2 is put on the level L to-be-sca-
-		// venged list if it is scavengable.  s2
-		// is scavengable if and only if
-		// MINT::scavenger_routine[type_of(s2)]
-		// is not NULL.
+		// To scavenge a stub s1, each pointer
+		// in s1 or its body to another stub s2
+		// is examined, and if the level L
+		// unmarked flag of s2 is on, it is
+		// cleared and s2 is put on the level L
+		// to-be-sca-venged list if it is
+		// scavengable.  s2 is scavengable if
+		// and only if MINT::scavenger_routine
+		// [type_of(s2)] is not NULL.
 		//
-		// Scavenging a large object is done
+		// Scavenging a large stub body is done
 		// with multiple collector increments,
 		// so the mutator can interrupt the
-		// scavenging of a large object.
+		// scavenging of a large stub body.
 		//
 		// The level L scavenged flag of s1 is
 		// set just before s1 is scavenged, so
 		// that if the mutator stores a pointer
-		// to a level L unmarked object s2 into
+		// to a level L unmarked stub s2 into
 		// s1 in the middle of scavenging s1, 
 		// the acc_stack mechanism will clear
 		// clear the level L unmarked flag of s2
@@ -1244,7 +1256,7 @@ namespace min { namespace acc {
 		// The level L not-root flag of s1 is
 		// set just before s1 is scavenged if
 		// s1 is on the level L root list.
-		// If any pointer to an object s2 that
+		// If any pointer to a stub s2 that
 		// is of level >= L is discovered in
 		// s1, then after s1 is scavenged its
 		// non-root flag is cleared and it is
@@ -1447,7 +1459,7 @@ namespace min { namespace acc {
     extern min::acc::generation * generations;
         // Vector of all generations in the order
 	// (0,0), (1,0), (1,1), ..., (2,0), (2,1), ...
-	// so promotions of objects are from
+	// so promotions of stubs are from
 	// generations[i] to generations[i-1].
 
     // Each acc level is described by a level struct.
@@ -1560,8 +1572,8 @@ namespace min { namespace acc {
     extern unsigned * ephemeral_sublevels;
 
     // The acc stack is separately allocated from the
-    // memory pool, and is not a stub stack allocated
-    // by the garbage collector.  This is because there
+    // memory pool, and is not a stub stack (i.e., is
+    // NOT as per Stub Stacks).  This is because there
     // is no means to switch acc stack segments, and the
     // acc stack can always be emptied, which will often
     // move its pointers to to-be-scavenged or root
