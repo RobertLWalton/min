@@ -1,7 +1,7 @@
 // MIN OS Interface Test Program
 //
 // File:	min_os_test.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Mon May 17 10:56:44 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 15:15:10 $
+//   $Date: 2010/06/25 12:37:52 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.19 $
+//   $Revision: 1.20 $
 
 // Table of Contents:
 //

@@ -1,7 +1,7 @@
 // MIN System Relocation Optimization Test Program
 //
 // File:	min_relocation_optimization_test.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Tue Dec 29 07:57:35 EST 2009
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2009/12/29 14:39:35 $
+//   $Date: 2010/06/25 12:37:52 $
 //   $RCSfile: min_relocation_optimization_test.cc,v $
-//   $Revision: 1.1 $
+//   $Revision: 1.2 $
 
 // This program tests whether when stub pointer to a
 // relocatable body is recomputed.  It should be put

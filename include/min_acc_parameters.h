@@ -1,7 +1,7 @@
 // MIN Language Allocator/Collector/Compactor Parameters
 //
 // File:	min_acc_parameters.h
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Wed Jun 16 16:03:27 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 20:03:36 $
+//   $Date: 2010/06/25 12:35:02 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.16 $
+//   $Revision: 1.17 $
 
 // Table of Contents
 //

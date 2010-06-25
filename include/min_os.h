@@ -1,7 +1,7 @@
 // MIN Operating System Interface
 //
 // File:	min_os.h
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Mon May 17 09:58:25 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 15:14:07 $
+//   $Date: 2010/06/25 12:35:02 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.14 $
+//   $Revision: 1.15 $
 
 // Table of Contents
 //

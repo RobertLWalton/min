@@ -1,7 +1,7 @@
 # MIN Makefile
 #
 # File:		Makefile
-# Author:	Bob Walton (walton@deas.harvard.edu)
+# Author:	Bob Walton (walton@acm.org)
 # Date:		Mon May 17 11:14:53 EDT 2010
 #
 # The authors have placed this program in the public
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2010/05/17 15:15:09 $
+#   $Date: 2010/06/25 12:37:52 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.32 $
+#   $Revision: 1.33 $
 
 # We need the following to mask RCS lines
 #

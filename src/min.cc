@@ -1,7 +1,7 @@
 // MIN Language Out-of-Line Code
 //
 // File:	min.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Wed Jun 16 11:04:43 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/16 18:35:23 $
+//   $Date: 2010/06/25 12:36:12 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.225 $
+//   $Revision: 1.226 $
 
 // Table of Contents:
 //

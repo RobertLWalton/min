@@ -2,7 +2,7 @@
 // Program
 //
 // File:	min_acc_test.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Wed May 19 08:40:51 EDT 2010
 //
 // The authors have placed this program in the public
@@ -12,9 +12,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 12:42:24 $
+//   $Date: 2010/06/25 12:37:52 $
 //   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.3 $
+//   $Revision: 1.4 $
 
 // Table of Contents:
 //
