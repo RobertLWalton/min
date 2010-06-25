@@ -1,7 +1,7 @@
 // MIN Allocator/Collector/Compactor
 //
 // File:	min_acc.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Thu Jun 17 21:11:01 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/18 09:34:27 $
+//   $Date: 2010/06/25 12:36:12 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.52 $
+//   $Revision: 1.53 $
 
 // Table of Contents:
 //

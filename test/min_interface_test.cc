@@ -1,7 +1,7 @@
 // MIN Language Interface Test Program
 //
 // File:	min_interface_test.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Sun May 23 15:03:42 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/23 19:33:23 $
+//   $Date: 2010/06/25 12:37:52 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.178 $
+//   $Revision: 1.179 $
 
 // Table of Contents:
 //

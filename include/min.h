@@ -1,7 +1,7 @@
 // MIN Language Interface
 //
 // File:	min.h
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Thu Jun 17 11:52:56 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/17 17:46:00 $
+//   $Date: 2010/06/25 12:35:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.335 $
+//   $Revision: 1.336 $
 
 // Table of Contents:
 //

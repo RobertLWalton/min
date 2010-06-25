@@ -1,7 +1,7 @@
 // MIN Language Implementation Parameters
 //
 // File:	min_parameters.h
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Wed May 19 14:34:08 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/19 18:34:21 $
+//   $Date: 2010/06/25 12:35:02 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.51 $
+//   $Revision: 1.52 $
 
 // Table of Contents
 //

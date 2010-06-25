@@ -1,7 +1,7 @@
 // MIN Language Computation of Possible Hash Table Sizes
 //
 // File:	min_hash_table_sizes.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Tue Jan 26 00:51:43 EST 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/01/26 05:58:18 $
+//   $Date: 2010/06/25 12:36:12 $
 //   $RCSfile: min_hash_table_sizes.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 # include <iostream>
 # include <iomanip>

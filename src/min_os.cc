@@ -1,7 +1,7 @@
 // MIN OS Interface Code
 //
 // File:	min_os.cc
-// Author:	Bob Walton (walton@deas.harvard.edu)
+// Author:	Bob Walton (walton@acm.org)
 // Date:	Mon May 17 11:17:50 EDT 2010
 //
 // The authors have placed this program in the public
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/05/17 15:41:43 $
+//   $Date: 2010/06/25 12:36:12 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.23 $
+//   $Revision: 1.24 $
 
 // Table of Contents:
 //
