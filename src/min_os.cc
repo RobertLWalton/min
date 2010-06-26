@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 17 11:17:50 EDT 2010
+// Date:	Sat Jun 26 12:37:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:36:12 $
+//   $Date: 2010/06/26 16:48:47 $
 //   $RCSfile: min_os.cc,v $
-//   $Revision: 1.24 $
+//   $Revision: 1.25 $
 
 // Table of Contents:
 //
@@ -759,6 +759,57 @@ void MOS::free_pool
 	fatal_error ( errno );
 
     postlog ( "DEALLOCATED", start, pages );
+}
+
+void MOS::purge_pool
+	( min::uns64 pages, void * start )
+{
+    fname = "purge_pool";
+
+    if ( trace_pools >= 1 )
+        cout << "TRACE: purge_pool ( "
+	     << pages << ", 0x" << hex
+	     << (min::unsptr) start << " )"
+	     << dec << endl;
+
+    min::unsptr size =
+        (min::unsptr) pages * ::pagesize();
+    min::unsptr mask = ::pagesize() - 1;
+    if ( ( (min::unsptr) start & mask ) != 0 )
+    {
+        fatal_error()
+	    << "start address is not a multiple of page"
+	       " size" << endl;
+	exit ( 2 );
+    }
+
+    prolog ( "PURGING" );
+
+    min::unsptr offset = 0;
+    while ( offset < size )
+    {
+        min::unsptr increment = size - offset;
+	if ( increment > max_mmap_size )
+	    increment = max_mmap_size;
+
+	void * result =
+	    mmap ( (min::uns8 *) start + offset,
+	           (size_t) increment,
+		   PROT_READ | PROT_WRITE,
+		   MAP_FIXED | MAP_PRIVATE
+		             | MAP_ANONYMOUS,
+		    -1, 0 );
+
+	if ( result == MAP_FAILED )
+	    fatal_error ( errno );
+
+	assert (    result
+	         == (min::uns8 *) start + offset );
+
+	offset += increment;
+    }
+
+    postlog ( "PURGING", start, pages );
 }
 
 inline void remap
