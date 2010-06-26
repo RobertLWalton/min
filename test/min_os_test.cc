@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 17 10:56:44 EDT 2010
+// Date:	Sat Jun 26 12:59:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:37:52 $
+//   $Date: 2010/06/26 17:36:07 $
 //   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.20 $
+//   $Revision: 1.21 $
 
 // Table of Contents:
 //
@@ -394,6 +394,13 @@ inline bool check_no_change ( void )
     return true;
 }
 
+// Check that there was REALLY no change.
+//
+bool inline check_really_no_change ( void )
+{
+    return old_count + new_count == 0;
+}
+
 // Check that the last move memory operation but did
 // not change allocated segments.
 //
@@ -500,6 +507,12 @@ int main ( int argc, const char ** argv )
 
 #   define P(i) page ( start1000, i )
     set_pages ( 1000, P(0), 1000000 );
+
+    MOS::purge_pool ( 100, P(200) );
+    MIN_ASSERT ( check_really_no_change() );
+    MIN_ASSERT ( check_pages ( 200, P(0), 1000000 ) );
+    MIN_ASSERT ( check_pages ( 100, P(200), 0 ) );
+    MIN_ASSERT ( check_pages ( 700, P(300), 1000300 ) );
 
     MOS::free_pool ( 300, P(200) );
     check_deallocation ( 300, P(200) );
