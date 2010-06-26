@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May 17 09:58:25 EDT 2010
+// Date:	Sat Jun 26 11:54:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:35:02 $
+//   $Date: 2010/06/26 16:48:11 $
 //   $RCSfile: min_os.h,v $
-//   $Revision: 1.15 $
+//   $Revision: 1.16 $
 
 // Table of Contents
 //
@@ -121,6 +121,17 @@ namespace min { namespace os {
     // detected.
     //
     void free_pool ( min::uns64 pages, void * start );
+
+    // Purge a segment by discarding its real pages.  If
+    // the virtual pages are accessed later, new real
+    // pages with undefined contents will be assigned to
+    // them.  The segment segment must have been alloca-
+    // ted with new_pool, and will remain allocated.
+    // Errors will be fatal if detected, but may not be
+    // detected.
+    //
+    void purge_pool
+        ( min::uns64 pages, void * start );
 
     // Move a segment of memory to another location by
     // manipulating memory maps instead of by copying.
