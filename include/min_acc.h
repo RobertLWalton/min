@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 25 08:38:42 EDT 2010
+// Date:	Sat Jun 26 20:19:25 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 19:28:02 $
+//   $Date: 2010/06/27 02:03:53 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.67 $
+//   $Revision: 1.68 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -485,7 +485,7 @@ namespace min { namespace acc {
 
         min::uns64 block_subcontrol;
 	    // The type code field of this word is the
-	    // type of the region (see block_type above)
+	    // block_type of the region (see above)
 	    // and the value field is the size of the
 	    // region in bytes.
 
@@ -496,10 +496,24 @@ namespace min { namespace acc {
 	    // For variable size block regions, the
 	    // maximum size in bytes of the variable
 	    // size blocks.
+	    //
+	    // For stub stack regions, the size of a
+	    // stub stack segment.
 
 	min::unsptr free_count;
 	    // For fixed size block regions, the number
-	    // of free blocks.
+	    // of free blocks in the region.
+	    //
+	    // For variable size block regions, the
+	    // number of bytes in free blocks that are
+	    // in the region.
+	    //
+	    // For stub stack regions, the number of
+	    // free stub stack segments in the region.
+	    //
+	    // In no case does memory between `next' and
+	    // `end' (see below) count as free in the
+	    // sense of this value.
 
 	min::unsptr max_free_count;
 	    // For fixed size block regions, the value
