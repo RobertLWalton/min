@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 26 20:19:25 EDT 2010
+// Date:	Sun Jun 27 10:25:20 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/27 02:03:53 $
+//   $Date: 2010/06/27 18:09:40 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.68 $
+//   $Revision: 1.69 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -462,6 +462,11 @@ namespace min { namespace acc {
     //
     struct region
     { 
+        // Note: unless specified otherwise, super-
+	// regions and stub stack regions are treated
+	// in the following as fixed size block regions
+	// whose block size is the size of a subregion
+	// or stub stack segment.
 
         min::uns64 block_control;
 	    // If this region is a subregion, it is a
@@ -496,9 +501,6 @@ namespace min { namespace acc {
 	    // For variable size block regions, the
 	    // maximum size in bytes of the variable
 	    // size blocks.
-	    //
-	    // For stub stack regions, the size of a
-	    // stub stack segment.
 
 	min::unsptr free_count;
 	    // For fixed size block regions, the number
@@ -507,9 +509,6 @@ namespace min { namespace acc {
 	    // For variable size block regions, the
 	    // number of bytes in free blocks that are
 	    // in the region.
-	    //
-	    // For stub stack regions, the number of
-	    // free stub stack segments in the region.
 	    //
 	    // In no case does memory between `next' and
 	    // `end' (see below) count as free in the
@@ -536,11 +535,15 @@ namespace min { namespace acc {
 	    // the region's MACC:region struct that is
 	    // on an 8 byte boundary.
 	    //
-	    // For fixed size block regions the next
+	    // For fixed size block regions the `next'
 	    // pointer points at memory that has never
 	    // been allocated to a block.  Blocks that
 	    // are on the region free list have
 	    // addresses that are >= begin and < next.
+	    // The value `end - begin' is always an
+	    // exact multiple of block_size, and
+	    // consequently `end' may not point beyond
+	    // the region itself.
 
 	MACC::region * region_previous,
 		     * region_next;
@@ -552,13 +555,17 @@ namespace min { namespace acc {
 	    // block regions, for superregions, for
 	    // paged body regions, for mono body
 	    // regions, for free subregions, and for
-	    // stub stack regions.
+	    // stub stack regions.  If a region is not
+	    // on a list, these point at the region
+	    // itself.
 
 	MINT::free_fixed_size_block * free_first;
 	MINT::free_fixed_size_block * free_last;
 	    // The first and last free block for a fixed
 	    // size block region's free list.  Note that
-	    // these blocks have addresses `< next'.
+	    // these blocks have addresses `< next'.  If
+	    // there are no free blocks, these equal
+	    // NULL.
 
     };
 
@@ -650,14 +657,11 @@ namespace min { namespace acc {
         // List of all superregions in order of
 	// creation.
 
-    extern region * last_free_subregion;
-	// Freed subregions (fixed and variable block
-	// regions), with the most recently freed first.
-	// The most recently freed region is the first
-	// one reused.  The compactor works to free more
-	// recently allocated regions first, so the
-	// order of this list is likely to be approxi-
-	// mately least recently allocated first.
+    extern region * current_superregion;
+        // Superregion from which subregions are
+	// currently being allocated.  When this
+	// is exhausted, it is reset to the first
+	// superregion with free subregions.
 
     extern region * last_variable_body_region;
         // All variable size block regions used for
@@ -677,6 +681,9 @@ namespace min { namespace acc {
     extern region * current_stub_stack_region;
         // Stub stack region from which stub stack
 	// segments are currently being allocated.
+	// When this is exhausted, it is reset to
+	// the first stub stack region with free
+	// stub stack segments.
 
     // Sizes of various kinds of region and size limits
     // on their contents, in bytes.  See min_acc_

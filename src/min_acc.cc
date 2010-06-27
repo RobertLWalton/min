@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 25 09:08:26 EDT 2010
+// Date:	Sun Jun 27 13:24:03 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 19:28:19 $
+//   $Date: 2010/06/27 18:11:09 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.54 $
+//   $Revision: 1.55 $
 
 // Table of Contents:
 //
@@ -414,7 +414,7 @@ MACC::region * MACC::region_end;
 
 MACC::region * MACC::last_free_region = NULL;
 MACC::region * MACC::last_superregion = NULL;
-MACC::region * MACC::last_free_subregion = NULL;
+MACC::region * MACC::current_superregion = NULL;
 MACC::region * MACC::last_variable_body_region = NULL;
 MACC::region * MACC::last_paged_body_region = NULL;
 MACC::region * MACC::last_mono_body_region = NULL;
@@ -698,48 +698,51 @@ void MINT::new_fixed_body
 
     if ( r == NULL )
     {
-	MACC::region * sr;	// Superregion of r.
+        // No fixed size block region with the given
+	// block size has any free blocks.  Must
+	// allocate a new subregion.
 
-	// Allocate new subregion.
-	//
-        r = MACC::last_free_subregion;
-	if ( r != NULL )
+	MACC::region * sr = MACC::current_superregion;
+
+	if ( sr == NULL
+	     ||
+	     sr->free_count > 0
+	     ||
+	     sr->next < sr->end )
+	    ; // do nothing
+	else for ( sr = MACC::last_superregion; ; )
 	{
-	    // Found new subregion on the list of free
-	    // subregions.
+	    sr = sr->region_next;
+	    if ( sr->free_count > 0
+		 ||
+		 sr->next < sr->end )
+		break;
+	    else if ( sr == MACC::last_superregion )
+	    {
+	        sr = NULL;
+		break;
+	    }
+	}
 
-	    int locator = MUP::locator_of_control
-	                       ( r->block_control );
-	    assert ( locator > 0 );
-	    sr = MACC::region_table + locator;
-	    assert ( MACC::region_table <= sr
-	             &&
-		     sr < MACC::region_next );
+	if ( sr == NULL )
+	{
+	    allocate_new_superregion();
+	    sr = MACC::current_superregion
+	       = MACC::last_superregion;
+	}
 
-	    MACC::remove
-	        ( MACC::last_free_subregion, r );
+	if ( sr->free_count > 0 )
+	{
+	    r = (MACC::region *) sr->free_first;
+	    sr->free_first = sr->free_first->next;
+	    if ( -- sr->free_count == 0 )
+	        sr->free_last = NULL;
 	}
 	else
 	{
-	    // Try to allocate to last superregion.
-	    //
-	    MACC::region * sr = MACC::last_superregion;
-	    min::uns8 * new_next = sr->next
-	                         + MACC::subregion_size;
-
-	    if ( new_next > sr->end )
-	    {
-		// Need a new superregion.
-
-	        allocate_new_superregion();
-		sr = MACC::last_superregion;
-		new_next = sr->next
-	                 + MACC::subregion_size;
-		assert ( new_next <= sr->end );
-	    }
-
+	    assert ( sr->next < sr->end );
 	    r = (MACC::region *) sr->next;
-	    sr->next = new_next;
+	    sr->next += MACC::subregion_size;
 	}
 
 	// Fill in region struct at beginning of new
@@ -1755,7 +1758,8 @@ static void collector_increment ( unsigned level )
 		}
 
 		MACC::level & rrlev =
-		    MACC::levels[lev.root_removal_level];
+		    MACC::levels
+		        [lev.root_removal_level];
 
 		if ( force_rewind )
 		{
@@ -1837,7 +1841,8 @@ static void collector_increment ( unsigned level )
 		    min::unsptr size =
 		        MUP::body_size_of ( s );
 		    if ( size != 0 )
-		        MUP::deallocate_body ( s, size );
+		        MUP::deallocate_body
+			    ( s, size );
 
 		    MINT::free_acc_stub ( s );
 		    ++ collected;
@@ -1920,7 +1925,8 @@ static void collector_increment ( unsigned level )
 		    min::unsptr size =
 		        MUP::body_size_of ( s );
 		    if ( size != 0 )
-		        MUP::deallocate_body ( s, size );
+		        MUP::deallocate_body
+			    ( s, size );
 
 		    MINT::free_acc_stub ( s );
 		    ++ collected;
@@ -1942,7 +1948,8 @@ static void collector_increment ( unsigned level )
 
 	    if (   lev.collecting_sublevel
 	         > lev.number_of_sublevels )
-	        lev.collector_state = COLLECTOR_NOT_RUNNING;
+	        lev.collector_state =
+		    COLLECTOR_NOT_RUNNING;
 	}
 	break;
 
