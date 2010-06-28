@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 27 20:52:53 EDT 2010
+// Date:	Mon Jun 28 13:22:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 03:46:37 $
+//   $Date: 2010/06/28 17:23:05 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.227 $
+//   $Revision: 1.228 $
 
 // Table of Contents:
 //
@@ -648,7 +648,9 @@ static void raw_vec_scavenger_routine
 	    break;
 
 	case 's':
-	    while ( p < endp )
+	    for ( ; p < endp;
+		    ++ sc.gen_count,
+		    p += type_info->element_size )
 	    {
 		if ( sc.gen_count >= sc.gen_limit )
 		{
@@ -662,6 +664,8 @@ static void raw_vec_scavenger_routine
 		}
 
 		min::stub * s2 = * (min::stub **) p;
+		if ( s2 == NULL ) continue;
+
 		min::uns64 c = MUP::control_of ( s2 );
 		int type = MUP::type_of_control ( c );
 		assert ( type >= 0 );
@@ -693,9 +697,6 @@ static void raw_vec_scavenger_routine
 
 		++ sc.stub_count;
 		accumulator |= c;
-
-		++ sc.gen_count;
-		p += type_info->element_size;
 	    }
 	    p -= size;
 	    p += sizeof ( min::stub * );
