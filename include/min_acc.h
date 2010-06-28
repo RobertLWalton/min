@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 08:54:39 EDT 2010
+// Date:	Mon Jun 28 10:10:50 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 12:54:54 $
+//   $Date: 2010/06/28 17:52:15 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.74 $
+//   $Revision: 1.75 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1283,8 +1283,11 @@ namespace min { namespace acc {
 		// cleared and s2 is put on the level L
 		// to-be-sca-venged list if it is
 		// scavengable.  s2 is scavengable if
-		// and only if MINT::scavenger_routine
+		// and only if MINT::scavenger_routines
 		// [type_of(s2)] is not NULL.
+		//
+		// Scavenging object is done by the
+		// MINT::scavenger_routines.
 		//
 		// Scavenging a large stub body is done
 		// with multiple collector increments,
@@ -1297,9 +1300,9 @@ namespace min { namespace acc {
 		// to a level L unmarked stub s2 into
 		// s1 in the middle of scavenging s1, 
 		// the acc_stack mechanism will clear
-		// clear the level L unmarked flag of s2
-		// and put s2 on the level L to-be-sca-
-		// venged list.
+		// the level L unmarked flag of s2 and
+		// put s2 on the level L to-be-scavenged
+		// list.
 		//
 		// The level L not-root flag of s1 is
 		// set just before s1 is scavenged if
@@ -1344,19 +1347,27 @@ namespace min { namespace acc {
 	        // The thread list of each thread and
 		// the static list (see above) are
 		// treated as if they were the body of
-		// a single root stub and scavenged.
+		// a single root stub and scavenged by
+		// the MINT::thread_scavenger_routine.
+		// The goal of this phase is to scavenge
+		// the thread/static lists and empty the
+		// to-be-scavenged list (which may be
+		// added to by scavenging the thread/
+		// static lists).
+		//
 		// However, if this scavenging is
 		// interrupted by the mutator (i.e., if
 		// a phase collector increment termin-
 		// ates with the scavenging unfinished),
-		// the scavenging must be restarted at
-		// its beginning.  This can cause
-		// thrashing.  However, as this phase
+		// the thread/static scavenging must be
+		// restarted at its beginning.  This can
+		// cause thrashing, but as this phase
 		// runs it decreases the number of
 		// pointers in the thread/static lists
-		// that point at unmarked stubs and
-		// thereby decreases the time required
-		// to scavenge the thread/static lists.
+		// that point at unmarked stubs, and
+		// thereby decreases the likelyhood that
+		// thread/static scavenging will be
+		// interrupted by the mutator.
 		//
 		// To prevent indefinite thrashing, the
 		// duration of the collector increment
@@ -1366,14 +1377,13 @@ namespace min { namespace acc {
 		// ed.
 		//
 		// As an alternative, the allocator may
-		// set set to both clear the level L
+		// be set to both clear the level L
 		// unmarked flag of any newly allocated
-		// stub and to scavenge that stub by
-		// calling the MINT::scavenge routine
-		// provided by the acc.  This can
-		// greatly reduce the number of level L
-		// unmarked stubs encountered when
-		// scavenging the thread/static lists.
+		// stub and put the stub on the to-be-
+		// scavenged list.  This can greatly
+		// reduce the number of level L unmarked
+		// stubs encountered when scavenging the
+		// thread/static lists.
 	        //
 	   REMOVING_ROOT,
 	        // At this point, all level L stubs with
@@ -1530,6 +1540,11 @@ namespace min { namespace acc {
 	    // Number of min::gen or min::stub * values
 	    // scanned by the scavenger.
 
+	min::uns64 stub_scanned_count;
+	    // Number of stub pointer containing
+	    // min::gen or min::stub * values
+	    // scanned by the scavenger.
+
 	min::uns64 scavenged_count;
 	    // Number of stubs scavenged by the
 	    // scavenger.
@@ -1608,6 +1623,11 @@ namespace min { namespace acc {
 	    // Number of times the current collection
 	    // has restarted scavenging the thread and
 	    // the static lists.
+
+	min::uns32 scavenge_limit;
+	    // Maximum number of stubs that may be
+	    // scavenged in a SCAVENGING_THREAD phase
+	    // collector increment.
 
 	min::uns8 root_removal_level;
 	    // Level whose root list is being scanned
