@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 06:57:37 EDT 2010
+// Date:	Mon Jun 28 09:17:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 12:55:09 $
+//   $Date: 2010/06/28 17:52:37 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.58 $
+//   $Revision: 1.59 $
 
 // Table of Contents:
 //
@@ -1641,12 +1641,17 @@ static void collector_increment ( unsigned level )
 	    lev.to_be_scavenged.end_push
 		( sc.to_be_scavenged );
 
+	    lev.stub_scanned_count += sc.stub_count;
 	    lev.scanned_count += sc.gen_count;
 	    lev.scavenged_count += scavenged;
 
 	    if (    lev.collector_state
 	         == SCAVENGING_THREAD )
+	    {
 	        lev.restart_count = 0;
+	        lev.scavenge_limit =
+		    MACC::scavenge_limit;
+	    }
 	}
 	break;
 
@@ -1660,8 +1665,6 @@ static void collector_increment ( unsigned level )
 	        ( sc.to_be_scavenged,
 	          sc.to_be_scavenged_limit );
 	    min::uns64 scavenged = 0;
-	    min::uns64 scavenged_limit =
-		MACC::scavenge_limit;
 	    bool thread_scavenged = false;
 
 	    while ( true )
@@ -1672,7 +1675,7 @@ static void collector_increment ( unsigned level )
 		              .at_end() )
 		    {
 			if (    scavenged
-			     >= scavenge_limit )
+			     >= lev.scavenge_limit )
 			    break;
 
 		        sc.s1 = lev.to_be_scavenged
@@ -1691,6 +1694,10 @@ static void collector_increment ( unsigned level )
 
 			if ( sc.state != 0 )
 			{
+			    // Thread scavenger ran out
+			    // of to-be-scavenged  list.
+			    // Loop to empty that list.
+			    //
 			    sc.state = 0;
 			    continue;
 			}
@@ -1703,7 +1710,10 @@ static void collector_increment ( unsigned level )
 				- init_gen_count;
 			else if ( lev.restart_count
 			          % 4 == 0 )
+			{
 			    sc.gen_limit *= 2;
+			    lev.scavenge_limit *= 2;
+			}
 			++ lev.restart_count;
 
 			continue;
@@ -1736,6 +1746,7 @@ static void collector_increment ( unsigned level )
 
 	    lev.to_be_scavenged.end_push
 		( sc.to_be_scavenged );
+	    lev.stub_scanned_count += sc.stub_count;
 	    lev.scanned_count += sc.gen_count;
 	    lev.scavenged_count += scavenged;
 	}
