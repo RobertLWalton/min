@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 27 20:28:39 EDT 2010
+// Date:	Mon Jun 28 08:53:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 03:38:53 $
+//   $Date: 2010/06/28 12:53:39 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.337 $
+//   $Revision: 1.338 $
 
 // Table of Contents:
 //
@@ -2483,8 +2483,9 @@ namespace min { namespace internal {
 	    // A word with a single bit set.  If this
 	    // bit is set in the stub control of s2 then
 	    // the scavenger routine must clear the bit
-	    // in s2's control and put s2 on the to-be-
-	    // scavenged stack.
+	    // in s2's control and, if scavenger_
+	    // routines[type_of(s2)] is not NULL, put s2
+	    // on the to-be-scavenged stack.
 
 	min::uns64 stub_flag_accumulator;
 	    // Logical OR of all the stub controls of

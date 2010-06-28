@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 00:56:37 EDT 2010
+// Date:	Mon Jun 28 06:57:37 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 05:06:38 $
+//   $Date: 2010/06/28 12:55:09 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.57 $
+//   $Revision: 1.58 $
 
 // Table of Contents:
 //
@@ -1502,7 +1502,7 @@ static void collector_increment ( unsigned level )
 		lev.last_stub = s;
 	    }
 
-	    lev.root_flag_set_count += scanned;
+	    lev.collectible_flag_set_count += scanned;
 
 	    if (    lev.last_stub
 	         == lev.last_allocated_stub )
@@ -1528,7 +1528,7 @@ static void collector_increment ( unsigned level )
 		    ( s, SCAVENGED ( level ) );
 	    }
 
-	    lev.collectible_flag_set_count += scanned;
+	    lev.root_flag_set_count += scanned;
 
 	    if ( lev.root.at_end() )
 	    {
