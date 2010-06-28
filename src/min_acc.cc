@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 27 20:51:34 EDT 2010
+// Date:	Mon Jun 28 00:56:37 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 03:46:37 $
+//   $Date: 2010/06/28 05:06:38 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.56 $
+//   $Revision: 1.57 $
 
 // Table of Contents:
 //
@@ -680,19 +680,24 @@ void MINT::new_fixed_body
     MINT::fixed_block_list_extension * fblext =
         fbl->extension;
 
-    // Search current region and then next regions
-    // in the circular list of regions until one
-    // found with free blocks, and return it as r.
-    // But set r = NULL if no region has free blocks.
+    // Use the current region if possible.  Otherwise
+    // search regions oldest first for new current
+    // region.
     //
     MACC::region * r = fblext->current_region;
-    while ( r != NULL )
-    {
-        if ( r->free_count > 0 ) break;
-	if ( r->next + fbl->size <= r->end ) break;
-	r = r->region_next;
-	if ( r == fblext->current_region ) r = NULL;
-    }
+    if ( r != NULL
+         &&
+	 r->free_count == 0
+	 &&
+	 r->next == r->end )
+        for ( r = fblext->last_region->region_next;
+	      r != NULL; )
+	{
+	    if ( r->free_count > 0 ) break;
+	    if ( r->next  < r->end ) break;
+	    if ( r == fblext->last_region ) r = NULL;
+	    else r = r->region_next;
+	}
 
     if ( r == NULL )
     {

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 00:13:44 EDT 2010
+// Date:	Mon Jun 28 00:53:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 04:19:19 $
+//   $Date: 2010/06/28 05:06:19 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.71 $
+//   $Revision: 1.72 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -740,17 +740,16 @@ namespace min { namespace internal {
 	    // in the list of all fixed block regions
 	    // for this size block.  The regions in the
 	    // list are chained together with their
-	    // region_previous/next fields.
-	    //
-	    // After a GC, current_region is reset to
-	    // first_region, then moved forward in
-	    // list to first region with some free
-	    // blocks.
-	    //
-	    // This strategy allows free blocks to
-	    // accumulate in regions near end of list.
+	    // region_previous/next fields, oldest
+	    // first.
 	    //
 	    // fbl is set from info in current_region.
+	    // When current_region runs out of free
+	    // blocks, an oldest first search is made
+	    // to find a new current region with free
+	    // blocks, and if none is found, a new
+	    // fixed block region is allocated to be
+	    // the new current region.
     };
 
 } }    
