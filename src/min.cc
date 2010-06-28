@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 16 11:04:43 EDT 2010
+// Date:	Sun Jun 27 20:52:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:36:12 $
+//   $Date: 2010/06/28 03:46:37 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.226 $
+//   $Revision: 1.227 $
 
 // Table of Contents:
 //
@@ -188,7 +188,7 @@ MINT::initializer::initializer ( void )
     {
         MINT::fixed_blocks[j].size = 1 << ( j + 3 );
         MINT::fixed_blocks[j].count = 0;
-        MINT::fixed_blocks[j].first = NULL;
+        MINT::fixed_blocks[j].last_free = NULL;
         MINT::fixed_blocks[j].extension = NULL;
     }
 

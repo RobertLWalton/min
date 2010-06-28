@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 27 13:24:03 EDT 2010
+// Date:	Sun Jun 27 20:51:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/27 18:11:09 $
+//   $Date: 2010/06/28 03:46:37 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.55 $
+//   $Revision: 1.56 $
 
 // Table of Contents:
 //
@@ -583,8 +583,7 @@ static MACC::region * new_paged_block_region
     r->max_free_count = 0;
     r->region_previous = r;
     r->region_next = r;
-    r->free_first = NULL;
-    r->free_last = NULL;
+    r->last_free = NULL;
 
     if ( MOS::trace_pools >= 1 )
         cout << "TRACE: new_paged_block_region"
@@ -621,8 +620,7 @@ static void free_paged_block_region
     r->end = NULL;
     r->block_size = 0;
     r->free_count = 0;
-    r->free_first = NULL;
-    r->free_last = NULL;
+    r->last_free = NULL;
 
     assert ( r->region_previous == r->region_next );
 
@@ -690,7 +688,7 @@ void MINT::new_fixed_body
     MACC::region * r = fblext->current_region;
     while ( r != NULL )
     {
-        if ( r->free_first != NULL ) break;
+        if ( r->free_count > 0 ) break;
 	if ( r->next + fbl->size <= r->end ) break;
 	r = r->region_next;
 	if ( r == fblext->current_region ) r = NULL;
@@ -733,10 +731,12 @@ void MINT::new_fixed_body
 
 	if ( sr->free_count > 0 )
 	{
-	    r = (MACC::region *) sr->free_first;
-	    sr->free_first = sr->free_first->next;
+	    MINT::free_fixed_size_block * b =
+	        sr->last_free->next;
+	    r = (MACC::region *) b;
+	    sr->last_free->next = b->next;
 	    if ( -- sr->free_count == 0 )
-	        sr->free_last = NULL;
+	        sr->last_free = NULL;
 	}
 	else
 	{
@@ -780,7 +780,7 @@ void MINT::new_fixed_body
 
 	r->block_size = fbl->size;
 	r->free_count = 0;
-	r->free_first = r->free_last = NULL;
+	r->last_free = NULL;
 
 	// Insert the region at the end of the fixed
 	// size region list of the given block size.
@@ -798,9 +798,9 @@ void MINT::new_fixed_body
         // Move region free list to fbl.
 	//
         fbl->count = r->free_count;
-	fbl->first = r->free_first;
+	fbl->last_free = r->last_free;
 	r->free_count = 0;
-	r->free_first = r->free_last = NULL;
+	r->last_free = NULL;
     }
     else
     {
@@ -809,7 +809,8 @@ void MINT::new_fixed_body
 	//
     	min::unsptr count = 16 * page_size / fbl->size;
 	if ( count == 0 ) count = 1;
-	MINT::free_fixed_size_block * last = NULL;
+	MINT::free_fixed_size_block * first = NULL;
+	assert ( fbl->last_free == NULL );
 	while ( count -- > 0 )
 	{
 	    if ( r->next + fbl->size > r->end )
@@ -826,18 +827,17 @@ void MINT::new_fixed_body
 		      / page_size,
 		      MINT::null_stub );
 
-	    if ( last == NULL )
-	        fbl->first = b;
+	    if ( first == NULL )
+	        first = b;
 	    else
-	        last->next = b;
-
-	    last = b;
+	        fbl->last_free->next = b;
+	    fbl->last_free = b;
 
 	    r->next += fbl->size;
 	    ++ fbl->count;
 	}
-	assert ( last != NULL );
-	last->next = NULL;
+	assert ( fbl->last_free != NULL );
+	fbl->last_free->next = first;
     }
 
     assert ( fbl->count > 0 );
@@ -845,9 +845,11 @@ void MINT::new_fixed_body
     // Allocate first block from refurbished fbl free
     // list.
     //
-    MINT::free_fixed_size_block * b = fbl->first;
-    fbl->first = b->next;
-    -- fbl->count;
+    MINT::free_fixed_size_block * b =
+        fbl->last_free->next;
+    fbl->last_free->next = b->next;
+    if ( -- fbl->count == 0 )
+        fbl->last_free = NULL;
 
     b->block_control = MUP::renew_control_stub
         ( b->block_control, s );
@@ -1059,11 +1061,10 @@ void MACC::stub_stack
     if ( r->free_count > 0 )
     {
         MINT::free_fixed_size_block * b =
-	    r->free_first;
-	r->free_first = b->next;
-	if ( r->free_first == NULL )
-	    r->free_last = NULL;
-	-- r->free_count;
+	    r->last_free->next;
+	r->last_free->next = b->next;
+	if ( -- r->free_count == 0 )
+	    r->last_free = NULL;
 	sss = (stub_stack_segment *) b;
     }
     else
@@ -1151,11 +1152,12 @@ void MACC::stub_stack::remove_jump ( void )
 	    assert ( locator > 0 );
 	    region * r = & region_table[locator];
 	    if ( r->free_count ++ == 0 )
-		r->free_first = r->free_last = b;
+		r->last_free = b->next = b;
 	    else
 	    {
-		r->free_last->next = b;
-		r->free_last = b;
+		b->next = r->last_free->next;
+		r->last_free->next = b;
+		r->last_free = b;
 	    }
 
 	    if ( r->free_count == r->max_free_count )
@@ -1220,11 +1222,12 @@ void MACC::stub_stack::flush ( void )
 	assert ( locator > 0 );
 	region * r = & region_table[locator];
 	if ( r->free_count ++ == 0 )
-	    r->free_first = r->free_last = b;
+	    r->last_free = b->next = b;
 	else
 	{
-	    r->free_last->next = b;
-	    r->free_last = b;
+	    b->next = r->last_free->next;
+	    r->last_free->next = b;
+	    r->last_free = b;
 	}
 
 	if ( r->free_count == r->max_free_count )
