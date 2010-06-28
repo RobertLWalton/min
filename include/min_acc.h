@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 27 10:25:20 EDT 2010
+// Date:	Sun Jun 27 20:32:59 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/27 18:09:40 $
+//   $Date: 2010/06/28 03:38:53 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.69 $
+//   $Revision: 1.70 $
 
 // The ACC interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -559,13 +559,11 @@ namespace min { namespace acc {
 	    // on a list, these point at the region
 	    // itself.
 
-	MINT::free_fixed_size_block * free_first;
-	MINT::free_fixed_size_block * free_last;
-	    // The first and last free block for a fixed
+	MINT::free_fixed_size_block * last_free;
+	    // The last free block in the circular fixed
 	    // size block region's free list.  Note that
 	    // these blocks have addresses `< next'.  If
-	    // there are no free blocks, these equal
-	    // NULL.
+	    // there are no free blocks, equals NULL.
 
     };
 
