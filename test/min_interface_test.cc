@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun May 23 15:03:42 EDT 2010
+// Date:	Sun Jun 27 23:17:14 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:37:52 $
+//   $Date: 2010/06/28 03:46:45 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.179 $
+//   $Revision: 1.180 $
 
 // Table of Contents:
 //
@@ -335,8 +335,8 @@ void MINT::new_fixed_body
     MINT::free_fixed_size_block * fb =
         (MINT::free_fixed_size_block *) next;
     fb->block_control = 0;
-    fb->next = NULL;
-    fbl->first = fb;
+    fb->next = fb;
+    fbl->last_free = fb;
     fbl->count = 1;
 
     next_body = next + m;
