@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun 17 11:52:56 EDT 2010
+// Date:	Sun Jun 27 20:28:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:35:02 $
+//   $Date: 2010/06/28 03:38:53 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.336 $
+//   $Revision: 1.337 $
 
 // Table of Contents:
 //
@@ -2061,8 +2061,8 @@ namespace min { namespace internal {
 	    // beginning of every fixed size block.
 
 	free_fixed_size_block * next;
-	    // Next in NULL terminated list of free
-	    // fixed size blocks.
+	    // Next in circular list of free fixed size
+	    // blocks.
     };
     struct fixed_block_list_extension;
         // Allocator specific extension of fixed_block_
@@ -2077,9 +2077,10 @@ namespace min { namespace internal {
         min::unsptr count;
 			// Number of fixed blocks on the
 			// free list.
-	free_fixed_size_block * first;
-			// First fixed block on the free
-			// list, or NULL if list empty.
+	free_fixed_size_block * last_free;
+			// Last fixed block on the
+			// circular list of free blocks,
+			// or NULL if list empty.
 	fixed_block_list_extension * extension;
 			// Address of extension of this
 			// structure.  Set during
@@ -2151,10 +2152,11 @@ namespace min { namespace unprotected {
 	}
 
 	min::internal::free_fixed_size_block * b =
-	    fbl->first;
+	    fbl->last_free->next;
 
-	fbl->first = b->next;
-	-- fbl->count;
+	fbl->last_free->next = b->next;
+	if ( -- fbl->count == 0 )
+	    fbl->last_free = NULL;
 
 	b->block_control =
 	    min::unprotected::renew_control_stub
