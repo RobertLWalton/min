@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 00:53:57 EDT 2010
+// Date:	Mon Jun 28 08:54:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 11:11:31 $
+//   $Date: 2010/06/28 12:54:54 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.73 $
+//   $Revision: 1.74 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1226,13 +1226,24 @@ namespace min { namespace acc {
     //
     //   The collector executes in increments called
     //   `collector increments' of limited duration in
-    //   order to run in parallel with normal mutator
+    //   order to run intermixed with normal mutator
     //   execution without consuming all the CPU time.
-    //   To implement collector implements the collector
+    //   To implement collector increments the collector
     //   must maintain state information for each level,
     //   and this includes a `phase code' that specifies
     //   which phase the collection at that level is in.
-    //   The possible phases for level L are:
+    //
+    //   While a level L collection is running, a level
+    //   L1<L collection may not run at all, and a
+    //   level L1>L collection may only run if the level
+    //   L collection is in one of its scavenging
+    //   phases (SCAVENGING_ROOT or SCAVENGING_THREAD).
+    //   In other words, a level L1 collection may
+    //   run as in interrupt to a level L collection
+    //   only if L1>L and L is in a scavenging phase.
+    //
+    //   The possible phases for level L are follow in
+    //   the order the phases are executed.
     //
     enum { COLLECTOR_NOT_RUNNING = 0,
     		// A level L collection is NOT in
@@ -1241,20 +1252,20 @@ namespace min { namespace acc {
 	       	// A level L collection is started and
 		// collection variables are initialized.
 		// The level L to-be-scavenged list
-		// should be empty at this point.
-		// The MINT::acc_stack_mask level L
-		// scavenged/unmarked flag is set to
-		// enable the mutator along with acc
-		// stack processing to add to the
-		// level L to-be-scavenged list.
-		// The level L unmarked flag is set in
-		// MUP::new_acc_stub_flags so it will be
-		// set in any newly allocated stubs.
+		// should be empty at this point.  The
+		// MINT::acc_stack_mask level L unmarked
+		// flag is set to enable the mutator
+		// along with acc stack processing to
+		// mark stubs and add to the level L to-
+		// be-scavenged list.  The level L
+		// unmarked flag is set in MUP::new_acc_
+		// stub_flags so it will be set in any
+		// newly allocated stubs.
 	   INITING_COLLECTIBLE,
-	        // The acc list is scanned for all stubs
-		// of levels >= L, and each scanned stub
-		// has its unmarked flag set and its
-		// scavenged flag cleared.
+	        // All stubs of levels >= L in the acc
+		// list are scanned, and each scanned
+		// stub has its unmarked flag set and
+		// its scavenged flag cleared.
 	   INITING_ROOT,
 	   	// The level L root list is scanned and
 		// each stub on this list has its
@@ -1565,6 +1576,15 @@ namespace min { namespace acc {
 	MACC::stub_stack root;
 	    // To-be-scavenged and root lists for
 	    // the level.
+
+        // WARNING: The next two values are pointers
+	// into the acc stub list.  These must NOT be
+	// used during the scavenging phases
+	// (SCAVENGING_ROOT/THREAD) because the
+	// collection may be interrupted by higher
+	// level collections during these phases and
+	// the higher level collections tinker with
+	// the acc stub list.
 
 	min::stub * last_allocated_stub;
 	    // MINT::last_allocated_stub is saved at
