@@ -11,11 +11,11 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 05:06:19 $
+//   $Date: 2010/06/28 11:11:31 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.72 $
+//   $Revision: 1.73 $
 
-// The ACC interfaces described here are interfaces
+// The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
 // and Compactor.  These interfaces are private and
 // subject to change without notice.
@@ -1017,7 +1017,7 @@ namespace min { namespace acc {
     //
     //	    Level List
     //		List of all stubs in level L.  This is
-    //		a segment of the ACC Stub List as per
+    //		a segment of the acc stub list as per
     //		min.h.
     //	
     //	    Root List
@@ -1047,8 +1047,8 @@ namespace min { namespace acc {
     //
     // Stub ACC Flags:
     //
-    //   Each stub has 4 ACC flags for each ephemeral
-    //   level L > 0.  These are:
+    //   Each acc stub has 4 acc flags for each ephem-
+    //   eral level L > 0.  These are:
     //
     //	     scavenged	The stub's datum has been
     //		        scavenged by the current level
@@ -1077,8 +1077,9 @@ namespace min { namespace acc {
     //   ephemeral level): the scavenged and unmarked
     //   flags.
     //
-    //   Whenever a pointer to stub s2 is stored in a
-    //   datum with stub s1, then:
+    //   Whenever the mutator stores a pointer to stub
+    //   s2 in a datum with stub s1, then the mutator
+    //   executes the following:
     //
     //     if for any level L:
     //
@@ -1087,14 +1088,14 @@ namespace min { namespace acc {
     //		the s2 level L unmarked flag is on
     //		and
     //		the MINT::acc_stack_mask level L
-    //              scavenged/unmarked flag is on
+    //              unmarked flag is on
     //       or
     //		the s1 level L non-root flag is on
     //          and
     //          the s2 level L collectible flag is on
     //		and
     //		the MINT::acc_stack_mask level L
-    //		    non-root/collectible flag is on
+    //		    collectible flag is on
     //
     //	    then the pointers to s1 and s2 are pushed
     //      into the MINT::acc_stack; the pointer to s1
@@ -1102,26 +1103,43 @@ namespace min { namespace acc {
     //
     // MINT::acc_stack Processing:
     //
-    //   The MINT::acc_stack is processed separately
-    //   by the collector.  The stack contains stub
-    //   pointer pairs (s1,s2) such that a pointer to
-    //   s2 has been stored the datum of s1.  If the
-    //   collector finds a level L scavenged stub s1
-    //   pointing at a level L unmarked stub s2, it
-    //   turns off the s2 level L unmarked flag, and
-    //   puts s2 on the level L to-be-scavenged stack.
-    //   If it finds a level L non-root stub s1 pointing
-    //   at a level L collectible stub s2, it turns
-    //   off the s1 level L non-root flag and puts s1
-    //   on the level L root stack.  In addition, if a
-    //   level L collection is in progress and is in
-    //   the SCAVENGING_ROOT phase or a later phase,
-    //   then the s1 level L scavenged flag is turned
-    //   on, and if the s2 level L unmarked flag is on,
-    //   it is turned off and s2 is put on the level L
-    //   to-be-scavenged list.  This is an efficiency
-    //   measure as the new root s1 contains only one
-    //   pointer, that to s2, at a stub of level >= L.
+    //   The MINT::acc_stack is processed separately by
+    //   the MACC::process_acc_stack routine which is
+    //   run at the same times and in preference to
+    //   other acc functions.
+    //
+    //   The MINT::acc_stack contains stub pointer pairs
+    //   (s1,s2) such that a pointer to s2 has been
+    //   stored in the datum of s1 (in s1 or its body).
+    //   The MINT::process_acc_stack routine processes
+    //   these pairs.
+    //
+    //   If the MINT::process_acc_stack routine finds a
+    //   level L scavenged stub s1 pointing at a level L
+    //   unmarked stub s2, and if the acc_stack_mask
+    //   level L unmarked flag is on, the routine turns
+    //   off the s2 level L unmarked flag, and if s2 is
+    //   scavengable, puts s2 on the level L to-be-sca-
+    //   venged stack.  A stub is scavengable if and
+    //   only if MINT::scavenger_routine[type_of(s2)] is
+    //   not NULL.
+    //   
+    //   If the MINT::process_acc_stack routine finds a
+    //   level L non-root stub s1 pointing at a level L
+    //   collectible stub s2, and if the acc_stack_mask
+    //   level L collectible flag is on, the routine
+    //   turns off the s1 level L non-root flag and puts
+    //   s1 on the level L root stack.  In addition, if
+    //   a level L collection is in progress and is in
+    //   the SCAVENGING_ROOT or SCAVENGING_THREAD
+    //   phases, then the s1 level L scavenged flag is
+    //   turned on, and if the s2 level L unmarked flag
+    //   is on, it is turned off and s2 is put on the
+    //   level L to-be-scavenged list.  This is an
+    //   efficiency measure as the new root s1 contains
+    //   only one pointer at a stub of level >= L,
+    //   namely the pointer to s2, so there is no need
+    //   to scavenge s1 to find other such pointers.
     //
     // Stub Allocation:
     //
@@ -1158,7 +1176,7 @@ namespace min { namespace acc {
     //
     // Acc List:
     //
-    //   ACC stubs are kept in a list, oldest stub
+    //   Acc stubs are kept in a list, oldest stub
     //   first, called the acc stub list.  Stubs point
     //   at the next stub on this list using their
     //   control words.
@@ -1341,7 +1359,7 @@ namespace min { namespace acc {
 		// unmarked flag of any newly allocated
 		// stub and to scavenge that stub by
 		// calling the MINT::scavenge routine
-		// provided by the ACC.  This can
+		// provided by the acc.  This can
 		// greatly reduce the number of level L
 		// unmarked stubs encountered when
 		// scavenging the thread/static lists.
@@ -1643,7 +1661,7 @@ namespace min { namespace acc {
     }
 
     // Given the control word of a stub return the
-    // ACC level of the stub, using the fact that the
+    // acc level of the stub, using the fact that the
     // level i collectible flag is on iff the stub level
     // is >= i.
     //
