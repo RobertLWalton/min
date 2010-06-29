@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 09:17:27 EDT 2010
+// Date:	Mon Jun 28 20:01:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 17:52:37 $
+//   $Date: 2010/06/29 05:43:17 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.59 $
+//   $Revision: 1.60 $
 
 // Table of Contents:
 //
@@ -1810,13 +1810,10 @@ static void collector_increment ( unsigned level )
 		     >= MACC::scan_limit )
 		    break;
 
-		if ( rrlev.root.at_end() )
-		{
-		    rrlev.root.flush();
-		    ++ lev.root_removal_level;
-		    force_rewind = true;
-		}
-
+		assert ( rrlev.root.at_end() );
+		rrlev.root.flush();
+		++ lev.root_removal_level;
+		force_rewind = true;
 	    }
 	    lev.root_kept_count += root_kept;
 	    lev.root_removed_count += root_removed;
@@ -1857,6 +1854,8 @@ static void collector_increment ( unsigned level )
 		    MUP::set_control_of
 		        ( lev.last_stub, last_c );
 
+		    // TBD: remove from any hash table.
+
 		    min::unsptr size =
 		        MUP::body_size_of ( s );
 		    if ( size != 0 )
@@ -1870,8 +1869,8 @@ static void collector_increment ( unsigned level )
 		{
 		    c &= ~ COLLECTIBLE ( level );
 		    c &= ~ NON_ROOT ( level );
-		    lev.root.push ( s );
 		    MUP::set_control_of ( s, c );
+		    lev.root.push ( s );
 		    last_c = c;
 		    lev.last_stub = s;
 		    ++ promoted;

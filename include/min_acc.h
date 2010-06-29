@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 10:10:50 EDT 2010
+// Date:	Mon Jun 28 20:00:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 17:52:15 $
+//   $Date: 2010/06/29 05:43:41 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.75 $
+//   $Revision: 1.76 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1399,12 +1399,6 @@ namespace min { namespace acc {
 		// are iterated through and stubs with
 		// level L collectible and unmarked
 		// flags both set are removed.
-		//
-		// To facilitate this collections at
-		// levels L1 > L are not run during
-		// this phase.  That is, the state of
-		// all level L1 > L collections must
-		// be COLLECTOR_NOT_RUNNING.
 	   PROMOTING,
 	        // This is done only for levels L > 0.
 		// The portion of the acc list for level
@@ -1418,8 +1412,8 @@ namespace min { namespace acc {
 		//
 		// Then the level L sublevel 0 portion
 		// of the acc list is promoted to be the
-		// end of the level L-1 sublevel T por-
-		// tion of the acc list, where T is the
+		// end of the level L-1 sublevel H por-
+		// tion of the acc list, where H is the
 		// highest sublevel of level L-1.  This
 		// is done by modifying last_before
 		// pointers in generation stucts.
