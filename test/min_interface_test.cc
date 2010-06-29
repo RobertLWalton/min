@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jun 27 23:17:14 EDT 2010
+// Date:	Tue Jun 29 12:02:20 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 03:46:45 $
+//   $Date: 2010/06/29 16:42:37 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.180 $
+//   $Revision: 1.181 $
 
 // Table of Contents:
 //
@@ -408,22 +408,34 @@ void initialize_hash_tables ( void )
     typedef min::stub * stubp;
     MINT::str_hash_size = 128;
     MINT::str_hash_mask = 128 - 1;
-    MINT::str_hash =
+    MINT::str_acc_hash =
+        new stubp[MINT::str_hash_size];
+    MINT::str_aux_hash =
         new stubp[MINT::str_hash_size];
     for ( int i = 0; i < MINT::str_hash_size; ++ i )
-        MINT::str_hash[i] = MINT::null_stub;
-    MINT::num_hash_size = 128;
-    MINT::num_hash_mask = 128 - 1;
-    MINT::num_hash =
-        new stubp[MINT::num_hash_size];
-    for ( int i = 0; i < MINT::num_hash_size; ++ i )
-        MINT::num_hash[i] = MINT::null_stub;
+	MINT::str_acc_hash[i] = MINT::str_aux_hash[i] =
+	    MINT::null_stub;
+#   if MIN_IS_COMPACT
+	MINT::num_hash_size = 128;
+	MINT::num_hash_mask = 128 - 1;
+	MINT::num_acc_hash =
+	    new stubp[MINT::num_hash_size];
+	MINT::num_aux_hash =
+	    new stubp[MINT::num_hash_size];
+	for ( int i = 0; i < MINT::num_hash_size; ++ i )
+	    MINT::num_acc_hash[i] =
+	        MINT::num_aux_hash[i] =
+		MINT::null_stub;
+#   endif
     MINT::lab_hash_size = 128;
     MINT::lab_hash_mask = 128 - 1;
-    MINT::lab_hash =
+    MINT::lab_acc_hash =
+        new stubp[MINT::lab_hash_size];
+    MINT::lab_aux_hash =
         new stubp[MINT::lab_hash_size];
     for ( int i = 0; i < MINT::lab_hash_size; ++ i )
-        MINT::lab_hash[i] = MINT::null_stub;
+	MINT::lab_acc_hash[i] = MINT::lab_aux_hash[i] =
+	    MINT::null_stub;
 }
 
 // Acc stack.

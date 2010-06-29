@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 13:22:18 EDT 2010
+// Date:	Tue Jun 29 09:54:48 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 17:23:05 $
+//   $Date: 2010/06/29 16:42:23 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.228 $
+//   $Revision: 1.229 $
 
 // Table of Contents:
 //
@@ -380,15 +380,20 @@ MINT::gen_locator * MINT::stack_gen_last;
 
 min::unsptr MINT::number_of_free_stubs;
 
-min::stub ** MINT::str_hash;
+min::stub ** MINT::str_acc_hash;
+min::stub ** MINT::str_aux_hash;
 min::unsptr  MINT::str_hash_size;
 min::unsptr  MINT::str_hash_mask;
 
-min::stub ** MINT::num_hash;
-min::unsptr  MINT::num_hash_size;
-min::unsptr  MINT::num_hash_mask;
+# if MIN_IS_COMPACT
+    min::stub ** MINT::num_acc_hash;
+    min::stub ** MINT::num_aux_hash;
+    min::unsptr  MINT::num_hash_size;
+    min::unsptr  MINT::num_hash_mask;
+# endif
 
-min::stub ** MINT::lab_hash;
+min::stub ** MINT::lab_acc_hash;
+min::stub ** MINT::lab_aux_hash;
 min::unsptr  MINT::lab_hash_size;
 min::unsptr  MINT::lab_hash_mask;
 
@@ -968,26 +973,26 @@ void MINT::thread_scavenger_routine
     {
 	min::uns32 hash = floathash ( v );
 	min::uns32 h = hash & MINT::num_hash_mask;
-	min::stub * s = MINT::num_hash[h];
+	min::stub * s = MINT::num_acc_hash[h];
 	while ( s != MINT::null_stub )
 	{
-	    min::stub * s2;
-	    if (    min::type_of ( s )
-	         == min::HASHTABLE_AUX )
-	    {
-	        s2 = (min::stub *)
-		     MUP::pointer_of ( s );
-		s = (min::stub *)
-		    MUP::stub_of_control
-			( MUP::control_of ( s ) );
-	    }
-	    else
-	    {
-	    	s2 = s;
-		s = (min::stub *)
-		    MUP::stub_of_acc_control
-			( MUP::control_of ( s ) );
-	    }
+	    min::stub * s2 = s;
+	    s = (min::stub *)
+		MUP::stub_of_acc_control
+		    ( MUP::control_of ( s ) );
+
+	    if ( MUP::float_of ( s2 ) == v )
+		return min::new_gen ( s2 );
+
+	}
+	s = MINT::num_aux_hash[h];
+	while ( s != MINT::null_stub )
+	{
+	    min::stub * s2 =
+	        (min::stub *) MUP::pointer_of ( s );
+	    s = (min::stub *)
+		MUP::stub_of_control
+		    ( MUP::control_of ( s ) );
 
 	    if ( MUP::float_of ( s2 ) == v )
 		return min::new_gen ( s2 );
@@ -1004,8 +1009,8 @@ void MINT::thread_scavenger_routine
 	    ( s,
 	      MUP::new_control_with_type
 	          ( min::HASHTABLE_AUX,
-		    MINT::num_hash[h] ) );
-	MINT::num_hash[h] = s;
+		    MINT::num_aux_hash[h] ) );
+	MINT::num_aux_hash[h] = s;
 
 	return min::new_gen ( s2 );
     }
@@ -1233,25 +1238,43 @@ min::gen MINT::new_str_stub_gen
 {
     min::uns32 hash = min::strnhash ( p, n );
     min::uns32 h = hash & MINT::str_hash_mask;
-    min::stub * s = MINT::str_hash[h];
     const char * q;
+
+    min::stub * s = MINT::str_acc_hash[h];
     while ( s != MINT::null_stub )
     {
-	min::stub * s2;
-	if ( min::type_of ( s ) == min::HASHTABLE_AUX )
-	{
-	    s2 = (min::stub *) MUP::pointer_of ( s );
-	    s = (min::stub *)
-		MUP::stub_of_control
-		    ( MUP::control_of ( s ) );
-	}
-	else
-	{
-	    s2 = s;
-	    s = (min::stub *)
-		MUP::stub_of_acc_control
-		    ( MUP::control_of ( s ) );
-	}
+	min::stub * s2 = s;
+	s = (min::stub *)
+	    MUP::stub_of_acc_control
+		( MUP::control_of ( s ) );
+
+        if (    n <= 8
+	     && min::type_of ( s2 ) == min::SHORT_STR
+	     && ::strncmp ( p, s2->v.c8, n ) == 0
+	     && (    n == 8
+	          || s2->v.c8[n] == 0 ) )
+	    return min::new_gen ( s2 );
+	else if (    n > 8
+	          &&    min::type_of ( s2 )
+		     == min::LONG_STR
+	          && ::strncmp
+		       ( p, q = MUP::str_of (
+			            MUP::long_str_of
+				        ( s2 ) ),
+			    n )
+		     == 0
+		  && q[n] == 0 )
+	    return min::new_gen ( s2 );
+    }
+
+    s = MINT::str_aux_hash[h];
+    while ( s != MINT::null_stub )
+    {
+	min::stub * s2 =
+	    (min::stub *) MUP::pointer_of ( s );
+	s = (min::stub *)
+	    MUP::stub_of_control
+		( MUP::control_of ( s ) );
 
         if (    n <= 8
 	     && min::type_of ( s2 ) == min::SHORT_STR
@@ -1296,8 +1319,8 @@ min::gen MINT::new_str_stub_gen
 	( s,
 	  MUP::new_control_with_type
 	      ( min::HASHTABLE_AUX,
-		MINT::str_hash[h] ));
-    MINT::str_hash[h] = s;
+		MINT::str_aux_hash[h] ));
+    MINT::str_aux_hash[h] = s;
 
     return min::new_gen ( s2 );
 }
@@ -1341,22 +1364,29 @@ min::gen min::new_lab_gen
     // Search for existing label stub with given
     // elements.
     //
-    min::stub * s = MINT::lab_hash[h];
+    min::stub * s = MINT::lab_acc_hash[h];
     while ( s != MINT::null_stub )
     {
-        min::stub * s2;
-	if ( min::type_of ( s ) == min::HASHTABLE_AUX )
-	{
-	    s2 = (min::stub *) MUP::pointer_of ( s );
-            s = MUP::stub_of_control
-			( MUP::control_of ( s ) );
-	}
-	else
-	{
-	    s2 = s;
-            s = MUP::stub_of_acc_control
-			( MUP::control_of ( s ) );
-	}
+        min::stub * s2 = s;
+	s = MUP::stub_of_acc_control
+		( MUP::control_of ( s ) );
+
+	lab_pointer labp ( s2 );
+
+	if ( hash != hash_of ( labp ) ) continue;
+	if ( n != length_of ( labp ) ) continue;
+
+	min::uns32 i;
+	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
+	if ( i == n ) return new_gen ( s2 );
+    }
+    s = MINT::lab_aux_hash[h];
+    while ( s != MINT::null_stub )
+    {
+        min::stub * s2 =
+	    (min::stub *) MUP::pointer_of ( s );
+	s = MUP::stub_of_control
+		    ( MUP::control_of ( s ) );
 
 	lab_pointer labp ( s2 );
 
@@ -1384,8 +1414,8 @@ min::gen min::new_lab_gen
 	( s,
 	  MUP::new_control_with_type
 	      ( min::HASHTABLE_AUX,
-		MINT::lab_hash[h] ));
-    MINT::lab_hash[h] = s;
+		MINT::lab_aux_hash[h] ));
+    MINT::lab_aux_hash[h] = s;
 
     MUP::set_type_of ( s2, min::LABEL );
     return min::new_gen ( s2 );
