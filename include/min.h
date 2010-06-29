@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 08:53:17 EDT 2010
+// Date:	Tue Jun 29 09:43:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/28 12:53:39 $
+//   $Date: 2010/06/29 16:41:00 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.338 $
+//   $Revision: 1.339 $
 
 // Table of Contents:
 //
@@ -1677,42 +1677,47 @@ namespace min { namespace internal {
     //
     void acc_expand_stub_free_list ( min::unsptr n );
 
-    // Hash tables for atoms.  The elements of these
-    // tables head a list of stubs chained together
-    // by their stub control word stub pointers.  The
-    // first stubs in each list are HASHTABLE_AUX
-    // stubs whose values point at the stubs of
-    // ephemeral objects hashed to the list.  The last
-    // stubs on each list are the stubs of non-ephemeral
-    // garbage collectable objects hashed to the list.
+    // Hash tables for atoms.  There are two hash tables
+    // for every kind of atom: the acc hash table and
+    // the aux hash table.
+    //
+    // The elements of the acc hash table are the stubs
+    // hashed, chained together by their stub control
+    // word stub pointers.  The stubs listed in this
+    // hash table are not in the normal acc stub list.
+    //
+    // The elements of the aux hash table are HASHTABLE_
+    // AUX aux stubs whose values point at the stubs of
+    // ephemeral objects hashed.  The stubs hashed in
+    // the aux table are also on the acc stub list.
     //
     // Xxx_hash_sizes are powers of 2, and each xxx_
-    // hash_mask = xxx_hash_size - 1;
+    // hash_mask = xxx_hash_size - 1;  The acc and aux
+    // hash tables for a stub type have the same size.
+    // Stubs are put in the list headed by the table
+    // element whose index is the stub's hash value
+    // masked by the xxx_hash_mask.  Lists are ended
+    // by a pointer to MINT::null_stub.
     //
-    // When a hashed object is created it is ephemeral
-    // and gets a HASHTABLE_AUX stub pointing at it
-    // at the beginning of the hashtable list headed
-    // by the hash table element indexed by the hashed
-    // object's hash value masked by the xxx_hash_mask
-    // value.
-    //
-    // When a hashed object is no longer ephemeral, its
-    // HASHTABLE_AUX stub is discarded and the hashed
-    // object itself is put at the end of its hashtable
-    // list.  This means that the stub is no longer on
-    // the usual list of all garbage collectable stubs,
-    // which is why this cannot be done when the object
-    // is still ephemeral.
+    // When a hashed stub is created it is ephemeral
+    // and is put in the aux hash table.  The acc moves
+    // stubs from the aux hash table to the correspond-
+    // ing acc hash table.
 
-    extern min::stub ** str_hash;
+    extern min::stub ** str_acc_hash;
+    extern min::stub ** str_aux_hash;
     extern min::unsptr str_hash_size;
     extern min::unsptr str_hash_mask;
 
-    extern min::stub ** num_hash;
-    extern min::unsptr num_hash_size;
-    extern min::unsptr num_hash_mask;
+#   if MIN_IS_COMPACT
+	extern min::stub ** num_acc_hash;
+	extern min::stub ** num_aux_hash;
+	extern min::unsptr num_hash_size;
+	extern min::unsptr num_hash_mask;
+#   endif
 
-    extern min::stub ** lab_hash;
+    extern min::stub ** lab_acc_hash;
+    extern min::stub ** lab_aux_hash;
     extern min::unsptr lab_hash_size;
     extern min::unsptr lab_hash_mask;
 
@@ -8002,6 +8007,51 @@ namespace min {
 	    ( s, min::unprotected::body_size_of ( s ) );
     }
 }
+
+namespace min { namespace internal {
+
+    // Remove a stub s from an aux hash table list.
+    // Here head = xxx_aux_hash + index, where index = s's
+    // hash value & xxx_hash_mask, is the head of the
+    // list.  If stub is not in the list, MIN_ABORT.
+    //
+    inline void remove_aux_hash
+	    ( min::stub ** head, min::stub * s )
+    {
+	min::gen g = min::new_gen ( s );
+        min::stub * aux_s = * head;
+	min::stub * last_aux_s = NULL;
+	min::uns64 last_c;
+	while ( aux_s != null_stub )
+	{
+	    min::uns64 c =
+	        unprotected::control_of ( aux_s );
+	    if ( unprotected::gen_of ( aux_s ) == g )
+	    {
+	        unprotected::free_aux_stub ( aux_s );
+		if ( last_aux_s != NULL )
+		{
+		    last_c = unprotected
+				 ::renew_control_stub
+			( last_c,
+			  unprotected
+			    ::stub_of_control ( c ) );
+		    unprotected::set_control_of
+		        ( last_aux_s, last_c );
+		}
+		else
+		    * head = unprotected
+		               ::stub_of_control ( c );
+		return;
+	    }
+	    last_c = c;
+	    last_aux_s = aux_s;
+	    aux_s = unprotected::stub_of_control ( c );
+	}
+        MIN_ABORT ( "remove_aux_hash failed" );
+    }
+
+} }
 
 
 # endif // MIN_H

@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/29 05:43:17 $
+//   $Date: 2010/06/29 16:42:23 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.60 $
+//   $Revision: 1.61 $
 
 // Table of Contents:
 //
@@ -1843,9 +1843,10 @@ static void collector_increment ( unsigned level )
 		min::uns64 c = MUP::control_of ( s );
 		if ( c & UNMARKED ( level ) )
 		{
+		    // Remove s from acc list.
+		    //
 		    if ( s == end_stub )
 		        end_stub = lev.last_stub;
-
 
 		    last_c = MUP::renew_control_stub
 				( last_c,
@@ -1854,14 +1855,59 @@ static void collector_increment ( unsigned level )
 		    MUP::set_control_of
 		        ( lev.last_stub, last_c );
 
-		    // TBD: remove from any hash table.
+		    // Remove s from aux hash table.
+		    //
+		    int t = MUP::type_of_control ( c );
+		    min::stub ** head = NULL;
+		    min::uns32 h;
+		    switch ( t )
+		    {
+#		    if MIN_IS_COMPACT
+			case min::NUMBER:
+			    h = min::floathash
+				    ( MUP::float_of
+				          ( s ) );
+			    h &= MINT::num_hash_mask;
+			    head = MINT::num_aux_hash
+				 + h;
+			    break;
+#		    endif
+		    case min::SHORT_STR:
+		        h = min::strnhash
+			        ( s->v.c8, 8 );
+			h &= MINT::str_hash_mask;
+			head = MINT::str_aux_hash
+			     + h;
+			break;
+		    case min::LONG_STR:
+		        h = MUP::hash_of
+			        ( MUP::long_str_of
+				      ( s ) );
+			h &= MINT::str_hash_mask;
+			head = MINT::str_aux_hash
+			     + h;
+			break;
+		    case min::LABEL:
+		        h = min::labhash ( s );
+			h &= MINT::lab_hash_mask;
+			head = MINT::lab_aux_hash
+			     + h;
+			break;
+		    }
+		    if ( head != NULL )
+			MINT::remove_aux_hash
+			    ( head, s );
 
+		    // Deallocate body of s.
+		    //
 		    min::unsptr size =
 		        MUP::body_size_of ( s );
 		    if ( size != 0 )
 		        MUP::deallocate_body
 			    ( s, size );
 
+		    // Free stub s.
+		    //
 		    MINT::free_acc_stub ( s );
 		    ++ collected;
 		}
