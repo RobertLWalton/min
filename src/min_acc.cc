@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 20:01:27 EDT 2010
+// Date:	Wed Jun 30 05:23:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/29 16:42:23 $
+//   $Date: 2010/06/30 09:31:15 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.61 $
+//   $Revision: 1.62 $
 
 // Table of Contents:
 //
@@ -1450,6 +1450,48 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
     }
 }
 
+// Helper function that removes a stub s with control c
+// from any aux hash table it might be in.
+//
+inline void remove_from_aux_hash_table
+	( min::uns64 c, min::stub * s )
+{
+
+    int t = MUP::type_of_control ( c );
+    min::stub ** head = NULL;
+    min::uns32 h;
+    switch ( t )
+    {
+#   if MIN_IS_COMPACT
+	case min::NUMBER:
+	    h = min::floathash
+		    ( MUP::float_of ( s ) );
+	    h &= MINT::num_hash_mask;
+	    head = MINT::num_aux_hash + h;
+	    break;
+#   endif
+    case min::SHORT_STR:
+	h = min::strnhash ( s->v.c8, 8 );
+	h &= MINT::str_hash_mask;
+	head = MINT::str_aux_hash + h;
+	break;
+    case min::LONG_STR:
+	h = MUP::hash_of ( MUP::long_str_of ( s ) );
+	h &= MINT::str_hash_mask;
+	head = MINT::str_aux_hash + h;
+	break;
+    case min::LABEL:
+	h = min::labhash ( s );
+	h &= MINT::lab_hash_mask;
+	head = MINT::lab_aux_hash + h;
+	break;
+    default:
+	return;
+    }
+
+    MINT::remove_aux_hash ( head, s );
+}
+
 // Perform one increment of the current collector execu-
 // tion.  To start a collector execution just set the
 // level state to COLLECTOR_START.  The collector
@@ -1857,46 +1899,7 @@ static void collector_increment ( unsigned level )
 
 		    // Remove s from aux hash table.
 		    //
-		    int t = MUP::type_of_control ( c );
-		    min::stub ** head = NULL;
-		    min::uns32 h;
-		    switch ( t )
-		    {
-#		    if MIN_IS_COMPACT
-			case min::NUMBER:
-			    h = min::floathash
-				    ( MUP::float_of
-				          ( s ) );
-			    h &= MINT::num_hash_mask;
-			    head = MINT::num_aux_hash
-				 + h;
-			    break;
-#		    endif
-		    case min::SHORT_STR:
-		        h = min::strnhash
-			        ( s->v.c8, 8 );
-			h &= MINT::str_hash_mask;
-			head = MINT::str_aux_hash
-			     + h;
-			break;
-		    case min::LONG_STR:
-		        h = MUP::hash_of
-			        ( MUP::long_str_of
-				      ( s ) );
-			h &= MINT::str_hash_mask;
-			head = MINT::str_aux_hash
-			     + h;
-			break;
-		    case min::LABEL:
-		        h = min::labhash ( s );
-			h &= MINT::lab_hash_mask;
-			head = MINT::lab_aux_hash
-			     + h;
-			break;
-		    }
-		    if ( head != NULL )
-			MINT::remove_aux_hash
-			    ( head, s );
+		    remove_from_aux_hash_table ( c, s );
 
 		    // Deallocate body of s.
 		    //
