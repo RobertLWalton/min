@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jun 30 05:42:48 EDT 2010
+// Date:	Thu Jul  1 14:50:14 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/30 19:00:41 $
+//   $Date: 2010/07/02 14:57:19 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.63 $
+//   $Revision: 1.64 $
 
 // Table of Contents:
 //
@@ -1269,8 +1269,9 @@ unsigned * MACC::ephemeral_sublevels =
 static const unsigned MAX_GENERATIONS =
     1 +   MIN_MAX_EPHEMERAL_LEVELS
         * MIN_MAX_EPHEMERAL_SUBLEVELS;
-static MACC::generation generations[MAX_GENERATIONS];
+static MACC::generation generations[MAX_GENERATIONS+1];
 MACC::generation * MACC::generations = ::generations;
+MACC::generation * MACC::end_g;
 
 static const unsigned MAX_LEVELS =
     1 + MIN_MAX_EPHEMERAL_LEVELS;
@@ -1322,9 +1323,12 @@ static void collector_initializer ( void )
 	    g->sublevel = j;
 	    g->last_before = MINT::first_allocated_stub;
 	    g->count = 0;
+	    g->lock = false;
 
 	    ++ g;
 	}
+	MACC::end_g = g;
+	MACC::end_g->lock = false;
     }
 
     MACC::acc_stack_size =
@@ -1498,7 +1502,11 @@ inline void remove_from_aux_hash_table
 // execution is finished when it returns with the level
 // collector_state set to COLLECTOR_NOT_RUNNING.
 //
-static void collector_increment ( unsigned level )
+// Returns `false' if the collector increment could not
+// start because it was locked out by the generation
+// struct or level struct locks.
+//
+static bool collector_increment ( unsigned level )
 {
 
     MACC::level & lev = levels[level];
@@ -1506,35 +1514,99 @@ static void collector_increment ( unsigned level )
     switch ( lev.collector_state )
     {
     case COLLECTOR_START:
+    	{
+	    if ( lev.lock ) return false;
+	    lev.lock = true;
 
-	// Check that to-be-scavenged stack is empty.
-	//
-        lev.to_be_scavenged.rewind();
-	assert ( lev.to_be_scavenged.at_end() );
+	    // Check that to-be-scavenged stack is
+	    // empty.
+	    //
+	    lev.to_be_scavenged.rewind();
+	    assert ( lev.to_be_scavenged.at_end() );
 
-	MINT::acc_stack_mask |= UNMARKED ( level );
-	MINT::new_acc_stub_flags |= UNMARKED ( level );
+	    MINT::acc_stack_mask |= UNMARKED ( level );
+	    MINT::new_acc_stub_flags |=
+	        UNMARKED ( level );
 
-	lev.last_allocated_stub =
-	    MINT::last_allocated_stub;
-	lev.last_stub = lev.g->last_before;
-
-	lev.collector_state =
-	    INITING_COLLECTIBLE;
+	    lev.collector_level = level;
+	    lev.collector_sublevel = 0;
+	    lev.collector_state =
+		PRE_INITING_COLLECTIBLE;
+	}
 	//
 	// Fall throught to next collector_state.
 
+    case PRE_INITING_COLLECTIBLE:
+	{
+	    MACC::level & clev =
+	        levels[lev.collector_level];
+	    unsigned sublevel = lev.collector_sublevel;
+	    if ( clev.g[sublevel].lock ) return false;
+	    if ( clev.g[sublevel+1].lock ) return false;
+	    clev.g[sublevel].lock = true;
+	    clev.g[sublevel+1].lock = true;
+	    if ( end_g == & clev.g[sublevel+1] )
+		end_g->last_before =
+		    MINT::last_allocated_stub;
+	    lev.last_stub = clev.g[sublevel].last_before;
+	    lev.collector_state = INITING_COLLECTIBLE;
+	}
+
     case INITING_COLLECTIBLE:
         {
-	    min::uns64 scanned = 0;
+	    unsigned level    = lev.collector_level;
+	    unsigned sublevel = lev.collector_sublevel;
 
+	    min::uns64 scanned = 0;
+	    MACC::level * clev = & MACC::levels[level];
 	    min::uns64 c =
-	        MUP::control_of ( lev.last_stub );
-	    while (    lev.last_stub
-	            != lev.last_allocated_stub
-	            &&
-		    scanned < MACC::scan_limit )
+		MUP::control_of ( lev.last_stub );
+
+	    while ( scanned < MACC::scan_limit )
 	    {
+		if (    lev.last_stub
+		     == clev->g[sublevel+1]
+		            .last_before )
+		{
+		    clev->g[sublevel].lock = false;
+		    clev->g[sublevel+1].lock = false;
+
+		    if (    ++ lev.collector_sublevel
+			 == clev->number_of_sublevels )
+		    {
+			if (    ++ lev.collector_level
+			     == MACC::ephemeral_levels + 1 )
+			{
+			    lev.root.rewind();
+			    lev.collector_state =
+				INITING_ROOT;
+			    break;
+			}
+			else
+			    lev.collector_sublevel = 0;
+		    }
+		    level = lev.collector_level;
+		    sublevel = lev.collector_sublevel;
+		    clev = & levels[level];
+		    if ( clev->g[sublevel].lock
+		         ||
+			 clev->g[sublevel+1].lock )
+		    {
+			lev.collector_state =
+			    PRE_INITING_COLLECTIBLE;
+			break;
+		    }
+		    else
+		    {
+			clev->g[sublevel].lock = true;
+			clev->g[sublevel+1].lock = true;
+			if (    end_g
+			     == & clev->g[sublevel+1] )
+			    end_g->last_before =
+				MINT::last_allocated_stub;
+		    }
+		}
+
 		min::stub * s =
 		    MUP::stub_of_acc_control ( c );
 		c = MUP::control_of ( s );
@@ -1545,13 +1617,6 @@ static void collector_increment ( unsigned level )
 	    }
 
 	    lev.collectible_flag_set_count += scanned;
-
-	    if (    lev.last_stub
-	         == lev.last_allocated_stub )
-	    {
-		lev.root.rewind();
-	        lev.collector_state = INITING_ROOT;
-	    }
 	}
         break;
 
@@ -1581,8 +1646,80 @@ static void collector_increment ( unsigned level )
 		sc.stub_flag = UNMARKED ( level );
 		sc.level = level;
 		sc.gen_limit = MACC::scan_limit;
-	        lev.collector_state = SCAVENGING_ROOT;
+		if ( level == 0 )
+		{
+		    lev.hash_table_id = 0;
+		    lev.hash_table_index = 0;
+		    lev.collector_state =
+		        INITING_HASH;
+
+		}
+		else
+		    lev.collector_state =
+		        SCAVENGING_ROOT;
 	    }
+	}
+	break;
+
+    case INITING_HASH:
+        {
+	    min::uns64 scanned = 0;
+
+	    min::stub ** hash_table = NULL;
+	    min::uns32 hash_table_size;
+	    while ( scanned < MACC::scan_limit )
+	    {
+	        if ( hash_table == NULL )
+		    switch ( lev.hash_table_id )
+		{
+		case 0:
+		    hash_table =
+			MINT::str_acc_hash;
+		    hash_table_size =
+			MINT::str_hash_size;
+		    break;
+		case 1:
+		    hash_table =
+			MINT::lab_acc_hash;
+		    hash_table_size =
+			MINT::lab_hash_size;
+		    break;
+#		if MIN_IS_COMPACT
+		    case 2:
+			hash_table =
+			    MINT::num_acc_hash;
+			hash_table_size =
+			    MINT::num_hash_size;
+			break;
+#		endif
+		}
+
+		if ( hash_table == NULL )
+		{
+		    lev.collector_state =
+			SCAVENGING_ROOT;
+		    break;
+		}
+
+		if (    lev.hash_table_index
+		     >= hash_table_size )
+		{
+		    ++ lev.hash_table_id;
+		    hash_table = NULL;
+		    continue;
+		}
+
+		min::stub * s =
+		    hash_table [lev.hash_table_index++];
+		while ( s != MINT::null_stub )
+		{
+		    ++ scanned;
+		    MUP::clear_flags_of
+			( s, SCAVENGED ( level ) );
+		}
+	    }
+
+	    lev.root_flag_set_count += scanned;
 	}
 	break;
 
@@ -1598,6 +1735,9 @@ static void collector_increment ( unsigned level )
 	          sc.to_be_scavenged_limit );
 
 	    min::uns64 scavenged = 0;
+	    min::uns64 remove =
+	        MACC::removal_request_flags;
+	    min::uns64 c;
 	    while ( true )
 	    {
 		if ( sc.state == 0 )
@@ -1611,19 +1751,27 @@ static void collector_increment ( unsigned level )
 		        sc.s1 = lev.to_be_scavenged
 			           .current();
 		        lev.to_be_scavenged.remove();
+			c = MUP::control_of ( sc.s1 );
+			if ( c & remove ) continue;
+
 			lev.root_scavenge = false;
-			MUP::set_flags_of
-			    ( sc.s1,
-			      SCAVENGED ( level ) );
+			c |= SCAVENGED ( level );
 		    }
 		    else if ( ! lev.root.at_end() )
 		    {
 			sc.stub_flag_accumulator = 0;
 		        sc.s1 = lev.root.current();
+			c = MUP::control_of ( sc.s1 );
+			if ( c & remove )
+			{
+			    lev.root.remove();
+			    c |= NON_ROOT ( level );
+			    MUP::set_control_of
+			        ( sc.s1, c );
+			    continue;
+			}
 
-			if ( MUP::test_flags_of
-			        ( sc.s1, SCAVENGED
-				           ( level ) ) )
+			if ( c & SCAVENGED ( level ) )
 			{
 			    lev.collector_state =
 			        SCAVENGING_THREAD;
@@ -1631,11 +1779,9 @@ static void collector_increment ( unsigned level )
 			}
 
 			lev.root_scavenge = true;
-			MUP::set_flags_of
-			    ( sc.s1,
-			      SCAVENGED ( level )
-			      +
-			      NON_ROOT ( level ) );
+			c |= SCAVENGED ( level )
+			     |
+			     NON_ROOT ( level );
 		    }
 		    else
 		    {
@@ -1644,8 +1790,9 @@ static void collector_increment ( unsigned level )
 			break;
 		    }
 		}
+		MUP::set_control_of ( sc.s1, c );
 
-		int type = min::type_of ( sc.s1 );
+		int type = MUP::type_of_control ( c );
 		assert ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
@@ -1706,11 +1853,14 @@ static void collector_increment ( unsigned level )
 	    lev.to_be_scavenged.begin_push
 	        ( sc.to_be_scavenged,
 	          sc.to_be_scavenged_limit );
+
 	    min::uns64 scavenged = 0;
 	    bool thread_scavenged = false;
-
+	    min::uns64 remove =
+	        MACC::removal_request_flags;
 	    while ( true )
 	    {
+		min::uns64 c;
 		if ( sc.state == 0 )
 		{
 		    if ( ! lev.to_be_scavenged
@@ -1723,9 +1873,11 @@ static void collector_increment ( unsigned level )
 		        sc.s1 = lev.to_be_scavenged
 			           .current();
 		        lev.to_be_scavenged.remove();
-			MUP::set_flags_of
-			    ( sc.s1,
-			      SCAVENGED ( level ) );
+			c = MUP::control_of ( sc.s1 );
+			if ( c & remove )
+			    continue;
+
+			c |= SCAVENGED ( level );
 		    }
 		    else if ( ! thread_scavenged )
 		    {
@@ -1762,19 +1914,20 @@ static void collector_increment ( unsigned level )
 		    }
 		    else
 		    {
-			lev.root_removal_level =
-			    level;
-			lev.last_allocated_stub =
-			    MINT::last_allocated_stub;
 			MINT::new_acc_stub_flags &=
 			    ~ UNMARKED ( level );
+			MACC::removal_request_flags |=
+			    UNMARKED ( level );
+			lev.collector_level = level;
+			lev.root.rewind();
 		        lev.collector_state =
 			    REMOVING_ROOT;
 			break;
 		    }
 		}
 
-		int type = min::type_of ( sc.s1 );
+		MUP::set_control_of ( sc.s1, c );
+		int type = MUP::type_of_control ( c );
 		assert ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
@@ -1794,117 +1947,154 @@ static void collector_increment ( unsigned level )
 	}
 	break;
 
+    case PRE_REMOVING_ROOT:
+        if ( levels[lev.collector_level].lock )
+	    return false;
+	levels[lev.collector_level].lock = true;
+
     case REMOVING_ROOT:
         {
 	    bool force_rewind = false;
-	    if ( lev.root_removal_level == level )
-	    {
-		++ lev.root_removal_level;
-		force_rewind = true;
-	    }
 
 	    min::uns64 root_kept = 0;
 	    min::uns64 root_removed = 0;
-	    while ( true )
+	    min::uns64 remove =
+	        MACC::removal_request_flags;
+	    MACC::level * rrlev =
+		& MACC::levels[lev.collector_level];
+	    while (   root_kept + root_removed
+		    < MACC::scan_limit )
 	    {
-	        if (    lev.root_removal_level
-		     >= MINT::number_of_acc_levels )
+		if ( rrlev->root.at_end() )
 		{
-		    lev.last_stub = lev.g->last_before;
-		    lev.collecting_sublevel = 0;
-		    lev.collector_state =
-		        level == 0 ? COLLECTING :
-		                     PROMOTING;
-		    break;
-		}
+		    rrlev->root.flush();
+		    if (    level
+		         != lev.collector_level )
+		        rrlev->lock = false;
 
-		MACC::level & rrlev =
-		    MACC::levels
-		        [lev.root_removal_level];
-
-		if ( force_rewind )
-		{
-		    rrlev.root.rewind();
-		    force_rewind = false;
-		}
-
-		while (   root_kept + root_removed
-		        < MACC::scan_limit
-		        &&
-			! rrlev.root.at_end() )
-		{
-		    min::stub * s =
-		        rrlev.root.current();
-		    if ( MUP::test_flags_of
-		             ( s, UNMARKED ( level ) ) )
+		    if (    lev.collector_level
+			 >= MINT::number_of_acc_levels )
 		    {
-		        rrlev.root.remove();
-			++ root_removed;
+			MACC::removal_request_flags &=
+			    ~ UNMARKED ( level );
+			lev.collector_level = level;
+			lev.collector_sublevel = 0;
+			lev.last_stub = NULL;
+			lev.collector_state =
+			    PRE_COLLECTING;
+			break;
 		    }
-		    else
+
+		    rrlev = & MACC::levels
+			       [++ lev.collector_level];
+		    if ( rrlev->lock )
 		    {
-		        rrlev.root.keep();
-			++ root_kept;
+		        lev.collector_state =
+			    PRE_REMOVING_ROOT;
+			break;
 		    }
+		    rrlev->lock = true;
 		}
 
-		if (    root_kept + root_removed
-		     >= MACC::scan_limit )
-		    break;
-
-		assert ( rrlev.root.at_end() );
-		rrlev.root.flush();
-		++ lev.root_removal_level;
-		force_rewind = true;
+		min::stub * s = rrlev->root.current();
+		if ( MUP::test_flags_of ( s, remove ) )
+		{
+		    rrlev->root.remove();
+		    ++ root_removed;
+		}
+		else
+		{
+		    rrlev->root.keep();
+		    ++ root_kept;
+		}
 	    }
 	    lev.root_kept_count += root_kept;
 	    lev.root_removed_count += root_removed;
 	}
 	break;
 
-    case PROMOTING:
+    case PRE_COLLECTING:
+	{
+	    MACC::level & clev =
+	        levels[lev.collector_level];
+	    unsigned sublevel = lev.collector_sublevel;
+	    if ( clev.g[sublevel].lock ) return false;
+	    if ( clev.g[sublevel+1].lock ) return false;
+	    clev.g[sublevel].lock = true;
+	    clev.g[sublevel+1].lock = true;
+	    if ( end_g == & clev.g[sublevel+1] )
+		end_g->last_before =
+		    MINT::last_allocated_stub;
+	    lev.last_stub = clev.g[sublevel].last_before;
+	    lev.collector_state = COLLECTING;
+	}
+
+    case COLLECTING:
         {
-	    min::stub * end_stub =
-		level == MACC::ephemeral_levels
-		&&
-		   lev.collecting_sublevel + 1
-		== lev.number_of_sublevels ?
-		lev.last_allocated_stub :
-		lev.g[lev.collecting_sublevel+1]
-		   .last_before;
+	    unsigned sublevel = lev.collector_sublevel;
 
 	    min::uns64 collected = 0;
 	    min::uns64 promoted = 0;
-	    min::uns64 kept = 0;
+	    MACC::level * clev =
+	        & MACC::levels[lev.collector_level];
+	    if ( lev.last_stub == NULL )
+	        lev.last_stub =
+		    clev->g[sublevel].last_before;
 	    min::uns64 last_c =
 	        MUP::control_of ( lev.last_stub );
-	    while (   collected + kept
-		    < MACC::scan_limit )
+	    min::stub * end_stub =
+		clev->g[sublevel+1].last_before;
+
+	    while (   collected + promoted
+	            < MACC::scan_limit )
 	    {
-	        if ( lev.last_stub == end_stub )
+		if ( lev.last_stub == end_stub )
 		{
-		    lev.g[lev.collecting_sublevel]
-		       .last_before = end_stub;
-		    ++ lev.collecting_sublevel;
-		    if ( lev.collecting_sublevel
-		         >= lev.number_of_sublevels )
+		    clev->g[sublevel].last_before
+		        = end_stub;
+		    clev->g[sublevel+1].last_before
+		        = end_stub;
+		    clev->g[sublevel].lock = false;
+		    clev->g[sublevel+1].lock = false;
+
+		    if (    ++ lev.collector_sublevel
+			 == clev->number_of_sublevels )
 		    {
-		        if (    level
-			     != MACC::ephemeral_levels )
-			    lev.g[lev
-			           .collecting_sublevel]
-			       .last_before = end_stub;
-		        break;
+			if (    ++ lev.collector_level
+			     == MACC::ephemeral_levels + 1 )
+			{
+			    lev.collector_state =
+				COLLECTOR_NOT_RUNNING;
+			    lev.lock = false;
+			    break;
+			}
+			else
+			    lev.collector_sublevel = 0;
 		    }
-		    end_stub =
-			level == MACC::ephemeral_levels
-			&&
-			   lev.collecting_sublevel
-			== lev.number_of_sublevels ?
-			lev.last_allocated_stub :
-			lev.g[lev.collecting_sublevel+1]
-			   .last_before;
-		    continue;
+		    level = lev.collector_level;
+		    sublevel = lev.collector_sublevel;
+		    clev = & levels[level];
+		    if ( clev->g[sublevel].lock
+		         ||
+			 clev->g[sublevel+1].lock )
+		    {
+			lev.collector_state =
+			    PRE_INITING_COLLECTIBLE;
+			break;
+		    }
+		    else
+		    {
+			clev->g[sublevel].lock = true;
+			clev->g[sublevel+1].lock = true;
+			if (    end_g
+			     == & clev->g[sublevel+1] )
+			    end_g->last_before =
+				MINT::
+				  last_allocated_stub;
+			end_stub =
+			    clev->g[sublevel+1]
+			        .last_before;
+		    }
 		}
 
 		min::stub * s =
@@ -1915,13 +2105,7 @@ static void collector_increment ( unsigned level )
 		    // Remove s from acc list.
 		    //
 		    if ( s == end_stub )
-		    {
 		        end_stub = lev.last_stub;
-			if ( s ==
-			     lev.last_allocated_stub )
-			    lev.last_allocated_stub =
-				end_stub;
-		    }
 
 		    last_c = MUP::renew_control_stub
 				( last_c,
@@ -1953,28 +2137,20 @@ static void collector_increment ( unsigned level )
 		    last_c = c;
 		    lev.last_stub = s;
 
-		    if ( lev.collecting_sublevel == 0 )
-		    {
-			c &= ~ NON_ROOT ( level );
-			lev.root.push ( s );
-			++ promoted;
-		    }
-		    else
-		        ++ kept;
+		    c &= ~ NON_ROOT ( level );
+		    lev.root.push ( s );
+		    ++ promoted;
+
 		    MUP::set_control_of ( s, c );
 		}
+		lev.last_stub = s;
+		last_c = c;
 	    }
 
 	    lev.collected_count += collected;
 	    lev.promoted_count += promoted;
-	    lev.kept_count += kept;
-
-	    if (   lev.collecting_sublevel
-	         > lev.number_of_sublevels )
-	        lev.collector_state =
-		    COLLECTING;
 	}
-	break;
+        break;
 
     default:
         MIN_ABORT ( "bad collector state" );
