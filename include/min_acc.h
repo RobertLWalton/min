@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jun 28 20:00:39 EDT 2010
+// Date:	Thu Jul  1 03:07:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/29 05:43:41 $
+//   $Date: 2010/07/02 14:56:46 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.76 $
+//   $Revision: 1.77 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1233,24 +1233,70 @@ namespace min { namespace acc {
     //   and this includes a `phase code' that specifies
     //   which phase the collection at that level is in.
     //
-    //   While a level L collection is running, a level
-    //   L1<L collection may not run at all, and a
-    //   level L1>L collection may only run if the level
-    //   L collection is in one of its scavenging
-    //   phases (SCAVENGING_ROOT or SCAVENGING_THREAD).
-    //   In other words, a level L1 collection may
-    //   run as in interrupt to a level L collection
-    //   only if L1>L and L is in a scavenging phase.
+    //   Some collector increments lock and unlock
+    //   certain data.  It is an assert error if a
+    //   collector increment tries to lock already
+    //   locked data, and it is up to the collector
+    //   scheduler, which decides which collector
+    //   increment to run next, to avoid such errors.
+    //   In general, that state PRE_XXX sets locks and
+    //   immediately switches to the state XXX.  A
+    //   collector increment in state XXX may end with
+    //   the state reset to PRE_XXX and all the phases
+    //   locks unlocked, permitting interrupts at that
+    //   point by other collector increments.
+    //
+    //   The data that is locked and the phases that
+    //   set and clear these locks are as follows:
+    //
+    //	     Let
+    //	       L = the level of the collector increment
+    //         level = levels[L].collection_level >= L
+    //         sublevel = levels[L].collection_sublevel
+    //			= sublevel of level
+    //
+    //       levels[level].g[sublevel].lock
+    //       levels[level].g[sublevel+1].lock
+    //		Set by:
+    //		PRE_INITING_COLLECTIBLE (level, sublevel)
+    //		PRE_PROMOTING (level, sublevel)
+    //		PRE_COLLECTING (level, sublevel)
+    //		    each sets the locks for
+    //			levels[level].g+sublevel
+    //			and
+    //			levels[level].g+sublevel+1
+    //	        Cleared at end of:
+    //		INITING_COLLECTIBLE
+    //		PROMOTING
+    //		COLLECTING
+    //
+    //	     levels[L].lock
+    //		Set by:
+    //		COLLECTOR_START
+    //		Cleared at end of:
+    //		Last phase of collection.
+    //
+    //	     levels[level].lock
+    //		Set by:
+    //		PRE_REMOVING_ROOT ( level )
+    //	        Cleared at end of:
+    //		REMOVING_ROOT ( level )
     //
     //   The possible phases for level L are follow in
-    //   the order the phases are executed.
+    //   the order the phases are executed, except the
+    //	 execution order may include PRE_XXX XXX PRE_XXX
+    //   XXX ....
     //
     enum { COLLECTOR_NOT_RUNNING = 0,
     		// A level L collection is NOT in
 		// progress.
            COLLECTOR_START,
-	       	// A level L collection is started and
-		// collection variables are initialized.
+		// The levels[L].lock is set, a level L
+		// collection is started and collection
+		// variables are initialized.  The lock
+		// is kept until the last phase of the
+		// collection is done.
+		//
 		// The level L to-be-scavenged list
 		// should be empty at this point.  The
 		// MINT::acc_stack_mask level L unmarked
@@ -1261,15 +1307,31 @@ namespace min { namespace acc {
 		// unmarked flag is set in MUP::new_acc_
 		// stub_flags so it will be set in any
 		// newly allocated stubs.
+	   PRE_INITING_COLLECTIBLE,
 	   INITING_COLLECTIBLE,
-	        // All stubs of levels >= L in the acc
-		// list are scanned, and each scanned
-		// stub has its unmarked flag set and
-		// its scavenged flag cleared.
+		// Iterates over all levels >= L and all
+		// sublevels of each level.  For each
+		// level and sublevel locks
+		//   levels[level].g[sublevel].lock
+		//   levels[level].g[sublevel+1].lock
+		// These locks are only kept until the
+		// sublevel iteration is done.
+		//
+	        // For each iteration all stubs of the
+		// sublevel in the acc list are scanned,
+		// and each scanned stub has its
+		// unmarked flag set and its scavenged
+		// flag cleared.
 	   INITING_ROOT,
 	   	// The level L root list is scanned and
 		// each stub on this list has its
 		// scavenged flag cleared.
+	   INITING_HASH,
+	   	// Done only for L == 0.  The acc hash
+		// tables are scanned, and each stub in
+		// these tables list has its unmarked
+		// flag set and its scavenged flag
+		// cleared.
 	   SCAVENGING_ROOT,
 	        // Each stub on the level L root list
 		// is scavenged.  In the process stubs
@@ -1384,22 +1446,38 @@ namespace min { namespace acc {
 		// reduce the number of level L unmarked
 		// stubs encountered when scavenging the
 		// thread/static lists.
-	        //
-	   REMOVING_ROOT,
-	        // At this point, all level L stubs with
-		// unmarked flag set cannot be reached
-		// by the mutator.  Exactly when this
-		// point is reached the level L unmarked
-		// flag is cleared in MUP::new_acc_stub_
-		// flags so any stubs allocated after
-		// this point will not be collected by
-		// the level L collection.
 		//
-	   	// The root lists of all levels L1 > L
-		// are iterated through and stubs with
+	        // At the end of this phase, all level L
+		// stubs with unmarked flag set cannot
+		// be reached by the mutator.  Exactly
+		// at the end of this phase the level L
+		// unmarked flag is cleared in MUP::new_
+		// acc_stub_flags so any stubs allocated
+		// afterwards will not be collected by
+		// the level L collection.
+	        //
+	   PRE_REMOVING_ROOT,
+	   REMOVING_ROOT,
+		// Iterates over all levels > L.  For
+		// For each level locks
+		//   levels[level]lock
+		// This lock is only kept until the
+		// level iteration is done.
+		//
+	   	// For each level its root list is
+		// scanned and all scanned stubs with
 		// level L collectible and unmarked
 		// flags both set are removed.
+	   PRE_PROMOTING,
 	   PROMOTING,
+		// Iterates over all levels >= L and all
+		// sublevels of each level.  For each
+		// level and sublevel locks
+		//   levels[level].g[sublevel].lock
+		//   levels[level].g[sublevel+1].lock
+		// These locks are only kept until the
+		// sublevel iteration is done.
+		//
 	        // This is done only for levels L > 0.
 		// The portion of the acc list for level
 		// L and sublevel 0 is scanned.  Each
@@ -1423,7 +1501,16 @@ namespace min { namespace acc {
 		// from its hash table.  Being in a hash
 		// table does not prevent collection of
 		// any stub.
+	   PRE_COLLECTING,
 	   COLLECTING };
+		// Iterates over all levels >= L and all
+		// sublevels of each level.  For each
+		// level and sublevel locks
+		//   levels[level].g[sublevel].lock
+		//   levels[level].g[sublevel+1].lock
+		// These locks are only kept until the
+		// sublevel iteration is done.
+		//
 	        // The portion of the acc list for
 		// level L stubs that was not scanned
 		// in the PROMOTING phase is scanned and
@@ -1507,12 +1594,28 @@ namespace min { namespace acc {
 	    // Number of stubs currently in this
 	    // generation.
 
+	bool lock;
+	    // Set `true' to lock this generation
+	    // structure.  Locked by the {PRE_}INITING_
+	    // COLLECTIBLES, {PRE_}PROMOTING, and
+	    // {PRE_COLLECTING} phases both of this
+	    // generation's level and of lower levels.
+
     };
     extern min::acc::generation * generations;
         // Vector of all generations in the order
 	// (0,0), (1,0), (1,1), ..., (2,0), (2,1), ...
 	// so promotions of stubs are from
-	// generations[i] to generations[i-1].
+	// generations[i] to generations[i-1].  Also
+	// see end_g.
+
+    extern min::acc::generation * end_g;
+	// Points at an extra generation struct at the
+	// end of the generations vector which is used
+	// by some collector phases which set
+	//	end_g->last_before =
+	//	    MINT::last_allocated_stub;
+	// and  end_g->lock = true.
 
     // Each acc level is described by a level struct.
     //
@@ -1586,53 +1689,67 @@ namespace min { namespace acc {
 	    // To-be-scavenged and root lists for
 	    // the level.
 
-        // WARNING: The next two values are pointers
-	// into the acc stub list.  These must NOT be
-	// used during the scavenging phases
-	// (SCAVENGING_ROOT/THREAD) because the
-	// collection may be interrupted by higher
-	// level collections during these phases and
-	// the higher level collections tinker with
-	// the acc stub list.
-
-	min::stub * last_allocated_stub;
-	    // MINT::last_allocated_stub is saved at
-	    // various times during collection.
-	min::stub * last_stub;
-	    // Some collector phases iterate from
-	    // level.g->last_before through either
-	    // MINT::last_allocated_stub or last_
-	    // marked_stub, using this as a pointer.
-
         min::uns8 collector_state;
 	    // One of COLLECTOR_NOT_RUNNING,
-	    // COLLECTOR_START, INITING_COLLECTIBLE,
+	    // COLLECTOR_START, PRE_INITING_COLLECTIBLE,
 	    // etc.
+
+	bool lock;
+	    // Set `true' to lock this level struct.
+	    // Set by COLLECTOR_START and cleared when
+	    // the last phase of a collection of this
+	    // level is finished.  Also set by the
+	    // {PRE_}REMOVING_ROOT of a collection
+	    // at a level lower than this level.
 
 	bool root_scavenge;
 	    // True if the stub currently being sca-
 	    // venged is from the root list.
 
+	min::uns8 hash_table_id;
+	    // Iterates from 0 to identify acc hash
+	    // table being scanned during a level 0
+	    // collection.
+
+	min::uns32 hash_table_index;
+	    // Index of acc hash table element that
+	    // is the head of the hash table list
+	    // being scanned during a level 0
+	    // collection.
+
 	min::uns32 restart_count;
 	    // Number of times the current collection
 	    // has restarted scavenging the thread and
-	    // the static lists.
+	    // the static lists during the SCAVENGING_
+	    // THREAD phase.
 
 	min::uns32 scavenge_limit;
 	    // Maximum number of stubs that may be
 	    // scavenged in a SCAVENGING_THREAD phase
 	    // collector increment.
 
-	min::uns8 root_removal_level;
-	    // Level whose root list is being scanned
-	    // for removals during the REMOVALING_ROOT
-	    // phase of a collection.
+	min::uns8 collector_level;
+	min::uns8 collector_sublevel;
+	    // Arguments to the current collector
+	    // increment.
 
-	min::uns8 collecting_sublevel;
-	    // Sublevel being collected.
+	min::stub * last_stub;
+	    // Some collector phases iterate from
+	    // levels[level].g[sublevel]->last_before
+	    // through levels[level].g[sublevel+1]
+	    // ->last_before using using this as a
+	    // pointer (and locking the two indicated
+	    // generation structs).
 
     };
     extern min::acc::level * levels;
+
+    extern min::uns64 removal_request_flags;
+	// If the UNMARKED(L) is set in this value,
+	// then stubs with that flag set must be
+	// ignored and removed when they occur in
+	// the to_be_scavenged or root lists of
+	// levels >= L.
 
     // Ephemeral_levels is the actual number of
     // ephemeral levels, and for each ephemeral level L,
