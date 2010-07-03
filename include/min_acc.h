@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  1 03:07:09 EDT 2010
+// Date:	Sat Jul  3 05:14:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/02 14:56:46 $
+//   $Date: 2010/07/03 14:13:40 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.77 $
+//   $Revision: 1.78 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1576,12 +1576,11 @@ namespace min { namespace acc {
     // Each generation is described by a generation
     // struct.
     //
+    struct level;
     struct generation
     {
-        unsigned level;
-	unsigned sublevel;
-	    // Level (L) and sublevel (S) of this
-	    // generation.  If L == 0 then S == 0.
+        MACC::level * level;
+	    // Level of this generation.
 
 	stub * last_before;
 	    // Last stub on the acc stub list BEFORE the
@@ -1728,18 +1727,16 @@ namespace min { namespace acc {
 	    // scavenged in a SCAVENGING_THREAD phase
 	    // collector increment.
 
-	min::uns8 collector_level;
-	min::uns8 collector_sublevel;
+	min::acc::generation * first_g, * last_g;
 	    // Arguments to the current collector
-	    // increment.
+	    // increment.  Range of generations that
+	    // are locked.  Only used by phases that
+	    // scan the acc list.
 
 	min::stub * last_stub;
-	    // Some collector phases iterate from
-	    // levels[level].g[sublevel]->last_before
-	    // through levels[level].g[sublevel+1]
-	    // ->last_before using using this as a
-	    // pointer (and locking the two indicated
-	    // generation structs).
+	    // Pointer to a stub within a locked
+	    // generation, or the last_before stub of
+	    // a locked generation.
 
     };
     extern min::acc::level * levels;
