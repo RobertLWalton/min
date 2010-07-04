@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 29 09:43:11 EDT 2010
+// Date:	Sun Jul  4 03:12:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/29 16:41:00 $
+//   $Date: 2010/07/04 07:44:56 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.339 $
+//   $Revision: 1.340 $
 
 // Table of Contents:
 //
@@ -1720,6 +1720,12 @@ namespace min { namespace internal {
     extern min::stub ** lab_aux_hash;
     extern min::unsptr lab_hash_size;
     extern min::unsptr lab_hash_mask;
+
+    // ACC flags to be set and cleared when a stub is
+    // found in the hash table.
+    //
+    extern min::uns64 hash_acc_set_flags;
+    extern min::uns64 hash_acc_clear_flags;
 
     // Acc flags are bits 55 .. m of an acc control
     // value, where 56 - m == MIN_ACC_FLAG_BITS.

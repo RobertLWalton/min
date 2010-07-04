@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  3 15:19:43 EDT 2010
+// Date:	Sun Jul  4 03:09:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/04 04:06:00 $
+//   $Date: 2010/07/04 07:44:56 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.79 $
+//   $Revision: 1.80 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1456,6 +1456,8 @@ namespace min { namespace acc {
 		// afterwards will not be collected by
 		// the level L collection.
 	        //
+	   COLLECTING_HASH,
+	        // TBD
 	   PRE_COLLECTING,
 	   COLLECTING,
 		// Iterates over all levels >= L and all
@@ -1652,13 +1654,23 @@ namespace min { namespace acc {
 	    // Number of root stubs removed during
 	    // REMOVING_ROOT phase.
 
+	min::uns64 hash_collected_count;
+	    // Number of level 0 hash table stubs
+	    // collected by the COLLECTING_HASH phase
+	    // of the collector.
+
+	min::uns64 hash_kept_count;
+	    // Number of level 0 hash table stubs
+	    // kept by the COLLECTING_HASH phase
+	    // of the collector.
+
 	min::uns64 collected_count;
 	    // Number of stubs collected by the
-	    // collection phases of the collector.
+	    // COLLECTING phase of the collector.
 
 	min::uns64 kept_count;
-	    // Number of stubs kept but by the
-	    // collection phases of the collector.
+	    // Number of stubs kept by the COLLECTING
+	    // phase of the collector.
 
 	min::uns64 promoted_count;
 	    // Number of stubs promoted from one level

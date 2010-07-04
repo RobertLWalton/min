@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  3 15:22:20 EDT 2010
+// Date:	Sun Jul  4 02:30:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/04 04:06:11 $
+//   $Date: 2010/07/04 07:45:18 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.66 $
+//   $Revision: 1.67 $
 
 // Table of Contents:
 //
@@ -1523,9 +1523,14 @@ static bool collector_increment ( unsigned level )
 	    lev.to_be_scavenged.rewind();
 	    assert ( lev.to_be_scavenged.at_end() );
 
-	    MINT::acc_stack_mask |= UNMARKED ( level );
+	    MINT::acc_stack_mask &=
+	        ~ UNMARKED ( level );
 	    MINT::new_acc_stub_flags |=
 	        UNMARKED ( level );
+	    MACC::removal_request_flags &=
+		~ UNMARKED ( level );
+	    MINT::hash_acc_clear_flags &=
+		~ UNMARKED ( level );
 
 	    lev.first_g = NULL;
 	    lev.collector_state =
@@ -1591,7 +1596,8 @@ static bool collector_increment ( unsigned level )
 			++ lev.last_g;
 			if ( lev.last_g == end_g )
 			    end_g->last_before =
-				MINT::last_allocated_stub;
+				MINT::
+				  last_allocated_stub;
 		    }
 		}
 
@@ -1643,8 +1649,12 @@ static bool collector_increment ( unsigned level )
 
 		}
 		else
+		{
+		    MINT::acc_stack_mask |=
+		        UNMARKED ( level );
 		    lev.collector_state =
 		        SCAVENGING_ROOT;
+		}
 	    }
 	}
 	break;
@@ -1684,6 +1694,8 @@ static bool collector_increment ( unsigned level )
 
 		if ( hash_table == NULL )
 		{
+		    MINT::acc_stack_mask |=
+		        UNMARKED ( level );
 		    lev.collector_state =
 			SCAVENGING_ROOT;
 		    break;
@@ -1906,6 +1918,8 @@ static bool collector_increment ( unsigned level )
 			    ~ UNMARKED ( level );
 			MACC::removal_request_flags |=
 			    UNMARKED ( level );
+			MINT::hash_acc_clear_flags |=
+			    UNMARKED ( level );
 			lev.first_g = NULL;
 			lev.last_allocated =
 			    MUP::new_acc_stub();
@@ -1918,10 +1932,19 @@ static bool collector_increment ( unsigned level )
 				    .last_allocated;
 			    if ( s == NULL ) continue;
 			    MUP::clear_flags_of
-			        ( s, UNMARKED ( level ) );
+			        ( s,
+				  UNMARKED ( level ) );
 			}
-		        lev.collector_state =
-			    PRE_PROMOTING;
+			if ( level == 0 )
+			{
+			    lev.hash_table_id = 0;
+			    lev.hash_table_index = 0;
+			    lev.collector_state =
+				    COLLECTING_HASH;
+			}
+			else
+			    lev.collector_state =
+				    PRE_PROMOTING;
 			break;
 		    }
 		}
@@ -1944,6 +1967,112 @@ static bool collector_increment ( unsigned level )
 	    lev.stub_scanned_count += sc.stub_count;
 	    lev.scanned_count += sc.gen_count;
 	    lev.scavenged_count += scavenged;
+	}
+	break;
+
+    case COLLECTING_HASH:
+        {
+	    min::uns64 collected = 0;
+	    min::uns64 kept = 0;
+
+	    min::stub ** hash_table = NULL;
+	    min::uns32 hash_table_size;
+	    while (   collected + kept
+	            < MACC::collection_limit )
+	    {
+	        if ( hash_table == NULL )
+		    switch ( lev.hash_table_id )
+		{
+		case 0:
+		    hash_table =
+			MINT::str_acc_hash;
+		    hash_table_size =
+			MINT::str_hash_size;
+		    break;
+		case 1:
+		    hash_table =
+			MINT::lab_acc_hash;
+		    hash_table_size =
+			MINT::lab_hash_size;
+		    break;
+#		if MIN_IS_COMPACT
+		    case 2:
+			hash_table =
+			    MINT::num_acc_hash;
+			hash_table_size =
+			    MINT::num_hash_size;
+			break;
+#		endif
+		}
+
+		if ( hash_table == NULL )
+		{
+		    lev.collector_state =
+			PRE_COLLECTING;
+		    break;
+		}
+
+		if (    lev.hash_table_index
+		     >= hash_table_size )
+		{
+		    ++ lev.hash_table_id;
+		    hash_table = NULL;
+		    continue;
+		}
+
+		min::stub * last_s = NULL;
+		min::uns64 last_c;
+		min::stub * s =
+		    hash_table [lev.hash_table_index];
+		while ( s != MINT::null_stub )
+		{
+		    min::uns64 c =
+		        MUP::control_of ( s );
+		    min::stub * next_s =
+			MUP::stub_of_acc_control ( c );
+		    if ( c & UNMARKED ( level ) )
+		    {
+			// Remove s from hash list.
+			//
+			if ( last_s != NULL )
+			{
+			    last_c =
+			      MUP::
+			        renew_acc_control_stub
+				    ( last_c, next_s );
+			    MUP::set_control_of
+			      ( last_s, last_c );
+			}
+			else
+			    hash_table
+			        [lev.hash_table_index] =
+				next_s;
+
+			// Deallocate body of s.
+			//
+			min::unsptr size =
+			    MUP::body_size_of ( s );
+			if ( size != 0 )
+			    MUP::deallocate_body
+				( s, size );
+
+			// Free stub s.
+			//
+			MINT::free_acc_stub ( s );
+			++ collected;
+		    }
+		    else
+		    {
+		        last_c = c;
+			last_s = s;
+			++ kept;
+		    }
+		}
+		++ lev.hash_table_index;
+	    }
+
+	    lev.hash_collected_count += collected;
+	    lev.hash_kept_count += kept;
 	}
 	break;
 
@@ -1988,7 +2117,7 @@ static bool collector_increment ( unsigned level )
 	        MUP::control_of ( lev.last_stub );
 
 	    while (   collected + kept
-	            < MACC::scan_limit )
+	            < MACC::collection_limit )
 	    {
 		if (    lev.last_stub
 		     == lev.first_g[1].last_before )
@@ -2000,8 +2129,10 @@ static bool collector_increment ( unsigned level )
 			do lev.first_g->lock = false;
 			while (    lev.first_g ++
 			        != lev.last_g );
+
+			lev.first_g = NULL;
 			lev.collector_state =
-			    COLLECTOR_NOT_RUNNING;
+			    PRE_PROMOTING;
 			break;
 		    }
 
@@ -2054,10 +2185,11 @@ static bool collector_increment ( unsigned level )
 			while ( g ++ != lev.last_g );
 		    }
 
-		    last_c = MUP::renew_control_stub
-				( last_c,
-				  MUP::stub_of_control
-				      ( c ) );
+		    last_c =
+		        MUP::renew_control_stub
+			    ( last_c,
+			      MUP::stub_of_acc_control
+				  ( c ) );
 		    MUP::set_control_of
 		        ( lev.last_stub, last_c );
 
@@ -2188,21 +2320,25 @@ static bool collector_increment ( unsigned level )
 
 	    while ( true )
 	    {
-		if ( lev.first_g == lev.first_g->level->g )
+		if (    lev.first_g
+		     == lev.first_g->level->g )
 		{
 		    // first_g is sublevel 0.
 
 		    min::uns64 c =
-			MUP::control_of ( lev.last_stub );
+			MUP::control_of
+			    ( lev.last_stub );
 		    unsigned glevel =
 			lev.first_g->level - levels;
 		    while ( promoted < MACC::scan_limit
 			    &&
 			       lev.last_stub
-			    != lev.first_g[1].last_before )
+			    != lev.first_g[1]
+			          .last_before )
 		    {
 			min::stub * s =
-			    MUP::stub_of_control ( c );
+			    MUP::stub_of_acc_control
+			        ( c );
 			c = MUP::control_of ( s );
 			c &= ~ NON_ROOT ( glevel );
 			c &= ~ COLLECTIBLE ( glevel );
@@ -2229,6 +2365,10 @@ static bool collector_increment ( unsigned level )
 		    lev.last_allocated = NULL;
 		    MACC::removal_request_flags &=
 			~ UNMARKED ( level );
+		    MINT::hash_acc_clear_flags &=
+			~ UNMARKED ( level );
+		    MINT::acc_stack_mask &=
+			~ UNMARKED ( level );
 		    lev.collector_state =
 		        COLLECTOR_NOT_RUNNING;
 		    break;
@@ -2253,4 +2393,5 @@ static bool collector_increment ( unsigned level )
     default:
         MIN_ABORT ( "bad collector state" );
     }
+    return true;
 }
