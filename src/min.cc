@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 29 09:54:48 EDT 2010
+// Date:	Sun Jul  4 03:13:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/29 16:42:23 $
+//   $Date: 2010/07/04 07:45:18 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.229 $
+//   $Revision: 1.230 $
 
 // Table of Contents:
 //
@@ -396,6 +396,9 @@ min::stub ** MINT::lab_acc_hash;
 min::stub ** MINT::lab_aux_hash;
 min::unsptr  MINT::lab_hash_size;
 min::unsptr  MINT::lab_hash_mask;
+
+min::uns64 MINT::hash_acc_set_flags;
+min::uns64 MINT::hash_acc_clear_flags;
 
 # ifndef MIN_STUB_BASE
     min::unsptr MINT::stub_base;
@@ -976,14 +979,16 @@ void MINT::thread_scavenger_routine
 	min::stub * s = MINT::num_acc_hash[h];
 	while ( s != MINT::null_stub )
 	{
-	    min::stub * s2 = s;
-	    s = (min::stub *)
-		MUP::stub_of_acc_control
-		    ( MUP::control_of ( s ) );
+	    min::uns64 c = MUP::control_of ( s );
 
-	    if ( MUP::float_of ( s2 ) == v )
-		return min::new_gen ( s2 );
-
+	    if ( MUP::float_of ( s ) == v )
+	    {
+	        c |= MINT::hash_acc_set_flags;
+	        c &= ~ MINT::hash_acc_clear_flags;
+		MUP::set_control_of ( s, c );
+		return min::new_gen ( s );
+	    }
+	    s = MUP::stub_of_acc_control ( c );
 	}
 	s = MINT::num_aux_hash[h];
 	while ( s != MINT::null_stub )
@@ -995,8 +1000,13 @@ void MINT::thread_scavenger_routine
 		    ( MUP::control_of ( s ) );
 
 	    if ( MUP::float_of ( s2 ) == v )
+	    {
+		min::uns64 c = MUP::control_of ( s2 );
+	        c |= MINT::hash_acc_set_flags;
+	        c &= ~ MINT::hash_acc_clear_flags;
+		MUP::set_control_of ( s2, c );
 		return min::new_gen ( s2 );
-
+	    }
 	}
 
 	min::stub * s2 = MUP::new_acc_stub();
@@ -1253,7 +1263,13 @@ min::gen MINT::new_str_stub_gen
 	     && ::strncmp ( p, s2->v.c8, n ) == 0
 	     && (    n == 8
 	          || s2->v.c8[n] == 0 ) )
+	{
+	    min::uns64 c = MUP::control_of ( s2 );
+	    c |= MINT::hash_acc_set_flags;
+	    c &= ~ MINT::hash_acc_clear_flags;
+	    MUP::set_control_of ( s2, c );
 	    return min::new_gen ( s2 );
+	}
 	else if (    n > 8
 	          &&    min::type_of ( s2 )
 		     == min::LONG_STR
@@ -1264,7 +1280,13 @@ min::gen MINT::new_str_stub_gen
 			    n )
 		     == 0
 		  && q[n] == 0 )
+	{
+	    min::uns64 c = MUP::control_of ( s2 );
+	    c |= MINT::hash_acc_set_flags;
+	    c &= ~ MINT::hash_acc_clear_flags;
+	    MUP::set_control_of ( s2, c );
 	    return min::new_gen ( s2 );
+	}
     }
 
     s = MINT::str_aux_hash[h];
@@ -1281,7 +1303,13 @@ min::gen MINT::new_str_stub_gen
 	     && ::strncmp ( p, s2->v.c8, n ) == 0
 	     && (    n == 8
 	          || s2->v.c8[n] == 0 ) )
+	{
+	    min::uns64 c = MUP::control_of ( s2 );
+	    c |= MINT::hash_acc_set_flags;
+	    c &= ~ MINT::hash_acc_clear_flags;
+	    MUP::set_control_of ( s2, c );
 	    return min::new_gen ( s2 );
+	}
 	else if (    n > 8
 	          &&    min::type_of ( s2 )
 		     == min::LONG_STR
@@ -1292,7 +1320,13 @@ min::gen MINT::new_str_stub_gen
 			    n )
 		     == 0
 		  && q[n] == 0 )
+	{
+	    min::uns64 c = MUP::control_of ( s2 );
+	    c |= MINT::hash_acc_set_flags;
+	    c &= ~ MINT::hash_acc_clear_flags;
+	    MUP::set_control_of ( s2, c );
 	    return min::new_gen ( s2 );
+	}
     }
 
     min::stub * s2 = MUP::new_acc_stub();
@@ -1378,7 +1412,14 @@ min::gen min::new_lab_gen
 
 	min::uns32 i;
 	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
-	if ( i == n ) return new_gen ( s2 );
+	if ( i == n )
+	{
+	    min::uns64 c = MUP::control_of ( s2 );
+	    c |= MINT::hash_acc_set_flags;
+	    c &= ~ MINT::hash_acc_clear_flags;
+	    MUP::set_control_of ( s2, c );
+	    return min::new_gen ( s2 );
+	}
     }
     s = MINT::lab_aux_hash[h];
     while ( s != MINT::null_stub )
@@ -1395,7 +1436,14 @@ min::gen min::new_lab_gen
 
 	min::uns32 i;
 	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
-	if ( i == n ) return new_gen ( s2 );
+	if ( i == n )
+	{
+	    min::uns64 c = MUP::control_of ( s2 );
+	    c |= MINT::hash_acc_set_flags;
+	    c &= ~ MINT::hash_acc_clear_flags;
+	    MUP::set_control_of ( s2, c );
+	    return min::new_gen ( s2 );
+	}
     }
 
     // Allocate new label.
