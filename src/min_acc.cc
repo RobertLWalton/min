@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  3 10:13:58 EDT 2010
+// Date:	Sat Jul  3 15:22:20 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/03 14:14:06 $
+//   $Date: 2010/07/04 04:06:11 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.65 $
+//   $Revision: 1.66 $
 
 // Table of Contents:
 //
@@ -1906,9 +1906,22 @@ static bool collector_increment ( unsigned level )
 			    ~ UNMARKED ( level );
 			MACC::removal_request_flags |=
 			    UNMARKED ( level );
-			lev.root.rewind();
+			lev.first_g = NULL;
+			lev.last_allocated =
+			    MUP::new_acc_stub();
+			for ( unsigned lv = level;
+			      lv <= ephemeral_levels;
+			      ++ lv )
+			{
+			    min::stub * s =
+			        levels[lv]
+				    .last_allocated;
+			    if ( s == NULL ) continue;
+			    MUP::clear_flags_of
+			        ( s, UNMARKED ( level ) );
+			}
 		        lev.collector_state =
-			    REMOVING_ROOT;
+			    PRE_PROMOTING;
 			break;
 		    }
 		}
@@ -2110,6 +2123,8 @@ static bool collector_increment ( unsigned level )
 		{
 		    lev.first_g[1].level->lock = true;
 		    lev.first_g[1].level->root.rewind();
+		    lev.last_stub =
+		        lev.first_g[1].last_before;
 		    lev.collector_state = REMOVING_ROOT;
 		}
 		else
@@ -2167,6 +2182,71 @@ static bool collector_increment ( unsigned level )
     case PROMOTING:
     promoting:
         {
+	    min::uns64 promoted = 0;
+	    end_g->last_before =
+	        lev.first_g->level->last_allocated;
+
+	    while ( true )
+	    {
+		if ( lev.first_g == lev.first_g->level->g )
+		{
+		    // first_g is sublevel 0.
+
+		    min::uns64 c =
+			MUP::control_of ( lev.last_stub );
+		    unsigned glevel =
+			lev.first_g->level - levels;
+		    while ( promoted < MACC::scan_limit
+			    &&
+			       lev.last_stub
+			    != lev.first_g[1].last_before )
+		    {
+			min::stub * s =
+			    MUP::stub_of_control ( c );
+			c = MUP::control_of ( s );
+			c &= ~ NON_ROOT ( glevel );
+			c &= ~ COLLECTIBLE ( glevel );
+			lev.first_g->level
+				   ->root.push ( s );
+			MUP::set_control_of ( s, c );
+			++ promoted;
+			lev.last_stub = s;
+		    }
+
+		    if (    lev.last_stub
+			 != lev.first_g[1].last_before )
+		        break;
+
+		    lev.first_g->level->lock = false;
+		}
+
+		lev.first_g->last_before =
+		    lev.first_g[1].last_before;
+
+		if ( lev.first_g + 1 == end_g )
+		{
+		    lev.first_g->lock = false;
+		    lev.last_allocated = NULL;
+		    MACC::removal_request_flags &=
+			~ UNMARKED ( level );
+		    lev.collector_state =
+		        COLLECTOR_NOT_RUNNING;
+		    break;
+		}
+		else if (    lev.first_g[0].level
+		          != lev.first_g[1].level
+			  ||
+			  lev.first_g[1].lock )
+		{
+		    lev.collector_state =
+		        PRE_PROMOTING;
+		    break;
+		}
+		lev.first_g[0].lock = false;
+		lev.first_g[1].lock = true;
+		++ lev.first_g;
+	    }
+	    lev.promoted_count += promoted;
 	}
         break;
 

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul  3 05:14:52 EDT 2010
+// Date:	Sat Jul  3 15:19:43 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/03 14:13:40 $
+//   $Date: 2010/07/04 04:06:00 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.78 $
+//   $Revision: 1.79 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1456,18 +1456,29 @@ namespace min { namespace acc {
 		// afterwards will not be collected by
 		// the level L collection.
 	        //
-	   PRE_REMOVING_ROOT,
-	   REMOVING_ROOT,
-		// Iterates over all levels > L.  For
-		// For each level locks
-		//   levels[level]lock
-		// This lock is only kept until the
-		// level iteration is done.
+	   PRE_COLLECTING,
+	   COLLECTING,
+		// Iterates over all levels >= L and all
+		// sublevels of each level.  For each
+		// level and sublevel locks
+		//   levels[level].g[sublevel].lock
+		//   levels[level].g[sublevel+1].lock
+		// These locks are only kept until the
+		// sublevel iteration is done.
 		//
-	   	// For each level its root list is
-		// scanned and all scanned stubs with
-		// level L collectible and unmarked
-		// flags both set are removed.
+	        // The portion of the acc list for
+		// level L stubs that was not scanned
+		// in the PROMOTING phase is scanned and
+		// all scanned stubs with level L
+		// unmarked flag set are deallocated.
+		// The sublevel S of each stub is
+		// in effect decremented if S > 0; this
+		// is done by modifying last_before
+		// pointers in generation stucts.
+		//
+		// At the end of this phase the level L
+		// collector returns to the COLLECTOR_
+		// NOT_RUNNING state.
 	   PRE_PROMOTING,
 	   PROMOTING,
 		// Iterates over all levels >= L and all
@@ -1501,29 +1512,17 @@ namespace min { namespace acc {
 		// from its hash table.  Being in a hash
 		// table does not prevent collection of
 		// any stub.
-	   PRE_COLLECTING,
-	   COLLECTING };
-		// Iterates over all levels >= L and all
-		// sublevels of each level.  For each
-		// level and sublevel locks
-		//   levels[level].g[sublevel].lock
-		//   levels[level].g[sublevel+1].lock
-		// These locks are only kept until the
-		// sublevel iteration is done.
+	   REMOVING_ROOT };
+		// Iterates over all levels > L.  For
+		// For each level locks
+		//   levels[level]lock
+		// This lock is only kept until the
+		// level iteration is done.
 		//
-	        // The portion of the acc list for
-		// level L stubs that was not scanned
-		// in the PROMOTING phase is scanned and
-		// all scanned stubs with level L
-		// unmarked flag set are deallocated.
-		// The sublevel S of each stub is
-		// in effect decremented if S > 0; this
-		// is done by modifying last_before
-		// pointers in generation stucts.
-		//
-		// At the end of this phase the level L
-		// collector returns to the COLLECTOR_
-		// NOT_RUNNING state.
+	   	// For each level its root list is
+		// scanned and all scanned stubs with
+		// level L collectible and unmarked
+		// flags both set are removed.
 
     // The amount of work done in a collector increment
     // is controlled by the following parameters.  Note
@@ -1613,7 +1612,7 @@ namespace min { namespace acc {
 	// end of the generations vector which is used
 	// by some collector phases which set
 	//	end_g->last_before =
-	//	    MINT::last_allocated_stub;
+	//	    levels[level].last_allocated
 	// and  end_g->lock = true.
 
     // Each acc level is described by a level struct.
@@ -1653,18 +1652,18 @@ namespace min { namespace acc {
 	    // Number of root stubs removed during
 	    // REMOVING_ROOT phase.
 
-	min::uns64 promoted_count;
-	    // Number of stubs promoted to next lower
-	    // level by the collection phase of the
-	    // collector.
-
 	min::uns64 collected_count;
 	    // Number of stubs collected by the
 	    // collection phases of the collector.
 
 	min::uns64 kept_count;
-	    // Number of stubs kept but not promoted by
-	    // the collection phases of the collector.
+	    // Number of stubs kept but by the
+	    // collection phases of the collector.
+
+	min::uns64 promoted_count;
+	    // Number of stubs promoted from one level
+	    // to the next lower level by the
+	    // collection phases of the collector.
 
 	min::uns64 thrash_count;
 	    // Number of times the this level's collec-
@@ -1737,6 +1736,17 @@ namespace min { namespace acc {
 	    // Pointer to a stub within a locked
 	    // generation, or the last_before stub of
 	    // a locked generation.
+
+	min::stub * last_allocated;
+	    // Pointer to a dummy stub allocated when
+	    // a collection at this level finishes
+	    // scavenging.  This stub marks the end of
+	    // stubs collectible by the collection
+	    // COLLECTING phase.
+	    //
+	    // A collection at this or lower level
+	    // must clear the unmarked flag of this
+	    // stub so it will not be collected.
 
     };
     extern min::acc::level * levels;
