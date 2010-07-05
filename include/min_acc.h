@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  4 03:09:55 EDT 2010
+// Date:	Sun Jul  4 21:55:53 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/04 07:44:56 $
+//   $Date: 2010/07/05 02:11:07 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.80 $
+//   $Revision: 1.81 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -989,26 +989,34 @@ namespace min { namespace acc {
     // in higher levels.  Newly allocated stubs are
     // put in the highest level N.
     //
-    // The collector can run one collector marking
+    // The collector can run one collector scavenging
     // algorithm execution for each level independently
-    // and in parallel.  These are known as `markings'.
-    // A level L marking marks all stubs in levels
-    // >= L that are pointed to by stubs in the level
-    // L root list or by executing threads or static
-    // memory, and recursively marks any stub pointed
-    // at by a marked stub.
-    //
-    // The `mutator' refers to all code outside the
-    // collector algorithm execution.  The mutator may
-    // write pointers to stubs into other stubs or
-    // their bodies, into threads (i.e., their stacks),
-    // or into static memory.
+    // and in parallel.  These are known as `scaveng-
+    // ings'.  A level L scavenging marks all stubs in
+    // levels >= L that are pointed to by stubs in the
+    // level L root list or by executing threads or
+    // static memory, and recursively marks any stub
+    // pointed at by a marked stub.
     //
     // The operation of `scavenging' a stub refers to
     // examining all the pointers in the stub and
     // marking any stubs pointed at if the stubs are
     // of the proper level.  Whenever a stub is first
     // marked it is put on a to-be-scavenged list.
+    // Each level L has a root list that contains all
+    // stubs of level < L that might point at a stub
+    // of level >= L, and the stubs in the level L
+    // root list are scavenged by a level L scavenging.
+    //
+    // The `mutator' refers to all code outside the
+    // collector algorithm execution.  The mutator may
+    // write pointers to stubs into other stubs or
+    // their bodies, into threads (i.e., their stacks),
+    // or into static memory.  Lists are maintained of
+    // the locations where these pointers may be
+    // written, and stubs of the appropriate level that
+    // are pointed at by elements of these lists are
+    // marked.
     //
     // Collector Lists:
     //
@@ -1018,17 +1026,21 @@ namespace min { namespace acc {
     //	    Level List
     //		List of all stubs in level L.  This is
     //		a segment of the acc stub list as per
-    //		min.h.
+    //		min.h.  For L = 0, the xxx_acc_hash
+    //		tables are also part of the level list.
+    //		This list is scanned after scavenging
+    //		to garbage collect unmarked stubs.
     //	
     //	    Root List
     //		List of all stubs in levels < L
     //		that might point at stubs in levels
-    //		>= L.
+    //		>= L.  The stubs on this list are
+    //		scavenged by a level L scavenging.
     //
     //	    To Be Scavenged List
     //		List of all stubs of level >= L that
     //		remain to be scavenged during the
-    //		current level L marking.
+    //		current level L scavenging.
     //
     //   The collector also maintains lists not related
     //	 to any level:
@@ -1045,6 +1057,11 @@ namespace min { namespace acc {
     //		time).  Maintained by the min::static_
     //		{num_}gen structures defined in min.h.
     //
+    // As the last step in a scavenging, the thread and
+    // static lists are scanned for pointers to stubs
+    // of the correct levels, and when such are found,
+    // the stubs pointed at are marked.
+    //
     // Stub ACC Flags:
     //
     //   Each acc stub has 4 acc flags for each ephem-
@@ -1052,17 +1069,17 @@ namespace min { namespace acc {
     //
     //	     scavenged	The stub's datum has been
     //		        scavenged by the current level
-    //			L marking.  If the stub level is
+    //			L scavenging.  If the stub level is
     //			>= L the stub must have been
     //			marked by the current (or last)
-    //			level L marking, and if the stub
+    //			level L scavenging, and if the stub
     //			has level < L it must be on the
     //			level L root list.
     //
     //	     unmarked	The stub level is >= L and the
     //			stub has NOT yet been marked
-    //			by the current (or last) level
-    //			L marking.
+    //			by the current (or just
+    //			completed) level L scavenging.
     //
     //	     non-root	The stub level is < L and the
     //			stub is NOT on the level L root
@@ -1135,11 +1152,12 @@ namespace min { namespace acc {
     //   phases, then the s1 level L scavenged flag is
     //   turned on, and if the s2 level L unmarked flag
     //   is on, it is turned off and s2 is put on the
-    //   level L to-be-scavenged list.  This is an
-    //   efficiency measure as the new root s1 contains
-    //   only one pointer at a stub of level >= L,
-    //   namely the pointer to s2, so there is no need
-    //   to scavenge s1 to find other such pointers.
+    //   level L to-be-scavenged list is s2 is scaveng-
+    //   able.  This is an efficiency measure as the new
+    //   root s1 contains only one pointer at a stub of
+    //   level >= L, namely the pointer to s2, so there
+    //   is no need to scavenge s1 to find other such
+    //   pointers.
     //
     // Stub Allocation:
     //
@@ -1162,7 +1180,7 @@ namespace min { namespace acc {
     //   be collected promptly after becoming inacces-
     //   sible from threads and static memory.
     //
-    //   If a currently running level L marking is
+    //   If a currently running level L scavenging is
     //   having thrashing problems (see below), then
     //   immediately after allocating the stub with the
     //   flags given above it may be marked at level L.
