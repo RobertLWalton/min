@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  4 02:30:46 EDT 2010
+// Date:	Mon Jul  5 09:41:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/04 07:45:18 $
+//   $Date: 2010/07/05 15:51:05 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.67 $
+//   $Revision: 1.68 $
 
 // Table of Contents:
 //
@@ -1517,20 +1517,25 @@ static bool collector_increment ( unsigned level )
 	    if ( lev.lock ) return false;
 	    lev.lock = true;
 
+	    MINT::new_acc_stub_flags |=
+	        UNMARKED ( level );
+	    MINT::hash_acc_clear_flags &=
+	        ~ UNMARKED ( level );
+
 	    // Check that to-be-scavenged stack is
 	    // empty.
 	    //
 	    lev.to_be_scavenged.rewind();
 	    assert ( lev.to_be_scavenged.at_end() );
 
-	    MINT::acc_stack_mask &=
-	        ~ UNMARKED ( level );
-	    MINT::new_acc_stub_flags |=
-	        UNMARKED ( level );
-	    MACC::removal_request_flags &=
-		~ UNMARKED ( level );
-	    MINT::hash_acc_clear_flags &=
-		~ UNMARKED ( level );
+	    // Check that flags are properly cleared.
+	    //
+	    assert (    ( MINT::acc_stack_mask
+	                  & UNMARKED ( level ) )
+		     == 0 );
+	    assert (    ( MACC::removal_request_flags
+	                  & UNMARKED ( level ) )
+		     == 0 );
 
 	    lev.first_g = NULL;
 	    lev.collector_state =
@@ -1564,6 +1569,8 @@ static bool collector_increment ( unsigned level )
 
     case INITING_COLLECTIBLE:
         {
+	    assert ( lev.first_g + 1 == lev.last_g );
+
 	    min::uns64 scanned = 0;
 	    min::uns64 c =
 		MUP::control_of ( lev.last_stub );
@@ -1579,9 +1586,19 @@ static bool collector_increment ( unsigned level )
 		    if ( lev.last_g == end_g )
 		    {
 		        lev.last_g->lock = false;
-			lev.root.rewind();
-			lev.collector_state =
-			    INITING_ROOT;
+			if ( level == 0 )
+			{
+			    lev.hash_table_id = 0;
+			    lev.hash_table_index = 0;
+			    lev.collector_state =
+				INITING_HASH;
+			}
+			else
+			{
+			    lev.root.rewind();
+			    lev.collector_state =
+				INITING_ROOT;
+			}
 			break;
 		    }
 		    else if ( lev.last_g[1].lock )
@@ -1608,56 +1625,12 @@ static bool collector_increment ( unsigned level )
 		c &= ~ SCAVENGED ( level );
 		MUP::set_control_of ( s, c );
 		lev.last_stub = s;
+		++ scanned;
 	    }
 
-	    lev.collectible_flag_set_count += scanned;
+	    lev.collectible_init_count += scanned;
 	}
         break;
-
-    case INITING_ROOT:
-	{
-	    min::uns64 scanned = 0;
-
-	    while ( ! lev.root.at_end()
-	            &&
-		    scanned < MACC::scan_limit )
-	    {
-	        min::stub * s = lev.root.current();
-		lev.root.next();
-		++ scanned;
-		MUP::clear_flags_of
-		    ( s, SCAVENGED ( level ) );
-	    }
-
-	    lev.root_flag_set_count += scanned;
-
-	    if ( lev.root.at_end() )
-	    {
-		lev.root.rewind();
-		MINT::scavenge_control & sc =
-		    MINT::scavenge_controls[level];
-		sc.state = 0;
-		sc.stub_flag = UNMARKED ( level );
-		sc.level = level;
-		sc.gen_limit = MACC::scan_limit;
-		if ( level == 0 )
-		{
-		    lev.hash_table_id = 0;
-		    lev.hash_table_index = 0;
-		    lev.collector_state =
-		        INITING_HASH;
-
-		}
-		else
-		{
-		    MINT::acc_stack_mask |=
-		        UNMARKED ( level );
-		    lev.collector_state =
-		        SCAVENGING_ROOT;
-		}
-	    }
-	}
-	break;
 
     case INITING_HASH:
         {
@@ -1694,10 +1667,8 @@ static bool collector_increment ( unsigned level )
 
 		if ( hash_table == NULL )
 		{
-		    MINT::acc_stack_mask |=
-		        UNMARKED ( level );
-		    lev.collector_state =
-			SCAVENGING_ROOT;
+		    lev.root.rewind();
+		    lev.collector_state = INITING_ROOT;
 		    break;
 		}
 
@@ -1713,13 +1684,51 @@ static bool collector_increment ( unsigned level )
 		    hash_table [lev.hash_table_index++];
 		while ( s != MINT::null_stub )
 		{
+		    min::uns64 c = MUP::control_of ( s );
+		    c |= UNMARKED ( level );
+		    c &= ~ SCAVENGED ( level );
+		    MUP::set_control_of ( s, c );
+		    s = MUP::stub_of_acc_control ( c );
 		    ++ scanned;
-		    MUP::clear_flags_of
-			( s, SCAVENGED ( level ) );
 		}
 	    }
 
-	    lev.root_flag_set_count += scanned;
+	    lev.hash_init_count += scanned;
+	}
+	break;
+
+    case INITING_ROOT:
+	{
+	    min::uns64 scanned = 0;
+
+	    while ( ! lev.root.at_end()
+	            &&
+		    scanned < MACC::scan_limit )
+	    {
+	        min::stub * s = lev.root.current();
+		lev.root.next();
+		++ scanned;
+		MUP::clear_flags_of
+		    ( s, SCAVENGED ( level ) );
+	    }
+
+	    lev.root_init_count += scanned;
+
+	    if ( lev.root.at_end() )
+	    {
+		lev.root.rewind();
+		MINT::scavenge_control & sc =
+		    MINT::scavenge_controls[level];
+		sc.state = 0;
+		sc.stub_flag = UNMARKED ( level );
+		sc.level = level;
+		sc.gen_limit = MACC::scan_limit;
+		MINT::acc_stack_mask |=
+		    UNMARKED ( level );
+		lev.collector_state =
+		    SCAVENGING_ROOT;
+		break;
+	    }
 	}
 	break;
 
