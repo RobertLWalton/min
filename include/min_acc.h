@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  6 02:29:41 EDT 2010
+// Date:	Tue Jul  6 09:17:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/06 06:50:36 $
+//   $Date: 2010/07/06 13:17:46 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.84 $
+//   $Revision: 1.85 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1355,12 +1355,10 @@ namespace min { namespace acc {
 	   PRE_INITING_COLLECTIBLE,
 	   INITING_COLLECTIBLE,
 		// Iterates over all generations of
-		// levels >= L.  Begins by locking the
-		// first of these generations.  Then
-		// for each generation g, release any
-		// lock on the previous generation and
-		// gets a lock on generation g+1, and
-		// then scans the stubs of generation
+		// levels >= L.  For each generation g,
+		// gets a lock on g and then releases
+		// any lock on the previous generation.
+		// Then scans the stubs of generation
 		// g.  Each scanned stub has its level
 		// L unmarked flag set and its level L
 		// scavenged flag cleared.  At the end
@@ -1540,30 +1538,23 @@ namespace min { namespace acc {
 		// level L collection.
 	        //
 	   COLLECTING_HASH,
-	        // TBD
+	        // Scan through the XXX_acc_hash tables
+		// and free all stubs with level L
+		// unmarked flag set.
 	   PRE_COLLECTING,
 	   COLLECTING,
-		// Iterates over all levels >= L and all
-		// sublevels of each level.  For each
-		// level and sublevel locks
-		//   levels[level].g[sublevel].lock
-		//   levels[level].g[sublevel+1].lock
-		// These locks are only kept until the
-		// sublevel iteration is done.
+		// Iterates over all generations of
+		// levels >= L.  For each generation g,
+		// gets a lock on g and then releases
+		// any lock on the previous generation.
+		// Then locks generation g+1 and also
+		// locks all subsequent generations
+		// whose last_before == (g+1)->last_
+		// before.
 		//
-	        // The portion of the acc list for
-		// level L stubs that was not scanned
-		// in the PROMOTING phase is scanned and
-		// all scanned stubs with level L
-		// unmarked flag set are deallocated.
-		// The sublevel S of each stub is
-		// in effect decremented if S > 0; this
-		// is done by modifying last_before
-		// pointers in generation stucts.
-		//
-		// At the end of this phase the level L
-		// collector returns to the COLLECTOR_
-		// NOT_RUNNING state.
+		// Then scans the stubs of generation g.
+		// All scanned stubs with level L un-
+		// marked flag set are freed.
 	   PRE_PROMOTING,
 	   PROMOTING,
 		// Iterates over all levels >= L and all
