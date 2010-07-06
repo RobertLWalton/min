@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  6 00:50:21 EDT 2010
+// Date:	Tue Jul  6 08:21:38 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/06 06:50:53 $
+//   $Date: 2010/07/06 13:18:14 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.69 $
+//   $Revision: 1.70 $
 
 // Table of Contents:
 //
@@ -1876,8 +1876,8 @@ static bool collector_increment ( unsigned level )
 	    lev.to_be_scavenged.begin_push
 	        ( sc.to_be_scavenged,
 	          sc.to_be_scavenged_limit );
-
 	    min::uns64 scavenged = 0;
+
 	    bool thread_scavenged = false;
 	    min::uns64 remove =
 	        MACC::removal_request_flags;
@@ -1913,9 +1913,23 @@ static bool collector_increment ( unsigned level )
 			{
 			    // Thread scavenger ran out
 			    // of to-be-scavenged  list.
-			    // Loop to empty that list.
 			    //
 			    sc.state = 0;
+			    if ( lev.restart_count < 10 )
+				break;
+
+			    // If we are thrashing,
+			    // expand the to_be_
+			    // scavenged list.
+			    //
+			    lev.to_be_scavenged.end_push
+				( sc.to_be_scavenged );
+			    lev.to_be_scavenged
+			       .begin_push
+				( sc.to_be_scavenged,
+				  sc
+				  .to_be_scavenged_limit
+				);
 			    continue;
 			}
 
@@ -1937,6 +1951,8 @@ static bool collector_increment ( unsigned level )
 		    }
 		    else
 		    {
+		        // Scavenging is done.
+
 			MINT::new_acc_stub_flags &=
 			    ~ UNMARKED ( level );
 			MACC::removal_request_flags |=
@@ -2093,6 +2109,7 @@ static bool collector_increment ( unsigned level )
 			last_s = s;
 			++ kept;
 		    }
+		    s = next_s;
 		}
 		++ lev.hash_table_index;
 	    }
@@ -2104,6 +2121,8 @@ static bool collector_increment ( unsigned level )
 
     case PRE_COLLECTING:
 	{
+	    end_g->last_before = lev.last_allocated;
+
 	    if ( lev.first_g == NULL )
 	    {
 	        if ( lev.g->lock ) return false;
@@ -2115,11 +2134,12 @@ static bool collector_increment ( unsigned level )
 	    // We must make last_g > first_g and
 	    //		last_g[1].last_before
 	    //	     != last_g[0].last_before
+	    //    unless last_g == end_g.
 
-	    while ( lev.last_g == lev.first_g
-	            ||
-		    ( lev.last_g != end_g
-		      &&
+	    while ( lev.last_g != end_g
+	            &&
+		    ( lev.last_g == lev.first_g
+		      ||
 		         lev.last_g->last_before
 		      == lev.last_g[1].last_before ) )
 	    {
@@ -2128,20 +2148,18 @@ static bool collector_increment ( unsigned level )
 		++ lev.last_g;
 	    }
 
-	    if ( end_g == lev.last_g )
-		end_g->last_before =
-		    MINT::last_allocated_stub;
-
 	    lev.collector_state = COLLECTING;
 	}
 
     case COLLECTING:
         {
+	    end_g->last_before = lev.last_allocated;
+
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
+
 	    min::uns64 last_c =
 	        MUP::control_of ( lev.last_stub );
-
 	    while (   collected + kept
 	            < MACC::collection_limit )
 	    {
@@ -2150,7 +2168,7 @@ static bool collector_increment ( unsigned level )
 		{
 		    lev.first_g->lock = false;
 		    ++ lev.first_g;
-		    if ( lev.last_g == end_g )
+		    if ( lev.first_g == end_g )
 		    {
 			do lev.first_g->lock = false;
 			while (    lev.first_g ++
@@ -2165,11 +2183,12 @@ static bool collector_increment ( unsigned level )
 		    // We must make last_g > first_g and
 		    //		last_g[1].last_before
 		    //	     != last_g[0].last_before
+		    //    unless last_g == end_g.
 
-		    while ( lev.last_g == lev.first_g
-			    ||
-			    ( lev.last_g != end_g
-			      &&
+		    while ( lev.last_g != end_g
+			    &&
+			    ( lev.last_g == lev.first_g
+			      ||
 				 lev.last_g->last_before
 			      == lev.last_g[1]
 			            .last_before ) )
@@ -2183,10 +2202,6 @@ static bool collector_increment ( unsigned level )
 			lev.last_g[1].lock = true;
 			++ lev.last_g;
 		    }
-
-		    if ( end_g == lev.last_g )
-			end_g->last_before =
-			    MINT::last_allocated_stub;
 		}
 
 		min::stub * s =
@@ -2240,7 +2255,6 @@ static bool collector_increment ( unsigned level )
 		{
 		    last_c = c;
 		    lev.last_stub = s;
-
 		    ++ kept;
 		}
 	    }
