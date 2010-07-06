@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  4 03:12:18 EDT 2010
+// Date:	Tue Jul  6 02:29:12 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/04 07:44:56 $
+//   $Date: 2010/07/06 06:29:22 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.340 $
+//   $Revision: 1.341 $
 
 // Table of Contents:
 //
@@ -2519,17 +2519,6 @@ namespace min { namespace internal {
 	   // the scavenger routine must return (with a
 	   // non-zero state if it is not done).
 
-        min::uns32 level;
-	   // Acc level of the scavenge operation.
-	   // Range: 0 .. MIN_MAX_EPHEMERAL_LEVELS.
-	   // There can be at most one scavenge
-	   // operation per acc level, so a scavenger
-	   // routine that must return with non-zero
-	   // state to resume scavenging s1 later can
-	   // use the level to index extra information
-	   // saved about the state of the scavenge
-	   // operation.
-
 	min::uns32 stub_count;
 	   // Counter incremented by the scavenger
 	   // routine when it finds a pointer to a
@@ -2550,8 +2539,8 @@ namespace min { namespace internal {
 	   // single call to a scavenger routine.
     };
 
-    // scavenge_control[i] is the scavenge control
-    // struct for acc level i scavenge routine
+    // scavenge_control[L] is the scavenge control
+    // struct for acc level L scavenge routine
     // executions.
     //
     extern scavenge_control scavenge_controls

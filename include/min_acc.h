@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jul  5 11:43:17 EDT 2010
+// Date:	Tue Jul  6 00:50:45 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/05 15:48:37 $
+//   $Date: 2010/07/06 06:29:22 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.82 $
+//   $Revision: 1.83 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1387,13 +1387,14 @@ namespace min { namespace acc {
 		// is examined, and if the level L
 		// unmarked flag of s2 is on, it is
 		// cleared and s2 is put on the level L
-		// to-be-sca-venged list if it is
+		// to-be-scavenged list if it is
 		// scavengable.  s2 is scavengable if
 		// and only if MINT::scavenger_routines
 		// [type_of(s2)] is not NULL.
 		//
-		// Scavenging object is done by the
-		// MINT::scavenger_routines.
+		// Scavenging stubs is done by the
+		// MINT::scavenger_routines defined in
+		// min.h.
 		//
 		// Scavenging a large stub body is done
 		// with multiple collector increments,
@@ -1900,6 +1901,17 @@ namespace min { namespace acc {
 	c |= 1;
 	return min::internal::log2floor ( c );
     }
+
+    // If the SCAVENGED ( L ) flag is on in the acc_
+    // stack_scavenge_mask, any stub put on the level
+    // L root list by process_acc_stack will have its
+    // scavenged flag set and the stub it points at
+    // will have its unmarked flag clears and will be
+    // put on the level L to-be-scavenged list if it
+    // is scavengable.  Otherwise stubs put on the
+    // root list have their scavenged flag clear.
+    //
+    extern min::uns64 acc_stack_scavenge_mask;
 
     // Process stub pointer pairs from the end of the
     // acc stack until the acc stack pointer is less
