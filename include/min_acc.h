@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  6 00:50:45 EDT 2010
+// Date:	Tue Jul  6 02:29:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/06 06:29:22 $
+//   $Date: 2010/07/06 06:50:36 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.83 $
+//   $Revision: 1.84 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1377,6 +1377,22 @@ namespace min { namespace acc {
 		// each stub on this list has its
 		// scavenged flag cleared.
 	   SCAVENGING_ROOT,
+	        // At the beginning of this phase, the
+		// first scavenging phase, the level L
+		// unmarked flag is set in MINT::acc_
+		// stack_mask so stores into scavenged
+		// stubs will be handled by acc stack
+		// processing, and the level L scavenged
+		// flag is set in MACC::acc_stack_
+		// scavenged_mask so acc stack proces-
+		// sing that adds to the level L root
+		// list will set the scavenged flag of
+		// the new root stubs.  Also any
+		// levels[L1].last_allocated stubs have
+		// their level L unmarked flags cleared
+		// at this point so they are not
+		// collected.
+		//
 	        // Each stub on the level L root list
 		// is scavenged.  In the process stubs
 		// are put on the to-be-scavenged list,
@@ -1472,7 +1488,7 @@ namespace min { namespace acc {
 		// runs it decreases the number of
 		// pointers in the thread/static lists
 		// that point at unmarked stubs, and
-		// thereby decreases the likelyhood that
+		// thereby decreases the likelihood that
 		// thread/static scavenging will be
 		// interrupted by the mutator.
 		//
@@ -1481,7 +1497,9 @@ namespace min { namespace acc {
 		// is increased as a function of the
 		// number of times scavenging the
 		// thread/static lists has been restart-
-		// ed.
+		// ed.  This means that the effective
+		// values of MACC::scan_limit and MACC::
+		// scavenge_limit are increased.
 		//
 		// As an alternative, the allocator may
 		// be set to both clear the level L
@@ -1490,16 +1508,36 @@ namespace min { namespace acc {
 		// scavenged list.  This can greatly
 		// reduce the number of level L unmarked
 		// stubs encountered when scavenging the
-		// thread/static lists.
+		// thread/static lists.  This is not
+		// currently implemented.
 		//
 	        // At the end of this phase, all level L
 		// stubs with unmarked flag set cannot
 		// be reached by the mutator.  Exactly
 		// at the end of this phase the level L
-		// unmarked flag is cleared in MUP::new_
-		// acc_stub_flags so any stubs allocated
-		// afterwards will not be collected by
+		// unmarked flag is cleared in MINT::
+		// new_acc_stub_flags so any stubs
+		// allocated afterwards will not be
+		// collected by the level L collection,
+		// the level L unmarked flag is set in
+		// MACC::removal_request_flags so any
+		// unmarked level L stubs will be
+		// ignored if they are found in root or
+		// to-be-scavenged lists, and the level
+		// L unmarked flag is set in MINT::hash_
+		// acc_clear_flags to that stubs
+		// returned from the hash tables after
+		// this point will not be collected by
 		// the level L collection.
+		//
+		// Also a new stub is allocated and re-
+		// membered in levels[L].last_allocated
+		// in order to mark the spot in the acc
+		// list where level L scavenging
+		// stopped.  This will become the end of
+		// the next to last sublevel of the
+		// largest ephemeral level after the
+		// level L collection.
 	        //
 	   COLLECTING_HASH,
 	        // TBD
