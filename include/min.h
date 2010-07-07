@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  6 02:29:12 EDT 2010
+// Date:	Wed Jul  7 19:02:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/06 06:29:22 $
+//   $Date: 2010/07/07 23:04:08 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.341 $
+//   $Revision: 1.342 $
 
 // Table of Contents:
 //
@@ -321,18 +321,19 @@ namespace min {
     // Collectable.
     //
     const int ACC_FREE			= 1;
-    const int DEALLOCATED		= 2;
-    const int NUMBER			= 3;
-    const int SHORT_STR			= 4;
-    const int LONG_STR			= 5;
-    const int LABEL			= 6;
-    const int TINY_OBJ			= 7;
+    const int ACC_MARK			= 2;
+    const int DEALLOCATED		= 3;
+    const int NUMBER			= 4;
+    const int SHORT_STR			= 5;
+    const int LONG_STR			= 6;
+    const int LABEL			= 7;
+    const int TINY_OBJ			= 8;
         // Unimplemented.
-    const int SHORT_OBJ			= 8;
-    const int LONG_OBJ			= 9;
-    const int HUGE_OBJ			= 10;
+    const int SHORT_OBJ			= 9;
+    const int LONG_OBJ			= 10;
+    const int HUGE_OBJ			= 11;
         // Unimplemented.
-    const int RAW_VEC			= 11;
+    const int RAW_VEC			= 12;
 
     // Uncollectable.
     //
