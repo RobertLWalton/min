@@ -387,7 +387,7 @@ min_interface_test.cc:XXXX assert:
     MUP::control_of ( stub ) == c true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( stub ) == 0 true.
-c: 381000000000000
+c: 481000000000000
 min_interface_test.cc:XXXX assert:
     MUP::control_of ( stub ) == c true.
 min_interface_test.cc:XXXX assert:
