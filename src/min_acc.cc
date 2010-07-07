@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  6 08:21:38 EDT 2010
+// Date:	Tue Jul  6 18:54:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/06 13:18:14 $
+//   $Date: 2010/07/07 10:57:46 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.70 $
+//   $Revision: 1.71 $
 
 // Table of Contents:
 //
@@ -1959,6 +1959,10 @@ static bool collector_increment ( unsigned level )
 			    UNMARKED ( level );
 			MINT::hash_acc_clear_flags |=
 			    UNMARKED ( level );
+			MINT::acc_stack_mask &=
+			    ~ UNMARKED ( level );
+			MACC::acc_stack_scavenge_mask &=
+			    ~ SCAVENGED ( level );
 
 			for ( unsigned lv = level;
 			      lv <= ephemeral_levels;
@@ -2268,11 +2272,25 @@ static bool collector_increment ( unsigned level )
 	{
 	    if ( lev.first_g == NULL )
 	    {
-	        if ( lev.g->lock ) return false;
-		lev.g->lock = true;
-		lev.first_g = lev.g;
-		lev.last_stub = lev.g->last_before;
-		// We already have lock on g->level.
+		assert ( lev.lock );
+
+		if ( level == 0 )
+		{
+		    if ( levels[1].lock ) return false;
+		    if ( levels[1].g->lock )
+		        return false;
+		    levels[0].lock = false;
+		    levels[1].lock = true;
+		    lev.first_g = levels[1].g;
+		}
+		else
+		{
+		    if ( lev.g->lock ) return false;
+		    lev.first_g = lev.g;
+		}
+		lev.first_g->lock = true;
+		lev.last_stub =
+		    lev.first_g->last_before;
 		lev.root.rewind();
 		lev.collector_state = REMOVING_ROOT;
 	    }
@@ -2303,10 +2321,6 @@ static bool collector_increment ( unsigned level )
 		    lev.collector_state = PROMOTING;
 		++ lev.first_g;
 	    }
-
-	    if ( lev.first_g == end_g )
-		end_g->last_before =
-		    MINT::last_allocated_stub;
 	}
 	if ( lev.collector_state == PROMOTING )
 	    goto promoting;
@@ -2354,22 +2368,30 @@ static bool collector_increment ( unsigned level )
     case PROMOTING:
     promoting:
         {
+	    end_g->last_before = lev.last_allocated;
+
 	    min::uns64 promoted = 0;
-	    end_g->last_before =
-	        lev.first_g->level->last_allocated;
 
 	    while ( true )
 	    {
 		if (    lev.first_g
 		     == lev.first_g->level->g )
 		{
-		    // first_g is sublevel 0.
+		    // First_g is sublevel 0.
+		    // Let glevel be first_g's level.
+		    // Clear COLLECTIBLE ( glevel )
+		    // and NON_ROOT ( glevel ) of all
+		    // g's stubs flags and put all 
+		    // these stubs on glevel's root
+		    // list.  Clear glevel's lock
+		    // when done.
+		    // 
+		    unsigned glevel =
+			lev.first_g->level - levels;
 
 		    min::uns64 c =
 			MUP::control_of
 			    ( lev.last_stub );
-		    unsigned glevel =
-			lev.first_g->level - levels;
 		    while ( promoted < MACC::scan_limit
 			    &&
 			       lev.last_stub
@@ -2382,9 +2404,9 @@ static bool collector_increment ( unsigned level )
 			c = MUP::control_of ( s );
 			c &= ~ NON_ROOT ( glevel );
 			c &= ~ COLLECTIBLE ( glevel );
+			MUP::set_control_of ( s, c );
 			lev.first_g->level
 				   ->root.push ( s );
-			MUP::set_control_of ( s, c );
 			++ promoted;
 			lev.last_stub = s;
 		    }
@@ -2396,6 +2418,11 @@ static bool collector_increment ( unsigned level )
 		    lev.first_g->level->lock = false;
 		}
 
+		// Move all the stubs in the first_g
+		// generation to the first_g-1 genera-
+		// tion.  If we are at the last genera-
+		// tion, 
+		//
 		lev.first_g->last_before =
 		    lev.first_g[1].last_before;
 
@@ -2407,10 +2434,6 @@ static bool collector_increment ( unsigned level )
 			~ UNMARKED ( level );
 		    MINT::hash_acc_clear_flags &=
 			~ UNMARKED ( level );
-		    MINT::acc_stack_mask &=
-			~ UNMARKED ( level );
-		    MACC::acc_stack_scavenge_mask &=
-			~ SCAVENGED ( level );
 		    lev.collector_state =
 		        COLLECTOR_NOT_RUNNING;
 		    break;

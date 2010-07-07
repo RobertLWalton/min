@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  6 09:17:31 EDT 2010
+// Date:	Tue Jul  6 18:53:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/06 13:17:46 $
+//   $Date: 2010/07/07 10:57:29 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.85 $
+//   $Revision: 1.86 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1557,13 +1557,24 @@ namespace min { namespace acc {
 		// marked flag set are freed.
 	   PRE_PROMOTING,
 	   PROMOTING,
-		// Iterates over all levels >= L and all
-		// sublevels of each level.  For each
-		// level and sublevel locks
-		//   levels[level].g[sublevel].lock
-		//   levels[level].g[sublevel+1].lock
-		// These locks are only kept until the
-		// sublevel iteration is done.
+		// Iterates over all generations of
+		// levels >= max ( L, 1 ).  For each
+		// generation g, gets a lock on g and
+		// then releases any lock on the
+		// previous generation.
+		//
+		// Also if g is the first generation
+		// of a level, releases any locks on
+		// previous levels and gets a lock on
+		// g's level, which it holds only as
+		// long as g is locked.
+		//
+		// If g is the first generation of
+		// level L, removes all stubs from the
+		// root list of level L which have any
+		// MACC::removal_request_flags set.
+		// This is done by the subphase
+		// REMOVING_ROOT.
 		//
 	        // This is done only for levels L > 0.
 		// The portion of the acc list for level
