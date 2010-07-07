@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul  6 18:54:17 EDT 2010
+// Date:	Wed Jul  7 19:05:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/07 10:57:46 $
+//   $Date: 2010/07/07 23:46:22 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.71 $
+//   $Revision: 1.72 $
 
 // Table of Contents:
 //
@@ -1977,8 +1977,15 @@ static bool collector_increment ( unsigned level )
 				  UNMARKED ( level ) );
 			}
 
+			// Allocate as stub to mark the
+			// end of level L collected
+			// stubs.
+			//
 			lev.last_allocated =
 			    MUP::new_acc_stub();
+			MUP::set_type_of
+			    ( lev.last_allocated,
+			      min::ACC_MARK );
 
 			lev.first_g = NULL;
 			if ( level == 0 )
@@ -2270,6 +2277,22 @@ static bool collector_increment ( unsigned level )
 
     case PRE_PROMOTING:
 	{
+	    if ( MACC::ephemeral_levels = 0 )
+	    {
+	        // If there are no ephemeral levels,
+		// no promoting is needed and we are
+		// done.
+
+		lev.last_allocated = NULL;
+		MACC::removal_request_flags &=
+		    ~ UNMARKED ( level );
+		MINT::hash_acc_clear_flags &=
+		    ~ UNMARKED ( level );
+		lev.collector_state =
+		    COLLECTOR_NOT_RUNNING;
+		break;
+	    }
+
 	    if ( lev.first_g == NULL )
 	    {
 		assert ( lev.lock );
@@ -2368,9 +2391,8 @@ static bool collector_increment ( unsigned level )
     case PROMOTING:
     promoting:
         {
-	    end_g->last_before = lev.last_allocated;
-
 	    min::uns64 promoted = 0;
+	    min::uns64 scanned = 0;
 
 	    while ( true )
 	    {
@@ -2388,11 +2410,13 @@ static bool collector_increment ( unsigned level )
 		    // 
 		    unsigned glevel =
 			lev.first_g->level - levels;
+		    end_g->last_before = NULL;
 
 		    min::uns64 c =
 			MUP::control_of
 			    ( lev.last_stub );
-		    while ( promoted < MACC::scan_limit
+		    while (   promoted + scanned
+		            < MACC::scan_limit
 			    &&
 			       lev.last_stub
 			    != lev.first_g[1]
@@ -2409,19 +2433,55 @@ static bool collector_increment ( unsigned level )
 				   ->root.push ( s );
 			++ promoted;
 			lev.last_stub = s;
+			if ( lev.first_g + 1 == end_g
+			     &&
+			        MUP::type_of_control
+				    ( c )
+			     == min::ACC_MARK )
+			    end_g->last_before = s;
 		    }
 
 		    if (    lev.last_stub
-			 != lev.first_g[1].last_before )
-		        break;
+		         != lev.first_g[1].last_before )
+			break;
 
 		    lev.first_g->level->lock = false;
+		}
+		else if ( lev.first_g + 1 == end_g )
+		{
+		    end_g->last_before = NULL;
+		    min::uns64 c =
+			MUP::control_of
+			    ( lev.last_stub );
+		    while ( promoted < MACC::scan_limit )
+		    {
+			min::stub * s =
+			    MUP::stub_of_acc_control
+			        ( c );
+			c = MUP::control_of ( s );
+			++ scanned;
+			lev.last_stub = s;
+			if (    MUP::type_of_control
+				    ( c )
+			     == min::ACC_MARK )
+			{
+			    end_g->last_before = s;
+			    break;
+			}
+		    }
+
+		    if (    lev.last_stub
+		         != end_g->last_before )
+			break;
 		}
 
 		// Move all the stubs in the first_g
 		// generation to the first_g-1 genera-
 		// tion.  If we are at the last genera-
-		// tion, 
+		// tion, all the stubs up to and
+		// including the first ACC_MARKed stub
+		// in the last generation are moved to
+		// the previous generation.
 		//
 		lev.first_g->last_before =
 		    lev.first_g[1].last_before;
