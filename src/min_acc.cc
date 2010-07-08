@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  7 19:05:15 EDT 2010
+// Date:	Thu Jul  8 02:46:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/07 23:46:22 $
+//   $Date: 2010/07/08 08:06:26 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.72 $
+//   $Revision: 1.73 $
 
 // Table of Contents:
 //
@@ -1696,7 +1696,8 @@ static bool collector_increment ( unsigned level )
 		    hash_table [lev.hash_table_index++];
 		while ( s != MINT::null_stub )
 		{
-		    min::uns64 c = MUP::control_of ( s );
+		    min::uns64 c =
+		        MUP::control_of ( s );
 		    c |= UNMARKED ( level );
 		    c &= ~ SCAVENGED ( level );
 		    MUP::set_control_of ( s, c );
@@ -1915,7 +1916,8 @@ static bool collector_increment ( unsigned level )
 			    // of to-be-scavenged  list.
 			    //
 			    sc.state = 0;
-			    if ( lev.restart_count < 10 )
+			    if (   lev.restart_count
+			         < 10 )
 				break;
 
 			    // If we are thrashing,
@@ -1964,28 +1966,19 @@ static bool collector_increment ( unsigned level )
 			MACC::acc_stack_scavenge_mask &=
 			    ~ SCAVENGED ( level );
 
-			for ( unsigned lv = level;
-			      lv <= ephemeral_levels;
-			      ++ lv )
-			{
-			    min::stub * s =
-			        levels[lv]
-				    .last_allocated;
-			    if ( s == NULL ) continue;
-			    MUP::clear_flags_of
-			        ( s,
-				  UNMARKED ( level ) );
-			}
-
 			// Allocate as stub to mark the
 			// end of level L collected
-			// stubs.
+			// stubs.  ACC_MARK stubs are
+			// not collected if they are in
+			// the last generation, and
+			// during promotion, they serve
+			// to delimit the last genera-
+			// tion.
 			//
-			lev.last_allocated =
+			min::stub * s =
 			    MUP::new_acc_stub();
 			MUP::set_type_of
-			    ( lev.last_allocated,
-			      min::ACC_MARK );
+			    ( s, min::ACC_MARK );
 
 			lev.first_g = NULL;
 			if ( level == 0 )
@@ -2132,8 +2125,6 @@ static bool collector_increment ( unsigned level )
 
     case PRE_COLLECTING:
 	{
-	    end_g->last_before = lev.last_allocated;
-
 	    if ( lev.first_g == NULL )
 	    {
 	        if ( lev.g->lock ) return false;
@@ -2164,7 +2155,8 @@ static bool collector_increment ( unsigned level )
 
     case COLLECTING:
         {
-	    end_g->last_before = lev.last_allocated;
+	    end_g->last_before =
+	        MINT::last_allocated_stub;
 
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
@@ -2218,7 +2210,12 @@ static bool collector_increment ( unsigned level )
 		min::stub * s =
 		    MUP::stub_of_acc_control ( last_c );
 		min::uns64 c = MUP::control_of ( s );
-		if ( c & UNMARKED ( level ) )
+		int t = MUP::type_of_control ( c );
+		if ( ( c & UNMARKED ( level )
+		     &&
+		     ( t != min::ACC_MARK
+		       ||
+		       lev.first_g + 1 != end_g ) ) )
 		{
 		    // Remove s from acc list.
 		    //
@@ -2283,7 +2280,6 @@ static bool collector_increment ( unsigned level )
 		// no promoting is needed and we are
 		// done.
 
-		lev.last_allocated = NULL;
 		MACC::removal_request_flags &=
 		    ~ UNMARKED ( level );
 		MINT::hash_acc_clear_flags &=
@@ -2295,6 +2291,9 @@ static bool collector_increment ( unsigned level )
 
 	    if ( lev.first_g == NULL )
 	    {
+	        // First time for any promoting
+		// phase increment.
+
 		assert ( lev.lock );
 
 		if ( level == 0 )
@@ -2345,6 +2344,7 @@ static bool collector_increment ( unsigned level )
 		++ lev.first_g;
 	    }
 	}
+
 	if ( lev.collector_state == PROMOTING )
 	    goto promoting;
 	// Fall through to REMOVING_ROOT.
@@ -2453,7 +2453,8 @@ static bool collector_increment ( unsigned level )
 		    min::uns64 c =
 			MUP::control_of
 			    ( lev.last_stub );
-		    while ( promoted < MACC::scan_limit )
+		    while (   promoted
+		            < MACC::scan_limit )
 		    {
 			min::stub * s =
 			    MUP::stub_of_acc_control
@@ -2489,7 +2490,6 @@ static bool collector_increment ( unsigned level )
 		if ( lev.first_g + 1 == end_g )
 		{
 		    lev.first_g->lock = false;
-		    lev.last_allocated = NULL;
 		    MACC::removal_request_flags &=
 			~ UNMARKED ( level );
 		    MINT::hash_acc_clear_flags &=
@@ -2512,6 +2512,7 @@ static bool collector_increment ( unsigned level )
 		++ lev.first_g;
 	    }
 	    lev.promoted_count += promoted;
+	    lev.acc_mark_count += scanned;
 	}
         break;
 
