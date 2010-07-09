@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  8 02:46:42 EDT 2010
+// Date:	Fri Jul  9 10:12:23 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/08 08:06:26 $
+//   $Date: 2010/07/09 15:51:36 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.73 $
+//   $Revision: 1.74 $
 
 // Table of Contents:
 //
@@ -2210,12 +2210,12 @@ static bool collector_increment ( unsigned level )
 		min::stub * s =
 		    MUP::stub_of_acc_control ( last_c );
 		min::uns64 c = MUP::control_of ( s );
-		int t = MUP::type_of_control ( c );
 		if ( ( c & UNMARKED ( level )
 		     &&
-		     ( t != min::ACC_MARK
+		     ( lev.first_g + 1 != end_g
 		       ||
-		       lev.first_g + 1 != end_g ) ) )
+		          MUP::type_of_control ( c )
+		       != min::ACC_MARK ) ) )
 		{
 		    // Remove s from acc list.
 		    //
@@ -2387,7 +2387,6 @@ static bool collector_increment ( unsigned level )
 	    break;
 	// Fall through to PROMOTING.
 
-
     case PROMOTING:
     promoting:
         {
@@ -2426,18 +2425,23 @@ static bool collector_increment ( unsigned level )
 			    MUP::stub_of_acc_control
 			        ( c );
 			c = MUP::control_of ( s );
-			c &= ~ NON_ROOT ( glevel );
 			c &= ~ COLLECTIBLE ( glevel );
+			int type =
+			    MUP::type_of_control ( c );
+			if ( MINT::scavenger_routines
+			         [type]
+			     != NULL )
+			{
+			    c &= ~ NON_ROOT ( glevel );
+			    lev.first_g->level
+				       ->root.push ( s );
+			}
 			MUP::set_control_of ( s, c );
-			lev.first_g->level
-				   ->root.push ( s );
 			++ promoted;
 			lev.last_stub = s;
 			if ( lev.first_g + 1 == end_g
 			     &&
-			        MUP::type_of_control
-				    ( c )
-			     == min::ACC_MARK )
+			     type == min::ACC_MARK )
 			    end_g->last_before = s;
 		    }
 
@@ -2453,22 +2457,23 @@ static bool collector_increment ( unsigned level )
 		    min::uns64 c =
 			MUP::control_of
 			    ( lev.last_stub );
-		    while (   promoted
-		            < MACC::scan_limit )
+		    while ( scanned < MACC::scan_limit )
 		    {
 			min::stub * s =
 			    MUP::stub_of_acc_control
 			        ( c );
+			assert ( s != MINT::null_stub );
 			c = MUP::control_of ( s );
 			++ scanned;
 			lev.last_stub = s;
-			if (    MUP::type_of_control
-				    ( c )
-			     == min::ACC_MARK )
+			int type =
+			    MUP::type_of_control ( c );
+			if ( type == min::ACC_MARK )
 			{
 			    end_g->last_before = s;
 			    break;
 			}
+			assert ( type != min::ACC_FREE );
 		    }
 
 		    if (    lev.last_stub
@@ -2489,6 +2494,9 @@ static bool collector_increment ( unsigned level )
 
 		if ( lev.first_g + 1 == end_g )
 		{
+		    // We are done with the last genera-
+		    // tion.
+
 		    lev.first_g->lock = false;
 		    MACC::removal_request_flags &=
 			~ UNMARKED ( level );

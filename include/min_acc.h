@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul  8 02:46:33 EDT 2010
+// Date:	Fri Jul  9 11:50:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/08 08:05:17 $
+//   $Date: 2010/07/09 15:51:17 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.87 $
+//   $Revision: 1.88 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -1528,14 +1528,18 @@ namespace min { namespace acc {
 		// this point will not be collected by
 		// the level L collection.
 		//
-		// Also a new stub is allocated and re-
-		// membered in levels[L].last_allocated
-		// in order to mark the spot in the acc
-		// list where level L scavenging
-		// stopped.  This will become the end of
-		// the next to last sublevel of the
-		// largest ephemeral level after the
-		// level L collection.
+		// Also the level L unmarked flag is
+		// cleared from MINT::acc_stack_mask so
+		// the acc stack will no longer involve
+		// itself with level L marking, and the
+		// level L scavenged flag is cleared
+		// from MACC::acc_stack_scavenge_mask
+		// for the same reason.
+		//
+		// Lastly a new stub of type ACC_MARK
+		// is allocated to mark the end of
+		// the stubs subject to promotion by
+		// this level L collection.
 	        //
 	   COLLECTING_HASH,
 	        // Scan through the XXX_acc_hash tables
@@ -1554,65 +1558,73 @@ namespace min { namespace acc {
 		//
 		// Then scans the stubs of generation g.
 		// All scanned stubs with level L un-
-		// marked flag set are freed.
+		// marked flag set are freed, unless
+		// g is the last generation (i.e.,
+		// g+1 == end_g) and the stub type is
+		// ACC_MARK.  These last stubs mark
+		// the ends of promotion scans (see
+		// below).
+		//
+		// Note that any freed number, string,
+		// or label stub must be removed from
+		// its hash table.  Being in a hash
+		// table does not prevent collection of
+		// any stub.
 	   PRE_PROMOTING,
 	   PROMOTING,
 		// Iterates over all generations of
 		// levels >= max ( L, 1 ).  For each
 		// generation g, gets a lock on g and
 		// then releases any lock on the
-		// previous generation.
+		// previous generation.  Then, after
+		// doing things described below for
+		// the first generation of each level,
+		// sets g->last_before = (g+1)->last_
+		// before, effectivly promoting all
+		// the stubs in generation g to gen-
+		// eration g-1.
 		//
-		// Also if g is the first generation
-		// of a level, releases any locks on
-		// previous levels and gets a lock on
-		// g's level and executes the REMOVING_
-		// ROOT subphase.  This lock is released
-		// when PROMOTING is done with genera-
-		// tion g (which is after the REMOVING_
-		// ROOT subphase executes).  This lock
-		// prevents collections at g's level
-		// while g's stubs are being promoted
-		// to the next lower level.
+		// As a special case, when g+1 == end_g,
+		// end_g->last_before is set to the
+		// first ACC_MARK stub after g->last_
+		// before.  This defines the end of the
+		// stubs being promoted.  Notice that
+		// each ACC_MARK stub is used exactly
+		// once as the end of the stubs being
+		// promoted by the PROMOTING phase of
+		// some collection.  After being so
+		// used, an ACC_MARK stub is no longer
+		// in the last generation and since it
+		// is unreferenced and will never be
+		// marked, it will be collected by sub-
+		// sequent collections.
 		//
-		// If g is the first generation of
-		// level L, removes all stubs from the
-		// root list of level L which have any
-		// MACC::removal_request_flags set.
-		// This is done by the subphase
-		// REMOVING_ROOT.
-		//
-	        // This is done only for levels L > 0.
-		// The portion of the acc list for level
-		// L and sublevel 0 is scanned.  Each
-		// scanned stub is put on the level L
-		// root list, and its level L
-		// collectible and non-root flags are
-		// cleared.
-		//
-		// Then the level L sublevel 0 portion
-		// of the acc list is promoted to be the
-		// end of the level L-1 sublevel H por-
-		// tion of the acc list, where H is the
-		// highest sublevel of level L-1.  This
-		// is done by modifying last_before
-		// pointers in generation stucts.
-		//
-		// Note that any deallocated number,
-		// string, or label stub must be removed
-		// from its hash table.  Being in a hash
-		// table does not prevent collection of
-		// any stub.
+		// If g is the first generation of a
+		// level, a lock on g->level is obtained
+		// at the same time as the lock on g,
+		// and released at the same time as the
+		// lock on g.  This prevents g->level
+		// collections from coinciding with the
+		// promotion of generation g stubs from
+		// that level to the previous level.
+		// In addition, when g is the first
+		// generaion of a level, two additional
+		// things are done before g->last_before
+		// is changed.  First, a REMOVING_ROOT
+		// subphase is executed (see below), and
+		// second, scanns the stubs of genera-
+		// tion g and puts each on the level L
+		// root list while clearing its level L
+		// collectible and non-root flags.
 	   REMOVING_ROOT };
-	        // Actually a subphase of PROMOTING.
+	        // Actually a subphase of PROMOTING
+		// executed before the rest of the
+		// processing of the first generation g
+		// of a level.  During this phase g->
+		// level is locked by the PROMOTING
+		// phase.
 		//
-		// Executed for all levels > L.  For
-		// For each level locks
-		//   levels[level]lock
-		// This lock is only kept until the
-		// subphase is done.
-		//
-	   	// Each level's root list is scanned and
+		// g->level's root list is scanned and
 		// all scanned stubs with any MACC::
 		// removal_request_flags flag set are
 		// are removed.
@@ -1947,7 +1959,7 @@ namespace min { namespace acc {
     // stack_scavenge_mask, any stub put on the level
     // L root list by process_acc_stack will have its
     // scavenged flag set and the stub it points at
-    // will have its unmarked flag clears and will be
+    // will have its unmarked flag cleared and will be
     // put on the level L to-be-scavenged list if it
     // is scavengable.  Otherwise stubs put on the
     // root list have their scavenged flag clear.
