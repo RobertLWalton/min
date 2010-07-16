@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 15, 2010}
+\date{July 16, 2010}
  
 \maketitle
 
@@ -6298,17 +6298,16 @@ named \verb|pvtype| use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen |
-	& \verb|pstype.|\TTKEY{new\_gen} \ARGBREAK
-	  \verb|( min::uns32 max_length = 0 )|
+	& \verb|pstype.|\TTKEY{new\_gen} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_GEN} \\
 \verb|min::gen |
 	& \verb|pstype.|\TTKEY{new\_gen} \ARGBREAK
-	  \verb| ( min::uns32 length, const E * vp )|
+	  \verb| ( min::uns32 length, const E * vp = NULL )|
 \LABEL{INITED_PACKED_VEC_NEW_GEN} \\
 \verb|min::gen |
 	& \verb|pstype.|\TTKEY{new\_gen} \ARGBREAK
 	  \verb| ( min::uns32 max_length,| \ARGBREAK
-	  \verb|   min::uns32 length, const E * vp )|
+	  \verb|   min::uns32 length, const E * vp = NULL )|
 \LABEL{MAX_INITED_PACKED_VEC_NEW_GEN} \\
 \verb|const char * const |
 	& \verb|pstype.|\TTMKEY{name}{in {\tt min::packed\_struct}}
@@ -6389,6 +6388,35 @@ Ditto but for \verb|min::stub *| members of \verb|E|.
 \end{itemize}
 \end{indpar}
 
+\verb|pvtype.name|,~~
+{\tt pvtype.header\_\EOL gen\_\EOL disp},
+{\tt pvtype.header\_\EOL stub\_\EOL ptr\_\EOL disp},
+~~{\tt pvtype.ele\-\EOL ment\_\EOL gen\_\EOL disp},
+and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL ptr\_\EOL disp}
+can be used to retrieve the name and displacement
+information associated with \verb|pvtype|.
+In addition the following parameters may be set by the user:
+
+\begin{indpar}[2.0in]
+\begin{itemize}
+
+\item[{\tt pvtype.}\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
+The maximum length of a packed vector newly created by calling the
+\verb|pvtype.new_gen| function with no arguments.  Defaults to \verb|1000|.
+
+\item[{\tt pvtype.}\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
+The \verb|min::reserve| function multiplies the old maximum length by
+this ratio to get the maximim length increment: see formula on
+\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|0.5|.
+
+\item[{\tt pvtype.}\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
+The maximum increment of the maximum length computable by the
+\verb|min::reserve| function: see formula on
+\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|1000|.
+
+\end{itemize}
+\end{indpar}
+
 The \verb|pvtype.new_gen| function creates a new packed vector
 datum of the C type described by \verb|pvtype| and returns a
 \verb|min::gen| value pointing at it.  A packed vector has a
@@ -6399,18 +6427,11 @@ allowed before the packed vector must be reallocated.
 The \verb|pvtype.new_gen| function may be given the maximum length
 and length and a vector of length type \verb|E| elements that is copied
 to the initial value of the packed vector.  Or the maximum length
-may not be given and will default to the length.  Or only the maximum
-length may be given and the length will default to zero.  Or nothing
-may be given and the initial maximum length and length will both
-default to zero.
-
-\verb|pvtype.name|,~~
-{\tt pvtype.header\_\EOL gen\_\EOL disp},
-{\tt pvtype.header\_\EOL stub\_\EOL ptr\_\EOL disp},
-~~{\tt pvtype.ele\-\EOL ment\_\EOL gen\_\EOL disp},
-and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL ptr\_\EOL disp}
-can be used to retrieve the name and displacement
-information associated with \verb|pvtype|.
+may not be given and will default to the length.  No parameters may
+be given, in which case the length will default to \verb|0| and
+the maximum length to {\tt pvtype.initial\_\EOL max\_\EOL length}.
+If the vector \verb|vp| of initial elements is given as \verb|NULL|,
+the initial elements will be zeros.
 
 There are three kinds of pointers that can be used to access
 a packed vector, and these have the usage:
@@ -6464,7 +6485,7 @@ a packed vector, and these have the usage:
 \verb|void min::|
 	& \MINKEY{push} \ARGBREAK
 	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip,| \ARGBREAK
-	  \verb|   const E * vp, min::uns32 n )|
+	  \verb|   min::uns32 n, const E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \verb|E min::|
 	& \MINKEY{pop} \ARGBREAK
@@ -6473,7 +6494,7 @@ a packed vector, and these have the usage:
 \verb|void min::|
 	& \MINKEY{pop} \ARGBREAK
 	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip,| \ARGBREAK
-	  \verb|   E * vp, min::uns32 n )|
+	  \verb|   min::uns32 n, E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \verb|void min::|
 	& \MINKEY{resize} \ARGBREAK
@@ -6487,14 +6508,72 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
 \end{tabular}\end{indpar}
 
-TBD
+As for packed structures, packed vector pointers are implicitly convertable to
+ordinary C pointers to the headers.  In addition subscripting packed vector
+pointers gives access to the elements of the vector.  The subscripting
+operator \verb|[]| checks the index \verb|i| against the current length
+of the vector to ensure the access is legal.  The vector elements in a
+packed vector are organized as a C language vector so that
+\begin{center}
+\verb|(& pvp[0])[i]| is the same as \verb|pvp[i]|
+\end{center}
+but the address of the packed vector can change if an out-of-line
+function is called, so using C pointers into the packed vector is
+generally a bad idea.  However \verb|memcpy| can be used as follows to copy
+from or to the vector:
+\begin{indpar}\begin{verbatim}
+memcpy ( ..., & pvp[0], sizeof ( E ) * pvp->length );
+memcpy ( & pvup[0], ..., sizeof ( E ) * pvp->length );
+\end{verbatim}\end{indpar}
 
-In other words, \verb|psp| is implicitly convertable to a `\verb|const S *|'
-pointer and
-\verb|psup| is implicitly convertable to a `\verb|S *|' pointer.
-Recall, however, that these `\verb|S *|' pointers, since they point at a body,
-can change whenever a function is called, but the {\tt min::\EOL
-packed\_\EOL struct\SARG::\EOL \ldots} pointers do not change.
+Insertable packed vector pointers permit the current length and maximum
+length of the vector to be changed.
+The current vector length is \verb|pvp->length| and the maximum
+length is \verb|pvp->max_length| (see description of \verb|H| above).
+The current length can be changed by {\tt min::\EOL push} and
+{\tt min::\EOL pop} functions and the maximum length can be changed
+by {\tt min::\EOL resize} and {\tt min::\EOL reserve} functions.  If
+{\tt min::\EOL push} needs more space it automatically calls
+{\tt min::reserve}.
+
+The \verb|min::push| function adds elements
+to the end of the packed vector
+by incrementing the current vector length, and if this would
+exceed the maximum length, performs a \verb|min::reserve| function
+(see below) to increase the maximum length.  A single element \verb|v|
+or a vector \verb|vp| of \verb|n| elements may be pushed.  In the
+latter case new elements are placed within the packed vector in the same
+memory order as they appear in the \verb|vp| vector.
+Also in the latter case
+if \verb|vp| is \verb|NULL|, \verb|n| zeros are pushed.
+
+The \verb|min::pop| function removes elements from the end of the
+packed vector, decrementing the current vector length (which is checked
+to be sure it is large enough).   A single element may be removed and
+returned, or \verb|n| elements may be removed and returned in the
+\verb|vp| vector.  In the latter case removed elements are placed in
+\verb|vp| in the same memory order as they appeared in the packed vector.
+Also in the latter case,
+if \verb|vp| is \verb|NULL| the removed elements are simply discarded
+instead of being copied.
+
+The \verb|min::resize| function resets the maximum length.  If
+the current length would be larger than the new maximum length,
+the current length is reset to the new maximim length.
+
+The \verb|min::reserve| function checks that
+the current length plus the \verb|reserve_length| is
+at most the maximum length, and if this check fails,
+resets the maximum length according to the formula:
+\begin{indpar}\begin{verbatim}
+new_maximum_length = old_maximum_length
+                   + max ( reserve_length,
+                           min ( pvtype.max_increment,
+                                   pvtype.increment_ratio
+                                 * old_maximum_length ) )
+\end{verbatim}\end{indpar}\label{PACKED-VEC-EXPANSION-FORMULA}
+
+TBD
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{packed\_struct\SARG} \verb|t| \ARGBREAK
@@ -6510,7 +6589,6 @@ packed\_\EOL struct\SARG::\EOL \ldots} pointers do not change.
 \end{tabular}\end{indpar}
 
 
-TBD
 
 Here {\tt T} is the C language type of the vector element, and
 {\tt I} is a {\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info}
