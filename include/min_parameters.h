@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 19 14:34:08 EDT 2010
+// Date:	Fri Jul 16 14:35:14 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:35:02 $
+//   $Date: 2010/07/16 18:47:50 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.52 $
+//   $Revision: 1.53 $
 
 // Table of Contents
 //
@@ -274,9 +274,19 @@
 // May NOT be larger than 1 << 30 if pointers are only
 // 32 bits long.
 //
-# define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG 30
+# ifndef MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG
+#   define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG 30
+# endif
 # define MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE \
      ( 1ull << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG )
+
+// Initial maximum number of packed structure/vector
+// types.  This can be increased during execution, so
+// it is not a hard maximum.
+//
+# ifndef MIN_MAX_PACKED_TYPES
+#   define MIN_MAX_PACKED_TYPES 128
+# endif
 
 // Hardware Functions
 // -------- ---------
