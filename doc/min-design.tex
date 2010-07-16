@@ -6261,8 +6261,23 @@ a packed structure, and these have the usage:
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp| \ARGBREAK
 	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_OF_STUB} \\[1ex]
-\verb|const S * | & \verb|psp| \\[1ex]
+\LABEL{MIN::PACKED_STRUCT_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_struct<S>::pointer & psp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_PACKED_STRUCT_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_struct<S>::pointer & psp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_PACKED_STRUCT_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::packed_struct<S>::pointer & psp )|
+\LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|\ARGBREAK
 	  \verb| ( min::gen v )|
@@ -6270,16 +6285,44 @@ a packed structure, and these have the usage:
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|\ARGBREAK
 	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\[1ex]
-\verb|S * | & \verb|psup| \\
+\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_struct<S>|\ARGBREAK
+	  \verb|      ::updatable_pointer & psp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_struct<S>|\ARGBREAK
+	  \verb|      ::updatable_pointer & psp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::packed_struct<S>|\ARGBREAK
+	  \verb|      ::updatable_pointer & psp )|
+\LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const S * | & \verb|psp|
+\LABEL{MIN::PACKED_STRUCT_POINTER_CONVERSION} \\
+\verb|S * | & \verb|psup|
+\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_CONVERSION} \\
 \end{tabular}\end{indpar}
 
-In other words, \verb|psp| is implicitly convertable to a `\verb|const S *|'
-pointer and
+This last means that \verb|psp| is
+implicitly convertable to a `\verb|const S *|' pointer and
 \verb|psup| is implicitly convertable to a `\verb|S *|' pointer.
-Recall, however, that these `\verb|S *|' pointers, since they point at a body,
-can change whenever a function is called, but the {\tt min::\EOL
-packed\_\EOL struct\SARG::\EOL \ldots} pointers do not change.
+However these C `\verb|S *|' pointers, since they point at a body,
+can change whenever a relocating function (\pagref{RELOCATING-FUNCTIONS})
+is called, so they should generally \underline{not} be saved in a variable,
+but should only be used inside a single statement.
+
+The {\tt min::initialize} functions can be used to change the
+packed structure a pointer points at, and the {\tt min::deinitialize}
+functions can be used to set a packed structure pointer so it is not
+pointing at anything.
 
 A packed vector is like a packed structure but with an added vector.
 More explicitly, to create a new type of \key{packed vector}
@@ -6335,7 +6378,7 @@ where
 \begin{indpar}[0.5in]
 \begin{itemize}
 
-\item[{\tt H}]
+\item[{\tt H}]\label{PACKED_VEC_HEADER_TYPE}
 The C \verb|struct| type of the header data at the beginning of the
 bodies of packed vectors of the type being
 declared.  The first member of this \verb|struct| type must be
@@ -6350,7 +6393,7 @@ and the \verb|struct| type must also have the two members
 These members are initialized by \verb|new_gen| and must not
 be changed by the user.
 
-\item[{\tt E}]
+\item[{\tt E}]\label{PACKED_VEC_ELEMENT_TYPE}
 The C type of the elements in the vector part of the
 bodies of packed vectors of the type being
 declared.  This need not be a \verb|struct| type; it can
@@ -6444,11 +6487,21 @@ a packed vector, and these have the usage:
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\HEARG::pointer} \verb|pvp| \ARGBREAK
 	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_POINTER_OF_STUB} \\[1ex]
-\verb|const H * | & \verb|pvp|
-\LABEL{MIN::PACKED_VEC_POINTER_CONVERSION} \\
-\verb|const E | & \verb|pvp[i]|
-\LABEL{MIN::PACKED_VEC_POINTER_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & psp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_PACKED_VEC_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & psp,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_PACKED_VEC_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & psp )|
+\LABEL{MIN::DEINITIALIZE_PACKED_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -6458,11 +6511,24 @@ a packed vector, and these have the usage:
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\HEARG::updatable\_pointer} \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_STUB} \\[1ex]
-\verb|H * | & \verb|pvup|
-\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_CONVERSION} \\
-\verb|E | & \verb|pvup[i]|
-\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::updatable_pointer & pvup,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_PACKED_VEC_UPDATABLE_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::updatable_pointer & pvup,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_PACKED_VEC_UPDATABLE_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::updatable_pointer & pvup )|
+\LABEL{MIN::DEINITIALIZE_PACKED_VEC_UPDATABLE_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -6471,39 +6537,74 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\HEARG::insertable\_pointer} \verb|pvip|\ARGBREAK
-	  \verb| ( min::stub * s )|
+	  \verb| ( min::stub * s )| \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::insertable_pointer & pvip,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::INITIALIZE_PACKED_VEC_INSERTABLE_POINTER_OF_GEN} \\
+\verb|void min::|
+	& \MINKEY{initialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::insertable_pointer & pvip,|\ARGBREAK
+	  \verb|   min::stub * s )|
+\LABEL{MIN::INITIALIZE_PACKED_VEC_INSERTABLE_POINTER_OF_STUB} \\
+\verb|void min::|
+	& \MINKEY{deinitialize}\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::insertable_pointer & pvip )|
+\LABEL{MIN::DEINITIALIZE_PACKED_VEC_INSERTABLE_POINTER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_STUB} \\[1ex]
+\verb|const H * | & \verb|pvp|
+\LABEL{MIN::PACKED_VEC_POINTER_CONVERSION} \\
+\verb|H * | & \verb|pvup|
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_CONVERSION} \\
 \verb|H * | & \verb|pvip|
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_CONVERSION} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const E | & \verb|pvp[i]|
+\LABEL{MIN::PACKED_VEC_POINTER_ELEMENT} \\
+\verb|E | & \verb|pvup[i]|
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_ELEMENT} \\
 \verb|E | & \verb|pvip[i]|
-\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_ELEMENT} \\[1ex]
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_ELEMENT} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{push} \ARGBREAK
-	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip,| \ARGBREAK
+	  \verb| ( packed_vec<H,E>::insertable_pointer pvip,| \ARGBREAK
 	  \verb|   const E & v )|
 \LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|void min::|
 	& \MINKEY{push} \ARGBREAK
-	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip,| \ARGBREAK
+	  \verb| ( packed_vec<H,E>::insertable_pointer pvip,| \ARGBREAK
 	  \verb|   min::uns32 n, const E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|E min::|
 	& \MINKEY{pop} \ARGBREAK
-	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip )|
+	  \verb| ( packed_vec<H,E>::insertable_pointer pvip )|
 \LABEL{MIN::PACKED_VEC_POP} \\
 \verb|void min::|
 	& \MINKEY{pop} \ARGBREAK
-	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip,| \ARGBREAK
+	  \verb| ( packed_vec<H,E>::insertable_pointer pvip,| \ARGBREAK
 	  \verb|   min::uns32 n, E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{resize} \ARGBREAK
-	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip,| \ARGBREAK
+	  \verb| ( packed_vec<H,E>::insertable_pointer pvip,| \ARGBREAK
 	  \verb|   min::uns32 max_length )|
 \LABEL{MIN::PACKED_VEC_RESIZE} \\
 \verb|void min::|
 	& \MINKEY{reserve} \ARGBREAK
-	  \verb| ( packed\_vec<H,E>::insertable\_pointer pvip,| \ARGBREAK
+	  \verb| ( packed_vec<H,E>::insertable_pointer pvip,| \ARGBREAK
 	  \verb|   min::uns32 reserve_length )|
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
 \end{tabular}\end{indpar}
@@ -6529,7 +6630,8 @@ memcpy ( & pvup[0], ..., sizeof ( E ) * pvp->length );
 Insertable packed vector pointers permit the current length and maximum
 length of the vector to be changed.
 The current vector length is \verb|pvp->length| and the maximum
-length is \verb|pvp->max_length| (see description of \verb|H| above).
+length is \verb|pvp->max_length| (see description of \verb|H| on
+\pagref{PACKED_VEC_HEADER_TYPE}).
 The current length can be changed by {\tt min::\EOL push} and
 {\tt min::\EOL pop} functions and the maximum length can be changed
 by {\tt min::\EOL resize} and {\tt min::\EOL reserve} functions.  If
@@ -6539,13 +6641,13 @@ by {\tt min::\EOL resize} and {\tt min::\EOL reserve} functions.  If
 The \verb|min::push| function adds elements
 to the end of the packed vector
 by incrementing the current vector length, and if this would
-exceed the maximum length, performs a \verb|min::reserve| function
-(see below) to increase the maximum length.  A single element \verb|v|
+exceed the maximum length, first calls the \verb|min::reserve| function
+with the number of elements to be pushed.
+A single element \verb|v|
 or a vector \verb|vp| of \verb|n| elements may be pushed.  In the
 latter case new elements are placed within the packed vector in the same
 memory order as they appear in the \verb|vp| vector.
-Also in the latter case
-if \verb|vp| is \verb|NULL|, \verb|n| zeros are pushed.
+Also, if \verb|vp| is \verb|NULL|, \verb|n| zeros are pushed.
 
 The \verb|min::pop| function removes elements from the end of the
 packed vector, decrementing the current vector length (which is checked
@@ -6553,8 +6655,8 @@ to be sure it is large enough).   A single element may be removed and
 returned, or \verb|n| elements may be removed and returned in the
 \verb|vp| vector.  In the latter case removed elements are placed in
 \verb|vp| in the same memory order as they appeared in the packed vector.
-Also in the latter case,
-if \verb|vp| is \verb|NULL| the removed elements are simply discarded
+Also,
+if \verb|vp| is \verb|NULL|, the removed elements are simply discarded
 instead of being copied.
 
 The \verb|min::resize| function resets the maximum length.  If
@@ -6575,97 +6677,6 @@ new_maximum_length = old_maximum_length
 
 TBD
 
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{packed\_struct\SARG} \verb|t| \ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  const char *    name;|\ARGBREAK
-    \verb|  const char *    format;|\ARGBREAK
-    \verb|  min::unsptr     element_size;|\ARGBREAK
-    \verb|  min::unsptr     initial_max_length;|\ARGBREAK
-    \verb|  min::float64    increment_ratio;|\ARGBREAK
-    \verb|  min::unsptr     max_increment;|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::RAW_VEC_TYPE_INFO} \\
-\end{tabular}\end{indpar}
-
-
-
-Here {\tt T} is the C language type of the vector element, and
-{\tt I} is a {\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info}
-structure defined as follows:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{raw\_vec\_type\_info}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  const char *    name;|\ARGBREAK
-    \verb|  const char *    format;|\ARGBREAK
-    \verb|  min::unsptr     element_size;|\ARGBREAK
-    \verb|  min::unsptr     initial_max_length;|\ARGBREAK
-    \verb|  min::float64    increment_ratio;|\ARGBREAK
-    \verb|  min::unsptr     max_increment;|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::RAW_VEC_TYPE_INFO} \\
-\end{tabular}\end{indpar}
-
-The elements of this structure are:
-
-\begin{indpar}[1.5in]
-\begin{itemize}
-
-\item[\ttmkey{name}{in {\tt type\_info}}]
-A name unique to the element type \verb|T|, typically the
-fully qualified name of this type.  This character string may
-be output to identify the element type if the raw vector is
-output.
-
-\item[\ttmkey{format}{in {\tt type\_info}}]
-A character string containing for each consecutive part of an element
-a character specifying the format of the part from the point
-of view of the garbage collector.  The possible characters
-are:
-\begin{indpar}
-\begin{tabular}{lp{3.0in}}
-\ttmkey{g}{in raw vector {\tt type\_info} format}
-	& Part is a \verb|min::gen| value, which must
-	  \underline{not} point at an \underline{uncollectible}
-	  stub. \\
-\ttmkey{s}{in raw vector {\tt type\_info} format}
-	& Part is a \verb|min::stub *| value pointing at
-	  a \underline{collectible} stub. \\
-\ttmkey{p}{in raw vector {\tt type\_info} format}
-	& Part is a number the size of a pointer. \\ 
-\ttmkey{.}{in raw vector {\tt type\_info} format}
-	& Part is 1-byte piece of a number. \\
-\end{tabular}
-\end{indpar}
-
-An $N$-byte number is represented by $N$ consecutive `{\tt .}'s.
-For example, an \verb|uns32| is represented by `{\tt ....}'.
-
-`{\tt .}'s at the end of a format may be omitted.
-
-\item[\ttmkey{element\_size}{in {\tt type\_info}}]
-Must equal `{\tt sizeof ( T )}'.
-
-\item[\ttmkey{initial\_max\_length}{in {\tt type\_info}}]%
-\label{INITIAL_MAX_LENGTH}
-Value of the raw vector maximum length parameter
-when the raw vector is created by a \verb|new_gen|
-function with no arguments: see \pagref{MIN::RAW_VEC_NEW_GEN}.
-
-\newsavebox{\RAWVECINCREMENT}
-\begin{lrbox}{\RAWVECINCREMENT}
-\begin{tabular}[b]{r}
-\ttmkey{increment\_ratio}{in {\tt type\_info}} \\
-\ttmkey{max\_increment}{in {\tt type\_info}}
-\end{tabular}
-\end{lrbox}
-\item[\usebox{\RAWVECINCREMENT}]
-Parameters used in the formula for automatically
-expanding raw vectors: see \pagref{RAW-VEC-EXPANSION-FORMULA}.
-
-\end{itemize}
-\end{indpar}
 
 In order to be used as a template type parameter, a
 {\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info} structure
