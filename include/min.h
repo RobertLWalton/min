@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul  7 19:02:21 EDT 2010
+// Date:	Fri Jul 16 11:49:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/07 23:04:08 $
+//   $Date: 2010/07/16 18:47:50 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.342 $
+//   $Revision: 1.343 $
 
 // Table of Contents:
 //
@@ -35,6 +35,8 @@
 //	Labels
 //	Names
 //	Printing
+//	Packed Structures
+//	Packed Vectors
 //	Raw Vectors
 //	Objects
 //	Object Vector Level
@@ -3267,6 +3269,38 @@ namespace min {
 
         min::gen value;
 	min::pr_format & format;
+    };
+}
+
+// Packed Structures
+// -----------------
+
+namespace min {
+
+    namespace internal {
+
+	extern void ** packed_types;
+	extern unsigned packed_type_count;
+
+    }
+
+    template < typename S >
+    class packed_struct
+    {
+    public:
+        packed_struct
+	    ( const char * name,
+	      const min::uns32 * gen_disp = NULL,
+	      const min::uns32 * stub_ptr_disp = NULL )
+	    : name ( name ),
+	      gen_disp ( gen_disp ),
+	      stub_ptr_disp ( stub_ptr_disp )
+	{
+	}
+
+	const char * const name;
+	const min::uns32 * const gen_disp;
+	const min::uns32 * const stub_ptr_disp;
     };
 }
 
