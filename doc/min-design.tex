@@ -6253,15 +6253,21 @@ information associated with \verb|pstype|.
 There are two kinds of pointers that can be used to access
 a packed structure, and these have the usage:
 
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp| \ARGBREAK
+	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp|
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp| \ARGBREAK
+	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp|
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp|
+	  \verb| ( void )|
+\LABEL{MIN::PACKED_STRUCT_POINTER_OF_VOID} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
 	  \verb| ( min::packed_struct<S>::pointer & psp,|\ARGBREAK
@@ -6277,15 +6283,21 @@ a packed structure, and these have the usage:
 	  \verb| ( min::packed_struct<S>::pointer & psp )|
 \LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_POINTER} \\
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|\ARGBREAK
+	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|\ARGBREAK
+	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup| \ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|
+	               \verb|( void )|
+\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_VOID} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
 	  \verb| ( min::packed_struct<S>|\ARGBREAK
@@ -6317,12 +6329,19 @@ implicitly convertable to a `\verb|const S *|' pointer and
 However these C `\verb|S *|' pointers, since they point at a body,
 can change whenever a relocating function (\pagref{RELOCATING-FUNCTIONS})
 is called, so they should generally \underline{not} be saved in a variable,
-but should only be used inside a single statement.
+but should only be used temporarily inside a single statement that
+does not call a relocating function.
 
+For the constructors and {\tt min::initialize} functions \verb|v| or
+\verb|s| must point at packed structure.
 The {\tt min::initialize} functions can be used to change the
 packed structure a pointer points at, and the {\tt min::deinitialize}
 functions can be used to set a packed structure pointer so it is not
-pointing at anything.
+pointing at anything.  The constructor with no arguments creates
+a pointer that does not point at anything.  A pointer not pointing at
+anything produces undefined results if used, though most often
+the result will be a memory fault.  Such a pointer
+may be initialized by {\tt min::initialize} and then used.
 
 A packed vector is like a packed structure but with an added vector.
 More explicitly, to create a new type of \key{packed vector}
@@ -6352,6 +6371,8 @@ named \verb|pvtype| use
 	  \verb| ( min::uns32 max_length,| \ARGBREAK
 	  \verb|   min::uns32 length, const E * vp = NULL )|
 \LABEL{MAX_INITED_PACKED_VEC_NEW_GEN} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char * const |
 	& \verb|pstype.|\TTMKEY{name}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_VEC_NAME} \\
@@ -6574,6 +6595,22 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_ELEMENT} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 | & \verb|pvp->length|
+\LABEL{MIN::PACKED_VEC_POINTER_LENGTH} \\
+\verb|const min::uns32 | & \verb|pvup->length|
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_LENGTH} \\
+\verb|const min::uns32 | & \verb|pvip->length|
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_LENGTH} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 | & \verb|pvp->max_length|
+\LABEL{MIN::PACKED_VEC_POINTER_MAX_LENGTH} \\
+\verb|const min::uns32 | & \verb|pvup->max_length|
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_MAX_LENGTH} \\
+\verb|const min::uns32 | & \verb|pvip->max_length|
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_MAX_LENGTH} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{push} \ARGBREAK
 	  \verb| ( packed_vec<H,E>::insertable_pointer pvip,| \ARGBREAK
@@ -6613,14 +6650,18 @@ As for packed structures, packed vector pointers are implicitly convertable to
 ordinary C pointers to the headers.  In addition subscripting packed vector
 pointers gives access to the elements of the vector.  The subscripting
 operator \verb|[]| checks the index \verb|i| against the current length
-of the vector to ensure the access is legal.  The vector elements in a
+of the vector to ensure the access is legal (e.g., \verb|pvp[i]|
+checks \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|).
+The vector elements in a
 packed vector are organized as a C language vector so that
 \begin{center}
 \verb|(& pvp[0])[i]| is the same as \verb|pvp[i]|
 \end{center}
-but the address of the packed vector can change if an out-of-line
-function is called, so using C pointers into the packed vector is
-generally a bad idea.  However \verb|memcpy| can be used as follows to copy
+but the vector elements are stored in body whose address can change
+if a relocating function is called, so saving C pointers to packed vector
+elements is generally a bad idea.  However, temporary use within a single
+statement is all right if the statement does not call a relocating
+function.  For example, \verb|memcpy| can be used as follows to copy
 from or to the vector:
 \begin{indpar}\begin{verbatim}
 memcpy ( ..., & pvp[0], sizeof ( E ) * pvp->length );
@@ -6703,293 +6744,6 @@ typedef min::insertable_raw_vec_pointer<rvs,rvs_type_info>
 \end{verbatim}\end{indpar}\label{RAW-VEC-TYPE-INFO-EXAMPLE}
 
 
-The functions for using a read-only
-{\tt min::\EOL raw\_\EOL vec\_\EOL pointer\SARG} are:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINKEY{raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( min::gen v )|
-\LABEL{MIN::RAW_VEC_POINTER_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( min::stub * s )|
-\LABEL{MIN::RAW_VEC_POINTER_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( void )|
-\LABEL{MIN::RAW_VEC_POINTER_OF_VOID} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_RAW_VEC_POINTER_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_RAW_VEC_POINTER_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::DEINITIALIZE_RAW_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const T & min::|
-	& \ttkey{operator [ ]}\ARGBREAK
-	  \verb| ( min::raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::unsptr i )|
-\LABEL{MIN::RAW_VEC_POINTER[]} \\
-\verb|min::unsptr min::|
-	& \MINKEY{length\_of}\ARGBREAK
-	  \verb| ( min::raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::LENGTH_OF_RAW_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-
-Here \verb|v| or \verb|s| must point at the stub of a raw vector,
-and given a raw vector pointer \verb|rvp| pointing at
-a raw vector, \verb|rvp[i]| is the \verb|i|+1's
-element of the vector, for
-$0\leq$\verb|i|$<$\verb|min::length_of(rvp)|,
-where the {\tt min::\EOL length\_\EOL of} function
-returns the number of elements in the raw vector.
-Note that \verb|rvp[i]| is read-only, but one can take
-its address, as in:
-\begin{indpar}\begin{verbatim}
-memcpy ( ..., & rvp[0], sizeof ( T ) * min::length_of ( rvp ) );
-\end{verbatim}\end{indpar}
-
-The form of constructor that has no argument creates a raw vector pointer
-that is not pointing at any raw vector.
-In this last case the raw vector pointer must
-be initialized by the {\tt min::\EOL initialize} function before the pointer
-is used; use before initialization will give undefined results, though
-attempts to access
-raw vector elements using the pointer usually result in memory faults.
-
-The {\tt min::initialize} functions destruct the raw vector pointer and then
-reconstruct it.  The {\tt min::\EOL deinitialize} function destructs
-the raw vector pointer and leaves it not pointing at any object stub.
-Use of such a destructed pointer is undefined, but attempts to access
-raw vector elements using it usually result in memory faults.
-
-The functions for using a read-write
-{\tt min::\EOL updatable\_\EOL raw\_\EOL vec\_\EOL pointer\SARG} are:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINKEY{updateable\_raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( min::gen v )|
-\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER} \\
-(constructor)~\verb|min::|
-	& \MINKEY{updatable\_raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( min::stub * s )|
-\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{updatable\_raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( void )|
-\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER_OF_VOID} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_UPDATABLE_RAW_VEC_POINTER_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_UPDATABLE_RAW_VEC_POINTER_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::DEINITIALIZE_UPDATABLE_RAW_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|T & min::|
-	& \ttkey{operator [ ]}\ARGBREAK
-	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::unsptr i )|
-\LABEL{MIN::UPDATABLE_RAW_VEC_POINTER[]} \\
-\verb|min::unsptr min::|
-	& \MINKEY{length\_of}\ARGBREAK
-	  \verb| ( min::updatable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::LENGTH_OF_UPDATABLE_RAW_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-
-These functions are the same as for a read-only raw vector pointer
-except that \verb|rvp[i]| can now be both read and written.
-
-The functions for using a
-{\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer\SARG}
-to access an existing raw vector are:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINKEY{insertable\_raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( min::gen v )|
-\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER} \\
-(constructor)~\verb|min::|
-	& \MINKEY{insertable\_raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( min::stub * s )|
-\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{insertable\_raw\_vec\_pointer\SARG}%
-	  \verb| rvp ( void )|
-\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER_OF_VOID} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_INSERTABLE_RAW_VEC_POINTER_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_INSERTABLE_RAW_VEC_POINTER_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::DEINITIALIZE_INSERTABLE_RAW_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|T & min::|
-	& \ttkey{operator [ ]}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::unsptr i )|
-\LABEL{MIN::INSERTABLE_RAW_VEC_POINTER[]} \\
-\verb|min::unsptr min::|
-	& \MINKEY{length\_of}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{push}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|\ARGBREAK
-	  \verb|   const & T v )|
-\LABEL{MIN::PUSH_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\verb|void min::|
-	& \MINKEY{push}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|\ARGBREAK
-	  \verb|   const T * p, min::unsptr n )|
-\LABEL{MIN::PUSH_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\verb|T min::|
-	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::POP_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\verb|void min::|
-	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( T * p, min::unsptr n,|\ARGBREAK
-	  \verb|   min::insertable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::POP_N_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\end{tabular}\end{indpar}
-
-The non-push/pop functions above are the same for insertable pointers as they
-are for updatable pointers.
-
-The {\tt min::\EOL push} functions push one new element or \verb|n| new
-elements to the end of the vector, and the {\tt min::\EOL pop} functions
-pop one element or \verb|n| elements from the end of the vector.
-The push functions increment the vector length by \verb|1| or \verb|n|,
-and the pop functions decrement the length by \verb|1| or \verb|n|.
-
-Raw vectors have a \mkey{maximum length}{of raw vector}
-in addition to having a \mkey{length}{of raw vector}.  The length
-tells the number of elements in the vector.  The maximum length is
-the largest value of the length allowed before the vector must be
-resized, which reallocates the raw vector in memory.  The push functions 
-automatically resize the raw vector if they would make the length
-greater than the maximum length.  The difference between the maximum length
-and the length is the number of \smkey{unused element}s{of raw vector}
-in the raw vector memory area, and is called the
-\mkey{unused length}{of raw vector} of the raw vector.
-
-The following functions may be used to create new raw vectors and maintain
-existing raw vectors:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min|
-	& {\tt ::insertable\_raw\_vec\_pointer\SARG} \\
-	& {\tt ::}\ttkey{new\_gen}\verb| ( void )|
-\LABEL{MIN::RAW_VEC_NEW_GEN} \\
-\verb|min::gen min|
-	& {\tt ::insertable\_raw\_vec\_pointer\SARG} \\
-	& {\tt ::}\ttkey{new\_gen}\verb| ( min::unsptr max_length )|
-\LABEL{MIN::RAW_VEC_NEW_GEN_OF_1} \\
-\verb|min::gen min|
-	& {\tt ::insertable\_raw\_vec\_pointer\SARG} \\
-	& {\tt ::}\ttkey{new\_gen}\verb| ( const T * p, min::unsptr n )|
-\LABEL{MIN::RAW_VEC_NEW_GEN_OF_N} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::|
-	& \MINKEY{max\_length\_of}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::MAX_LENGTH_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\verb|min::unsptr min::|
-	& \MINKEY{unused\_length\_of}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp )|
-\LABEL{MIN::UNUSED_OF_INSERTABLE_RAW_VEC_POINTER} \\
-\verb|void min::|
-	& \MINKEY{resize}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::unsptr new_max_length )|
-\LABEL{MIN::RESIZE_INSERTABLE_RAW_VEC_POINTER} \\
-\verb|void min::|
-	& \MINKEY{reserve}\ARGBREAK
-	  \verb| ( min::insertable_raw_vec_pointer<T,I> & rvp,|\ARGBREAK
-	  \verb|   min::unsptr required_unused )|
-\end{tabular}\end{indpar}
-
-The {\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer<T,I>::\EOL
-new\_\EOL gen} functions create a new raw vector and return a
-\verb|min::gen| value pointing at its stub.  These functions are static
-members of the
-{\tt min::\EOL insertable\_\EOL raw\_\EOL vec\_\EOL pointer<T,I>} type.
-The \verb|new_gen| function with zero arguments creates a new raw vector
-with \verb|0| length and with a maximum length equal to
-{\tt I.initial\_\EOL max\_\EOL length} (\pagref{INITIAL_MAX_LENGTH}).
-The \verb|new_gen| function with a single \verb|max_length|
-argument creates a new raw vector with \verb|0| length and the maximum
-length given by the argument.
-The \verb|new_gen| function with a vector of \verb|n| \verb|min::gen|
-values specified by arguments creates a new raw vector whose length
-and maximum length both equal \verb|n| and whose elements are given by
-the argument specified vector.  Here memory order is preserved: if
-\verb|rvp| is a raw vector pointer at the new raw vector,
-\verb|rvp[0]| takes the value \verb|p[0]| and
-\verb|rvp[n-1]| takes the value \verb|p[n-1]|.
-
-The {\tt min::\EOL max\_\EOL length\_\EOL of} function returns the
-maximum length of the raw vector pointed at, and
-the {\tt min::\EOL unused\_\EOL length\_\EOL of} function returns the
-difference of the maximum length and length of this raw vector.
-The {\tt min::\EOL resize} function resets the maximum length of the
-vector, and if the new maximum length is less than that old length,
-also resets the length to the new maximum length.
-Resizing usually causes the raw vector to be relocated in memory.
-The {\tt min::\EOL reserve} function checks if the unused length
-is at least as large as the {\tt required\_\EOL unused} argument,
-and if not, resizes the raw vector so the unused length is at least
-as large as the argument.  In the latter case the formula used to
-choose the new maximum length is:
-\begin{indpar}\begin{verbatim}
-new_maximum_length = old_maximum_length
-                   + max ( required_unused,
-                           min ( I.max_increment,
-                                   I.increment_ratio
-                                 * old_maximum_length ) )
-\end{verbatim}\end{indpar}\label{RAW-VEC-EXPANSION-FORMULA}
-
-Here {\tt I.max\_\EOL increment} and {\tt I.increment\_\EOL ratio}
-are given by the {\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info}
-structure \verb|I| (\pagref{MIN::RAW_VEC_TYPE_INFO}).
 
 Raw vector pointers do no caching and there is \underline{no need} for
 a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
