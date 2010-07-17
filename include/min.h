@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 16 11:49:34 EDT 2010
+// Date:	Fri Jul 16 20:56:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/16 18:47:50 $
+//   $Date: 2010/07/17 05:46:58 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.343 $
+//   $Revision: 1.344 $
 
 // Table of Contents:
 //
@@ -335,7 +335,9 @@ namespace min {
     const int LONG_OBJ			= 10;
     const int HUGE_OBJ			= 11;
         // Unimplemented.
-    const int RAW_VEC			= 12;
+    const int PACKED_STRUCT		= 12;
+    const int PACKED_VEC		= 13;
+    const int RAW_VEC			= 14;
 
     // Uncollectable.
     //
@@ -3279,15 +3281,55 @@ namespace min {
 
     namespace internal {
 
-	extern void ** packed_types;
-	extern unsigned packed_type_count;
+	struct packed_type_handle
+	{
+	    // For each object
+	    //
+	    //	min::packed_...<...> ptype
+	    //
+	    // there is one handle with the following
+	    // values:
+	    //
+	    void * id;	  // & min::packed_...<...>::id
+	    void * type;  // & ptype
+	};
 
+	// An body begins with a min::uns32 type whose
+	// low order MIN_PACKED_TYPE_INDEX_BITS bits are
+	// an index i that references (*packed_type_
+	// handles)[i] which in turn references the
+	// ptype as per above of the body.
+	//
+	extern packed_type_handle **
+	    packed_type_handles;
+
+	const min::uns32 packed_type_index_mask =
+	    ( 1 << MIN_PACKED_TYPE_INDEX_BITS ) - 1;
+
+	// Indices i for packed_type_handles must be in
+	// the range 0 <= i < packed_type_count.  If
+	// a new packed type is allocated, packed_type_
+	// count is incremented.  If it would become
+	// > max_packed_type_count then allocate_packed_
+	// type_handles is called.
+	//
+	extern unsigned packed_type_count;
+	extern unsigned max_packed_type_count;
+
+	// Allocate or reallocate the packed_type_
+	// handles vector setting max_packed_type_
+	// count to the given value.
+	//
+	void allocate_packed_type_handles
+	    ( min::uns32 max_packed_type_count );
     }
 
-    template < typename S >
+    template < typename S,
+               const min::uns32 S::* type = & S::type >
     class packed_struct
     {
     public:
+
         packed_struct
 	    ( const char * name,
 	      const min::uns32 * gen_disp = NULL,
@@ -3296,12 +3338,101 @@ namespace min {
 	      gen_disp ( gen_disp ),
 	      stub_ptr_disp ( stub_ptr_disp )
 	{
+	    // Check that the type member is the first
+	    // thing in the S structure.
+	    //
+	    S * test_s = (S *) 0;
+	    min::uns32 * test_t =
+	        (min::uns32 *) (void *) test_s;
+	    MIN_ASSERT ( test_t == & test_s->*type );
+
+	    if (    internal::packed_type_count
+	         >= internal::max_packed_type_count )
+	        internal::allocate_packed_type_handles
+		    ( internal::max_packed_type_count
+		      + MIN_PACKED_TYPE_COUNT );
+	    packed_type_index =
+	        internal::packed_type_count ++;
+	    internal::packed_type_handles
+	        [ packed_type_index ] = & handle;
+	    handle.id = & id;
+	    handle.type = this;
 	}
 
 	const char * const name;
 	const min::uns32 * const gen_disp;
 	const min::uns32 * const stub_ptr_disp;
+
+	class pointer
+	{
+	public:
+	    pointer ( min::gen v )
+	    {
+	        new ( this )
+		    pointer ( (min::stub *)
+		              stub_of ( v ) );
+	    }
+	    pointer ( min::stub * s )
+	        : s ( s )
+	    {
+	        MIN_ASSERT
+		    (    type_of ( s )
+		      == PACKED_STRUCT );
+		void * p =
+		    unprotected::pointer_of ( s );
+		min::uns32 t = * (min::uns32 *) p;
+		min::uns32 i =
+		    t & internal
+		        ::packed_type_index_mask;
+		MIN_ASSERT
+		    ( i < internal::packed_type_count);
+		internal::packed_type_handle * h =
+		    internal::packed_type_handles[i];
+		MIN_ASSERT ( h->id == & id );
+		pstype = (packed_struct<S> *) h->type;
+	    }
+	    pointer ( void )
+	        : s ( NULL ), pstype ( NULL )
+		{}
+
+	    operator const S * ( void )
+	    {
+	        return (const S *)
+		       unprotected::pointer_of ( s );
+	    }
+
+	    friend void deinitialize
+	        ( min::packed_struct<S,type>::pointer
+		      & psp )
+	    {
+	        psp.s = NULL; psp.pstype = NULL;
+	    }
+	        
+	private:
+	    min::stub * s;
+	    min::packed_struct<S> * pstype;
+	};
+
+    private:
+
+	min::uns32 packed_type_index;
+	static bool id;
+	internal::packed_type_handle handle;
     };
+
+    template < typename S >
+    void initialize ( min::packed_struct<S> & psp,
+                      min::gen v )
+    {
+        new ( & psp ) min::packed_struct<S> ( v );
+    }
+
+    template < typename S >
+    void initialize ( min::packed_struct<S> & psp,
+                      min::stub * s )
+    {
+        new ( & psp ) min::packed_struct<S> ( s );
+    }
 }
 
 // Raw Vectors

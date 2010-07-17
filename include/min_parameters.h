@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 16 14:35:14 EDT 2010
+// Date:	Sat Jul 17 01:13:19 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/16 18:47:50 $
+//   $Date: 2010/07/17 05:46:58 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.53 $
+//   $Revision: 1.54 $
 
 // Table of Contents
 //
@@ -281,11 +281,19 @@
      ( 1ull << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG )
 
 // Initial maximum number of packed structure/vector
-// types.  This can be increased during execution, so
-// it is not a hard maximum.
+// types, and also the increment to this maximum number
+// if it about to be exceeded.
 //
-# ifndef MIN_MAX_PACKED_TYPES
-#   define MIN_MAX_PACKED_TYPES 128
+# ifndef MIN_PACKED_TYPE_COUNT
+#   define MIN_PACKED_TYPE_COUNT 128
+# endif
+
+// Number of bits of min::uns32 type in a packed
+// structure or header that is reserved for the
+// packed structure/vector type index.
+//
+# ifndef MIN_PACKED_TYPE_INDEX_BITS
+#   define MIN_PACKED_TYPE_INDEX_BITS 16
 # endif
 
 // Hardware Functions
