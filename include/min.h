@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 16 20:56:42 EDT 2010
+// Date:	Sat Jul 17 02:57:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/17 05:46:58 $
+//   $Date: 2010/07/17 06:58:32 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.344 $
+//   $Revision: 1.345 $
 
 // Table of Contents:
 //
@@ -3333,46 +3333,25 @@ namespace min {
         packed_struct
 	    ( const char * name,
 	      const min::uns32 * gen_disp = NULL,
-	      const min::uns32 * stub_ptr_disp = NULL )
-	    : name ( name ),
-	      gen_disp ( gen_disp ),
-	      stub_ptr_disp ( stub_ptr_disp )
-	{
-	    // Check that the type member is the first
-	    // thing in the S structure.
-	    //
-	    S * test_s = (S *) 0;
-	    min::uns32 * test_t =
-	        (min::uns32 *) (void *) test_s;
-	    MIN_ASSERT ( test_t == & test_s->*type );
+	      const min::uns32 * stub_ptr_disp = NULL );
 
-	    if (    internal::packed_type_count
-	         >= internal::max_packed_type_count )
-	        internal::allocate_packed_type_handles
-		    ( internal::max_packed_type_count
-		      + MIN_PACKED_TYPE_COUNT );
-	    packed_type_index =
-	        internal::packed_type_count ++;
-	    internal::packed_type_handles
-	        [ packed_type_index ] = & handle;
-	    handle.id = & id;
-	    handle.type = this;
-	}
+	min::gen new_gen ( void );
 
 	const char * const name;
 	const min::uns32 * const gen_disp;
 	const min::uns32 * const stub_ptr_disp;
 
-	class pointer
+	class internal_pointer
 	{
-	public:
-	    pointer ( min::gen v )
+	protected:
+
+	    internal_pointer ( min::gen v )
 	    {
 	        new ( this )
 		    pointer ( (min::stub *)
 		              stub_of ( v ) );
 	    }
-	    pointer ( min::stub * s )
+	    internal_pointer ( min::stub * s )
 	        : s ( s )
 	    {
 	        MIN_ASSERT
@@ -3391,33 +3370,70 @@ namespace min {
 		MIN_ASSERT ( h->id == & id );
 		pstype = (packed_struct<S> *) h->type;
 	    }
-	    pointer ( void )
+	    internal_pointer ( void )
 	        : s ( NULL ), pstype ( NULL )
 		{}
+	        
+	    min::stub * s;
+	    min::packed_struct<S> * pstype;
+
+       public:
+
+	    friend void deinitialize
+	        ( min::packed_struct<S,type>
+		     ::internal_pointer & psp )
+	    {
+	        psp.s = NULL; psp.pstype = NULL;
+	    }
+	};
+
+	class pointer : internal_pointer
+	{
+	    pointer ( min::gen v )
+	        : internal_pointer ( v ) {}
+	    pointer ( min::stub * s )
+	        : internal_pointer ( s ) {}
+	    pointer ( void )
+	        : internal_pointer() {}
 
 	    operator const S * ( void )
 	    {
 	        return (const S *)
-		       unprotected::pointer_of ( s );
+		       unprotected::pointer_of
+		           ( this->s );
 	    }
+	};
 
-	    friend void deinitialize
-	        ( min::packed_struct<S,type>::pointer
-		      & psp )
+	class updatable_pointer : internal_pointer
+	{
+	    updatable_pointer ( min::gen v )
+	        : internal_pointer ( v ) {}
+	    updatable_pointer ( min::stub * s )
+	        : internal_pointer ( s ) {}
+	    updatable_pointer ( void )
+	        : internal_pointer() {}
+
+	    operator S * ( void )
 	    {
-	        psp.s = NULL; psp.pstype = NULL;
+	        return (S *)
+		       unprotected::pointer_of
+		           ( this->s );
 	    }
-	        
-	private:
-	    min::stub * s;
-	    min::packed_struct<S> * pstype;
 	};
 
     private:
 
-	min::uns32 packed_type_index;
-	static bool id;
+	min::uns32 index;
+	    // Index of handle in MINT::packed_type_
+	    // handles.
 	internal::packed_type_handle handle;
+	    // Handle pointed at by
+	    // MINT::packed_type_handles [ index ]
+	static bool id;
+	    // & id is handle.id.
+
+	min::uns32 body_size;
+	    // Equals sizeof ( S ).
     };
 
     template < typename S >
