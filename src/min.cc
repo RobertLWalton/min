@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 17 02:57:18 EDT 2010
+// Date:	Sat Jul 17 03:06:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/17 06:58:12 $
+//   $Date: 2010/07/17 12:41:56 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.231 $
+//   $Revision: 1.232 $
 
 // Table of Contents:
 //
@@ -1474,15 +1474,22 @@ min::gen min::new_lab_gen
 // Packed Structures
 // ------ ----------
 
+void ** MINT::packed_types;
+min::uns32 MINT::packed_type_count;
+min::uns32 MINT::max_packed_type_count;
+
 template < typename S,
 	   const min::uns32 S::* type >
 min::packed_struct<S,type>::packed_struct
     ( const char * name,
       const min::uns32 * gen_disp,
       const min::uns32 * stub_ptr_disp )
-    : name ( name ),
-      gen_disp ( gen_disp ),
-      stub_ptr_disp ( stub_ptr_disp )
+    : internal::packed_struct_descriptor
+          ( & id,
+            sizeof ( S ),
+            name,
+            gen_disp,
+            stub_ptr_disp )
 {
     // Check that the type member is the first
     // thing in the S structure.
@@ -1494,15 +1501,14 @@ min::packed_struct<S,type>::packed_struct
 
     if (    MINT::packed_type_count
 	 >= MINT::max_packed_type_count )
-	MINT::allocate_packed_type_handles
+	MINT::allocate_packed_types
 	    ( internal::max_packed_type_count
 	      + MIN_PACKED_TYPE_COUNT );
 
     index = MINT::packed_type_count ++;
-    MINT::packed_type_handles [ index ] = & handle;
-    handle.id = & id;
-    handle.type = this;
-    body_size = sizeof ( S );
+    MINT::packed_types [ index ] =
+        (MINT::packed_struct_descriptor *)
+	this;
 }
 
 template < typename S,
