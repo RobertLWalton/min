@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul  4 03:13:53 EDT 2010
+// Date:	Sat Jul 17 02:57:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/04 07:45:18 $
+//   $Date: 2010/07/17 06:58:12 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.230 $
+//   $Revision: 1.231 $
 
 // Table of Contents:
 //
@@ -26,6 +26,8 @@
 //	Numbers
 //	Strings
 //	Labels
+//	Packed Structures
+//	Packed Vectors
 //	Raw Vectors
 //	Objects
 //	Object Vector Level
@@ -1467,6 +1469,54 @@ min::gen min::new_lab_gen
 
     MUP::set_type_of ( s2, min::LABEL );
     return min::new_gen ( s2 );
+}
+
+// Packed Structures
+// ------ ----------
+
+template < typename S,
+	   const min::uns32 S::* type >
+min::packed_struct<S,type>::packed_struct
+    ( const char * name,
+      const min::uns32 * gen_disp,
+      const min::uns32 * stub_ptr_disp )
+    : name ( name ),
+      gen_disp ( gen_disp ),
+      stub_ptr_disp ( stub_ptr_disp )
+{
+    // Check that the type member is the first
+    // thing in the S structure.
+    //
+    S * test_s = (S *) 0;
+    min::uns32 * test_t =
+	(min::uns32 *) (void *) test_s;
+    MIN_ASSERT ( test_t == & test_s->*type );
+
+    if (    MINT::packed_type_count
+	 >= MINT::max_packed_type_count )
+	MINT::allocate_packed_type_handles
+	    ( internal::max_packed_type_count
+	      + MIN_PACKED_TYPE_COUNT );
+
+    index = MINT::packed_type_count ++;
+    MINT::packed_type_handles [ index ] = & handle;
+    handle.id = & id;
+    handle.type = this;
+    body_size = sizeof ( S );
+}
+
+template < typename S,
+	   const min::uns32 S::* type >
+min::gen min::packed_struct<S,type>::new_gen ( void )
+{
+    min::stub * s = unprotected::new_acc_stub();
+    MUP::new_body ( s, sizeof ( S ) );
+    min::uns32 * tp =
+        (min::uns32 *) MUP::pointer_of ( s );
+    memset ( * tp, 0, sizeof ( S ) );
+    * tp = index;
+    MUP::set_type_of ( s, min::PACKED_STRUCT );
+    return new_gen ( s );
 }
 
 // Raw Vectors
