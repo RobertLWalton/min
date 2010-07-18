@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 18 08:52:00 EDT 2010
+// Date:	Sun Jul 18 11:45:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 13:43:32 $
+//   $Date: 2010/07/18 15:50:35 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.183 $
+//   $Revision: 1.184 $
 
 // Table of Contents:
 //
@@ -1993,6 +1993,19 @@ void test_packed_structs ( void )
     ps2t::pointer pv2 ( v2 );
     MIN_ASSERT ( pv2->i == 55 );
     MIN_ASSERT ( pv2->j == 99 );
+
+    min::gen v3 = ps2type.new_gen();
+    deinitialize ( upv2 );
+    initialize ( upv2, MUP::stub_of ( v3 ) );
+    MIN_ASSERT ( upv2->i == 0 );
+    MIN_ASSERT ( upv2->j == 0 );
+    upv2->i = 22;
+    upv2->j = 44;
+    MIN_ASSERT ( upv2->i == 22 );
+    MIN_ASSERT ( upv2->j == 44 );
+    initialize ( upv2, v2 );
+    MIN_ASSERT ( upv2->i == 55 );
+    MIN_ASSERT ( upv2->j == 99 );
 
     cout << endl;
     cout << "Finish Packed Structs Test!" << endl;
