@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun 29 12:02:20 EDT 2010
+// Date:	Sat Jul 17 20:59:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/29 16:42:37 $
+//   $Date: 2010/07/18 12:51:29 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.181 $
+//   $Revision: 1.182 $
 
 // Table of Contents:
 //
@@ -33,6 +33,8 @@
 //	Labels
 //	Names
 //	Print
+//	Packed Structures
+//	Packed Vectors
 //	Raw Vectors
 //	Objects
 //	Object Vector Level
@@ -449,6 +451,17 @@ void initialize_acc_stack ( void )
 {
     MINT::acc_stack = ::acc_stack;
     MINT::acc_stack_limit = ::acc_stack_end - 6;
+}
+
+static void * packed_types[MIN_PACKED_TYPE_COUNT];
+static void ** packed_types_p = packed_types;
+
+void MINT::allocate_packed_types ( min::uns32 count )
+{
+    assert ( MINT::packed_types == NULL );
+    MINT::packed_types = & ::packed_types_p;
+    assert ( count <= MIN_PACKED_TYPE_COUNT );
+    MINT::max_packed_type_count = count;
 }
 
 void MINT::acc_initializer ( void )
@@ -1924,6 +1937,27 @@ void test_print ( void )
     cout << endl;
     cout << "Finish Print Test!" << endl;
 }
+
+// Packed Structures
+// ------ ----------
+
+struct ps {
+    min::uns32 type;
+    min::uns32 i;
+    min::gen g;
+    min::stub * s;
+};
+
+static min::uns32 ps_gen_disp[2] =
+    { 8, min::DISP_END };
+static min::uns32 ps_stub_ptr_disp[2] =
+    { 8 + sizeof ( min::gen ), min::DISP_END };
+
+typedef min::packed_struct<ps> pst;
+static pst pstype
+    ( "pstype", ps_gen_disp, ps_stub_ptr_disp );
+
+
 
 // Raw Vectors
 // --- -------
