@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 18 11:47:06 EDT 2010
+// Date:	Sun Jul 18 17:03:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 16:37:13 $
+//   $Date: 2010/07/18 21:03:36 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.350 $
+//   $Revision: 1.351 $
 
 // Table of Contents:
 //
@@ -3526,6 +3526,379 @@ min::gen min::packed_struct<S,type>::new_gen ( void )
         (min::uns32 *) unprotected::pointer_of ( s );
     memset ( tp, 0, sizeof ( S ) );
     * tp = index;
+    unprotected::set_type_of ( s, min::PACKED_STRUCT );
+    return min::new_gen ( s );
+}
+
+// Packed Vectors
+// --------------
+
+namespace min {
+
+    namespace internal {
+
+	// The packed_vec_descriptor is the part
+	// of a packed_vec<H,E> that does not dependent
+	// on H,E in the template sense.  It can be used
+	// by functions that need not have detailed
+	// knowledge of H,E, such as acc functions.
+	//
+	struct packed_vec_descriptor
+	{
+	    const void * const id;
+	        // & min::packed_vec<H,E>::id
+		// This is used by pointer constructors
+		// as an identifier for H,E.
+	    const min::uns32 header_size;
+	        // sizeof ( H ) rounded up to an exact
+		// multiple of sizeof ( E ) if the
+		// latter is a power of 2 < 8, else to
+		// an exact multiple of 8.
+	    const min::uns32 element_size;
+	        // sizeof ( E ).
+	    const min::uns32 length_disp;
+	    const min::uns32 max_length_disp;
+	        // Displacements of length and
+		// max_length elements in H.
+	    const char * const name;
+	    const min::uns32 * const header_gen_disp;
+	    const min::uns32 * const
+	                       header_stub_ptr_disp;
+	    const min::uns32 * header_io_disp;
+	    const min::gen   * header_io_names;
+	    const min::uns32 * const element_gen_disp;
+	    const min::uns32 * const
+	                       element_stub_ptr_disp;
+	    const min::uns32 * element_io_disp;
+	    const min::gen   * element_io_names;
+
+	    min::uns32 initial_max_length;
+
+	    packed_vec_descriptor
+	        ( void * id,
+		  min::uns32 header_size,
+		  min::uns32 element_size,
+		  min::uns32 length_disp,
+		  min::uns32 max_length_disp,
+		  const char * name,
+		  const min::uns32 * header_gen_disp,
+		  const min::uns32 *
+		      header_stub_ptr_disp,
+		  const min::uns32 * element_gen_disp,
+		  const min::uns32 *
+		      element_stub_ptr_disp )
+	        : id ( & id ),
+		  header_size ( header_size ),
+		  element_size ( element_size ),
+		  length_disp ( length_disp ),
+		  max_length_disp ( max_length_disp ),
+		  name ( name ),
+		  header_gen_disp ( header_gen_disp ),
+		  header_stub_ptr_disp
+		      ( header_stub_ptr_disp ),
+		  header_io_disp ( NULL ),
+		  header_io_names ( NULL ),
+		  element_gen_disp ( element_gen_disp ),
+		  element_stub_ptr_disp
+		      ( element_stub_ptr_disp ),
+		  element_io_disp ( NULL ),
+		  element_io_names ( NULL ),
+		  initial_max_length ( 0 ) {}
+	};
+
+    }
+
+    template < typename H, typename E,
+               const min::uns32 H::* typemp = & H::type,
+               const min::uns32 H::* lengthmp =
+	           & H::length,
+               const min::uns32 H::* max_lengthmp =
+	           & H::max_length >
+    class packed_vec
+	: public internal::packed_vec_descriptor
+    {
+
+    private:
+
+    	// Compute header_size value as a constant
+	// for use within this class.
+	//
+	inline min::uns32 computed_header_size ( void )
+	{
+	    min::uns32 alignment =
+		sizeof ( E ) >= 8 ? 8 :
+	        ( ( sizeof ( E ) - 1 ) & sizeof ( E ) )
+		!= 0 ? 8 : // Not a power of two
+		sizeof ( E );
+	    return (   alignment
+	             * (   (   sizeof ( H )
+		             + alignment - 1 )
+		         / alignment ) );
+	}
+
+	// Compute length displements as constants for
+	// use within this class.
+	//
+	inline min::uns32 computed_length_disp ( void )
+	{
+	    H * hp = (H *) NULL;
+	    return ( (min::uns8 *) & hp->*lengthmp
+	             -
+		     (min::uns8 *) hp );
+	}
+	inline min::uns32 computed_max_length_disp
+		( void )
+	{
+	    H * hp = (H *) NULL;
+	    return ( (min::uns8 *) & hp->*max_lengthmp
+	             -
+		     (min::uns8 *) hp );
+	}
+
+    public:
+
+        packed_vec
+	    ( const char * name,
+	      const min::uns32 * header_gen_disp
+		  = NULL,
+	      const min::uns32 * header_stub_ptr_disp
+	          = NULL,
+	      const min::uns32 * element_gen_disp
+	          = NULL,
+	      const min::uns32 * element_stub_ptr_disp
+	          = NULL );
+
+	min::gen new_gen ( min::uns32 max_length,
+	                   min::uns32 length,
+			   const E * vp = NULL );
+	min::gen new_gen ( min::uns32 length,
+			   const E * vp = NULL )
+	{
+	    return new_gen ( length, length, vp );
+	}
+	min::gen new_gen ( void )
+	{
+	    return new_gen ( initial_max_length, 0 );
+	}
+
+	class internal_pointer
+	{
+	protected:
+
+	    internal_pointer ( min::gen v )
+	    {
+	        new ( this )
+		    pointer ( (min::stub *)
+		              stub_of ( v ) );
+	    }
+	    internal_pointer ( min::stub * s )
+	        : s ( s )
+	    {
+	        MIN_ASSERT
+		    (    type_of ( s )
+		      == PACKED_VEC );
+		void * p =
+		    unprotected::pointer_of ( s );
+		min::uns32 t = * (min::uns32 *) p;
+		min::uns32 i =
+		    t & internal
+		        ::packed_type_index_mask;
+		MIN_ASSERT
+		    ( i < internal::packed_type_count);
+		pvdescriptor =
+		  (internal::packed_vec_descriptor *)
+		  (*internal::packed_types)[i];
+		MIN_ASSERT ( pvdescriptor->id == & id );
+	    }
+	    internal_pointer ( void )
+	        : s ( NULL ), pvdescriptor ( NULL )
+		{}
+	        
+	    min::stub * s;
+	    min::internal::packed_vec_descriptor *
+	        pvdescriptor;
+
+       public:
+
+	    friend void initialize
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::internal_pointer & pvp,
+		  min::gen v )
+	    {
+		new ( & pvp ) internal_pointer ( v );
+	    }
+
+	    friend void initialize
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::internal_pointer & pvp,
+		  min::stub * s )
+	    {
+		new ( & pvp ) internal_pointer ( s );
+	    }
+
+	    friend void deinitialize
+	        ( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::internal_pointer & pvp )
+	    {
+	        pvp.s = NULL; pvp.pvdescriptor = NULL;
+	    }
+	};
+
+	class pointer : public internal_pointer
+	{
+
+	public:
+
+	    pointer ( min::gen v )
+	        : internal_pointer ( v ) {}
+	    pointer ( min::stub * s )
+	        : internal_pointer ( s ) {}
+	    pointer ( void )
+	        : internal_pointer() {}
+
+	    const H * operator -> ( void )
+	    {
+	        return (const H *)
+		       unprotected::pointer_of
+		           ( this->s );
+	    }
+
+	    const E & operator [] ( min::uns32 i )
+	    {
+	        return * (const E *)
+		    ( (min::uns8 *)
+		       unprotected::pointer_of
+		           ( this->s )
+		      +
+		      computed_header_size() );
+	    }
+
+	};
+
+	class updatable_pointer
+	    : public internal_pointer
+	{
+
+	public:
+
+	    updatable_pointer ( min::gen v )
+	        : internal_pointer ( v ) {}
+	    updatable_pointer ( min::stub * s )
+	        : internal_pointer ( s ) {}
+	    updatable_pointer ( void )
+	        : internal_pointer() {}
+
+	    H * operator -> ( void )
+	    {
+	        return (H *)
+		       unprotected::pointer_of
+		           ( this->s );
+	    }
+
+	    E & operator [] ( min::uns32 i )
+	    {
+	        return * (E *)
+		    ( (min::uns8 *)
+		       unprotected::pointer_of
+		           ( this->s )
+		      +
+		      computed_header_size() );
+	    }
+	};
+
+    private:
+
+	min::uns32 index;
+	    // Index of descriptor address in MINT::
+	    // packed_types.
+	static bool id;
+	    // & id acts as a unique identifier of the
+	    // type min::packed_vec<H,E>.
+    };
+}
+
+// The following should be in min.cc BUT since they are
+// templates they must be included in every compilation
+// that might instantiate them.
+
+template < typename H, typename E,
+	   const min::uns32 H::* typemp,
+	   const min::uns32 H::* lengthmp,
+	   const min::uns32 H::* max_lengthmp>
+bool min::packed_vec<H,E,typemp,lengthmp,max_lengthmp>
+        ::id;
+
+template < typename H, typename E,
+	   const min::uns32 H::* typemp,
+	   const min::uns32 H::* lengthmp,
+	   const min::uns32 H::* max_lengthmp>
+min::packed_vec<H,E,typemp,lengthmp,max_lengthmp>
+   ::packed_vec
+    ( const char * name,
+      const min::uns32 * header_gen_disp,
+      const min::uns32 * header_stub_ptr_disp,
+      const min::uns32 * element_gen_disp,
+      const min::uns32 * element_stub_ptr_disp )
+    : internal::packed_vec_descriptor
+          ( & id,
+            computed_header_size(),
+	    sizeof ( E ),
+	    computed_length_disp(),
+	    computed_max_length_disp(),
+            name,
+            header_gen_disp,
+            header_stub_ptr_disp,
+            element_gen_disp,
+            element_stub_ptr_disp )
+{
+    // Check that the type member is the first
+    // thing in the H structure.
+    //
+    H * test_h = (H *) 0;
+    min::uns32 * test_t =
+	(min::uns32 *) (void *) test_h;
+    MIN_ASSERT ( test_h == & ( test_h->*typemp ) );
+
+    if (    internal::packed_type_count
+	 >= internal::max_packed_type_count )
+	internal::allocate_packed_types
+	    ( internal::max_packed_type_count
+	      + MIN_PACKED_TYPE_COUNT );
+
+    index = internal::packed_type_count ++;
+    (*internal::packed_types) [ index ] =
+        (internal::packed_vec_descriptor *)
+	this;
+}
+
+template < typename H, typename E,
+	   const min::uns32 H::* typemp,
+	   const min::uns32 H::* lengthmp,
+	   const min::uns32 H::* max_lengthmp>
+min::gen min::packed_vec
+            <H,E,typemp,lengthmp,max_lengthmp>
+            ::new_gen ( min::uns32 max_length,
+	                min::uns32 length,
+			const E * vp )
+{
+    min::stub * s = unprotected::new_acc_stub();
+    min::uns32 size = computed_header_size()
+	            + max_length * sizeof ( E );
+    unprotected::new_body ( s, size );
+    min::uns8 * bodyp =
+        (min::uns8 *) unprotected::pointer_of ( s );
+    memset ( bodyp, 0, size );
+    * (uns32 *) bodyp = index;
+    * (uns32 *) ( bodyp + computed_length_disp() ) =
+        length;
+    * (uns32 *) ( bodyp + computed_max_length_disp() ) =
+        max_length;
+    if ( vp )
+        memcpy ( bodyp + computed_header_size(),
+	         vp, length * sizeof ( E ) );
     unprotected::set_type_of ( s, min::PACKED_STRUCT );
     return min::new_gen ( s );
 }
