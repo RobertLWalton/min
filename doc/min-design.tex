@@ -6229,7 +6229,7 @@ output.
 \item[\ttmkey{gen\_disp}{in {\tt min::packed\_struct}}]
 This C vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|S|,
-terminated by the value {\tt MUP::DISP\_END}\MUPindex{DISP\_END}.
+terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
 This displacements vector should not
 be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|S|.  But if there are \verb|min::gen| members, this
@@ -6472,7 +6472,8 @@ output.
 \item[\ttmkey{header\_gen\_disp}{in {\tt min::packed\_vec}}]
 This C vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|H|,
-terminated by the value \verb|0|.  This displacements vector should not
+terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
+This displacements vector should not
 be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|H|.  But if there are \verb|min::gen| members, this
 displacements vector must be given for garbage collection purposes.
