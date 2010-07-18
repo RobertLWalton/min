@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 17 22:09:45 EDT 2010
+// Date:	Sun Jul 18 00:02:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 03:05:02 $
+//   $Date: 2010/07/18 06:05:36 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.347 $
+//   $Revision: 1.348 $
 
 // Table of Contents:
 //
@@ -3319,7 +3319,7 @@ namespace min {
 	//
 	struct packed_struct_descriptor
 	{
-	    const void * id;
+	    const void * const id;
 	        // & min::packed_struct<S>::id
 		// This is used by pointer constructors
 		// as an identifier for S.
@@ -3399,6 +3399,22 @@ namespace min {
 
        public:
 
+	    friend void initialize
+		( min::packed_struct<S,type>
+		     ::internal_pointer & psp,
+		  min::gen v )
+	    {
+		new ( & psp ) internal_pointer ( v );
+	    }
+
+	    friend void initialize
+		( min::packed_struct<S,type>
+		     ::internal_pointer & psp,
+		  min::stub * s )
+	    {
+		new ( & psp ) internal_pointer ( s );
+	    }
+
 	    friend void deinitialize
 	        ( min::packed_struct<S,type>
 		     ::internal_pointer & psp )
@@ -3407,8 +3423,11 @@ namespace min {
 	    }
 	};
 
-	class pointer : internal_pointer
+	class pointer : public internal_pointer
 	{
+
+	public:
+
 	    pointer ( min::gen v )
 	        : internal_pointer ( v ) {}
 	    pointer ( min::stub * s )
@@ -3426,6 +3445,9 @@ namespace min {
 
 	class updatable_pointer : internal_pointer
 	{
+
+	public:
+
 	    updatable_pointer ( min::gen v )
 	        : internal_pointer ( v ) {}
 	    updatable_pointer ( min::stub * s )
@@ -3447,22 +3469,9 @@ namespace min {
 	    // Index of descriptor address in MINT::
 	    // packed_types.
 	static bool id;
-	    // & id is handle.id.
+	    // & id acts as a unique identifier of the
+	    // type min::packed_struct<S>.
     };
-
-    template < typename S >
-    void initialize ( min::packed_struct<S> & psp,
-                      min::gen v )
-    {
-        new ( & psp ) min::packed_struct<S> ( v );
-    }
-
-    template < typename S >
-    void initialize ( min::packed_struct<S> & psp,
-                      min::stub * s )
-    {
-        new ( & psp ) min::packed_struct<S> ( s );
-    }
 }
 
 // The following should be in min.cc BUT since they are
