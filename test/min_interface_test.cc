@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 17 20:59:44 EDT 2010
+// Date:	Sun Jul 18 08:52:00 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 12:51:29 $
+//   $Date: 2010/07/18 13:43:32 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.182 $
+//   $Revision: 1.183 $
 
 // Table of Contents:
 //
@@ -1941,21 +1941,63 @@ void test_print ( void )
 // Packed Structures
 // ------ ----------
 
-struct ps {
+struct ps1 {
     min::uns32 type;
     min::uns32 i;
     min::gen g;
     min::stub * s;
 };
 
-static min::uns32 ps_gen_disp[2] =
+static min::uns32 ps1_gen_disp[2] =
     { 8, min::DISP_END };
-static min::uns32 ps_stub_ptr_disp[2] =
+static min::uns32 ps1_stub_ptr_disp[2] =
     { 8 + sizeof ( min::gen ), min::DISP_END };
 
-typedef min::packed_struct<ps> pst;
-static pst pstype
-    ( "pstype", ps_gen_disp, ps_stub_ptr_disp );
+typedef min::packed_struct<ps1> ps1t;
+static ps1t ps1type
+    ( "ps1type", ps1_gen_disp, ps1_stub_ptr_disp );
+
+struct ps2 {
+    min::uns32 type;
+    min::uns32 i;
+    min::uns32 j;
+};
+
+typedef min::packed_struct<ps2> ps2t;
+static ps2t ps2type ( "ps2type" );
+
+
+void test_packed_structs ( void )
+{
+    cout << endl;
+    cout << "Start Packed Structs Test!" << endl;
+
+    cout << "ps1type.name = " << ps1type.name << endl;
+
+    min::gen v1 = ps1type.new_gen();
+    ps1t::updatable_pointer upv1 ( v1 );
+    cout << "upv1->type = " << upv1->type << endl;
+    MIN_ASSERT ( upv1->i == 0 );
+    upv1->i = 99;
+    MIN_ASSERT ( upv1->i == 99 );
+
+    min::gen v2 = ps2type.new_gen();
+    ps2t::updatable_pointer upv2 ( v2 );
+    cout << "upv2->type = " << upv2->type << endl;
+    MIN_ASSERT ( upv2->i == 0 );
+    MIN_ASSERT ( upv2->j == 0 );
+    upv2->i = 55;
+    upv2->j = 99;
+    MIN_ASSERT ( upv2->i == 55 );
+    MIN_ASSERT ( upv2->j == 99 );
+    ps2t::pointer pv2 ( v2 );
+    MIN_ASSERT ( pv2->i == 55 );
+    MIN_ASSERT ( pv2->j == 99 );
+
+    cout << endl;
+    cout << "Finish Packed Structs Test!" << endl;
+}
+
 
 
 
@@ -3367,6 +3409,7 @@ int main ()
 	test_labels();
 	test_names();
 	test_print();
+	test_packed_structs();
 	test_raw_vectors();
 	test_objects();
 	test_object_vector_level();
