@@ -1,6 +1,8 @@
 min_interface_test.cc:XXXX assert:
     begin_stub_region >= (min::stub *) min::internal::stub_base true.
 MINT::acc_expand_stub_free_list (1) called
+../include/min.h:XXXX assert:
+    test_t == & ( test_s->*type ) true.
 
 Start Test!
 

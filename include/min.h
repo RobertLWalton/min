@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 17 03:02:38 EDT 2010
+// Date:	Sat Jul 17 22:09:45 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/17 12:41:49 $
+//   $Date: 2010/07/18 03:05:02 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.346 $
+//   $Revision: 1.347 $
 
 // Table of Contents:
 //
@@ -3279,7 +3279,7 @@ namespace min {
 
 namespace min {
 
-    const min::uns32 END = min::uns32 ( -1 );
+    const min::uns32 DISP_END = min::uns32 ( -1 );
 
     namespace internal {
 
@@ -3289,7 +3289,7 @@ namespace min {
 	// (*packed_types)[i] is the address of the
 	// body's packed_struct/vec_descriptor.
 	//
-	extern void ** packed_types;
+	extern void *** packed_types;
 
 	const min::uns32 packed_type_index_mask =
 	    ( 1 << MIN_PACKED_TYPE_INDEX_BITS ) - 1;
@@ -3386,7 +3386,7 @@ namespace min {
 		    ( i < internal::packed_type_count);
 		psdescriptor =
 		  (internal::packed_struct_descriptor *)
-		  internal::packed_types[i];
+		  (*internal::packed_types)[i];
 		MIN_ASSERT ( psdescriptor->id == & id );
 	    }
 	    internal_pointer ( void )
@@ -3463,6 +3463,61 @@ namespace min {
     {
         new ( & psp ) min::packed_struct<S> ( s );
     }
+}
+
+// The following should be in min.cc BUT since they are
+// templates they must be included in every compilation
+// that might instantiate them.
+
+template < typename S,
+	   const min::uns32 S::* type >
+bool min::packed_struct<S,type>::id;
+
+template < typename S,
+	   const min::uns32 S::* type >
+min::packed_struct<S,type>::packed_struct
+    ( const char * name,
+      const min::uns32 * gen_disp,
+      const min::uns32 * stub_ptr_disp )
+    : internal::packed_struct_descriptor
+          ( & id,
+            sizeof ( S ),
+            name,
+            gen_disp,
+            stub_ptr_disp )
+{
+    // Check that the type member is the first
+    // thing in the S structure.
+    //
+    S * test_s = (S *) 0;
+    min::uns32 * test_t =
+	(min::uns32 *) (void *) test_s;
+    MIN_ASSERT ( test_t == & ( test_s->*type ) );
+
+    if (    internal::packed_type_count
+	 >= internal::max_packed_type_count )
+	internal::allocate_packed_types
+	    ( internal::max_packed_type_count
+	      + MIN_PACKED_TYPE_COUNT );
+
+    index = internal::packed_type_count ++;
+    (*internal::packed_types) [ index ] =
+        (internal::packed_struct_descriptor *)
+	this;
+}
+
+template < typename S,
+	   const min::uns32 S::* type >
+min::gen min::packed_struct<S,type>::new_gen ( void )
+{
+    min::stub * s = unprotected::new_acc_stub();
+    unprotected::new_body ( s, sizeof ( S ) );
+    min::uns32 * tp =
+        (min::uns32 *) unprotected::pointer_of ( s );
+    memset ( * tp, 0, sizeof ( S ) );
+    * tp = index;
+    unprotected::set_type_of ( s, min::PACKED_STRUCT );
+    return new_gen ( s );
 }
 
 // Raw Vectors
@@ -8186,7 +8241,7 @@ inline min::unsptr min::unprotected::body_size_of
 		type & internal::packed_type_index_mask;
 	    internal::packed_struct_descriptor * d =
 	        (internal::packed_struct_descriptor *)
-	        internal::packed_types[index];
+	        (*internal::packed_types)[index];
 	    return d->size;
 	}
 #   ifdef MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES

@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/17 12:41:56 $
+//   $Date: 2010/07/18 03:05:13 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.232 $
+//   $Revision: 1.233 $
 
 // Table of Contents:
 //
@@ -1474,56 +1474,9 @@ min::gen min::new_lab_gen
 // Packed Structures
 // ------ ----------
 
-void ** MINT::packed_types;
+void *** MINT::packed_types;
 min::uns32 MINT::packed_type_count;
 min::uns32 MINT::max_packed_type_count;
-
-template < typename S,
-	   const min::uns32 S::* type >
-min::packed_struct<S,type>::packed_struct
-    ( const char * name,
-      const min::uns32 * gen_disp,
-      const min::uns32 * stub_ptr_disp )
-    : internal::packed_struct_descriptor
-          ( & id,
-            sizeof ( S ),
-            name,
-            gen_disp,
-            stub_ptr_disp )
-{
-    // Check that the type member is the first
-    // thing in the S structure.
-    //
-    S * test_s = (S *) 0;
-    min::uns32 * test_t =
-	(min::uns32 *) (void *) test_s;
-    MIN_ASSERT ( test_t == & test_s->*type );
-
-    if (    MINT::packed_type_count
-	 >= MINT::max_packed_type_count )
-	MINT::allocate_packed_types
-	    ( internal::max_packed_type_count
-	      + MIN_PACKED_TYPE_COUNT );
-
-    index = MINT::packed_type_count ++;
-    MINT::packed_types [ index ] =
-        (MINT::packed_struct_descriptor *)
-	this;
-}
-
-template < typename S,
-	   const min::uns32 S::* type >
-min::gen min::packed_struct<S,type>::new_gen ( void )
-{
-    min::stub * s = unprotected::new_acc_stub();
-    MUP::new_body ( s, sizeof ( S ) );
-    min::uns32 * tp =
-        (min::uns32 *) MUP::pointer_of ( s );
-    memset ( * tp, 0, sizeof ( S ) );
-    * tp = index;
-    MUP::set_type_of ( s, min::PACKED_STRUCT );
-    return new_gen ( s );
-}
 
 // Raw Vectors
 // --- -------
