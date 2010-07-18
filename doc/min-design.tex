@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 16, 2010}
+\date{July 18, 2010}
  
 \maketitle
 
@@ -6229,7 +6229,8 @@ output.
 \item[\ttmkey{gen\_disp}{in {\tt min::packed\_struct}}]
 This C vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|S|,
-terminated by the value \verb|0|.  This displacements vector should not
+terminated by the value {\tt MUP::DISP\_END}\MUPindex{DISP\_END}.
+This displacements vector should not
 be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|S|.  But if there are \verb|min::gen| members, this
 displacements vector must be given for garbage collection purposes.
@@ -6317,20 +6318,18 @@ a packed structure, and these have the usage:
 \LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const S * | & \verb|psp|
+\verb|const S * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+	  \verb| ( min::packed_struct<S>::pointer & psp )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_CONVERSION} \\
-\verb|S * | & \verb|psup|
+\verb|S * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+	  \verb| ( min::packed_struct<S>|\ARGBREAK
+	  \verb|      ::updatable_pointer & psp )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_CONVERSION} \\
 \end{tabular}\end{indpar}
 
-This last means that \verb|psp| is
-implicitly convertable to a `\verb|const S *|' pointer and
-\verb|psup| is implicitly convertable to a `\verb|S *|' pointer.
-However these C `\verb|S *|' pointers, since they point at a body,
-can change whenever a relocating function (\pagref{RELOCATING-FUNCTIONS})
-is called, so they should generally \underline{not} be saved in a variable,
-but should only be used temporarily inside a single statement that
-does not call a relocating function.
+This last means that when \verb|psp| is used as the left operand
+of \verb|->| it is converted to a `\verb|const S *|' pointer and
+similarly \verb|psup| is converted to a `\verb|S *|' pointer.
 
 For the constructors and {\tt min::initialize} functions \verb|v| or
 \verb|s| must point at packed structure.
@@ -6342,6 +6341,44 @@ a pointer that does not point at anything.  A pointer not pointing at
 anything produces undefined results if used, though most often
 the result will be a memory fault.  Such a pointer
 may be initialized by {\tt min::initialize} and then used.
+
+An example use of a packed structure is:
+\begin{indpar}\begin{verbatim}
+struct ps {
+    min::uns32 type;
+    min::uns32 i;
+    min::uns32 j;
+    min::gen g;
+    min::stub * s;
+};
+
+static min::uns32 ps_gen_disp[2] =
+    { 12, min::DISP_END };
+static min::uns32 ps_stub_ptr_disp[2] =
+    { 12 + sizeof ( min::gen ), min::DISP_END };
+
+typedef min::packed_struct<ps> pst;
+static pst pstype
+    ( "pstype", ps_gen_disp, ps_stub_ptr_disp );
+
+main ( ... )
+{
+    . . . . . . .
+    min::gen v1 = pstype.new_gen();
+    pst::updatable_pointer upv ( v1 );
+    upv->i = 55;
+    upv->j = 99;
+    upv->g = min::new_str_gen ( "Hello" );
+
+    pst::pointer pv ( v1 );
+    // Now pv->j == 55.
+
+    min::gen v2 = pstype.new_gen();
+    initialize ( upv, v2 );
+    // Now upv->i == 0.
+    . . . . . . .
+}
+\end{verbatim}\end{indpar}
 
 A packed vector is like a packed structure but with an added vector.
 More explicitly, to create a new type of \key{packed vector}
@@ -6579,20 +6616,17 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_STUB} \\[1ex]
-\verb|const H * | & \verb|pvp|
+\verb|const H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & pvp )|
 \LABEL{MIN::PACKED_VEC_POINTER_CONVERSION} \\
-\verb|H * | & \verb|pvup|
+\verb|H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::updatable_pointer & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_CONVERSION} \\
-\verb|H * | & \verb|pvip|
+\verb|H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
+	  \verb|      ::insertable_pointer & pvip )|
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_CONVERSION} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const E | & \verb|pvp[i]|
-\LABEL{MIN::PACKED_VEC_POINTER_ELEMENT} \\
-\verb|E | & \verb|pvup[i]|
-\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_ELEMENT} \\
-\verb|E | & \verb|pvip[i]|
-\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_ELEMENT} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 | & \verb|pvp->length|
@@ -6609,6 +6643,14 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_MAX_LENGTH} \\
 \verb|const min::uns32 | & \verb|pvip->max_length|
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_MAX_LENGTH} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const E | & \verb|pvp[i]|
+\LABEL{MIN::PACKED_VEC_POINTER_ELEMENT} \\
+\verb|E | & \verb|pvup[i]|
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_ELEMENT} \\
+\verb|E | & \verb|pvip[i]|
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_ELEMENT} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -6646,8 +6688,13 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
 \end{tabular}\end{indpar}
 
-As for packed structures, packed vector pointers are implicitly convertable to
-ordinary C pointers to the headers.  In addition subscripting packed vector
+As for packed structures, packed vector pointers used as the left
+operand of \verb|->| are converted to
+`\verb|const H *|' or
+`\verb|H *|'.  This can be used to access the `\verb|length|'
+and \verb|max_length| members of the header.
+
+In addition subscripting packed vector
 pointers gives access to the elements of the vector.  The subscripting
 operator \verb|[]| checks the index \verb|i| against the current length
 of the vector to ensure the access is legal (e.g., \verb|pvp[i]|
