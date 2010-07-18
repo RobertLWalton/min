@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 18 10:00:01 EDT 2010
+// Date:	Sun Jul 18 11:47:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 14:00:14 $
+//   $Date: 2010/07/18 16:37:13 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.349 $
+//   $Revision: 1.350 $
 
 // Table of Contents:
 //
@@ -3419,7 +3419,7 @@ namespace min {
 	        ( min::packed_struct<S,type>
 		     ::internal_pointer & psp )
 	    {
-	        psp.s = NULL; psp.pstype = NULL;
+	        psp.s = NULL; psp.psdescriptor = NULL;
 	    }
 	};
 
@@ -3443,7 +3443,8 @@ namespace min {
 	    }
 	};
 
-	class updatable_pointer : internal_pointer
+	class updatable_pointer
+	    : public internal_pointer
 	{
 
 	public:
@@ -8278,9 +8279,9 @@ namespace min {
 namespace min { namespace internal {
 
     // Remove a stub s from an aux hash table list.
-    // Here head = xxx_aux_hash + index, where index = s's
-    // hash value & xxx_hash_mask, is the head of the
-    // list.  If stub is not in the list, MIN_ABORT.
+    // Here head = xxx_aux_hash + index, where index =
+    // s's hash value & xxx_hash_mask, is the head of
+    // the list.  If stub is not in the list, MIN_ABORT.
     //
     inline void remove_aux_hash
 	    ( min::stub ** head, min::stub * s )
