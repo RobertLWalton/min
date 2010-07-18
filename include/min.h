@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 18 00:02:52 EDT 2010
+// Date:	Sun Jul 18 10:00:01 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 06:05:36 $
+//   $Date: 2010/07/18 14:00:14 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.348 $
+//   $Revision: 1.349 $
 
 // Table of Contents:
 //
@@ -3435,7 +3435,7 @@ namespace min {
 	    pointer ( void )
 	        : internal_pointer() {}
 
-	    operator const S * ( void )
+	    const S * operator -> ( void )
 	    {
 	        return (const S *)
 		       unprotected::pointer_of
@@ -3455,7 +3455,7 @@ namespace min {
 	    updatable_pointer ( void )
 	        : internal_pointer() {}
 
-	    operator S * ( void )
+	    S * operator -> ( void )
 	    {
 	        return (S *)
 		       unprotected::pointer_of
@@ -3523,10 +3523,10 @@ min::gen min::packed_struct<S,type>::new_gen ( void )
     unprotected::new_body ( s, sizeof ( S ) );
     min::uns32 * tp =
         (min::uns32 *) unprotected::pointer_of ( s );
-    memset ( * tp, 0, sizeof ( S ) );
+    memset ( tp, 0, sizeof ( S ) );
     * tp = index;
     unprotected::set_type_of ( s, min::PACKED_STRUCT );
-    return new_gen ( s );
+    return min::new_gen ( s );
 }
 
 // Raw Vectors
