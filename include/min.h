@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 18 17:03:07 EDT 2010
+// Date:	Sun Jul 18 22:23:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 21:03:36 $
+//   $Date: 2010/07/19 02:49:57 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.351 $
+//   $Revision: 1.352 $
 
 // Table of Contents:
 //
@@ -3807,6 +3807,125 @@ namespace min {
 		      +
 		      computed_header_size() );
 	    }
+	};
+
+	class insertable_pointer
+	    : public internal_pointer
+	{
+
+	public:
+
+	    insertable_pointer ( min::gen v )
+	        : internal_pointer ( v ) {}
+	    insertable_pointer ( min::stub * s )
+	        : internal_pointer ( s ) {}
+	    insertable_pointer ( void )
+	        : internal_pointer() {}
+
+	    H * operator -> ( void )
+	    {
+	        return (H *)
+		       unprotected::pointer_of
+		           ( this->s );
+	    }
+
+	    E & operator [] ( min::uns32 i )
+	    {
+	        return * (E *)
+		    ( (min::uns8 *)
+		       unprotected::pointer_of
+		           ( this->s )
+		      +
+		      computed_header_size() );
+	    }
+
+	    friend void push
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::insertable_pointer & pvip,
+		  const E & v )
+	    {
+	        if ( pvip->length >= pvip->max_length )
+		    internal_reserve
+		        ( pvip.s, pvip.pvdescriptor,
+			  1 );
+		pvip[pvip->length++] = v;
+	    }
+	    friend void push
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::insertable_pointer & pvip,
+		  min::uns32 n,
+		  const E * vp = NULL )
+	    {
+	        if (   pvip->length + n
+		     > pvip->max_length )
+		    internal_reserve
+		        ( pvip.s, pvip.pvdescriptor,
+			  n );
+		if ( vp )
+		    memcpy ( & pvip[pvip->length],
+		             vp, n * sizeof ( E ) );
+		pvip->length += n;
+	    }
+	    friend E pop
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::insertable_pointer & pvip )
+	    {
+	        assert ( pvip->length > 0 );
+		return pvip[--pvip->length];
+	    }
+	    friend void push
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::insertable_pointer & pvip,
+		  min::uns32 n,
+		  const E * vp = NULL )
+	    {
+	        assert ( pvip->length >= n );
+		pvip->length -= n;
+		if ( vp )
+		    memcpy ( vp,
+		             & pvip[pvip->length],
+		             n * sizeof ( E ) );
+	    }
+
+	    friend void resize
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::insertable_pointer & pvip,
+		  min::uns32 max_length )
+	    {
+		internal_resize
+		    ( pvip.s,
+		      pvip.pvdescriptor,
+		      max_length );
+	    }
+	    friend void internal_resize
+		( min::stub * s,
+		  min::internal::packed_vec_descriptor *
+		      pvdescriptor,
+		  min::uns32 max_length );
+
+	    friend void reserve
+		( min::packed_vec
+		     <H,E,typemp,lengthmp,max_lengthmp>
+		     ::insertable_pointer & pvip,
+		  min::uns32 reserve_length )
+	    {
+	        if (   pvip->length + reserve_length
+		     > pvip->max_length )
+		    internal_reserve
+		        ( pvip.s,
+			  pvip.pvdescriptor,
+			  reserve_length );
+	    }
+	    friend void internal_reserve
+		( min::stub * s,
+		  min::internal::packed_vec_descriptor *
+		      pvdescriptor,
+		  min::uns32 reserve_length );
 	};
 
     private:
