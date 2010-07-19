@@ -6397,38 +6397,50 @@ named \verb|pvtype| use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen |
-	& \verb|pstype.|\TTKEY{new\_gen} \verb|( void )|
+	& \verb|pvtype.|\TTKEY{new\_gen} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_GEN} \\
 \verb|min::gen |
-	& \verb|pstype.|\TTKEY{new\_gen} \ARGBREAK
+	& \verb|pvtype.|\TTKEY{new\_gen} \ARGBREAK
 	  \verb| ( min::uns32 length, const E * vp = NULL )|
 \LABEL{INITED_PACKED_VEC_NEW_GEN} \\
 \verb|min::gen |
-	& \verb|pstype.|\TTKEY{new\_gen} \ARGBREAK
+	& \verb|pvtype.|\TTKEY{new\_gen} \ARGBREAK
 	  \verb| ( min::uns32 max_length,| \ARGBREAK
 	  \verb|   min::uns32 length, const E * vp = NULL )|
 \LABEL{MAX_INITED_PACKED_VEC_NEW_GEN} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char * const |
-	& \verb|pstype.|\TTMKEY{name}{in {\tt min::packed\_struct}}
+	& \verb|pvtype.|\TTMKEY{name}{in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_NAME} \\
 \verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{header\_gen\_disp}
-	                       {in {\tt min::packed\_struct}}
+	& \verb|pvtype.|\TTMKEY{header\_gen\_disp}
+	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_GEN_DISPLACEMENTS} \\
 \verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{header\_stub\_ptr\_disp}
-	                       {in {\tt min::packed\_struct}}
+	& \verb|pvtype.|\TTMKEY{header\_stub\_ptr\_disp}
+	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_STUB_PTR_DISPLACEMENTS} \\
 \verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{element\_gen\_disp}
-	                       {in {\tt min::packed\_struct}}
+	& \verb|pvtype.|\TTMKEY{element\_gen\_disp}
+	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_GEN_DISPLACEMENTS} \\
 \verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{element\_stub\_ptr\_disp}
-	                       {in {\tt min::packed\_struct}}
-\LABEL{PACKED_VEC_ELEMENT_STUB_PTR_DISPLACEMENTS} \\
+	& \verb|pvtype.|\TTMKEY{element\_stub\_ptr\_disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_ELEMENT_STUB_PTR_DISPLACEMENTS} \\[1ex]
+\verb|min::uns32 |
+	& \verb|pvtype.|\TTMKEY{initial\_max\_length}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_INITIAL_MAX_LENGTH} \\
+\verb|min::float64 |
+	& \verb|pvtype.|\TTMKEY{increment\_ratio}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_INCREMENT_RATIO} \\
+\verb|min::uns32 |
+	& \verb|pvtype.|\TTMKEY{max\_increment}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_MAX_INCREMENT} \\
 \end{tabular}\end{indpar}
 
 where
@@ -6472,7 +6484,7 @@ output.
 \item[\ttmkey{header\_gen\_disp}{in {\tt min::packed\_vec}}]
 This C vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|H|,
-terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
+terminated by the value {\tt min::DISP\_\EOL END}\minindex{DISP\_END}.
 This displacements vector should not
 be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|H|.  But if there are \verb|min::gen| members, this
@@ -6497,21 +6509,25 @@ Ditto but for \verb|min::stub *| members of \verb|E|.
 and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL ptr\_\EOL disp}
 can be used to retrieve the name and displacement
 information associated with \verb|pvtype|.
-In addition the following parameters may be set by the user:
+In addition the parameters
+{\tt pvtype.ini\-tial\_\EOL max\_\EOL length},
+{\tt pvtype.increment\_\EOL ratio}, and
+{\tt pvtype.max\_\EOL increment}
+may be set by the user:
 
-\begin{indpar}[2.0in]
+\begin{indpar}[1.4in]
 \begin{itemize}
 
-\item[{\tt pvtype.}\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
 The maximum length of a packed vector newly created by calling the
 \verb|pvtype.new_gen| function with no arguments.  Defaults to \verb|1000|.
 
-\item[{\tt pvtype.}\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
 The \verb|min::reserve| function multiplies the old maximum length by
 this ratio to get the maximim length increment: see formula on
 \pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|0.5|.
 
-\item[{\tt pvtype.}\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
 The maximum increment of the maximum length computable by the
 \verb|min::reserve| function: see formula on
 \pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|1000|.
