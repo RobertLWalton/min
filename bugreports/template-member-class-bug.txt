@@ -5,12 +5,97 @@ classes largely unusable.
 The same applies to an attempt to workaround using typedefs inside
 the template class.  The error may be in syntax analysis.
 
+Example is below:
+
+Bob Walton
+walton@seas.harvard.edu
+Tue Jul 20 06:22:02 EDT 2010
+
 g++ --version output:
+--------------------
+
 g++ (GCC) 4.1.2 20080704 (Red Hat 4.1.2-48)
 Copyright (C) 2006 Free Software Foundation, Inc.
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Bob Walton
-walton@seas.harvard.edu
-Tue Jul 20 05:51:58 EDT 2010
+Code: template-member-class-bug.cc
+----------------------------------
+
+# include <iostream>
+using namespace std;
+
+template < typename T >
+class A;
+
+template < typename T >
+class B
+{
+public:
+
+    class C;
+
+    typedef A<T> D;
+    friend class A<T>;
+};
+
+// These are OK:
+
+    template < typename T >
+    void funcAvoid ( A<T> * a );
+
+    template < typename T >
+    int funcAint ( A<T> * a );
+
+    template < typename T >
+    void funcBvoid ( B<T> * b );
+
+    template < typename T >
+    int funcBint ( B<T> * b );
+
+// These incorrectly fail:
+
+    template < typename T >
+    void funcCvoid ( B<T>::C * c );
+
+    template < typename T >
+    int funcCint ( B<T>::C * c );
+
+    template < typename T >
+    void funcDvoid ( B<T>::D * d );
+
+    template < typename T >
+    int funcDint ( B<T>::D * d );
+
+// The following checks the non-template version:
+
+class E;
+class F
+{
+public:
+    class G;
+};
+
+// These non-template versions are OK:
+
+    void funcGvoid ( F::G * g );
+    int funcGint ( F::G * g );
+
+int main ()
+{
+    cout << "HELLO" << endl;
+}
+
+g++ output:
+----------
+
+template-member-class-bug.cc:35: error: variable or field ‘funcCvoid’ declared void
+template-member-class-bug.cc:35: error: template declaration of ‘int funcCvoid’
+template-member-class-bug.cc:35: error: ‘c’ was not declared in this scope
+template-member-class-bug.cc:38: error: template declaration of ‘int funcCint’
+template-member-class-bug.cc:38: error: ‘c’ was not declared in this scope
+template-member-class-bug.cc:41: error: variable or field ‘funcDvoid’ declared void
+template-member-class-bug.cc:41: error: template declaration of ‘int funcDvoid’
+template-member-class-bug.cc:41: error: ‘d’ was not declared in this scope
+template-member-class-bug.cc:44: error: template declaration of ‘int funcDint’
+template-member-class-bug.cc:44: error: ‘d’ was not declared in this scope
