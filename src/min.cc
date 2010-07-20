@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 17 03:06:29 EDT 2010
+// Date:	Tue Jul 20 09:23:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 03:05:13 $
+//   $Date: 2010/07/20 16:12:51 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.233 $
+//   $Revision: 1.234 $
 
 // Table of Contents:
 //
@@ -26,8 +26,7 @@
 //	Numbers
 //	Strings
 //	Labels
-//	Packed Structures
-//	Packed Vectors
+//	Packed Structures and Vectors
 //	Raw Vectors
 //	Objects
 //	Object Vector Level
@@ -1471,12 +1470,46 @@ min::gen min::new_lab_gen
     return min::new_gen ( s2 );
 }
 
-// Packed Structures
-// ------ ----------
+// Packed Structures and Vectors
+// ------ ---------- --- -------
 
 void *** MINT::packed_types;
 min::uns32 MINT::packed_type_count;
 min::uns32 MINT::max_packed_type_count;
+
+void MINT::packed_vec_resize
+        ( min::stub * s,
+	  min::internal::packed_vec_descriptor * pvd,
+	  min::uns32 max_length )
+{
+    min::uns8 * & old_p = * (min::uns8 ** )
+        & MUP::pointer_ref_of ( s );
+    min::uns32 length = * (min::uns32 *)
+        ( old_p + pvd->length_disp );
+    min::uns32 old_max_length = * (min::uns32 *)
+        ( old_p + pvd->max_length_disp );
+    min::unsptr copy_size = pvd->header_size
+			  +   length
+                            * pvd->element_size;
+    min::unsptr old_size = pvd->header_size
+			 +   old_max_length
+                           * pvd->element_size;
+    min::unsptr new_size = pvd->header_size
+			 +   max_length
+                           * pvd->element_size;
+    if ( copy_size > new_size ) copy_size = new_size;
+    unprotected::resize_body r
+	( s, new_size, old_size );
+    min::uns8 * & new_p = * (min::uns8 **)
+	& MUP::new_body_pointer_ref ( r );
+    memcpy ( new_p, old_p, copy_size );
+    * (min::uns32 *) ( new_p + pvd->max_length_disp ) =
+        max_length;
+    if ( length > max_length )
+	* (min::uns32 *) ( new_p + pvd->length_disp ) =
+	    max_length;
+}
+
 
 // Raw Vectors
 // --- -------
