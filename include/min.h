@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 20 09:23:13 EDT 2010
+// Date:	Tue Jul 20 12:12:28 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/20 13:24:18 $
+//   $Date: 2010/07/20 16:13:07 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.354 $
+//   $Revision: 1.355 $
 
 // Table of Contents:
 //
@@ -3642,6 +3642,11 @@ namespace min {
 		  initial_max_length ( 0 ) {}
 	};
 
+	void packed_vec_resize
+	    ( min::stub * s,
+	      packed_vec_descriptor * pvd,
+	      min::uns32 max_length );
+
 	template < typename H, typename E,
 		   const min::uns32 H::* typemp =
 		       & H::type,
@@ -3667,6 +3672,8 @@ namespace min {
 	    {
 		s = NULL; pvdescriptor = NULL;
 	    }
+
+	protected:
 	        
 	    min::stub * s;
 	    min::internal::packed_vec_descriptor *
@@ -3687,22 +3694,6 @@ namespace min {
     {
 
     private:
-
-    	// Compute header_size value as a constant
-	// for use within this class.
-	//
-	inline min::uns32 computed_header_size ( void )
-	{
-	    min::uns32 alignment =
-		sizeof ( E ) >= 8 ? 8 :
-	        ( ( sizeof ( E ) - 1 ) & sizeof ( E ) )
-		!= 0 ? 8 : // Not a power of two
-		sizeof ( E );
-	    return (   alignment
-	             * (   (   sizeof ( H )
-		             + alignment - 1 )
-		         / alignment ) );
-	}
 
 	// Compute length displements as constants for
 	// use within this class.
@@ -3889,7 +3880,12 @@ namespace min {
 	}
 
 	void reserve ( min::uns32 reserve_length );
-	void resize  ( min::uns32 max_length );
+	void resize  ( min::uns32 max_length )
+	{
+	    internal::packed_vec_resize
+	        ( this->s, this->pvdescriptor,
+		  max_length );
+	}
     };
 
     template < typename H, typename E,
@@ -4022,6 +4018,28 @@ namespace min {
 	     > pvip->max_length )
 	    pvip.reserve ( reserve_length );
     }
+
+    template < typename H, typename E,
+               const min::uns32 H::* typemp,
+               const min::uns32 H::* lengthmp,
+               const min::uns32 H::* max_lengthmp >
+    void packed_vec_insertable_pointer
+              <H,E,typemp,lengthmp,max_lengthmp>
+            ::reserve ( min::uns32 reserve_length )
+    {
+        min::uns32 new_length = (min::uns32)
+	      this->pvdescriptor->increment_ratio
+	    * this->max_length;
+	if (   new_length
+	     > this->pvdescriptor->max_increment )
+	    new_length =
+	        this->pvdescriptor->max_increment;
+	new_length += reserve_length
+	            + this->max_length
+		    - this->length;
+	internal::packed_vec_resize
+	    ( this->s, this->pvdescriptor, new_length );
+    }
 }
 
 // The following should be in min.cc BUT since they are
@@ -4048,7 +4066,7 @@ min::packed_vec<H,E,typemp,lengthmp,max_lengthmp>
       const min::uns32 * element_stub_ptr_disp )
     : internal::packed_vec_descriptor
           ( & id,
-            computed_header_size(),
+            ( sizeof ( H ) + 7 ) & ~7,
 	    sizeof ( E ),
 	    computed_length_disp(),
 	    computed_max_length_disp(),
@@ -4089,7 +4107,7 @@ min::gen min::packed_vec
 			const E * vp )
 {
     min::stub * s = unprotected::new_acc_stub();
-    min::uns32 size = computed_header_size()
+    min::uns32 size = ( ( sizeof ( H ) + 7 ) & ~7 )
 	            + max_length * sizeof ( E );
     unprotected::new_body ( s, size );
     min::uns8 * bodyp =
@@ -4101,7 +4119,7 @@ min::gen min::packed_vec
     * (uns32 *) ( bodyp + computed_max_length_disp() ) =
         max_length;
     if ( vp )
-        memcpy ( bodyp + computed_header_size(),
+        memcpy ( bodyp + ( ( sizeof ( H ) + 7 ) & ~7 ),
 	         vp, length * sizeof ( E ) );
     unprotected::set_type_of ( s, min::PACKED_STRUCT );
     return min::new_gen ( s );
