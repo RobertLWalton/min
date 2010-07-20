@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 18 22:23:18 EDT 2010
+// Date:	Mon Jul 19 19:29:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/19 02:49:57 $
+//   $Date: 2010/07/20 01:03:28 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.352 $
+//   $Revision: 1.353 $
 
 // Table of Contents:
 //
@@ -3360,119 +3360,157 @@ namespace min {
 
 	min::gen new_gen ( void );
 
-	class internal_pointer
-	{
-	protected:
-
-	    internal_pointer ( min::gen v )
-	    {
-	        new ( this )
-		    pointer ( (min::stub *)
-		              stub_of ( v ) );
-	    }
-	    internal_pointer ( min::stub * s )
-	        : s ( s )
-	    {
-	        MIN_ASSERT
-		    (    type_of ( s )
-		      == PACKED_STRUCT );
-		void * p =
-		    unprotected::pointer_of ( s );
-		min::uns32 t = * (min::uns32 *) p;
-		min::uns32 i =
-		    t & internal
-		        ::packed_type_index_mask;
-		MIN_ASSERT
-		    ( i < internal::packed_type_count);
-		psdescriptor =
-		  (internal::packed_struct_descriptor *)
-		  (*internal::packed_types)[i];
-		MIN_ASSERT ( psdescriptor->id == & id );
-	    }
-	    internal_pointer ( void )
-	        : s ( NULL ), psdescriptor ( NULL )
-		{}
-	        
-	    min::stub * s;
-	    min::internal::packed_struct_descriptor *
-	        psdescriptor;
-
-       public:
-
-	    friend void initialize
-		( min::packed_struct<S,type>
-		     ::internal_pointer & psp,
-		  min::gen v )
-	    {
-		new ( & psp ) internal_pointer ( v );
-	    }
-
-	    friend void initialize
-		( min::packed_struct<S,type>
-		     ::internal_pointer & psp,
-		  min::stub * s )
-	    {
-		new ( & psp ) internal_pointer ( s );
-	    }
-
-	    friend void deinitialize
-	        ( min::packed_struct<S,type>
-		     ::internal_pointer & psp )
-	    {
-	        psp.s = NULL; psp.psdescriptor = NULL;
-	    }
-	};
-
-	class pointer : public internal_pointer
-	{
-
-	public:
-
-	    pointer ( min::gen v )
-	        : internal_pointer ( v ) {}
-	    pointer ( min::stub * s )
-	        : internal_pointer ( s ) {}
-	    pointer ( void )
-	        : internal_pointer() {}
-
-	    const S * operator -> ( void )
-	    {
-	        return (const S *)
-		       unprotected::pointer_of
-		           ( this->s );
-	    }
-	};
-
-	class updatable_pointer
-	    : public internal_pointer
-	{
-
-	public:
-
-	    updatable_pointer ( min::gen v )
-	        : internal_pointer ( v ) {}
-	    updatable_pointer ( min::stub * s )
-	        : internal_pointer ( s ) {}
-	    updatable_pointer ( void )
-	        : internal_pointer() {}
-
-	    S * operator -> ( void )
-	    {
-	        return (S *)
-		       unprotected::pointer_of
-		           ( this->s );
-	    }
-	};
+	class pointer;
+	class updatable_pointer;
 
     private:
 
 	min::uns32 index;
 	    // Index of descriptor address in MINT::
 	    // packed_types.
+
+    public:
+
 	static bool id;
 	    // & id acts as a unique identifier of the
 	    // type min::packed_struct<S>.
     };
+
+    template < typename S,
+               const min::uns32 S::* type = & S::type >
+    class packed_struct_internal_pointer
+    {
+    public:
+
+	packed_struct_internal_pointer ( min::gen v )
+	{
+	    new ( this )
+		packed_struct_internal_pointer
+		    ( (min::stub *) stub_of ( v ) );
+	}
+	packed_struct_internal_pointer ( min::stub * s )
+	    : s ( s )
+	{
+	    MIN_ASSERT
+		(    type_of ( s )
+		  == PACKED_STRUCT );
+	    void * p =
+		unprotected::pointer_of ( s );
+	    min::uns32 t = * (min::uns32 *) p;
+	    min::uns32 i =
+		t & internal
+		    ::packed_type_index_mask;
+	    MIN_ASSERT
+		( i < internal::packed_type_count);
+	    psdescriptor =
+	      (internal::packed_struct_descriptor *)
+	      (*internal::packed_types)[i];
+	    void * id = & packed_struct<S,type>::id;
+	    MIN_ASSERT ( psdescriptor->id == id );
+	}
+	packed_struct_internal_pointer ( void )
+	    : s ( NULL ), psdescriptor ( NULL )
+	    {}
+
+	void deinitialize ( void )
+	{
+	    s = NULL; psdescriptor = NULL;
+	}
+
+    protected:
+	    
+	min::stub * s;
+	min::internal::packed_struct_descriptor *
+	    psdescriptor;
+    };
+
+    template < typename S,
+               const min::uns32 S::* type >
+    class packed_struct<S,type>::pointer
+          : public
+	    packed_struct_internal_pointer<S,type>
+    {
+
+    public:
+
+	pointer ( min::gen v )
+	    : packed_struct_internal_pointer<S,type>
+	        ( v ) {}
+	pointer ( min::stub * s )
+	    : packed_struct_internal_pointer<S,type>
+	        ( s ) {}
+	pointer ( void )
+	    : packed_struct_internal_pointer<S,type>()
+	    {}
+
+	const S * operator -> ( void )
+	{
+	    return (const S *)
+		   unprotected::pointer_of
+		       ( this->s );
+	}
+    };
+
+    template < typename S,
+               const min::uns32 S::* type >
+    class packed_struct<S,type>::updatable_pointer
+          : public
+	    packed_struct_internal_pointer<S,type>
+    {
+
+    public:
+
+	updatable_pointer ( min::gen v )
+	    : packed_struct_internal_pointer<S,type>
+	        ( v ) {}
+	updatable_pointer ( min::stub * s )
+	    : packed_struct_internal_pointer<S,type>
+	        ( s ) {}
+	updatable_pointer ( void )
+	    : packed_struct_internal_pointer<S,type>()
+	    {}
+
+	S * operator -> ( void )
+	{
+	    return (S *)
+		   unprotected::pointer_of
+		       ( this->s );
+	}
+    };
+
+    template < typename S,
+               const min::uns32 S::* type >
+    void initialize
+	( min::packed_struct_internal_pointer<S,type>
+	      & psp,
+	  min::gen v )
+    {
+	new ( & psp )
+	    packed_struct_internal_pointer<S,type>
+	        ( v );
+    }
+
+    template < typename S,
+               const min::uns32 S::* type >
+    void initialize
+	( min::packed_struct_internal_pointer<S,type>
+	     & psp,
+	  min::stub * s )
+    {
+	new ( & psp )
+	    packed_struct_internal_pointer<S,type>
+	        ( s );
+    }
+
+    template < typename S,
+               const min::uns32 S::* type >
+    void deinitialize
+	( min::packed_struct_internal_pointer<S,type>
+	     & psp )
+    {
+	psp.deinitialize();
+    }
+
 }
 
 // The following should be in min.cc BUT since they are

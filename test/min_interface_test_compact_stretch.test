@@ -1436,7 +1436,7 @@ Using fixed_blocks[2] and assigning begin_body_region[288 .. 291]
 ../include/min.h:XXXX assert:
     i < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
-    psdescriptor->id == & id true.
+    psdescriptor->id == id true.
 upv1->type = 0
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
@@ -1450,7 +1450,7 @@ MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     i < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
-    psdescriptor->id == & id true.
+    psdescriptor->id == id true.
 upv2->type = 1
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
@@ -1467,7 +1467,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
-    psdescriptor->id == & id true.
+    psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     pv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
@@ -1482,7 +1482,7 @@ Using fixed_blocks[2] and assigning begin_body_region[296 .. 299]
 ../include/min.h:XXXX assert:
     i < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
-    psdescriptor->id == & id true.
+    psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1498,7 +1498,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
-    psdescriptor->id == & id true.
+    psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     upv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
