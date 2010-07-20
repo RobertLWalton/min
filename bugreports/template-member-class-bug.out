@@ -1,0 +1,10 @@
+template-member-class-bug.cc:32: error: variable or field ‘funcCvoid’ declared void
+template-member-class-bug.cc:32: error: template declaration of ‘int funcCvoid’
+template-member-class-bug.cc:32: error: ‘c’ was not declared in this scope
+template-member-class-bug.cc:35: error: template declaration of ‘int funcCint’
+template-member-class-bug.cc:35: error: ‘c’ was not declared in this scope
+template-member-class-bug.cc:38: error: variable or field ‘funcDvoid’ declared void
+template-member-class-bug.cc:38: error: template declaration of ‘int funcDvoid’
+template-member-class-bug.cc:38: error: ‘d’ was not declared in this scope
+template-member-class-bug.cc:41: error: template declaration of ‘int funcDint’
+template-member-class-bug.cc:41: error: ‘d’ was not declared in this scope
