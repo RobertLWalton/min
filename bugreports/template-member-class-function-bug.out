@@ -1,0 +1,2 @@
+template-member-class-function-bug.cc: In function ‘int main()’:
+template-member-class-function-bug.cc:57: error: no matching function for call to ‘funcC(B<int>::C*)’

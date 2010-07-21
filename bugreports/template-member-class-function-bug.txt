@@ -1,0 +1,108 @@
+OK, adding `typename::' fixed the problem with the compiler
+balking at the template function definition, but now
+the compiler accepts the definition and then appears
+to forget it, so it cannot be used.  Test code below:
+see first commented line.
+
+Is there some further syntactic magic required, or is
+this a bug?  If the latter, I could not find it via
+search, so do you know offhand if its been reported?
+
+Bob
+
+PS: I also figured out a workaround for my case, but
+would rather not use it if there were a more proper fix.
+
+PPS: Sorry about the first bug report, as I figured out
+the typename stuff several years ago and then forgot about
+it and forward reference of specializations, etc.,
+figuring I'd never want to get entangled in such.  Its
+clear there is no easy answer short of redesigning
+C++ templates to make delayed parsing the default
+and using something like <|...|> brackets instead of
+<...> to avoid ambiguities with scanning a delayed
+parse expression.  Grumble.
+
+Test Code
+---- ----
+
+# include <iostream>
+using namespace std;
+
+template < typename T >
+class B
+{
+public:
+    class C;
+};
+
+template < typename T >
+class B<T>::C { int i; };
+
+// The following definition is accepted BUT then
+// appears to be `forgotten' so it cannot be used.
+//
+template < typename T >
+int funcC ( typename::B<T>::C * c ) { return 0; }
+
+// Inclusion of the following makes no difference in
+// the complier error message.
+//
+template int funcC<int> ( B<int>::C * c);
+
+// Check that non-member class works.
+//
+template < typename T >
+int funcB ( B<T> * b ) { return 0; }
+
+// Check that the non-template version works.
+//
+class F
+{
+public:
+    class G;
+};
+
+class F::G { int j; };
+
+void funcG ( F::G * g );
+
+// Workaround for my case.
+
+template < typename T >
+class C2 { int k; };
+
+template < typename T >
+class B2
+{
+public:
+    typedef C2<T> C;
+};
+template < typename T >
+int funcC2 ( C2<T> * c ) { return 0; }
+
+int main ()
+{
+    B<int>::C x;	// OK
+    funcC ( & x );	// COMPILER ERROR! [line 57]
+    F::G y;		// OK
+    funcG ( & y );	// OK
+    B<int> z;		// OK
+    funcB ( & z );	// OK
+    B2<int>::C w;	// OK
+    funcC2 ( & w );	// OK
+}
+
+Compiler Output
+---------------
+
+template-member-class-function-bug.cc: In function ‘int main()’:
+template-member-class-function-bug.cc:57: error: no matching function for call to ‘funcC(B<int>::C*)’
+
+
+Compiler Version
+-------- -------
+g++ (GCC) 4.1.2 20080704 (Red Hat 4.1.2-48)
+Copyright (C) 2006 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
