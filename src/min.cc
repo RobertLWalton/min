@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 20 09:23:39 EDT 2010
+// Date:	Tue Jul 20 22:35:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/20 16:12:51 $
+//   $Date: 2010/07/21 11:48:22 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.234 $
+//   $Revision: 1.235 $
 
 // Table of Contents:
 //
@@ -1476,6 +1476,44 @@ min::gen min::new_lab_gen
 void *** MINT::packed_types;
 min::uns32 MINT::packed_type_count;
 min::uns32 MINT::max_packed_type_count;
+
+min::gen MINT::packed_struct_new_gen
+	( MINT::packed_struct_descriptor * psd )
+{
+    min::stub * s = unprotected::new_acc_stub();
+    unprotected::new_body ( s, psd->size );
+    min::uns32 * tp =
+        (min::uns32 *) unprotected::pointer_of ( s );
+    memset ( tp, 0, psd->size );
+    * tp = psd->index;
+    unprotected::set_type_of ( s, min::PACKED_STRUCT );
+    return min::new_gen ( s );
+}
+
+min::gen MINT::packed_vec_new_gen
+	( MINT::packed_vec_descriptor * pvd,
+	  min::uns32 max_length,
+	  min::uns32 length,
+	  const void * vp )
+{
+    min::stub * s = unprotected::new_acc_stub();
+    min::uns32 size = pvd->header_size
+	            +   max_length
+		      * pvd->element_size;
+    unprotected::new_body ( s, size );
+    min::uns8 * bodyp =
+        (min::uns8 *) unprotected::pointer_of ( s );
+    memset ( bodyp, 0, size );
+    * (uns32 *) bodyp = pvd->index;
+    * (uns32 *) ( bodyp + pvd->length_disp ) = length;
+    * (uns32 *) ( bodyp + pvd->max_length_disp ) =
+        max_length;
+    if ( vp )
+        memcpy ( bodyp + pvd->header_size,
+	         vp, length * pvd->element_size);
+    unprotected::set_type_of ( s, min::PACKED_STRUCT );
+    return min::new_gen ( s );
+}
 
 void MINT::packed_vec_resize
         ( min::stub * s,

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jul 18 11:45:44 EDT 2010
+// Date:	Wed Jul 21 07:18:29 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/18 15:50:35 $
+//   $Date: 2010/07/21 11:48:56 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.184 $
+//   $Revision: 1.185 $
 
 // Table of Contents:
 //
@@ -1995,23 +1995,47 @@ void test_packed_structs ( void )
     MIN_ASSERT ( pv2->j == 99 );
 
     min::gen v3 = ps2type.new_gen();
-    deinitialize ( upv2 );
-    initialize ( upv2, MUP::stub_of ( v3 ) );
+    min::deinitialize ( upv2 );
+    min::initialize ( upv2, MUP::stub_of ( v3 ) );
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
     upv2->i = 22;
     upv2->j = 44;
     MIN_ASSERT ( upv2->i == 22 );
     MIN_ASSERT ( upv2->j == 44 );
-    initialize ( upv2, v2 );
+    min::initialize ( upv2, v2 );
     MIN_ASSERT ( upv2->i == 55 );
     MIN_ASSERT ( upv2->j == 99 );
 
     cout << endl;
     cout << "Finish Packed Structs Test!" << endl;
 }
+
+// Packed Vectors
+// ------ -------
 
+struct pvh {
+    min::uns32 type;
+    min::uns32 i;
+    min::uns32 length;
+    min::uns32 max_length;
+};
 
+struct pve {
+    min::gen g;
+    min::stub * s;
+    min::uns8 j;
+};
+
+static min::uns32 pve_gen_disp[2] =
+    { 0, min::DISP_END };
+static min::uns32 pve_stub_ptr_disp[2] =
+    { 0 + sizeof ( min::gen ), min::DISP_END };
+
+typedef min::packed_vec<pvh,pve> pvt;
+static pvt pvtype
+    ( "pvtype", NULL, NULL,
+      pve_gen_disp, pve_stub_ptr_disp );
 
 
 // Raw Vectors
