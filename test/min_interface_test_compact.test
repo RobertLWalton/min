@@ -1527,6 +1527,24 @@ min_interface_test.cc:XXXX assert:
     pvip->length == 1 true.
 min_interface_test.cc:XXXX assert:
     pvip[0].j == 88 true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == PACKED_VEC true.
+../include/min.h:XXXX assert:
+    i < packed_type_count true.
+../include/min.h:XXXX assert:
+    pvdescriptor->id == id true.
+min_interface_test.cc:XXXX assert:
+    pvp->length == 1 true.
+min_interface_test.cc:XXXX assert:
+    pvp[0].j == 88 true.
+min_interface_test.cc:XXXX assert:
+    pvp[1].j == 11 true.
+min_interface_test.cc:XXXX assert:
+    pvp[2].j == 22 true.
+min_interface_test.cc:XXXX assert:
+    pvp[3].j == 33 true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 4 true.
 
 Finish Packed Vectors Test!
 
