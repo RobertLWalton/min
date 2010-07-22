@@ -6541,12 +6541,13 @@ currently in the packed vector.  It also has a
 allowed before the packed vector must be reallocated.
 The \verb|pvtype.new_gen| function may be given the maximum length
 and length and a vector of length type \verb|E| elements that is copied
-to the initial value of the packed vector.  Or the maximum length
-may not be given and will default to the length.  No parameters may
-be given, in which case the length will default to \verb|0| and
-the maximum length to {\tt pvtype.initial\_\EOL max\_\EOL length}.
+to the initial value of the packed vector.
 If the vector \verb|vp| of initial elements is given as \verb|NULL|,
 the initial elements will be zeros.
+If no parameters are given to
+\verb|pvtype.new_gen|,
+the length defaults to \verb|0| and
+the maximum length defaults to {\tt pvtype.initial\_\EOL max\_\EOL length}.
 
 There are three kinds of pointers that can be used to access
 a packed vector, and these have the usage:
@@ -6770,43 +6771,76 @@ the current length plus the \verb|reserve_length| is
 at most the maximum length, and if this check fails,
 resets the maximum length according to the formula:
 \begin{indpar}\begin{verbatim}
-new_maximum_length = old_maximum_length
-                   + max ( reserve_length,
+new_maximum_length = max ( length + reserve_length,
+                           old_maximum_length
+                           +
                            min ( pvtype.max_increment,
                                    pvtype.increment_ratio
                                  * old_maximum_length ) )
 \end{verbatim}\end{indpar}\label{PACKED-VEC-EXPANSION-FORMULA}
 
-TBD
-
-
-In order to be used as a template type parameter, a
-{\tt min::\EOL raw\_\EOL vec\_\EOL type\_\EOL info} structure
-must be external.  The following is an example usage:
+An example use of a packed vector is:
 \begin{indpar}\begin{verbatim}
-struct rvs {
-    min::gen g;
-    min::uns32 u;
+struct pvh {
+    const min::uns32 type;
+          min::uns32 i;
+    const min::uns32 length;
+    const min::uns32 max_length;
 };
-// Note: If min::gen values are 8 bytes, sizeof ( rvs ) may
-//       actually be 16, and there may be 4 bytes of hidden
-//       padding at the end of the structure.
 
-extern const min::raw_vec_type_info rvs_type_info;
-const min::raw_vec_type_info rvs_type_info =
-    { "rvs", "g", sizeof ( rvs ), 20, 0.5, 50 };
+struct pve {
+    min::gen g;
+    min::stub * s;
+    min::uns8 j;
+};
 
-typedef min::raw_vec_pointer<rvs,rvs_type_info>
-    rvs_pointer;
-typedef min::updatable_raw_vec_pointer<rvs,rvs_type_info>
-    updatable_rvs_pointer;
-typedef min::insertable_raw_vec_pointer<rvs,rvs_type_info>
-    insertable_rvs_pointer;
-\end{verbatim}\end{indpar}\label{RAW-VEC-TYPE-INFO-EXAMPLE}
+static min::uns32 pve_gen_disp[2] =
+    { 0, min::DISP_END };
+static min::uns32 pve_stub_ptr_disp[2] =
+    { 0 + sizeof ( min::gen ), min::DISP_END };
 
+typedef min::packed_vec<pvh,pve> pvt;
+static pvt pvtype
+    ( "pvtype", NULL, NULL,
+      pve_gen_disp, pve_stub_ptr_disp );
 
+main ( ... )
+{
+    min::gen v = pvtype.new_gen ( 5 );
+    pvt::insertable_pointer pvip ( v );
+        // pvip->max_length == 5
+        // pvip->length == 0
+    pve e1 = { min::MISSING, NULL, 88 };
+    min::push ( pvip, e1 );
+    pvt::pointer pvp ( v );
+        // pvip->length == 1
+        // pvp[1].j == 11
 
-Raw vector pointers do no caching and there is \underline{no need} for
+    pve e2[3] = { { min::MISSING, NULL, 11 },
+                  { min::MISSING, NULL, 22 },
+                  { min::MISSING, NULL, 33 } };
+    min::push ( pvip, 3, e2 );
+        // pvp[1].j == 11
+        // pvp[2].j == 22
+        // pvp[3].j == 33
+
+    min::resize ( pvip, 10 );
+        // pvp->max_length == 10
+
+    pve e3, e4[3];
+    e3 = min::pop ( pvip );
+        // e3[0].j == 33
+        // pvp->length == 3
+    min::pop ( pvip, 2, e4 );
+        // e4[0].j == 11
+        // e4[1].j == 22
+    e3 = min::pop ( pvip );
+        // 3e.j == 88
+}
+\end{verbatim}\end{indpar}
+
+Packed structure and vector pointers do no caching and
+there is \underline{no need} for
 a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
 functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 

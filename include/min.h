@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 07:12:28 EDT 2010
+// Date:	Thu Jul 22 15:47:10 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 16:22:46 $
+//   $Date: 2010/07/22 19:47:27 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.361 $
+//   $Revision: 1.362 $
 
 // Table of Contents:
 //
@@ -7298,41 +7298,28 @@ namespace min {
 	min::unsptr flag_count;
 	min::unsptr reverse_attr_count;
     };
-    namespace internal {
-        extern const min::raw_vec_type_info
-		 attr_info_type_info;
-        extern const min::raw_vec_type_info
-		 reverse_attr_info_type_info;
-    }
-    typedef raw_vec_pointer
-                <attr_info,
-		 internal::attr_info_type_info>
-        attr_info_pointer;
-    typedef updatable_raw_vec_pointer
-                <attr_info,
-		 internal::attr_info_type_info>
-        updatable_attr_info_pointer;
-    typedef insertable_raw_vec_pointer
-                <attr_info,
-		 internal::attr_info_type_info>
-        insertable_attr_info_pointer;
     struct reverse_attr_info
     {
         min::gen    name;
 	min::unsptr value_count;
     };
-    typedef raw_vec_pointer
-                <reverse_attr_info,
-		 internal::reverse_attr_info_type_info>
+    struct attr_info_header
+    {
+	const min::uns32 type;
+	const min::uns32 length;
+	const min::uns32 max_length;
+    };
+    typedef min::packed_vec
+	    <attr_info_header,attr_info>
+	    attr_info_vec;
+    typedef min::packed_vec
+	    <attr_info_header,reverse_attr_info>
+	    reverse_attr_info_vec;
+    typedef attr_info_vec::pointer
+        attr_info_pointer;
+    typedef reverse_attr_info_vec::pointer
         reverse_attr_info_pointer;
-    typedef updatable_raw_vec_pointer
-                <reverse_attr_info,
-		 internal::reverse_attr_info_type_info>
-        updatable_reverse_attr_info_pointer;
-    typedef insertable_raw_vec_pointer
-                <reverse_attr_info,
-		 internal::reverse_attr_info_type_info>
-        insertable_reverse_attr_info_pointer;
+
     template < class vecpt >
     min::gen get_attrs
 	    ( unprotected::attr_pointer_type
