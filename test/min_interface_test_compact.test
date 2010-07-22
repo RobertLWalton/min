@@ -1544,7 +1544,43 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     pvp[3].j == 33 true.
 min_interface_test.cc:XXXX assert:
-    pvip->length == 4 true.
+    pvp->length == 4 true.
+min_interface_test.cc:XXXX assert:
+    pvp->max_length == 5 true.
+MINT::new_fixed_body ( stub 6, 256 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[6] and assigning begin_body_region[304 .. 367]
+MINT::deallocate ( stub 6 ) called
+min_interface_test.cc:XXXX assert:
+    pvp->length == 4 true.
+min_interface_test.cc:XXXX assert:
+    pvp->max_length == 10 true.
+min_interface_test.cc:XXXX assert:
+    memcmp ( & e3, & e2[2], sizeof ( pve ) ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 3 true.
+min_interface_test.cc:XXXX assert:
+    memcmp ( e4, e2, 2 * sizeof ( pve ) ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 1 true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 0 true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 3 true.
+min_interface_test.cc:XXXX assert:
+    pvip->max_length == 10 true.
+MINT::deallocate ( stub 6 ) called
+min_interface_test.cc:XXXX assert:
+    pvip->length == 3 true.
+min_interface_test.cc:XXXX assert:
+    pvip->max_length == 15 true.
+min_interface_test.cc:XXXX assert:
+    pvp[0].j == 11 true.
+min_interface_test.cc:XXXX assert:
+    pvp[1].j == 22 true.
+min_interface_test.cc:XXXX assert:
+    pvp[2].j == 33 true.
 
 Finish Packed Vectors Test!
 
@@ -1554,7 +1590,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 63, 184 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[5] and assigning begin_body_region[304 .. 335]
+Using fixed_blocks[5] and assigning begin_body_region[432 .. 463]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1622,15 +1658,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     rvst[2] == rvs3 true.
 MINT::new_fixed_body ( stub 6, 264 ) called
-Using fixed_blocks[6] and assigning begin_body_region[368 .. 431]
+Using fixed_blocks[6] and assigning begin_body_region[496 .. 559]
 MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 MINT::new_fixed_body ( stub 6, 560 ) called
-Using fixed_blocks[7] and assigning begin_body_region[496 .. 623]
+Using fixed_blocks[7] and assigning begin_body_region[624 .. 751]
 MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 MINT::new_fixed_body ( stub 6, 1224 ) called
-Using fixed_blocks[8] and assigning begin_body_region[752 .. 1007]
+Using fixed_blocks[8] and assigning begin_body_region[880 .. 1135]
 MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
@@ -1675,7 +1711,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 73, 2408 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[9] and assigning begin_body_region[1264 .. 1775]
+Using fixed_blocks[9] and assigning begin_body_region[1392 .. 1903]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -2645,7 +2681,7 @@ EMPTYING UNUSED AREA
 MINT::new_fixed_body ( stub 6, 3792 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[9] and assigning begin_body_region[79346 .. 79857]
+Using fixed_blocks[9] and assigning begin_body_region[79474 .. 79985]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
@@ -3072,7 +3108,7 @@ EMPTYING UNUSED AREA
 MINT::new_fixed_body ( stub 6, 5688 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[10] and assigning begin_body_region[80370 .. 81393]
+Using fixed_blocks[10] and assigning begin_body_region[80498 .. 81521]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
@@ -3337,7 +3373,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 86, 16 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[2] and assigning begin_body_region[82418 .. 82421]
+Using fixed_blocks[2] and assigning begin_body_region[82546 .. 82549]
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
@@ -3351,7 +3387,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 90, 16 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[2] and assigning begin_body_region[82426 .. 82429]
+Using fixed_blocks[2] and assigning begin_body_region[82554 .. 82557]
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
@@ -3367,7 +3403,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 94, 16 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[2] and assigning begin_body_region[82434 .. 82437]
+Using fixed_blocks[2] and assigning begin_body_region[82562 .. 82565]
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
@@ -3535,7 +3571,7 @@ min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab4 true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 96, 3224 ) called
-Using fixed_blocks[9] and assigning begin_body_region[82442 .. 82953]
+Using fixed_blocks[9] and assigning begin_body_region[82570 .. 83081]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 TEST ATTRIBUTE VALUES ( `label1', `label2')
@@ -3605,7 +3641,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 106, 3224 ) called
-Using fixed_blocks[9] and assigning begin_body_region[83466 .. 83977]
+Using fixed_blocks[9] and assigning begin_body_region[83594 .. 84105]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 TEST ATTRIBUTE VALUES ( [1,`label1'], [1,`label2'])
@@ -3667,7 +3703,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 108, 3224 ) called
-Using fixed_blocks[9] and assigning begin_body_region[84490 .. 85001]
+Using fixed_blocks[9] and assigning begin_body_region[84618 .. 85129]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 10 ) true.
 TEST ATTRIBUTE VALUES ( [`label1',1], [`label1',2])
@@ -3729,7 +3765,7 @@ min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 110, 3224 ) called
-Using fixed_blocks[9] and assigning begin_body_region[85514 .. 86025]
+Using fixed_blocks[9] and assigning begin_body_region[85642 .. 86153]
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 12 ) true.
 TEST ATTRIBUTE FLAGS ( `label1', `label2', `label3')
@@ -3846,7 +3882,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 113, 208 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[5] and assigning begin_body_region[86538 .. 86569]
+Using fixed_blocks[5] and assigning begin_body_region[86666 .. 86697]
 MINT::acc_expand_stub_free_list (1) called
 TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
 min_interface_test.cc:XXXX assert:
