@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 06:26:05 EDT 2010
+// Date:	Thu Jul 22 07:02:00 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 10:26:44 $
+//   $Date: 2010/07/22 13:09:30 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.186 $
+//   $Revision: 1.187 $
 
 // Table of Contents:
 //
@@ -2056,6 +2056,49 @@ void test_packed_vectors ( void )
     min::push ( pvip, e1 );
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
+    pvt::pointer pvp ( MUP::stub_of ( v ) );
+    MIN_ASSERT ( pvp->length == 1 );
+    MIN_ASSERT ( pvp[0].j == 88 );
+
+    pve e2[3] = { { min::MISSING, NULL, 11 },
+                  { min::MISSING, NULL, 22 },
+                  { min::MISSING, NULL, 33 } };
+    min::push ( pvip, 3, e2 );
+    MIN_ASSERT ( pvp[1].j == 11 );
+    MIN_ASSERT ( pvp[2].j == 22 );
+    MIN_ASSERT ( pvp[3].j == 33 );
+
+
+    MIN_ASSERT ( pvp->length == 4 );
+    MIN_ASSERT ( pvp->max_length == 5 );
+    min::resize ( pvip, 10 );
+    MIN_ASSERT ( pvp->length == 4 );
+    MIN_ASSERT ( pvp->max_length == 10 );
+
+    pve e3, e4[3];
+    e3 = min::pop ( pvip );
+    MIN_ASSERT
+        ( memcmp ( & e3, & e2[2],
+	           sizeof ( pve ) ) == 0 );
+    MIN_ASSERT ( pvip->length == 3 );
+    min::pop ( pvip, 2, e4 );
+    MIN_ASSERT
+        ( memcmp ( e4, e2, 2 * sizeof ( pve ) ) == 0 );
+    MIN_ASSERT ( pvip->length == 1 );
+    min::pop ( pvip, 1 );
+    MIN_ASSERT ( pvip->length == 0 );
+
+    pvtype.increment_ratio = 3.5;
+    pvtype.max_increment = 5;
+    min::push ( pvip, 3, e2 );
+    MIN_ASSERT ( pvip->length == 3 );
+    MIN_ASSERT ( pvip->max_length == 10 );
+    min::reserve ( pvip, 10 );
+    MIN_ASSERT ( pvip->length == 3 );
+    MIN_ASSERT ( pvip->max_length == 15 );
+    MIN_ASSERT ( pvp[0].j == 11 );
+    MIN_ASSERT ( pvp[1].j == 22 );
+    MIN_ASSERT ( pvp[2].j == 33 );
 
     cout << endl;
     cout << "Finish Packed Vectors Test!" << endl;
