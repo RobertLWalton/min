@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 20 22:31:42 EDT 2010
+// Date:	Thu Jul 22 04:25:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/21 11:45:52 $
+//   $Date: 2010/07/22 08:37:58 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.357 $
+//   $Revision: 1.358 $
 
 // Table of Contents:
 //
@@ -3649,18 +3649,18 @@ namespace min {
 		   const min::uns32 H::* type_m,
 		   const min::uns32 H::* length_m,
 		   const min::uns32 H::* max_length_m >
-	class packed_vec_pointer
+	class packed_vec_base_pointer
 	{
 	public:
 
-	    packed_vec_pointer ( min::gen v )
+	    packed_vec_base_pointer ( min::gen v )
 	    {
 	        new ( this )
-		    packed_vec_pointer
+		    packed_vec_base_pointer
 			( (min::stub *) stub_of ( v ) );
 	    }
-	    packed_vec_pointer ( min::stub * s );
-	    packed_vec_pointer ( void )
+	    packed_vec_base_pointer ( min::stub * s );
+	    packed_vec_base_pointer ( void )
 	        : s ( NULL ), pvdescriptor ( NULL )
 		{}
 	    void deinitialize ( void )
@@ -3674,6 +3674,165 @@ namespace min {
 	    min::internal::packed_vec_descriptor *
 	        pvdescriptor;
 
+	    // Computed actual header size, which is
+	    // sizeof ( H ) rounded up to sizeof ( E )
+	    // boundary if sizeof ( E ) == 1, 2, or 4,
+	    // else rounded up to 8 byte boundary.
+	    //
+	    static const min::uns32 header_mask =
+		sizeof ( E ) == 1 ? 0 :
+		sizeof ( E ) == 2 ? 1 :
+		sizeof ( E ) == 4 ? 3 : 7;
+
+	public:
+
+	    static const min::uns32
+	        computed_header_size =
+		    ( sizeof ( H ) + header_mask )
+		& ~ header_mask;
+
+	};
+
+	template < typename H, typename E,
+		   const min::uns32 H::* type_m,
+		   const min::uns32 H::* length_m,
+		   const min::uns32 H::* max_length_m >
+	class packed_vec_pointer
+	    : public packed_vec_base_pointer
+		     <H,E,type_m,length_m,max_length_m>
+	{
+
+	public:
+
+	    packed_vec_pointer ( min::gen v )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		( v ) {}
+	    packed_vec_pointer ( min::stub * s )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		( s ) {}
+	    packed_vec_pointer ( void )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		() {}
+
+	    const H * operator -> ( void )
+	    {
+		return (const H *)
+		       unprotected::pointer_of
+			   ( this->s );
+	    }
+
+	    const E & operator [] ( min::uns32 i )
+	    {
+		return * (const E *)
+		    ( (min::uns8 *)
+		       unprotected::pointer_of
+			   ( this->s )
+		      +
+	              packed_vec_base_pointer
+		      <H,E,type_m,length_m,max_length_m>
+		      ::computed_header_size );
+	    }
+	};
+
+	template < typename H, typename E,
+		   const min::uns32 H::* type_m,
+		   const min::uns32 H::* length_m,
+		   const min::uns32 H::* max_length_m >
+	class packed_vec_updatable_pointer
+	    : public packed_vec_base_pointer
+		     <H,E,type_m,length_m,max_length_m>
+	{
+
+	public:
+
+	    packed_vec_updatable_pointer ( min::gen v )
+		: packed_vec_base_pointer<
+		  H,E,type_m,length_m,max_length_m>
+		( v ) {}
+	    packed_vec_updatable_pointer
+	    	    ( min::stub * s )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		( s ) {}
+	    packed_vec_updatable_pointer ( void )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		() {}
+
+	    H * operator -> ( void )
+	    {
+		return (H *)
+		       unprotected::pointer_of
+			   ( this->s );
+	    }
+
+	    E & operator [] ( min::uns32 i )
+	    {
+		return * (E *)
+		    ( (min::uns8 *)
+		       unprotected::pointer_of
+			   ( this->s )
+		      +
+	              packed_vec_base_pointer
+		      <H,E,type_m,length_m,max_length_m>
+		      ::computed_header_size );
+	    }
+	};
+
+	template < typename H, typename E,
+		   const min::uns32 H::* type_m,
+		   const min::uns32 H::* length_m,
+		   const min::uns32 H::* max_length_m >
+	class packed_vec_insertable_pointer
+	    : public packed_vec_base_pointer
+		     <H,E,type_m,length_m,max_length_m>
+	{
+
+	public:
+
+	    packed_vec_insertable_pointer ( min::gen v )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		( v ) {}
+	    packed_vec_insertable_pointer
+	    	    ( min::stub * s )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		( s ) {}
+	    packed_vec_insertable_pointer ( void )
+		: packed_vec_base_pointer
+		  <H,E,type_m,length_m,max_length_m>
+		() {}
+
+	    H * operator -> ( void )
+	    {
+		return (H *)
+		       unprotected::pointer_of
+			   ( this->s );
+	    }
+
+	    E & operator [] ( min::uns32 i )
+	    {
+		return * (E *)
+		    ( (min::uns8 *)
+		       unprotected::pointer_of
+			   ( this->s )
+		      +
+	              packed_vec_base_pointer
+		      <H,E,type_m,length_m,max_length_m>
+		      ::computed_header_size );
+	    }
+
+	    void reserve ( min::uns32 reserve_length );
+	    void resize  ( min::uns32 max_length )
+	    {
+		packed_vec_resize
+		    ( this->s, this->pvdescriptor,
+		      max_length );
+	    }
 	};
 
 	// Out-of-line new_gen function (non-template).
@@ -3713,12 +3872,18 @@ namespace min {
 	    sizeof ( E ) == 1 ? 0 :
 	    sizeof ( E ) == 2 ? 1 :
 	    sizeof ( E ) == 4 ? 3 : 7;
+
+    public:
         static const min::uns32 computed_header_size =
 	        ( sizeof ( H ) + header_mask )
 	    & ~ header_mask;
 
-	// Compute length displements as constants for
-	// use within this class.
+    private:
+
+	// Compute length displacements as constants for
+	// use within this class.  Cannot be done by
+	// static const integer members as & is not
+	// allowed in an integer constant expression.
 	//
 	inline min::uns32 computed_length_disp ( void )
 	{
@@ -3769,9 +3934,41 @@ namespace min {
 	        ( this, initial_max_length, 0, NULL );
 	}
 
-	class pointer;
-	class updatable_pointer;
-	class insertable_pointer;
+	// Notice: Member subclasses of a template
+	// class are incompatible with the use of
+	// template functions, so using typdefs to
+	// get subclasses is a workaround.
+	//
+	// Specifically, according to the C++
+	// standard as of 2010, in
+	//
+	// template < typename T >
+	// void foo ( typename A<T>::B & x ) {...}
+	//
+	// the T in A<T>::B is in `non-deduced context'
+	// and cannot be deduced by parameter matching.
+	// So the template function definition of foo
+	// will not be visible to a function call such
+	// as
+	//
+	//	A<int>::B x;
+	//	foo ( x );
+	//
+	// which will get a `function not found'
+	// compiler error.
+	//
+	typedef typename
+	        internal::packed_vec_pointer
+		<H,E,type_m,length_m,max_length_m>
+	        pointer;
+	typedef typename
+	        internal::packed_vec_updatable_pointer
+		<H,E,type_m,length_m,max_length_m>
+	        updatable_pointer;
+	typedef typename
+	        internal::packed_vec_insertable_pointer
+		<H,E,type_m,length_m,max_length_m>
+	        insertable_pointer;
 
 	static bool id;
 	    // & id acts as a unique identifier of the
@@ -3782,9 +3979,9 @@ namespace min {
                const min::uns32 H::* type_m,
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
-    internal::packed_vec_pointer
+    internal::packed_vec_base_pointer
               <H,E,type_m,length_m,max_length_m>
-            ::packed_vec_pointer ( min::stub * s )
+            ::packed_vec_base_pointer ( min::stub * s )
     {
 	MIN_ASSERT ( type_of ( s ) == PACKED_VEC );
 	void * p = unprotected::pointer_of ( s );
@@ -3803,147 +4000,14 @@ namespace min {
                const min::uns32 H::* type_m,
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
-    class packed_vec<H,E,type_m,length_m,max_length_m>
-          ::pointer
-        : public internal::packed_vec_pointer
-	         <H,E,type_m,length_m,max_length_m>
-    {
-
-    public:
-
-	pointer ( min::gen v )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m> ( v )
-	    {}
-	pointer ( min::stub * s )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m> ( s )
-	    {}
-	pointer ( void )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m>() {}
-
-	const H * operator -> ( void )
-	{
-	    return (const H *)
-		   unprotected::pointer_of
-		       ( this->s );
-	}
-
-	const E & operator [] ( min::uns32 i )
-	{
-	    return * (const E *)
-		( (min::uns8 *)
-		   unprotected::pointer_of
-		       ( this->s )
-		  +
-		  computed_header_size );
-	}
-    };
-
-    template < typename H, typename E,
-               const min::uns32 H::* type_m,
-               const min::uns32 H::* length_m,
-               const min::uns32 H::* max_length_m >
-    class packed_vec<H,E,type_m,length_m,max_length_m>
-          ::updatable_pointer
-	: public internal::packed_vec_pointer
-	         <H,E,type_m,length_m,max_length_m>
-    {
-
-    public:
-
-	updatable_pointer ( min::gen v )
-	    : internal::packed_vec_pointer<
-	      H,E,type_m,length_m,max_length_m> ( v ) {}
-	updatable_pointer ( min::stub * s )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m> ( s )
-	    {}
-	updatable_pointer ( void )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m>() {}
-
-	H * operator -> ( void )
-	{
-	    return (H *)
-		   unprotected::pointer_of
-		       ( this->s );
-	}
-
-	E & operator [] ( min::uns32 i )
-	{
-	    return * (E *)
-		( (min::uns8 *)
-		   unprotected::pointer_of
-		       ( this->s )
-		  +
-		  computed_header_size );
-	}
-    };
-
-    template < typename H, typename E,
-               const min::uns32 H::* type_m,
-               const min::uns32 H::* length_m,
-               const min::uns32 H::* max_length_m >
-    class packed_vec<H,E,type_m,length_m,max_length_m>
-          ::insertable_pointer
-	: public internal::packed_vec_pointer
-	         <H,E,type_m,length_m,max_length_m>
-    {
-
-    public:
-
-	insertable_pointer ( min::gen v )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m> ( v )
-	    {}
-	insertable_pointer ( min::stub * s )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m> ( s )
-	    {}
-	insertable_pointer ( void )
-	    : internal::packed_vec_pointer
-	      <H,E,type_m,length_m,max_length_m>() {}
-
-	H * operator -> ( void )
-	{
-	    return (H *)
-		   unprotected::pointer_of
-		       ( this->s );
-	}
-
-	E & operator [] ( min::uns32 i )
-	{
-	    return * (E *)
-		( (min::uns8 *)
-		   unprotected::pointer_of
-		       ( this->s )
-		  +
-		  computed_header_size );
-	}
-
-	void reserve ( min::uns32 reserve_length );
-	void resize  ( min::uns32 max_length )
-	{
-	    internal::packed_vec_resize
-	        ( this->s, this->pvdescriptor,
-		  max_length );
-	}
-    };
-
-    template < typename H, typename E,
-               const min::uns32 H::* type_m,
-               const min::uns32 H::* length_m,
-               const min::uns32 H::* max_length_m >
     inline void initialize
-	( min::internal::packed_vec_pointer
+	( min::internal::packed_vec_base_pointer
 	     <H,E,type_m,length_m,max_length_m>
 	     & pvp,
 	  min::gen v )
     {
 	new ( & pvp )
-	    internal::packed_vec_pointer
+	    internal::packed_vec_base_pointer
 	    <H,E,type_m,length_m,max_length_m> ( v );
     }
 
@@ -3952,13 +4016,13 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline void initialize
-	( min::internal::packed_vec_pointer
+	( min::internal::packed_vec_base_pointer
 	     <H,E,type_m,length_m,max_length_m>
 	     & pvp,
 	  min::stub * s )
     {
 	new ( & pvp )
-	    internal::packed_vec_pointer
+	    internal::packed_vec_base_pointer
 	    <H,E,type_m,length_m,max_length_m> ( s );
     }
 
@@ -3967,7 +4031,7 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline void deinitialize
-	( min::internal::packed_vec_pointer
+	( min::internal::packed_vec_base_pointer
 	     <H,E,type_m,length_m,max_length_m>
 	     & pvp )
     {
@@ -3979,9 +4043,9 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline void push
-	( typename::min::packed_vec
-	     <H,E,type_m,length_m,max_length_m>
-	     ::insertable_pointer & pvip,
+	( typename min::internal
+	              ::packed_vec_insertable_pointer
+	     <H,E,type_m,length_m,max_length_m> & pvip,
 	  const E & v )
     {
 	if ( pvip->length >= pvip->max_length )
@@ -3993,9 +4057,9 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline void push
-	( typename::min::packed_vec
-	     <H,E,type_m,length_m,max_length_m>
-	     ::insertable_pointer & pvip,
+	( typename min::internal
+	              ::packed_vec_insertable_pointer
+	     <H,E,type_m,length_m,max_length_m> & pvip,
 	  min::uns32 n,
 	  const E * vp = NULL )
     {
@@ -4011,9 +4075,9 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline E pop
-	( typename::min::packed_vec
-	     <H,E,type_m,length_m,max_length_m>
-	     ::insertable_pointer & pvip )
+	( typename min::internal
+	              ::packed_vec_insertable_pointer
+	     <H,E,type_m,length_m,max_length_m> & pvip )
     {
 	assert ( pvip->length > 0 );
 	return pvip[--pvip->length];
@@ -4023,9 +4087,9 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline void pop
-	( typename::min::packed_vec
-	     <H,E,type_m,length_m,max_length_m>
-	     ::insertable_pointer & pvip,
+	( typename min::internal
+	              ::packed_vec_insertable_pointer
+	     <H,E,type_m,length_m,max_length_m> & pvip,
 	  min::uns32 n,
 	  const E * vp = NULL )
     {
@@ -4042,9 +4106,9 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline void resize
-	( typename::min::packed_vec
-	     <H,E,type_m,length_m,max_length_m>
-	     ::insertable_pointer & pvip,
+	( typename min::internal
+	              ::packed_vec_insertable_pointer
+	     <H,E,type_m,length_m,max_length_m> & pvip,
 	  min::uns32 max_length )
     {
 	pvip.resize ( max_length );
@@ -4055,9 +4119,9 @@ namespace min {
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
     inline void reserve
-	( typename::min::packed_vec
-	     <H,E,type_m,length_m,max_length_m>
-	     ::insertable_pointer & pvip,
+	( typename min::internal
+	              ::packed_vec_insertable_pointer
+	     <H,E,type_m,length_m,max_length_m> & pvip,
 	  min::uns32 reserve_length )
     {
 	if (   pvip->length + reserve_length
@@ -4069,28 +4133,31 @@ namespace min {
                const min::uns32 H::* type_m,
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
-    void packed_vec<H,E,type_m,length_m,max_length_m>
-         ::insertable_pointer
+    inline void internal::packed_vec_insertable_pointer
+         <H,E,type_m,length_m,max_length_m>
          ::reserve ( min::uns32 reserve_length )
     {
+        H * hp =
+	    (H *) unprotected::pointer_of ( this->s );
         min::uns32 new_length = (min::uns32)
 	      this->pvdescriptor->increment_ratio
-	    * this->max_length;
+	    * hp->max_length;
 	if (   new_length
 	     > this->pvdescriptor->max_increment )
 	    new_length =
 	        this->pvdescriptor->max_increment;
 	new_length += reserve_length
-	            + this->max_length
-		    - this->length;
+	            + hp->max_length
+		    - hp->length;
 	internal::packed_vec_resize
 	    ( this->s, this->pvdescriptor, new_length );
     }
 }
 
-// The following should be in min.cc BUT since they are
-// templates they must be included in every compilation
-// that might instantiate them.
+// The following out-of-line functions should be in
+// min.cc, BUT, since they are templates, they must be
+// included in every compilation that might instantiate
+// them.
 
 template < typename H, typename E,
 	   const min::uns32 H::* type_m,
