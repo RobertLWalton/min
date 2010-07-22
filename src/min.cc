@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 05:37:09 EDT 2010
+// Date:	Thu Jul 22 13:02:17 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 10:25:24 $
+//   $Date: 2010/07/22 19:46:53 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.236 $
+//   $Revision: 1.237 $
 
 // Table of Contents:
 //
@@ -4172,16 +4172,16 @@ bool MINT::insert_reserve
 // Object Attribute Level
 // ------ --------- -----
 
-const min::raw_vec_type_info
-	MINT::attr_info_type_info
-    = { "min::attr_info", "g",
-        sizeof ( min::attr_info ),
-	100, 1.0, 1000 };
-const min::raw_vec_type_info
-	MINT::reverse_attr_info_type_info
-    = { "min::reverse_attr_info", "g",
-        sizeof ( min::reverse_attr_info ),
-	100, 1.0, 1000 };
+static min::uns32 attr_info_gen_disp[2] =
+    { 0, min::DISP_END };
+static min::attr_info_vec
+       attr_info_pvtype
+       ( "attr_info_pvtype", NULL, NULL, 
+         attr_info_gen_disp, NULL );
+static min::reverse_attr_info_vec
+       reverse_attr_info_pvtype
+       ( "reverse_attr_info_pvtype", NULL, NULL, 
+         attr_info_gen_disp, NULL );
 
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
@@ -5364,7 +5364,7 @@ static bool compute_counts
     static void compute_children
 	( min::list_pointer & lp,
 	  min::gen * components, min::unsptr depth,
-	  min::insertable_attr_info_pointer & aip )
+	  min::attr_info_vec::insertable_pointer & aip )
     {
 	min::gen c = min::current ( lp );
 	if ( ! min::is_sublist ( c ) ) return;
@@ -5411,9 +5411,8 @@ min::gen min::get_attrs
 	( unprotected::attr_pointer_type
 	      < vecpt > & ap )
 {
-    min::gen airv = min::insertable_attr_info_pointer
-                       ::new_gen();
-    min::insertable_attr_info_pointer aip ( airv );
+    min::gen airv = attr_info_pvtype.new_gen();
+    min::attr_info_vec::insertable_pointer aip ( airv );
     attr_info info;
 
     vecpt & vp = vec_pointer_of ( ap.locate_dlp );
@@ -5477,10 +5476,8 @@ min::gen min::get_reverse_attrs
 	( unprotected::attr_pointer_type
 	      < vecpt > & ap )
 {
-    min::gen rairv =
-        min::insertable_reverse_attr_info_pointer
-           ::new_gen();
-    min::insertable_reverse_attr_info_pointer raip
+    min::gen rairv = reverse_attr_info_pvtype.new_gen();
+    min::reverse_attr_info_vec::insertable_pointer raip
         ( rairv );
 
     typedef MUP::attr_pointer_type<vecpt> ap_type;

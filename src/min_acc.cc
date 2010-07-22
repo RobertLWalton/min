@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  9 10:12:23 EDT 2010
+// Date:	Thu Jul 22 15:27:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/09 15:51:36 $
+//   $Date: 2010/07/22 19:46:53 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.74 $
+//   $Revision: 1.75 $
 
 // Table of Contents:
 //
@@ -21,6 +21,7 @@
 //	Initializer
 //	Stub Allocator
 //	Block Allocator
+//	Packed Type Allocator
 //	Stub Stack Manager
 //	Collector
 
@@ -970,6 +971,36 @@ void MINT::new_non_fixed_body
 	    new_mono_body ( s, n );
 
     MUP::set_pointer_of ( s, body );
+}
+
+// Packed Type Allocator
+// ------ ---- ---------
+
+// MINT::packed_types points at this word which points
+// at the packed types vector.
+//
+static void ** packed_types_p;
+
+void MINT::allocate_packed_types ( min::uns32 count )
+{
+    min::unsptr new_pages =
+        number_of_pages ( count * sizeof ( void * ) );
+    void ** new_packed_types = (void **)
+        MOS::new_pool ( new_pages );
+    if ( MINT::max_packed_type_count != 0 )
+    {
+        min::unsptr old_pages =
+	    number_of_pages
+	        (   MINT::max_packed_type_count
+		  * sizeof ( void * ) );
+	memcpy ( new_packed_types, * packed_types_p,
+	           MINT::packed_type_count
+		 * sizeof ( void * ) );
+	MOS::free_pool ( old_pages, * packed_types_p );
+    }
+    packed_types_p = new_packed_types;
+    MINT::max_packed_type_count = count;
+    MINT::packed_types = & ::packed_types_p;
 }
 
 // Stub Stack Manager
@@ -2434,7 +2465,8 @@ static bool collector_increment ( unsigned level )
 			{
 			    c &= ~ NON_ROOT ( glevel );
 			    lev.first_g->level
-				       ->root.push ( s );
+				       ->root.push
+				             ( s );
 			}
 			MUP::set_control_of ( s, c );
 			++ promoted;
@@ -2473,7 +2505,8 @@ static bool collector_increment ( unsigned level )
 			    end_g->last_before = s;
 			    break;
 			}
-			assert ( type != min::ACC_FREE );
+			assert
+			    ( type != min::ACC_FREE );
 		    }
 
 		    if (    lev.last_stub

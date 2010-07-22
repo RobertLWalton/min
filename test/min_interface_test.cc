@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 07:02:00 EDT 2010
+// Date:	Thu Jul 22 15:43:50 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 13:09:30 $
+//   $Date: 2010/07/22 19:45:39 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.187 $
+//   $Revision: 1.188 $
 
 // Table of Contents:
 //
@@ -1946,7 +1946,7 @@ void test_print ( void )
 // ------ ----------
 
 struct ps1 {
-    min::uns32 type;
+    const min::uns32 type;
     min::uns32 i;
     min::gen g;
     min::stub * s;
@@ -1962,7 +1962,7 @@ static ps1t ps1type
     ( "ps1type", ps1_gen_disp, ps1_stub_ptr_disp );
 
 struct ps2 {
-    min::uns32 type;
+    const min::uns32 type;
     min::uns32 i;
     min::uns32 j;
 };
@@ -2019,10 +2019,10 @@ void test_packed_structs ( void )
 // ------ -------
 
 struct pvh {
-    min::uns32 type;
+    const min::uns32 type;
     min::uns32 i;
-    min::uns32 length;
-    min::uns32 max_length;
+    const min::uns32 length;
+    const min::uns32 max_length;
 };
 
 struct pve {
@@ -2923,13 +2923,12 @@ static bool check_attr_info
     bool save_min_assert_print = min_assert_print;
     min_assert_print = false;
     min::gen aiv = min::get_attrs ( ap );
-    min::updatable_attr_info_pointer aivp ( aiv );
-    qsort ( & aivp[0], min::length_of ( aivp ),
+    min::attr_info_vec::updatable_pointer aivp ( aiv );
+    qsort ( & aivp[0], aivp->length,
             sizeof ( min::attr_info ),
 	    compare_attr_info );
     bool ok = true;
-    for ( unsigned i = 0; i < min::length_of ( aivp );
-                          ++ i )
+    for ( unsigned i = 0; i < aivp->length; ++ i )
     {
         if ( aivp[i].name != aip[i].name )
 	{
