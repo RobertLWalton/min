@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 04:25:52 EDT 2010
+// Date:	Thu Jul 22 04:43:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 08:37:58 $
+//   $Date: 2010/07/22 08:54:43 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.358 $
+//   $Revision: 1.359 $
 
 // Table of Contents:
 //
@@ -3359,19 +3359,20 @@ namespace min {
 	//
 	template < typename S,
 		   const min::uns32 S::* type_m >
-	class packed_struct_pointer
+	class packed_struct_base_pointer
 	{
 	public:
 
-	    packed_struct_pointer ( min::gen v )
+	    packed_struct_base_pointer ( min::gen v )
 	    {
 		new ( this )
-		    internal::packed_struct_pointer
+		    internal::packed_struct_base_pointer
 		    	    <S,type_m>
 			( (min::stub *) stub_of ( v ) );
 	    }
-	    packed_struct_pointer ( min::stub * s );
-	    packed_struct_pointer ( void )
+	    packed_struct_base_pointer
+		( min::stub * s );
+	    packed_struct_base_pointer ( void )
 		: s ( NULL ), psdescriptor ( NULL )
 		{}
 
@@ -3385,6 +3386,62 @@ namespace min {
 	    min::stub * s;
 	    min::internal::packed_struct_descriptor *
 		psdescriptor;
+	};
+
+	template < typename S,
+		   const min::uns32 S::* type_m >
+	class packed_struct_pointer
+	      : public
+		packed_struct_base_pointer<S,type_m>
+	{
+
+	public:
+
+	    packed_struct_pointer ( min::gen v )
+		: packed_struct_base_pointer<S,type_m>
+		    ( v ) {}
+	    packed_struct_pointer ( min::stub * s )
+		: packed_struct_base_pointer<S,type_m>
+		    ( s ) {}
+	    packed_struct_pointer ( void )
+		: packed_struct_base_pointer<S,type_m>
+		    () {}
+
+	    const S * operator -> ( void )
+	    {
+		return (const S *)
+		       unprotected::pointer_of
+			   ( this->s );
+	    }
+	};
+
+	template < typename S,
+		   const min::uns32 S::* type_m >
+	class packed_struct_updatable_pointer
+	      : public
+		packed_struct_base_pointer<S,type_m>
+	{
+
+	public:
+
+	    packed_struct_updatable_pointer
+		    ( min::gen v )
+		: packed_struct_base_pointer<S,type_m>
+		    ( v ) {}
+	    packed_struct_updatable_pointer
+		    ( min::stub * s )
+		: packed_struct_base_pointer<S,type_m>
+		    ( s ) {}
+	    packed_struct_updatable_pointer ( void )
+		: packed_struct_base_pointer<S,type_m>
+		    () {}
+
+	    S * operator -> ( void )
+	    {
+		return (S *)
+		       unprotected::pointer_of
+			   ( this->s );
+	    }
 	};
 
 	// Out-of-line new_gen function (non-template).
@@ -3412,8 +3469,16 @@ namespace min {
 	    		( this );
 	}
 
-	class pointer;
-	class updatable_pointer;
+	typedef typename
+	        internal
+		::packed_struct_pointer
+		<S,type_m>
+		pointer;
+	typedef typename
+	        internal
+		::packed_struct_updatable_pointer
+		<S,type_m>
+		updatable_pointer;
 
 	static bool id;
 	    // & id acts as a unique identifier of the
@@ -3424,8 +3489,9 @@ namespace min {
 
     template < typename S,
                const min::uns32 S::* type_m >
-    inline internal::packed_struct_pointer<S,type_m>
-                    ::packed_struct_pointer
+    inline internal
+           ::packed_struct_base_pointer<S,type_m>
+	   ::packed_struct_base_pointer
 	    ( min::stub * s ) : s ( s )
 	{
 	    MIN_ASSERT
@@ -3442,87 +3508,37 @@ namespace min {
 
     template < typename S,
                const min::uns32 S::* type_m >
-    class packed_struct<S,type_m>::pointer
-          : public
-	    internal::packed_struct_pointer<S,type_m>
-    {
-
-    public:
-
-	pointer ( min::gen v )
-	    : internal::packed_struct_pointer<S,type_m>
-	        ( v ) {}
-	pointer ( min::stub * s )
-	    : internal::packed_struct_pointer<S,type_m>
-	        ( s ) {}
-	pointer ( void )
-	    : internal::packed_struct_pointer<S,type_m>
-	        () {}
-
-	const S * operator -> ( void )
-	{
-	    return (const S *)
-		   unprotected::pointer_of
-		       ( this->s );
-	}
-    };
-
-    template < typename S,
-               const min::uns32 S::* type_m >
-    class packed_struct<S,type_m>::updatable_pointer
-          : public
-	    internal::packed_struct_pointer<S,type_m>
-    {
-
-    public:
-
-	updatable_pointer ( min::gen v )
-	    : internal::packed_struct_pointer<S,type_m>
-	        ( v ) {}
-	updatable_pointer
-	    ( min::stub * s )
-	    : internal::packed_struct_pointer<S,type_m>
-	        ( s ) {}
-	updatable_pointer ( void )
-	    : internal::packed_struct_pointer<S,type_m>
-	        () {}
-
-	S * operator -> ( void )
-	{
-	    return (S *)
-		   unprotected::pointer_of
-		       ( this->s );
-	}
-    };
-
-    template < typename S,
-               const min::uns32 S::* type_m >
     inline void initialize
-	( min::internal::packed_struct_pointer<S,type_m>
+	( min::internal
+	     ::packed_struct_base_pointer<S,type_m>
 	      & psp,
 	  min::gen v )
     {
 	new ( & psp )
-	    internal::packed_struct_pointer<S,type_m>
+	    internal
+	    ::packed_struct_base_pointer<S,type_m>
 	        ( v );
     }
 
     template < typename S,
                const min::uns32 S::* type_m >
     inline void initialize
-	( min::internal::packed_struct_pointer<S,type_m>
+	( min::internal
+	     ::packed_struct_base_pointer<S,type_m>
 	     & psp,
 	  min::stub * s )
     {
 	new ( & psp )
-	    internal::packed_struct_pointer<S,type_m>
+	    internal
+	    ::packed_struct_base_pointer<S,type_m>
 	        ( s );
     }
 
     template < typename S,
                const min::uns32 S::* type_m >
     inline void deinitialize
-	( min::internal::packed_struct_pointer<S,type_m>
+	( min::internal
+	     ::packed_struct_base_pointer<S,type_m>
 	     & psp )
     {
 	psp.deinitialize();
