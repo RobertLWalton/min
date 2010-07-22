@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 21 07:18:29 EDT 2010
+// Date:	Thu Jul 22 06:26:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/21 11:48:56 $
+//   $Date: 2010/07/22 10:26:44 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.185 $
+//   $Revision: 1.186 $
 
 // Table of Contents:
 //
@@ -59,6 +59,7 @@ using std::ostream;
 struct min_assert_exception {};
 //
 bool min_assert_print = true;
+bool min_assert_abort = false;
 void min_assert
 	( bool value,
 	  const char * file, unsigned line,
@@ -72,7 +73,10 @@ void min_assert
 	     << ( value ? " true." : " false." )
 	     << endl;
     }
-    if ( ! value )
+    if ( value )
+        ; // do nothing
+    else if ( min_assert_abort ) abort();
+    else
 	throw ( new min_assert_exception );
 }
 
@@ -2037,6 +2041,27 @@ static pvt pvtype
     ( "pvtype", NULL, NULL,
       pve_gen_disp, pve_stub_ptr_disp );
 
+void test_packed_vectors ( void )
+{
+    cout << endl;
+    cout << "Start Packed Vectors Test!" << endl;
+
+    cout << "pvtype.name = " << pvtype.name << endl;
+
+    min::gen v = pvtype.new_gen ( 5 );
+    pvt::insertable_pointer pvip ( v );
+    MIN_ASSERT ( pvip->max_length == 5 );
+    MIN_ASSERT ( pvip->length == 0 );
+    pve e1 = { min::MISSING, NULL, 88 };
+    min::push ( pvip, e1 );
+    MIN_ASSERT ( pvip->length == 1 );
+    MIN_ASSERT ( pvip[0].j == 88 );
+
+    cout << endl;
+    cout << "Finish Packed Vectors Test!" << endl;
+}
+
+
 
 // Raw Vectors
 // --- -------
@@ -3447,6 +3472,7 @@ int main ()
 	test_names();
 	test_print();
 	test_packed_structs();
+	test_packed_vectors();
 	test_raw_vectors();
 	test_objects();
 	test_object_vector_level();

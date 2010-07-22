@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 20, 2010}
+\date{July 22, 2010}
  
 \maketitle
 
@@ -6398,16 +6398,13 @@ named \verb|pvtype| use
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen |
 	& \verb|pvtype.|\TTKEY{new\_gen} \verb|( void )|
-\LABEL{PACKED_VEC_NEW_GEN} \\
-\verb|min::gen |
-	& \verb|pvtype.|\TTKEY{new\_gen} \ARGBREAK
-	  \verb| ( min::uns32 length, const E * vp = NULL )|
-\LABEL{INITED_PACKED_VEC_NEW_GEN} \\
+\LABEL{PACKED_VEC_NEW_GEN_VOID} \\
 \verb|min::gen |
 	& \verb|pvtype.|\TTKEY{new\_gen} \ARGBREAK
 	  \verb| ( min::uns32 max_length,| \ARGBREAK
-	  \verb|   min::uns32 length, const E * vp = NULL )|
-\LABEL{MAX_INITED_PACKED_VEC_NEW_GEN} \\
+	  \verb|   min::uns32 length = 0,| \ARGBREAK
+	  \verb|   const E * vp = NULL )|
+\LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char * const |
