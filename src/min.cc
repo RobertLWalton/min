@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 20 22:35:06 EDT 2010
+// Date:	Thu Jul 22 05:37:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/21 11:48:22 $
+//   $Date: 2010/07/22 10:25:24 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.235 $
+//   $Revision: 1.236 $
 
 // Table of Contents:
 //
@@ -1511,7 +1511,7 @@ min::gen MINT::packed_vec_new_gen
     if ( vp )
         memcpy ( bodyp + pvd->header_size,
 	         vp, length * pvd->element_size);
-    unprotected::set_type_of ( s, min::PACKED_STRUCT );
+    unprotected::set_type_of ( s, min::PACKED_VEC );
     return min::new_gen ( s );
 }
 

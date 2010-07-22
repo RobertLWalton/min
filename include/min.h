@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 04:43:42 EDT 2010
+// Date:	Thu Jul 22 06:24:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 08:54:43 $
+//   $Date: 2010/07/22 10:25:06 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.359 $
+//   $Revision: 1.360 $
 
 // Table of Contents:
 //
@@ -3640,7 +3640,7 @@ namespace min {
 		  const min::uns32 *
 		      element_stub_ptr_disp )
 	        : index ( index ),
-		  id ( & id ),
+		  id ( id ),
 		  header_size ( header_size ),
 		  element_size ( element_size ),
 		  length_disp ( length_disp ),
@@ -3932,17 +3932,11 @@ namespace min {
 	          = NULL );
 
 	min::gen new_gen ( min::uns32 max_length,
-	                   min::uns32 length,
+	                   min::uns32 length = 0,
 			   const E * vp = NULL )
 	{
 	    return internal::packed_vec_new_gen
 	        ( this, max_length, length, vp );
-	}
-	min::gen new_gen ( min::uns32 length,
-			   const E * vp = NULL )
-	{
-	    return internal::packed_vec_new_gen
-	        ( this, length, length, vp );
 	}
 	min::gen new_gen ( void )
 	{
@@ -3997,7 +3991,8 @@ namespace min {
                const min::uns32 H::* max_length_m >
     internal::packed_vec_base_pointer
               <H,E,type_m,length_m,max_length_m>
-            ::packed_vec_base_pointer ( min::stub * s )
+            ::packed_vec_base_pointer
+	    ( min::stub * s ) : s ( s )
     {
 	MIN_ASSERT ( type_of ( s ) == PACKED_VEC );
 	void * p = unprotected::pointer_of ( s );
