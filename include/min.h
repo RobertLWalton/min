@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 06:24:40 EDT 2010
+// Date:	Thu Jul 22 07:12:28 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 10:25:06 $
+//   $Date: 2010/07/22 16:22:46 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.360 $
+//   $Revision: 1.361 $
 
 // Table of Contents:
 //
@@ -3749,7 +3749,9 @@ namespace min {
 		      +
 	              packed_vec_base_pointer
 		      <H,E,type_m,length_m,max_length_m>
-		      ::computed_header_size );
+		      ::computed_header_size
+		      +
+		      i * sizeof ( E ) );
 	    }
 	};
 
@@ -3794,7 +3796,9 @@ namespace min {
 		      +
 	              packed_vec_base_pointer
 		      <H,E,type_m,length_m,max_length_m>
-		      ::computed_header_size );
+		      ::computed_header_size
+		      +
+		      i * sizeof ( E ) );
 	    }
 	};
 
@@ -3839,7 +3843,9 @@ namespace min {
 		      +
 	              packed_vec_base_pointer
 		      <H,E,type_m,length_m,max_length_m>
-		      ::computed_header_size );
+		      ::computed_header_size
+		      +
+		      i * sizeof ( E ) );
 	    }
 
 	    void reserve ( min::uns32 reserve_length );
@@ -4061,7 +4067,8 @@ namespace min {
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	pvip[pvip->length++] = v;
+	pvip[pvip->length] = v;
+	++ * (min::uns32 *) & pvip->length;
     }
     template < typename H, typename E,
                const min::uns32 H::* type_m,
@@ -4079,7 +4086,10 @@ namespace min {
 	if ( vp )
 	    memcpy ( & pvip[pvip->length],
 		     vp, n * sizeof ( E ) );
-	pvip->length += n;
+	else
+	    memset ( & pvip[pvip->length],
+		     0, n * sizeof ( E ) );
+	* (min::uns32 *) & pvip->length += n;
     }
     template < typename H, typename E,
                const min::uns32 H::* type_m,
@@ -4091,7 +4101,8 @@ namespace min {
 	     <H,E,type_m,length_m,max_length_m> & pvip )
     {
 	assert ( pvip->length > 0 );
-	return pvip[--pvip->length];
+	-- * (min::uns32 *) & pvip->length;
+	return pvip[pvip->length];
     }
     template < typename H, typename E,
                const min::uns32 H::* type_m,
@@ -4102,10 +4113,10 @@ namespace min {
 	              ::packed_vec_insertable_pointer
 	     <H,E,type_m,length_m,max_length_m> & pvip,
 	  min::uns32 n,
-	  const E * vp = NULL )
+	  E * vp = NULL )
     {
 	assert ( pvip->length >= n );
-	pvip->length -= n;
+	* (min::uns32 *) & pvip->length -= n;
 	if ( vp )
 	    memcpy ( vp,
 		     & pvip[pvip->length],
@@ -4144,7 +4155,7 @@ namespace min {
                const min::uns32 H::* type_m,
                const min::uns32 H::* length_m,
                const min::uns32 H::* max_length_m >
-    inline void internal::packed_vec_insertable_pointer
+    void internal::packed_vec_insertable_pointer
          <H,E,type_m,length_m,max_length_m>
          ::reserve ( min::uns32 reserve_length )
     {
@@ -4157,9 +4168,11 @@ namespace min {
 	     > this->pvdescriptor->max_increment )
 	    new_length =
 	        this->pvdescriptor->max_increment;
-	new_length += reserve_length
-	            + hp->max_length
-		    - hp->length;
+	new_length += hp->max_length;
+    	min::uns32 min_new_length =
+	    reserve_length + hp->length;
+	if ( new_length < min_new_length )
+	    new_length = min_new_length;
 	internal::packed_vec_resize
 	    ( this->s, this->pvdescriptor, new_length );
     }
