@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 23 06:30:13 EDT 2010
+// Date:	Fri Jul 23 09:48:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/23 12:52:41 $
+//   $Date: 2010/07/23 13:54:04 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.364 $
+//   $Revision: 1.365 $
 
 // Table of Contents:
 //
@@ -3616,16 +3616,16 @@ namespace min {
 	        // Displacements of length and
 		// max_length elements in H.
 	    const char * const name;
-	    const min::uns32 * const header_gen_disp;
-	    const min::uns32 * const
-	                       header_stub_ptr_disp;
-	    const min::uns32 * header_io_disp;
-	    const min::gen   * header_io_names;
 	    const min::uns32 * const element_gen_disp;
 	    const min::uns32 * const
 	                       element_stub_ptr_disp;
 	    const min::uns32 * element_io_disp;
 	    const min::gen   * element_io_names;
+	    const min::uns32 * const header_gen_disp;
+	    const min::uns32 * const
+	                       header_stub_ptr_disp;
+	    const min::uns32 * header_io_disp;
+	    const min::gen   * header_io_names;
 
 	    min::uns32 initial_max_length;
 	    min::float64 increment_ratio;
@@ -3639,12 +3639,12 @@ namespace min {
 		  min::uns32 length_disp,
 		  min::uns32 max_length_disp,
 		  const char * name,
-		  const min::uns32 * header_gen_disp,
-		  const min::uns32 *
-		      header_stub_ptr_disp,
 		  const min::uns32 * element_gen_disp,
 		  const min::uns32 *
-		      element_stub_ptr_disp )
+		      element_stub_ptr_disp,
+		  const min::uns32 * header_gen_disp,
+		  const min::uns32 *
+		      header_stub_ptr_disp )
 	        : index ( index ),
 		  id ( id ),
 		  header_size ( header_size ),
@@ -3652,16 +3652,16 @@ namespace min {
 		  length_disp ( length_disp ),
 		  max_length_disp ( max_length_disp ),
 		  name ( name ),
-		  header_gen_disp ( header_gen_disp ),
-		  header_stub_ptr_disp
-		      ( header_stub_ptr_disp ),
-		  header_io_disp ( NULL ),
-		  header_io_names ( NULL ),
 		  element_gen_disp ( element_gen_disp ),
 		  element_stub_ptr_disp
 		      ( element_stub_ptr_disp ),
 		  element_io_disp ( NULL ),
 		  element_io_names ( NULL ),
+		  header_gen_disp ( header_gen_disp ),
+		  header_stub_ptr_disp
+		      ( header_stub_ptr_disp ),
+		  header_io_disp ( NULL ),
+		  header_io_names ( NULL ),
 		  initial_max_length ( 0 ),
 		  increment_ratio (0.5),
 		  max_increment ( 1000 ) {}
@@ -3934,13 +3934,13 @@ namespace min {
 
         packed_vec
 	    ( const char * name,
-	      const min::uns32 * header_gen_disp
-		  = NULL,
-	      const min::uns32 * header_stub_ptr_disp
-	          = NULL,
 	      const min::uns32 * element_gen_disp
 	          = NULL,
 	      const min::uns32 * element_stub_ptr_disp
+	          = NULL,
+	      const min::uns32 * header_gen_disp
+		  = NULL,
+	      const min::uns32 * header_stub_ptr_disp
 	          = NULL );
 
 	min::gen new_gen ( min::uns32 max_length,
@@ -4203,10 +4203,10 @@ template < typename H, typename E,
 min::packed_vec<H,E,type_m,length_m,max_length_m>
    ::packed_vec
     ( const char * name,
-      const min::uns32 * header_gen_disp,
-      const min::uns32 * header_stub_ptr_disp,
       const min::uns32 * element_gen_disp,
-      const min::uns32 * element_stub_ptr_disp )
+      const min::uns32 * element_stub_ptr_disp,
+      const min::uns32 * header_gen_disp,
+      const min::uns32 * header_stub_ptr_disp )
     : internal::packed_vec_descriptor
           ( internal::packed_type_count ++,
             & id,
@@ -4215,10 +4215,10 @@ min::packed_vec<H,E,type_m,length_m,max_length_m>
 	    computed_length_disp(),
 	    computed_max_length_disp(),
             name,
-            header_gen_disp,
-            header_stub_ptr_disp,
             element_gen_disp,
-            element_stub_ptr_disp )
+            element_stub_ptr_disp,
+            header_gen_disp,
+            header_stub_ptr_disp )
 {
     // Check that the type member is the first
     // thing in the H structure.

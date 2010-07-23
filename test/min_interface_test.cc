@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 23 08:08:44 EDT 2010
+// Date:	Fri Jul 23 09:53:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/23 12:53:37 $
+//   $Date: 2010/07/23 13:55:58 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.189 $
+//   $Revision: 1.190 $
 
 // Table of Contents:
 //
@@ -2038,8 +2038,7 @@ static min::uns32 pve_stub_ptr_disp[2] =
 
 typedef min::packed_vec<pvh,pve> pvt;
 static pvt pvtype
-    ( "pvtype", NULL, NULL,
-      pve_gen_disp, pve_stub_ptr_disp );
+    ( "pvtype", pve_gen_disp, pve_stub_ptr_disp );
 
 void test_packed_vectors ( void )
 {

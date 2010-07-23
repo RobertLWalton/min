@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 23 07:52:20 EDT 2010
+// Date:	Fri Jul 23 09:54:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/23 12:53:13 $
+//   $Date: 2010/07/23 13:55:39 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.238 $
+//   $Revision: 1.239 $
 
 // Table of Contents:
 //
@@ -4179,11 +4179,11 @@ static min::uns32 reverse_attr_info_gen_disp[2] =
     { min::DISP ( & min::reverse_attr_info::name ),
       min::DISP_END };
 min::attr_info_vec min::attr_info_vec_type
-       ( "min::attr_info_vec_type", NULL, NULL, 
+       ( "min::attr_info_vec_type",
          attr_info_gen_disp, NULL );
  min::reverse_attr_info_vec
      min::reverse_attr_info_vec_type
-       ( "min::reverse_attr_info_vec_type", NULL, NULL, 
+       ( "min::reverse_attr_info_vec_type",
          reverse_attr_info_gen_disp, NULL );
 
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
