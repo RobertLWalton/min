@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 15:47:10 EDT 2010
+// Date:	Thu Jul 22 21:42:45 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 19:47:27 $
+//   $Date: 2010/07/23 01:43:55 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.362 $
+//   $Revision: 1.363 $
 
 // Table of Contents:
 //
@@ -8942,6 +8942,21 @@ inline min::unsptr min::unprotected::body_size_of
 	        (internal::packed_struct_descriptor *)
 	        (*internal::packed_types)[index];
 	    return d->size;
+	}
+    case min::PACKED_VEC:
+        {
+	    min::uns8 * p = (min::uns8 *)
+		unprotected::pointer_of ( s );
+	    min::uns32 type = * ( min::uns32 *) p;
+	    min::uns32 index =
+		type & internal::packed_type_index_mask;
+	    internal::packed_vec_descriptor * d =
+	        (internal::packed_vec_descriptor *)
+	        (*internal::packed_types)[index];
+	    min::uns32 max_length = * (min::uns32 *)
+	        ( p + d->max_length_disp );
+	    return   d->header_size
+	           + d->element_size * max_length;
 	}
 #   ifdef MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
     MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES
