@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 21:42:45 EDT 2010
+// Date:	Fri Jul 23 06:30:13 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/23 01:43:55 $
+//   $Date: 2010/07/23 12:52:41 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.363 $
+//   $Revision: 1.364 $
 
 // Table of Contents:
 //
@@ -3279,6 +3279,12 @@ namespace min {
 
 namespace min {
 
+    template < typename S, typename T >
+    min::uns32 DISP ( T S::* d )
+    {
+        S * p = (S *) NULL;
+	return (uns8 *) & (p->*d) - (uns8 *) p;
+    }
     const min::uns32 DISP_END = min::uns32 ( -1 );
 
     namespace internal {
@@ -7315,10 +7321,15 @@ namespace min {
     typedef min::packed_vec
 	    <attr_info_header,reverse_attr_info>
 	    reverse_attr_info_vec;
+    extern attr_info_vec attr_info_vec_type;
+    extern reverse_attr_info_vec
+           reverse_attr_info_vec_type;
     typedef attr_info_vec::pointer
         attr_info_pointer;
     typedef reverse_attr_info_vec::pointer
         reverse_attr_info_pointer;
+    void sort_attr_info ( min::gen v );
+    void sort_reverse_attr_info ( min::gen v );
 
     template < class vecpt >
     min::gen get_attrs

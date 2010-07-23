@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 15:43:50 EDT 2010
+// Date:	Fri Jul 23 08:08:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 19:45:39 $
+//   $Date: 2010/07/23 12:53:37 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.188 $
+//   $Revision: 1.189 $
 
 // Table of Contents:
 //
@@ -1953,9 +1953,9 @@ struct ps1 {
 };
 
 static min::uns32 ps1_gen_disp[2] =
-    { 8, min::DISP_END };
+    { min::DISP ( & ps1::g ), min::DISP_END };
 static min::uns32 ps1_stub_ptr_disp[2] =
-    { 8 + sizeof ( min::gen ), min::DISP_END };
+    { min::DISP ( & ps1::s ), min::DISP_END };
 
 typedef min::packed_struct<ps1> ps1t;
 static ps1t ps1type
@@ -2032,9 +2032,9 @@ struct pve {
 };
 
 static min::uns32 pve_gen_disp[2] =
-    { 0, min::DISP_END };
+    { min::DISP ( & pve::g ), min::DISP_END };
 static min::uns32 pve_stub_ptr_disp[2] =
-    { 0 + sizeof ( min::gen ), min::DISP_END };
+    { min::DISP ( & pve::s ), min::DISP_END };
 
 typedef min::packed_vec<pvh,pve> pvt;
 static pvt pvtype
@@ -2900,16 +2900,6 @@ void test_object_list_level ( void )
 
 // Object Attribute Level
 
-// Compare function to qsort attr_info raw vector.
-//
-static int compare_attr_info
-	( const void * aip1, const void * aip2 )
-{
-    min::gen name1 = ( (min::attr_info *) aip1 )->name;
-    min::gen name2 = ( (min::attr_info *) aip2 )->name;
-    return min::compare ( name1, name2 );
-}
-
 // Call get_attrs ( ap ), sort the resulting raw vector
 // entries by label, and compare to aip[0 .. n-1].
 // Print differences and return false if there are any
@@ -2923,10 +2913,8 @@ static bool check_attr_info
     bool save_min_assert_print = min_assert_print;
     min_assert_print = false;
     min::gen aiv = min::get_attrs ( ap );
+    min::sort_attr_info ( aiv );
     min::attr_info_vec::updatable_pointer aivp ( aiv );
-    qsort ( & aivp[0], aivp->length,
-            sizeof ( min::attr_info ),
-	    compare_attr_info );
     bool ok = true;
     for ( unsigned i = 0; i < aivp->length; ++ i )
     {

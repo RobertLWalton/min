@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 13:02:17 EDT 2010
+// Date:	Fri Jul 23 07:52:20 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 19:46:53 $
+//   $Date: 2010/07/23 12:53:13 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.237 $
+//   $Revision: 1.238 $
 
 // Table of Contents:
 //
@@ -4173,15 +4173,18 @@ bool MINT::insert_reserve
 // ------ --------- -----
 
 static min::uns32 attr_info_gen_disp[2] =
-    { 0, min::DISP_END };
-static min::attr_info_vec
-       attr_info_pvtype
-       ( "attr_info_pvtype", NULL, NULL, 
+    { min::DISP ( & min::attr_info::name ),
+      min::DISP_END };
+static min::uns32 reverse_attr_info_gen_disp[2] =
+    { min::DISP ( & min::reverse_attr_info::name ),
+      min::DISP_END };
+min::attr_info_vec min::attr_info_vec_type
+       ( "min::attr_info_vec_type", NULL, NULL, 
          attr_info_gen_disp, NULL );
-static min::reverse_attr_info_vec
-       reverse_attr_info_pvtype
-       ( "reverse_attr_info_pvtype", NULL, NULL, 
-         attr_info_gen_disp, NULL );
+ min::reverse_attr_info_vec
+     min::reverse_attr_info_vec_type
+       ( "min::reverse_attr_info_vec_type", NULL, NULL, 
+         reverse_attr_info_gen_disp, NULL );
 
 # if MIN_ALLOW_PARTIAL_ATTR_LABELS
 
@@ -5411,7 +5414,7 @@ min::gen min::get_attrs
 	( unprotected::attr_pointer_type
 	      < vecpt > & ap )
 {
-    min::gen airv = attr_info_pvtype.new_gen();
+    min::gen airv = attr_info_vec_type.new_gen();
     min::attr_info_vec::insertable_pointer aip ( airv );
     attr_info info;
 
@@ -5476,7 +5479,8 @@ min::gen min::get_reverse_attrs
 	( unprotected::attr_pointer_type
 	      < vecpt > & ap )
 {
-    min::gen rairv = reverse_attr_info_pvtype.new_gen();
+    min::gen rairv =
+        reverse_attr_info_vec_type.new_gen();
     min::reverse_attr_info_vec::insertable_pointer raip
         ( rairv );
 
@@ -5539,6 +5543,44 @@ template min::gen min::get_reverse_attrs
 	( min::updatable_attr_pointer & ap );
 template min::gen min::get_reverse_attrs
 	( min::insertable_attr_pointer & ap );
+
+// Compare function to qsort attr_info packed vector.
+//
+static int compare_attr_info
+	( const void * aip1, const void * aip2 )
+{
+    min::gen name1 = ( (min::attr_info *) aip1 )->name;
+    min::gen name2 = ( (min::attr_info *) aip2 )->name;
+    return min::compare ( name1, name2 );
+}
+void min::sort_attr_info ( min::gen v )
+{
+    min::attr_info_vec::updatable_pointer aiup ( v );
+    qsort ( & aiup[0], aiup->length,
+            sizeof ( min::attr_info ),
+	    compare_attr_info );
+}
+
+// Compare function to qsort reverse_attr_info packed
+// vector.
+//
+static int compare_reverse_attr_info
+	( const void * aip1, const void * aip2 )
+{
+    min::gen name1 =
+        ( (min::reverse_attr_info *) aip1 )->name;
+    min::gen name2 =
+        ( (min::reverse_attr_info *) aip2 )->name;
+    return min::compare ( name1, name2 );
+}
+void min::sort_reverse_attr_info ( min::gen v )
+{
+    min::reverse_attr_info_vec::updatable_pointer
+	raiup ( v );
+    qsort ( & raiup[0], raiup->length,
+            sizeof ( min::reverse_attr_info ),
+	    compare_reverse_attr_info );
+}
 
 template < class vecpt >
 min::gen MINT::update
