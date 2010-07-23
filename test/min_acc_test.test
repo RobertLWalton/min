@@ -2,13 +2,14 @@ TRACE: debug=pm
 TRACE: stub_allocator_initializer()
 TRACE: new_pool_between ( 16777216, 0x0, 0xfffffffffff )
 TRACE: new_pool ( 257 )
-TRACE: inaccess_pool ( 1, 0x2b4ffaa82000 )
+TRACE: inaccess_pool ( 1, 0x2ab58fcfe000 )
 TRACE: block_allocator_initializer()
 TRACE: new_pool ( 704 )
 TRACE: allocate_new_superregion()
 TRACE: new_paged_block_region (1073741824, 4)
 TRACE: new_pool ( 262144 )
 TRACE: new_paged_block_region returns & region_table[1]
+TRACE: new_pool ( 1 )
 
 Start Test!
 
