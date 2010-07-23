@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 22, 2010}
+\date{July 23, 2010}
  
 \maketitle
 
@@ -5549,11 +5549,23 @@ are:
 \ttmindex{flag\_count}{in {\tt min::attr\_info}}
 \ttmindex{reverse\_attr\_count}{in {\tt min::attr\_info}}
 \LABEL{MIN::ATTR_INFO} \\
-\verb|typedef min::| & \MINKEY{attr\_info\_pointer}
+\verb|typedef | & \verb|min::packed_vec<...,attr_info>| \ARGBREAK
+                       \verb|min::|\MINKEY{attr\_info\_vec}
+\LABEL{MIN::ATTR_INFO_VEC} \\
+\verb|min::attr_info_vec | & 
+                       \verb|min::|\MINKEY{attr\_info\_vec\_type}
+\LABEL{MIN::ATTR_INFO_VEC_TYPE} \\
+\verb|typedef | & \verb|min::attr_info_vec::pointer| \ARGBREAK
+                       \verb|min::|\MINKEY{attr\_info\_pointer}
 \LABEL{MIN::ATTR_INFO_POINTER} \\
 \verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
     \verb| ( min::attr_pointer ap )|
 \LABEL{MIN::GET_ATTRS} \\
+\verb|void min::| & \MINKEY{sort\_attr\_info} \verb|( min::gen v )|
+\LABEL{MIN::SORT_ATTR_INFO} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{reverse\_attr\_info}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::gen    name;|\ARGBREAK
@@ -5562,11 +5574,20 @@ are:
 \ttmindex{name}{in {\tt min::reverse\_attr\_info}}
 \ttmindex{value\_count}{in {\tt min::reverse\_attr\_info}}
 \LABEL{MIN::REVERSE_ATTR_INFO} \\
-\verb|typedef min::| & \MINKEY{reverse\_attr\_info\_pointer}
+\verb|typedef | & \verb|min::packed_vec<...,reverse_attr_info>| \ARGBREAK
+                       \verb|min::|\MINKEY{reverse\_attr\_info\_vec}
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC} \\
+\verb|min::reverse_attr_info_vec | & 
+                       \verb|min::|\MINKEY{reverse\_attr\_info\_vec\_type}
+\LABEL{MIN::REVERSE_ATTR_INFO_VEC_TYPE} \\
+\verb|typedef | & \verb|min::reverse_attr_info_vec::pointer| \ARGBREAK
+                       \verb|min::|\MINKEY{reverse\_attr\_info\_pointer}
 \LABEL{MIN::REVERSE_ATTR_INFO_POINTER} \\
 \verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
     \verb| ( min::attr_pointer ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS} \\
+\verb|void min::| & \MINKEY{sort\_reverse\_attr\_info} \verb|( min::gen v )|
+\LABEL{MIN::SORT_REVERSE_ATTR_INFO} \\
 \end{tabular}\end{indpar}
 
 Attribute pointers are tied to an object, which is specified by
@@ -5726,22 +5747,34 @@ were not in the list of all attribute names.  In computing
 did not exist, and the value of {\tt flag\_count} is the
 same as the value that would be returned by {\tt min::\EOL get\_\EOL flags}.
 
-The {\tt min::\EOL attr\_\EOL info} structs are stored in a raw vector
+The {\tt min::\EOL attr\_\EOL info} structs are stored in a packed vector
 returned by the {\tt min::\EOL get\_\EOL attrs} function
 as a \verb|min::gen| value.  This can be accessed by a read-only
-raw vector pointer (\pagref{MIN::RAW_VEC_POINTER_OF_GEN})
+packed vector pointer (\pagref{MIN::PACKED_VEC_POINTER_OF_GEN})
 of {\tt min::\EOL attr\_\EOL info\_\EOL pointer} type.
 Sample usage is:
 \begin{indpar}\begin{verbatim}
 min::gen airv = min::get_attrs ( ... );
 min::attr_info_pointer aip ( airv );
-for ( min::unsptr i = 0; i < min::length_of ( aip ); ++ i )
+for ( min::unsptr i = 0; i < aip->length; ++ i )
 {
     min::attr_info ai = aip[i];
     . . . . . . . . . . . . . .
 }
 \end{verbatim}\end{indpar}\label{ATTR-INFO-POINTER-EXAMPLE}
 
+The implementation dependent order of the \verb|attr_info|
+values returned by {\tt min::\EOL get\_\EOL attrs} may change if attribute
+values are added to or removed from the object or
+attribute flags are set or cleared, or if the object is reorganized.
+The {\tt min::\EOL sort\_\EOL attr\_\EOL info} function can be used
+to sort by attribute name
+the packed vector returned by {\tt min::\EOL get\_\EOL attrs}.
+A {\tt min::\EOL attr\_\EOL info} packed vector can be manipulated in other
+ways using its packed vector type information in
+{\tt min::\EOL attr\_\EOL info\_\EOL vec}
+and {\tt min::\EOL attr\_\EOL info\_\EOL vec\_\EOL type}:
+see Section~\secref{PACKED-STRUCTURES-AND-VECTORS}.
 
 The {\tt min::\EOL get\_\EOL reverse\_\EOL attrs}
 function is analogous but involves the list of
@@ -5753,11 +5786,6 @@ one count member in this, the {\tt value\_count} member that is the number
 of values in the value multiset of the reverse attribute pointed at.
 A reverse attribute name with an empty value multiset is treated as if it
 were not in the list of reverse attribute names.
-
-The implementation dependent order of names may change if attribute or
-reverse attribute values are
-added to or removed from the object or attribute flags are set or cleared,
-or if the object is reorganized.
 
 Updatable attribute pointers can set existing values as well as perform
 the operations of read-only attribute pointers.
@@ -6185,6 +6213,10 @@ named \verb|pstype| use
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT} \\
+\verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
+\LABEL{MIN::DISP} \\
+\verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
+\LABEL{MIN::DISP_END} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen |
@@ -6230,6 +6262,9 @@ output.
 This C vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|S|,
 terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
+The displacement of member \verb|m| in structure type \verb|S| should
+be computed by {\tt min::\EOL DISP~(~\&~S::m~)}.
+
 This displacements vector should not
 be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|S|.  But if there are \verb|min::gen| members, this
@@ -6245,6 +6280,12 @@ instead of \verb|min::gen| members.
 The \verb|pstype.new_gen| function creates a new packed structure
 datum of the C type described by \verb|pstype| and returns a
 \verb|min::gen| value pointing at it.
+
+The function call {\tt min::\EOL DISP~(~\&~S::m~)} will return the
+displacement in bytes of the member \verb|m| of a structure
+of \verb|struct| type \verb|S|.  This should be used instead of
+assuming that \verb|struct| layouts are tightly packed, as often
+they are not.
 
 \verb|pstype.name|, {\tt pstype.gen\_\EOL disp},
 and {\tt pstype.stub\_\EOL ptr\_\EOL disp}
@@ -6388,11 +6429,11 @@ named \verb|pvtype| use
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\HEARG} \verb|pvtype| \ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * element_stub_ptr_disp| \ARGBREAK
-	  \verb|                            = NULL )|
+	  \verb|                            = NULL,| \ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL )|
 \LABEL{MIN::PACKED_VEC} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -6561,6 +6602,8 @@ a packed vector, and these have the usage:
 	& \MINKEY{packed\_vec\HEARG::pointer} \verb|pvp| \ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_POINTER_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
 	  \verb| ( min::packed_vec<H,E>::pointer & psp,|\ARGBREAK
@@ -6585,6 +6628,8 @@ a packed vector, and these have the usage:
 	& \MINKEY{packed\_vec\HEARG::updatable\_pointer} \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
 	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
