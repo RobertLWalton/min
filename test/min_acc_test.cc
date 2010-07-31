@@ -12,9 +12,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 12:37:52 $
+//   $Date: 2010/07/31 12:32:31 $
 //   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.4 $
+//   $Revision: 1.5 $
 
 // Table of Contents:
 //
@@ -91,13 +91,6 @@ struct print_gen {
 	return s << hex << pg.g << dec;
     }
 };
-
-// Temporary functions until real acc installed.
-// --------------------------------------------
-
-void MUP::deallocate_body
-	( min::stub * s, min::unsptr size )
-{}
 
 // Main Program
 // ---- -------
