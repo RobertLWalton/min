@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 22 15:27:06 EDT 2010
+// Date:	Sat Jul 31 06:35:41 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/22 19:46:53 $
+//   $Date: 2010/07/31 12:30:06 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.75 $
+//   $Revision: 1.76 $
 
 // Table of Contents:
 //
@@ -73,7 +73,7 @@ static int before_space ( const char * p )
 // Convert a size in number of bytes into a size in
 // number of pages, rounding up.
 //
-static min::unsptr page_size;
+min::unsptr MACC::page_size;
 inline min::unsptr number_of_pages
     ( min::unsptr number_of_bytes )
 {
@@ -232,7 +232,7 @@ void MINT::acc_initializer ( void )
 	         << setw ( before_space ( deb ) ) << deb
 		 << endl;
     }
-    page_size = MOS::pagesize();
+    MACC::page_size = MOS::pagesize();
 
     stub_allocator_initializer();
     collector_initializer();
@@ -971,6 +971,48 @@ void MINT::new_non_fixed_body
 	    new_mono_body ( s, n );
 
     MUP::set_pointer_of ( s, body );
+}
+
+void MUP::deallocate_body
+    ( min::stub * s, min::unsptr n )
+{
+    if ( n == 0 ) return;
+    min::uns64 * bp =
+        (min::uns64 *) MUP::pointer_of ( s ) - 1;
+    MACC::region * r = MACC::region_of_body ( bp );
+    assert ( s == MACC::stub_of_body ( bp ) );
+
+    * bp = MUP::renew_control_stub
+		( * bp, MINT::null_stub );
+
+    int type = MACC::type_of ( r );
+    if ( type == MACC::FIXED_SIZE_BLOCK_REGION )
+    {
+	MINT::free_fixed_size_block * p =
+	    (MINT::free_fixed_size_block *) bp;
+	if ( r->last_free == NULL )
+	    r->last_free = p->next = p;
+	else
+	{
+	    p->next = r->last_free->next;
+	    r->last_free = p;
+	}
+	++ r->free_count;
+	MUP::clear_flags_of
+	    ( s, MINT::ACC_FIXED_BODY_FLAG );
+    }
+    else
+    {
+	MACC::free_variable_size_block * p =
+	    (MACC::free_variable_size_block *) bp;
+	n = ( n + 15 ) & ~7;
+	p->block_subcontrol =
+	    MUP::new_control_with_type
+	        ( MACC::FREE, n );
+	r->free_size += n;
+    }
+
+    // TBD
 }
 
 // Packed Type Allocator
