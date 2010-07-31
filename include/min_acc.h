@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul  9 11:50:55 EDT 2010
+// Date:	Sat Jul 31 08:29:50 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/09 15:51:17 $
+//   $Date: 2010/07/31 12:30:18 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.88 $
+//   $Revision: 1.89 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -36,6 +36,7 @@
 
 # include <min_acc_parameters.h>
 # define MACC min::acc
+# define MUP  min::unprotected
 # define MINT min::internal
 
 // Stub Allocator Interface
@@ -138,6 +139,10 @@ namespace min { namespace acc {
 // ----- --------- ---------
 
 namespace min { namespace acc {
+
+    // Page size for use in inline functions.
+    //
+    extern min::unsptr page_size;
 
     // Parameters:
 
@@ -530,6 +535,10 @@ namespace min { namespace acc {
 	    // and the value field is the size of the
 	    // region in bytes.
 
+	min::uns64 free_size;
+	    // Number of bytes of free blocks in a
+	    // variable sized block region.
+
 	min::unsptr block_size;
 	    // For fixed size block regions, the size
 	    // in bytes of the fixed size blocks.
@@ -602,6 +611,12 @@ namespace min { namespace acc {
 	    // there are no free blocks, equals NULL.
 
     };
+
+    inline min::unsptr type_of ( region * r )
+    {
+        return min::unprotected::type_of_control
+	     ( r->block_subcontrol );
+    }
 
     inline min::unsptr size_of ( region * r )
     {
@@ -719,7 +734,45 @@ namespace min { namespace acc {
 	// the first stub stack region with free
 	// stub stack segments.
 
-} }    
+    struct free_variable_size_block
+    {
+        min::uns64 block_control;
+	    // Block control word.  Stub is MINT::
+	    // null_stub.  Locator locates region.
+
+	min::uns64 block_subcontrol;
+	    // Block subcontrol word.  Type is MACC::
+	    // FREE.  Value is block size including
+	    // block control word.
+    };
+
+    // Return the region of a body given a pointer to
+    // the block control word of the body.
+    //
+    inline region * region_of_body ( min::uns64 * bp )
+    {
+	int locator = MUP::locator_of_control ( * bp );
+	if ( locator > 0 )
+	    return & region_table[locator];
+	else
+	{
+	    min::unsptr pp = (min::unsptr) bp;
+	    pp &= ~ ( page_size - 1 );
+	    min::uns8 * p = (min::uns8 *) pp;
+	    p += locator * page_size;
+	    return ( MACC::region *) p;
+	}
+    }
+
+    // Return the stub of a body given a pointer to the
+    // block control word of the body.
+    //
+    inline min::stub * stub_of_body ( min::uns64 * bp )
+    {
+        return unprotected::stub_of_control ( * bp );
+    }
+
+} }
 
 namespace min { namespace internal {
 

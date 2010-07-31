@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 31 06:35:41 EDT 2010
+// Date:	Sat Jul 31 08:30:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/31 12:30:06 $
+//   $Date: 2010/07/31 12:32:25 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.76 $
+//   $Revision: 1.77 $
 
 // Table of Contents:
 //
@@ -580,6 +580,7 @@ static MACC::region * new_paged_block_region
     r->next = r->begin;
     r->end = r->begin + size;
     r->block_size = 0;
+    r->free_size = 0;
     r->free_count = 0;
     r->max_free_count = 0;
     r->region_previous = r;
@@ -620,6 +621,7 @@ static void free_paged_block_region
     r->next = NULL;
     r->end = NULL;
     r->block_size = 0;
+    r->free_size = 0;
     r->free_count = 0;
     r->last_free = NULL;
 
