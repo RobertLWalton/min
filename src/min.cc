@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 23 09:54:26 EDT 2010
+// Date:	Fri Jul 30 20:42:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/23 13:55:39 $
+//   $Date: 2010/07/31 04:07:03 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.239 $
+//   $Revision: 1.240 $
 
 // Table of Contents:
 //
@@ -64,6 +64,10 @@ char const * min::special_name
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc );
 static void raw_vec_scavenger_routine
+	( MINT::scavenge_control & sc );
+static void packed_struct_scavenger_routine
+	( MINT::scavenge_control & sc );
+static void packed_vec_scavenger_routine
 	( MINT::scavenge_control & sc );
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
@@ -209,6 +213,10 @@ MINT::initializer::initializer ( void )
     	= & lab_scavenger_routine;
     MINT::scavenger_routines[min::RAW_VEC]
     	= & raw_vec_scavenger_routine;
+    MINT::scavenger_routines[min::PACKED_STRUCT]
+    	= & packed_struct_scavenger_routine;
+    MINT::scavenger_routines[min::PACKED_VEC]
+    	= & packed_vec_scavenger_routine;
     MINT::scavenger_routines[min::SHORT_OBJ]
     	= & obj_scavenger_routine;
     MINT::scavenger_routines[min::LONG_OBJ]
@@ -715,6 +723,316 @@ static void raw_vec_scavenger_routine
 	    MIN_ABORT
 	        ( "bad raw vector format character" );
 	}
+    }
+
+    sc.stub_flag_accumulator = accumulator;
+    sc.state = 0;
+}
+
+// Scavenger routine for packed structs.  State equals
+// ( i << 1 ) + j where next member of the packed struct
+// to be scanned is:
+//
+//	gen_disp[i]		if j == 0
+//	stub_ptr_disp[i]	if j == 1
+//
+// and i < (1<<31). 
+//
+static void packed_struct_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+    min::uns8 * beginp = (min::uns8 *)
+        MUP::pointer_of ( sc.s1 );
+    min::uns32 type = * ( min::uns32 *) beginp;
+    type &= MINT::packed_type_index_mask;
+    MIN_ASSERT ( type < MINT::packed_type_count);
+    MINT::packed_struct_descriptor * psd =
+        (MINT::packed_struct_descriptor *)
+        (*MINT::packed_types)[type];
+
+    assert ( sc.state < (1ull << 32 ) );
+    min::uns32 i = (min::uns32) sc.state >> 1;
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+
+    if (    ( sc.state & 1 ) == 0
+         && psd->gen_disp != NULL )
+	while ( true )
+    {
+        min::uns32 d = psd->gen_disp[i];
+	if ( d == min::DISP_END )
+	{
+	    i = 0;
+	    break;
+	}
+
+	if ( sc.gen_count >= sc.gen_limit )
+	{
+	    sc.stub_flag_accumulator =
+		accumulator;
+	    sc.state = ( i << 1 );
+	    return;
+	}
+
+	++ i;
+	min::gen v = * (min::gen *) (beginp + d);
+
+	if ( min::is_stub ( v ) )
+	{
+	    min::stub * s2 = MUP::stub_of ( v );
+	    min::uns64 c = MUP::control_of ( s2 );
+	    int type = MUP::type_of_control ( c );
+	    assert ( type >= 0 );
+
+	    if ( ( c & sc.stub_flag ) == 0 )
+		; // Do nothing
+	    else if ( MINT::scavenger_routines[type]
+		      == NULL )
+		MUP::clear_flags_of
+		    ( s2, sc.stub_flag );
+	    else if (    sc.to_be_scavenged
+		      >= sc.to_be_scavenged_limit )
+	    {
+		sc.stub_flag_accumulator = accumulator;
+		sc.state = (i << 1);
+		return;
+	    }
+	    else
+	    {
+		* sc.to_be_scavenged ++ = s2;
+		MUP::clear_flags_of
+		    ( s2, sc.stub_flag );
+	    }
+
+	    ++ sc.stub_count;
+	    accumulator |= c;
+	}
+
+	++ sc.gen_count;
+    }
+
+    if ( psd->stub_ptr_disp != NULL )
+        while ( true )
+    {
+        min::uns32 d = psd->stub_ptr_disp[i];
+	if ( d == min::DISP_END ) break;
+
+	if ( sc.gen_count >= sc.gen_limit )
+	{
+	    sc.stub_flag_accumulator =
+		accumulator;
+	    sc.state = ( i << 1 ) + 1;
+	    return;
+	}
+
+	++ i;
+	min::stub * s2 = * (min::stub **) (beginp + d );
+	if ( s2 != NULL )
+	{
+	    min::uns64 c = MUP::control_of ( s2 );
+	    int type = MUP::type_of_control ( c );
+	    assert ( type >= 0 );
+
+	    if ( ( c & sc.stub_flag ) == 0 )
+		; // Do nothing
+	    else if ( MINT::scavenger_routines[type]
+		      == NULL )
+		MUP::clear_flags_of
+		    ( s2, sc.stub_flag );
+	    else if (    sc.to_be_scavenged
+		      >= sc.to_be_scavenged_limit )
+	    {
+		sc.stub_flag_accumulator = accumulator;
+		sc.state = ( i << 1 ) + 1;
+		return;
+	    }
+	    else
+	    {
+		* sc.to_be_scavenged ++ = s2;
+		MUP::clear_flags_of
+		    ( s2, sc.stub_flag );
+	    }
+
+	    ++ sc.stub_count;
+	    accumulator |= c;
+	}
+
+	++ sc.gen_count;
+    }
+
+    sc.stub_flag_accumulator = accumulator;
+    sc.state = 0;
+}
+
+// Scavenger routine for packed vecs.  State equals
+// ( k << 32 ) + ( i << 1 ) + j where next member of the
+// packed vec to be scanned is:
+//
+//	header_gen_disp[i]	if k == 0 and j == 0
+//	header_stub_ptr_disp[i]	if k == 0 and j == 1
+//	element_gen_disp[i] of vector element k - 1
+//		if k > 0 and j == 0
+//	element_stub_ptr_disp[i] of vector element k - 1
+//		if k > 0 and j == 1
+//
+// and i < (1<<31), k < (1<<32). 
+//
+static void packed_vec_scavenger_routine
+	( MINT::scavenge_control & sc )
+{
+
+    min::uns8 * beginp = (min::uns8 *)
+        MUP::pointer_of ( sc.s1 );
+    min::uns32 index = * ( min::uns32 *) beginp;
+    index &= MINT::packed_type_index_mask;
+    MIN_ASSERT ( index < MINT::packed_type_count);
+    MINT::packed_vec_descriptor * psd =
+        (MINT::packed_vec_descriptor *)
+        (*MINT::packed_types)[index];
+
+    min::uns32 length = * ( min::uns32 *)
+    	( beginp + psd->length_disp );
+
+    min::uns32 i = ( (min::uns32) sc.state ) >> 1;
+    min::uns32 k = (min::uns32) ( sc.state >> 32 );
+
+    const min::uns32 * gen_disp =
+	psd->header_gen_disp;
+    const min::uns32 * stub_ptr_disp =
+        psd->header_stub_ptr_disp;
+
+    if ( k > 0 )
+    {
+        beginp += psd->header_size
+    	        + ( k - 1 ) * psd->element_size;
+	gen_disp = psd->element_gen_disp;
+	stub_ptr_disp = psd->element_stub_ptr_disp;
+    }
+
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+
+    while ( k < length + 1 )
+    {
+	if ( ( sc.state & 1 ) == 0 && gen_disp != NULL )
+	    while ( true )
+	{
+	    min::uns32 d = gen_disp[i];
+	    if ( d == min::DISP_END )
+	    {
+		i = 0;
+		break;
+	    }
+
+	    if ( sc.gen_count >= sc.gen_limit )
+	    {
+		sc.stub_flag_accumulator = accumulator;
+		sc.state = ( (min::uns64) k << 32 )
+			 + ( i << 1 );
+		return;
+	    }
+
+	    ++ i;
+	    min::gen v = * (min::gen *) (beginp + d);
+
+	    if ( min::is_stub ( v ) )
+	    {
+		min::stub * s2 = MUP::stub_of ( v );
+		min::uns64 c = MUP::control_of ( s2 );
+		int type = MUP::type_of_control ( c );
+		assert ( type >= 0 );
+
+		if ( ( c & sc.stub_flag ) == 0 )
+		    ; // Do nothing
+		else if ( MINT::scavenger_routines[type]
+			  == NULL )
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		else if (    sc.to_be_scavenged
+			  >= sc.to_be_scavenged_limit )
+		{
+		    sc.stub_flag_accumulator = accumulator;
+		    sc.state = ( (min::uns64) k << 32 )
+			     + ( i << 1 );
+		    return;
+		}
+		else
+		{
+		    * sc.to_be_scavenged ++ = s2;
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		}
+
+		++ sc.stub_count;
+		accumulator |= c;
+	    }
+
+	    ++ sc.gen_count;
+	}
+
+	if ( stub_ptr_disp != NULL )
+	    while ( true )
+	{
+	    min::uns32 d = stub_ptr_disp[i];
+	    if ( d == min::DISP_END )
+	    {
+		k = 1;
+		i = 0;
+		break;
+	    }
+
+	    if ( sc.gen_count >= sc.gen_limit )
+	    {
+		sc.stub_flag_accumulator =
+		    accumulator;
+		sc.state = ( (min::uns64) k << 32 )
+			 + ( i << 1 ) + 1;
+		return;
+	    }
+
+	    ++ i;
+	    min::stub * s2 = * (min::stub **) (beginp + d );
+	    if ( s2 != NULL )
+	    {
+		min::uns64 c = MUP::control_of ( s2 );
+		int type = MUP::type_of_control ( c );
+		assert ( type >= 0 );
+
+		if ( ( c & sc.stub_flag ) == 0 )
+		    ; // Do nothing
+		else if ( MINT::scavenger_routines[type]
+			  == NULL )
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		else if (    sc.to_be_scavenged
+			  >= sc.to_be_scavenged_limit )
+		{
+		    sc.stub_flag_accumulator = accumulator;
+		    sc.state = ( (min::uns64) k << 32 )
+			     + ( i << 1 ) + 1;
+		    return;
+		}
+		else
+		{
+		    * sc.to_be_scavenged ++ = s2;
+		    MUP::clear_flags_of
+			( s2, sc.stub_flag );
+		}
+
+		++ sc.stub_count;
+		accumulator |= c;
+	    }
+
+	    ++ sc.gen_count;
+	}
+
+	if ( k == 0 )
+	{
+	    beginp += psd->header_size;
+	    gen_disp = psd->element_gen_disp;
+	    stub_ptr_disp = psd->element_stub_ptr_disp;
+	}
+	else
+	    beginp += psd->element_size;
+	++ k;
     }
 
     sc.stub_flag_accumulator = accumulator;
