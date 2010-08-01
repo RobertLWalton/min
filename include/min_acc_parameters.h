@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 25 09:10:55 EDT 2010
+// Date:	Sat Jul 31 18:44:37 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/06/25 19:28:02 $
+//   $Date: 2010/08/01 00:00:14 $
 //   $RCSfile: min_acc_parameters.h,v $
-//   $Revision: 1.18 $
+//   $Revision: 1.19 $
 
 // Table of Contents
 //
@@ -143,6 +143,24 @@
 # ifndef MIN_DEFAULT_CACHE_LINE_SIZE
 #    define MIN_DEFAULT_CACHE_LINE_SIZE 256
 # endif
+
+// deallocated_body_size
+//
+//   The size of the inaccessible memory block to which
+//   a min::DEALLOCATED stub is pointed.  Default:
+//
+//	MIN_DEALLOCATED_BODY_SIZE
+//
+//   if defined, or max_paged_body_size otherwise.
+//   Must a multiple of the page size.  This size
+//   includes both the body and the 8 byte control
+//   word that is just before the body.
+//
+//   A block of inaccessible memory of this size is
+//   allocated.  If an access is made to a deallocated
+//   body of this or smaller size, a memory fault will
+//   occur.  If an access is made to a larger dealloca-
+//   ted body the result is undefined.
 
 // Parameters not usually changed.  F = space_factor.
 //

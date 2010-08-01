@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 17 01:13:19 EDT 2010
+// Date:	Sat Jul 31 18:56:59 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/17 05:46:58 $
+//   $Date: 2010/08/01 00:00:15 $
 //   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.54 $
+//   $Revision: 1.55 $
 
 // Table of Contents
 //
@@ -351,10 +351,6 @@ namespace min { namespace internal {
 //	    High order 24 bits of the smallest (as an
 //	    unsigned binary integer) 64 bit floating
 //	    point signalling NAN.
-//	MIN_DEALLOCATED_LIMIT
-//	    Size of unimplemented memory at which
-//	    deallocated body pointers are pointed
-//	    if MIN_POINTER_BITS <= 32.
 //
 # if __i386__
 #   define MIN_INT32_TYPE int
@@ -363,7 +359,6 @@ namespace min { namespace internal {
 #   define MIN_IS_LITTLE_ENDIAN 1
 #   define MIN_POINTER_BITS 32
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
-#   define MIN_DEALLOCATED_LIMIT (1 << 20)
 # endif
 # if __x86_64__
 #   define MIN_INT32_TYPE int

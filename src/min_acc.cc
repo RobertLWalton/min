@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 31 08:30:42 EDT 2010
+// Date:	Sat Jul 31 20:00:49 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/31 12:32:25 $
+//   $Date: 2010/08/01 00:01:23 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.77 $
+//   $Revision: 1.78 $
 
 // Table of Contents:
 //
@@ -402,12 +402,15 @@ min::unsptr MACC::space_factor =
     MIN_DEFAULT_SPACE_FACTOR;
 min::unsptr MACC::cache_line_size =
     MIN_DEFAULT_CACHE_LINE_SIZE;
+min::unsptr MACC::deallocated_body_size;
 min::unsptr MACC::subregion_size;
 min::unsptr MACC::superregion_size;
 min::unsptr MACC::max_paged_body_size;
 min::unsptr MACC::paged_body_region_size;
 min::unsptr MACC::stub_stack_region_size;
 min::unsptr MACC::stub_stack_segment_size;
+
+void * MACC::deallocated_body;
 
 MACC::region * MACC::region_table;
 MACC::region * MACC::region_next;
@@ -469,6 +472,20 @@ static void block_allocator_initializer ( void )
 		  1 << 24 : 1ull << 32 ),
 		page_size );
 
+#   ifdef MIN_DEALLOCATED_BODY_SIZE
+	MACC::deallocated_body_size =
+	    MIN_DEALLOCATED_BODY_SIZE;
+#   else
+	MACC::deallocated_body_size =
+	    MACC::max_paged_body_size;
+#   endif
+    get_param ( "deallocated_body_size",
+                MACC::deallocated_body_size,
+		1 << 20,
+		( MIN_POINTER_BITS <= 32 ?
+		  1 << 30 : 1ull << 40 ),
+		page_size );
+
     MACC::paged_body_region_size =
         F * MACC::max_paged_body_size;
     get_param ( "paged_body_region_size",
@@ -494,6 +511,34 @@ static void block_allocator_initializer ( void )
 
     if ( MINT::max_fixed_block_size > F * page_size )
 	MINT::max_fixed_block_size = F * page_size;
+
+    // Allocate MACC::deallocated_body.
+    //
+    {
+	min::unsptr pages =
+	    number_of_pages
+	        ( MACC::deallocated_body_size );
+	void * p = MOS::new_pool ( pages );
+
+	const char * error = MOS::pool_error ( p );
+	if ( error != NULL )
+	{
+	    cout << "ERROR: " << error << endl
+		 << "       while allocating"
+		    " deallocated body of size"
+		 << MACC::deallocated_body_size
+		 << " bytes"
+		 << endl
+		 << "       Suggest decreasing"
+		    " deallocated_body_size."
+		 << endl;
+	    MOS::dump_error_info ( cout );
+	    exit ( 1 );
+	}
+	MOS::inaccess_pool ( pages, p );
+	MACC::deallocated_body = (void *)
+	    ( (min::uns64 *) p + 1 );
+    }
 
     // We allocate a maximum sized region table, on the
     // grounds that it is < 4 megabytes, its silly not
