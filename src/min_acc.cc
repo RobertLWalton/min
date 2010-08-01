@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  1 02:50:23 EDT 2010
+// Date:	Sun Aug  1 06:54:31 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/01 07:07:13 $
+//   $Date: 2010/08/01 11:10:58 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.79 $
+//   $Revision: 1.80 $
 
 // Table of Contents:
 //
@@ -624,6 +624,8 @@ static MACC::region * new_paged_block_region
     r->begin = (min::uns8 *) m;
     r->next = r->begin;
     r->end = r->begin + size;
+    r->round_size = page_size;
+    r->round_mask = page_size - 1;
     r->block_size = 0;
     r->free_size = 0;
     r->free_count = 0;
@@ -665,6 +667,8 @@ static void free_paged_block_region
     r->begin = NULL;
     r->next = NULL;
     r->end = NULL;
+    r->round_size = page_size;
+    r->round_mask = page_size - 1;
     r->block_size = 0;
     r->free_size = 0;
     r->free_count = 0;
@@ -715,6 +719,8 @@ static void allocate_new_superregion ( void )
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
+    r->round_size = page_size;
+    r->round_mask = page_size - 1;
     r->block_size = MACC::subregion_size;
     r->max_free_count = size_of ( r ) / r->block_size;
 
@@ -831,6 +837,8 @@ void MINT::new_fixed_body
 	assert
 	    ( ( r->end - r->begin ) % fbl->size == 0 );
 
+	r->round_size = fbl->size;
+	r->round_mask = fbl->size - 1;
 	r->block_size = fbl->size;
 	r->free_count = 0;
 	r->last_free = NULL;
@@ -1054,7 +1062,7 @@ void MUP::deallocate_body
     {
 	MACC::free_variable_size_block * p =
 	    (MACC::free_variable_size_block *) bp;
-	n = ( n + 15 ) & ~7;
+	n = ( n + 8 + r->round_mask ) & ~ r->round_mask;
 	p->block_subcontrol =
 	    MUP::new_control_with_type
 	        ( MACC::FREE, n );
@@ -1174,6 +1182,8 @@ void MACC::stub_stack
 	    exit ( 1 );
 	}
 
+	r->round_size = page_size;
+	r->round_mask = page_size - 1;
 	r->block_size = MACC::stub_stack_segment_size;
 	r->max_free_count =
 	    size_of ( r ) / r->block_size;
