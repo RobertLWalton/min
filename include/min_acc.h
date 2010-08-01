@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 31 08:29:50 EDT 2010
+// Date:	Sat Jul 31 17:29:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/31 12:30:18 $
+//   $Date: 2010/08/01 00:00:12 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.89 $
+//   $Revision: 1.90 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -140,10 +140,6 @@ namespace min { namespace acc {
 
 namespace min { namespace acc {
 
-    // Page size for use in inline functions.
-    //
-    extern min::unsptr page_size;
-
     // Parameters:
 
     // The space factor F controls some aspects of the
@@ -168,10 +164,18 @@ namespace min { namespace acc {
     //
     extern min::unsptr cache_line_size;
 
+    // Page size for use in inline functions.
+    //
+    extern min::unsptr page_size;
+
     // Sizes of various kinds of region and size limits
     // on their contents, in bytes.  See description of
     // regions below, and see min_acc_parameters.h for
     // defaults.
+
+    extern min::uns64 deallocated_body_size;
+        // Size of the inaccessible memory region to
+	// which min::DEALLOCATED stubs are pointed.
 
     extern min::unsptr subregion_size;
         // The size of fixed size block and variable
@@ -265,6 +269,14 @@ namespace min { namespace acc {
 	STUB_STACK_SEGMENT		= 7,
 	STUB_STACK_REGION		= 8
     };
+
+    // Address of body of a min::DEALLOCATED stub.
+    // Points at the address + 8 bytes of a inaccessible
+    // memory region of MACC::deallocated_body_size
+    // bytes.  The 8 bytes are for the body control word
+    // which is also inaccessible.
+    //
+    extern void * deallocated_body;
 
     // Regions:
 
