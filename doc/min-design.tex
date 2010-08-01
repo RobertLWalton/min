@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 25, 2010}
+\date{July 31, 2010}
  
 \maketitle
 
@@ -1760,11 +1760,12 @@ as:
 
 The operation of \ikey{deallocating a body}{deallocate!body}\index{deallocation}
 is considered to be a relocation of the body.  The body pointer in the
-stub is pointed at inaccessible virtual memory, and the type code in the stub
+stub is pointed at a `deallocated body' located in
+inaccessible virtual memory, and the type code in the stub
 is set to {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 
 The following function tests whether a stub
-has a deallocated body:
+has {\tt min::DEALLOCATED} type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( const min::stub * s )|
@@ -1774,32 +1775,21 @@ has a deallocated body:
 This function just checks the stub type code to see if it equals
 {\tt min::DEALLOCATED} (\pagref{MIN::DEALLOCATED}).
 
-A check that a body has not been deallocated may be needed before
-a pointer into the body is recomputed after a relocating function has
-been called.  Using a deallocated body is
-considered to be a fatal programming error, so often no check is necessary,
-as a program that uses a deallocated body simply
-crashes when it tries to access the inaccessible
-virtual memory.
+The inaccessible memory to which a {\tt min::DEALLOCATED} stub is
+pointed is called the `\key{deallocated body}' of the stub.
+Implementations typically provide a single block of inaccessible memory
+which is used as the deallocated body of all {\tt min::DEALLOCATED} stubs.
+The size of this will be large enough that any access to the body of
+a {\tt min::DEALLOCATED} stub that was previously of a
+standard stub type will cause a memory fault, because every such access is
+checked to see if it does not go beyond the end of the body by using
+data in a header at the beginning of the body,
+and the size of the deallocated body is larger than the size of the header.
 
-In some implementations there is a limit to the size of inaccessible memory.
-These implementations define the macro:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-(unsigned integer macro)~~ & \TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
-\LABEL{MIN_DEALLOCATED_LIMIT}
-\end{tabular}\end{indpar}
-
-to be the maximum size of inaccessible memory to which the stub of
-a deallocated object is pointed.  If this macro is undefined, there
-is no limit.  If the macro is defined, an attempt to
-access any part of a deallocated body beyond the specified limit
-will give undefined results.
-
-The \verb|MIN_DEALLOCATED_LIMIT|
-macro is generally left undefined for implementations
-with 64 bit addresses, but may be defined for implementations with
-32 bit addresses in order to conserve virtual memory.
+However, when recomputing pointers into a body after a relocating
+function has been called the body header may not be reaccessed,
+so in this case an explicit check that a body has not been deallocated
+is necessary.
 
 \subsection{Allocator/Collector/Compactor Interface}
 \label{ACC-INTERFACE}
@@ -2293,10 +2283,7 @@ need \underline{not} be a multiple of 8.
 
 When a body is deallocated, the stub type is set to
 \verb|min::DEALLOCATED| and the stub pointer is set to
-point at a block of inaccessible memory whose size is at least
-the smaller of \verb|n| and
-{\tt MIN\_\EOL DEALLOCATED\_\EOL LIMIT}
-(\pagref{MIN_DEALLOCATED_LIMIT}).
+point at a block of inaccessible memory.
 As a special case, if the body size \verb|n| is zero,
 {\tt MUP::\EOL deallocate\_\EOL body} does nothing
 (see {\tt MIN::\EOL body\_\EOL size\_\EOL of} below).
@@ -6978,8 +6965,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN_MAX_RELATIVE_STUB_ADDRESS} \\
 \TTNBKEY{MIN\_MAX\_ABSOLUTE\_STUB\_ADDRESS}
 \LABEL{MIN_MAX_ABSOLUTE_STUB_ADDRESS} \\
-\TTNBKEY{MIN\_DEALLOCATED\_LIMIT}
-\LABEL{MIN_DEALLOCATED_LIMIT} \\
 \TTNBKEY{MIN\_PROTECT}
 \LABEL{MIN_PROTECT} \\
 \TTNBKEY{MIN\_ASSERT($e$)}
