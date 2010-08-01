@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Mon May 17 11:14:53 EDT 2010
+# Date:		Sun Aug  1 07:23:10 EDT 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 # RCS Info (may not be true date or author):
 #
 #   $Author: walton $
-#   $Date: 2010/06/25 12:37:52 $
+#   $Date: 2010/08/01 11:23:40 $
 #   $RCSfile: Makefile,v $
-#   $Revision: 1.33 $
+#   $Revision: 1.34 $
 
 # We need the following to mask RCS lines
 #
@@ -98,6 +98,7 @@ optimization_test:	\
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
+	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
             < $*.out > $*.test
 
 %.diff:	%.out
@@ -110,6 +111,7 @@ optimization_test:	\
 	    -e '/\$DDate: .*\$D/s//\$DRCS Date: XXX\$D/' \
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
+	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
             < $*.out | diff --minimal $*.test -
 
 %.out:	%
