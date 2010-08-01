@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 31 17:29:39 EDT 2010
+// Date:	Sun Aug  1 06:54:08 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/01 00:00:12 $
+//   $Date: 2010/08/01 11:10:33 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.90 $
+//   $Revision: 1.91 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -550,6 +550,19 @@ namespace min { namespace acc {
 	min::uns64 free_size;
 	    // Number of bytes of free blocks in a
 	    // variable sized block region.
+
+	min::unsptr round_size;
+	    // Block sizes in this region are rounded
+	    // up to this size (which is generally
+	    // either 8 or the page size or the block
+	    // size for a fixed size block region).
+	    // MUST be a power of 2.
+
+	min::unsptr round_mask;
+	    // Equals round_size - 1 so that you can
+	    // round S to
+	    //
+	    //     ( S + round_mask ) & ~ round_mask
 
 	min::unsptr block_size;
 	    // For fixed size block regions, the size
