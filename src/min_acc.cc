@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 31 20:00:49 EDT 2010
+// Date:	Sun Aug  1 02:50:23 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/01 00:01:23 $
+//   $Date: 2010/08/01 07:07:13 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.78 $
+//   $Revision: 1.79 $
 
 // Table of Contents:
 //
@@ -1024,6 +1024,7 @@ void MUP::deallocate_body
     ( min::stub * s, min::unsptr n )
 {
     if ( n == 0 ) return;
+
     min::uns64 * bp =
         (min::uns64 *) MUP::pointer_of ( s ) - 1;
     MACC::region * r = MACC::region_of_body ( bp );
@@ -1042,6 +1043,7 @@ void MUP::deallocate_body
 	else
 	{
 	    p->next = r->last_free->next;
+	    r->last_free->next = p;
 	    r->last_free = p;
 	}
 	++ r->free_count;
@@ -1059,7 +1061,8 @@ void MUP::deallocate_body
 	r->free_size += n;
     }
 
-    // TBD
+    MUP::set_pointer_of ( s, MACC::deallocated_body );
+    MUP::set_type_of ( s, min::DEALLOCATED );
 }
 
 // Packed Type Allocator
