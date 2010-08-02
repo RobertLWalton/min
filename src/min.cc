@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 30 20:42:31 EDT 2010
+// Date:	Mon Aug  2 09:45:38 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/31 04:07:03 $
+//   $Date: 2010/08/02 14:47:32 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.240 $
+//   $Revision: 1.241 $
 
 // Table of Contents:
 //
@@ -302,9 +302,13 @@ std::ostream & operator <<
 {
     min::gen v = prv.value;
     min::pr_format & f = prv.format;
-    if ( min::is_num ( v ) )
+    if ( v == min::new_gen ( MINT::null_stub ) )
     {
-        min::float64 vf = min::float_of ( v );
+        return out << "new_gen ( MINT::null_stub )";
+    }
+    else if ( min::is_num ( v ) )
+    {
+        min::float64 vf = MUP::float_of ( v );
 	char buffer[100];
 	sprintf ( buffer, f.number_format, vf );
 	return out << buffer;
@@ -318,7 +322,7 @@ std::ostream & operator <<
     }
     else if ( min::is_lab ( v ) )
     {
-	min::lab_pointer labp ( v );
+	min::lab_pointer labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::length_of ( labp );
 	out << f.lab_prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
@@ -330,7 +334,7 @@ std::ostream & operator <<
     }
     else if ( min::is_special ( v ) )
     {
-        min::unsgen index = min::special_index_of ( v );
+        min::unsgen index = MUP::special_index_of ( v );
 	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
 	     < index
 	     &&
@@ -344,7 +348,7 @@ std::ostream & operator <<
     }
     else if ( min::is_stub ( v ) )
     {
-        const min::stub * s = min::stub_of ( v );
+        const min::stub * s = MUP::stub_of ( v );
         int type = min::type_of ( s );
 	const char * type_name = min::type_name[type];
 	if ( type_name != NULL )
@@ -356,19 +360,19 @@ std::ostream & operator <<
     }
     else if ( min::is_list_aux ( v ) )
         return out << "LIST_AUX("
-	           << min::list_aux_of ( v ) << ")";
+	           << MUP::list_aux_of ( v ) << ")";
     else if ( min::is_sublist_aux ( v ) )
         return out << "SUBLIST_AUX("
-	           << min::sublist_aux_of ( v ) << ")";
+	           << MUP::sublist_aux_of ( v ) << ")";
     else if ( min::is_indirect_aux ( v ) )
         return out << "INDIRECT_AUX("
-	           << min::indirect_aux_of ( v ) << ")";
+	           << MUP::indirect_aux_of ( v ) << ")";
     else if ( min::is_index ( v ) )
         return out << "INDEX("
-	           << min::index_of ( v ) << ")";
+	           << MUP::index_of ( v ) << ")";
     else if ( min::is_control_code ( v ) )
         return out << "CONTROL_CODE(0x" << std::hex
-	           << min::control_code_of ( v )
+	           << MUP::control_code_of ( v )
 		   << std::dec << ")";
     else
         return out << "UNDEFINED_GEN(0x" << std::hex

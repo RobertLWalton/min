@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 23 09:48:36 EDT 2010
+// Date:	Mon Aug  2 10:45:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/23 13:54:04 $
+//   $Date: 2010/08/02 14:47:20 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.365 $
+//   $Revision: 1.366 $
 
 // Table of Contents:
 //
@@ -3081,6 +3081,12 @@ namespace min {
 	{
 	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
 	}
+
+	// Constructor with unprotected pointer to avoid
+	// MIN_ASSERT.
+	//
+	lab_pointer ( min::stub * s )
+	    : stub ( s ) {}
 
 	lab_pointer ( void )
 	    : stub ( NULL ) {}
