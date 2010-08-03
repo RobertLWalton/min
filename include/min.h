@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  2 10:45:54 EDT 2010
+// Date:	Mon Aug  2 20:49:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/02 14:47:20 $
+//   $Date: 2010/08/03 01:34:10 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.366 $
+//   $Revision: 1.367 $
 
 // Table of Contents:
 //
@@ -2800,194 +2800,149 @@ namespace min {
     int strncmp
         ( const char * p, min::gen v, min::unsptr n );
 
-    // String Pointers:
+    namespace unprotected {
 
-    // Some forward reference stuff that must be
-    // declared here before it is referenced by a
-    // friend declaration.
+	// For forward reference.
+	//
+	class str_pointer;
+    }
+
+    // Functions that must be declared before they are
+    // made friends.
     //
-    class str_pointer;
     namespace unprotected {
 	const char * str_of
-	    ( const min::str_pointer & sp );
+	    ( const min::unprotected
+	               ::str_pointer & sp );
     }
-    void initialize
-	( min::str_pointer & sp, min::gen v );
-    min::unsptr strlen ( const min::str_pointer & sp );
-    min::uns32 strhash ( const min::str_pointer & sp );
+    min::unsptr strlen
+        ( const min::unprotected::str_pointer & sp );
+    min::uns32 strhash
+        ( const min::unprotected::str_pointer & sp );
     char * strcpy ( char * p,
-                    const min::str_pointer & sp );
+                    const min::unprotected
+		             ::str_pointer & sp );
     char * strncpy ( char * p,
-                     const min::str_pointer & sp,
+                     const min::unprotected
+		              ::str_pointer & sp,
 		     min::unsptr n );
     int strcmp
-        ( const char * p, const min::str_pointer & sp );
+        ( const char * p,
+	  const min::unprotected::str_pointer & sp );
     int strncmp
-        ( const char * p, const min::str_pointer & sp );
+        ( const char * p,
+	  const min::unprotected::str_pointer & sp,
+	  min::unsptr n );
 
-    class str_pointer
-    {
-    public:
+    namespace unprotected {
 
-	str_pointer ( min::gen v )
+	class str_pointer
 	{
+	public:
 
-	    if ( min::is_stub ( v ) )
+	    str_pointer ( const min::stub * s )
+	        : s ( s )
 	    {
-		s = min::unprotected::stub_of ( v );
 		if (    min::type_of ( s )
 		     == min::LONG_STR )
 		    return;
 
-		MIN_ASSERT (    min::type_of ( s )
-			     == min::SHORT_STR );
-
 		pseudo_body.u.str = s->v.u64;
 		pseudo_body.u.buf[8] = 0;
+		this->s = & pseudo_stub;
+		min::unprotected
+		   ::set_pointer_of
+		       ( & pseudo_stub,
+			 (void *) & pseudo_body );
 	    }
-	    else
+
+	    str_pointer ( min::gen v )
 	    {
-	        MIN_ASSERT ( min::is_direct_str ( v ) );
 
-		pseudo_body.u.str
-		    = min::unprotected
-			 ::direct_str_of ( v );
+		if ( min::is_stub ( v ) )
+		    new ( this )
+		        str_pointer
+			    ( unprotected::stub_of
+			          ( v ) );
+		else
+		{
+		    pseudo_body.u.str
+			= min::unprotected
+			     ::direct_str_of ( v );
+		    s = & pseudo_stub;
+		    min::unprotected
+		       ::set_pointer_of
+			   ( & pseudo_stub,
+			     (void *) & pseudo_body );
+		}
 	    }
 
-	    s = & pseudo_stub;
-	    min::unprotected
-	       ::set_pointer_of
-		   ( & pseudo_stub,
-		     (void *) & pseudo_body );
-	}
+	    // Operator[] MUST be a member and cannot
+	    // be a friend.
+	    //
+	    const char operator[] ( int index )
+	    {
+		return
+		    ( (const char * )
+		      unprotected::long_str_of ( s ) )
+		    [sizeof ( unprotected::long_str )
+		     + index];
+	    }
 
-	// Operator[] MUST be a member and cannot be a
-	// friend.
-	//
-        const char operator[] ( int index )
-	{
-	    return
-	        ( (const char * )
-	          min::unprotected::long_str_of ( s ) )
-	        [sizeof ( min::unprotected::long_str )
-		 + index];
-	}
+	    friend const char * min::unprotected::str_of
+		( const unprotected::str_pointer & sp );
+	    friend min::unsptr min::strlen
+		( const unprotected::str_pointer & sp );
+	    friend min::uns32 min::strhash
+		( const unprotected::str_pointer & sp );
+	    friend char * min::strcpy
+		( char * p,
+		  const unprotected::str_pointer & sp );
+	    friend char * min::strncpy
+		( char * p,
+		  const unprotected::str_pointer & sp,
+		  min::unsptr n );
+	    friend int min::strcmp
+		( const char * p,
+		  const unprotected::str_pointer & sp );
+	    friend int min::strncmp
+		( const char * p,
+		  const unprotected::str_pointer & sp,
+		  min::unsptr n );
 
-	friend const char * min::unprotected::str_of
-	    ( const str_pointer & sp );
-	friend void min::initialize
-	    ( str_pointer & sp, min::gen v );
-	friend min::unsptr min::strlen
-	    ( const min::str_pointer & sp );
-	friend min::uns32 min::strhash
-	    ( const min::str_pointer & sp );
-	friend char * min::strcpy
-	    ( char * p, const min::str_pointer & sp );
-	friend char * min::strncpy
-	    ( char * p, const min::str_pointer & sp,
-	                min::unsptr n );
-	friend int min::strcmp
-	    ( const char * p,
-	      const min::str_pointer & sp );
-	friend int min::strncmp
-	    ( const char * p,
-	      const min::str_pointer & sp,
-	      min::unsptr n );
+	protected:
+	    str_pointer ( void ) {}
 
-    private:
+	private:
 
-	const min::stub * s;
-	    // Stub pointer if long string, or
-	    // pointer to pseudo_stub for short
-	    // or direct string.
+	    const min::stub * s;
+		// Stub pointer if long string, or
+		// pointer to pseudo_stub for short
+		// or direct string.
 
-	min::stub pseudo_stub;
-	    // Pseudo-stub for short or direct
-	    // string; only value is used to point
-	    // at pseudo_body.buf.
+	    min::stub pseudo_stub;
+		// Pseudo-stub for short or direct
+		// string; only value is used to point
+		// at pseudo_body.buf.
 
-	struct
-	{
-	    struct min::unprotected::long_str h;
-	    union {
-		char buf [9];
-		    // NUL terminated copy of string.
-		uns64 str;
-		uns64 xx[2];
-		    // Sized to maintain alignment
-		    // of surrounding data.
-	    } u;
-	} pseudo_body;
-    };
-
-    inline const char * unprotected::str_of
-	    ( const min::str_pointer & sp )
-    {
-	return (const char * )
-	       min::unprotected::long_str_of ( sp.s )
-	       +
-	       sizeof ( min::unprotected::long_str );
+	    struct
+	    {
+		struct min::unprotected::long_str h;
+		union {
+		    char buf [9];
+			// NUL terminated copy of
+			// string.
+		    uns64 str;
+		    uns64 xx[2];
+			// Sized to maintain alignment
+			// of surrounding data.
+		} u;
+	    } pseudo_body;
+	};
     }
 
-    inline void initialize
-	    ( min::str_pointer & sp, min::gen v )
-    {
-	new ( & sp ) min::str_pointer ( v );
-    }
-
-    inline min::unsptr strlen
-        ( const min::str_pointer & sp )
-    {
-        if ( sp.s == & sp.pseudo_stub )
-	    return ::strlen ( sp.pseudo_body.u.buf );
-	else
-	    return unprotected::length_of
-	              ( unprotected::long_str_of
-		            ( sp.s ) );
-    }
-
-    inline min::uns32 strhash
-	    ( const min::str_pointer & sp )
-    {
-        if ( sp.s == & sp.pseudo_stub )
-	    return min::strhash
-	        ( sp.pseudo_body.u.buf );
-	else
-	    return unprotected::hash_of
-	              ( unprotected::long_str_of
-		            ( sp.s ) );
-    }
-
-    inline char * strcpy
-    	( char * p, const min::str_pointer & sp )
-    {
-        return ::strcpy
-	    ( p, min::unprotected::str_of ( sp ) );
-    }
-
-    inline char * strncpy
-    	( char * p, const min::str_pointer & sp,
-	            min::unsptr n )
-    {
-        return ::strncpy
-	    ( p, min::unprotected::str_of ( sp ), n );
-    }
-
-    inline int strcmp
-    	( const char * p, const min::str_pointer & sp )
-    {
-        return ::strcmp
-	    ( p, min::unprotected::str_of ( sp ) );
-    }
-
-    inline int strncmp
-    	( const char * p, const min::str_pointer & sp,
-	                  min::unsptr n )
-    {
-        return ::strncmp
-	    ( p, min::unprotected::str_of ( sp ), n );
-    }
-
+    // Function needed in min::str_pointer definition.
+    //
     inline bool is_str ( min::gen v )
     {
 	if ( min::is_direct_str ( v ) )
@@ -2999,6 +2954,96 @@ namespace min {
 	return min::type_of ( s ) == min::SHORT_STR
 	       ||
 	       min::type_of ( s ) == min::LONG_STR;
+    }
+
+    class str_pointer : public unprotected::str_pointer
+    {
+    public:
+	str_pointer ( min::gen v )
+	{
+	    MIN_ASSERT ( min::is_str ( v ) );
+	    new ( this ) unprotected::str_pointer ( v );
+	}
+    };
+
+    inline const char * unprotected::str_of
+	    ( const min::unprotected::str_pointer & sp )
+    {
+	return (const char * )
+	       min::unprotected::long_str_of ( sp.s )
+	       +
+	       sizeof ( min::unprotected::long_str );
+    }
+
+    inline void initialize
+	    ( min::unprotected::str_pointer & sp,
+	      min::gen v )
+    {
+	new ( & sp ) min::unprotected
+	                ::str_pointer ( v );
+    }
+
+    inline void initialize
+	    ( min::str_pointer & sp, min::gen v )
+    {
+	new ( & sp ) min::str_pointer ( v );
+    }
+
+    inline min::unsptr strlen
+        ( const min::unprotected::str_pointer & sp )
+    {
+        if ( sp.s == & sp.pseudo_stub )
+	    return ::strlen ( sp.pseudo_body.u.buf );
+	else
+	    return unprotected::length_of
+	              ( unprotected::long_str_of
+		            ( sp.s ) );
+    }
+
+    inline min::uns32 strhash
+	    ( const min::unprotected::str_pointer & sp )
+    {
+        if ( sp.s == & sp.pseudo_stub )
+	    return min::strhash
+	        ( sp.pseudo_body.u.buf );
+	else
+	    return unprotected::hash_of
+	              ( unprotected::long_str_of
+		            ( sp.s ) );
+    }
+
+    inline char * strcpy
+    	( char * p,
+	  const min::unprotected::str_pointer & sp )
+    {
+        return ::strcpy
+	    ( p, min::unprotected::str_of ( sp ) );
+    }
+
+    inline char * strncpy
+    	( char * p,
+	  const min::unprotected::str_pointer & sp,
+	  min::unsptr n )
+    {
+        return ::strncpy
+	    ( p, min::unprotected::str_of ( sp ), n );
+    }
+
+    inline int strcmp
+    	( const char * p,
+	  const min::unprotected::str_pointer & sp )
+    {
+        return ::strcmp
+	    ( p, min::unprotected::str_of ( sp ) );
+    }
+
+    inline int strncmp
+    	( const char * p,
+	  const min::unprotected::str_pointer & sp,
+	  min::unsptr n )
+    {
+        return ::strncmp
+	    ( p, min::unprotected::str_of ( sp ), n );
     }
 
     namespace internal {
@@ -3046,84 +3091,145 @@ namespace min {
 // contains the length (number of elements) and the
 // hash value.
 
-namespace min { namespace internal {
-
-    struct lab_header
-        // This must be an integral number of min::gen
-	// units in length.
-    {
-        uns32		length;
-        uns32		hash;
-    };
-
-    inline min::internal::lab_header * lab_header_of
-	    ( const min::stub * s )
-    {
-        return (min::internal::lab_header *)
-	       min::unprotected::pointer_of ( s );
-    }
-
-} }
-
 namespace min {
 
-    class lab_pointer
+    namespace internal {
+
+	struct lab_header
+	    // This must be an integral number of
+	    /// min::gen units in length.
+	{
+	    uns32		length;
+	    uns32		hash;
+	};
+
+	inline min::internal::lab_header * lab_header_of
+		( const min::stub * s )
+	{
+	    return (min::internal::lab_header *)
+		   min::unprotected::pointer_of ( s );
+	}
+    }
+
+    namespace unprotected {
+
+	// Declared for forward reference.
+	//
+	class lab_pointer;
+    }
+
+    // Declared for use as friend below.
+    //
+    min::uns32 length_of
+	    ( min::unprotected
+		 ::lab_pointer & labp );
+    min::uns32 hash_of
+	    ( min::unprotected
+		 ::lab_pointer & labp );
+
+    namespace unprotected {
+
+	class lab_pointer
+	{
+	public:
+
+	    lab_pointer ( min::gen v )
+	    {
+		new ( this )
+		    lab_pointer
+			( unprotected::stub_of ( v ) );
+	    }
+
+	    lab_pointer ( const min::stub * s )
+		: stub ( s ) {}
+
+	    lab_pointer ( void )
+		: stub ( NULL ) {}
+
+	    ~ lab_pointer ( void )
+	    {
+		stub = NULL;
+	    }
+
+	    const min::gen operator [] ( min::uns32 i )
+	    {
+		MIN_ASSERT ( i < header()->length );
+		return base()[i];
+	    }
+
+	    friend min::uns32 min::length_of
+		    ( min::unprotected
+			 ::lab_pointer & labp );
+	    friend min::uns32 min::hash_of
+		    ( min::unprotected
+			 ::lab_pointer & labp );
+
+	private:
+
+	    const min::stub * stub;
+
+	    internal::lab_header * header ( void )
+	    {
+		return
+		    * (internal::lab_header **) &
+		    unprotected::pointer_ref_of
+			( (min::stub *) stub );
+	    }
+
+	    const min::gen * base ( void )
+	    {
+		return (const min::gen *)
+		       ( header() + 1 );
+	    }
+	};
+    }
+
+    class lab_pointer : public unprotected::lab_pointer
     {
     public:
 
         lab_pointer ( min::gen v )
 	{
-	    new ( this ) lab_pointer ( stub_of ( v ) );
+	    const min::stub * s = stub_of ( v );
+	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
+	    new ( this )
+	        unprotected::lab_pointer ( s );
 	}
 
-	lab_pointer ( const min::stub * s )
-	    : stub ( s )
+        lab_pointer ( const min::stub * s )
 	{
 	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
+	    new ( this )
+	        unprotected::lab_pointer ( s );
 	}
 
-	// Constructor with unprotected pointer to avoid
-	// MIN_ASSERT.
-	//
-	lab_pointer ( min::stub * s )
-	    : stub ( s ) {}
+        lab_pointer ( void ) {}
 
-	lab_pointer ( void )
-	    : stub ( NULL ) {}
-
-	~ lab_pointer ( void )
-	{
-	    stub = NULL;
-	}
-
-	const min::gen operator [] ( min::uns32 i )
-	{
-	    MIN_ASSERT ( i < header()->length );
-	    return base()[i];
-	}
-
-	friend min::uns32 min::length_of
-		( min::lab_pointer & labp );
-	friend min::uns32 min::hash_of
-		( min::lab_pointer & labp );
-
-    protected:
-
-        const min::stub * stub;
-
-	internal::lab_header * header ( void )
-	{
-	    return
-	        * (internal::lab_header **) &
-		unprotected::pointer_ref_of
-		    ( (min::stub *) stub );
-	}
-
-	const min::gen * base ( void )
-	{
-	    return (const min::gen *) ( header() + 1 );
-	}
     };
+
+    inline void initialize
+	    ( min::unprotected::lab_pointer & labp,
+    	      min::gen v )
+    {
+        labp.~lab_pointer();
+	new ( & labp ) min::unprotected
+	                  ::lab_pointer ( v );
+    }
+
+    inline void initialize
+	    ( min::unprotected::lab_pointer & labp,
+    	      const min::stub * s )
+    {
+        labp.~lab_pointer();
+	new ( & labp ) min::unprotected
+	                  ::lab_pointer ( s );
+    }
+
+    inline void deinitialize
+        ( min::unprotected::lab_pointer & labp )
+    {
+        labp.~lab_pointer();
+    }
 
     inline void initialize ( min::lab_pointer & labp,
     			     min::gen v )
@@ -3139,19 +3245,14 @@ namespace min {
 	new ( & labp ) min::lab_pointer ( s );
     }
 
-    inline void deinitialize ( min::lab_pointer & labp )
-    {
-        labp.~lab_pointer();
-    }
-
     inline min::uns32 length_of
-	    ( min::lab_pointer & labp )
+	    ( min::unprotected::lab_pointer & labp )
     {
         return labp.header()->length;
     }
 
     inline min::uns32 hash_of
-	    ( min::lab_pointer & labp )
+	    ( min::unprotected::lab_pointer & labp )
     {
         return labp.header()->hash;
     }

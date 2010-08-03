@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  2 09:45:38 EDT 2010
+// Date:	Mon Aug  2 21:36:35 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/02 14:47:32 $
+//   $Date: 2010/08/03 01:37:01 $
 //   $RCSfile: min.cc,v $
-//   $Revision: 1.241 $
+//   $Revision: 1.242 $
 
 // Table of Contents:
 //
@@ -315,14 +315,15 @@ std::ostream & operator <<
     }
     else if ( min::is_str ( v ) )
     {
-        min::str_pointer sp ( v );
+        min::unprotected::str_pointer sp ( v );
         return out << f.str_prefix
 	           << min::unprotected::str_of ( sp )
 		   << f.str_postfix;
     }
     else if ( min::is_lab ( v ) )
     {
-	min::lab_pointer labp ( MUP::stub_of ( v ) );
+	min::unprotected
+	   ::lab_pointer labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::length_of ( labp );
 	out << f.lab_prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
@@ -953,7 +954,8 @@ static void packed_vec_scavenger_routine
 		else if (    sc.to_be_scavenged
 			  >= sc.to_be_scavenged_limit )
 		{
-		    sc.stub_flag_accumulator = accumulator;
+		    sc.stub_flag_accumulator =
+		        accumulator;
 		    sc.state = ( (min::uns64) k << 32 )
 			     + ( i << 1 );
 		    return;
@@ -993,7 +995,8 @@ static void packed_vec_scavenger_routine
 	    }
 
 	    ++ i;
-	    min::stub * s2 = * (min::stub **) (beginp + d );
+	    min::stub * s2 =
+	        * (min::stub **) (beginp + d );
 	    if ( s2 != NULL )
 	    {
 		min::uns64 c = MUP::control_of ( s2 );
@@ -1009,7 +1012,8 @@ static void packed_vec_scavenger_routine
 		else if (    sc.to_be_scavenged
 			  >= sc.to_be_scavenged_limit )
 		{
-		    sc.stub_flag_accumulator = accumulator;
+		    sc.stub_flag_accumulator =
+		        accumulator;
 		    sc.state = ( (min::uns64) k << 32 )
 			     + ( i << 1 ) + 1;
 		    return;
