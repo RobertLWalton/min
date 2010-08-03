@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 23 09:53:06 EDT 2010
+// Date:	Mon Aug  2 22:51:03 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/07/23 13:55:58 $
+//   $Date: 2010/08/03 03:00:25 $
 //   $RCSfile: min_interface_test.cc,v $
-//   $Revision: 1.190 $
+//   $Revision: 1.191 $
 
 // Table of Contents:
 //
@@ -109,17 +109,6 @@ void min_assert
 # define MUP min::unprotected
 # define MINT min::internal
 
-// Helper functions for tests.
-
-struct print_gen {
-    min::gen g;
-    print_gen ( min::gen g ) : g ( g ) {}
-    friend ostream & operator <<
-    	    ( ostream & s, print_gen pg )
-    {
-	return s << hex << pg.g << dec;
-    }
-};
 
 // Run-Time System for Interface Tests
 // -------- ------ --- --------- -----
@@ -629,7 +618,7 @@ void test_general_value_functions ( void )
 	 << min::unsptr ( stub )
 	 << dec << endl;
     min::gen stubgen = MUP::new_gen ( stub );
-    cout << "stubgen: " << print_gen ( stubgen )
+    cout << "stubgen: " << min::pr ( stubgen )
 	 << endl;
     MIN_ASSERT ( min::is_stub ( stubgen ) );
     MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
@@ -648,7 +637,7 @@ void test_general_value_functions ( void )
 	int i = -8434;
 	min::gen igen =
 	    MUP::new_direct_int_gen ( i );
-	cout << "igen: " << print_gen ( igen )
+	cout << "igen: " << min::pr ( igen )
 	     << endl;
 	MIN_ASSERT ( min::is_direct_int ( igen ) );
 	MIN_ASSERT
@@ -692,7 +681,7 @@ void test_general_value_functions ( void )
 	min::float64 f = -8.245324897;
 	min::gen fgen =
 	    MUP::new_direct_float_gen ( f );
-	cout << "fgen: " << print_gen ( fgen )
+	cout << "fgen: " << min::pr ( fgen )
 	     << endl;
 	MIN_ASSERT
 	    ( min::is_direct_float ( fgen ) );
@@ -733,7 +722,7 @@ void test_general_value_functions ( void )
 
     min::gen strgen =
 	MUP::new_direct_str_gen ( str );
-    cout << "strgen: " << print_gen ( strgen )
+    cout << "strgen: " << min::pr ( strgen )
 	 << endl;
     MIN_ASSERT ( min::is_direct_str ( strgen ) );
     MIN_ASSERT ( count_gen_tests ( strgen ) == 1 );
@@ -751,7 +740,7 @@ void test_general_value_functions ( void )
 
     min::gen strngen =
 	MUP::new_direct_str_gen ( str, 2 );
-    cout << "strngen: " << print_gen ( strngen )
+    cout << "strngen: " << min::pr ( strngen )
 	 << endl;
     MIN_ASSERT ( min::is_direct_str ( strngen ) );
     MIN_ASSERT ( count_gen_tests ( strngen ) == 1 );
@@ -778,7 +767,7 @@ void test_general_value_functions ( void )
     min::gen listauxgen =
 	MUP::new_list_aux_gen ( aux );
     cout << "listauxgen: "
-	 << print_gen ( listauxgen ) << endl;
+	 << min::pr ( listauxgen ) << endl;
     MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
     MIN_ASSERT
 	( count_gen_tests ( listauxgen ) == 2 );
@@ -798,7 +787,7 @@ void test_general_value_functions ( void )
     listauxgen =
 	MUP::renew_gen ( listauxgen, reaux );
     cout << "re-listauxgen: "
-	 << print_gen ( listauxgen ) << endl;
+	 << min::pr ( listauxgen ) << endl;
     MIN_ASSERT ( min::is_list_aux ( listauxgen ) );
     MIN_ASSERT
 	( count_gen_tests ( listauxgen ) == 2 );
@@ -812,7 +801,7 @@ void test_general_value_functions ( void )
     min::gen sublistauxgen =
 	MUP::new_sublist_aux_gen ( aux );
     cout << "sublistauxgen: "
-	 << print_gen ( sublistauxgen ) << endl;
+	 << min::pr ( sublistauxgen ) << endl;
     MIN_ASSERT
 	( min::is_sublist_aux ( sublistauxgen ) );
     MIN_ASSERT
@@ -838,7 +827,7 @@ void test_general_value_functions ( void )
     min::gen indirectauxgen =
 	MUP::new_indirect_aux_gen ( aux );
     cout << "indirectauxgen: "
-	 << print_gen ( indirectauxgen ) << endl;
+	 << min::pr ( indirectauxgen ) << endl;
     MIN_ASSERT
 	( min::is_indirect_aux
 		    ( indirectauxgen ) );
@@ -866,7 +855,7 @@ void test_general_value_functions ( void )
     min::gen indexgen =
 	MUP::new_index_gen ( index );
     cout << "indexgen: "
-	 << print_gen ( indexgen ) << endl;
+	 << min::pr ( indexgen ) << endl;
     MIN_ASSERT ( min::is_index ( indexgen ) );
     MIN_ASSERT
 	( count_gen_tests ( indexgen ) == 1 );
@@ -886,11 +875,11 @@ void test_general_value_functions ( void )
     cout << endl;
     cout << "Test control code general values:"
 	 << endl;
-    unsigned code = 734523;
+    unsigned code = 0x7e005f;
     min::gen codegen =
 	MUP::new_control_code_gen ( code );
     cout << "codegen: "
-	 << print_gen ( codegen ) << endl;
+	 << min::pr ( codegen ) << endl;
     MIN_ASSERT ( min::is_control_code ( codegen ) );
     MIN_ASSERT ( count_gen_tests ( codegen ) == 1 );
     MIN_ASSERT
@@ -938,11 +927,11 @@ void test_general_value_functions ( void )
     MIN_ASSERT
 	( count_gen_tests ( min::FAILURE ) == 1 );
 
-    unsigned special = 542492;
+    unsigned special = 0x7e005f;
     min::gen specialgen =
 	MUP::new_special_gen ( special );
     cout << "specialgen: "
-	 << print_gen ( specialgen ) << endl;
+	 << min::pr ( specialgen ) << endl;
     MIN_ASSERT ( min::is_special ( specialgen ) );
     MIN_ASSERT
 	( count_gen_tests ( specialgen ) == 1 );
@@ -1447,7 +1436,7 @@ void test_numbers ( void )
 	    " functions:" << endl;
 
     min::gen n1 = min::new_num_gen ( 12345 );
-    cout << "n1: " << print_gen ( n1 ) << endl;
+    cout << "n1: " << min::pr ( n1 ) << endl;
     MIN_ASSERT ( min::is_num ( n1 ) );
     MIN_ASSERT ( min::is_name ( n1 ) );
     MIN_ASSERT ( min::int_of ( n1 ) == 12345 );
@@ -1464,7 +1453,7 @@ void test_numbers ( void )
 
     min::gen n2 = min::new_num_gen ( 1.2345 );
 #   if MIN_IS_LOOSE
-	cout << "n2: " << print_gen ( n2 ) << endl;
+	cout << "n2: " << min::pr ( n2 ) << endl;
 #   endif
     MIN_ASSERT ( min::is_num ( n2 ) );
     MIN_ASSERT ( min::is_name ( n2 ) );
@@ -1482,7 +1471,7 @@ void test_numbers ( void )
 
     min::gen n3 = min::new_num_gen ( 1 << 30 );
 #   if MIN_IS_LOOSE
-	cout << "n3: " << print_gen ( n3 ) << endl;
+	cout << "n3: " << min::pr ( n3 ) << endl;
 #   endif
     MIN_ASSERT ( min::is_num ( n3 ) );
     MIN_ASSERT ( min::is_name ( n3 ) );
