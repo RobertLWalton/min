@@ -14,5 +14,15 @@ TRACE: new_paged_block_region returns & region_table[1]
 TRACE: new_pool ( 1 )
 
 Start Test!
+TRACE: allocate_new_superregion()
+TRACE: new_paged_block_region (1073741824, 4)
+TRACE: new_pool ( 262144 )
+TRACE: new_paged_block_region returns & region_table[2]
+min_acc_test.cc:XXXX assert:
+    check_vec_of_objects ( v ) true.
+../include/min.h:XXXX assert:
+    type == UPDATABLE true.
+min_acc_test.cc:XXXX assert:
+    check_vec_of_objects ( v ) true.
 
 Finished Test!
