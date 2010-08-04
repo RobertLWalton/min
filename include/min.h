@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  2 20:49:05 EDT 2010
+// Date:	Wed Aug  4 10:09:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/03 01:34:10 $
+//   $Date: 2010/08/04 14:09:51 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.367 $
+//   $Revision: 1.368 $
 
 // Table of Contents:
 //
@@ -2605,14 +2605,28 @@ namespace min {
 		      ( internal::unsgen_to_stub ( v ) )
 		    == min::NUMBER );
 	}
-	inline min::gen new_num_gen ( int v )
+	inline min::gen new_num_gen ( min::int32 v )
 	{
 	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
 		return unprotected::new_direct_int_gen
 				( v );
 	    return internal::new_num_stub_gen ( v );
 	}
-	inline min::gen new_num_gen ( min::unsptr v )
+	inline min::gen new_num_gen ( min::uns32 v )
+	{
+	    if ( v < ( 1 << 27 ) )
+		return unprotected::new_direct_int_gen
+				( (int) v );
+	    return internal::new_num_stub_gen ( v );
+	}
+	inline min::gen new_num_gen ( min::int64 v )
+	{
+	    if ( v < ( 1 << 27 ) )
+		return unprotected::new_direct_int_gen
+				( (int) v );
+	    return internal::new_num_stub_gen ( v );
+	}
+	inline min::gen new_num_gen ( min::uns64 v )
 	{
 	    if ( v < ( 1 << 27 ) )
 		return unprotected::new_direct_int_gen
@@ -2695,11 +2709,15 @@ namespace min {
 	{
 	    return min::is_direct_float ( v );
 	}
-	inline min::gen new_num_gen ( int v )
+	inline min::gen new_num_gen ( min::int32 v )
 	{
 	    return new_direct_float_gen ( v );
 	}
-	inline min::gen new_num_gen ( min::unsptr v )
+	inline min::gen new_num_gen ( min::uns32 v )
+	{
+	    return new_direct_float_gen ( v );
+	}
+	inline min::gen new_num_gen ( min::uns64 v )
 	{
 	    return new_direct_float_gen ( v );
 	}
