@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  2 09:13:31 EDT 2010
+// Date:	Wed Aug  4 06:56:19 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,9 +12,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/03 03:00:25 $
+//   $Date: 2010/08/04 13:37:13 $
 //   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.6 $
+//   $Revision: 1.7 $
 
 // Table of Contents:
 //
@@ -91,6 +91,93 @@ struct print_gen {
 	return s << hex << pg.g << dec;
     }
 };
+
+// Compute a random number.
+// Multiply with carry algorithm of George Marsaglia.
+//
+static min::uns32 m_z = 789645;
+static min::uns32 m_w = 6793764;
+static min::uns32 random_uns32 ( void )
+{
+    m_z = 36969 * ( m_z & 0xFFFF ) + ( m_z >> 16 );
+    m_w = 18000 * ( m_w & 0xFFFF ) + ( m_w >> 16 );
+    return ( m_z << 16 ) + m_w;
+}
+
+// Create an object that is a vector of n new objects
+// whose sizes are 2 + ( random_uns32() % m ).  Fill
+// each object with a different number (i.e., all
+// elements of each object will be equal).
+//
+static min::unsptr obj_number = 0;
+static min::gen create_vec_of_objects
+    ( min::unsptr n, min::unsptr m )
+{
+    bool print_save = min_assert_print;
+    min_assert_print = false;
+
+    min::gen obj = min::new_obj_gen ( n );
+
+    min::insertable_vec_pointer vp ( obj );
+
+    for ( min::unsptr i = 0; i < n; ++ i )
+    {
+	min::unsptr size = 2 + random_uns32() % m;
+        min::gen element = min::new_obj_gen ( size );
+	min::gen num =
+	    min::new_num_gen ( ++ obj_number );
+	min::insertable_vec_pointer ep ( element );
+	for ( min::unsptr j = 0; j < size; ++ j )
+	    min::attr_push ( ep, num );
+        min::attr_push ( vp, element );
+    }
+
+    min_assert_print = print_save;
+
+    return obj;
+}
+
+// Check an object created by create_vec_of_objects.
+// Return true if object checks and false if it does
+// not.
+//
+static bool check_vec_of_objects ( min::gen obj )
+{
+    bool print_save = min_assert_print;
+    min_assert_print = false;
+
+    bool checks = true;
+
+    min::vec_pointer vp ( obj );
+
+    for ( min::unsptr i = 0;
+          checks && i < min::attr_size_of ( vp );
+	  ++ i )
+    {
+        min::gen element = min::attr ( vp, i );
+	min::vec_pointer ep ( element );
+	min::gen value = min::attr ( ep, 0 );
+	for ( min::unsptr j = 1;
+	      j < min::attr_size_of ( ep ); ++ j )
+	{
+	    if ( min::attr ( ep, j ) != value )
+	    {
+		cout << "check_vec_of_objects FAILURE:"
+		     << endl
+		     << "   object[" << i << "][0] = "
+		     << value
+		     << " != " << min::attr ( ep, j )
+		     << " = object[" << i << "][" << j
+		     << "]" << endl;
+	        checks = false;
+		break;
+	    }
+	}
+    }
+
+    min_assert_print = print_save;
+    return checks;
+}
 
 // Main Program
 // ---- -------
@@ -101,6 +188,10 @@ int main ()
     cout << "Start Test!" << endl;
 
     try {
+
+    	min::gen v =
+	    create_vec_of_objects ( 1000, 300 );
+	MIN_ASSERT ( check_vec_of_objects ( v ) );
 
 
     } catch ( min_assert_exception * x ) {

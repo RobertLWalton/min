@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  1 06:54:31 EDT 2010
+// Date:	Wed Aug  4 07:43:48 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/01 11:10:58 $
+//   $Date: 2010/08/04 13:38:46 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.80 $
+//   $Revision: 1.81 $
 
 // Table of Contents:
 //
@@ -847,7 +847,7 @@ void MINT::new_fixed_body
 	// size region list of the given block size.
 	//
 	r->region_previous = r->region_next = r;
-	MACC::insert_after ( fblext->last_region, r );
+	MACC::insert ( fblext->last_region, r );
     }
 
     // Make the found region current.
