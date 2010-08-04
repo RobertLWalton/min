@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  4 06:56:19 EDT 2010
+// Date:	Wed Aug  4 09:54:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,9 +12,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/04 13:37:13 $
+//   $Date: 2010/08/04 14:23:47 $
 //   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.7 $
+//   $Revision: 1.8 $
 
 // Table of Contents:
 //
@@ -104,12 +104,36 @@ static min::uns32 random_uns32 ( void )
     return ( m_z << 16 ) + m_w;
 }
 
-// Create an object that is a vector of n new objects
-// whose sizes are 2 + ( random_uns32() % m ).  Fill
-// each object with a different number (i.e., all
-// elements of each object will be equal).
+// Create an object of size
 //
-static min::unsptr obj_number = 0;
+//	2 + ( random_uns32() % m ).
+//
+// Set all elements of the object equal to the same
+// number random_uns32() % (1<<30).
+//
+static min::gen create_object ( min::unsptr m )
+{
+    bool print_save = min_assert_print;
+    min_assert_print = false;
+
+    min::unsptr size = 2 + random_uns32() % m;
+    min::gen value = min::new_num_gen
+        ( random_uns32() % (1<<30) );
+
+    min::gen obj = min::new_obj_gen ( size );
+    min::insertable_vec_pointer ep ( obj );
+
+    for ( min::unsptr j = 0; j < size; ++ j )
+	min::attr_push ( ep, value );
+
+    min_assert_print = print_save;
+
+    return obj;
+}
+
+// Create an object that is a vector of n new objects
+// each created by calling create_object(m).
+//
 static min::gen create_vec_of_objects
     ( min::unsptr n, min::unsptr m )
 {
@@ -121,21 +145,35 @@ static min::gen create_vec_of_objects
     min::insertable_vec_pointer vp ( obj );
 
     for ( min::unsptr i = 0; i < n; ++ i )
-    {
-	min::unsptr size = 2 + random_uns32() % m;
-        min::gen element = min::new_obj_gen ( size );
-	min::gen num =
-	    min::new_num_gen ( ++ obj_number );
-	min::insertable_vec_pointer ep ( element );
-	for ( min::unsptr j = 0; j < size; ++ j )
-	    min::attr_push ( ep, num );
-        min::attr_push ( vp, element );
-    }
+        min::attr_push ( vp, create_object ( m ) );
 
     min_assert_print = print_save;
 
     return obj;
 }
+
+// Given an object created by create_vec_of_objects,
+// randomly deallocate an element and allocate a
+// replacement using create_object(m).  Do this n times.
+//
+static void random_deallocate
+	( min::gen obj, min::unsptr n, min::unsptr m )
+{
+    bool print_save = min_assert_print;
+    min_assert_print = false;
+
+    min::updatable_vec_pointer vp ( obj );
+    min::unsptr size = min::attr_size_of ( vp );
+    while ( n -- )
+    {
+        min::unsptr i = random_uns32() % size;
+	min::deallocate
+	    ( MUP::stub_of ( min::attr ( vp, i ) ) );
+	min::set_attr ( vp, i, create_object ( m ) );
+    }
+    min_assert_print = print_save;
+}
+
 
 // Check an object created by create_vec_of_objects.
 // Return true if object checks and false if it does
@@ -191,6 +229,8 @@ int main ()
 
     	min::gen v =
 	    create_vec_of_objects ( 1000, 300 );
+	MIN_ASSERT ( check_vec_of_objects ( v ) );
+	random_deallocate ( v, 100000, 300 );
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
 
 
