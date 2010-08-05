@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  1 07:11:46 EDT 2010
+// Date:	Wed Aug  4 17:16:50 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/01 11:12:00 $
+//   $Date: 2010/08/05 03:20:50 $
 //   $RCSfile: min_acc.h,v $
-//   $Revision: 1.92 $
+//   $Revision: 1.93 $
 
 // The acc interfaces described here are interfaces
 // for use within and between the Allocator, Collector,
@@ -27,6 +27,7 @@
 //	Block Allocator Interface
 //	Collector Interface
 //	Compactor Interface
+//	Statistics
 
 // Usage and Setup
 // ----- --- -----
@@ -1157,12 +1158,12 @@ namespace min { namespace acc {
     //
     //	     scavenged	The stub's datum has been
     //		        scavenged by the current level
-    //			L scavenging.  If the stub level is
-    //			>= L the stub must have been
+    //			L scavenging.  If the stub level
+    //			is >= L the stub must have been
     //			marked by the current (or last)
-    //			level L scavenging, and if the stub
-    //			has level < L it must be on the
-    //			level L root list.
+    //			level L scavenging, and if the
+    //			stub has level < L it must be on
+    //			the level L root list.
     //
     //	     unmarked	The stub level is >= L and the
     //			stub has NOT yet been marked
@@ -2059,5 +2060,17 @@ namespace min { namespace acc {
 
 // Compactor Interface
 // --------- ---------
+
+
+// Statistics
+// ----------
+
+namespace min { namespace acc {
+
+    // Print statistics
+    //
+    void print_acc_statistics ( std::ostream & s );
+
+} }
 
 # endif // MIN_ACC_H

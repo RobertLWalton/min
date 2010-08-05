@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  4 10:09:39 EDT 2010
+// Date:	Wed Aug  4 18:09:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/04 14:09:51 $
+//   $Date: 2010/08/05 03:20:50 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.368 $
+//   $Revision: 1.369 $
 
 // Table of Contents:
 //
@@ -2083,6 +2083,8 @@ namespace min { namespace internal {
     struct fixed_block_list_extension;
         // Allocator specific extension of fixed_block_
 	// list struct.
+    const unsigned number_fixed_blocks =
+          MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG+1-3;
     extern struct fixed_block_list
     {
 	min::unsptr size;
@@ -2102,7 +2104,7 @@ namespace min { namespace internal {
 			// structure.  Set during
 			// allocator initialization.
     } fixed_blocks
-          [MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG+1-3];
+          [number_fixed_blocks];
 
     // Out of line allocators:
     //

@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  4 09:54:57 EDT 2010
+// Date:	Wed Aug  4 17:24:43 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,9 +12,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/04 14:23:47 $
+//   $Date: 2010/08/05 03:21:59 $
 //   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.8 $
+//   $Revision: 1.9 $
 
 // Table of Contents:
 //
@@ -194,6 +194,7 @@ static bool check_vec_of_objects ( min::gen obj )
     {
         min::gen element = min::attr ( vp, i );
 	min::vec_pointer ep ( element );
+
 	min::gen value = min::attr ( ep, 0 );
 	for ( min::unsptr j = 1;
 	      j < min::attr_size_of ( ep ); ++ j )
@@ -227,11 +228,17 @@ int main ()
 
     try {
 
+	cout << "Before Allocation" << endl;
+	MACC::print_acc_statistics ( cout );
     	min::gen v =
 	    create_vec_of_objects ( 1000, 300 );
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
+	cout << "After Allocation" << endl;
+	MACC::print_acc_statistics ( cout );
 	random_deallocate ( v, 100000, 300 );
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
+	cout << "After Deallocate Test" << endl;
+	MACC::print_acc_statistics ( cout );
 
 
     } catch ( min_assert_exception * x ) {
