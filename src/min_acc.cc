@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  4 07:43:48 EDT 2010
+// Date:	Wed Aug  4 17:18:35 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/04 13:38:46 $
+//   $Date: 2010/08/05 03:19:40 $
 //   $RCSfile: min_acc.cc,v $
-//   $Revision: 1.81 $
+//   $Revision: 1.82 $
 
 // Table of Contents:
 //
@@ -24,6 +24,8 @@
 //	Packed Type Allocator
 //	Stub Stack Manager
 //	Collector
+//	Compactor
+//	Statistics
 
 // Setup
 // -----
@@ -77,8 +79,8 @@ min::unsptr MACC::page_size;
 inline min::unsptr number_of_pages
     ( min::unsptr number_of_bytes )
 {
-    return ( number_of_bytes + page_size - 1 )
-           / page_size;
+    return   ( number_of_bytes + MACC::page_size - 1 )
+           / MACC::page_size;
 }
 
 // Get and set parameter.  Return false if nothing
@@ -300,7 +302,8 @@ static void stub_allocator_initializer ( void )
 	    // ADDRESS is defined to be large enough
 	    // to accommodate stub vector.
 
-	    assert ( MIN_STUB_BASE + page_size * pages
+	    assert (   MIN_STUB_BASE
+	             + MACC::page_size * pages
 		     <=
 	             MIN_MAX_ABSOLUTE_STUB_ADDRESS );
 
@@ -449,12 +452,12 @@ static void block_allocator_initializer ( void )
                 MACC::cache_line_size,
 		8, 4096, 1, true );
 
-    MACC::subregion_size = F * F * page_size;
+    MACC::subregion_size = F * F * MACC::page_size;
     get_param ( "subregion_size",
                 MACC::subregion_size,
-		4 * F * page_size,
-		F * F * F * page_size,
-		page_size );
+		4 * F * MACC::page_size,
+		F * F * F * MACC::page_size,
+		MACC::page_size );
 
     MACC::superregion_size = 64 * MACC::subregion_size;
     get_param ( "superregion_size",
@@ -464,13 +467,13 @@ static void block_allocator_initializer ( void )
 		  1 << 28 : 1ull << 44 ),
 		MACC::subregion_size );
 
-    MACC::max_paged_body_size = F * F * page_size;
+    MACC::max_paged_body_size = F * F * MACC::page_size;
     get_param ( "max_paged_body_size",
                 MACC::max_paged_body_size,
 		0,
 		( MIN_POINTER_BITS <= 32 ?
 		  1 << 24 : 1ull << 32 ),
-		page_size );
+		MACC::page_size );
 
 #   ifdef MIN_DEALLOCATED_BODY_SIZE
 	MACC::deallocated_body_size =
@@ -484,7 +487,7 @@ static void block_allocator_initializer ( void )
 		1 << 20,
 		( MIN_POINTER_BITS <= 32 ?
 		  1 << 30 : 1ull << 40 ),
-		page_size );
+		MACC::page_size );
 
     MACC::paged_body_region_size =
         F * MACC::max_paged_body_size;
@@ -493,13 +496,13 @@ static void block_allocator_initializer ( void )
 		MACC::max_paged_body_size,
 		( MIN_POINTER_BITS <= 32 ?
 		  1 << 28 : 1ull << 44 ),
-		page_size );
+		MACC::page_size );
 
-    MACC::stub_stack_segment_size = 4 * page_size;
+    MACC::stub_stack_segment_size = 4 * MACC::page_size;
     get_param ( "stub_stack_segment_size",
                 MACC::stub_stack_segment_size,
-		page_size, 64 * page_size,
-		page_size );
+		MACC::page_size, 64 * MACC::page_size,
+		MACC::page_size );
 
     MACC::stub_stack_region_size =
         16 * MACC::stub_stack_segment_size;
@@ -507,10 +510,12 @@ static void block_allocator_initializer ( void )
                 MACC::stub_stack_region_size,
 		MACC::stub_stack_segment_size,
 		64 * MACC::stub_stack_segment_size,
-		page_size );
+		MACC::page_size );
 
-    if ( MINT::max_fixed_block_size > F * page_size )
-	MINT::max_fixed_block_size = F * page_size;
+    if (   MINT::max_fixed_block_size
+         > F * MACC::page_size )
+	MINT::max_fixed_block_size =
+	    F * MACC::page_size;
 
     // Allocate MACC::deallocated_body.
     //
@@ -597,7 +602,7 @@ static MACC::region * new_paged_block_region
     // allocate.
     //
     min::unsptr pages = number_of_pages ( size );
-    size = pages * page_size;
+    size = pages * MACC::page_size;
     void * m = MOS::new_pool ( pages );
 
     const char * error = MOS::pool_error ( m );
@@ -624,8 +629,8 @@ static MACC::region * new_paged_block_region
     r->begin = (min::uns8 *) m;
     r->next = r->begin;
     r->end = r->begin + size;
-    r->round_size = page_size;
-    r->round_mask = page_size - 1;
+    r->round_size = MACC::page_size;
+    r->round_mask = MACC::page_size - 1;
     r->block_size = 0;
     r->free_size = 0;
     r->free_count = 0;
@@ -656,8 +661,8 @@ static void free_paged_block_region
 	     << "] )" << endl;
 
     min::uns64 length = MACC::size_of ( r );
-    assert ( length % page_size == 0 );
-    min::uns64 pages = length / page_size;
+    assert ( length % MACC::page_size == 0 );
+    min::uns64 pages = length / MACC::page_size;
 
     MOS::free_pool ( pages, r->begin );
 
@@ -667,8 +672,8 @@ static void free_paged_block_region
     r->begin = NULL;
     r->next = NULL;
     r->end = NULL;
-    r->round_size = page_size;
-    r->round_mask = page_size - 1;
+    r->round_size = MACC::page_size;
+    r->round_mask = MACC::page_size - 1;
     r->block_size = 0;
     r->free_size = 0;
     r->free_count = 0;
@@ -707,20 +712,20 @@ static void allocate_new_superregion ( void )
         if ( MACC::last_superregion == NULL )
 	    cout << "ERROR: could not allocate "
 		 << ( MACC::superregion_size
-		      / page_size )
+		      / MACC::page_size )
 		 << " page initial superregion."
 		 << endl;
 	else
 	    cout << "ERROR: out of virtual memory"
 	            " trying to allocate "
 		 << ( MACC::subregion_size
-		      / page_size )
+		      / MACC::page_size )
 	         << " page superregion." << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
-    r->round_size = page_size;
-    r->round_mask = page_size - 1;
+    r->round_size = MACC::page_size;
+    r->round_mask = MACC::page_size - 1;
     r->block_size = MACC::subregion_size;
     r->max_free_count = size_of ( r ) / r->block_size;
 
@@ -843,6 +848,11 @@ void MINT::new_fixed_body
 	r->free_count = 0;
 	r->last_free = NULL;
 
+	if ( MOS::trace_pools >= 1 )
+	    cout << "TRACE: allocating new subregion"
+	            " for " << fbl->size
+		 << " byte blocks" << endl;
+
 	// Insert the region at the end of the fixed
 	// size region list of the given block size.
 	//
@@ -868,7 +878,8 @@ void MINT::new_fixed_body
 	// Add up to 16 pages worth of bodies to the
 	// fbl free list.
 	//
-    	min::unsptr count = 16 * page_size / fbl->size;
+    	min::unsptr count = 16 * MACC::page_size
+	                  / fbl->size;
 	if ( count == 0 ) count = 1;
 	MINT::free_fixed_size_block * first = NULL;
 	assert ( fbl->last_free == NULL );
@@ -882,11 +893,12 @@ void MINT::new_fixed_body
 
 	    MINT::free_fixed_size_block * b =
 	        (MINT::free_fixed_size_block *) r->next;
+	    int locator = - (int)
+	        (   ( r->next - (min::uns8 *) r )
+		  / MACC::page_size );
 	    b->block_control =
 	        MUP::new_control_with_locator
-		    (   ( (min::uns8 *) r - r->next )
-		      / page_size,
-		      MINT::null_stub );
+		    ( locator, MINT::null_stub );
 
 	    if ( first == NULL )
 	        first = b;
@@ -937,8 +949,8 @@ static void allocate_new_paged_body_region ( void )
     {
 	cout << "ERROR: out of virtual memory"
 		" trying to allocate "
-	     << ( MACC::max_paged_body_size
-		  / page_size )
+	     << (   MACC::max_paged_body_size
+		  / MACC::page_size )
 	     << " page paged body region." << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
@@ -951,8 +963,8 @@ static void allocate_new_paged_body_region ( void )
 
 // Execute new_non_fixed_body for bodies of size at most
 // MACC::max_paged_body_size.  n is size of body + body
-// control rounded up to a multiple of page_size.  n
-// should be larger than MINT::max_fixed_block_size.
+// control rounded up to a multiple of MACC::page_size.
+// n should be larger than MINT::max_fixed_block_size.
 // Return address to store in stub.
 //
 inline void * new_paged_body
@@ -979,8 +991,8 @@ inline void * new_paged_body
 
 // Execute new_non_fixed_body for bodies of size greater
 // than MACC::max_paged_body_size.  n is size of body
-// + body control rounded up to a multiple of page_size.
-// Return address to store in stub.
+// + body control rounded up to a multiple of MACC::
+// page_size.  Return address to store in stub.
 //
 inline void * new_mono_body
     ( min::stub * s, min::unsptr n )
@@ -991,7 +1003,7 @@ inline void * new_mono_body
     {
 	cout << "ERROR: out of virtual memory"
 		" trying to allocate "
-	     << ( n / page_size )
+	     << ( n / MACC::page_size )
 	     << " page mono body region." << endl;
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
@@ -1014,11 +1026,12 @@ void MINT::new_non_fixed_body
     ( min::stub * s, min::unsptr n )
 {
     // Add space for body control and round up to
-    // multiple of page_size.
+    // multiple of MACC::page_size.
     //
     n += sizeof ( min::uns64 );
-    n = page_size
-      * ( ( n + page_size - 1 ) / page_size );
+    n = MACC::page_size
+      * (   ( n + MACC::page_size - 1 )
+          / MACC::page_size );
 
     void * body =
 	n <= MACC::max_paged_body_size ?
@@ -1182,8 +1195,8 @@ void MACC::stub_stack
 	    exit ( 1 );
 	}
 
-	r->round_size = page_size;
-	r->round_mask = page_size - 1;
+	r->round_size = MACC::page_size;
+	r->round_mask = MACC::page_size - 1;
 	r->block_size = MACC::stub_stack_segment_size;
 	r->max_free_count =
 	    size_of ( r ) / r->block_size;
@@ -1465,11 +1478,12 @@ static void collector_initializer ( void )
     }
 
     MACC::acc_stack_size =
-        page_size * number_of_pages
-	              ( MIN_DEFAULT_ACC_STACK_SIZE );
+          MACC::page_size
+	* number_of_pages
+	      ( MIN_DEFAULT_ACC_STACK_SIZE );
     get_param ( "acc_stack_size",
                 MACC::acc_stack_size,
-		1 << 12, 1 << 24, page_size );
+		1 << 12, 1 << 24, MACC::page_size );
     min::unsptr np =
         number_of_pages ( MACC::acc_stack_size );
     MACC::acc_stack_begin = (min::stub **)
@@ -1490,7 +1504,7 @@ static void collector_initializer ( void )
     }
     MACC::acc_stack_end = (min::stub **)
         (   (min::uns8 *) MACC::acc_stack_begin
-	  + ( np - 1 ) * page_size );
+	  + ( np - 1 ) * MACC::page_size );
     MOS::inaccess_pool ( 1, MACC::acc_stack_end );
         // Allocate an inaccessible page after the
 	// acc stack to catch overflows.
@@ -2663,4 +2677,67 @@ static bool collector_increment ( unsigned level )
         MIN_ABORT ( "bad collector state" );
     }
     return true;
+}
+
+// Compactor
+// ---------
+
+// Statistics
+// ----------
+
+void MACC::print_acc_statistics ( std::ostream & s )
+{
+    min::unsptr nstubs =
+        MACC::stub_next - MACC::stub_begin;
+    cout << std::setw ( 32 ) << "Numbers of"
+         << std::setw ( 14 ) << "Used"
+         << std::setw ( 14 ) << "Free"
+         << std::setw ( 14 ) << "Total"
+	 << std::endl;
+    cout << std::setw ( 32 ) << "Stubs:"
+         << std::setw ( 14 )
+         << nstubs - MINT::number_of_free_stubs
+         << std::setw ( 14 )
+         << MINT::number_of_free_stubs
+         << std::setw ( 14 )
+         << nstubs
+	 << std::endl;
+    
+    min::unsptr total_bytes = 0;
+    min::unsptr free_bytes = 0;
+    for ( MINT::fixed_block_list * fbl =
+	      MINT::fixed_blocks;
+          fbl < MINT::fixed_blocks
+	      + MINT::number_fixed_blocks;
+	  ++ fbl )
+    {
+	char buffer [40];
+	sprintf ( buffer, "%d Byte Blocks:",
+	                  fbl->size );
+        MINT::fixed_block_list_extension * fblex =
+	    fbl->extension;
+	min::unsptr free = fbl->count;
+	min::unsptr total = 0;
+	MACC::region * r = fblex->last_region;
+	if ( r != NULL ) do {
+	    total += ( r->next - r->begin )
+	           / fbl->size;
+	    free += r->free_count;
+	    r = r->region_next;
+	} while ( r != fblex->last_region );
+	if ( total == 0 ) continue;
+	cout << std::setw ( 32 ) << buffer
+	     << std::setw ( 14 ) << total - free
+	     << std::setw ( 14 ) << free
+	     << std::setw ( 14 ) << total
+	     << std::endl;
+	total_bytes += total * fbl->size;
+	free_bytes += free * fbl->size;
+    }
+    cout << std::setw ( 32 )
+         << "Bytes in Fixed Size Blocks:"
+	 << std::setw ( 14 ) << total_bytes - free_bytes
+	 << std::setw ( 14 ) << free_bytes
+	 << std::setw ( 14 ) << total_bytes
+	 << std::endl;
 }
