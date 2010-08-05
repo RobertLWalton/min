@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  4 17:24:43 EDT 2010
+// Date:	Thu Aug  5 07:35:32 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,9 +12,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/05 03:21:59 $
+//   $Date: 2010/08/05 11:39:41 $
 //   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.9 $
+//   $Revision: 1.10 $
 
 // Table of Contents:
 //
@@ -108,8 +108,7 @@ static min::uns32 random_uns32 ( void )
 //
 //	2 + ( random_uns32() % m ).
 //
-// Set all elements of the object equal to the same
-// number random_uns32() % (1<<30).
+// Set element j equal to j, fo j = 0, 1, ...
 //
 static min::gen create_object ( min::unsptr m )
 {
@@ -117,14 +116,12 @@ static min::gen create_object ( min::unsptr m )
     min_assert_print = false;
 
     min::unsptr size = 2 + random_uns32() % m;
-    min::gen value = min::new_num_gen
-        ( random_uns32() % (1<<30) );
 
     min::gen obj = min::new_obj_gen ( size );
     min::insertable_vec_pointer ep ( obj );
 
     for ( min::unsptr j = 0; j < size; ++ j )
-	min::attr_push ( ep, value );
+	min::attr_push ( ep, min::new_num_gen ( j ) );
 
     min_assert_print = print_save;
 
@@ -195,10 +192,10 @@ static bool check_vec_of_objects ( min::gen obj )
         min::gen element = min::attr ( vp, i );
 	min::vec_pointer ep ( element );
 
-	min::gen value = min::attr ( ep, 0 );
-	for ( min::unsptr j = 1;
+	for ( min::unsptr j = 0;
 	      j < min::attr_size_of ( ep ); ++ j )
 	{
+	    min::gen value = min::new_num_gen ( j );
 	    if ( min::attr ( ep, j ) != value )
 	    {
 		cout << "check_vec_of_objects FAILURE:"
