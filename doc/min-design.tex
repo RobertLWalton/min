@@ -6321,17 +6321,21 @@ a packed structure, and these have the usage:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp|
+	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp|
+	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp|
+	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( void )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_pointer|{\tt \SARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::pointer}
+\LABEL{MIN::PACKED_STRUCT_POINTER_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -6351,17 +6355,21 @@ a packed structure, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|
+	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup|
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup|
+	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup|
 	               \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_updatable_pointer|{\tt \SARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::updatable\_pointer}
+\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -6395,6 +6403,16 @@ a packed structure, and these have the usage:
 This last means that when \verb|psp| is used as the left operand
 of \verb|->| it is converted to a `\verb|const S *|' pointer and
 similarly \verb|psup| is converted to a `\verb|S *|' pointer.
+
+The names {\tt min::\EOL packed\_\EOL struct<S>::\EOL pointer} and
+{\tt min::\EOL packed\_\EOL struct<S>::\EOL updatable\_\EOL pointer} are
+usually used for pointer types (see example below).  However, in certain
+circumstances, such as inside a {\tt template} class, these will not
+work, due either to problems with the C++ standard or its implementation,
+so you may have to use the less attractive
+{\tt min::\EOL packed\_\EOL struct\_\EOL pointer<S>} and
+{\tt min::\EOL packed\_\EOL struct\_\EOL updatable\_\EOL pointer<S>} in
+these circumstances.
 
 For the constructors and {\tt min::initialize} functions \verb|v| or
 \verb|s| must point at packed structure.
@@ -6619,39 +6637,55 @@ a packed vector, and these have the usage:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::pointer} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_pointer\HEARG} \verb|pvp| \ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::pointer} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_pointer\HEARG} \verb|pvp| \ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_pointer\HEARG} \verb|pvp|
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_pointer|{\tt \HEARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\HEARG::pointer}
+\LABEL{MIN::PACKED_VEC_POINTER_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_vec<H,E>::pointer & psp,|\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & pvp,|\ARGBREAK
 	  \verb|   min::gen v )|
 \LABEL{MIN::INITIALIZE_PACKED_VEC_POINTER_OF_GEN} \\
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_vec<H,E>::pointer & psp,|\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & pvp,|\ARGBREAK
 	  \verb|   min::stub * s )|
 \LABEL{MIN::INITIALIZE_PACKED_VEC_POINTER_OF_STUB} \\
 \verb|void min::|
 	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::packed_vec<H,E>::pointer & psp )|
+	  \verb| ( min::packed_vec<H,E>::pointer & pvp )|
 \LABEL{MIN::DEINITIALIZE_PACKED_VEC_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::updatable\_pointer} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updatable\_pointer\HEARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::updatable\_pointer} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updatable\_pointer\HEARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_updatable\_pointer\HEARG} \verb|pvup| \ARGBREAK
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_updatable_pointer|{\tt \HEARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\HEARG::updatable\_pointer}
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -6674,12 +6708,23 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::insertable\_pointer} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insertable\_pointer\HEARG} \verb|pvip|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::insertable\_pointer} \verb|pvip|\ARGBREAK
-	  \verb| ( min::stub * s )| \\
+	& \MINKEY{packed\_vec\_insertable\_pointer\HEARG} \verb|pvip|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_insertable\_pointer\HEARG} \verb|pvip| \ARGBREAK
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_insertable_pointer|{\tt \HEARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\HEARG::insertable\_pointer}
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_TYPEDEF} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
 	  \verb| ( min::packed_vec<H,E>|\ARGBREAK
@@ -6699,7 +6744,6 @@ a packed vector, and these have the usage:
 \LABEL{MIN::DEINITIALIZE_PACKED_VEC_INSERTABLE_POINTER} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_STUB} \\[1ex]
 \verb|const H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
 	  \verb| ( min::packed_vec<H,E>::pointer & pvp )|
 \LABEL{MIN::PACKED_VEC_POINTER_CONVERSION} \\
@@ -8631,17 +8675,21 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp| \ARGBREAK
+	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp| \ARGBREAK
+	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::pointer} \verb|psp| \ARGBREAK
+	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( void )|
 \LABEL{MIN::PACKED_STRUCT_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_pointer|{\tt \SARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::pointer}
+\LABEL{MIN::PACKED_STRUCT_POINTER_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -8663,17 +8711,21 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG::updatable\_pointer} \verb|psup| \ARGBREAK
-	               \verb|( void )|
+	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
+	               \verb| ( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_updatable_pointer|{\tt \SARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::updatable\_pointer}
+\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -8777,41 +8829,57 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::pointer} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_pointer\HEARG} \verb|pvp| \ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::pointer} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_pointer\HEARG} \verb|pvp| \ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_pointer\HEARG} \verb|pvp|
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_pointer|{\tt \HEARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\HEARG::pointer}
+\LABEL{MIN::PACKED_VEC_POINTER_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_vec<H,E>::pointer & psp,|\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & pvp,|\ARGBREAK
 	  \verb|   min::gen v )|
 \LABEL{MIN::INITIALIZE_PACKED_VEC_POINTER_OF_GEN} \\
 \verb|void min::|
 	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_vec<H,E>::pointer & psp,|\ARGBREAK
+	  \verb| ( min::packed_vec<H,E>::pointer & pvp,|\ARGBREAK
 	  \verb|   min::stub * s )|
 \LABEL{MIN::INITIALIZE_PACKED_VEC_POINTER_OF_STUB} \\
 \verb|void min::|
 	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::packed_vec<H,E>::pointer & psp )|
+	  \verb| ( min::packed_vec<H,E>::pointer & pvp )|
 \LABEL{MIN::DEINITIALIZE_PACKED_VEC_POINTER} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::updatable\_pointer} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updatable\_pointer\HEARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::updatable\_pointer} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updatable\_pointer\HEARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_updatable\_pointer\HEARG} \verb|pvup| \ARGBREAK
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_updatable_pointer|{\tt \HEARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\HEARG::updatable\_pointer}
+\LABEL{MIN::PACKED_VEC_UPDATABLE_POINTER_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -8836,13 +8904,21 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::insertable\_pointer} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insertable\_pointer\HEARG} \verb|pvip|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG::insertable\_pointer} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insertable\_pointer\HEARG} \verb|pvip|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_insertable\_pointer\HEARG} \verb|pvip| \ARGBREAK
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_insertable_pointer|{\tt \HEARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\HEARG::insertable\_pointer}
+\LABEL{MIN::PACKED_VEC_INSERTABLE_POINTER_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -8919,7 +8995,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.2in}
 \verb|E min::|
 	& \MINKEY{pop} \ARGBREAK
 	  \verb| ( packed_vec<H,E>::insertable_pointer pvip )|
@@ -8931,7 +9007,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.2in}
 \verb|void min::|
 	& \MINKEY{resize} \ARGBREAK
 	  \verb| ( packed_vec<H,E>::insertable_pointer pvip,| \ARGBREAK
