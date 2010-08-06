@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{July 31, 2010}
+\date{August 6, 2010}
  
 \maketitle
 
@@ -1882,9 +1882,11 @@ static min::gen & q = gpq[1];
 
 Here \verb|p| and \verb|q| are static variables that may hold
 any \verb|min::gen| values and \verb|x|, \verb|y|, and \verb|z|
-are stack variables that may only hold numeric \verb|min::gen|
-values.  These variables are called `\skey{acc locatable
-variable}s'.  Static variable may also be global; i.e., they
+are stack variables that may only hold numeric or {\tt min::\EOL MISSING}
+\verb|min::gen| values.  These variables are called `\skey{acc locatable
+variable}s'.  Such variables are always initialized to the value
+{\tt min::\EOL MISSING}.
+Static variables may also be global; i.e., they
 can be defined without the `\verb|static|' keyword as long
 as they are defined outside functions.
 
@@ -2723,7 +2725,20 @@ at the string proper inside a relocatable string body.
 \subsubsection{Unprotected String Functions}
 \label{UNPROTECTED-STRING-FUNCTIONS}
 
-Unprotected functions may be used to access the internals of short
+The constructor
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| sp ( min::gen v )|
+\LABEL{MUP::STR_POINTER_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+is just like \verb|min::str_pointer| except that it assumes that
+\verb|v| is a string (i.e., that {\tt min::\EOL is\_\EOL str(v)} is
+true).  The {\tt min::\EOL initialize} function applied to an
+unprotected string pointer also makes the same assumption.
+
+The following unprotected functions
+may be used to access the internals of short
 and long strings.
 
 A \key{short string stub}\label{SHORT-STRING-STUB} is collectible, has
@@ -2988,6 +3003,28 @@ a label:
 \LABEL{MIN::IS_LAB_OF_GEN} \\
 \end{tabular}\end{indpar}
 
+The following unprotected constructors are just like their
+protected versions except that they assume any \verb|min::gen|
+value \verb|v| or \verb|min::stub *| value \verb|s| is a label:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{lab\_pointer}%
+	  \verb| labp ( min::gen v )|
+\LABEL{MUP::LAB_POINTER_OF_GEN} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{lab\_pointer}%
+	  \verb| labp ( min::stub * s )|
+\LABEL{MUP::LAB_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{lab\_pointer}%
+	  \verb| labp ( void )|
+\LABEL{MUP::LAB_POINTER_OF_VOID} \\
+\end{tabular}\end{indpar}
+
+The \verb|min::initialize| function applied to these unprotected
+pointers also makes the same assumption.
+
 \subsection{Names}
 \label{NAMES}
 
@@ -3032,8 +3069,8 @@ greater than its \verb|v2| argument.
 In this ordering numbers are
 before strings, strings are before labels, and labels are before
 any non-name values.  Numbers are ordered
-numerically, strings are ordered lexigraphically as per the
-C language \verb|strcmp| function, and labels are ordered lexigraphically
+numerically, strings are ordered lexicographically as per the
+C language \verb|strcmp| function, and labels are ordered lexicographically
 using the {\tt min::\EOL compare} function recursively to compare
 label elements.  Non-name values are ordered by converting their
 \verb|min::gen| values to bit strings and comparing the bit strings.
@@ -3108,18 +3145,18 @@ to print 15 significant
 digits with low order fraction \verb|0|'s omitted and exponential
 notation used if there would be more than 15 integer digits.
 
-Strings are printed as they are immediately preceeded by
+Strings are printed as they are immediately preceded by
 {\tt prv.str\_\EOL prefix} and followed by
 {\tt prv.str\_\EOL postfix}.  The default is to enclose strings in
 \verb|`'| quotes.
 
-Labels are printed as comma separated lists of their elements preceeded by
+Labels are printed as comma separated lists of their elements preceded by
 {\tt prv.lab\_\EOL prefix} and followed by
 {\tt prv.lab\_\EOL postfix}.  The default is to enclose labels in
 \verb|[ ]| brackets.
 
 Special values \verb|min:XXXX| are printed as \verb|XXXX|
-preceeded by {\tt prv.special\_\EOL prefix} and followed by
+preceded by {\tt prv.special\_\EOL prefix} and followed by
 {\tt prv.special\_\EOL postfix}.  The default is not to have any prefix
 or postfix for special values.  For example, \verb|min::MISSING| prints
 as just \verb|MISSING|.
@@ -3132,7 +3169,7 @@ For example, a short object will print as just \verb|SHORT_OBJ|.
 
 Auxiliary and index values print as the name of the value subtype followed
 by the value index in parentheses.  Control codes are similar
-but the control code value is printed in hexadecimal (preceeded by
+but the control code value is printed in hexadecimal (preceded by
 \verb|0x|).  Examples are \verb|LIST_AUX(35)| and
 \verb|CONTROL_CODE(0x10)|.
 
@@ -5352,8 +5389,8 @@ just describes one node that is a child of the root, namely the node
 whose {\em attribute-name-component} equals the vector index of the
 {\em attribute-vector-entry} in the object's attribute vector.
 For a node that is a child of the object root,
-if the child nodes's {\em attribute-name-component} is an integer in the legal
-range of the object's attribute vector indices, then the child nodes's
+if the child node's {\em attribute-name-component} is an integer in the legal
+range of the object's attribute vector indices, then the child node's
 {\em node-descriptor} is stored in the {\em vector-list}
 that is stored in the object's attribute vector element.
 A {\em vector-list} is either empty or is a one element list whose element is a
@@ -6549,7 +6586,7 @@ The maximum length of a packed vector newly created by calling the
 
 \item[\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
 The \verb|min::reserve| function multiplies the old maximum length by
-this ratio to get the maximim length increment: see formula on
+this ratio to get the maximum length increment: see formula on
 \pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|0.5|.
 
 \item[\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
@@ -6796,7 +6833,7 @@ instead of being copied.
 
 The \verb|min::resize| function resets the maximum length.  If
 the current length would be larger than the new maximum length,
-the current length is reset to the new maximim length.
+the current length is reset to the new maximum length.
 
 The \verb|min::reserve| function checks that
 the current length plus the \verb|reserve_length| is
@@ -7656,6 +7693,11 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
+\verb|(constructor) MUP::| & \MUPKEY{str\_pointer}\verb| sp ( min::gen v )|
+\LABEL{MUP::STR_POINTER_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
 \verb|min::uns64 MUP::|
     & \MUPKEY{short\_str\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::SHORT_STR_OF} \\
@@ -7768,6 +7810,21 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|bool min::| & \MINKEY{is\_lab}\verb| ( min::gen v )|
 \LABEL{MIN::IS_LAB_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+(constructor)~\verb|MUP::|
+	& \MUPKEY{lab\_pointer}%
+	  \verb| labp ( min::gen v )|
+\LABEL{MUP::LAB_POINTER_OF_GEN} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{lab\_pointer}%
+	  \verb| labp ( min::stub * s )|
+\LABEL{MUP::LAB_POINTER_OF_STUB} \\
+(constructor)~\verb|MUP::|
+	& \MUPKEY{lab\_pointer}%
+	  \verb| labp ( void )|
+\LABEL{MUP::LAB_POINTER_OF_VOID} \\
 \end{TABULAR}
 
 \end{indpar}
