@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  4 18:09:02 EDT 2010
+// Date:	Fri Aug  6 02:32:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11,9 +11,9 @@
 // RCS Info (may not be true date or author):
 //
 //   $Author: walton $
-//   $Date: 2010/08/05 03:20:50 $
+//   $Date: 2010/08/06 06:35:16 $
 //   $RCSfile: min.h,v $
-//   $Revision: 1.369 $
+//   $Revision: 1.370 $
 
 // Table of Contents:
 //
@@ -1602,7 +1602,8 @@ namespace min {
 		this->locator.values = values;
 		this->locator.previous = last;
 		last = & this->locator;
-		memset ( values, 0, sizeof ( values ) );
+		for ( min::unsptr i = 0; i < len; ++ i )
+		    values[i] = min::MISSING;
 	    }
 
 	    ~ non_num_gen ( void )
@@ -1626,8 +1627,9 @@ namespace min {
 
 		num_gen ( void )
 		{
-		    memset ( values, 0,
-		             sizeof ( values ) );
+		    for ( min::unsptr i = 0;
+		          i < len; ++ i )
+			values[i] = min::MISSING;
 		}
 
 		min::gen & operator[] ( min::unsptr i )
