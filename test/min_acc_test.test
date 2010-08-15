@@ -16,7 +16,7 @@ TRACE: new_pool ( 1 )
 Start Test!
 Before Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:             1             0             1
+                          Stubs:             2          1024          1026
      Bytes in Fixed Size Blocks:             0             0             0
 TRACE: allocate_new_superregion()
 TRACE: new_paged_block_region (1073741824, 4)
@@ -35,7 +35,7 @@ min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:          1002            24          1026
+                          Stubs:          1003            23          1026
                  32 Byte Blocks:             3          2045          2048
                  64 Byte Blocks:            21          1003          1024
                 128 Byte Blocks:            33           479           512
@@ -52,7 +52,7 @@ min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Deallocate Test
                       Numbers of          Used          Free         Total
-                          Stubs:        101002           474        101476
+                          Stubs:        101003           473        101476
                  32 Byte Blocks:             5          2043          2048
                  64 Byte Blocks:             9          1015          1024
                 128 Byte Blocks:            29           483           512
