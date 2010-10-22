@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  3 21:10:47 EDT 2010
+// Date:	Fri Oct 22 11:49:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1839,6 +1839,17 @@ min::gen MINT::packed_vec_new_gen
 	         vp, length * pvd->element_size);
     unprotected::set_type_of ( s, min::PACKED_VEC );
     return min::new_gen ( s );
+}
+
+void MINT::packed_vec_resize
+        ( min::stub * s,
+	  min::uns32 max_length )
+{
+    min::uns32 t = packed_vec_type_of ( s );
+    packed_vec_descriptor * pvdescriptor =
+	(packed_vec_descriptor *)
+	(*packed_types)[t];
+    packed_vec_resize ( s, pvdescriptor, max_length );
 }
 
 void MINT::packed_vec_resize
