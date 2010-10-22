@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 21 09:41:29 EDT 2010
+// Date:	Fri Oct 22 09:44:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3508,25 +3508,47 @@ namespace min {
 	    packed_struct_base_pointer
 		( min::stub * s );
 	    packed_struct_base_pointer ( void )
-		: s ( NULL ), psdescriptor ( NULL )
-		{}
+		: s ( NULL ) {}
 
 	    void deinitialize ( void )
 	    {
-		s = NULL; psdescriptor = NULL;
+		s = NULL;
 	    }
 
 	protected:
 		
+	    // A packed structure pointer is just a
+	    // min::stub * value with garnish.
+	    //
 	    min::stub * s;
-	    min::internal::packed_struct_descriptor *
-		psdescriptor;
 	};
 
 	// Out-of-line new_gen function (non-template).
 	//
 	min::gen packed_struct_new_gen
 	    ( packed_struct_descriptor * psd );
+    }
+
+    inline min::uns32 packed_struct_type_of
+	    ( min::stub * s )
+    {
+	MIN_ASSERT ( type_of ( s ) == PACKED_STRUCT );
+	void * p = unprotected::pointer_of ( s );
+	min::uns32 t = * (min::uns32 *) p;
+	t &= internal::packed_type_index_mask;
+	MIN_ASSERT ( t < internal::packed_type_count);
+	return t;
+    }
+
+    inline min::uns32 packed_vec_type_of
+	    ( min::stub * s )
+    {
+	MIN_ASSERT ( type_of ( s ) == PACKED_VEC );
+	void * p = unprotected::pointer_of ( s );
+	min::uns32 t = * (min::uns32 *) p;
+	t &= internal::packed_type_index_mask;
+	MIN_ASSERT ( t < internal::packed_type_count);
+	return t;
     }
 
     template < typename S,
@@ -3636,14 +3658,10 @@ namespace min {
 	   ::packed_struct_base_pointer
 	    ( min::stub * s ) : s ( s )
 	{
-	    MIN_ASSERT
-		( type_of ( s ) == PACKED_STRUCT );
-	    void * p = unprotected::pointer_of ( s );
-	    min::uns32 t = * (min::uns32 *) p;
-	    min::uns32 i = t & packed_type_index_mask;
-	    MIN_ASSERT ( i < packed_type_count);
-	    psdescriptor = (packed_struct_descriptor *)
-	                   (*packed_types)[i];
+	    min::uns32 t = packed_struct_type_of ( s );
+	    packed_struct_descriptor * psdescriptor =
+		(packed_struct_descriptor *)
+	        (*packed_types)[t];
 	    void * id = & packed_struct<S,type_m>::id;
 	    MIN_ASSERT ( psdescriptor->id == id );
 	}
@@ -3819,18 +3837,15 @@ namespace min {
 	    }
 	    packed_vec_base_pointer ( min::stub * s );
 	    packed_vec_base_pointer ( void )
-	        : s ( NULL ), pvdescriptor ( NULL )
-		{}
+	        : s ( NULL ) {}
 	    void deinitialize ( void )
 	    {
-		s = NULL; pvdescriptor = NULL;
+		s = NULL;
 	    }
 
 	protected:
 	        
 	    min::stub * s;
-	    min::internal::packed_vec_descriptor *
-	        pvdescriptor;
 
 	    // Computed actual header size, which is
 	    // sizeof ( H ) rounded up to sizeof ( E )
@@ -3859,8 +3874,10 @@ namespace min {
 	      min::uns32 length,
 	      const void * vp );
 
-	// Out-of-line resize function (non-template).
+	// Out-of-line resize functions (non-template).
 	//
+	void packed_vec_resize
+	    ( min::stub * s, min::uns32 max_length );
 	void packed_vec_resize
 	    ( min::stub * s,
 	      packed_vec_descriptor * pvd,
@@ -4015,9 +4032,8 @@ namespace min {
 	void reserve ( min::uns32 reserve_length );
 	void resize  ( min::uns32 max_length )
 	{
-	    packed_vec_resize
-		( this->s, this->pvdescriptor,
-		  max_length );
+	    internal::packed_vec_resize
+		( this->s, max_length );
 	}
     };
 
@@ -4148,13 +4164,10 @@ namespace min {
             ::packed_vec_base_pointer
 	    ( min::stub * s ) : s ( s )
     {
-	MIN_ASSERT ( type_of ( s ) == PACKED_VEC );
-	void * p = unprotected::pointer_of ( s );
-	min::uns32 t = * (min::uns32 *) p;
-	min::uns32 i = t & packed_type_index_mask;
-	MIN_ASSERT ( i < packed_type_count);
-	pvdescriptor = (packed_vec_descriptor *)
-	               (*packed_types)[i];
+	min::uns32 t = packed_vec_type_of ( s );
+	packed_vec_descriptor * pvdescriptor =
+	    (packed_vec_descriptor *)
+	    (*packed_types)[t];
 	void * id = & packed_vec
 	              <H,E,type_m,length_m,max_length_m>
 		      ::id;
@@ -4303,20 +4316,26 @@ namespace min {
     {
         H * hp =
 	    (H *) unprotected::pointer_of ( this->s );
+	min::uns32 t = hp->type;
+	t &= internal::packed_type_index_mask;
+	internal::packed_vec_descriptor * pvdescriptor =
+	    (internal::packed_vec_descriptor *)
+	    (*internal::packed_types)[t];
+	    
         min::uns32 new_length = (min::uns32)
-	      this->pvdescriptor->increment_ratio
+	      pvdescriptor->increment_ratio
 	    * hp->max_length;
 	if (   new_length
-	     > this->pvdescriptor->max_increment )
+	     > pvdescriptor->max_increment )
 	    new_length =
-	        this->pvdescriptor->max_increment;
+	        pvdescriptor->max_increment;
 	new_length += hp->max_length;
     	min::uns32 min_new_length =
 	    reserve_length + hp->length;
 	if ( new_length < min_new_length )
 	    new_length = min_new_length;
 	internal::packed_vec_resize
-	    ( this->s, this->pvdescriptor, new_length );
+	    ( this->s, pvdescriptor, new_length );
     }
 }
 

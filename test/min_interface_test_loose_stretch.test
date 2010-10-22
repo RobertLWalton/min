@@ -1432,7 +1432,7 @@ Using fixed_blocks[2] and assigning begin_body_region[264 .. 267]
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
-    i < packed_type_count true.
+    t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     psdescriptor->id == id true.
 upv1->type = 2
@@ -1446,7 +1446,7 @@ MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
-    i < packed_type_count true.
+    t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     psdescriptor->id == id true.
 upv2->type = 3
@@ -1463,7 +1463,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
-    i < packed_type_count true.
+    t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
@@ -1478,7 +1478,7 @@ Using fixed_blocks[2] and assigning begin_body_region[272 .. 275]
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
-    i < packed_type_count true.
+    t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
@@ -1494,7 +1494,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
-    i < packed_type_count true.
+    t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
@@ -1516,7 +1516,7 @@ Using fixed_blocks[5] and assigning begin_body_region[280 .. 311]
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_VEC true.
 ../include/min.h:XXXX assert:
-    i < packed_type_count true.
+    t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     pvdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
@@ -1530,7 +1530,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_VEC true.
 ../include/min.h:XXXX assert:
-    i < packed_type_count true.
+    t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     pvdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
@@ -1547,6 +1547,10 @@ min_interface_test.cc:XXXX assert:
     pvp->length == 4 true.
 min_interface_test.cc:XXXX assert:
     pvp->max_length == 5 true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == PACKED_VEC true.
+../include/min.h:XXXX assert:
+    t < internal::packed_type_count true.
 MINT::new_fixed_body ( stub 6, 256 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
