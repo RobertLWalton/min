@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 22 09:44:21 EDT 2010
+// Date:	Fri Oct 22 12:59:19 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3581,6 +3581,18 @@ namespace min {
 		   unprotected::pointer_of
 		       ( this->s );
 	}
+
+	packed_struct_pointer & operator =
+		( internal
+		  ::packed_struct_base_pointer<S,type_m>
+		      & psp )
+	{
+	    new ( this )
+		internal
+		::packed_struct_base_pointer<S,type_m>
+		    ( psp->s );
+	    return * this;
+	}
     };
 
     template < typename S,
@@ -3657,14 +3669,16 @@ namespace min {
            ::packed_struct_base_pointer<S,type_m>
 	   ::packed_struct_base_pointer
 	    ( min::stub * s ) : s ( s )
-	{
-	    min::uns32 t = packed_struct_type_of ( s );
-	    packed_struct_descriptor * psdescriptor =
-		(packed_struct_descriptor *)
-	        (*packed_types)[t];
-	    void * id = & packed_struct<S,type_m>::id;
-	    MIN_ASSERT ( psdescriptor->id == id );
-	}
+    {
+	if ( s == NULL ) return;
+
+	min::uns32 t = packed_struct_type_of ( s );
+	packed_struct_descriptor * psdescriptor =
+	    (packed_struct_descriptor *)
+	    (*packed_types)[t];
+	void * id = & packed_struct<S,type_m>::id;
+	MIN_ASSERT ( psdescriptor->id == id );
+    }
 
     template < typename S,
                const min::uns32 S::* type_m >
