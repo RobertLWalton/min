@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 22 11:49:11 EDT 2010
+// Date:	Sat Oct 23 10:28:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1842,7 +1842,7 @@ min::gen MINT::packed_vec_new_gen
 }
 
 void MINT::packed_vec_resize
-        ( min::stub * s,
+        ( const min::stub * s,
 	  min::uns32 max_length )
 {
     min::uns32 t = packed_vec_type_of ( s );
@@ -1853,12 +1853,12 @@ void MINT::packed_vec_resize
 }
 
 void MINT::packed_vec_resize
-        ( min::stub * s,
+        ( const min::stub * s,
 	  min::internal::packed_vec_descriptor * pvd,
 	  min::uns32 max_length )
 {
     min::uns8 * & old_p = * (min::uns8 ** )
-        & MUP::pointer_ref_of ( s );
+        & MUP::pointer_ref_of ( (min::stub *) s );
     min::uns32 length = * (min::uns32 *)
         ( old_p + pvd->length_disp );
     min::uns32 old_max_length = * (min::uns32 *)
@@ -1874,7 +1874,7 @@ void MINT::packed_vec_resize
                            * pvd->element_size;
     if ( copy_size > new_size ) copy_size = new_size;
     unprotected::resize_body r
-	( s, new_size, old_size );
+	( (min::stub *) s, new_size, old_size );
     min::uns8 * & new_p = * (min::uns8 **)
 	& MUP::new_body_pointer_ref ( r );
     memcpy ( new_p, old_p, copy_size );
