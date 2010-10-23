@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  2 22:51:03 EDT 2010
+// Date:	Fri Oct 22 18:55:52 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1971,8 +1971,8 @@ void test_packed_structs ( void )
     ps1t::updatable_pointer upv1 ( v1 );
     cout << "upv1->type = " << upv1->type << endl;
     MIN_ASSERT ( upv1->i == 0 );
-    upv1->i = 99;
-    MIN_ASSERT ( upv1->i == 99 );
+    upv1->i = 88;
+    MIN_ASSERT ( upv1->i == 88 );
 
     min::gen v2 = ps2type.new_gen();
     ps2t::updatable_pointer upv2 ( v2 );
@@ -1988,17 +1988,26 @@ void test_packed_structs ( void )
     MIN_ASSERT ( pv2->j == 99 );
 
     min::gen v3 = ps2type.new_gen();
-    min::deinitialize ( upv2 );
-    min::initialize ( upv2, MUP::stub_of ( v3 ) );
+    MIN_ASSERT (    min::stub_of ( upv2 )
+                 == min::stub_of ( v2 ) );
+    upv2 = min::NULL_STUB;
+    MIN_ASSERT (    min::stub_of ( upv2 )
+                 != min::stub_of ( v2 ) );
+    upv2 = MUP::stub_of ( v3 );
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
     upv2->i = 22;
     upv2->j = 44;
     MIN_ASSERT ( upv2->i == 22 );
     MIN_ASSERT ( upv2->j == 44 );
-    min::initialize ( upv2, v2 );
+    upv2 = v2;
     MIN_ASSERT ( upv2->i == 55 );
     MIN_ASSERT ( upv2->j == 99 );
+
+    ps1t::updatable_pointer upv1b;
+    MIN_ASSERT ( min::stub_of ( upv1b ) == NULL );
+    upv1b = upv1;
+    MIN_ASSERT ( upv1b->i == 88 );
 
     cout << endl;
     cout << "Finish Packed Structs Test!" << endl;
@@ -2087,6 +2096,19 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvp[0].j == 11 );
     MIN_ASSERT ( pvp[1].j == 22 );
     MIN_ASSERT ( pvp[2].j == 33 );
+
+    pvp = min::NULL_STUB;
+    MIN_ASSERT (    min::stub_of ( pvp )
+                 != min::stub_of ( v ) );
+    pvp = v;
+    MIN_ASSERT (    min::stub_of ( pvp )
+                 == min::stub_of ( v ) );
+    MIN_ASSERT ( pvp[2].j == 33 );
+
+    pvt::insertable_pointer pvip2;
+    MIN_ASSERT ( min::stub_of ( pvip2 ) == NULL );
+    pvip2 = pvip;
+    MIN_ASSERT ( pvip2[2].j == 33 );
 
     cout << endl;
     cout << "Finish Packed Vectors Test!" << endl;
