@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 23 10:10:04 EDT 2010
+// Date:	Sat Oct 23 11:29:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3421,26 +3421,6 @@ namespace min {
 
     namespace internal {
 
-	// Pointer base inherited by public pointer
-	// classes.
-	//
-	template < typename S,
-		   const min::uns32 S::* type_m >
-	class packed_struct_base_pointer;
-    }
-
-    // Functions that must be declared before they are
-    // made friends.
-    //
-    template < typename S,
-               const min::uns32 S::* type_m >
-    const min::stub * stub_of
-	( min::internal
-	     ::packed_struct_base_pointer<S,type_m>
-	      & psp );
-
-    namespace internal {
-
 	// An packed struct/vect body begins with a
 	// min::uns32 type whose low order MIN_PACKED_
 	// TYPE_INDEX_BITS bits are an index i such that
@@ -3533,8 +3513,10 @@ namespace min {
 	    packed_struct_base_pointer ( void )
 		: s ( NULL_STUB ) {}
 
-	    friend const min::stub * stub_of<>
-		( packed_struct_base_pointer & psp );
+	    operator const min::stub * ( void )
+	    {
+		return this->s;
+	    }
 
 	protected:
 		
@@ -3611,18 +3593,6 @@ namespace min {
 	}
 
 	packed_struct_pointer & operator =
-		( const internal
-		  ::packed_struct_base_pointer<S,type_m>
-		      & psp )
-	{
-	    new ( this )
-		internal
-		::packed_struct_base_pointer<S,type_m>
-		    ( psp.s );
-	    return * this;
-	}
-
-	packed_struct_pointer & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
@@ -3681,18 +3651,6 @@ namespace min {
 	    return * (S *)
 		   unprotected::pointer_of
 		       ( this->s );
-	}
-
-	packed_struct_updatable_pointer & operator =
-		( const internal
-		  ::packed_struct_base_pointer<S,type_m>
-		      & psp )
-	{
-	    new ( this )
-		internal
-		::packed_struct_base_pointer<S,type_m>
-		    ( psp.s );
-	    return * this;
 	}
 
 	packed_struct_updatable_pointer & operator =
@@ -3766,16 +3724,6 @@ namespace min {
 	void * id = & packed_struct<S,type_m>::id;
 	MIN_ASSERT ( psdescriptor->id == id );
     }
-
-    template < typename S,
-               const min::uns32 S::* type_m >
-    inline const min::stub * stub_of
-	( min::internal
-	     ::packed_struct_base_pointer<S,type_m>
-	      & psp )
-    {
-	return psp.s;
-    }
 }
 
 // The following should be in min.cc BUT since they are
@@ -3826,31 +3774,6 @@ min::packed_struct<S,type_m>::packed_struct
 // tion.
 
 namespace min {
-
-    namespace internal {
-
-	// Pointer base inherited by public pointer
-	// classes.
-	//
-	template < typename H, typename E,
-		   const min::uns32 H::* type_m,
-		   const min::uns32 H::* length_m,
-		   const min::uns32 H::* max_length_m >
-	class packed_vec_base_pointer;
-    }
-
-    // Functions that must be declared before they are
-    // made friends.
-    //
-    template < typename H, typename E,
-	       const min::uns32 H::* type_m,
-	       const min::uns32 H::* length_m,
-	       const min::uns32 H::* max_length_m >
-    const min::stub * stub_of
-	( min::internal
-	     ::packed_vec_base_pointer
-	         <H,E,type_m,length_m,max_length_m>
-	      & pvp );
 
     namespace internal {
 
@@ -3937,8 +3860,10 @@ namespace min {
 	    packed_vec_base_pointer ( void )
 	        : s ( NULL_STUB ) {}
 
-	    friend const min::stub * stub_of<>
-		( packed_vec_base_pointer & pvp );
+	    operator const min::stub * ( void )
+	    {
+		return this->s;
+	    }
 
 	protected:
 	        
@@ -4030,19 +3955,6 @@ namespace min {
 	}
 
 	packed_vec_pointer & operator =
-		( const internal
-		        ::packed_vec_base_pointer
-		      <H,E,type_m,length_m,max_length_m>
-		      & psp )
-	{
-	    new ( this )
-		internal::packed_vec_base_pointer
-		    <H,E,type_m,length_m,max_length_m>
-		    ( psp.s );
-	    return * this;
-	}
-
-	packed_vec_pointer & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
@@ -4112,19 +4024,6 @@ namespace min {
 	}
 
 	packed_vec_updatable_pointer & operator =
-		( const internal
-		        ::packed_vec_base_pointer
-		      <H,E,type_m,length_m,max_length_m>
-		      & psp )
-	{
-	    new ( this )
-		internal::packed_vec_base_pointer
-		    <H,E,type_m,length_m,max_length_m>
-		    ( psp.s );
-	    return * this;
-	}
-
-	packed_vec_updatable_pointer & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
@@ -4191,19 +4090,6 @@ namespace min {
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
-	}
-
-	packed_vec_insertable_pointer & operator =
-		( const internal
-		        ::packed_vec_base_pointer
-		      <H,E,type_m,length_m,max_length_m>
-		      & psp )
-	{
-	    new ( this )
-		internal::packed_vec_base_pointer
-		    <H,E,type_m,length_m,max_length_m>
-		    ( psp.s );
-	    return * this;
 	}
 
 	packed_vec_insertable_pointer & operator =
@@ -4373,19 +4259,6 @@ namespace min {
 			  ::id;
 	    MIN_ASSERT ( pvdescriptor->id == id );
 	}
-    }
-
-    template < typename H, typename E,
-               const min::uns32 H::* type_m,
-               const min::uns32 H::* length_m,
-               const min::uns32 H::* max_length_m >
-    inline const min::stub * stub_of
-	( min::internal
-	     ::packed_vec_base_pointer
-		 <H,E,type_m,length_m,max_length_m>
-	      & pvp )
-    {
-	return pvp.s;
     }
 
     template < typename H, typename E,
