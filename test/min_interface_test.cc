@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 22 18:55:52 EDT 2010
+// Date:	Sat Oct 23 11:28:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1988,11 +1988,9 @@ void test_packed_structs ( void )
     MIN_ASSERT ( pv2->j == 99 );
 
     min::gen v3 = ps2type.new_gen();
-    MIN_ASSERT (    min::stub_of ( upv2 )
-                 == min::stub_of ( v2 ) );
+    MIN_ASSERT ( upv2 == min::stub_of ( v2 ) );
     upv2 = min::NULL_STUB;
-    MIN_ASSERT (    min::stub_of ( upv2 )
-                 != min::stub_of ( v2 ) );
+    MIN_ASSERT ( upv2 != min::stub_of ( v2 ) );
     upv2 = MUP::stub_of ( v3 );
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
@@ -2005,7 +2003,7 @@ void test_packed_structs ( void )
     MIN_ASSERT ( upv2->j == 99 );
 
     ps1t::updatable_pointer upv1b;
-    MIN_ASSERT ( min::stub_of ( upv1b ) == NULL );
+    MIN_ASSERT ( upv1b == min::NULL_STUB );
     upv1b = upv1;
     MIN_ASSERT ( upv1b->i == 88 );
 
@@ -2098,15 +2096,13 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvp[2].j == 33 );
 
     pvp = min::NULL_STUB;
-    MIN_ASSERT (    min::stub_of ( pvp )
-                 != min::stub_of ( v ) );
+    MIN_ASSERT ( pvp != min::stub_of ( v ) );
     pvp = v;
-    MIN_ASSERT (    min::stub_of ( pvp )
-                 == min::stub_of ( v ) );
+    MIN_ASSERT ( pvp == min::stub_of ( v ) );
     MIN_ASSERT ( pvp[2].j == 33 );
 
     pvt::insertable_pointer pvip2;
-    MIN_ASSERT ( min::stub_of ( pvip2 ) == NULL );
+    MIN_ASSERT ( pvip2 == min::NULL_STUB );
     pvip2 = pvip;
     MIN_ASSERT ( pvip2[2].j == 33 );
 
