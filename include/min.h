@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 23 10:00:42 EDT 2010
+// Date:	Sat Oct 23 10:10:04 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3416,7 +3416,8 @@ namespace min {
     }
     const min::uns32 DISP_END = min::uns32 ( -1 );
 
-    min::stub * const NULL_STUB = (min::stub *) NULL;
+    const min::stub * const NULL_STUB =
+        (const min::stub *) NULL;
 
     namespace internal {
 
@@ -3525,12 +3526,12 @@ namespace min {
 		new ( this )
 		    internal::packed_struct_base_pointer
 		    	    <S,type_m>
-			( (min::stub *) stub_of ( v ) );
+			( stub_of ( v ) );
 	    }
 	    packed_struct_base_pointer
-		( min::stub * s );
+		( const min::stub * s );
 	    packed_struct_base_pointer ( void )
-		: s ( NULL ) {}
+		: s ( NULL_STUB ) {}
 
 	    friend const min::stub * stub_of<>
 		( packed_struct_base_pointer & psp );
@@ -3538,9 +3539,9 @@ namespace min {
 	protected:
 		
 	    // A packed structure pointer is just a
-	    // min::stub * value with garnish.
+	    // const min::stub * value with garnish.
 	    //
-	    min::stub * s;
+	    const min::stub * s;
 	};
 
 	// Out-of-line new_gen function (non-template).
@@ -3550,7 +3551,7 @@ namespace min {
     }
 
     inline min::uns32 packed_struct_type_of
-	    ( min::stub * s )
+	    ( const min::stub * s )
     {
 	MIN_ASSERT ( type_of ( s ) == PACKED_STRUCT );
 	void * p = unprotected::pointer_of ( s );
@@ -3561,7 +3562,7 @@ namespace min {
     }
 
     inline min::uns32 packed_vec_type_of
-	    ( min::stub * s )
+	    ( const min::stub * s )
     {
 	MIN_ASSERT ( type_of ( s ) == PACKED_VEC );
 	void * p = unprotected::pointer_of ( s );
@@ -3586,7 +3587,7 @@ namespace min {
 	    : internal::packed_struct_base_pointer
 	    	    <S,type_m>
 		( v ) {}
-	packed_struct_pointer ( min::stub * s )
+	packed_struct_pointer ( const min::stub * s )
 	    : internal::packed_struct_base_pointer
 	    	    <S,type_m>
 		( s ) {}
@@ -3627,7 +3628,7 @@ namespace min {
 	    new ( this )
 		internal
 		::packed_struct_base_pointer<S,type_m>
-		    ( (min::stub *) s );
+		    ( s );
 	    return * this;
 	}
 
@@ -3659,7 +3660,7 @@ namespace min {
 	    	    <S,type_m>
 		( v ) {}
 	packed_struct_updatable_pointer
-		( min::stub * s )
+		( const min::stub * s )
 	    : internal::packed_struct_base_pointer
 	    	    <S,type_m>
 		( s ) {}
@@ -3695,7 +3696,7 @@ namespace min {
 	}
 
 	packed_struct_updatable_pointer & operator =
-		( min::stub * s )
+		( const min::stub * s )
 	{
 	    new ( this )
 		internal
@@ -3754,7 +3755,7 @@ namespace min {
     inline internal
            ::packed_struct_base_pointer<S,type_m>
 	   ::packed_struct_base_pointer
-	    ( min::stub * s ) : s ( s )
+	    ( const min::stub * s ) : s ( s )
     {
 	if ( s == NULL ) return;
 
@@ -3929,18 +3930,19 @@ namespace min {
 	    {
 	        new ( this )
 		    packed_vec_base_pointer
-			( (min::stub *) stub_of ( v ) );
+			( stub_of ( v ) );
 	    }
-	    packed_vec_base_pointer ( min::stub * s );
+	    packed_vec_base_pointer
+	        ( const min::stub * s );
 	    packed_vec_base_pointer ( void )
-	        : s ( NULL ) {}
+	        : s ( NULL_STUB ) {}
 
 	    friend const min::stub * stub_of<>
 		( packed_vec_base_pointer & pvp );
 
 	protected:
 	        
-	    min::stub * s;
+	    const min::stub * s;
 
 	    // Computed actual header size, which is
 	    // sizeof ( H ) rounded up to sizeof ( E )
@@ -3972,9 +3974,10 @@ namespace min {
 	// Out-of-line resize functions (non-template).
 	//
 	void packed_vec_resize
-	    ( min::stub * s, min::uns32 max_length );
+	    ( const min::stub * s,
+	      min::uns32 max_length );
 	void packed_vec_resize
-	    ( min::stub * s,
+	    ( const min::stub * s,
 	      packed_vec_descriptor * pvd,
 	      min::uns32 max_length );
     }
@@ -3996,7 +3999,7 @@ namespace min {
 	    : internal::packed_vec_base_pointer
 	      <H,E,type_m,length_m,max_length_m>
 	    ( v ) {}
-	packed_vec_pointer ( min::stub * s )
+	packed_vec_pointer ( const min::stub * s )
 	    : internal::packed_vec_base_pointer
 	      <H,E,type_m,length_m,max_length_m>
 	    ( s ) {}
@@ -4045,7 +4048,7 @@ namespace min {
 	    new ( this )
 		internal::packed_vec_base_pointer
 		    <H,E,type_m,length_m,max_length_m>
-		    ( (min::stub *) s );
+		    ( s );
 	    return * this;
 	}
 
@@ -4078,7 +4081,7 @@ namespace min {
 	      H,E,type_m,length_m,max_length_m>
 	    ( v ) {}
 	packed_vec_updatable_pointer
-		( min::stub * s )
+		( const min::stub * s )
 	    : internal::packed_vec_base_pointer
 	      <H,E,type_m,length_m,max_length_m>
 	    ( s ) {}
@@ -4127,7 +4130,7 @@ namespace min {
 	    new ( this )
 		internal::packed_vec_base_pointer
 		    <H,E,type_m,length_m,max_length_m>
-		    ( (min::stub *) s );
+		    ( s );
 	    return * this;
 	}
 
@@ -4160,7 +4163,7 @@ namespace min {
 	      <H,E,type_m,length_m,max_length_m>
 	    ( v ) {}
 	packed_vec_insertable_pointer
-		( min::stub * s )
+		( const min::stub * s )
 	    : internal::packed_vec_base_pointer
 	      <H,E,type_m,length_m,max_length_m>
 	    ( s ) {}
@@ -4209,7 +4212,7 @@ namespace min {
 	    new ( this )
 		internal::packed_vec_base_pointer
 		    <H,E,type_m,length_m,max_length_m>
-		    ( (min::stub *) s );
+		    ( s );
 	    return * this;
 	}
 
@@ -4356,7 +4359,7 @@ namespace min {
     internal::packed_vec_base_pointer
               <H,E,type_m,length_m,max_length_m>
             ::packed_vec_base_pointer
-	    ( min::stub * s ) : s ( s )
+	    ( const min::stub * s ) : s ( s )
     {
 	if ( s != NULL )
 	{
