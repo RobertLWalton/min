@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 23 11:29:15 EDT 2010
+// Date:	Sat Oct 23 11:38:18 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3513,7 +3513,7 @@ namespace min {
 	    packed_struct_base_pointer ( void )
 		: s ( NULL_STUB ) {}
 
-	    operator const min::stub * ( void )
+	    operator const min::stub * ( void ) const
 	    {
 		return this->s;
 	    }
@@ -3860,7 +3860,7 @@ namespace min {
 	    packed_vec_base_pointer ( void )
 	        : s ( NULL_STUB ) {}
 
-	    operator const min::stub * ( void )
+	    operator const min::stub * ( void ) const
 	    {
 		return this->s;
 	    }
