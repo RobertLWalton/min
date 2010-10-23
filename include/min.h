@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 23 03:54:37 EDT 2010
+// Date:	Sat Oct 23 10:00:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3602,6 +3602,13 @@ namespace min {
 		       ( this->s );
 	}
 
+	const S & operator * ( void )
+	{
+	    return * (const S *)
+		   unprotected::pointer_of
+		       ( this->s );
+	}
+
 	packed_struct_pointer & operator =
 		( const internal
 		  ::packed_struct_base_pointer<S,type_m>
@@ -3664,6 +3671,13 @@ namespace min {
 	S * operator -> ( void )
 	{
 	    return (S *)
+		   unprotected::pointer_of
+		       ( this->s );
+	}
+
+	S & operator * ( void )
+	{
+	    return * (S *)
 		   unprotected::pointer_of
 		       ( this->s );
 	}
