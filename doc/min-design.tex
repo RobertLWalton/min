@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 6, 2010}
+\date{October 23, 2010}
  
 \maketitle
 
@@ -295,7 +295,10 @@ and the corresponding code:
 			          (\secref{ACC-INTERFACE},\secref{ACC}) \\
 \ttmkey{aux}{abbreviation}	& auxiliary (\secref{AUXILIARY}) \\
 \ttmkey{attr}{abbreviation}	& attribute (\secref{OBJECT-VECTOR-LEVEL}) \\
+\ttmkey{DISP}{abbreviation}	& displacement (\pagref{MIN::DISP}) \\
 \ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
+\ttmkey{insptr}{abbreviation}	& insertable pointer
+				  (readwrite, push, pop pointer) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
 \ttmkey{lab}{abbreviation}	& label (\secref{LABELS}) \\
 \ttmkey{min}{abbreviation}	& the `{\tt min}' namespace (\pagref{min::}) \\
@@ -307,8 +310,10 @@ and the corresponding code:
 \ttmkey{MUP}{abbreviation}	& {\tt min::unprotected} (\pagref{MUP}) \\
 \ttmkey{num}{abbreviation}	& number (\pagref{NUMBERS}) \\
 \ttmkey{obj}{abbreviation}	& object (\pagref{OBJECTS}) \\
+\ttmkey{ptr}{abbreviation}	& pointer (usually readonly) \\
 \ttmkey{str}{abbreviation}	& string (\pagref{STRINGS}) \\
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
+\ttmkey{updptr}{abbreviation}	& updatable pointer (i.e., readwrite pointer) \\
 \ttmkey{var}{abbreviation}	& variable (\secref{OBJECT-VECTOR-LEVEL}) \\
 \ttmkey{vec}{abbreviation}	& vector (\secref{OBJECT-VECTOR-LEVEL}) \\
 \end{tabular}
@@ -6208,10 +6213,10 @@ member function of this C++ static object can be
 used to create new packed structures of that type.
 There are two kinds of pointers that can be used to
 access members of packed structures.
-A read-only {\tt min::\EOL packed\_\EOL struct\SARG::\EOL pointer}
-permits read-only access to packed structure members.
-An updatable {\tt min::\EOL packed\_\EOL struct\SARG::\EOL
-updatable\_\EOL pointer}
+A read-only {\tt min::\EOL packed\_\EOL struct\SARG::\EOL ptr}
+pointer permits read-only access to packed structure members.
+An {\tt min::\EOL packed\_\EOL struct\SARG::\EOL updptr}
+updatable pointer
 permits read-write access to packed structure members.
 
 The situation is similar for a packed vector, whose C type is
@@ -6221,8 +6226,8 @@ described by a
 of the packed vector element.  The read-only and updatable pointers
 permit access to both the header members and vector elements.
 There is also a third kind of pointer,
-the insertable {\tt min::\EOL packed\_\EOL struct\HEARG::\EOL
-insertable\_\EOL pointer},
+the {\tt min::\EOL packed\_\EOL struct\HEARG::\EOL
+insptr} insertable pointer,
 that permits read-write access to packed vector header members and
 vector elements and also permits pushing and popping vector elements
 and resizing the vector.
@@ -6303,7 +6308,8 @@ instead of \verb|min::gen| members.
 
 The \verb|pstype.new_gen| function creates a new packed structure
 datum of the C type described by \verb|pstype| and returns a
-\verb|min::gen| value pointing at it.
+\verb|min::gen| value pointing at it.  The new packed structure
+is set to all zeros.
 
 The function call {\tt min::\EOL DISP~(~\&~S::m~)} will return the
 displacement in bytes of the member \verb|m| of a structure
@@ -6321,109 +6327,135 @@ a packed structure, and these have the usage:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
 	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_OF_GEN} \\
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_OF_STUB} \\
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	  \verb| ( const min::stub * s )|
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
 	  \verb| ( void )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_OF_VOID} \\
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_pointer|{\tt \SARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::pointer}
-\LABEL{MIN::PACKED_STRUCT_POINTER_TYPEDEF} \\
+	& \verb|min::packed_struct_ptr|{\tt \SARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
+\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>::pointer & psp,|\ARGBREAK
+\begin{indpar}\begin{tabular}{@{}l@{}l}
+ \verb|min::packed_struct<S>::ptr & |
+	& \TTKEY{operator =}\ARGBREAK
+	  \verb| ( min::packed_struct<S>|\ARGBREAK
+	  \verb|      ::ptr & psp,|\ARGBREAK
 	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_POINTER_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>::pointer & psp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_POINTER_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>::pointer & psp )|
-\LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_POINTER} \\
+\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_GEN} \\
+\verb|min::packed_struct<S>::ptr & |
+	& \TTKEY{operator =}\ARGBREAK
+	  \verb| ( min::packed_struct<S>|\ARGBREAK
+	  \verb|      ::ptr & psp,|\ARGBREAK
+	  \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|const min::stub * |
+	& \TTKEY{operator const min::stub *} \ARGBREAK
+          \verb| ( const min::packed_struct<S>::ptr & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
+\verb|const * S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+	  \verb| ( min::packed_struct<S>::ptr & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_CONVERSION} \\
+\verb|const & S | & \TTKEY{operator *} \ARGBREAK
+	  \verb| ( min::packed_struct<S>::ptr & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_DEREFERENCE} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
 	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup| \ARGBREAK
 	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
 	               \verb|( void )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_VOID} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_updatable_pointer|{\tt \SARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::updatable\_pointer}
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_TYPEDEF} \\
+	& \verb|min::packed_struct_updptr|{\tt \SARG} \ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
+\begin{indpar}\begin{tabular}{@{}l@{}l}
+ \verb|min::packed_struct<S>::updptr & |
+	& \TTKEY{operator =}\ARGBREAK
 	  \verb| ( min::packed_struct<S>|\ARGBREAK
-	  \verb|      ::updatable_pointer & psp,|\ARGBREAK
+	  \verb|       ::updptr & psup,|\ARGBREAK
 	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
+\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_GEN} \\
+\verb|min::packed_struct<S>::updptr & |
+	& \TTKEY{operator =}\ARGBREAK
 	  \verb| ( min::packed_struct<S>|\ARGBREAK
-	  \verb|      ::updatable_pointer & psp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>|\ARGBREAK
-	  \verb|      ::updatable_pointer & psp )|
-\LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER} \\
+	  \verb|      ::updptr & psup,|\ARGBREAK
+	  \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const S * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( min::packed_struct<S>::pointer & psp )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_CONVERSION} \\
-\verb|S * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( min::packed_struct<S>|\ARGBREAK
-	  \verb|      ::updatable_pointer & psp )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_CONVERSION} \\
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|const min::stub * |
+	& \TTKEY{operator const min::stub *} \ARGBREAK
+          \verb| ( const min::packed_struct<S>::updptr & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
+\verb|* S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+	  \verb| ( min::packed_struct<S>::updptr & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_CONVERSION} \\
+\verb|& S | & \TTKEY{operator *} \ARGBREAK
+	  \verb| ( min::packed_struct<S>::updptr & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_DEREFERENCE} \\
 \end{tabular}\end{indpar}
 
-This last means that when \verb|psp| is used as the left operand
-of \verb|->| it is converted to a `\verb|const S *|' pointer and
-similarly \verb|psup| is converted to a `\verb|S *|' pointer.
+A {\tt min::\EOL packed\_\EOL struct\SARG::\EOL ptr} value is just
+a `{\tt const min::stub~*}' value in fancy clothes,
+and similarly a {\tt min::\EOL packed\_\EOL struct\SARG::\EOL updptr} value.
+Both pointer values may be converted to/from
+`{\tt const min::stub~*}' values.
 
-The names {\tt min::\EOL packed\_\EOL struct<S>::\EOL pointer} and
-{\tt min::\EOL packed\_\EOL struct<S>::\EOL updatable\_\EOL pointer} are
+A {\tt min::\EOL packed\_\EOL struct\SARG::\EOL ptr} value is internally
+also a `\verb|const ** S|' value that is made to behave externally like a
+also a `\verb|const * S|' value with respect to the \verb|->| and
+unary \verb|*| operators.  Thus looking ahead at the example below,
+if \verb|upv| is a
+{\tt min::\EOL packed\_\EOL struct\SARG::\EOL ptr} value
+and \verb|S| has a member \verb|i|, then \verb|upv->i| is the \verb|i|
+member of the \verb|S| struct pointed at by \verb|upv|.
+Similarly a {\tt min::\EOL packed\_\EOL struct\SARG::\EOL updptr} value
+is internally also a `\verb|** S|' value that is made to behave
+externally like a also a `\verb|* S|' value with respect to the \verb|->| and
+unary \verb|*| operators.
+
+The names {\tt min::\EOL packed\_\EOL struct<S>::\EOL ptr} and
+{\tt min::\EOL packed\_\EOL struct<S>::\EOL updptr} are
 usually used for pointer types (see example below).  However, in certain
 circumstances, such as inside a {\tt template} class, these will not
 work, due either to problems with the C++ standard or its implementation,
 so you may have to use the less attractive
-{\tt min::\EOL packed\_\EOL struct\_\EOL pointer<S>} and
-{\tt min::\EOL packed\_\EOL struct\_\EOL updatable\_\EOL pointer<S>} in
+{\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>} and
+{\tt min::\EOL packed\_\EOL struct\_\EOL updptr<S>} in
 these circumstances.
 
-For the constructors and {\tt min::initialize} functions \verb|v| or
-\verb|s| must point at packed structure.
-The {\tt min::initialize} functions can be used to change the
-packed structure a pointer points at, and the {\tt min::deinitialize}
-functions can be used to set a packed structure pointer so it is not
-pointing at anything.  The constructor with no arguments creates
-a pointer that does not point at anything.  A pointer not pointing at
-anything produces undefined results if used, though most often
-the result will be a memory fault.  Such a pointer
-may be initialized by {\tt min::initialize} and then used.
+For the constructors and the {\tt =} assignment operator \verb|v| or
+\verb|s| must point at packed structure, or \verb|s| must equal
+\verb|min::NULL_STUB|, which is just the standard C language \verb|NULL|
+cast to the `\verb|const min::stub *|' type.  This cast is necessary
+as \verb|NULL| by inself can be converted to either a `\verb|min::stub *|'
+or \verb|min::gen| type and is thus ambiguous when used in a constructor
+or on the right side of \verb|=|.
+
+If constructors for {\tt min::\EOL packed\_\EOL struct<S>::\EOL ptr} or
+{\tt min::\EOL packed\_\EOL struct<S>::\EOL updptr} are
+not given an argument, these pointers are set to
+\verb|min::NULL_STUB|.  Such pointers give undefined results if
+used, though most frequently the result will be a memory fault.
 
 An example use of a packed structure is:
 \begin{indpar}\begin{verbatim}
@@ -6436,9 +6468,9 @@ struct ps {
 };
 
 static min::uns32 ps_gen_disp[2] =
-    { 12, min::DISP_END };
+    { min::DISP(&ps::g), min::DISP_END };
 static min::uns32 ps_stub_ptr_disp[2] =
-    { 12 + sizeof ( min::gen ), min::DISP_END };
+    { min::DISP(&ps::s), min::DISP_END };
 
 typedef min::packed_struct<ps> pst;
 static pst pstype
@@ -6448,17 +6480,19 @@ main ( ... )
 {
     . . . . . . .
     min::gen v1 = pstype.new_gen();
-    pst::updatable_pointer upv ( v1 );
+    pst::updptr upv ( v1 );
     upv->i = 55;
     upv->j = 99;
     upv->g = min::new_str_gen ( "Hello" );
 
-    pst::pointer pv ( v1 );
-    // Now pv->j == 55.
+    pst::ptr pv ( upv );
+    // Upv is converted to a `const min::stub *' value
+    // that is used to set pv.
+    // Now pv->i == 55.
 
     min::gen v2 = pstype.new_gen();
-    initialize ( upv, v2 );
-    // Now upv->i == 0.
+    pv = v2;
+    // Now pv->i == 0.
     . . . . . . .
 }
 \end{verbatim}\end{indpar}
@@ -8677,85 +8711,54 @@ These are in \verb|min_parameters.h|.
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_OF_GEN} \\
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_OF_STUB} \\
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_pointer\SARG} \verb|psp|
 	  \verb| ( void )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_OF_VOID} \\
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
 \verb|typedef |
 	& \verb|min::packed_struct_pointer|{\tt \SARG} \ARGBREAK
 	  \verb|min::|\MINKEY{packed\_struct\SARG::pointer}
-\LABEL{MIN::PACKED_STRUCT_POINTER_TYPEDEF} \\
+\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>::pointer & psp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_POINTER_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>::pointer & psp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_POINTER_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>::pointer & psp )|
-\LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_POINTER} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
 	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
 	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_updatable\_pointer\SARG} \verb|psup| \ARGBREAK
 	               \verb| ( void )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_OF_VOID} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
 \verb|typedef |
 	& \verb|min::packed_struct_updatable_pointer|{\tt \SARG} \ARGBREAK
 	  \verb|min::|\MINKEY{packed\_struct\SARG::updatable\_pointer}
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_TYPEDEF} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>|\ARGBREAK
-	  \verb|      ::updatable_pointer & psp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>|\ARGBREAK
-	  \verb|      ::updatable_pointer & psp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::packed_struct<S>|\ARGBREAK
-	  \verb|      ::updatable_pointer & psp )|
-\LABEL{MIN::DEINITIALIZE_PACKED_STRUCT_UPDATABLE_POINTER} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
 \verb|const S * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
 	  \verb| ( min::packed_struct<S>::pointer & psp )|
-\LABEL{MIN::PACKED_STRUCT_POINTER_CONVERSION} \\
+\LABEL{MIN::PACKED_STRUCT_PTR_CONVERSION} \\
 \verb|S * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
 	  \verb| ( min::packed_struct<S>|\ARGBREAK
 	  \verb|      ::updatable_pointer & psp )|
-\LABEL{MIN::PACKED_STRUCT_UPDATABLE_POINTER_CONVERSION} \\
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_CONVERSION} \\
 \end{TABULAR}
 
 \end{indpar}
