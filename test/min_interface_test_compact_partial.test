@@ -1469,6 +1469,16 @@ min_interface_test.cc:XXXX assert:
     upv1b == min::NULL_STUB true.
 min_interface_test.cc:XXXX assert:
     upv1b->i == 88 true.
+min_interface_test.cc:XXXX assert:
+    upv1->psp == min::NULL_STUB true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == PACKED_STRUCT true.
+../include/min.h:XXXX assert:
+    t < internal::packed_type_count true.
+../include/min.h:XXXX assert:
+    psdescriptor->id == id true.
+min_interface_test.cc:XXXX assert:
+    upv1->psp->i == 88 true.
 
 Finish Packed Structs Test!
 
@@ -1515,7 +1525,7 @@ min_interface_test.cc:XXXX assert:
     type_of ( s ) == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     t < internal::packed_type_count true.
-MINT::new_fixed_body ( stub 6, 256 ) called
+MINT::new_fixed_body ( stub 6, 264 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[6] and assigning begin_body_region[296 .. 359]
@@ -1571,6 +1581,22 @@ min_interface_test.cc:XXXX assert:
     pvip2 == min::NULL_STUB true.
 min_interface_test.cc:XXXX assert:
     pvip2[2].j == 33 true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 3 true.
+min_interface_test.cc:XXXX assert:
+    pvip->pvip == min::NULL_STUB true.
+../include/min.h:XXXX assert:
+    type_of ( s ) == PACKED_VEC true.
+../include/min.h:XXXX assert:
+    t < internal::packed_type_count true.
+../include/min.h:XXXX assert:
+    pvdescriptor->id == id true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 4 true.
+min_interface_test.cc:XXXX assert:
+    pvip[3].j == 88 true.
+min_interface_test.cc:XXXX assert:
+    pvip[3].j == 77 true.
 
 Finish Packed Vectors Test!
 
