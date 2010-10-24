@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 24 06:05:12 EDT 2010
+// Date:	Sun Oct 24 06:37:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2010,6 +2010,10 @@ void test_packed_structs ( void )
     upv1b = upv1;
     MIN_ASSERT ( upv1b->i == 88 );
 
+    MIN_ASSERT ( upv1->psp == min::NULL_STUB );
+    upv1->psp = upv1;
+    MIN_ASSERT ( upv1->psp->i == 88 );
+
     cout << endl;
     cout << "Finish Packed Structs Test!" << endl;
 }
@@ -2017,11 +2021,13 @@ void test_packed_structs ( void )
 // Packed Vectors
 // ------ -------
 
+struct pve;
 struct pvh {
     const min::uns32 type;
     min::uns32 i;
     const min::uns32 length;
     const min::uns32 max_length;
+    min::packed_vec_insertable_pointer<pvh,pve> pvip;
 };
 
 struct pve {
@@ -2030,14 +2036,17 @@ struct pve {
     min::uns8 j;
 };
 
-static min::uns32 pve_gen_disp[2] =
+static min::uns32 pvh_stub_ptr_disp[] =
+    { min::DISP ( & pvh::pvip ), min::DISP_END };
+static min::uns32 pve_gen_disp[] =
     { min::DISP ( & pve::g ), min::DISP_END };
-static min::uns32 pve_stub_ptr_disp[2] =
+static min::uns32 pve_stub_ptr_disp[] =
     { min::DISP ( & pve::s ), min::DISP_END };
 
 typedef min::packed_vec<pvh,pve> pvt;
 static pvt pvtype
-    ( "pvtype", pve_gen_disp, pve_stub_ptr_disp );
+    ( "pvtype", pve_gen_disp, pve_stub_ptr_disp,
+                NULL,         pvh_stub_ptr_disp );
 
 void test_packed_vectors ( void )
 {
@@ -2108,6 +2117,15 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvip2 == min::NULL_STUB );
     pvip2 = pvip;
     MIN_ASSERT ( pvip2[2].j == 33 );
+
+    MIN_ASSERT ( pvip->length == 3 );
+    MIN_ASSERT ( pvip->pvip == min::NULL_STUB );
+    pvip->pvip = pvp;
+    min::push ( pvip->pvip, e1 );
+    MIN_ASSERT ( pvip->length == 4 );
+    MIN_ASSERT ( pvip[3].j == 88 );
+    pvip->pvip[3].j = 77;
+    MIN_ASSERT ( pvip[3].j == 77 );
 
     cout << endl;
     cout << "Finish Packed Vectors Test!" << endl;
