@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 23 11:28:04 EDT 2010
+// Date:	Sun Oct 24 06:05:12 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1939,12 +1939,15 @@ struct ps1 {
     min::uns32 i;
     min::gen g;
     min::stub * s;
+    min::packed_struct_pointer<ps1> psp;
 };
 
 static min::uns32 ps1_gen_disp[2] =
     { min::DISP ( & ps1::g ), min::DISP_END };
-static min::uns32 ps1_stub_ptr_disp[2] =
-    { min::DISP ( & ps1::s ), min::DISP_END };
+static min::uns32 ps1_stub_ptr_disp[3] =
+    { min::DISP ( & ps1::s ),
+      min::DISP ( & ps1::psp ),
+      min::DISP_END };
 
 typedef min::packed_struct<ps1> ps1t;
 static ps1t ps1type
