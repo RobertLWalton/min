@@ -254,7 +254,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 23, 2010}
+\date{October 25, 2010}
  
 \maketitle
 
@@ -6206,6 +6206,22 @@ C++ classes are not permitted, as the types must \underline{not}
 have constructors or destructors and must be copyable with
 a simple `{\tt =}' operator or with the \verb|memcpy| function.
 
+There are also special pointer-to-packed-struct types:
+\begin{indpar}
+\verb|min::packed_struct<S>::ptr| \\
+\verb|min::packed_struct<S>::updptr|
+\end{indpar}
+and pointer-to-packed-vector types:
+\begin{indpar}
+\verb|min::packed_vec<H,E>::ptr| \\
+\verb|min::packed_vec<H,E>::updptr| \\
+\verb|min::packed_vec<H,E>::insptr|
+\end{indpar}
+These are like the type `\verb|const min::stub *|' but with with extra
+clothes.
+Members of these types can also be included in C packed structures
+and packed vectors.
+
 The C type of a packed structure is described by a
 {\tt min::packed\_\EOL struct\SARG} C++ static object, where
 \verb|S| is the C type of the structure.  The {\tt new\_gen}
@@ -6299,9 +6315,21 @@ be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|S|.  But if there are \verb|min::gen| members, this
 displacements vector must be given for garbage collection purposes.
 
+\verb|const min::gen| members are treated like \verb|min::gen|
+members for these purposes.
+
 \item[\ttmkey{stub\_ptr\_disp}{in {\tt min::packed\_struct}}]
 Ditto but for \verb|min::stub *| members of \verb|S|
 instead of \verb|min::gen| members.
+
+Pointer-to-packed-struct and pointer-to-packed-vector
+members, such as {\tt min::\EOL packed\_struct\SARG::\EOL pointer} members,
+are treated like `{\tt const min::stub~*}' values in that they
+must be listed in {\tt stub\_\EOL ptr\_\EOL disp}.
+
+`\verb|const min::stub *|', `\verb|min::stub const *|', and
+`{\tt const min::stub \EOL const~*}' members are treated like
+`{\tt min::stub~*}' members for these purposes.
 
 \end{itemize}
 \end{indpar}
@@ -6315,7 +6343,9 @@ The function call {\tt min::\EOL DISP~(~\&~S::m~)} will return the
 displacement in bytes of the member \verb|m| of a structure
 of \verb|struct| type \verb|S|.  This should be used instead of
 assuming that \verb|struct| layouts are tightly packed, as often
-they are not.
+they are not.  The type of the \verb|S::m| member must be one of
+the types mentioned above: \verb|min::gen|, `{\tt const min::stub~*}',
+{\tt min::\EOL packed\_\EOL struct\SARG::\EOL ptr}, etc.
 
 \verb|pstype.name|, {\tt pstype.gen\_\EOL disp},
 and {\tt pstype.stub\_\EOL ptr\_\EOL disp}
@@ -6412,6 +6442,8 @@ a packed structure, and these have the usage:
 \verb|& S | & \TTKEY{operator *} \ARGBREAK
 	  \verb| ( min::packed_struct<S>::updptr & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_DEREFERENCE} \\
+\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
+\LABEL{MIN::NULL_STUB} \\
 \end{tabular}\end{indpar}
 
 A {\tt min::\EOL packed\_\EOL struct\SARG::\EOL ptr} value is just
@@ -6459,20 +6491,22 @@ used, though most frequently the result will be a memory fault.
 
 An example use of a packed structure is:
 \begin{indpar}\begin{verbatim}
+struct ps;
+typedef min::packed_struct<ps> pst;
 struct ps {
     min::uns32 type;
     min::uns32 i;
     min::uns32 j;
     min::gen g;
+    pst::ptr pv;
     min::stub * s;
 };
 
 static min::uns32 ps_gen_disp[2] =
     { min::DISP(&ps::g), min::DISP_END };
 static min::uns32 ps_stub_ptr_disp[2] =
-    { min::DISP(&ps::s), min::DISP_END };
+    { min::DISP(&ps::s), min::DISP(&ps::pv), min::DISP_END };
 
-typedef min::packed_struct<ps> pst;
 static pst pstype
     ( "pstype", ps_gen_disp, ps_stub_ptr_disp );
 
@@ -6485,14 +6519,15 @@ main ( ... )
     upv->j = 99;
     upv->g = min::new_str_gen ( "Hello" );
 
-    pst::ptr pv ( upv );
+    pst::ptr pv = upv;
     // Upv is converted to a `const min::stub *' value
     // that is used to set pv.
-    // Now pv->i == 55.
 
-    min::gen v2 = pstype.new_gen();
-    pv = v2;
-    // Now pv->i == 0.
+    upv->pv = pv;
+    upv = pstype.new_gen();
+    // Now upv->i == 0, pv->i == 55, pv->pv->i == 55,
+    //     upv->pv == min::NULL_STUB
+
     . . . . . . .
 }
 \end{verbatim}\end{indpar}
@@ -6571,7 +6606,7 @@ declared.  The first member of this \verb|struct| type must be
 \end{indpar}
 and the \verb|struct| type must also have the two members
 \begin{indpar}
-\verb|const min::uns32 length;|
+\verb|const min::uns32 length;| \\
 \verb|const min::uns32 max_length;|
 \end{indpar}
 These members are initialized by \verb|new_gen| and must not
