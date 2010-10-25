@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 24 06:37:11 EDT 2010
+// Date:	Mon Oct 25 03:08:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1934,12 +1934,14 @@ void test_print ( void )
 // Packed Structures
 // ------ ----------
 
+struct ps1;
+typedef min::packed_struct<ps1> ps1t;
 struct ps1 {
     const min::uns32 type;
     min::uns32 i;
     min::gen g;
     min::stub * s;
-    min::packed_struct_pointer<ps1> psp;
+    ps1t::pointer psp;
 };
 
 static min::uns32 ps1_gen_disp[2] =
@@ -1949,7 +1951,6 @@ static min::uns32 ps1_stub_ptr_disp[3] =
       min::DISP ( & ps1::psp ),
       min::DISP_END };
 
-typedef min::packed_struct<ps1> ps1t;
 static ps1t ps1type
     ( "ps1type", ps1_gen_disp, ps1_stub_ptr_disp );
 
@@ -2022,12 +2023,14 @@ void test_packed_structs ( void )
 // ------ -------
 
 struct pve;
+struct pvh;
+typedef min::packed_vec<pvh,pve> pvt;
 struct pvh {
     const min::uns32 type;
     min::uns32 i;
     const min::uns32 length;
     const min::uns32 max_length;
-    min::packed_vec_insertable_pointer<pvh,pve> pvip;
+    pvt::insertable_pointer pvip;
 };
 
 struct pve {
@@ -2043,7 +2046,6 @@ static min::uns32 pve_gen_disp[] =
 static min::uns32 pve_stub_ptr_disp[] =
     { min::DISP ( & pve::s ), min::DISP_END };
 
-typedef min::packed_vec<pvh,pve> pvt;
 static pvt pvtype
     ( "pvtype", pve_gen_disp, pve_stub_ptr_disp,
                 NULL,         pvh_stub_ptr_disp );
