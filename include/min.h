@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Oct 24 06:04:48 EDT 2010
+// Date:	Mon Oct 25 02:34:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3408,11 +3408,24 @@ namespace min {
 
 namespace min {
 
+    // The C offsetof macro does not work, so:
+    //
     template < typename S, typename T >
-    min::uns32 DISP ( T S::* d )
+    min::uns32 OFFSETOF ( T S::* d )
     {
         S * p = (S *) NULL;
 	return (uns8 *) & (p->*d) - (uns8 *) p;
+    }
+
+    template < typename S >
+    min::uns32 DISP ( min::gen S::* d )
+    {
+	return OFFSETOF ( d );
+    }
+    template < typename S >
+    min::uns32 DISP ( min::stub * S::* d )
+    {
+	return OFFSETOF ( d );
     }
     const min::uns32 DISP_END = min::uns32 ( -1 );
 
@@ -3574,8 +3587,7 @@ namespace min {
 	const S * operator -> ( void )
 	{
 	    return (const S *)
-		   unprotected::pointer_of
-		       ( this->s );
+		   unprotected::pointer_of ( this->s );
 	}
 
 	const S & operator * ( void )
@@ -3607,21 +3619,16 @@ namespace min {
 
 	static min::uns32 DISP ( void )
 	{
-	    packed_struct_pointer * p =
-		(packed_struct_pointer *) NULL;
-	    return
-		(min::uns8 *) & ( p->s )
-		-
-		(min::uns8 *) p;
+	    return OFFSETOF
+	        ( & packed_struct_pointer::s );
 	}
     };
 
     template < typename S, typename T >
-    inline min::uns32 DISP
+    min::uns32 DISP
 	    ( packed_struct_pointer<T> S::* d )
     {
-        S * p = (S *) NULL;
-	return ( (uns8 *) & (p->*d) - (uns8 *) p )
+	return   OFFSETOF ( d )
 	       + packed_struct_pointer<T>::DISP();
     }
 
@@ -3648,8 +3655,7 @@ namespace min {
 	S * operator -> ( void )
 	{
 	    return (S *)
-		   unprotected::pointer_of
-		       ( this->s );
+		   unprotected::pointer_of ( this->s );
 	}
 
 	S & operator * ( void )
@@ -3681,29 +3687,21 @@ namespace min {
 
 	static min::uns32 DISP ( void )
 	{
-	    packed_struct_updatable_pointer * p =
-		(packed_struct_updatable_pointer *)
-		NULL;
-	    return
-		(min::uns8 *) & ( p->s )
-		-
-		(min::uns8 *) p;
+	    return OFFSETOF
+	        ( & packed_struct_updatable_pointer::s );
 	}
     };
 
     template < typename S, typename T >
-    inline min::uns32 DISP
+    min::uns32 DISP
 	    ( packed_struct_updatable_pointer<T> S::* d )
     {
-        S * p = (S *) NULL;
-	return ( (uns8 *) & (p->*d) - (uns8 *) p )
+	return   OFFSETOF ( d )
 	       + packed_struct_updatable_pointer<T>
 		 ::DISP();
     }
 
-    template < typename S,
-               const min::uns32 S::* type_m =
-	           & S::type >
+    template < typename S >
     class packed_struct
 	: public internal::packed_struct_descriptor
     {
@@ -3754,13 +3752,11 @@ namespace min {
 // templates they must be included in every compilation
 // that might instantiate them.
 
-template < typename S,
-	   const min::uns32 S::* type_m >
-bool min::packed_struct<S,type_m>::id;
+template < typename S >
+bool min::packed_struct<S>::id;
 
-template < typename S,
-	   const min::uns32 S::* type_m >
-min::packed_struct<S,type_m>::packed_struct
+template < typename S >
+min::packed_struct<S>::packed_struct
     ( const char * name,
       const min::uns32 * gen_disp,
       const min::uns32 * stub_ptr_disp )
@@ -3775,10 +3771,7 @@ min::packed_struct<S,type_m>::packed_struct
     // Check that the type member is the first
     // thing in the S structure.
     //
-    S * test_s = (S *) 0;
-    min::uns32 * test_t =
-	(min::uns32 *) (void *) test_s;
-    MIN_ASSERT ( test_t == & ( test_s->*type_m ) );
+    MIN_ASSERT ( OFFSETOF ( & S::type ) == 0 );
 
     if (   internal::packed_type_count
 	 > internal::max_packed_type_count )
@@ -3948,8 +3941,7 @@ namespace min {
 	const H * operator -> ( void )
 	{
 	    return (const H *)
-		   unprotected::pointer_of
-		       ( this->s );
+		   unprotected::pointer_of ( this->s );
 	}
 
 	const E & operator [] ( min::uns32 i )
@@ -3985,21 +3977,15 @@ namespace min {
 
 	static min::uns32 DISP ( void )
 	{
-	    packed_vec_pointer * p =
-		(packed_vec_pointer *) NULL;
-	    return
-		(min::uns8 *) & ( p->s )
-		-
-		(min::uns8 *) p;
+	    OFFSETOF ( & packed_vec_pointer::s );
 	}
     };
 
     template < typename S, typename H, typename E >
-    inline min::uns32 DISP
+    min::uns32 DISP
 	    ( packed_vec_pointer<H,E> S::* d )
     {
-        S * p = (S *) NULL;
-	return ( (uns8 *) & (p->*d) - (uns8 *) p )
+	return   OFFSETOF ( d )
 	       + packed_vec_pointer<H,E>::DISP();
     }
 
@@ -4024,8 +4010,7 @@ namespace min {
 	H * operator -> ( void )
 	{
 	    return (H *)
-		   unprotected::pointer_of
-		       ( this->s );
+		   unprotected::pointer_of ( this->s );
 	}
 
 	E & operator [] ( min::uns32 i )
@@ -4061,22 +4046,16 @@ namespace min {
 
 	static min::uns32 DISP ( void )
 	{
-	    packed_vec_updatable_pointer * p =
-		(packed_vec_updatable_pointer *)
-		NULL;
-	    return
-		(min::uns8 *) & ( p->s )
-		-
-		(min::uns8 *) p;
+	    return OFFSETOF
+	        ( & packed_vec_updatable_pointer::s );
 	}
     };
 
     template < typename S, typename H, typename E >
-    inline min::uns32 DISP
+    min::uns32 DISP
 	    ( packed_vec_updatable_pointer<H,E> S::* d )
     {
-        S * p = (S *) NULL;
-	return ( (uns8 *) & (p->*d) - (uns8 *) p )
+	return   OFFSETOF ( d )
 	       + packed_vec_updatable_pointer<H,E>
 	         ::DISP();
     }
@@ -4102,8 +4081,7 @@ namespace min {
 	H * operator -> ( void )
 	{
 	    return (H *)
-		   unprotected::pointer_of
-		       ( this->s );
+		   unprotected::pointer_of ( this->s );
 	}
 
 	E & operator [] ( min::uns32 i )
@@ -4139,13 +4117,8 @@ namespace min {
 
 	static min::uns32 DISP ( void )
 	{
-	    packed_vec_insertable_pointer * p =
-		(packed_vec_insertable_pointer *)
-		NULL;
-	    return
-		(min::uns8 *) & ( p->s )
-		-
-		(min::uns8 *) p;
+	    return OFFSETOF
+	        ( & packed_vec_insertable_pointer::s );
 	}
 
 	void reserve ( min::uns32 reserve_length );
@@ -4157,21 +4130,15 @@ namespace min {
     };
 
     template < typename S, typename H, typename E >
-    inline min::uns32 DISP
+    min::uns32 DISP
 	    ( packed_vec_insertable_pointer<H,E> S::* d )
     {
-        S * p = (S *) NULL;
-	return ( (uns8 *) & (p->*d) - (uns8 *) p )
+	return   OFFSETOF ( d )
 	       + packed_vec_insertable_pointer<H,E>
 	         ::DISP();
     }
 
-    template < typename H, typename E,
-               const min::uns32 H::* type_m = & H::type,
-               const min::uns32 H::* length_m =
-	           & H::length,
-               const min::uns32 H::* max_length_m =
-	           & H::max_length >
+    template < typename H, typename E >
     class packed_vec
 	: public internal::packed_vec_descriptor
     {
@@ -4192,30 +4159,6 @@ namespace min {
         static const min::uns32 computed_header_size =
 	        ( sizeof ( H ) + header_mask )
 	    & ~ header_mask;
-
-    private:
-
-	// Compute length displacements as constants for
-	// use within this class.  Cannot be done by
-	// static const integer members as & is not
-	// allowed in an integer constant expression.
-	//
-	inline min::uns32 computed_length_disp ( void )
-	{
-	    H * hp = (H *) NULL;
-	    return ( (min::uns8 *) & ( hp->*length_m )
-	             -
-		     (min::uns8 *) hp );
-	}
-	inline min::uns32 computed_max_length_disp
-		( void )
-	{
-	    H * hp = (H *) NULL;
-	    return ( (min::uns8 *)
-	             & ( hp->*max_length_m )
-	             -
-		     (min::uns8 *) hp );
-	}
 
     public:
 
@@ -4409,19 +4352,11 @@ namespace min {
 // included in every compilation that might instantiate
 // them.
 
-template < typename H, typename E,
-	   const min::uns32 H::* type_m,
-	   const min::uns32 H::* length_m,
-	   const min::uns32 H::* max_length_m>
-bool min::packed_vec<H,E,type_m,length_m,max_length_m>
-        ::id;
+template < typename H, typename E >
+bool min::packed_vec<H,E>::id;
 
-template < typename H, typename E,
-	   const min::uns32 H::* type_m,
-	   const min::uns32 H::* length_m,
-	   const min::uns32 H::* max_length_m>
-min::packed_vec<H,E,type_m,length_m,max_length_m>
-   ::packed_vec
+template < typename H, typename E >
+min::packed_vec<H,E>::packed_vec
     ( const char * name,
       const min::uns32 * element_gen_disp,
       const min::uns32 * element_stub_ptr_disp,
@@ -4432,8 +4367,8 @@ min::packed_vec<H,E,type_m,length_m,max_length_m>
             & id,
             computed_header_size,
 	    sizeof ( E ),
-	    computed_length_disp(),
-	    computed_max_length_disp(),
+	    OFFSETOF ( & H::length ),
+	    OFFSETOF ( & H::max_length ),
             name,
             element_gen_disp,
             element_stub_ptr_disp,
@@ -4443,10 +4378,7 @@ min::packed_vec<H,E,type_m,length_m,max_length_m>
     // Check that the type member is the first
     // thing in the H structure.
     //
-    H * test_h = (H *) 0;
-    min::uns32 * test_t =
-	(min::uns32 *) (void *) test_h;
-    MIN_ASSERT ( test_t == & ( test_h->*type_m ) );
+    MIN_ASSERT ( OFFSETOF ( & H::type ) == 0 );
 
     if (   internal::packed_type_count
 	 > internal::max_packed_type_count )
