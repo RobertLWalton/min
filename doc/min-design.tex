@@ -79,6 +79,7 @@
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttnbmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
+\newcommand{\ttdkey}[1]{{\tt .\bf #1}\index{#1@{\tt .#1}}}
 \newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
 \newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
 \newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
@@ -237,6 +238,7 @@
 \newcommand{\ARGBREAK}{\\&{\tt ~~~~}}
 \newcommand{\LONGARGBREAK}{\\{\tt ~~~~}}
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
+\newcommand{\TTDKEY}[1]{\ttdkey{#1}}
 \newcommand{\TTNBKEY}[1]{\ttnbkey{#1}}
 \newcommand{\TTMKEY}[1]{\ttmkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
@@ -6732,7 +6734,9 @@ a packed vector, and these have the usage:
 \verb|const min::uns32 | & \verb|pvp->length|
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|const E | & \verb|pvp[i]|
-\LABEL{MIN::PACKED_VEC_PTR_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_PTR_[]} \\
+\verb|const E | & \verb|pvp|\TTDKEY{end\_ptr}\verb|()|
+\LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -6770,7 +6774,9 @@ a packed vector, and these have the usage:
 \verb|const min::uns32 | & \verb|pvup->length|
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
 \verb|E | & \verb|pvup[i]|
-\LABEL{MIN::PACKED_VEC_UPDPTR_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|const E | & \verb|pvup|\TTDKEY{end\_ptr}\verb|()|
+\LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -6810,7 +6816,9 @@ a packed vector, and these have the usage:
 \verb|const min::uns32 | & \verb|pvip->max_length|
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
 \verb|E | & \verb|pvip[i]|
-\LABEL{MIN::PACKED_VEC_INSPTR_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
+\verb|const E | & \verb|pvip|\TTDKEY{end\_ptr}\verb|()|
+\LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
@@ -6874,6 +6882,11 @@ from or to the vector:
 memcpy ( ..., & pvp[0], sizeof ( E ) * pvp->length );
 memcpy ( & pvup[0], ..., sizeof ( E ) * pvp->length );
 \end{verbatim}\end{indpar}
+
+\verb|pvp.end_ptr()| is the same as `\verb|& pvp[pvp->length]|'
+except the latter would fail because the index is not less than
+\verb|pvp->length|.  This member function is useful on rare occassions
+in code that does not call a relocating function.
 
 Insertable packed vector pointers permit the current length and maximum
 length of the vector to be changed.
@@ -8924,11 +8937,11 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 \verb|const E | & \verb|pvp[i]|
-\LABEL{MIN::PACKED_VEC_PTR_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|E | & \verb|pvup[i]|
-\LABEL{MIN::PACKED_VEC_UPDPTR_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
 \verb|E | & \verb|pvip[i]|
-\LABEL{MIN::PACKED_VEC_INSPTR_ELEMENT} \\
+\LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
