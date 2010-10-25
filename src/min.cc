@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 23 10:28:57 EDT 2010
+// Date:	Mon Oct 25 05:18:08 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,10 +72,26 @@ static void packed_vec_scavenger_routine
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
 static bool initializer_called = false;
+
+#define PTR_CHECK(...) \
+    assert (    sizeof ( __VA_ARGS__ ) \
+             == sizeof ( min::stub * ) ); \
+    assert ( ( __VA_ARGS__::DISP() == 0 ) );
+
 MINT::initializer::initializer ( void )
 {
     if ( initializer_called ) return;
     initializer_called = true;
+
+    PTR_CHECK ( min::packed_struct<int> ::pointer );
+    PTR_CHECK ( min::packed_struct<int>
+                   ::updatable_pointer );
+    PTR_CHECK ( min::packed_vec<int,int>
+                   ::pointer );
+    PTR_CHECK ( min::packed_vec<int,int>
+                   ::updatable_pointer );
+    PTR_CHECK ( min::packed_vec<int,int>
+                   ::insertable_pointer );
 
     type_name[min::ACC_FREE] = "ACC_FREE";
     type_name[min::DEALLOCATED] = "DEALLOCATED";

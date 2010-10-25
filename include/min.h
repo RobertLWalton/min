@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 25 02:34:54 EDT 2010
+// Date:	Mon Oct 25 05:02:45 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3771,7 +3771,9 @@ min::packed_struct<S>::packed_struct
     // Check that the type member is the first
     // thing in the S structure.
     //
-    MIN_ASSERT ( OFFSETOF ( & S::type ) == 0 );
+    MIN_ASSERT
+        ( ( OFFSETOF<S,const min::uns32>
+	      ( & S::type ) == 0 ) );
 
     if (   internal::packed_type_count
 	 > internal::max_packed_type_count )
@@ -4367,8 +4369,10 @@ min::packed_vec<H,E>::packed_vec
             & id,
             computed_header_size,
 	    sizeof ( E ),
-	    OFFSETOF ( & H::length ),
-	    OFFSETOF ( & H::max_length ),
+	    OFFSETOF<H,const min::uns32>
+	        ( & H::length ),
+	    OFFSETOF<H,const min::uns32>
+	        ( & H::max_length ),
             name,
             element_gen_disp,
             element_stub_ptr_disp,
@@ -4378,7 +4382,9 @@ min::packed_vec<H,E>::packed_vec
     // Check that the type member is the first
     // thing in the H structure.
     //
-    MIN_ASSERT ( OFFSETOF ( & H::type ) == 0 );
+    MIN_ASSERT
+        ( ( OFFSETOF<H,const min::uns32>
+	        ( & H::type ) == 0 ) );
 
     if (   internal::packed_type_count
 	 > internal::max_packed_type_count )
