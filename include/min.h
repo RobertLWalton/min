@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 25 05:02:45 EDT 2010
+// Date:	Mon Oct 25 08:27:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3881,6 +3881,21 @@ namespace min {
 		return this->s;
 	    }
 
+	    // Returns & pvip[pvip->length] even though the
+	    // subscript is not < length.
+	    //
+	    const E * end_ptr ( void )
+	    {
+		H * hp = (H *)
+		    unprotected::pointer_of ( this->s );
+		return (E *)
+		    ( (min::uns8 *) hp
+		      +
+		      computed_header_size
+		      +
+		      hp->length * sizeof ( E ) );
+	    }
+
 	protected:
 	        
 	    const min::stub * s;
@@ -3948,10 +3963,11 @@ namespace min {
 
 	const E & operator [] ( min::uns32 i )
 	{
+	    H * hp = (H *)
+		unprotected::pointer_of ( this->s );
+	    MIN_ASSERT ( i < hp->length );
 	    return * (const E *)
-		( (min::uns8 *)
-		   unprotected::pointer_of
-		       ( this->s )
+		( (min::uns8 *) hp
 		  +
 		  internal::packed_vec_base_pointer<H,E>
 		  ::computed_header_size
@@ -4017,10 +4033,11 @@ namespace min {
 
 	E & operator [] ( min::uns32 i )
 	{
+	    H * hp = (H *)
+		unprotected::pointer_of ( this->s );
+	    MIN_ASSERT ( i < hp->length );
 	    return * (E *)
-		( (min::uns8 *)
-		   unprotected::pointer_of
-		       ( this->s )
+		( (min::uns8 *) hp
 		  +
 		  internal::packed_vec_base_pointer<H,E>
 		  ::computed_header_size
@@ -4088,10 +4105,11 @@ namespace min {
 
 	E & operator [] ( min::uns32 i )
 	{
+	    H * hp = (H *)
+		unprotected::pointer_of ( this->s );
+	    MIN_ASSERT ( i < hp->length );
 	    return * (E *)
-		( (min::uns8 *)
-		   unprotected::pointer_of
-		       ( this->s )
+		( (min::uns8 *) hp
 		  +
 		  internal::packed_vec_base_pointer<H,E>
 		  ::computed_header_size
@@ -4251,7 +4269,7 @@ namespace min {
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	pvip[pvip->length] = v;
+	* (E *) pvip.end_ptr() = v;
 	++ * (min::uns32 *) & pvip->length;
     }
     template < typename H, typename E >
@@ -4262,13 +4280,14 @@ namespace min {
 	  min::uns32 n,
 	  const E * vp = NULL )
     {
-	if ( pvip->length + n > pvip->max_length )
+	if ( n == 0 ) return;
+	else if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
 	if ( vp )
-	    memcpy ( & pvip[pvip->length],
+	    memcpy ( (E *) pvip.end_ptr(),
 		     vp, n * sizeof ( E ) );
 	else
-	    memset ( & pvip[pvip->length],
+	    memset ( (E *) pvip.end_ptr(),
 		     0, n * sizeof ( E ) );
 	* (min::uns32 *) & pvip->length += n;
     }
@@ -4280,7 +4299,7 @@ namespace min {
     {
 	assert ( pvip->length > 0 );
 	-- * (min::uns32 *) & pvip->length;
-	return pvip[pvip->length];
+	return * pvip.end_ptr();
     }
     template < typename H, typename E >
     inline void pop
@@ -4294,7 +4313,7 @@ namespace min {
 	* (min::uns32 *) & pvip->length -= n;
 	if ( vp )
 	    memcpy ( vp,
-		     & pvip[pvip->length],
+		     pvip.end_ptr(),
 		     n * sizeof ( E ) );
     }
 

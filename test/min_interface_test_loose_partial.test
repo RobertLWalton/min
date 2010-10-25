@@ -1543,6 +1543,8 @@ min_interface_test.cc:XXXX assert:
     pvip->length == 0 true.
 min_interface_test.cc:XXXX assert:
     pvip->length == 1 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvip[0].j == 88 true.
 ../include/min.h:XXXX assert:
@@ -1553,12 +1555,20 @@ min_interface_test.cc:XXXX assert:
     pvdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     pvp->length == 1 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[0].j == 88 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[1].j == 11 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[2].j == 22 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[3].j == 33 true.
 min_interface_test.cc:XXXX assert:
@@ -1597,10 +1607,16 @@ min_interface_test.cc:XXXX assert:
     pvip->length == 3 true.
 min_interface_test.cc:XXXX assert:
     pvip->max_length == 15 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[0].j == 11 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[1].j == 22 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[2].j == 33 true.
 ../include/min.h:XXXX assert:
@@ -1619,10 +1635,14 @@ min_interface_test.cc:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
     pvp == min::stub_of ( v ) true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[2].j == 33 true.
 min_interface_test.cc:XXXX assert:
     pvip2 == min::NULL_STUB true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvip2[2].j == 33 true.
 min_interface_test.cc:XXXX assert:
@@ -1637,8 +1657,14 @@ min_interface_test.cc:XXXX assert:
     pvdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     pvip->length == 4 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvip[3].j == 88 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvip[3].j == 77 true.
 
