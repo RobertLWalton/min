@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 25 05:18:08 EDT 2010
+// Date:	Tue Oct 26 02:49:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -63,8 +63,6 @@ char const * min::special_name
 
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc );
-static void raw_vec_scavenger_routine
-	( MINT::scavenge_control & sc );
 static void packed_struct_scavenger_routine
 	( MINT::scavenge_control & sc );
 static void packed_vec_scavenger_routine
@@ -103,7 +101,8 @@ MINT::initializer::initializer ( void )
     type_name[min::SHORT_OBJ] = "SHORT_OBJ";
     type_name[min::LONG_OBJ] = "LONG_OBJ";
     type_name[min::HUGE_OBJ] = "HUGE_OBJ";
-    type_name[min::RAW_VEC] = "RAW_VEC";
+    type_name[min::PACKED_STRUCT] = "PACKED_STRUCT";
+    type_name[min::PACKED_VEC] = "PACKED_VEC";
     type_name[min::AUX_FREE] = "AUX_FREE";
     type_name[min::LABEL_AUX] = "LABEL_AUX";
     type_name[min::LIST_AUX] = "LIST_AUX";
@@ -227,8 +226,6 @@ MINT::initializer::initializer ( void )
 
     MINT::scavenger_routines[min::LABEL]
     	= & lab_scavenger_routine;
-    MINT::scavenger_routines[min::RAW_VEC]
-    	= & raw_vec_scavenger_routine;
     MINT::scavenger_routines[min::PACKED_STRUCT]
     	= & packed_struct_scavenger_routine;
     MINT::scavenger_routines[min::PACKED_VEC]
@@ -553,199 +550,6 @@ static void lab_scavenger_routine
 	++ sc.gen_count;
 	++ next;
     }
-    sc.stub_flag_accumulator = accumulator;
-    sc.state = 0;
-}
-
-// Scavenger routine for raw vectors.  Setting state = 1
-// causes the raw vector to be rescanned, and should be
-// done whenever the raw vector is reorganized during an
-// interrupt of a scavange of the raw vector, unless the
-// acc_write_update function is used to write pointers
-// into the reorganized raw vector.
-//
-static void raw_vec_scavenger_routine
-	( MINT::scavenge_control & sc )
-{
-    min::internal::raw_vec_header * & header =
-        * (min::internal::raw_vec_header **) &
-        min::unprotected::pointer_ref_of ( sc.s1 );
-    const min::uns8 * beginp =
-        (const min::uns8 *) header;
-    const min::raw_vec_type_info * type_info =
-        header->type_info;
-    const char * format = type_info->format;
-
-    const unsigned SHIFT = 48;
-    const min::uns64 MASK = ( 1ull << SHIFT ) - 1;
-
-    // The scan has an outer loop that iterates through
-    // the format and an inner loop that iterates
-    // through the elements of the vector.  The high
-    // order 64-SHIFT bits of sc.state index the
-    // next format character to be processed within
-    // the format.  The low order SHIFT bits of sc.state
-    // index contain the displacement the next raw
-    // vector element component to be processed,
-    // relative to the beginning of the raw vector
-    // header (this is never zero).
-    //
-    unsigned findex = (unsigned) ( sc.state >> SHIFT );
-    min::unsptr displacement =
-        (min::unsptr) ( sc.state & MASK );
-
-    if ( displacement < sizeof ( * header ) )
-        displacement = sizeof ( * header );
-
-    min::unsptr size =   type_info->element_size
-	               * header->length;
-    const min::uns8 * endp =
-        beginp + sizeof ( * header ) + size;
-    const min::uns8 * checkp =
-          beginp + sizeof ( * header )
-	+ type_info->element_size;
-
-
-    const min::uns8 * p = beginp + displacement;
-    const char * fp = format + findex;
-    min::uns64 accumulator = sc.stub_flag_accumulator;
-    while ( * fp )
-    {
-        assert ( p < checkp );
-
-        switch ( * fp ++ )
-	{
-	case 'p':
-	    p += sizeof ( min::unsptr );
-	    break;
-
-	case '.':
-	    ++ p;
-	    break;
-
-	case 'g':
-	    while ( p < endp )
-	    {
-		if ( sc.gen_count >= sc.gen_limit )
-		{
-		    sc.stub_flag_accumulator =
-			accumulator;
-		    sc.state =
-			  (    ( fp - format )
-			    << SHIFT )
-			+ ( p - beginp );
-		    return;
-		}
-
-		min::gen v = * (min::gen *) p;
-		if ( min::is_stub ( v ) )
-		{
-		    min::stub * s2 =
-			MUP::stub_of ( v );
-		    min::uns64 c =
-			MUP::control_of ( s2 );
-		    int type =
-		        MUP::type_of_control ( c );
-		    assert ( type >= 0 );
-
-		    if ( ( c & sc.stub_flag ) == 0 )
-		        ; // Do nothing
-		    else if ( MINT::scavenger_routines
-		                       [type]
-		              == NULL )
-			MUP::clear_flags_of
-			    ( s2, sc.stub_flag );
-		    else
-		    if (    sc.to_be_scavenged
-			 >= sc.to_be_scavenged_limit )
-		    {
-			sc.stub_flag_accumulator =
-			    accumulator;
-			sc.state =
-			      (    ( fp - format )
-				<< SHIFT )
-			    + ( p - beginp );
-			return;
-		    }
-		    else
-		    {
-			* sc.to_be_scavenged ++ = s2;
-			MUP::clear_flags_of
-			    ( s2, sc.stub_flag );
-		    }
-
-		    ++ sc.stub_count;
-		    accumulator |= c;
-		}
-
-		++ sc.gen_count;
-		p += type_info->element_size;
-	    }
-	    p -= size;
-	    p += sizeof ( min::gen );
-	    break;
-
-	case 's':
-	    for ( ; p < endp;
-		    ++ sc.gen_count,
-		    p += type_info->element_size )
-	    {
-		if ( sc.gen_count >= sc.gen_limit )
-		{
-		    sc.stub_flag_accumulator =
-			accumulator;
-		    sc.state =
-			  (    ( fp - format )
-			    << SHIFT )
-			+ ( p - beginp );
-		    return;
-		}
-
-		min::stub * s2 = * (min::stub **) p;
-		if ( s2 == NULL ) continue;
-
-		min::uns64 c = MUP::control_of ( s2 );
-		int type = MUP::type_of_control ( c );
-		assert ( type >= 0 );
-
-		if ( ( c & sc.stub_flag ) == 0 )
-		    ; // Do nothing
-		else if ( MINT::scavenger_routines
-				   [type]
-			  == NULL )
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-		else if (    sc.to_be_scavenged
-		          >= sc.to_be_scavenged_limit )
-		{
-		    sc.stub_flag_accumulator =
-			accumulator;
-		    sc.state =
-			  (    ( fp - format )
-			    << SHIFT )
-			+ ( p - beginp );
-		    return;
-		}
-		else
-		{
-		    * sc.to_be_scavenged ++ = s2;
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-		}
-
-		++ sc.stub_count;
-		accumulator |= c;
-	    }
-	    p -= size;
-	    p += sizeof ( min::stub * );
-	    break;
-
-	default:
-	    MIN_ABORT
-	        ( "bad raw vector format character" );
-	}
-    }
-
     sc.stub_flag_accumulator = accumulator;
     sc.state = 0;
 }
@@ -1901,88 +1705,6 @@ void MINT::packed_vec_resize
 	    max_length;
 }
 
-
-// Raw Vectors
-// --- -------
-
-min::gen min::internal::new_raw_vec_gen
-	( const min::raw_vec_type_info & type_info,
-	  min::unsptr max_length, const void * p )
-{
-    min::stub * s = unprotected::new_acc_stub();
-    unprotected::new_body
-	( s,
-	    sizeof ( internal::raw_vec_header )
-	  +   type_info.element_size
-	    * max_length );
-    internal::raw_vec_header & h =
-	* (internal::raw_vec_header *)
-	  unprotected::pointer_of ( s );
-    h.type_info = & type_info;
-    h.max_length = max_length;
-    h.length = 0;
-    if ( p != NULL )
-    {
-        memcpy ( ( & h ) + 1, p,
-	         max_length * type_info.element_size );
-        h.length = max_length;
-    }
-    unprotected::set_type_of ( s, min::RAW_VEC );
-    return new_gen ( s );
-}
-
-void min::internal::resize 
-	( min::stub * s,
-	  min::unsptr new_max_length,
-	  const min::raw_vec_type_info & type_info )
-{
-    raw_vec_header * & oldhp =
-        * (raw_vec_header **) &
-	unprotected::pointer_ref_of ( s );
-    min::unsptr old_size =
-	  sizeof ( raw_vec_header )
-	+   oldhp->max_length
-	  * type_info.element_size;
-    min::unsptr new_size =
-	  sizeof ( raw_vec_header )
-	+ new_max_length * type_info.element_size;
-    min::unsptr min_size =
-	old_size < new_size ? old_size :
-			      new_size;
-    unprotected::resize_body r
-	( s, new_size, old_size );
-    raw_vec_header * & newhp =
-	* ( raw_vec_header **) &
-	unprotected::new_body_pointer_ref ( r );
-    memcpy ( newhp, oldhp, min_size );
-    newhp->max_length = new_max_length;
-    if ( newhp->length > new_max_length )
-	newhp->length = new_max_length;
-}
-
-void min::internal::reserve 
-	( min::stub * s,
-	  min::unsptr required_unused,
-	  const min::raw_vec_type_info & type_info )
-{
-    raw_vec_header * & oldhp =
-        * (raw_vec_header **) &
-	unprotected::pointer_ref_of ( s );
-    min::unsptr old_max_length = oldhp->max_length;
-    min::unsptr new_max_length =
-        oldhp->length + required_unused;
-    MIN_ASSERT( new_max_length > old_max_length );
-    min::unsptr required_increment =
-        new_max_length - old_max_length;
-    min::unsptr increment =
-	(min::unsptr) (   type_info.increment_ratio
-			* old_max_length );
-    if ( increment > type_info.max_increment )
-	increment = type_info.max_increment;
-    if ( increment < required_increment )
-	increment = required_increment;
-    resize ( s, old_max_length + increment, type_info );
-}
 
 // Objects
 // -------

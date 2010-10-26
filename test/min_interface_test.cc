@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 25 03:08:07 EDT 2010
+// Date:	Tue Oct 26 02:56:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,7 +35,6 @@
 //	Print
 //	Packed Structures
 //	Packed Vectors
-//	Raw Vectors
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -2135,109 +2134,6 @@ void test_packed_vectors ( void )
 
 
 
-// Raw Vectors
-// --- -------
-
-struct rvs {
-    min::gen g;
-    min::uns32 u;
-};
-
-static bool operator ==
-	( const rvs & rvs1, const rvs & rvs2 )
-{
-    return memcmp ( & rvs1, & rvs2,
-                    sizeof ( rvs ) ) == 0;
-}
-
-extern const min::raw_vec_type_info rvs_type_info;
-const min::raw_vec_type_info rvs_type_info =
-    { "rvs", "g", sizeof ( rvs ), 20, 0.5, 50 };
-
-typedef min::raw_vec_pointer
-	<rvs,rvs_type_info>
-    rvs_pointer;
-typedef min::updatable_raw_vec_pointer
-	<rvs,rvs_type_info>
-    updatable_rvs_pointer;
-typedef min::insertable_raw_vec_pointer
-	<rvs,rvs_type_info>
-    insertable_rvs_pointer;
-
-void test_raw_vectors ( void )
-{
-    cout << endl;
-    cout << "Start Raw Vectors Test!" << endl;
-
-    cout << "rvs size = " << sizeof ( rvs ) << endl;
-
-    min::gen rv = insertable_rvs_pointer::new_gen();
-    insertable_rvs_pointer irvp ( rv );
-    rvs rvs1 = { min::new_num_gen ( 1.1 ), 12 };
-    rvs rvs2 = { min::new_num_gen ( 2.1 ), 22 };
-    rvs rvs3 = { min::new_num_gen ( 3.1 ), 32 };
-    rvs rvs4 = { min::new_num_gen ( 4.1 ), 42 };
-    rvs rvsp[2] = { rvs2, rvs3 };
-    rvs rvst[4];
-
-    MIN_ASSERT ( min::length_of ( irvp ) == 0 );
-    min::push ( irvp, rvs1 );
-    MIN_ASSERT ( min::length_of ( irvp ) == 1 );
-    min::push ( irvp, rvsp, 2 );
-    MIN_ASSERT ( min::length_of ( irvp ) == 3 );
-    min::push ( irvp, rvs4 );
-    MIN_ASSERT ( min::length_of ( irvp ) == 4 );
-
-    updatable_rvs_pointer urvp ( rv );
-    MIN_ASSERT ( urvp[0] == rvs1 );
-    MIN_ASSERT ( urvp[1] == rvs2 );
-    MIN_ASSERT ( urvp[2] == rvs3 );
-    MIN_ASSERT ( urvp[3] == rvs4 );
-
-    urvp[1] = rvs4;
-
-    MIN_ASSERT ( min::pop ( irvp ) == rvs4 );
-    MIN_ASSERT ( min::length_of ( irvp ) == 3 );
-    min::pop ( rvst, 3, irvp );
-    MIN_ASSERT ( min::length_of ( irvp ) == 0 );
-    MIN_ASSERT ( rvst[0] == rvs1 );
-    MIN_ASSERT ( rvst[1] == rvs4 );
-    MIN_ASSERT ( rvst[2] == rvs3 );
-
-    min_assert_print = false;
-    for ( int i = 0; i < 200; ++ i )
-        min::push ( irvp, rvs2 );
-    min_assert_print = true;
-    MIN_ASSERT ( min::length_of ( irvp ) == 200 );
-
-    urvp[0] = urvp[100] = rvs3;
-    min_assert_print = false;
-    for ( int i = 199; i >= 0; -- i )
-    {
-        MIN_ASSERT ( pop ( irvp ) ==
-	    ( (i%100) == 0 ? rvs3 : rvs2 ) );
-    }
-    min_assert_print = true;
-    MIN_ASSERT ( min::length_of ( irvp ) == 0 );
-
-    rvs rvsi[6] =
-        { rvs1, rvs2, rvs3, rvs4, rvs1, rvs2 };
-    min::gen rvi = insertable_rvs_pointer
-                       ::new_gen ( rvsi, 6 );
-    insertable_rvs_pointer rvip ( rvi );
-    MIN_ASSERT ( min::length_of ( rvip ) == 6 );
-    MIN_ASSERT ( min::max_length_of ( rvip ) == 6 );
-    min_assert_print = false;
-    for ( int i = 0; i < 6; ++ i )
-    {
-        MIN_ASSERT ( rvip[i] == rvsi[i] );
-    }
-    min_assert_print = true;
-    cout << endl;
-    cout << "Finish Raw Vectors Test!" << endl;
-}
-
-
 // Objects
 // -------
 
@@ -2929,8 +2825,8 @@ void test_object_list_level ( void )
 
 // Object Attribute Level
 
-// Call get_attrs ( ap ), sort the resulting raw vector
-// entries by label, and compare to aip[0 .. n-1].
+// Call get_attrs ( ap ), sort the resulting packed
+// vec entries by label, and compare to aip[0 .. n-1].
 // Print differences and return false if there are any
 // differences.  Return true if there are no
 // differences.
@@ -3532,7 +3428,6 @@ int main ()
 	test_print();
 	test_packed_structs();
 	test_packed_vectors();
-	test_raw_vectors();
 	test_objects();
 	test_object_vector_level();
 	test_object_list_level();
