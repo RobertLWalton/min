@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 26 03:21:47 EDT 2010
+// Date:	Tue Oct 26 03:40:46 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3566,8 +3566,7 @@ namespace min {
 
     template < typename S >
     class packed_struct_ptr
-	  : public
-	    internal::packed_struct_ptr_base<S>
+	  : public internal::packed_struct_ptr_base<S>
     {
 
     public:
@@ -3599,8 +3598,7 @@ namespace min {
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal
-		::packed_struct_ptr_base<S>
+		internal::packed_struct_ptr_base<S>
 		    ( s );
 	    return * this;
 	}
@@ -3609,8 +3607,7 @@ namespace min {
 		( min::gen v )
 	{
 	    new ( this )
-		internal
-		::packed_struct_ptr_base<S>
+		internal::packed_struct_ptr_base<S>
 		    ( v );
 	    return * this;
 	}
@@ -3667,8 +3664,7 @@ namespace min {
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal
-		::packed_struct_ptr_base<S>
+		internal::packed_struct_ptr_base<S>
 		    ( s );
 	    return * this;
 	}
@@ -3677,8 +3673,7 @@ namespace min {
 		( min::gen v )
 	{
 	    new ( this )
-		internal
-		::packed_struct_ptr_base<S>
+		internal::packed_struct_ptr_base<S>
 		    ( v );
 	    return * this;
 	}
@@ -3695,8 +3690,7 @@ namespace min {
 	    ( packed_struct_updptr<T> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_struct_updptr<T>
-		 ::DISP();
+	       + packed_struct_updptr<T>::DISP();
     }
 
     template < typename S >
@@ -3719,8 +3713,7 @@ namespace min {
 	typedef typename
 		min::packed_struct_ptr<S> ptr;
 	typedef typename
-		min::packed_struct_updptr<S>
-		updptr;
+		min::packed_struct_updptr<S> updptr;
 
 	static bool id;
 	    // & id acts as a unique identifier of the
@@ -3879,8 +3872,8 @@ namespace min {
 		return this->s;
 	    }
 
-	    // Returns & pvip[pvip->length] even though the
-	    // subscript is not < length.
+	    // Returns & pvip[pvip->length] even though
+	    // the subscript is not < length.
 	    //
 	    const E * end_ptr ( void )
 	    {
@@ -4073,8 +4066,7 @@ namespace min {
 	    ( packed_vec_updptr<H,E> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_updptr<H,E>
-	         ::DISP();
+	       + packed_vec_updptr<H,E>::DISP();
     }
 
     template < typename H, typename E >
@@ -4152,8 +4144,7 @@ namespace min {
 	    ( packed_vec_insptr<H,E> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_insptr<H,E>
-	         ::DISP();
+	       + packed_vec_insptr<H,E>::DISP();
     }
 
     template < typename H, typename E >
@@ -4228,14 +4219,11 @@ namespace min {
 	// compiler error.
 	//
 	typedef typename
-	        min::packed_vec_ptr<H,E>
-	        ptr;
+	        min::packed_vec_ptr<H,E> ptr;
 	typedef typename
-	        min::packed_vec_updptr<H,E>
-	        updptr;
+	        min::packed_vec_updptr<H,E> updptr;
 	typedef typename
-	        min::packed_vec_insptr<H,E>
-	        insptr;
+	        min::packed_vec_insptr<H,E> insptr;
 
 	static bool id;
 	    // & id acts as a unique identifier of the
@@ -4260,9 +4248,7 @@ namespace min {
 
     template < typename H, typename E >
     inline void push
-	( typename
-	  min::packed_vec_insptr<H,E>
-	  & pvip,
+	( typename min::packed_vec_insptr<H,E> & pvip,
 	  const E & v )
     {
 	if ( pvip->length >= pvip->max_length )
@@ -4272,9 +4258,7 @@ namespace min {
     }
     template < typename H, typename E >
     inline void push
-	( typename
-	  min::packed_vec_insptr<H,E>
-	  & pvip,
+	( typename min::packed_vec_insptr<H,E> & pvip,
 	  min::uns32 n,
 	  const E * vp = NULL )
     {
@@ -4291,9 +4275,7 @@ namespace min {
     }
     template < typename H, typename E >
     inline E pop
-	( typename
-	  min::packed_vec_insptr<H,E>
-	  & pvip )
+	( typename min::packed_vec_insptr<H,E> & pvip )
     {
 	assert ( pvip->length > 0 );
 	-- * (min::uns32 *) & pvip->length;
@@ -4301,9 +4283,7 @@ namespace min {
     }
     template < typename H, typename E >
     inline void pop
-	( typename
-	  min::packed_vec_insptr<H,E>
-	  & pvip,
+	( typename min::packed_vec_insptr<H,E> & pvip,
 	  min::uns32 n,
 	  E * vp = NULL )
     {
@@ -4317,9 +4297,7 @@ namespace min {
 
     template < typename H, typename E >
     inline void resize
-	( typename
-	  min::packed_vec_insptr<H,E>
-	  & pvip,
+	( typename min::packed_vec_insptr<H,E> & pvip,
 	  min::uns32 max_length )
     {
 	pvip.resize ( max_length );
@@ -4328,8 +4306,7 @@ namespace min {
     template < typename H, typename E >
     inline void reserve
 	( typename
-	  min::packed_vec_insptr<H,E>
-	  & pvip,
+	  min::packed_vec_insptr<H,E> & pvip,
 	  min::uns32 reserve_length )
     {
 	if (   pvip->length + reserve_length
@@ -4338,8 +4315,8 @@ namespace min {
     }
 
     template < typename H, typename E >
-    void packed_vec_insptr<H,E>
-         ::reserve ( min::uns32 reserve_length )
+    void packed_vec_insptr<H,E>::reserve
+	    ( min::uns32 reserve_length )
     {
         H * hp =
 	    (H *) unprotected::pointer_of ( this->s );
