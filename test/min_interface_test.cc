@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 26 03:30:42 EDT 2010
+// Date:	Tue Oct 26 03:50:25 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3089,7 +3089,8 @@ void test_attribute_flags
     min::gen cc1 = min::new_control_code_gen ( 1 << 1 );
     min::gen cc3 = min::new_control_code_gen ( 1 << 3 );
     min::gen cc5 = min::new_control_code_gen ( 1 << 5 );
-    min::gen cc10 = min::new_control_code_gen ( 1 << 10 );
+    min::gen cc10 =
+        min::new_control_code_gen ( 1 << 10 );
 
     min::gen codes1[5] = { cc0, cc3, cc5, cc10, cc1 };
 
@@ -3325,7 +3326,8 @@ void test_object_attribute_level ( void )
         min::attr_push ( vp, min::LIST_END );
     min_assert_print = true;
     MIN_ASSERT ( min::attr_size_of ( vp ) == 50 );
-    MIN_ASSERT ( min::attr ( vp, 21 ) == min::LIST_END );
+    MIN_ASSERT
+        ( min::attr ( vp, 21 ) == min::LIST_END );
 
     min::locatei ( ap, 1 );
     MIN_ASSERT ( min::get ( ap ) == min::NONE );
