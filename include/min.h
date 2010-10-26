@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 26 02:46:59 EDT 2010
+// Date:	Tue Oct 26 03:21:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3507,20 +3507,20 @@ namespace min {
 	// classes.
 	//
 	template < typename S >
-	class packed_struct_base_pointer
+	class packed_struct_ptr_base
 	{
 	public:
 
-	    packed_struct_base_pointer ( min::gen v )
+	    packed_struct_ptr_base ( min::gen v )
 	    {
 		new ( this )
 		    internal
-		    ::packed_struct_base_pointer<S>
+		    ::packed_struct_ptr_base<S>
 			( stub_of ( v ) );
 	    }
-	    packed_struct_base_pointer
+	    packed_struct_ptr_base
 		( const min::stub * s );
-	    packed_struct_base_pointer ( void )
+	    packed_struct_ptr_base ( void )
 		: s ( NULL_STUB ) {}
 
 	    operator const min::stub * ( void ) const
@@ -3565,21 +3565,21 @@ namespace min {
     }
 
     template < typename S >
-    class packed_struct_pointer
+    class packed_struct_ptr
 	  : public
-	    internal::packed_struct_base_pointer<S>
+	    internal::packed_struct_ptr_base<S>
     {
 
     public:
 
-	packed_struct_pointer ( min::gen v )
-	    : internal::packed_struct_base_pointer<S>
+	packed_struct_ptr ( min::gen v )
+	    : internal::packed_struct_ptr_base<S>
 		( v ) {}
-	packed_struct_pointer ( const min::stub * s )
-	    : internal::packed_struct_base_pointer<S>
+	packed_struct_ptr ( const min::stub * s )
+	    : internal::packed_struct_ptr_base<S>
 		( s ) {}
-	packed_struct_pointer ( void )
-	    : internal::packed_struct_base_pointer<S>
+	packed_struct_ptr ( void )
+	    : internal::packed_struct_ptr_base<S>
 		() {}
 
 	const S * operator -> ( void )
@@ -3595,22 +3595,22 @@ namespace min {
 		       ( this->s );
 	}
 
-	packed_struct_pointer & operator =
+	packed_struct_ptr & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
 		internal
-		::packed_struct_base_pointer<S>
+		::packed_struct_ptr_base<S>
 		    ( s );
 	    return * this;
 	}
 
-	packed_struct_pointer & operator =
+	packed_struct_ptr & operator =
 		( min::gen v )
 	{
 	    new ( this )
 		internal
-		::packed_struct_base_pointer<S>
+		::packed_struct_ptr_base<S>
 		    ( v );
 	    return * this;
 	}
@@ -3618,36 +3618,36 @@ namespace min {
 	static min::uns32 DISP ( void )
 	{
 	    return OFFSETOF
-	        ( & packed_struct_pointer::s );
+	        ( & packed_struct_ptr::s );
 	}
     };
 
     template < typename S, typename T >
     min::uns32 DISP
-	    ( packed_struct_pointer<T> S::* d )
+	    ( packed_struct_ptr<T> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_struct_pointer<T>::DISP();
+	       + packed_struct_ptr<T>::DISP();
     }
 
     template < typename S >
-    class packed_struct_updatable_pointer
+    class packed_struct_updptr
 	  : public
-	    internal::packed_struct_base_pointer<S>
+	    internal::packed_struct_ptr_base<S>
     {
 
     public:
 
-	packed_struct_updatable_pointer
+	packed_struct_updptr
 		( min::gen v )
-	    : internal::packed_struct_base_pointer<S>
+	    : internal::packed_struct_ptr_base<S>
 		( v ) {}
-	packed_struct_updatable_pointer
+	packed_struct_updptr
 		( const min::stub * s )
-	    : internal::packed_struct_base_pointer<S>
+	    : internal::packed_struct_ptr_base<S>
 		( s ) {}
-	packed_struct_updatable_pointer ( void )
-	    : internal::packed_struct_base_pointer<S>
+	packed_struct_updptr ( void )
+	    : internal::packed_struct_ptr_base<S>
 		() {}
 
 	S * operator -> ( void )
@@ -3663,22 +3663,22 @@ namespace min {
 		       ( this->s );
 	}
 
-	packed_struct_updatable_pointer & operator =
+	packed_struct_updptr & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
 		internal
-		::packed_struct_base_pointer<S>
+		::packed_struct_ptr_base<S>
 		    ( s );
 	    return * this;
 	}
 
-	packed_struct_updatable_pointer & operator =
+	packed_struct_updptr & operator =
 		( min::gen v )
 	{
 	    new ( this )
 		internal
-		::packed_struct_base_pointer<S>
+		::packed_struct_ptr_base<S>
 		    ( v );
 	    return * this;
 	}
@@ -3686,16 +3686,16 @@ namespace min {
 	static min::uns32 DISP ( void )
 	{
 	    return OFFSETOF
-	        ( & packed_struct_updatable_pointer::s );
+	        ( & packed_struct_updptr::s );
 	}
     };
 
     template < typename S, typename T >
     min::uns32 DISP
-	    ( packed_struct_updatable_pointer<T> S::* d )
+	    ( packed_struct_updptr<T> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_struct_updatable_pointer<T>
+	       + packed_struct_updptr<T>
 		 ::DISP();
     }
 
@@ -3717,10 +3717,10 @@ namespace min {
 	}
 
 	typedef typename
-		min::packed_struct_pointer<S> pointer;
+		min::packed_struct_ptr<S> ptr;
 	typedef typename
-		min::packed_struct_updatable_pointer<S>
-		updatable_pointer;
+		min::packed_struct_updptr<S>
+		updptr;
 
 	static bool id;
 	    // & id acts as a unique identifier of the
@@ -3731,8 +3731,8 @@ namespace min {
 
     template < typename S >
     inline internal
-           ::packed_struct_base_pointer<S>
-	   ::packed_struct_base_pointer
+           ::packed_struct_ptr_base<S>
+	   ::packed_struct_ptr_base
 	    ( const min::stub * s ) : s ( s )
     {
 	if ( s == NULL ) return;
@@ -3859,19 +3859,19 @@ namespace min {
 	};
 
 	template < typename H, typename E >
-	class packed_vec_base_pointer
+	class packed_vec_ptr_base
 	{
 	public:
 
-	    packed_vec_base_pointer ( min::gen v )
+	    packed_vec_ptr_base ( min::gen v )
 	    {
 	        new ( this )
-		    packed_vec_base_pointer
+		    packed_vec_ptr_base
 			( stub_of ( v ) );
 	    }
-	    packed_vec_base_pointer
+	    packed_vec_ptr_base
 	        ( const min::stub * s );
-	    packed_vec_base_pointer ( void )
+	    packed_vec_ptr_base ( void )
 	        : s ( NULL_STUB ) {}
 
 	    operator const min::stub * ( void ) const
@@ -3937,20 +3937,20 @@ namespace min {
     }
 
     template < typename H, typename E >
-    class packed_vec_pointer
-	: public internal::packed_vec_base_pointer<H,E>
+    class packed_vec_ptr
+	: public internal::packed_vec_ptr_base<H,E>
     {
 
     public:
 
-	packed_vec_pointer ( min::gen v )
-	    : internal::packed_vec_base_pointer<H,E>
+	packed_vec_ptr ( min::gen v )
+	    : internal::packed_vec_ptr_base<H,E>
 	    ( v ) {}
-	packed_vec_pointer ( const min::stub * s )
-	    : internal::packed_vec_base_pointer<H,E>
+	packed_vec_ptr ( const min::stub * s )
+	    : internal::packed_vec_ptr_base<H,E>
 	    ( s ) {}
-	packed_vec_pointer ( void )
-	    : internal::packed_vec_base_pointer<H,E>
+	packed_vec_ptr ( void )
+	    : internal::packed_vec_ptr_base<H,E>
 	    () {}
 
 	const H * operator -> ( void )
@@ -3967,60 +3967,60 @@ namespace min {
 	    return * (const E *)
 		( (min::uns8 *) hp
 		  +
-		  internal::packed_vec_base_pointer<H,E>
+		  internal::packed_vec_ptr_base<H,E>
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
 	}
 
-	packed_vec_pointer & operator =
+	packed_vec_ptr & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal::packed_vec_base_pointer<H,E>
+		internal::packed_vec_ptr_base<H,E>
 		    ( s );
 	    return * this;
 	}
 
-	packed_vec_pointer & operator =
+	packed_vec_ptr & operator =
 		( min::gen v )
 	{
 	    new ( this )
-		internal::packed_vec_base_pointer<H,E>
+		internal::packed_vec_ptr_base<H,E>
 		    ( v );
 	    return * this;
 	}
 
 	static min::uns32 DISP ( void )
 	{
-	    OFFSETOF ( & packed_vec_pointer::s );
+	    OFFSETOF ( & packed_vec_ptr::s );
 	}
     };
 
     template < typename S, typename H, typename E >
     min::uns32 DISP
-	    ( packed_vec_pointer<H,E> S::* d )
+	    ( packed_vec_ptr<H,E> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_pointer<H,E>::DISP();
+	       + packed_vec_ptr<H,E>::DISP();
     }
 
     template < typename H, typename E >
-    class packed_vec_updatable_pointer
-	: public internal::packed_vec_base_pointer<H,E>
+    class packed_vec_updptr
+	: public internal::packed_vec_ptr_base<H,E>
     {
 
     public:
 
-	packed_vec_updatable_pointer ( min::gen v )
-	    : internal::packed_vec_base_pointer<H,E>
+	packed_vec_updptr ( min::gen v )
+	    : internal::packed_vec_ptr_base<H,E>
 	    ( v ) {}
-	packed_vec_updatable_pointer
+	packed_vec_updptr
 		( const min::stub * s )
-	    : internal::packed_vec_base_pointer<H,E>
+	    : internal::packed_vec_ptr_base<H,E>
 	    ( s ) {}
-	packed_vec_updatable_pointer ( void )
-	    : internal::packed_vec_base_pointer<H,E>
+	packed_vec_updptr ( void )
+	    : internal::packed_vec_ptr_base<H,E>
 	    () {}
 
 	H * operator -> ( void )
@@ -4037,26 +4037,26 @@ namespace min {
 	    return * (E *)
 		( (min::uns8 *) hp
 		  +
-		  internal::packed_vec_base_pointer<H,E>
+		  internal::packed_vec_ptr_base<H,E>
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
 	}
 
-	packed_vec_updatable_pointer & operator =
+	packed_vec_updptr & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal::packed_vec_base_pointer<H,E>
+		internal::packed_vec_ptr_base<H,E>
 		    ( s );
 	    return * this;
 	}
 
-	packed_vec_updatable_pointer & operator =
+	packed_vec_updptr & operator =
 		( min::gen v )
 	{
 	    new ( this )
-		internal::packed_vec_base_pointer<H,E>
+		internal::packed_vec_ptr_base<H,E>
 		    ( v );
 	    return * this;
 	}
@@ -4064,35 +4064,35 @@ namespace min {
 	static min::uns32 DISP ( void )
 	{
 	    return OFFSETOF
-	        ( & packed_vec_updatable_pointer::s );
+	        ( & packed_vec_updptr::s );
 	}
     };
 
     template < typename S, typename H, typename E >
     min::uns32 DISP
-	    ( packed_vec_updatable_pointer<H,E> S::* d )
+	    ( packed_vec_updptr<H,E> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_updatable_pointer<H,E>
+	       + packed_vec_updptr<H,E>
 	         ::DISP();
     }
 
     template < typename H, typename E >
-    class packed_vec_insertable_pointer
-	: public internal::packed_vec_base_pointer<H,E>
+    class packed_vec_insptr
+	: public internal::packed_vec_ptr_base<H,E>
     {
 
     public:
 
-	packed_vec_insertable_pointer ( min::gen v )
-	    : internal::packed_vec_base_pointer<H,E>
+	packed_vec_insptr ( min::gen v )
+	    : internal::packed_vec_ptr_base<H,E>
 	    ( v ) {}
-	packed_vec_insertable_pointer
+	packed_vec_insptr
 		( const min::stub * s )
-	    : internal::packed_vec_base_pointer<H,E>
+	    : internal::packed_vec_ptr_base<H,E>
 	    ( s ) {}
-	packed_vec_insertable_pointer ( void )
-	    : internal::packed_vec_base_pointer<H,E>
+	packed_vec_insptr ( void )
+	    : internal::packed_vec_ptr_base<H,E>
 	    () {}
 
 	H * operator -> ( void )
@@ -4109,26 +4109,26 @@ namespace min {
 	    return * (E *)
 		( (min::uns8 *) hp
 		  +
-		  internal::packed_vec_base_pointer<H,E>
+		  internal::packed_vec_ptr_base<H,E>
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
 	}
 
-	packed_vec_insertable_pointer & operator =
+	packed_vec_insptr & operator =
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal::packed_vec_base_pointer<H,E>
+		internal::packed_vec_ptr_base<H,E>
 		    ( s );
 	    return * this;
 	}
 
-	packed_vec_insertable_pointer & operator =
+	packed_vec_insptr & operator =
 		( min::gen v )
 	{
 	    new ( this )
-		internal::packed_vec_base_pointer<H,E>
+		internal::packed_vec_ptr_base<H,E>
 		    ( v );
 	    return * this;
 	}
@@ -4136,7 +4136,7 @@ namespace min {
 	static min::uns32 DISP ( void )
 	{
 	    return OFFSETOF
-	        ( & packed_vec_insertable_pointer::s );
+	        ( & packed_vec_insptr::s );
 	}
 
 	void reserve ( min::uns32 reserve_length );
@@ -4149,10 +4149,10 @@ namespace min {
 
     template < typename S, typename H, typename E >
     min::uns32 DISP
-	    ( packed_vec_insertable_pointer<H,E> S::* d )
+	    ( packed_vec_insptr<H,E> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_insertable_pointer<H,E>
+	       + packed_vec_insptr<H,E>
 	         ::DISP();
     }
 
@@ -4228,14 +4228,14 @@ namespace min {
 	// compiler error.
 	//
 	typedef typename
-	        min::packed_vec_pointer<H,E>
-	        pointer;
+	        min::packed_vec_ptr<H,E>
+	        ptr;
 	typedef typename
-	        min::packed_vec_updatable_pointer<H,E>
-	        updatable_pointer;
+	        min::packed_vec_updptr<H,E>
+	        updptr;
 	typedef typename
-	        min::packed_vec_insertable_pointer<H,E>
-	        insertable_pointer;
+	        min::packed_vec_insptr<H,E>
+	        insptr;
 
 	static bool id;
 	    // & id acts as a unique identifier of the
@@ -4243,8 +4243,8 @@ namespace min {
     };
 
     template < typename H, typename E >
-    internal::packed_vec_base_pointer<H,E>
-            ::packed_vec_base_pointer
+    internal::packed_vec_ptr_base<H,E>
+            ::packed_vec_ptr_base
 	    ( const min::stub * s ) : s ( s )
     {
 	if ( s != NULL )
@@ -4261,7 +4261,7 @@ namespace min {
     template < typename H, typename E >
     inline void push
 	( typename
-	  min::packed_vec_insertable_pointer<H,E>
+	  min::packed_vec_insptr<H,E>
 	  & pvip,
 	  const E & v )
     {
@@ -4273,7 +4273,7 @@ namespace min {
     template < typename H, typename E >
     inline void push
 	( typename
-	  min::packed_vec_insertable_pointer<H,E>
+	  min::packed_vec_insptr<H,E>
 	  & pvip,
 	  min::uns32 n,
 	  const E * vp = NULL )
@@ -4292,7 +4292,7 @@ namespace min {
     template < typename H, typename E >
     inline E pop
 	( typename
-	  min::packed_vec_insertable_pointer<H,E>
+	  min::packed_vec_insptr<H,E>
 	  & pvip )
     {
 	assert ( pvip->length > 0 );
@@ -4302,7 +4302,7 @@ namespace min {
     template < typename H, typename E >
     inline void pop
 	( typename
-	  min::packed_vec_insertable_pointer<H,E>
+	  min::packed_vec_insptr<H,E>
 	  & pvip,
 	  min::uns32 n,
 	  E * vp = NULL )
@@ -4318,7 +4318,7 @@ namespace min {
     template < typename H, typename E >
     inline void resize
 	( typename
-	  min::packed_vec_insertable_pointer<H,E>
+	  min::packed_vec_insptr<H,E>
 	  & pvip,
 	  min::uns32 max_length )
     {
@@ -4328,7 +4328,7 @@ namespace min {
     template < typename H, typename E >
     inline void reserve
 	( typename
-	  min::packed_vec_insertable_pointer<H,E>
+	  min::packed_vec_insptr<H,E>
 	  & pvip,
 	  min::uns32 reserve_length )
     {
@@ -4338,7 +4338,7 @@ namespace min {
     }
 
     template < typename H, typename E >
-    void packed_vec_insertable_pointer<H,E>
+    void packed_vec_insptr<H,E>
          ::reserve ( min::uns32 reserve_length )
     {
         H * hp =
@@ -6994,9 +6994,9 @@ namespace min {
     extern attr_info_vec attr_info_vec_type;
     extern reverse_attr_info_vec
            reverse_attr_info_vec_type;
-    typedef attr_info_vec::pointer
+    typedef attr_info_vec::ptr
         attr_info_pointer;
-    typedef reverse_attr_info_vec::pointer
+    typedef reverse_attr_info_vec::ptr
         reverse_attr_info_pointer;
     void sort_attr_info ( min::gen v );
     void sort_reverse_attr_info ( min::gen v );

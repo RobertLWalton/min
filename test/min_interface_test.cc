@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 26 02:56:22 EDT 2010
+// Date:	Tue Oct 26 03:30:42 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1940,7 +1940,7 @@ struct ps1 {
     min::uns32 i;
     min::gen g;
     min::stub * s;
-    ps1t::pointer psp;
+    ps1t::ptr psp;
 };
 
 static min::uns32 ps1_gen_disp[2] =
@@ -1971,14 +1971,14 @@ void test_packed_structs ( void )
     cout << "ps1type.name = " << ps1type.name << endl;
 
     min::gen v1 = ps1type.new_gen();
-    ps1t::updatable_pointer upv1 ( v1 );
+    ps1t::updptr upv1 ( v1 );
     cout << "upv1->type = " << upv1->type << endl;
     MIN_ASSERT ( upv1->i == 0 );
     upv1->i = 88;
     MIN_ASSERT ( upv1->i == 88 );
 
     min::gen v2 = ps2type.new_gen();
-    ps2t::updatable_pointer upv2 ( v2 );
+    ps2t::updptr upv2 ( v2 );
     cout << "upv2->type = " << upv2->type << endl;
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
@@ -1986,7 +1986,7 @@ void test_packed_structs ( void )
     upv2->j = 99;
     MIN_ASSERT ( upv2->i == 55 );
     MIN_ASSERT ( upv2->j == 99 );
-    ps2t::pointer pv2 ( v2 );
+    ps2t::ptr pv2 ( v2 );
     MIN_ASSERT ( pv2->i == 55 );
     MIN_ASSERT ( pv2->j == 99 );
 
@@ -2005,7 +2005,7 @@ void test_packed_structs ( void )
     MIN_ASSERT ( upv2->i == 55 );
     MIN_ASSERT ( upv2->j == 99 );
 
-    ps1t::updatable_pointer upv1b;
+    ps1t::updptr upv1b;
     MIN_ASSERT ( upv1b == min::NULL_STUB );
     upv1b = upv1;
     MIN_ASSERT ( upv1b->i == 88 );
@@ -2029,7 +2029,7 @@ struct pvh {
     min::uns32 i;
     const min::uns32 length;
     const min::uns32 max_length;
-    pvt::insertable_pointer pvip;
+    pvt::insptr pvip;
 };
 
 struct pve {
@@ -2057,14 +2057,14 @@ void test_packed_vectors ( void )
     cout << "pvtype.name = " << pvtype.name << endl;
 
     min::gen v = pvtype.new_gen ( 5 );
-    pvt::insertable_pointer pvip ( v );
+    pvt::insptr pvip ( v );
     MIN_ASSERT ( pvip->max_length == 5 );
     MIN_ASSERT ( pvip->length == 0 );
     pve e1 = { min::MISSING, NULL, 88 };
     min::push ( pvip, e1 );
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
-    pvt::pointer pvp ( MUP::stub_of ( v ) );
+    pvt::ptr pvp ( MUP::stub_of ( v ) );
     MIN_ASSERT ( pvp->length == 1 );
     MIN_ASSERT ( pvp[0].j == 88 );
 
@@ -2114,7 +2114,7 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvp == min::stub_of ( v ) );
     MIN_ASSERT ( pvp[2].j == 33 );
 
-    pvt::insertable_pointer pvip2;
+    pvt::insptr pvip2;
     MIN_ASSERT ( pvip2 == min::NULL_STUB );
     pvip2 = pvip;
     MIN_ASSERT ( pvip2[2].j == 33 );
@@ -2839,7 +2839,7 @@ static bool check_attr_info
     min_assert_print = false;
     min::gen aiv = min::get_attrs ( ap );
     min::sort_attr_info ( aiv );
-    min::attr_info_vec::updatable_pointer aivp ( aiv );
+    min::attr_info_vec::updptr aivp ( aiv );
     bool ok = true;
     for ( unsigned i = 0; i < aivp->length; ++ i )
     {
