@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 26 02:49:07 EDT 2010
+// Date:	Tue Oct 26 03:30:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -81,15 +81,11 @@ MINT::initializer::initializer ( void )
     if ( initializer_called ) return;
     initializer_called = true;
 
-    PTR_CHECK ( min::packed_struct<int> ::pointer );
-    PTR_CHECK ( min::packed_struct<int>
-                   ::updatable_pointer );
-    PTR_CHECK ( min::packed_vec<int,int>
-                   ::pointer );
-    PTR_CHECK ( min::packed_vec<int,int>
-                   ::updatable_pointer );
-    PTR_CHECK ( min::packed_vec<int,int>
-                   ::insertable_pointer );
+    PTR_CHECK ( min::packed_struct<int>::ptr );
+    PTR_CHECK ( min::packed_struct<int>::updptr );
+    PTR_CHECK ( min::packed_vec<int,int>::ptr );
+    PTR_CHECK ( min::packed_vec<int,int>::updptr );
+    PTR_CHECK ( min::packed_vec<int,int>::insptr );
 
     type_name[min::ACC_FREE] = "ACC_FREE";
     type_name[min::DEALLOCATED] = "DEALLOCATED";
@@ -5442,7 +5438,7 @@ static bool compute_counts
     static void compute_children
 	( min::list_pointer & lp,
 	  min::gen * components, min::unsptr depth,
-	  min::attr_info_vec::insertable_pointer & aip )
+	  min::attr_info_vec::insptr & aip )
     {
 	min::gen c = min::current ( lp );
 	if ( ! min::is_sublist ( c ) ) return;
@@ -5490,7 +5486,7 @@ min::gen min::get_attrs
 	      < vecpt > & ap )
 {
     min::gen airv = attr_info_vec_type.new_gen();
-    min::attr_info_vec::insertable_pointer aip ( airv );
+    min::attr_info_vec::insptr aip ( airv );
     attr_info info;
 
     vecpt & vp = vec_pointer_of ( ap.locate_dlp );
@@ -5556,8 +5552,7 @@ min::gen min::get_reverse_attrs
 {
     min::gen rairv =
         reverse_attr_info_vec_type.new_gen();
-    min::reverse_attr_info_vec::insertable_pointer raip
-        ( rairv );
+    min::reverse_attr_info_vec::insptr raip ( rairv );
 
     typedef MUP::attr_pointer_type<vecpt> ap_type;
 
@@ -5630,7 +5625,7 @@ static int compare_attr_info
 }
 void min::sort_attr_info ( min::gen v )
 {
-    min::attr_info_vec::updatable_pointer aiup ( v );
+    min::attr_info_vec::updptr aiup ( v );
     qsort ( & aiup[0], aiup->length,
             sizeof ( min::attr_info ),
 	    compare_attr_info );
@@ -5650,8 +5645,7 @@ static int compare_reverse_attr_info
 }
 void min::sort_reverse_attr_info ( min::gen v )
 {
-    min::reverse_attr_info_vec::updatable_pointer
-	raiup ( v );
+    min::reverse_attr_info_vec::updptr raiup ( v );
     qsort ( & raiup[0], raiup->length,
             sizeof ( min::reverse_attr_info ),
 	    compare_reverse_attr_info );
