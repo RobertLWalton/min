@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 26 12:37:11 EDT 2010
+// Date:	Wed Oct 27 02:16:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -346,9 +346,9 @@ static void read_used_pools ( void )
 	if ( start > end
 	     ||
 	     end == 0
-#	   if MIN_POINTER_BITS < 64
+#	   if MIN_PTR_BITS < 64
 	     ||    end
-	        >= (1ull << MIN_POINTER_BITS)
+	        >= (1ull << MIN_PTR_BITS)
 #	   endif
 	  )
 	{

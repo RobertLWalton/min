@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 00:47:09 EDT 2010
+// Date:	Wed Oct 27 02:13:37 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -125,7 +125,7 @@ namespace min {
     typedef signed MIN_INT64_TYPE int64;
     typedef double float64;
 
-#   if MIN_POINTER_BITS <= 32
+#   if MIN_PTR_BITS <= 32
 	typedef uns32 unsptr;
 	typedef int32 intptr;
 #   else
@@ -354,8 +354,7 @@ namespace min {
     namespace unprotected {
 	// Flags for non-acc control values.
 	//
-	const min::uns64 STUB_POINTER =
-	    min::uns64(1) << 55;
+	const min::uns64 STUB_PTR = min::uns64(1) << 55;
 	    // Indicates value part of control value is
 	    // a packed stub address.
     }
@@ -389,7 +388,7 @@ namespace min { namespace internal {
     // We need to be able to convert unsigned integers
     // to pointers and vice versa.
 
-#   if MIN_POINTER_BITS <= 32
+#   if MIN_PTR_BITS <= 32
 	// For the 32 bit pointer size there is no point
 	// in having a non-zero stub base.
 #	ifndef MIN_STUB_BASE
@@ -429,7 +428,7 @@ namespace min { namespace internal {
     // Given a ref to an uns64 we need to convert it to
     // a ref to a pointer.
 
-#   if MIN_POINTER_BITS <= 32
+#   if MIN_PTR_BITS <= 32
 	inline void * & uns64_ref_to_ptr_ref
 	    ( min::uns64 & v )
 	{
@@ -4483,7 +4482,7 @@ namespace min { namespace internal {
 	// min::uns16's.
     const min::unsptr LONG_OBJ_MAX_TOTAL_SIZE =
     	( MIN_IS_COMPACT ? ( 1 << 24 ) :
-	  MIN_POINTER_BITS <= 32 ?
+	  MIN_PTR_BITS <= 32 ?
 	  (    (min::unsptr) (-1)
 	    << ( 32 - LONG_OBJ_MANTISSA_BITS ) ) :
 	  ( 1ull << 32 ) );
@@ -5403,8 +5402,8 @@ namespace min {
 // auxiliary stubs is either a list auxilary pointer
 // with index in the value field of the stub control,
 // or is a stub pointer to another LIST_AUX stub with
-// the MUP::STUB_POINTER flag and the stub pointer in
-// the control.
+// the MUP::STUB_PTR flag and the stub pointer in the
+// control.
 
 // Aux area elements that are not used are given the
 // value NONE, and can be garbage collected when the
@@ -6415,8 +6414,7 @@ namespace min {
 	        min::uns64 c =
 		    min::unprotected::control_of
 		    	( lp.current_stub );
-		if ( c & min::unprotected::
-			      STUB_POINTER )
+		if ( c & min::unprotected::STUB_PTR )
 		{
 		    lp.current_stub =
 		        min::unprotected::
@@ -6480,8 +6478,7 @@ namespace min {
 	        min::uns64 c =
 		    min::unprotected::control_of
 		    	( lp.current_stub );
-		if ( c & min::unprotected::
-			      STUB_POINTER )
+		if ( c & min::unprotected::STUB_PTR )
 		{
 		    lp.current_stub =
 		        min::unprotected::
@@ -6544,8 +6541,7 @@ namespace min {
 	        min::uns64 c =
 		    min::unprotected::control_of
 		    	( lp.current_stub );
-		if ( c & min::unprotected
-			    ::STUB_POINTER )
+		if ( c & min::unprotected::STUB_PTR )
 		{
 		    min::stub * s =
 		        min::unprotected

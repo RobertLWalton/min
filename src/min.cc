@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 01:12:02 EDT 2010
+// Date:	Wed Oct 27 02:16:20 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -109,7 +109,7 @@ MINT::initializer::initializer ( void )
     assert ( sizeof ( MIN_INT32_TYPE ) == 4 );
     assert ( sizeof ( MIN_INT64_TYPE ) == 8 );
     assert
-        ( sizeof ( void * ) == MIN_POINTER_BITS / 8 );
+        ( sizeof ( void * ) == MIN_PTR_BITS / 8 );
 
     assert
       ( MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG <= 33 );
@@ -943,7 +943,7 @@ static void packed_vec_scavenger_routine
 		++ sc.gen_count;
 
 	    min::uns64 c = MUP::control_of ( aux_s );
-	    if ( c & MUP::STUB_POINTER )
+	    if ( c & MUP::STUB_PTR )
 	        aux_s = MUP::stub_of_control ( c );
 	    else
 	        break;
@@ -3148,7 +3148,7 @@ void MINT::allocate_stub_list
 	MUP::set_control_of
 	     ( previous,
 	       MUP::new_control_with_type
-	           ( type, last, MUP::STUB_POINTER ) );
+	           ( type, last, MUP::STUB_PTR ) );
 	type = min::LIST_AUX;
 	previous = last;
     }
@@ -3191,7 +3191,7 @@ void MINT::remove_list
 		         ::value_of ( s ) );
 		min::uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
-		if ( c & MUP::STUB_POINTER)
+		if ( c & MUP::STUB_PTR)
 		    s = MUP::stub_of ( c );
 		else
 		{
@@ -3347,7 +3347,7 @@ void min::insert_before
 			    ( lp.previous_stub,
 			      MUP::new_control_with_type
 				  ( type, first,
-				    MUP::STUB_POINTER )
+				    MUP::STUB_PTR )
 			    );
 		    }
 		}
@@ -3369,7 +3369,7 @@ void min::insert_before
 			      MUP::new_control_with_type
 			        ( min::LIST_AUX,
 				  first,
-				  MUP::STUB_POINTER ) );
+				  MUP::STUB_PTR ) );
 			lp.base[lp.previous_index] =
 			    min::new_gen ( s );
 			lp.previous_index = 0;
@@ -3503,7 +3503,7 @@ void min::insert_before
 		    ( lp.current_stub, min::LIST_AUX );
 		end = MUP::new_control_with_type
 		   ( 0, lp.current_stub,
-		     MUP::STUB_POINTER );
+		     MUP::STUB_PTR );
 		MIN_ASSERT ( previous );
 	    }
 	    else if ( ! previous )
@@ -3511,7 +3511,7 @@ void min::insert_before
 	        s = MUP::new_aux_stub();
 		MUP::set_gen_of ( s, lp.current );
 		end = MUP::new_control_with_type
-		    ( 0, s, MUP::STUB_POINTER );
+		    ( 0, s, MUP::STUB_PTR );
 		min::unsptr next = lp.current_index;
 		if ( next == lp.head_index )
 		    next = 0;
@@ -3564,7 +3564,7 @@ void min::insert_before
 			( lp.previous_stub,
 			  MUP::new_control_with_type
 			      ( type, first,
-				MUP::STUB_POINTER ) );
+				MUP::STUB_PTR ) );
 		}
 	    }
 	    else
@@ -3731,7 +3731,7 @@ void min::insert_after
 			 ( min::type_of
 			       ( lp.current_stub ),
 			   first,
-			   MUP::STUB_POINTER ) );
+			   MUP::STUB_PTR ) );
 		return;
 	    }
 
@@ -3763,7 +3763,7 @@ void min::insert_after
 		if ( n > 1 )
 		    end = MUP::new_control_with_type
 		              ( type, first,
-			        MUP::STUB_POINTER );
+			        MUP::STUB_PTR );
 		MUP::set_control_of ( s, end );
 		lp.base[lp.current_index] = p[n-1];
 		lp.current_index = 0;
@@ -3784,7 +3784,7 @@ void min::insert_after
 			  ( lp.previous_stub,
 			    MUP::new_control_with_type
 			      ( type, s,
-			        MUP::STUB_POINTER ) );
+			        MUP::STUB_PTR ) );
 		    }
 		}
 		else
@@ -3803,7 +3803,7 @@ void min::insert_after
 		    ( s,
 		      MUP::new_control_with_type
 		          ( min::LIST_AUX, first,
-			    MUP::STUB_POINTER ) );
+			    MUP::STUB_PTR ) );
 		lp.base[lp.current_index] =
 		    min::new_gen ( s );
 		lp.previous_index = lp.current_index;
@@ -3841,7 +3841,7 @@ void min::insert_after
 	lp.base[-- aux_offset] = * p ++;
 	min::uns64 c =
 	    MUP::control_of ( lp.current_stub );
-	if ( c & MUP::STUB_POINTER )
+	if ( c & MUP::STUB_PTR )
 	    lp.base[-- aux_offset] =
 		min::new_gen
 		    ( MUP::stub_of_control ( c ) );
@@ -4041,7 +4041,7 @@ min::unsptr min::remove
 		        ( previous_stub,
 			  MUP::new_control_with_type
 			      ( type, lp.current_stub,
-			        MUP::STUB_POINTER ) );
+			        MUP::STUB_PTR ) );
 		}
 	    }
 	    else if ( lp.current == min::LIST_END )

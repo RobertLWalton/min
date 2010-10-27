@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 31 18:56:59 EDT 2010
+// Date:	Wed Oct 27 02:15:13 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -91,7 +91,7 @@
 //
 # ifndef MIN_MAX_EPHEMERAL_LEVELS
 #   define MIN_MAX_EPHEMERAL_LEVELS \
-	( MIN_POINTER_BITS <= 32 ? 4 : 2 )
+	( MIN_PTR_BITS <= 32 ? 4 : 2 )
 # endif
 
 // Maximum number of stubs possible with the compiled
@@ -114,7 +114,7 @@
 # ifndef MIN_MAX_NUMBER_OF_STUBS
 #   define MIN_MAX_NUMBER_OF_STUBS \
 	( MIN_IS_COMPACT ? 0x0DFFFFFF : \
-	  ( MIN_POINTER_BITS <= 32 ? 1 << 28 : \
+	  ( MIN_PTR_BITS <= 32 ? 1 << 28 : \
 	  ( MIN_MAX_EPHEMERAL_LEVELS <= 2 ? \
 	          ( 1ull << 40 ) : \
 	  ( 1ull << \
@@ -205,7 +205,7 @@
 
 // The values you need to set to control all this
 // follow.  All must be constant integer expressions
-// unless otherwise noted.  Note that MIN_POINTER_BITS
+// unless otherwise noted.  Note that MIN_PTR_BITS
 // is the number of bits needed to store a pointer, as
 // determined by hardware: See Hardware Parameters
 // below.
@@ -227,9 +227,9 @@
 #   else
 #	define MIN_MAX_ABSOLUTE_STUB_ADDRESS \
 	   (    MIN_IS_COMPACT \
-	     && MIN_POINTER_BITS <= 32 ? \
+	     && MIN_PTR_BITS <= 32 ? \
 	       0xDFFFFFFFull : \
-	     MIN_POINTER_BITS <= 32 ? 0xFFFFFFFFull : \
+	     MIN_PTR_BITS <= 32 ? 0xFFFFFFFFull : \
 	     ( ( 1ull << 48 ) - 1 ) )
 #   endif
 # endif
@@ -340,7 +340,7 @@ namespace min { namespace internal {
 //	    Type of 32 bit signed integer.
 //	MIN_INT64_TYPE
 //	    Type of 64 bit signed integer.
-//	MIN_POINTER_BITS
+//	MIN_PTR_BITS
 //	    Number of bits needed to hold a pointer.
 //	    Must not be greater than 64.
 //	MIN_IS_BIG_ENDIAN
@@ -357,7 +357,7 @@ namespace min { namespace internal {
 #   define MIN_INT64_TYPE long long
 #   define MIN_IS_BIG_ENDIAN 0
 #   define MIN_IS_LITTLE_ENDIAN 1
-#   define MIN_POINTER_BITS 32
+#   define MIN_PTR_BITS 32
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
 # endif
 # if __x86_64__
@@ -365,7 +365,7 @@ namespace min { namespace internal {
 #   define MIN_INT64_TYPE long long
 #   define MIN_IS_BIG_ENDIAN 0
 #   define MIN_IS_LITTLE_ENDIAN 1
-#   define MIN_POINTER_BITS 64
+#   define MIN_PTR_BITS 64
 #   define MIN_FLOAT64_SIGNALLING_NAN 0x7FF400
 # endif
 
