@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:16:20 EDT 2010
+// Date:	Wed Oct 27 02:32:06 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2900,7 +2900,7 @@ static const min::unsptr OBJ_HEADER_SIZE_DIFFERENCE =
 	 - MINT::SHORT_OBJ_HEADER_SIZE );
 
 bool min::resize
-    ( min::insertable_vec_ptr & vp,
+    ( min::vec_insptr & vp,
       min::unsptr unused_size,
       min::unsptr var_size )
 {
@@ -3095,7 +3095,7 @@ bool min::resize
 }
 
 bool min::resize
-    ( min::insertable_vec_ptr & vp,
+    ( min::vec_insptr & vp,
       min::unsptr unused_size )
 {
     return min::resize ( vp, unused_size,
@@ -3232,7 +3232,7 @@ void MINT::remove_list
 }
 
 void min::insert_before
-	( min::insertable_list_ptr & lp,
+	( min::list_insptr & lp,
 	  const min::gen * p, min::unsptr n )
 {
 
@@ -3679,7 +3679,7 @@ void min::insert_before
 }
 
 void min::insert_after
-	( min::insertable_list_ptr & lp,
+	( min::list_insptr & lp,
 	  const min::gen * p, min::unsptr n )
 {
     if ( n == 0 ) return;
@@ -3933,7 +3933,7 @@ void min::insert_after
 }
 
 min::unsptr min::remove
-	( min::insertable_list_ptr & lp,
+	( min::list_insptr & lp,
 	  min::unsptr n )
 {
     if ( n == 0 || lp.current == min::LIST_END )
@@ -4201,7 +4201,7 @@ min::unsptr min::remove
 }
 
 bool MINT::insert_reserve
-	( min::insertable_list_ptr & lp,
+	( min::list_insptr & lp,
 	  min::unsptr insertions,
 	  min::unsptr elements,
 	  bool use_obj_aux_stubs )
@@ -4441,11 +4441,11 @@ min::attr_info_vec min::attr_info_vec_type
 	      min::gen name,
 	      bool allow_partial_labels );
     template void MINT::locate
-	    ( min::updatable_attr_ptr & ap,
+	    ( min::attr_updptr & ap,
 	      min::gen name,
 	      bool allow_partial_labels );
     template void MINT::locate
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen name,
 	      bool allow_partial_labels );
 
@@ -4528,15 +4528,15 @@ min::attr_info_vec min::attr_info_vec_type
     template void MINT::relocate
 	    ( min::attr_ptr & ap );
     template void MINT::relocate
-	    ( min::updatable_attr_ptr & ap );
+	    ( min::attr_updptr & ap );
     template void MINT::relocate
-	    ( min::insertable_attr_ptr & ap );
+	    ( min::attr_insptr & ap );
 
     void MINT::attr_create
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	MIN_ASSERT
 	    ( ap.state == ap_type::LOCATE_FAIL );
@@ -4746,10 +4746,10 @@ min::attr_info_vec min::attr_info_vec_type
 	    ( min::attr_ptr & ap,
 	      min::gen name );
     template void MINT::locate
-	    ( min::updatable_attr_ptr & ap,
+	    ( min::attr_updptr & ap,
 	      min::gen name );
     template void MINT::locate
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen name );
 
     // Continue relocation after ap.relocate_dlp is
@@ -4783,15 +4783,15 @@ min::attr_info_vec min::attr_info_vec_type
     template void MINT::relocate
 	    ( min::attr_ptr & ap );
     template void MINT::relocate
-	    ( min::updatable_attr_ptr & ap );
+	    ( min::attr_updptr & ap );
     template void MINT::relocate
-	    ( min::insertable_attr_ptr & ap );
+	    ( min::attr_insptr & ap );
 
     void MINT::attr_create
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	MIN_ASSERT
 	    ( ap.state == ap_type::LOCATE_FAIL );
@@ -4841,10 +4841,10 @@ min::attr_info_vec min::attr_info_vec_type
 # endif
 
 void MINT::reverse_attr_create
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  min::gen v )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     MIN_ASSERT
 	( ap.state == ap_type::REVERSE_LOCATE_FAIL );
@@ -5041,10 +5041,10 @@ template void min::locate_reverse
 	( min::attr_ptr & ap,
 	  min::gen reverse_name );
 template void min::locate_reverse
-	( min::updatable_attr_ptr & ap,
+	( min::attr_updptr & ap,
 	  min::gen reverse_name );
 template void min::locate_reverse
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  min::gen reverse_name );
 
 template < class vecpt >
@@ -5137,9 +5137,9 @@ void min::relocate
 template void min::relocate
 	( min::attr_ptr & ap );
 template void min::relocate
-	( min::updatable_attr_ptr & ap );
+	( min::attr_updptr & ap );
 template void min::relocate
-	( min::insertable_attr_ptr & ap );
+	( min::attr_insptr & ap );
 
 template < class vecpt >
 min::unsptr MINT::get
@@ -5209,10 +5209,10 @@ template min::unsptr MINT::get
 	  min::attr_ptr & ap );
 template min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  min::updatable_attr_ptr & ap );
+	  min::attr_updptr & ap );
 template min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  min::insertable_attr_ptr & ap );
+	  min::attr_insptr & ap );
 
 template < class vecpt >
 min::gen MINT::get
@@ -5283,9 +5283,9 @@ min::gen MINT::get
 template min::gen MINT::get
 	( min::attr_ptr & ap );
 template min::gen MINT::get
-	( min::updatable_attr_ptr & ap );
+	( min::attr_updptr & ap );
 template min::gen MINT::get
-	( min::insertable_attr_ptr & ap );
+	( min::attr_insptr & ap );
 
 template < class vecpt >
 min::unsptr MINT::get_flags
@@ -5309,10 +5309,10 @@ template min::unsptr MINT::get_flags
 	  min::attr_ptr & ap );
 template min::unsptr MINT::get_flags
 	( min::gen * p, min::unsptr n,
-	  min::updatable_attr_ptr & ap );
+	  min::attr_updptr & ap );
 template min::unsptr MINT::get_flags
 	( min::gen * p, min::unsptr n,
-	  min::insertable_attr_ptr & ap );
+	  min::attr_insptr & ap );
 
 template < class vecpt >
 bool MINT::test_flag
@@ -5335,10 +5335,10 @@ template bool MINT::test_flag
 	( min::attr_ptr & ap,
 	  unsigned n );
 template bool MINT::test_flag
-	( min::updatable_attr_ptr & ap,
+	( min::attr_updptr & ap,
 	  unsigned n );
 template bool MINT::test_flag
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  unsigned n );
 
 // Helper functions for min::get_attrs.
@@ -5535,9 +5535,9 @@ min::gen min::get_attrs
 template min::gen min::get_attrs
 	( min::attr_ptr & ap );
 template min::gen min::get_attrs
-	( min::updatable_attr_ptr & ap );
+	( min::attr_updptr & ap );
 template min::gen min::get_attrs
-	( min::insertable_attr_ptr & ap );
+	( min::attr_insptr & ap );
 
 template < class vecpt >
 min::gen min::get_reverse_attrs
@@ -5604,9 +5604,9 @@ min::gen min::get_reverse_attrs
 template min::gen min::get_reverse_attrs
 	( min::attr_ptr & ap );
 template min::gen min::get_reverse_attrs
-	( min::updatable_attr_ptr & ap );
+	( min::attr_updptr & ap );
 template min::gen min::get_reverse_attrs
-	( min::insertable_attr_ptr & ap );
+	( min::attr_insptr & ap );
 
 // Compare function to qsort attr_info packed vector.
 //
@@ -5674,22 +5674,22 @@ min::gen MINT::update
     }
 }
 template min::gen MINT::update
-	( min::updatable_attr_ptr & ap,
+	( min::attr_updptr & ap,
 	  min::gen v );
 template min::gen MINT::update
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  min::gen v );
 
 // Helper functions for various set and remove
 // functions.  See min.h for documentation.
 //
 void MINT::remove_reverse_attr_value
-	( min::insertable_attr_ptr & ap,
-	  min::insertable_vec_ptr & vp )
+	( min::attr_insptr & ap,
+	  min::vec_insptr & vp )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
-    insertable_attr_ptr rap ( vp );
+    attr_insptr rap ( vp );
     min::gen v = min::new_gen
         ( MUP::stub_of ( vec_ptr_of ( ap.dlp ) ) );
 
@@ -5716,10 +5716,10 @@ void MINT::remove_reverse_attr_value
 }
     
 void MINT::remove_reverse_attr_value
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
           min::gen v )
 {
-    insertable_vec_ptr & apvp =
+    vec_insptr & apvp =
         vec_ptr_of ( ap.dlp );
     min::stub * aps = MUP::stub_of ( apvp );
     const min::stub * s = min::stub_of ( v );
@@ -5731,18 +5731,18 @@ void MINT::remove_reverse_attr_value
     }
     else
     {
-        insertable_vec_ptr vp ( v );
+        vec_insptr vp ( v );
 	MINT::remove_reverse_attr_value ( ap, vp );
     }
 }
 
 void MINT::add_reverse_attr_value
-	( min::insertable_attr_ptr & ap,
-	  min::insertable_vec_ptr & vp )
+	( min::attr_insptr & ap,
+	  min::vec_insptr & vp )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
-    insertable_attr_ptr rap ( vp );
+    attr_insptr rap ( vp );
     min::gen v = min::new_gen
         ( MUP::stub_of ( vec_ptr_of ( ap.dlp ) ) );
 
@@ -5776,10 +5776,10 @@ void MINT::add_reverse_attr_value
 }
     
 void MINT::add_reverse_attr_value
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
           min::gen v )
 {
-    insertable_vec_ptr & apvp =
+    vec_insptr & apvp =
         vec_ptr_of ( ap.dlp );
     min::stub * aps = MUP::stub_of ( apvp );
     const min::stub * s = min::stub_of ( v );
@@ -5794,16 +5794,16 @@ void MINT::add_reverse_attr_value
     }
     else
     {
-        insertable_vec_ptr vp ( v );
+        vec_insptr vp ( v );
 	MINT::add_reverse_attr_value ( ap, vp );
     }
 }
 
 void MINT::set
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     switch ( ap.state )
     {
@@ -5996,10 +5996,10 @@ void MINT::set
 }
 
 void min::add_to_set
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     if ( n == 0 ) return;
 
@@ -6071,10 +6071,10 @@ void min::add_to_set
 }
 
 void min::add_to_multiset
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     if ( n == 0 ) return;
 
@@ -6155,10 +6155,10 @@ void min::add_to_multiset
 }
 
 min::unsptr min::remove_one
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     if ( n == 0 ) return 0;
 
@@ -6246,10 +6246,10 @@ min::unsptr min::remove_one
 }
 
 min::unsptr min::remove_all
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     if ( n == 0 ) return 0;
 
@@ -6326,10 +6326,10 @@ min::unsptr min::remove_all
 }
 
 void MINT::set_flags
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -6402,10 +6402,10 @@ void MINT::set_flags
 // place to do insertion.
 //
 void MINT::set_more_flags
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::insertable_attr_ptr ap_type;
+    typedef min::attr_insptr ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -6419,10 +6419,10 @@ void MINT::set_more_flags
 }
 
 void MINT::set_some_flags
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef insertable_attr_ptr ap_type;
+    typedef attr_insptr ap_type;
 
     switch ( ap.state )
     {
@@ -6437,10 +6437,10 @@ void MINT::set_some_flags
 }
 
 void MINT::clear_some_flags
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef insertable_attr_ptr ap_type;
+    typedef attr_insptr ap_type;
 
     switch ( ap.state )
     {
@@ -6456,10 +6456,10 @@ void MINT::clear_some_flags
 }
 
 void MINT::flip_some_flags
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef insertable_attr_ptr ap_type;
+    typedef attr_insptr ap_type;
 
     switch ( ap.state )
     {
@@ -6478,10 +6478,10 @@ void MINT::flip_some_flags
 // node-descriptor.
 //
 bool MINT::set_flag
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  unsigned n )
 {
-    typedef insertable_attr_ptr ap_type;
+    typedef attr_insptr ap_type;
 
     switch ( ap.state )
     {
@@ -6531,10 +6531,10 @@ bool MINT::set_flag
 }
 
 bool MINT::clear_flag
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  unsigned n )
 {
-    typedef insertable_attr_ptr ap_type;
+    typedef attr_insptr ap_type;
 
     switch ( ap.state )
     {
@@ -6550,10 +6550,10 @@ bool MINT::clear_flag
 }
 
 bool MINT::flip_flag
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  unsigned n )
 {
-    typedef insertable_attr_ptr ap_type;
+    typedef attr_insptr ap_type;
 
     switch ( ap.state )
     {

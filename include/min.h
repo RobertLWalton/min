@@ -4415,11 +4415,11 @@ namespace min { namespace internal {
     // OBJ_TYPE means object first variable (var[0])
     // points at the object's type.
     //
-    // OBJ_PUBLIC means insertable_vec_ptrs not
-    // allowed for object.
+    // OBJ_PUBLIC means vec_insptrs not allowed for
+    // object.
     //
-    // OBJ_PRIVATE means a xxx_vec_ptr exists for
-    // the object and other xxx_vec_ptrs may not
+    // OBJ_PRIVATE means a vec_xxxptr exists for
+    // the object and other vec_xxxptrs may not
     // be created for the object.
 
     // Codes Bits:
@@ -4606,8 +4606,8 @@ namespace min {
     // friend declaration.
     //
     class vec_ptr;
-    class updatable_vec_ptr;
-    class insertable_vec_ptr;
+    class vec_updptr;
+    class vec_insptr;
 
     void initialize
 	( min::vec_ptr & vp, const min::stub * s );
@@ -4656,78 +4656,78 @@ namespace min {
 	( min::vec_ptr & vp, min::unsptr index );
 
     void initialize
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::stub * s );
     void initialize
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::gen v );
     void deinitialize
-	( min::updatable_vec_ptr & vp );
+	( min::vec_updptr & vp );
 
     namespace unprotected {
 	min::gen * & base
-	    ( min::updatable_vec_ptr & vp );
+	    ( min::vec_updptr & vp );
     }
     void set_var
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value );
     void set_hash
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value );
     void set_attr
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value );
     void set_aux
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value );
 
     void initialize
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::stub * s );
     void initialize
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen v );
     void deinitialize
-	( min::insertable_vec_ptr & vp );
+	( min::vec_insptr & vp );
 
     namespace unprotected {
 	min::unsptr & unused_offset_of
-	    ( min::insertable_vec_ptr & vp );
+	    ( min::vec_insptr & vp );
 	min::unsptr & aux_offset_of
-	    ( min::insertable_vec_ptr & vp );
+	    ( min::vec_insptr & vp );
     }
 
     void attr_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen v );
     void attr_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  const min::gen * p, min::unsptr n );
     void aux_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen v );
     void aux_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  const min::gen * p, min::unsptr n );
 
     void attr_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen & v );
     void attr_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen * p, min::unsptr n );
     void aux_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen & v );
     void aux_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen * p, min::unsptr n );
 
     bool resize
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::unsptr unused_size );
     bool resize
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::unsptr unused_size,
 	  min::unsptr var_size );
 
@@ -4808,75 +4808,75 @@ namespace min {
 	      min::unsptr index );
 
 	friend void initialize
-	    ( min::updatable_vec_ptr & vp,
+	    ( min::vec_updptr & vp,
 	      min::stub * s );
 	friend void initialize
-	    ( min::updatable_vec_ptr & vp,
+	    ( min::vec_updptr & vp,
 	      min::gen v );
 	friend void deinitialize
-	    ( min::updatable_vec_ptr & vp );
+	    ( min::vec_updptr & vp );
 
 	friend min::gen * & unprotected::base
-	    ( min::updatable_vec_ptr & vp );
+	    ( min::vec_updptr & vp );
 	friend void set_var
-	    ( min::updatable_vec_ptr & vp,
+	    ( min::vec_updptr & vp,
 	      min::unsptr index, min::gen value );
 	friend void set_hash
-	    ( min::updatable_vec_ptr & vp,
+	    ( min::vec_updptr & vp,
 	      min::unsptr index, min::gen value );
 	friend void set_attr
-	    ( min::updatable_vec_ptr & vp,
+	    ( min::vec_updptr & vp,
 	      min::unsptr index, min::gen value );
 	friend void set_aux
-	    ( min::updatable_vec_ptr & vp,
+	    ( min::vec_updptr & vp,
 	      min::unsptr index, min::gen value );
 
 	friend void initialize
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::stub * s );
 	friend void initialize
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::gen v );
 	friend void deinitialize
-	    ( min::insertable_vec_ptr & vp );
+	    ( min::vec_insptr & vp );
 
 	friend min::unsptr &
 	  unprotected::unused_offset_of
-	    ( min::insertable_vec_ptr & vp );
+	    ( min::vec_insptr & vp );
 	friend min::unsptr & unprotected::aux_offset_of
-	    ( min::insertable_vec_ptr & vp );
+	    ( min::vec_insptr & vp );
 
 	friend void attr_push
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::gen v );
 	friend void attr_push
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      const min::gen * p, min::unsptr n );
 	friend void aux_push
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::gen v );
 	friend void aux_push
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      const min::gen * p, min::unsptr n );
 
 	friend void attr_pop
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::gen & v );
 	friend void attr_pop
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::gen * p, min::unsptr n );
 	friend void aux_pop
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::gen & v );
 	friend void aux_pop
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::gen * p, min::unsptr n );
 
 	friend bool resize
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::unsptr unused_size );
 	friend bool resize
-	    ( min::insertable_vec_ptr & vp,
+	    ( min::vec_insptr & vp,
 	      min::unsptr unused_size,
 	      min::unsptr var_size );
 
@@ -5019,21 +5019,21 @@ namespace min {
 	}
     };
 
-    class updatable_vec_ptr : public vec_ptr {
+    class vec_updptr : public vec_ptr {
 
     public:
 
-	updatable_vec_ptr ( min::stub * s )
+	vec_updptr ( min::stub * s )
 	    : vec_ptr ( s, UPDATABLE )
 	    {}
-	updatable_vec_ptr ( min::gen v )
+	vec_updptr ( min::gen v )
 	    : vec_ptr ( min::stub_of ( v ), UPDATABLE )
 	    {}
-	updatable_vec_ptr ( void )
+	vec_updptr ( void )
 	    : vec_ptr ( NULL, UPDATABLE )
 	    {}
 
-	~ updatable_vec_ptr ( void )
+	~ vec_updptr ( void )
 	{
 	    if ( s == NULL ) return;
 	    MIN_ASSERT ( type == UPDATABLE );
@@ -5042,31 +5042,31 @@ namespace min {
 
     protected:
 
-	updatable_vec_ptr
+	vec_updptr
 		( const min::stub * s, int type )
 	    : vec_ptr ( s, type )
 	    {}
 
     };
 
-    class insertable_vec_ptr
-        : public updatable_vec_ptr {
+    class vec_insptr
+        : public vec_updptr {
 
     public:
 
-	insertable_vec_ptr ( min::stub * s )
-	    : updatable_vec_ptr ( s, INSERTABLE )
+	vec_insptr ( min::stub * s )
+	    : vec_updptr ( s, INSERTABLE )
 	    {}
-	insertable_vec_ptr ( min::gen v )
-	    : updatable_vec_ptr
+	vec_insptr ( min::gen v )
+	    : vec_updptr
 	          ( min::stub_of ( v ),
 		    INSERTABLE )
 	    {}
-	insertable_vec_ptr ( void )
-	    : updatable_vec_ptr ( NULL, INSERTABLE )
+	vec_insptr ( void )
+	    : vec_updptr ( NULL, INSERTABLE )
 	    {}
 
-	~ insertable_vec_ptr ( void )
+	~ vec_insptr ( void )
 	{
 	    if ( s == NULL ) return;
 	    MIN_ASSERT ( type == INSERTABLE );
@@ -5203,29 +5203,29 @@ namespace min {
     }
 
     inline void initialize
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::stub * s )
     {
-	vp.~updatable_vec_ptr();
-        new ( & vp ) min::updatable_vec_ptr ( s );
+	vp.~vec_updptr();
+        new ( & vp ) min::vec_updptr ( s );
     }
 
     inline void initialize
-	( min::updatable_vec_ptr & vp, min::gen v )
+	( min::vec_updptr & vp, min::gen v )
     {
-	vp.~updatable_vec_ptr();
-        new ( & vp ) min::updatable_vec_ptr ( v );
+	vp.~vec_updptr();
+        new ( & vp ) min::vec_updptr ( v );
     }
 
     inline void deinitialize
-	( min::updatable_vec_ptr & vp )
+	( min::vec_updptr & vp )
     {
-	vp.~updatable_vec_ptr();
-        new ( & vp ) min::updatable_vec_ptr();
+	vp.~vec_updptr();
+        new ( & vp ) min::vec_updptr();
     }
 
     inline min::gen * & unprotected::base
-	( min::updatable_vec_ptr & vp )
+	( min::vec_updptr & vp )
     {
 	return * (min::gen **) &
 	       min::unprotected::ptr_ref_of
@@ -5233,7 +5233,7 @@ namespace min {
     }
 
     inline void set_var
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value )
     {
 	index += vp.var_offset;
@@ -5243,7 +5243,7 @@ namespace min {
     }
 
     inline void set_hash
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value )
     {
 	index += vp.hash_offset;
@@ -5253,7 +5253,7 @@ namespace min {
     }
 
     inline void set_attr
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value )
     {
 	index += vp.attr_offset;
@@ -5263,7 +5263,7 @@ namespace min {
     }
 
     inline void set_aux
-	( min::updatable_vec_ptr & vp,
+	( min::vec_updptr & vp,
 	  min::unsptr index, min::gen value )
     {
 	index = vp.total_size - index;
@@ -5274,41 +5274,41 @@ namespace min {
     }
 
     inline void initialize
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::stub * s )
     {
-	vp.~insertable_vec_ptr();
-        new ( & vp ) min::insertable_vec_ptr ( s );
+	vp.~vec_insptr();
+        new ( & vp ) min::vec_insptr ( s );
     }
 
     inline void initialize
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen v )
     {
-	vp.~insertable_vec_ptr();
-        new ( & vp ) min::insertable_vec_ptr ( v );
+	vp.~vec_insptr();
+        new ( & vp ) min::vec_insptr ( v );
     }
 
     inline void deinitialize
-	( min::insertable_vec_ptr & vp )
+	( min::vec_insptr & vp )
     {
-	vp.~insertable_vec_ptr();
-        new ( & vp ) min::insertable_vec_ptr();
+	vp.~vec_insptr();
+        new ( & vp ) min::vec_insptr();
     }
 
     inline min::unsptr & unprotected::unused_offset_of
-	( min::insertable_vec_ptr & vp )
+	( min::vec_insptr & vp )
     {
         return vp.unused_offset;
     }
     inline min::unsptr & unprotected::aux_offset_of
-	( min::insertable_vec_ptr & vp )
+	( min::vec_insptr & vp )
     {
         return vp.aux_offset;
     }
 
     inline void attr_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen value )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
@@ -5318,7 +5318,7 @@ namespace min {
     }
 
     inline void attr_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  const min::gen * p, min::unsptr n )
     {
 	MIN_ASSERT
@@ -5331,7 +5331,7 @@ namespace min {
     }
 
     inline void aux_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen value )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
@@ -5340,7 +5340,7 @@ namespace min {
     }
 
     inline void aux_push
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  const min::gen * p, min::unsptr n )
     {
 	MIN_ASSERT
@@ -5352,7 +5352,7 @@ namespace min {
     }
 
     inline void attr_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen & v )
     {
 	MIN_ASSERT
@@ -5361,7 +5361,7 @@ namespace min {
     }
 
     inline void attr_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen * p, min::unsptr n )
     {
 	MIN_ASSERT
@@ -5374,7 +5374,7 @@ namespace min {
     }
 
     inline void aux_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen & v )
     {
 	MIN_ASSERT ( vp.aux_offset < vp.total_size );
@@ -5382,7 +5382,7 @@ namespace min {
     }
 
     inline void aux_pop
-	( min::insertable_vec_ptr & vp,
+	( min::vec_insptr & vp,
 	  min::gen * p, min::unsptr n )
     {
 	MIN_ASSERT
@@ -5429,11 +5429,11 @@ namespace min {
 	    < min::vec_ptr >
         list_ptr;
     typedef min::unprotected::list_ptr_type
-	    < min::updatable_vec_ptr >
-        updatable_list_ptr;
+	    < min::vec_updptr >
+        list_updptr;
     typedef min::unprotected::list_ptr_type
-	    < min::insertable_vec_ptr >
-        insertable_list_ptr;
+	    < min::vec_insptr >
+        list_insptr;
 
     // List constants.
 
@@ -5464,7 +5464,7 @@ namespace min { namespace internal {
     // Out of line versions of functions: see min.cc.
     //
     bool insert_reserve
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
 	      min::unsptr insertions,
 	      min::unsptr elements,
 	      bool use_obj_aux_stubs );
@@ -5566,7 +5566,7 @@ namespace min {
 	         ::list_ptr_type<vecpt2> & lp2 );
     template < class vecpt >
     min::gen start_sublist
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
     	      const min::unprotected
 	         ::list_ptr_type<vecpt> & lp2 );
 
@@ -5598,19 +5598,19 @@ namespace min {
 	      min::gen value );
 
     bool insert_reserve
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
 	      min::unsptr insertions,
 	      min::unsptr elements = 0,
 	      bool use_obj_aux_stubs =
 	          min::use_obj_aux_stubs );
     void insert_before
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
 	      const min::gen * p, min::unsptr n );
     void insert_after
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
 	      const min::gen * p, min::unsptr n );
     min::unsptr remove
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
 	      min::unsptr n = 1 );
 }
 
@@ -5618,12 +5618,12 @@ namespace min { namespace unprotected {
 
     template <>
 	class list_ptr_type
-	          <min::insertable_vec_ptr> {
+	          <min::vec_insptr> {
 
     public:
 
         list_ptr_type
-		( min::insertable_vec_ptr & vecp )
+		( min::vec_insptr & vecp )
 	    : vecp ( vecp ),
 	      base ( min::unprotected::base ( vecp ) ),
 	      hash_offset ( 0 ), total_size ( 0 )
@@ -5658,7 +5658,7 @@ namespace min { namespace unprotected {
 
     // Private Data:
 
-	min::insertable_vec_ptr & vecp;
+	min::vec_insptr & vecp;
 	min::gen * & base;
 	    // Vector pointer to object and base(vecp).
 
@@ -5858,75 +5858,75 @@ namespace min { namespace unprotected {
 
     // Friends:
 
-	friend min::insertable_vec_ptr &
+	friend min::vec_insptr &
 	    vec_ptr_of<>
-		( min::insertable_list_ptr & lp );
+		( min::list_insptr & lp );
 
 	friend min::gen min::start_hash<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  min::unsptr index );
 	friend min::gen min::start_vector<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  min::unsptr index );
 
 	friend min::gen start_copy<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::updatable_list_ptr & lp,
+		( min::list_updptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const
-		  min::updatable_list_ptr & lp2 );
+		  min::list_updptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 
 	friend min::gen min::next<>
-		( min::insertable_list_ptr & lp );
+		( min::list_insptr & lp );
 	friend min::gen min::peek<>
-		( min::insertable_list_ptr & lp );
+		( min::list_insptr & lp );
 	friend min::gen min::current<>
-		( min::insertable_list_ptr & lp );
+		( min::list_insptr & lp );
 	friend min::gen min::update_refresh<>
-		( min::insertable_list_ptr & lp );
+		( min::list_insptr & lp );
 	friend min::gen min::insert_refresh<>
-		( min::insertable_list_ptr & lp );
+		( min::list_insptr & lp );
 
 	friend void min::update<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  min::gen value );
 	friend bool min::insert_reserve
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  min::unsptr insertions,
 		  min::unsptr elements,
 		  bool use_obj_aux_stubs );
 	friend bool min::internal::insert_reserve
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  min::unsptr insertions,
 		  min::unsptr elements,
 		  bool use_obj_aux_stubs );
 	friend void min::insert_before
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const min::gen * p, min::unsptr n );
 	friend void min::insert_after
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const min::gen * p, min::unsptr n );
 	friend min::unsptr min::remove
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  min::unsptr n );
 
     // Private Helper Functions:
@@ -5995,8 +5995,8 @@ namespace min { namespace unprotected {
     };
 
     // The following is for min::list_ptrs and min::
-    // updatable_list_ptrs and is just like the class
-    // for min::insertable_list_ptrs except that the
+    // list_updptrs and is just like the class
+    // for min::list_insptrs except that the
     // previous pointer and the reservations are
     // omitted.
     //
@@ -6057,19 +6057,19 @@ namespace min { namespace unprotected {
 	friend min::gen start_copy<>
 		( min::list_ptr & lp,
 		  const
-		  min::updatable_list_ptr & lp2 );
+		  min::list_updptr & lp2 );
 	friend min::gen start_copy<>
 		( min::list_ptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 	friend min::gen start_copy<>
-		( min::updatable_list_ptr & lp,
+		( min::list_updptr & lp,
 		  const
-		  min::updatable_list_ptr & lp2 );
+		  min::list_updptr & lp2 );
 	friend min::gen start_copy<>
-		( min::updatable_list_ptr & lp,
+		( min::list_updptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
@@ -6078,31 +6078,31 @@ namespace min { namespace unprotected {
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
 		  const
-		  min::updatable_list_ptr & lp2 );
+		  min::list_updptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::updatable_list_ptr & lp,
+		( min::list_updptr & lp,
 		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::updatable_list_ptr & lp,
+		( min::list_updptr & lp,
 		  const
-		  min::updatable_list_ptr & lp2 );
+		  min::list_updptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::updatable_list_ptr & lp,
+		( min::list_updptr & lp,
 		  const
-		  min::insertable_list_ptr & lp2 );
+		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_sublist<>
-		( min::insertable_list_ptr & lp,
+		( min::list_insptr & lp,
 		  const
-		  min::updatable_list_ptr & lp2 );
+		  min::list_updptr & lp2 );
 
 	friend min::gen min::next<>
 		( min::unprotected
@@ -6121,7 +6121,7 @@ namespace min { namespace unprotected {
 		     ::list_ptr_type<vecpt> & lp );
 
 	friend void min::update<>
-		( min::updatable_list_ptr & lp,
+		( min::list_updptr & lp,
 		  min::gen value );
 
 	min::gen forward ( min::unsptr index )
@@ -6221,13 +6221,13 @@ namespace min {
     // start_copy is declared as a friend only for
     // legal combinations of list pointers, e.g.,
     //
-    // start_copy ( updatable_list_ptr & lp,
-    //		    insertable_list_ptr & lp2 )
+    // start_copy ( list_updptr & lp,
+    //		    list_insptr & lp2 )
     //
     // is allowed but
     //
-    // start_copy ( insertable_list_ptr & lp,
-    //		    updatable_list_ptr & lp2 )
+    // start_copy ( list_insptr & lp,
+    //		    list_updptr & lp2 )
     //
     // is not allowed (not a friend).
     //
@@ -6257,9 +6257,9 @@ namespace min {
 
     template <>
     inline min::gen start_copy
-            ( min::insertable_list_ptr & lp,
+            ( min::list_insptr & lp,
 	      const
-	      min::insertable_list_ptr & lp2 )
+	      min::list_insptr & lp2 )
     {
 	lp.hash_offset =
 	    min::unprotected
@@ -6343,7 +6343,7 @@ namespace min {
     }
     template <class vecpt>
     inline min::gen start_sublist
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
     	      const min::unprotected
 	         ::list_ptr_type<vecpt> & lp2 )
     {
@@ -6459,7 +6459,7 @@ namespace min {
     }
     template <>
     inline min::gen next
-    	    ( min::insertable_list_ptr & lp )
+    	    ( min::list_insptr & lp )
     {
         // The code of remove ( lp ) depends upon the
 	// fact that this function does not READ
@@ -6686,7 +6686,7 @@ namespace min {
 
     template <>
     inline min::gen insert_refresh
-    	    ( min::insertable_list_ptr & lp )
+    	    ( min::list_insptr & lp )
     {
 	min::unsptr new_hash_offset =
 	    min::unprotected
@@ -6747,7 +6747,7 @@ namespace min {
     //
     template <>
     inline void update
-    	    ( min::updatable_list_ptr & lp,
+    	    ( min::list_updptr & lp,
 	      min::gen value )
     {
         MIN_ASSERT ( value != min::LIST_END );
@@ -6776,7 +6776,7 @@ namespace min {
     }
     template <>
     inline void update
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
 	      min::gen value )
     {
         MIN_ASSERT ( value != min::LIST_END );
@@ -6809,7 +6809,7 @@ namespace min {
     }
 
     inline bool insert_reserve
-    	    ( min::insertable_list_ptr & lp,
+    	    ( min::list_insptr & lp,
 	      min::unsptr insertions,
 	      min::unsptr elements,
 	      bool use_obj_aux_stubs )
@@ -6869,11 +6869,11 @@ namespace min {
 	    < min::vec_ptr >
         attr_ptr;
     typedef min::unprotected::attr_ptr_type
-	    < min::updatable_vec_ptr >
-        updatable_attr_ptr;
+	    < min::vec_updptr >
+        attr_updptr;
     typedef min::unprotected::attr_ptr_type
-	    < min::insertable_vec_ptr >
-        insertable_attr_ptr;
+	    < min::vec_insptr >
+        attr_insptr;
 
 
     // We must declare these before we make them
@@ -6978,55 +6978,55 @@ namespace min {
 	          < vecpt > & ap,
 	      min::gen v );
     void set
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, min::unsptr n );
     void set
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v );
     void add_to_set
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, min::unsptr n );
     void add_to_set
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v );
     void add_to_multiset
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, min::unsptr n );
     void add_to_multiset
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v );
     min::unsptr remove_one
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, min::unsptr n );
     min::unsptr remove_one
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v );
     min::unsptr remove_all
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, min::unsptr n );
     min::unsptr remove_all
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v );
     void set_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n );
     void set_some_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n );
     void clear_some_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n );
     void flip_some_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n );
     bool set_flag
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      unsigned n );
     bool clear_flag
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      unsigned n );
     bool flip_flag
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      unsigned n );
 
     namespace internal {
@@ -7075,31 +7075,31 @@ namespace min {
 		      < vecpt > & ap,
 		  min::gen v );
 	void set
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, min::unsptr n );
 	void set_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	void set_more_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	void set_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	void clear_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	void flip_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	bool set_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 	bool clear_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 	bool flip_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 
 	// Create an attribute that does not exist and
@@ -7112,7 +7112,7 @@ namespace min {
 	// name.
 	//
 	void attr_create
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 
 	// Create a reverse attribute that does not
@@ -7122,7 +7122,7 @@ namespace min {
 	// point at the value-multiset.
 	//
 	void reverse_attr_create
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 
 	// Given a reverse attribute value v, remove it
@@ -7148,7 +7148,7 @@ namespace min {
 	// copy.
 	//
 	void remove_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 
 	// Ditto but specify O1 by a vector pointer vp
@@ -7157,8 +7157,8 @@ namespace min {
 	// ap.reverse_attr_name == ap.attr_name.
 	//
 	void remove_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
-		  min::insertable_vec_ptr & vp );
+		( min::attr_insptr & ap,
+		  min::vec_insptr & vp );
 
 	// Given a reverse attribute value v, add it
 	// to the object at the other end of the
@@ -7183,7 +7183,7 @@ namespace min {
 	// no second copy needs to be added.
 	//
 	void add_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 
 	// Ditto but specify O1 by a vector pointer vp
@@ -7192,8 +7192,8 @@ namespace min {
 	// ap.reverse_attr_name == ap.attr_name.
 	//
 	void add_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
-		  min::insertable_vec_ptr & vp );
+		( min::attr_insptr & ap,
+		  min::vec_insptr & vp );
     }
 
 }
@@ -7393,61 +7393,61 @@ namespace min { namespace unprotected {
 		( min::unprotected
 		     ::attr_ptr_type<vecpt> & ap );
 	friend min::gen min::update<>
-		( min::updatable_attr_ptr & ap,
+		( min::attr_updptr & ap,
 		  min::gen v );
 	friend min::gen min::update<>
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::set
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, min::unsptr n );
 	friend void min::set
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::add_to_set
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, min::unsptr n );
 	friend void min::add_to_set
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::add_to_multiset
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, min::unsptr n );
 	friend void min::add_to_multiset
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend min::unsptr min::remove_one
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, min::unsptr n );
 	friend min::unsptr min::remove_one
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend min::unsptr min::remove_all
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, min::unsptr n );
 	friend min::unsptr min::remove_all
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::set_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::set_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::clear_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::flip_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend bool min::set_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 	friend bool min::clear_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 	friend bool min::flip_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 
     #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
@@ -7488,54 +7488,54 @@ namespace min { namespace unprotected {
 		     ::attr_ptr_type<vecpt> & ap,
 		  min::gen v );
 	friend void min::internal::set
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, min::unsptr n );
 	friend void min::internal::set_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::internal::set_more_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::internal::set_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::internal::clear_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend void min::internal::flip_some_flags
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  const min::gen * in, unsigned n );
 	friend bool min::internal::set_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 	friend bool min::internal::clear_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 	friend bool min::internal::flip_flag
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  unsigned n );
 	friend void min::internal::attr_create
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::internal::reverse_attr_create
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::internal
 	               ::remove_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::internal
 	               ::remove_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
-		  min::insertable_vec_ptr & vp );
+		( min::attr_insptr & ap,
+		  min::vec_insptr & vp );
 	friend void min::internal
 	               ::add_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
+		( min::attr_insptr & ap,
 		  min::gen v );
 	friend void min::internal
 	               ::add_reverse_attr_value
-		( min::insertable_attr_ptr & ap,
-		  min::insertable_vec_ptr & vp );
+		( min::attr_insptr & ap,
+		  min::vec_insptr & vp );
     };
 
 } }
@@ -7973,10 +7973,10 @@ namespace min {
     }
 
     inline void set
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, min::unsptr n )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{
@@ -8023,10 +8023,10 @@ namespace min {
     }
 
     inline void set
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{
@@ -8068,10 +8068,10 @@ namespace min {
     }
 
     inline void add_to_set
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{
@@ -8107,19 +8107,19 @@ namespace min {
     }
 
     inline void add_to_multiset
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
 	add_to_multiset ( ap, & v, 1 );
     }
 
     inline min::unsptr remove_one
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
 	if ( v == min::NONE ) return 0;
 
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{
@@ -8159,12 +8159,12 @@ namespace min {
     }
 
     inline min::unsptr remove_all
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
 	if ( v == min::NONE ) return 0;
 
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{
@@ -8208,10 +8208,10 @@ namespace min {
     }
 
     inline void set_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n )
     {
-	typedef insertable_attr_ptr ap_type;
+	typedef attr_insptr ap_type;
 
 	min::gen c = update_refresh ( ap.locate_dlp );
 	switch ( ap.state )
@@ -8255,10 +8255,10 @@ namespace min {
     }
 
     inline void set_some_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n )
     {
-	typedef insertable_attr_ptr ap_type;
+	typedef attr_insptr ap_type;
 
 	min::gen c = update_refresh ( ap.locate_dlp );
 	switch ( ap.state )
@@ -8304,10 +8304,10 @@ namespace min {
     }
 
     inline void clear_some_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n )
     {
-	typedef insertable_attr_ptr ap_type;
+	typedef attr_insptr ap_type;
 
 	min::gen c = update_refresh ( ap.locate_dlp );
 	switch ( ap.state )
@@ -8350,10 +8350,10 @@ namespace min {
     }
 
     inline void flip_some_flags
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      const min::gen * in, unsigned n )
     {
-	typedef insertable_attr_ptr ap_type;
+	typedef attr_insptr ap_type;
 
 	min::gen c = update_refresh ( ap.locate_dlp );
 	switch ( ap.state )
@@ -8400,10 +8400,10 @@ namespace min {
     }
 
     inline bool set_flag
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      unsigned n )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{
@@ -8443,10 +8443,10 @@ namespace min {
     }
 
     inline bool clear_flag
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      unsigned n )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{
@@ -8487,10 +8487,10 @@ namespace min {
     }
 
     inline bool flip_flag
-	    ( min::insertable_attr_ptr & ap,
+	    ( min::attr_insptr & ap,
 	      unsigned n )
     {
-	typedef min::insertable_attr_ptr ap_type;
+	typedef min::attr_insptr ap_type;
 
 	switch ( ap.state )
 	{

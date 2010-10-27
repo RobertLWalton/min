@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 01:22:36 EDT 2010
+// Date:	Wed Oct 27 02:37:14 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -118,7 +118,7 @@ static min::gen create_object ( min::unsptr m )
     min::unsptr size = 2 + random_uns32() % m;
 
     min::gen obj = min::new_obj_gen ( size );
-    min::insertable_vec_ptr ep ( obj );
+    min::vec_insptr ep ( obj );
 
     for ( min::unsptr j = 0; j < size; ++ j )
 	min::attr_push ( ep, min::new_num_gen ( j ) );
@@ -139,7 +139,7 @@ static min::gen create_vec_of_objects
 
     min::gen obj = min::new_obj_gen ( n );
 
-    min::insertable_vec_ptr vp ( obj );
+    min::vec_insptr vp ( obj );
 
     for ( min::unsptr i = 0; i < n; ++ i )
         min::attr_push ( vp, create_object ( m ) );
@@ -159,7 +159,7 @@ static void random_deallocate
     bool print_save = min_assert_print;
     min_assert_print = false;
 
-    min::updatable_vec_ptr vp ( obj );
+    min::vec_updptr vp ( obj );
     min::unsptr size = min::attr_size_of ( vp );
     while ( n -- )
     {

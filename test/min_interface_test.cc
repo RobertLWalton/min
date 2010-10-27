@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 01:17:44 EDT 2010
+// Date:	Wed Oct 27 02:31:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2284,7 +2284,7 @@ void test_object_vector_level
     min::stub * sstub = MUP::stub_of ( v );
 
     {
-	min::insertable_vec_ptr vp ( sstub );
+	min::vec_insptr vp ( sstub );
 	MIN_ASSERT
 	    ( min::attr_size_of ( vp ) == 0 );
 	MIN_ASSERT
@@ -2521,10 +2521,10 @@ static bool use_obj_aux_stubs;
 static bool alternate_aux;
 static bool resize;  // Set true to resize just once.
 static void insert
-    ( min::insertable_list_ptr & wlp,
+    ( min::list_insptr & wlp,
       bool before, min::gen * p, unsigned n )
 {
-    min::insertable_vec_ptr & vp =
+    min::vec_insptr & vp =
         min::vec_ptr_of ( wlp );
     min::gen numtest = min::new_num_gen ( 123456789 );
     min::gen out;
@@ -2588,7 +2588,7 @@ void test_object_list_level
     ::alternate_aux = alternate_aux;
     ::resize = false;
 
-    min::insertable_vec_ptr vp ( v );
+    min::vec_insptr vp ( v );
 
     min::gen * & base = MUP::base ( vp );
 
@@ -2638,7 +2638,7 @@ void test_object_list_level
     MIN_ASSERT
 	( min::current ( lp ) == base[vorg+0] );
 
-    min::insertable_list_ptr wlp ( vp );
+    min::list_insptr wlp ( vp );
     min::start_vector ( wlp, 0 );
     insert ( wlp, false, p+2, 1 );
     insert ( wlp, false, p+1, 1 );
@@ -2666,7 +2666,7 @@ void test_object_list_level
     MIN_ASSERT
 	( min::is_sublist ( min::next ( wlp ) ) );
 
-    min::insertable_list_ptr wslp ( vp );
+    min::list_insptr wslp ( vp );
     min::start_copy ( wslp, wlp );
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
@@ -2828,7 +2828,7 @@ void test_object_list_level ( void )
 // differences.
 //
 static bool check_attr_info
-        ( min::insertable_attr_ptr & ap,
+        ( min::attr_insptr & ap,
 	  min::attr_info * aip, unsigned n )
 {
     bool save_min_assert_print = min_assert_print;
@@ -2896,7 +2896,7 @@ static int compare_gen
 // differences.
 //
 static bool check_values
-        ( min::insertable_attr_ptr & ap,
+        ( min::attr_insptr & ap,
 	  min::gen * p, unsigned n )
 {
     bool save_min_assert_print = min_assert_print;
@@ -2942,7 +2942,7 @@ static bool check_values
 // change that attribute.
 //
 void test_attribute_values
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  min::gen label1, min::gen label2 )
 {
     min_assert_print = false;
@@ -3022,7 +3022,7 @@ void test_attribute_values
 // differences.
 //
 static bool check_flags
-        ( min::insertable_attr_ptr & ap,
+        ( min::attr_insptr & ap,
 	  min::gen * p, unsigned n )
 {
     bool save_min_assert_print = min_assert_print;
@@ -3070,7 +3070,7 @@ static bool check_flags
 // occassionally, but do not change that attribute.
 //
 void test_attribute_flags
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  min::gen label1, min::gen label2,
 	  min::gen label3 )
 {
@@ -3189,7 +3189,7 @@ void test_attribute_flags
 // name rlabel2.
 //
 void test_reverse_attribute_values
-	( min::insertable_attr_ptr & ap,
+	( min::attr_insptr & ap,
 	  min::gen label1, min::gen rlabel1,
 	  min::gen label2,
 	  min::gen obj1, min::gen obj2, min::gen obj3 )
@@ -3265,8 +3265,8 @@ void test_object_attribute_level ( void )
 	 << endl;
 
     min::gen obj_gen = min::new_obj_gen ( 500, 100 );
-    min::insertable_vec_ptr vp ( obj_gen );
-    min::insertable_attr_ptr ap ( vp );
+    min::vec_insptr vp ( obj_gen );
+    min::attr_insptr ap ( vp );
 
     min::gen lab1 = min::new_str_gen ( "label1" );
     min::gen lab2 = min::new_str_gen ( "label2" );
