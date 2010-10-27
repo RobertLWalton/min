@@ -3286,7 +3286,7 @@ that give the index of the element relative to the end of the
 object body.  Auxiliary pointers with zero index do not address
 a body vector element.
 For more details see the {\tt var/\EOL hash/\EOL attr/\EOL aux}
-functions on \pagref{MIN::VAR_OF_VEC_PTR}, and their equivalents on
+functions on \pagref{MIN::VAR_OF_OBJ_VEC_PTR}, and their equivalents on
 \pagref{OBJECT-VECTOR-EQUIVALENTS}.
 
 An object may be grown or compacted by relocating and reorganizing its body.
@@ -3478,14 +3478,15 @@ usable as the index of auxiliary area element, so it
 can also be used as a form of null pointer.
 
 There are three kinds of vector level protected object pointers.
-A read-only {\tt min::\EOL vec\_\EOL pointer} permits read-only access to body
+A read-only {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
+permits read-only access to body
 vector elements.
 A read-write or updatable
-{\tt min::\EOL vec\_\EOL updptr}
+{\tt min::\EOL obj\_\EOL vec\_\EOL updptr}
 permits read-write access to body vector elements,
 but does not permit pushing or popping elements from the
 object's attribute vector or auxiliary area.
-An insertable {\tt min::\EOL vec\_\EOL insptr}
+An insertable {\tt min::\EOL obj\_\EOL vec\_\EOL insptr}
 does permit these pushes and pops, in addition to permitting
 read-write access to body vector elements.
 
@@ -3527,20 +3528,20 @@ by the {\tt min::\EOL publish\REL} function (\pagref{MIN::PUBLISH}).
 \subsubsubsection{Protected Object Vector Pointers}
 \label{PROTECTED-OBJECT-VECTOR-POINTERS}
 
-A read-only \minkey{vec\_\EOL pointer}
+A read-only \minkey{obj\_\EOL vec\_\EOL pointer}
 to the body vector of an object with stub \verb|s| or with
 general value \verb|v| pointing to its stub
 may be created by the following functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{vec\_ptr}\verb| vp ( min::gen v )|
-\LABEL{MIN::VEC_PTR_OF_GEN} \\
-\verb|(constructor) min::| & \MINKEY{vec\_ptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}\verb| vp ( min::gen v )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}%
        \verb| vp ( const min::stub * s )|
-\LABEL{MIN::VEC_PTR_OF_STUB} \\
-\verb|(constructor) min::| & \MINKEY{vec\_ptr}%
+\LABEL{MIN::OBJ_VEC_PTR_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}%
        \verb| vp ( void )|
-\LABEL{MIN::VEC_PTR_OF_VOID} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_VOID} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -3548,20 +3549,20 @@ may be created by the following functions:
 \verb|void min::|
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_ptr & vp,| \\
+      \verb| ( min::obj_vec_ptr & vp,| \\
       \verb|   min::gen v )| \\
       \end{tabular}
-\LABEL{MIN::INIT_OF_VEC_PTR_OF_GEN} \\
+\LABEL{MIN::INIT_OF_OBJ_VEC_PTR_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_ptr & vp,| \\
+      \verb| ( min::obj_vec_ptr & vp,| \\
       \verb|   const min::stub * s )| \\
       \end{tabular}
-\LABEL{MIN::INIT_OF_VEC_PTR_OF_STUB} \\
+\LABEL{MIN::INIT_OF_OBJ_VEC_PTR_OF_STUB} \\
 \verb|void min::|
-    & \MINKEY{deinitialize} \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::DEINIT_OF_VEC_PTR_OF_STUB} \\
+    & \MINKEY{deinitialize} \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::DEINIT_OF_OBJ_VEC_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
 The constructors point the new vector pointer at an object designated
@@ -3580,31 +3581,31 @@ Use of such a destructed pointer is undefined, but attempts to access
 object elements usually result in memory faults.
 
 The following protected functions may be used to discover information
-about the object pointed at by a read-only {\tt min::vec\_ptr}:
+about the object pointed at by a read-only {\tt min::obj\_vec\_ptr}:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
 \verb|const min::stub * min::| & \MINKEY{stub\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::STUB_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::STUB_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{var\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::VAR_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::VAR_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{hash\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::HASH_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::HASH_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{attr\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::ATTR_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::ATTR_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{unused\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::UNUSED_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::UNUSED_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{aux\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::AUX_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::AUX_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{total\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::TOTAL_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::TOTAL_SIZE_OF_OBJ_VEC_PTR} \\
 
 \end{tabular}\end{indpar}\label{OBJECT_SIZE_FUNCTIONS}
 
@@ -3618,17 +3619,17 @@ access to object elements:
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
 \verb|min::gen | & \MINKEY{var}%
-    \verb| ( min::vec_ptr & vp, min::unsptr index )|
-\LABEL{MIN::VAR_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp, min::unsptr index )|
+\LABEL{MIN::VAR_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{hash}%
-    \verb| ( min::vec_ptr & vp, min::unsptr index )|
-\LABEL{MIN::HASH_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp, min::unsptr index )|
+\LABEL{MIN::HASH_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{attr}%
-    \verb| ( min::vec_ptr & vp, min::unsptr index )|
-\LABEL{MIN::ATTR_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp, min::unsptr index )|
+\LABEL{MIN::ATTR_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{aux}%
-    \verb| ( min::vec_ptr & vp, min::unsptr aux_pointer )|
-\LABEL{MIN::AUX_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp, min::unsptr aux_pointer )|
+\LABEL{MIN::AUX_OF_OBJ_VEC_PTR} \\
 
 \end{tabular}\end{indpar}
 
@@ -3650,18 +3651,18 @@ so that an object body may be resized by simply
 expanding or contracting its unused area, without modifying
 the contents of the other parts of the object body.
 
-A \minkey{vec\_updptr} is like a \verb|min::vec_ptr|
+A \minkey{obj\_vec\_updptr} is like a \verb|min::obj_vec_ptr|
 but has additional functions which support writing object body vector
 elements.  The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{vec\_updptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_updptr}%
     \verb| vp ( min::gen v )|
 \LABEL{MIN::VEC_UPDPTR_OF_GEN} \\
-\verb|(constructor) min::| & \MINKEY{vec\_updptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_updptr}%
     \verb| vp ( min::stub * s )|
 \LABEL{MIN::VEC_UPDPTR_OF_STUB} \\
-\verb|(constructor) min::| & \MINKEY{vec\_updptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_updptr}%
     \verb| vp ( void )|
 \LABEL{MIN::VEC_UPDPTR_OF_VOID} \\
 
@@ -3671,20 +3672,20 @@ elements.  The additional functions for this type of pointer are:
 \verb|void min::|
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_updptr & vp,| \\
+      \verb| ( min::obj_vec_updptr & vp,| \\
       \verb|   min::gen v )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_VEC_UPDPTR_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_updptr & vp,| \\
+      \verb| ( min::obj_vec_updptr & vp,| \\
       \verb|   min::stub * s )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_VEC_UPDPTR_OF_STUB} \\
 \verb|void min::|
     & \MINKEY{deinitialize}%
-      \verb| ( min::vec_updptr & vp )|
+      \verb| ( min::obj_vec_updptr & vp )|
 \LABEL{MIN::DEINIT_OF_VEC_UPDPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
@@ -3692,28 +3693,28 @@ elements.  The additional functions for this type of pointer are:
 
 \verb|void min::| & \MINKEY{set\_var}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_updptr & vp,| \\
+      \verb| ( min::obj_vec_updptr & vp,| \\
       \verb|   min::unsptr index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_VAR_OF_VEC_UPDPTR} \\
 \verb|void min::| & \MINKEY{set\_hash}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_updptr & vp,| \\
+      \verb| ( min::obj_vec_updptr & vp,| \\
       \verb|   min::unsptr index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_HASH_OF_VEC_UPDPTR} \\
 \verb|void min::| & \MINKEY{set\_attr}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_updptr & vp,| \\
+      \verb| ( min::obj_vec_updptr & vp,| \\
       \verb|   min::unsptr index,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_ATTR_OF_VEC_UPDPTR} \\
 \verb|void min::| & \MINKEY{set\_aux}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_updptr & vp,| \\
+      \verb| ( min::obj_vec_updptr & vp,| \\
       \verb|   min::unsptr aux_pointer,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
@@ -3731,19 +3732,19 @@ Accumu\-la\-tor/\EOL Col\-lec\-tor/\EOL Com\-pac\-tor function
 (\pagref{MUP::ACC_WRITE_GEN_UPDATE}) that must
 be called when a \verb|min::gen| value is written into an object.
 
-A {\tt min::\EOL vec\_\EOL updptr} may be automatically
-downcast to a {\tt min::\EOL vec\_\EOL pointer}.  This means that
+A {\tt min::\EOL obj\_\EOL vec\_\EOL updptr} may be automatically
+downcast to a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}.  This means that
 all the non-constructor functions applicable to
-{\tt min::\EOL vec\_\EOL pointer}'s
+{\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s
 are applicable to
-{\tt min::\EOL vec\_\EOL updptr}'s.
+{\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s.
 Exceptions are destructors, the {\tt min::\EOL ini\-tial\-ize}
 functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
 downcast object vector pointer.
 
-A \minkey{vec\_insptr} is like a
-{\tt min::vec\_\EOL updptr}
+A \minkey{obj\_vec\_insptr} is like a
+{\tt min::obj\_\EOL vec\_\EOL updptr}
 but has additional functions which support pushing or popping elements
 from the end of the object body attribute vector or the beginning
 of the object body auxiliary area and resizing the unused area and
@@ -3751,13 +3752,13 @@ variables vector portions of the object body.
 The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{vec\_insptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_insptr}%
     \verb| vp ( min::gen v )|
 \LABEL{MIN::VEC_INSPTR_OF_GEN} \\
-\verb|(constructor) min::| & \MINKEY{vec\_insptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_insptr}%
     \verb| vp ( min::stub * s )|
 \LABEL{MIN::VEC_INSPTR_OF_STUB} \\
-\verb|(constructor) min::| & \MINKEY{vec\_insptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_insptr}%
     \verb| vp ( void )|
 \LABEL{MIN::VEC_INSPTR_OF_VOID} \\
 
@@ -3767,20 +3768,20 @@ The additional functions for this type of pointer are:
 \verb|void min::|
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::gen v )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_VEC_INSPTR_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::stub * s )| \\
       \end{tabular}
 \LABEL{MIN::INIT_OF_VEC_INSPTR_OF_STUB} \\
 \verb|void min::|
     & \MINKEY{deinitialize}%
-      \verb| ( min::vec_insptr & vp )|
+      \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::DEINIT_OF_VEC_INSPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
@@ -3788,26 +3789,26 @@ The additional functions for this type of pointer are:
 
 \verb|void min::| & \MINKEY{attr\_push}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::ATTR_PUSH_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{attr\_push}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   const min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
 
 \verb|void min::| & \MINKEY{aux\_push}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::AUX_PUSH_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{aux\_push}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   const min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::AUX_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
@@ -3818,26 +3819,26 @@ The additional functions for this type of pointer are:
 
 \verb|void min::| & \MINKEY{attr\_pop}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::gen & value )| \\
       \end{tabular}
 \LABEL{MIN::ATTR_POP_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{attr\_pop}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::ATTR_POP_MULTIPLE_OF_VEC_INSPTR} \\
 
 \verb|void min::| & \MINKEY{aux\_pop}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::gen & value )| \\
       \end{tabular}
 \LABEL{MIN::AUX_POP_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{aux\_pop}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::gen * p, min::unsptr n )| \\
       \end{tabular}
 \LABEL{MIN::AUX_POP_MULTIPLE_OF_VEC_INSPTR} \\
@@ -3848,13 +3849,13 @@ The additional functions for this type of pointer are:
 
 \verb|bool min::| & \MINKEY{resize\REL}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::unsptr unused_size )| \\
       \end{tabular}
 \LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{resize\REL}%
       \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::vec_insptr & vp,| \\
+      \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::unsptr unused_size,| \\
       \verb|   min::unsptr var_size )| \\
       \end{tabular}
@@ -3885,7 +3886,7 @@ area size is smaller
 than the number of {\tt min::gen} values being pushed.
 The size of the unused area can be determined by the
 \verb|min::unused_size_of| function
-(\pagref{MIN::UNUSED_SIZE_OF_VEC_PTR}).
+(\pagref{MIN::UNUSED_SIZE_OF_OBJ_VEC_PTR}).
 These push functions invoke the
 {\tt min::\EOL acc\_\EOL write\_\EOL update}
 Accumu\-la\-tor/\EOL Col\-lec\-tor/\EOL Com\-pac\-tor function
@@ -3919,13 +3920,13 @@ does not have enough information to do this.  The hash table can be
 resized at the
 attribute level (\pagref{MIN::RESIZE_OF_ATTR}).
 
-A {\tt min::\EOL vec\_\EOL insptr} may be automatically
-downcast to either a {\tt min::\EOL vec\_\EOL updptr}
-or a {\tt min::\EOL vec\_\EOL ptr}.  This means that
+A {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} may be automatically
+downcast to either a {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}
+or a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}.  This means that
 all the non-constructor functions applicable to
-{\tt min::\EOL vec\_\EOL updptr}'s or
-{\tt min::\EOL vec\_\EOL ptr}'s are applicable to
-{\tt min::\EOL vec\_\EOL insptr}'s.
+{\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s or
+{\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
+{\tt min::\EOL obj\_\EOL vec\_\EOL insptr}'s.
 Exceptions are destructors, the {\tt min::\EOL ini\-tial\-ize}
 functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
@@ -3941,45 +3942,45 @@ required functions are:
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
 \verb|const min::gen * & MUP::| & \MUPKEY{base}%
-    \verb| ( min::vec_ptr & v )|
-\LABEL{MUP::BASE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & v )|
+\LABEL{MUP::BASE_OF_OBJ_VEC_PTR} \\
 \verb|min::gen * & MUP::| & \MUPKEY{base}%
-    \verb| ( min::vec_updptr & v )|
+    \verb| ( min::obj_vec_updptr & v )|
 \LABEL{MUP::BASE_OF_VEC_UPDPTR} \\
 
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
-\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::STUB_OF_VEC_PTR} \\
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::STUB_OF_OBJ_VEC_PTR} \\
 
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
 \verb|min::unsptr MUP::| & \MUPKEY{var\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::VAR_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::VAR_OFFSET_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr MUP::| & \MUPKEY{attr\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::ATTR_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::ATTR_OFFSET_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr MUP::| & \MUPKEY{unused\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::UNUSED_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::UNUSED_OFFSET_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr MUP::| & \MUPKEY{aux\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::AUX_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::AUX_OFFSET_OF_OBJ_VEC_PTR} \\
 
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
 \verb|min::unsptr & MUP::| & \MUPKEY{unused\_offset\_of}\ARGBREAK
-    \verb| ( min::vec_insptr & vp )|
+    \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MUP::UNUSED_OFFSET_OF_VEC_INSPTR} \\
 \verb|min::unsptr & MUP::| & \MUPKEY{aux\_offset\_of}\ARGBREAK
-    \verb| ( min::vec_insptr & vp )|
+    \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MUP::AUX_OFFSET_OF_VEC_INSPTR} \\
 
 \end{tabular}\end{indpar}
@@ -4007,7 +4008,7 @@ change, including the header size.
 
 Note that the {\tt min::\EOL unused\_\EOL offset\_\EOL of} and
 {\tt min::\EOL aux\_\EOL offset\_\EOL of} functions for a
-{\tt min::\EOL vec\_\EOL insptr} return an
+{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} return an
 lvalue.  For insertable pointers these offsets change when
 values are pushed into or popped from the attribute vector or
 auxiliary area.
@@ -4237,10 +4238,10 @@ read-write access to elements.
 
 Note that unlike vector pointers, you \underline{cannot} downcast more capable
 list pointers to less capable list pointers.  E.g., an
-{\tt min::\EOL vec\_\EOL insptr} may be
+{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} may be
 explicitly or implicitly downcast to an
-{\tt min::\EOL vec\_\EOL updptr}
-or {\tt min::\EOL vec\_\EOL pointer}, but 
+{\tt min::\EOL obj\_\EOL vec\_\EOL updptr}
+or {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}, but 
 a {\tt min::\EOL list\_\EOL insptr} may \underline{not} be
 explicitly or implicitly downcast to an
 {\tt min::\EOL updat\-able\_\EOL list\_\EOL pointer}
@@ -4250,11 +4251,11 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{list\_ptr}\verb| lp ( min::vec_ptr & vp )|
-\LABEL{MIN::LIST_PTR_OF_VEC_PTR} \\
-\verb|min::vec_ptr & min::|
-	& \MINKEY{vec\_ptr\_of}\verb| ( min::list_ptr & lp )|
-\LABEL{MIN::VEC_PTR_OF_LIST_PTR} \\
+	& \MINKEY{list\_ptr}\verb| lp ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::LIST_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::obj_vec_ptr & min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\verb| ( min::list_ptr & lp )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_LIST_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
@@ -4508,13 +4509,13 @@ from lists.  The functions for using this are:
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
 	& \MINKEY{list\_updptr} \verb|lp| \\
-	& \verb|    ( min::vec_updptr & vp )|
+	& \verb|    ( min::obj_vec_updptr & vp )|
 \LABEL{MIN::LIST_UPDPTR_OF_VEC_UPDPTR} \\
-\multicolumn{2}{@{}l}{\tt min::vec\_updptr \&} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
 \verb|min::|
-	& \MINKEY{vec\_ptr\_of} \\
+	& \MINKEY{obj\_vec\_ptr\_of} \\
 	& \verb|    ( min::list_updptr & lp )|
-\LABEL{MIN::VEC_PTR_OF_LIST_UPDPTR} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_LIST_UPDPTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
@@ -4636,13 +4637,13 @@ The functions defined for this are:
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
 	& \MINKEY{list\_insptr} \verb|lp| \\
-	& \verb|    ( min::vec_insptr & vp )|
+	& \verb|    ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::LIST_INSPTR_OF_VEC_INSPTR} \\
-\multicolumn{2}{@{}l}{\tt min::vec\_insptr \&} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
 \verb|min::|
-	& \MINKEY{vec\_ptr\_of} \\
+	& \MINKEY{obj\_vec\_ptr\_of} \\
 	& \verb|    ( min::list_insptr & lp )|
-\LABEL{MIN::VEC_PTR_OF_LIST_INSPTR} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_LIST_INSPTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
@@ -4958,13 +4959,13 @@ The various list pointer types are instances of
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|typedef MUP::|
-	& \verb|list_ptr_type<min::vec_ptr>|\ARGBREAK
+	& \verb|list_ptr_type<min::obj_vec_ptr>|\ARGBREAK
 	  \verb|min::|\MINKEY{list\_ptr}\verb|;| \\
 \verb|typedef MUP::|
-	& \verb|list_ptr_type<min::vec_updptr>|\ARGBREAK
+	& \verb|list_ptr_type<min::obj_vec_updptr>|\ARGBREAK
 	  \verb|min::|\MINKEY{list\_updptr}\verb|;| \\
 \verb|typedef MUP::|
-	& \verb|list_ptr_type<min::vec_insptr>|\ARGBREAK
+	& \verb|list_ptr_type<min::obj_vec_insptr>|\ARGBREAK
 	  \verb|min::|\MINKEY{list\_insptr}\verb|;| \\
 \end{tabular}\end{indpar}
 
@@ -5502,8 +5503,8 @@ are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
-	& \MUPKEY{attr\_ptr}\verb| ap ( min::vec_ptr & vp )|
-\LABEL{MUP::ATTR_PTR_OF_VEC_PTR} \\
+	& \MUPKEY{attr\_ptr}\verb| ap ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::ATTR_PTR_OF_OBJ_VEC_PTR} \\
 \verb|void min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -5589,7 +5590,7 @@ are:
 \verb|min::attr_info_vec | & 
                        \verb|min::|\MINKEY{attr\_info\_vec\_type}
 \LABEL{MIN::ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::attr_info_vec::pointer| \ARGBREAK
+\verb|typedef | & \verb|min::attr_info_vec::ptr| \ARGBREAK
                        \verb|min::|\MINKEY{attr\_info\_ptr}
 \LABEL{MIN::ATTR_INFO_PTR} \\
 \verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
@@ -5614,7 +5615,7 @@ are:
 \verb|min::reverse_attr_info_vec | & 
                        \verb|min::|\MINKEY{reverse\_attr\_info\_vec\_type}
 \LABEL{MIN::REVERSE_ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::reverse_attr_info_vec::pointer| \ARGBREAK
+\verb|typedef | & \verb|min::reverse_attr_info_vec::ptr| \ARGBREAK
                        \verb|min::|\MINKEY{reverse\_attr\_info\_ptr}
 \LABEL{MIN::REVERSE_ATTR_INFO_PTR} \\
 \verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
@@ -5830,7 +5831,7 @@ are:
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{attr\_updptr} \verb|ap|\ARGBREAK
-	  \verb| ( min::vec_updptr & vp )|
+	  \verb| ( min::obj_vec_updptr & vp )|
 \LABEL{MUP::ATTR_UPDPTR_OF_VEC_UPDPTR} \\
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
@@ -5924,7 +5925,7 @@ are:
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
 	& \MUPKEY{attr\_insptr} \verb|ap|\ARGBREAK
-	  \verb| ( min::vec_insptr & vp )|
+	  \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MUP::ATTR_INSPTR_OF_VEC_INSPTR} \\
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
@@ -8018,88 +8019,88 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{vec\_ptr}\verb| vp ( min::gen v )|
-\LABEL{MIN::VEC_PTR_OF_GEN} \\
-\verb|(constructor) min::| & \MINKEY{vec\_ptr}%
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}\verb| vp ( min::gen v )|
+\LABEL{MIN::OBJ_VEC_PTR_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}%
        \verb| vp ( const min::stub * s )|
-\LABEL{MIN::VEC_PTR_OF_STUB} \\
-\verb|(constructor) min::| & \MINKEY{vec\_ptr}%
+\LABEL{MIN::OBJ_VEC_PTR_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{obj\_vec\_ptr}%
        \verb| vp ( void )|
-\LABEL{MIN::VEC_PTR_OF_VOID} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_VOID} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
-      \verb| ( min::vec_ptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_ptr & vp,|\ARGBREAK
       \verb|   min::gen v )|
-\LABEL{MIN::INIT_OF_VEC_PTR_OF_GEN} \\
+\LABEL{MIN::INIT_OF_OBJ_VEC_PTR_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
-      \verb| ( min::vec_ptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_ptr & vp,|\ARGBREAK
       \verb|   const min::stub * s )|
-\LABEL{MIN::INIT_OF_VEC_PTR_OF_STUB} \\
+\LABEL{MIN::INIT_OF_OBJ_VEC_PTR_OF_STUB} \\
 \verb|void min::|
-    & \MINKEY{deinitialize} \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::DEINIT_OF_VEC_PTR_OF_STUB} \\
+    & \MINKEY{deinitialize} \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::DEINIT_OF_OBJ_VEC_PTR_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.0in}
 \verb|const min::stub * min::| & \MINKEY{stub\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::STUB_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::STUB_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{var\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::VAR_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::VAR_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{hash\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::HASH_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::HASH_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{attr\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::ATTR_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::ATTR_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{unused\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::UNUSED_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::UNUSED_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{aux\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::AUX_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::AUX_SIZE_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{total\_size\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::TOTAL_SIZE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::TOTAL_SIZE_OF_OBJ_VEC_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|min::gen | & \MINKEY{var}\ARGBREAK
-    \verb| ( min::vec_ptr & vp,|\ARGBREAK
+    \verb| ( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|   min::unsptr index )|
-\LABEL{MIN::VAR_OF_VEC_PTR} \\
+\LABEL{MIN::VAR_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{hash}\ARGBREAK
-    \verb| ( min::vec_ptr & vp,|\ARGBREAK
+    \verb| ( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|   min::unsptr index )|
-\LABEL{MIN::HASH_OF_VEC_PTR} \\
+\LABEL{MIN::HASH_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{attr}\ARGBREAK
-    \verb| ( min::vec_ptr & vp,|\ARGBREAK
+    \verb| ( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|   min::unsptr index )|
-\LABEL{MIN::ATTR_OF_VEC_PTR} \\
+\LABEL{MIN::ATTR_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{aux}\ARGBREAK
-    \verb| ( min::vec_ptr & vp,|\ARGBREAK
+    \verb| ( min::obj_vec_ptr & vp,|\ARGBREAK
     \verb|   min::unsptr aux_pointer )|
-\LABEL{MIN::AUX_OF_VEC_PTR} \\
+\LABEL{MIN::AUX_OF_OBJ_VEC_PTR} \\
 \end{TABULAR}
 
 \bigskip
 
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::|
-    & \MINKEY{vec\_updptr} \verb|vp|\ARGBREAK
+    & \MINKEY{obj\_vec\_updptr} \verb|vp|\ARGBREAK
     \verb| ( min::gen v )|
 \LABEL{MIN::VEC_UPDPTR_OF_GEN} \\
 \verb|(constructor) min::|
-    & \MINKEY{vec\_updptr} \verb|vp|\ARGBREAK%
+    & \MINKEY{obj\_vec\_updptr} \verb|vp|\ARGBREAK%
     \verb| ( min::stub * s )|
 \LABEL{MIN::VEC_UPDPTR_OF_STUB} \\
 \verb|(constructor) min::|
-    & \MINKEY{vec\_updptr} \verb|vp|\ARGBREAK%
+    & \MINKEY{obj\_vec\_updptr} \verb|vp|\ARGBREAK%
     \verb| ( void )|
 \LABEL{MIN::VEC_UPDPTR_OF_VOID} \\
 \end{TABULAR}
@@ -8107,38 +8108,38 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
-      \verb| ( min::vec_updptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp,|\ARGBREAK
       \verb|   min::gen v )|
 \LABEL{MIN::INIT_OF_VEC_UPDPTR_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
-      \verb| ( min::vec_updptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp,|\ARGBREAK
       \verb|   min::stub * s )|
 \LABEL{MIN::INIT_OF_VEC_UPDPTR_OF_STUB} \\
 \verb|void min::|
     & \MINKEY{deinitialize}\ARGBREAK
-      \verb| ( min::vec_updptr & vp )|
+      \verb| ( min::obj_vec_updptr & vp )|
 \LABEL{MIN::DEINIT_OF_VEC_UPDPTR_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{set\_var}\ARGBREAK
-      \verb| ( min::vec_updptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp,|\ARGBREAK
       \verb|   min::unsptr index,|\ARGBREAK
       \verb|   min::gen value )|
 \LABEL{MIN::SET_VAR_OF_VEC_UPDPTR} \\
 \verb|void min::| & \MINKEY{set\_hash}\ARGBREAK
-      \verb| ( min::vec_updptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp,|\ARGBREAK
       \verb|   min::unsptr index,|\ARGBREAK
       \verb|   min::gen value )|
 \LABEL{MIN::SET_HASH_OF_VEC_UPDPTR} \\
 \verb|void min::| & \MINKEY{set\_attr}\ARGBREAK
-      \verb| ( min::vec_updptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp,|\ARGBREAK
       \verb|   min::unsptr index,|\ARGBREAK
       \verb|   min::gen value )|
 \LABEL{MIN::SET_ATTR_OF_VEC_UPDPTR} \\
 \verb|void min::| & \MINKEY{set\_aux}\ARGBREAK
-      \verb| ( min::vec_updptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp,|\ARGBREAK
       \verb|   min::unsptr aux_pointer,|\ARGBREAK
       \verb|   min::gen value )|
 \LABEL{MIN::SET_AUX_OF_VEC_UPDPTR} \\
@@ -8148,15 +8149,15 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::|
-    & \MINKEY{vec\_insptr} \verb|vp|\ARGBREAK
+    & \MINKEY{obj\_vec\_insptr} \verb|vp|\ARGBREAK
     \verb| ( min::gen v )|
 \LABEL{MIN::VEC_INSPTR_OF_GEN} \\
 \verb|(constructor) min::|
-    & \MINKEY{vec\_insptr} \verb|vp|\ARGBREAK%
+    & \MINKEY{obj\_vec\_insptr} \verb|vp|\ARGBREAK%
     \verb| ( min::stub * s )|
 \LABEL{MIN::VEC_INSPTR_OF_STUB} \\
 \verb|(constructor) min::|
-    & \MINKEY{vec\_insptr} \verb|vp|\ARGBREAK%
+    & \MINKEY{obj\_vec\_insptr} \verb|vp|\ARGBREAK%
     \verb| ( void )|
 \LABEL{MIN::VEC_INSPTR_OF_VOID} \\
 \end{TABULAR}
@@ -8164,67 +8165,67 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.2in}
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::gen v )|
 \LABEL{MIN::INIT_OF_VEC_INSPTR_OF_GEN} \\
 \verb|void min::|
     & \MINKEY{initialize}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::stub * s )|
 \LABEL{MIN::INIT_OF_VEC_INSPTR_OF_STUB} \\
 \verb|void min::|
     & \MINKEY{deinitialize}\ARGBREAK
-      \verb| ( min::vec_insptr & vp )|
+      \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::DEINIT_OF_VEC_INSPTR_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{attr\_push}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::gen value )|
 \LABEL{MIN::ATTR_PUSH_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{attr\_push}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   const min::gen * p, min::unsptr n )|
 \LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
 
 \verb|void min::| & \MINKEY{aux\_push}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::gen value )|
 \LABEL{MIN::AUX_PUSH_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{aux\_push}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   const min::gen * p, min::unsptr n )|
 \LABEL{MIN::AUX_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{attr\_pop}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::gen & value )|
 \LABEL{MIN::ATTR_POP_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{attr\_pop}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::gen * p, min::unsptr n )|
 \LABEL{MIN::ATTR_POP_MULTIPLE_OF_VEC_INSPTR} \\
 
 \verb|void min::| & \MINKEY{aux\_pop}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::gen & value )|
 \LABEL{MIN::AUX_POP_OF_VEC_INSPTR} \\
 \verb|void min::| & \MINKEY{aux\_pop}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::gen * p, min::unsptr n )|
 \LABEL{MIN::AUX_POP_MULTIPLE_OF_VEC_INSPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
 \verb|bool min::| & \MINKEY{resize\REL}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::unsptr unused_size )|
 \LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
 \verb|bool min::| & \MINKEY{resize\REL}\ARGBREAK
-      \verb| ( min::vec_insptr & vp,|\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
       \verb|   min::unsptr unused_size,|\ARGBREAK
       \verb|   min::unsptr var_size )|
 \LABEL{MIN::RESIZE_UNUSED_AND_VAR_OF_VEC_INSPTR} \\
@@ -8238,39 +8239,39 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.2in}
 \verb|const min::gen * & MUP::| & \MUPKEY{base}\ARGBREAK
-    \verb| ( min::vec_ptr & v )|
-\LABEL{MUP::BASE_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & v )|
+\LABEL{MUP::BASE_OF_OBJ_VEC_PTR} \\
 \verb|min::gen * & MUP::| & \MUPKEY{base}\ARGBREAK
-    \verb| ( min::vec_updptr & v )|
+    \verb| ( min::obj_vec_updptr & v )|
 \LABEL{MUP::BASE_OF_VEC_UPDPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::STUB_OF_VEC_PTR} \\
+\verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::STUB_OF_OBJ_VEC_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 \verb|min::unsptr MUP::| & \MUPKEY{var\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::VAR_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::VAR_OFFSET_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr MUP::| & \MUPKEY{attr\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::ATTR_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::ATTR_OFFSET_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr MUP::| & \MUPKEY{unused\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::UNUSED_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::UNUSED_OFFSET_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr MUP::| & \MUPKEY{aux\_offset\_of}%
-    \verb| ( min::vec_ptr & vp )|
-\LABEL{MUP::AUX_OFFSET_OF_VEC_PTR} \\
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MUP::AUX_OFFSET_OF_OBJ_VEC_PTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr & MUP::| & \MUPKEY{unused\_offset\_of}\ARGBREAK
-    \verb| ( min::vec_insptr & vp )|
+    \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MUP::UNUSED_OFFSET_OF_VEC_INSPTR} \\
 \verb|min::unsptr & MUP::| & \MUPKEY{aux\_offset\_of}\ARGBREAK
-    \verb| ( min::vec_insptr & vp )|
+    \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MUP::AUX_OFFSET_OF_VEC_INSPTR} \\
 \end{TABULAR}
 
@@ -8305,12 +8306,12 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{2.2in}
 (constructor)~\verb|min::|
 	& \MINKEY{list\_ptr} \verb|lp|\ARGBREAK
-	  \verb| ( min::vec_ptr & vp )|
-\LABEL{MIN::LIST_PTR_OF_VEC_PTR} \\
-\verb|min::vec_ptr & min::|
-	& \MINKEY{vec\_ptr\_of}\ARGBREAK
+	  \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::LIST_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::obj_vec_ptr & min::|
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
 	  \verb| ( min::list_ptr & lp )|
-\LABEL{MIN::VEC_PTR_OF_LIST_PTR} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_LIST_PTR} \\
 \end{TABULAR}
 
 \medskip
@@ -8416,13 +8417,13 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.6in}
 (constructor)~\verb|min::|
 	& \MINKEY{list\_updptr} \verb|lp|\ARGBREAK
-	  \verb| ( min::vec_updptr & vp )|
+	  \verb| ( min::obj_vec_updptr & vp )|
 \LABEL{MIN::LIST_UPDPTR_OF_VEC_UPDPTR} \\
-\multicolumn{2}{@{}l}{\tt min::vec\_updptr \&} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
 \verb|min::|
-	& \MINKEY{vec\_ptr\_of}\ARGBREAK
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
 	  \verb| ( min::list_updptr & lp )|
-\LABEL{MIN::VEC_PTR_OF_LIST_UPDPTR} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_LIST_UPDPTR} \\
 \end{TABULAR}
 
 \medskip
@@ -8527,13 +8528,13 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{list\_insptr} \verb|lp|\ARGBREAK
-	  \verb| ( min::vec_insptr & vp )|
+	  \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::LIST_INSPTR_OF_VEC_INSPTR} \\
-\multicolumn{2}{@{}l}{\tt min::vec\_insptr \&} \\
+\multicolumn{2}{@{}l}{\tt min::obj\_vec\_insptr \&} \\
 \verb|min::|
-	& \MINKEY{vec\_ptr\_of}\ARGBREAK
+	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK
 	  \verb| ( min::list_insptr & lp )|
-\LABEL{MIN::VEC_PTR_OF_LIST_INSPTR} \\
+\LABEL{MIN::OBJ_VEC_PTR_OF_LIST_INSPTR} \\
 \end{TABULAR}
 
 \medskip
