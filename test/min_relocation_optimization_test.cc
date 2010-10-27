@@ -2,7 +2,7 @@
 //
 // File:	min_relocation_optimization_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 29 07:57:35 EST 2009
+// Date:	Wed Oct 27 01:23:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,7 +36,7 @@ void do_something ( void );
 
 inline int * vec ( const min::stub * s )
 {
-    return (int *) MUP::pointer_of ( s );
+    return (int *) MUP::ptr_of ( s );
 }
 
 // Function receiving const min:stub *.

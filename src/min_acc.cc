@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 15 01:56:00 EDT 2010
+// Date:	Wed Oct 27 01:21:26 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -928,7 +928,7 @@ void MINT::new_fixed_body
 
     b->block_control = MUP::renew_control_stub
         ( b->block_control, s );
-    MUP::set_pointer_of ( s, & b->block_control + 1 );
+    MUP::set_ptr_of ( s, & b->block_control + 1 );
     MUP::set_flags_of ( s, ACC_FIXED_BODY_FLAG );
 }
 
@@ -1040,7 +1040,7 @@ void MINT::new_non_fixed_body
 	    new_paged_body ( s, n ) :
 	    new_mono_body ( s, n );
 
-    MUP::set_pointer_of ( s, body );
+    MUP::set_ptr_of ( s, body );
 }
 
 void MUP::deallocate_body
@@ -1049,7 +1049,7 @@ void MUP::deallocate_body
     if ( n == 0 ) return;
 
     min::uns64 * bp =
-        (min::uns64 *) MUP::pointer_of ( s ) - 1;
+        (min::uns64 *) MUP::ptr_of ( s ) - 1;
     MACC::region * r = MACC::region_of_body ( bp );
     assert ( s == MACC::stub_of_body ( bp ) );
 
@@ -1084,7 +1084,7 @@ void MUP::deallocate_body
 	r->free_size += n;
     }
 
-    MUP::set_pointer_of ( s, MACC::deallocated_body );
+    MUP::set_ptr_of ( s, MACC::deallocated_body );
     MUP::set_type_of ( s, min::DEALLOCATED );
 }
 

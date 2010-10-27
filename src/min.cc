@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 26 03:30:02 EDT 2010
+// Date:	Wed Oct 27 01:12:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -264,8 +264,8 @@ int min::compare ( min::gen v1, min::gen v2 )
     {
         if ( is_num ( v2 ) ) return +1;
         else if ( ! is_str ( v2 ) ) return -1;
-	str_pointer p1 ( v1 );
-	str_pointer p2 ( v2 );
+	str_ptr p1 ( v1 );
+	str_ptr p2 ( v2 );
 	return ::strcmp ( unprotected::str_of ( p1 ),
 	                  unprotected::str_of ( p2 ) );
     }
@@ -275,8 +275,8 @@ int min::compare ( min::gen v1, min::gen v2 )
         if ( is_num ( v2 ) ) return +1;
 	else if ( is_str ( v2 ) ) return +1;
         else if ( ! is_lab ( v2 ) ) return -1;
-	lab_pointer lp1 ( v1 );
-	lab_pointer lp2 ( v2 );
+	lab_ptr lp1 ( v1 );
+	lab_ptr lp2 ( v2 );
 	unsptr len1 = length_of ( lp1 );
 	unsptr len2 = length_of ( lp2 );
 	for ( unsptr i = 0; i < len1; ++ i )
@@ -324,7 +324,7 @@ std::ostream & operator <<
     }
     else if ( min::is_str ( v ) )
     {
-        min::unprotected::str_pointer sp ( v );
+        min::unprotected::str_ptr sp ( v );
         return out << f.str_prefix
 	           << min::unprotected::str_of ( sp )
 		   << f.str_postfix;
@@ -332,7 +332,7 @@ std::ostream & operator <<
     else if ( min::is_lab ( v ) )
     {
 	min::unprotected
-	   ::lab_pointer labp ( MUP::stub_of ( v ) );
+	   ::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::length_of ( labp );
 	out << f.lab_prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
@@ -499,7 +499,7 @@ static void lab_scavenger_routine
     if ( next > 0 ) -- next;
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
-    min::lab_pointer labp ( sc.s1 );
+    min::lab_ptr labp ( sc.s1 );
     while ( next < min::length_of ( labp ) )
     {
         if ( sc.gen_count >= sc.gen_limit )
@@ -562,8 +562,8 @@ static void lab_scavenger_routine
 static void packed_struct_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    min::uns8 * beginp = (min::uns8 *)
-        MUP::pointer_of ( sc.s1 );
+    min::uns8 * beginp =
+        (min::uns8 *) MUP::ptr_of ( sc.s1 );
     min::uns32 type = * ( min::uns32 *) beginp;
     type &= MINT::packed_type_index_mask;
     MIN_ASSERT ( type < MINT::packed_type_count);
@@ -701,8 +701,8 @@ static void packed_vec_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
 
-    min::uns8 * beginp = (min::uns8 *)
-        MUP::pointer_of ( sc.s1 );
+    min::uns8 * beginp =
+        (min::uns8 *) MUP::ptr_of ( sc.s1 );
     min::uns32 index = * ( min::uns32 *) beginp;
     index &= MINT::packed_type_index_mask;
     MIN_ASSERT ( index < MINT::packed_type_count);
@@ -962,7 +962,7 @@ static void packed_vec_scavenger_routine
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    min::vec_pointer vp ( sc.s1 );
+    min::vec_ptr vp ( sc.s1 );
     min::unsptr next;
     if ( sc.state <= MUP::var_offset_of ( vp ) )
         next = MUP::var_offset_of ( vp );
@@ -1137,7 +1137,7 @@ void MINT::thread_scavenger_routine
 	while ( s != MINT::null_stub )
 	{
 	    min::stub * s2 =
-	        (min::stub *) MUP::pointer_of ( s );
+	        (min::stub *) MUP::ptr_of ( s );
 	    s = (min::stub *)
 		MUP::stub_of_control
 		    ( MUP::control_of ( s ) );
@@ -1157,7 +1157,7 @@ void MINT::thread_scavenger_routine
 	MUP::set_type_of ( s2, min::NUMBER );
 
 	s = MUP::new_aux_stub ();
-	MUP::set_pointer_of ( s, s2 );
+	MUP::set_ptr_of ( s, s2 );
 	MUP::set_control_of
 	    ( s,
 	      MUP::new_control_with_type
@@ -1436,7 +1436,7 @@ min::gen MINT::new_str_stub_gen
     while ( s != MINT::null_stub )
     {
 	min::stub * s2 =
-	    (min::stub *) MUP::pointer_of ( s );
+	    (min::stub *) MUP::ptr_of ( s );
 	s = (min::stub *)
 	    MUP::stub_of_control
 		( MUP::control_of ( s ) );
@@ -1491,7 +1491,7 @@ min::gen MINT::new_str_stub_gen
     }
 
     s = MUP::new_aux_stub ();
-    MUP::set_pointer_of ( s, s2 );
+    MUP::set_ptr_of ( s, s2 );
     MUP::set_control_of
 	( s,
 	  MUP::new_control_with_type
@@ -1548,7 +1548,7 @@ min::gen min::new_lab_gen
 	s = MUP::stub_of_acc_control
 		( MUP::control_of ( s ) );
 
-	lab_pointer labp ( s2 );
+	lab_ptr labp ( s2 );
 
 	if ( hash != hash_of ( labp ) ) continue;
 	if ( n != length_of ( labp ) ) continue;
@@ -1568,11 +1568,11 @@ min::gen min::new_lab_gen
     while ( s != MINT::null_stub )
     {
         min::stub * s2 =
-	    (min::stub *) MUP::pointer_of ( s );
+	    (min::stub *) MUP::ptr_of ( s );
 	s = MUP::stub_of_control
 		    ( MUP::control_of ( s ) );
 
-	lab_pointer labp ( s2 );
+	lab_ptr labp ( s2 );
 
 	if ( hash != hash_of ( labp ) ) continue;
 	if ( n != length_of ( labp ) ) continue;
@@ -1600,7 +1600,7 @@ min::gen min::new_lab_gen
     memcpy ( lh + 1, p, n * sizeof ( min::gen ) );
 
     s = MUP::new_aux_stub ();
-    MUP::set_pointer_of ( s, s2 );
+    MUP::set_ptr_of ( s, s2 );
     MUP::set_control_of
 	( s,
 	  MUP::new_control_with_type
@@ -1625,7 +1625,7 @@ min::gen MINT::packed_struct_new_gen
     min::stub * s = unprotected::new_acc_stub();
     unprotected::new_body ( s, psd->size );
     min::uns32 * tp =
-        (min::uns32 *) unprotected::pointer_of ( s );
+        (min::uns32 *) unprotected::ptr_of ( s );
     memset ( tp, 0, psd->size );
     * tp = psd->index;
     unprotected::set_type_of ( s, min::PACKED_STRUCT );
@@ -1644,7 +1644,7 @@ min::gen MINT::packed_vec_new_gen
 		      * pvd->element_size;
     unprotected::new_body ( s, size );
     min::uns8 * bodyp =
-        (min::uns8 *) unprotected::pointer_of ( s );
+        (min::uns8 *) unprotected::ptr_of ( s );
     memset ( bodyp, 0, size );
     * (uns32 *) bodyp = pvd->index;
     * (uns32 *) ( bodyp + pvd->length_disp ) = length;
@@ -1674,7 +1674,7 @@ void MINT::packed_vec_resize
 	  min::uns32 max_length )
 {
     min::uns8 * & old_p = * (min::uns8 ** )
-        & MUP::pointer_ref_of ( (min::stub *) s );
+        & MUP::ptr_ref_of ( (min::stub *) s );
     min::uns32 length = * (min::uns32 *)
         ( old_p + pvd->length_disp );
     min::uns32 old_max_length = * (min::uns32 *)
@@ -1692,7 +1692,7 @@ void MINT::packed_vec_resize
     unprotected::resize_body r
 	( (min::stub *) s, new_size, old_size );
     min::uns8 * & new_p = * (min::uns8 **)
-	& MUP::new_body_pointer_ref ( r );
+	& MUP::new_body_ptr_ref ( r );
     memcpy ( new_p, old_p, copy_size );
     * (min::uns32 *) ( new_p + pvd->max_length_disp ) =
         max_length;
@@ -2900,7 +2900,7 @@ static const min::unsptr OBJ_HEADER_SIZE_DIFFERENCE =
 	 - MINT::SHORT_OBJ_HEADER_SIZE );
 
 bool min::resize
-    ( min::insertable_vec_pointer & vp,
+    ( min::insertable_vec_ptr & vp,
       min::unsptr unused_size,
       min::unsptr var_size )
 {
@@ -2992,7 +2992,7 @@ bool min::resize
 
     min::gen * & oldb = MUP::base ( vp );
     min::gen * & newb = * ( min::gen **) &
-	MUP::new_body_pointer_ref ( r );
+	MUP::new_body_ptr_ref ( r );
 
     // Compute aux pointer offset.
     //
@@ -3095,7 +3095,7 @@ bool min::resize
 }
 
 bool min::resize
-    ( min::insertable_vec_pointer & vp,
+    ( min::insertable_vec_ptr & vp,
       min::unsptr unused_size )
 {
     return min::resize ( vp, unused_size,
@@ -3232,7 +3232,7 @@ void MINT::remove_list
 }
 
 void min::insert_before
-	( min::insertable_list_pointer & lp,
+	( min::insertable_list_ptr & lp,
 	  const min::gen * p, min::unsptr n )
 {
 
@@ -3679,7 +3679,7 @@ void min::insert_before
 }
 
 void min::insert_after
-	( min::insertable_list_pointer & lp,
+	( min::insertable_list_ptr & lp,
 	  const min::gen * p, min::unsptr n )
 {
     if ( n == 0 ) return;
@@ -3933,7 +3933,7 @@ void min::insert_after
 }
 
 min::unsptr min::remove
-	( min::insertable_list_pointer & lp,
+	( min::insertable_list_ptr & lp,
 	  min::unsptr n )
 {
     if ( n == 0 || lp.current == min::LIST_END )
@@ -4201,7 +4201,7 @@ min::unsptr min::remove
 }
 
 bool MINT::insert_reserve
-	( min::insertable_list_pointer & lp,
+	( min::insertable_list_ptr & lp,
 	  min::unsptr insertions,
 	  min::unsptr elements,
 	  bool use_obj_aux_stubs )
@@ -4261,11 +4261,11 @@ min::attr_info_vec min::attr_info_vec_type
 
     template < class vecpt >
     void MINT::locate
-	    ( MUP::attr_pointer_type<vecpt> & ap,
+	    ( MUP::attr_ptr_type<vecpt> & ap,
 	      min::gen name,
 	      bool allow_partial_labels )
     {
-	typedef MUP::attr_pointer_type<vecpt> ap_type;
+	typedef MUP::attr_ptr_type<vecpt> ap_type;
 
 	ap.attr_name = name;
 	ap.reverse_attr_name = min::NONE;
@@ -4319,8 +4319,7 @@ min::attr_info_vec min::attr_info_vec_type
 	     ( i = (int) f ) == f
 	     &&
 	     i < attr_size_of
-	             ( vec_pointer_of
-		           ( ap.dlp ) ) )
+	             ( vec_ptr_of ( ap.dlp ) ) )
 	{
 	    start_vector ( ap.dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
@@ -4331,8 +4330,7 @@ min::attr_info_vec min::attr_info_vec_type
 	{
 	    ap.index = min::hash ( element[0] )
 	             % hash_size_of
-		         ( vec_pointer_of
-			       ( ap.dlp ) );
+		         ( vec_ptr_of ( ap.dlp ) );
 	    ap.flags = 0;
 
 	    start_hash ( ap.dlp, ap.index );
@@ -4439,15 +4437,15 @@ min::attr_info_vec min::attr_info_vec_type
 	return;
     }
     template void MINT::locate
-	    ( min::attr_pointer & ap,
+	    ( min::attr_ptr & ap,
 	      min::gen name,
 	      bool allow_partial_labels );
     template void MINT::locate
-	    ( min::updatable_attr_pointer & ap,
+	    ( min::updatable_attr_ptr & ap,
 	      min::gen name,
 	      bool allow_partial_labels );
     template void MINT::locate
-	    ( min::insertable_attr_pointer & ap,
+	    ( min::insertable_attr_ptr & ap,
 	      min::gen name,
 	      bool allow_partial_labels );
 
@@ -4458,9 +4456,9 @@ min::attr_info_vec min::attr_info_vec_type
     // 
     template < class vecpt >
     void MINT::relocate
-	    ( MUP::attr_pointer_type<vecpt> & ap )
+	    ( MUP::attr_ptr_type<vecpt> & ap )
     {
-	typedef MUP::attr_pointer_type<vecpt> ap_type;
+	typedef MUP::attr_ptr_type<vecpt> ap_type;
 
 	MIN_ASSERT ( ap.length > 0 );
 
@@ -4528,17 +4526,17 @@ min::attr_info_vec min::attr_info_vec_type
 	MIN_ASSERT ( length == ap.length );
     }
     template void MINT::relocate
-	    ( min::attr_pointer & ap );
+	    ( min::attr_ptr & ap );
     template void MINT::relocate
-	    ( min::updatable_attr_pointer & ap );
+	    ( min::updatable_attr_ptr & ap );
     template void MINT::relocate
-	    ( min::insertable_attr_pointer & ap );
+	    ( min::insertable_attr_ptr & ap );
 
     void MINT::attr_create
-	    ( min::insertable_attr_pointer & ap,
+	    ( min::insertable_attr_ptr & ap,
 	      min::gen v )
     {
-	typedef min::insertable_attr_pointer ap_type;
+	typedef min::insertable_attr_ptr ap_type;
 
 	MIN_ASSERT
 	    ( ap.state == ap_type::LOCATE_FAIL );
@@ -4655,10 +4653,10 @@ min::attr_info_vec min::attr_info_vec_type
 
     template < class vecpt >
     void MINT::locate
-	    ( MUP::attr_pointer_type<vecpt> & ap,
+	    ( MUP::attr_ptr_type<vecpt> & ap,
 	      min::gen name )
     {
-	typedef MUP::attr_pointer_type<vecpt> ap_type;
+	typedef MUP::attr_ptr_type<vecpt> ap_type;
 
 	ap.reverse_attr_name = min::NONE;
 
@@ -4696,7 +4694,7 @@ min::attr_info_vec min::attr_info_vec_type
 		 0 <= i
 		 &&
 		 i < attr_size_of
-		        ( vec_pointer_of ( ap.dlp ) ) )
+		        ( vec_ptr_of ( ap.dlp ) ) )
 	    {
 		start_vector ( ap.locate_dlp, i );
 		ap.index = i;
@@ -4717,7 +4715,7 @@ min::attr_info_vec min::attr_info_vec_type
 
 	ap.index = min::hash ( name )
 		 % hash_size_of
-			  ( vec_pointer_of
+			  ( vec_ptr_of
 			        ( ap.locate_dlp ) );
 	ap.flags = 0;
 	start_hash ( ap.locate_dlp, ap.index );
@@ -4745,13 +4743,13 @@ min::attr_info_vec min::attr_info_vec_type
 
     }
     template void MINT::locate
-	    ( min::attr_pointer & ap,
+	    ( min::attr_ptr & ap,
 	      min::gen name );
     template void MINT::locate
-	    ( min::updatable_attr_pointer & ap,
+	    ( min::updatable_attr_ptr & ap,
 	      min::gen name );
     template void MINT::locate
-	    ( min::insertable_attr_pointer & ap,
+	    ( min::insertable_attr_ptr & ap,
 	      min::gen name );
 
     // Continue relocation after ap.relocate_dlp is
@@ -4762,9 +4760,9 @@ min::attr_info_vec min::attr_info_vec_type
     // 
     template < class vecpt >
     void MINT::relocate
-	    ( MUP::attr_pointer_type<vecpt> & ap )
+	    ( MUP::attr_ptr_type<vecpt> & ap )
     {
-	typedef MUP::attr_pointer_type<vecpt> ap_type;
+	typedef MUP::attr_ptr_type<vecpt> ap_type;
 
 	for ( min::gen c = current ( ap.locate_dlp );
 	      ! is_list_end ( c );
@@ -4783,17 +4781,17 @@ min::attr_info_vec min::attr_info_vec_type
 	            " attribute" );
     }
     template void MINT::relocate
-	    ( min::attr_pointer & ap );
+	    ( min::attr_ptr & ap );
     template void MINT::relocate
-	    ( min::updatable_attr_pointer & ap );
+	    ( min::updatable_attr_ptr & ap );
     template void MINT::relocate
-	    ( min::insertable_attr_pointer & ap );
+	    ( min::insertable_attr_ptr & ap );
 
     void MINT::attr_create
-	    ( min::insertable_attr_pointer & ap,
+	    ( min::insertable_attr_ptr & ap,
 	      min::gen v )
     {
-	typedef min::insertable_attr_pointer ap_type;
+	typedef min::insertable_attr_ptr ap_type;
 
 	MIN_ASSERT
 	    ( ap.state == ap_type::LOCATE_FAIL );
@@ -4843,10 +4841,10 @@ min::attr_info_vec min::attr_info_vec_type
 # endif
 
 void MINT::reverse_attr_create
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  min::gen v )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     MIN_ASSERT
 	( ap.state == ap_type::REVERSE_LOCATE_FAIL );
@@ -4926,10 +4924,10 @@ void MINT::reverse_attr_create
 
 template < class vecpt >
 void min::locate_reverse
-	( MUP::attr_pointer_type<vecpt> & ap,
+	( MUP::attr_ptr_type<vecpt> & ap,
 	  min::gen reverse_name )
 {
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     // If reverse_name is label whose only element is an
     // atom, set reverse_name = the atom.
@@ -5040,20 +5038,20 @@ void min::locate_reverse
     ap.state = ap_type::REVERSE_LOCATE_FAIL;
 }
 template void min::locate_reverse
-	( min::attr_pointer & ap,
+	( min::attr_ptr & ap,
 	  min::gen reverse_name );
 template void min::locate_reverse
-	( min::updatable_attr_pointer & ap,
+	( min::updatable_attr_ptr & ap,
 	  min::gen reverse_name );
 template void min::locate_reverse
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  min::gen reverse_name );
 
 template < class vecpt >
 void min::relocate
-	( MUP::attr_pointer_type<vecpt> & ap )
+	( MUP::attr_ptr_type<vecpt> & ap )
 {
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
@@ -5137,18 +5135,18 @@ void min::relocate
                 " attribute" );
 }
 template void min::relocate
-	( min::attr_pointer & ap );
+	( min::attr_ptr & ap );
 template void min::relocate
-	( min::updatable_attr_pointer & ap );
+	( min::updatable_attr_ptr & ap );
 template void min::relocate
-	( min::insertable_attr_pointer & ap );
+	( min::insertable_attr_ptr & ap );
 
 template < class vecpt >
 min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  MUP::attr_pointer_type<vecpt> & ap )
+	  MUP::attr_ptr_type<vecpt> & ap )
 {
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
@@ -5208,19 +5206,19 @@ min::unsptr MINT::get
 }
 template min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  min::attr_pointer & ap );
+	  min::attr_ptr & ap );
 template min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  min::updatable_attr_pointer & ap );
+	  min::updatable_attr_ptr & ap );
 template min::unsptr MINT::get
 	( min::gen * out, min::unsptr n,
-	  min::insertable_attr_pointer & ap );
+	  min::insertable_attr_ptr & ap );
 
 template < class vecpt >
 min::gen MINT::get
-	( MUP::attr_pointer_type<vecpt> & ap )
+	( MUP::attr_ptr_type<vecpt> & ap )
 {
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
@@ -5283,18 +5281,18 @@ min::gen MINT::get
     return result;
 }
 template min::gen MINT::get
-	( min::attr_pointer & ap );
+	( min::attr_ptr & ap );
 template min::gen MINT::get
-	( min::updatable_attr_pointer & ap );
+	( min::updatable_attr_ptr & ap );
 template min::gen MINT::get
-	( min::insertable_attr_pointer & ap );
+	( min::insertable_attr_ptr & ap );
 
 template < class vecpt >
 min::unsptr MINT::get_flags
 	( min::gen * p, min::unsptr n,
-	  MUP::attr_pointer_type<vecpt> & ap )
+	  MUP::attr_ptr_type<vecpt> & ap )
 {
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
@@ -5308,20 +5306,20 @@ min::unsptr MINT::get_flags
 }
 template min::unsptr MINT::get_flags
 	( min::gen * p, min::unsptr n,
-	  min::attr_pointer & ap );
+	  min::attr_ptr & ap );
 template min::unsptr MINT::get_flags
 	( min::gen * p, min::unsptr n,
-	  min::updatable_attr_pointer & ap );
+	  min::updatable_attr_ptr & ap );
 template min::unsptr MINT::get_flags
 	( min::gen * p, min::unsptr n,
-	  min::insertable_attr_pointer & ap );
+	  min::insertable_attr_ptr & ap );
 
 template < class vecpt >
 bool MINT::test_flag
-	( MUP::attr_pointer_type<vecpt> & ap,
+	( MUP::attr_ptr_type<vecpt> & ap,
 	  unsigned n )
 {
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
@@ -5334,13 +5332,13 @@ bool MINT::test_flag
     }
 }
 template bool MINT::test_flag
-	( min::attr_pointer & ap,
+	( min::attr_ptr & ap,
 	  unsigned n );
 template bool MINT::test_flag
-	( min::updatable_attr_pointer & ap,
+	( min::updatable_attr_ptr & ap,
 	  unsigned n );
 template bool MINT::test_flag
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  unsigned n );
 
 // Helper functions for min::get_attrs.
@@ -5350,11 +5348,10 @@ template bool MINT::test_flag
 // attribute names with non-empty value sets.
 //
 static min::unsptr count_reverse_attrs
-	( min::list_pointer & lp )
+	( min::list_ptr & lp )
 {
     min::unsptr result = 0;
-    min::list_pointer lpr
-        ( min::vec_pointer_of ( lp ) );
+    min::list_ptr lpr ( min::vec_ptr_of ( lp ) );
     start_sublist ( lpr, lp );
     for ( min::gen c = min::current ( lpr );
           ! min::is_list_end ( c );
@@ -5374,7 +5371,7 @@ static min::unsptr count_reverse_attrs
 // all counts are zero.
 //
 static bool compute_counts
-	( min::list_pointer & lp,
+	( min::list_ptr & lp,
 	  min::attr_info & info )
 {
     info.value_count = 0;
@@ -5391,8 +5388,7 @@ static bool compute_counts
         return false;
     else
     {
-        min::list_pointer lpv
-	    ( min::vec_pointer_of ( lp ) );
+        min::list_ptr lpv ( min::vec_ptr_of ( lp ) );
 	min::start_sublist ( lpv, lp );
 	min::unsptr flag_count = 0;
 	const min::gen zero_cc =
@@ -5436,14 +5432,13 @@ static bool compute_counts
     // Output is goes into aip.
     //
     static void compute_children
-	( min::list_pointer & lp,
+	( min::list_ptr & lp,
 	  min::gen * components, min::unsptr depth,
 	  min::attr_info_vec::insptr & aip )
     {
 	min::gen c = min::current ( lp );
 	if ( ! min::is_sublist ( c ) ) return;
-	min::list_pointer lpv
-	    ( min::vec_pointer_of ( lp ) );
+	min::list_ptr lpv ( min::vec_ptr_of ( lp ) );
 	min::start_sublist ( lpv, lp );
 	for ( c = min::current ( lpv );
 		 ! min::is_list_end ( c )
@@ -5482,15 +5477,14 @@ static bool compute_counts
 
 template < class vecpt >
 min::gen min::get_attrs
-	( unprotected::attr_pointer_type
-	      < vecpt > & ap )
+	( unprotected::attr_ptr_type < vecpt > & ap )
 {
     min::gen airv = attr_info_vec_type.new_gen();
     min::attr_info_vec::insptr aip ( airv );
     attr_info info;
 
-    vecpt & vp = vec_pointer_of ( ap.locate_dlp );
-    min::list_pointer lp ( vp );
+    vecpt & vp = vec_ptr_of ( ap.locate_dlp );
+    min::list_ptr lp ( vp );
 
     for ( min::unsptr i = 0;
           i < hash_size_of ( vp );
@@ -5539,22 +5533,22 @@ min::gen min::get_attrs
     return airv;
 }
 template min::gen min::get_attrs
-	( min::attr_pointer & ap );
+	( min::attr_ptr & ap );
 template min::gen min::get_attrs
-	( min::updatable_attr_pointer & ap );
+	( min::updatable_attr_ptr & ap );
 template min::gen min::get_attrs
-	( min::insertable_attr_pointer & ap );
+	( min::insertable_attr_ptr & ap );
 
 template < class vecpt >
 min::gen min::get_reverse_attrs
-	( unprotected::attr_pointer_type
+	( unprotected::attr_ptr_type
 	      < vecpt > & ap )
 {
     min::gen rairv =
         reverse_attr_info_vec_type.new_gen();
     min::reverse_attr_info_vec::insptr raip ( rairv );
 
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
@@ -5581,7 +5575,7 @@ min::gen min::get_reverse_attrs
     if ( ! is_sublist ( c ) ) return rairv;
     start_sublist ( ap.lp );
 
-    list_pointer lpv ( vec_pointer_of ( ap.lp ) );
+    list_ptr lpv ( vec_ptr_of ( ap.lp ) );
     reverse_attr_info info;
     for ( c = current ( ap.lp );
           ! is_list_end ( c );
@@ -5608,11 +5602,11 @@ min::gen min::get_reverse_attrs
     return rairv;
 }
 template min::gen min::get_reverse_attrs
-	( min::attr_pointer & ap );
+	( min::attr_ptr & ap );
 template min::gen min::get_reverse_attrs
-	( min::updatable_attr_pointer & ap );
+	( min::updatable_attr_ptr & ap );
 template min::gen min::get_reverse_attrs
-	( min::insertable_attr_pointer & ap );
+	( min::insertable_attr_ptr & ap );
 
 // Compare function to qsort attr_info packed vector.
 //
@@ -5653,10 +5647,10 @@ void min::sort_reverse_attr_info ( min::gen v )
 
 template < class vecpt >
 min::gen MINT::update
-	( MUP::attr_pointer_type<vecpt> & ap,
+	( MUP::attr_ptr_type<vecpt> & ap,
 	  min::gen v )
 {
-    typedef MUP::attr_pointer_type<vecpt> ap_type;
+    typedef MUP::attr_ptr_type<vecpt> ap_type;
 
     switch ( ap.state )
     {
@@ -5680,24 +5674,24 @@ min::gen MINT::update
     }
 }
 template min::gen MINT::update
-	( min::updatable_attr_pointer & ap,
+	( min::updatable_attr_ptr & ap,
 	  min::gen v );
 template min::gen MINT::update
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  min::gen v );
 
 // Helper functions for various set and remove
 // functions.  See min.h for documentation.
 //
 void MINT::remove_reverse_attr_value
-	( min::insertable_attr_pointer & ap,
-	  min::insertable_vec_pointer & vp )
+	( min::insertable_attr_ptr & ap,
+	  min::insertable_vec_ptr & vp )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
-    insertable_attr_pointer rap ( vp );
+    insertable_attr_ptr rap ( vp );
     min::gen v = min::new_gen
-        ( MUP::stub_of ( vec_pointer_of ( ap.dlp ) ) );
+        ( MUP::stub_of ( vec_ptr_of ( ap.dlp ) ) );
 
     min::locate ( rap, ap.reverse_attr_name );
     min::locate_reverse ( rap, ap.attr_name );
@@ -5722,11 +5716,11 @@ void MINT::remove_reverse_attr_value
 }
     
 void MINT::remove_reverse_attr_value
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
           min::gen v )
 {
-    insertable_vec_pointer & apvp =
-        vec_pointer_of ( ap.dlp );
+    insertable_vec_ptr & apvp =
+        vec_ptr_of ( ap.dlp );
     min::stub * aps = MUP::stub_of ( apvp );
     const min::stub * s = min::stub_of ( v );
     if ( s == aps )
@@ -5737,20 +5731,20 @@ void MINT::remove_reverse_attr_value
     }
     else
     {
-        insertable_vec_pointer vp ( v );
+        insertable_vec_ptr vp ( v );
 	MINT::remove_reverse_attr_value ( ap, vp );
     }
 }
 
 void MINT::add_reverse_attr_value
-	( min::insertable_attr_pointer & ap,
-	  min::insertable_vec_pointer & vp )
+	( min::insertable_attr_ptr & ap,
+	  min::insertable_vec_ptr & vp )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
-    insertable_attr_pointer rap ( vp );
+    insertable_attr_ptr rap ( vp );
     min::gen v = min::new_gen
-        ( MUP::stub_of ( vec_pointer_of ( ap.dlp ) ) );
+        ( MUP::stub_of ( vec_ptr_of ( ap.dlp ) ) );
 
     min::locate ( rap, ap.reverse_attr_name );
     if ( rap.state != ap_type::LOCATE_NONE )
@@ -5782,11 +5776,11 @@ void MINT::add_reverse_attr_value
 }
     
 void MINT::add_reverse_attr_value
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
           min::gen v )
 {
-    insertable_vec_pointer & apvp =
-        vec_pointer_of ( ap.dlp );
+    insertable_vec_ptr & apvp =
+        vec_ptr_of ( ap.dlp );
     min::stub * aps = MUP::stub_of ( apvp );
     const min::stub * s = min::stub_of ( v );
     if ( s == aps )
@@ -5800,16 +5794,16 @@ void MINT::add_reverse_attr_value
     }
     else
     {
-        insertable_vec_pointer vp ( v );
+        insertable_vec_ptr vp ( v );
 	MINT::add_reverse_attr_value ( ap, vp );
     }
 }
 
 void MINT::set
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     switch ( ap.state )
     {
@@ -6002,10 +5996,10 @@ void MINT::set
 }
 
 void min::add_to_set
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     if ( n == 0 ) return;
 
@@ -6077,10 +6071,10 @@ void min::add_to_set
 }
 
 void min::add_to_multiset
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     if ( n == 0 ) return;
 
@@ -6161,10 +6155,10 @@ void min::add_to_multiset
 }
 
 min::unsptr min::remove_one
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     if ( n == 0 ) return 0;
 
@@ -6252,10 +6246,10 @@ min::unsptr min::remove_one
 }
 
 min::unsptr min::remove_all
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, min::unsptr n )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     if ( n == 0 ) return 0;
 
@@ -6332,10 +6326,10 @@ min::unsptr min::remove_all
 }
 
 void MINT::set_flags
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -6408,10 +6402,10 @@ void MINT::set_flags
 // place to do insertion.
 //
 void MINT::set_more_flags
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef min::insertable_attr_pointer ap_type;
+    typedef min::insertable_attr_ptr ap_type;
 
     for ( unsigned i = 0; i < n; ++ i )
         MIN_ASSERT ( is_control_code ( in[i] ) );
@@ -6425,10 +6419,10 @@ void MINT::set_more_flags
 }
 
 void MINT::set_some_flags
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef insertable_attr_pointer ap_type;
+    typedef insertable_attr_ptr ap_type;
 
     switch ( ap.state )
     {
@@ -6443,10 +6437,10 @@ void MINT::set_some_flags
 }
 
 void MINT::clear_some_flags
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef insertable_attr_pointer ap_type;
+    typedef insertable_attr_ptr ap_type;
 
     switch ( ap.state )
     {
@@ -6462,10 +6456,10 @@ void MINT::clear_some_flags
 }
 
 void MINT::flip_some_flags
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  const min::gen * in, unsigned n )
 {
-    typedef insertable_attr_pointer ap_type;
+    typedef insertable_attr_ptr ap_type;
 
     switch ( ap.state )
     {
@@ -6484,10 +6478,10 @@ void MINT::flip_some_flags
 // node-descriptor.
 //
 bool MINT::set_flag
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  unsigned n )
 {
-    typedef insertable_attr_pointer ap_type;
+    typedef insertable_attr_ptr ap_type;
 
     switch ( ap.state )
     {
@@ -6537,10 +6531,10 @@ bool MINT::set_flag
 }
 
 bool MINT::clear_flag
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  unsigned n )
 {
-    typedef insertable_attr_pointer ap_type;
+    typedef insertable_attr_ptr ap_type;
 
     switch ( ap.state )
     {
@@ -6556,10 +6550,10 @@ bool MINT::clear_flag
 }
 
 bool MINT::flip_flag
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  unsigned n )
 {
-    typedef insertable_attr_pointer ap_type;
+    typedef insertable_attr_ptr ap_type;
 
     switch ( ap.state )
     {
