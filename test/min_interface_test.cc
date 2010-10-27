@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 26 03:50:25 EDT 2010
+// Date:	Wed Oct 27 01:17:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -289,8 +289,7 @@ void MINT::new_non_fixed_body
     * next_body =
         MUP::new_control_with_locator ( 0, s );
     	
-    min::unprotected
-       ::set_pointer_of ( s, next_body + 1 );
+    MUP::set_ptr_of ( s, next_body + 1 );
 
     next_body += m;
 }
@@ -319,10 +318,8 @@ void MINT::new_fixed_body
 
     * next =
         MUP::new_control_with_locator ( 0, s );
-    min::unprotected
-       ::set_pointer_of ( s, next + 1 );
-    min::unprotected
-       ::set_flags_of ( s, MINT::ACC_FIXED_BODY_FLAG );
+    MUP::set_ptr_of ( s, next + 1 );
+    MUP::set_flags_of ( s, MINT::ACC_FIXED_BODY_FLAG );
 
     next += m;
 
@@ -347,7 +344,7 @@ void MUP::deallocate_body
     cout << "MINT::deallocate ( " << s
          << " ) called" << endl;
 
-    MUP::set_pointer_of ( s, deallocated_body_region );
+    MUP::set_ptr_of ( s, deallocated_body_region );
     MUP::set_type_of ( s, min::DEALLOCATED );
 }
 
@@ -371,9 +368,9 @@ static void resize_body
 	                  old_size : new_size;
 
 	min::uns64 * from = (min::uns64 *)
-	    MUP::pointer_of ( s );
+	    MUP::ptr_of ( s );
 	min::uns64 * to   = (min::uns64 *)
-	    MUP::new_body_pointer_ref ( rbody );
+	    MUP::new_body_ptr_ref ( rbody );
 	cout << "copying body_region["
 	     << from - begin_body_region
 	     << " .. "
@@ -536,7 +533,7 @@ void test_stub_data ( void )
 // Internal Pointer Conversion Functions
 // -------- ------- ---------- ---------
 
-void test_pointer_conversions ( void )
+void test_ptr_conversions ( void )
 {
     cout << endl;
     cout << "Start Internal Pointer Conversion"
@@ -545,12 +542,12 @@ void test_pointer_conversions ( void )
     const min::stub * stub = MINT::null_stub;
 
     cout << endl;
-    cout << "Test pointer/uns64 conversions:"
+    cout << "Test ptr/uns64 conversions:"
 	 << endl;
     min::uns64 u64 =
-	MINT::pointer_to_uns64 ( buffer );
+	MINT::ptr_to_uns64 ( buffer );
     char * b64 = (char *)
-	MINT::uns64_to_pointer ( u64 );
+	MINT::uns64_to_ptr ( u64 );
     MIN_ASSERT ( b64 == buffer );
 
 #   if MIN_IS_COMPACT
@@ -1127,8 +1124,8 @@ void test_stub_functions ( void )
     MIN_ASSERT ( MUP::gen_of ( stub ) == g );
 
     void * p = & g;
-    MUP::set_pointer_of ( stub, p );
-    MIN_ASSERT ( MUP::pointer_of ( stub ) == p );
+    MUP::set_ptr_of ( stub, p );
+    MIN_ASSERT ( MUP::ptr_of ( stub ) == p );
 
     cout << endl;
     cout << "Test stub control set/read functions:"
@@ -1335,29 +1332,29 @@ void test_acc_interface ( void )
          << MINT::max_fixed_block_size
 	 << endl;
     MUP::new_body ( stub1, 128 );
-    char * p1 = (char *) MUP::pointer_of ( stub1 );
+    char * p1 = (char *) MUP::ptr_of ( stub1 );
     memset ( p1, 0xBB, 128 );
     MUP::new_body ( stub2, 128 );
-    char * p2 = (char *) MUP::pointer_of ( stub2 );
+    char * p2 = (char *) MUP::ptr_of ( stub2 );
     memset ( p2, 0xBB, 128 );
     MIN_ASSERT ( memcmp ( p1, p2, 128 ) == 0 );
     MIN_ASSERT ( p1 != p2 );
     MUP::new_body ( stub3, 128 );
-    char * p3 = (char *) MUP::pointer_of ( stub3 );
+    char * p3 = (char *) MUP::ptr_of ( stub3 );
     memset ( p3, 0xCC, 128 );
     MUP::new_body ( stub4, 128 );
-    char * p4 = (char *) MUP::pointer_of ( stub4 );
+    char * p4 = (char *) MUP::ptr_of ( stub4 );
     memset ( p4, 0xCC, 128 );
     MIN_ASSERT ( memcmp ( p3, p4, 128 ) == 0 );
     MIN_ASSERT ( p3 != p4 );
     resize_body ( stub4, 128, 128 );
-    char * p5 = (char *) MUP::pointer_of ( stub4 );
+    char * p5 = (char *) MUP::ptr_of ( stub4 );
     MIN_ASSERT ( memcmp ( p3, p5, 128 ) == 0 );
     MIN_ASSERT ( p4 != p5 );
     MUP::deallocate_body ( stub4, 128 );
     MIN_ASSERT ( min::type_of ( stub4 )
 		 == min::DEALLOCATED );
-    char * p6 = (char *) MUP::pointer_of ( stub4 );
+    char * p6 = (char *) MUP::ptr_of ( stub4 );
     MIN_ASSERT ( p5 != p6 );
     MIN_ASSERT ( p6[0] == 0
 		 &&
@@ -1644,8 +1641,7 @@ void test_strings ( void )
 	  == 0 );
 
     cout << endl;
-    cout << "Test protected string pointers:"
-	 << endl;
+    cout << "Test protected string ptrs:" << endl;
 
     // Test body relocation first.
     MIN_ASSERT
@@ -1661,10 +1657,10 @@ void test_strings ( void )
     min::strcpy ( buffer, strgen13 );
     MIN_ASSERT ( strcmp ( buffer, s13 ) == 0 );
 
-    min::str_pointer p3 ( strgen3 );
-    min::str_pointer p7 ( strgen7 );
-    min::str_pointer p8 ( strgen8 );
-    min::str_pointer p13 ( strgen13 );
+    min::str_ptr p3 ( strgen3 );
+    min::str_ptr p7 ( strgen7 );
+    min::str_ptr p8 ( strgen8 );
+    min::str_ptr p13 ( strgen13 );
 
     MIN_ASSERT ( min::strcmp ( s3, p3 ) == 0 );
     MIN_ASSERT ( min::strcmp ( s7, p7 ) == 0 );
@@ -1724,7 +1720,7 @@ void test_strings ( void )
     MIN_ASSERT ( p13str_after != p13str_before );
     MIN_ASSERT ( min::strcmp ( s13, p13 ) == 0 );
 
-    min::str_pointer p ( strgen13 );
+    min::str_ptr p ( strgen13 );
     MIN_ASSERT ( strcmp ( s13, p ) == 0 );
     min::initialize ( p, strgen8 );
     MIN_ASSERT ( strcmp ( s8, p ) == 0 );
@@ -2199,7 +2195,7 @@ void test_objects ( void )
 	(    min::type_of ( sstub )
 	  == min::SHORT_OBJ );
     {
-	min::vec_pointer svp ( sstub );
+	min::vec_ptr svp ( sstub );
 	min::unsptr sh = MUP::var_offset_of ( svp );
 	min::unsptr sht = min::hash_size_of ( svp );
 	min::unsptr sav = min::attr_size_of ( svp );
@@ -2231,7 +2227,7 @@ void test_objects ( void )
     MIN_ASSERT
 	( min::type_of ( lstub ) == min::LONG_OBJ );
     {
-	min::vec_pointer lvp ( long_obj_gen );
+	min::vec_ptr lvp ( long_obj_gen );
 	min::uns32 lh = MUP::var_offset_of ( lvp );
 	min::uns32 lht = min::hash_size_of ( lvp );
 	min::uns32 lav = min::attr_size_of ( lvp );
@@ -2288,7 +2284,7 @@ void test_object_vector_level
     min::stub * sstub = MUP::stub_of ( v );
 
     {
-	min::insertable_vec_pointer vp ( sstub );
+	min::insertable_vec_ptr vp ( sstub );
 	MIN_ASSERT
 	    ( min::attr_size_of ( vp ) == 0 );
 	MIN_ASSERT
@@ -2466,7 +2462,7 @@ void test_object_vector_level
     }
 
     {
-	min::vec_pointer vp ( sstub );
+	min::vec_ptr vp ( sstub );
 	min::gen * & base = MUP::base ( vp );
 	min::unsptr total_size =
 	    min::total_size_of ( vp );
@@ -2525,11 +2521,11 @@ static bool use_obj_aux_stubs;
 static bool alternate_aux;
 static bool resize;  // Set true to resize just once.
 static void insert
-    ( min::insertable_list_pointer & wlp,
+    ( min::insertable_list_ptr & wlp,
       bool before, min::gen * p, unsigned n )
 {
-    min::insertable_vec_pointer & vp =
-        min::vec_pointer_of ( wlp );
+    min::insertable_vec_ptr & vp =
+        min::vec_ptr_of ( wlp );
     min::gen numtest = min::new_num_gen ( 123456789 );
     min::gen out;
 
@@ -2592,7 +2588,7 @@ void test_object_list_level
     ::alternate_aux = alternate_aux;
     ::resize = false;
 
-    min::insertable_vec_pointer vp ( v );
+    min::insertable_vec_ptr vp ( v );
 
     min::gen * & base = MUP::base ( vp );
 
@@ -2623,7 +2619,7 @@ void test_object_list_level
 
     min::set_relocated_flag ( false );
 
-    min::list_pointer lp ( vp );
+    min::list_ptr lp ( vp );
     min::start_vector ( lp, 0 );
     MIN_ASSERT
 	( min::current ( lp ) == base[vorg+0] );
@@ -2642,7 +2638,7 @@ void test_object_list_level
     MIN_ASSERT
 	( min::current ( lp ) == base[vorg+0] );
 
-    min::insertable_list_pointer wlp ( vp );
+    min::insertable_list_ptr wlp ( vp );
     min::start_vector ( wlp, 0 );
     insert ( wlp, false, p+2, 1 );
     insert ( wlp, false, p+1, 1 );
@@ -2670,7 +2666,7 @@ void test_object_list_level
     MIN_ASSERT
 	( min::is_sublist ( min::next ( wlp ) ) );
 
-    min::insertable_list_pointer wslp ( vp );
+    min::insertable_list_ptr wslp ( vp );
     min::start_copy ( wslp, wlp );
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
@@ -2832,7 +2828,7 @@ void test_object_list_level ( void )
 // differences.
 //
 static bool check_attr_info
-        ( min::insertable_attr_pointer & ap,
+        ( min::insertable_attr_ptr & ap,
 	  min::attr_info * aip, unsigned n )
 {
     bool save_min_assert_print = min_assert_print;
@@ -2900,7 +2896,7 @@ static int compare_gen
 // differences.
 //
 static bool check_values
-        ( min::insertable_attr_pointer & ap,
+        ( min::insertable_attr_ptr & ap,
 	  min::gen * p, unsigned n )
 {
     bool save_min_assert_print = min_assert_print;
@@ -2946,7 +2942,7 @@ static bool check_values
 // change that attribute.
 //
 void test_attribute_values
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  min::gen label1, min::gen label2 )
 {
     min_assert_print = false;
@@ -3026,7 +3022,7 @@ void test_attribute_values
 // differences.
 //
 static bool check_flags
-        ( min::insertable_attr_pointer & ap,
+        ( min::insertable_attr_ptr & ap,
 	  min::gen * p, unsigned n )
 {
     bool save_min_assert_print = min_assert_print;
@@ -3074,7 +3070,7 @@ static bool check_flags
 // occassionally, but do not change that attribute.
 //
 void test_attribute_flags
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  min::gen label1, min::gen label2,
 	  min::gen label3 )
 {
@@ -3193,7 +3189,7 @@ void test_attribute_flags
 // name rlabel2.
 //
 void test_reverse_attribute_values
-	( min::insertable_attr_pointer & ap,
+	( min::insertable_attr_ptr & ap,
 	  min::gen label1, min::gen rlabel1,
 	  min::gen label2,
 	  min::gen obj1, min::gen obj2, min::gen obj3 )
@@ -3269,8 +3265,8 @@ void test_object_attribute_level ( void )
 	 << endl;
 
     min::gen obj_gen = min::new_obj_gen ( 500, 100 );
-    min::insertable_vec_pointer vp ( obj_gen );
-    min::insertable_attr_pointer ap ( vp );
+    min::insertable_vec_ptr vp ( obj_gen );
+    min::insertable_attr_ptr ap ( vp );
 
     min::gen lab1 = min::new_str_gen ( "label1" );
     min::gen lab2 = min::new_str_gen ( "label2" );
@@ -3417,7 +3413,7 @@ int main ()
 	test_number_types();
 	test_general_value_data();
 	test_stub_data();
-	test_pointer_conversions();
+	test_ptr_conversions();
 	test_general_value_functions();
 	test_control_values();
 	test_stub_functions();

@@ -21,7 +21,7 @@ Finish Number Types Test!
 
 Start Internal Pointer Conversion Test!
 
-Test pointer/uns64 conversions:
+Test ptr/uns64 conversions:
 min_interface_test.cc:XXXX assert:
     b64 == buffer true.
 
@@ -367,7 +367,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     MUP::gen_of ( stub ) == g true.
 min_interface_test.cc:XXXX assert:
-    MUP::pointer_of ( stub ) == p true.
+    MUP::ptr_of ( stub ) == p true.
 
 Test stub control set/read functions:
 c: 81000000000000
@@ -856,7 +856,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     strcmp ( MUP::str_of ( lstr13 ), s13 ) == 0 true.
 
-Test protected string pointers:
+Test protected string ptrs:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
 resize_body ( stub 15, 22, 22 ) called

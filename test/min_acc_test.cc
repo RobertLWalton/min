@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Aug  5 07:35:32 EDT 2010
+// Date:	Wed Oct 27 01:22:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -118,7 +118,7 @@ static min::gen create_object ( min::unsptr m )
     min::unsptr size = 2 + random_uns32() % m;
 
     min::gen obj = min::new_obj_gen ( size );
-    min::insertable_vec_pointer ep ( obj );
+    min::insertable_vec_ptr ep ( obj );
 
     for ( min::unsptr j = 0; j < size; ++ j )
 	min::attr_push ( ep, min::new_num_gen ( j ) );
@@ -139,7 +139,7 @@ static min::gen create_vec_of_objects
 
     min::gen obj = min::new_obj_gen ( n );
 
-    min::insertable_vec_pointer vp ( obj );
+    min::insertable_vec_ptr vp ( obj );
 
     for ( min::unsptr i = 0; i < n; ++ i )
         min::attr_push ( vp, create_object ( m ) );
@@ -159,7 +159,7 @@ static void random_deallocate
     bool print_save = min_assert_print;
     min_assert_print = false;
 
-    min::updatable_vec_pointer vp ( obj );
+    min::updatable_vec_ptr vp ( obj );
     min::unsptr size = min::attr_size_of ( vp );
     while ( n -- )
     {
@@ -183,14 +183,14 @@ static bool check_vec_of_objects ( min::gen obj )
 
     bool checks = true;
 
-    min::vec_pointer vp ( obj );
+    min::vec_ptr vp ( obj );
 
     for ( min::unsptr i = 0;
           checks && i < min::attr_size_of ( vp );
 	  ++ i )
     {
         min::gen element = min::attr ( vp, i );
-	min::vec_pointer ep ( element );
+	min::vec_ptr ep ( element );
 
 	for ( min::unsptr j = 0;
 	      j < min::attr_size_of ( ep ); ++ j )
