@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jul 31 18:44:37 EDT 2010
+// Date:	Wed Oct 27 02:13:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -89,7 +89,7 @@
 //
 # ifndef MIN_DEFAULT_MAX_STUBS
 #    define MIN_DEFAULT_MAX_STUBS \
-	( MIN_POINTER_BITS <= 32 ? 1 << 25 : \
+	( MIN_PTR_BITS <= 32 ? 1 << 25 : \
           MIN_MAX_NUMBER_OF_STUBS <= ( 1ull << 32 ) ? \
             MIN_MAX_NUMBER_OF_STUBS : ( 1ull << 32 ) )
 # endif
@@ -130,7 +130,7 @@
 //
 # ifndef MIN_DEFAULT_SPACE_FACTOR
 #    define MIN_DEFAULT_SPACE_FACTOR \
-	( MIN_POINTER_BITS <= 32 ? 16 : 64 )
+	( MIN_PTR_BITS <= 32 ? 16 : 64 )
 # endif
 
 // cache_line_size

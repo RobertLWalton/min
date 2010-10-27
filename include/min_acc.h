@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug  4 17:16:50 EDT 2010
+// Date:	Wed Oct 27 02:12:34 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -126,12 +126,12 @@ namespace min { namespace acc {
 	// The end is the address just after the
 	// region: stub_end = stub_begin + max_stubs.
 
-    // Deficiency: If MIN_POINTER_SIZE <= 32 stub
-    // memory should be allocated as needed and not
-    // all at once.  Possibly this should also be done
-    // for larger pointer sizes, as reserving virtual
-    // memory may consume system resources proportional
-    // to the size of the reserved memory.
+    // Deficiency: If MIN_PTR_SIZE <= 32 stub memory
+    // should be allocated as needed and not all at
+    // once.  Possibly this should also be done for
+    // larger pointer sizes, as reserving virtual memory
+    // may consume system resources proportional to the
+    // size of the reserved memory.
 
 } }
 

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 01:21:26 EDT 2010
+// Date:	Wed Oct 27 02:15:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -173,7 +173,7 @@ static bool get_param
 // Ditto but for `unsigned' parameter if `unsigned'
 // not the same as `min::unsptr'.
 //
-#if MIN_POINTER_BITS > 32
+#if MIN_PTR_BITS > 32
 static bool get_param
 	( const char * name, unsigned & parameter,
 	  unsigned minimum = 0,
@@ -465,7 +465,7 @@ static void block_allocator_initializer ( void )
     get_param ( "superregion_size",
                 MACC::superregion_size,
 		MACC::subregion_size,
-		( MIN_POINTER_BITS <= 32 ?
+		( MIN_PTR_BITS <= 32 ?
 		  1 << 28 : 1ull << 44 ),
 		MACC::subregion_size );
 
@@ -473,7 +473,7 @@ static void block_allocator_initializer ( void )
     get_param ( "max_paged_body_size",
                 MACC::max_paged_body_size,
 		0,
-		( MIN_POINTER_BITS <= 32 ?
+		( MIN_PTR_BITS <= 32 ?
 		  1 << 24 : 1ull << 32 ),
 		MACC::page_size );
 
@@ -487,7 +487,7 @@ static void block_allocator_initializer ( void )
     get_param ( "deallocated_body_size",
                 MACC::deallocated_body_size,
 		1 << 20,
-		( MIN_POINTER_BITS <= 32 ?
+		( MIN_PTR_BITS <= 32 ?
 		  1 << 30 : 1ull << 40 ),
 		MACC::page_size );
 
@@ -496,7 +496,7 @@ static void block_allocator_initializer ( void )
     get_param ( "paged_body_region_size",
                 MACC::paged_body_region_size,
 		MACC::max_paged_body_size,
-		( MIN_POINTER_BITS <= 32 ?
+		( MIN_PTR_BITS <= 32 ?
 		  1 << 28 : 1ull << 44 ),
 		MACC::page_size );
 
