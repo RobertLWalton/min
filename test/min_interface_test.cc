@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:31:21 EDT 2010
+// Date:	Wed Oct 27 16:31:47 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2195,7 +2195,7 @@ void test_objects ( void )
 	(    min::type_of ( sstub )
 	  == min::SHORT_OBJ );
     {
-	min::vec_ptr svp ( sstub );
+	min::obj_vec_ptr svp ( sstub );
 	min::unsptr sh = MUP::var_offset_of ( svp );
 	min::unsptr sht = min::hash_size_of ( svp );
 	min::unsptr sav = min::attr_size_of ( svp );
@@ -2227,7 +2227,7 @@ void test_objects ( void )
     MIN_ASSERT
 	( min::type_of ( lstub ) == min::LONG_OBJ );
     {
-	min::vec_ptr lvp ( long_obj_gen );
+	min::obj_vec_ptr lvp ( long_obj_gen );
 	min::uns32 lh = MUP::var_offset_of ( lvp );
 	min::uns32 lht = min::hash_size_of ( lvp );
 	min::uns32 lav = min::attr_size_of ( lvp );
@@ -2284,7 +2284,7 @@ void test_object_vector_level
     min::stub * sstub = MUP::stub_of ( v );
 
     {
-	min::vec_insptr vp ( sstub );
+	min::obj_vec_insptr vp ( sstub );
 	MIN_ASSERT
 	    ( min::attr_size_of ( vp ) == 0 );
 	MIN_ASSERT
@@ -2462,7 +2462,7 @@ void test_object_vector_level
     }
 
     {
-	min::vec_ptr vp ( sstub );
+	min::obj_vec_ptr vp ( sstub );
 	min::gen * & base = MUP::base ( vp );
 	min::unsptr total_size =
 	    min::total_size_of ( vp );
@@ -2524,8 +2524,8 @@ static void insert
     ( min::list_insptr & wlp,
       bool before, min::gen * p, unsigned n )
 {
-    min::vec_insptr & vp =
-        min::vec_ptr_of ( wlp );
+    min::obj_vec_insptr & vp =
+        min::obj_vec_ptr_of ( wlp );
     min::gen numtest = min::new_num_gen ( 123456789 );
     min::gen out;
 
@@ -2588,7 +2588,7 @@ void test_object_list_level
     ::alternate_aux = alternate_aux;
     ::resize = false;
 
-    min::vec_insptr vp ( v );
+    min::obj_vec_insptr vp ( v );
 
     min::gen * & base = MUP::base ( vp );
 
@@ -3265,7 +3265,7 @@ void test_object_attribute_level ( void )
 	 << endl;
 
     min::gen obj_gen = min::new_obj_gen ( 500, 100 );
-    min::vec_insptr vp ( obj_gen );
+    min::obj_vec_insptr vp ( obj_gen );
     min::attr_insptr ap ( vp );
 
     min::gen lab1 = min::new_str_gen ( "label1" );

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:32:06 EDT 2010
+// Date:	Wed Oct 27 16:05:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -962,7 +962,7 @@ static void packed_vec_scavenger_routine
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    min::vec_ptr vp ( sc.s1 );
+    min::obj_vec_ptr vp ( sc.s1 );
     min::unsptr next;
     if ( sc.state <= MUP::var_offset_of ( vp ) )
         next = MUP::var_offset_of ( vp );
@@ -2900,7 +2900,7 @@ static const min::unsptr OBJ_HEADER_SIZE_DIFFERENCE =
 	 - MINT::SHORT_OBJ_HEADER_SIZE );
 
 bool min::resize
-    ( min::vec_insptr & vp,
+    ( min::obj_vec_insptr & vp,
       min::unsptr unused_size,
       min::unsptr var_size )
 {
@@ -3095,7 +3095,7 @@ bool min::resize
 }
 
 bool min::resize
-    ( min::vec_insptr & vp,
+    ( min::obj_vec_insptr & vp,
       min::unsptr unused_size )
 {
     return min::resize ( vp, unused_size,
@@ -3168,8 +3168,8 @@ void MINT::allocate_stub_list
 // set any auxiliary area elements use to min::NONE.
 // Index/s point at the first element of the list.
 // Either index != 0 and s == NULL or index == 0
-// and s != NULL.  Base is the base of a vector
-// pointer and total_size is its total size.
+// and s != NULL.  Base is the base of an object
+// vector pointer and total_size is its total size.
 //
 void MINT::remove_list
 	( min::gen * & base,
@@ -4319,7 +4319,7 @@ min::attr_info_vec min::attr_info_vec_type
 	     ( i = (int) f ) == f
 	     &&
 	     i < attr_size_of
-	             ( vec_ptr_of ( ap.dlp ) ) )
+	             ( obj_vec_ptr_of ( ap.dlp ) ) )
 	{
 	    start_vector ( ap.dlp, i );
 	    ap.flags = ap_type::IN_VECTOR;
@@ -4330,7 +4330,7 @@ min::attr_info_vec min::attr_info_vec_type
 	{
 	    ap.index = min::hash ( element[0] )
 	             % hash_size_of
-		         ( vec_ptr_of ( ap.dlp ) );
+		         ( obj_vec_ptr_of ( ap.dlp ) );
 	    ap.flags = 0;
 
 	    start_hash ( ap.dlp, ap.index );
@@ -4694,7 +4694,7 @@ min::attr_info_vec min::attr_info_vec_type
 		 0 <= i
 		 &&
 		 i < attr_size_of
-		        ( vec_ptr_of ( ap.dlp ) ) )
+		        ( obj_vec_ptr_of ( ap.dlp ) ) )
 	    {
 		start_vector ( ap.locate_dlp, i );
 		ap.index = i;
@@ -4715,7 +4715,7 @@ min::attr_info_vec min::attr_info_vec_type
 
 	ap.index = min::hash ( name )
 		 % hash_size_of
-			  ( vec_ptr_of
+			  ( obj_vec_ptr_of
 			        ( ap.locate_dlp ) );
 	ap.flags = 0;
 	start_hash ( ap.locate_dlp, ap.index );
@@ -5351,7 +5351,7 @@ static min::unsptr count_reverse_attrs
 	( min::list_ptr & lp )
 {
     min::unsptr result = 0;
-    min::list_ptr lpr ( min::vec_ptr_of ( lp ) );
+    min::list_ptr lpr ( min::obj_vec_ptr_of ( lp ) );
     start_sublist ( lpr, lp );
     for ( min::gen c = min::current ( lpr );
           ! min::is_list_end ( c );
@@ -5388,7 +5388,8 @@ static bool compute_counts
         return false;
     else
     {
-        min::list_ptr lpv ( min::vec_ptr_of ( lp ) );
+        min::list_ptr lpv
+	    ( min::obj_vec_ptr_of ( lp ) );
 	min::start_sublist ( lpv, lp );
 	min::unsptr flag_count = 0;
 	const min::gen zero_cc =
@@ -5438,7 +5439,8 @@ static bool compute_counts
     {
 	min::gen c = min::current ( lp );
 	if ( ! min::is_sublist ( c ) ) return;
-	min::list_ptr lpv ( min::vec_ptr_of ( lp ) );
+	min::list_ptr lpv
+	    ( min::obj_vec_ptr_of ( lp ) );
 	min::start_sublist ( lpv, lp );
 	for ( c = min::current ( lpv );
 		 ! min::is_list_end ( c )
@@ -5483,7 +5485,7 @@ min::gen min::get_attrs
     min::attr_info_vec::insptr aip ( airv );
     attr_info info;
 
-    vecpt & vp = vec_ptr_of ( ap.locate_dlp );
+    vecpt & vp = obj_vec_ptr_of ( ap.locate_dlp );
     min::list_ptr lp ( vp );
 
     for ( min::unsptr i = 0;
@@ -5575,7 +5577,7 @@ min::gen min::get_reverse_attrs
     if ( ! is_sublist ( c ) ) return rairv;
     start_sublist ( ap.lp );
 
-    list_ptr lpv ( vec_ptr_of ( ap.lp ) );
+    list_ptr lpv ( obj_vec_ptr_of ( ap.lp ) );
     reverse_attr_info info;
     for ( c = current ( ap.lp );
           ! is_list_end ( c );
@@ -5685,13 +5687,13 @@ template min::gen MINT::update
 //
 void MINT::remove_reverse_attr_value
 	( min::attr_insptr & ap,
-	  min::vec_insptr & vp )
+	  min::obj_vec_insptr & vp )
 {
     typedef min::attr_insptr ap_type;
 
     attr_insptr rap ( vp );
     min::gen v = min::new_gen
-        ( MUP::stub_of ( vec_ptr_of ( ap.dlp ) ) );
+        ( MUP::stub_of ( obj_vec_ptr_of ( ap.dlp ) ) );
 
     min::locate ( rap, ap.reverse_attr_name );
     min::locate_reverse ( rap, ap.attr_name );
@@ -5719,8 +5721,8 @@ void MINT::remove_reverse_attr_value
 	( min::attr_insptr & ap,
           min::gen v )
 {
-    vec_insptr & apvp =
-        vec_ptr_of ( ap.dlp );
+    obj_vec_insptr & apvp =
+        obj_vec_ptr_of ( ap.dlp );
     min::stub * aps = MUP::stub_of ( apvp );
     const min::stub * s = min::stub_of ( v );
     if ( s == aps )
@@ -5731,20 +5733,20 @@ void MINT::remove_reverse_attr_value
     }
     else
     {
-        vec_insptr vp ( v );
+        obj_vec_insptr vp ( v );
 	MINT::remove_reverse_attr_value ( ap, vp );
     }
 }
 
 void MINT::add_reverse_attr_value
 	( min::attr_insptr & ap,
-	  min::vec_insptr & vp )
+	  min::obj_vec_insptr & vp )
 {
     typedef min::attr_insptr ap_type;
 
     attr_insptr rap ( vp );
     min::gen v = min::new_gen
-        ( MUP::stub_of ( vec_ptr_of ( ap.dlp ) ) );
+        ( MUP::stub_of ( obj_vec_ptr_of ( ap.dlp ) ) );
 
     min::locate ( rap, ap.reverse_attr_name );
     if ( rap.state != ap_type::LOCATE_NONE )
@@ -5779,8 +5781,8 @@ void MINT::add_reverse_attr_value
 	( min::attr_insptr & ap,
           min::gen v )
 {
-    vec_insptr & apvp =
-        vec_ptr_of ( ap.dlp );
+    obj_vec_insptr & apvp =
+        obj_vec_ptr_of ( ap.dlp );
     min::stub * aps = MUP::stub_of ( apvp );
     const min::stub * s = min::stub_of ( v );
     if ( s == aps )
@@ -5794,7 +5796,7 @@ void MINT::add_reverse_attr_value
     }
     else
     {
-        vec_insptr vp ( v );
+        obj_vec_insptr vp ( v );
 	MINT::add_reverse_attr_value ( ap, vp );
     }
 }
