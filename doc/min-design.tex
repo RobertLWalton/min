@@ -2722,7 +2722,7 @@ a \key{string pointer}:
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
-The constructor creates a string pointer pointing to the {\tt char}'s
+The constructors create a string pointer pointing to the {\tt char}'s
 of the string specified by the \verb|min::gen| or
 `\verb|min::stub *|' argument.  A \verb|min::gen| argument
 must be a direct string or a pointer to a short or long string stub,
@@ -2770,11 +2770,35 @@ The constructor
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( min::gen v )|
 \LABEL{MUP::STR_PTR_OF_GEN} \\
+\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( const min::stub * s )|
+\LABEL{MUP::STR_PTR_OF_STUB} \\
+\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( void )|
+\LABEL{MUP::STR_PTR_OF_VOID} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{@{}l}
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp, min::gen v )|
+\LABEL{MUP::=_STR_PTR_OF_GEN} \\
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
+\LABEL{MUP::=_STR_PTR_OF_STR_PTR} \\
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
+\LABEL{MUP::=_STR_PTR_OF_MUP_STR_PTR} \\
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp1, const min::stub * s )|
+\LABEL{MUP::=_STR_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
 is just like \verb|min::str_ptr| except that it assumes that
-\verb|v| is a string (i.e., that {\tt min::\EOL is\_\EOL str(v)} is
-true).  The {\tt min::\EOL initialize} function applied to an
+\verb|v| or `{\tt min::\EOL stub~*}' is a string
+(i.e., that {\tt min::\EOL is\_\EOL str(v)} is
+true).  The {\tt =} operator applied to an
 unprotected string pointer also makes the same assumption.
 
 The following unprotected functions
@@ -7755,6 +7779,10 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::| & \MINKEY{str\_ptr}\verb| sp ( min::gen v )|
 \LABEL{MIN::STR_PTR_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{str\_ptr}\verb| sp ( const min::stub * s )|
+\LABEL{MIN::STR_PTR_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{str\_ptr}\verb| sp ( void )|
+\LABEL{MIN::STR_PTR_OF_VOID} \\
 \end{TABULAR}
 
 \begin{LONGTABULAR}
@@ -7812,7 +7840,32 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( min::gen v )|
 \LABEL{MUP::STR_PTR_OF_GEN} \\
+\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( const min::stub * s )|
+\LABEL{MUP::STR_PTR_OF_STUB} \\
+\verb|(constructor) MUP::| & \MUPKEY{str\_ptr}\verb| sp ( void )|
+\LABEL{MUP::STR_PTR_OF_VOID} \\
 \end{TABULAR}
+
+\begin{LONGTABULAR}
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp, min::gen v )|
+\LABEL{MUP::=_STR_PTR_OF_GEN} \\
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
+\LABEL{MUP::=_STR_PTR_OF_STR_PTR} \\
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
+\LABEL{MUP::=_STR_PTR_OF_MUP_STR_PTR} \\
+\verb|MUP::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::str_ptr & sp1, const min::stub * s )|
+\LABEL{MUP::=_STR_PTR_OF_STUB} \\
+\end{LONGTABULAR}
+
+\medskip
 
 \begin{TABULAR}{1.8in}
 \verb|min::uns64 MUP::|
