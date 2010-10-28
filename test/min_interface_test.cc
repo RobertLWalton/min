@@ -2332,8 +2332,8 @@ void test_object_vector_level
 	MIN_ASSERT ( base[av+2] == num0 );
 	MIN_ASSERT ( base[av+3] == num0 );
 	min::attr_push ( vp, numv, 3 );
-	min::deinitialize ( vp );
-	min::initialize ( vp, v );
+	vp = min::NULL_STUB;
+	vp = v;
 	MIN_ASSERT ( base[av+1] == num1 );
 	MIN_ASSERT ( base[av+2] == num2 );
 	MIN_ASSERT ( base[av+3] == num3 );
@@ -2463,7 +2463,7 @@ void test_object_vector_level
 
     {
 	min::obj_vec_ptr vp ( sstub );
-	min::gen * & base = MUP::base ( vp );
+	const min::gen * & base = MUP::base ( vp );
 	min::unsptr total_size =
 	    min::total_size_of ( vp );
 
@@ -2475,8 +2475,8 @@ void test_object_vector_level
 	    MUP::attr_offset_of ( vp );
 	min::unsptr aux_offset =
 	    MUP::aux_offset_of ( vp );
-	min::deinitialize ( vp );
-	min::initialize ( vp, v );
+	vp = min::NULL_STUB;
+	vp = v;
 	MIN_ASSERT
 	    ( base[attr_offset] == min::LIST_END );
 	MIN_ASSERT
