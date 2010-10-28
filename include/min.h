@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 15:55:53 EDT 2010
+// Date:	Wed Oct 27 18:09:55 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4609,15 +4609,8 @@ namespace min {
     class obj_vec_updptr;
     class obj_vec_insptr;
 
-    void initialize
-	( min::obj_vec_ptr & vp, const min::stub * s );
-    void initialize
-	( min::obj_vec_ptr & vp, min::gen v );
-    void deinitialize
-	( min::obj_vec_ptr & vp );
-
     namespace unprotected {
-	min::gen * & base
+	const min::gen * & base
 	    ( min::obj_vec_ptr & vp );
 	min::stub * stub_of
 	    ( min::obj_vec_ptr & vp );
@@ -4632,8 +4625,6 @@ namespace min {
 	min::unsptr aux_offset_of
 	    ( min::obj_vec_ptr & vp );
     }
-    const min::stub * stub_of
-	( min::obj_vec_ptr & vp );
     min::unsptr var_size_of
 	( min::obj_vec_ptr & vp );
     min::unsptr hash_size_of
@@ -4655,15 +4646,6 @@ namespace min {
     min::gen aux
 	( min::obj_vec_ptr & vp, min::unsptr index );
 
-    void initialize
-	( min::obj_vec_updptr & vp,
-	  min::stub * s );
-    void initialize
-	( min::obj_vec_updptr & vp,
-	  min::gen v );
-    void deinitialize
-	( min::obj_vec_updptr & vp );
-
     namespace unprotected {
 	min::gen * & base
 	    ( min::obj_vec_updptr & vp );
@@ -4680,15 +4662,6 @@ namespace min {
     void set_aux
 	( min::obj_vec_updptr & vp,
 	  min::unsptr index, min::gen value );
-
-    void initialize
-	( min::obj_vec_insptr & vp,
-	  min::stub * s );
-    void initialize
-	( min::obj_vec_insptr & vp,
-	  min::gen v );
-    void deinitialize
-	( min::obj_vec_insptr & vp );
 
     namespace unprotected {
 	min::unsptr & unused_offset_of
@@ -4743,28 +4716,41 @@ namespace min {
 	      type ( READONLY )
 	    { init(); }
 	obj_vec_ptr ( void )
-	    : s ( NULL ),
-	      type ( READONLY )
+	    : s ( NULL ), type ( READONLY )
 	    { init(); }
 
 	~ obj_vec_ptr ( void )
 	{
+	    // If called by ~ obj_vec_updptr
+	    // s == NULL but type == UPDATABLE.
+	    //
 	    if ( s == NULL ) return;
 	    MIN_ASSERT ( type == READONLY );
 	    deinit();
 	}
 
+	operator const min::stub * ( void )
+	{
+	    return s;
+	}
+
+	obj_vec_ptr & operator =
+		( const min::stub * s )
+	{
+	    this->~obj_vec_ptr();
+	    new ( this ) obj_vec_ptr ( s );
+	}
+
+	obj_vec_ptr & operator =
+		( min::gen v )
+	{
+	    this->~obj_vec_ptr();
+	    new ( this ) obj_vec_ptr ( v );
+	}
+
         // Friends
 	//
-	friend void initialize
-	    ( min::obj_vec_ptr & vp,
-	      const min::stub * s );
-	friend void initialize
-	    ( min::obj_vec_ptr & vp, min::gen v );
-	friend void deinitialize
-	    ( min::obj_vec_ptr & vp );
-
-	friend min::gen * & unprotected::base
+	friend const min::gen * & unprotected::base
 	    ( min::obj_vec_ptr & vp );
 	friend min::stub * unprotected::stub_of
 	    ( min::obj_vec_ptr & vp );
@@ -4779,8 +4765,6 @@ namespace min {
 	friend min::unsptr unprotected::aux_offset_of
 	    ( min::obj_vec_ptr & vp );
 
-	friend const min::stub * stub_of
-	    ( min::obj_vec_ptr & vp );
 	friend min::unsptr var_size_of
 	    ( min::obj_vec_ptr & vp );
 	friend min::unsptr hash_size_of
@@ -4807,15 +4791,6 @@ namespace min {
 	    ( min::obj_vec_ptr & vp,
 	      min::unsptr index );
 
-	friend void initialize
-	    ( min::obj_vec_updptr & vp,
-	      min::stub * s );
-	friend void initialize
-	    ( min::obj_vec_updptr & vp,
-	      min::gen v );
-	friend void deinitialize
-	    ( min::obj_vec_updptr & vp );
-
 	friend min::gen * & unprotected::base
 	    ( min::obj_vec_updptr & vp );
 	friend void set_var
@@ -4830,15 +4805,6 @@ namespace min {
 	friend void set_aux
 	    ( min::obj_vec_updptr & vp,
 	      min::unsptr index, min::gen value );
-
-	friend void initialize
-	    ( min::obj_vec_insptr & vp,
-	      min::stub * s );
-	friend void initialize
-	    ( min::obj_vec_insptr & vp,
-	      min::gen v );
-	friend void deinitialize
-	    ( min::obj_vec_insptr & vp );
 
 	friend min::unsptr &
 	  unprotected::unused_offset_of
@@ -4891,8 +4857,8 @@ namespace min {
 	    UPDATABLE = 2,
 	    INSERTABLE = 3 };
 	int type;
-	    // Set by construction.  Checked by
-	    // initializer and deinitializer.
+	    // Set by constructor.  Checked by
+	    // destructor.
 
     	min::stub * s;
 	    // Stub of object; set by constructor.  NULL
@@ -4989,6 +4955,8 @@ namespace min {
 
 	void deinit ( void  )
 	{
+	    if ( s == NULL ) return;
+
 	    int t = min::type_of ( s );
 	    if ( t == min::SHORT_OBJ )
 	    {
@@ -5015,6 +4983,7 @@ namespace min {
 		    lo->aux_offset    = aux_offset;
 		}
 	    }
+
 	    s = NULL;
 	}
     };
@@ -5023,7 +4992,7 @@ namespace min {
 
     public:
 
-	obj_vec_updptr ( min::stub * s )
+	obj_vec_updptr ( const min::stub * s )
 	    : obj_vec_ptr ( s, UPDATABLE )
 	    {}
 	obj_vec_updptr ( min::gen v )
@@ -5036,9 +5005,26 @@ namespace min {
 
 	~ obj_vec_updptr ( void )
 	{
+	    // If called by ~ obj_vec_insptr
+	    // s == NULL but type == INSERTABLE.
+	    //
 	    if ( s == NULL ) return;
 	    MIN_ASSERT ( type == UPDATABLE );
 	    deinit();
+	}
+
+	obj_vec_updptr & operator =
+		( const min::stub * s )
+	{
+	    this->~obj_vec_updptr();
+	    new ( this ) obj_vec_updptr ( s );
+	}
+
+	obj_vec_updptr & operator =
+		( min::gen v )
+	{
+	    this->~obj_vec_updptr();
+	    new ( this ) obj_vec_updptr ( v );
 	}
 
     protected:
@@ -5055,13 +5041,12 @@ namespace min {
 
     public:
 
-	obj_vec_insptr ( min::stub * s )
+	obj_vec_insptr ( const min::stub * s )
 	    : obj_vec_updptr ( s, INSERTABLE )
 	    {}
 	obj_vec_insptr ( min::gen v )
 	    : obj_vec_updptr
-	          ( min::stub_of ( v ),
-		    INSERTABLE )
+	          ( min::stub_of ( v ), INSERTABLE )
 	    {}
 	obj_vec_insptr ( void )
 	    : obj_vec_updptr ( NULL, INSERTABLE )
@@ -5069,37 +5054,29 @@ namespace min {
 
 	~ obj_vec_insptr ( void )
 	{
-	    if ( s == NULL ) return;
 	    MIN_ASSERT ( type == INSERTABLE );
 	    deinit();
 	}
+
+	obj_vec_insptr & operator =
+		( const min::stub * s )
+	{
+	    this->~obj_vec_insptr();
+	    new ( this ) obj_vec_insptr ( s );
+	}
+
+	obj_vec_insptr & operator =
+		( min::gen v )
+	{
+	    this->~obj_vec_insptr();
+	    new ( this ) obj_vec_insptr ( v );
+	}
     };
 
-    inline void initialize
-	( min::obj_vec_ptr & vp, const min::stub * s )
-    {
-	vp.~obj_vec_ptr();
-        new ( & vp ) min::obj_vec_ptr ( s );
-    }
-
-    inline void initialize
-	( min::obj_vec_ptr & vp, min::gen v )
-    {
-	vp.~obj_vec_ptr();
-        new ( & vp ) min::obj_vec_ptr ( v );
-    }
-
-    inline void deinitialize
+    inline const min::gen * & unprotected::base
 	( min::obj_vec_ptr & vp )
     {
-	vp.~obj_vec_ptr();
-        new ( & vp ) min::obj_vec_ptr();
-    }
-
-    inline min::gen * & unprotected::base
-	( min::obj_vec_ptr & vp )
-    {
-	return * (min::gen **) &
+	return * (const min::gen **) &
 	       min::unprotected::ptr_ref_of
 	           ( vp.s );
     }
@@ -5134,11 +5111,6 @@ namespace min {
         return vp.aux_offset;
     }
 
-    inline const min::stub * stub_of
-	( min::obj_vec_ptr & vp )
-    {
-        return vp.s;
-    }
     inline min::unsptr var_size_of
 	( min::obj_vec_ptr & vp )
     {
@@ -6008,7 +5980,8 @@ namespace min { namespace unprotected {
 
         list_ptr_type ( vecpt & vecp )
 	    : vecp ( vecp ),
-	      base ( min::unprotected::base ( vecp ) ),
+	      base ( * (min::gen **) &
+	             min::unprotected::base ( vecp ) ),
 	      hash_offset ( 0 ), total_size ( 0 )
 	{
 	    current = min::LIST_END;
