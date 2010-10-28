@@ -968,7 +968,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     strcmp ( s8, p ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    strcmp ( s13, p2 ) == 0 true.
+    strcmp ( s13, pb ) == 0 true.
+../include/min.h:XXXX assert:
+    min::is_str ( v ) true.
+min_interface_test.cc:XXXX assert:
+    strcmp ( s13, pc ) == 0 true.
 
 Finish Strings Test!
 

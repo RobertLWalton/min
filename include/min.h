@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 28 07:03:30 EDT 2010
+// Date:	Thu Oct 28 08:59:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2892,6 +2892,8 @@ namespace min {
 		}
 	    }
 
+	    str_ptr ( void ) : s ( NULL ) {}
+
 	    // Operator[] MUST be a member and cannot
 	    // be a friend.
 	    //
@@ -2902,6 +2904,12 @@ namespace min {
 		      unprotected::long_str_of ( s ) )
 		    [sizeof ( unprotected::long_str )
 		     + index];
+	    }
+
+	    str_ptr & operator = ( const min::stub * s )
+	    {
+		new ( this ) str_ptr ( s );
+		return * this;
 	    }
 
 	    str_ptr & operator = ( min::gen v )
@@ -2946,9 +2954,6 @@ namespace min {
 		( const char * p,
 		  const unprotected::str_ptr & sp,
 		  min::unsptr n );
-
-	protected:
-	    str_ptr ( void ) {}
 
 	private:
 
@@ -3000,6 +3005,27 @@ namespace min {
 	{
 	    MIN_ASSERT ( min::is_str ( v ) );
 	    new ( this ) unprotected::str_ptr ( v );
+	}
+	str_ptr ( const min::stub * s )
+	{
+	    if ( s != NULL )
+	    {
+	        int t = min::type_of ( s );
+		MIN_ASSERT ( t == min::SHORT_STR
+		             ||
+		             t == min::LONG_STR );
+	    }
+	    new ( this ) unprotected::str_ptr ( s );
+	}
+	str_ptr ( void )
+	{
+	    new ( this ) unprotected::str_ptr();
+	}
+
+	str_ptr & operator = ( const min::stub * s )
+	{
+	    new ( this ) str_ptr ( s );
+	    return * this;
 	}
 
 	str_ptr & operator = ( min::gen v )
@@ -4864,8 +4890,9 @@ namespace min {
 	    // destructor.
 
     	min::stub * s;
-	    // Stub of object; set by constructor.  NULL
-	    // if vector pointer is deinitialized.
+	    // Stub of object; set by constructor.  May
+	    // be NULL if pointer is not pointing at any
+	    // object.
 
         min::unsptr	unused_offset;
         min::unsptr	aux_offset;
@@ -5182,28 +5209,6 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline void initialize
-	( min::obj_vec_updptr & vp,
-	  min::stub * s )
-    {
-	vp.~obj_vec_updptr();
-        new ( & vp ) min::obj_vec_updptr ( s );
-    }
-
-    inline void initialize
-	( min::obj_vec_updptr & vp, min::gen v )
-    {
-	vp.~obj_vec_updptr();
-        new ( & vp ) min::obj_vec_updptr ( v );
-    }
-
-    inline void deinitialize
-	( min::obj_vec_updptr & vp )
-    {
-	vp.~obj_vec_updptr();
-        new ( & vp ) min::obj_vec_updptr();
-    }
-
     inline min::gen * & unprotected::base
 	( min::obj_vec_updptr & vp )
     {
@@ -5251,29 +5256,6 @@ namespace min {
 	MIN_ASSERT ( index < vp.total_size );
 	unprotected::base(vp)[index] = value;
 	unprotected::acc_write_update ( vp.s, value );
-    }
-
-    inline void initialize
-	( min::obj_vec_insptr & vp,
-	  min::stub * s )
-    {
-	vp.~obj_vec_insptr();
-        new ( & vp ) min::obj_vec_insptr ( s );
-    }
-
-    inline void initialize
-	( min::obj_vec_insptr & vp,
-	  min::gen v )
-    {
-	vp.~obj_vec_insptr();
-        new ( & vp ) min::obj_vec_insptr ( v );
-    }
-
-    inline void deinitialize
-	( min::obj_vec_insptr & vp )
-    {
-	vp.~obj_vec_insptr();
-        new ( & vp ) min::obj_vec_insptr();
     }
 
     inline min::unsptr & unprotected::unused_offset_of
