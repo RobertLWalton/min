@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 18:09:55 EDT 2010
+// Date:	Thu Oct 28 07:03:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2858,8 +2858,9 @@ namespace min {
 	    str_ptr ( const min::stub * s )
 	        : s ( s )
 	    {
-		if (    min::type_of ( s )
-		     == min::LONG_STR )
+		if ( s == NULL ) return;
+		else if (    min::type_of ( s )
+		          == min::LONG_STR )
 		    return;
 
 		pseudo_body.u.str = s->v.u64;
@@ -2901,6 +2902,28 @@ namespace min {
 		      unprotected::long_str_of ( s ) )
 		    [sizeof ( unprotected::long_str )
 		     + index];
+	    }
+
+	    str_ptr & operator = ( min::gen v )
+	    {
+		new ( this ) str_ptr ( v );
+		return * this;
+	    }
+
+	    str_ptr & operator = ( const str_ptr & sp )
+	    {
+		if ( sp.s == & sp.pseudo_stub )
+		{
+		    pseudo_body = sp.pseudo_body;
+		    s = & pseudo_stub;
+		    min::unprotected
+		       ::set_ptr_of
+			   ( & pseudo_stub,
+			     (void *) & pseudo_body );
+		}
+		else
+		    s = sp.s;
+		return * this;
 	    }
 
 	    friend const char * min::unprotected::str_of
@@ -2978,6 +3001,18 @@ namespace min {
 	    MIN_ASSERT ( min::is_str ( v ) );
 	    new ( this ) unprotected::str_ptr ( v );
 	}
+
+	str_ptr & operator = ( min::gen v )
+	{
+	    new ( this ) str_ptr ( v );
+	    return * this;
+	}
+
+	str_ptr & operator = ( const str_ptr & sp )
+	{
+	    * (unprotected::str_ptr *) this = sp;
+	    return * this;
+	}
     };
 
     inline const char * unprotected::str_of
@@ -2987,19 +3022,6 @@ namespace min {
 	       min::unprotected::long_str_of ( sp.s )
 	       +
 	       sizeof ( min::unprotected::long_str );
-    }
-
-    inline void initialize
-	    ( min::unprotected::str_ptr & sp,
-	      min::gen v )
-    {
-	new ( & sp ) min::unprotected::str_ptr ( v );
-    }
-
-    inline void initialize
-	    ( min::str_ptr & sp, min::gen v )
-    {
-	new ( & sp ) min::str_ptr ( v );
     }
 
     inline min::unsptr strlen
@@ -3147,27 +3169,35 @@ namespace min {
 	public:
 
 	    lab_ptr ( min::gen v )
-	    {
-		new ( this )
-		    lab_ptr
-			( unprotected::stub_of ( v ) );
-	    }
+		: s ( min::stub_of ( v ) ) {}
 
 	    lab_ptr ( const min::stub * s )
-		: stub ( s ) {}
+		: s ( s ) {}
 
 	    lab_ptr ( void )
-		: stub ( NULL ) {}
-
-	    ~ lab_ptr ( void )
-	    {
-		stub = NULL;
-	    }
+		: s ( NULL ) {}
 
 	    const min::gen operator [] ( min::uns32 i )
 	    {
 		MIN_ASSERT ( i < header()->length );
 		return base()[i];
+	    }
+
+	    operator const min::stub * ( void )
+	    {
+	        return s;
+	    }
+
+	    lab_ptr & operator = ( min::gen v )
+	    {
+	        new ( this ) lab_ptr ( v );
+		return * this;
+	    }
+
+	    lab_ptr & operator = ( const min::stub * s )
+	    {
+	        new ( this ) lab_ptr ( s );
+		return * this;
 	    }
 
 	    friend min::uns32 min::length_of
@@ -3177,16 +3207,16 @@ namespace min {
 		    ( min::unprotected
 			 ::lab_ptr & labp );
 
-	private:
+	protected:
 
-	    const min::stub * stub;
+	    const min::stub * s;
 
 	    internal::lab_header * header ( void )
 	    {
 		return
 		    * (internal::lab_header **) &
 		    unprotected::ptr_ref_of
-			( (min::stub *) stub );
+			( (min::stub *) s );
 	    }
 
 	    const min::gen * base ( void )
@@ -3202,61 +3232,32 @@ namespace min {
     public:
 
         lab_ptr ( min::gen v )
+	    : unprotected::lab_ptr ( v )
 	{
-	    const min::stub * s = stub_of ( v );
 	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
-	    new ( this )
-	        unprotected::lab_ptr ( s );
 	}
 
         lab_ptr ( const min::stub * s )
+	    : unprotected::lab_ptr ( s )
 	{
 	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
-	    new ( this )
-	        unprotected::lab_ptr ( s );
 	}
 
         lab_ptr ( void ) {}
 
+	lab_ptr & operator = ( min::gen v )
+	{
+	    new ( this ) lab_ptr ( v );
+	    return * this;
+	}
+
+	lab_ptr & operator = ( const min::stub * s )
+	{
+	    new ( this ) lab_ptr ( s );
+	    return * this;
+	}
+
     };
-
-    inline void initialize
-	    ( min::unprotected::lab_ptr & labp,
-    	      min::gen v )
-    {
-        labp.~lab_ptr();
-	new ( & labp ) min::unprotected
-	                  ::lab_ptr ( v );
-    }
-
-    inline void initialize
-	    ( min::unprotected::lab_ptr & labp,
-    	      const min::stub * s )
-    {
-        labp.~lab_ptr();
-	new ( & labp ) min::unprotected
-	                  ::lab_ptr ( s );
-    }
-
-    inline void deinitialize
-        ( min::unprotected::lab_ptr & labp )
-    {
-        labp.~lab_ptr();
-    }
-
-    inline void initialize ( min::lab_ptr & labp,
-    			     min::gen v )
-    {
-        labp.~lab_ptr();
-	new ( & labp ) min::lab_ptr ( v );
-    }
-
-    inline void initialize ( min::lab_ptr & labp,
-    			     const min::stub * s )
-    {
-        labp.~lab_ptr();
-	new ( & labp ) min::lab_ptr ( s );
-    }
 
     inline min::uns32 length_of
 	    ( min::unprotected::lab_ptr & labp )
@@ -4739,6 +4740,7 @@ namespace min {
 	{
 	    this->~obj_vec_ptr();
 	    new ( this ) obj_vec_ptr ( s );
+	    return * this;
 	}
 
 	obj_vec_ptr & operator =
@@ -4746,6 +4748,7 @@ namespace min {
 	{
 	    this->~obj_vec_ptr();
 	    new ( this ) obj_vec_ptr ( v );
+	    return * this;
 	}
 
         // Friends
@@ -5018,6 +5021,7 @@ namespace min {
 	{
 	    this->~obj_vec_updptr();
 	    new ( this ) obj_vec_updptr ( s );
+	    return * this;
 	}
 
 	obj_vec_updptr & operator =
@@ -5025,6 +5029,7 @@ namespace min {
 	{
 	    this->~obj_vec_updptr();
 	    new ( this ) obj_vec_updptr ( v );
+	    return * this;
 	}
 
     protected:
@@ -5063,6 +5068,7 @@ namespace min {
 	{
 	    this->~obj_vec_insptr();
 	    new ( this ) obj_vec_insptr ( s );
+	    return * this;
 	}
 
 	obj_vec_insptr & operator =
@@ -5070,6 +5076,7 @@ namespace min {
 	{
 	    this->~obj_vec_insptr();
 	    new ( this ) obj_vec_insptr ( v );
+	    return * this;
 	}
     };
 

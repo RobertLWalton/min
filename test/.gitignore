@@ -1,4 +1,6 @@
 *.out
 *_test
-*_test_loose*
-*_test_compact*
+*_loose
+*_compact
+*_stretch
+*_partial
