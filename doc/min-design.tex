@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 27, 2010}
+\date{October 28, 2010}
  
 \maketitle
 
@@ -2670,9 +2670,28 @@ a \key{string pointer}:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{str\_ptr}\verb| sp ( min::gen v )|
 \LABEL{MIN::STR_PTR_OF_GEN} \\
-\verb|void min::|
-    & \MINKEY{initialize}\verb| ( min::str_ptr & sp, min::gen v )|
-\LABEL{MIN::INIT_OF_STR_PTR} \\[1ex]
+\verb|(constructor) min::| & \MINKEY{str\_ptr}\verb| sp ( const min::stub * s )|
+\LABEL{MIN::STR_PTR_OF_STUB} \\
+\verb|(constructor) min::| & \MINKEY{str\_ptr}\verb| sp ( void )|
+\LABEL{MIN::STR_PTR_OF_VOID} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{@{}l}
+\verb|min::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::str_ptr & sp, min::gen v )|
+\LABEL{MIN::=_STR_PTR_OF_GEN} \\
+\verb|min::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::str_ptr & sp1, const min::str_ptr & sp2 )|
+\LABEL{MIN::=_STR_PTR_OF_STR_PTR} \\
+\verb|min::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::str_ptr & sp1, const min::stub * s )|
+\LABEL{MIN::=_STR_PTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::str_ptr & sp )|
 \LABEL{MIN::STRLEN_OF_STR_PTR} \\
 \verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( min::str_ptr & sp )|
@@ -2704,15 +2723,25 @@ a \key{string pointer}:
 \end{tabular}\end{indpar}
 
 The constructor creates a string pointer pointing to the {\tt char}'s
-of the string specified by the \verb|min::gen| argument.  This argument
-must be a direct string or a pointer to a short or long string stub.
-The {\tt min::initialize} function can reset the string
-pointer to point at a different \verb|min::gen| value.
+of the string specified by the \verb|min::gen| or
+`\verb|min::stub *|' argument.  A \verb|min::gen| argument
+must be a direct string or a pointer to a short or long string stub,
+and a stub pointer must be a pointer to a short or long string stub,
+or be {\tt min::\EOL NULL\_\EOL STUB}.
+The {\tt =} operator can reset the string
+pointer to point at a different \verb|min::gen| value, or at the
+value pointed at by another string pointer.
+If a constructor is given no argument or 
+{\tt min::\EOL NULL\_\EOL STUB},
+or the {\tt =} right side is
+{\tt min::\EOL NULL\_\EOL STUB}, the string pointer is set to not
+point at anything, and using it is undefined (but will probably
+cause a memory fault).
 
 The \verb|strlen|, \verb|strhash|, \verb|strcpy|, \verb|strncpy|,
 \verb|strcmp|, and \verb|strncmp| functions retrieve the same information
 about the string pointed at by a string pointer as they retrieve about
-the string {\tt min::gen} value the pointer points at.
+the string value the pointer points at.
 
 The {\tt MUP::str\_of} function returns a standard C++ pointer to the string,
 taking care to ensure the vector of {\tt char}'s is NUL-terminated.
@@ -2722,7 +2751,8 @@ function is called.  This is why this function is unprotected.
 
 The \verb|[ ]| operator can be used to access individual characters
 in a string.  If {\tt sp} is a string pointer, `\verb|sp[i]|' is
-shorthand for `\verb|MUP::str_of(sp)[i]|'.
+shorthand for `\verb|MUP::str_of(sp)[i]|'.  There is no protection
+against \verb|i| being longer than the string length.
 
 For direct and short strings the string pointer, when it is created,
 copies the string {\tt char}'s into a buffer internal to the string pointer,
@@ -7725,11 +7755,25 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::| & \MINKEY{str\_ptr}\verb| sp ( min::gen v )|
 \LABEL{MIN::STR_PTR_OF_GEN} \\
-\verb|void min::|
-    & \MINKEY{initialize}\ARGBREAK
-      \verb| ( min::str_ptr & sp, min::gen v )|
-\LABEL{MIN::INIT_OF_STR_PTR} \\[1ex]
-\verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::str_ptr & sp )|
+\end{TABULAR}
+
+\begin{LONGTABULAR}
+\verb|min::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::str_ptr & sp, min::gen v )|
+\LABEL{MIN::=_STR_PTR_OF_GEN} \\
+\verb|min::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::str_ptr & sp1, const min::str_ptr & sp2 )|
+\LABEL{MIN::=_STR_PTR_OF_STR_PTR} \\
+\verb|min::str_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::str_ptr & sp1, const min::stub * s )|
+\LABEL{MIN::=_STR_PTR_OF_STUB} \\
+\end{LONGTABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_STR_PTR} \\
 \verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( min::str_ptr & sp )|
 \LABEL{MIN::STRHASH_OF_STR_PTR} \\[1ex]

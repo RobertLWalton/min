@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 28 07:08:16 EDT 2010
+// Date:	Thu Oct 28 09:13:19 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1722,10 +1722,14 @@ void test_strings ( void )
 
     min::str_ptr p = strgen13;
     MIN_ASSERT ( strcmp ( s13, p ) == 0 );
-    min::str_ptr p2 = p;
+    min::str_ptr pb = p;
     p = strgen8;
     MIN_ASSERT ( strcmp ( s8, p ) == 0 );
-    MIN_ASSERT ( strcmp ( s13, p2 ) == 0 );
+    MIN_ASSERT ( strcmp ( s13, pb ) == 0 );
+    min::str_ptr pc;
+    pb = min::NULL_STUB;
+    pc = strgen13;
+    MIN_ASSERT ( strcmp ( s13, pc ) == 0 );
     
     cout << endl;
     cout << "Finish Strings Test!" << endl;
