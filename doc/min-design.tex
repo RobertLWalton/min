@@ -2902,29 +2902,29 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 \LABEL{MIN::LAB_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
 	& \MINKEY{lab\_ptr}%
-	  \verb| labp ( min::stub * s )|
+	  \verb| labp ( const min::stub * s )|
 \LABEL{MIN::LAB_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
 	& \MINKEY{lab\_ptr}%
 	  \verb| labp ( void )|
 \LABEL{MIN::LAB_PTR_OF_VOID} \\
+\verb|const min::stub * |
+	& \TTKEY{operator const min::stub *} \ARGBREAK
+          \verb| ( const min::lab_ptr & labp )|
+\LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::lab_ptr & labp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_LAB_PTR_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::lab_ptr & labp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_LAB_PTR_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::lab_ptr & labp )|
-\LABEL{MIN::DEINITIALIZE_LAB_PTR} \\
+
+\begin{indpar}\begin{tabular}{@{}l}
+\verb|min::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::lab_ptr & labp, min::gen v )|
+\LABEL{MIN::=_LAB_PTR_OF_GEN} \\
+\verb|min::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
+\LABEL{MIN::=_LAB_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
+
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const T & min::|
 	& \ttkey{operator [ ]}\ARGBREAK
@@ -2955,18 +2955,13 @@ memcpy ( ..., & labp[0], sizeof ( T ) * min::length_of ( labp ) );
 \end{verbatim}\end{indpar}
 
 The form of constructor that has no argument creates a label pointer
-that is not pointing at any label.
-In this last case the label pointer must
-be initialized by the {\tt min::\EOL initialize} function before the pointer
-is used; use before initialization will give undefined results, though
-attempts to access
-label elements using the pointer usually result in memory faults.
-
-The {\tt min::initialize} functions destruct the label pointer and then
-reconstruct it.  The {\tt min::\EOL deinitialize} function destructs
-the label pointer and leaves it not pointing at any object stub.
-Use of such a destructed pointer is undefined, but attempts to access
-label elements using it usually result in memory faults.
+that is not pointing at any label, and will produce undefined results
+if used (typically usage causes a memory fault).  Such a label pointer can also
+be created by giving the constructor the argument
+{\tt min::\EOL NULL\_\EOL STUB}.  The {\tt =} operator can be used
+to change the label a label pointer is pointing at, or by setting the
+label pointer to {\tt min::\EOL NULL\_\EOL STUB}, make the pointer
+not point at any label.
 
 The length of a label is the number of elements (general values) in the label.
 The length of a label may be read from a label pointer, or may be read
@@ -3084,9 +3079,24 @@ value \verb|v| or \verb|min::stub *| value \verb|s| is a label:
 	& \MUPKEY{lab\_ptr}%
 	  \verb| labp ( void )|
 \LABEL{MUP::LAB_PTR_OF_VOID} \\
+\verb|const min::stub * |
+	& \TTKEY{operator const min::stub *} \ARGBREAK
+          \verb| ( const MUP::lab_ptr & labp )|
+\LABEL{MUP::LAB_PTR_TO_MIN_STUB} \\
 \end{tabular}\end{indpar}
 
-The \verb|min::initialize| function applied to these unprotected
+\begin{indpar}\begin{tabular}{@{}l}
+\verb|MUP::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::lab_ptr & labp, min::gen v )|
+\LABEL{MUP::=_LAB_PTR_OF_GEN} \\
+\verb|MUP::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::lab_ptr & labp, const min::stub * s )|
+\LABEL{MUP::=_LAB_PTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+The {\tt =} operator applied to these unprotected
 pointers also makes the same assumption.
 
 \subsection{Names}
@@ -7904,24 +7914,26 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{lab\_ptr}%
 	  \verb| labp ( void )|
 \LABEL{MIN::LAB_PTR_OF_VOID} \\
+\verb|const min::stub * |
+	& \TTKEY{operator const min::stub *} \ARGBREAK
+          \verb| ( const min::lab_ptr & labp )|
+\LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.8in}
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::lab_ptr & labp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::INITIALIZE_LAB_PTR_OF_GEN} \\
-\verb|void min::|
-	& \MINKEY{initialize}\ARGBREAK
-	  \verb| ( min::lab_ptr & labp,|\ARGBREAK
-	  \verb|   min::stub * s )|
-\LABEL{MIN::INITIALIZE_LAB_PTR_OF_STUB} \\
-\verb|void min::|
-	& \MINKEY{deinitialize}\ARGBREAK
-	  \verb| ( min::lab_ptr & labp )|
-\LABEL{MIN::DEINITIALIZE_LAB_PTR} \\
-\end{TABULAR}
+\medskip
+
+\begin{LONGTABULAR}
+\verb|min::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::lab_ptr & labp, min::gen v )|
+\LABEL{MIN::=_LAB_PTR_OF_GEN} \\
+\verb|min::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
+\LABEL{MIN::=_LAB_PTR_OF_STUB} \\
+\end{LONGTABULAR}
+
+\medskip
 
 \begin{TABULAR}{1.8in}
 \verb|const T & min::|
@@ -7995,7 +8007,22 @@ These are in \verb|min_parameters.h|.
 	& \MUPKEY{lab\_ptr}%
 	  \verb| labp ( void )|
 \LABEL{MUP::LAB_PTR_OF_VOID} \\
+\verb|const min::stub * |
+	& \TTKEY{operator const min::stub *} \ARGBREAK
+          \verb| ( const MUP::lab_ptr & labp )|
+\LABEL{MUP::LAB_PTR_TO_MIN_STUB} \\
 \end{TABULAR}
+
+\begin{LONGTABULAR}
+\verb|MUP::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::lab_ptr & labp, min::gen v )|
+\LABEL{MUP::=_LAB_PTR_OF_GEN} \\
+\verb|MUP::lab_ptr & |
+	  \TTKEY{operator =}\LONGARGBREAK
+	  \verb| ( MUP::lab_ptr & labp, const min::stub * s )|
+\LABEL{MUP::=_LAB_PTR_OF_STUB} \\
+\end{LONGTABULAR}
 
 \end{indpar}
 
