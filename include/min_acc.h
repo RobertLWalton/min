@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 30 07:17:44 EDT 2010
+// Date:	Tue Nov  2 05:32:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1070,24 +1070,16 @@ namespace min { namespace acc {
     // in higher levels.  Newly allocated stubs are
     // put in the highest level N.
     //
-    // The collector can run one collector scavenging
-    // algorithm execution for each level independently
-    // and in parallel.  These are known as `scaveng-
-    // ings'.  A level L scavenging marks all stubs in
-    // levels >= L that are pointed to by stubs in the
-    // level L root list or by executing threads or
+    // The collector can run one collection algorithm
+    // execution for each level independently and in
+    // parallel.  Such an execution for level L is known
+    // as a `level L collection'.  This marks all stubs
+    // on levels >= L that are pointed to by stubs in
+    // the level L root list or by executing threads or
     // static memory, and recursively marks any stub
-    // pointed at by a marked stub.
-    //
-    // The operation of `scavenging' a stub refers to
-    // examining all the pointers in the stub and
-    // marking any stubs pointed at if the stubs are
-    // of the proper level.  Whenever a stub is first
-    // marked it is put on a to-be-scavenged list.
-    // Each level L has a root list that contains all
-    // stubs of level < L that might point at a stub
-    // of level >= L, and the stubs in the level L
-    // root list are scavenged by a level L scavenging.
+    // pointed at by a marked stub.  It then examines
+    // all stubs on levels >=L and collects any unmarked
+    // stubs.
     //
     // A collection is divided into pre-scavenging
     // phases, a.k.a. initing phases, during which
@@ -1095,6 +1087,32 @@ namespace min { namespace acc {
     // during which stubs are marked and scavenged,
     // and post-scavenging phases, a.k.a collecting
     // phases, during which unmarked stubs are deleted.
+    //
+    // To scavenge a stub means to examine the stub data
+    // for pointers to other stubs, and mark any of
+    // these other stubs that satisify the criteria of
+    // the current collection execution (i.e., the
+    // stub's level is one being marked).  The stub data
+    // consists of the stub, any body pointed at by the
+    // stub, and any aux stubs pointed at by stub data
+    // (recursively).  We say that a stub s1 points at a
+    // stub s2 if the data of s1 contains a pointer to
+    // s2.
+    //
+    // Whenever a stub is first marked it is put on a
+    // to-be-scavenged list.  Each level L has a root
+    // list that contains all stubs of level < L that
+    // might point at a stub of level >= L, and the
+    // stubs in the level L root list are also scavenged
+    // by a level L collection.
+    //
+    // All stubs that are not aux stubs are chained
+    // together by pointers in their control word to
+    // form a list called the acc list.  The allocated
+    // stubs appear first in this list, and then the
+    // free stubs.  The allocated stubs are in order
+    // of age, so the stubs of lower level appear before
+    // the stubs of higher level in this list.
     //
     // The `mutator' refers to all code outside the
     // collector algorithm execution.  The mutator may
@@ -1209,21 +1227,23 @@ namespace min { namespace acc {
     // MINT::acc_stack Processing:
     //
     //   The MINT::acc_stack is processed separately by
-    //   the MACC::process_acc_stack routine which is
-    //   run at the same times and in preference to
-    //   other acc functions.
+    //   the MACC::process_acc_stack routine.  This is
+    //   run in preference to other acc functions when-
+    //   ever an acc algorithm is executed.
     //
     //   The MINT::acc_stack contains stub pointer pairs
     //   (s1,s2) such that a pointer to s2 has been
-    //   stored in the datum of s1 (in s1 or its body).
-    //   The MINT::process_acc_stack routine processes
-    //   these pairs.
+    //   stored in the s1 data (in the s1 stub, any body
+    //   pointed at the stub, or any aux stub pointed at
+    //   by s1 data, recursively).  The MINT::process_
+    //   acc_stack routine processes these pairs.
     //
     //   If the MINT::process_acc_stack routine finds a
     //   level L scavenged stub s1 pointing at a level L
-    //   unmarked stub s2, and if the acc_stack_mask
-    //   level L unmarked flag is on, the routine turns
-    //   off the s2 level L unmarked flag, and if s2 is
+    //   unmarked stub s2 (i.e., the s1 data contains a
+    //   pointer to s2), and if the acc_stack_mask level
+    //   L unmarked flag is on, the routine turns off
+    //   the s2 level L unmarked flag, and if s2 is
     //   scavengable, puts s2 on the level L to-be-sca-
     //   venged stack.  A stub is scavengable if and
     //   only if MINT::scavenger_routine[type_of(s2)] is
@@ -1240,7 +1260,7 @@ namespace min { namespace acc {
     //   phases, then the s1 level L scavenged flag is
     //   turned on, and if the s2 level L unmarked flag
     //   is on, it is turned off and s2 is put on the
-    //   level L to-be-scavenged list is s2 is scaveng-
+    //   level L to-be-scavenged list if s2 is scaveng-
     //   able.  This is an efficiency measure as the new
     //   root s1 contains only one pointer at a stub of
     //   level >= L, namely the pointer to s2, so there
@@ -1254,13 +1274,15 @@ namespace min { namespace acc {
     //   is always put in the highest level.  Normally
     //   the flags set are as follows:
     //
-    //	     all collectible flags are set
+    //	     all collectible flags are set (because a
+    //		 new stub is in the highest level)
     //	     all unmarked flags are set according to
     //		 the state of the collector; during 
     //		 pre-scavenging and scavenging phases
-    //		 unmarked flags are set; during post
-    //		 scavanging (garbage collection) phases
-    //		 unmarked flags are cleared
+    //		 of a level L collection, level L un-
+    //		 marked flags are set; during post
+    //		 scavanging phases, level L unmarked
+    //		 flags are cleared
     //	     all scavenged flags are cleared
     //	     all non-root flags are cleared
     //
@@ -1276,12 +1298,12 @@ namespace min { namespace acc {
     //   immediately after allocating the stub with the
     //   flags given above it may be marked at level L.
     //   This means its level L unmarked flag will be
-    //   cleared and it will be put on the level L
-    //   to-be-scavenged list.  This keeps pointers to
-    //   unmarked stubs out of the thread stacks and
-    //   makes further thrashing less likely, at the
-    //   cost of retaining stubs beyond when they are
-    //   accessible.
+    //   cleared and if it is scavengable it will be put
+    //   on the level L to-be-scavenged list.  This
+    //   keeps pointers to unmarked stubs out of the
+    //   thread stacks and makes further thrashing less
+    //   likely, at the cost of retaining stubs beyond
+    //   when they are accessible.
     //
     //   Hash tables are a special case, as they are
     //   not part of the root lists of any level, so
