@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 28 08:59:15 EDT 2010
+// Date:	Sat Oct 30 18:48:15 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1882,38 +1882,48 @@ namespace min { namespace unprotected {
 namespace min { namespace internal {
 
     // Stub allocation is from a single list of stubs
-    // chained together by the chain part of the stub
-    // control.  This is referred to as the `acc stub
+    // chained together by the pointers in the stub
+    // controls.  This is referred to as the `acc stub
     // list'.  It is null_stub terminated.
+    //
+    // The acc stub list is divided into two segments.
+    // The first is the allocated stubs, and the second
+    // is the free stubs.
     //
     // A pointer to the last allocated stub is maintain-
     // ed.  To allocate a new stub, this is updated to
-    // the next stub on the list, if any.  Otherwise, if
-    // there is no next stub, an out-of-line function,
-    // acc_expand_stub_free_list, is called to add to
-    // the end of the list.
+    // the next stub on the acc list, if any.  Other-
+    // wise, if there is no next stub (i.e., no free
+    // stubs on the acc list), an out-of-line function,
+    // acc_expand_stub_free_list, is called to add more
+    // free stubs to the end of the acc list.
     //
-    // Unallocated acc stubs have stub type min::
-    // ACC_FREE, zero stub control flags, and min::NONE
-    // value.
+    // Free acc list stubs have stub type min::ACC_FREE,
+    // zero stub control flags, and min::NONE value.
+    //
+    // Free stubs can be removed completely from the
+    // acc list for use as aux stubs.  These are not
+    // garbage collectible.  When freed, aux stubs are
+    // put back on the acc list as free stubs.
 
     // Pointers to the first and last allocated stub.
     //
-    // The first garbage collectible stub is the
-    // stub pointed at by the control word of the
-    // first_allocated_stub (which is not itself
-    // garbage collectible), and the last garbage
-    // collectible stub is pointed at by last_allocated_
-    // stub (unless there are no garbage collectible
-    // stubs, in which case last_allocated_stub equals
-    // first_allocated_stub).
+    // The first acc list stub is the stub pointed at by
+    // the control word of the first_allocated_stub
+    // (which is not itself on the acc list, and there-
+    // fore not actually `allocated').  The first free
+    // stub on the acc list is pointed at by the control
+    // word of the last_allocated_stub.  If there are
+    // allocated stubs on the acc list, the last_alloca-
+    // ted_stub is the last of these; otherwise it
+    // equals first_allocated_stub.
     //
     // First_allocated_stub may equal MINT::null_stub
     // for some system configurations.
     //
-    // The control word of last_allocated_stub points
-    // at the first free stub, or at MINT::null_stub
-    // if there are no free stubs.
+    // The acc list is MINT::null_stub terminated.  So
+    // if there are no free stubs, the control word of
+    // last_allocate_stub points at MINT::null_stub.
     //
     extern min::stub * first_allocated_stub;
     extern min::stub * last_allocated_stub;
@@ -2406,6 +2416,11 @@ namespace min { namespace internal {
     //
     extern scavenger_routine scavenger_routines[128];
 
+    inline bool is_scavengable ( int type )
+    {
+        return scavenger_routines[type] != NULL;
+    }
+
     // Function to scavenge the thread stack_gen and
     // stack_num_gen structures and the static_gen
     // and static_num_gen structures, finding all
@@ -2554,8 +2569,12 @@ namespace min { namespace internal {
     //
     extern unsigned number_of_acc_levels;
 
-    inline scavenge_control * is_being_scavenged
-    	    ( min::stub * s1 )
+    // Searches scavenge_controls to see if a stub is
+    // being scavenged and returns true if yes and false
+    // it no.  A stub is being scavenged only if a
+    // scavenge of the stub was interrupted.
+    //
+    inline bool is_being_scavenged ( min::stub * s1 )
     {
         for ( scavenge_control * sc = scavenge_controls;
 	      sc <   scavenge_controls
@@ -2563,9 +2582,9 @@ namespace min { namespace internal {
 	      ++ sc )
 	{
 	    if ( sc->state != 0 && sc->s1 == s1 )
-	        return sc;
+	        return true;
 	}
-	return NULL;
+	return false;
     }
 
 } }

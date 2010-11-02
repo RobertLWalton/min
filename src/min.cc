@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 16:05:39 EDT 2010
+// Date:	Sat Oct 30 18:36:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -521,8 +521,7 @@ static void lab_scavenger_routine
 	        ; // do nothing
 	    else if ( type < 0
 	              ||
-		         MINT::scavenger_routines[type]
-		      == NULL )
+		      ! MINT::is_scavengable ( type ) )
 		MUP::clear_flags_of
 		    ( s2, sc.stub_flag );
 	    else if (    sc.to_be_scavenged
@@ -606,8 +605,7 @@ static void packed_struct_scavenger_routine
 
 	    if ( ( c & sc.stub_flag ) == 0 )
 		; // Do nothing
-	    else if ( MINT::scavenger_routines[type]
-		      == NULL )
+	    else if ( ! MINT::is_scavengable ( type ) )
 		MUP::clear_flags_of
 		    ( s2, sc.stub_flag );
 	    else if (    sc.to_be_scavenged
@@ -655,8 +653,7 @@ static void packed_struct_scavenger_routine
 
 	    if ( ( c & sc.stub_flag ) == 0 )
 		; // Do nothing
-	    else if ( MINT::scavenger_routines[type]
-		      == NULL )
+	    else if ( ! MINT::is_scavengable ( type ) )
 		MUP::clear_flags_of
 		    ( s2, sc.stub_flag );
 	    else if (    sc.to_be_scavenged
@@ -763,8 +760,8 @@ static void packed_vec_scavenger_routine
 
 		if ( ( c & sc.stub_flag ) == 0 )
 		    ; // Do nothing
-		else if ( MINT::scavenger_routines[type]
-			  == NULL )
+		else if ( ! MINT::is_scavengable
+		                ( type ) )
 		    MUP::clear_flags_of
 			( s2, sc.stub_flag );
 		else if (    sc.to_be_scavenged
@@ -821,8 +818,8 @@ static void packed_vec_scavenger_routine
 
 		if ( ( c & sc.stub_flag ) == 0 )
 		    ; // Do nothing
-		else if ( MINT::scavenger_routines[type]
-			  == NULL )
+		else if ( ! MINT::is_scavengable
+		                ( type ) )
 		    MUP::clear_flags_of
 			( s2, sc.stub_flag );
 		else if (    sc.to_be_scavenged
@@ -910,9 +907,8 @@ static void packed_vec_scavenger_routine
 		    ++ sc.stub_count;
 		    accumulator |= c;
 		}
-		else if ( MINT::scavenger_routines
-				   [type]
-			  == NULL )
+		else if ( ! MINT::is_scavengable
+		                ( type ) )
 		{
 		    MUP::clear_flags_of
 			( s2, sc.stub_flag );
@@ -1010,8 +1006,7 @@ static void obj_scavenger_routine
 		++ sc.stub_count;
 		accumulator |= c;
 	    }
-	    else if ( MINT::scavenger_routines[type]
-		      == NULL )
+	    else if ( ! MINT::is_scavengable ( type ) )
 	    {
 		MUP::clear_flags_of
 		    ( s2, sc.stub_flag );
@@ -1084,8 +1079,7 @@ void MINT::thread_scavenger_routine
 
 	    if ( ( c & sc.stub_flag ) == 0 )
 	        ; // do nothing
-	    else if ( MINT::scavenger_routines[type]
-		      == NULL )
+	    else if ( ! MINT::is_scavengable ( type ) )
 		MUP::clear_flags_of
 		    ( s2, sc.stub_flag );
 	    else if (    sc.to_be_scavenged

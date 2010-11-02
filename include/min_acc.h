@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:12:34 EDT 2010
+// Date:	Sat Oct 30 07:17:44 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -50,16 +50,17 @@ namespace min { namespace acc {
     // pages that can hold MACC::max_stubs stubs.  It
     // then allocates new stubs as needed from the
     // beginning of this region working up.  Newly
-    // added stubs are appended to the list of free
-    // stubs headed by the control word of MINT::
-    // last_allocated_stub.
+    // added stubs are appended to the acc stub list as
+    // free stubs.  See min.h for a description of the
+    // acc stub list.
     //
     // The Collector, and NOT the Allocator, frees
     // acc stubs and adds the freed stubs to the list
     // of free stubs.  The Allocator is only called to
-    // allocate stubs when the list of free stubs is
-    // exhausted.  The following, defined in min.h,
-    // is the interface to the stub allocator:
+    // allocate stubs when the list of free stubs on the
+    // acc stub list is exhausted.  The following,
+    // defined in min.h, is the interface to the stub
+    // allocator:
     //
     //  min::stub * MINT::null_stub
     //    // Address of stub with index 0.  This stub
@@ -67,13 +68,9 @@ namespace min { namespace acc {
     //    //
     //    // This address is used instead of the value
     //    // NULL when a real stub address is required.
-    //	  // If MIN_BASE is defined this is defined to
-    //    // be a constant equal to MIN_BASE; otherwise
-    //    // it is the first real stub (== stub_begin
-    //	  // below) and is given the DEALLOCATED type.
-    //    // It is possible that MIN_BASE == stub_begin
-    //    // and null_stub is both a constant and the
-    //    // first real stub.
+    //    // It may or may not address a real stub, and
+    //    // may or may not == stub_begin (defined
+    //    // below).
     //  min::unsptr MINT::stub_base
     //    // Ditto but as a min::unsptr integer.
     //	void MINT::acc_expand_free_stub_list
@@ -90,16 +87,18 @@ namespace min { namespace acc {
     //    // Count of stubs on free stub list.
     //  min::stub * MINT::first_allocated_stub
     //    // The control word of this stub points at the
-    //    // first acc or free stub or is MINT::
-    //    // null_stub if there are no acc stubs or
-    //    // free stubs.  MINT::first_allocated_stub
-    //    // may or may not equal MINT::null_stub.
+    //    // first stub on the acc stub list, or is
+    //    // MINT::null_stub if the list is empty.
+    //    // MINT::first_allocated_stub may or may not
+    //    // equal MINT::null_stub.
     //  min::stub * MINT::last_allocated_stub
     //    // The control word of this stub points at the
-    //    // first free stub or is MINT::null_stub if
-    //    // there are no free stubs.  This is the
-    //    // last acc stub, or equals MINT::first_
-    //    // allocated_stub if there are no acc stubs.
+    //    // first free stub on the acc stub list, or is
+    //    // MINT::null_stub if there are no such stubs.
+    //    // Last_allocated_stub may be the last alloca-
+    //    // ted stub on the acc stub list, or may equal
+    //    // MINT::first_allocated_stub if there are no
+    //    // allocated stubs on the acc stub list.
     //  min::uns64 MINT::new_acc_stub_flags
     //    // Flags for newly allocated acc stubs.
     //
