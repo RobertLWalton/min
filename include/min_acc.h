@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 01:55:39 EDT 2010
+// Date:	Wed Nov  3 09:31:21 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1439,40 +1439,38 @@ namespace min { namespace acc {
            COLLECTOR_START,
 		// The levels[L].lock is set (it will
 		// not be cleared until the end of the
-		// level L collection) and collection
-		// variables are initialized.
+		// level L collection).
 		//
 		// The level L unmarked flag is set in
 		// MUP::new_acc_stub_flags so it will be
-		// set in any newly allocated stubs, and
-		// the level L unmarked flag is cleared
-		// in MUP::hash_acc_clear_flags, so this
-		// flag will not be cleared from any
-		// hashed stub found by the allocator.
-		// All this is because at the end of the
-		// initing phases all stubs with levels
-		// >= L should have their level L
-		// unmarked flags set, and all stubs
-		// should have their level L scavenged
-		// flag clear.
+		// set in any newly allocated stubs.
+		// At the end of the initing phases all
+		// stubs with levels >= L should have
+		// their level L unmarked flags set, and
+		// all stubs should have their level L
+		// scavenged flag clear.
 		//
 		// The level L to-be-scavenged list
 		// should be empty at this point.
-		// The level L unmarked flags should be
+		// The level L unmarked flag should be
 		// cleared in MINT::acc_stack_mask,
 		// MINT::removal_request_flags, and
-		// MINT::hash_acc_clear_flags.
+		// MINT::hash_acc_clear_flags.  The
+		// level L scavenged flag should be
+		// cleared in MACC::acc_stack_scavenge_
+		// mask.
 	   PRE_INITING_COLLECTIBLE,
 	   INITING_COLLECTIBLE,
 		// Iterates over all generations of
 		// levels >= L.  For each generation g,
-		// gets a lock on g and then releases
-		// any lock on the previous generation.
-		// Then scans the stubs of generation
-		// g.  Each scanned stub has its level
-		// L unmarked flag set and its level L
-		// scavenged flag cleared.  At the end
-		// of the phase all generations are
+		// locks g and g + 1 and scans the stubs
+		// of g.  Each scanned stub has its
+		// level L unmarked flag set and its
+		// level L scavenged flag cleared.
+		//
+		// When generation g + 1 is locked,
+		// generation g - 1 is unlocked.  At the
+		// end of the phase all generations are
 		// unlocked.
 	   INITING_HASH,
 	   	// Done only for L == 0.  The acc hash
