@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  2 05:32:22 EDT 2010
+// Date:	Wed Nov  3 01:01:22 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1310,10 +1310,11 @@ namespace min { namespace acc {
     //   a hashed stub may be collected.  When a hashed
     //   stub is found by an allocation, and returned
     //   in place of a newly allocated stub, its
-    //   unmarked flag will be cleared if that flag is
-    //   on in MINT::hash_acc_clear_flags.  This will
-    //   be the case during the post scavenging phases
-    //   of a collection.
+    //   level L unmarked flag will be cleared during
+    //   level L collection post scavenging phases, so
+    //   that it will not be collected by the level L
+    //   collection.  This is done using MINT::hash_acc_
+    //   clear_flags.
     //
     // Acc List:
     //

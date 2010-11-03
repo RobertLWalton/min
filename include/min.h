@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 30 18:48:15 EDT 2010
+// Date:	Wed Nov  3 00:57:54 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1726,7 +1726,8 @@ namespace min { namespace internal {
     extern min::unsptr lab_hash_mask;
 
     // ACC flags to be set and cleared when a stub is
-    // found in the hash table.
+    // found in the hash table and returned as a
+    // `newly allocated stub'.
     //
     extern min::uns64 hash_acc_set_flags;
     extern min::uns64 hash_acc_clear_flags;
