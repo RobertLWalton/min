@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 01:01:22 EDT 2010
+// Date:	Wed Nov  3 01:55:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1318,10 +1318,13 @@ namespace min { namespace acc {
     //
     // Acc List:
     //
-    //   Acc stubs are kept in a list, oldest stub
-    //   first, called the acc stub list.  Stubs point
-    //   at the next stub on this list using their
-    //   control words.
+    //   Stubs that are not aux stubs are kept in a list
+    //   called the acc list.  Allocated stubs are first
+    //   and free stubs are last.  The allocated stubs
+    //   are in order of their age, oldest first, where
+    //   age is measured from time of last allocation.
+    //   The list is formed by using the control words
+    //   of the stubs to point at succeeding stubs.
     //
     //   Stubs are assigned generations, each identified
     //   by a pair (L,S) of indices, where L is the stub
@@ -1351,29 +1354,30 @@ namespace min { namespace acc {
     //
     //   Newly allocated stubs are put on the end of the
     //   acc list, thus keeping the acc list in order of
-    //   stub age.  The end of the acc list is MINT::
-    //   last_allocated_stub.  If this equals MINT::
-    //   first_allocated_stub the acc list is empty
-    //   (only happens briefly at the start of program
-    //   initialization.)
+    //   stub age.  The last allocated stub in the acc
+    //   list is MINT::last_allocated_stub.  If there are
+    //   no allocated stubs, this equals MINT::first_
+    //   allocated_stub (only happens briefly at the
+    //   start of program initialization.)
     //
     //   Level 0 stubs in the hash tables for strings,
     //   numbers, and labels are not included in the acc
     //   list.  The parts of the hash tables that point
-    //   at level 0 stubs are conceptually part of the
-    //   level 0 list, but they are not physically part
-    //   of the acc list.
+    //   at level 0 stubs (the xxxx_acc_hash tables) are
+    //   conceptually part of the level 0 list, but they
+    //   are not physically part of the acc list.
     //   
     // Collector Increments:
     //
     //   The collector executes in increments called
-    //   `collector increments' of limited duration in
-    //   order to run intermixed with normal mutator
-    //   execution without consuming all the CPU time.
-    //   To implement collector increments the collector
-    //   must maintain state information for each level,
-    //   and this includes a `phase code' that specifies
-    //   which phase the collection at that level is in.
+    //   `collector increments' that are of limited
+    //   duration so they may run intermixed with normal
+    //   mutator execution without consuming all the CPU
+    //   time.  To implement collector increments, the
+    //   collector must maintain state information for
+    //   each level, and this includes a `collector
+    //   phase' value that specifies which phase the
+    //   colletion at that level is in.
     //
     //   Phases are divided into three groups.  The pre-
     //   scavenging or initing phases set stub flags.
@@ -1411,21 +1415,23 @@ namespace min { namespace acc {
     //   increment at level L returns false if it
     //   could not get the locks to run the increment,
     //   and true if it got the locks and can run the
-    //   increment.  The collector state can be set to
+    //   increment.  The collector phase can be set to
     //   PRE_XXX values to indicate that the next phase
     //   to be run is an XXX phase but that can only
     //   be run if locks can be set.  If a PRE_XXX
     //   increment gets the locks it turns itself into
     //   and XXX phase and continues.
     //
+    // Phases:
+    //
     //   Generally phases are executed in the order
-    //   given, which is the order of the phase enum
-    //   code, with exceptions noted.  In the following
-    //   phase descriptions, it is assumed that the
-    //   that the phase is part of a level L collection.
-    //   Levels[L] is the level struct of this level.
-    //   The level and generation structs are described
-    //   in detail below.
+    //   given below, which is the order of the phase
+    //   enum code, with exceptions noted.  In the
+    //   following phase descriptions, it is assumed
+    //   that the that the phase is part of a level L
+    //   collection.  Levels[L] is the level struct of
+    //   this level.  The level and generation structs
+    //   are described below.
     //
     enum { COLLECTOR_NOT_RUNNING = 0,
     		// A level L collection is NOT in
@@ -1918,7 +1924,7 @@ namespace min { namespace acc {
 	    // To-be-scavenged and root lists for
 	    // the level.
 
-        min::uns8 collector_state;
+        min::uns8 collector_phase;
 	    // One of COLLECTOR_NOT_RUNNING,
 	    // COLLECTOR_START, PRE_INITING_COLLECTIBLE,
 	    // etc.

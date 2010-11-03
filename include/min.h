@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 00:57:54 EDT 2010
+// Date:	Wed Nov  3 02:00:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1688,12 +1688,12 @@ namespace min { namespace internal {
     // The elements of the acc hash table are the stubs
     // hashed, chained together by their stub control
     // word stub pointers.  The stubs listed in this
-    // hash table are not in the normal acc stub list.
+    // hash table are not in the normal acc list.
     //
     // The elements of the aux hash table are HASHTABLE_
     // AUX aux stubs whose values point at the stubs of
     // ephemeral objects hashed.  The stubs hashed in
-    // the aux table are also on the acc stub list.
+    // the aux table are also on the acc list.
     //
     // Xxx_hash_sizes are powers of 2, and each xxx_
     // hash_mask = xxx_hash_size - 1;  The acc and aux
@@ -1884,12 +1884,12 @@ namespace min { namespace internal {
 
     // Stub allocation is from a single list of stubs
     // chained together by the pointers in the stub
-    // controls.  This is referred to as the `acc stub
-    // list'.  It is null_stub terminated.
+    // controls.  This is referred to as the `acc list'.
+    // It is null_stub terminated.
     //
-    // The acc stub list is divided into two segments.
-    // The first is the allocated stubs, and the second
-    // is the free stubs.
+    // The acc list is divided into two segments.  The
+    // first is the allocated stubs, and the second is
+    // the free stubs.
     //
     // A pointer to the last allocated stub is maintain-
     // ed.  To allocate a new stub, this is updated to
@@ -1976,7 +1976,7 @@ namespace min { namespace unprotected {
     }
 
     // Function to return the next free stub while
-    // removing this stub from the acc stub list.
+    // removing this stub from the acc list.
     //
     // The type is set to min::AUX_FREE.  This function
     // does NOT set any other part of the stub returned.
@@ -2012,8 +2012,8 @@ namespace min { namespace unprotected {
 
     // Function to put a stub on the acc free stub list
     // right after the last allocated stub.  Stub must
-    // NOT be on the acc stub list (it should be an
-    // auxiliary stub).
+    // NOT be on the acc list (it should be an auxiliary
+    // stub).
     //
     // Note that stubs that have been previously
     // allocated are preferred for new stub allocations
@@ -2045,8 +2045,8 @@ namespace min { namespace unprotected {
 namespace min { namespace internal {
 
     // Ditto but for use by acc to put stub it has
-    // freed on acc stub list.  Same as above but
-    // does not increment aux_subs_freed.
+    // freed on acc list.  Same as above but does not
+    // increment aux_subs_freed.
     //
     inline void free_acc_stub ( min::stub * s )
     {
