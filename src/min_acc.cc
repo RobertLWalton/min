@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 02:29:07 EDT 2010
+// Date:	Wed Nov  3 09:54:09 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1708,6 +1708,14 @@ static bool collector_increment ( unsigned level )
 
     case PRE_INITING_COLLECTIBLE:
 	{
+	    // Establish the condition where
+	    // lev.first_g + 1 == lev.last_g and both
+	    // lev.first_g and lev.last_g are locked.
+	    //
+	    // lev.last_stub is the last stub scanned
+	    // (or the stub before the first stub
+	    // scanned).
+	    //
 	    if ( lev.first_g == NULL )
 	    {
 	        if ( lev.g->lock ) return false;
@@ -1731,7 +1739,11 @@ static bool collector_increment ( unsigned level )
 
     case INITING_COLLECTIBLE:
         {
+	    // Set the flags of lev.first_g.
+	    //
 	    assert ( lev.first_g + 1 == lev.last_g );
+	    assert ( lev.first_g->lock );
+	    assert ( lev.last_g->lock );
 
 	    min::uns64 scanned = 0;
 	    min::uns64 c =
@@ -1740,54 +1752,55 @@ static bool collector_increment ( unsigned level )
 	    while ( scanned < MACC::scan_limit )
 	    {
 		if (    lev.last_stub
-		     == lev.last_g->last_before )
+		     != lev.last_g->last_before )
 		{
-		    lev.first_g->lock = false;
-		    lev.first_g = lev.last_g;
+		    min::stub * s =
+			MUP::stub_of_acc_control ( c );
+		    c = MUP::control_of ( s );
+		    c |= UNMARKED ( level );
+		    c &= ~ SCAVENGED ( level );
+		    MUP::set_control_of ( s, c );
+		    lev.last_stub = s;
+		    ++ scanned;
+		    continue;
+		}
 
-		    if ( lev.last_g == end_g )
+		lev.first_g->lock = false;
+		lev.first_g = lev.last_g;
+
+		if ( lev.last_g == end_g )
+		{
+		    lev.last_g->lock = false;
+		    if ( level == 0 )
 		    {
-		        lev.last_g->lock = false;
-			if ( level == 0 )
-			{
-			    lev.hash_table_id = 0;
-			    lev.hash_table_index = 0;
-			    lev.collector_phase =
-				INITING_HASH;
-			}
-			else
-			{
-			    lev.root.rewind();
-			    lev.collector_phase =
-				INITING_ROOT;
-			}
-			break;
-		    }
-		    else if ( lev.last_g[1].lock )
-		    {
+			lev.hash_table_id = 0;
+			lev.hash_table_index = 0;
 			lev.collector_phase =
-			    PRE_INITING_COLLECTIBLE;
-			break;
+			    INITING_HASH;
 		    }
 		    else
 		    {
-			lev.last_g[1].lock = true;
-			++ lev.last_g;
-			if ( lev.last_g == end_g )
-			    end_g->last_before =
-				MINT::
-				  last_allocated_stub;
+			lev.root.rewind();
+			lev.collector_phase =
+			    INITING_ROOT;
 		    }
+		    break;
 		}
-
-		min::stub * s =
-		    MUP::stub_of_acc_control ( c );
-		c = MUP::control_of ( s );
-		c |= UNMARKED ( level );
-		c &= ~ SCAVENGED ( level );
-		MUP::set_control_of ( s, c );
-		lev.last_stub = s;
-		++ scanned;
+		else if ( lev.last_g[1].lock )
+		{
+		    lev.collector_phase =
+			PRE_INITING_COLLECTIBLE;
+		    break;
+		}
+		else
+		{
+		    lev.last_g[1].lock = true;
+		    ++ lev.last_g;
+		    if ( lev.last_g == end_g )
+			end_g->last_before =
+			    MINT::
+			      last_allocated_stub;
+		}
 	    }
 
 	    lev.collectible_init_count += scanned;
