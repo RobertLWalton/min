@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 01:18:11 EDT 2010
+// Date:	Wed Nov  3 02:29:07 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1657,7 +1657,7 @@ inline void remove_from_aux_hash_table
 // tion.  To start a collector execution just set the
 // level state to COLLECTOR_START.  The collector
 // execution is finished when it returns with the level
-// collector_state set to COLLECTOR_NOT_RUNNING.
+// collector_phase set to COLLECTOR_NOT_RUNNING.
 //
 // Returns `false' if the collector increment could not
 // start because it was locked out by the generation
@@ -1668,7 +1668,7 @@ static bool collector_increment ( unsigned level )
 
     MACC::level & lev = levels[level];
 
-    switch ( lev.collector_state )
+    switch ( lev.collector_phase )
     {
     case COLLECTOR_START:
     	{
@@ -1700,11 +1700,11 @@ static bool collector_increment ( unsigned level )
 		     == 0 );
 
 	    lev.first_g = NULL;
-	    lev.collector_state =
+	    lev.collector_phase =
 		PRE_INITING_COLLECTIBLE;
 	}
 	//
-	// Fall throught to next collector_state.
+	// Fall throught to next collector_phase.
 
     case PRE_INITING_COLLECTIBLE:
 	{
@@ -1726,7 +1726,7 @@ static bool collector_increment ( unsigned level )
 		end_g->last_before =
 		    MINT::last_allocated_stub;
 
-	    lev.collector_state = INITING_COLLECTIBLE;
+	    lev.collector_phase = INITING_COLLECTIBLE;
 	}
 
     case INITING_COLLECTIBLE:
@@ -1752,20 +1752,20 @@ static bool collector_increment ( unsigned level )
 			{
 			    lev.hash_table_id = 0;
 			    lev.hash_table_index = 0;
-			    lev.collector_state =
+			    lev.collector_phase =
 				INITING_HASH;
 			}
 			else
 			{
 			    lev.root.rewind();
-			    lev.collector_state =
+			    lev.collector_phase =
 				INITING_ROOT;
 			}
 			break;
 		    }
 		    else if ( lev.last_g[1].lock )
 		    {
-			lev.collector_state =
+			lev.collector_phase =
 			    PRE_INITING_COLLECTIBLE;
 			break;
 		    }
@@ -1830,7 +1830,7 @@ static bool collector_increment ( unsigned level )
 		if ( hash_table == NULL )
 		{
 		    lev.root.rewind();
-		    lev.collector_state = INITING_ROOT;
+		    lev.collector_phase = INITING_ROOT;
 		    break;
 		}
 
@@ -1889,7 +1889,7 @@ static bool collector_increment ( unsigned level )
 		    UNMARKED ( level );
 	        MACC::acc_stack_scavenge_mask |=
 		    SCAVENGED ( level );
-		lev.collector_state =
+		lev.collector_phase =
 		    SCAVENGING_ROOT;
 		break;
 	    }
@@ -1947,7 +1947,7 @@ static bool collector_increment ( unsigned level )
 
 			if ( c & SCAVENGED ( level ) )
 			{
-			    lev.collector_state =
+			    lev.collector_phase =
 			        SCAVENGING_THREAD;
 			    break;
 			}
@@ -1959,7 +1959,7 @@ static bool collector_increment ( unsigned level )
 		    }
 		    else
 		    {
-		        lev.collector_state =
+		        lev.collector_phase =
 			    SCAVENGING_THREAD;
 			break;
 		    }
@@ -2008,7 +2008,7 @@ static bool collector_increment ( unsigned level )
 	    lev.scanned_count += sc.gen_count;
 	    lev.scavenged_count += scavenged;
 
-	    if (    lev.collector_state
+	    if (    lev.collector_phase
 	         == SCAVENGING_THREAD )
 	    {
 	        lev.restart_count = 0;
@@ -2135,11 +2135,11 @@ static bool collector_increment ( unsigned level )
 			{
 			    lev.hash_table_id = 0;
 			    lev.hash_table_index = 0;
-			    lev.collector_state =
+			    lev.collector_phase =
 				    COLLECTING_HASH;
 			}
 			else
-			    lev.collector_state =
+			    lev.collector_phase =
 				    PRE_COLLECTING;
 			break;
 		    }
@@ -2203,7 +2203,7 @@ static bool collector_increment ( unsigned level )
 
 		if ( hash_table == NULL )
 		{
-		    lev.collector_state =
+		    lev.collector_phase =
 			PRE_COLLECTING;
 		    break;
 		}
@@ -2300,7 +2300,7 @@ static bool collector_increment ( unsigned level )
 		++ lev.last_g;
 	    }
 
-	    lev.collector_state = COLLECTING;
+	    lev.collector_phase = COLLECTING;
 	}
 
     case COLLECTING:
@@ -2328,7 +2328,7 @@ static bool collector_increment ( unsigned level )
 			        != lev.last_g );
 
 			lev.first_g = NULL;
-			lev.collector_state =
+			lev.collector_phase =
 			    PRE_PROMOTING;
 			break;
 		    }
@@ -2348,7 +2348,7 @@ static bool collector_increment ( unsigned level )
 		    {
 			if ( lev.last_g[1].lock )
 			{
-			    lev.collector_state =
+			    lev.collector_phase =
 				PRE_INITING_COLLECTIBLE;
 			    break;
 			}
@@ -2434,7 +2434,7 @@ static bool collector_increment ( unsigned level )
 		    ~ UNMARKED ( level );
 		MINT::hash_acc_clear_flags &=
 		    ~ UNMARKED ( level );
-		lev.collector_state =
+		lev.collector_phase =
 		    COLLECTOR_NOT_RUNNING;
 		break;
 	    }
@@ -2464,7 +2464,7 @@ static bool collector_increment ( unsigned level )
 		lev.last_stub =
 		    lev.first_g->last_before;
 		lev.root.rewind();
-		lev.collector_state = REMOVING_ROOT;
+		lev.collector_phase = REMOVING_ROOT;
 	    }
 	    else
 	    {
@@ -2487,15 +2487,15 @@ static bool collector_increment ( unsigned level )
 		    lev.first_g[1].level->root.rewind();
 		    lev.last_stub =
 		        lev.first_g[1].last_before;
-		    lev.collector_state = REMOVING_ROOT;
+		    lev.collector_phase = REMOVING_ROOT;
 		}
 		else
-		    lev.collector_state = PROMOTING;
+		    lev.collector_phase = PROMOTING;
 		++ lev.first_g;
 	    }
 	}
 
-	if ( lev.collector_state == PROMOTING )
+	if ( lev.collector_phase == PROMOTING )
 	    goto promoting;
 	// Fall through to REMOVING_ROOT.
 
@@ -2513,7 +2513,7 @@ static bool collector_increment ( unsigned level )
 		if ( rrlev->root.at_end() )
 		{
 		    rrlev->root.flush();
-		    lev.collector_state = PROMOTING;
+		    lev.collector_phase = PROMOTING;
 		    break;
 		}
 
@@ -2533,7 +2533,7 @@ static bool collector_increment ( unsigned level )
 	    lev.root_removed_count += root_removed;
 	}
 
-	if ( lev.collector_state != PROMOTING )
+	if ( lev.collector_phase != PROMOTING )
 	    break;
 	// Fall through to PROMOTING.
 
@@ -2654,7 +2654,7 @@ static bool collector_increment ( unsigned level )
 			~ UNMARKED ( level );
 		    MINT::hash_acc_clear_flags &=
 			~ UNMARKED ( level );
-		    lev.collector_state =
+		    lev.collector_phase =
 		        COLLECTOR_NOT_RUNNING;
 		    break;
 		}
@@ -2663,7 +2663,7 @@ static bool collector_increment ( unsigned level )
 			  ||
 			  lev.first_g[1].lock )
 		{
-		    lev.collector_state =
+		    lev.collector_phase =
 		        PRE_PROMOTING;
 		    break;
 		}
