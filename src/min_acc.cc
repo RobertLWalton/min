@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:15:54 EDT 2010
+// Date:	Wed Nov  3 01:18:11 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1677,8 +1677,6 @@ static bool collector_increment ( unsigned level )
 
 	    MINT::new_acc_stub_flags |=
 	        UNMARKED ( level );
-	    MINT::hash_acc_clear_flags &=
-	        ~ UNMARKED ( level );
 
 	    // Check that to-be-scavenged stack is
 	    // empty.
@@ -1695,6 +1693,9 @@ static bool collector_increment ( unsigned level )
 	                  & SCAVENGED ( level ) )
 		     == 0 );
 	    assert (    ( MACC::removal_request_flags
+	                  & UNMARKED ( level ) )
+		     == 0 );
+	    assert (    ( MINT::hash_acc_clear_flags
 	                  & UNMARKED ( level ) )
 		     == 0 );
 

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Oct 30 18:36:05 EDT 2010
+// Date:	Wed Nov  3 01:10:58 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1390,40 +1390,36 @@ min::gen MINT::new_str_stub_gen
     min::stub * s = MINT::str_acc_hash[h];
     while ( s != MINT::null_stub )
     {
-	min::stub * s2 = s;
-	s = (min::stub *)
-	    MUP::stub_of_acc_control
-		( MUP::control_of ( s ) );
+	min::uns64 c = MUP::control_of ( s );
 
         if (    n <= 8
-	     && min::type_of ( s2 ) == min::SHORT_STR
-	     && ::strncmp ( p, s2->v.c8, n ) == 0
+	     && min::type_of ( s ) == min::SHORT_STR
+	     && ::strncmp ( p, s->v.c8, n ) == 0
 	     && (    n == 8
-	          || s2->v.c8[n] == 0 ) )
+	          || s->v.c8[n] == 0 ) )
 	{
-	    min::uns64 c = MUP::control_of ( s2 );
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
-	    MUP::set_control_of ( s2, c );
-	    return min::new_gen ( s2 );
+	    MUP::set_control_of ( s, c );
+	    return min::new_gen ( s );
 	}
 	else if (    n > 8
-	          &&    min::type_of ( s2 )
+	          &&    min::type_of ( s )
 		     == min::LONG_STR
 	          && ::strncmp
 		       ( p, q = MUP::str_of (
 			            MUP::long_str_of
-				        ( s2 ) ),
+				        ( s ) ),
 			    n )
 		     == 0
 		  && q[n] == 0 )
 	{
-	    min::uns64 c = MUP::control_of ( s2 );
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
-	    MUP::set_control_of ( s2, c );
-	    return min::new_gen ( s2 );
+	    MUP::set_control_of ( s, c );
+	    return min::new_gen ( s );
 	}
+	s = MUP::stub_of_acc_control ( c );
     }
 
     s = MINT::str_aux_hash[h];
@@ -1538,11 +1534,9 @@ min::gen min::new_lab_gen
     min::stub * s = MINT::lab_acc_hash[h];
     while ( s != MINT::null_stub )
     {
-        min::stub * s2 = s;
-	s = MUP::stub_of_acc_control
-		( MUP::control_of ( s ) );
+	min::uns64 c = MUP::control_of ( s );
 
-	lab_ptr labp ( s2 );
+	lab_ptr labp ( s );
 
 	if ( hash != hash_of ( labp ) ) continue;
 	if ( n != length_of ( labp ) ) continue;
@@ -1551,12 +1545,12 @@ min::gen min::new_lab_gen
 	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
 	if ( i == n )
 	{
-	    min::uns64 c = MUP::control_of ( s2 );
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
-	    MUP::set_control_of ( s2, c );
-	    return min::new_gen ( s2 );
+	    MUP::set_control_of ( s, c );
+	    return min::new_gen ( s );
 	}
+	s = MUP::stub_of_acc_control ( c );
     }
     s = MINT::lab_aux_hash[h];
     while ( s != MINT::null_stub )
