@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 09:54:09 EDT 2010
+// Date:	Thu Nov  4 01:30:50 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1542,11 +1542,11 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
         min::stub * s2 = * -- MINT::acc_stack;
         min::stub * s1 = * -- MINT::acc_stack;
 
-        uns64 f1 = (    min::unprotected
-	                   ::control_of ( s1 )
-	             >> MINT::ACC_FLAG_PAIRS )
-	         & ( min::unprotected
-		        ::control_of ( s2 ) )
+	uns64 c1 = MUP::control_of ( s1 );
+	uns64 c2 = MUP::control_of ( s2 );
+
+        uns64 f1 = ( c1 >> MINT::ACC_FLAG_PAIRS )
+	         & c2
 		 & min::internal::acc_stack_mask;
 
 	unsigned make_root =
@@ -1559,9 +1559,11 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 	    unsigned level =
 	        MINT::log2floor ( mark );
 	    mark ^= 1 << level;
-	    levels[level].to_be_scavenged.push ( s2 );
-	    MUP::clear_flags_of
-	        ( s2, UNMARKED ( level ) );
+	    int type = MUP::type_of_control ( c2 );
+	    if ( MINT::is_scavengable ( type ) )
+		levels[level]
+		    .to_be_scavenged.push ( s2 );
+	    c2 &= ~ UNMARKED ( level );
 	}
 	while ( make_root != 0 )
 	{
@@ -1569,12 +1571,17 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 	        MINT::log2floor ( make_root );
 	    make_root ^= 1 << level;
 	    MACC::level & lev = levels[level];
-	    lev.root.push ( s1 );
-	    MUP::clear_flags_of
-	        ( s1, NON_ROOT ( level ) );
+	    c1 &= ~ NON_ROOT ( level );
 
-	    if ( MACC::acc_stack_scavenge_mask
-	         & COLLECTIBLE ( level ) )
+	    if ( c1 & SCAVENGED ( level ) )
+	    {
+	        continue;
+	    }
+
+	    lev.root.push ( s1 );
+
+	    if (   MACC::acc_stack_scavenge_mask
+	         & SCAVENGED ( level ) )
 	    {
 	        // During scavenging, new roots are
 		// marked scavenged.  This is an
@@ -1582,32 +1589,20 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 		// only contain a single pointer to
 		// a collectible stub.
 		//
-		MUP::set_flags_of
-		    ( s1, SCAVENGED ( level ) );
-		if ( MUP::test_flags_of
-		            ( s2, UNMARKED ( level ) ) )
+		c1 |= SCAVENGED ( level );
+		if ( c2 & UNMARKED ( level ) )
 		{
-		    MUP::clear_flags_of
-			( s2, UNMARKED ( level ) );
-		    int type = min::type_of ( s2 );
+		    c2 &= ~ UNMARKED ( level );
+		    int type =
+		        MUP::type_of_control ( c2 );
 		    assert ( type >= 0 );
-		    if ( MINT::scavenger_routines[type]
-		         != NULL )
+		    if ( MINT::is_scavengable ( type ) )
 			lev.to_be_scavenged.push ( s2 );
 		}
 	    }
-	    else
-	    {
-	        // Stubs of level L < level have their
-		// SCAVENGED ( level ) flags clear
-		// unless they are on the level L root
-		// list.
-		//
-	        assert
-		    ( ! MUP::test_flags_of
-			  ( s1, SCAVENGED ( level ) ) );
-	    }
 	}
+	MUP::set_flags_of ( s1, c1 );
+	MUP::set_flags_of ( s2, c2 );
     }
 }
 
@@ -1976,8 +1971,12 @@ static bool collector_increment ( unsigned level )
 			    SCAVENGING_THREAD;
 			break;
 		    }
+
+		    MUP::set_control_of ( sc.s1, c );
 		}
-		MUP::set_control_of ( sc.s1, c );
+		else
+		    c = MUP::control_of ( sc.s1 );
+		    
 
 		int type = MUP::type_of_control ( c );
 		assert ( type >= 0 );
