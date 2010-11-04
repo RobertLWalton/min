@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  4 01:48:39 EDT 2010
+// Date:	Thu Nov  4 06:09:24 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1242,6 +1242,13 @@ namespace min { namespace acc {
     //   by s1 data, recursively).  The MINT::process_
     //   acc_stack routine processes these pairs.
     //
+    //   If in any pair (s1,s2) either s1 or s2 has a
+    //   flag in common with MACC::removal_request_flags
+    //   then the pair is ignored.  This permits stubs
+    //   designated for removal by any level to be
+    //   instantly removed from consideration by the
+    //   collector.
+    //
     //   If the MINT::process_acc_stack routine finds a
     //   level L scavenged stub s1 pointing at a level L
     //   unmarked stub s2 (i.e., the s1 data contains a
@@ -1639,11 +1646,11 @@ namespace min { namespace acc {
 		// thread/static lists.  This is not
 		// currently implemented.
 		//
-	        // At the end of this phase, all level L
-		// stubs with unmarked flag set cannot
-		// be reached by the mutator.  Exactly
-		// at the end of this phase the level L
-		// unmarked flag is cleared in MINT::
+	        // At the end of this phase, any level L
+		// stub with its unmarked flag set is
+		// not reachable by the mutator.  Exact-
+		// ly at the end of this phase the level
+		// L unmarked flag is cleared in MINT::
 		// new_acc_stub_flags so any stubs
 		// allocated afterwards will not be
 		// collected by the level L collection,
@@ -1651,12 +1658,12 @@ namespace min { namespace acc {
 		// MACC::removal_request_flags so any
 		// unmarked level L stubs will be
 		// ignored if they are found in root or
-		// to-be-scavenged lists, and the level
-		// L unmarked flag is set in MINT::hash_
-		// acc_clear_flags to that stubs
-		// returned from the hash tables after
-		// this point will not be collected by
-		// the level L collection.
+		// to-be-scavenged lists, or the acc
+		// stack, and the level L unmarked flag
+		// is set in MINT::hash_acc_clear_flags
+		// so that stubs returned from the hash
+		// tables after this point will not be
+		// collected by the level L collection.
 		//
 		// Also the level L unmarked flag is
 		// cleared from MINT::acc_stack_mask so
