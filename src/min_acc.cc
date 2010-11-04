@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  4 01:30:50 EDT 2010
+// Date:	Thu Nov  4 06:09:02 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1426,6 +1426,8 @@ static const unsigned MAX_LEVELS =
 static MACC::level levels_vector[MAX_GENERATIONS];
 MACC::level * MACC::levels = levels_vector;
 
+min::uns64   MACC::removal_request_flags;
+
 min::unsptr  MACC::acc_stack_size;
 min::stub ** MACC::acc_stack_begin;
 min::stub ** MACC::acc_stack_end;
@@ -1434,6 +1436,8 @@ min::uns64   MACC::acc_stack_scavenge_mask;
 min::uns64 MACC::scan_limit;
 min::uns64 MACC::scavenge_limit;
 min::uns64 MACC::collection_limit;
+min::uns32 MACC::collector_period;
+min::uns32 MACC::period_increments;
 
 static void collector_initializer ( void )
 {
@@ -1544,6 +1548,10 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 
 	uns64 c1 = MUP::control_of ( s1 );
 	uns64 c2 = MUP::control_of ( s2 );
+	if ( c1 & MACC::removal_request_flags )
+	    continue;
+	if ( c2 & MACC::removal_request_flags )
+	    continue;
 
         uns64 f1 = ( c1 >> MINT::ACC_FLAG_PAIRS )
 	         & c2
