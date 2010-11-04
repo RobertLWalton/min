@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 09:31:21 EDT 2010
+// Date:	Thu Nov  4 01:48:39 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1189,7 +1189,11 @@ namespace min { namespace acc {
     //
     //	     non-root	The stub level is < L and the
     //			stub is NOT on the level L root
-    //			list.
+    //			list.  Or it is on the level L
+    //			root list and is currently being
+    //			scavenged by a level L collec-
+    //			tion (there can be only one such
+    //			stub at a time).
     //
     //	     collectible  The stub level is >= L.  Note
     //			  that collectible flags for all
@@ -1253,19 +1257,29 @@ namespace min { namespace acc {
     //   level L non-root stub s1 pointing at a level L
     //   collectible stub s2, and if the acc_stack_mask
     //   level L collectible flag is on, the routine
-    //   turns off the s1 level L non-root flag and puts
-    //   s1 on the level L root stack.  In addition, if
-    //   a level L collection is in progress and is in
-    //   the SCAVENGING_ROOT or SCAVENGING_THREAD
-    //   phases, then the s1 level L scavenged flag is
-    //   turned on, and if the s2 level L unmarked flag
-    //   is on, it is turned off and s2 is put on the
-    //   level L to-be-scavenged list if s2 is scaveng-
-    //   able.  This is an efficiency measure as the new
-    //   root s1 contains only one pointer at a stub of
-    //   level >= L, namely the pointer to s2, so there
-    //   is no need to scavenge s1 to find other such
-    //   pointers.
+    //   turns off the s1 level L non-root flag.  In
+    //   this case, if the s1 level L scavenged flag
+    //   is on, no further processing is done, as s1 is
+    //   currently on the level L root list and is being
+    //   scavenged and s2 will have been processed above
+    //   according to the setting of s2's unmarked flag
+    //   and the scavenged flag of s1.
+    //
+    //   Otherwise, if s1's level L non-root flag has
+    //   been turned off and s1's level L scavenged flag
+    //   is off, s1 is put on the level L root list.  In
+    //   addition, if the level L scavenged flag is set
+    //   in MACC::acc_stack_scavenge_mask, which indic-
+    //   ates that a level L collection is currently
+    //   in a SCAVENGING_... phase, then the s1 level L
+    //   scavenged flag of s1 is turned on, and if the
+    //   s2 level L unmarked flag is on, it is turned
+    //   off and s2 is put on the level L to-be-scaveng-
+    //   ed list if s2 is scavengable.  Note that in
+    //   this case s1 contains only one pointer at a
+    //   stub of level >= L, namely the pointer to s2,
+    //   so there is no need to scavenge s1 to find
+    //   other such pointers.
     //
     // Stub Allocation:
     //
@@ -1281,7 +1295,7 @@ namespace min { namespace acc {
     //		 pre-scavenging and scavenging phases
     //		 of a level L collection, level L un-
     //		 marked flags are set; during post
-    //		 scavanging phases, level L unmarked
+    //		 scavenging phases, level L unmarked
     //		 flags are cleared
     //	     all scavenged flags are cleared
     //	     all non-root flags are cleared
@@ -1493,16 +1507,24 @@ namespace min { namespace acc {
 		// scavenged_mask so acc stack proces-
 		// sing that adds to the level L root
 		// list will set the scavenged flag of
-		// the new root stubs.  Also any
-		// levels[L1].last_allocated stubs have
-		// their level L unmarked flags cleared
-		// at this point so they are not
-		// collected.
+		// the new root stubs.
 		//
 	        // Each stub on the level L root list
 		// is scavenged.  In the process stubs
 		// are put on the to-be-scavenged list,
 		// and these are also scavenged.
+		//
+		// Any stub found in either the level L
+		// root list or the level L to-be-scav-
+		// enged list that has a flag set which
+		// is also set in MACC::removal_request_
+		// flags is removed from the respective
+		// list and otherwise ignored.  This
+		// permits stubs designated for removal
+		// by OTHER levels to be instantly
+		// removed from these lists by setting
+		// the unmarked flag of the other level
+		// in MACC::removed_request_flags.
 		//
 		// To scavenge a stub s1, each pointer
 		// in s1 or its body to another stub s2
@@ -1852,13 +1874,17 @@ namespace min { namespace acc {
 	min::uns64 scanned_count;
 	    // Number of min::gen or min::stub * values
 	    // scanned by the scavenger phases of the
-	    // collector.
+	    // collector.  The values need not contain
+	    // actual stub pointers (they may be non-
+	    // stub min::gen values or NULL min::stub *
+	    // values).
 
 	min::uns64 stub_scanned_count;
-	    // Number of stub pointer containing
-	    // min::gen or min::stub * values
-	    // scanned by the scavenger phases of
-	    // the collector.
+	    // Number of stub pointer containing min::
+	    // gen or min::stub * values scanned by the
+	    // scavenger phases of the collector.  I.e.,
+	    // the part of scanned_count that actually
+	    // contain stub pointers.
 
 	min::uns64 scavenged_count;
 	    // Number of stubs scavenged by the
@@ -1937,7 +1963,11 @@ namespace min { namespace acc {
 
 	bool root_scavenge;
 	    // True if the stub currently being sca-
-	    // venged is from the root list.
+	    // venged is from the root list and false
+	    // if it is from the to-be-scavenged list.
+	    // Used by the SCAVENGING_ROOT phase in
+	    // cleaning up after a possibly interrupted
+	    // scavenge of a stub.
 
 	min::uns8 hash_table_id;
 	    // Iterates from 0 to identify acc hash
