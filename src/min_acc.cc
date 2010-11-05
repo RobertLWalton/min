@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  4 06:09:02 EDT 2010
+// Date:	Fri Nov  5 12:26:20 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2150,17 +2150,17 @@ static bool collector_increment ( unsigned level )
 			MUP::set_type_of
 			    ( s, min::ACC_MARK );
 
-			lev.first_g = NULL;
-			if ( level == 0 )
-			{
-			    lev.hash_table_id = 0;
-			    lev.hash_table_index = 0;
-			    lev.collector_phase =
-				    COLLECTING_HASH;
-			}
-			else
-			    lev.collector_phase =
-				    PRE_COLLECTING;
+			for ( unsigned L = 0;
+			      L <= ephemeral_levels;
+			      ++ L )
+			    lev.to_be_scavenged_wait[L]
+			        =
+				levels[L]
+				    .to_be_scavenged_in;
+
+			lev.collector_phase =
+			    REMOVING_TO_BE_SCAVENGED;
+
 			break;
 		    }
 		}
@@ -2183,6 +2183,27 @@ static bool collector_increment ( unsigned level )
 	    lev.stub_scanned_count += sc.stub_count;
 	    lev.scanned_count += sc.gen_count;
 	    lev.scavenged_count += scavenged;
+	}
+	break;
+
+    case REMOVING_TO_BE_SCAVENGED:
+        {
+	    for ( L = 0; L <= ephmeral_levels; ++ L )
+	    {
+	        if (   lev.to_be_scavenged_wait[L]
+		     > levels[L].to_be_scavenged_out )
+		    return false;
+	    }
+
+	    lev.first_g = NULL;
+	    if ( level == 0 )
+	    {
+		lev.hash_table_id = 0;
+		lev.hash_table_index = 0;
+		lev.collector_phase = COLLECTING_HASH;
+	    }
+	    else
+		lev.collector_phase = PRE_COLLECTING;
 	}
 	break;
 

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov  4 06:09:24 EDT 2010
+// Date:	Fri Nov  5 08:34:05 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1677,10 +1677,18 @@ namespace min { namespace acc {
 		// is allocated to mark the end of
 		// the stubs subject to promotion by
 		// this level L collection.
-	        //
+	   REMOVING_TO_BE_SCAVENGED,
+	        // This phase simply waits until ALL
+		// levels have processed any portion of
+		// their to-be-scavenged lists that
+		// existed when this phase started.  In
+		// conjunction with MACC::removal_
+		// request_flags this removed all stubs
+		// with level L unmarked flag set from
+		// all to-be-scavenged lists.
 	   COLLECTING_HASH,
 	        // Scan through the XXX_acc_hash tables
-		// and free all stubs with level L
+		// and free all stubs with level L == 0
 		// unmarked flag set.
 	   PRE_COLLECTING,
 	   COLLECTING,
@@ -1749,7 +1757,7 @@ namespace min { namespace acc {
 		// things are done before g->last_before
 		// is changed.  First, a REMOVING_ROOT
 		// subphase is executed (see below), and
-		// second, scanns the stubs of genera-
+		// second, scans the stubs of genera-
 		// tion g and puts each on the level L
 		// root list while clearing its level L
 		// collectible and non-root flags.
@@ -1954,6 +1962,22 @@ namespace min { namespace acc {
 	MACC::stub_stack root;
 	    // To-be-scavenged and root lists for
 	    // the level.
+
+	min::uns64 to_be_scavenged_in;
+	    // Incremented whenever an element is added
+	    // to the to-be-scavenged list.
+
+	min::uns64 to_be_scavenged_out;
+	    // Incremented whenever an element is re-
+	    // moved from the to-be-scavenged list.
+
+	min::uns64 to_be_scavenged_wait
+	              [1+MIN_MAX_EPHEMERAL_LEVELS];
+	    // Set to the to_be_scavenged_in values of
+	    // each level when the REMOVING_TO_BE_
+	    // SCAVENGED phase starts.  This phase then
+	    // simply waits for all the to_be_scavenged_
+	    // out values to become >= these values.
 
         min::uns8 collector_phase;
 	    // One of COLLECTOR_NOT_RUNNING,
