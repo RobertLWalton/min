@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  5 08:34:05 EDT 2010
+// Date:	Fri Nov  5 12:28:40 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -25,6 +25,7 @@
 //	Usage and Setup
 //	Stub Allocator Interface
 //	Block Allocator Interface
+//	Stub Stacks
 //	Collector Interface
 //	Compactor Interface
 //	Statistics
@@ -833,7 +834,10 @@ namespace min { namespace internal {
 	    // the new current region.
     };
 
-} }    
+} }
+
+// Stub Stacks
+// ---- ------
 
 namespace min { namespace acc {
 
