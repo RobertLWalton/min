@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  5 12:28:40 EDT 2010
+// Date:	Sat Nov  6 01:54:57 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1690,6 +1690,13 @@ namespace min { namespace acc {
 		// request_flags this removed all stubs
 		// with level L unmarked flag set from
 		// all to-be-scavenged lists.
+	   PRE_REMOVING_ROOT,
+	   REMOVING_ROOT,
+	        // For each level L1 > L, L1 is locked,
+		// its root list is scanned, and all
+		// scanned stubs with any MACC::removal_
+		// request_flags flag set are are
+		// removed.
 	   COLLECTING_HASH,
 	        // Scan through the XXX_acc_hash tables
 		// and free all stubs with level L == 0
@@ -1720,7 +1727,7 @@ namespace min { namespace acc {
 		// table does not prevent collection of
 		// any stub.
 	   PRE_PROMOTING,
-	   PROMOTING,
+	   PROMOTING };
 		// Iterates over all generations of
 		// levels >= max ( L, 1 ).  For each
 		// generation g, gets a lock on g and
@@ -1765,18 +1772,6 @@ namespace min { namespace acc {
 		// tion g and puts each on the level L
 		// root list while clearing its level L
 		// collectible and non-root flags.
-	   REMOVING_ROOT };
-	        // Actually a subphase of PROMOTING
-		// executed before the rest of the
-		// processing of the first generation g
-		// of a level.  During this phase g->
-		// level is locked by the PROMOTING
-		// phase.
-		//
-		// g->level's root list is scanned and
-		// all scanned stubs with any MACC::
-		// removal_request_flags flag set are
-		// are removed.
 
     // The amount of work done in a collector increment
     // is controlled by the following parameters.  Note
@@ -1995,6 +1990,10 @@ namespace min { namespace acc {
 	    // level is finished.  Also set by the
 	    // REMOVING_ROOT subphase of a collection
 	    // at a level lower than this level.
+
+	min::uns8 next_level;
+	    // Next level to be processed by REMOVING_
+	    // ROOT phase.
 
 	bool root_scavenge;
 	    // True if the stub currently being sca-
