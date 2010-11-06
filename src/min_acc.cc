@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov  5 12:26:20 EDT 2010
+// Date:	Sat Nov  6 01:54:27 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2188,23 +2188,111 @@ static bool collector_increment ( unsigned level )
 
     case REMOVING_TO_BE_SCAVENGED:
         {
-	    for ( L = 0; L <= ephmeral_levels; ++ L )
+	    for ( unsigned L1 = 0;
+	          L1 <= ephemeral_levels; ++ L1 )
 	    {
-	        if (   lev.to_be_scavenged_wait[L]
-		     > levels[L].to_be_scavenged_out )
+	        if (   lev.to_be_scavenged_wait[L1]
+		     > levels[L1].to_be_scavenged_out )
 		    return false;
 	    }
 
-	    lev.first_g = NULL;
-	    if ( level == 0 )
+	    if ( level == ephemeral_levels )
 	    {
-		lev.hash_table_id = 0;
-		lev.hash_table_index = 0;
-		lev.collector_phase = COLLECTING_HASH;
+		lev.first_g = NULL;
+		if ( level == 0 )
+		{
+		    lev.hash_table_id = 0;
+		    lev.hash_table_index = 0;
+		    lev.collector_phase =
+			COLLECTING_HASH;
+		}
+		else
+		    lev.collector_phase =
+			PRE_COLLECTING;
 	    }
 	    else
-		lev.collector_phase = PRE_COLLECTING;
+	    {
+		lev.next_level = level + 1;
+		lev.collector_phase = PRE_REMOVING_ROOT;
+	    }
 	}
+	break;
+
+    case PRE_REMOVING_ROOT:
+        {
+	    MACC::level * rrlev =
+	        levels + lev.next_level;
+	    if ( rrlev->lock ) return false;
+
+	    rrlev->lock = true;
+	    // Fall through to REMOVING_ROOT.
+	}
+    case REMOVING_ROOT:
+        {
+	    min::uns64 root_kept = 0;
+	    min::uns64 root_removed = 0;
+	    min::uns64 remove =
+	        MACC::removal_request_flags;
+	    MACC::level * rrlev =
+	        levels + lev.next_level;
+	    assert ( rrlev->lock );
+	    while (   root_kept + root_removed
+		    < MACC::scan_limit )
+	    {
+		if ( ! rrlev->root.at_end() )
+		{
+		    min::stub * s =
+			rrlev->root.current();
+		    if ( MUP::test_flags_of
+			     ( s, remove ) )
+		    {
+			rrlev->root.remove();
+			++ root_removed;
+		    }
+		    else
+		    {
+			rrlev->root.keep();
+			++ root_kept;
+		    }
+		    continue;
+		}
+
+		rrlev->root.flush();
+		rrlev->lock = false;
+
+		++ lev.next_level;
+		rrlev = levels + lev.next_level;
+		if ( lev.next_level > ephemeral_levels )
+		{
+		    lev.first_g = NULL;
+		    if ( level == 0 )
+		    {
+			lev.hash_table_id = 0;
+			lev.hash_table_index = 0;
+			lev.collector_phase =
+			    COLLECTING_HASH;
+		    }
+		    else
+			lev.collector_phase =
+			    PRE_COLLECTING;
+		    break;
+		}
+		else if ( rrlev->lock )
+		{
+		    lev.collector_phase =
+			PRE_REMOVING_ROOT;
+		    break;
+		}
+		else
+		{
+		    rrlev->lock = true;
+		    rrlev->root.rewind();
+		}
+	    }
+	    lev.root_kept_count += root_kept;
+	    lev.root_removed_count += root_removed;
+	}
+
 	break;
 
     case COLLECTING_HASH:
@@ -2539,44 +2627,6 @@ static bool collector_increment ( unsigned level )
 	if ( lev.collector_phase == PROMOTING )
 	    goto promoting;
 	// Fall through to REMOVING_ROOT.
-
-    case REMOVING_ROOT:
-        {
-	    min::uns64 root_kept = 0;
-	    min::uns64 root_removed = 0;
-	    min::uns64 remove =
-	        MACC::removal_request_flags;
-	    MACC::level * rrlev =
-		lev.first_g->level;
-	    while (   root_kept + root_removed
-		    < MACC::scan_limit )
-	    {
-		if ( rrlev->root.at_end() )
-		{
-		    rrlev->root.flush();
-		    lev.collector_phase = PROMOTING;
-		    break;
-		}
-
-		min::stub * s = rrlev->root.current();
-		if ( MUP::test_flags_of ( s, remove ) )
-		{
-		    rrlev->root.remove();
-		    ++ root_removed;
-		}
-		else
-		{
-		    rrlev->root.keep();
-		    ++ root_kept;
-		}
-	    }
-	    lev.root_kept_count += root_kept;
-	    lev.root_removed_count += root_removed;
-	}
-
-	if ( lev.collector_phase != PROMOTING )
-	    break;
-	// Fall through to PROMOTING.
 
     case PROMOTING:
     promoting:
