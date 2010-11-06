@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  6 08:41:08 EDT 2010
+// Date:	Sat Nov  6 09:27:36 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2151,6 +2151,7 @@ static bool collector_increment ( unsigned level )
 			    // Note that as s is a new
 			    // stub, UNMARKED ( level )
 			    // is clear for s.
+			    lev.acc_mark_stub = s;
 			}
 
 			for ( unsigned L1 = 0;
@@ -2459,7 +2460,8 @@ static bool collector_increment ( unsigned level )
 		    min::stub * s =
 			MUP::stub_of_acc_control
 			    ( last_c );
-		    min::uns64 c = MUP::control_of ( s );
+		    min::uns64 c =
+		        MUP::control_of ( s );
 		    if ( ( c & UNMARKED ( level ) )
 			 &&
 			     MUP::type_of_control ( c )
@@ -2487,7 +2489,8 @@ static bool collector_increment ( unsigned level )
 			last_c =
 			    MUP::renew_control_stub
 				( last_c,
-				  MUP::stub_of_acc_control
+				  MUP::
+				    stub_of_acc_control
 				      ( c ) );
 			MUP::set_control_of
 			    ( lev.last_stub, last_c );
@@ -2530,9 +2533,8 @@ static bool collector_increment ( unsigned level )
 		{
 		    end_g->lock = false;
 
-		    lev.first_g = NULL;
 		    lev.collector_phase =
-			PRE_PROMOTING;
+			PRE_LEVEL_PROMOTING;
 		    break;
 		}
 
@@ -2568,7 +2570,7 @@ static bool collector_increment ( unsigned level )
 	}
         break;
 
-    case PRE_PROMOTING:
+    case PRE_LEVEL_PROMOTING:
 	{
 	    if ( level == 0 )
 	    {
@@ -2584,203 +2586,96 @@ static bool collector_increment ( unsigned level )
 		break;
 	    }
 
-	    if ( lev.first_g == NULL )
-	    {
-	        // First time for any promoting
-		// phase increment.
+	    if ( lev.g->lock ) return false;
+	    if ( lev.g[1].lock ) return false;
+	    lev.g->lock = true;
+	    lev.g[1].lock = true;
+	    lev.first_g = lev.g;
+	    lev.last_stub = lev.g->last_before;
 
-		assert ( lev.lock );
-
-		if ( level == 0 )
-		{
-		    if ( levels[1].lock ) return false;
-		    if ( levels[1].g->lock )
-		        return false;
-		    levels[0].lock = false;
-		    levels[1].lock = true;
-		    lev.first_g = levels[1].g;
-		}
-		else
-		{
-		    if ( lev.g->lock ) return false;
-		    lev.first_g = lev.g;
-		}
-		lev.first_g->lock = true;
-		lev.last_stub =
-		    lev.first_g->last_before;
-		lev.root.rewind();
-		lev.collector_phase = REMOVING_ROOT;
-	    }
-	    else
-	    {
-	        // We need to lock the next generation.
-		//
-		assert ( lev.first_g + 1 != end_g );
-		bool level_change =
-		       lev.first_g[0].level
-		    != lev.first_g[1].level;
-
-		if ( lev.first_g[1].lock ) return false;
-		if (    level_change
-		     && lev.first_g[1].level->lock )
-		    return false;
-		lev.first_g[0].lock = false;
-		lev.first_g[1].lock = true;
-		if ( level_change )
-		{
-		    lev.first_g[1].level->lock = true;
-		    lev.first_g[1].level->root.rewind();
-		    lev.last_stub =
-		        lev.first_g[1].last_before;
-		    lev.collector_phase = REMOVING_ROOT;
-		}
-		else
-		    lev.collector_phase = PROMOTING;
-		++ lev.first_g;
-	    }
+	    lev.collector_phase = LEVEL_PROMOTING;
 	}
+	// Fall through to LEVEL_PROMOTING.
 
-	if ( lev.collector_phase == PROMOTING )
-	    goto promoting;
-	// Fall through to REMOVING_ROOT.
-
-    case PROMOTING:
-    promoting:
+    case LEVEL_PROMOTING:
         {
+	    end_g->last_before = lev.acc_mark_stub;
+
 	    min::uns64 promoted = 0;
-	    min::uns64 scanned = 0;
+	    min::uns64 c =
+		MUP::control_of
+		    ( lev.last_stub );
 
-	    while ( true )
+	    while (   promoted
+		    < MACC::scan_limit
+		    &&
+		       lev.last_stub
+		    != lev.first_g[1]
+			  .last_before )
 	    {
-		if (    lev.first_g
-		     == lev.first_g->level->g )
+		min::stub * s =
+		    MUP::stub_of_acc_control
+			( c );
+		c = MUP::control_of ( s );
+		c &= ~ COLLECTIBLE ( level );
+		int type =
+		    MUP::type_of_control ( c );
+		if ( MINT::is_scavengable ( type ) )
 		{
-		    // First_g is sublevel 0.
-		    // Let glevel be first_g's level.
-		    // Clear COLLECTIBLE ( glevel )
-		    // and NON_ROOT ( glevel ) of all
-		    // g's stubs flags and put all 
-		    // these stubs on glevel's root
-		    // list.  Clear glevel's lock
-		    // when done.
-		    // 
-		    unsigned glevel =
-			lev.first_g->level - levels;
-		    end_g->last_before = NULL;
-
-		    min::uns64 c =
-			MUP::control_of
-			    ( lev.last_stub );
-		    while (   promoted + scanned
-		            < MACC::scan_limit
-			    &&
-			       lev.last_stub
-			    != lev.first_g[1]
-			          .last_before )
-		    {
-			min::stub * s =
-			    MUP::stub_of_acc_control
-			        ( c );
-			c = MUP::control_of ( s );
-			c &= ~ COLLECTIBLE ( glevel );
-			int type =
-			    MUP::type_of_control ( c );
-			if ( MINT::scavenger_routines
-			         [type]
-			     != NULL )
-			{
-			    c &= ~ NON_ROOT ( glevel );
-			    lev.first_g->level
-				       ->root.push
-				             ( s );
-			}
-			MUP::set_control_of ( s, c );
-			++ promoted;
-			lev.last_stub = s;
-			if ( lev.first_g + 1 == end_g
-			     &&
-			     type == min::ACC_MARK )
-			    end_g->last_before = s;
-		    }
-
-		    if (    lev.last_stub
-		         != lev.first_g[1].last_before )
-			break;
-
-		    lev.first_g->level->lock = false;
+		    c &= ~ NON_ROOT ( level );
+		    lev.root.push ( s );
 		}
-		else if ( lev.first_g + 1 == end_g )
-		{
-		    end_g->last_before = NULL;
-		    min::uns64 c =
-			MUP::control_of
-			    ( lev.last_stub );
-		    while ( scanned < MACC::scan_limit )
-		    {
-			min::stub * s =
-			    MUP::stub_of_acc_control
-			        ( c );
-			assert ( s != MINT::null_stub );
-			c = MUP::control_of ( s );
-			++ scanned;
-			lev.last_stub = s;
-			int type =
-			    MUP::type_of_control ( c );
-			if ( type == min::ACC_MARK )
-			{
-			    end_g->last_before = s;
-			    break;
-			}
-			assert
-			    ( type != min::ACC_FREE );
-		    }
-
-		    if (    lev.last_stub
-		         != end_g->last_before )
-			break;
-		}
-
-		// Move all the stubs in the first_g
-		// generation to the first_g-1 genera-
-		// tion.  If we are at the last genera-
-		// tion, all the stubs up to and
-		// including the first ACC_MARKed stub
-		// in the last generation are moved to
-		// the previous generation.
-		//
-		lev.first_g->last_before =
-		    lev.first_g[1].last_before;
-
-		if ( lev.first_g + 1 == end_g )
-		{
-		    // We are done with the last genera-
-		    // tion.
-
-		    lev.first_g->lock = false;
-		    MACC::removal_request_flags &=
-			~ UNMARKED ( level );
-		    MINT::hash_acc_clear_flags &=
-			~ UNMARKED ( level );
-		    lev.collector_phase =
-		        COLLECTOR_NOT_RUNNING;
-		    break;
-		}
-		else if (    lev.first_g[0].level
-		          != lev.first_g[1].level
-			  ||
-			  lev.first_g[1].lock )
-		{
-		    lev.collector_phase =
-		        PRE_PROMOTING;
-		    break;
-		}
-		lev.first_g[0].lock = false;
-		lev.first_g[1].lock = true;
-		++ lev.first_g;
+		MUP::set_control_of ( s, c );
+		++ promoted;
+		lev.last_stub = s;
 	    }
-	    lev.promoted_count += promoted;
-	    lev.acc_mark_count += scanned;
+
+	    if (    lev.last_stub
+		 == lev.first_g[1].last_before )
+	    {
+		lev.first_g = lev.g;
+		lev.g[1].lock = false;
+		lev.collector_phase =
+		    GENERATION_PROMOTING;
+	    }
+	    break;
 	}
+
+    case GENERATION_PROMOTING:
+        {
+	    assert ( lev.first_g->lock );
+	    if ( lev.first_g[1].lock ) return false;
+
+	    end_g->last_before = lev.acc_mark_stub;
+
+	    while ( true ) {
+	        lev.first_g->last_before =
+		    lev.first_g[1].last_before;
+		lev.first_g->lock = false;
+		++ lev.first_g;
+		if (    lev.first_g - lev.g
+		     == lev.number_of_sublevels )
+		    break;
+		lev.first_g->lock = true;
+		if ( lev.first_g[1].lock ) return false;
+	    }
+
+	    // We are done with the last generation.
+
+	    if ( level == ephemeral_levels )
+		MUP::set_type_of
+		    ( lev.acc_mark_stub,
+		      min::DEALLOCATED );
+		// A DEALLOCATED stub is collectable
+		// while an ACC_MARK stub is not.
+
+	    MACC::removal_request_flags &=
+		~ UNMARKED ( level );
+	    MINT::hash_acc_clear_flags &=
+		~ UNMARKED ( level );
+	    lev.collector_phase = COLLECTOR_NOT_RUNNING;
+	}
+
         break;
 
     default:
