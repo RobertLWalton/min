@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  6 01:54:57 EDT 2010
+// Date:	Sat Nov  6 08:41:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1677,10 +1677,11 @@ namespace min { namespace acc {
 		// from MACC::acc_stack_scavenge_mask
 		// for the same reason.
 		//
-		// Lastly a new stub of type ACC_MARK
+		// Lastly if L is the highest ephemeral
+		// level, a new stub of type ACC_MARK
 		// is allocated to mark the end of
-		// the stubs subject to promotion by
-		// this level L collection.
+		// the last generation subject to
+		// promotion by this collection.
 	   REMOVING_TO_BE_SCAVENGED,
 	        // This phase simply waits until ALL
 		// levels have processed any portion of
@@ -1714,12 +1715,7 @@ namespace min { namespace acc {
 		//
 		// Then scans the stubs of generation g.
 		// All scanned stubs with level L un-
-		// marked flag set are freed, unless
-		// g is the last generation (i.e.,
-		// g+1 == end_g) and the stub type is
-		// ACC_MARK.  These last stubs mark
-		// the ends of promotion scans (see
-		// below).
+		// marked flag set are freed.
 		//
 		// Note that any freed number, string,
 		// or label stub must be removed from
@@ -1763,15 +1759,11 @@ namespace min { namespace acc {
 		// collections from coinciding with the
 		// promotion of generation g stubs from
 		// that level to the previous level.
-		// In addition, when g is the first
-		// generaion of a level, two additional
-		// things are done before g->last_before
-		// is changed.  First, a REMOVING_ROOT
-		// subphase is executed (see below), and
-		// second, scans the stubs of genera-
-		// tion g and puts each on the level L
-		// root list while clearing its level L
-		// collectible and non-root flags.
+		// In addition, before g->last_before is
+		// changed, the stubs of generation g
+		// are put on the level L root list
+		// while clearing their level L collec-
+		// tible and non-root flags.
 
     // The amount of work done in a collector increment
     // is controlled by the following parameters.  Note

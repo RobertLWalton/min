@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  6 02:12:30 EDT 2010
+// Date:	Sat Nov  6 08:41:08 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2136,26 +2136,29 @@ static bool collector_increment ( unsigned level )
 			MACC::acc_stack_scavenge_mask &=
 			    ~ SCAVENGED ( level );
 
-			// Allocate as stub to mark the
-			// end of level L collected
-			// stubs.  ACC_MARK stubs are
-			// not collected if they are in
-			// the last generation, and
-			// during promotion, they serve
-			// to delimit the last genera-
-			// tion.
+			// If L is the highest ephemeral
+			// level, allocate a stub to
+			// mark the end of level L
+			// collected stubs.
 			//
-			min::stub * s =
-			    MUP::new_acc_stub();
-			MUP::set_type_of
-			    ( s, min::ACC_MARK );
+			if ( level > 0 &&
+			     level == ephemeral_levels )
+			{
+			    min::stub * s =
+				MUP::new_acc_stub();
+			    MUP::set_type_of
+				( s, min::ACC_MARK );
+			    // Note that as s is a new
+			    // stub, UNMARKED ( level )
+			    // is clear for s.
+			}
 
-			for ( unsigned L = 0;
-			      L <= ephemeral_levels;
-			      ++ L )
-			    lev.to_be_scavenged_wait[L]
+			for ( unsigned L1 = 0;
+			      L1 <= ephemeral_levels;
+			      ++ L1 )
+			    lev.to_be_scavenged_wait[L1]
 			        =
-				levels[L]
+				levels[L1]
 				    .to_be_scavenged_in;
 
 			lev.collector_phase =
@@ -2451,104 +2454,113 @@ static bool collector_increment ( unsigned level )
 	            < MACC::collection_limit )
 	    {
 		if (    lev.last_stub
-		     == lev.first_g[1].last_before )
+		     != lev.first_g[1].last_before )
 		{
-		    lev.first_g->lock = false;
-		    ++ lev.first_g;
-		    if ( lev.first_g == end_g )
+		    min::stub * s =
+			MUP::stub_of_acc_control
+			    ( last_c );
+		    min::uns64 c = MUP::control_of ( s );
+		    if ( ( c & UNMARKED ( level ) )
+			 &&
+			     MUP::type_of_control ( c )
+			 != min::ACC_MARK )
 		    {
-			do lev.first_g->lock = false;
-			while (    lev.first_g ++
-			        != lev.last_g );
+			// Remove s from acc list.
+			//
+			if ( s == lev.first_g[1]
+				     .last_before )
+			{
+			    // If we are removing the
+			    // last stub of a generation
+			    // we must update the last_
+			    // before's of succeeding
+			    // generations.
+			    //
+			    MACC::generation * g =
+				lev.first_g + 1;
+			    do g->last_before =
+				   lev.last_stub;
+			    while
+			        ( g ++ != lev.last_g );
+			}
 
-			lev.first_g = NULL;
+			last_c =
+			    MUP::renew_control_stub
+				( last_c,
+				  MUP::stub_of_acc_control
+				      ( c ) );
+			MUP::set_control_of
+			    ( lev.last_stub, last_c );
+
+			// Remove s from aux hash table.
+			//
+			remove_from_aux_hash_table
+			    ( c, s );
+
+			// Deallocate body of s.
+			//
+			min::unsptr size =
+			    MUP::body_size_of ( s );
+			if ( size != 0 )
+			    MUP::deallocate_body
+				( s, size );
+
+			// Free stub s.
+			//
+			MINT::free_acc_stub ( s );
+			++ collected;
+		    }
+		    else
+		    {
+			last_c = c;
+			lev.last_stub = s;
+			++ kept;
+		    }
+
+		    continue;
+		}
+
+		lev.first_g->lock = false;
+
+		while (    ++ lev.first_g
+			!= lev.last_g )
+		    lev.first_g->lock == false;
+
+		if ( lev.first_g == end_g )
+		{
+		    end_g->lock = false;
+
+		    lev.first_g = NULL;
+		    lev.collector_phase =
+			PRE_PROMOTING;
+		    break;
+		}
+
+		// We must make last_g > first_g and
+		//		last_g[1].last_before
+		//	     != last_g[0].last_before
+		//    unless last_g == end_g.
+
+		while ( lev.last_g != end_g
+			&&
+			( lev.last_g == lev.first_g
+			  ||
+			     lev.last_g->last_before
+			  == lev.last_g[1]
+				.last_before ) )
+		{
+		    if ( lev.last_g[1].lock )
+		    {
 			lev.collector_phase =
-			    PRE_PROMOTING;
+			    PRE_COLLECTING;
 			break;
 		    }
-
-		    // We must make last_g > first_g and
-		    //		last_g[1].last_before
-		    //	     != last_g[0].last_before
-		    //    unless last_g == end_g.
-
-		    while ( lev.last_g != end_g
-			    &&
-			    ( lev.last_g == lev.first_g
-			      ||
-				 lev.last_g->last_before
-			      == lev.last_g[1]
-			            .last_before ) )
-		    {
-			if ( lev.last_g[1].lock )
-			{
-			    lev.collector_phase =
-				PRE_INITING_COLLECTIBLE;
-			    break;
-			}
-			lev.last_g[1].lock = true;
-			++ lev.last_g;
-		    }
+		    ++ lev.last_g;
+		    lev.last_g->lock = true;
 		}
-
-		min::stub * s =
-		    MUP::stub_of_acc_control ( last_c );
-		min::uns64 c = MUP::control_of ( s );
-		if ( ( c & UNMARKED ( level )
-		     &&
-		     ( lev.first_g + 1 != end_g
-		       ||
-		          MUP::type_of_control ( c )
-		       != min::ACC_MARK ) ) )
-		{
-		    // Remove s from acc list.
-		    //
-		    if ( s == lev.first_g[1]
-		                 .last_before )
-		    {
-		        // If we are removing the last
-			// stub of a generation we must
-			// update the last_before's of
-			// succeeding generations.
-			//
-		        MACC::generation * g =
-			    lev.first_g + 1;
-			do g->last_before =
-			       lev.last_stub;
-			while ( g ++ != lev.last_g );
-		    }
-
-		    last_c =
-		        MUP::renew_control_stub
-			    ( last_c,
-			      MUP::stub_of_acc_control
-				  ( c ) );
-		    MUP::set_control_of
-		        ( lev.last_stub, last_c );
-
-		    // Remove s from aux hash table.
-		    //
-		    remove_from_aux_hash_table ( c, s );
-
-		    // Deallocate body of s.
-		    //
-		    min::unsptr size =
-		        MUP::body_size_of ( s );
-		    if ( size != 0 )
-		        MUP::deallocate_body
-			    ( s, size );
-
-		    // Free stub s.
-		    //
-		    MINT::free_acc_stub ( s );
-		    ++ collected;
-		}
-		else
-		{
-		    last_c = c;
-		    lev.last_stub = s;
-		    ++ kept;
-		}
+		if (    lev.collector_phase
+		     == PRE_COLLECTING );
+		    break;
 	    }
 
 	    lev.collected_count += collected;
@@ -2558,11 +2570,10 @@ static bool collector_increment ( unsigned level )
 
     case PRE_PROMOTING:
 	{
-	    if ( MACC::ephemeral_levels = 0 )
+	    if ( level == 0 )
 	    {
-	        // If there are no ephemeral levels,
-		// no promoting is needed and we are
-		// done.
+	        // Non-ephemeral level, no promoting
+		// needed, we are done.
 
 		MACC::removal_request_flags &=
 		    ~ UNMARKED ( level );
