@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  6 01:54:27 EDT 2010
+// Date:	Sat Nov  6 02:12:30 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2198,7 +2198,6 @@ static bool collector_increment ( unsigned level )
 
 	    if ( level == ephemeral_levels )
 	    {
-		lev.first_g = NULL;
 		if ( level == 0 )
 		{
 		    lev.hash_table_id = 0;
@@ -2207,8 +2206,11 @@ static bool collector_increment ( unsigned level )
 			COLLECTING_HASH;
 		}
 		else
+		{
+		    lev.first_g = NULL;
 		    lev.collector_phase =
 			PRE_COLLECTING;
+		}
 	    }
 	    else
 	    {
@@ -2264,7 +2266,6 @@ static bool collector_increment ( unsigned level )
 		rrlev = levels + lev.next_level;
 		if ( lev.next_level > ephemeral_levels )
 		{
-		    lev.first_g = NULL;
 		    if ( level == 0 )
 		    {
 			lev.hash_table_id = 0;
@@ -2273,8 +2274,11 @@ static bool collector_increment ( unsigned level )
 			    COLLECTING_HASH;
 		    }
 		    else
+		    {
+			lev.first_g = NULL;
 			lev.collector_phase =
 			    PRE_COLLECTING;
+		    }
 		    break;
 		}
 		else if ( rrlev->lock )
@@ -2332,6 +2336,7 @@ static bool collector_increment ( unsigned level )
 
 		if ( hash_table == NULL )
 		{
+		    lev.first_g = NULL;
 		    lev.collector_phase =
 			PRE_COLLECTING;
 		    break;
