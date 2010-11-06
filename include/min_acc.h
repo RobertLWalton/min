@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  6 08:41:30 EDT 2010
+// Date:	Sat Nov  6 09:03:12 EDT 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1380,10 +1380,10 @@ namespace min { namespace acc {
     //   Newly allocated stubs are put on the end of the
     //   acc list, thus keeping the acc list in order of
     //   stub age.  The last allocated stub in the acc
-    //   list is MINT::last_allocated_stub.  If there are
-    //   no allocated stubs, this equals MINT::first_
-    //   allocated_stub (only happens briefly at the
-    //   start of program initialization.)
+    //   list is MINT::last_allocated_stub.  If there
+    //   are no allocated stubs, this equals MINT::
+    //   first_allocated_stub (only happens briefly at
+    //   the start of program initialization.)
     //
     //   Level 0 stubs in the hash tables for strings,
     //   numbers, and labels are not included in the acc
@@ -1722,48 +1722,38 @@ namespace min { namespace acc {
 		// its hash table.  Being in a hash
 		// table does not prevent collection of
 		// any stub.
-	   PRE_PROMOTING,
-	   PROMOTING };
+	    PRE_LEVEL_PROMOTING,
+	    LEVEL_PROMOTING,
+		// If g is the first generation of level
+		// L, obtains a lock on g and g+1,
+		// and for each stub in the generation
+		// clears its level L collectible flag,
+		// and if it is scavengable, puts it
+		// on the L root list while clearing its
+		// level L non-root flag.  The next
+		// level L collection will scavenge
+		// these and remove from the root list
+		// any that have no pointer to stubs
+		// of level >= L.
+		//
+		// Uses end_g = levels[L].acc_mark_stub
+		// so that the ACC_MARK stub becomes
+		// the last stub of the next to last
+		// generation.
+	   GENERATION_PROMOTING };
 		// Iterates over all generations of
-		// levels >= max ( L, 1 ).  For each
-		// generation g, gets a lock on g and
-		// then releases any lock on the
-		// previous generation.  Then, after
-		// doing things described below for
-		// the first generation of each level,
-		// sets g->last_before = (g+1)->last_
-		// before, effectivly promoting all
-		// the stubs in generation g to gen-
-		// eration g-1.
+		// level L.  For each generation g, gets
+		// a lock on g and then releases any
+		// lock on the previous generation.
+		// Then, sets g->last_before =
+		// (g+1)->last_before, effectively
+		// promoting all the stubs in generation
+		// g to generation g-1.
 		//
-		// As a special case, when g+1 == end_g,
-		// end_g->last_before is set to the
-		// first ACC_MARK stub after g->last_
-		// before.  This defines the end of the
-		// stubs being promoted.  Notice that
-		// each ACC_MARK stub is used exactly
-		// once as the end of the stubs being
-		// promoted by the PROMOTING phase of
-		// some collection.  After being so
-		// used, an ACC_MARK stub is no longer
-		// in the last generation and since it
-		// is unreferenced and will never be
-		// marked, it will be collected by sub-
-		// sequent collections.
-		//
-		// If g is the first generation of a
-		// level, a lock on g->level is obtained
-		// at the same time as the lock on g,
-		// and released at the same time as the
-		// lock on g.  This prevents g->level
-		// collections from coinciding with the
-		// promotion of generation g stubs from
-		// that level to the previous level.
-		// In addition, before g->last_before is
-		// changed, the stubs of generation g
-		// are put on the level L root list
-		// while clearing their level L collec-
-		// tible and non-root flags.
+		// Uses end_g = levels[L].acc_mark_stub
+		// so that the ACC_MARK stub becomes
+		// the last stub of the next to last
+		// generation.
 
     // The amount of work done in a collector increment
     // is controlled by the following parameters.  Note
@@ -1924,11 +1914,6 @@ namespace min { namespace acc {
 	    // to the next lower level by the
 	    // PROMOTING phase of the collector.
 
-	min::uns64 acc_mark_count;
-	    // Number of stubs scanned in last genera-
-	    // tion to find ACC_MARK stub by the
-	    // PROMOTING phase of the collector.
-
 	min::uns64 root_kept_count;
 	    // Number of root stubs kept during
 	    // REMOVING_ROOT subphase.
@@ -2027,6 +2012,11 @@ namespace min { namespace acc {
 	    // Pointer to a stub within a locked
 	    // generation, or the last_before stub of
 	    // a locked generation.
+
+	min::stub * acc_mark_stub;
+	    // Pointer to ACC_MARK stub allocated for
+	    // this collection.  Only used by highest
+	    // level.
     };
     extern min::acc::level * levels;
 
