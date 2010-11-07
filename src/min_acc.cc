@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  6 09:27:36 EDT 2010
+// Date:	Sun Nov  7 04:20:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2118,6 +2118,7 @@ static bool collector_increment ( unsigned level )
 			    lev.scavenge_limit *= 2;
 			}
 			++ lev.restart_count;
+			++ lev.thrash_count;
 
 			continue;
 		    }
@@ -2417,6 +2418,7 @@ static bool collector_increment ( unsigned level )
 	    {
 	        if ( lev.g->lock ) return false;
 		lev.g->lock = true;
+		lev.g->count = 0;
 		lev.first_g = lev.last_g = lev.g;
 		lev.last_stub = lev.g->last_before;
 	    }
@@ -2518,6 +2520,7 @@ static bool collector_increment ( unsigned level )
 			last_c = c;
 			lev.last_stub = s;
 			++ kept;
+			++ lev.first_g->count;
 		    }
 
 		    continue;
@@ -2537,6 +2540,8 @@ static bool collector_increment ( unsigned level )
 			PRE_LEVEL_PROMOTING;
 		    break;
 		}
+
+		lev.first_g->count = 0;
 
 		// We must make last_g > first_g and
 		//		last_g[1].last_before
@@ -2581,6 +2586,7 @@ static bool collector_increment ( unsigned level )
 		    ~ UNMARKED ( level );
 		MINT::hash_acc_clear_flags &=
 		    ~ UNMARKED ( level );
+		lev.lock = false;
 		lev.collector_phase =
 		    COLLECTOR_NOT_RUNNING;
 		break;
@@ -2630,6 +2636,8 @@ static bool collector_increment ( unsigned level )
 		lev.last_stub = s;
 	    }
 
+	    lev.promoted_count += promoted;
+
 	    if (    lev.last_stub
 		 == lev.first_g[1].last_before )
 	    {
@@ -2673,6 +2681,7 @@ static bool collector_increment ( unsigned level )
 		~ UNMARKED ( level );
 	    MINT::hash_acc_clear_flags &=
 		~ UNMARKED ( level );
+	    lev.lock = false;
 	    lev.collector_phase = COLLECTOR_NOT_RUNNING;
 	}
 
