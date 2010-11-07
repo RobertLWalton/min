@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  6 09:03:12 EDT 2010
+// Date:	Sun Nov  7 04:10:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1770,16 +1770,16 @@ namespace min { namespace acc {
     extern min::uns64 scan_limit;
         // Maximum number of stubs whose flags can be
 	// set during a collector increment when the
-	// collector is in its INITING_COLLECTIBLE or
-	// INITING_ROOT phases.
+	// collector is in its INITING_COLLECTIBLE,
+	// INITING_HASH, or INITING_ROOT phases.
 	//
 	// Also maximum number of min::gen values to be
 	// scanned during a collector increment of the
 	// SCAVENGE_ROOT or SCAVENGE_THREAD phases.
 	//
 	// Also maximum number of stubs to be scanned
-	// during a collector increment of the PROMOTING
-	// or COLLECTING phases.
+	// during a collector increment of the REMOVING_
+	// ROOT or LEVEL_PROMOTING phases.
 
     extern min::uns64 scavenge_limit;
         // Maximum number of stubs to be scavenged
@@ -1788,14 +1788,14 @@ namespace min { namespace acc {
 
     extern min::uns64 collection_limit;
         // Maximum number of stubs to be collected
-	// during a collector increment of the PROMO-
-	// TING or COLLECTING phases.
+	// during a collector increment of the COLLEC-
+	// TING or COLLECTING_HASH phases.
 
     extern min::uns32 collector_period;
         // Length in milliseconds of the collector
 	// time period.  There is an interrupt at
 	// the end of each such period.  0 if there
-	// is not collector time period.
+	// is no collector time period.
 
     extern min::uns32 period_increments;
         // The number of collector increments that are
@@ -1821,14 +1821,18 @@ namespace min { namespace acc {
 
 	min::uns64 count;
 	    // Number of stubs currently in this
-	    // generation.
+	    // generation.  May not be vaild if
+	    // generation is locked.  Updated by
+	    // COLLECTION phase.
 
 	bool lock;
-	    // Set `true' to lock this generation
-	    // structure.  Locked by the {PRE_}INITING_
-	    // COLLECTIBLES, {PRE_}PROMOTING, and
-	    // {PRE_COLLECTING} phases both of this
-	    // generation's level and of lower levels.
+	    // Set `true' to lock the last_before value
+	    // of this generation.  If the stubs of
+	    // generation g are to be scanned, added to,
+	    // or removed, then you must get this lock
+	    // for both g and g+1.  If you merely want
+	    // to change last_before for generation g,
+	    // only the lock for g is required.
 
     };
     extern min::acc::generation * generations;
@@ -1844,7 +1848,11 @@ namespace min { namespace acc {
 	// by some collector phases which set
 	//	end_g->last_before =
 	//	    MINT::last_allocated_stub
-	// and  end_g->lock = true.
+	// and other phases which set
+	//	end_g->last_before =
+	//	    levels[L].acc_mark_stub
+	// Phases that use end_g->last_before also
+	// set end_g->lock.
 
     // Each acc level is described by a level struct.
     //
@@ -1891,6 +1899,14 @@ namespace min { namespace acc {
 	    // THREAD phase has restarted scavenging the
 	    // thread and the static lists.
 
+	min::uns64 root_kept_count;
+	    // Number of root stubs kept during
+	    // REMOVING_ROOT phase.
+
+	min::uns64 root_removed_count;
+	    // Number of root stubs removed during
+	    // REMOVING_ROOT phase.
+
 	min::uns64 hash_collected_count;
 	    // Number of level 0 hash table stubs
 	    // collected by the COLLECTING_HASH phase
@@ -1913,14 +1929,6 @@ namespace min { namespace acc {
 	    // Number of stubs promoted from one level
 	    // to the next lower level by the
 	    // PROMOTING phase of the collector.
-
-	min::uns64 root_kept_count;
-	    // Number of root stubs kept during
-	    // REMOVING_ROOT subphase.
-
-	min::uns64 root_removed_count;
-	    // Number of root stubs removed during
-	    // REMOVING_ROOT subphase.
 
 	// Level working data.
 
@@ -1964,9 +1972,7 @@ namespace min { namespace acc {
 	    // Set `true' to lock this level struct.
 	    // Set by COLLECTOR_START and cleared when
 	    // the last phase of a collection of this
-	    // level is finished.  Also set by the
-	    // REMOVING_ROOT subphase of a collection
-	    // at a level lower than this level.
+	    // level is finished.
 
 	min::uns8 next_level;
 	    // Next level to be processed by REMOVING_
@@ -1981,21 +1987,21 @@ namespace min { namespace acc {
 	    // scavenge of a stub.
 
 	min::uns8 hash_table_id;
-	    // Iterates from 0 to identify acc hash
-	    // table being scanned during a level 0
-	    // collection.
+	    // Iterates from 0 to identify the acc hash
+	    // table being scanned during INITING_HASH
+	    // and COLLECTING_HASH phases.
 
 	min::uns32 hash_table_index;
 	    // Index of acc hash table element that
 	    // is the head of the hash table list
-	    // being scanned during a level 0
-	    // collection.
+	    // being scanned during INITING_HASH
+	    // and COLLECTING_HASH phases.
 
 	min::uns32 restart_count;
 	    // Number of times the current collection
 	    // has restarted scavenging the thread and
 	    // the static lists during the SCAVENGING_
-	    // THREAD phase.
+	    // THREAD phase.  Added into thrash_count.
 
 	min::uns32 scavenge_limit;
 	    // Maximum number of stubs that may be
@@ -2021,11 +2027,10 @@ namespace min { namespace acc {
     extern min::acc::level * levels;
 
     extern min::uns64 removal_request_flags;
-	// If the UNMARKED(L) is set in this value,
-	// then stubs with that flag set must be
-	// ignored and removed when they occur in
-	// the to_be_scavenged or root lists of
-	// levels >= L.
+	// If the UNMARKED(L) flag is set in this value,
+	// then stubs with that flag set must be ignored
+	// and removed when they occur in the to_be_
+	// scavenged or root lists or in the acc stack.
 
     // Ephemeral_levels is the actual number of
     // ephemeral levels, and for each ephemeral level L,
@@ -2112,11 +2117,12 @@ namespace min { namespace acc {
     // If the SCAVENGED ( L ) flag is on in the acc_
     // stack_scavenge_mask, any stub put on the level
     // L root list by process_acc_stack will have its
-    // scavenged flag set and the stub it points at
-    // will have its unmarked flag cleared and will be
-    // put on the level L to-be-scavenged list if it
-    // is scavengable.  Otherwise stubs put on the
-    // root list have their scavenged flag clear.
+    // scavenged flag set and the stub it points at,
+    // if its unmarked flag is set, will have its
+    // unmarked flag cleared and will be put on the
+    // level L to-be-scavenged list if it is scaveng-
+    // able.  Otherwise stubs put on the root list have
+    // their scavenged flag clear.
     //
     extern min::uns64 acc_stack_scavenge_mask;
 
