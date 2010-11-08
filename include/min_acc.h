@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  7 04:10:03 EST 2010
+// Date:	Sun Nov  7 15:51:39 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1676,12 +1676,6 @@ namespace min { namespace acc {
 		// level L scavenged flag is cleared
 		// from MACC::acc_stack_scavenge_mask
 		// for the same reason.
-		//
-		// Lastly if L is the highest ephemeral
-		// level, a new stub of type ACC_MARK
-		// is allocated to mark the end of
-		// the last generation subject to
-		// promotion by this collection.
 	   REMOVING_TO_BE_SCAVENGED,
 	        // This phase simply waits until ALL
 		// levels have processed any portion of
@@ -1735,11 +1729,6 @@ namespace min { namespace acc {
 		// these and remove from the root list
 		// any that have no pointer to stubs
 		// of level >= L.
-		//
-		// Uses end_g = levels[L].acc_mark_stub
-		// so that the ACC_MARK stub becomes
-		// the last stub of the next to last
-		// generation.
 	   GENERATION_PROMOTING };
 		// Iterates over all generations of
 		// level L.  For each generation g, gets
@@ -1749,11 +1738,6 @@ namespace min { namespace acc {
 		// (g+1)->last_before, effectively
 		// promoting all the stubs in generation
 		// g to generation g-1.
-		//
-		// Uses end_g = levels[L].acc_mark_stub
-		// so that the ACC_MARK stub becomes
-		// the last stub of the next to last
-		// generation.
 
     // The amount of work done in a collector increment
     // is controlled by the following parameters.  Note
@@ -1821,9 +1805,11 @@ namespace min { namespace acc {
 
 	min::uns64 count;
 	    // Number of stubs currently in this
-	    // generation.  May not be vaild if
-	    // generation is locked.  Updated by
-	    // COLLECTION phase.
+	    // generation.  For the last generation
+	    // a correction equal to
+	    //		MUP::acc_stubs_allocated
+	    //	      - last_collectible_count
+	    // must be added to this.
 
 	bool lock;
 	    // Set `true' to lock the last_before value
@@ -1848,11 +1834,16 @@ namespace min { namespace acc {
 	// by some collector phases which set
 	//	end_g->last_before =
 	//	    MINT::last_allocated_stub
-	// and other phases which set
-	//	end_g->last_before =
-	//	    levels[L].acc_mark_stub
 	// Phases that use end_g->last_before also
 	// set end_g->lock.
+
+    extern min::uns64 last_collecting_count;
+        // Value of MUP::acc_stubs_allocated when last
+	// COLLECTING or GENERATION_PROMOTING phase
+	// executed.  This is used to compute the number
+	// of allocated stubs that are not included in
+	// end_g[-1].count; this number being MUP::acc_
+	// stubs_allocated - last_collecting_count.
 
     // Each acc level is described by a level struct.
     //
@@ -2018,11 +2009,6 @@ namespace min { namespace acc {
 	    // Pointer to a stub within a locked
 	    // generation, or the last_before stub of
 	    // a locked generation.
-
-	min::stub * acc_mark_stub;
-	    // Pointer to ACC_MARK stub allocated for
-	    // this collection.  Only used by highest
-	    // level.
     };
     extern min::acc::level * levels;
 

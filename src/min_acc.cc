@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  7 04:20:15 EST 2010
+// Date:	Sun Nov  7 15:04:19 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1420,6 +1420,7 @@ static const unsigned MAX_GENERATIONS =
 static MACC::generation generations[MAX_GENERATIONS+1];
 MACC::generation * MACC::generations = ::generations;
 MACC::generation * MACC::end_g;
+min::uns64 MACC::last_collecting_count;
 
 static const unsigned MAX_LEVELS =
     1 + MIN_MAX_EPHEMERAL_LEVELS;
@@ -1481,6 +1482,7 @@ static void collector_initializer ( void )
 	}
 	MACC::end_g = g;
 	MACC::end_g->lock = false;
+	MACC::last_collecting_count = 0;
     }
 
     MACC::acc_stack_size =
@@ -2137,24 +2139,6 @@ static bool collector_increment ( unsigned level )
 			MACC::acc_stack_scavenge_mask &=
 			    ~ SCAVENGED ( level );
 
-			// If L is the highest ephemeral
-			// level, allocate a stub to
-			// mark the end of level L
-			// collected stubs.
-			//
-			if ( level > 0 &&
-			     level == ephemeral_levels )
-			{
-			    min::stub * s =
-				MUP::new_acc_stub();
-			    MUP::set_type_of
-				( s, min::ACC_MARK );
-			    // Note that as s is a new
-			    // stub, UNMARKED ( level )
-			    // is clear for s.
-			    lev.acc_mark_stub = s;
-			}
-
 			for ( unsigned L1 = 0;
 			      L1 <= ephemeral_levels;
 			      ++ L1 )
@@ -2418,7 +2402,6 @@ static bool collector_increment ( unsigned level )
 	    {
 	        if ( lev.g->lock ) return false;
 		lev.g->lock = true;
-		lev.g->count = 0;
 		lev.first_g = lev.last_g = lev.g;
 		lev.last_stub = lev.g->last_before;
 	    }
@@ -2448,6 +2431,11 @@ static bool collector_increment ( unsigned level )
 	    end_g->last_before =
 	        MINT::last_allocated_stub;
 
+	    end_g[-1].count += MUP::acc_stubs_allocated
+	                    - last_collecting_count;
+	    last_collecting_count =
+		MUP::acc_stubs_allocated;
+
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
 
@@ -2464,10 +2452,7 @@ static bool collector_increment ( unsigned level )
 			    ( last_c );
 		    min::uns64 c =
 		        MUP::control_of ( s );
-		    if ( ( c & UNMARKED ( level ) )
-			 &&
-			     MUP::type_of_control ( c )
-			 != min::ACC_MARK )
+		    if ( c & UNMARKED ( level ) )
 		    {
 			// Remove s from acc list.
 			//
@@ -2514,13 +2499,13 @@ static bool collector_increment ( unsigned level )
 			//
 			MINT::free_acc_stub ( s );
 			++ collected;
+			-- lev.first_g->count;
 		    }
 		    else
 		    {
 			last_c = c;
 			lev.last_stub = s;
 			++ kept;
-			++ lev.first_g->count;
 		    }
 
 		    continue;
@@ -2540,8 +2525,6 @@ static bool collector_increment ( unsigned level )
 			PRE_LEVEL_PROMOTING;
 		    break;
 		}
-
-		lev.first_g->count = 0;
 
 		// We must make last_g > first_g and
 		//		last_g[1].last_before
@@ -2605,7 +2588,8 @@ static bool collector_increment ( unsigned level )
 
     case LEVEL_PROMOTING:
         {
-	    end_g->last_before = lev.acc_mark_stub;
+	    end_g->last_before =
+	        MINT::last_allocated_stub;
 
 	    min::uns64 promoted = 0;
 	    min::uns64 c =
@@ -2645,8 +2629,10 @@ static bool collector_increment ( unsigned level )
 		lev.g[1].lock = false;
 		lev.collector_phase =
 		    GENERATION_PROMOTING;
+		// Fall through to GENERATION_PROMOTING.
 	    }
-	    break;
+	    else
+	        break;
 	}
 
     case GENERATION_PROMOTING:
@@ -2654,11 +2640,21 @@ static bool collector_increment ( unsigned level )
 	    assert ( lev.first_g->lock );
 	    if ( lev.first_g[1].lock ) return false;
 
-	    end_g->last_before = lev.acc_mark_stub;
+	    end_g[-1].count += MUP::acc_stubs_allocated
+	                    - last_collecting_count;
+	    last_collecting_count =
+		MUP::acc_stubs_allocated;
+
+	    end_g->last_before =
+	        MINT::last_allocated_stub;
+	    end_g->count = 0;
 
 	    while ( true ) {
 	        lev.first_g->last_before =
 		    lev.first_g[1].last_before;
+	        lev.first_g[-1].count +=
+		    lev.first_g->count;
+		lev.first_g->count = 0;
 		lev.first_g->lock = false;
 		++ lev.first_g;
 		if (    lev.first_g - lev.g
@@ -2669,13 +2665,6 @@ static bool collector_increment ( unsigned level )
 	    }
 
 	    // We are done with the last generation.
-
-	    if ( level == ephemeral_levels )
-		MUP::set_type_of
-		    ( lev.acc_mark_stub,
-		      min::DEALLOCATED );
-		// A DEALLOCATED stub is collectable
-		// while an ACC_MARK stub is not.
 
 	    MACC::removal_request_flags &=
 		~ UNMARKED ( level );
