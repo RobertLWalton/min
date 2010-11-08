@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  7 15:51:39 EST 2010
+// Date:	Sun Nov  7 23:59:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1503,6 +1503,7 @@ namespace min { namespace acc {
 		// these tables list has its unmarked
 		// flag set and its scavenged flag
 		// cleared.
+	   PRE_INITING_ROOT,
 	   INITING_ROOT,
 	   	// The level L root list is scanned and
 		// each stub on this list has its
@@ -1811,14 +1812,17 @@ namespace min { namespace acc {
 	    //	      - last_collectible_count
 	    // must be added to this.
 
-	bool lock;
-	    // Set `true' to lock the last_before value
-	    // of this generation.  If the stubs of
-	    // generation g are to be scanned, added to,
-	    // or removed, then you must get this lock
-	    // for both g and g+1.  If you merely want
-	    // to change last_before for generation g,
-	    // only the lock for g is required.
+	int lock;
+	    // -1 if unlocked, or level number of
+	    // locking level if locked.
+	    //
+	    // Set to lock the last_before value of this
+	    // generation.  If the stubs of generation g
+	    // are to be scanned, added to, or removed,
+	    // then you must get this lock for both g
+	    // and g+1.  If you merely want to change
+	    // last_before for generation g, only the
+	    // lock for g is required.
 
     };
     extern min::acc::generation * generations;
@@ -1959,11 +1963,14 @@ namespace min { namespace acc {
 	    // COLLECTOR_START, PRE_INITING_COLLECTIBLE,
 	    // etc.
 
-	bool lock;
-	    // Set `true' to lock this level struct.
-	    // Set by COLLECTOR_START and cleared when
-	    // the last phase of a collection of this
-	    // level is finished.
+	int root_lock;
+	    // -1 if unlocked, or level number of
+	    // locking level if locked.
+	    //
+	    // Set to lock the root list of this level
+	    // struct.  Set by the INITING_ROOT,
+	    // SCAVENGING_ROOT, and REMOVING_ROOT
+	    // phases.
 
 	min::uns8 next_level;
 	    // Next level to be processed by REMOVING_
@@ -2119,6 +2126,21 @@ namespace min { namespace acc {
     void process_acc_stack
         ( min::stub ** acc_lower =
 	      min::acc::acc_stack_begin );
+
+    // Perform one increment of the current collector
+    // execution at the given level.  To start a collec-
+    // tor execution just set the level collector_phase
+    // to COLLECTOR_START.  The collector execution is
+    // finished when it returns with the level collec-
+    // tor_phase set to COLLECTOR_NOT_RUNNING.
+    //
+    // Returns its argument, `level', if the increment
+    // ran, and otherwise if the increment was locked
+    // out by a collection at a different level, returns
+    // the level that locked the increment out (and
+    // which must be run until the lock is cleared).
+    //
+    unsigned collector_increment ( unsigned level );
 } }
 
 

@@ -1658,18 +1658,9 @@ inline void remove_from_aux_hash_table
     MINT::remove_aux_hash ( head, s );
 }
 
-// Perform one increment of the current collector execu-
-// tion.  To start a collector execution just set the
-// level state to COLLECTOR_START.  The collector
-// execution is finished when it returns with the level
-// collector_phase set to COLLECTOR_NOT_RUNNING.
-//
-// Returns `false' if the collector increment could not
-// start because it was locked out by the generation
-// struct or level struct locks.
-//
-static bool collector_increment ( unsigned level )
+unsigned MACC::collector_increment ( unsigned level )
 {
+    int result = level;
 
     MACC::level & lev = levels[level];
 
@@ -1677,9 +1668,6 @@ static bool collector_increment ( unsigned level )
     {
     case COLLECTOR_START:
     	{
-	    if ( lev.lock ) return false;
-	    lev.lock = true;
-
 	    MINT::new_acc_stub_flags |=
 	        UNMARKED ( level );
 
@@ -1723,21 +1711,19 @@ static bool collector_increment ( unsigned level )
 	    //
 	    if ( lev.first_g == NULL )
 	    {
-	        if ( lev.g->lock ) return false;
-		lev.g->lock = true;
+	        if ( lev.g->lock >= 0 )
+		    return lev.g->lock;
+		lev.g->lock = level;
 		lev.first_g = lev.last_g = lev.g;
 		lev.last_stub = lev.g->last_before;
 	    }
 
 	    assert ( lev.first_g == lev.last_g );
-	    if ( lev.last_g[1].lock ) return false;
+	    if ( lev.last_g[1].lock >= 0 )
+	        return lev.last_g[1].lock;
 
-	    lev.last_g[1].lock = true;
+	    lev.last_g[1].lock = level;
 	    ++ lev.last_g;
-
-	    if ( lev.last_g == end_g )
-		end_g->last_before =
-		    MINT::last_allocated_stub;
 
 	    lev.collector_phase = INITING_COLLECTIBLE;
 	}
@@ -1747,8 +1733,11 @@ static bool collector_increment ( unsigned level )
 	    // Set the flags of lev.first_g.
 	    //
 	    assert ( lev.first_g + 1 == lev.last_g );
-	    assert ( lev.first_g->lock );
-	    assert ( lev.last_g->lock );
+	    assert ( lev.first_g->lock == level );
+	    assert ( lev.last_g->lock == level );
+
+	    end_g->last_before =
+		MINT::last_allocated_stub;
 
 	    min::uns64 scanned = 0;
 	    min::uns64 c =
@@ -1770,12 +1759,12 @@ static bool collector_increment ( unsigned level )
 		    continue;
 		}
 
-		lev.first_g->lock = false;
+		lev.first_g->lock = -1;
 		lev.first_g = lev.last_g;
 
 		if ( lev.last_g == end_g )
 		{
-		    lev.last_g->lock = false;
+		    lev.last_g->lock = -1;
 		    if ( level == 0 )
 		    {
 			lev.hash_table_id = 0;
@@ -1785,26 +1774,22 @@ static bool collector_increment ( unsigned level )
 		    }
 		    else
 		    {
-			lev.root.rewind();
 			lev.collector_phase =
-			    INITING_ROOT;
+			    PRE_INITING_ROOT;
 		    }
 		    break;
 		}
-		else if ( lev.last_g[1].lock )
+		else if ( lev.last_g[1].lock >= 0 )
 		{
 		    lev.collector_phase =
 			PRE_INITING_COLLECTIBLE;
+		    result = lev.last_g[1].lock;
 		    break;
 		}
 		else
 		{
-		    lev.last_g[1].lock = true;
+		    lev.last_g[1].lock = level;
 		    ++ lev.last_g;
-		    if ( lev.last_g == end_g )
-			end_g->last_before =
-			    MINT::
-			      last_allocated_stub;
 		}
 	    }
 
@@ -1847,8 +1832,8 @@ static bool collector_increment ( unsigned level )
 
 		if ( hash_table == NULL )
 		{
-		    lev.root.rewind();
-		    lev.collector_phase = INITING_ROOT;
+		    lev.collector_phase =
+		        PRE_INITING_ROOT;
 		    break;
 		}
 
@@ -1878,6 +1863,15 @@ static bool collector_increment ( unsigned level )
 	}
 	break;
 
+    case PRE_INITING_ROOT:
+        {
+	    if ( lev.root_lock >= 0 )
+		return lev.root_lock;
+	    lev.root_lock = level;
+	    lev.root.rewind();
+	    lev.collector_phase = INITING_ROOT;
+	    // Fall through to INITING_ROOT.
+	}
     case INITING_ROOT:
 	{
 	    min::uns64 scanned = 0;
@@ -1907,6 +1901,7 @@ static bool collector_increment ( unsigned level )
 		    UNMARKED ( level );
 	        MACC::acc_stack_scavenge_mask |=
 		    SCAVENGED ( level );
+		assert ( lev.root_lock == level );
 		lev.collector_phase =
 		    SCAVENGING_ROOT;
 		break;
@@ -1916,6 +1911,8 @@ static bool collector_increment ( unsigned level )
 
     case SCAVENGING_ROOT:
         {
+	    assert ( lev.root_lock == level );
+
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
 
@@ -2033,6 +2030,7 @@ static bool collector_increment ( unsigned level )
 	    if (    lev.collector_phase
 	         == SCAVENGING_THREAD )
 	    {
+		lev.root_lock = -1;
 	        lev.restart_count = 0;
 	        lev.scavenge_limit =
 		    MACC::scavenge_limit;
@@ -2213,9 +2211,10 @@ static bool collector_increment ( unsigned level )
         {
 	    MACC::level * rrlev =
 	        levels + lev.next_level;
-	    if ( rrlev->lock ) return false;
+	    if ( rrlev->root_lock >= 0 )
+		return rrlev->root_lock;
 
-	    rrlev->lock = true;
+	    rrlev->root_lock = level;
 	    // Fall through to REMOVING_ROOT.
 	}
     case REMOVING_ROOT:
@@ -2226,7 +2225,7 @@ static bool collector_increment ( unsigned level )
 	        MACC::removal_request_flags;
 	    MACC::level * rrlev =
 	        levels + lev.next_level;
-	    assert ( rrlev->lock );
+	    assert ( rrlev->root_lock == level );
 	    while (   root_kept + root_removed
 		    < MACC::scan_limit )
 	    {
@@ -2249,7 +2248,7 @@ static bool collector_increment ( unsigned level )
 		}
 
 		rrlev->root.flush();
-		rrlev->lock = false;
+		rrlev->root_lock = -1;
 
 		++ lev.next_level;
 		rrlev = levels + lev.next_level;
@@ -2270,15 +2269,16 @@ static bool collector_increment ( unsigned level )
 		    }
 		    break;
 		}
-		else if ( rrlev->lock )
+		else if ( rrlev->root_lock >= 0 )
 		{
 		    lev.collector_phase =
 			PRE_REMOVING_ROOT;
+		    result = rrlev->root_lock;
 		    break;
 		}
 		else
 		{
-		    rrlev->lock = true;
+		    rrlev->root_lock = level;
 		    rrlev->root.rewind();
 		}
 	    }
@@ -2400,8 +2400,9 @@ static bool collector_increment ( unsigned level )
 	{
 	    if ( lev.first_g == NULL )
 	    {
-	        if ( lev.g->lock ) return false;
-		lev.g->lock = true;
+	        if ( lev.g->lock >= 0 )
+		    return lev.g->lock;
+		lev.g->lock = level;
 		lev.first_g = lev.last_g = lev.g;
 		lev.last_stub = lev.g->last_before;
 	    }
@@ -2418,8 +2419,9 @@ static bool collector_increment ( unsigned level )
 		         lev.last_g->last_before
 		      == lev.last_g[1].last_before ) )
 	    {
-	        if ( lev.last_g[1].lock ) return false;
-		lev.last_g[1].lock = true;
+	        if ( lev.last_g[1].lock >= 0 )
+		    return lev.last_g[1].lock;
+		lev.last_g[1].lock = level;
 		++ lev.last_g;
 	    }
 
@@ -2511,15 +2513,15 @@ static bool collector_increment ( unsigned level )
 		    continue;
 		}
 
-		lev.first_g->lock = false;
+		lev.first_g->lock = -1;
 
 		while (    ++ lev.first_g
 			!= lev.last_g )
-		    lev.first_g->lock == false;
+		    lev.first_g->lock == -1;
 
 		if ( lev.first_g == end_g )
 		{
-		    end_g->lock = false;
+		    end_g->lock = -1;
 
 		    lev.collector_phase =
 			PRE_LEVEL_PROMOTING;
@@ -2539,14 +2541,15 @@ static bool collector_increment ( unsigned level )
 			  == lev.last_g[1]
 				.last_before ) )
 		{
-		    if ( lev.last_g[1].lock )
+		    if ( lev.last_g[1].lock >= 0 )
 		    {
 			lev.collector_phase =
 			    PRE_COLLECTING;
+			result = lev.last_g[1].lock;
 			break;
 		    }
 		    ++ lev.last_g;
-		    lev.last_g->lock = true;
+		    lev.last_g->lock = level;
 		}
 		if (    lev.collector_phase
 		     == PRE_COLLECTING );
@@ -2569,16 +2572,17 @@ static bool collector_increment ( unsigned level )
 		    ~ UNMARKED ( level );
 		MINT::hash_acc_clear_flags &=
 		    ~ UNMARKED ( level );
-		lev.lock = false;
 		lev.collector_phase =
 		    COLLECTOR_NOT_RUNNING;
 		break;
 	    }
 
-	    if ( lev.g->lock ) return false;
-	    if ( lev.g[1].lock ) return false;
-	    lev.g->lock = true;
-	    lev.g[1].lock = true;
+	    if ( lev.g->lock >= 0 )
+		return lev.g->lock;
+	    if ( lev.g[1].lock >= 0 )
+		return lev.g[1].lock;
+	    lev.g->lock = level;
+	    lev.g[1].lock = level;
 	    lev.first_g = lev.g;
 	    lev.last_stub = lev.g->last_before;
 
@@ -2614,6 +2618,8 @@ static bool collector_increment ( unsigned level )
 		{
 		    c &= ~ NON_ROOT ( level );
 		    lev.root.push ( s );
+		    // Note: you do NOT need
+		    // lev.root_lock to push.
 		}
 		MUP::set_control_of ( s, c );
 		++ promoted;
@@ -2626,7 +2632,7 @@ static bool collector_increment ( unsigned level )
 		 == lev.first_g[1].last_before )
 	    {
 		lev.first_g = lev.g;
-		lev.g[1].lock = false;
+		lev.g[1].lock = -1;
 		lev.collector_phase =
 		    GENERATION_PROMOTING;
 		// Fall through to GENERATION_PROMOTING.
@@ -2637,8 +2643,9 @@ static bool collector_increment ( unsigned level )
 
     case GENERATION_PROMOTING:
         {
-	    assert ( lev.first_g->lock );
-	    if ( lev.first_g[1].lock ) return false;
+	    assert ( lev.first_g->lock == level );
+	    if ( lev.first_g[1].lock >= 0 )
+		return lev.first_g[1].lock;
 
 	    end_g[-1].count += MUP::acc_stubs_allocated
 	                    - last_collecting_count;
@@ -2655,13 +2662,14 @@ static bool collector_increment ( unsigned level )
 	        lev.first_g[-1].count +=
 		    lev.first_g->count;
 		lev.first_g->count = 0;
-		lev.first_g->lock = false;
+		lev.first_g->lock = -1;
 		++ lev.first_g;
 		if (    lev.first_g - lev.g
 		     == lev.number_of_sublevels )
 		    break;
-		lev.first_g->lock = true;
-		if ( lev.first_g[1].lock ) return false;
+		lev.first_g->lock = level;
+		if ( lev.first_g[1].lock >= 0 )
+		    return lev.first_g[1].lock;
 	    }
 
 	    // We are done with the last generation.
@@ -2670,7 +2678,6 @@ static bool collector_increment ( unsigned level )
 		~ UNMARKED ( level );
 	    MINT::hash_acc_clear_flags &=
 		~ UNMARKED ( level );
-	    lev.lock = false;
 	    lev.collector_phase = COLLECTOR_NOT_RUNNING;
 	}
 
@@ -2679,7 +2686,7 @@ static bool collector_increment ( unsigned level )
     default:
         MIN_ABORT ( "bad collector state" );
     }
-    return true;
+    return result;
 }
 
 // Compactor
