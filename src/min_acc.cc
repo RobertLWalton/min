@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  9 00:26:17 EST 2010
+// Date:	Tue Nov  9 01:28:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1417,14 +1417,17 @@ unsigned * MACC::ephemeral_sublevels =
 static const unsigned MAX_GENERATIONS =
     1 +   MIN_MAX_EPHEMERAL_LEVELS
         * MIN_MAX_EPHEMERAL_SUBLEVELS;
-static MACC::generation generations[MAX_GENERATIONS+1];
-MACC::generation * MACC::generations = ::generations;
+static MACC::generation
+       generations_vector[MAX_GENERATIONS+1];
+MACC::generation * MACC::generations =
+    ::generations_vector;
 MACC::generation * MACC::end_g;
 min::uns64 MACC::last_collecting_count;
 
 static const unsigned MAX_LEVELS =
     1 + MIN_MAX_EPHEMERAL_LEVELS;
-static MACC::level levels_vector[MAX_GENERATIONS];
+static MACC::level
+       levels_vector[MAX_LEVELS];
 MACC::level * MACC::levels = levels_vector;
 
 min::uns64   MACC::removal_request_flags;
@@ -1450,12 +1453,14 @@ static void collector_initializer ( void )
 
     levels[0].g = g ++;
     levels[0].number_of_sublevels = 1;
+    levels[0].collector_phase = COLLECTOR_NOT_RUNNING;
+    levels[0].root_lock = -1;
 
     char name[80];
 
     MINT::new_acc_stub_flags = 0;
     for ( unsigned i = 1;
-          i < MACC::ephemeral_levels; ++ i )
+          i <= MACC::ephemeral_levels; ++ i )
     {
 	MINT::new_acc_stub_flags |= COLLECTIBLE ( i );
 
@@ -1469,6 +1474,9 @@ static void collector_initializer ( void )
 	levels[i].g = g;
 	levels[i].number_of_sublevels =
 	    MACC::ephemeral_sublevels[i];
+	levels[i].collector_phase =
+	    COLLECTOR_NOT_RUNNING;
+	levels[i].root_lock = -1;
 
 	for ( unsigned j = 0;
 	      j < MACC::ephemeral_sublevels[i]; ++ j )
@@ -1476,14 +1484,15 @@ static void collector_initializer ( void )
 	    g->level = & levels[i];
 	    g->last_before = MINT::first_allocated_stub;
 	    g->count = 0;
-	    g->lock = false;
+	    g->lock = -1;
 
 	    ++ g;
 	}
-	MACC::end_g = g;
-	MACC::end_g->lock = false;
-	MACC::last_collecting_count = 0;
     }
+
+    MACC::end_g = g;
+    MACC::end_g->lock = -1;
+    MACC::last_collecting_count = 0;
 
     MACC::acc_stack_size =
           MACC::page_size
@@ -2684,7 +2693,7 @@ unsigned MACC::collector_increment ( unsigned level )
         break;
 
     default:
-        MIN_ABORT ( "bad collector state" );
+        MIN_ABORT ( "bad collector phase" );
     }
     return result;
 }

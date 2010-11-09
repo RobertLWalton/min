@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 16:11:54 EDT 2010
+// Date:	Tue Nov  9 01:01:27 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -227,14 +227,21 @@ int main ()
 
 	cout << "Before Allocation" << endl;
 	MACC::print_acc_statistics ( cout );
+
     	min::gen v =
 	    create_vec_of_objects ( 1000, 300 );
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
 	cout << "After Allocation" << endl;
 	MACC::print_acc_statistics ( cout );
+
 	random_deallocate ( v, 100000, 300 );
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
-	cout << "After Deallocate Test" << endl;
+	cout << "After Random Deallocation" << endl;
+	MACC::print_acc_statistics ( cout );
+
+	MACC::collect ( MACC::ephemeral_levels );
+	MIN_ASSERT ( check_vec_of_objects ( v ) );
+	cout << "After Highest Level GC" << endl;
 	MACC::print_acc_statistics ( cout );
 
 
