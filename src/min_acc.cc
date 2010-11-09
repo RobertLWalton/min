@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  7 15:04:19 EST 2010
+// Date:	Tue Nov  9 00:26:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2687,6 +2687,30 @@ unsigned MACC::collector_increment ( unsigned level )
         MIN_ABORT ( "bad collector state" );
     }
     return result;
+}
+
+// Helper function for `collect'.  Run one increment at
+// the given level, if necessary running increments at
+// other levels to do this.
+//
+static void run_one ( unsigned level )
+{
+    while ( true )
+    {
+	unsigned L = collector_increment ( level );
+	if ( L == level ) return;
+	run_one ( L );
+    }
+}
+
+void MACC::collect ( unsigned level )
+{
+    if (    levels[level].collector_phase
+         == COLLECTOR_NOT_RUNNING )
+        levels[level].collector_phase = COLLECTOR_START;
+    while (    levels[level].collector_phase
+            != COLLECTOR_NOT_RUNNING )
+        run_one ( level );
 }
 
 // Compactor

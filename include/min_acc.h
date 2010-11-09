@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  7 23:59:17 EST 2010
+// Date:	Tue Nov  9 00:19:19 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2141,6 +2141,18 @@ namespace min { namespace acc {
     // which must be run until the lock is cleared).
     //
     unsigned collector_increment ( unsigned level );
+
+    // Perform or complete a collection at a given
+    // level.  If no collection is in progress at the
+    // level, set the level phase to COLLECTOR_START
+    // to start the collection.  Then call collector_
+    // increment until the collection is done.  If
+    // collection is blocked by collection at another
+    // level L2, call collector_increment for L2 just
+    // as much as necessary to unblock the original
+    // collection.
+    //
+    void collect ( unsigned level );
 } }
 
 
