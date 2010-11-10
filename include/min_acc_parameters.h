@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:13:21 EDT 2010
+// Date:	Wed Nov 10 02:03:32 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,6 +49,7 @@
 //	f   Trace fixed size block free list
 //	    augmentations.
 //	v   Trace variable size block allocations.
+//	c   Trace collector phase execution.
 //
 //              E.g., debug=pv
 

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 02:00:07 EDT 2010
+// Date:	Wed Nov 10 02:13:15 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -337,7 +337,7 @@ namespace min {
     const int PACKED_STRUCT		= 12;
     const int PACKED_VEC		= 13;
 
-    // Uncollectable.
+    // Uncollectible.
     //
     const int AUX_FREE			= -1;
     const int LABEL_AUX			= -2;
@@ -1038,10 +1038,10 @@ namespace min {
 // ------- ------
 
 // Acc control values are used as the second word of
-// garbage collectable stubs.
+// garbage collectible stubs.
 //
 // Non-acc control values are used as the second word
-// of non-garbage-collectable stubs, and as the first
+// of non-garbage-collectible stubs, and as the first
 // word of object bodies (actually, the body proper
 // begins right after this word).  The acc may use them
 // elsewhere (see min_acc.h).
@@ -1375,7 +1375,7 @@ namespace min {
         return s->c.i8[7*MIN_IS_LITTLE_ENDIAN];
     }
 
-    inline bool is_collectable ( int type )
+    inline bool is_collectible ( int type )
     {
     	return type >= 0;
     }
@@ -1948,9 +1948,9 @@ namespace min { namespace unprotected {
     extern min::uns64 aux_stubs_freed;
 
     // Function to return the next free stub as an acc
-    // (garbage collectable) stub.  The type is set to
+    // (garbage collectible) stub.  The type is set to
     // min::ACC_FREE and may be changed to any garbage
-    // collectable type.  The value is NOT set.  The acc
+    // collectible type.  The value is NOT set.  The acc
     // flags are set to MINT::new_acc_stub_flags, and
     // the non-type part of the stub control is main-
     // tained by the acc.

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Oct 28 09:13:19 EDT 2010
+// Date:	Wed Nov 10 02:14:26 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1162,9 +1162,9 @@ void test_stub_functions ( void )
     cout << "Test stub ACC related functions:"
 	 << endl;
     MIN_ASSERT
-	( min::is_collectable ( min::NUMBER ) );
+	( min::is_collectible ( min::NUMBER ) );
     MIN_ASSERT
-	( ! min::is_collectable ( min::LIST_AUX ) );
+	( ! min::is_collectible ( min::LIST_AUX ) );
     MUP::set_type_of ( stub, min::NUMBER );
     MIN_ASSERT ( ! min::is_deallocated ( stub ) );
     MUP::set_type_of ( stub, min::DEALLOCATED );

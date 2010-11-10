@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sun Aug  1 07:23:10 EDT 2010
+# Date:		Wed Nov 10 02:10:26 EST 2010
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -171,7 +171,7 @@ min_os_test.dump:	min_os_test
 
 min_acc_test.out:	\
 	RUNENV = \
-	    MIN_CONFIG="debug=pm"
+	    MIN_CONFIG="debug=pmc"
 
 
 ${INTERFACE_PROGRAMS}:		\
