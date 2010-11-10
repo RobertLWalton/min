@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  9 01:28:15 EST 2010
+// Date:	Wed Nov 10 02:00:01 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -61,6 +61,8 @@ static bool trace_fixed_block_allocation = false;
 static bool trace_variable_block_allocation = false;
 // MOS::trace_pools >= 1 traces all pool related
 // allocations.
+static bool trace_collector = false;
+#define tracec if ( trace_collector ) cout
 
 // Find the number of characters in a string before
 // the first white space or end of string.
@@ -211,6 +213,7 @@ void MINT::acc_initializer ( void )
 		break;
 	    case 'f':
 	        trace_fixed_block_allocation = true;
+		break;
 	    case 'v':
 	        trace_variable_block_allocation = true;
 		break;
@@ -222,6 +225,9 @@ void MINT::acc_initializer ( void )
 		break;
 	    case 'D':
 	        MOS::trace_pools = 3;
+		break;
+	    case 'c':
+	        trace_collector = true;
 		break;
 	    default:
 	        cout << "ERROR: cannot understand debug"
@@ -1677,6 +1683,9 @@ unsigned MACC::collector_increment ( unsigned level )
     {
     case COLLECTOR_START:
     	{
+	    tracec << "START COLLECTOR level "
+	           << level << endl;
+
 	    MINT::new_acc_stub_flags |=
 	        UNMARKED ( level );
 
@@ -1702,6 +1711,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		     == 0 );
 
 	    lev.first_g = NULL;
+	    lev.saved_count = lev.count;
 	    lev.collector_phase =
 		PRE_INITING_COLLECTIBLE;
 	}
@@ -1802,7 +1812,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 	    }
 
-	    lev.collectible_init_count += scanned;
+	    lev.count.collectible_init += scanned;
 	}
         break;
 
@@ -1868,7 +1878,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 	    }
 
-	    lev.hash_init_count += scanned;
+	    lev.count.hash_init += scanned;
 	}
 	break;
 
@@ -1896,10 +1906,24 @@ unsigned MACC::collector_increment ( unsigned level )
 		    ( s, SCAVENGED ( level ) );
 	    }
 
-	    lev.root_init_count += scanned;
+	    lev.count.root_init += scanned;
 
 	    if ( lev.root.at_end() )
 	    {
+		tracec << "COLLECTOR INITING level "
+		       << level
+		       << " collectible "
+		       << lev.count.collectible_init
+		        - lev.saved_count
+		             .collectible_init
+		       << " hash "
+		       << lev.count.hash_init
+		        - lev.saved_count.hash_init
+		       << " root "
+		       << lev.count.root_init
+		        - lev.saved_count.root_init
+		       << endl;
+
 		lev.root.rewind();
 		MINT::scavenge_control & sc =
 		    MINT::scavenge_controls[level];
@@ -2032,9 +2056,9 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.to_be_scavenged.end_push
 		( sc.to_be_scavenged );
 
-	    lev.stub_scanned_count += sc.stub_count;
-	    lev.scanned_count += sc.gen_count;
-	    lev.scavenged_count += scavenged;
+	    lev.count.stub_scanned += sc.stub_count;
+	    lev.count.scanned += sc.gen_count;
+	    lev.count.scavenged += scavenged;
 
 	    if (    lev.collector_phase
 	         == SCAVENGING_THREAD )
@@ -2127,13 +2151,34 @@ unsigned MACC::collector_increment ( unsigned level )
 			    lev.scavenge_limit *= 2;
 			}
 			++ lev.restart_count;
-			++ lev.thrash_count;
+			++ lev.count.thrash;
 
 			continue;
 		    }
 		    else
 		    {
 		        // Scavenging is done.
+
+			tracec << "COLLECTOR SCAVENGING"
+			          " level "
+			       << level << endl
+			       << "         "
+			       << " scanned "
+			       << lev.count.scanned
+				- lev.saved_count
+				     .scanned
+			       << " stubs scanned "
+			       << lev.count.stub_scanned
+				- lev.saved_count
+				     .stub_scanned
+			       << " scavenged "
+			       << lev.count.scavenged
+				- lev.saved_count
+				     .scavenged
+			       << " thrashed "
+			       << lev.count.thrash
+				- lev.saved_count.thrash
+			       << endl;
 
 			MINT::new_acc_stub_flags &=
 			    ~ UNMARKED ( level );
@@ -2176,9 +2221,9 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.to_be_scavenged.end_push
 		( sc.to_be_scavenged );
-	    lev.stub_scanned_count += sc.stub_count;
-	    lev.scanned_count += sc.gen_count;
-	    lev.scavenged_count += scavenged;
+	    lev.count.stub_scanned += sc.stub_count;
+	    lev.count.scanned += sc.gen_count;
+	    lev.count.scavenged += scavenged;
 	}
 	break;
 
@@ -2263,6 +2308,18 @@ unsigned MACC::collector_increment ( unsigned level )
 		rrlev = levels + lev.next_level;
 		if ( lev.next_level > ephemeral_levels )
 		{
+		    tracec << "COLLECTOR REMOVING"
+			      " level " << level
+			   << " root kept "
+			   << lev.count.root_kept
+			    - lev.saved_count
+				 .root_kept
+			   << " root removed "
+			   << lev.count.root_removed
+			    - lev.saved_count
+				 .root_removed
+			   << endl;
+
 		    if ( level == 0 )
 		    {
 			lev.hash_table_id = 0;
@@ -2291,8 +2348,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		    rrlev->root.rewind();
 		}
 	    }
-	    lev.root_kept_count += root_kept;
-	    lev.root_removed_count += root_removed;
+	    lev.count.root_kept += root_kept;
+	    lev.count.root_removed += root_removed;
 	}
 
 	break;
@@ -2400,8 +2457,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		++ lev.hash_table_index;
 	    }
 
-	    lev.hash_collected_count += collected;
-	    lev.hash_kept_count += kept;
+	    lev.count.hash_collected += collected;
+	    lev.count.hash_kept += kept;
 	}
 	break;
 
@@ -2532,6 +2589,26 @@ unsigned MACC::collector_increment ( unsigned level )
 		{
 		    end_g->lock = -1;
 
+		    tracec << "COLLECTOR COLLECTING"
+			      " level "
+			   << level << endl
+			   << "         "
+			   << " hash kept "
+			   << lev.count.hash_kept
+			    - lev.saved_count
+				 .hash_kept
+			   << " hash collected "
+			   << lev.count.hash_collected
+			    - lev.saved_count
+				 .hash_collected
+			   << " kept "
+			   << lev.count.kept
+			    - lev.saved_count.kept
+			   << " collected "
+			   << lev.count.collected
+			    - lev.saved_count.collected
+			   << endl;
+
 		    lev.collector_phase =
 			PRE_LEVEL_PROMOTING;
 		    break;
@@ -2565,8 +2642,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		    break;
 	    }
 
-	    lev.collected_count += collected;
-	    lev.kept_count += kept;
+	    lev.count.collected += collected;
+	    lev.count.kept += kept;
 	}
         break;
 
@@ -2576,6 +2653,9 @@ unsigned MACC::collector_increment ( unsigned level )
 	    {
 	        // Non-ephemeral level, no promoting
 		// needed, we are done.
+
+		tracec << "COLLECTOR DONE level "
+		       << level << endl;
 
 		MACC::removal_request_flags &=
 		    ~ UNMARKED ( level );
@@ -2635,7 +2715,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		lev.last_stub = s;
 	    }
 
-	    lev.promoted_count += promoted;
+	    lev.count.promoted += promoted;
 
 	    if (    lev.last_stub
 		 == lev.first_g[1].last_before )
@@ -2682,6 +2762,15 @@ unsigned MACC::collector_increment ( unsigned level )
 	    }
 
 	    // We are done with the last generation.
+
+	    tracec << "COLLECTOR PROMOTING level "
+		   << level
+		   << " promoted "
+		   << lev.count.promoted
+		    - lev.saved_count.promoted
+		   << endl;
+	    tracec << "COLLECTOR DONE level "
+		   << level << endl;
 
 	    MACC::removal_request_flags &=
 		~ UNMARKED ( level );

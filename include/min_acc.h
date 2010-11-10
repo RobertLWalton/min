@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  9 00:19:19 EST 2010
+// Date:	Wed Nov 10 01:53:17 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1849,81 +1849,90 @@ namespace min { namespace acc {
 	// end_g[-1].count; this number being MUP::acc_
 	// stubs_allocated - last_collecting_count.
 
+    // Each acc level maintains the following counters:
+    //
+    struct counters
+    {
+	min::uns64 collectible_init;
+	    // Number of stubs whose flags are set in
+	    // the INITING_COLLECTIBLE phase.
+
+	min::uns64 root_init;
+	    // Number of stubs whose flags are set in
+	    // the INITING_ROOT phase.
+
+	min::uns64 hash_init;
+	    // Number of level 0 stubs whose flags are
+	    // set in the INITING_HASH phase.
+
+	min::uns64 scanned;
+	    // Number of min::gen or min::stub * values
+	    // scanned by scavenger phases.  The values
+	    // need not contain actual stub pointers
+	    // (they may be non-stub min::gen values or
+	    // NULL min::stub * values).
+
+	min::uns64 stub_scanned;
+	    // Number of stub pointer containing min::
+	    // gen or min::stub * values scanned by the
+	    // scavenger phases.  I.e., the part of
+	    // the scanned counter that actually contain
+	    // stub pointers.
+
+	min::uns64 scavenged;
+	    // Number of stubs scavenged by the scaven-
+	    // ger phases.
+
+	min::uns64 thrash;
+	    // Number of times the the SCAVENGING_
+	    // THREAD phase has restarted scavenging the
+	    // thread and the static lists.
+
+	min::uns64 root_kept;
+	    // Number of root stubs kept during the
+	    // REMOVING_ROOT phase.
+
+	min::uns64 root_removed;
+	    // Number of root stubs removed during the
+	    // REMOVING_ROOT phase.
+
+	min::uns64 hash_collected;
+	    // Number of level 0 hash table stubs col-
+	    // lected by the COLLECTING_HASH phase.
+
+	min::uns64 hash_kept;
+	    // Number of level 0 hash table stubs
+	    // kept by the COLLECTING_HASH phase.
+
+	min::uns64 collected;
+	    // Number of stubs collected by the
+	    // COLLECTING phase.
+
+	min::uns64 kept;
+	    // Number of stubs kept by the COLLECTING
+	    // phase.
+
+	min::uns64 promoted;
+	    // Number of stubs promoted from one level
+	    // to the next lower level by the
+	    // PROMOTING phase.
+    };
+
     // Each acc level is described by a level struct.
     //
     struct level
     {
 	// Collector statistics.  These accumulate
 	// across all collections of this level.
+	//
+	counters count;
 
-	min::uns64 collectible_init_count;
-	    // Number of stubs collectible at this level
-	    // whose flags were set in the INITING_
-	    // COLLECTIBLE phase of collection.
-
-	min::uns64 root_init_count;
-	    // Number of stubs whose flags were set in
-	    // the INITING_ROOT phase of collection.
-
-	min::uns64 hash_init_count;
-	    // Number of level 0 stubs whose flags were
-	    // set in the INITING_HASH phase of
-	    // collection.
-
-	min::uns64 scanned_count;
-	    // Number of min::gen or min::stub * values
-	    // scanned by the scavenger phases of the
-	    // collector.  The values need not contain
-	    // actual stub pointers (they may be non-
-	    // stub min::gen values or NULL min::stub *
-	    // values).
-
-	min::uns64 stub_scanned_count;
-	    // Number of stub pointer containing min::
-	    // gen or min::stub * values scanned by the
-	    // scavenger phases of the collector.  I.e.,
-	    // the part of scanned_count that actually
-	    // contain stub pointers.
-
-	min::uns64 scavenged_count;
-	    // Number of stubs scavenged by the
-	    // scavenger phases of the collector.
-
-	min::uns64 thrash_count;
-	    // Number of times the the SCAVENGING_
-	    // THREAD phase has restarted scavenging the
-	    // thread and the static lists.
-
-	min::uns64 root_kept_count;
-	    // Number of root stubs kept during
-	    // REMOVING_ROOT phase.
-
-	min::uns64 root_removed_count;
-	    // Number of root stubs removed during
-	    // REMOVING_ROOT phase.
-
-	min::uns64 hash_collected_count;
-	    // Number of level 0 hash table stubs
-	    // collected by the COLLECTING_HASH phase
-	    // of the collector.
-
-	min::uns64 hash_kept_count;
-	    // Number of level 0 hash table stubs
-	    // kept by the COLLECTING_HASH phase
-	    // of the collector.
-
-	min::uns64 collected_count;
-	    // Number of stubs collected by the
-	    // COLLECTING phase of the collector.
-
-	min::uns64 kept_count;
-	    // Number of stubs kept by the COLLECTING
-	    // phase of the collector.
-
-	min::uns64 promoted_count;
-	    // Number of stubs promoted from one level
-	    // to the next lower level by the
-	    // PROMOTING phase of the collector.
+	// Save of collection statistics at the begin-
+	// ning of the last collection.  Can be used to
+	// compute the change in counters during the
+	// collection.
+	//
+	counters saved_count;
 
 	// Level working data.
 
@@ -1999,7 +2008,7 @@ namespace min { namespace acc {
 	    // Number of times the current collection
 	    // has restarted scavenging the thread and
 	    // the static lists during the SCAVENGING_
-	    // THREAD phase.  Added into thrash_count.
+	    // THREAD phase.  Added into count.thrash.
 
 	min::uns32 scavenge_limit;
 	    // Maximum number of stubs that may be
