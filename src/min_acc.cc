@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 10 02:00:01 EST 2010
+// Date:	Fri Nov 12 03:26:46 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1951,9 +1951,6 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    sc.gen_count = 0;
 	    sc.stub_count = 0;
-	    lev.to_be_scavenged.begin_push
-	        ( sc.to_be_scavenged,
-	          sc.to_be_scavenged_limit );
 	    min::uns64 scavenged = 0;
 
 	    min::uns64 remove =
@@ -2023,7 +2020,13 @@ unsigned MACC::collector_increment ( unsigned level )
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
 		assert ( scav != NULL );
+
+		lev.to_be_scavenged.begin_push
+		    ( sc.to_be_scavenged,
+		      sc.to_be_scavenged_limit );
 		(* scav) ( sc );
+		lev.to_be_scavenged.end_push
+		    ( sc.to_be_scavenged );
 
 		if ( sc.state != 0 ) break;
 
@@ -2053,9 +2056,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 	    }
 
-	    lev.to_be_scavenged.end_push
-		( sc.to_be_scavenged );
-
 	    lev.count.stub_scanned += sc.stub_count;
 	    lev.count.scanned += sc.gen_count;
 	    lev.count.scavenged += scavenged;
@@ -2077,9 +2077,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		MINT::scavenge_controls[level];
 	    sc.gen_count = 0;
 	    sc.stub_count = 0;
-	    lev.to_be_scavenged.begin_push
-	        ( sc.to_be_scavenged,
-	          sc.to_be_scavenged_limit );
 	    min::uns64 scavenged = 0;
 
 	    bool thread_scavenged = false;
@@ -2105,13 +2102,44 @@ unsigned MACC::collector_increment ( unsigned level )
 			    continue;
 
 			c |= SCAVENGED ( level );
+
+			MUP::set_control_of
+			    ( sc.s1, c );
+			int type =
+			    MUP::type_of_control ( c );
+			assert ( type >= 0 );
+			MINT::scavenger_routine scav =
+			    MINT::scavenger_routines
+			        [type];
+			assert ( scav != NULL);
+
+			lev.to_be_scavenged.begin_push
+			    ( sc.to_be_scavenged,
+			      sc.to_be_scavenged_limit
+			    );
+			(* scav) ( sc );
+			lev.to_be_scavenged.end_push
+			    ( sc.to_be_scavenged );
+
+			if ( sc.state != 0 ) break;
+
+			++ scavenged;
 		    }
 		    else if ( ! thread_scavenged )
 		    {
 			min::uns32 init_gen_count =
 			    sc.gen_count;
+
+
+			lev.to_be_scavenged
+			   .begin_push
+			    ( sc.to_be_scavenged,
+			      sc.to_be_scavenged_limit
+			    );
 			MINT::thread_scavenger_routine
 			    ( sc );
+			lev.to_be_scavenged.end_push
+			    ( sc.to_be_scavenged );
 
 			if ( sc.state != 0 )
 			{
@@ -2119,22 +2147,6 @@ unsigned MACC::collector_increment ( unsigned level )
 			    // of to-be-scavenged  list.
 			    //
 			    sc.state = 0;
-			    if (   lev.restart_count
-			         < 10 )
-				break;
-
-			    // If we are thrashing,
-			    // expand the to_be_
-			    // scavenged list.
-			    //
-			    lev.to_be_scavenged.end_push
-				( sc.to_be_scavenged );
-			    lev.to_be_scavenged
-			       .begin_push
-				( sc.to_be_scavenged,
-				  sc
-				  .to_be_scavenged_limit
-				);
 			    continue;
 			}
 
@@ -2150,8 +2162,8 @@ unsigned MACC::collector_increment ( unsigned level )
 			    sc.gen_limit *= 2;
 			    lev.scavenge_limit *= 2;
 			}
-			++ lev.restart_count;
-			++ lev.count.thrash;
+			if ( lev.restart_count ++ > 0 )
+			    ++ lev.count.thrash;
 
 			continue;
 		    }
@@ -2197,7 +2209,7 @@ unsigned MACC::collector_increment ( unsigned level )
 			    lev.to_be_scavenged_wait[L1]
 			        =
 				levels[L1]
-				    .to_be_scavenged_in;
+				    .to_be_scavenged.in;
 
 			lev.collector_phase =
 			    REMOVING_TO_BE_SCAVENGED;
@@ -2205,22 +2217,8 @@ unsigned MACC::collector_increment ( unsigned level )
 			break;
 		    }
 		}
-
-		MUP::set_control_of ( sc.s1, c );
-		int type = MUP::type_of_control ( c );
-		assert ( type >= 0 );
-		MINT::scavenger_routine scav =
-		    MINT::scavenger_routines[type];
-		assert ( scav != NULL);
-		(* scav) ( sc );
-
-		if ( sc.state != 0 ) break;
-
-		++ scavenged;
 	    }
 
-	    lev.to_be_scavenged.end_push
-		( sc.to_be_scavenged );
 	    lev.count.stub_scanned += sc.stub_count;
 	    lev.count.scanned += sc.gen_count;
 	    lev.count.scavenged += scavenged;
@@ -2233,7 +2231,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	          L1 <= ephemeral_levels; ++ L1 )
 	    {
 	        if (   lev.to_be_scavenged_wait[L1]
-		     > levels[L1].to_be_scavenged_out )
+		     > levels[L1].to_be_scavenged.out )
 		    return false;
 	    }
 

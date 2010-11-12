@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 10 01:53:17 EST 2010
+// Date:	Fri Nov 12 03:22:16 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -950,6 +950,11 @@ namespace min { namespace acc {
 	bool is_at_end;
 	    // Value for at_end().
 
+	min::uns64 in, out;
+	    // `in' counts the number of elements pushed
+	    // into the stack.   `out' counts the ele-
+	    // ments removed from the stack.
+
 
 	stub_stack ( void ) :
 	    last_segment ( NULL ),
@@ -957,7 +962,9 @@ namespace min { namespace acc {
 	    output_segment ( NULL ),
 	    input ( NULL ),
 	    output ( NULL ),
-	    is_at_end ( true ) {}
+	    is_at_end ( true ),
+	    in ( 0 ),
+	    out ( 0 ) {}
 
 	void rewind ( void );
 
@@ -983,6 +990,7 @@ namespace min { namespace acc {
 	        allocate_stub_stack_segment();
 
 	    * last_segment->next ++ = s;
+	    ++ in;
 	    is_at_end = false;
 	}
 
@@ -1009,6 +1017,7 @@ namespace min { namespace acc {
 	{
 	    if ( last_segment->next != next )
 	    {
+		in += next - last_segment->next;
 		last_segment->next = next;
 		is_at_end = false;
 	    }
@@ -1019,6 +1028,7 @@ namespace min { namespace acc {
 	{
 	    assert ( ! is_at_end );
 
+	    ++ out;
 	    if ( ++ input == input_segment->next )
 	        remove_jump();
 	}
@@ -1951,21 +1961,13 @@ namespace min { namespace acc {
 	    // To-be-scavenged and root lists for
 	    // the level.
 
-	min::uns64 to_be_scavenged_in;
-	    // Incremented whenever an element is added
-	    // to the to-be-scavenged list.
-
-	min::uns64 to_be_scavenged_out;
-	    // Incremented whenever an element is re-
-	    // moved from the to-be-scavenged list.
-
 	min::uns64 to_be_scavenged_wait
 	              [1+MIN_MAX_EPHEMERAL_LEVELS];
-	    // Set to the to_be_scavenged_in values of
+	    // Set to the to_be_scavenged.in values of
 	    // each level when the REMOVING_TO_BE_
 	    // SCAVENGED phase starts.  This phase then
-	    // simply waits for all the to_be_scavenged_
-	    // out values to become >= these values.
+	    // simply waits for all the to_be_scavenged
+	    // .out values to become >= these values.
 
         min::uns8 collector_phase;
 	    // One of COLLECTOR_NOT_RUNNING,
