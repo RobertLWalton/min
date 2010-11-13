@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 12 03:22:16 EST 2010
+// Date:	Sat Nov 13 07:04:57 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2176,10 +2176,32 @@ namespace min { namespace acc {
 
 namespace min { namespace acc {
 
-    // Print statistics
+    // Print statistics.  The numbers of used and free
+    // stubs and fixed size blocks are printed.
     //
     void print_acc_statistics ( std::ostream & s );
 
+    // Print generation counts.  The next column in the
+    // output stream is given (0 is the first column),
+    // and the indent and line width to use is given.
+    // endl is NOT issued at the end.
+    //
+    struct print_generations
+    {
+        unsigned column, indent, width;
+	print_generations
+	    ( unsigned column = 0,
+	      unsigned indent = 4,
+	      unsigned width = 72 )
+	    : column ( column ),
+	      indent ( indent ),
+	      width ( width ) {}
+    };
 } }
+
+std::ostream & operator <<
+    ( std::ostream & s,
+      const min::acc::print_generations & pg );
+
 
 # endif // MIN_ACC_H

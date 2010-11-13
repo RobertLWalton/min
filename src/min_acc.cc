@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 12 23:20:14 EST 2010
+// Date:	Sat Nov 13 09:07:49 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -49,6 +49,7 @@ using std::dec;
 using std::cout;
 using std::endl;
 using std::setw;
+using std::ostream;
 
 
 // Initializer
@@ -1684,7 +1685,9 @@ unsigned MACC::collector_increment ( unsigned level )
     case COLLECTOR_START:
     	{
 	    tracec << "START COLLECTOR level "
-	           << level << endl;
+	           << level << " generation counts:"
+		   << endl
+		   << print_generations() << endl;
 
 	    MINT::new_acc_stub_flags |=
 	        UNMARKED ( level );
@@ -2655,7 +2658,9 @@ unsigned MACC::collector_increment ( unsigned level )
 		// needed, we are done.
 
 		tracec << "COLLECTOR DONE level "
-		       << level << endl;
+	               << level << " generation counts:"
+		       << endl
+		       << print_generations() << endl;
 
 		MACC::removal_request_flags &=
 		    ~ UNMARKED ( level );
@@ -2768,7 +2773,9 @@ unsigned MACC::collector_increment ( unsigned level )
 		    - lev.saved_count.promoted
 		   << endl;
 	    tracec << "COLLECTOR DONE level "
-		   << level << endl;
+		   << level << " generation counts:"
+		   << endl
+		   << print_generations() << endl;
 
 	    MACC::removal_request_flags &=
 		~ UNMARKED ( level );
@@ -2870,4 +2877,49 @@ void MACC::print_acc_statistics ( std::ostream & s )
 	 << std::setw ( 14 ) << free_bytes
 	 << std::setw ( 14 ) << total_bytes
 	 << std::endl;
+}
+
+ostream & operator <<
+	( ostream & s,
+	  const MACC::print_generations & pg )
+{
+    end_g[-1].count += MUP::acc_stubs_allocated
+		    - last_collecting_count;
+    last_collecting_count = MUP::acc_stubs_allocated;
+
+    MACC::generation * g = MACC::generations;
+    unsigned column = pg.column;
+    while ( column < pg.indent ) s << " ", ++ column;
+
+    char buffer[30*(MIN_MAX_EPHEMERAL_LEVELS+1)];
+    char * p = buffer;
+    while ( true )
+    {
+        if ( g == MACC::generations )
+	    ; // Do nothing
+	else if (    g != MACC::end_g
+	          && g[0].level == g[-1].level )
+	    p += sprintf ( p, "," );
+	else
+	{
+	    if ( column + ( p - buffer ) > pg.width )
+	    {
+	        s << endl;
+		for ( unsigned i = 0;
+		      i < pg.indent; ++ i )
+		    s << " ";
+		column = pg.indent;
+	    }
+	    s << buffer;
+	    column += p - buffer;
+
+	    if ( g == MACC::end_g ) break;
+
+	    p = buffer;
+	    p += sprintf( p, "/" );
+	}
+	p += sprintf ( p, "%ld", g->count );
+	++ g;
+    }
+    return s;
 }
