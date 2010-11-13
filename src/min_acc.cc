@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 12 03:26:46 EST 2010
+// Date:	Fri Nov 12 23:20:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1992,9 +1992,8 @@ unsigned MACC::collector_increment ( unsigned level )
 
 			if ( c & SCAVENGED ( level ) )
 			{
-			    lev.collector_phase =
-			        SCAVENGING_THREAD;
-			    break;
+			    lev.root.keep();
+			    continue;
 			}
 
 			lev.root_scavenge = true;
@@ -2004,6 +2003,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		    }
 		    else
 		    {
+			lev.root.flush();
 		        lev.collector_phase =
 			    SCAVENGING_THREAD;
 			break;
@@ -2227,8 +2227,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case REMOVING_TO_BE_SCAVENGED:
         {
-	    for ( unsigned L1 = 0;
-	          L1 <= ephemeral_levels; ++ L1 )
+	    for ( unsigned L1 = 0; L1 < level; ++ L1 )
 	    {
 	        if (   lev.to_be_scavenged_wait[L1]
 		     > levels[L1].to_be_scavenged.out )
@@ -2267,6 +2266,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		return rrlev->root_lock;
 
 	    rrlev->root_lock = level;
+	    rrlev->root.rewind();
+	    lev.collector_phase = REMOVING_ROOT;
 	    // Fall through to REMOVING_ROOT.
 	}
     case REMOVING_ROOT:
@@ -2490,6 +2491,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    }
 
 	    lev.collector_phase = COLLECTING;
+	    // Fall through to COLLECTING.
 	}
 
     case COLLECTING:
@@ -2581,7 +2583,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
 		while (    ++ lev.first_g
 			!= lev.last_g )
-		    lev.first_g->lock == -1;
+		    lev.first_g->lock = -1;
 
 		if ( lev.first_g == end_g )
 		{
@@ -2670,7 +2672,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		return lev.g[1].lock;
 	    lev.g->lock = level;
 	    lev.g[1].lock = level;
-	    lev.first_g = lev.g;
 	    lev.last_stub = lev.g->last_before;
 
 	    lev.collector_phase = LEVEL_PROMOTING;
@@ -2691,8 +2692,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		    < MACC::scan_limit
 		    &&
 		       lev.last_stub
-		    != lev.first_g[1]
-			  .last_before )
+		    != lev.g[1].last_before )
 	    {
 		min::stub * s =
 		    MUP::stub_of_acc_control
@@ -2716,7 +2716,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.count.promoted += promoted;
 
 	    if (    lev.last_stub
-		 == lev.first_g[1].last_before )
+		 == lev.g[1].last_before )
 	    {
 		lev.first_g = lev.g;
 		lev.g[1].lock = -1;
