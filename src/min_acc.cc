@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 13 09:07:49 EST 2010
+// Date:	Sat Nov 13 22:42:10 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1940,7 +1940,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		assert ( lev.root_lock == level );
 		lev.collector_phase =
 		    SCAVENGING_ROOT;
-		break;
 	    }
 	}
 	break;
@@ -2174,49 +2173,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		    {
 		        // Scavenging is done.
 
-			tracec << "COLLECTOR SCAVENGING"
-			          " level "
-			       << level << endl
-			       << "         "
-			       << " scanned "
-			       << lev.count.scanned
-				- lev.saved_count
-				     .scanned
-			       << " stubs scanned "
-			       << lev.count.stub_scanned
-				- lev.saved_count
-				     .stub_scanned
-			       << " scavenged "
-			       << lev.count.scavenged
-				- lev.saved_count
-				     .scavenged
-			       << " thrashed "
-			       << lev.count.thrash
-				- lev.saved_count.thrash
-			       << endl;
-
-			MINT::new_acc_stub_flags &=
-			    ~ UNMARKED ( level );
-			MACC::removal_request_flags |=
-			    UNMARKED ( level );
-			MINT::hash_acc_clear_flags |=
-			    UNMARKED ( level );
-			MINT::acc_stack_mask &=
-			    ~ UNMARKED ( level );
-			MACC::acc_stack_scavenge_mask &=
-			    ~ SCAVENGED ( level );
-
-			for ( unsigned L1 = 0;
-			      L1 <= ephemeral_levels;
-			      ++ L1 )
-			    lev.to_be_scavenged_wait[L1]
-			        =
-				levels[L1]
-				    .to_be_scavenged.in;
-
 			lev.collector_phase =
 			    REMOVING_TO_BE_SCAVENGED;
-
 			break;
 		    }
 		}
@@ -2225,6 +2183,47 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.count.stub_scanned += sc.stub_count;
 	    lev.count.scanned += sc.gen_count;
 	    lev.count.scavenged += scavenged;
+
+	    if (    lev.collector_phase
+		 == REMOVING_TO_BE_SCAVENGED )
+	    {
+		tracec << "COLLECTOR SCAVENGING"
+			  " level "
+		       << level << endl
+		       << "         "
+		       << " scanned "
+		       << lev.count.scanned
+			- lev.saved_count
+			     .scanned
+		       << " stubs scanned "
+		       << lev.count.stub_scanned
+			- lev.saved_count
+			     .stub_scanned
+		       << " scavenged "
+		       << lev.count.scavenged
+			- lev.saved_count
+			     .scavenged
+		       << " thrashed "
+		       << lev.count.thrash
+			- lev.saved_count.thrash
+		       << endl;
+
+		MINT::new_acc_stub_flags &=
+		    ~ UNMARKED ( level );
+		MACC::removal_request_flags |=
+		    UNMARKED ( level );
+		MINT::hash_acc_clear_flags |=
+		    UNMARKED ( level );
+		MINT::acc_stack_mask &=
+		    ~ UNMARKED ( level );
+		MACC::acc_stack_scavenge_mask &=
+		    ~ SCAVENGED ( level );
+
+		for ( unsigned L1 = 0;
+		      L1 <= ephemeral_levels; ++ L1 )
+		    lev.to_be_scavenged_wait[L1] =
+			levels[L1].to_be_scavenged.in;
+	    }
 	}
 	break;
 
@@ -2309,34 +2308,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		++ lev.next_level;
 		rrlev = levels + lev.next_level;
 		if ( lev.next_level > ephemeral_levels )
-		{
-		    tracec << "COLLECTOR REMOVING"
-			      " level " << level
-			   << " root kept "
-			   << lev.count.root_kept
-			    - lev.saved_count
-				 .root_kept
-			   << " root removed "
-			   << lev.count.root_removed
-			    - lev.saved_count
-				 .root_removed
-			   << endl;
-
-		    if ( level == 0 )
-		    {
-			lev.hash_table_id = 0;
-			lev.hash_table_index = 0;
-			lev.collector_phase =
-			    COLLECTING_HASH;
-		    }
-		    else
-		    {
-			lev.first_g = NULL;
-			lev.collector_phase =
-			    PRE_COLLECTING;
-		    }
 		    break;
-		}
 		else if ( rrlev->root_lock >= 0 )
 		{
 		    lev.collector_phase =
@@ -2352,6 +2324,36 @@ unsigned MACC::collector_increment ( unsigned level )
 	    }
 	    lev.count.root_kept += root_kept;
 	    lev.count.root_removed += root_removed;
+
+	    if ( lev.next_level > ephemeral_levels )
+	    {
+		tracec << "COLLECTOR REMOVING"
+			  " level " << level
+		       << " root kept "
+		       << lev.count.root_kept
+			- lev.saved_count
+			     .root_kept
+		       << " root removed "
+		       << lev.count.root_removed
+			- lev.saved_count
+			     .root_removed
+		       << endl;
+
+		if ( level == 0 )
+		{
+		    lev.hash_table_id = 0;
+		    lev.hash_table_index = 0;
+		    lev.collector_phase =
+			COLLECTING_HASH;
+		}
+		else
+		{
+		    lev.first_g = NULL;
+		    lev.collector_phase =
+			PRE_COLLECTING;
+		}
+		break;
+	    }
 	}
 
 	break;
@@ -2447,6 +2449,7 @@ unsigned MACC::collector_increment ( unsigned level )
 			//
 			MINT::free_acc_stub ( s );
 			++ collected;
+			-- lev.g->count;
 		    }
 		    else
 		    {
@@ -2592,26 +2595,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		{
 		    end_g->lock = -1;
 
-		    tracec << "COLLECTOR COLLECTING"
-			      " level "
-			   << level << endl
-			   << "         "
-			   << " hash kept "
-			   << lev.count.hash_kept
-			    - lev.saved_count
-				 .hash_kept
-			   << " hash collected "
-			   << lev.count.hash_collected
-			    - lev.saved_count
-				 .hash_collected
-			   << " kept "
-			   << lev.count.kept
-			    - lev.saved_count.kept
-			   << " collected "
-			   << lev.count.collected
-			    - lev.saved_count.collected
-			   << endl;
-
 		    lev.collector_phase =
 			PRE_LEVEL_PROMOTING;
 		    break;
@@ -2647,6 +2630,30 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.count.collected += collected;
 	    lev.count.kept += kept;
+
+	    if (    lev.collector_phase
+		 == PRE_LEVEL_PROMOTING )
+	    {
+		tracec << "COLLECTOR COLLECTING"
+			  " level "
+		       << level << endl
+		       << "         "
+		       << " hash kept "
+		       << lev.count.hash_kept
+			- lev.saved_count
+			     .hash_kept
+		       << " hash collected "
+		       << lev.count.hash_collected
+			- lev.saved_count
+			     .hash_collected
+		       << " kept "
+		       << lev.count.kept
+			- lev.saved_count.kept
+		       << " collected "
+		       << lev.count.collected
+			- lev.saved_count.collected
+		       << endl;
+	    }
 	}
         break;
 
