@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 15 03:09:14 EST 2010
+// Date:	Mon Nov 15 08:23:05 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -487,29 +487,27 @@ MINT::scavenge_control MINT::scavenge_controls
 	[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
 unsigned MINT::number_of_acc_levels;
 
-// Scavenger routine for labels.
+// Scavenger routine for labels.  State equals i + 1
+// where i is the index next label element to scavenge.
 //
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    // sc.state is index of next element to be scanned
-    // + 1, or 0 to start at the beginning.
-    //
-    min::uns32 next = (min::uns32 ) sc.state;
-    if ( next > 0 ) -- next;
+    min::uns32 i = (min::uns32 ) sc.state;
+    if ( i > 0 ) -- i;
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
     min::lab_ptr labp ( sc.s1 );
-    while ( next < min::length_of ( labp ) )
+    while ( i < min::length_of ( labp ) )
     {
         if ( sc.gen_count >= sc.gen_limit )
 	{
             sc.stub_flag_accumulator = accumulator;
-	    sc.state = next + 1;
+	    sc.state = i + 1;
 	    return;
 	}
 
-	min::gen v = labp[next];
+	min::gen v = labp[i];
 
 	if ( min::is_stub ( v ) )
 	{
@@ -528,7 +526,7 @@ static void lab_scavenger_routine
 	              >= sc.to_be_scavenged_limit )
 	    {
 		sc.stub_flag_accumulator = accumulator;
-	        sc.state = next + 1;
+	        sc.state = i + 1;
 		return;
 	    }
 	    else
@@ -543,7 +541,7 @@ static void lab_scavenger_routine
 	}
 
 	++ sc.gen_count;
-	++ next;
+	++ i;
     }
     sc.stub_flag_accumulator = accumulator;
     sc.state = 0;
@@ -595,7 +593,6 @@ static void packed_struct_scavenger_routine
 	    return;
 	}
 
-	++ i;
 	min::gen v = * (min::gen *) (beginp + d);
 
 	if ( min::is_stub ( v ) )
@@ -629,6 +626,7 @@ static void packed_struct_scavenger_routine
 	}
 
 	++ sc.gen_count;
+	++ i;
     }
 
     if ( psd->stub_ptr_disp != NULL )
@@ -647,7 +645,6 @@ static void packed_struct_scavenger_routine
 	    return;
 	}
 
-	++ i;
 	min::stub * s2 = * (min::stub **) (beginp + d );
 	if ( s2 != NULL )
 	{
@@ -679,6 +676,7 @@ static void packed_struct_scavenger_routine
 	}
 
 	++ sc.gen_count;
+	++ i;
     }
 
     sc.stub_flag_accumulator = accumulator;
@@ -704,12 +702,12 @@ static void packed_vec_scavenger_routine
 
     min::uns8 * beginp =
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
-    min::uns32 index = * ( min::uns32 *) beginp;
-    index &= MINT::packed_type_index_mask;
-    MIN_ASSERT ( index < MINT::packed_type_count);
+    min::uns32 type = * ( min::uns32 *) beginp;
+    type &= MINT::packed_type_index_mask;
+    MIN_ASSERT ( type < MINT::packed_type_count);
     MINT::packed_vec_descriptor * psd =
         (MINT::packed_vec_descriptor *)
-        (*MINT::packed_types)[index];
+        (*MINT::packed_types)[type];
 
     min::uns32 length = * ( min::uns32 *)
     	( beginp + psd->length_disp );
@@ -754,7 +752,6 @@ static void packed_vec_scavenger_routine
 		return;
 	    }
 
-	    ++ i;
 	    min::gen v = * (min::gen *) (beginp + d);
 
 	    if ( min::is_stub ( v ) )
@@ -791,6 +788,7 @@ static void packed_vec_scavenger_routine
 	    }
 
 	    ++ sc.gen_count;
+	    ++ i;
 	}
 
 	if ( stub_ptr_disp != NULL )
@@ -801,7 +799,6 @@ static void packed_vec_scavenger_routine
 	    min::uns32 d = stub_ptr_disp[i];
 	    if ( d == min::DISP_END )
 	    {
-		k = 1;
 		i = 0;
 		break;
 	    }
@@ -815,7 +812,6 @@ static void packed_vec_scavenger_routine
 		return;
 	    }
 
-	    ++ i;
 	    min::stub * s2 =
 	        * (min::stub **) (beginp + d );
 	    if ( s2 != NULL )
@@ -851,6 +847,7 @@ static void packed_vec_scavenger_routine
 	    }
 
 	    ++ sc.gen_count;
+	    ++ i;
 	}
 
 	if ( k == 0 )
@@ -960,21 +957,20 @@ static void packed_vec_scavenger_routine
 // causes the object to be rescanned, and should be done
 // whenever the object is reorganized during an
 // interrupt of a scavange of the object, unless the
-// acc_write_update function is used to write pointers
-// into the reorganized object.
+// acc_write_update function is used to write ALL
+// pointers into the reorganized object.
 //
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
     min::obj_vec_ptr vp ( sc.s1 );
-    min::unsptr next;
-    if ( sc.state <= MUP::var_offset_of ( vp ) )
+
+    min::unsptr next = (min::unsptr ) sc.state;
+    if ( next <= MUP::var_offset_of ( vp ) )
         next = MUP::var_offset_of ( vp );
-    else
-        next = (min::unsptr ) sc.state;
-    if ( MUP::unused_offset_of ( vp ) <= next
-         &&
-	 next < MUP::aux_offset_of ( vp ) )
+    else if ( MUP::unused_offset_of ( vp ) <= next
+              &&
+	      next < MUP::aux_offset_of ( vp ) )
 	next = MUP::aux_offset_of ( vp );
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
