@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  3 01:10:58 EDT 2010
+// Date:	Mon Nov 15 03:09:14 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -550,13 +550,13 @@ static void lab_scavenger_routine
 }
 
 // Scavenger routine for packed structs.  State equals
-// ( i << 1 ) + j where next member of the packed struct
-// to be scanned is:
+// ( i << 2 ) + j where next member of the packed
+// struct to be scanned is:
 //
-//	gen_disp[i]		if j == 0
-//	stub_ptr_disp[i]	if j == 1
+//	gen_disp[i]		if j == 2
+//	stub_ptr_disp[i]	if j == 3
 //
-// and i < (1<<31). 
+// and i < (1<<30). 
 //
 static void packed_struct_scavenger_routine
 	( MINT::scavenge_control & sc )
@@ -571,13 +571,15 @@ static void packed_struct_scavenger_routine
         (*MINT::packed_types)[type];
 
     assert ( sc.state < (1ull << 32 ) );
-    min::uns32 i = (min::uns32) sc.state >> 1;
+    min::uns32 i = (min::uns32) sc.state >> 2;
     min::uns64 accumulator = sc.stub_flag_accumulator;
 
     if (    ( sc.state & 1 ) == 0
          && psd->gen_disp != NULL )
 	while ( true )
     {
+	assert ( i < (1<<30) );
+
         min::uns32 d = psd->gen_disp[i];
 	if ( d == min::DISP_END )
 	{
@@ -589,7 +591,7 @@ static void packed_struct_scavenger_routine
 	{
 	    sc.stub_flag_accumulator =
 		accumulator;
-	    sc.state = ( i << 1 );
+	    sc.state = ( i << 2 ) + 2;
 	    return;
 	}
 
@@ -612,7 +614,7 @@ static void packed_struct_scavenger_routine
 		      >= sc.to_be_scavenged_limit )
 	    {
 		sc.stub_flag_accumulator = accumulator;
-		sc.state = (i << 1);
+		sc.state = ( i << 2 ) + 2;
 		return;
 	    }
 	    else
@@ -632,6 +634,8 @@ static void packed_struct_scavenger_routine
     if ( psd->stub_ptr_disp != NULL )
         while ( true )
     {
+	assert ( i < (1<<30) );
+
         min::uns32 d = psd->stub_ptr_disp[i];
 	if ( d == min::DISP_END ) break;
 
@@ -639,7 +643,7 @@ static void packed_struct_scavenger_routine
 	{
 	    sc.stub_flag_accumulator =
 		accumulator;
-	    sc.state = ( i << 1 ) + 1;
+	    sc.state = ( i << 2 ) + 3;
 	    return;
 	}
 
@@ -660,7 +664,7 @@ static void packed_struct_scavenger_routine
 		      >= sc.to_be_scavenged_limit )
 	    {
 		sc.stub_flag_accumulator = accumulator;
-		sc.state = ( i << 1 ) + 1;
+		sc.state = ( i << 2 ) + 3;
 		return;
 	    }
 	    else
@@ -682,17 +686,17 @@ static void packed_struct_scavenger_routine
 }
 
 // Scavenger routine for packed vecs.  State equals
-// ( k << 32 ) + ( i << 1 ) + j where next member of the
+// ( k << 32 ) + ( i << 2 ) + j where next member of the
 // packed vec to be scanned is:
 //
-//	header_gen_disp[i]	if k == 0 and j == 0
-//	header_stub_ptr_disp[i]	if k == 0 and j == 1
+//	header_gen_disp[i]	if k == 0 and j == 2
+//	header_stub_ptr_disp[i]	if k == 0 and j == 3
 //	element_gen_disp[i] of vector element k - 1
-//		if k > 0 and j == 0
+//		if k > 0 and j == 2
 //	element_stub_ptr_disp[i] of vector element k - 1
-//		if k > 0 and j == 1
+//		if k > 0 and j == 3
 //
-// and i < (1<<31), k < (1<<32). 
+// and i < (1<<30), k < (1<<32). 
 //
 static void packed_vec_scavenger_routine
 	( MINT::scavenge_control & sc )
@@ -710,7 +714,7 @@ static void packed_vec_scavenger_routine
     min::uns32 length = * ( min::uns32 *)
     	( beginp + psd->length_disp );
 
-    min::uns32 i = ( (min::uns32) sc.state ) >> 1;
+    min::uns32 i = ( (min::uns32) sc.state ) >> 2;
     min::uns32 k = (min::uns32) ( sc.state >> 32 );
 
     const min::uns32 * gen_disp =
@@ -733,6 +737,8 @@ static void packed_vec_scavenger_routine
 	if ( ( sc.state & 1 ) == 0 && gen_disp != NULL )
 	    while ( true )
 	{
+	    assert ( i < (1<<30) );
+
 	    min::uns32 d = gen_disp[i];
 	    if ( d == min::DISP_END )
 	    {
@@ -744,7 +750,7 @@ static void packed_vec_scavenger_routine
 	    {
 		sc.stub_flag_accumulator = accumulator;
 		sc.state = ( (min::uns64) k << 32 )
-			 + ( i << 1 );
+			 + ( i << 2 ) + 2;
 		return;
 	    }
 
@@ -770,7 +776,7 @@ static void packed_vec_scavenger_routine
 		    sc.stub_flag_accumulator =
 		        accumulator;
 		    sc.state = ( (min::uns64) k << 32 )
-			     + ( i << 1 );
+			     + ( i << 2 ) + 2;
 		    return;
 		}
 		else
@@ -790,6 +796,8 @@ static void packed_vec_scavenger_routine
 	if ( stub_ptr_disp != NULL )
 	    while ( true )
 	{
+	    assert ( i < (1<<30) );
+
 	    min::uns32 d = stub_ptr_disp[i];
 	    if ( d == min::DISP_END )
 	    {
@@ -803,7 +811,7 @@ static void packed_vec_scavenger_routine
 		sc.stub_flag_accumulator =
 		    accumulator;
 		sc.state = ( (min::uns64) k << 32 )
-			 + ( i << 1 ) + 1;
+			 + ( i << 2 ) + 3;
 		return;
 	    }
 
@@ -828,7 +836,7 @@ static void packed_vec_scavenger_routine
 		    sc.stub_flag_accumulator =
 		        accumulator;
 		    sc.state = ( (min::uns64) k << 32 )
-			     + ( i << 1 ) + 1;
+			     + ( i << 2 ) + 3;
 		    return;
 		}
 		else
