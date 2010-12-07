@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:16:47 EDT 2010
+// Date:	Tue Dec  7 00:33:23 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,12 +20,15 @@
 //	Setup
 //	Parameters
 //	Memory Management
+//	File Management
 
 // Setup
 // -----
 
 # include <min_os.h>
 extern "C" {
+#   include <sys/types.h>
+#   include <sys/stat.h>
 #   include <unistd.h>
 #   include <errno.h>
 #   include <sys/mman.h>
@@ -1012,4 +1015,26 @@ void MOS::access_pool
     renew ( start, size );
 
     postlog ( "MADE ACCESSIBLE", start, pages );
+}
+
+
+// File Management
+// ---- ----------
+
+bool MOS::file_size ( min::uns64 & file_size,
+		      const char * file_name,
+		      char error_message[512] )
+{
+    struct stat s;
+    if ( stat ( file_name, & s ) < 0 )
+    {
+        sprintf ( error_message,
+		  "ERROR: during attempt to find the"
+		        " size of %s\n"
+		  "       %s", file_name,
+		  strerror ( errno ) );
+	return false;
+    }
+    file_size = s.st_size;
+    return true;
 }
