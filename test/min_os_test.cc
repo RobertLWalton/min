@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 26 12:59:29 EDT 2010
+// Date:	Tue Dec  7 00:54:21 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -599,6 +599,34 @@ int main ( int argc, const char ** argv )
 
     cout << "Finish Memory Management Test" << endl
          << endl;
+
+// Memory File Tests
+// ------ ---- -----
+
+    cout << endl
+         << "Start File Management Test" << endl;
+
+    min::uns64 fsize;
+    char error_message[512];
+
+    if ( !  ( MOS::file_size
+	          ( fsize, "min_os_test.cc",
+	            error_message ) ) )
+    {
+        cout << error_message << endl;
+	abort();
+    }
+    cout << "min_os_test.cc has "
+         << fsize << " bytes" << endl;
+
+    if ( !  ( MOS::file_size
+	          ( fsize, "min_non_existent_file",
+	            error_message ) ) )
+        cout << error_message << endl;
+
+    cout << "Finish File Management Test" << endl
+         << endl;
+
 
 
 // Finish

@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun 26 11:54:07 EDT 2010
+// Date:	Tue Dec  7 00:27:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,7 @@
 //	Usage and Setup
 //	Parameters
 //	Memory Management
+//	File Management
 
 // Usage and Setup
 // ----- --- -----
@@ -178,6 +179,25 @@ namespace min { namespace os {
     //			printed.
     //
     extern unsigned trace_pools;
+
+} }
+
+// File Management
+// ---- ----------
+
+namespace min { namespace os {
+
+    // These functions do things that standard C or C++
+    // library functions are not able to do.
+
+    // Return the size in bytes of a file.  Return true
+    // on no error and false on error.  On error return
+    // error_message, which is one or more lines NOT
+    // terminated by \n.
+    //
+    bool file_size ( min::uns64 & file_size,
+    		     const char * file_name,
+		     char error_message[512] );
 
 } }
 

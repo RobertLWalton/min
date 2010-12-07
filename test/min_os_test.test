@@ -84,4 +84,11 @@ min_os_test.cc:XXXX assert:
 new_pool will allocate at most 1 << 34 pages.
 Finish Memory Management Test
 
+
+Start File Management Test
+min_os_test.cc has 15518 bytes
+ERROR: during attempt to find the size of min_non_existent_file
+       No such file or directory
+Finish File Management Test
+
 Finish min_os Test
