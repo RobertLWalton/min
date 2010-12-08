@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 7, 2010}
+\date{December 8, 2010}
  
 \maketitle
 
@@ -1841,39 +1841,79 @@ between \verb|min::gen| values known to be numeric and those
 that might not be, so loose implementations can encounter less overhead
 when dealing with numeric \verb|min::gen| values.
 
-When \verb|min::gen| values are stored in static or stack memory, they
+{\tt min::\EOL stub~*} values that are not derived from
+\verb|min::gen| values must also be locatable by the acc.
+In particular
+pointers to packed structures and vectors
+(see Section~\secref{PACKED-STRUCTURES-AND-VECTORS} must be
+locatable.
+
+When \verb|min::gen| or \verb|min::stub *| values are stored
+in static or stack memory, they
 should be stored in vectors constructed and accessed using the following:
 
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}[0.1in]
+
+For possibly non-numeric \verb|min::gen| values:
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{static\_gen}%
     \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STATIC_GEN} \\
-\verb|(constructor) min::| & \MINKEY{static\_num\_gen}%
-    \verb|<min::unsptr size> vec ( void )|
-\LABEL{MIN::STATIC_NUM_GEN} \\
 \verb|(constructor) min::| & \MINKEY{stack\_gen}%
     \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STACK_GEN} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::static_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::stack_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STACK_GEN_OPERATOR[]} \\
+\end{tabular}\end{indpar}
+
+For numeric \verb|min::gen| values:
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{static\_num\_gen}%
+    \verb|<min::unsptr size> vec ( void )|
+\LABEL{MIN::STATIC_NUM_GEN} \\
 \verb|(constructor) min::| & \MINKEY{stack\_num\_gen}%
     \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STACK_NUM_GEN} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_gen<> & vec, min::unsptr i )|
-\LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_num_gen<> & vec, min::unsptr i )|
+                 \verb|( min::static_num_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
 \LABEL{MIN::STATIC_NUM_GEN_OPERATOR[]} \\
 \verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_gen<> & vec, min::unsptr i )|
-\LABEL{MIN::STACK_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_num_gen<> & vec, min::unsptr i )|
+                 \verb|( min::stack_num_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
 \LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
 \end{tabular}\end{indpar}
 
-An example usage is:
+For numeric \verb|const min::stub *| values:
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{static\_stub}%
+    \verb|<min::unsptr size> vec ( void )|
+\LABEL{MIN::STATIC_STUB} \\
+\verb|(constructor) min::| & \MINKEY{stack\_stub}%
+    \verb|<min::unsptr size> vec ( void )|
+\LABEL{MIN::STACK_STUB} \\
+\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::static_stub<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STATIC_STUB_OPERATOR[]} \\
+\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::stack_stub<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STACK_STUB_OPERATOR[]} \\
+\end{tabular}\end{indpar}
+
+\end{indpar}
+
+An example usage involving \verb|min::gen| values is:
 
 \begin{indpar}\begin{verbatim}
 static min::static_gen<2> gpq;
@@ -1900,42 +1940,76 @@ Static variables may also be global; i.e., they
 can be defined without the `\verb|static|' keyword as long
 as they are defined outside functions.
 
-Importantly a \verb|min::gen| value need \underline{not} be stored
+An example useage involving \verb|min::stub *| values
+and a packed structure (\secref{PACKED-STRUCTURES-AND-VECTORS} is:
+
+\begin{indpar}
+In \verb|s.h|:
+\begin{indpar}\begin{verbatim}
+struct s;
+typedef min::packed_struct_ptr<s> sptr;
+extern sptr & default_s;
+\end{verbatim}\end{indpar}
+
+In \verb|s.cc|:
+\begin{indpar}\begin{verbatim}
+#include <s.h>
+static min::static_stub<1> default_s_vec;
+sptr & default_s = * (sptr *) & default_s_vec[0];
+\end{verbatim}\end{indpar}
+\end{indpar}
+
+Here an \verb|sptr| value is just a \verb|const min::stub *| value
+with different overloaded functions.
+
+Importantly a \verb|min::gen| or \verb|min::stub *|
+value need \underline{not} be stored
 in a locatable variable if it can be located by the acc by some
 other means.  For example, if it is stored in one locatable variable,
-it need not be stored in another.  Or if a \verb|min::gen| value
+it need not be stored in another.  Or if a \verb|min::gen|
+or {\tt min::\EOL stub~*} value
 $V$ is stored in an object pointed at by another \verb|min::gen|
+or {\tt min::\EOL stub~*} value
 value $P$, and $P$ is stored in a locatable variable, then $V$ need not
 be stored in a locatable variable.
 
 A very important rule is that when a function is called, the caller
-must be sure every \verb|min::gen| value passed to the called
+must be sure every \verb|min::gen|
+or {\tt min::\EOL stub~*} value passed to the called
 function can be located by the acc \underline{without} the called
 function needing to store the value in a locatable variable.
 For example, the caller can store the value in its own locatable
-variable.  This is called the `\key{caller locating convention}.
+variable.  This is called the `\key{caller locating convention}'.
 
 Also \verb|min::gen| values need only be locatable by
 the acc when a relocating function (\pagref{RELOCATING-FUNCTIONS})
-is called.  In between such calls \verb|min::gen| values can be
-stored in other places.
+is called.  In between such calls \verb|min::gen|
+and {\tt min::\EOL stub*} values can be
+stored in other places.  In particular, there is no problem
+returning these values from a called function to its caller.
 
-In addition to needing to locate \verb|min::gen| values, the acc
+In addition to needing to locate \verb|min::gen|
+and {\tt min::\EOL stub~*} values, the acc
 must be notified whenever a pointer to a collectible stub \verb|s2|
-is stored in a collectible stub \verb|s1| or in a body or uncollectable
-stub attached to \verb|s1|.  This is done by the following functions:
+is stored in the data of a collectible stub \verb|s1| (i.e., in
+the stub \verb|s1| or its body or auxiliary stubs attached to either).
+This is done by the following functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void MUP::|
-    & \MUPKEY{acc\_write\_update}\verb| ( min::stub * s1, min::stub * s2 )|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+          \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::stub * s2 )|
 \LABEL{MUP::ACC_WRITE_STUB_UPDATE} \\
 \verb|void MUP::|
-    & \MUPKEY{acc\_write\_update} \\
-    & \verb|    ( min::stub * s1, min::gen * p, min::unsptr n )|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+	  \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::gen * p, min::unsptr n )|
 \LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
 \verb|void MUP::|
-    & \MUPKEY{acc\_write\_num\_update} \\
-    & \verb|    ( min::stub * s1, min::gen * p, min::unsptr n )|
+    & \MUPKEY{acc\_write\_num\_update}\ARGBREAK
+	  \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::gen * p, min::unsptr n )|
 \LABEL{MUP::ACC_WRITE_NUM_UPDATE} \\
 \end{tabular}\end{indpar}
 
@@ -1947,11 +2021,16 @@ num\_\EOL update} function should only be used if all the
 \verb|min::gen| values are numeric; in a loose implementation this
 function is a no operation.
 
-These \verb|min::acc_write_update| functions need and indeed
+These \verb|min::acc_write_update| functions need not and indeed
 \underline{must not} be called if \verb|s1| is of
-{\tt min::ACC\_\EOL FREE} type.  However \verb|min::gen| and
-other pointers to stubs can be stored in such a stub and any
-body or auxiliary stubs associated with it.
+{\tt min::ACC\_\EOL FREE} type, which is the case immediately after
+{\tt min::\EOL new\_\EOL acc\_\EOL stub} has been called.
+However \verb|min::gen| and
+other pointers to stubs can be stored in such a stub's data.
+After initializing the stub's data its type must be reset to
+something other than {\tt min::ACC\_\EOL FREE} and then it must
+be stored in an acc locatable place before any relocating
+function is called.
 
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
@@ -7495,6 +7574,96 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \end{indpar}
+
+
+\INDEXHEADER{ACC Stub Pointer Locator Vectors}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{static\_gen}%
+    \verb|<min::unsptr size>|\ARGBREAK
+    \verb|    vec ( void )|
+\LABEL{MIN::STATIC_GEN} \\
+\verb|(constructor) min::| & \MINKEY{stack\_gen}%
+    \verb|<min::unsptr size>|\ARGBREAK
+    \verb|    vec ( void )|
+\LABEL{MIN::STACK_GEN} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::static_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::stack_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STACK_GEN_OPERATOR[]} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{static\_num\_gen}%
+    \verb|<min::unsptr size>|\ARGBREAK
+    \verb|    vec ( void )|
+\LABEL{MIN::STATIC_NUM_GEN} \\
+\verb|(constructor) min::| & \MINKEY{stack\_num\_gen}%
+    \verb|<min::unsptr size>|\ARGBREAK
+    \verb|    vec ( void )|
+\LABEL{MIN::STACK_NUM_GEN} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::static_num_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STATIC_NUM_GEN_OPERATOR[]} \\
+\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::stack_num_gen<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.6in}
+\verb|(constructor) min::| & \MINKEY{static\_stub}%
+    \verb|<min::unsptr size>|\ARGBREAK
+    \verb|   vec ( void )|
+\LABEL{MIN::STATIC_STUB} \\
+\verb|(constructor) min::| & \MINKEY{stack\_stub}%
+    \verb|<min::unsptr size>|\ARGBREAK
+    \verb|   vec ( void )|
+\LABEL{MIN::STACK_STUB} \\
+\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::static_stub<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STATIC_STUB_OPERATOR[]} \\
+\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
+                 \verb|( min::stack_stub<> & vec,|\ARGBREAK
+		 \verb|  min::unsptr i )|
+\LABEL{MIN::STACK_STUB_OPERATOR[]} \\
+\end{TABULAR}
+
+\end{indpar}
+
+
+\INDEXHEADER{ACC Stub Pointer Write Update Functions}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.2in}
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+          \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::stub * s2 )|
+\LABEL{MUP::ACC_WRITE_STUB_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+	  \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::gen * p, min::unsptr n )|
+\LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_num\_update}\ARGBREAK
+	  \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::gen * p, min::unsptr n )|
+\LABEL{MUP::ACC_WRITE_NUM_UPDATE} \\
+\end{TABULAR}
+
+\end{indpar}
+
 
 \INDEXHEADER{Unprotected Stub Allocation Functions}
 
