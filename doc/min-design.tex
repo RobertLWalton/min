@@ -2021,16 +2021,12 @@ num\_\EOL update} function should only be used if all the
 \verb|min::gen| values are numeric; in a loose implementation this
 function is a no operation.
 
-These \verb|min::acc_write_update| functions need not and indeed
-\underline{must not} be called if \verb|s1| is of
-{\tt min::ACC\_\EOL FREE} type, which is the case immediately after
-{\tt min::\EOL new\_\EOL acc\_\EOL stub} has been called.
-However \verb|min::gen| and
-other pointers to stubs can be stored in such a stub's data.
-After initializing the stub's data its type must be reset to
-something other than {\tt min::ACC\_\EOL FREE} and then it must
-be stored in an acc locatable place before any relocating
-function is called.
+These \verb|min::acc_write_update| functions
+\underline{must not} be called with any argument that points at a stub
+with {\tt min::ACC\_\EOL FREE} type, which can only happen when the
+stub has been recently returned by
+{\tt min::\EOL new\_\EOL acc\_\EOL stub}.
+See \secref{STUB-ALLOCATION-FUNCTIONS}.
 
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
@@ -2054,31 +2050,39 @@ The following functions are used to allocate stubs:
 
 The \verb|min::new_acc_stub| function returns a garbage collectible (acc)
 stub with its type set to \minkey{ACC\_FREE}.  A stub with this type
-is invisible to the garbage collector; it will not be garbage collected,
-and \verb|min::gen| values stored in it or its body will not be locatable
-by the garbage collector.  The {\tt MUP::acc\_\EOL write\_\EOL update}
-function should \underline{not} be called when \verb|min::gen| values
-are stored in a stub with {\tt min::ACC\_\EOL FREE} type
-or any body or auxiliary stub associated with it.
-Furthermore, no \verb|min::gen| value locatable
-by the garbage collector should point to a stub of {\tt min::ACC\_\EOL FREE}
-type when a relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
-The actions of changing
-the type of the stub to another collectible type and storing a
-\verb|min::gen| value pointing at the stub in a garbage collector
-locatable variable should be taken together and not separated by any
+\underline{must not} be visible to the garbage collector; no pointer
+to it can be stored in an acc locatable variable.
+The {\tt MUP::acc\_\EOL write\_\EOL update}
+function \underline{must not} be called with any
+\verb|min::gen| or {\tt min::\EOL stub~*} argument that points at
+a stub with {\tt min::ACC\_\EOL FREE} type.  All
+\verb|min::gen| or {\tt min::\EOL stub~*} values stored in
+the data of a {\tt min::ACC\_\EOL FREE} stub must also be stored
+in acc locatable variable, or must themselves point at 
+{\tt min::ACC\_\EOL FREE} stubs.
+
+The actions of changing the type of a stub
+from {\tt min::ACC\_\EOL FREE}
+to another collectible type and storing a
+\verb|min::gen| or {\tt min::\EOL stub~*}
+value pointing at the stub in an acc
+locatable variable must not be separated by any
 call to a relocating function.
 
-It is permissible to allocate and build a graph of stubs with
-{\tt min::ACC\_\EOL FREE} type, calling stub and body allocators,
-and then without calling any relocatable functions, change the types
-of all the stubs to other collectible types, and store \verb|min::gen|
-values pointing at a root set of the graph in locatable variables.
+It is permissible to allocate and build a graph of stubs some of
+which have {\tt min::ACC\_\EOL FREE} type and some of which have
+pointers to them stored in acc locatable variables.
+Then without calling any relocatable functions, all the
+{\tt min::ACC\_\EOL FREE} types must be changed to collectible
+non-{\tt min::ACC\_\EOL FREE} types, and
+\verb|min::gen| or {\tt min::\EOL stub~*}
+values pointing at a root set of the graph must be
+stored in acc locatable variables.
 
 The \verb|min::new_aux_stub| function returns a non-acc (i.e.,
 not garbage collectible)
 stub with its type set to \minkey{AUX\_FREE}.  This kind of stub is
-is \underline{not} freed by the garbage collector.  It must be
+is \underline{not} freed by the garbage collector.  It may be
 freed only by calling:
 
 \begin{indpar}\begin{tabular}{r@{}l}
