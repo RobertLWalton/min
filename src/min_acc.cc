@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 13 22:42:10 EST 2010
+// Date:	Wed Dec  8 10:30:56 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2526,7 +2526,11 @@ unsigned MACC::collector_increment ( unsigned level )
 			    ( last_c );
 		    min::uns64 c =
 		        MUP::control_of ( s );
-		    if ( c & UNMARKED ( level ) )
+		    int type =
+		        MUP::type_of_control ( c );
+		    if ( c & UNMARKED ( level )
+		         &&
+			 type != min::ACC_FREE )
 		    {
 			// Remove s from acc list.
 			//
