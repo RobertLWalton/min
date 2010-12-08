@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 10 02:13:15 EST 2010
+// Date:	Tue Dec  7 17:27:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4298,7 +4298,7 @@ namespace min {
     inline void push
 	( typename min::packed_vec_insptr<H,E> & pvip,
 	  min::uns32 n,
-	  const E * vp = NULL )
+	  const E * vp )
     {
 	if ( n == 0 ) return;
 	else if ( pvip->length + n > pvip->max_length )
@@ -4323,7 +4323,7 @@ namespace min {
     inline void pop
 	( typename min::packed_vec_insptr<H,E> & pvip,
 	  min::uns32 n,
-	  E * vp = NULL )
+	  E * vp )
     {
 	assert ( pvip->length >= n );
 	* (min::uns32 *) & pvip->length -= n;

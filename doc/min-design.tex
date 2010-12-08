@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 28, 2010}
+\date{December 7, 2010}
  
 \maketitle
 
@@ -2909,7 +2909,8 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 	  \verb| labp ( void )|
 \LABEL{MIN::LAB_PTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::lab_ptr & labp )|
 \LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
 \end{tabular}\end{indpar}
@@ -3080,7 +3081,8 @@ value \verb|v| or \verb|min::stub *| value \verb|s| is a label:
 	  \verb| labp ( void )|
 \LABEL{MUP::LAB_PTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const MUP::lab_ptr & labp )|
 \LABEL{MUP::LAB_PTR_TO_MIN_STUB} \\
 \end{tabular}\end{indpar}
@@ -3607,7 +3609,8 @@ may be created by the following functions:
        \verb| vp ( void )|
 \LABEL{MIN::OBJ_VEC_PTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \end{tabular}\end{indpar}
@@ -3719,7 +3722,8 @@ elements.  The additional functions for this type of pointer are:
     \verb| vp ( void )|
 \LABEL{MIN::VEC_UPDPTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::obj_vec_updptr & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \end{tabular}\end{indpar}
@@ -3808,7 +3812,8 @@ The additional functions for this type of pointer are:
     \verb| vp ( void )|
 \LABEL{MIN::VEC_INSPTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::obj_vec_insptr & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 
@@ -6432,7 +6437,8 @@ a packed structure, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::packed_struct<S>::ptr & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|const * S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
@@ -6472,7 +6478,8 @@ a packed structure, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::packed_struct<S>::updptr & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
 \verb|* S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
@@ -6872,7 +6879,7 @@ a packed vector, and these have the usage:
 \verb|void min::|
 	& \MINKEY{push} \ARGBREAK
 	  \verb| ( packed_vec<H,E>::insptr pvip,| \ARGBREAK
-	  \verb|   min::uns32 n, const E * vp = NULL )|
+	  \verb|   min::uns32 n, const E * vp )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -6883,7 +6890,7 @@ a packed vector, and these have the usage:
 \verb|void min::|
 	& \MINKEY{pop} \ARGBREAK
 	  \verb| ( packed_vec<H,E>::insptr pvip,| \ARGBREAK
-	  \verb|   min::uns32 n, E * vp = NULL )|
+	  \verb|   min::uns32 n, E * vp )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -7915,7 +7922,8 @@ These are in \verb|min_parameters.h|.
 	  \verb| labp ( void )|
 \LABEL{MIN::LAB_PTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::lab_ptr & labp )|
 \LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
 \end{TABULAR}
@@ -8008,7 +8016,8 @@ These are in \verb|min_parameters.h|.
 	  \verb| labp ( void )|
 \LABEL{MUP::LAB_PTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const MUP::lab_ptr & labp )|
 \LABEL{MUP::LAB_PTR_TO_MIN_STUB} \\
 \end{TABULAR}
@@ -8207,7 +8216,8 @@ These are in \verb|min_parameters.h|.
     \verb| ( void )|
 \LABEL{MIN::VEC_UPDPTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::obj_vec_updptr & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \end{TABULAR}
@@ -8267,7 +8277,8 @@ These are in \verb|min_parameters.h|.
     \verb| ( void )|
 \LABEL{MIN::VEC_INSPTR_OF_VOID} \\
 \verb|const min::stub * |
-	& \TTKEY{operator const min::stub *} \ARGBREAK
+	& {\tt operator const min::stub *}%
+	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::obj_vec_insptr & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 \end{TABULAR}
@@ -9065,7 +9076,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::|
 	& \MINKEY{push} \ARGBREAK
 	  \verb| ( packed_vec<H,E>::insptr pvip,| \ARGBREAK
-	  \verb|   min::uns32 n, const E * vp = NULL )|
+	  \verb|   min::uns32 n, const E * vp )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{TABULAR}
 
@@ -9077,7 +9088,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::|
 	& \MINKEY{pop} \ARGBREAK
 	  \verb| ( packed_vec<H,E>::insptr pvip,| \ARGBREAK
-	  \verb|   min::uns32 n, E * vp = NULL )|
+	  \verb|   min::uns32 n, E * vp )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \end{TABULAR}
 
