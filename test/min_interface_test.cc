@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 10 02:14:26 EST 2010
+// Date:	Tue Dec  7 23:33:38 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2095,7 +2095,7 @@ void test_packed_vectors ( void )
     MIN_ASSERT
         ( memcmp ( e4, e2, 2 * sizeof ( pve ) ) == 0 );
     MIN_ASSERT ( pvip->length == 1 );
-    min::pop ( pvip, 1 );
+    min::pop ( pvip, 1, (pve *) NULL );
     MIN_ASSERT ( pvip->length == 0 );
 
     pvtype.increment_ratio = 3.5;
