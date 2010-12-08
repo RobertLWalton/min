@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 17:27:06 EST 2010
+// Date:	Wed Dec  8 09:29:06 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1583,17 +1583,26 @@ namespace min {
 	    min::gen * values;
 	};
 
+        struct stub_locator
+	{
+	    stub_locator * previous;
+	    min::unsptr length;
+	    const min::stub ** values;
+	};
+
         extern gen_locator * static_gen_last;
         extern gen_locator * stack_gen_last;
+        extern stub_locator * static_stub_last;
+        extern stub_locator * stack_stub_last;
 
 	template < min::unsptr len,
 	           gen_locator * & last >
-	struct non_num_gen
+	struct non_num_gen_vec
 	{
 	    min::internal::gen_locator locator;
 	    min::gen values[len];
 
-	    non_num_gen ( void )
+	    non_num_gen_vec ( void )
 	    {
 		this->locator.length = len;
 		this->locator.values = values;
@@ -1603,7 +1612,7 @@ namespace min {
 		    values[i] = min::MISSING;
 	    }
 
-	    ~ non_num_gen ( void )
+	    ~ non_num_gen_vec ( void )
 	    {
 		last = this->locator.previous;
 	    }
@@ -1618,11 +1627,11 @@ namespace min {
 #       if MIN_IS_LOOSE
 	    template < min::unsptr len,
 		       gen_locator * & last >
-	    struct num_gen
+	    struct num_gen_vec
 	    {
 		min::gen values[len];
 
-		num_gen ( void )
+		num_gen_vec ( void )
 		{
 		    for ( min::unsptr i = 0;
 		          i < len; ++ i )
@@ -1636,30 +1645,69 @@ namespace min {
 		}
 	    };
 #       endif
+
+	template < min::unsptr len,
+	           stub_locator * & last >
+	struct stub_vec
+	{
+	    min::internal::stub_locator locator;
+	    const min::stub * values[len];
+
+	    stub_vec ( void )
+	    {
+		this->locator.length = len;
+		this->locator.values = values;
+		this->locator.previous = last;
+		last = & this->locator;
+		for ( min::unsptr i = 0; i < len; ++ i )
+		    values[i] = NULL;
+	    }
+
+	    ~ stub_vec ( void )
+	    {
+		last = this->locator.previous;
+	    }
+
+	    const min::stub * & operator[]
+		    ( min::unsptr i )
+	    {
+		MIN_ASSERT ( i < len );
+		return values[i];
+	    }
+	};
     }
 
     template < min::unsptr len >
-	struct static_gen : internal::non_num_gen
+	struct static_gen : internal::non_num_gen_vec
 		<len,internal::static_gen_last> {};
     template < min::unsptr len >
-	struct stack_gen : internal::non_num_gen
+	struct stack_gen : internal::non_num_gen_vec
 		<len,internal::stack_gen_last> {};
 
 #   if MIN_IS_LOOSE
 	template < min::unsptr len >
-	  struct static_num_gen : internal::num_gen
+	  struct static_num_gen : internal::num_gen_vec
 		<len,internal::static_gen_last> {};
 	template < min::unsptr len >
-	  struct stack_num_gen : internal::num_gen
+	  struct stack_num_gen : internal::num_gen_vec
 		<len,internal::stack_gen_last> {};
 #   else // if MIN_IS_COMPACT
 	template < min::unsptr len >
-	  struct static_num_gen : internal::non_num_gen
-		<len,internal::static_gen_last> {};
+	  struct static_num_gen
+	      : internal::non_num_gen_vec
+		    <len,internal::static_gen_last> {};
 	template < min::unsptr len >
-	  struct stack_num_gen : internal::non_num_gen
-		<len,internal::stack_gen_last> {};
+	  struct stack_num_gen
+	      : internal::non_num_gen_vec
+		    <len,internal::stack_gen_last> {};
 #   endif
+
+    template < min::unsptr len >
+	struct static_stub : internal::stub_vec
+		<len,internal::static_stub_last> {};
+    template < min::unsptr len >
+	struct stack_stub : internal::stub_vec
+		<len,internal::stack_stub_last> {};
 
 }
 
@@ -1802,7 +1850,8 @@ namespace min { namespace unprotected {
     // target.
     //
     inline void acc_write_update
-	    ( min::stub * s1, min::stub * s2 )
+	    ( const min::stub * s1,
+	      const min::stub * s2 )
     {
         uns64 f = (    min::unprotected
 	                  ::control_of ( s1 )
@@ -1813,8 +1862,10 @@ namespace min { namespace unprotected {
 
 	if ( f != 0 )
 	{
-	    * min::internal::acc_stack ++ = s1;
-	    * min::internal::acc_stack ++ = s2;
+	    * min::internal::acc_stack ++ =
+	        (min::stub *) s1;
+	    * min::internal::acc_stack ++ =
+	        (min::stub *) s2;
 	}
     }
 
@@ -1825,7 +1876,7 @@ namespace min { namespace unprotected {
     // value contains the stub pointer s2.
     //
     inline void acc_write_update
-	    ( min::stub * s1, min::gen v )
+	    ( const min::stub * s1, min::gen v )
     {
 	if ( min::is_stub ( v ) )
 	    acc_write_update
@@ -1854,7 +1905,7 @@ namespace min { namespace unprotected {
     // the general values.
     //
     inline void acc_write_update
-	    ( min::stub * s1,
+	    ( const min::stub * s1,
 	      const min::gen * p, min::unsptr n )
     {
         while ( n -- )
@@ -1870,7 +1921,7 @@ namespace min { namespace unprotected {
     // Ditto but does nothing for loose implementation.
     //
     inline void acc_write_num_update
-	    ( min::stub * s1,
+	    ( const min::stub * s1,
 	      const min::gen * p, min::unsptr n )
     {
 #       if MIN_IS_COMPACT

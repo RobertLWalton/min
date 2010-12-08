@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 15 08:23:05 EST 2010
+// Date:	Wed Dec  8 09:26:58 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -400,6 +400,8 @@ bool MINT::relocated_flag;
 
 MINT::gen_locator * MINT::static_gen_last;
 MINT::gen_locator * MINT::stack_gen_last;
+MINT::stub_locator * MINT::static_stub_last;
+MINT::stub_locator * MINT::stack_stub_last;
 
 min::unsptr MINT::number_of_free_stubs;
 
@@ -1049,62 +1051,105 @@ static void obj_scavenger_routine
     sc.state = 0;
 }
 
+inline bool thread_scavenger_helper
+	( MINT::scavenge_control & sc,
+	  min::stub * s )
+{
+    min::uns64 c = MUP::control_of ( s );
+    int type = MUP::type_of_control ( c );
+    assert ( type >= 0 );
+
+    if ( ( c & sc.stub_flag ) == 0 )
+	; // do nothing
+    else if ( ! MINT::is_scavengable ( type ) )
+	MUP::clear_flags_of
+	    ( s, sc.stub_flag );
+    else if (    sc.to_be_scavenged
+	      >= sc.to_be_scavenged_limit )
+    {
+	sc.state = 1;
+	return true;
+    }
+    else
+    {
+	* sc.to_be_scavenged ++ = s;
+	MUP::clear_flags_of
+	    ( s, sc.stub_flag );
+	return false;
+    }
+}
+
 void MINT::thread_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    int thread = 0;
-    gen_locator * locator = static_gen_last;
-    int index = 0;
-    while ( true )
+    for ( gen_locator * locator = static_gen_last;
+          locator != NULL; 
+	  locator = locator->previous )
+    for ( int index = 0;
+          index < locator->length; ++ index )
     {
-        if ( locator == NULL )
-	{
-	    if ( thread == 1 ) break;
-	    locator = stack_gen_last;
-	    thread = 1;
-	    continue;
-	}
-
-	if ( index == locator->length )
-	{
-	    locator = locator->previous;
-	    index = 0;
-	    continue;
-	}
-
-
 	min::gen v = locator->values[index];
 	if ( min::is_stub ( v ) )
 	{
-	    min::stub * s2 = MUP::stub_of ( v );
-	    min::uns64 c = MUP::control_of ( s2 );
-	    int type = MUP::type_of_control ( c );
-	    assert ( type >= 0 );
-
-	    if ( ( c & sc.stub_flag ) == 0 )
-	        ; // do nothing
-	    else if ( ! MINT::is_scavengable ( type ) )
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    else if (    sc.to_be_scavenged
-	              >= sc.to_be_scavenged_limit )
-	    {
-	        sc.state = 1;
+	    if ( thread_scavenger_helper
+	             ( sc, MUP::stub_of ( v ) ) )
 		return;
-	    }
-	    else
-	    {
-		* sc.to_be_scavenged ++ = s2;
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    }
-
 	    ++ sc.stub_count;
 	}
-
 	++ sc.gen_count;
-	++ index;
     }
+
+    for ( gen_locator * locator = stack_gen_last;
+          locator != NULL; 
+	  locator = locator->previous )
+    for ( int index = 0;
+          index < locator->length; ++ index )
+    {
+	min::gen v = locator->values[index];
+	if ( min::is_stub ( v ) )
+	{
+	    if ( thread_scavenger_helper
+	             ( sc, MUP::stub_of ( v ) ) )
+		return;
+	    ++ sc.stub_count;
+	}
+	++ sc.gen_count;
+    }
+
+    for ( stub_locator * locator = static_stub_last;
+          locator != NULL; 
+	  locator = locator->previous )
+    for ( int index = 0;
+          index < locator->length; ++ index )
+    {
+	const min::stub * s = locator->values[index];
+	if ( s != NULL )
+	{
+	    if ( thread_scavenger_helper
+	             ( sc, (min::stub *) s ) )
+		return;
+	    ++ sc.stub_count;
+	}
+	++ sc.gen_count;
+    }
+
+    for ( stub_locator * locator = stack_stub_last;
+          locator != NULL; 
+	  locator = locator->previous )
+    for ( int index = 0;
+          index < locator->length; ++ index )
+    {
+	const min::stub * s = locator->values[index];
+	if ( s != NULL )
+	{
+	    if ( thread_scavenger_helper
+	             ( sc, (min::stub *) s ) )
+		return;
+	    ++ sc.stub_count;
+	}
+	++ sc.gen_count;
+    }
+
     sc.state = 0;
 }
 
