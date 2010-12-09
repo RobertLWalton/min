@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 09:29:06 EST 2010
+// Date:	Wed Dec  8 16:05:03 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3508,6 +3508,11 @@ namespace min {
 
     template < typename S >
     min::uns32 DISP ( min::gen S::* d )
+    {
+	return OFFSETOF ( d );
+    }
+    template < typename S >
+    min::uns32 DISP ( const min::stub * S::* d )
     {
 	return OFFSETOF ( d );
     }
