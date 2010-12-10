@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 10:30:56 EST 2010
+// Date:	Fri Dec 10 11:27:29 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -244,8 +244,8 @@ void MINT::acc_initializer ( void )
     MACC::page_size = MOS::pagesize();
 
     stub_allocator_initializer();
-    collector_initializer();
     block_allocator_initializer();
+    collector_initializer();
 
     MINT::acc_initialize_resize_body();
 }
@@ -273,6 +273,29 @@ static void stub_allocator_initializer ( void )
 		MIN_MAX_NUMBER_OF_STUBS );
     get_param ( "stub_increment",
                 MACC::stub_increment, 100, 1000000 );
+
+    MINT::str_hash_size = MIN_DEFAULT_STR_HASH_SIZE;
+    get_param ( "str_hash_size",
+                MINT::str_hash_size, 1024, (1 << 30),
+		1, true );
+    MINT::str_hash_mask = MINT::str_hash_size - 1;
+
+#   if MIN_IS_COMPACT
+	MINT::num_hash_size = MIN_DEFAULT_NUM_HASH_SIZE;
+	get_param ( "num_hash_size",
+		    MINT::num_hash_size,
+		    1024, (1 << 30),
+		    1, true );
+	MINT::num_hash_mask = MINT::num_hash_size - 1;
+#   endif
+
+    MINT::lab_hash_size = MIN_DEFAULT_LAB_HASH_SIZE;
+    get_param ( "lab_hash_size",
+                MINT::lab_hash_size, 1024, (1 << 30),
+		1, true );
+    MINT::lab_hash_mask = MINT::lab_hash_size - 1;
+
+    // Allocate stub vector.
 
     min::unsptr pages =
         number_of_pages ( 16 * MACC::max_stubs );
@@ -359,6 +382,45 @@ static void stub_allocator_initializer ( void )
 
     ++ MACC::stub_next;
 
+    // Allocate hash tables.
+
+    pages = number_of_pages
+        ( 2 * sizeof ( void * )
+	    * (   MINT::str_hash_size
+#   if MIN_IS_COMPACT
+		+ MINT::num_hash_size
+#   endif
+		+ MINT::lab_hash_size ) );
+
+    min::stub ** tables =
+        (min::stub **) MOS::new_pool ( pages );
+    error = MOS::pool_error ( tables );
+    if ( error != NULL )
+    {
+        cout << "ERROR: " << error << endl
+	     << "       while allocating " << pages
+	     << " pages of hash tables"
+	     << endl
+	     << "       Suggest decreasing hash table"
+	        " sizes."
+	     << endl;
+	MOS::dump_error_info ( cout );
+	exit ( 1 );
+    }
+
+    MINT::str_acc_hash = tables;
+    tables += MINT::str_hash_size;
+    MINT::str_aux_hash = tables;
+    tables += MINT::str_hash_size;
+#   if MIN_IS_COMPACT
+	MINT::num_acc_hash = tables;
+	tables += MINT::num_hash_size;
+	MINT::num_aux_hash = tables;
+	tables += MINT::num_hash_size;
+#   endif
+    MINT::lab_acc_hash = tables;
+    tables += MINT::lab_hash_size;
+    MINT::lab_aux_hash = tables;
 }
 
 void MINT::acc_expand_stub_free_list ( min::unsptr n )

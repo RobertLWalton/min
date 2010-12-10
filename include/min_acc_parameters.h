@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov 10 02:03:32 EST 2010
+// Date:	Fri Dec 10 12:27:37 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -197,6 +197,36 @@
 //
 //   Size of stub stack region.  Default:
 //   16 * stub_stack_segment_size.
+//
+// str_hash_size
+//
+//   Size of string hash table in entries, each entry
+//   being one pointer.  Must be a power of 2.
+//
+# ifndef MIN_DEFAULT_STR_HASH_SIZE
+#   define MIN_DEFAULT_STR_HASH_SIZE 4096
+# endif
+//
+// lab_hash_size
+//
+//   Ditto for the label hash table.
+//
+# ifndef MIN_DEFAULT_LAB_HASH_SIZE
+#   define MIN_DEFAULT_LAB_HASH_SIZE 4096
+# endif
+//
+// num_hash_size
+//
+//   Ditto for the number hash table, which only exists
+//   in compact implementations.
+//
+# ifndef MIN_DEFAULT_NUM_HASH_SIZE
+#   define MIN_DEFAULT_NUM_HASH_SIZE 65536
+# endif
+//
+// Note: The current implementation does NOT dynamically
+// resize hash tables.
+
 
 
 // Collector Parameters
