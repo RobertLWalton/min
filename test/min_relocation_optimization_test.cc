@@ -2,7 +2,7 @@
 //
 // File:	min_relocation_optimization_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 01:23:22 EDT 2010
+// Date:	Fri Dec 10 11:30:22 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -15,10 +15,11 @@
 //   $RCSfile: min_relocation_optimization_test.cc,v $
 //   $Revision: 1.2 $
 
-// This program tests whether when stub pointer to a
-// relocatable body is recomputed.  It should be put
-// into a register and it should be recomputed whenever
-// and only when out of line code is called.
+// This program tests when a pointer indirecting through
+// a stub to a relocatable body is recomputed.  The
+// pointer should be put into a register and should be
+// recomputed when and only when out of line code is
+// called.
 //
 // This code is intended to be complied into an assembly
 // language file that is checked manually.  This code
