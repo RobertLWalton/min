@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 23:33:38 EST 2010
+// Date:	Sat Dec 18 19:25:42 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1972,7 +1972,7 @@ void test_packed_structs ( void )
 
     cout << "ps1type.name = " << ps1type.name << endl;
 
-    min::gen v1 = ps1type.new_gen();
+    const min::stub * v1 = ps1type.new_stub();
     ps1t::updptr upv1 ( v1 );
     cout << "upv1->type = " << upv1->type << endl;
     MIN_ASSERT ( upv1->i == 0 );
@@ -1992,11 +1992,11 @@ void test_packed_structs ( void )
     MIN_ASSERT ( pv2->i == 55 );
     MIN_ASSERT ( pv2->j == 99 );
 
-    min::gen v3 = ps2type.new_gen();
+    const min::stub * v3 = ps2type.new_stub();
     MIN_ASSERT ( upv2 == min::stub_of ( v2 ) );
     upv2 = min::NULL_STUB;
     MIN_ASSERT ( upv2 != min::stub_of ( v2 ) );
-    upv2 = MUP::stub_of ( v3 );
+    upv2 = min::new_gen ( v3 );
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
     upv2->i = 22;
@@ -2058,7 +2058,7 @@ void test_packed_vectors ( void )
 
     cout << "pvtype.name = " << pvtype.name << endl;
 
-    min::gen v = pvtype.new_gen ( 5 );
+    const min::stub * v = pvtype.new_stub ( 5 );
     pvt::insptr pvip ( v );
     MIN_ASSERT ( pvip->max_length == 5 );
     MIN_ASSERT ( pvip->length == 0 );
@@ -2066,7 +2066,7 @@ void test_packed_vectors ( void )
     min::push ( pvip, e1 );
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
-    pvt::ptr pvp ( MUP::stub_of ( v ) );
+    pvt::ptr pvp = min::new_gen ( v );
     MIN_ASSERT ( pvp->length == 1 );
     MIN_ASSERT ( pvp[0].j == 88 );
 
@@ -2111,9 +2111,9 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvp[2].j == 33 );
 
     pvp = min::NULL_STUB;
-    MIN_ASSERT ( pvp != min::stub_of ( v ) );
+    MIN_ASSERT ( pvp != v );
     pvp = v;
-    MIN_ASSERT ( pvp == min::stub_of ( v ) );
+    MIN_ASSERT ( pvp == v );
     MIN_ASSERT ( pvp[2].j == 33 );
 
     pvt::insptr pvip2;

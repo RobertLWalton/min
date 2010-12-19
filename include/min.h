@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 16:05:03 EST 2010
+// Date:	Sat Dec 18 23:10:41 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2968,7 +2968,7 @@ namespace min {
 	    // Operator[] MUST be a member and cannot
 	    // be a friend.
 	    //
-	    const char operator[] ( int index )
+	    const char operator[] ( int index ) const
 	    {
 		return
 		    ( (const char * )
@@ -3275,12 +3275,13 @@ namespace min {
 		: s ( NULL ) {}
 
 	    const min::gen operator [] ( min::uns32 i )
+	        const
 	    {
 		MIN_ASSERT ( i < header()->length );
 		return base()[i];
 	    }
 
-	    operator const min::stub * ( void )
+	    operator const min::stub * ( void ) const
 	    {
 	        return s;
 	    }
@@ -3308,7 +3309,7 @@ namespace min {
 
 	    const min::stub * s;
 
-	    internal::lab_header * header ( void )
+	    internal::lab_header * header ( void ) const
 	    {
 		return
 		    * (internal::lab_header **) &
@@ -3316,7 +3317,7 @@ namespace min {
 			( (min::stub *) s );
 	    }
 
-	    const min::gen * base ( void )
+	    const min::gen * base ( void ) const
 	    {
 		return (const min::gen *)
 		       ( header() + 1 );
@@ -3632,9 +3633,9 @@ namespace min {
 	    const min::stub * s;
 	};
 
-	// Out-of-line new_gen function (non-template).
+	// Out-of-line new_stub function (non-template).
 	//
-	min::gen packed_struct_new_gen
+	const min::stub * packed_struct_new_stub
 	    ( packed_struct_descriptor * psd );
     }
 
@@ -3677,13 +3678,13 @@ namespace min {
 	    : internal::packed_struct_ptr_base<S>
 		() {}
 
-	const S * operator -> ( void )
+	const S * operator -> ( void ) const
 	{
 	    return (const S *)
 		   unprotected::ptr_of ( this->s );
 	}
 
-	const S & operator * ( void )
+	const S & operator * ( void ) const
 	{
 	    return * (const S *)
 		   unprotected::ptr_of ( this->s );
@@ -3742,13 +3743,13 @@ namespace min {
 	    : internal::packed_struct_ptr_base<S>
 		() {}
 
-	S * operator -> ( void )
+	S * operator -> ( void ) const
 	{
 	    return (S *)
 		   unprotected::ptr_of ( this->s );
 	}
 
-	S & operator * ( void )
+	S & operator * ( void ) const
 	{
 	    return * (S *)
 		   unprotected::ptr_of ( this->s );
@@ -3798,10 +3799,17 @@ namespace min {
 	      const min::uns32 * gen_disp = NULL,
 	      const min::uns32 * stub_ptr_disp = NULL );
 
+	const min::stub * new_stub ( void )
+	{
+	    return internal::packed_struct_new_stub
+		( this );
+	}
+
 	min::gen new_gen ( void )
 	{
-	    return internal::packed_struct_new_gen
-	    		( this );
+	    return min::new_gen
+	        ( internal::packed_struct_new_stub
+		      ( this ) );
 	}
 
 	typedef typename
@@ -3969,7 +3977,7 @@ namespace min {
 	    // Returns & pvip[pvip->length] even though
 	    // the subscript is not < length.
 	    //
-	    const E * end_ptr ( void )
+	    const E * end_ptr ( void ) const
 	    {
 		H * hp = (H *)
 		    unprotected::ptr_of ( this->s );
@@ -4004,9 +4012,9 @@ namespace min {
 
 	};
 
-	// Out-of-line new_gen function (non-template).
+	// Out-of-line new_stub function (non-template).
 	//
-	min::gen packed_vec_new_gen
+	const min::stub * packed_vec_new_stub
 	    ( packed_vec_descriptor * pvd,
 	      min::uns32 max_length,
 	      min::uns32 length,
@@ -4040,13 +4048,13 @@ namespace min {
 	    : internal::packed_vec_ptr_base<H,E>
 	    () {}
 
-	const H * operator -> ( void )
+	const H * operator -> ( void ) const
 	{
 	    return (const H *)
 		   unprotected::ptr_of ( this->s );
 	}
 
-	const E & operator [] ( min::uns32 i )
+	const E & operator [] ( min::uns32 i ) const
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
@@ -4110,13 +4118,13 @@ namespace min {
 	    : internal::packed_vec_ptr_base<H,E>
 	    () {}
 
-	H * operator -> ( void )
+	H * operator -> ( void ) const
 	{
 	    return (H *)
 		   unprotected::ptr_of ( this->s );
 	}
 
-	E & operator [] ( min::uns32 i )
+	E & operator [] ( min::uns32 i ) const
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
@@ -4181,13 +4189,13 @@ namespace min {
 	    : internal::packed_vec_ptr_base<H,E>
 	    () {}
 
-	H * operator -> ( void )
+	H * operator -> ( void ) const
 	{
 	    return (H *)
 		   unprotected::ptr_of ( this->s );
 	}
 
-	E & operator [] ( min::uns32 i )
+	E & operator [] ( min::uns32 i ) const
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
@@ -4276,17 +4284,34 @@ namespace min {
 	      const min::uns32 * header_stub_ptr_disp
 	          = NULL );
 
+	const min::stub * new_stub
+		( min::uns32 max_length,
+		  min::uns32 length = 0,
+		  const E * vp = NULL )
+	{
+	    return internal::packed_vec_new_stub
+		( this, max_length, length, vp );
+	}
+	const min::stub * new_stub ( void )
+	{
+	    return internal::packed_vec_new_stub
+		( this, initial_max_length, 0, NULL );
+	}
+
 	min::gen new_gen ( min::uns32 max_length,
 	                   min::uns32 length = 0,
 			   const E * vp = NULL )
 	{
-	    return internal::packed_vec_new_gen
-	        ( this, max_length, length, vp );
+	    return min::new_gen
+	        ( internal::packed_vec_new_stub
+		    ( this, max_length, length, vp ) );
 	}
 	min::gen new_gen ( void )
 	{
-	    return internal::packed_vec_new_gen
-	        ( this, initial_max_length, 0, NULL );
+	    return min::new_gen
+	        ( internal::packed_vec_new_stub
+	              ( this, initial_max_length,
+		        0, NULL ) );
 	}
 
 	// Notice: Member subclasses of a template
@@ -4832,7 +4857,7 @@ namespace min {
 	    deinit();
 	}
 
-	operator const min::stub * ( void )
+	operator const min::stub * ( void ) const
 	{
 	    return s;
 	}

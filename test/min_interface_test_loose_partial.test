@@ -1430,8 +1430,6 @@ Start Packed Structs Test!
 ps1type.name = ps1type
 MINT::acc_expand_stub_free_list (1) called
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
     t < internal::packed_type_count true.
@@ -1486,6 +1484,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     upv2 != min::stub_of ( v2 ) true.
 ../include/min.h:XXXX assert:
+    is_stub ( v ) true.
+../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
     t < internal::packed_type_count true.
@@ -1536,8 +1536,6 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 Using fixed_blocks[5] and assigning begin_body_region[272 .. 303]
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     t < internal::packed_type_count true.
@@ -1553,6 +1551,8 @@ min_interface_test.cc:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvip[0].j == 88 true.
+../include/min.h:XXXX assert:
+    is_stub ( v ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_VEC true.
 ../include/min.h:XXXX assert:
@@ -1625,22 +1625,16 @@ min_interface_test.cc:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvp[2].j == 33 true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
-    pvp != min::stub_of ( v ) true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    pvp != v true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     t < internal::packed_type_count true.
 ../include/min.h:XXXX assert:
     pvdescriptor->id == id true.
-../include/min.h:XXXX assert:
-    is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
-    pvp == min::stub_of ( v ) true.
+    pvp == v true.
 ../include/min.h:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
