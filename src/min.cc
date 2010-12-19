@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec  8 09:26:58 EST 2010
+// Date:	Sat Dec 18 19:20:24 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1656,7 +1656,7 @@ void *** MINT::packed_types;
 min::uns32 MINT::packed_type_count;
 min::uns32 MINT::max_packed_type_count;
 
-min::gen MINT::packed_struct_new_gen
+const min::stub * MINT::packed_struct_new_stub
 	( MINT::packed_struct_descriptor * psd )
 {
     min::stub * s = unprotected::new_acc_stub();
@@ -1666,10 +1666,10 @@ min::gen MINT::packed_struct_new_gen
     memset ( tp, 0, psd->size );
     * tp = psd->index;
     unprotected::set_type_of ( s, min::PACKED_STRUCT );
-    return min::new_gen ( s );
+    return s;
 }
 
-min::gen MINT::packed_vec_new_gen
+const min::stub * MINT::packed_vec_new_stub
 	( MINT::packed_vec_descriptor * pvd,
 	  min::uns32 max_length,
 	  min::uns32 length,
@@ -1691,7 +1691,7 @@ min::gen MINT::packed_vec_new_gen
         memcpy ( bodyp + pvd->header_size,
 	         vp, length * pvd->element_size);
     unprotected::set_type_of ( s, min::PACKED_VEC );
-    return min::new_gen ( s );
+    return s;
 }
 
 void MINT::packed_vec_resize
