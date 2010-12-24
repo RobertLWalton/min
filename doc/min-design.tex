@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 18, 2010}
+\date{December 24, 2010}
  
 \maketitle
 
@@ -595,7 +595,7 @@ which indicates the body is deallocated.
 The function that deallocates a body is:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{deallocate\REL}\verb| ( min::stub * s )|
+\verb|void min::| & \MINKEY{deallocate\REL}\verb| ( const min::stub * s )|
 \LABEL{MIN::DEALLOCATE} \\
 \end{tabular}\end{indpar}%
 \index{deallocate!relocating}
@@ -7397,7 +7397,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::RELOCATED} \\
 \verb|void min::| & \MINKEY{interrupt\REL}\verb| ( void )|
 \LABEL{MIN::INTERRUPT} \\
-\verb|void min::| & \MINKEY{deallocate\REL}\verb| ( min::stub * s )|
+\verb|void min::| & \MINKEY{deallocate\REL}\verb| ( const min::stub * s )|
 \LABEL{MIN::DEALLOCATE} \\
 \verb|bool min::| & \MINKEY{is\_deallocated}\verb| ( const min::stub * s )|
 \LABEL{MIN::IS_DEALLOCATED} \\
