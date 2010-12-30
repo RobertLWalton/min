@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 10 11:27:29 EST 2010
+// Date:	Thu Dec 30 13:31:52 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1160,31 +1160,33 @@ void MUP::deallocate_body
 // Packed Type Allocator
 // ------ ---- ---------
 
-// MINT::packed_types points at this word which points
-// at the packed types vector.
+// MINT::packed_subtypes points at this word which
+// points at the packed types vector.
 //
-static void ** packed_types_p;
+static void ** packed_subtypes_p;
 
-void MINT::allocate_packed_types ( min::uns32 count )
+void MINT::allocate_packed_subtypes ( min::uns32 count )
 {
     min::unsptr new_pages =
         number_of_pages ( count * sizeof ( void * ) );
-    void ** new_packed_types = (void **)
+    void ** new_packed_subtypes = (void **)
         MOS::new_pool ( new_pages );
-    if ( MINT::max_packed_type_count != 0 )
+    if ( MINT::max_packed_subtype_count != 0 )
     {
         min::unsptr old_pages =
 	    number_of_pages
-	        (   MINT::max_packed_type_count
+	        (   MINT::max_packed_subtype_count
 		  * sizeof ( void * ) );
-	memcpy ( new_packed_types, * packed_types_p,
-	           MINT::packed_type_count
+	memcpy ( new_packed_subtypes,
+	         * packed_subtypes_p,
+	         MINT::packed_subtype_count
 		 * sizeof ( void * ) );
-	MOS::free_pool ( old_pages, * packed_types_p );
+	MOS::free_pool
+	    ( old_pages, * packed_subtypes_p );
     }
-    packed_types_p = new_packed_types;
-    MINT::max_packed_type_count = count;
-    MINT::packed_types = & ::packed_types_p;
+    packed_subtypes_p = new_packed_subtypes;
+    MINT::max_packed_subtype_count = count;
+    MINT::packed_subtypes = & ::packed_subtypes_p;
 }
 
 // Stub Stack Manager

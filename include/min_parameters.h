@@ -2,7 +2,7 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Oct 27 02:15:13 EDT 2010
+// Date:	Thu Dec 30 11:10:04 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -281,19 +281,19 @@
      ( 1ull << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG )
 
 // Initial maximum number of packed structure/vector
-// types, and also the increment to this maximum number
-// if it about to be exceeded.
+// subtypes, and also the increment to this maximum
+// number if it about to be exceeded.
 //
-# ifndef MIN_PACKED_TYPE_COUNT
-#   define MIN_PACKED_TYPE_COUNT 128
+# ifndef MIN_PACKED_SUBTYPE_COUNT
+#   define MIN_PACKED_SUBTYPE_COUNT 128
 # endif
 
-// Number of bits of min::uns32 type in a packed
-// structure or header that is reserved for the
-// packed structure/vector type index.
+// Number of bits of the min::uns32 control word in a
+// packed structure or packed vector header that is
+// reserved for the packed structure/vector subtype.
 //
-# ifndef MIN_PACKED_TYPE_INDEX_BITS
-#   define MIN_PACKED_TYPE_INDEX_BITS 16
+# ifndef MIN_PACKED_CONTROL_SUBTYPE_BITS
+#   define MIN_PACKED_CONTROL_SUBTYPE_BITS 16
 # endif
 
 // Hardware Functions

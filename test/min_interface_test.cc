@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 10:16:32 EST 2010
+// Date:	Thu Dec 30 11:13:45 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -442,15 +442,15 @@ void initialize_acc_stack ( void )
     MINT::acc_stack_limit = ::acc_stack_end - 6;
 }
 
-static void * packed_types[MIN_PACKED_TYPE_COUNT];
-static void ** packed_types_p = packed_types;
+static void * packed_subtypes[MIN_PACKED_SUBTYPE_COUNT];
+static void ** packed_subtypes_p = packed_subtypes;
 
-void MINT::allocate_packed_types ( min::uns32 count )
+void MINT::allocate_packed_subtypes ( min::uns32 count )
 {
-    assert ( MINT::packed_types == NULL );
-    MINT::packed_types = & ::packed_types_p;
-    assert ( count <= MIN_PACKED_TYPE_COUNT );
-    MINT::max_packed_type_count = count;
+    assert ( MINT::packed_subtypes == NULL );
+    MINT::packed_subtypes = & ::packed_subtypes_p;
+    assert ( count <= MIN_PACKED_SUBTYPE_COUNT );
+    MINT::max_packed_subtype_count = count;
 }
 
 void MINT::acc_initializer ( void )
@@ -1938,7 +1938,7 @@ void test_print ( void )
 struct ps1;
 typedef min::packed_struct<ps1> ps1t;
 struct ps1 {
-    const min::uns32 type;
+    const min::uns32 control;
     min::uns32 i;
     min::gen g;
     min::stub * s;
@@ -1956,7 +1956,7 @@ static ps1t ps1type
     ( "ps1type", ps1_gen_disp, ps1_stub_ptr_disp );
 
 struct ps2 {
-    const min::uns32 type;
+    const min::uns32 control;
     min::uns32 i;
     min::uns32 j;
 };
@@ -1974,14 +1974,14 @@ void test_packed_structs ( void )
 
     const min::stub * v1 = ps1type.new_stub();
     ps1t::updptr upv1 ( v1 );
-    cout << "upv1->type = " << upv1->type << endl;
+    cout << "upv1->control = " << upv1->control << endl;
     MIN_ASSERT ( upv1->i == 0 );
     upv1->i = 88;
     MIN_ASSERT ( upv1->i == 88 );
 
     min::gen v2 = ps2type.new_gen();
     ps2t::updptr upv2 ( v2 );
-    cout << "upv2->type = " << upv2->type << endl;
+    cout << "upv2->control = " << upv2->control << endl;
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
     upv2->i = 55;
@@ -2027,7 +2027,7 @@ struct pve;
 struct pvh;
 typedef min::packed_vec<pve,pvh> pvt;
 struct pvh {
-    const min::uns32 type;
+    const min::uns32 control;
     min::uns32 i;
     const min::uns32 length;
     const min::uns32 max_length;
