@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 18 19:20:24 EST 2010
+// Date:	Thu Dec 30 10:49:31 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -564,11 +564,11 @@ static void packed_struct_scavenger_routine
     min::uns8 * beginp =
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
     min::uns32 type = * ( min::uns32 *) beginp;
-    type &= MINT::packed_type_index_mask;
-    MIN_ASSERT ( type < MINT::packed_type_count);
+    type &= MINT::packed_control_subtype_mask;
+    MIN_ASSERT ( type < MINT::packed_subtype_count);
     MINT::packed_struct_descriptor * psd =
         (MINT::packed_struct_descriptor *)
-        (*MINT::packed_types)[type];
+        (*MINT::packed_subtypes)[type];
 
     assert ( sc.state < (1ull << 32 ) );
     min::uns32 i = (min::uns32) sc.state >> 2;
@@ -705,11 +705,11 @@ static void packed_vec_scavenger_routine
     min::uns8 * beginp =
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
     min::uns32 type = * ( min::uns32 *) beginp;
-    type &= MINT::packed_type_index_mask;
-    MIN_ASSERT ( type < MINT::packed_type_count);
+    type &= MINT::packed_control_subtype_mask;
+    MIN_ASSERT ( type < MINT::packed_subtype_count);
     MINT::packed_vec_descriptor * psd =
         (MINT::packed_vec_descriptor *)
-        (*MINT::packed_types)[type];
+        (*MINT::packed_subtypes)[type];
 
     min::uns32 length = * ( min::uns32 *)
     	( beginp + psd->length_disp );
@@ -1652,9 +1652,9 @@ min::gen min::new_lab_gen
 // Packed Structures and Vectors
 // ------ ---------- --- -------
 
-void *** MINT::packed_types;
-min::uns32 MINT::packed_type_count;
-min::uns32 MINT::max_packed_type_count;
+void *** MINT::packed_subtypes;
+min::uns32 MINT::packed_subtype_count;
+min::uns32 MINT::max_packed_subtype_count;
 
 const min::stub * MINT::packed_struct_new_stub
 	( MINT::packed_struct_descriptor * psd )
@@ -1664,7 +1664,7 @@ const min::stub * MINT::packed_struct_new_stub
     min::uns32 * tp =
         (min::uns32 *) unprotected::ptr_of ( s );
     memset ( tp, 0, psd->size );
-    * tp = psd->index;
+    * tp = psd->subtype;
     unprotected::set_type_of ( s, min::PACKED_STRUCT );
     return s;
 }
@@ -1683,7 +1683,7 @@ const min::stub * MINT::packed_vec_new_stub
     min::uns8 * bodyp =
         (min::uns8 *) unprotected::ptr_of ( s );
     memset ( bodyp, 0, size );
-    * (uns32 *) bodyp = pvd->index;
+    * (uns32 *) bodyp = pvd->subtype;
     * (uns32 *) ( bodyp + pvd->length_disp ) = length;
     * (uns32 *) ( bodyp + pvd->max_length_disp ) =
         max_length;
@@ -1698,10 +1698,10 @@ void MINT::packed_vec_resize
         ( const min::stub * s,
 	  min::uns32 max_length )
 {
-    min::uns32 t = packed_vec_type_of ( s );
+    min::uns32 t = packed_vec_subtype_of ( s );
     packed_vec_descriptor * pvdescriptor =
 	(packed_vec_descriptor *)
-	(*packed_types)[t];
+	(*packed_subtypes)[t];
     packed_vec_resize ( s, pvdescriptor, max_length );
 }
 
