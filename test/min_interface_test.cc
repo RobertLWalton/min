@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 18 19:25:42 EST 2010
+// Date:	Thu Dec 30 10:16:32 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2025,7 +2025,7 @@ void test_packed_structs ( void )
 
 struct pve;
 struct pvh;
-typedef min::packed_vec<pvh,pve> pvt;
+typedef min::packed_vec<pve,pvh> pvt;
 struct pvh {
     const min::uns32 type;
     min::uns32 i;

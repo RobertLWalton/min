@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 24, 2010}
+\date{December 30, 2010}
  
 \maketitle
 
@@ -5707,13 +5707,13 @@ are:
 \ttmindex{flag\_count}{in {\tt min::attr\_info}}
 \ttmindex{reverse\_attr\_count}{in {\tt min::attr\_info}}
 \LABEL{MIN::ATTR_INFO} \\
-\verb|typedef | & \verb|min::packed_vec<...,attr_info>| \ARGBREAK
+\verb|typedef | & \verb|min::packed_vec<attr_info>|\ARGBREAK
                        \verb|min::|\MINKEY{attr\_info\_vec}
 \LABEL{MIN::ATTR_INFO_VEC} \\
 \verb|min::attr_info_vec | & 
                        \verb|min::|\MINKEY{attr\_info\_vec\_type}
 \LABEL{MIN::ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::attr_info_vec::ptr| \ARGBREAK
+\verb|typedef | & \verb|min::attr_info_vec::ptr|\ARGBREAK
                        \verb|min::|\MINKEY{attr\_info\_ptr}
 \LABEL{MIN::ATTR_INFO_PTR} \\
 \verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
@@ -5732,13 +5732,13 @@ are:
 \ttmindex{name}{in {\tt min::reverse\_attr\_info}}
 \ttmindex{value\_count}{in {\tt min::reverse\_attr\_info}}
 \LABEL{MIN::REVERSE_ATTR_INFO} \\
-\verb|typedef | & \verb|min::packed_vec<...,reverse_attr_info>| \ARGBREAK
+\verb|typedef | & \verb|min::packed_vec<reverse_attr_info>|\ARGBREAK
                        \verb|min::|\MINKEY{reverse\_attr\_info\_vec}
 \LABEL{MIN::REVERSE_ATTR_INFO_VEC} \\
 \verb|min::reverse_attr_info_vec | & 
                        \verb|min::|\MINKEY{reverse\_attr\_info\_vec\_type}
 \LABEL{MIN::REVERSE_ATTR_INFO_VEC_TYPE} \\
-\verb|typedef | & \verb|min::reverse_attr_info_vec::ptr| \ARGBREAK
+\verb|typedef | & \verb|min::reverse_attr_info_vec::ptr|\ARGBREAK
                        \verb|min::|\MINKEY{reverse\_attr\_info\_ptr}
 \LABEL{MIN::REVERSE_ATTR_INFO_PTR} \\
 \verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
@@ -6312,7 +6312,8 @@ TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
 \newcommand{\BRACKETED}[1]{{\tt \LESSTHAN #1\GREATERTHAN}}
 \newcommand{\SARG}{\BRACKETED{S}}
-\newcommand{\HEARG}{\BRACKETED{H,E}}
+\newcommand{\EHARG}{\BRACKETED{E,H}}
+\newcommand{\EARG}{\BRACKETED{E,H = min::packed\_vec\_header}}
 
 A \key{packed structure} is a C `struct' stored in a body.
 
@@ -6359,7 +6360,7 @@ named \verb|pstype| use
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG} \verb|pstype| \ARGBREAK
+	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
@@ -6480,7 +6481,7 @@ a packed structure have the usage:
 	  \verb| ( void )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt \SARG} \ARGBREAK
+	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
 	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
 \LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
@@ -6499,10 +6500,10 @@ a packed structure have the usage:
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const * S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+\verb|const * S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|const & S | & \TTKEY{operator *} \ARGBREAK
+\verb|const & S | & \TTKEY{operator *}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{tabular}\end{indpar}
@@ -6512,7 +6513,7 @@ a packed structure have the usage:
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
@@ -6520,7 +6521,7 @@ a packed structure have the usage:
 	               \verb|( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt \SARG} \ARGBREAK
+	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
 	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
@@ -6539,10 +6540,10 @@ a packed structure have the usage:
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
-\verb|* S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+\verb|* S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|& S | & \TTKEY{operator *} \ARGBREAK
+\verb|& S | & \TTKEY{operator *}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
 \verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
@@ -6669,9 +6670,9 @@ it can be a numeric or pointer type or \verb|min::gen|.
 
 There are also three pointer-to-packed-vector types:
 \begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
-\verb|min::packed_vec_ptr<H,E>| & \verb|min::packed_vec<H,E>::ptr| \\
-\verb|min::packed_vec_updptr<H,E>| & \verb|min::packed_vec<H,E>::updptr| \\
-\verb|min::packed_vec_insptr<H,E>| & \verb|min::packed_vec<H,E>::insptr|
+\verb|min::packed_vec_ptr<E,H>| & \verb|min::packed_vec<E,H>::ptr| \\
+\verb|min::packed_vec_updptr<E,H>| & \verb|min::packed_vec<E,H>::updptr| \\
+\verb|min::packed_vec_insptr<E,H>| & \verb|min::packed_vec<E,H>::insptr|
 \end{tabular}\end{indpar}
 where \verb|H| is the C type of the packed vector header struct and
 \verb|E| is the C type of the packed vector element.
@@ -6689,7 +6690,7 @@ Pointers of these types can also be included as members in C packed structures
 and packed vector headers and elements.
 
 A packed vector type is described at run-time by a
-{\tt min::packed\_\EOL vec\HEARG} C++ static object, where
+{\tt min::packed\_\EOL vec\EHARG} C++ static object, where
 \verb|H| is the C type of the packed vector header and \verb|E| is the C type
 of the packed vector element.
 The {\tt new\_gen} and {\tt new\_stub}
@@ -6700,12 +6701,19 @@ More explicitly, to create a new type of \key{packed vector}
 named \verb|pvtype| use
 
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{packed\_vec\_header}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::uns32 type;|\ARGBREAK
+    \verb|  const min::uns32 length;|\ARGBREAK
+    \verb|  const min::uns32 max_length;|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::PACKED_VEC_HEADER} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG} \verb|pvtype| \ARGBREAK
+	& \MINKEY{packed\_vec\EARG} \verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_ptr_disp| \ARGBREAK
-	  \verb|                            = NULL,| \ARGBREAK
+	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
 \LABEL{MIN::PACKED_VEC} \\
@@ -6714,12 +6722,21 @@ named \verb|pvtype| use
 \verb|min::gen |
 	& \verb|pvtype.|\TTKEY{new\_gen} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_GEN_VOID} \\
+\verb|const min::stub * |
+	& \verb|pvtype.|\TTKEY{new\_stub} \verb|( void )|
+\LABEL{PACKED_VEC_NEW_STUB_VOID} \\
 \verb|min::gen |
-	& \verb|pvtype.|\TTKEY{new\_gen} \ARGBREAK
-	  \verb| ( min::uns32 max_length,| \ARGBREAK
-	  \verb|   min::uns32 length = 0,| \ARGBREAK
+	& \verb|pvtype.|\TTKEY{new\_gen}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
 	  \verb|   const E * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
+\verb|const min::stub * |
+	& \verb|pvtype.|\TTKEY{new\_stub}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
+	  \verb|   const E * vp = NULL )|
+\LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char * const |
@@ -6762,6 +6779,14 @@ where
                \addtolength{\leftmargin}{+0.2in}
                \renewcommand{\makelabel}[1]{#1\hfill}}
 
+\item[{\tt E}]\label{PACKED_VEC_ELEMENT_TYPE}
+The C type of the elements in the vector part of the
+bodies of packed vectors of the type being
+declared.  This need not be a \verb|struct| type; it can
+be \verb|min::gen|, \verb|min::stub *|,
+any pointer-to-packed-struct or pointer-to-packed-vector
+type, or any numeric type.
+
 \item[{\tt H}]\label{PACKED_VEC_HEADER_TYPE}
 The C \verb|struct| type of the header data at the beginning of the
 bodies of packed vectors of the type being
@@ -6774,16 +6799,15 @@ and the \verb|struct| type must also have the two members
 \verb|const min::uns32 length;| \\
 \verb|const min::uns32 max_length;|
 \end{indpar}
-These members are initialized by \verb|new_gen| and must not
+These members are initialized by \verb|new_gen| or \verb|new_stub|
+and must not
 be changed by the user.
 
-\item[{\tt E}]\label{PACKED_VEC_ELEMENT_TYPE}
-The C type of the elements in the vector part of the
-bodies of packed vectors of the type being
-declared.  This need not be a \verb|struct| type; it can
-be \verb|min::gen|, \verb|min::stub *|,
-any pointer-to-packed-struct or pointer-to-packed-vector
-type, or any numeric type.
+\verb|H| defaults to \verb|min::packed_vec_header| which
+has just the require header members: \verb|type|, \verb|length|, and
+{\tt max\_\EOL length}.  Because of this default,
+\verb|H| is the \underline{second} template parameter,
+even though is preceeds the vector elements in memory.
 
 \item[\ttmkey{name}{in {\tt min::packed\_vec}}]
 A name unique to the \verb|pvtype| datum, typically the
@@ -6832,7 +6856,8 @@ may be set by the user:
 
 \item[\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
 The maximum length of a packed vector newly created by calling the
-\verb|pvtype.new_gen| function with no arguments.  Defaults to \verb|1000|.
+\verb|pvtype.new_gen| or \verb|pvtype.new_stub|
+function with no arguments.  Defaults to \verb|1000|.
 
 \item[\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
 The \verb|min::reserve| function multiplies the old maximum length by
@@ -6846,20 +6871,23 @@ The maximum increment of the maximum length computable by the
 
 \end{list}
 
-The \verb|pvtype.new_gen| function creates a new packed vector
+The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
+function creates a new packed vector
 datum of the C type described by \verb|pvtype| and returns a
-\verb|min::gen| value pointing at it.  A packed vector has a
+\verb|min::gen| or \verb|const min::stub *|
+value pointing at it.  A packed vector has a
 \mkey{length}{of packed vector} which is the number of elements
 currently in the packed vector.  It also has a
 \mkey{maximum length}{of packed vector} which is the maximum length
 allowed before the packed vector must be reallocated.
-The \verb|pvtype.new_gen| function may be given the maximum length
+The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
+function may be given the maximum length
 and length and a vector of length type \verb|E| elements that is copied
 to the initial value of the packed vector.
 If the vector \verb|vp| of initial elements is given as \verb|NULL|,
 the initial elements will be zeros.
 If no parameters are given to
-\verb|pvtype.new_gen|,
+\verb|pvtype.new_gen| or \verb|pvtype.new_stub|,
 the length defaults to \verb|0| and
 the maximum length defaults to {\tt pvtype.initial\_\EOL max\_\EOL length}.
 
@@ -6868,39 +6896,39 @@ a packed vector, and these have the usage:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\HEARG} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\HEARG} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\HEARG} \verb|pvp|
-	               \verb|( void )|
+	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	  \verb| ( void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_ptr|{\tt \HEARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\HEARG::ptr}
+	& \verb|min::packed_vec_ptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::ptr}
 \LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{@{}l}
- \verb|min::packed_vec_ptr<H,E> & |
+ \verb|min::packed_vec_ptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_ptr<H,E> & pvp, min::gen v )|
+	  \verb| ( min::packed_vec_ptr<E,H> & pvp, min::gen v )|
 \LABEL{MIN::=_PACKED_VEC_PTR_OF_GEN} \\
-\verb|min::packed_vec_ptr<H,E> & |
+\verb|min::packed_vec_ptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_ptr<H,E> & pvp, const min::stub * s )|
+	  \verb| ( min::packed_vec_ptr<E,H> & pvp, const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 	& {\tt \bf operator const min::stub *}%
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::packed_vec_ptr<H,E> & pvp )|
+          \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|const H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( const min::packed_vec_ptr<H,E> & pvp )|
+\verb|const H * | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
 \verb|const min::uns32 | & \verb|pvp->length|
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
@@ -6911,39 +6939,39 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\HEARG} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\HEARG} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\HEARG} \verb|pvup| \ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_updptr|{\tt \HEARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\HEARG::updptr}
+	& \verb|min::packed_vec_updptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::updptr}
 \LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{@{}l}
- \verb|min::packed_vec_updptr<H,E> & |
+ \verb|min::packed_vec_updptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_updptr<H,E> & pvup, min::gen v )|
+	  \verb| ( min::packed_vec_updptr<E,H> & pvup, min::gen v )|
 \LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_GEN} \\
-\verb|min::packed_vec_updptr<H,E> & |
+\verb|min::packed_vec_updptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_updptr<H,E> & pvup, const min::stub * s )|
+	  \verb| ( min::packed_vec_updptr<E,H> & pvup, const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 	& {\tt \bf operator const min::stub *}%
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::packed_vec_updptr<H,E> & pvup )|
+          \verb| ( const min::packed_vec_updptr<E,H> & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_TO_MIN_STUB} \\
-\verb|H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( const min::packed_vec_updptr<H,E>|\ARGBREAK
+\verb|H * | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
 	  \verb|      & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
 \verb|const min::uns32 | & \verb|pvup->length|
@@ -6955,39 +6983,39 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\HEARG} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\HEARG} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\HEARG} \verb|pvip| \ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_insptr|{\tt \HEARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\HEARG::insptr}
+	& \verb|min::packed_vec_insptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::insptr}
 \LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{@{}l}
-\verb|min::packed_vec_insptr<H,E> & |
+\verb|min::packed_vec_insptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_insptr<H,E> & pvup, min::gen v )|
+	  \verb| ( min::packed_vec_insptr<E,H> & pvup, min::gen v )|
 \LABEL{MIN::=_PACKED_VEC_INSPTR_OF_GEN} \\
-\verb|min::packed_vec_insptr<H,E> & |
+\verb|min::packed_vec_insptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_insptr<H,E> & pvup, const min::stub * s )|
+	  \verb| ( min::packed_vec_insptr<E,H> & pvup, const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 	& {\tt \bf operator const min::stub *}%
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::packed_vec_insptr<H,E> & pvip )|
+          \verb| ( const min::packed_vec_insptr<E,H> & pvip )|
 \LABEL{MIN::PACKED_VEC_INSPTR_TO_MIN_STUB} \\
-\verb|H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( const min::packed_vec_insptr<H,E>|\ARGBREAK
+\verb|H * | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+	  \verb| ( const min::packed_vec_insptr<E,H>|\ARGBREAK
 	  \verb|      & pvip )|
 \LABEL{MIN::PACKED_VEC_INSPTR_->} \\
 \verb|const min::uns32 | & \verb|pvip->length|
@@ -7001,36 +7029,36 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
-	& \MINKEY{push} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   const E & v )|
 \LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|void min::|
-	& \MINKEY{push} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, const E * vp )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|E min::|
-	& \MINKEY{pop} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip )|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip )|
 \LABEL{MIN::PACKED_VEC_POP} \\
 \verb|void min::|
-	& \MINKEY{pop} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, E * vp )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
-	& \MINKEY{resize} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{resize}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 max_length )|
 \LABEL{MIN::PACKED_VEC_RESIZE} \\
 \verb|void min::|
-	& \MINKEY{reserve} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{reserve}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 reserve_length )|
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
 \end{tabular}\end{indpar}
@@ -9028,7 +9056,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG} \verb|pstype| \ARGBREAK
+	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
@@ -9079,7 +9107,7 @@ These are in \verb|min_parameters.h|.
 	  \verb| ( void )|
 \LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt \SARG} \ARGBREAK
+	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
 	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
 \LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{TABULAR}
@@ -9100,29 +9128,29 @@ These are in \verb|min_parameters.h|.
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const * S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+\verb|const * S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|const & S | & \TTKEY{operator *} \ARGBREAK
+\verb|const & S | & \TTKEY{operator *}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup| \ARGBREAK
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
 	               \verb| ( void )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt \SARG} \ARGBREAK
+	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
 	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
@@ -9143,10 +9171,10 @@ These are in \verb|min_parameters.h|.
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
-\verb|* S | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
+\verb|* S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|& S | & \TTKEY{operator *} \ARGBREAK
+\verb|& S | & \TTKEY{operator *}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
 \end{TABULAR}
@@ -9165,27 +9193,43 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.4in}
+\verb|struct min::| & \MINKEY{packed\_vec\_header}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::uns32 type;|\ARGBREAK
+    \verb|  const min::uns32 length;|\ARGBREAK
+    \verb|  const min::uns32 max_length;|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::PACKED_VEC_HEADER} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\HEARG} \verb|pvtype| \ARGBREAK
+	& \MINKEY{packed\_vec\EARG} \verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_ptr_disp| \ARGBREAK
-	  \verb|                            = NULL,| \ARGBREAK
+	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
 \LABEL{MIN::PACKED_VEC} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.4in}
+\begin{TABULAR}{1.8in}
 \verb|min::gen |
 	& \verb|pvtype.|\TTKEY{new\_gen} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_GEN_VOID} \\
+\verb|const min::stub * |
+	& \verb|pvtype.|\TTKEY{new\_stub} \verb|( void )|
+\LABEL{PACKED_VEC_NEW_STUB_VOID} \\
 \verb|min::gen |
-	& \verb|pvtype.|\TTKEY{new\_gen} \ARGBREAK
-	  \verb| ( min::uns32 max_length,| \ARGBREAK
-	  \verb|   min::uns32 length = 0,| \ARGBREAK
+	& \verb|pvtype.|\TTKEY{new\_gen}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
 	  \verb|   const E * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
+\verb|const min::stub * |
+	& \verb|pvtype.|\TTKEY{new\_stub}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
+	  \verb|   const E * vp = NULL )|
+\LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
@@ -9225,43 +9269,43 @@ These are in \verb|min_parameters.h|.
 \LABEL{PACKED_VEC_MAX_INCREMENT} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\HEARG} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\HEARG} \verb|pvp| \ARGBREAK
+	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\HEARG} \verb|pvp|
-	               \verb|( void )|
+	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	  \verb| ( void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_ptr|{\tt \HEARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\HEARG::ptr}
+	& \verb|min::packed_vec_ptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::ptr}
 \LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{LONGTABULAR}
- \verb|min::packed_vec_ptr<H,E> & |
+ \verb|min::packed_vec_ptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_ptr<H,E> & pvp, min::gen v )|
+	  \verb| ( min::packed_vec_ptr<E,H> & pvp, min::gen v )|
 \LABEL{MIN::=_PACKED_VEC_PTR_OF_GEN} \\
-\verb|min::packed_vec_ptr<H,E> & |
+\verb|min::packed_vec_ptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_ptr<H,E> & pvp, const min::stub * s )|
+	  \verb| ( min::packed_vec_ptr<E,H> & pvp, const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_PTR_OF_STUB} \\
 \end{LONGTABULAR}
 
 \begin{TABULAR}{1.6in}
 	& {\tt \bf operator const min::stub *}%
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::packed_vec_ptr<H,E> & pvp )|
+          \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|const H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( const min::packed_vec_ptr<H,E> & pvp )|
+\verb|const H * | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
 \verb|const min::uns32 | & \verb|pvp->length|
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
@@ -9271,43 +9315,43 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\HEARG} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\HEARG} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\HEARG} \verb|pvup| \ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_updptr|{\tt \HEARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\HEARG::updptr}
+	& \verb|min::packed_vec_updptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::updptr}
 \LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{LONGTABULAR}
- \verb|min::packed_vec_updptr<H,E> & |
+ \verb|min::packed_vec_updptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_updptr<H,E> & pvup, min::gen v )|
+	  \verb| ( min::packed_vec_updptr<E,H> & pvup, min::gen v )|
 \LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_GEN} \\
-\verb|min::packed_vec_updptr<H,E> & |
+\verb|min::packed_vec_updptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_updptr<H,E> & pvup, const min::stub * s )|
+	  \verb| ( min::packed_vec_updptr<E,H> & pvup, const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
 \end{LONGTABULAR}
 
 \begin{TABULAR}{0.6in}
 	& {\tt \bf operator const min::stub *}%
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::packed_vec_updptr<H,E> & pvup )|
+          \verb| ( const min::packed_vec_updptr<E,H> & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_TO_MIN_STUB} \\
-\verb|H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( const min::packed_vec_updptr<H,E> & pvup )|
+\verb|H * | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+	  \verb| ( const min::packed_vec_updptr<E,H> & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
 \end{TABULAR}
 
@@ -9320,43 +9364,43 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\HEARG} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\HEARG} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\HEARG} \verb|pvip| \ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
 \verb|typedef |
-	& \verb|min::packed_vec_insptr|{\tt \HEARG} \ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\HEARG::insptr}
+	& \verb|min::packed_vec_insptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::insptr}
 \LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
 \end{TABULAR}
 
 \begin{LONGTABULAR}
-\verb|min::packed_vec_insptr<H,E> & |
+\verb|min::packed_vec_insptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_insptr<H,E> & pvup, min::gen v )|
+	  \verb| ( min::packed_vec_insptr<E,H> & pvup, min::gen v )|
 \LABEL{MIN::=_PACKED_VEC_INSPTR_OF_GEN} \\
-\verb|min::packed_vec_insptr<H,E> & |
+\verb|min::packed_vec_insptr<E,H> & |
 	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_vec_insptr<H,E> & pvup, const min::stub * s )|
+	  \verb| ( min::packed_vec_insptr<E,H> & pvup, const min::stub * s )|
 \LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
 \end{LONGTABULAR}
 
 \begin{TABULAR}{0.6in}
 	& {\tt \bf operator const min::stub *}%
 	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::packed_vec_insptr<H,E> & pvip )|
+          \verb| ( const min::packed_vec_insptr<E,H> & pvip )|
 \LABEL{MIN::PACKED_VEC_INSPTR_TO_MIN_STUB} \\
-\verb|H * | & \TTKEY{operator -\GREATERTHAN} \ARGBREAK
-	  \verb| ( const min::packed_vec_insptr<H,E> & pvip )|
+\verb|H * | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+	  \verb| ( const min::packed_vec_insptr<E,H> & pvip )|
 \LABEL{MIN::PACKED_VEC_INSPTR_->} \\
 \end{TABULAR}
 
@@ -9373,38 +9417,38 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.6in}
 \verb|void min::|
-	& \MINKEY{push} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   const E & v )|
 \LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|void min::|
-	& \MINKEY{push} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, const E * vp )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 \verb|E min::|
-	& \MINKEY{pop} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip )|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip )|
 \LABEL{MIN::PACKED_VEC_POP} \\
 \verb|void min::|
-	& \MINKEY{pop} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, E * vp )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 \verb|void min::|
-	& \MINKEY{resize} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{resize}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 max_length )|
 \LABEL{MIN::PACKED_VEC_RESIZE} \\
 \verb|void min::|
-	& \MINKEY{reserve} \ARGBREAK
-	  \verb| ( packed_vec_insptr<H,E> pvip,| \ARGBREAK
+	& \MINKEY{reserve}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 reserve_length )|
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
 \end{TABULAR}
