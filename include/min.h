@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 24 09:31:27 EST 2010
+// Date:	Thu Dec 30 07:59:43 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3953,7 +3953,7 @@ namespace min {
 		  max_increment ( 1000 ) {}
 	};
 
-	template < typename H, typename E >
+	template < typename E, typename H >
 	class packed_vec_ptr_base
 	{
 	public:
@@ -4031,21 +4031,29 @@ namespace min {
 	      min::uns32 max_length );
     }
 
-    template < typename H, typename E >
+    struct packed_vec_header
+    {
+        const min::uns32 type;
+        const min::uns32 length;
+        const min::uns32 max_length;
+    };
+
+    template < typename E,
+               typename H = packed_vec_header >
     class packed_vec_ptr
-	: public internal::packed_vec_ptr_base<H,E>
+	: public internal::packed_vec_ptr_base<E,H>
     {
 
     public:
 
 	packed_vec_ptr ( min::gen v )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    ( v ) {}
 	packed_vec_ptr ( const min::stub * s )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    ( s ) {}
 	packed_vec_ptr ( void )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    () {}
 
 	const H * operator -> ( void ) const
@@ -4062,7 +4070,7 @@ namespace min {
 	    return * (const E *)
 		( (min::uns8 *) hp
 		  +
-		  internal::packed_vec_ptr_base<H,E>
+		  internal::packed_vec_ptr_base<E,H>
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
@@ -4072,7 +4080,7 @@ namespace min {
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal::packed_vec_ptr_base<H,E>
+		internal::packed_vec_ptr_base<E,H>
 		    ( s );
 	    return * this;
 	}
@@ -4081,7 +4089,7 @@ namespace min {
 		( min::gen v )
 	{
 	    new ( this )
-		internal::packed_vec_ptr_base<H,E>
+		internal::packed_vec_ptr_base<E,H>
 		    ( v );
 	    return * this;
 	}
@@ -4092,30 +4100,31 @@ namespace min {
 	}
     };
 
-    template < typename S, typename H, typename E >
+    template < typename S, typename E, typename H >
     min::uns32 DISP
-	    ( packed_vec_ptr<H,E> S::* d )
+	    ( packed_vec_ptr<E,H> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_ptr<H,E>::DISP();
+	       + packed_vec_ptr<E,H>::DISP();
     }
 
-    template < typename H, typename E >
+    template < typename E,
+               typename H = packed_vec_header >
     class packed_vec_updptr
-	: public internal::packed_vec_ptr_base<H,E>
+	: public internal::packed_vec_ptr_base<E,H>
     {
 
     public:
 
 	packed_vec_updptr ( min::gen v )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    ( v ) {}
 	packed_vec_updptr
 		( const min::stub * s )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    ( s ) {}
 	packed_vec_updptr ( void )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    () {}
 
 	H * operator -> ( void ) const
@@ -4132,7 +4141,7 @@ namespace min {
 	    return * (E *)
 		( (min::uns8 *) hp
 		  +
-		  internal::packed_vec_ptr_base<H,E>
+		  internal::packed_vec_ptr_base<E,H>
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
@@ -4142,7 +4151,7 @@ namespace min {
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal::packed_vec_ptr_base<H,E>
+		internal::packed_vec_ptr_base<E,H>
 		    ( s );
 	    return * this;
 	}
@@ -4151,7 +4160,7 @@ namespace min {
 		( min::gen v )
 	{
 	    new ( this )
-		internal::packed_vec_ptr_base<H,E>
+		internal::packed_vec_ptr_base<E,H>
 		    ( v );
 	    return * this;
 	}
@@ -4163,30 +4172,31 @@ namespace min {
 	}
     };
 
-    template < typename S, typename H, typename E >
+    template < typename S, typename E, typename H >
     min::uns32 DISP
-	    ( packed_vec_updptr<H,E> S::* d )
+	    ( packed_vec_updptr<E,H> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_updptr<H,E>::DISP();
+	       + packed_vec_updptr<E,H>::DISP();
     }
 
-    template < typename H, typename E >
+    template < typename E,
+               typename H = packed_vec_header >
     class packed_vec_insptr
-	: public internal::packed_vec_ptr_base<H,E>
+	: public internal::packed_vec_ptr_base<E,H>
     {
 
     public:
 
 	packed_vec_insptr ( min::gen v )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    ( v ) {}
 	packed_vec_insptr
 		( const min::stub * s )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    ( s ) {}
 	packed_vec_insptr ( void )
-	    : internal::packed_vec_ptr_base<H,E>
+	    : internal::packed_vec_ptr_base<E,H>
 	    () {}
 
 	H * operator -> ( void ) const
@@ -4203,7 +4213,7 @@ namespace min {
 	    return * (E *)
 		( (min::uns8 *) hp
 		  +
-		  internal::packed_vec_ptr_base<H,E>
+		  internal::packed_vec_ptr_base<E,H>
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
@@ -4213,7 +4223,7 @@ namespace min {
 		( const min::stub * s )
 	{
 	    new ( this )
-		internal::packed_vec_ptr_base<H,E>
+		internal::packed_vec_ptr_base<E,H>
 		    ( s );
 	    return * this;
 	}
@@ -4222,7 +4232,7 @@ namespace min {
 		( min::gen v )
 	{
 	    new ( this )
-		internal::packed_vec_ptr_base<H,E>
+		internal::packed_vec_ptr_base<E,H>
 		    ( v );
 	    return * this;
 	}
@@ -4241,15 +4251,16 @@ namespace min {
 	}
     };
 
-    template < typename S, typename H, typename E >
+    template < typename S, typename E, typename H >
     min::uns32 DISP
-	    ( packed_vec_insptr<H,E> S::* d )
+	    ( packed_vec_insptr<E,H> S::* d )
     {
 	return   OFFSETOF ( d )
-	       + packed_vec_insptr<H,E>::DISP();
+	       + packed_vec_insptr<E,H>::DISP();
     }
 
-    template < typename H, typename E >
+    template < typename E,
+               typename H = packed_vec_header >
     class packed_vec
 	: public internal::packed_vec_descriptor
     {
@@ -4338,19 +4349,19 @@ namespace min {
 	// compiler error.
 	//
 	typedef typename
-	        min::packed_vec_ptr<H,E> ptr;
+	        min::packed_vec_ptr<E,H> ptr;
 	typedef typename
-	        min::packed_vec_updptr<H,E> updptr;
+	        min::packed_vec_updptr<E,H> updptr;
 	typedef typename
-	        min::packed_vec_insptr<H,E> insptr;
+	        min::packed_vec_insptr<E,H> insptr;
 
 	static bool id;
 	    // & id acts as a unique identifier of the
-	    // type min::packed_vec<H,E>.
+	    // type min::packed_vec<E,H>.
     };
 
-    template < typename H, typename E >
-    internal::packed_vec_ptr_base<H,E>
+    template < typename E, typename H >
+    internal::packed_vec_ptr_base<E,H>
             ::packed_vec_ptr_base
 	    ( const min::stub * s ) : s ( s )
     {
@@ -4360,14 +4371,14 @@ namespace min {
 	    packed_vec_descriptor * pvdescriptor =
 		(packed_vec_descriptor *)
 		(*packed_types)[t];
-	    void * id = & packed_vec<H,E>::id;
+	    void * id = & packed_vec<E,H>::id;
 	    MIN_ASSERT ( pvdescriptor->id == id );
 	}
     }
 
-    template < typename H, typename E >
+    template < typename E, typename H >
     inline void push
-	( typename min::packed_vec_insptr<H,E> & pvip,
+	( typename min::packed_vec_insptr<E,H> & pvip,
 	  const E & v )
     {
 	if ( pvip->length >= pvip->max_length )
@@ -4375,9 +4386,9 @@ namespace min {
 	* (E *) pvip.end_ptr() = v;
 	++ * (min::uns32 *) & pvip->length;
     }
-    template < typename H, typename E >
+    template < typename E, typename H >
     inline void push
-	( typename min::packed_vec_insptr<H,E> & pvip,
+	( typename min::packed_vec_insptr<E,H> & pvip,
 	  min::uns32 n,
 	  const E * vp )
     {
@@ -4392,17 +4403,17 @@ namespace min {
 		     0, n * sizeof ( E ) );
 	* (min::uns32 *) & pvip->length += n;
     }
-    template < typename H, typename E >
+    template < typename E, typename H >
     inline E pop
-	( typename min::packed_vec_insptr<H,E> & pvip )
+	( typename min::packed_vec_insptr<E,H> & pvip )
     {
 	assert ( pvip->length > 0 );
 	-- * (min::uns32 *) & pvip->length;
 	return * pvip.end_ptr();
     }
-    template < typename H, typename E >
+    template < typename E, typename H >
     inline void pop
-	( typename min::packed_vec_insptr<H,E> & pvip,
+	( typename min::packed_vec_insptr<E,H> & pvip,
 	  min::uns32 n,
 	  E * vp )
     {
@@ -4414,18 +4425,18 @@ namespace min {
 		     n * sizeof ( E ) );
     }
 
-    template < typename H, typename E >
+    template < typename E, typename H >
     inline void resize
-	( typename min::packed_vec_insptr<H,E> & pvip,
+	( typename min::packed_vec_insptr<E,H> & pvip,
 	  min::uns32 max_length )
     {
 	pvip.resize ( max_length );
     }
 
-    template < typename H, typename E >
+    template < typename E, typename H >
     inline void reserve
 	( typename
-	  min::packed_vec_insptr<H,E> & pvip,
+	  min::packed_vec_insptr<E,H> & pvip,
 	  min::uns32 reserve_length )
     {
 	if (   pvip->length + reserve_length
@@ -4433,8 +4444,8 @@ namespace min {
 	    pvip.reserve ( reserve_length );
     }
 
-    template < typename H, typename E >
-    void packed_vec_insptr<H,E>::reserve
+    template < typename E, typename H >
+    void packed_vec_insptr<E,H>::reserve
 	    ( min::uns32 reserve_length )
     {
         H * hp = (H *) unprotected::ptr_of ( this->s );
@@ -4466,11 +4477,11 @@ namespace min {
 // included in every compilation that might instantiate
 // them.
 
-template < typename H, typename E >
-bool min::packed_vec<H,E>::id;
+template < typename E, typename H >
+bool min::packed_vec<E,H>::id;
 
-template < typename H, typename E >
-min::packed_vec<H,E>::packed_vec
+template < typename E, typename H >
+min::packed_vec<E,H>::packed_vec
     ( const char * name,
       const min::uns32 * element_gen_disp,
       const min::uns32 * element_stub_ptr_disp,
@@ -7006,17 +7017,9 @@ namespace min {
         min::gen    name;
 	min::unsptr value_count;
     };
-    struct attr_info_header
-    {
-	const min::uns32 type;
-	const min::uns32 length;
-	const min::uns32 max_length;
-    };
-    typedef min::packed_vec
-	    <attr_info_header,attr_info>
+    typedef min::packed_vec<attr_info>
 	    attr_info_vec;
-    typedef min::packed_vec
-	    <attr_info_header,reverse_attr_info>
+    typedef min::packed_vec<reverse_attr_info>
 	    reverse_attr_info_vec;
     extern attr_info_vec attr_info_vec_type;
     extern reverse_attr_info_vec
