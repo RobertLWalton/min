@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 10:49:31 EST 2010
+// Date:	Fri Dec 31 01:52:53 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1698,7 +1698,7 @@ void MINT::packed_vec_resize
         ( const min::stub * s,
 	  min::uns32 max_length )
 {
-    min::uns32 t = packed_vec_subtype_of ( s );
+    min::uns32 t = MINT::packed_subtype_of ( s );
     packed_vec_descriptor * pvdescriptor =
 	(packed_vec_descriptor *)
 	(*packed_subtypes)[t];
