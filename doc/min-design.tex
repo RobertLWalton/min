@@ -7102,15 +7102,14 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
+\verb|E & min::|
 	& \MINKEY{push}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   const E & v )|
+	  \verb| ( packed_vec_insptr<E,H> pvip )|
 \LABEL{MIN::PACKED_VEC_PUSH} \\
-\verb|void min::|
+\verb|E & min::|
 	& \MINKEY{push}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, const E * vp )|
+	  \verb|   min::uns32 n, const E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -7121,7 +7120,7 @@ a packed vector, and these have the usage:
 \verb|void min::|
 	& \MINKEY{pop}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, E * vp )|
+	  \verb|   min::uns32 n, E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -7166,7 +7165,7 @@ memcpy ( & pvup[0], ..., sizeof ( E ) * pvp->length );
 
 \verb|pvp.end_ptr()| is the same as `\verb|& pvp[pvp->length]|'
 except the latter would fail because the index is not less than
-\verb|pvp->length|.  This member function is useful on rare occassions
+\verb|pvp->length|.  This member function is only useful
 in code that does not call a relocating function.
 
 Insertable packed vector pointers permit the current length and maximum
@@ -7185,11 +7184,31 @@ to the end of the packed vector
 by incrementing the current vector length, and if this would
 exceed the maximum length, first calls the \verb|min::reserve| function
 with the number of elements to be pushed.
-A single element \verb|v|
-or a vector \verb|vp| of \verb|n| elements may be pushed.  In the
-latter case new elements are placed within the packed vector in the same
+The single argument {\tt min::\EOL push} adds one element to the vector,
+zeros that element, and returns a reference to the element.  The
+intended use is
+\begin{indpar}\begin{verbatim}
+push(pvip) = v;
+\end{verbatim}\end{indpar}
+where \verb|v| is the element to be added to the vector.
+The two or three argument {\tt min::\EOL push} adds {\tt n}
+elements to the vector, and fills the new elements from {\tt vp}
+if that is not {\tt NULL}, or with zeros otherwise.
+If \verb|vp| is not \verb|NULL|,
+new elements are placed within the packed vector in the same
 memory order as they appear in the \verb|vp| vector.
-Also, if \verb|vp| is \verb|NULL|, \verb|n| zeros are pushed.
+In any case a reference to the first element pushed is
+returned (this is \verb|(E *) NULL| if \verb|n == 0|),
+so
+\begin{indpar}\begin{verbatim}
+E * p = & push(pvip,n);
+\end{verbatim}\end{indpar}
+can be used to obtain a pointer \verb|p| to the \verb|n| element
+vector of new elements within the packed vector.  This pointer
+becomes invalid, of course, when a relocating function is called.
+Note that the index of the first element pushed is always the
+value of \verb|pvip->|\EOL {\tt length} just before
+{\tt min::\EOL push} is called.
 
 The \verb|min::pop| function removes elements from the end of the
 packed vector, decrementing the current vector length (which is checked
@@ -9516,15 +9535,14 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
-\verb|void min::|
+\verb|E & min::|
 	& \MINKEY{push}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   const E & v )|
+	  \verb| ( packed_vec_insptr<E,H> pvip )|
 \LABEL{MIN::PACKED_VEC_PUSH} \\
-\verb|void min::|
+\verb|E & min::|
 	& \MINKEY{push}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, const E * vp )|
+	  \verb|   min::uns32 n, const E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{TABULAR}
 
@@ -9536,7 +9554,7 @@ These are in \verb|min_parameters.h|.
 \verb|void min::|
 	& \MINKEY{pop}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, E * vp )|
+	  \verb|   min::uns32 n, E * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_POP_N} \\
 \end{TABULAR}
 
