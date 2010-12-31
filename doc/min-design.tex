@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 30, 2010}
+\date{December 31, 2010}
  
 \maketitle
 
@@ -6323,9 +6323,9 @@ initializable by setting all bytes to zero and copiable
 by \verb|memcpy|.
 Its \underline{first} member must be
 \begin{center}
-\verb|const min::uns32 type;|
+\verb|const min::uns32 control;|
 \end{center}
-This first member holds type information and flags.
+This first member holds subtype information and flags.
 \verb|min::gen| and \verb|min::stub *| values are permitted as members
 of the \verb|struct|.
 C++ classes are not permitted, as member types must \underline{not}
@@ -6377,6 +6377,9 @@ named \verb|pstype| use
 \verb|const min::stub * |
 	& \verb|pstype.|\TTKEY{new\_stub} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_STUB} \\
+\verb|min::uns32 |
+	& \verb|pstype.|\TTMKEY{subtype}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_SUBTYPE} \\
 \verb|const char * const |
 	& \verb|pstype.|\TTMKEY{name}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_NAME} \\
@@ -6408,6 +6411,13 @@ This member holds a code effectively
 points at \verb|pstype|, and also holds some flags.
 This member is initialized by \verb|new_gen| and must not
 be changed by the user.
+
+\item[\ttmkey{subtype}{in {\tt min::packed\_struct}}]
+A small integer automatically assigned to uniquely identify \verb|pstype|.
+This is stored in the `{\tt control}' member of all packed
+structures created by {\tt pstype.new\_\EOL gen} or
+{\tt pstype.new\_\EOL stub}, and serves as a pointer from any
+of these packed structures to \verb|pstype|.
 
 \item[\ttmkey{name}{in {\tt min::packed\_struct}}]
 A name unique to the \verb|pstype| datum, typically the
@@ -6449,7 +6459,8 @@ The \verb|pstype.new_gen| or \verb|pstype.new_stub|
 functions create a new packed structure
 datum of the C type described by \verb|pstype| and returns a
 \verb|min::gen| or {\tt const min::\EOL stub~*} value pointing at it.
-The new packed structure is set to all zeros.
+The new packed structure is set to all zeros, except for its
+`\verb|control|' member.
 
 The function call {\tt min::\EOL DISP~(~\&~S::m~)} will return the
 displacement in bytes of the member \verb|m| of a structure
@@ -6459,10 +6470,32 @@ they are not.  The type of the \verb|S::m| member must be one of
 the types mentioned above: \verb|min::gen|, `{\tt const min::stub~*}',
 {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}, etc.
 
-\verb|pstype.name|, {\tt pstype.gen\_\EOL disp},
+\verb|pstype.subtype|, \verb|pstype.name|,
+{\tt pstype.gen\_\EOL disp},
 and {\tt pstype.stub\_\EOL ptr\_\EOL disp}
-can be used to retrieve the name and displacement
+can be used to retrieve the subtype, name, and displacement
 information associated with \verb|pstype|.
+
+The subtype of a packed structure can be retrieved by
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{PACKED_STRUCT_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+when the argument is a value returned by
+{\tt pstype.new\_\EOL gen} or {\tt pstype.new\_\EOL stub}.
+Here the subtype is computed by looking in the
+`{\tt control}' member of the packed structure.  Packed vectors
+also have subtypes that can be discovered by
+{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
+(see \pagref{PACKED_VEC_SUBTYPE_OF_GEN}),
+but no packed structure
+has the same subtype as any packed vector.
 
 The two kinds of pointers that can be used to access
 a packed structure have the usage:
@@ -6599,7 +6632,7 @@ typedef min::packed_struct_updptr<ps> psupdptr;
     // Note: pointers can be defined before struct is defined.
 
 struct ps {
-    min::uns32 type;
+    min::uns32 control;
     min::uns32 i;
     min::uns32 j;
     min::gen g;
@@ -6619,7 +6652,9 @@ main ( ... )
 {
     . . . . . . .
     min::gen v1 = pstype.new_gen();
+	// min::packed_subtype_of ( v1 ) == pstype.subtype
     psupdptr upv ( v1 );
+	// min::packed_subtype_of ( upv ) == pstype.subtype
     upv->i = 55;
     upv->j = 99;
     upv->g = min::new_str_gen ( "Hello" );
@@ -6636,6 +6671,11 @@ main ( ... )
     . . . . . . .
 }
 \end{verbatim}\end{indpar}
+
+Packed structure pointers do no caching and
+there is \underline{no need} for
+a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
+functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 
 \subsection{Packed Vectors}
 \label{PACKED-VECTORS}
@@ -6656,7 +6696,7 @@ The C type of a packed vector header, like that of a packed structure,
 must be a
 C \verb|struct| whose first member is
 \begin{indpar}
-\verb|const min::uns32 type;|
+\verb|const min::uns32 control;|
 \end{indpar}
 The header must also have the following two other members,
 at no particular offset:
@@ -6740,6 +6780,9 @@ named \verb|pvtype| use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char * const |
+	& \verb|pvtype.|\TTMKEY{subtype}{in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_SUBTYPE} \\
+\verb|const char * const |
 	& \verb|pvtype.|\TTMKEY{name}{in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_NAME} \\
 \verb|const min::uns32 * const |
@@ -6808,6 +6851,13 @@ has just the require header members: \verb|type|, \verb|length|, and
 {\tt max\_\EOL length}.  Because of this default,
 \verb|H| is the \underline{second} template parameter,
 even though is preceeds the vector elements in memory.
+
+\item[\ttmkey{subtype}{in {\tt min::packed\_vec}}]
+A small integer automatically assigned to uniquely identify \verb|pvtype|.
+This is stored in the `{\tt control}' member of all packed
+vectors created by {\tt pvtype.new\_\EOL gen} or
+{\tt pvtype.new\_\EOL stub}, and serves as a pointer from any
+of these packed vectors to \verb|pvtype|.
 
 \item[\ttmkey{name}{in {\tt min::packed\_vec}}]
 A name unique to the \verb|pvtype| datum, typically the
@@ -6890,6 +6940,30 @@ If no parameters are given to
 \verb|pvtype.new_gen| or \verb|pvtype.new_stub|,
 the length defaults to \verb|0| and
 the maximum length defaults to {\tt pvtype.initial\_\EOL max\_\EOL length}.
+
+A newly created packed vector is set to all zeros, except for its
+`{\tt control}', `{\tt length}', and `{\tt max\_\EOL length}' members.
+
+The subtype of a packed vector can be retrieved by
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{PACKED_VEC_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{PACKED_VEC_SUBTYPE_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+when the argument is a value returned by {\tt pvtype.new\_\EOL gen}
+or {\tt pvtype.new\_\EOL stub}.
+Here the subtype is computed by looking in the
+`{\tt control}' member of the packed vector.  Packed structures
+also have subtypes that can be discovered by
+{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
+(see \pagref{PACKED_STRUCT_SUBTYPE_OF_GEN}),
+but no packed vector
+has the same subtype as any packed structure.
 
 There are three kinds of pointers that can be used to access
 a packed vector, and these have the usage:
@@ -7154,7 +7228,7 @@ typedef min::packed_vec_insptr<pvh,pve> pvinsptr;
     //       header and element types are defined.
 
 struct pvh {
-    const min::uns32 type;
+    const min::uns32 control;
           min::uns32 i;
     const min::uns32 length;
     const min::uns32 max_length;
@@ -7178,9 +7252,11 @@ static min::packed_vec<pvh,pve> pvtype
 main ( ... )
 {
     min::gen v = pvtype.new_gen ( 5 );
+        // min::packed_subtype_of ( v ) == pvtype.subtype
     pvinsptr pvip ( v );
         // pvip->max_length == 5
         // pvip->length == 0
+        // min::packed_subtype_of ( pvip ) == pvtype.subtype
     pve e1 = { min::MISSING, NULL, 88 };
     min::push ( pvip, e1 );
     pvptr pvp ( v );
@@ -7210,7 +7286,7 @@ main ( ... )
 }
 \end{verbatim}\end{indpar}
 
-Packed structure and vector pointers do no caching and
+Packed vector pointers do no caching and
 there is \underline{no need} for
 a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
 functions for list pointers (\pagref{LIST-POINTER-CACHE}).
@@ -9080,6 +9156,9 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
+\verb|min::uns32 |
+	& \verb|pstype.|\TTMKEY{subtype}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_SUBTYPE} \\
 \verb|const char * const |
 	& \verb|pstype.|\TTMKEY{name}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_NAME} \\
@@ -9091,6 +9170,15 @@ These are in \verb|min_parameters.h|.
 	& \verb|pstype.|\TTMKEY{stub\_ptr\_disp}
 	                       {in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_STUB_PTR_DISP} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{PACKED_STRUCT_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{PACKED_STRUCT_SUBTYPE_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -9234,6 +9322,9 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.4in}
 \verb|const char * const |
+	& \verb|pvtype.|\TTMKEY{subtype}{in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_SUBTYPE} \\
+\verb|const char * const |
 	& \verb|pvtype.|\TTMKEY{name}{in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_NAME} \\
 \verb|const min::uns32 * const |
@@ -9267,6 +9358,15 @@ These are in \verb|min_parameters.h|.
 	& \verb|pvtype.|\TTMKEY{max\_increment}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_MAX_INCREMENT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{PACKED_VEC_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{PACKED_VEC_SUBTYPE_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}

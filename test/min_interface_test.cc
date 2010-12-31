@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 11:13:45 EST 2010
+// Date:	Fri Dec 31 01:56:07 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1973,7 +1973,11 @@ void test_packed_structs ( void )
     cout << "ps1type.name = " << ps1type.name << endl;
 
     const min::stub * v1 = ps1type.new_stub();
+    MIN_ASSERT (    min::packed_subtype_of ( v1 )
+                 == ps1type.subtype );
     ps1t::updptr upv1 ( v1 );
+    MIN_ASSERT (    min::packed_subtype_of ( upv1 )
+                 == ps1type.subtype );
     cout << "upv1->control = " << upv1->control << endl;
     MIN_ASSERT ( upv1->i == 0 );
     upv1->i = 88;
@@ -2059,7 +2063,11 @@ void test_packed_vectors ( void )
     cout << "pvtype.name = " << pvtype.name << endl;
 
     const min::stub * v = pvtype.new_stub ( 5 );
+    MIN_ASSERT (    min::packed_subtype_of ( v )
+                 == pvtype.subtype );
     pvt::insptr pvip ( v );
+    MIN_ASSERT (    min::packed_subtype_of ( pvip )
+                 == pvtype.subtype );
     MIN_ASSERT ( pvip->max_length == 5 );
     MIN_ASSERT ( pvip->length == 0 );
     pve e1 = { min::MISSING, NULL, 88 };
