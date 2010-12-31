@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 01:41:16 EST 2010
+// Date:	Fri Dec 31 02:33:20 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3562,7 +3562,8 @@ namespace min {
 	    subtype &=
 		internal::packed_control_subtype_mask;
 	    MIN_ASSERT
-		( subtype < internal::packed_subtype_count);
+		(   subtype
+		  < internal::packed_subtype_count);
 	    return subtype;
 	}
 
