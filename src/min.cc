@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 01:52:53 EST 2010
+// Date:	Fri Dec 31 07:41:53 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5506,7 +5506,7 @@ static bool compute_counts
 		info.name = new_label =
 		    min::new_lab_gen
 			  ( labvec, depth + 1 );
-		min::push ( aip, info );
+		min::push(aip) = info;
 	    }
 	    compute_children
 	        ( lpv, labvec, depth + 1, aip );
@@ -5546,7 +5546,7 @@ min::gen min::get_attrs
 #	    endif
 	    next ( lp );
 	    if ( compute_counts ( lp, info ) )
-		push ( aip, info );
+		push(aip) = info;
 #	    if MIN_ALLOW_PARTIAL_ATTR_LABELS
 		compute_children ( lp, & c, 1, aip );
 #	    endif
@@ -5562,7 +5562,7 @@ min::gen min::get_attrs
 
 	info.name = new_num_gen ( i );
 	if ( compute_counts ( lp, info ) )
-	    push ( aip, info );
+	    push(aip) = info;
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    compute_children
 	        ( lp, & info.name, 1, aip );
@@ -5635,7 +5635,7 @@ min::gen min::get_reverse_attrs
 		  c = next ( lpv ) )
 	        ++ info.value_count;
 	}
-	push ( raip, info );
+	push(raip) = info;
     }
 
     return rairv;

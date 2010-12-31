@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 02:33:20 EST 2010
+// Date:	Fri Dec 31 08:00:59 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4390,31 +4390,31 @@ namespace min {
     }
 
     template < typename E, typename H >
-    inline void push
-	( typename min::packed_vec_insptr<E,H> & pvip,
-	  const E & v )
+    inline E & push
+	( typename min::packed_vec_insptr<E,H> & pvip )
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	* (E *) pvip.end_ptr() = v;
+	E * p = (E *) pvip.end_ptr();
+	memset ( p, 0, sizeof ( E ) );
 	++ * (min::uns32 *) & pvip->length;
+	return * p;
     }
     template < typename E, typename H >
-    inline void push
+    inline E & push
 	( typename min::packed_vec_insptr<E,H> & pvip,
-	  min::uns32 n,
-	  const E * vp )
+	  min::uns32 n, const E * vp = NULL )
     {
-	if ( n == 0 ) return;
+	if ( n == 0 ) return * (E *) NULL;
 	else if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
+	E * p = (E *) pvip.end_ptr();
 	if ( vp )
-	    memcpy ( (E *) pvip.end_ptr(),
-		     vp, n * sizeof ( E ) );
+	    memcpy ( p, vp, n * sizeof ( E ) );
 	else
-	    memset ( (E *) pvip.end_ptr(),
-		     0, n * sizeof ( E ) );
+	    memset ( p, 0, n * sizeof ( E ) );
 	* (min::uns32 *) & pvip->length += n;
+	return * p;
     }
     template < typename E, typename H >
     inline E pop
@@ -4427,8 +4427,7 @@ namespace min {
     template < typename E, typename H >
     inline void pop
 	( typename min::packed_vec_insptr<E,H> & pvip,
-	  min::uns32 n,
-	  E * vp )
+	  min::uns32 n, E * vp = NULL )
     {
 	assert ( pvip->length >= n );
 	* (min::uns32 *) & pvip->length -= n;

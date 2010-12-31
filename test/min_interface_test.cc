@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 01:56:07 EST 2010
+// Date:	Fri Dec 31 07:43:34 EST 2010
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2071,7 +2071,7 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvip->max_length == 5 );
     MIN_ASSERT ( pvip->length == 0 );
     pve e1 = { min::MISSING, NULL, 88 };
-    min::push ( pvip, e1 );
+    min::push(pvip) = e1;
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
     pvt::ptr pvp = min::new_gen ( v );
@@ -2132,7 +2132,7 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvip->length == 3 );
     MIN_ASSERT ( pvip->pvip == min::NULL_STUB );
     pvip->pvip = pvp;
-    min::push ( pvip->pvip, e1 );
+    min::push(pvip->pvip) = e1;
     MIN_ASSERT ( pvip->length == 4 );
     MIN_ASSERT ( pvip[3].j == 88 );
     pvip->pvip[3].j = 77;
