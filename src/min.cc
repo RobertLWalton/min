@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 07:41:53 EST 2010
+// Date:	Tue Jan  4 22:57:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1544,20 +1544,6 @@ min::gen MINT::new_str_stub_gen
 // Labels
 // ------
 
-// 65599**8:
-//
-const min::uns32 lab_multiplier =	// 65599**10
-	  min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 )
-	* min::uns32 ( 65599 );
-
 min::uns32 min::labhash
 	( const min::gen * p, min::uns32 n )
 {
@@ -1565,8 +1551,7 @@ min::uns32 min::labhash
     while ( n -- )
     {
         MIN_ASSERT ( min::is_name ( * p ) );
-        hash = lab_multiplier * hash
-	     + min::hash ( * p ++ );
+        hash = labhash ( hash, min::hash ( * p ++ ) );
     }
     return hash;
 }
