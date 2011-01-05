@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 31, 2010}
+\date{January 4, 2011}
  
 \maketitle
 
@@ -3066,6 +3066,9 @@ directly by the following functions:
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}%
+    \verb| ( min::uns32 hash, min::uns32 h )|
+\LABEL{MIN::INCREMENTAL_LABHASH} \\
+\verb|min::uns32 min::| & \MINKEY{labhash}%
     \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
 \end{tabular}\end{indpar}
@@ -3082,7 +3085,7 @@ n = length of label
 for i = 1 through n:
     h = hash of i'th element of label
     hash = ( hash * ( 65599 ** 10 ) ) + h
-if hash = 0, then hash = 2**32 - 1
+    if hash = 0, then hash = 2**32 - 1
 \end{verbatim}\end{indpar}
 
 Comparing this with the hash algorithm for strings
@@ -3095,6 +3098,18 @@ by prefacing it with NUL characters.  Note that
 numbers are treated as 8 character strings; see
 \pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 character string with
 hash value {\tt 1009}.
+
+The two argument \verb|labhash ( hash, h )| function performs the
+incremental step in the computation of a label hash, and can be useful
+in some lookup situations.  More specifically, the above algorithm
+is equivalent to:
+
+\begin{indpar}\begin{verbatim}
+hash = 1009
+n = length of label
+for i = 1 through n:
+    hash = labhash ( hash, hash of i'th element of label )
+\end{verbatim}\end{indpar}
 
 Although label values are generally read using lab pointers,
 a label value may be read by the protected functions:
@@ -8318,6 +8333,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
+\verb|min::uns32 min::| & \MINKEY{labhash}%
+    \verb| ( min::uns32 hash, min::uns32 h )|
+\LABEL{MIN::INCREMENTAL_LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
     \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
