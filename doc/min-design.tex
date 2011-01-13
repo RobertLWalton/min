@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 4, 2011}
+\date{January 13, 2011}
  
 \maketitle
 
@@ -6373,12 +6373,15 @@ used to create new packed structures of the described type.
 More explicitly, to create a new type of \key{packed structure}
 named \verb|pstype| use
 
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
+	  \verb|   const min::uns32 * stub_ptr_disp = NULL,|\ARGBREAK
+	  \verb|   const min::packed_struct_id &|\ARGBREAK
+	  \verb|         base_class_id =|\ARGBREAK
+	  \verb|         * (min::packed_struct_ID *) NULL )|
 \LABEL{MIN::PACKED_STRUCT} \\
 \verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
 \LABEL{MIN::DISP} \\
@@ -6406,6 +6409,16 @@ named \verb|pstype| use
 	& \verb|pstype.|\TTMKEY{stub\_ptr\_disp}
 	                       {in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_STUB_PTR_DISP} \\
+\verb|const min::packed_struct_id * const |
+	& \verb|pstype.|\TTMKEY{id}
+	                       {in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_ID} \\
+\verb|min::packed_struct_id |
+	& \MINKEY{packed\_struct\SARG}\verb|::id|
+\LABEL{PACKED_STRUCT_::ID} \\
+\verb|const min::packed_struct_id * |
+	& \MINKEY{packed\_struct\SARG}\verb|::id.base|
+\LABEL{PACKED_STRUCT_::ID.BASE} \\
 \end{tabular}\end{indpar}
 
 where
@@ -6467,6 +6480,14 @@ must be listed in {\tt stub\_\EOL ptr\_\EOL disp}.
 `\verb|const min::stub *|', `\verb|min::stub const *|', and
 `{\tt const min::stub \EOL const~*}' members are treated like
 `{\tt min::stub~*}' members for these purposes.
+
+\item[\ttmkey{id}{in {\tt min::packed\_struct}}]
+For each structure type \verb|S|,
+{\tt min::\EOL packed\_\EOL struct\SARG::id} is a static member of
+the class {\tt min::\EOL packed\_\EOL struct\SARG} whose address
+is used to identify the structure type \verb|S|.
+{\tt PSID~* pstype.id} is this address.  Here \verb|PSID| denotes
+an internally defined non-public type.
 
 \end{list}
 
