@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  4 22:47:56 EST 2011
+// Date:	Thu Jan 13 08:51:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3595,6 +3595,19 @@ namespace min {
 	void allocate_packed_subtypes
 	    ( min::uns32 max_packed_subtype_count );
 
+	// packed_struct<S>::id is a static member whose
+	// address is used as a unique identifier of S.
+	// If S has a base type T, then the value of
+	// packed_struct<S>::id is the address of
+	// packed_struct<T>::id.  To implement this, the
+	// type of packed_struct<S>::id is the following
+	// recursive type:
+	//
+	struct packed_struct_id
+	{
+	    const packed_struct_id * value;
+	};
+
 	// The packed_struct_descriptor is the part
 	// of a packed_struct<S> that does not dependent
 	// on S in the template sense.  It can be used
@@ -3606,10 +3619,7 @@ namespace min {
 	    min::uns32 subtype;
 		// Index of descriptor address in MINT::
 		// packed_subtypes.
-	    const void * const id;
-	        // & min::packed_struct<S>::id
-		// This is used by pointer constructors
-		// as an identifier for S.
+	    const packed_struct_id * const id;
 	    const min::uns32 size; // sizeof ( S )
 	    const char * const name;
 	    const min::uns32 * const gen_disp;
@@ -3623,7 +3633,7 @@ namespace min {
 	    //
 	    packed_struct_descriptor
 	        ( min::uns32 subtype,
-		  void * id,
+		  const packed_struct_id * const id,
 		  min::uns32 size,
 		  const char * name,
 		  const min::uns32 * gen_disp,
@@ -3828,7 +3838,11 @@ namespace min {
         packed_struct
 	    ( const char * name,
 	      const min::uns32 * gen_disp = NULL,
-	      const min::uns32 * stub_ptr_disp = NULL );
+	      const min::uns32 * stub_ptr_disp = NULL,
+	      const internal::packed_struct_id &
+	          base_class_id =
+		  * (internal::packed_struct_id *)
+		  NULL );
 
 	const min::stub * new_stub ( void )
 	{
@@ -3848,11 +3862,12 @@ namespace min {
 	typedef typename
 		min::packed_struct_updptr<S> updptr;
 
-	static bool id;
-	    // & id acts as a unique identifier of the
-	    // type min::packed_struct<S>.  Only the
-	    // address is used; the value of id has
-	    // no use.
+	static internal::packed_struct_id id;
+	    // & min::packed_struct<S>::id acts as a
+	    // unique identifier of the type S.  If
+	    // id.value is not NULL, it equals
+	    // & min::packed_struct<T>::id where T is
+	    // the base class of S.
     };
 
     template < typename S >
@@ -3869,8 +3884,12 @@ namespace min {
 	packed_struct_descriptor * psdescriptor =
 	    (packed_struct_descriptor *)
 	    (*packed_subtypes)[t];
-	void * id = & packed_struct<S>::id;
-	MIN_ASSERT ( psdescriptor->id == id );
+	const packed_struct_id * id = psdescriptor->id;
+	while ( & packed_struct<S>::id != id )
+	{
+	    MIN_ASSERT ( id != NULL );
+	    id = id->value;
+	}
     }
 }
 
@@ -3879,13 +3898,15 @@ namespace min {
 // that might instantiate them.
 
 template < typename S >
-bool min::packed_struct<S>::id;
+min::internal::packed_struct_id
+    min::packed_struct<S>::id;
 
 template < typename S >
 min::packed_struct<S>::packed_struct
     ( const char * name,
       const min::uns32 * gen_disp,
-      const min::uns32 * stub_ptr_disp )
+      const min::uns32 * stub_ptr_disp,
+      const internal::packed_struct_id & base_class_id )
     : internal::packed_struct_descriptor
           ( internal::packed_subtype_count ++,
 	    & id,
@@ -3909,6 +3930,11 @@ min::packed_struct<S>::packed_struct
     (*internal::packed_subtypes) [ subtype ] =
         (internal::packed_struct_descriptor *)
 	this;
+    if ( & base_class_id != id.value )
+    {
+        MIN_ASSERT ( id.value == NULL );
+	id.value = & base_class_id;
+    }
 }
 
 // Packed Vectors
