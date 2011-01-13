@@ -1400,8 +1400,6 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 ../include/min.h:XXXX assert:
-    psdescriptor->id == id true.
-../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
@@ -1423,8 +1421,6 @@ Using fixed_blocks[2] and assigning begin_body_region[288 .. 291]
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    psdescriptor->id == id true.
 upv2->control = 3
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
@@ -1440,8 +1436,6 @@ min_interface_test.cc:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     pv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
@@ -1461,8 +1455,6 @@ min_interface_test.cc:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1477,8 +1469,6 @@ min_interface_test.cc:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     upv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
@@ -1493,8 +1483,6 @@ min_interface_test.cc:XXXX assert:
     type_of ( s ) == PACKED_STRUCT true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    psdescriptor->id == id true.
 min_interface_test.cc:XXXX assert:
     upv1->psp->i == 88 true.
 

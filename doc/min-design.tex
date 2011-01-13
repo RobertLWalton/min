@@ -6484,10 +6484,35 @@ must be listed in {\tt stub\_\EOL ptr\_\EOL disp}.
 \item[\ttmkey{id}{in {\tt min::packed\_struct}}]
 For each structure type \verb|S|,
 {\tt min::\EOL packed\_\EOL struct\SARG::id} is a static member of
-the class {\tt min::\EOL packed\_\EOL struct\SARG} whose address
-is used to identify the structure type \verb|S|.
-{\tt PSID~* pstype.id} is this address.  Here \verb|PSID| denotes
-an internally defined non-public type.
+the class {\tt min::\EOL packed\_\EOL struct\SARG} whose \underline{address}
+uniquely identifies the structure type \verb|S|.
+The value of {\tt pstype.id} is this address,
+and therefore equals `{\tt \&~min::\EOL packed\_\EOL struct\SARG::id}'.
+
+This unique identifier of \verb|S| is used to verify that a conversion
+of a `{\tt const min::\EOL stub~*}' value to a
+{\tt min::\EOL packed\_\EOL struct\_\EOL ...ptr\SARG} value is legal.
+
+If \verb|S| has a base class \verb|T|, then
+{\tt min::\EOL packed\_\EOL struct\BRACKETED{T}::id} must be given
+as the last argument to the constructor of \verb|pstype|.  That is,
+if
+\begin{indpar}\begin{verbatim}
+struct S : public struct T { ... }
+\end{verbatim}\end{indpar}
+then
+\begin{indpar}\begin{verbatim}
+min::packed_struct<S> pstype
+    ( ..., ..., ..., min::packed_struct<T>::id );
+\end{verbatim}\end{indpar}
+
+This must be done in order to make a conversion of a
+{\tt min::\EOL packed\_\EOL struct\_\EOL ...ptr\SARG}
+to a
+{\tt min::\EOL packed\_\EOL struct\_\EOL ...ptr\BRACKETED{T}} value legal.
+
+In this case {\tt min::\EOL packed\_\EOL struct\SARG::id.base} equals
+`{\tt \&~min::\EOL packed\_\EOL struct\BRACKETED{T}::id}'.
 
 \end{list}
 
