@@ -1396,7 +1396,7 @@ MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_STRUCT true.
+    t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 ../include/min.h:XXXX assert:
@@ -1418,7 +1418,7 @@ Using fixed_blocks[2] and assigning begin_body_region[288 .. 291]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_STRUCT true.
+    t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 upv2->control = 3
@@ -1433,7 +1433,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_STRUCT true.
+    t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
@@ -1452,7 +1452,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_STRUCT true.
+    t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
@@ -1466,7 +1466,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_STRUCT true.
+    t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
@@ -1480,7 +1480,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     upv1->psp == min::NULL_STUB true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_STRUCT true.
+    t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
@@ -1502,7 +1502,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 ../include/min.h:XXXX assert:
-    pvdescriptor->id == id true.
+    ( & packed_vec<E,H>::id == id ) true.
 ../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
@@ -1526,7 +1526,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 ../include/min.h:XXXX assert:
-    pvdescriptor->id == id true.
+    ( & packed_vec<E,H>::id == id ) true.
 min_interface_test.cc:XXXX assert:
     pvp->length == 1 true.
 ../include/min.h:XXXX assert:
@@ -1598,7 +1598,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 ../include/min.h:XXXX assert:
-    pvdescriptor->id == id true.
+    ( & packed_vec<E,H>::id == id ) true.
 min_interface_test.cc:XXXX assert:
     pvp == v true.
 ../include/min.h:XXXX assert:
@@ -1620,7 +1620,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
 ../include/min.h:XXXX assert:
-    pvdescriptor->id == id true.
+    ( & packed_vec<E,H>::id == id ) true.
 min_interface_test.cc:XXXX assert:
     pvip->length == 4 true.
 ../include/min.h:XXXX assert:
