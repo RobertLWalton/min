@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 23 07:21:06 EST 2011
+// Date:	Sun Jan 23 12:22:54 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3860,6 +3860,21 @@ namespace min {
 	static packed_id id;
     };
 
+    template < typename S, typename B >
+    class packed_struct_with_base
+	: public packed_struct<S>
+    {
+    public:
+
+        packed_struct_with_base
+	    ( const char * name,
+	      const min::uns32 * gen_disp = NULL,
+	      const min::uns32 * stub_ptr_disp = NULL )
+	    : packed_struct<S>
+	          ( name, gen_disp, stub_ptr_disp,
+		    packed_struct<B>::id ) {}
+    };
+
     template < typename S >
     inline internal
            ::packed_struct_ptr_base<S>
@@ -4397,6 +4412,31 @@ namespace min {
 	        min::packed_vec_insptr<E,H> insptr;
 
 	static packed_id id;
+    };
+
+    template < typename E, typename H, typename B >
+    class packed_vec_with_base
+	: public packed_vec<E,H>
+    {
+    public:
+
+        packed_vec_with_base
+	    ( const char * name,
+	      const min::uns32 * element_gen_disp
+	          = NULL,
+	      const min::uns32 * element_stub_ptr_disp
+	          = NULL,
+	      const min::uns32 * header_gen_disp
+		  = NULL,
+	      const min::uns32 * header_stub_ptr_disp
+	          = NULL )
+	    : packed_vec<E,H>
+	          ( name,
+		    element_gen_disp,
+		    element_stub_ptr_disp,
+		    header_gen_disp,
+		    header_stub_ptr_disp,
+		    packed_struct<B>::id ) {}
     };
 
     template < typename E, typename H >
