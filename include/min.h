@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 23 12:22:54 EST 2011
+// Date:	Mon Jan 24 05:12:32 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3600,13 +3600,11 @@ namespace min {
 	void allocate_packed_subtypes
 	    ( min::uns32 max_packed_subtype_count );
 
-	// The packed_struct_descriptor is the part
-	// of a packed_struct<S> that does not dependent
-	// on S in the template sense.  It can be used
-	// by functions that need not have detailed
-	// knowledge of S, such as acc functions.
+	// The packed_descriptor is the common part of
+	// of packed_struct_descriptor and packed_vec_
+	// descriptor.
 	//
-	struct packed_struct_descriptor
+	struct packed_descriptor
 	{
 	    const min::int32 type;
 	        // Either min::PACKED_STRUCT
@@ -3615,8 +3613,33 @@ namespace min {
 		// Index of descriptor address in MINT::
 		// packed_subtypes.
 	    const packed_id * const id;
-	    const min::uns32 size; // sizeof ( S )
 	    const char * const name;
+
+	    // Since many members of the descriptor are
+	    // const's, we need to set them with a
+	    // constructor.
+	    //
+	    packed_descriptor
+	        ( min::int32 type,
+		  min::uns32 subtype,
+		  const packed_id * id,
+		  const char * name )
+	        : type ( type ),
+		  subtype ( subtype ),
+		  id ( id ),
+		  name ( name ) {}
+	};
+
+	// The packed_struct_descriptor is the part
+	// of a packed_struct<S> that does not dependent
+	// on S in the template sense.  It can be used
+	// by functions that need not have detailed
+	// knowledge of S, such as acc functions.
+	//
+	struct packed_struct_descriptor
+	    : public packed_descriptor
+	{
+	    const min::uns32 size; // sizeof ( S )
 	    const min::uns32 * const gen_disp;
 	    const min::uns32 * const stub_ptr_disp;
 	    const min::uns32 * io_disp;
@@ -3630,15 +3653,13 @@ namespace min {
 	        ( min::int32 type,
 		  min::uns32 subtype,
 		  const packed_id * id,
-		  min::uns32 size,
 		  const char * name,
+		  min::uns32 size,
 		  const min::uns32 * gen_disp,
 		  const min::uns32 * stub_ptr_disp )
-	        : type ( type ),
-		  subtype ( subtype ),
-		  id ( id ),
+	        : packed_descriptor
+		      ( type, subtype, id, name ),
 		  size ( size ),
-		  name ( name ),
 		  gen_disp ( gen_disp ),
 		  stub_ptr_disp ( stub_ptr_disp ),
 		  io_disp ( NULL ),
@@ -3917,8 +3938,8 @@ min::packed_struct<S>::packed_struct
           ( min::PACKED_STRUCT,
 	    internal::packed_subtype_count ++,
 	    & id,
-            sizeof ( S ),
             name,
+            sizeof ( S ),
             gen_disp,
             stub_ptr_disp )
 {
@@ -3956,19 +3977,29 @@ namespace min {
     namespace internal {
 
 	struct packed_vec_descriptor
-	    : public packed_struct_descriptor
+	    : public packed_descriptor
 	{
-	    const min::uns32 element_size;
-	        // sizeof ( E ).
 	    const min::uns32 length_disp;
 	    const min::uns32 max_length_disp;
 	        // Displacements of length and
 		// max_length elements in H.
+
+	    const min::uns32 element_size;
+	        // sizeof ( E ).
 	    const min::uns32 * const element_gen_disp;
 	    const min::uns32 * const
 	                       element_stub_ptr_disp;
 	    const min::uns32 * element_io_disp;
 	    const min::gen   * element_io_names;
+
+	    const min::uns32 header_size;
+	        // sizeof ( H ) rounded up as per
+		// computed_header_size.
+	    const min::uns32 * const header_gen_disp;
+	    const min::uns32 * const
+	                       header_stub_ptr_disp;
+	    const min::uns32 * header_io_disp;
+	    const min::gen   * header_io_names;
 
 	    min::uns32 initial_max_length;
 	    min::float64 increment_ratio;
@@ -3978,30 +4009,40 @@ namespace min {
 	        ( min::int32 type,
 		  min::uns32 subtype,
 		  const packed_id * id,
-		  min::uns32 header_size,
-		  min::uns32 element_size,
+		  const char * name,
+
 		  min::uns32 length_disp,
 		  min::uns32 max_length_disp,
-		  const char * name,
+
+		  min::uns32 element_size,
 		  const min::uns32 * element_gen_disp,
 		  const min::uns32 *
 		      element_stub_ptr_disp,
+
+		  min::uns32 header_size,
 		  const min::uns32 * header_gen_disp,
 		  const min::uns32 *
 		      header_stub_ptr_disp )
-	        : packed_struct_descriptor
-		      ( type,
-		        subtype, id, header_size, name,
-		        header_gen_disp,
-			header_stub_ptr_disp ),
-		  element_size ( element_size ),
+	        : packed_descriptor
+		      ( type, subtype, id, name ),
+
 		  length_disp ( length_disp ),
 		  max_length_disp ( max_length_disp ),
+
+		  element_size ( element_size ),
 		  element_gen_disp ( element_gen_disp ),
 		  element_stub_ptr_disp
 		      ( element_stub_ptr_disp ),
 		  element_io_disp ( NULL ),
 		  element_io_names ( NULL ),
+
+		  header_size ( header_size ),
+		  header_gen_disp ( header_gen_disp ),
+		  header_stub_ptr_disp
+		      ( header_stub_ptr_disp ),
+		  header_io_disp ( NULL ),
+		  header_io_names ( NULL ),
+
 		  initial_max_length ( 0 ),
 		  increment_ratio (0.5),
 		  max_increment ( 1000 ) {}
@@ -4529,7 +4570,8 @@ namespace min {
     {
         H * hp = (H *) unprotected::ptr_of ( this->s );
 	min::uns32 subtype = hp->control;
-	subtype &= internal::PACKED_CONTROL_SUBTYPE_MASK;
+	subtype &=
+	    internal::PACKED_CONTROL_SUBTYPE_MASK;
 	internal::packed_vec_descriptor * pvdescriptor =
 	    (internal::packed_vec_descriptor *)
 	    (*internal::packed_subtypes)[subtype];
@@ -4571,15 +4613,18 @@ min::packed_vec<E,H>::packed_vec
           ( min::PACKED_VEC,
 	    internal::packed_subtype_count ++,
             & id,
-            computed_header_size,
-	    sizeof ( E ),
+            name,
+
 	    OFFSETOF<H,const min::uns32>
 	        ( & H::length ),
 	    OFFSETOF<H,const min::uns32>
 	        ( & H::max_length ),
-            name,
+
+	    sizeof ( E ),
             element_gen_disp,
             element_stub_ptr_disp,
+
+            computed_header_size,
             header_gen_disp,
             header_stub_ptr_disp )
 {
@@ -8745,7 +8790,7 @@ inline min::unsptr min::unprotected::body_size_of
 	        (*internal::packed_subtypes)[subtype];
 	    min::uns32 max_length = * (min::uns32 *)
 	        ( p + d->max_length_disp );
-	    return   d->size
+	    return   d->header_size
 	           + d->element_size * max_length;
 	}
 #   ifdef MIN_UNPROTECTED_BODY_SIZE_OF_EXTRA_CASES

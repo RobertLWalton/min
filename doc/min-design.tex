@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 13, 2011}
+\date{January 24, 2011}
  
 \maketitle
 
@@ -6332,8 +6332,7 @@ TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
 A \key{packed structure} is a C `struct' stored in a body.
 
-The C type of a packed structure
-must be a C \verb|struct|
+The C type of a packed structure must be a C \verb|struct|
 initializable by setting all bytes to zero and copiable
 by \verb|memcpy|.
 Its \underline{first} member must be
@@ -6378,11 +6377,15 @@ named \verb|pstype| use
 	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_ptr_disp = NULL,|\ARGBREAK
-	  \verb|   const min::packed_struct_id &|\ARGBREAK
-	  \verb|         base_class_id =|\ARGBREAK
-	  \verb|         * (min::packed_struct_ID *) NULL )|
+	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
+		\verb|pstype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
+\LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
 \verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
 \LABEL{MIN::DISP} \\
 \verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
@@ -6409,16 +6412,6 @@ named \verb|pstype| use
 	& \verb|pstype.|\TTMKEY{stub\_ptr\_disp}
 	                       {in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_STUB_PTR_DISP} \\
-\verb|const min::packed_struct_id * const |
-	& \verb|pstype.|\TTMKEY{id}
-	                       {in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_ID} \\
-\verb|min::packed_struct_id |
-	& \MINKEY{packed\_struct\SARG}\verb|::id|
-\LABEL{PACKED_STRUCT_::ID} \\
-\verb|const min::packed_struct_id * |
-	& \MINKEY{packed\_struct\SARG}\verb|::id.base|
-\LABEL{PACKED_STRUCT_::ID.BASE} \\
 \end{tabular}\end{indpar}
 
 where
@@ -6433,12 +6426,31 @@ The C type of the body of packed structures of the type being
 declared.  This C type must be a C \verb|struct| whose first
 member is
 \begin{center}
-\verb|const min::uns32 type;|
+\verb|const min::uns32 control;|
 \end{center}
 This member holds a code effectively
 points at \verb|pstype|, and also holds some flags.
 This member is initialized by \verb|new_gen| and must not
 be changed by the user.
+
+Only C language syntax may be used in defining the type {\tt S},
+except that a single base type may be be used, as in
+\begin{indpar}\begin{verbatim}
+struct S : public struct B { ... }
+\end{verbatim}\end{indpar}
+provided that {\tt B} is also a C language structure in this sense.
+In this case {\tt S} does
+\underline{not} have a `{\tt control}' member, as
+the `{\tt control}' member of {\tt B} serves as
+the `{\tt control}' member of {\tt S}.
+
+\item[{\tt B}]
+The C type of the base of {\tt S}, as indicated above.  Use
+{\tt packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}} if
+{\tt B} is also the type of a packed structure body in order to
+enable {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
+to be converted to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
+pointers.
 
 \item[\ttmkey{subtype}{in {\tt min::packed\_struct}}]
 A small integer automatically assigned to uniquely identify \verb|pstype|.
@@ -6480,39 +6492,6 @@ must be listed in {\tt stub\_\EOL ptr\_\EOL disp}.
 `\verb|const min::stub *|', `\verb|min::stub const *|', and
 `{\tt const min::stub \EOL const~*}' members are treated like
 `{\tt min::stub~*}' members for these purposes.
-
-\item[\ttmkey{id}{in {\tt min::packed\_struct}}]
-For each structure type \verb|S|,
-{\tt min::\EOL packed\_\EOL struct\SARG::id} is a static member of
-the class {\tt min::\EOL packed\_\EOL struct\SARG} whose \underline{address}
-uniquely identifies the structure type \verb|S|.
-The value of {\tt pstype.id} is this address,
-and therefore equals `{\tt \&~min::\EOL packed\_\EOL struct\SARG::id}'.
-
-This unique identifier of \verb|S| is used to verify that a conversion
-of a `{\tt const min::\EOL stub~*}' value to a
-{\tt min::\EOL packed\_\EOL struct\_\EOL ...ptr\SARG} value is legal.
-
-If \verb|S| has a base class \verb|T|, then
-{\tt min::\EOL packed\_\EOL struct\BRACKETED{T}::id} must be given
-as the last argument to the constructor of \verb|pstype|.  That is,
-if
-\begin{indpar}\begin{verbatim}
-struct S : public struct T { ... }
-\end{verbatim}\end{indpar}
-then
-\begin{indpar}\begin{verbatim}
-min::packed_struct<S> pstype
-    ( ..., ..., ..., min::packed_struct<T>::id );
-\end{verbatim}\end{indpar}
-
-This must be done in order to make a conversion of a
-{\tt min::\EOL packed\_\EOL struct\_\EOL ...ptr\SARG}
-to a
-{\tt min::\EOL packed\_\EOL struct\_\EOL ...ptr\BRACKETED{T}} value legal.
-
-In this case {\tt min::\EOL packed\_\EOL struct\SARG::id.base} equals
-`{\tt \&~min::\EOL packed\_\EOL struct\BRACKETED{T}::id}'.
 
 \end{list}
 
@@ -6804,7 +6783,7 @@ named \verb|pvtype| use
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{packed\_vec\_header}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  const min::uns32 type;|\ARGBREAK
+    \verb|  const min::uns32 control;|\ARGBREAK
     \verb|  const min::uns32 length;|\ARGBREAK
     \verb|  const min::uns32 max_length;|\ARGBREAK
     \verb|};|
@@ -6818,6 +6797,16 @@ named \verb|pvtype| use
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
 \LABEL{MIN::PACKED_VEC} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
+		\verb|pvtype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+\LABEL{MIN::PACKED_VEC_WITH_BASE} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen |
@@ -6896,7 +6885,7 @@ The C \verb|struct| type of the header data at the beginning of the
 bodies of packed vectors of the type being
 declared.  The first member of this \verb|struct| type must be
 \begin{indpar}
-\verb|const min::uns32 type;|
+\verb|const min::uns32 control;|
 \end{indpar}
 and the \verb|struct| type must also have the two members
 \begin{indpar}
@@ -6908,10 +6897,33 @@ and must not
 be changed by the user.
 
 \verb|H| defaults to \verb|min::packed_vec_header| which
-has just the require header members: \verb|type|, \verb|length|, and
+has just the require header members: \verb|control|, \verb|length|, and
 {\tt max\_\EOL length}.  Because of this default,
 \verb|H| is the \underline{second} template parameter,
 even though is preceeds the vector elements in memory.
+
+Only C language syntax may be used in defining the type {\tt H},
+except that a single base type may be be used, as in
+\begin{indpar}\begin{verbatim}
+struct H : public struct B { ... }
+\end{verbatim}\end{indpar}
+provided that {\tt B} is also a C language structure in this sense.
+In this case {\tt H} does
+\underline{not} have a `{\tt control}' member, as
+the `{\tt control}' member of {\tt B} serves as
+the `{\tt control}' member of {\tt H}.  The `{\tt length}' and
+`{\tt max\_length}' members may be in either {\tt H} or {\tt B}.
+
+\item[{\tt B}]
+The C type of the base of {\tt H}, as indicated above.  Use
+{\tt packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B}} if
+{\tt B} is also the type of a packed \underline{structure} body in order to
+enable {\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H>} pointers
+to be converted to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
+pointers.
+
+Note that {\tt B} is treated as the type of the body of a packed
+structure and \underline{not} of a packed vector header.
 
 \item[\ttmkey{subtype}{in {\tt min::packed\_vec}}]
 A small integer automatically assigned to uniquely identify \verb|pvtype|.
@@ -7325,9 +7337,8 @@ static min::uns32 pve_gen_disp[2] =
 static min::uns32 pve_stub_ptr_disp[2] =
     { 0 + sizeof ( min::gen ), min::DISP_END };
 
-static min::packed_vec<pvh,pve> pvtype
-    ( "pvtype", NULL, NULL,
-      pve_gen_disp, pve_stub_ptr_disp );
+static min::packed_vec<pve,pvh> pvtype
+    ( "pvtype", pve_gen_disp, pve_stub_ptr_disp );
 
 main ( ... )
 {
@@ -9220,6 +9231,13 @@ These are in \verb|min_parameters.h|.
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
+		\verb|pstype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
+\LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -9380,6 +9398,16 @@ These are in \verb|min_parameters.h|.
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
 \LABEL{MIN::PACKED_VEC} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
+		\verb|pvtype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+\LABEL{MIN::PACKED_VEC_WITH_BASE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}

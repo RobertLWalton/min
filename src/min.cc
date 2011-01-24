@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 23 09:49:47 EST 2011
+// Date:	Mon Jan 24 05:16:07 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -707,27 +707,27 @@ static void packed_vec_scavenger_routine
     min::uns32 type = * ( min::uns32 *) beginp;
     type &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
     MIN_ASSERT ( type < MINT::packed_subtype_count);
-    MINT::packed_vec_descriptor * psd =
+    MINT::packed_vec_descriptor * pvd =
         (MINT::packed_vec_descriptor *)
         (*MINT::packed_subtypes)[type];
 
     min::uns32 length = * ( min::uns32 *)
-    	( beginp + psd->length_disp );
+    	( beginp + pvd->length_disp );
 
     min::uns32 i = ( (min::uns32) sc.state ) >> 2;
     min::uns32 k = (min::uns32) ( sc.state >> 32 );
 
     const min::uns32 * gen_disp =
-	psd->gen_disp;
+	pvd->header_gen_disp;
     const min::uns32 * stub_ptr_disp =
-        psd->stub_ptr_disp;
+        pvd->header_stub_ptr_disp;
 
     if ( k > 0 )
     {
-        beginp += psd->size
-    	        + ( k - 1 ) * psd->element_size;
-	gen_disp = psd->element_gen_disp;
-	stub_ptr_disp = psd->element_stub_ptr_disp;
+        beginp += pvd->header_size
+    	        + ( k - 1 ) * pvd->element_size;
+	gen_disp = pvd->element_gen_disp;
+	stub_ptr_disp = pvd->element_stub_ptr_disp;
     }
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
@@ -854,12 +854,12 @@ static void packed_vec_scavenger_routine
 
 	if ( k == 0 )
 	{
-	    beginp += psd->size;
-	    gen_disp = psd->element_gen_disp;
-	    stub_ptr_disp = psd->element_stub_ptr_disp;
+	    beginp += pvd->header_size;
+	    gen_disp = pvd->element_gen_disp;
+	    stub_ptr_disp = pvd->element_stub_ptr_disp;
 	}
 	else
-	    beginp += psd->element_size;
+	    beginp += pvd->element_size;
 	++ k;
     }
 
@@ -1661,7 +1661,7 @@ const min::stub * MINT::packed_vec_new_stub
 	  const void * vp )
 {
     min::stub * s = unprotected::new_acc_stub();
-    min::uns32 size = pvd->size
+    min::uns32 size = pvd->header_size
 	            +   max_length
 		      * pvd->element_size;
     unprotected::new_body ( s, size );
@@ -1673,7 +1673,7 @@ const min::stub * MINT::packed_vec_new_stub
     * (uns32 *) ( bodyp + pvd->max_length_disp ) =
         max_length;
     if ( vp )
-        memcpy ( bodyp + pvd->size,
+        memcpy ( bodyp + pvd->header_size,
 	         vp, length * pvd->element_size);
     unprotected::set_type_of ( s, min::PACKED_VEC );
     return s;
@@ -1701,13 +1701,13 @@ void MINT::packed_vec_resize
         ( old_p + pvd->length_disp );
     min::uns32 old_max_length = * (min::uns32 *)
         ( old_p + pvd->max_length_disp );
-    min::unsptr copy_size = pvd->size
+    min::unsptr copy_size = pvd->header_size
 			  +   length
                             * pvd->element_size;
-    min::unsptr old_size = pvd->size
+    min::unsptr old_size = pvd->header_size
 			 +   old_max_length
                            * pvd->element_size;
-    min::unsptr new_size = pvd->size
+    min::unsptr new_size = pvd->header_size
 			 +   max_length
                            * pvd->element_size;
     if ( copy_size > new_size ) copy_size = new_size;
