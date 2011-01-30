@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 24, 2011}
+\date{January 30, 2011}
  
 \maketitle
 
@@ -3265,7 +3265,7 @@ A \verb|min::gen| value may be printed using the following:
 \LABEL{MIN::PR} \\
 \verb|std::ostream & |
     & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
-      \verb| ( std ostream & out, min::pr & prv )|
+      \verb| ( std ostream & out, const min::pr & prv )|
 \LABEL{OPERATOR<<_OF_PR} \\[2ex]
 \verb|struct min::| & \MINKEY{pr\_format}\ARGBREAK
     \verb|{|\ARGBREAK
@@ -3273,6 +3273,7 @@ A \verb|min::gen| value may be printed using the following:
     \verb|  const char * str_prefix;|\ARGBREAK
     \verb|  const char * str_postfix;|\ARGBREAK
     \verb|  const char * lab_prefix;|\ARGBREAK
+    \verb|  const char * lab_separator;|\ARGBREAK
     \verb|  const char * lab_postfix;|\ARGBREAK
     \verb|  const char * special_prefix;|\ARGBREAK
     \verb|  const char * special_postfix;|\ARGBREAK
@@ -3284,6 +3285,7 @@ A \verb|min::gen| value may be printed using the following:
 \ttmindex{str\_prefix}{in {\tt min::pr\_format}}
 \ttmindex{str\_postfix}{in {\tt min::pr\_format}}
 \ttmindex{lab\_prefix}{in {\tt min::pr\_format}}
+\ttmindex{lab\_separator}{in {\tt min::pr\_format}}
 \ttmindex{lab\_postfix}{in {\tt min::pr\_format}}
 \ttmindex{special\_prefix}{in {\tt min::pr\_format}}
 \ttmindex{special\_postfix}{in {\tt min::pr\_format}}
@@ -3293,7 +3295,7 @@ A \verb|min::gen| value may be printed using the following:
     \verb|{|\ARGBREAK
     \verb|  "%.15g",     // number_format|\ARGBREAK
     \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  "[","]",     // lab_prefix/postfix|\ARGBREAK
+    \verb|  "["," ","]", // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
     \verb|  NULL         // pr_stub|\ARGBREAK
     \verb|};|
@@ -3315,17 +3317,20 @@ to the {\tt prv.number\_\EOL format} value as interpreted by the
 C \verb|sprintf| function.  The default uses \verb|%.15g|
 to print 15 significant
 digits with low order fraction \verb|0|'s omitted and exponential
-notation used if there would be more than 15 integer digits.
+notation used if there would be more than 15 integer digits
+or more than 4 non-significant high order fraction \verb|0|'s.
 
 Strings are printed as they are immediately preceded by
 {\tt prv.str\_\EOL prefix} and followed by
 {\tt prv.str\_\EOL postfix}.  The default is to enclose strings in
 \verb|`'| quotes.
 
-Labels are printed as comma separated lists of their elements preceded by
-{\tt prv.lab\_\EOL prefix} and followed by
-{\tt prv.lab\_\EOL postfix}.  The default is to enclose labels in
-\verb|[ ]| brackets.
+Labels are printed as lists of their elements preceded by
+{\tt prv.lab\_\EOL prefix},
+separated by {\tt prv.lab\_\EOL separator},
+and followed by {\tt prv.lab\_\EOL postfix}.
+The default is to enclose labels in
+\verb|[ ]| brackets and separate label elements with single spaces.
 
 Special values \verb|min:XXXX| are printed as \verb|XXXX|
 preceded by {\tt prv.special\_\EOL prefix} and followed by
@@ -3349,6 +3354,87 @@ Otherwise unrecognized values are printed as \verb|UNDEFINED_GEN| followed
 by the \verb|min::gen| value viewed as a \verb|min::unsgen| value
 printed in hexadecimal (prefaced by \verb|0x|) and surrounded with
 parentheses.  For example, \verb|UNDEFINED_GEN(0xf4000000)|.
+
+Values can also be `printed' into basic packed \verb|char| vectors
+called `\verb|charbuf|'s by using:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::|
+	& \verb|packed_vec_insptr<char> min::|\MINKEY{charbuf}
+\LABEL{MIN::CHARBUF} \\
+\verb|void min::| & \MINKEY{init}
+      \verb| ( min::charbuf & buf,|\\&{\tt ~~~}
+      \verb|   const char * initial_value = NULL )|
+\LABEL{MIN::INIT_OF_CHARBUF} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, const min::pr & prv )|
+\LABEL{CHARBUF_OPERATOR<<_OF_PR} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, char c )|
+\LABEL{CHARBUF_OPERATOR<<_OF_CHAR} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, const char * s )|
+\LABEL{CHARBUF_OPERATOR<<_OF_CHAR_*} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, int64 i )|
+\LABEL{CHARBUF_OPERATOR<<_OF_INT64} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, uns64 u )|
+\LABEL{CHARBUF_OPERATOR<<_OF_UNS64} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( std ostream & out, min::charbuf & buf )|
+\LABEL{OPERATOR<<_OF_CHARBUF} \\
+\end{tabular}\end{indpar}
+
+A {\tt min::charbuf} is a pointer to a packed vector
+(see Section~\secref{PACKED-VECTORS})
+of \verb|char|'s, that is, an expandable vector
+of \verb|char|'s.
+The {\tt min::init} function resets the vector to zero length,
+and then if the {\tt initial\_\EOL value} argument is not {\tt NULL},
+copies that character string into the vector, increasing the length
+of the vector just enough to accommodate the character string.
+
+The first argument to {\tt min::\EOL init} is actually a variable.
+If it equals {\tt min::NULL\_\EOL STUB} (\pagref{MIN::NULL_STUB}),
+the {\tt min::\EOL init} function
+creates a new packed vector of \verb|char|'s and stores
+a pointer to it in the variable.
+In this case the variable must be locatable by the garbage collector
+(see Section~\secref{STORING-GENERAL-VALUES}).  Any case,
+the {\tt min::\EOL charbuf} value must be locatable by the garbage
+collector, though this may be done by also storing it elsewhere.
+
+The \verb|<<| operator copies into a {\tt min::charbuf} the same
+\verb|char|'s that it copies to a {\tt std::\EOL ostream}.
+The \verb|<<| operator can also copy the contents of a {\tt min::\EOL charbuf}
+into a {\tt std::\EOL ostream}.
+
+
+An example use is:
+\begin{indpar}\begin{verbatim}
+min::stack_stub<1> stubs;
+min::charbuf & b = * (min::charbuf * ) & stubs[0];
+min::init ( b );
+
+min::gen v = . . .
+b << "V = " << min::pr ( v );
+
+std::cout << b << std::endl;
+\end{verbatim}\end{indpar}
+
+which prints the \verb|min::gen| value \verb|v| on a line
+prefaced with `\verb|V = |'.
 
 
 \subsection{Objects}
@@ -8494,6 +8580,7 @@ These are in \verb|min_parameters.h|.
     \verb|  const char * str_prefix;|\ARGBREAK
     \verb|  const char * str_postfix;|\ARGBREAK
     \verb|  const char * lab_prefix;|\ARGBREAK
+    \verb|  const char * lab_separator;|\ARGBREAK
     \verb|  const char * lab_postfix;|\ARGBREAK
     \verb|  const char * special_prefix;|\ARGBREAK
     \verb|  const char * special_postfix;|\ARGBREAK
@@ -8509,10 +8596,50 @@ These are in \verb|min_parameters.h|.
     \verb|{|\ARGBREAK
     \verb|  "%.15g",     // number_format|\ARGBREAK
     \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  "[","]",     // lab_prefix/postfix|\ARGBREAK
+    \verb|  "["," ","]", // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
     \verb|  NULL         // pr_stub|\ARGBREAK
     \verb|};|
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|typedef min::|
+	& \verb|packed_vec_insptr<char> min::|\MINKEY{charbuf}
+\LABEL{MIN::CHARBUF} \\
+\verb|void min::| & \MINKEY{init}
+      \verb| ( min::charbuf & buf,|\\&{\tt ~~~}
+      \verb|   const char * initial_value = NULL )|
+\LABEL{MIN::INIT_OF_CHARBUF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, const min::pr & prv )|
+\LABEL{CHARBUF_OPERATOR<<_OF_PR} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, char c )|
+\LABEL{CHARBUF_OPERATOR<<_OF_CHAR} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, const char * s )|
+\LABEL{CHARBUF_OPERATOR<<_OF_CHAR_*} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, int64 i )|
+\LABEL{CHARBUF_OPERATOR<<_OF_INT64} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, uns64 u )|
+\LABEL{CHARBUF_OPERATOR<<_OF_UNS64} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|std::ostream & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( std ostream & out, min::charbuf & buf )|
+\LABEL{OPERATOR<<_OF_CHARBUF} \\
 \end{TABULAR}
 
 \end{indpar}
