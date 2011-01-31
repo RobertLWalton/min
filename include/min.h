@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 31 01:39:23 EST 2011
+// Date:	Mon Jan 31 02:03:39 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8729,6 +8729,53 @@ namespace min {
         min::gen value;
 	min::pr_format & format;
     };
+
+    typedef packed_vec_insptr<char> charbuf;
+
+    void init ( charbuf & buf,
+                const char * initial_value = NULL );
+}
+
+min::charbuf & operator <<
+	( min::charbuf & buf, const min::pr & prv );
+
+inline min::charbuf & operator <<
+	( min::charbuf & buf, const char * s )
+{
+    int length = strlen ( s );
+    min::pop ( buf );
+    min::push ( buf, length + 1, s );
+    return buf;
+}
+
+inline min::charbuf & operator <<
+	( min::charbuf & buf, char c )
+{
+    buf[buf->length-1] = c;
+    min::push(buf) = 0;
+    return buf;
+}
+
+inline min::charbuf & operator <<
+	( min::charbuf & buf, min::int64 i )
+{
+    char buffer[64];
+    sprintf ( buffer, "%lld", i );
+    return buf << buffer;
+}
+
+inline min::charbuf & operator <<
+	( min::charbuf & buf, min::uns64 u )
+{
+    char buffer[64];
+    sprintf ( buffer, "%llu", u );
+    return buf << buffer;
+}
+
+inline std::ostream & operator <<
+	( std::ostream & out, const min::charbuf & buf )
+{
+    return out << & buf[0];
 }
 
 // More Allocator/Collector/Compactor Interface
