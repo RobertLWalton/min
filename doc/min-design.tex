@@ -257,7 +257,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 30, 2011}
+\date{January 31, 2011}
  
 \maketitle
 
@@ -3435,6 +3435,19 @@ std::cout << b << std::endl;
 
 which prints the \verb|min::gen| value \verb|v| on a line
 prefaced with `\verb|V = |'.
+
+The packed vector that a {\tt min::\EOL charbuf} points at
+holds a C language \verb|char| string, which is terminated by
+a NUL character.  In the above example, \verb|b[i]| is the
+\verb|i+1|'st character of the string, \verb|&b[0]| is the
+the \verb|char *| pointer to the string (beware, this address
+can change when a function is called the creates or resizes
+any datum), \verb|strlen(&b[0])|
+is the length of the C language string, and
+\verb|b->length| is this length plus 1, the extra \verb|char| being
+the NUL at the end of the C language string.
+See Section~\secref{PACKED-VECTORS} for a complete explanation of
+\verb|b[i]| and \verb|b->length|.
 
 
 \subsection{Objects}
