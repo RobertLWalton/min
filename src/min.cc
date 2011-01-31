@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 24 05:16:07 EST 2011
+// Date:	Mon Jan 31 01:39:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,7 +20,6 @@
 //	Setup
 //	Initialization
 //	Names
-//	Printing
 //	Process Management
 //	Allocator/Collector/Compactor
 //	Numbers
@@ -32,6 +31,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	Printing
 
 // Setup
 // -----
@@ -292,102 +292,6 @@ int min::compare ( min::gen v1, min::gen v2 )
     else return (unsgen) v1  < (unsgen) v2 ? -1 :
                 (unsgen) v1 == (unsgen) v2 ? 0 :
 		                             +1;
-}
-
-// Printing
-// --------
-
-min::pr_format min::default_pr_format =
-{
-    "%.15g",
-    "`","'",
-    "[","]",
-    "", "",
-    NULL
-};
-
-std::ostream & operator <<
-	( std::ostream & out, const min::pr & prv )
-{
-    min::gen v = prv.value;
-    min::pr_format & f = prv.format;
-    if ( v == min::new_gen ( MINT::null_stub ) )
-    {
-        return out << "new_gen ( MINT::null_stub )";
-    }
-    else if ( min::is_num ( v ) )
-    {
-        min::float64 vf = MUP::float_of ( v );
-	char buffer[100];
-	sprintf ( buffer, f.number_format, vf );
-	return out << buffer;
-    }
-    else if ( min::is_str ( v ) )
-    {
-        min::unprotected::str_ptr sp ( v );
-        return out << f.str_prefix
-	           << min::unprotected::str_of ( sp )
-		   << f.str_postfix;
-    }
-    else if ( min::is_lab ( v ) )
-    {
-	min::unprotected
-	   ::lab_ptr labp ( MUP::stub_of ( v ) );
-        min::uns32 len = min::length_of ( labp );
-	out << f.lab_prefix;
-	for ( min::unsptr i = 0; i < len; ++ i )
-	{
-	    if ( i != 0 ) out << ",";
-	    out << min::pr ( labp[i], f );
-	}
-	return out << f.lab_postfix;
-    }
-    else if ( min::is_special ( v ) )
-    {
-        min::unsgen index = MUP::special_index_of ( v );
-	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
-	     < index
-	     &&
-	     index <= 0xFFFFFF )
-	    return out << f.special_prefix
-	        << min::special_name[0xFFFFFF - index]
-		<< f.special_postfix;
-	else
-	    return out << "SPECIAL(0x" << std::hex
-	        << index << std::dec << ")";
-    }
-    else if ( min::is_stub ( v ) )
-    {
-        const min::stub * s = MUP::stub_of ( v );
-        int type = min::type_of ( s );
-	const char * type_name = min::type_name[type];
-	if ( type_name != NULL )
-	    out << type_name;
-	else
-	    out << "TYPE(" << type << ")";
-	if ( f.pr_stub != NULL ) f.pr_stub ( out, s );
-	return out;
-    }
-    else if ( min::is_list_aux ( v ) )
-        return out << "LIST_AUX("
-	           << MUP::list_aux_of ( v ) << ")";
-    else if ( min::is_sublist_aux ( v ) )
-        return out << "SUBLIST_AUX("
-	           << MUP::sublist_aux_of ( v ) << ")";
-    else if ( min::is_indirect_aux ( v ) )
-        return out << "INDIRECT_AUX("
-	           << MUP::indirect_aux_of ( v ) << ")";
-    else if ( min::is_index ( v ) )
-        return out << "INDEX("
-	           << MUP::index_of ( v ) << ")";
-    else if ( min::is_control_code ( v ) )
-        return out << "CONTROL_CODE(0x" << std::hex
-	           << MUP::control_code_of ( v )
-		   << std::dec << ")";
-    else
-        return out << "UNDEFINED_GEN(0x" << std::hex
-	           << (min::unsgen) v
-		   << std::dec << ")";
 }
 
 // Process Management
@@ -6590,4 +6494,100 @@ bool MINT::flip_flag
 	    ( "abnormal call to min::flip_flag" );
     }
     return false;
+}
+
+// Printing
+// --------
+
+min::pr_format min::default_pr_format =
+{
+    "%.15g",
+    "`","'",
+    "[", " ", "]",
+    "", "",
+    NULL
+};
+
+std::ostream & operator <<
+	( std::ostream & out, const min::pr & prv )
+{
+    min::gen v = prv.value;
+    min::pr_format & f = prv.format;
+    if ( v == min::new_gen ( MINT::null_stub ) )
+    {
+        return out << "new_gen ( MINT::null_stub )";
+    }
+    else if ( min::is_num ( v ) )
+    {
+        min::float64 vf = MUP::float_of ( v );
+	char buffer[100];
+	sprintf ( buffer, f.number_format, vf );
+	return out << buffer;
+    }
+    else if ( min::is_str ( v ) )
+    {
+        min::unprotected::str_ptr sp ( v );
+        return out << f.str_prefix
+	           << min::unprotected::str_of ( sp )
+		   << f.str_postfix;
+    }
+    else if ( min::is_lab ( v ) )
+    {
+	min::unprotected
+	   ::lab_ptr labp ( MUP::stub_of ( v ) );
+        min::uns32 len = min::length_of ( labp );
+	out << f.lab_prefix;
+	for ( min::unsptr i = 0; i < len; ++ i )
+	{
+	    if ( i != 0 ) out << f.lab_separator;
+	    out << min::pr ( labp[i], f );
+	}
+	return out << f.lab_postfix;
+    }
+    else if ( min::is_special ( v ) )
+    {
+        min::unsgen index = MUP::special_index_of ( v );
+	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
+	     < index
+	     &&
+	     index <= 0xFFFFFF )
+	    return out << f.special_prefix
+	        << min::special_name[0xFFFFFF - index]
+		<< f.special_postfix;
+	else
+	    return out << "SPECIAL(0x" << std::hex
+	        << index << std::dec << ")";
+    }
+    else if ( min::is_stub ( v ) )
+    {
+        const min::stub * s = MUP::stub_of ( v );
+        int type = min::type_of ( s );
+	const char * type_name = min::type_name[type];
+	if ( type_name != NULL )
+	    out << type_name;
+	else
+	    out << "TYPE(" << type << ")";
+	if ( f.pr_stub != NULL ) f.pr_stub ( out, s );
+	return out;
+    }
+    else if ( min::is_list_aux ( v ) )
+        return out << "LIST_AUX("
+	           << MUP::list_aux_of ( v ) << ")";
+    else if ( min::is_sublist_aux ( v ) )
+        return out << "SUBLIST_AUX("
+	           << MUP::sublist_aux_of ( v ) << ")";
+    else if ( min::is_indirect_aux ( v ) )
+        return out << "INDIRECT_AUX("
+	           << MUP::indirect_aux_of ( v ) << ")";
+    else if ( min::is_index ( v ) )
+        return out << "INDEX("
+	           << MUP::index_of ( v ) << ")";
+    else if ( min::is_control_code ( v ) )
+        return out << "CONTROL_CODE(0x" << std::hex
+	           << MUP::control_code_of ( v )
+		   << std::dec << ")";
+    else
+        return out << "UNDEFINED_GEN(0x" << std::hex
+	           << (min::unsgen) v
+		   << std::dec << ")";
 }

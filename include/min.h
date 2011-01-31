@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 24 05:12:32 EST 2011
+// Date:	Mon Jan 31 01:39:23 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,13 +34,13 @@
 //	Strings
 //	Labels
 //	Names
-//	Printing
 //	Packed Structures
 //	Packed Vectors
 //	Objects
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	Printing
 //	More Allocator/Collector/Compactor Interface
 
 // Namespaces:
@@ -3465,53 +3465,6 @@ namespace min {
     min::uns32 hash ( min::gen v );
 
     int compare ( min::gen v1, min::gen v2 );
-}
-
-// Printing
-// --------
-
-namespace min {
-
-    struct pr_format
-    {
-        const char * number_format;
-	const char * str_prefix;
-	const char * str_postfix;
-	const char * lab_prefix;
-	const char * lab_postfix;
-	const char * special_prefix;
-	const char * special_postfix;
-	std::ostream & ( * pr_stub )
-	    ( std::ostream & out, const min::stub * s );
-    };
-
-    extern pr_format default_pr_format;
-
-    class pr;
-}
-
-std::ostream & operator <<
-	( std::ostream & out, const min::pr & prv );
-
-namespace min {
-
-    class pr
-    {
-    public:
-
-	pr ( min::gen value,
-	     min::pr_format & format =
-	         min::default_pr_format ) :
-	    value ( value ), format ( format ) {}
-
-	friend std::ostream & ::operator <<
-	    ( std::ostream & out, const min::pr & prv );
-
-    private:
-
-        min::gen value;
-	min::pr_format & format;
-    };
 }
 
 // Packed Structures
@@ -8728,6 +8681,54 @@ namespace min {
 	return internal::set_flag ( ap, n - base );
     }
 
+}
+
+// Printing
+// --------
+
+namespace min {
+
+    struct pr_format
+    {
+        const char * number_format;
+	const char * str_prefix;
+	const char * str_postfix;
+	const char * lab_prefix;
+	const char * lab_separator;
+	const char * lab_postfix;
+	const char * special_prefix;
+	const char * special_postfix;
+	std::ostream & ( * pr_stub )
+	    ( std::ostream & out, const min::stub * s );
+    };
+
+    extern pr_format default_pr_format;
+
+    class pr;
+}
+
+std::ostream & operator <<
+	( std::ostream & out, const min::pr & prv );
+
+namespace min {
+
+    class pr
+    {
+    public:
+
+	pr ( min::gen value,
+	     min::pr_format & format =
+	         min::default_pr_format ) :
+	    value ( value ), format ( format ) {}
+
+	friend std::ostream & ::operator <<
+	    ( std::ostream & out, const min::pr & prv );
+
+    private:
+
+        min::gen value;
+	min::pr_format & format;
+    };
 }
 
 // More Allocator/Collector/Compactor Interface
