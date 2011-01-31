@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 31 01:39:34 EST 2011
+// Date:	Mon Jan 31 02:43:15 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6590,4 +6590,19 @@ std::ostream & operator <<
         return out << "UNDEFINED_GEN(0x" << std::hex
 	           << (min::unsgen) v
 		   << std::dec << ")";
+}
+
+static min::packed_vec<char>
+    charbuf_type ( "min::charbuf_type" );
+
+void min::init
+	( charbuf & buf, const char * initial_value )
+{
+    if ( buf == NULL_STUB )
+        buf = charbuf_type.new_stub ( 81 );
+    else min::pop ( buf, buf->length );
+    if ( initial_value != NULL )
+        min::push ( buf, ::strlen ( initial_value ) + 1,
+	                 initial_value );
+    else min::push(buf) = 0;
 }
