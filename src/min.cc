@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 31 02:43:15 EST 2011
+// Date:	Mon Jan 31 07:28:24 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6505,12 +6505,30 @@ min::pr_format min::default_pr_format =
     "`","'",
     "[", " ", "]",
     "", "",
+    NULL,
     NULL
 };
 
-std::ostream & operator <<
-	( std::ostream & out, const min::pr & prv )
+// The C++ complier does not seem to be able to parse
+//
+// template < typename T,
+//            T&(*)(T&,const min::stub *)
+//                min::pr_format::* pr_stub>
+//
+// so we trick it by adding
+//
+//	S = T&(*)(T&,const min::stub *).
+//
+// Since S cannot be the last parameter we cannot give
+// it a default value.
+//
+template <typename T, typename S,
+          S min::pr_format::* pr_stub >
+T & output_operator ( T & out, const min::pr & prv )
 {
+    // Note:: std::hex/dec are NOT defined for T, so we
+    // use sprintf instead.
+    //
     min::gen v = prv.value;
     min::pr_format & f = prv.format;
     if ( v == min::new_gen ( MINT::null_stub ) )
@@ -6555,8 +6573,12 @@ std::ostream & operator <<
 	        << min::special_name[0xFFFFFF - index]
 		<< f.special_postfix;
 	else
-	    return out << "SPECIAL(0x" << std::hex
-	        << index << std::dec << ")";
+	{
+	    char buffer[64];
+	    sprintf ( buffer, "SPECIAL(0x%llx)",
+		              (min::uns64) index );
+	    return out << buffer;
+	}
     }
     else if ( min::is_stub ( v ) )
     {
@@ -6567,7 +6589,8 @@ std::ostream & operator <<
 	    out << type_name;
 	else
 	    out << "TYPE(" << type << ")";
-	if ( f.pr_stub != NULL ) f.pr_stub ( out, s );
+	if ( f.*pr_stub != NULL )
+	    (* (f.*pr_stub) ) ( out, s );
 	return out;
     }
     else if ( min::is_list_aux ( v ) )
@@ -6583,13 +6606,31 @@ std::ostream & operator <<
         return out << "INDEX("
 	           << MUP::index_of ( v ) << ")";
     else if ( min::is_control_code ( v ) )
-        return out << "CONTROL_CODE(0x" << std::hex
-	           << MUP::control_code_of ( v )
-		   << std::dec << ")";
+    {
+	char buffer[64];
+	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
+		          (min::uns64)
+		          MUP::control_code_of ( v ) );
+	return out << buffer;
+    }
     else
-        return out << "UNDEFINED_GEN(0x" << std::hex
-	           << (min::unsgen) v
-		   << std::dec << ")";
+    {
+	char buffer[64];
+	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
+		          (min::uns64) v );
+	return out << buffer;
+    }
+}
+
+std::ostream & operator <<
+	( std::ostream & out, const min::pr & prv )
+{
+    return output_operator
+	<std::ostream,
+	 std::ostream & (*)
+	     (std::ostream &,const min::stub *),
+	 & min::pr_format::ostream_pr_stub>
+	    ( out, prv );
 }
 
 static min::packed_vec<char>
@@ -6605,4 +6646,15 @@ void min::init
         min::push ( buf, ::strlen ( initial_value ) + 1,
 	                 initial_value );
     else min::push(buf) = 0;
+}
+
+min::charbuf & operator <<
+	( min::charbuf & out, const min::pr & prv )
+{
+    return output_operator
+	<min::charbuf,
+	 min::charbuf & (*)
+	     (min::charbuf &,const min::stub *),
+	 & min::pr_format::charbuf_pr_stub>
+	    ( out, prv );
 }

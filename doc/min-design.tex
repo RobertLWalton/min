@@ -3277,8 +3277,11 @@ A \verb|min::gen| value may be printed using the following:
     \verb|  const char * lab_postfix;|\ARGBREAK
     \verb|  const char * special_prefix;|\ARGBREAK
     \verb|  const char * special_postfix;|\ARGBREAK
-    \verb|  std::ostream & ( * pr_stub )|\ARGBREAK
+    \verb|  std::ostream & ( * ostream_pr_stub )|\ARGBREAK
     \verb|       ( std::ostream & out,|\ARGBREAK
+    \verb|         const min::stub * s );|\ARGBREAK
+    \verb|  min::charbuf & ( * charbuf_pr_stub )|\ARGBREAK
+    \verb|       ( min::charbuf & out,|\ARGBREAK
     \verb|         const min::stub * s );|\ARGBREAK
     \verb|};|
 \ttmindex{number\_format}{in {\tt min::pr\_format}}
@@ -3289,7 +3292,8 @@ A \verb|min::gen| value may be printed using the following:
 \ttmindex{lab\_postfix}{in {\tt min::pr\_format}}
 \ttmindex{special\_prefix}{in {\tt min::pr\_format}}
 \ttmindex{special\_postfix}{in {\tt min::pr\_format}}
-\ttmindex{pr\_stub}{in {\tt min::pr\_format}}
+\ttmindex{ostream\_pr\_stub}{in {\tt min::pr\_format}}
+\ttmindex{charbuf\_pr\_stub}{in {\tt min::pr\_format}}
 \LABEL{MIN::PR_FORMAT} \\[2ex]
 \verb|struct min::| & \MINKEY{default\_pr\_format}\verb| =|\ARGBREAK
     \verb|{|\ARGBREAK
@@ -3297,7 +3301,8 @@ A \verb|min::gen| value may be printed using the following:
     \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
     \verb|  "["," ","]", // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  NULL         // pr_stub|\ARGBREAK
+    \verb|  NULL         // ostream_pr_stub|\ARGBREAK
+    \verb|  NULL         // charbuf_pr_stub|\ARGBREAK
     \verb|};|
 \end{tabular}\end{indpar}
 
@@ -3340,7 +3345,8 @@ as just \verb|MISSING|.
 
 Stubs other than numbers, strings, and labels
 are printed as their stub type name followed by whatever
-the {\tt prv.pr\_\EOL stub} function prints, if that function is
+the {\tt prv.ostream\_\EOL pr\_\EOL stub} function\label{MIN::OSTREAM_PR_STUB}
+prints, if that function is
 not \verb|NULL|.  The default is to just print the type name.
 For example, a short object will print as just \verb|SHORT_OBJ|.
 
@@ -3382,8 +3388,16 @@ called `\verb|charbuf|'s by using:
 \LABEL{CHARBUF_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::charbuf & |
     & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, int32 i )|
+\LABEL{CHARBUF_OPERATOR<<_OF_INT32} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, int64 i )|
 \LABEL{CHARBUF_OPERATOR<<_OF_INT64} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, uns32 u )|
+\LABEL{CHARBUF_OPERATOR<<_OF_UNS32} \\
 \verb|min::charbuf & |
     & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, uns64 u )|
@@ -3449,6 +3463,10 @@ the NUL at the end of the C language string.
 See Section~\secref{PACKED-VECTORS} for a complete explanation of
 \verb|b[i]| and \verb|b->length|.
 
+The {\tt prv.charbuf\_\EOL pr\_\EOL stub} function does for
+{\tt min::\EOL charbuf}'s what
+the {\tt prv.ostream\_\EOL pr\_\EOL stub} function does for
+{\tt std::\EOL ostreams}'s: see \pagref{MIN::OSTREAM_PR_STUB}.
 
 \subsection{Objects}
 \label{OBJECTS}
@@ -8597,8 +8615,11 @@ These are in \verb|min_parameters.h|.
     \verb|  const char * lab_postfix;|\ARGBREAK
     \verb|  const char * special_prefix;|\ARGBREAK
     \verb|  const char * special_postfix;|\ARGBREAK
-    \verb|  std::ostream & ( * pr_stub )|\ARGBREAK
+    \verb|  std::ostream & ( * ostream_pr_stub )|\ARGBREAK
     \verb|       ( std::ostream & out,|\ARGBREAK
+    \verb|         const min::stub * s );|\ARGBREAK
+    \verb|  min::charbuf & ( * charbuf_pr_stub )|\ARGBREAK
+    \verb|       ( min::charbuf & out,|\ARGBREAK
     \verb|         const min::stub * s );|\ARGBREAK
     \verb|};|
 \LABEL{MIN::PR_FORMAT} \\
@@ -8611,7 +8632,8 @@ These are in \verb|min_parameters.h|.
     \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
     \verb|  "["," ","]", // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  NULL         // pr_stub|\ARGBREAK
+    \verb|  NULL         // ostream_pr_stub|\ARGBREAK
+    \verb|  NULL         // charbuf_pr_stub|\ARGBREAK
     \verb|};|
 \end{TABULAR}
 
@@ -8640,8 +8662,16 @@ These are in \verb|min_parameters.h|.
 \LABEL{CHARBUF_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::charbuf & |
     & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, int32 i )|
+\LABEL{CHARBUF_OPERATOR<<_OF_INT32} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, int64 i )|
 \LABEL{CHARBUF_OPERATOR<<_OF_INT64} \\
+\verb|min::charbuf & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::charbuf & buf, uns32 u )|
+\LABEL{CHARBUF_OPERATOR<<_OF_UNS32} \\
 \verb|min::charbuf & |
     & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, uns64 u )|
