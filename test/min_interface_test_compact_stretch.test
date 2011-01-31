@@ -1360,7 +1360,7 @@ Using fixed_blocks[2] and assigning begin_body_region[248 .. 251]
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
-[5.6,[1.234,`str 1'],`str 2']
+[5.6 [1.234 `str 1'] `str 2']
 MISSING
 NONE
 ANY
@@ -3641,7 +3641,7 @@ Using fixed_blocks[6] and assigning begin_body_region[82258 .. 82321]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
-TEST ATTRIBUTE VALUES ( [1,`label1'], [1,`label2'])
+TEST ATTRIBUTE VALUES ( [1 `label1'], [1 `label2'])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3688,7 +3688,7 @@ Using fixed_blocks[6] and assigning begin_body_region[82546 .. 82609]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 9 ) true.
-TEST ATTRIBUTE VALUES ( [1,`label2'], [1,`label1'])
+TEST ATTRIBUTE VALUES ( [1 `label2'], [1 `label1'])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3740,7 +3740,7 @@ MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 10 ) true.
-TEST ATTRIBUTE VALUES ( [`label1',1], [`label1',2])
+TEST ATTRIBUTE VALUES ( [`label1' 1], [`label1' 2])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -3791,7 +3791,7 @@ MINT::deallocate ( stub 6 ) called
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 11 ) true.
-TEST ATTRIBUTE VALUES ( [`label1',2], [`label1',1])
+TEST ATTRIBUTE VALUES ( [`label1' 2], [`label1' 1])
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
 min_interface_test.cc:XXXX assert:
