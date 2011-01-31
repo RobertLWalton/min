@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 31 02:03:39 EST 2011
+// Date:	Mon Jan 31 09:37:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8688,6 +8688,8 @@ namespace min {
 
 namespace min {
 
+    typedef packed_vec_insptr<char> charbuf;
+
     struct pr_format
     {
         const char * number_format;
@@ -8698,43 +8700,31 @@ namespace min {
 	const char * lab_postfix;
 	const char * special_prefix;
 	const char * special_postfix;
-	std::ostream & ( * pr_stub )
+	std::ostream & ( * ostream_pr_stub )
 	    ( std::ostream & out, const min::stub * s );
+	min::charbuf & ( * charbuf_pr_stub )
+	    ( min::charbuf & out, const min::stub * s );
     };
 
     extern pr_format default_pr_format;
 
-    class pr;
-}
-
-std::ostream & operator <<
-	( std::ostream & out, const min::pr & prv );
-
-namespace min {
-
-    class pr
+    struct pr
     {
-    public:
-
 	pr ( min::gen value,
 	     min::pr_format & format =
 	         min::default_pr_format ) :
 	    value ( value ), format ( format ) {}
 
-	friend std::ostream & ::operator <<
-	    ( std::ostream & out, const min::pr & prv );
-
-    private:
-
         min::gen value;
 	min::pr_format & format;
     };
 
-    typedef packed_vec_insptr<char> charbuf;
-
     void init ( charbuf & buf,
                 const char * initial_value = NULL );
 }
+
+std::ostream & operator <<
+	( std::ostream & out, const min::pr & prv );
 
 min::charbuf & operator <<
 	( min::charbuf & buf, const min::pr & prv );
@@ -8770,6 +8760,18 @@ inline min::charbuf & operator <<
     char buffer[64];
     sprintf ( buffer, "%llu", u );
     return buf << buffer;
+}
+
+inline min::charbuf & operator <<
+	( min::charbuf & buf, min::int32 i )
+{
+    return buf << (min::int64) i;
+}
+
+inline min::charbuf & operator <<
+	( min::charbuf & buf, min::uns32 u )
+{
+    return buf << (min::uns64) u;
 }
 
 inline std::ostream & operator <<
