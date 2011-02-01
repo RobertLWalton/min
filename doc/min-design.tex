@@ -2881,22 +2881,22 @@ The constructor
 \LABEL{MUP::STR_PTR_OF_VOID} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}\begin{tabular}{@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp, min::gen v )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp, min::gen v )|
 \LABEL{MUP::=_STR_PTR_OF_GEN} \\
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
 \LABEL{MUP::=_STR_PTR_OF_STR_PTR} \\
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
 \LABEL{MUP::=_STR_PTR_OF_MUP_STR_PTR} \\
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp1, const min::stub * s )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp1, const min::stub * s )|
 \LABEL{MUP::=_STR_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
@@ -3028,11 +3028,11 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
-\verb|const min::gen & |
+\verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( const min::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
-\LABEL{MIN::LAB_PTR[]} \\
+\LABEL{MIN::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -3214,11 +3214,11 @@ value \verb|v| or \verb|min::stub *| value \verb|s| is a label:
 	  \TTOMKEY{=}{=}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb| ( MUP::lab_ptr & labp, const min::stub * s )|
 \LABEL{MUP::=_LAB_PTR_OF_STUB} \\
-\verb|min::gen & |
+\verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb| ( const MUP::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
-\LABEL{MUP::LAB_PTR[]} \\
+\LABEL{MUP::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
 The {\tt =} operator applied to these unprotected
@@ -8657,24 +8657,24 @@ These are in \verb|min_parameters.h|.
 \LABEL{MUP::STR_PTR_OF_VOID} \\
 \end{TABULAR}
 
-\begin{LONGTABULAR}
+\begin{TABULAR}{1.3in}
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp, min::gen v )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp, min::gen v )|
 \LABEL{MUP::=_STR_PTR_OF_GEN} \\
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp1, const min::str_ptr & sp2 )|
 \LABEL{MUP::=_STR_PTR_OF_STR_PTR} \\
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp1, const MUP::str_ptr & sp2 )|
 \LABEL{MUP::=_STR_PTR_OF_MUP_STR_PTR} \\
 \verb|MUP::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( MUP::str_ptr & sp1, const min::stub * s )|
+    & \TTOMKEY{=}{=}{of {\tt MUP::str\_ptr}}\ARGBREAK
+      \verb| ( MUP::str_ptr & sp1, const min::stub * s )|
 \LABEL{MUP::=_STR_PTR_OF_STUB} \\
-\end{LONGTABULAR}
+\end{TABULAR}
 
 \medskip
 
@@ -8732,11 +8732,11 @@ These are in \verb|min_parameters.h|.
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
-\verb|const min::gen & |
+\verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( const min::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
-\LABEL{MIN::LAB_PTR[]} \\
+\LABEL{MIN::[]_OF_LAB_PTR} \\
 \end{TABULAR}
 
 \medskip
@@ -8826,11 +8826,11 @@ These are in \verb|min_parameters.h|.
 	  \TTOMKEY{=}{=}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb| ( MUP::lab_ptr & labp, const min::stub * s )|
 \LABEL{MUP::=_LAB_PTR_OF_STUB} \\
-\verb|min::gen & |
+\verb|min::gen |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb| ( const MUP::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
-\LABEL{MUP::LAB_PTR[]} \\
+\LABEL{MUP::[]_OF_LAB_PTR} \\
 \end{TABULAR}
 
 \end{indpar}
