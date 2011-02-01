@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 31 07:28:24 EST 2011
+// Date:	Tue Feb  1 11:03:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -457,8 +457,8 @@ static void lab_scavenger_routine
 // ( i << 2 ) + j where next member of the packed
 // struct to be scanned is:
 //
-//	gen_disp[i]		if j == 2
-//	stub_ptr_disp[i]	if j == 3
+//	gen_disp[i]	if j == 2
+//	stub_disp[i]	if j == 3
 //
 // and i < (1<<30). 
 //
@@ -535,12 +535,12 @@ static void packed_struct_scavenger_routine
 	++ i;
     }
 
-    if ( psd->stub_ptr_disp != NULL )
+    if ( psd->stub_disp != NULL )
         while ( true )
     {
 	assert ( i < (1<<30) );
 
-        min::uns32 d = psd->stub_ptr_disp[i];
+        min::uns32 d = psd->stub_disp[i];
 	if ( d == min::DISP_END ) break;
 
 	if ( sc.gen_count >= sc.gen_limit )
@@ -594,10 +594,10 @@ static void packed_struct_scavenger_routine
 // packed vec to be scanned is:
 //
 //	gen_disp[i]		if k == 0 and j == 2
-//	stub_ptr_disp[i]	if k == 0 and j == 3
+//	stub_disp[i]		if k == 0 and j == 3
 //	element_gen_disp[i] of vector element k - 1
 //		if k > 0 and j == 2
-//	element_stub_ptr_disp[i] of vector element k - 1
+//	element_stub_disp[i] of vector element k - 1
 //		if k > 0 and j == 3
 //
 // and i < (1<<30), k < (1<<32). 
@@ -623,15 +623,15 @@ static void packed_vec_scavenger_routine
 
     const min::uns32 * gen_disp =
 	pvd->header_gen_disp;
-    const min::uns32 * stub_ptr_disp =
-        pvd->header_stub_ptr_disp;
+    const min::uns32 * stub_disp =
+        pvd->header_stub_disp;
 
     if ( k > 0 )
     {
         beginp += pvd->header_size
     	        + ( k - 1 ) * pvd->element_size;
 	gen_disp = pvd->element_gen_disp;
-	stub_ptr_disp = pvd->element_stub_ptr_disp;
+	stub_disp = pvd->element_stub_disp;
     }
 
     min::uns64 accumulator = sc.stub_flag_accumulator;
@@ -697,12 +697,12 @@ static void packed_vec_scavenger_routine
 	    ++ i;
 	}
 
-	if ( stub_ptr_disp != NULL )
+	if ( stub_disp != NULL )
 	    while ( true )
 	{
 	    assert ( i < (1<<30) );
 
-	    min::uns32 d = stub_ptr_disp[i];
+	    min::uns32 d = stub_disp[i];
 	    if ( d == min::DISP_END )
 	    {
 		i = 0;
@@ -760,7 +760,7 @@ static void packed_vec_scavenger_routine
 	{
 	    beginp += pvd->header_size;
 	    gen_disp = pvd->element_gen_disp;
-	    stub_ptr_disp = pvd->element_stub_ptr_disp;
+	    stub_disp = pvd->element_stub_disp;
 	}
 	else
 	    beginp += pvd->element_size;

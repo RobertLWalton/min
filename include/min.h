@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  1 06:47:43 EST 2011
+// Date:	Tue Feb  1 11:02:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3600,7 +3600,7 @@ namespace min {
 	{
 	    const min::uns32 size; // sizeof ( S )
 	    const min::uns32 * const gen_disp;
-	    const min::uns32 * const stub_ptr_disp;
+	    const min::uns32 * const stub_disp;
 	    const min::uns32 * io_disp;
 	    const min::gen   * io_names;
 
@@ -3615,12 +3615,12 @@ namespace min {
 		  const char * name,
 		  min::uns32 size,
 		  const min::uns32 * gen_disp,
-		  const min::uns32 * stub_ptr_disp )
+		  const min::uns32 * stub_disp )
 	        : packed_descriptor
 		      ( type, subtype, id, name ),
 		  size ( size ),
 		  gen_disp ( gen_disp ),
-		  stub_ptr_disp ( stub_ptr_disp ),
+		  stub_disp ( stub_disp ),
 		  io_disp ( NULL ),
 		  io_names ( NULL ) {}
 	};
@@ -3815,7 +3815,7 @@ namespace min {
         packed_struct
 	    ( const char * name,
 	      const min::uns32 * gen_disp = NULL,
-	      const min::uns32 * stub_ptr_disp = NULL,
+	      const min::uns32 * stub_disp = NULL,
 	      const packed_id & base_class_id =
 		  * (packed_id *) NULL );
 
@@ -3849,9 +3849,9 @@ namespace min {
         packed_struct_with_base
 	    ( const char * name,
 	      const min::uns32 * gen_disp = NULL,
-	      const min::uns32 * stub_ptr_disp = NULL )
+	      const min::uns32 * stub_disp = NULL )
 	    : packed_struct<S>
-	          ( name, gen_disp, stub_ptr_disp,
+	          ( name, gen_disp, stub_disp,
 		    packed_struct<B>::id ) {}
     };
 
@@ -3891,7 +3891,7 @@ template < typename S >
 min::packed_struct<S>::packed_struct
     ( const char * name,
       const min::uns32 * gen_disp,
-      const min::uns32 * stub_ptr_disp,
+      const min::uns32 * stub_disp,
       const packed_id & base_class_id )
     : internal::packed_struct_descriptor
           ( min::PACKED_STRUCT,
@@ -3900,7 +3900,7 @@ min::packed_struct<S>::packed_struct
             name,
             sizeof ( S ),
             gen_disp,
-            stub_ptr_disp )
+            stub_disp )
 {
     // Check that the control member is the first
     // thing in the S structure.
@@ -3947,7 +3947,7 @@ namespace min {
 	        // sizeof ( E ).
 	    const min::uns32 * const element_gen_disp;
 	    const min::uns32 * const
-	                       element_stub_ptr_disp;
+	                       element_stub_disp;
 	    const min::uns32 * element_io_disp;
 	    const min::gen   * element_io_names;
 
@@ -3956,7 +3956,7 @@ namespace min {
 		// computed_header_size.
 	    const min::uns32 * const header_gen_disp;
 	    const min::uns32 * const
-	                       header_stub_ptr_disp;
+	                       header_stub_disp;
 	    const min::uns32 * header_io_disp;
 	    const min::gen   * header_io_names;
 
@@ -3976,12 +3976,12 @@ namespace min {
 		  min::uns32 element_size,
 		  const min::uns32 * element_gen_disp,
 		  const min::uns32 *
-		      element_stub_ptr_disp,
+		      element_stub_disp,
 
 		  min::uns32 header_size,
 		  const min::uns32 * header_gen_disp,
 		  const min::uns32 *
-		      header_stub_ptr_disp )
+		      header_stub_disp )
 	        : packed_descriptor
 		      ( type, subtype, id, name ),
 
@@ -3990,15 +3990,15 @@ namespace min {
 
 		  element_size ( element_size ),
 		  element_gen_disp ( element_gen_disp ),
-		  element_stub_ptr_disp
-		      ( element_stub_ptr_disp ),
+		  element_stub_disp
+		      ( element_stub_disp ),
 		  element_io_disp ( NULL ),
 		  element_io_names ( NULL ),
 
 		  header_size ( header_size ),
 		  header_gen_disp ( header_gen_disp ),
-		  header_stub_ptr_disp
-		      ( header_stub_ptr_disp ),
+		  header_stub_disp
+		      ( header_stub_disp ),
 		  header_io_disp ( NULL ),
 		  header_io_names ( NULL ),
 
@@ -4342,11 +4342,11 @@ namespace min {
 	    ( const char * name,
 	      const min::uns32 * element_gen_disp
 	          = NULL,
-	      const min::uns32 * element_stub_ptr_disp
+	      const min::uns32 * element_stub_disp
 	          = NULL,
 	      const min::uns32 * header_gen_disp
 		  = NULL,
-	      const min::uns32 * header_stub_ptr_disp
+	      const min::uns32 * header_stub_disp
 	          = NULL,
 	      const packed_id & base_class_id =
 		  * (packed_id *) NULL );
@@ -4424,18 +4424,18 @@ namespace min {
 	    ( const char * name,
 	      const min::uns32 * element_gen_disp
 	          = NULL,
-	      const min::uns32 * element_stub_ptr_disp
+	      const min::uns32 * element_stub_disp
 	          = NULL,
 	      const min::uns32 * header_gen_disp
 		  = NULL,
-	      const min::uns32 * header_stub_ptr_disp
+	      const min::uns32 * header_stub_disp
 	          = NULL )
 	    : packed_vec<E,H>
 	          ( name,
 		    element_gen_disp,
-		    element_stub_ptr_disp,
+		    element_stub_disp,
 		    header_gen_disp,
-		    header_stub_ptr_disp,
+		    header_stub_disp,
 		    packed_struct<B>::id ) {}
     };
 
@@ -4564,9 +4564,9 @@ template < typename E, typename H >
 min::packed_vec<E,H>::packed_vec
     ( const char * name,
       const min::uns32 * element_gen_disp,
-      const min::uns32 * element_stub_ptr_disp,
+      const min::uns32 * element_stub_disp,
       const min::uns32 * header_gen_disp,
-      const min::uns32 * header_stub_ptr_disp,
+      const min::uns32 * header_stub_disp,
       const packed_id & base_class_id )
     : internal::packed_vec_descriptor
           ( min::PACKED_VEC,
@@ -4581,11 +4581,11 @@ min::packed_vec<E,H>::packed_vec
 
 	    sizeof ( E ),
             element_gen_disp,
-            element_stub_ptr_disp,
+            element_stub_disp,
 
             computed_header_size,
             header_gen_disp,
-            header_stub_ptr_disp )
+            header_stub_disp )
 {
     // Check that the control member is the first
     // thing in the H structure.

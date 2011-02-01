@@ -178,6 +178,9 @@
 \end{lrbox}
 \newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
 
+\newcommand{\BRACKETED}[1]{{\tt \LESSTHAN #1\GREATERTHAN}}
+\newcommand{\NARG}{\BRACKETED{}}
+
 \newsavebox{\UNDERLINEBOX}
 \begin{lrbox}{\UNDERLINEBOX}
 \verb|_|
@@ -1875,13 +1878,15 @@ For possibly non-numeric \verb|min::gen| values:
 \verb|(constructor) min::| & \MINKEY{stack\_gen}%
     \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STACK_GEN} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::static_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::stack_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STACK_GEN_OPERATOR[]} \\
 \end{tabular}\end{indpar}
 
@@ -1894,13 +1899,15 @@ For numeric \verb|min::gen| values:
 \verb|(constructor) min::| & \MINKEY{stack\_num\_gen}%
     \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STACK_NUM_GEN} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_num_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_num\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::static_num_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STATIC_NUM_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_num_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_num\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::stack_num_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
 \end{tabular}\end{indpar}
 
@@ -1913,13 +1920,15 @@ For numeric \verb|const min::stub *| values:
 \verb|(constructor) min::| & \MINKEY{stack\_stub}%
     \verb|<min::unsptr size> vec ( void )|
 \LABEL{MIN::STACK_STUB} \\
-\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_stub<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|const min::stub * & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_stub\NARG{}}}\ARGBREAK
+      \verb|( min::static_stub<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STATIC_STUB_OPERATOR[]} \\
-\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_stub<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|const min::stub * |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_stub\NARG{}}}\ARGBREAK
+      \verb|( min::stack_stub<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STACK_STUB_OPERATOR[]} \\
 \end{tabular}\end{indpar}
 
@@ -6674,7 +6683,6 @@ TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 \subsection{Packed Structures}
 \label{PACKED-STRUCTURES}
 
-\newcommand{\BRACKETED}[1]{{\tt \LESSTHAN #1\GREATERTHAN}}
 \newcommand{\SARG}{\BRACKETED{S}}
 \newcommand{\EHARG}{\BRACKETED{E,H}}
 \newcommand{\EARG}{\BRACKETED{E,H = min::packed\_vec\_header}}
@@ -8195,13 +8203,15 @@ These are in \verb|min_parameters.h|.
     \verb|<min::unsptr size>|\ARGBREAK
     \verb|    vec ( void )|
 \LABEL{MIN::STACK_GEN} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::static_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::stack_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STACK_GEN_OPERATOR[]} \\
 \end{TABULAR}
 
@@ -8214,13 +8224,15 @@ These are in \verb|min_parameters.h|.
     \verb|<min::unsptr size>|\ARGBREAK
     \verb|    vec ( void )|
 \LABEL{MIN::STACK_NUM_GEN} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_num_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_num\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::static_num_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STATIC_NUM_GEN_OPERATOR[]} \\
-\verb|min::gen & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_num_gen<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|min::gen & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_num\_gen\NARG{}}}\ARGBREAK
+      \verb|( min::stack_num_gen<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
 \end{TABULAR}
 
@@ -8233,13 +8245,15 @@ These are in \verb|min_parameters.h|.
     \verb|<min::unsptr size>|\ARGBREAK
     \verb|   vec ( void )|
 \LABEL{MIN::STACK_STUB} \\
-\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::static_stub<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|const min::stub * & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_stub\NARG{}}}\ARGBREAK
+      \verb|( min::static_stub<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STATIC_STUB_OPERATOR[]} \\
-\verb|const min::stub * & min::| & \ttkey{operator [ ]}\ARGBREAK
-                 \verb|( min::stack_stub<> & vec,|\ARGBREAK
-		 \verb|  min::unsptr i )|
+\verb|const min::stub * |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_stub\NARG{}}}\ARGBREAK
+      \verb|( min::stack_stub<> & vec,|\ARGBREAK
+      \verb|  min::unsptr i )|
 \LABEL{MIN::STACK_STUB_OPERATOR[]} \\
 \end{TABULAR}
 
