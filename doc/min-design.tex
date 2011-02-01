@@ -3253,6 +3253,203 @@ It is an error to pass a non-name argument to
 either the \verb|min::hash| and \verb|min::compare| function.
 
 
+\subsection{Printers}
+\label{PRINTERS}
+
+A \ttkey{printer} is a \verb|char| buffer with additional parameters that may
+be used to print general values.  Internally a {\tt min::\EOL printer} is
+a packed vector with \verb|char| elements and additional members that
+are used to control format, limit line length, and so forth.  Values are
+written to {\tt printer}'s via the \verb|<<| operator, much like the
+way values are written to {\tt std::\EOL ostream}'s.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::|
+	& \verb|packed_vec_insptr<char,min::printer_header>|\ARGBREAK
+	  \verb|    min::|\MINKEY{printer}
+\LABEL{MIN::PRINTER} \\
+\verb|void min::| & \MINKEY{init}\verb| ( min::printer & prtr )|
+\LABEL{MIN::INIT_OF_PRINTER} \\
+\verb|const min::uns32 | & \verb|prtr->length|
+\LABEL{MIN::PRINTER_LENGTH} \\
+\verb|const min::uns32 | & \verb|prtr->line|
+\LABEL{MIN::PRINTER_LINE} \\
+\verb|min::printer_state | & \verb|prtr->state|
+\LABEL{MIN::PRINTER_STATE} \\
+\verb|min::printer_state | & \verb|prtr->saved_state|
+\LABEL{MIN::PRINTER_SAVED_STATE} \\
+\verb|std::ostream * | & \verb|prtr->ostream|
+\LABEL{MIN::PRINTER_OSTREAM} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{printer\_state}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::printer_format * format;|\ARGBREAK
+    \verb|  min::uns32 line_length;|\ARGBREAK
+    \verb|  min::uns32 indent;|\ARGBREAK
+    \verb|  min::uns32 flags;|\ARGBREAK
+    \verb|  min::uns32 column;|\ARGBREAK
+    \verb|};|
+\ttmindex{format}{in {\tt min::printer\_state}}
+\ttmindex{column}{in {\tt min::printer\_state}}
+\ttmindex{line\_length}{in {\tt min::printer\_state}}
+\ttmindex{indent}{in {\tt min::printer\_state}}
+\ttmindex{flags}{in {\tt min::printer\_state}}
+\LABEL{MIN::PRINTER_STATE_STRUCT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{ASCII\_FLAG}
+\LABEL{MIN::ASCII_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{GRAPHIC\_FLAG}
+\LABEL{MIN::GRAPHIC_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{DISPLAY\_LINEFEED\_FLAG}
+\LABEL{MIN::DISPLAY_LINEFEED_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{HEX\_FLAG}
+\LABEL{MIN::HEX_FLAG} \\
+\verb|const min::uns32 min::| & \MINKEY{IGNORE\_LINE\_LENGTH\_FLAG}
+\LABEL{MIN::IGNORE_LINE_LENGTH_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{default\_printer\_state}\verb| =|\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::default_printer_format,     // format|\ARGBREAK
+    \verb|  72,                              // line_length|\ARGBREAK
+    \verb|  4,                               // indent|\ARGBREAK
+    \verb|  0,                               // column|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::DEFAULT_PRINTER_STATE}
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const char * number_format;|\ARGBREAK
+    \verb|  const char * str_prefix;|\ARGBREAK
+    \verb|  const char * str_postfix;|\ARGBREAK
+    \verb|  const char * lab_prefix;|\ARGBREAK
+    \verb|  const char * lab_separator;|\ARGBREAK
+    \verb|  const char * lab_postfix;|\ARGBREAK
+    \verb|  const char * special_prefix;|\ARGBREAK
+    \verb|  const char * special_postfix;|\ARGBREAK
+    \verb|  min::printer & ( * pr_stub )|\ARGBREAK
+    \verb|       ( min::printer & prtr,|\ARGBREAK
+    \verb|         const min::stub * s );|\ARGBREAK
+    \verb|};|
+\ttmindex{number\_format}{in {\tt min::printer\_format}}
+\ttmindex{str\_prefix}{in {\tt min::printer\_format}}
+\ttmindex{str\_postfix}{in {\tt min::printer\_format}}
+\ttmindex{lab\_prefix}{in {\tt min::printer\_format}}
+\ttmindex{lab\_separator}{in {\tt min::printer\_format}}
+\ttmindex{lab\_postfix}{in {\tt min::printer\_format}}
+\ttmindex{special\_prefix}{in {\tt min::printer\_format}}
+\ttmindex{special\_postfix}{in {\tt min::printer\_format}}
+\ttmindex{pr\_stub}{in {\tt min::printer\_format}}
+\LABEL{MIN::PRINTER_FORMAT} \\[2ex]
+\verb|struct min::| & \MINKEY{default\_printer\_format}\verb| =|\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  "%.15g",     // number_format|\ARGBREAK
+    \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
+    \verb|  "["," ","]", // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  "","",       // special_prefix/postfix|\ARGBREAK
+    \verb|  NULL         // pr_stub|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::DEFAULT_PRINTER_FORMAT} \\[2ex]
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::printer_item min::|
+    & \MINKEY{pr}\verb| ( min::gen v,|\ARGBREAK
+                   \verb| min::printer_format * = NULL )|
+\LABEL{MIN::PR} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{format}\verb| ( min::printer_format * format )|
+\LABEL{MIN::FORMAT} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{line\_length}\verb| ( min::uns32 line_length )|
+\LABEL{MIN::LINE_LENGTH} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{indent}\verb| ( min::uns32 indent )|
+\LABEL{MIN::INDENT} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{set\_printer\_flags}\verb| ( min::uns32 flags )|
+\LABEL{MIN::SET_PRINTER_FLAGS} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{clear\_printer\_flags}\verb| ( min::uns32 flags )|
+\LABEL{MIN::CLEAR_PRINTER_FLAGS} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{save\_printer\_state}
+\LABEL{MIN::SAVE_PRINTER_STATE} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{restore\_printer\_state}
+\LABEL{MIN::RESTORE_PRINTER_STATE} \\
+\verb|const min::printer_item min::| & \MINKEY{eol}
+\LABEL{MIN::EOL} \\
+\verb|const min::printer_item min::| & \MINKEY{eom}
+\LABEL{MIN::EOM} \\
+\verb|const min::printer_item min::| & \MINKEY{bom}
+\LABEL{MIN::BOM} \\
+\verb|const min::printer_item min::| & \MINKEY{hex}
+\LABEL{MIN::HEX} \\
+\verb|const min::printer_item min::| & \MINKEY{ascii}
+\LABEL{MIN::ASCII} \\
+\verb|const min::printer_item min::| & \MINKEY{utf8}
+\LABEL{MIN::UTF8} \\
+\verb|const min::printer_item min::| & \MINKEY{graphic}
+\LABEL{MIN::GRAPHIC} \\
+\verb|const min::printer_item min::| & \MINKEY{nographic}
+\LABEL{MIN::NOGRAPHIC} \\
+\verb|const min::printer_item min::| & \MINKEY{display\_line\_feed}
+\LABEL{MIN::DISPLAY_LINE_FEED} \\
+\verb|const min::printer_item min::| & \MINKEY{nodisplay\_line\_feed}
+\LABEL{MIN::NODISPLAY_LINE_FEED} \\
+\verb|const min::printer_item min::| & \MINKEY{ignore\_line\_length}
+\LABEL{MIN::IGNORE_LINE_LENGTH} \\
+\verb|const min::printer_item min::| & \MINKEY{noignore\_line\_length}
+\LABEL{MIN::NOIGNORE_LINE_LENGTH} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::printer & prtr,|\ARGBREAK
+      \verb|   const min::printer_item & item )|
+\LABEL{PRINTER_OPERATOR<<_OF_ITEM} \\
+\verb|min::printer & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::printer & prtr, char c )|
+\LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
+\verb|min::printer & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::printer & prtr, const char * s )|
+\LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
+\verb|min::printer & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::printer & prtr, int32 i )|
+\LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
+\verb|min::printer & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::printer & prtr, int64 i )|
+\LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
+\verb|min::printer & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::printer & prtr, uns32 u )|
+\LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
+\verb|min::printer & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( min::printer & prtr, uns64 u )|
+\LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+      \verb| ( std ostream & out, min::printer & prtr )|
+\LABEL{OPERATOR<<_OF_PRINTER} \\
+\end{tabular}\end{indpar}
+
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
 
