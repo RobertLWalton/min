@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 31 07:43:34 EST 2010
+// Date:	Tue Feb  1 11:04:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1947,13 +1947,13 @@ struct ps1 {
 
 static min::uns32 ps1_gen_disp[2] =
     { min::DISP ( & ps1::g ), min::DISP_END };
-static min::uns32 ps1_stub_ptr_disp[3] =
+static min::uns32 ps1_stub_disp[3] =
     { min::DISP ( & ps1::s ),
       min::DISP ( & ps1::psp ),
       min::DISP_END };
 
 static ps1t ps1type
-    ( "ps1type", ps1_gen_disp, ps1_stub_ptr_disp );
+    ( "ps1type", ps1_gen_disp, ps1_stub_disp );
 
 struct ps2 {
     const min::uns32 control;
@@ -2044,16 +2044,16 @@ struct pve {
     min::uns8 j;
 };
 
-static min::uns32 pvh_stub_ptr_disp[] =
+static min::uns32 pvh_stub_disp[] =
     { min::DISP ( & pvh::pvip ), min::DISP_END };
 static min::uns32 pve_gen_disp[] =
     { min::DISP ( & pve::g ), min::DISP_END };
-static min::uns32 pve_stub_ptr_disp[] =
+static min::uns32 pve_stub_disp[] =
     { min::DISP ( & pve::s ), min::DISP_END };
 
 static pvt pvtype
-    ( "pvtype", pve_gen_disp, pve_stub_ptr_disp,
-                NULL,         pvh_stub_ptr_disp );
+    ( "pvtype", pve_gen_disp, pve_stub_disp,
+                NULL,         pvh_stub_disp );
 
 void test_packed_vectors ( void )
 {
