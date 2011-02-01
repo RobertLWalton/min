@@ -3269,7 +3269,10 @@ way values are written to {\tt std::\EOL ostream}'s.
 	  \verb|    min::|\MINKEY{printer}
 \LABEL{MIN::PRINTER} \\
 \verb|void min::| & \MINKEY{init}\verb| ( min::printer & prtr )|
-\LABEL{MIN::INIT_OF_PRINTER} \\
+\LABEL{MIN::PRINTER_INIT} \\
+\verb|void min::| & \MINKEY{init}\verb| ( min::printer & prtr,|\ARGBREAK
+                                   \verb| std::ostream & ostream )|
+\LABEL{MIN::PRINTER_INIT_WITH_OSTREAM} \\
 \verb|const min::uns32 | & \verb|prtr->length|
 \LABEL{MIN::PRINTER_LENGTH} \\
 \verb|const min::uns32 | & \verb|prtr->line|
@@ -3361,12 +3364,21 @@ way values are written to {\tt std::\EOL ostream}'s.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
-    & \MINKEY{pr}\verb| ( min::gen v,|\ARGBREAK
+    & \MINKEY{pgen}\verb| ( min::gen v,|\ARGBREAK
                    \verb| min::printer_format * = NULL )|
-\LABEL{MIN::PR} \\
+\LABEL{MIN::PGEN} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{flush}\verb| ( void )|
+\LABEL{MIN::FLUSH} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{flush}\verb| ( std::ostream * stream )|
+\LABEL{MIN::FLUSH_WITH_OSTREAM} \\
 \verb|const min::printer_item min::|
     & \MINKEY{format}\verb| ( min::printer_format * format )|
 \LABEL{MIN::FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
     & \MINKEY{line\_length}\verb| ( min::uns32 line_length )|
 \LABEL{MIN::LINE_LENGTH} \\
@@ -3379,6 +3391,9 @@ way values are written to {\tt std::\EOL ostream}'s.
 \verb|const min::printer_item min::|
     & \MINKEY{clear\_printer\_flags}\verb| ( min::uns32 flags )|
 \LABEL{MIN::CLEAR_PRINTER_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
     & \MINKEY{save\_printer\_state}
 \LABEL{MIN::SAVE_PRINTER_STATE} \\
