@@ -83,6 +83,10 @@
                           \index{#1@{\tt -\GREATERTHAN#1}!#2}}
 \newcommand{\ttdkey}[1]{{\tt .\bf #1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{{\tt .\bf #1}\index{#1@{\tt .#1}!#2}}
+\newcommand{\ttbkey}[1]{{\tt [{\bf #1}]}\index{#1@{\tt [#1]}}}
+\newcommand{\ttbmkey}[2]{{\tt [{\bf #1}]}\index{#1@{\tt [#1]}!#2}}
+\newcommand{\ttomkey}[3]{{\tt \bf operator #2}%
+                         \index{#1@{\tt operator #2}!{#3}}}
 \newcommand{\ttfkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
 \newcommand{\ttakey}[2]{{\tt \bf #1}\index{#2@{\tt #1}}}
 \newcommand{\ttamkey}[3]{{\tt \bf #1}\index{#2@{\tt #1}!#3}}
@@ -242,6 +246,9 @@
 \newcommand{\LONGARGBREAK}{\\{\tt ~~~~}}
 \newcommand{\TTKEY}[1]{\ttkey{#1}}
 \newcommand{\TTARMKEY}[2]{\ttarmkey{#1}{#2}}
+\newcommand{\TTBKEY}[1]{\ttbkey{#1}}
+\newcommand{\TTBMKEY}[2]{\ttbmkey{#1}{#2}}
+\newcommand{\TTOMKEY}[2]{\ttomkey{#1}{#2}}
 \newcommand{\TTDKEY}[1]{\ttdkey{#1}}
 \newcommand{\TTDMKEY}[2]{\ttdmkey{#1}{#2}}
 \newcommand{\TTNBKEY}[1]{\ttnbkey{#1}}
@@ -262,7 +269,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 31, 2011}
+\date{February 1, 2011}
  
 \maketitle
 
@@ -2996,29 +3003,29 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 	& \MINKEY{lab\_ptr}%
 	  \verb| labp ( void )|
 \LABEL{MIN::LAB_PTR_OF_VOID} \\
-	& {\tt \bf operator const min::stub *}%
-	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::lab_ptr & labp )|
-\LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{@{}l}
-\verb|min::lab_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::lab_ptr & labp, min::gen v )|
-\LABEL{MIN::=_LAB_PTR_OF_GEN} \\
-\verb|min::lab_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
-\LABEL{MIN::=_LAB_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const T & min::|
-	& \ttkey{operator [ ]}\ARGBREAK
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	  {of {\tt min::lab\_ptr}}\ARGBREAK
+          \verb| ( const min::lab_ptr & labp )|
+\LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
+\verb|min::lab_ptr & | &
+	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
+	  \verb| ( min::lab_ptr & labp, min::gen v )|
+\LABEL{MIN::=_LAB_PTR_OF_GEN} \\
+\verb|min::lab_ptr & | &
+	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
+	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
+\LABEL{MIN::=_LAB_PTR_OF_STUB} \\
+\verb|const min::gen & |
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( const min::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
 \LABEL{MIN::LAB_PTR[]} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
 	& \MINKEY{length\_of}\ARGBREAK
 	  \verb| ( min::lab_ptr & labp )|
@@ -7409,7 +7416,7 @@ a packed vector, and these have the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 pvp| & \TTARMKEY{length}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|const E pvp| & \TTMKEY{[i]}{of {\tt min::packed\_vec\_ptr}}
+\verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
@@ -7451,11 +7458,14 @@ a packed vector, and these have the usage:
 	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
 	  \verb|      & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
-\verb|const min::uns32 | & \verb|pvup->length|
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 pvup|
+    & \TTARMKEY{length}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
-\verb|E | & \verb|pvup[i]|
+\verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
-\verb|const E * | & \verb|pvup|\TTDKEY{end\_ptr}\verb|()|
+\verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -7495,13 +7505,17 @@ a packed vector, and these have the usage:
 	  \verb| ( const min::packed_vec_insptr<E,H>|\ARGBREAK
 	  \verb|      & pvip )|
 \LABEL{MIN::PACKED_VEC_INSPTR_->} \\
-\verb|const min::uns32 | & \verb|pvip->length|
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 pvip|
+    & \TTARMKEY{length}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_LENGTH} \\
-\verb|const min::uns32 | & \verb|pvip->max_length|
+\verb|const min::uns32 pvip|
+    & \TTARMKEY{max\_length}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
-\verb|E | & \verb|pvip[i]|
+\verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
-\verb|const E * | & \verb|pvip|\TTDKEY{end\_ptr}\verb|()|
+\verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -7745,12 +7759,18 @@ This is a logical time to pay this cost.
 {
 \renewcommand{\LABEL}[1]{\dotfill~\pagref{#1}}
 \renewcommand{\TTKEY}[1]{{\tt ~~#1~~}}
+\renewcommand{\TTMKEY}[2]{{\tt ~~#1~~}}
+\renewcommand{\TTBMKEY}[2]{{\tt ~~[#1]~~}}
+\renewcommand{\TTDMKEY}[2]{{\tt ~~.#1~~}}
+\renewcommand{\TTOMKEY}[2]{{\tt operator~~#2~~}}
+\renewcommand{\TTARMKEY}[2]{{\tt ~~-\GREATERTHAN#1~~}}
 \renewcommand{\TTNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\ttkey}[1]{{\tt ~~#1~~}}
 \renewcommand{\ARGBREAK}{\\&{\tt ~~~~}}
+
 \newcommand{\INDEXHEADER}[1]{{\bf #1}:\vspace{1ex}}
 \newlength{\TABULARLEN}
 \newenvironment{TABULAR}[1]%
@@ -8671,33 +8691,33 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{lab\_ptr}%
 	  \verb| labp ( void )|
 \LABEL{MIN::LAB_PTR_OF_VOID} \\
-	& {\tt \bf operator const min::stub *}%
-	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
-          \verb| ( const min::lab_ptr & labp )|
-\LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
 \end{TABULAR}
 
 \medskip
 
-\begin{LONGTABULAR}
-\verb|min::lab_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
+\begin{TABULAR}{1.4in}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	  {of {\tt min::lab\_ptr}}\ARGBREAK
+          \verb| ( const min::lab_ptr & labp )|
+\LABEL{MIN::LAB_PTR_TO_MIN_STUB} \\
+\verb|min::lab_ptr & | &
+	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( min::lab_ptr & labp, min::gen v )|
 \LABEL{MIN::=_LAB_PTR_OF_GEN} \\
-\verb|min::lab_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
+\verb|min::lab_ptr & | &
+	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
-\end{LONGTABULAR}
+\verb|const min::gen & |
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
+	  \verb| ( const min::lab_ptr & labp,|\ARGBREAK
+	  \verb|   min::uns32 i )|
+\LABEL{MIN::LAB_PTR[]} \\
+\end{TABULAR}
 
 \medskip
 
 \begin{TABULAR}{1.8in}
-\verb|const T & min::|
-	& \ttkey{operator [ ]}\ARGBREAK
-	  \verb| ( const min::lab_ptr & labp,|\ARGBREAK
-	  \verb|   min::uns32 i )|
-\LABEL{MIN::LAB_PTR[]} \\
 \verb|min::uns32 min::|
 	& \MINKEY{length\_of}\ARGBREAK
 	  \verb| ( min::lab_ptr & labp )|
@@ -9814,42 +9834,33 @@ These are in \verb|min_parameters.h|.
 \LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
 \end{TABULAR}
 
-\begin{TABULAR}{2.4in}
-\verb|const char * const |
-	& \verb|pvtype.|\TTMKEY{subtype}{in {\tt min::packed\_vec}}
+\begin{TABULAR}{3.0in}
+\verb|const char * const pvtype| & \TTDMKEY{subtype}{in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_SUBTYPE} \\
-\verb|const char * const |
-	& \verb|pvtype.|\TTMKEY{name}{in {\tt min::packed\_vec}}
+\verb|const char * const pvtype| & \TTDMKEY{name}{in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_NAME} \\
-\verb|const min::uns32 * const |
-	& \verb|pvtype.|\TTMKEY{header\_gen\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_gen\_disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
-\verb|const min::uns32 * const |
-	& \verb|pvtype.|\TTMKEY{header\_stub\_ptr\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_stub\_ptr\_disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_STUB_PTR_DISP} \\
-\verb|const min::uns32 * const |
-	& \verb|pvtype.|\TTMKEY{element\_gen\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_gen\_disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
-\verb|const min::uns32 * const |
-	& \verb|pvtype.|\TTMKEY{element\_stub\_ptr\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_stub\_ptr\_disp}
 	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_ELEMENT_STUB_PTR_DISP} \\
+\LABEL{PACKED_VEC_ELEMENT_STUB_PTR_DISP} \\[1ex]
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
-\verb|min::uns32 |
-	& \verb|pvtype.|\TTMKEY{initial\_max\_length}
+\verb|min::uns32 pvtype| & \TTDMKEY{initial\_max\_length}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_INITIAL_MAX_LENGTH} \\
-\verb|min::float64 |
-	& \verb|pvtype.|\TTMKEY{increment\_ratio}
+\verb|min::float64 pvtype| & \TTDMKEY{increment\_ratio}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_INCREMENT_RATIO} \\
-\verb|min::uns32 |
-	& \verb|pvtype.|\TTMKEY{max\_increment}
+\verb|min::uns32 pvtype| & \TTDMKEY{max\_increment}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_MAX_INCREMENT} \\
 \end{TABULAR}
@@ -9901,11 +9912,14 @@ These are in \verb|min_parameters.h|.
 \verb|const H * | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
 	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
-\verb|const min::uns32 | & \verb|pvp->length|
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const min::uns32 pvp| & \TTARMKEY{length}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|const E | & \verb|pvp[i]|
+\verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
-\verb|const E * | & \verb|pvp|\TTDKEY{end\_ptr}\verb|()|
+\verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{TABULAR}
 
@@ -9949,12 +9963,13 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
-\verb|const min::uns32 | & \verb|pvup->length|
+\begin{TABULAR}{1.8in}
+\verb|const min::uns32 pvup|
+    & \TTARMKEY{length}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
-\verb|E | & \verb|pvup[i]|
+\verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
-\verb|const E * | & \verb|pvup|\TTDKEY{end\_ptr}\verb|()|
+\verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{TABULAR}
 
@@ -9998,14 +10013,16 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_INSPTR_->} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
-\verb|const min::uns32 | & \verb|pvip->length|
+\begin{TABULAR}{1.8in}
+\verb|const min::uns32 pvip|
+    & \TTARMKEY{length}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_LENGTH} \\
-\verb|const min::uns32 | & \verb|pvip->max_length|
+\verb|const min::uns32 pvip|
+    & \TTARMKEY{max\_length}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
-\verb|E | & \verb|pvip[i]|
+\verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
-\verb|const E * | & \verb|pvip|\TTDKEY{end\_ptr}\verb|()|
+\verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{TABULAR}
 
