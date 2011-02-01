@@ -2780,19 +2780,23 @@ a \key{string pointer}:
 \LABEL{MIN::STR_PTR_OF_VOID} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}\begin{tabular}{@{}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::str_ptr & sp, min::gen v )|
+    & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( min::str_ptr & sp, min::gen v )|
 \LABEL{MIN::=_STR_PTR_OF_GEN} \\
 \verb|min::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::str_ptr & sp1, const min::str_ptr & sp2 )|
+    & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( min::str_ptr & sp1, const min::str_ptr & sp2 )|
 \LABEL{MIN::=_STR_PTR_OF_STR_PTR} \\
 \verb|min::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::str_ptr & sp1, const min::stub * s )|
+    & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( min::str_ptr & sp1, const min::stub * s )|
 \LABEL{MIN::=_STR_PTR_OF_STUB} \\
+\verb|const char & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( const min::str_ptr & sp, int index )|
+\LABEL{MUP::[]_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -2819,9 +2823,6 @@ a \key{string pointer}:
       \verb|  min::str_ptr & sp, min::unsptr n )| \\[1ex]
       \end{tabular}
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
-\verb|const char      |
-    & \ttkey{operator [ ]}\verb| ( const min::str_ptr & sp, int index )|
-\LABEL{MUP::[]_OF_STR_PTR} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::str_ptr & sp )|
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -7775,7 +7776,7 @@ This is a logical time to pay this cost.
 \renewcommand{\TTMKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\TTBMKEY}[2]{{\tt ~~[#1]~~}}
 \renewcommand{\TTDMKEY}[2]{{\tt ~~.#1~~}}
-\renewcommand{\TTOMKEY}[2]{{\tt operator~~#2~~}}
+\renewcommand{\TTOMKEY}[3]{{\tt ~~operator~~#2~~}}
 \renewcommand{\TTARMKEY}[2]{{\tt ~~-\GREATERTHAN#1~~}}
 \renewcommand{\TTNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
@@ -8447,7 +8448,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.6in}
+\begin{TABULAR}{1.8in}
 \verb|void MUP::|
     & \MUPKEY{new\_body}\verb| ( min::stub * s, min::unsptr n )|
 \LABEL{MUP::NEW_BODY} \\
@@ -8457,7 +8458,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MUP::DEALLOCATE_BODY} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.6in}
+\medskip
+
+\begin{TABULAR}{1.8in}
 \verb|min::unsptr MUP::|
     & \MUPKEY{body\_size\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::BODY_SIZE_OF} \\
@@ -8465,6 +8468,8 @@ These are in \verb|min_parameters.h|.
 	     \verb| ( min::stub * s )| 
 \LABEL{MUP::PTR_REF_OF_STUB} \\
 \end{TABULAR}
+
+\medskip
 
 \begin{TABULAR}{1.8in}
 \verb|(constructor) MUP::| & \MUPKEY{resize\_body} \verb|rb|\ARGBREAK
@@ -8591,20 +8596,24 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::STR_PTR_OF_VOID} \\
 \end{TABULAR}
 
-\begin{LONGTABULAR}
+\begin{TABULAR}{1.3in}
 \verb|min::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::str_ptr & sp, min::gen v )|
+    & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( min::str_ptr & sp, min::gen v )|
 \LABEL{MIN::=_STR_PTR_OF_GEN} \\
 \verb|min::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::str_ptr & sp1, const min::str_ptr & sp2 )|
+    & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( min::str_ptr & sp1, const min::str_ptr & sp2 )|
 \LABEL{MIN::=_STR_PTR_OF_STR_PTR} \\
 \verb|min::str_ptr & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::str_ptr & sp1, const min::stub * s )|
+    & \TTOMKEY{=}{=}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( min::str_ptr & sp1, const min::stub * s )|
 \LABEL{MIN::=_STR_PTR_OF_STUB} \\
-\end{LONGTABULAR}
+\verb|const char & |
+    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::str\_ptr}}\ARGBREAK
+      \verb| ( const min::str_ptr & sp, int index )|
+\LABEL{MUP::[]_OF_STR_PTR} \\
+\end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::gen v )|
@@ -8629,10 +8638,6 @@ These are in \verb|min_parameters.h|.
       \verb|( const char * p,|\ARGBREAK
       \verb|  min::str_ptr & sp, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_STR_PTR} \\[1ex]
-\verb|const char      |
-    & \ttkey{operator [ ]}\ARGBREAK
-      \verb| ( const min::str_ptr & sp, int index )|
-\LABEL{MUP::[]_OF_STR_PTR} \\
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( min::str_ptr & sp )|
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{TABULAR}

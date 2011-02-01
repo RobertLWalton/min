@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  1 11:02:33 EST 2011
+// Date:	Tue Feb  1 11:42:49 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2968,7 +2968,7 @@ namespace min {
 	    // Operator[] MUST be a member and cannot
 	    // be a friend.
 	    //
-	    const char operator[] ( int index ) const
+	    const char & operator[] ( int index ) const
 	    {
 		return
 		    ( (const char * )
