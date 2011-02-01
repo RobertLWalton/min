@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 31 09:37:01 EST 2011
+// Date:	Tue Feb  1 06:47:43 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3274,7 +3274,7 @@ namespace min {
 	    lab_ptr ( void )
 		: s ( NULL ) {}
 
-	    const min::gen operator [] ( min::uns32 i )
+	    min::gen & operator [] ( min::uns32 i )
 	        const
 	    {
 		MIN_ASSERT ( i < header()->length );
@@ -3317,10 +3317,9 @@ namespace min {
 			( (min::stub *) s );
 	    }
 
-	    const min::gen * base ( void ) const
+	    min::gen * base ( void ) const
 	    {
-		return (const min::gen *)
-		       ( header() + 1 );
+		return (min::gen *) ( header() + 1 );
 	    }
 	};
     }
@@ -3342,6 +3341,13 @@ namespace min {
 	}
 
         lab_ptr ( void ) {}
+
+	const min::gen & operator [] ( min::uns32 i )
+	    const
+	{
+	    MIN_ASSERT ( i < header()->length );
+	    return base()[i];
+	}
 
 	lab_ptr & operator = ( min::gen v )
 	{
