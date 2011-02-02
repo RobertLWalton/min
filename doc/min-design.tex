@@ -79,8 +79,8 @@
 \newcommand{\ttnbkey}[1]{{\tt #1}\index{#1@{\tt #1}}}
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttnbmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
-\newcommand{\ttarmkey}[2]{{\tt -\GREATERTHAN\bf #1}%
-                          \index{#1@{\tt -\GREATERTHAN#1}!#2}}
+\newcommand{\ttarmkey}[2]{{\tt ->\bf #1}%
+                          \index{#1@{\tt ->#1}!#2}}
 \newcommand{\ttdkey}[1]{{\tt .\bf #1}\index{#1@{\tt .#1}}}
 \newcommand{\ttdmkey}[2]{{\tt .\bf #1}\index{#1@{\tt .#1}!#2}}
 \newcommand{\ttbkey}[1]{{\tt [{\bf #1}]}\index{#1@{\tt [#1]}}}
@@ -108,108 +108,20 @@
 \newcommand{\minmindex}[2]{\ttindex{min::#1!#2}\ttindex{#1!#2}}
 \newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
 
-
-\newcommand{\secref}[1]{\ref{#1}$^{p\pageref{#1}}$}
-\newcommand{\stepref}[1]{\ref{#1}$^{p\pageref{#1}}$}
-\newcommand{\appref}[1]{\ref{#1}$^{p\pageref{#1}}$}
+\newcommand{\itemref}[1]{\ref{#1}$^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
-\newcount\TildeCatcode
-\TildeCatcode=\catcode`\~
-\catcode`~=12
-\newcommand{\Tilde}{~}
-\catcode`~=\TildeCatcode
-
-\newcount\CircumflexCatcode
-\CircumflexCatcode=\catcode`\^
-\catcode`^=12
-\newcommand{\Circumflex}{^}
-\catcode`^=\CircumflexCatcode
-
-\newcount\CurlyBraCatcode
-\newcount\CurlyKetCatcode
-\newcount\SquareBraCatcode
-\newcount\SquareKetCatcode
-\CurlyBraCatcode=\catcode`{
-\CurlyKetCatcode=\catcode`}
-\SquareBraCatcode=\catcode`[
-\SquareKetCatcode=\catcode`]
-
-\catcode`{=\SquareBraCatcode
-\catcode`}=\SquareKetCatcode
-\catcode`[=\CurlyBraCatcode
-\catcode`]=\CurlyKetCatcode
-
-\newcommand[\CurlyBra][{]
-\newcommand[\CurlyKet][}]
-
-\catcode`{=\CurlyBraCatcode
-\catcode`}=\CurlyKetCatcode
-\catcode`[=\SquareBraCatcode
-\catcode`]=\SquareKetCatcode
-
-\newcommand{\ttbrackets}{%
-    \renewcommand{\{}{\CurlyBra}%
-    \renewcommand{\}}{\CurlyKet}}
-
-\newsavebox{\TILDEBOX}
-\begin{lrbox}{\TILDEBOX}
-\verb|~|
-\end{lrbox}
-\newcommand{\TILDE}{\usebox{\TILDEBOX}}
-
-\newsavebox{\BACKSLASHBOX}
-\begin{lrbox}{\BACKSLASHBOX}
-\verb|\|
-\end{lrbox}
-\newcommand{\BACKSLASH}{\usebox{\BACKSLASHBOX}}
-
-\newsavebox{\LEFTBRACKETBOX}
-\begin{lrbox}{\LEFTBRACKETBOX}
-\verb|{|
-\end{lrbox}
-\newcommand{\LEFTBRACKET}{\usebox{\LEFTBRACKETBOX}}
-
-\newsavebox{\RIGHTBRACKETBOX}
-\begin{lrbox}{\RIGHTBRACKETBOX}
-\verb|}|
-\end{lrbox}
-\newcommand{\RIGHTBRACKET}{\usebox{\RIGHTBRACKETBOX}}
-
-\newcommand{\BRACKETED}[1]{{\tt \LESSTHAN #1\GREATERTHAN}}
+% < and > do NOT print write in {\tt \bf <>}, i.e.,
+% they have no correct BOLDFACE TT font entries.
+% So we use the following to force non-boldface in
+% keys.
+%
+\newcommand{\LT}{{\tt <}}
+\newcommand{\GT}{{\tt >}}
+\newcommand{\BRACKETED}[1]{{\tt <#1>}}
 \newcommand{\NARG}{\BRACKETED{}}
-
-\newsavebox{\UNDERLINEBOX}
-\begin{lrbox}{\UNDERLINEBOX}
-\verb|_|
-\end{lrbox}
-\newcommand{\UNDERLINE}{\usebox{\UNDERLINEBOX}}
-
-\newsavebox{\CIRCUMFLEXBOX}
-\begin{lrbox}{\CIRCUMFLEXBOX}
-\verb|^|
-\end{lrbox}
-\newcommand{\CIRCUMFLEX}{\usebox{\CIRCUMFLEXBOX}}
-
-\newsavebox{\BARBOX}
-\begin{lrbox}{\BARBOX}
-\verb/|/
-\end{lrbox}
-\newcommand{\BAR}{\usebox{\BARBOX}}
-
-\newsavebox{\LESSTHANBOX}
-\begin{lrbox}{\LESSTHANBOX}
-\verb/</
-\end{lrbox}
-\newcommand{\LESSTHAN}{\usebox{\LESSTHANBOX}}
-
-\newsavebox{\GREATERTHANBOX}
-\begin{lrbox}{\GREATERTHANBOX}
-\verb/>/
-\end{lrbox}
-\newcommand{\GREATERTHAN}{\usebox{\GREATERTHANBOX}}
 
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
@@ -256,6 +168,7 @@
 \newcommand{\TTNBKEY}[1]{\ttnbkey{#1}}
 \newcommand{\TTMKEY}[1]{\ttmkey{#1}}
 \newcommand{\MINKEY}[1]{{\tt \bf #1}\minindex{#1}}
+\newcommand{\MINIKEY}[2]{{\tt \bf #1}\minindex{#2}}
 \newcommand{\MINNBKEY}[1]{{\tt #1}\minindex{#1}}
 \newcommand{\MUPKEY}[1]{{\tt \bf #1}\MUPindex{#1}}
 
@@ -309,15 +222,15 @@ and the corresponding code:
 \begin{center}
 \begin{tabular}{ll}
 \ttmkey{acc}{abbreviation}	& allocator/collector/compactor
-			          (\secref{ACC-INTERFACE},\secref{ACC}) \\
-\ttmkey{aux}{abbreviation}	& auxiliary (\secref{AUXILIARY}) \\
-\ttmkey{attr}{abbreviation}	& attribute (\secref{OBJECT-VECTOR-LEVEL}) \\
+			          (\itemref{ACC-INTERFACE},\itemref{ACC}) \\
+\ttmkey{aux}{abbreviation}	& auxiliary (\itemref{AUXILIARY}) \\
+\ttmkey{attr}{abbreviation}	& attribute (\itemref{OBJECT-VECTOR-LEVEL}) \\
 \ttmkey{DISP}{abbreviation}	& displacement (\pagref{MIN::DISP}) \\
-\ttmkey{gen}{abbreviation}	& general value (\secref{GENERAL-VALUES}) \\
+\ttmkey{gen}{abbreviation}	& general value (\itemref{GENERAL-VALUES}) \\
 \ttmkey{insptr}{abbreviation}	& insertable pointer
 				  (read-write, push, pop pointer) \\
 \ttmkey{int}{abbreviation}	& signed integer (\pagref{INT}) \\
-\ttmkey{lab}{abbreviation}	& label (\secref{LABELS}) \\
+\ttmkey{lab}{abbreviation}	& label (\itemref{LABELS}) \\
 \ttmkey{min}{abbreviation}	& the `{\tt min}' namespace (\pagref{min::}) \\
 \ttmkey{MACC}{abbreviation}	& {\tt min::acc} (\pagref{MACC}) \\
 \ttmkey{MIN}{abbreviation}	& the {\tt MIN\_} macro preface
@@ -333,8 +246,8 @@ and the corresponding code:
 \ttmkey{uns}{abbreviation}	& unsigned integer (\pagref{UNS}) \\
 \ttmkey{updptr}{abbreviation}	& updatable pointer
                                   (i.e., read-write pointer) \\
-\ttmkey{var}{abbreviation}	& variable (\secref{OBJECT-VECTOR-LEVEL}) \\
-\ttmkey{vec}{abbreviation}	& vector (\secref{OBJECT-VECTOR-LEVEL}) \\
+\ttmkey{var}{abbreviation}	& variable (\itemref{OBJECT-VECTOR-LEVEL}) \\
+\ttmkey{vec}{abbreviation}	& vector (\itemref{OBJECT-VECTOR-LEVEL}) \\
 \end{tabular}
 \end{center}
 
@@ -466,13 +379,13 @@ Namespace   & viation   & Use
 \tt min::os & \tt MOS	& Operating system independent interface to
 			  operating system functions
 			  not covered by C++ standards.
-			  See Appendix \secref{MOS}.
+			  See Appendix \itemref{MOS}.
 \\[1ex]
 \tt min::acc & \tt MACC & The part of the interface to the
 			  Allocator/\EOL Collector/\EOL Compactor
 			  that can be
 			  changed when the acc is changed.
-			  See Appendix \secref{ACC}.
+			  See Appendix \itemref{ACC}.
 \\[1ex]
 \tt min::internal & \ttnbkey{MINT}\label{MINT}
 		        & Interface to internal MIN code that can
@@ -503,7 +416,7 @@ the size of each number is clear:
 \minkey{intptr}	& signed integer of same length as a pointer (32 or 64 bits)
                   \\
 \minkey{unsgen}	& unsigned integer of same length as a general value
-                  (32 or 64 bits, see \secref{GENERAL-VALUES})
+                  (32 or 64 bits, see \itemref{GENERAL-VALUES})
                   \\
 \end{tabular}
 \end{center}%
@@ -699,7 +612,7 @@ special meaning.  \verb|min::MISSING|, for example, is a special
 value that may be input or output to indicate that data is missing,
 and \verb|min::NONE| is a special value used only to
 indicate that a function argument or result does not exist.
-See \secref{SPECIAL-VALUES}.
+See \itemref{SPECIAL-VALUES}.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}\label{COMPACT-OR-LOOSE}
@@ -1314,7 +1227,7 @@ Indicates a set of values has more than one element.
 \item[{\tt const min::gen min::}\MINKEY{UNDEFINED}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
-(\secref{TYPED-OBJECTS}) that has no value and can be indirected.
+(\itemref{TYPED-OBJECTS}) that has no value and can be indirected.
 \item[{\tt const min::gen min::}\MINKEY{SUCCESS}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
@@ -1425,7 +1338,7 @@ is given on \pagref{STUB-TYPE-CODE-LIST}.
 
 A stub contains a 64-bit \key{stub value}.  If the stub is collectible
 (as determined by its type), the type of this value
-is determined by the stub type code (\secref{STUB-TYPE-CODES}).
+is determined by the stub type code (\itemref{STUB-TYPE-CODES}).
 Otherwise the stub is typically attached to an object and the type of the stub
 value is determined by how it is attached; in this case the type of the
 stub value is most often just \verb|min::gen|.
@@ -1433,12 +1346,12 @@ stub value is most often just \verb|min::gen|.
 Many stubs are immutable
 and their stub values cannot be written after the stub has been created;
 nevertheless we describe unprotected functions
-below (\secref{UNPROTECTED-STUB-FUNCTIONS}) that
+below (\itemref{UNPROTECTED-STUB-FUNCTIONS}) that
 write these values.  Unprotected functions are also provided to obtain
 body pointers from stubs when these are the stub values of the stubs.
 This cannot be done by protected
 functions as body pointers are relocatable and require special
-programming be sure they are up-to-date (\secref{BODY-POINTERS}).
+programming be sure they are up-to-date (\itemref{BODY-POINTERS}).
 
 \subsubsection{Stub Control}
 \label{STUB-CONTROL}
@@ -1505,7 +1418,7 @@ for additional numbers.  Note that the auxiliary stub itself does not
 contain information that tells the type of the value it stores;
 one has to trace the reference from the object pointing at the
 auxiliary stub to determine this type.  Usually auxiliary stub
-values are \verb|min::gen| values.  See \secref{UNPROTECTED-STUB-FUNCTIONS}
+values are \verb|min::gen| values.  See \itemref{UNPROTECTED-STUB-FUNCTIONS}
 for functions that can read and write auxiliary stubs.
 
 \subsection{Body Pointers}
@@ -1604,7 +1517,7 @@ above code only works for long strings (\pagref{LONG-STRING-STUB}).
 When relocation happens inside a relocating function,
 the `\key{relocated flag}\,'\label{RELOCATED-FLAG},
 which is one of the execution flags
-described in~\secref{EXECUTION-FLAGS}, is set.
+described in~\itemref{EXECUTION-FLAGS}, is set.
 Functions that use unprotected pointers must obey the following
 protocol:
 
@@ -1620,7 +1533,7 @@ to call a relocating function: \\
     if the relocated flag is now set: \\
     \hspace*{3em}\begin{tabular}{l}
 	optionally check that object bodies pointed at \\
-	\hspace*{3em}have not been deallocated (see \secref{DEALLOCATION}) \\
+	\hspace*{3em}have not been deallocated (see \itemref{DEALLOCATION}) \\
 	set the saved relocated flag \\
 	recompute all local variables containing unprotected body pointers \\
     \end{tabular} \\
@@ -1859,7 +1772,7 @@ when dealing with numeric \verb|min::gen| values.
 \verb|min::gen| values must also be locatable by the acc.
 In particular
 pointers to packed structures and vectors
-(see Sections~\secref{PACKED-STRUCTURES} and \secref{PACKED-VECTORS})
+(see Sections~\itemref{PACKED-STRUCTURES} and \itemref{PACKED-VECTORS})
 must be locatable.
 
 When \verb|min::gen| or \verb|min::stub *| values are stored
@@ -1961,7 +1874,7 @@ can be defined without the `\verb|static|' keyword as long
 as they are defined outside functions.
 
 An example useage involving \verb|min::stub *| values
-and a packed structure (\secref{PACKED-STRUCTURES}) is:
+and a packed structure (\itemref{PACKED-STRUCTURES}) is:
 
 \begin{indpar}
 In \verb|s.h|:
@@ -2046,7 +1959,7 @@ These \verb|min::acc_write_update| functions
 with {\tt min::ACC\_\EOL FREE} type, which can only happen when the
 stub has been recently returned by
 {\tt min::\EOL new\_\EOL acc\_\EOL stub}.
-See \secref{STUB-ALLOCATION-FUNCTIONS}.
+See \itemref{STUB-ALLOCATION-FUNCTIONS}.
 
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
@@ -2285,7 +2198,7 @@ or inside the type code field.
 
 The high order byte of any control written by \verb|MUP::set_control_of|
 is the type code, and the high order bit is clear if the stub is collectible
-and set if the stub is uncollectable (\secref{STUB-CONTROL}).
+and set if the stub is uncollectable (\itemref{STUB-CONTROL}).
 Changing a stub from collectible to uncollectable or vice versa requires
 removing or adding the stub to garbage collector lists that are threaded
 through the pointer field of the stub control.  So one cannot simply
@@ -2516,7 +2429,7 @@ an immutable \verb|min::float64| stub value that can be read by
 Number stubs exist only in compact implementations;
 in loose implementations number atoms are stored exclusively
 in direct number general values
-(\secref{GENERAL-VALUE-SUBTYPES}).
+(\itemref{GENERAL-VALUE-SUBTYPES}).
 
 General values that are numbers can be tested, created, and read
 by the following protected functions:
@@ -2645,8 +2558,8 @@ In addition, a string of up to 3 {\tt char}'s can be stored within a 32-bit
 \verb|min::gen| value, and a string of up to 5 {\tt char}'s can be stored
 within a 64-bit \verb|min::gen| value,
 without using a stub
-(see \secref{GENERAL-VALUE-SUBTYPES} and
-\secref{GENERAL-VALUE-FUNCTIONS}).
+(see \itemref{GENERAL-VALUE-SUBTYPES} and
+\itemref{GENERAL-VALUE-FUNCTIONS}).
 Such strings are called \skey{direct string}s, while strings stored in
 stubs or bodies which are pointed at by \verb|min::gen| values,
 the short and long strings, are called \skey{indirect string}s.
@@ -3227,9 +3140,9 @@ pointers also makes the same assumption.
 \label{NAMES}
 
 A \key{name} is a
-number (\secref{NUMBERS}),
-string (\secref{STRINGS}),
-or label (\secref{LABELS}), i.e., it is an atom or a label.
+number (\itemref{NUMBERS}),
+string (\itemref{STRINGS}),
+or label (\itemref{LABELS}), i.e., it is an atom or a label.
 A name can also be viewed as
 a sequence of \skey{name component}s, each of which is a number, string,
 or label.
@@ -3302,33 +3215,39 @@ way values are written to {\tt std::\EOL ostream}'s.
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 prtr| & \TTARMKEY{length}{of min::printer}
+\verb|const min::uns32 prtr| & \TTARMKEY{length}{of {\tt min::printer}}
 \LABEL{MIN::PRINTER_LENGTH} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{line}{of min::printer}
+\verb|const min::uns32 prtr| & \TTARMKEY{line}{of {\tt min::printer}}
 \LABEL{MIN::PRINTER_LINE} \\
-\verb|min::printer_state prtr| & \TTARMKEY{state}{of min::printer}
-\LABEL{MIN::PRINTER_STATE} \\
-\verb|min::printer_state prtr| & \TTARMKEY{saved\_state}{of min::printer}
-\LABEL{MIN::PRINTER_SAVED_STATE} \\
-\verb|std::ostream * prtr| & \TTARMKEY{ostream}{of min::printer}
+\verb|const min::uns32 prtr| & \TTARMKEY{column}{of {\tt min::printer}}
+\LABEL{MIN::PRINTER_COLUMN} \\
+\verb|const min::uns32 prtr| & \TTARMKEY{line\_offset}{of {\tt min::printer}}
+\LABEL{MIN::PRINTER_LINE_OFFSET} \\
+\verb|const min::uns32 prtr| & \TTARMKEY{break\_offset}{of {\tt min::printer}}
+\LABEL{MIN::PRINTER_BREAK_OFFSET} \\
+\verb|min::printer_parameters prtr|
+    & \TTARMKEY{parameters}{of {\tt min::printer}}
+\LABEL{MIN::PRINTER_PARAMETERS} \\
+\verb|min::printer_parameters prtr|
+    & \TTARMKEY{saved\_parameters}{of {\tt min::printer}}
+\LABEL{MIN::PRINTER_SAVED_PARAMETERS} \\
+\verb|std::ostream * prtr| & \TTARMKEY{ostream}{of {\tt min::printer}}
 \LABEL{MIN::PRINTER_OSTREAM} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{printer\_state}\ARGBREAK
+\verb|struct min::| & \MINKEY{printer\_parameters}\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  const min::printer_format * format;|\ARGBREAK
     \verb|  min::uns32 line_length;|\ARGBREAK
     \verb|  min::uns32 indent;|\ARGBREAK
     \verb|  min::uns32 flags;|\ARGBREAK
-    \verb|  min::uns32 column;|\ARGBREAK
     \verb|};|
-\ttmindex{format}{in {\tt min::printer\_state}}
-\ttmindex{column}{in {\tt min::printer\_state}}
-\ttmindex{line\_length}{in {\tt min::printer\_state}}
-\ttmindex{indent}{in {\tt min::printer\_state}}
-\ttmindex{flags}{in {\tt min::printer\_state}}
-\LABEL{MIN::PRINTER_STATE_STRUCT} \\
+\ttmindex{format}{in {\tt min::printer\_parameters}}
+\ttmindex{line\_length}{in {\tt min::printer\_parameters}}
+\ttmindex{indent}{in {\tt min::printer\_parameters}}
+\ttmindex{flags}{in {\tt min::printer\_parameters}}
+\LABEL{MIN::PRINTER_PARAMETERS_STRUCT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3336,23 +3255,29 @@ way values are written to {\tt std::\EOL ostream}'s.
 \LABEL{MIN::ASCII_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAG}
 \LABEL{MIN::GRAPHIC_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_LINEFEED\_FLAG}
-\LABEL{MIN::DISPLAY_LINEFEED_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
+\LABEL{MIN::DISPLAY_EOL_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{HEX\_FLAG}
 \LABEL{MIN::HEX_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{IGNORE\_LINE\_LENGTH\_FLAG}
-\LABEL{MIN::IGNORE_LINE_LENGTH_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{NOBREAKS\_FLAG}
+\LABEL{MIN::NOBREAKS_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
+\LABEL{MIN::EOL_FLUSH_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{EOM\_FLUSH\_FLAG}
+\LABEL{MIN::EOM_FLUSH_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{KEEP\_FLAG}
+\LABEL{MIN::KEEP_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{default\_printer\_state}\verb| =|\ARGBREAK
+\verb|struct min::| & \MINKEY{default\_printer\_parameters}\verb| =|\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  min::default_printer_format,     // format|\ARGBREAK
     \verb|  72,                              // line_length|\ARGBREAK
     \verb|  4,                               // indent|\ARGBREAK
     \verb|  0,                               // column|\ARGBREAK
     \verb|};|
-\LABEL{MIN::DEFAULT_PRINTER_STATE}
+\LABEL{MIN::DEFAULT_PRINTER_PARAMETERS}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -3393,9 +3318,19 @@ way values are written to {\tt std::\EOL ostream}'s.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
-    & \MINKEY{pgen}\verb| ( min::gen v,|\ARGBREAK
-                   \verb| min::printer_format * = NULL )|
+    & \MINKEY{pgen}\verb| ( min::gen v,|\\&{\tt ~~~~}
+                   \verb|   min::printer_format * = NULL )|
 \LABEL{MIN::PGEN} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{punicode}\verb| ( min::uns32 c )|
+\LABEL{MIN::PUNICODE} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{punicode}\verb| ( min::unsptr length,|\\&{\tt ~~~~~~~~}
+                       \verb|   const min::uns32 * buffer )|
+\LABEL{MIN::PUNICODE_BUFFER} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
     & \MINKEY{flush}\verb| ( void )|
 \LABEL{MIN::FLUSH} \\
@@ -3424,17 +3359,15 @@ way values are written to {\tt std::\EOL ostream}'s.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
-    & \MINKEY{save\_printer\_state}
-\LABEL{MIN::SAVE_PRINTER_STATE} \\
+    & \MINKEY{save\_printer\_parameters}
+\LABEL{MIN::SAVE_PRINTER_PARAMETERS} \\
 \verb|const min::printer_item min::|
-    & \MINKEY{restore\_printer\_state}
-\LABEL{MIN::RESTORE_PRINTER_STATE} \\
+    & \MINKEY{restore\_printer\_parameters}
+\LABEL{MIN::RESTORE_PRINTER_PARAMETERS} \\
 \verb|const min::printer_item min::| & \MINKEY{eol}
 \LABEL{MIN::EOL} \\
 \verb|const min::printer_item min::| & \MINKEY{eom}
 \LABEL{MIN::EOM} \\
-\verb|const min::printer_item min::| & \MINKEY{bom}
-\LABEL{MIN::BOM} \\
 \verb|const min::printer_item min::| & \MINKEY{hex}
 \LABEL{MIN::HEX} \\
 \verb|const min::printer_item min::| & \MINKEY{ascii}
@@ -3445,51 +3378,69 @@ way values are written to {\tt std::\EOL ostream}'s.
 \LABEL{MIN::GRAPHIC} \\
 \verb|const min::printer_item min::| & \MINKEY{nographic}
 \LABEL{MIN::NOGRAPHIC} \\
-\verb|const min::printer_item min::| & \MINKEY{display\_line\_feed}
-\LABEL{MIN::DISPLAY_LINE_FEED} \\
-\verb|const min::printer_item min::| & \MINKEY{nodisplay\_line\_feed}
-\LABEL{MIN::NODISPLAY_LINE_FEED} \\
-\verb|const min::printer_item min::| & \MINKEY{ignore\_line\_length}
-\LABEL{MIN::IGNORE_LINE_LENGTH} \\
-\verb|const min::printer_item min::| & \MINKEY{noignore\_line\_length}
-\LABEL{MIN::NOIGNORE_LINE_LENGTH} \\
+\verb|const min::printer_item min::| & \MINKEY{display\_eol}
+\LABEL{MIN::DISPLAY_EOL} \\
+\verb|const min::printer_item min::| & \MINKEY{nodisplay\_eol}
+\LABEL{MIN::NODISPLAY_EOL} \\
+\verb|const min::printer_item min::| & \MINKEY{nobreaks}
+\LABEL{MIN::NOBREAKS} \\
+\verb|const min::printer_item min::| & \MINKEY{eol\_flush}
+\LABEL{MIN::EOL_FLUSH} \\
+\verb|const min::printer_item min::| & \MINKEY{noeol\_flush}
+\LABEL{MIN::NOEOL_FLUSH} \\
+\verb|const min::printer_item min::| & \MINKEY{eom\_flush}
+\LABEL{MIN::EOM_FLUSH} \\
+\verb|const min::printer_item min::| & \MINKEY{noeom\_flush}
+\LABEL{MIN::NOEOM_FLUSH} \\
+\verb|const min::printer_item min::| & \MINKEY{keep}
+\LABEL{MIN::KEEP} \\
+\verb|const min::printer_item min::| & \MINKEY{nokeep}
+\LABEL{MIN::NOKEEP} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr,|\ARGBREAK
       \verb|   const min::printer_item & item )|
 \LABEL{PRINTER_OPERATOR<<_OF_ITEM} \\
 \verb|min::printer & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr, int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr, int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr, uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr, uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt std::ostream}}\ARGBREAK
       \verb| ( std ostream & out, min::printer & prtr )|
 \LABEL{OPERATOR<<_OF_PRINTER} \\
 \end{tabular}\end{indpar}
@@ -3505,7 +3456,7 @@ A \verb|min::gen| value may be printed using the following:
     \verb|   min::pr_format & f = min::default_pr_format )|
 \LABEL{MIN::PR} \\
 \verb|std::ostream & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( std ostream & out, const min::pr & prv )|
 \LABEL{OPERATOR<<_OF_PR} \\[2ex]
 \verb|struct min::| & \MINKEY{pr\_format}\ARGBREAK
@@ -3616,43 +3567,43 @@ called `\verb|charbuf|'s by using:
 \end{tabular}\end{indpar}
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, const min::pr & prv )|
 \LABEL{CHARBUF_OPERATOR<<_OF_PR} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, char c )|
 \LABEL{CHARBUF_OPERATOR<<_OF_CHAR} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, const char * s )|
 \LABEL{CHARBUF_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, int32 i )|
 \LABEL{CHARBUF_OPERATOR<<_OF_INT32} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, int64 i )|
 \LABEL{CHARBUF_OPERATOR<<_OF_INT64} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, uns32 u )|
 \LABEL{CHARBUF_OPERATOR<<_OF_UNS32} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, uns64 u )|
 \LABEL{CHARBUF_OPERATOR<<_OF_UNS64} \\
 \end{tabular}\end{indpar}
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( std ostream & out, min::charbuf & buf )|
 \LABEL{OPERATOR<<_OF_CHARBUF} \\
 \end{tabular}\end{indpar}
 
 A {\tt min::charbuf} is a pointer to a packed vector
-(see Section~\secref{PACKED-VECTORS})
+(see Section~\itemref{PACKED-VECTORS})
 of \verb|char|'s, that is, an expandable vector
 of \verb|char|'s.
 The {\tt min::init} function resets the vector to zero length,
@@ -3666,7 +3617,7 @@ the {\tt min::\EOL init} function
 creates a new packed vector of \verb|char|'s and stores
 a pointer to it in the variable.
 In this case the variable must be locatable by the garbage collector
-(see Section~\secref{STORING-GENERAL-VALUES}).  Any case,
+(see Section~\itemref{STORING-GENERAL-VALUES}).  Any case,
 the {\tt min::\EOL charbuf} value must be locatable by the garbage
 collector, though this may be done by also storing it elsewhere.
 
@@ -3701,7 +3652,7 @@ any datum), \verb|strlen(&b[0])|
 is the length of the C language string, and
 \verb|b->length| is this length plus 1, the extra \verb|char| being
 the NUL at the end of the C language string.
-See Section~\secref{PACKED-VECTORS} for a complete explanation of
+See Section~\itemref{PACKED-VECTORS} for a complete explanation of
 \verb|b[i]| and \verb|b->length|.
 
 The {\tt prv.charbuf\_\EOL pr\_\EOL stub} function does for
@@ -3758,7 +3709,7 @@ one called the type that is constant, is shared among many typed objects,
 and contains attribute labels, and one called the
 context, which contains a vector of \skey{variable}s that hold attribute
 values.  Typed objects are described in more detail in
-\secref{TYPED-OBJECTS}.
+\itemref{TYPED-OBJECTS}.
 
 An object has a body that consists of the following 6 parts in
 the order given:
@@ -3850,13 +3801,13 @@ provided that the {\tt OBJ\_\EOL PRIVATE} and
 {\tt OBJ\_\EOL PUBLIC} object flags are not set.
 
 The data structure of an object body can be viewed at any of three levels:
-vector level (\secref{OBJECT-VECTOR-LEVEL}),
-list level (\secref{OBJECT-LIST-LEVEL}),
-and attribute level (\secref{OBJECT-ATTRIBUTE-LEVEL}).
+vector level (\itemref{OBJECT-VECTOR-LEVEL}),
+list level (\itemref{OBJECT-LIST-LEVEL}),
+and attribute level (\itemref{OBJECT-ATTRIBUTE-LEVEL}).
 The interfaces to all of these levels is protected.  In addition
 there is an unprotected vector level interface
-(\secref{OBJECT-UNPROTECTED-VECTOR-LEVEL}) and a
-typed object interface (\secref{TYPED-OBJECTS}).
+(\itemref{OBJECT-UNPROTECTED-VECTOR-LEVEL}) and a
+typed object interface (\itemref{TYPED-OBJECTS}).
 
 \subsubsection{Object Creation}
 \label{OBJECT-CREATION}
@@ -4720,7 +4671,7 @@ may not be efficient.
 
 As an optimization, \skey{auxiliary stub}s can be used in place of object
 auxiliary area elements.  When this is done, the description of this
-section must be modified as explained in \secref{OBJECT-AUXILIARY-STUBS}.
+section must be modified as explained in \itemref{OBJECT-AUXILIARY-STUBS}.
 
 \subsubsubsection{List Pointers}
 \label{LIST-POINTERS}
@@ -4992,7 +4943,7 @@ the {\tt min::\EOL is\_\EOL sublist} function, which must check whether the
 value is a sublist auxiliary pointer,
 is the value {\tt min::\EOL EMPTY\_\EOL SUBLIST},
 or is a pointer to a sublist auxiliary stub as described in
-\secref{OBJECT-AUXILIARY-STUBS}.
+\itemref{OBJECT-AUXILIARY-STUBS}.
 The {\tt min::\EOL is\_\EOL empty\_\EOL sublist}
 function, on the other hand, merely checks whether the value is
 {\tt min::\EOL EMPTY\_\EOL SUBLIST}.
@@ -5326,7 +5277,7 @@ a call to {\tt min::\EOL insert\_\EOL refresh}.
 
 The {\tt min::\EOL insert\_reserve} function can increase the size of the object
 if it is insufficient, or instead it can depend upon using
-object auxiliary stubs (\secref{OBJECT-AUXILIARY-STUBS}) if the object
+object auxiliary stubs (\itemref{OBJECT-AUXILIARY-STUBS}) if the object
 runs out of space, in which case {\tt min::\EOL insert\_reserve} must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
 last argument to {\tt min::\EOL insert\_reserve} determines which strategy is
@@ -5441,7 +5392,7 @@ is \underline{not} a detectable error.
 In order to enforce the `No Superfluous' rules on 
 \pagref{NO-SUPERFLUOUS-LIST}, {\tt MUP::list\_insptr}'s keep
 track of the location of any auxiliary pointer
-(or equivalent as per \secref{OBJECT-AUXILIARY-STUBS})
+(or equivalent as per \itemref{OBJECT-AUXILIARY-STUBS})
 pointing a the current
 element.  Insertions before or after the current element may change
 this auxiliary pointer, and may move the current element to another
@@ -5618,7 +5569,7 @@ The use of object auxiliary stubs by an implementation is hidden from
 the user of MIN by object list level functions.  There are no functions
 for dealing explicitly with object auxiliary stubs.  There are, however,
 functions to read and write stubs of all kinds in
-\secref{UNPROTECTED-STUB-FUNCTIONS}, though the only use of these functions on
+\itemref{UNPROTECTED-STUB-FUNCTIONS}, though the only use of these functions on
 object auxiliary stubs would be for debugging.
 
 \subsubsection{Typed Objects}
@@ -6166,7 +6117,7 @@ reverse attribute name to {\tt min::NONE}.
 
 Both the {\tt min::\EOL locate} and {\tt min::\EOL locate\_reverse}
 functions take name
-arguments that are labels (\secref{LABELS}).  If an atom (number or
+arguments that are labels (\itemref{LABELS}).  If an atom (number or
 string) is given instead, this is treated as the equivalent of
 a label whose only element is the atom.
 
@@ -6310,7 +6261,7 @@ A {\tt min::\EOL attr\_\EOL info} packed vector can be manipulated in other
 ways using its packed vector type information in
 {\tt min::\EOL attr\_\EOL info\_\EOL vec}
 and {\tt min::\EOL attr\_\EOL info\_\EOL vec\_\EOL type}:
-see Section~\secref{PACKED-VECTORS}.
+see Section~\itemref{PACKED-VECTORS}.
 
 The {\tt min::\EOL get\_\EOL reverse\_\EOL attrs}
 function is analogous but involves the list of
@@ -6690,7 +6641,8 @@ TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
 \newcommand{\SARG}{\BRACKETED{S}}
 \newcommand{\EHARG}{\BRACKETED{E,H}}
-\newcommand{\EARG}{\BRACKETED{E,H = min::packed\_vec\_header}}
+\newcommand{\EARGDEFAULT}{\BRACKETED{E,H = min::packed\_vec\_header}}
+\newcommand{\EARG}{\BRACKETED{E,H}}
 
 A \key{packed structure} is a C `struct' stored in a body.
 
@@ -6722,7 +6674,7 @@ permits read-write access.
 These pointers are like the type `\verb|const min::stub *|' but with with extra
 clothes.
 Pointers of these types can also be included as members in C packed structures
-and packed vector headers and elements (see \secref{PACKED-VECTORS}).
+and packed vector headers and elements (see \itemref{PACKED-VECTORS}).
 
 The C type of a packed structure is described at run-time by a
 {\tt min::packed\_\EOL struct\SARG} C++ static object, where
@@ -6936,7 +6888,7 @@ a packed structure have the usage:
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|const * S |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{->}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
@@ -6983,7 +6935,7 @@ a packed structure have the usage:
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
 \verb|* S |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
@@ -7163,7 +7115,8 @@ named \verb|pvtype| use
     \verb|};|
 \LABEL{MIN::PACKED_VEC_HEADER} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\EARG} \verb|pvtype|\ARGBREAK
+	& \MINIKEY{packed\_vec\EARGDEFAULT}{packed\_vec\EARG}
+	      \verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
@@ -7408,15 +7361,18 @@ a packed vector, and these have the usage:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
+	      \verb|pvp|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
+	      \verb|pvp|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
+	      \verb|pvp|\ARGBREAK
 	  \verb| ( void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
 \verb|typedef |
@@ -7444,7 +7400,7 @@ a packed vector, and these have the usage:
           \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
 \verb|const H * |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
@@ -7459,15 +7415,21 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
+	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
+	          {packed\_vec\_updptr\EARG}
+	      \verb|pvup|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
+	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
+	          {packed\_vec\_updptr\EARG}
+	      \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
+	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
+	          {packed\_vec\_updptr\EARG}
+	      \verb|pvup|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
 \verb|typedef |
@@ -7495,7 +7457,7 @@ a packed vector, and these have the usage:
           \verb| ( const min::packed_vec_updptr<E,H> & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|H * |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
 	  \verb|      & pvup )|
@@ -7512,16 +7474,22 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
+	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
+	          {packed\_vec\_insptr\EARG}
+	      \verb|pvip|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
+	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
+	          {packed\_vec\_insptr\EARG}
+	      \verb|pvip|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
-	               \verb|( void )|
+	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
+	          {packed\_vec\_insptr\EARG}
+	      \verb|pvip|\ARGBREAK
+	   \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
 \verb|typedef |
 	& \verb|min::packed_vec_insptr|{\tt \EHARG}\ARGBREAK
@@ -7548,7 +7516,7 @@ a packed vector, and these have the usage:
           \verb| ( const min::packed_vec_insptr<E,H> & pvip )|
 \LABEL{MIN::PACKED_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|H * |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_insptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_insptr<E,H>|\ARGBREAK
 	  \verb|      & pvip )|
@@ -7811,9 +7779,10 @@ This is a logical time to pay this cost.
 \renewcommand{\TTBMKEY}[2]{{\tt ~~[#1]~~}}
 \renewcommand{\TTDMKEY}[2]{{\tt ~~.#1~~}}
 \renewcommand{\TTOMKEY}[3]{{\tt ~~operator~~#2~~}}
-\renewcommand{\TTARMKEY}[2]{{\tt ~~-\GREATERTHAN#1~~}}
+\renewcommand{\TTARMKEY}[2]{{\tt ~~->#1~~}}
 \renewcommand{\TTNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MINKEY}[1]{{\tt ~~#1~~}}
+\renewcommand{\MINIKEY}[2]{{\tt ~~#1~~}}
 \renewcommand{\MINNBKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\MUPKEY}[1]{{\tt ~~#1~~}}
 \renewcommand{\ttkey}[1]{{\tt ~~#1~~}}
@@ -8890,7 +8859,7 @@ These are in \verb|min_parameters.h|.
     \verb|        min::default_pr_format )|
 \LABEL{MIN::PR} \\
 \verb|std::ostream & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( std ostream & out, min::pr & prv )|
 \LABEL{OPERATOR<<_OF_PR} \\
 \end{TABULAR}
@@ -8940,38 +8909,38 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, const min::pr & prv )|
 \LABEL{CHARBUF_OPERATOR<<_OF_PR} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, char c )|
 \LABEL{CHARBUF_OPERATOR<<_OF_CHAR} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, const char * s )|
 \LABEL{CHARBUF_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, int32 i )|
 \LABEL{CHARBUF_OPERATOR<<_OF_INT32} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, int64 i )|
 \LABEL{CHARBUF_OPERATOR<<_OF_INT64} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, uns32 u )|
 \LABEL{CHARBUF_OPERATOR<<_OF_UNS32} \\
 \verb|min::charbuf & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( min::charbuf & buf, uns64 u )|
 \LABEL{CHARBUF_OPERATOR<<_OF_UNS64} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
 \verb|std::ostream & |
-    & \TTKEY{operator \LESSTHAN\LESSTHAN}\\&{\tt ~~}
+    & \TTKEY{operator \LT\LT}\\&{\tt ~~}
       \verb| ( std ostream & out, min::charbuf & buf )|
 \LABEL{OPERATOR<<_OF_CHARBUF} \\
 \end{TABULAR}
@@ -9786,7 +9755,7 @@ These are in \verb|min_parameters.h|.
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|const * S |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{->}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
@@ -9836,7 +9805,7 @@ These are in \verb|min_parameters.h|.
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
 \verb|* S |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
@@ -9868,7 +9837,7 @@ These are in \verb|min_parameters.h|.
     \verb|};|
 \LABEL{MIN::PACKED_VEC_HEADER} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\EARG} \verb|pvtype|\ARGBREAK
+	& \MINKEY{packed\_vec\EARGDEFAULT} \verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
@@ -9951,15 +9920,15 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARG} \verb|pvp|\ARGBREAK
+	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
 	  \verb| ( void )|
 \LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
 \verb|typedef |
@@ -9988,7 +9957,7 @@ These are in \verb|min_parameters.h|.
           \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
 \verb|const H * |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
@@ -10005,15 +9974,15 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARG} \verb|pvup|\ARGBREAK
+	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
 \verb|typedef |
@@ -10043,7 +10012,7 @@ These are in \verb|min_parameters.h|.
           \verb| ( const min::packed_vec_updptr<E,H> & pvup )|
 \LABEL{MIN::PACKED_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|H * |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
 	  \verb|      & pvup )|
@@ -10062,15 +10031,15 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
 	  \verb| ( min::gen v )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
 	  \verb| ( min::stub * s )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
 (constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARG} \verb|pvip|\ARGBREAK
+	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
 	               \verb|( void )|
 \LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
 \verb|typedef |
@@ -10100,7 +10069,7 @@ These are in \verb|min_parameters.h|.
           \verb| ( const min::packed_vec_insptr<E,H> & pvip )|
 \LABEL{MIN::PACKED_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|H * |
-	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_insptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_insptr<E,H>|\ARGBREAK
 	  \verb|      & pvip )|
