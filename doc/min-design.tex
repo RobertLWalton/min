@@ -3257,8 +3257,8 @@ way values are written to {\tt std::\EOL ostream}'s.
 \LABEL{MIN::GRAPHIC_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{HEX\_FLAG}
-\LABEL{MIN::HEX_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{HEXADECIMAL\_FLAG}
+\LABEL{MIN::HEXADECIMAL_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{NOBREAKS\_FLAG}
 \LABEL{MIN::NOBREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
@@ -3319,14 +3319,16 @@ way values are written to {\tt std::\EOL ostream}'s.
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
     & \MINKEY{pgen}\verb| ( min::gen v,|\\&{\tt ~~~~}
-                   \verb|   min::printer_format * = NULL )|
+      \verb|   min::printer_format *|\\&{\tt ~~~~}
+      \verb|        format = NULL )|
 \LABEL{MIN::PGEN} \\
 \verb|const min::printer_item min::|
     & \MINKEY{punicode}\verb| ( min::uns32 c )|
 \LABEL{MIN::PUNICODE} \\
 \verb|const min::printer_item min::|
-    & \MINKEY{punicode}\verb| ( min::unsptr length,|\\&{\tt ~~~~~~~~}
-                       \verb|   const min::uns32 * buffer )|
+    & \MINKEY{punicode}\ARGBREAK
+      \verb| ( min::unsptr length,|\ARGBREAK
+      \verb|   const min::uns32 * buffer )|
 \LABEL{MIN::PUNICODE_BUFFER} \\
 \end{tabular}\end{indpar}
 
@@ -3374,8 +3376,10 @@ way values are written to {\tt std::\EOL ostream}'s.
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_item min::| & \MINKEY{hex}
-\LABEL{MIN::HEX} \\
+\verb|const min::printer_item min::| & \MINKEY{hexadecimal}
+\LABEL{MIN::HEXADECIMAL} \\
+\verb|const min::printer_item min::| & \MINKEY{nohexadecimal}
+\LABEL{MIN::NOHEXADECIMAL} \\
 \verb|const min::printer_item min::| & \MINKEY{ascii}
 \LABEL{MIN::ASCII} \\
 \verb|const min::printer_item min::| & \MINKEY{utf8}
@@ -3390,6 +3394,8 @@ way values are written to {\tt std::\EOL ostream}'s.
 \LABEL{MIN::NODISPLAY_EOL} \\
 \verb|const min::printer_item min::| & \MINKEY{nobreaks}
 \LABEL{MIN::NOBREAKS} \\
+\verb|const min::printer_item min::| & \MINKEY{breaks}
+\LABEL{MIN::BREAKS} \\
 \verb|const min::printer_item min::| & \MINKEY{eol\_flush}
 \LABEL{MIN::EOL_FLUSH} \\
 \verb|const min::printer_item min::| & \MINKEY{noeol\_flush}
@@ -3441,6 +3447,12 @@ way values are written to {\tt std::\EOL ostream}'s.
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer & prtr, uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
+\verb|min::printer & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer & prtr1,|\ARGBREAK
+      \verb|   min::printer & prtr2 )|
+\LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}

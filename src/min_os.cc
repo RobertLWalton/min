@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 00:33:23 EST 2010
+// Date:	Wed Feb  2 13:36:22 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,8 +51,6 @@ using std::ostream;
 using std::ifstream;
 using std::istringstream;
 using std::cout;
-using std::hex;
-using std::dec;
 
 // Function name for error messages.
 //
@@ -262,9 +260,9 @@ static unsigned used_pools_size;
 static ostream & operator <<
 	( ostream & out, const used_pool & p )
 {
-    out << hex
+    out << std::hex
         << (min::unsptr) p.start << "-"
-        << (min::unsptr) p.end << dec;
+        << (min::unsptr) p.end << std::dec;
     if ( p.permissions[0] != 0 )
         out << " " << p.permissions;
     return out;
@@ -337,7 +335,8 @@ static void read_used_pools ( void )
 	istringstream str ( line );
 	min::uns64 start, end;
 	char c1;
-	str >> hex >> start >> c1 >> end >> permissions;
+	str >> std::hex >> start >> c1 >> end
+	    >> permissions;
 	if ( ! str || c1 != '-'
 	           || strlen ( permissions ) > 5 )
 	{
@@ -606,9 +605,9 @@ void * MOS::new_pool_at
 
     if ( trace_pools >= 1 )
         cout << "TRACE: new_pool_at ( "
-	     << pages << ", 0x" << hex
+	     << pages << ", 0x" << std::hex
 	     << (min::unsptr) start << " )"
-	     << dec << endl;
+	     << std::dec << endl;
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
@@ -642,11 +641,11 @@ void * MOS::new_pool_between
     if ( trace_pools >= 1 )
         cout << "TRACE: new_pool_between ( "
 	     << pages
-	     << ", 0x" << hex
+	     << ", 0x" << std::hex
 	     << (min::unsptr) begin
-	     << ", 0x" << hex
+	     << ", 0x" << std::hex
 	     << (min::unsptr) end
-	     << " )" << dec << endl;
+	     << " )" << std::dec << endl;
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
@@ -739,9 +738,9 @@ void MOS::free_pool
 
     if ( trace_pools >= 1 )
         cout << "TRACE: free_pool ( "
-	     << pages << ", 0x" << hex
+	     << pages << ", 0x" << std::hex
 	     << (min::unsptr) start << " )"
-	     << dec << endl;
+	     << std::dec << endl;
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
@@ -771,9 +770,9 @@ void MOS::purge_pool
 
     if ( trace_pools >= 1 )
         cout << "TRACE: purge_pool ( "
-	     << pages << ", 0x" << hex
+	     << pages << ", 0x" << std::hex
 	     << (min::unsptr) start << " )"
-	     << dec << endl;
+	     << std::dec << endl;
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
@@ -855,10 +854,10 @@ void MOS::move_pool
 
     if ( trace_pools >= 1 )
         cout << "TRACE: move_pool ( "
-	     << pages << ", 0x" << hex
+	     << pages << ", 0x" << std::hex
 	     << (min::unsptr) new_start << ", 0x"
 	     << (min::unsptr) old_start << " )"
-	     << dec << endl;
+	     << std::dec << endl;
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
@@ -963,9 +962,9 @@ void MOS::inaccess_pool
 
     if ( trace_pools >= 1 )
         cout << "TRACE: inaccess_pool ( "
-	     << pages << ", 0x" << hex
+	     << pages << ", 0x" << std::hex
 	     << (min::unsptr) start << " )"
-	     << dec << endl;
+	     << std::dec << endl;
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
@@ -994,9 +993,9 @@ void MOS::access_pool
 
     if ( trace_pools >= 1 )
         cout << "TRACE: access_pool ( "
-	     << pages << ", 0x" << hex
+	     << pages << ", 0x" << std::hex
 	     << (min::unsptr) start << " )"
-	     << dec << endl;
+	     << std::dec << endl;
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
