@@ -3275,7 +3275,7 @@ way values are written to {\tt std::\EOL ostream}'s.
     \verb|  min::default_printer_format,     // format|\ARGBREAK
     \verb|  72,                              // line_length|\ARGBREAK
     \verb|  4,                               // indent|\ARGBREAK
-    \verb|  0,                               // column|\ARGBREAK
+    \verb|  0                                // flags|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_PRINTER_PARAMETERS}
 \end{tabular}\end{indpar}
@@ -3337,12 +3337,12 @@ way values are written to {\tt std::\EOL ostream}'s.
 \verb|const min::printer_item min::|
     & \MINKEY{flush}\verb| ( std::ostream * stream )|
 \LABEL{MIN::FLUSH_WITH_OSTREAM} \\
-\verb|const min::printer_item min::|
-    & \MINKEY{format}\verb| ( min::printer_format * format )|
-\LABEL{MIN::FORMAT} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::printer_item min::|
+    & \MINKEY{format}\verb| ( min::printer_format * format )|
+\LABEL{MIN::FORMAT} \\
 \verb|const min::printer_item min::|
     & \MINKEY{line\_length}\verb| ( min::uns32 line_length )|
 \LABEL{MIN::LINE_LENGTH} \\
@@ -3364,10 +3364,16 @@ way values are written to {\tt std::\EOL ostream}'s.
 \verb|const min::printer_item min::|
     & \MINKEY{restore\_printer\_parameters}
 \LABEL{MIN::RESTORE_PRINTER_PARAMETERS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::| & \MINKEY{eol}
 \LABEL{MIN::EOL} \\
 \verb|const min::printer_item min::| & \MINKEY{eom}
 \LABEL{MIN::EOM} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::| & \MINKEY{hex}
 \LABEL{MIN::HEX} \\
 \verb|const min::printer_item min::| & \MINKEY{ascii}
