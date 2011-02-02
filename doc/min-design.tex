@@ -272,7 +272,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 1, 2011}
+\date{February 2, 2011}
  
 \maketitle
 
@@ -6755,25 +6755,23 @@ named \verb|pstype| use
 \LABEL{MIN::DISP_END} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen |
-	& \verb|pstype.|\TTKEY{new\_gen} \verb|( void )|
+\verb|min::gen pstype|
+    & \TTDMKEY{new\_gen}{of {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_GEN} \\
-\verb|const min::stub * |
-	& \verb|pstype.|\TTKEY{new\_stub} \verb|( void )|
+\verb|const min::stub * pstype|
+    & \TTDMKEY{new\_stub}{of {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_STUB} \\
-\verb|min::uns32 |
-	& \verb|pstype.|\TTMKEY{subtype}{in {\tt min::packed\_struct}}
+\verb|min::uns32 pstype|
+    & \TTDMKEY{subtype}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_SUBTYPE} \\
-\verb|const char * const |
-	& \verb|pstype.|\TTMKEY{name}{in {\tt min::packed\_struct}}
+\verb|const char * const pstype.|
+    & \TTDMKEY{name}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_NAME} \\
-\verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{gen\_disp}
-	                       {in {\tt min::packed\_struct}}
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{gen\_disp}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_GEN_DISP} \\
-\verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{stub\_disp}
-	                       {in {\tt min::packed\_struct}}
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{stub\_disp}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_STUB_DISP} \\
 \end{tabular}\end{indpar}
 
@@ -6921,25 +6919,30 @@ a packed structure have the usage:
 	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
 \LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{@{}l}
- \verb|min::packed_struct_ptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp, min::gen v )|
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::packed_struct_ptr<S> & |
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   min::gen v )|
 \LABEL{MIN::=_PACKED_STRUCT_PTR_OF_GEN} \\
 \verb|min::packed_struct_ptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp, const min::stub * s )|
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   const min::stub * s )|
 \LABEL{MIN::=_PACKED_STRUCT_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-	& {\tt \bf operator const min::stub *}%
-	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
+\begin{indpar}\begin{tabular}{r@{}l}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const * S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+\verb|const * S |
+	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|const & S | & \TTKEY{operator *}\ARGBREAK
+\verb|const & S |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{tabular}\end{indpar}
@@ -6961,27 +6964,36 @@ a packed structure have the usage:
 	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{@{}l}
- \verb|min::packed_struct_updptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_updptr<S> & psup, min::gen v )|
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S>|\\
+	& \verb|        & psup,|\\
+	& \verb|   min::gen v )|
 \LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_GEN} \\
-\verb|min::packed_struct_updptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_updptr<S> & psup, const min::stub * s )|
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S>|\\
+	& \verb|        & psup,|\\
+	& \verb|   const min::stub * s )|
 \LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
 \end{tabular}\end{indpar}
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-	& {\tt \bf operator const min::stub *}%
-	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
+\begin{indpar}\begin{tabular}{r@{}l}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_struct\_updptr}}\ARGBREAK
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
-\verb|* S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+\verb|* S |
+	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|& S | & \TTKEY{operator *}\ARGBREAK
+\verb|& S |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
 \LABEL{MIN::NULL_STUB} \\
 \end{tabular}\end{indpar}
@@ -9694,29 +9706,24 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::DISP_END} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.8in}
-\verb|min::gen |
-	& \verb|pstype.|\TTKEY{new\_gen} \verb|( void )|
+\begin{TABULAR}{3.0in}
+\verb|min::gen pstype|
+    & \TTDMKEY{new\_gen}{of {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_GEN} \\
-\verb|const min::stub * |
-	& \verb|pstype.|\TTKEY{new\_stub} \verb|( void )|
+\verb|const min::stub * pstype|
+    & \TTDMKEY{new\_stub}{of {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|min::uns32 |
-	& \verb|pstype.|\TTMKEY{subtype}{in {\tt min::packed\_struct}}
+\verb|min::uns32 pstype|
+    & \TTDMKEY{subtype}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_SUBTYPE} \\
-\verb|const char * const |
-	& \verb|pstype.|\TTMKEY{name}{in {\tt min::packed\_struct}}
+\verb|const char * const pstype.|
+    & \TTDMKEY{name}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_NAME} \\
-\verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{gen\_disp}
-	                       {in {\tt min::packed\_struct}}
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{gen\_disp}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_GEN_DISP} \\
-\verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{stub\_disp}
-	                       {in {\tt min::packed\_struct}}
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{stub\_disp}{of {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_STUB_DISP} \\
 \end{TABULAR}
 
@@ -9748,26 +9755,31 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
 \end{TABULAR}
 
-\begin{LONGTABULAR}
- \verb|min::packed_struct_ptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp, min::gen v )|
+\begin{TABULAR}{2.4in}
+\verb|min::packed_struct_ptr<S> & |
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   min::gen v )|
 \LABEL{MIN::=_PACKED_STRUCT_PTR_OF_GEN} \\
 \verb|min::packed_struct_ptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp, const min::stub * s )|
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   const min::stub * s )|
 \LABEL{MIN::=_PACKED_STRUCT_PTR_OF_STUB} \\
-\end{LONGTABULAR}
+\end{TABULAR}
 
-\begin{TABULAR}{1.4in}
-	& {\tt \bf operator const min::stub *}%
-	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
+\begin{TABULAR}{1.0in}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const * S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+\verb|const * S |
+	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|const & S | & \TTKEY{operator *}\ARGBREAK
+\verb|const & S |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{TABULAR}
@@ -9791,26 +9803,33 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
 \end{TABULAR}
 
-\begin{LONGTABULAR}
- \verb|min::packed_struct_updptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_updptr<S> & psup, min::gen v )|
+\begin{TABULAR}{2.8in}
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S>|\\
+	& \verb|        & psup,|\\
+	& \verb|   min::gen v )|
 \LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_GEN} \\
-\verb|min::packed_struct_updptr<S> & |
-	  \TTKEY{operator =}\LONGARGBREAK
-	  \verb| ( min::packed_struct_updptr<S> & psup, const min::stub * s )|
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S> |\\
+	& \verb|        & psup,|\\
+	& \verb|   const min::stub * s )|
 \LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
-\end{LONGTABULAR}
+\end{TABULAR}
 
-\begin{TABULAR}{1.4in}
-	& {\tt \bf operator const min::stub *}%
-	  \index{min::stub@{\tt operator}!{\tt const min::stub *}}\ARGBREAK
+\begin{TABULAR}{0.8in}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_struct\_updptr}}\ARGBREAK
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
-\verb|* S | & \TTKEY{operator -\GREATERTHAN}\ARGBREAK
+\verb|* S |
+	& \TTOMKEY{-\GREATERTHAN}{-\GREATERTHAN}%
+	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|& S | & \TTKEY{operator *}\ARGBREAK
+\verb|& S |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
 \end{TABULAR}
