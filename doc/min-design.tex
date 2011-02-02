@@ -6740,14 +6740,14 @@ named \verb|pstype| use
 	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
+	  \verb|   const min::uns32 * stub_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
 		\verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
+	  \verb|   const min::uns32 * stub_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
 \verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
 \LABEL{MIN::DISP} \\
@@ -6772,9 +6772,9 @@ named \verb|pstype| use
 	                       {in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_GEN_DISP} \\
 \verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{stub\_ptr\_disp}
+	& \verb|pstype.|\TTMKEY{stub\_disp}
 	                       {in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_STUB_PTR_DISP} \\
+\LABEL{PACKED_STRUCT_STUB_DISP} \\
 \end{tabular}\end{indpar}
 
 where
@@ -6843,7 +6843,7 @@ displacements vector must be given for garbage collection purposes.
 \verb|const min::gen| members are treated like \verb|min::gen|
 members for these purposes.
 
-\item[\ttmkey{stub\_ptr\_disp}{in {\tt min::packed\_struct}}]
+\item[\ttmkey{stub\_disp}{in {\tt min::packed\_struct}}]
 Ditto but for \verb|min::stub *| members of \verb|S|
 instead of \verb|min::gen| members.
 
@@ -7045,11 +7045,11 @@ struct ps {
 
 static min::uns32 ps_gen_disp[2] =
     { min::DISP(&ps::g), min::DISP_END };
-static min::uns32 ps_stub_ptr_disp[2] =
+static min::uns32 ps_stub_disp[2] =
     { min::DISP(&ps::s), min::DISP(&ps::pv), min::DISP_END };
 
 static min::packed_struct<ps> pstype
-    ( "pstype", ps_gen_disp, ps_stub_ptr_disp );
+    ( "pstype", ps_gen_disp, ps_stub_disp );
 
 main ( ... )
 {
@@ -7155,7 +7155,7 @@ named \verb|pvtype| use
 	& \MINKEY{packed\_vec\EARG} \verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
@@ -7165,7 +7165,7 @@ named \verb|pvtype| use
 		\verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
@@ -7199,15 +7199,15 @@ named \verb|pvtype| use
 \verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_gen\_disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_stub\_ptr\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_stub\_disp}
 	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_HEADER_STUB_PTR_DISP} \\
+\LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
 \verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_gen\_disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_stub\_ptr\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_stub\_disp}
 	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_ELEMENT_STUB_PTR_DISP} \\[1ex]
+\LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
 \verb|min::uns32 pvtype| & \TTDMKEY{initial\_max\_length}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_INITIAL_MAX_LENGTH} \\
@@ -7301,13 +7301,13 @@ be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|H|.  But if there are \verb|min::gen| members, this
 displacements vector must be given for garbage collection purposes.
 
-\item[\ttmkey{header\_stub\_ptr\_disp}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{header\_stub\_disp}{in {\tt min::packed\_vec}}]
 Ditto but for \verb|min::stub *| members of \verb|H|.
 
-\item[\ttmkey{element\_stub\_ptr\_disp}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{element\_stub\_disp}{in {\tt min::packed\_vec}}]
 Ditto but for \verb|min::gen| members of \verb|E|.
 
-\item[\ttmkey{element\_stub\_ptr\_disp}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{element\_stub\_disp}{in {\tt min::packed\_vec}}]
 Ditto but for \verb|min::stub *| members of \verb|E|.
 
 \end{list}
@@ -7697,11 +7697,11 @@ struct pve {
 
 static min::uns32 pve_gen_disp[2] =
     { 0, min::DISP_END };
-static min::uns32 pve_stub_ptr_disp[2] =
+static min::uns32 pve_stub_disp[2] =
     { 0 + sizeof ( min::gen ), min::DISP_END };
 
 static min::packed_vec<pve,pvh> pvtype
-    ( "pvtype", pve_gen_disp, pve_stub_ptr_disp );
+    ( "pvtype", pve_gen_disp, pve_stub_disp );
 
 main ( ... )
 {
@@ -9676,14 +9676,14 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
+	  \verb|   const min::uns32 * stub_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
 		\verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_ptr_disp = NULL )|
+	  \verb|   const min::uns32 * stub_disp = NULL )|
 \LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
 \end{TABULAR}
 
@@ -9715,9 +9715,9 @@ These are in \verb|min_parameters.h|.
 	                       {in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_GEN_DISP} \\
 \verb|const min::uns32 * const |
-	& \verb|pstype.|\TTMKEY{stub\_ptr\_disp}
+	& \verb|pstype.|\TTMKEY{stub\_disp}
 	                       {in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_STUB_PTR_DISP} \\
+\LABEL{PACKED_STRUCT_STUB_DISP} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -9840,7 +9840,7 @@ These are in \verb|min_parameters.h|.
 	& \MINKEY{packed\_vec\EARG} \verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
@@ -9850,7 +9850,7 @@ These are in \verb|min_parameters.h|.
 		\verb|pvtype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_ptr_disp|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
@@ -9886,15 +9886,15 @@ These are in \verb|min_parameters.h|.
 \verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_gen\_disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_stub\_ptr\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_stub\_disp}
 	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_HEADER_STUB_PTR_DISP} \\
+\LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
 \verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_gen\_disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_stub\_ptr\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_stub\_disp}
 	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_ELEMENT_STUB_PTR_DISP} \\[1ex]
+\LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
 \end{TABULAR}
 
 \begin{TABULAR}{2.4in}
