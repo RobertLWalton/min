@@ -6658,6 +6658,14 @@ min::printer & operator <<
     return prtr << buffer;
 }
 
+min::printer & operator <<
+	( min::printer & prtr, min::float64 f )
+{
+    char buffer[64];
+    sprintf ( buffer, "%.15g", f );
+    return prtr << buffer;
+}
+
 min::printer & PINT::pgen
 	( min::printer & prtr,
 	  const min::printer_item & item )
