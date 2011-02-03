@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  3 07:14:27 EST 2011
+// Date:	Thu Feb  3 10:00:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8825,11 +8825,10 @@ namespace min {
         ASCII_FLAG		= ( 1 << 0 ),
         GRAPHIC_FLAG		= ( 1 << 1 ),
         DISPLAY_EOL_FLAG	= ( 1 << 2 ),
-        HEX_FLAG		= ( 1 << 3 ),
-        NOBREAKS_FLAG		= ( 1 << 4 ),
-        EOL_FLUSH_FLAG		= ( 1 << 5 ),
-        EOM_FLUSH_FLAG		= ( 1 << 6 ),
-        KEEP_FLAG		= ( 1 << 7 ),
+        NOBREAKS_FLAG		= ( 1 << 3 ),
+        EOL_FLUSH_FLAG		= ( 1 << 4 ),
+        EOM_FLUSH_FLAG		= ( 1 << 5 ),
+        KEEP_FLAG		= ( 1 << 6 ),
     };
 
     struct printer_item
@@ -8839,7 +8838,11 @@ namespace min {
 	      const printer_item & item );
 	union {
 	    void * p;
-	    uns32 u;
+	    uns32 u32;
+	    int32 i32;
+	    uns64 u64;
+	    int64 i64;
+	    float64 f64;
 	    min::gen g;
 	} v1, v2;
     };
@@ -8853,6 +8856,15 @@ namespace min {
 	    ( printer & prtr,
 	      const printer_item & item );
         printer & punicode2
+	    ( printer & prtr,
+	      const printer_item & item );
+        printer & pint
+	    ( printer & prtr,
+	      const printer_item & item );
+        printer & puns
+	    ( printer & prtr,
+	      const printer_item & item );
+        printer & pfloat
 	    ( printer & prtr,
 	      const printer_item & item );
         printer & flush0
@@ -8893,7 +8905,7 @@ namespace min {
     {
         printer_item item;
 	item.op = printer_internal::punicode1;
-	item.v1.u = c;
+	item.v1.u32 = c;
 	return item;
     }
 
@@ -8903,8 +8915,41 @@ namespace min {
     {
         printer_item item;
 	item.op = printer_internal::punicode2;
-	item.v1.u = length;
+	item.v1.u32 = length;
 	item.v1.p = (void *) buffer;
+	return item;
+    }
+
+    inline printer_item pint
+	    ( min::int64 i,
+              const char * printf_format )
+    {
+        printer_item item;
+	item.op = printer_internal::pint;
+	item.v1.i64 = i;
+	item.v2.p = (void *) printf_format;
+	return item;
+    }
+
+    inline printer_item puns
+	    ( min::uns64 u,
+              const char * printf_format )
+    {
+        printer_item item;
+	item.op = printer_internal::puns;
+	item.v1.u64 = u;
+	item.v2.p = (void *) printf_format;
+	return item;
+    }
+
+    inline printer_item pfloat
+	    ( min::float64 f,
+              const char * printf_format )
+    {
+        printer_item item;
+	item.op = printer_internal::pfloat;
+	item.v1.f64 = f;
+	item.v2.p = (void *) printf_format;
 	return item;
     }
 
@@ -8938,7 +8983,7 @@ namespace min {
     {
         printer_item item;
 	item.op = printer_internal::line_length;
-	item.v1.u = line_length;
+	item.v1.u32 = line_length;
 	return item;
     }
 
@@ -8947,7 +8992,7 @@ namespace min {
     {
         printer_item item;
 	item.op = printer_internal::indent;
-	item.v1.u = indent;
+	item.v1.u32 = indent;
 	return item;
     }
 
@@ -8956,7 +9001,7 @@ namespace min {
     {
         printer_item item;
 	item.op = printer_internal::set_printer_flags;
-	item.v1.u = flags;
+	item.v1.u32 = flags;
 	return item;
     }
 
@@ -8965,7 +9010,7 @@ namespace min {
     {
         printer_item item;
 	item.op = printer_internal::clear_printer_flags;
-	item.v1.u = flags;
+	item.v1.u32 = flags;
 	return item;
     }
 
@@ -8975,8 +9020,6 @@ namespace min {
     extern printer_item eol;
     extern printer_item eom;
 
-    extern printer_item hexadecimal;
-    extern printer_item nohexadecimal;
     extern printer_item ascii;
     extern printer_item utf8;
     extern printer_item graphic;
@@ -9033,6 +9076,10 @@ inline min::printer & operator <<
 {
     return prtr << (min::uns64) i;
 }
+
+min::printer & operator <<
+	( min::printer & prtr,
+	  min::float64 i );
 
 min::printer & operator <<
 	( min::printer & prtr1,

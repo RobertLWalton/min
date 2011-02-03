@@ -184,7 +184,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 2, 2011}
+\date{February 3, 2011}
  
 \maketitle
 
@@ -3257,8 +3257,6 @@ way values are written to {\tt std::\EOL ostream}'s.
 \LABEL{MIN::GRAPHIC_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{HEXADECIMAL\_FLAG}
-\LABEL{MIN::HEXADECIMAL_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{NOBREAKS\_FLAG}
 \LABEL{MIN::NOBREAKS_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
@@ -3334,6 +3332,24 @@ way values are written to {\tt std::\EOL ostream}'s.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_item min::|
+    & \MINKEY{pint}%
+      \verb| ( min::int64 i,|\\&{\tt ~~~~}%
+      \verb|   const char * printf_format )|
+\LABEL{MIN::PINT} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{puns}%
+      \verb| ( min::uns64 u,|\\&{\tt ~~~~}%
+      \verb|   const char * printf_format )|
+\LABEL{MIN::PUNS} \\
+\verb|const min::printer_item min::|
+    & \MINKEY{pfloat}%
+      \verb| ( min::float64 f,|\\&{\tt ~~~~}%
+      \verb|   const char * printf_format )|
+\LABEL{MIN::PFLOAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::printer_item min::|
     & \MINKEY{flush}\verb| ( void )|
 \LABEL{MIN::FLUSH} \\
 \verb|const min::printer_item min::|
@@ -3376,10 +3392,6 @@ way values are written to {\tt std::\EOL ostream}'s.
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_item min::| & \MINKEY{hexadecimal}
-\LABEL{MIN::HEXADECIMAL} \\
-\verb|const min::printer_item min::| & \MINKEY{nohexadecimal}
-\LABEL{MIN::NOHEXADECIMAL} \\
 \verb|const min::printer_item min::| & \MINKEY{ascii}
 \LABEL{MIN::ASCII} \\
 \verb|const min::printer_item min::| & \MINKEY{utf8}
@@ -3430,23 +3442,28 @@ way values are written to {\tt std::\EOL ostream}'s.
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, int32 i )|
+      \verb| ( min::printer & prtr, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, int64 i )|
+      \verb| ( min::printer & prtr, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, uns32 u )|
+      \verb| ( min::printer & prtr, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, uns64 u )|
+      \verb| ( min::printer & prtr, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
+\verb|min::printer & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer & prtr, min::float64 f )|
+\LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
