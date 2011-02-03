@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  2 11:18:27 EST 2011
+// Date:	Thu Feb  3 07:14:27 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3213,6 +3213,88 @@ namespace min {
 		       new_direct_str_gen ( p, n );
 #	endif
 	return internal::new_str_stub_gen ( p, n );
+    }
+
+    // UTF-8 Conversion Functions
+
+    const uns32 ILLEGAL_UNICODE = 0x2368;
+	// == `smirk',
+	// i.e., APL FUNCTIONAL SYMBOL TILDE DIAERESIS
+
+    // Given a string s that starts with a character
+    // >= 0x80, remove the first UNICODE character
+    // from the string and return it.  Return ILLEGAL_
+    // UNICODE for badly encode character.  Update s.
+    //
+    inline uns32 utf8_to_unicode ( const char * & s )
+    {
+        uns8 c = (uns8) * s ++;
+	uns32 bytes = 0;
+	uns32 unicode = c;
+	if ( c < 0x80 ) unicode = c;
+	else if ( c < 0xC0 )
+	    unicode = ILLEGAL_UNICODE;
+	else if ( c < 0xD0 )
+	    unicode &= 0x1F, bytes = 1;
+	else if ( c < 0xF0 )
+	    unicode &= 0x0F, bytes = 2;
+	else if ( c < 0xF8 )
+	    unicode &= 0x07, bytes = 3;
+	else if ( c < 0xFC )
+	    unicode &= 0x03, bytes = 4;
+	else if ( c < 0xFE )
+	    unicode &= 0x01, bytes = 5;
+	else
+	    unicode &= 0x00, bytes = 6;
+	while ( bytes -- )
+	{
+	    c = (uns8) * s ++;
+	    if ( c < 0x80 || 0xC0 <= c )
+	    {
+	        -- s;
+		unicode = ILLEGAL_UNICODE;
+		break;
+	    }
+	    unicode <<= 6;
+	    unicode += ( c & 0x3F );
+	}
+	return unicode;
+    }
+
+    // Output UNICODE character as UTF-8 into a string
+    // s.  Return number of bytes put into s ( will be
+    // <= 6 ).  If UNICODE character is >= 0x80000000,
+    // replace it with 0x7FFFFFFFF.  Update s.
+    //
+    inline uns32 unicode_to_utf8
+	    ( char * & s, uns32 unicode )
+    {
+        char * initial_s = s;
+	uns32 shift = 0;
+	uns8 c = 0;
+	if ( unicode < 0x80 )
+	    ; // Do nothing
+	else if ( unicode < 0x7FF )
+	    shift = 6, c = 0xC0;
+	else if ( unicode < 0xFFFF )
+	    shift = 12, c = 0xE0;
+	else if ( unicode < 0x1FFFFF )
+	    shift = 18, c = 0xF0;
+	else if ( unicode < 0x3FFFFFF )
+	    shift = 24, c = 0xF8;
+	else if ( unicode < 0x7FFFFFFF )
+	    shift = 30, c = 0xFC;
+	else
+	    shift = 36, c = 0xFE;
+	while ( true )
+	{
+	    * s ++ = (char)
+	        ( c + ( unicode >> shift ) & 0x3F );
+	    if ( shift == 0 ) break;
+	    shift -= 6;
+	    c = 0x80;
+	}
+	return s - initial_s;
     }
 }
 
@@ -8735,6 +8817,9 @@ namespace min {
 	uns32 line_offset;
 	uns32 break_offset;
     };
+    enum {
+	NO_OFFSET =	0xFFFFFFFF
+    };
 
     enum {
         ASCII_FLAG		= ( 1 << 0 ),
@@ -8956,7 +9041,6 @@ min::printer & operator <<
 std::ostream & operator <<
 	( std::ostream & out,
 	  min::printer & prtr );
-
 
 // Printing
 // --------
