@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  1 11:03:00 EST 2011
+// Date:	Thu Feb  3 07:31:39 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,6 +31,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
+//	Printer
 //	Printing
 
 // Setup
@@ -39,6 +40,7 @@
 # include <min.h>
 # define MUP min::unprotected
 # define MINT min::internal
+# define PINT min::printer_internal
 
 // For debugging.
 //
@@ -6495,6 +6497,271 @@ bool MINT::flip_flag
     }
     return false;
 }
+
+// Printer
+// -------
+
+
+min::printer_format min::default_printer_format =
+{
+    "%.15g",
+    "`","'",
+    "[", " ", "]",
+    "", "",
+    NULL
+};
+
+min::printer_parameters min::default_printer_parameters =
+{
+    & min::default_printer_format,
+    72,
+    4,
+    0
+};
+
+min::printer & operator <<
+	( min::printer & prtr, const char * s )
+{
+    min::uns32 flags = prtr->parameters.flags;
+
+    min::uns32 line_length =
+	( flags & min::NOBREAKS_FLAG ? 0xFFFFFFFF :
+	  prtr->parameters.line_length );
+
+    if ( flags & min::GRAPHIC_FLAG )
+    {
+    }
+    else // no GRAPHIC_FLAG
+    {
+	min::uns8 c;
+	while ( c = (min::uns8) * s ++ )
+	{
+	    if ( c == '\t' )
+	    {
+		prtr->column +=
+		    8 - prtr->column % 8;
+		prtr->break_offset == prtr->length;
+	    }
+	    else if ( c == ' ' )
+	    {
+		++ prtr->column;
+		prtr->break_offset == prtr->length;
+	    }
+	    else if ( c >= 0x80 )
+	    {
+	        if ( flags & min::ASCII_FLAG )
+		{
+		    min::uns32 unicode =
+		        min::utf8_to_unicode ( s );
+		    if (    unicode
+		         == min::ILLEGAL_UNICODE )
+		    {
+			min::push ( prtr, 5, "<ILL>" );
+			prtr->column += 5;
+		    }
+		    else
+		    {
+		        char buffer[32];
+			int len = sprintf
+			    ( buffer+1, "<%X>", unicode );
+			char * p = buffer + 1;
+			if ( p[1] < '0' || '9' < p[1] )
+			{
+			    * p -- = '0';
+			    * p = '<';
+			    ++ len;
+			}
+			min::push ( prtr, len, buffer );
+			prtr->column += len;
+		    }
+		}
+		else // no ASCII_FLAG
+		{
+		    ++ prtr->column;
+		    min::uns8 c2 = * s;
+		    while ( 0x80 <= c2 && c2 < 0xC0  )
+		    {
+			min::push(prtr) = (char) c;
+			c = c2;
+			* s ++;
+		    }
+		}
+	    }
+	    min::push(prtr) = (char) c;
+
+	    if ( prtr->column <= line_length )
+		continue;
+
+	    min::uns32 endoff = prtr->break_offset;
+	    if ( endoff == min::NO_OFFSET ) continue;
+	    min::uns32 begoff = endoff;
+	    while ( begoff > 0 )
+	    {
+		char c = prtr[begoff-1];
+		if ( c != ' ' && c != '\t' ) break;
+		-- begoff;
+	    }
+
+	    // Insert break;
+
+	    prtr[begoff++] = 0;
+	    ++ prtr->line;
+	    prtr->break_offset = min::NO_OFFSET;
+	    prtr->line_offset = begoff;
+
+	    min::uns32 indent = prtr->parameters.indent;
+	    prtr->column = indent;
+	    min::uns32 gap = endoff + 1 - begoff;
+	    min::uns32 movelen = prtr->length
+			       - endoff - 1;
+	    if ( gap > indent )
+	    {
+		// Move down.
+		//
+		memmove ( & prtr[begoff+indent],
+			  & prtr[endoff+1],
+			  movelen );
+		min::pop ( prtr, gap - indent );
+	    }
+	    else if ( gap < indent )
+	    {
+		// Move up.
+		//
+		min::push ( prtr, indent + gap );
+		memmove ( & prtr[begoff+indent],
+			  & prtr[endoff+1],
+			  movelen );
+	    }
+	    while ( indent > 0 )
+	    {
+		prtr[begoff++] = ' ';
+		-- indent;
+	    }
+	}
+    }
+    return prtr;
+}
+
+min::printer & operator <<
+	( min::printer & prtr, min::int64 i )
+{
+    char buffer[32];
+    sprintf ( buffer, "%lld", i );
+    return prtr << buffer;
+}
+
+min::printer & operator <<
+	( min::printer & prtr, min::uns64 u )
+{
+    char buffer[32];
+    sprintf ( buffer, "%llu", u );
+    return prtr << buffer;
+}
+
+min::printer & PINT::pgen
+	( min::printer & prtr,
+	  const min::printer_item & item )
+{
+    // Note:: std::hex/dec are NOT defined for T, so we
+    // use sprintf instead.
+    //
+    min::gen v = item.v1.g;
+    min::printer_format * f =
+        (min::printer_format *) item.v2.p;
+    if  ( f == NULL ) f = prtr->parameters.format;
+    if  ( f == NULL ) f = & min::default_printer_format;
+
+    if ( v == min::new_gen ( MINT::null_stub ) )
+    {
+        return prtr << "new_gen ( MINT::null_stub )";
+    }
+    else if ( min::is_num ( v ) )
+    {
+        min::float64 vf = MUP::float_of ( v );
+	char buffer[100];
+	sprintf ( buffer, f->number_format, vf );
+	return prtr << buffer;
+    }
+    else if ( min::is_str ( v ) )
+    {
+        min::unprotected::str_ptr sp ( v );
+        return prtr << f->str_prefix
+	            << min::unprotected::str_of ( sp )
+		    << f->str_postfix;
+    }
+    else if ( min::is_lab ( v ) )
+    {
+	min::unprotected
+	   ::lab_ptr labp ( MUP::stub_of ( v ) );
+        min::uns32 len = min::length_of ( labp );
+	prtr << f->lab_prefix;
+	for ( min::unsptr i = 0; i < len; ++ i )
+	{
+	    if ( i != 0 ) prtr << f->lab_separator;
+	    prtr << min::pgen ( labp[i], f );
+	}
+	return prtr << f->lab_postfix;
+    }
+    else if ( min::is_special ( v ) )
+    {
+        min::unsgen index = MUP::special_index_of ( v );
+	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
+	     < index
+	     &&
+	     index <= 0xFFFFFF )
+	    return prtr << f->special_prefix
+	        << min::special_name[0xFFFFFF - index]
+		<< f->special_postfix;
+	else
+	{
+	    char buffer[64];
+	    sprintf ( buffer, "SPECIAL(0x%llx)",
+		              (min::uns64) index );
+	    return prtr << buffer;
+	}
+    }
+    else if ( min::is_stub ( v ) )
+    {
+        const min::stub * s = MUP::stub_of ( v );
+        int type = min::type_of ( s );
+	const char * type_name = min::type_name[type];
+	if ( type_name != NULL )
+	    prtr << type_name;
+	else
+	    prtr << "TYPE(" << type << ")";
+	if ( f->pr_stub != NULL )
+	    (* (f->pr_stub) ) ( prtr, s );
+	return prtr;
+    }
+    else if ( min::is_list_aux ( v ) )
+        return prtr << "LIST_AUX("
+	            << MUP::list_aux_of ( v ) << ")";
+    else if ( min::is_sublist_aux ( v ) )
+        return prtr << "SUBLIST_AUX("
+	            << MUP::sublist_aux_of ( v ) << ")";
+    else if ( min::is_indirect_aux ( v ) )
+        return prtr << "INDIRECT_AUX("
+	            << MUP::indirect_aux_of ( v ) << ")";
+    else if ( min::is_index ( v ) )
+        return prtr << "INDEX("
+	            << MUP::index_of ( v ) << ")";
+    else if ( min::is_control_code ( v ) )
+    {
+	char buffer[64];
+	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
+		          (min::uns64)
+		          MUP::control_code_of ( v ) );
+	return prtr << buffer;
+    }
+    else
+    {
+	char buffer[64];
+	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
+		          (min::uns64) v );
+	return prtr << buffer;
+    }
+}
+
 
 // Printing
 // --------
