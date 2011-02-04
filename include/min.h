@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  3 23:24:16 EST 2011
+// Date:	Fri Feb  4 06:12:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3217,14 +3217,14 @@ namespace min {
 
     // UTF-8 Conversion Functions
 
-    const uns32 ILLEGAL_UNICODE = 0x2368;
+    const uns32 ILLEGAL_UTF8 = 0x2368;
 	// == `smirk',
 	// i.e., APL FUNCTIONAL SYMBOL TILDE DIAERESIS
 
     // Given a string s that starts with a character
     // >= 0x80, remove the first UNICODE character
     // from the string and return it.  Return ILLEGAL_
-    // UNICODE for badly encode character.  Update s.
+    // UTF8 for badly encode character.  Update s.
     //
     inline uns32 utf8_to_unicode ( const char * & s )
     {
@@ -3233,7 +3233,7 @@ namespace min {
 	uns32 unicode = c;
 	if ( c < 0x80 ) unicode = c;
 	else if ( c < 0xC0 )
-	    unicode = ILLEGAL_UNICODE;
+	    unicode = ILLEGAL_UTF8;
 	else if ( c < 0xD0 )
 	    unicode &= 0x1F, bytes = 1;
 	else if ( c < 0xF0 )
@@ -3252,7 +3252,7 @@ namespace min {
 	    if ( c < 0x80 || 0xC0 <= c )
 	    {
 	        -- s;
-		unicode = ILLEGAL_UNICODE;
+		unicode = ILLEGAL_UTF8;
 		break;
 	    }
 	    unicode <<= 6;
