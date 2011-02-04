@@ -31,7 +31,7 @@
 //	Object Vector Level
 //	Object List Level
 //	Object Attribute Level
-//	Printer
+//	Printers
 //	Printing
 
 // Setup
@@ -6498,9 +6498,8 @@ bool MINT::flip_flag
     return false;
 }
 
-// Printer
-// -------
-
+// Printers
+// --------
 
 min::printer_format min::default_printer_format =
 {
@@ -6598,6 +6597,129 @@ static void init_utf8graphic ( void )
     min::unicode_to_utf8
 	    ( s = utf8graphic[ILL_REP],
 	      min::ILLEGAL_UTF8 );
+}
+
+static min::packed_vec<char,min::printer_header>
+    printer_type ( "min::printer_type" );
+
+void min::init ( printer & prtr )
+{
+    if ( utf8graphic[0][0] == 0 )
+	::init_utf8graphic();
+    if ( prtr == NULL_STUB )
+    {
+        prtr = ::printer_type.new_stub();
+	prtr->parameters = prtr->saved_parameters =
+	    min::default_printer_parameters;
+    }
+    prtr->line = 1;
+    prtr->column = 0;
+    prtr->line_offset = 0;
+    prtr->break_offset = NO_OFFSET;
+}
+
+min::printer & PINT::pgen
+	( min::printer & prtr,
+	  const min::printer_item & item )
+{
+    // Note:: std::hex/dec are NOT defined for T, so we
+    // use sprintf instead.
+    //
+    min::gen v = item.v1.g;
+    min::printer_format * f =
+        (min::printer_format *) item.v2.p;
+    if  ( f == NULL ) f = prtr->parameters.format;
+    if  ( f == NULL ) f = & min::default_printer_format;
+
+    if ( v == min::new_gen ( MINT::null_stub ) )
+    {
+        return prtr << "new_gen ( MINT::null_stub )";
+    }
+    else if ( min::is_num ( v ) )
+    {
+        min::float64 vf = MUP::float_of ( v );
+	char buffer[100];
+	sprintf ( buffer, f->number_format, vf );
+	return prtr << buffer;
+    }
+    else if ( min::is_str ( v ) )
+    {
+        min::unprotected::str_ptr sp ( v );
+        return prtr << f->str_prefix
+	            << min::unprotected::str_of ( sp )
+		    << f->str_postfix;
+    }
+    else if ( min::is_lab ( v ) )
+    {
+	min::unprotected
+	   ::lab_ptr labp ( MUP::stub_of ( v ) );
+        min::uns32 len = min::length_of ( labp );
+	prtr << f->lab_prefix;
+	for ( min::unsptr i = 0; i < len; ++ i )
+	{
+	    if ( i != 0 ) prtr << f->lab_separator;
+	    prtr << min::pgen ( labp[i], f );
+	}
+	return prtr << f->lab_postfix;
+    }
+    else if ( min::is_special ( v ) )
+    {
+        min::unsgen index = MUP::special_index_of ( v );
+	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
+	     < index
+	     &&
+	     index <= 0xFFFFFF )
+	    return prtr << f->special_prefix
+	        << min::special_name[0xFFFFFF - index]
+		<< f->special_postfix;
+	else
+	{
+	    char buffer[64];
+	    sprintf ( buffer, "SPECIAL(0x%llx)",
+		              (min::uns64) index );
+	    return prtr << buffer;
+	}
+    }
+    else if ( min::is_stub ( v ) )
+    {
+        const min::stub * s = MUP::stub_of ( v );
+        int type = min::type_of ( s );
+	const char * type_name = min::type_name[type];
+	if ( type_name != NULL )
+	    prtr << type_name;
+	else
+	    prtr << "TYPE(" << type << ")";
+	if ( f->pr_stub != NULL )
+	    (* (f->pr_stub) ) ( prtr, s );
+	return prtr;
+    }
+    else if ( min::is_list_aux ( v ) )
+        return prtr << "LIST_AUX("
+	            << MUP::list_aux_of ( v ) << ")";
+    else if ( min::is_sublist_aux ( v ) )
+        return prtr << "SUBLIST_AUX("
+	            << MUP::sublist_aux_of ( v ) << ")";
+    else if ( min::is_indirect_aux ( v ) )
+        return prtr << "INDIRECT_AUX("
+	            << MUP::indirect_aux_of ( v ) << ")";
+    else if ( min::is_index ( v ) )
+        return prtr << "INDEX("
+	            << MUP::index_of ( v ) << ")";
+    else if ( min::is_control_code ( v ) )
+    {
+	char buffer[64];
+	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
+		          (min::uns64)
+		          MUP::control_code_of ( v ) );
+	return prtr << buffer;
+    }
+    else
+    {
+	char buffer[64];
+	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
+		          (min::uns64) v );
+	return prtr << buffer;
+    }
 }
 
 static void insert_line_break ( min::printer & prtr )
@@ -6832,117 +6954,6 @@ min::printer & operator <<
     char buffer[64];
     sprintf ( buffer, "%.15g", f );
     return prtr << buffer;
-}
-
-min::printer & PINT::pgen
-	( min::printer & prtr,
-	  const min::printer_item & item )
-{
-    // Note:: std::hex/dec are NOT defined for T, so we
-    // use sprintf instead.
-    //
-    min::gen v = item.v1.g;
-    min::printer_format * f =
-        (min::printer_format *) item.v2.p;
-    if  ( f == NULL ) f = prtr->parameters.format;
-    if  ( f == NULL ) f = & min::default_printer_format;
-
-    if ( v == min::new_gen ( MINT::null_stub ) )
-    {
-        return prtr << "new_gen ( MINT::null_stub )";
-    }
-    else if ( min::is_num ( v ) )
-    {
-        min::float64 vf = MUP::float_of ( v );
-	char buffer[100];
-	sprintf ( buffer, f->number_format, vf );
-	return prtr << buffer;
-    }
-    else if ( min::is_str ( v ) )
-    {
-        min::unprotected::str_ptr sp ( v );
-        return prtr << f->str_prefix
-	            << min::unprotected::str_of ( sp )
-		    << f->str_postfix;
-    }
-    else if ( min::is_lab ( v ) )
-    {
-	min::unprotected
-	   ::lab_ptr labp ( MUP::stub_of ( v ) );
-        min::uns32 len = min::length_of ( labp );
-	prtr << f->lab_prefix;
-	for ( min::unsptr i = 0; i < len; ++ i )
-	{
-	    if ( i != 0 ) prtr << f->lab_separator;
-	    prtr << min::pgen ( labp[i], f );
-	}
-	return prtr << f->lab_postfix;
-    }
-    else if ( min::is_special ( v ) )
-    {
-        min::unsgen index = MUP::special_index_of ( v );
-	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
-	     < index
-	     &&
-	     index <= 0xFFFFFF )
-	    return prtr << f->special_prefix
-	        << min::special_name[0xFFFFFF - index]
-		<< f->special_postfix;
-	else
-	{
-	    char buffer[64];
-	    sprintf ( buffer, "SPECIAL(0x%llx)",
-		              (min::uns64) index );
-	    return prtr << buffer;
-	}
-    }
-    else if ( min::is_stub ( v ) )
-    {
-        const min::stub * s = MUP::stub_of ( v );
-        int type = min::type_of ( s );
-	const char * type_name = min::type_name[type];
-	if ( type_name != NULL )
-	    prtr << type_name;
-	else
-	    prtr << "TYPE(" << type << ")";
-	if ( f->pr_stub != NULL )
-	    (* (f->pr_stub) ) ( prtr, s );
-	return prtr;
-    }
-    else if ( min::is_list_aux ( v ) )
-        return prtr << "LIST_AUX("
-	            << MUP::list_aux_of ( v ) << ")";
-    else if ( min::is_sublist_aux ( v ) )
-        return prtr << "SUBLIST_AUX("
-	            << MUP::sublist_aux_of ( v ) << ")";
-    else if ( min::is_indirect_aux ( v ) )
-        return prtr << "INDIRECT_AUX("
-	            << MUP::indirect_aux_of ( v ) << ")";
-    else if ( min::is_index ( v ) )
-        return prtr << "INDEX("
-	            << MUP::index_of ( v ) << ")";
-    else if ( min::is_control_code ( v ) )
-    {
-	char buffer[64];
-	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
-		          (min::uns64)
-		          MUP::control_code_of ( v ) );
-	return prtr << buffer;
-    }
-    else
-    {
-	char buffer[64];
-	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
-		          (min::uns64) v );
-	return prtr << buffer;
-    }
-}
-
-void min::init ( printer & prtr )
-{
-    if ( utf8graphic[0][0] == 0 )
-	init_utf8graphic();
-    // TBD
 }
 
 
