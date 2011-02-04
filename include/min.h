@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  4 06:28:08 EST 2011
+// Date:	Fri Feb  4 08:09:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8793,13 +8793,14 @@ namespace min {
 
     struct printer_parameters
     {
-        printer_format * format;
+        const printer_format * format;
 	uns32 line_length;
 	uns32 indent;
 	uns32 flags;
     };
 
-    extern printer_parameters default_printer_parameters;
+    extern printer_parameters
+	default_printer_parameters;
 
     struct printer_header
     {
@@ -8816,6 +8817,7 @@ namespace min {
 	uns32 column;
 	uns32 line_offset;
 	uns32 break_offset;
+	uns32 flush_offset;
     };
     enum {
 	NO_OFFSET =	0xFFFFFFFF
@@ -8842,6 +8844,7 @@ namespace min {
 	    int32 i32;
 	    uns64 u64;
 	    int64 i64;
+	    unsptr uptr;
 	    float64 f64;
 	    min::gen g;
 	} v1, v2;
@@ -8901,12 +8904,12 @@ namespace min {
 
     inline printer_item pgen
 	    ( min::gen v,
-              printer_format * format = NULL )
+              const printer_format * format = NULL )
     {
         printer_item item;
 	item.op = printer_internal::pgen;
 	item.v1.g = v;
-	item.v2.p = format;
+	item.v2.p = (void *) format;
 	return item;
     }
 
@@ -8924,7 +8927,7 @@ namespace min {
     {
         printer_item item;
 	item.op = printer_internal::punicode2;
-	item.v1.u32 = length;
+	item.v1.uptr = length;
 	item.v1.p = (void *) buffer;
 	return item;
     }
@@ -8979,11 +8982,11 @@ namespace min {
     }
 
     inline printer_item format
-	    ( printer_format * format )
+	    ( const printer_format * format )
     {
         printer_item item;
 	item.op = printer_internal::format;
-	item.v1.p = format;
+	item.v1.p = (void *) format;
 	return item;
     }
 
