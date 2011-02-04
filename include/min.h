@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  4 06:12:38 EST 2011
+// Date:	Fri Feb  4 06:28:08 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8803,14 +8803,14 @@ namespace min {
 
     struct printer_header
     {
-        uns32 control;
+        const uns32 control;
 
 	printer_parameters parameters;
 	printer_parameters saved_parameters;
 	std::ostream * ostream;
 
-	uns32 length;
-	uns32 max_length;
+	const uns32 length;
+	const uns32 max_length;
 
 	uns32 line;
 	uns32 column;
