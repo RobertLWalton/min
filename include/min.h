@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb  3 10:00:17 EST 2011
+// Date:	Thu Feb  3 23:24:16 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8888,6 +8888,15 @@ namespace min {
         printer & clear_printer_flags
 	    ( printer & prtr,
 	      const printer_item & item );
+    }
+
+    void init ( printer & prtr );
+
+    inline void init ( printer & prtr,
+                       std::ostream & ostream )
+    {
+        init ( prtr );
+	prtr->ostream = & ostream;
     }
 
     inline printer_item pgen
