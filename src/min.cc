@@ -6544,7 +6544,7 @@ void min::init ( printer & prtr )
     prtr->line = 1;
     prtr->column = 0;
     prtr->line_offset = 0;
-    prtr->break_offset = NO_OFFSET;
+    prtr->break_offset = 0;
     prtr->flush_offset = 0;
 }
 
@@ -6782,7 +6782,7 @@ static min::printer & eol
     min::push(prtr) = 0;
     ++ prtr->line;
     prtr->line_offset = prtr->length;
-    prtr->break_offset = min::NO_OFFSET;
+    prtr->break_offset = 0;
     prtr->parameters.flags &= ~ min::NOBREAKS_FLAG;
 
     if ( prtr->parameters.flags & min::EOL_FLUSH_FLAG )
@@ -6797,7 +6797,7 @@ static min::printer & eom
     min::push(prtr) = 0;
     ++ prtr->line;
     prtr->line_offset = prtr->length;
-    prtr->break_offset = min::NO_OFFSET;
+    prtr->break_offset = 0;
     prtr->parameters.flags &= ~ min::NOBREAKS_FLAG;
 
     if ( prtr->parameters.flags & min::EOM_FLUSH_FLAG )
@@ -6957,43 +6957,40 @@ static void init_utf8graphic ( void )
 	      min::ILLEGAL_UTF8 );
 }
 
+// Called when we are about to insert non-horizontal
+// space characters representing a single character
+// into the line, and the result would exceed line
+// length.
+//
+// Insert line end and indent if possible.
+//
 static void insert_line_break ( min::printer & prtr )
 {
     if ( prtr->parameters.flags & min::GRAPHIC_FLAG )
     {
-	min::uns32 off = prtr->break_offset;
-	if ( off == min::NO_OFFSET ) return;
-
-	min::uns32 indent = prtr->parameters.indent;
-
-	// Move up.
-	//
-	min::push ( prtr, indent + 1 );
-	memmove ( & prtr[off+indent+1],
-		  & prtr[off],
-		  prtr->length - off );
-
-	// Insert break;
-
-	prtr[off++] = 0;
-	++ prtr->line;
-	prtr->break_offset = min::NO_OFFSET;
-	prtr->line_offset = off;
-
-	prtr->column = indent;
-	while ( indent > 0 )
-	{
-	    prtr[off++] = ' ';
-	    -- indent;
-	}
+        if ( prtr->break_offset == 0
+	     ||
+	        prtr->column
+	     == prtr->parameters.line_length )
+	    prtr->break_offset = prtr->length;
+	// else we are after horizontal space that
+	// extends beyond line length
     }
-    else // not graphic line break
+    else if ( prtr->break_offset == 0 )
+        return;
+
+    if ( prtr->break_offset < prtr->length
+         &&
+	 ( prtr[prtr->break_offset] == ' '
+	   ||
+	   prtr[prtr->break_offset] == '\t' ) )
     {
+        // Horizontal space break.
+
 	// Identify horizontal space as
 	// prtr[begoff .. endoff].
 	//
 	min::uns32 endoff = prtr->break_offset;
-	if ( endoff == min::NO_OFFSET ) return;
 	min::uns32 begoff = endoff;
 	while ( begoff > 0 )
 	{
@@ -7006,7 +7003,7 @@ static void insert_line_break ( min::printer & prtr )
 
 	prtr[begoff++] = 0;
 	++ prtr->line;
-	prtr->break_offset = min::NO_OFFSET;
+	prtr->break_offset = 0;
 	prtr->line_offset = begoff;
 
 	min::uns32 indent = prtr->parameters.indent;
@@ -7038,6 +7035,35 @@ static void insert_line_break ( min::printer & prtr )
 	    -- indent;
 	}
     }
+    else
+    {
+        // Break before/after graphic character.
+
+	min::uns32 off = prtr->break_offset;
+
+	min::uns32 indent = prtr->parameters.indent;
+
+	// Move up.
+	//
+	min::push ( prtr, indent + 1 );
+	memmove ( & prtr[off+indent+1],
+		  & prtr[off],
+		  prtr->length - off );
+
+	// Insert break;
+
+	prtr[off++] = 0;
+	++ prtr->line;
+	prtr->break_offset = 0;
+	prtr->line_offset = off;
+
+	prtr->column = indent;
+	while ( indent > 0 )
+	{
+	    prtr[off++] = ' ';
+	    -- indent;
+	}
+    }
 }
 
 min::printer & operator <<
@@ -7053,6 +7079,8 @@ min::printer & operator <<
 	( ( flags & min::ASCII_FLAG ) != 0 );
     bool graphic =
 	( ( flags & min::GRAPHIC_FLAG ) != 0 );
+
+    char buffer[32];
     min::uns8 c;
     while ( c = (min::uns8) * s ++ )
     {
@@ -7062,8 +7090,13 @@ min::printer & operator <<
 	{
 	    // Common case: ASCII graphic character.
 	    //
+	    if ( prtr->column >= line_length )
+		::insert_line_break ( prtr );
+
 	    min::push(prtr) = (char) c;
 	    ++ prtr->column;
+	    if ( graphic )
+	        prtr->break_offset = prtr->length;
 	}
 	else if ( c <= 0x20 || c == 0x7F )
 	{
@@ -7074,20 +7107,29 @@ min::printer & operator <<
 		//
 		if ( c == 0x7F ) c = DEL_REP;
 
+		const char * rep;
+		int len;
+		int columns;
 	        if ( ascii )
 		{
-		    const char * rep = asciigraphic[c];
-		    int len = strlen ( rep );
-		    min::push ( prtr, len, rep );
-		    prtr->column += len;
+		    rep = asciigraphic[c];
+		    len = strlen ( rep );
+		    columns = len;
 		}
 		else
 		{
-		    const char * rep = utf8graphic[c];
-		    int len = strlen ( rep );
-		    min::push ( prtr, len, rep );
-		    ++ prtr->column;
+		    rep = utf8graphic[c];
+		    len = strlen ( rep );
+		    columns = 1;
 		}
+
+		if (   prtr->column + columns
+		     > line_length )
+		    ::insert_line_break ( prtr );
+
+		min::push ( prtr, len, rep );
+		prtr->column += columns;
+		prtr->break_offset = prtr->length;
 	    }
 	    else if ( c == '\t' )
 	    {
@@ -7102,7 +7144,12 @@ min::printer & operator <<
 		min::push(prtr) = (char) c;
 	    }
 	    else
+	    {
+		if ( prtr->column > line_length )
+		    ::insert_line_break ( prtr );
+
 		min::push(prtr) = (char) c;
+	    }
 	}
 	else
 	{
@@ -7113,20 +7160,20 @@ min::printer & operator <<
 	    min::uns32 unicode =
 		min::utf8_to_unicode ( s );
 
+	    const char * rep;
+	    int len;
+	    int columns;
 	    if( ascii )
 	    {
 		if ( unicode == min::ILLEGAL_UTF8 )
 		{
-		    const char * rep =
-			asciigraphic[ILL_REP];
-		    int len = strlen ( rep );
-		    min::push ( prtr, len, rep );
-		    prtr->column += len;
+		    rep = asciigraphic[ILL_REP];
+		    len = strlen ( rep );
+		    columns = len;
 		}
 		else
 		{
-		    char buffer[32];
-		    int len = sprintf
+		    len = sprintf
 			( buffer+1, "<%X>", unicode );
 		    char * p = buffer + 1;
 		    if ( p[1] < '0' || '9' < p[1] )
@@ -7135,29 +7182,33 @@ min::printer & operator <<
 			* p = '<';
 			++ len;
 		    }
-		    min::push ( prtr, len, buffer );
-		    prtr->column += len;
+		    rep = p;
+		    columns = len;
 		}
 	    }
 	    else // not ascii
 	    {
-		++ prtr->column;
+		columns = 1;
 		if ( unicode == min::ILLEGAL_UTF8 )
 		{
-		    const char * rep =
-			utf8graphic[ILL_REP];
-		    int len = strlen ( rep );
-		    min::push ( prtr, len, rep );
+		    rep = utf8graphic[ILL_REP];
+		    len = strlen ( rep );
 		}
 		else
-		    min::push ( prtr, s - olds, olds );
+		{
+		    rep = olds;
+		    len = s - olds;
+		}
 	    }
+
+	    if ( prtr->column + columns > line_length )
+		::insert_line_break ( prtr );
+
+	    min::push ( prtr, len, rep );
+	    prtr->column += columns;
+	    if ( graphic )
+	        prtr->break_offset = prtr->length;
 	}
-
-	// Insert line breaks
-
-	if ( prtr->column > line_length )
-	    ::insert_line_break ( prtr );
     }
     return prtr;
 }
@@ -7317,7 +7368,7 @@ static void flush_vector ( min::printer & prtr )
 			    - prtr->flush_offset );
 	min::pop ( prtr, prtr->flush_offset );
 	prtr->line_offset -= prtr->flush_offset;
-	if ( prtr->break_offset != min::NO_OFFSET )
+	if ( prtr->break_offset != 0 )
 	    prtr->break_offset -= prtr->flush_offset;
 	prtr->flush_offset -= 0;
     }

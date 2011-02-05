@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  4 08:09:48 EST 2011
+// Date:	Sat Feb  5 03:44:08 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8814,13 +8814,22 @@ namespace min {
 	const uns32 max_length;
 
 	uns32 line;
+	   // Line #: 1, 2, 3, ...
 	uns32 column;
+	   // Column #: 0, 1, 2, ...
 	uns32 line_offset;
+	   // printer[line_offset] is first character of
+	   // current line, or line_offset == length
+	   // if at start of line.
 	uns32 break_offset;
+	   // Set to 0 at start of line.
+	   // Set to point at ' ' or '\t' when these
+	   //     are inserted into line.
+	   // Set to length after graphic is inserted
+	   //     into line.
 	uns32 flush_offset;
-    };
-    enum {
-	NO_OFFSET =	0xFFFFFFFF
+	   // Set to point just after last line copied
+	   // to ostream or another printer.
     };
 
     enum {
