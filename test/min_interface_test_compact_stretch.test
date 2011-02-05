@@ -1405,7 +1405,7 @@ min_interface_test.cc:XXXX assert:
     subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
-upv1->control = 3
+upv1->control = 4
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1421,7 +1421,7 @@ Using fixed_blocks[2] and assigning begin_body_region[288 .. 291]
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
-upv2->control = 4
+upv2->control = 5
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:

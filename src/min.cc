@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  4 06:36:44 EST 2011
+// Date:	Sat Feb  5 06:57:49 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6520,6 +6520,87 @@ min::printer_parameters
     0
 };
 
+// Representations for printing control characters in
+// ASCII GRAPHIC mode.  utf8graphic[c] is the repre-
+// sentation for character c if c <= 0x20, for DEL
+// if c == DEL_REP, and for the illegal unicode
+// character representative if c == ILL_REP.
+//
+static const min::uns32 DEL_REP = 0x21;
+static const min::uns32 ILL_REP = 0x22;
+static const char * asciigraphic[0x23] = {
+    "<NUL>",
+    "<SOH>",
+    "<STX>",
+    "<ETX>",
+    "<EOT>",
+    "<ENQ>",
+    "<ACK>",
+    "<BEL>",
+    "<BS>",
+    "<HT>",
+    "<LF>",
+    "<VT>",
+    "<FF>",
+    "<CR>",
+    "<SO>",
+    "<SI>",
+    "<DLE>",
+    "<DC1>",
+    "<DC2>",
+    "<DC3>",
+    "<DC4>",
+    "<NAK>",
+    "<SYN>",
+    "<ETB>",
+    "<CAN>",
+    "<EM>",
+    "<SUB>",
+    "<ESC>",
+    "<FS>",
+    "<GS>",
+    "<RS>",
+    "<US>",
+    "<SP>",
+    "<DEL>",
+    "<ILL>",
+};
+
+// UTF8 Codes for printing control characters in UTF8
+// GRAPHIC mode.  utf8graphic[c] is the representation
+// for character c if c <= 0x20, for DEL if c == DEL_
+// REP, and for the illegal unicode character represen-
+// tative if c == ILL_REP.
+//
+// UTF8 codes are those of the UNICODE Control Pictures
+// script, range 0x2400-0x243F, except for ILL_REP,
+// which is min::ILLEGAL_UTF8.
+//
+static char utf8graphic[0x23][8];
+
+// Initialize utf8control.  Called when first
+// min::printer created.
+//
+static void init_utf8graphic ( void )
+{
+    // utf8graphic is initially all 0's, so we do not
+    // have to insert string ending NUL's.
+    //
+    char * s;
+    for ( min::uns32 c = 0; c < 0x20; ++ c )
+        min::unicode_to_utf8
+	    ( s = utf8graphic[c], 0x2400 + c );
+    min::unicode_to_utf8
+	    ( s = utf8graphic['\n'], 0x2424 );
+    min::unicode_to_utf8
+	    ( s = utf8graphic[' '], 0x2423 );
+    min::unicode_to_utf8
+	    ( s = utf8graphic[DEL_REP], 0x2421 );
+    min::unicode_to_utf8
+	    ( s = utf8graphic[ILL_REP],
+	      min::ILLEGAL_UTF8 );
+}
+
 static min::packed_vec<char,min::printer_header>
     printer_type ( "min::printer_type" );
 
@@ -6565,7 +6646,7 @@ min::printer & PINT::pgen
     else if ( min::is_num ( v ) )
     {
         min::float64 vf = MUP::float_of ( v );
-	char buffer[100];
+	char buffer[128];
 	sprintf ( buffer, f->number_format, vf );
 	return prtr << buffer;
     }
@@ -6775,15 +6856,45 @@ static min::printer & restore_printer_parameters
     return prtr;
 }
 
-static min::printer & eol
-	( min::printer & prtr,
-	  const min::printer_item & item )
+static void end_line ( min::printer & prtr )
 {
+    // Remove line ending horizontal spaces.
+    //
+    min::uns32 offset = prtr->length;
+    while ( offset > 0
+            && (    prtr[offset-1] == ' '
+                 || prtr[offset-1] == '\t' ) )
+	-- offset;
+    min::pop ( prtr, prtr->length - offset );
+
+    // Add displayed eol.
+    //
+    min::uns32 flags = prtr->parameters.flags;
+    if ( ( flags & min::DISPLAY_EOL_FLAG )
+         &&
+         ( flags & min::GRAPHIC_FLAG ) )
+    {
+	const char * rep;
+        if ( flags & min::ASCII_FLAG )
+	    rep = asciigraphic['\n'];
+	else
+	    rep = utf8graphic['\n'];
+	int len = strlen ( rep );
+	min::push ( prtr, len, rep );
+    }
+
     min::push(prtr) = 0;
     ++ prtr->line;
     prtr->line_offset = prtr->length;
     prtr->break_offset = 0;
     prtr->parameters.flags &= ~ min::NOBREAKS_FLAG;
+}
+
+static min::printer & eol
+	( min::printer & prtr,
+	  const min::printer_item & item )
+{
+    ::end_line ( prtr );
 
     if ( prtr->parameters.flags & min::EOL_FLUSH_FLAG )
         prtr << min::flush();
@@ -6794,11 +6905,7 @@ static min::printer & eom
 	( min::printer & prtr,
 	  const min::printer_item & item )
 {
-    min::push(prtr) = 0;
-    ++ prtr->line;
-    prtr->line_offset = prtr->length;
-    prtr->break_offset = 0;
-    prtr->parameters.flags &= ~ min::NOBREAKS_FLAG;
+    ::end_line ( prtr );
 
     if ( prtr->parameters.flags & min::EOM_FLUSH_FLAG )
         prtr << min::flush();
@@ -6875,88 +6982,6 @@ static void init_printer_items ( void )
     min::nokeep.v1.u32 = min::KEEP_FLAG;
 }
 
-
-// Representations for printing control characters in
-// ASCII GRAPHICS mode.  utf8graphic[c] is the repre-
-// sentation for character c if c <= 0x20, for DEL
-// if c == DEL_REP, and for the illegal unicode
-// character representative if c == ILL_REP.
-//
-static const min::uns32 DEL_REP = 0x21;
-static const min::uns32 ILL_REP = 0x22;
-static const char * asciigraphic[0x23] = {
-    "<NUL>",
-    "<SOH>",
-    "<STX>",
-    "<ETX>",
-    "<EOT>",
-    "<ENQ>",
-    "<ACK>",
-    "<BEL>",
-    "<BS>",
-    "<HT>",
-    "<LF>",
-    "<VT>",
-    "<FF>",
-    "<CR>",
-    "<SS>",
-    "<SI>",
-    "<DLE>",
-    "<DC1>",
-    "<DC2>",
-    "<DC3>",
-    "<DC4>",
-    "<NAK>",
-    "<SYN>",
-    "<ETB>",
-    "<CAN>",
-    "<EM>",
-    "<SUB>",
-    "<ESC>",
-    "<FS>",
-    "<GS>",
-    "<RS>",
-    "<US>",
-    "<SP>",
-    "<DEL>",
-    "<ILL>",
-};
-
-// UTF8 Codes for printing control characters in UTF8
-// GRAPHICS mode.  utf8graphic[c] is the representation
-// for character c if c <= 0x20, for DEL if c == DEL_
-// REP, and for the illegal unicode character represen-
-// tative if c == ILL_REP.
-//
-// UTF8 codes are those of the UNICODE Control Pictures
-// script, range 0x2400-0x243F, except for ILL_REP,
-// which is the representative of min::ILLEGAL_UTF8.
-//
-static char utf8graphic[0x23][7];
-
-// Initialize utf8control.  Called when first
-// min::printer created.
-//
-static void init_utf8graphic ( void )
-{
-    // utf8graphic is initially all 0's, so we do not
-    // have to insert string ending NUL's.
-    //
-    char * s;
-    for ( min::uns32 c = 0; c < 0x20; ++ c )
-        min::unicode_to_utf8
-	    ( s = utf8graphic[c], 0x2400 + c );
-    min::unicode_to_utf8
-	    ( s = utf8graphic['\n'], 0x2424 );
-    min::unicode_to_utf8
-	    ( s = utf8graphic[' '], 0x2423 );
-    min::unicode_to_utf8
-	    ( s = utf8graphic[DEL_REP], 0x2421 );
-    min::unicode_to_utf8
-	    ( s = utf8graphic[ILL_REP],
-	      min::ILLEGAL_UTF8 );
-}
-
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
 // into the line, and the result would exceed line
@@ -6966,24 +6991,37 @@ static void init_utf8graphic ( void )
 //
 static void insert_line_break ( min::printer & prtr )
 {
+    if ( prtr->column <= prtr->parameters.indent )
+	return;
+
+    // Determine if there is a horizontal space break.
+    //
+    bool is_hspace_break =
+        ( prtr->break_offset != 0
+	  &&
+	  prtr->break_offset < prtr->length
+          &&
+	  ( prtr[prtr->break_offset] == ' '
+	    ||
+	    prtr[prtr->break_offset] == '\t' ) );
+
     if ( prtr->parameters.flags & min::GRAPHIC_FLAG )
     {
-        if ( prtr->break_offset == 0
+        if ( ! is_hspace_break
 	     ||
-	        prtr->column
-	     == prtr->parameters.line_length )
+	     prtr->break_offset + 1 < prtr->length )
+	{
 	    prtr->break_offset = prtr->length;
+	    is_hspace_break = false;
+	}
+	//
 	// else we are after horizontal space that
-	// extends beyond line length
+	// extends up to or beyond line length
     }
     else if ( prtr->break_offset == 0 )
         return;
 
-    if ( prtr->break_offset < prtr->length
-         &&
-	 ( prtr[prtr->break_offset] == ' '
-	   ||
-	   prtr[prtr->break_offset] == '\t' ) )
+    if ( is_hspace_break )
     {
         // Horizontal space break.
 
@@ -7024,7 +7062,7 @@ static void insert_line_break ( min::printer & prtr )
 	{
 	    // Move up.
 	    //
-	    min::push ( prtr, indent + gap );
+	    min::push ( prtr, indent - gap );
 	    memmove ( & prtr[begoff+indent],
 		      & prtr[endoff+1],
 		      movelen );
@@ -7045,10 +7083,11 @@ static void insert_line_break ( min::printer & prtr )
 
 	// Move up.
 	//
+        min::uns32 movelen = prtr->length - off;
 	min::push ( prtr, indent + 1 );
 	memmove ( & prtr[off+indent+1],
 		  & prtr[off],
-		  prtr->length - off );
+		  movelen );
 
 	// Insert break;
 
@@ -7080,12 +7119,10 @@ min::printer & operator <<
     bool graphic =
 	( ( flags & min::GRAPHIC_FLAG ) != 0 );
 
-    char buffer[32];
+    char temp[32];
     min::uns8 c;
     while ( c = (min::uns8) * s ++ )
     {
-	// Update prtr vector elements and prtr->column.
-	//
 	if ( 0x20 < c && c < 0x7F )
 	{
 	    // Common case: ASCII graphic character.
@@ -7100,10 +7137,11 @@ min::printer & operator <<
 	}
 	else if ( c <= 0x20 || c == 0x7F )
 	{
+	    // Control character.
+
 	    if ( graphic )
 	    {
-		// Control character.  Recode DEL as
-		// DEL_REP.
+		// Recode DEL as DEL_REP.
 		//
 		if ( c == 0x7F ) c = DEL_REP;
 
@@ -7145,10 +7183,14 @@ min::printer & operator <<
 	    }
 	    else
 	    {
+	        // Non-graphic control character of 0
+		// width.
+		//
 		if ( prtr->column > line_length )
 		    ::insert_line_break ( prtr );
 
 		min::push(prtr) = (char) c;
+		prtr->break_offset == prtr->length;
 	    }
 	}
 	else
@@ -7174,8 +7216,8 @@ min::printer & operator <<
 		else
 		{
 		    len = sprintf
-			( buffer+1, "<%X>", unicode );
-		    char * p = buffer + 1;
+			( temp+1, "<%X>", unicode );
+		    char * p = temp + 1;
 		    if ( p[1] < '0' || '9' < p[1] )
 		    {
 			* p -- = '0';
@@ -7227,107 +7269,139 @@ static min::printer & print_unicode
 	( ( flags & min::ASCII_FLAG ) != 0 );
     bool graphic =
 	( ( flags & min::GRAPHIC_FLAG ) != 0 );
+
+    char temp[32];
     while ( n -- )
     {
-	min::uns32 unicode = * buffer ++;
-       
-	// Update prtr vector elements and prtr->column.
-	//
-	if ( 0x20 < unicode && unicode < 0x7F )
+        min::uns32 c = * buffer ++;
+
+	if ( 0x20 < c && c < 0x7F )
 	{
 	    // Common case: ASCII graphic character.
 	    //
-	    min::push(prtr) = (char) unicode;
+	    if ( prtr->column >= line_length )
+		::insert_line_break ( prtr );
+
+	    min::push(prtr) = (char) c;
 	    ++ prtr->column;
+	    if ( graphic )
+	        prtr->break_offset = prtr->length;
 	}
-	else if ( unicode <= 0x20 || unicode == 0x7F )
+	else if ( c <= 0x20 || c == 0x7F )
 	{
+	    // Control character.
+
 	    if ( graphic )
 	    {
-		// Control character.  Recode DEL as
-		// DEL_REP.
+		// Recode DEL as DEL_REP.
 		//
-		if ( unicode == 0x7F )
-		    unicode = DEL_REP;
+		if ( c == 0x7F ) c = DEL_REP;
 
+		const char * rep;
+		int len;
+		int columns;
 	        if ( ascii )
 		{
-		    const char * rep =
-		        asciigraphic[unicode];
-		    int len = strlen ( rep );
-		    min::push ( prtr, len, rep );
-		    prtr->column += len;
+		    rep = asciigraphic[c];
+		    len = strlen ( rep );
+		    columns = len;
 		}
 		else
 		{
-		    const char * rep =
-		        utf8graphic[unicode];
-		    int len = strlen ( rep );
-		    min::push ( prtr, len, rep );
-		    ++ prtr->column;
+		    rep = utf8graphic[c];
+		    len = strlen ( rep );
+		    columns = 1;
 		}
+
+		if (   prtr->column + columns
+		     > line_length )
+		    ::insert_line_break ( prtr );
+
+		min::push ( prtr, len, rep );
+		prtr->column += columns;
+		prtr->break_offset = prtr->length;
 	    }
-	    else if ( unicode == '\t' )
+	    else if ( c == '\t' )
 	    {
 		prtr->column += 8 - prtr->column % 8;
 		prtr->break_offset == prtr->length;
-		min::push(prtr) = (char) unicode;
+		min::push(prtr) = (char) c;
 	    }
-	    else if ( unicode == ' ' )
+	    else if ( c == ' ' )
 	    {
 		++ prtr->column;
 		prtr->break_offset == prtr->length;
-		min::push(prtr) = (char) unicode;
+		min::push(prtr) = (char) c;
 	    }
 	    else
-		min::push(prtr) = (char) unicode;
+	    {
+	        // Non-graphic control character of 0
+		// width.
+		//
+		if ( prtr->column > line_length )
+		    ::insert_line_break ( prtr );
+
+		min::push(prtr) = (char) c;
+		prtr->break_offset == prtr->length;
+	    }
 	}
 	else
 	{
 	    // Non-ASCII Character.
 
+	    min::uns32 unicode = c;
+
+	    const char * rep;
+	    int len;
+	    int columns;
 	    if( ascii )
 	    {
 		if ( unicode == min::ILLEGAL_UTF8 )
 		{
-		    const char * rep =
-			asciigraphic[ILL_REP];
-		    int len = strlen ( rep );
-		    min::push ( prtr, len, rep );
-		    prtr->column += len;
+		    rep = asciigraphic[ILL_REP];
+		    len = strlen ( rep );
+		    columns = len;
 		}
 		else
 		{
-		    char buffer[32];
-		    int len = sprintf
-			( buffer+1, "<%X>", unicode );
-		    char * p = buffer + 1;
+		    len = sprintf
+			( temp+1, "<%X>", unicode );
+		    char * p = temp + 1;
 		    if ( p[1] < '0' || '9' < p[1] )
 		    {
 			* p -- = '0';
 			* p = '<';
 			++ len;
 		    }
-		    min::push ( prtr, len, buffer );
-		    prtr->column += len;
+		    rep = p;
+		    columns = len;
 		}
 	    }
 	    else // not ascii
 	    {
-		++ prtr->column;
-		char buffer[16];
-		char * s = buffer;
-		min::uns32 len =
-		    min::unicode_to_utf8
-			( s, unicode );
-		min::push ( prtr, len, buffer );
+		columns = 1;
+		if ( unicode == min::ILLEGAL_UTF8 )
+		{
+		    rep = utf8graphic[ILL_REP];
+		    len = strlen ( rep );
+		}
+		else
+		{
+		    rep = temp;
+		    char * p = temp;
+		    len = min::unicode_to_utf8
+		    		( p, unicode );
+		}
 	    }
+
+	    if ( prtr->column + columns > line_length )
+		::insert_line_break ( prtr );
+
+	    min::push ( prtr, len, rep );
+	    prtr->column += columns;
+	    if ( graphic )
+	        prtr->break_offset = prtr->length;
 	}
-
-	// Insert line breaks
-
-	if ( prtr->column > line_length )
-	    ::insert_line_break ( prtr );
     }
     return prtr;
 }
@@ -7356,6 +7430,9 @@ min::printer & operator <<
     return prtr << buffer;
 }
 
+// If no KEEP flag, remove from printer all lines before
+// flush_offset, and reset flush_offset to 0.
+//
 static void flush_vector ( min::printer & prtr )
 {
     if (    ( prtr->parameters.flags & min::KEEP_FLAG )
@@ -7370,7 +7447,7 @@ static void flush_vector ( min::printer & prtr )
 	prtr->line_offset -= prtr->flush_offset;
 	if ( prtr->break_offset != 0 )
 	    prtr->break_offset -= prtr->flush_offset;
-	prtr->flush_offset -= 0;
+	prtr->flush_offset = 0;
     }
 }
 
@@ -7382,9 +7459,9 @@ min::printer & operator <<
 	int len =
 	    strlen ( & prtr2[prtr2->flush_offset] );
 	min::push
-	    ( prtr1, len,
+	    ( prtr1, len + 1,
 	             & prtr2[prtr2->flush_offset] );
-	prtr2->flush_offset += 1 + len;
+	prtr2->flush_offset += len + 1;
     }
     ::flush_vector ( prtr2 );
 }
