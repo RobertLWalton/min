@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  5 03:44:08 EST 2011
+// Date:	Sun Feb  6 06:30:26 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9109,6 +9109,33 @@ min::printer & operator <<
 std::ostream & operator <<
 	( std::ostream & out,
 	  min::printer & prtr );
+
+namespace min { namespace test {
+
+    struct ogen
+    {
+        min::gen g;
+	const min::printer_format * format;
+	ogen ( min::gen g,
+	       min::printer_format * format
+	           = & min::default_printer_format )
+	    : g ( g ), format ( format ) {}
+    };
+} }
+
+// out << ogen ( g, format ) is used only for test pur-
+// poses in contexts where printer < pgen ( g, format )
+// should not be used because packed vectors have not
+// been tested or may be defective.  Asside from the
+// difference between `out' and `printer', the other
+// differences are that for ogen (1) the format must
+// be given or it will default to min:default_printer_
+// format, and (2), the format pr_stub function is
+// ignored (treated as NULL).
+//
+std::ostream & operator <<
+	( std::ostream & out,
+	  const min::test::ogen & og );
 
 // Printing
 // --------
