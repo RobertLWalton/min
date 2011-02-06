@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  5 06:57:49 EST 2011
+// Date:	Sun Feb  6 06:37:28 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6629,31 +6629,28 @@ void min::init ( printer & prtr )
     prtr->flush_offset = 0;
 }
 
-min::printer & PINT::pgen
-	( min::printer & prtr,
-	  const min::printer_item & item )
+template < typename T >
+T & print_gen
+	( T & out,
+	  min::gen v,
+	  const min::printer_format * f, 
+	  T & (*pr_stub) ( T&, const min::stub *) )
 {
-    min::gen v = item.v1.g;
-    const min::printer_format * f =
-        (min::printer_format *) item.v2.p;
-    if  ( f == NULL ) f = prtr->parameters.format;
-    if  ( f == NULL ) f = & min::default_printer_format;
-
     if ( v == min::new_gen ( MINT::null_stub ) )
     {
-        return prtr << "new_gen ( MINT::null_stub )";
+        return out << "new_gen ( MINT::null_stub )";
     }
     else if ( min::is_num ( v ) )
     {
         min::float64 vf = MUP::float_of ( v );
 	char buffer[128];
 	sprintf ( buffer, f->number_format, vf );
-	return prtr << buffer;
+	return out << buffer;
     }
     else if ( min::is_str ( v ) )
     {
         min::unprotected::str_ptr sp ( v );
-        return prtr << f->str_prefix
+        return out << f->str_prefix
 	            << min::unprotected::str_of ( sp )
 		    << f->str_postfix;
     }
@@ -6662,13 +6659,13 @@ min::printer & PINT::pgen
 	min::unprotected
 	   ::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::length_of ( labp );
-	prtr << f->lab_prefix;
+	out << f->lab_prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
-	    if ( i != 0 ) prtr << f->lab_separator;
-	    prtr << min::pgen ( labp[i], f );
+	    if ( i != 0 ) out << f->lab_separator;
+	    ::print_gen<T> ( out, labp[i], f, pr_stub );
 	}
-	return prtr << f->lab_postfix;
+	return out << f->lab_postfix;
     }
     else if ( min::is_special ( v ) )
     {
@@ -6677,7 +6674,7 @@ min::printer & PINT::pgen
 	     < index
 	     &&
 	     index <= 0xFFFFFF )
-	    return prtr << f->special_prefix
+	    return out << f->special_prefix
 	        << min::special_name[0xFFFFFF - index]
 		<< f->special_postfix;
 	else
@@ -6685,7 +6682,7 @@ min::printer & PINT::pgen
 	    char buffer[64];
 	    sprintf ( buffer, "SPECIAL(0x%llx)",
 		              (min::uns64) index );
-	    return prtr << buffer;
+	    return out << buffer;
 	}
     }
     else if ( min::is_stub ( v ) )
@@ -6694,41 +6691,54 @@ min::printer & PINT::pgen
         int type = min::type_of ( s );
 	const char * type_name = min::type_name[type];
 	if ( type_name != NULL )
-	    prtr << type_name;
+	    out << type_name;
 	else
-	    prtr << "TYPE(" << type << ")";
+	    out << "TYPE(" << type << ")";
 	if ( f->pr_stub != NULL )
-	    (* (f->pr_stub) ) ( prtr, s );
-	return prtr;
+	    (* pr_stub ) ( out, s );
+	return out;
     }
     else if ( min::is_list_aux ( v ) )
-        return prtr << "LIST_AUX("
-	            << MUP::list_aux_of ( v ) << ")";
+        return out << "LIST_AUX("
+	           << MUP::list_aux_of ( v ) << ")";
     else if ( min::is_sublist_aux ( v ) )
-        return prtr << "SUBLIST_AUX("
-	            << MUP::sublist_aux_of ( v ) << ")";
+        return out << "SUBLIST_AUX("
+	           << MUP::sublist_aux_of ( v ) << ")";
     else if ( min::is_indirect_aux ( v ) )
-        return prtr << "INDIRECT_AUX("
-	            << MUP::indirect_aux_of ( v )
-		    << ")";
+        return out << "INDIRECT_AUX("
+	           << MUP::indirect_aux_of ( v )
+		   << ")";
     else if ( min::is_index ( v ) )
-        return prtr << "INDEX("
-	            << MUP::index_of ( v ) << ")";
+        return out << "INDEX("
+	           << MUP::index_of ( v ) << ")";
     else if ( min::is_control_code ( v ) )
     {
 	char buffer[64];
 	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
 		          (min::uns64)
 		          MUP::control_code_of ( v ) );
-	return prtr << buffer;
+	return out << buffer;
     }
     else
     {
 	char buffer[64];
 	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
 		          (min::uns64) v );
-	return prtr << buffer;
+	return out << buffer;
     }
+
+}
+
+min::printer & PINT::pgen
+	( min::printer & prtr,
+	  const min::printer_item & item )
+{
+    const min::printer_format * f =
+        (min::printer_format *) item.v2.p;
+    if  ( f == NULL ) f = prtr->parameters.format;
+    if  ( f == NULL ) f = & min::default_printer_format;
+
+    return print_gen ( prtr, item.v1.g, f, f->pr_stub );
 }
 
 static min::printer & print_unicode
@@ -7476,6 +7486,17 @@ std::ostream & operator <<
 	    1 + strlen ( & prtr[prtr->flush_offset] );
     }
     ::flush_vector ( prtr );
+}
+
+std::ostream & operator <<
+	( std::ostream & out,
+	  const min::test::ogen & og )
+{
+    return print_gen
+        ( out, og.g, og.format,
+	  (std::ostream & (*)
+	      ( std::ostream &, const min::stub * ) )
+	  NULL );
 }
 
 
