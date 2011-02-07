@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  7 06:05:48 EST 2011
+// Date:	Mon Feb  7 06:54:23 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6613,7 +6613,6 @@ void min::init ( printer & prtr )
         static bool first = true;
 	if ( first )
 	{
-	    ::printer_type.initial_max_length = 256;
 	    first = false;
 	    ::init_utf8graphic();
 	    ::init_printer_items();

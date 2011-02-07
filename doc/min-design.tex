@@ -184,7 +184,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 3, 2011}
+\date{February 7, 2011}
  
 \maketitle
 
@@ -7333,7 +7333,7 @@ may be set by the user:
 \item[\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
 The maximum length of a packed vector newly created by calling the
 \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
-function with no arguments.  Defaults to \verb|1000|.
+function with no arguments.  Defaults to \verb|128|.
 
 \item[\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
 The \verb|min::reserve| function multiplies the old maximum length by
@@ -7343,7 +7343,7 @@ this ratio to get the maximum length increment: see formula on
 \item[\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
 The maximum increment of the maximum length computable by the
 \verb|min::reserve| function: see formula on
-\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|1000|.
+\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|4096|.
 
 \end{list}
 
