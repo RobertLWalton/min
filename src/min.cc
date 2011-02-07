@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  6 20:26:46 EST 2011
+// Date:	Mon Feb  7 06:05:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6613,6 +6613,7 @@ void min::init ( printer & prtr )
         static bool first = true;
 	if ( first )
 	{
+	    ::printer_type.initial_max_length = 256;
 	    first = false;
 	    ::init_utf8graphic();
 	    ::init_printer_items();
@@ -7063,9 +7064,15 @@ static void insert_line_break ( min::printer & prtr )
 	{
 	    // Move down.
 	    //
-	    memmove ( & prtr[begoff+indent],
-		      & prtr[endoff+1],
-		      movelen );
+	    // Notes: Use memmove instead of memcpy.
+	    //        also do NOT move 0 bytes as then
+	    //        source address is off the end of
+	    // 	      the vector is and not legal.
+	    //
+	    if ( movelen > 0 )
+		memmove ( & prtr[begoff+indent],
+			  & prtr[endoff+1],
+			  movelen );
 	    min::pop ( prtr, gap - indent );
 	}
 	else if ( gap < indent )
@@ -7073,9 +7080,10 @@ static void insert_line_break ( min::printer & prtr )
 	    // Move up.
 	    //
 	    min::push ( prtr, indent - gap );
-	    memmove ( & prtr[begoff+indent],
-		      & prtr[endoff+1],
-		      movelen );
+	    if ( movelen > 0 )
+		memmove ( & prtr[begoff+indent],
+			  & prtr[endoff+1],
+			  movelen );
 	}
 	while ( indent > 0 )
 	{
@@ -7095,8 +7103,9 @@ static void insert_line_break ( min::printer & prtr )
 	//
         min::uns32 movelen = prtr->length - off;
 	min::push ( prtr, indent + 1 );
-	memmove ( & prtr[off+indent+1],
-		  & prtr[off],
+	if ( movelen > 0 )
+	    memmove ( & prtr[off+indent+1],
+		      & prtr[off],
 		  movelen );
 
 	// Insert break;
@@ -7448,9 +7457,12 @@ static void flush_vector ( min::printer & prtr )
 	 &&
 	 prtr->flush_offset != 0 )
     {
-        memcpy ( & prtr[0], & prtr[prtr->flush_offset],
-			      prtr->length
-			    - prtr->flush_offset );
+        assert ( prtr->flush_offset <= prtr->length );
+	if ( prtr->flush_offset < prtr->length )
+	    memmove ( & prtr[0],
+	              & prtr[prtr->flush_offset],
+		        prtr->length
+		      - prtr->flush_offset );
 	min::pop ( prtr, prtr->flush_offset );
 	prtr->line_offset -= prtr->flush_offset;
 	if ( prtr->break_offset != 0 )

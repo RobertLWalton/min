@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  7 04:21:52 EST 2011
+// Date:	Mon Feb  7 06:10:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1861,6 +1861,96 @@ void test_names ( void )
     cout << "Finish Names Test!" << endl;
 }
 
+// Printer
+// -------
+
+static min::printer printer;
+
+void test_printer ( void )
+{
+    cout << endl;
+    cout << "Start Printer Test!" << endl;
+    min_assert_print = false;
+
+    min::init ( printer, std::cout );
+    printer << min::eol_flush << min::eom_flush
+            << min::save_printer_parameters;
+
+    printer << min::pgen ( min::new_num_gen ( 1 ) )
+            << min::eol;
+    printer << min::pgen
+                    ( min::new_num_gen ( 1.23456789 ) )
+            << min::eol;
+    printer << min::pgen ( min::new_num_gen
+    			        ( 1.23456789012345 ) )
+            << min::eol;
+
+    printer << min::pgen ( min::new_str_gen
+    			        ( "this is a string" ) )
+            << min::eol;
+
+    min::gen lab1[2] =
+        { min::new_num_gen ( 1.234 ),
+	  min::new_str_gen ( "str 1" ) };
+    min::gen lab2[3] =
+        { min::new_num_gen ( 5.6 ),
+	  min::new_lab_gen ( lab1, 2 ),
+	  min::new_str_gen ( "str 2" ) };
+    printer << min::pgen
+                    ( min::new_lab_gen ( lab2, 3 ) )
+            << min::eol;
+
+    printer << min::pgen ( min::MISSING ) << min::eol;
+    printer << min::pgen ( min::NONE ) << min::eol;
+    printer << min::pgen ( min::ANY ) << min::eol;
+    printer << min::pgen ( min::MULTI_VALUED )
+            << min::eol;
+    printer << min::pgen ( min::UNDEFINED ) << min::eol;
+    printer << min::pgen ( min::SUCCESS ) << min::eol;
+    printer << min::pgen ( min::FAILURE ) << min::eol;
+    printer << min::pgen
+                    ( MIN_NEW_SPECIAL_GEN (0xABCDEF) )
+            << min::eol;
+    
+    min::stub * s = MUP::new_aux_stub();
+    printer << min::pgen ( min::new_gen ( s ) )
+            << min::eol;
+    MUP::set_type_of ( s, min::RELOCATE_BODY );
+    printer << min::pgen ( min::new_gen ( s ) )
+            << min::eol;
+    MUP::set_type_of ( s, 0 );
+    printer << min::pgen ( min::new_gen ( s ) )
+            << min::eol;
+
+    printer << min::pgen ( min::new_obj_gen ( 10, 10 ) )
+            << min::eol;
+
+    printer << min::pgen
+                    ( min::new_list_aux_gen ( 10 ) )
+            << min::eol;
+    printer << min::pgen
+                    ( min::new_sublist_aux_gen ( 20 ) )
+            << min::eol;
+    printer << min::pgen
+                    ( min::new_indirect_aux_gen ( 30 ) )
+            << min::eol;
+    printer << min::pgen ( min::new_index_gen ( 40 ) )
+            << min::eol;
+    printer << min::pgen ( min::new_control_code_gen
+                           ( 0xFEDCBA ) )
+            << min::eol;
+
+    printer << min::pgen
+                    ( (min::gen)
+                      ( (min::unsgen ) min::GEN_ILLEGAL
+		        << min::VSIZE ) )
+            << min::eol;
+
+    min_assert_print = true;
+    cout << endl;
+    cout << "Finish Print Test!" << endl;
+}
+
 // Print
 // -----
 
@@ -3438,7 +3528,7 @@ int main ()
 	test_strings();
 	test_labels();
 	test_names();
-	test_print();
+	test_printer();
 	test_packed_structs();
 	test_packed_vectors();
 	test_objects();
