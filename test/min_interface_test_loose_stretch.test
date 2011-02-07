@@ -1389,46 +1389,6 @@ min_interface_test.cc:XXXX assert:
 
 Finish Names Test!
 
-Start Printer Test!
-MINT::acc_expand_stub_free_list (1) called
-1
-1.23456789
-1.23456789012345
-MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
-`this is a string'
-MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub 36, 32 ) called
-Using fixed_blocks[3] and assigning begin_body_region[248 .. 255]
-MINT::acc_expand_stub_free_list (1) called
-[5.6 [1.234 `str 1'] `str 2']
-MISSING
-NONE
-ANY
-MULTI_VALUED
-UNDEFINED
-SUCCESS
-FAILURE
-SPECIAL(0xabcdef)
-MINT::acc_expand_stub_free_list (1) called
-AUX_FREE
-RELOCATE_BODY
-TYPE(0)
-MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub 39, 168 ) called
-Using fixed_blocks[5] and assigning begin_body_region[264 .. 295]
-SHORT_OBJ
-LIST_AUX(10)
-SUBLIST_AUX(20)
-INDIRECT_AUX(30)
-INDEX(40)
-CONTROL_CODE(0xfedcba)
-UNDEFINED_GEN(0x7ff4140000000000)
-
-Finish Print Test!
-
 Start Packed Structs Test!
 ps1type.name = ps1type
 MINT::acc_expand_stub_free_list (1) called
@@ -1454,10 +1414,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub 41, 12 ) called
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-Using fixed_blocks[2] and assigning begin_body_region[328 .. 331]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 ../include/min.h:XXXX assert:
@@ -1484,6 +1440,10 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     pv2->j == 99 true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 33, 12 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+Using fixed_blocks[2] and assigning begin_body_region[248 .. 251]
 ../include/min.h:XXXX assert:
     is_stub ( v ) true.
 min_interface_test.cc:XXXX assert:
@@ -1597,7 +1557,7 @@ min_interface_test.cc:XXXX assert:
 MINT::new_fixed_body ( stub 6, 264 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-Using fixed_blocks[6] and assigning begin_body_region[336 .. 399]
+Using fixed_blocks[6] and assigning begin_body_region[256 .. 319]
 MINT::deallocate ( stub 6 ) called
 min_interface_test.cc:XXXX assert:
     pvp->length == 4 true.
@@ -1678,6 +1638,46 @@ min_interface_test.cc:XXXX assert:
     pvip[3].j == 77 true.
 
 Finish Packed Vectors Test!
+
+Start Printer Test!
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 35, 224 ) called
+Using fixed_blocks[5] and assigning begin_body_region[384 .. 415]
+1
+1.23456789
+1.23456789012345
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub 36, 25 ) called
+Using fixed_blocks[3] and assigning begin_body_region[448 .. 455]
+MINT::acc_expand_stub_free_list (1) called
+`this is a string'
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+[5.6 [1.234 `str 1'] `str 2']
+MISSING
+NONE
+ANY
+MULTI_VALUED
+UNDEFINED
+SUCCESS
+FAILURE
+SPECIAL(0xabcdef)
+MINT::acc_expand_stub_free_list (1) called
+AUX_FREE
+RELOCATE_BODY
+TYPE(0)
+MINT::acc_expand_stub_free_list (1) called
+SHORT_OBJ
+LIST_AUX(10)
+SUBLIST_AUX(20)
+INDIRECT_AUX(30)
+INDEX(40)
+CONTROL_CODE(0xfedcba)
+UNDEFINED_GEN(0x7ff4140000000000)
+
+Finish Printer Test!
 
 Start Objects Test!
 SHORT_OBJ_MAX_VAR_SIZE = 0x1ff
