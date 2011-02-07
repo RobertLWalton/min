@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  6 06:30:26 EST 2011
+// Date:	Mon Feb  7 05:57:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4599,34 +4599,6 @@ namespace min {
 	     > pvip->max_length )
 	    pvip.reserve ( reserve_length );
     }
-
-    template < typename E, typename H >
-    void packed_vec_insptr<E,H>::reserve
-	    ( min::uns32 reserve_length )
-    {
-        H * hp = (H *) unprotected::ptr_of ( this->s );
-	min::uns32 subtype = hp->control;
-	subtype &=
-	    internal::PACKED_CONTROL_SUBTYPE_MASK;
-	internal::packed_vec_descriptor * pvdescriptor =
-	    (internal::packed_vec_descriptor *)
-	    (*internal::packed_subtypes)[subtype];
-	    
-        min::uns32 new_length = (min::uns32)
-	      pvdescriptor->increment_ratio
-	    * hp->max_length;
-	if (   new_length
-	     > pvdescriptor->max_increment )
-	    new_length =
-	        pvdescriptor->max_increment;
-	new_length += hp->max_length;
-    	min::uns32 min_new_length =
-	    reserve_length + hp->length;
-	if ( new_length < min_new_length )
-	    new_length = min_new_length;
-	internal::packed_vec_resize
-	    ( this->s, pvdescriptor, new_length );
-    }
 }
 
 // The following out-of-line functions should be in
@@ -4684,6 +4656,34 @@ min::packed_vec<E,H>::packed_vec
         MIN_ASSERT ( id.base == NULL );
 	id.base = & base_class_id;
     }
+}
+
+template < typename E, typename H >
+void min::packed_vec_insptr<E,H>::reserve
+	( min::uns32 reserve_length )
+{
+    H * hp = (H *) unprotected::ptr_of ( this->s );
+    min::uns32 subtype = hp->control;
+    subtype &=
+	internal::PACKED_CONTROL_SUBTYPE_MASK;
+    internal::packed_vec_descriptor * pvdescriptor =
+	(internal::packed_vec_descriptor *)
+	(*internal::packed_subtypes)[subtype];
+	
+    min::uns32 new_length = (min::uns32)
+	  pvdescriptor->increment_ratio
+	* hp->max_length;
+    if (   new_length
+	 > pvdescriptor->max_increment )
+	new_length =
+	    pvdescriptor->max_increment;
+    new_length += hp->max_length;
+    min::uns32 min_new_length =
+	reserve_length + hp->length;
+    if ( new_length < min_new_length )
+	new_length = min_new_length;
+    internal::packed_vec_resize
+	( this->s, pvdescriptor, new_length );
 }
 
 // Objects
