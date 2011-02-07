@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  7 05:57:44 EST 2011
+// Date:	Mon Feb  7 06:54:03 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4079,9 +4079,9 @@ namespace min {
 		  header_io_disp ( NULL ),
 		  header_io_names ( NULL ),
 
-		  initial_max_length ( 0 ),
+		  initial_max_length ( 128 ),
 		  increment_ratio (0.5),
-		  max_increment ( 1000 ) {}
+		  max_increment ( 4096 ) {}
 	};
 
 	template < typename E, typename H >
