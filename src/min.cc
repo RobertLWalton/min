@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  6 06:37:28 EST 2011
+// Date:	Sun Feb  6 20:26:46 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7200,7 +7200,6 @@ min::printer & operator <<
 		    ::insert_line_break ( prtr );
 
 		min::push(prtr) = (char) c;
-		prtr->break_offset == prtr->length;
 	    }
 	}
 	else
@@ -7352,7 +7351,6 @@ static min::printer & print_unicode
 		    ::insert_line_break ( prtr );
 
 		min::push(prtr) = (char) c;
-		prtr->break_offset == prtr->length;
 	    }
 	}
 	else
@@ -7464,6 +7462,9 @@ static void flush_vector ( min::printer & prtr )
 min::printer & operator <<
 	( min::printer & prtr1, min::printer & prtr2 )
 {
+    if ( prtr1->line_offset != prtr1->length )
+	::end_line ( prtr1 );
+
     while ( prtr2->flush_offset < prtr2->line_offset )
     {
 	int len =
@@ -7471,6 +7472,11 @@ min::printer & operator <<
 	min::push
 	    ( prtr1, len + 1,
 	             & prtr2[prtr2->flush_offset] );
+	++ prtr1->line;
+	prtr1->column = 0;
+	prtr1->line_offset = prtr1->length;
+	prtr1->break_offset = 0;
+
 	prtr2->flush_offset += len + 1;
     }
     ::flush_vector ( prtr2 );
@@ -7481,7 +7487,7 @@ std::ostream & operator <<
 {
     while ( prtr->flush_offset < prtr->line_offset )
     {
-	out << & prtr[prtr->flush_offset];
+	out << & prtr[prtr->flush_offset] << std::endl;
 	prtr->flush_offset +=
 	    1 + strlen ( & prtr[prtr->flush_offset] );
     }
