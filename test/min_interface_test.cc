@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  7 07:12:41 EST 2011
+// Date:	Mon Feb  7 07:30:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2873,15 +2873,17 @@ static bool check_attr_info
         if ( aivp[i].name != aip[i].name )
 	{
 	    cout << i << ": BAD NAME: "
-	         << min::pr ( aivp[i].name ) << " != "
-		 << min::pr ( aip[i].name ) << endl;
+	         << MTEST::ogen ( aivp[i].name )
+		 << " != "
+		 << MTEST::ogen ( aip[i].name )
+		 << endl;
 	    ok = false;
 	    continue;
 	}
         if ( aivp[i].value_count != aip[i].value_count)
 	{
 	    cout << i << ": "
-	         << min::pr ( aivp[i].name )
+	         << MTEST::ogen ( aivp[i].name )
 	         << ": BAD VALUE COUNT: "
 	         << aivp[i].value_count << " != "
 		 << aip[i].value_count << endl;
@@ -2890,7 +2892,7 @@ static bool check_attr_info
         if ( aivp[i].flag_count != aip[i].flag_count)
 	{
 	    cout << i << ": "
-	         << min::pr ( aivp[i].name )
+	         << MTEST::ogen ( aivp[i].name )
 	         << ": BAD FLAG COUNT: "
 	         << aivp[i].flag_count << " != "
 		 << aip[i].flag_count << endl;
@@ -2900,7 +2902,7 @@ static bool check_attr_info
 	     != aip[i].reverse_attr_count)
 	{
 	    cout << i << ": "
-	         << min::pr ( aivp[i].name )
+	         << MTEST::ogen ( aivp[i].name )
 	         << ": BAD REVERSE ATTR COUNT: "
 	         << aivp[i].reverse_attr_count << " != "
 		 << aip[i].reverse_attr_count << endl;
@@ -2952,9 +2954,9 @@ static bool check_values
 	    if ( values[i] != p[i] )
 	    {
 	        cout << i << ": BAD VALUE: "
-		    << min::pr ( values[i] )
+		    << MTEST::ogen ( values[i] )
 		    << " != "
-		    << min::pr ( p[i] )
+		    << MTEST::ogen ( p[i] )
 		    << endl;
 		ok = false;
 		break;
@@ -2979,8 +2981,8 @@ void test_attribute_values
     min_assert_print = false;
 
     cout << "TEST ATTRIBUTE VALUES ( "
-         << min::pr ( label1 ) << ", "
-         << min::pr ( label2 ) << ")" << endl;
+         << MTEST::ogen ( label1 ) << ", "
+         << MTEST::ogen ( label2 ) << ")" << endl;
 
     min::gen val1 = min::new_num_gen ( 1 );
     min::gen val2 = min::new_num_gen ( 2 );
@@ -3108,9 +3110,9 @@ void test_attribute_flags
     min_assert_print = false;
 
     cout << "TEST ATTRIBUTE FLAGS ( "
-         << min::pr ( label1 ) << ", "
-         << min::pr ( label2 ) << ", "
-         << min::pr ( label3 ) << ")" << endl;
+         << MTEST::ogen ( label1 ) << ", "
+         << MTEST::ogen ( label2 ) << ", "
+         << MTEST::ogen ( label3 ) << ")" << endl;
 
     min::gen cc0 = min::new_control_code_gen ( 1 << 0 );
     min::gen cc1 = min::new_control_code_gen ( 1 << 1 );
@@ -3228,9 +3230,9 @@ void test_reverse_attribute_values
     min_assert_print = false;
 
     cout << "TEST REVERSE ATTRIBUTE VALUES ( "
-         << min::pr ( label1 ) << ", "
-         << min::pr ( rlabel1 ) << ", "
-         << min::pr ( label2 ) << ")" << endl;
+         << MTEST::ogen ( label1 ) << ", "
+         << MTEST::ogen ( rlabel1 ) << ", "
+         << MTEST::ogen ( label2 ) << ")" << endl;
 
     min::gen values1[3] = { obj1, obj2, obj3 };
     min::locate ( ap, label1 );
