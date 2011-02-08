@@ -3400,7 +3400,7 @@ are printed as if they were letters that have zero width (consume
 no columns), the single space character prints as itself, and
 ill-formed UTF-8 characters print as `{\tt <ILL>}'.
 
-\item[\ttnbmkey{GRAPHICS\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{GRAPHIC\_FLAG}{{\tt min::printer\_parameters} flag}]
 This forces all characters to be
 represented by `graphic' characters that print some mark.
 
@@ -3501,6 +3501,10 @@ Encodings of character codes up to $2^{32}-1$ are considered legal.
 The 7-byte encoding (first byte {\tt 0xFE})
 is allowed so that $2^{32}-1$ can be encoded.
 
+\ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
+When a horizontal tab is copied to a printer vector, it is converted
+to between 1 and 8 single space characters.
+
 Other values presented to {\tt <<} are converted to {\tt char} strings
 as follows:
 `{\tt char}' converts to a 1-{\tt char} string whose only element
@@ -3563,11 +3567,53 @@ to an {\tt std::ostream}:
 \end{tabular}\end{indpar}
 
 The 0-argument {\tt min::flush} uses the printer {\tt ostream}
-member.  The 1-argument {\tt min::\EOL flush} specified the {\tt ostream}.
+member.  The 1-argument {\tt min::\EOL flush} specifies the {\tt ostream}.
+Line terminating {\tt NUL}s
+in the printer vector are translated to line feeds, but if the
+last line in the printer vector is incomplete, it is output without
+any ending line feed.  Characters previously flushed from the printer
+vector are not included: only characters at or after the printer
+{\tt flush\_\EOL offset} member are copied, and this member is then reset
+to the length of the printer vector.
 These functions both remove all lines copied to the {\tt ostream}
 from the printer vector, unless the {\tt min::\EOL KEEP\_\EOL FLAG}
-printer {\tt parameters.flag} is on.  If the {\tt ostream} has
+printer {\tt parameters.flag} is on.
+If the {\tt ostream} has
 {\tt NULL} address, the {\tt min::flush} functions do not do anything.
+
+The {\tt <<} operator can also be used to copy a printer vector
+to either an {\tt ostream} or to another printer vector.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt std::ostream}}\ARGBREAK
+      \verb| ( std ostream & out, min::printer & prtr )|
+\LABEL{OPERATOR<<_OF_PRINTER} \\
+\verb|min::printer & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer & prtr1,|\ARGBREAK
+      \verb|   min::printer & prtr2 )|
+\LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
+\end{tabular}\end{indpar}
+
+If {\tt out} is an {\tt ostream}, `{\tt out<<prtr}' does the
+same thing as `{\tt prtr<<min::\EOL flush(out)}', except
+that the latter does nothing if `{\tt out}' has {\tt NULL}
+address.
+
+If {\tt prtr1} and {\tt prtr2} are printers,
+`{\tt prtr1<<prtr2}' copies the not-previously-copied
+characters of {\tt prtr2} to {\tt prtr1}.  Line terminations
+are translated to `{\tt prtr1<<min::\EOL eol}'.  Other characters
+are copied to {\tt prtr1} as if that printer had its
+{\tt min::\EOL ASCII\_\EOL FLAG} and
+{\tt min::\EOL GRAPHIC\_\EOL FLAG} both off.
+Note that since horizontal tabs input to {\tt prtr2} have
+been converted to 1 to 8 single space characters, it is these
+single space characters that are copied to {\tt prtr1}, so the
+effective tab stops are those of {\tt prtr2} and not {\tt prtr1}.
 
 Printer operations can also be used to print values with specified
 formats.  The {\tt min::\EOL pgen} printer operation prints
@@ -3680,23 +3726,6 @@ printed by using the following printer operations:
 \end{tabular}\end{indpar}
 
 
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer & |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr1,|\ARGBREAK
-      \verb|   min::printer & prtr2 )|
-\LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt std::ostream}}\ARGBREAK
-      \verb| ( std ostream & out, min::printer & prtr )|
-\LABEL{OPERATOR<<_OF_PRINTER} \\
-\end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_op min::|

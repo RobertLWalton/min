@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  8 08:44:27 EST 2011
+// Date:	Tue Feb  8 10:02:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8823,13 +8823,13 @@ namespace min {
 	   // if at start of line.
 	uns32 break_offset;
 	   // Set to 0 at start of line.
-	   // Set to point at ' ' or '\t' when these
-	   //     are inserted into line.
+	   // Set to point at ' ' when this is inserted
+	   //     into line.
 	   // Set to length after graphic is inserted
 	   //     into line.
 	uns32 flush_offset;
-	   // Set to point just after last line copied
-	   // to ostream or another printer.
+	   // Set to point just after last character
+	   // copied to ostream or another printer.
     };
 
     enum {

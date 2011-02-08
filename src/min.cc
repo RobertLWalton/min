@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  8 08:44:37 EST 2011
+// Date:	Tue Feb  8 10:01:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6868,12 +6868,10 @@ static min::printer & restore_printer_parameters
 
 static void end_line ( min::printer & prtr )
 {
-    // Remove line ending horizontal spaces.
+    // Remove line ending single spaces.
     //
     min::uns32 offset = prtr->length;
-    while ( offset > 0
-            && (    prtr[offset-1] == ' '
-                 || prtr[offset-1] == '\t' ) )
+    while ( offset > 0 && prtr[offset-1] == ' ' )
 	-- offset;
     min::pop ( prtr, prtr->length - offset );
 
@@ -7009,9 +7007,7 @@ static void insert_line_break ( min::printer & prtr )
 	  &&
 	  prtr->break_offset < prtr->length
           &&
-	  ( prtr[prtr->break_offset] == ' '
-	    ||
-	    prtr[prtr->break_offset] == '\t' ) );
+	  prtr[prtr->break_offset] == ' ' );
 
     if ( prtr->parameters.flags & min::GRAPHIC_FLAG )
     {
@@ -7038,12 +7034,8 @@ static void insert_line_break ( min::printer & prtr )
 	//
 	min::uns32 endoff = prtr->break_offset;
 	min::uns32 begoff = endoff;
-	while ( begoff > 0 )
-	{
-	    char c = prtr[begoff-1];
-	    if ( c != ' ' && c != '\t' ) break;
+	while ( begoff > 0 && prtr[begoff-1] == ' ' )
 	    -- begoff;
-	}
 
 	// Insert break;
 
@@ -7187,9 +7179,11 @@ min::printer & operator <<
 	    }
 	    else if ( c == '\t' )
 	    {
-		prtr->column += 8 - prtr->column % 8;
+	        min::uns32 spaces =
+		    8 - prtr->column % 8;
+		prtr->column += spaces;
 		prtr->break_offset == prtr->length;
-		min::push(prtr) = (char) c;
+		min::push ( prtr, spaces, "        " );
 	    }
 	    else if ( c == ' ' )
 	    {
@@ -7338,9 +7332,11 @@ static min::printer & print_unicode
 	    }
 	    else if ( c == '\t' )
 	    {
-		prtr->column += 8 - prtr->column % 8;
+	        min::uns32 spaces =
+		    8 - prtr->column % 8;
+		prtr->column += spaces;
 		prtr->break_offset == prtr->length;
-		min::push(prtr) = (char) c;
+		min::push ( prtr, spaces, "        " );
 	    }
 	    else if ( c == ' ' )
 	    {
@@ -7445,49 +7441,54 @@ min::printer & operator <<
 }
 
 // If no KEEP flag, remove from printer all lines before
-// flush_offset, and reset flush_offset to 0.
+// flush_offset.
 //
 static void flush_vector ( min::printer & prtr )
 {
-    if (    ( prtr->parameters.flags & min::KEEP_FLAG )
-         == 0
-	 &&
-	 prtr->flush_offset != 0 )
+    if ( prtr->parameters.flags & min::KEEP_FLAG )
+        return;
+
+    min::uns32 offset = prtr->flush_offset;
+    while ( offset > 0 && prtr[offset-1] != 0 )
+        -- offset;
+    if ( offset > 0 )
     {
-        assert ( prtr->flush_offset <= prtr->length );
-	if ( prtr->flush_offset < prtr->length )
+	if ( offset < prtr->length )
 	    memmove ( & prtr[0],
-	              & prtr[prtr->flush_offset],
-		        prtr->length
-		      - prtr->flush_offset );
-	min::pop ( prtr, prtr->flush_offset );
-	prtr->line_offset -= prtr->flush_offset;
+		      & prtr[offset],
+			prtr->length - offset );
+	min::pop ( prtr, offset );
+	prtr->line_offset -= offset;
+	prtr->flush_offset -= offset;
 	if ( prtr->break_offset != 0 )
-	    prtr->break_offset -= prtr->flush_offset;
-	prtr->flush_offset = 0;
+	    prtr->break_offset -= offset;
     }
 }
 
 min::printer & operator <<
 	( min::printer & prtr1, min::printer & prtr2 )
 {
-    if ( prtr1->line_offset != prtr1->length )
-	::end_line ( prtr1 );
+    min::uns32 saved_flags = prtr1->parameters.flags;
+    prtr1->parameters.flags &=
+	~ ( min::ASCII_FLAG | min::GRAPHIC_FLAG );
 
     while ( prtr2->flush_offset < prtr2->line_offset )
     {
-	int len =
-	    strlen ( & prtr2[prtr2->flush_offset] );
-	min::push
-	    ( prtr1, len + 1,
-	             & prtr2[prtr2->flush_offset] );
-	++ prtr1->line;
-	prtr1->column = 0;
-	prtr1->line_offset = prtr1->length;
-	prtr1->break_offset = 0;
-
-	prtr2->flush_offset += len + 1;
+	prtr1 << & prtr2[prtr2->flush_offset]
+	      << min::eol;
+	prtr2->flush_offset += 
+	    1 + strlen ( & prtr2[prtr2->flush_offset] );
     }
+
+    if ( prtr2->flush_offset < prtr2->length )
+    {
+	min::push(prtr2) = 0;
+	prtr1 << & prtr2[prtr2->flush_offset];
+	min::pop(prtr2);
+	prtr2->flush_offset = prtr2->length;
+    }
+
+    prtr1->parameters.flags = saved_flags;
     ::flush_vector ( prtr2 );
 }
 
@@ -7499,6 +7500,14 @@ std::ostream & operator <<
 	out << & prtr[prtr->flush_offset] << std::endl;
 	prtr->flush_offset +=
 	    1 + strlen ( & prtr[prtr->flush_offset] );
+    }
+
+    if ( prtr->flush_offset < prtr->length )
+    {
+	min::push(prtr) = 0;
+	out << & prtr[prtr->flush_offset];
+	min::pop(prtr);
+	prtr->flush_offset = prtr->length;
     }
     ::flush_vector ( prtr );
 }
