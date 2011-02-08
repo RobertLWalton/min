@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  7 06:54:23 EST 2011
+// Date:	Tue Feb  8 00:35:46 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6897,7 +6897,6 @@ static void end_line ( min::printer & prtr )
     ++ prtr->line;
     prtr->line_offset = prtr->length;
     prtr->break_offset = 0;
-    prtr->parameters.flags &= ~ min::NOBREAKS_FLAG;
 }
 
 static min::printer & eol
@@ -6916,10 +6915,9 @@ static min::printer & eom
 	  const min::printer_item & item )
 {
     ::end_line ( prtr );
-
+    prtr->parameters = prtr->saved_parameters;
     if ( prtr->parameters.flags & min::EOM_FLUSH_FLAG )
         prtr << min::flush();
-    prtr->parameters = prtr->saved_parameters;
     return prtr;
 }
 
