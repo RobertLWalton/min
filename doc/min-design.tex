@@ -191,7 +191,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 7, 2011}
+\date{February 8, 2011}
  
 \maketitle
 
@@ -3230,23 +3230,24 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 prtr| & \TTARMKEY{length}{of {\tt min::printer}}
+\verb|const min::uns32 prtr| & \TTARMKEY{length}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_LENGTH} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{line}{of {\tt min::printer}}
+\verb|const min::uns32 prtr| & \TTARMKEY{line}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_LINE} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{column}{of {\tt min::printer}}
+\verb|const min::uns32 prtr| & \TTARMKEY{column}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_COLUMN} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{line\_offset}{of {\tt min::printer}}
+\verb|const min::uns32 prtr| & \TTARMKEY{line\_offset}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_LINE_OFFSET} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{break\_offset}{of {\tt min::printer}}
+\verb|const min::uns32 prtr|
+    & \TTARMKEY{break\_offset}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_BREAK_OFFSET} \\
 \verb|min::printer_parameters prtr|
-    & \TTARMKEY{parameters}{of {\tt min::printer}}
+    & \TTARMKEY{parameters}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_PARAMETERS} \\
 \verb|min::printer_parameters prtr|
-    & \TTARMKEY{saved\_parameters}{of {\tt min::printer}}
+    & \TTARMKEY{saved\_\EOL parameters}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_SAVED_PARAMETERS} \\
-\verb|std::ostream * prtr| & \TTARMKEY{ostream}{of {\tt min::printer}}
+\verb|std::ostream * prtr| & \TTARMKEY{ostream}{{\tt min::printer} member}
 \LABEL{MIN::PRINTER_OSTREAM} \\
 \end{tabular}\end{indpar}
 
@@ -3298,46 +3299,67 @@ printers and creates new ones.  It takes a variable as its
 first argument, and if the variable value is {\tt min::\EOL
 NULL\_\EOL STUB}, then a new printer is created and the
 variable is set to point at the new printer.
+The 2-argument form of {\tt min::\EOL init} sets the
+{\tt ostream} printer member (see below).
 
-For the printer {\tt prtr}, {\tt prtr->line} is the number
+For the printer {\tt prtr},
+{\tt prtr}\ttarmkey{line}{{\tt min::printer} member}
+is the number
 of the line currently being assembled, or of the next line if 
 the printer vector ends with a line-ending {\tt NUL}.  The
-first line number is {\tt 1}.  {\tt prtr->column} is the
+first line number is {\tt 1}.
+{\tt prtr}\ttarmkey{column}{{\tt min::printer} member}
+is the
 number of columns currently in the line being assembled,
 or the column number of the next character to be input to the
 printer, with the first column number being {\tt 0}.
 
-{\tt prtr->parameters} contains parameters that control
-the printing process:
+{\tt prtr}\ttarmkey{parameters}{{\tt min::printer} member}
+contains parameters that control
+the printing process.
+{\tt prtr}\ttarmkey{saved\_\EOL parameters}{{\tt min::printer} member}
+contains a copy of
+{\tt prtr->\EOL parameters}.  The end-of-message {\tt min::\EOL eom}
+printer operation restores the printer parameters by copying
+{\tt prtr->\EOL saved\_\EOL parameters} to
+{\tt prtr->\EOL parameters}.
+
+{\tt prtr}\ttarmkey{ostream}{{\tt min::printer} member},
+if not {\tt NULL}, designates a {\tt std::\EOL ostream}
+to which printer lines are copied by the {\tt flush()} printer operation.
+The 2-argument form of {\tt min::\EOL init} sets this printer member.
+
+The parameters in {\tt prtr->parameters} that control
+the printing process are:
 
 \begin{itemlist}
 
-\item[{\tt line\_length}]
+\item[\ttmkey{line\_length}{{\tt min::printer\_parameters} member}]
 When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the {\tt line\_length}, a break,
 consisting of a line end followed by indentation spaces,
 is pushed into the printer vector before the character representative.
 
-\item[{\tt indent}]
+\item[\ttmkey{ indent}{{\tt min::printer\_parameters} member}]
 When a break is automatically pushed into a printer vector, the
 break consists of a line end ({\tt NUL} character) followed by
 {\tt indent} single space characters.
 
-\item[{\tt format}]
+\item[\ttmkey{format}{{\tt min::printer\_parameters} member}]
 The {\tt format}
 controls the printing of
 {\tt min::gen} values by the {\tt min::pgen} function described
 below.
 
-\item[{\tt flags}]
+\item[\ttmkey{flags}{{\tt min::printer\_parameters} member}]
 The following flag bits control printing:
 
 \end{itemlist}
 
 \begin{indpar}\begin{itemlist}[1.4in]
 
-\item[{\tt ASCII\_FLAG}]
+\item[\ttnbmkey{ASCII\_FLAG}{{\tt min::printer\_parameters} flag}]
 This controls the printing of non-ASCII UNICODE characters, and in
 graphics mode, the printing of ASCII control characters.
 
@@ -3375,7 +3397,8 @@ are printed as if they were letters that have zero width (consume
 no columns), the single space character prints as itself, and
 ill-formed UTF-8 characters print as `{\tt <ILL>}'.
 
-\item[{\tt GRAPHICS\_FLAG}]  This forces all characters to be
+\item[\ttnbmkey{GRAPHICS\_FLAG}{{\tt min::printer\_parameters} flag}]
+This forces all characters to be
 represented by `graphic' characters that print some mark.
 
 If both the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_FLAG} are on
@@ -3392,12 +3415,12 @@ Single space prints as {\tt \textvisiblespace}, and the
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
 
-\item[{\tt DISPLAY\_EOL\_FLAG}]
+\item[\ttnbmkey{DISPLAY\_EOL\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, the end of line prints as a control
 character.  If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
-\item[{\tt NOBREAKS\_FLAG}]
+\item[\ttnbmkey{NOBREAKS\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is \underline{off}, a line break is inserted
 at the end of the print vector whenever a non-horizontal-space
 character representative is about to be printed and this would extend
@@ -3405,15 +3428,15 @@ beyone the {\tt line\_length}: see {\tt line\_length} above for
 details.  If this flag is \underline{on}, insertion of line breaks
 is inhibited.
 
-\item[{\tt EOL\_FLUSH\_FLAG}]
+\item[\ttnbmkey{EOL\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
 executed at the very end of an {\tt min::\EOL eol} printer operation.
 
-\item[{\tt EOM\_FLUSH\_FLAG}]
+\item[\ttnbmkey{EOM\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
 executed at the very end of an {\tt min::\EOL eom} printer operation.
 
-\item[{\tt KEEP\_FLAG}]
+\item[\ttnbmkey{KEEP\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is \underline{off}, any line copied from the printer
 vector to a {\tt std::ostream} or to another printer is removed from
 the printer vector.  If this flag is \underline{on}, this is not done,
