@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  8 00:35:46 EST 2011
+// Date:	Tue Feb  8 08:44:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6501,7 +6501,7 @@ bool MINT::flip_flag
 // Printers
 // --------
 
-min::printer_format
+const min::printer_format
     min::default_printer_format =
 {
     "%.15g",
@@ -6511,7 +6511,7 @@ min::printer_format
     NULL
 };
 
-min::printer_parameters
+const min::printer_parameters
     min::default_printer_parameters =
 {
     & min::default_printer_format,

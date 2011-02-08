@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  7 06:54:03 EST 2011
+// Date:	Tue Feb  8 08:44:27 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8789,7 +8789,7 @@ namespace min {
 	    ( min::printer & out, const min::stub * s );
     };
 
-    extern printer_format default_printer_format;
+    extern const printer_format default_printer_format;
 
     struct printer_parameters
     {
@@ -8799,7 +8799,7 @@ namespace min {
 	uns32 flags;
     };
 
-    extern printer_parameters
+    extern const printer_parameters
 	default_printer_parameters;
 
     struct printer_header
@@ -9117,7 +9117,7 @@ namespace min { namespace test {
         min::gen g;
 	const min::printer_format * format;
 	ogen ( min::gen g,
-	       min::printer_format * format
+	       const min::printer_format * format
 	           = & min::default_printer_format )
 	    : g ( g ), format ( format ) {}
     };
