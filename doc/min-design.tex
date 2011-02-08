@@ -3266,6 +3266,23 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{ASCII\_FLAG}
+\LABEL{MIN::ASCII_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAG}
+\LABEL{MIN::GRAPHIC_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
+\LABEL{MIN::DISPLAY_EOL_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{NOBREAKS\_FLAG}
+\LABEL{MIN::NOBREAKS_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
+\LABEL{MIN::EOL_FLUSH_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{EOM\_FLUSH\_FLAG}
+\LABEL{MIN::EOM_FLUSH_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{KEEP\_FLAG}
+\LABEL{MIN::KEEP_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{default\_printer\_parameters}\verb| =|\ARGBREAK
     \verb|{|\ARGBREAK
     \verb|  & min::default_printer_format,   // format|\ARGBREAK
@@ -3293,36 +3310,116 @@ printer, with the first column number being {\tt 0}.
 {\tt prtr->parameters} contains parameters that control
 the printing process:
 
-TBD
+\begin{itemlist}
 
-{\tt prtr->\EOL para\-meters.line\_\EOL length}
-limits the length of lines and forces insertion of line breaks into
-output.  {\tt prtr->\EOL parameters.indent} is the indentation of
-any continuation lines after inserted line breaks.
-{\tt prtr->\EOL parameters.format} controls the printing of
+\item[{\tt line\_length}]
+When a character representative other that single space or horizontal
+tab is to be inserted into the line, and this would cause the number
+of columns in the line to exceed the {\tt line\_length}, a break,
+consisting of a line end followed by indentation spaces,
+is pushed into the printer vector before the character representative.
+
+\item[{\tt indent}]
+When a break is automatically pushed into a printer vector, the
+break consists of a line end ({\tt NUL} character) followed by
+{\tt indent} single space characters.
+
+\item[{\tt format}]
+The {\tt format}
+controls the printing of
 {\tt min::gen} values by the {\tt min::pgen} function described
 below.
-{\tt prtr->\EOL parameters.flags} contains the following flags that
-control the printing operation:
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{ASCII\_FLAG}
-\LABEL{MIN::ASCII_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAG}
-\LABEL{MIN::GRAPHIC_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
-\LABEL{MIN::DISPLAY_EOL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{NOBREAKS\_FLAG}
-\LABEL{MIN::NOBREAKS_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
-\LABEL{MIN::EOL_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EOM\_FLUSH\_FLAG}
-\LABEL{MIN::EOM_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{KEEP\_FLAG}
-\LABEL{MIN::KEEP_FLAG} \\
-\end{tabular}\end{indpar}
+\item[{\tt flags}]
+The following flag bits control printing:
 
-The {\tt min::\EOL ASCII\_\EOL FLAG}
+\end{itemlist}
+
+\begin{indpar}\begin{itemlist}[1.4in]
+
+\item[{\tt ASCII\_FLAG}]
+This controls the printing of non-ASCII UNICODE characters, and in
+graphics mode, the printing of ASCII control characters.
+
+If the {\tt ASCII\_FLAG} is on,
+non-ASCII UNICODE characters are printed as `{\tt <XXXX>}', where
+{\tt XXXX} represents the character code in hexadecimal,
+and consists of some non-zero number of hexadecimal digits.
+{\tt XXXX} begins with one
+one of the digits {\tt 0},\dots,{\tt 9}, in order to avoid
+ambiguity with representations of control characters.  Thus
+{\tt <0FF>} represents the character whose code in decimal is
+{\tt 255}, whereas {\tt <FF>} represents the form feed character.
+
+If both the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_FLAG} are on,
+ASCII control characters and the single space characters are
+printed as `{\tt <YY>}', where {\tt YY} is the 2 or 3 letter
+ASCII standard character name.
+The possibilities are:
+\begin{indpar} \tt
+    <NUL>, <SOH>, <STX>, <ETX>, <EOT>, <ENQ>, \\
+    <ACK>, <BEL>, <BS>, <HT>, <LF>, <VT>, \\
+    <FF>, <CR>, <SO>, <SI>, <DLE>, \\
+    <DC1>, <DC2>, <DC3>, <DC4>, <NAK>, <SYN>, \\
+    <ETB>, <CAN>, <EM>, <SUB>, <ESC>, \\
+    <FS>, <GS>, <RS>, <US>, <SP>, <DEL>, <ILL>,
+\end{indpar}
+
+where `{\tt <SP>}' represents the single space character and
+`{\tt <ILL>}', which is \underline{not} an ASCII standard character
+name, represents any ill-formed UTF-8 character.
+
+If the {\tt ASCII\_FLAG} is on
+and {\tt GRAPHIC\_FLAG} is \underline{off}, control characters
+are printed as if they were letters that have zero width (consume
+no columns), the single space character prints as itself, and
+ill-formed UTF-8 characters print as `{\tt <ILL>}'.
+
+\item[{\tt GRAPHICS\_FLAG}]  This forces all characters to be
+represented by `graphic' characters that print some mark.
+
+If both the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_FLAG} are on
+characters are printed as described above under
+{\tt ASCII\_FLAG}.
+
+If the {\tt GRAPHIC\_FLAG} is on and the {\tt ASCII\_FLAG} is
+\underline{off}, control characters and single space are
+printed as UNICODE Control Pictures script characters,
+range 2400-243F (hexadecimal), while ill-formed UTF-8 characters
+are printed as character 2368 (hexadecimal), the `smirk', a.k.a
+the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
+Single space prints as {\tt \textvisiblespace}, and the
+line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
+All these character representations take exactly 1 column.
+
+\item[{\tt DISPLAY\_EOL\_FLAG}]
+If this flag is on, the end of line prints as a control
+character.  If the {\tt ASCII\_FLAG} is on, it prints as
+{\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
+
+\item[{\tt NOBREAKS\_FLAG}]
+If this flag is \underline{off}, a line break is inserted
+at the end of the print vector whenever a non-horizontal-space
+character representative is about to be printed and this would extend
+beyone the {\tt line\_length}: see {\tt line\_length} above for
+details.  If this flag is \underline{on}, insertion of line breaks
+is inhibited.
+
+\item[{\tt EOL\_FLUSH\_FLAG}]
+If this flag is on, a {\tt min::flush()} printer operation is
+executed at the very end of an {\tt min::\EOL eol} printer operation.
+
+\item[{\tt EOM\_FLUSH\_FLAG}]
+If this flag is on, a {\tt min::flush()} printer operation is
+executed at the very end of an {\tt min::\EOL eom} printer operation.
+
+\item[{\tt KEEP\_FLAG}]
+If this flag is \underline{off}, any line copied from the printer
+vector to a {\tt std::ostream} or to another printer is removed from
+the printer vector.  If this flag is \underline{on}, this is not done,
+and all lines are kept in the printer vector.
+
+\end{itemlist}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
