@@ -3294,7 +3294,7 @@ accomplished by the following:
 \LABEL{MIN::DEFAULT_PRINTER_PARAMETERS}
 \end{tabular}\end{indpar}
 
-The {\tt min::init} function both re-initializes existing
+The {\tt min::}\MINKEY{init} function both re-initializes existing
 printers and creates new ones.  It takes a variable as its
 first argument, and if the variable value is {\tt min::\EOL
 NULL\_\EOL STUB}, then a new printer is created and the
@@ -3329,7 +3329,8 @@ if not {\tt NULL}, designates a {\tt std::\EOL ostream}
 to which printer lines are copied by the {\tt flush()} printer operation.
 The 2-argument form of {\tt min::\EOL init} sets this printer member.
 
-The parameters in {\tt prtr->parameters} that control
+The parameters in {\tt prtr}\ttarmkey{parameters}{{\tt min::printer} member}
+that control
 the printing process are:
 
 \begin{itemlist}
