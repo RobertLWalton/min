@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb  7 07:30:04 EST 2011
+// Date:	Wed Feb  9 04:05:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2085,6 +2085,21 @@ void test_printer ( void )
     min::init ( printer, std::cout );
     printer << min::eol_flush << min::eom_flush
             << min::save_printer_parameters;
+
+    printer << min::line_length ( 16 )
+            << "123456 123456789";
+    MIN_ASSERT
+        ( printer->parameters.line_length == 16 );
+    MIN_ASSERT
+        ( printer->parameters.indent == 4 );
+    MIN_ASSERT ( printer->column == 16 );
+    MIN_ASSERT ( printer->break_offset == 6 );
+    printer << min::line_length ( 16 )
+            << "1 12 123 1234 12345 123456 12345678"
+	       " 123456789" << min::eom;
+    MIN_ASSERT
+        ( printer->parameters.line_length == 72 );
+    MIN_ASSERT ( printer->column == 0 );
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;

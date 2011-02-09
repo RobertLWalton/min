@@ -6626,6 +6626,7 @@ void min::init ( printer & prtr )
     prtr->column = 0;
     prtr->line_offset = 0;
     prtr->break_offset = 0;
+    prtr->break_column = 0;
     prtr->flush_offset = 0;
 }
 
@@ -6893,8 +6894,10 @@ static void end_line ( min::printer & prtr )
 
     min::push(prtr) = 0;
     ++ prtr->line;
+    prtr->column = 0;
     prtr->line_offset = prtr->length;
     prtr->break_offset = 0;
+    prtr->break_column = 0;
 }
 
 static min::printer & eol
@@ -6985,6 +6988,7 @@ static void insert_line_break ( min::printer & prtr )
 	     prtr->break_offset + 1 < prtr->length )
 	{
 	    prtr->break_offset = prtr->length;
+	    prtr->break_column = prtr->column;
 	    is_hspace_break = false;
 	}
 	//
@@ -7010,11 +7014,13 @@ static void insert_line_break ( min::printer & prtr )
 
 	prtr[begoff++] = 0;
 	++ prtr->line;
-	prtr->break_offset = 0;
 	prtr->line_offset = begoff;
 
 	min::uns32 indent = prtr->parameters.indent;
-	prtr->column = indent;
+	prtr->column -= prtr->break_column + 1;
+	prtr->column += indent;
+	prtr->break_offset = 0;
+	prtr->break_column = 0;
 	min::uns32 gap = endoff + 1 - begoff;
 	min::uns32 movelen = prtr->length
 			   - endoff - 1;
@@ -7070,10 +7076,12 @@ static void insert_line_break ( min::printer & prtr )
 
 	prtr[off++] = 0;
 	++ prtr->line;
+	prtr->column -= prtr->break_column;
+	prtr->column += indent;
 	prtr->break_offset = 0;
+	prtr->break_column = 0;
 	prtr->line_offset = off;
 
-	prtr->column = indent;
 	while ( indent > 0 )
 	{
 	    prtr[off++] = ' ';
@@ -7110,7 +7118,10 @@ min::printer & operator <<
 	    min::push(prtr) = (char) c;
 	    ++ prtr->column;
 	    if ( graphic )
+	    {
 	        prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
+	    }
 	}
 	else if ( c <= 0x20 || c == 0x7F )
 	{
@@ -7145,19 +7156,22 @@ min::printer & operator <<
 		min::push ( prtr, len, rep );
 		prtr->column += columns;
 		prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
 	    }
 	    else if ( c == '\t' )
 	    {
 	        min::uns32 spaces =
 		    8 - prtr->column % 8;
 		prtr->column += spaces;
-		prtr->break_offset == prtr->length;
 		min::push ( prtr, spaces, "        " );
+		prtr->break_offset = prtr->length - 1;
+	        prtr->break_column = prtr->column - 1;
 	    }
 	    else if ( c == ' ' )
 	    {
+		prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
 		++ prtr->column;
-		prtr->break_offset == prtr->length;
 		min::push(prtr) = (char) c;
 	    }
 	    else
@@ -7231,7 +7245,10 @@ min::printer & operator <<
 	    min::push ( prtr, len, rep );
 	    prtr->column += columns;
 	    if ( graphic )
+	    {
 	        prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
+	    }
 	}
     }
     return prtr;
@@ -7267,7 +7284,10 @@ static min::printer & print_unicode
 	    min::push(prtr) = (char) c;
 	    ++ prtr->column;
 	    if ( graphic )
+	    {
 	        prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
+	    }
 	}
 	else if ( c <= 0x20 || c == 0x7F )
 	{
@@ -7302,19 +7322,22 @@ static min::printer & print_unicode
 		min::push ( prtr, len, rep );
 		prtr->column += columns;
 		prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
 	    }
 	    else if ( c == '\t' )
 	    {
 	        min::uns32 spaces =
 		    8 - prtr->column % 8;
 		prtr->column += spaces;
-		prtr->break_offset == prtr->length;
 		min::push ( prtr, spaces, "        " );
+		prtr->break_offset = prtr->length - 1;
+	        prtr->break_column = prtr->column - 1;
 	    }
 	    else if ( c == ' ' )
 	    {
+		prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
 		++ prtr->column;
-		prtr->break_offset == prtr->length;
 		min::push(prtr) = (char) c;
 	    }
 	    else
@@ -7387,7 +7410,10 @@ static min::printer & print_unicode
 	    min::push ( prtr, len, rep );
 	    prtr->column += columns;
 	    if ( graphic )
+	    {
 	        prtr->break_offset = prtr->length;
+	        prtr->break_column = prtr->column;
+	    }
 	}
     }
     return prtr;

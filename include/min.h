@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 02:53:06 EST 2011
+// Date:	Wed Feb  9 05:29:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8826,6 +8826,12 @@ namespace min {
 	   // Set to point at ' ' when this is inserted
 	   //     into line.
 	   // Set to length after graphic is inserted
+	   //     into line.
+	uns32 break_column;
+	   // Set to 0 at start of line.
+	   // Set to column of ' ' when this is inserted
+	   //     into line.
+	   // Set to column after graphic is inserted
 	   //     into line.
 	uns32 flush_offset;
 	   // Set to point just after last character
