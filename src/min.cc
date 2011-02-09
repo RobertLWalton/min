@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  8 19:12:17 EST 2011
+// Date:	Wed Feb  9 02:41:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6607,7 +6607,6 @@ static min::packed_vec<char,min::printer_header>
     printer_type ( "min::printer_type" );
 
 static void init_utf8graphic ( void );
-static void init_printer_ops ( void );
 void min::init ( printer & prtr )
 {
     if ( prtr == NULL_STUB )
@@ -6617,7 +6616,6 @@ void min::init ( printer & prtr )
 	{
 	    first = false;
 	    ::init_utf8graphic();
-	    ::init_printer_ops();
 	}
 
         prtr = ::printer_type.new_stub();
@@ -6921,74 +6919,43 @@ static min::printer & eom
     return prtr;
 }
 
-min::printer_op min::save_printer_parameters;
-min::printer_op min::restore_printer_parameters;
+const min::printer_op min::save_printer_parameters
+    ( ::save_printer_parameters );
+const min::printer_op min::restore_printer_parameters
+    ( ::restore_printer_parameters );
 
-min::printer_op min::eol;
-min::printer_op min::eom;
+const min::printer_op min::eol ( ::eol );
+const min::printer_op min::eom ( ::eom );
 
-min::printer_op min::ascii;
-min::printer_op min::utf8;
-min::printer_op min::graphic;
-min::printer_op min::nographic;
-min::printer_op min::display_eol;
-min::printer_op min::nodisplay_eol;
-min::printer_op min::nobreaks;
-min::printer_op min::breaks;
-min::printer_op min::eol_flush;
-min::printer_op min::noeol_flush;
-min::printer_op min::eom_flush;
-min::printer_op min::noeom_flush;
-min::printer_op min::keep;
-min::printer_op min::nokeep;
-
-static void init_printer_ops ( void )
-{
-    // Called when first min::printer created.
-
-    min::save_printer_parameters.func =
-        ::save_printer_parameters;
-    min::restore_printer_parameters.func =
-        ::restore_printer_parameters;
-
-    min::eol.func = ::eol;
-    min::eom.func = ::eom;
-
-    min::ascii.func = PINT::set_printer_flags;
-    min::ascii.v1.u32 = min::ASCII_FLAG;
-    min::utf8.func = PINT::clear_printer_flags;
-    min::utf8.v1.u32 = min::ASCII_FLAG;
-
-    min::graphic.func = PINT::set_printer_flags;
-    min::graphic.v1.u32 = min::GRAPHIC_FLAG;
-    min::nographic.func = PINT::clear_printer_flags;
-    min::nographic.v1.u32 = min::GRAPHIC_FLAG;
-
-    min::display_eol.func = PINT::set_printer_flags;
-    min::display_eol.v1.u32 = min::DISPLAY_EOL_FLAG;
-    min::nodisplay_eol.func = PINT::clear_printer_flags;
-    min::nodisplay_eol.v1.u32 = min::DISPLAY_EOL_FLAG;
-
-    min::nobreaks.func = PINT::set_printer_flags;
-    min::nobreaks.v1.u32 = min::NOBREAKS_FLAG;
-    min::breaks.func = PINT::clear_printer_flags;
-    min::breaks.v1.u32 = min::NOBREAKS_FLAG;
-
-    min::eol_flush.func = PINT::set_printer_flags;
-    min::eol_flush.v1.u32 = min::EOL_FLUSH_FLAG;
-    min::noeol_flush.func = PINT::clear_printer_flags;
-    min::noeol_flush.v1.u32 = min::EOL_FLUSH_FLAG;
-
-    min::eom_flush.func = PINT::set_printer_flags;
-    min::eom_flush.v1.u32 = min::EOM_FLUSH_FLAG;
-    min::noeom_flush.func = PINT::clear_printer_flags;
-    min::noeom_flush.v1.u32 = min::EOM_FLUSH_FLAG;
-
-    min::keep.func = PINT::set_printer_flags;
-    min::keep.v1.u32 = min::KEEP_FLAG;
-    min::nokeep.func = PINT::clear_printer_flags;
-    min::nokeep.v1.u32 = min::KEEP_FLAG;
-}
+const min::printer_op min::ascii
+    ( PINT::set_printer_flags, min::ASCII_FLAG );
+const min::printer_op min::utf8
+    ( PINT::clear_printer_flags, min::ASCII_FLAG );
+const min::printer_op min::graphic
+    ( PINT::set_printer_flags, min::GRAPHIC_FLAG );
+const min::printer_op min::nographic
+    ( PINT::clear_printer_flags, min::GRAPHIC_FLAG );
+const min::printer_op min::display_eol
+    ( PINT::set_printer_flags, min::DISPLAY_EOL_FLAG );
+const min::printer_op min::nodisplay_eol
+    ( PINT::clear_printer_flags,
+      min::DISPLAY_EOL_FLAG );
+const min::printer_op min::nobreaks
+    ( PINT::set_printer_flags, min::NOBREAKS_FLAG );
+const min::printer_op min::breaks
+    ( PINT::clear_printer_flags, min::NOBREAKS_FLAG );
+const min::printer_op min::eol_flush
+    ( PINT::set_printer_flags, min::EOL_FLUSH_FLAG );
+const min::printer_op min::noeol_flush
+    ( PINT::clear_printer_flags, min::EOL_FLUSH_FLAG );
+const min::printer_op min::eom_flush
+    ( PINT::set_printer_flags, min::EOM_FLUSH_FLAG );
+const min::printer_op min::noeom_flush
+    ( PINT::clear_printer_flags, min::EOM_FLUSH_FLAG );
+const min::printer_op min::keep
+    ( PINT::set_printer_flags, min::KEEP_FLAG );
+const min::printer_op min::nokeep
+    ( PINT::clear_printer_flags, min::KEEP_FLAG );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
