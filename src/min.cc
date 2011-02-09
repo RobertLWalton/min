@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  8 17:40:37 EST 2011
+// Date:	Tue Feb  8 19:12:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6607,7 +6607,7 @@ static min::packed_vec<char,min::printer_header>
     printer_type ( "min::printer_type" );
 
 static void init_utf8graphic ( void );
-static void init_printer_items ( void );
+static void init_printer_ops ( void );
 void min::init ( printer & prtr )
 {
     if ( prtr == NULL_STUB )
@@ -6617,7 +6617,7 @@ void min::init ( printer & prtr )
 	{
 	    first = false;
 	    ::init_utf8graphic();
-	    ::init_printer_items();
+	    ::init_printer_ops();
 	}
 
         prtr = ::printer_type.new_stub();
@@ -6733,14 +6733,14 @@ T & print_gen
 
 min::printer & PINT::pgen
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     const min::printer_format * f =
-        (min::printer_format *) item.v2.p;
+        (min::printer_format *) op.v2.p;
     if  ( f == NULL ) f = prtr->parameters.format;
     if  ( f == NULL ) f = & min::default_printer_format;
 
-    return print_gen ( prtr, item.v1.g, f, f->pr_stub );
+    return print_gen ( prtr, op.v1.g, f, f->pr_stub );
 }
 
 static min::printer & print_unicode
@@ -6749,53 +6749,53 @@ static min::printer & print_unicode
 
 min::printer & PINT::punicode1
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
-    return ::print_unicode ( prtr, 1, & item.v1.u32 );
+    return ::print_unicode ( prtr, 1, & op.v1.u32 );
 }
 
 min::printer & PINT::punicode2
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     return ::print_unicode
-        ( prtr, item.v1.uptr,
-	        (const uns32 *) item.v2.p );
+        ( prtr, op.v1.uptr,
+	        (const uns32 *) op.v2.p );
 }
 
 min::printer & PINT::pint
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     char buffer[256];
-    sprintf ( buffer, (const char *) item.v2.p,
-                      item.v1.i64 );
+    sprintf ( buffer, (const char *) op.v2.p,
+                      op.v1.i64 );
     return prtr << buffer;
 }
 
 min::printer & PINT::puns
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     char buffer[256];
-    sprintf ( buffer, (const char *) item.v2.p,
-                      item.v1.u64 );
+    sprintf ( buffer, (const char *) op.v2.p,
+                      op.v1.u64 );
     return prtr << buffer;
 }
 
 min::printer & PINT::pfloat
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     char buffer[256];
-    sprintf ( buffer, (const char *) item.v2.p,
-                      item.v1.f64 );
+    sprintf ( buffer, (const char *) op.v2.p,
+                      op.v1.f64 );
     return prtr << buffer;
 }
 
 min::printer & PINT::flush0
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     if ( prtr->ostream != NULL )
 	* prtr->ostream << prtr;
@@ -6804,57 +6804,57 @@ min::printer & PINT::flush0
 
 min::printer & PINT::flush1
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
-    if ( item.v1.p != NULL )
-	* (std::ostream *) item.v1.p << prtr;
+    if ( op.v1.p != NULL )
+	* (std::ostream *) op.v1.p << prtr;
     return prtr;
 }
 
 min::printer & PINT::format
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     prtr->parameters.format =
-        (const printer_format *) item.v1.p;
+        (const printer_format *) op.v1.p;
     return prtr;
 }
 
 min::printer & PINT::line_length
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
-    prtr->parameters.line_length = item.v1.u32;
+    prtr->parameters.line_length = op.v1.u32;
     return prtr;
 }
 
 min::printer & PINT::indent
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
-    prtr->parameters.indent = item.v1.u32;
+    prtr->parameters.indent = op.v1.u32;
     return prtr;
 }
 
 min::printer & PINT::set_printer_flags
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
-    prtr->parameters.flags |= item.v1.u32;
+    prtr->parameters.flags |= op.v1.u32;
     return prtr;
 }
 
 min::printer & PINT::clear_printer_flags
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
-    prtr->parameters.flags &= ~ item.v1.u32;
+    prtr->parameters.flags &= ~ op.v1.u32;
     return prtr;
 }
 
 static min::printer & save_printer_parameters
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     prtr->saved_parameters = prtr->parameters;
     return prtr;
@@ -6862,7 +6862,7 @@ static min::printer & save_printer_parameters
 
 static min::printer & restore_printer_parameters
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     prtr->parameters = prtr->saved_parameters;
     return prtr;
@@ -6901,7 +6901,7 @@ static void end_line ( min::printer & prtr )
 
 static min::printer & eol
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     ::end_line ( prtr );
 
@@ -6912,7 +6912,7 @@ static min::printer & eol
 
 static min::printer & eom
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
     ::end_line ( prtr );
     prtr->parameters = prtr->saved_parameters;
@@ -6921,72 +6921,72 @@ static min::printer & eom
     return prtr;
 }
 
-min::printer_item min::save_printer_parameters;
-min::printer_item min::restore_printer_parameters;
+min::printer_op min::save_printer_parameters;
+min::printer_op min::restore_printer_parameters;
 
-min::printer_item min::eol;
-min::printer_item min::eom;
+min::printer_op min::eol;
+min::printer_op min::eom;
 
-min::printer_item min::ascii;
-min::printer_item min::utf8;
-min::printer_item min::graphic;
-min::printer_item min::nographic;
-min::printer_item min::display_eol;
-min::printer_item min::nodisplay_eol;
-min::printer_item min::nobreaks;
-min::printer_item min::breaks;
-min::printer_item min::eol_flush;
-min::printer_item min::noeol_flush;
-min::printer_item min::eom_flush;
-min::printer_item min::noeom_flush;
-min::printer_item min::keep;
-min::printer_item min::nokeep;
+min::printer_op min::ascii;
+min::printer_op min::utf8;
+min::printer_op min::graphic;
+min::printer_op min::nographic;
+min::printer_op min::display_eol;
+min::printer_op min::nodisplay_eol;
+min::printer_op min::nobreaks;
+min::printer_op min::breaks;
+min::printer_op min::eol_flush;
+min::printer_op min::noeol_flush;
+min::printer_op min::eom_flush;
+min::printer_op min::noeom_flush;
+min::printer_op min::keep;
+min::printer_op min::nokeep;
 
-static void init_printer_items ( void )
+static void init_printer_ops ( void )
 {
     // Called when first min::printer created.
 
-    min::save_printer_parameters.op =
+    min::save_printer_parameters.func =
         ::save_printer_parameters;
-    min::restore_printer_parameters.op =
+    min::restore_printer_parameters.func =
         ::restore_printer_parameters;
 
-    min::eol.op = ::eol;
-    min::eom.op = ::eom;
+    min::eol.func = ::eol;
+    min::eom.func = ::eom;
 
-    min::ascii.op = PINT::set_printer_flags;
+    min::ascii.func = PINT::set_printer_flags;
     min::ascii.v1.u32 = min::ASCII_FLAG;
-    min::utf8.op = PINT::clear_printer_flags;
+    min::utf8.func = PINT::clear_printer_flags;
     min::utf8.v1.u32 = min::ASCII_FLAG;
 
-    min::graphic.op = PINT::set_printer_flags;
+    min::graphic.func = PINT::set_printer_flags;
     min::graphic.v1.u32 = min::GRAPHIC_FLAG;
-    min::nographic.op = PINT::clear_printer_flags;
+    min::nographic.func = PINT::clear_printer_flags;
     min::nographic.v1.u32 = min::GRAPHIC_FLAG;
 
-    min::display_eol.op = PINT::set_printer_flags;
+    min::display_eol.func = PINT::set_printer_flags;
     min::display_eol.v1.u32 = min::DISPLAY_EOL_FLAG;
-    min::nodisplay_eol.op = PINT::clear_printer_flags;
+    min::nodisplay_eol.func = PINT::clear_printer_flags;
     min::nodisplay_eol.v1.u32 = min::DISPLAY_EOL_FLAG;
 
-    min::nobreaks.op = PINT::set_printer_flags;
+    min::nobreaks.func = PINT::set_printer_flags;
     min::nobreaks.v1.u32 = min::NOBREAKS_FLAG;
-    min::breaks.op = PINT::clear_printer_flags;
+    min::breaks.func = PINT::clear_printer_flags;
     min::breaks.v1.u32 = min::NOBREAKS_FLAG;
 
-    min::eol_flush.op = PINT::set_printer_flags;
+    min::eol_flush.func = PINT::set_printer_flags;
     min::eol_flush.v1.u32 = min::EOL_FLUSH_FLAG;
-    min::noeol_flush.op = PINT::clear_printer_flags;
+    min::noeol_flush.func = PINT::clear_printer_flags;
     min::noeol_flush.v1.u32 = min::EOL_FLUSH_FLAG;
 
-    min::eom_flush.op = PINT::set_printer_flags;
+    min::eom_flush.func = PINT::set_printer_flags;
     min::eom_flush.v1.u32 = min::EOM_FLUSH_FLAG;
-    min::noeom_flush.op = PINT::clear_printer_flags;
+    min::noeom_flush.func = PINT::clear_printer_flags;
     min::noeom_flush.v1.u32 = min::EOM_FLUSH_FLAG;
 
-    min::keep.op = PINT::set_printer_flags;
+    min::keep.func = PINT::set_printer_flags;
     min::keep.v1.u32 = min::KEEP_FLAG;
-    min::nokeep.op = PINT::clear_printer_flags;
+    min::nokeep.func = PINT::clear_printer_flags;
     min::nokeep.v1.u32 = min::KEEP_FLAG;
 }
 
