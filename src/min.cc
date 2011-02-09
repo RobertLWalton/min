@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  8 10:01:17 EST 2011
+// Date:	Tue Feb  8 17:40:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6601,6 +6601,8 @@ static void init_utf8graphic ( void )
 	      min::ILLEGAL_UTF8 );
 }
 
+static char NUL_UTF8_ENCODING[2] = { 0xC0, 0x80 };
+
 static min::packed_vec<char,min::printer_header>
     printer_type ( "min::printer_type" );
 
@@ -7199,7 +7201,11 @@ min::printer & operator <<
 		if ( prtr->column > line_length )
 		    ::insert_line_break ( prtr );
 
-		min::push(prtr) = (char) c;
+		if ( c == 0 )
+		    min::push
+		        ( prtr, 2, NUL_UTF8_ENCODING );
+		else
+		    min::push(prtr) = (char) c;
 	    }
 	}
 	else
@@ -7352,7 +7358,11 @@ static min::printer & print_unicode
 		if ( prtr->column > line_length )
 		    ::insert_line_break ( prtr );
 
-		min::push(prtr) = (char) c;
+		if ( c == 0 )
+		    min::push
+		        ( prtr, 2, NUL_UTF8_ENCODING );
+		else
+		    min::push(prtr) = (char) c;
 	    }
 	}
 	else
