@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  8 10:02:02 EST 2011
+// Date:	Tue Feb  8 19:09:10 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8842,11 +8842,11 @@ namespace min {
         KEEP_FLAG		= ( 1 << 6 ),
     };
 
-    struct printer_item
+    struct printer_op
     {
-        printer & ( * op )
+        printer & ( * func )
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
 	union {
 	    void * p;
 	    uns32 u32;
@@ -8863,43 +8863,43 @@ namespace min {
     {
         printer & pgen
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & punicode1
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & punicode2
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & pint
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & puns
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & pfloat
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & flush0
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & flush1
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & format
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & line_length
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & indent
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & set_printer_flags
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
         printer & clear_printer_flags
 	    ( printer & prtr,
-	      const printer_item & item );
+	      const printer_op & op );
     }
 
     void init ( printer & prtr );
@@ -8911,157 +8911,157 @@ namespace min {
 	prtr->ostream = & ostream;
     }
 
-    inline printer_item pgen
+    inline printer_op pgen
 	    ( min::gen v,
               const printer_format * format = NULL )
     {
-        printer_item item;
-	item.op = printer_internal::pgen;
-	item.v1.g = v;
-	item.v2.p = (void *) format;
-	return item;
+        printer_op op;
+	op.func = printer_internal::pgen;
+	op.v1.g = v;
+	op.v2.p = (void *) format;
+	return op;
     }
 
-    inline printer_item punicode ( min::uns32 c )
+    inline printer_op punicode ( min::uns32 c )
     {
-        printer_item item;
-	item.op = printer_internal::punicode1;
-	item.v1.u32 = c;
-	return item;
+        printer_op op;
+	op.func = printer_internal::punicode1;
+	op.v1.u32 = c;
+	return op;
     }
 
-    inline printer_item punicode
+    inline printer_op punicode
 	    ( min::unsptr length,
 	      const min::uns32 * buffer )
     {
-        printer_item item;
-	item.op = printer_internal::punicode2;
-	item.v1.uptr = length;
-	item.v1.p = (void *) buffer;
-	return item;
+        printer_op op;
+	op.func = printer_internal::punicode2;
+	op.v1.uptr = length;
+	op.v1.p = (void *) buffer;
+	return op;
     }
 
-    inline printer_item pint
+    inline printer_op pint
 	    ( min::int64 i,
               const char * printf_format )
     {
-        printer_item item;
-	item.op = printer_internal::pint;
-	item.v1.i64 = i;
-	item.v2.p = (void *) printf_format;
-	return item;
+        printer_op op;
+	op.func = printer_internal::pint;
+	op.v1.i64 = i;
+	op.v2.p = (void *) printf_format;
+	return op;
     }
 
-    inline printer_item puns
+    inline printer_op puns
 	    ( min::uns64 u,
               const char * printf_format )
     {
-        printer_item item;
-	item.op = printer_internal::puns;
-	item.v1.u64 = u;
-	item.v2.p = (void *) printf_format;
-	return item;
+        printer_op op;
+	op.func = printer_internal::puns;
+	op.v1.u64 = u;
+	op.v2.p = (void *) printf_format;
+	return op;
     }
 
-    inline printer_item pfloat
+    inline printer_op pfloat
 	    ( min::float64 f,
               const char * printf_format )
     {
-        printer_item item;
-	item.op = printer_internal::pfloat;
-	item.v1.f64 = f;
-	item.v2.p = (void *) printf_format;
-	return item;
+        printer_op op;
+	op.func = printer_internal::pfloat;
+	op.v1.f64 = f;
+	op.v2.p = (void *) printf_format;
+	return op;
     }
 
-    inline printer_item flush ( void )
+    inline printer_op flush ( void )
     {
-        printer_item item;
-	item.op = printer_internal::flush0;
-	return item;
+        printer_op op;
+	op.func = printer_internal::flush0;
+	return op;
     }
 
-    inline printer_item flush
+    inline printer_op flush
 	    ( std::ostream & ostream )
     {
-        printer_item item;
-	item.op = printer_internal::flush1;
-	item.v1.p = & ostream;
-	return item;
+        printer_op op;
+	op.func = printer_internal::flush1;
+	op.v1.p = & ostream;
+	return op;
     }
 
-    inline printer_item format
+    inline printer_op format
 	    ( const printer_format * format )
     {
-        printer_item item;
-	item.op = printer_internal::format;
-	item.v1.p = (void *) format;
-	return item;
+        printer_op op;
+	op.func = printer_internal::format;
+	op.v1.p = (void *) format;
+	return op;
     }
 
-    inline printer_item line_length
+    inline printer_op line_length
 	    ( uns32 line_length )
     {
-        printer_item item;
-	item.op = printer_internal::line_length;
-	item.v1.u32 = line_length;
-	return item;
+        printer_op op;
+	op.func = printer_internal::line_length;
+	op.v1.u32 = line_length;
+	return op;
     }
 
-    inline printer_item indent
+    inline printer_op indent
 	    ( uns32 indent )
     {
-        printer_item item;
-	item.op = printer_internal::indent;
-	item.v1.u32 = indent;
-	return item;
+        printer_op op;
+	op.func = printer_internal::indent;
+	op.v1.u32 = indent;
+	return op;
     }
 
-    inline printer_item set_printer_flags
+    inline printer_op set_printer_flags
 	    ( uns32 flags )
     {
-        printer_item item;
-	item.op = printer_internal::set_printer_flags;
-	item.v1.u32 = flags;
-	return item;
+        printer_op op;
+	op.func = printer_internal::set_printer_flags;
+	op.v1.u32 = flags;
+	return op;
     }
 
-    inline printer_item clear_printer_flags
+    inline printer_op clear_printer_flags
 	    ( uns32 flags )
     {
-        printer_item item;
-	item.op = printer_internal::clear_printer_flags;
-	item.v1.u32 = flags;
-	return item;
+        printer_op op;
+	op.func = printer_internal::clear_printer_flags;
+	op.v1.u32 = flags;
+	return op;
     }
 
-    extern printer_item save_printer_parameters;
-    extern printer_item restore_printer_parameters;
+    extern printer_op save_printer_parameters;
+    extern printer_op restore_printer_parameters;
 
-    extern printer_item eol;
-    extern printer_item eom;
+    extern printer_op eol;
+    extern printer_op eom;
 
-    extern printer_item ascii;
-    extern printer_item utf8;
-    extern printer_item graphic;
-    extern printer_item nographic;
-    extern printer_item display_eol;
-    extern printer_item nodisplay_eol;
-    extern printer_item nobreaks;
-    extern printer_item breaks;
-    extern printer_item eol_flush;
-    extern printer_item noeol_flush;
-    extern printer_item eom_flush;
-    extern printer_item noeom_flush;
-    extern printer_item keep;
-    extern printer_item nokeep;
+    extern printer_op ascii;
+    extern printer_op utf8;
+    extern printer_op graphic;
+    extern printer_op nographic;
+    extern printer_op display_eol;
+    extern printer_op nodisplay_eol;
+    extern printer_op nobreaks;
+    extern printer_op breaks;
+    extern printer_op eol_flush;
+    extern printer_op noeol_flush;
+    extern printer_op eom_flush;
+    extern printer_op noeom_flush;
+    extern printer_op keep;
+    extern printer_op nokeep;
 }
 
 inline min::printer & operator <<
 	( min::printer & prtr,
-	  const min::printer_item & item )
+	  const min::printer_op & op )
 {
-    return (* item.op ) ( prtr, item );
+    return (* op.func ) ( prtr, op );
 }
 
 min::printer & operator <<
