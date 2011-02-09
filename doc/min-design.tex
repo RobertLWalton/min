@@ -64,6 +64,18 @@
 
 % End \tableofcontents surgery.
 
+\newsavebox{\BRABOX}
+\begin{lrbox}{\BRABOX}
+\verb|{|
+\end{lrbox}
+\newcommand{\BRA}{\usebox{\BRABOX}}
+
+\newsavebox{\KETBOX}
+\begin{lrbox}{\KETBOX}
+\verb|}|
+\end{lrbox}
+\newcommand{\KET}{\usebox{\KETBOX}}
+
 \newcommand{\CN}[2]%	Change Notice.
     {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
      $^{\mbox{#1}}$#2}}
@@ -3505,6 +3517,9 @@ is allowed so that $2^{32}-1$ can be encoded.
 When a horizontal tab is copied to a printer vector, it is converted
 to between 1 and 8 single space characters.
 
+When a {\tt NUL} is copied into a printer vector, it is encoded as
+the overlong encoding {\tt 0xC0},{\tt 0x80}.
+
 Other values presented to {\tt <<} are converted to {\tt char} strings
 as follows:
 `{\tt char}' converts to a 1-{\tt char} string whose only element
@@ -3604,7 +3619,7 @@ that the latter does nothing if `{\tt out}' has {\tt NULL}
 address.
 
 If {\tt prtr1} and {\tt prtr2} are printers,
-`{\tt prtr1<<prtr2}' copies the not-previously-copied
+`{\tt prtr1<<prtr2}' copies the not-previously-flushed
 characters of {\tt prtr2} to {\tt prtr1}.  Line terminations
 are translated to `{\tt prtr1<<min::\EOL eol}'.  Other characters
 are copied to {\tt prtr1} as if that printer had its
@@ -3614,6 +3629,8 @@ Note that since horizontal tabs input to {\tt prtr2} have
 been converted to 1 to 8 single space characters, it is these
 single space characters that are copied to {\tt prtr1}, so the
 effective tab stops are those of {\tt prtr2} and not {\tt prtr1}.
+After copying characters, the {\tt prtr2} {\tt flush\_\EOL offset}
+member is reset to the length of {\tt prtr2}.
 
 Printer operations can also be used to print values with specified
 formats.  The {\tt min::\EOL pgen} printer operation prints
@@ -3678,14 +3695,15 @@ A {\tt min::printer\_format} is as follows:
 \end{tabular}\end{indpar}
 
 The {\tt number\_format} member is used as a {\tt printf} format
-for printing {\tt min::gen} numbers cast to {\tt min::\EOL float64} values.
-The {\tt str\_\EOL {pre,post}fix} members are printed just before and
+for printing {\tt min::gen} numbers convered to {\tt min::\EOL float64} values.
+The {\tt str\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the string of characters in a {\tt min::gen} string value
 (which is itself a UTF-8 encoded UNICODE character string).
-The {\tt lab\_\EOL {pre,post}fix} members are printed just before and
+The {\tt lab\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the elements of a label {\tt min::gen} value,
 and {\tt lab\_\EOL separator} member is printed between elements.
-The {\tt special\_\EOL {pre,post}fix} members are printed just before and
+The {\tt special\_\EOL \BRA pre,post\KET fix}
+members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING}').
 The {\tt pr\_\EOL stub} function, if it is not {\tt NULL}, is called
 with any {\tt min::stub} that is not a number, label, or string.
