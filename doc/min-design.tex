@@ -203,7 +203,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 8, 2011}
+\date{February 9, 2011}
  
 \maketitle
 
@@ -3573,10 +3573,10 @@ The flush printer operations copy the printer vector contents
 to an {\tt std::ostream}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{flush}\verb| ( void )|
 \LABEL{MIN::FLUSH} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{flush}\verb| ( std::ostream & stream )|
 \LABEL{MIN::FLUSH_WITH_OSTREAM} \\
 \end{tabular}\end{indpar}
@@ -3637,9 +3637,9 @@ formats.  The {\tt min::\EOL pgen} printer operation prints
 {\tt min::gen} values using a {\tt min::\EOL printer\_\EOL format}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{pgen}\verb| ( min::gen v,|\\&{\tt ~~~~}
-      \verb|   min::printer_format *|\\&{\tt ~~~~}
+      \verb|   const min::printer_format *|\\&{\tt ~~~~}
       \verb|        format = NULL )|
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
@@ -3712,10 +3712,10 @@ A single UNICODE character, or a string of UNICODE characters,
 can be printed using the following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{punicode}\verb| ( min::uns32 c )|
 \LABEL{MIN::PUNICODE} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{punicode}\ARGBREAK
       \verb| ( min::unsptr length,|\ARGBREAK
       \verb|   const min::uns32 * buffer )|
@@ -3726,51 +3726,49 @@ Numbers may be formatted by specified {\tt printf} formats and the results
 printed by using the following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{pint}%
       \verb| ( min::int64 i,|\\&{\tt ~~~~}%
       \verb|   const char * printf_format )|
 \LABEL{MIN::PINT} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{puns}%
       \verb| ( min::uns64 u,|\\&{\tt ~~~~}%
       \verb|   const char * printf_format )|
 \LABEL{MIN::PUNS} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{pfloat}%
       \verb| ( min::float64 f,|\\&{\tt ~~~~}%
       \verb|   const char * printf_format )|
 \LABEL{MIN::PFLOAT} \\
 \end{tabular}\end{indpar}
 
-
+The components of a printer {\tt parameters} member may be set
+by the following printer operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{format}\verb| ( min::printer_format * format )|
 \LABEL{MIN::FORMAT} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{line\_length}\verb| ( min::uns32 line_length )|
 \LABEL{MIN::LINE_LENGTH} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{indent}\verb| ( min::uns32 indent )|
 \LABEL{MIN::INDENT} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{set\_printer\_flags}\verb| ( min::uns32 flags )|
 \LABEL{MIN::SET_PRINTER_FLAGS} \\
-\verb|const min::printer_op min::|
+\verb|min::printer_op min::|
     & \MINKEY{clear\_printer\_flags}\verb| ( min::uns32 flags )|
 \LABEL{MIN::CLEAR_PRINTER_FLAGS} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::|
-    & \MINKEY{save\_printer\_parameters}
-\LABEL{MIN::SAVE_PRINTER_PARAMETERS} \\
-\verb|const min::printer_op min::|
-    & \MINKEY{restore\_printer\_parameters}
-\LABEL{MIN::RESTORE_PRINTER_PARAMETERS} \\
-\end{tabular}\end{indpar}
+For example, `{\tt prtr<<min::set\_printer\_flags(min::ASCII\_FLAG)}'
+sets the {\tt ASCII\_FLAG} of {\tt prtr->\EOL parameters.flags}.
+
+Particular {\tt parameters->flags} may be set and cleared by the
+following
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_op min::| & \MINKEY{ascii}
@@ -3802,6 +3800,35 @@ printed by using the following printer operations:
 \verb|const min::printer_op min::| & \MINKEY{nokeep}
 \LABEL{MIN::NOKEEP} \\
 \end{tabular}\end{indpar}
+
+For example, `{\tt ptrt<<min::nobreaks}' sets the
+{\tt prtr->\EOL parameters.flags} {\tt NOBREAKS\_FLAG}
+and `{\tt prtr<<min::breaks}' clears this flag.
+
+The {\tt parameters} of a printer may be saved in the
+\ttmkey{saved\_\EOL parameters}{of {\tt min::printer}}
+member of the printer, and restored from that member.
+This may be done explicitly by the following printer
+operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::printer_op min::|
+    & \MINKEY{save\_printer\_parameters}
+\LABEL{MIN::SAVE_PRINTER_PARAMETERS} \\
+\verb|const min::printer_op min::|
+    & \MINKEY{restore\_printer\_parameters}
+\LABEL{MIN::RESTORE_PRINTER_PARAMETERS} \\
+\end{tabular}\end{indpar}
+
+The idea behind {\tt saved\_parameters} is that output consists
+of a sequence of messages, such as error messages, and that
+flags set producing these messages, such as the
+{\tt min::\EOL GRAPHIC\_\EOL FLAG}, may need to be cleared at the
+end of the message.  This can be done by setting the normal
+printer parameters when the printer is initialized, saving them
+with `{\tt prtr<<min::\EOL save\_\EOL printer\_\EOL parameters}',
+and then ending messages with `{\tt prtr<<min::eom}', which restores
+the parameters to their normal state.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
