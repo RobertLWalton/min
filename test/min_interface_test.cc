@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 10:18:44 EST 2011
+// Date:	Wed Feb  9 10:26:43 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2128,8 +2128,16 @@ void test_printer ( void )
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
                    "\030\031\032\033\034\035\036\037"
+		   "\040\177\200\300"
             << min::eom;
 
+    printer << min::graphic
+            << "\300\200\001\002\003\004\005\006\007"
+                   "\010\011\012\013\014\015\016\017"
+                   "\020\021\022\023\024\025\026\027"
+                   "\030\031\032\033\034\035\036\037"
+		   "\040\177\200\300"
+            << min::eom;
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;

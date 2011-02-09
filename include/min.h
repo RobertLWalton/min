@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 05:29:59 EST 2011
+// Date:	Wed Feb  9 10:35:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3289,7 +3289,7 @@ namespace min {
 	while ( true )
 	{
 	    * s ++ = (char)
-	        ( c + ( unicode >> shift ) & 0x3F );
+	        ( c + ( ( unicode >> shift ) & 0x3F ) );
 	    if ( shift == 0 ) break;
 	    shift -= 6;
 	    c = 0x80;
