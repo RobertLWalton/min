@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 04:05:44 EST 2011
+// Date:	Wed Feb  9 10:18:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2092,14 +2092,44 @@ void test_printer ( void )
         ( printer->parameters.line_length == 16 );
     MIN_ASSERT
         ( printer->parameters.indent == 4 );
+    MIN_ASSERT ( printer->line == 0 );
     MIN_ASSERT ( printer->column == 16 );
-    MIN_ASSERT ( printer->break_offset == 6 );
-    printer << min::line_length ( 16 )
-            << "1 12 123 1234 12345 123456 12345678"
-	       " 123456789" << min::eom;
+    MIN_ASSERT ( printer->break_column == 6 );
+    printer << " ";
+    MIN_ASSERT ( printer->column == 17 );
+    printer << "\t";
+    MIN_ASSERT ( printer->column == 24 );
+    printer << "A";
+    MIN_ASSERT ( printer->line == 1 );
+    MIN_ASSERT ( printer->column == 5 );
+    printer << " B C D E F";
+    MIN_ASSERT ( printer->column == 15 );
+    MIN_ASSERT ( printer->break_column == 13 );
+    printer << "1234";
+    MIN_ASSERT ( printer->line == 2 );
+    MIN_ASSERT ( printer->column == 9 );
+    printer << "\tab\t";
+    MIN_ASSERT ( printer->line == 3 );
+    MIN_ASSERT ( printer->column == 8 );
+    MIN_ASSERT ( printer->break_column == 7 );
+    printer << "123456789012345678901234567890";
+    MIN_ASSERT ( printer->line == 4 );
+    MIN_ASSERT ( printer->column == 34 );
+    printer << " B";
+    MIN_ASSERT ( printer->line == 5 );
+    MIN_ASSERT ( printer->column == 5 );
+    printer << min::eom;
+    MIN_ASSERT ( printer->column == 0 );
     MIN_ASSERT
         ( printer->parameters.line_length == 72 );
-    MIN_ASSERT ( printer->column == 0 );
+
+    printer << min::graphic << min::ascii
+            << "\300\200\001\002\003\004\005\006\007"
+                   "\010\011\012\013\014\015\016\017"
+                   "\020\021\022\023\024\025\026\027"
+                   "\030\031\032\033\034\035\036\037"
+            << min::eom;
+
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;

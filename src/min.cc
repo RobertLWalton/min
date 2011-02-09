@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 02:41:35 EST 2011
+// Date:	Wed Feb  9 10:15:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6622,7 +6622,7 @@ void min::init ( printer & prtr )
 	prtr->parameters = prtr->saved_parameters =
 	    min::default_printer_parameters;
     }
-    prtr->line = 1;
+    prtr->line = 0;
     prtr->column = 0;
     prtr->line_offset = 0;
     prtr->break_offset = 0;
@@ -7105,9 +7105,19 @@ min::printer & operator <<
 	( ( flags & min::GRAPHIC_FLAG ) != 0 );
 
     char temp[32];
-    min::uns8 c;
+    min::uns32 c;
     while ( c = (min::uns8) * s ++ )
     {
+        if ( c >= 0x80 )
+	{
+	    // UTF-8 encoded character.  Might be
+	    // overlong encoded ASCII character such
+	    // as NUL.
+
+	    -- s;
+	    c = min::utf8_to_unicode ( s );
+	}
+
 	if ( 0x20 < c && c < 0x7F )
 	{
 	    // Common case: ASCII graphic character.
@@ -7125,7 +7135,7 @@ min::printer & operator <<
 	}
 	else if ( c <= 0x20 || c == 0x7F )
 	{
-	    // Control character.
+	    // ASCII Control character.
 
 	    if ( graphic )
 	    {
@@ -7191,19 +7201,14 @@ min::printer & operator <<
 	}
 	else
 	{
-	    // Non-ASCII Character.
-	    //
-	    -- s;
-	    const char * olds = s;
-	    min::uns32 unicode =
-		min::utf8_to_unicode ( s );
+	    // Non-ASCII UNICODE Character.
 
 	    const char * rep;
 	    int len;
 	    int columns;
 	    if( ascii )
 	    {
-		if ( unicode == min::ILLEGAL_UTF8 )
+		if ( c == min::ILLEGAL_UTF8 )
 		{
 		    rep = asciigraphic[ILL_REP];
 		    len = strlen ( rep );
@@ -7212,7 +7217,7 @@ min::printer & operator <<
 		else
 		{
 		    len = sprintf
-			( temp+1, "<%X>", unicode );
+			( temp+1, "<%X>", c );
 		    char * p = temp + 1;
 		    if ( p[1] < '0' || '9' < p[1] )
 		    {
@@ -7224,18 +7229,19 @@ min::printer & operator <<
 		    columns = len;
 		}
 	    }
-	    else // not ascii
+	    else // not ascii mode
 	    {
 		columns = 1;
-		if ( unicode == min::ILLEGAL_UTF8 )
+		if ( c == min::ILLEGAL_UTF8 )
 		{
 		    rep = utf8graphic[ILL_REP];
 		    len = strlen ( rep );
 		}
 		else
 		{
-		    rep = olds;
-		    len = s - olds;
+		    rep = temp;
+		    char * p = temp;
+		    len = min::unicode_to_utf8 ( p, c );
 		}
 	    }
 
@@ -7291,7 +7297,7 @@ static min::printer & print_unicode
 	}
 	else if ( c <= 0x20 || c == 0x7F )
 	{
-	    // Control character.
+	    // ASCII control character.
 
 	    if ( graphic )
 	    {
@@ -7357,16 +7363,14 @@ static min::printer & print_unicode
 	}
 	else
 	{
-	    // Non-ASCII Character.
-
-	    min::uns32 unicode = c;
+	    // Non-ASCII UNICODE Character.
 
 	    const char * rep;
 	    int len;
 	    int columns;
 	    if( ascii )
 	    {
-		if ( unicode == min::ILLEGAL_UTF8 )
+		if ( c == min::ILLEGAL_UTF8 )
 		{
 		    rep = asciigraphic[ILL_REP];
 		    len = strlen ( rep );
@@ -7375,7 +7379,7 @@ static min::printer & print_unicode
 		else
 		{
 		    len = sprintf
-			( temp+1, "<%X>", unicode );
+			( temp+1, "<%X>", c );
 		    char * p = temp + 1;
 		    if ( p[1] < '0' || '9' < p[1] )
 		    {
@@ -7390,7 +7394,7 @@ static min::printer & print_unicode
 	    else // not ascii
 	    {
 		columns = 1;
-		if ( unicode == min::ILLEGAL_UTF8 )
+		if ( c == min::ILLEGAL_UTF8 )
 		{
 		    rep = utf8graphic[ILL_REP];
 		    len = strlen ( rep );
@@ -7399,8 +7403,7 @@ static min::printer & print_unicode
 		{
 		    rep = temp;
 		    char * p = temp;
-		    len = min::unicode_to_utf8
-		    		( p, unicode );
+		    len = min::unicode_to_utf8 ( p, c );
 		}
 	    }
 
