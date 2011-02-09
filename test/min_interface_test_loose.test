@@ -1643,6 +1643,12 @@ Start Printer Test!
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub 35, 224 ) called
 Using fixed_blocks[5] and assigning begin_body_region[384 .. 415]
+123456
+    1234567891
+    12 123 1234
+    12345 123456
+    12345678
+    123456789
 1
 1.23456789
 1.23456789012345
