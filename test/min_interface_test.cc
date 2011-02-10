@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 11:20:28 EST 2011
+// Date:	Wed Feb  9 18:56:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -52,6 +52,9 @@ using std::endl;
 using std::hex;
 using std::dec;
 using std::ostream;
+
+bool debug = false;
+#define dout if ( debug ) cout
 
 // Redefinition of MIN_ASSERT for use in min.h.
 //
@@ -309,7 +312,7 @@ void MINT::new_fixed_body
     min::uns64 * next = next_body;
     MIN_ASSERT ( next + 2 * m <= end_body_region );
 
-    cout << "Using fixed_blocks["
+    dout << "Using fixed_blocks["
          << fbl - fixed_blocks << "]"
 	 << " and assigning begin_body_region["
 	 << next - begin_body_region
@@ -343,7 +346,7 @@ void MUP::deallocate_body
     if ( n == 0 ) return;
 
     cout << "MINT::deallocate ( " << s
-         << " ) called" << endl;
+         << ", " << n << " ) called" << endl;
 
     MUP::set_ptr_of ( s, deallocated_body_region );
     MUP::set_type_of ( s, min::DEALLOCATED );
@@ -372,7 +375,7 @@ static void resize_body
 	    MUP::ptr_of ( s );
 	min::uns64 * to   = (min::uns64 *)
 	    MUP::new_body_ptr_ref ( rbody );
-	cout << "copying body_region["
+	dout << "copying body_region["
 	     << from - begin_body_region
 	     << " .. "
 	     << from - begin_body_region + length/8 - 1
@@ -382,7 +385,7 @@ static void resize_body
 	     << to - begin_body_region + length/8 - 1
 	     << "]" << endl;
 	memcpy ( to, from, length );
-	cout << "zeroing body_region["
+	dout << "zeroing body_region["
 	     << from - begin_body_region
 	     << " .. "
 	     << from - begin_body_region
@@ -3501,8 +3504,9 @@ void test_object_attribute_level ( void )
 // Main Program
 // ---- -------
 
-int main ()
+int main ( int argc )
 {
+    debug = ( argc > 1 );
     cout << endl;
     cout << "Start Test!" << endl;
 
