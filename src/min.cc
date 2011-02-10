@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 10:15:59 EST 2011
+// Date:	Thu Feb 10 08:04:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6969,9 +6969,6 @@ const min::printer_op min::nokeep
 //
 static void insert_line_break ( min::printer & prtr )
 {
-    if ( prtr->column <= prtr->parameters.indent )
-	return;
-
     // Determine if there is a horizontal space break.
     //
     bool is_hspace_break =
@@ -7002,6 +6999,10 @@ static void insert_line_break ( min::printer & prtr )
     {
         // Horizontal space break.
 
+	min::uns32 indent = prtr->parameters.indent;
+	if ( prtr->break_column + 1 <= indent )
+	    return;
+
 	// Identify horizontal space as
 	// prtr[begoff .. endoff].
 	//
@@ -7016,7 +7017,6 @@ static void insert_line_break ( min::printer & prtr )
 	++ prtr->line;
 	prtr->line_offset = begoff;
 
-	min::uns32 indent = prtr->parameters.indent;
 	prtr->column -= prtr->break_column + 1;
 	prtr->column += indent;
 	prtr->break_offset = 0;
@@ -7059,9 +7059,11 @@ static void insert_line_break ( min::printer & prtr )
     {
         // Break before/after graphic character.
 
-	min::uns32 off = prtr->break_offset;
-
 	min::uns32 indent = prtr->parameters.indent;
+	if ( prtr->break_column <= indent )
+	    return;
+
+	min::uns32 off = prtr->break_offset;
 
 	// Move up.
 	//
