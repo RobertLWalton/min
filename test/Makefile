@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Nov 10 02:10:26 EST 2010
+# Date:		Wed Feb  9 19:16:26 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -99,6 +99,7 @@ optimization_test:	\
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
 	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
+	    -e '/stub [0-9][0-9]*/s//stub XXX/' \
             < $*.out > $*.test
 
 %.diff:	%.out
@@ -112,6 +113,7 @@ optimization_test:	\
 	    -e '/\$DRevision: .*\$D/s//\$DRCS Revision: XXX\$D/' \
 	    -e '/\$DRCSfile: .*\$D/s//\$DRCS RCSfile: XXX\$D/' \
 	    -e '/TRACE: inaccess_pool/s/0x[0-9a-f]*/0xXXXXXXXX/' \
+	    -e '/stub [0-9][0-9]*/s//stub XXX/' \
             < $*.out | diff --minimal $*.test -
 
 %.out:	%
