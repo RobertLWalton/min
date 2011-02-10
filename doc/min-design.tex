@@ -8,6 +8,9 @@
 
 \usepackage{makeidx}
 \usepackage{pictex}
+\usepackage{upquote}
+    % Modifies \verb and \verbatim to print ' with
+    % the Computer Modern Typewrite font.
 
 \makeindex
 
@@ -92,9 +95,9 @@
 \newcommand{\ttmkey}[2]{{\tt \bf #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttnbmkey}[2]{{\tt #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttarmkey}[2]{{\tt ->\bf #1}%
-                          \index{#1@{\tt ->#1}!#2}}
-\newcommand{\ttdkey}[1]{{\tt .\bf #1}\index{#1@{\tt .#1}}}
-\newcommand{\ttdmkey}[2]{{\tt .\bf #1}\index{#1@{\tt .#1}!#2}}
+                          \index{#1@{\tt #1}!#2}}
+\newcommand{\ttdkey}[1]{{\tt .\bf #1}\index{#1@{\tt #1}}}
+\newcommand{\ttdmkey}[2]{{\tt .\bf #1}\index{#1@{\tt #1}!#2}}
 \newcommand{\ttbkey}[1]{{\tt [{\bf #1}]}\index{#1@{\tt [#1]}}}
 \newcommand{\ttbmkey}[2]{{\tt [{\bf #1}]}\index{#1@{\tt [#1]}!#2}}
 \newcommand{\ttomkey}[3]{{\tt \bf operator #2}%
@@ -125,7 +128,7 @@
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
-% < and > do NOT print write in {\tt \bf <>}, i.e.,
+% < and > do NOT print right in {\tt \bf <>}, i.e.,
 % they have no correct BOLDFACE TT font entries.
 % So we use the following to force non-boldface in
 % keys.
@@ -203,7 +206,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 9, 2011}
+\date{February 10, 2011}
  
 \maketitle
 
@@ -3214,8 +3217,9 @@ either the \verb|min::hash| and \verb|min::compare| function.
 \subsection{Printers}
 \label{PRINTERS}
 
-A \ttkey{printer} is a \verb|char| buffer with additional parameters that may
-be used to print general values.  Internally a {\tt min::\EOL printer} is
+A \ttkey{printer} may be used to print general values, print graphics for
+control characters, and break long lines to enforce line length.
+Internally a {\tt min::\EOL printer} is
 a packed vector with \verb|char| elements and additional members that
 are used to control format, limit line length, and so forth.  Values are
 written to printers via the \verb|<<| operator, much like the
@@ -3242,26 +3246,107 @@ accomplished by the following:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 prtr| & \TTARMKEY{length}{{\tt min::printer} member}
+\verb|const min::uns32 prtr| & \TTARMKEY{length}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_LENGTH} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{line}{{\tt min::printer} member}
+\verb|const min::uns32 prtr| & \TTARMKEY{line}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_LINE} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{column}{{\tt min::printer} member}
+\verb|const min::uns32 prtr| & \TTARMKEY{column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_COLUMN} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{line\_offset}{{\tt min::printer} member}
+\verb|const min::uns32 prtr| & \TTARMKEY{line\_offset}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_LINE_OFFSET} \\
 \verb|const min::uns32 prtr|
-    & \TTARMKEY{break\_offset}{{\tt min::printer} member}
-\LABEL{MIN::PRINTER_BREAK_OFFSET} \\
+    & \TTARMKEY{flush\_\EOL offset}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_FLUSH_OFFSET} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer_parameters prtr|
-    & \TTARMKEY{parameters}{{\tt min::printer} member}
+    & \TTARMKEY{parameters}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PARAMETERS} \\
 \verb|min::printer_parameters prtr|
-    & \TTARMKEY{saved\_\EOL parameters}{{\tt min::printer} member}
+    & \TTARMKEY{saved\_\EOL parameters}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_SAVED_PARAMETERS} \\
-\verb|std::ostream * prtr| & \TTARMKEY{ostream}{{\tt min::printer} member}
+\verb|std::ostream * prtr| & \TTARMKEY{ostream}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_OSTREAM} \\
 \end{tabular}\end{indpar}
+
+The {\tt min::}\MINKEY{init} function both re-initializes existing
+printers and creates new ones.  It takes a variable as its
+first argument, and if the variable value is {\tt min::\EOL
+NULL\_\EOL STUB}, then a new printer is created and the
+variable is set to point at the new printer.
+The 2-argument form of {\tt min::\EOL init} sets the
+{\tt ostream} printer member (see below).
+
+The members of a printer may be read but \underline{not} written, unless
+noted below.  They are:
+
+\begin{itemlist}[0.8in]
+
+\item[\ttmkey{length}{in {\tt min::printer}}]
+The number of {\tt char} elements in the printer vector
+(as per the printer being a packed vector: see \itemref{PACKED-VECTORS}).
+Initialized to {\tt 0}.
+
+\item[\ttmkey{line}{in {\tt min::printer}}]
+The number of the line currently being assembled, or of the next line if 
+the printer vector ends with a line-terminating {\tt NUL}.  The
+first line number is {\tt 0}.  Initialized to {\tt 0}.
+
+\item[\ttmkey{column}{in {\tt min::printer}}]
+The number of columns currently in the line being assembled,
+or the column number of the next character to be input to the
+printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
+
+\end{itemlist}
+
+\begin{itemlist}[1.0in]
+
+\item[\ttmkey{line\_\EOL offset}{in {\tt min::printer}}]
+If the printer vector ends with a line-terminating {\tt NUL}, this
+equals {\tt length}, the vector length.  Otherwise it is the offset
+in the vector of the first character of the current line; that
+is, for printer {\tt prtr} this first line character is
+{\tt prtr[prtr->\EOL line\_\EOL offset]}.  Initialized to {\tt 0}.
+
+\item[\ttmkey{flush\_\EOL offset}{in {\tt min::printer}}]
+The number of printer vector elements that have already been
+sent to an {\tt std::ostream} or to another printer.  Or the
+offset in the vector of the first {\tt char} element that has
+not yet been written, or {\tt length} if there are no such characters.
+Initialized to {\tt 0}.
+
+\end{itemlist}
+
+\begin{itemlist}[1.5in]
+
+\item[\ttmkey{parameters}{in {\tt min::printer}}]
+Contains parameters that control the printing process.
+These parameters are described below.
+This member may be written.
+Initialized to the value of
+{\tt min::\EOL default\_\EOL printer\_\EOL parameters}.
+
+\item[\ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}]
+A copy of the {\tt parameters}.  The end-of-message {\tt min::\EOL eom}
+printer operation copies {\tt saved\_\EOL parameters} to {\tt parameters},
+thereby restoring the parameters to their `normal' values.
+This member may be written.
+Initialized to the value of
+{\tt min::\EOL default\_\EOL printer\_\EOL parameters}.
+
+\item[\ttmkey{ostream}{in {\tt min::printer}}]
+If not {\tt NULL}, designates a {\tt std::\EOL ostream}
+to which printer lines are copied by the {\tt flush()} printer operation.
+The 2-argument form of {\tt min::\EOL init} sets this printer member.
+This member may be written.
+Initialized to {\tt NULL}.
+
+\end{itemlist}
+
+The \ttmkey{parameters}{in {\tt min::printer}} member of a printer
+contains parameters that control the printing process.  The code for
+these is:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{printer\_parameters}\ARGBREAK
@@ -3308,66 +3393,40 @@ accomplished by the following:
 \LABEL{MIN::DEFAULT_PRINTER_PARAMETERS}
 \end{tabular}\end{indpar}
 
-The {\tt min::}\MINKEY{init} function both re-initializes existing
-printers and creates new ones.  It takes a variable as its
-first argument, and if the variable value is {\tt min::\EOL
-NULL\_\EOL STUB}, then a new printer is created and the
-variable is set to point at the new printer.
-The 2-argument form of {\tt min::\EOL init} sets the
-{\tt ostream} printer member (see below).
-
-For the printer {\tt prtr},
-{\tt prtr}\ttarmkey{line}{{\tt min::printer} member}
-is the number
-of the line currently being assembled, or of the next line if 
-the printer vector ends with a line-ending {\tt NUL}.  The
-first line number is {\tt 0}.
-{\tt prtr}\ttarmkey{column}{{\tt min::printer} member}
-is the
-number of columns currently in the line being assembled,
-or the column number of the next character to be input to the
-printer, with the first column number being {\tt 0}.
-
-{\tt prtr}\ttarmkey{parameters}{{\tt min::printer} member}
-contains parameters that control
-the printing process.
-{\tt prtr}\ttarmkey{saved\_\EOL parameters}{{\tt min::printer} member}
-contains a copy of
-{\tt prtr->\EOL parameters}.  The end-of-message {\tt min::\EOL eom}
-printer operation restores the printer parameters by copying
-{\tt prtr->\EOL saved\_\EOL parameters} to
-{\tt prtr->\EOL parameters}.
-
-{\tt prtr}\ttarmkey{ostream}{{\tt min::printer} member},
-if not {\tt NULL}, designates a {\tt std::\EOL ostream}
-to which printer lines are copied by the {\tt flush()} printer operation.
-The 2-argument form of {\tt min::\EOL init} sets this printer member.
-
-The parameters in {\tt prtr}\ttarmkey{parameters}{{\tt min::printer} member}
-that control
-the printing process are:
+The {\tt min::printer\_parameters} members are:
 
 \begin{itemlist}
 
-\item[\ttmkey{line\_length}{{\tt min::printer\_parameters} member}]
+\item[\ttmkey{line\_length}{in {\tt min::printer\_parameters}}]
 When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
-of columns in the line to exceed the {\tt line\_length}, a break,
+of columns in the line to exceed the {\tt line\_length}, then if a
+break point exists after the {\tt indent} (see below), a break,
 consisting of a line end followed by indentation spaces,
 is pushed into the printer vector before the character representative.
 
-\item[\ttmkey{ indent}{{\tt min::printer\_parameters} member}]
+The break points in the current line inside the printer vector
+are just before a sequence of consecutive single space
+characters, or just before the representative of a character sent to the
+printer in graphics mode (see below).  Horizontal tabs cause {\tt 1} to
+{\tt 8} single space characters to be inserted in the current line,
+and these count in computing break points.  When the break point just
+before a sequence of single spaces is used, the single spaces are
+deleted, and the character representative that cause the break begins
+in the {\tt indent} column.
+
+\item[\ttmkey{ indent}{in {\tt min::printer\_parameters}}]
 When a break is automatically pushed into a printer vector, the
 break consists of a line end ({\tt NUL} character) followed by
 {\tt indent} single space characters.
 
-\item[\ttmkey{format}{{\tt min::printer\_parameters} member}]
+\item[\ttmkey{format}{in {\tt min::printer\_parameters}}]
 The {\tt format}
 controls the printing of
 {\tt min::gen} values by the {\tt min::pgen} function described
 below.
 
-\item[\ttmkey{flags}{{\tt min::printer\_parameters} member}]
+\item[\ttmkey{flags}{in {\tt min::printer\_parameters}}]
 The following flag bits control printing:
 
 \end{itemlist}
@@ -3415,6 +3474,7 @@ ill-formed UTF-8 characters print as `{\tt <ILL>}'.
 \item[\ttnbmkey{GRAPHIC\_FLAG}{{\tt min::printer\_parameters} flag}]
 This forces all characters to be
 represented by `graphic' characters that print some mark.
+This is referred to as `\key{graphic mode}'.
 
 If both the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_FLAG} are on
 characters are printed as described above under
@@ -3431,8 +3491,9 @@ line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
 
 \item[\ttnbmkey{DISPLAY\_EOL\_FLAG}{{\tt min::printer\_parameters} flag}]
-If this flag is on, the end of line prints as a control
-character.  If the {\tt ASCII\_FLAG} is on, it prints as
+If this flag is on, the end of line prints as a graphic mode control
+character (even if the {\tt GRAPHIC\_FLAG} is off).
+If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
 \item[\ttnbmkey{NOBREAKS\_FLAG}{{\tt min::printer\_parameters} flag}]
@@ -3445,11 +3506,11 @@ is inhibited.
 
 \item[\ttnbmkey{EOL\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
-executed at the very end of an {\tt min::\EOL eol} printer operation.
+executed at the very end of n {\tt min::\EOL eol} printer operation.
 
 \item[\ttnbmkey{EOM\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
-executed at the very end of an {\tt min::\EOL eom} printer operation.
+executed at the very end of n {\tt min::\EOL eom} printer operation.
 
 \item[\ttnbmkey{KEEP\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is \underline{off}, any line copied from the printer
@@ -3460,7 +3521,7 @@ and all lines are kept in the printer vector.
 \end{itemlist}\end{indpar}
 
 Copying characters into a printer is done by the
-\ttnbmkey{<<}{of {\tt min::printer}} operator:
+{\tt <<} operator:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer & |
@@ -3514,8 +3575,8 @@ The 7-byte encoding (first byte {\tt 0xFE})
 is allowed so that $2^{32}-1$ can be encoded.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
-When a horizontal tab is copied to a printer vector, it is converted
-to between 1 and 8 single space characters.
+When a horizontal tab is copied to a printer vector in non-graphic mode,
+it is converted to between 1 and 8 single space characters.
 
 When a {\tt NUL} is copied into a printer vector, it is encoded as
 the overlong encoding {\tt 0xC0},{\tt 0x80}.
@@ -3550,13 +3611,12 @@ Operations can be performed on printers by applying the
 
 Printer operations behave for printers as {\tt iomanip}
 C++ objects behave for {\tt iostreams}.  For example, the
-printer analogs of {\tt std::\EOL endl} are {\tt min::\EOL eol}
-(end of line) and {\tt min::\EOL eom} (end of message):
+printer analogs of {\tt std::\EOL endl} are:
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::| & \MINKEY{eol}
+\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~}l}
+\verb|const min::printer_op min::| & \MINKEY{eol} & (end of line)
 \LABEL{MIN::EOL} \\
-\verb|const min::printer_op min::| & \MINKEY{eom}
+\verb|const min::printer_op min::| & \MINKEY{eom} & (end of message)
 \LABEL{MIN::EOM} \\
 \end{tabular}\end{indpar}
 
@@ -3586,11 +3646,12 @@ member.  The 1-argument {\tt min::\EOL flush} specifies the {\tt ostream}.
 Line terminating {\tt NUL}s
 in the printer vector are translated to line feeds, but if the
 last line in the printer vector is incomplete, it is output without
-any ending line feed.  Characters previously flushed from the printer
+any following line feed.  Characters previously flushed from the printer
 vector are not included: only characters at or after the printer
-{\tt flush\_\EOL offset} member are copied, and this member is then reset
+\ttmkey{flush\_\EOL offset}{in {\tt min::printer}}
+member are copied, and this member is then reset
 to the length of the printer vector.
-These functions both remove all lines copied to the {\tt ostream}
+These functions both remove all terminated lines copied to the {\tt ostream}
 from the printer vector, unless the {\tt min::\EOL KEEP\_\EOL FLAG}
 printer {\tt parameters.flag} is on.
 If the {\tt ostream} has
@@ -3629,7 +3690,8 @@ Note that since horizontal tabs input to {\tt prtr2} have
 been converted to 1 to 8 single space characters, it is these
 single space characters that are copied to {\tt prtr1}, so the
 effective tab stops are those of {\tt prtr2} and not {\tt prtr1}.
-After copying characters, the {\tt prtr2} {\tt flush\_\EOL offset}
+After copying characters, the
+{\tt prtr2->}\ttmkey{\tt flush\_\EOL offset}{in {\tt min::printer}}
 member is reset to the length of {\tt prtr2}.
 
 Printer operations can also be used to print values with specified
@@ -3650,6 +3712,10 @@ value \verb|v| to the printer {\tt prtr} using the
 If {\tt f} is {\tt NULL}, {\tt prtr->\EOL parameters.for\-mat} is used
 instead.  If that is also {\tt NULL},
 {\tt \&min::default\_\EOL printer\_\EOL format} is used.
+
+Note that `{\tt prtr<<v}' for a {\tt min::gen} value {\tt v} will
+\underline{not} have the desired result, as {\tt v} will be taken to be
+an integer.
 
 A {\tt min::printer\_format} is as follows:
 
@@ -3701,7 +3767,7 @@ just after the string of characters in a {\tt min::gen} string value
 (which is itself a UTF-8 encoded UNICODE character string).
 The {\tt lab\_\EOL \BRA pre,post\KET fix} members are printed just before and
 just after the elements of a label {\tt min::gen} value,
-and {\tt lab\_\EOL separator} member is printed between elements.
+and the {\tt lab\_\EOL separator} member is printed between elements.
 The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING}').
@@ -3806,7 +3872,7 @@ For example, `{\tt ptrt<<min::nobreaks}' sets the
 and `{\tt prtr<<min::breaks}' clears this flag.
 
 The {\tt parameters} of a printer may be saved in the
-\ttmkey{saved\_\EOL parameters}{of {\tt min::printer}}
+\ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
 member of the printer, and restored from that member.
 This may be done explicitly by the following printer
 operations:
@@ -3828,7 +3894,9 @@ end of the message.  This can be done by setting the normal
 printer parameters when the printer is initialized, saving them
 with `{\tt prtr<<min::\EOL save\_\EOL printer\_\EOL parameters}',
 and then ending messages with `{\tt prtr<<min::eom}', which restores
-the parameters to their normal state.
+the parameters to their normal state by copying
+{\tt prtr->\EOL saved\_\EOL parameters}
+to {\tt prtr->\EOL parameters}.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -7092,22 +7160,22 @@ named \verb|pstype| use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen pstype|
-    & \TTDMKEY{new\_gen}{of {\tt min::packed\_struct}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_GEN} \\
 \verb|const min::stub * pstype|
-    & \TTDMKEY{new\_stub}{of {\tt min::packed\_struct}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_STUB} \\
 \verb|min::uns32 pstype|
-    & \TTDMKEY{subtype}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{subtype}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_SUBTYPE} \\
 \verb|const char * const pstype.|
-    & \TTDMKEY{name}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{name}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_NAME} \\
 \verb|const min::uns32 * const pstype|
-    & \TTDMKEY{gen\_disp}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{gen\_\EOL disp}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_GEN_DISP} \\
 \verb|const min::uns32 * const pstype|
-    & \TTDMKEY{stub\_disp}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{stub\_\EOL disp}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_STUB_DISP} \\
 \end{tabular}\end{indpar}
 
@@ -7168,7 +7236,7 @@ output.
 
 \begin{itemlist}[1.0in]
 
-\item[\ttmkey{gen\_disp}{in {\tt min::packed\_struct}}]
+\item[\ttmkey{gen\_\EOL disp}{in {\tt min::packed\_struct}}]
 This C vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|S|,
 terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
@@ -7183,7 +7251,7 @@ displacements vector must be given for garbage collection purposes.
 \verb|const min::gen| members are treated like \verb|min::gen|
 members for these purposes.
 
-\item[\ttmkey{stub\_disp}{in {\tt min::packed\_struct}}]
+\item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]
 Ditto but for \verb|min::stub *| members of \verb|S|
 instead of \verb|min::gen| members.
 
@@ -7281,7 +7349,7 @@ a packed structure have the usage:
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|const * S |
-	& \TTOMKEY{->}{-\GT}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
@@ -7530,19 +7598,19 @@ named \verb|pvtype| use
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen pvtype|
-    & \TTDMKEY{new\_gen}{of {\tt min::packed\_vec}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_GEN_VOID} \\
 \verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_stub}{of {\tt min::packed\_vec}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_STUB_VOID} \\
 \verb|min::gen pvtype|
-    & \TTDMKEY{new\_gen}{of {\tt min::packed\_vec}}\ARGBREAK
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
 	  \verb|   const E * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
 \verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_stub}{of {\tt min::packed\_vec}}\ARGBREAK
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
 	  \verb|   const E * vp = NULL )|
@@ -7553,16 +7621,16 @@ named \verb|pvtype| use
 \LABEL{PACKED_VEC_SUBTYPE} \\
 \verb|const char * const pvtype| & \TTDMKEY{name}{in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_NAME} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_gen\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL gen\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_stub\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL stub\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_gen\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL gen\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_stub\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL stub\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
 \verb|min::uns32 pvtype| & \TTDMKEY{initial\_max\_length}
@@ -7655,7 +7723,7 @@ output.
 
 \begin{itemlist}[1.6in]
 
-\item[\ttmkey{header\_gen\_disp}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{header\_\EOL gen\_\EOL disp}{in {\tt min::packed\_vec}}]
 This C vector is a list of the displacements (in bytes) of all
 the \verb|min::gen| members of \verb|H|,
 terminated by the value {\tt min::DISP\_\EOL END}\minindex{DISP\_END}.
@@ -7664,14 +7732,14 @@ be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
 values in \verb|H|.  But if there are \verb|min::gen| members, this
 displacements vector must be given for garbage collection purposes.
 
-\item[\ttmkey{header\_stub\_disp}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{header\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
 Ditto but for \verb|min::stub *| members of \verb|H|.
 See \pagref{STUB_DISP} for more details.
 
-\item[\ttmkey{element\_stub\_disp}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
 Ditto but for \verb|min::gen| members of \verb|E|.
 
-\item[\ttmkey{element\_stub\_disp}{in {\tt min::packed\_vec}}]
+\item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
 Ditto but for \verb|min::stub *| members of \verb|E|.
 See \pagref{STUB_DISP} for more details.
 
@@ -7804,7 +7872,7 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_PTR_->} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::uns32 pvp| & \TTARMKEY{length}{of {\tt min::packed\_vec\_ptr}}
+\verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
@@ -7863,7 +7931,7 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 pvup|
-    & \TTARMKEY{length}{of {\tt min::packed\_vec\_updptr}}
+    & \TTARMKEY{length}{in {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
 \verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
@@ -7922,10 +7990,10 @@ a packed vector, and these have the usage:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 pvip|
-    & \TTARMKEY{length}{of {\tt min::packed\_vec\_insptr}}
+    & \TTARMKEY{length}{in {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_LENGTH} \\
 \verb|const min::uns32 pvip|
-    & \TTARMKEY{max\_length}{of {\tt min::packed\_vec\_insptr}}
+    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
 \verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
@@ -10087,22 +10155,22 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{3.0in}
 \verb|min::gen pstype|
-    & \TTDMKEY{new\_gen}{of {\tt min::packed\_struct}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_GEN} \\
 \verb|const min::stub * pstype|
-    & \TTDMKEY{new\_stub}{of {\tt min::packed\_struct}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_struct}} \verb|( void )|
 \LABEL{PACKED_STRUCT_NEW_STUB} \\
 \verb|min::uns32 pstype|
-    & \TTDMKEY{subtype}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{subtype}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_SUBTYPE} \\
 \verb|const char * const pstype.|
-    & \TTDMKEY{name}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{name}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_NAME} \\
 \verb|const min::uns32 * const pstype|
-    & \TTDMKEY{gen\_disp}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{gen\_\EOL disp}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_GEN_DISP} \\
 \verb|const min::uns32 * const pstype|
-    & \TTDMKEY{stub\_disp}{of {\tt min::packed\_struct}}
+    & \TTDMKEY{stub\_\EOL disp}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_STUB_DISP} \\
 \end{TABULAR}
 
@@ -10153,7 +10221,7 @@ These are in \verb|min_parameters.h|.
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
 \verb|const * S |
-	& \TTOMKEY{->}{-\GT}%
+	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_->} \\
@@ -10257,19 +10325,19 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{2.2in}
 \verb|min::gen pvtype|
-    & \TTDMKEY{new\_gen}{of {\tt min::packed\_vec}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_GEN_VOID} \\
 \verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_stub}{of {\tt min::packed\_vec}} \verb|( void )|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}} \verb|( void )|
 \LABEL{PACKED_VEC_NEW_STUB_VOID} \\
 \verb|min::gen pvtype|
-    & \TTDMKEY{new\_gen}{of {\tt min::packed\_vec}}\ARGBREAK
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
 	  \verb|   const E * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
 \verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_stub}{of {\tt min::packed\_vec}}\ARGBREAK
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
 	  \verb|   const E * vp = NULL )|
@@ -10281,16 +10349,16 @@ These are in \verb|min_parameters.h|.
 \LABEL{PACKED_VEC_SUBTYPE} \\
 \verb|const char * const pvtype| & \TTDMKEY{name}{in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_NAME} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_gen\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL gen\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_stub\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL stub\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_gen\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL gen\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_stub\_disp}
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL stub\_\EOL disp}
 	                       {in {\tt min::packed\_vec}}
 \LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
 \end{TABULAR}
@@ -10362,7 +10430,7 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
-\verb|const min::uns32 pvp| & \TTARMKEY{length}{of {\tt min::packed\_vec\_ptr}}
+\verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
@@ -10419,7 +10487,7 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|const min::uns32 pvup|
-    & \TTARMKEY{length}{of {\tt min::packed\_vec\_updptr}}
+    & \TTARMKEY{length}{in {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
 \verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
@@ -10476,10 +10544,10 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.8in}
 \verb|const min::uns32 pvip|
-    & \TTARMKEY{length}{of {\tt min::packed\_vec\_insptr}}
+    & \TTARMKEY{length}{in {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_LENGTH} \\
 \verb|const min::uns32 pvip|
-    & \TTARMKEY{max\_length}{of {\tt min::packed\_vec\_insptr}}
+    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
 \verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
