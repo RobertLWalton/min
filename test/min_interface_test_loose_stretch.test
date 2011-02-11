@@ -1672,6 +1672,12 @@ MINT::deallocate ( stub XXX, 224 ) called
     <0F9><0FA><0FB><0FC><0FD><0FE><0FF>
 hello␤
 hello<LF>
+int32 -1 = -1
+    int64 -2 = -2
+    uns32 1 = 1
+    uns64 2 = 2
+    float64 1.23 = 1.23
+    char 'A' = A
 1
 1.23456789
 1.23456789012345
