@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 10 19:00:12 EST 2011
+// Date:	Fri Feb 11 04:55:46 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2165,6 +2165,18 @@ void test_printer ( void )
     printer << min::line_length ( 40 )
             << min::ascii << min::graphic
 	    << buffer << min::eom;
+
+    printer << min::display_eol << "hello" << min::eom;
+    printer << min::ascii
+            << min::display_eol << "hello" << min::eom;
+
+    printer <<  "int32 -1 = " << (min::int32) -1
+            << " int64 -2 = " << (min::int64) -2
+            << " uns32 1 = " << (min::uns32) 1
+            << " uns64 2 = " << (min::uns64) 2
+            << " float64 1.23 = " << (min::float64) 1.23
+            << " char 'A' = " << (char) 'A'
+	    << min::eol;
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;

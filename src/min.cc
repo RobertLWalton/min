@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 10 08:04:33 EST 2011
+// Date:	Fri Feb 11 04:58:42 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6879,9 +6879,7 @@ static void end_line ( min::printer & prtr )
     // Add displayed eol.
     //
     min::uns32 flags = prtr->parameters.flags;
-    if ( ( flags & min::DISPLAY_EOL_FLAG )
-         &&
-         ( flags & min::GRAPHIC_FLAG ) )
+    if ( flags & min::DISPLAY_EOL_FLAG )
     {
 	const char * rep;
         if ( flags & min::ASCII_FLAG )
