@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 11 04:55:46 EST 2011
+// Date:	Fri Feb 11 08:35:27 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2087,7 +2087,9 @@ void test_printer ( void )
 
     min::init ( printer, std::cout );
     min::resize ( printer, 16*1024 );
-    printer << min::eol_flush << min::eom_flush
+    printer << min::eol_flush
+            << min::eom_flush
+            << min::autobreak
             << min::save_printer_parameters;
 
     printer << min::line_length ( 16 )
@@ -2098,7 +2100,7 @@ void test_printer ( void )
         ( printer->parameters.indent == 4 );
     MIN_ASSERT ( printer->line == 0 );
     MIN_ASSERT ( printer->column == 16 );
-    MIN_ASSERT ( printer->break_column == 6 );
+    MIN_ASSERT ( printer->break_column == 7 );
     printer << " ";
     MIN_ASSERT ( printer->column == 17 );
     printer << "\t";
@@ -2108,14 +2110,14 @@ void test_printer ( void )
     MIN_ASSERT ( printer->column == 5 );
     printer << " B C D E F";
     MIN_ASSERT ( printer->column == 15 );
-    MIN_ASSERT ( printer->break_column == 13 );
+    MIN_ASSERT ( printer->break_column == 14 );
     printer << "1234";
     MIN_ASSERT ( printer->line == 2 );
     MIN_ASSERT ( printer->column == 9 );
     printer << "\tab\t";
     MIN_ASSERT ( printer->line == 3 );
     MIN_ASSERT ( printer->column == 8 );
-    MIN_ASSERT ( printer->break_column == 7 );
+    MIN_ASSERT ( printer->break_column == 8 );
     printer << "123456789012345678901234567890";
     MIN_ASSERT ( printer->line == 4 );
     MIN_ASSERT ( printer->column == 34 );
@@ -2170,13 +2172,20 @@ void test_printer ( void )
     printer << min::ascii
             << min::display_eol << "hello" << min::eom;
 
-    printer <<  "int32 -1 = " << (min::int32) -1
-            << " int64 -2 = " << (min::int64) -2
-            << " uns32 1 = " << (min::uns32) 1
-            << " uns64 2 = " << (min::uns64) 2
-            << " float64 1.23 = " << (min::float64) 1.23
-            << " char 'A' = " << (char) 'A'
-	    << min::eol;
+    printer << min::line_length ( 20 )
+            << min::noautobreak
+            <<  "int32 -1 = " << (min::int32) -1
+	    << " " << min::setbreak
+            << "int64 -2 = " << (min::int64) -2
+	    << " " << min::setbreak
+            << "uns32 1 = " << (min::uns32) 1
+	    << " " << min::setbreak
+            << "uns64 2 = " << (min::uns64) 2
+	    << " " << min::setbreak
+            << "float64 1.23 = " << (min::float64) 1.23
+	    << " " << min::setbreak
+            << "char 'A' = " << (char) 'A'
+	    << min::eom;
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;

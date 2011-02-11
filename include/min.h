@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  9 10:35:50 EST 2011
+// Date:	Fri Feb 11 08:16:49 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8823,16 +8823,12 @@ namespace min {
 	   // if at start of line.
 	uns32 break_offset;
 	   // Set to 0 at start of line.
-	   // Set to point at ' ' when this is inserted
-	   //     into line.
-	   // Set to length after graphic is inserted
-	   //     into line.
+	   // Set to offset of first character after
+	   // break when a break is set.
 	uns32 break_column;
 	   // Set to 0 at start of line.
-	   // Set to column of ' ' when this is inserted
-	   //     into line.
-	   // Set to column after graphic is inserted
-	   //     into line.
+	   // Set to column of first character after
+	   // break when a break is set.
 	uns32 flush_offset;
 	   // Set to point just after last character
 	   // copied to ostream or another printer.
@@ -8842,7 +8838,7 @@ namespace min {
         ASCII_FLAG		= ( 1 << 0 ),
         GRAPHIC_FLAG		= ( 1 << 1 ),
         DISPLAY_EOL_FLAG	= ( 1 << 2 ),
-        NOBREAKS_FLAG		= ( 1 << 3 ),
+        AUTOBREAK_FLAG		= ( 1 << 3 ),
         EOL_FLUSH_FLAG		= ( 1 << 4 ),
         EOM_FLUSH_FLAG		= ( 1 << 5 ),
         KEEP_FLAG		= ( 1 << 6 ),
@@ -9070,6 +9066,7 @@ namespace min {
 
     extern const printer_op eol;
     extern const printer_op eom;
+    extern const printer_op setbreak;
 
     extern const printer_op ascii;
     extern const printer_op utf8;
@@ -9077,8 +9074,8 @@ namespace min {
     extern const printer_op nographic;
     extern const printer_op display_eol;
     extern const printer_op nodisplay_eol;
-    extern const printer_op nobreaks;
-    extern const printer_op breaks;
+    extern const printer_op autobreak;
+    extern const printer_op noautobreak;
     extern const printer_op eol_flush;
     extern const printer_op noeol_flush;
     extern const printer_op eom_flush;

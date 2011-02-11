@@ -3254,6 +3254,10 @@ accomplished by the following:
 \LABEL{MIN::PRINTER_COLUMN} \\
 \verb|const min::uns32 prtr| & \TTARMKEY{line\_offset}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_LINE_OFFSET} \\
+\verb|const min::uns32 prtr| & \TTARMKEY{break\_offset}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_BREAK_OFFSET} \\
+\verb|const min::uns32 prtr| & \TTARMKEY{break\_column}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_BREAK_COLUMN} \\
 \verb|const min::uns32 prtr|
     & \TTARMKEY{flush\_\EOL offset}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_FLUSH_OFFSET} \\
@@ -3308,6 +3312,18 @@ equals {\tt length}, the vector length.  Otherwise it is the offset
 in the vector of the first character of the current line; that
 is, for printer {\tt prtr} this first line character is
 {\tt prtr[prtr->\EOL line\_\EOL offset]}.  Initialized to {\tt 0}.
+
+\item[\ttmkey{break\_\EOL offset}{in {\tt min::printer}}]
+If there is no break point in the current line, this equals
+{\tt line\_\EOL offset}.  Otherwise it is the printer vector offset of the
+first byte in the current line after the last break point in the line.
+Initialized to {\tt 0}.
+
+\item[\ttmkey{break\_\EOL offset}{in {\tt min::printer}}]
+If there is no break point in the current line, this equals {\tt 0}.
+Otherwise it is the column of the
+first byte in the current line after the last break point in the line.
+Initialized to {\tt 0}.
 
 \item[\ttmkey{flush\_\EOL offset}{in {\tt min::printer}}]
 The number of printer vector elements that have already been
@@ -3370,8 +3386,8 @@ these is:
 \LABEL{MIN::GRAPHIC_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{NOBREAKS\_FLAG}
-\LABEL{MIN::NOBREAKS_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{AUTOBREAK\_FLAG}
+\LABEL{MIN::AUTOBREAK_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EOM\_FLUSH\_FLAG}
@@ -3401,19 +3417,16 @@ The {\tt min::printer\_parameters} members are:
 When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the {\tt line\_length}, then if a
-break point exists after the {\tt indent} (see below), a break,
-consisting of a line end followed by indentation spaces,
+break point exists and
+\begin{center}
+\verb|prtr->break_column > prtr->parameters.indent|
+\end{center}
+then a break, consisting of a line end followed by indentation spaces,
 is pushed into the printer vector before the character representative.
+Any space characters before the break are deleted.
 
-The break points in the current line inside the printer vector
-are just before a sequence of consecutive single space
-characters, or just before the representative of a character sent to the
-printer in graphics mode (see below).  Horizontal tabs cause {\tt 1} to
-{\tt 8} single space characters to be inserted in the current line,
-and these count in computing break points.  When the break point just
-before a sequence of single spaces is used, the single spaces are
-deleted, and the character representative that cause the break begins
-in the {\tt indent} column.
+Breaks may be inserted automatically by using the
+{\tt min::\EOL AUTOBREAK\_\EOL FLAG}: see below.
 
 \item[\ttmkey{ indent}{in {\tt min::printer\_parameters}}]
 When a break is automatically pushed into a printer vector, the
@@ -3496,13 +3509,12 @@ character (even if the {\tt GRAPHIC\_FLAG} is off).
 If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
-\item[\ttnbmkey{NOBREAKS\_FLAG}{{\tt min::printer\_parameters} flag}]
-If this flag is \underline{off}, a line break is inserted
-at the end of the print vector whenever a non-horizontal-space
-character representative is about to be printed and this would extend
-beyone the {\tt line\_length}: see {\tt line\_length} above for
-details.  If this flag is \underline{on}, insertion of line breaks
-is inhibited.
+\item[\ttnbmkey{AUTOBREAK\_FLAG}{{\tt min::printer\_parameters} flag}]
+If this flag is on, a line break is automatically set
+just after every single space
+character, and both before and after every graphic mode character
+representative.  Note that horizontal tabs are equivalent to from
+1 to 8 single space characters for this and other purposes.
 
 \item[\ttnbmkey{EOL\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
@@ -3581,7 +3593,8 @@ it is converted to between 1 and 8 single space characters.
 When a {\tt NUL} is copied into a printer vector, it is encoded as
 the overlong encoding {\tt 0xC0},{\tt 0x80}.
 
-Other values presented to {\tt <<} are converted to {\tt char} strings
+Values of types other than `\verb|const char *|'
+which are presented to {\tt <<} are converted to `{\tt const char~*}' strings
 as follows:
 `{\tt char}' converts to a 1-{\tt char} string whose only element
 is the {\tt char} value.  Numbers are converted by {\tt printf}
@@ -3620,7 +3633,22 @@ printer analogs of {\tt std::\EOL endl} are:
 \LABEL{MIN::EOM} \\
 \end{tabular}\end{indpar}
 
-Both these printer operations end the current line.  The
+and the {\tt min::setbreak} printer operation can be used to
+explicitly set a break point:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::printer_op min::| & \MINKEY{setbreak}
+\LABEL{MIN::SETBREAK} \\
+\end{tabular}\end{indpar}
+
+More specifically, {\tt prtr<<min::setbreak} sets a break point after
+the last character in the printer vector by executing:
+\begin{indpar}\begin{verbatim}
+prtr->break_offset = prtr->length;
+prtr->break_column = prtr->column;
+\end{verbatim}\end{indpar}
+
+Both {\tt min::eol} and {\tt min::eom} end the current line.  The
 {\tt min::\EOL eom} operation then restores the printer
 {\tt parameters} from the printer {\tt saved\_\EOL parameters}.
 The last thing these operations do is flush the printer using
@@ -3849,10 +3877,10 @@ following
 \LABEL{MIN::DISPLAY_EOL} \\
 \verb|const min::printer_op min::| & \MINKEY{nodisplay\_eol}
 \LABEL{MIN::NODISPLAY_EOL} \\
-\verb|const min::printer_op min::| & \MINKEY{nobreaks}
-\LABEL{MIN::NOBREAKS} \\
-\verb|const min::printer_op min::| & \MINKEY{breaks}
-\LABEL{MIN::BREAKS} \\
+\verb|const min::printer_op min::| & \MINKEY{autobreak}
+\LABEL{MIN::AUTOBREAK} \\
+\verb|const min::printer_op min::| & \MINKEY{noautobreak}
+\LABEL{MIN::NOAUTOBREAK} \\
 \verb|const min::printer_op min::| & \MINKEY{eol\_flush}
 \LABEL{MIN::EOL_FLUSH} \\
 \verb|const min::printer_op min::| & \MINKEY{noeol\_flush}
@@ -3867,9 +3895,9 @@ following
 \LABEL{MIN::NOKEEP} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt ptrt<<min::nobreaks}' sets the
-{\tt prtr->\EOL parameters.flags} {\tt NOBREAKS\_FLAG}
-and `{\tt prtr<<min::breaks}' clears this flag.
+For example, `{\tt ptrt<<min::autobreak}' sets the
+{\tt prtr->\EOL parameters.flags} {\tt AUTOBREAK\_FLAG}
+and `{\tt prtr<<min::noautobreak}' clears this flag.
 
 The {\tt parameters} of a printer may be saved in the
 \ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
