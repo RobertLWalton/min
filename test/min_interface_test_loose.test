@@ -1670,6 +1670,8 @@ MINT::deallocate ( stub XXX, 224 ) called
     <0ED><0EE><0EF><SP><0F0><0F1><0F2>
     <0F3><0F4><0F5><0F6><0F7><SP><0F8>
     <0F9><0FA><0FB><0FC><0FD><0FE><0FF>
+hello␤
+hello<LF>
 1
 1.23456789
 1.23456789012345
