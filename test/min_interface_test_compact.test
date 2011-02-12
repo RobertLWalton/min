@@ -1682,6 +1682,14 @@ INDEX(40)
 CONTROL_CODE(0xfedcba)
 UNDEFINED_GEN(0xf4000000)
 MISSING {MISSING} MISSING
+MINT::acc_expand_stub_free_list (1) called
+Hello There
+This is line 1.
+This is line 2.
+This is line 3.
+This is line 4
+This is line 5.
+This is line 6.
 
 Finish Printer Test!
 
@@ -3864,11 +3872,14 @@ MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 208 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 208 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.

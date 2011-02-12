@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 11 23:39:08 EST 2011
+// Date:	Sat Feb 12 07:33:18 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2325,6 +2325,25 @@ void test_printer ( void )
 	           ( min::MISSING,
 		     & min::default_printer_format )
 	    << min::eom;
+
+    min::printer printer2 = min::NULL_STUB;
+    min::init ( printer2 );
+    printer2 << "There";
+    printer << "Hello " << printer2 << min::eom;
+    MIN_ASSERT
+	( printer2->flush_offset == printer2->length );
+    printer2 << "This is line 2." << min::eom;
+    printer << "This is line 1." << min::eol
+    	    << printer2
+	    << "This is line 3."<< min::eom;
+    MIN_ASSERT
+	( printer2->flush_offset == printer2->length );
+    printer2 << "line 4";
+    printer << "This is " << printer2 << min::eom;
+    min::init ( printer2 );
+    printer2 << "This is line 5." << min::eom;
+    printer << printer2
+	    << "This is line 6."<< min::eom;
 
     min_assert_print = true;
     cout << endl;

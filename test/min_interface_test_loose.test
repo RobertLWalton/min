@@ -1721,6 +1721,15 @@ INDEX(40)
 CONTROL_CODE(0xfedcba)
 UNDEFINED_GEN(0x7ff4140000000000)
 MISSING {MISSING} MISSING
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 224 ) called
+Hello There
+This is line 1.
+This is line 2.
+This is line 3.
+This is line 4
+This is line 5.
+This is line 6.
 
 Finish Printer Test!
 
