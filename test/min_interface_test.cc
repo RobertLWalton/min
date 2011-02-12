@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 11 23:14:32 EST 2011
+// Date:	Fri Feb 11 23:39:08 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2196,6 +2196,27 @@ void test_printer ( void )
                  &
 		 min::EOL_FLUSH_FLAG );
 
+    MIN_ASSERT ( printer->parameters.indent == 4 );
+    printer << min::indent ( 8 );
+    MIN_ASSERT ( printer->parameters.indent == 8 );
+    printer << min::restore_printer_parameters;
+    MIN_ASSERT ( printer->parameters.indent == 4 );
+
+    min::uns32 ubuffer[128];
+    min::uns32 * ubp = ubuffer;
+    for ( min::uns32 c = 0xA1; c <= 0xFF; ++ c )
+    {
+        if ( c % 8 == 0 ) * ubp ++ = ' ';
+	* ubp ++ = c;
+    }
+
+    printer << min::line_length ( 40 )
+            << min::punicode ( ubp - ubuffer, ubuffer )
+	    << min::eom;
+
+    printer << min::punicode ( min::ILLEGAL_UTF8 )
+	    << min::eom;
+
     printer << min::line_length ( 20 )
             << min::noautobreak
             <<  "int32 -1 = " << (min::int32) -1
@@ -2210,6 +2231,19 @@ void test_printer ( void )
 	    << " " << min::setbreak
             << "char 'A' = " << (char) 'A'
 	    << min::eom;
+
+    printer << min::line_length ( 20 )
+            << min::noautobreak
+            <<  "pint ( -3, \"%05d\" ) = "
+	    <<  min::pint ( -3, "%05d" )
+	    << " " << min::setbreak
+            <<  "puns ( 3, \"%05u\" ) = "
+	    <<  min::puns ( 3, "%05u" )
+	    << " " << min::setbreak
+            <<  "pfloat ( 1.2345, \"%04.2f\" ) = "
+	    <<  min::pfloat ( 1.2345, "%04.2f" )
+	    << min::eom;
+
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
             << min::eol;
@@ -2280,6 +2314,17 @@ void test_printer ( void )
                       ( (min::unsgen ) min::GEN_ILLEGAL
 		        << min::VSIZE ) )
             << min::eol;
+
+    min::printer_format f = min::default_printer_format;
+    f.special_prefix = "{";
+    f.special_postfix = "}";
+    printer << min::pgen ( min::MISSING ) << " "
+            << min::format ( & f )
+	    << min::pgen ( min::MISSING ) << " "
+	    << min::pgen
+	           ( min::MISSING,
+		     & min::default_printer_format )
+	    << min::eom;
 
     min_assert_print = true;
     cout << endl;

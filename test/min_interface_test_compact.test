@@ -1627,12 +1627,19 @@ hello<LF>
 A
 B
 C
+¡¢£¤¥¦§ ¨©ª«¬­®¯ °±²³´µ¶· ¸¹º»¼½¾¿
+    ÀÁÂÃÄÅÆÇ ÈÉÊËÌÍÎÏ ÐÑÒÓÔÕÖ× ØÙÚÛÜÝÞß
+    àáâãäåæç èéêëìíîï ðñòóôõö÷ øùúûüýþÿ
+⍨
 int32 -1 = -1
     int64 -2 = -2
     uns32 1 = 1
     uns64 2 = 2
     float64 1.23 = 1.23
     char 'A' = A
+pint ( -3, "%05d" ) = -0003
+    puns ( 3, "%05u" ) = 00003
+    pfloat ( 1.2345, "%04.2f" ) = 1.23
 1
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
@@ -1674,6 +1681,7 @@ INDIRECT_AUX(30)
 INDEX(40)
 CONTROL_CODE(0xfedcba)
 UNDEFINED_GEN(0xf4000000)
+MISSING {MISSING} MISSING
 
 Finish Printer Test!
 
