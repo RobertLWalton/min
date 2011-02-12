@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 11 09:06:18 EST 2011
+// Date:	Sat Feb 12 07:17:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6622,6 +6622,12 @@ void min::init ( printer & prtr )
 	prtr->parameters = prtr->saved_parameters =
 	    min::default_printer_parameters;
     }
+    else
+    {
+        min::pop ( prtr, prtr->length );
+	prtr->parameters = prtr->saved_parameters;
+    }
+
     prtr->line = 0;
     prtr->column = 0;
     prtr->line_offset = 0;
@@ -7363,6 +7369,7 @@ min::printer & operator <<
 
     prtr1->parameters.flags = saved_flags;
     ::flush_vector ( prtr2 );
+    return prtr1;
 }
 
 std::ostream & operator <<
@@ -7383,6 +7390,7 @@ std::ostream & operator <<
 	prtr->flush_offset = prtr->length;
     }
     ::flush_vector ( prtr );
+    return out;
 }
 
 std::ostream & operator <<

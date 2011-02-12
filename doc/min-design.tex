@@ -206,7 +206,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 11, 2011}
+\date{February 12, 2011}
  
 \maketitle
 
@@ -3341,7 +3341,10 @@ Contains parameters that control the printing process.
 These parameters are described below.
 This member may be written.
 Initialized to the value of
-{\tt min::\EOL default\_\EOL printer\_\EOL parameters}.
+{\tt min::\EOL default\_\EOL printer\_\EOL parameters}
+when a printer is created, and to the value of
+{\tt printer\_\EOL saved\_\EOL parameters} when an existing
+printer is initialized by {\tt min::\EOL init}.
 
 \item[\ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}]
 A copy of the {\tt parameters}.  The end-of-message {\tt min::\EOL eom}
@@ -3349,14 +3352,16 @@ printer operation copies {\tt saved\_\EOL parameters} to {\tt parameters},
 thereby restoring the parameters to their `normal' values.
 This member may be written.
 Initialized to the value of
-{\tt min::\EOL default\_\EOL printer\_\EOL parameters}.
+{\tt min::\EOL default\_\EOL printer\_\EOL parameters} when a printer
+is created; not reset by {\tt min::\EOL init}.
 
 \item[\ttmkey{ostream}{in {\tt min::printer}}]
 If not {\tt NULL}, designates a {\tt std::\EOL ostream}
 to which printer lines are copied by the {\tt flush()} printer operation.
 The 2-argument form of {\tt min::\EOL init} sets this printer member.
 This member may be written.
-Initialized to {\tt NULL}.
+Initialized to {\tt NULL} when a printer
+is created; not reset by 1-argument {\tt min::\EOL init}.
 
 \end{itemlist}
 
