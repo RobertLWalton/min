@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 11 08:35:27 EST 2011
+// Date:	Fri Feb 11 23:14:32 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2171,6 +2171,30 @@ void test_printer ( void )
     printer << min::display_eol << "hello" << min::eom;
     printer << min::ascii
             << min::display_eol << "hello" << min::eom;
+
+    MIN_ASSERT ( printer->length == 0 );
+    printer << min::keep << min::noeol_flush;
+    printer << "A" << min::eol
+            << "B" << min::eol
+	    << "C" << min::eol;
+    MIN_ASSERT ( printer->length == 6 );
+    MIN_ASSERT ( printer->flush_offset == 0 );
+    MIN_ASSERT ( printer[0] == 'A' );
+    MIN_ASSERT ( printer[2] == 'B' );
+    MIN_ASSERT ( printer[4] == 'C' );
+    printer << min::flush();
+    MIN_ASSERT ( printer->flush_offset == 6 );
+    printer << min::nokeep;
+    printer << min::flush();
+    MIN_ASSERT ( printer->length == 0 );
+    MIN_ASSERT ( printer->flush_offset == 0 );
+    MIN_ASSERT ( ( printer->parameters.flags
+                   &
+		   min::EOL_FLUSH_FLAG ) == 0 );
+    printer << min::restore_printer_parameters;
+    MIN_ASSERT ( printer->parameters.flags
+                 &
+		 min::EOL_FLUSH_FLAG );
 
     printer << min::line_length ( 20 )
             << min::noautobreak
