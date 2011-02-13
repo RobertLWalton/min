@@ -206,7 +206,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 12, 2011}
+\date{February 13, 2011}
  
 \maketitle
 
@@ -3212,6 +3212,1127 @@ according to their stub addresses.
 
 It is an error to pass a non-name argument to
 either the \verb|min::hash| and \verb|min::compare| function.
+
+\subsection{Packed Structures}
+\label{PACKED-STRUCTURES}
+
+\newcommand{\SARG}{\BRACKETED{S}}
+\newcommand{\EHARG}{\BRACKETED{E,H}}
+\newcommand{\EARGDEFAULT}{\BRACKETED{E,H = min::packed\_vec\_header}}
+\newcommand{\EARG}{\BRACKETED{E,H}}
+
+A \key{packed structure} is a C `struct' stored in a body.
+
+The C type of a packed structure must be a C \verb|struct|
+initializable by setting all bytes to zero and copiable
+by \verb|memcpy|.
+Its \underline{first} member must be
+\begin{center}
+\verb|const min::uns32 control;|
+\end{center}
+This first member holds subtype information and flags.
+\verb|min::gen| and \verb|min::stub *| values are permitted as members
+of the \verb|struct|.
+C++ classes are not permitted, as member types must \underline{not}
+have constructors or destructors and must be copyable with
+a simple `{\tt =}' operator or with the \verb|memcpy| function.
+
+There are two types of pointers that can be used to
+access members of packed structures:
+\begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
+\verb|min::packed_struct_ptr<S>| & \verb|min::packed_struct<S>::ptr| \\
+\verb|min::packed_struct_updptr<S>| & \verb|min::packed_struct<S>::updptr|
+\end{tabular}\end{indpar}
+where \verb|S| is the C type of the structure.
+The first \mkey{read-only pointer}{to packed structure} type
+permits read-only access to packed structure members,
+while the second \mkey{updatable pointer}{to packed structure} type
+permits read-write access.
+These pointers are like the type `\verb|const min::stub *|' but with with extra
+clothes.
+Pointers of these types can also be included as members in C packed structures
+and packed vector headers and elements (see \itemref{PACKED-VECTORS}).
+
+The C type of a packed structure is described at run-time by a
+{\tt min::packed\_\EOL struct\SARG} C++ static object, where
+\verb|S| is the C type of the structure.
+The {\tt new\_gen} and {\tt new\_stub}
+member functions of this C++ static object can be
+used to create new packed structures of the described type.
+
+More explicitly, to create a new type of \key{packed structure}
+named \verb|pstype| use
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * stub_disp = NULL )|
+\LABEL{MIN::PACKED_STRUCT} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
+		\verb|pstype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * stub_disp = NULL )|
+\LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
+\verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
+\LABEL{MIN::DISP} \\
+\verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
+\LABEL{MIN::DISP_END} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen pstype|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_struct}} \verb|( void )|
+\LABEL{PACKED_STRUCT_NEW_GEN} \\
+\verb|const min::stub * pstype|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_struct}} \verb|( void )|
+\LABEL{PACKED_STRUCT_NEW_STUB} \\
+\verb|min::uns32 pstype|
+    & \TTDMKEY{subtype}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_SUBTYPE} \\
+\verb|const char * const pstype.|
+    & \TTDMKEY{name}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_NAME} \\
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{gen\_\EOL disp}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_GEN_DISP} \\
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{stub\_\EOL disp}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_STUB_DISP} \\
+\end{tabular}\end{indpar}
+
+where
+
+\begin{itemlist}[0.5in]
+
+\item[{\tt S}]
+The C type of the body of packed structures of the type being
+declared.  This C type must be a C \verb|struct| whose first
+member is
+\begin{center}
+\verb|const min::uns32 control;|
+\end{center}
+This member holds a code effectively
+points at \verb|pstype|, and also holds some flags.
+This member is initialized by \verb|new_gen| and must not
+be changed by the user.
+
+Only C language syntax may be used in defining the type {\tt S},
+except that a single base type may be be used, as in
+\begin{indpar}\begin{verbatim}
+struct S : public struct B { ... }
+\end{verbatim}\end{indpar}
+provided that {\tt B} is also a C language structure in this sense.
+In this case {\tt S} does
+\underline{not} have a `{\tt control}' member, as
+the `{\tt control}' member of {\tt B} serves as
+the `{\tt control}' member of {\tt S}.
+
+\item[{\tt B}]
+The C type of the base of {\tt S}, as indicated above.  If {\tt B}
+is also the type of a packed \underline{structure} body, use
+{\tt packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}}
+in order to enable conversion of
+{\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
+to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
+pointers.
+
+\end{itemlist}
+
+\begin{itemlist}[0.8in]
+
+\item[\ttmkey{subtype}{in {\tt min::packed\_struct}}]
+A small integer automatically assigned to uniquely identify \verb|pstype|.
+This is stored in the `{\tt control}' member of all packed
+structures that are created by {\tt pstype.new\_\EOL gen} or
+{\tt pstype.new\_\EOL stub}, and serves as a pointer from any
+of these packed structures to \verb|pstype|.
+
+\item[\ttmkey{name}{in {\tt min::packed\_struct}}]
+A name unique to the \verb|pstype| datum, typically the
+fully qualified name of this datum.  This character string may
+be output to identify the packed structure type when a packed structure is
+output.
+
+\end{itemlist}
+
+\begin{itemlist}[1.0in]
+
+\item[\ttmkey{gen\_\EOL disp}{in {\tt min::packed\_struct}}]
+This C vector is a list of the displacements (in bytes) of all
+the \verb|min::gen| members of \verb|S|,
+terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
+The displacement of member \verb|m| in structure type \verb|S| should
+be computed by {\tt min::\EOL DISP(\&S::m)}.
+
+This displacements vector should not
+be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
+values in \verb|S|.  But if there are \verb|min::gen| members, this
+displacements vector must be given for garbage collection purposes.
+
+\verb|const min::gen| members are treated like \verb|min::gen|
+members for these purposes.
+
+\item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]
+Ditto but for \verb|min::stub *| members of \verb|S|
+instead of \verb|min::gen| members.
+
+Pointer-to-packed-struct and pointer-to-packed-vector
+\label{STUB_DISP}
+members, i.e. {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} and
+{\tt min::\EOL packed\_\EOL vec\EHARG::\EOL xxxptr} members,
+are treated like `{\tt const min::\EOL stub~*}' values in that they
+must be listed in {\tt stub\_\EOL ptr\_\EOL disp}.
+
+Members of the types `\verb|const min::stub *|', `\verb|min::stub const *|', and
+`{\tt const min::\EOL stub \EOL const~*}' are treated like
+`{\tt min::\EOL stub~*}' members for these purposes.
+
+\end{itemlist}
+
+The \verb|pstype.new_gen| or \verb|pstype.new_stub|
+functions create a new packed structure
+datum of the C type described by \verb|pstype| and returns a
+\verb|min::gen| or {\tt const min::\EOL stub~*} value pointing at it.
+The new packed structure is set to all zeros, except for its
+`\verb|control|' member.
+
+The function call {\tt min::\EOL DISP~(~\&~S::m~)} will return the
+displacement in bytes of the member \verb|m| of a structure
+of \verb|struct| type \verb|S|.  This should be used instead of
+assuming that \verb|struct| layouts are tightly packed, as often
+they are not.  The type of the \verb|S::m| member must be one of
+the types mentioned above: \verb|min::gen|, `{\tt const min::stub~*}',
+{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}, etc.
+
+\verb|pstype.subtype|, \verb|pstype.name|,
+{\tt pstype.gen\_\EOL disp},
+and {\tt pstype.stub\_\EOL ptr\_\EOL disp}
+can be used to retrieve the subtype, name, and displacement
+information associated with \verb|pstype|.
+
+The subtype of a packed structure can be retrieved by
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{PACKED_STRUCT_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+when the argument is a value returned by
+{\tt pstype.new\_\EOL gen} or {\tt pstype.new\_\EOL stub}.
+Here the subtype is computed by looking in the
+`{\tt control}' member of the packed structure.  Packed vectors
+also have subtypes that can be discovered by
+{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
+(see \pagref{PACKED_VEC_SUBTYPE_OF_GEN}),
+but no packed structure
+has the same subtype as any packed vector.
+
+The two kinds of pointers that can be used to access
+a packed structure have the usage:
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	  \verb| ( const min::stub * s )|
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	  \verb| ( void )|
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
+\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::packed_struct_ptr<S> & |
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_GEN} \\
+\verb|min::packed_struct_ptr<S> & |
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+          \verb| ( const min::packed_struct_ptr<S> & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
+\verb|const * S |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_ptr<S> & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_->} \\
+\verb|const & S |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_ptr<S> & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_*} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
+	               \verb|( void )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S>|\\
+	& \verb|        & psup,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_GEN} \\
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S>|\\
+	& \verb|        & psup,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_struct\_updptr}}\ARGBREAK
+          \verb| ( const min::packed_struct_updptr<S> & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
+\verb|* S |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_updptr<S> & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
+\verb|& S |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_updptr<S> & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
+\LABEL{MIN::NULL_STUB} \\
+\end{tabular}\end{indpar}
+
+A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr \SARG} value is just
+a `{\tt const min::stub~*}' value in fancy clothes,
+and similarly a {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG} value.
+Both pointer values may be converted to/from
+`{\tt const min::stub~*}' values.
+
+A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is internally
+also a `\verb|const ** S|' value that is made to behave externally like a
+also a `\verb|const * S|' value with respect to the \verb|->| and
+unary \verb|*| operators.  Thus looking ahead at the example below,
+if \verb|upv| is a
+{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
+and \verb|S| has a member \verb|i|, then \verb|upv->i| is the \verb|i|
+member of the \verb|S| struct pointed at by \verb|upv|.
+Similarly a {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG} value
+is internally also a `\verb|** S|' value that is made to behave
+externally like a also a `\verb|* S|' value with respect to the \verb|->| and
+unary \verb|*| operators.
+
+Note that in certain
+circumstances, such as inside a {\tt template} class,
+component names like {\tt min::\EOL packed\_\EOL struct<S>::ptr} will not work
+and the alternative {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
+must be used instead.  The later are usually preferred anyway because
+they can be defined without defining \verb|S|, and therefore can be
+used to build recursive structures.
+
+For the constructors and the {\tt =} assignment operator \verb|v| or
+\verb|s| must point at packed structure, or \verb|s| must equal
+\verb|min::NULL_STUB|, which is just the standard C language \verb|NULL|
+cast to the `\verb|const min::stub *|' type.  This cast is necessary
+as \verb|NULL| by inself can be converted to either a `\verb|min::stub *|'
+or \verb|min::gen| type and is thus ambiguous when used in a constructor
+or on the right side of \verb|=|.
+
+If constructors for {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>} or
+{\tt min::\EOL packed\_\EOL struct\_\EOL updptr<S>} are
+not given an argument, these pointers are set to
+\verb|min::NULL_STUB|.  Such pointers give undefined results if
+used, though most frequently the result will be a memory fault.
+
+An example use of a packed structure is:
+\begin{indpar}\begin{verbatim}
+struct ps;
+typedef min::packed_struct_ptr<ps> psptr;
+typedef min::packed_struct_updptr<ps> psupdptr;
+    // Note: pointers can be defined before struct is defined.
+
+struct ps {
+    min::uns32 control;
+    min::uns32 i;
+    min::uns32 j;
+    min::gen g;
+    psptr pv;
+    min::stub * s;
+};
+
+static min::uns32 ps_gen_disp[2] =
+    { min::DISP(&ps::g), min::DISP_END };
+static min::uns32 ps_stub_disp[2] =
+    { min::DISP(&ps::s), min::DISP(&ps::pv), min::DISP_END };
+
+static min::packed_struct<ps> pstype
+    ( "pstype", ps_gen_disp, ps_stub_disp );
+
+main ( ... )
+{
+    . . . . . . .
+    min::gen v1 = pstype.new_gen();
+	// min::packed_subtype_of ( v1 ) == pstype.subtype
+    psupdptr upv ( v1 );
+	// min::packed_subtype_of ( upv ) == pstype.subtype
+    upv->i = 55;
+    upv->j = 99;
+    upv->g = min::new_str_gen ( "Hello" );
+
+    psptr pv = upv;
+    // Upv is converted to a `const min::stub *' value
+    // that is used to set pv.
+
+    upv->pv = pv;
+    upv = pstype.new_gen();
+    // Now upv->i == 0, pv->i == 55, pv->pv->i == 55,
+    //     upv->pv == min::NULL_STUB
+
+    . . . . . . .
+}
+\end{verbatim}\end{indpar}
+
+Packed structure pointers do no caching and
+there is \underline{no need} for
+a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
+functions for list pointers (\pagref{LIST-POINTER-CACHE}).
+
+\subsection{Packed Vectors}
+\label{PACKED-VECTORS}
+
+A \key{packed vector} is like a packed structure but with an added vector
+that follows the structure at the beginning of the packed vector body.
+The structure is called the packed vector \mkey{header}{of packed vector}.
+Both the header and the vector elements must be C type data that can
+be initialized by setting their bytes to all zeros and can be copied
+by \verb|memcpy|.
+\verb|min::gen| and \verb|min::stub *| values are permitted as members
+of \verb|struct|s or as vector element types by themselves.
+C++ classes are not permitted, as the types must \underline{not}
+have constructors or destructors and must be copyable with
+a simple `{\tt =}' operator or with the \verb|memcpy| function.
+
+The C type of a packed vector header, like that of a packed structure,
+must be a
+C \verb|struct| whose first member is
+\begin{indpar}
+\verb|const min::uns32 control;|
+\end{indpar}
+The header must also have the following two other members,
+at no particular offset:
+\begin{indpar}
+\verb|const min::uns32 length;| \\
+\verb|const min::uns32 max_length;|
+\end{indpar}
+
+The C type of a packed vector element may but need not be a `\verb|struct|';
+it can be a numeric or pointer type or \verb|min::gen|.
+
+There are also three pointer-to-packed-vector types:
+\begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
+\verb|min::packed_vec_ptr<E,H>| & \verb|min::packed_vec<E,H>::ptr| \\
+\verb|min::packed_vec_updptr<E,H>| & \verb|min::packed_vec<E,H>::updptr| \\
+\verb|min::packed_vec_insptr<E,H>| & \verb|min::packed_vec<E,H>::insptr|
+\end{tabular}\end{indpar}
+where \verb|H| is the C type of the packed vector header struct and
+\verb|E| is the C type of the packed vector element.
+The first \mkey{read-only pointer}{to packed vector} type
+permits read-only access to packed structure members,
+the second \mkey{updatable pointer}{to packed vector} type
+permits read-write access, while the
+the third \mkey{insertable pointer}{to packed vector} type
+permits read-write access \underline{and}
+also permits pushing and popping vector elements
+and resizing the vector.
+These pointers are like the type `\verb|const min::stub *|' but with with extra
+clothes.
+Pointers of these types can also be included as members in C packed structures
+and packed vector headers and elements.
+
+A packed vector type is described at run-time by a
+{\tt min::packed\_\EOL vec\EHARG} C++ static object, where
+\verb|H| is the C type of the packed vector header and \verb|E| is the C type
+of the packed vector element.
+The {\tt new\_gen} and {\tt new\_stub}
+member functions of this C++ static object can be
+used to create new packed vectors of the described type.
+
+More explicitly, to create a new type of \key{packed vector}
+named \verb|pvtype| use
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{packed\_vec\_header}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::uns32 control;|\ARGBREAK
+    \verb|  const min::uns32 length;|\ARGBREAK
+    \verb|  const min::uns32 max_length;|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::PACKED_VEC_HEADER} \\
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\EARGDEFAULT}{packed\_vec\EARG}
+	      \verb|pvtype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+\LABEL{MIN::PACKED_VEC} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
+		\verb|pvtype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+\LABEL{MIN::PACKED_VEC_WITH_BASE} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen pvtype|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}} \verb|( void )|
+\LABEL{PACKED_VEC_NEW_GEN_VOID} \\
+\verb|const min::stub * pvtype|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}} \verb|( void )|
+\LABEL{PACKED_VEC_NEW_STUB_VOID} \\
+\verb|min::gen pvtype|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
+	  \verb|   const E * vp = NULL )|
+\LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
+\verb|const min::stub * pvtype|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
+	  \verb|   const E * vp = NULL )|
+\LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const char * const pvtype| & \TTDMKEY{subtype}{in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_SUBTYPE} \\
+\verb|const char * const pvtype| & \TTDMKEY{name}{in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_NAME} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL gen\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL stub\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL gen\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL stub\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
+\verb|min::uns32 pvtype| & \TTDMKEY{initial\_max\_length}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_INITIAL_MAX_LENGTH} \\
+\verb|min::float64 pvtype| & \TTDMKEY{increment\_ratio}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_INCREMENT_RATIO} \\
+\verb|min::uns32 pvtype| & \TTDMKEY{max\_increment}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_MAX_INCREMENT} \\
+\end{tabular}\end{indpar}
+
+where
+
+\begin{itemlist}[0.5in]
+
+\item[{\tt E}]\label{PACKED_VEC_ELEMENT_TYPE}
+The C type of the elements in the vector part of the
+bodies of packed vectors of the type being
+declared.  This need not be a \verb|struct| type; it can
+be \verb|min::gen|, \verb|min::stub *|,
+any pointer-to-packed-struct or pointer-to-packed-vector
+type, or any numeric type.
+
+\item[{\tt H}]\label{PACKED_VEC_HEADER_TYPE}
+The C \verb|struct| type of the header data at the beginning of the
+bodies of packed vectors of the type being
+declared.  The first member of this \verb|struct| type must be
+\begin{indpar}
+\verb|const min::uns32 control;|
+\end{indpar}
+and the \verb|struct| type must also have the two members
+\begin{indpar}
+\verb|const min::uns32 length;| \\
+\verb|const min::uns32 max_length;|
+\end{indpar}
+These members are initialized by \verb|new_gen| or \verb|new_stub|
+and must not
+be changed by the user.
+
+\verb|H| defaults to \verb|min::packed_vec_header| which
+has just the require header members: \verb|control|, \verb|length|, and
+{\tt max\_\EOL length}.  Because of this default,
+\verb|H| is the \underline{second} template parameter,
+even though is preceeds the vector elements in memory.
+
+Only C language syntax may be used in defining the type {\tt H},
+except that a single base type may be be used, as in
+\begin{indpar}\begin{verbatim}
+struct H : public struct B { ... }
+\end{verbatim}\end{indpar}
+provided that {\tt B} is also a C language structure in this sense.
+In this case {\tt H} does
+\underline{not} have a `{\tt control}' member, as
+the `{\tt control}' member of {\tt B} serves as
+the `{\tt control}' member of {\tt H}.  The `{\tt length}' and
+`{\tt max\_length}' members may be in either {\tt H} or {\tt B}.
+
+\item[{\tt B}]
+The C type of the base of {\tt H}, as indicated above.  If {\tt B}
+is also the type of a packed \underline{structure} body, use
+{\tt packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B}}
+in order to enable conversion of
+{\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H>} pointers
+to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
+pointers.
+
+Note that {\tt B} must be the type of a packed
+structure and \underline{not} of a packed vector header.
+
+\end{itemlist}
+
+\begin{itemlist}[1.0in]
+
+\item[\ttmkey{subtype}{in {\tt min::packed\_vec}}]
+A small integer automatically assigned to uniquely identify \verb|pvtype|.
+This is stored in the `{\tt control}' member of all packed
+vectors that are created by {\tt pvtype.new\_\EOL gen} or
+{\tt pvtype.new\_\EOL stub}, and serves as a pointer from any
+of these packed vectors to \verb|pvtype|.
+
+\item[\ttmkey{name}{in {\tt min::packed\_vec}}]
+A name unique to the \verb|pvtype| datum, typically the
+fully qualified name of this datum.  This character string may
+be output to identify the packed vector type when a packed vector is
+output.
+
+\end{itemlist}
+
+\begin{itemlist}[1.6in]
+
+\item[\ttmkey{header\_\EOL gen\_\EOL disp}{in {\tt min::packed\_vec}}]
+This C vector is a list of the displacements (in bytes) of all
+the \verb|min::gen| members of \verb|H|,
+terminated by the value {\tt min::DISP\_\EOL END}\minindex{DISP\_END}.
+This displacements vector should not
+be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
+values in \verb|H|.  But if there are \verb|min::gen| members, this
+displacements vector must be given for garbage collection purposes.
+
+\item[\ttmkey{header\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
+Ditto but for \verb|min::stub *| members of \verb|H|.
+See \pagref{STUB_DISP} for more details.
+
+\item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
+Ditto but for \verb|min::gen| members of \verb|E|.
+
+\item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
+Ditto but for \verb|min::stub *| members of \verb|E|.
+See \pagref{STUB_DISP} for more details.
+
+\end{itemlist}
+
+\verb|pvtype.name|,~~
+{\tt pvtype.header\_\EOL gen\_\EOL disp},
+{\tt pvtype.header\_\EOL stub\_\EOL ptr\_\EOL disp},
+~~{\tt pvtype.ele\-\EOL ment\_\EOL gen\_\EOL disp},
+and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL ptr\_\EOL disp}
+can be used to retrieve the name and displacement
+information associated with \verb|pvtype|.
+In addition the parameters
+{\tt pvtype.ini\-tial\_\EOL max\_\EOL length},
+{\tt pvtype.increment\_\EOL ratio}, and
+{\tt pvtype.max\_\EOL increment}
+may be set by the user:
+
+
+\begin{itemlist}[1.5in]
+
+\item[\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
+The maximum length of a packed vector newly created by calling the
+\verb|pvtype.new_gen| or \verb|pvtype.new_stub|
+function with no arguments.  Defaults to \verb|128|.
+
+\item[\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
+The \verb|min::reserve| function multiplies the old maximum length by
+this ratio to get the maximum length increment: see formula on
+\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|0.5|.
+
+\item[\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
+The maximum increment of the maximum length computable by the
+\verb|min::reserve| function: see formula on
+\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|4096|.
+
+\end{itemlist}
+
+The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
+function creates a new packed vector
+datum of the C type described by \verb|pvtype| and returns a
+\verb|min::gen| or \verb|const min::stub *|
+value pointing at it.  A packed vector has a
+\mkey{length}{of packed vector} which is the number of elements
+currently in the packed vector.  It also has a
+\mkey{maximum length}{of packed vector} which is the maximum length
+allowed before the packed vector must be reallocated.
+The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
+function may be given the maximum length
+and length and a vector of length type \verb|E| elements that is copied
+to the initial value of the packed vector.
+If the vector \verb|vp| of initial elements is given as \verb|NULL|,
+the initial elements will be zeros.
+If no parameters are given to
+\verb|pvtype.new_gen| or \verb|pvtype.new_stub|,
+the length defaults to \verb|0| and
+the maximum length defaults to {\tt pvtype.initial\_\EOL max\_\EOL length}.
+
+A newly created packed vector is set to all zeros, except for its
+`{\tt control}', `{\tt length}', and `{\tt max\_\EOL length}' members.
+
+The subtype of a packed vector can be retrieved by
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{PACKED_VEC_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{PACKED_VEC_SUBTYPE_OF_STUB} \\
+\end{tabular}\end{indpar}
+
+when the argument is a value returned by {\tt pvtype.new\_\EOL gen}
+or {\tt pvtype.new\_\EOL stub}.
+Here the subtype is computed by looking in the
+`{\tt control}' member of the packed vector.  Packed structures
+also have subtypes that can be discovered by
+{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
+(see \pagref{PACKED_STRUCT_SUBTYPE_OF_GEN}),
+but no packed vector
+has the same subtype as any packed structure.
+
+There are three kinds of pointers that can be used to access
+a packed vector, and these have the usage:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
+	      \verb|pvp|\ARGBREAK
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
+	      \verb|pvp|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
+	      \verb|pvp|\ARGBREAK
+	  \verb| ( void )|
+\LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_ptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::ptr}
+\LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::packed_vec_ptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
+	& \verb| ( min::packed_vec_ptr<E,H>|\\
+	& \verb|        & pvp,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_VEC_PTR_OF_GEN} \\
+\verb|min::packed_vec_ptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
+	& \verb| ( min::packed_vec_ptr<E,H>|\\
+	& \verb|        & pvp,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_VEC_PTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
+          \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
+\LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
+\verb|const H * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
+	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
+\LABEL{MIN::PACKED_VEC_PTR_->} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
+\verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_[]} \\
+\verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
+	          {packed\_vec\_updptr\EARG}
+	      \verb|pvup|\ARGBREAK
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
+	          {packed\_vec\_updptr\EARG}
+	      \verb|pvup|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
+	          {packed\_vec\_updptr\EARG}
+	      \verb|pvup|\ARGBREAK
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_updptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::updptr}
+\LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::packed_vec_updptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
+	& \verb| ( min::packed_vec_updptr<E,H>|\\
+	& \verb|        & pvup,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_GEN} \\
+\verb|min::packed_vec_updptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
+	& \verb| ( min::packed_vec_updptr<E,H>|\\
+	& \verb|        & pvup,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
+          \verb| ( const min::packed_vec_updptr<E,H> & pvup )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_TO_MIN_STUB} \\
+\verb|H * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
+	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
+	  \verb|      & pvup )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 pvup|
+    & \TTARMKEY{length}{in {\tt min::packed\_vec\_updptr}}
+\LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
+\verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
+	          {packed\_vec\_insptr\EARG}
+	      \verb|pvip|\ARGBREAK
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
+	          {packed\_vec\_insptr\EARG}
+	      \verb|pvip|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
+	          {packed\_vec\_insptr\EARG}
+	      \verb|pvip|\ARGBREAK
+	   \verb|( void )|
+\LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_insptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::insptr}
+\LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::packed_vec_insptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
+	& \verb| ( min::packed_vec_insptr<E,H>|\\
+	& \verb|        & pvip,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_GEN} \\
+\verb|min::packed_vec_insptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
+	& \verb| ( min::packed_vec_insptr<E,H>|\\
+	& \verb|        & pvip,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_vec\_insptr}}\ARGBREAK
+          \verb| ( const min::packed_vec_insptr<E,H> & pvip )|
+\LABEL{MIN::PACKED_VEC_INSPTR_TO_MIN_STUB} \\
+\verb|H * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_vec\_insptr}}\ARGBREAK
+	  \verb| ( const min::packed_vec_insptr<E,H>|\ARGBREAK
+	  \verb|      & pvip )|
+\LABEL{MIN::PACKED_VEC_INSPTR_->} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 pvip|
+    & \TTARMKEY{length}{in {\tt min::packed\_vec\_insptr}}
+\LABEL{MIN::PACKED_VEC_INSPTR_LENGTH} \\
+\verb|const min::uns32 pvip|
+    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
+\LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
+\verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
+\LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
+\verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
+\LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|E & min::|
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip )|
+\LABEL{MIN::PACKED_VEC_PUSH} \\
+\verb|E & min::|
+	& \MINKEY{push}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 n, const E * vp = NULL )|
+\LABEL{MIN::PACKED_VEC_PUSH_N} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|E min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip )|
+\LABEL{MIN::PACKED_VEC_POP} \\
+\verb|void min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 n, E * vp = NULL )|
+\LABEL{MIN::PACKED_VEC_POP_N} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::|
+	& \MINKEY{resize}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 max_length )|
+\LABEL{MIN::PACKED_VEC_RESIZE} \\
+\verb|void min::|
+	& \MINKEY{reserve}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 reserve_length )|
+\LABEL{MIN::PACKED_VEC_RESERVE} \\
+\end{tabular}\end{indpar}
+
+As for packed structures, packed vector pointers used as the left
+operand of \verb|->| are converted to
+`\verb|const H *|' or
+`\verb|H *|'.  This can be used to access the `\verb|length|'
+and \verb|max_length| members of the header.
+
+In addition subscripting packed vector
+pointers gives access to the elements of the vector.  The subscripting
+operator \verb|[]| checks the index \verb|i| against the current length
+of the vector to ensure the access is legal (e.g., \verb|pvp[i]|
+checks \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|).
+The vector elements in a
+packed vector are organized as a C language vector so that
+\begin{center}
+\verb|(& pvp[0])[i]| is the same as \verb|pvp[i]|
+\end{center}
+but the vector elements are stored in body whose address can change
+if a relocating function is called, so saving C pointers to packed vector
+elements is generally a bad idea.  However, temporary use within a single
+statement is all right if the statement does not call a relocating
+function.  For example, \verb|memcpy| can be used as follows to copy
+from or to the vector:
+\begin{indpar}\begin{verbatim}
+memcpy ( ..., & pvp[0], sizeof ( E ) * pvp->length );
+memcpy ( & pvup[0], ..., sizeof ( E ) * pvp->length );
+\end{verbatim}\end{indpar}
+
+\verb|pvp.end_ptr()| is the same as `\verb|& pvp[pvp->length]|'
+except the latter would fail because the index is not less than
+\verb|pvp->length|.  This member function is only useful
+in code that does not call a relocating function.
+
+Insertable packed vector pointers permit the current length and maximum
+length of the vector to be changed.
+The current vector length is \verb|pvp->length| and the maximum
+length is \verb|pvp->max_length| (see description of \verb|H| on
+\pagref{PACKED_VEC_HEADER_TYPE}).
+The current length can be changed by {\tt min::\EOL push} and
+{\tt min::\EOL pop} functions and the maximum length can be changed
+by {\tt min::\EOL resize} and {\tt min::\EOL reserve} functions.  If
+{\tt min::\EOL push} needs more space it automatically calls
+{\tt min::reserve}.
+
+The \verb|min::push| function adds elements
+to the end of the packed vector
+by incrementing the current vector length, and if this would
+exceed the maximum length, first calls the \verb|min::reserve| function
+with the number of elements to be pushed.
+The single argument {\tt min::\EOL push} adds one element to the vector,
+zeros that element, and returns a reference to the element.  The
+intended use is
+\begin{indpar}\begin{verbatim}
+push(pvip) = v;
+\end{verbatim}\end{indpar}
+where \verb|v| is the element to be added to the vector.
+The two or three argument {\tt min::\EOL push} adds {\tt n}
+elements to the vector, and fills the new elements from {\tt vp}
+if that is not {\tt NULL}, or with zeros otherwise.
+If \verb|vp| is not \verb|NULL|,
+new elements are placed within the packed vector in the same
+memory order as they appear in the \verb|vp| vector.
+In any case a reference to the first element pushed is
+returned (this is \verb|(E *) NULL| if \verb|n == 0|),
+so
+\begin{indpar}\begin{verbatim}
+E * p = & push(pvip,n);
+\end{verbatim}\end{indpar}
+can be used to obtain a pointer \verb|p| to the \verb|n| element
+vector of new elements within the packed vector.  This pointer
+becomes invalid, of course, when a relocating function is called.
+Note that the index of the first element pushed is always the
+value of \verb|pvip->|\EOL {\tt length} just before
+{\tt min::\EOL push} is called.
+
+The \verb|min::pop| function removes elements from the end of the
+packed vector, decrementing the current vector length (which is checked
+to be sure it is large enough).   A single element may be removed and
+returned, or \verb|n| elements may be removed and returned in the
+\verb|vp| vector.  In the latter case removed elements are placed in
+\verb|vp| in the same memory order as they appeared in the packed vector.
+Also,
+if \verb|vp| is \verb|NULL|, the removed elements are simply discarded
+instead of being copied.
+
+The \verb|min::resize| function resets the maximum length.  If
+the current length would be larger than the new maximum length,
+the current length is reset to the new maximum length.
+
+The \verb|min::reserve| function checks that
+the current length plus the \verb|reserve_length| is
+at most the maximum length, and if this check fails,
+resets the maximum length according to the formula:
+\begin{indpar}\begin{verbatim}
+new_maximum_length = max ( length + reserve_length,
+                           old_maximum_length
+                           +
+                           min ( pvtype.max_increment,
+                                   pvtype.increment_ratio
+                                 * old_maximum_length ) )
+\end{verbatim}\end{indpar}\label{PACKED-VEC-EXPANSION-FORMULA}
+
+An example use of a packed vector is:
+\begin{indpar}\begin{verbatim}
+struct pvh;
+struct pve;
+typedef min::packed_vec_ptr<pvh,pve> pvptr;
+typedef min::packed_vec_insptr<pvh,pve> pvinsptr;
+    // Note: pointer types may be defined before
+    //       header and element types are defined.
+
+struct pvh {
+    const min::uns32 control;
+          min::uns32 i;
+    const min::uns32 length;
+    const min::uns32 max_length;
+};
+
+struct pve {
+    min::gen g;
+    min::stub * s;
+    min::uns8 j;
+};
+
+static min::uns32 pve_gen_disp[2] =
+    { 0, min::DISP_END };
+static min::uns32 pve_stub_disp[2] =
+    { 0 + sizeof ( min::gen ), min::DISP_END };
+
+static min::packed_vec<pve,pvh> pvtype
+    ( "pvtype", pve_gen_disp, pve_stub_disp );
+
+main ( ... )
+{
+    min::gen v = pvtype.new_gen ( 5 );
+        // min::packed_subtype_of ( v ) == pvtype.subtype
+    pvinsptr pvip ( v );
+        // pvip->max_length == 5
+        // pvip->length == 0
+        // min::packed_subtype_of ( pvip ) == pvtype.subtype
+    pve e1 = { min::MISSING, NULL, 88 };
+    min::push ( pvip, e1 );
+    pvptr pvp ( v );
+        // pvip->length == 1
+        // pvp[1].j == 11
+
+    pve e2[3] = { { min::MISSING, NULL, 11 },
+                  { min::MISSING, NULL, 22 },
+                  { min::MISSING, NULL, 33 } };
+    min::push ( pvip, 3, e2 );
+        // pvp[1].j == 11
+        // pvp[2].j == 22
+        // pvp[3].j == 33
+
+    min::resize ( pvip, 10 );
+        // pvp->max_length == 10
+
+    pve e3, e4[3];
+    e3 = min::pop ( pvip );
+        // e3[0].j == 33
+        // pvp->length == 3
+    min::pop ( pvip, 2, e4 );
+        // e4[0].j == 11
+        // e4[1].j == 22
+    e3 = min::pop ( pvip );
+        // 3e.j == 88
+}
+\end{verbatim}\end{indpar}
+
+Packed vector pointers do no caching and
+there is \underline{no need} for
+a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
+functions for list pointers (\pagref{LIST-POINTER-CACHE}).
+
+
 
 
 \subsection{Printers}
@@ -7121,1126 +8242,6 @@ returned.
 TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
 
 TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
-
-\subsection{Packed Structures}
-\label{PACKED-STRUCTURES}
-
-\newcommand{\SARG}{\BRACKETED{S}}
-\newcommand{\EHARG}{\BRACKETED{E,H}}
-\newcommand{\EARGDEFAULT}{\BRACKETED{E,H = min::packed\_vec\_header}}
-\newcommand{\EARG}{\BRACKETED{E,H}}
-
-A \key{packed structure} is a C `struct' stored in a body.
-
-The C type of a packed structure must be a C \verb|struct|
-initializable by setting all bytes to zero and copiable
-by \verb|memcpy|.
-Its \underline{first} member must be
-\begin{center}
-\verb|const min::uns32 control;|
-\end{center}
-This first member holds subtype information and flags.
-\verb|min::gen| and \verb|min::stub *| values are permitted as members
-of the \verb|struct|.
-C++ classes are not permitted, as member types must \underline{not}
-have constructors or destructors and must be copyable with
-a simple `{\tt =}' operator or with the \verb|memcpy| function.
-
-There are two types of pointers that can be used to
-access members of packed structures:
-\begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
-\verb|min::packed_struct_ptr<S>| & \verb|min::packed_struct<S>::ptr| \\
-\verb|min::packed_struct_updptr<S>| & \verb|min::packed_struct<S>::updptr|
-\end{tabular}\end{indpar}
-where \verb|S| is the C type of the structure.
-The first \mkey{read-only pointer}{to packed structure} type
-permits read-only access to packed structure members,
-while the second \mkey{updatable pointer}{to packed structure} type
-permits read-write access.
-These pointers are like the type `\verb|const min::stub *|' but with with extra
-clothes.
-Pointers of these types can also be included as members in C packed structures
-and packed vector headers and elements (see \itemref{PACKED-VECTORS}).
-
-The C type of a packed structure is described at run-time by a
-{\tt min::packed\_\EOL struct\SARG} C++ static object, where
-\verb|S| is the C type of the structure.
-The {\tt new\_gen} and {\tt new\_stub}
-member functions of this C++ static object can be
-used to create new packed structures of the described type.
-
-More explicitly, to create a new type of \key{packed structure}
-named \verb|pstype| use
-
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
-		\verb|pstype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
-\verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
-\LABEL{MIN::DISP} \\
-\verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
-\LABEL{MIN::DISP_END} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen pstype|
-    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_struct}} \verb|( void )|
-\LABEL{PACKED_STRUCT_NEW_GEN} \\
-\verb|const min::stub * pstype|
-    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_struct}} \verb|( void )|
-\LABEL{PACKED_STRUCT_NEW_STUB} \\
-\verb|min::uns32 pstype|
-    & \TTDMKEY{subtype}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_SUBTYPE} \\
-\verb|const char * const pstype.|
-    & \TTDMKEY{name}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_NAME} \\
-\verb|const min::uns32 * const pstype|
-    & \TTDMKEY{gen\_\EOL disp}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_GEN_DISP} \\
-\verb|const min::uns32 * const pstype|
-    & \TTDMKEY{stub\_\EOL disp}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_STUB_DISP} \\
-\end{tabular}\end{indpar}
-
-where
-
-\begin{itemlist}[0.5in]
-
-\item[{\tt S}]
-The C type of the body of packed structures of the type being
-declared.  This C type must be a C \verb|struct| whose first
-member is
-\begin{center}
-\verb|const min::uns32 control;|
-\end{center}
-This member holds a code effectively
-points at \verb|pstype|, and also holds some flags.
-This member is initialized by \verb|new_gen| and must not
-be changed by the user.
-
-Only C language syntax may be used in defining the type {\tt S},
-except that a single base type may be be used, as in
-\begin{indpar}\begin{verbatim}
-struct S : public struct B { ... }
-\end{verbatim}\end{indpar}
-provided that {\tt B} is also a C language structure in this sense.
-In this case {\tt S} does
-\underline{not} have a `{\tt control}' member, as
-the `{\tt control}' member of {\tt B} serves as
-the `{\tt control}' member of {\tt S}.
-
-\item[{\tt B}]
-The C type of the base of {\tt S}, as indicated above.  If {\tt B}
-is also the type of a packed \underline{structure} body, use
-{\tt packed\_\EOL struct\_\EOL with\_\EOL base\BRACKETED{S,B}}
-in order to enable conversion of
-{\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<S>} pointers
-to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
-pointers.
-
-\end{itemlist}
-
-\begin{itemlist}[0.8in]
-
-\item[\ttmkey{subtype}{in {\tt min::packed\_struct}}]
-A small integer automatically assigned to uniquely identify \verb|pstype|.
-This is stored in the `{\tt control}' member of all packed
-structures that are created by {\tt pstype.new\_\EOL gen} or
-{\tt pstype.new\_\EOL stub}, and serves as a pointer from any
-of these packed structures to \verb|pstype|.
-
-\item[\ttmkey{name}{in {\tt min::packed\_struct}}]
-A name unique to the \verb|pstype| datum, typically the
-fully qualified name of this datum.  This character string may
-be output to identify the packed structure type when a packed structure is
-output.
-
-\end{itemlist}
-
-\begin{itemlist}[1.0in]
-
-\item[\ttmkey{gen\_\EOL disp}{in {\tt min::packed\_struct}}]
-This C vector is a list of the displacements (in bytes) of all
-the \verb|min::gen| members of \verb|S|,
-terminated by the value {\tt min::DISP\_END}\minindex{DISP\_END}.
-The displacement of member \verb|m| in structure type \verb|S| should
-be computed by {\tt min::\EOL DISP(\&S::m)}.
-
-This displacements vector should not
-be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
-values in \verb|S|.  But if there are \verb|min::gen| members, this
-displacements vector must be given for garbage collection purposes.
-
-\verb|const min::gen| members are treated like \verb|min::gen|
-members for these purposes.
-
-\item[\ttmkey{stub\_\EOL disp}{in {\tt min::packed\_struct}}]
-Ditto but for \verb|min::stub *| members of \verb|S|
-instead of \verb|min::gen| members.
-
-Pointer-to-packed-struct and pointer-to-packed-vector
-\label{STUB_DISP}
-members, i.e. {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} and
-{\tt min::\EOL packed\_\EOL vec\EHARG::\EOL xxxptr} members,
-are treated like `{\tt const min::\EOL stub~*}' values in that they
-must be listed in {\tt stub\_\EOL ptr\_\EOL disp}.
-
-Members of the types `\verb|const min::stub *|', `\verb|min::stub const *|', and
-`{\tt const min::\EOL stub \EOL const~*}' are treated like
-`{\tt min::\EOL stub~*}' members for these purposes.
-
-\end{itemlist}
-
-The \verb|pstype.new_gen| or \verb|pstype.new_stub|
-functions create a new packed structure
-datum of the C type described by \verb|pstype| and returns a
-\verb|min::gen| or {\tt const min::\EOL stub~*} value pointing at it.
-The new packed structure is set to all zeros, except for its
-`\verb|control|' member.
-
-The function call {\tt min::\EOL DISP~(~\&~S::m~)} will return the
-displacement in bytes of the member \verb|m| of a structure
-of \verb|struct| type \verb|S|.  This should be used instead of
-assuming that \verb|struct| layouts are tightly packed, as often
-they are not.  The type of the \verb|S::m| member must be one of
-the types mentioned above: \verb|min::gen|, `{\tt const min::stub~*}',
-{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}, etc.
-
-\verb|pstype.subtype|, \verb|pstype.name|,
-{\tt pstype.gen\_\EOL disp},
-and {\tt pstype.stub\_\EOL ptr\_\EOL disp}
-can be used to retrieve the subtype, name, and displacement
-information associated with \verb|pstype|.
-
-The subtype of a packed structure can be retrieved by
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{PACKED_STRUCT_SUBTYPE_OF_GEN} \\
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{PACKED_STRUCT_SUBTYPE_OF_STUB} \\
-\end{tabular}\end{indpar}
-
-when the argument is a value returned by
-{\tt pstype.new\_\EOL gen} or {\tt pstype.new\_\EOL stub}.
-Here the subtype is computed by looking in the
-`{\tt control}' member of the packed structure.  Packed vectors
-also have subtypes that can be discovered by
-{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
-(see \pagref{PACKED_VEC_SUBTYPE_OF_GEN}),
-but no packed structure
-has the same subtype as any packed vector.
-
-The two kinds of pointers that can be used to access
-a packed structure have the usage:
-
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
-	  \verb| ( const min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
-	  \verb| ( void )|
-\LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
-\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::packed_struct_ptr<S> & |
-	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_GEN} \\
-\verb|min::packed_struct_ptr<S> & |
-	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
-	  \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_STUB} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-	& \TTOMKEY{min::stub}{const min::stub *}%
-	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-          \verb| ( const min::packed_struct_ptr<S> & psp )|
-\LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const * S |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_ptr<S> & psp )|
-\LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|const & S |
-	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_ptr<S> & psp )|
-\LABEL{MIN::PACKED_STRUCT_PTR_*} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|
-	               \verb|( void )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
-\end{tabular}\end{indpar}
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|min::packed_struct_updptr<S> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
-	& \verb| ( min::packed_struct_updptr<S>|\\
-	& \verb|        & psup,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_GEN} \\
-\verb|min::packed_struct_updptr<S> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
-	& \verb| ( min::packed_struct_updptr<S>|\\
-	& \verb|        & psup,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-	& \TTOMKEY{min::stub}{const min::stub *}%
-	          {of {\tt min::packed\_struct\_updptr}}\ARGBREAK
-          \verb| ( const min::packed_struct_updptr<S> & psup )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
-\verb|* S |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_updptr<S> & psup )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|& S |
-	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_updptr<S> & psup )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
-\LABEL{MIN::NULL_STUB} \\
-\end{tabular}\end{indpar}
-
-A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr \SARG} value is just
-a `{\tt const min::stub~*}' value in fancy clothes,
-and similarly a {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG} value.
-Both pointer values may be converted to/from
-`{\tt const min::stub~*}' values.
-
-A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is internally
-also a `\verb|const ** S|' value that is made to behave externally like a
-also a `\verb|const * S|' value with respect to the \verb|->| and
-unary \verb|*| operators.  Thus looking ahead at the example below,
-if \verb|upv| is a
-{\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
-and \verb|S| has a member \verb|i|, then \verb|upv->i| is the \verb|i|
-member of the \verb|S| struct pointed at by \verb|upv|.
-Similarly a {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG} value
-is internally also a `\verb|** S|' value that is made to behave
-externally like a also a `\verb|* S|' value with respect to the \verb|->| and
-unary \verb|*| operators.
-
-Note that in certain
-circumstances, such as inside a {\tt template} class,
-component names like {\tt min::\EOL packed\_\EOL struct<S>::ptr} will not work
-and the alternative {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
-must be used instead.  The later are usually preferred anyway because
-they can be defined without defining \verb|S|, and therefore can be
-used to build recursive structures.
-
-For the constructors and the {\tt =} assignment operator \verb|v| or
-\verb|s| must point at packed structure, or \verb|s| must equal
-\verb|min::NULL_STUB|, which is just the standard C language \verb|NULL|
-cast to the `\verb|const min::stub *|' type.  This cast is necessary
-as \verb|NULL| by inself can be converted to either a `\verb|min::stub *|'
-or \verb|min::gen| type and is thus ambiguous when used in a constructor
-or on the right side of \verb|=|.
-
-If constructors for {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>} or
-{\tt min::\EOL packed\_\EOL struct\_\EOL updptr<S>} are
-not given an argument, these pointers are set to
-\verb|min::NULL_STUB|.  Such pointers give undefined results if
-used, though most frequently the result will be a memory fault.
-
-An example use of a packed structure is:
-\begin{indpar}\begin{verbatim}
-struct ps;
-typedef min::packed_struct_ptr<ps> psptr;
-typedef min::packed_struct_updptr<ps> psupdptr;
-    // Note: pointers can be defined before struct is defined.
-
-struct ps {
-    min::uns32 control;
-    min::uns32 i;
-    min::uns32 j;
-    min::gen g;
-    psptr pv;
-    min::stub * s;
-};
-
-static min::uns32 ps_gen_disp[2] =
-    { min::DISP(&ps::g), min::DISP_END };
-static min::uns32 ps_stub_disp[2] =
-    { min::DISP(&ps::s), min::DISP(&ps::pv), min::DISP_END };
-
-static min::packed_struct<ps> pstype
-    ( "pstype", ps_gen_disp, ps_stub_disp );
-
-main ( ... )
-{
-    . . . . . . .
-    min::gen v1 = pstype.new_gen();
-	// min::packed_subtype_of ( v1 ) == pstype.subtype
-    psupdptr upv ( v1 );
-	// min::packed_subtype_of ( upv ) == pstype.subtype
-    upv->i = 55;
-    upv->j = 99;
-    upv->g = min::new_str_gen ( "Hello" );
-
-    psptr pv = upv;
-    // Upv is converted to a `const min::stub *' value
-    // that is used to set pv.
-
-    upv->pv = pv;
-    upv = pstype.new_gen();
-    // Now upv->i == 0, pv->i == 55, pv->pv->i == 55,
-    //     upv->pv == min::NULL_STUB
-
-    . . . . . . .
-}
-\end{verbatim}\end{indpar}
-
-Packed structure pointers do no caching and
-there is \underline{no need} for
-a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
-functions for list pointers (\pagref{LIST-POINTER-CACHE}).
-
-\subsection{Packed Vectors}
-\label{PACKED-VECTORS}
-
-A \key{packed vector} is like a packed structure but with an added vector
-that follows the structure at the beginning of the packed vector body.
-The structure is called the packed vector \mkey{header}{of packed vector}.
-Both the header and the vector elements must be C type data that can
-be initialized by setting their bytes to all zeros and can be copied
-by \verb|memcpy|.
-\verb|min::gen| and \verb|min::stub *| values are permitted as members
-of \verb|struct|s or as vector element types by themselves.
-C++ classes are not permitted, as the types must \underline{not}
-have constructors or destructors and must be copyable with
-a simple `{\tt =}' operator or with the \verb|memcpy| function.
-
-The C type of a packed vector header, like that of a packed structure,
-must be a
-C \verb|struct| whose first member is
-\begin{indpar}
-\verb|const min::uns32 control;|
-\end{indpar}
-The header must also have the following two other members,
-at no particular offset:
-\begin{indpar}
-\verb|const min::uns32 length;| \\
-\verb|const min::uns32 max_length;|
-\end{indpar}
-
-The C type of a packed vector element may but need not be a `\verb|struct|';
-it can be a numeric or pointer type or \verb|min::gen|.
-
-There are also three pointer-to-packed-vector types:
-\begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
-\verb|min::packed_vec_ptr<E,H>| & \verb|min::packed_vec<E,H>::ptr| \\
-\verb|min::packed_vec_updptr<E,H>| & \verb|min::packed_vec<E,H>::updptr| \\
-\verb|min::packed_vec_insptr<E,H>| & \verb|min::packed_vec<E,H>::insptr|
-\end{tabular}\end{indpar}
-where \verb|H| is the C type of the packed vector header struct and
-\verb|E| is the C type of the packed vector element.
-The first \mkey{read-only pointer}{to packed vector} type
-permits read-only access to packed structure members,
-the second \mkey{updatable pointer}{to packed vector} type
-permits read-write access, while the
-the third \mkey{insertable pointer}{to packed vector} type
-permits read-write access \underline{and}
-also permits pushing and popping vector elements
-and resizing the vector.
-These pointers are like the type `\verb|const min::stub *|' but with with extra
-clothes.
-Pointers of these types can also be included as members in C packed structures
-and packed vector headers and elements.
-
-A packed vector type is described at run-time by a
-{\tt min::packed\_\EOL vec\EHARG} C++ static object, where
-\verb|H| is the C type of the packed vector header and \verb|E| is the C type
-of the packed vector element.
-The {\tt new\_gen} and {\tt new\_stub}
-member functions of this C++ static object can be
-used to create new packed vectors of the described type.
-
-More explicitly, to create a new type of \key{packed vector}
-named \verb|pvtype| use
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{packed\_vec\_header}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  const min::uns32 control;|\ARGBREAK
-    \verb|  const min::uns32 length;|\ARGBREAK
-    \verb|  const min::uns32 max_length;|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::PACKED_VEC_HEADER} \\
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\EARGDEFAULT}{packed\_vec\EARG}
-	      \verb|pvtype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
-	  \verb|                            = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL )|
-\LABEL{MIN::PACKED_VEC} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
-		\verb|pvtype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
-	  \verb|                            = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL )|
-\LABEL{MIN::PACKED_VEC_WITH_BASE} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen pvtype|
-    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}} \verb|( void )|
-\LABEL{PACKED_VEC_NEW_GEN_VOID} \\
-\verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}} \verb|( void )|
-\LABEL{PACKED_VEC_NEW_STUB_VOID} \\
-\verb|min::gen pvtype|
-    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
-	  \verb| ( min::uns32 max_length,|\ARGBREAK
-	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   const E * vp = NULL )|
-\LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
-\verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
-	  \verb| ( min::uns32 max_length,|\ARGBREAK
-	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   const E * vp = NULL )|
-\LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const char * const pvtype| & \TTDMKEY{subtype}{in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_SUBTYPE} \\
-\verb|const char * const pvtype| & \TTDMKEY{name}{in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_NAME} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL gen\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL stub\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL gen\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL stub\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
-\verb|min::uns32 pvtype| & \TTDMKEY{initial\_max\_length}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_INITIAL_MAX_LENGTH} \\
-\verb|min::float64 pvtype| & \TTDMKEY{increment\_ratio}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_INCREMENT_RATIO} \\
-\verb|min::uns32 pvtype| & \TTDMKEY{max\_increment}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_MAX_INCREMENT} \\
-\end{tabular}\end{indpar}
-
-where
-
-\begin{itemlist}[0.5in]
-
-\item[{\tt E}]\label{PACKED_VEC_ELEMENT_TYPE}
-The C type of the elements in the vector part of the
-bodies of packed vectors of the type being
-declared.  This need not be a \verb|struct| type; it can
-be \verb|min::gen|, \verb|min::stub *|,
-any pointer-to-packed-struct or pointer-to-packed-vector
-type, or any numeric type.
-
-\item[{\tt H}]\label{PACKED_VEC_HEADER_TYPE}
-The C \verb|struct| type of the header data at the beginning of the
-bodies of packed vectors of the type being
-declared.  The first member of this \verb|struct| type must be
-\begin{indpar}
-\verb|const min::uns32 control;|
-\end{indpar}
-and the \verb|struct| type must also have the two members
-\begin{indpar}
-\verb|const min::uns32 length;| \\
-\verb|const min::uns32 max_length;|
-\end{indpar}
-These members are initialized by \verb|new_gen| or \verb|new_stub|
-and must not
-be changed by the user.
-
-\verb|H| defaults to \verb|min::packed_vec_header| which
-has just the require header members: \verb|control|, \verb|length|, and
-{\tt max\_\EOL length}.  Because of this default,
-\verb|H| is the \underline{second} template parameter,
-even though is preceeds the vector elements in memory.
-
-Only C language syntax may be used in defining the type {\tt H},
-except that a single base type may be be used, as in
-\begin{indpar}\begin{verbatim}
-struct H : public struct B { ... }
-\end{verbatim}\end{indpar}
-provided that {\tt B} is also a C language structure in this sense.
-In this case {\tt H} does
-\underline{not} have a `{\tt control}' member, as
-the `{\tt control}' member of {\tt B} serves as
-the `{\tt control}' member of {\tt H}.  The `{\tt length}' and
-`{\tt max\_length}' members may be in either {\tt H} or {\tt B}.
-
-\item[{\tt B}]
-The C type of the base of {\tt H}, as indicated above.  If {\tt B}
-is also the type of a packed \underline{structure} body, use
-{\tt packed\_\EOL vec\_\EOL with\_\EOL base\BRACKETED{E,H,B}}
-in order to enable conversion of
-{\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr<E,H>} pointers
-to {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr<B>}
-pointers.
-
-Note that {\tt B} must be the type of a packed
-structure and \underline{not} of a packed vector header.
-
-\end{itemlist}
-
-\begin{itemlist}[1.0in]
-
-\item[\ttmkey{subtype}{in {\tt min::packed\_vec}}]
-A small integer automatically assigned to uniquely identify \verb|pvtype|.
-This is stored in the `{\tt control}' member of all packed
-vectors that are created by {\tt pvtype.new\_\EOL gen} or
-{\tt pvtype.new\_\EOL stub}, and serves as a pointer from any
-of these packed vectors to \verb|pvtype|.
-
-\item[\ttmkey{name}{in {\tt min::packed\_vec}}]
-A name unique to the \verb|pvtype| datum, typically the
-fully qualified name of this datum.  This character string may
-be output to identify the packed vector type when a packed vector is
-output.
-
-\end{itemlist}
-
-\begin{itemlist}[1.6in]
-
-\item[\ttmkey{header\_\EOL gen\_\EOL disp}{in {\tt min::packed\_vec}}]
-This C vector is a list of the displacements (in bytes) of all
-the \verb|min::gen| members of \verb|H|,
-terminated by the value {\tt min::DISP\_\EOL END}\minindex{DISP\_END}.
-This displacements vector should not
-be given (its address should be \verb|NULL|) if there are no \verb|min::gen|
-values in \verb|H|.  But if there are \verb|min::gen| members, this
-displacements vector must be given for garbage collection purposes.
-
-\item[\ttmkey{header\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
-Ditto but for \verb|min::stub *| members of \verb|H|.
-See \pagref{STUB_DISP} for more details.
-
-\item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
-Ditto but for \verb|min::gen| members of \verb|E|.
-
-\item[\ttmkey{element\_\EOL stub\_\EOL disp}{in {\tt min::packed\_vec}}]
-Ditto but for \verb|min::stub *| members of \verb|E|.
-See \pagref{STUB_DISP} for more details.
-
-\end{itemlist}
-
-\verb|pvtype.name|,~~
-{\tt pvtype.header\_\EOL gen\_\EOL disp},
-{\tt pvtype.header\_\EOL stub\_\EOL ptr\_\EOL disp},
-~~{\tt pvtype.ele\-\EOL ment\_\EOL gen\_\EOL disp},
-and {\tt pvtype.ele\-\EOL ment\_\EOL stub\_\EOL ptr\_\EOL disp}
-can be used to retrieve the name and displacement
-information associated with \verb|pvtype|.
-In addition the parameters
-{\tt pvtype.ini\-tial\_\EOL max\_\EOL length},
-{\tt pvtype.increment\_\EOL ratio}, and
-{\tt pvtype.max\_\EOL increment}
-may be set by the user:
-
-
-\begin{itemlist}[1.5in]
-
-\item[\ttmkey{initial\_max\_length}{in {\tt min::packed\_vec}}]
-The maximum length of a packed vector newly created by calling the
-\verb|pvtype.new_gen| or \verb|pvtype.new_stub|
-function with no arguments.  Defaults to \verb|128|.
-
-\item[\ttmkey{increment\_ratio}{in {\tt min::packed\_vec}}]
-The \verb|min::reserve| function multiplies the old maximum length by
-this ratio to get the maximum length increment: see formula on
-\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|0.5|.
-
-\item[\ttmkey{max\_increment}{in {\tt min::packed\_vec}}]
-The maximum increment of the maximum length computable by the
-\verb|min::reserve| function: see formula on
-\pagref{PACKED-VEC-EXPANSION-FORMULA}.  Defaults to \verb|4096|.
-
-\end{itemlist}
-
-The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
-function creates a new packed vector
-datum of the C type described by \verb|pvtype| and returns a
-\verb|min::gen| or \verb|const min::stub *|
-value pointing at it.  A packed vector has a
-\mkey{length}{of packed vector} which is the number of elements
-currently in the packed vector.  It also has a
-\mkey{maximum length}{of packed vector} which is the maximum length
-allowed before the packed vector must be reallocated.
-The \verb|pvtype.new_gen| or \verb|pvtype.new_stub|
-function may be given the maximum length
-and length and a vector of length type \verb|E| elements that is copied
-to the initial value of the packed vector.
-If the vector \verb|vp| of initial elements is given as \verb|NULL|,
-the initial elements will be zeros.
-If no parameters are given to
-\verb|pvtype.new_gen| or \verb|pvtype.new_stub|,
-the length defaults to \verb|0| and
-the maximum length defaults to {\tt pvtype.initial\_\EOL max\_\EOL length}.
-
-A newly created packed vector is set to all zeros, except for its
-`{\tt control}', `{\tt length}', and `{\tt max\_\EOL length}' members.
-
-The subtype of a packed vector can be retrieved by
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{PACKED_VEC_SUBTYPE_OF_GEN} \\
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{PACKED_VEC_SUBTYPE_OF_STUB} \\
-\end{tabular}\end{indpar}
-
-when the argument is a value returned by {\tt pvtype.new\_\EOL gen}
-or {\tt pvtype.new\_\EOL stub}.
-Here the subtype is computed by looking in the
-`{\tt control}' member of the packed vector.  Packed structures
-also have subtypes that can be discovered by
-{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
-(see \pagref{PACKED_STRUCT_SUBTYPE_OF_GEN}),
-but no packed vector
-has the same subtype as any packed structure.
-
-There are three kinds of pointers that can be used to access
-a packed vector, and these have the usage:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
-	      \verb|pvp|\ARGBREAK
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
-	      \verb|pvp|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_ptr\EARGDEFAULT}{packed\_vec\_ptr\EARG}
-	      \verb|pvp|\ARGBREAK
-	  \verb| ( void )|
-\LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_ptr|{\tt \EHARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHARG::ptr}
-\LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::packed_vec_ptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
-	& \verb| ( min::packed_vec_ptr<E,H>|\\
-	& \verb|        & pvp,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_VEC_PTR_OF_GEN} \\
-\verb|min::packed_vec_ptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
-	& \verb| ( min::packed_vec_ptr<E,H>|\\
-	& \verb|        & pvp,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_VEC_PTR_OF_STUB} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-	& \TTOMKEY{min::stub}{const min::stub *}%
-	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-          \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
-\LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|const H * |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
-\LABEL{MIN::PACKED_VEC_PTR_->} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_[]} \\
-\verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
-	          {packed\_vec\_updptr\EARG}
-	      \verb|pvup|\ARGBREAK
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
-	          {packed\_vec\_updptr\EARG}
-	      \verb|pvup|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_updptr\EARGDEFAULT}%
-	          {packed\_vec\_updptr\EARG}
-	      \verb|pvup|\ARGBREAK
-	               \verb|( void )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_updptr|{\tt \EHARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHARG::updptr}
-\LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::packed_vec_updptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
-	& \verb| ( min::packed_vec_updptr<E,H>|\\
-	& \verb|        & pvup,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_GEN} \\
-\verb|min::packed_vec_updptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
-	& \verb| ( min::packed_vec_updptr<E,H>|\\
-	& \verb|        & pvup,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-	& \TTOMKEY{min::stub}{const min::stub *}%
-	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
-          \verb| ( const min::packed_vec_updptr<E,H> & pvup )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_TO_MIN_STUB} \\
-\verb|H * |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
-	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
-	  \verb|      & pvup )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::uns32 pvup|
-    & \TTARMKEY{length}{in {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
-\verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
-\verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
-	          {packed\_vec\_insptr\EARG}
-	      \verb|pvip|\ARGBREAK
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
-	          {packed\_vec\_insptr\EARG}
-	      \verb|pvip|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINIKEY{packed\_vec\_insptr\EARGDEFAULT}%
-	          {packed\_vec\_insptr\EARG}
-	      \verb|pvip|\ARGBREAK
-	   \verb|( void )|
-\LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_insptr|{\tt \EHARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHARG::insptr}
-\LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::packed_vec_insptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
-	& \verb| ( min::packed_vec_insptr<E,H>|\\
-	& \verb|        & pvip,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_GEN} \\
-\verb|min::packed_vec_insptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
-	& \verb| ( min::packed_vec_insptr<E,H>|\\
-	& \verb|        & pvip,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-	& \TTOMKEY{min::stub}{const min::stub *}%
-	          {of {\tt min::packed\_vec\_insptr}}\ARGBREAK
-          \verb| ( const min::packed_vec_insptr<E,H> & pvip )|
-\LABEL{MIN::PACKED_VEC_INSPTR_TO_MIN_STUB} \\
-\verb|H * |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_vec\_insptr}}\ARGBREAK
-	  \verb| ( const min::packed_vec_insptr<E,H>|\ARGBREAK
-	  \verb|      & pvip )|
-\LABEL{MIN::PACKED_VEC_INSPTR_->} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::uns32 pvip|
-    & \TTARMKEY{length}{in {\tt min::packed\_vec\_insptr}}
-\LABEL{MIN::PACKED_VEC_INSPTR_LENGTH} \\
-\verb|const min::uns32 pvip|
-    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
-\LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
-\verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
-\LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
-\verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
-\LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|E & min::|
-	& \MINKEY{push}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip )|
-\LABEL{MIN::PACKED_VEC_PUSH} \\
-\verb|E & min::|
-	& \MINKEY{push}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, const E * vp = NULL )|
-\LABEL{MIN::PACKED_VEC_PUSH_N} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|E min::|
-	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip )|
-\LABEL{MIN::PACKED_VEC_POP} \\
-\verb|void min::|
-	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, E * vp = NULL )|
-\LABEL{MIN::PACKED_VEC_POP_N} \\
-\end{tabular}\end{indpar}
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::|
-	& \MINKEY{resize}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 max_length )|
-\LABEL{MIN::PACKED_VEC_RESIZE} \\
-\verb|void min::|
-	& \MINKEY{reserve}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 reserve_length )|
-\LABEL{MIN::PACKED_VEC_RESERVE} \\
-\end{tabular}\end{indpar}
-
-As for packed structures, packed vector pointers used as the left
-operand of \verb|->| are converted to
-`\verb|const H *|' or
-`\verb|H *|'.  This can be used to access the `\verb|length|'
-and \verb|max_length| members of the header.
-
-In addition subscripting packed vector
-pointers gives access to the elements of the vector.  The subscripting
-operator \verb|[]| checks the index \verb|i| against the current length
-of the vector to ensure the access is legal (e.g., \verb|pvp[i]|
-checks \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|).
-The vector elements in a
-packed vector are organized as a C language vector so that
-\begin{center}
-\verb|(& pvp[0])[i]| is the same as \verb|pvp[i]|
-\end{center}
-but the vector elements are stored in body whose address can change
-if a relocating function is called, so saving C pointers to packed vector
-elements is generally a bad idea.  However, temporary use within a single
-statement is all right if the statement does not call a relocating
-function.  For example, \verb|memcpy| can be used as follows to copy
-from or to the vector:
-\begin{indpar}\begin{verbatim}
-memcpy ( ..., & pvp[0], sizeof ( E ) * pvp->length );
-memcpy ( & pvup[0], ..., sizeof ( E ) * pvp->length );
-\end{verbatim}\end{indpar}
-
-\verb|pvp.end_ptr()| is the same as `\verb|& pvp[pvp->length]|'
-except the latter would fail because the index is not less than
-\verb|pvp->length|.  This member function is only useful
-in code that does not call a relocating function.
-
-Insertable packed vector pointers permit the current length and maximum
-length of the vector to be changed.
-The current vector length is \verb|pvp->length| and the maximum
-length is \verb|pvp->max_length| (see description of \verb|H| on
-\pagref{PACKED_VEC_HEADER_TYPE}).
-The current length can be changed by {\tt min::\EOL push} and
-{\tt min::\EOL pop} functions and the maximum length can be changed
-by {\tt min::\EOL resize} and {\tt min::\EOL reserve} functions.  If
-{\tt min::\EOL push} needs more space it automatically calls
-{\tt min::reserve}.
-
-The \verb|min::push| function adds elements
-to the end of the packed vector
-by incrementing the current vector length, and if this would
-exceed the maximum length, first calls the \verb|min::reserve| function
-with the number of elements to be pushed.
-The single argument {\tt min::\EOL push} adds one element to the vector,
-zeros that element, and returns a reference to the element.  The
-intended use is
-\begin{indpar}\begin{verbatim}
-push(pvip) = v;
-\end{verbatim}\end{indpar}
-where \verb|v| is the element to be added to the vector.
-The two or three argument {\tt min::\EOL push} adds {\tt n}
-elements to the vector, and fills the new elements from {\tt vp}
-if that is not {\tt NULL}, or with zeros otherwise.
-If \verb|vp| is not \verb|NULL|,
-new elements are placed within the packed vector in the same
-memory order as they appear in the \verb|vp| vector.
-In any case a reference to the first element pushed is
-returned (this is \verb|(E *) NULL| if \verb|n == 0|),
-so
-\begin{indpar}\begin{verbatim}
-E * p = & push(pvip,n);
-\end{verbatim}\end{indpar}
-can be used to obtain a pointer \verb|p| to the \verb|n| element
-vector of new elements within the packed vector.  This pointer
-becomes invalid, of course, when a relocating function is called.
-Note that the index of the first element pushed is always the
-value of \verb|pvip->|\EOL {\tt length} just before
-{\tt min::\EOL push} is called.
-
-The \verb|min::pop| function removes elements from the end of the
-packed vector, decrementing the current vector length (which is checked
-to be sure it is large enough).   A single element may be removed and
-returned, or \verb|n| elements may be removed and returned in the
-\verb|vp| vector.  In the latter case removed elements are placed in
-\verb|vp| in the same memory order as they appeared in the packed vector.
-Also,
-if \verb|vp| is \verb|NULL|, the removed elements are simply discarded
-instead of being copied.
-
-The \verb|min::resize| function resets the maximum length.  If
-the current length would be larger than the new maximum length,
-the current length is reset to the new maximum length.
-
-The \verb|min::reserve| function checks that
-the current length plus the \verb|reserve_length| is
-at most the maximum length, and if this check fails,
-resets the maximum length according to the formula:
-\begin{indpar}\begin{verbatim}
-new_maximum_length = max ( length + reserve_length,
-                           old_maximum_length
-                           +
-                           min ( pvtype.max_increment,
-                                   pvtype.increment_ratio
-                                 * old_maximum_length ) )
-\end{verbatim}\end{indpar}\label{PACKED-VEC-EXPANSION-FORMULA}
-
-An example use of a packed vector is:
-\begin{indpar}\begin{verbatim}
-struct pvh;
-struct pve;
-typedef min::packed_vec_ptr<pvh,pve> pvptr;
-typedef min::packed_vec_insptr<pvh,pve> pvinsptr;
-    // Note: pointer types may be defined before
-    //       header and element types are defined.
-
-struct pvh {
-    const min::uns32 control;
-          min::uns32 i;
-    const min::uns32 length;
-    const min::uns32 max_length;
-};
-
-struct pve {
-    min::gen g;
-    min::stub * s;
-    min::uns8 j;
-};
-
-static min::uns32 pve_gen_disp[2] =
-    { 0, min::DISP_END };
-static min::uns32 pve_stub_disp[2] =
-    { 0 + sizeof ( min::gen ), min::DISP_END };
-
-static min::packed_vec<pve,pvh> pvtype
-    ( "pvtype", pve_gen_disp, pve_stub_disp );
-
-main ( ... )
-{
-    min::gen v = pvtype.new_gen ( 5 );
-        // min::packed_subtype_of ( v ) == pvtype.subtype
-    pvinsptr pvip ( v );
-        // pvip->max_length == 5
-        // pvip->length == 0
-        // min::packed_subtype_of ( pvip ) == pvtype.subtype
-    pve e1 = { min::MISSING, NULL, 88 };
-    min::push ( pvip, e1 );
-    pvptr pvp ( v );
-        // pvip->length == 1
-        // pvp[1].j == 11
-
-    pve e2[3] = { { min::MISSING, NULL, 11 },
-                  { min::MISSING, NULL, 22 },
-                  { min::MISSING, NULL, 33 } };
-    min::push ( pvip, 3, e2 );
-        // pvp[1].j == 11
-        // pvp[2].j == 22
-        // pvp[3].j == 33
-
-    min::resize ( pvip, 10 );
-        // pvp->max_length == 10
-
-    pve e3, e4[3];
-    e3 = min::pop ( pvip );
-        // e3[0].j == 33
-        // pvp->length == 3
-    min::pop ( pvip, 2, e4 );
-        // e4[0].j == 11
-        // e4[1].j == 22
-    e3 = min::pop ( pvip );
-        // 3e.j == 88
-}
-\end{verbatim}\end{indpar}
-
-Packed vector pointers do no caching and
-there is \underline{no need} for
-a refresh function analogous to the {\tt min::\EOL \ldots\_\EOL refresh}
-functions for list pointers (\pagref{LIST-POINTER-CACHE}).
-
 
 \section{Code and Execution}
 
