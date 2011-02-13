@@ -4335,6 +4335,115 @@ functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 
 
 
+\subsection{Files}
+\label{FILES}
+
+A MIN file is a sequence of UTF-8 encoded NUL-terminated
+lines plus descriptive information.  A {\tt min::}\MINKEY{file} value is a
+pointer to a packed structure that contains the descriptive information
+and also contains
+a pointer to a packed {\tt char} vector that contains the lines.
+
+Creation, initialization, and parameterization of files is
+accomplished by the following:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::|
+	& \verb|packed_struct_updptr<min::file_struct>|\ARGBREAK
+	  \verb|    min::|\MINKEY{file}
+\LABEL{MIN::FILE} \\
+\verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
+\LABEL{MIN::ALL_LINES} \\
+\verb|void min::| & \MINKEY{init}\verb| ( min::file & file )|
+\LABEL{MIN::INIT_FILE} \\
+\verb|void min::|
+    & \MINKEY{init}
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::uns32 printer_flags )|
+\LABEL{MIN::INIT_FILE_WITH_PRINTER_FLAGS} \\
+\verb|void min::|
+    & \MINKEY{init\_output\_ostream}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   std::ostream & ostream,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|\ARGBREAK
+\LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_input\_istream}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   std::istream & istream,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES,|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|\ARGBREAK
+\LABEL{MIN::INIT_INPUT_ISTREAM_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_input\_file}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::gen filename,|\ARGBREAK
+	  \verb|   min::printer & printer )|
+\LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_input\_string}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   const char * data,|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|
+\LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::packed_vec_insprt<char> file| & \TTARMKEY{buffer}{in {\tt min::file}}
+\LABEL{MIN::FILE_BUFFER} \\
+\verb|min::uns32 file| & \TTARMKEY{buffer-\GT length}{in {\tt min::file}}
+\LABEL{MIN::FILE_BUFFER_LENGTH} \\
+\verb|min::uns32 file| & \TTARMKEY{line}{in {\tt min::file}}
+\LABEL{MIN::FILE_LINE} \\
+\verb|min::uns32 file| & \TTARMKEY{line\_\EOL offset}{in {\tt min::file}}
+\LABEL{MIN::FILE_LINE_OFFSET} \\
+\verb|min::uns32 file| & \TTARMKEY{output\_offset}{in {\tt min::file}}
+\LABEL{MIN::FILE_OUTPUT_OFFSET} \\
+\verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
+\LABEL{MIN::FILE_SPOOL_LINES} \\
+\verb|min::packed_vec_insptr<min::uns32} file|
+    & \TTARMKEY{line\_index}{in {\tt min::file}}
+\LABEL{MIN::FILE_LINE_INDEX} \\
+\verb|std::istream file| & \TTARMKEY{istream}{in {\tt min::file}}
+\LABEL{MIN::FILE_ISTREAM} \\
+\verb|std::ostream file| & \TTARMKEY{ostream}{in {\tt min::file}}
+\LABEL{MIN::FILE_OSTREAM} \\
+\verb|min::gen file| & \TTARMKEY{filename}{in {\tt min::file}}
+\LABEL{MIN::FILE_FILENAME} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::}\MINKEY{init\ldots} functions all re-initialize existing
+files and create new ones.  They take a variable as their
+first argument, and if the variable value is {\tt min::\EOL
+NULL\_\EOL STUB}, then a new file is created and the
+variable is set to point at the new file.
+The different forms of {\tt min::\EOL init\ldots} set different
+file members.
+
+The members of a printer may be read but \underline{not} written, unless
+noted below.  They are:
+
+\begin{itemlist}[0.8in]
+
+\item[\ttmkey{length}{in {\tt min::file}}]
+The number of {\tt char} elements in the file vector
+(as per the printer being a packed vector: see \itemref{PACKED-VECTORS}).
+Initialized to {\tt 0}.
+
+\item[\ttmkey{line}{in {\tt min::file}}]
+The number of the line currently being assembled, or of the next line if 
+the printer vector ends with a line-terminating {\tt NUL}.  The
+first line number is {\tt 0}.  Initialized to {\tt 0}.
+
+\item[\ttmkey{column}{in {\tt min::file}}]
+The number of columns currently in the line being assembled,
+or the column number of the next character to be input to the
+printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
+
+\end{itemlist}
+
+
 \subsection{Printers}
 \label{PRINTERS}
 
