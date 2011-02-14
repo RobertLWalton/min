@@ -206,7 +206,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 13, 2011}
+\date{February 14, 2011}
  
 \maketitle
 
@@ -4436,6 +4436,8 @@ accomplished by the following:
 \LABEL{MIN::FILE_OSTREAM} \\
 \verb|min::printer file| & \TTARMKEY{printer}{in {\tt min::file}}
 \LABEL{MIN::FILE_PRINTER} \\
+\verb|min::file file| & \TTARMKEY{ofile}{in {\tt min::file}}
+\LABEL{MIN::FILE_OFILE} \\
 \verb|min::gen file| & \TTARMKEY{filename}{in {\tt min::file}}
 \LABEL{MIN::FILE_FILENAME} \\
 \end{tabular}\end{indpar}
@@ -4513,8 +4515,9 @@ also automatically created if {\tt spool\_\EOL lines} is \underline{neither}
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 The buffer is only required to retain the last {\tt spool\_\EOL lines}
-of a file.  If there are more lines, then when new lines are inserted
-the buffer may delete older lines from the beginning of the buffer.
+of a file.  If there are more lines, then when new lines are output
+from the buffer by {\tt min::\EOL next\_\EOL line} or {\tt min::\EOL flush}
+older lines previously output may be removed from the beginning of the buffer.
 When a line is deleted from the beginning of the buffer, any
 corresponding element is deleted from {\tt line\_\EOL index}.
 
@@ -4554,14 +4557,43 @@ File lines are to be printed with these
 any {\tt min::AUTOBREAK\_\EOL FLAG}.
 
 \item[\ttmkey{istream}{in {\tt min::file}}]
+If not {\tt NULL}, the {\tt min::\EOL next\_\EOL line} function
+reads lines from this {\tt std::\EOL istream} when it finds
+there is no line to return to its caller.
 
 \item[\ttmkey{ifile}{in {\tt min::file}}]
+If not {\tt min::NULL\_STUB}, the {\tt min::\EOL next\_\EOL line} function
+reads lines from this {\tt min::\EOL file} when it finds
+there is no line to return to its caller.
+
+Note that it is illegal for {\tt istream != NULL}
+and {\tt ifile != NULL\_\EOL STUB}.
 
 \item[\ttmkey{ostream}{in {\tt min::file}}]
+If not {\tt NULL}, the {\tt min::\EOL flush} function
+outputs complete lines to this {\tt std::\EOL ostream} when it finds
+there are complete lines not yet output.
 
 \item[\ttmkey{printer}{in {\tt min::file}}]
+If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
+outputs complete lines to this {\tt min::\EOL printer} when it finds
+there are complete lines not yet output.  The lines are output
+with the printer {\tt min::\EOL ASCII\_\EOL FLAG} and
+{\tt min::\EOL GRAPHICS\_\EOL FLAG} turned off, and the line-terminating
+NUL is translated into sending {\tt min::eol} to the printer.
+
+\item[\ttmkey{ofile}{in {\tt min::file}}]
+If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
+outputs complete lines to this {\tt min::\EOL file} when it finds
+there are complete lines not yet output.
+The lines are simply appended to the end of the file, and
+for each line-terminating NUL,
+{\tt min::\EOL line\_\EOL end~(~ofile~)} is called.
 
 \item[\ttmkey{filename}{in {\tt min::file}}]
+If not {\tt min::MISSING}, this
+is the name of this file for the purpose of printing error messages
+concerning file lines.
 
 \end{itemlist}
 
@@ -4570,16 +4602,34 @@ any {\tt min::AUTOBREAK\_\EOL FLAG}.
 \verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
 \LABEL{MIN::NO_LINE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{next\_line} \verb| ( min::file & file )|
+    & \MINKEY{next\_line}\verb| ( min::file & file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
 \verb|min::uns32 min::|
     & \MINKEY{line}
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::uns32 line )|
 \LABEL{MIN::LINE_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{end\_line}\verb| ( min::file & file )|
+\LABEL{MIN::END_LINE_FILE} \\
+\verb|void min::|
+    & \MINKEY{end\_line}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::uns32 offset )|
+\LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush} \verb| ( min::file & file )|
+    & \MINKEY{flush}\verb| ( min::file & file )|
 \LABEL{MIN::FLUSH_FILE} \\
+\verb|min::uns32 min::|
+    & \MINKEY{flush}\verb| ( min::file & file,|\\&{\tt ~~~~}
+                    \verb|   min::uns32 offset )|
+\LABEL{MIN::FLUSH_FILE_WITH_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -4593,6 +4643,9 @@ any {\tt min::AUTOBREAK\_\EOL FLAG}.
     \verb| ( min::file & file,|\ARGBREAK
     \verb|   min::uns32 first, min::use32 last )|
 \LABEL{MIN::PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
