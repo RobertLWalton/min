@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 11 08:16:49 EST 2011
+// Date:	Mon Feb 14 08:38:16 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,6 +36,7 @@
 //	Names
 //	Packed Structures
 //	Packed Vectors
+//	Files
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -4685,6 +4686,106 @@ void min::packed_vec_insptr<E,H>::reserve
     internal::packed_vec_resize
 	( this->s, pvdescriptor, new_length );
 }
+// Files
+// -----
+
+namespace min {
+
+    struct printer_header;
+    typedef packed_vec_insptr<char,printer_header>
+        printer;
+}
+
+namespace min {
+
+    struct file_struct;
+    typedef min::packed_struct_updptr<file_struct> file;
+
+    struct file_struct
+    {
+        const min::uns32 control;
+
+	min::packed_vec_insptr<char> buffer;
+	min::uns32 line;
+	min::uns32 line_offset;
+	min::uns32 output_offset;
+	min::packed_vec_insptr<min::uns32> line_index;
+
+	min::uns32 spool_lines;
+	min::uns32 print_flags;
+
+	std::istream * istream;
+	min::file      ifile;
+	std::ostream * ostream;
+	min::printer   printer;
+	min::file      ofile;
+	min::gen       filename;
+    };
+
+    const min::uns32 ALL_LINES = 0xFFFFFFFF;
+    const min::uns32 NO_LINE   = 0xFFFFFFFF;
+
+    min::uns32 new_line ( min::file & file );
+    min::uns32 line
+	    ( min::file & file,
+	      min::uns32 line_number );
+    inline min::uns32 end_line ( min::file & file )
+    {
+        min::push(file->buffer) = 0;
+	++ file->line;
+	if ( file->line_index != NULL_STUB )
+	    min::push(file->line_index) =
+	        file->line_offset;
+	file->line_offset = file->buffer->length;
+    }
+    inline min::uns32 end_line
+	    ( min::file & file, min::uns32 offset )
+    {
+	assert ( offset >= file->line_offset );
+        file->buffer[offset] = 0;
+	++ file->line;
+	if ( file->line_index != NULL_STUB )
+	    min::push(file->line_index) =
+	        file->line_offset;
+	file->line_offset = offset + 1;
+    }
+    min::uns32 flush ( min::file & file );
+    min::uns32 flush
+	    ( min::file & file, min::uns32 offset );
+    min::uns32 rewind
+	    ( min::file & file, min::uns32 offset = 0 );
+
+    struct pline
+    {
+        min::file & file;
+	min::uns32 line;
+	const char * blank_line;
+	pline ( min::file & file, min::uns32 line,
+	        const char * blank_line =
+		    "<BLANK-LINE>" )
+	    : file ( file ), line ( line ),
+	      blank_line ( blank_line ) {}
+    };
+
+    struct pline_numbers
+    {
+        min::file & file;
+	min::uns32 first, last;
+	pline_numbers ( min::file & file,
+	                min::uns32 first,
+			min::uns32 last )
+	    : file ( file ),
+	      first ( first ), last ( last ) {}
+    };
+}
+
+min::printer & operator <<
+        ( min::printer & printer,
+	  const min::pline & pline );
+
+min::printer & operator <<
+        ( min::printer & printer,
+	  const min::pline & pline_numbers );
 
 // Objects
 // -------
@@ -8770,10 +8871,6 @@ namespace min {
 // --------
 
 namespace min {
-
-    struct printer_header;
-    typedef packed_vec_insptr<char,printer_header>
-        printer;
 
     struct printer_format
     {
