@@ -4368,12 +4368,36 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
+    & \MINKEY{init\_spool\_lines}\verb| ( min::file & file,|\\&
+             {\tt ~~~~~~~~~~~~~~}\verb|   min::uns32 spool_lines )|
+\LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_line\_index}\verb| ( void )|
+\LABEL{MIN::INIT_LINE_INDEX_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
     & \MINKEY{init\_output\_ostream}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   std::ostream & ostream,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_output\_file}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::file & ofile,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|
+\LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_output\_printer}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::printer & printer,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|
+\LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -4384,24 +4408,31 @@ accomplished by the following:
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_INPUT_ISTREAM_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::gen filename,|\ARGBREAK
-	  \verb|   min::printer & printer )|
+	  \verb|   min::file & ifile,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES,|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{init\_input\_named\_file}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::gen filename,|\ARGBREAK
+	  \verb|   min::printer & err )|
+\LABEL{MIN::INIT_INPUT_FILE_OF_NAMED_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_input\_string}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   const char * data,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -4415,7 +4446,7 @@ accomplished by the following:
 \LABEL{MIN::FILE_LINE_OFFSET} \\
 \verb|min::uns32 file| & \TTARMKEY{output\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_OUTPUT_OFFSET} \\
-\verb|min::packed_vec_insptr<min::uns32} file|
+\verb|min::packed_vec_insptr<min::uns32> file|
     & \TTARMKEY{line\_index}{in {\tt min::file}}
 \LABEL{MIN::FILE_LINE_INDEX} \\
 \end{tabular}\end{indpar}
@@ -4457,7 +4488,7 @@ noted below.  They are:
 
 \item[\ttmkey{buffer}{in {\tt min::file}}]
 The vector of {\tt char}'s that contains the lines of the file.  Each
-line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated partial
+line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated incomplete
 last line may appear at the end of the buffer.
 
 Overlong encodings (i.e., encodings with more bytes than necessary)
@@ -4489,7 +4520,7 @@ is, this first line character is {\tt buffer[buffer->\EOL line\_\EOL offset]}.
 Initialized to {\tt 0}.
 
 \item[\ttmkey{output\_\EOL offset}{in {\tt min::file}}]
-The number of buffer elements that have already been
+The number of buffer {\tt char} elements that have already been
 output (e.g., sent the {\tt std::ostream}, read by
 {\tt min::\EOL next\_\EOL line}, etc.).  Equivalently, the
 offset in the buffer of the first {\tt char} element that has
@@ -4515,14 +4546,18 @@ also automatically created if {\tt spool\_\EOL lines} is \underline{neither}
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 The buffer is only required to retain the last {\tt spool\_\EOL lines}
-of a file.  If there are more lines, then when new lines are output
-from the buffer by {\tt min::\EOL next\_\EOL line} or {\tt min::\EOL flush}
-older lines previously output may be removed from the beginning of the buffer.
+of a file.  If there are more complete (i.e., terminated)
+lines, then when new lines are output
+from the buffer by {\tt min::\EOL next\_\EOL line} or {\tt min::\EOL flush},
+older complete lines previously
+output may be removed from the beginning of the buffer.
 When a line is deleted from the beginning of the buffer, any
 corresponding element is deleted from {\tt line\_\EOL index}.
 
 If {\tt line~<=~spool\_lines}, all file lines input so far are
-retained in the buffer.  If {\tt spool\_EOL lines~==~min::\EOL ALL\_\EOL lines}, all lines in the file are retained.
+retained in the buffer.
+If {\tt spool\_EOL lines~==~min::\EOL ALL\_\EOL lines},
+all lines in the file are retained.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]
 These are some of the printer {\tt parameters->\EOL flags} used to print
@@ -4566,29 +4601,30 @@ If not {\tt min::NULL\_STUB}, the {\tt min::\EOL next\_\EOL line} function
 reads lines from this {\tt min::\EOL file} when it finds
 there is no line to return to its caller.
 
-Note that it is illegal for {\tt istream != NULL}
-and {\tt ifile != NULL\_\EOL STUB}.
+Note that it is a programming error if {\tt istream != NULL}
+\underline{and} {\tt ifile != NULL\_\EOL STUB}.
 
 \item[\ttmkey{ostream}{in {\tt min::file}}]
 If not {\tt NULL}, the {\tt min::\EOL flush} function
-outputs complete lines to this {\tt std::\EOL ostream} when it finds
-there are complete lines not yet output.
+outputs buffer {\tt char} elements to this {\tt std::\EOL ostream} when it finds
+there are elements not yet output.
 
 \item[\ttmkey{printer}{in {\tt min::file}}]
 If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
-outputs complete lines to this {\tt min::\EOL printer} when it finds
-there are complete lines not yet output.  The lines are output
+outputs buffer {\tt char} elements
+to this {\tt min::\EOL printer} when it finds
+there are elements not yet output.  Non-NUL elements are output
 with the printer {\tt min::\EOL ASCII\_\EOL FLAG} and
 {\tt min::\EOL GRAPHICS\_\EOL FLAG} turned off, and the line-terminating
-NUL is translated into sending {\tt min::eol} to the printer.
+NUL elements are translated into sending {\tt min::eol} to the printer.
 
 \item[\ttmkey{ofile}{in {\tt min::file}}]
 If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
-outputs complete lines to this {\tt min::\EOL file} when it finds
-there are complete lines not yet output.
-The lines are simply appended to the end of the file, and
-for each line-terminating NUL,
-{\tt min::\EOL line\_\EOL end~(~ofile~)} is called.
+outputs buffer {\tt char} elements to this {\tt min::\EOL file} when it finds
+there are elements not yet output.
+Non-NUL elements are simply appended to the end of the {\tt ofile}, and
+line-terminating NUL elements are translated into calls to
+{\tt min::\EOL line\_\EOL end~(~ofile~)}.
 
 \item[\ttmkey{filename}{in {\tt min::file}}]
 If not {\tt min::MISSING}, this
@@ -4605,9 +4641,8 @@ concerning file lines.
     & \MINKEY{next\_line}\verb| ( min::file & file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{line}
-          \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::uns32 line )|
+    & \MINKEY{line}\verb| ( min::file & file,|\\&{\tt ~~~}
+	           \verb|   min::uns32 line )|
 \LABEL{MIN::LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -4616,9 +4651,8 @@ concerning file lines.
     & \MINKEY{end\_line}\verb| ( min::file & file )|
 \LABEL{MIN::END_LINE_FILE} \\
 \verb|void min::|
-    & \MINKEY{end\_line}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::uns32 offset )|
+    & \MINKEY{end\_line}\verb| ( min::file & file,|\\&{\tt ~~~~~~~}
+	                \verb|   min::uns32 offset )|
 \LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
 \end{tabular}\end{indpar}
 
@@ -4630,6 +4664,10 @@ concerning file lines.
     & \MINKEY{flush}\verb| ( min::file & file,|\\&{\tt ~~~~}
                     \verb|   min::uns32 offset )|
 \LABEL{MIN::FLUSH_FILE_WITH_OFFSET} \\
+\verb|min::uns32 min::|
+    & \MINKEY{rewind}\verb| ( min::file & file,|\\&{\tt ~~~~~~}
+                     \verb|   min::uns32 offset = 0 )|
+\LABEL{MIN::REWIND_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
