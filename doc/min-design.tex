@@ -4354,6 +4354,9 @@ accomplished by the following:
 \LABEL{MIN::FILE} \\
 \verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
 \LABEL{MIN::ALL_LINES} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{init}\verb| ( min::file & file )|
 \LABEL{MIN::INIT_FILE} \\
 \verb|void min::|
@@ -4361,26 +4364,38 @@ accomplished by the following:
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::uns32 printer_flags )|
 \LABEL{MIN::INIT_FILE_WITH_PRINTER_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_output\_ostream}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   std::ostream & ostream,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING )|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_istream}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   std::istream & istream,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING )|\ARGBREAK
+	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_INPUT_ISTREAM_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
 	  \verb|   min::printer & printer )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_string}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
@@ -4400,15 +4415,27 @@ accomplished by the following:
 \LABEL{MIN::FILE_LINE_OFFSET} \\
 \verb|min::uns32 file| & \TTARMKEY{output\_offset}{in {\tt min::file}}
 \LABEL{MIN::FILE_OUTPUT_OFFSET} \\
-\verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
-\LABEL{MIN::FILE_SPOOL_LINES} \\
 \verb|min::packed_vec_insptr<min::uns32} file|
     & \TTARMKEY{line\_index}{in {\tt min::file}}
 \LABEL{MIN::FILE_LINE_INDEX} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
+\LABEL{MIN::FILE_SPOOL_LINES} \\
+\verb|min::uns32 file| & \TTARMKEY{print\_flags}{in {\tt min::file}}
+\LABEL{MIN::FILE_PRINT_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::istream file| & \TTARMKEY{istream}{in {\tt min::file}}
 \LABEL{MIN::FILE_ISTREAM} \\
+\verb|min::file file| & \TTARMKEY{ifile}{in {\tt min::file}}
+\LABEL{MIN::FILE_IFILE} \\
 \verb|std::ostream file| & \TTARMKEY{ostream}{in {\tt min::file}}
 \LABEL{MIN::FILE_OSTREAM} \\
+\verb|min::printer file| & \TTARMKEY{printer}{in {\tt min::file}}
+\LABEL{MIN::FILE_PRINTER} \\
 \verb|min::gen file| & \TTARMKEY{filename}{in {\tt min::file}}
 \LABEL{MIN::FILE_FILENAME} \\
 \end{tabular}\end{indpar}
@@ -4421,28 +4448,164 @@ variable is set to point at the new file.
 The different forms of {\tt min::\EOL init\ldots} set different
 file members.
 
-The members of a printer may be read but \underline{not} written, unless
+The members of a file may be read but \underline{not} written, unless
 noted below.  They are:
 
-\begin{itemlist}[0.8in]
+\begin{itemlist}[1.3in]
 
-\item[\ttmkey{length}{in {\tt min::file}}]
-The number of {\tt char} elements in the file vector
-(as per the printer being a packed vector: see \itemref{PACKED-VECTORS}).
+\item[\ttmkey{buffer}{in {\tt min::file}}]
+The vector of {\tt char}'s that contains the lines of the file.  Each
+line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated partial
+last line may appear at the end of the buffer.
+
+Overlong encodings (i.e., encodings with more bytes than necessary)
+are considered legal.  Thus {\tt NUL} may be encoded as {\tt 0xC0},{\tt 0x80}
+(UTF-8 in which this is the \underline{only} permitted overlong encoding
+is called `modified UTF-8').
+Encodings of character codes up to $2^{32}-1$ are considered legal.
+The 7-byte encoding (first byte {\tt 0xFE})
+is allowed so that $2^{32}-1$ can be encoded.
+
+Initialized to the empty vector.
+
+\item[\ttmkey{buffer-\GT length}{in {\tt min::file}}]
+The number of {\tt char} elements in the file buffer
+(as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
 Initialized to {\tt 0}.
 
 \item[\ttmkey{line}{in {\tt min::file}}]
-The number of the line currently being assembled, or of the next line if 
-the printer vector ends with a line-terminating {\tt NUL}.  The
+The number of the line currently being assembled at the end of the
+{\tt buffer}, or of the next line if 
+the buffer ends with a line-terminating {\tt NUL}.  The
 first line number is {\tt 0}.  Initialized to {\tt 0}.
 
-\item[\ttmkey{column}{in {\tt min::file}}]
-The number of columns currently in the line being assembled,
-or the column number of the next character to be input to the
-printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
+\item[\ttmkey{line\_\EOL offset}{in {\tt min::file}}]
+If the buffer ends with a line-terminating {\tt NUL}, this
+equals {\tt buffer->\EOL length}.  Otherwise it is the offset
+in the buffer of the first character of the current line; that
+is, this first line character is {\tt buffer[buffer->\EOL line\_\EOL offset]}.
+Initialized to {\tt 0}.
+
+\item[\ttmkey{output\_\EOL offset}{in {\tt min::file}}]
+The number of buffer elements that have already been
+output (e.g., sent the {\tt std::ostream}, read by
+{\tt min::\EOL next\_\EOL line}, etc.).  Equivalently, the
+offset in the buffer of the first {\tt char} element that has
+not yet been output, or {\tt buffer->length} if there are no such characters.
+Initialized to {\tt 0}.
+
+\item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
+If {\tt line\_index~!=~min::NULL\_STUB}, then
+{\tt line\_index[m]} is the offset in the buffer of the first
+character of line number {\tt n} (or of the line-terminating NUL
+if the line is empty), where
+\begin{center}
+{\tt m = line\_index->length - ( line - n )}
+\end{center}
+If {\tt spool\_lines~==~min::ALL\_LINES}, this last reduces to {\tt m~=~n}.
+Otherwise one must take into account that only the lines at the end of
+the file are stored in {\tt buffer} and {\tt line\_\EOL index}.
+
+Initialized to {\tt min::NULL\_STUB}.
+Created by {\tt min::\EOL init\_\EOL line\_\EOL index}, and
+also automatically created if {\tt spool\_\EOL lines} is \underline{neither}
+{\tt 0} nor {\tt min::\EOL ALL\_\EOL LINES}.
+
+\item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
+The buffer is only required to retain the last {\tt spool\_\EOL lines}
+of a file.  If there are more lines, then when new lines are inserted
+the buffer may delete older lines from the beginning of the buffer.
+When a line is deleted from the beginning of the buffer, any
+corresponding element is deleted from {\tt line\_\EOL index}.
+
+If {\tt line~<=~spool\_lines}, all file lines input so far are
+retained in the buffer.  If {\tt spool\_EOL lines~==~min::\EOL ALL\_\EOL lines}, all lines in the file are retained.
+
+\item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]
+These are some of the printer {\tt parameters->\EOL flags} used to print
+a file line for error message purposes.  The flags involved are:
+\begin{center}
+\tt
+\begin{tabular}{l}
+min::ASCII\_FLAG \\
+min::GRAPHIC\_FLAG \\
+min::DISPLAY\_EOL\_FLAG
+\end{tabular}
+\end{center}
+
+These flags determine the number of columns required to display a
+UNICODE character, and are therefore also used by input routines
+that keep track of the column numbers of input characters for
+the purposes of printing error messages.  For example, the carriage
+return prints as follows with the given flags:
+\begin{center}
+\begin{tabular}{l@{~~~~}l@{~~~~}l}
+{\tt min::GRAPHIC\_FLAG} only
+	& {\tiny $\stackrel{\textstyle C~}{~R}$} & 1 column \\[1ex]
+{\tt min::GRAPHIC\_FLAG} & {\tt <CR>} & 4 columns \\
+~~ and {\tt min::ASCII\_FLAG} \\[1ex]
+no {\tt min::GRAPHIC\_FLAG}
+	& omitted from output	     & 0 columns
+\end{tabular}
+\end{center}
+
+File lines are to be printed with these
+3 flags set as in {\tt print\_\EOL flags} and \underline{without}
+any {\tt min::AUTOBREAK\_\EOL FLAG}.
+
+\item[\ttmkey{istream}{in {\tt min::file}}]
+
+\item[\ttmkey{ifile}{in {\tt min::file}}]
+
+\item[\ttmkey{ostream}{in {\tt min::file}}]
+
+\item[\ttmkey{printer}{in {\tt min::file}}]
+
+\item[\ttmkey{filename}{in {\tt min::file}}]
 
 \end{itemlist}
 
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
+\LABEL{MIN::NO_LINE} \\
+\verb|min::uns32 min::|
+    & \MINKEY{next\_line} \verb| ( min::file & file )|
+\LABEL{MIN::NEXT_LINE_OF_FILE} \\
+\verb|min::uns32 min::|
+    & \MINKEY{line}
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::uns32 line )|
+\LABEL{MIN::LINE_OF_FILE} \\
+\verb|min::uns32 min::|
+    & \MINKEY{flush} \verb| ( min::file & file )|
+\LABEL{MIN::FLUSH_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pline}\ARGBREAK
+    \verb| ( min::file & file,|\ARGBREAK
+    \verb|   min::uns32 line,|\ARGBREAK
+    \verb|   const char * blank_line =|\ARGBREAK
+    \verb|       "<BLANK-LINE>" )|
+\LABEL{MIN::PLINE} \\
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb| ( min::file & file,|\ARGBREAK
+    \verb|   min::uns32 first, min::use32 last )|
+\LABEL{MIN::PLINE_NUMBERS} \\
+\verb|min::printer & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer & prtr,|\ARGBREAK
+      \verb|   const min::pline & pline )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE} \\
+\verb|min::printer & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer & prtr,|\ARGBREAK
+      \verb|   const min::pline_numbers & pline_numbers )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
 
 \subsection{Printers}
 \label{PRINTERS}
