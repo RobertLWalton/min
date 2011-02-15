@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 14 08:38:16 EST 2011
+// Date:	Mon Feb 14 23:12:45 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4686,6 +4686,7 @@ void min::packed_vec_insptr<E,H>::reserve
     internal::packed_vec_resize
 	( this->s, pvdescriptor, new_length );
 }
+
 // Files
 // -----
 
@@ -4706,9 +4707,9 @@ namespace min {
         const min::uns32 control;
 
 	min::packed_vec_insptr<char> buffer;
-	min::uns32 line;
-	min::uns32 line_offset;
-	min::uns32 output_offset;
+	min::uns32 next_line_number;
+	min::uns32 next_line_offset;
+	min::uns32 end_offset;
 	min::packed_vec_insptr<min::uns32> line_index;
 
 	min::uns32 spool_lines;
@@ -4725,45 +4726,95 @@ namespace min {
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
 
-    min::uns32 new_line ( min::file & file );
+    void init ( min::file & file );
+
+    void init_print_flags
+	    ( min::file & file,
+	      min::uns32 print_flags );
+
+    void init_spool_lines
+	    ( min::file & file,
+	      min::uns32 spool_lines );
+
+    void init_line_index ( min::file & file );
+
+    void init_output_stream
+	    ( min::file & file,
+	      std::ostream & ostream,
+	      min::uns32 spool_lines = 0,
+	      min::gen filename = min::MISSING );
+
+    void init_output_file
+	    ( min::file & file,
+	      min::file & ofile,
+	      min::uns32 spool_lines = 0,
+	      min::gen filename = min::MISSING );
+
+    void init_output_printer
+	    ( min::file & file,
+	      min::printer & printer,
+	      min::uns32 spool_lines = 0,
+	      min::gen filename = min::MISSING );
+
+    void init_input_stream
+	    ( min::file & file,
+	      std::istream & istream,
+	      min::uns32 spool_lines = min::ALL_LINES,
+	      min::gen filename = min::MISSING );
+
+    void init_input_file
+	    ( min::file & file,
+	      min::file & ifile,
+	      min::uns32 spool_lines = min::ALL_LINES,
+	      min::gen filename = min::MISSING );
+
+    bool init_input_named_file
+	    ( min::file & file,
+	      min::gen filename,
+	      min::printer & err,
+	      min::uns32 spool_lines = min::ALL_LINES );
+
+    void init_input_string
+	    ( min::file & file,
+	      const char * data,
+	      min::uns32 spool_lines = min::ALL_LINES,
+	      min::gen filename = min::MISSING );
+
+    min::uns32 next_line ( min::file & file );
     min::uns32 line
 	    ( min::file & file,
 	      min::uns32 line_number );
     inline min::uns32 end_line ( min::file & file )
     {
         min::push(file->buffer) = 0;
-	++ file->line;
-	if ( file->line_index != NULL_STUB )
-	    min::push(file->line_index) =
-	        file->line_offset;
-	file->line_offset = file->buffer->length;
+	file->end_offset = file->buffer->length;
     }
     inline min::uns32 end_line
 	    ( min::file & file, min::uns32 offset )
     {
-	assert ( offset >= file->line_offset );
         file->buffer[offset] = 0;
-	++ file->line;
-	if ( file->line_index != NULL_STUB )
-	    min::push(file->line_index) =
-	        file->line_offset;
-	file->line_offset = offset + 1;
+	file->end_offset = offset +1;
     }
     min::uns32 flush ( min::file & file );
     min::uns32 flush
 	    ( min::file & file, min::uns32 offset );
+    min::uns32 flush_partial
+	    ( min::file & file, min::uns32 offset );
+
     min::uns32 rewind
-	    ( min::file & file, min::uns32 offset = 0 );
+	    ( min::file & file, min::uns32 line = 0 );
 
     struct pline
     {
         min::file & file;
-	min::uns32 line;
+	min::uns32 line_number;
 	const char * blank_line;
-	pline ( min::file & file, min::uns32 line,
+	pline ( min::file & file,
+	        min::uns32 line_number,
 	        const char * blank_line =
 		    "<BLANK-LINE>" )
-	    : file ( file ), line ( line ),
+	    : file ( file ),
+	      line_number ( line_number ),
 	      blank_line ( blank_line ) {}
     };
 
@@ -9157,6 +9208,9 @@ namespace min {
 	    ( printer_internal::clear_printer_flags,
 	      flags );
     }
+
+    extern const printer_op push_printer_parameters;
+    extern const printer_op pop_printer_parameters;
 
     extern const printer_op save_printer_parameters;
     extern const printer_op restore_printer_parameters;

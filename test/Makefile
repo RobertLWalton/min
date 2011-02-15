@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Feb  9 19:16:26 EST 2011
+# Date:		Tue Feb 15 09:59:19 EST 2011
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -182,7 +182,8 @@ ${INTERFACE_PROGRAMS}:		\
 	g++ -g ${GFLAGS} \
 	    -I ../include \
 	    -o $@ \
-	    min_interface_test.cc ../src/min.cc
+	    min_interface_test.cc \
+	    ../src/min.cc ../src/min_os.cc
 
 min_os_test:		\
 		min_os_test.cc \

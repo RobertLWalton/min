@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 12 07:17:09 EST 2011
+// Date:	Tue Feb 15 10:19:05 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -26,7 +26,7 @@
 //	Strings
 //	Labels
 //	Packed Structures and Vectors
-//	Raw Vectors
+//	Files
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -38,6 +38,8 @@
 // -----
 
 # include <min.h>
+# include <min_os.h>
+# include <cerrno>
 # define MUP min::unprotected
 # define MINT min::internal
 # define PINT min::printer_internal
@@ -1628,7 +1630,508 @@ void MINT::packed_vec_resize
 	* (min::uns32 *) ( new_p + pvd->length_disp ) =
 	    max_length;
 }
+
+// Files
+// -----
 
+static min::uns32 file_gen_disp[2] =
+    { min::DISP ( & min::file_struct::filename ),
+      min::DISP_END };
+
+static min::uns32 file_stub_disp[6] =
+    { min::DISP ( & min::file_struct::buffer ),
+      min::DISP ( & min::file_struct::line_index ),
+      min::DISP ( & min::file_struct::ifile ),
+      min::DISP ( & min::file_struct::printer ),
+      min::DISP ( & min::file_struct::ofile ),
+      min::DISP_END };
+
+static min::packed_struct<min::file_struct> file_type
+    ( "min::file_type",
+      ::file_gen_disp, ::file_stub_disp );
+
+static min::packed_vec<char> file_buffer_type
+    ( "min::file_buffer_type" );
+
+static min::packed_vec<min::uns32> file_line_index_type
+    ( "min::file_line_index_type" );
+
+void min::init ( min::file & file )
+{
+    if ( file == NULL_STUB )
+    {
+        file = ::file_type.new_stub();
+	file->buffer =
+	    ::file_buffer_type.new_stub ( 4096 );
+    }
+    else
+    {
+	min::pop ( file->buffer,
+	           file->buffer->length );
+	min::resize ( file->buffer,
+	              file_buffer_type
+		          .initial_max_length );
+	if ( file->line_index != NULL_STUB )
+	{
+	    min::pop ( file->line_index,
+		       file->line_index->length );
+	    min::resize ( file->line_index,
+			  file_line_index_type
+			      .initial_max_length );
+	}
+    }
+    file->next_line_number = 0;
+    file->next_line_offset = 0;
+    file->end_offset = 0;
+}
+
+void min::init_print_flags
+	( min::file & file,
+	  min::uns32 print_flags )
+{
+    init ( file );
+    file->print_flags = print_flags;
+}
+
+void min::init_spool_lines
+	( min::file & file,
+	  min::uns32 spool_lines )
+{
+    init ( file );
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+}
+
+void min::init_line_index ( min::file & file )
+{
+    init ( file );
+    if ( file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+}
+
+void min::init_output_stream
+	( min::file & file,
+	  std::ostream & ostream,
+	  min::uns32 spool_lines,
+	  min::gen filename )
+{
+    init ( file );
+    file->ostream = & ostream;
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+    file->filename = filename;
+}
+
+void min::init_output_file
+	( min::file & file,
+	  min::file & ofile,
+	  min::uns32 spool_lines,
+	  min::gen filename )
+{
+    init ( file );
+    file->ofile = ofile,
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+    file->filename = filename;
+}
+
+void min::init_output_printer
+	( min::file & file,
+	  min::printer & printer,
+	  min::uns32 spool_lines,
+	  min::gen filename )
+{
+    init ( file );
+    file->printer = printer;
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+    file->filename = filename;
+}
+
+void min::init_input_stream
+	( min::file & file,
+	  std::istream & istream,
+	  min::uns32 spool_lines,
+	  min::gen filename )
+{
+    init ( file );
+    file->istream = & istream;
+    file->ifile = NULL_STUB;
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+    file->filename = filename;
+}
+
+void min::init_input_file
+	( min::file & file,
+	  min::file & ifile,
+	  min::uns32 spool_lines,
+	  min::gen filename )
+{
+    init ( file );
+    file->istream = NULL;
+    file->ifile = NULL_STUB;
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+    file->filename = filename;
+}
+
+bool min::init_input_named_file
+	( min::file & file,
+	  min::gen filename,
+	  min::printer & err,
+	  min::uns32 spool_lines )
+{
+    init ( file );
+    file->istream = NULL;
+    file->ifile = NULL_STUB;
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+    file->filename = filename;
+
+    min::str_ptr fname ( filename );
+
+    // Use OS independent min::os::file_size.
+    //
+    char error_buffer[512];
+    min::uns64 file_size;
+    if ( ! min::os::file_size
+               ( file_size, & fname[0], error_buffer ) )
+    {
+        err << error_buffer << min::eol;
+        return false;
+    }
+
+    if ( file_size >= ( 1ull << 32 ) - 1 )
+    {
+        err << "ERROR: file " << & fname [0]
+	    << " too large (" << file_size
+	    << ")" << min::eol;
+	return false;
+    }
+
+    // We use FILE IO because it is standard for C
+    // while open/read is OS dependent.
+
+    FILE * in = fopen ( & fname[0], "r" );
+
+    if ( in == NULL )
+    {
+        err << "ERROR: opening file "
+	    << & fname[0] << min::eol
+	    << "       " << strerror ( errno )
+	    << min::eol;
+	return false;
+    }
+
+    min::resize
+	( file->buffer, (min::uns32) file_size + 1 );
+    min::push ( file->buffer, file_size );
+
+    errno = 0;
+    min::uns64 bytes =
+        fread ( & file->buffer[0], 1,
+	        (size_t) file_size, in );
+    if ( bytes != file_size )
+    {
+	if ( errno != 0 )
+	    err << "ERROR: reading file "
+		<< & fname[0] << min::eol
+		<< "       " << strerror ( errno )
+		<< min::eol;
+	else
+	    err << "ERROR: reading file "
+		<< & fname[0] << min::eol
+		<< "       only " << bytes
+		<< " bytes out of " << file_size
+		<< " read"
+		<< min::eol;
+	fclose ( in );
+	return false;
+    }
+
+    if ( getc ( in ) != EOF )
+    {
+	err << "ERROR: reading file "
+	    << & fname[0] << min::eol
+	    << "       file longer than expected"
+	    << min::eol;
+	fclose ( in );
+	return false;
+    }
+
+    fclose ( in );
+    min::push(file->buffer) = 0;
+    return true;
+}
+
+void min::init_input_string
+	( min::file & file,
+	  const char * data,
+	  min::uns32 spool_lines,
+	  min::gen filename )
+{
+    init ( file );
+    file->istream = NULL;
+    file->ifile = NULL_STUB;
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub ( 100 );
+    file->filename = filename;
+
+    min::uns64 length = ::strlen ( data );
+    assert ( length < ( 1ull << 32 ) );
+
+    min::resize ( file->buffer, length );
+    min::push ( file->buffer, length, data );
+    for ( uns32 i = 0; i < length; ++ i )
+    {
+        if ( file->buffer[i] == '\n' )
+	    file->buffer[i] = 0;
+    }
+}
+
+min::uns32 min::next_line ( min::file & file )
+{
+    uns32 line_offset = file->next_line_offset;
+
+    // If unneeded buffer data is 1/2 of buffer
+    // max_length, perform downshift to eliminate
+    // unneeded buffer data.
+    //
+    if ( file->spool_lines == 0 )
+    {
+        if ( line_offset
+	     >
+	     file->buffer->max_length / 2 )
+	{
+	    if ( line_offset < file->buffer->length )
+		memmove ( & file->buffer[0],
+			  & file->buffer[line_offset],
+			    file->buffer->length
+			  - line_offset );
+	    file->next_line_offset -= line_offset;
+	    file->end_offset -= line_offset;
+	    line_offset = 0;
+	    if ( file->line_index != NULL_STUB )
+	        min::pop ( file->line_index,
+		           file->line_index->length );
+	}
+    }
+    else if (   file->next_line_number
+              > file->spool_lines )
+    {
+        uns32 index_offset = file->line_index->length
+	                   - file->spool_lines;
+	uns32 buffer_offset =
+	    file->line_index[index_offset];
+	if (   buffer_offset
+	     > file->buffer->max_length / 2 )
+	{
+	    if ( buffer_offset < file->buffer->length )
+		memmove ( & file->buffer[0],
+			  & file->buffer[buffer_offset],
+			    file->buffer->length
+			  - buffer_offset );
+	    file->next_line_offset -= buffer_offset;
+	    file->end_offset -= buffer_offset;
+	    line_offset -= buffer_offset;
+
+	    memmove ( & file->line_index[0],
+	              & file->line_index[index_offset],
+		        sizeof ( min::uns32 )
+		      * file->spool_lines );
+	    min::pop ( file->line_index,
+		       index_offset );
+	}
+    }
+
+    if ( line_offset >= file->end_offset )
+    {
+	// Input line.
+	//
+	if ( file->istream != NULL )
+	{
+	    assert ( file->ifile == NULL_STUB );
+
+	    int c;
+	    while ( c = file->istream->get(),
+		    c != EOF && c != '\n' )
+		min::push(file->buffer) = (char) c;
+
+	    if ( c == EOF ) return NO_LINE;
+	}
+	else if ( file->ifile != NULL_STUB )
+	{
+	    min::file ifile = file->ifile;
+	    uns32 ioffset = min::next_line ( ifile );
+
+	    if ( ioffset == NO_LINE ) return NO_LINE;
+
+	    uns32 length =
+		::strlen ( & ifile->buffer[ioffset] );
+	    min::push ( file->buffer, length,
+	                & ifile->buffer[ioffset] );
+	}
+	else return NO_LINE;
+
+
+	min::push(file->buffer) = 0;
+	file->end_offset =
+	    file->buffer->length;
+    }
+    file->next_line_offset +=
+        1 + ::strlen ( & file->buffer[line_offset] );
+    ++ file->next_line_number;
+    if ( file->line_index != NULL_STUB )
+	min::push(file->line_index) = line_offset;
+    return line_offset;
+}
+
+min::uns32 min::line
+	( min::file & file, uns32 line_number )
+{
+    if ( file->line_index == NULL_STUB )
+        return NO_LINE;
+    else if ( line_number >= file->next_line_number )
+        return NO_LINE;
+    else if (    file->spool_lines
+              >= file->line_index->length )
+        return file->line_index[line_number];
+    else if (   file->spool_lines
+              < file->next_line_number - line_number )
+        return NO_LINE;
+    else
+        return file->line_index
+	           [  file->line_index->length
+	            - (   file->next_line_number
+		        - line_number)];
+}
+
+static const min::uns32 print_flags_mask =
+      min::ASCII_FLAG
+    + min::GRAPHIC_FLAG
+    + min::DISPLAY_EOL_FLAG;
+
+min::printer & operator <<
+	( min::printer & printer,
+	  const min::pline & pline )
+{
+    min::file file = pline.file;
+    min::uns32 line_number = pline.line_number;
+    min::uns32 offset = min::line ( file, line_number );
+    if ( offset == min::NO_LINE )
+    {
+        if ( line_number == file->next_line_number )
+	    return printer << "<END-OF-FILE>"
+	                   << min::eol;
+	else
+	    return printer << "<LINE-NOT-AVAILABLE>"
+	                   << min::eol;
+    }
+
+    // Blank line check.
+    //
+    if ( ( file->print_flags && min::GRAPHIC_FLAG )
+         &&
+	 file->buffer[offset] != 0 )
+        ; // do nothing
+    else if ( file->print_flags && min::DISPLAY_EOL_FLAG )
+        ; // do nothing
+    else
+    {
+	const char * p = & file->buffer[offset];
+	while ( * p <= ' ' || * p == 0x3F ) ++ p;
+	if ( * p == 0 )
+	    return printer << pline.blank_line
+	                   << min::eol;
+    }
+
+    printer << min::push_printer_parameters
+            << min::clear_printer_flags
+	            (   min::AUTOBREAK_FLAG
+		      + min::GRAPHIC_FLAG
+		      + min::ASCII_FLAG
+		      + min::DISPLAY_EOL_FLAG )
+	    << min::set_printer_flags
+	    	    (   ::print_flags_mask
+		      & file->print_flags )
+	    << & file->buffer[offset] << min::eol
+	    << min::pop_printer_parameters;
+
+    return printer;
+}
+
+min::printer & operator <<
+	( min::printer & printer,
+	  const min::pline_numbers & pline_numbers )
+{
+    min::file file = pline_numbers.file;
+    if ( file->filename != min::MISSING )
+    {
+        min::str_ptr sp ( file->filename );
+	printer << & sp[0] << ": ";
+    }
+    printer << min::push_printer_parameters
+            << min::noautobreak;
+
+    if ( pline_numbers.first == pline_numbers.last )
+        printer << "line " << pline_numbers.first;
+    else
+        printer << "lines " << pline_numbers.first
+	        << "-" << pline_numbers.last;
+    return printer << min::pop_printer_parameters;
+}
+
+min::uns32 min::flush ( min::file & file )
+{
+    while ( true )
+    {
+        uns32 offset = min::next_line ( file );
+	if ( offset == min::NO_LINE ) break;
+	min::flush ( file, offset );
+    }
+    if ( file->next_line_offset < file->buffer->length )
+    {
+	min::flush_partial
+	    ( file, file->next_line_offset );
+	file->next_line_offset = file->buffer->length;
+    }
+}
+	  
+min::uns32 min::flush
+	( min::file & file, min::uns32 offset )
+{}
+min::uns32 min::flush_partial
+	( min::file & file, min::uns32 offset )
+{}
+min::uns32 min::rewind
+	( min::file & file, min::uns32 line )
+{}
 
 // Objects
 // -------
@@ -6892,7 +7395,7 @@ static void end_line ( min::printer & prtr )
 	    rep = asciigraphic['\n'];
 	else
 	    rep = utf8graphic['\n'];
-	int len = strlen ( rep );
+	int len = ::strlen ( rep );
 	min::push ( prtr, len, rep );
     }
 
@@ -6934,6 +7437,11 @@ static min::printer & setbreak
     prtr->break_column = prtr->column;
     return prtr;
 }
+
+const min::printer_op min::push_printer_parameters
+    ( ::save_printer_parameters );
+const min::printer_op min::pop_printer_parameters
+    ( ::restore_printer_parameters );
 
 const min::printer_op min::save_printer_parameters
     ( ::save_printer_parameters );
@@ -7115,13 +7623,13 @@ static void insert_line_break ( min::printer & prtr )
 	        if ( ascii ) \
 		{ \
 		    rep = asciigraphic[c]; \
-		    len = strlen ( rep ); \
+		    len = ::strlen ( rep ); \
 		    columns = len; \
 		} \
 		else \
 		{ \
 		    rep = utf8graphic[c]; \
-		    len = strlen ( rep ); \
+		    len = ::strlen ( rep ); \
 		    columns = 1; \
 		} \
 		\
@@ -7196,7 +7704,7 @@ static void insert_line_break ( min::printer & prtr )
 		if ( c == min::ILLEGAL_UTF8 ) \
 		{ \
 		    rep = asciigraphic[ILL_REP]; \
-		    len = strlen ( rep ); \
+		    len = ::strlen ( rep ); \
 		    columns = len; \
 		} \
 		else \
@@ -7220,7 +7728,7 @@ static void insert_line_break ( min::printer & prtr )
 		if ( c == min::ILLEGAL_UTF8 ) \
 		{ \
 		    rep = utf8graphic[ILL_REP]; \
-		    len = strlen ( rep ); \
+		    len = ::strlen ( rep ); \
 		} \
 		else \
 		{ \
@@ -7356,7 +7864,7 @@ min::printer & operator <<
 	prtr1 << & prtr2[prtr2->flush_offset]
 	      << min::eol;
 	prtr2->flush_offset += 
-	    1 + strlen ( & prtr2[prtr2->flush_offset] );
+	    1 + ::strlen ( & prtr2[prtr2->flush_offset] );
     }
 
     if ( prtr2->flush_offset < prtr2->length )
@@ -7379,7 +7887,7 @@ std::ostream & operator <<
     {
 	out << & prtr[prtr->flush_offset] << std::endl;
 	prtr->flush_offset +=
-	    1 + strlen ( & prtr[prtr->flush_offset] );
+	    1 + ::strlen ( & prtr[prtr->flush_offset] );
     }
 
     if ( prtr->flush_offset < prtr->length )
