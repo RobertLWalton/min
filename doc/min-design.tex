@@ -4358,12 +4358,12 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{init}\verb| ( min::file & file )|
-\LABEL{MIN::INIT_FILE} \\
+\LABEL{MIN::INIT_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init}
+    & \MINKEY{init\_print\_flags}
           \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::uns32 printer_flags )|
-\LABEL{MIN::INIT_FILE_WITH_PRINTER_FLAGS} \\
+	  \verb|   min::uns32 print_flags )|
+\LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -4384,6 +4384,9 @@ accomplished by the following:
 	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_output\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
@@ -4391,6 +4394,9 @@ accomplished by the following:
 	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_output\_printer}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
@@ -4408,6 +4414,9 @@ accomplished by the following:
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_INPUT_ISTREAM_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
@@ -4424,6 +4433,9 @@ accomplished by the following:
 	  \verb|   min::gen filename,|\ARGBREAK
 	  \verb|   min::printer & err )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_NAMED_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_string}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
@@ -4539,10 +4551,10 @@ If {\tt spool\_lines~==~min::ALL\_LINES}, this last reduces to {\tt m~=~n}.
 Otherwise one must take into account that only the lines at the end of
 the file are stored in {\tt buffer} and {\tt line\_\EOL index}.
 
-Initialized to {\tt min::NULL\_STUB}.
+Set to {\tt min::NULL\_STUB} when the file is created..
 Created by {\tt min::\EOL init\_\EOL line\_\EOL index}, and
-also automatically created if {\tt spool\_\EOL lines} is \underline{neither}
-{\tt 0} nor {\tt min::\EOL ALL\_\EOL LINES}.
+also automatically created if {\tt spool\_\EOL lines} is initialized
+to a non-zero value.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 The buffer is only required to retain the last {\tt spool\_\EOL lines}
@@ -4558,6 +4570,8 @@ If {\tt line~<=~spool\_lines}, all file lines input so far are
 retained in the buffer.
 If {\tt spool\_EOL lines~==~min::\EOL ALL\_\EOL lines},
 all lines in the file are retained.
+
+Set to {\tt 0} when the file is created.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]
 These are some of the printer {\tt parameters->\EOL flags} used to print
@@ -4591,15 +4605,19 @@ File lines are to be printed with these
 3 flags set as in {\tt print\_\EOL flags} and \underline{without}
 any {\tt min::AUTOBREAK\_\EOL FLAG}.
 
+Set to {\tt 0} when the file is created.
+
 \item[\ttmkey{istream}{in {\tt min::file}}]
 If not {\tt NULL}, the {\tt min::\EOL next\_\EOL line} function
 reads lines from this {\tt std::\EOL istream} when it finds
 there is no line to return to its caller.
+Set to {\tt NULL} when the file is created.
 
 \item[\ttmkey{ifile}{in {\tt min::file}}]
 If not {\tt min::NULL\_STUB}, the {\tt min::\EOL next\_\EOL line} function
 reads lines from this {\tt min::\EOL file} when it finds
 there is no line to return to its caller.
+Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
 Note that it is a programming error if {\tt istream != NULL}
 \underline{and} {\tt ifile != NULL\_\EOL STUB}.
@@ -4608,6 +4626,7 @@ Note that it is a programming error if {\tt istream != NULL}
 If not {\tt NULL}, the {\tt min::\EOL flush} function
 outputs buffer {\tt char} elements to this {\tt std::\EOL ostream} when it finds
 there are elements not yet output.
+Set to {\tt NULL} when the file is created.
 
 \item[\ttmkey{printer}{in {\tt min::file}}]
 If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
@@ -4617,6 +4636,7 @@ there are elements not yet output.  Non-NUL elements are output
 with the printer {\tt min::\EOL ASCII\_\EOL FLAG} and
 {\tt min::\EOL GRAPHICS\_\EOL FLAG} turned off, and the line-terminating
 NUL elements are translated into sending {\tt min::eol} to the printer.
+Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{ofile}{in {\tt min::file}}]
 If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
@@ -4625,11 +4645,13 @@ there are elements not yet output.
 Non-NUL elements are simply appended to the end of the {\tt ofile}, and
 line-terminating NUL elements are translated into calls to
 {\tt min::\EOL line\_\EOL end~(~ofile~)}.
+Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{filename}{in {\tt min::file}}]
 If not {\tt min::MISSING}, this
 is the name of this file for the purpose of printing error messages
 concerning file lines.
+Set to {\tt min::\EOL MISSING} when the file is created.
 
 \end{itemlist}
 
@@ -4665,8 +4687,16 @@ concerning file lines.
                     \verb|   min::uns32 offset )|
 \LABEL{MIN::FLUSH_FILE_WITH_OFFSET} \\
 \verb|min::uns32 min::|
+    & \MINKEY{flush\_partial}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::uns32 offset )|
+\LABEL{MIN::FLUSH_PARTIAL_FILE_} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
     & \MINKEY{rewind}\verb| ( min::file & file,|\\&{\tt ~~~~~~}
-                     \verb|   min::uns32 offset = 0 )|
+                     \verb|   min::uns32 line = 0 )|
 \LABEL{MIN::REWIND_FILE} \\
 \end{tabular}\end{indpar}
 
