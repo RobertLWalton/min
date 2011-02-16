@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 05:42:56 EST 2011
+// Date:	Wed Feb 16 09:29:41 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2167,6 +2167,17 @@ void test_file ( void )
     min::rewind ( file4 );
     min::flush ( file5 );
     MIN_ASSERT ( data == ostream.str() );
+
+    min::rewind ( file4 );
+    min::init_output_stream
+        ( file5, * (std::ostream *) NULL );
+    min::flush ( file5 );
+    MIN_ASSERT (    file4->buffer->length
+                 == file5->buffer->length );
+    MIN_ASSERT (    strncmp ( & file4->buffer[0],
+    			      & file5->buffer[0],
+                              file4->buffer->length )
+		 == 0 );
 
     min::end_line ( file5 );
     min::rewind ( file5, 1 );

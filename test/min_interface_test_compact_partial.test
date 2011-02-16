@@ -1607,6 +1607,8 @@ MINT::new_fixed_body ( stub XXX, 4108 ) called
 MINT::deallocate ( stub XXX, 4108 ) called
 MINT::new_fixed_body ( stub XXX, 524 ) called
 MINT::deallocate ( stub XXX, 524 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 524 ) called
 
 Finish File Test!
 
@@ -3143,6 +3145,9 @@ min_interface_test.cc:XXXX assert:
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
+MINT::new_fixed_body ( stub XXX, 5688 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 MINT::deallocate ( stub XXX, 3792 ) called
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
@@ -3601,7 +3606,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == lab4 true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 TEST ATTRIBUTE VALUES ( `label1', `label2')
@@ -3640,6 +3644,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 TEST ATTRIBUTE VALUES ( 3, `label1')
@@ -3670,7 +3675,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 TEST ATTRIBUTE VALUES ( [1 `label1'], [1 `label2'])
@@ -3701,6 +3705,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 9 ) true.
 TEST ATTRIBUTE VALUES ( [1 `label2'], [1 `label1'])
@@ -3731,7 +3736,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 10 ) true.
 TEST ATTRIBUTE VALUES ( [`label1' 1], [`label1' 2])
@@ -3762,6 +3766,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 11 ) true.
 TEST ATTRIBUTE VALUES ( [`label1' 2], [`label1' 1])
@@ -3792,7 +3797,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values2, 6 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 12 ) true.
 TEST ATTRIBUTE FLAGS ( `label1', `label2', `label3')
@@ -3902,6 +3906,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     check_flags ( ap, codes1, 0 ) true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 MINT::acc_expand_stub_free_list (1) called
