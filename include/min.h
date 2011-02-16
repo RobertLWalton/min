@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 14 23:12:45 EST 2011
+// Date:	Wed Feb 16 08:11:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4741,32 +4741,29 @@ namespace min {
     void init_output_stream
 	    ( min::file & file,
 	      std::ostream & ostream,
-	      min::uns32 spool_lines = 0,
 	      min::gen filename = min::MISSING );
 
     void init_output_file
 	    ( min::file & file,
 	      min::file & ofile,
-	      min::uns32 spool_lines = 0,
 	      min::gen filename = min::MISSING );
 
     void init_output_printer
 	    ( min::file & file,
 	      min::printer & printer,
-	      min::uns32 spool_lines = 0,
 	      min::gen filename = min::MISSING );
 
     void init_input_stream
 	    ( min::file & file,
 	      std::istream & istream,
-	      min::uns32 spool_lines = min::ALL_LINES,
-	      min::gen filename = min::MISSING );
+	      min::gen filename = min::MISSING,
+	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_file
 	    ( min::file & file,
 	      min::file & ifile,
-	      min::uns32 spool_lines = min::ALL_LINES,
-	      min::gen filename = min::MISSING );
+	      min::gen filename = min::MISSING,
+	      min::uns32 spool_lines = min::ALL_LINES );
 
     bool init_input_named_file
 	    ( min::file & file,
@@ -4777,8 +4774,8 @@ namespace min {
     void init_input_string
 	    ( min::file & file,
 	      const char * data,
-	      min::uns32 spool_lines = min::ALL_LINES,
-	      min::gen filename = min::MISSING );
+	      min::gen filename = min::MISSING,
+	      min::uns32 spool_lines = min::ALL_LINES );
 
     min::uns32 next_line ( min::file & file );
     min::uns32 line
@@ -4795,14 +4792,12 @@ namespace min {
         file->buffer[offset] = 0;
 	file->end_offset = offset +1;
     }
-    min::uns32 flush ( min::file & file );
-    min::uns32 flush
-	    ( min::file & file, min::uns32 offset );
-    min::uns32 flush_partial
-	    ( min::file & file, min::uns32 offset );
+    void flush ( min::file & file );
+    void flush ( min::file & file, min::uns32 offset );
+    void flush_partial ( min::file & file );
 
-    min::uns32 rewind
-	    ( min::file & file, min::uns32 line = 0 );
+    void rewind ( min::file & file,
+                  min::uns32 line_number = 0 );
 
     struct pline
     {
@@ -9220,7 +9215,7 @@ namespace min {
     extern const printer_op setbreak;
 
     extern const printer_op ascii;
-    extern const printer_op utf8;
+    extern const printer_op noascii;
     extern const printer_op graphic;
     extern const printer_op nographic;
     extern const printer_op display_eol;
