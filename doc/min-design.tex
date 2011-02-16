@@ -206,7 +206,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 14, 2011}
+\date{February 16, 2011}
  
 \maketitle
 
@@ -4452,12 +4452,14 @@ accomplished by the following:
 \LABEL{MIN::FILE_BUFFER} \\
 \verb|min::uns32 file| & \TTARMKEY{buffer-\GT length}{in {\tt min::file}}
 \LABEL{MIN::FILE_BUFFER_LENGTH} \\
-\verb|min::uns32 file| & \TTARMKEY{line}{in {\tt min::file}}
-\LABEL{MIN::FILE_LINE} \\
-\verb|min::uns32 file| & \TTARMKEY{line\_\EOL offset}{in {\tt min::file}}
-\LABEL{MIN::FILE_LINE_OFFSET} \\
-\verb|min::uns32 file| & \TTARMKEY{output\_offset}{in {\tt min::file}}
-\LABEL{MIN::FILE_OUTPUT_OFFSET} \\
+\verb|min::uns32 file|
+    & \TTARMKEY{next\_\EOL line\_\EOL number}{in {\tt min::file}}
+\LABEL{MIN::FILE_NEXT_LINE_NUMBER} \\
+\verb|min::uns32 file|
+    & \TTARMKEY{next\_\EOL line\_\EOL offset}{in {\tt min::file}}
+\LABEL{MIN::FILE_NEXT_LINE_OFFSET} \\
+\verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
+\LABEL{MIN::FILE_END_OFFSET} \\
 \verb|min::packed_vec_insptr<min::uns32> file|
     & \TTARMKEY{line\_index}{in {\tt min::file}}
 \LABEL{MIN::FILE_LINE_INDEX} \\
@@ -4496,7 +4498,7 @@ file members.
 The members of a file may be read but \underline{not} written, unless
 noted below.  They are:
 
-\begin{itemlist}[1.3in]
+\begin{itemlist}[1.4in]
 
 \item[\ttmkey{buffer}{in {\tt min::file}}]
 The vector of {\tt char}'s that contains the lines of the file.  Each
@@ -4518,25 +4520,24 @@ The number of {\tt char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
 Initialized to {\tt 0}.
 
-\item[\ttmkey{line}{in {\tt min::file}}]
-The number of the line currently being assembled at the end of the
-{\tt buffer}, or of the next line if 
-the buffer ends with a line-terminating {\tt NUL}.  The
-first line number is {\tt 0}.  Initialized to {\tt 0}.
+\item[\ttmkey{next\_\EOL line\_\EOL number}{in {\tt min::file}}]
+The number of the next line to be returned by the {\tt min::\EOL next\_EOL line}
+function that is used by programs to read lines from a {\tt min::\EOL file}.
+Or the total number of lines in the file if there is no next line.
+The first line number is {\tt 0}.  Initialized to {\tt 0}.
 
-\item[\ttmkey{line\_\EOL offset}{in {\tt min::file}}]
-If the buffer ends with a line-terminating {\tt NUL}, this
-equals {\tt buffer->\EOL length}.  Otherwise it is the offset
-in the buffer of the first character of the current line; that
-is, this first line character is {\tt buffer[buffer->\EOL line\_\EOL offset]}.
+\item[\ttmkey{next\_\EOL line\_\EOL offset}{in {\tt min::file}}]
+The offset in the {\tt buffer} of the first character of the
+next line to be returned by the {\tt min::\EOL next\_EOL line}
+function.  I.e., that character is {\tt buffer[next\_EOL line\_\EOL offset]}.
+Or {\tt buffer->\EOL length} if there is no next line (not even a partial
+next line).
 Initialized to {\tt 0}.
 
-\item[\ttmkey{output\_\EOL offset}{in {\tt min::file}}]
-The number of buffer {\tt char} elements that have already been
-output (e.g., sent the {\tt std::ostream}, read by
-{\tt min::\EOL next\_\EOL line}, etc.).  Equivalently, the
-offset in the buffer of the first {\tt char} element that has
-not yet been output, or {\tt buffer->length} if there are no such characters.
+\item[\ttmkey{end\_\EOL offset}{in {\tt min::file}}]
+The offset of the {\tt buffer} element just \underline{after} the last
+line-terminating NUL character in the {\tt buffer}.  Or {\tt 0} if there
+are no line-terminating NUL characters.
 Initialized to {\tt 0}.
 
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
@@ -4545,31 +4546,35 @@ If {\tt line\_index~!=~min::NULL\_STUB}, then
 character of line number {\tt n} (or of the line-terminating NUL
 if the line is empty), where
 \begin{center}
-{\tt m = line\_index->length - ( line - n )}
+{\tt m = line\_index->length - ( next\_line\_number - n )}
 \end{center}
 If {\tt spool\_lines~==~min::ALL\_LINES}, this last reduces to {\tt m~=~n}.
-Otherwise one must take into account that only the lines at the end of
-the file are stored in {\tt buffer} and {\tt line\_\EOL index}.
+Otherwise one must take into account that only the last
+{\tt spool\_\EOL lines} returned by the {\tt min::\EOL next\_\EOL line}
+function are guarenteed to be
+stored in {\tt buffer} and {\tt line\_\EOL index}.
 
 Set to {\tt min::NULL\_STUB} when the file is created..
 Created by {\tt min::\EOL init\_\EOL line\_\EOL index}, and
 also automatically created if {\tt spool\_\EOL lines} is initialized
-to a non-zero value.
+to a non-zero value by one of the {\tt init}\ldots{} functions.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 The buffer is only required to retain the last {\tt spool\_\EOL lines}
-of a file.  If there are more complete (i.e., terminated)
-lines, then when new lines are output
-from the buffer by {\tt min::\EOL next\_\EOL line} or {\tt min::\EOL flush},
+returned by the {\tt min::\EOL next\_\EOL line} function.
+If there are more complete (i.e., terminated)
+lines, then when new lines are read from the buffer
+by {\tt min::\EOL next\_\EOL lines},
 older complete lines previously
 output may be removed from the beginning of the buffer.
 When a line is deleted from the beginning of the buffer, any
 corresponding element is deleted from {\tt line\_\EOL index}.
 
-If {\tt line~<=~spool\_lines}, all file lines input so far are
+If {\tt next\_line\_number~<=~spool\_lines}, all file lines
+returned by {\tt min::\EOL next\_\EOL line} so far are
 retained in the buffer.
-If {\tt spool\_EOL lines~==~min::\EOL ALL\_\EOL lines},
-all lines in the file are retained.
+If {\tt spool\_EOL lines == min::\EOL ALL\_\EOL lines},
+all lines returned are retained.
 
 Set to {\tt 0} when the file is created.
 
@@ -4687,16 +4692,14 @@ Set to {\tt min::\EOL MISSING} when the file is created.
                     \verb|   min::uns32 offset )|
 \LABEL{MIN::FLUSH_FILE_WITH_OFFSET} \\
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_partial}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::uns32 offset )|
+    & \MINKEY{flush\_partial}\verb| ( min::file & file )|
 \LABEL{MIN::FLUSH_PARTIAL_FILE_} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{rewind}\verb| ( min::file & file,|\\&{\tt ~~~~~~}
-                     \verb|   min::uns32 line = 0 )|
+                     \verb|   min::uns32 line_number = 0 )|
 \LABEL{MIN::REWIND_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -5386,8 +5389,8 @@ following
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::printer_op min::| & \MINKEY{ascii}
 \LABEL{MIN::ASCII} \\
-\verb|const min::printer_op min::| & \MINKEY{utf8}
-\LABEL{MIN::UTF8} \\
+\verb|const min::printer_op min::| & \MINKEY{noascii}
+\LABEL{MIN::NOASCII} \\
 \verb|const min::printer_op min::| & \MINKEY{graphic}
 \LABEL{MIN::GRAPHIC} \\
 \verb|const min::printer_op min::| & \MINKEY{nographic}

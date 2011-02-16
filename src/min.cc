@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 15 10:19:05 EST 2011
+// Date:	Wed Feb 16 03:35:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1660,9 +1660,11 @@ void min::init ( min::file & file )
 {
     if ( file == NULL_STUB )
     {
+	::file_buffer_type.initial_max_length = 4096;
+	::file_line_index_type.initial_max_length = 128;
+
         file = ::file_type.new_stub();
-	file->buffer =
-	    ::file_buffer_type.new_stub ( 4096 );
+	file->buffer = ::file_buffer_type.new_stub();
     }
     else
     {
@@ -1693,16 +1695,23 @@ void min::init_print_flags
     file->print_flags = print_flags;
 }
 
+inline void set_spool_lines
+	( min::file & file,
+	  min::uns32 spool_lines )
+{
+    file->spool_lines = spool_lines;
+    if (    spool_lines != 0
+         && file->line_index == min::NULL_STUB )
+        file->line_index =
+	    ::file_line_index_type.new_stub();
+}
+
 void min::init_spool_lines
 	( min::file & file,
 	  min::uns32 spool_lines )
 {
     init ( file );
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
+    ::set_spool_lines ( file, spool_lines );
 }
 
 void min::init_line_index ( min::file & file )
@@ -1710,89 +1719,63 @@ void min::init_line_index ( min::file & file )
     init ( file );
     if ( file->line_index == NULL_STUB )
         file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
+	    ::file_line_index_type.new_stub();
 }
 
 void min::init_output_stream
 	( min::file & file,
 	  std::ostream & ostream,
-	  min::uns32 spool_lines,
 	  min::gen filename )
 {
     init ( file );
     file->ostream = & ostream;
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
     file->filename = filename;
 }
 
 void min::init_output_file
 	( min::file & file,
 	  min::file & ofile,
-	  min::uns32 spool_lines,
 	  min::gen filename )
 {
     init ( file );
     file->ofile = ofile,
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
     file->filename = filename;
 }
 
 void min::init_output_printer
 	( min::file & file,
 	  min::printer & printer,
-	  min::uns32 spool_lines,
 	  min::gen filename )
 {
     init ( file );
     file->printer = printer;
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
     file->filename = filename;
 }
 
 void min::init_input_stream
 	( min::file & file,
 	  std::istream & istream,
-	  min::uns32 spool_lines,
-	  min::gen filename )
+	  min::gen filename,
+	  min::uns32 spool_lines )
 {
     init ( file );
     file->istream = & istream;
     file->ifile = NULL_STUB;
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
     file->filename = filename;
+    ::set_spool_lines ( file, spool_lines );
 }
 
 void min::init_input_file
 	( min::file & file,
 	  min::file & ifile,
-	  min::uns32 spool_lines,
-	  min::gen filename )
+	  min::gen filename,
+	  min::uns32 spool_lines )
 {
     init ( file );
     file->istream = NULL;
-    file->ifile = NULL_STUB;
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
+    file->ifile = ifile;
     file->filename = filename;
+    ::set_spool_lines ( file, spool_lines );
 }
 
 bool min::init_input_named_file
@@ -1804,12 +1787,8 @@ bool min::init_input_named_file
     init ( file );
     file->istream = NULL;
     file->ifile = NULL_STUB;
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
     file->filename = filename;
+    ::set_spool_lines ( file, spool_lines );
 
     min::str_ptr fname ( filename );
 
@@ -1827,7 +1806,7 @@ bool min::init_input_named_file
     if ( file_size >= ( 1ull << 32 ) - 1 )
     {
         err << "ERROR: file " << & fname [0]
-	    << " too large (" << file_size
+	    << " too large ( size = " << file_size
 	    << ")" << min::eol;
 	return false;
     }
@@ -1883,25 +1862,26 @@ bool min::init_input_named_file
     }
 
     fclose ( in );
-    min::push(file->buffer) = 0;
+    for ( min::uns32 i = 0;
+          i < file->buffer->length; ++ i )
+    {
+        if ( file->buffer[i] == '\n' )
+	    min::end_line ( file, i );
+    }
     return true;
 }
 
 void min::init_input_string
 	( min::file & file,
 	  const char * data,
-	  min::uns32 spool_lines,
-	  min::gen filename )
+	  min::gen filename,
+	  min::uns32 spool_lines )
 {
     init ( file );
     file->istream = NULL;
     file->ifile = NULL_STUB;
-    file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == NULL_STUB )
-        file->line_index =
-	    ::file_line_index_type.new_stub ( 100 );
     file->filename = filename;
+    ::set_spool_lines ( file, spool_lines );
 
     min::uns64 length = ::strlen ( data );
     assert ( length < ( 1ull << 32 ) );
@@ -1911,7 +1891,7 @@ void min::init_input_string
     for ( uns32 i = 0; i < length; ++ i )
     {
         if ( file->buffer[i] == '\n' )
-	    file->buffer[i] = 0;
+	    min::end_line ( file, i );
     }
 }
 
@@ -1990,7 +1970,21 @@ min::uns32 min::next_line ( min::file & file )
 	    min::file ifile = file->ifile;
 	    uns32 ioffset = min::next_line ( ifile );
 
-	    if ( ioffset == NO_LINE ) return NO_LINE;
+	    if ( ioffset == NO_LINE )
+	    {
+		ioffset = ifile->next_line_offset;
+		uns32 length = ifile->buffer->length
+			     - ioffset;
+	        if ( length > 0 )
+		{
+		    min::push
+			( file->buffer, length,
+			  & ifile->buffer[ioffset] );
+		    ifile->next_line_offset =
+		        ifile->buffer->length;
+		}
+		return NO_LINE;
+	    }
 
 	    uns32 length =
 		::strlen ( & ifile->buffer[ioffset] );
@@ -1999,16 +1993,16 @@ min::uns32 min::next_line ( min::file & file )
 	}
 	else return NO_LINE;
 
-
-	min::push(file->buffer) = 0;
-	file->end_offset =
-	    file->buffer->length;
+	min::end_line ( file );
     }
+
     file->next_line_offset +=
         1 + ::strlen ( & file->buffer[line_offset] );
     ++ file->next_line_number;
+
     if ( file->line_index != NULL_STUB )
 	min::push(file->line_index) = line_offset;
+
     return line_offset;
 }
 
@@ -2019,9 +2013,6 @@ min::uns32 min::line
         return NO_LINE;
     else if ( line_number >= file->next_line_number )
         return NO_LINE;
-    else if (    file->spool_lines
-              >= file->line_index->length )
-        return file->line_index[line_number];
     else if (   file->spool_lines
               < file->next_line_number - line_number )
         return NO_LINE;
@@ -2043,6 +2034,7 @@ min::printer & operator <<
 {
     min::file file = pline.file;
     min::uns32 line_number = pline.line_number;
+
     min::uns32 offset = min::line ( file, line_number );
     if ( offset == min::NO_LINE )
     {
@@ -2056,11 +2048,12 @@ min::printer & operator <<
 
     // Blank line check.
     //
-    if ( ( file->print_flags && min::GRAPHIC_FLAG )
+    if ( ( file->print_flags & min::GRAPHIC_FLAG )
          &&
 	 file->buffer[offset] != 0 )
         ; // do nothing
-    else if ( file->print_flags && min::DISPLAY_EOL_FLAG )
+    else if (   file->print_flags
+              & min::DISPLAY_EOL_FLAG )
         ; // do nothing
     else
     {
@@ -2104,10 +2097,11 @@ min::printer & operator <<
     else
         printer << "lines " << pline_numbers.first
 	        << "-" << pline_numbers.last;
+
     return printer << min::pop_printer_parameters;
 }
 
-min::uns32 min::flush ( min::file & file )
+void min::flush ( min::file & file )
 {
     while ( true )
     {
@@ -2117,21 +2111,95 @@ min::uns32 min::flush ( min::file & file )
     }
     if ( file->next_line_offset < file->buffer->length )
     {
-	min::flush_partial
-	    ( file, file->next_line_offset );
+	min::flush_partial ( file );
 	file->next_line_offset = file->buffer->length;
     }
 }
-	  
-min::uns32 min::flush
+
+void min::flush
 	( min::file & file, min::uns32 offset )
-{}
-min::uns32 min::flush_partial
-	( min::file & file, min::uns32 offset )
-{}
-min::uns32 min::rewind
-	( min::file & file, min::uns32 line )
-{}
+{
+    assert ( offset < file->end_offset );
+
+    if ( file->ostream != NULL )
+        * file->ostream << & file->buffer[offset]
+	                << std::endl;
+
+    if ( file->ofile != NULL_STUB )
+    {
+        min::uns32 length =
+	    ::strlen ( & file->buffer[offset] );
+	min::push ( file->ofile->buffer, length,
+	            & file->buffer[offset] );
+	min::end_line ( file->ofile );
+    }
+
+    if ( file->printer != NULL_STUB )
+    {
+        file->printer << min::push_printer_parameters
+		      << min::noascii << min::nographic
+		      << & file->buffer[offset]
+		      << min::pop_printer_parameters
+		      << min::eol;
+    }
+}
+
+void min::flush_partial ( min::file & file )
+{
+    min::uns32 offset = file->next_line_offset;
+    if ( offset == file->buffer->length ) return;
+
+    min::push(file->buffer) = 0;
+
+    if ( file->ostream != NULL )
+    {
+        * file->ostream << & file->buffer[offset];
+	std::flush ( * file->ostream );
+    }
+
+    if ( file->ofile != NULL_STUB )
+    {
+        min::uns32 length =
+	    ::strlen ( & file->buffer[offset] );
+	min::push ( file->ofile->buffer, length,
+	            & file->buffer[offset] );
+    }
+
+    if ( file->printer != NULL_STUB )
+    {
+        file->printer << min::push_printer_parameters
+		      << min::noascii << min::nographic
+		      << & file->buffer[offset]
+		      << min::pop_printer_parameters;
+    }
+
+    min::pop ( file->buffer );
+}
+
+void min::rewind
+	( min::file & file, min::uns32 line_number )
+{
+    if ( line_number == 0 )
+    {
+        file->next_line_number = 0;
+	file->next_line_offset = 0;
+	if ( file->line_index != NULL_STUB )
+	    min::pop ( file->line_index,
+	               file->line_index->length );
+    }
+    else
+    {
+        assert ( file->spool_lines == min::ALL_LINES );
+	assert
+	    ( line_number < file->next_line_number );
+	file->next_line_offset =
+	    file->line_index[line_number];
+	file->next_line_number = line_number;
+	min::pop ( file->line_index,
+	             file->line_index->length
+		   - line_number );
+    }
+}
 
 // Objects
 // -------
@@ -7454,7 +7522,7 @@ const min::printer_op min::setbreak ( ::setbreak );
 
 const min::printer_op min::ascii
     ( PINT::set_printer_flags, min::ASCII_FLAG );
-const min::printer_op min::utf8
+const min::printer_op min::noascii
     ( PINT::clear_printer_flags, min::ASCII_FLAG );
 const min::printer_op min::graphic
     ( PINT::set_printer_flags, min::GRAPHIC_FLAG );
@@ -7864,7 +7932,8 @@ min::printer & operator <<
 	prtr1 << & prtr2[prtr2->flush_offset]
 	      << min::eol;
 	prtr2->flush_offset += 
-	    1 + ::strlen ( & prtr2[prtr2->flush_offset] );
+	    1 + ::strlen
+	           ( & prtr2[prtr2->flush_offset] );
     }
 
     if ( prtr2->flush_offset < prtr2->length )

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 12 07:33:18 EST 2011
+// Date:	Wed Feb 16 05:42:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,6 +34,7 @@
 //	Names
 //	Packed Structures
 //	Packed Vectors
+//	File
 //	Printer
 //	Objects
 //	Object Vector Level
@@ -46,12 +47,12 @@
 
 # include <iostream>
 # include <iomanip>
+# include <sstream>
 # include <cstring>
 using std::cout;
 using std::endl;
 using std::hex;
 using std::dec;
-using std::ostream;
 
 bool debug = false;
 #define dout if ( debug ) cout
@@ -194,8 +195,8 @@ void initialize_stub_region ( void )
 	( MINT::last_allocated_stub, 0 );
 }
 
-ostream & operator <<
-	( ostream & out, const min::stub * s )
+std::ostream & operator <<
+	( std::ostream & out, const min::stub * s )
 {
     min::stub locate;
     out << "stub ";
@@ -2074,6 +2075,117 @@ void test_packed_vectors ( void )
     cout << "Finish Packed Vectors Test!" << endl;
 }
 
+// File
+// ----
+
+void test_file ( void )
+{
+    cout << endl;
+    cout << "Start File Test!" << endl;
+    min_assert_print = false;
+
+    min::file file1;
+    min::init_input_string
+        ( file1, "Line 1\nLine 2\nLine 3\n" );
+    MIN_ASSERT
+        (    strcmp ( "Line 1",
+	              & file1->buffer
+		          [min::next_line(file1)] )
+	  == 0 );
+    MIN_ASSERT
+        (    strcmp ( "Line 2",
+	              & file1->buffer
+		          [min::next_line(file1)] )
+	  == 0 );
+    MIN_ASSERT
+        (    strcmp ( "Line 3",
+	              & file1->buffer
+		          [min::next_line(file1)] )
+	  == 0 );
+    MIN_ASSERT
+        ( min::NO_LINE == min::next_line ( file1 ) );
+    MIN_ASSERT
+        (    strcmp ( "Line 2",
+	              & file1->buffer
+		          [min::line(file1,1)] )
+	  == 0 );
+
+    min::file file2;
+    min::init_input_named_file
+        ( file2,
+	  min::new_str_gen
+	      ( "min_interface_test_file.in" ),
+	  * ( min::printer *) min::NULL_STUB,
+	  0 );
+    MIN_ASSERT
+        (    strcmp ( "Line 0",
+	              & file2->buffer
+		          [min::next_line(file2)] )
+	  == 0 );
+    MIN_ASSERT
+        (    strcmp ( "Line 1",
+	              & file2->buffer
+		          [min::next_line(file2)] )
+	  == 0 );
+    MIN_ASSERT
+        ( min::NO_LINE == min::next_line ( file2 ) );
+    MIN_ASSERT
+        ( min::NO_LINE == min::line ( file2, 0 ) );
+
+    char * data = "Line A\nLine B\nPartial Line";
+    unsigned data_length = strlen ( data );
+
+    std::istringstream istream ( data );
+    min::file file3, file4;
+    min::init_input_stream ( file3, istream );
+    min::init ( file4 );
+    min::init_output_file ( file3, file4 );
+    min::flush ( file3 );
+    MIN_ASSERT ( data_length == file3->buffer->length );
+    MIN_ASSERT ( data_length == file4->buffer->length );
+    MIN_ASSERT ( strncmp ( & file3->buffer[0],
+    			   & file4->buffer[0],
+                           data_length ) == 0 );
+    MIN_ASSERT
+        (    strcmp ( "Line A",
+	              & file4->buffer
+		          [min::next_line(file4)] )
+	  == 0 );
+    MIN_ASSERT
+        (    strcmp ( "Line B",
+	              & file4->buffer
+		          [min::next_line(file4)] )
+	  == 0 );
+    MIN_ASSERT
+        ( min::NO_LINE == min::next_line ( file4 ) );
+
+    std::ostringstream ostream
+        (std::ostringstream::out);
+    min::file file5;
+    min::init_input_file ( file5, file4 );
+    min::init_output_stream ( file5, ostream );
+    min::rewind ( file4 );
+    min::flush ( file5 );
+    MIN_ASSERT ( data == ostream.str() );
+
+    min::end_line ( file5 );
+    min::rewind ( file5, 1 );
+        // We cannot rewind to line 1 as that is ==
+	// file5->next_line_number.
+    min::next_line ( file5 );
+    MIN_ASSERT
+        (    strcmp ( "Partial Line",
+	              & file5->buffer
+		          [min::next_line(file5)] )
+	  == 0 );
+    MIN_ASSERT
+        ( min::NO_LINE == min::next_line ( file5 ) );
+
+    min_assert_print = true;
+    cout << endl;
+    cout << "Finish File Test!" << endl;
+}
+
 // Printer
 // -------
 
@@ -3648,6 +3760,7 @@ int main ( int argc )
 	test_names();
 	test_packed_structs();
 	test_packed_vectors();
+	test_file();
 	test_printer();
 	test_objects();
 	test_object_vector_level();
