@@ -4720,13 +4720,13 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr,|\ARGBREAK
+      \verb| ( min::printer & printer,|\ARGBREAK
       \verb|   const min::pline & pline )|
 \LABEL{PRINTER_OPERATOR<<_OF_PLINE} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr,|\ARGBREAK
+      \verb| ( min::printer & printer,|\ARGBREAK
       \verb|   const min::pline_numbers & pline_numbers )|
 \LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
 \end{tabular}\end{indpar}
@@ -4737,58 +4737,54 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 A \ttkey{printer} may be used to print general values, print graphics for
 control characters, and break long lines to enforce line length.
 Internally a {\tt min::\EOL printer} is
-a packed vector with \verb|char| elements and additional members that
-are used to control format, limit line length, and so forth.  Values are
-written to printers via the \verb|<<| operator, much like the
+a packed structure that points at a {\tt min::\EOL file} and contains
+additional information used to format lines put into the file.
+Values are written to printers via the \verb|<<| operator, much like the
 way values are written to {\tt std::\EOL ostream}'s.  A special
 printer line end operation writes a line terminating {\tt NUL}
-at the end of the printer's vector, and optionally flushes the line
-to a {\tt std::\EOL ostream} associated with the printer.
-Note that within a printer's vector, lines are terminated by {\tt NUL}
-and \underline{not} by \verb|'\n'|.
+at the end of the printer file's vector, and optionally flushes the file.
 
 Creation, initialization, and parameterization of printers is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|typedef min::|
-	& \verb|packed_vec_insptr<char,min::printer_header>|\ARGBREAK
+	& \verb|packed_struct_updptr<min::printer_struct>|\ARGBREAK
 	  \verb|    min::|\MINKEY{printer}
 \LABEL{MIN::PRINTER} \\
-\verb|void min::| & \MINKEY{init}\verb| ( min::printer & prtr )|
-\LABEL{MIN::PRINTER_INIT} \\
-\verb|void min::| & \MINKEY{init}\verb| ( min::printer & prtr,|\ARGBREAK
-                                   \verb| std::ostream & ostream )|
-\LABEL{MIN::PRINTER_INIT_WITH_OSTREAM} \\
+\verb|void min::| & \MINKEY{init}\ARGBREAK
+    \verb| ( min::printer & printer,|\ARGBREAK
+    \verb|   min::file & file = min::NULL_STUB )|
+\LABEL{MIN::INIT_OF_PRINTER} \\
+\verb|void min::| & \MINKEY{init\_output\_stream}\ARGBREAK
+    \verb| ( min::printer & printer,|\ARGBREAK
+    \verb|   std::ostream & ostream )|
+\LABEL{MIN::INIT_OUTPUT_STREAM_OF_PRINTER} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 prtr| & \TTARMKEY{length}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_LENGTH} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{line}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_LINE} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{column}{in {\tt min::printer}}
+\verb|min::file printer| & \TTARMKEY{file}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_FILE} \\
+\verb|const min::uns32 printer| & \TTARMKEY{column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_COLUMN} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{line\_offset}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_LINE_OFFSET} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{break\_offset}{in {\tt min::printer}}
+\verb|const min::uns32 printer|
+    & \TTARMKEY{break\_offset}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_BREAK_OFFSET} \\
-\verb|const min::uns32 prtr| & \TTARMKEY{break\_column}{in {\tt min::printer}}
+\verb|const min::uns32 printer|
+    & \TTARMKEY{break\_column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_BREAK_COLUMN} \\
-\verb|const min::uns32 prtr|
-    & \TTARMKEY{flush\_\EOL offset}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_FLUSH_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer_parameters prtr|
+\verb|min::printer_parameters printer|
     & \TTARMKEY{parameters}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PARAMETERS} \\
-\verb|min::printer_parameters prtr|
-    & \TTARMKEY{saved\_\EOL parameters}{in {\tt min::printer}}
+\verb|min::printer_parameters printer|
+    & \TTARMKEY{saved\_\EOL parameters[4]}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_SAVED_PARAMETERS} \\
-\verb|std::ostream * prtr| & \TTARMKEY{ostream}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_OSTREAM} \\
+\verb|const min::uns32 printer|
+    & \TTARMKEY{save\_index}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_SAVE_INDEX} \\
 \end{tabular}\end{indpar}
 
 The {\tt min::}\MINKEY{init} function both re-initializes existing
@@ -4796,23 +4792,32 @@ printers and creates new ones.  It takes a variable as its
 first argument, and if the variable value is {\tt min::\EOL
 NULL\_\EOL STUB}, then a new printer is created and the
 variable is set to point at the new printer.
-The 2-argument form of {\tt min::\EOL init} sets the
-{\tt ostream} printer member (see below).
+The second argument to {\tt min::init} supplies the {\tt min::file}
+to which the printer is attached.  If this argument is
+{\tt min::\EOL NULL\_\EOL STUB} then if the printer already exists,
+its current file is not changed, and if the printer is being
+created, a suitable {\tt min::file} for it is created.
+
+The {\tt min::}\MINKEY{init\_\EOL output\_\EOL stream}
+function just executes
+\begin{indpar}\begin{verbatim}
+min::init ( printer );
+min::init_output_stream ( printer->file, ostream );
+\end{verbatim}\end{indpar}
+
+which is the most common way of setting up a printer.
 
 The members of a printer may be read but \underline{not} written, unless
 noted below.  They are:
 
 \begin{itemlist}[0.8in]
 
-\item[\ttmkey{length}{in {\tt min::printer}}]
-The number of {\tt char} elements in the printer vector
-(as per the printer being a packed vector: see \itemref{PACKED-VECTORS}).
-Initialized to {\tt 0}.
-
-\item[\ttmkey{line}{in {\tt min::printer}}]
-The number of the line currently being assembled, or of the next line if 
-the printer vector ends with a line-terminating {\tt NUL}.  The
-first line number is {\tt 0}.  Initialized to {\tt 0}.
+\item[\ttmkey{file}{in {\tt min::printer}}]
+The {\tt min::file} which contains the lines produced by the printer.
+Initialized by the second argument of {\tt min::\EOL init}, if that is
+not {\tt min::\EOL NULL\_\EOL STUB}, or otherwise created when the
+printer is created.  Initialized by {\tt min::\EOL init(printer->\EOL file)}
+when printer is initialized.
 
 \item[\ttmkey{column}{in {\tt min::printer}}]
 The number of columns currently in the line being assembled,
@@ -4821,37 +4826,24 @@ printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
 
 \end{itemlist}
 
-\begin{itemlist}[1.0in]
-
-\item[\ttmkey{line\_\EOL offset}{in {\tt min::printer}}]
-If the printer vector ends with a line-terminating {\tt NUL}, this
-equals {\tt length}, the vector length.  Otherwise it is the offset
-in the vector of the first character of the current line; that
-is, for printer {\tt prtr} this first line character is
-{\tt prtr[prtr->\EOL line\_\EOL offset]}.  Initialized to {\tt 0}.
+\begin{itemlist}[1.2in]
 
 \item[\ttmkey{break\_\EOL offset}{in {\tt min::printer}}]
 If there is no break point in the current line, this equals
-{\tt line\_\EOL offset}.  Otherwise it is the printer vector offset of the
+{\tt file->\EOL next\_\EOL line\_\EOL offset}.
+Otherwise it is the {\tt file->buffer} offset of the
 first byte in the current line after the last break point in the line.
 Initialized to {\tt 0}.
 
-\item[\ttmkey{break\_\EOL offset}{in {\tt min::printer}}]
+\item[\ttmkey{break\_\EOL column}{in {\tt min::printer}}]
 If there is no break point in the current line, this equals {\tt 0}.
 Otherwise it is the column of the
 first byte in the current line after the last break point in the line.
 Initialized to {\tt 0}.
 
-\item[\ttmkey{flush\_\EOL offset}{in {\tt min::printer}}]
-The number of printer vector elements that have already been
-sent to an {\tt std::ostream} or to another printer.  Or the
-offset in the vector of the first {\tt char} element that has
-not yet been written, or {\tt length} if there are no such characters.
-Initialized to {\tt 0}.
-
 \end{itemlist}
 
-\begin{itemlist}[1.5in]
+\begin{itemlist}[1.6in]
 
 \item[\ttmkey{parameters}{in {\tt min::printer}}]
 Contains parameters that control the printing process.
@@ -4859,26 +4851,18 @@ These parameters are described below.
 This member may be written.
 Initialized to the value of
 {\tt min::\EOL default\_\EOL printer\_\EOL parameters}
-when a printer is created, and to the value of
-{\tt printer\_\EOL saved\_\EOL parameters} when an existing
-printer is initialized by {\tt min::\EOL init}.
+when a printer is created.
 
-\item[\ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}]
-A copy of the {\tt parameters}.  The end-of-message {\tt min::\EOL eom}
-printer operation copies {\tt saved\_\EOL parameters} to {\tt parameters},
-thereby restoring the parameters to their `normal' values.
-This member may be written.
-Initialized to the value of
-{\tt min::\EOL default\_\EOL printer\_\EOL parameters} when a printer
-is created; not reset by {\tt min::\EOL init}.
+\item[\ttmkey{saved\_\EOL parameters[4]}{in {\tt min::printer}}]
+A stack of copies of the {\tt parameters}.
+The {\tt min::push\_\EOL parameters} operation copies
+{\tt parameters} into {\tt saved\_\EOL parameters[i]} where
+the index {\tt i~== save\_\EOL index}, and then
+increments {\tt save\_\EOL index}.
+The {\tt min::pop\_\EOL parameters} operation reverses this process.
 
-\item[\ttmkey{ostream}{in {\tt min::printer}}]
-If not {\tt NULL}, designates a {\tt std::\EOL ostream}
-to which printer lines are copied by the {\tt flush()} printer operation.
-The 2-argument form of {\tt min::\EOL init} sets this printer member.
-This member may be written.
-Initialized to {\tt NULL} when a printer
-is created; not reset by 1-argument {\tt min::\EOL init}.
+\item[\ttmkey{save\_\EOL index}{in {\tt min::printer}}]
+See {\tt saved\_parameters}.  Initialized to {\tt 0}.
 
 \end{itemlist}
 
@@ -4941,7 +4925,7 @@ tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the {\tt line\_length}, then if a
 break point exists and
 \begin{center}
-\verb|prtr->break_column > prtr->parameters.indent|
+\verb|printer->break_column > printer->parameters.indent|
 \end{center}
 then a break, consisting of a line end followed by indentation spaces,
 is pushed into the printer vector before the character representative.
@@ -5061,37 +5045,37 @@ Copying characters into a printer is done by the
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, const char * s )|
+      \verb| ( min::printer & printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, char c )|
+      \verb| ( min::printer & printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, min::int32 i )|
+      \verb| ( min::printer & printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, min::int64 i )|
+      \verb| ( min::printer & printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, min::uns32 u )|
+      \verb| ( min::printer & printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, min::uns64 u )|
+      \verb| ( min::printer & printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \verb|min::printer & |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr, min::float64 f )|
+      \verb| ( min::printer & printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
 \end{tabular}\end{indpar}
 
@@ -5133,25 +5117,24 @@ min::float64	& "\%.15g" \\
 \end{center}
 
 Operations can be performed on printers by applying the
-{\tt <<} operator to a {\tt min::}\MINKEY{printer\_op}:
+{\tt <<} operator to a {\tt min::}\MINKEY{op}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer & |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr,|\ARGBREAK
-      \verb|   const min::printer_op & op )|
+    & \TTOMKEY{<<}{\LT\LT}{of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer & printer,|\ARGBREAK
+      \verb|   const min::op & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
 \end{tabular}\end{indpar}
 
-Printer operations behave for printers as {\tt iomanip}
+Operations behave for printers as {\tt iomanip}
 C++ objects behave for {\tt iostreams}.  For example, the
 printer analogs of {\tt std::\EOL endl} are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~}l}
-\verb|const min::printer_op min::| & \MINKEY{eol} & (end of line)
+\verb|const min::op min::| & \MINKEY{eol} & (end of line)
 \LABEL{MIN::EOL} \\
-\verb|const min::printer_op min::| & \MINKEY{eom} & (end of message)
+\verb|const min::op min::| & \MINKEY{eom} & (end of message)
 \LABEL{MIN::EOM} \\
 \end{tabular}\end{indpar}
 
@@ -5159,15 +5142,15 @@ and the {\tt min::setbreak} printer operation can be used to
 explicitly set a break point:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::| & \MINKEY{setbreak}
+\verb|const min::op min::| & \MINKEY{setbreak}
 \LABEL{MIN::SETBREAK} \\
 \end{tabular}\end{indpar}
 
-More specifically, {\tt prtr<<min::setbreak} sets a break point after
+More specifically, {\tt printer<<min::setbreak} sets a break point after
 the last character in the printer vector by executing:
 \begin{indpar}\begin{verbatim}
-prtr->break_offset = prtr->length;
-prtr->break_column = prtr->column;
+printer->break_offset = printer->buffer->length;
+printer->break_column = printer->column;
 \end{verbatim}\end{indpar}
 
 Both {\tt min::eol} and {\tt min::eom} end the current line.  The
@@ -5179,91 +5162,26 @@ printer {\tt parameters.flag} is on: i.e., the
 {\tt min::EOL\_\EOL FLUSH\_\EOL FLAG} for {\tt min::\EOL eol}, and the
 {\tt min::EOM\_\EOL FLUSH\_\EOL FLAG} for {\tt min::\EOL eom}.
 
-The flush printer operations copy the printer vector contents
-to an {\tt std::ostream}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer_op min::|
-    & \MINKEY{flush}\verb| ( void )|
-\LABEL{MIN::FLUSH} \\
-\verb|min::printer_op min::|
-    & \MINKEY{flush}\verb| ( std::ostream & stream )|
-\LABEL{MIN::FLUSH_WITH_OSTREAM} \\
-\end{tabular}\end{indpar}
-
-The 0-argument {\tt min::flush} uses the printer {\tt ostream}
-member.  The 1-argument {\tt min::\EOL flush} specifies the {\tt ostream}.
-Line terminating {\tt NUL}s
-in the printer vector are translated to line feeds, but if the
-last line in the printer vector is incomplete, it is output without
-any following line feed.  Characters previously flushed from the printer
-vector are not included: only characters at or after the printer
-\ttmkey{flush\_\EOL offset}{in {\tt min::printer}}
-member are copied, and this member is then reset
-to the length of the printer vector.
-These functions both remove all terminated lines copied to the {\tt ostream}
-from the printer vector, unless the {\tt min::\EOL KEEP\_\EOL FLAG}
-printer {\tt parameters.flag} is on.
-If the {\tt ostream} has
-{\tt NULL} address, the {\tt min::flush} functions do not do anything.
-
-The {\tt <<} operator can also be used to copy a printer vector
-to either an {\tt ostream} or to another printer vector.
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|std::ostream & |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt std::ostream}}\ARGBREAK
-      \verb| ( std ostream & out, min::printer & prtr )|
-\LABEL{OPERATOR<<_OF_PRINTER} \\
-\verb|min::printer & |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & prtr1,|\ARGBREAK
-      \verb|   min::printer & prtr2 )|
-\LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
-\end{tabular}\end{indpar}
-
-If {\tt out} is an {\tt ostream}, `{\tt out<<prtr}' does the
-same thing as `{\tt prtr<<min::\EOL flush(out)}', except
-that the latter does nothing if `{\tt out}' has {\tt NULL}
-address.
-
-If {\tt prtr1} and {\tt prtr2} are printers,
-`{\tt prtr1<<prtr2}' copies the not-previously-flushed
-characters of {\tt prtr2} to {\tt prtr1}.  Line terminations
-are translated to `{\tt prtr1<<min::\EOL eol}'.  Other characters
-are copied to {\tt prtr1} as if that printer had its
-{\tt min::\EOL ASCII\_\EOL FLAG} and
-{\tt min::\EOL GRAPHIC\_\EOL FLAG} both off.
-Note that since horizontal tabs input to {\tt prtr2} have
-been converted to 1 to 8 single space characters, it is these
-single space characters that are copied to {\tt prtr1}, so the
-effective tab stops are those of {\tt prtr2} and not {\tt prtr1}.
-After copying characters, the
-{\tt prtr2->}\ttmkey{\tt flush\_\EOL offset}{in {\tt min::printer}}
-member is reset to the length of {\tt prtr2}.
-
-Printer operations can also be used to print values with specified
-formats.  The {\tt min::\EOL pgen} printer operation prints
+Operations can also be used to print values with specified
+formats.  The {\tt min::\EOL pgen} operation prints
 {\tt min::gen} values using a {\tt min::\EOL printer\_\EOL format}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{pgen}\verb| ( min::gen v,|\\&{\tt ~~~~}
       \verb|   const min::printer_format *|\\&{\tt ~~~~}
       \verb|        format = NULL )|
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
-The expression `{\tt prtr<<min::pgen(v,f)}' prints the {\tt min::gen}
-value \verb|v| to the printer {\tt prtr} using the
+The expression `{\tt printer<<min::pgen(v,f)}' prints the {\tt min::gen}
+value \verb|v| to the printer {\tt printer} using the
 {\tt min::\EOL printer\_\EOL format} value pointed at by {\tt f}.
-If {\tt f} is {\tt NULL}, {\tt prtr->\EOL parameters.for\-mat} is used
+If {\tt f} is {\tt NULL}, {\tt printer->\EOL parameters.for\-mat} is used
 instead.  If that is also {\tt NULL},
 {\tt \&min::default\_\EOL printer\_\EOL format} is used.
 
-Note that `{\tt prtr<<v}' for a {\tt min::gen} value {\tt v} will
+Note that `{\tt printer<<v}' for a {\tt min::gen} value {\tt v} will
 \underline{not} have the desired result, as {\tt v} will be taken to be
 an integer.
 
@@ -5281,7 +5199,7 @@ A {\tt min::printer\_format} is as follows:
     \verb|  const char * special_prefix;|\ARGBREAK
     \verb|  const char * special_postfix;|\ARGBREAK
     \verb|  min::printer & ( * pr_stub )|\ARGBREAK
-    \verb|       ( min::printer & prtr,|\ARGBREAK
+    \verb|       ( min::printer & printer,|\ARGBREAK
     \verb|         const min::stub * s );|\ARGBREAK
     \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
@@ -5325,34 +5243,34 @@ The {\tt pr\_\EOL stub} function, if it is not {\tt NULL}, is called
 with any {\tt min::stub} that is not a number, label, or string.
 
 A single UNICODE character, or a string of UNICODE characters,
-can be printed using the following printer operations:
+can be printed using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{punicode}\verb| ( min::uns32 c )|
 \LABEL{MIN::PUNICODE} \\
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{punicode}\ARGBREAK
       \verb| ( min::unsptr length,|\ARGBREAK
-      \verb|   const min::uns32 * buffer )|
+      \verb|   const min::uns32 * str )|
 \LABEL{MIN::PUNICODE_BUFFER} \\
 \end{tabular}\end{indpar}
 
 Numbers may be formatted by specified {\tt printf} formats and the results
-printed by using the following printer operations:
+printed by using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{pint}%
       \verb| ( min::int64 i,|\\&{\tt ~~~~}%
       \verb|   const char * printf_format )|
 \LABEL{MIN::PINT} \\
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{puns}%
       \verb| ( min::uns64 u,|\\&{\tt ~~~~}%
       \verb|   const char * printf_format )|
 \LABEL{MIN::PUNS} \\
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{pfloat}%
       \verb| ( min::float64 f,|\\&{\tt ~~~~}%
       \verb|   const char * printf_format )|
@@ -5360,93 +5278,81 @@ printed by using the following printer operations:
 \end{tabular}\end{indpar}
 
 The components of a printer {\tt parameters} member may be set
-by the following printer operations:
+by the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{format}\verb| ( min::printer_format * format )|
 \LABEL{MIN::FORMAT} \\
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{line\_length}\verb| ( min::uns32 line_length )|
 \LABEL{MIN::LINE_LENGTH} \\
-\verb|min::printer_op min::|
+\verb|min::op min::|
     & \MINKEY{indent}\verb| ( min::uns32 indent )|
 \LABEL{MIN::INDENT} \\
-\verb|min::printer_op min::|
-    & \MINKEY{set\_printer\_flags}\verb| ( min::uns32 flags )|
+\verb|min::op min::|
+    & \MINKEY{set\_flags}\verb| ( min::uns32 flags )|
 \LABEL{MIN::SET_PRINTER_FLAGS} \\
-\verb|min::printer_op min::|
-    & \MINKEY{clear\_printer\_flags}\verb| ( min::uns32 flags )|
+\verb|min::op min::|
+    & \MINKEY{clear\_flags}\verb| ( min::uns32 flags )|
 \LABEL{MIN::CLEAR_PRINTER_FLAGS} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt prtr<<min::set\_printer\_flags(min::ASCII\_FLAG)}'
-sets the {\tt ASCII\_FLAG} of {\tt prtr->\EOL parameters.flags}.
+For example, `{\tt printer<<min::set\_flags(min::ASCII\_FLAG)}'
+sets the {\tt ASCII\_FLAG} of {\tt para\-meters.flags}.
 
 Particular {\tt parameters->flags} may be set and cleared by the
 following
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::| & \MINKEY{ascii}
+\verb|const min::op min::| & \MINKEY{ascii}
 \LABEL{MIN::ASCII} \\
-\verb|const min::printer_op min::| & \MINKEY{noascii}
+\verb|const min::op min::| & \MINKEY{noascii}
 \LABEL{MIN::NOASCII} \\
-\verb|const min::printer_op min::| & \MINKEY{graphic}
+\verb|const min::op min::| & \MINKEY{graphic}
 \LABEL{MIN::GRAPHIC} \\
-\verb|const min::printer_op min::| & \MINKEY{nographic}
+\verb|const min::op min::| & \MINKEY{nographic}
 \LABEL{MIN::NOGRAPHIC} \\
-\verb|const min::printer_op min::| & \MINKEY{display\_eol}
+\verb|const min::op min::| & \MINKEY{display\_eol}
 \LABEL{MIN::DISPLAY_EOL} \\
-\verb|const min::printer_op min::| & \MINKEY{nodisplay\_eol}
+\verb|const min::op min::| & \MINKEY{nodisplay\_eol}
 \LABEL{MIN::NODISPLAY_EOL} \\
-\verb|const min::printer_op min::| & \MINKEY{autobreak}
+\verb|const min::op min::| & \MINKEY{autobreak}
 \LABEL{MIN::AUTOBREAK} \\
-\verb|const min::printer_op min::| & \MINKEY{noautobreak}
+\verb|const min::op min::| & \MINKEY{noautobreak}
 \LABEL{MIN::NOAUTOBREAK} \\
-\verb|const min::printer_op min::| & \MINKEY{eol\_flush}
+\verb|const min::op min::| & \MINKEY{eol\_flush}
 \LABEL{MIN::EOL_FLUSH} \\
-\verb|const min::printer_op min::| & \MINKEY{noeol\_flush}
+\verb|const min::op min::| & \MINKEY{noeol\_flush}
 \LABEL{MIN::NOEOL_FLUSH} \\
-\verb|const min::printer_op min::| & \MINKEY{eom\_flush}
+\verb|const min::op min::| & \MINKEY{eom\_flush}
 \LABEL{MIN::EOM_FLUSH} \\
-\verb|const min::printer_op min::| & \MINKEY{noeom\_flush}
+\verb|const min::op min::| & \MINKEY{noeom\_flush}
 \LABEL{MIN::NOEOM_FLUSH} \\
-\verb|const min::printer_op min::| & \MINKEY{keep}
+\verb|const min::op min::| & \MINKEY{keep}
 \LABEL{MIN::KEEP} \\
-\verb|const min::printer_op min::| & \MINKEY{nokeep}
+\verb|const min::op min::| & \MINKEY{nokeep}
 \LABEL{MIN::NOKEEP} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt ptrt<<min::autobreak}' sets the
-{\tt prtr->\EOL parameters.flags} {\tt AUTOBREAK\_FLAG}
-and `{\tt prtr<<min::noautobreak}' clears this flag.
+For example, `{\tt printer<<min::autobreak}' sets the
+{\tt printer->\EOL parameters.flags} {\tt AUTO\-BREAK\_FLAG}
+and `{\tt printer<<min::noautobreak}' clears this flag.
 
 The {\tt parameters} of a printer may be saved in the
 \ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
-member of the printer, and restored from that member.
-This may be done explicitly by the following printer
+stack of the printer, and restored from that stack.
+This may be done explicitly by the following
 operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::printer_op min::|
-    & \MINKEY{save\_printer\_parameters}
-\LABEL{MIN::SAVE_PRINTER_PARAMETERS} \\
-\verb|const min::printer_op min::|
-    & \MINKEY{restore\_printer\_parameters}
-\LABEL{MIN::RESTORE_PRINTER_PARAMETERS} \\
+\verb|const min::op min::|
+    & \MINKEY{push\_parameters}
+\LABEL{MIN::SAVE_PARAMETERS} \\
+\verb|const min::op min::|
+    & \MINKEY{restore\_parameters}
+\LABEL{MIN::RESTORE_PARAMETERS} \\
 \end{tabular}\end{indpar}
-
-The idea behind {\tt saved\_parameters} is that output consists
-of a sequence of messages, such as error messages, and that
-flags set producing these messages, such as the
-{\tt min::\EOL GRAPHIC\_\EOL FLAG}, may need to be cleared at the
-end of the message.  This can be done by setting the normal
-printer parameters when the printer is initialized, saving them
-with `{\tt prtr<<min::\EOL save\_\EOL printer\_\EOL parameters}',
-and then ending messages with `{\tt prtr<<min::eom}', which restores
-the parameters to their normal state by copying
-{\tt prtr->\EOL saved\_\EOL parameters}
-to {\tt prtr->\EOL parameters}.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}

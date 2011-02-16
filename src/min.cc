@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 03:35:35 EST 2011
+// Date:	Wed Feb 16 11:41:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2064,17 +2064,17 @@ min::printer & operator <<
 	                   << min::eol;
     }
 
-    printer << min::push_printer_parameters
-            << min::clear_printer_flags
+    printer << min::push_parameters
+            << min::clear_flags
 	            (   min::AUTOBREAK_FLAG
 		      + min::GRAPHIC_FLAG
 		      + min::ASCII_FLAG
 		      + min::DISPLAY_EOL_FLAG )
-	    << min::set_printer_flags
+	    << min::set_flags
 	    	    (   ::print_flags_mask
 		      & file->print_flags )
 	    << & file->buffer[offset] << min::eol
-	    << min::pop_printer_parameters;
+	    << min::pop_parameters;
 
     return printer;
 }
@@ -2089,7 +2089,7 @@ min::printer & operator <<
         min::str_ptr sp ( file->filename );
 	printer << & sp[0] << ": ";
     }
-    printer << min::push_printer_parameters
+    printer << min::push_parameters
             << min::noautobreak;
 
     if ( pline_numbers.first == pline_numbers.last )
@@ -2098,7 +2098,7 @@ min::printer & operator <<
         printer << "lines " << pline_numbers.first
 	        << "-" << pline_numbers.last;
 
-    return printer << min::pop_printer_parameters;
+    return printer << min::pop_parameters;
 }
 
 void min::flush ( min::file & file )
@@ -2136,10 +2136,10 @@ void min::flush
 
     if ( file->printer != NULL_STUB )
     {
-        file->printer << min::push_printer_parameters
+        file->printer << min::push_parameters
 		      << min::noascii << min::nographic
 		      << & file->buffer[offset]
-		      << min::pop_printer_parameters
+		      << min::pop_parameters
 		      << min::eol;
     }
 }
@@ -2167,10 +2167,10 @@ void min::flush_partial ( min::file & file )
 
     if ( file->printer != NULL_STUB )
     {
-        file->printer << min::push_printer_parameters
+        file->printer << min::push_parameters
 		      << min::noascii << min::nographic
 		      << & file->buffer[offset]
-		      << min::pop_printer_parameters;
+		      << min::pop_parameters;
     }
 
     min::pop ( file->buffer );
@@ -7174,13 +7174,19 @@ static void init_utf8graphic ( void )
 
 static char NUL_UTF8_ENCODING[2] = { 0xC0, 0x80 };
 
-static min::packed_vec<char,min::printer_header>
-    printer_type ( "min::printer_type" );
+static min::uns32 printer_stub_disp[2] =
+    { min::DISP ( & min::printer_struct::file ),
+      min::DISP_END };
+
+static min::packed_struct<min::printer_struct>
+    printer_type ( "min::printer_type",
+                   NULL, ::printer_stub_disp );
 
 static void init_utf8graphic ( void );
-void min::init ( printer & prtr )
+void min::init ( min::printer & printer,
+                 min::file & file )
 {
-    if ( prtr == NULL_STUB )
+    if ( printer == NULL_STUB )
     {
         static bool first = true;
 	if ( first )
@@ -7189,22 +7195,18 @@ void min::init ( printer & prtr )
 	    ::init_utf8graphic();
 	}
 
-        prtr = ::printer_type.new_stub();
-	prtr->parameters = prtr->saved_parameters =
+        printer = ::printer_type.new_stub();
+	printer->parameters =
 	    min::default_printer_parameters;
     }
-    else
-    {
-        min::pop ( prtr, prtr->length );
-	prtr->parameters = prtr->saved_parameters;
-    }
 
-    prtr->line = 0;
-    prtr->column = 0;
-    prtr->line_offset = 0;
-    prtr->break_offset = 0;
-    prtr->break_column = 0;
-    prtr->flush_offset = 0;
+    if ( printer->file != NULL_STUB )
+        printer->file = file;
+    init ( printer->file );
+
+    printer->column = 0;
+    printer->break_offset = 0;
+    printer->break_column = 0;
 }
 
 template < typename T >
@@ -7308,154 +7310,144 @@ T & print_gen
 }
 
 min::printer & PINT::pgen
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
     const min::printer_format * f =
         (min::printer_format *) op.v2.p;
-    if  ( f == NULL ) f = prtr->parameters.format;
+    if  ( f == NULL ) f = printer->parameters.format;
     if  ( f == NULL ) f = & min::default_printer_format;
 
-    return print_gen ( prtr, op.v1.g, f, f->pr_stub );
+    return print_gen
+        ( printer, op.v1.g, f, f->pr_stub );
 }
 
 static min::printer & print_unicode
-	( min::printer & prtr,
+	( min::printer & printer,
 	  min::unsptr n, const min::uns32 * buffer );
 
 min::printer & PINT::punicode1
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    return ::print_unicode ( prtr, 1, & op.v1.u32 );
+    return ::print_unicode ( printer, 1, & op.v1.u32 );
 }
 
 min::printer & PINT::punicode2
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
     return ::print_unicode
-        ( prtr, op.v1.uptr,
+        ( printer, op.v1.uptr,
 	        (const uns32 *) op.v2.p );
 }
 
 min::printer & PINT::pint
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
     char buffer[256];
     sprintf ( buffer, (const char *) op.v2.p,
                       op.v1.i64 );
-    return prtr << buffer;
+    return printer << buffer;
 }
 
 min::printer & PINT::puns
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
     char buffer[256];
     sprintf ( buffer, (const char *) op.v2.p,
                       op.v1.u64 );
-    return prtr << buffer;
+    return printer << buffer;
 }
 
 min::printer & PINT::pfloat
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
     char buffer[256];
     sprintf ( buffer, (const char *) op.v2.p,
                       op.v1.f64 );
-    return prtr << buffer;
-}
-
-min::printer & PINT::flush0
-	( min::printer & prtr,
-	  const min::printer_op & op )
-{
-    if ( prtr->ostream != NULL )
-	* prtr->ostream << prtr;
-    return prtr;
-}
-
-min::printer & PINT::flush1
-	( min::printer & prtr,
-	  const min::printer_op & op )
-{
-    if ( op.v1.p != NULL )
-	* (std::ostream *) op.v1.p << prtr;
-    return prtr;
+    return printer << buffer;
 }
 
 min::printer & PINT::format
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->parameters.format =
+    printer->parameters.format =
         (const printer_format *) op.v1.p;
-    return prtr;
+    return printer;
 }
 
 min::printer & PINT::line_length
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->parameters.line_length = op.v1.u32;
-    return prtr;
+    printer->parameters.line_length = op.v1.u32;
+    return printer;
 }
 
 min::printer & PINT::indent
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->parameters.indent = op.v1.u32;
-    return prtr;
+    printer->parameters.indent = op.v1.u32;
+    return printer;
 }
 
 min::printer & PINT::set_printer_flags
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->parameters.flags |= op.v1.u32;
-    return prtr;
+    printer->parameters.flags |= op.v1.u32;
+    return printer;
 }
 
 min::printer & PINT::clear_printer_flags
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->parameters.flags &= ~ op.v1.u32;
-    return prtr;
+    printer->parameters.flags &= ~ op.v1.u32;
+    return printer;
 }
 
-static min::printer & save_printer_parameters
-	( min::printer & prtr,
-	  const min::printer_op & op )
+static min::printer & push_parameters
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->saved_parameters = prtr->parameters;
-    return prtr;
+    assert ( printer->save_index < 4 );
+    printer->saved_parameters[printer->save_index++] =
+        printer->parameters;
+    return printer;
 }
 
-static min::printer & restore_printer_parameters
-	( min::printer & prtr,
-	  const min::printer_op & op )
+static min::printer & pop_parameters
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->parameters = prtr->saved_parameters;
-    return prtr;
+    assert ( printer->save_index > 0 );
+    printer->parameters =
+        printer->saved_parameters
+	    [--printer->save_index];
+    return printer;
 }
 
-static void end_line ( min::printer & prtr )
+static void end_line ( min::printer & printer )
 {
     // Remove line ending single spaces.
     //
-    min::uns32 offset = prtr->length;
-    while ( offset > 0 && prtr[offset-1] == ' ' )
+    min::packed_vec_insptr<char> buffer =
+        printer->file->buffer;
+    min::uns32 offset = buffer->length;
+    while ( offset > 0 && buffer[offset-1] == ' ' )
 	-- offset;
-    min::pop ( prtr, prtr->length - offset );
+    min::pop ( buffer, buffer->length - offset );
 
     // Add displayed eol.
     //
-    min::uns32 flags = prtr->parameters.flags;
+    min::uns32 flags = printer->parameters.flags;
     if ( flags & min::DISPLAY_EOL_FLAG )
     {
 	const char * rep;
@@ -7464,90 +7456,74 @@ static void end_line ( min::printer & prtr )
 	else
 	    rep = utf8graphic['\n'];
 	int len = ::strlen ( rep );
-	min::push ( prtr, len, rep );
+	min::push ( buffer, len, rep );
     }
 
-    min::push(prtr) = 0;
-    ++ prtr->line;
-    prtr->column = 0;
-    prtr->line_offset = prtr->length;
-    prtr->break_offset = prtr->length;
-    prtr->break_column = 0;
+    min::end_line ( printer->file );
+
+    printer->column = 0;
+    printer->break_offset = buffer->length;
+    printer->break_column = 0;
 }
 
 static min::printer & eol
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    ::end_line ( prtr );
+    ::end_line ( printer );
 
-    if ( prtr->parameters.flags & min::EOL_FLUSH_FLAG )
-        prtr << min::flush();
-    return prtr;
-}
-
-static min::printer & eom
-	( min::printer & prtr,
-	  const min::printer_op & op )
-{
-    ::end_line ( prtr );
-    prtr->parameters = prtr->saved_parameters;
-    if ( prtr->parameters.flags & min::EOM_FLUSH_FLAG )
-        prtr << min::flush();
-    return prtr;
+    if (   printer->parameters.flags
+         & min::EOL_FLUSH_FLAG )
+        min::flush ( printer->file );
+    return printer;
 }
 
 static min::printer & setbreak
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    prtr->break_offset = prtr->length;
-    prtr->break_column = prtr->column;
-    return prtr;
+    printer->break_offset =
+        printer->file->buffer->length;
+    printer->break_column = printer->column;
+    return printer;
 }
 
-const min::printer_op min::push_printer_parameters
-    ( ::save_printer_parameters );
-const min::printer_op min::pop_printer_parameters
-    ( ::restore_printer_parameters );
+const min::op min::push_parameters
+    ( ::push_parameters );
+const min::op min::pop_parameters
+    ( ::pop_parameters );
 
-const min::printer_op min::save_printer_parameters
-    ( ::save_printer_parameters );
-const min::printer_op min::restore_printer_parameters
-    ( ::restore_printer_parameters );
+const min::op min::eol ( ::eol );
+const min::op min::setbreak ( ::setbreak );
 
-const min::printer_op min::eol ( ::eol );
-const min::printer_op min::eom ( ::eom );
-const min::printer_op min::setbreak ( ::setbreak );
-
-const min::printer_op min::ascii
+const min::op min::ascii
     ( PINT::set_printer_flags, min::ASCII_FLAG );
-const min::printer_op min::noascii
+const min::op min::noascii
     ( PINT::clear_printer_flags, min::ASCII_FLAG );
-const min::printer_op min::graphic
+const min::op min::graphic
     ( PINT::set_printer_flags, min::GRAPHIC_FLAG );
-const min::printer_op min::nographic
+const min::op min::nographic
     ( PINT::clear_printer_flags, min::GRAPHIC_FLAG );
-const min::printer_op min::display_eol
+const min::op min::display_eol
     ( PINT::set_printer_flags, min::DISPLAY_EOL_FLAG );
-const min::printer_op min::nodisplay_eol
+const min::op min::nodisplay_eol
     ( PINT::clear_printer_flags,
       min::DISPLAY_EOL_FLAG );
-const min::printer_op min::autobreak
+const min::op min::autobreak
     ( PINT::set_printer_flags, min::AUTOBREAK_FLAG );
-const min::printer_op min::noautobreak
+const min::op min::noautobreak
     ( PINT::clear_printer_flags, min::AUTOBREAK_FLAG );
-const min::printer_op min::eol_flush
+const min::op min::eol_flush
     ( PINT::set_printer_flags, min::EOL_FLUSH_FLAG );
-const min::printer_op min::noeol_flush
+const min::op min::noeol_flush
     ( PINT::clear_printer_flags, min::EOL_FLUSH_FLAG );
-const min::printer_op min::eom_flush
+const min::op min::eom_flush
     ( PINT::set_printer_flags, min::EOM_FLUSH_FLAG );
-const min::printer_op min::noeom_flush
+const min::op min::noeom_flush
     ( PINT::clear_printer_flags, min::EOM_FLUSH_FLAG );
-const min::printer_op min::keep
+const min::op min::keep
     ( PINT::set_printer_flags, min::KEEP_FLAG );
-const min::printer_op min::nokeep
+const min::op min::nokeep
     ( PINT::clear_printer_flags, min::KEEP_FLAG );
 
 // Called when we are about to insert non-horizontal
@@ -7555,25 +7531,29 @@ const min::printer_op min::nokeep
 // into the line, the result would exceed line length,
 // and break_column > indent.
 //
-static void insert_line_break ( min::printer & prtr )
+static void insert_line_break ( min::printer & printer )
 {
-    min::uns32 indent = prtr->parameters.indent;
-    min::uns32 break_column = prtr->break_column;
+    min::uns32 indent = printer->parameters.indent;
+    min::uns32 break_column = printer->break_column;
     assert ( break_column > indent );
 
-    // prtr[begoff..endoff-1] are spaces to be deleted.
+    min::packed_vec_insptr<char> buffer =
+        printer->file->buffer;
+
+    // buffer[begoff..endoff-1] are spaces to be
+    // deleted.
     //
-    min::uns32 endoff = prtr->break_offset;
+    min::uns32 endoff = printer->break_offset;
     min::uns32 begoff = endoff;
-    while ( begoff > 0 && prtr[begoff-1] == ' ' )
+    while ( begoff > 0 && buffer[begoff-1] == ' ' )
 	    -- begoff;
 
-    // Create indent+1 printer vector elements beginning
-    // at begoff into which to insert NUL and indent
-    // single spaces.
+    // Create indent+1 buffer elements beginning at
+    // begoff into which to insert NUL and indent single
+    // spaces.
     //
     min::uns32 gap = endoff - begoff;
-    min::uns32 movelen = prtr->length - endoff;
+    min::uns32 movelen = buffer->length - endoff;
     if ( gap > indent + 1 )
     {
 	// Move down.
@@ -7584,36 +7564,34 @@ static void insert_line_break ( min::printer & prtr )
 	// 	      the vector is and not legal.
 	//
 	if ( movelen > 0 )
-	    memmove ( & prtr[begoff+indent+1],
-		      & prtr[endoff],
+	    memmove ( & buffer[begoff+indent+1],
+		      & buffer[endoff],
 		      movelen );
-	min::pop ( prtr, gap - indent - 1 );
+	min::pop ( buffer, gap - indent - 1 );
     }
     else if ( gap < indent + 1 )
     {
 	// Move up.
 	//
-	min::push ( prtr, indent + 1 - gap );
+	min::push ( buffer, indent + 1 - gap );
 	if ( movelen > 0 )
-	    memmove ( & prtr[begoff+indent+1],
-		      & prtr[endoff],
+	    memmove ( & buffer[begoff+indent+1],
+		      & buffer[endoff],
 		      movelen );
     }
 
     // Insert NUL and indent spaces.
     //
-    prtr[begoff++] = 0;
+    min::end_line ( printer->file, begoff++ );
     for ( min::uns32 i = 0; i < indent; ++ i )
-	prtr[begoff++] = ' ';
+	buffer[begoff++] = ' ';
 
     // Adjust parameters.
     //
-    ++ prtr->line;
-    prtr->line_offset = begoff;
-    prtr->column -= break_column;
-    prtr->column += indent;
-    prtr->break_offset = begoff;
-    prtr->break_column = 0;
+    printer->column -= break_column;
+    printer->column += indent;
+    printer->break_offset = begoff;
+    printer->break_column = 0;
 }
 
 // Code that is common to << const char * and to
@@ -7621,7 +7599,7 @@ static void insert_line_break ( min::printer & prtr )
 //
 // Context:
 //
-// printer & ... ( printer & prtr, ... )
+// printer & ... ( printer & printer, ... )
 // {
 //	COMMON_CHARACTER_PRINT_PREFIX
 //
@@ -7636,10 +7614,13 @@ static void insert_line_break ( min::printer & prtr )
 //
 # define COMMON_CHARACTER_PRINT_PREFIX \
     \
-    min::uns32 flags = prtr->parameters.flags; \
+    min::uns32 flags = printer->parameters.flags; \
     min::uns32 line_length = \
-	prtr->parameters.line_length; \
-    min::uns32 indent = prtr->parameters.indent; \
+	printer->parameters.line_length; \
+    min::uns32 indent = printer->parameters.indent; \
+    \
+    min::packed_vec_insptr<char> buffer = \
+        printer->file->buffer; \
     \
     bool ascii = \
 	( ( flags & min::ASCII_FLAG ) != 0 ); \
@@ -7656,23 +7637,28 @@ static void insert_line_break ( min::printer & prtr )
 	{ \
 	    /* Common case: ASCII graphic character.
 	     */ \
-	    if ( prtr->column >= line_length ) \
+	    if ( printer->column >= line_length ) \
 	    { \
 		if ( graphic && autobreak ) \
 		{ \
-		    prtr->break_offset = prtr->length; \
-		    prtr->break_column = prtr->column; \
+		    printer->break_offset = \
+		        buffer->length; \
+		    printer->break_column = \
+		        printer->column; \
 		} \
-		if ( prtr->break_column > indent ) \
-		    ::insert_line_break ( prtr ); \
+		if (   printer->break_column \
+		     > indent ) \
+		    ::insert_line_break ( printer ); \
 	    } \
 	    \
-	    min::push(prtr) = (char) c; \
-	    ++ prtr->column; \
+	    min::push(buffer) = (char) c; \
+	    ++ printer->column; \
 	    if ( graphic && autobreak ) \
 	    { \
-	        prtr->break_offset = prtr->length; \
-	        prtr->break_column = prtr->column; \
+	        printer->break_offset = \
+		    buffer->length; \
+	        printer->break_column = \
+		    printer->column; \
 	    } \
 	} \
 	else if ( c <= 0x20 || c == 0x7F ) \
@@ -7701,46 +7687,54 @@ static void insert_line_break ( min::printer & prtr )
 		    columns = 1; \
 		} \
 		\
-		if (   prtr->column + columns \
+		if (   printer->column + columns \
 		     > line_length ) \
 		{ \
 		    if ( autobreak ) \
 		    { \
-			prtr->break_offset = \
-			    prtr->length; \
-			prtr->break_column = \
-			    prtr->column; \
+			printer->break_offset = \
+			    buffer->length; \
+			printer->break_column = \
+			    printer->column; \
 		    } \
-		    if ( prtr->break_column > indent ) \
-			::insert_line_break ( prtr ); \
+		    if (   printer->break_column \
+		         > indent ) \
+			::insert_line_break \
+			    ( printer ); \
 		} \
 		\
-		min::push ( prtr, len, rep ); \
-		prtr->column += columns; \
-		prtr->break_offset = prtr->length; \
-	        prtr->break_column = prtr->column; \
+		min::push ( buffer, len, rep ); \
+		printer->column += columns; \
+		printer->break_offset = \
+		    buffer->length; \
+	        printer->break_column = \
+		    printer->column; \
 	    } \
 	    else if ( c == '\t' ) \
 	    { \
 	        min::uns32 spaces = \
-		    8 - prtr->column % 8; \
-		prtr->column += spaces; \
+		    8 - printer->column % 8; \
+		printer->column += spaces; \
 		min::push \
-		    ( prtr, spaces, "        " ); \
+		    ( buffer, spaces, "        " ); \
 		if ( autobreak ) \
 		{ \
-		    prtr->break_offset = prtr->length; \
-		    prtr->break_column = prtr->column; \
+		    printer->break_offset = \
+		        buffer->length; \
+		    printer->break_column = \
+		        printer->column; \
 		} \
 	    } \
 	    else if ( c == ' ' ) \
 	    { \
-		++ prtr->column; \
-		min::push(prtr) = (char) c; \
+		++ printer->column; \
+		min::push(buffer) = (char) c; \
 		if ( autobreak ) \
 		{ \
-		    prtr->break_offset = prtr->length; \
-		    prtr->break_column = prtr->column; \
+		    printer->break_offset = \
+		        buffer->length; \
+		    printer->break_column = \
+		        printer->column; \
 		} \
 	    } \
 	    else \
@@ -7749,15 +7743,17 @@ static void insert_line_break ( min::printer & prtr )
 		 * width.
 		 */ \
 		\
-		if (   prtr->column > line_length \
-		    && prtr->break_column > indent ) \
-		    ::insert_line_break ( prtr ); \
+		if (   printer->column > line_length \
+		    &&   printer->break_column \
+		       > indent ) \
+		    ::insert_line_break ( printer ); \
 		\
 		if ( c == 0 ) \
 		    min::push \
-		      ( prtr, 2, NUL_UTF8_ENCODING ); \
+		      ( buffer, \
+		        2, NUL_UTF8_ENCODING ); \
 		else \
-		    min::push(prtr) = (char) c; \
+		    min::push(buffer) = (char) c; \
 	    } \
 	} \
 	else \
@@ -7807,32 +7803,36 @@ static void insert_line_break ( min::printer & prtr )
 		} \
 	    } \
 	    \
-	    if (   prtr->column + columns \
+	    if (   printer->column + columns \
 	         > line_length ) \
 	    { \
 		if ( graphic && autobreak ) \
 		{ \
-		    prtr->break_offset = prtr->length; \
-		    prtr->break_column = prtr->column; \
+		    printer->break_offset = \
+		        buffer->length; \
+		    printer->break_column = \
+		        printer->column; \
 		} \
-		if ( prtr->break_column > indent ) \
-		    ::insert_line_break ( prtr ); \
+		if ( printer->break_column > indent ) \
+		    ::insert_line_break ( printer ); \
 	    } \
 	    \
-	    min::push ( prtr, len, rep ); \
-	    prtr->column += columns; \
+	    min::push ( buffer, len, rep ); \
+	    printer->column += columns; \
 	    if ( graphic && autobreak ) \
 	    { \
-	        prtr->break_offset = prtr->length; \
-	        prtr->break_column = prtr->column; \
+	        printer->break_offset = \
+		    buffer->length; \
+	        printer->break_column = \
+		    printer->column; \
 	    } \
 	}
 
 # define COMMON_CHARACTER_PRINT_POSTFIX \
-    return prtr;
+    return printer;
 
 min::printer & operator <<
-	( min::printer & prtr, const char * s )
+	( min::printer & printer, const char * s )
 {
     COMMON_CHARACTER_PRINT_PREFIX
 
@@ -7856,14 +7856,14 @@ min::printer & operator <<
 }
 
 static min::printer & print_unicode
-	( min::printer & prtr,
-	  min::unsptr n, const min::uns32 * buffer )
+	( min::printer & printer,
+	  min::unsptr n, const min::uns32 * str )
 {
     COMMON_CHARACTER_PRINT_PREFIX
 
     while ( n -- )
     {
-        c = * buffer ++;
+        c = * str ++;
 
 	COMMON_CHARACTER_PRINT
 
@@ -7873,101 +7873,27 @@ static min::printer & print_unicode
 }
 
 min::printer & operator <<
-	( min::printer & prtr, min::int64 i )
+	( min::printer & printer, min::int64 i )
 {
     char buffer[32];
     sprintf ( buffer, "%lld", i );
-    return prtr << buffer;
+    return printer << buffer;
 }
 
 min::printer & operator <<
-	( min::printer & prtr, min::uns64 u )
+	( min::printer & printer, min::uns64 u )
 {
     char buffer[32];
     sprintf ( buffer, "%llu", u );
-    return prtr << buffer;
+    return printer << buffer;
 }
 
 min::printer & operator <<
-	( min::printer & prtr, min::float64 f )
+	( min::printer & printer, min::float64 f )
 {
     char buffer[64];
     sprintf ( buffer, "%.15g", f );
-    return prtr << buffer;
-}
-
-// If no KEEP flag, remove from printer all lines before
-// flush_offset.
-//
-static void flush_vector ( min::printer & prtr )
-{
-    if ( prtr->parameters.flags & min::KEEP_FLAG )
-        return;
-
-    min::uns32 offset = prtr->flush_offset;
-    while ( offset > 0 && prtr[offset-1] != 0 )
-        -- offset;
-    if ( offset > 0 )
-    {
-	if ( offset < prtr->length )
-	    memmove ( & prtr[0],
-		      & prtr[offset],
-			prtr->length - offset );
-	min::pop ( prtr, offset );
-	prtr->line_offset -= offset;
-	prtr->flush_offset -= offset;
-	prtr->break_offset -= offset;
-    }
-}
-
-min::printer & operator <<
-	( min::printer & prtr1, min::printer & prtr2 )
-{
-    min::uns32 saved_flags = prtr1->parameters.flags;
-    prtr1->parameters.flags &=
-	~ ( min::ASCII_FLAG | min::GRAPHIC_FLAG );
-
-    while ( prtr2->flush_offset < prtr2->line_offset )
-    {
-	prtr1 << & prtr2[prtr2->flush_offset]
-	      << min::eol;
-	prtr2->flush_offset += 
-	    1 + ::strlen
-	           ( & prtr2[prtr2->flush_offset] );
-    }
-
-    if ( prtr2->flush_offset < prtr2->length )
-    {
-	min::push(prtr2) = 0;
-	prtr1 << & prtr2[prtr2->flush_offset];
-	min::pop(prtr2);
-	prtr2->flush_offset = prtr2->length;
-    }
-
-    prtr1->parameters.flags = saved_flags;
-    ::flush_vector ( prtr2 );
-    return prtr1;
-}
-
-std::ostream & operator <<
-	( std::ostream & out, min::printer & prtr )
-{
-    while ( prtr->flush_offset < prtr->line_offset )
-    {
-	out << & prtr[prtr->flush_offset] << std::endl;
-	prtr->flush_offset +=
-	    1 + ::strlen ( & prtr[prtr->flush_offset] );
-    }
-
-    if ( prtr->flush_offset < prtr->length )
-    {
-	min::push(prtr) = 0;
-	out << & prtr[prtr->flush_offset];
-	min::pop(prtr);
-	prtr->flush_offset = prtr->length;
-    }
-    ::flush_vector ( prtr );
-    return out;
+    return printer << buffer;
 }
 
 std::ostream & operator <<

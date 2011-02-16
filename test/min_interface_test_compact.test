@@ -1614,9 +1614,13 @@ Finish File Test!
 
 Start Printer Test!
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 224 ) called
-MINT::new_fixed_body ( stub XXX, 16480 ) called
-MINT::deallocate ( stub XXX, 224 ) called
+MINT::new_fixed_body ( stub XXX, 152 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+MINT::new_fixed_body ( stub XXX, 16396 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
 123456 123456789
     A B C D E
     F1234
@@ -1662,9 +1666,6 @@ MINT::deallocate ( stub XXX, 224 ) called
     <0F9><0FA><0FB><0FC><0FD><0FE><0FF>
 hello␤
 hello<LF>
-A
-B
-C
 ¡¢£¤¥¦§ ¨©ª«¬­®¯ °±²³´µ¶· ¸¹º»¼½¾¿
     ÀÁÂÃÄÅÆÇ ÈÉÊËÌÍÎÏ ÐÑÒÓÔÕÖ× ØÙÚÛÜÝÞß
     àáâãäåæç èéêëìíîï ðñòóôõö÷ øùúûüýþÿ
@@ -1712,6 +1713,7 @@ AUX_FREE
 RELOCATE_BODY
 TYPE(0)
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 88 ) called
 SHORT_OBJ
 LIST_AUX(10)
 SUBLIST_AUX(20)
@@ -1720,14 +1722,6 @@ INDEX(40)
 CONTROL_CODE(0xfedcba)
 UNDEFINED_GEN(0xf4000000)
 MISSING {MISSING} MISSING
-MINT::acc_expand_stub_free_list (1) called
-Hello There
-This is line 1.
-This is line 2.
-This is line 3.
-This is line 4
-This is line 5.
-This is line 6.
 
 Finish Printer Test!
 
@@ -3910,14 +3904,11 @@ MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 208 ) called
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 208 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
+MINT::acc_expand_stub_free_list (1) called
 TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.
