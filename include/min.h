@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 08:11:59 EST 2011
+// Date:	Wed Feb 16 14:31:13 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4692,8 +4692,8 @@ void min::packed_vec_insptr<E,H>::reserve
 
 namespace min {
 
-    struct printer_header;
-    typedef packed_vec_insptr<char,printer_header>
+    struct printer_struct;
+    typedef packed_struct_updptr<printer_struct>
         printer;
 }
 
@@ -8945,36 +8945,19 @@ namespace min {
     extern const printer_parameters
 	default_printer_parameters;
 
-    struct printer_header
+    struct printer_struct
     {
         const uns32 control;
 
+	min::file file;
+
 	printer_parameters parameters;
-	printer_parameters saved_parameters;
-	std::ostream * ostream;
+	printer_parameters saved_parameters[4];
+	uns32 save_index;
 
-	const uns32 length;
-	const uns32 max_length;
-
-	uns32 line;
-	   // Line #: 1, 2, 3, ...
 	uns32 column;
-	   // Column #: 0, 1, 2, ...
-	uns32 line_offset;
-	   // printer[line_offset] is first character of
-	   // current line, or line_offset == length
-	   // if at start of line.
 	uns32 break_offset;
-	   // Set to 0 at start of line.
-	   // Set to offset of first character after
-	   // break when a break is set.
 	uns32 break_column;
-	   // Set to 0 at start of line.
-	   // Set to column of first character after
-	   // break when a break is set.
-	uns32 flush_offset;
-	   // Set to point just after last character
-	   // copied to ostream or another printer.
     };
 
     enum {
@@ -8987,12 +8970,12 @@ namespace min {
         KEEP_FLAG		= ( 1 << 6 ),
     };
 
-    struct printer_op;
-    typedef printer & ( * printer_op_func )
-    	    ( printer & ptr, const printer_op & op );
-    struct printer_op
+    struct op;
+    typedef printer & ( * op_func )
+    	    ( printer & ptr, const op & op );
+    struct op
     {
-        printer_op_func func;
+        op_func func;
 	union {
 	    void * p;
 	    uns32 u32;
@@ -9004,22 +8987,22 @@ namespace min {
 	    min::gen g;
 	} v1, v2;
 
-	printer_op ( printer_op_func func )
+	op ( op_func func )
 	    : func ( func ) {}
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             min::gen v,
 		     const printer_format * f )
 	    : func ( func ) { v1.g = v;
 	                      v2.p = (void *) f; }
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             min::uns32 u )
 	    : func ( func ) { v1.u32 = u; }
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             min::unsptr length,
 		     const uns32 * buffer )
 	    : func ( func ) { v1.uptr = length;
 	                      v2.p = (void *) buffer; }
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             min::int64 i,
 		     const char * printf_format )
 	    : func ( func )
@@ -9027,7 +9010,7 @@ namespace min {
 	    v1.i64 = i;
 	    v2.p = (void *) printf_format;
 	}
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             min::uns64 u,
 		     const char * printf_format )
 	    : func ( func )
@@ -9035,7 +9018,7 @@ namespace min {
 	    v1.u64 = u;
 	    v2.p = (void *) printf_format;
 	}
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             min::float64 f,
 		     const char * printf_format )
 	    : func ( func )
@@ -9043,10 +9026,10 @@ namespace min {
 	    v1.f64 = f;
 	    v2.p = (void *) printf_format;
 	}
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             std::ostream * out )
 	    : func ( func ) { v1.p = (void *) out; }
-	printer_op ( printer_op_func func,
+	op ( op_func func,
 	             const printer_format * format )
 	    : func ( func ) { v1.p = (void *) format; }
 
@@ -9055,233 +9038,206 @@ namespace min {
     namespace printer_internal
     {
         printer & pgen
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & punicode1
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & punicode2
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & pint
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & puns
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & pfloat
-	    ( printer & prtr,
-	      const printer_op & op );
-        printer & flush0
-	    ( printer & prtr,
-	      const printer_op & op );
-        printer & flush1
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & format
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & line_length
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & indent
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & set_printer_flags
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
         printer & clear_printer_flags
-	    ( printer & prtr,
-	      const printer_op & op );
+	    ( printer & printer,
+	      const op & op );
     }
 
-    void init ( printer & prtr );
+    void init ( min::printer & printer,
+                min::file & file =
+		    * (min::file *) min::NULL_STUB );
 
-    inline void init ( printer & prtr,
+    inline void init ( min::printer & printer,
                        std::ostream & ostream )
     {
-        init ( prtr );
-	prtr->ostream = & ostream;
+        init ( printer );
+	init_output_stream ( printer->file,
+	                     ostream );
     }
 
-    inline printer_op pgen
+    inline op pgen
 	    ( min::gen v,
               const printer_format * format = NULL )
     {
-        return printer_op
+        return op
 	    ( printer_internal::pgen, v, format );
     }
 
-    inline printer_op punicode ( min::uns32 c )
+    inline op punicode ( min::uns32 c )
     {
-        return printer_op
+        return op
 	    ( printer_internal::punicode1, c );
     }
 
-    inline printer_op punicode
+    inline op punicode
 	    ( min::unsptr length,
-	      const min::uns32 * buffer )
+	      const min::uns32 * str )
     {
-        return printer_op
+        return op
 	    ( printer_internal::punicode2,
-	      length, buffer );
+	      length, str );
     }
 
-    inline printer_op pint
+    inline op pint
 	    ( min::int64 i,
               const char * printf_format )
     {
-        return printer_op
+        return op
 	    ( printer_internal::pint,
 	      i, printf_format );
     }
 
-    inline printer_op puns
+    inline op puns
 	    ( min::uns64 u,
               const char * printf_format )
     {
-        return printer_op
+        return op
 	    ( printer_internal::puns,
 	      u, printf_format );
     }
 
-    inline printer_op pfloat
+    inline op pfloat
 	    ( min::float64 f,
               const char * printf_format )
     {
-        return printer_op
+        return op
 	    ( printer_internal::pfloat,
 	      f, printf_format );
     }
 
-    inline printer_op flush ( void )
-    {
-        return printer_op ( printer_internal::flush0 );
-    }
-
-    inline printer_op flush
-	    ( std::ostream & ostream )
-    {
-        return printer_op
-	    ( printer_internal::flush1, & ostream );
-    }
-
-    inline printer_op format
+    inline op format
 	    ( const printer_format * format )
     {
-        return printer_op
+        return op
 	    ( printer_internal::format, format );
     }
 
-    inline printer_op line_length
+    inline op line_length
 	    ( uns32 line_length )
     {
-        return printer_op
+        return op
 	    ( printer_internal::line_length,
 	      line_length );
     }
 
-    inline printer_op indent
+    inline op indent
 	    ( uns32 indent )
     {
-        return printer_op
+        return op
 	    ( printer_internal::indent, indent );
     }
 
-    inline printer_op set_printer_flags
+    inline op set_flags
 	    ( uns32 flags )
     {
-        return printer_op
+        return op
 	    ( printer_internal::set_printer_flags,
 	      flags );
     }
 
-    inline printer_op clear_printer_flags
+    inline op clear_flags
 	    ( uns32 flags )
     {
-        return printer_op
+        return op
 	    ( printer_internal::clear_printer_flags,
 	      flags );
     }
 
-    extern const printer_op push_printer_parameters;
-    extern const printer_op pop_printer_parameters;
+    extern const op push_parameters;
+    extern const op pop_parameters;
 
-    extern const printer_op save_printer_parameters;
-    extern const printer_op restore_printer_parameters;
+    extern const op eol;
+    extern const op setbreak;
 
-    extern const printer_op eol;
-    extern const printer_op eom;
-    extern const printer_op setbreak;
-
-    extern const printer_op ascii;
-    extern const printer_op noascii;
-    extern const printer_op graphic;
-    extern const printer_op nographic;
-    extern const printer_op display_eol;
-    extern const printer_op nodisplay_eol;
-    extern const printer_op autobreak;
-    extern const printer_op noautobreak;
-    extern const printer_op eol_flush;
-    extern const printer_op noeol_flush;
-    extern const printer_op eom_flush;
-    extern const printer_op noeom_flush;
-    extern const printer_op keep;
-    extern const printer_op nokeep;
+    extern const op ascii;
+    extern const op noascii;
+    extern const op graphic;
+    extern const op nographic;
+    extern const op display_eol;
+    extern const op nodisplay_eol;
+    extern const op autobreak;
+    extern const op noautobreak;
+    extern const op eol_flush;
+    extern const op noeol_flush;
+    extern const op eom_flush;
+    extern const op noeom_flush;
+    extern const op keep;
+    extern const op nokeep;
 }
 
 inline min::printer & operator <<
-	( min::printer & prtr,
-	  const min::printer_op & op )
+	( min::printer & printer,
+	  const min::op & op )
 {
-    return (* op.func ) ( prtr, op );
+    return (* op.func ) ( printer, op );
 }
 
 min::printer & operator <<
-	( min::printer & prtr,
+	( min::printer & printer,
 	  const char * s );
 
 inline min::printer & operator <<
-	( min::printer & prtr,
+	( min::printer & printer,
 	  char c )
 {
     char buffer[2] = { c, 0 };
-    return prtr << buffer;
+    return printer << buffer;
 }
 
 min::printer & operator <<
-	( min::printer & prtr,
+	( min::printer & printer,
 	  min::int64 i );
 
 inline min::printer & operator <<
-	( min::printer & prtr,
+	( min::printer & printer,
 	  min::int32 i )
 {
-    return prtr << (min::int64) i;
+    return printer << (min::int64) i;
 }
 
 min::printer & operator <<
-	( min::printer & prtr,
+	( min::printer & printer,
 	  min::uns64 i );
 
 inline min::printer & operator <<
-	( min::printer & prtr,
+	( min::printer & printer,
 	  min::uns32 i )
 {
-    return prtr << (min::uns64) i;
+    return printer << (min::uns64) i;
 }
 
 min::printer & operator <<
-	( min::printer & prtr,
+	( min::printer & printer,
 	  min::float64 i );
-
-min::printer & operator <<
-	( min::printer & prtr1,
-	  min::printer & prtr2 );
-
-std::ostream & operator <<
-	( std::ostream & out,
-	  min::printer & prtr );
 
 namespace min { namespace test {
 
