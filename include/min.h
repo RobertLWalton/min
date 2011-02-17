@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 18:53:58 EST 2011
+// Date:	Thu Feb 17 01:27:06 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4792,8 +4792,8 @@ namespace min {
         file->buffer[offset] = 0;
 	file->end_offset = offset +1;
     }
-    void flush ( min::file & file );
-    void flush ( min::file & file, min::uns32 offset );
+    void flush_file ( min::file & file );
+    void flush_line ( min::file & file, min::uns32 offset );
     void flush_partial ( min::file & file );
 
     void rewind ( min::file & file,
@@ -8991,6 +8991,9 @@ namespace min {
 	    PUSH_PARAMETERS,
 	    POP_PARAMETERS,
 	    EOL,
+	    FLUSH,
+	    BOM,
+	    EOM,
 	    SETBREAK
 	} opcode;
 
@@ -9145,6 +9148,9 @@ namespace min {
     extern const op pop_parameters;
 
     extern const op eol;
+    extern const op flush;
+    extern const op bom;
+    extern const op eom;
     extern const op setbreak;
 
     extern const op ascii;

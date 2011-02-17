@@ -206,7 +206,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 16, 2011}
+\date{February 17, 2011}
  
 \maketitle
 
@@ -4628,13 +4628,13 @@ Note that it is a programming error if {\tt istream != NULL}
 \underline{and} {\tt ifile != NULL\_\EOL STUB}.
 
 \item[\ttmkey{ostream}{in {\tt min::file}}]
-If not {\tt NULL}, the {\tt min::\EOL flush} function
+If not {\tt NULL}, the {\tt min::\EOL flush\_\EOL file} function
 outputs buffer {\tt char} elements to this {\tt std::\EOL ostream} when it finds
 there are elements not yet output.
 Set to {\tt NULL} when the file is created.
 
 \item[\ttmkey{printer}{in {\tt min::file}}]
-If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
+If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush\_\EOL file} function
 outputs buffer {\tt char} elements
 to this {\tt min::\EOL printer} when it finds
 there are elements not yet output.  Non-NUL elements are output
@@ -4644,7 +4644,7 @@ NUL elements are translated into sending {\tt min::eol} to the printer.
 Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{ofile}{in {\tt min::file}}]
-If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush} function
+If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush\_\EOL file} function
 outputs buffer {\tt char} elements to this {\tt min::\EOL file} when it finds
 there are elements not yet output.
 Non-NUL elements are simply appended to the end of the {\tt ofile}, and
@@ -4685,15 +4685,15 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush}\verb| ( min::file & file )|
+    & \MINKEY{flush\_\EOL file}\verb| ( min::file & file )|
 \LABEL{MIN::FLUSH_FILE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{flush}\verb| ( min::file & file,|\\&{\tt ~~~~}
+    & \MINKEY{flush\_\EOL line}\verb| ( min::file & file,|\\&{\tt ~~~~}
                     \verb|   min::uns32 offset )|
-\LABEL{MIN::FLUSH_FILE_WITH_OFFSET} \\
+\LABEL{MIN::FLUSH_LINE} \\
 \verb|min::uns32 min::|
     & \MINKEY{flush\_partial}\verb| ( min::file & file )|
-\LABEL{MIN::FLUSH_PARTIAL_FILE_} \\
+\LABEL{MIN::FLUSH_PARTIAL} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5129,16 +5129,27 @@ Operations can be performed on printers by applying the
 
 Operations behave for printers as {\tt iomanip}
 C++ objects behave for {\tt iostreams}.  For example, the
-printer analogs of {\tt std::\EOL endl} are:
+printer analog of {\tt std::\EOL endl} is the \key{end of line}
+operation:
 
-\begin{indpar}[1em]\begin{tabular}{r@{}l@{~~~~~}l}
-\verb|const min::op min::| & \MINKEY{eol} & (end of line)
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{eol}
 \LABEL{MIN::EOL} \\
-\verb|const min::op min::| & \MINKEY{eom} & (end of message)
-\LABEL{MIN::EOM} \\
 \end{tabular}\end{indpar}
 
-and the {\tt min::setbreak} printer operation can be used to
+The flush operation:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{flush}
+\LABEL{MIN::FLUSH} \\
+\end{tabular}\end{indpar}
+
+just executes
+\begin{indpar}\begin{verbatim}
+min::flush_file ( printer->file );
+\end{verbatim}\end{indpar}
+
+The {\tt min::setbreak} printer operation can be used to
 explicitly set a break point:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5153,14 +5164,39 @@ printer->break_offset = printer->buffer->length;
 printer->break_column = printer->column;
 \end{verbatim}\end{indpar}
 
-Both {\tt min::eol} and {\tt min::eom} end the current line.  The
-{\tt min::\EOL eom} operation then restores the printer
-{\tt parameters} from the printer {\tt saved\_\EOL parameters}.
-The last thing these operations do is flush the printer using
-the {\tt min::\EOL flush()} operation, provided the appropriate
-printer {\tt parameters.flag} is on: i.e., the
-{\tt min::EOL\_\EOL FLUSH\_\EOL FLAG} for {\tt min::\EOL eol}, and the
-{\tt min::EOM\_\EOL FLUSH\_\EOL FLAG} for {\tt min::\EOL eom}.
+The {\tt parameters} of a printer may be saved in the
+\ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
+stack of the printer, and restored from that stack.
+This may be done explicitly by the following
+operations:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::|
+    & \MINKEY{push\_parameters}
+\LABEL{MIN::SAVE_PARAMETERS} \\
+\verb|const min::op min::|
+    & \MINKEY{restore\_parameters}
+\LABEL{MIN::RESTORE_PARAMETERS} \\
+\end{tabular}\end{indpar}
+
+The \key{end of message} operation ends the current line,
+flushes {\tt printer->\EOL file}
+if {\tt min::\EOL EOM\_\EOL FLUSH\_\EOL FLAG} is set,
+and restores the parameters from the {\tt save\_\EOL parameters}
+stack.  The \key{beginning of message} operation is just a
+synonym for pushing the parameters.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{bom}
+\LABEL{MIN::BOM} \\
+\verb|const min::op min::| & \MINKEY{eom}
+\LABEL{MIN::EOM} \\
+\end{tabular}\end{indpar}
+
+The idea is that
+a message that consists of several lines with special flags set
+can be bracketted by {\tt min::bom} and {\tt min::eom}
+to restore parameters at the end of the message.
 
 Operations can also be used to print values with specified
 formats.  The {\tt min::\EOL pgen} operation prints
@@ -5338,21 +5374,6 @@ following
 For example, `{\tt printer<<min::autobreak}' sets the
 {\tt printer->\EOL parameters.flags} {\tt AUTO\-BREAK\_FLAG}
 and `{\tt printer<<min::noautobreak}' clears this flag.
-
-The {\tt parameters} of a printer may be saved in the
-\ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
-stack of the printer, and restored from that stack.
-This may be done explicitly by the following
-operations:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::op min::|
-    & \MINKEY{push\_parameters}
-\LABEL{MIN::SAVE_PARAMETERS} \\
-\verb|const min::op min::|
-    & \MINKEY{restore\_parameters}
-\LABEL{MIN::RESTORE_PARAMETERS} \\
-\end{tabular}\end{indpar}
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
