@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 09:29:41 EST 2011
+// Date:	Thu Feb 17 01:35:43 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2140,7 +2140,7 @@ void test_file ( void )
     min::init_input_stream ( file3, istream );
     min::init ( file4 );
     min::init_output_file ( file3, file4 );
-    min::flush ( file3 );
+    min::flush_file ( file3 );
     MIN_ASSERT ( data_length == file3->buffer->length );
     MIN_ASSERT ( data_length == file4->buffer->length );
     MIN_ASSERT ( strncmp ( & file3->buffer[0],
@@ -2165,13 +2165,13 @@ void test_file ( void )
     min::init_input_file ( file5, file4 );
     min::init_output_stream ( file5, ostream );
     min::rewind ( file4 );
-    min::flush ( file5 );
+    min::flush_file ( file5 );
     MIN_ASSERT ( data == ostream.str() );
 
     min::rewind ( file4 );
     min::init_output_stream
         ( file5, * (std::ostream *) NULL );
-    min::flush ( file5 );
+    min::flush_file ( file5 );
     MIN_ASSERT (    file4->buffer->length
                  == file5->buffer->length );
     MIN_ASSERT (    strncmp ( & file4->buffer[0],
@@ -2214,7 +2214,7 @@ void test_printer ( void )
             << min::eom_flush
             << min::autobreak;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::line_length ( 16 )
             << "123456 123456789";
     MIN_ASSERT
@@ -2248,7 +2248,7 @@ void test_printer ( void )
     printer << " B";
     MIN_ASSERT ( printer->file->end_offset == 83 );
     MIN_ASSERT ( printer->column == 5 );
-    printer << min::pop_parameters << min::eol;
+    printer << min::eom;
     MIN_ASSERT ( printer->file->spool_lines == 0 );
     MIN_ASSERT (    printer->file->next_line_offset
                  == printer->file->buffer->length );
@@ -2256,23 +2256,23 @@ void test_printer ( void )
     MIN_ASSERT
         ( printer->parameters.line_length == 72 );
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::graphic << min::ascii
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
                    "\030\031\032\033\034\035\036\037"
 		   "\040\177\200\300"
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::graphic
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
                    "\030\031\032\033\034\035\036\037"
 		   "\040\177\200\300"
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
     char buffer[128*8];
     char * bp = buffer;
@@ -2284,35 +2284,35 @@ void test_printer ( void )
     * bp = 0;
 
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::line_length ( 40 )
             << buffer
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::line_length ( 40 )
             << min::ascii << buffer
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::line_length ( 40 )
             << min::graphic << buffer
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::line_length ( 40 )
             << min::ascii << min::graphic
 	    << buffer
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::display_eol << "hello"
-            << min::eol << min::pop_parameters;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
             << min::ascii
             << min::display_eol << "hello"
-            << min::eol << min::pop_parameters;
+            << min::eom;
 
     printer << min::push_parameters;
     MIN_ASSERT ( printer->parameters.indent == 4 );
@@ -2329,16 +2329,16 @@ void test_printer ( void )
 	* ubp ++ = c;
     }
 
-    printer << min::push_parameters
+    printer << min::bom
     	    << min::line_length ( 40 )
             << min::punicode ( ubp - ubuffer, ubuffer )
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
     	    << min::punicode ( min::ILLEGAL_UTF8 )
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
     	    << min::line_length ( 20 )
             << min::noautobreak
             <<  "int32 -1 = " << (min::int32) -1
@@ -2352,9 +2352,9 @@ void test_printer ( void )
             << "float64 1.23 = " << (min::float64) 1.23
 	    << " " << min::setbreak
             << "char 'A' = " << (char) 'A'
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
-    printer << min::push_parameters
+    printer << min::bom
     	    << min::line_length ( 20 )
             << min::noautobreak
             <<  "pint ( -3, \"%05d\" ) = "
@@ -2365,7 +2365,7 @@ void test_printer ( void )
 	    << " " << min::setbreak
             <<  "pfloat ( 1.2345, \"%04.2f\" ) = "
 	    <<  min::pfloat ( 1.2345, "%04.2f" )
-            << min::pop_parameters << min::eol;
+            << min::eom;
 
 
     printer << min::pgen ( min::new_num_gen ( 1 ) )
@@ -2441,14 +2441,21 @@ void test_printer ( void )
     min::printer_format f = min::default_printer_format;
     f.special_prefix = "{";
     f.special_postfix = "}";
-    printer << min::push_parameters
+    printer << min::bom
             << min::pgen ( min::MISSING ) << " "
             << min::format ( & f )
 	    << min::pgen ( min::MISSING ) << " "
 	    << min::pgen
 	           ( min::MISSING,
 		     & min::default_printer_format )
-            << min::pop_parameters << min::eol;
+            << min::eom;
+
+    printer << min::push_parameters
+            << min::noeol_flush
+	    << "The line being flushed" << min::eol;
+    std::cout << "A flush is next:" << std::endl;
+    printer << min::flush;
+    printer << min::pop_parameters;
 
     min_assert_print = true;
     cout << endl;

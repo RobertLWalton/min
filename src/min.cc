@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 19:04:57 EST 2011
+// Date:	Thu Feb 17 01:28:16 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2100,13 +2100,13 @@ min::printer & operator <<
     return printer << min::pop_parameters;
 }
 
-void min::flush ( min::file & file )
+void min::flush_file ( min::file & file )
 {
     while ( true )
     {
         uns32 offset = min::next_line ( file );
 	if ( offset == min::NO_LINE ) break;
-	min::flush ( file, offset );
+	min::flush_line ( file, offset );
     }
     if ( file->next_line_offset < file->buffer->length )
     {
@@ -2115,7 +2115,7 @@ void min::flush ( min::file & file )
     }
 }
 
-void min::flush
+void min::flush_line
 	( min::file & file, min::uns32 offset )
 {
     assert ( offset < file->end_offset );
@@ -7397,10 +7397,17 @@ min::printer & operator <<
 	printer->parameters.flags &= ~ op.v1.u32;
 	return printer;
     case min::op::PUSH_PARAMETERS:
+    case min::op::BOM:
 	assert ( printer->save_index < 4 );
 	printer->saved_parameters[printer->save_index++] =
 	    printer->parameters;
 	return printer;
+    case min::op::EOM:
+	::end_line ( printer );
+	if (   printer->parameters.flags
+	     & min::EOM_FLUSH_FLAG )
+	    min::flush_file ( printer->file );
+	// Fall through to pop parameters
     case min::op::POP_PARAMETERS:
 	assert ( printer->save_index > 0 );
 	printer->parameters =
@@ -7409,10 +7416,12 @@ min::printer & operator <<
 	return printer;
     case min::op::EOL:
 	::end_line ( printer );
-
 	if (   printer->parameters.flags
 	     & min::EOL_FLUSH_FLAG )
-	    min::flush ( printer->file );
+	    min::flush_file ( printer->file );
+	return printer;
+    case min::op::FLUSH:
+	min::flush_file ( printer->file );
 	return printer;
     case min::op::SETBREAK:
 	printer->break_offset =
@@ -7430,6 +7439,9 @@ const min::op min::pop_parameters
     ( min::op::POP_PARAMETERS );
 
 const min::op min::eol ( min::op::EOL );
+const min::op min::flush ( min::op::FLUSH );
+const min::op min::bom ( min::op::BOM );
+const min::op min::eom ( min::op::EOM );
 const min::op min::setbreak ( min::op::SETBREAK );
 
 const min::op min::ascii
