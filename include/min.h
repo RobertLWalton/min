@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 14:31:13 EST 2011
+// Date:	Wed Feb 16 18:53:58 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8975,7 +8975,25 @@ namespace min {
     	    ( printer & ptr, const op & op );
     struct op
     {
-        op_func func;
+        enum OPCODE
+	{
+            PGEN = 1,
+	    PUNICODE1,
+	    PUNICODE2,
+	    PINT,
+	    PUNS,
+	    PFLOAT,
+	    FORMAT,
+	    LINE_LENGTH,
+	    INDENT,
+	    SET_FLAGS,
+	    CLEAR_FLAGS,
+	    PUSH_PARAMETERS,
+	    POP_PARAMETERS,
+	    EOL,
+	    SETBREAK
+	} opcode;
+
 	union {
 	    void * p;
 	    uns32 u32;
@@ -8987,90 +9005,59 @@ namespace min {
 	    min::gen g;
 	} v1, v2;
 
-	op ( op_func func )
-	    : func ( func ) {}
-	op ( op_func func,
+	op ( op::OPCODE opcode )
+	    : opcode ( opcode ) {}
+	op ( op::OPCODE opcode,
 	             min::gen v,
 		     const printer_format * f )
-	    : func ( func ) { v1.g = v;
+	    : opcode ( opcode ) { v1.g = v;
 	                      v2.p = (void *) f; }
-	op ( op_func func,
+	op ( op::OPCODE opcode,
 	             min::uns32 u )
-	    : func ( func ) { v1.u32 = u; }
-	op ( op_func func,
+	    : opcode ( opcode ) { v1.u32 = u; }
+	op ( op::OPCODE opcode,
 	             min::unsptr length,
 		     const uns32 * buffer )
-	    : func ( func ) { v1.uptr = length;
+	    : opcode ( opcode ) { v1.uptr = length;
 	                      v2.p = (void *) buffer; }
-	op ( op_func func,
+	op ( op::OPCODE opcode,
 	             min::int64 i,
 		     const char * printf_format )
-	    : func ( func )
+	    : opcode ( opcode )
 	{
 	    v1.i64 = i;
 	    v2.p = (void *) printf_format;
 	}
-	op ( op_func func,
+	op ( op::OPCODE opcode,
 	             min::uns64 u,
 		     const char * printf_format )
-	    : func ( func )
+	    : opcode ( opcode )
 	{
 	    v1.u64 = u;
 	    v2.p = (void *) printf_format;
 	}
-	op ( op_func func,
+	op ( op::OPCODE opcode,
 	             min::float64 f,
 		     const char * printf_format )
-	    : func ( func )
+	    : opcode ( opcode )
 	{
 	    v1.f64 = f;
 	    v2.p = (void *) printf_format;
 	}
-	op ( op_func func,
+	op ( op::OPCODE opcode,
 	             std::ostream * out )
-	    : func ( func ) { v1.p = (void *) out; }
-	op ( op_func func,
+	    : opcode ( opcode )
+	{
+	    v1.p = (void *) out;
+	}
+	op ( op::OPCODE opcode,
 	             const printer_format * format )
-	    : func ( func ) { v1.p = (void *) format; }
+	    : opcode ( opcode )
+	{
+	    v1.p = (void *) format;
+	}
 
     };
-
-    namespace printer_internal
-    {
-        printer & pgen
-	    ( printer & printer,
-	      const op & op );
-        printer & punicode1
-	    ( printer & printer,
-	      const op & op );
-        printer & punicode2
-	    ( printer & printer,
-	      const op & op );
-        printer & pint
-	    ( printer & printer,
-	      const op & op );
-        printer & puns
-	    ( printer & printer,
-	      const op & op );
-        printer & pfloat
-	    ( printer & printer,
-	      const op & op );
-        printer & format
-	    ( printer & printer,
-	      const op & op );
-        printer & line_length
-	    ( printer & printer,
-	      const op & op );
-        printer & indent
-	    ( printer & printer,
-	      const op & op );
-        printer & set_printer_flags
-	    ( printer & printer,
-	      const op & op );
-        printer & clear_printer_flags
-	    ( printer & printer,
-	      const op & op );
-    }
 
     void init ( min::printer & printer,
                 min::file & file =
@@ -9088,88 +9075,70 @@ namespace min {
 	    ( min::gen v,
               const printer_format * format = NULL )
     {
-        return op
-	    ( printer_internal::pgen, v, format );
+        return op ( op::PGEN, v, format );
     }
 
     inline op punicode ( min::uns32 c )
     {
-        return op
-	    ( printer_internal::punicode1, c );
+        return op ( op::PUNICODE1, c );
     }
 
     inline op punicode
 	    ( min::unsptr length,
 	      const min::uns32 * str )
     {
-        return op
-	    ( printer_internal::punicode2,
-	      length, str );
+        return op ( op::PUNICODE2, length, str );
     }
 
     inline op pint
 	    ( min::int64 i,
               const char * printf_format )
     {
-        return op
-	    ( printer_internal::pint,
-	      i, printf_format );
+        return op ( op::PINT, i, printf_format );
     }
 
     inline op puns
 	    ( min::uns64 u,
               const char * printf_format )
     {
-        return op
-	    ( printer_internal::puns,
-	      u, printf_format );
+        return op ( op::PUNS, u, printf_format );
     }
 
     inline op pfloat
 	    ( min::float64 f,
               const char * printf_format )
     {
-        return op
-	    ( printer_internal::pfloat,
-	      f, printf_format );
+        return op ( op::PFLOAT, f, printf_format );
     }
 
     inline op format
 	    ( const printer_format * format )
     {
-        return op
-	    ( printer_internal::format, format );
+        return op ( op::FORMAT, format );
     }
 
     inline op line_length
 	    ( uns32 line_length )
     {
-        return op
-	    ( printer_internal::line_length,
-	      line_length );
+        return op ( op::LINE_LENGTH, line_length );
     }
 
     inline op indent
 	    ( uns32 indent )
     {
-        return op
-	    ( printer_internal::indent, indent );
+        return op ( op::INDENT, indent );
     }
 
     inline op set_flags
 	    ( uns32 flags )
     {
-        return op
-	    ( printer_internal::set_printer_flags,
-	      flags );
+        return op ( op::SET_FLAGS, flags );
     }
 
     inline op clear_flags
 	    ( uns32 flags )
     {
-        return op
-	    ( printer_internal::clear_printer_flags,
-	      flags );
+        return op ( op::CLEAR_FLAGS, flags );
     }
 
     extern const op push_parameters;
@@ -9194,12 +9163,9 @@ namespace min {
     extern const op nokeep;
 }
 
-inline min::printer & operator <<
+min::printer & operator <<
 	( min::printer & printer,
-	  const min::op & op )
-{
-    return (* op.func ) ( printer, op );
-}
+	  const min::op & op );
 
 min::printer & operator <<
 	( min::printer & printer,
