@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 16 11:41:34 EST 2011
+// Date:	Wed Feb 16 19:04:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,7 +42,6 @@
 # include <cerrno>
 # define MUP min::unprotected
 # define MINT min::internal
-# define PINT min::printer_internal
 
 // For debugging.
 //
@@ -7309,131 +7308,6 @@ T & print_gen
 
 }
 
-min::printer & PINT::pgen
-	( min::printer & printer,
-	  const min::op & op )
-{
-    const min::printer_format * f =
-        (min::printer_format *) op.v2.p;
-    if  ( f == NULL ) f = printer->parameters.format;
-    if  ( f == NULL ) f = & min::default_printer_format;
-
-    return print_gen
-        ( printer, op.v1.g, f, f->pr_stub );
-}
-
-static min::printer & print_unicode
-	( min::printer & printer,
-	  min::unsptr n, const min::uns32 * buffer );
-
-min::printer & PINT::punicode1
-	( min::printer & printer,
-	  const min::op & op )
-{
-    return ::print_unicode ( printer, 1, & op.v1.u32 );
-}
-
-min::printer & PINT::punicode2
-	( min::printer & printer,
-	  const min::op & op )
-{
-    return ::print_unicode
-        ( printer, op.v1.uptr,
-	        (const uns32 *) op.v2.p );
-}
-
-min::printer & PINT::pint
-	( min::printer & printer,
-	  const min::op & op )
-{
-    char buffer[256];
-    sprintf ( buffer, (const char *) op.v2.p,
-                      op.v1.i64 );
-    return printer << buffer;
-}
-
-min::printer & PINT::puns
-	( min::printer & printer,
-	  const min::op & op )
-{
-    char buffer[256];
-    sprintf ( buffer, (const char *) op.v2.p,
-                      op.v1.u64 );
-    return printer << buffer;
-}
-
-min::printer & PINT::pfloat
-	( min::printer & printer,
-	  const min::op & op )
-{
-    char buffer[256];
-    sprintf ( buffer, (const char *) op.v2.p,
-                      op.v1.f64 );
-    return printer << buffer;
-}
-
-min::printer & PINT::format
-	( min::printer & printer,
-	  const min::op & op )
-{
-    printer->parameters.format =
-        (const printer_format *) op.v1.p;
-    return printer;
-}
-
-min::printer & PINT::line_length
-	( min::printer & printer,
-	  const min::op & op )
-{
-    printer->parameters.line_length = op.v1.u32;
-    return printer;
-}
-
-min::printer & PINT::indent
-	( min::printer & printer,
-	  const min::op & op )
-{
-    printer->parameters.indent = op.v1.u32;
-    return printer;
-}
-
-min::printer & PINT::set_printer_flags
-	( min::printer & printer,
-	  const min::op & op )
-{
-    printer->parameters.flags |= op.v1.u32;
-    return printer;
-}
-
-min::printer & PINT::clear_printer_flags
-	( min::printer & printer,
-	  const min::op & op )
-{
-    printer->parameters.flags &= ~ op.v1.u32;
-    return printer;
-}
-
-static min::printer & push_parameters
-	( min::printer & printer,
-	  const min::op & op )
-{
-    assert ( printer->save_index < 4 );
-    printer->saved_parameters[printer->save_index++] =
-        printer->parameters;
-    return printer;
-}
-
-static min::printer & pop_parameters
-	( min::printer & printer,
-	  const min::op & op )
-{
-    assert ( printer->save_index > 0 );
-    printer->parameters =
-        printer->saved_parameters
-	    [--printer->save_index];
-    return printer;
-}
-
 static void end_line ( min::printer & printer )
 {
     // Remove line ending single spaces.
@@ -7466,65 +7340,127 @@ static void end_line ( min::printer & printer )
     printer->break_column = 0;
 }
 
-static min::printer & eol
+static min::printer & print_unicode
+	( min::printer & printer,
+	  min::unsptr n, const min::uns32 * buffer );
+
+min::printer & operator <<
 	( min::printer & printer,
 	  const min::op & op )
 {
-    ::end_line ( printer );
+    char buffer[256];
+    switch ( op.opcode )
+    {
+    case min::op::PGEN:
+    {
+	const min::printer_format * f =
+	    (min::printer_format *) op.v2.p;
+	if  ( f == NULL ) f = printer->parameters.format;
+	if  ( f == NULL ) f = & min::default_printer_format;
 
-    if (   printer->parameters.flags
-         & min::EOL_FLUSH_FLAG )
-        min::flush ( printer->file );
-    return printer;
-}
+	return print_gen
+	    ( printer, op.v1.g, f, f->pr_stub );
+    }
+    case min::op::PUNICODE1:
+	return ::print_unicode
+	    ( printer, 1, & op.v1.u32 );
+    case min::op::PUNICODE2:
+	return ::print_unicode
+	    ( printer, op.v1.uptr,
+		(const min::uns32 *) op.v2.p );
+    case min::op::PINT:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.i64 );
+	return printer << buffer;
+    case min::op::PUNS:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.u64 );
+	return printer << buffer;
+    case min::op::PFLOAT:
+	sprintf ( buffer, (const char *) op.v2.p,
+			  op.v1.f64 );
+	return printer << buffer;
+    case min::op::FORMAT:
+	printer->parameters.format =
+	    (const min::printer_format *) op.v1.p;
+	return printer;
+    case min::op::LINE_LENGTH:
+	printer->parameters.line_length = op.v1.u32;
+	return printer;
+    case min::op::INDENT:
+	printer->parameters.indent = op.v1.u32;
+	return printer;
+    case min::op::SET_FLAGS:
+	printer->parameters.flags |= op.v1.u32;
+	return printer;
+    case min::op::CLEAR_FLAGS:
+	printer->parameters.flags &= ~ op.v1.u32;
+	return printer;
+    case min::op::PUSH_PARAMETERS:
+	assert ( printer->save_index < 4 );
+	printer->saved_parameters[printer->save_index++] =
+	    printer->parameters;
+	return printer;
+    case min::op::POP_PARAMETERS:
+	assert ( printer->save_index > 0 );
+	printer->parameters =
+	    printer->saved_parameters
+		[--printer->save_index];
+	return printer;
+    case min::op::EOL:
+	::end_line ( printer );
 
-static min::printer & setbreak
-	( min::printer & printer,
-	  const min::op & op )
-{
-    printer->break_offset =
-        printer->file->buffer->length;
-    printer->break_column = printer->column;
-    return printer;
+	if (   printer->parameters.flags
+	     & min::EOL_FLUSH_FLAG )
+	    min::flush ( printer->file );
+	return printer;
+    case min::op::SETBREAK:
+	printer->break_offset =
+	    printer->file->buffer->length;
+	printer->break_column = printer->column;
+	return printer;
+    default:
+        MIN_ABORT ( "bad min::OPCODE" );
+    }
 }
 
 const min::op min::push_parameters
-    ( ::push_parameters );
+    ( min::op::PUSH_PARAMETERS );
 const min::op min::pop_parameters
-    ( ::pop_parameters );
+    ( min::op::POP_PARAMETERS );
 
-const min::op min::eol ( ::eol );
-const min::op min::setbreak ( ::setbreak );
+const min::op min::eol ( min::op::EOL );
+const min::op min::setbreak ( min::op::SETBREAK );
 
 const min::op min::ascii
-    ( PINT::set_printer_flags, min::ASCII_FLAG );
+    ( min::op::SET_FLAGS, min::ASCII_FLAG );
 const min::op min::noascii
-    ( PINT::clear_printer_flags, min::ASCII_FLAG );
+    ( min::op::CLEAR_FLAGS, min::ASCII_FLAG );
 const min::op min::graphic
-    ( PINT::set_printer_flags, min::GRAPHIC_FLAG );
+    ( min::op::SET_FLAGS, min::GRAPHIC_FLAG );
 const min::op min::nographic
-    ( PINT::clear_printer_flags, min::GRAPHIC_FLAG );
+    ( min::op::CLEAR_FLAGS, min::GRAPHIC_FLAG );
 const min::op min::display_eol
-    ( PINT::set_printer_flags, min::DISPLAY_EOL_FLAG );
+    ( min::op::SET_FLAGS, min::DISPLAY_EOL_FLAG );
 const min::op min::nodisplay_eol
-    ( PINT::clear_printer_flags,
+    ( min::op::CLEAR_FLAGS,
       min::DISPLAY_EOL_FLAG );
 const min::op min::autobreak
-    ( PINT::set_printer_flags, min::AUTOBREAK_FLAG );
+    ( min::op::SET_FLAGS, min::AUTOBREAK_FLAG );
 const min::op min::noautobreak
-    ( PINT::clear_printer_flags, min::AUTOBREAK_FLAG );
+    ( min::op::CLEAR_FLAGS, min::AUTOBREAK_FLAG );
 const min::op min::eol_flush
-    ( PINT::set_printer_flags, min::EOL_FLUSH_FLAG );
+    ( min::op::SET_FLAGS, min::EOL_FLUSH_FLAG );
 const min::op min::noeol_flush
-    ( PINT::clear_printer_flags, min::EOL_FLUSH_FLAG );
+    ( min::op::CLEAR_FLAGS, min::EOL_FLUSH_FLAG );
 const min::op min::eom_flush
-    ( PINT::set_printer_flags, min::EOM_FLUSH_FLAG );
+    ( min::op::SET_FLAGS, min::EOM_FLUSH_FLAG );
 const min::op min::noeom_flush
-    ( PINT::clear_printer_flags, min::EOM_FLUSH_FLAG );
+    ( min::op::CLEAR_FLAGS, min::EOM_FLUSH_FLAG );
 const min::op min::keep
-    ( PINT::set_printer_flags, min::KEEP_FLAG );
+    ( min::op::SET_FLAGS, min::KEEP_FLAG );
 const min::op min::nokeep
-    ( PINT::clear_printer_flags, min::KEEP_FLAG );
+    ( min::op::CLEAR_FLAGS, min::KEEP_FLAG );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
