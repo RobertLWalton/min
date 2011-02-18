@@ -206,7 +206,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 17, 2011}
+\date{February 18, 2011}
  
 \maketitle
 
@@ -4381,7 +4381,6 @@ accomplished by the following:
     & \MINKEY{init\_output\_ostream}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   std::ostream & ostream,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -4391,7 +4390,6 @@ accomplished by the following:
     & \MINKEY{init\_output\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::file & ofile,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -4401,19 +4399,18 @@ accomplished by the following:
     & \MINKEY{init\_output\_printer}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::printer & printer,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = 0,|\ARGBREAK
 	  \verb|   min::gen filename = min::MISSING )|
 \LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_istream}\ARGBREAK
+    & \MINKEY{init\_input\_stream}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   std::istream & istream,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = min::ALL_LINES,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING )|
-\LABEL{MIN::INIT_INPUT_ISTREAM_OF_FILE} \\
+	  \verb|   min::gen filename = min::MISSING,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -4421,8 +4418,8 @@ accomplished by the following:
     & \MINKEY{init\_input\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::file & ifile,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = min::ALL_LINES,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING )|
+	  \verb|   min::gen filename = min::MISSING,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -4431,8 +4428,9 @@ accomplished by the following:
     & \MINKEY{init\_input\_named\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
-	  \verb|   min::printer & err )|
-\LABEL{MIN::INIT_INPUT_FILE_OF_NAMED_FILE} \\
+	  \verb|   min::printer & err,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -4440,7 +4438,8 @@ accomplished by the following:
     & \MINKEY{init\_input\_string}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   const char * data,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING )|
+	  \verb|   min::gen filename = min::MISSING,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -4985,10 +4984,13 @@ where `{\tt <SP>}' represents the single space character and
 name, represents any ill-formed UTF-8 character.
 
 If the {\tt ASCII\_FLAG} is on
-and {\tt GRAPHIC\_FLAG} is \underline{off}, control characters
-are printed as if they were letters that have zero width (consume
-no columns), the single space character prints as itself, and
-ill-formed UTF-8 characters print as `{\tt <ILL>}'.
+and {\tt GRAPHIC\_FLAG} is \underline{off},
+the single space character prints as itself, the horizontal
+tab character prints as 1 to 8 single spaces, other
+control characters
+print as if they were letters that have zero width (consume
+no columns), and the
+ill-formed UTF-8 character prints as `{\tt <ILL>}'.
 
 \item[\ttnbmkey{GRAPHIC\_FLAG}{{\tt min::printer\_parameters} flag}]
 This forces all characters to be
@@ -5003,11 +5005,20 @@ If the {\tt GRAPHIC\_FLAG} is on and the {\tt ASCII\_FLAG} is
 \underline{off}, control characters and single space are
 printed as UNICODE Control Pictures script characters,
 range 2400-243F (hexadecimal), while ill-formed UTF-8 characters
-are printed as character 2368 (hexadecimal), the `smirk', a.k.a
+are printed as character 2368 (hexadecimal), the `\key{smirk}', a.k.a
 the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
 Single space prints as {\tt \textvisiblespace}, and the
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
+
+If the {\tt ASCII\_FLAG} and
+{\tt GRAPHIC\_FLAG} are both off,
+single space prints as itself, horizontal
+tab prints as 1 to 8 single spaces, other
+control characters
+print as if they were letters that have zero width (consume
+no columns), and the
+ill-formed UTF-8 character prints as the `smirk' (see above).
 
 \item[\ttnbmkey{DISPLAY\_EOL\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, the end of line prints as a graphic mode control
@@ -5278,7 +5289,8 @@ just after special {\tt min::gen} values (such as `{\tt MISSING}').
 The {\tt pr\_\EOL stub} function, if it is not {\tt NULL}, is called
 with any {\tt min::stub} that is not a number, label, or string.
 
-A single UNICODE character, or a string of UNICODE characters,
+A single UNICODE character {\tt c}, or a string of UNICODE characters
+{\tt str} of a given {\tt length},
 can be printed using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5290,6 +5302,27 @@ can be printed using the following operations:
       \verb| ( min::unsptr length,|\ARGBREAK
       \verb|   const min::uns32 * str )|
 \LABEL{MIN::PUNICODE_BUFFER} \\
+\end{tabular}\end{indpar}
+
+Sometimes it is desireable to find out how many columns a
+single UNICODE character will take for a given value of
+{\tt parameters.flags}.  For the horizontal tab character,
+this depends upon the column the character is printed in.
+So the following function updates a {\tt column} variable
+whose initial value is that of {\tt printer->column}
+before a UNICODE character is printed with
+{\tt printer << min::\EOL punicode~(~c~)}
+and whose final value is {\tt printer->\EOL column}
+after the character is printed.  Here {\tt printer->\EOL parameters.flags}
+must be input to the function.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{pwidth}\ARGBREAK
+         \verb| ( min::uns32 & column,|\ARGBREAK
+         \verb|   min::uns32 c,|\ARGBREAK
+         \verb|   min::uns32 flags )|
+\LABEL{MIN::PWIDTH} \\
 \end{tabular}\end{indpar}
 
 Numbers may be formatted by specified {\tt printf} formats and the results

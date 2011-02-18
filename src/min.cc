@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 17 01:28:16 EST 2011
+// Date:	Fri Feb 18 06:05:22 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7855,6 +7855,46 @@ std::ostream & operator <<
 	  NULL );
 }
 
+void min::pwidth
+    ( min::uns32 & column,
+      min::uns32 c, min::uns32 flags )
+{
+    if ( 0x20 < c && c < 0x7F )
+        ++ column;
+    else if ( c <= 0x20 || c == 0x7F )
+    {
+        if ( flags & min::GRAPHIC_FLAG )
+	{
+	    if ( flags & min::ASCII_FLAG )
+	    {
+		if ( c == 0x7F ) c = DEL_REP;
+		column += ::strlen ( asciigraphic[c] );
+	    }
+	    else ++ column;
+	}
+	else if ( c == '\t' )
+	    column += 8 - column % 8;
+	else if ( c == ' ' )
+	    ++ column;
+    }
+    else // c > 0x7F
+    {
+	if ( flags & min::ASCII_FLAG )
+	{
+	    if ( c == min::ILLEGAL_UTF8 ) \
+	        column += 
+		    ::strlen ( asciigraphic[ILL_REP] );
+	    else
+	    {
+	        while ( c > 0xF )
+		    c >>= 4, ++ column;
+		if ( c > 9 ) ++ column;
+		column += 3;
+	    }
+	}
+	else ++ column;
+    }
+}
 
 // Printing
 // --------
