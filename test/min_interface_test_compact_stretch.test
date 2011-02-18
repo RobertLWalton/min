@@ -1728,6 +1728,20 @@ a       ␀⍨
 a       <2400><ILL>
 a<SOH><SP><HT><DEL><2400><ILL>
 a␁␣␉␡␀⍨
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 524 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+Line 1
+Line 2
+Line 3
+
+Line 2
+<BLANK-LINE>
+<END-OF-FILE>
 
 Finish Printer Test!
 
