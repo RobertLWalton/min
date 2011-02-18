@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 17 01:27:06 EST 2011
+// Date:	Fri Feb 18 06:34:13 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9167,6 +9167,9 @@ namespace min {
     extern const op noeom_flush;
     extern const op keep;
     extern const op nokeep;
+
+    void pwidth
+        ( uns32 & column, uns32 c, uns32 flags );
 }
 
 min::printer & operator <<

@@ -1724,6 +1724,10 @@ UNDEFINED_GEN(0xf4000000)
 MISSING {MISSING} MISSING
 A flush is next:
 The line being flushed
+a       ␀⍨
+a       <2400><ILL>
+a<SOH><SP><HT><DEL><2400><ILL>
+a␁␣␉␡␀⍨
 
 Finish Printer Test!
 

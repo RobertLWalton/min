@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 17 01:35:43 EST 2011
+// Date:	Fri Feb 18 06:34:26 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -35,7 +35,7 @@
 //	Packed Structures
 //	Packed Vectors
 //	File
-//	Printer
+//	Printers
 //	Objects
 //	Object Vector Level
 //	Object List Level
@@ -2197,8 +2197,8 @@ void test_file ( void )
     cout << "Finish File Test!" << endl;
 }
 
-// Printer
-// -------
+// Printers
+// --------
 
 static min::printer printer;
 
@@ -2455,6 +2455,63 @@ void test_printer ( void )
 	    << "The line being flushed" << min::eol;
     std::cout << "A flush is next:" << std::endl;
     printer << min::flush;
+    printer << min::pop_parameters;
+
+    min::uns32 column;
+    printer << min::push_parameters;
+#   define WTEST(c) \
+	printer << min::punicode ( c ); \
+	min::pwidth \
+	    ( column, c, printer->parameters.flags ); \
+	MIN_ASSERT ( printer->column == column );
+
+    MIN_ASSERT ( printer->column == 0 );
+    column = 0;
+    WTEST ( 'a' );
+    WTEST ( '\001' );
+    WTEST ( ' ' );
+    WTEST ( '\t' );
+    WTEST ( 0x7F );
+    WTEST ( 0x2400 );
+    WTEST ( min::ILLEGAL_UTF8 );
+    printer << min::eol;
+
+    printer << min::ascii;
+    MIN_ASSERT ( printer->column == 0 );
+    column = 0;
+    WTEST ( 'a' );
+    WTEST ( '\001' );
+    WTEST ( ' ' );
+    WTEST ( '\t' );
+    WTEST ( 0x7F );
+    WTEST ( 0x2400 );
+    WTEST ( min::ILLEGAL_UTF8 );
+    printer << min::eol;
+
+    printer << min::graphic;
+    MIN_ASSERT ( printer->column == 0 );
+    column = 0;
+    WTEST ( 'a' );
+    WTEST ( '\001' );
+    WTEST ( ' ' );
+    WTEST ( '\t' );
+    WTEST ( 0x7F );
+    WTEST ( 0x2400 );
+    WTEST ( min::ILLEGAL_UTF8 );
+    printer << min::eol;
+
+    printer << min::noascii;
+    column = 0;
+    MIN_ASSERT ( printer->column == 0 );
+    WTEST ( 'a' );
+    WTEST ( '\001' );
+    WTEST ( ' ' );
+    WTEST ( '\t' );
+    WTEST ( 0x7F );
+    WTEST ( 0x2400 );
+    WTEST ( min::ILLEGAL_UTF8 );
+    printer << min::eol;
+
     printer << min::pop_parameters;
 
     min_assert_print = true;
