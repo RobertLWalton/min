@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 18 06:05:22 EST 2011
+// Date:	Fri Feb 18 14:11:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2022,11 +2022,6 @@ min::uns32 min::line
 		        - line_number)];
 }
 
-static const min::uns32 print_flags_mask =
-      min::ASCII_FLAG
-    + min::GRAPHIC_FLAG
-    + min::DISPLAY_EOL_FLAG;
-
 min::printer & operator <<
 	( min::printer & printer,
 	  const min::pline & pline )
@@ -2038,11 +2033,9 @@ min::printer & operator <<
     if ( offset == min::NO_LINE )
     {
         if ( line_number == file->next_line_number )
-	    return printer << "<END-OF-FILE>"
-	                   << min::eol;
+	    return printer << "<END-OF-FILE>";
 	else
-	    return printer << "<LINE-NOT-AVAILABLE>"
-	                   << min::eol;
+	    return printer << "<LINE-NOT-AVAILABLE>";
     }
 
     // Blank line check.
@@ -2057,22 +2050,22 @@ min::printer & operator <<
     else
     {
 	const char * p = & file->buffer[offset];
-	while ( * p <= ' ' || * p == 0x3F ) ++ p;
+	while ( * p && ( * p <= ' ' || * p == 0x3F ) )
+	    ++ p;
 	if ( * p == 0 )
-	    return printer << pline.blank_line
-	                   << min::eol;
+	    return printer << pline.blank_line;
     }
 
     printer << min::push_parameters
             << min::clear_flags
 	            (   min::AUTOBREAK_FLAG
 		      + min::GRAPHIC_FLAG
-		      + min::ASCII_FLAG
-		      + min::DISPLAY_EOL_FLAG )
+		      + min::ASCII_FLAG )
 	    << min::set_flags
-	    	    (   ::print_flags_mask
+	    	    (   (   min::GRAPHIC_FLAG
+		          + min::ASCII_FLAG )
 		      & file->print_flags )
-	    << & file->buffer[offset] << min::eol
+	    << & file->buffer[offset]
 	    << min::pop_parameters;
 
     return printer;
@@ -2134,13 +2127,11 @@ void min::flush_line
     }
 
     if ( file->printer != NULL_STUB )
-    {
         file->printer << min::push_parameters
 		      << min::noascii << min::nographic
 		      << & file->buffer[offset]
 		      << min::pop_parameters
 		      << min::eol;
-    }
 }
 
 void min::flush_partial ( min::file & file )

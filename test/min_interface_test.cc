@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 18 06:34:26 EST 2011
+// Date:	Fri Feb 18 09:34:54 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -34,7 +34,7 @@
 //	Names
 //	Packed Structures
 //	Packed Vectors
-//	File
+//	Files
 //	Printers
 //	Objects
 //	Object Vector Level
@@ -2075,8 +2075,8 @@ void test_packed_vectors ( void )
     cout << "Finish Packed Vectors Test!" << endl;
 }
 
-// File
-// ----
+// Files
+// -----
 
 void test_file ( void )
 {
@@ -2192,9 +2192,13 @@ void test_file ( void )
     MIN_ASSERT
         ( min::NO_LINE == min::next_line ( file5 ) );
 
+    // Tests of files + printers is deferred until
+    // test of printers.
+
     min_assert_print = true;
     cout << endl;
     cout << "Finish File Test!" << endl;
+
 }
 
 // Printers
@@ -2513,6 +2517,18 @@ void test_printer ( void )
     printer << min::eol;
 
     printer << min::pop_parameters;
+
+    // Tests of files and printers.
+
+    min::file file;
+    init_output_printer ( file, printer);
+    min::init_input_string
+        ( file, "Line 1\nLine 2\nLine 3\n\n" );
+    min::flush_file ( file );
+
+    printer << min::pline ( file, 1 ) << min::eol;
+    printer << min::pline ( file, 3 ) << min::eol;
+    printer << min::pline ( file, 4 ) << min::eol;
 
     min_assert_print = true;
     cout << endl;
