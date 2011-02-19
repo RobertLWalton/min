@@ -5242,6 +5242,8 @@ The {\tt min::\EOL left} operation simply appends spaces to the
 current line.  The {\tt min::\EOL right} operation inserts spaces
 at the last break point.  Both operations end with an implicit
 {\tt min::\EOL setbreak} that resets the breakpoint.
+Both operations behave exactly as if spaces were inserted at the
+appropriate point by {\tt printer << "~"}.
 
 The {\tt parameters} of a printer may be saved in the
 \ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
