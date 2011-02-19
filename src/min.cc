@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 09:21:55 EST 2011
+// Date:	Sat Feb 19 16:09:36 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7488,25 +7488,47 @@ min::printer & operator <<
         if (   printer->column
 	     < printer->break_column + op.v1.u32 )
 	{
-	    if (   printer->parameters.line_length
-	         < printer->break_column + op.v1.u32
-		 &&
-		   printer->parameters.indent
-		 < printer->column )
-	        ::insert_line_break ( printer );
-
 	    min::packed_vec_insptr<char> buffer =
 	        printer->file->buffer;
+	    min::uns32 line_length =
+	        printer->parameters.line_length;
+	    min::uns32 indent =
+	        printer->parameters.indent;
+
 	    min::uns32 offset = printer->break_offset;
 	    min::uns32 len = buffer->length - offset;
 	    min::uns32 n = printer->break_column
 	                 + op.v1.u32
 	                 - printer->column;
+
+	    // See if inserting n spaces will put a
+	    // non-space character past line_length, and
+	    // if yes, call insert_break_line.  Note
+	    // that buffer may end in space characters,
+	    // which we have to discount.
+	    //
+	    if (   line_length
+	         < printer->break_column + op.v1.u32
+		 &&
+		 indent < printer->break_column )
+	    {
+	        min::uns32 column = printer->column;
+		min::uns32 i = buffer->length;
+		while (    i > offset
+		        && buffer[i-1] == ' ' )
+		    -- column, -- i;
+
+		if (    i > offset
+		     && column + n > line_length )
+		    ::insert_line_break ( printer );
+	    }
+
 	    min::push ( buffer, n );
 	    if ( len > 0 )
 	        memmove ( & buffer[offset + n],
 		          & buffer[offset],
 			  len );
+
 	    printer->column += n;
 	    while ( n -- ) buffer[offset++] = ' ';
 	}
