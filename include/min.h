@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 01:37:37 EST 2011
+// Date:	Sat Feb 19 02:55:45 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4803,19 +4803,16 @@ namespace min {
     void rewind ( min::file & file,
                   min::uns32 line_number = 0 );
 
-    struct pline
-    {
-        min::file & file;
-	min::uns32 line_number;
-	const char * blank_line;
-	pline ( min::file & file,
-	        min::uns32 line_number,
-	        const char * blank_line =
-		    "<BLANK-LINE>" )
-	    : file ( file ),
-	      line_number ( line_number ),
-	      blank_line ( blank_line ) {}
-    };
+    min::uns32 print_line
+    	    ( min::printer,
+	      min::file file,
+	      min::uns32 line_number,
+	      const char * blank_line =
+	          "<BLANK-LINE>",
+	      const char * end_of_file =
+	          "<END-OF-FILE>",
+	      const char * unavailable_line =
+	          "<UNAVALABLE-LINE>" );
 
     struct pline_numbers
     {
@@ -4831,11 +4828,7 @@ namespace min {
 
 min::printer & operator <<
         ( min::printer & printer,
-	  const min::pline & pline );
-
-min::printer & operator <<
-        ( min::printer & printer,
-	  const min::pline & pline_numbers );
+	  const min::pline_numbers & pline_numbers );
 
 // Objects
 // -------

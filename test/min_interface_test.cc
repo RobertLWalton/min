@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 02:30:23 EST 2011
+// Date:	Sat Feb 19 03:25:05 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2524,9 +2524,17 @@ void test_printer ( void )
         ( file, "Line 1\nLine 2\nLine 3\n\n" );
     min::flush_file ( file );
 
-    printer << min::pline ( file, 1 ) << min::eol;
-    printer << min::pline ( file, 3 ) << min::eol;
-    printer << min::pline ( file, 4 ) << min::eol;
+    min::print_line ( printer, file, 1 );
+    min::print_line ( printer, file, 3 );
+    min::print_line ( printer, file, 4 );
+    min::print_line ( printer, file, 5 );
+
+    file->print_flags =
+        min::GRAPHIC_FLAG + min::DISPLAY_EOL_FLAG;
+    min::print_line ( printer, file, 1 );
+    min::print_line ( printer, file, 3 );
+    min::print_line ( printer, file, 4 );
+    min::print_line ( printer, file, 5 );
 
     min_assert_print = true;
     cout << endl;
