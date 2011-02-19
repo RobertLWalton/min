@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 02:30:44 EST 2011
+// Date:	Sat Feb 19 02:58:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2058,27 +2058,37 @@ min::uns32 min::line
 		        - line_number)];
 }
 
-min::printer & operator <<
-	( min::printer & printer,
-	  const min::pline & pline )
+min::uns32 min::print_line
+	( min::printer printer,
+	  min::file file,
+	  min::uns32 line_number,
+	  const char * blank_line,
+	  const char * end_of_file,
+	  const char * unavailable_line )
 {
-    min::file file = pline.file;
-    min::uns32 line_number = pline.line_number;
-
     min::uns32 offset = min::line ( file, line_number );
+
     if ( offset == min::NO_LINE )
     {
-        if ( line_number == file->next_line_number )
-	    return printer << "<END-OF-FILE>";
+	const char * message;
+        if ( line_number == file->file_lines )
+	    message = end_of_file;
 	else
-	    return printer << "<LINE-NOT-AVAILABLE>";
+	    message = unavailable_line;
+
+	if ( message == NULL ) return NO_LINE;
+
+	printer << message << min::eol;
+	return 0;
     }
 
     // Blank line check.
     //
-    if ( ( file->print_flags & min::GRAPHIC_FLAG )
-         &&
-	 file->buffer[offset] != 0 )
+    if ( blank_line == NULL )
+        ; // do nothing
+    else if ( ( file->print_flags & min::GRAPHIC_FLAG )
+              &&
+	      file->buffer[offset] != 0 )
         ; // do nothing
     else if (   file->print_flags
               & min::DISPLAY_EOL_FLAG )
@@ -2089,22 +2099,27 @@ min::printer & operator <<
 	while ( * p && ( * p <= ' ' || * p == 0x3F ) )
 	    ++ p;
 	if ( * p == 0 )
-	    return printer << pline.blank_line;
+	{
+	    printer << blank_line << min::eol;
+	    return 0;
+	}
     }
 
     printer << min::push_parameters
             << min::clear_flags
 	            (   min::AUTOBREAK_FLAG
 		      + min::GRAPHIC_FLAG
-		      + min::ASCII_FLAG )
+		      + min::ASCII_FLAG
+		      + min::DISPLAY_EOL_FLAG )
 	    << min::set_flags
 	    	    (   (   min::GRAPHIC_FLAG
-		          + min::ASCII_FLAG )
+		          + min::ASCII_FLAG
+		          + min::DISPLAY_EOL_FLAG )
 		      & file->print_flags )
-	    << & file->buffer[offset]
-	    << min::pop_parameters;
-
-    return printer;
+	    << & file->buffer[offset];
+    uns32 width = printer->column;
+    printer << min::eol << min::pop_parameters;
+    return width;
 }
 
 min::printer & operator <<
@@ -7382,8 +7397,10 @@ min::printer & operator <<
     {
 	const min::printer_format * f =
 	    (min::printer_format *) op.v2.p;
-	if  ( f == NULL ) f = printer->parameters.format;
-	if  ( f == NULL ) f = & min::default_printer_format;
+	if  ( f == NULL )
+	    f = printer->parameters.format;
+	if  ( f == NULL )
+	    f = & min::default_printer_format;
 
 	return print_gen
 	    ( printer, op.v1.g, f, f->pr_stub );
@@ -7426,7 +7443,8 @@ min::printer & operator <<
     case min::op::PUSH_PARAMETERS:
     case min::op::BOM:
 	assert ( printer->save_index < 4 );
-	printer->saved_parameters[printer->save_index++] =
+	printer->saved_parameters
+	        [printer->save_index++] =
 	    printer->parameters;
 	return printer;
     case min::op::EOM:

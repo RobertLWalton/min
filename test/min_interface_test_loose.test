@@ -1786,6 +1786,11 @@ Line 3
 Line 2
 <BLANK-LINE>
 <END-OF-FILE>
+<UNAVALABLE-LINE>
+Line␣2␤
+␤
+<END-OF-FILE>
+<UNAVALABLE-LINE>
 
 Finish Printer Test!
 

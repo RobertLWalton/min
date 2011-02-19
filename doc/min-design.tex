@@ -4700,8 +4700,11 @@ Set to {\tt min::\EOL MISSING} when the file is created.
     & \MINKEY{next\_line}\verb| ( min::file & file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{line}\verb| ( min::file & file,|\\&{\tt ~~~}
-	           \verb|   min::uns32 line )|
+    & \MINKEY{line}
+	  \begin{argstack}
+	  \verb| ( min::file & file,|\\
+	  \verb|   min::uns32 line )|
+	  \end{argstack}
 \LABEL{MIN::LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -4710,8 +4713,11 @@ Set to {\tt min::\EOL MISSING} when the file is created.
     & \MINKEY{end\_line}\verb| ( min::file & file )|
 \LABEL{MIN::END_LINE_FILE} \\
 \verb|void min::|
-    & \MINKEY{end\_line}\verb| ( min::file & file,|\\&{\tt ~~~~~~~}
-	                \verb|   min::uns32 offset )|
+    & \MINKEY{end\_line}
+	  \begin{argstack}
+          \verb| ( min::file & file,|\\
+	  \verb|   min::uns32 offset )|
+	  \end{argstack}
 \LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
 \end{tabular}\end{indpar}
 
@@ -4720,8 +4726,11 @@ Set to {\tt min::\EOL MISSING} when the file is created.
     & \MINKEY{flush\_\EOL file}\verb| ( min::file & file )|
 \LABEL{MIN::FLUSH_FILE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL line}\verb| ( min::file & file,|\\&{\tt ~~~~}
-                    \verb|   min::uns32 offset )|
+    & \MINKEY{flush\_\EOL line}
+	  \begin{argstack}
+          \verb| ( min::file & file,|\\
+	  \verb|   min::uns32 offset )|
+	  \end{argstack}
 \LABEL{MIN::FLUSH_LINE} \\
 \verb|min::uns32 min::|
     & \MINKEY{flush\_partial}\verb| ( min::file & file )|
@@ -4730,18 +4739,27 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{rewind}\verb| ( min::file & file,|\\&{\tt ~~~~~~}
-                     \verb|   min::uns32 line_number = 0 )|
+    & \MINKEY{rewind}
+        \begin{argstack}
+	\verb| ( min::file & file,|\\
+	\verb|   min::uns32 line_number = 0 )|
+	\end{argstack}
 \LABEL{MIN::REWIND_FILE} \\
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   min::uns32 line_number,|\ARGBREAK
+      \verb|   const char * blank_line =|\ARGBREAK
+      \verb|       "<BLANK-LINE>",|\ARGBREAK
+      \verb|   const char * end_of_file =|\ARGBREAK
+      \verb|       "<END-OF-FILE>",|\ARGBREAK
+      \verb|   const char * unavailable_line =|\ARGBREAK
+      \verb|       "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{pline}\ARGBREAK
-    \verb| ( min::file & file,|\ARGBREAK
-    \verb|   min::uns32 offset,|\ARGBREAK
-    \verb|   const char * blank_line =|\ARGBREAK
-    \verb|       "<BLANK-LINE>" )|
-\LABEL{MIN::PLINE} \\
 \verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
     \verb| ( min::file & file,|\ARGBREAK
     \verb|   min::uns32 first, min::use32 last )|
@@ -5248,9 +5266,11 @@ formats.  The {\tt min::\EOL pgen} operation prints
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
-    & \MINKEY{pgen}\verb| ( min::gen v,|\\&{\tt ~~~~}
-      \verb|   const min::printer_format *|\\&{\tt ~~~~}
-      \verb|        format = NULL )|
+    & \MINKEY{pgen}
+	  \begin{argstack}
+	  \verb| ( min::gen v,|\\
+	  \verb|   const min::printer_format * format = NULL )|
+	  \end{argstack}
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
@@ -5363,19 +5383,25 @@ printed by using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
-    & \MINKEY{pint}%
-      \verb| ( min::int64 i,|\\&{\tt ~~~~}%
-      \verb|   const char * printf_format )|
+    & \MINKEY{pint}
+	  \begin{argstack}
+	  \verb| ( min::int64 i,|\\
+	  \verb|   const char * printf_format )|
+	  \end{argstack}
 \LABEL{MIN::PINT} \\
 \verb|min::op min::|
-    & \MINKEY{puns}%
-      \verb| ( min::uns64 u,|\\&{\tt ~~~~}%
-      \verb|   const char * printf_format )|
+    & \MINKEY{puns}
+	  \begin{argstack}
+	  \verb| ( min::uns64 u,|\\
+	  \verb|   const char * printf_format )|
+	  \end{argstack}
 \LABEL{MIN::PUNS} \\
 \verb|min::op min::|
-    & \MINKEY{pfloat}%
-      \verb| ( min::float64 f,|\\&{\tt ~~~~}%
-      \verb|   const char * printf_format )|
+    & \MINKEY{pfloat}
+	  \begin{argstack}
+	  \verb| ( min::float64 f,|\\
+	  \verb|   const char * printf_format )|
+	  \end{argstack}
 \LABEL{MIN::PFLOAT} \\
 \end{tabular}\end{indpar}
 
