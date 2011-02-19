@@ -1579,6 +1579,7 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 96 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 524 ) called
 MINT::deallocate ( stub XXX, 4108 ) called
@@ -1587,27 +1588,31 @@ MINT::new_fixed_body ( stub XXX, 35 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+MINT::acc_expand_stub_free_list (1) called
 MINT::deallocate ( stub XXX, 4108 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 96 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
 MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 524 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 4108 ) called
 MINT::deallocate ( stub XXX, 4108 ) called
-MINT::new_fixed_body ( stub XXX, 524 ) called
 MINT::deallocate ( stub XXX, 524 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 96 ) called
 MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 4108 ) called
 MINT::deallocate ( stub XXX, 4108 ) called
+MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 524 ) called
 MINT::deallocate ( stub XXX, 524 ) called
-MINT::deallocate ( stub XXX, 4108 ) called
+MINT::new_fixed_body ( stub XXX, 524 ) called
 MINT::deallocate ( stub XXX, 524 ) called
 
 Finish File Test!
@@ -1733,7 +1738,6 @@ MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 4108 ) called
 MINT::deallocate ( stub XXX, 4108 ) called
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 524 ) called
 MINT::deallocate ( stub XXX, 4108 ) called
 Line 1
 Line 2

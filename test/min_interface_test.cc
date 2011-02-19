@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 18 09:34:54 EST 2011
+// Date:	Sat Feb 19 02:30:23 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2129,8 +2129,6 @@ void test_file ( void )
 	  == 0 );
     MIN_ASSERT
         ( min::NO_LINE == min::next_line ( file2 ) );
-    MIN_ASSERT
-        ( min::NO_LINE == min::line ( file2, 0 ) );
 
     char * data = "Line A\nLine B\nPartial Line";
     unsigned data_length = strlen ( data );
@@ -2138,7 +2136,7 @@ void test_file ( void )
     std::istringstream istream ( data );
     min::file file3, file4;
     min::init_input_stream ( file3, istream );
-    min::init ( file4 );
+    min::init_input ( file4 );
     min::init_output_file ( file3, file4 );
     min::flush_file ( file3 );
     MIN_ASSERT ( data_length == file3->buffer->length );

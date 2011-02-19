@@ -210,7 +210,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 18, 2011}
+\date{February 19, 2011}
  
 \maketitle
 
@@ -4383,6 +4383,13 @@ accomplished by the following:
 	     \end{argstack}
 \LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
 \verb|void min::|
+    & \MINKEY{init\_\EOL file\_\EOL name}
+             \begin{argstack}
+	     \verb| ( min::file & file,|\\
+             \verb|   min::uns32 file_name )|
+	     \end{argstack}
+\LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
+\verb|void min::|
     & \MINKEY{init\_line\_index}\verb| ( void )|
 \LABEL{MIN::INIT_LINE_INDEX_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -4416,7 +4423,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_stream}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   std::istream & istream,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -4426,7 +4433,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::file & ifile,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -4437,6 +4444,7 @@ accomplished by the following:
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
 	  \verb|   min::printer & err,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -4446,7 +4454,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_string}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   const char * data,|\ARGBREAK
-	  \verb|   min::gen filename = min::MISSING,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \end{tabular}\end{indpar}
