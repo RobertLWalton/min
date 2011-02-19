@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 03:25:05 EST 2011
+// Date:	Sat Feb 19 09:53:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2315,6 +2315,16 @@ void test_printer ( void )
             << min::ascii
             << min::display_eol << "hello"
             << min::eom;
+
+    printer << min::bom << min::noautobreak;
+    for ( min::uns32 i = 0; i < 100; ++ i )
+        printer << i << min::right ( 4 );
+    printer << min::eom;
+
+    printer << min::bom << min::noautobreak;
+    for ( min::uns32 i = 0; i < 100; ++ i )
+        printer << i << min::left ( 4 );
+    printer << min::eom;
 
     printer << min::push_parameters;
     MIN_ASSERT ( printer->parameters.indent == 4 );

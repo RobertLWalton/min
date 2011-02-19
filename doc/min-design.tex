@@ -5226,6 +5226,23 @@ printer->break_offset = printer->buffer->length;
 printer->break_column = printer->column;
 \end{verbatim}\end{indpar}
 
+The {\tt min::left} and {\tt min::right} operations can be used to
+left or right adjust text in a line:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{left} \verb|( min::uns32 width )|
+\LABEL{MIN::LEFT} \\
+\verb|const min::op min::| & \MINKEY{right} \verb|( min::uns32 width )|
+\LABEL{MIN::RIGHT} \\
+\end{tabular}\end{indpar}
+
+These operations add spaces to make the current printer column
+equal to {\tt printer->\EOL break\_\EOL column + width}.
+The {\tt min::\EOL left} operation simply appends spaces to the
+current line.  The {\tt min::\EOL right} operation inserts spaces
+at the last break point.  Both operations end with an implicit
+{\tt min::\EOL setbreak} that resets the breakpoint.
+
 The {\tt parameters} of a printer may be saved in the
 \ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
 stack of the printer, and restored from that stack.

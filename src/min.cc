@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 02:58:37 EST 2011
+// Date:	Sat Feb 19 09:21:55 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7385,6 +7385,8 @@ static void end_line ( min::printer & printer )
 static min::printer & print_unicode
 	( min::printer & printer,
 	  min::unsptr n, const min::uns32 * buffer );
+static void insert_line_break
+	( min::printer & printer );
 
 min::printer & operator <<
 	( min::printer & printer,
@@ -7469,10 +7471,47 @@ min::printer & operator <<
 	min::flush_file ( printer->file );
 	return printer;
     case min::op::SETBREAK:
+    setbreak:
 	printer->break_offset =
 	    printer->file->buffer->length;
 	printer->break_column = printer->column;
 	return printer;
+    case min::op::LEFT:
+        while (   printer->column
+	        < printer->break_column + op.v1.u32 )
+	{
+	    ++ printer->column;
+	    min::push(printer->file->buffer) = ' ';
+	}
+	goto setbreak;
+    case min::op::RIGHT:
+        if (   printer->column
+	     < printer->break_column + op.v1.u32 )
+	{
+	    if (   printer->parameters.line_length
+	         < printer->break_column + op.v1.u32
+		 &&
+		   printer->parameters.indent
+		 < printer->column )
+	        ::insert_line_break ( printer );
+
+	    min::packed_vec_insptr<char> buffer =
+	        printer->file->buffer;
+	    min::uns32 offset = printer->break_offset;
+	    min::uns32 len = buffer->length - offset;
+	    min::uns32 n = printer->break_column
+	                 + op.v1.u32
+	                 - printer->column;
+	    min::push ( buffer, n );
+	    if ( len > 0 )
+	        memmove ( & buffer[offset + n],
+		          & buffer[offset],
+			  len );
+	    printer->column += n;
+	    while ( n -- ) buffer[offset++] = ' ';
+	}
+	goto setbreak;
+
     default:
         MIN_ABORT ( "bad min::OPCODE" );
     }
@@ -7576,15 +7615,16 @@ static void insert_line_break ( min::printer & printer )
     // Insert NUL and indent spaces.
     //
     min::end_line ( printer->file, begoff++ );
+
     for ( min::uns32 i = 0; i < indent; ++ i )
 	buffer[begoff++] = ' ';
 
     // Adjust parameters.
     //
+    printer->break_offset = begoff;
+    printer->break_column = indent;
     printer->column -= break_column;
     printer->column += indent;
-    printer->break_offset = begoff;
-    printer->break_column = 0;
 }
 
 // Code that is common to << const char * and to
