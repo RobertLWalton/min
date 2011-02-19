@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 18 06:34:13 EST 2011
+// Date:	Sat Feb 19 01:37:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4710,6 +4710,7 @@ namespace min {
 	min::uns32 next_line_number;
 	min::uns32 next_line_offset;
 	min::uns32 end_offset;
+	min::uns32 file_lines;
 	min::packed_vec_insptr<min::uns32> line_index;
 
 	min::uns32 spool_lines;
@@ -4720,13 +4721,14 @@ namespace min {
 	std::ostream * ostream;
 	min::printer   printer;
 	min::file      ofile;
-	min::gen       filename;
+	min::gen       file_name;
     };
 
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
 
-    void init ( min::file & file );
+    void init_output ( min::file & file );
+    void init_input ( min::file & file );
 
     void init_print_flags
 	    ( min::file & file,
@@ -4736,45 +4738,47 @@ namespace min {
 	    ( min::file & file,
 	      min::uns32 spool_lines );
 
+    void init_file_name
+	    ( min::file & file,
+	      min::gen file_name );
+
     void init_line_index ( min::file & file );
 
     void init_output_stream
 	    ( min::file & file,
-	      std::ostream & ostream,
-	      min::gen filename = min::MISSING );
+	      std::ostream & ostream );
 
     void init_output_file
 	    ( min::file & file,
-	      min::file & ofile,
-	      min::gen filename = min::MISSING );
+	      min::file & ofile );
 
     void init_output_printer
 	    ( min::file & file,
-	      min::printer & printer,
-	      min::gen filename = min::MISSING );
+	      min::printer & printer );
 
     void init_input_stream
 	    ( min::file & file,
 	      std::istream & istream,
-	      min::gen filename = min::MISSING,
+	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_file
 	    ( min::file & file,
 	      min::file & ifile,
-	      min::gen filename = min::MISSING,
+	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     bool init_input_named_file
 	    ( min::file & file,
-	      min::gen filename,
+	      min::gen file_name,
 	      min::printer & err,
+	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
 	    ( min::file & file,
 	      const char * data,
-	      min::gen filename = min::MISSING,
+	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     min::uns32 next_line ( min::file & file );
