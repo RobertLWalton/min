@@ -1619,7 +1619,7 @@ Finish File Test!
 
 Start Printer Test!
 MINT::acc_expand_stub_free_list (1) called
-MINT::new_fixed_body ( stub XXX, 152 ) called
+MINT::new_fixed_body ( stub XXX, 248 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 4108 ) called

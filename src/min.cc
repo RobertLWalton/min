@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 02:56:00 EST 2011
+// Date:	Sun Feb 20 08:47:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7444,7 +7444,8 @@ min::printer operator <<
 	return printer;
     case min::op::PUSH_PARAMETERS:
     case min::op::BOM:
-	assert ( printer->save_index < 4 );
+	assert (   printer->save_index
+	         < min::saved_parameters_stack_size );
 	printer->saved_parameters
 	        [printer->save_index++] =
 	    printer->parameters;
