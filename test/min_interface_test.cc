@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 09:53:04 EST 2011
+// Date:	Sun Feb 20 02:25:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2115,8 +2115,7 @@ void test_file ( void )
         ( file2,
 	  min::new_str_gen
 	      ( "min_interface_test_file.in" ),
-	  * ( min::printer *) min::NULL_STUB,
-	  0 );
+	  min::NULL_STUB, 0 );
     MIN_ASSERT
         (    strcmp ( "Line 0",
 	              & file2->buffer
@@ -2210,7 +2209,7 @@ void test_printer ( void )
     cout << "Start Printer Test!" << endl;
     min_assert_print = false;
 
-    min::init ( printer, std::cout );
+    min::init_output_stream ( printer, std::cout );
     min::resize ( printer->file->buffer, 16*1024 );
     printer << min::eol_flush
             << min::eom_flush
