@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 02:56:58 EST 2011
+// Date:	Sun Feb 20 08:46:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8944,6 +8944,7 @@ namespace min {
     extern const printer_parameters
 	default_printer_parameters;
 
+    const uns32 saved_parameters_stack_size = 8;
     struct printer_struct
     {
         const uns32 control;
@@ -8951,7 +8952,8 @@ namespace min {
 	min::file file;
 
 	printer_parameters parameters;
-	printer_parameters saved_parameters[4];
+	printer_parameters saved_parameters
+	    [saved_parameters_stack_size];
 	uns32 save_index;
 
 	uns32 column;
