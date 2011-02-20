@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 16:09:36 EST 2011
+// Date:	Sun Feb 20 02:56:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1745,7 +1745,7 @@ void min::init_output_stream
 
 void min::init_output_file
 	( min::file & file,
-	  min::file & ofile )
+	  min::file ofile )
 {
     init_output ( file );
     file->ofile = ofile;
@@ -1753,7 +1753,7 @@ void min::init_output_file
 
 void min::init_output_printer
 	( min::file & file,
-	  min::printer & printer )
+	  min::printer printer )
 {
     init_output ( file );
     file->printer = printer;
@@ -1774,7 +1774,7 @@ void min::init_input_stream
 
 void min::init_input_file
 	( min::file & file,
-	  min::file & ifile,
+	  min::file ifile,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
@@ -1788,7 +1788,7 @@ void min::init_input_file
 bool min::init_input_named_file
 	( min::file & file,
 	  min::gen file_name,
-	  min::printer & err,
+	  min::printer err,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
@@ -1915,7 +1915,7 @@ void min::init_input_string
     }
 }
 
-min::uns32 min::next_line ( min::file & file )
+min::uns32 min::next_line ( min::file file )
 {
     uns32 line_offset = file->next_line_offset;
 
@@ -2042,7 +2042,7 @@ min::uns32 min::next_line ( min::file & file )
 }
 
 min::uns32 min::line
-	( min::file & file, uns32 line_number )
+	( min::file file, uns32 line_number )
 {
     if ( file->line_index == NULL_STUB )
         return NO_LINE;
@@ -2122,8 +2122,8 @@ min::uns32 min::print_line
     return width;
 }
 
-min::printer & operator <<
-	( min::printer & printer,
+min::printer operator <<
+	( min::printer printer,
 	  const min::pline_numbers & pline_numbers )
 {
     min::file file = pline_numbers.file;
@@ -2144,7 +2144,7 @@ min::printer & operator <<
     return printer << min::pop_parameters;
 }
 
-void min::flush_file ( min::file & file )
+void min::flush_file ( min::file file )
 {
     while ( true )
     {
@@ -2160,7 +2160,7 @@ void min::flush_file ( min::file & file )
 }
 
 void min::flush_line
-	( min::file & file, min::uns32 offset )
+	( min::file file, min::uns32 offset )
 {
     assert ( offset < file->end_offset );
 
@@ -2185,7 +2185,7 @@ void min::flush_line
 		      << min::eol;
 }
 
-void min::flush_partial ( min::file & file )
+void min::flush_partial ( min::file file )
 {
     min::uns32 offset = file->next_line_offset;
     if ( offset == file->buffer->length ) return;
@@ -2218,7 +2218,7 @@ void min::flush_partial ( min::file & file )
 }
 
 void min::rewind
-	( min::file & file, min::uns32 line_number )
+	( min::file file, min::uns32 line_number )
 {
     if ( line_number == 0 )
     {
@@ -7225,7 +7225,7 @@ static min::packed_struct<min::printer_struct>
 
 static void init_utf8graphic ( void );
 void min::init ( min::printer & printer,
-                 min::file & file )
+                 min::file file )
 {
     if ( printer == NULL_STUB )
     {
@@ -7251,11 +7251,11 @@ void min::init ( min::printer & printer,
 }
 
 template < typename T >
-T & print_gen
-	( T & out,
+T print_gen
+	( T out,
 	  min::gen v,
 	  const min::printer_format * f, 
-	  T & (*pr_stub) ( T&, const min::stub *) )
+	  T (*pr_stub) ( T, const min::stub *) )
 {
     if ( v == min::new_gen ( MINT::null_stub ) )
     {
@@ -7350,7 +7350,7 @@ T & print_gen
 
 }
 
-static void end_line ( min::printer & printer )
+static void end_line ( min::printer printer )
 {
     // Remove line ending single spaces.
     //
@@ -7382,14 +7382,14 @@ static void end_line ( min::printer & printer )
     printer->break_column = 0;
 }
 
-static min::printer & print_unicode
-	( min::printer & printer,
+static min::printer print_unicode
+	( min::printer printer,
 	  min::unsptr n, const min::uns32 * buffer );
 static void insert_line_break
-	( min::printer & printer );
+	( min::printer printer );
 
-min::printer & operator <<
-	( min::printer & printer,
+min::printer operator <<
+	( min::printer printer,
 	  const min::op & op )
 {
     char buffer[256];
@@ -7404,7 +7404,7 @@ min::printer & operator <<
 	if  ( f == NULL )
 	    f = & min::default_printer_format;
 
-	return print_gen
+	return print_gen<min::printer>
 	    ( printer, op.v1.g, f, f->pr_stub );
     }
     case min::op::PUNICODE1:
@@ -7585,7 +7585,7 @@ const min::op min::nokeep
 // into the line, the result would exceed line length,
 // and break_column > indent.
 //
-static void insert_line_break ( min::printer & printer )
+static void insert_line_break ( min::printer printer )
 {
     min::uns32 indent = printer->parameters.indent;
     min::uns32 break_column = printer->break_column;
@@ -7654,7 +7654,7 @@ static void insert_line_break ( min::printer & printer )
 //
 // Context:
 //
-// printer & ... ( printer & printer, ... )
+// printer ... ( printer printer, ... )
 // {
 //	COMMON_CHARACTER_PRINT_PREFIX
 //
@@ -7886,8 +7886,8 @@ static void insert_line_break ( min::printer & printer )
 # define COMMON_CHARACTER_PRINT_POSTFIX \
     return printer;
 
-min::printer & operator <<
-	( min::printer & printer, const char * s )
+min::printer operator <<
+	( min::printer printer, const char * s )
 {
     COMMON_CHARACTER_PRINT_PREFIX
 
@@ -7910,8 +7910,8 @@ min::printer & operator <<
     COMMON_CHARACTER_PRINT_POSTFIX
 }
 
-static min::printer & print_unicode
-	( min::printer & printer,
+static min::printer print_unicode
+	( min::printer printer,
 	  min::unsptr n, const min::uns32 * str )
 {
     COMMON_CHARACTER_PRINT_PREFIX
@@ -7927,24 +7927,24 @@ static min::printer & print_unicode
     COMMON_CHARACTER_PRINT_POSTFIX
 }
 
-min::printer & operator <<
-	( min::printer & printer, min::int64 i )
+min::printer operator <<
+	( min::printer printer, min::int64 i )
 {
     char buffer[32];
     sprintf ( buffer, "%lld", i );
     return printer << buffer;
 }
 
-min::printer & operator <<
-	( min::printer & printer, min::uns64 u )
+min::printer operator <<
+	( min::printer printer, min::uns64 u )
 {
     char buffer[32];
     sprintf ( buffer, "%llu", u );
     return printer << buffer;
 }
 
-min::printer & operator <<
-	( min::printer & printer, min::float64 f )
+min::printer operator <<
+	( min::printer printer, min::float64 f )
 {
     char buffer[64];
     sprintf ( buffer, "%.15g", f );
@@ -7955,7 +7955,7 @@ std::ostream & operator <<
 	( std::ostream & out,
 	  const min::test::ogen & og )
 {
-    return print_gen
+    return print_gen<std::ostream &>
         ( out, og.g, og.format,
 	  (std::ostream & (*)
 	      ( std::ostream &, const min::stub * ) )

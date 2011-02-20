@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 19 09:10:24 EST 2011
+// Date:	Sun Feb 20 02:56:58 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4750,11 +4750,11 @@ namespace min {
 
     void init_output_file
 	    ( min::file & file,
-	      min::file & ofile );
+	      min::file ofile );
 
     void init_output_printer
 	    ( min::file & file,
-	      min::printer & printer );
+	      min::printer printer );
 
     void init_input_stream
 	    ( min::file & file,
@@ -4764,14 +4764,14 @@ namespace min {
 
     void init_input_file
 	    ( min::file & file,
-	      min::file & ifile,
+	      min::file ifile,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     bool init_input_named_file
 	    ( min::file & file,
 	      min::gen file_name,
-	      min::printer & err,
+	      min::printer err,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
@@ -4781,27 +4781,27 @@ namespace min {
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
-    min::uns32 next_line ( min::file & file );
+    min::uns32 next_line ( min::file file );
     min::uns32 line
-	    ( min::file & file,
+	    ( min::file file,
 	      min::uns32 line_number );
-    inline min::uns32 end_line ( min::file & file )
+    inline min::uns32 end_line ( min::file file )
     {
         min::push(file->buffer) = 0;
 	file->end_offset = file->buffer->length;
     }
     inline min::uns32 end_line
-	    ( min::file & file, min::uns32 offset )
+	    ( min::file file, min::uns32 offset )
     {
         file->buffer[offset] = 0;
 	file->end_offset = offset +1;
     }
-    void flush_file ( min::file & file );
+    void flush_file ( min::file file );
     void flush_line
-	    ( min::file & file, min::uns32 offset );
-    void flush_partial ( min::file & file );
+	    ( min::file file, min::uns32 offset );
+    void flush_partial ( min::file file );
 
-    void rewind ( min::file & file,
+    void rewind ( min::file file,
                   min::uns32 line_number = 0 );
 
     min::uns32 print_line
@@ -4817,9 +4817,9 @@ namespace min {
 
     struct pline_numbers
     {
-        min::file & file;
+        min::file file;
 	min::uns32 first, last;
-	pline_numbers ( min::file & file,
+	pline_numbers ( min::file file,
 	                min::uns32 first,
 			min::uns32 last )
 	    : file ( file ),
@@ -4827,8 +4827,8 @@ namespace min {
     };
 }
 
-min::printer & operator <<
-        ( min::printer & printer,
+min::printer operator <<
+        ( min::printer printer,
 	  const min::pline_numbers & pline_numbers );
 
 // Objects
@@ -8926,8 +8926,9 @@ namespace min {
 	const char * lab_postfix;
 	const char * special_prefix;
 	const char * special_postfix;
-	min::printer & ( * pr_stub )
-	    ( min::printer & out, const min::stub * s );
+	min::printer ( * pr_stub )
+	    ( min::printer printer,
+	      const min::stub * s );
     };
 
     extern const printer_format default_printer_format;
@@ -8968,9 +8969,6 @@ namespace min {
         KEEP_FLAG		= ( 1 << 6 ),
     };
 
-    struct op;
-    typedef printer & ( * op_func )
-    	    ( printer & ptr, const op & op );
     struct op
     {
         enum OPCODE
@@ -9063,15 +9061,15 @@ namespace min {
     };
 
     void init ( min::printer & printer,
-                min::file & file =
-		    * (min::file *) min::NULL_STUB );
+                min::file file = min::NULL_STUB );
 
-    inline void init ( min::printer & printer,
-                       std::ostream & ostream )
+    inline void init_output_stream
+	    ( min::printer & printer,
+	      std::ostream & ostream )
     {
         init ( printer );
-	init_output_stream ( printer->file,
-	                     ostream );
+	init_output_stream
+	    ( printer->file, ostream );
     }
 
     inline op pgen
@@ -9184,46 +9182,46 @@ namespace min {
         ( uns32 & column, uns32 c, uns32 flags );
 }
 
-min::printer & operator <<
-	( min::printer & printer,
+min::printer operator <<
+	( min::printer printer,
 	  const min::op & op );
 
-min::printer & operator <<
-	( min::printer & printer,
+min::printer operator <<
+	( min::printer printer,
 	  const char * s );
 
-inline min::printer & operator <<
-	( min::printer & printer,
+inline min::printer operator <<
+	( min::printer printer,
 	  char c )
 {
     char buffer[2] = { c, 0 };
     return printer << buffer;
 }
 
-min::printer & operator <<
-	( min::printer & printer,
+min::printer operator <<
+	( min::printer printer,
 	  min::int64 i );
 
-inline min::printer & operator <<
-	( min::printer & printer,
+inline min::printer operator <<
+	( min::printer printer,
 	  min::int32 i )
 {
     return printer << (min::int64) i;
 }
 
-min::printer & operator <<
-	( min::printer & printer,
+min::printer operator <<
+	( min::printer printer,
 	  min::uns64 i );
 
-inline min::printer & operator <<
-	( min::printer & printer,
+inline min::printer operator <<
+	( min::printer printer,
 	  min::uns32 i )
 {
     return printer << (min::uns64) i;
 }
 
-min::printer & operator <<
-	( min::printer & printer,
+min::printer operator <<
+	( min::printer printer,
 	  min::float64 i );
 
 namespace min { namespace test {

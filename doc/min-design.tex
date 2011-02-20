@@ -210,7 +210,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 19, 2011}
+\date{February 20, 2011}
  
 \maketitle
 
@@ -4386,7 +4386,7 @@ accomplished by the following:
     & \MINKEY{init\_\EOL file\_\EOL name}
              \begin{argstack}
 	     \verb| ( min::file & file,|\\
-             \verb|   min::uns32 file_name )|
+             \verb|   min::gen file_name )|
 	     \end{argstack}
 \LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
 \verb|void min::|
@@ -4406,14 +4406,14 @@ accomplished by the following:
     & \MINKEY{init\_output\_file}
           \begin{argstack}
           \verb| ( min::file & file,| \\
-	  \verb|   min::file & ofile )|
+	  \verb|   min::file ofile )|
           \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_output\_printer}
           \begin{argstack}
           \verb| ( min::file & file,| \\
-	  \verb|   min::printer & printer )|
+	  \verb|   min::printer printer )|
           \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -4432,7 +4432,7 @@ accomplished by the following:
 \verb|void min::|
     & \MINKEY{init\_input\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::file & ifile,|\ARGBREAK
+	  \verb|   min::file ifile,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
@@ -4443,7 +4443,7 @@ accomplished by the following:
     & \MINKEY{init\_input\_named\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
-	  \verb|   min::printer & err,|\ARGBREAK
+	  \verb|   min::printer err,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
@@ -4697,12 +4697,12 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 \verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
 \LABEL{MIN::NO_LINE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{next\_line}\verb| ( min::file & file )|
+    & \MINKEY{next\_line}\verb| ( min::file file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
 \verb|min::uns32 min::|
     & \MINKEY{line}
 	  \begin{argstack}
-	  \verb| ( min::file & file,|\\
+	  \verb| ( min::file file,|\\
 	  \verb|   min::uns32 line )|
 	  \end{argstack}
 \LABEL{MIN::LINE_OF_FILE} \\
@@ -4710,12 +4710,12 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{end\_line}\verb| ( min::file & file )|
+    & \MINKEY{end\_line}\verb| ( min::file file )|
 \LABEL{MIN::END_LINE_FILE} \\
 \verb|void min::|
     & \MINKEY{end\_line}
 	  \begin{argstack}
-          \verb| ( min::file & file,|\\
+          \verb| ( min::file file,|\\
 	  \verb|   min::uns32 offset )|
 	  \end{argstack}
 \LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
@@ -4723,17 +4723,17 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL file}\verb| ( min::file & file )|
+    & \MINKEY{flush\_\EOL file}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_FILE} \\
 \verb|min::uns32 min::|
     & \MINKEY{flush\_\EOL line}
 	  \begin{argstack}
-          \verb| ( min::file & file,|\\
+          \verb| ( min::file file,|\\
 	  \verb|   min::uns32 offset )|
 	  \end{argstack}
 \LABEL{MIN::FLUSH_LINE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_partial}\verb| ( min::file & file )|
+    & \MINKEY{flush\_partial}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_PARTIAL} \\
 \end{tabular}\end{indpar}
 
@@ -4741,7 +4741,7 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 \verb|min::uns32 min::|
     & \MINKEY{rewind}
         \begin{argstack}
-	\verb| ( min::file & file,|\\
+	\verb| ( min::file file,|\\
 	\verb|   min::uns32 line_number = 0 )|
 	\end{argstack}
 \LABEL{MIN::REWIND_FILE} \\
@@ -4761,22 +4761,22 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb| ( min::file & file,|\ARGBREAK
+    \verb| ( min::file file,|\ARGBREAK
     \verb|   min::uns32 first, min::use32 last )|
 \LABEL{MIN::PLINE_NUMBERS} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer,|\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
       \verb|   const min::pline & pline )|
 \LABEL{PRINTER_OPERATOR<<_OF_PLINE} \\
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer,|\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
       \verb|   const min::pline_numbers & pline_numbers )|
 \LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
 \end{tabular}\end{indpar}
@@ -4804,7 +4804,7 @@ accomplished by the following:
 \LABEL{MIN::PRINTER} \\
 \verb|void min::| & \MINKEY{init}\ARGBREAK
     \verb| ( min::printer & printer,|\ARGBREAK
-    \verb|   min::file & file = min::NULL_STUB )|
+    \verb|   min::file file = min::NULL_STUB )|
 \LABEL{MIN::INIT_OF_PRINTER} \\
 \verb|void min::| & \MINKEY{init\_output\_stream}\ARGBREAK
     \verb| ( min::printer & printer,|\ARGBREAK
@@ -5104,40 +5104,40 @@ Copying characters into a printer is done by the
 {\tt <<} operator:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer, const char * s )|
+      \verb| ( min::printer printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer, char c )|
+      \verb| ( min::printer printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer, min::int32 i )|
+      \verb| ( min::printer printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer, min::int64 i )|
+      \verb| ( min::printer printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer, min::uns32 u )|
+      \verb| ( min::printer printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer, min::uns64 u )|
+      \verb| ( min::printer printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer, min::float64 f )|
+      \verb| ( min::printer printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
 \end{tabular}\end{indpar}
 
@@ -5182,9 +5182,9 @@ Operations can be performed on printers by applying the
 {\tt <<} operator to a {\tt min::}\MINKEY{op}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer & |
+\verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT}{of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer & printer,|\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
       \verb|   const min::op & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
 \end{tabular}\end{indpar}
