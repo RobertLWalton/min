@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 08:46:59 EST 2011
+// Date:	Mon Feb 21 00:11:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4695,6 +4695,8 @@ namespace min {
     struct printer_struct;
     typedef packed_struct_updptr<printer_struct>
         printer;
+
+    extern min::printer & error_message;
 }
 
 namespace min {
@@ -4771,7 +4773,6 @@ namespace min {
     bool init_input_named_file
 	    ( min::file & file,
 	      min::gen file_name,
-	      min::printer err,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
@@ -4830,6 +4831,13 @@ namespace min {
 min::printer operator <<
         ( min::printer printer,
 	  const min::pline_numbers & pline_numbers );
+
+std::ostream & operator <<
+        ( std::ostream & out, min::file file );
+min::file operator <<
+        ( min::file ofile, min::file ifile );
+min::printer operator <<
+        ( min::printer printer, min::file file );
 
 // Objects
 // -------
@@ -9062,16 +9070,17 @@ namespace min {
 
     };
 
-    void init ( min::printer & printer,
-                min::file file = min::NULL_STUB );
+    min::printer init ( min::printer & printer,
+                        min::file file = min::NULL_STUB );
 
-    inline void init_output_stream
+    inline min::printer init_output_stream
 	    ( min::printer & printer,
 	      std::ostream & ostream )
     {
         init ( printer );
 	init_output_stream
 	    ( printer->file, ostream );
+	return printer;
     }
 
     inline op pgen
@@ -9225,6 +9234,22 @@ inline min::printer operator <<
 min::printer operator <<
 	( min::printer printer,
 	  min::float64 i );
+
+inline std::ostream & operator <<
+        ( std::ostream & out, min::printer printer )
+{
+    return out << printer->file;
+}
+inline min::file operator <<
+        ( min::file file, min::printer printer )
+{
+    return file << printer->file;
+}
+inline min::printer operator <<
+        ( min::printer oprinter, min::printer iprinter )
+{
+    return oprinter << iprinter->file;
+}
 
 namespace min { namespace test {
 

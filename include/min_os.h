@@ -2,7 +2,7 @@
 //
 // File:	min_os.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 00:27:43 EST 2010
+// Date:	Mon Feb 21 01:02:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -192,8 +192,8 @@ namespace min { namespace os {
 
     // Return the size in bytes of a file.  Return true
     // on no error and false on error.  On error return
-    // error_message, which is one or more lines NOT
-    // terminated by \n.
+    // error description in error_message.  For UNIX
+    // this is the output of strerror ( errno ).
     //
     bool file_size ( min::uns64 & file_size,
     		     const char * file_name,

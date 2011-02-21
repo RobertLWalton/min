@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb  2 13:36:22 EST 2011
+// Date:	Mon Feb 21 01:04:30 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,7 +72,7 @@ ostream & fatal_error ( void )
 static void fatal_error ( int errno_code )
 {
     fatal_error() << strerror ( errno_code )
-    			  << endl;
+		  << endl;
     exit ( errno_code );
 }
 
@@ -1027,11 +1027,7 @@ bool MOS::file_size ( min::uns64 & file_size,
     struct stat s;
     if ( stat ( file_name, & s ) < 0 )
     {
-        sprintf ( error_message,
-		  "ERROR: during attempt to find the"
-		        " size of %s\n"
-		  "       %s", file_name,
-		  strerror ( errno ) );
+        ::strcpy ( error_message, strerror ( errno ) );
 	return false;
     }
     file_size = s.st_size;

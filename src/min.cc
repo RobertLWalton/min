@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 08:47:19 EST 2011
+// Date:	Mon Feb 21 00:11:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -42,6 +42,9 @@
 # include <cerrno>
 # define MUP min::unprotected
 # define MINT min::internal
+
+# define ERR min::init ( min::error_message ) \
+    << min::autobreak << min::indent ( 7 )
 
 // For debugging.
 //
@@ -1788,7 +1791,6 @@ void min::init_input_file
 bool min::init_input_named_file
 	( min::file & file,
 	  min::gen file_name,
-	  min::printer err,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
@@ -1808,13 +1810,16 @@ bool min::init_input_named_file
     if ( ! min::os::file_size
                ( file_size, & fname[0], error_buffer ) )
     {
-        err << error_buffer << min::eol;
+	ERR << "ERROR: during attempt to find the size"
+	       " of file "
+	    << & fname[0]
+	    << ": " << error_buffer << min::eol;
         return false;
     }
 
     if ( file_size >= ( 1ull << 32 ) - 1 )
     {
-        err << "ERROR: file " << & fname [0]
+        ERR << "ERROR: file " << & fname[0]
 	    << " too large ( size = " << file_size
 	    << ")" << min::eol;
 	return false;
@@ -1827,7 +1832,7 @@ bool min::init_input_named_file
 
     if ( in == NULL )
     {
-        err << "ERROR: opening file "
+        ERR << "ERROR: opening file "
 	    << & fname[0] << min::eol
 	    << "       " << strerror ( errno )
 	    << min::eol;
@@ -1845,12 +1850,12 @@ bool min::init_input_named_file
     if ( bytes != file_size )
     {
 	if ( errno != 0 )
-	    err << "ERROR: reading file "
+	    ERR << "ERROR: reading file "
 		<< & fname[0] << min::eol
 		<< "       " << strerror ( errno )
 		<< min::eol;
 	else
-	    err << "ERROR: reading file "
+	    ERR << "ERROR: reading file "
 		<< & fname[0] << min::eol
 		<< "       only " << bytes
 		<< " bytes out of " << file_size
@@ -1862,7 +1867,7 @@ bool min::init_input_named_file
 
     if ( getc ( in ) != EOF )
     {
-	err << "ERROR: reading file "
+	ERR << "ERROR: reading file "
 	    << & fname[0] << min::eol
 	    << "       file longer than expected"
 	    << min::eol;
@@ -2240,6 +2245,79 @@ void min::rewind
 	             file->line_index->length
 		   - line_number );
     }
+}
+
+std::ostream & operator <<
+	( std::ostream & out, min::file file )
+{
+    while ( true )
+    {
+        min::uns32 offset = min::next_line ( file );
+	if ( offset == min::NO_LINE ) break;
+	out << & file->buffer[offset] << std::endl;
+    }
+
+    if ( file->next_line_offset < file->buffer->length )
+    {
+	min::push(file->buffer) = 0;
+        out << & file->buffer[file->next_line_offset];
+	min::pop ( file->buffer );
+	file->next_line_offset = file->buffer->length;
+    }
+
+    return out;
+}
+min::file operator <<
+	( min::file ofile, min::file ifile )
+{
+    while ( true )
+    {
+        min::uns32 offset = min::next_line ( ifile );
+	if ( offset == min::NO_LINE ) break;
+        min::uns32 length =
+	    ::strlen ( & ifile->buffer[offset] );
+	min::push ( ofile->buffer, length,
+	            & ifile->buffer[offset] );
+	min::end_line ( ofile );
+    }
+
+    if (   ifile->next_line_offset
+         < ifile->buffer->length )
+    {
+        min::uns32 length = ifile->buffer->length
+	                  - ifile->next_line_offset;
+	min::push ( ofile->buffer, length,
+	            & ifile->buffer
+		          [ifile->next_line_offset] );
+	ifile->next_line_offset = ifile->buffer->length;
+    }
+
+    return ofile;
+}
+
+min::printer operator <<
+	( min::printer printer, min::file file )
+{
+    printer << min::push_parameters
+	    << min::noascii << min::nographic;
+
+    while ( true )
+    {
+        min::uns32 offset = min::next_line ( file );
+	if ( offset == min::NO_LINE ) break;
+	printer << & file->buffer[offset] << min::eol;
+    }
+
+    if ( file->next_line_offset < file->buffer->length )
+    {
+	min::push(file->buffer) = 0;
+        printer <<
+	    & file->buffer[file->next_line_offset];
+	min::pop ( file->buffer );
+	file->next_line_offset = file->buffer->length;
+    }
+
+    return printer << min::pop_parameters;
 }
 
 // Objects
@@ -7113,6 +7191,11 @@ bool MINT::flip_flag
 // Printers
 // --------
 
+
+static min::static_stub<1> error_message_stub;
+min::printer & min::error_message =
+    * (min::printer *) & error_message_stub[0];
+
 const min::printer_format
     min::default_printer_format =
 {
@@ -7224,8 +7307,8 @@ static min::packed_struct<min::printer_struct>
                    NULL, ::printer_stub_disp );
 
 static void init_utf8graphic ( void );
-void min::init ( min::printer & printer,
-                 min::file file )
+min::printer min::init ( min::printer & printer,
+                         min::file file )
 {
     if ( printer == NULL_STUB )
     {
@@ -7237,17 +7320,21 @@ void min::init ( min::printer & printer,
 	}
 
         printer = ::printer_type.new_stub();
-	printer->parameters =
-	    min::default_printer_parameters;
     }
 
     if ( printer->file != NULL_STUB )
         printer->file = file;
-    init_input ( printer->file );
+    else
+	init_input ( printer->file );
 
     printer->column = 0;
     printer->break_offset = 0;
     printer->break_column = 0;
+    printer->save_index = 0;
+    printer->parameters =
+	min::default_printer_parameters;
+
+    return printer;
 }
 
 template < typename T >

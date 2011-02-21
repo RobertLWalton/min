@@ -1803,6 +1803,24 @@ Line␣2␤
 ␤
 <END-OF-FILE>
 <UNAVALABLE-LINE>
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 30 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 524 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 248 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 96 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+ERROR: during attempt to find the size of file min_non_existent_file: No
+       such file or directory
 
 Finish Printer Test!
 
