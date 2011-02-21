@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 00:11:59 EST 2011
+// Date:	Mon Feb 21 01:59:07 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1881,7 +1881,8 @@ bool min::init_input_named_file
     for ( min::uns32 i = 0;
           i < file->buffer->length; ++ i )
     {
-        if ( file->buffer[i] == '\n' )
+	char c = file->buffer[i];
+        if ( c == '\n' || c == 0 )
 	{
 	    min::end_line ( file, i );
 	    ++ file->file_lines;
@@ -1988,7 +1989,7 @@ min::uns32 min::next_line ( min::file file )
 
 	    int c;
 	    while ( c = file->istream->get(),
-		    c != EOF && c != '\n' )
+		    c != EOF && c != '\n' && c != 0 )
 		min::push(file->buffer) = (char) c;
 
 	    if ( c == EOF )
@@ -2185,6 +2186,7 @@ void min::flush_line
     if ( file->printer != NULL_STUB )
         file->printer << min::push_parameters
 		      << min::noascii << min::nographic
+		      << min::noautobreak
 		      << & file->buffer[offset]
 		      << min::pop_parameters
 		      << min::eol;
@@ -2299,7 +2301,8 @@ min::printer operator <<
 	( min::printer printer, min::file file )
 {
     printer << min::push_parameters
-	    << min::noascii << min::nographic;
+	    << min::noascii << min::nographic
+	    << min::noautobreak;
 
     while ( true )
     {
@@ -2308,16 +2311,21 @@ min::printer operator <<
 	printer << & file->buffer[offset] << min::eol;
     }
 
+    printer << min::pop_parameters;
+
     if ( file->next_line_offset < file->buffer->length )
     {
 	min::push(file->buffer) = 0;
-        printer <<
-	    & file->buffer[file->next_line_offset];
+	printer << min::push_parameters
+		<< min::noascii << min::nographic
+	        << & file->buffer
+		         [file->next_line_offset]
+		<< min::pop_parameters;
 	min::pop ( file->buffer );
 	file->next_line_offset = file->buffer->length;
     }
 
-    return printer << min::pop_parameters;
+    return printer;
 }
 
 // Objects
@@ -7663,10 +7671,6 @@ const min::op min::eom_flush
     ( min::op::SET_FLAGS, min::EOM_FLUSH_FLAG );
 const min::op min::noeom_flush
     ( min::op::CLEAR_FLAGS, min::EOM_FLUSH_FLAG );
-const min::op min::keep
-    ( min::op::SET_FLAGS, min::KEEP_FLAG );
-const min::op min::nokeep
-    ( min::op::CLEAR_FLAGS, min::KEEP_FLAG );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character

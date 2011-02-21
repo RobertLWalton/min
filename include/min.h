@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 00:11:48 EST 2011
+// Date:	Mon Feb 21 01:58:53 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4786,6 +4786,24 @@ namespace min {
     min::uns32 line
 	    ( min::file file,
 	      min::uns32 line_number );
+
+    inline bool file_is_complete ( min::file file )
+    {
+        return file->file_lines != NO_LINE;
+    }
+    inline min::uns32 partial_length
+	    ( min::file file )
+    {
+        MIN_ASSERT ( file->file_lines != NO_LINE );
+	return file->buffer->length - file->end_offset;
+    }
+    inline min::uns32 partial_line
+	    ( min::file file )
+    {
+        MIN_ASSERT ( file->file_lines != NO_LINE );
+	return file->end_offset;
+    }
+
     inline min::uns32 end_line ( min::file file )
     {
         min::push(file->buffer) = 0;
@@ -8976,7 +8994,6 @@ namespace min {
         AUTOBREAK_FLAG		= ( 1 << 3 ),
         EOL_FLUSH_FLAG		= ( 1 << 4 ),
         EOM_FLUSH_FLAG		= ( 1 << 5 ),
-        KEEP_FLAG		= ( 1 << 6 ),
     };
 
     struct op
@@ -9186,8 +9203,6 @@ namespace min {
     extern const op noeol_flush;
     extern const op eom_flush;
     extern const op noeom_flush;
-    extern const op keep;
-    extern const op nokeep;
 
     void pwidth
         ( uns32 & column, uns32 c, uns32 flags );
