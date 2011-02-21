@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 11:31:41 EST 2011
+// Date:	Mon Feb 21 18:38:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8993,7 +8993,6 @@ namespace min {
         DISPLAY_EOL_FLAG	= ( 1 << 2 ),
         AUTOBREAK_FLAG		= ( 1 << 3 ),
         EOL_FLUSH_FLAG		= ( 1 << 4 ),
-        EOM_FLUSH_FLAG		= ( 1 << 5 ),
     };
 
     struct op
@@ -9208,8 +9207,6 @@ namespace min {
     extern const op noautobreak;
     extern const op eol_flush;
     extern const op noeol_flush;
-    extern const op eom_flush;
-    extern const op noeom_flush;
 
     void pwidth
         ( uns32 & column, uns32 c, uns32 flags );
