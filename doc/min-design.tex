@@ -5156,8 +5156,6 @@ these is:
 \LABEL{MIN::AUTOBREAK_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EOM\_FLUSH\_FLAG}
-\LABEL{MIN::EOM_FLUSH_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5294,11 +5292,8 @@ representative.  Note that horizontal tabs are equivalent to from
 
 \item[\ttnbmkey{EOL\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
-executed at the very end of n {\tt min::\EOL eol} printer operation.
-
-\item[\ttnbmkey{EOM\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
-If this flag is on, a {\tt min::flush()} printer operation is
-executed at the very end of n {\tt min::\EOL eom} printer operation.
+executed at the very end of a {\tt min::\EOL eol} or
+{\tt min::\EOL eom} printer operation.
 
 \end{itemlist}\end{indpar}
 
@@ -5502,7 +5497,7 @@ operations:
 
 The \key{end of message} operation ends the current line,
 flushes {\tt printer->\EOL file}
-if {\tt min::\EOL EOM\_\EOL FLUSH\_\EOL FLAG} is set,
+if {\tt min::\EOL EOL\_\EOL FLUSH\_\EOL FLAG} is set,
 and restores the parameters from the {\tt save\_\EOL parameters}
 stack.  The \key{beginning of message} operation is just a
 synonym for pushing the parameters.
@@ -5712,10 +5707,6 @@ following
 \LABEL{MIN::EOL_FLUSH} \\
 \verb|const min::op min::| & \MINKEY{noeol\_flush}
 \LABEL{MIN::NOEOL_FLUSH} \\
-\verb|const min::op min::| & \MINKEY{eom\_flush}
-\LABEL{MIN::EOM_FLUSH} \\
-\verb|const min::op min::| & \MINKEY{noeom\_flush}
-\LABEL{MIN::NOEOM_FLUSH} \\
 \end{tabular}\end{indpar}
 
 For example, `{\tt printer<<min::autobreak}' sets the

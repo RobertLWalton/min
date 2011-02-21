@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 11:31:52 EST 2011
+// Date:	Mon Feb 21 18:39:11 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7555,7 +7555,7 @@ min::printer operator <<
     case min::op::EOM:
 	::end_line ( printer );
 	if (   printer->parameters.flags
-	     & min::EOM_FLUSH_FLAG )
+	     & min::EOL_FLUSH_FLAG )
 	    min::flush_file ( printer->file );
 	// Fall through to pop parameters
     case min::op::POP_PARAMETERS:
@@ -7679,10 +7679,6 @@ const min::op min::eol_flush
     ( min::op::SET_FLAGS, min::EOL_FLUSH_FLAG );
 const min::op min::noeol_flush
     ( min::op::CLEAR_FLAGS, min::EOL_FLUSH_FLAG );
-const min::op min::eom_flush
-    ( min::op::SET_FLAGS, min::EOM_FLUSH_FLAG );
-const min::op min::noeom_flush
-    ( min::op::CLEAR_FLAGS, min::EOM_FLUSH_FLAG );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character

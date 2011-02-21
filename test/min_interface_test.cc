@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 00:20:56 EST 2011
+// Date:	Mon Feb 21 18:40:43 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2212,7 +2212,6 @@ void test_printer ( void )
     min::init_output_stream ( printer, std::cout );
     min::resize ( printer->file->buffer, 16*1024 );
     printer << min::eol_flush
-            << min::eom_flush
             << min::autobreak;
 
     printer << min::bom
