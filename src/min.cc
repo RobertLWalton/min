@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 01:59:07 EST 2011
+// Date:	Mon Feb 21 11:31:52 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,7 @@
 # define MINT min::internal
 
 # define ERR min::init ( min::error_message ) \
-    << min::autobreak << min::indent ( 7 )
+    << min::autobreak << min::indent ( 7 ) << "ERROR: "
 
 // For debugging.
 //
@@ -1810,18 +1810,20 @@ bool min::init_input_named_file
     if ( ! min::os::file_size
                ( file_size, & fname[0], error_buffer ) )
     {
-	ERR << "ERROR: during attempt to find the size"
-	       " of file "
-	    << & fname[0]
-	    << ": " << error_buffer << min::eol;
+	ERR << "During attempt to find the size of"
+	       " file "
+	    << & fname[0] << ": "
+	    << min::reserve ( 20 )
+	    << error_buffer << min::eol;
         return false;
     }
 
     if ( file_size >= ( 1ull << 32 ) - 1 )
     {
-        ERR << "ERROR: file " << & fname[0]
-	    << " too large ( size = " << file_size
-	    << ")" << min::eol;
+        ERR << "File " << & fname[0] << ": "
+	    << min::reserve ( 20 )
+	    << "File too large ( size = " << file_size
+	    << " bytes)" << min::eol;
 	return false;
     }
 
@@ -1832,9 +1834,10 @@ bool min::init_input_named_file
 
     if ( in == NULL )
     {
-        ERR << "ERROR: opening file "
-	    << & fname[0] << min::eol
-	    << "       " << strerror ( errno )
+        ERR << "Opening file "
+	    << & fname[0] << ": "
+	    << min::reserve ( 20 )
+	    << strerror ( errno )
 	    << min::eol;
 	return false;
     }
@@ -1850,14 +1853,16 @@ bool min::init_input_named_file
     if ( bytes != file_size )
     {
 	if ( errno != 0 )
-	    ERR << "ERROR: reading file "
-		<< & fname[0] << min::eol
-		<< "       " << strerror ( errno )
+	    ERR << "Reading file "
+		<< & fname[0] << ": "
+	        << min::reserve ( 20 )
+		<< strerror ( errno )
 		<< min::eol;
 	else
-	    ERR << "ERROR: reading file "
-		<< & fname[0] << min::eol
-		<< "       only " << bytes
+	    ERR << "Reading file "
+		<< & fname[0] << ": "
+	        << min::reserve ( 20 )
+		<< " Only " << bytes
 		<< " bytes out of " << file_size
 		<< " read"
 		<< min::eol;
@@ -1867,9 +1872,11 @@ bool min::init_input_named_file
 
     if ( getc ( in ) != EOF )
     {
-	ERR << "ERROR: reading file "
-	    << & fname[0] << min::eol
-	    << "       file longer than expected"
+	ERR << "Reading file "
+	    << & fname[0] << ": "
+	    << min::reserve ( 20 )
+	    << "File longer than expected (more than "
+	    << file_size << " bytes were read)"
 	    << min::eol;
 	fclose ( in );
 	return false;
@@ -7629,6 +7636,11 @@ min::printer operator <<
 	    while ( n -- ) buffer[offset++] = ' ';
 	}
 	goto setbreak;
+    case min::op::RESERVE:
+        if (   printer->column + op.v1.u32
+	     > printer->parameters.line_length )
+	    ::insert_line_break ( printer );
+	return printer;
 
     default:
         MIN_ABORT ( "bad min::OPCODE" );

@@ -1819,8 +1819,8 @@ MINT::new_fixed_body ( stub XXX, 96 ) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 4108 ) called
 MINT::deallocate ( stub XXX, 4108 ) called
-ERROR: during attempt to find the size of file min_non_existent_file: No
-       such file or directory
+ERROR: During attempt to find the size of file min_non_existent_file:
+       No such file or directory
 
 Finish Printer Test!
 

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 01:58:53 EST 2011
+// Date:	Mon Feb 21 11:31:41 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9019,7 +9019,8 @@ namespace min {
 	    EOM,
 	    SETBREAK,
 	    LEFT,
-	    RIGHT
+	    RIGHT,
+	    RESERVE
 	} opcode;
 
 	union {
@@ -9171,15 +9172,21 @@ namespace min {
     }
 
     inline op left
-	    ( uns32 flags )
+	    ( uns32 width )
     {
-        return op ( op::LEFT, flags );
+        return op ( op::LEFT, width );
     }
 
     inline op right
-	    ( uns32 flags )
+	    ( uns32 width )
     {
-        return op ( op::RIGHT, flags );
+        return op ( op::RIGHT, width );
+    }
+
+    inline op reserve
+	    ( uns32 width )
+    {
+        return op ( op::RESERVE, width );
     }
 
     extern const op push_parameters;

@@ -5476,6 +5476,15 @@ at the last break point.  Both operations end with an implicit
 Both operations behave exactly as if spaces were inserted at the
 appropriate point by {\tt printer << "~"}.
 
+The {\tt min::reserve} operation can be used to
+force a line break if there are fewer than {\tt width}
+columns remaining in a line:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{reserve} \verb|( min::uns32 width )|
+\LABEL{MIN::RESERVE} \\
+\end{tabular}\end{indpar}
+
 The {\tt parameters} of a printer may be saved in the
 \ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
 stack of the printer, and restored from that stack.
