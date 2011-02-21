@@ -4529,23 +4529,26 @@ Encodings of character codes up to $2^{32}-1$ are considered legal.
 The 7-byte encoding (first byte {\tt 0xFE})
 is allowed so that $2^{32}-1$ can be encoded.
 
-Initialized to the empty vector.
+Initialized to the empty vector when the file is created and by
+{\tt min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{buffer-\GT length}{in {\tt min::file}}]
 The number of {\tt char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
-Initialized to {\tt 0}.
+Initialized to {\tt 0} when the file is created and by
+{\tt min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{next\_\EOL line\_\EOL number}{in {\tt min::file}}]
-The number of the next line to be returned by the {\tt min::\EOL next\_EOL line}
+The number of the next line to be returned by the
+{\tt min::\EOL next\_\EOL line}
 function that is used by programs to read lines from a {\tt min::\EOL file}.
 Or the total number of lines in the file if there is no next line.
 The first line number is {\tt 0}.  Initialized to {\tt 0}.
 
 \item[\ttmkey{next\_\EOL line\_\EOL offset}{in {\tt min::file}}]
 The offset in the {\tt buffer} of the first character of the
-next line to be returned by the {\tt min::\EOL next\_EOL line}
-function.  I.e., that character is {\tt buffer[next\_EOL line\_\EOL offset]}.
+next line to be returned by the {\tt min::\EOL next\_\EOL line}
+function.  I.e., that character is {\tt buffer[next\_\EOL line\_\EOL offset]}.
 Or {\tt buffer->\EOL length} if there is no next line (not even a partial
 next line).
 Initialized to {\tt 0}.
@@ -4554,7 +4557,8 @@ Initialized to {\tt 0}.
 The offset of the {\tt buffer} element just \underline{after} the last
 line-terminating NUL character in the {\tt buffer}.  Or {\tt 0} if there
 are no line-terminating NUL characters.
-Initialized to {\tt 0}.
+Initialized to {\tt 0} when the file is created and by
+{\tt min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{file\_\EOL lines}{in {\tt min::file}}]
 If all the {\tt char}'s in the file have been appended to the file {\tt buffer},
@@ -4562,14 +4566,14 @@ this is the number of complete lines in the file, which equals
 the number of NUL's in the {\tt buffer}.  Otherwise this equals
 {\tt min::\EOL NO\_\EOL LINE}.
 
-Initialized to {\tt min::\EOL NO\_\EOL LINE} if {\tt buffer} is initialized
-to hold what is possibly just part of the file.
-In this case {\tt file\_\EOL lines} is set to the number of complete
-lines in the file when {\tt min::\EOL next\_\EOL line} reads the
-end of file.
-
-Otherwise initialized to the number of complete lines in the file if
-{\tt buffer} is initialized to the complete contents of the file.
+Initialized to {\tt min::\EOL NO\_\EOL LINE} when the file is created and by
+{\tt min::\EOL init\_\EOL input\ldots} functions that do not load
+the entire contents of the file into the file {\tt buffer}.
+Set to the number of complete lines in the file
+by {\tt min::\EOL init\_\EOL input\ldots} functions that load
+the entire contents of the file into the file {\tt buffer}.
+Set to the number of complete lines in the file
+when {\tt min::\EOL next\_\EOL line} reads an end of file.
 
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
 If {\tt line\_index~!=~min::NULL\_STUB}, then
@@ -4585,10 +4589,12 @@ Otherwise one must take into account that only the last
 function are guarenteed to be
 stored in {\tt buffer} and {\tt line\_\EOL index}.
 
-Set to {\tt min::NULL\_STUB} when the file is created..
-Created by {\tt min::\EOL init\_\EOL line\_\EOL index}, and
-also automatically created if {\tt spool\_\EOL lines} is initialized
+Set to {\tt min::NULL\_STUB} when the file is created.
+Set to a vector by {\tt min::\EOL init\_\EOL line\_\EOL index}, and
+also automatically if {\tt spool\_\EOL lines} is initialized
 to a non-zero value by one of the {\tt init}\ldots{} functions.
+The vector is set empty whenever {\tt next\_\EOL line\_\EOL number}
+is set to {\tt 0}.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
 The buffer is only required to retain the last {\tt spool\_\EOL lines}
@@ -4604,10 +4610,12 @@ corresponding element is deleted from {\tt line\_\EOL index}.
 If {\tt next\_line\_number~<=~spool\_lines}, all file lines
 returned by {\tt min::\EOL next\_\EOL line} so far are
 retained in the buffer.
-If {\tt spool\_EOL lines == min::\EOL ALL\_\EOL lines},
+If {\tt spool\_\EOL lines == min::\EOL ALL\_\EOL LINES},
 all lines returned are retained.
 
-Set to {\tt 0} when the file is created.
+Set to {\tt 0} when the file is created.  Set to an argument
+that defaults to {\tt min::\EOL ALL\_\EOL LINES}
+by {\tt min::\EOL init\_\EOL input\ldots} functions.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]
 These are some of the printer {\tt parameters->\EOL flags} used to print
@@ -4617,7 +4625,7 @@ a file line for error message purposes.  The flags involved are:
 \begin{tabular}{l}
 min::ASCII\_FLAG \\
 min::GRAPHIC\_FLAG \\
-min::DISPLAY\_EOL\_FLAG
+min::DISPLAY\_FLAG
 \end{tabular}
 \end{center}
 
@@ -4668,10 +4676,20 @@ Set to {\tt NULL} when the file is created.
 If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush\_\EOL file} function
 outputs buffer {\tt char} elements
 to this {\tt min::\EOL printer} when it finds
-there are elements not yet output.  Non-NUL elements are output
-with the printer {\tt min::\EOL ASCII\_\EOL FLAG} and
-{\tt min::\EOL GRAPHICS\_\EOL FLAG} turned off, and the line-terminating
+there are elements not yet output.
+Non-NUL elements in a complete
+line are output with the printer {\tt min::\EOL ASCII\_\EOL FLAG},
+{\tt min::\EOL GRAPHICS\_\EOL FLAG},
+and {\tt min::\EOL AUTOBREAK\_\EOL FLAG}
+turned off, and the line-terminating
 NUL elements are translated into sending {\tt min::eol} to the printer.
+Non-NUL elements in an incomplete
+line at the end of the file {\tt buffer}
+are output with just the printer {\tt min::\EOL ASCII\_\EOL FLAG},
+and {\tt min::\EOL GRAPHICS\_\EOL FLAG}
+turned off, and with the
+{\tt min::\EOL AUTOBREAK\_\EOL FLAG} left untouched.
+
 Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{ofile}{in {\tt min::file}}]
@@ -4691,6 +4709,85 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 
 \end{itemlist}
 
+In general, the {\tt min::\EOL init\_\EOL input\ldots} functions
+reinitialize all members, while all the other initialization functions
+just perform an equivalent of a {\tt min::rewind}, resetting
+{\tt next\_\EOL line\_\EOL number}
+and {\tt next\_\EOL line\_\EOL offset} to {\tt 0}, emptying
+{\tt line\_\EOL index} if it exists, and otherwise
+only resetting members from arguments given explicitly to the
+initialization functions.
+For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
+rewinds the file and sets {\tt print\_\EOL flags},
+and {\tt min::\EOL init\_\EOL output\_\EOL stream} just
+rewinds the file and sets {\tt ostream}.
+
+The {\tt min::init\_input} function initializes the file assuming
+input to the file will come from some outside source.  For example,
+given the code:
+\begin{indpar}\begin{verbatim}
+min::stack_stub<2> stubs;
+min::file & file1 = * (min::file *) & stubs[0];
+min::file & file2 = * (min::file *) & stubs[1];
+init_input ( file1 );
+init_input_... ( file2, ... );
+init_output_file ( file2, file1 );
+\end{verbatim}\end{indpar}
+then applying {\tt min::flush} to {\tt file2} will write
+its contents to the end of {\tt file1}.
+
+The {\tt min::init\_input\_named\_file} function loads the contents
+of the file with the given {\tt file\_\EOL name} into the file.  The
+file is rewound, so successive calls the {\tt min::\EOL next\_\EOL line}
+will return successive lines of the file.  After loading the contents
+of the named file into the file {\tt buffer}, newline characters in the buffer
+are converted to line-terminating NUL's.  NUL characters loaded into the
+buffer are also treated as line-terminating NUL's.  If there is no error in
+reading the file, {\tt true} is returned by this function.  If
+there is an error, {\tt false} is returned, and an error message
+is written into {\tt min::\EOL error\_\EOL message}
+(\pagref{ERROR_MESSAGE}).
+
+The {\tt min::init\_input\_string} function similarly loads the contents
+of the file with the value of a given NUL-terminated {\tt data} string.
+Newline characters are converted to line-terminating NUL's.
+There is no possibility of error in this case.
+
+The {\tt min::init\_input\_stream} function does not load data into
+the file {\tt buffer}, but instead sets the file {\tt istream} member
+which causes {\tt min::\EOL next\_\EOL line} to load lines into the
+file from the {\tt istream} as new lines are required.  Similarly
+the {\tt min::\EOL init\_\EOL input\_\EOL file} function sets
+{\tt ifile} which causes {\tt min::\EOL next\_\EOL line} to load lines
+into the file from the {\tt ifile} as new lines are required.
+See {\tt min::\EOL next\_\EOL line} below for details.
+
+Note that in general functions that load data into files do \underline{not}
+check for illegal UTF-8 encodings.  They typically treat NUL characters
+loaded into the buffer as if they were newline characters, and in any
+case must avoid NUL characters in the buffer that are not intended
+to be line-terminating.
+
+You \underline{cannot} append to a file initialized by any
+{\tt min::\EOL init\_\EOL input\ldots} function other than
+the 1-argument {\tt min::\EOL init\_\EOL input} function.
+If you use this function you can write your own code to append
+to the file buffer, as for example:
+\begin{indpar}\begin{verbatim}
+min::stack_stub<1> stubs;
+min::file & file = * (min::file *) & stubs[0];
+init_input ( file );
+...
+const char * my_string = ...;
+int length = ::strlen ( my_string );
+min::push ( file->buffer, length, my_string );
+min::end_line ( file );
+...
+\end{verbatim}\end{indpar}
+
+Initializing a file rewinds it.  Then calls to
+{\tt min::\EOL next\_\EOL line} sequence through the file
+lines:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
@@ -4698,6 +4795,66 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 \verb|min::uns32 min::|
     & \MINKEY{next\_line}\verb| ( min::file file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::\EOL next\_\EOL line} function returns an
+{\tt offset} such that the file {\tt buffer[offset]} element
+is the first character of the next NUL-terminated line.
+If there is no such line, because we are at the end of the file,
+{\tt min::\EOL NO\_\EOL LINE} is returned instead.  In this case
+there may still be a partial non-NUL-terminated line at the end
+of the file.
+
+The number of bytes in any partial line at the end of a file
+{\tt buffer} holds the complete contents of the file is
+{\tt buffer->\EOL length - end\_\EOL offset}, and if this
+is zero, then there is no partial line.
+The offset of a partial line is {\tt end\_\EOL offset}.  The
+following functions get the partial line length and offset in
+a more mnemonic fashion:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|bool min::|
+    & \MINKEY{file\_\EOL is\_\EOL complete}\verb| ( min::file file )|
+\LABEL{MIN::FILE_COMPLETE} \\
+\verb|min::uns32 min::|
+    & \MINKEY{partial\_\EOL length}\verb| ( min::file file )|
+\LABEL{MIN::PARTIAL_LENGTH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{partial\_\EOL line}\verb| ( min::file file )|
+\LABEL{MIN::PARTIAL_LINE} \\
+\end{tabular}\end{indpar}
+
+The first function returns {\tt file\_\EOL lines != min::\EOL NO\_\EOL LINE},
+and the other functions must not be used unless the first function returns
+{\tt true}.  This will always be the case after
+{\tt min::\EOL next\_\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}.
+
+If the {\tt min::\EOL next\_\EOL line} function encounters the
+end of the file {\tt buffer} when the file is not complete
+({\tt file\_\EOL lines} still equals {\tt min::\EOL NO\_\EOL LINE})
+and when {\tt istream} is not {\tt NULL},
+then {\tt min::\EOL next\_\EOL line} gets another line from
+{\tt istream}, or gets a partial line if {\tt isteam} produces
+an end-of-file before it produces a line terminating linefeed
+or NUL character (NUL characters produced by {\tt istream}
+are interpreted as line terminators).  If {\tt istream} produces
+a end-of-file, then the file is completed by setting
+{\tt file\_\EOL lines} to {\tt next\_\EOL line\_\EOL number},
+and no further use of {\tt istream} is made on this or subsequent calls to
+{\tt min::\EOL next\_\EOL line}.
+
+If instead the {\tt ifile} member of the file is not
+{\tt min::\EOL NULL\_\EOL STUB}, 
+{\tt min::\EOL next\_\EOL line} behaves similarly but gets
+more characters by calling
+{\tt min::\EOL next\_\EOL line(ifile)} instead of by using
+the {\tt istream} member.  If {\tt ifile} is complete, any
+characters in an {\tt ifile} partial line are also gotten, and the file
+is completed just as it would be if an end-of-file had been read
+from {\tt istream}.
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{line}
 	  \begin{argstack}
@@ -4734,6 +4891,27 @@ Set to {\tt min::\EOL MISSING} when the file is created.
 \verb|min::uns32 min::|
     & \MINKEY{flush\_partial}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_PARTIAL} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::file}}\ARGBREAK
+      \verb| ( std::ostream & out,|\ARGBREAK
+      \verb|   min::file file )|
+\LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
+\verb|min::file |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::file}}\ARGBREAK
+      \verb| ( min::file ofile,|\ARGBREAK
+      \verb|   min::file ifile )|
+\LABEL{FILE_OPERATOR<<_OF_FILE} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::file}}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::file file )|
+\LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -4796,7 +4974,8 @@ at the end of the printer file's vector, and optionally flushes the file.
 The MIN system has a per-process printer to hold error messages:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer min::| & \MINKEY{error\_\EOL message}
-\LABEL{MIN::ERROR_MESSAGE} \\
+\LABEL{MIN::ERROR_MESSAGE}%
+\label{ERROR_MESSAGE} \\
 \end{tabular}\end{indpar}
 
 This functions like {\tt errno} in UNIX, but
@@ -4971,7 +5150,7 @@ these is:
 \LABEL{MIN::ASCII_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAG}
 \LABEL{MIN::GRAPHIC_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_EOL\_FLAG}
+\verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_\EOL \_FLAG}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{AUTOBREAK\_FLAG}
 \LABEL{MIN::AUTOBREAK_FLAG} \\
@@ -4979,8 +5158,6 @@ these is:
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{EOM\_FLUSH\_FLAG}
 \LABEL{MIN::EOM_FLUSH_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{KEEP\_FLAG}
-\LABEL{MIN::KEEP_FLAG} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5102,7 +5279,7 @@ print as if they were letters that have zero width (consume
 no columns), and the
 ill-formed UTF-8 character prints as the `smirk' (see above).
 
-\item[\ttnbmkey{DISPLAY\_EOL\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{DISPLAY\_\EOL \_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, the end of line prints as a graphic mode control
 character (even if the {\tt GRAPHIC\_FLAG} is off).
 If the {\tt ASCII\_FLAG} is on, it prints as
@@ -5122,12 +5299,6 @@ executed at the very end of n {\tt min::\EOL eol} printer operation.
 \item[\ttnbmkey{EOM\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
 executed at the very end of n {\tt min::\EOL eom} printer operation.
-
-\item[\ttnbmkey{KEEP\_FLAG}{{\tt min::printer\_parameters} flag}]
-If this flag is \underline{off}, any line copied from the printer
-vector to a {\tt std::ostream} or to another printer is removed from
-the printer vector.  If this flag is \underline{on}, this is not done,
-and all lines are kept in the printer vector.
 
 \end{itemlist}\end{indpar}
 
@@ -5241,6 +5412,35 @@ just executes
 \begin{indpar}\begin{verbatim}
 min::flush_file ( printer->file );
 \end{verbatim}\end{indpar}
+
+A {\ldots{} \tt << printer} operation can be used to
+flush the contents of {\tt printer->\EOL file} into
+an {\tt std::\EOL ostream}, a {\tt min::\EOL file}, or
+into another {\tt min::\EOL printer}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( std::ostream & out,|\ARGBREAK
+      \verb|   min::printer printer )|
+\LABEL{OSTREAM_OPERATOR<<_OF_PRINTER} \\
+\verb|min::file |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::file file,|\ARGBREAK
+      \verb|   min::printer printer )|
+\LABEL{FILE_OPERATOR<<_OF_PRINTER} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer oprinter,|\ARGBREAK
+      \verb|   min::printer iprinter )|
+\LABEL{PRINTER_OPERATOR<<_OF_PRINTER} \\
+\end{tabular}\end{indpar}
+
+In general {\ldots{} \tt << printer} is equivalent to
+{\ldots{} \tt << printer->file} (see \pagref{OSTREAM_OPERATOR<<_OF_FILE}).
 
 The {\tt min::setbreak} printer operation can be used to
 explicitly set a break point:
@@ -5507,10 +5707,6 @@ following
 \LABEL{MIN::EOM_FLUSH} \\
 \verb|const min::op min::| & \MINKEY{noeom\_flush}
 \LABEL{MIN::NOEOM_FLUSH} \\
-\verb|const min::op min::| & \MINKEY{keep}
-\LABEL{MIN::KEEP} \\
-\verb|const min::op min::| & \MINKEY{nokeep}
-\LABEL{MIN::NOKEEP} \\
 \end{tabular}\end{indpar}
 
 For example, `{\tt printer<<min::autobreak}' sets the
