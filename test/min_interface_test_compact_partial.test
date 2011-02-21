@@ -1763,6 +1763,23 @@ Line␣2␤
 ␤
 <END-OF-FILE>
 <UNAVALABLE-LINE>
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 30 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 96 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 524 ) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 4108 ) called
+MINT::deallocate ( stub XXX, 4108 ) called
+ERROR: during attempt to find the size of file min_non_existent_file: No
+       such file or directory
 
 Finish Printer Test!
 
@@ -3945,11 +3962,14 @@ MINT::new_fixed_body ( stub XXX, 4112 ) called
 min_interface_test.cc:XXXX assert:
     check_attr_info ( ap, ai, 8 ) true.
 MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 208 ) called
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 MINT::acc_expand_stub_free_list (1) called
+MINT::acc_expand_stub_free_list (1) called
+MINT::new_fixed_body ( stub XXX, 208 ) called
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 TEST REVERSE ATTRIBUTE VALUES ( `label1', `label2', 1)
 min_interface_test.cc:XXXX assert:
     check_values ( ap, values1, 3 ) true.

@@ -4443,7 +4443,6 @@ accomplished by the following:
     & \MINKEY{init\_input\_named\_file}\ARGBREAK
           \verb| ( min::file & file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
-	  \verb|   min::printer err,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
@@ -4794,6 +4793,33 @@ way values are written to {\tt std::\EOL ostream}'s.  A special
 printer line end operation writes a line terminating {\tt NUL}
 at the end of the printer file's vector, and optionally flushes the file.
 
+The MIN system has a per-process printer to hold error messages:
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer min::| & \MINKEY{error\_\EOL message}
+\LABEL{MIN::ERROR_MESSAGE} \\
+\end{tabular}\end{indpar}
+
+This functions like {\tt errno} in UNIX, but
+holds multi-line error messages instead of an integer error
+code.  The protocol for writing
+an error message into this printer is to first apply
+the 1-argument {\tt min::init} function to the printer to create the printer
+if necessary, remove any previous message from the printer,
+and put the printer into a default state,
+and then write an error message consisting of one or more
+complete lines to the printer.  The following code is often
+used to do this:
+\begin{indpar}\begin{verbatim}
+# define ERR min::init ( min::error_message )
+...
+if ( error-occurred )
+{
+    ERR << ... << min::eol;
+    return value-indicating-error-occurred;
+}
+...
+\end{verbatim}\end{indpar}\label{ERROR_MESSAGE_EXAMPLE}.
+
 Creation, initialization, and parameterization of printers is
 accomplished by the following:
 
@@ -4802,11 +4828,11 @@ accomplished by the following:
 	& \verb|packed_struct_updptr<min::printer_struct>|\ARGBREAK
 	  \verb|    min::|\MINKEY{printer}
 \LABEL{MIN::PRINTER} \\
-\verb|void min::| & \MINKEY{init}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{init}\ARGBREAK
     \verb| ( min::printer & printer,|\ARGBREAK
     \verb|   min::file file = min::NULL_STUB )|
 \LABEL{MIN::INIT_OF_PRINTER} \\
-\verb|void min::| & \MINKEY{init\_output\_stream}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{init\_output\_stream}\ARGBREAK
     \verb| ( min::printer & printer,|\ARGBREAK
     \verb|   std::ostream & ostream )|
 \LABEL{MIN::INIT_OUTPUT_STREAM_OF_PRINTER} \\
@@ -4844,9 +4870,11 @@ NULL\_\EOL STUB}, then a new printer is created and the
 variable is set to point at the new printer.
 The second argument to {\tt min::init} supplies the {\tt min::file}
 to which the printer is attached.  If this argument is
-{\tt min::\EOL NULL\_\EOL STUB} then if the printer already exists,
-its current file is not changed, and if the printer is being
-created, a suitable {\tt min::file} for it is created.
+{\tt min::\EOL NULL\_\EOL STUB}, then {\tt min::\EOL init\_\EOL input}
+is applied to {\tt printer->file} to create that file if necessary
+and empty it if it already exists; but if the argument is
+not {\tt min::\EOL NULL\_\EOL STUB} then {\tt printer->file} is set
+to the argument and the file is \underline{not} emptied or changed.
 
 The {\tt min::}\MINKEY{init\_\EOL output\_\EOL stream}
 function just executes
@@ -4855,7 +4883,11 @@ min::init ( printer );
 min::init_output_stream ( printer->file, ostream );
 \end{verbatim}\end{indpar}
 
-which is the most common way of setting up a printer.
+which is a very common way of setting up a printer.
+
+Both initialization functions return the printer, which is
+sometimes convenient, as in the code often used 
+with {\tt min::\EOL error\_\EOL message}: see \pagref{ERROR_MESSAGE_EXAMPLE}.
 
 The members of a printer may be read but \underline{not} written, unless
 noted below.  They are:
@@ -4867,7 +4899,7 @@ The {\tt min::file} which contains the lines produced by the printer.
 Initialized by the second argument of {\tt min::\EOL init}, if that is
 not {\tt min::\EOL NULL\_\EOL STUB}, or otherwise created when the
 printer is created.  Initialized by {\tt min::\EOL init(printer->\EOL file)}
-when printer is initialized.
+except when 2-argument {\tt min::init} is called (see above).
 
 \item[\ttmkey{column}{in {\tt min::printer}}]
 The number of columns currently in the line being assembled,
@@ -4900,10 +4932,9 @@ Contains parameters that control the printing process.
 These parameters are described below.
 This member may be written.
 Initialized to the value of
-{\tt min::\EOL default\_\EOL printer\_\EOL parameters}
-when a printer is created.
+{\tt min::\EOL default\_\EOL printer\_\EOL parameters}.
 
-\item[\ttmkey{saved\_\EOL parameters[4]}{in {\tt min::printer}}]
+\item[\ttmkey{saved\_\EOL parameters[8]}{in {\tt min::printer}}]
 A stack of copies of the {\tt parameters}.
 The {\tt min::push\_\EOL parameters} operation copies
 {\tt parameters} into {\tt saved\_\EOL parameters[i]} where

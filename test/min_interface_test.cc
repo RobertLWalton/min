@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 20 02:25:33 EST 2011
+// Date:	Mon Feb 21 00:20:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2115,7 +2115,7 @@ void test_file ( void )
         ( file2,
 	  min::new_str_gen
 	      ( "min_interface_test_file.in" ),
-	  min::NULL_STUB, 0 );
+	  0 );
     MIN_ASSERT
         (    strcmp ( "Line 0",
 	              & file2->buffer
@@ -2544,6 +2544,13 @@ void test_printer ( void )
     min::print_line ( printer, file, 3 );
     min::print_line ( printer, file, 4 );
     min::print_line ( printer, file, 5 );
+
+    min::file efile;
+    min::init_input_named_file
+        ( efile,
+	  min::new_str_gen
+	      ( "min_non_existent_file" ) );
+    std::cout << min::error_message;
 
     min_assert_print = true;
     cout << endl;
