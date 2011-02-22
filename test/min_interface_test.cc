@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 18:58:50 EST 2011
+// Date:	Tue Feb 22 06:26:21 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2526,9 +2526,22 @@ void test_printer ( void )
     // Tests of files and printers.
 
     min::file file;
-    init_output_printer ( file, printer);
+    min::init_output_printer ( file, printer);
     min::init_input_string
         ( file, "Line 1\nLine 2\nLine 3\n\n" );
+    min::init_file_name
+        ( file, min::new_str_gen ( "test_file" ) );
+
+    printer << "The file has lines: "
+            << min::pline_numbers
+		  ( file, 1, file->file_lines )
+	    << min::eol;
+    printer << "The last line is: "
+            << min::pline_numbers
+		  ( file, file->file_lines,
+		          file->file_lines )
+	    << min::eol;
+
     min::flush_file ( file );
 
     min::print_line ( printer, file, 1 );
