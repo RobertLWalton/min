@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 18:38:57 EST 2011
+// Date:	Tue Feb 22 00:17:07 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4787,21 +4787,24 @@ namespace min {
 	    ( min::file file,
 	      min::uns32 line_number );
 
-    inline bool file_is_complete ( min::file file )
-    {
-        return file->file_lines != NO_LINE;
-    }
     inline min::uns32 partial_length
 	    ( min::file file )
     {
-        MIN_ASSERT ( file->file_lines != NO_LINE );
-	return file->buffer->length - file->end_offset;
+	return   file->buffer->length
+	       - file->next_line_offset;
     }
-    inline min::uns32 partial_line
+    inline min::uns32 partial_offset
 	    ( min::file file )
     {
-        MIN_ASSERT ( file->file_lines != NO_LINE );
-	return file->end_offset;
+	return file->next_line_offset;
+    }
+    inline void skip_partial ( min::file file )
+    {
+        file->next_line_offset = file->buffer->length;
+    }
+    inline bool file_is_complete ( min::file file )
+    {
+        return file->file_lines != NO_LINE;
     }
 
     inline min::uns32 end_line ( min::file file )

@@ -4806,33 +4806,51 @@ there may still be a partial non-NUL-terminated line at the end
 of the file.
 
 The number of bytes in any partial line at the end of a file
-{\tt buffer} holds the complete contents of the file is
-{\tt buffer->\EOL length - end\_\EOL offset}, and if this
+{\tt buffer} just after {\tt min::\EOL next\_\EOL line} returns
+{\tt min::\EOL NO\_\EOL LINE} is
+{\tt buffer->\EOL length - next\_\EOL line\_\EOL offset}, and if this
 is zero, then there is no partial line.
-The offset of a partial line is {\tt end\_\EOL offset}.  The
-following functions get the partial line length and offset in
+The offset of a partial line is {\tt next\_\EOL line\_\EOL offset}.
+The following functions get these values in
 a more mnemonic fashion:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|bool min::|
-    & \MINKEY{file\_\EOL is\_\EOL complete}\verb| ( min::file file )|
-\LABEL{MIN::FILE_COMPLETE} \\
 \verb|min::uns32 min::|
     & \MINKEY{partial\_\EOL length}\verb| ( min::file file )|
 \LABEL{MIN::PARTIAL_LENGTH} \\
 \verb|min::uns32 min::|
-    & \MINKEY{partial\_\EOL line}\verb| ( min::file file )|
-\LABEL{MIN::PARTIAL_LINE} \\
+    & \MINKEY{partial\_\EOL offset}\verb| ( min::file file )|
+\LABEL{MIN::PARTIAL_OFFSET} \\
 \end{tabular}\end{indpar}
 
-The first function returns {\tt file\_\EOL lines != min::\EOL NO\_\EOL LINE},
-and the other functions must not be used unless the first function returns
-{\tt true}.  This will always be the case after
-{\tt min::\EOL next\_\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}.
+After processing a partial line, {\tt next\_\EOL line\_\EOL offset}
+can be reset to be equal to {\tt buffer->\EOL length} in order to
+prevent reprocessing the partial line elements just processed.
+This is done by:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{skip\_\EOL partial}\verb| ( min::file file )|
+\LABEL{MIN::SKIP_PARTIAL} \\
+\end{tabular}\end{indpar}
+
+A file is complete, in the sense the no more characters will be
+appended to its {\tt buffer}, if {\tt file\_\EOL lines} contains
+the number of complete lines in the file, and is not equal to
+{\tt min::\EOL NO\_\EOL LINE}.  This can be tested by
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{file\_\EOL is\_\EOL complete}\verb| ( min::file file )|
+\LABEL{MIN::FILE_IS_COMPLETE} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::\EOL next\_\EOL line} function does not return
+{\tt min::\EOL NO\_\EOL LINE} unless the file is complete.
 
 If the {\tt min::\EOL next\_\EOL line} function encounters the
 end of the file {\tt buffer} when the file is not complete
-({\tt file\_\EOL lines} still equals {\tt min::\EOL NO\_\EOL LINE})
 and when {\tt istream} is not {\tt NULL},
 then {\tt min::\EOL next\_\EOL line} gets another line from
 {\tt istream}, or gets a partial line if {\tt isteam} produces
@@ -5165,7 +5183,7 @@ these is:
     \verb|  & min::default_printer_format,   // format|\ARGBREAK
     \verb|  72,                              // line_length|\ARGBREAK
     \verb|  4,                               // indent|\ARGBREAK
-    \verb|  0                                // flags|\ARGBREAK
+    \verb|  min::AUTOBREAK_FLAG              // flags|\ARGBREAK
     \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_PRINTER_PARAMETERS}

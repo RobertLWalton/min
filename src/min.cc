@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 18:39:11 EST 2011
+// Date:	Mon Feb 21 23:54:06 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,7 @@
 # define MINT min::internal
 
 # define ERR min::init ( min::error_message ) \
-    << min::autobreak << min::indent ( 7 ) << "ERROR: "
+    << min::indent ( 7 ) << "ERROR: "
 
 // For debugging.
 //
@@ -2165,10 +2165,10 @@ void min::flush_file ( min::file file )
 	if ( offset == min::NO_LINE ) break;
 	min::flush_line ( file, offset );
     }
-    if ( file->next_line_offset < file->buffer->length )
+    if ( min::partial_length ( file ) > 0 )
     {
 	min::flush_partial ( file );
-	file->next_line_offset = file->buffer->length;
+	min::skip_partial ( file );
     }
 }
 
@@ -2201,8 +2201,9 @@ void min::flush_line
 
 void min::flush_partial ( min::file file )
 {
-    min::uns32 offset = file->next_line_offset;
-    if ( offset == file->buffer->length ) return;
+    min::uns32 length = min::partial_length ( file );
+    min::uns32 offset = min::partial_offset ( file );
+    if ( length == 0 ) return;
 
     min::push(file->buffer) = 0;
 
@@ -2213,12 +2214,8 @@ void min::flush_partial ( min::file file )
     }
 
     if ( file->ofile != NULL_STUB )
-    {
-        min::uns32 length =
-	    ::strlen ( & file->buffer[offset] );
 	min::push ( file->ofile->buffer, length,
 	            & file->buffer[offset] );
-    }
 
     if ( file->printer != NULL_STUB )
     {
@@ -7227,7 +7224,7 @@ const min::printer_parameters
     & min::default_printer_format,
     72,
     4,
-    0
+    min::AUTOBREAK_FLAG
 };
 
 // Representations for printing control characters in
