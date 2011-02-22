@@ -210,7 +210,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 20, 2011}
+\date{February 22, 2011}
  
 \maketitle
 
@@ -5499,12 +5499,14 @@ columns remaining in a line:
 \end{tabular}\end{indpar}
 
 Here the line break consists of a {\tt min::eol} end of line followed
-by {\tt parameters.indent} single spaces.
+by {\tt parameters.indent} single spaces followed by setting a break
+with {\tt min::\EOL setbreak}.
 
 The {\tt min::indent} operation forces a line break if the current
 printer column is greater than {\tt parameters.indent}, and otherwise inserts
 single spaces until the current printer column is equal to
-{\tt parameters.indent}:
+{\tt parameters.indent}.  In either case the operation
+ends by setting a break as per {\tt min::setbreak}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{indent}
