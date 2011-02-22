@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 00:17:07 EST 2011
+// Date:	Tue Feb 22 07:14:53 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9008,9 +9008,9 @@ namespace min {
 	    PINT,
 	    PUNS,
 	    PFLOAT,
-	    FORMAT,
-	    LINE_LENGTH,
-	    INDENT,
+	    SET_FORMAT,
+	    SET_LINE_LENGTH,
+	    SET_INDENT,
 	    SET_FLAGS,
 	    CLEAR_FLAGS,
 	    PUSH_PARAMETERS,
@@ -9022,7 +9022,8 @@ namespace min {
 	    SETBREAK,
 	    LEFT,
 	    RIGHT,
-	    RESERVE
+	    RESERVE,
+	    INDENT
 	} opcode;
 
 	union {
@@ -9143,22 +9144,22 @@ namespace min {
         return op ( op::PFLOAT, f, printf_format );
     }
 
-    inline op format
+    inline op set_format
 	    ( const printer_format * format )
     {
-        return op ( op::FORMAT, format );
+        return op ( op::SET_FORMAT, format );
     }
 
-    inline op line_length
+    inline op set_line_length
 	    ( uns32 line_length )
     {
-        return op ( op::LINE_LENGTH, line_length );
+        return op ( op::SET_LINE_LENGTH, line_length );
     }
 
-    inline op indent
+    inline op set_indent
 	    ( uns32 indent )
     {
-        return op ( op::INDENT, indent );
+        return op ( op::SET_INDENT, indent );
     }
 
     inline op set_flags
@@ -9199,6 +9200,7 @@ namespace min {
     extern const op bom;
     extern const op eom;
     extern const op setbreak;
+    extern const op indent;
 
     extern const op ascii;
     extern const op noascii;
