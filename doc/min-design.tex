@@ -5498,6 +5498,19 @@ columns remaining in a line:
 \LABEL{MIN::RESERVE} \\
 \end{tabular}\end{indpar}
 
+Here the line break consists of a {\tt min::eol} end of line followed
+by {\tt parameters.indent} single spaces.
+
+The {\tt min::indent} operation forces a line break if the current
+printer column is greater than {\tt parameters.indent}, and otherwise inserts
+single spaces until the current printer column is equal to
+{\tt parameters.indent}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{indent}
+\LABEL{MIN::INDENT} \\
+\end{tabular}\end{indpar}
+
 The {\tt parameters} of a printer may be saved in the
 \ttmkey{saved\_\EOL parameters}{in {\tt min::printer}}
 stack of the printer, and restored from that stack.
@@ -5682,14 +5695,14 @@ by the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
-    & \MINKEY{format}\verb| ( min::printer_format * format )|
-\LABEL{MIN::FORMAT} \\
+    & \MINKEY{set\_\EOL format}\verb| ( min::printer_format * format )|
+\LABEL{MIN::SET_FORMAT} \\
 \verb|min::op min::|
-    & \MINKEY{line\_length}\verb| ( min::uns32 line_length )|
-\LABEL{MIN::LINE_LENGTH} \\
+    & \MINKEY{set\_\EOL line\_length}\verb| ( min::uns32 line_length )|
+\LABEL{MIN::SET_LINE_LENGTH} \\
 \verb|min::op min::|
-    & \MINKEY{indent}\verb| ( min::uns32 indent )|
-\LABEL{MIN::INDENT} \\
+    & \MINKEY{set\_\EOL indent}\verb| ( min::uns32 indent )|
+\LABEL{MIN::SET_INDENT} \\
 \verb|min::op min::|
     & \MINKEY{set\_flags}\verb| ( min::uns32 flags )|
 \LABEL{MIN::SET_PRINTER_FLAGS} \\

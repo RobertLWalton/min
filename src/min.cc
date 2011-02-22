@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 21 23:54:06 EST 2011
+// Date:	Tue Feb 22 07:16:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -44,7 +44,7 @@
 # define MINT min::internal
 
 # define ERR min::init ( min::error_message ) \
-    << min::indent ( 7 ) << "ERROR: "
+    << min::set_indent ( 7 ) << "ERROR: "
 
 // For debugging.
 //
@@ -7525,14 +7525,14 @@ min::printer operator <<
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.f64 );
 	return printer << buffer;
-    case min::op::FORMAT:
+    case min::op::SET_FORMAT:
 	printer->parameters.format =
 	    (const min::printer_format *) op.v1.p;
 	return printer;
-    case min::op::LINE_LENGTH:
+    case min::op::SET_LINE_LENGTH:
 	printer->parameters.line_length = op.v1.u32;
 	return printer;
-    case min::op::INDENT:
+    case min::op::SET_INDENT:
 	printer->parameters.indent = op.v1.u32;
 	return printer;
     case min::op::SET_FLAGS:
@@ -7634,11 +7634,21 @@ min::printer operator <<
 	}
 	goto setbreak;
     case min::op::RESERVE:
-        if (   printer->column + op.v1.u32
-	     > printer->parameters.line_length )
-	    ::insert_line_break ( printer );
-	return printer;
-
+        if (    printer->column + op.v1.u32
+	     <= printer->parameters.line_length )
+	    return printer;
+	// Fall through to INDENT.
+    case min::op::INDENT:
+        if (   printer->column
+	     > printer->parameters.indent )
+	    ::end_line ( printer );
+	while (   printer->column
+		< printer->parameters.indent )
+	{
+	    ++ printer->column;
+	    min::push(printer->file->buffer) = ' ';
+	}
+	goto setbreak;
     default:
         MIN_ABORT ( "bad min::OPCODE" );
     }
@@ -7654,6 +7664,7 @@ const min::op min::flush ( min::op::FLUSH );
 const min::op min::bom ( min::op::BOM );
 const min::op min::eom ( min::op::EOM );
 const min::op min::setbreak ( min::op::SETBREAK );
+const min::op min::indent ( min::op::INDENT );
 
 const min::op min::ascii
     ( min::op::SET_FLAGS, min::ASCII_FLAG );

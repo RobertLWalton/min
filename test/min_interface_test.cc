@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 06:27:59 EST 2011
+// Date:	Tue Feb 22 07:30:14 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2221,7 +2221,7 @@ void test_printer ( void )
     printer << min::eol_flush;
 
     printer << min::bom
-            << min::line_length ( 16 )
+            << min::set_line_length ( 16 )
             << "123456 123456789";
     MIN_ASSERT
         ( printer->parameters.line_length == 16 );
@@ -2291,22 +2291,22 @@ void test_printer ( void )
 
 
     printer << min::bom
-            << min::line_length ( 40 )
+            << min::set_line_length ( 40 )
             << buffer
             << min::eom;
 
     printer << min::bom
-            << min::line_length ( 40 )
+            << min::set_line_length ( 40 )
             << min::ascii << buffer
             << min::eom;
 
     printer << min::bom
-            << min::line_length ( 40 )
+            << min::set_line_length ( 40 )
             << min::graphic << buffer
             << min::eom;
 
     printer << min::bom
-            << min::line_length ( 40 )
+            << min::set_line_length ( 40 )
             << min::ascii << min::graphic
 	    << buffer
             << min::eom;
@@ -2332,10 +2332,21 @@ void test_printer ( void )
 
     printer << min::push_parameters;
     MIN_ASSERT ( printer->parameters.indent == 4 );
-    printer << min::indent ( 8 );
+    printer << min::set_indent ( 8 );
     MIN_ASSERT ( printer->parameters.indent == 8 );
     printer << min::pop_parameters;
     MIN_ASSERT ( printer->parameters.indent == 4 );
+
+    printer << "A" << min::indent << "B"
+            << min::indent << "C" << min::eol;
+    printer << min::bom
+            << min::set_line_length ( 10 )
+	    << min::indent << "A B "
+	    << min::reserve ( 4 ) << "C D "
+	    << min::reserve ( 3 ) << "E F "
+	    << min::reserve ( 2 ) << "G H I "
+	    << min::reserve ( 1 ) << "J"
+	    << min::eom;
 
     min::uns32 ubuffer[128];
     min::uns32 * ubp = ubuffer;
@@ -2346,7 +2357,7 @@ void test_printer ( void )
     }
 
     printer << min::bom
-    	    << min::line_length ( 40 )
+    	    << min::set_line_length ( 40 )
             << min::punicode ( ubp - ubuffer, ubuffer )
             << min::eom;
 
@@ -2355,7 +2366,7 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::bom
-    	    << min::line_length ( 20 )
+    	    << min::set_line_length ( 20 )
             << min::noautobreak
             <<  "int32 -1 = " << (min::int32) -1
 	    << " " << min::setbreak
@@ -2371,7 +2382,7 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::bom
-    	    << min::line_length ( 20 )
+    	    << min::set_line_length ( 20 )
             << min::noautobreak
             <<  "pint ( -3, \"%05d\" ) = "
 	    <<  min::pint ( -3, "%05d" )
@@ -2459,7 +2470,7 @@ void test_printer ( void )
     f.special_postfix = "}";
     printer << min::bom
             << min::pgen ( min::MISSING ) << " "
-            << min::format ( & f )
+            << min::set_format ( & f )
 	    << min::pgen ( min::MISSING ) << " "
 	    << min::pgen
 	           ( min::MISSING,
