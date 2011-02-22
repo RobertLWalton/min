@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 06:26:21 EST 2011
+// Date:	Tue Feb 22 06:27:59 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -56,6 +56,8 @@ using std::dec;
 
 bool debug = false;
 #define dout if ( debug ) cout
+bool memory_debug = false;
+#define mout if ( memory_debug ) cout
 
 // Redefinition of MIN_ASSERT for use in min.h.
 //
@@ -218,7 +220,7 @@ std::ostream & operator <<
 //
 void MINT::acc_expand_stub_free_list ( min::unsptr n )
 {
-    cout << "MINT::acc_expand_stub_free_list (" << n
+    mout << "MINT::acc_expand_stub_free_list (" << n
          << ") called" << endl;
     if ( n <= MINT::number_of_free_stubs ) return;
     n -= MINT::number_of_free_stubs;
@@ -283,7 +285,7 @@ void initialize_body_region ( void )
 void MINT::new_non_fixed_body
 	( min::stub * s, min::unsptr n )
 {
-    cout << "MINT::new_non_fixed_body ( " << s
+    mout << "MINT::new_non_fixed_body ( " << s
          << ", " << n << " ) called" << endl;
 
     min::unsptr m = n + 7;
@@ -306,7 +308,7 @@ void MINT::new_fixed_body
     ( min::stub * s, min::unsptr n,
       MINT::fixed_block_list * fbl )
 {
-    cout << "MINT::new_fixed_body ( " << s
+    mout << "MINT::new_fixed_body ( " << s
          << ", " << n << " ) called" << endl;
 
     min::unsptr m = fbl->size >> 3;
@@ -346,7 +348,7 @@ void MUP::deallocate_body
 {
     if ( n == 0 ) return;
 
-    cout << "MINT::deallocate ( " << s
+    mout << "MINT::deallocate ( " << s
          << ", " << n << " ) called" << endl;
 
     MUP::set_ptr_of ( s, deallocated_body_region );
@@ -363,7 +365,7 @@ static void resize_body
 	( min::stub * s, min::unsptr new_size,
 	                 min::unsptr old_size )
 {
-    cout << "resize_body ( stub "
+    mout << "resize_body ( stub "
          << s - begin_stub_region << ", " << new_size
          << ", " << old_size << " ) called" << endl;
     {
@@ -1246,6 +1248,9 @@ void test_acc_interface ( void )
     cout << "Start Allocator/Collector/Compactor"
 	    " Interface Test!" << endl;
 
+    bool memory_debug_save = memory_debug;
+    memory_debug = true;
+
     static min::stub s1, s2;
     const min::uns64 unmarked_flag =
 	   min::uns64(1)
@@ -1418,6 +1423,8 @@ void test_acc_interface ( void )
 		  ( MINT::stack_gen_last )
 	      == 1 );
     }
+
+    memory_debug = memory_debug_save;
 
     cout << endl;
     cout << "Finish Allocator/Collector/Compactor"
