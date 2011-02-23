@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 07:14:53 EST 2011
+// Date:	Wed Feb 23 05:09:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9094,15 +9094,9 @@ namespace min {
     min::printer init ( min::printer & printer,
                         min::file file = min::NULL_STUB );
 
-    inline min::printer init_output_stream
+    min::printer init_output_stream
 	    ( min::printer & printer,
-	      std::ostream & ostream )
-    {
-        init ( printer );
-	init_output_stream
-	    ( printer->file, ostream );
-	return printer;
-    }
+	      std::ostream & ostream );
 
     inline op pgen
 	    ( min::gen v,

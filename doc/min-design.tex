@@ -210,7 +210,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 22, 2011}
+\date{February 23, 2011}
  
 \maketitle
 
@@ -5078,6 +5078,7 @@ function just executes
 \begin{indpar}\begin{verbatim}
 min::init ( printer );
 min::init_output_stream ( printer->file, ostream );
+printer << min::eol_flush;
 \end{verbatim}\end{indpar}
 
 which is a very common way of setting up a printer.
