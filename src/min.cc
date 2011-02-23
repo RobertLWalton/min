@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 21:48:12 EST 2011
+// Date:	Wed Feb 23 05:08:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7349,6 +7349,16 @@ min::printer min::init ( min::printer & printer,
 	min::default_printer_parameters;
 
     return printer;
+}
+
+min::printer min::init_output_stream
+	( min::printer & printer,
+	  std::ostream & ostream )
+{
+    init ( printer );
+    init_output_stream
+	( printer->file, ostream );
+    return printer << min::eol_flush;
 }
 
 template < typename T >
