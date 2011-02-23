@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 07:16:04 EST 2011
+// Date:	Tue Feb 22 19:44:21 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1947,6 +1947,7 @@ min::uns32 min::next_line ( min::file file )
 			  & file->buffer[line_offset],
 			    file->buffer->length
 			  - line_offset );
+	    min::pop ( file->buffer, line_offset );
 	    file->next_line_offset -= line_offset;
 	    file->end_offset -= line_offset;
 	    line_offset = 0;
@@ -1970,6 +1971,7 @@ min::uns32 min::next_line ( min::file file )
 			  & file->buffer[buffer_offset],
 			    file->buffer->length
 			  - buffer_offset );
+	    min::pop ( file->buffer, buffer_offset );
 	    file->next_line_offset -= buffer_offset;
 	    file->end_offset -= buffer_offset;
 	    line_offset -= buffer_offset;
