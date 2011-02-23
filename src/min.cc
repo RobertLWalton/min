@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb 22 19:44:21 EST 2011
+// Date:	Tue Feb 22 21:48:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7870,10 +7870,13 @@ static void insert_line_break ( min::printer printer )
 		\
 		min::push ( buffer, len, rep ); \
 		printer->column += columns; \
-		printer->break_offset = \
-		    buffer->length; \
-	        printer->break_column = \
-		    printer->column; \
+		if ( autobreak ) \
+		{ \
+		    printer->break_offset = \
+			buffer->length; \
+		    printer->break_column = \
+			printer->column; \
+		} \
 	    } \
 	    else if ( c == '\t' ) \
 	    { \
