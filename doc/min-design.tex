@@ -1794,6 +1794,57 @@ between \verb|min::gen| values known to be numeric and those
 that might not be, so loose implementations can encounter less overhead
 when dealing with numeric \verb|min::gen| values.
 
+In order to be locatable by the garbage collector, \verb|min::gen|
+values must be stored in locations of type
+\verb|min::|\MINKEY{locatable\_\EOL gen}, or, if they a \underline{known}
+with certainty to be numbers, in locations of type
+\verb|min::|\MINKEY{locatable\_\EOL num\_\EOL gen}:
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| ( void )|
+\LABEL{MIN::LOCATABLE_GEN} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_gen}%
+    \verb|( min::gen value )|
+\LABEL{MIN::LOCATABLE_GEN_OF_VALUE} \\
+\verb|min::gen & |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & location,|\ARGBREAK
+      \verb|  min::gen value )|
+\LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
+\verb|min::gen & |
+    & \TTOMKEY{min::gen \&}{min::gen \&}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & location )|
+\LABEL{MIN::LOCATABLE_GEN_TO_GEN_REFERENCE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{locatable\_num\_gen} \verb| ( void )|
+\LABEL{MIN::LOCATABLE_NUM_GEN} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_num\_gen}%
+    \verb|( min::gen value )|
+\LABEL{MIN::LOCATABLE_NUM_GEN_OF_VALUE} \\
+\verb|min::gen |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_num\_gen}}\ARGBREAK
+      \verb|( min::locatable_num_gen & location,|\ARGBREAK
+      \verb|  min::gen value )|
+\LABEL{MIN::=LOCATABLE_NUM_GEN_OF_GEN} \\
+\verb|min::gen |
+    & \TTOMKEY{min::gen}{min::gen}%
+              {of {\tt min::locatable\_num\_gen}}\ARGBREAK
+      \verb|( min::locatable_num_gen & location )|
+\LABEL{MIN::LOCATABLE_NUM_GEN_TO_GEN_REFERENCE} \\
+\end{tabular}\end{indpar}
+
+If the implemention is loose (\pagref{LOOSE}),
+{\tt min::locatable\_\EOL num\_\EOL gen} is equivalent to
+{\tt min::gen}.  If the implementation is compact, it is equivalent to
+{\tt min::locatable\_\EOL gen}.
+
+The only operations that can be performed on a
+{\tt min::locatable\_\EOL gen} location are to copy a {\tt min::gen}
+value into it or out of it.
+
 {\tt min::\EOL stub~*} values that are not derived from
 \verb|min::gen| values must also be locatable by the acc.
 In particular
@@ -1801,76 +1852,7 @@ pointers to packed structures and vectors
 (see Sections~\itemref{PACKED-STRUCTURES} and \itemref{PACKED-VECTORS})
 must be locatable.
 
-When \verb|min::gen| or \verb|min::stub *| values are stored
-in static or stack memory, they
-should be stored in vectors constructed and accessed using the following:
-
-\begin{indpar}[0.1in]
-
-For possibly non-numeric \verb|min::gen| values:
-
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{static\_gen}%
-    \verb|<min::unsptr size> vec ( void )|
-\LABEL{MIN::STATIC_GEN} \\
-\verb|(constructor) min::| & \MINKEY{stack\_gen}%
-    \verb|<min::unsptr size> vec ( void )|
-\LABEL{MIN::STACK_GEN} \\
-\verb|min::gen & |
-    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_gen\NARG{}}}\ARGBREAK
-      \verb|( min::static_gen<> & vec,|\ARGBREAK
-      \verb|  min::unsptr i )|
-\LABEL{MIN::STATIC_GEN_OPERATOR[]} \\
-\verb|min::gen & |
-    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_gen\NARG{}}}\ARGBREAK
-      \verb|( min::stack_gen<> & vec,|\ARGBREAK
-      \verb|  min::unsptr i )|
-\LABEL{MIN::STACK_GEN_OPERATOR[]} \\
-\end{tabular}\end{indpar}
-
-For numeric \verb|min::gen| values:
-
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{static\_num\_gen}%
-    \verb|<min::unsptr size> vec ( void )|
-\LABEL{MIN::STATIC_NUM_GEN} \\
-\verb|(constructor) min::| & \MINKEY{stack\_num\_gen}%
-    \verb|<min::unsptr size> vec ( void )|
-\LABEL{MIN::STACK_NUM_GEN} \\
-\verb|min::gen & |
-    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_num\_gen\NARG{}}}\ARGBREAK
-      \verb|( min::static_num_gen<> & vec,|\ARGBREAK
-      \verb|  min::unsptr i )|
-\LABEL{MIN::STATIC_NUM_GEN_OPERATOR[]} \\
-\verb|min::gen & |
-    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_num\_gen\NARG{}}}\ARGBREAK
-      \verb|( min::stack_num_gen<> & vec,|\ARGBREAK
-      \verb|  min::unsptr i )|
-\LABEL{MIN::STACK_NUM_GEN_OPERATOR[]} \\
-\end{tabular}\end{indpar}
-
-For numeric \verb|const min::stub *| values:
-
-\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{static\_stub}%
-    \verb|<min::unsptr size> vec ( void )|
-\LABEL{MIN::STATIC_STUB} \\
-\verb|(constructor) min::| & \MINKEY{stack\_stub}%
-    \verb|<min::unsptr size> vec ( void )|
-\LABEL{MIN::STACK_STUB} \\
-\verb|const min::stub * & |
-    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::static\_stub\NARG{}}}\ARGBREAK
-      \verb|( min::static_stub<> & vec,|\ARGBREAK
-      \verb|  min::unsptr i )|
-\LABEL{MIN::STATIC_STUB_OPERATOR[]} \\
-\verb|const min::stub * |
-    & \TTOMKEY{[ ]}{[ ]}{of {\tt min::stack\_stub\NARG{}}}\ARGBREAK
-      \verb|( min::stack_stub<> & vec,|\ARGBREAK
-      \verb|  min::unsptr i )|
-\LABEL{MIN::STACK_STUB_OPERATOR[]} \\
-\end{tabular}\end{indpar}
-
-\end{indpar}
+TBD
 
 An example usage involving \verb|min::gen| values is:
 
