@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 19:03:17 EST 2011
+// Date:	Thu Feb 24 07:01:15 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1588,12 +1588,12 @@ namespace min {
 	};
 	extern locatable_gen * locatable_gen_last;
 
-        struct locatable_stub
+        struct locatable_ptr
 	{
-	    const min::stub * value;
-	    locatable_stub * previous;
+	    const min::stub ** value;
+	    locatable_ptr * previous;
 	};
-	extern locatable_stub * locatable_stub_last;
+	extern locatable_ptr * locatable_ptr_last;
     }
 
     class locatable_gen
@@ -1618,11 +1618,11 @@ namespace min {
 	{
 	    internal::locatable_gen_last = previous;
 	}
-	operator min::gen & ( void )
+	operator min::gen ( void )
 	{
 	    return value;
 	}
-	min::gen & operator = ( min::gen value )
+	min::gen operator = ( min::gen value )
 	{
 	    this->value = value;
 	    return this->value;
@@ -1630,39 +1630,16 @@ namespace min {
     };
     
     template < typename T >
-    class locatable
-	: protected internal::locatable_stub
+    class locatable_ptr
+	: protected internal::locatable_ptr
     {
     public:
 
-        locatable ( void )
+        locatable_ptr ( T & location )
 	{
-	    value = min::NULL_STUB;
-	    previous = internal::locatable_stub_last;
-	    internal::locatable_stub_last = this;
-	}
-        locatable ( T value )
-	{
-	    this->value = value;
-	    previous = internal::locatable_stub_last;
-	    internal::locatable_stub_last = this;
-	}
-        ~ locatable ( void )
-	{
-	    internal::locatable_stub_last = previous;
-	}
-	operator T & ( void )
-	{
-	    return * (T *) & value;
-	}
-	T & operator = ( T value )
-	{
-	    this->value = value;
-	    return * (T *) & this->value;
-	}
-	T operator -> ( void )
-	{
-	    return this->value;
+	    value = (const min::stub **) & location;
+	    previous = internal::locatable_ptr_last;
+	    internal::locatable_ptr_last = this;
 	}
     };
 
@@ -4654,7 +4631,7 @@ namespace min {
     typedef packed_struct_updptr<printer_struct>
         printer;
 
-    extern min::locatable<min::printer> error_message;
+    extern min::printer error_message;
 }
 
 namespace min {
