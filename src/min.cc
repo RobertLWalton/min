@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 07:00:44 EST 2011
+// Date:	Thu Feb 24 08:12:15 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1011,7 +1011,7 @@ void MINT::thread_scavenger_routine
           loc != NULL; 
 	  loc = loc->previous )
     {
-	const min::stub * s = * loc->value;
+	const min::stub * s = loc->value;
 	if ( s != NULL )
 	{
 	    if ( thread_scavenger_helper
@@ -7166,9 +7166,7 @@ bool MINT::flip_flag
 // Printers
 // --------
 
-min::printer min::error_message;
-static min::locatable_ptr<min::printer>
-       error_message_locator ( min::error_message );
+min::locatable_ptr<min::printer> min::error_message;
 
 const min::printer_format
     min::default_printer_format =

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 07:01:15 EST 2011
+// Date:	Thu Feb 24 08:47:11 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1588,9 +1588,13 @@ namespace min {
 	};
 	extern locatable_gen * locatable_gen_last;
 
-        struct locatable_ptr
+        struct locatable_ptr_base
 	{
-	    const min::stub ** value;
+	    const min::stub * value;
+	};
+	struct locatable_ptr
+	    : locatable_ptr_base
+	{
 	    locatable_ptr * previous;
 	};
 	extern locatable_ptr * locatable_ptr_last;
@@ -1618,7 +1622,7 @@ namespace min {
 	{
 	    internal::locatable_gen_last = previous;
 	}
-	operator min::gen ( void )
+	operator min::gen ( void ) const
 	{
 	    return value;
 	}
@@ -1630,16 +1634,31 @@ namespace min {
     };
     
     template < typename T >
-    class locatable_ptr
-	: protected internal::locatable_ptr
+    class locatable_ptr : public T
     {
+    private:
+        internal::locatable_ptr * previous;
+
     public:
 
-        locatable_ptr ( T & location )
+        locatable_ptr ( T value )
+	    : T ( value )
 	{
-	    value = (const min::stub **) & location;
 	    previous = internal::locatable_ptr_last;
-	    internal::locatable_ptr_last = this;
+	    internal::locatable_ptr_last =
+	        (internal::locatable_ptr *) this;
+	}
+        locatable_ptr ( void )
+	    : T ( min::NULL_STUB )
+	{
+	    previous = internal::locatable_ptr_last;
+	    internal::locatable_ptr_last =
+	        (internal::locatable_ptr *) this;
+	}
+	T operator = ( T value )
+	{
+	    new ( this ) T ( value );
+	    return * this;
 	}
     };
 
@@ -4631,7 +4650,8 @@ namespace min {
     typedef packed_struct_updptr<printer_struct>
         printer;
 
-    extern min::printer error_message;
+    extern min::locatable_ptr<min::printer>
+           error_message;
 }
 
 namespace min {
@@ -9026,8 +9046,9 @@ namespace min {
 
     };
 
-    min::printer init ( min::printer & printer,
-                        min::file file = min::NULL_STUB );
+    min::printer init
+	    ( min::printer & printer,
+              min::file file = min::NULL_STUB );
 
     min::printer init_output_stream
 	    ( min::printer & printer,
