@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 05:09:17 EST 2011
+// Date:	Wed Feb 23 19:03:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1576,140 +1576,101 @@ namespace min {
 
 namespace min {
 
-    namespace internal {
+    const min::stub * const NULL_STUB =
+        (const min::stub *) NULL;
 
-        struct gen_locator
+    namespace internal
+    {
+        struct locatable_gen
 	{
-	    gen_locator * previous;
-	    min::unsptr length;
-	    min::gen * values;
+	    min::gen value;
+	    locatable_gen * previous;
 	};
+	extern locatable_gen * locatable_gen_last;
 
-        struct stub_locator
+        struct locatable_stub
 	{
-	    stub_locator * previous;
-	    min::unsptr length;
-	    const min::stub ** values;
+	    const min::stub * value;
+	    locatable_stub * previous;
 	};
-
-        extern gen_locator * static_gen_last;
-        extern gen_locator * stack_gen_last;
-        extern stub_locator * static_stub_last;
-        extern stub_locator * stack_stub_last;
-
-	template < min::unsptr len,
-	           gen_locator * & last >
-	struct non_num_gen_vec
-	{
-	    min::internal::gen_locator locator;
-	    min::gen values[len];
-
-	    non_num_gen_vec ( void )
-	    {
-		this->locator.length = len;
-		this->locator.values = values;
-		this->locator.previous = last;
-		last = & this->locator;
-		for ( min::unsptr i = 0; i < len; ++ i )
-		    values[i] = min::MISSING;
-	    }
-
-	    ~ non_num_gen_vec ( void )
-	    {
-		last = this->locator.previous;
-	    }
-
-	    min::gen & operator[] ( min::unsptr i )
-	    {
-		MIN_ASSERT ( i < len );
-		return values[i];
-	    }
-	};
-
-#       if MIN_IS_LOOSE
-	    template < min::unsptr len,
-		       gen_locator * & last >
-	    struct num_gen_vec
-	    {
-		min::gen values[len];
-
-		num_gen_vec ( void )
-		{
-		    for ( min::unsptr i = 0;
-		          i < len; ++ i )
-			values[i] = min::MISSING;
-		}
-
-		min::gen & operator[] ( min::unsptr i )
-		{
-		    MIN_ASSERT ( i < len );
-		    return values[i];
-		}
-	    };
-#       endif
-
-	template < min::unsptr len,
-	           stub_locator * & last >
-	struct stub_vec
-	{
-	    min::internal::stub_locator locator;
-	    const min::stub * values[len];
-
-	    stub_vec ( void )
-	    {
-		this->locator.length = len;
-		this->locator.values = values;
-		this->locator.previous = last;
-		last = & this->locator;
-		for ( min::unsptr i = 0; i < len; ++ i )
-		    values[i] = NULL;
-	    }
-
-	    ~ stub_vec ( void )
-	    {
-		last = this->locator.previous;
-	    }
-
-	    const min::stub * & operator[]
-		    ( min::unsptr i )
-	    {
-		MIN_ASSERT ( i < len );
-		return values[i];
-	    }
-	};
+	extern locatable_stub * locatable_stub_last;
     }
 
-    template < min::unsptr len >
-	struct static_gen : internal::non_num_gen_vec
-		<len,internal::static_gen_last> {};
-    template < min::unsptr len >
-	struct stack_gen : internal::non_num_gen_vec
-		<len,internal::stack_gen_last> {};
+    class locatable_gen
+	: protected internal::locatable_gen
+    {
+
+    public:
+
+        locatable_gen ( void )
+	{
+	    value = min::MISSING;
+	    previous = internal::locatable_gen_last;
+	    internal::locatable_gen_last = this;
+	}
+        locatable_gen ( min::gen value )
+	{
+	    this->value = value;
+	    previous = internal::locatable_gen_last;
+	    internal::locatable_gen_last = this;
+	}
+        ~ locatable_gen ( void )
+	{
+	    internal::locatable_gen_last = previous;
+	}
+	operator min::gen & ( void )
+	{
+	    return value;
+	}
+	min::gen & operator = ( min::gen value )
+	{
+	    this->value = value;
+	    return this->value;
+	}
+    };
+    
+    template < typename T >
+    class locatable
+	: protected internal::locatable_stub
+    {
+    public:
+
+        locatable ( void )
+	{
+	    value = min::NULL_STUB;
+	    previous = internal::locatable_stub_last;
+	    internal::locatable_stub_last = this;
+	}
+        locatable ( T value )
+	{
+	    this->value = value;
+	    previous = internal::locatable_stub_last;
+	    internal::locatable_stub_last = this;
+	}
+        ~ locatable ( void )
+	{
+	    internal::locatable_stub_last = previous;
+	}
+	operator T & ( void )
+	{
+	    return * (T *) & value;
+	}
+	T & operator = ( T value )
+	{
+	    this->value = value;
+	    return * (T *) & this->value;
+	}
+	T operator -> ( void )
+	{
+	    return this->value;
+	}
+    };
 
 #   if MIN_IS_LOOSE
-	template < min::unsptr len >
-	  struct static_num_gen : internal::num_gen_vec
-		<len,internal::static_gen_last> {};
-	template < min::unsptr len >
-	  struct stack_num_gen : internal::num_gen_vec
-		<len,internal::stack_gen_last> {};
-#   else // if MIN_IS_COMPACT
-	template < min::unsptr len >
-	  struct static_num_gen
-	      : internal::non_num_gen_vec
-		    <len,internal::static_gen_last> {};
-	template < min::unsptr len >
-	  struct stack_num_gen
-	      : internal::non_num_gen_vec
-		    <len,internal::stack_gen_last> {};
+	typedef min::gen locatable_num_gen;
+#   else
+	typedef min::locatable_gen locatable_num_gen;
 #   endif
-
-    template < min::unsptr len >
-	struct static_stub : internal::stub_vec
-		<len,internal::static_stub_last> {};
-    template < min::unsptr len >
-	struct stack_stub : internal::stub_vec
-		<len,internal::stack_stub_last> {};
 
 }
 
@@ -3582,9 +3543,6 @@ namespace min {
     }
     const min::uns32 DISP_END = min::uns32 ( -1 );
 
-    const min::stub * const NULL_STUB =
-        (const min::stub *) NULL;
-
     struct packed_id
     {
 	const packed_id * base;
@@ -4696,7 +4654,7 @@ namespace min {
     typedef packed_struct_updptr<printer_struct>
         printer;
 
-    extern min::printer & error_message;
+    extern min::locatable<min::printer> error_message;
 }
 
 namespace min {

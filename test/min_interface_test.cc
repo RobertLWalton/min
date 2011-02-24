@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 05:10:11 EST 2011
+// Date:	Wed Feb 23 22:02:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -470,24 +470,24 @@ void MINT::acc_initializer ( void )
     MINT::acc_initialize_resize_body();
 }
 
-// Find a values address in a MINT::gen_locator list.
+// Find a values address in a MINT::locatable_gen list.
 //
 bool find_locator
-    ( min::gen * address, MINT::gen_locator * locator )
+    ( min::gen * address, MINT::locatable_gen * locator )
 {
     while ( locator )
     {
-        if ( locator->values == address )
+        if ( & locator->value == address )
 	    return true;
 	locator = locator->previous;
     }
     return false;
 }
 
-// Count the number of locators on a MINT::gen_locator
+// Count the number of locators on a MINT::locatable_gen
 // list.
 //
-int count_locators ( MINT::gen_locator * locator )
+int count_locators ( MINT::locatable_gen * locator )
 {
     int count = 0;
     while ( locator )
@@ -1374,55 +1374,32 @@ void test_acc_interface ( void )
     cout << "Test General Value Locators:"
 	 << endl;
 
-    static min::static_gen<3> staticg1;
-    static min::static_num_gen<5> staticg2;
+    static min::locatable_gen staticg1[3];
+    static min::locatable_num_gen staticg2[2];
 
     MIN_ASSERT
-	( find_locator ( & staticg1[0],
-			 MINT::static_gen_last ) );
+	( find_locator ( & (min::gen &) staticg1[0],
+			 MINT::locatable_gen_last ) );
     MIN_ASSERT
-	( find_locator ( & staticg2[0],
-			 MINT::static_gen_last )
+	( find_locator ( & (min::gen &) staticg2[0],
+			 MINT::locatable_gen_last )
 	  == MIN_IS_COMPACT );
     MIN_ASSERT
-	( count_locators ( MINT::static_gen_last )
-	  == 1 + MIN_IS_COMPACT );
+	( count_locators ( MINT::locatable_gen_last )
+	  == 3 + 2 * MIN_IS_COMPACT );
     {
-	MIN_ASSERT ( MINT::stack_gen_last == NULL );
-	min::stack_gen<2> stackg1;
+        min::locatable_gen staticg3[5];
 	MIN_ASSERT
 	    ( find_locator
-		  ( & stackg1[0],
-		    MINT::stack_gen_last ) );
+	          ( & (min::gen &) staticg1[2],
+		    MINT::locatable_gen_last ) );
 	MIN_ASSERT
-	    ( count_locators
-		  ( MINT::stack_gen_last )
-	      == 1 );
-	{
-	    min::stack_num_gen<10> stackg2;
-	    MIN_ASSERT
-		( find_locator
-		      ( & stackg1[0],
-			MINT::stack_gen_last ) );
-	    MIN_ASSERT
-		( find_locator
-		      ( & stackg2[0],
-			MINT::stack_gen_last )
-		  == MIN_IS_COMPACT );
-	    MIN_ASSERT
-		( count_locators
-		      ( MINT::stack_gen_last )
-		  == 1 + MIN_IS_COMPACT );
-	}
-	MIN_ASSERT
-	    ( find_locator
-		  ( & stackg1[0],
-		    MINT::stack_gen_last ) );
-	MIN_ASSERT
-	    ( count_locators
-		  ( MINT::stack_gen_last )
-	      == 1 );
+	    ( count_locators ( MINT::locatable_gen_last )
+	      == 8 + 2 * MIN_IS_COMPACT );
     }
+    MIN_ASSERT
+	( count_locators ( MINT::locatable_gen_last )
+	  == 3 + 2 * MIN_IS_COMPACT );
 
     memory_debug = memory_debug_save;
 

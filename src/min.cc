@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 05:08:17 EST 2011
+// Date:	Thu Feb 24 03:52:48 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -308,10 +308,8 @@ bool MINT::relocated_flag;
 // Allocator/Collector/Compactor 
 // -----------------------------
 
-MINT::gen_locator * MINT::static_gen_last;
-MINT::gen_locator * MINT::stack_gen_last;
-MINT::stub_locator * MINT::static_stub_last;
-MINT::stub_locator * MINT::stack_stub_last;
+MINT::locatable_gen * MINT::locatable_gen_last;
+MINT::locatable_stub * MINT::locatable_stub_last;
 
 min::unsptr MINT::number_of_free_stubs;
 
@@ -992,13 +990,12 @@ inline bool thread_scavenger_helper
 void MINT::thread_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    for ( gen_locator * locator = static_gen_last;
-          locator != NULL; 
-	  locator = locator->previous )
-    for ( int index = 0;
-          index < locator->length; ++ index )
+    for ( MINT::locatable_gen * loc =
+              MINT::locatable_gen_last;
+          loc != NULL; 
+	  loc = loc->previous )
     {
-	min::gen v = locator->values[index];
+	min::gen v = loc->value;
 	if ( min::is_stub ( v ) )
 	{
 	    if ( thread_scavenger_helper
@@ -1009,47 +1006,12 @@ void MINT::thread_scavenger_routine
 	++ sc.gen_count;
     }
 
-    for ( gen_locator * locator = stack_gen_last;
-          locator != NULL; 
-	  locator = locator->previous )
-    for ( int index = 0;
-          index < locator->length; ++ index )
+    for ( MINT::locatable_stub * loc =
+              MINT::locatable_stub_last;
+          loc != NULL; 
+	  loc = loc->previous )
     {
-	min::gen v = locator->values[index];
-	if ( min::is_stub ( v ) )
-	{
-	    if ( thread_scavenger_helper
-	             ( sc, MUP::stub_of ( v ) ) )
-		return;
-	    ++ sc.stub_count;
-	}
-	++ sc.gen_count;
-    }
-
-    for ( stub_locator * locator = static_stub_last;
-          locator != NULL; 
-	  locator = locator->previous )
-    for ( int index = 0;
-          index < locator->length; ++ index )
-    {
-	const min::stub * s = locator->values[index];
-	if ( s != NULL )
-	{
-	    if ( thread_scavenger_helper
-	             ( sc, (min::stub *) s ) )
-		return;
-	    ++ sc.stub_count;
-	}
-	++ sc.gen_count;
-    }
-
-    for ( stub_locator * locator = stack_stub_last;
-          locator != NULL; 
-	  locator = locator->previous )
-    for ( int index = 0;
-          index < locator->length; ++ index )
-    {
-	const min::stub * s = locator->values[index];
+	const min::stub * s = loc->value;
 	if ( s != NULL )
 	{
 	    if ( thread_scavenger_helper
@@ -6087,8 +6049,7 @@ static bool compute_counts
 	for ( min::unsptr i = 0; i < depth; ++ i )
 	    labvec[i] = * components ++;
 
-	min::stack_gen<1> sgen;
-	min::gen & new_label = sgen[0];
+	min::locatable_gen new_label;
 	for ( c = min::current ( lpv );
 	      ! min::is_list_end ( c );
 	      c = min::next ( lpv ) )
@@ -7205,10 +7166,7 @@ bool MINT::flip_flag
 // Printers
 // --------
 
-
-static min::static_stub<1> error_message_stub;
-min::printer & min::error_message =
-    * (min::printer *) & error_message_stub[0];
+min::locatable<min::printer> min::error_message;
 
 const min::printer_format
     min::default_printer_format =
