@@ -550,17 +550,19 @@ min_interface_test.cc:XXXX assert:
 
 Test General Value Locators:
 min_interface_test.cc:XXXX assert:
-    find_locator ( & (min::gen &) staticg1[0], MINT::locatable_gen_last ) true.
+    find_ptr_locator ( & min::error_message ) true.
 min_interface_test.cc:XXXX assert:
-    find_locator ( & (min::gen &) staticg2[0], MINT::locatable_gen_last ) == MIN_IS_COMPACT true.
+    find_gen_locator ( & (min::gen &) staticg1[0] ) true.
 min_interface_test.cc:XXXX assert:
-    count_locators ( MINT::locatable_gen_last ) == 3 + 2 * MIN_IS_COMPACT true.
+    find_gen_locator ( & (min::gen &) staticg2[0] ) == MIN_IS_COMPACT true.
 min_interface_test.cc:XXXX assert:
-    find_locator ( & (min::gen &) staticg1[2], MINT::locatable_gen_last ) true.
+    count_gen_locators() == 3 + 2 * MIN_IS_COMPACT true.
 min_interface_test.cc:XXXX assert:
-    count_locators ( MINT::locatable_gen_last ) == 8 + 2 * MIN_IS_COMPACT true.
+    find_gen_locator ( & (min::gen &) staticg1[2] ) true.
 min_interface_test.cc:XXXX assert:
-    count_locators ( MINT::locatable_gen_last ) == 3 + 2 * MIN_IS_COMPACT true.
+    count_gen_locators() == 8 + 2 * MIN_IS_COMPACT true.
+min_interface_test.cc:XXXX assert:
+    count_gen_locators() == 3 + 2 * MIN_IS_COMPACT true.
 
 Finish Allocator/Collector/Compactor Interface Test!
 
@@ -1322,6 +1324,10 @@ min_interface_test.cc:XXXX assert:
 Finish Names Test!
 
 Start Packed Structs Test!
+min_interface_test.cc:XXXX assert:
+    8 * min::OFFSETOF ( & MINT::locatable_ptr::previous ) == MIN_PTR_BITS true.
+min_interface_test.cc:XXXX assert:
+    8 * min::OFFSETOF ( & min::locatable_ptr<ps1t::updptr> ::previous ) == MIN_PTR_BITS true.
 ps1type.name = ps1type
 ../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
@@ -1419,6 +1425,8 @@ min_interface_test.cc:XXXX assert:
 Finish Packed Structs Test!
 
 Start Packed Vectors Test!
+min_interface_test.cc:XXXX assert:
+    8 * min::OFFSETOF ( & min::locatable_ptr<pvt::insptr> ::previous ) == MIN_PTR_BITS true.
 pvtype.name = pvtype
 ../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
