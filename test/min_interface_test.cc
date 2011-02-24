@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 23 22:02:02 EST 2011
+// Date:	Thu Feb 24 12:57:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -470,11 +470,29 @@ void MINT::acc_initializer ( void )
     MINT::acc_initialize_resize_body();
 }
 
+// Find a values address in a MINT::locatable_ptr list.
+//
+bool find_ptr_locator ( void * address )
+{
+    MINT::locatable_ptr * locator =
+        MINT::locatable_ptr_last;
+
+    while ( locator )
+    {
+        if ( locator == address )
+	    return true;
+	locator = locator->previous;
+    }
+    return false;
+}
+
 // Find a values address in a MINT::locatable_gen list.
 //
-bool find_locator
-    ( min::gen * address, MINT::locatable_gen * locator )
+bool find_gen_locator ( void * address )
 {
+    MINT::locatable_gen * locator =
+        MINT::locatable_gen_last;
+
     while ( locator )
     {
         if ( & locator->value == address )
@@ -487,8 +505,10 @@ bool find_locator
 // Count the number of locators on a MINT::locatable_gen
 // list.
 //
-int count_locators ( MINT::locatable_gen * locator )
+int count_gen_locators ( void )
 {
+    MINT::locatable_gen * locator =
+        MINT::locatable_gen_last;
     int count = 0;
     while ( locator )
     {
@@ -1378,27 +1398,28 @@ void test_acc_interface ( void )
     static min::locatable_num_gen staticg2[2];
 
     MIN_ASSERT
-	( find_locator ( & (min::gen &) staticg1[0],
-			 MINT::locatable_gen_last ) );
+	( find_ptr_locator ( & min::error_message ) );
     MIN_ASSERT
-	( find_locator ( & (min::gen &) staticg2[0],
-			 MINT::locatable_gen_last )
+	( find_gen_locator
+	      ( & (min::gen &) staticg1[0] ) );
+    MIN_ASSERT
+	( find_gen_locator
+	      ( & (min::gen &) staticg2[0] )
 	  == MIN_IS_COMPACT );
     MIN_ASSERT
-	( count_locators ( MINT::locatable_gen_last )
+	(    count_gen_locators()
 	  == 3 + 2 * MIN_IS_COMPACT );
     {
         min::locatable_gen staticg3[5];
 	MIN_ASSERT
-	    ( find_locator
-	          ( & (min::gen &) staticg1[2],
-		    MINT::locatable_gen_last ) );
+	    ( find_gen_locator
+	          ( & (min::gen &) staticg1[2] ) );
 	MIN_ASSERT
-	    ( count_locators ( MINT::locatable_gen_last )
+	    (    count_gen_locators()
 	      == 8 + 2 * MIN_IS_COMPACT );
     }
     MIN_ASSERT
-	( count_locators ( MINT::locatable_gen_last )
+	(    count_gen_locators()
 	  == 3 + 2 * MIN_IS_COMPACT );
 
     memory_debug = memory_debug_save;
@@ -1887,6 +1908,16 @@ void test_packed_structs ( void )
     cout << endl;
     cout << "Start Packed Structs Test!" << endl;
 
+    MIN_ASSERT
+        (    8 * min::OFFSETOF
+	           ( & MINT::locatable_ptr::previous )
+	  == MIN_PTR_BITS );
+    MIN_ASSERT
+        (    8 * min::OFFSETOF
+	           ( & min::locatable_ptr<ps1t::updptr>
+		          ::previous )
+	  == MIN_PTR_BITS );
+
     cout << "ps1type.name = " << ps1type.name << endl;
 
     const min::stub * v1 = ps1type.new_stub();
@@ -1976,6 +2007,12 @@ void test_packed_vectors ( void )
 {
     cout << endl;
     cout << "Start Packed Vectors Test!" << endl;
+
+    MIN_ASSERT
+        (    8 * min::OFFSETOF
+	           ( & min::locatable_ptr<pvt::insptr>
+		          ::previous )
+	  == MIN_PTR_BITS );
 
     cout << "pvtype.name = " << pvtype.name << endl;
 

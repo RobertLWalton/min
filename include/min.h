@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 08:47:11 EST 2011
+// Date:	Thu Feb 24 12:58:08 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,7 +18,6 @@
 // Table of Contents:
 //
 //	Setup
-//	Initialization
 //	C++ Number Types
 //	General Value Types and Data
 //	Stub Types and Data
@@ -44,6 +43,7 @@
 //	Printers
 //	Printing
 //	More Allocator/Collector/Compactor Interface
+//	Initialization
 
 // Namespaces:
 //
@@ -87,26 +87,6 @@ namespace min { namespace internal {
     }
 
 } }
-
-
-
-// Initialization
-// --------------
-
-namespace min { namespace internal {
-
-    class initializer
-    {
-        public:
-
-	initializer ( void );
-	    // NOTE: This calls acc_initializer()
-	    // defined below.
-    };
-    static initializer initializer_instance;
-
-} }
-
 
 // C++ Number Types
 // --- ------ -----
@@ -1579,6 +1559,15 @@ namespace min {
     const min::stub * const NULL_STUB =
         (const min::stub *) NULL;
 
+    // The C offsetof macro does not work, so:
+    //
+    template < typename S, typename T >
+    min::uns32 OFFSETOF ( T S::* d )
+    {
+        S * p = (S *) NULL;
+	return (uns8 *) & (p->*d) - (uns8 *) p;
+    }
+
     namespace internal
     {
         struct locatable_gen
@@ -1636,8 +1625,9 @@ namespace min {
     template < typename T >
     class locatable_ptr : public T
     {
-    private:
+    public:
         internal::locatable_ptr * previous;
+	    // Made public so we can check offset.
 
     public:
 
@@ -3512,15 +3502,6 @@ namespace min {
 // -----------------
 
 namespace min {
-
-    // The C offsetof macro does not work, so:
-    //
-    template < typename S, typename T >
-    min::uns32 OFFSETOF ( T S::* d )
-    {
-        S * p = (S *) NULL;
-	return (uns8 *) & (p->*d) - (uns8 *) p;
-    }
 
     template < typename S >
     min::uns32 DISP ( min::gen S::* d )
@@ -9479,6 +9460,24 @@ namespace min { namespace internal {
     }
 
 } }
+
+// Initialization
+// --------------
+
+namespace min { namespace internal {
+
+    class initializer
+    {
+        public:
+
+	initializer ( void );
+	    // NOTE: This calls acc_initializer()
+	    // defined below.
+    };
+    static initializer initializer_instance;
+
+} }
+
 
 
 # endif // MIN_H
