@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 08:12:15 EST 2011
+// Date:	Thu Feb 24 14:24:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2096,6 +2096,9 @@ min::uns32 min::print_line
 	    << & file->buffer[offset];
     uns32 width = printer->column;
     printer << min::eol << min::pop_parameters;
+    if ( file->print_flags & min::DISPLAY_EOL_FLAG )
+        width += ( file->print_flags & min::ASCII_FLAG ?
+	           4 : 1 );
     return width;
 }
 
