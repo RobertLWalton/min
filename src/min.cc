@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 25 19:06:53 EST 2011
+// Date:	Sat Feb 26 03:20:36 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1412,6 +1412,18 @@ min::gen MINT::new_str_stub_gen
 
     return min::new_gen ( s2 );
 }
+
+min::gen min::new_str_gen
+	( const min::uns32 * p, min::unsptr n )
+{
+    char buffer[8*n+1];
+    char * q = buffer;
+    min::unsptr m = 0;
+    while ( n -- )
+        m += min::unicode_to_utf8 ( q, * p ++ );
+    return min::internal::new_str_gen ( buffer, m );
+}
+
 
 // Labels
 // ------

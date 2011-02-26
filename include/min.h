@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 12:58:08 EST 2011
+// Date:	Sat Feb 26 03:31:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3130,38 +3130,38 @@ namespace min {
     namespace internal {
 	min::gen new_str_stub_gen
 	    ( const char * p, min::unsptr n );
+
+	inline min::gen new_str_gen
+		( const char * p, min::unsptr n )
+	{
+#	if MIN_IS_COMPACT
+		if ( n <= 3 )
+		    return min::unprotected::
+			   new_direct_str_gen ( p, n );
+#	elif MIN_IS_LOOSE
+		if ( n <= 5 )
+		    return min::unprotected::
+			   new_direct_str_gen ( p, n );
+#	endif
+	    return internal::new_str_stub_gen ( p, n );
+	}
     }
 
     inline min::gen new_str_gen ( const char * p )
     {
-	min::unsptr n = ::strlen ( p );
-#	if MIN_IS_COMPACT
-	    if ( n <= 3 )
-		return min::unprotected::
-		       new_direct_str_gen ( p );
-#	elif MIN_IS_LOOSE
-	    if ( n <= 5 )
-		return min::unprotected::
-		       new_direct_str_gen ( p );
-#	endif
-	return internal::new_str_stub_gen ( p, n );
+	return internal::new_str_gen
+	    ( p, ::strlen ( p ) );
     }
 
     inline min::gen new_str_gen
             ( const char * p, min::unsptr n )
     {
-	n = internal::strnlen ( p, n );
-#	if MIN_IS_COMPACT
-	    if ( n <= 3 )
-		return min::unprotected::
-		       new_direct_str_gen ( p, n );
-#	elif MIN_IS_LOOSE
-	    if ( n <= 5 )
-		return min::unprotected::
-		       new_direct_str_gen ( p, n );
-#	endif
-	return internal::new_str_stub_gen ( p, n );
+        return internal::new_str_gen
+	    ( p, internal::strnlen ( p, n ) );
     }
+
+    min::gen new_str_gen
+            ( const min::uns32 * p, min::unsptr n );
 
     // UTF-8 Conversion Functions
 
@@ -3169,11 +3169,6 @@ namespace min {
 	// == `smirk',
 	// i.e., APL FUNCTIONAL SYMBOL TILDE DIAERESIS
 
-    // Given a string s that starts with a character
-    // >= 0x80, remove the first UNICODE character
-    // from the string and return it.  Return ILLEGAL_
-    // UTF8 for badly encode character.  Update s.
-    //
     inline uns32 utf8_to_unicode ( const char * & s )
     {
         uns8 c = (uns8) * s ++;
@@ -3209,20 +3204,25 @@ namespace min {
 	return unicode;
     }
 
-    // Output UNICODE character as UTF-8 into a string
-    // s.  Return number of bytes put into s ( will be
-    // <= 6 ).  If UNICODE character is >= 0x80000000,
-    // replace it with 0x7FFFFFFFF.  Update s.
-    //
-    inline uns32 unicode_to_utf8
+    inline unsptr unicode_to_utf8
 	    ( char * & s, uns32 unicode )
     {
+	if ( unicode == 0 )
+	{
+	    * s ++ = 0xC0;
+	    * s ++ = 0x80;
+	    return 2;
+	}
+	else if ( unicode < 0x80 )
+	{
+	    * s ++ = (char) unicode;
+	    return 1;
+	}
+
         char * initial_s = s;
 	uns32 shift = 0;
 	uns8 c = 0;
-	if ( unicode < 0x80 )
-	    ; // Do nothing
-	else if ( unicode < 0x7FF )
+	if ( unicode < 0x7FF )
 	    shift = 6, c = 0xC0;
 	else if ( unicode < 0xFFFF )
 	    shift = 12, c = 0xE0;
@@ -4054,6 +4054,18 @@ namespace min {
 		      computed_header_size
 		      +
 		      hp->length * sizeof ( E ) );
+	    }
+
+	    // Returns & pvip[0] even if length == 0.
+	    //
+	    const E * begin_ptr ( void ) const
+	    {
+		H * hp = (H *)
+		    unprotected::ptr_of ( this->s );
+		return (E *)
+		    ( (min::uns8 *) hp
+		      +
+		      computed_header_size );
 	    }
 
 	protected:
