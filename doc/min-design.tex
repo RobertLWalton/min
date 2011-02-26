@@ -21,6 +21,11 @@
 
 \setlength{\unitlength}{1in}
 
+% The following attempt to eliminate headers at the bottom of a page.
+\widowpenalty=300
+\clubpenalty=300
+\setlength{\parskip}{3ex plus 2ex minus 2ex}
+
 \pagestyle{headings}
 \setlength{\parindent}{0.0in}
 \setlength{\parskip}{1ex}
@@ -9071,8 +9076,6 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\newpage
-
 \INDEXHEADER{Types}
 
 \begin{indpar}[0.2in]
@@ -9155,8 +9158,6 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SUBLIST_AUX} \\
 \end{TABULAR}
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Stub Related Functions}
 
@@ -9380,8 +9381,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{Special Values}
 
