@@ -210,7 +210,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 23, 2011}
+\date{February 26, 2011}
  
 \maketitle
 
@@ -2531,7 +2531,7 @@ that its argument is a number without doing any \verb|MIN_ASSERT| check:
 
 In MIN all \skey{string}s\index{strings@strings}
 are NUL terminated UTF-8 encoded UNICODE character strings.
-\key{UTF-8} encodes 32-bit UNICODE characters in 1 to 6 \verb|char|'s.
+\key{UTF-8} encodes 32-bit UNICODE characters in 1 to 7 \verb|char|'s.
 
 All ASCII characters are encoded as themselves in
 the UTF-8 encoding.  This implies that
@@ -2548,7 +2548,7 @@ A MIN string value cannot store the NUL character as legal UTF-8.
 But it is possible to use the `\key{modified UTF-8}' encoding instead of
 strict UTF-8.  The difference is that strict UTF-8 encodes the NUL
 character in a single byte as an ASCII NUL, whereas modified UTF-8
-encodes the NUL character as the 2-byte string `\verb|0xC0,0x80|'
+encodes the NUL character as the `overlong' 2-byte string `\verb|0xC0,0x80|'
 (which is not legal in strict UTF-8 because it is not the shortest
 possible encoding of NUL in UTF-8).
 
@@ -2608,6 +2608,62 @@ than 8 {\tt char}'s, a long string stub and body are created.
 
 Thus if two string \verb|min::gen| values are equal as
 strings, they have \verb|==| \verb|min::gen| values.
+
+There is also a function to create a new general string value from
+a vector of UNICODE characters:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( const min::uns32 * p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
+\end{tabular}\end{indpar}
+
+Here UNICODE characters are represented as \verb|min::uns32| values.
+
+The following may be used to convert between UNICODE
+characters and \key{UTF-8} strings:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::|
+    & \MINNBKEY{UTF8\_ILLEGAL}
+\LABEL{MIN::UTF8_ILLEGAL} \\
+\verb|min::uns32 min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb| ( const char * & s )|
+\LABEL{MIN::UTF8_TO_UNICODE} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb| ( char * & s, min::uns32 c )|
+\LABEL{MIN::UNICODE_TO_UTF8} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::uft8\_to\_unicode} function reads a UTF-8 encoded character
+from \verb|s|, updating \verb|s| to point after the character, and returns
+the character.  {\tt min::\EOL unicode\_\EOL to\_\EOL utf8} writes
+a UTF-8 character \verb|c| into \verb|s|, updating \verb|s| to point after the
+character, and returns the number of bytes written.
+
+The {\tt min::uft8\_to\_unicode} function will accept
+\mkey{overlong}{UTF-8 encoding} UTF-8 encodings as legal,
+and also accept 7-byte encodings (first byte {\tt 0xFE})
+so that $2^{32}-1$ can be encoded.  If it encounters an
+encoding with the wrong number of continuation bytes,
+or if it encounters a continuation byte with no preceeding
+start byte, it returns \verb|min|::\MINNBKEY{UTF8\_\EOL ILLEGAL},%
+\label{UTF8_ILLEGAL}
+which is 2368 (hexadecimal), the `\key{smirk}', a.k.a
+the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
+In this case \verb|s| is updated to just after the illegal encoding.
+No other checks for illegal UNICODE characters are made.
+
+The {\tt min::unicode\_to\_utf8} function will output
+7-byte encodings (first byte {\tt 0xFE}) for
+UNICODE character values {\tt => 0x80000000}, and will output
+the overlong encoding {\tt 0xC0},{\tt 0x80}
+for \ttnbmkey{NUL}{UTF-8 encoding}
+(UTF-8 in which this is the \underline{only} permitted overlong encoding
+is called `modified UTF-8').  No other overlong encodings are output.
 
 The following functions test a \verb|min::gen| value to see if it
 is a string and obtain information from
@@ -3977,6 +4033,8 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
+\verb|const E * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
 \verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{tabular}\end{indpar}
@@ -4036,6 +4094,9 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
 \verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|const E * pvup|
+    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
 \verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{tabular}\end{indpar}
@@ -4098,6 +4159,9 @@ a packed vector, and these have the usage:
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
 \verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
+\verb|const E * pvip|
+    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_insptr}}
+\LABEL{MIN::PACKED_VEC_INSPTR_BEGIN_PTR} \\
 \verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{tabular}\end{indpar}
@@ -4156,17 +4220,24 @@ but the vector elements are stored in body whose address can change
 if a relocating function is called, so saving C pointers to packed vector
 elements is generally a bad idea.  However, temporary use within a single
 statement is all right if the statement does not call a relocating
-function.  For example, \verb|memcpy| can be used as follows to copy
-from or to the vector:
-\begin{indpar}\begin{verbatim}
-memcpy ( ..., & pvp[0], sizeof ( E ) * pvp->length );
-memcpy ( & pvup[0], ..., sizeof ( E ) * pvp->length );
-\end{verbatim}\end{indpar}
+function.
 
+\verb|pvp.begin_ptr()| is the same as `\verb|& pvp[0]|'
+except the latter would fail if {\tt pvp->\EOL length == 0}.
 \verb|pvp.end_ptr()| is the same as `\verb|& pvp[pvp->length]|'
-except the latter would fail because the index is not less than
-\verb|pvp->length|.  This member function is only useful
+except the latter will always fail because the index is not less than
+\verb|pvp->length|.
+These member functions are only useful
 in code that does not call a relocating function.
+
+For example, if \verb|memcpy| is used to copy
+from or to the vector, use {\tt begin\_\EOL ptr()}:
+\begin{indpar}\begin{verbatim}
+memcpy ( ..., pvup.begin_ptr(), sizeof ( E ) * pvup->length );
+memcpy ( pvup.begin_ptr(), ..., sizeof ( E ) * pvup->length );
+\end{verbatim}\end{indpar}
+Using \verb|& pvup[0]| instead of \verb|pvup->begin_ptr()|
+will fail with a {\tt MIN\_\EOL ASSERT} fault if {\tt pvup->\EOL length == 0}.
 
 Insertable packed vector pointers permit the current length and maximum
 length of the vector to be changed.
@@ -4494,13 +4565,11 @@ The vector of {\tt char}'s that contains the lines of the file.  Each
 line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated incomplete
 last line may appear at the end of the buffer.
 
-Overlong encodings (i.e., encodings with more bytes than necessary)
-are considered legal.  Thus {\tt NUL} may be encoded as {\tt 0xC0},{\tt 0x80}
-(UTF-8 in which this is the \underline{only} permitted overlong encoding
-is called `modified UTF-8').
-Encodings of character codes up to $2^{32}-1$ are considered legal.
-The 7-byte encoding (first byte {\tt 0xFE})
-is allowed so that $2^{32}-1$ can be encoded.
+Note that in general functions that load data into files do \underline{not}
+check for illegal UTF-8 encodings.  They typically treat NUL characters
+loaded into the buffer as if they were newline characters, and in any
+case must avoid NUL characters in the buffer that are not intended
+to be line-terminating.
 
 Initialized to the empty vector when the file is created and by
 {\tt min::\EOL init\_\EOL input\ldots} functions.
@@ -4699,9 +4768,7 @@ The {\tt min::init\_input} function initializes the file assuming
 input to the file will come from some outside source.  For example,
 given the code:
 \begin{indpar}\begin{verbatim}
-min::stack_stub<2> stubs;
-min::file & file1 = * (min::file *) & stubs[0];
-min::file & file2 = * (min::file *) & stubs[1];
+min::locatable_ptr<min::file> file1, file2;
 init_input ( file1 );
 init_input_... ( file2, ... );
 init_output_file ( file2, file1 );
@@ -4735,20 +4802,13 @@ the {\tt min::\EOL init\_\EOL input\_\EOL file} function sets
 into the file from the {\tt ifile} as new lines are required.
 See {\tt min::\EOL next\_\EOL line} below for details.
 
-Note that in general functions that load data into files do \underline{not}
-check for illegal UTF-8 encodings.  They typically treat NUL characters
-loaded into the buffer as if they were newline characters, and in any
-case must avoid NUL characters in the buffer that are not intended
-to be line-terminating.
-
 You \underline{cannot} append to a file initialized by any
 {\tt min::\EOL init\_\EOL input\ldots} function other than
 the 1-argument {\tt min::\EOL init\_\EOL input} function.
 If you use this function you can write your own code to append
 to the file buffer, as for example:
 \begin{indpar}\begin{verbatim}
-min::stack_stub<1> stubs;
-min::file & file = * (min::file *) & stubs[0];
+min:locatable_ptr<min::file> file;
 init_input ( file );
 ...
 const char * my_string = ...;
@@ -5230,7 +5290,9 @@ The possibilities are:
 
 where `{\tt <SP>}' represents the single space character and
 `{\tt <ILL>}', which is \underline{not} an ASCII standard character
-name, represents any ill-formed UTF-8 character.
+name, represents any ill-formed UTF-8 encoding
+(see {\tt UTF8\_\EOL ILLEGAL}, \pagref{UTF8_ILLEGAL}, for a definition
+of an illegal UTF-8 encoding).
 
 If the {\tt ASCII\_FLAG} is on
 and {\tt GRAPHIC\_FLAG} is \underline{off},
@@ -5238,8 +5300,8 @@ the single space character prints as itself, the horizontal
 tab character prints as 1 to 8 single spaces, other
 control characters
 print as if they were letters that have zero width (consume
-no columns), and the
-ill-formed UTF-8 character prints as `{\tt <ILL>}'.
+no columns), and any
+ill-formed UTF-8 encoding prints as `{\tt <ILL>}'.
 
 \item[\ttnbmkey{GRAPHIC\_FLAG}{{\tt min::printer\_parameters} flag}]
 This forces all characters to be
@@ -5253,7 +5315,7 @@ characters are printed as described above under
 If the {\tt GRAPHIC\_FLAG} is on and the {\tt ASCII\_FLAG} is
 \underline{off}, control characters and single space are
 printed as UNICODE Control Pictures script characters,
-range 2400-243F (hexadecimal), while ill-formed UTF-8 characters
+range 2400-243F (hexadecimal), while ill-formed UTF-8 encodings
 are printed as character 2368 (hexadecimal), the `\key{smirk}', a.k.a
 the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
 Single space prints as {\tt \textvisiblespace}, and the
@@ -5266,8 +5328,8 @@ single space prints as itself, horizontal
 tab prints as 1 to 8 single spaces, other
 control characters
 print as if they were letters that have zero width (consume
-no columns), and the
-ill-formed UTF-8 character prints as the `smirk' (see above).
+no columns), and any
+ill-formed UTF-8 encoding prints as the `smirk' (see above).
 
 \item[\ttnbmkey{DISPLAY\_\EOL \_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, the end of line prints as a graphic mode control
@@ -5331,17 +5393,8 @@ Copying characters into a printer is done by the
 \end{tabular}\end{indpar}
 
 A `{\tt const char *}' is interpreted as a UTF-8 encoded
-string of UNICODE characters.
-Encodings with fewer that the required
-number of continuation bytes, and unexpected continuation bytes,
-are considered to be illegal.
-Overlong encodings (i.e., encodings with more bytes than necessary)
-are considered legal.  Thus {\tt NUL} may be encoded as {\tt 0xC0},{\tt 0x80}
-(UTF-8 in which this is the \underline{only} permitted overlong encoding
-is called `modified UTF-8').
-Encodings of character codes up to $2^{32}-1$ are considered legal.
-The 7-byte encoding (first byte {\tt 0xFE})
-is allowed so that $2^{32}-1$ can be encoded.
+string of UNICODE characters as per
+{\tt min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
 When a horizontal tab is copied to a printer vector in non-graphic mode,
@@ -9698,6 +9751,24 @@ These are in \verb|min_parameters.h|.
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
       \verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( const min::uns32 * p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|const min::uns32 min::|
+    & \MINNBKEY{UTF8\_ILLEGAL}
+\LABEL{MIN::UTF8_ILLEGAL} \\
+\verb|min::uns32 min::|
+    & \MINKEY{utf8\_to\_unicode}\ARGBREAK
+      \verb| ( const char * & s )|
+\LABEL{MIN::UTF8_TO_UNICODE} \\
+\verb|min::unsptr min::|
+    & \MINKEY{unicode\_to\_utf8}\ARGBREAK
+      \verb| ( char * & s, min::uns32 c )|
+\LABEL{MIN::UNICODE_TO_UTF8} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
@@ -9733,8 +9804,6 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \end{indpar}
-
-\newpage
 
 \INDEXHEADER{String Pointers}
 
@@ -11123,6 +11192,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
+\verb|const E * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
 \verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{TABULAR}
@@ -11180,6 +11251,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
 \verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|const E * pvup|
+    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
 \verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{TABULAR}
@@ -11240,6 +11314,9 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
 \verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
+\verb|const E * pvip|
+    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_insptr}}
+\LABEL{MIN::PACKED_VEC_INSPTR_BEGIN_PTR} \\
 \verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{TABULAR}
