@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 14:24:02 EST 2011
+// Date:	Fri Feb 25 19:06:53 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1629,6 +1629,7 @@ void min::init_output ( min::file & file )
 
         file = ::file_type.new_stub();
 	file->buffer = ::file_buffer_type.new_stub();
+	file->file_name = min::MISSING;
     }
     else
     {
