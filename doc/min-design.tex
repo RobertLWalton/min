@@ -4910,15 +4910,44 @@ characters in an {\tt ifile} partial line are also gotten, and the file
 is completed just as it would be if an end-of-file had been read
 from {\tt istream}.
 
+It is possible to obtain any line previously returned by
+{\tt min::\EOL next\_\EOL line} (since the last rewind of the file)
+using the function:
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{line}
 	  \begin{argstack}
 	  \verb| ( min::file file,|\\
-	  \verb|   min::uns32 line )|
+	  \verb|   min::uns32 line_number )|
 	  \end{argstack}
 \LABEL{MIN::LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
+
+Here
+{\tt 0 <= line\_\EOL number < file->\EOL next\_\EOL line\_\EOL number}
+is required.  However, it is not sufficient.  In order for this function
+to work, all the lines previously returned by {min::\EOL next\_\EOL line}
+must have been left in {\tt file->\EOL buffer}, and whether or not
+this is done is controlled by {\tt file->\EOL spool\_\EOL lines}.
+
+More specifically, in order for the {\tt min::\EOL line} function above
+to be able to find the line to return,
+\begin{center}\begin{tabular}{r@{~~~~}rl}
+\multicolumn{3}{l}{\tt file->next\_line\_number - file->spool\_lines} \\
+& \tt <= & \tt line\_number \\
+& \tt < & \tt file->next\_line\_number
+\end{tabular}\end{center}
+is required.  For input files it is common to set {\tt spool\_\EOL lines}
+to \verb|min::|\MINNBKEY{ALL\_\EOL LINES}, which is effectively infinity,
+and saves all lines previously returned by {\tt min::\EOL next\_\EOL line}.
+For output files it is common to set {\tt spool\_\EOL lines} to {\tt 0},
+so no lines are saved.
+
+If {\tt min::\EOL line} is asked to return
+an unsaved line, or a line not yet returned by {\tt min::\EOL next\_\EOL line}
+(since the last rewind), then {\tt min::\EOL line} returns
+{\tt min::\EOL NO\_\EOL LINE}.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
