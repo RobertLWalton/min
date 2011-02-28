@@ -1616,8 +1616,8 @@ UNDEFINED_GEN(0xf4000000)
 MISSING {MISSING} MISSING
 A flush is next:
 The line being flushed
-a       ␀⍨
-a       <2400><ILL>
+a       ␀⍨
+a       <2400><ILL>
 a<SOH><SP><HT><DEL><2400><ILL>
 a␁␣␉␡␀⍨
 The file has lines: test_file: lines 1-4

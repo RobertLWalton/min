@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 27 21:15:26 EST 2011
+// Date:	Mon Feb 28 02:20:12 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2099,11 +2099,22 @@ min::uns32 min::print_line
     printer << min::push_parameters
             << min::clear_flags
 	            (   min::HBREAK_FLAG
-		      + min::GRAPHIC_FLAGS
+		      + min::GBREAK_FLAG
+		      + min::GRAPHIC_HSPACE_FLAG
+		      + min::GRAPHIC_VSPACE_FLAG
+		      + min::GRAPHIC_NSPACE_FLAG
+		      + min::ALLOW_HSPACE_FLAG
+		      + min::ALLOW_VSPACE_FLAG
+		      + min::ALLOW_NSPACE_FLAG
 		      + min::ASCII_FLAG
 		      + min::DISPLAY_EOL_FLAG )
 	    << min::set_flags
-	    	    (   (   min::GRAPHIC_FLAGS
+	    	    (   (   min::GRAPHIC_HSPACE_FLAG
+			  + min::GRAPHIC_VSPACE_FLAG
+			  + min::GRAPHIC_NSPACE_FLAG
+			  + min::ALLOW_HSPACE_FLAG
+			  + min::ALLOW_VSPACE_FLAG
+			  + min::ALLOW_NSPACE_FLAG
 		          + min::ASCII_FLAG
 		          + min::DISPLAY_EOL_FLAG )
 		      & file->print_flags )
@@ -2173,8 +2184,7 @@ void min::flush_line
 
     if ( file->printer != NULL_STUB )
         file->printer << min::push_parameters
-		      << min::noascii << min::nographic
-		      << min::nohbreak
+		      << min::verbatim
 		      << & file->buffer[offset]
 		      << min::pop_parameters
 		      << min::eol;
@@ -2201,7 +2211,7 @@ void min::flush_partial ( min::file file )
     if ( file->printer != NULL_STUB )
     {
         file->printer << min::push_parameters
-		      << min::noascii << min::nographic
+		      << min::verbatim
 		      << & file->buffer[offset]
 		      << min::pop_parameters;
     }
@@ -2286,8 +2296,7 @@ min::printer operator <<
 	( min::printer printer, min::file file )
 {
     printer << min::push_parameters
-	    << min::noascii << min::nographic
-	    << min::nohbreak;
+	    << min::verbatim;
 
     while ( true )
     {
@@ -2302,7 +2311,7 @@ min::printer operator <<
     {
 	min::push(file->buffer) = 0;
 	printer << min::push_parameters
-		<< min::noascii << min::nographic
+		<< min::verbatim
 	        << & file->buffer
 		         [file->next_line_offset]
 		<< min::pop_parameters;
@@ -7201,7 +7210,7 @@ const min::printer_parameters
     & min::default_printer_format,
     72,
     4,
-    min::HBREAK_FLAG
+    min::HBREAK_FLAG + min::ALLOW_VSPACE_FLAG
 };
 
 // Return true iff c is combining diacritic.
@@ -7536,6 +7545,19 @@ min::printer operator <<
     case min::op::CLEAR_FLAGS:
 	printer->parameters.flags &= ~ op.v1.u32;
 	return printer;
+    case min::op::VERBATIM:
+	printer->parameters.flags |=
+	      min::ALLOW_HSPACE_FLAG
+	    + min::ALLOW_VSPACE_FLAG
+	    + min::ALLOW_NSPACE_FLAG;
+	printer->parameters.flags &=
+	    ~ (   min::GRAPHIC_HSPACE_FLAG
+	        + min::GRAPHIC_VSPACE_FLAG
+	        + min::GRAPHIC_NSPACE_FLAG
+	        + min::HBREAK_FLAG
+	        + min::GBREAK_FLAG
+	        + min::ASCII_FLAG );
+	return printer;
     case min::op::PUSH_PARAMETERS:
     case min::op::BOM:
 	assert (   printer->save_index
@@ -7666,10 +7688,6 @@ const min::op min::ascii
 const min::op min::noascii
     ( min::op::CLEAR_FLAGS, min::ASCII_FLAG );
 
-const min::op min::graphic
-    ( min::op::SET_FLAGS, min::GRAPHIC_FLAGS );
-const min::op min::nographic
-    ( min::op::CLEAR_FLAGS, min::GRAPHIC_FLAGS );
 const min::op min::graphic_hspace
     ( min::op::SET_FLAGS, min::GRAPHIC_HSPACE_FLAG );
 const min::op min::nographic_hspace
@@ -7719,6 +7737,13 @@ const min::op min::eol_flush
     ( min::op::SET_FLAGS, min::EOL_FLUSH_FLAG );
 const min::op min::noeol_flush
     ( min::op::CLEAR_FLAGS, min::EOL_FLUSH_FLAG );
+
+const min::op min::graphic
+    ( min::op::SET_FLAGS, min::GRAPHIC_FLAGS );
+const min::op min::nographic
+    ( min::op::CLEAR_FLAGS, min::GRAPHIC_FLAGS );
+const min::op min::verbatim
+    ( min::op::VERBATIM );
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
