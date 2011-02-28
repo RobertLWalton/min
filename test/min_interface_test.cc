@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Feb 24 12:57:02 EST 2011
+// Date:	Sun Feb 27 11:43:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2333,12 +2333,12 @@ void test_printer ( void )
             << min::display_eol << "hello"
             << min::eom;
 
-    printer << min::bom << min::noautobreak;
+    printer << min::bom << min::nohbreak;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::right ( 4 );
     printer << min::eom;
 
-    printer << min::bom << min::noautobreak;
+    printer << min::bom << min::nohbreak;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::left ( 4 );
     printer << min::eom;
@@ -2380,7 +2380,7 @@ void test_printer ( void )
 
     printer << min::bom
     	    << min::set_line_length ( 20 )
-            << min::noautobreak
+            << min::nohbreak
             <<  "int32 -1 = " << (min::int32) -1
 	    << " " << min::setbreak
             << "int64 -2 = " << (min::int64) -2
@@ -2396,7 +2396,7 @@ void test_printer ( void )
 
     printer << min::bom
     	    << min::set_line_length ( 20 )
-            << min::noautobreak
+            << min::nohbreak
             <<  "pint ( -3, \"%05d\" ) = "
 	    <<  min::pint ( -3, "%05d" )
 	    << " " << min::setbreak
@@ -2581,7 +2581,7 @@ void test_printer ( void )
     min::print_line ( printer, file, 5 );
 
     file->print_flags =
-        min::GRAPHIC_FLAG + min::DISPLAY_EOL_FLAG;
+        min::GRAPHIC_FLAGS + min::DISPLAY_EOL_FLAG;
     min::print_line ( printer, file, 1 );
     min::print_line ( printer, file, 3 );
     min::print_line ( printer, file, 4 );

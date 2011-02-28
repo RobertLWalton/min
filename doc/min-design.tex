@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 26, 2011}
+\date{February 27, 2011}
  
 \maketitle
 
@@ -5288,30 +5288,38 @@ controls the printing of
 below.
 
 \item[\ttmkey{flags}{in {\tt min::printer\_parameters}}]
-The following flag bits control printing:
+The following flag bits control printing.  Some of these
+flags affect only certain categories of characters, which are
+defined as follows:
+
+\begin{itemlist}[0.8in]
+\item[\ttnbmkey{HSPACE}{character category}]
+    Horizontal Space Characters: single space, horizontal tab
+\item[\ttnbmkey{VSPACE}{character category}]
+    Vertical Space Characters: form feed, vertical tab
+\item[\ttnbmkey{NSPACE}{character category}]
+    Non-Space Control Characters: all other characters
+with codes {\tt < 0x20}, including line feed and carriage return \\
+plus the delete character
+\item[] Non-ASCII Characters: characters
+with codes {\tt > 0x7F}.
+\end{itemlist}
 
 \end{itemlist}
 
 \begin{indpar}\begin{itemlist}[1.4in]
 
-\item[\ttnbmkey{ASCII\_FLAG}{{\tt min::printer\_parameters} flag}]
-This controls the printing of non-ASCII UNICODE characters, and in
-graphics mode, the printing of ASCII control characters.
+\item[\ttnbmkey{GRAPHIC\_HSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{GRAPHIC\_VSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{GRAPHIC\_NSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
+{\raggedright~\\}
+{\tt GRAPHIC\_XXX} causes all characters in class {\tt XXX} to be
+represented by `graphic' characters that print some mark.
+This is referred to as `\key{graphic mode}'.
 
-If the {\tt ASCII\_FLAG} is on,
-non-ASCII UNICODE characters are printed as `{\tt <XXXX>}', where
-{\tt XXXX} represents the character code in hexadecimal,
-and consists of some non-zero number of hexadecimal digits.
-{\tt XXXX} begins with one
-one of the digits {\tt 0},\dots,{\tt 9}, in order to avoid
-ambiguity with representations of control characters.  Thus
-{\tt <0FF>} represents the character whose code in decimal is
-{\tt 255}, whereas {\tt <FF>} represents the form feed character.
-
-If both the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_FLAG} are on,
-ASCII control characters and the single space characters are
-printed as `{\tt <YY>}', where {\tt YY} is the 2 or 3 letter
-ASCII standard character name.
+If both the {\tt ASCII\_FLAG} and a {\tt GRAPHIC\_XXX} are on,
+the characters in class {\tt XXX} are printed as `{\tt <YY>}',
+where {\tt YY} is the 2 or 3 letter ASCII standard character name.
 The possibilities are:
 \begin{indpar} \tt
     <NUL>, <SOH>, <STX>, <ETX>, <EOT>, <ENQ>, \\
@@ -5319,51 +5327,66 @@ The possibilities are:
     <FF>, <CR>, <SO>, <SI>, <DLE>, \\
     <DC1>, <DC2>, <DC3>, <DC4>, <NAK>, <SYN>, \\
     <ETB>, <CAN>, <EM>, <SUB>, <ESC>, \\
-    <FS>, <GS>, <RS>, <US>, <SP>, <DEL>, <ILL>,
+    <FS>, <GS>, <RS>, <US>, <SP>, <DEL>
 \end{indpar}
 
-where `{\tt <SP>}' represents the single space character and
-`{\tt <ILL>}', which is \underline{not} an ASCII standard character
-name, represents any ill-formed UTF-8 encoding
-(see {\tt UTF8\_\EOL ILLEGAL}, \pagref{UTF8_ILLEGAL}, for a definition
-of an illegal UTF-8 encoding).
+For example, `{\tt <FF>}' represents the form-feed characters, and
+`{\tt <SP>}' represents the single space character.
 
-If the {\tt ASCII\_FLAG} is on
-and {\tt GRAPHIC\_FLAG} is \underline{off},
-the single space character prints as itself, the horizontal
-tab character prints as 1 to 8 single spaces, other
-control characters
-print as if they were letters that have zero width (consume
-no columns), and any
-ill-formed UTF-8 encoding prints as `{\tt <ILL>}'.
-
-\item[\ttnbmkey{GRAPHIC\_FLAG}{{\tt min::printer\_parameters} flag}]
-This forces all characters to be
-represented by `graphic' characters that print some mark.
-This is referred to as `\key{graphic mode}'.
-
-If both the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_FLAG} are on
-characters are printed as described above under
-{\tt ASCII\_FLAG}.
-
-If the {\tt GRAPHIC\_FLAG} is on and the {\tt ASCII\_FLAG} is
-\underline{off}, control characters and single space are
+If the {\tt GRAPHIC\_XXX\_FLAG} is on and the {\tt ASCII\_FLAG} is
+\underline{off}, control and space characters are
 printed as UNICODE Control Pictures script characters,
-range 2400-243F (hexadecimal), while ill-formed UTF-8 encodings
-are printed as character 2368 (hexadecimal), the `\key{smirk}', a.k.a
-the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
-Single space prints as {\tt \textvisiblespace}, and the
+range 2400-243F (hexadecimal).
+For example, single space prints as {\tt \textvisiblespace} and
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
 
-If the {\tt ASCII\_FLAG} and
-{\tt GRAPHIC\_FLAG} are both off,
-single space prints as itself, horizontal
-tab prints as 1 to 8 single spaces, other
-control characters
-print as if they were letters that have zero width (consume
-no columns), and any
-ill-formed UTF-8 encoding prints as the `smirk' (see above).
+\item[\ttnbmkey{ASCII\_FLAG}{{\tt min::printer\_parameters} flag}]
+This controls the printing of non-ASCII UNICODE characters, and in
+graphics mode, the printing of ASCII control characters.
+
+If the {\tt ASCII\_FLAG} is on,
+non-ASCII characters are printed as `{\tt <XXXX>}', where
+{\tt XXXX} represents the character code in hexadecimal,
+and consists of some non-zero number of hexadecimal digits.
+{\tt XXXX} begins with
+one of the digits {\tt 0},\dots,{\tt 9}, so as to avoid
+ambiguity with representations of control characters.  Thus
+{\tt <0FF>} represents the character whose code in decimal is
+{\tt 255}, whereas {\tt <FF>} represents the form feed character.
+
+If the {\tt ASCII\_FLAG} is off, non-ASCII characters print as
+themselves.  They are all considered to occupy {\tt 1} column, except
+for diacritical combining marks 20D0-20FF (hexadecimal) which are considered
+to occupy {\tt 0} columns.
+
+If the {\tt ASCII\_FLAG} is on,
+ill-formed UTF-8 encodings are printed as `{\tt <ILL>}'.  If it is
+off, they are printed as character 2368 (hexadecimal), the `\key{smirk}', a.k.a
+the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
+
+If the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} are both off,
+printing of characters of class {\tt XXX} is controled by the
+{\tt ALLOW\_\EOL XXX\_\EOL FLAG} flag.
+
+\item[\ttnbmkey{ALLOW\_HSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{ALLOW\_VSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{ALLOW\_NSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
+{\raggedright~\\}
+{\tt ALLOW\_XXX\_FLAG} causes all characters in class {\tt XXX} to
+represent themselves.  The single space character takes {\tt 1}
+column, the horizontal tab character takes from {\tt 1} to {\tt 8}
+columns depending on its position (tabs are every 8 spaces), and
+all vertical space and non-space control characters take {\tt 0}
+columns.  The {\tt ALLOW\_XXX\_FLAG} flag only has effect if the
+{\tt GRAPHIC\_XXX\_FLAG} flag is off.
+
+If the {\tt ALLOW\_XXX\_FLAG} adn
+{\tt GRAPHIC\_XXX\_FLAG} flag are both off, the single space
+character represents itself, the horizontal tab character is
+represented by {\tt 1} to {\tt 8} single spaces, and all
+vertical space and non-space control characters are represented
+by the empty string: i.e., they do not output anything.
 
 \item[\ttnbmkey{DISPLAY\_\EOL \_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, the end of line prints as a graphic mode control

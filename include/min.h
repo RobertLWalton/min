@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb 26 03:31:02 EST 2011
+// Date:	Sun Feb 27 21:15:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8939,11 +8939,27 @@ namespace min {
     };
 
     enum {
-        ASCII_FLAG		= ( 1 << 0 ),
-        GRAPHIC_FLAG		= ( 1 << 1 ),
-        DISPLAY_EOL_FLAG	= ( 1 << 2 ),
-        AUTOBREAK_FLAG		= ( 1 << 3 ),
-        EOL_FLUSH_FLAG		= ( 1 << 4 ),
+        GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
+        GRAPHIC_VSPACE_FLAG	= ( 1 << 1 ),
+        GRAPHIC_NSPACE_FLAG	= ( 1 << 2 ),
+
+        ALLOW_HSPACE_FLAG	= ( 1 << 3 ),
+        ALLOW_VSPACE_FLAG	= ( 1 << 4 ),
+        ALLOW_NSPACE_FLAG	= ( 1 << 5 ),
+        ALLOW_FLAGS		= ( 7 << 3 ),
+
+        ASCII_FLAG		= ( 1 << 6 ),
+        DISPLAY_EOL_FLAG	= ( 1 << 7 ),
+
+        HBREAK_FLAG		= ( 1 << 8 ),
+        GBREAK_FLAG		= ( 1 << 9 ),
+
+        EOL_FLUSH_FLAG		= ( 1 << 10 ),
+
+        GRAPHIC_FLAGS		= GRAPHIC_HSPACE_FLAG
+	                        + GRAPHIC_VSPACE_FLAG
+	                        + GRAPHIC_NSPACE_FLAG
+				+ GBREAK_FLAG
     };
 
     struct op
@@ -9149,15 +9165,38 @@ namespace min {
     extern const op noascii;
     extern const op graphic;
     extern const op nographic;
+    extern const op graphic_hspace;
+    extern const op nographic_hspace;
+    extern const op graphic_vspace;
+    extern const op nographic_vspace;
+    extern const op graphic_nspace;
+    extern const op nographic_nspace;
+    extern const op allow;
+    extern const op noallow;
+    extern const op allow_hspace;
+    extern const op noallow_hspace;
+    extern const op allow_vspace;
+    extern const op noallow_vspace;
+    extern const op allow_nspace;
+    extern const op noallow_nspace;
     extern const op display_eol;
     extern const op nodisplay_eol;
-    extern const op autobreak;
-    extern const op noautobreak;
+    extern const op hbreak;
+    extern const op nohbreak;
+    extern const op gbreak;
+    extern const op nogbreak;
     extern const op eol_flush;
     extern const op noeol_flush;
 
     void pwidth
         ( uns32 & column, uns32 c, uns32 flags );
+
+    namespace internal
+    {
+        min::printer print_unicode
+		( min::printer printer,
+		  min::unsptr n, const min::uns32 * p );
+    }
 }
 
 min::printer operator <<
@@ -9172,8 +9211,9 @@ inline min::printer operator <<
 	( min::printer printer,
 	  char c )
 {
-    char buffer[2] = { c, 0 };
-    return printer << buffer;
+    min::uns32 unicode = c;
+    return min::internal::print_unicode
+	    ( printer, 1, & unicode );
 }
 
 min::printer operator <<
