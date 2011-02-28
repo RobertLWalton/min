@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 28 03:54:50 EST 2011
+// Date:	Mon Feb 28 18:33:10 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8959,7 +8959,6 @@ namespace min {
         GRAPHIC_FLAGS		= GRAPHIC_HSPACE_FLAG
 	                        + GRAPHIC_VSPACE_FLAG
 	                        + GRAPHIC_NSPACE_FLAG
-				+ GBREAK_FLAG
     };
 
     struct op
