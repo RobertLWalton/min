@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 27 11:43:33 EST 2011
+// Date:	Mon Feb 28 03:59:39 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2507,6 +2507,7 @@ void test_printer ( void )
 
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
+    WTEST ( '\f' );
     WTEST ( 'a' );
     WTEST ( '\001' );
     WTEST ( ' ' );
@@ -2519,6 +2520,7 @@ void test_printer ( void )
     printer << min::ascii;
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
+    WTEST ( '\f' );
     WTEST ( 'a' );
     WTEST ( '\001' );
     WTEST ( ' ' );

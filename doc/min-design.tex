@@ -4667,14 +4667,19 @@ by {\tt min::\EOL init\_\EOL input\ldots} functions.
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]
 These are some of the printer {\tt parameters->\EOL flags} used to print
 a file line for error message purposes.  The flags involved are:
-\begin{center}
+\begin{indpar}
 \tt
 \begin{tabular}{l}
+min::GRAPHIC\_HSPACE\_FLAG \\
+min::GRAPHIC\_VSPACE\_FLAG \\
+min::GRAPHIC\_NSPACE\_FLAG \\
+min::ALLOW\_HSPACE\_FLAG \\
+min::ALLOW\_VSPACE\_FLAG \\
+min::ALLOW\_NSPACE\_FLAG \\
 min::ASCII\_FLAG \\
-min::GRAPHIC\_FLAG \\
-min::DISPLAY\_FLAG
+min::DISPLAY\_EOL\_FLAG
 \end{tabular}
-\end{center}
+\end{indpar}
 
 These flags determine the number of columns required to display a
 UNICODE character, and are therefore also used by input routines
@@ -4682,19 +4687,27 @@ that keep track of the column numbers of input characters for
 the purposes of printing error messages.  For example, the carriage
 return prints as follows with the given flags:
 \begin{center}
-\begin{tabular}{l@{~~~~}l@{~~~~}l}
-{\tt min::GRAPHIC\_FLAG} only
-	& {\tiny $\stackrel{\textstyle C~}{~R}$} & 1 column \\[1ex]
-{\tt min::GRAPHIC\_FLAG} & {\tt <CR>} & 4 columns \\
-~~ and {\tt min::ASCII\_FLAG} \\[1ex]
-no {\tt min::GRAPHIC\_FLAG}
-	& omitted from output	     & 0 columns
+\begin{tabular}{l@{~~~~}l}
+{\tt min::GRAPHIC\_NSPACE\_FLAG} only
+	& {\tiny $\stackrel{\textstyle C~}{~R}$} ~~~ 1 column \\
+~~ but no {\tt min::ASCII\_FLAG}
+\\[1ex]
+{\tt min::GRAPHIC\_NSPACE\_FLAG} & {\tt <CR>} ~~~ 4 columns \\
+~~ and {\tt min::ASCII\_FLAG}
+\\[1ex]
+{\tt min::ALLOW\_NSPACE\_FLAG}   & the carriage return \\
+~~ but no {\tt min::GRAPHIC\_NSPACE\_FLAG} & character itself, \\
+					   & 0 columns
+\\[1ex]
+no {\tt min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
+~~ and no {\tt min::GRAPHIC\_NSPACE\_FLAG}  & 0 columns
 \end{tabular}
 \end{center}
 
 File lines are to be printed with these
-3 flags set as in {\tt print\_\EOL flags} and \underline{without}
-any {\tt min::AUTOBREAK\_\EOL FLAG}.
+flags set as in {\tt print\_\EOL flags} and with
+both {\tt min::\EOL HBREAK\_\EOL FLAG} and {\tt min::\EOL GBREAK\_\EOL FLAG}
+off.
 
 Set to {\tt 0} when the file is created.
 
@@ -4724,18 +4737,11 @@ If not {\tt min::NULL\_STUB}, the {\tt min::\EOL flush\_\EOL file} function
 outputs buffer {\tt char} elements
 to this {\tt min::\EOL printer} when it finds
 there are elements not yet output.
-Non-NUL elements in a complete
-line are output with the printer {\tt min::\EOL ASCII\_\EOL FLAG},
-{\tt min::\EOL GRAPHICS\_\EOL FLAG},
-and {\tt min::\EOL AUTOBREAK\_\EOL FLAG}
-turned off, and the line-terminating
+Non-NUL elements in a
+line are output as per the {\tt min::\EOL verbatim}
+printer operation (\pagref{MIN::VERBATIM}),
+and the line-terminating
 NUL elements are translated into sending {\tt min::eol} to the printer.
-Non-NUL elements in an incomplete
-line at the end of the file {\tt buffer}
-are output with just the printer {\tt min::\EOL ASCII\_\EOL FLAG},
-and {\tt min::\EOL GRAPHICS\_\EOL FLAG}
-turned off, and with the
-{\tt min::\EOL AUTOBREAK\_\EOL FLAG} left untouched.
 
 Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
@@ -5232,14 +5238,38 @@ these is:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_HSPACE\_FLAG}
+\LABEL{MIN::GRAPHIC_HSPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_VSPACE\_FLAG}
+\LABEL{MIN::GRAPHIC_VSPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_NSPACE\_FLAG}
+\LABEL{MIN::GRAPHIC_NSPACE_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_HSPACE\_FLAG}
+\LABEL{MIN::ALLOW_HSPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_VSPACE\_FLAG}
+\LABEL{MIN::ALLOW_VSPACE_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{ALLOW\_NSPACE\_FLAG}
+\LABEL{MIN::ALLOW_NSPACE_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{ASCII\_FLAG}
 \LABEL{MIN::ASCII_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAG}
-\LABEL{MIN::GRAPHIC_FLAG} \\
 \verb|const min::uns32 min::| & \MINNBKEY{DISPLAY\_\EOL \_FLAG}
 \LABEL{MIN::DISPLAY_EOL_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{AUTOBREAK\_FLAG}
-\LABEL{MIN::AUTOBREAK_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{HBREAK\_FLAG}
+\LABEL{MIN::HBREAK_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{GBREAK\_FLAG}
+\LABEL{MIN::GBREAK_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 min::| & \MINNBKEY{EOL\_FLUSH\_FLAG}
 \LABEL{MIN::EOL_FLUSH_FLAG} \\
 \end{tabular}\end{indpar}
@@ -5251,7 +5281,8 @@ these is:
     \verb|  & min::default_printer_format,   // format|\ARGBREAK
     \verb|  72,                              // line_length|\ARGBREAK
     \verb|  4,                               // indent|\ARGBREAK
-    \verb|  min::AUTOBREAK_FLAG              // flags|\ARGBREAK
+    \verb|    min::HBREAK_FLAG               // flags|\ARGBREAK
+    \verb|  + min::ALLOW_VSPACE_FLAG|\ARGBREAK
     \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_PRINTER_PARAMETERS}
@@ -5273,8 +5304,9 @@ then a break, consisting of a line end followed by indentation spaces,
 is pushed into the printer vector before the character representative.
 Any space characters before the break are deleted.
 
-Breaks may be inserted automatically by using the
-{\tt min::\EOL AUTOBREAK\_\EOL FLAG}: see below.
+Breaks may be inserted automatically by using
+{\tt min::\EOL HBREAK\_\EOL FLAG} or
+{\tt min::\EOL BBREAK\_\EOL FLAG}: see below.
 
 \item[\ttmkey{ indent}{in {\tt min::printer\_parameters}}]
 When a break is automatically pushed into a printer vector, the
@@ -5357,7 +5389,8 @@ ambiguity with representations of control characters.  Thus
 
 If the {\tt ASCII\_FLAG} is off, non-ASCII characters print as
 themselves.  They are all considered to occupy {\tt 1} column, except
-for diacritical combining marks 20D0-20FF (hexadecimal) which are considered
+for \skey{diacritical combining mark}s
+20D0-20FF (hexadecimal) which are considered
 to occupy {\tt 0} columns.
 
 If the {\tt ASCII\_FLAG} is on,
@@ -5394,12 +5427,20 @@ character (even if the {\tt GRAPHIC\_FLAG} is off).
 If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
-\item[\ttnbmkey{AUTOBREAK\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{HBREAK\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a line break is automatically set
-just after every single space
-character, and both before and after every graphic mode character
-representative.  Note that horizontal tabs are equivalent to from
-1 to 8 single space characters for this and other purposes.
+just after every single space or horizontal tab character output.
+
+\item[\ttnbmkey{GBREAK\_FLAG}{{\tt min::printer\_parameters} flag}]
+If this flag is on, a line break is automatically set
+just before and just after every character
+representative that prints a mark.  This applies to space and control
+characters printed in graphic mode, but not to these characters
+printed in non-graphic mode.
+
+A non-control, non-space character followed by a
+\key{diacritical combining mark} is considered to represent one character if
+printed in non-ascii mode.
 
 \item[\ttnbmkey{EOL\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, a {\tt min::flush()} printer operation is
@@ -5454,11 +5495,13 @@ string of UNICODE characters as per
 {\tt min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
-When a horizontal tab is copied to a printer vector in non-graphic mode,
-it is converted to between 1 and 8 single space characters.
+When a horizontal tab is copied to a printer vector in non-graphic mode with
+the {\tt min::\EOL ALLOW\_\EOL HSPACE} flag off,
+the horizontal tab is converted to between 1 and 8 single space characters.
 
-When a {\tt NUL} is copied into a printer vector, it is encoded as
-the overlong encoding {\tt 0xC0},{\tt 0x80}.
+When a \ttnbkey{NUL} is copied into a printer vector, which can only happen
+in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE} on,
+it is encoded as the overlong encoding {\tt 0xC0},{\tt 0x80}.
 
 Values of types other than `\verb|const char *|'
 which are presented to {\tt <<} are converted to `{\tt const char~*}' strings
@@ -5571,7 +5614,9 @@ current line.  The {\tt min::\EOL right} operation inserts spaces
 at the last break point.  Both operations end with an implicit
 {\tt min::\EOL setbreak} that resets the breakpoint.
 Both operations behave exactly as if spaces were inserted at the
-appropriate point by {\tt printer << "~"}.
+appropriate point by {\tt printer << "~"}, except that
+{\tt min::right} will give undefined results if a horizontal
+tab has been output since the last break point.
 
 The {\tt min::reserve} operation can be used to
 force a line break if there are fewer than {\tt width}
@@ -5808,27 +5853,117 @@ following
 \LABEL{MIN::ASCII} \\
 \verb|const min::op min::| & \MINKEY{noascii}
 \LABEL{MIN::NOASCII} \\
-\verb|const min::op min::| & \MINKEY{graphic}
-\LABEL{MIN::GRAPHIC} \\
-\verb|const min::op min::| & \MINKEY{nographic}
-\LABEL{MIN::NOGRAPHIC} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+
+\verb|const min::op min::| & \MINKEY{graphic\_vspace}
+\LABEL{MIN::GRAPHIC_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{nographic\_vspace}
+\LABEL{MIN::NOGRAPHIC_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{graphic\_nspace}
+\LABEL{MIN::GRAPHIC_NSPACE} \\
+\verb|const min::op min::| & \MINKEY{nographic\_nspace}
+\LABEL{MIN::NOGRAPHIC_NSPACE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{allow\_hspace}
+\LABEL{MIN::ALLOW_HSPACE} \\
+\verb|const min::op min::| & \MINKEY{noallow\_hspace}
+\LABEL{MIN::NOALLOW_HSPACE} \\
+\verb|const min::op min::| & \MINKEY{allow\_vspace}
+\LABEL{MIN::ALLOW_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{noallow\_vspace}
+\LABEL{MIN::NOALLOW_VSPACE} \\
+\verb|const min::op min::| & \MINKEY{allow\_nspace}
+\LABEL{MIN::ALLOW_NSPACE} \\
+\verb|const min::op min::| & \MINKEY{noallow\_nspace}
+\LABEL{MIN::NOALLOW_NSPACE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{display\_eol}
 \LABEL{MIN::DISPLAY_EOL} \\
 \verb|const min::op min::| & \MINKEY{nodisplay\_eol}
 \LABEL{MIN::NODISPLAY_EOL} \\
-\verb|const min::op min::| & \MINKEY{autobreak}
-\LABEL{MIN::AUTOBREAK} \\
-\verb|const min::op min::| & \MINKEY{noautobreak}
-\LABEL{MIN::NOAUTOBREAK} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{hbreak}
+\LABEL{MIN::HBREAK} \\
+\verb|const min::op min::| & \MINKEY{nohbreak}
+\LABEL{MIN::NOHBREAK} \\
+\verb|const min::op min::| & \MINKEY{gbreak}
+\LABEL{MIN::GBREAK} \\
+\verb|const min::op min::| & \MINKEY{nogbreak}
+\LABEL{MIN::NOGBREAK} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{eol\_flush}
 \LABEL{MIN::EOL_FLUSH} \\
 \verb|const min::op min::| & \MINKEY{noeol\_flush}
 \LABEL{MIN::NOEOL_FLUSH} \\
 \end{tabular}\end{indpar}
 
-For example, `{\tt printer<<min::autobreak}' sets the
-{\tt printer->\EOL parameters.flags} {\tt AUTO\-BREAK\_FLAG}
-and `{\tt printer<<min::noautobreak}' clears this flag.
+For example, `{\tt printer<<min::ascii}' sets the
+{\tt printer->\EOL parameters.flags} {\tt min::\EOL ASCII\_\EOL FLAG}
+and `{\tt printer<<\EOL min::\EOL noascii}' clears this flag.
+
+There are several operations that set and clear several flags each:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::op min::| & \MINKEY{graphic}
+\LABEL{MIN::GRAPHIC} \\
+\verb|const min::op min::| & \MINKEY{nographic}
+\LABEL{MIN::NOGRAPHIC} \\
+\verb|const min::op min::| & \MINKEY{verbatim}
+\LABEL{MIN::VERBATIM} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::\EOL graphic} operation sets the following flags:
+\begin{indpar}
+\tt
+min::GRAPHIC\_HSPACE\_FLAG \\
+min::GRAPHIC\_VSPACE\_FLAG \\
+min::GRAPHIC\_NSPACE\_FLAG \\
+min::GBREAK\_FLAG
+\end{indpar}
+
+and the {\tt min::\EOL nographic} operation clears these flags.
+{\tt min::\EOL graphic} permits all characters to be represented
+by a graphic, i.e., a printed mark, and automatically sets line breaks
+just before
+and just after each of these character representations, in order to
+enforce line length limits.
+
+The {\tt min::\EOL verbatim} operation sets the following flags:
+\begin{indpar}
+\tt
+min::ALLOW\_HSPACE\_FLAG \\
+min::ALLOW\_VSPACE\_FLAG \\
+min::ALLOW\_NSPACE\_FLAG
+\end{indpar}
+
+and clears the following flags:
+\begin{indpar}
+\tt
+min::GRAPHIC\_HSPACE\_FLAG \\
+min::GRAPHIC\_VSPACE\_FLAG \\
+min::GRAPHIC\_NSPACE\_FLAG \\
+min::HBREAK\_FLAG \\
+min::GBREAK\_FLAG \\
+min::ASCII\_FLAG
+\end{indpar}
+
+This permits characters in a {\tt printer->file} line to be copied
+to another printer verbatim.  Note that {\tt min::\EOL DISPLAY\_\EOL EOL}
+is not affected, as when copying to a printer from
+from some {\tt printer->\EOL file}
+line terminating NULs are translated to {\tt min::\EOL eol}
+operations.  Also note that the operation to undo the results
+of {\tt min::\EOL verbatim} does not exist (you must push and pop
+the parameters).
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}

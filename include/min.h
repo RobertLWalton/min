@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 27 21:15:34 EST 2011
+// Date:	Mon Feb 28 03:54:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8977,6 +8977,7 @@ namespace min {
 	    SET_INDENT,
 	    SET_FLAGS,
 	    CLEAR_FLAGS,
+	    VERBATIM,
 	    PUSH_PARAMETERS,
 	    POP_PARAMETERS,
 	    EOL,
@@ -9163,8 +9164,6 @@ namespace min {
 
     extern const op ascii;
     extern const op noascii;
-    extern const op graphic;
-    extern const op nographic;
     extern const op graphic_hspace;
     extern const op nographic_hspace;
     extern const op graphic_vspace;
@@ -9187,6 +9186,10 @@ namespace min {
     extern const op nogbreak;
     extern const op eol_flush;
     extern const op noeol_flush;
+
+    extern const op graphic;
+    extern const op nographic;
+    extern const op verbatim;
 
     void pwidth
         ( uns32 & column, uns32 c, uns32 flags );
