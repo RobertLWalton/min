@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 28 03:59:39 EST 2011
+// Date:	Mon Feb 28 18:36:04 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2275,7 +2275,7 @@ void test_printer ( void )
     MIN_ASSERT
         ( printer->parameters.line_length == 72 );
 
-    printer << min::bom
+    printer << min::bom << min::gbreak
             << min::graphic << min::ascii
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
@@ -2285,7 +2285,7 @@ void test_printer ( void )
             << min::eom;
 
     printer << min::bom
-            << min::graphic
+            << min::gbreak << min::graphic
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
                    "\020\021\022\023\024\025\026\027"
@@ -2315,12 +2315,12 @@ void test_printer ( void )
 
     printer << min::bom
             << min::set_line_length ( 40 )
-            << min::graphic << buffer
+            << min::gbreak << min::graphic << buffer
             << min::eom;
 
     printer << min::bom
             << min::set_line_length ( 40 )
-            << min::ascii << min::graphic
+            << min::ascii << min::gbreak << min::graphic
 	    << buffer
             << min::eom;
 
@@ -2530,7 +2530,7 @@ void test_printer ( void )
     WTEST ( min::ILLEGAL_UTF8 );
     printer << min::eol;
 
-    printer << min::graphic;
+    printer << min::gbreak << min::graphic;
     MIN_ASSERT ( printer->column == 0 );
     column = 0;
     WTEST ( 'a' );

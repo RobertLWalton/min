@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 27, 2011}
+\date{February 28, 2011}
  
 \maketitle
 
@@ -5275,6 +5275,11 @@ these is:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_FLAGS}
+\LABEL{MIN::GRAPHIC_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::printer\_parameters
                        min::\MINKEY{default\_printer\_parameters} =}\ARGBREAK
     \verb|{|\ARGBREAK
@@ -5372,6 +5377,15 @@ range 2400-243F (hexadecimal).
 For example, single space prints as {\tt \textvisiblespace} and
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
+
+\item[\ttnbmkey{GRAPHIC\_FLAGS}{{\tt min::printer\_parameters} flag}]
+The sum of the {\tt min::GRAPHIC\_XXX} flags:
+\begin{indpar}
+\tt
+min::GRAPHIC\_HSPACE \\
+min::GRAPHIC\_VSPACE \\
+min::GRAPHIC\_NSPACE
+\end{indpar}
 
 \item[\ttnbmkey{ASCII\_FLAG}{{\tt min::printer\_parameters} flag}]
 This controls the printing of non-ASCII UNICODE characters, and in
