@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 03:07:17 EST 2011
+// Date:	Sun Mar  6 03:10:41 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,6 @@
 //	Object List Level
 //	Object Attribute Level
 //	Printers
-//	Printing
 
 // Setup
 // -----
@@ -8229,167 +8228,4 @@ void min::pwidth
 	column += ::strlen ( asciigraphic[c] );
     }
     else ++ column;
-}
-
-// Printing
-// --------
-
-min::pr_format min::default_pr_format =
-{
-    "%.15g",
-    "`","'",
-    "[", " ", "]",
-    "", "",
-    NULL,
-    NULL
-};
-
-// The C++ complier does not seem to be able to parse
-//
-// template < typename T,
-//            T&(*)(T&,const min::stub *)
-//                min::pr_format::* pr_stub>
-//
-// so we trick it by adding
-//
-//	S = T&(*)(T&,const min::stub *).
-//
-// Since S cannot be the last parameter we cannot give
-// it a default value.
-//
-template <typename T, typename S,
-          S min::pr_format::* pr_stub >
-T & output_operator ( T & out, const min::pr & prv )
-{
-    // Note:: std::hex/dec are NOT defined for T, so we
-    // use sprintf instead.
-    //
-    min::gen v = prv.value;
-    min::pr_format & f = prv.format;
-    if ( v == min::new_gen ( MINT::null_stub ) )
-    {
-        return out << "new_gen ( MINT::null_stub )";
-    }
-    else if ( min::is_num ( v ) )
-    {
-        min::float64 vf = MUP::float_of ( v );
-	char buffer[100];
-	sprintf ( buffer, f.number_format, vf );
-	return out << buffer;
-    }
-    else if ( min::is_str ( v ) )
-    {
-        min::unprotected::str_ptr sp ( v );
-        return out << f.str_prefix
-	           << min::unprotected::str_of ( sp )
-		   << f.str_postfix;
-    }
-    else if ( min::is_lab ( v ) )
-    {
-	min::unprotected
-	   ::lab_ptr labp ( MUP::stub_of ( v ) );
-        min::uns32 len = min::length_of ( labp );
-	out << f.lab_prefix;
-	for ( min::unsptr i = 0; i < len; ++ i )
-	{
-	    if ( i != 0 ) out << f.lab_separator;
-	    out << min::pr ( labp[i], f );
-	}
-	return out << f.lab_postfix;
-    }
-    else if ( min::is_special ( v ) )
-    {
-        min::unsgen index = MUP::special_index_of ( v );
-	if ( 0xFFFFFF - min::SPECIAL_NAME_LENGTH
-	     < index
-	     &&
-	     index <= 0xFFFFFF )
-	    return out << f.special_prefix
-	        << min::special_name[0xFFFFFF - index]
-		<< f.special_postfix;
-	else
-	{
-	    char buffer[64];
-	    sprintf ( buffer, "SPECIAL(0x%llx)",
-		              (min::uns64) index );
-	    return out << buffer;
-	}
-    }
-    else if ( min::is_stub ( v ) )
-    {
-        const min::stub * s = MUP::stub_of ( v );
-        int type = min::type_of ( s );
-	const char * type_name = min::type_name[type];
-	if ( type_name != NULL )
-	    out << type_name;
-	else
-	    out << "TYPE(" << type << ")";
-	if ( f.*pr_stub != NULL )
-	    (* (f.*pr_stub) ) ( out, s );
-	return out;
-    }
-    else if ( min::is_list_aux ( v ) )
-        return out << "LIST_AUX("
-	           << MUP::list_aux_of ( v ) << ")";
-    else if ( min::is_sublist_aux ( v ) )
-        return out << "SUBLIST_AUX("
-	           << MUP::sublist_aux_of ( v ) << ")";
-    else if ( min::is_indirect_aux ( v ) )
-        return out << "INDIRECT_AUX("
-	           << MUP::indirect_aux_of ( v ) << ")";
-    else if ( min::is_index ( v ) )
-        return out << "INDEX("
-	           << MUP::index_of ( v ) << ")";
-    else if ( min::is_control_code ( v ) )
-    {
-	char buffer[64];
-	sprintf ( buffer, "CONTROL_CODE(0x%llx)",
-		          (min::uns64)
-		          MUP::control_code_of ( v ) );
-	return out << buffer;
-    }
-    else
-    {
-	char buffer[64];
-	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
-		          (min::uns64) v );
-	return out << buffer;
-    }
-}
-
-std::ostream & operator <<
-	( std::ostream & out, const min::pr & prv )
-{
-    return output_operator
-	<std::ostream,
-	 std::ostream & (*)
-	     (std::ostream &,const min::stub *),
-	 & min::pr_format::ostream_pr_stub>
-	    ( out, prv );
-}
-
-static min::packed_vec<char>
-    charbuf_type ( "min::charbuf_type" );
-
-void min::init
-	( charbuf & buf, const char * initial_value )
-{
-    if ( buf == NULL_STUB )
-        buf = charbuf_type.new_stub ( 81 );
-    else min::pop ( buf, buf->length );
-    if ( initial_value != NULL )
-        min::push ( buf, ::strlen ( initial_value ) + 1,
-	                 initial_value );
-    else min::push(buf) = 0;
-}
-
-min::charbuf & operator <<
-	( min::charbuf & out, const min::pr & prv )
-{
-    return output_operator
-	<min::charbuf,
-	 min::charbuf & (*)
-	     (min::charbuf &,const min::stub *),
-	 & min::pr_format::charbuf_pr_stub>
-	    ( out, prv );
 }
