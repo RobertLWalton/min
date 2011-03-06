@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 28 18:33:10 EST 2011
+// Date:	Sun Mar  6 02:54:20 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3425,7 +3425,9 @@ namespace min {
     min::uns32 labhash
 	    ( const min::gen * p, min::uns32 n );
 
-    const min::uns32 lab_hash_factor =
+    const min::uns32 labhash_initial = 1009;
+
+    const min::uns32 labhash_factor =
         // 65599 ** 10
 	  min::uns32 ( 65599 )
 	* min::uns32 ( 65599 )
@@ -3441,7 +3443,7 @@ namespace min {
     inline min::uns32 labhash
 	    ( min::uns32 hash, min::uns32 h )
     {
-        hash = ( hash * lab_hash_factor ) + h;
+        hash = ( hash * labhash_factor ) + h;
 	if ( hash == 0 ) hash = (min::uns32) -1;
 	return hash;
     }

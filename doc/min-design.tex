@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 28, 2011}
+\date{March 6, 2011}
  
 \maketitle
 
@@ -3059,9 +3059,11 @@ directly by the following functions:
 \LABEL{MIN::LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
+\verb|const min::uns32 min::| & \MINKEY{labhash\_initial}\verb| = 1009|
+\LABEL{MIN::LABHASH_INITIAL} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}%
     \verb| ( min::uns32 hash, min::uns32 h )|
-\LABEL{MIN::INCREMENTAL_LABHASH} \\
+\LABEL{MIN::LABHASH_INCREMENTAL} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}%
     \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
@@ -3074,7 +3076,7 @@ the hash of each of its elements using the following
 machine independent algorithm:\label{LABEL-HASH-ALGORITHM}
 
 \begin{indpar}\begin{verbatim}
-hash = 1009
+hash = min::labhash_initial;
 n = length of label
 for i = 1 through n:
     h = hash of i'th element of label
@@ -3091,7 +3093,7 @@ string of fewer than 10 characters is padded to 10 characters
 by prefacing it with NUL characters.  Note that
 numbers are treated as 8 character strings; see
 \pagref{NUMBER-HASH-ALGORITHM}.  The prefix is any 10 character string with
-hash value {\tt 1009}.
+hash value {\tt min::\EOL labhash\_\EOL initial = 1009}.
 
 The two argument \verb|labhash ( hash, h )| function performs the
 incremental step in the computation of a label hash, and can be useful
@@ -3099,7 +3101,7 @@ in some lookup situations.  More specifically, the above algorithm
 is equivalent to:
 
 \begin{indpar}\begin{verbatim}
-hash = 1009
+hash = min::labhash_initial;
 n = length of label
 for i = 1 through n:
     hash = labhash ( hash, hash of i'th element of label )
@@ -10181,14 +10183,16 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LABLEN_OF_GEN} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.8in}
+\begin{TABULAR}{2.0in}
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( const min::stub * s )|
 \LABEL{MIN::LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
+\verb|const min::uns32 min::| & \MINKEY{labhash\_initial}\verb| = 1009|
+\LABEL{MIN::LABHASH_INITIAL} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}%
     \verb| ( min::uns32 hash, min::uns32 h )|
-\LABEL{MIN::INCREMENTAL_LABHASH} \\
+\LABEL{MIN::LABHASH_INCREMENTAL} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
     \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
