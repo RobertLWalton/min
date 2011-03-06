@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 28 02:20:12 EST 2011
+// Date:	Sun Mar  6 03:07:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1432,7 +1432,7 @@ min::gen min::new_str_gen
 min::uns32 min::labhash
 	( const min::gen * p, min::uns32 n )
 {
-    min::uns32 hash = 1009;
+    min::uns32 hash = min::labhash_initial;
     while ( n -- )
     {
         MIN_ASSERT ( min::is_name ( * p ) );
