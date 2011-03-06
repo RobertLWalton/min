@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 02:54:20 EST 2011
+// Date:	Sun Mar  6 03:10:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -41,7 +41,6 @@
 //	Object List Level
 //	Object Attribute Level
 //	Printers
-//	Printing
 //	More Allocator/Collector/Compactor Interface
 //	Initialization
 
@@ -9288,103 +9287,6 @@ namespace min { namespace test {
 std::ostream & operator <<
 	( std::ostream & out,
 	  const min::test::ogen & og );
-
-// Printing
-// --------
-
-namespace min {
-
-    typedef packed_vec_insptr<char> charbuf;
-
-    struct pr_format
-    {
-        const char * number_format;
-	const char * str_prefix;
-	const char * str_postfix;
-	const char * lab_prefix;
-	const char * lab_separator;
-	const char * lab_postfix;
-	const char * special_prefix;
-	const char * special_postfix;
-	std::ostream & ( * ostream_pr_stub )
-	    ( std::ostream & out, const min::stub * s );
-	min::charbuf & ( * charbuf_pr_stub )
-	    ( min::charbuf & out, const min::stub * s );
-    };
-
-    extern pr_format default_pr_format;
-
-    struct pr
-    {
-	pr ( min::gen value,
-	     min::pr_format & format =
-	         min::default_pr_format ) :
-	    value ( value ), format ( format ) {}
-
-        min::gen value;
-	min::pr_format & format;
-    };
-
-    void init ( charbuf & buf,
-                const char * initial_value = NULL );
-}
-
-std::ostream & operator <<
-	( std::ostream & out, const min::pr & prv );
-
-min::charbuf & operator <<
-	( min::charbuf & buf, const min::pr & prv );
-
-inline min::charbuf & operator <<
-	( min::charbuf & buf, const char * s )
-{
-    int length = strlen ( s );
-    min::pop ( buf );
-    min::push ( buf, length + 1, s );
-    return buf;
-}
-
-inline min::charbuf & operator <<
-	( min::charbuf & buf, char c )
-{
-    buf[buf->length-1] = c;
-    min::push(buf) = 0;
-    return buf;
-}
-
-inline min::charbuf & operator <<
-	( min::charbuf & buf, min::int64 i )
-{
-    char buffer[64];
-    sprintf ( buffer, "%lld", i );
-    return buf << buffer;
-}
-
-inline min::charbuf & operator <<
-	( min::charbuf & buf, min::uns64 u )
-{
-    char buffer[64];
-    sprintf ( buffer, "%llu", u );
-    return buf << buffer;
-}
-
-inline min::charbuf & operator <<
-	( min::charbuf & buf, min::int32 i )
-{
-    return buf << (min::int64) i;
-}
-
-inline min::charbuf & operator <<
-	( min::charbuf & buf, min::uns32 u )
-{
-    return buf << (min::uns64) u;
-}
-
-inline std::ostream & operator <<
-	( std::ostream & out, const min::charbuf & buf )
-{
-    return out << & buf[0];
-}
 
 // More Allocator/Collector/Compactor Interface
 // ---- ----------------------------- ---------
