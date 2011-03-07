@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 03:10:01 EST 2011
+// Date:	Mon Mar  7 04:58:20 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1637,6 +1637,13 @@ namespace min {
 	    internal::locatable_ptr_last =
 	        (internal::locatable_ptr *) this;
 	}
+        locatable_ptr ( const min::stub * s )
+	    : T ( s )
+	{
+	    previous = internal::locatable_ptr_last;
+	    internal::locatable_ptr_last =
+	        (internal::locatable_ptr *) this;
+	}
         locatable_ptr ( void )
 	    : T ( min::NULL_STUB )
 	{
@@ -1647,6 +1654,11 @@ namespace min {
 	T operator = ( T value )
 	{
 	    new ( this ) T ( value );
+	    return * this;
+	}
+	T operator = ( const min::stub * s )
+	{
+	    new ( this ) T ( s );
 	    return * this;
 	}
     };
