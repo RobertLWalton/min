@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 6, 2011}
+\date{March 7, 2011}
  
 \maketitle
 
@@ -1864,11 +1864,19 @@ must be locatable.  This may be done with the code:
 \verb|(constructor) min::|
     & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( T value )|
 \LABEL{MIN::LOCATABLE_PTR_OF_VALUE} \\
+\verb|(constructor) min::|
+    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( min::stub * s )|
+\LABEL{MIN::LOCATABLE_PTR_OF_STUB} \\
 \verb|T |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen<T> & location,|\ARGBREAK
       \verb|  T value )|
 \LABEL{MIN::=LOCATABLE_PTR} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen<T> & location,|\ARGBREAK
+      \verb|  const min::stub * s )|
+\LABEL{MIN::=LOCATABLE_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
 Here {\tt T} must be a class whose only data member is of type
@@ -9444,11 +9452,19 @@ These are in \verb|min_parameters.h|.
 \verb|(constructor) min::|
     & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( T value )|
 \LABEL{MIN::LOCATABLE_PTR_OF_VALUE} \\
+\verb|(constructor) min::|
+    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( min::stub * s )|
+\LABEL{MIN::LOCATABLE_PTR_OF_STUB} \\
 \verb|T |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen<T> & location,|\ARGBREAK
       \verb|  T value )|
 \LABEL{MIN::=LOCATABLE_PTR} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen<T> & location,|\ARGBREAK
+      \verb|  const min::stub * s )|
+\LABEL{MIN::=LOCATABLE_PTR_OF_STUB} \\
 \end{TABULAR}
 
 \end{indpar}
