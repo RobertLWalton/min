@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 7, 2011}
+\date{March 9, 2011}
  
 \maketitle
 
@@ -6419,7 +6419,7 @@ access to object elements:
     \verb| ( min::obj_vec_ptr & vp, min::unsptr index )|
 \LABEL{MIN::ATTR_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{aux}%
-    \verb| ( min::obj_vec_ptr & vp, min::unsptr aux_pointer )|
+    \verb| ( min::obj_vec_ptr & vp, min::unsptr aux_ptr )|
 \LABEL{MIN::AUX_OF_OBJ_VEC_PTR} \\
 
 \end{tabular}\end{indpar}
@@ -6501,7 +6501,7 @@ elements.  The additional functions for this type of pointer are:
 \verb|void min::| & \MINKEY{set\_aux}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_updptr & vp,| \\
-      \verb|   min::unsptr aux_pointer,| \\
+      \verb|   min::unsptr aux_ptr,| \\
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_AUX_OF_VEC_UPDPTR} \\
@@ -7025,10 +7025,10 @@ explicitly or implicitly downcast to an
 or {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}, but 
 a {\tt min::\EOL list\_\EOL insptr} may \underline{not} be
 explicitly or implicitly downcast to an
-{\tt min::\EOL updat\-able\_\EOL list\_\EOL pointer}
-or {\tt min::\EOL list\_\EOL pointer}.
+{\tt min::\EOL list\_\EOL updptr}
+or {\tt min::\EOL list\_\EOL ptr}.
 
-The functions for using a read-only {\tt min::\EOL list\_\EOL pointer} are:
+The functions for using a read-only {\tt min::\EOL list\_\EOL ptr} are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -7412,7 +7412,8 @@ then {\tt lp2} will be invalid until
 has been executed.
 
 Inserting and removing elements from a list requires yet another
-kind of list pointer, a {\tt min::insert\-able\_\EOL list\_\EOL pointer}.
+kind of list pointer, an insertable list pointer,
+{\tt min::\EOL list\_\EOL insptr}.
 The functions defined for this are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -8270,7 +8271,7 @@ Otherwise the value multiset pointed at is the set of values
 associated with the reverse attribute name stored in the pointer.
 
 There are three kinds of attribute pointers.
-A read-only {\tt min::\EOL attr\_\EOL pointer}
+A read-only {\tt min::\EOL attr\_\EOL ptr}
 permits read-only access to attribute values and flags.
 An updatable {\tt min::\EOL attr\_\EOL updptr}
 permits read-write access to attribute values, and read-only access
@@ -8279,13 +8280,13 @@ An insertable {\tt min::\EOL attr\_\EOL insptr}
 permits read-write access to attribute values and flags
 and also permits values to be added or removed from attributes.
 
-The functions for using a read-only {\tt min::\EOL attr\_\EOL pointer}
+The functions for using a read-only {\tt min::\EOL attr\_\EOL ptr}
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{attr\_ptr}\verb| ap ( min::obj_vec_ptr & vp )|
-\LABEL{MUP::ATTR_PTR_OF_OBJ_VEC_PTR} \\
+(constructor)~\verb|min::|
+	& \MINKEY{attr\_ptr}\verb| ap ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::ATTR_PTR_OF_OBJ_VEC_PTR} \\
 \verb|void min::|
 	& \MINKEY{locate}%
 	  \begin{tabular}[t]{@{}l@{}}
@@ -8567,7 +8568,7 @@ The {\tt min::\EOL attr\_\EOL info} structs are stored in a packed vector
 returned by the {\tt min::\EOL get\_\EOL attrs} function
 as a \verb|min::gen| value.  This can be accessed by a read-only
 packed vector pointer (\pagref{MIN::PACKED_VEC_PTR_OF_GEN})
-of {\tt min::\EOL attr\_\EOL info\_\EOL pointer} type.
+of {\tt min::\EOL attr\_\EOL info\_\EOL ptr} type.
 Sample usage is:
 \begin{indpar}\begin{verbatim}
 min::gen airv = min::get_attrs ( ... );
@@ -8610,10 +8611,10 @@ The functions for using a
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{attr\_updptr} \verb|ap|\ARGBREAK
+(constructor)~\verb|min::|
+	& \MINKEY{attr\_updptr} \verb|ap|\ARGBREAK
 	  \verb| ( min::obj_vec_updptr & vp )|
-\LABEL{MUP::ATTR_UPDPTR_OF_VEC_UPDPTR} \\
+\LABEL{MIN::ATTR_UPDPTR_OF_VEC_UPDPTR} \\
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::attr_updptr & ap,|\ARGBREAK
@@ -8704,10 +8705,10 @@ The functions for using a
 are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-(constructor)~\verb|MUP::|
-	& \MUPKEY{attr\_insptr} \verb|ap|\ARGBREAK
+(constructor)~\verb|min::|
+	& \MINKEY{attr\_insptr} \verb|ap|\ARGBREAK
 	  \verb| ( min::obj_vec_insptr & vp )|
-\LABEL{MUP::ATTR_INSPTR_OF_VEC_INSPTR} \\
+\LABEL{MIN::ATTR_INSPTR_OF_VEC_INSPTR} \\
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::attr_insptr & ap,|\ARGBREAK
@@ -8922,7 +8923,8 @@ values must be pointers to objects.
 If the attribute pointer is pointing at a multiset of values
 associated with a reverse attribute name,
 the values represent double arrows.
-In this case, let the object being pointed at by the attribute pointer be $O_1$,
+In this case, let the object being pointed at by the attribute pointer
+be $O_1$,
 the pointer attribute name be $N$, and the pointer reverse
 attribute name be $R$.
 If a double arrow value pointing at object $O_2$ is set or removed, the value
@@ -10183,7 +10185,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::ATTR_OF_OBJ_VEC_PTR} \\
 \verb|min::gen | & \MINKEY{aux}\ARGBREAK
     \verb| ( min::obj_vec_ptr & vp,|\ARGBREAK
-    \verb|   min::unsptr aux_pointer )|
+    \verb|   min::unsptr aux_ptr )|
 \LABEL{MIN::AUX_OF_OBJ_VEC_PTR} \\
 \end{TABULAR}
 
@@ -10244,7 +10246,7 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SET_ATTR_OF_VEC_UPDPTR} \\
 \verb|void min::| & \MINKEY{set\_aux}\ARGBREAK
       \verb| ( min::obj_vec_updptr & vp,|\ARGBREAK
-      \verb|   min::unsptr aux_pointer,|\ARGBREAK
+      \verb|   min::unsptr aux_ptr,|\ARGBREAK
       \verb|   min::gen value )|
 \LABEL{MIN::SET_AUX_OF_VEC_UPDPTR} \\
 \end{TABULAR}
