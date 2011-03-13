@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  9 01:01:27 EST 2010
+// Date:	Sun Mar 13 14:23:22 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -121,7 +121,7 @@ static min::gen create_object ( min::unsptr m )
     min::obj_vec_insptr ep ( obj );
 
     for ( min::unsptr j = 0; j < size; ++ j )
-	min::attr_push ( ep, min::new_num_gen ( j ) );
+	min::attr_push(ep) = min::new_num_gen ( j );
 
     min_assert_print = print_save;
 
@@ -142,7 +142,7 @@ static min::gen create_vec_of_objects
     min::obj_vec_insptr vp ( obj );
 
     for ( min::unsptr i = 0; i < n; ++ i )
-        min::attr_push ( vp, create_object ( m ) );
+        min::attr_push(vp) = create_object ( m );
 
     min_assert_print = print_save;
 

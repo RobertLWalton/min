@@ -1842,11 +1842,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == unused_size - 4 true.
 min_interface_test.cc:XXXX desire failure:
-    min::attr_pop ( vp, outv[0] );
+    outv[0] = min::attr_pop ( vp );
 ../include/min.h:XXXX assert:
     vp.attr_offset < vp.unused_offset false.
 min_interface_test.cc:XXXX desire failure:
-    min::attr_pop ( vp, outv + 1, 3 );
+    min::attr_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX assert:
     vp.attr_offset + n <= vp.unused_offset false.
 ../include/min.h:XXXX assert:
@@ -1870,11 +1870,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == unused_size - 4 true.
 min_interface_test.cc:XXXX desire failure:
-    min::aux_pop ( vp, outv[0] );
+    outv[0] = min::aux_pop ( vp );
 ../include/min.h:XXXX assert:
     vp.aux_offset < vp.total_size false.
 min_interface_test.cc:XXXX desire failure:
-    min::aux_pop ( vp, outv + 1, 3 );
+    min::aux_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX assert:
     vp.aux_offset + n <= vp.total_size false.
 ../include/min.h:XXXX assert:
@@ -1888,11 +1888,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     cua == caa true.
 min_interface_test.cc:XXXX desire failure:
-    min::attr_push ( vp, num3 );
+    min::attr_push(vp) = num3
 ../include/min.h:XXXX assert:
     vp.unused_offset < vp.aux_offset false.
 min_interface_test.cc:XXXX desire failure:
-    min::aux_push ( vp, num3 );
+    min::aux_push(vp) = num3;
 ../include/min.h:XXXX assert:
     vp.unused_offset < vp.aux_offset false.
 ../include/min.h:XXXX assert:
@@ -2076,11 +2076,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == unused_size - 4 true.
 min_interface_test.cc:XXXX desire failure:
-    min::attr_pop ( vp, outv[0] );
+    outv[0] = min::attr_pop ( vp );
 ../include/min.h:XXXX assert:
     vp.attr_offset < vp.unused_offset false.
 min_interface_test.cc:XXXX desire failure:
-    min::attr_pop ( vp, outv + 1, 3 );
+    min::attr_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX assert:
     vp.attr_offset + n <= vp.unused_offset false.
 ../include/min.h:XXXX assert:
@@ -2104,11 +2104,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == unused_size - 4 true.
 min_interface_test.cc:XXXX desire failure:
-    min::aux_pop ( vp, outv[0] );
+    outv[0] = min::aux_pop ( vp );
 ../include/min.h:XXXX assert:
     vp.aux_offset < vp.total_size false.
 min_interface_test.cc:XXXX desire failure:
-    min::aux_pop ( vp, outv + 1, 3 );
+    min::aux_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX assert:
     vp.aux_offset + n <= vp.total_size false.
 ../include/min.h:XXXX assert:
@@ -2122,11 +2122,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     cua == caa true.
 min_interface_test.cc:XXXX desire failure:
-    min::attr_push ( vp, num3 );
+    min::attr_push(vp) = num3
 ../include/min.h:XXXX assert:
     vp.unused_offset < vp.aux_offset false.
 min_interface_test.cc:XXXX desire failure:
-    min::aux_push ( vp, num3 );
+    min::aux_push(vp) = num3;
 ../include/min.h:XXXX assert:
     vp.unused_offset < vp.aux_offset false.
 ../include/min.h:XXXX assert:
