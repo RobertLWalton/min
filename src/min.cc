@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar  6 03:10:41 EST 2011
+// Date:	Sun Mar 13 13:21:12 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1640,7 +1640,8 @@ void min::init_output ( min::file & file )
 	::file_line_index_type.initial_max_length = 128;
 
         file = ::file_type.new_stub();
-	file->buffer = ::file_buffer_type.new_stub();
+	locatable ( file, file->buffer ) =
+	    ::file_buffer_type.new_stub();
 	file->file_name = min::MISSING;
     }
     else
@@ -1685,7 +1686,7 @@ inline void set_spool_lines
     file->spool_lines = spool_lines;
     if (    spool_lines != 0
          && file->line_index == min::NULL_STUB )
-        file->line_index =
+        locatable ( file, file->line_index ) =
 	    ::file_line_index_type.new_stub();
 }
 
@@ -1702,14 +1703,14 @@ void min::init_file_name
 	  min::gen file_name )
 {
     init_output ( file );
-    file->file_name = file_name;
+    locatable ( file, file->file_name ) = file_name;
 }
 
 void min::init_line_index ( min::file & file )
 {
     init_output ( file );
     if ( file->line_index == NULL_STUB )
-        file->line_index =
+        locatable ( file, file->line_index ) =
 	    ::file_line_index_type.new_stub();
 }
 
@@ -1726,7 +1727,7 @@ void min::init_output_file
 	  min::file ofile )
 {
     init_output ( file );
-    file->ofile = ofile;
+    locatable ( file, file->ofile ) = ofile;
 }
 
 void min::init_output_printer
@@ -1734,7 +1735,7 @@ void min::init_output_printer
 	  min::printer printer )
 {
     init_output ( file );
-    file->printer = printer;
+    locatable ( file, file->printer ) = printer;
 }
 
 void min::init_input_stream
@@ -1758,7 +1759,7 @@ void min::init_input_file
 {
     init_input ( file );
     file->istream = NULL;
-    file->ifile = ifile;
+    locatable ( file, file->ifile ) = ifile;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 }
@@ -1772,7 +1773,7 @@ bool min::init_input_named_file
     init_input ( file );
     file->istream = NULL;
     file->ifile = NULL_STUB;
-    file->file_name = file_name;
+    locatable ( file, file->file_name ) = file_name;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 

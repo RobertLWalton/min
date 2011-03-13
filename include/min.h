@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  7 04:58:20 EST 2011
+// Date:	Sun Mar 13 13:15:17 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1889,7 +1889,42 @@ namespace min { namespace unprotected {
 #	endif
     }
 
+    template < typename T >
+    class locatable
+    {
+    private:
+    	const min::stub * s;
+	T * location;
+
+    public:
+        locatable ( const min::stub * s, T & location )
+	    : s ( s ), location ( & location ) {}
+
+	void operator = ( T value ) const
+	{
+	    * location = value;
+	    unprotected::acc_write_update ( s, value );
+	}
+
+	operator T ( void ) const
+	{
+	    return * location;
+	}
+    };
+
 } }
+
+namespace min {
+
+    template < typename T >
+    inline min::unprotected::locatable<T> locatable
+        ( const min::stub * s, T & location )
+    {
+        return unprotected::locatable<T>
+		    ( s, location );
+    }
+
+}
 
 namespace min { namespace internal {
 
@@ -5111,31 +5146,41 @@ namespace min {
 	    ( min::obj_vec_insptr & vp );
     }
 
+    unprotected::locatable<min::gen> attr_push
+	( min::obj_vec_insptr & vp );
     void attr_push
 	( min::obj_vec_insptr & vp,
-	  min::gen v );
+	  min::unsptr n );
     void attr_push
 	( min::obj_vec_insptr & vp,
-	  const min::gen * p, min::unsptr n );
+	  min::unsptr n, const min::gen * p );
+    unprotected::locatable<min::gen> aux_push
+	( min::obj_vec_insptr & vp );
     void aux_push
 	( min::obj_vec_insptr & vp,
-	  min::gen v );
+	  min::unsptr n );
     void aux_push
 	( min::obj_vec_insptr & vp,
-	  const min::gen * p, min::unsptr n );
+	  min::unsptr n, const min::gen * p );
 
+    min::gen attr_pop
+	( min::obj_vec_insptr & vp );
     void attr_pop
 	( min::obj_vec_insptr & vp,
-	  min::gen & v );
+	  min::unsptr n );
     void attr_pop
 	( min::obj_vec_insptr & vp,
-	  min::gen * p, min::unsptr n );
+	  min::unsptr n,
+	  min::gen * p );
+    min::gen aux_pop
+	( min::obj_vec_insptr & vp );
     void aux_pop
 	( min::obj_vec_insptr & vp,
-	  min::gen & v );
+	  min::unsptr n );
     void aux_pop
 	( min::obj_vec_insptr & vp,
-	  min::gen * p, min::unsptr n );
+	  min::unsptr n,
+	  min::gen * p );
 
     bool resize
 	( min::obj_vec_insptr & vp,
@@ -5189,6 +5234,15 @@ namespace min {
 	    this->~obj_vec_ptr();
 	    new ( this ) obj_vec_ptr ( v );
 	    return * this;
+	}
+
+	min::gen operator [] ( min::uns32 index )
+	{
+	    index += attr_offset;
+	    MIN_ASSERT ( index < unused_offset );
+	    return
+		( (min::gen *) unprotected::ptr_of (s) )
+		[index];
 	}
 
         // Friends
@@ -5255,31 +5309,42 @@ namespace min {
 	friend min::unsptr & unprotected::aux_offset_of
 	    ( min::obj_vec_insptr & vp );
 
+	friend unprotected::locatable<min::gen> attr_push
+	    ( min::obj_vec_insptr & vp );
 	friend void attr_push
 	    ( min::obj_vec_insptr & vp,
-	      min::gen v );
+	      min::unsptr n );
 	friend void attr_push
 	    ( min::obj_vec_insptr & vp,
-	      const min::gen * p, min::unsptr n );
+	      min::unsptr n, const min::gen * p );
+	friend unprotected::locatable<min::gen> aux_push
+	    ( min::obj_vec_insptr & vp );
 	friend void aux_push
 	    ( min::obj_vec_insptr & vp,
-	      min::gen v );
+	      min::unsptr n );
 	friend void aux_push
 	    ( min::obj_vec_insptr & vp,
-	      const min::gen * p, min::unsptr n );
+	      min::unsptr n, const min::gen * p );
 
+	friend min::gen attr_pop
+	    ( min::obj_vec_insptr & vp );
 	friend void attr_pop
 	    ( min::obj_vec_insptr & vp,
-	      min::gen & v );
+	      min::unsptr n );
 	friend void attr_pop
 	    ( min::obj_vec_insptr & vp,
-	      min::gen * p, min::unsptr n );
+	      min::unsptr n,
+	      min::gen * p );
+
+	friend min::gen aux_pop
+	    ( min::obj_vec_insptr & vp );
 	friend void aux_pop
 	    ( min::obj_vec_insptr & vp,
-	      min::gen & v );
+	      min::unsptr n );
 	friend void aux_pop
 	    ( min::obj_vec_insptr & vp,
-	      min::gen * p, min::unsptr n );
+	      min::unsptr n,
+	      min::gen * p );
 
 	friend bool resize
 	    ( min::obj_vec_insptr & vp,
@@ -5473,6 +5538,16 @@ namespace min {
 	    return * this;
 	}
 
+	unprotected::locatable<min::gen> operator []
+		( min::uns32 index )
+	{
+	    index += attr_offset;
+	    MIN_ASSERT ( index < unused_offset );
+	    return unprotected::locatable<min::gen>
+	        ( s, ( (min::gen *) unprotected::ptr_of (s) )
+		     [index] );
+	}
+
     protected:
 
 	obj_vec_updptr
@@ -5518,6 +5593,16 @@ namespace min {
 	    this->~obj_vec_insptr();
 	    new ( this ) obj_vec_insptr ( v );
 	    return * this;
+	}
+
+	unprotected::locatable<min::gen> operator []
+		( min::uns32 index )
+	{
+	    index += attr_offset;
+	    MIN_ASSERT ( index < unused_offset );
+	    return unprotected::locatable<min::gen>
+	        ( s, ( (min::gen *) unprotected::ptr_of (s) )
+		     [index] );
 	}
     };
 
@@ -5683,41 +5768,66 @@ namespace min {
         return vp.aux_offset;
     }
 
-    inline void attr_push
-	( min::obj_vec_insptr & vp,
-	  min::gen value )
+    inline unprotected::locatable<min::gen> attr_push
+	( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	unprotected::base(vp)[vp.unused_offset ++] =
-	    value;
-	unprotected::acc_write_update ( vp.s, value );
+	return unprotected::locatable<min::gen>
+	    ( vp.s, unprotected::base(vp)
+	                [vp.unused_offset ++] );
     }
 
     inline void attr_push
 	( min::obj_vec_insptr & vp,
-	  const min::gen * p, min::unsptr n )
+	  min::unsptr n )
     {
 	MIN_ASSERT
 	    ( vp.unused_offset + n <= vp.aux_offset );
+
+	min::gen * p = unprotected::base(vp)
+		     + vp.unused_offset;
+	vp.unused_offset += n;
+	while ( n -- ) * p ++ = min::MISSING;
+    }
+
+    inline void attr_push
+	( min::obj_vec_insptr & vp,
+	  min::unsptr n,
+	  const min::gen * p )
+    {
+	MIN_ASSERT
+	    ( vp.unused_offset + n <= vp.aux_offset );
+
 	memcpy (   unprotected::base(vp)
-	         + vp.unused_offset,
-	         p, sizeof ( min::gen ) * n );
+		 + vp.unused_offset,
+		 p, sizeof ( min::gen ) * n );
 	vp.unused_offset += n;
 	unprotected::acc_write_update ( vp.s, p, n );
     }
 
-    inline void aux_push
-	( min::obj_vec_insptr & vp,
-	  min::gen value )
+    inline unprotected::locatable<min::gen> aux_push
+	( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	unprotected::base(vp)[-- vp.aux_offset] = value;
-	unprotected::acc_write_update ( vp.s, value );
+	return unprotected::locatable<min::gen>
+	    ( vp.s, unprotected::base(vp)
+	                [-- vp.aux_offset] );
+    }
+
+    inline void aux_push
+	( min::obj_vec_insptr & vp, min::unsptr n )
+    {
+	MIN_ASSERT
+	    ( vp.unused_offset + n <= vp.aux_offset );
+	min::gen * p = unprotected::base(vp)
+		     + vp.aux_offset;
+	vp.aux_offset -= n;
+	while ( n -- ) * -- p = min::MISSING;
     }
 
     inline void aux_push
 	( min::obj_vec_insptr & vp,
-	  const min::gen * p, min::unsptr n )
+	  min::unsptr n, const min::gen * p )
     {
 	MIN_ASSERT
 	    ( vp.unused_offset + n <= vp.aux_offset );
@@ -5727,18 +5837,28 @@ namespace min {
 	unprotected::acc_write_update ( vp.s, p, n );
     }
 
-    inline void attr_pop
-	( min::obj_vec_insptr & vp,
-	  min::gen & v )
+    inline min::gen attr_pop
+	( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT
 	    ( vp.attr_offset < vp.unused_offset );
-	v = unprotected::base(vp)[-- vp.unused_offset];
+	return unprotected::base(vp)
+		   [-- vp.unused_offset];
     }
 
     inline void attr_pop
 	( min::obj_vec_insptr & vp,
-	  min::gen * p, min::unsptr n )
+	  min::unsptr n )
+    {
+	MIN_ASSERT
+	    ( vp.attr_offset + n <= vp.unused_offset );
+	vp.unused_offset -= n;
+    }
+
+    inline void attr_pop
+	( min::obj_vec_insptr & vp,
+	  min::unsptr n,
+	  min::gen * p )
     {
 	MIN_ASSERT
 	    ( vp.attr_offset + n <= vp.unused_offset );
@@ -5749,17 +5869,26 @@ namespace min {
 	      sizeof ( min::gen ) * n );
     }
 
-    inline void aux_pop
-	( min::obj_vec_insptr & vp,
-	  min::gen & v )
+    inline min::gen aux_pop
+	( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT ( vp.aux_offset < vp.total_size );
-	v = unprotected::base(vp)[vp.aux_offset ++];
+	return unprotected::base(vp)[vp.aux_offset ++];
     }
 
     inline void aux_pop
 	( min::obj_vec_insptr & vp,
-	  min::gen * p, min::unsptr n )
+	  min::unsptr n )
+    {
+	MIN_ASSERT
+	    ( vp.aux_offset + n <= vp.total_size );
+	vp.aux_offset += n;
+    }
+
+    inline void aux_pop
+	( min::obj_vec_insptr & vp,
+	  min::unsptr n,
+	  min::gen * p )
     {
 	MIN_ASSERT
 	    ( vp.aux_offset + n <= vp.total_size );

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 28 18:36:04 EST 2011
+// Date:	Sun Mar 13 14:20:23 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2790,7 +2790,7 @@ void test_object_vector_level
 	MIN_ASSERT
 	    ( base[av+0] == num0 );
 	MIN_ASSERT ( cua == av + 0 );
-	min::attr_push ( vp, num1 );
+	min::attr_push(vp) = num1;
 	MIN_ASSERT ( base[av] == num1 );
 	MIN_ASSERT ( attr ( vp, 0 ) == num1 );
 	MIN_ASSERT
@@ -2802,7 +2802,7 @@ void test_object_vector_level
 	MIN_ASSERT ( base[av+1] == num0 );
 	MIN_ASSERT ( base[av+2] == num0 );
 	MIN_ASSERT ( base[av+3] == num0 );
-	min::attr_push ( vp, numv, 3 );
+	min::attr_push ( vp, 3, numv );
 	vp = min::NULL_STUB;
 	vp = v;
 	MIN_ASSERT ( base[av+1] == num1 );
@@ -2822,7 +2822,7 @@ void test_object_vector_level
 	base[aa-1] = num0;
 	MIN_ASSERT ( base[aa-1] == num0 );
 	MIN_ASSERT ( caa == aa );
-	min::aux_push ( vp, num1 );
+	min::aux_push(vp) = num1;
 	MIN_ASSERT ( base[aa-1] == num1 );
 	MIN_ASSERT
 	    (    min::aux ( vp, total_size-aa+1 )
@@ -2836,7 +2836,7 @@ void test_object_vector_level
 	MIN_ASSERT ( base[aa-2] == num0 );
 	MIN_ASSERT ( base[aa-3] == num0 );
 	MIN_ASSERT ( base[aa-4] == num0 );
-	min::aux_push ( vp, numv, 3 );
+	min::aux_push ( vp, 3, numv );
 	MIN_ASSERT ( base[aa-4] == num1 );
 	MIN_ASSERT ( base[aa-3] == num2 );
 	MIN_ASSERT ( base[aa-2] == num3 );
@@ -2850,8 +2850,8 @@ void test_object_vector_level
 	    (    min::unused_size_of ( vp )
 	      == unused_size - 8 );
 
-	min::attr_pop ( vp, outv + 1, 3 );
-	min::attr_pop ( vp, outv[0] );
+	min::attr_pop ( vp, 3, outv + 1 );
+	outv[0] = min::attr_pop ( vp );
 	MIN_ASSERT ( outv[0] == num1 );
 	MIN_ASSERT ( outv[1] == num1 );
 	MIN_ASSERT ( outv[2] == num2 );
@@ -2863,15 +2863,15 @@ void test_object_vector_level
 	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 	desire_failure (
-	    min::attr_pop ( vp, outv[0] );
+	    outv[0] = min::attr_pop ( vp );
 	);
 	desire_failure (
-	    min::attr_pop ( vp, outv + 1, 3 );
+	    min::attr_pop ( vp, 3, outv + 1 );
 	);
-	min::attr_push ( vp, fillv, 4 );
+	min::attr_push ( vp, 4, fillv );
 
-	min::aux_pop ( vp, outv + 1, 3 );
-	min::aux_pop ( vp, outv[0] );
+	min::aux_pop ( vp, 3, outv + 1 );
+	outv[0] = min::aux_pop ( vp );
 	MIN_ASSERT ( outv[0] == num1 );
 	MIN_ASSERT ( outv[1] == num1 );
 	MIN_ASSERT ( outv[2] == num2 );
@@ -2884,26 +2884,27 @@ void test_object_vector_level
 	    (    min::unused_size_of ( vp )
 	      == unused_size - 4 );
 	desire_failure (
-	    min::aux_pop ( vp, outv[0] );
+	    outv[0] = min::aux_pop ( vp );
 	);
 	desire_failure (
-	    min::aux_pop ( vp, outv + 1, 3 );
+	    min::aux_pop ( vp, 3, outv + 1 );
 	);
-	min::aux_push ( vp, fillv, 4 );
+	min::aux_push ( vp, 4, fillv );
 
 	min::attr_push
-	    ( vp, fillv, half_unused_size - 4 );
+	    ( vp, half_unused_size - 4, fillv );
 	min::aux_push
-	    ( vp, fillv,
-	      unused_size - half_unused_size - 4 );
+	    ( vp,
+	      unused_size - half_unused_size - 4,
+	      fillv );
 	MIN_ASSERT
 	    ( min::unused_size_of ( vp ) == 0 );
 	MIN_ASSERT ( cua == caa );
 	desire_failure (
-	    min::attr_push ( vp, num3 );
+	    min::attr_push(vp) = num3
 	);
 	desire_failure (
-	    min::aux_push ( vp, num3 );
+	    min::aux_push(vp) = num3;
 	);
 
 	min::unsptr attr_offset =
@@ -3006,14 +3007,14 @@ static void insert
     {
 	cout << "EMPTYING UNUSED AREA" << endl;
         while ( min::unused_size_of ( vp ) > 0 )
-	    min::attr_push ( vp, numtest );
+	    min::attr_push(vp) = numtest;
     }
     else
     {
 	cout << "ADDING 20 ELEMENTS TO UNUSED AREA"
 	     << endl;
         while ( min::unused_size_of ( vp ) < 20 )
-	    min::attr_pop ( vp, out );
+	    out = min::attr_pop ( vp );
     }
     min_assert_print = saved_min_assert_print;
 
@@ -3069,13 +3070,13 @@ void test_object_list_level
     // Empty aux area.
     //
     while ( min::aux_size_of ( vp ) > 0 )
-        min::aux_pop ( vp, out[0] );
+        out[0] = min::aux_pop ( vp );
 
     // Fill attr vector with numbers, consuming all
     // of unused area.
     //
     while ( min::unused_size_of ( vp ) > 0 )
-	min::attr_push ( vp, num100 );
+	min::attr_push(vp) = num100;
 
     min_assert_print = saved_min_assert_print;
 
@@ -3792,7 +3793,7 @@ void test_object_attribute_level ( void )
 
     min_assert_print = false;
     for ( unsigned i = 0; i < 50; ++ i )
-        min::attr_push ( vp, min::LIST_END );
+        min::attr_push(vp) = min::LIST_END;
     min_assert_print = true;
     MIN_ASSERT ( min::attr_size_of ( vp ) == 50 );
     MIN_ASSERT
