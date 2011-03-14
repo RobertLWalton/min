@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 03:01:48 EDT 2011
+// Date:	Mon Mar 14 03:42:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1632,7 +1632,8 @@ static min::packed_vec<char> file_buffer_type
 static min::packed_vec<min::uns32> file_line_index_type
     ( "min::file_line_index_type" );
 
-void min::init_output ( min::file & file )
+void min::init_output
+	( MUP::locatable<min::file> file )
 {
     if ( file == NULL_STUB )
     {
@@ -1640,7 +1641,7 @@ void min::init_output ( min::file & file )
 	::file_line_index_type.initial_max_length = 128;
 
         file = ::file_type.new_stub();
-	locatable ( file, file->buffer ) =
+	min::locatable ( file, file->buffer ) =
 	    ::file_buffer_type.new_stub();
 	file->file_name = min::MISSING;
     }
@@ -1659,7 +1660,8 @@ void min::init_output ( min::file & file )
     file->next_line_offset = 0;
 }
 
-void min::init_input ( min::file & file )
+void min::init_input
+	( MUP::locatable<min::file> file )
 {
     init_output ( file );
     min::pop ( file->buffer,
@@ -1672,7 +1674,7 @@ void min::init_input ( min::file & file )
 }
 
 void min::init_print_flags
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  min::uns32 print_flags )
 {
     init_output ( file );
@@ -1680,18 +1682,18 @@ void min::init_print_flags
 }
 
 inline void set_spool_lines
-	( min::file & file,
+	( min::file file,
 	  min::uns32 spool_lines )
 {
     file->spool_lines = spool_lines;
     if (    spool_lines != 0
          && file->line_index == min::NULL_STUB )
-        locatable ( file, file->line_index ) =
+        min::locatable ( file, file->line_index ) =
 	    ::file_line_index_type.new_stub();
 }
 
 void min::init_spool_lines
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  min::uns32 spool_lines )
 {
     init_output ( file );
@@ -1699,23 +1701,25 @@ void min::init_spool_lines
 }
 
 void min::init_file_name
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  min::gen file_name )
 {
     init_output ( file );
-    locatable ( file, file->file_name ) = file_name;
+    min::locatable ( file, file->file_name ) =
+        file_name;
 }
 
-void min::init_line_index ( min::file & file )
+void min::init_line_index
+	( MUP::locatable<min::file> file )
 {
     init_output ( file );
     if ( file->line_index == NULL_STUB )
-        locatable ( file, file->line_index ) =
+        min::locatable ( file, file->line_index ) =
 	    ::file_line_index_type.new_stub();
 }
 
 void min::init_output_stream
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  std::ostream & ostream )
 {
     init_output ( file );
@@ -1723,23 +1727,23 @@ void min::init_output_stream
 }
 
 void min::init_output_file
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  min::file ofile )
 {
     init_output ( file );
-    locatable ( file, file->ofile ) = ofile;
+    min::locatable ( file, file->ofile ) = ofile;
 }
 
 void min::init_output_printer
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  min::printer printer )
 {
     init_output ( file );
-    locatable ( file, file->printer ) = printer;
+    min::locatable ( file, file->printer ) = printer;
 }
 
 void min::init_input_stream
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  std::istream & istream,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -1752,20 +1756,20 @@ void min::init_input_stream
 }
 
 void min::init_input_file
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  min::file ifile,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {
     init_input ( file );
     file->istream = NULL;
-    locatable ( file, file->ifile ) = ifile;
+    min::locatable ( file, file->ifile ) = ifile;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 }
 
 bool min::init_input_named_file
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  min::gen file_name,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -1773,7 +1777,8 @@ bool min::init_input_named_file
     init_input ( file );
     file->istream = NULL;
     file->ifile = NULL_STUB;
-    locatable ( file, file->file_name ) = file_name;
+    min::locatable ( file, file->file_name ) =
+        file_name;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 
@@ -1876,7 +1881,7 @@ bool min::init_input_named_file
 }
 
 void min::init_input_string
-	( min::file & file,
+	( MUP::locatable<min::file> file,
 	  const char * data,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -7312,8 +7317,9 @@ static min::packed_struct<min::printer_struct>
                    NULL, ::printer_stub_disp );
 
 static void init_utf8graphic ( void );
-min::printer min::init ( min::printer & printer,
-                         min::file file )
+min::printer min::init
+	( MUP::locatable<min::printer> printer,
+	  min::file file )
 {
     if ( printer == NULL_STUB )
     {
@@ -7328,9 +7334,12 @@ min::printer min::init ( min::printer & printer,
     }
 
     if ( printer->file != NULL_STUB )
-        locatable ( printer, printer->file ) = file;
+        min::locatable ( printer, printer->file ) =
+	    file;
     else
-	init_input ( printer->file );
+	init_input
+	    ( min::locatable ( printer,
+	                       printer->file ) );
 
     printer->column = 0;
     printer->break_offset = 0;
@@ -7343,12 +7352,13 @@ min::printer min::init ( min::printer & printer,
 }
 
 min::printer min::init_output_stream
-	( min::printer & printer,
+	( MUP::locatable<min::printer> printer,
 	  std::ostream & ostream )
 {
     init ( printer );
     init_output_stream
-	( printer->file, ostream );
+	( min::locatable ( printer, printer->file ),
+	  ostream );
     return printer << min::eol_flush;
 }
 
