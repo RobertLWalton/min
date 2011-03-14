@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 08:46:46 EDT 2011
+// Date:	Mon Mar 14 13:19:24 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3788,6 +3788,12 @@ namespace min {
 
     public:
 
+	packed_struct_ptr
+	        ( const min::packed_struct_ptr<S>
+		      & psp )
+	{
+	    this->s = psp.s;
+	}
 	packed_struct_ptr ( min::gen v )
 	    : internal::packed_struct_ptr_base<S>
 		( v ) {}
@@ -3851,6 +3857,12 @@ namespace min {
 
     public:
 
+	packed_struct_updptr
+	        ( const min::packed_struct_updptr<S>
+		        & psup )
+	{
+	    this->s = psup.s;
+	}
 	packed_struct_updptr
 		( min::gen v )
 	    : internal::packed_struct_ptr_base<S>
@@ -4214,6 +4226,11 @@ namespace min {
 
     public:
 
+	packed_vec_ptr
+	        ( const min::packed_vec_ptr<E,H> & pvp )
+	{
+	    this->s = pvp.s;
+	}
 	packed_vec_ptr ( min::gen v )
 	    : internal::packed_vec_ptr_base<E,H>
 	    ( v ) {}
@@ -4284,6 +4301,12 @@ namespace min {
 
     public:
 
+	packed_vec_updptr
+	        ( const min::packed_vec_updptr<E,H>
+		      & pvup )
+	{
+	    this->s = pvup.s;
+	}
 	packed_vec_updptr ( min::gen v )
 	    : internal::packed_vec_ptr_base<E,H>
 	    ( v ) {}
@@ -4356,6 +4379,12 @@ namespace min {
 
     public:
 
+	packed_vec_insptr
+	        ( const min::packed_vec_insptr<E,H>
+		      & pvip )
+	{
+	    this->s = pvip.s;
+	}
 	packed_vec_insptr ( min::gen v )
 	    : internal::packed_vec_ptr_base<E,H>
 	    ( v ) {}
