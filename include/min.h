@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 03:41:56 EDT 2011
+// Date:	Mon Mar 14 08:46:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1784,7 +1784,7 @@ namespace min { namespace unprotected {
     }
 
     template < typename T >
-    class locatable
+    class locatable_var
     {
 
     private:
@@ -1794,7 +1794,8 @@ namespace min { namespace unprotected {
 
     public:
 
-        locatable ( const min::stub * s, T & location )
+        locatable_var ( const min::stub * s,
+	                T & location )
 	    : s ( s ), location ( & location ) {}
 
 	void operator = ( T value ) const
@@ -1826,19 +1827,19 @@ namespace min { namespace unprotected {
 namespace min {
 
     template < typename T >
-    inline min::unprotected::locatable<T> locatable
+    inline min::unprotected::locatable_var<T> locatable
         ( const min::stub * s, T & location )
     {
-        return unprotected::locatable<T>
+        return unprotected::locatable_var<T>
 		    ( s, location );
     }
 
     template < typename T, typename S >
-    inline min::unprotected::locatable<S> locatable
-        ( const min::unprotected::locatable<T> & s,
+    inline min::unprotected::locatable_var<S> locatable
+        ( const min::unprotected::locatable_var<T> & s,
 	  S & location )
     {
-        return unprotected::locatable<S>
+        return unprotected::locatable_var<S>
 		    ( s, location );
     }
 
@@ -1899,10 +1900,12 @@ namespace min {
 	    return this->value;
 	}
 
-	operator min::unprotected::locatable<min::gen>
+	operator min::unprotected
+	            ::locatable_var<min::gen>
 		( void )
 	{
-	    return min::unprotected::locatable<min::gen>
+	    return min::unprotected
+	              ::locatable_var<min::gen>
 	        ( NULL, this->value );
 	}
     };
@@ -1948,10 +1951,10 @@ namespace min {
 	    return * this;
 	}
 
-	operator min::unprotected::locatable<T>
+	operator min::unprotected::locatable_var<T>
 		( void )
 	{
-	    return min::unprotected::locatable<T>
+	    return min::unprotected::locatable_var<T>
 	        ( NULL, * (T *) this );
 	}
     };
@@ -4764,69 +4767,69 @@ namespace min {
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
 
     void init_output
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file );
     void init_input
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file );
 
     void init_print_flags
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      min::uns32 print_flags );
 
     void init_spool_lines
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      min::uns32 spool_lines );
 
     void init_file_name
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      min::gen file_name );
 
     void init_line_index
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file );
 
     void init_output_stream
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      std::ostream & ostream );
 
     void init_output_file
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      min::file ofile );
 
     void init_output_printer
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      min::printer printer );
 
     void init_input_stream
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      std::istream & istream,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_file
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      min::file ifile,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     bool init_input_named_file
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      min::gen file_name,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
-	    ( min::unprotected::locatable<min::file>
+	    ( min::unprotected::locatable_var<min::file>
 		  file,
 	      const char * data,
 	      min::uns32 print_flags = 0,
@@ -5200,7 +5203,7 @@ namespace min {
 	    ( min::obj_vec_insptr & vp );
     }
 
-    unprotected::locatable<min::gen> attr_push
+    unprotected::locatable_var<min::gen> attr_push
 	( min::obj_vec_insptr & vp );
     void attr_push
 	( min::obj_vec_insptr & vp,
@@ -5208,7 +5211,7 @@ namespace min {
     void attr_push
 	( min::obj_vec_insptr & vp,
 	  min::unsptr n, const min::gen * p );
-    unprotected::locatable<min::gen> aux_push
+    unprotected::locatable_var<min::gen> aux_push
 	( min::obj_vec_insptr & vp );
     void aux_push
 	( min::obj_vec_insptr & vp,
@@ -5363,7 +5366,7 @@ namespace min {
 	friend min::unsptr & unprotected::aux_offset_of
 	    ( min::obj_vec_insptr & vp );
 
-	friend unprotected::locatable<min::gen>
+	friend unprotected::locatable_var<min::gen>
 	    attr_push
 		( min::obj_vec_insptr & vp );
 	friend void attr_push
@@ -5372,7 +5375,7 @@ namespace min {
 	friend void attr_push
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n, const min::gen * p );
-	friend unprotected::locatable<min::gen>
+	friend unprotected::locatable_var<min::gen>
 	    aux_push
 		( min::obj_vec_insptr & vp );
 	friend void aux_push
@@ -5594,12 +5597,12 @@ namespace min {
 	    return * this;
 	}
 
-	unprotected::locatable<min::gen> operator []
+	unprotected::locatable_var<min::gen> operator []
 		( min::uns32 index )
 	{
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
-	    return unprotected::locatable<min::gen>
+	    return unprotected::locatable_var<min::gen>
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
 		     [index] );
@@ -5652,12 +5655,12 @@ namespace min {
 	    return * this;
 	}
 
-	unprotected::locatable<min::gen> operator []
+	unprotected::locatable_var<min::gen> operator []
 		( min::uns32 index )
 	{
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
-	    return unprotected::locatable<min::gen>
+	    return unprotected::locatable_var<min::gen>
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
 		     [index] );
@@ -5826,11 +5829,12 @@ namespace min {
         return vp.aux_offset;
     }
 
-    inline unprotected::locatable<min::gen> attr_push
-	( min::obj_vec_insptr & vp )
+    inline unprotected::locatable_var<min::gen>
+	attr_push
+	    ( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	return unprotected::locatable<min::gen>
+	return unprotected::locatable_var<min::gen>
 	    ( vp.s, unprotected::base(vp)
 	                [vp.unused_offset ++] );
     }
@@ -5863,11 +5867,12 @@ namespace min {
 	unprotected::acc_write_update ( vp.s, p, n );
     }
 
-    inline unprotected::locatable<min::gen> aux_push
-	( min::obj_vec_insptr & vp )
+    inline unprotected::locatable_var<min::gen>
+	aux_push
+	    ( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	return unprotected::locatable<min::gen>
+	return unprotected::locatable_var<min::gen>
 	    ( vp.s, unprotected::base(vp)
 	                [-- vp.aux_offset] );
     }
@@ -9256,12 +9261,14 @@ namespace min {
     };
 
     min::printer init
-	    ( min::unprotected::locatable<min::printer>
+	    ( min::unprotected
+	         ::locatable_var<min::printer>
 	          printer,
               min::file file = min::NULL_STUB );
 
     min::printer init_output_stream
-	    ( min::unprotected::locatable<min::printer>
+	    ( min::unprotected
+	         ::locatable_var<min::printer>
 	          printer,
 	      std::ostream & ostream );
 
