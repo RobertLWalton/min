@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 01:58:50 EDT 2011
+// Date:	Mon Mar 14 03:46:58 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2105,7 +2105,7 @@ void test_file ( void )
     cout << "Start File Test!" << endl;
     min_assert_print = false;
 
-    min::file file1;
+    min::locatable_ptr<min::file> file1;
     min::init_input_string
         ( file1, "Line 1\nLine 2\nLine 3\n" );
     MIN_ASSERT
@@ -2131,7 +2131,7 @@ void test_file ( void )
 		          [min::line(file1,1)] )
 	  == 0 );
 
-    min::file file2;
+    min::locatable_ptr<min::file> file2;
     min::init_input_named_file
         ( file2,
 	  min::new_str_gen
@@ -2154,7 +2154,7 @@ void test_file ( void )
     unsigned data_length = strlen ( data );
 
     std::istringstream istream ( data );
-    min::file file3, file4;
+    min::locatable_ptr<min::file> file3, file4;
     min::init_input_stream ( file3, istream );
     min::init_input ( file4 );
     min::init_output_file ( file3, file4 );
@@ -2179,7 +2179,7 @@ void test_file ( void )
 
     std::ostringstream ostream
         (std::ostringstream::out);
-    min::file file5;
+    min::locatable_ptr<min::file> file5;
     min::init_input_file ( file5, file4 );
     min::init_output_stream ( file5, ostream );
     min::rewind ( file4 );
@@ -2222,7 +2222,7 @@ void test_file ( void )
 // Printers
 // --------
 
-static min::printer printer;
+static min::locatable_ptr<min::printer> printer;
 
 void test_printer ( void )
 {
@@ -2558,7 +2558,7 @@ void test_printer ( void )
 
     // Tests of files and printers.
 
-    min::file file;
+    min::locatable_ptr<min::file> file;
     min::init_output_printer ( file, printer);
     min::init_input_string
         ( file, "Line 1\nLine 2\nLine 3\n\n" );
@@ -2589,7 +2589,7 @@ void test_printer ( void )
     min::print_line ( printer, file, 4 );
     min::print_line ( printer, file, 5 );
 
-    min::file efile;
+    min::locatable_ptr<min::file> efile;
     min::init_input_named_file
         ( efile,
 	  min::new_str_gen

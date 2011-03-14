@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 03:04:41 EDT 2011
+// Date:	Mon Mar 14 03:41:56 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1809,6 +1809,16 @@ namespace min { namespace unprotected {
 	{
 	    return * location;
 	}
+
+	T operator -> ( void ) const
+	{
+	    return * location;
+	}
+
+	operator const min::stub * ( void ) const
+	{
+	    return * location;
+	}
     };
 
 } }
@@ -1820,6 +1830,15 @@ namespace min {
         ( const min::stub * s, T & location )
     {
         return unprotected::locatable<T>
+		    ( s, location );
+    }
+
+    template < typename T, typename S >
+    inline min::unprotected::locatable<S> locatable
+        ( const min::unprotected::locatable<T> & s,
+	  S & location )
+    {
+        return unprotected::locatable<S>
 		    ( s, location );
     }
 
@@ -1879,6 +1898,13 @@ namespace min {
 	    this->value = value;
 	    return this->value;
 	}
+
+	operator min::unprotected::locatable<min::gen>
+		( void )
+	{
+	    return min::unprotected::locatable<min::gen>
+	        ( NULL, this->value );
+	}
     };
     
     template < typename T >
@@ -1920,6 +1946,13 @@ namespace min {
 	{
 	    new ( this ) T ( s );
 	    return * this;
+	}
+
+	operator min::unprotected::locatable<T>
+		( void )
+	{
+	    return min::unprotected::locatable<T>
+	        ( NULL, * (T *) this );
 	}
     };
 
@@ -4730,55 +4763,71 @@ namespace min {
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
 
-    void init_output ( min::file & file );
-    void init_input ( min::file & file );
+    void init_output
+	    ( min::unprotected::locatable<min::file>
+		  file );
+    void init_input
+	    ( min::unprotected::locatable<min::file>
+		  file );
 
     void init_print_flags
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      min::uns32 print_flags );
 
     void init_spool_lines
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      min::uns32 spool_lines );
 
     void init_file_name
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      min::gen file_name );
 
-    void init_line_index ( min::file & file );
+    void init_line_index
+	    ( min::unprotected::locatable<min::file>
+		  file );
 
     void init_output_stream
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      std::ostream & ostream );
 
     void init_output_file
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      min::file ofile );
 
     void init_output_printer
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      min::printer printer );
 
     void init_input_stream
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      std::istream & istream,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_file
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      min::file ifile,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     bool init_input_named_file
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      min::gen file_name,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
 
     void init_input_string
-	    ( min::file & file,
+	    ( min::unprotected::locatable<min::file>
+		  file,
 	      const char * data,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
@@ -5314,16 +5363,18 @@ namespace min {
 	friend min::unsptr & unprotected::aux_offset_of
 	    ( min::obj_vec_insptr & vp );
 
-	friend unprotected::locatable<min::gen> attr_push
-	    ( min::obj_vec_insptr & vp );
+	friend unprotected::locatable<min::gen>
+	    attr_push
+		( min::obj_vec_insptr & vp );
 	friend void attr_push
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n );
 	friend void attr_push
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n, const min::gen * p );
-	friend unprotected::locatable<min::gen> aux_push
-	    ( min::obj_vec_insptr & vp );
+	friend unprotected::locatable<min::gen>
+	    aux_push
+		( min::obj_vec_insptr & vp );
 	friend void aux_push
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n );
@@ -5549,7 +5600,8 @@ namespace min {
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
 	    return unprotected::locatable<min::gen>
-	        ( s, ( (min::gen *) unprotected::ptr_of (s) )
+	        ( s, ( (min::gen *)
+		       unprotected::ptr_of (s) )
 		     [index] );
 	}
 
@@ -5606,7 +5658,8 @@ namespace min {
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
 	    return unprotected::locatable<min::gen>
-	        ( s, ( (min::gen *) unprotected::ptr_of (s) )
+	        ( s, ( (min::gen *)
+		       unprotected::ptr_of (s) )
 		     [index] );
 	}
     };
@@ -9203,11 +9256,13 @@ namespace min {
     };
 
     min::printer init
-	    ( min::printer & printer,
+	    ( min::unprotected::locatable<min::printer>
+	          printer,
               min::file file = min::NULL_STUB );
 
     min::printer init_output_stream
-	    ( min::printer & printer,
+	    ( min::unprotected::locatable<min::printer>
+	          printer,
 	      std::ostream & ostream );
 
     inline op pgen
