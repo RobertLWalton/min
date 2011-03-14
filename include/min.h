@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 13 13:15:17 EDT 2011
+// Date:	Sun Mar 13 20:06:39 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1892,11 +1892,14 @@ namespace min { namespace unprotected {
     template < typename T >
     class locatable
     {
+
     private:
+
     	const min::stub * s;
 	T * location;
 
     public:
+
         locatable ( const min::stub * s, T & location )
 	    : s ( s ), location ( & location ) {}
 

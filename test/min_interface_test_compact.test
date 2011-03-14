@@ -1897,10 +1897,22 @@ min_interface_test.cc:XXXX desire failure:
     vp.unused_offset < vp.aux_offset false.
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    base[attr_offset] == min::MISSING true.
+../include/min.h:XXXX assert:
+    index < unused_offset true.
+min_interface_test.cc:XXXX assert:
+    vp[0] == min::MISSING true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+../include/min.h:XXXX assert:
+    index < unused_offset true.
+min_interface_test.cc:XXXX assert:
+    vp[0] == min::LIST_END true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
-    index < vp.unused_offset true.
+    index < unused_offset true.
 ../include/min.h:XXXX assert:
     vp.aux_offset <= index true.
 ../include/min.h:XXXX assert:
@@ -1931,6 +1943,10 @@ min_interface_test.cc:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[attr_offset] == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < unused_offset true.
+min_interface_test.cc:XXXX assert:
+    vp[0] == min::LIST_END true.
 min_interface_test.cc:XXXX assert:
     base[aux_offset] == min::LIST_END true.
 ../include/min.h:XXXX assert:
@@ -2131,10 +2147,22 @@ min_interface_test.cc:XXXX desire failure:
     vp.unused_offset < vp.aux_offset false.
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    base[attr_offset] == min::MISSING true.
+../include/min.h:XXXX assert:
+    index < unused_offset true.
+min_interface_test.cc:XXXX assert:
+    vp[0] == min::MISSING true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+../include/min.h:XXXX assert:
+    index < unused_offset true.
+min_interface_test.cc:XXXX assert:
+    vp[0] == min::LIST_END true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
-    index < vp.unused_offset true.
+    index < unused_offset true.
 ../include/min.h:XXXX assert:
     vp.aux_offset <= index true.
 ../include/min.h:XXXX assert:
@@ -2175,6 +2203,10 @@ min_interface_test.cc:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[attr_offset] == min::LIST_END true.
+../include/min.h:XXXX assert:
+    index < unused_offset true.
+min_interface_test.cc:XXXX assert:
+    vp[0] == min::LIST_END true.
 min_interface_test.cc:XXXX assert:
     base[aux_offset] == min::LIST_END true.
 ../include/min.h:XXXX assert:
