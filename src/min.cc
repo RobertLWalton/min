@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 08:51:27 EDT 2011
+// Date:	Mon Mar 14 10:42:22 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7333,7 +7333,7 @@ min::printer min::init
         printer = ::printer_type.new_stub();
     }
 
-    if ( printer->file != NULL_STUB )
+    if ( file != NULL_STUB )
         locatable ( printer, printer->file ) =
 	    file;
     else
