@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 06:36:49 EDT 2011
+// Date:	Tue Mar 15 10:11:18 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1789,6 +1789,9 @@ namespace min {
 
     extern const min::stub * ZERO_STUB;
 
+    template < typename T>
+    class locatable_ptr;
+
     template < typename T >
     class ptr
     {
@@ -1818,6 +1821,14 @@ namespace min {
 	}
 
 	void operator = ( T value ) const
+	{
+	    * location() = value;
+	    if ( s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( s, value );
+	}
+
+	void operator = ( const locatable_ptr<T> & value ) const
 	{
 	    * location() = value;
 	    if ( s != ZERO_STUB )
@@ -1871,9 +1882,13 @@ namespace min {
 
     namespace internal
     {
-        struct locatable_gen
+        struct locatable_gen_base
 	{
 	    min::gen value;
+	};
+        struct locatable_gen
+	    : public locatable_gen_base
+	{
 	    locatable_gen * previous;
 	};
 	extern locatable_gen * locatable_gen_last;
@@ -1883,32 +1898,81 @@ namespace min {
 	    const min::stub * value;
 	};
 	struct locatable_ptr
-	    : locatable_ptr_base
+	    : public locatable_ptr_base
 	{
 	    locatable_ptr * previous;
 	};
 	extern locatable_ptr * locatable_ptr_last;
     }
-
-    class locatable_gen
-	: protected internal::locatable_gen
+    
+    template < typename T >
+    class locatable_ptr : public T
     {
+    public:
+        internal::locatable_ptr * previous;
+	    // Made public so we can check offset.
+
+    private:
+
+        locatable_ptr ( const locatable_ptr<T> & p )
+	{}
 
     public:
 
-        locatable_gen ( void )
+        locatable_ptr ( void )
+	    : T ( min::NULL_STUB )
+	{
+	    previous = internal::locatable_ptr_last;
+	    internal::locatable_ptr_last =
+	        (internal::locatable_ptr *) this;
+	}
+	T operator = ( const locatable_ptr<T> & p )
+	{
+	    new ( this ) T ( p );
+	    return * this;
+	}
+	T operator = ( T value )
+	{
+	    new ( this ) T ( value );
+	    return * this;
+	}
+	T operator = ( const min::stub * s )
+	{
+	    new ( this ) T ( s );
+	    return * this;
+	}
+
+	operator min::ptr<T> ( void )
+	{
+	    return min::ptr<T>
+	        ( min::ZERO_STUB, * (T *) this );
+	}
+    };
+
+    template <>
+    class locatable_ptr<min::gen>
+	: protected internal::locatable_gen_base
+    {
+    public:
+        internal::locatable_gen * previous;
+	    // Made public so we can check offset.
+
+    private:
+
+        locatable_ptr
+	        ( const locatable_ptr<min::gen> & p )
+	{}
+
+    public:
+
+        locatable_ptr ( void )
 	{
 	    value = min::MISSING;
 	    previous = internal::locatable_gen_last;
-	    internal::locatable_gen_last = this;
+	    internal::locatable_gen_last =
+	        (internal::locatable_gen *) this;
 	}
-        locatable_gen ( min::gen value )
-	{
-	    this->value = value;
-	    previous = internal::locatable_gen_last;
-	    internal::locatable_gen_last = this;
-	}
-        ~ locatable_gen ( void )
+        ~ locatable_ptr ( void )
 	{
 	    internal::locatable_gen_last = previous;
 	}
@@ -1928,54 +1992,8 @@ namespace min {
 	        ( min::ZERO_STUB, this->value );
 	}
     };
-    
-    template < typename T >
-    class locatable_ptr : public T
-    {
-    public:
-        internal::locatable_ptr * previous;
-	    // Made public so we can check offset.
 
-    public:
-
-        locatable_ptr ( T value )
-	    : T ( value )
-	{
-	    previous = internal::locatable_ptr_last;
-	    internal::locatable_ptr_last =
-	        (internal::locatable_ptr *) this;
-	}
-        locatable_ptr ( const min::stub * s )
-	    : T ( s )
-	{
-	    previous = internal::locatable_ptr_last;
-	    internal::locatable_ptr_last =
-	        (internal::locatable_ptr *) this;
-	}
-        locatable_ptr ( void )
-	    : T ( min::NULL_STUB )
-	{
-	    previous = internal::locatable_ptr_last;
-	    internal::locatable_ptr_last =
-	        (internal::locatable_ptr *) this;
-	}
-	T operator = ( T value )
-	{
-	    new ( this ) T ( value );
-	    return * this;
-	}
-	T operator = ( const min::stub * s )
-	{
-	    new ( this ) T ( s );
-	    return * this;
-	}
-
-	operator min::ptr<T> ( void )
-	{
-	    return min::ptr<T>
-	        ( min::ZERO_STUB, * (T *) this );
-	}
-    };
+    typedef locatable_ptr<min::gen> locatable_gen;
 
 #   if MIN_IS_LOOSE
 	typedef min::gen locatable_num_gen;
