@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 04:57:53 EDT 2011
+// Date:	Tue Mar 15 18:42:36 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -311,7 +311,7 @@ static min::stub ZERO_STUB;
 const min::stub * min::ZERO_STUB = & ::ZERO_STUB;
 
 MINT::locatable_gen * MINT::locatable_gen_last;
-MINT::locatable_ptr * MINT::locatable_ptr_last;
+MINT::locatable_var * MINT::locatable_var_last;
 
 min::unsptr MINT::number_of_free_stubs;
 
@@ -1008,8 +1008,8 @@ void MINT::thread_scavenger_routine
 	++ sc.gen_count;
     }
 
-    for ( MINT::locatable_ptr * loc =
-              MINT::locatable_ptr_last;
+    for ( MINT::locatable_var * loc =
+              MINT::locatable_var_last;
           loc != NULL; 
 	  loc = loc->previous )
     {
@@ -7198,7 +7198,7 @@ bool MINT::flip_flag
 // Printers
 // --------
 
-min::locatable_ptr<min::printer> min::error_message;
+min::locatable_var<min::printer> min::error_message;
 
 const min::printer_format
     min::default_printer_format =
