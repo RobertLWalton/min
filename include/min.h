@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 04:23:26 EDT 2011
+// Date:	Tue Mar 15 06:36:49 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1805,6 +1805,17 @@ namespace min {
 		       (min::uns8 *)
 		       min::unprotected
 		          ::ptr_of ( s ) ) {}
+
+	// We must prevent the default operator =.
+	//
+	void operator = ( const ptr<T> & p ) const
+	{
+	    T value = * p.location();
+	    * location() = value;
+	    if ( s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( s, value );
+	}
 
 	void operator = ( T value ) const
 	{
