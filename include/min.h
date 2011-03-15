@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 10:11:18 EDT 2011
+// Date:	Tue Mar 15 18:42:20 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1790,7 +1790,7 @@ namespace min {
     extern const min::stub * ZERO_STUB;
 
     template < typename T>
-    class locatable_ptr;
+    class locatable_var;
 
     template < typename T >
     class ptr
@@ -1828,7 +1828,7 @@ namespace min {
 		    ( s, value );
 	}
 
-	void operator = ( const locatable_ptr<T> & value ) const
+	void operator = ( const locatable_var<T> & value ) const
 	{
 	    * location() = value;
 	    if ( s != ZERO_STUB )
@@ -1893,40 +1893,40 @@ namespace min {
 	};
 	extern locatable_gen * locatable_gen_last;
 
-        struct locatable_ptr_base
+        struct locatable_var_base
 	{
 	    const min::stub * value;
 	};
-	struct locatable_ptr
-	    : public locatable_ptr_base
+	struct locatable_var
+	    : public locatable_var_base
 	{
-	    locatable_ptr * previous;
+	    locatable_var * previous;
 	};
-	extern locatable_ptr * locatable_ptr_last;
+	extern locatable_var * locatable_var_last;
     }
     
     template < typename T >
-    class locatable_ptr : public T
+    class locatable_var : public T
     {
     public:
-        internal::locatable_ptr * previous;
+        internal::locatable_var * previous;
 	    // Made public so we can check offset.
 
     private:
 
-        locatable_ptr ( const locatable_ptr<T> & p )
+        locatable_var ( const locatable_var<T> & p )
 	{}
 
     public:
 
-        locatable_ptr ( void )
+        locatable_var ( void )
 	    : T ( min::NULL_STUB )
 	{
-	    previous = internal::locatable_ptr_last;
-	    internal::locatable_ptr_last =
-	        (internal::locatable_ptr *) this;
+	    previous = internal::locatable_var_last;
+	    internal::locatable_var_last =
+	        (internal::locatable_var *) this;
 	}
-	T operator = ( const locatable_ptr<T> & p )
+	T operator = ( const locatable_var<T> & p )
 	{
 	    new ( this ) T ( p );
 	    return * this;
@@ -1950,7 +1950,7 @@ namespace min {
     };
 
     template <>
-    class locatable_ptr<min::gen>
+    class locatable_var<min::gen>
 	: protected internal::locatable_gen_base
     {
     public:
@@ -1959,20 +1959,20 @@ namespace min {
 
     private:
 
-        locatable_ptr
-	        ( const locatable_ptr<min::gen> & p )
+        locatable_var
+	        ( const locatable_var<min::gen> & p )
 	{}
 
     public:
 
-        locatable_ptr ( void )
+        locatable_var ( void )
 	{
 	    value = min::MISSING;
 	    previous = internal::locatable_gen_last;
 	    internal::locatable_gen_last =
 	        (internal::locatable_gen *) this;
 	}
-        ~ locatable_ptr ( void )
+        ~ locatable_var ( void )
 	{
 	    internal::locatable_gen_last = previous;
 	}
@@ -1993,7 +1993,7 @@ namespace min {
 	}
     };
 
-    typedef locatable_ptr<min::gen> locatable_gen;
+    typedef locatable_var<min::gen> locatable_gen;
 
 #   if MIN_IS_LOOSE
 	typedef min::gen locatable_num_gen;
@@ -4797,7 +4797,7 @@ namespace min {
     typedef packed_struct_updptr<printer_struct>
         printer;
 
-    extern min::locatable_ptr<min::printer>
+    extern min::locatable_var<min::printer>
            error_message;
 }
 

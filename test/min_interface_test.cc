@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 14 03:46:58 EDT 2011
+// Date:	Tue Mar 15 18:43:33 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -470,12 +470,12 @@ void MINT::acc_initializer ( void )
     MINT::acc_initialize_resize_body();
 }
 
-// Find a values address in a MINT::locatable_ptr list.
+// Find a values address in a MINT::locatable_var list.
 //
 bool find_ptr_locator ( void * address )
 {
-    MINT::locatable_ptr * locator =
-        MINT::locatable_ptr_last;
+    MINT::locatable_var * locator =
+        MINT::locatable_var_last;
 
     while ( locator )
     {
@@ -1910,11 +1910,11 @@ void test_packed_structs ( void )
 
     MIN_ASSERT
         (    8 * min::OFFSETOF
-	           ( & MINT::locatable_ptr::previous )
+	           ( & MINT::locatable_var::previous )
 	  == MIN_PTR_BITS );
     MIN_ASSERT
         (    8 * min::OFFSETOF
-	           ( & min::locatable_ptr<ps1t::updptr>
+	           ( & min::locatable_var<ps1t::updptr>
 		          ::previous )
 	  == MIN_PTR_BITS );
 
@@ -2010,7 +2010,7 @@ void test_packed_vectors ( void )
 
     MIN_ASSERT
         (    8 * min::OFFSETOF
-	           ( & min::locatable_ptr<pvt::insptr>
+	           ( & min::locatable_var<pvt::insptr>
 		          ::previous )
 	  == MIN_PTR_BITS );
 
@@ -2105,7 +2105,7 @@ void test_file ( void )
     cout << "Start File Test!" << endl;
     min_assert_print = false;
 
-    min::locatable_ptr<min::file> file1;
+    min::locatable_var<min::file> file1;
     min::init_input_string
         ( file1, "Line 1\nLine 2\nLine 3\n" );
     MIN_ASSERT
@@ -2131,7 +2131,7 @@ void test_file ( void )
 		          [min::line(file1,1)] )
 	  == 0 );
 
-    min::locatable_ptr<min::file> file2;
+    min::locatable_var<min::file> file2;
     min::init_input_named_file
         ( file2,
 	  min::new_str_gen
@@ -2154,7 +2154,7 @@ void test_file ( void )
     unsigned data_length = strlen ( data );
 
     std::istringstream istream ( data );
-    min::locatable_ptr<min::file> file3, file4;
+    min::locatable_var<min::file> file3, file4;
     min::init_input_stream ( file3, istream );
     min::init_input ( file4 );
     min::init_output_file ( file3, file4 );
@@ -2179,7 +2179,7 @@ void test_file ( void )
 
     std::ostringstream ostream
         (std::ostringstream::out);
-    min::locatable_ptr<min::file> file5;
+    min::locatable_var<min::file> file5;
     min::init_input_file ( file5, file4 );
     min::init_output_stream ( file5, ostream );
     min::rewind ( file4 );
@@ -2222,7 +2222,7 @@ void test_file ( void )
 // Printers
 // --------
 
-static min::locatable_ptr<min::printer> printer;
+static min::locatable_var<min::printer> printer;
 
 void test_printer ( void )
 {
@@ -2558,7 +2558,7 @@ void test_printer ( void )
 
     // Tests of files and printers.
 
-    min::locatable_ptr<min::file> file;
+    min::locatable_var<min::file> file;
     min::init_output_printer ( file, printer);
     min::init_input_string
         ( file, "Line 1\nLine 2\nLine 3\n\n" );
@@ -2589,7 +2589,7 @@ void test_printer ( void )
     min::print_line ( printer, file, 4 );
     min::print_line ( printer, file, 5 );
 
-    min::locatable_ptr<min::file> efile;
+    min::locatable_var<min::file> efile;
     min::init_input_named_file
         ( efile,
 	  min::new_str_gen
