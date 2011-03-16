@@ -2,18 +2,11 @@
 //
 // File:	min_builtin_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May 19 08:37:11 EDT 2010
+// Date:	Wed Mar 16 16:07:57 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/06/25 12:37:52 $
-//   $RCSfile: min_builtin_test.cc,v $
-//   $Revision: 1.3 $
 
 // Table of Contents:
 //
