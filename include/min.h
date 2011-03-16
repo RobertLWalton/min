@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 18:42:20 EDT 2011
+// Date:	Wed Mar 16 04:05:20 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1828,7 +1828,8 @@ namespace min {
 		    ( s, value );
 	}
 
-	void operator = ( const locatable_var<T> & value ) const
+	void operator =
+	    ( const locatable_var<T> & value ) const
 	{
 	    * location() = value;
 	    if ( s != ZERO_STUB )
@@ -1904,7 +1905,7 @@ namespace min {
 	};
 	extern locatable_var * locatable_var_last;
     }
-    
+ 
     template < typename T >
     class locatable_var : public T
     {
@@ -1926,6 +1927,11 @@ namespace min {
 	    internal::locatable_var_last =
 	        (internal::locatable_var *) this;
 	}
+        ~ locatable_var ( void )
+	{
+	    internal::locatable_var_last = previous;
+	}
+
 	T operator = ( const locatable_var<T> & p )
 	{
 	    new ( this ) T ( p );
@@ -1976,9 +1982,16 @@ namespace min {
 	{
 	    internal::locatable_gen_last = previous;
 	}
+
 	operator min::gen ( void ) const
 	{
 	    return value;
+	}
+	min::gen operator =
+	    ( const locatable_var<min::gen> & p )
+	{
+	    this->value = p;
+	    return this->value;
 	}
 	min::gen operator = ( min::gen value )
 	{

@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 9, 2011}
+\date{March 16, 2011}
  
 \maketitle
 
@@ -1763,16 +1763,17 @@ is necessary.
 \label{ACC-INTERFACE}
 
 The garbage collector needs to be able to locate all
-\verb|min::gen| values that are in use and that might
-contain stub pointers.
-When you write general
-values into stubs or bodies, you need to call an acc function
+\verb|min::gen| and {\tt const min::\EOL stub~*} values
+that are in use and that might contain stub pointers.
+When you write general values or pointers to stubs
+into stubs or bodies, you need to call an acc function
 to update garbage collection flags associated with stubs.
-The first subsection of this
-section specifies how these things are done, and includes
+The first subsection of this section specifies how these things are
+normally done, and includes
 data types that must be used to hold \verb|min::gen|
+or {\tt const min::\EOL stub~*}
 values in static or stack memory, and functions that must
-be called when a \verb|min::gen| value that might point
+be called when a value that might point
 at a stub is written into a stub or body.
 
 If you are implementing a new type of stub and maybe bodies
@@ -1786,10 +1787,10 @@ and to free the stubs.
 If your stubs have bodies, you need to be able to allocate,
 relocate, and deallocate the bodies.
 
-\subsubsection{Storing General Values}
-\label{STORING-GENERAL-VALUES}
+\subsubsection{Storing General Values and Stub Pointers}
+\label{STORING-GENERAL-VALUES-AND-STUB-POINTERS}
 
-General values that might contain stub pointers must be locatable
+Values that might contain stub pointers must be locatable
 by the garbage collector (the collector part of the acc).  Since
 in a compact implementation even double precision numbers are
 represented by \verb|min::gen| values pointing at stubs, this means
@@ -1808,37 +1809,31 @@ with certainty to be numbers, in locations of type
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| ( void )|
 \LABEL{MIN::LOCATABLE_GEN} \\
-\verb|(constructor) min::| & \MINKEY{locatable\_gen}%
-    \verb|( min::gen value )|
-\LABEL{MIN::LOCATABLE_GEN_OF_VALUE} \\
+\verb|min::gen |
+    & \TTOMKEY{min::gen}{min::gen}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( const min::locatable_gen & location )|
+\LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
 \verb|min::gen |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen & location,|\ARGBREAK
       \verb|  min::gen value )|
 \LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
 \verb|min::gen |
-    & \TTOMKEY{min::gen}{min::gen}%
-              {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( const min::locatable_gen & location )|
-\LABEL{MIN::LOCATABLE_GEN_TO_GEN_REFERENCE} \\
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & location,|\ARGBREAK
+      \verb|  const min::locatable_gen & p )|
+\LABEL{MIN::=LOCATABLE_GEN_OF_LOCATABLE_GEN} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{locatable\_num\_gen} \verb| ( void )|
-\LABEL{MIN::LOCATABLE_NUM_GEN} \\
-\verb|(constructor) min::| & \MINKEY{locatable\_num\_gen}%
-    \verb|( min::gen value )|
-\LABEL{MIN::LOCATABLE_NUM_GEN_OF_VALUE} \\
-\verb|min::gen |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_num\_gen}}\ARGBREAK
-      \verb|( min::locatable_num_gen & location,|\ARGBREAK
-      \verb|  min::gen value )|
-\LABEL{MIN::=LOCATABLE_NUM_GEN_OF_GEN} \\
-\verb|min::gen |
-    & \TTOMKEY{min::gen}{min::gen}%
-              {of {\tt min::locatable\_num\_gen}}\ARGBREAK
-      \verb|( const min::locatable_num_gen & location )|
-\LABEL{MIN::LOCATABLE_NUM_GEN_TO_GEN_REFERENCE} \\
+In compact implementation: \\
+~~~~\verb|typedef  |
+	& \verb|min::locatable_gen  min::|\MINKEY{locatable\_num\_gen} \\
+In loose implementation: \\
+~~~~\verb|typedef  |
+	& \verb|min::gen  min::|\MINKEY{locatable\_num\_gen}
+\LABEL{MIN::LOCATABLE_NUM_GEN_TYPEDEF} \\
 \end{tabular}\end{indpar}
 
 If the implemention is loose (\pagref{LOOSE}),
@@ -1848,9 +1843,33 @@ If the implemention is loose (\pagref{LOOSE}),
 
 The only operations that can be performed on a
 {\tt min::locatable\_\EOL gen} location are to copy a {\tt min::gen}
-value into it or out of it.
+value into it or out of it.  Setting one {\tt min::\EOL locatable\_\EOL gen}
+location equal to another copies the {\tt min::gen} value of the locations,
+and not the location structure itself.
 
-{\tt min::\EOL stub~*} values that are not derived from
+Due to a technical difficulty with C++, it is not possible to pass a
+{\tt min::gen} value to a {\tt min::\EOL locatable\_\EOL gen} constructor.%
+\footnote{More specifically, we need to disable the copy constructor
+for {\tt min::\EOL locatable\_\EOL gen} values, as constructing such a
+value stores its address in a global location so the garbage collector
+can find it, and copying the {\tt min::\EOL locatable\_\EOL gen} value
+to another location would be a disaster.  Having done this by making
+the copy constructor {\tt private}, we find that
+the construction `{\tt T~x~=~y}' in our C++ compiler (GNU) works by
+by compiling `{\tt T~x~(T(y))}' if {\tt y} is not of type {\tt T},
+that is, the compiler uses the conversion constructor to convert {\tt y}
+to type {\tt T}, and then uses the \underline{copy constructor}
+to copy the result to its final resting place.  This is not acceptable for
+{\tt min::\EOL locatable\_\EOL gen} values.}
+For example:
+
+\begin{indpar}\begin{verbatim}
+min::locatable_gen x = y;    // Does NOT compile!
+min::locatable_gen x;        // OK
+x = y;                       // OK
+\end{verbatim}\end{indpar}
+
+{\tt const min::\EOL stub~*} values that are not derived from
 \verb|min::gen| values must also be locatable by the garbage collector.
 In particular
 pointers to packed structures and vectors
@@ -1859,27 +1878,26 @@ must be locatable.  This may be done with the code:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::|
-    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb| ( void )|
-\LABEL{MIN::LOCATABLE_PTR} \\
-\verb|(constructor) min::|
-    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( T value )|
-\LABEL{MIN::LOCATABLE_PTR_OF_VALUE} \\
-\verb|(constructor) min::|
-    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( min::stub * s )|
-\LABEL{MIN::LOCATABLE_PTR_OF_STUB} \\
+    & \MINKEY{locatable\_var}\BRACKETED{T}\verb| ( void )|
+\LABEL{MIN::LOCATABLE_VAR} \\
 \verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen<T> & location,|\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
+      \verb|( min::locatable_var<T> & location,|\ARGBREAK
       \verb|  T value )|
-\LABEL{MIN::=LOCATABLE_PTR} \\
+\LABEL{MIN::=LOCATABLE_VAR} \\
 \verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen<T> & location,|\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
+      \verb|( min::locatable_var<T> & location,|\ARGBREAK
       \verb|  const min::stub * s )|
-\LABEL{MIN::=LOCATABLE_PTR_OF_STUB} \\
+\LABEL{MIN::=LOCATABLE_VAR_OF_STUB} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
+      \verb|( min::locatable_var<T> & location,|\ARGBREAK
+      \verb|  const min::locatable_var<T> & p )|
+\LABEL{MIN::=LOCATABLE_VAR_OF_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
-Here {\tt T} must be a class whose only data member is of type
+Here {\tt T} must be a \underline{class} whose only data member is of type
 {\tt const min::stub~*}.  The {\tt min::\EOL packed\_\ldots ptr}
 classes that contain pointers to packed structures and vectors satisfy
 this constraint.  The class {\tt T} is a public base class of
@@ -1894,18 +1912,30 @@ static min::locatable_gen p;
 . . . . . . . . . .
 ... some_function ( ... )
 {
-    min::locatable_gen q = p;
+    min::locatable_gen q;
+    q = p;
     . . . use p, q . . .
 }
 
 min::packed_vec_insptr<char> bufvec;
-min::locatable_ptr<bufvec> x;
+min::locatable_var<bufvec> x;
 ... some_function ( ... )
 {
-    min::locatable_ptr<bufvec> y = x;
+    min::locatable_var<bufvec> y;
+    y = x;
     . . . use x, y . . .
 }
 \end{verbatim}\end{indpar}
+
+The {\tt min::locatable\_gen} type is in fact a specialization
+of {\tt min::\EOL locatable\_\EOL var}:
+
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
+\verb|typedef |
+	& \verb|min::locatable_var<min::gen>|\ARGBREAK
+	  \verb|min::|\MINKEY{locatable\_gen}
+\LABEL{MIN::LOCATABLE_GEN_TYPEDEF} \\
+\end{tabular}\end{indpar}
 
 Importantly a \verb|min::gen| or \verb|min::stub *|
 value need \underline{not} be stored
@@ -9414,59 +9444,59 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| ( void )|
 \LABEL{MIN::LOCATABLE_GEN} \\
-\verb|(constructor) min::| & \MINKEY{locatable\_gen}%
-    \verb|( min::gen value )|
-\LABEL{MIN::LOCATABLE_GEN_OF_VALUE} \\
+\verb|min::gen |
+    & \TTOMKEY{min::gen}{min::gen}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( min::locatable_gen & location )|
+\LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
 \verb|min::gen |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen & location,|\ARGBREAK
       \verb|  min::gen value )|
 \LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
 \verb|min::gen |
-    & \TTOMKEY{min::gen}{min::gen}%
-              {of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen & location )|
-\LABEL{MIN::LOCATABLE_GEN_TO_GEN_REFERENCE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|(constructor) min::| & \MINKEY{locatable\_num\_gen} \verb| ( void )|
-\LABEL{MIN::LOCATABLE_NUM_GEN} \\
-\verb|(constructor) min::| & \MINKEY{locatable\_num\_gen}%
-    \verb|( min::gen value )|
-\LABEL{MIN::LOCATABLE_NUM_GEN_OF_VALUE} \\
-\verb|min::gen |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_num\_gen}}\ARGBREAK
-      \verb|( min::locatable_num_gen & location,|\ARGBREAK
-      \verb|  min::gen value )|
-\LABEL{MIN::=LOCATABLE_NUM_GEN_OF_GEN} \\
-\verb|min::gen |
-    & \TTOMKEY{min::gen}{min::gen}%
-              {of {\tt min::locatable\_num\_gen}}\ARGBREAK
-      \verb|( min::locatable_num_gen & location )|
-\LABEL{MIN::LOCATABLE_NUM_GEN_TO_GEN_REFERENCE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|(constructor) min::|
-    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb| ( void )|
-\LABEL{MIN::LOCATABLE_PTR} \\
-\verb|(constructor) min::|
-    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( T value )|
-\LABEL{MIN::LOCATABLE_PTR_OF_VALUE} \\
-\verb|(constructor) min::|
-    & \MINKEY{locatable\_ptr}\BRACKETED{T}\verb|( min::stub * s )|
-\LABEL{MIN::LOCATABLE_PTR_OF_STUB} \\
-\verb|T |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen<T> & location,|\ARGBREAK
+      \verb|( min::locatable_gen & location,|\ARGBREAK
+      \verb|  const min::locatable_gen & p )|
+\LABEL{MIN::=LOCATABLE_GEN_OF_LOCATABLE_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.0in}
+In compact implementation: \\
+~~~~\verb|typedef  |
+	& \verb|min::locatable_gen  min::|\MINKEY{locatable\_num\_gen} \\
+In loose implementation: \\
+~~~~\verb|typedef  |
+	& \verb|min::gen  min::|\MINKEY{locatable\_num\_gen}
+\LABEL{MIN::LOCATABLE_NUM_GEN_TYPEDEF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::|
+    & \MINKEY{locatable\_var}\BRACKETED{T}\verb| ( void )|
+\LABEL{MIN::LOCATABLE_VAR} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
+      \verb|( min::locatable_var<T> & location,|\ARGBREAK
       \verb|  T value )|
-\LABEL{MIN::=LOCATABLE_PTR} \\
+\LABEL{MIN::=LOCATABLE_VAR} \\
 \verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
-      \verb|( min::locatable_gen<T> & location,|\ARGBREAK
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
+      \verb|( min::locatable_var<T> & location,|\ARGBREAK
       \verb|  const min::stub * s )|
-\LABEL{MIN::=LOCATABLE_PTR_OF_STUB} \\
+\LABEL{MIN::=LOCATABLE_VAR_OF_STUB} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
+      \verb|( min::locatable_var<T> & location,|\ARGBREAK
+      \verb|  const min::locatable_var<T> & p )|
+\LABEL{MIN::=LOCATABLE_VAR_OF_LOCATABLE_VAR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|typedef |
+	& \verb|min::locatable_var<min::gen>|\ARGBREAK
+	  \verb|min::|\MINKEY{locatable\_gen}
+\LABEL{MIN::LOCATABLE_GEN_TYPEDEF} \\
 \end{TABULAR}
 
 \end{indpar}
