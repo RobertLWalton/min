@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 04:05:20 EDT 2011
+// Date:	Wed Mar 16 09:19:43 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1811,30 +1811,34 @@ namespace min {
 
 	// We must prevent the default operator =.
 	//
-	void operator = ( const ptr<T> & p ) const
+	T operator = ( const ptr<T> & p ) const
 	{
 	    T value = * p.location();
 	    * location() = value;
 	    if ( s != ZERO_STUB )
 		unprotected::acc_write_update
 		    ( s, value );
+	    return value;
 	}
 
-	void operator = ( T value ) const
+	T operator = ( T value ) const
 	{
 	    * location() = value;
 	    if ( s != ZERO_STUB )
 		unprotected::acc_write_update
 		    ( s, value );
+	    return value;
 	}
 
-	void operator =
-	    ( const locatable_var<T> & value ) const
+	T operator =
+	    ( const locatable_var<T> & p ) const
 	{
+	    T value = p;
 	    * location() = value;
 	    if ( s != ZERO_STUB )
 		unprotected::acc_write_update
 		    ( s, value );
+	    return value;
 	}
 
 	operator T ( void ) const
