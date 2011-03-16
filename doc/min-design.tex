@@ -1501,8 +1501,54 @@ avoid out-of-line function calls, as for each such call the
 optimizer must assume that the body pointer in the stub might
 change.
 
-Protected pointer types are provided for each type of object
-that has a body.
+Specialized protected pointer types are provided for each type of object
+that has a body.  In addition there is a general body pointer type
+that points at any type an element in any body associated with any stub:
+
+\newcommand{\TARG}{\BRACKETED{T}}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{ptr\TARG}\verb| p|\ARGBREAK
+    \verb| ( const min::stub * s,|\ARGBREAK
+    \verb|   T & location )|
+\LABEL{MIN::PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::stub * const p| & \TTARMKEY{s}{in {\tt min::ptr\TARG}}
+\LABEL{MIN::PTR_STUB} \\
+\verb|const min::unsptr p| & \TTARMKEY{offset}{in {\tt min::ptr\TARG}}
+\LABEL{MIN::PTR_OFFSET} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::ptr\TARG}}
+      \verb|( min::ptr<T> & p, T value )|
+\LABEL{MIN::=PTR_OF_T} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::ptr\TARG}}
+      \verb|( min::ptr<T> & p, min::locatable_var<T> location )|
+\LABEL{MIN::=PTR_OF_LOCATION} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::ptr\TARG}}
+      \verb|( min::ptr<T> & p, const min::ptr<T> & p2 )|
+\LABEL{MIN::=PTR_OF_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T |
+    & \TTOMKEY{T}{{\tt T}}{of {\tt min::ptr\TARG}}
+      \verb|( const min::ptr<T> & p )|
+\LABEL{MIN::PTR_TO_T} \\
+\verb|T |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::ptr\TARG}}
+	  \verb| ( const min::ptr<T> & p )|
+\LABEL{MIN::PTR_->} \\
+\end{tabular}\end{indpar}
+
+TBD
 
 \subsubsection{Unprotected Body Pointers}
 \label{UNPROTECTED-BODY-POINTERS}
@@ -3550,7 +3596,7 @@ a packed structure have the usage:
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const * S |
+\verb|const S * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
@@ -3597,7 +3643,7 @@ a packed structure have the usage:
 	          {of {\tt min::packed\_struct\_updptr}}\ARGBREAK
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
-\verb|* S |
+\verb|S * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
@@ -3619,16 +3665,16 @@ Both pointer values may be converted to/from
 `{\tt const min::stub~*}' values.
 
 A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is internally
-also a `\verb|const ** S|' value that is made to behave externally like a
-also a `\verb|const * S|' value with respect to the \verb|->| and
+also a `\verb|const S **|' value that is made to behave externally like a
+also a `\verb|const S *|' value with respect to the \verb|->| and
 unary \verb|*| operators.  Thus looking ahead at the example below,
 if \verb|upv| is a
 {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
 and \verb|S| has a member \verb|i|, then \verb|upv->i| is the \verb|i|
 member of the \verb|S| struct pointed at by \verb|upv|.
 Similarly a {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG} value
-is internally also a `\verb|** S|' value that is made to behave
-externally like a also a `\verb|* S|' value with respect to the \verb|->| and
+is internally also a `\verb|S **|' value that is made to behave
+externally like a also a `\verb|S *|' value with respect to the \verb|->| and
 unary \verb|*| operators.
 
 Note that in certain
@@ -10916,7 +10962,7 @@ In loose implementation: \\
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const * S |
+\verb|const S * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
@@ -10966,7 +11012,7 @@ In loose implementation: \\
 	          {of {\tt min::packed\_struct\_updptr}}\ARGBREAK
           \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_TO_MIN_STUB} \\
-\verb|* S |
+\verb|S * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
