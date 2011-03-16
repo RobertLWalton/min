@@ -2,18 +2,11 @@
 //
 // File:	min_hash_table_sizes.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 26 00:51:43 EST 2010
+// Date:	Wed Mar 16 16:09:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/06/25 12:36:12 $
-//   $RCSfile: min_hash_table_sizes.cc,v $
-//   $Revision: 1.8 $
 
 # include <iostream>
 # include <iomanip>

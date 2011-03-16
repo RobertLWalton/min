@@ -2,18 +2,11 @@
 //
 // File:	min_hash_table_sizes_prime.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr 29 08:07:20 EDT 2009
+// Date:	Wed Mar 16 16:09:57 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/06/25 12:36:12 $
-//   $RCSfile: min_hash_table_sizes_prime.cc,v $
-//   $Revision: 1.6 $
 
 # include <iostream>
 # include <iomanip>

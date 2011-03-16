@@ -2,18 +2,11 @@
 //
 // File:	min_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 30 11:10:04 EST 2010
+// Date:	Wed Mar 16 16:11:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/08/01 00:00:15 $
-//   $RCSfile: min_parameters.h,v $
-//   $Revision: 1.55 $
 
 // Table of Contents
 //

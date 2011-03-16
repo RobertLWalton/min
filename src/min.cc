@@ -2,18 +2,11 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 15 18:42:36 EDT 2011
+// Date:	Wed Mar 16 16:09:37 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/08/04 13:38:46 $
-//   $RCSfile: min.cc,v $
-//   $Revision: 1.243 $
 
 // Table of Contents:
 //

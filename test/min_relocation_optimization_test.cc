@@ -2,18 +2,11 @@
 //
 // File:	min_relocation_optimization_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 10 11:30:22 EST 2010
+// Date:	Wed Mar 16 16:08:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/06/25 12:37:52 $
-//   $RCSfile: min_relocation_optimization_test.cc,v $
-//   $Revision: 1.2 $
 
 // This program tests when a pointer indirecting through
 // a stub to a relocatable body is recomputed.  The

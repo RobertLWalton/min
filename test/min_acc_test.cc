@@ -3,18 +3,11 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Mar 13 14:23:22 EDT 2011
+// Date:	Wed Mar 16 16:07:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/08/05 11:39:41 $
-//   $RCSfile: min_acc_test.cc,v $
-//   $Revision: 1.10 $
 
 // Table of Contents:
 //

@@ -2,18 +2,11 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec  7 00:54:21 EST 2010
+// Date:	Wed Mar 16 16:08:12 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
 // for this program.
-//
-// RCS Info (may not be true date or author):
-//
-//   $Author: walton $
-//   $Date: 2010/06/26 17:36:07 $
-//   $RCSfile: min_os_test.cc,v $
-//   $Revision: 1.21 $
 
 // Table of Contents:
 //
