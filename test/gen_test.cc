@@ -2,7 +2,7 @@
 //
 // File:	gen_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 19:59:55 EDT 2011
+// Date:	Wed Mar 16 20:07:36 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -21,14 +21,14 @@ using namespace std;
 
 typedef unsigned long long unsgen ;
 
-struct gen;
+class gen;
 namespace unprotected 
 {
     gen new_gen ( unsgen value );
     unsgen value_of ( gen g );
 }
 
-struct gen
+class gen
 {
 
 private:
@@ -70,7 +70,7 @@ gen addtwo ( gen v )
     return test ( v ) ? v : inc ( inc ( v ) );
 }
 
-struct sizetest {
+class sizetest {
     unsgen x;
     gen y;
     unsgen z;
