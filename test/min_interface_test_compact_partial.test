@@ -24,9 +24,9 @@ Test ptr/uns64 conversions:
 min_interface_test.cc:XXXX assert:
     b64 == buffer true.
 
-Test stub/uns32 conversions:
+Test stub/unsgen conversions:
 min_interface_test.cc:XXXX assert:
-    s32 == stub true.
+    sgen == stub true.
 
 Finish Internal Pointer Conversion Test!
 
@@ -134,7 +134,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( listauxgen ) == min::GEN_LIST_AUX true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::list_aux_of ( listauxgen ) == aux true.
 min_interface_test.cc:XXXX desire success:
@@ -151,7 +151,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     count_gen_tests ( listauxgen ) == 2 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::list_aux_of ( listauxgen ) == reaux true.
 
@@ -164,7 +164,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( sublistauxgen ) == min::GEN_SUBLIST_AUX true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::sublist_aux_of ( sublistauxgen ) == aux true.
 min_interface_test.cc:XXXX desire success:
@@ -185,7 +185,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( indirectauxgen ) == min::GEN_INDIRECT_AUX true.
 ../include/min.h:XXXX assert:
-    is_indirect_aux ( v ) true.
+    is_indirect_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::indirect_aux_of ( indirectauxgen ) == aux true.
 min_interface_test.cc:XXXX desire success:
@@ -206,7 +206,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( indexgen ) == min::GEN_INDEX true.
 ../include/min.h:XXXX assert:
-    is_index ( v ) true.
+    is_index ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::index_of ( indexgen ) == index true.
 min_interface_test.cc:XXXX desire success:
@@ -227,7 +227,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( codegen ) == min::GEN_CONTROL_CODE true.
 ../include/min.h:XXXX assert:
-    is_control_code ( v ) true.
+    is_control_code ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::control_code_of ( codegen ) == code true.
 min_interface_test.cc:XXXX desire success:
@@ -241,29 +241,29 @@ min_interface_test.cc:XXXX desire failure:
 
 Test special general values:
 min_interface_test.cc:XXXX assert:
-    min::is_special ( min::MISSING ) true.
+    min::is_special ( min::MISSING() ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_tests ( min::MISSING ) == 1 true.
+    count_gen_tests ( min::MISSING() ) == 1 true.
 min_interface_test.cc:XXXX assert:
-    min::is_special ( min::ANY ) true.
+    min::is_special ( min::ANY() ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_tests ( min::ANY ) == 1 true.
+    count_gen_tests ( min::ANY() ) == 1 true.
 min_interface_test.cc:XXXX assert:
-    min::is_special ( min::MULTI_VALUED ) true.
+    min::is_special ( min::MULTI_VALUED() ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_tests ( min::MULTI_VALUED ) == 1 true.
+    count_gen_tests ( min::MULTI_VALUED() ) == 1 true.
 min_interface_test.cc:XXXX assert:
-    min::is_special ( min::UNDEFINED ) true.
+    min::is_special ( min::UNDEFINED() ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_tests ( min::UNDEFINED ) == 1 true.
+    count_gen_tests ( min::UNDEFINED() ) == 1 true.
 min_interface_test.cc:XXXX assert:
-    min::is_special ( min::SUCCESS ) true.
+    min::is_special ( min::SUCCESS() ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_tests ( min::SUCCESS ) == 1 true.
+    count_gen_tests ( min::SUCCESS() ) == 1 true.
 min_interface_test.cc:XXXX assert:
-    min::is_special ( min::FAILURE ) true.
+    min::is_special ( min::FAILURE() ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_tests ( min::FAILURE ) == 1 true.
+    count_gen_tests ( min::FAILURE() ) == 1 true.
 specialgen: SPECIAL(0x7e005f)
 min_interface_test.cc:XXXX assert:
     min::is_special ( specialgen ) true.
@@ -272,7 +272,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::gen_subtype_of ( specialgen ) == min::GEN_SPECIAL true.
 ../include/min.h:XXXX assert:
-    is_special ( v ) true.
+    is_special ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::special_index_of ( specialgen ) == special true.
 min_interface_test.cc:XXXX desire success:
@@ -610,18 +610,18 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_name ( n2 ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::NUMBER true.
+    type_of ( s ) == NUMBER true.
 min_interface_test.cc:XXXX assert:
     min::float_of ( n2 ) == 1.2345 true.
 min_interface_test.cc:XXXX assert:
     MUP::float_of ( n2 ) == 1.2345 true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::NUMBER true.
+    type_of ( s ) == NUMBER true.
 n2hash: 4b952bc9
 min_interface_test.cc:XXXX assert:
     n2hash == min::floathash ( 1.2345 ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::NUMBER true.
+    type_of ( s ) == NUMBER true.
 min_interface_test.cc:XXXX assert:
     n2hash == min::hash ( n2 ) true.
 min_interface_test.cc:XXXX assert:
@@ -631,7 +631,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_name ( n3 ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::NUMBER true.
+    type_of ( s ) == NUMBER true.
 ../include/min.h:XXXX assert:
     INT_MIN <= f && f <= INT_MAX true.
 ../include/min.h:XXXX assert:
@@ -639,18 +639,18 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::int_of ( n3 ) == 1 << 30 true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::NUMBER true.
+    type_of ( s ) == NUMBER true.
 min_interface_test.cc:XXXX assert:
     min::float_of ( n3 ) == 1 << 30 true.
 min_interface_test.cc:XXXX assert:
     MUP::float_of ( n3 ) == 1 << 30 true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::NUMBER true.
+    type_of ( s ) == NUMBER true.
 n3hash: 6a5fea4f
 min_interface_test.cc:XXXX assert:
     n3hash == min::floathash ( 1 << 30 ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::NUMBER true.
+    type_of ( s ) == NUMBER true.
 min_interface_test.cc:XXXX assert:
     n3hash == min::hash ( n3 ) true.
 min_interface_test.cc:XXXX assert:
@@ -718,93 +718,93 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen3, 2 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen7 ) == 7 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen7 ) == s7hash true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::hash ( strgen7 ) == s7hash true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s7 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s7, strgen7 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen7 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     buffer[6] == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen7, 6 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen8 ) == 8 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen8 ) == s8hash true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::hash ( strgen8 ) == s8hash true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s8 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s8, strgen8 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen8 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     buffer[7] == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen8, 7 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::hash ( strgen13 ) == s13hash true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s13, strgen13 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen13 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     buffer[12] == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen13, 12 ) == 0 true.
 
@@ -830,25 +830,25 @@ Test protected string ptrs:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s3, p3 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -920,17 +920,17 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s13, p13 ) == 0 true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s13, p ) == 0 true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s8, p ) == 0 true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s13, pb ) == 0 true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( s13, pc ) == 0 true.
 
@@ -940,12 +940,12 @@ Start Labels Test!
 
 Test label hash:
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 labhash1: 95375049
 
 Test labels:
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
@@ -953,37 +953,37 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::is_stub ( lab ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     min::labhash ( s ) == labhash1 true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 min_interface_test.cc:XXXX assert:
     min::lablen ( s ) == 3 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     min::labhash ( lab ) == labhash1 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == min::LABEL true.
 min_interface_test.cc:XXXX assert:
     min::lablen ( lab ) == 3 true.
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( s ) == 3 * sizeof ( min::gen ) + sizeof ( MINT::lab_header ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     min::hash ( lab ) == labhash1 true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -993,9 +993,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, s ) == 3 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1005,9 +1005,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::new_lab_gen ( labv2, 3 ) == lab true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1017,9 +1017,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, lab ) == 3 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1035,44 +1035,44 @@ Start Names Test!
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 HASH of new_num_gen ( 1 ) = 3919206129
 HASH of new_num_gen ( 2 ) = 3295440832
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 HASH of new_str_gen ( "str 1" ) = 3498587010
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 HASH of new_str_gen ( "str 2" ) = 3498587011
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 1.0 }, 1 ) = 1239175266
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 2.0 }, 1 ) = 615409969
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 1.0, "str 1" }, 2 ) = 991637220
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    min::type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 1.0, "str 2" }, 2 ) = 991637221
 min_interface_test.cc:XXXX assert:
     min::compare ( num1, num1 ) == 0 true.
@@ -1081,27 +1081,27 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( num2, num1 ) > 0 true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( str1, str1 ) == 0 true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( str1, str2 ) < 0 true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( str2, str1 ) > 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1109,9 +1109,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab11, lab11 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1119,9 +1119,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab11, lab12 ) < 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1129,11 +1129,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab12, lab11 ) > 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    i < header()->length true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1141,15 +1139,17 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
+../include/min.h:XXXX assert:
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab21 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1157,9 +1157,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab11, lab21 ) < 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1167,11 +1167,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab11 ) > 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    i < header()->length true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1179,15 +1177,17 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
+../include/min.h:XXXX assert:
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab21 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1195,9 +1195,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab23 ) < 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1205,11 +1205,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab21 ) > 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    i < header()->length true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1217,17 +1215,17 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
+../include/min.h:XXXX assert:
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab23 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    i < header()->length true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1235,17 +1233,17 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
+../include/min.h:XXXX assert:
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab24 ) < 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
-../include/min.h:XXXX assert:
-    i < header()->length true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1253,9 +1251,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    i < header()->length true.
 ../include/min.h:XXXX assert:
-    min::is_str ( v ) true.
+    is_str ( g ) true.
+../include/min.h:XXXX assert:
+    is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab24, lab23 ) > 0 true.
 
@@ -1293,7 +1293,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
@@ -1308,7 +1308,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     upv2->j == 99 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
@@ -1318,15 +1318,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     pv2->j == 99 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     upv2 == min::stub_of ( v2 ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     upv2 != min::stub_of ( v2 ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
@@ -1340,7 +1340,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     upv2->j == 44 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
@@ -1365,6 +1365,8 @@ min_interface_test.cc:XXXX assert:
 Finish Packed Structs Test!
 
 Start Packed Vectors Test!
+min_interface_test.cc:XXXX assert:
+    sizeof ( pve ) == 32 true.
 min_interface_test.cc:XXXX assert:
     8 * min::OFFSETOF ( & min::locatable_var<pvt::insptr> ::previous ) == MIN_PTR_BITS true.
 pvtype.name = pvtype
@@ -1397,7 +1399,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     pvip[0].j == 88 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == PACKED_VEC true.
 ../include/min.h:XXXX assert:
@@ -1656,7 +1658,7 @@ Test short objects:
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( sstub ) == min::SHORT_OBJ true.
 ../include/min.h:XXXX assert:
@@ -1681,11 +1683,11 @@ Test long objects:
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( lstub ) == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
@@ -1722,15 +1724,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::aux_size_of ( vp ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    base[ht] == min::LIST_END true.
+    base[ht] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     index < vp.attr_offset true.
 min_interface_test.cc:XXXX assert:
-    base[ht] == min::EMPTY_SUBLIST true.
+    base[ht] == min::EMPTY_SUBLIST() true.
 ../include/min.h:XXXX assert:
     index < vp.attr_offset true.
 min_interface_test.cc:XXXX assert:
-    min::hash(vp,0) == min::EMPTY_SUBLIST true.
+    min::hash(vp,0) == min::EMPTY_SUBLIST() true.
 min_interface_test.cc:XXXX assert:
     base[av+0] == num0 true.
 min_interface_test.cc:XXXX assert:
@@ -1760,7 +1762,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1898,17 +1900,17 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 min_interface_test.cc:XXXX assert:
-    base[attr_offset] == min::MISSING true.
+    base[attr_offset] == min::MISSING() true.
 ../include/min.h:XXXX assert:
     index < unused_offset true.
 min_interface_test.cc:XXXX assert:
-    vp[0] == min::MISSING true.
+    vp[0] == min::MISSING() true.
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 ../include/min.h:XXXX assert:
     index < unused_offset true.
 min_interface_test.cc:XXXX assert:
-    vp[0] == min::LIST_END true.
+    vp[0] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
@@ -1918,9 +1920,9 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index < vp.total_size true.
 min_interface_test.cc:XXXX assert:
-    base[attr_offset] == min::LIST_END true.
+    base[attr_offset] == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    base[aux_offset] == min::LIST_END true.
+    base[aux_offset] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -1938,17 +1940,17 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == READONLY true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    base[attr_offset] == min::LIST_END true.
+    base[attr_offset] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     index < unused_offset true.
 min_interface_test.cc:XXXX assert:
-    vp[0] == min::LIST_END true.
+    vp[0] == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    base[aux_offset] == min::LIST_END true.
+    base[aux_offset] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -1968,15 +1970,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::aux_size_of ( vp ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    base[ht] == min::LIST_END true.
+    base[ht] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     index < vp.attr_offset true.
 min_interface_test.cc:XXXX assert:
-    base[ht] == min::EMPTY_SUBLIST true.
+    base[ht] == min::EMPTY_SUBLIST() true.
 ../include/min.h:XXXX assert:
     index < vp.attr_offset true.
 min_interface_test.cc:XXXX assert:
-    min::hash(vp,0) == min::EMPTY_SUBLIST true.
+    min::hash(vp,0) == min::EMPTY_SUBLIST() true.
 min_interface_test.cc:XXXX assert:
     base[av+0] == num0 true.
 min_interface_test.cc:XXXX assert:
@@ -2008,7 +2010,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
@@ -2148,17 +2150,17 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 min_interface_test.cc:XXXX assert:
-    base[attr_offset] == min::MISSING true.
+    base[attr_offset] == min::MISSING() true.
 ../include/min.h:XXXX assert:
     index < unused_offset true.
 min_interface_test.cc:XXXX assert:
-    vp[0] == min::MISSING true.
+    vp[0] == min::MISSING() true.
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 ../include/min.h:XXXX assert:
     index < unused_offset true.
 min_interface_test.cc:XXXX assert:
-    vp[0] == min::LIST_END true.
+    vp[0] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
@@ -2168,9 +2170,9 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index < vp.total_size true.
 min_interface_test.cc:XXXX assert:
-    base[attr_offset] == min::LIST_END true.
+    base[attr_offset] == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    base[aux_offset] == min::LIST_END true.
+    base[aux_offset] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -2196,19 +2198,19 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     t == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    base[attr_offset] == min::LIST_END true.
+    base[attr_offset] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     index < unused_offset true.
 min_interface_test.cc:XXXX assert:
-    vp[0] == min::LIST_END true.
+    vp[0] == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    base[aux_offset] == min::LIST_END true.
+    base[aux_offset] == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -2224,7 +2226,7 @@ Start Object List Level Test!
 
 Test short object aux stubs list level:
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 510 USIZE 0 TSIZE 632
@@ -2233,15 +2235,15 @@ Test short object aux stubs list level:
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( lp ) == min::LIST_END true.
+    min::peek ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( lp ) == min::LIST_END true.
+    min::next ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::current ( lp ) == min::LIST_END true.
+    min::current ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( lp ) == min::LIST_END true.
+    min::peek ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( lp ) == min::LIST_END true.
+    min::next ( lp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2280,13 +2282,13 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num101 true.
 ../include/min.h:XXXX assert:
-    value != min::LIST_END true.
+    value != min::LIST_END() true.
 ../include/min.h:XXXX assert:
-    lp.current != min::LIST_END true.
+    lp.current != min::LIST_END() true.
 ../include/min.h:XXXX assert:
-    value == min::EMPTY_SUBLIST || ! is_sublist ( value ) true.
+    value == min::EMPTY_SUBLIST() || ! is_sublist ( value ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::EMPTY_SUBLIST true.
+    min::current ( wlp ) == min::EMPTY_SUBLIST() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2304,7 +2306,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -2315,7 +2317,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -2351,9 +2353,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -2371,17 +2373,17 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2411,9 +2413,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -2427,9 +2429,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -2441,9 +2443,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -2453,9 +2455,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -2473,9 +2475,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2485,33 +2487,33 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     1 == min::remove ( wlp, 3 ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::LIST_END true.
+    min::current ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::LIST_END true.
+    min::current ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 
 Test short object aux area list level:
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 510 USIZE 0 TSIZE 632
@@ -2520,15 +2522,15 @@ Test short object aux area list level:
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( lp ) == min::LIST_END true.
+    min::peek ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( lp ) == min::LIST_END true.
+    min::next ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::current ( lp ) == min::LIST_END true.
+    min::current ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( lp ) == min::LIST_END true.
+    min::peek ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( lp ) == min::LIST_END true.
+    min::next ( lp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2569,43 +2571,43 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num100 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num101 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num101 true.
 ../include/min.h:XXXX assert:
-    value != min::LIST_END true.
+    value != min::LIST_END() true.
 ../include/min.h:XXXX assert:
-    lp.current != min::LIST_END true.
+    lp.current != min::LIST_END() true.
 ../include/min.h:XXXX assert:
-    value == min::EMPTY_SUBLIST || ! is_sublist ( value ) true.
+    value == min::EMPTY_SUBLIST() || ! is_sublist ( value ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::EMPTY_SUBLIST true.
+    min::current ( wlp ) == min::EMPTY_SUBLIST() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -2617,7 +2619,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 ADDING 20 ELEMENTS TO UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -2632,9 +2634,9 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -2642,7 +2644,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -2658,11 +2660,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 ADDING 20 ELEMENTS TO UNUSED AREA
@@ -2683,57 +2685,57 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num101 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num101 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 min_interface_test.cc:XXXX assert:
@@ -2743,35 +2745,35 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num100 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::peek ( wlp ) ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -2779,21 +2781,21 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num101 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num101 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -2803,45 +2805,45 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -2851,33 +2853,33 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
@@ -2893,21 +2895,21 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -2917,43 +2919,43 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     1 == min::remove ( wlp, 3 ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::LIST_END true.
+    min::current ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::LIST_END true.
+    min::current ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 
 Test short object alternate aux list level:
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 826 USIZE 0 TSIZE 948
@@ -2962,15 +2964,15 @@ Test short object alternate aux list level:
 min_interface_test.cc:XXXX assert:
     min::current ( lp ) == base[vorg+0] true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( lp ) == min::LIST_END true.
+    min::peek ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( lp ) == min::LIST_END true.
+    min::next ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::current ( lp ) == min::LIST_END true.
+    min::current ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( lp ) == min::LIST_END true.
+    min::peek ( lp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( lp ) == min::LIST_END true.
+    min::next ( lp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -3013,21 +3015,21 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::peek ( wlp ) == num101 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num101 true.
 ../include/min.h:XXXX assert:
-    value != min::LIST_END true.
+    value != min::LIST_END() true.
 ../include/min.h:XXXX assert:
-    lp.current != min::LIST_END true.
+    lp.current != min::LIST_END() true.
 ../include/min.h:XXXX assert:
-    value == min::EMPTY_SUBLIST || ! is_sublist ( value ) true.
+    value == min::EMPTY_SUBLIST() || ! is_sublist ( value ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::EMPTY_SUBLIST true.
+    min::current ( wlp ) == min::EMPTY_SUBLIST() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -3035,7 +3037,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::next ( wlp ) == num100 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -3047,7 +3049,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
@@ -3058,7 +3060,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num100 true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::current ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -3101,11 +3103,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3125,11 +3127,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 min_interface_test.cc:XXXX assert:
@@ -3139,11 +3141,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -3155,11 +3157,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::peek ( wlp ) ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::is_sublist ( min::next ( wlp ) ) true.
 ../include/min.h:XXXX assert:
@@ -3181,11 +3183,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3201,11 +3203,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3221,33 +3223,33 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wslp ) == min::LIST_END true.
+    min::peek ( wslp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wslp ) == min::LIST_END true.
+    min::next ( wslp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_sublist_aux ( v ) true.
+    is_sublist_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wslp ) == num102 true.
 min_interface_test.cc:XXXX assert:
@@ -3263,17 +3265,17 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == numtest true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -3283,37 +3285,37 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::current ( wlp ) == num102 true.
 ../include/min.h:XXXX assert:
     index != 0 true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
-    min::peek ( wlp ) == min::LIST_END true.
+    min::peek ( wlp ) == min::LIST_END() true.
 min_interface_test.cc:XXXX assert:
-    min::next ( wlp ) == min::LIST_END true.
+    min::next ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 min_interface_test.cc:XXXX assert:
     1 == min::remove ( wlp, 3 ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::LIST_END true.
+    min::current ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
-    min::current ( wlp ) == min::LIST_END true.
+    min::current ( wlp ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 
@@ -3321,35 +3323,35 @@ Finish Object List Level Test!
 
 Start Object Attribute Level Test!
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == min::LABEL true.
+    type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
@@ -3361,7 +3363,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int1 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
@@ -3371,7 +3373,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
@@ -3381,7 +3383,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
@@ -3391,9 +3393,9 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3401,9 +3403,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int1 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3411,9 +3413,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int2 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3421,9 +3423,9 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int3 true.
 ../include/min.h:XXXX assert:
-    is_stub ( v ) true.
+    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
-    is_list_aux ( v ) true.
+    is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
@@ -3435,11 +3437,11 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 min_interface_test.cc:XXXX assert:
-    min::attr ( vp, 21 ) == min::LIST_END true.
+    min::attr ( vp, 21 ) == min::LIST_END() true.
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
-    min::get ( ap ) == min::NONE true.
+    min::get ( ap ) == min::NONE() true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:

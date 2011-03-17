@@ -2,7 +2,7 @@
 //
 // File:	gen_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 20:07:36 EDT 2011
+// Date:	Thu Mar 17 12:12:50 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -30,7 +30,6 @@ namespace unprotected
 
 class gen
 {
-
 private:
 
     unsgen value;
@@ -70,11 +69,37 @@ gen addtwo ( gen v )
     return test ( v ) ? v : inc ( inc ( v ) );
 }
 
+inline bool operator == ( gen g1, gen g2 )
+{
+    return unprotected::value_of ( g1 )
+	   ==
+           unprotected::value_of ( g2 );
+}
+
+inline gen c7 ( void )
+{
+    return unprotected::new_gen ( 7 );
+}
+
+bool test7 ( gen g )
+{
+    return g == c7();
+}
+
 class sizetest {
     unsgen x;
     gen y;
-    unsgen z;
+    union {
+	gen z;
+	char b[3];
+    } w;
 };
+
+double new_float ( gen g )
+{
+    unsgen value = unprotected::value_of ( g );
+    return * (double *) & value;
+}
 
 int main()
 {
@@ -84,7 +109,8 @@ int main()
     assert (    3 * sizeof ( unsgen )
              == sizeof ( sizetest ) );
     gen x = unprotected::new_gen ( 5 );
+    gen y = unprotected::new_gen ( 7 );
     x = addtwo ( x );
-    assert ( unprotected::value_of ( x ) == 7 );
+    assert ( x == y );
     cout << "OK" << endl;
 }
