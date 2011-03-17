@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:05:46 EDT 2011
+// Date:	Thu Mar 17 09:52:26 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -570,28 +570,12 @@ void test_ptr_conversions ( void )
 	MINT::uns64_to_ptr ( u64 );
     MIN_ASSERT ( b64 == buffer );
 
-#   if MIN_IS_COMPACT
-	cout << endl;
-	cout << "Test stub/uns32 conversions:"
-	     << endl;
-	min::uns32 u32 =
-	    MINT::stub_to_unsgen ( stub );
-	min::stub * s32 =
-	    MINT::unsgen_to_stub ( u32 );
-	MIN_ASSERT ( s32 == stub );
-#   elif MIN_IS_LOOSE
-	cout << endl;
-	cout << "Test general stub/uns64"
-		" conversions:" << endl;
-	u64 = MINT::stub_to_unsgen ( stub );
-	min::stub * s64 =
-	    MINT::unsgen_to_stub ( u64 );
-	MIN_ASSERT ( s64 == stub );
-	u64 += min::uns64(min::GEN_STUB) << 44;
-	min::uns64 g64 =
-	    MINT::stub_into_gen ( u64, stub );
-	MIN_ASSERT ( u64 == g64 );
-#   endif
+    cout << endl;
+    cout << "Test stub/unsgen conversions:"
+	 << endl;
+    min::unsgen ugen = MINT::stub_to_unsgen ( stub );
+    min::stub * sgen = MINT::unsgen_to_stub ( ugen );
+    MIN_ASSERT ( sgen == stub );
 
     cout << endl;
     cout << "Finish Internal Pointer Conversion"
@@ -633,7 +617,7 @@ void test_general_value_functions ( void )
     cout << "stub: " << hex
 	 << min::unsptr ( stub )
 	 << dec << endl;
-    min::gen stubgen = MUP::new_gen ( stub );
+    min::gen stubgen = MUP::new_stub_gen ( stub );
     cout << "stubgen: " << MTEST::ogen ( stubgen )
 	 << endl;
     MIN_ASSERT ( min::is_stub ( stubgen ) );
@@ -918,30 +902,30 @@ void test_general_value_functions ( void )
 	 << endl;
 
     MIN_ASSERT
-	( min::is_special ( min::MISSING ) );
+	( min::is_special ( min::MISSING() ) );
     MIN_ASSERT
-	( count_gen_tests ( min::MISSING ) == 1 );
+	( count_gen_tests ( min::MISSING() ) == 1 );
     MIN_ASSERT
-	( min::is_special ( min::ANY ) );
+	( min::is_special ( min::ANY() ) );
     MIN_ASSERT
-	( count_gen_tests ( min::ANY ) == 1 );
+	( count_gen_tests ( min::ANY() ) == 1 );
     MIN_ASSERT
-	( min::is_special ( min::MULTI_VALUED ) );
+	( min::is_special ( min::MULTI_VALUED() ) );
     MIN_ASSERT
 	( count_gen_tests
-	      ( min::MULTI_VALUED ) == 1 );
+	      ( min::MULTI_VALUED() ) == 1 );
     MIN_ASSERT
-	( min::is_special ( min::UNDEFINED ) );
+	( min::is_special ( min::UNDEFINED() ) );
     MIN_ASSERT
-	( count_gen_tests ( min::UNDEFINED ) == 1 );
+	( count_gen_tests ( min::UNDEFINED() ) == 1 );
     MIN_ASSERT
-	( min::is_special ( min::SUCCESS ) );
+	( min::is_special ( min::SUCCESS() ) );
     MIN_ASSERT
-	( count_gen_tests ( min::SUCCESS ) == 1 );
+	( count_gen_tests ( min::SUCCESS() ) == 1 );
     MIN_ASSERT
-	( min::is_special ( min::FAILURE ) );
+	( min::is_special ( min::FAILURE() ) );
     MIN_ASSERT
-	( count_gen_tests ( min::FAILURE ) == 1 );
+	( count_gen_tests ( min::FAILURE() ) == 1 );
 
     unsigned special = 0x7e005f;
     min::gen specialgen =
@@ -1980,15 +1964,27 @@ struct pvh {
 };
 
 struct pve {
-    min::gen g;
+
+    // Invisible padding causes memcmp problems because
+    // the default operator = does NOT copy it, so we
+    // must be sure there is no invisible padding.
+
+    min::gen g1;  // 2 min::gen's to avoid padding
+    min::gen g2;  // before s.
     min::stub * s;
     min::uns8 j;
+
+    min::uns8 padding
+        [32 - 2 * sizeof ( min::gen )
+	    - sizeof ( min::stub * ) - 1];
 };
 
 static min::uns32 pvh_stub_disp[] =
     { min::DISP ( & pvh::pvip ), min::DISP_END };
 static min::uns32 pve_gen_disp[] =
-    { min::DISP ( & pve::g ), min::DISP_END };
+    { min::DISP ( & pve::g1 ),
+      min::DISP ( & pve::g2 ),
+      min::DISP_END };
 static min::uns32 pve_stub_disp[] =
     { min::DISP ( & pve::s ), min::DISP_END };
 
@@ -2000,6 +1996,8 @@ void test_packed_vectors ( void )
 {
     cout << endl;
     cout << "Start Packed Vectors Test!" << endl;
+
+    MIN_ASSERT ( sizeof ( pve ) == 32 );
 
     MIN_ASSERT
         (    8 * min::OFFSETOF
@@ -2017,7 +2015,7 @@ void test_packed_vectors ( void )
                  == pvtype.subtype );
     MIN_ASSERT ( pvip->max_length == 5 );
     MIN_ASSERT ( pvip->length == 0 );
-    pve e1 = { min::MISSING, NULL, 88 };
+    pve e1 = { min::MISSING(), min::ANY(), NULL, 88 };
     min::push(pvip) = e1;
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
@@ -2025,9 +2023,12 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvp->length == 1 );
     MIN_ASSERT ( pvp[0].j == 88 );
 
-    pve e2[3] = { { min::MISSING, NULL, 11 },
-                  { min::MISSING, NULL, 22 },
-                  { min::MISSING, NULL, 33 } };
+    pve e2[3] = { { min::MISSING(), min::NONE(),
+                    NULL, 11 },
+                  { min::MISSING(), min::NONE(),
+		    NULL, 22 },
+                  { min::MISSING(), min::NONE(),
+		    NULL, 33 } };
     min::push ( pvip, 3, e2 );
     MIN_ASSERT ( pvp[1].j == 11 );
     MIN_ASSERT ( pvp[2].j == 22 );
@@ -2425,16 +2426,16 @@ void test_printer ( void )
                     ( min::new_lab_gen ( lab2, 3 ) )
             << min::eol;
 
-    printer << min::pgen ( min::MISSING ) << min::eol;
-    printer << min::pgen ( min::NONE ) << min::eol;
-    printer << min::pgen ( min::ANY ) << min::eol;
-    printer << min::pgen ( min::MULTI_VALUED )
+    printer << min::pgen ( min::MISSING() ) << min::eol;
+    printer << min::pgen ( min::NONE() ) << min::eol;
+    printer << min::pgen ( min::ANY() ) << min::eol;
+    printer << min::pgen ( min::MULTI_VALUED() )
             << min::eol;
-    printer << min::pgen ( min::UNDEFINED ) << min::eol;
-    printer << min::pgen ( min::SUCCESS ) << min::eol;
-    printer << min::pgen ( min::FAILURE ) << min::eol;
+    printer << min::pgen ( min::UNDEFINED() ) << min::eol;
+    printer << min::pgen ( min::SUCCESS() ) << min::eol;
+    printer << min::pgen ( min::FAILURE() ) << min::eol;
     printer << min::pgen
-                    ( MIN_NEW_SPECIAL_GEN (0xABCDEF) )
+                    ( min::new_special_gen (0xABCDEF) )
             << min::eol;
     
     min::stub * s = MUP::new_aux_stub();
@@ -2466,7 +2467,7 @@ void test_printer ( void )
             << min::eol;
 
     printer << min::pgen
-                    ( (min::gen)
+                    ( min::unprotected::new_gen
                       ( (min::unsgen ) min::GEN_ILLEGAL
 		        << min::VSIZE ) )
             << min::eol;
@@ -2475,11 +2476,11 @@ void test_printer ( void )
     f.special_prefix = "{";
     f.special_postfix = "}";
     printer << min::bom
-            << min::pgen ( min::MISSING ) << " "
+            << min::pgen ( min::MISSING() ) << " "
             << min::set_format ( & f )
-	    << min::pgen ( min::MISSING ) << " "
+	    << min::pgen ( min::MISSING() ) << " "
 	    << min::pgen
-	           ( min::MISSING,
+	           ( min::MISSING(),
 		     & min::default_printer_format )
             << min::eom;
 
@@ -2770,14 +2771,14 @@ void test_object_vector_level
 	min::unsptr total_size =
 	    min::total_size_of ( vp );
 
-	MIN_ASSERT ( base[ht] == min::LIST_END );
+	MIN_ASSERT ( base[ht] == min::LIST_END() );
 	min::set_hash
-	    ( vp, 0, min::EMPTY_SUBLIST );
+	    ( vp, 0, min::EMPTY_SUBLIST() );
 	MIN_ASSERT
-	    ( base[ht] == min::EMPTY_SUBLIST );
+	    ( base[ht] == min::EMPTY_SUBLIST() );
 	MIN_ASSERT
 	    (    min::hash(vp,0)
-	      == min::EMPTY_SUBLIST );
+	      == min::EMPTY_SUBLIST() );
 
 	base[av] = num0;
 	MIN_ASSERT
@@ -2905,23 +2906,23 @@ void test_object_vector_level
 	min::unsptr aux_offset =
 	    MUP::aux_offset_of ( vp );
 
-	min::set_attr ( vp, 0, min::MISSING );
+	min::set_attr ( vp, 0, min::MISSING() );
 	MIN_ASSERT
-	    ( base[attr_offset] == min::MISSING );
-	MIN_ASSERT ( vp[0] == min::MISSING );
+	    ( base[attr_offset] == min::MISSING() );
+	MIN_ASSERT ( vp[0] == min::MISSING() );
 
-	min::set_attr ( vp, 0, min::LIST_END );
-	MIN_ASSERT ( vp[0] == min::LIST_END );
+	min::set_attr ( vp, 0, min::LIST_END() );
+	MIN_ASSERT ( vp[0] == min::LIST_END() );
 
 	vp[1] = min::new_list_aux_gen
 		    ( total_size - aux_offset );
 	min::set_aux
 	    ( vp, total_size - aux_offset,
-	          min::LIST_END );
+	          min::LIST_END() );
 	MIN_ASSERT
-	    ( base[attr_offset] == min::LIST_END );
+	    ( base[attr_offset] == min::LIST_END() );
 	MIN_ASSERT
-	    ( base[aux_offset] == min::LIST_END );
+	    ( base[aux_offset] == min::LIST_END() );
 	MIN_ASSERT
 	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
@@ -2949,11 +2950,11 @@ void test_object_vector_level
 	vp = min::NULL_STUB;
 	vp = v;
 	MIN_ASSERT
-	    ( base[attr_offset] == min::LIST_END );
+	    ( base[attr_offset] == min::LIST_END() );
 	MIN_ASSERT
-	    ( vp[0] == min::LIST_END );
+	    ( vp[0] == min::LIST_END() );
 	MIN_ASSERT
-	    ( base[aux_offset] == min::LIST_END );
+	    ( base[aux_offset] == min::LIST_END() );
 	MIN_ASSERT
 	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
@@ -3097,15 +3098,15 @@ void test_object_list_level
     MIN_ASSERT
 	( min::current ( lp ) == base[vorg+0] );
     MIN_ASSERT
-	( min::peek ( lp ) == min::LIST_END );
+	( min::peek ( lp ) == min::LIST_END() );
     MIN_ASSERT
-	( min::next ( lp ) == min::LIST_END );
+	( min::next ( lp ) == min::LIST_END() );
     MIN_ASSERT
-	( min::current ( lp ) == min::LIST_END );
+	( min::current ( lp ) == min::LIST_END() );
     MIN_ASSERT
-	( min::peek ( lp ) == min::LIST_END );
+	( min::peek ( lp ) == min::LIST_END() );
     MIN_ASSERT
-	( min::next ( lp ) == min::LIST_END );
+	( min::next ( lp ) == min::LIST_END() );
     base[vorg+0] = numtest;
     min::start_vector ( lp, 0 );
     MIN_ASSERT
@@ -3126,9 +3127,9 @@ void test_object_list_level
     MIN_ASSERT ( min::peek ( wlp ) == num101 );
     MIN_ASSERT ( min::next ( wlp ) == num101 );
 
-    min::update ( wlp, min::EMPTY_SUBLIST );
+    min::update ( wlp, min::EMPTY_SUBLIST() );
     MIN_ASSERT (    min::current ( wlp )
-		 == min::EMPTY_SUBLIST );
+		 == min::EMPTY_SUBLIST() );
     //
     // Vector[0] list now is
     //	{ numtest, num100, {}, num102 }
@@ -3144,7 +3145,7 @@ void test_object_list_level
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
     MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
     min::insert_refresh ( wlp );
     MIN_ASSERT
         ( min::is_sublist ( min::current ( wlp ) ) );
@@ -3160,8 +3161,8 @@ void test_object_list_level
     MIN_ASSERT ( min::current ( wslp ) == num101 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
     //
     // Vector[0] list now is
     //	{ numtest, num100,
@@ -3173,13 +3174,13 @@ void test_object_list_level
     MIN_ASSERT ( min::next ( wslp ) == num101 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
 
     MIN_ASSERT ( min::peek ( wlp ) == num102 );
     MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( min::current ( wlp ) == numtest );
@@ -3202,15 +3203,15 @@ void test_object_list_level
     //        { num100, num102 }, num102 }
     //
     MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num100 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
@@ -3221,13 +3222,13 @@ void test_object_list_level
     //        { num102 }, num102 }
     //
     MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
@@ -3241,8 +3242,8 @@ void test_object_list_level
                       ( min::current ( wslp ) ) );
     MIN_ASSERT ( min::peek ( wlp ) == num102 );
     MIN_ASSERT ( min::next ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( min::current ( wlp ) == numtest );
@@ -3251,13 +3252,13 @@ void test_object_list_level
     // Vector[0] list now is { num102 }
     //
     MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( min::current ( wlp ) == num102 );
-    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END );
-    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END );
+    MIN_ASSERT ( min::peek ( wlp ) == min::LIST_END() );
+    MIN_ASSERT ( min::next ( wlp ) == min::LIST_END() );
 
     min::start_vector ( wlp, 0 );
     MIN_ASSERT ( 1 == min::remove ( wlp, 3 ) );
@@ -3265,10 +3266,10 @@ void test_object_list_level
     // Vector[0] list now is { }
     //
     MIN_ASSERT
-	( min::current ( wlp ) == min::LIST_END );
+	( min::current ( wlp ) == min::LIST_END() );
     min::start_vector ( wlp, 0 );
     MIN_ASSERT
-	( min::current ( wlp ) == min::LIST_END );
+	( min::current ( wlp ) == min::LIST_END() );
 }
 
 void test_object_list_level ( void )
@@ -3519,11 +3520,12 @@ static bool check_flags
 	for ( unsigned j = 0; j < min::VSIZE; ++ j )
 	{
 	    bool flag =
-		( (      flags[i]
+		( (      min::control_code_of
+		             ( flags[i] )
 		       & ( (min::unsgen) 1 << j ) )
 		    != 0 );
 	    bool pflag =
-		( (      p[i]
+		( (      min::control_code_of ( p[i] )
 		       & ( (min::unsgen) 1 << j ) )
 		    != 0 );
 	    if ( flag == pflag ) continue;
@@ -3794,14 +3796,14 @@ void test_object_attribute_level ( void )
 
     min_assert_print = false;
     for ( unsigned i = 0; i < 50; ++ i )
-        min::attr_push(vp) = min::LIST_END;
+        min::attr_push(vp) = min::LIST_END();
     min_assert_print = true;
     MIN_ASSERT ( min::attr_size_of ( vp ) == 50 );
     MIN_ASSERT
-        ( min::attr ( vp, 21 ) == min::LIST_END );
+        ( min::attr ( vp, 21 ) == min::LIST_END() );
 
     min::locatei ( ap, 1 );
-    MIN_ASSERT ( min::get ( ap ) == min::NONE );
+    MIN_ASSERT ( min::get ( ap ) == min::NONE() );
     min::set ( ap, lab1 );
     MIN_ASSERT ( min::get ( ap ) == lab1 );
     min::locatei ( ap, 2 );

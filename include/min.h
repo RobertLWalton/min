@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:11:24 EDT 2011
+// Date:	Thu Mar 17 09:31:08 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,16 +112,6 @@ namespace min {
 // ------- ----- ----- --- ----
 
 namespace min {
-
-    // We assume the machine has integer registers that
-    // are the most efficient place for min::gen values.
-    //
-#   if MIN_IS_COMPACT
-	typedef uns32 gen;
-#   elif MIN_IS_LOOSE
-	typedef uns64 gen;
-#   endif
-
 
 #   if MIN_IS_COMPACT
 
@@ -254,35 +244,84 @@ namespace min {
 #	endif
     }
 
-#   define MIN_NEW_SPECIAL_GEN(i) \
-	( min::gen ( (   min::unsgen \
-	                      ( min::GEN_SPECIAL ) \
-	              << min::VSIZE ) \
-		     + ( i ) ) )
+    class gen;
+    namespace unprotected {
+        min::gen new_gen ( min::unsgen value );
+	min::unsgen value_of ( min::gen g );
+    }
+
+    class gen
+    {
+
+    private:
+
+        min::unsgen value;
+
+        friend min::gen min::unprotected::new_gen
+	    ( min::unsgen value );
+	friend min::unsgen min::unprotected::value_of
+	    ( min::gen g );
+    };
+
+    namespace unprotected {
+
+        inline min::gen new_gen ( min::unsgen value )
+	{
+	    min::gen result;
+	    result.value = value;
+	    return result;
+	}
+
+	inline min::unsgen value_of ( min::gen g )
+	{
+	    return g.value;
+	}
+    }
+
+    inline bool operator == ( min::gen g1, min::gen g2 )
+    {
+        return unprotected::value_of ( g1 )
+	       ==
+               unprotected::value_of ( g2 );
+    }
+
+    inline bool operator != ( min::gen g1, min::gen g2 )
+    {
+        return unprotected::value_of ( g1 )
+	       !=
+               unprotected::value_of ( g2 );
+    }
+
+    inline min::gen special ( min::unsgen subcode )
+    {
+        return unprotected::new_gen
+	    (   ( unsgen ( GEN_SPECIAL ) << VSIZE )
+	      + subcode );
+    }
 
     // MIN special values must have indices in the
     // range 2**24 - 256 .. 2**24 - 1.
     //
-    const min::gen MISSING =
-	MIN_NEW_SPECIAL_GEN ( 0xFFFFFF );
-    const min::gen NONE =
-	MIN_NEW_SPECIAL_GEN ( 0xFFFFFE );
-    const min::gen ANY =
-	MIN_NEW_SPECIAL_GEN ( 0xFFFFFD );
-    const min::gen MULTI_VALUED =
-	MIN_NEW_SPECIAL_GEN ( 0xFFFFFC );
-    const min::gen UNDEFINED =
-	MIN_NEW_SPECIAL_GEN ( 0xFFFFFB );
-    const min::gen SUCCESS =
-	MIN_NEW_SPECIAL_GEN ( 0xFFFFFA );
-    const min::gen FAILURE =
-	MIN_NEW_SPECIAL_GEN ( 0xFFFFF9 );
+    inline min::gen MISSING ( void )
+	{ return min::special ( 0xFFFFFF ); }
+    inline min::gen NONE ( void )
+	{ return min::special ( 0xFFFFFE ); }
+    inline min::gen ANY ( void )
+	{ return min::special ( 0xFFFFFD ); }
+    inline min::gen MULTI_VALUED ( void )
+	{ return min::special ( 0xFFFFFC ); }
+    inline min::gen UNDEFINED ( void )
+	{ return min::special ( 0xFFFFFB ); }
+    inline min::gen SUCCESS ( void )
+	{ return min::special ( 0xFFFFFA ); }
+    inline min::gen FAILURE ( void )
+	{ return min::special ( 0xFFFFF9 ); }
 
     const unsigned SPECIAL_NAME_LENGTH = 7;
     extern const char * special_name
                             [SPECIAL_NAME_LENGTH];
         // special_name[0xFFFFFF-i] is the name of
-	// MIN_NEW_SPECIAL_GEN(i).  E.g.,
+	// min::special ( i ).  E.g.,
 	// special_name[0] == "MISSING".
 }
 
@@ -328,7 +367,7 @@ namespace min {
     namespace unprotected {
 	// Flags for non-acc control values.
 	//
-	const min::uns64 STUB_PTR = min::uns64(1) << 55;
+	const min::uns64 STUB_PTR = uns64(1) << 55;
 	    // Indicates value part of control value is
 	    // a packed stub address.
     }
@@ -392,11 +431,11 @@ namespace min { namespace internal {
 
     inline void * uns64_to_ptr ( min::uns64 v )
     {
-	return (void *) (min::unsptr) v;
+	return (void *) (unsptr) v;
     }
     inline min::uns64 ptr_to_uns64 ( void * p )
     {
-	return (min::uns64) (min::unsptr) p;
+	return (uns64) (unsptr) p;
     }
 
     // Given a ref to an uns64 we need to convert it to
@@ -427,7 +466,7 @@ namespace min { namespace internal {
 	inline min::stub * unsgen_to_stub
 		( min::unsgen v )
 	{
-	    min::unsptr p = (min::unsptr) v;
+	    unsptr p = (unsptr) v;
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
 		return (min::stub *) p;
@@ -445,10 +484,10 @@ namespace min { namespace internal {
 	{
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
-	        return (min::unsptr) s;
+	        return (unsptr) s;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
                  <= MIN_AMAX
-	        return   (min::unsptr) s - stub_base;
+	        return   (unsptr) s - stub_base;
 #           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 	        return s - (min::stub *) stub_base;
 #           else
@@ -477,25 +516,15 @@ namespace min { namespace internal {
         {
 #           if    MIN_MAX_ABSOLUTE_STUB_ADDRESS \
                <= MIN_AMAX
-	        return (min::unsptr) s;
+	        return (unsptr) s;
 #           elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
                  <= MIN_AMAX
-	        return   (min::unsptr) s - stub_base;
+	        return   (unsptr) s - stub_base;
 #           elif MIN_MAX_STUB_INDEX <= MIN_AMAX
 	        return s - (min::stub *) stub_base;
 #           else
 #	        error   MIN_MAX_STUB_INDEX > MIN_AMAX
 #           endif
-        }
-
-	// Insert packed stub address into general
-	// value.
-	//
-        inline min::gen stub_into_gen
-	        ( min::gen v, const min::stub * s )
-        {
-	    v &= ~ ( ( min::uns64(1) << 44 ) - 1 );
-	    return v + stub_to_unsgen ( s );
         }
 #   endif
 } }
@@ -521,14 +550,15 @@ namespace min { namespace unprotected {
     // MUP:: constructors
 
 #   if MIN_IS_COMPACT
-	inline min::gen new_gen ( const min::stub * s )
+	inline min::gen new_stub_gen
+		( const min::stub * s )
 	{
-	    return (min::gen)
-	        internal::stub_to_unsgen ( s );
+	    return unprotected::new_gen
+	        ( internal::stub_to_unsgen ( s ) );
 	}
 	inline min::gen new_direct_int_gen ( int v )
 	{
-	    return (min::gen)
+	    return unprotected::new_gen
 	           (  (uns32) v
 		    + ( GEN_DIRECT_INT << VSIZE )
 		    + ( 1 << 27 ) );
@@ -544,7 +574,7 @@ namespace min { namespace unprotected {
 	       ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ );
-	    return (min::gen) v;
+	    return unprotected::new_gen ( v );
 	}
 	inline min::gen new_direct_str_gen
 		( const char * p, min::unsptr n )
@@ -555,13 +585,14 @@ namespace min { namespace unprotected {
 	       ( n >= 1 && ( * s ++ = * p ++ ) )
 	    && ( n >= 2 && ( * s ++ = * p ++ ) )
 	    && ( n >= 3 && ( * s ++ = * p ++ ) );
-	    return (min::gen) v;
+	    return unprotected::new_gen ( v );
 	}
 
 #   elif MIN_IS_LOOSE
-	inline min::gen new_gen ( const min::stub * s )
+	inline min::gen new_stub_gen
+		( const min::stub * s )
 	{
-	    return (min::gen)
+	    return unprotected::new_gen
 		   (   internal::stub_to_unsgen ( s )
 		     + ( (uns64) GEN_STUB << VSIZE )  );
 	}
@@ -570,15 +601,8 @@ namespace min { namespace unprotected {
 	inline min::gen new_direct_float_gen
 		( float64 v )
 	{
-	    // Use of union helps the optimizer deal
-	    // with aliasing.
-	    //
-	    union {
-	        float64 f;
-		min::gen g;
-	    } u;
-	    u.f = v;
-	    return u.g;
+	    return unprotected::new_gen
+	        ( * (unsgen *) & v );
 	}
 	inline min::gen new_direct_str_gen
 		( const char * p )
@@ -591,7 +615,7 @@ namespace min { namespace unprotected {
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ )
 	    && ( * s ++ = * p ++ );
-	    return (min::gen) v;
+	    return unprotected::new_gen ( v );
 	}
 	inline min::gen new_direct_str_gen
 		( const char * p, min::unsptr n )
@@ -604,13 +628,13 @@ namespace min { namespace unprotected {
 	    && ( n >= 3 && ( * s ++ = * p ++ ) )
 	    && ( n >= 4 && ( * s ++ = * p ++ ) )
 	    && ( n >= 5 && ( * s ++ = * p ++ ) );
-	    return (min::gen) v;
+	    return unprotected::new_gen ( v );
 	}
 #   endif
 
     inline min::gen new_list_aux_gen ( unsgen p )
     {
-	return (min::gen)
+	return unprotected::new_gen
 	       (   p
 		 + ( (unsgen) GEN_LIST_AUX
 		     << VSIZE ) );
@@ -618,7 +642,7 @@ namespace min { namespace unprotected {
     inline min::gen new_sublist_aux_gen
 	    ( unsgen p )
     {
-	return (min::gen)
+	return unprotected::new_gen
 	       (   p
 		 + ( (unsgen) GEN_SUBLIST_AUX
 		     << VSIZE ) );
@@ -626,20 +650,20 @@ namespace min { namespace unprotected {
     inline min::gen new_indirect_aux_gen
 	    ( unsgen p )
     {
-	return (min::gen)
+	return unprotected::new_gen
 	       (   p
 		 + ( (unsgen) GEN_INDIRECT_AUX
 		     << VSIZE ) );
     }
     inline min::gen new_index_gen ( unsgen i )
     {
-	return (min::gen)
+	return unprotected::new_gen
 	       ( i + ( (unsgen) GEN_INDEX << VSIZE ) );
     }
     inline min::gen new_control_code_gen
 	    ( unsgen c )
     {
-	return (min::gen)
+	return unprotected::new_gen
 	       (   c
 		 + ( (unsgen) GEN_CONTROL_CODE
 		     << VSIZE ) );
@@ -647,7 +671,7 @@ namespace min { namespace unprotected {
     inline min::gen new_special_gen
 	    ( unsgen i )
     {
-	return (min::gen)
+	return unprotected::new_gen
 	       (   i
 		 + ( (unsgen) GEN_SPECIAL
 		     << VSIZE ) );
@@ -655,8 +679,9 @@ namespace min { namespace unprotected {
     inline min::gen renew_gen
 	    ( min::gen v, min::unsgen p )
     {
-	return (min::gen)
-	    ( ( (unsgen ) v & ~ internal::VMASK )
+	return unprotected::new_gen
+	    (   (   unprotected::value_of ( v )
+	          & ~ internal::VMASK )
 	      + p );
     }
 } }
@@ -667,7 +692,7 @@ namespace min {
 
     inline min::gen new_gen ( const min::stub * s )
     {
-	return unprotected::new_gen ( s );
+	return unprotected::new_stub_gen ( s );
     }
 #   if MIN_IS_COMPACT
 	inline min::gen new_direct_int_gen ( int v )
@@ -749,20 +774,22 @@ namespace min {
 namespace min {
 
 #   if MIN_IS_COMPACT
-	inline bool is_stub ( min::gen v )
+	inline bool is_stub ( min::gen g )
 	{
-	    return   (min::unsgen) v
-	           < ( GEN_DIRECT_INT << VSIZE );
+	    unsgen v = unprotected::value_of ( g );
+	    return v < ( GEN_DIRECT_INT << VSIZE );
 	}
 	// Unimplemented for COMPACT:
-	//  bool is_direct_float ( min::gen v )
-	inline bool is_direct_int ( min::gen v )
+	//  bool is_direct_float ( min::gen g )
+	inline bool is_direct_int ( min::gen g )
 	{
+	    unsgen v = unprotected::value_of ( g );
 	    return ( v >> 28 == GEN_DIRECT_INT >> 4 );
 	}
-	inline unsigned gen_subtype_of ( min::gen v )
+	inline unsigned gen_subtype_of ( min::gen g )
 	{
-	    v = (min::unsgen) v >> VSIZE;
+	    unsgen v = unprotected::value_of ( g );
+	    v >>= VSIZE;
 	    if ( v < GEN_DIRECT_INT )
 	        return GEN_STUB;
 	    else if ( v < GEN_DIRECT_STR)
@@ -774,33 +801,36 @@ namespace min {
 	    else
 	        return v;
 	}
-	inline bool is_aux ( min::gen v )
+	inline bool is_aux ( min::gen g )
 	{
-	    return (min::unsgen) v
-	           >= (GEN_AUX_LOWER << VSIZE);
+	    unsgen v = unprotected::value_of ( g );
+	    return v >= (GEN_AUX_LOWER << VSIZE);
 	}
 #   elif MIN_IS_LOOSE
-	inline bool is_stub ( min::gen v )
+	inline bool is_stub ( min::gen g )
 	{
-	    return    (    (min::unsgen) v
-	                >> ( VSIZE + 4 ) )
+	    unsgen v = unprotected::value_of ( g );
+	    return    ( v >> ( VSIZE + 4 ) )
 	           == GEN_STUB >> 4;
 	}
-	inline bool is_direct_float ( min::gen v )
+	inline bool is_direct_float ( min::gen g )
 	{
+	    unsgen v = unprotected::value_of ( g );
+
 	    // Low order 45 bits and high order bit
 	    // are masked for this test.
 	    //
 	    return
-	        ( (uns64) v & 0x7FFFE00000000000ull )
+	        ( v & 0x7FFFE00000000000ull )
 	        != ( (uns64) MIN_FLOAT64_SIGNALLING_NAN
 		     << VSIZE );
 	}
 	// Unimplemented for LOOSE:
-	//   bool is_direct_int ( min::gen v )
-	inline unsigned gen_subtype_of ( min::gen v )
+	//   bool is_direct_int ( min::gen g )
+	inline unsigned gen_subtype_of ( min::gen g )
 	{
-	    v = (unsgen) v >> VSIZE;
+	    unsgen v = unprotected::value_of ( g );
+	    v >>= VSIZE;
 	    if ( v < GEN_STUB )
 	        return GEN_DIRECT_FLOAT;
 	    else if ( v < GEN_DIRECT_STR)
@@ -814,48 +844,50 @@ namespace min {
 	    else
 	        return GEN_DIRECT_FLOAT;
 	}
-	inline bool is_aux ( min::gen v )
+	inline bool is_aux ( min::gen g )
 	{
-	    min::unsgen subtype =
-	        (min::unsgen) v >> VSIZE;
-	    return GEN_AUX_LOWER <= subtype
+	    unsgen v = unprotected::value_of ( g );
+	    v >>= VSIZE;
+	    return GEN_AUX_LOWER <= v
 	           &&
-		   subtype <= GEN_UPPER;
+		   v <= GEN_UPPER;
 	}
 #   endif
 
-    inline bool is_direct_str ( min::gen v )
+    inline bool is_direct_str ( min::gen g )
     {
-	return
-	    ( (unsgen) v >> VSIZE == GEN_DIRECT_STR );
+	unsgen v = unprotected::value_of ( g );
+	return v >> VSIZE == GEN_DIRECT_STR;
     }
-    inline bool is_list_aux ( min::gen v )
+    inline bool is_list_aux ( min::gen g )
     {
-	return ( (unsgen) v >> VSIZE == GEN_LIST_AUX );
+	unsgen v = unprotected::value_of ( g );
+	return v >> VSIZE == GEN_LIST_AUX;
     }
-    inline bool is_sublist_aux ( min::gen v )
+    inline bool is_sublist_aux ( min::gen g )
     {
-	return
-	    ( (unsgen) v >> VSIZE == GEN_SUBLIST_AUX );
+	unsgen v = unprotected::value_of ( g );
+	return v >> VSIZE == GEN_SUBLIST_AUX;
     }
-    inline bool is_indirect_aux ( min::gen v )
+    inline bool is_indirect_aux ( min::gen g )
     {
-	return
-	    (    (unsgen) v >> VSIZE
-	      == GEN_INDIRECT_AUX );
+	unsgen v = unprotected::value_of ( g );
+	return v >> VSIZE == GEN_INDIRECT_AUX;
     }
-    inline bool is_index ( min::gen v )
+    inline bool is_index ( min::gen g )
     {
-	return ( (unsgen) v >> VSIZE == GEN_INDEX );
+	unsgen v = unprotected::value_of ( g );
+	return v >> VSIZE == GEN_INDEX;
     }
-    inline bool is_control_code ( min::gen v )
+    inline bool is_control_code ( min::gen g )
     {
-	return
-	    ( (unsgen) v >> VSIZE == GEN_CONTROL_CODE );
+	unsgen v = unprotected::value_of ( g );
+	return v >> VSIZE == GEN_CONTROL_CODE;
     }
-    inline bool is_special ( min::gen v )
+    inline bool is_special ( min::gen g )
     {
-	return ( (unsgen) v >> VSIZE == GEN_SPECIAL );
+	unsgen v = unprotected::value_of ( g );
+	return v >> VSIZE == GEN_SPECIAL;
     }
 }
 
@@ -867,20 +899,23 @@ namespace min { namespace unprotected {
     // MUP:: functions.
 
 #   if MIN_IS_COMPACT
-	inline min::stub * stub_of ( min::gen v )
+	inline min::stub * stub_of ( min::gen g )
 	{
+	    unsgen v = unprotected::value_of ( g );
 	    return internal::unsgen_to_stub ( v );
 	}
 	// Unimplemented for COMPACT:
-	//   float64 direct_float_of ( min::gen v )
-	inline int direct_int_of ( min::gen v )
+	//   float64 direct_float_of ( min::gen g )
+	inline int direct_int_of ( min::gen g )
 	{
+	    unsgen v = unprotected::value_of ( g );
 	    return (int32)
 	           ( v - ( GEN_DIRECT_INT << VSIZE )
 		       - ( 1 << 27 ) );
 	}
-	inline uns64 direct_str_of ( min::gen v )
+	inline uns64 direct_str_of ( min::gen g )
 	{
+	    unsgen v = unprotected::value_of ( g );
 #	    if MIN_IS_BIG_ENDIAN
 		return ( uns64 ( v ) << TSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
@@ -888,63 +923,64 @@ namespace min { namespace unprotected {
 #	    endif
 	}
 #   elif MIN_IS_LOOSE
-	inline min::stub * stub_of ( min::gen v )
+	inline min::stub * stub_of ( min::gen g )
 	{
+	    unsgen v = unprotected::value_of ( g );
 	    return internal::unsgen_to_stub
-	    		( v & min::internal::AMASK );
+	    		( v & internal::AMASK );
 	}
-	inline float64 direct_float_of ( min::gen v )
+	inline float64 direct_float_of ( min::gen g )
 	{
-	    // Use of union helps the optimizer deal
-	    // with aliasing.
-	    //
-	    union {
-	        float64 f;
-		min::gen g;
-	    } u;
-	    u.g = v;
-	    return u.f;
+	    unsgen v = unprotected::value_of ( g );
+	    return * (float64 *) & v;
 	}
 	// Unimplemented for LOOSE:
-	//   int direct_int_of ( min::gen v )
-	inline uns64 direct_str_of ( min::gen v )
+	//   int direct_int_of ( min::gen g )
+	inline uns64 direct_str_of ( min::gen g )
 	{
+	    unsgen v = unprotected::value_of ( g );
 #	    if MIN_IS_BIG_ENDIAN
 		return ( v << TSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
-		return ( v & min::internal::VMASK );
+		return ( v & internal::VMASK );
 #	    endif
 	}
 #   endif
 
-    inline unsgen aux_of ( min::gen v )
+    inline unsgen aux_of ( min::gen g )
     {
-	return (unsgen) v & internal::VMASK;
+	unsgen v = unprotected::value_of ( g );
+	return v & internal::VMASK;
     }
-    inline unsgen list_aux_of ( min::gen v )
+    inline unsgen list_aux_of ( min::gen g )
     {
-	return (unsgen) v & internal::VMASK;
+	unsgen v = unprotected::value_of ( g );
+	return v & internal::VMASK;
     }
-    inline unsgen sublist_aux_of ( min::gen v )
+    inline unsgen sublist_aux_of ( min::gen g )
     {
-	return (unsgen) v & internal::VMASK;
+	unsgen v = unprotected::value_of ( g );
+	return v & internal::VMASK;
     }
-    inline unsgen indirect_aux_of
-	    ( min::gen v )
+    inline unsgen indirect_aux_of ( min::gen g )
     {
-	return (unsgen) v & internal::VMASK;
+	unsgen v = unprotected::value_of ( g );
+	return v & internal::VMASK;
     }
-    inline unsgen index_of ( min::gen v )
+    inline unsgen index_of ( min::gen g )
     {
-	return (unsgen) v & internal::VMASK;
+	unsgen v = unprotected::value_of ( g );
+	return v & internal::VMASK;
     }
-    inline unsgen control_code_of ( min::gen v )
+    inline unsgen control_code_of ( min::gen g )
     {
-	return (unsgen) v & internal::VMASK;
+	unsgen v = unprotected::value_of ( g );
+	return v & internal::VMASK;
     }
-    inline unsgen special_index_of ( min::gen v )
+    inline unsgen special_index_of ( min::gen g )
     {
-	return (unsgen) v & internal::VMASK;
+	unsgen v = unprotected::value_of ( g );
+	return v & internal::VMASK;
     }
 } }
 
@@ -952,59 +988,58 @@ namespace min {
 
     // min:: functions
 
-    inline const min::stub * stub_of ( min::gen v )
+    inline const min::stub * stub_of ( min::gen g )
     {
-	MIN_ASSERT ( is_stub ( v ) );
-	return unprotected::stub_of ( v );
+	MIN_ASSERT ( is_stub ( g ) );
+	return unprotected::stub_of ( g );
     }
 #   if MIN_IS_COMPACT
-	inline int direct_int_of ( min::gen v )
+	inline int direct_int_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_direct_int ( v ) );
-	    return unprotected::direct_int_of ( v );
+	    MIN_ASSERT ( is_direct_int ( g ) );
+	    return unprotected::direct_int_of ( g );
 	}
 #   elif MIN_IS_LOOSE
-	inline float64 direct_float_of ( min::gen v )
+	inline float64 direct_float_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_direct_float ( v ) );
-	    return unprotected::direct_float_of ( v );
+	    MIN_ASSERT ( is_direct_float ( g ) );
+	    return unprotected::direct_float_of ( g );
 	}
 #   endif
-    inline uns64 direct_str_of ( min::gen v )
+    inline uns64 direct_str_of ( min::gen g )
     {
-	MIN_ASSERT ( is_direct_str ( v ) );
-	return unprotected::direct_str_of ( v );
+	MIN_ASSERT ( is_direct_str ( g ) );
+	return unprotected::direct_str_of ( g );
     }
-    inline unsgen list_aux_of ( min::gen v )
+    inline unsgen list_aux_of ( min::gen g )
     {
-	MIN_ASSERT ( is_list_aux ( v ) );
-	return unprotected::list_aux_of ( v );
+	MIN_ASSERT ( is_list_aux ( g ) );
+	return unprotected::list_aux_of ( g );
     }
-    inline unsgen sublist_aux_of ( min::gen v )
+    inline unsgen sublist_aux_of ( min::gen g )
     {
-	MIN_ASSERT ( is_sublist_aux ( v ) );
-	return unprotected::sublist_aux_of ( v );
+	MIN_ASSERT ( is_sublist_aux ( g ) );
+	return unprotected::sublist_aux_of ( g );
     }
-    inline unsgen indirect_aux_of
-	    ( min::gen v )
+    inline unsgen indirect_aux_of ( min::gen g )
     {
-	MIN_ASSERT ( is_indirect_aux ( v ) );
-	return unprotected::indirect_aux_of ( v );
+	MIN_ASSERT ( is_indirect_aux ( g ) );
+	return unprotected::indirect_aux_of ( g );
     }
-    inline unsgen index_of ( min::gen v )
+    inline unsgen index_of ( min::gen g )
     {
-	MIN_ASSERT ( is_index ( v ) );
-	return unprotected::index_of ( v );
+	MIN_ASSERT ( is_index ( g ) );
+	return unprotected::index_of ( g );
     }
-    inline unsgen control_code_of ( min::gen v )
+    inline unsgen control_code_of ( min::gen g )
     {
-	MIN_ASSERT ( is_control_code ( v ) );
-	return unprotected::control_code_of ( v );
+	MIN_ASSERT ( is_control_code ( g ) );
+	return unprotected::control_code_of ( g );
     }
-    inline unsgen special_index_of ( min::gen v )
+    inline unsgen special_index_of ( min::gen g )
     {
-	MIN_ASSERT ( is_special ( v ) );
-	return unprotected::special_index_of ( v );
+	MIN_ASSERT ( is_special ( g ) );
+	return unprotected::special_index_of ( g );
     }
 }
 
@@ -1065,26 +1100,24 @@ namespace min { namespace unprotected {
 
     inline int type_of_control ( min::uns64 c )
     {
-	return int ( min::int64 ( c ) >> 56 );
+	return int ( int64 ( c ) >> 56 );
     }
 
     inline int locator_of_control ( min::uns64 c )
     {
-	return int ( min::int64 ( c ) >> 48 );
+	return int ( int64 ( c ) >> 48 );
     }
 
-    inline min::unsptr value_of_control
-	    ( min::uns64 c )
+    inline min::unsptr value_of_control ( min::uns64 c )
     {
-	return min::unsptr
-	  ( c & MIN_CONTROL_VALUE_MASK );
+	return unsptr ( c & MIN_CONTROL_VALUE_MASK );
     }
 
     inline min::uns64 new_control_with_type
 	    ( int type_code, min::uns64 v,
 	      min::uns64 flags = 0 )
     {
-	return ( min::uns64 ( type_code ) << 56 )
+	return ( uns64 ( type_code ) << 56 )
 	       |
 	       v
 	       |
@@ -1094,7 +1127,7 @@ namespace min { namespace unprotected {
     inline min::uns64 new_control_with_locator
 	    ( int locator, min::uns64 v )
     {
-	return ( min::uns64 ( locator ) << 48 )
+	return ( uns64 ( locator ) << 48 )
 	       |
 	       v;
     }
@@ -1102,15 +1135,15 @@ namespace min { namespace unprotected {
     inline min::uns64 renew_control_type
 	    ( min::uns64 c, int type )
     {
-	return ( c & ~ min::internal::TYPE_MASK )
-	       | ( min::uns64 (type) << 56 );
+	return ( c & ~ internal::TYPE_MASK )
+	       | ( uns64 (type) << 56 );
     }
 
     inline min::uns64 renew_control_locator
 	    ( min::uns64 c, int locator )
     {
-	return ( c & ~ min::internal::LOCATOR_MASK )
-	       | ( min::uns64 (locator) << 48 );
+	return ( c & ~ internal::LOCATOR_MASK )
+	       | ( uns64 (locator) << 48 );
     }
 
     inline min::uns64 renew_control_value
@@ -1127,7 +1160,7 @@ namespace min { namespace unprotected {
 		( min::uns64 c )
 	{
 	    return (min::stub *)
-	           (min::unsptr)
+	           (unsptr)
 	           (c & MIN_CONTROL_VALUE_MASK );
 	}
 
@@ -1135,9 +1168,9 @@ namespace min { namespace unprotected {
 		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return ( min::uns64 ( type_code ) << 56 )
+	    return ( uns64 ( type_code ) << 56 )
 		   |
-		   (min::unsptr) s
+		   (unsptr) s
 		   |
 		   flags;
 	}
@@ -1145,16 +1178,16 @@ namespace min { namespace unprotected {
 	inline min::uns64 new_control_with_locator
 		( int locator, const min::stub * s )
 	{
-	    return ( min::uns64 ( locator ) << 48 )
+	    return ( uns64 ( locator ) << 48 )
 		   |
-		   (min::unsptr) s;
+		   (unsptr) s;
 	}
 
 	inline min::uns64 renew_control_stub
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
-		   | (min::unsptr) s;
+		   | (unsptr) s;
 	}
 
 #   elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
@@ -1163,21 +1196,19 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_control
 		( min::uns64 c )
 	{
-	    min::unsptr p =
-	       (min::unsptr)
-	       (c & MIN_CONTROL_VALUE_MASK );
+	    unsptr p =
+	        (unsptr) (c & MIN_CONTROL_VALUE_MASK );
 	    return (min::stub *)
-	           ( p + min::internal::stub_base );
+	           ( p + internal::stub_base );
 	}
 
 	inline min::uns64 new_control_with_type
 		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return ( min::uns64 ( type_code ) << 56 )
+	    return ( uns64 ( type_code ) << 56 )
 		   |
-	           (   (min::unsptr) s
-	             - min::internal::stub_base )
+	           ( (unsptr) s - internal::stub_base )
 		   |
 		   flags;
 	}
@@ -1185,18 +1216,17 @@ namespace min { namespace unprotected {
 	inline min::uns64 new_control_with_locator
 		( int locator, const min::stub * s )
 	{
-	    return ( min::uns64 ( locator ) << 48 )
+	    return ( uns64 ( locator ) << 48 )
 		   |
-	           (   (min::unsptr) s
-	             - min::internal::stub_base );
+	           ( (unsptr) s - internal::stub_base );
 	}
 
 	inline min::uns64 renew_control_stub
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_CONTROL_VALUE_MASK )
-		   | (   (min::unsptr) s
-		       - min::internal::stub_base );
+		   |
+	           ( (unsptr) s - internal::stub_base );
 	}
 
 #   elif    MIN_MAX_STUB_INDEX \
@@ -1205,29 +1235,28 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_control
 		( min::uns64 c )
 	{
-	    min::unsptr p =
-	       (min::unsptr)
-	       (c & MIN_CONTROL_VALUE_MASK );
+	    unsptr p =
+	       (unsptr) (c & MIN_CONTROL_VALUE_MASK );
 	    return (min::stub *)
-	           min::internal::stub_base + p;
+	           internal::stub_base + p;
 	}
 
 	inline min::uns64 new_control_with_type
 		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return   ( min::uns64 ( type_code ) << 56 )
+	    return   ( uns64 ( type_code ) << 56 )
 	           | ( s - (min::stub *)
-		           min::internal::stub_base )
+		           internal::stub_base )
 		   | flags;
 	}
 
 	inline min::uns64 new_control_with_locator
 		( int locator, const min::stub * s )
 	{
-	    return   ( min::uns64 ( locator ) << 48 )
+	    return   ( uns64 ( locator ) << 48 )
 	           | ( s - (min::stub *)
-		           min::internal::stub_base );
+		           internal::stub_base );
 	}
 
 	inline min::uns64 renew_control_stub
@@ -1235,7 +1264,7 @@ namespace min { namespace unprotected {
 	{
 	    return   ( c & ~ MIN_CONTROL_VALUE_MASK )
 	           | ( s - (min::stub *)
-		           min::internal::stub_base );
+		           internal::stub_base );
 	}
 #   else
 #	error   MIN_MAX_STUB_INDEX \
@@ -1249,7 +1278,7 @@ namespace min { namespace unprotected {
 		( min::uns64 c )
 	{
 	    return (min::stub *)
-	           (min::unsptr)
+	           (unsptr)
 	           (c & MIN_ACC_CONTROL_VALUE_MASK );
 	}
 
@@ -1257,9 +1286,9 @@ namespace min { namespace unprotected {
 		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return ( min::uns64 ( type_code ) << 56 )
+	    return ( uns64 ( type_code ) << 56 )
 		   |
-		   (min::unsptr) s
+		   (unsptr) s
 		   |
 		   flags;
 	}
@@ -1268,7 +1297,7 @@ namespace min { namespace unprotected {
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
-		   | (min::unsptr) s;
+		   | (unsptr) s;
 	}
 
 #   elif    MIN_MAX_RELATIVE_STUB_ADDRESS \
@@ -1277,20 +1306,19 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
-	    min::unsptr p =
-	       (min::unsptr)
-	       (c & MIN_ACC_CONTROL_VALUE_MASK );
+	    unsptr p =
+	       (unsptr) (c & MIN_ACC_CONTROL_VALUE_MASK );
 	    return (min::stub *)
-	           ( p + min::internal::stub_base );
+	           ( p + internal::stub_base );
 	}
 
 	inline min::uns64 new_acc_control
 		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return   ( min::uns64 ( type_code ) << 56 )
-		   | (   (min::unsptr) s
-	               - min::internal::stub_base )
+	    return   ( uns64 ( type_code ) << 56 )
+		   | (   (unsptr) s
+	               - internal::stub_base )
 		   | flags;
 	}
 
@@ -1298,8 +1326,8 @@ namespace min { namespace unprotected {
 		( min::uns64 c, const min::stub * s )
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
-		 | (   (min::unsptr) s
-		     - min::internal::stub_base );
+		 | (   (unsptr) s
+		     - internal::stub_base );
 	}
 
 #   elif    MIN_MAX_STUB_INDEX \
@@ -1308,20 +1336,20 @@ namespace min { namespace unprotected {
 	inline min::stub * stub_of_acc_control
 		( min::uns64 c )
 	{
-	    min::unsptr p =
-	       (min::unsptr)
+	    unsptr p =
+	       (unsptr)
 	       (c & MIN_ACC_CONTROL_VALUE_MASK );
 	    return (min::stub *)
-	           min::internal::stub_base + p;
+	           internal::stub_base + p;
 	}
 
 	inline min::uns64 new_acc_control
 		( int type_code, const min::stub * s,
 		  min::uns64 flags = 0 )
 	{
-	    return   ( min::uns64 ( type_code ) << 56 )
+	    return   ( uns64 ( type_code ) << 56 )
 	           | ( s - (min::stub *)
-		           min::internal::stub_base )
+		           internal::stub_base )
 		   | flags;
 	}
 
@@ -1330,7 +1358,7 @@ namespace min { namespace unprotected {
 	{
 	    return ( c & ~ MIN_ACC_CONTROL_VALUE_MASK )
 	         | ( s - (min::stub *)
-		         min::internal::stub_base );
+		         internal::stub_base );
 	}
 #   else
 #	error   MIN_MAX_STUB_INDEX \
@@ -1723,24 +1751,22 @@ namespace min { namespace unprotected {
     // value contains the stub pointer s2.
     //
     inline void acc_write_update
-	    ( const min::stub * s1, min::gen v )
+	    ( const min::stub * s1, min::gen g )
     {
-	if ( min::is_stub ( v ) )
+	if ( is_stub ( g ) )
 	    acc_write_update
-		( s1, min::unprotected
-			 ::stub_of ( v ) );
+		( s1, unprotected::stub_of ( g ) );
     }
 
     // Ditto but does nothing for loose implementation.
     //
     inline void acc_write_num_update
-	    ( min::stub * s1, min::gen v )
+	    ( min::stub * s1, min::gen g )
     {
 #	if MIN_IS_COMPACT
-	    if ( min::is_stub ( v ) )
+	    if ( is_stub ( g ) )
 		acc_write_update
-		    ( s1, min::unprotected
-			     ::stub_of ( v ) );
+		    ( s1, unprotected::stub_of ( g ) );
 #	endif
     }
 
@@ -1757,11 +1783,11 @@ namespace min { namespace unprotected {
     {
         while ( n -- )
 	{
-	    min::gen v = * p ++;
-	    if ( min::is_stub ( v ) )
+	    min::gen g = * p ++;
+	    if ( min::is_stub ( g ) )
 	        acc_write_update
 		    ( s1, min::unprotected
-		             ::stub_of ( v ) );
+		             ::stub_of ( g ) );
 	}
     }
 
@@ -1796,11 +1822,10 @@ namespace min {
 
         ptr ( const min::stub * s, T & location )
 	    : s ( s ),
-	      offset ( (min::uns8 *) & location
+	      offset ( (uns8 *) & location
 	               -
-		       (min::uns8 *)
-		       min::unprotected
-		          ::ptr_of ( s ) ) {}
+		       (uns8 *)
+		       unprotected::ptr_of ( s ) ) {}
 
 	// We must prevent the default operator =.
 	//
@@ -1854,8 +1879,7 @@ namespace min {
         T * location ( void ) const
 	{
 	    return (T *)
-	        (   (min::uns8 *) min::unprotected
-	                             ::ptr_of ( s )
+	        (   (uns8 *) unprotected::ptr_of ( s )
 		  + offset );
 	}
     };
@@ -1918,7 +1942,7 @@ namespace min {
     public:
 
         locatable_var ( void )
-	    : T ( min::NULL_STUB )
+	    : T ( NULL_STUB )
 	{
 	    previous = internal::locatable_var_last;
 	    internal::locatable_var_last =
@@ -1948,7 +1972,7 @@ namespace min {
 	operator min::ptr<T> ( void )
 	{
 	    return min::ptr<T>
-	        ( min::ZERO_STUB, * (T *) this );
+	        ( ZERO_STUB, * (T *) this );
 	}
     };
 
@@ -1970,7 +1994,7 @@ namespace min {
 
         locatable_var ( void )
 	{
-	    value = min::MISSING;
+	    value = MISSING();
 	    previous = internal::locatable_gen_last;
 	    internal::locatable_gen_last =
 	        (internal::locatable_gen *) this;
@@ -1999,7 +2023,7 @@ namespace min {
 	operator min::ptr<min::gen> ( void )
 	{
 	    return min::ptr<min::gen>
-	        ( min::ZERO_STUB, this->value );
+	        ( ZERO_STUB, this->value );
 	}
     };
 
@@ -2033,7 +2057,7 @@ namespace min { namespace internal {
     // free stubs to the end of the acc list.
     //
     // Free acc list stubs have stub type min::ACC_FREE,
-    // zero stub control flags, and min::NONE value.
+    // zero stub control flags, and min::NONE() value.
     //
     // Free stubs can be removed completely from the
     // acc list for use as aux stubs.  These are not
@@ -2090,22 +2114,19 @@ namespace min { namespace unprotected {
     //
     inline min::stub * new_acc_stub ( void )
     {
-	if ( min::internal
-	        ::number_of_free_stubs == 0 )
-	    min::internal
-	       ::acc_expand_stub_free_list ( 1 );
+	if ( internal::number_of_free_stubs == 0 )
+	    internal::acc_expand_stub_free_list ( 1 );
 
-	-- min::internal::number_of_free_stubs;
-	++ min::unprotected::acc_stubs_allocated;
+	-- internal::number_of_free_stubs;
+	++ unprotected::acc_stubs_allocated;
 
-	uns64 c = min::unprotected::control_of
-			( min::internal
-			     ::last_allocated_stub );
-	min::stub * s = min::unprotected
-	                   ::stub_of_acc_control ( c );
-	min::unprotected::set_flags_of
-	    ( s, min::internal::new_acc_stub_flags );
-	return min::internal::last_allocated_stub = s;
+	uns64 c = unprotected::control_of
+		    ( internal::last_allocated_stub );
+	min::stub * s =
+	    unprotected::stub_of_acc_control ( c );
+	unprotected::set_flags_of
+	    ( s, internal::new_acc_stub_flags );
+	return internal::last_allocated_stub = s;
     }
 
     // Function to return the next free stub while
@@ -2118,28 +2139,23 @@ namespace min { namespace unprotected {
     //
     inline min::stub * new_aux_stub ( void )
     {
-	if ( min::internal
-	        ::number_of_free_stubs == 0 )
-	    min::internal
-	       ::acc_expand_stub_free_list ( 1 );
+	if ( internal::number_of_free_stubs == 0 )
+	    internal::acc_expand_stub_free_list ( 1 );
 
-	-- min::internal::number_of_free_stubs;
-	++ min::unprotected::aux_stubs_allocated;
+	-- internal::number_of_free_stubs;
+	++ unprotected::aux_stubs_allocated;
 
-	uns64 c = min::unprotected::control_of
-			( min::internal
-			     ::last_allocated_stub );
-	min::stub * s = min::unprotected
-	                   ::stub_of_acc_control ( c );
-	c = min::unprotected::renew_acc_control_stub
-	        ( c, min::unprotected
-		        ::stub_of_acc_control
-			    ( min::unprotected
-			         ::control_of ( s ) ) );
-	min::unprotected::set_control_of
-	    ( min::internal::last_allocated_stub, c );
-	min::unprotected::set_type_of
-	    ( s, min::AUX_FREE );
+	uns64 c = unprotected::control_of
+		    ( internal::last_allocated_stub );
+	min::stub * s =
+	    unprotected::stub_of_acc_control ( c );
+	c = unprotected::renew_acc_control_stub
+	        ( c, unprotected::stub_of_acc_control
+			( unprotected
+			     ::control_of ( s ) ) );
+	unprotected::set_control_of
+	    ( internal::last_allocated_stub, c );
+	unprotected::set_type_of ( s, AUX_FREE );
 	return s;
     }
 
@@ -2154,23 +2170,20 @@ namespace min { namespace unprotected {
     //
     inline void free_aux_stub ( min::stub * s )
     {
-        min::unprotected::set_gen_of
-	    ( s, min::NONE );
-	uns64 c = min::unprotected::control_of
-			( min::internal
-			     ::last_allocated_stub );
+        unprotected::set_gen_of ( s, NONE() );
+	uns64 c = unprotected::control_of
+		( internal::last_allocated_stub );
 	min::stub * next =
-	    min::unprotected::stub_of_acc_control ( c );
-	min::unprotected::set_control_of
-	    ( s, min::unprotected::new_acc_control
-		  ( min::ACC_FREE, next ) );
-	c = min::unprotected
+	    unprotected::stub_of_acc_control ( c );
+	unprotected::set_control_of
+	    ( s, unprotected::new_acc_control
+		  ( ACC_FREE, next ) );
+	c = unprotected
 	       ::renew_acc_control_stub ( c, s );
-	min::unprotected::set_control_of
-		( min::internal
-		     ::last_allocated_stub, c );
-	++ min::internal::number_of_free_stubs;
-	++ min::unprotected::aux_stubs_freed;
+	unprotected::set_control_of
+		( internal::last_allocated_stub, c );
+	++ internal::number_of_free_stubs;
+	++ unprotected::aux_stubs_freed;
     }
 
 } }
@@ -2183,22 +2196,19 @@ namespace min { namespace internal {
     //
     inline void free_acc_stub ( min::stub * s )
     {
-        min::unprotected::set_gen_of
-	    ( s, min::NONE );
-	uns64 c = min::unprotected::control_of
-			( min::internal
-			     ::last_allocated_stub );
+        unprotected::set_gen_of ( s, NONE() );
+	uns64 c = unprotected::control_of
+		    ( internal::last_allocated_stub );
 	min::stub * next =
-	    min::unprotected::stub_of_acc_control ( c );
-	min::unprotected::set_control_of
-	    ( s, min::unprotected::new_acc_control
-		  ( min::ACC_FREE, next ) );
-	c = min::unprotected
+	    unprotected::stub_of_acc_control ( c );
+	unprotected::set_control_of
+	    ( s, unprotected::new_acc_control
+		  ( ACC_FREE, next ) );
+	c = unprotected
 	       ::renew_acc_control_stub ( c, s );
-	min::unprotected::set_control_of
-		( min::internal
-		     ::last_allocated_stub, c );
-	++ min::internal::number_of_free_stubs;
+	unprotected::set_control_of
+		( internal::last_allocated_stub, c );
+	++ internal::number_of_free_stubs;
     }
 
     // fixed_blocks[j] is the head of a free list of
@@ -2286,33 +2296,33 @@ namespace min { namespace unprotected {
     inline void new_body
             ( min::stub * s, min::unsptr n )
     {
-	min::unsptr m = n + sizeof ( min::uns64);
+	unsptr m = n + sizeof ( uns64);
 
-        if ( m < min::internal::min_fixed_block_size )
-            m = min::internal::min_fixed_block_size;
+        if ( m < internal::min_fixed_block_size )
+            m = internal::min_fixed_block_size;
 
-	if ( m > min::internal::max_fixed_block_size )
+	if ( m > internal::max_fixed_block_size )
 	{
-	     min::internal::new_non_fixed_body ( s, n );
+	     internal::new_non_fixed_body ( s, n );
 	     return;
 	}
 
 	// See min_parameters.h for log2floor.
 	//
 	m = m - 1;
-	min::internal::fixed_block_list * fbl =
-		  min::internal::fixed_blocks
-		+ min::internal::log2floor ( m )
+	internal::fixed_block_list * fbl =
+		  internal::fixed_blocks
+		+ internal::log2floor ( m )
 		+ 1 - 3;
 
 	if ( fbl->count == 0 )
 	{
-	     min::internal::new_fixed_body
+	     internal::new_fixed_body
 	          ( s, n, fbl );
 	     return;
 	}
 
-	min::internal::free_fixed_size_block * b =
+	internal::free_fixed_size_block * b =
 	    fbl->last_free->next;
 
 	fbl->last_free->next = b->next;
@@ -2320,14 +2330,12 @@ namespace min { namespace unprotected {
 	    fbl->last_free = NULL;
 
 	b->block_control =
-	    min::unprotected::renew_control_stub
+	    unprotected::renew_control_stub
 	        ( b->block_control, s );
-	min::unprotected
-	   ::set_ptr_of ( s, & b->block_control + 1 );
-	min::unprotected
-	   ::set_flags_of
-	       ( s, min::internal
-	               ::ACC_FIXED_BODY_FLAG );
+	unprotected::set_ptr_of
+	    ( s, & b->block_control + 1 );
+	unprotected::set_flags_of
+	       ( s, internal::ACC_FIXED_BODY_FLAG );
     }
 
     // Deallocate the body of a stub, and reset the stub
@@ -2395,20 +2403,18 @@ namespace min { namespace unprotected {
 	    // Allocate rstub and its body, which is
 	    // the new body.
 
-	    uns64 c = min::unprotected::control_of
+	    uns64 c = unprotected::control_of
 		( last_allocated );
-	    rstub = min::unprotected
-		       ::stub_of_control ( c );
-	    if ( rstub == min::internal::null_stub )
+	    rstub = unprotected::stub_of_control ( c );
+	    if ( rstub == internal::null_stub )
 	        rstub = rstub_allocate();
 
 	    last_allocated_save = last_allocated;
 	    last_allocated = rstub;
 
-	    min::unprotected
-	       ::set_type_of ( rstub,
-	                       min::RELOCATE_BODY );
-	    min::unprotected::new_body
+	    unprotected::set_type_of
+		( rstub, RELOCATE_BODY );
+	    unprotected::new_body
 	        ( rstub, new_size );
 	}
 
@@ -2423,36 +2429,34 @@ namespace min { namespace unprotected {
 	//
 	~resize_body ( void )
 	{
-	    if ( type_of ( rstub ) != min::DEALLOCATED )
+	    if ( type_of ( rstub ) != DEALLOCATED )
 	    {
-		min::uns64 v =
-		    unprotected::value_of ( s );
-		min::uns64 rv =
+		uns64 v = unprotected::value_of ( s );
+		uns64 rv =
 		    unprotected::value_of ( rstub );
 		unprotected::set_value_of ( s, rv );
 		unprotected::set_value_of ( rstub, v );
 
-		min::uns64 c =
+		uns64 c =
 		    ( unprotected::control_of ( rstub )
 		      ^
 		      unprotected::control_of ( s ) )
 		    &
-		    min::internal
-		       ::ACC_FIXED_BODY_FLAG;
+		    internal::ACC_FIXED_BODY_FLAG;
 		rstub->c.u64 ^= c;
 		s->c.u64 ^= c;
 
-		int type = min::type_of ( s );
+		int type = type_of ( s );
 		unprotected::set_type_of
 		    ( rstub, type );
 		unprotected::set_type_of
 		    ( s, new_type );
 
-		min::uns64 * bp = (min::uns64 *)
+		uns64 * bp = (uns64 *)
 		    unprotected::ptr_of ( s ) - 1;
 		* bp = unprotected::renew_control_stub
 			 ( * bp, s );
-		bp = (min::uns64 *)
+		bp = (uns64 *)
 		    unprotected::ptr_of ( rstub )
 		    - 1;
 		* bp = unprotected::renew_control_stub
@@ -2512,7 +2516,7 @@ namespace min { namespace unprotected {
     inline void * & new_body_ptr_ref
 	    ( resize_body & r )
     {
-	return min::unprotected::ptr_ref_of ( r.rstub );
+	return unprotected::ptr_ref_of ( r.rstub );
     }
     // Void the resize_body struct so it will not
     // change anything when deconstructed.  The
@@ -2520,7 +2524,7 @@ namespace min { namespace unprotected {
     //
     inline void abort_resize_body ( resize_body & r )
     {
-	min::unprotected::deallocate_body
+	unprotected::deallocate_body
 	    ( r.rstub, r.new_size );
     }
     // Set type to be installed in stub when new body
@@ -2741,21 +2745,22 @@ namespace min {
 	inline min::float64 float_of
 	    ( const min::stub * s )
 	{
-	    MIN_ASSERT ( type_of ( s ) == min::NUMBER );
+	    MIN_ASSERT ( type_of ( s ) == NUMBER );
 	    return unprotected::float_of ( s );
 	}
-        inline bool is_num ( min::gen v )
+        inline bool is_num ( min::gen g )
 	{
-	    if ( v >= ( min::GEN_DIRECT_STR << VSIZE ) )
+	    unsgen v = unprotected::value_of ( g );
+	    if ( v >= ( GEN_DIRECT_STR << VSIZE ) )
 	        return false;
-	    else if ( v >= (    min::GEN_DIRECT_INT
+	    else if ( v >= (    GEN_DIRECT_INT
 	                     << VSIZE ) )
 	        return true;
 	    else
 	        return
 		  ( type_of
 		      ( internal::unsgen_to_stub ( v ) )
-		    == min::NUMBER );
+		    == NUMBER );
 	}
 	inline min::gen new_num_gen ( min::int32 v )
 	{
@@ -2785,7 +2790,7 @@ namespace min {
 				( (int) v );
 	    return internal::new_num_stub_gen ( v );
 	}
-	inline min::gen new_num_gen ( float64 v )
+	inline min::gen new_num_gen ( min::float64 v )
 	{
 	    if ( ( -1 << 27 ) <= v && v < ( 1 << 27 ) )
 	    {
@@ -2797,15 +2802,15 @@ namespace min {
 	    return internal::
 		   new_num_stub_gen ( v );
 	}
-	inline int int_of ( min::gen v )
+	inline int int_of ( min::gen g )
 	{
-	    if ( is_stub ( v ) )
+	    if ( is_stub ( g ) )
 	    {
 		const min::stub * s =
-		    internal::unsgen_to_stub ( v );
+		    unprotected::stub_of ( g );
 		MIN_ASSERT (    type_of ( s )
-			     == min::NUMBER );
-		min::float64 f =
+			     == NUMBER );
+		float64 f =
 		    unprotected::float_of ( s );
 		MIN_ASSERT (    INT_MIN <= f
 			     && f <= INT_MAX );
@@ -2813,53 +2818,49 @@ namespace min {
 		MIN_ASSERT ( i == f );
 		return i;
 	    }
-	    else if
-		(   v
-		  < ( min::GEN_DIRECT_STR << VSIZE ) )
+	    else if ( is_direct_int ( g ) )
 		return unprotected::
-		       direct_int_of ( v );
+		       direct_int_of ( g );
 	    else
 	    {
 		MIN_ABORT ( "int_of non number" );
 	    }
 	}
 	namespace unprotected {
-	    inline float64 float_of ( min::gen v )
+	    inline float64 float_of ( min::gen g )
 	    {
-		if ( is_stub ( v ) )
+		if ( is_stub ( g ) )
 		{
 		    const min::stub * s =
-			internal::unsgen_to_stub ( v );
-		    return min::unprotected
+			unprotected::stub_of ( g );
+		    return unprotected
 		              ::float_of ( s );
 		}
 		else
 		    return unprotected::
-			   direct_int_of ( v );
+			   direct_int_of ( g );
 	    }
 	}
-	inline float64 float_of ( min::gen v )
+	inline float64 float_of ( min::gen g )
 	{
-	    if ( is_stub ( v ) )
+	    if ( is_stub ( g ) )
 	    {
 		const min::stub * s =
-		    internal::unsgen_to_stub ( v );
+			unprotected::stub_of ( g );
 		return float_of ( s );
 	    }
-	    else if
-		(   v
-		  < ( min::GEN_DIRECT_STR << VSIZE ) )
+	    else if ( is_direct_int ( g ) )
 		return unprotected::
-		       direct_int_of ( v );
+		       direct_int_of ( g );
 	    else
 	    {
 		MIN_ABORT ( "float_of non number" );
 	    }
 	}
 #   elif MIN_IS_LOOSE
-	inline bool is_num ( min::gen v )
+	inline bool is_num ( min::gen g )
 	{
-	    return min::is_direct_float ( v );
+	    return is_direct_float ( g );
 	}
 	inline min::gen new_num_gen ( min::int32 v )
 	{
@@ -2873,15 +2874,15 @@ namespace min {
 	{
 	    return new_direct_float_gen ( v );
 	}
-	inline min::gen new_num_gen ( float64 v )
+	inline min::gen new_num_gen ( min::float64 v )
 	{
 	    return new_direct_float_gen ( v );
 	}
-	inline int int_of ( min::gen v )
+	inline int int_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_num ( v ) );
-	    min::float64 f =
-	        unprotected::direct_float_of ( v );
+	    MIN_ASSERT ( is_num ( g ) );
+	    float64 f =
+	        unprotected::direct_float_of ( g );
 	    MIN_ASSERT
 		( INT_MIN <= f && f <= INT_MAX );
 	    int i = (int) f;
@@ -2889,24 +2890,24 @@ namespace min {
 	    return i;
 	}
 	namespace unprotected {
-	    inline float64 float_of ( min::gen v )
+	    inline float64 float_of ( min::gen g )
 	    {
 		return unprotected
-		       ::direct_float_of ( v );
+		       ::direct_float_of ( g );
 	    }
 	}
-	inline float64 float_of ( min::gen v )
+	inline float64 float_of ( min::gen g )
 	{
-	    MIN_ASSERT ( is_num ( v ) );
-	    return unprotected::direct_float_of ( v );
+	    MIN_ASSERT ( is_num ( g ) );
+	    return unprotected::direct_float_of ( g );
 	}
 #   endif
 
     min::uns32 floathash ( min::float64 f );
 
-    inline min::uns32 numhash ( min::gen v )
+    inline min::uns32 numhash ( min::gen g )
     {
-	return floathash ( min::float_of ( v ) );
+	return floathash ( float_of ( g ) );
     }
 }
 
@@ -2928,14 +2929,14 @@ namespace min { namespace unprotected {
     inline min::unprotected::long_str * long_str_of
 	    ( const min::stub * s )
     {
-	return (min::unprotected::long_str *)
-	       min::internal::uns64_to_ptr ( s->v.u64 );
+	return (unprotected::long_str *)
+	       internal::uns64_to_ptr ( s->v.u64 );
     }
     inline const char * str_of
     	    ( min::unprotected::long_str * str )
     {
 	return (const char *) str
-	       + sizeof ( min::unprotected::long_str );
+	       + sizeof ( unprotected::long_str );
     }
 
     inline min::unsptr length_of
@@ -2960,14 +2961,14 @@ namespace min {
     //
     min::uns32 strhash ( const char * p );
 
-    min::unsptr strlen ( min::gen v );
-    min::uns32 strhash ( min::gen v );
-    char * strcpy ( char * p, min::gen v );
+    min::unsptr strlen ( min::gen g );
+    min::uns32 strhash ( min::gen g );
+    char * strcpy ( char * p, min::gen g );
     char * strncpy
-        ( char * p, min::gen v, min::unsptr n );
-    int strcmp ( const char * p, min::gen v );
+        ( char * p, min::gen g, min::unsptr n );
+    int strcmp ( const char * p, min::gen g );
     int strncmp
-        ( const char * p, min::gen v, min::unsptr n );
+        ( const char * p, min::gen g, min::unsptr n );
 
     namespace unprotected {
 
@@ -3012,36 +3013,34 @@ namespace min {
 	        : s ( s )
 	    {
 		if ( s == NULL ) return;
-		else if (    min::type_of ( s )
-		          == min::LONG_STR )
+		else if ( type_of ( s ) == LONG_STR )
 		    return;
 
 		pseudo_body.u.str = s->v.u64;
 		pseudo_body.u.buf[8] = 0;
 		this->s = & pseudo_stub;
-		min::unprotected::set_ptr_of
+		unprotected::set_ptr_of
 		       ( & pseudo_stub,
 			 (void *) & pseudo_body );
 	    }
 
-	    str_ptr ( min::gen v )
+	    str_ptr ( min::gen g )
 	    {
 
-		if ( min::is_stub ( v ) )
+		if ( is_stub ( g ) )
 		    new ( this )
 		        str_ptr
 			    ( unprotected::stub_of
-			          ( v ) );
+			          ( g ) );
 		else
 		{
 		    pseudo_body.u.str
-			= min::unprotected
-			     ::direct_str_of ( v );
+			= unprotected
+			     ::direct_str_of ( g );
 		    s = & pseudo_stub;
-		    min::unprotected
-		       ::set_ptr_of
-			   ( & pseudo_stub,
-			     (void *) & pseudo_body );
+		    unprotected::set_ptr_of
+		       ( & pseudo_stub,
+			 (void *) & pseudo_body );
 		}
 	    }
 
@@ -3077,8 +3076,7 @@ namespace min {
 		{
 		    pseudo_body = sp.pseudo_body;
 		    s = & pseudo_stub;
-		    min::unprotected
-		       ::set_ptr_of
+		    unprotected::set_ptr_of
 			   ( & pseudo_stub,
 			     (void *) & pseudo_body );
 		}
@@ -3138,35 +3136,35 @@ namespace min {
 
     // Function needed in min::str_ptr definition.
     //
-    inline bool is_str ( min::gen v )
+    inline bool is_str ( min::gen g )
     {
-	if ( min::is_direct_str ( v ) )
+	if ( is_direct_str ( g ) )
 	    return true;
-	if ( ! min::is_stub ( v ) )
+	if ( ! is_stub ( g ) )
 	    return false;
 	const min::stub * s =
-	    min::unprotected::stub_of ( v );
-	return min::type_of ( s ) == min::SHORT_STR
+	    unprotected::stub_of ( g );
+	return type_of ( s ) == min::SHORT_STR
 	       ||
-	       min::type_of ( s ) == min::LONG_STR;
+	       type_of ( s ) == min::LONG_STR;
     }
 
     class str_ptr : public unprotected::str_ptr
     {
     public:
-	str_ptr ( min::gen v )
+	str_ptr ( min::gen g )
 	{
-	    MIN_ASSERT ( min::is_str ( v ) );
-	    new ( this ) unprotected::str_ptr ( v );
+	    MIN_ASSERT ( is_str ( g ) );
+	    new ( this ) unprotected::str_ptr ( g );
 	}
 	str_ptr ( const min::stub * s )
 	{
 	    if ( s != NULL )
 	    {
-	        int t = min::type_of ( s );
-		MIN_ASSERT ( t == min::SHORT_STR
+	        int t = type_of ( s );
+		MIN_ASSERT ( t == SHORT_STR
 		             ||
-		             t == min::LONG_STR );
+		             t == LONG_STR );
 	    }
 	    new ( this ) unprotected::str_ptr ( s );
 	}
@@ -3181,9 +3179,9 @@ namespace min {
 	    return * this;
 	}
 
-	str_ptr & operator = ( min::gen v )
+	str_ptr & operator = ( min::gen g )
 	{
-	    new ( this ) str_ptr ( v );
+	    new ( this ) str_ptr ( g );
 	    return * this;
 	}
 
@@ -3198,9 +3196,9 @@ namespace min {
 	    ( const min::unprotected::str_ptr & sp )
     {
 	return (const char * )
-	       min::unprotected::long_str_of ( sp.s )
+	       unprotected::long_str_of ( sp.s )
 	       +
-	       sizeof ( min::unprotected::long_str );
+	       sizeof ( unprotected::long_str );
     }
 
     inline min::unsptr strlen
@@ -3218,8 +3216,7 @@ namespace min {
 	    ( const min::unprotected::str_ptr & sp )
     {
         if ( sp.s == & sp.pseudo_stub )
-	    return min::strhash
-	        ( sp.pseudo_body.u.buf );
+	    return strhash ( sp.pseudo_body.u.buf );
 	else
 	    return unprotected::hash_of
 	              ( unprotected::long_str_of
@@ -3231,7 +3228,7 @@ namespace min {
 	  const min::unprotected::str_ptr & sp )
     {
         return ::strcpy
-	    ( p, min::unprotected::str_of ( sp ) );
+	    ( p, unprotected::str_of ( sp ) );
     }
 
     inline char * strncpy
@@ -3240,7 +3237,7 @@ namespace min {
 	  min::unsptr n )
     {
         return ::strncpy
-	    ( p, min::unprotected::str_of ( sp ), n );
+	    ( p, unprotected::str_of ( sp ), n );
     }
 
     inline int strcmp
@@ -3248,7 +3245,7 @@ namespace min {
 	  const min::unprotected::str_ptr & sp )
     {
         return ::strcmp
-	    ( p, min::unprotected::str_of ( sp ) );
+	    ( p, unprotected::str_of ( sp ) );
     }
 
     inline int strncmp
@@ -3257,7 +3254,7 @@ namespace min {
 	  min::unsptr n )
     {
         return ::strncmp
-	    ( p, min::unprotected::str_of ( sp ), n );
+	    ( p, unprotected::str_of ( sp ), n );
     }
 
     namespace internal {
@@ -3269,11 +3266,11 @@ namespace min {
 	{
 #	if MIN_IS_COMPACT
 		if ( n <= 3 )
-		    return min::unprotected::
+		    return unprotected::
 			   new_direct_str_gen ( p, n );
 #	elif MIN_IS_LOOSE
 		if ( n <= 5 )
-		    return min::unprotected::
+		    return unprotected::
 			   new_direct_str_gen ( p, n );
 #	endif
 	    return internal::new_str_stub_gen ( p, n );
@@ -3402,8 +3399,8 @@ namespace min {
 	inline min::internal::lab_header * lab_header_of
 		( const min::stub * s )
 	{
-	    return (min::internal::lab_header *)
-		   min::unprotected::ptr_of ( s );
+	    return (internal::lab_header *)
+		   unprotected::ptr_of ( s );
 	}
     }
 
@@ -3417,11 +3414,9 @@ namespace min {
     // Declared for use as friend below.
     //
     min::uns32 length_of
-	    ( min::unprotected
-		 ::lab_ptr & labp );
+	    ( min::unprotected::lab_ptr & labp );
     min::uns32 hash_of
-	    ( min::unprotected
-		 ::lab_ptr & labp );
+	    ( min::unprotected::lab_ptr & labp );
 
     namespace unprotected {
 
@@ -3429,8 +3424,8 @@ namespace min {
 	{
 	public:
 
-	    lab_ptr ( min::gen v )
-		: s ( min::stub_of ( v ) ) {}
+	    lab_ptr ( min::gen g )
+		: s ( min::stub_of ( g ) ) {}
 
 	    lab_ptr ( const min::stub * s )
 		: s ( s ) {}
@@ -3450,9 +3445,9 @@ namespace min {
 	        return s;
 	    }
 
-	    lab_ptr & operator = ( min::gen v )
+	    lab_ptr & operator = ( min::gen g )
 	    {
-	        new ( this ) lab_ptr ( v );
+	        new ( this ) lab_ptr ( g );
 		return * this;
 	    }
 
@@ -3493,23 +3488,23 @@ namespace min {
     {
     public:
 
-        lab_ptr ( min::gen v )
-	    : unprotected::lab_ptr ( v )
+        lab_ptr ( min::gen g )
+	    : unprotected::lab_ptr ( g )
 	{
-	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
+	    MIN_ASSERT ( type_of ( s ) == LABEL );
 	}
 
         lab_ptr ( const min::stub * s )
 	    : unprotected::lab_ptr ( s )
 	{
-	    MIN_ASSERT ( type_of ( s ) == min::LABEL );
+	    MIN_ASSERT ( type_of ( s ) == LABEL );
 	}
 
         lab_ptr ( void ) {}
 
-	lab_ptr & operator = ( min::gen v )
+	lab_ptr & operator = ( min::gen g )
 	{
-	    new ( this ) lab_ptr ( v );
+	    new ( this ) lab_ptr ( g );
 	    return * this;
 	}
 
@@ -3535,24 +3530,24 @@ namespace min {
 
     inline min::uns32 lablen ( const min::stub * s )
     {
-        MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	return min::internal::lab_header_of(s)->length;
+        MIN_ASSERT ( type_of ( s ) == min::LABEL );
+	return internal::lab_header_of(s)->length;
     }
 
-    inline min::uns32 lablen ( min::gen v )
+    inline min::uns32 lablen ( min::gen g )
     {
-	return min::lablen ( min::stub_of ( v ) );
+	return lablen ( stub_of ( g ) );
     }
 
     inline min::uns32 labhash ( const min::stub * s )
     {
-        MIN_ASSERT ( min::type_of ( s ) == min::LABEL );
-	return min::internal::lab_header_of(s)->hash;
+        MIN_ASSERT ( type_of ( s ) == LABEL );
+	return internal::lab_header_of(s)->hash;
     }
 
-    inline min::uns32 labhash ( min::gen v )
+    inline min::uns32 labhash ( min::gen g )
     {
-	return min::labhash ( min::stub_of ( v ) );
+	return labhash ( stub_of ( g ) );
     }
 
     min::uns32 labhash
@@ -3577,7 +3572,7 @@ namespace min {
 	    ( min::uns32 hash, min::uns32 h )
     {
         hash = ( hash * labhash_factor ) + h;
-	if ( hash == 0 ) hash = (min::uns32) -1;
+	if ( hash == 0 ) hash = (uns32) -1;
 	return hash;
     }
 
@@ -3596,21 +3591,21 @@ namespace min {
     }
 
     inline min::uns32 lab_of
-	    ( min::gen * p, min::uns32 n, min::gen v )
+	    ( min::gen * p, min::uns32 n, min::gen g )
     {
-	return min::lab_of ( p, n, min::stub_of ( v ) );
+	return lab_of ( p, n, stub_of ( g ) );
     }
 
     min::gen new_lab_gen
 	    ( const min::gen * p, min::uns32 n );
 
-    inline bool is_lab ( min::gen v )
+    inline bool is_lab ( min::gen g )
     {
-	if ( ! min::is_stub ( v ) )
+	if ( ! is_stub ( g ) )
 	    return false;
 	const min::stub * s =
-	    min::unprotected::stub_of ( v );
-	return min::type_of ( s ) == min::LABEL;
+	    unprotected::stub_of ( g );
+	return type_of ( s ) == LABEL;
     }
 }
 
@@ -3619,18 +3614,18 @@ namespace min {
 
 namespace min {
 
-    inline bool is_name ( min::gen v )
+    inline bool is_name ( min::gen g )
     {
-        return min::is_num ( v )
+        return is_num ( g )
 	       ||
-	       min::is_str ( v )
+	       is_str ( g )
 	       ||
-	       min::is_lab ( v );
+	       is_lab ( g );
     }
 
-    min::uns32 hash ( min::gen v );
+    min::uns32 hash ( min::gen g );
 
-    int compare ( min::gen v1, min::gen v2 );
+    int compare ( min::gen g1, min::gen g2 );
 }
 
 // Packed Structures
@@ -5904,7 +5899,7 @@ namespace min {
 	min::gen * p = unprotected::base(vp)
 		     + vp.unused_offset;
 	vp.unused_offset += n;
-	while ( n -- ) * p ++ = min::MISSING;
+	while ( n -- ) * p ++ = min::MISSING();
     }
 
     inline void attr_push
@@ -5939,7 +5934,7 @@ namespace min {
 	min::gen * p = unprotected::base(vp)
 		     + vp.aux_offset;
 	vp.aux_offset -= n;
-	while ( n -- ) * -- p = min::MISSING;
+	while ( n -- ) * -- p = min::MISSING();
     }
 
     inline void aux_push
@@ -6028,7 +6023,7 @@ namespace min {
 // control.
 
 // Aux area elements that are not used are given the
-// value NONE, and can be garbage collected when the
+// value NONE(), and can be garbage collected when the
 // object is reorganized.  Because they are often
 // isolated, no attempt is made to put them on a free
 // list.
@@ -6059,11 +6054,16 @@ namespace min {
 
     // List constants.
 
-    const min::gen LIST_END = (min::gen)
-	( (min::unsgen) min::GEN_LIST_AUX << VSIZE );
-    const min::gen EMPTY_SUBLIST = (min::gen)
-	(    (min::unsgen) min::GEN_SUBLIST_AUX
-	  << VSIZE );
+    inline min::gen LIST_END ( void )
+    {
+	return unprotected::new_gen
+	    ( (unsgen) GEN_LIST_AUX << VSIZE );
+    }
+    inline min::gen EMPTY_SUBLIST ( void )
+    {
+	return unprotected::new_gen
+	    ( (unsgen) GEN_SUBLIST_AUX << VSIZE );
+    }
 
     // Global data.
 
@@ -6123,7 +6123,7 @@ namespace min { namespace internal {
 #       endif
 	if ( min::is_sublist_aux ( v )
 	     &&
-	     v != min::EMPTY_SUBLIST )
+	     v != min::EMPTY_SUBLIST() )
 	    remove_list
 	        ( base, total_size,
 		    total_size
@@ -6135,7 +6135,7 @@ namespace min {
 
     inline bool is_list_end ( min::gen v )
     {
-        return v == min::LIST_END;
+        return v == min::LIST_END();
     }
     inline bool is_sublist ( min::gen v )
     {
@@ -6152,7 +6152,7 @@ namespace min {
     }
     inline bool is_empty_sublist ( min::gen v )
     {
-        return v == min::EMPTY_SUBLIST;
+        return v == min::EMPTY_SUBLIST();
     }
 
     // We must declare these before we make them
@@ -6254,7 +6254,7 @@ namespace min { namespace unprotected {
 	    // it were pointing at the end of a list
 	    // for which insertions are illegal.
 	    //
-	    current = min::LIST_END;
+	    current = min::LIST_END();
 
 	    // Reservations can be made anytime after a
 	    // pointer is created, and can be made
@@ -6390,7 +6390,7 @@ namespace min { namespace unprotected {
 	//	       current_index == 0
 	//	   and current_stub == NULL
 	//	   and current pointer does not exist
-	//	   and current == LIST_END
+	//	   and current == LIST_END()
 	//
 	// The previous pointer is similar, but also
 	// differs when it points at a stub, since it
@@ -6419,18 +6419,18 @@ namespace min { namespace unprotected {
 	// as a list pointer if the stub is of type
 	// LIST_AUX.
 	//
-	// If current == LIST_END one of the following
+	// If current == LIST_END() one of the following
 	// special cases applies.
 	//
 	//   Current pointer exists:
 	//	current_index != 0
-	//	base[current_index] == LIST_END
+	//	base[current_index] == LIST_END()
 	//	previous pointer does NOT exist
 	//
 	//   Current pointer does NOT exist,
 	//   previous pointer points at list head in the
 	//	    attribute vector or hash table:
-	//      [current is the virtual LIST_END after
+	//      [current is the virtual LIST_END() after
 	//       a 1-element list whose first element
 	//       is the list head]
 	//      previous_index != 0
@@ -6442,21 +6442,21 @@ namespace min { namespace unprotected {
 	//   Current pointer does NOT exist,
 	//   previous pointer exists,
 	//   previous_is_sublist_header == true:
-	//      [current is the virtual LIST_END at the
-	//	 end of an EMPTY_SUBLIST]
-	//      previous == EMPTY_SUBLIST
+	//      [current is the virtual LIST_END() at the
+	//	 end of an EMPTY_SUBLIST()]
+	//      previous == EMPTY_SUBLIST()
 	//
 	//   Current pointer does NOT exist,
 	//   previous pointer exists and points at a
 	//            stub,
 	//   previous_is_sublist_header == false:
-	//      [current is the LIST_END in the stub
+	//      [current is the LIST_END() in the stub
 	//       control]
-	//      control_of ( previous_stub ) == LIST_END
+	//      control_of ( previous_stub ) == LIST_END()
 	//
 	//   Current pointer does NOT exist,
 	//   previous pointer does NOT exist:
-	//      [current is virtual LIST_END of a list
+	//      [current is virtual LIST_END() of a list
 	//       pointer that has never been started]
 	//      The list pointer has never been started
 	//      by a start_... function.   All
@@ -6467,16 +6467,16 @@ namespace min { namespace unprotected {
 	// If the current pointer points at a stub, the
 	// previous pointer must exist.
 	//
-	// If the current value is not LIST_END, the
+	// If the current value is not LIST_END(), the
 	// current pointer must exist.
 	//
-	// A current value can be LIST_END or EMPTY_
+	// A current value can be LIST_END() or EMPTY_
 	// SUBLIST, but cannot be a list or sublist
 	// pointer (and in particular cannot point
 	// at a stub of LIST_AUX or SUBLIST_AUX type).
 	//
 	// A list or sublist pointer cannot point at
-	// a list pointer or LIST_END.
+	// a list pointer or LIST_END().
 
     // Friends:
 
@@ -6584,7 +6584,7 @@ namespace min { namespace unprotected {
 
 	    if ( min::is_list_aux ( current ) )
 	    {
-		if ( current != min::LIST_END )
+		if ( current != min::LIST_END() )
 		{
 		    previous_index = current_index;
 		    current_index =
@@ -6633,7 +6633,7 @@ namespace min { namespace unprotected {
 	             min::unprotected::base ( vecp ) ),
 	      hash_offset ( 0 ), total_size ( 0 )
 	{
-	    current = min::LIST_END;
+	    current = min::LIST_END();
 	    current_index = 0;
 	    head_index = 0;
 #	    if MIN_USE_OBJ_AUX_STUBS
@@ -6758,7 +6758,7 @@ namespace min { namespace unprotected {
 
 	    if ( min::is_list_aux ( current ) )
 	    {
-		if ( current != min::LIST_END )
+		if ( current != min::LIST_END() )
 		{
 		    current_index =
 		          total_size
@@ -6952,7 +6952,7 @@ namespace min {
 	lp.current_index =
 	    sublist_aux_of ( lp2.current );
 	if ( lp.current_index == 0 )
-	    lp.current = min::LIST_END;
+	    lp.current = min::LIST_END();
 	else
 	{
 	    lp.current_index =
@@ -7010,7 +7010,7 @@ namespace min {
 	lp.current_index =
 	    sublist_aux_of ( lp2.current );
 	if ( lp.current_index == 0 )
-	    lp.current = min::LIST_END;
+	    lp.current = min::LIST_END();
 	else
 	{
 	    lp.current_index =
@@ -7028,8 +7028,8 @@ namespace min {
     	    ( min::unprotected
 	         ::list_ptr_type<vecpt> & lp )
     {
-        if ( lp.current == min::LIST_END )
-	    return min::LIST_END;
+        if ( lp.current == min::LIST_END() )
+	    return min::LIST_END();
 
 #       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
@@ -7055,7 +7055,7 @@ namespace min {
 			     value_of_control ( c );
 		    lp.current_stub = NULL;
 		    if ( lp.current_index == 0 )
-			lp.current = min::LIST_END;
+			lp.current = min::LIST_END();
 		    else
 		    {
 		        lp.current_index =
@@ -7075,7 +7075,7 @@ namespace min {
 	    // Current is list (not sublist) head.
 	    //
 	    lp.current_index = 0;
-	    return lp.current = min::LIST_END;
+	    return lp.current = min::LIST_END();
 	}
 	else
 	    return lp.forward ( lp.current_index - 1 );
@@ -7088,8 +7088,8 @@ namespace min {
 	// fact that this function does not READ
 	// lp.previous_stub or lp.previous_index.
 
-        if ( lp.current == min::LIST_END )
-	    return min::LIST_END;
+        if ( lp.current == min::LIST_END() )
+	    return min::LIST_END();
 
 #       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
@@ -7120,7 +7120,7 @@ namespace min {
 		        min::unprotected::
 			     value_of_control ( c );
 		    if ( lp.current_index == 0 )
-			lp.current = min::LIST_END;
+			lp.current = min::LIST_END();
 		    else
 		    {
 			lp.current_index =
@@ -7140,11 +7140,11 @@ namespace min {
 	    // Current is list (not sublist) head.
 	    //
 	    // Previous does not exist as current is
-	    // not LIST_END.
+	    // not LIST_END().
 	    //
 	    lp.previous_index = lp.current_index;
 	    lp.current_index = 0;
-	    return lp.current = min::LIST_END;
+	    return lp.current = min::LIST_END();
 	}
 	else
 	    return lp.forward ( lp.current_index - 1 );
@@ -7155,8 +7155,8 @@ namespace min {
     	    ( min::unprotected
 	         ::list_ptr_type<vecpt> & lp )
     {
-        if ( lp.current == min::LIST_END )
-	    return min::LIST_END;
+        if ( lp.current == min::LIST_END() )
+	    return min::LIST_END();
 
 #       if MIN_USE_OBJ_AUX_STUBS
 	    if ( lp.current_stub != NULL )
@@ -7178,7 +7178,7 @@ namespace min {
 		        min::unprotected
 			   ::value_of_control ( c );
 		    if ( index == 0 )
-			return min::LIST_END;
+			return min::LIST_END();
 		    else
 		    {
 		        index =
@@ -7194,7 +7194,7 @@ namespace min {
 	{
 	    // Current is list (not sublist) head.
 	    //
-	    return min::LIST_END;
+	    return min::LIST_END();
 	}
 	else
 	{
@@ -7207,7 +7207,7 @@ namespace min {
 	    {
 		index = min::list_aux_of ( c );
 		if ( index == 0 )
-		    return min::LIST_END;
+		    return min::LIST_END();
 		else
 		{
 		    index = lp.total_size - index;
@@ -7258,7 +7258,7 @@ namespace min {
 			        gen_of
 			          ( lp.current_stub );
 #	endif
-	else if ( lp.current == min::LIST_END )
+	else if ( lp.current == min::LIST_END() )
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
@@ -7301,7 +7301,7 @@ namespace min {
 			        gen_of
 			          ( lp.current_stub );
 #	endif
-	else if ( lp.current == min::LIST_END )
+	else if ( lp.current == min::LIST_END() )
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
@@ -7351,7 +7351,7 @@ namespace min {
 			        gen_of
 			          ( lp.current_stub );
 #	endif
-	else if ( lp.current == min::LIST_END )
+	else if ( lp.current == min::LIST_END() )
 	    return lp.current;
 
 	MIN_ABORT ( "inconsistent list pointer" );
@@ -7373,8 +7373,8 @@ namespace min {
     	    ( min::list_updptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( value != min::LIST_END );
-        MIN_ASSERT ( lp.current != min::LIST_END );
+        MIN_ASSERT ( value != min::LIST_END() );
+        MIN_ASSERT ( lp.current != min::LIST_END() );
         MIN_ASSERT ( ! is_sublist ( lp.current ) );
         MIN_ASSERT ( ! is_sublist ( value ) );
 	unprotected::acc_write_update
@@ -7402,9 +7402,9 @@ namespace min {
     	    ( min::list_insptr & lp,
 	      min::gen value )
     {
-        MIN_ASSERT ( value != min::LIST_END );
-        MIN_ASSERT ( lp.current != min::LIST_END );
-        MIN_ASSERT ( value == min::EMPTY_SUBLIST
+        MIN_ASSERT ( value != min::LIST_END() );
+        MIN_ASSERT ( lp.current != min::LIST_END() );
+        MIN_ASSERT ( value == min::EMPTY_SUBLIST()
 	             ||
 		     ! is_sublist ( value ) );
 	min::internal
@@ -7719,7 +7719,7 @@ namespace min {
 
 	// Create an attribute that does not exist and
 	// set its attribute-descriptor or node-descrip-
-	// tor to v, which may be EMPTY_SUBLIST.
+	// tor to v, which may be EMPTY_SUBLIST().
 	// locate_dlp and dlp are set to point at the
 	// descriptor, and the state is set to LOCATE_
 	// NONE, LOCATE_ANY, or REVERSE_LOCATE_FAIL
@@ -7732,7 +7732,7 @@ namespace min {
 
 	// Create a reverse attribute that does not
 	// exist and set its value-multiset to v, which
-	// may be EMPTY_SUBLIST.  The state is set to
+	// may be EMPTY_SUBLIST().  The state is set to
 	// REVERSE_LOCATE_SUCCEED and dlp is set to
 	// point at the value-multiset.
 	//
@@ -7825,8 +7825,8 @@ namespace min { namespace unprotected {
 	    : dlp ( vecp ),
 	      locate_dlp ( vecp ),
 	      lp ( vecp ),
-	      attr_name ( min::NONE ),
-	      reverse_attr_name ( min::NONE ),
+	      attr_name ( min::NONE() ),
+	      reverse_attr_name ( min::NONE() ),
 	      state ( INIT )
 	{
 	}
@@ -7841,8 +7841,8 @@ namespace min { namespace unprotected {
         min::gen reverse_attr_name;
 	    // The reverse attribute name given to the
 	    // last reverse_locate function call;
-	    // also reset to NONE by a locate function
-	    // call.  Can be NONE or ANY.
+	    // also reset to NONE() by a locate function
+	    // call.  Can be NONE() or ANY().
 
 #	if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::unsptr length;
@@ -7887,20 +7887,20 @@ namespace min { namespace unprotected {
 		    // has been made since or the last
 		    // subsequent call to reverse_
 		    // locate set the reverse_attribute
-		    // to NONE.
+		    // to NONE().
 
 		LOCATE_ANY		= 3,
 		    // Last call to locate succeeded,
 		    // and the last subsequent call to
 		    // reverse_locate set the reverse
-		    // attribute to ANY.
+		    // attribute to ANY().
 
 		REVERSE_LOCATE_FAIL	= 4,
 		    // Last call to locate succeeded,
 		    // the last subsequent call to
 		    // reverse_locate set the reverse
 		    // attribute to a value other than
-		    // NONE or ANY, and this call
+		    // NONE() or ANY(), and this call
 		    // failed.
 
 		REVERSE_LOCATE_SUCCEED	= 5
@@ -7908,7 +7908,7 @@ namespace min { namespace unprotected {
 		    // the last subsequent call to
 		    // reverse_locate set the reverse
 		    // attribute to a value other than
-		    // NONE or ANY, and this call
+		    // NONE() or ANY(), and this call
 		    // succeeded.
 
 	    };
@@ -8180,7 +8180,7 @@ namespace min {
 	{
 	    ap.index = name;
 	    ap.flags = ap_type::IN_VECTOR;
-	    ap.reverse_attr_name = min::NONE;
+	    ap.reverse_attr_name = min::NONE();
 
 	    start_vector ( ap.locate_dlp, name );
 	    min::gen c = current ( ap.locate_dlp );
@@ -8223,7 +8223,7 @@ namespace min {
 	{
 	    ap.index = name;
 	    ap.flags = ap_type::IN_VECTOR;
-	    ap.reverse_attr_name = min::NONE;
+	    ap.reverse_attr_name = min::NONE();
 
 	    start_vector ( ap.locate_dlp, name );
 	    min::gen c = current ( ap.locate_dlp );
@@ -8276,7 +8276,7 @@ namespace min {
 		ap.attr_name = name;
 		ap.index = i;
 		ap.flags = ap_type::IN_VECTOR;
-		ap.reverse_attr_name = min::NONE;
+		ap.reverse_attr_name = min::NONE();
 
 		start_vector ( ap.locate_dlp, i );
 		min::gen c = current ( ap.locate_dlp );
@@ -8334,7 +8334,7 @@ namespace min {
 		    ap.attr_name = name;
 		    ap.index = i;
 		    ap.flags = ap_type::IN_VECTOR;
-		    ap.reverse_attr_name = min::NONE;
+		    ap.reverse_attr_name = min::NONE();
 
 		    start_vector ( ap.locate_dlp, i );
 		    min::gen c =
@@ -8430,7 +8430,7 @@ namespace min {
 
 	case ap_type::LOCATE_FAIL:
 	case ap_type::REVERSE_LOCATE_FAIL:
-	    return min::NONE;
+	    return min::NONE();
 	}
 
 	min::gen c = update_refresh ( ap.dlp );
@@ -8441,7 +8441,7 @@ namespace min {
 	if ( is_sublist ( c )
 	     ||
 	     is_control_code ( c ) )
-	    return min::NONE;
+	    return min::NONE();
 	min::gen d = next ( ap.lp );
 	if ( is_list_end ( d )
 	     ||
@@ -8450,7 +8450,7 @@ namespace min {
 	     is_control_code ( d ) )
 	    return c;
 	else
-	    return min::MULTI_VALUED;
+	    return min::MULTI_VALUED();
     }
 
     template < class vecpt >
@@ -8732,7 +8732,7 @@ namespace min {
 	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
-	if ( v == min::NONE ) return 0;
+	if ( v == min::NONE() ) return 0;
 
 	typedef min::attr_insptr ap_type;
 
@@ -8754,7 +8754,7 @@ namespace min {
 	if ( ! is_sublist ( c ) )
 	{
 	    if ( c != v ) return 0;
-	    update ( ap.dlp, min::EMPTY_SUBLIST );
+	    update ( ap.dlp, min::EMPTY_SUBLIST() );
 	    return 1;
 	}
 	start_sublist ( ap.lp, ap.dlp );
@@ -8777,7 +8777,7 @@ namespace min {
 	    ( min::attr_insptr & ap,
 	      min::gen v )
     {
-	if ( v == min::NONE ) return 0;
+	if ( v == min::NONE() ) return 0;
 
 	typedef min::attr_insptr ap_type;
 
@@ -8799,7 +8799,7 @@ namespace min {
 	if ( ! is_sublist ( c ) )
 	{
 	    if ( c != v ) return 0;
-	    update ( ap.dlp, min::EMPTY_SUBLIST );
+	    update ( ap.dlp, min::EMPTY_SUBLIST() );
 	    return 1;
 	}
 	start_sublist ( ap.lp, ap.dlp );
@@ -9041,13 +9041,11 @@ namespace min {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
 		{
-		    min::unsgen mask =
-		        1 << ( n - base );
-		    bool result =
-		        ( mask & control_code_of ( c ) )
-			!= 0;
-		    c = (min::gen)
-		        ( (min::unsgen) c | mask );
+		    unsgen mask = 1 << ( n - base );
+		    unsgen cc = control_code_of ( c );
+		    bool result = ( mask & cc ) != 0;
+		    c = new_control_code_gen
+			    ( cc | mask );
 		    update ( ap.lp, c );
 		    return result;
 		}
@@ -9085,13 +9083,11 @@ namespace min {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
 		{
-		    min::unsgen mask =
-		        1 << ( n - base );
-		    bool result =
-		        ( mask & control_code_of ( c ) )
-			!= 0;
-		    c = (min::gen)
-		        ( (min::unsgen) c & ~ mask );
+		    unsgen mask = 1 << ( n - base );
+		    unsgen cc = control_code_of ( c );
+		    bool result = ( mask & cc ) != 0;
+		    c = new_control_code_gen
+			    ( cc & ~ mask );
 		    update ( ap.lp, c );
 		    return result;
 		}
@@ -9129,13 +9125,11 @@ namespace min {
 	        unsigned next = base + VSIZE;
 		if ( n < next )
 		{
-		    min::unsgen mask =
-		        1 << ( n - base );
-		    bool result =
-		        ( mask & control_code_of ( c ) )
-			!= 0;
-		    c = (min::gen)
-		        ( (min::unsgen) c ^ mask );
+		    unsgen mask = 1 << ( n - base );
+		    unsgen cc = control_code_of ( c );
+		    bool result = ( mask & cc ) != 0;
+		    c = new_control_code_gen
+			    ( cc ^ mask );
 		    update ( ap.lp, c );
 		    return result;
 		}

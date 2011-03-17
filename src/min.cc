@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:09:37 EDT 2011
+// Date:	Thu Mar 17 10:02:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -167,7 +167,7 @@ MINT::initializer::initializer ( void )
 
 	// Tests of MIN_FLOAT64_SIGNALLING_NAN
 	//
-	min::gen missing = min::MISSING;
+	min::gen missing = min::MISSING();
 	min::float64 v = * (min::float64 *) & missing;
 
 	assert ( isnan ( v ) );
@@ -246,35 +246,35 @@ min::uns32 min::hash ( min::gen v )
 	            " is not a name" );
 }
 
-int min::compare ( min::gen v1, min::gen v2 )
+int min::compare ( min::gen g1, min::gen g2 )
 {
-    if ( is_num ( v1 ) )
+    if ( is_num ( g1 ) )
     {
-        if ( ! is_num ( v2 ) ) return -1;
-	float64 f1 = float_of ( v1 );
-	float64 f2 = float_of ( v2 );
+        if ( ! is_num ( g2 ) ) return -1;
+	float64 f1 = float_of ( g1 );
+	float64 f2 = float_of ( g2 );
 	if ( f1 < f2 ) return -1;
 	else if ( f1 == f2 ) return 0;
 	else return +1;
     }
     else
-    if ( is_str ( v1 ) )
+    if ( is_str ( g1 ) )
     {
-        if ( is_num ( v2 ) ) return +1;
-        else if ( ! is_str ( v2 ) ) return -1;
-	str_ptr p1 ( v1 );
-	str_ptr p2 ( v2 );
+        if ( is_num ( g2 ) ) return +1;
+        else if ( ! is_str ( g2 ) ) return -1;
+	str_ptr p1 ( g1 );
+	str_ptr p2 ( g2 );
 	return ::strcmp ( unprotected::str_of ( p1 ),
 	                  unprotected::str_of ( p2 ) );
     }
     else
-    if ( is_lab ( v1 ) )
+    if ( is_lab ( g1 ) )
     {
-        if ( is_num ( v2 ) ) return +1;
-	else if ( is_str ( v2 ) ) return +1;
-        else if ( ! is_lab ( v2 ) ) return -1;
-	lab_ptr lp1 ( v1 );
-	lab_ptr lp2 ( v2 );
+        if ( is_num ( g2 ) ) return +1;
+	else if ( is_str ( g2 ) ) return +1;
+        else if ( ! is_lab ( g2 ) ) return -1;
+	lab_ptr lp1 ( g1 );
+	lab_ptr lp2 ( g2 );
 	unsptr len1 = length_of ( lp1 );
 	unsptr len2 = length_of ( lp2 );
 	for ( unsptr i = 0; i < len1; ++ i )
@@ -286,10 +286,13 @@ int min::compare ( min::gen v1, min::gen v2 )
 	if ( len1 == len2 ) return 0;
 	else return -1;
     }
-    else if ( is_name ( v2 ) ) return +1;
-    else return (unsgen) v1  < (unsgen) v2 ? -1 :
-                (unsgen) v1 == (unsgen) v2 ? 0 :
-		                             +1;
+    else if ( is_name ( g2 ) ) return +1;
+    else
+    {
+        unsgen v1 = min::unprotected::value_of ( g1 );
+        unsgen v2 = min::unprotected::value_of ( g2 );
+	return v1  < v2 ? -1 : v1 == v2 ? 0 : +1;
+    }
 }
 
 // Process Management
@@ -1638,7 +1641,7 @@ void min::init_output ( min::ptr<min::file> file )
         file = ::file_type.new_stub();
 	locatable ( file, file->buffer ) =
 	    ::file_buffer_type.new_stub();
-	file->file_name = min::MISSING;
+	file->file_name = min::MISSING();
     }
     else
     {
@@ -2131,7 +2134,7 @@ min::printer operator <<
 	  const min::pline_numbers & pline_numbers )
 {
     min::file file = pline_numbers.file;
-    if ( file->file_name != min::MISSING )
+    if ( file->file_name != min::MISSING() )
     {
         min::str_ptr sp ( file->file_name );
 	printer << & sp[0] << ": ";
@@ -3502,9 +3505,9 @@ min::gen min::new_obj_gen
     }
 
     min::gen * endp = p + var_size;
-    while ( p < endp ) * p ++ = min::UNDEFINED;
+    while ( p < endp ) * p ++ = min::UNDEFINED();
     endp += hash_size;
-    while ( p < endp ) * p ++ = min::LIST_END;
+    while ( p < endp ) * p ++ = min::LIST_END();
 
     MUP::set_type_of ( s, type );
     return min::new_gen ( s );
@@ -3632,7 +3635,7 @@ bool min::resize
     while ( from < from_end && to < to_end )
         newb[to++] = oldb[from++];
     while ( to < to_end )
-        newb[to++] = min::UNDEFINED;
+        newb[to++] = min::UNDEFINED();
     from = from_end;
 
     // Copy hash table and attribute vector.
@@ -3784,7 +3787,7 @@ void MINT::allocate_stub_list
 # endif // MIN_USE_OBJ_AUX_STUBS
 
 // Remove a list.  Free any aux stubs used and
-// set any auxiliary area elements use to min::NONE.
+// set any auxiliary area elements use to min::NONE().
 // Index/s point at the first element of the list.
 // Either index != 0 and s == NULL or index == 0
 // and s != NULL.  Base is the base of an object
@@ -3806,12 +3809,11 @@ void MINT::remove_list
 	    {
 		MINT::remove_sublist
 		    ( base, total_size,
-		      min::unprotected
-		         ::value_of ( s ) );
+		      min::unprotected::gen_of ( s ) );
 		min::uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
 		if ( c & MUP::STUB_PTR)
-		    s = MUP::stub_of ( c );
+		    s = MUP::stub_of_control ( c );
 		else
 		{
 		    min::unsptr vc =
@@ -3827,7 +3829,7 @@ void MINT::remove_list
 	    MIN_ASSERT ( index != 0 );
 	    MINT::remove_sublist
 	        ( base, total_size, base[index] );
-	    base[index] = min::NONE;
+	    base[index] = min::NONE();
 	    min::gen v = base[--index];
 #	    if MIN_USE_OBJ_AUX_STUBS
 		if ( min::is_stub ( v ) )
@@ -3864,13 +3866,13 @@ void min::insert_before
     if ( n == 0 ) return;
     else if ( n == 1
               &&
-	      lp.current == min::LIST_END
+	      lp.current == min::LIST_END()
 	      &&
 	      lp.current_index == lp.head_index
 	      &&
 	      lp.current_index != 0 )
     {
-	// Special case: empty list with LIST_END stored
+	// Special case: empty list with LIST_END() stored
 	// in the list head and only 1 element to
 	// insert.
 	//
@@ -3891,7 +3893,7 @@ void min::insert_before
     MUP::acc_write_update
             ( MUP::stub_of ( lp.vecp ), p, n );
 
-    if ( lp.current == min::LIST_END )
+    if ( lp.current == min::LIST_END() )
     {
 
 	// Contiguous means the previous pointer does
@@ -3910,7 +3912,7 @@ void min::insert_before
 	bool previous_is_list_head = false;
 
 	// Pointer to the first new element; may replace
-	// LIST_END in current or previous pointer.
+	// LIST_END() in current or previous pointer.
 	//
 	min::gen fgen;
 
@@ -3918,7 +3920,7 @@ void min::insert_before
 	    previous_is_list_head =
 	        ! lp.previous_is_sublist_head;
 		// If previous_index != 0 and current ==
-		// LIST_END then only two cases are
+		// LIST_END() then only two cases are
 		// possible:
 		//    1) previous is a list head
 		//    2) previous is a sublist head
@@ -3979,7 +3981,7 @@ void min::insert_before
 		    {
 		        min::stub * s =
 			    MUP::new_aux_stub();
-			MUP::set_value_of
+			MUP::set_gen_of
 			    ( s,
 			      lp.base
 				[lp.previous_index] );
@@ -4078,14 +4080,14 @@ void min::insert_before
 	lp.current = p[0];
 	while ( n -- )
 	    lp.base[-- aux_offset] = * p ++;
-	lp.base[-- aux_offset] = min::LIST_END;
+	lp.base[-- aux_offset] = min::LIST_END();
 
 	unprotected::aux_offset_of ( lp.vecp ) =
 	    aux_offset;
 	return;
     }
 
-    // lp.current != min::LIST_END
+    // lp.current != min::LIST_END()
 
     // If there is no previous, we must move the current
     // element so we can replace it with a list pointer.
@@ -4135,15 +4137,15 @@ void min::insert_before
 		if ( next == lp.head_index )
 		    next = 0;
 		else if (    lp.base[-- next]
-		          == min::LIST_END )
+		          == min::LIST_END() )
 		{
 		    // Next element (the one immediately
 		    // before the current element in the
-		    // aux area) is LIST_END will not
+		    // aux area) is LIST_END() will not
 		    // be needed any more, hence we free
 		    // it.
 		    //
-		    lp.base[next] = min::NONE;
+		    lp.base[next] = min::NONE();
 
 		    next = 0;
 		}
@@ -4233,14 +4235,14 @@ void min::insert_before
 	    if ( next == lp.head_index )
 	        next = 0;
 	    else if (    lp.base[-- next]
-	              == min::LIST_END )
+	              == min::LIST_END() )
 	    {
 		// Next element (the one immediately
 		// before the current element in the aux
-		// area) is LIST_END will not be needed
+		// area) is LIST_END() will not be needed
 		// any more, hence we free it.
 		//
-		lp.base[next] = min::NONE;
+		lp.base[next] = min::NONE();
 
 		next = 0;
 	    }
@@ -4313,7 +4315,7 @@ void min::insert_after
 
     MIN_ASSERT ( lp.reserved_insertions >= 1 );
     MIN_ASSERT ( lp.reserved_elements >= n );
-    MIN_ASSERT ( lp.current != min::LIST_END );
+    MIN_ASSERT ( lp.current != min::LIST_END() );
 
     lp.reserved_insertions -= 1;
     lp.reserved_elements -= n;
@@ -4408,7 +4410,7 @@ void min::insert_after
 		}
 		else
 		    lp.base[lp.previous_index] =
-			MUP::new_gen ( s );
+			MUP::new_stub_gen ( s );
 	    }
 	    else
 	    {
@@ -4525,14 +4527,14 @@ void min::insert_after
 	min::unsptr next = lp.current_index;
 	if ( next == lp.head_index )
 	    next = 0;
-	else if ( lp.base[-- next] == min::LIST_END )
+	else if ( lp.base[-- next] == min::LIST_END() )
 	{
 	    // Next element (the one immediately
 	    // before the current element in the aux
-	    // area) is LIST_END will not be needed
+	    // area) is LIST_END() will not be needed
 	    // any more, hence we free it.
 	    //
-	    lp.base[next] = min::NONE;
+	    lp.base[next] = min::NONE();
 
 	    next = 0;
 	}
@@ -4555,7 +4557,7 @@ min::unsptr min::remove
 	( min::list_insptr & lp,
 	  min::unsptr n )
 {
-    if ( n == 0 || lp.current == min::LIST_END )
+    if ( n == 0 || lp.current == min::LIST_END() )
         return 0;
 
     min::unsptr total_size = lp.total_size;
@@ -4570,7 +4572,7 @@ min::unsptr min::remove
 	// with just 1 element.
 	//
 	lp.current = lp.base[lp.current_index]
-	           = min::LIST_END;
+	           = min::LIST_END();
 	return 1;
     }
 
@@ -4592,11 +4594,11 @@ min::unsptr min::remove
 
     // Skip n elements (or until end of list).
     // Remove sublists and free aux stubs.
-    // Set aux area elements to NONE.
+    // Set aux area elements to NONE().
     //
     while ( n -- )
     {
-	if ( lp.current == min::LIST_END ) break;
+	if ( lp.current == min::LIST_END() ) break;
 	++ count;
 	MINT::remove_sublist
 	    ( lp.base, total_size, lp.current );
@@ -4612,14 +4614,14 @@ min::unsptr min::remove
 #       endif
 	{
 	    MIN_ASSERT ( lp.current_index != 0 );
-	    lp.base[lp.current_index] = min::NONE;
+	    lp.base[lp.current_index] = min::NONE();
 	    lp.current =
 		lp.base[-- lp.current_index];
 	    if ( min::is_list_aux ( lp.current ) )
 	    {
-		if ( lp.current == min::LIST_END )
+		if ( lp.current == min::LIST_END() )
 		    break;
-		lp.base[lp.current_index] = min::NONE;
+		lp.base[lp.current_index] = min::NONE();
 		lp.current_index =
 		      total_size
 		    - min::list_aux_of ( lp.current );
@@ -4663,12 +4665,12 @@ min::unsptr min::remove
 			        MUP::STUB_PTR ) );
 		}
 	    }
-	    else if ( lp.current == min::LIST_END )
+	    else if ( lp.current == min::LIST_END() )
 	    {
 	        if ( previous_is_sublist_head )
 		    MUP::set_gen_of
 		        ( previous_stub,
-			  min::EMPTY_SUBLIST );
+			  min::EMPTY_SUBLIST() );
 		else
 		{
 		    int type =
@@ -4681,7 +4683,7 @@ min::unsptr min::remove
 		if ( lp.current_index != 0 )
 		{
 		    lp.base[lp.current_index] =
-		        min::NONE;
+		        min::NONE();
 		    lp.current_index = 0;
 		}
 	    }
@@ -4735,15 +4737,15 @@ min::unsptr min::remove
 	    }
 	    else
 #	endif
-	if ( lp.current == min::LIST_END )
+	if ( lp.current == min::LIST_END() )
 	{
 	    if ( lp.current_index != 0 )
-		lp.base[lp.current_index] = min::NONE;
+		lp.base[lp.current_index] = min::NONE();
 
 	    if ( previous_is_sublist_head )
 	    {
 		lp.base[previous_index] =
-		    min::EMPTY_SUBLIST;
+		    min::EMPTY_SUBLIST();
 		lp.current_index = 0;
 		lp.previous_index = previous_index;
 		lp.previous_is_sublist_head = true;
@@ -4751,7 +4753,7 @@ min::unsptr min::remove
 	    else
 	    {
 		lp.base[previous_index] =
-		    min::LIST_END;
+		    min::LIST_END();
 		lp.current_index = previous_index;
 		lp.previous_index = 0;
 		lp.previous_is_sublist_head = false;
@@ -4795,11 +4797,11 @@ min::unsptr min::remove
 	    }
 	    else
 #       endif
-	if ( lp.current == min::LIST_END )
+	if ( lp.current == min::LIST_END() )
 	{
 	    if ( lp.current_index != 0 )
-		lp.base[lp.current_index] = min::NONE;
-	    lp.base[current_index] = min::LIST_END;
+		lp.base[lp.current_index] = min::NONE();
+	    lp.base[current_index] = min::LIST_END();
 	    lp.current_index = current_index;
 	    lp.previous_index = 0;
 	}
@@ -4887,7 +4889,7 @@ min::attr_info_vec min::attr_info_vec_type
 	typedef MUP::attr_ptr_type<vecpt> ap_type;
 
 	ap.attr_name = name;
-	ap.reverse_attr_name = min::NONE;
+	ap.reverse_attr_name = min::NONE();
 
 	// Set len to the number of elements in the
 	// label and element[] to the vector of
@@ -4926,7 +4928,7 @@ min::attr_info_vec min::attr_info_vec_type
 	// range, locate attribute vector entry.
 	// Otherwise locate hash table entry.
 	// Set c to the node-descriptor if that is
-	// found, and to LIST_END if not.
+	// found, and to LIST_END() if not.
 	//
 	float64 f;
 	int i;
@@ -5194,7 +5196,7 @@ min::attr_info_vec min::attr_info_vec_type
 		{
 		    min::gen elements[1] =
 			{ len == 1 ? v :
-			  min::EMPTY_SUBLIST };
+			  min::EMPTY_SUBLIST() };
 		    insert_before ( ap.locate_dlp,
 				    elements, 1 );
 		}
@@ -5204,7 +5206,7 @@ min::attr_info_vec min::attr_info_vec_type
 		start_hash ( ap.locate_dlp, ap.index );
 		min::gen elements[2] =
 		    { element[0], len == 1 ? v :
-		                  min::EMPTY_SUBLIST };
+		                  min::EMPTY_SUBLIST() };
 		insert_before ( ap.locate_dlp,
 		                elements, 2 );
 		next ( ap.locate_dlp );
@@ -5220,10 +5222,10 @@ min::attr_info_vec min::attr_info_vec_type
 	    if ( ! is_sublist ( c ) )
 	    {
 		update ( ap.locate_dlp,
-		         min::EMPTY_SUBLIST );
+		         min::EMPTY_SUBLIST() );
 		start_sublist ( ap.locate_dlp );
 		min::gen elements[2] =
-		    { c, min::EMPTY_SUBLIST };
+		    { c, min::EMPTY_SUBLIST() };
 		insert_before
 		    ( ap.locate_dlp, elements, 2 );
 		next ( ap.locate_dlp );
@@ -5240,7 +5242,7 @@ min::attr_info_vec min::attr_info_vec_type
 		if ( ! is_sublist ( c ) )
 		{
 		    min::gen elements[1] =
-			{ min::EMPTY_SUBLIST };
+			{ min::EMPTY_SUBLIST() };
 		    insert_before
 		        ( ap.locate_dlp, elements, 1 );
 		}
@@ -5250,7 +5252,7 @@ min::attr_info_vec min::attr_info_vec_type
 	    min::gen elements[2] =
 		{ element[ap.length],
 		  len == ap.length + 1 ? v :
-	          min::EMPTY_SUBLIST };
+	          min::EMPTY_SUBLIST() };
 	    insert_before
 	        ( ap.locate_dlp, elements, 2 );
 
@@ -5259,10 +5261,10 @@ min::attr_info_vec min::attr_info_vec_type
 	}
 	start_copy ( ap.dlp, ap.locate_dlp );
 
-	if ( ap.reverse_attr_name == min::NONE )
+	if ( ap.reverse_attr_name == min::NONE() )
 	    ap.state = ap_type::LOCATE_NONE;
 	else if (    ap.reverse_attr_name
-	          == min::ANY )
+	          == min::ANY() )
 	    ap.state = ap_type::LOCATE_ANY;
 	else
 	    ap.state = ap_type::REVERSE_LOCATE_FAIL;
@@ -5277,7 +5279,7 @@ min::attr_info_vec min::attr_info_vec_type
     {
 	typedef MUP::attr_ptr_type<vecpt> ap_type;
 
-	ap.reverse_attr_name = min::NONE;
+	ap.reverse_attr_name = min::NONE();
 
 	// If name is label whose only element is an
 	// atom, set name = the atom.
@@ -5448,10 +5450,10 @@ min::attr_info_vec min::attr_info_vec_type
 	    start_copy ( ap.dlp, ap.locate_dlp );
 	}
 
-	if ( ap.reverse_attr_name == min::NONE )
+	if ( ap.reverse_attr_name == min::NONE() )
 	    ap.state = ap_type::LOCATE_NONE;
 	else if (    ap.reverse_attr_name
-	          == min::ANY )
+	          == min::ANY() )
 	    ap.state = ap_type::LOCATE_ANY;
 	else
 	    ap.state = ap_type::REVERSE_LOCATE_FAIL;
@@ -5484,17 +5486,17 @@ void MINT::reverse_attr_create
     min::gen c = current ( ap.dlp );
     if ( ! is_sublist ( c ) )
     {
-	update ( ap.dlp, min::EMPTY_SUBLIST );
+	update ( ap.dlp, min::EMPTY_SUBLIST() );
 	start_sublist ( ap.dlp );
 #       if MIN_ALLOW_PARTIAL_ATTR_LABELS
 	    min::gen elements[3] =
-		{ c, min::EMPTY_SUBLIST,
-		     min::EMPTY_SUBLIST };
+		{ c, min::EMPTY_SUBLIST(),
+		     min::EMPTY_SUBLIST() };
 	    insert_before ( ap.dlp, elements, 3 );
 	    next ( ap.dlp );
 #       else
 	    min::gen elements[2] =
-		{ c, min::EMPTY_SUBLIST };
+		{ c, min::EMPTY_SUBLIST() };
 	    insert_before ( ap.dlp, elements, 2 );
 #       endif
 	next ( ap.dlp );
@@ -5512,22 +5514,22 @@ void MINT::reverse_attr_create
 	    if ( ! is_sublist ( c ) )
 	    {
 		min::gen elements[2] =
-		    { min::EMPTY_SUBLIST,
-		      min::EMPTY_SUBLIST };
+		    { min::EMPTY_SUBLIST(),
+		      min::EMPTY_SUBLIST() };
 		insert_before ( ap.dlp, elements, 2 );
 		next ( ap.dlp );
 	    }
 	    else if ( ! is_sublist ( next ( ap.dlp ) ) )
 	    {
 		min::gen elements[1] =
-		    { min::EMPTY_SUBLIST };
+		    { min::EMPTY_SUBLIST() };
 		insert_before ( ap.dlp, elements, 1 );
 	    }
 #       else
 	    if ( ! is_sublist ( c ) )
 	    {
 		min::gen elements[1] =
-		    { min::EMPTY_SUBLIST };
+		    { min::EMPTY_SUBLIST() };
 		insert_before ( ap.dlp, elements, 1 );
 	    }
 #       endif
@@ -5575,18 +5577,18 @@ void min::locate_reverse
     case ap_type::LOCATE_FAIL:
     	    return;
     case ap_type::LOCATE_NONE:
-	    if ( reverse_name == min::NONE )
+	    if ( reverse_name == min::NONE() )
 	        return;
-	    else if ( reverse_name == min::ANY )
+	    else if ( reverse_name == min::ANY() )
 	    {
 	        ap.state = ap_type::LOCATE_ANY;
 		return;
 	    }
 	    break;
     case ap_type::LOCATE_ANY:
-	    if ( reverse_name == min::ANY )
+	    if ( reverse_name == min::ANY() )
 	        return;
-	    else if ( reverse_name == min::NONE )
+	    else if ( reverse_name == min::NONE() )
 	    {
 	        ap.state = ap_type::LOCATE_NONE;
 		return;
@@ -5594,13 +5596,13 @@ void min::locate_reverse
 	    break;
     case ap_type::REVERSE_LOCATE_FAIL:
     case ap_type::REVERSE_LOCATE_SUCCEED:
-	    if ( reverse_name == min::NONE )
+	    if ( reverse_name == min::NONE() )
 	    {
 		start_copy ( ap.dlp, ap.locate_dlp );
 	        ap.state = ap_type::LOCATE_NONE;
 		return;
 	    }
-	    else if ( reverse_name == min::ANY )
+	    else if ( reverse_name == min::ANY() )
 	    {
 		start_copy ( ap.dlp, ap.locate_dlp );
 	        ap.state = ap_type::LOCATE_ANY;
@@ -5610,7 +5612,7 @@ void min::locate_reverse
     }
 
     // ap.locate_dlp is as set by previous successful
-    // locate and reverse_name is not NONE or ANY.
+    // locate and reverse_name is not NONE() or ANY().
 
     start_copy ( ap.dlp, ap.locate_dlp );
 
@@ -5856,20 +5858,20 @@ min::gen MINT::get
     start_copy ( ap.dlp, ap.locate_dlp );
 
     if ( ! is_sublist ( current ( ap.dlp ) ) )
-        return min::NONE;
+        return min::NONE();
     start_sublist ( ap.dlp );
     for ( c = current ( ap.dlp );
 	  ! is_sublist && ! is_list_end ( c );
 	  c = next ( ap.dlp ) );
 
 #   if MIN_ALLOW_PARTIAL_ATTR_LABELS
-    if ( ! is_sublist ( c ) ) return min::NONE;
+    if ( ! is_sublist ( c ) ) return min::NONE();
     c = next ( ap.dlp );
 #   endif
-    if ( ! is_sublist ( c ) ) return min::NONE;
+    if ( ! is_sublist ( c ) ) return min::NONE();
     start_sublist ( ap.dlp );
 
-    min::gen result = min::NONE;
+    min::gen result = min::NONE();
     for ( min::gen c = current ( ap.dlp );
 	  ! is_list_end ( c );
 	  c = next ( ap.dlp ) )
@@ -5877,10 +5879,10 @@ min::gen MINT::get
         c = next ( ap.dlp );
 	if ( ! is_sublist ( c ) )
 	{
-	    if ( result == min::NONE )
+	    if ( result == min::NONE() )
 	        result = c;
 	    else
-	        return min::MULTI_VALUED;
+	        return min::MULTI_VALUED();
 	}
 	else
 	{
@@ -5888,10 +5890,10 @@ min::gen MINT::get
 	    c = current ( ap.lp );
 	    while ( ! is_list_end ( c ) )
 	    {
-		if ( result == min::NONE )
+		if ( result == min::NONE() )
 		    result = c;
 		else
-		    return min::MULTI_VALUED;
+		    return min::MULTI_VALUED();
 		c = next ( ap.lp );
 	    }
 	}
@@ -5977,7 +5979,7 @@ static min::unsptr count_reverse_attrs
 	  c = min::next ( lpr ) )
     {
         c = min::next ( lpr );
-	if ( c != min::EMPTY_SUBLIST )
+	if ( c != min::EMPTY_SUBLIST() )
 	    ++ result;
     }
     return result;
@@ -6003,7 +6005,7 @@ static bool compute_counts
         ++ info.value_count;
 	return true;
     }
-    else if ( c == min::EMPTY_SUBLIST )
+    else if ( c == min::EMPTY_SUBLIST() )
         return false;
     else
     {
@@ -6067,7 +6069,7 @@ static bool compute_counts
 	      c = min::next ( lpv ) );
 
 	if ( ! min::is_sublist ( c ) ) return;
-	if ( c == min::EMPTY_SUBLIST ) return;
+	if ( c == min::EMPTY_SUBLIST() ) return;
 	start_sublist ( lpv );
 
 	min::gen labvec[depth+1];
@@ -6181,7 +6183,7 @@ min::gen min::get_reverse_attrs
     }
 
     min::gen c = update_refresh ( ap.locate_dlp );
-    if ( ! is_sublist ( c ) ) return 0;
+    if ( ! is_sublist ( c ) ) return rairv;
     start_sublist ( ap.lp, ap.locate_dlp );
     for ( c = current ( ap.lp );
              ! is_sublist ( c )
@@ -6206,7 +6208,7 @@ min::gen min::get_reverse_attrs
 	c = next ( ap.lp );
 	if ( ! is_sublist ( c ) )
 	    ++ info.value_count;
-	else if ( c == min::EMPTY_SUBLIST )
+	else if ( c == min::EMPTY_SUBLIST() )
 	    continue;
 	else
 	{
@@ -6286,7 +6288,7 @@ min::gen MINT::update
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::update called with reverse name"
-	      " other than min::NONE" );
+	      " other than min::NONE()" );
     default:
 	MIN_ABORT
 	    ( "min::update called with >= 2 previous"
@@ -6323,7 +6325,7 @@ void MINT::remove_reverse_attr_value
     if ( ! is_sublist ( c ) )
     {
         MIN_ASSERT ( c == v );
-	min::update ( rap, min::EMPTY_SUBLIST );
+	min::update ( rap, min::EMPTY_SUBLIST() );
 	return;
     }
     start_sublist ( rap.dlp );
@@ -6368,7 +6370,7 @@ void MINT::add_reverse_attr_value
 
     min::locate ( rap, ap.reverse_attr_name );
     if ( rap.state != ap_type::LOCATE_NONE )
-        attr_create ( rap, min::EMPTY_SUBLIST );
+        attr_create ( rap, min::EMPTY_SUBLIST() );
     min::locate_reverse ( rap, ap.attr_name );
     if ( rap.state != ap_type::REVERSE_LOCATE_SUCCEED )
     {
@@ -6382,7 +6384,7 @@ void MINT::add_reverse_attr_value
     min::gen c = current ( rap.dlp );
     if ( ! is_sublist ( c ) )
     {
-	min::update ( rap.dlp, min::EMPTY_SUBLIST );
+	min::update ( rap.dlp, min::EMPTY_SUBLIST() );
 	start_sublist ( rap.dlp );
 	insert_reserve ( rap.dlp, 1, 2 );
 	min::gen elements[2] = { c, v };
@@ -6436,7 +6438,7 @@ void MINT::set
 	if ( n > 0 )
 	    MIN_ABORT
 		( "min::set called after reverse locate"
-		  " of min::ANY" );
+		  " of min::ANY()" );
 	else
 	{
 	    min::gen c =
@@ -6471,7 +6473,7 @@ void MINT::set
 		else
 		    remove_reverse_attr_value ( ap, c );
 
-		update ( ap.dlp, min::EMPTY_SUBLIST );
+		update ( ap.dlp, min::EMPTY_SUBLIST() );
 	    }
 	}
 	return;
@@ -6479,22 +6481,22 @@ void MINT::set
     case ap_type::LOCATE_FAIL:
 	if ( n == 0 )
 	    return;
-	else if ( ap.reverse_attr_name == min::ANY )
+	else if ( ap.reverse_attr_name == min::ANY() )
 	    MIN_ABORT
 		( "min::set called after reverse locate"
-		  " of min::ANY" );
+		  " of min::ANY()" );
         else if ( n == 1
 	          &&
-		  ap.reverse_attr_name == min::NONE )
+		  ap.reverse_attr_name == min::NONE() )
 	{
 	    MINT::attr_create ( ap, * in );
 	    return;
 	}
         else
 	    MINT::attr_create
-	        ( ap, min::EMPTY_SUBLIST );
+	        ( ap, min::EMPTY_SUBLIST() );
 
-	if ( ap.reverse_attr_name == min::NONE )
+	if ( ap.reverse_attr_name == min::NONE() )
 	    break;
 
     case ap_type::REVERSE_LOCATE_FAIL:
@@ -6507,7 +6509,7 @@ void MINT::set
 	}
         else
 	    MINT::reverse_attr_create
-	        ( ap, min::EMPTY_SUBLIST );
+	        ( ap, min::EMPTY_SUBLIST() );
 	break;
     }
 
@@ -6530,7 +6532,7 @@ void MINT::set
 		      c = next ( ap.lp ) )
 		    remove_reverse_attr_value
 		        ( ap, c );
-		update ( ap.dlp, min::EMPTY_SUBLIST );
+		update ( ap.dlp, min::EMPTY_SUBLIST() );
 	    }
 	    else
 	    {
@@ -6548,7 +6550,7 @@ void MINT::set
 	    if ( is_reverse )
 		remove_reverse_attr_value
 		    ( ap, current ( ap.dlp ) );
-	    update ( ap.dlp, min::EMPTY_SUBLIST );
+	    update ( ap.dlp, min::EMPTY_SUBLIST() );
 	}
 	return;
     }
@@ -6562,7 +6564,7 @@ void MINT::set
 	    update ( ap.dlp, * in );
 	else
 	{
-	    update ( ap.dlp, min::EMPTY_SUBLIST );
+	    update ( ap.dlp, min::EMPTY_SUBLIST() );
 	    start_sublist ( ap.lp, ap.dlp );
 	    if ( insert_reserve ( ap.lp, 1, n ) )
 	    {
@@ -6633,13 +6635,13 @@ void min::add_to_set
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::add_to_set called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
 
     case ap_type::LOCATE_FAIL:
-	if ( ap.reverse_attr_name == min::ANY )
+	if ( ap.reverse_attr_name == min::ANY() )
 	    MIN_ABORT
 		( "min::add_to_set called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
     case ap_type::REVERSE_LOCATE_FAIL:
 	add_to_multiset ( ap, in, n );
 	return;
@@ -6663,7 +6665,7 @@ void min::add_to_set
     {
 	// Copy input to additions, and then replace
 	// every value already in multiset by
-	// min::NONE.  Lastly compact additions and
+	// min::NONE().  Lastly compact additions and
 	// call add_to_multiset.
 	//
         min::gen additions[n];
@@ -6678,12 +6680,12 @@ void min::add_to_set
 	for ( min::unsptr i = 0; i < m; ++ i )
 	{
 	    if ( additions[i] == c )
-	        additions[i] = min::NONE;
+	        additions[i] = min::NONE();
 	}
 	min::unsptr j = 0;
 	for ( min::unsptr k = 0; k < m; ++ k )
 	{
-	    if ( additions[k] != min::NONE )
+	    if ( additions[k] != min::NONE() )
 	        additions[j++] = additions[k];
 	}
 	add_to_multiset ( ap, additions, j );
@@ -6708,25 +6710,25 @@ void min::add_to_multiset
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::add_to_multiset called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
 
     case ap_type::LOCATE_FAIL:
-	if ( ap.reverse_attr_name == min::ANY )
+	if ( ap.reverse_attr_name == min::ANY() )
 	    MIN_ABORT
 		( "min::add_to_multiset called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
         else if ( n == 1
 	          &&
-		  ap.reverse_attr_name == min::NONE )
+		  ap.reverse_attr_name == min::NONE() )
 	{
 	    MINT::attr_create ( ap, * in );
 	    return;
 	}
         else
 	    MINT::attr_create
-	        ( ap, min::EMPTY_SUBLIST );
+	        ( ap, min::EMPTY_SUBLIST() );
 
-	if ( ap.reverse_attr_name == min::NONE )
+	if ( ap.reverse_attr_name == min::NONE() )
 	    break;
 
     case ap_type::REVERSE_LOCATE_FAIL:
@@ -6737,7 +6739,7 @@ void min::add_to_multiset
 	}
         else
 	    MINT::reverse_attr_create
-	        ( ap, min::EMPTY_SUBLIST );
+	        ( ap, min::EMPTY_SUBLIST() );
 	break;
     }
 
@@ -6745,7 +6747,7 @@ void min::add_to_multiset
 
     if ( ! is_sublist ( c ) )
     {
-	update ( ap.dlp, min::EMPTY_SUBLIST );
+	update ( ap.dlp, min::EMPTY_SUBLIST() );
 	start_sublist ( ap.lp, ap.dlp );
 	if ( insert_reserve ( ap.lp, 2, n + 1 ) )
 	{
@@ -6792,13 +6794,13 @@ min::unsptr min::remove_one
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::remove_one called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
 
     case ap_type::LOCATE_FAIL:
-	if ( ap.reverse_attr_name == min::ANY )
+	if ( ap.reverse_attr_name == min::ANY() )
 	    MIN_ABORT
 		( "min::remove_one called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -6817,7 +6819,7 @@ min::unsptr min::remove_one
 		if ( is_reverse )
 		    MINT::remove_reverse_attr_value
 		        ( ap, c );
-	        update ( ap.dlp, min::EMPTY_SUBLIST );
+	        update ( ap.dlp, min::EMPTY_SUBLIST() );
 		return 1;
 	    }
 	}
@@ -6827,7 +6829,7 @@ min::unsptr min::remove_one
     {
 	// Copy input to removals, and then replace
 	// every value already in removed by
-	// min::NONE.  If we have removed each input
+	// min::NONE().  If we have removed each input
 	// once, we can terminate early.
 	//
         min::gen removals[n];
@@ -6855,7 +6857,7 @@ min::unsptr min::remove_one
 		    MINT::remove_reverse_attr_value
 			( ap, c );
 		remove ( ap.lp, 1 );
-		removals[i] = min::NONE;
+		removals[i] = min::NONE();
 		++ result;
 		c = current ( ap.lp );
 	    }
@@ -6883,13 +6885,13 @@ min::unsptr min::remove_all
     case ap_type::LOCATE_ANY:
 	MIN_ABORT
 	    ( "min::remove_all called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
 
     case ap_type::LOCATE_FAIL:
-	if ( ap.reverse_attr_name == min::ANY )
+	if ( ap.reverse_attr_name == min::ANY() )
 	    MIN_ABORT
 		( "min::remove_all called after"
-		  " reverse locate of min::ANY" );
+		  " reverse locate of min::ANY()" );
     case ap_type::REVERSE_LOCATE_FAIL:
 	return 0;
     }
@@ -6908,7 +6910,7 @@ min::unsptr min::remove_all
 		if ( is_reverse )
 		    MINT::remove_reverse_attr_value
 		        ( ap, c );
-	        update ( ap.dlp, min::EMPTY_SUBLIST );
+	        update ( ap.dlp, min::EMPTY_SUBLIST() );
 		return 1;
 	    }
 	}
@@ -6961,7 +6963,7 @@ void MINT::set_flags
 	    ( "min::set_flags called before locate" );
     case ap_type::LOCATE_FAIL:
     	    MINT::attr_create
-	              ( ap, min::EMPTY_SUBLIST );
+	              ( ap, min::EMPTY_SUBLIST() );
     }
 
     min::gen c = update_refresh ( ap.locate_dlp );
@@ -6975,7 +6977,7 @@ void MINT::set_flags
 	    insert_refresh ( ap.dlp );
 	    insert_refresh ( ap.locate_dlp );
 	}
-	update ( ap.lp, min::EMPTY_SUBLIST );
+	update ( ap.lp, min::EMPTY_SUBLIST() );
 	start_sublist ( ap.lp );
 	min::gen element[1] = { c };
 	insert_before ( ap.lp, element, 1 );
@@ -7003,7 +7005,7 @@ void MINT::set_flags
 	    else
 		update ( ap.lp, zero_cc );
 	}
-	MIN_ASSERT ( c == min::LIST_END );
+	MIN_ASSERT ( c == min::LIST_END() );
 
 	if ( n > 0 )
 	{
@@ -7110,7 +7112,7 @@ bool MINT::set_flag
 	    ( "min::set_flag called before locate" );
     case ap_type::LOCATE_FAIL:
     	    MINT::attr_create
-	              ( ap, min::EMPTY_SUBLIST );
+	              ( ap, min::EMPTY_SUBLIST() );
     }
 
     min::gen elements[n/VSIZE + 2];
@@ -7119,7 +7121,7 @@ bool MINT::set_flag
     if ( ! is_sublist ( c ) )
     {
         elements[j++] = c;
-	update ( ap.locate_dlp, min::EMPTY_SUBLIST );
+	update ( ap.locate_dlp, min::EMPTY_SUBLIST() );
     }
     start_sublist ( ap.lp, ap.locate_dlp );
     for ( c = current ( ap.lp );
@@ -7450,7 +7452,7 @@ T print_gen
     {
 	char buffer[64];
 	sprintf ( buffer, "UNDEFINED_GEN(0x%llx)",
-		          (min::uns64) v );
+		  (min::uns64) MUP::value_of ( v ) );
 	return out << buffer;
     }
 

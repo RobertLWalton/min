@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:07:46 EDT 2011
+// Date:	Thu Mar 17 12:13:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -81,7 +81,9 @@ struct print_gen {
     friend ostream & operator <<
     	    ( ostream & s, print_gen pg )
     {
-	return s << hex << pg.g << dec;
+	return s << hex
+	         << min::unprotected::value_of ( pg.g )
+		 << dec;
     }
 };
 
@@ -194,8 +196,10 @@ static bool check_vec_of_objects ( min::gen obj )
 		cout << "check_vec_of_objects FAILURE:"
 		     << endl
 		     << "   object[" << i << "][0] = "
-		     << value
-		     << " != " << min::attr ( ep, j )
+		     << min::test::ogen ( value )
+		     << " != "
+		     << min::test::ogen
+			    ( min::attr ( ep, j ) )
 		     << " = object[" << i << "][" << j
 		     << "]" << endl;
 	        checks = false;
