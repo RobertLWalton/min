@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 18 04:29:12 EDT 2011
+// Date:	Fri Mar 18 06:04:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1313,7 +1313,8 @@ namespace min { namespace unprotected {
 		( min::uns64 c )
 	{
 	    unsptr p =
-	       (unsptr) (c & MIN_ACC_CONTROL_VALUE_MASK );
+	       (unsptr)
+	       (c & MIN_ACC_CONTROL_VALUE_MASK );
 	    return (min::stub *)
 	           ( p + internal::stub_base );
 	}
@@ -6445,8 +6446,8 @@ namespace min { namespace unprotected {
 	//   Current pointer does NOT exist,
 	//   previous pointer exists,
 	//   previous_is_sublist_header == true:
-	//      [current is the virtual LIST_END() at the
-	//	 end of an EMPTY_SUBLIST()]
+	//      [current is the virtual LIST_END() at
+	//	 the end of an EMPTY_SUBLIST()]
 	//      previous == EMPTY_SUBLIST()
 	//
 	//   Current pointer does NOT exist,
@@ -6455,7 +6456,8 @@ namespace min { namespace unprotected {
 	//   previous_is_sublist_header == false:
 	//      [current is the LIST_END() in the stub
 	//       control]
-	//      control_of ( previous_stub ) == LIST_END()
+	//      control_of ( previous_stub ) ==
+	//	    LIST_END()
 	//
 	//   Current pointer does NOT exist,
 	//   previous pointer does NOT exist:
