@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 18 04:49:09 EDT 2011
+// Date:	Fri Mar 18 06:05:51 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3865,8 +3865,8 @@ void min::insert_before
 	      &&
 	      lp.current_index != 0 )
     {
-	// Special case: empty list with LIST_END() stored
-	// in the list head and only 1 element to
+	// Special case: empty list with LIST_END()
+	// stored in the list head and only 1 element to
 	// insert.
 	//
 	MUP::acc_write_update
@@ -4232,8 +4232,8 @@ void min::insert_before
 	    {
 		// Next element (the one immediately
 		// before the current element in the aux
-		// area) is LIST_END() will not be needed
-		// any more, hence we free it.
+		// area) is LIST_END() will not be
+		// needed any more, hence we free it.
 		//
 		lp.base[next] = min::NONE();
 
@@ -5199,8 +5199,9 @@ min::attr_info_vec min::attr_info_vec_type
 	    {
 		start_hash ( ap.locate_dlp, ap.index );
 		min::gen elements[2] =
-		    { element[0], len == 1 ? v :
-		                  min::EMPTY_SUBLIST() };
+		    { element[0], len == 1 ?
+		      v :
+		      min::EMPTY_SUBLIST() };
 		insert_before ( ap.locate_dlp,
 		                elements, 2 );
 		next ( ap.locate_dlp );

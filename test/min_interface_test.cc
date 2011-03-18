@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 18 04:51:15 EDT 2011
+// Date:	Fri Mar 18 06:08:32 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2431,7 +2431,8 @@ void test_printer ( void )
     printer << min::pgen ( min::ANY() ) << min::eol;
     printer << min::pgen ( min::MULTI_VALUED() )
             << min::eol;
-    printer << min::pgen ( min::UNDEFINED() ) << min::eol;
+    printer << min::pgen ( min::UNDEFINED() )
+            << min::eol;
     printer << min::pgen ( min::SUCCESS() ) << min::eol;
     printer << min::pgen ( min::FAILURE() ) << min::eol;
     printer << min::pgen
@@ -3145,7 +3146,8 @@ void test_object_list_level
     min::start_sublist ( wslp );
     insert ( wslp, true, p, 1 );
     MIN_ASSERT ( min::current ( wslp ) == num100 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::peek ( wslp ) == min::LIST_END() );
     min::insert_refresh ( wlp );
     MIN_ASSERT
         ( min::is_sublist ( min::current ( wlp ) ) );
@@ -3161,8 +3163,10 @@ void test_object_list_level
     MIN_ASSERT ( min::current ( wslp ) == num101 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::next ( wslp ) == min::LIST_END() );
     //
     // Vector[0] list now is
     //	{ numtest, num100,
@@ -3174,8 +3178,10 @@ void test_object_list_level
     MIN_ASSERT ( min::next ( wslp ) == num101 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::next ( wslp ) == min::LIST_END() );
 
     MIN_ASSERT ( min::peek ( wlp ) == num102 );
     MIN_ASSERT ( min::next ( wlp ) == num102 );
@@ -3203,15 +3209,19 @@ void test_object_list_level
     //        { num100, num102 }, num102 }
     //
     MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num100 );
     MIN_ASSERT ( min::peek ( wslp ) == num102 );
     MIN_ASSERT ( min::next ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( 1 == min::remove ( wslp, 1 ) );
@@ -3221,14 +3231,20 @@ void test_object_list_level
     //	{ numtest, num100,
     //        { num102 }, num102 }
     //
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::current ( wslp ) == num102 );
+    MIN_ASSERT
+        ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
-    MIN_ASSERT ( min::current ( wslp ) == num102 );
-    MIN_ASSERT ( min::peek ( wslp ) == min::LIST_END() );
-    MIN_ASSERT ( min::next ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::current ( wslp ) == num102 );
+    MIN_ASSERT
+        ( min::peek ( wslp ) == min::LIST_END() );
+    MIN_ASSERT
+        ( min::next ( wslp ) == min::LIST_END() );
 
     min::start_sublist ( wslp, wlp );
     MIN_ASSERT ( min::current ( wslp ) == num102 );
