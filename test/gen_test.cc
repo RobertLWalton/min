@@ -2,7 +2,7 @@
 //
 // File:	gen_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 17 12:12:50 EDT 2011
+// Date:	Fri Mar 18 13:33:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -86,6 +86,15 @@ bool test7 ( gen g )
     return g == c7();
 }
 
+// const gen c99 = { 99 };  // Does not compile.
+
+namespace constants {
+
+static const gen c99 = unprotected::new_gen ( 99 );
+static const gen c101 = unprotected::new_gen ( 101 );
+
+}
+
 class sizetest {
     unsgen x;
     gen y;
@@ -99,6 +108,15 @@ double new_float ( gen g )
 {
     unsgen value = unprotected::value_of ( g );
     return * (double *) & value;
+}
+
+gen add99 ( gen g )
+{
+    return unprotected::new_gen
+        ( unprotected::value_of ( g )
+	  +
+          unprotected::value_of ( constants::c99 )
+	);
 }
 
 int main()

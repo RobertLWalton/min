@@ -466,24 +466,37 @@ the size of each number is clear:
 \label{INT}%
 \label{UNS}
 
-Currently planned implementations of MIN assume a compiler that has
+Current implementations of MIN assume a compiler that has
 direct support for 64 bit integers.  It is possible, but not recommended,
 to modify the implementations to use compilers without such support.
 
-The heap data (i.e., data not in the stack)
-of MIN is defined using C-compatible
-\ttmkey{struct}{C compatible}'s
-and \ttmkey{union}{C compatible}'s.  C++ implicitly guarantees the layout of
-C-compatible \verb|struct|'s and \verb|union|'s to be C-compatible,
-and C has implicit guarantees because of historical C code that
-such data will not contain unnecessary unnamed padding.  Neither the
-C or C++ standards guarantee the absence of unnecessary unnamed padding, but
-MIN depends upon its absence, as does any code that reads and writes
-binary files.
+MIN depends upon certain undocumentated C++ conventions.
 
-As a consequence of using only C-compatible \verb|struct|'s and
-\verb|union|'s to define heap data, MIN does not use member functions
-for such data.
+First, it is assumed that classes will not have hidden
+padding that is not required to align member offsets.
+It is assumed that the compiler will allocate class members
+in order without any hidden padding if this will lead to
+an allocation in which each member of a number type above or
+of any pointer type has an offset in class instances
+that is a multiple of the member length.
+
+Second, it is assumed that the contents of a base class are
+allocated is if the class contained an unnamed first member
+whose type is the base class.
+
+Care is taken to use these first two assumptions when defining
+MIN data this may be input or output in binary form.
+Some checks on these assumptions are programmed into MIN
+initialization routines using C++ `assert' statements.
+
+Third, it is assumed that a class containing just one element
+that is a number or pointer is just as efficient in optimized
+code as a number or pointer not in a class.  In particular,
+such a one-element class used as an argument or return value
+should be passed in a register.
+
+All these assumptions seem to be satisfied by the GNU C++
+compiler.
 
 \subsection{Stubs and Bodies}
 
@@ -639,11 +652,27 @@ interpretations in different contexts.
 For example, see `Attribute Flags', \pagref{ATTRIBUTE-FLAGS}.
 
 A \key{special value} is a unique value that has some
-special meaning.  \verb|min::MISSING|, for example, is a special
+special meaning.  \verb|min::MISSING()|, for example, is a special
 value that may be input or output to indicate that data is missing,
-and \verb|min::NONE| is a special value used only to
+and \verb|min::NONE()| is a special value used only to
 indicate that a function argument or result does not exist.
 See \itemref{SPECIAL-VALUES}.
+
+The \verb|min::|\MINKEY{gen} type is defined as a C++ class that
+consists of a single {\tt private} element of type
+\verb|min::|\MINKEY{unsgen}, which is an unsigned integer.
+From the point of view of C++ type checking, a {\tt min::\EOL gen}
+value is a class, but from the computational point of view it is
+an unsigned integer.
+
+Because \verb|min::gen| is a class type, it is not possible to
+present {\tt min::\EOL gen} constants to the compiler for use in
+optimized code in a completely straightforward way.  To get the
+desired effect, {\tt min::\EOL gen} constants are represented by
+{\tt inline} functions, which allows the optimizing computer 
+to insert the constants directly into instructions.  Thus
+we have the constant {\tt min::\EOL MISSING()}, a function call
+with no arguments, \underline{instead of} {\tt min::\EOL MISSING}, a datum.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}\label{COMPACT-OR-LOOSE}
@@ -651,6 +680,13 @@ A compact implementation uses 32-bit general values, while
 a loose implementation uses 64-bit general values.
 An implementation cannot use both 32-bit and 64-bit general values;
 the implementation must use one or the other.
+
+The 64-bit loose implementation formats a {\tt min::\EOL gen}
+value as an IEEE floating point number, using the NaN (Not-a-Number)
+values to encode non-numeric {\tt min::\EOL gen} values, such as
+pointers to stubs.  Thus
+in the loose implementation {\tt min::\EOL float64} values are
+stored verbatim in {\tt min::\EOL gen} values.
 
 Some functions and constants are defined only for compact implementations,
 and some only for loose implementations.  Those defined only for
@@ -726,7 +762,8 @@ packed format.  44 bits are available to store a stub address in a
 64-bit general value, and 32 bits are available to store a stub address
 in a 32-bit general value, but in the latter case the packed address must be
 less than $2^{32}-2^{29}$ (the $2^{29}$ other 32 bit values are used to store
-direct integers, auxiliary pointers, indices, control codes, and special
+direct integers, direct strings,
+auxiliary pointers, indices, control codes, and special
 values).  There are three
 \skey{stub address packing scheme}s,\label{STUB-ADDRESS-PACKING} and the fastest
 is selected for each type of general value.  The scheme selection is
