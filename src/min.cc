@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 17 10:02:47 EDT 2011
+// Date:	Fri Mar 18 04:49:09 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -85,24 +85,24 @@ MINT::initializer::initializer ( void )
     PTR_CHECK ( min::packed_vec<int,int>::updptr );
     PTR_CHECK ( min::packed_vec<int,int>::insptr );
 
-    type_name[min::ACC_FREE] = "ACC_FREE";
-    type_name[min::DEALLOCATED] = "DEALLOCATED";
-    type_name[min::NUMBER] = "NUMBER";
-    type_name[min::SHORT_STR] = "SHORT_STR";
-    type_name[min::LONG_STR] = "LONG_STR";
-    type_name[min::LABEL] = "LABEL";
-    type_name[min::TINY_OBJ] = "TINY_OBJ";
-    type_name[min::SHORT_OBJ] = "SHORT_OBJ";
-    type_name[min::LONG_OBJ] = "LONG_OBJ";
-    type_name[min::HUGE_OBJ] = "HUGE_OBJ";
-    type_name[min::PACKED_STRUCT] = "PACKED_STRUCT";
-    type_name[min::PACKED_VEC] = "PACKED_VEC";
-    type_name[min::AUX_FREE] = "AUX_FREE";
-    type_name[min::LABEL_AUX] = "LABEL_AUX";
-    type_name[min::LIST_AUX] = "LIST_AUX";
-    type_name[min::SUBLIST_AUX] = "SUBLIST_AUX";
-    type_name[min::HASHTABLE_AUX] = "HASHTABLE_AUX";
-    type_name[min::RELOCATE_BODY] = "RELOCATE_BODY";
+    type_name[ACC_FREE] = "ACC_FREE";
+    type_name[DEALLOCATED] = "DEALLOCATED";
+    type_name[NUMBER] = "NUMBER";
+    type_name[SHORT_STR] = "SHORT_STR";
+    type_name[LONG_STR] = "LONG_STR";
+    type_name[LABEL] = "LABEL";
+    type_name[TINY_OBJ] = "TINY_OBJ";
+    type_name[SHORT_OBJ] = "SHORT_OBJ";
+    type_name[LONG_OBJ] = "LONG_OBJ";
+    type_name[HUGE_OBJ] = "HUGE_OBJ";
+    type_name[PACKED_STRUCT] = "PACKED_STRUCT";
+    type_name[PACKED_VEC] = "PACKED_VEC";
+    type_name[AUX_FREE] = "AUX_FREE";
+    type_name[LABEL_AUX] = "LABEL_AUX";
+    type_name[LIST_AUX] = "LIST_AUX";
+    type_name[SUBLIST_AUX] = "SUBLIST_AUX";
+    type_name[HASHTABLE_AUX] = "HASHTABLE_AUX";
+    type_name[RELOCATE_BODY] = "RELOCATE_BODY";
 
     assert ( sizeof ( MIN_INT32_TYPE ) == 4 );
     assert ( sizeof ( MIN_INT64_TYPE ) == 8 );
@@ -134,13 +134,13 @@ MINT::initializer::initializer ( void )
     // Check that max total sizes are representable
     // and small enough for representable offsets.
     //
-    min::uns64 short_max_representable =
-    	(    (min::uns64) 1
+    uns64 short_max_representable =
+    	(    (uns64) 1
 	  << MINT::SHORT_OBJ_MANTISSA_BITS )
 	<<
 	( ( 1 << MINT::SHORT_OBJ_EXPONENT_BITS ) - 1 );
-    min::uns64 long_max_representable =
-    	(    (min::uns64) 1
+    uns64 long_max_representable =
+    	(    (uns64) 1
 	  << MINT::LONG_OBJ_MANTISSA_BITS )
 	<<
 	( ( 1 << MINT::LONG_OBJ_EXPONENT_BITS ) - 1 );
@@ -156,7 +156,7 @@ MINT::initializer::initializer ( void )
       (    MINT::LONG_OBJ_MAX_TOTAL_SIZE
         <= long_max_representable );
 
-    min::uns32 u = 1;
+    uns32 u = 1;
     char * up = (char *) & u;
     bool big_endian = ( up[3] == 1 );
     bool little_endian = ( up[0] == 1 );
@@ -167,8 +167,8 @@ MINT::initializer::initializer ( void )
 
 	// Tests of MIN_FLOAT64_SIGNALLING_NAN
 	//
-	min::gen missing = min::MISSING();
-	min::float64 v = * (min::float64 *) & missing;
+	min::gen missing = MISSING();
+	float64 v = * (float64 *) & missing;
 
 	assert ( isnan ( v ) );
 
@@ -179,11 +179,11 @@ MINT::initializer::initializer ( void )
 	// generate non-signalling NaNs with high order
 	// 16 bits identical to v.
 
-	min::float64 v2 = v + 1.0;
+	float64 v2 = v + 1.0;
 
 	assert ( isnan ( v2 ) );
-	min::uns16 * vp = (min::uns16 *) & v;
-	min::uns16 * v2p = (min::uns16 *) & v2;
+	uns16 * vp = (uns16 *) & v;
+	uns16 * v2p = (uns16 *) & v2;
 	assert ( vp[3*little_endian]
 		 !=
 		 v2p[3*little_endian] );
@@ -218,29 +218,29 @@ MINT::initializer::initializer ( void )
 
     MINT::acc_initializer();
 
-    MINT::scavenger_routines[min::LABEL]
+    MINT::scavenger_routines[LABEL]
     	= & lab_scavenger_routine;
-    MINT::scavenger_routines[min::PACKED_STRUCT]
+    MINT::scavenger_routines[PACKED_STRUCT]
     	= & packed_struct_scavenger_routine;
-    MINT::scavenger_routines[min::PACKED_VEC]
+    MINT::scavenger_routines[PACKED_VEC]
     	= & packed_vec_scavenger_routine;
-    MINT::scavenger_routines[min::SHORT_OBJ]
+    MINT::scavenger_routines[SHORT_OBJ]
     	= & obj_scavenger_routine;
-    MINT::scavenger_routines[min::LONG_OBJ]
+    MINT::scavenger_routines[LONG_OBJ]
     	= & obj_scavenger_routine;
 }
 
 // Names
 // -----
 
-min::uns32 min::hash ( min::gen v )
+min::uns32 min::hash ( min::gen g )
 {
-    if ( min::is_num ( v ) )
-        return min::numhash ( v );
-    else if ( min::is_str ( v ) )
-        return min::strhash ( v );
-    else if ( min::is_lab ( v ) )
-        return min::labhash ( v );
+    if ( is_num ( g ) )
+        return numhash ( g );
+    else if ( is_str ( g ) )
+        return strhash ( g );
+    else if ( is_lab ( g ) )
+        return labhash ( g );
     else
 	MIN_ABORT ( "argument to min::hash"
 	            " is not a name" );
@@ -289,8 +289,8 @@ int min::compare ( min::gen g1, min::gen g2 )
     else if ( is_name ( g2 ) ) return +1;
     else
     {
-        unsgen v1 = min::unprotected::value_of ( g1 );
-        unsgen v2 = min::unprotected::value_of ( g2 );
+        unsgen v1 = unprotected::value_of ( g1 );
+        unsgen v2 = unprotected::value_of ( g2 );
 	return v1  < v2 ? -1 : v1 == v2 ? 0 : +1;
     }
 }
@@ -1030,19 +1030,19 @@ void MINT::thread_scavenger_routine
     min::gen MINT::new_num_stub_gen
 	    ( min::float64 v )
     {
-	min::uns32 hash = floathash ( v );
-	min::uns32 h = hash & MINT::num_hash_mask;
+	uns32 hash = floathash ( v );
+	uns32 h = hash & MINT::num_hash_mask;
 	min::stub * s = MINT::num_acc_hash[h];
 	while ( s != MINT::null_stub )
 	{
-	    min::uns64 c = MUP::control_of ( s );
+	    uns64 c = MUP::control_of ( s );
 
 	    if ( MUP::float_of ( s ) == v )
 	    {
 	        c |= MINT::hash_acc_set_flags;
 	        c &= ~ MINT::hash_acc_clear_flags;
 		MUP::set_control_of ( s, c );
-		return min::new_gen ( s );
+		return new_stub_gen ( s );
 	    }
 	    s = MUP::stub_of_acc_control ( c );
 	}
@@ -1057,34 +1057,34 @@ void MINT::thread_scavenger_routine
 
 	    if ( MUP::float_of ( s2 ) == v )
 	    {
-		min::uns64 c = MUP::control_of ( s2 );
+		uns64 c = MUP::control_of ( s2 );
 	        c |= MINT::hash_acc_set_flags;
 	        c &= ~ MINT::hash_acc_clear_flags;
 		MUP::set_control_of ( s2, c );
-		return min::new_gen ( s2 );
+		return new_stub_gen ( s2 );
 	    }
 	}
 
 	min::stub * s2 = MUP::new_acc_stub();
 	MUP::set_float_of ( s2, v );
-	MUP::set_type_of ( s2, min::NUMBER );
+	MUP::set_type_of ( s2, NUMBER );
 
 	s = MUP::new_aux_stub ();
 	MUP::set_ptr_of ( s, s2 );
 	MUP::set_control_of
 	    ( s,
 	      MUP::new_control_with_type
-	          ( min::HASHTABLE_AUX,
+	          ( HASHTABLE_AUX,
 		    MINT::num_aux_hash[h] ) );
 	MINT::num_aux_hash[h] = s;
 
-	return min::new_gen ( s2 );
+	return new_stub_gen ( s2 );
     }
 # endif
 
 min::uns32 min::floathash ( min::float64 f )
 {
-    min::uns32 hash = 0;
+    uns32 hash = 0;
     unsigned char * p = (unsigned char *) & f;
     int size = 8;
 #   if MIN_IS_LITTLE_ENDIAN
@@ -1107,7 +1107,7 @@ min::uns32 min::floathash ( min::float64 f )
 min::uns32 min::strnhash
 	( const char * p, min::unsptr size )
 {
-    min::uns32 hash = 0;
+    uns32 hash = 0;
     const unsigned char * q = (const unsigned char *) p;
     unsigned char c;
     while ( size -- && ( c = * q ++ ) )
@@ -1120,7 +1120,7 @@ min::uns32 min::strnhash
 
 min::uns32 min::strhash ( const char * p )
 {
-    min::uns32 hash = 0;
+    uns32 hash = 0;
     const unsigned char * q = (const unsigned char *) p;
     unsigned char c;
     while ( c = * q ++ )
@@ -1131,17 +1131,17 @@ min::uns32 min::strhash ( const char * p )
     return hash;
 }
 
-min::unsptr min::strlen ( min::gen v )
+min::unsptr min::strlen ( min::gen g )
 {
-    if ( min::is_direct_str ( v ) )
+    if ( is_direct_str ( g ) )
     {
         union { char buf[8]; min::uns64 str; } u;
-	u.str = min::direct_str_of ( v );
+	u.str = direct_str_of ( g );
 	return ::strlen ( u.buf );
     }
 
-    const min::stub * s = min::stub_of ( v );
-    if ( type_of ( s ) == min::SHORT_STR )
+    const min::stub * s = stub_of ( g );
+    if ( type_of ( s ) == SHORT_STR )
     {
 	const char * p = s->v.c8;
 	const char * endp = p + 8;
@@ -1150,41 +1150,41 @@ min::unsptr min::strlen ( min::gen v )
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return unprotected::long_str_of ( s )->length;
     }
 }
 
-min::uns32 min::strhash ( min::gen v )
+min::uns32 min::strhash ( min::gen g )
 {
-    if ( min::is_direct_str ( v ) )
+    if ( is_direct_str ( g ) )
     {
         union { char buf[8]; min::uns64 str; } u;
-	u.str = min::direct_str_of ( v );
-	return min::strhash ( u.buf );
+	u.str = direct_str_of ( g );
+	return strhash ( u.buf );
     }
 
-    const min::stub * s = min::stub_of ( v );
-    if ( type_of ( s ) == min::SHORT_STR )
-	return min::strnhash ( s->v.c8, 8 );
+    const min::stub * s = min::stub_of ( g );
+    if ( type_of ( s ) == SHORT_STR )
+	return strnhash ( s->v.c8, 8 );
     else
     {
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return unprotected::long_str_of ( s )->hash;
     }
 }
 
-char * min::strcpy ( char * p, min::gen v )
+char * min::strcpy ( char * p, min::gen g )
 {
-    if ( min::is_direct_str ( v ) )
+    if ( is_direct_str ( g ) )
     {
         union { char buf[8]; min::uns64 str; } u;
-	u.str = min::direct_str_of ( v );
+	u.str = direct_str_of ( g );
 	return ::strcpy ( p, u.buf );
     }
 
-    const min::stub * s = min::stub_of ( v );
-    if ( type_of ( s ) == min::SHORT_STR )
+    const min::stub * s = min::stub_of ( g );
+    if ( type_of ( s ) == SHORT_STR )
     {
 	if ( s->v.c8[7] )
 	{
@@ -1195,25 +1195,25 @@ char * min::strcpy ( char * p, min::gen v )
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strcpy
-	    ( p, min::unprotected::str_of
+	    ( p, unprotected::str_of
 		   ( unprotected::long_str_of ( s ) ) );
     }
 }
 
 char * min::strncpy
-	( char * p, min::gen v, min::unsptr n )
+	( char * p, min::gen g, min::unsptr n )
 {
-    if ( min::is_direct_str ( v ) )
+    if ( is_direct_str ( g ) )
     {
         union { char buf[8]; min::uns64 str; } u;
-	u.str = min::direct_str_of ( v );
+	u.str = direct_str_of ( g );
 	return ::strncpy ( p, u.buf, n );
     }
 
-    const min::stub * s = min::stub_of ( v );
-    if ( type_of ( s ) == min::SHORT_STR )
+    const min::stub * s = min::stub_of ( g );
+    if ( type_of ( s ) == SHORT_STR )
     {
 	if ( s->v.c8[7] && n >= 9 )
 	    p[8] = 0;
@@ -1222,25 +1222,25 @@ char * min::strncpy
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strncpy
-	    ( p, min::unprotected::str_of
+	    ( p, unprotected::str_of
 		   ( unprotected::long_str_of ( s ) ),
 		 n );
     }
 }
 
-int min::strcmp ( const char * p, min::gen v )
+int min::strcmp ( const char * p, min::gen g )
 {
-    if ( min::is_direct_str ( v ) )
+    if ( is_direct_str ( g ) )
     {
         union { char buf[8]; min::uns64 str; } u;
-	u.str = min::direct_str_of ( v );
+	u.str = direct_str_of ( g );
 	return ::strcmp ( p, u.buf );
     }
 
-    const min::stub * s = min::stub_of ( v );
-    if ( type_of ( s ) == min::SHORT_STR )
+    const min::stub * s = min::stub_of ( g );
+    if ( type_of ( s ) == SHORT_STR )
     {
 	if ( s->v.c8[7] )
 	{
@@ -1254,25 +1254,25 @@ int min::strcmp ( const char * p, min::gen v )
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strcmp
-	    ( p, min::unprotected::str_of
+	    ( p, unprotected::str_of
 		   ( unprotected::long_str_of ( s ) ) );
     }
 }
 
 int min::strncmp
-	( const char * p, min::gen v, min::unsptr n )
+	( const char * p, min::gen g, min::unsptr n )
 {
-    if ( min::is_direct_str ( v ) )
+    if ( is_direct_str ( g ) )
     {
         union { char buf[8]; min::uns64 str; } u;
-	u.str = min::direct_str_of ( v );
+	u.str = direct_str_of ( g );
 	return ::strncmp ( p, u.buf, n );
     }
 
-    const min::stub * s = min::stub_of ( v );
-    if ( type_of ( s ) == min::SHORT_STR )
+    const min::stub * s = min::stub_of ( g );
+    if ( type_of ( s ) == SHORT_STR )
     {
 	if ( s->v.c8[7] && n >= 9 )
 	{
@@ -1286,9 +1286,9 @@ int min::strncmp
     }
     else
     {
-	MIN_ASSERT ( type_of ( s ) == min::LONG_STR );
+	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strncmp
-	    ( p, min::unprotected::str_of
+	    ( p, unprotected::str_of
 		   ( unprotected::long_str_of ( s ) ),
 		 n );
     }
@@ -1302,17 +1302,17 @@ int min::strncmp
 min::gen MINT::new_str_stub_gen
 	( const char * p, min::unsptr n )
 {
-    min::uns32 hash = min::strnhash ( p, n );
-    min::uns32 h = hash & MINT::str_hash_mask;
+    uns32 hash = strnhash ( p, n );
+    uns32 h = hash & MINT::str_hash_mask;
     const char * q;
 
     min::stub * s = MINT::str_acc_hash[h];
     while ( s != MINT::null_stub )
     {
-	min::uns64 c = MUP::control_of ( s );
+	uns64 c = MUP::control_of ( s );
 
         if (    n <= 8
-	     && min::type_of ( s ) == min::SHORT_STR
+	     && type_of ( s ) == SHORT_STR
 	     && ::strncmp ( p, s->v.c8, n ) == 0
 	     && (    n == 8
 	          || s->v.c8[n] == 0 ) )
@@ -1320,11 +1320,10 @@ min::gen MINT::new_str_stub_gen
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
 	    MUP::set_control_of ( s, c );
-	    return min::new_gen ( s );
+	    return new_stub_gen ( s );
 	}
 	else if (    n > 8
-	          &&    min::type_of ( s )
-		     == min::LONG_STR
+	          && type_of ( s ) == LONG_STR
 	          && ::strncmp
 		       ( p, q = MUP::str_of (
 			            MUP::long_str_of
@@ -1336,7 +1335,7 @@ min::gen MINT::new_str_stub_gen
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
 	    MUP::set_control_of ( s, c );
-	    return min::new_gen ( s );
+	    return new_stub_gen ( s );
 	}
 	s = MUP::stub_of_acc_control ( c );
     }
@@ -1351,20 +1350,19 @@ min::gen MINT::new_str_stub_gen
 		( MUP::control_of ( s ) );
 
         if (    n <= 8
-	     && min::type_of ( s2 ) == min::SHORT_STR
+	     && type_of ( s2 ) == SHORT_STR
 	     && ::strncmp ( p, s2->v.c8, n ) == 0
 	     && (    n == 8
 	          || s2->v.c8[n] == 0 ) )
 	{
-	    min::uns64 c = MUP::control_of ( s2 );
+	    uns64 c = MUP::control_of ( s2 );
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
 	    MUP::set_control_of ( s2, c );
-	    return min::new_gen ( s2 );
+	    return new_stub_gen ( s2 );
 	}
 	else if (    n > 8
-	          &&    min::type_of ( s2 )
-		     == min::LONG_STR
+	          && type_of ( s2 ) == LONG_STR
 	          && ::strncmp
 		       ( p, q = MUP::str_of (
 			            MUP::long_str_of
@@ -1373,24 +1371,24 @@ min::gen MINT::new_str_stub_gen
 		     == 0
 		  && q[n] == 0 )
 	{
-	    min::uns64 c = MUP::control_of ( s2 );
+	    uns64 c = MUP::control_of ( s2 );
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
 	    MUP::set_control_of ( s2, c );
-	    return min::new_gen ( s2 );
+	    return new_stub_gen ( s2 );
 	}
     }
 
     min::stub * s2 = MUP::new_acc_stub();
     if ( n <= 8 )
     {
-	MUP::set_type_of ( s2, min::SHORT_STR );
+	MUP::set_type_of ( s2, SHORT_STR );
 	s2->v.u64 = 0;
 	::strncpy ( s2->v.c8, p, n );
     }
     else
     {
-	MUP::set_type_of ( s2, min::LONG_STR );
+	MUP::set_type_of ( s2, LONG_STR );
 	MUP::new_body
 	    ( s2, sizeof ( MUP::long_str ) + n + 1 );
 	MUP::long_str * ls = MUP::long_str_of ( s2 );
@@ -1405,11 +1403,11 @@ min::gen MINT::new_str_stub_gen
     MUP::set_control_of
 	( s,
 	  MUP::new_control_with_type
-	      ( min::HASHTABLE_AUX,
+	      ( HASHTABLE_AUX,
 		MINT::str_aux_hash[h] ));
     MINT::str_aux_hash[h] = s;
 
-    return min::new_gen ( s2 );
+    return new_stub_gen ( s2 );
 }
 
 min::gen min::new_str_gen
@@ -1417,10 +1415,10 @@ min::gen min::new_str_gen
 {
     char buffer[8*n+1];
     char * q = buffer;
-    min::unsptr m = 0;
+    unsptr m = 0;
     while ( n -- )
         m += min::unicode_to_utf8 ( q, * p ++ );
-    return min::internal::new_str_gen ( buffer, m );
+    return internal::new_str_gen ( buffer, m );
 }
 
 
@@ -1430,10 +1428,10 @@ min::gen min::new_str_gen
 min::uns32 min::labhash
 	( const min::gen * p, min::uns32 n )
 {
-    min::uns32 hash = min::labhash_initial;
+    uns32 hash = min::labhash_initial;
     while ( n -- )
     {
-        MIN_ASSERT ( min::is_name ( * p ) );
+        MIN_ASSERT ( is_name ( * p ) );
         hash = labhash ( hash, min::hash ( * p ++ ) );
     }
     return hash;
@@ -1442,8 +1440,8 @@ min::uns32 min::labhash
 min::gen min::new_lab_gen
 	( const min::gen * p, min::uns32 n )
 {
-    min::uns32 hash = labhash ( p, n );
-    min::uns32 h = hash & MINT::lab_hash_mask;
+    uns32 hash = labhash ( p, n );
+    uns32 h = hash & MINT::lab_hash_mask;
 
     // Search for existing label stub with given
     // elements.
@@ -1451,21 +1449,21 @@ min::gen min::new_lab_gen
     min::stub * s = MINT::lab_acc_hash[h];
     while ( s != MINT::null_stub )
     {
-	min::uns64 c = MUP::control_of ( s );
+	uns64 c = MUP::control_of ( s );
 
 	lab_ptr labp ( s );
 
 	if ( hash != hash_of ( labp ) ) continue;
 	if ( n != length_of ( labp ) ) continue;
 
-	min::uns32 i;
+	uns32 i;
 	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
 	if ( i == n )
 	{
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
 	    MUP::set_control_of ( s, c );
-	    return min::new_gen ( s );
+	    return new_stub_gen ( s );
 	}
 	s = MUP::stub_of_acc_control ( c );
     }
@@ -1482,15 +1480,15 @@ min::gen min::new_lab_gen
 	if ( hash != hash_of ( labp ) ) continue;
 	if ( n != length_of ( labp ) ) continue;
 
-	min::uns32 i;
+	uns32 i;
 	for ( i = 0; i < n && p[i] == labp[i]; ++ i );
 	if ( i == n )
 	{
-	    min::uns64 c = MUP::control_of ( s2 );
+	    uns64 c = MUP::control_of ( s2 );
 	    c |= MINT::hash_acc_set_flags;
 	    c &= ~ MINT::hash_acc_clear_flags;
 	    MUP::set_control_of ( s2, c );
-	    return min::new_gen ( s2 );
+	    return new_stub_gen ( s2 );
 	}
     }
 
@@ -1509,12 +1507,12 @@ min::gen min::new_lab_gen
     MUP::set_control_of
 	( s,
 	  MUP::new_control_with_type
-	      ( min::HASHTABLE_AUX,
+	      ( HASHTABLE_AUX,
 		MINT::lab_aux_hash[h] ));
     MINT::lab_aux_hash[h] = s;
 
-    MUP::set_type_of ( s2, min::LABEL );
-    return min::new_gen ( s2 );
+    MUP::set_type_of ( s2, LABEL );
+    return new_stub_gen ( s2 );
 }
 
 // Packed Structures and Vectors
@@ -1529,11 +1527,10 @@ const min::stub * MINT::packed_struct_new_stub
 {
     min::stub * s = unprotected::new_acc_stub();
     unprotected::new_body ( s, psd->size );
-    min::uns32 * tp =
-        (min::uns32 *) unprotected::ptr_of ( s );
+    uns32 * tp = (uns32 *) unprotected::ptr_of ( s );
     memset ( tp, 0, psd->size );
     * tp = psd->subtype;
-    unprotected::set_type_of ( s, min::PACKED_STRUCT );
+    unprotected::set_type_of ( s, PACKED_STRUCT );
     return s;
 }
 
@@ -1544,12 +1541,11 @@ const min::stub * MINT::packed_vec_new_stub
 	  const void * vp )
 {
     min::stub * s = unprotected::new_acc_stub();
-    min::uns32 size = pvd->header_size
-	            +   max_length
-		      * pvd->element_size;
+    uns32 size = pvd->header_size
+	       +   max_length
+	         * pvd->element_size;
     unprotected::new_body ( s, size );
-    min::uns8 * bodyp =
-        (min::uns8 *) unprotected::ptr_of ( s );
+    uns8 * bodyp = (uns8 *) unprotected::ptr_of ( s );
     memset ( bodyp, 0, size );
     * (uns32 *) bodyp = pvd->subtype;
     * (uns32 *) ( bodyp + pvd->length_disp ) = length;
@@ -1558,7 +1554,7 @@ const min::stub * MINT::packed_vec_new_stub
     if ( vp )
         memcpy ( bodyp + pvd->header_size,
 	         vp, length * pvd->element_size);
-    unprotected::set_type_of ( s, min::PACKED_VEC );
+    unprotected::set_type_of ( s, PACKED_VEC );
     return s;
 }
 
@@ -1566,7 +1562,7 @@ void MINT::packed_vec_resize
         ( const min::stub * s,
 	  min::uns32 max_length )
 {
-    min::uns32 t = MINT::packed_subtype_of ( s );
+    uns32 t = MINT::packed_subtype_of ( s );
     packed_vec_descriptor * pvdescriptor =
 	(packed_vec_descriptor *)
 	(*packed_subtypes)[t];
@@ -1578,31 +1574,31 @@ void MINT::packed_vec_resize
 	  min::internal::packed_vec_descriptor * pvd,
 	  min::uns32 max_length )
 {
-    min::uns8 * & old_p = * (min::uns8 ** )
+    uns8 * & old_p = * (uns8 ** )
         & MUP::ptr_ref_of ( (min::stub *) s );
-    min::uns32 length = * (min::uns32 *)
-        ( old_p + pvd->length_disp );
-    min::uns32 old_max_length = * (min::uns32 *)
-        ( old_p + pvd->max_length_disp );
-    min::unsptr copy_size = pvd->header_size
-			  +   length
-                            * pvd->element_size;
-    min::unsptr old_size = pvd->header_size
-			 +   old_max_length
-                           * pvd->element_size;
-    min::unsptr new_size = pvd->header_size
-			 +   max_length
-                           * pvd->element_size;
+    uns32 length =
+        * (uns32 *) ( old_p + pvd->length_disp );
+    uns32 old_max_length =
+        * (uns32 *) ( old_p + pvd->max_length_disp );
+    unsptr copy_size = pvd->header_size
+		     +   length
+                       * pvd->element_size;
+    unsptr old_size = pvd->header_size
+		    +   old_max_length
+                      * pvd->element_size;
+    unsptr new_size = pvd->header_size
+		    +   max_length
+                      * pvd->element_size;
     if ( copy_size > new_size ) copy_size = new_size;
     unprotected::resize_body r
 	( (min::stub *) s, new_size, old_size );
-    min::uns8 * & new_p = * (min::uns8 **)
-	& MUP::new_body_ptr_ref ( r );
+    uns8 * & new_p =
+        * (uns8 **) & MUP::new_body_ptr_ref ( r );
     memcpy ( new_p, old_p, copy_size );
-    * (min::uns32 *) ( new_p + pvd->max_length_disp ) =
+    * (uns32 *) ( new_p + pvd->max_length_disp ) =
         max_length;
     if ( length > max_length )
-	* (min::uns32 *) ( new_p + pvd->length_disp ) =
+	* (uns32 *) ( new_p + pvd->length_disp ) =
 	    max_length;
 }
 
@@ -1641,14 +1637,14 @@ void min::init_output ( min::ptr<min::file> file )
         file = ::file_type.new_stub();
 	locatable ( file, file->buffer ) =
 	    ::file_buffer_type.new_stub();
-	file->file_name = min::MISSING();
+	file->file_name = MISSING();
     }
     else
     {
 	if ( file->line_index != NULL_STUB )
 	{
 	    min::pop ( file->line_index,
-		       file->line_index->length );
+	               file->line_index->length );
 	    min::resize ( file->line_index,
 			  file_line_index_type
 			      .initial_max_length );
@@ -1664,10 +1660,9 @@ void min::init_input ( min::ptr<min::file> file )
     min::pop ( file->buffer,
 	       file->buffer->length );
     min::resize ( file->buffer,
-		  file_buffer_type
-		      .initial_max_length );
+	          file_buffer_type.initial_max_length );
     file->end_offset = 0;
-    file->file_lines = NO_LINE;
+    file->file_lines = min::NO_LINE;
 }
 
 void min::init_print_flags
@@ -1784,7 +1779,7 @@ bool min::init_input_named_file
     // Use OS independent min::os::file_size.
     //
     char error_buffer[512];
-    min::uns64 file_size;
+    uns64 file_size;
     if ( ! min::os::file_size
                ( file_size, & fname[0], error_buffer ) )
     {
@@ -1825,7 +1820,7 @@ bool min::init_input_named_file
     min::push ( file->buffer, file_size );
 
     errno = 0;
-    min::uns64 bytes =
+    uns64 bytes =
         fread ( & file->buffer[0], 1,
 	        (size_t) file_size, in );
     if ( bytes != file_size )
@@ -1863,8 +1858,7 @@ bool min::init_input_named_file
     fclose ( in );
 
     file->file_lines = 0;
-    for ( min::uns32 i = 0;
-          i < file->buffer->length; ++ i )
+    for ( uns32 i = 0; i < file->buffer->length; ++ i )
     {
 	char c = file->buffer[i];
         if ( c == '\n' || c == 0 )
@@ -1889,7 +1883,7 @@ void min::init_input_string
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 
-    min::uns64 length = ::strlen ( data );
+    uns64 length = ::strlen ( data );
     assert ( length < ( 1ull << 32 ) );
 
     min::resize ( file->buffer, length );
@@ -1956,7 +1950,7 @@ min::uns32 min::next_line ( min::file file )
 
 	    memmove ( & file->line_index[0],
 	              & file->line_index[index_offset],
-		        sizeof ( min::uns32 )
+		        sizeof ( uns32 )
 		      * file->spool_lines );
 	    min::pop ( file->line_index,
 		       index_offset );
@@ -1965,8 +1959,8 @@ min::uns32 min::next_line ( min::file file )
 
     if ( line_offset >= file->end_offset )
     {
-        if ( file->file_lines != NO_LINE )
-	    return NO_LINE;
+        if ( file->file_lines != min::NO_LINE )
+	    return min::NO_LINE;
 
 	// Input line.
 	//
@@ -1983,7 +1977,7 @@ min::uns32 min::next_line ( min::file file )
 	    {
 	        file->file_lines =
 		    file->next_line_number;
-	        return NO_LINE;
+	        return min::NO_LINE;
 	    }
 	}
 	else if ( file->ifile != NULL_STUB )
@@ -1991,7 +1985,7 @@ min::uns32 min::next_line ( min::file file )
 	    min::file ifile = file->ifile;
 	    uns32 ioffset = min::next_line ( ifile );
 
-	    if ( ioffset == NO_LINE )
+	    if ( ioffset == min::NO_LINE )
 	    {
 		ioffset = ifile->next_line_offset;
 		uns32 length = ifile->buffer->length
@@ -2007,7 +2001,7 @@ min::uns32 min::next_line ( min::file file )
 
 	        file->file_lines =
 		    file->next_line_number;
-		return NO_LINE;
+		return min::NO_LINE;
 	    }
 
 	    uns32 length =
@@ -2018,7 +2012,7 @@ min::uns32 min::next_line ( min::file file )
 	else
 	{
 	    file->file_lines = file->next_line_number;
-	    return NO_LINE;
+	    return min::NO_LINE;
 	}
 
 	min::end_line ( file );
@@ -2038,12 +2032,12 @@ min::uns32 min::line
 	( min::file file, uns32 line_number )
 {
     if ( file->line_index == NULL_STUB )
-        return NO_LINE;
+        return min::NO_LINE;
     else if ( line_number >= file->next_line_number )
-        return NO_LINE;
+        return min::NO_LINE;
     else if (   file->spool_lines
               < file->next_line_number - line_number )
-        return NO_LINE;
+        return min::NO_LINE;
     else
         return file->line_index
 	           [  file->line_index->length
@@ -2059,7 +2053,7 @@ min::uns32 min::print_line
 	  const char * end_of_file,
 	  const char * unavailable_line )
 {
-    min::uns32 offset = min::line ( file, line_number );
+    uns32 offset = min::line ( file, line_number );
 
     if ( offset == min::NO_LINE )
     {
@@ -2069,7 +2063,7 @@ min::uns32 min::print_line
 	else
 	    message = unavailable_line;
 
-	if ( message == NULL ) return NO_LINE;
+	if ( message == NULL ) return min::NO_LINE;
 
 	printer << message << min::eol;
 	return 0;
@@ -2177,7 +2171,7 @@ void min::flush_line
 
     if ( file->ofile != NULL_STUB )
     {
-        min::uns32 length =
+        uns32 length =
 	    ::strlen ( & file->buffer[offset] );
 	min::push ( file->ofile->buffer, length,
 	            & file->buffer[offset] );
@@ -2194,8 +2188,8 @@ void min::flush_line
 
 void min::flush_partial ( min::file file )
 {
-    min::uns32 length = min::partial_length ( file );
-    min::uns32 offset = min::partial_offset ( file );
+    uns32 length = min::partial_length ( file );
+    uns32 offset = min::partial_offset ( file );
     if ( length == 0 ) return;
 
     min::push(file->buffer) = 0;
@@ -3418,7 +3412,7 @@ min::gen min::new_obj_gen
 
     hash_size = MINT::hash_size[hi];
 
-    min::unsptr total_size =
+    unsptr total_size =
         unused_size + hash_size + var_size;
 
     min::stub * s = MUP::new_acc_stub();
@@ -3434,7 +3428,7 @@ min::gen min::new_obj_gen
         total_size += MINT::SHORT_OBJ_HEADER_SIZE;
 
 	unsigned exponent = 0;
-	min::unsptr mantissa = total_size;
+	unsptr mantissa = total_size;
 	while (   mantissa
 	        > MINT::SHORT_OBJ_MANTISSA_MASK )
 	    ++ mantissa, mantissa >>= 1, ++ exponent;
@@ -3475,7 +3469,7 @@ min::gen min::new_obj_gen
 	      <= MINT::LONG_OBJ_MAX_TOTAL_SIZE );
 
 	unsigned exponent = 0;
-	min::unsptr mantissa = total_size;
+	unsptr mantissa = total_size;
 	while (   mantissa
 	        > MINT::LONG_OBJ_MANTISSA_MASK )
 	    ++ mantissa, mantissa >>= 1, ++ exponent;
@@ -3510,7 +3504,7 @@ min::gen min::new_obj_gen
     while ( p < endp ) * p ++ = min::LIST_END();
 
     MUP::set_type_of ( s, type );
-    return min::new_gen ( s );
+    return min::new_stub_gen ( s );
 }
 
 // Object Vector Level
@@ -3527,16 +3521,16 @@ bool min::resize
       min::unsptr var_size )
 {
     min::stub * s = MUP::stub_of ( vp );
-    min::unsptr old_size = min::total_size_of ( vp );
-    min::unsptr new_size =
+    unsptr old_size = min::total_size_of ( vp );
+    unsptr new_size =
         ( unused_size + var_size + old_size )
 	-
 	(   min::var_size_of ( vp )
 	  + min::unused_size_of ( vp ) );
 
     int new_type = min::type_of ( s );
-    min::unsptr hash_code;
-    min::uns32 flags;
+    unsptr hash_code;
+    uns32 flags;
     if ( new_type == min::SHORT_OBJ )
     {
 	MINT::short_obj * so = MINT::short_obj_of ( s );
@@ -3578,8 +3572,8 @@ bool min::resize
     }
 
     unsigned exponent = 0;
-    min::unsptr mantissa = new_size;
-    min::unsptr new_var_offset;
+    unsptr mantissa = new_size;
+    unsptr new_var_offset;
     if ( new_type == min::SHORT_OBJ )
     {
 	MIN_ASSERT
@@ -3603,7 +3597,7 @@ bool min::resize
 	        > MINT::LONG_OBJ_MANTISSA_MASK )
 	    ++ mantissa, mantissa >>= 1, ++ exponent;
     }
-    min::unsptr initial_new_size = new_size;
+    unsptr initial_new_size = new_size;
     new_size = mantissa << exponent;
     unused_size += new_size - initial_new_size;
 
@@ -3618,19 +3612,18 @@ bool min::resize
 
     // Compute aux pointer offset.
     //
-    min::unsgen aux_offset = (min::unsgen) new_size
-	                   - (min::unsgen) old_size;
+    unsgen aux_offset = (unsgen) new_size
+	              - (unsgen) old_size;
 
     // Initialize copy pointers.
     //
-    min::unsptr from = MUP::var_offset_of ( vp );
-    min::unsptr to = new_var_offset;
+    unsptr from = MUP::var_offset_of ( vp );
+    unsptr to = new_var_offset;
 
     // Copy variables vector.
     //
-    min::unsptr from_end =
-        from + min::var_size_of ( vp );
-    min::unsptr to_end = to + var_size;
+    unsptr from_end = from + min::var_size_of ( vp );
+    unsptr to_end = to + var_size;
 
     while ( from < from_end && to < to_end )
         newb[to++] = oldb[from++];
@@ -3664,8 +3657,8 @@ bool min::resize
     //
     vp.var_offset = new_var_offset;
     vp.hash_offset = vp.var_offset + var_size;
-    min::unsptr attr_size = vp.unused_offset
-                          - vp.attr_offset;
+    unsptr attr_size = vp.unused_offset
+                     - vp.attr_offset;
     vp.attr_offset = vp.hash_offset
                    + vp.hash_size;
     vp.unused_offset = vp.attr_offset
@@ -3688,11 +3681,11 @@ bool min::resize
 	            << MINT::SHORT_OBJ_MANTISSA_BITS )
 	        + mantissa - 1 )
 	    << MINT::SHORT_OBJ_FLAG_BITS;
-	so->flags = (min::uns16) flags;
+	so->flags = (uns16) flags;
 	so->unused_offset =
-	    (min::uns16) vp.unused_offset;
+	    (uns16) vp.unused_offset;
 	so->aux_offset =
-	    (min::uns16) vp.aux_offset;
+	    (uns16) vp.aux_offset;
     }
     else
     {
@@ -3810,13 +3803,13 @@ void MINT::remove_list
 		MINT::remove_sublist
 		    ( base, total_size,
 		      min::unprotected::gen_of ( s ) );
-		min::uns64 c = MUP::control_of ( s );
+		uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
 		if ( c & MUP::STUB_PTR)
 		    s = MUP::stub_of_control ( c );
 		else
 		{
-		    min::unsptr vc =
+		    unsptr vc =
 			MUP::value_of_control ( c );
 		    if ( vc == 0 ) return;
 		    index = total_size - c;
@@ -3882,11 +3875,11 @@ void min::insert_before
 	return;
     }
 
-    min::unsptr unused_offset =
+    unsptr unused_offset =
         unprotected::unused_offset_of ( lp.vecp );
-    min::unsptr aux_offset =
+    unsptr aux_offset =
         unprotected::aux_offset_of ( lp.vecp );
-    min::unsptr total_size = lp.total_size;
+    unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
 
@@ -3951,9 +3944,9 @@ void min::insert_before
 		          min::LIST_AUX,
 		      p, n,
 		      MUP::new_control_with_type
-			( 0, (min::uns64) 0 ) );
+			( 0, (uns64) 0 ) );
 
-		fgen = min::new_gen ( first );
+		fgen = min::new_stub_gen ( first );
 		if ( lp.previous_stub != NULL )
 		{
 		    if ( lp.previous_is_sublist_head )
@@ -3992,7 +3985,7 @@ void min::insert_before
 				  first,
 				  MUP::STUB_PTR ) );
 			lp.base[lp.previous_index] =
-			    min::new_gen ( s );
+			    min::new_stub_gen ( s );
 			lp.previous_index = 0;
 			lp.previous_stub = s;
 		    }
@@ -4112,7 +4105,7 @@ void min::insert_before
 	        // Stub to which current value is moved
 		// if previous pointer does not exist.
 
-	    min::uns64 end;
+	    uns64 end;
 	    int type = min::LIST_AUX;
 	        // Parameters for call to allocate_stub_
 		// list below.
@@ -4133,7 +4126,7 @@ void min::insert_before
 		MUP::set_gen_of ( s, lp.current );
 		end = MUP::new_control_with_type
 		    ( 0, s, MUP::STUB_PTR );
-		min::unsptr next = lp.current_index;
+		unsptr next = lp.current_index;
 		if ( next == lp.head_index )
 		    next = 0;
 		else if (    lp.base[-- next]
@@ -4170,13 +4163,13 @@ void min::insert_before
 
 	    if ( lp.previous_index != 0 )
 		lp.base[lp.previous_index] =
-		    min::new_gen ( first );
+		    min::new_stub_gen ( first );
 	    else if ( lp.previous_stub != NULL )
 	    {
 		if ( lp.previous_is_sublist_head )
 		    MUP::set_gen_of
 			( lp.previous_stub,
-			  min::new_gen ( first ) );
+			  min::new_stub_gen ( first ) );
 		else
 		{
 		   type = min::type_of
@@ -4193,7 +4186,7 @@ void min::insert_before
 	        MIN_ASSERT ( lp.current_index != 0 );
 
 		lp.base[lp.current_index] =
-		    min::new_gen ( first );
+		    min::new_stub_gen ( first );
 		lp.previous_index = lp.current_index;
 		lp.previous_is_sublist_head = false;
 	    }
@@ -4210,8 +4203,8 @@ void min::insert_before
 		    + n + 1 + ( ! previous )
 		 <= aux_offset );
 
-    min::unsptr first = aux_offset - 1;
-    min::unsptr aux_first = total_size - first;
+    unsptr first = aux_offset - 1;
+    unsptr aux_first = total_size - first;
 
     while ( n -- )
 	lp.base[-- aux_offset] = * p ++;
@@ -4221,14 +4214,14 @@ void min::insert_before
 	{
 	    MIN_ASSERT ( previous );
 	    lp.base[-- aux_offset] =
-		min::new_gen ( lp.current_stub );
+		min::new_stub_gen ( lp.current_stub );
 	    MUP::set_type_of
 		( lp.current_stub, min::LIST_AUX );
 	}
 	else
 #   endif
     {
-	min::unsptr next = lp.current_index;
+	unsptr next = lp.current_index;
         if ( ! previous )
 	{
 	    lp.base[-- aux_offset] = lp.current;
@@ -4305,11 +4298,11 @@ void min::insert_after
 {
     if ( n == 0 ) return;
 
-    min::unsptr unused_offset =
+    unsptr unused_offset =
         unprotected::unused_offset_of ( lp.vecp );
-    min::unsptr aux_offset =
+    unsptr aux_offset =
         unprotected::aux_offset_of ( lp.vecp );
-    min::unsptr total_size = lp.total_size;
+    unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
 
@@ -4365,12 +4358,12 @@ void min::insert_after
 	    // If previous, we can copy the last new
 	    // element to the old current element.
 
-	    min::unsptr next =
+	    unsptr next =
 	        lp.current_index == lp.head_index ?
 	        0 :
 	          total_size
 	        - lp.current_index + ! previous;
-	    min::uns64 end =
+	    uns64 end =
 		MUP::new_control_with_type
 		    ( type, next );
 
@@ -4395,7 +4388,7 @@ void min::insert_after
 		    if ( lp.previous_is_sublist_head )
 			MUP::set_gen_of
 			    ( lp.previous_stub,
-			      min::new_gen ( s ) );
+			      min::new_stub_gen ( s ) );
 		    else
 		    {
 			int type =
@@ -4426,7 +4419,7 @@ void min::insert_after
 		          ( min::LIST_AUX, first,
 			    MUP::STUB_PTR ) );
 		lp.base[lp.current_index] =
-		    min::new_gen ( s );
+		    min::new_stub_gen ( s );
 		lp.previous_index = lp.current_index;
 		lp.current_index = 0;
 		lp.current_stub = s;
@@ -4441,7 +4434,7 @@ void min::insert_after
 		    + ( n + 1 + ! previous )
 		 <= aux_offset );
 
-    min::unsptr first = aux_offset - 1;
+    unsptr first = aux_offset - 1;
 
     if ( lp.current_index != 0 )
 	lp.base[-- aux_offset] = lp.current;
@@ -4460,11 +4453,11 @@ void min::insert_after
     {
 	MIN_ASSERT ( previous );
 	lp.base[-- aux_offset] = * p ++;
-	min::uns64 c =
+	uns64 c =
 	    MUP::control_of ( lp.current_stub );
 	if ( c & MUP::STUB_PTR )
 	    lp.base[-- aux_offset] =
-		min::new_gen
+		min::new_stub_gen
 		    ( MUP::stub_of_control ( c ) );
 	else
 	    lp.base[-- aux_offset] =
@@ -4524,7 +4517,7 @@ void min::insert_after
 	MIN_ASSERT ( lp.current_index != 0 );
 
 	lp.base[-- aux_offset] = * p ++;
-	min::unsptr next = lp.current_index;
+	unsptr next = lp.current_index;
 	if ( next == lp.head_index )
 	    next = 0;
 	else if ( lp.base[-- next] == min::LIST_END() )
@@ -4560,7 +4553,7 @@ min::unsptr min::remove
     if ( n == 0 || lp.current == min::LIST_END() )
         return 0;
 
-    min::unsptr total_size = lp.total_size;
+    unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
 
@@ -4579,10 +4572,10 @@ min::unsptr min::remove
     // Save the current previous pointer and current
     // index.
     //
-    min::unsptr previous_index = lp.previous_index;
+    unsptr previous_index = lp.previous_index;
     bool previous_is_sublist_head =
 	lp.previous_is_sublist_head;
-    min::unsptr current_index = lp.current_index;
+    unsptr current_index = lp.current_index;
 #   if MIN_USE_OBJ_AUX_STUBS
 	min::stub * previous_stub = lp.previous_stub;
 #   endif
@@ -4590,7 +4583,7 @@ min::unsptr min::remove
     // Count of elements removed; to be returned as
     // result.
     //
-    min::unsptr count = 0;
+    unsptr count = 0;
 
     // Skip n elements (or until end of list).
     // Remove sublists and free aux stubs.
@@ -4651,7 +4644,7 @@ min::unsptr min::remove
 			  min::SUBLIST_AUX );
 		    MUP::set_gen_of
 		        ( previous_stub,
-			  min::new_gen
+			  min::new_stub_gen
 			      ( lp.current_stub ) );
 		}
 		else
@@ -4678,7 +4671,7 @@ min::unsptr min::remove
 		    MUP::set_control_of
 		        ( previous_stub,
 			  MUP::new_control_with_type
-			      ( type, min::uns64(0) ) );
+			      ( type, uns64(0) ) );
 		}
 		if ( lp.current_index != 0 )
 		{
@@ -4729,7 +4722,8 @@ min::unsptr min::remove
 			( lp.current_stub,
 			  min::SUBLIST_AUX );
 		lp.base[previous_index] =
-		    min::new_gen ( lp.current_stub );
+		    min::new_stub_gen
+		        ( lp.current_stub );
 
 		lp.previous_index = previous_index;
 		lp.previous_is_sublist_head =
@@ -4792,7 +4786,8 @@ min::unsptr min::remove
 	    if ( lp.current_stub != NULL )
 	    {
 		lp.base[current_index] =
-		    min::new_gen ( lp.current_stub );
+		    min::new_stub_gen
+		        ( lp.current_stub );
 		lp.previous_index = current_index;
 	    }
 	    else
@@ -4836,9 +4831,8 @@ bool MINT::insert_reserve
 	else
 #   endif
     {
-	min::unsptr desired_size =
-	    2 * insertions + elements;
-	min::unsptr total_size =
+	unsptr desired_size = 2 * insertions + elements;
+	unsptr total_size =
 	    min::total_size_of ( lp.vecp );
 	if ( desired_size < 1000 )
 	{
@@ -4896,7 +4890,7 @@ min::attr_info_vec min::attr_info_vec_type
 	// label elements.
 	//
 	bool is_label = is_lab ( name );
-	min::unsptr len;
+	unsptr len;
 	if ( is_label )
 	{
 	    len = min::lablen ( name );
@@ -4978,7 +4972,7 @@ min::attr_info_vec min::attr_info_vec_type
 	}
 	else ap.length = 1;
 
-	min::unsptr locate_length = 0;
+	unsptr locate_length = 0;
 	    // ap.length for the last node descriptor
 	    // with a non-empty value set.
 	    // locate_dlp is value of dlp for this
@@ -5084,7 +5078,7 @@ min::attr_info_vec min::attr_info_vec_type
 	MIN_ASSERT ( ap.length > 0 );
 
 	bool is_label = is_lab ( ap.attr_name );
-	min::unsptr len;
+	unsptr len;
 	if ( is_label )
 	    len = min::lablen ( ap.attr_name );
 	else len = 1;
@@ -5111,7 +5105,7 @@ min::attr_info_vec min::attr_info_vec_type
 	}
 
 	MIN_ASSERT ( ap.length <= len );
-	min::unsptr length = 1;
+	unsptr length = 1;
 	start_copy ( ap.dlp, ap.locate_dlp );
 	while ( length < ap.length )
 	{
@@ -5163,7 +5157,7 @@ min::attr_info_vec min::attr_info_vec_type
 	    ( ap.state == ap_type::LOCATE_FAIL );
 
 	bool is_label = is_lab ( ap.attr_name );
-	min::unsptr len;
+	unsptr len;
 	if ( is_label )
 	    len = min::lablen ( ap.attr_name );
 	else
@@ -5799,7 +5793,7 @@ min::unsptr MINT::get
     if ( ! is_sublist ( c ) ) return 0;
     start_sublist ( ap.dlp );
 
-    min::unsptr result = 0;
+    unsptr result = 0;
     for ( min::gen c = current ( ap.dlp );
 	  ! is_list_end ( c );
 	  c = next ( ap.dlp ) )
@@ -6108,7 +6102,7 @@ min::gen min::get_attrs
     vecpt & vp = obj_vec_ptr_of ( ap.locate_dlp );
     min::list_ptr lp ( vp );
 
-    for ( min::unsptr i = 0;
+    for ( unsptr i = 0;
           i < hash_size_of ( vp );
 	  ++ i )
     {
@@ -6135,7 +6129,7 @@ min::gen min::get_attrs
 #	    endif
 	}
     }
-    for ( min::unsptr i = 0;
+    for ( unsptr i = 0;
           i < attr_size_of ( vp );
 	  ++ i )
     {
@@ -6312,7 +6306,7 @@ void MINT::remove_reverse_attr_value
     typedef min::attr_insptr ap_type;
 
     attr_insptr rap ( vp );
-    min::gen v = min::new_gen
+    min::gen v = min::new_stub_gen
         ( MUP::stub_of ( obj_vec_ptr_of ( ap.dlp ) ) );
 
     min::locate ( rap, ap.reverse_attr_name );
@@ -6365,7 +6359,7 @@ void MINT::add_reverse_attr_value
     typedef min::attr_insptr ap_type;
 
     attr_insptr rap ( vp );
-    min::gen v = min::new_gen
+    min::gen v = min::new_stub_gen
         ( MUP::stub_of ( obj_vec_ptr_of ( ap.dlp ) ) );
 
     min::locate ( rap, ap.reverse_attr_name );
@@ -6577,7 +6571,7 @@ void MINT::set
     else
     {
     	start_sublist ( ap.lp, ap.dlp );
-	min::unsptr k = 0;
+	unsptr k = 0;
 	for ( c = current ( ap.lp );
 	         n > k
 	      && ! is_list_end ( c )
@@ -6652,7 +6646,7 @@ void min::add_to_set
     if ( ! is_sublist ( c ) )
     {
         min::gen additions[n];
-	min::unsptr m = 0;
+	unsptr m = 0;
 	while ( n -- )
 	{
 	    min::gen v = * in ++;
@@ -6669,7 +6663,7 @@ void min::add_to_set
 	// call add_to_multiset.
 	//
         min::gen additions[n];
-	min::unsptr m = 0;
+	unsptr m = 0;
 	while ( n -- ) additions[m++] = * in ++;
 	start_sublist ( ap.lp, ap.dlp );
 	for ( c = current ( ap.lp );
@@ -6677,13 +6671,13 @@ void min::add_to_set
 	      && ! is_sublist ( c )
 	      && ! is_control_code ( c );
 	      c = next ( ap.lp ) )
-	for ( min::unsptr i = 0; i < m; ++ i )
+	for ( unsptr i = 0; i < m; ++ i )
 	{
 	    if ( additions[i] == c )
 	        additions[i] = min::NONE();
 	}
-	min::unsptr j = 0;
-	for ( min::unsptr k = 0; k < m; ++ k )
+	unsptr j = 0;
+	for ( unsptr k = 0; k < m; ++ k )
 	{
 	    if ( additions[k] != min::NONE() )
 	        additions[j++] = additions[k];
@@ -6694,7 +6688,7 @@ void min::add_to_set
 
 void min::add_to_multiset
 	( min::attr_insptr & ap,
-	  const min::gen * in, min::unsptr n )
+	  const min::gen * in, unsptr n )
 {
     typedef min::attr_insptr ap_type;
 
@@ -6833,11 +6827,11 @@ min::unsptr min::remove_one
 	// once, we can terminate early.
 	//
         min::gen removals[n];
-	for ( min::unsptr j = 0; j < n; )
+	for ( unsptr j = 0; j < n; )
 	    removals[j++] = * in ++;
 
-	min::unsptr result = 0;
-	min::unsptr i;
+	unsptr result = 0;
+	unsptr i;
 	start_sublist ( ap.lp, ap.dlp );
 	for ( c = current ( ap.lp );
 	         ! is_list_end ( c )
@@ -6918,8 +6912,8 @@ min::unsptr min::remove_all
     }
     else
     {
-	min::unsptr result = 0;
-	min::unsptr i;
+	unsptr result = 0;
+	unsptr i;
 	start_sublist ( ap.lp, ap.dlp );
 	for ( c = current ( ap.lp );
 	         ! is_list_end ( c )
@@ -7116,7 +7110,7 @@ bool MINT::set_flag
     }
 
     min::gen elements[n/VSIZE + 2];
-    min::unsptr j = 0;
+    unsptr j = 0;
     min::gen c = current ( ap.locate_dlp );
     if ( ! is_sublist ( c ) )
     {
@@ -7365,9 +7359,10 @@ T print_gen
 	  const min::printer_format * f, 
 	  T (*pr_stub) ( T, const min::stub *) )
 {
-    if ( v == min::new_gen ( MINT::null_stub ) )
+    if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
-        return out << "new_gen ( MINT::null_stub )";
+        return
+	    out << "new_stub_gen ( MINT::null_stub )";
     }
     else if ( min::is_num ( v ) )
     {
@@ -7858,10 +7853,9 @@ min::printer MINT::print_unicode
 	( min::printer printer,
 	  min::unsptr n, const min::uns32 * str )
 {
-    min::uns32 flags = printer->parameters.flags;
-    min::uns32 line_length =
-	printer->parameters.line_length;
-    min::uns32 indent = printer->parameters.indent;
+    uns32 flags = printer->parameters.flags;
+    uns32 line_length = printer->parameters.line_length;
+    uns32 indent = printer->parameters.indent;
 
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
@@ -7942,8 +7936,7 @@ min::printer MINT::print_unicode
 	        ; // Drop through
 	    else
 	    {
-	        min::uns32 spaces =
-		    8 - printer->column % 8;
+	        uns32 spaces = 8 - printer->column % 8;
 		printer->column += spaces;
 
 	        if ( flags & min::ALLOW_HSPACE_FLAG )

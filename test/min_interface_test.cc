@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 17 09:52:26 EDT 2011
+// Date:	Fri Mar 18 04:51:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -623,7 +623,7 @@ void test_general_value_functions ( void )
     MIN_ASSERT ( min::is_stub ( stubgen ) );
     MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
     MIN_ASSERT ( MUP::stub_of ( stubgen ) == stub );
-    stubgen = min::new_gen ( stub );
+    stubgen = min::new_stub_gen ( stub );
     MIN_ASSERT ( min::is_stub ( stubgen ) );
     MIN_ASSERT ( count_gen_tests ( stubgen ) == 1 );
     MIN_ASSERT (    min::gen_subtype_of ( stubgen )
@@ -1123,7 +1123,7 @@ void test_stub_functions ( void )
     MUP::set_float_of ( stub, f );
     MIN_ASSERT ( MUP::float_of ( stub ) == f );
 
-    min::gen g = min::new_gen ( stub );
+    min::gen g = min::new_stub_gen ( stub );
     MUP::set_gen_of ( stub, g );
     MIN_ASSERT ( MUP::gen_of ( stub ) == g );
 
@@ -1925,7 +1925,7 @@ void test_packed_structs ( void )
     MIN_ASSERT ( upv2 == min::stub_of ( v2 ) );
     upv2 = min::NULL_STUB;
     MIN_ASSERT ( upv2 != min::stub_of ( v2 ) );
-    upv2 = min::new_gen ( v3 );
+    upv2 = min::new_stub_gen ( v3 );
     MIN_ASSERT ( upv2->i == 0 );
     MIN_ASSERT ( upv2->j == 0 );
     upv2->i = 22;
@@ -2019,7 +2019,7 @@ void test_packed_vectors ( void )
     min::push(pvip) = e1;
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
-    pvt::ptr pvp = min::new_gen ( v );
+    pvt::ptr pvp = min::new_stub_gen ( v );
     MIN_ASSERT ( pvp->length == 1 );
     MIN_ASSERT ( pvp[0].j == 88 );
 
@@ -2439,13 +2439,13 @@ void test_printer ( void )
             << min::eol;
     
     min::stub * s = MUP::new_aux_stub();
-    printer << min::pgen ( min::new_gen ( s ) )
+    printer << min::pgen ( min::new_stub_gen ( s ) )
             << min::eol;
     MUP::set_type_of ( s, min::RELOCATE_BODY );
-    printer << min::pgen ( min::new_gen ( s ) )
+    printer << min::pgen ( min::new_stub_gen ( s ) )
             << min::eol;
     MUP::set_type_of ( s, 0 );
-    printer << min::pgen ( min::new_gen ( s ) )
+    printer << min::pgen ( min::new_stub_gen ( s ) )
             << min::eol;
 
     printer << min::pgen ( min::new_obj_gen ( 10, 10 ) )
