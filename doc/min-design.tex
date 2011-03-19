@@ -1563,8 +1563,13 @@ optimizer must assume that the body pointer in the stub might
 change.
 
 Specialized protected pointer types are provided for each type of object
-that has a body.  In addition there is a general body pointer type
-that points at any type an element in any body associated with any stub:
+that has a body.
+
+\subsubsection{Protected Body References}
+\label{PROTECTED-BODY-REFERENCES}
+
+In addition there is a general body reference type
+that references any type an element in any body associated with any stub:
 
 \newcommand{\TARG}{\BRACKETED{T}}
 
