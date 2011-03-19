@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 18 06:05:51 EDT 2011
+// Date:	Sat Mar 19 04:48:54 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7510,7 +7510,9 @@ min::printer operator <<
 	    f = & min::default_printer_format;
 
 	return print_gen<min::printer>
-	    ( printer, op.v1.g, f, f->pr_stub );
+	    ( printer,
+	      min::unprotected::new_gen ( op.v1.g ),
+	      f, f->pr_stub );
     }
     case min::op::PUNICODE1:
 	return MINT::print_unicode
