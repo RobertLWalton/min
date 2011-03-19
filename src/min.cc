@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 04:48:54 EDT 2011
+// Date:	Sat Mar 19 05:48:02 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1627,7 +1627,7 @@ static min::packed_vec<char> file_buffer_type
 static min::packed_vec<min::uns32> file_line_index_type
     ( "min::file_line_index_type" );
 
-void min::init_output ( min::ptr<min::file> file )
+void min::init_output ( min::ref<min::file> file )
 {
     if ( file == NULL_STUB )
     {
@@ -1654,7 +1654,7 @@ void min::init_output ( min::ptr<min::file> file )
     file->next_line_offset = 0;
 }
 
-void min::init_input ( min::ptr<min::file> file )
+void min::init_input ( min::ref<min::file> file )
 {
     init_output ( file );
     min::pop ( file->buffer,
@@ -1666,7 +1666,7 @@ void min::init_input ( min::ptr<min::file> file )
 }
 
 void min::init_print_flags
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  min::uns32 print_flags )
 {
     init_output ( file );
@@ -1685,7 +1685,7 @@ inline void set_spool_lines
 }
 
 void min::init_spool_lines
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  min::uns32 spool_lines )
 {
     init_output ( file );
@@ -1693,7 +1693,7 @@ void min::init_spool_lines
 }
 
 void min::init_file_name
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  min::gen file_name )
 {
     init_output ( file );
@@ -1702,7 +1702,7 @@ void min::init_file_name
 }
 
 void min::init_line_index
-	( min::ptr<min::file> file )
+	( min::ref<min::file> file )
 {
     init_output ( file );
     if ( file->line_index == NULL_STUB )
@@ -1711,7 +1711,7 @@ void min::init_line_index
 }
 
 void min::init_output_stream
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  std::ostream & ostream )
 {
     init_output ( file );
@@ -1719,7 +1719,7 @@ void min::init_output_stream
 }
 
 void min::init_output_file
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  min::file ofile )
 {
     init_output ( file );
@@ -1727,7 +1727,7 @@ void min::init_output_file
 }
 
 void min::init_output_printer
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  min::printer printer )
 {
     init_output ( file );
@@ -1735,7 +1735,7 @@ void min::init_output_printer
 }
 
 void min::init_input_stream
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  std::istream & istream,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -1748,7 +1748,7 @@ void min::init_input_stream
 }
 
 void min::init_input_file
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  min::file ifile,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -1761,7 +1761,7 @@ void min::init_input_file
 }
 
 bool min::init_input_named_file
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  min::gen file_name,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -1872,7 +1872,7 @@ bool min::init_input_named_file
 }
 
 void min::init_input_string
-	( min::ptr<min::file> file,
+	( min::ref<min::file> file,
 	  const char * data,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
@@ -7309,7 +7309,7 @@ static min::packed_struct<min::printer_struct>
 
 static void init_utf8graphic ( void );
 min::printer min::init
-	( min::ptr<min::printer> printer,
+	( min::ref<min::printer> printer,
 	  min::file file )
 {
     if ( printer == NULL_STUB )
@@ -7343,7 +7343,7 @@ min::printer min::init
 }
 
 min::printer min::init_output_stream
-	( min::ptr<min::printer> printer,
+	( min::ref<min::printer> printer,
 	  std::ostream & ostream )
 {
     init ( printer );
