@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 05:47:53 EDT 2011
+// Date:	Sat Mar 19 10:08:18 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3903,8 +3903,7 @@ namespace min {
 
     template < typename S >
     class packed_struct_updptr
-	  : public
-	    internal::packed_struct_ptr_base<S>
+	  : public packed_struct_ptr<S>
     {
 
     public:
@@ -3917,15 +3916,12 @@ namespace min {
 	}
 	packed_struct_updptr
 		( min::gen g )
-	    : internal::packed_struct_ptr_base<S>
-		( g ) {}
+	    : packed_struct_ptr<S> ( g ) {}
 	packed_struct_updptr
 		( const min::stub * s )
-	    : internal::packed_struct_ptr_base<S>
-		( s ) {}
+	    : packed_struct_ptr<S> ( s ) {}
 	packed_struct_updptr ( void )
-	    : internal::packed_struct_ptr_base<S>
-		() {}
+	    : packed_struct_ptr<S>() {}
 
 	S * operator -> ( void ) const
 	{
@@ -3942,18 +3938,14 @@ namespace min {
 	packed_struct_updptr & operator =
 		( const min::stub * s )
 	{
-	    new ( this )
-		internal::packed_struct_ptr_base<S>
-		    ( s );
+	    new ( this ) packed_struct_ptr<S> ( s );
 	    return * this;
 	}
 
 	packed_struct_updptr & operator =
 		( min::gen g )
 	{
-	    new ( this )
-		internal::packed_struct_ptr_base<S>
-		    ( g );
+	    new ( this ) packed_struct_ptr<S> ( g );
 	    return * this;
 	}
 
@@ -4348,7 +4340,7 @@ namespace min {
     template < typename E,
                typename H = packed_vec_header >
     class packed_vec_updptr
-	: public internal::packed_vec_ptr_base<E,H>
+	: public packed_vec_ptr<E,H>
     {
 
     public:
@@ -4360,15 +4352,12 @@ namespace min {
 	    this->s = pvup.s;
 	}
 	packed_vec_updptr ( min::gen g )
-	    : internal::packed_vec_ptr_base<E,H>
-	    ( g ) {}
+	    : packed_vec_ptr<E,H> ( g ) {}
 	packed_vec_updptr
 		( const min::stub * s )
-	    : internal::packed_vec_ptr_base<E,H>
-	    ( s ) {}
+	    : packed_vec_ptr<E,H> ( s ) {}
 	packed_vec_updptr ( void )
-	    : internal::packed_vec_ptr_base<E,H>
-	    () {}
+	    : packed_vec_ptr<E,H>() {}
 
 	H * operator -> ( void ) const
 	{
@@ -4393,18 +4382,14 @@ namespace min {
 	packed_vec_updptr & operator =
 		( const min::stub * s )
 	{
-	    new ( this )
-		internal::packed_vec_ptr_base<E,H>
-		    ( s );
+	    new ( this ) packed_vec_ptr<E,H> ( s );
 	    return * this;
 	}
 
 	packed_vec_updptr & operator =
 		( min::gen g )
 	{
-	    new ( this )
-		internal::packed_vec_ptr_base<E,H>
-		    ( g );
+	    new ( this ) packed_vec_ptr<E,H> ( g );
 	    return * this;
 	}
 
@@ -4426,7 +4411,7 @@ namespace min {
     template < typename E,
                typename H = packed_vec_header >
     class packed_vec_insptr
-	: public internal::packed_vec_ptr_base<E,H>
+	: public packed_vec_updptr<E,H>
     {
 
     public:
@@ -4438,51 +4423,24 @@ namespace min {
 	    this->s = pvip.s;
 	}
 	packed_vec_insptr ( min::gen g )
-	    : internal::packed_vec_ptr_base<E,H>
-	    ( g ) {}
+	    : packed_vec_updptr<E,H> ( g ) {}
 	packed_vec_insptr
 		( const min::stub * s )
-	    : internal::packed_vec_ptr_base<E,H>
-	    ( s ) {}
+	    : packed_vec_updptr<E,H> ( s ) {}
 	packed_vec_insptr ( void )
-	    : internal::packed_vec_ptr_base<E,H>
-	    () {}
-
-	H * operator -> ( void ) const
-	{
-	    return (H *)
-		   unprotected::ptr_of ( this->s );
-	}
-
-	E & operator [] ( min::uns32 i ) const
-	{
-	    H * hp = (H *)
-		unprotected::ptr_of ( this->s );
-	    MIN_ASSERT ( i < hp->length );
-	    return * (E *)
-		( (uns8 *) hp
-		  +
-		  internal::packed_vec_ptr_base<E,H>
-		  ::computed_header_size
-		  +
-		  i * sizeof ( E ) );
-	}
+	    : packed_vec_updptr<E,H>() {}
 
 	packed_vec_insptr & operator =
 		( const min::stub * s )
 	{
-	    new ( this )
-		internal::packed_vec_ptr_base<E,H>
-		    ( s );
+	    new ( this ) packed_vec_updptr<E,H> ( s );
 	    return * this;
 	}
 
 	packed_vec_insptr & operator =
 		( min::gen g )
 	{
-	    new ( this )
-		internal::packed_vec_ptr_base<E,H>
-		    ( g );
+	    new ( this ) packed_vec_updptr<E,H> ( g );
 	    return * this;
 	}
 
