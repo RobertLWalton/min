@@ -1295,36 +1295,37 @@ see \pagref{MUP::NEW_GEN}.
 Special general values are \verb|min::gen| values that are unique
 and not equal to any value that can be generated during
 program execution.  Special general values are C/C++ {\tt const}
-values, and are never to be used unless documentation specifies
-a specific use.  They are used as return or argument
-values by some functions.
+values, and must only be used as specified by documentation.
+They are used as return or argument values by some functions.
 
+For reasons given below, special values are defined by {\tt inline}
+functions of zero arguments.
 The special values defined by MIN are:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const min::gen min::}\MINKEY{MISSING}]~%
+\item[{\tt const min::gen min::}\MINNBKEY{MISSING()}]~%
 	\LABEL{MIN::MISSING}\\
 Denotes a missing value or an empty set of values, and may be input
 or output and used as an attribute value.
-\item[{\tt const min::gen min::}\MINKEY{NONE}]~%
+\item[{\tt const min::gen min::}\MINNBKEY{NONE()}]~%
 	\LABEL{MIN::NONE}\\
 Denotes a non-existent function value or result, and may not be
 input or output or used as an attribute value or label.
-\item[{\tt const min::gen min::}\MINKEY{ANY}]~%
+\item[{\tt const min::gen min::}\MINNBKEY{ANY()}]~%
 	\LABEL{MIN::ANY}\\
 Denotes any value from a set of values.
-\item[{\tt const min::gen min::}\MINKEY{MULTI\_VALUED}]~%
+\item[{\tt const min::gen min::}\MINNBKEY{MULTI\_VALUED()}]~%
 	\LABEL{MIN::MULTI_VALUED}\\
 Indicates a set of values has more than one element.
-\item[{\tt const min::gen min::}\MINKEY{UNDEFINED}]~%
+\item[{\tt const min::gen min::}\MINNBKEY{UNDEFINED()}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
 (\itemref{TYPED-OBJECTS}) that has no value and can be indirected.
-\item[{\tt const min::gen min::}\MINKEY{SUCCESS}]~%
+\item[{\tt const min::gen min::}\MINNBKEY{SUCCESS()}]~%
 	\LABEL{MIN::SUCCESS}\\
 A value returned to indicate a function has succeeded.
-\item[{\tt const min::gen min::}\MINKEY{FAILURE}]~%
+\item[{\tt const min::gen min::}\MINNBKEY{FAILURE()}]~%
 	\LABEL{MIN::FAILURE}\\
 A value returned to indicate a function has failed.
 \end{list}
@@ -1338,24 +1339,17 @@ system.  Other special values can be created by other systems,
 and indices near 0 are reserved for non-system users.
 
 For efficiency reasons it is desirable for special values to be
-compile time constants.  Because compilers generally do not run
-inline functions at compile time, a macro is needed to compute special
-values.  This macro is
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|(macro) min::gen |
-	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
-\LABEL{MIN_NEW_SPECIAL_GEN} \\
-\end{tabular}\end{indpar}
-
-where \verb|i| is the index of the special value to be
-created, and must be an unsigned integer compile time constant
-expression.  This macro does \underline{not} check the range
-of the index, and is unprotected in this sense.  A typical usage
-would be
+compile time constants.  Because {\tt min::\EOL gen} is a class type,
+C++ constants cannot be used to insert special values into optimized
+instructions, and {\tt inline} functions are used instead.  The
+standard definition of the special value {\tt SPECIAL\_I}
+with index {\tt i} is:
 
 \begin{indpar}\begin{verbatim}
-const min::gen MISSING = MIN_NEW_SPECIAL_GEN ( 0xFFFFFF );
+inline min::gen SPECIAL_I ( void )
+{
+    return min::new_special_gen ( i );
+}
 \end{verbatim}\end{indpar}
 
 
@@ -1370,6 +1364,11 @@ because the object is being expanded or contracted, or because
 memory is being compacted.
 
 A stub contains an 8 byte stub value and an 8 byte stub control.
+The type of a stub is \minkey{stub}.  Only pointers to stubs
+are used, and these come in two flavors:
+{\tt const min::stub~*} is used by protected functions and
+{\tt min::stub~*} without the `{\tt const}' is used
+by unprotected functions.
 
 If the stub control is viewed as a 64 bit integer, its high order byte
 is the type code.  The high order bit of this type code,
@@ -9535,23 +9534,20 @@ These are in \verb|min_parameters.h|.
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|min::gen min::| & \MINKEY{MISSING}
+\verb|min::gen min::| & \MINNBKEY{MISSING()}
 \LABEL{MIN::MISSING} \\
-\verb|min::gen min::| & \MINKEY{NONE}
+\verb|min::gen min::| & \MINNBKEY{NONE()}
 \LABEL{MIN::NONE} \\
-\verb|min::gen min::| & \MINKEY{ANY}
+\verb|min::gen min::| & \MINNBKEY{ANY()}
 \LABEL{MIN::ANY} \\
-\verb|min::gen min::| & \MINKEY{MULTI\_VALUED}
+\verb|min::gen min::| & \MINNBKEY{MULTI\_VALUED()}
 \LABEL{MIN::MULTI_VALUED} \\
-\verb|min::gen min::| & \MINKEY{UNDEFINED}
+\verb|min::gen min::| & \MINNBKEY{UNDEFINED()}
 \LABEL{MIN::UNDEFINED} \\
-\verb|min::gen min::| & \MINKEY{SUCCESS}
+\verb|min::gen min::| & \MINNBKEY{SUCCESS()}
 \LABEL{MIN::SUCCESS} \\
-\verb|min::gen min::| & \MINKEY{FAILURE}
+\verb|min::gen min::| & \MINNBKEY{FAILURE()}
 \LABEL{MIN::FAILURE} \\
-\verb|(macro) min::gen|
-	& \TTNBKEY{MIN\_NEW\_SPECIAL\_GEN}\verb| ( i )|
-\LABEL{MIN_NEW_SPECIAL_GEN} \\
 \end{TABULAR}
 
 \end{indpar}
