@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 18 06:04:25 EDT 2011
+// Date:	Sat Mar 19 04:05:54 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -253,6 +253,10 @@ namespace min {
     class gen
     {
 
+    public:
+
+        gen ( void ) : value ( 0 ) {}
+
     private:
 
         min::unsgen value;
@@ -387,7 +391,7 @@ namespace min {
     struct stub
     {
 	union {
-	    min::gen g;
+	    min::unsgen g;
 	    min::float64 f64;
 	    min::uns64 u64;
 	    min::int64 i64;
@@ -1410,7 +1414,7 @@ namespace min {
 
         inline min::gen gen_of ( const min::stub * s )
 	{
-	    return s->v.g;
+	    return unprotected::new_gen ( s->v.g );
 	}
 
         inline void * ptr_of ( const min::stub * s )
@@ -1454,7 +1458,7 @@ namespace min {
         inline void set_gen_of
 		( min::stub * s, min::gen v )
 	{
-	    s->v.g = v;
+	    s->v.g = unprotected::value_of ( v );
 	}
 
         inline void set_ptr_of
@@ -9228,7 +9232,7 @@ namespace min {
 	    int64 i64;
 	    unsptr uptr;
 	    float64 f64;
-	    min::gen g;
+	    min::unsgen g;
 	} v1, v2;
 
 	op ( op::OPCODE opcode )
@@ -9236,8 +9240,11 @@ namespace min {
 	op ( op::OPCODE opcode,
 	             min::gen v,
 		     const printer_format * f )
-	    : opcode ( opcode ) { v1.g = v;
-	                      v2.p = (void *) f; }
+	    : opcode ( opcode )
+	{
+	    v1.g = unprotected::value_of ( v );
+	    v2.p = (void *) f;
+	}
 	op ( op::OPCODE opcode,
 	             min::uns32 u )
 	    : opcode ( opcode ) { v1.u32 = u; }

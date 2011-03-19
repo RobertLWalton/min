@@ -658,7 +658,8 @@ and \verb|min::NONE()| is a special value used only to
 indicate that a function argument or result does not exist.
 See \itemref{SPECIAL-VALUES}.
 
-The \verb|min::|\MINKEY{gen} type is defined as a C++ class that
+The \verb|min::|\MINKEY{gen}\LABEL{MIN::GEN}
+type is defined as a C++ class that
 consists of a single {\tt private} element of type
 \verb|min::|\MINKEY{unsgen}, which is an unsigned integer.
 From the point of view of C++ type checking, a {\tt min::\EOL gen}
@@ -713,7 +714,7 @@ loose implementations permit up to about $2^{44}$ objects.
 \subsubsection{General Value Subtypes}
 \label{GENERAL-VALUE-SUBTYPES}
 
-A \key{general value} has type \minkey{gen}\LABEL{MIN::GEN} and
+A \key{general value} has type \minkey{gen} and
 is a 32 or 64 bit aligned value that can be of one of the following
 subtypes;
 
@@ -867,32 +868,50 @@ and for direct string general values the datum holds 0-5 {\tt char}'s.
 
 The {\tt min::gen} type has the alignment
 properties of either {\tt min::uns32} or {\tt min::uns64},
-and in many implementations is {\tt typedef}'ed to the appropriate one
-of these two types.  Therefore a function that has only
-{\tt min::gen} and non-{\tt min} (e.g. number and {\tt char *}) arguments
-cannot be \ikey{overloaded}{overloading!rationale}\label{OVERLOADING-RATIONALE},
-and must have a name beginning with `{\tt min::}'.
-To avoid confusion, all MIN function names begin with `{\tt min::}'.
+and \verb|min::|\EOL \MINKEY{unsgen} is {\tt typedef}'ed to the appropriate one
+of these two types.
 
 Many {\tt min::gen} values, which are 32 or 64 bits, are divided into a subtype,
 either 8 or 24 bits, and a datum, either 24 or 40 bits.  In this context the
-datum is called the `\mkey{value}{part of a {\tt min::gen} value}'.  The
-following definitions are provided in {\tt min.h} to facilitate coding:
+datum is called the `\mkey{value}{part of a {\tt min::gen} value}'.
+
+The following definitions are provided in {\tt min.h} to facilitate coding:
 
 \begin{indpar}
-\begin{tabular}{r@{}l@{\hspace*{2em}}l}
+\begin{tabular}{r@{}l}
 \verb|min::| & \MINKEY{unsgen}
-	& typedef'ed to {\tt min::uns32}\COMPACT or {\tt min::uns64}\LOOSE
 \LABEL{MIN::UNSGEN} \\
+\verb|min::gen MUP::| & \MUPKEY{new\_gen}\verb| ( min::unsgen value )|
+\LABEL{MUP::NEW_GEN} \\
+\verb|min::unsgen MUP::| & \MUPKEY{value\_of}\verb| ( min::gen value )|
+\LABEL{MUP::VALUE_OF_GEN} \\
+\verb|(constructor) min::| & \MINKEY{gen}\verb| ( void )|
+\LABEL{MIN::GEN_OF_VOID} \\
 \verb|const unsigned min::| & \MINKEY{TSIZE}
-	& Subtype size; equal to {\tt 8}\COMPACT or {\tt 24}\LOOSE.
 \LABEL{MIN::TSIZE} \\
 \verb|const unsigned min::| & \MINKEY{VSIZE}
-	& Value size; equal to {\tt 24}\COMPACT or {\tt 40}\LOOSE.
-\LABEL{MIN::VSIZE}
+\LABEL{MIN::VSIZE} \\
 \end{tabular}
 \end{indpar}
 
+\verb|min::unsgen| is typedef'ed to
+{\tt min::uns32}\COMPACT or {\tt min::uns64}\LOOSE.
+{\tt MUP::\EOL new\_\EOL gen} and {\tt MUP::\EOL value\_of} are
+unprotected converters between {\tt min::\EOL unsgen} and {\tt min::\EOL gen}
+values.
+
+{\tt min::\EOL gen (~void~)} is the default constructor that sets
+an unassigned {\tt min::\EOL gen} value so it will more likely
+trigger a fault if read by mistake.
+Note that the existence of this constructor makes it impossible to
+include {\tt min::\EOL gen} values in C++ {\tt union}'s, but
+{\tt min::\EOL unsgen} values can be included instead and converted
+using the unprotected converters.
+
+\verb|TSIZE| is the subtype size in bits;
+equal to {\tt 8}\COMPACT or {\tt 24}\LOOSE.
+\verb|VSIZE| is the value size in bits;
+equal to {\tt 24}\COMPACT or {\tt 40}\LOOSE.
 
 \subsubsection{General Value Compilation}
 \label{GENERAL-VALUE-COMPILATION}
@@ -1265,6 +1284,10 @@ part of the subtype code (similarly the 32-bits are right shifted by
 24 bits, etc.).
 \verb|min::GEN_ILLEGAL| is returned by this function if the \verb|min::gen|
 value is not a legal general value.
+
+There are also unprotected functions to convert between
+{\tt min::\EOL gen} and {\tt min::\EOL unsgen} values:
+see \pagref{MUP::NEW_GEN}.
 
 \subsection{Special Values}
 \label{SPECIAL-VALUES}
@@ -2164,7 +2187,7 @@ The following functions read or write the stub value part of a stub:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( const min::stub * s )|
-\LABEL{MUP::VALUE_OF} \\
+\LABEL{MUP::VALUE_OF_STUB} \\
 \verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::FLOAT_OF} \\
 \verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( const min::stub * s )|
@@ -9233,7 +9256,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Constants}
+\INDEXHEADER{General Value Constants}
 
 \begin{indpar}[0.2in]
 
@@ -9300,6 +9323,11 @@ These are in \verb|min_parameters.h|.
 \INDEXHEADER{Gen Value Protected Functions}
 
 \begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{gen}\verb| ( void )|
+\LABEL{MIN::GEN_OF_VOID} \\
+\end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
@@ -9394,6 +9422,13 @@ These are in \verb|min_parameters.h|.
 \INDEXHEADER{Gen Value Unprotected Functions}
 
 \begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.6in}
+\verb|min::gen MUP::| & \MUPKEY{new\_gen}\verb| ( min::unsgen value )|
+\LABEL{MUP::NEW_GEN} \\
+\verb|min::unsgen MUP::| & \MUPKEY{value\_of}\verb| ( min::gen value )|
+\LABEL{MUP::VALUE_OF_GEN} \\
+\end{TABULAR}
 
 \begin{TABULAR}{1.6in}
 \verb|min::stub * MUP::| & \MUPKEY{stub\_of}\verb| ( min::gen v )|
@@ -9631,7 +9666,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.6in}
 \verb|min::uns64 MUP::| & \MUPKEY{value\_of}\verb| ( const min::stub * s )|
-\LABEL{MUP::VALUE_OF} \\
+\LABEL{MUP::VALUE_OF_STUB} \\
 \verb|min::float64 MUP::| & \MUPKEY{float\_of}\verb| ( const min::stub * s )|
 \LABEL{MUP::FLOAT_OF} \\
 \verb|min::gen MUP::| & \MUPKEY{gen\_of}\verb| ( const min::stub * s )|
