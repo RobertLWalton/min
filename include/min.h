@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 10:08:18 EDT 2011
+// Date:	Sat Mar 19 12:24:26 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1739,6 +1739,7 @@ namespace min { namespace unprotected {
 	    ( const min::stub * s1,
 	      const min::stub * s2 )
     {
+        if ( s2 == NULL ) return;
         uns64 f = (    min::unprotected
 	                  ::control_of ( s1 )
 	            >> min::internal::ACC_FLAG_PAIRS )
@@ -1822,6 +1823,16 @@ namespace min {
     template < typename T>
     class locatable_var;
 
+    template < typename T>
+    class ref;
+
+    namespace unprotected {
+
+	template < typename T>
+	min::ref<T> new_ref
+	    ( const min::stub * s, const T & location );
+    }
+
     template < typename T >
     class ref
     {
@@ -1830,13 +1841,6 @@ namespace min {
 
     	const min::stub * const s;
 	const min::unsptr offset;
-
-        ref ( const min::stub * s, T & location )
-	    : s ( s ),
-	      offset ( (uns8 *) & location
-	               -
-		       (uns8 *)
-		       unprotected::ptr_of ( s ) ) {}
 
 	// We must prevent the default operator =.
 	//
@@ -1887,6 +1891,16 @@ namespace min {
 
     private:
 
+	friend min::ref<T> unprotected::new_ref<T>
+	    ( const min::stub * s, const T & location );
+
+        ref ( const min::stub * s, const T & location )
+	    : s ( s ),
+	      offset ( (uns8 *) & location
+	               -
+		       (uns8 *)
+		       unprotected::ptr_of ( s ) ) {}
+
         T * location ( void ) const
 	{
 	    return (T *)
@@ -1896,17 +1910,24 @@ namespace min {
     };
 
     template < typename T >
-    inline min::ref<T> locatable
-        ( const min::stub * s, T & location )
+    inline min::ref<T> unprotected::new_ref
+        ( const min::stub * s, const T & location )
     {
         return min::ref<T> ( s, location );
     }
 
+    template < typename T >
+    inline min::ref<T> locatable
+        ( const min::stub * s, const T & location )
+    {
+        return unprotected::new_ref ( s, location );
+    }
+
     template < typename T, typename S >
     inline min::ref<S> locatable
-        ( const min::ref<T> & s, S & location )
+        ( const min::ref<T> & s, const S & location )
     {
-        return min::ref<S> ( s, location );
+        return unprotected::new_ref ( s, location );
     }
 
 }
@@ -1982,7 +2003,7 @@ namespace min {
 
 	operator min::ref<T> ( void )
 	{
-	    return min::ref<T>
+	    return unprotected::new_ref<T>
 	        ( ZERO_STUB, * (T *) this );
 	}
     };
@@ -2033,7 +2054,7 @@ namespace min {
 
 	operator min::ref<min::gen> ( void )
 	{
-	    return min::ref<min::gen>
+	    return unprotected::new_ref<min::gen>
 	        ( ZERO_STUB, this->value );
 	}
     };
@@ -3645,7 +3666,7 @@ namespace min {
 namespace min {
 
     template < typename S >
-    min::uns32 DISP ( min::gen S::* d )
+    min::uns32 DISP ( const min::gen S::* d )
     {
 	return OFFSETOF ( d );
     }
@@ -3895,7 +3916,7 @@ namespace min {
 
     template < typename S, typename T >
     min::uns32 DISP
-	    ( packed_struct_ptr<T> S::* d )
+	    ( const packed_struct_ptr<T> S::* d )
     {
 	return   OFFSETOF ( d )
 	       + packed_struct_ptr<T>::DISP();
@@ -3958,7 +3979,7 @@ namespace min {
 
     template < typename S, typename T >
     min::uns32 DISP
-	    ( packed_struct_updptr<T> S::* d )
+	    ( const packed_struct_updptr<T> S::* d )
     {
 	return   OFFSETOF ( d )
 	       + packed_struct_updptr<T>::DISP();
@@ -4331,7 +4352,7 @@ namespace min {
 
     template < typename S, typename E, typename H >
     min::uns32 DISP
-	    ( packed_vec_ptr<E,H> S::* d )
+	    ( const packed_vec_ptr<E,H> S::* d )
     {
 	return   OFFSETOF ( d )
 	       + packed_vec_ptr<E,H>::DISP();
@@ -4402,7 +4423,7 @@ namespace min {
 
     template < typename S, typename E, typename H >
     min::uns32 DISP
-	    ( packed_vec_updptr<E,H> S::* d )
+	    ( const packed_vec_updptr<E,H> S::* d )
     {
 	return   OFFSETOF ( d )
 	       + packed_vec_updptr<E,H>::DISP();
@@ -4460,7 +4481,7 @@ namespace min {
 
     template < typename S, typename E, typename H >
     min::uns32 DISP
-	    ( packed_vec_insptr<E,H> S::* d )
+	    ( const packed_vec_insptr<E,H> S::* d )
     {
 	return   OFFSETOF ( d )
 	       + packed_vec_insptr<E,H>::DISP();
@@ -4611,7 +4632,7 @@ namespace min {
 
     template < typename E, typename H >
     inline E & push
-	( typename min::packed_vec_insptr<E,H> & pvip )
+	( typename min::packed_vec_insptr<E,H> pvip )
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
@@ -4622,7 +4643,7 @@ namespace min {
     }
     template < typename E, typename H >
     inline E & push
-	( typename min::packed_vec_insptr<E,H> & pvip,
+	( typename min::packed_vec_insptr<E,H> pvip,
 	  min::uns32 n, const E * vp = NULL )
     {
 	if ( n == 0 ) return * (E *) NULL;
@@ -4638,7 +4659,7 @@ namespace min {
     }
     template < typename E, typename H >
     inline E pop
-	( typename min::packed_vec_insptr<E,H> & pvip )
+	( typename min::packed_vec_insptr<E,H> pvip )
     {
 	assert ( pvip->length > 0 );
 	-- * (uns32 *) & pvip->length;
@@ -4646,7 +4667,7 @@ namespace min {
     }
     template < typename E, typename H >
     inline void pop
-	( typename min::packed_vec_insptr<E,H> & pvip,
+	( typename min::packed_vec_insptr<E,H> pvip,
 	  min::uns32 n, E * vp = NULL )
     {
 	assert ( pvip->length >= n );
@@ -4659,7 +4680,7 @@ namespace min {
 
     template < typename E, typename H >
     inline void resize
-	( typename min::packed_vec_insptr<E,H> & pvip,
+	( typename min::packed_vec_insptr<E,H> pvip,
 	  min::uns32 max_length )
     {
 	pvip.resize ( max_length );
@@ -4667,8 +4688,7 @@ namespace min {
 
     template < typename E, typename H >
     inline void reserve
-	( typename
-	  min::packed_vec_insptr<E,H> & pvip,
+	( typename min::packed_vec_insptr<E,H> pvip,
 	  min::uns32 reserve_length )
     {
 	if (   pvip->length + reserve_length
@@ -4784,23 +4804,39 @@ namespace min {
     {
         const min::uns32 control;
 
-	min::packed_vec_insptr<char> buffer;
+	const min::packed_vec_insptr<char> buffer;
 	min::uns32 next_line_number;
 	min::uns32 next_line_offset;
 	min::uns32 end_offset;
 	min::uns32 file_lines;
-	min::packed_vec_insptr<min::uns32> line_index;
+	const min::packed_vec_insptr<min::uns32>
+	    line_index;
 
 	min::uns32 spool_lines;
 	min::uns32 print_flags;
 
-	std::istream * istream;
-	min::file      ifile;
-	std::ostream * ostream;
-	min::printer   printer;
-	min::file      ofile;
-	min::gen       file_name;
+	std::istream *		istream;
+	const min::file		ifile;
+	std::ostream * 		ostream;
+	const min::printer	printer;
+	const min::file		ofile;
+	const min::gen		file_name;
     };
+#   define MIN_REF(type,name,ctype) \
+    inline min::ref< type > name##_ref ( ctype container ) \
+    { \
+        return min::unprotected::new_ref \
+	    ( container, container->name ); \
+    }
+
+    MIN_REF ( min::packed_vec_insptr<char>,
+              buffer, min::file )
+    MIN_REF ( min::packed_vec_insptr<min::uns32>,
+	      line_index,  min::file )
+    MIN_REF ( min::file, ifile, min::file )
+    MIN_REF ( min::printer, printer, min::file )
+    MIN_REF ( min::file, ofile, min::file )
+    MIN_REF ( min::gen, file_name, min::file )
 
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
@@ -5623,7 +5659,7 @@ namespace min {
 	{
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
-	    return ref<min::gen>
+	    return unprotected::new_ref<min::gen>
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
 		     [index] );
@@ -5680,7 +5716,7 @@ namespace min {
 	{
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
-	    return ref<min::gen>
+	    return unprotected::new_ref<min::gen>
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
 		     [index] );
@@ -5851,7 +5887,7 @@ namespace min {
 	( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	return ref<min::gen>
+	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)
 	                [vp.unused_offset ++] );
     }
@@ -5888,7 +5924,7 @@ namespace min {
 	( min::obj_vec_insptr & vp )
     {
 	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
-	return ref<min::gen>
+	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)
 	                [-- vp.aux_offset] );
     }
@@ -9118,7 +9154,7 @@ namespace min {
     {
         const uns32 control;
 
-	min::file file;
+	const min::file file;
 
 	printer_parameters parameters;
 	printer_parameters saved_parameters
@@ -9129,6 +9165,8 @@ namespace min {
 	uns32 break_offset;
 	uns32 break_column;
     };
+
+    MIN_REF ( min::file, file, min::printer )
 
     enum {
         GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
