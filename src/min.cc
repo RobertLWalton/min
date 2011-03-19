@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 05:48:02 EDT 2011
+// Date:	Sat Mar 19 16:02:16 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1635,9 +1635,9 @@ void min::init_output ( min::ref<min::file> file )
 	::file_line_index_type.initial_max_length = 128;
 
         file = ::file_type.new_stub();
-	locatable ( file, file->buffer ) =
+	buffer_ref(file) =
 	    ::file_buffer_type.new_stub();
-	file->file_name = MISSING();
+	file_name_ref(file) = MISSING();
     }
     else
     {
@@ -1680,7 +1680,7 @@ inline void set_spool_lines
     file->spool_lines = spool_lines;
     if (    spool_lines != 0
          && file->line_index == min::NULL_STUB )
-        locatable ( file, file->line_index ) =
+        min::line_index_ref(file) =
 	    ::file_line_index_type.new_stub();
 }
 
@@ -1697,8 +1697,7 @@ void min::init_file_name
 	  min::gen file_name )
 {
     init_output ( file );
-    locatable ( file, file->file_name ) =
-        file_name;
+    file_name_ref(file) = file_name;
 }
 
 void min::init_line_index
@@ -1706,7 +1705,7 @@ void min::init_line_index
 {
     init_output ( file );
     if ( file->line_index == NULL_STUB )
-        locatable ( file, file->line_index ) =
+        line_index_ref(file) =
 	    ::file_line_index_type.new_stub();
 }
 
@@ -1723,7 +1722,7 @@ void min::init_output_file
 	  min::file ofile )
 {
     init_output ( file );
-    locatable ( file, file->ofile ) = ofile;
+    ofile_ref(file) = ofile;
 }
 
 void min::init_output_printer
@@ -1731,7 +1730,7 @@ void min::init_output_printer
 	  min::printer printer )
 {
     init_output ( file );
-    locatable ( file, file->printer ) = printer;
+    printer_ref(file) = printer;
 }
 
 void min::init_input_stream
@@ -1742,7 +1741,7 @@ void min::init_input_stream
 {
     init_input ( file );
     file->istream = & istream;
-    file->ifile = NULL_STUB;
+    ifile_ref(file) = NULL_STUB;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 }
@@ -1755,7 +1754,7 @@ void min::init_input_file
 {
     init_input ( file );
     file->istream = NULL;
-    locatable ( file, file->ifile ) = ifile;
+    ifile_ref(file) = ifile;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 }
@@ -1768,9 +1767,8 @@ bool min::init_input_named_file
 {
     init_input ( file );
     file->istream = NULL;
-    file->ifile = NULL_STUB;
-    locatable ( file, file->file_name ) =
-        file_name;
+    ifile_ref(file) = NULL_STUB;
+    file_name_ref(file) = file_name;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 
@@ -1879,7 +1877,7 @@ void min::init_input_string
 {
     init_input ( file );
     file->istream = NULL;
-    file->ifile = NULL_STUB;
+    ifile_ref(file) = NULL_STUB;
     file->print_flags = print_flags;
     ::set_spool_lines ( file, spool_lines );
 
@@ -7325,12 +7323,9 @@ min::printer min::init
     }
 
     if ( file != NULL_STUB )
-        locatable ( printer, printer->file ) =
-	    file;
+        file_ref(printer) = file;
     else
-	init_input
-	    ( locatable ( printer,
-	                  printer->file ) );
+	init_input ( file_ref(printer) );
 
     printer->column = 0;
     printer->break_offset = 0;
@@ -7347,9 +7342,7 @@ min::printer min::init_output_stream
 	  std::ostream & ostream )
 {
     init ( printer );
-    init_output_stream
-	( locatable ( printer, printer->file ),
-	  ostream );
+    init_output_stream ( file_ref(printer), ostream );
     return printer << min::eol_flush;
 }
 
