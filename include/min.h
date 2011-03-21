@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 21 10:21:30 EDT 2011
+// Date:	Mon Mar 21 19:39:49 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1955,20 +1955,20 @@ namespace min {
 		  ( s, location ) {}
     };
 
-#   define MIN_LOCATABLE_PTR_CLASS(...) \
-	class ref< __VA_ARGS__ > \
-	    : public \
-	      internal::ref_base< __VA_ARGS__  > \
+#   define MIN_COMMA ,
+#   define MIN_STUB_PTR_CLASS(TEMPLATE,T) \
+	TEMPLATE \
+	class ref< T > \
+	    : public internal::ref_base< T > \
 	{ \
 	\
 	public: \
 	    \
 	    /* We must prevent the default operator =.
 	    */ \
-	    __VA_ARGS__ operator = \
-	        ( const ref< __VA_ARGS__ > & p ) const \
+	    T operator = ( const ref< T > & p ) const \
 	    { \
-		__VA_ARGS__ value = * p.location(); \
+		T value = * p.location(); \
 		* this->location() = value; \
 		if ( this->s != ZERO_STUB ) \
 		    unprotected::acc_write_update \
@@ -1976,8 +1976,7 @@ namespace min {
 		return value; \
 	    } \
 	    \
-	    __VA_ARGS__ operator = \
-	        ( __VA_ARGS__ value ) const \
+	    T operator = ( T value ) const \
 	    { \
 		* this->location() = value; \
 		if ( this->s != ZERO_STUB ) \
@@ -1986,12 +1985,11 @@ namespace min {
 		return value; \
 	    } \
 	    \
-	    __VA_ARGS__ operator = \
-		( const min::locatable_var \
-		                 < __VA_ARGS__ > \
+	    T operator = \
+		( const min::locatable_var < T > \
 		        & p ) const \
 	    { \
-		__VA_ARGS__ value = p; \
+		T value = p; \
 		* this->location() = value; \
 		if ( this->s != ZERO_STUB ) \
 		    unprotected::acc_write_update \
@@ -2006,14 +2004,14 @@ namespace min {
 	    \
 	private: \
 	    \
-	    friend min::ref< __VA_ARGS__ > \
-		   unprotected::new_ref< __VA_ARGS__ > \
+	    friend min::ref< T > \
+		   unprotected::new_ref< T > \
 		( const min::stub * s, \
-		  const __VA_ARGS__ & location ); \
+		  const T & location ); \
 	    \
 	    ref ( const min::stub * s, \
-		  const __VA_ARGS__ & location ) \
-		: internal::ref_base< __VA_ARGS__ > \
+		  const T & location ) \
+		: internal::ref_base< T > \
 		      ( s, location ) {} \
 	};
 
@@ -4020,8 +4018,8 @@ namespace min {
 	}
     };
 
-    template < typename S >
-    MIN_LOCATABLE_PTR_CLASS(min::packed_struct_ptr<S>)
+    MIN_STUB_PTR_CLASS ( template < typename S >,
+                         min::packed_struct_ptr<S> )
 
     template < typename S, typename T >
     min::uns32 DISP
@@ -4086,9 +4084,8 @@ namespace min {
 	}
     };
 
-    template < typename S >
-    MIN_LOCATABLE_PTR_CLASS
-        (min::packed_struct_updptr<S>)
+    MIN_STUB_PTR_CLASS ( template < typename S >,
+                         min::packed_struct_updptr<S> )
 
     template < typename S, typename T >
     min::uns32 DISP
@@ -4463,9 +4460,10 @@ namespace min {
 	}
     };
 
-    template < typename E, typename H >
-    MIN_LOCATABLE_PTR_CLASS
-        (min::packed_vec_ptr<E,H>)
+    MIN_STUB_PTR_CLASS ( template < typename E MIN_COMMA
+                                    typename H >,
+                         min::packed_vec_ptr
+			     < E MIN_COMMA H > )
 
     template < typename S, typename E, typename H >
     min::uns32 DISP
@@ -4538,9 +4536,10 @@ namespace min {
 	}
     };
 
-    template < typename E, typename H >
-    MIN_LOCATABLE_PTR_CLASS
-        (min::packed_vec_updptr<E,H>)
+    MIN_STUB_PTR_CLASS ( template < typename E MIN_COMMA
+                                    typename H >,
+                         min::packed_vec_updptr
+			     < E MIN_COMMA H > )
 
     template < typename S, typename E, typename H >
     min::uns32 DISP
@@ -4600,9 +4599,10 @@ namespace min {
 	}
     };
 
-    template < typename E, typename H >
-    MIN_LOCATABLE_PTR_CLASS
-        (min::packed_vec_insptr<E,H>)
+    MIN_STUB_PTR_CLASS ( template < typename E MIN_COMMA
+                                    typename H >,
+                         min::packed_vec_insptr
+			     < E MIN_COMMA H > )
 
     template < typename S, typename E, typename H >
     min::uns32 DISP
