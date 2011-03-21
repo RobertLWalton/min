@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 12:24:26 EDT 2011
+// Date:	Mon Mar 21 10:21:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1833,60 +1833,66 @@ namespace min {
 	    ( const min::stub * s, const T & location );
     }
 
+    namespace internal {
+
+	template < typename T >
+	class ref_base
+	{
+
+	public:
+
+	    const min::stub * const s;
+	    const min::unsptr offset;
+
+	    operator T ( void ) const
+	    {
+		return * location();
+	    }
+
+	    T operator -> ( void ) const
+	    {
+		return * location();
+	    }
+
+
+	protected:
+
+	    ref_base ( const min::stub * s,
+	               const T & location )
+		: s ( s ),
+		  offset ( (uns8 *) & location
+			   -
+			   (uns8 *)
+			   unprotected::ptr_of ( s ) )
+	        {}
+
+	    T * location ( void ) const
+	    {
+		return (T *)
+		    (   (uns8 *)
+		        unprotected::ptr_of ( s )
+		      + offset );
+	    }
+	};
+
+    }
+
     template < typename T >
-    class ref
+    class ref : public internal::ref_base<T>
     {
 
     public:
-
-    	const min::stub * const s;
-	const min::unsptr offset;
 
 	// We must prevent the default operator =.
 	//
 	T operator = ( const ref<T> & p ) const
 	{
-	    T value = * p.location();
-	    * location() = value;
-	    if ( s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( s, value );
-	    return value;
+	    return * this->location() = * p.location();
 	}
 
 	T operator = ( T value ) const
 	{
-	    * location() = value;
-	    if ( s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( s, value );
-	    return value;
-	}
-
-	T operator =
-	    ( const locatable_var<T> & p ) const
-	{
-	    T value = p;
-	    * location() = value;
-	    if ( s != ZERO_STUB )
-		unprotected::acc_write_update
-		    ( s, value );
-	    return value;
-	}
-
-	operator T ( void ) const
-	{
-	    return * location();
-	}
-
-	T operator -> ( void ) const
-	{
-	    return * location();
-	}
-
-	operator const min::stub * ( void ) const
-	{
-	    return * location();
+	    return * this->location() = value;
 	}
 
     private:
@@ -1895,39 +1901,127 @@ namespace min {
 	    ( const min::stub * s, const T & location );
 
         ref ( const min::stub * s, const T & location )
-	    : s ( s ),
-	      offset ( (uns8 *) & location
-	               -
-		       (uns8 *)
-		       unprotected::ptr_of ( s ) ) {}
-
-        T * location ( void ) const
-	{
-	    return (T *)
-	        (   (uns8 *) unprotected::ptr_of ( s )
-		  + offset );
-	}
+	    : internal::ref_base<T> ( s, location ) {}
     };
+
+    template <>
+    class ref<min::gen>
+	: public internal::ref_base<min::gen>
+    {
+
+    public:
+
+	// We must prevent the default operator =.
+	//
+	min::gen operator =
+	    ( const ref<min::gen> & p ) const
+	{
+	    min::gen value = * p.location();
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return value;
+	}
+
+	min::gen operator = ( min::gen value ) const
+	{
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return value;
+	}
+
+	min::gen operator =
+	    ( const min::locatable_var<min::gen> & p )
+	    const;
+	    // Because this specialization is instan-
+	    // tiated when it is declared, it is instan-
+	    // tiated before locatable_var<min::gen>
+	    // is declared, and we cannot include the
+	    // function body here.  Its below.
+
+    private:
+
+	friend min::ref<min::gen>
+	       unprotected::new_ref<min::gen>
+	    ( const min::stub * s,
+	      const min::gen & location );
+
+	ref ( const min::stub * s,
+	      const min::gen & location )
+	    : internal::ref_base<min::gen>
+		  ( s, location ) {}
+    };
+
+#   define MIN_LOCATABLE_PTR_CLASS(...) \
+	class ref< __VA_ARGS__ > \
+	    : public \
+	      internal::ref_base< __VA_ARGS__  > \
+	{ \
+	\
+	public: \
+	    \
+	    /* We must prevent the default operator =.
+	    */ \
+	    __VA_ARGS__ operator = \
+	        ( const ref< __VA_ARGS__ > & p ) const \
+	    { \
+		__VA_ARGS__ value = * p.location(); \
+		* this->location() = value; \
+		if ( this->s != ZERO_STUB ) \
+		    unprotected::acc_write_update \
+			( this->s, value ); \
+		return value; \
+	    } \
+	    \
+	    __VA_ARGS__ operator = \
+	        ( __VA_ARGS__ value ) const \
+	    { \
+		* this->location() = value; \
+		if ( this->s != ZERO_STUB ) \
+		    unprotected::acc_write_update \
+			( this->s, value ); \
+		return value; \
+	    } \
+	    \
+	    __VA_ARGS__ operator = \
+		( const min::locatable_var \
+		                 < __VA_ARGS__ > \
+		        & p ) const \
+	    { \
+		__VA_ARGS__ value = p; \
+		* this->location() = value; \
+		if ( this->s != ZERO_STUB ) \
+		    unprotected::acc_write_update \
+			( this->s, value ); \
+		return value; \
+	    } \
+	    \
+	    operator const min::stub * ( void ) const \
+	    { \
+	        return * this->location(); \
+	    } \
+	    \
+	private: \
+	    \
+	    friend min::ref< __VA_ARGS__ > \
+		   unprotected::new_ref< __VA_ARGS__ > \
+		( const min::stub * s, \
+		  const __VA_ARGS__ & location ); \
+	    \
+	    ref ( const min::stub * s, \
+		  const __VA_ARGS__ & location ) \
+		: internal::ref_base< __VA_ARGS__ > \
+		      ( s, location ) {} \
+	};
 
     template < typename T >
     inline min::ref<T> unprotected::new_ref
         ( const min::stub * s, const T & location )
     {
         return min::ref<T> ( s, location );
-    }
-
-    template < typename T >
-    inline min::ref<T> locatable
-        ( const min::stub * s, const T & location )
-    {
-        return unprotected::new_ref ( s, location );
-    }
-
-    template < typename T, typename S >
-    inline min::ref<S> locatable
-        ( const min::ref<T> & s, const S & location )
-    {
-        return unprotected::new_ref ( s, location );
     }
 
 }
@@ -2001,7 +2095,7 @@ namespace min {
 	    return * this;
 	}
 
-	operator min::ref<T> ( void )
+	operator min::ref<T> ( void ) const
 	{
 	    return unprotected::new_ref<T>
 	        ( ZERO_STUB, * (T *) this );
@@ -2038,7 +2132,7 @@ namespace min {
 
 	operator min::gen ( void ) const
 	{
-	    return value;
+	    return this->value;
 	}
 	min::gen operator =
 	    ( const locatable_var<min::gen> & p )
@@ -2052,7 +2146,7 @@ namespace min {
 	    return this->value;
 	}
 
-	operator min::ref<min::gen> ( void )
+	operator min::ref<min::gen> ( void ) const
 	{
 	    return unprotected::new_ref<min::gen>
 	        ( ZERO_STUB, this->value );
@@ -2066,6 +2160,18 @@ namespace min {
 #   else
 	typedef min::locatable_gen locatable_num_gen;
 #   endif
+
+    inline min::gen min::ref<min::gen>::operator =
+	    ( const min::locatable_var<min::gen> & p )
+	    const
+    {
+	min::gen value = p;
+	* this->location() = value;
+	if ( this->s != ZERO_STUB )
+	    unprotected::acc_write_update
+		( this->s, value );
+	return value;
+    }
 
 }
 
@@ -3914,6 +4020,9 @@ namespace min {
 	}
     };
 
+    template < typename S >
+    MIN_LOCATABLE_PTR_CLASS(min::packed_struct_ptr<S>)
+
     template < typename S, typename T >
     min::uns32 DISP
 	    ( const packed_struct_ptr<T> S::* d )
@@ -3976,6 +4085,10 @@ namespace min {
 	        ( & packed_struct_updptr::s );
 	}
     };
+
+    template < typename S >
+    MIN_LOCATABLE_PTR_CLASS
+        (min::packed_struct_updptr<S>)
 
     template < typename S, typename T >
     min::uns32 DISP
@@ -4350,6 +4463,10 @@ namespace min {
 	}
     };
 
+    template < typename E, typename H >
+    MIN_LOCATABLE_PTR_CLASS
+        (min::packed_vec_ptr<E,H>)
+
     template < typename S, typename E, typename H >
     min::uns32 DISP
 	    ( const packed_vec_ptr<E,H> S::* d )
@@ -4421,6 +4538,10 @@ namespace min {
 	}
     };
 
+    template < typename E, typename H >
+    MIN_LOCATABLE_PTR_CLASS
+        (min::packed_vec_updptr<E,H>)
+
     template < typename S, typename E, typename H >
     min::uns32 DISP
 	    ( const packed_vec_updptr<E,H> S::* d )
@@ -4478,6 +4599,10 @@ namespace min {
 		( this->s, max_length );
 	}
     };
+
+    template < typename E, typename H >
+    MIN_LOCATABLE_PTR_CLASS
+        (min::packed_vec_insptr<E,H>)
 
     template < typename S, typename E, typename H >
     min::uns32 DISP
@@ -4823,7 +4948,8 @@ namespace min {
 	const min::gen		file_name;
     };
 #   define MIN_REF(type,name,ctype) \
-    inline min::ref< type > name##_ref ( ctype container ) \
+    inline min::ref< type > name##_ref \
+               ( ctype container ) \
     { \
         return min::unprotected::new_ref \
 	    ( container, container->name ); \
