@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 22 05:55:15 EDT 2011
+// Date:	Tue Mar 22 06:37:05 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1955,76 +1955,12 @@ namespace min {
 		  ( s, location ) {}
     };
 
-#   define MIN_COMMA ,
-#   define MIN_STUB_PTR_CLASS(TEMPLATE,T) \
-	TEMPLATE \
-	class ref< T > \
-	    : public internal::ref_base< T > \
-	{ \
-	\
-	public: \
-	    \
-	    /* We must prevent the default operator =.
-	    */ \
-	    T operator = ( const ref< T > & p ) const \
-	    { \
-		T value = * p.location(); \
-		* this->location() = value; \
-		if ( this->s != ZERO_STUB ) \
-		    unprotected::acc_write_update \
-			( this->s, value ); \
-		return value; \
-	    } \
-	    \
-	    T operator = ( T value ) const \
-	    { \
-		* this->location() = value; \
-		if ( this->s != ZERO_STUB ) \
-		    unprotected::acc_write_update \
-			( this->s, value ); \
-		return value; \
-	    } \
-	    \
-	    T operator = \
-		( const min::locatable_var < T > \
-		        & p ) const \
-	    { \
-		T value = p; \
-		* this->location() = value; \
-		if ( this->s != ZERO_STUB ) \
-		    unprotected::acc_write_update \
-			( this->s, value ); \
-		return value; \
-	    } \
-	    \
-	    operator const min::stub * ( void ) const \
-	    { \
-	        return * this->location(); \
-	    } \
-	    \
-	private: \
-	    \
-	    friend min::ref< T > \
-		   unprotected::new_ref< T > \
-		( const min::stub * s, \
-		  const T & location ); \
-	    \
-	    ref ( const min::stub * s, \
-		  const T & location ) \
-		: internal::ref_base< T > \
-		      ( s, location ) {} \
-	};
-
     template < typename T >
     inline min::ref<T> unprotected::new_ref
         ( const min::stub * s, const T & location )
     {
         return min::ref<T> ( s, location );
     }
-
-}
-
-namespace min {
 
     namespace internal
     {
@@ -2176,6 +2112,64 @@ namespace min {
     }
 
 }
+
+# define MIN_COMMA ,
+# define MIN_STUB_PTR_CLASS(TEMPLATE,T) \
+    TEMPLATE \
+    class ref< T > : public internal::ref_base< T > \
+    { \
+    \
+    public: \
+	\
+	/* We must prevent the default operator =.
+	*/ \
+	T operator = ( const ref< T > & p ) const \
+	{ \
+	    T value = * p.location(); \
+	    * this->location() = value; \
+	    if ( this->s != ZERO_STUB ) \
+		unprotected::acc_write_update \
+		    ( this->s, value ); \
+	    return value; \
+	} \
+	\
+	T operator = ( T value ) const \
+	{ \
+	    * this->location() = value; \
+	    if ( this->s != ZERO_STUB ) \
+		unprotected::acc_write_update \
+		    ( this->s, value ); \
+	    return value; \
+	} \
+	\
+	T operator = \
+	    ( const min::locatable_var < T > \
+		    & p ) const \
+	{ \
+	    T value = p; \
+	    * this->location() = value; \
+	    if ( this->s != ZERO_STUB ) \
+		unprotected::acc_write_update \
+		    ( this->s, value ); \
+	    return value; \
+	} \
+	\
+	operator const min::stub * ( void ) const \
+	{ \
+	    return * this->location(); \
+	} \
+	\
+    private: \
+	\
+	friend min::ref< T > unprotected::new_ref< T > \
+	    ( const min::stub * s, \
+	      const T & location ); \
+	\
+	ref ( const min::stub * s, \
+	      const T & location ) \
+	    : internal::ref_base< T > \
+		  ( s, location ) {} \
+    };
 
 namespace min { namespace internal {
 
