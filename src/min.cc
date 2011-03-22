@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 19 16:02:16 EDT 2011
+// Date:	Tue Mar 22 05:49:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -84,6 +84,13 @@ MINT::initializer::initializer ( void )
     PTR_CHECK ( min::packed_vec<int,int>::ptr );
     PTR_CHECK ( min::packed_vec<int,int>::updptr );
     PTR_CHECK ( min::packed_vec<int,int>::insptr );
+
+    assert
+        ( OFFSETOF ( & MINT::locatable_gen::previous )
+	  == sizeof ( const min::stub * ) );
+    assert
+        ( OFFSETOF ( & MINT::locatable_var::previous )
+	  == sizeof ( const min::stub * ) );
 
     type_name[ACC_FREE] = "ACC_FREE";
     type_name[DEALLOCATED] = "DEALLOCATED";

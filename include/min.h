@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar 21 19:39:49 EDT 2011
+// Date:	Tue Mar 22 05:55:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2071,6 +2071,10 @@ namespace min {
 	    previous = internal::locatable_var_last;
 	    internal::locatable_var_last =
 	        (internal::locatable_var *) this;
+	    MIN_ASSERT
+	        ( OFFSETOF
+		      ( & locatable_var<T>::previous )
+		  == sizeof ( const min::stub * ) );
 	}
         ~ locatable_var ( void )
 	{
