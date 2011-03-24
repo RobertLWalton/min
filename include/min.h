@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 23 17:04:10 EDT 2011
+// Date:	Thu Mar 24 03:02:19 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4608,6 +4608,75 @@ namespace min {
 		( min::gen g )
 	{
 	    new ( this ) packed_vec_ptr<E,H> ( g );
+	    return * this;
+	}
+
+	static min::uns32 DISP ( void )
+	{
+	    return OFFSETOF
+	        ( & packed_vec_updptr::s );
+	}
+    };
+
+    template < typename H >
+    class packed_vec_updptr<min::gen,H>
+	: public packed_vec_ptr<min::gen,H>
+    {
+
+    public:
+
+	packed_vec_updptr
+	        ( const min::packed_vec_updptr
+			    <min::gen,H>
+		      & pvup )
+	{
+	    this->s = pvup.s;
+	}
+	packed_vec_updptr ( min::gen g )
+	    : packed_vec_ptr<min::gen,H> ( g ) {}
+	packed_vec_updptr
+		( const min::stub * s )
+	    : packed_vec_ptr<min::gen,H> ( s ) {}
+	packed_vec_updptr ( void )
+	    : packed_vec_ptr<min::gen,H>() {}
+
+	H * operator -> ( void ) const
+	{
+	    return (H *)
+		   unprotected::ptr_of ( this->s );
+	}
+
+	min::ref<min::gen> operator []
+		( min::uns32 i ) const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    MIN_ASSERT ( i < hp->length );
+	    return unprotected::new_ref
+	        ( this->s,
+	          * (min::gen *)
+		  ( (uns8 *) hp
+		    +
+		    internal
+		    ::packed_vec_ptr_base<min::gen,H>
+		    ::computed_header_size
+		    +
+		    i * sizeof ( min::gen ) ) );
+	}
+
+	packed_vec_updptr & operator =
+		( const min::stub * s )
+	{
+	    new ( this ) packed_vec_ptr<min::gen,H>
+	    			( s );
+	    return * this;
+	}
+
+	packed_vec_updptr & operator =
+		( min::gen g )
+	{
+	    new ( this ) packed_vec_ptr<min::gen,H>
+	    			( g );
 	    return * this;
 	}
 
