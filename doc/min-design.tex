@@ -1565,56 +1565,91 @@ change.
 Specialized protected pointer types are provided for each type of object
 that has a body.
 
-\subsubsection{Protected Body References}
-\label{PROTECTED-BODY-REFERENCES}
+\subsubsection{Protected Body References and Pointer}
+\label{PROTECTED-BODY-REFERENCES-AND-POINTERS}
 
-In addition there is a general body reference type
-that references any type an element in any body associated with any stub:
+In addition to specialized pointer types for each type of object,
+there are a general body reference and pointer types
+that reference any type an element in any body associated with any stub.
+The reference types are most frequently used:
 
 \newcommand{\TARG}{\BRACKETED{T}}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{ptr\TARG}\verb| p|\ARGBREAK
+\verb|min::|\MINKEY{ref\TARG}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
     \verb| ( const min::stub * s,|\ARGBREAK
     \verb|   T & location )|
-\LABEL{MIN::PTR} \\
+\LABEL{MUP::NEW_REF} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * const p| & \TTARMKEY{s}{in {\tt min::ptr\TARG}}
-\LABEL{MIN::PTR_STUB} \\
-\verb|const min::unsptr p| & \TTARMKEY{offset}{in {\tt min::ptr\TARG}}
-\LABEL{MIN::PTR_OFFSET} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::ptr\TARG}}
-      \verb|( min::ptr<T> & p, T value )|
-\LABEL{MIN::=PTR_OF_T} \\
-\verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::ptr\TARG}}
-      \verb|( min::ptr<T> & p, min::locatable_var<T> location )|
-\LABEL{MIN::=PTR_OF_LOCATION} \\
-\verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::ptr\TARG}}
-      \verb|( min::ptr<T> & p, const min::ptr<T> & p2 )|
-\LABEL{MIN::=PTR_OF_PTR} \\
+\verb|const min::stub * const r| & \TTARMKEY{s}{in {\tt min::ref\TARG}}
+\LABEL{MIN::REF_STUB} \\
+\verb|const min::unsptr r| & \TTARMKEY{offset}{in {\tt min::ref\TARG}}
+\LABEL{MIN::REF_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T |
-    & \TTOMKEY{T}{{\tt T}}{of {\tt min::ptr\TARG}}
-      \verb|( const min::ptr<T> & p )|
-\LABEL{MIN::PTR_TO_T} \\
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}
+      \verb|( min::ref<T> & r, T value )|
+\LABEL{MIN::=REF_OF_T} \\
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}
+      \verb|( min::ref<T> & r, const min::ref<T> & r2 )|
+\LABEL{MIN::=REF_OF_REF} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T |
+    & \TTOMKEY{T}{{\tt T}}{of {\tt min::ref\TARG}}
+      \verb|( const min::ref<T> & r )|
+\LABEL{MIN::REF_TO_T} \\
 \verb|T |
 	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::ptr\TARG}}
-	  \verb| ( const min::ptr<T> & p )|
-\LABEL{MIN::PTR_->} \\
+	          {of {\tt min::ref\TARG}}
+	  \verb| ( const min::ref<T> & r )|
+\LABEL{MIN::REF_->} \\
 \end{tabular}\end{indpar}
 
+A {\tt min::ref\TARG} type is similar to the {\tt T \&} type.
+Internally it is a pointer to a location of type {\tt T}, and in this case the
+pointer consists of a {\tt const min::\EOL stub~*} pointer to a stub
+and an {\tt min::\EOL unsptr} byte offset of a location in the body
+associated with the stub.  Setting a reference type equal to a value
+of type {\tt T} stores the value in the location.  Setting a reference
+type {\tt r} equal to another reference type {\tt r2} does
+\underline{not} copy the internal pointers, but instead copies the
+value at the {\tt r2} location to the {\tt r} location.
+
+{\tt min::ref\TARG} values are returned by protected functions described
+elsewhere:
+\begin{center}
+\begin{tabular}{ll}
+packed stuctures & see {\tt MIN\_REF} pTBD \\
+packed vector headers & see {\tt MIN\_REF} pTBD \\
+packed vector elements	& see {\tt operator []} pTBD \\
+locatable variables	& see {\tt operator min::ref\TARG} pTBD \\
+object vector elements	& see TBD pTBD \\
 TBD
+\end{tabular}
+\end{center}
+
+The unprotected {\tt MUP::new\_ref} function is used by these
+protected function to construct a {\tt min::\EOL ref\TARG} value
+from a pointer {\tt s} to a stub and a {\tt const} location
+within the body associated with that stub.
+
+A {\tt min::ref\TARG} value is implicitly convertable to the type {\tt T}
+value its internal pointer points at.  As this implicit conversion
+is not activated by C++ in the case of an expression of the form
+`{\tt r->\ldots}', `{\tt operator~->}' of a {\tt min::\EOL ref\TARG}
+argument is defined to invoke the conversion explicitly.
+
+Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
+differ according to whether or not the type {\tt T} is `locatable'.
+TBD
+
 
 \subsubsection{Unprotected Body Pointers}
 \label{UNPROTECTED-BODY-POINTERS}
@@ -2047,6 +2082,21 @@ of {\tt min::\EOL locatable\_\EOL var}:
 	& \verb|min::locatable_var<min::gen>|\ARGBREAK
 	  \verb|min::|\MINKEY{locatable\_gen}
 \LABEL{MIN::LOCATABLE_GEN_TYPEDEF} \\
+\end{tabular}\end{indpar}
+
+TBD:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( min::ref<T> & p,|\ARGBREAK
+      \verb|  min::locatable_var<T> var )|
+\LABEL{MIN::=REF_OF_LOCATABLE_VAR} \\
+\verb|min::ref<T> |
+	& \TTOMKEY{ref\TARG}{ref\TARG}%
+	          {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+	  \verb| ( const min::locatable_var<T> & var )|
+\LABEL{MIN::REF_OF_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
 Importantly a \verb|min::gen| or \verb|min::stub *|
