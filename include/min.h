@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 22 06:38:12 EDT 2011
+// Date:	Wed Mar 23 17:04:10 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1854,6 +1854,10 @@ namespace min {
 		return * location();
 	    }
 
+	    T * operator & ( void ) const
+	    {
+	        return location();
+	    }
 
 	protected:
 
@@ -2070,10 +2074,17 @@ namespace min {
 
 }
 
+template < typename T >
+min::ref<T> & operator <<=
+	( min::ref<T> & p, const min::ref<T> & q )
+{
+    new ( & p ) min::ref<T> ( q );
+}
+
 # define MIN_COMMA ,
-# define MIN_STUB_PTR_CLASS(TEMPLATE,T) \
+# define MIN_STUB_PTR_CLASS(TARGS,T) \
 namespace min { \
-    TEMPLATE \
+    template < TARGS > \
     class ref< T > : public internal::ref_base< T > \
     { \
     \
@@ -2129,7 +2140,7 @@ namespace min { \
 		  ( s, location ) {} \
     }; \
     \
-    TEMPLATE \
+    template < TARGS > \
     class locatable_var< T > : public T \
     { \
     \
@@ -2140,7 +2151,7 @@ namespace min { \
     \
     private: \
     \
-        locatable_var ( const locatable_var<T> & p ) \
+        locatable_var ( const locatable_var< T > & p ) \
 	{} \
     \
     public: \
@@ -2153,7 +2164,8 @@ namespace min { \
 	        (internal::locatable_var *) this; \
 	    MIN_ASSERT \
 	        ( OFFSETOF \
-		      ( & locatable_var<T>::previous ) \
+		      ( & locatable_var< T > \
+		          ::previous ) \
 		  == sizeof ( const min::stub * ) ); \
 	} \
         ~ locatable_var ( void ) \
@@ -2161,7 +2173,7 @@ namespace min { \
 	    internal::locatable_var_last = previous; \
 	} \
         \
-	T operator = ( const locatable_var<T> & p ) \
+	T operator = ( const locatable_var< T > & p ) \
 	{ \
 	    new ( this ) T ( p ); \
 	    return * this; \
@@ -2177,10 +2189,78 @@ namespace min { \
 	    return * this; \
 	} \
 	\
-	operator min::ref<T> ( void ) const \
+	operator min::ref< T > ( void ) const \
 	{ \
-	    return unprotected::new_ref<T> \
+	    return unprotected::new_ref< T > \
 	        ( ZERO_STUB, * (T *) this ); \
+	} \
+    }; \
+    \
+    template < TARGS, typename MIN_HEADER > \
+    class packed_vec_updptr<T,MIN_HEADER> \
+	: public packed_vec_ptr<T,MIN_HEADER> \
+    { \
+    \
+    public: \
+	\
+	packed_vec_updptr \
+	        ( const min::packed_vec_updptr \
+			<T,MIN_HEADER> & pvup ) \
+	{ \
+	    this->s = pvup.s; \
+	} \
+	packed_vec_updptr ( min::gen g ) \
+	    : packed_vec_ptr<T,MIN_HEADER> ( g ) {} \
+	packed_vec_updptr \
+		( const min::stub * s ) \
+	    : packed_vec_ptr<T,MIN_HEADER> ( s ) {} \
+	packed_vec_updptr ( void ) \
+	    : packed_vec_ptr<T,MIN_HEADER>() {} \
+	\
+	MIN_HEADER * operator -> ( void ) const \
+	{ \
+	    return (MIN_HEADER *) \
+		   unprotected::ptr_of ( this->s ); \
+	} \
+	\
+	min::ref< T > operator [] ( min::uns32 i ) \
+	    const \
+	{ \
+	    MIN_HEADER * hp = (MIN_HEADER *) \
+		unprotected::ptr_of ( this->s ); \
+	    MIN_ASSERT ( i < hp->length ); \
+	    return unprotected::new_ref \
+	        ( this->s, \
+	          * (T *) \
+		  ( (uns8 *) hp \
+		    + \
+		    internal::packed_vec_ptr_base \
+		        < T , MIN_HEADER > \
+		    ::computed_header_size \
+		    + \
+		    i * sizeof ( T ) ) ); \
+	} \
+	\
+	packed_vec_updptr & operator = \
+		( const min::stub * s ) \
+	{ \
+	    new ( this ) packed_vec_ptr<T,MIN_HEADER> \
+	    	( s ); \
+	    return * this; \
+	} \
+	\
+	packed_vec_updptr & operator = \
+		( min::gen g ) \
+	{ \
+	    new ( this ) packed_vec_ptr<T,MIN_HEADER> \
+	    	( g ); \
+	    return * this; \
+	} \
+	\
+	static min::uns32 DISP ( void ) \
+	{ \
+	    return OFFSETOF \
+	        ( & packed_vec_updptr::s ); \
 	} \
     }; \
 }
@@ -4175,11 +4255,6 @@ namespace min {
     }
 }
 
-MIN_STUB_PTR_CLASS ( template < typename S >,
-		     min::packed_struct_ptr<S> )
-MIN_STUB_PTR_CLASS ( template < typename S >,
-		     min::packed_struct_updptr<S> )
-
 // The following should be in min.cc BUT since they are
 // templates they must be included in every compilation
 // that might instantiate them.
@@ -4512,7 +4587,8 @@ namespace min {
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
 	    MIN_ASSERT ( i < hp->length );
-	    return * (E *)
+	    return
+	        * (E *)
 		( (uns8 *) hp
 		  +
 		  internal::packed_vec_ptr_base<E,H>
@@ -4609,16 +4685,18 @@ namespace min {
     }
 }
 
-MIN_STUB_PTR_CLASS ( template < typename E MIN_COMMA
-				typename H >,
+MIN_STUB_PTR_CLASS ( typename S,
+		     min::packed_struct_ptr<S> )
+MIN_STUB_PTR_CLASS ( typename S,
+		     min::packed_struct_updptr<S> )
+
+MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
 		     min::packed_vec_ptr
 			 < E MIN_COMMA H > )
-MIN_STUB_PTR_CLASS ( template < typename E MIN_COMMA
-				typename H >,
+MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
 		     min::packed_vec_updptr
 			 < E MIN_COMMA H > )
-MIN_STUB_PTR_CLASS ( template < typename E MIN_COMMA
-				typename H >,
+MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
 		     min::packed_vec_insptr
 			 < E MIN_COMMA H > )
 

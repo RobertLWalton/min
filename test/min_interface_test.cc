@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Mar 18 06:08:32 EDT 2011
+// Date:	Thu Mar 24 01:58:50 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3325,7 +3325,7 @@ static bool check_attr_info
     min_assert_print = false;
     min::gen aiv = min::get_attrs ( ap );
     min::sort_attr_info ( aiv );
-    min::attr_info_vec::updptr aivp ( aiv );
+    min::attr_info_ptr aivp ( aiv );
     bool ok = true;
     for ( unsigned i = 0; i < aivp->length; ++ i )
     {
