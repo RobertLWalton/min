@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 24 06:05:47 EDT 2011
+// Date:	Thu Mar 24 08:46:14 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1826,6 +1826,14 @@ namespace min {
     template < typename T>
     class ref;
 
+    template < typename T >
+    class ptr;
+
+    template < typename T >
+    min::ptr<T> operator & ( min::ref<T> r );
+    template < typename T >
+    min::ref<T> operator * ( min::ptr<T> p );
+
     namespace unprotected {
 
 	template < typename T>
@@ -1854,21 +1862,19 @@ namespace min {
 		return * location();
 	    }
 
-	    T * operator & ( void ) const
+	    // We need the following because operator &
+	    // is being redefined.
+	    //
+	    ref_base<T> * address ( void )
 	    {
-	        return location();
+	        return this;
 	    }
 
 	protected:
 
 	    ref_base ( const min::stub * s,
-	               const T & location )
-		: s ( s ),
-		  offset ( (uns8 *) & location
-			   -
-			   (uns8 *)
-			   unprotected::ptr_of ( s ) )
-	        {}
+	               min::unsptr offset )
+		: s ( s ), offset ( offset ) {}
 
 	    T * location ( void ) const
 	    {
@@ -1880,6 +1886,48 @@ namespace min {
 	};
 
     }
+
+    template < typename T >
+    class ptr
+    {
+
+    public:
+
+	const min::stub * const s;
+	const min::unsptr offset;
+
+        ptr ( void ) : s ( NULL ), offset ( 0 ) {}
+
+	T * operator -> ( void )
+	{
+	    return location();
+	}
+
+	ptr<T> & operator = ( const ptr<T> & p )
+	{
+	    new ( this ) ptr<T> ( p.s, p.offset );
+	    return * this;
+	}
+
+    private:
+
+	ptr ( const min::stub * s,
+	      min::unsptr offset )
+	    : s ( s ), offset ( offset ) {}
+
+	friend min::ptr<T> operator &<>
+	    ( min::ref<T> r );
+	friend min::ref<T> operator *<>
+	    ( min::ptr<T> p );
+
+	T * location ( void ) const
+	{
+	    return (T *)
+		(   (uns8 *)
+		    unprotected::ptr_of ( s )
+		  + offset );
+	}
+    };
 
     template < typename T >
     class ref : public internal::ref_base<T>
@@ -1904,8 +1952,11 @@ namespace min {
 	friend min::ref<T> unprotected::new_ref<T>
 	    ( const min::stub * s, const T & location );
 
-        ref ( const min::stub * s, const T & location )
-	    : internal::ref_base<T> ( s, location ) {}
+	friend min::ref<T> operator *<>
+	    ( min::ptr<T> p );
+
+        ref ( const min::stub * s, min::unsptr offset )
+	    : internal::ref_base<T> ( s, offset ) {}
     };
 
     template <>
@@ -1953,17 +2004,33 @@ namespace min {
 	    ( const min::stub * s,
 	      const min::gen & location );
 
-	ref ( const min::stub * s,
-	      const min::gen & location )
-	    : internal::ref_base<min::gen>
-		  ( s, location ) {}
+	friend min::ref<min::gen> operator *<>
+	    ( min::ptr<min::gen> p );
+
+        ref ( const min::stub * s, min::unsptr offset )
+	    : internal::ref_base<min::gen> ( s, offset )
+	    {}
     };
 
     template < typename T >
     inline min::ref<T> unprotected::new_ref
         ( const min::stub * s, const T & location )
     {
-        return min::ref<T> ( s, location );
+        return min::ref<T>
+	    ( s, (uns8 *) & location
+		 -
+		 (uns8 *) unprotected::ptr_of ( s ) );
+    }
+
+    template < typename T >
+    inline min::ptr<T> operator & ( min::ref<T> r )
+    {
+        return ptr<T> ( r.s, r.offset );
+    }
+    template < typename T >
+    inline min::ref<T> operator * ( min::ptr<T> p )
+    {
+	return min::ref<T> ( p.s, p.offset );
     }
 
     namespace internal
@@ -2074,13 +2141,6 @@ namespace min {
 
 }
 
-template < typename T >
-inline min::ref<T> & operator <<=
-	( min::ref<T> & p, const min::ref<T> & q )
-{
-    new ( & p ) min::ref<T> ( q );
-}
-
 # define MIN_COMMA ,
 # define MIN_STUB_PTR_CLASS(TARGS,T) \
 namespace min { \
@@ -2134,10 +2194,12 @@ namespace min { \
 	    ( const min::stub * s, \
 	      const T & location ); \
 	\
-	ref ( const min::stub * s, \
-	      const T & location ) \
-	    : internal::ref_base< T > \
-		  ( s, location ) {} \
+	friend min::ref<T> operator *<> \
+	    ( min::ptr<T> p ); \
+	\
+        ref ( const min::stub * s, \
+	      min::unsptr offset ) \
+	    : internal::ref_base<T> ( s, offset ) {} \
     }; \
     \
     template < TARGS > \
