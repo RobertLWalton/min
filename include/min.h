@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 24 03:02:19 EDT 2011
+// Date:	Thu Mar 24 06:05:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2075,7 +2075,7 @@ namespace min {
 }
 
 template < typename T >
-min::ref<T> & operator <<=
+inline min::ref<T> & operator <<=
 	( min::ref<T> & p, const min::ref<T> & q )
 {
     new ( & p ) min::ref<T> ( q );
