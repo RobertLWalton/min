@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 18, 2011}
+\date{March 24, 2011}
  
 \maketitle
 
@@ -4188,7 +4188,7 @@ a packed vector, and these have the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\verb|const E & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|const E * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
@@ -4249,8 +4249,12 @@ a packed vector, and these have the usage:
 \verb|const min::uns32 pvup|
     & \TTARMKEY{length}{in {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
-\verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+\verb|E & pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
 \verb|const E * pvup|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
@@ -4314,8 +4318,12 @@ a packed vector, and these have the usage:
 \verb|const min::uns32 pvip|
     & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
-\verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
+\verb|E & pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
+\verb|min::ref<E> pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_INSPTR_[]} \\
 \verb|const E * pvip|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_BEGIN_PTR} \\
@@ -11249,7 +11257,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|const E pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\verb|const E & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|const E * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
@@ -11308,8 +11316,12 @@ In loose implementation: \\
 \verb|const min::uns32 pvup|
     & \TTARMKEY{length}{in {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_LENGTH} \\
-\verb|E pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+\verb|E & pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
 \verb|const E * pvup|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
@@ -11371,8 +11383,12 @@ In loose implementation: \\
 \verb|const min::uns32 pvip|
     & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
-\verb|E pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
+\verb|E & pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_INSPTR_[]} \\
+\verb|min::ref<E> pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_INSPTR_[]} \\
 \verb|const E * pvip|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_BEGIN_PTR} \\
