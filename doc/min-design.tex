@@ -1565,7 +1565,7 @@ change.
 Specialized protected pointer types are provided for each type of object
 that has a body.
 
-\subsubsection{Protected Body References and Pointer}
+\subsubsection{Protected Body References and Pointers}
 \label{PROTECTED-BODY-REFERENCES-AND-POINTERS}
 
 In addition to specialized pointer types for each type of object,
@@ -1613,12 +1613,14 @@ The reference types are most frequently used:
 \end{tabular}\end{indpar}
 
 A {\tt min::ref\TARG} type is similar to the {\tt T \&} type.
-Internally it is a pointer to a location of type {\tt T}, and in this case the
-pointer consists of a {\tt const min::\EOL stub~*} pointer to a stub
-and an {\tt min::\EOL unsptr} byte offset of a location in the body
+Internally a {\tt min::ref\TARG} value {\tt r}
+is a pointer to a location of type {\tt T} that
+consists of a {\tt const min::\EOL stub~*} pointer {\tt r->s} to a stub
+and an {\tt min::\EOL unsptr} byte offset {\tt r->offset}
+of a location in the body
 associated with the stub.  Setting a reference type equal to a value
 of type {\tt T} stores the value in the location.  Setting a reference
-type {\tt r} equal to another reference type {\tt r2} does
+{\tt r} equal to another reference {\tt r2}, as in `{\tt r~=~r2}', does
 \underline{not} copy the internal pointers, but instead copies the
 value at the {\tt r2} location to the {\tt r} location.
 
@@ -1647,8 +1649,82 @@ is not activated by C++ in the case of an expression of the form
 argument is defined to invoke the conversion explicitly.
 
 Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
-differ according to whether or not the type {\tt T} is `locatable'.
-TBD
+differ according to whether or not the type {\tt T} is `locatable'
+({\tt min::\EOL gen}, {\tt const min::\EOL stub~*}, and
+classes that encapulate {\tt const min::\EOL stub~*} values are
+locatable types: see \pagref{LOCATABLE-TYPE}).
+If {\tt T} is locatable, storing a value in a {\tt min::\EOL ref\TARG}
+location implicitly calls the
+{\tt min::\EOL acc\_\EOL write\_\EOL update} functions of
+Section~\itemref{ACC-WRITE-UPDATE-FUNCTIONS} to update the stubs
+involved.  If {\tt T} is not locatable, this is not done.
+
+A {\tt min::\EOL ref\TARG} reference value can also designate a location at
+an absolute address not in a body associated with a stub.  This is
+done by using fake stub whose `body pointer' is zero.  Such reference
+values are used to point at locatable variables in static memory or the
+stack (page TBD).
+
+Associated with the {\tt min::\EOL ref\TARG} reference type is
+the companion {\tt min::\EOL ptr\TARG} pointer type:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{ptr\TARG} \verb| p|
+\LABEL{MIN::PTR_OF_T} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}
+      \verb|( const min::ref<T> & r )|
+\LABEL{MIN::=&_OF_REF_OF_T} \\
+\verb|min::ref<T> |
+    & \TTOMKEY{*}{*}{of {\tt min::ptr\TARG}}
+      \verb|( const min::ptr<T> & p )|
+\LABEL{MIN::=*_OF_PTR_OF_T} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::stub * const p| & \TTARMKEY{s}{in {\tt min::ptr\TARG}}
+\LABEL{MIN::PTR_STUB} \\
+\verb|const min::unsptr p| & \TTARMKEY{offset}{in {\tt min::ptr\TARG}}
+\LABEL{MIN::PTR_OFFSET} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}
+      \verb|( min::ptr<T> & p, const min::ptr<T> & p2 )|
+\LABEL{MIN::=PTR_OF_PTR}
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::ptr\TARG}}
+	  \verb| ( const min::ptr<T> & p )|
+\LABEL{MIN::PTR_->} \\
+\end{tabular}\end{indpar}
+
+Internally a {\tt min::\EOL ptr\TARG} value is exactly like a
+{\tt min::\EOL ref\TARG} value; both point at a location defined by
+a stub and an offset within the body of the stub.
+The main difference is that {\tt =} for reference values copies the
+values of the locations pointed at, while {\tt =} for pointer values
+copies the pointer itself; i.e., the pointer to the stub and the offset.
+
+The other difference is the if a {\tt min::\EOL ref\TARG} value {\tt r}
+designates a location containing a {\tt T} value {\tt v}, then
+{\tt r->\ldots} is equivalent to {\tt v->\ldots}, and designates the value
+pointed at by {\tt v}. 
+But if a {\tt min::\EOL ptr\TARG} value {\tt p}
+designates a location containing a {\tt T} value {\tt v}, then
+{\tt p->\ldots} is equivalent to {\tt (\&v)->\ldots},
+and designates the value {\tt v} itself.
+
+A {\tt min::\EOL ptr\TARG} value can be created by applying the
+{\tt \&} operator to a {\tt min::\EOL ref\TARG} value or to a
+locatable variable (\itemref{LOCATABLE-VARIABLES}) (TBD check).
+A {\tt min::\EOL ref\TARG} value can be recovered from a
+reference value by applying the
+{\tt *} operator to the {\tt min::\EOL ref\TARG} value.
 
 
 \subsubsection{Unprotected Body Pointers}
@@ -1912,30 +1988,33 @@ is necessary.
 The garbage collector needs to be able to locate all
 \verb|min::gen| and {\tt const min::\EOL stub~*} values
 that are in use and that might contain stub pointers.
-When you write general values or pointers to stubs
-into stubs or bodies, you need to call an acc function
-to update garbage collection flags associated with stubs.
-The first subsection of this section specifies how these things are
-normally done, and includes
-data types that must be used to hold \verb|min::gen|
-or {\tt const min::\EOL stub~*}
-values in static or stack memory, and functions that must
-be called when a value that might point
-at a stub is written into a stub or body.
+Values of these types are called \skey{locatable value}s.%
+\label{LOCATABLE-VALUE}
+These types, and types that are just classes which
+encapsulate a {\tt min::\EOL gen} or {\tt const min::\EOL stub~*}
+value (such as the {\tt min::packed\_\ldots ptr} types),
+are called \skey{locatable type}s.%
+\label{LOCATABLE-TYPE}
+
+Values of a locatable type {\tt T} stored in static memory or the stack
+need to be locatable by the garbage collector.  This is done
+by storing them in {\tt min::\EOL locatable\_\EOL var\TARG} type
+variables, as described in the first subsection of this section.
+
+When you write a value of locatable type {\tt T} into a stub or associated
+body, you need to call an acc function to update garbage
+collection flags associated with stubs.
+This is done automatically if a {\tt min::\EOL ref\TARG} reference value is
+used to write the value.  Such reference values are created
+by functions described in the second subsection of this section.
 
 If you are implementing a new type of stub and maybe bodies
-associated with that stub type, you need to use the unprotected
-interface described in the subsequent subsections.
-You need to be able to allocate stubs, read and write stub values,
-and read and write stub types.  If you are allocating non-acc
-stubs (i.e., stubs that are not garbage collected), then you
-also need to be able to read and write the entire stub control
-and to free the stubs.
-If your stubs have bodies, you need to be able to allocate,
-relocate, and deallocate the bodies.
+associated with that stub type, or a new class of pointers to stubs,
+then you need to use the unprotected
+interfaces described in the third subsection of this section.
 
-\subsubsection{Storing General Values and Stub Pointers}
-\label{STORING-GENERAL-VALUES-AND-STUB-POINTERS}
+\subsubsection{Locatable Variables}
+\label{LOCATABLE-VARIABLES}
 
 Values that might contain stub pointers must be locatable
 by the garbage collector (the collector part of the acc).  Since
@@ -2125,6 +2204,27 @@ and {\tt min::\EOL stub*} values can be
 stored in other places.  In particular, there is no problem
 returning these values from a called function to its caller.
 
+\subsubsection{Locatable Value References}
+\label{LOCATABLE-VALUE-REFERENCES}
+
+\subsubsection{Unprotected Stub Functions}
+\label{UNPROTECTED-STUB-FUNCTIONS}
+
+TBD
+
+You need to be able update stubs when locatable values are written
+into the stubs or associated bodies.
+You need to be able to allocate stubs, read and write stub values,
+and read and write stub types.  If you are allocating non-acc
+stubs (i.e., stubs that are not garbage collected), then you
+also need to be able to read and write the entire stub control
+and to free the stubs.
+If your stubs have bodies, you need to be able to allocate,
+relocate, and deallocate the bodies.
+
+\subsubsubsection{ACC Write Update Functions}
+\label{ACC-WRITE-UPDATE-FUNCTIONS}
+
 In addition to needing to locate \verb|min::gen|
 and {\tt min::\EOL stub~*} values, the acc
 must be notified whenever a pointer to a collectible stub \verb|s2|
@@ -2164,13 +2264,6 @@ with {\tt min::ACC\_\EOL FREE} type, which can only happen when the
 stub has been recently returned by
 {\tt min::\EOL new\_\EOL acc\_\EOL stub}.
 See \itemref{STUB-ALLOCATION-FUNCTIONS}.
-
-\subsubsection{Unprotected Stub Functions}
-\label{UNPROTECTED-STUB-FUNCTIONS}
-
-There are unprotected functions to allocate and free stubs, 
-read and write stub values, and read, write, and modify
-stub controls.
 
 
 \subsubsubsection{Stub Allocation Functions}
