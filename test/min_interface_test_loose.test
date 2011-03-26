@@ -552,7 +552,7 @@ min_interface_test.cc:XXXX assert:
 
 Test General Value Locators:
 min_interface_test.cc:XXXX assert:
-    find_ptr_locator ( & min::error_message ) true.
+    find_ptr_locator ( & (const min::stub * &) min::error_message ) true.
 min_interface_test.cc:XXXX assert:
     find_gen_locator ( & (min::gen &) staticg1[0] ) true.
 min_interface_test.cc:XXXX assert:

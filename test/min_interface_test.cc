@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 24 01:58:50 EDT 2011
+// Date:	Sat Mar 26 10:56:59 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1375,7 +1375,9 @@ void test_acc_interface ( void )
     static min::locatable_num_gen staticg2[2];
 
     MIN_ASSERT
-	( find_ptr_locator ( & min::error_message ) );
+	( find_ptr_locator
+	      ( & (const min::stub * &)
+	          min::error_message ) );
     MIN_ASSERT
 	( find_gen_locator
 	      ( & (min::gen &) staticg1[0] ) );
