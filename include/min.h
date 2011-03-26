@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 24 12:37:17 EDT 2011
+// Date:	Sat Mar 26 04:46:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1838,7 +1838,7 @@ namespace min {
 
 	template < typename T>
 	min::ref<T> new_ref
-	    ( const min::stub * s, const T & location );
+	    ( const min::stub * s, T const & location );
     }
 
     namespace internal {
@@ -1942,7 +1942,7 @@ namespace min {
     private:
 
 	friend min::ref<T> unprotected::new_ref<T>
-	    ( const min::stub * s, const T & location );
+	    ( const min::stub * s, T const & location );
 
 	friend min::ref<T> operator *<>
 	    ( min::ptr<T> p );
@@ -2004,9 +2004,60 @@ namespace min {
 	    {}
     };
 
+    template <>
+    class ref<const min::stub *>
+	: public internal::ref_base<const min::stub *>
+    {
+
+    public:
+
+	// We must prevent the default operator =.
+	//
+	const min::stub * operator =
+	    ( const ref<const min::stub *> & r ) const
+	{
+	    const min::stub * value = * r.location();
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return value;
+	}
+
+	const min::stub * operator =
+		( const min::stub * value ) const
+	{
+	    * this->location() = value;
+	    if ( this->s != ZERO_STUB )
+		unprotected::acc_write_update
+		    ( this->s, value );
+	    return value;
+	}
+
+	const min::stub * operator =
+	    ( const min::locatable_var
+	                <const min::stub *> & var )
+	    const;
+
+    private:
+
+	friend min::ref<const min::stub *>
+	       unprotected::new_ref<const min::stub *>
+	    ( const min::stub * s,
+	      const min::stub * const & location );
+
+	friend min::ref<const min::stub *> operator *<>
+	    ( min::ptr<const min::stub *> p );
+
+        ref ( const min::stub * s, min::unsptr offset )
+	    : internal::ref_base<const min::stub *>
+	          ( s, offset )
+	    {}
+    };
+
     template < typename T >
     inline min::ref<T> unprotected::new_ref
-        ( const min::stub * s, const T & location )
+        ( const min::stub * s, T const & location )
     {
         return min::ref<T>
 	    ( s, (uns8 *) & location
@@ -2111,6 +2162,62 @@ namespace min {
 	}
     };
 
+    template <>
+    class locatable_var<const min::stub *>
+	: protected internal::locatable_var_base
+    {
+    public:
+        internal::locatable_var * previous;
+	    // Made public so we can check offset.
+
+    private:
+
+        locatable_var
+	        ( const locatable_var<const min::stub *>
+		        & var )
+	{}
+
+    public:
+
+        locatable_var ( void )
+	{
+	    value = NULL;
+	    previous = internal::locatable_var_last;
+	    internal::locatable_var_last =
+	        (internal::locatable_var *) this;
+	}
+        ~ locatable_var ( void )
+	{
+	    internal::locatable_var_last = previous;
+	}
+
+	operator const min::stub * ( void ) const
+	{
+	    return this->value;
+	}
+	const min::stub * operator =
+	    ( const locatable_var<const min::stub *>
+	            & var )
+	{
+	    this->value = var;
+	    return this->value;
+	}
+	const min::stub * operator =
+		( const min::stub * value )
+	{
+	    this->value = value;
+	    return this->value;
+	}
+
+	operator min::ref<const min::stub *>
+		( void ) const
+	{
+	    return unprotected::new_ref
+		    <const min::stub *>
+	        ( ZERO_STUB, this->value );
+	}
+    };
+
     typedef locatable_var<min::gen> locatable_gen;
 
 #   if MIN_IS_LOOSE
@@ -2124,6 +2231,19 @@ namespace min {
 	    const
     {
 	min::gen value = var;
+	* this->location() = value;
+	if ( this->s != ZERO_STUB )
+	    unprotected::acc_write_update
+		( this->s, value );
+	return value;
+    }
+
+    inline const min::stub *
+        min::ref<const min::stub *>::operator =
+	    ( const min::locatable_var
+	          <const min::stub *> & var ) const
+    {
+	const min::stub * value = var;
 	* this->location() = value;
 	if ( this->s != ZERO_STUB )
 	    unprotected::acc_write_update
@@ -2184,7 +2304,7 @@ namespace min { \
 	\
 	friend min::ref< T > unprotected::new_ref< T > \
 	    ( const min::stub * s, \
-	      const T & location ); \
+	      T const & location ); \
 	\
 	friend min::ref<T> operator *<> \
 	    ( min::ptr<T> p ); \
@@ -4128,15 +4248,15 @@ namespace min {
 	    : internal::packed_struct_ptr_base<S>
 		() {}
 
-	const S * operator -> ( void ) const
+	S const * operator -> ( void ) const
 	{
-	    return (const S *)
+	    return (S const *)
 		   unprotected::ptr_of ( this->s );
 	}
 
-	const S & operator * ( void ) const
+	S const & operator * ( void ) const
 	{
-	    return * (const S *)
+	    return * (S const *)
 		   unprotected::ptr_of ( this->s );
 	}
 
@@ -4461,7 +4581,7 @@ namespace min {
 	    // Returns & pvip[pvip->length] even though
 	    // the subscript is not < length.
 	    //
-	    const E * end_ptr ( void ) const
+	    E const * end_ptr ( void ) const
 	    {
 		H * hp = (H *)
 		    unprotected::ptr_of ( this->s );
@@ -4475,7 +4595,7 @@ namespace min {
 
 	    // Returns & pvip[0] even if length == 0.
 	    //
-	    const E * begin_ptr ( void ) const
+	    E const * begin_ptr ( void ) const
 	    {
 		H * hp = (H *)
 		    unprotected::ptr_of ( this->s );
@@ -4557,18 +4677,18 @@ namespace min {
 	    : internal::packed_vec_ptr_base<E,H>
 	    () {}
 
-	const H * operator -> ( void ) const
+	H const * operator -> ( void ) const
 	{
-	    return (const H *)
+	    return (H const *)
 		   unprotected::ptr_of ( this->s );
 	}
 
-	const E & operator [] ( min::uns32 i ) const
+	E const & operator [] ( min::uns32 i ) const
 	{
 	    H * hp = (H *)
 		unprotected::ptr_of ( this->s );
 	    MIN_ASSERT ( i < hp->length );
-	    return * (const E *)
+	    return * (E const *)
 		( (uns8 *) hp
 		  +
 		  internal::packed_vec_ptr_base<E,H>
@@ -4742,6 +4862,69 @@ namespace min {
 	}
     };
 
+    template < typename H >
+    class packed_vec_updptr<const min::stub *,H>
+	: public packed_vec_ptr<const min::stub *,H>
+    {
+
+    public:
+
+	packed_vec_updptr
+	        ( const min::packed_vec_updptr
+			    <const min::stub *,H>
+		      & pvup )
+	{
+	    this->s = pvup.s;
+	}
+	packed_vec_updptr ( min::gen g )
+	    : packed_vec_ptr<const min::stub *,H> ( g ) {}
+	packed_vec_updptr
+		( const min::stub * s )
+	    : packed_vec_ptr<const min::stub *,H> ( s ) {}
+	packed_vec_updptr ( void )
+	    : packed_vec_ptr<const min::stub *,H>() {}
+
+	H * operator -> ( void ) const
+	{
+	    return (H *)
+		   unprotected::ptr_of ( this->s );
+	}
+
+	min::ref<const min::stub *> operator []
+		( min::uns32 i ) const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    MIN_ASSERT ( i < hp->length );
+	    return unprotected::new_ref
+	        ( this->s,
+	          * (const min::stub **)
+		  ( (uns8 *) hp
+		    +
+		    internal
+		    ::packed_vec_ptr_base
+		          <const min::stub *,H>
+		    ::computed_header_size
+		    +
+		    i * sizeof ( const min::stub * ) )
+		);
+	}
+
+	packed_vec_updptr & operator =
+		( const min::stub * s )
+	{
+	    new ( this )
+	        packed_vec_ptr<const min::stub *,H> ( s );
+	    return * this;
+	}
+
+	static min::uns32 DISP ( void )
+	{
+	    return OFFSETOF
+	        ( & packed_vec_updptr::s );
+	}
+    };
+
     template < typename S, typename E, typename H >
     min::uns32 DISP
 	    ( const packed_vec_updptr<E,H> S::* d )
@@ -4867,7 +5050,7 @@ namespace min {
 	const min::stub * new_stub
 		( min::uns32 max_length,
 		  min::uns32 length = 0,
-		  const E * vp = NULL )
+		  E const * vp = NULL )
 	{
 	    return internal::packed_vec_new_stub
 		( this, max_length, length, vp );
@@ -4880,7 +5063,7 @@ namespace min {
 
 	min::gen new_gen ( min::uns32 max_length,
 	                   min::uns32 length = 0,
-			   const E * vp = NULL )
+			   E const * vp = NULL )
 	{
 	    return new_stub_gen
 	        ( internal::packed_vec_new_stub
@@ -4983,7 +5166,7 @@ namespace min {
     template < typename E, typename H >
     inline E & push
 	( typename min::packed_vec_insptr<E,H> pvip,
-	  min::uns32 n, const E * vp = NULL )
+	  min::uns32 n, E const * vp = NULL )
     {
 	if ( n == 0 ) return * (E *) NULL;
 	else if ( pvip->length + n > pvip->max_length )
