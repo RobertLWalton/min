@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 24, 2011}
+\date{March 26, 2011}
  
 \maketitle
 
@@ -3805,7 +3805,7 @@ a packed structure have the usage:
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const S * |
+\verb|S const * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
@@ -3874,8 +3874,8 @@ Both pointer values may be converted to/from
 `{\tt const min::stub~*}' values.
 
 A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is internally
-also a `\verb|const S **|' value that is made to behave externally like a
-also a `\verb|const S *|' value with respect to the \verb|->| and
+also a `\verb|S const **|' value that is made to behave externally like a
+also a `\verb|S const *|' value with respect to the \verb|->| and
 unary \verb|*| operators.  Thus looking ahead at the example below,
 if \verb|upv| is a
 {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
@@ -4064,13 +4064,13 @@ named \verb|pvtype| use
     & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   const E * vp = NULL )|
+	  \verb|   E const * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
 \verb|const min::stub * pvtype|
     & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   const E * vp = NULL )|
+	  \verb|   E const * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4322,7 +4322,7 @@ a packed vector, and these have the usage:
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
           \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|const H * |
+\verb|H const * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
@@ -4331,11 +4331,11 @@ a packed vector, and these have the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|const E & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
-\verb|const E * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|E const * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
-\verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|E const * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4398,10 +4398,10 @@ a packed vector, and these have the usage:
 \verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
-\verb|const E * pvup|
+\verb|E const * pvup|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\verb|E const * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4467,10 +4467,10 @@ a packed vector, and these have the usage:
 \verb|min::ref<E> pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_INSPTR_[]} \\
-\verb|const E * pvip|
+\verb|E const * pvip|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_BEGIN_PTR} \\
-\verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
+\verb|E const * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4481,7 +4481,7 @@ a packed vector, and these have the usage:
 \verb|E & min::|
 	& \MINKEY{push}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, const E * vp = NULL )|
+	  \verb|   min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4510,7 +4510,7 @@ a packed vector, and these have the usage:
 
 As for packed structures, packed vector pointers used as the left
 operand of \verb|->| are converted to
-`\verb|const H *|' or
+`\verb|H const *|' or
 `\verb|H *|'.  This can be used to access the `\verb|length|'
 and \verb|max_length| members of the header.
 
@@ -11188,7 +11188,7 @@ In loose implementation: \\
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
           \verb| ( const min::packed_struct_ptr<S> & psp )|
 \LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|const S * |
+\verb|S const * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_ptr<S> & psp )|
@@ -11302,13 +11302,13 @@ In loose implementation: \\
     & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   const E * vp = NULL )|
+	  \verb|   E const * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
 \verb|const min::stub * pvtype|
     & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
 	  \verb| ( min::uns32 max_length,|\ARGBREAK
 	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   const E * vp = NULL )|
+	  \verb|   E const * vp = NULL )|
 \LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
 \end{TABULAR}
 
@@ -11390,7 +11390,7 @@ In loose implementation: \\
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
           \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
 \LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|const H * |
+\verb|H const * |
 	& \TTOMKEY{-\GT}{-\GT}%
 	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
 	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
@@ -11400,11 +11400,11 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|const E & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
-\verb|const E * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|E const * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
-\verb|const E * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|E const * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{TABULAR}
 
@@ -11465,10 +11465,10 @@ In loose implementation: \\
 \verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
-\verb|const E * pvup|
+\verb|E const * pvup|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|const E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\verb|E const * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{TABULAR}
 
@@ -11532,10 +11532,10 @@ In loose implementation: \\
 \verb|min::ref<E> pvip| & \TTBMKEY{i}{of {\tt min::packed\_vec\_insptr}}
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_INSPTR_[]} \\
-\verb|const E * pvip|
+\verb|E const * pvip|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_BEGIN_PTR} \\
-\verb|const E * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
+\verb|E const * pvip| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_insptr}}
 \LABEL{MIN::PACKED_VEC_INSPTR_END_PTR} \\
 \end{TABULAR}
 
@@ -11547,7 +11547,7 @@ In loose implementation: \\
 \verb|E & min::|
 	& \MINKEY{push}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, const E * vp = NULL )|
+	  \verb|   min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \end{TABULAR}
 
