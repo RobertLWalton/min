@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 26 04:46:03 EDT 2011
+// Date:	Sat Mar 26 10:57:13 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2160,6 +2160,12 @@ namespace min {
 	    return unprotected::new_ref<min::gen>
 	        ( ZERO_STUB, this->value );
 	}
+
+	min::ptr<min::gen> operator & ( void )
+	{
+	    return & unprotected::new_ref<min::gen>
+	        ( ZERO_STUB, this->value );
+	}
     };
 
     template <>
@@ -2213,6 +2219,14 @@ namespace min {
 		( void ) const
 	{
 	    return unprotected::new_ref
+		    <const min::stub *>
+	        ( ZERO_STUB, this->value );
+	}
+
+	min::ptr<const min::stub *> operator &
+		( void )
+	{
+	    return & unprotected::new_ref
 		    <const min::stub *>
 	        ( ZERO_STUB, this->value );
 	}
@@ -2367,6 +2381,12 @@ namespace min { \
 	operator min::ref< T > ( void ) const \
 	{ \
 	    return unprotected::new_ref< T > \
+	        ( ZERO_STUB, * (T *) this ); \
+	} \
+	\
+	min::ptr< T > operator & ( void ) \
+	{ \
+	    return & unprotected::new_ref< T > \
 	        ( ZERO_STUB, * (T *) this ); \
 	} \
     }; \
