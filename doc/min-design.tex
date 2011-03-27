@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 26, 2011}
+\date{March 27, 2011}
  
 \maketitle
 
@@ -2004,7 +2004,8 @@ by storing them in {\tt min::\EOL locatable\_\EOL var\TARG} type
 variables, as described in the first subsection of this section.
 
 When you write a value of locatable type {\tt T} into a stub or associated
-body, you need to call an acc function to update garbage
+body, you need to call the {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+function (\itemref{ACC-WRITE-UPDATE-FUNCTIONS}) to update garbage
 collection flags associated with stubs.
 This is done automatically if a {\tt min::\EOL ref\TARG} reference value is
 used to write the value.  Such reference values are created
@@ -2293,20 +2294,25 @@ is the structure {\tt S} defined and used in the following:
 \begin{indpar}\begin{verbatim}
 struct S;
 struct S_ptr
+    // Pointer to a datum of type S.
 {
     const min::stub * s;
     S * operator -> ( void )
     {
-        return (S *) MUP::pointer_of ( s );
+        return (S *) MUP::ptr_of ( s );
+            // Return pointer to body.
     }
     operator const min::stub * ( void )
     {
         return s;
+            // Return pointer to stub.
     }
 };
 
 struct S
 {
+    // Examples of different member types:
+    //
     int x;
     min::gen g;
     S_ptr p;
@@ -2314,6 +2320,8 @@ struct S
 
 void foo ( S_ptr q )
 {
+    // Examples of usage of members:
+    //
     int x2 = q->x.
     q->x = ...;
     min::gen g2 = q->g;
@@ -2326,8 +2334,9 @@ void foo ( S_ptr q )
 \end{verbatim}\end{indpar}
 
 Because {\tt min::gen} and {\tt S\_ptr} are locatable types,
-{\tt MUP::\EOL acc\_\EOL write\_\EOL update} must be called when
-members of these types are written.  There is
+{\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+(\itemref{ACC-WRITE-UPDATE-FUNCTIONS}) must be called when
+members of these types are written into a stub or associated body.  There is
 a danger of unintentional omission of these calls.
 
 An alternative is to replace some of the above code by the following:
@@ -2336,8 +2345,8 @@ An alternative is to replace some of the above code by the following:
 struct S
 {
     int x;
-    const min::gen g;
-    const S_ptr p;
+    const min::gen g;    // Added `const'.
+    const S_ptr p;       // Added `const'.
 };
 
 inline min::ref<min::gen> g_ref ( S_ptr q )
@@ -2355,16 +2364,18 @@ void foo ( S_ptr q )
     int x2 = q->x.
     x = ...;
     min::gen g2 = q->g;
-    g_ref(q)= ...;
+    g_ref(q)= ...;       // q->g replaced by g_ref(q).
     S_ptr p2 = q->p;
-    p_ref(q) = ...;
+    p_ref(q) = ...;      // q->p replaced by p_ref(q).
 }
 \end{verbatim}\end{indpar}
 
 Here the calls to {\tt MUP::acc\_write\_update} are inside the
-{\tt \ldots\_ref(q) =} calls.  Accidentally writing {\tt q->g}
-and {\tt q->p} is prevented by making the {\tt g} and {\tt p}
-members `{\tt const}'.
+{\tt \ldots\_ref(q) =} calls.  Writing {\tt q->g = \ldots}
+and {\tt q->p = \ldots} is prevented by making the {\tt g} and {\tt p}
+members `{\tt const}', so accidently updating locatable members
+without calling {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+is prevented.
 
 To make the above easier to code, the {\tt MIN\_REF} macro
 is provided which expands as follows:
@@ -2393,17 +2404,24 @@ packed vectors (\itemref{PACKED-VECTORS}).
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
 
-TBD
+If you are implementing a new type of stub and maybe bodies
+associated with that stub type, or a new class of pointers to stubs,
+then you need to use the unprotected
+interfaces described in this section.
 
-You need to be able update stubs when locatable values are written
-into the stubs or associated bodies.
-You need to be able to allocate stubs, read and write stub values,
-and read and write stub types.  If you are allocating non-acc
-stubs (i.e., stubs that are not garbage collected), then you
-also need to be able to read and write the entire stub control
-and to free the stubs.
-If your stubs have bodies, you need to be able to allocate,
-relocate, and deallocate the bodies.
+As described in the first subsection, you need to be able update stubs
+using the {\tt MUP::\EOL acc\_\EOL write\_\EOL update} functions
+when locatable values are written into stubs or associated bodies.
+You need to be able to allocate and free stubs, as described in the
+second subsection.  You need to be able to read and write stub values,
+as described in the third subsection.  If you are using acc stubs you
+need to be able to write the type field in stub controls, and if
+you are using auxiliary stubs, you need to be able to read, write,
+and manipulate entire stub controls.
+This is described in the fourth subsection.
+And lastly, if your stubs have bodies, you need to be able to allocate,
+relocate, and deallocate the bodies, as described in the fifth
+subsection.
 
 \subsubsubsection{ACC Write Update Functions}
 \label{ACC-WRITE-UPDATE-FUNCTIONS}
@@ -2499,7 +2517,7 @@ is \underline{not} freed by the garbage collector.  It may be
 freed only by calling:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void MUP::| & \MUPKEY{new\_aux\_stub}\verb| ( min::stub * s )|
+\verb|void MUP::| & \MUPKEY{free\_aux\_stub}\verb| ( min::stub * s )|
 \LABEL{MUP::FREE_AUX_STUB} \\
 \end{tabular}\end{indpar}
 
@@ -2550,7 +2568,12 @@ read by \verb|MUP::float_of| with undefined results.
 \subsubsubsection{Stub Control Functions}
 \label{STUB-CONTROL-FUNCTIONS}
 
-The following functions read or write the stub control part of a stub:
+If you are using auxiliary stubs, you need to be able to read, write,
+and manipulate the stub control part of the stub.  If you are using
+acc stubs, you only need to write the type part of the control.
+
+The following
+read or write the stub control:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns64 MUP::| & \MUPKEY{control\_of}\verb| ( const min::stub * s )|
@@ -2765,7 +2788,7 @@ manipulated by the following functions:
 Here the 8-bit type code is represented as an {\tt int} in
 the range from $-128$ through $127$.
 
-\subsubsection{Unprotected Body Functions}
+\subsubsubsection{Unprotected Body Functions}
 \label{UNPROTECTED-BODY-FUNCTIONS}
 
 The following functions allocate and deallocate bodies:
