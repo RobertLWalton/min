@@ -2287,6 +2287,109 @@ returning these values from a called function to its caller.
 \subsubsection{Locatable Value References}
 \label{LOCATABLE-VALUE-REFERENCES}
 
+Suppose we have some kind of stub/body data type whose body
+is the structure {\tt S} defined and used in the following:
+
+\begin{indpar}\begin{verbatim}
+struct S;
+struct S_ptr
+{
+    const min::stub * s;
+    S * operator -> ( void )
+    {
+        return (S *) MUP::pointer_of ( s );
+    }
+    operator const min::stub * ( void )
+    {
+        return s;
+    }
+};
+
+struct S
+{
+    int x;
+    min::gen g;
+    S_ptr p;
+};
+
+void foo ( S_ptr q )
+{
+    int x2 = q->x.
+    q->x = ...;
+    min::gen g2 = q->g;
+    q->g = ...;
+    MUP::acc_write_update ( q, q->g );
+    S_ptr p2 = q->p;
+    q->p = ...;
+    MUP::acc_write_update ( q, q->p );
+}
+\end{verbatim}\end{indpar}
+
+Because {\tt min::gen} and {\tt S\_ptr} are locatable types,
+{\tt MUP::\EOL acc\_\EOL write\_\EOL update} must be called when
+members of these types are written.  There is
+a danger of unintentional omission of these calls.
+
+An alternative is to replace some of the above code by the following:
+
+\begin{indpar}\begin{verbatim}
+struct S
+{
+    int x;
+    const min::gen g;
+    const S_ptr p;
+};
+
+inline min::ref<min::gen> g_ref ( S_ptr q )
+{
+    return MUP::new_ref ( q, q->g );
+}
+
+inline min::ref<S_ptr> p_ref ( S_ptr q )
+{
+    return MUP::new_ref ( q, q->p );
+}
+
+void foo ( S_ptr q )
+{
+    int x2 = q->x.
+    x = ...;
+    min::gen g2 = q->g;
+    g_ref(q)= ...;
+    S_ptr p2 = q->p;
+    p_ref(q) = ...;
+}
+\end{verbatim}\end{indpar}
+
+Here the calls to {\tt MUP::acc\_write\_update} are inside the
+{\tt \ldots\_ref(q) =} calls.  Accidentally writing {\tt q->g}
+and {\tt q->p} is prevented by making the {\tt g} and {\tt p}
+members `{\tt const}'.
+
+To make the above easier to code, the {\tt MIN\_REF} macro
+is provided which expands as follows:
+
+\begin{indpar}
+\TTNBKEY{MIN\_REF}\verb| ( type, name, ctype )| \\[1ex]
+expands to \\[1ex]
+\verb|inline min::ref<type> name_ref ( ctype container )| \\
+\verb|{| \\
+\verb|    return MUP::new_ref ( container, container->name );| \\
+\verb|}|
+\end{indpar}
+
+This enables the {\tt inline} function definitions above to be
+replaced by
+
+\begin{indpar}\begin{verbatim}
+MIN_REF ( min::gen, g, S_ptr )
+MIN_REF ( S_ptr, p, S_ptr )
+\end{verbatim}\end{indpar}
+
+This methodology and the {\tt MIN\_\EOL REF} macro are frequently
+used with packed structures (\itemref{PACKED-STRUCTURES}) and
+packed vectors (\itemref{PACKED-VECTORS}).
+
 \subsubsection{Unprotected Stub Functions}
 \label{UNPROTECTED-STUB-FUNCTIONS}
 
