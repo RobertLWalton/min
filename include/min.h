@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Mar 26 10:57:13 EDT 2011
+// Date:	Tue Mar 29 10:23:36 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2362,7 +2362,8 @@ namespace min { \
 	    internal::locatable_var_last = previous; \
 	} \
         \
-	T operator = ( const locatable_var< T > & var ) \
+	T operator = \
+	        ( const locatable_var< T > & var ) \
 	{ \
 	    new ( this ) T ( var ); \
 	    return * this; \
@@ -4598,33 +4599,6 @@ namespace min {
 		return this->s;
 	    }
 
-	    // Returns & pvip[pvip->length] even though
-	    // the subscript is not < length.
-	    //
-	    E const * end_ptr ( void ) const
-	    {
-		H * hp = (H *)
-		    unprotected::ptr_of ( this->s );
-		return (E *)
-		    ( (uns8 *) hp
-		      +
-		      computed_header_size
-		      +
-		      hp->length * sizeof ( E ) );
-	    }
-
-	    // Returns & pvip[0] even if length == 0.
-	    //
-	    E const * begin_ptr ( void ) const
-	    {
-		H * hp = (H *)
-		    unprotected::ptr_of ( this->s );
-		return (E *)
-		    ( (uns8 *) hp
-		      +
-		      computed_header_size );
-	    }
-
 	protected:
 	        
 	    const min::stub * s;
@@ -4717,6 +4691,30 @@ namespace min {
 		  i * sizeof ( E ) );
 	}
 
+	E const * end_ptr ( void ) const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    return (E const *)
+		( (uns8 *) hp
+		  +
+		  internal::packed_vec_ptr_base<E,H>
+		  ::computed_header_size
+		  +
+		  hp->length * sizeof ( E ) );
+	}
+
+	E const * begin_ptr ( void ) const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    return (E const *)
+		( (uns8 *) hp
+		  +
+		  internal::packed_vec_ptr_base<E,H>
+		  ::computed_header_size );
+	}
+
 	packed_vec_ptr & operator =
 		( const min::stub * s )
 	{
@@ -4790,6 +4788,30 @@ namespace min {
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
+	}
+
+	E * end_ptr ( void ) const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    return (E *)
+		( (uns8 *) hp
+		  +
+		  internal::packed_vec_ptr_base<E,H>
+		  ::computed_header_size
+		  +
+		  hp->length * sizeof ( E ) );
+	}
+
+	E * begin_ptr ( void ) const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    return (E *)
+		( (uns8 *) hp
+		  +
+		  internal::packed_vec_ptr_base<E,H>
+		  ::computed_header_size );
 	}
 
 	packed_vec_updptr & operator =
@@ -4897,10 +4919,12 @@ namespace min {
 	    this->s = pvup.s;
 	}
 	packed_vec_updptr ( min::gen g )
-	    : packed_vec_ptr<const min::stub *,H> ( g ) {}
+	    : packed_vec_ptr<const min::stub *,H> ( g )
+	    {}
 	packed_vec_updptr
 		( const min::stub * s )
-	    : packed_vec_ptr<const min::stub *,H> ( s ) {}
+	    : packed_vec_ptr<const min::stub *,H> ( s )
+	    {}
 	packed_vec_updptr ( void )
 	    : packed_vec_ptr<const min::stub *,H>() {}
 
@@ -4934,7 +4958,8 @@ namespace min {
 		( const min::stub * s )
 	{
 	    new ( this )
-	        packed_vec_ptr<const min::stub *,H> ( s );
+	        packed_vec_ptr<const min::stub *,H>
+		    ( s );
 	    return * this;
 	}
 
