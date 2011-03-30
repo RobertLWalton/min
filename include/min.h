@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 29 10:23:36 EDT 2011
+// Date:	Wed Mar 30 09:04:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1814,6 +1814,17 @@ namespace min { namespace unprotected {
 #	endif
     }
 
+    // Ditto but for a vector of stub pointers.
+    //
+    inline void acc_write_update
+	    ( const min::stub * s1,
+	      const min::stub * const * p,
+	      min::unsptr n )
+    {
+        while ( n -- )
+	    acc_write_update ( s1, * p ++ );
+    }
+
 } }
 
 namespace min {
@@ -2459,6 +2470,40 @@ namespace min { \
 	        ( & packed_vec_updptr::s ); \
 	} \
     }; \
+    template < TARGS, typename MIN_HEADER > \
+    inline min::ref< T > push \
+	( typename \
+	  min::packed_vec_insptr< T ,MIN_HEADER> \
+	  pvip ) \
+    { \
+	if ( pvip->length >= pvip->max_length ) \
+	    pvip.reserve ( 1 ); \
+	T * p = pvip.end_ptr(); \
+	memset ( p, 0, sizeof ( T ) ); \
+	++ * (uns32 *) & pvip->length; \
+	return unprotected::new_ref ( pvip, * p ); \
+    } \
+    template < TARGS, typename MIN_HEADER > \
+    inline void push \
+	( typename \
+	  min::packed_vec_insptr< T ,MIN_HEADER> pvip, \
+	  min::uns32 n, T const * vp = NULL ) \
+    { \
+	if ( n == 0 ) return; \
+	if ( pvip->length + n > pvip->max_length ) \
+	    pvip.reserve ( n ); \
+	const min::stub ** p = \
+	    (const min::stub **) pvip.end_ptr(); \
+	if ( vp ) \
+	{ \
+	    memcpy ( p, vp, n * sizeof ( T ) ); \
+	    unprotected::acc_write_update \
+		( pvip, p, n ); \
+	} \
+	else \
+	    memset ( p, 0, n * sizeof ( T ) ); \
+	* (uns32 *) & pvip->length += n; \
+    } \
 }
 
 namespace min { namespace internal {
@@ -5037,21 +5082,6 @@ namespace min {
     }
 }
 
-MIN_STUB_PTR_CLASS ( typename S,
-		     min::packed_struct_ptr<S> )
-MIN_STUB_PTR_CLASS ( typename S,
-		     min::packed_struct_updptr<S> )
-
-MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
-		     min::packed_vec_ptr
-			 < E MIN_COMMA H > )
-MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
-		     min::packed_vec_updptr
-			 < E MIN_COMMA H > )
-MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
-		     min::packed_vec_insptr
-			 < E MIN_COMMA H > )
-
 namespace min {
 
     template < typename E,
@@ -5203,26 +5233,94 @@ namespace min {
     {
 	if ( pvip->length >= pvip->max_length )
 	    pvip.reserve ( 1 );
-	E * p = (E *) pvip.end_ptr();
+	E * p = pvip.end_ptr();
 	memset ( p, 0, sizeof ( E ) );
 	++ * (uns32 *) & pvip->length;
 	return * p;
     }
+    template < typename H >
+    inline min::ref<min::gen> push
+	( typename min::packed_vec_insptr<min::gen,H>
+	           pvip )
+    {
+	if ( pvip->length >= pvip->max_length )
+	    pvip.reserve ( 1 );
+	min::gen * p = pvip.end_ptr();
+	new ( p ) min::gen();
+	++ * (uns32 *) & pvip->length;
+	return unprotected::new_ref ( pvip, * p );
+    }
+    template < typename H >
+    inline min::ref<const min::stub *> push
+	( typename min::packed_vec_insptr
+			   <const min::stub *,H>
+	           pvip )
+    {
+	if ( pvip->length >= pvip->max_length )
+	    pvip.reserve ( 1 );
+	const min::stub ** p = pvip.end_ptr();
+	* p = NULL_STUB;
+	++ * (uns32 *) & pvip->length;
+	return unprotected::new_ref ( pvip, * p );
+    }
     template < typename E, typename H >
-    inline E & push
+    inline void push
 	( typename min::packed_vec_insptr<E,H> pvip,
 	  min::uns32 n, E const * vp = NULL )
     {
-	if ( n == 0 ) return * (E *) NULL;
-	else if ( pvip->length + n > pvip->max_length )
+	if ( n == 0 ) return;
+	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
-	E * p = (E *) pvip.end_ptr();
+	E * p = pvip.end_ptr();
 	if ( vp )
 	    memcpy ( p, vp, n * sizeof ( E ) );
 	else
 	    memset ( p, 0, n * sizeof ( E ) );
 	* (uns32 *) & pvip->length += n;
-	return * p;
+    }
+    template < typename H >
+    inline void push
+	( typename min::packed_vec_insptr<min::gen,H>
+	           pvip,
+	  min::uns32 n, min::gen const * vp = NULL )
+    {
+	if ( n == 0 ) return;
+	if ( pvip->length + n > pvip->max_length )
+	    pvip.reserve ( n );
+	min::gen * p = pvip.end_ptr();
+	if ( vp )
+	{
+	    memcpy ( p, vp, n * sizeof ( min::gen ) );
+	    unprotected::acc_write_update
+		( pvip, p, n );
+	}
+	else
+	    memset ( p, 0, n * sizeof ( min::gen ) );
+	* (uns32 *) & pvip->length += n;
+    }
+    template < typename H >
+    inline void push
+	( typename min::packed_vec_insptr
+			   <const min::stub *,H>
+	           pvip,
+	  min::uns32 n,
+	  const min::stub * const * vp = NULL )
+    {
+	if ( n == 0 ) return;
+	if ( pvip->length + n > pvip->max_length )
+	    pvip.reserve ( n );
+	const min::stub ** p = pvip.end_ptr();
+	if ( vp )
+	{
+	    memcpy ( p, vp,
+	             n * sizeof ( const min::stub * ) );
+	    unprotected::acc_write_update
+		( pvip, p, n );
+	}
+	else
+	    memset ( p, 0,
+	             n * sizeof ( const min::stub * ) );
+	* (uns32 *) & pvip->length += n;
     }
     template < typename E, typename H >
     inline E pop
@@ -5348,6 +5446,21 @@ void min::packed_vec_insptr<E,H>::reserve
     internal::packed_vec_resize
 	( this->s, pvdescriptor, new_length );
 }
+
+MIN_STUB_PTR_CLASS ( typename S,
+		     min::packed_struct_ptr<S> )
+MIN_STUB_PTR_CLASS ( typename S,
+		     min::packed_struct_updptr<S> )
+
+MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
+		     min::packed_vec_ptr
+			 < E MIN_COMMA H > )
+MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
+		     min::packed_vec_updptr
+			 < E MIN_COMMA H > )
+MIN_STUB_PTR_CLASS ( typename E MIN_COMMA typename H,
+		     min::packed_vec_insptr
+			 < E MIN_COMMA H > )
 
 // Files
 // -----
