@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 30 09:04:47 EDT 2011
+// Date:	Wed Mar 30 09:56:09 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2479,7 +2479,7 @@ namespace min { \
 	if ( pvip->length >= pvip->max_length ) \
 	    pvip.reserve ( 1 ); \
 	T * p = pvip.end_ptr(); \
-	memset ( p, 0, sizeof ( T ) ); \
+	* (const min::stub **) p = NULL; \
 	++ * (uns32 *) & pvip->length; \
 	return unprotected::new_ref ( pvip, * p ); \
     } \

@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 29, 2011}
+\date{March 30, 2011}
  
 \maketitle
 
@@ -4742,11 +4742,15 @@ pointer type is:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|E & min::|
-	& \MINKEY{push}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip )|
+	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_PUSH} \\
-\verb|E & min::|
-	& \MINKEY{push}\ARGBREAK
+\verb|min::ref<E> min::|
+	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+          \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
+\verb|void min::|
+	& \MINKEY{push\REL}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
@@ -4764,60 +4768,60 @@ pointer type is:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
-	& \MINKEY{resize}\ARGBREAK
+	& \MINKEY{resize\REL}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 max_length )|
 \LABEL{MIN::PACKED_VEC_RESIZE} \\
 \verb|void min::|
-	& \MINKEY{reserve}\ARGBREAK
+	& \MINKEY{reserve\REL}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 reserve_length )|
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
 \end{tabular}\end{indpar}
-
-TBD: min::ref reference returns
 
 Insertable packed vector pointers permit the current length and maximum
 length of the vector to be changed.
 The current vector length is \verb|pvip->length| and the maximum
 length is \verb|pvip->max_length| (see description of \verb|H| on
 \pagref{PACKED_VEC_HEADER_TYPE}).
-The current length can be changed by {\tt min::\EOL push} and
+The current length can be changed by {\tt min::\EOL push\REL} and
 {\tt min::\EOL pop} functions and the maximum length can be changed
-by {\tt min::\EOL resize} and {\tt min::\EOL reserve} functions.  If
-{\tt min::\EOL push} needs more space it automatically calls
-{\tt min::reserve}.
+by {\tt min::\EOL resize\REL} and {\tt min::\EOL reserve\REL} functions.  If
+{\tt min::\EOL push\REL} needs more space it automatically calls
+{\tt min::reserve\REL}.
 
 The \verb|min::push| function adds elements
 to the end of the packed vector
 by incrementing the current vector length, and if this would
 exceed the maximum length, first calls the \verb|min::reserve| function
 with the number of elements to be pushed.
-The single argument {\tt min::\EOL push} adds one element to the vector,
+
+The single argument {\tt min::\EOL push\REL} adds one element to the vector,
 zeros that element, and returns a reference to the element.  The
 intended use is
 \begin{indpar}\begin{verbatim}
 push(pvip) = v;
 \end{verbatim}\end{indpar}
-where \verb|v| is the element to be added to the vector.
-The two or three argument {\tt min::\EOL push} adds {\tt n}
+where \verb|v| is the value of the element to be added to the vector.
+If the element type {\tt E} is locatable, {\tt min::\EOL push\REL}
+returns a {\tt min::\EOL ref\TARG}
+reference.  Otherwise, if {\tt E} is not locatable, an
+`{\tt E \&}' reference is returned.
+
+Note that {\tt \& min::push(pvip)}
+is an \underline{unprotected} body pointer if {\tt E} is not
+locatable.
+
+The two or three argument {\tt min::\EOL push\REL} adds {\tt n}
 elements to the vector, and fills the new elements from {\tt vp}
 if that is not {\tt NULL}, or with zeros otherwise.
 If \verb|vp| is not \verb|NULL|,
 new elements are placed within the packed vector in the same
 memory order as they appear in the \verb|vp| vector.
-In any case a reference to the first element pushed is
-returned (this is \verb|(E *) NULL| if \verb|n == 0|),
-so
-\begin{indpar}\begin{verbatim}
-E * p = & push(pvip,n);
-\end{verbatim}\end{indpar}
-can be used to obtain a pointer \verb|p| to the \verb|n| element
-vector of new elements within the packed vector.  This pointer
-becomes invalid, of course, when a relocating function is called.
-Note that the index of the first element pushed is always the
-value of \verb|pvip->|\EOL {\tt length} just before
-{\tt min::\EOL push} is called.
+In this case
+{\tt min::\EOL acc\_\EOL write\_\EOL update} 
+(\itemref{ACC-WRITE-UPDATE-FUNCTIONS})
+is called if {\tt E} is locatable.
 
 The \verb|min::pop| function removes elements from the end of the
 packed vector, decrementing the current vector length (which is checked
@@ -4863,8 +4867,13 @@ struct pvh {
 };
 
 struct pve {
+    // Note: pve is not a locatable type but contains
+    // locatable type elements which means that
+    // MUP::acc_write_update must be called explicitely
+    // when pve elements are written into a packed vector.
+
     min::gen g;
-    min::stub * s;
+    const min::stub * s;
     min::uns8 j;
 };
 
@@ -4885,31 +4894,54 @@ main ( ... )
         // pvip->length == 0
         // min::packed_subtype_of ( pvip ) == pvtype.subtype
     pve e1 = { min::MISSING, NULL, 88 };
-    min::push ( pvip, e1 );
+    min::push(pvip) = e1;
+       // Need not call MUP::acc_write_update as neither
+       // e1.g or e1.s point at a stub.
     pvptr pvp ( v );
-        // pvip->length == 1
-        // pvp[1].j == 11
+        // pvp->length == 1
+        // pvp[0].j == 88
 
     pve e2[3] = { { min::MISSING, NULL, 11 },
                   { min::MISSING, NULL, 22 },
                   { min::MISSING, NULL, 33 } };
     min::push ( pvip, 3, e2 );
+        // Again no need to call MUP::acc_write_update because
+        // e2 does not point at stubs.
+        //
         // pvp[1].j == 11
         // pvp[2].j == 22
         // pvp[3].j == 33
 
+    min::locatable_gen name1, name2;
+    name1 = min::new_str_gen ( "my-name-1" );
+    name2 = min::new_str_gen ( "my-name-2" );
+
+    pve e3 = { name1, min::stub_of ( name2 ), 44 };
+    min::push(pvip) = e3;
+    MUP::acc_write_update ( pvip, e3.g ); 
+    MUP::acc_write_update ( pvip, e3.s ); 
+
     min::resize ( pvip, 10 );
         // pvp->max_length == 10
 
-    pve e3, e4[3];
-    e3 = min::pop ( pvip );
-        // e3[0].j == 33
-        // pvp->length == 3
-    min::pop ( pvip, 2, e4 );
-        // e4[0].j == 11
-        // e4[1].j == 22
-    e3 = min::pop ( pvip );
-        // 3e.j == 88
+    pve e4;
+    locatable_gen g2;
+    locatable_var<const min::stub *> s2;
+    e4 = min::pop ( pvip );
+        // e4[0].j == 44
+        // pvp->length == 4
+    g2 = e4.g;
+    s2 = e4.s;
+        // We must make e4.g and e4.s locatable before
+        // we call any more relocating functions.
+
+    pve e5[3];
+    min::pop ( pvip, 2, e5 );
+        // e5[0].j == 22
+        // e5[1].j == 33
+    e4 = min::pop ( pvip );
+        // 3e.j == 11
+        // pvp->length == 1
 }
 \end{verbatim}\end{indpar}
 
@@ -8100,7 +8132,7 @@ in error.
 
 The {\tt min::insert\_reserve\REL} function may resize the body of
 the object in which space is being reserved
-(using {\tt min::\EOL resize},
+(using {\tt min::\EOL resize\REL},
 \pagref{MIN::RESIZE_UNUSED_OF_VEC_INSPTR}).
 It returns \verb|true| if it
 resizes the object's body, and \verb|false| if it does not.
@@ -11634,6 +11666,8 @@ In loose implementation: \\
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
@@ -11691,6 +11725,8 @@ In loose implementation: \\
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{1.4in}
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
@@ -11733,11 +11769,15 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.6in}
 \verb|E & min::|
-	& \MINKEY{push}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip )|
+	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_PUSH} \\
-\verb|E & min::|
-	& \MINKEY{push}\ARGBREAK
+\verb|min::ref<E> min::|
+	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+          \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
+\verb|void min::|
+	& \MINKEY{push\REL}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
@@ -11757,12 +11797,12 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.6in}
 \verb|void min::|
-	& \MINKEY{resize}\ARGBREAK
+	& \MINKEY{resize\REL}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 max_length )|
 \LABEL{MIN::PACKED_VEC_RESIZE} \\
 \verb|void min::|
-	& \MINKEY{reserve}\ARGBREAK
+	& \MINKEY{reserve\REL}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 reserve_length )|
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
