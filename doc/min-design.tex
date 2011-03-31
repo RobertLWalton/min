@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 30, 2011}
+\date{March 31, 2011}
  
 \maketitle
 
@@ -247,7 +247,7 @@ inherited from C++, and of MIN compatible threads.
 Other programming language specific
 programming systems can be built on top of MIN.
 
-A small number of \skey{abbreviation}s are used throughout this document
+A modest number of \skey{abbreviation}s are used throughout this document
 and the corresponding code:
 
 \begin{center}
@@ -465,6 +465,7 @@ the size of each number is clear:
 \LABEL{MIN::FLOAT64}%
 \LABEL{MIN::UNSPTR}%
 \LABEL{MIN::INTPTR}%
+\LABEL{MIN::UNSGEN}%
 \label{INT}%
 \label{UNS}
 
@@ -881,8 +882,14 @@ The following definitions are provided in {\tt min.h} to facilitate coding:
 
 \begin{indpar}
 \begin{tabular}{r@{}l}
-\verb|min::| & \MINKEY{unsgen}
-\LABEL{MIN::UNSGEN} \\
+\verb|typedef |
+	& \verb|min::uns32|
+	  \verb|min::|\MINKEY{unsgen}\COMPACT
+\LABEL{MIN::COMPACT_UNSGEN} \\
+\verb|typedef |
+	& \verb|min::uns64|
+	  \verb|min::|\MINKEY{unsgen}\LOOSE
+\LABEL{MIN::LOOSE_UNSGEN} \\
 \verb|min::gen MUP::| & \MUPKEY{new\_gen}\verb| ( min::unsgen value )|
 \LABEL{MUP::NEW_GEN} \\
 \verb|min::unsgen MUP::| & \MUPKEY{value\_of}\verb| ( min::gen value )|
@@ -2014,7 +2021,7 @@ by functions described in the second subsection of this section.
 If you are implementing a new type of stub and maybe bodies
 associated with that stub type, or a new class of pointers to stubs,
 then you need to use the unprotected
-interfaces described in the third subsection of this section.
+interfaces described in the third and fourth subsections of this section.
 
 \subsubsection{Locatable Variables}
 \label{LOCATABLE-VARIABLES}
@@ -2422,9 +2429,6 @@ need to be able to write the type field in stub controls, and if
 you are using auxiliary stubs, you need to be able to read, write,
 and manipulate entire stub controls.
 This is described in the fourth subsection.
-And lastly, if your stubs have bodies, you need to be able to allocate,
-relocate, and deallocate the bodies, as described in the fifth
-subsection.
 
 \subsubsubsection{ACC Write Update Functions}
 \label{ACC-WRITE-UPDATE-FUNCTIONS}
@@ -2791,9 +2795,11 @@ manipulated by the following functions:
 Here the 8-bit type code is represented as an {\tt int} in
 the range from $-128$ through $127$.
 
-\subsubsubsection{Unprotected Body Functions}
+\subsubsection{Unprotected Body Functions}
 \label{UNPROTECTED-BODY-FUNCTIONS}
 
+If you are implementing a new know of stub, and your stubs have bodies,
+you need to be able to allocate, relocate, and deallocate the bodies.
 The following functions allocate and deallocate bodies:
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
@@ -3763,7 +3769,9 @@ either the \verb|min::hash| and \verb|min::compare| function.
 \newcommand{\EARGDEFAULT}{\BRACKETED{{E,H = min::packed\_vec\_header}}}
 \newcommand{\EARG}{\BRACKETED{{E,H}}}
 
-A \key{packed structure} is a C `struct' stored in a body.
+A \key{packed structure} is a C `struct' stored in a body associated
+with a stub that has a \minnbkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}
+stub type code.
 
 The C type of a packed structure must be a C \verb|struct|
 initializable by setting all bytes to zero and copiable
@@ -3811,14 +3819,14 @@ named \verb|pstype| use
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT} \\
+\LABEL{MIN::PACKED_STRUCT_TYPE} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
 		\verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
+\LABEL{MIN::PACKED_STRUCT_TYPE_WITH_BASE} \\
 \verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
 \LABEL{MIN::DISP} \\
 \verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
@@ -4190,7 +4198,10 @@ functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 \label{PACKED-VECTORS}
 
 A \key{packed vector} is like a packed structure but with an added vector
-that follows the structure at the beginning of the packed vector body.
+that follows the structure at the beginning of the packed vector body,
+and with a \minnbkey{PACKED\_VEC}\LABEL{MIN::PACKED_VEC}
+stub type code instead of a {\tt min::\EOL PACKED\_\EOL STRUCT} type code.
+
 The structure is called the packed vector \mkey{header}{of packed vector}.
 Both the header and the vector elements must be C type data that can
 be initialized by setting their bytes to all zeros and can be copied
@@ -4266,7 +4277,7 @@ named \verb|pvtype| use
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
-\LABEL{MIN::PACKED_VEC} \\
+\LABEL{MIN::PACKED_VEC_TYPE} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
 		\verb|pvtype|\ARGBREAK
@@ -4276,7 +4287,7 @@ named \verb|pvtype| use
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
-\LABEL{MIN::PACKED_VEC_WITH_BASE} \\
+\LABEL{MIN::PACKED_VEC_TYPE_WITH_BASE} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen pvtype|
@@ -9629,7 +9640,7 @@ These are in \verb|min_parameters.h|.
 
 \end{indpar}
 
-\INDEXHEADER{Types}
+\INDEXHEADER{Numeric Types}
 
 \begin{indpar}[0.2in]
 
@@ -9662,20 +9673,33 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::UNSGEN} \\
 \end{TABULAR}
 
+\end{indpar}
+
+\INDEXHEADER{General Value Types and Constants}
+
+\begin{indpar}[0.2in]
+
 \begin{TABULAR}{2.0in}
 \verb|min::| & \MINKEY{stub}
 \LABEL{MIN::STUB} \\
 \verb|min::| & \MINKEY{gen}
 \LABEL{MIN::GEN} \\
-\verb|min::| & \MINKEY{unsgen}
-\LABEL{MIN::UNSGEN}
 \end{TABULAR}
 
-\end{indpar}
+\bigskip
 
-\INDEXHEADER{General Value Constants}
+\begin{TABULAR}{2.0in}
+\verb|typedef |
+	& \verb|min::uns32|
+	  \verb|min::|\MINKEY{unsgen}\COMPACT
+\LABEL{MIN::COMPACT_UNSGEN} \\
+\verb|typedef |
+	& \verb|min::uns64|
+	  \verb|min::|\MINKEY{unsgen}\LOOSE
+\LABEL{MIN::LOOSE_UNSGEN} \\
+\end{TABULAR}
 
-\begin{indpar}[0.2in]
+\bigskip
 
 \begin{TABULAR}{2.0in}
 \verb|const unsigned min::| & \MINKEY{TSIZE}
@@ -9701,6 +9725,10 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::LONG_STR} \\
 \verb|const int min::| & \MINKEY{LABEL}
 \LABEL{MIN::LABEL} \\
+\verb|const int min::| & \MINKEY{PACKED\_STRUCT}
+\LABEL{MIN::PACKED_STRUCT} \\
+\verb|const int min::| & \MINKEY{PACKED\_VEC}
+\LABEL{MIN::PACKED_VEC} \\
 \verb|const int min::| & \MINKEY{SHORT\_OBJ}
 \LABEL{MIN::SHORT_OBJ} \\
 \verb|const int min::| & \MINKEY{LONG\_OBJ}
@@ -11366,14 +11394,14 @@ In loose implementation: \\
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT} \\
+\LABEL{MIN::PACKED_STRUCT_TYPE} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
 		\verb|pstype|\ARGBREAK
 	  \verb| ( const char * name,|\ARGBREAK
 	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT_WITH_BASE} \\
+\LABEL{MIN::PACKED_STRUCT_TYPE_WITH_BASE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -11536,7 +11564,7 @@ In loose implementation: \\
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
-\LABEL{MIN::PACKED_VEC} \\
+\LABEL{MIN::PACKED_VEC_TYPE} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
 		\verb|pvtype|\ARGBREAK
@@ -11546,7 +11574,7 @@ In loose implementation: \\
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL )|
-\LABEL{MIN::PACKED_VEC_WITH_BASE} \\
+\LABEL{MIN::PACKED_VEC_TYPE_WITH_BASE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
