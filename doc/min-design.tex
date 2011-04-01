@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 31, 2011}
+\date{April 1, 2011}
  
 \maketitle
 
@@ -1564,15 +1564,15 @@ to that pointer in order to get the address of the character.
 It might be thought that this is inefficient as the body pointer
 is re-read from the stub for every different iteration of the `\verb|for|'
 loop.  However, if no out-of-line functions are called in the
-loop, an optimizing compiler will very often be able to eliminate
+loop, an optimizing compiler will typically eliminate
 the excess reads and load the body pointer plus constant offset
 into a register before the loop begins.  The key here is to
 avoid out-of-line function calls, as for each such call the
 optimizer must assume that the body pointer in the stub might
 change.
 
-Specialized protected pointer types are provided for each type of object
-that has a body.
+Specialized protected pointer types are provided for most types of object
+that have bodies.
 
 \subsubsection{Protected Body References and Pointers}
 \label{PROTECTED-BODY-REFERENCES-AND-POINTERS}
@@ -1587,7 +1587,7 @@ The reference types are most frequently used:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::|\MINKEY{ref\TARG}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
     \verb| ( const min::stub * s,|\ARGBREAK
-    \verb|   T & location )|
+    \verb|   T const & location )|
 \LABEL{MUP::NEW_REF} \\
 \end{tabular}\end{indpar}
 
@@ -1621,7 +1621,7 @@ The reference types are most frequently used:
 \LABEL{MIN::REF_->} \\
 \end{tabular}\end{indpar}
 
-A {\tt min::ref\TARG} type is similar to the {\tt T \&} type.
+A {\tt min::ref\TARG} type is similar to the `{\tt T \&}' type.
 Internally a {\tt min::ref\TARG} value {\tt r}
 is a pointer to a location of type {\tt T} that
 consists of a {\tt const min::\EOL stub~*} pointer {\tt r->s} to a stub
@@ -1637,10 +1637,14 @@ value at the {\tt r2} location to the {\tt r} location.
 elsewhere:
 \begin{center}
 \begin{tabular}{ll}
-packed stuctures & see {\tt MIN\_REF} pTBD \\
-packed vector headers & see {\tt MIN\_REF} pTBD \\
-packed vector elements	& see {\tt operator []} pTBD \\
-locatable variables	& see {\tt operator min::ref\TARG} pTBD \\
+packed stuctures & see {\tt MIN\_REF},
+    \pagref{MIN_REF} and \pagref{PACKED_STRUCT_MIN_REF} \\
+packed vector headers & see {\tt MIN\_REF},
+    \pagref{MIN_REF} and \pagref{PACKED_VEC_MIN_REF} \\
+packed vector elements	& see {\tt operator []},
+    \pagref{PACKED_VEC_[]_REF} \\
+locatable variables	& see {\tt operator min::ref\TARG},
+    \pagref{LOCATABLE_VAR_REF} \\
 object vector elements	& see TBD pTBD \\
 TBD
 \end{tabular}
@@ -1649,7 +1653,11 @@ TBD
 The unprotected {\tt MUP::new\_ref} function is used by these
 protected function to construct a {\tt min::\EOL ref\TARG} value
 from a pointer {\tt s} to a stub and a {\tt const} location
-within the body associated with that stub.
+within the body associated with that stub.  The location is
+{\tt const} only to prevent it being written \underline{without}
+using the {\tt min::\EOL ref\TARG} reference value returned by
+{\tt MUP::\EOL new\_\EOL ref}; the reference value \underline{does}
+permit the location to be written by protected code.
 
 A {\tt min::ref\TARG} value is implicitly convertable to the type {\tt T}
 value its internal pointer points at.  As this implicit conversion
@@ -1660,7 +1668,8 @@ argument is defined to invoke the conversion explicitly.
 Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
 differ according to whether or not the type {\tt T} is `locatable'
 ({\tt min::\EOL gen}, {\tt const min::\EOL stub~*}, and
-classes that encapulate {\tt const min::\EOL stub~*} values are
+classes such as {\tt min:\EOL packed\_\EOL\ldots\BRACKETED{\ldots}}
+that encapulate {\tt const min::\EOL stub~*} values are
 locatable types: see \pagref{LOCATABLE-TYPE}).
 If {\tt T} is locatable, storing a value in a {\tt min::\EOL ref\TARG}
 location implicitly calls the
@@ -1672,7 +1681,7 @@ A {\tt min::\EOL ref\TARG} reference value can also designate a location at
 an absolute address not in a body associated with a stub.  This is
 done by using fake stub whose `body pointer' is zero.  Such reference
 values are used to point at locatable variables in static memory or the
-stack (page TBD).
+stack (see {\tt operator min::ref\TARG}, \pagref{LOCATABLE_VAR_REF}).
 
 Associated with the {\tt min::\EOL ref\TARG} reference type is
 the companion {\tt min::\EOL ptr\TARG} pointer type:
@@ -1730,10 +1739,11 @@ and designates the value {\tt v} itself.
 
 A {\tt min::\EOL ptr\TARG} value can be created by applying the
 {\tt \&} operator to a {\tt min::\EOL ref\TARG} value or to a
-locatable variable (\itemref{LOCATABLE-VARIABLES}) (TBD check).
+locatable variable (see {\tt operator \&} for locatable variables,
+\pagref{LOCATABLE_VAR_PTR}).
 A {\tt min::\EOL ref\TARG} value can be recovered from a
-reference value by applying the
-{\tt *} operator to the {\tt min::\EOL ref\TARG} value.
+pointer value by applying the
+{\tt *} operator to the {\tt min::\EOL ptr\TARG} value.
 
 
 \subsubsection{Unprotected Body Pointers}
@@ -2097,6 +2107,7 @@ location equal to another copies the {\tt min::gen} value of the locations,
 and not the location structure itself.
 
 A {\tt min::\EOL locatable\_\EOL gen} locatable variable
+\label{LOCATABLE_VAR_REF}
 is implicitly convertable to a
 reference
 of type {\tt min::\EOL ref<min::gen>}
@@ -2104,6 +2115,7 @@ that references the {\tt min::gen}
 value stored in the locatable variable.
 
 Applying the {\tt \&} operator to a
+\label{LOCATABLE_VAR_PTR}
 {\tt min::\EOL locatable\_\EOL gen} locatable variable
 returns a pointer of type {\tt min::\EOL ptr<min::gen>} that points
 at the locatable variable.
@@ -2388,7 +2400,9 @@ To make the above easier to code, the {\tt MIN\_REF} macro
 is provided which expands as follows:
 
 \begin{indpar}
-\TTNBKEY{MIN\_REF}\verb| ( type, name, ctype )| \\[1ex]
+\TTNBKEY{MIN\_REF}\verb| ( type, name, ctype )|
+\LABEL{MIN_REF}
+\\[1ex]
 expands to \\[1ex]
 \verb|inline min::ref<type> name_ref ( ctype container )| \\
 \verb|{| \\
@@ -4131,7 +4145,8 @@ return `{\tt S~*}' and `{\tt S~\&}' values instead of
 
 {\tt min::gen}, `{\tt const min::stub~*}', and
 {\tt min::\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
-elements of packed structures must be locatable.  The {\tt MIN\_REF}
+elements of packed structures must be locatable.
+The {\tt MIN\_REF}\label{PACKED_STRUCT_MIN_REF}
 macro described in Section~\itemref{LOCATABLE-VALUE-REFERENCES}
 should be used with a {\tt min::\EOL packed\_\EOL
 struct\_\EOL updptr\SARG} container type
@@ -4687,13 +4702,14 @@ redefined (i.e., \underline{not}
 inherited) so that they
 return `{\tt H~*}', `{\tt E~*}' or `{\tt E~\&} values
 instead of `{\tt H~const~*}', `{\tt E~const~*}', or `{\tt E~const~\&}' values.
-The {\tt []} operator is further redefined if {\tt E} is a locatable type
+The {\tt []} operator\label{PACKED_VEC_[]_REF}
+is further redefined if {\tt E} is a locatable type
 so that a {\tt min::\EOL ref\BRACKETED{E}} value is returned instead of
 a `{\tt E~\&}' value.  This does for vector elements what
 {\tt MIN\_REF} defined {\tt \ldots\_ref} functions do for structure
 elements.
 
-The {\tt MIN\_REF}
+The {\tt MIN\_REF}\label{PACKED_VEC_MIN_REF}
 macro described in Section~\itemref{LOCATABLE-VALUE-REFERENCES}
 should be used with a {\tt min::\EOL packed\_\EOL
 vec\_\EOL updptr\SARG} container type
