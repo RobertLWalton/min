@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 30 09:56:09 EDT 2011
+// Date:	Fri Apr  1 08:22:25 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1940,14 +1940,17 @@ namespace min {
 
 	// We must prevent the default operator =.
 	//
-	T operator = ( const ref<T> & r ) const
+	ref<T> const & operator =
+		( const ref<T> & r ) const
 	{
-	    return * this->location() = * r.location();
+	    * this->location() = * r.location();
+	    return * this;
 	}
 
-	T operator = ( T value ) const
+	ref<T> const & operator = ( T value ) const
 	{
-	    return * this->location() = value;
+	    * this->location() = value;
+	    return * this;
 	}
 
     private:
@@ -1971,7 +1974,7 @@ namespace min {
 
 	// We must prevent the default operator =.
 	//
-	min::gen operator =
+	ref<min::gen> const & operator =
 	    ( const ref<min::gen> & r ) const
 	{
 	    min::gen value = * r.location();
@@ -1979,19 +1982,20 @@ namespace min {
 	    if ( this->s != ZERO_STUB )
 		unprotected::acc_write_update
 		    ( this->s, value );
-	    return value;
+	    return * this;
 	}
 
-	min::gen operator = ( min::gen value ) const
+	ref<min::gen> const & operator =
+		( min::gen value ) const
 	{
 	    * this->location() = value;
 	    if ( this->s != ZERO_STUB )
 		unprotected::acc_write_update
 		    ( this->s, value );
-	    return value;
+	    return * this;
 	}
 
-	min::gen operator =
+	ref<min::gen> const & operator =
 	    ( const min::locatable_var<min::gen> & var )
 	    const;
 	    // Because this specialization is instan-
@@ -2024,7 +2028,7 @@ namespace min {
 
 	// We must prevent the default operator =.
 	//
-	const min::stub * operator =
+	ref<const min::stub *> const & operator =
 	    ( const ref<const min::stub *> & r ) const
 	{
 	    const min::stub * value = * r.location();
@@ -2032,20 +2036,20 @@ namespace min {
 	    if ( this->s != ZERO_STUB )
 		unprotected::acc_write_update
 		    ( this->s, value );
-	    return value;
+	    return * this;
 	}
 
-	const min::stub * operator =
+	ref<const min::stub *> const & operator =
 		( const min::stub * value ) const
 	{
 	    * this->location() = value;
 	    if ( this->s != ZERO_STUB )
 		unprotected::acc_write_update
 		    ( this->s, value );
-	    return value;
+	    return * this;
 	}
 
-	const min::stub * operator =
+	ref<const min::stub *> const & operator =
 	    ( const min::locatable_var
 	                <const min::stub *> & var )
 	    const;
@@ -2154,16 +2158,17 @@ namespace min {
 	{
 	    return this->value;
 	}
-	min::gen operator =
+	locatable_var<min::gen> & operator =
 	    ( const locatable_var<min::gen> & var )
 	{
 	    this->value = var;
-	    return this->value;
+	    return * this;
 	}
-	min::gen operator = ( min::gen value )
+	locatable_var<min::gen> & operator =
+		( min::gen value )
 	{
 	    this->value = value;
-	    return this->value;
+	    return * this;
 	}
 
 	operator min::ref<min::gen> ( void ) const
@@ -2212,18 +2217,18 @@ namespace min {
 	{
 	    return this->value;
 	}
-	const min::stub * operator =
+	locatable_var<const min::stub *> & operator =
 	    ( const locatable_var<const min::stub *>
 	            & var )
 	{
 	    this->value = var;
-	    return this->value;
+	    return * this;
 	}
-	const min::stub * operator =
+	locatable_var<const min::stub *> & operator =
 		( const min::stub * value )
 	{
 	    this->value = value;
-	    return this->value;
+	    return * this;
 	}
 
 	operator min::ref<const min::stub *>
@@ -2251,7 +2256,8 @@ namespace min {
 	typedef min::locatable_gen locatable_num_gen;
 #   endif
 
-    inline min::gen min::ref<min::gen>::operator =
+    inline min::ref<min::gen> const &
+        min::ref<min::gen>::operator =
 	    ( const min::locatable_var<min::gen> & var )
 	    const
     {
@@ -2260,10 +2266,10 @@ namespace min {
 	if ( this->s != ZERO_STUB )
 	    unprotected::acc_write_update
 		( this->s, value );
-	return value;
+	return * this;
     }
 
-    inline const min::stub *
+    inline min::ref<const min::stub *> const &
         min::ref<const min::stub *>::operator =
 	    ( const min::locatable_var
 	          <const min::stub *> & var ) const
@@ -2273,7 +2279,7 @@ namespace min {
 	if ( this->s != ZERO_STUB )
 	    unprotected::acc_write_update
 		( this->s, value );
-	return value;
+	return * this;
     }
 
 }
@@ -2289,26 +2295,27 @@ namespace min { \
 	\
 	/* We must prevent the default operator =.
 	*/ \
-	T operator = ( const ref< T > & r ) const \
+	ref< T > const & operator = \
+		( ref< T > const & r ) const \
 	{ \
 	    T value = * r.location(); \
 	    * this->location() = value; \
 	    if ( this->s != ZERO_STUB ) \
 		unprotected::acc_write_update \
 		    ( this->s, value ); \
-	    return value; \
+	    return * this; \
 	} \
 	\
-	T operator = ( T value ) const \
+	ref< T > const & operator = ( T value ) const \
 	{ \
 	    * this->location() = value; \
 	    if ( this->s != ZERO_STUB ) \
 		unprotected::acc_write_update \
 		    ( this->s, value ); \
-	    return value; \
+	    return * this; \
 	} \
 	\
-	T operator = \
+	ref< T > const & operator = \
 	    ( const min::locatable_var < T > \
 		    & var ) const \
 	{ \
@@ -2317,7 +2324,7 @@ namespace min { \
 	    if ( this->s != ZERO_STUB ) \
 		unprotected::acc_write_update \
 		    ( this->s, value ); \
-	    return value; \
+	    return * this; \
 	} \
 	\
 	operator const min::stub * ( void ) const \
@@ -2373,18 +2380,19 @@ namespace min { \
 	    internal::locatable_var_last = previous; \
 	} \
         \
-	T operator = \
+	locatable_var< T > & operator = \
 	        ( const locatable_var< T > & var ) \
 	{ \
 	    new ( this ) T ( var ); \
 	    return * this; \
 	} \
-	T operator = ( T value ) \
+	locatable_var< T > & operator = ( T value ) \
 	{ \
 	    new ( this ) T ( value ); \
 	    return * this; \
 	} \
-	T operator = ( const min::stub * s ) \
+	locatable_var< T > & operator = \
+		( const min::stub * s ) \
 	{ \
 	    new ( this ) T ( s ); \
 	    return * this; \
