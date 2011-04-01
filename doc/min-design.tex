@@ -2470,23 +2470,50 @@ This is done by the following functions:
 \LABEL{MUP::ACC_WRITE_STUB_UPDATE} \\
 \verb|void MUP::|
     & \MUPKEY{acc\_write\_update}\ARGBREAK
+          \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   min::gen g )|
+\LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_num\_update}\ARGBREAK
+          \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   min::gen g )|
+\LABEL{MUP::ACC_WRITE_NUM_GEN_UPDATE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+	  \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::stub * const * p, min::unsptr n )|
+\LABEL{MUP::ACC_WRITE_STUB_VEC_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
 	  \verb| ( const min::stub * s1,|\ARGBREAK
 	  \verb|   const min::gen * p, min::unsptr n )|
-\LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
+\LABEL{MUP::ACC_WRITE_GEN_VEC_UPDATE} \\
 \verb|void MUP::|
     & \MUPKEY{acc\_write\_num\_update}\ARGBREAK
 	  \verb| ( const min::stub * s1,|\ARGBREAK
 	  \verb|   const min::gen * p, min::unsptr n )|
-\LABEL{MUP::ACC_WRITE_NUM_UPDATE} \\
+\LABEL{MUP::ACC_WRITE_NUM_GEN_VEC_UPDATE} \\
 \end{tabular}\end{indpar}
 
-The last two of these functions look at all the \verb|min::gen|
+The first of the above functions updates the stubs {\tt s1} and {\tt s2}
+if {\tt s2} is not {\tt NULL}.  The second updates the stub {\tt s1}
+and the stub pointed at by {\tt g} if {\tt g} points at a stub.
+The third of the above functions equals the second function for a compact
+(\pagref{COMPACT}) implementation, and is a no-operation for a loose
+implementation.
+
+The last three of the above functions look at all the
 values \verb|p[0]|, \ldots, \verb|p[n-1]|, and for each of these
-that holds a pointer to a collectible stub \verb|s2|, the first of
-the above functions is called.  The {\tt acc\_\EOL write\_\EOL
-num\_\EOL update} function should only be used if all the
-\verb|min::gen| values are numeric; in a loose implementation this
-function is a no operation.
+call the corresponding function choosen from the first three
+of the above functions.
+
+The {\tt min::\EOL acc\_\EOL write\_\EOL num\_\EOL update}
+functions should only be used if all the
+\verb|min::gen| values they reference are numeric, as in a loose
+implementation these functions do nothing.
 
 These \verb|min::acc_write_update| functions
 \underline{must not} be called with any argument that points at a stub
@@ -10100,14 +10127,34 @@ In loose implementation: \\
 \LABEL{MUP::ACC_WRITE_STUB_UPDATE} \\
 \verb|void MUP::|
     & \MUPKEY{acc\_write\_update}\ARGBREAK
+          \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   min::gen g )|
+\LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_num\_update}\ARGBREAK
+          \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   min::gen g )|
+\LABEL{MUP::ACC_WRITE_NUM_GEN_UPDATE} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.2in}
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
+	  \verb| ( const min::stub * s1,|\ARGBREAK
+	  \verb|   const min::stub * const * p, min::unsptr n )|
+\LABEL{MUP::ACC_WRITE_STUB_VEC_UPDATE} \\
+\verb|void MUP::|
+    & \MUPKEY{acc\_write\_update}\ARGBREAK
 	  \verb| ( const min::stub * s1,|\ARGBREAK
 	  \verb|   const min::gen * p, min::unsptr n )|
-\LABEL{MUP::ACC_WRITE_GEN_UPDATE} \\
+\LABEL{MUP::ACC_WRITE_GEN_VEC_UPDATE} \\
 \verb|void MUP::|
     & \MUPKEY{acc\_write\_num\_update}\ARGBREAK
 	  \verb| ( const min::stub * s1,|\ARGBREAK
 	  \verb|   const min::gen * p, min::unsptr n )|
-\LABEL{MUP::ACC_WRITE_NUM_UPDATE} \\
+\LABEL{MUP::ACC_WRITE_NUM_GEN_VEC_UPDATE} \\
 \end{TABULAR}
 
 \end{indpar}
