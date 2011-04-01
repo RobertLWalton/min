@@ -1599,13 +1599,14 @@ The reference types are most frequently used:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}
-      \verb|( min::ref<T> & r, T value )|
+\verb|min::ref<T> const & |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( min::ref<T> const & r, T value )|
 \LABEL{MIN::=REF_OF_T} \\
-\verb|T |
-    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}
-      \verb|( min::ref<T> & r, const min::ref<T> & r2 )|
+\verb|min::ref<T> const & |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( min::ref<T> const & r,|\ARGBREAK
+      \verb|  const min::ref<T> & r2 )|
 \LABEL{MIN::=REF_OF_REF} \\
 \end{tabular}\end{indpar}
 
@@ -1666,9 +1667,11 @@ is not activated by C++ in the case of an expression of the form
 argument is defined to invoke the conversion explicitly.
 
 Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
-differ according to whether or not the type {\tt T} is `locatable'
+differ according to whether or not the type {\tt T} is
+`\mkey{locatable}{{\tt min::ref\BRACKETED{T}} reference to}'
+\label{LOCATABLE_REF}
 ({\tt min::\EOL gen}, {\tt const min::\EOL stub~*}, and
-classes such as {\tt min:\EOL packed\_\EOL\ldots\BRACKETED{\ldots}}
+classes such as {\tt min:\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
 that encapulate {\tt const min::\EOL stub~*} values are
 locatable types: see \pagref{LOCATABLE-TYPE}).
 If {\tt T} is locatable, storing a value in a {\tt min::\EOL ref\TARG}
@@ -1707,7 +1710,7 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|T |
+\verb|min::ptr<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}
       \verb|( min::ptr<T> & p, const min::ptr<T> & p2 )|
 \LABEL{MIN::=PTR_OF_PTR}
@@ -2011,7 +2014,7 @@ Values of these types are called \skey{locatable value}s.%
 \label{LOCATABLE-VALUE}
 These types, and types that are just classes which
 encapsulate a {\tt min::\EOL gen} or {\tt const min::\EOL stub~*}
-value (such as the {\tt min::packed\_\ldots ptr} types),
+value (such as the {\tt min::packed\_\ldots ptr\BRACKETED{\ldots}} types),
 are called \skey{locatable type}s.%
 \label{LOCATABLE-TYPE}
 
@@ -2047,7 +2050,7 @@ that might not be, so loose implementations can encounter less overhead
 when dealing with numeric \verb|min::gen| values.
 
 In order to be locatable by the garbage collector, \verb|min::gen|
-values must be stored in locations of type
+values in static or stack memory must be stored in locations of type
 \verb|min::|\MINKEY{locatable\_\EOL gen}, or, if they a \underline{known}
 with certainty to be numbers, in locations of type
 \verb|min::|\MINKEY{locatable\_\EOL num\_\EOL gen}:
@@ -2055,12 +2058,12 @@ with certainty to be numbers, in locations of type
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| var ( void )|
 \LABEL{MIN::LOCATABLE_GEN} \\
-\verb|min::gen |
+\verb|min::locatable_gen & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen & var,|\ARGBREAK
       \verb|  min::gen value )|
 \LABEL{MIN::=LOCATABLE_GEN_OF_GEN} \\
-\verb|min::gen |
+\verb|min::locatable_gen & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen & var,|\ARGBREAK
       \verb|  const min::locatable_gen & var2 )|
@@ -2164,7 +2167,7 @@ void f ( ref<min::gen> r );
     q = x;
     min::ptr p = & q;
     . . .
-    v = q;     // Copies the value of q to v.
+    v = q;     // Copies the min::gen value of q to v.
     * p = x;   // Sets q to x.
     . . .
     f ( v );   // Converts v to min::ref<min::gen>
@@ -2174,28 +2177,30 @@ void f ( ref<min::gen> r );
 }
 \end{verbatim}\end{indpar}
 
-{\tt const min::\EOL stub~*} values that are not derived from
-\verb|min::gen| values must also be locatable by the garbage collector.
-In particular
-pointers to packed structures and vectors
+{\tt const min::\EOL stub~*} values
+must also be locatable by the garbage collector.
+In particular the {\tt min::\EOL packed\_\EOL \ldots ptr\BRACKETED{\ldots}}
+pointers
 (see Sections~\itemref{PACKED-STRUCTURES} and \itemref{PACKED-VECTORS})
-must be locatable.  This may be done with the code:
+must be locatable.
+When such values are stored in static or stack memory,
+this may be done with the code:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::|
     & \MINKEY{locatable\_var\TARG}\verb| var ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
-\verb|T |
+\verb|min::locatable_var<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var\TARG}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
       \verb|  T value )|
 \LABEL{MIN::=LOCATABLE_VAR} \\
-\verb|T |
+\verb|min::locatable_var<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var\TARG}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
       \verb|  const min::stub * s )|
 \LABEL{MIN::=LOCATABLE_VAR_OF_STUB} \\
-\verb|T |
+\verb|min::locatable_var<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var\TARG}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
       \verb|  const min::locatable_var<T> & var2 )|
@@ -2221,14 +2226,16 @@ must be locatable.  This may be done with the code:
 \end{tabular}\end{indpar}
 
 Here {\tt T} must be
-`{\tt const min::stub~*}' or a class like {\tt min::\EOL packed\_\ldots ptr}
+`{\tt const min::stub~*}'
+or a class like {\tt min::\EOL packed\_\ldots ptr\BRACKETED{\ldots}}
 whose only data member is of type {\tt const min::stub~*}.
 In either case, a {\tt min::\EOL locatable\_\EOL var\TARG}
 value is implicitly convertable to a {\tt const min::\EOL stub~*} value.
 
 In the second case, {\tt T} is the {\tt public} base class of
 {\tt min::\EOL locatable\_\EOL var\TARG}, so expressions of
-the forms {\tt var->\ldots}, {\tt var[\ldots]}, etc will work for
+the forms {\tt \ldots=var},
+{\tt var->\ldots}, {\tt var[\ldots]}, etc will work for
 {\tt min::\EOL locatable\_\EOL var\TARG} value {\tt var} if they
 will work for a value of type {\tt T}.
 
@@ -2251,14 +2258,14 @@ An example usage is:
 
 \begin{indpar}\begin{verbatim}
 
-min::packed_vec_insptr<char> bufvec;
+typedef min::packed_vec_insptr<char> bufvec;
 min::locatable_var<bufvec> x;
-void foo ( min::ref<bufvec> p );
+void f ( min::ref<bufvec> p );
 ... some_function ( ... )
 {
     min::locatable_var<bufvec> y;
-    y = x;  // Copies the value of x to y.
-    f ( y );
+    y = x;    // Copies the bufvec value of x to y.
+    f ( y );  // Converts y to a min::ref<bufvec> reference.
 }
 \end{verbatim}\end{indpar}
 
@@ -2274,7 +2281,7 @@ of {\tt min::\EOL locatable\_\EOL var}:
 
 However, this specialization differs from
 {\tt min::\EOL locatable\_\EOL var\TARG}in that it is not
-implicitly convertable to {\tt const min::\EOL stub~*} nor
+implicitly convertable to a {\tt const min::\EOL stub~*} value nor
 is {\tt min::gen} a base type of this specialization.
 
 Importantly a \verb|min::gen| or \verb|const min::stub *|
@@ -2285,7 +2292,7 @@ it need not be stored in another.  Or if a \verb|min::gen|
 or {\tt const min::\EOL stub~*} value
 $V$ is stored in an object pointed at by another \verb|min::gen|
 or {\tt const min::\EOL stub~*}
-value $P$, and $P$ is stored in a locatable variable, then $V$ need not
+value $P$, and $P$ is locatable, then $V$ need not
 be stored in a locatable variable.
 
 A very important rule is that when a function is called, the caller
@@ -2304,8 +2311,8 @@ and {\tt const min::\EOL stub*} values can be
 stored in other places.  In particular, there is no problem
 returning these values from a called function to its caller.
 
-\subsubsection{Locatable Value References}
-\label{LOCATABLE-VALUE-REFERENCES}
+\subsubsection{Locatable Member References}
+\label{LOCATABLE-MEMBER-REFERENCES}
 
 Suppose we have some kind of stub/body data type whose body
 is the structure {\tt S} defined and used in the following:
@@ -2390,7 +2397,8 @@ void foo ( S_ptr q )
 \end{verbatim}\end{indpar}
 
 Here the calls to {\tt MUP::acc\_write\_update} are inside the
-{\tt \ldots\_ref(q) =} calls.  Writing {\tt q->g = \ldots}
+{\tt \ldots\_ref(q) =} calls (\pagref{LOCATABLE_REF}).
+Writing {\tt q->g = \ldots}
 and {\tt q->p = \ldots} is prevented by making the {\tt g} and {\tt p}
 members `{\tt const}', so accidently updating locatable members
 without calling {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
@@ -4147,7 +4155,7 @@ return `{\tt S~*}' and `{\tt S~\&}' values instead of
 {\tt min::\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
 elements of packed structures must be locatable.
 The {\tt MIN\_REF}\label{PACKED_STRUCT_MIN_REF}
-macro described in Section~\itemref{LOCATABLE-VALUE-REFERENCES}
+macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
 should be used with a {\tt min::\EOL packed\_\EOL
 struct\_\EOL updptr\SARG} container type
 for locatable elements of a packed structure.
@@ -4710,7 +4718,7 @@ a `{\tt E~\&}' value.  This does for vector elements what
 elements.
 
 The {\tt MIN\_REF}\label{PACKED_VEC_MIN_REF}
-macro described in Section~\itemref{LOCATABLE-VALUE-REFERENCES}
+macro described in Section~\itemref{LOCATABLE-MEMBER-REFERENCES}
 should be used with a {\tt min::\EOL packed\_\EOL
 vec\_\EOL updptr\SARG} container type
 for locatable elements of a packed vector header.
