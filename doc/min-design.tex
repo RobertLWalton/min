@@ -2557,14 +2557,17 @@ locatable variable must not be separated by any
 call to a relocating function.
 
 It is permissible to allocate and build a graph of stubs some of
-which have {\tt min::ACC\_\EOL FREE} type and some of which have
-pointers to them stored in acc locatable variables.
-Then without calling any relocatable functions, all the
-{\tt min::ACC\_\EOL FREE} types must be changed to collectible
-non-{\tt min::ACC\_\EOL FREE} types, and
-\verb|min::gen| or {\tt min::\EOL stub~*}
-values pointing at a root set of the graph must be
-stored in acc locatable variables.
+which have {\tt min::\EOL ACC\_\EOL FREE} type.  No stub locatable
+by the garbage collector may contain (in its stub or body or
+auxiliary stubs) a pointer to a stub with
+{\tt min::\EOL ACC\_\EOL FREE} type.  Any stub with
+{\tt min::\EOL ACC\_\EOL FREE} type can contain only pointers
+to stubs of this type or stubs that are locatable by the garbage
+collector.  After building the graph, the types of all stubs with
+{\tt min::\EOL ACC\_\EOL FREE} type should be changed to
+normal acc types, and pointers that permit the garbage collector
+to locate these stubs should be stored in locatable variables,
+all without making any calls to relocating functions.
 
 The \verb|min::new_aux_stub| function returns a non-acc (i.e.,
 not garbage collectible)
