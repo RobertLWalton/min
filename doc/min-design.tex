@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 2, 2011}
+\date{April 3, 2011}
  
 \maketitle
 
@@ -2921,6 +2921,11 @@ find body sizes.  If the stub is deallocated (of type
 \verb|MUP::deallocate_body ( s, MUP::body_size_of ( s ) )|
 \end{center}
 
+The {\tt min::body\_size\_of} function uses the type of the
+stub to select a type-appropriate algorithm to compute
+the body size.  The code of this function must be modified
+if a new stub type is added.
+
 The function
 
 \begin{indpar}\begin{tabular}{@{}r@{}l@{}}
@@ -2992,9 +2997,15 @@ also be relocated.  \verb|s| must NOT be deallocated
 while the {\tt MUP::\EOL resize\_\EOL body} datum exists, unless
 {\tt MUP::\EOL abort\_\EOL resize\_\EOL body} has been called.
 
+While the {\tt MUP::\EOL resize\_\EOL body} datum exists,
+the garbage collector will process the stub and old body normally.
+Any locatable values stored in the new body must also be stored
+in a separate garbage collector locatable place, as the garbage collector
+ignores the new body.
+
 Normally the type of stub \verb|s| is not changed, but
 if the {\tt MUP::\EOL retype\_\EOL resize\_\EOL body} function is called
-with a new stub type value, that value will be installed in stub \verb|s|
+with a new stub type, that type will be installed in stub \verb|s|
 if and when the new body is installed in stub \verb|s|.
 
 \subsection{Numbers}
