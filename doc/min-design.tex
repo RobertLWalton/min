@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 1, 2011}
+\date{April 2, 2011}
  
 \maketitle
 
@@ -2681,15 +2681,46 @@ a block that holds a body back to the stub pointing at the body.
 
 Thus control values contain an address/value low order field, and optional
 type code high order field, and flag bits.  There are two kinds of
-control values: (ordinary) control values and acc control values.
-Ordinary control values
-have 48 bits for the address/value field, and either 8 bits for the type
-and 8 bits for flags, or 16 bits for the locator.
-Acc control values have 56 - G bits for a stub address, 8 bits
-for the type, and G bits for the acc flags, where G is some value from 8
-through 24.  The larger G, the more acc flags, which may permit the
+control values: (ordinary) control values and acc control values:
+
+\begin{indpar}
+Ordinary control value with type: \\[1ex]
+\hspace*{0.2in}\begin{tabular}{ll}
+Bits & Contents \\[1ex]
+63-56 & int8 type \\
+55-48 & 8 flag bits \\
+47-0 & unsigned integer value or absolute stub address
+\end{tabular}
+
+Ordinary control value with locator: \\[1ex]
+\hspace*{0.2in}\begin{tabular}{ll}
+Bits & Contents \\[1ex]
+63-48 & int16 locator \\
+47-0 & unsigned integer value or absolute stub address
+\end{tabular}
+
+Acc control value: \\[1ex]
+\hspace*{0.2in}\begin{tabular}{ll}
+Bits & Contents \\[1ex]
+63-56 & int8 type \\
+55-(56-$G$) & $G$ flag bits \\
+(55-$G$)-0 & absolute or packed stub address
+\end{tabular}
+
+where $8\leq G\leq 24$.
+\end{indpar}
+
+The larger G, the more acc flags, which may permit the
 garbage collector to be more efficient (e.g., to have more ephemeral
 levels).
+
+The packed stub address is an absolute stub address,
+relative stub address, or stub index.  The possible packing schemes used for
+these are the same as the packing schemes used for general values:
+see \pagref{STUB-ADDRESS-PACKING}.  However, the actual packing scheme
+used for acc control values may differ from the actual packing scheme
+used for general values, because the number of bits available for the
+packed stub address may differ in the two cases.
 
 Addresses stored in a control value must be stub addresses, as only they
 can be packed into less than 64 bits.
@@ -2721,23 +2752,12 @@ These flag constants are defined by expressions of the form
 \verb|( min::uns64(1) << |$K$\verb| )|
 \end{center}
 
-where
-
-\begin{center}
-\begin{tabular}{l@{~~~~~}l}
-$M\leq K\leq 63$ & if there is no type code field \\
-		 & (does not apply to stub controls) \\
-$M\leq K\leq 55$ & if there is a type code field \\
-\\
-\multicolumn{2}{l}{$M$ is the size of the address/value field} \\
-\\
-$32\leq M\leq 48$ & depending on hardware \\
-\end{tabular}
-\end{center}
-
 The above functions assume that any flag constants select bits
 in a control value that are not inside the address/value field
 or inside the type code field.
+
+Ordinary (non-acc) control values that have a locator
+field cannot have any flag bits.
 
 The flags in the stub control value of a stub can be tested, set, or
 cleared by some of the above functions.
