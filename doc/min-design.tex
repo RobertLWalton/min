@@ -5058,117 +5058,13 @@ pointer to a packed structure that contains the descriptive information
 and also contains
 a pointer to a packed {\tt char} vector that contains the lines.
 
-Creation, initialization, and parameterization of files is
-accomplished by the following:
+The data types and members of a file are:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|typedef min::|
 	& \verb|packed_struct_updptr<min::file_struct>|\ARGBREAK
 	  \verb|    min::|\MINKEY{file}
 \LABEL{MIN::FILE} \\
-\verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
-\LABEL{MIN::ALL_LINES} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{init\_\EOL input}\verb| ( min::file & file )|
-\LABEL{MIN::INIT_INPUT_OF_FILE} \\
-\verb|void min::| & \MINKEY{init\_\EOL output}\verb| ( min::file & file )|
-\LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{init\_print\_flags}
-          \begin{argstack}
-          \verb| ( min::file & file,| \\
-	  \verb|   min::uns32 print_flags )|
-	  \end{argstack}
-\LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
-\verb|void min::|
-    & \MINKEY{init\_\EOL spool\_\EOL lines}
-             \begin{argstack}
-	     \verb| ( min::file & file,|\\
-             \verb|   min::uns32 spool_lines )|
-	     \end{argstack}
-\LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
-\verb|void min::|
-    & \MINKEY{init\_\EOL file\_\EOL name}
-             \begin{argstack}
-	     \verb| ( min::file & file,|\\
-             \verb|   min::gen file_name )|
-	     \end{argstack}
-\LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
-\verb|void min::|
-    & \MINKEY{init\_line\_index}\verb| ( void )|
-\LABEL{MIN::INIT_LINE_INDEX_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{init\_output\_ostream}
-          \begin{argstack}
-          \verb| ( min::file & file,| \\
-	  \verb|   std::ostream & ostream )|
-          \end{argstack}
-\LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
-\verb|void min::|
-    & \MINKEY{init\_output\_file}
-          \begin{argstack}
-          \verb| ( min::file & file,| \\
-	  \verb|   min::file ofile )|
-          \end{argstack}
-\LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
-\verb|void min::|
-    & \MINKEY{init\_output\_printer}
-          \begin{argstack}
-          \verb| ( min::file & file,| \\
-	  \verb|   min::printer printer )|
-          \end{argstack}
-\LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{init\_input\_stream}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   std::istream & istream,|\ARGBREAK
-	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
-\LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{init\_input\_file}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::file ifile,|\ARGBREAK
-	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
-\LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{init\_input\_named\_file}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   min::gen filename,|\ARGBREAK
-	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
-\LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::|
-    & \MINKEY{init\_input\_string}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
-	  \verb|   const char * data,|\ARGBREAK
-	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
-	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
-\LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5213,13 +5109,6 @@ accomplished by the following:
 \LABEL{MIN::FILE_FILENAME} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::}\MINKEY{init\ldots} functions all re-initialize existing
-files and create new ones.  They take a variable as their
-first argument, and if the variable value is {\tt min::\EOL
-NULL\_\EOL STUB}, then a new file is created and the
-variable is set to point at the new file.
-The different forms of {\tt min::\EOL init\ldots} set different
-file members.
 
 The members of a file may be read but \underline{not} written, unless
 noted below.  They are:
@@ -5239,26 +5128,27 @@ to be line-terminating.
 
 Initialized to the empty vector when the file is created and by
 {\tt min::\EOL init\_\EOL input\ldots} functions.
+Some of these functions then fill the buffer with the complete file.
 
 \item[\ttmkey{buffer-\GT length}{in {\tt min::file}}]
 The number of {\tt char} elements in the file buffer
 (as per the buffer being a packed vector: see \itemref{PACKED-VECTORS}).
-Initialized to {\tt 0} when the file is created and by
-{\tt min::\EOL init\_\EOL input\ldots} functions.
+Initialized to {\tt 0} when the buffer is set empty.
 
 \item[\ttmkey{next\_\EOL line\_\EOL number}{in {\tt min::file}}]
 The number of the next line to be returned by the
 {\tt min::\EOL next\_\EOL line}
 function that is used by programs to read lines from a {\tt min::\EOL file}.
 Or the total number of lines in the file if there is no next line.
-The first line number is {\tt 0}.  Initialized to {\tt 0}.
+The first line number is {\tt 0}.  Set to {\tt 0} when the
+file is rewound.
 
 \item[\ttmkey{next\_\EOL line\_\EOL offset}{in {\tt min::file}}]
 The offset in the {\tt buffer} of the first character of the
 next line to be returned by the {\tt min::\EOL next\_\EOL line}
 function.  I.e., that character is {\tt buffer[next\_\EOL line\_\EOL offset]}.
-Or {\tt buffer->\EOL length} if there is no next line (not even a partial
-line).  Initialized to {\tt 0}.
+Or {\tt end\_\EOL offset} if there is no next complete line.
+Set to {\tt 0} when the file is rewound.
 
 \item[\ttmkey{end\_\EOL offset}{in {\tt min::file}}]
 The offset of the {\tt buffer} element just \underline{after} the last
@@ -5278,9 +5168,9 @@ Initialized to {\tt min::\EOL NO\_\EOL LINE} when the file is created and by
 the entire contents of the file into the file {\tt buffer}.
 Set to the number of complete lines in the file
 by {\tt min::\EOL init\_\EOL input\ldots} functions that load
-the entire contents of the file into the file {\tt buffer}.
-Set to the number of complete lines in the file
-when {\tt min::\EOL next\_\EOL line} reads an end of file.
+the entire contents of the file into the file {\tt buffer}, or
+by {\tt min::\EOL next\_\EOL line} when that function
+reads an end of file from {\tt istream} or {\tt ifile}.
 
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
 If {\tt line\_index~!=~min::NULL\_STUB}, then
@@ -5290,11 +5180,22 @@ if the line is empty), where
 \begin{center}
 {\tt m = line\_index->length - ( next\_line\_number - n )}
 \end{center}
-If {\tt spool\_lines~==~min::ALL\_LINES}, this last reduces to {\tt m~=~n}.
+provided
+\begin{center}
+{\tt 0 <= ( next\_line\_number - n ) <= line\_index->length}
+\end{center}
+If {\tt spool\_lines~==~min::ALL\_LINES}, then
+{\tt line\_\EOL index->\EOL length == next\_\EOL line\_\EOL number}
+and {\tt m~=~n}.
 Otherwise one must take into account that only the last
 {\tt spool\_\EOL lines} returned by the {\tt min::\EOL next\_\EOL line}
 function are guarenteed to be
-stored in {\tt buffer} and {\tt line\_\EOL index}.
+stored in {\tt buffer} and {\tt line\_\EOL index}.  This last
+guarentee is equivalent to
+\begin{center}
+{\tt line\_index->length => \\
+min ( next\_line\_number, spool\_lines )}
+\end{center}
 
 Set to {\tt min::NULL\_STUB} when the file is created.
 Set to a vector by {\tt min::\EOL init\_\EOL line\_\EOL index}, and
@@ -5421,6 +5322,120 @@ concerning file lines.
 Set to {\tt min::\EOL MISSING} when the file is created.
 
 \end{itemlist}
+
+The {\tt min::}\MINKEY{init\ldots} functions all re-initialize existing
+files and create new ones.  They take a variable as their
+first argument, and if the variable value is {\tt min::\EOL
+NULL\_\EOL STUB}, then a new file is created and the
+variable is set to point at the new file.
+The different forms of {\tt min::\EOL init\ldots} set different
+file members.
+
+Creation, initialization, and parameterization of files is
+accomplished by the following:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{init\_\EOL input}\verb| ( min::file & file )|
+\LABEL{MIN::INIT_INPUT_OF_FILE} \\
+\verb|void min::| & \MINKEY{init\_\EOL output}\verb| ( min::file & file )|
+\LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{init\_print\_flags}
+          \begin{argstack}
+          \verb| ( min::file & file,| \\
+	  \verb|   min::uns32 print_flags )|
+	  \end{argstack}
+\LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_\EOL spool\_\EOL lines}
+             \begin{argstack}
+	     \verb| ( min::file & file,|\\
+             \verb|   min::uns32 spool_lines )|
+	     \end{argstack}
+\LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_\EOL file\_\EOL name}
+             \begin{argstack}
+	     \verb| ( min::file & file,|\\
+             \verb|   min::gen file_name )|
+	     \end{argstack}
+\LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_line\_index}\verb| ( void )|
+\LABEL{MIN::INIT_LINE_INDEX_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{init\_output\_ostream}
+          \begin{argstack}
+          \verb| ( min::file & file,| \\
+	  \verb|   std::ostream & ostream )|
+          \end{argstack}
+\LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_output\_file}
+          \begin{argstack}
+          \verb| ( min::file & file,| \\
+	  \verb|   min::file ofile )|
+          \end{argstack}
+\LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_output\_printer}
+          \begin{argstack}
+          \verb| ( min::file & file,| \\
+	  \verb|   min::printer printer )|
+          \end{argstack}
+\LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
+\LABEL{MIN::ALL_LINES} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{init\_input\_stream}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   std::istream & istream,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{init\_input\_file}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::file ifile,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{init\_input\_named\_file}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   min::gen filename,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{init\_input\_string}\ARGBREAK
+          \verb| ( min::file & file,|\ARGBREAK
+	  \verb|   const char * data,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
+\end{tabular}\end{indpar}
 
 In general, the {\tt min::\EOL init\_\EOL input\ldots} functions
 reinitialize all members, while all the other initialization functions
