@@ -5229,7 +5229,7 @@ noted below.  They are:
 \item[\ttmkey{buffer}{in {\tt min::file}}]
 The vector of {\tt char}'s that contains the lines of the file.  Each
 line is UTF-8 encoded and NUL terminated.  A non-NUL-terminated incomplete
-last line may appear at the end of the buffer.
+last line, called a \key{partial line}, may appear at the end of the buffer.
 
 Note that in general functions that load data into files do \underline{not}
 check for illegal UTF-8 encodings.  They typically treat NUL characters
@@ -5258,8 +5258,7 @@ The offset in the {\tt buffer} of the first character of the
 next line to be returned by the {\tt min::\EOL next\_\EOL line}
 function.  I.e., that character is {\tt buffer[next\_\EOL line\_\EOL offset]}.
 Or {\tt buffer->\EOL length} if there is no next line (not even a partial
-next line).
-Initialized to {\tt 0}.
+line).  Initialized to {\tt 0}.
 
 \item[\ttmkey{end\_\EOL offset}{in {\tt min::file}}]
 The offset of the {\tt buffer} element just \underline{after} the last
@@ -5507,7 +5506,7 @@ The {\tt min::\EOL next\_\EOL line} function returns an
 is the first character of the next NUL-terminated line.
 If there is no such line, because we are at the end of the file,
 {\tt min::\EOL NO\_\EOL LINE} is returned instead.  In this case
-there may still be a partial non-NUL-terminated line at the end
+there may still be a non-NUL-terminated partial line at the end
 of the file.
 
 The number of bytes in any partial line at the end of a file
@@ -5616,10 +5615,34 @@ an unsaved line, or a line not yet returned by {\tt min::\EOL next\_\EOL line}
 (since the last rewind), then {\tt min::\EOL line} returns
 {\tt min::\EOL NO\_\EOL LINE}.
 
+If a {\tt file} does not have an input {\tt istream} or
+{\tt ifile}, a line can be added to the end of the file
+by using the packed vector {\tt min::push\REL} function
+(\pagref{MIN::PACKED_VEC_PUSH}) to push the characters of
+the line to {\tt file->buffer},
+and then using the following function to push the
+the line ending NUL character to {\tt file->buffer}:
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{end\_line}\verb| ( min::file file )|
 \LABEL{MIN::END_LINE_FILE} \\
+\end{tabular}\end{indpar}
+
+An example of a function to add a line to the end of the file is:
+\begin{indpar}\begin{verbatim}
+void push_line ( min::file file, char * line )
+{
+    min::push ( file->buffer, strlen ( line ), line );
+    min::end_line ( file );
+}
+\end{verbatim}\end{indpar}
+
+If the last line in {\tt file->buffer} is a partial line,
+the following function may be used to split this into
+a complete line possibly followed by a shorter partial line:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{end\_line}
 	  \begin{argstack}
@@ -5628,6 +5651,13 @@ an unsaved line, or a line not yet returned by {\tt min::\EOL next\_\EOL line}
 	  \end{argstack}
 \LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
 \end{tabular}\end{indpar}
+
+This function sets {\tt file->buffer[offset]} to NUL, overwritting
+any previous {\tt char} value of this buffer element, and
+making this element the line-terminating NUL for an initial segment
+of the partial line at the end of the buffer.  The remainder of
+the partial line, if there is any, becomes the new partial line at the
+end of the buffer.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
