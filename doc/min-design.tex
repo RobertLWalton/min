@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 3, 2011}
+\date{April 4, 2011}
  
 \maketitle
 
@@ -5539,6 +5539,16 @@ This is done by:
 \LABEL{MIN::SKIP_PARTIAL} \\
 \end{tabular}\end{indpar}
 
+The {\tt min::skip\_partial} function can have an undesireable
+interaction with the use of {\tt min::\EOL end\_\EOL line} to
+make an initial segment of a partial line into a complete line:
+see \pagref{SKIP_PARTIAL_END_LINE}.  It also affects the next
+call to {\tt min::\EOL next\_\EOL line}; specifically, if a partial
+line is skipped, then added to and made into a complete line,
+the next call to {\tt min::\EOL next\_\EOL line} will return that line as if
+it consisted of only of the non-skipped characters that were added
+after the call to {\tt min::\EOL skip\_\EOL partial}.
+
 A file is complete, in the sense the no more characters will be
 appended to its {\tt buffer}, if {\tt file\_\EOL lines} contains
 the number of complete lines in the file, and is not equal to
@@ -5659,10 +5669,34 @@ of the partial line at the end of the buffer.  The remainder of
 the partial line, if there is any, becomes the new partial line at the
 end of the buffer.
 
+Note that a partial line \underline{cannot}\label{SKIP_PARTIAL_END_LINE}
+be split using the
+last function if {\tt min::\EOL skip\_\EOL partial}
+(\pagref{MIN::SKIP_PARTIAL}) has been used to skip past the
+{\tt offset} point where the NUL would be written.
+
+The following function is used to copy or `flush' the lines in a file
+to any {\tt file->ostream}, {\tt file->ofile}, and/or {\tt file->printer}
+that the file has
+
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{flush\_\EOL file}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_FILE} \\
+\end{tabular}\end{indpar}
+
+This function first calls {\tt min::next\_line} repeatly
+for the file, and flushes each line returned by that function.
+Then it flushes any partial line left over at the end of the
+file, and calls {\tt min::\EOL skip\_\EOL partial}
+(\pagref{MIN::SKIP_PARTIAL}) to skip over this partial line
+(so it will be invisible to subsequent calls to
+{\tt min::\EOL next\_\EOL line}).
+
+The flushing subactions of {\tt min::flush\_file} are available by using
+the following functions:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
     & \MINKEY{flush\_\EOL line}
 	  \begin{argstack}
@@ -5674,6 +5708,21 @@ end of the buffer.
     & \MINKEY{flush\_partial}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_PARTIAL} \\
 \end{tabular}\end{indpar}
+
+{\tt min::flush\_line} copies the line beginning at the given offset
+to any {\tt file->\EOL ostream}, {\tt file->\EOL ofile},
+and/or {\tt file->\EOL printer},
+while {\tt min::\EOL flush\_\EOL partial} copies any partial line
+at the end of the file
+to any {\tt file->\EOL ostream}, {\tt file->\EOL ofile}, and/or
+{\tt file->\EOL printer}.
+Note that neither of these functions calls {\tt min::\EOL next\_\EOL line}
+or {\tt min::\EOL skip\_\EOL partial}.
+
+The following {\tt <<} operators do the same thing as
+{min::\EOL flush\_\EOL line} except that, instead of copying to
+to any {\tt file->\EOL ostream}, {\tt file->\EOL ofile}, and/or
+{\tt file->\EOL printer}, they copy to their lefthand operand:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|std::ostream & |
@@ -5695,6 +5744,14 @@ end of the buffer.
       \verb|   min::file file )|
 \LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
 \end{tabular}\end{indpar}
+
+Note that these {\tt <<} operators call the {\tt min::\EOL next\_\EOL line}
+and {\tt min::\EOL skip\_\EOL partial} functions in the same way as
+{\tt min::\EOL flush\_\EOL file} does, and therefore
+these {\tt <<} operators interact with each other and with the
+{\tt min::\EOL flush\_\EOL file} function.  Generally such interaction
+is avoided by using only one of the {\tt <<} operators or only
+the {\tt min::\EOL flush\_\EOL file} function on a given file.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
