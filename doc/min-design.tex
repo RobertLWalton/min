@@ -5225,7 +5225,7 @@ Set to {\tt 0} when the file is created.  Set to an argument
 that defaults to {\tt min::\EOL ALL\_\EOL LINES}
 by {\tt min::\EOL init\_\EOL input\_\ldots} functions.
 
-\item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]
+\item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]\label{FILE_PRINT_FLAGS}
 These are some of the printer {\tt parameters->\EOL flags} used to print
 a file line for error message purposes,
 in particular by the {\tt min::\EOL print\_\EOL line}
@@ -5520,6 +5520,10 @@ min::end_line ( file );
 ...
 \end{verbatim}\end{indpar}
 
+You can also append to such a file by making it the {\tt ofile}
+of another file and flushing this other file
+(see {\tt min::\EOL flush\_\EOL file}, \pagref{MIN::FLUSH_FILE}).
+
 Initializing a file rewinds it.  Then calls to
 {\tt min::\EOL next\_\EOL line} sequence through the file
 lines:
@@ -5598,7 +5602,7 @@ If the {\tt min::\EOL next\_\EOL line} function encounters the
 end of the file {\tt buffer} when the file is not complete
 and when {\tt istream} is not {\tt NULL},
 then {\tt min::\EOL next\_\EOL line} gets another line from
-{\tt istream}, or gets a partial line if {\tt isteam} produces
+{\tt istream}, or gets a partial line if {\tt istream} produces
 an end-of-file before it produces a line terminating linefeed
 or NUL character (NUL characters produced by {\tt istream}
 are interpreted as line terminators).  If {\tt istream} produces
@@ -5617,9 +5621,11 @@ characters in an {\tt ifile} partial line are also gotten, and the file
 is completed just as it would be if an end-of-file had been read
 from {\tt istream}.
 
-It is possible to obtain any line previously returned by
-{\tt min::\EOL next\_\EOL line} (since the last rewind of the file)
-using the function:
+
+A main reason why {\tt min::file} type exists is to allow lines
+previously returned by {\tt min::\EOL next\_\EOL line} to be retrieved
+so they can be printed in error messages.
+The following function does this:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
@@ -5634,16 +5640,17 @@ using the function:
 Here
 {\tt 0 <= line\_\EOL number < file->\EOL next\_\EOL line\_\EOL number}
 is required.  However, it is not sufficient.  In order for this function
-to work, all the lines previously returned by {min::\EOL next\_\EOL line}
-must have been left in {\tt file->\EOL buffer}, and whether or not
+to work, the line to be returned
+must have been left in {\tt file->\EOL buffer},
+and whether or not
 this is done is controlled by {\tt file->\EOL spool\_\EOL lines}.
 
 More specifically, in order for the {\tt min::\EOL line} function above
 to be able to find the line to return,
-\begin{center}\begin{tabular}{r@{~~~~}rl}
-\multicolumn{3}{l}{\tt file->next\_line\_number - file->spool\_lines} \\
-& \tt <= & \tt line\_number \\
-& \tt < & \tt file->next\_line\_number
+\begin{center}\begin{tabular}{rl}
+       & \tt file->next\_line\_number - file->spool\_lines \\
+\tt <= & \tt line\_number \\
+\tt < & \tt file->next\_line\_number
 \end{tabular}\end{center}
 is required.  For input files it is common to set {\tt spool\_\EOL lines}
 to \verb|min::|\MINNBKEY{ALL\_\EOL LINES}, which is effectively infinity,
@@ -5655,6 +5662,83 @@ If {\tt min::\EOL line} is asked to return
 an unsaved line, or a line not yet returned by {\tt min::\EOL next\_\EOL line}
 (since the last rewind), then {\tt min::\EOL line} returns
 {\tt min::\EOL NO\_\EOL LINE}.
+
+The following function uses {\tt min::line} to print a line as part of
+an error message:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   min::uns32 line_number,|\ARGBREAK
+      \verb|   const char * blank_line =|\ARGBREAK
+      \verb|       "<BLANK-LINE>",|\ARGBREAK
+      \verb|   const char * end_of_file =|\ARGBREAK
+      \verb|       "<END-OF-FILE>",|\ARGBREAK
+      \verb|   const char * unavailable_line =|\ARGBREAK
+      \verb|       "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE} \\
+\end{tabular}\end{indpar}
+
+The {\tt file} line with the given {\tt line\_number}
+is printed on a single {\tt printer} line.  {\tt file->\EOL print\_\EOL flags}
+(\pagref{FILE_PRINT_FLAGS})
+are used to print this line, and the number of columns in the result,
+including any end of line representation printed by the
+{\tt min::\EOL DISPLAY\_\EOL EOL} flag, is returned.  If a line is
+unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE},
+see above), then {\tt unavailable\_\EOL line} is printed instead and
+{\tt 0} is returned.  If the line would print as blank, i.e., consisting of
+nothing but horizontal space characters with no end of line display, then
+{\tt blank\_\EOL line} is printed instead and {\tt 0} is returned.
+If there is no line
+because {\tt line\_\EOL number == file->\EOL file\_\EOL lines},
+then {\tt end\_\EOL of\_\EOL file} is printed instead and
+{\tt 0} is returned.  In these last three special cases,
+{\tt file->\EOL print\_\EOL flags} is not used, and it is best if the
+special string printed in place of the line consist of nothing but
+graphic ASCII characters and single spaces.
+In all cases exactly one complete print line is
+produced.
+
+Error messages typically consist of a description of the error
+followed by the lines involved printed with the above function
+(often the portions of the lines involved are marked by printing
+`\verb|^|' characters under them).  The error description before
+the lines typically ends with the name of the file containing
+the lines and the numbers of the lines.  This can be produced
+by the code:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb| ( min::file file,|\ARGBREAK
+    \verb|   min::uns32 first, min::use32 last )|
+\LABEL{MIN::PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   const min::pline_numbers & pline_numbers )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
+
+An example use is
+
+\begin{indpar}\begin{verbatim}
+    printer << ... error description ...
+            << min::pline_numbers ( file, first, last )
+            << min::eol;
+    for ( min::uns32 line_number = first;
+          line_number <= last,
+          ++ line_number )
+        min::print_line ( printer, file, line_number );
+\end{verbatim}\end{indpar}
+
+
 
 If a {\tt file} does not have an input {\tt istream} or
 {\tt ifile}, a line can be added to the end of the file
@@ -5670,14 +5754,7 @@ the line ending NUL character to {\tt file->buffer}:
 \LABEL{MIN::END_LINE_FILE} \\
 \end{tabular}\end{indpar}
 
-An example of a function to add a line to the end of the file is:
-\begin{indpar}\begin{verbatim}
-void push_line ( min::file file, char * line )
-{
-    min::push ( file->buffer, strlen ( line ), line );
-    min::end_line ( file );
-}
-\end{verbatim}\end{indpar}
+Examples using this {\tt min::end\_line} function were given above.
 
 If the last line in {\tt file->buffer} is a partial line,
 the following function may be used to split this into
@@ -5792,40 +5869,6 @@ the {\tt min::\EOL flush\_\EOL file} function on a given file.
 	\verb|   min::uns32 line_number = 0 )|
 	\end{argstack}
 \LABEL{MIN::REWIND_FILE} \\
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line}\ARGBREAK
-      \verb| ( min::printer printer,|\ARGBREAK
-      \verb|   min::file file,|\ARGBREAK
-      \verb|   min::uns32 line_number,|\ARGBREAK
-      \verb|   const char * blank_line =|\ARGBREAK
-      \verb|       "<BLANK-LINE>",|\ARGBREAK
-      \verb|   const char * end_of_file =|\ARGBREAK
-      \verb|       "<END-OF-FILE>",|\ARGBREAK
-      \verb|   const char * unavailable_line =|\ARGBREAK
-      \verb|       "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_LINE} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb| ( min::file file,|\ARGBREAK
-    \verb|   min::uns32 first, min::use32 last )|
-\LABEL{MIN::PLINE_NUMBERS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer printer,|\ARGBREAK
-      \verb|   const min::pline & pline )|
-\LABEL{PRINTER_OPERATOR<<_OF_PLINE} \\
-\verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer printer,|\ARGBREAK
-      \verb|   const min::pline_numbers & pline_numbers )|
-\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
 \end{tabular}\end{indpar}
 
 \subsection{Printers}
