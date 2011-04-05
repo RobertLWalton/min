@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar 22 05:49:46 EDT 2011
+// Date:	Tue Apr  5 07:01:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2040,7 +2040,7 @@ min::uns32 min::line
         return min::NO_LINE;
     else if ( line_number >= file->next_line_number )
         return min::NO_LINE;
-    else if (   file->spool_lines
+    else if (   file->line_index->length
               < file->next_line_number - line_number )
         return min::NO_LINE;
     else
@@ -2223,26 +2223,21 @@ void min::flush_partial ( min::file file )
 void min::rewind
 	( min::file file, min::uns32 line_number )
 {
-    if ( line_number == 0 )
-    {
-        file->next_line_number = 0;
-	file->next_line_offset = 0;
-	if ( file->line_index != NULL_STUB )
-	    min::pop ( file->line_index,
-	               file->line_index->length );
-    }
-    else
-    {
-        assert ( file->spool_lines == min::ALL_LINES );
-	assert
-	    ( line_number < file->next_line_number );
-	file->next_line_offset =
-	    file->line_index[line_number];
-	file->next_line_number = line_number;
-	min::pop ( file->line_index,
-	             file->line_index->length
-		   - line_number );
-    }
+    if ( file->next_line_number == line_number )
+        return;
+
+    assert ( file->line_index != NULL_STUB );
+    assert ( line_number < file->next_line_number );
+    min::uns32 lines_to_back_up =
+        file->next_line_number - line_number;
+    assert (    file->line_index->length
+             >= lines_to_back_up );
+    file->next_line_offset =
+        file->line_index
+	   [  file->line_index->length
+	    - lines_to_back_up ];
+    min::pop ( file->line_index, lines_to_back_up );
+    file->next_line_number = line_number;
 }
 
 std::ostream & operator <<

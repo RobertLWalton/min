@@ -5648,11 +5648,28 @@ this is done is controlled by {\tt file->\EOL spool\_\EOL lines}.
 More specifically, in order for the {\tt min::\EOL line} function above
 to be able to find the line to return,
 \begin{center}\begin{tabular}{rl}
+       & \tt file->next\_line\_number - file->line\_index->length \\
+\tt <= & \tt line\_number \\
+\tt < & \tt file->next\_line\_number
+\end{tabular}\end{center}
+is required.
+In the absence of calls to {\tt min::rewind}(\pagref{MIN::REWIND_FILE})
+for a file,
+\begin{center}\begin{tabular}{rl}
+       & \tt file->line\_index->length => file->spool\_lines \\
+or \\
+       & \tt file->line\_index->length >= file->next\_line\_number \\
+\end{tabular}\end{center}
+and in this case
+\begin{center}\begin{tabular}{rl}
        & \tt file->next\_line\_number - file->spool\_lines \\
 \tt <= & \tt line\_number \\
 \tt < & \tt file->next\_line\_number
 \end{tabular}\end{center}
-is required.  For input files it is common to set {\tt spool\_\EOL lines}
+is a sufficient condition for {\tt min::\EOL line} to be able to
+find the line with the given {\tt line\_\EOL number}.
+
+For input files it is common to set {\tt spool\_\EOL lines}
 to \verb|min::|\MINNBKEY{ALL\_\EOL LINES}, which is effectively infinity,
 and saves all lines previously returned by {\tt min::\EOL next\_\EOL line}.
 For output files it is common to set {\tt spool\_\EOL lines} to {\tt 0},
@@ -5738,7 +5755,33 @@ An example use is
         min::print_line ( printer, file, line_number );
 \end{verbatim}\end{indpar}
 
+It is possible to `rewind' a file with the function:
 
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{rewind}
+        \begin{argstack}
+	\verb| ( min::file file,|\\
+	\verb|   min::uns32 line_number = 0 )|
+	\end{argstack}
+\LABEL{MIN::REWIND_FILE} \\
+\end{tabular}\end{indpar}
+
+This resets the next line that will be returned by
+{\tt min::\EOL next\_\EOL line} to some previously
+returned line.  {\tt min::rewind(n)} only succeeds if
+{\tt min::line(n)} does \underline{not} return
+{\tt min::\EOL NO\_\EOL LINE},
+or if {\tt n == file->\EOL next\_\EOL line\_\EOL number}
+(in this last case the rewind function does nothing).
+It is a \underline{programming} \underline{error}
+for {\tt min::\EOL rewind} to fail.  Normally rewind is only
+used with files whose {\tt spool\_\EOL length == min::\EOL ALL\_\EOL LINES},
+which eliminates the possibility of failure.  Note that
+if {\tt spool\_\EOL length != min::\EOL ALL\_\EOL LINES},
+a rewind can make {\tt line\_\EOL index} shorter than
+{\tt spool\_\EOL length}, causing {\tt min::\EOL line}
+to fail when it otherwise would not.
 
 If a {\tt file} does not have an input {\tt istream} or
 {\tt ifile}, a line can be added to the end of the file
@@ -5860,16 +5903,6 @@ these {\tt <<} operators interact with each other and with the
 {\tt min::\EOL flush\_\EOL file} function.  Generally such interaction
 is avoided by using only one of the {\tt <<} operators or only
 the {\tt min::\EOL flush\_\EOL file} function on a given file.
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{rewind}
-        \begin{argstack}
-	\verb| ( min::file file,|\\
-	\verb|   min::uns32 line_number = 0 )|
-	\end{argstack}
-\LABEL{MIN::REWIND_FILE} \\
-\end{tabular}\end{indpar}
 
 \subsection{Printers}
 \label{PRINTERS}
