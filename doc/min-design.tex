@@ -215,7 +215,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 4, 2011}
+\date{April 5, 2011}
  
 \maketitle
 
@@ -5223,11 +5223,14 @@ all lines returned are retained.
 
 Set to {\tt 0} when the file is created.  Set to an argument
 that defaults to {\tt min::\EOL ALL\_\EOL LINES}
-by {\tt min::\EOL init\_\EOL input\ldots} functions.
+by {\tt min::\EOL init\_\EOL input\_\ldots} functions.
 
 \item[\ttmkey{print\_\EOL flags}{in {\tt min::file}}]
 These are some of the printer {\tt parameters->\EOL flags} used to print
-a file line for error message purposes.  The flags involved are:
+a file line for error message purposes,
+in particular by the {\tt min::\EOL print\_\EOL line}
+function (\pagref{MIN::PRINT_LINE}).
+The flags involved are:
 \begin{indpar}
 \tt
 \begin{tabular}{l}
@@ -5265,12 +5268,14 @@ no {\tt min::ALLOW\_NSPACE\_FLAG}   & omitted from output, \\
 \end{tabular}
 \end{center}
 
-File lines are to be printed with these
+In error messages, file lines are printed with these
 flags set as in {\tt print\_\EOL flags} and with
 both {\tt min::\EOL HBREAK\_\EOL FLAG} and {\tt min::\EOL GBREAK\_\EOL FLAG}
-off.
+off (see printer flags at \pagref{PRINTER_FLAGS}).
 
-Set to {\tt 0} when the file is created.
+Set to {\tt 0} when the file is created.  Set to an argument
+that defaults to {\tt 0}
+by {\tt min::\EOL init\_\EOL input\_\ldots} functions.
 
 \item[\ttmkey{istream}{in {\tt min::file}}]
 If not {\tt NULL}, the {\tt min::\EOL next\_\EOL line} function
@@ -5303,6 +5308,8 @@ line are output as per the {\tt min::\EOL verbatim}
 printer operation (\pagref{MIN::VERBATIM}),
 and the line-terminating
 NUL elements are translated into sending {\tt min::eol} to the printer.
+Note that {\tt file->\EOL print\_\EOL flags} is \underline{not} used
+when buffer elements are flushed to {\tt file->\EOL printer}.
 
 Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
@@ -5317,27 +5324,23 @@ Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{filename}{in {\tt min::file}}]
 If not {\tt min::MISSING}, this
-is the name of this file for the purpose of printing error messages
-concerning file lines.
+is the name of this file used for printing error messages
+concerning file lines, in particular by the
+{\tt min::\EOL pline\_\EOL numbers} constructor
+(\pagref{MIN::PLINE_NUMBERS}).
 Set to {\tt min::\EOL MISSING} when the file is created.
 
 \end{itemlist}
-
-The {\tt min::}\MINKEY{init\ldots} functions all re-initialize existing
-files and create new ones.  They take a variable as their
-first argument, and if the variable value is {\tt min::\EOL
-NULL\_\EOL STUB}, then a new file is created and the
-variable is set to point at the new file.
-The different forms of {\tt min::\EOL init\ldots} set different
-file members.
 
 Creation, initialization, and parameterization of files is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{init\_\EOL input}\verb| ( min::file & file )|
+\verb|void min::| & \MINKEY{init\_\EOL input}%
+    \verb| ( min::ref<min::file> file )|
 \LABEL{MIN::INIT_INPUT_OF_FILE} \\
-\verb|void min::| & \MINKEY{init\_\EOL output}\verb| ( min::file & file )|
+\verb|void min::| & \MINKEY{init\_\EOL output}%
+    \verb| ( min::ref<min::file> file )|
 \LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -5345,26 +5348,27 @@ accomplished by the following:
 \verb|void min::|
     & \MINKEY{init\_print\_flags}
           \begin{argstack}
-          \verb| ( min::file & file,| \\
+          \verb| ( min::ref<min::file> file,| \\
 	  \verb|   min::uns32 print_flags )|
 	  \end{argstack}
 \LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_\EOL spool\_\EOL lines}
              \begin{argstack}
-	     \verb| ( min::file & file,|\\
+	     \verb| ( min::ref<min::file> file,|\\
              \verb|   min::uns32 spool_lines )|
 	     \end{argstack}
 \LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_\EOL file\_\EOL name}
              \begin{argstack}
-	     \verb| ( min::file & file,|\\
+	     \verb| ( min::ref<min::file> file,|\\
              \verb|   min::gen file_name )|
 	     \end{argstack}
 \LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_line\_index}\verb| ( void )|
+    & \MINKEY{init\_line\_index}%
+    \verb| ( min::ref<min::file> file )|
 \LABEL{MIN::INIT_LINE_INDEX_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -5372,21 +5376,21 @@ accomplished by the following:
 \verb|void min::|
     & \MINKEY{init\_output\_ostream}
           \begin{argstack}
-          \verb| ( min::file & file,| \\
+          \verb| ( min::ref<min::file> file,| \\
 	  \verb|   std::ostream & ostream )|
           \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_output\_file}
           \begin{argstack}
-          \verb| ( min::file & file,| \\
+          \verb| ( min::ref<min::file> file,| \\
 	  \verb|   min::file ofile )|
           \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
 \verb|void min::|
     & \MINKEY{init\_output\_printer}
           \begin{argstack}
-          \verb| ( min::file & file,| \\
+          \verb| ( min::ref<min::file> file,| \\
 	  \verb|   min::printer printer )|
           \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
@@ -5400,7 +5404,7 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_stream}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   std::istream & istream,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
@@ -5410,7 +5414,7 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_file}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::file ifile,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
@@ -5420,7 +5424,7 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_named\_file}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
@@ -5430,21 +5434,29 @@ accomplished by the following:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
     & \MINKEY{init\_input\_string}\ARGBREAK
-          \verb| ( min::file & file,|\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   const char * data,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
 \end{tabular}\end{indpar}
 
+These {\tt min::}\MINKEY{init\ldots} functions all re-initialize existing
+files and create new ones.  They take a reference to a variable as their
+first argument, and if the variable value is {\tt min::\EOL
+NULL\_\EOL STUB}, then a new file is created and the
+variable is set to point at the new file.
+The different forms of {\tt min::\EOL init\ldots} set different
+file members.
+
 In general, the {\tt min::\EOL init\_\EOL input\ldots} functions
 reinitialize all members, while all the other initialization functions
 just perform an equivalent of a {\tt min::rewind}, resetting
 {\tt next\_\EOL line\_\EOL number}
-and {\tt next\_\EOL line\_\EOL offset} to {\tt 0}, emptying
+and {\tt next\_\EOL line\_\EOL offset} to {\tt 0} and emptying
 {\tt line\_\EOL index} if it exists, and otherwise
 only resetting members from arguments given explicitly to the
-initialization functions.
+initialization function.
 For example, {\tt min::\EOL init\_\EOL print\_\EOL flags} just
 rewinds the file and sets {\tt print\_\EOL flags},
 and {\tt min::\EOL init\_\EOL output\_\EOL stream} just
@@ -5459,17 +5471,21 @@ init_input ( file1 );
 init_input_... ( file2, ... );
 init_output_file ( file2, file1 );
 \end{verbatim}\end{indpar}
-then applying {\tt min::flush} to {\tt file2} will write
-its contents to the end of {\tt file1}.
+then applying {\tt min::\EOL flush\_\EOL file} to {\tt file2} will write
+its contents to the end of {\tt file1}
+(see \pagref{MIN::FLUSH_FILE}).
 
 The {\tt min::init\_input\_named\_file} function loads the contents
-of the file with the given {\tt file\_\EOL name} into the file.  The
-file is rewound, so successive calls the {\tt min::\EOL next\_\EOL line}
+of the operating system
+file with the given {\tt file\_\EOL name} into the {\tt min::file}.  The
+{\tt min::file}
+is rewound, so successive calls the {\tt min::\EOL next\_\EOL line}
 will return successive lines of the file.  After loading the contents
-of the named file into the file {\tt buffer}, newline characters in the buffer
+of the named operating system file
+into the {\tt min::file} {\tt buffer}, newline characters in the buffer
 are converted to line-terminating NUL's.  NUL characters loaded into the
 buffer are also treated as line-terminating NUL's.  If there is no error in
-reading the file, {\tt true} is returned by this function.  If
+reading the operating system file, {\tt true} is returned by this function.  If
 there is an error, {\tt false} is returned, and an error message
 is written into {\tt min::\EOL error\_\EOL message}
 (\pagref{ERROR_MESSAGE}).
@@ -6087,7 +6103,7 @@ controls the printing of
 {\tt min::gen} values by the {\tt min::pgen} function described
 below.
 
-\item[\ttmkey{flags}{in {\tt min::printer\_parameters}}]
+\item[\ttmkey{flags}{in {\tt min::printer\_parameters}}]\label{PRINTER_FLAGS}
 The following flag bits control printing.  Some of these
 flags affect only certain categories of characters, which are
 defined as follows:
