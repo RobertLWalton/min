@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  5 07:10:02 EDT 2011
+// Date:	Fri Apr 15 11:22:57 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2410,8 +2410,7 @@ void test_printer ( void )
     printer << min::pgen
                     ( min::new_num_gen ( 1.23456789 ) )
             << min::eol;
-    printer << min::pgen ( min::new_num_gen
-    			        ( 1.23456789012345 ) )
+    printer << min::new_num_gen ( 1.23456789012345 )
             << min::eol;
 
     printer << min::pgen ( min::new_str_gen

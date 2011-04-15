@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr  1 08:22:25 EDT 2011
+// Fri Apr 15 09:33:38 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -337,7 +337,7 @@ namespace min {
     extern const char * special_name
                             [SPECIAL_NAME_LENGTH];
         // special_name[0xFFFFFF-i] is the name of
-	// min::special ( i ).  E.g.,
+	// min::new_special_gen ( i ).  E.g.,
 	// special_name[0] == "MISSING".
 }
 
@@ -3772,9 +3772,8 @@ namespace min {
 
     // UTF-8 Conversion Functions
 
-    const uns32 ILLEGAL_UTF8 = 0x2368;
-	// == `smirk',
-	// i.e., APL FUNCTIONAL SYMBOL TILDE DIAERESIS
+    const uns32 ILLEGAL_UTF8 = 0x2639;
+	// == `white frowning face',
 
     inline uns32 utf8_to_unicode ( const char * & s )
     {
@@ -9820,7 +9819,7 @@ namespace min {
 	const char * lab_postfix;
 	const char * special_prefix;
 	const char * special_postfix;
-	min::printer ( * pr_stub )
+	min::printer ( * pstub )
 	    ( min::printer printer,
 	      const min::stub * s );
     };
@@ -10166,6 +10165,13 @@ min::printer operator <<
 	( min::printer printer,
 	  min::float64 i );
 
+inline min::printer operator <<
+	( min::printer printer,
+	  min::gen g )
+{
+    return printer << min::pgen ( g );
+}
+
 inline std::ostream & operator <<
         ( std::ostream & out, min::printer printer )
 {
@@ -10202,12 +10208,19 @@ namespace min { namespace test {
 // difference between `out' and `printer', the other
 // differences are that for ogen (1) the format must
 // be given or it will default to min:default_printer_
-// format, and (2), the format pr_stub function is
-// ignored (treated as NULL).
+// format, and (2), the format pstub function is ignored
+// (treated as NULL).
 //
 std::ostream & operator <<
 	( std::ostream & out,
 	  const min::test::ogen & og );
+
+inline std::ostream & operator <<
+	( std::ostream & out,
+	  min::gen g )
+{
+    return out << min::test::ogen ( g );
+}
 
 // More Allocator/Collector/Compactor Interface
 // ---- ----------------------------- ---------
