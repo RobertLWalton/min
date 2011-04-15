@@ -1525,7 +1525,7 @@ Start Printer Test!
 <NUL><SOH><STX><ETX><EOT><ENQ><ACK><BEL><BS><HT><LF><VT><FF><CR><SO><SI>
     <DLE><DC1><DC2><DC3><DC4><NAK><SYN><ETB><CAN><EM><SUB><ESC><FS><GS>
     <RS><US><SP><DEL><ILL><ILL>
-␀␁␂␃␄␅␆␇␈␉␤␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣␡⍨⍨
+␀␁␂␃␄␅␆␇␈␉␤␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟␣␡☹☹
 ¡¢£¤¥¦§ ¨©ª«¬­®¯ °±²³´µ¶· ¸¹º»¼½¾¿
     ÀÁÂÃÄÅÆÇ ÈÉÊËÌÍÎÏ ÐÑÒÓÔÕÖ× ØÙÚÛÜÝÞß
     àáâãäåæç èéêëìíîï ðñòóôõö÷ øùúûüýþÿ
@@ -1582,7 +1582,7 @@ A   B
 ¡¢£¤¥¦§ ¨©ª«¬­®¯ °±²³´µ¶· ¸¹º»¼½¾¿
     ÀÁÂÃÄÅÆÇ ÈÉÊËÌÍÎÏ ÐÑÒÓÔÕÖ× ØÙÚÛÜÝÞß
     àáâãäåæç èéêëìíîï ðñòóôõö÷ øùúûüýþÿ
-⍨
+☹
 int32 -1 = -1
     int64 -2 = -2
     uns32 1 = 1
@@ -1618,10 +1618,10 @@ UNDEFINED_GEN(0xf4000000)
 MISSING {MISSING} MISSING
 A flush is next:
 The line being flushed
-a       ␀⍨
+a       ␀☹
 a       <2400><ILL>
 a<SOH><SP><HT><DEL><2400><ILL>
-a␁␣␉␡␀⍨
+a␁␣␉␡␀☹
 The file has lines: test_file: lines 1-4
 The last line is: test_file: line 4
 Line 1

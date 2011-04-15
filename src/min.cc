@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Apr  5 07:01:47 EDT 2011
+// Date:	Fri Apr 15 11:44:08 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7353,7 +7353,7 @@ T print_gen
 	( T out,
 	  min::gen v,
 	  const min::printer_format * f, 
-	  T (*pr_stub) ( T, const min::stub *) )
+	  T (*pstub) ( T, const min::stub *) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
@@ -7383,7 +7383,7 @@ T print_gen
 	for ( min::unsptr i = 0; i < len; ++ i )
 	{
 	    if ( i != 0 ) out << f->lab_separator;
-	    ::print_gen<T> ( out, labp[i], f, pr_stub );
+	    ::print_gen<T> ( out, labp[i], f, pstub );
 	}
 	return out << f->lab_postfix;
     }
@@ -7414,8 +7414,8 @@ T print_gen
 	    out << type_name;
 	else
 	    out << "TYPE(" << type << ")";
-	if ( f->pr_stub != NULL )
-	    (* pr_stub ) ( out, s );
+	if ( f->pstub != NULL )
+	    (* pstub ) ( out, s );
 	return out;
     }
     else if ( min::is_list_aux ( v ) )
@@ -7507,7 +7507,7 @@ min::printer operator <<
 	return print_gen<min::printer>
 	    ( printer,
 	      min::unprotected::new_gen ( op.v1.g ),
-	      f, f->pr_stub );
+	      f, f->pstub );
     }
     case min::op::PUNICODE1:
 	return MINT::print_unicode

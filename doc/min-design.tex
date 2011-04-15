@@ -207,6 +207,17 @@
 \newcommand{\COMPACT}{$\,^C$}
 \newcommand{\LOOSE}{$\,^L$}
 
+\newcommand{\ILLEGALCHAR}{
+    \makebox[0.1in]{\raisebox{-0.05in}{
+	\begin{picture}(0.2,0.2)
+	\put(0.1,0.1){\circle{0.12}} 
+	\put(0.075,0.125){\makebox(0.01,0.01){.}}
+	\put(0.115,0.125){\makebox(0.01,0.01){.}}
+	\put(0.103,0.072){\oval(0.06,0.06)[t]}
+	\end{picture}
+    }}
+}
+
 \begin{document}
         
 \title{Internal Design\\[2ex]of the\\[2ex]
@@ -215,7 +226,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 5, 2011}
+\date{April 15, 2011}
  
 \maketitle
 
@@ -3248,8 +3259,9 @@ encoding with the wrong number of continuation bytes,
 or if it encounters a continuation byte with no preceeding
 start byte, it returns \verb|min|::\MINNBKEY{UTF8\_\EOL ILLEGAL},%
 \label{UTF8_ILLEGAL}
-which is 2368 (hexadecimal), the `\key{smirk}', a.k.a
-the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
+which is 2639 (hexadecimal),
+the `\key{white frowning face}\index{face, white frowning}',
+\ILLEGALCHAR.
 In this case \verb|s| is updated to just after the illegal encoding.
 No other checks for illegal UNICODE characters are made.
 
@@ -5052,11 +5064,12 @@ functions for list pointers (\pagref{LIST-POINTER-CACHE}).
 \subsection{Files}
 \label{FILES}
 
-A MIN file is a sequence of UTF-8 encoded NUL-terminated
+A MIN \key{file} is a sequence of UTF-8 encoded NUL-terminated
 lines plus descriptive information.  A {\tt min::}\MINKEY{file} value is a
 pointer to a packed structure that contains the descriptive information
 and also contains
-a pointer to a packed {\tt char} vector that contains the lines.
+a pointer to a packed {\tt char} vector,
+the \key{file buffer}\index{buffer!file}, that contains the lines.
 
 The data types and members of a file are:
 
@@ -5182,11 +5195,11 @@ if the line is empty), where
 \end{center}
 provided
 \begin{center}
-{\tt 0 <= ( next\_line\_number - n ) <= line\_index->length}
+{\tt 0 <= ( next\_line\_number - n ) < line\_index->length}
 \end{center}
 If {\tt spool\_lines~==~min::ALL\_LINES}, then
 {\tt line\_\EOL index->\EOL length == next\_\EOL line\_\EOL number}
-and {\tt m~=~n}.
+and {\tt m~==~n}.
 Otherwise one must take into account that only the last
 {\tt spool\_\EOL lines} returned by the {\tt min::\EOL next\_\EOL line}
 function are guarenteed to be
@@ -5907,7 +5920,7 @@ the {\tt min::\EOL flush\_\EOL file} function on a given file.
 \subsection{Printers}
 \label{PRINTERS}
 
-A \ttkey{printer} may be used to print general values, print graphics for
+A \key{printer} may be used to print general values, print graphics for
 control characters, and break long lines to enforce line length.
 Internally a {\tt min::\EOL printer} is
 a packed structure that points at a {\tt min::\EOL file} and contains
@@ -5915,11 +5928,11 @@ additional information used to format lines put into the file.
 Values are written to printers via the \verb|<<| operator, much like the
 way values are written to {\tt std::\EOL ostream}'s.  A special
 printer line end operation writes a line terminating {\tt NUL}
-at the end of the printer file's vector, and optionally flushes the file.
+at the end of the printer file buffer, and optionally flushes the file.
 
 The MIN system has a per-process printer to hold error messages:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer min::| & \MINKEY{error\_\EOL message}
+\verb|min::locatable_var<min::printer> min::| & \MINKEY{error\_\EOL message}
 \LABEL{MIN::ERROR_MESSAGE}%
 \label{ERROR_MESSAGE} \\
 \end{tabular}\end{indpar}
@@ -5933,7 +5946,7 @@ if necessary, remove any previous message from the printer,
 and put the printer into a default state,
 and then write an error message consisting of one or more
 complete lines to the printer.  The following code is often
-used to do this:
+used to do this:\label{ERROR_MESSAGE_EXAMPLE}
 \begin{indpar}\begin{verbatim}
 # define ERR min::init ( min::error_message )
 ...
@@ -5943,7 +5956,7 @@ if ( error-occurred )
     return value-indicating-error-occurred;
 }
 ...
-\end{verbatim}\end{indpar}\label{ERROR_MESSAGE_EXAMPLE}.
+\end{verbatim}\end{indpar}
 
 Creation, initialization, and parameterization of printers is
 accomplished by the following:
@@ -5954,11 +5967,11 @@ accomplished by the following:
 	  \verb|    min::|\MINKEY{printer}
 \LABEL{MIN::PRINTER} \\
 \verb|min::printer min::| & \MINKEY{init}\ARGBREAK
-    \verb| ( min::printer & printer,|\ARGBREAK
+    \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   min::file file = min::NULL_STUB )|
 \LABEL{MIN::INIT_OF_PRINTER} \\
 \verb|min::printer min::| & \MINKEY{init\_output\_stream}\ARGBREAK
-    \verb| ( min::printer & printer,|\ARGBREAK
+    \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   std::ostream & ostream )|
 \LABEL{MIN::INIT_OUTPUT_STREAM_OF_PRINTER} \\
 \end{tabular}\end{indpar}
@@ -6029,7 +6042,7 @@ except when 2-argument {\tt min::init} is called (see above).
 
 \item[\ttmkey{column}{in {\tt min::printer}}]
 The number of columns currently in the line being assembled,
-or the column number of the next character to be input to the
+which equals the column number of the next character to be input to the
 printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
 
 \end{itemlist}
@@ -6038,8 +6051,8 @@ printer.  The first column number is {\tt 0}.  Initialized to {\tt 0}.
 
 \item[\ttmkey{break\_\EOL offset}{in {\tt min::printer}}]
 If there is no break point in the current line, this equals
-{\tt file->\EOL next\_\EOL line\_\EOL offset}.
-Otherwise it is the {\tt file->buffer} offset of the
+{\tt file->\EOL end\_\EOL offset}.
+Otherwise it is the {\tt file->buffer} index of the
 first byte in the current line after the last break point in the line.
 Initialized to {\tt 0}.
 
@@ -6161,7 +6174,7 @@ break point exists and
 \verb|printer->break_column > printer->parameters.indent|
 \end{center}
 then a break, consisting of a line end followed by indentation spaces,
-is pushed into the printer vector before the character representative.
+is pushed into the printer file buffer before the character representative.
 Any space characters before the break are deleted.
 
 Breaks may be inserted automatically by using
@@ -6169,7 +6182,7 @@ Breaks may be inserted automatically by using
 {\tt min::\EOL BBREAK\_\EOL FLAG}: see below.
 
 \item[\ttmkey{ indent}{in {\tt min::printer\_parameters}}]
-When a break is automatically pushed into a printer vector, the
+When a break is automatically pushed into a printer file buffer, the
 break consists of a line end ({\tt NUL} character) followed by
 {\tt indent} single space characters.
 
@@ -6191,8 +6204,8 @@ defined as follows:
     Vertical Space Characters: form feed, vertical tab
 \item[\ttnbmkey{NSPACE}{character category}]
     Non-Space Control Characters: all other characters
-with codes {\tt < 0x20}, including line feed and carriage return \\
-plus the delete character
+with codes {\tt < 0x20}, including line feed and carriage return, \\
+plus the delete character with code {\tt 0x7f}
 \item[] Non-ASCII Characters: characters
 with codes {\tt > 0x7F}.
 \end{itemlist}
@@ -6227,7 +6240,7 @@ For example, `{\tt <FF>}' represents the form-feed characters, and
 
 If the {\tt GRAPHIC\_XXX\_FLAG} is on and the {\tt ASCII\_FLAG} is
 \underline{off}, control and space characters are
-printed as UNICODE Control Pictures script characters,
+printed as UNICODE Control Picture script characters,
 range 2400-243F (hexadecimal).
 For example, single space prints as {\tt \textvisiblespace} and
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
@@ -6264,31 +6277,33 @@ to occupy {\tt 0} columns.
 
 If the {\tt ASCII\_FLAG} is on,
 ill-formed UTF-8 encodings are printed as `{\tt <ILL>}'.  If it is
-off, they are printed as character 2368 (hexadecimal), the `\key{smirk}', a.k.a
-the APL FUNCTIONAL SYMBOL TILDE DIAERESIS, $\stackrel{..}{\sim}$.
-
-If the {\tt ASCII\_FLAG} and {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} are both off,
-printing of characters of class {\tt XXX} is controled by the
-{\tt ALLOW\_\EOL XXX\_\EOL FLAG} flag.
+off, they are printed as character 2639 (hexadecimal),
+the `\key{white frowning face}\index{face!white frowning}',
+\ILLEGALCHAR.
 
 \item[\ttnbmkey{ALLOW\_HSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
 \item[\ttnbmkey{ALLOW\_VSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
 \item[\ttnbmkey{ALLOW\_NSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
 {\raggedright~\\}
-{\tt ALLOW\_XXX\_FLAG} causes all characters in class {\tt XXX} to
+If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is off,
+printing of characters of class {\tt XXX} is controled by the
+{\tt ALLOW\_\EOL XXX\_\EOL FLAG} flag, which
+causes all characters in class {\tt XXX} to
 represent themselves.  The single space character takes {\tt 1}
 column, the horizontal tab character takes from {\tt 1} to {\tt 8}
 columns depending on its position (tabs are every 8 spaces), and
 all vertical space and non-space control characters take {\tt 0}
-columns.  The {\tt ALLOW\_XXX\_FLAG} flag only has effect if the
-{\tt GRAPHIC\_XXX\_FLAG} flag is off.
+columns.
 
-If the {\tt ALLOW\_XXX\_FLAG} adn
+If the {\tt ALLOW\_XXX\_FLAG} and
 {\tt GRAPHIC\_XXX\_FLAG} flag are both off, the single space
 character represents itself, the horizontal tab character is
 represented by {\tt 1} to {\tt 8} single spaces, and all
 vertical space and non-space control characters are represented
 by the empty string: i.e., they do not output anything.
+
+If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is on the
+{\tt ALLOW\_\EOL XXX\_\EOL FLAG} flag has no affect.
 
 \item[\ttnbmkey{DISPLAY\_\EOL \_FLAG}{{\tt min::printer\_parameters} flag}]
 If this flag is on, the end of line prints as a graphic mode control
@@ -6364,11 +6379,12 @@ string of UNICODE characters as per
 {\tt min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
-When a horizontal tab is copied to a printer vector in non-graphic mode with
+When a horizontal tab is copied to a printer file buffer
+in non-graphic mode with
 the {\tt min::\EOL ALLOW\_\EOL HSPACE} flag off,
 the horizontal tab is converted to between 1 and 8 single space characters.
 
-When a \ttnbkey{NUL} is copied into a printer vector, which can only happen
+When a \ttnbkey{NUL} is copied into a printer file buffer, which can only happen
 in non-graphic mode with {\tt min::\EOL ALLOW\_\EOL NSPACE} on,
 it is encoded as the overlong encoding {\tt 0xC0},{\tt 0x80}.
 
@@ -6460,7 +6476,7 @@ explicitly set a break point:
 \end{tabular}\end{indpar}
 
 More specifically, {\tt printer<<min::setbreak} sets a break point after
-the last character in the printer vector by executing:
+the last character in the printer file buffer by executing:
 \begin{indpar}\begin{verbatim}
 printer->break_offset = printer->buffer->length;
 printer->break_column = printer->column;
@@ -6566,37 +6582,54 @@ If {\tt f} is {\tt NULL}, {\tt printer->\EOL parameters.for\-mat} is used
 instead.  If that is also {\tt NULL},
 {\tt \&min::default\_\EOL printer\_\EOL format} is used.
 
-Note that `{\tt printer<<v}' for a {\tt min::gen} value {\tt v} will
-\underline{not} have the desired result, as {\tt v} will be taken to be
-an integer.
+`{\tt printer<<v}' can also used as the equivalent of
+`{\tt printer<<min::pgen(v)}':
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer printer, min::gen v )|
+\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
+\end{tabular}\end{indpar}
 
 A {\tt min::printer\_format} is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
     \verb|{|\ARGBREAK
+    \verb|  uns32        flags;|\ARGBREAK
     \verb|  const char * number_format;|\ARGBREAK
     \verb|  const char * str_prefix;|\ARGBREAK
     \verb|  const char * str_postfix;|\ARGBREAK
+    \verb|  const char * str_ascii_quote;|\ARGBREAK
+    \verb|  const char * str_utf8_quote;|\ARGBREAK
     \verb|  const char * lab_prefix;|\ARGBREAK
     \verb|  const char * lab_separator;|\ARGBREAK
     \verb|  const char * lab_postfix;|\ARGBREAK
     \verb|  const char * special_prefix;|\ARGBREAK
     \verb|  const char * special_postfix;|\ARGBREAK
-    \verb|  min::printer & ( * pr_stub )|\ARGBREAK
+    \verb|  const char * special_names;|\ARGBREAK
+    \verb|  uns32        special_names_size;|\ARGBREAK
+    \verb|  min::printer & ( * pstub )|\ARGBREAK
     \verb|       ( min::printer & printer,|\ARGBREAK
     \verb|         const min::stub * s );|\ARGBREAK
     \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
+\ttmindex{flags}{in {\tt min::printer\_format}}
 \ttmindex{number\_format}{in {\tt min::printer\_format}}
 \ttmindex{str\_prefix}{in {\tt min::printer\_format}}
 \ttmindex{str\_postfix}{in {\tt min::printer\_format}}
+\ttmindex{str\_ascii\_quote}{in {\tt min::printer\_format}}
+\ttmindex{str\_utf8\_quote}{in {\tt min::printer\_format}}
 \ttmindex{lab\_prefix}{in {\tt min::printer\_format}}
 \ttmindex{lab\_separator}{in {\tt min::printer\_format}}
 \ttmindex{lab\_postfix}{in {\tt min::printer\_format}}
 \ttmindex{special\_prefix}{in {\tt min::printer\_format}}
 \ttmindex{special\_postfix}{in {\tt min::printer\_format}}
-\ttmindex{pr\_stub}{in {\tt min::printer\_format}}
+\ttmindex{special\_names}{in {\tt min::printer\_format}}
+\ttmindex{special\_names\_size}{in {\tt min::printer\_format}}
+\ttmindex{pstub}{in {\tt min::printer\_format}}
 \LABEL{MIN::PRINTER_FORMAT} \\
 \end{tabular}\end{indpar}
 
@@ -6604,11 +6637,14 @@ A {\tt min::printer\_format} is as follows:
 \multicolumn{2}{l}{\tt const min::printer\_format
                        min::\MINKEY{default\_printer\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
+    \verb|  0,           // flags|\ARGBREAK
     \verb|  "%.15g",     // number_format|\ARGBREAK
     \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  "["," ","]", // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  NULL,NULL,   // str_ascii/utf8_quote|\ARGBREAK
+    \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
     \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  NULL         // pr_stub|\ARGBREAK
+    \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
+    \verb|  NULL         // pstub|\ARGBREAK
     \verb|};|
 \LABEL{MIN::DEFAULT_PRINTER_FORMAT} \\
 \end{tabular}\end{indpar}
