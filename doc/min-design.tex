@@ -226,7 +226,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 26, 2011}
+\date{April 27, 2011}
  
 \maketitle
 
@@ -6722,6 +6722,8 @@ in graphic mode, as per the {\tt min::graphic} printer operation
 printing of any {\tt str\_\EOL pre/\EOL postfix} (see below).
 
 \item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}%
+    {{\tt min::printer\_parameters} flag}]\vspace{-1ex}
 \item[\ttnbmkey{DATA\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
 \item[\ttnbmkey{RAW\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
 \item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::printer\_parameters} flag}]%
@@ -6730,13 +6732,33 @@ These flags control the printing of objects.
 
 If the {\tt EXPRESSION\_\EOL FLAG} is set, only the vector elements of
 an object and the {\tt .initiator}, {\tt .separator}, and {\tt .terminator}
-elements are printed, and the output has the form of an expression that
-can be parsed.  This inverts the parsing process.
+attributes are printed, and other attributes are ignored.
+Also, the parsing special {\tt .initiator}'s {\tt \#} and {\tt "} are
+unwrapped (i.e., \verb/"foo" {| .initiator "<Q>" |}/ prints as
+\verb|"foo"|).
+Otherwise all attributes are printed, along with the vector elements,
+and parsing special {\tt .initiator}'s are not recognized.
 
-TBD
+If the {\tt IMPLICIT\_\EOL PARENTHESIS\_\EOL FLAG} is set,
+implicit parentheses are printed surrounding objects that have no
+attributes (and only vector elements).  Otherwise no parentheses are
+printed surrounding such objects.
 
-If the {\tt DATA\_EOL FLAG} is set, output of an object has the
-form
+If the {\tt DATA\_\EOL FLAG} is set the object is printed on
+one or more lines using the format:
+\begin{indpar}
+\verb|@|\verb|<|{\em number}\verb|> =| \ldots
+\end{indpar}
+
+These lines are all indented by the current printer indent (the
+object output begins with the {\tt min::\EOL indent} printer operation).
+
+If the {\tt RAW\_\EOL FLAG} is set, output of an object vector element that is
+a string is surrounded by {\tt str\_\EOL pre/postfix}, and
+output of an object vector element that is an object has the form
+\verb|@<|{\em number}\verb|>| and references an object output separately
+(if the object has not been otherwise output it is output as per the
+{\tt DATA\_\EOL FLAG}).
 
 TBD
 
