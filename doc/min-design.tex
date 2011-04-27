@@ -226,7 +226,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 16, 2011}
+\date{April 26, 2011}
  
 \maketitle
 
@@ -3273,16 +3273,17 @@ for \ttnbmkey{NUL}{UTF-8 encoding}
 (UTF-8 in which this is the \underline{only} permitted overlong encoding
 is called `modified UTF-8').  No other overlong encodings are output.
 
-It is sometimes useful to divide UNICODE characters into classes.
-The function
+It is sometimes useful to divide UNICODE characters into
+\skey{unicode class}{es}.  The function
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns8 min::| & \MINKEY{unicode\_class}\verb| ( min::uns32 c )|
 \LABEL{MIN::UNICODE_CLASS}
 \end{tabular}\end{indpar}
 
-returns the class of the UNICODE character {\tt c}.  The classes of all
-ASCII characters are the characters themselves, e.g., the class of
+returns the unicode class of the UNICODE character {\tt c}.
+The unicode classes of all
+ASCII characters are the characters themselves, e.g., the unicode class of
 `{\tt *}' is \verb|'*'|, \underline{except}:
 \begin{center}
 \begin{tabular}{l@{~is the class of~}l}
@@ -3292,12 +3293,17 @@ ASCII characters are the characters themselves, e.g., the class of
 \end{tabular}
 \end{center}
 
-The classes of non-ASCII UNICODE characters are:
+The unicode classes of non-ASCII UNICODE characters are:
 \begin{center}
-\begin{tabular}{l@{~is the class of~}l}
-\verb|'L'| & non-ASCII characters considered to be letters by C++ \\
-\verb|'D'| & combining diacritical marks \\
-\verb|'U'| & any character not otherwise assigned a class \\
+\raggedright
+\begin{tabular}{l@{~}l@{~}l}
+\verb|'L'| & is the unicode class of
+	   & non-ASCII characters considered to be letters by C++ \\
+\verb|'D'| & is the unicode class of
+	   & combining diacritical marks \\
+\verb|'U'| & is the unicode class of
+	   & any UNICODE character not otherwise assigned \\
+	   & &  a unicode class \\
 \end{tabular}
 \end{center}
 
@@ -6720,6 +6726,18 @@ printing of any {\tt str\_\EOL pre/\EOL postfix} (see below).
 \item[\ttnbmkey{RAW\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
 \item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::printer\_parameters} flag}]%
 \vspace{-1ex}
+These flags control the printing of objects.
+
+If the {\tt EXPRESSION\_\EOL FLAG} is set, only the vector elements of
+an object and the {\tt .initiator}, {\tt .separator}, and {\tt .terminator}
+elements are printed, and the output has the form of an expression that
+can be parsed.  This inverts the parsing process.
+
+TBD
+
+If the {\tt DATA\_EOL FLAG} is set, output of an object has the
+form
+
 TBD
 
 \end{itemlist}\end{indpar}
@@ -6762,22 +6780,51 @@ and the {\tt lab\_\EOL separa\-tor} member followed by a single space
 is printed between elements.
 
 \item[\ttmkey{special\_prefix}{in {\tt min::printer\_format}}]
-\item[\ttmkey{special\_separator}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{special\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
 The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
 just after special {\tt min::gen} values (such as `{\tt MISSING}').
 
 \item[\ttmkey{special\_names}{in {\tt min::printer\_format}}]
 \item[\ttmkey{special\_names\_size}{in {\tt min::printer\_format}}]\vspace{-2ex}
-TBD
+{\tt special\_names[i]} is printed as the representation of
+a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
+{\tt 0 <= i < special\_\EOL names\_\EOL size}.
 
 \item[\ttmkey{space\_prefix\_mask}{in {\tt min::printer\_format}}]
 \item[\ttmkey{space\_postfix\_mask}{in {\tt min::printer\_format}}]\vspace{-2ex}
+The space normally output after a {\tt lab\_\EOL separator} or between object
+vector elements is surpressed if
+\begin{center}
+\tt space\_prefix\_mask[B] \& space\_postfix\_mask[A] != 0
+\end{center}
+where
+\begin{center}
+\tt
+\begin{tabular}{l}
+B = min::unicode\_class ( b ) \\
+A = min::unicode\_class ( a ) \\
+b = {\rm the UNICODE character before the space} \\
+a = {\rm the UNICODE character after the space} \\
+\end{tabular}
+\end{center}
+
+provided neither {\tt space\_\EOL prefix\_\EOL mask}
+or {\tt space\_\EOL postfix\_\EOL mask} is {\tt NULL}.
+If these are not {\tt NULL}, they must be the addresses of
+C++ vectors each with exactly {\tt 256} {\tt min::\EOL uns32} elements.
+
 TBD
 
 \item[\ttmkey{pstub}{in {\tt min::printer\_format}}]
 The {\tt pstub} function, if it is not {\tt NULL}, is called
-with any {\tt min::stub} that is not a number, label, or string.
+with any {\tt min::stub} that is not a number, label, string, or object.
+
+Also, if the {\tt OBJ\_\EOL PSTUB\_\EOL FLAG} is set (see above),
+and the {\tt pstub} function is not {\tt NULL}, the {\tt pstub} function is
+also called for object stubs.  In this case the other object output control
+flags (e.g., the {\tt EXPRESSION\_\EOL FLAG}) may or may not be
+be ignored by the {\tt pstub} function.
 
 \end{itemlist}
 
