@@ -4,3 +4,6 @@
 *_compact
 *_stretch
 *_partial
+utf8test
+gen_test.s
+ref_test.s
