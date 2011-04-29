@@ -226,7 +226,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 27, 2011}
+\date{April 29, 2011}
  
 \maketitle
 
@@ -6599,257 +6599,10 @@ a message that consists of several lines with special flags set
 can be bracketted by {\tt min::bom} and {\tt min::eom}
 to restore parameters at the end of the message.
 
-Operations can also be used to print values with specified
-formats.  The {\tt min::\EOL pgen} operation prints
-{\tt min::gen} values using a {\tt min::\EOL printer\_\EOL format}:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{pgen}
-	  \begin{argstack}
-	  \verb| ( min::gen v,|\\
-	  \verb|   const min::printer_format * format = NULL )|
-	  \end{argstack}
-\LABEL{MIN::PGEN} \\
-\end{tabular}\end{indpar}
-
-The expression `{\tt printer<<min::pgen(v,f)}' prints the {\tt min::gen}
-value \verb|v| to the printer {\tt printer} using the
-{\tt min::\EOL printer\_\EOL format} value pointed at by {\tt f}.
-If {\tt f} is {\tt NULL}, {\tt printer->\EOL parameters.for\-mat} is used
-instead.  If that is also {\tt NULL},
-{\tt \&min::default\_\EOL printer\_\EOL format} is used.
-
-`{\tt printer<<v}' can also used as the equivalent of
-`{\tt printer<<min::pgen(v)}':
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer printer, min::gen v )|
-\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
-\end{tabular}\end{indpar}
-
-A {\tt min::printer\_format} is as follows:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32         flags;|\ARGBREAK
-    \verb|  const char *       number_format;|\ARGBREAK
-    \verb|  const char *       str_prefix;|\ARGBREAK
-    \verb|  const char *       str_postfix;|\ARGBREAK
-    \verb|  const char *       str_ascii_quote;|\ARGBREAK
-    \verb|  const char *       str_utf8_quote;|\ARGBREAK
-    \verb|  const char *       lab_prefix;|\ARGBREAK
-    \verb|  const char *       lab_separator;|\ARGBREAK
-    \verb|  const char *       lab_postfix;|\ARGBREAK
-    \verb|  const char *       special_prefix;|\ARGBREAK
-    \verb|  const char *       special_postfix;|\ARGBREAK
-    \verb|  const char *       special_names;|\ARGBREAK
-    \verb|  min::uns32         special_names_size;|\ARGBREAK
-    \verb|  const min::uns32 * space_prefix_mask;|\ARGBREAK
-    \verb|  const min::uns32 * space_postfix_mask;|\ARGBREAK
-    \verb|  min::printer & ( * pstub )|\ARGBREAK
-    \verb|       ( min::printer & printer,|\ARGBREAK
-    \verb|         const min::stub * s );|\ARGBREAK
-    \verb|  // Additional members may be added.|\ARGBREAK
-    \verb|};|
-\ttmindex{flags}{in {\tt min::printer\_format}}
-\ttmindex{number\_format}{in {\tt min::printer\_format}}
-\ttmindex{str\_prefix}{in {\tt min::printer\_format}}
-\ttmindex{str\_postfix}{in {\tt min::printer\_format}}
-\ttmindex{str\_ascii\_quote}{in {\tt min::printer\_format}}
-\ttmindex{str\_utf8\_quote}{in {\tt min::printer\_format}}
-\ttmindex{lab\_prefix}{in {\tt min::printer\_format}}
-\ttmindex{lab\_separator}{in {\tt min::printer\_format}}
-\ttmindex{lab\_postfix}{in {\tt min::printer\_format}}
-\ttmindex{special\_prefix}{in {\tt min::printer\_format}}
-\ttmindex{special\_postfix}{in {\tt min::printer\_format}}
-\ttmindex{special\_names}{in {\tt min::printer\_format}}
-\ttmindex{special\_names\_size}{in {\tt min::printer\_format}}
-\ttmindex{space\_prefix\_mask}{in {\tt min::printer\_format}}
-\ttmindex{space\_postfix\_mask}{in {\tt min::printer\_format}}
-\ttmindex{pstub}{in {\tt min::printer\_format}}
-\LABEL{MIN::PRINTER_FORMAT} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
-\LABEL{MIN::GRAPHIC_STR_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
-\LABEL{MIN::EXPRESSION_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
-\LABEL{MIN::DATA_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
-\LABEL{MIN::RAW_FLAG} \\
-\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_PSTUB\_FLAG}
-\LABEL{MIN::OBJ_PSTUB_FLAG} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\multicolumn{2}{l}{\tt const min::printer\_format
-                       min::\MINKEY{default\_printer\_format} =}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  0,           // flags|\ARGBREAK
-    \verb|  "%.15g",     // number_format|\ARGBREAK
-    \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
-    \verb|  NULL,NULL,   // str_ascii/utf8_quote|\ARGBREAK
-    \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
-    \verb|  "","",       // special_prefix/postfix|\ARGBREAK
-    \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
-    \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
-    \verb|  NULL         // pstub|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::DEFAULT_PRINTER_FORMAT} \\
-\end{tabular}\end{indpar}
-
-The {\tt min::printer\_parameters} members are:
-
-\begin{itemlist}
-
-\item[\ttmkey{flags}{in {\tt min::printer\_format}}]
-
-\end{itemlist}
-
-\begin{indpar}\begin{itemlist}[1.4in]
-
-\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::printer\_parameters} flag}]
-This flag causes {\tt min::gen} string value characters to be printed
-in graphic mode, as per the {\tt min::graphic} printer operation
-(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
-printing of any {\tt str\_\EOL pre/\EOL postfix} (see below).
-
-\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::printer\_parameters} flag}]
-\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}%
-    {{\tt min::printer\_parameters} flag}]\vspace{-1ex}
-\item[\ttnbmkey{DATA\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
-\item[\ttnbmkey{RAW\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
-\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::printer\_parameters} flag}]%
-\vspace{-1ex}
-These flags control the printing of objects.
-
-If the {\tt EXPRESSION\_\EOL FLAG} is set, only the vector elements of
-an object and the {\tt .initiator}, {\tt .separator}, and {\tt .terminator}
-attributes are printed, and other attributes are ignored.
-Also, the parsing special {\tt .initiator}'s {\tt \#} and {\tt "} are
-unwrapped (i.e., \verb/"foo" {| .initiator "<Q>" |}/ prints as
-\verb|"foo"|).
-Otherwise all attributes are printed, along with the vector elements,
-and parsing special {\tt .initiator}'s are not recognized.
-
-If the {\tt IMPLICIT\_\EOL PARENTHESIS\_\EOL FLAG} is set,
-implicit parentheses are printed surrounding objects that have no
-attributes (and only vector elements).  Otherwise no parentheses are
-printed surrounding such objects.
-
-If the {\tt DATA\_\EOL FLAG} is set the object is printed on
-one or more lines using the format:
-\begin{indpar}
-\verb|@|\verb|<|{\em number}\verb|> =| \ldots
-\end{indpar}
-
-These lines are all indented by the current printer indent (the
-object output begins with the {\tt min::\EOL indent} printer operation).
-
-If the {\tt RAW\_\EOL FLAG} is set, output of an object vector element that is
-a string is surrounded by {\tt str\_\EOL pre/postfix}, and
-output of an object vector element that is an object has the form
-\verb|@<|{\em number}\verb|>| and references an object output separately
-(if the object has not been otherwise output it is output as per the
-{\tt DATA\_\EOL FLAG}).
-
-TBD
-
-\end{itemlist}\end{indpar}
-
-\begin{itemlist}[1.6in]
-
-\item[\ttmkey{number\_format}{in {\tt min::printer\_format}}]
-The {\tt number\_format} member is used as a {\tt printf} format
-for printing {\tt min::gen} numbers convered to {\tt min::\EOL float64} values.
-
-\item[\ttmkey{str\_prefix}{in {\tt min::printer\_format}}]
-\item[\ttmkey{str\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
-The {\tt str\_\EOL \BRA pre,post\KET fix} members are printed just before and
-just after the string of characters in a {\tt min::gen} string value
-(which is itself a UTF-8 encoded UNICODE character string).
-
-\item[\ttmkey{str\_ascii\_quote}{in {\tt min::printer\_format}}]
-\item[\ttmkey{str\_utf8\_quote}{in {\tt min::printer\_format}}]\vspace{-2ex}
-Which one of these fields is active depends upon whether the printer
-{\tt ASCII\_\EOL FLAG} is set:
-if it is set, the {\tt str\_\EOL ascii\_\EOL quote} member is active, and
-if it is clear, the {\tt str\_\EOL utf8\_\EOL quote} member is active.
-If the active member is not {\tt NULL}, then any {\tt min::gen} string
-subsequence of characters equal to {\tt str\_\EOL postfix} is replaced
-by the characters of the active member.
-
-For example, if the {\tt ASCII\_\EOL FLAG} is set, if
-{\tt str\_\EOL postfix} is \verb|"\""|, and if
-{\tt str\_\EOL ascii\_\EOL quote} is \verb|"<Q>"|, then \verb|<Q>| replaces
-each \verb|"| in any {\tt min::gen} string that is printed (but of course not
-in {\tt str\_\EOL postfix} when that is printed just after the
-{\tt min::gen} string is printed).
-
-\item[\ttmkey{lab\_prefix}{in {\tt min::printer\_format}}]
-\item[\ttmkey{lab\_separator}{in {\tt min::printer\_format}}]\vspace{-2ex}
-\item[\ttmkey{lab\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
-The {\tt lab\_\EOL \BRA pre,post\KET fix} members are printed just before and
-just after the elements of a label {\tt min::gen} value,
-and the {\tt lab\_\EOL separa\-tor} member followed by a single space
-is printed between elements.
-
-\item[\ttmkey{special\_prefix}{in {\tt min::printer\_format}}]
-\item[\ttmkey{special\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
-The {\tt special\_\EOL \BRA pre,post\KET fix}
-members are printed just before and
-just after special {\tt min::gen} values (such as `{\tt MISSING}').
-
-\item[\ttmkey{special\_names}{in {\tt min::printer\_format}}]
-\item[\ttmkey{special\_names\_size}{in {\tt min::printer\_format}}]\vspace{-2ex}
-{\tt special\_names[i]} is printed as the representation of
-a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
-{\tt 0 <= i < special\_\EOL names\_\EOL size}.
-
-\item[\ttmkey{space\_prefix\_mask}{in {\tt min::printer\_format}}]
-\item[\ttmkey{space\_postfix\_mask}{in {\tt min::printer\_format}}]\vspace{-2ex}
-The space normally output after a {\tt lab\_\EOL separator} or between object
-vector elements is surpressed if
-\begin{center}
-\tt space\_prefix\_mask[B] \& space\_postfix\_mask[A] != 0
-\end{center}
-where
-\begin{center}
-\tt
-\begin{tabular}{l}
-B = min::unicode\_class ( b ) \\
-A = min::unicode\_class ( a ) \\
-b = {\rm the UNICODE character before the space} \\
-a = {\rm the UNICODE character after the space} \\
-\end{tabular}
-\end{center}
-
-provided neither {\tt space\_\EOL prefix\_\EOL mask}
-or {\tt space\_\EOL postfix\_\EOL mask} is {\tt NULL}.
-If these are not {\tt NULL}, they must be the addresses of
-C++ vectors each with exactly {\tt 256} {\tt min::\EOL uns32} elements.
-
-TBD
-
-\item[\ttmkey{pstub}{in {\tt min::printer\_format}}]
-The {\tt pstub} function, if it is not {\tt NULL}, is called
-with any {\tt min::stub} that is not a number, label, string, or object.
-
-Also, if the {\tt OBJ\_\EOL PSTUB\_\EOL FLAG} is set (see above),
-and the {\tt pstub} function is not {\tt NULL}, the {\tt pstub} function is
-also called for object stubs.  In this case the other object output control
-flags (e.g., the {\tt EXPRESSION\_\EOL FLAG}) may or may not be
-be ignored by the {\tt pstub} function.
-
-\end{itemlist}
-
+{\tt min::gen} values may be printed under the control of a
+{\tt min::\EOL printer\_\EOL format}.  As printing objects
+can be complex, printing {\tt min::gen} values is
+described in the separate Section~\itemref{PRINTING-GENERAL-VALUES}.
 
 A single UNICODE character {\tt c}, or a string of UNICODE characters
 {\tt str} of a given {\tt length},
@@ -7057,6 +6810,261 @@ line terminating NULs are translated to {\tt min::\EOL eol}
 operations.  Also note that the operation to undo the results
 of {\tt min::\EOL verbatim} does not exist (you must push and pop
 the parameters).
+
+\subsection{Printing General Values}
+\label{PRINTING-GENERAL-VALUES}
+
+{\tt min::gen} values are printed using a
+a {\tt min::\EOL printer\_\EOL format}.
+The {\tt min::\EOL pgen} printer operation can specify
+this format explicitly:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::op min::|
+    & \MINKEY{pgen}
+	  \begin{argstack}
+	  \verb| ( min::gen v,|\\
+	  \verb|   const min::printer_format * format = NULL )|
+	  \end{argstack}
+\LABEL{MIN::PGEN} \\
+\end{tabular}\end{indpar}
+
+The expression `{\tt printer<<min::pgen(v,f)}' prints the {\tt min::gen}
+value \verb|v| to the printer {\tt printer} using the
+{\tt min::\EOL printer\_\EOL format} value pointed at by {\tt f}.
+If {\tt f} is {\tt NULL}, {\tt printer->\EOL parameters.for\-mat} is used
+instead.  If that is also {\tt NULL},
+{\tt \&min::default\_\EOL printer\_\EOL format} is used.
+
+`{\tt printer<<v}' can also used as the equivalent of
+`{\tt printer<<min::pgen(v)}':
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer printer, min::gen v )|
+\LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
+\end{tabular}\end{indpar}
+
+A {\tt min::printer\_format} is as follows:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32         flags;|\ARGBREAK
+    \verb|  const char *       number_format;|\ARGBREAK
+    \verb|  const char *       str_prefix;|\ARGBREAK
+    \verb|  const char *       str_postfix;|\ARGBREAK
+    \verb|  const char *       str_ascii_quote;|\ARGBREAK
+    \verb|  const char *       str_utf8_quote;|\ARGBREAK
+    \verb|  const char *       lab_prefix;|\ARGBREAK
+    \verb|  const char *       lab_separator;|\ARGBREAK
+    \verb|  const char *       lab_postfix;|\ARGBREAK
+    \verb|  const char *       special_prefix;|\ARGBREAK
+    \verb|  const char *       special_postfix;|\ARGBREAK
+    \verb|  const char *       special_names;|\ARGBREAK
+    \verb|  min::uns32         special_names_size;|\ARGBREAK
+    \verb|  const min::uns32 * space_prefix_mask;|\ARGBREAK
+    \verb|  const min::uns32 * space_postfix_mask;|\ARGBREAK
+    \verb|  min::printer & ( * pstub )|\ARGBREAK
+    \verb|       ( min::printer & printer,|\ARGBREAK
+    \verb|         const min::stub * s );|\ARGBREAK
+    \verb|  // Additional members may be added.|\ARGBREAK
+    \verb|};|
+\ttmindex{flags}{in {\tt min::printer\_format}}
+\ttmindex{number\_format}{in {\tt min::printer\_format}}
+\ttmindex{str\_prefix}{in {\tt min::printer\_format}}
+\ttmindex{str\_postfix}{in {\tt min::printer\_format}}
+\ttmindex{str\_ascii\_quote}{in {\tt min::printer\_format}}
+\ttmindex{str\_utf8\_quote}{in {\tt min::printer\_format}}
+\ttmindex{lab\_prefix}{in {\tt min::printer\_format}}
+\ttmindex{lab\_separator}{in {\tt min::printer\_format}}
+\ttmindex{lab\_postfix}{in {\tt min::printer\_format}}
+\ttmindex{special\_prefix}{in {\tt min::printer\_format}}
+\ttmindex{special\_postfix}{in {\tt min::printer\_format}}
+\ttmindex{special\_names}{in {\tt min::printer\_format}}
+\ttmindex{special\_names\_size}{in {\tt min::printer\_format}}
+\ttmindex{space\_prefix\_mask}{in {\tt min::printer\_format}}
+\ttmindex{space\_postfix\_mask}{in {\tt min::printer\_format}}
+\ttmindex{pstub}{in {\tt min::printer\_format}}
+\LABEL{MIN::PRINTER_FORMAT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{GRAPHIC\_STR\_FLAG}
+\LABEL{MIN::GRAPHIC_STR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{EXPRESSION\_FLAG}
+\LABEL{MIN::EXPRESSION_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{DATA\_FLAG}
+\LABEL{MIN::DATA_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{RAW\_FLAG}
+\LABEL{MIN::RAW_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{OBJ\_PSTUB\_FLAG}
+\LABEL{MIN::OBJ_PSTUB_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\multicolumn{2}{l}{\tt const min::printer\_format
+                       min::\MINKEY{default\_printer\_format} =}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  0,           // flags|\ARGBREAK
+    \verb|  "%.15g",     // number_format|\ARGBREAK
+    \verb|  "`","'",     // str_prefix/postfix|\ARGBREAK
+    \verb|  NULL,NULL,   // str_ascii/utf8_quote|\ARGBREAK
+    \verb|  "[","","]",  // lab_prefix/separator/postfix|\ARGBREAK
+    \verb|  "","",       // special_prefix/postfix|\ARGBREAK
+    \verb|  NULL,0,      // special_names/names_size|\ARGBREAK
+    \verb|  NULL,NULL,   // space_pre/postfix_mask|\ARGBREAK
+    \verb|  NULL         // pstub|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::DEFAULT_PRINTER_FORMAT} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::printer\_format} members are:
+
+\begin{itemlist}
+
+\item[\ttmkey{flags}{in {\tt min::printer\_format}}]
+
+\end{itemlist}
+
+\begin{indpar}\begin{itemlist}[1.4in]
+
+\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::printer\_parameters} flag}]
+This flag causes {\tt min::gen} string value characters to be printed
+in graphic mode, as per the {\tt min::graphic} printer operation
+(\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
+printing of any {\tt str\_\EOL pre/\EOL postfix} (see below).
+
+\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}%
+    {{\tt min::printer\_parameters} flag}]\vspace{-1ex}
+\item[\ttnbmkey{DATA\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
+\item[\ttnbmkey{RAW\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
+\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::printer\_parameters} flag}]%
+\vspace{-1ex}
+These flags control the printing of objects.
+
+If the {\tt EXPRESSION\_\EOL FLAG} is set, only the vector elements of
+an object and the {\tt .initiator}, {\tt .separator}, and {\tt .terminator}
+attributes are printed, and other attributes are ignored.
+Also, the parsing special {\tt .initiator}'s {\tt \#} and {\tt "} are
+unwrapped (i.e., \verb/"foo" {| .initiator "<Q>" |}/ prints as
+\verb|"foo"|).
+Otherwise all attributes are printed, along with the vector elements,
+and parsing special {\tt .initiator}'s are not recognized.
+
+If the {\tt IMPLICIT\_\EOL PARENTHESIS\_\EOL FLAG} is set,
+implicit parentheses are printed surrounding objects that have no
+attributes (and only vector elements).  Otherwise no parentheses are
+printed surrounding such objects.
+
+If the {\tt DATA\_\EOL FLAG} is set the object is printed on
+one or more lines using the format:
+\begin{indpar}
+\verb|@|\verb|<|{\em number}\verb|> =| \ldots
+\end{indpar}
+
+These lines are all indented by the current printer indent (the
+object output begins with the {\tt min::\EOL indent} printer operation).
+
+If the {\tt RAW\_\EOL FLAG} is set, output of an object vector element that is
+a string is surrounded by {\tt str\_\EOL pre/postfix}, and
+output of an object vector element that is an object has the form
+\verb|@<|{\em number}\verb|>| and references an object output separately
+(if the object has not been otherwise output it is output as per the
+{\tt DATA\_\EOL FLAG}).
+
+TBD
+
+\end{itemlist}\end{indpar}
+
+\begin{itemlist}[1.6in]
+
+\item[\ttmkey{number\_format}{in {\tt min::printer\_format}}]
+The {\tt number\_format} member is used as a {\tt printf} format
+for printing {\tt min::gen} numbers convered to {\tt min::\EOL float64} values.
+
+\item[\ttmkey{str\_prefix}{in {\tt min::printer\_format}}]
+\item[\ttmkey{str\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
+The {\tt str\_\EOL \BRA pre,post\KET fix} members are printed just before and
+just after the string of characters in a {\tt min::gen} string value
+(which is itself a UTF-8 encoded UNICODE character string).
+
+\item[\ttmkey{str\_ascii\_quote}{in {\tt min::printer\_format}}]
+\item[\ttmkey{str\_utf8\_quote}{in {\tt min::printer\_format}}]\vspace{-2ex}
+Which one of these fields is active depends upon whether the printer
+{\tt ASCII\_\EOL FLAG} is set:
+if it is set, the {\tt str\_\EOL ascii\_\EOL quote} member is active, and
+if it is clear, the {\tt str\_\EOL utf8\_\EOL quote} member is active.
+If the active member is not {\tt NULL}, then any {\tt min::gen} string
+subsequence of characters equal to {\tt str\_\EOL postfix} is replaced
+by the characters of the active member.
+
+For example, if the {\tt ASCII\_\EOL FLAG} is set, if
+{\tt str\_\EOL postfix} is \verb|"\""|, and if
+{\tt str\_\EOL ascii\_\EOL quote} is \verb|"<Q>"|, then \verb|<Q>| replaces
+each \verb|"| in any {\tt min::gen} string that is printed (but of course not
+in {\tt str\_\EOL postfix} when that is printed just after the
+{\tt min::gen} string is printed).
+
+\item[\ttmkey{lab\_prefix}{in {\tt min::printer\_format}}]
+\item[\ttmkey{lab\_separator}{in {\tt min::printer\_format}}]\vspace{-2ex}
+\item[\ttmkey{lab\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
+The {\tt lab\_\EOL \BRA pre,post\KET fix} members are printed just before and
+just after the elements of a label {\tt min::gen} value,
+and the {\tt lab\_\EOL separa\-tor} member followed by a single space
+is printed between elements.
+
+\item[\ttmkey{special\_prefix}{in {\tt min::printer\_format}}]
+\item[\ttmkey{special\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
+The {\tt special\_\EOL \BRA pre,post\KET fix}
+members are printed just before and
+just after special {\tt min::gen} values (such as `{\tt MISSING}').
+
+\item[\ttmkey{special\_names}{in {\tt min::printer\_format}}]
+\item[\ttmkey{special\_names\_size}{in {\tt min::printer\_format}}]\vspace{-2ex}
+{\tt special\_names[i]} is printed as the representation of
+a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
+{\tt 0 <= i < special\_\EOL names\_\EOL size}.
+
+\item[\ttmkey{space\_prefix\_mask}{in {\tt min::printer\_format}}]
+\item[\ttmkey{space\_postfix\_mask}{in {\tt min::printer\_format}}]\vspace{-2ex}
+The space normally output after a {\tt lab\_\EOL separator} or between object
+vector elements is surpressed if
+\begin{center}
+\tt space\_prefix\_mask[B] \& space\_postfix\_mask[A] != 0
+\end{center}
+where
+\begin{center}
+\tt
+\begin{tabular}{l}
+B = min::unicode\_class ( b ) \\
+A = min::unicode\_class ( a ) \\
+b = {\rm the UNICODE character before the space} \\
+a = {\rm the UNICODE character after the space} \\
+\end{tabular}
+\end{center}
+
+provided neither {\tt space\_\EOL prefix\_\EOL mask}
+or {\tt space\_\EOL postfix\_\EOL mask} is {\tt NULL}.
+If these are not {\tt NULL}, they must be the addresses of
+C++ vectors each with exactly {\tt 256} {\tt min::\EOL uns32} elements.
+
+TBD
+
+\item[\ttmkey{pstub}{in {\tt min::printer\_format}}]
+The {\tt pstub} function, if it is not {\tt NULL}, is called
+with any {\tt min::stub} that is not a number, label, string, or object.
+
+Also, if the {\tt OBJ\_\EOL PSTUB\_\EOL FLAG} is set (see above),
+and the {\tt pstub} function is not {\tt NULL}, the {\tt pstub} function is
+also called for object stubs.  In this case the other object output control
+flags (e.g., the {\tt EXPRESSION\_\EOL FLAG}) may or may not be
+be ignored by the {\tt pstub} function.
+
+\end{itemlist}
 
 \subsection{Objects}
 \label{OBJECTS}
