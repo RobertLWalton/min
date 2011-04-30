@@ -226,7 +226,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 29, 2011}
+\date{April 30, 2011}
  
 \maketitle
 
@@ -6815,7 +6815,7 @@ the parameters).
 \label{PRINTING-GENERAL-VALUES}
 
 {\tt min::gen} values are printed using a
-a {\tt min::\EOL printer\_\EOL format}.
+{\tt min::\EOL printer\_\EOL format}.
 The {\tt min::\EOL pgen} printer operation can specify
 this format explicitly:
 
@@ -6834,7 +6834,7 @@ value \verb|v| to the printer {\tt printer} using the
 {\tt min::\EOL printer\_\EOL format} value pointed at by {\tt f}.
 If {\tt f} is {\tt NULL}, {\tt printer->\EOL parameters.for\-mat} is used
 instead.  If that is also {\tt NULL},
-{\tt \&min::default\_\EOL printer\_\EOL format} is used.
+{\tt \&\,min::default\_\EOL printer\_\EOL format} is used.
 
 `{\tt printer<<v}' can also used as the equivalent of
 `{\tt printer<<min::pgen(v)}':
@@ -6905,6 +6905,13 @@ A {\tt min::printer\_format} is as follows:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINNBKEY{PREFIX\_SEPARATOR\_FLAG}
+\LABEL{MIN::PREFIX_SEPARATOR_FLAG} \\
+\verb|const min::uns32 min::| & \MINNBKEY{POSTFIX\_SEPARATOR\_FLAG}
+\LABEL{MIN::POSTFIX_SEPARATOR_FLAG} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \multicolumn{2}{l}{\tt const min::printer\_format
                        min::\MINKEY{default\_printer\_format} =}\ARGBREAK
     \verb|{|\ARGBREAK
@@ -6931,36 +6938,41 @@ The {\tt min::printer\_format} members are:
 
 \begin{indpar}\begin{itemlist}[1.4in]
 
-\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{GRAPHIC\_STR\_FLAG}{{\tt min::printer\_format} flag}]
 This flag causes {\tt min::gen} string value characters to be printed
 in graphic mode, as per the {\tt min::graphic} printer operation
 (\pagref{MIN::GRAPHIC}).  This flag does \underline{not} affect the
 printing of any {\tt str\_\EOL pre/\EOL postfix} (see below).
 
-\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{EXPRESSION\_FLAG}{{\tt min::printer\_format} flag}]
 \item[\ttnbmkey{IMPLICIT\_PARENTHESES\_FLAG}%
-    {{\tt min::printer\_parameters} flag}]\vspace{-1ex}
-\item[\ttnbmkey{DATA\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
-\item[\ttnbmkey{RAW\_FLAG}{{\tt min::printer\_parameters} flag}]\vspace{-1ex}
-\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::printer\_parameters} flag}]%
+    {{\tt min::printer\_format} flag}]\vspace{-1ex}
+\item[\ttnbmkey{DATA\_FLAG}{{\tt min::printer\_format} flag}]\vspace{-1ex}
+\item[\ttnbmkey{RAW\_FLAG}{{\tt min::printer\_format} flag}]\vspace{-1ex}
+\item[\ttnbmkey{OBJ\_PSTUB\_FLAG}{{\tt min::printer\_format} flag}]%
 \vspace{-1ex}
-These flags control the printing of objects.
+These flags control the printing of objects.  Note that a `\key{subobject}'
+is an object that is a vector element or attribute value of an object
+being printed.
 
 If the {\tt EXPRESSION\_\EOL FLAG} is set, only the vector elements of
 an object and the {\tt .initiator}, {\tt .separator}, and {\tt .terminator}
 attributes are printed, and other attributes are ignored.
-Also, the parsing special {\tt .initiator}'s {\tt \#} and {\tt "} are
+
+Also, the special parsing {\tt .initiator}'s {\tt \#} and {\tt "} are
 unwrapped (i.e., \verb/"foo" {| .initiator "<Q>" |}/ prints as
-\verb|"foo"|).
-Otherwise all attributes are printed, along with the vector elements,
-and parsing special {\tt .initiator}'s are not recognized.
+\verb|"foo"|), and the special parsing {\tt .separator} {\tt "<NL>"}
+is treated as signaling an indentation mark line list.
+
+If this flag is off, all attributes are printed, along with the vector elements,
+and special parsing attributes are not recognized.
 
 If the {\tt IMPLICIT\_\EOL PARENTHESIS\_\EOL FLAG} is set,
-implicit parentheses are printed surrounding objects that have no
-attributes (and only vector elements).  Otherwise no parentheses are
-printed surrounding such objects.
+implicit parentheses are printed surrounding subobjects
+that have no attributes (and only vector elements).
+Otherwise no parentheses are printed surrounding such objects.
 
-If the {\tt DATA\_\EOL FLAG} is set the object is printed on
+If the {\tt DATA\_\EOL FLAG} is set objects are printed on
 one or more lines using the format:
 \begin{indpar}
 \verb|@|\verb|<|{\em number}\verb|> =| \ldots
@@ -6968,15 +6980,16 @@ one or more lines using the format:
 
 These lines are all indented by the current printer indent (the
 object output begins with the {\tt min::\EOL indent} printer operation).
+Complex subobjects and non-published subobjects are
+referenc\-ed by \verb|@|\verb|<|{\em number}\verb|>|'s and
+printed separately from their containing objects.
 
-If the {\tt RAW\_\EOL FLAG} is set, output of an object vector element that is
+If the {\tt RAW\_\EOL FLAG} is set,
+the output of an object vector element that is
 a string is surrounded by {\tt str\_\EOL pre/postfix}, and
-output of an object vector element that is an object has the form
-\verb|@<|{\em number}\verb|>| and references an object output separately
-(if the object has not been otherwise output it is output as per the
-{\tt DATA\_\EOL FLAG}).
-
-TBD
+subobjects are all printed separately and referenced by
+\verb|@<|{\em number}\verb|>|'s.  If subobjects are being printed,
+the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
 
 \end{itemlist}\end{indpar}
 
@@ -7052,7 +7065,29 @@ or {\tt space\_\EOL postfix\_\EOL mask} is {\tt NULL}.
 If these are not {\tt NULL}, they must be the addresses of
 C++ vectors each with exactly {\tt 256} {\tt min::\EOL uns32} elements.
 
-TBD
+The following flags are used in these masks:
+
+\end{itemlist}
+
+\begin{indpar}\begin{itemlist}[1.9in]
+
+\item[\ttnbmkey{PREFIX\_SEPARATOR\_FLAG}{{\tt min::printer\_format} flag}]
+In the {\tt space\_\EOL prefix\_\EOL mask} this flag means that a character
+is a prefix separator character that may be adjacent to a following character,
+and in the {\tt space\_\EOL postfix\_\EOL mask} this flag means that
+a character may be adjacent to an immediately preceeding prefix separator
+character.
+
+\item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}{{\tt min::printer\_format} flag}]
+In the {\tt space\_\EOL postfix\_\EOL mask} this flag means that a character
+is a postfix separator character that may be adjacent to a preceeding character,
+and in the {\tt space\_\EOL prefix\_\EOL mask} this flag means that
+a character may be adjacent to an immediately following postfix separator
+character.
+
+\end{itemlist}\end{indpar}
+
+\begin{itemlist}
 
 \item[\ttmkey{pstub}{in {\tt min::printer\_format}}]
 The {\tt pstub} function, if it is not {\tt NULL}, is called
