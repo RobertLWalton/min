@@ -5393,10 +5393,6 @@ accomplished by the following:
              \verb|   min::gen file_name )|
 	     \end{argstack}
 \LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
-\verb|void min::|
-    & \MINKEY{init\_line\_index}%
-    \verb| ( min::ref<min::file> file )|
-\LABEL{MIN::INIT_LINE_INDEX_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -5706,6 +5702,11 @@ If this condition is met, all lines before the one with the given
 {\tt line\_\EOL number} are deleted.  If the {\tt line\_\EOL number}
 argument is omitted or equivalently given as {\tt min::\EOL NO\_\EOL LINE},
 it is replaced by {\tt file->\EOL next\_\EOL line\_\EOL number}.
+It is a programming error if
+\begin{center}
+\tt line\_number > file->next\_line\_number
+\end{center}
+
 
 
 The following function uses {\tt min::line} to print a line as part of

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Fri Apr 15 09:33:38 EDT 2011
+// Date:	Mon May  2 13:00:27 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5544,9 +5544,6 @@ namespace min {
 	    ( min::ref<min::file> file,
 	      min::gen file_name );
 
-    void init_line_index
-	    ( min::ref<min::file> file );
-
     void init_output_stream
 	    ( min::ref<min::file> file,
 	      std::ostream & ostream );
@@ -5623,6 +5620,9 @@ namespace min {
     void flush_line
 	    ( min::file file, min::uns32 offset );
     void flush_partial ( min::file file );
+    void flush_spool
+	    ( min::file file,
+	      min::uns32 line_number = NO_LINE );
 
     void rewind ( min::file file,
                   min::uns32 line_number = 0 );

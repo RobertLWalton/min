@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 15 11:44:08 EDT 2011
+// Date:	Mon May  2 13:00:44 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1685,10 +1685,18 @@ inline void set_spool_lines
 	  min::uns32 spool_lines )
 {
     file->spool_lines = spool_lines;
-    if (    spool_lines != 0
-         && file->line_index == min::NULL_STUB )
-        min::line_index_ref(file) =
-	    ::file_line_index_type.new_stub();
+    if ( spool_lines != 0 )
+    {
+        if ( file->line_index == min::NULL_STUB )
+	    min::line_index_ref(file) =
+		::file_line_index_type.new_stub();
+    }
+    else
+    {
+        if ( file->line_index != min::NULL_STUB )
+	    min::line_index_ref(file) =
+		min::NULL_STUB;
+    }
 }
 
 void min::init_spool_lines
@@ -1705,15 +1713,6 @@ void min::init_file_name
 {
     init_output ( file );
     file_name_ref(file) = file_name;
-}
-
-void min::init_line_index
-	( min::ref<min::file> file )
-{
-    init_output ( file );
-    if ( file->line_index == NULL_STUB )
-        line_index_ref(file) =
-	    ::file_line_index_type.new_stub();
 }
 
 void min::init_output_stream
@@ -1908,59 +1907,6 @@ void min::init_input_string
 min::uns32 min::next_line ( min::file file )
 {
     uns32 line_offset = file->next_line_offset;
-
-    // If unneeded buffer data is 1/2 of buffer
-    // max_length, perform downshift to eliminate
-    // unneeded buffer data.
-    //
-    if ( file->spool_lines == 0 )
-    {
-        if ( line_offset
-	     >
-	     file->buffer->max_length / 2 )
-	{
-	    if ( line_offset < file->buffer->length )
-		memmove ( & file->buffer[0],
-			  & file->buffer[line_offset],
-			    file->buffer->length
-			  - line_offset );
-	    min::pop ( file->buffer, line_offset );
-	    file->next_line_offset -= line_offset;
-	    file->end_offset -= line_offset;
-	    line_offset = 0;
-	    if ( file->line_index != NULL_STUB )
-	        min::pop ( file->line_index,
-		           file->line_index->length );
-	}
-    }
-    else if (   file->next_line_number
-              > file->spool_lines )
-    {
-        uns32 index_offset = file->line_index->length
-	                   - file->spool_lines;
-	uns32 buffer_offset =
-	    file->line_index[index_offset];
-	if (   buffer_offset
-	     > file->buffer->max_length / 2 )
-	{
-	    if ( buffer_offset < file->buffer->length )
-		memmove ( & file->buffer[0],
-			  & file->buffer[buffer_offset],
-			    file->buffer->length
-			  - buffer_offset );
-	    min::pop ( file->buffer, buffer_offset );
-	    file->next_line_offset -= buffer_offset;
-	    file->end_offset -= buffer_offset;
-	    line_offset -= buffer_offset;
-
-	    memmove ( & file->line_index[0],
-	              & file->line_index[index_offset],
-		        sizeof ( uns32 )
-		      * file->spool_lines );
-	    min::pop ( file->line_index,
-		       index_offset );
-	}
-    }
 
     if ( line_offset >= file->end_offset )
     {
@@ -2218,6 +2164,54 @@ void min::flush_partial ( min::file file )
     }
 
     min::pop ( file->buffer );
+}
+
+void min::flush_spool
+	( min::file file, min::uns32 line_number )
+{
+    if ( file->line_index == NULL_STUB )
+        return;
+
+    if ( line_number == NO_LINE )
+        line_number = file->next_line_number;
+    else
+        assert (    line_number
+	         <= file->next_line_number );
+
+    assert (    file->next_line_number
+	     >= file->line_index->length );
+    uns32 first_spool_line_number =
+          file->next_line_number
+	- file->line_index->length;
+    if ( first_spool_line_number + file->spool_lines
+         >= line_number )
+        return;
+
+    uns32 lines_to_delete =
+        line_number - first_spool_line_number;
+    assert ( lines_to_delete > 0 );
+    assert (   lines_to_delete
+             < file->line_index->length );
+
+    uns32 buffer_offset =
+	file->line_index[lines_to_delete];
+    if ( buffer_offset < file->buffer->length )
+	memmove ( & file->buffer[0],
+		  & file->buffer[buffer_offset],
+		    file->buffer->length
+		  - buffer_offset );
+    min::pop ( file->buffer, buffer_offset );
+    file->next_line_offset -= buffer_offset;
+    if ( file->end_offset != 0 )
+	file->end_offset -= buffer_offset;
+
+    memmove ( & file->line_index[0],
+	      & file->line_index[lines_to_delete],
+		sizeof ( uns32 )
+	      * (   file->line_index->length
+	          - lines_to_delete ) );
+    min::pop ( file->line_index,
+	       lines_to_delete );
 }
 
 void min::rewind
