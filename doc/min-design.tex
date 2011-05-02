@@ -226,7 +226,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 30, 2011}
+\date{May 2, 2011}
  
 \maketitle
 
@@ -5220,7 +5220,7 @@ by {\tt min::\EOL next\_\EOL line} when that function
 reads an end of file from {\tt istream} or {\tt ifile}.
 
 \item[\ttmkey{line\_\EOL index}{in {\tt min::file}}]
-If {\tt line\_index~!=~min::NULL\_STUB}, then
+If {\tt spool\_lines~!=~0} (see below), then
 {\tt line\_index[m]} is the offset in the buffer of the first
 character of line number {\tt n} (or of the line-terminating NUL
 if the line is empty), where
@@ -5229,44 +5229,24 @@ if the line is empty), where
 \end{center}
 provided
 \begin{center}
-{\tt 0 <= ( next\_line\_number - n ) < line\_index->length}
+{\tt 0 < ( next\_line\_number - n ) <= line\_index->length}
 \end{center}
 If {\tt spool\_lines~==~min::ALL\_LINES}, then
 {\tt line\_\EOL index->\EOL length == next\_\EOL line\_\EOL number}
 and {\tt m~==~n}.
-Otherwise one must take into account that only the last
-{\tt spool\_\EOL lines} returned by the {\tt min::\EOL next\_\EOL line}
-function are guarenteed to be
-stored in {\tt buffer} and {\tt line\_\EOL index}.  This last
-guarentee is equivalent to
-\begin{center}
-{\tt line\_index->length => \\
-min ( next\_line\_number, spool\_lines )}
-\end{center}
+Otherwise, if {\tt spool\_lines~>~0}, the past history
+of calls to {\tt min::\EOL flush\_\EOL spool} determine
+{\tt line\_\EOL index->\EOL length}.
 
-Set to {\tt min::NULL\_STUB} when the file is created.
-Set to a vector by {\tt min::\EOL init\_\EOL line\_\EOL index}, and
-also automatically if {\tt spool\_\EOL lines} is initialized
-to a non-zero value by one of the {\tt init}\ldots{} functions.
-The vector is set empty whenever {\tt next\_\EOL line\_\EOL number}
-is set to {\tt 0}.
+Created when {\tt spool\_\EOL lines} is set to a non-{\tt 0} value,
+and reset to {\tt NULL\_STUB} when {\tt spool\_\EOL lines} is set to {\tt 0}.
 
 \item[\ttmkey{spool\_\EOL lines}{in {\tt min::file}}]
-The buffer is only required to retain the last {\tt spool\_\EOL lines}
-returned by the {\tt min::\EOL next\_\EOL line} function.
-If there are more complete (i.e., terminated)
-lines, then when new lines are read from the buffer
-by {\tt min::\EOL next\_\EOL lines},
-older complete lines previously
-output may be removed from the beginning of the buffer.
-When a line is deleted from the beginning of the buffer, any
-corresponding element is deleted from {\tt line\_\EOL index}.
-
-If {\tt next\_line\_number~<=~spool\_lines}, all file lines
-returned by {\tt min::\EOL next\_\EOL line} so far are
-retained in the buffer.
-If {\tt spool\_\EOL lines == min::\EOL ALL\_\EOL LINES},
-all lines returned are retained.
+If {\tt 0}, {\tt line\_index~==~min::NULL\_STUB} and there is
+no spooling.  Otherwise when {\tt min::flush\_spool(n)} is called,
+if there are more than {\tt spool\_\EOL lines} before line number
+{\tt n} in the {\tt line\_\EOL index}, lines before
+line number {\tt n} are deleted.
 
 Set to {\tt 0} when the file is created.  Set to an argument
 that defaults to {\tt min::\EOL ALL\_\EOL LINES}
@@ -5684,48 +5664,49 @@ The following function does this:
 \LABEL{MIN::LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-Here
-{\tt 0 <= line\_\EOL number < file->\EOL next\_\EOL line\_\EOL number}
-is required.  However, it is not sufficient.  In order for this function
-to work, the line to be returned
-must have been left in {\tt file->\EOL buffer},
-and whether or not
-this is done is controlled by {\tt file->\EOL spool\_\EOL lines}.
-
-More specifically, in order for the {\tt min::\EOL line} function above
-to be able to find the line to return,
+Here {\tt file->line\_index} must exist (i.e., not be {\tt NULL\_\EOL STUB})
+and
 \begin{center}\begin{tabular}{rl}
        & \tt file->next\_line\_number - file->line\_index->length \\
 \tt <= & \tt line\_number \\
 \tt < & \tt file->next\_line\_number
 \end{tabular}\end{center}
-is required.
-In the absence of calls to {\tt min::rewind}(\pagref{MIN::REWIND_FILE})
-for a file,
-\begin{center}\begin{tabular}{rl}
-       & \tt file->line\_index->length => file->spool\_lines \\
-or \\
-       & \tt file->line\_index->length >= file->next\_line\_number \\
-\end{tabular}\end{center}
-and in this case
-\begin{center}\begin{tabular}{rl}
-       & \tt file->next\_line\_number - file->spool\_lines \\
-\tt <= & \tt line\_number \\
-\tt < & \tt file->next\_line\_number
-\end{tabular}\end{center}
-is a sufficient condition for {\tt min::\EOL line} to be able to
-find the line with the given {\tt line\_\EOL number}.
+is required.  If these conditions are not met, {\tt min::\EOL line}
+returns {\tt min::\EOL NO\_\EOL LINE}.
 
-For input files it is common to set {\tt spool\_\EOL lines}
-to \verb|min::|\MINNBKEY{ALL\_\EOL LINES}, which is effectively infinity,
-and saves all lines previously returned by {\tt min::\EOL next\_\EOL line}.
-For output files it is common to set {\tt spool\_\EOL lines} to {\tt 0},
-so no lines are saved.
+The required conditions are determined in part
+by {\tt file->\EOL spool\_\EOL lines}.  If this equals {\tt 0}, the
+default for output files, {\tt file->\EOL line\_\EOL index} does not
+exist.  If it equals
+\verb|min::|\MINNBKEY{ALL\_\EOL LINES}, which is effectively infinity
+and is the default for input files, then all lines
+previously returned by {\tt min::\EOL next\_\EOL line} are available, and
+the requirement reduces to
+\begin{center}
+\tt 0 <= line\_number < file->next\_line\_number
+\end{center}
+For other non-{\tt 0} values of {\tt spool\_EOL lines},
+{\tt file->\EOL line\_\EOL index} exists and
+{\tt file->\EOL line\_\EOL index->\EOL length} is a function of the history
+of calls to the function:
 
-If {\tt min::\EOL line} is asked to return
-an unsaved line, or a line not yet returned by {\tt min::\EOL next\_\EOL line}
-(since the last rewind), then {\tt min::\EOL line} returns
-{\tt min::\EOL NO\_\EOL LINE}.
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{flush\_spool}
+	  \begin{argstack}
+	  \verb| ( min::file file,|\\
+	  \verb|   min::uns32 line_number = min::NO_LINE )|
+	  \end{argstack}
+\LABEL{MIN::FLUSH_SPOOL} \\
+\end{tabular}\end{indpar}
+This function deletes lines from the file buffer
+if there are more than {\tt file->\EOL spool\_\EOL lines}
+lines before the line of the given {\tt line\_\EOL number} in the buffer.
+If this condition is met, all lines before the one with the given
+{\tt line\_\EOL number} are deleted.  If the {\tt line\_\EOL number}
+argument is omitted or equivalently given as {\tt min::\EOL NO\_\EOL LINE},
+it is replaced by {\tt file->\EOL next\_\EOL line\_\EOL number}.
+
 
 The following function uses {\tt min::line} to print a line as part of
 an error message:
@@ -5824,11 +5805,7 @@ or if {\tt n == file->\EOL next\_\EOL line\_\EOL number}
 It is a \underline{programming} \underline{error}
 for {\tt min::\EOL rewind} to fail.  Normally rewind is only
 used with files whose {\tt spool\_\EOL length == min::\EOL ALL\_\EOL LINES},
-which eliminates the possibility of failure.  Note that
-if {\tt spool\_\EOL length != min::\EOL ALL\_\EOL LINES},
-a rewind can make {\tt line\_\EOL index} shorter than
-{\tt spool\_\EOL length}, causing {\tt min::\EOL line}
-to fail when it otherwise would not.
+which eliminates the possibility of failure.
 
 If a {\tt file} does not have an input {\tt istream} or
 {\tt ifile}, a line can be added to the end of the file
@@ -5916,6 +5893,10 @@ to any {\tt file->\EOL ostream}, {\tt file->\EOL ofile}, and/or
 {\tt file->\EOL printer}.
 Note that neither of these functions calls {\tt min::\EOL next\_\EOL line}
 or {\tt min::\EOL skip\_\EOL partial}.
+
+Note that \underline{none} of
+the {\tt min::\EOL flush\_file/\EOL line/\EOL partial}
+functions call {\tt min::\EOL flush\_\EOL spool}.
 
 The following {\tt <<} operators do the same thing as
 {min::\EOL flush\_\EOL line} except that, instead of copying to
