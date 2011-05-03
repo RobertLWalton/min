@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  2 13:00:44 EDT 2011
+// Date:	Tue May  3 00:39:37 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7187,10 +7187,14 @@ min::locatable_var<min::printer> min::error_message;
 const min::printer_format
     min::default_printer_format =
 {
+    0,
     "%.15g",
     "`","'",
+    NULL, NULL,
     "[", " ", "]",
     "", "",
+    NULL, 0,
+    NULL, NULL,
     NULL
 };
 
@@ -7347,7 +7351,8 @@ T print_gen
 	( T out,
 	  min::gen v,
 	  const min::printer_format * f, 
-	  T (*pstub) ( T, const min::stub *) )
+	  T (*pstub) ( T, const min::printer_format * f,
+	                  const min::stub *) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
     {
@@ -7409,7 +7414,7 @@ T print_gen
 	else
 	    out << "TYPE(" << type << ")";
 	if ( f->pstub != NULL )
-	    (* pstub ) ( out, s );
+	    (* pstub ) ( out, f, s );
 	return out;
     }
     else if ( min::is_list_aux ( v ) )
@@ -8142,7 +8147,9 @@ std::ostream & operator <<
     return print_gen<std::ostream &>
         ( out, og.g, og.format,
 	  (std::ostream & (*)
-	      ( std::ostream &, const min::stub * ) )
+	      ( std::ostream &,
+	        const min::printer_format *,
+		const min::stub * ) )
 	  NULL );
 }
 

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon May  2 13:00:27 EDT 2011
+// Date:	Tue May  3 00:26:07 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -9811,17 +9811,39 @@ namespace min {
 
     struct printer_format
     {
-        const char * number_format;
-	const char * str_prefix;
-	const char * str_postfix;
-	const char * lab_prefix;
-	const char * lab_separator;
-	const char * lab_postfix;
-	const char * special_prefix;
-	const char * special_postfix;
-	min::printer ( * pstub )
+    	uns32	             flags;
+        const char *         number_format;
+	const char *         str_prefix;
+	const char *         str_postfix;
+	const char *         str_ascii_quote;
+	const char *         str_utf8_quote;
+	const char *         lab_prefix;
+	const char *         lab_separator;
+	const char *         lab_postfix;
+	const char *         special_prefix;
+	const char *         special_postfix;
+	const char * const * special_names;
+	uns32                special_names_size;
+	const uns32 *        space_prefix_mask;
+	const uns32 *        space_postfix_mask;
+	min::printer     ( * pstub )
 	    ( min::printer printer,
+	      const min::printer_format * format,
 	      const min::stub * s );
+	// Additional members may be added.
+    };
+
+    enum {
+        GRAPHIC_STR_FLAG		= ( 1 << 0 ),
+	EXPRESSION_FLAG			= ( 1 << 1 ),
+	DATA_FLAG			= ( 1 << 2 ),
+	RAW_FLAG			= ( 1 << 3 ),
+	OBJ_PSTUB_FLAG			= ( 1 << 4 )
+    };
+
+    enum {
+        PREFIX_SEPARATOR_FLAG		= ( 1 << 0 ),
+	POSTFIX_SEPARATOR_FLAG		= ( 1 << 1 )
     };
 
     extern const printer_format default_printer_format;
@@ -9922,53 +9944,53 @@ namespace min {
 	op ( op::OPCODE opcode )
 	    : opcode ( opcode ) {}
 	op ( op::OPCODE opcode,
-	             min::gen v,
-		     const printer_format * f )
+	     min::gen v,
+	     const printer_format * f )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
 	    v2.p = (void *) f;
 	}
 	op ( op::OPCODE opcode,
-	             min::uns32 u )
+	     min::uns32 u )
 	    : opcode ( opcode ) { v1.u32 = u; }
 	op ( op::OPCODE opcode,
-	             min::unsptr length,
-		     const uns32 * buffer )
+	     min::unsptr length,
+	     const uns32 * buffer )
 	    : opcode ( opcode ) { v1.uptr = length;
 	                      v2.p = (void *) buffer; }
 	op ( op::OPCODE opcode,
-	             min::int64 i,
-		     const char * printf_format )
+	     min::int64 i,
+	     const char * printf_format )
 	    : opcode ( opcode )
 	{
 	    v1.i64 = i;
 	    v2.p = (void *) printf_format;
 	}
 	op ( op::OPCODE opcode,
-	             min::uns64 u,
-		     const char * printf_format )
+	     min::uns64 u,
+	     const char * printf_format )
 	    : opcode ( opcode )
 	{
 	    v1.u64 = u;
 	    v2.p = (void *) printf_format;
 	}
 	op ( op::OPCODE opcode,
-	             min::float64 f,
-		     const char * printf_format )
+	     min::float64 f,
+	     const char * printf_format )
 	    : opcode ( opcode )
 	{
 	    v1.f64 = f;
 	    v2.p = (void *) printf_format;
 	}
 	op ( op::OPCODE opcode,
-	             std::ostream * out )
+	     std::ostream * out )
 	    : opcode ( opcode )
 	{
 	    v1.p = (void *) out;
 	}
 	op ( op::OPCODE opcode,
-	             const printer_format * format )
+	     const printer_format * format )
 	    : opcode ( opcode )
 	{
 	    v1.p = (void *) format;

@@ -226,7 +226,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 2, 2011}
+\date{May 3, 2011}
  
 \maketitle
 
@@ -6834,23 +6834,24 @@ A {\tt min::printer\_format} is as follows:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  min::uns32         flags;|\ARGBREAK
-    \verb|  const char *       number_format;|\ARGBREAK
-    \verb|  const char *       str_prefix;|\ARGBREAK
-    \verb|  const char *       str_postfix;|\ARGBREAK
-    \verb|  const char *       str_ascii_quote;|\ARGBREAK
-    \verb|  const char *       str_utf8_quote;|\ARGBREAK
-    \verb|  const char *       lab_prefix;|\ARGBREAK
-    \verb|  const char *       lab_separator;|\ARGBREAK
-    \verb|  const char *       lab_postfix;|\ARGBREAK
-    \verb|  const char *       special_prefix;|\ARGBREAK
-    \verb|  const char *       special_postfix;|\ARGBREAK
-    \verb|  const char *       special_names;|\ARGBREAK
-    \verb|  min::uns32         special_names_size;|\ARGBREAK
-    \verb|  const min::uns32 * space_prefix_mask;|\ARGBREAK
-    \verb|  const min::uns32 * space_postfix_mask;|\ARGBREAK
-    \verb|  min::printer & ( * pstub )|\ARGBREAK
+    \verb|  min::uns32             flags;|\ARGBREAK
+    \verb|  const char *           number_format;|\ARGBREAK
+    \verb|  const char *           str_prefix;|\ARGBREAK
+    \verb|  const char *           str_postfix;|\ARGBREAK
+    \verb|  const char *           str_ascii_quote;|\ARGBREAK
+    \verb|  const char *           str_utf8_quote;|\ARGBREAK
+    \verb|  const char *           lab_prefix;|\ARGBREAK
+    \verb|  const char *           lab_separator;|\ARGBREAK
+    \verb|  const char *           lab_postfix;|\ARGBREAK
+    \verb|  const char *           special_prefix;|\ARGBREAK
+    \verb|  const char *           special_postfix;|\ARGBREAK
+    \verb|  const char * cont *    special_names;|\ARGBREAK
+    \verb|  min::uns32             special_names_size;|\ARGBREAK
+    \verb|  const min::uns32 *     space_prefix_mask;|\ARGBREAK
+    \verb|  const min::uns32 *     space_postfix_mask;|\ARGBREAK
+    \verb|  min::printer &     ( * pstub )|\ARGBREAK
     \verb|       ( min::printer & printer,|\ARGBREAK
+    \verb|         const min::printer_format * g );|\ARGBREAK
     \verb|         const min::stub * s );|\ARGBREAK
     \verb|  // Additional members may be added.|\ARGBREAK
     \verb|};|
@@ -7077,9 +7078,12 @@ with any {\tt min::stub} that is not a number, label, string, or object.
 
 Also, if the {\tt OBJ\_\EOL PSTUB\_\EOL FLAG} is set (see above),
 and the {\tt pstub} function is not {\tt NULL}, the {\tt pstub} function is
-also called for object stubs.  In this case the other object output control
-flags (e.g., the {\tt EXPRESSION\_\EOL FLAG}) may or may not be
-be ignored by the {\tt pstub} function.
+also called for object stubs.
+
+Note that the {\tt min::\EOL printer\_\EOL format}, taken from the
+printer operation if it is supplied there or from the printer otherwise,
+is passed as an argument to the {\tt pstub} function,
+and may or may not be be ignored by that function.
 
 \end{itemlist}
 
