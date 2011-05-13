@@ -143,6 +143,11 @@
 \newcommand{\BRACKETED}[1]{{\tt <#1>}}
 \newcommand{\NARG}{\BRACKETED{}}
 
+\newcommand{\SARG}{\BRACKETED{S}}
+\newcommand{\EHARG}{\BRACKETED{E,H}}
+\newcommand{\EARGDEFAULT}{\BRACKETED{{E,H = min::packed\_vec\_header}}}
+\newcommand{\EARG}{\BRACKETED{{E,H}}}
+
 \newlength{\figurewidth}
 \setlength{\figurewidth}{\textwidth}
 \addtolength{\figurewidth}{-0.40in}
@@ -226,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 3, 2011}
+\date{May 13, 2011}
  
 \maketitle
 
@@ -1633,6 +1638,40 @@ The reference types are most frequently used:
 \LABEL{MIN::REF_->} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
+      \verb|( min::ref<T> r, T v )|
+\LABEL{MIN::==REF_AND_T} \\
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
+      \verb|( T v, min::ref<T> r )|
+\LABEL{MIN::==T_AND_REF} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
+      \verb|( min::ref<T> r, T v )|
+\LABEL{MIN::!=REF_AND_T} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
+      \verb|( T v, min::ref<T> r )|
+\LABEL{MIN::!=T_AND_REF} \\
+\end{tabular}\end{indpar}
+
+Defined only if {\tt T} is a packed structure or vector pointer,
+i.e., {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} or
+{\tt min::\EOL packed\_\EOL vec\EHARG::\EOL xxxptr}:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
+      \verb|( min::ref<T> r, const min::stub * s )|
+\LABEL{MIN::==REF_AND_STUB} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
+      \verb|( min::ref<T> r, const min::stub * s )|
+\LABEL{MIN::!=REF_AND_STUB} \\
+\end{tabular}\end{indpar}
+
 A {\tt min::ref\TARG} type is similar to the `{\tt T \&}' type.
 Internally a {\tt min::ref\TARG} value {\tt r}
 is a pointer to a location of type {\tt T} that
@@ -1676,6 +1715,14 @@ value its internal pointer points at.  As this implicit conversion
 is not activated by C++ in the case of an expression of the form
 `{\tt r->\ldots}', `{\tt operator~->}' of a {\tt min::\EOL ref\TARG}
 argument is defined to invoke the conversion explicitly.
+Similarly for {\tt operator ==} and {\tt operator !=}.
+In addition, these are defined to make the conversion when
+{\tt T} is convertable to {\tt const min::\EOL stub~*} and the
+second argument is of this latter type, so that expressions such as
+\begin{center}
+\tt r == min::NULL\_STUB
+\end{center}
+can be used.
 
 Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
 differ according to whether or not the type {\tt T} is
@@ -1703,6 +1750,9 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{ptr\TARG} \verb| p|
 \LABEL{MIN::PTR_OF_T} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}
       \verb|( const min::ref<T> & r )|
@@ -3892,11 +3942,6 @@ either the \verb|min::hash| and \verb|min::compare| function.
 
 \subsection{Packed Structures}
 \label{PACKED-STRUCTURES}
-
-\newcommand{\SARG}{\BRACKETED{S}}
-\newcommand{\EHARG}{\BRACKETED{E,H}}
-\newcommand{\EARGDEFAULT}{\BRACKETED{{E,H = min::packed\_vec\_header}}}
-\newcommand{\EARG}{\BRACKETED{{E,H}}}
 
 A \key{packed structure} is a C `struct' stored in a body associated
 with a stub that has a \minnbkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}

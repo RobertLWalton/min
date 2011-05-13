@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  3 00:26:07 EDT 2011
+// Date:	Fri May 13 01:20:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1841,9 +1841,9 @@ namespace min {
     class ptr;
 
     template < typename T >
-    min::ptr<T> operator & ( min::ref<T> r );
+    min::ptr<T> operator & ( const min::ref<T> & r );
     template < typename T >
-    min::ref<T> operator * ( min::ptr<T> p );
+    min::ref<T> operator * ( const min::ptr<T> & p );
 
     namespace unprotected {
 
@@ -1919,9 +1919,9 @@ namespace min {
 	    : s ( s ), offset ( offset ) {}
 
 	friend min::ptr<T> operator &<>
-	    ( min::ref<T> r );
+	    ( const min::ref<T> & r );
 	friend min::ref<T> operator *<>
-	    ( min::ptr<T> p );
+	    ( const min::ptr<T> & p );
 
 	T * location ( void ) const
 	{
@@ -1959,7 +1959,7 @@ namespace min {
 	    ( const min::stub * s, T const & location );
 
 	friend min::ref<T> operator *<>
-	    ( min::ptr<T> p );
+	    ( const min::ptr<T> & p );
 
         ref ( const min::stub * s, min::unsptr offset )
 	    : internal::ref_base<T> ( s, offset ) {}
@@ -2012,7 +2012,7 @@ namespace min {
 	      const min::gen & location );
 
 	friend min::ref<min::gen> operator *<>
-	    ( min::ptr<min::gen> p );
+	    ( const min::ptr<min::gen> & p );
 
         ref ( const min::stub * s, min::unsptr offset )
 	    : internal::ref_base<min::gen> ( s, offset )
@@ -2062,7 +2062,7 @@ namespace min {
 	      const min::stub * const & location );
 
 	friend min::ref<const min::stub *> operator *<>
-	    ( min::ptr<const min::stub *> p );
+	    ( const min::ptr<const min::stub *> & p );
 
         ref ( const min::stub * s, min::unsptr offset )
 	    : internal::ref_base<const min::stub *>
@@ -2081,12 +2081,12 @@ namespace min {
     }
 
     template < typename T >
-    inline min::ptr<T> operator & ( min::ref<T> r )
+    inline min::ptr<T> operator & ( const min::ref<T> & r )
     {
         return ptr<T> ( r.s, r.offset );
     }
     template < typename T >
-    inline min::ref<T> operator * ( min::ptr<T> p )
+    inline min::ref<T> operator * ( const min::ptr<T> & p )
     {
 	return min::ref<T> ( p.s, p.offset );
     }
@@ -2284,6 +2284,36 @@ namespace min {
 
 }
 
+// For some reason r == v will not automatically
+// convert r to type v.
+//
+// Do not change min::ref<T> to const min::ref<T> &
+// in the below as it produces strange ambiguity
+// results.
+//
+template < typename T >
+inline bool operator == ( min::ref<T> r, T v )
+{
+    return (T) r == v;
+}
+
+template < typename T >
+inline bool operator == ( T v, min::ref<T> r )
+{
+    return v == (T) r;
+}
+template < typename T >
+inline bool operator != ( min::ref<T> r, T v )
+{
+    return (T) r != v;
+}
+
+template < typename T >
+inline bool operator != ( T v, min::ref<T> r )
+{
+    return v != (T) r;
+}
+
 # define MIN_COMMA ,
 # define MIN_STUB_PTR_CLASS(TARGS,T) \
 namespace min { \
@@ -2327,9 +2357,16 @@ namespace min { \
 	    return * this; \
 	} \
 	\
-	operator const min::stub * ( void ) const \
+	/* For some reason == MUST be defined as a
+	   member if it is to be recognized. */ \
+	bool operator == ( const min::stub * s ) \
 	{ \
-	    return * this->location(); \
+	    return * this->location() == s; \
+	} \
+	\
+	bool operator != ( const min::stub * s ) \
+	{ \
+	    return * this->location() != s; \
 	} \
 	\
     private: \
@@ -2339,7 +2376,7 @@ namespace min { \
 	      T const & location ); \
 	\
 	friend min::ref<T> operator *<> \
-	    ( min::ptr<T> p ); \
+	    ( const min::ptr<T> & p ); \
 	\
         ref ( const min::stub * s, \
 	      min::unsptr offset ) \
