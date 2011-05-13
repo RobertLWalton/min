@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  3 00:39:37 EDT 2011
+// Date:	Tue May  3 08:33:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7347,7 +7347,24 @@ min::printer min::init_output_stream
 }
 
 template < typename T >
-T print_gen
+static void print_obj
+	( T out,
+	  const min::stub * s,
+	  const min::printer_format * f, 
+	  T (*pstub) ( T, const min::printer_format * f,
+	                  const min::stub *) )
+{
+    int type = min::type_of ( s );
+    const char * type_name = min::type_name[type];
+    if ( type_name != NULL )
+	out << type_name;
+    else
+	out << "TYPE(" << type << ")";
+    if ( pstub != NULL ) (* pstub ) ( out, f, s );
+}
+
+template < typename T >
+static T print_gen
 	( T out,
 	  min::gen v,
 	  const min::printer_format * f, 
@@ -7407,14 +7424,7 @@ T print_gen
     else if ( min::is_stub ( v ) )
     {
         const min::stub * s = MUP::stub_of ( v );
-        int type = min::type_of ( s );
-	const char * type_name = min::type_name[type];
-	if ( type_name != NULL )
-	    out << type_name;
-	else
-	    out << "TYPE(" << type << ")";
-	if ( f->pstub != NULL )
-	    (* pstub ) ( out, f, s );
+        ::print_obj<T> ( out, s, f, pstub );
 	return out;
     }
     else if ( min::is_list_aux ( v ) )
