@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 13 01:20:15 EDT 2011
+// Date:	Fri May 13 07:14:03 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -282,20 +282,6 @@ namespace min {
 	}
     }
 
-    inline bool operator == ( min::gen g1, min::gen g2 )
-    {
-        return unprotected::value_of ( g1 )
-	       ==
-               unprotected::value_of ( g2 );
-    }
-
-    inline bool operator != ( min::gen g1, min::gen g2 )
-    {
-        return unprotected::value_of ( g1 )
-	       !=
-               unprotected::value_of ( g2 );
-    }
-
     namespace unprotected {
 
 	inline min::gen new_special_gen
@@ -339,6 +325,20 @@ namespace min {
         // special_name[0xFFFFFF-i] is the name of
 	// min::new_special_gen ( i ).  E.g.,
 	// special_name[0] == "MISSING".
+}
+
+inline bool operator == ( min::gen g1, min::gen g2 )
+{
+    return min::unprotected::value_of ( g1 )
+	   ==
+	   min::unprotected::value_of ( g2 );
+}
+
+inline bool operator != ( min::gen g1, min::gen g2 )
+{
+    return min::unprotected::value_of ( g1 )
+	   !=
+	   min::unprotected::value_of ( g2 );
 }
 
 // Stub Types and Data
