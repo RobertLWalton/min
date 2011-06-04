@@ -226,5 +226,5 @@ _Z4testPKN3min4stubEi:
 	.uleb128 0x4
 	.align 8
 .LEFDEXXX:
-	.ident	"GCC: (GNU) 4.1.2 20080704 (Red Hat 4.1.2-48)"
+	.ident	"GCC: (GNU) 4.1.2 20080704 (Red Hat 4.1.2-50)"
 	.section	.note.GNU-stack,"",@progbits

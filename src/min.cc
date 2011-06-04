@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue May  3 08:33:03 EDT 2011
+// Date:	Sat Jun  4 08:16:14 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7854,6 +7854,14 @@ min::printer operator <<
     }
 
     return MINT::print_unicode ( printer, i, buffer );
+}
+
+min::printer operator <<
+	( min::printer printer, min::ptr<char> s )
+{
+    min::unsptr length = strlen ( & s[0] ) + 1;
+    MIN_STACKCOPY ( char, buffer, length, & s[0] );
+    return printer << buffer;
 }
 
 min::printer MINT::print_unicode
