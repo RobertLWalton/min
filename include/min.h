@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 13 07:14:03 EDT 2011
+// Date:	Sat Jun  4 08:34:20 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1848,6 +1848,10 @@ namespace min {
     namespace unprotected {
 
 	template < typename T>
+	min::ptr<T> new_ptr
+	    ( const min::stub * s, T const & location );
+
+	template < typename T>
 	min::ref<T> new_ref
 	    ( const min::stub * s, T const & location );
     }
@@ -1871,6 +1875,12 @@ namespace min {
 	    T operator -> ( void ) const
 	    {
 		return * location();
+	    }
+
+	    template <typename I> T & operator []
+		    ( I index )
+	    {
+		return (* location())[index];
 	    }
 
 	protected:
@@ -1906,6 +1916,12 @@ namespace min {
 	    return location();
 	}
 
+	template <typename I> T & operator []
+		( I index )
+	{
+	    return location()[index];
+	}
+
 	ptr<T> & operator = ( const ptr<T> & p )
 	{
 	    new ( this ) ptr<T> ( p.s, p.offset );
@@ -1918,6 +1934,8 @@ namespace min {
 	      min::unsptr offset )
 	    : s ( s ), offset ( offset ) {}
 
+	friend min::ptr<T> unprotected::new_ptr<T>
+	    ( const min::stub * s, T const & location );
 	friend min::ptr<T> operator &<>
 	    ( const min::ref<T> & r );
 	friend min::ref<T> operator *<>
@@ -2069,6 +2087,29 @@ namespace min {
 	          ( s, offset )
 	    {}
     };
+
+#   define MIN_REF(type,name,ctype) \
+    inline min::ref< type > name##_ref \
+               ( ctype container ) \
+    { \
+        return min::unprotected::new_ref \
+	    ( container, container->name ); \
+    }
+
+#   define MIN_STACKCOPY(T,buffer,length,source) \
+    T buffer[length]; \
+    memcpy ( buffer, (T const *) (source), \
+             sizeof ( T ) * length )
+    
+    template < typename T >
+    inline min::ptr<T> unprotected::new_ptr
+        ( const min::stub * s, T const & location )
+    {
+        return min::ptr<T>
+	    ( s, (uns8 *) & location
+		 -
+		 (uns8 *) unprotected::ptr_of ( s ) );
+    }
 
     template < typename T >
     inline min::ref<T> unprotected::new_ref
@@ -2547,6 +2588,22 @@ namespace min { \
 	} \
 	else \
 	    memset ( p, 0, n * sizeof ( T ) ); \
+	* (uns32 *) & pvip->length += n; \
+    } \
+    template < TARGS, typename MIN_HEADER > \
+    inline void push \
+	( typename \
+	  min::packed_vec_insptr< T ,MIN_HEADER> pvip, \
+	  min::uns32 n, min::ptr<T> vp ) \
+    { \
+	if ( n == 0 ) return; \
+	if ( pvip->length + n > pvip->max_length ) \
+	    pvip.reserve ( n ); \
+	const min::stub ** p = \
+	    (const min::stub **) pvip.end_ptr(); \
+	memcpy ( p, & vp[0], n * sizeof ( T ) ); \
+	unprotected::acc_write_update \
+	    ( pvip, p, n ); \
 	* (uns32 *) & pvip->length += n; \
     } \
 }
@@ -5367,6 +5424,49 @@ namespace min {
 	* (uns32 *) & pvip->length += n;
     }
     template < typename E, typename H >
+    inline void push
+	( typename min::packed_vec_insptr<E,H> pvip,
+	  min::uns32 n, min::ptr<E> vp )
+    {
+	if ( n == 0 ) return;
+	if ( pvip->length + n > pvip->max_length )
+	    pvip.reserve ( n );
+	E * p = pvip.end_ptr();
+	memcpy ( p, & vp[0], n * sizeof ( E ) );
+	* (uns32 *) & pvip->length += n;
+    }
+    template < typename H >
+    inline void push
+	( typename min::packed_vec_insptr<min::gen,H>
+	           pvip,
+	  min::uns32 n, min::ptr<min::gen> vp )
+    {
+	if ( n == 0 ) return;
+	if ( pvip->length + n > pvip->max_length )
+	    pvip.reserve ( n );
+	min::gen * p = pvip.end_ptr();
+	memcpy ( p, & vp[0], n * sizeof ( min::gen ) );
+	unprotected::acc_write_update ( pvip, p, n );
+	* (uns32 *) & pvip->length += n;
+    }
+    template < typename H >
+    inline void push
+	( typename min::packed_vec_insptr
+			   <const min::stub *,H>
+	           pvip,
+	  min::uns32 n,
+	  min::ptr<const min::stub *> vp )
+    {
+	if ( n == 0 ) return;
+	if ( pvip->length + n > pvip->max_length )
+	    pvip.reserve ( n );
+	const min::stub ** p = pvip.end_ptr();
+	memcpy ( p, & vp[0],
+		 n * sizeof ( const min::stub * ) );
+	unprotected::acc_write_update ( pvip, p, n );
+	* (uns32 *) & pvip->length += n;
+    }
+    template < typename E, typename H >
     inline E pop
 	( typename min::packed_vec_insptr<E,H> pvip )
     {
@@ -5546,13 +5646,6 @@ namespace min {
 	const min::file		ofile;
 	const min::gen		file_name;
     };
-#   define MIN_REF(type,name,ctype) \
-    inline min::ref< type > name##_ref \
-               ( ctype container ) \
-    { \
-        return min::unprotected::new_ref \
-	    ( container, container->name ); \
-    }
 
     MIN_REF ( min::packed_vec_insptr<char>,
               buffer, min::file )
@@ -10188,6 +10281,10 @@ min::printer operator <<
 min::printer operator <<
 	( min::printer printer,
 	  const char * s );
+
+min::printer operator <<
+	( min::printer printer,
+	  min::ptr<char> s );
 
 inline min::printer operator <<
 	( min::printer printer,
