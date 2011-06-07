@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  4 08:16:14 EDT 2011
+// Date:	Tue Jun  7 09:13:13 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2005,20 +2005,45 @@ min::uns32 min::print_line
 	  const char * unavailable_line )
 {
     uns32 offset = min::line ( file, line_number );
-
+    uns32 length;
+    bool eof = false;
+    
     if ( offset == min::NO_LINE )
     {
-	const char * message;
-        if ( line_number == file->file_lines )
-	    message = end_of_file;
+	const char * message = NULL;
+	if ( line_number == file->file_lines )
+	{
+	    length = file->buffer->length
+	           - file->end_offset;
+	    if ( length == 0 )
+		message = end_of_file;
+	    else
+	    {
+		offset = file->end_offset;
+		eof = true;
+	    }
+	}
 	else
 	    message = unavailable_line;
 
-	if ( message == NULL ) return min::NO_LINE;
+	if ( offset == min::NO_LINE )
+	{
+	    if ( message == NULL ) return min::NO_LINE;
 
-	printer << message << min::eol;
-	return 0;
+	    printer << message << min::eol;
+	    return 0;
+	}
     }
+    else
+        length = ::strlen ( & file->buffer[offset] );
+
+    // Move line to stack so that (1) it will not be
+    // relocatable when printer is called, and (2) it
+    // will end with NUL even if it is a partial line.
+    //
+    char buffer[length+1];
+    memcpy ( buffer, & file->buffer[offset], length );
+    buffer[length] = 0;
 
     // Blank line check.
     //
@@ -2026,14 +2051,15 @@ min::uns32 min::print_line
         ; // do nothing
     else if ( ( file->print_flags & min::GRAPHIC_FLAGS )
               &&
-	      file->buffer[offset] != 0 )
+	      buffer[0] != 0 )
         ; // do nothing
-    else if (   file->print_flags
-              & min::DISPLAY_EOL_FLAG )
+    else if ( eof ? end_of_file != NULL :
+                  (   file->print_flags
+                    & min::DISPLAY_EOL_FLAG ) )
         ; // do nothing
     else
     {
-	const char * p = & file->buffer[offset];
+	const char * p = & buffer[0];
 	while ( * p && ( * p <= ' ' || * p == 0x3F ) )
 	    ++ p;
 	if ( * p == 0 )
@@ -2065,12 +2091,20 @@ min::uns32 min::print_line
 		          + min::ASCII_FLAG
 		          + min::DISPLAY_EOL_FLAG )
 		      & file->print_flags )
-	    << & file->buffer[offset];
+	    << buffer;
     uns32 width = printer->column;
-    printer << min::eol << min::pop_parameters;
-    if ( file->print_flags & min::DISPLAY_EOL_FLAG )
-        width += ( file->print_flags & min::ASCII_FLAG ?
-	           4 : 1 );
+    if ( eof )
+    {
+        if ( end_of_file ) printer << end_of_file;
+	printer << min::pop_parameters << min::eol;
+    }
+    else
+    {
+	printer << min::eol << min::pop_parameters;
+	if ( file->print_flags & min::DISPLAY_EOL_FLAG )
+	    width += ( file->print_flags & min::ASCII_FLAG ?
+		       4 : 1 );
+    }
     return width;
 }
 
