@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 7, 2011}
+\date{June 8, 2011}
  
 \maketitle
 
@@ -5809,21 +5809,40 @@ is printed on a single {\tt printer} line.  {\tt file->\EOL print\_\EOL flags}
 (\pagref{FILE_PRINT_FLAGS})
 are used to print this line, and the number of columns in the result,
 including any end of line representation printed by the
-{\tt min::\EOL DISPLAY\_\EOL EOL} flag, is returned.  If a line is
-unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE},
-see above), then {\tt unavailable\_\EOL line} is printed instead and
-{\tt 0} is returned.  If the line would print as blank, i.e., consisting of
-nothing but horizontal space characters with no end of line display, then
-{\tt blank\_\EOL line} is printed instead and {\tt 0} is returned.
+{\tt min::\EOL DISPLAY\_\EOL EOL} flag, is returned.
+
+If a line is
+unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
+see above)
+and {\tt line\_\EOL number} is not equal {\tt file->\EOL file\_\EOL lines},
+then {\tt unavailable\_\EOL line} is printed on a line by itself instead, and
+{\tt 0} is returned, if {\tt unavailable\_EOL line} is not {\tt NULL}.
+But if {\tt unavailable\_\EOL line} is {\tt NULL}, nothing is done except
+to return {\tt min::\EOL NO\_\EOL LINE}.
+
+If a line would print as blank, i.e., consisting of
+nothing but horizontal space characters with no end of line display, and if
+{\tt blank\_\EOL line} is not {\tt NULL},
+{\tt blank\_\EOL line} is printed instead of the line, and {\tt 0} is returned.
+
 If there is no line
 because {\tt line\_\EOL number == file->\EOL file\_\EOL lines},
-then {\tt end\_\EOL of\_\EOL file} is printed instead and
-{\tt 0} is returned.  In these last three special cases,
-{\tt file->\EOL print\_\EOL flags} is not used, and it is best if the
-special string printed in place of the line consist of nothing but
+then any partial line at the end of the file buffer is printed,
+immediately followed by {\tt end\_\EOL of\_\EOL file}, all on one line,
+and the number of columns used to print the partial line is returned.
+However, if {\tt end\_\EOL of\_\EOL file} is {\tt NULL}, then
+if there is a partial line, only that is printed, on a single line
+without any visible ending line feed, and if there is no partial line,
+nothing is printed and {\tt NO\_\EOL LINE} is returned.
+
+Note that
+{\tt file->\EOL print\_\EOL flags} is not used to print
+{\tt unavalable\_\EOL line}, {\tt blank\_\EOL line}, or
+{\tt end\_\EOL of\_\EOL line} or any following line feed,
+and it is best if these special strings consist of nothing but
 graphic ASCII characters and single spaces.
-In all cases exactly one complete print line is
-produced.
+In all cases where anything is printed, exactly one complete print line is
+printed.
 
 Error messages typically consist of a description of the error
 followed by the lines involved printed with the above function
