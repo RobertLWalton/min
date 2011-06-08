@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 09:13:13 EDT 2011
+// Date:	Tue Jun  7 23:26:42 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1658,7 +1658,7 @@ void min::init_output ( min::ref<min::file> file )
 	}
     }
     file->next_line_number = 0;
-    file->next_line_offset = 0;
+    file->next_offset = 0;
 }
 
 void min::init_input ( min::ref<min::file> file )
@@ -1906,7 +1906,7 @@ void min::init_input_string
 
 min::uns32 min::next_line ( min::file file )
 {
-    uns32 line_offset = file->next_line_offset;
+    uns32 line_offset = file->next_offset;
 
     if ( line_offset >= file->end_offset )
     {
@@ -1938,7 +1938,7 @@ min::uns32 min::next_line ( min::file file )
 
 	    if ( ioffset == min::NO_LINE )
 	    {
-		ioffset = ifile->next_line_offset;
+		ioffset = ifile->next_offset;
 		uns32 length = ifile->buffer->length
 			     - ioffset;
 	        if ( length > 0 )
@@ -1946,7 +1946,7 @@ min::uns32 min::next_line ( min::file file )
 		    min::push
 			( file->buffer, length,
 			  & ifile->buffer[ioffset] );
-		    ifile->next_line_offset =
+		    ifile->next_offset =
 		        ifile->buffer->length;
 		}
 
@@ -1969,7 +1969,7 @@ min::uns32 min::next_line ( min::file file )
 	min::end_line ( file );
     }
 
-    file->next_line_offset +=
+    file->next_offset +=
         1 + ::strlen ( & file->buffer[line_offset] );
     ++ file->next_line_number;
 
@@ -2013,13 +2013,12 @@ min::uns32 min::print_line
 	const char * message = NULL;
 	if ( line_number == file->file_lines )
 	{
-	    length = file->buffer->length
-	           - file->end_offset;
+	    length = partial_length ( file );
 	    if ( length == 0 )
 		message = end_of_file;
 	    else
 	    {
-		offset = file->end_offset;
+		offset = partial_offset ( file );
 		eof = true;
 	    }
 	}
@@ -2102,8 +2101,9 @@ min::uns32 min::print_line
     {
 	printer << min::eol << min::pop_parameters;
 	if ( file->print_flags & min::DISPLAY_EOL_FLAG )
-	    width += ( file->print_flags & min::ASCII_FLAG ?
-		       4 : 1 );
+	    width +=
+	        ( file->print_flags & min::ASCII_FLAG ?
+		  4 : 1 );
     }
     return width;
 }
@@ -2138,10 +2138,10 @@ void min::flush_file ( min::file file )
 	if ( offset == min::NO_LINE ) break;
 	min::flush_line ( file, offset );
     }
-    if ( min::partial_length ( file ) > 0 )
+    if ( min::remaining_length ( file ) > 0 )
     {
-	min::flush_partial ( file );
-	min::skip_partial ( file );
+	min::flush_remaining ( file );
+	min::skip_remaining ( file );
     }
 }
 
@@ -2171,10 +2171,10 @@ void min::flush_line
 		      << min::eol;
 }
 
-void min::flush_partial ( min::file file )
+void min::flush_remaining ( min::file file )
 {
-    uns32 length = min::partial_length ( file );
-    uns32 offset = min::partial_offset ( file );
+    uns32 length = min::remaining_length ( file );
+    uns32 offset = min::remaining_offset ( file );
     if ( length == 0 ) return;
 
     min::push(file->buffer) = 0;
@@ -2235,7 +2235,7 @@ void min::flush_spool
 		    file->buffer->length
 		  - buffer_offset );
     min::pop ( file->buffer, buffer_offset );
-    file->next_line_offset -= buffer_offset;
+    file->next_offset -= buffer_offset;
     if ( file->end_offset != 0 )
 	file->end_offset -= buffer_offset;
 
@@ -2260,7 +2260,7 @@ void min::rewind
         file->next_line_number - line_number;
     assert (    file->line_index->length
              >= lines_to_back_up );
-    file->next_line_offset =
+    file->next_offset =
         file->line_index
 	   [  file->line_index->length
 	    - lines_to_back_up ];
@@ -2278,12 +2278,12 @@ std::ostream & operator <<
 	out << & file->buffer[offset] << std::endl;
     }
 
-    if ( file->next_line_offset < file->buffer->length )
+    if ( file->next_offset < file->buffer->length )
     {
 	min::push(file->buffer) = 0;
-        out << & file->buffer[file->next_line_offset];
+        out << & file->buffer[file->next_offset];
 	min::pop ( file->buffer );
-	file->next_line_offset = file->buffer->length;
+	file->next_offset = file->buffer->length;
     }
 
     return out;
@@ -2302,15 +2302,15 @@ min::file operator <<
 	min::end_line ( ofile );
     }
 
-    if (   ifile->next_line_offset
+    if (   ifile->next_offset
          < ifile->buffer->length )
     {
         min::uns32 length = ifile->buffer->length
-	                  - ifile->next_line_offset;
+	                  - ifile->next_offset;
 	min::push ( ofile->buffer, length,
 	            & ifile->buffer
-		          [ifile->next_line_offset] );
-	ifile->next_line_offset = ifile->buffer->length;
+		          [ifile->next_offset] );
+	ifile->next_offset = ifile->buffer->length;
     }
 
     return ofile;
@@ -2331,16 +2331,16 @@ min::printer operator <<
 
     printer << min::pop_parameters;
 
-    if ( file->next_line_offset < file->buffer->length )
+    if ( file->next_offset < file->buffer->length )
     {
 	min::push(file->buffer) = 0;
 	printer << min::push_parameters
 		<< min::verbatim
 	        << & file->buffer
-		         [file->next_line_offset]
+		         [file->next_offset]
 		<< min::pop_parameters;
 	min::pop ( file->buffer );
-	file->next_line_offset = file->buffer->length;
+	file->next_offset = file->buffer->length;
     }
 
     return printer;
