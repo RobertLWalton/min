@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jun  4 08:34:20 EDT 2011
+// Date:	Tue Jun  7 23:35:47 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5629,10 +5629,10 @@ namespace min {
         const min::uns32 control;
 
 	const min::packed_vec_insptr<char> buffer;
-	min::uns32 next_line_number;
-	min::uns32 next_line_offset;
 	min::uns32 end_offset;
 	min::uns32 file_lines;
+	min::uns32 next_line_number;
+	min::uns32 next_offset;
 	const min::packed_vec_insptr<min::uns32>
 	    line_index;
 
@@ -5715,24 +5715,36 @@ namespace min {
 	    ( min::file file,
 	      min::uns32 line_number );
 
-    inline min::uns32 partial_length
+    inline min::uns32 remaining_length
 	    ( min::file file )
     {
 	return   file->buffer->length
-	       - file->next_line_offset;
+	       - file->next_offset;
     }
-    inline min::uns32 partial_offset
+    inline min::uns32 remaining_offset
 	    ( min::file file )
     {
-	return file->next_line_offset;
+	return file->next_offset;
     }
-    inline void skip_partial ( min::file file )
+    inline void skip_remaining ( min::file file )
     {
-        file->next_line_offset = file->buffer->length;
+        file->next_offset = file->buffer->length;
     }
     inline bool file_is_complete ( min::file file )
     {
         return file->file_lines != NO_LINE;
+    }
+
+    inline min::uns32 partial_length
+	    ( min::file file )
+    {
+	return   file->buffer->length
+	       - file->end_offset;
+    }
+    inline min::uns32 partial_offset
+	    ( min::file file )
+    {
+	return file->end_offset;
     }
 
     inline min::uns32 end_line ( min::file file )
@@ -5743,13 +5755,15 @@ namespace min {
     inline min::uns32 end_line
 	    ( min::file file, min::uns32 offset )
     {
+	MIN_ASSERT ( offset < file->buffer->length );
+	MIN_ASSERT ( offset >= file->end_offset );
         file->buffer[offset] = 0;
-	file->end_offset = offset +1;
+	file->end_offset = offset + 1;
     }
     void flush_file ( min::file file );
     void flush_line
 	    ( min::file file, min::uns32 offset );
-    void flush_partial ( min::file file );
+    void flush_remaining ( min::file file );
     void flush_spool
 	    ( min::file file,
 	      min::uns32 line_number = NO_LINE );

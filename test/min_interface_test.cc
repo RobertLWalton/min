@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Apr 15 11:22:57 EDT 2011
+// Date:	Tue Jun  7 23:24:29 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2266,7 +2266,7 @@ void test_printer ( void )
     MIN_ASSERT ( printer->column == 5 );
     printer << min::eom;
     MIN_ASSERT ( printer->file->spool_lines == 0 );
-    MIN_ASSERT (    printer->file->next_line_offset
+    MIN_ASSERT (    printer->file->next_offset
                  == printer->file->buffer->length );
     MIN_ASSERT ( printer->column == 0 );
     MIN_ASSERT
