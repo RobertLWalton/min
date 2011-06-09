@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 23:24:29 EDT 2011
+// Date:	Thu Jun  9 14:17:36 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2087,6 +2087,12 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvip[3].j == 88 );
     pvip->pvip[3].j = 77;
     MIN_ASSERT ( pvip[3].j == 77 );
+
+    min::push ( pvip, 3, &pvip[0] );
+    MIN_ASSERT ( pvip->length == 7 );
+    MIN_ASSERT ( pvp[4].j == 11 );
+    MIN_ASSERT ( pvp[5].j == 22 );
+    MIN_ASSERT ( pvp[6].j == 33 );
 
     cout << endl;
     cout << "Finish Packed Vectors Test!" << endl;

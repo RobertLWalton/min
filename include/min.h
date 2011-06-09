@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  9 08:09:28 EDT 2011
+// Date:	Thu Jun  9 14:11:55 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1849,7 +1849,7 @@ namespace min {
 
 	template < typename T>
 	min::ptr<T> new_ptr
-	    ( const min::stub * s, T const & location );
+	    ( const min::stub * s, T & location );
 
 	template < typename T>
 	min::ref<T> new_ref
@@ -1905,6 +1905,11 @@ namespace min {
 
         ptr ( void ) : s ( NULL ), offset ( 0 ) {}
 
+	operator T * ( void )
+	{
+	    return location();
+	}
+
 	T * operator -> ( void )
 	{
 	    return location();
@@ -1929,7 +1934,7 @@ namespace min {
 	    : s ( s ), offset ( offset ) {}
 
 	friend min::ptr<T> unprotected::new_ptr<T>
-	    ( const min::stub * s, T const & location );
+	    ( const min::stub * s, T & location );
 	friend min::ptr<T> operator &<>
 	    ( const min::ref<T> & r );
 	friend min::ref<T> operator *<>
@@ -2097,7 +2102,7 @@ namespace min {
     
     template < typename T >
     inline min::ptr<T> unprotected::new_ptr
-        ( const min::stub * s, T const & location )
+        ( const min::stub * s, T & location )
     {
         return min::ptr<T>
 	    ( s, (uns8 *) & location
@@ -2595,7 +2600,7 @@ namespace min { \
 	    pvip.reserve ( n ); \
 	const min::stub ** p = \
 	    (const min::stub **) pvip.end_ptr(); \
-	memcpy ( p, & vp[0], n * sizeof ( T ) ); \
+	memcpy ( p, vp, n * sizeof ( T ) ); \
 	unprotected::acc_write_update \
 	    ( pvip, p, n ); \
 	* (uns32 *) & pvip->length += n; \
@@ -5426,7 +5431,7 @@ namespace min {
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
 	E * p = pvip.end_ptr();
-	memcpy ( p, & vp[0], n * sizeof ( E ) );
+	memcpy ( p, vp, n * sizeof ( E ) );
 	* (uns32 *) & pvip->length += n;
     }
     template < typename H >
@@ -5439,7 +5444,7 @@ namespace min {
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
 	min::gen * p = pvip.end_ptr();
-	memcpy ( p, & vp[0], n * sizeof ( min::gen ) );
+	memcpy ( p, vp, n * sizeof ( min::gen ) );
 	unprotected::acc_write_update ( pvip, p, n );
 	* (uns32 *) & pvip->length += n;
     }
@@ -5455,7 +5460,7 @@ namespace min {
 	if ( pvip->length + n > pvip->max_length )
 	    pvip.reserve ( n );
 	const min::stub ** p = pvip.end_ptr();
-	memcpy ( p, & vp[0],
+	memcpy ( p, vp,
 		 n * sizeof ( const min::stub * ) );
 	unprotected::acc_write_update ( pvip, p, n );
 	* (uns32 *) & pvip->length += n;
