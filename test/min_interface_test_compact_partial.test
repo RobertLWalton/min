@@ -1508,6 +1508,22 @@ min_interface_test.cc:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvip[3].j == 77 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    pvip->length == 7 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    pvp[4].j == 11 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    pvp[5].j == 22 true.
+../include/min.h:XXXX assert:
+    i < hp->length true.
+min_interface_test.cc:XXXX assert:
+    pvp[6].j == 33 true.
 
 Finish Packed Vectors Test!
 

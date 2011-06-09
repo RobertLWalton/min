@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 23:26:42 EDT 2011
+// Date:	Thu Jun  9 17:12:07 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7893,8 +7893,8 @@ min::printer operator <<
 min::printer operator <<
 	( min::printer printer, min::ptr<char> s )
 {
-    min::unsptr length = strlen ( & s[0] ) + 1;
-    MIN_STACKCOPY ( char, buffer, length, & s[0] );
+    min::unsptr length = strlen ( s ) + 1;
+    MIN_STACKCOPY ( char, buffer, length, s );
     return printer << buffer;
 }
 
