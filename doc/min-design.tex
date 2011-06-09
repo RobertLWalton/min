@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 8, 2011}
+\date{June 9, 2011}
  
 \maketitle
 
@@ -683,7 +683,7 @@ Because \verb|min::gen| is a class type, it is not possible to
 present {\tt min::\EOL gen} constants to the compiler for use in
 optimized code in a completely straightforward way.  To get the
 desired effect, {\tt min::\EOL gen} constants are represented by
-{\tt inline} functions, which allows the optimizing computer 
+{\tt inline} functions, which allows the optimizing compiler 
 to insert the constants directly into instructions.  Thus
 we have the constant {\tt min::\EOL MISSING()}, a function call
 with no arguments, \underline{instead of} {\tt min::\EOL MISSING}, a datum.
@@ -1658,7 +1658,8 @@ The reference types are most frequently used:
 \LABEL{MIN::!=T_AND_REF} \\
 \end{tabular}\end{indpar}
 
-Defined only if {\tt T} is a packed structure or vector pointer,
+In addition, the following are defined
+only if {\tt T} is a packed structure or vector pointer,
 i.e., {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} or
 {\tt min::\EOL packed\_\EOL vec\EHARG::\EOL xxxptr}:
 
@@ -1754,6 +1755,13 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::|\MINKEY{ptr\TARG}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
+    \verb| ( const min::stub * s,|\ARGBREAK
+    \verb|   T const & location )|
+\LABEL{MUP::NEW_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}
       \verb|( const min::ref<T> & r )|
@@ -1810,6 +1818,38 @@ A {\tt min::\EOL ref\TARG} value can be recovered from a
 pointer value by applying the
 {\tt *} operator to the {\tt min::\EOL ptr\TARG} value.
 
+A {\tt min::\EOL ref\TARG} value can also be created by the
+unprotected {\tt MUP::\EOL new\_\EOL ptr} function which
+constructs a {\tt min::\EOL ptr\TARG} value
+from a pointer {\tt s} to a stub and a location
+within the body associated with that stub.
+
+\subsubsection{Stack Temporaries of Relocatable Vectors}
+\label{STACK-TEMPORARIES-OF-RELOCATABLE-VECTORS}
+
+Sometimes it is useful to make a non-relocatable copy of
+a vector that is resident in a body that might be relocated.
+This can be done by the {\tt MIN\_STACKCOPY} macro
+which expands as follows:
+
+\begin{indpar}
+\TTNBKEY{MIN\_STACKCOPY}\verb| ( type, name, length, source )|
+\LABEL{MIN_STACKCOPY}
+\\[1ex]
+expands to \\[1ex]
+\verb|type name [length];| \\
+\verb|memcpy ( name, (type const *) (source),| \\
+\verb|         sizeof ( type ) * (length) )|
+\end{indpar}
+
+The vector at `{\tt source}', which may be inside a body and therefore
+be relocatable, is copied to the stack vector `{\tt name}', which
+is not relocatable.
+Thereafter `{\tt name}' may be used to reference this copy.
+
+Because copying is fast, it can be more efficient to do this than
+it is to reference individual elements of a relocatable vector using
+{\tt min::ptr<type>} values.
 
 \subsection{Allocator/Collector/Compactor Interface}
 \label{ACC-INTERFACE}
@@ -4942,6 +4982,11 @@ pointer type is:
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
+\verb|void min::|
+	& \MINKEY{push\REL}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 n, min::ptr<E> vp )|
+\LABEL{MIN::PACKED_VEC_PUSH_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|E min::|
@@ -5006,8 +5051,10 @@ if that is not {\tt NULL}, or with zeros otherwise.
 If \verb|vp| is not \verb|NULL|,
 new elements are placed within the packed vector in the same
 memory order as they appear in the \verb|vp| vector.
-In this case
-{\tt min::\EOL acc\_\EOL write\_\EOL update} 
+Here \verb|vp| cannot be an unprotected body pointer, as the data
+it points at might be relocated during the execution of {\tt push}.
+It can either be non-body pointer or a {\tt min::ptr<E>} pointer.
+In either case {\tt min::\EOL acc\_\EOL write\_\EOL update} 
 (\itemref{ACC-WRITE-UPDATE-FUNCTIONS})
 is called if {\tt E} is locatable.
 
@@ -5419,31 +5466,31 @@ Creation, initialization, and parameterization of files is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{init\_\EOL input}%
+\verb|void min::| & \MINKEY{init\_\EOL input\REL}%
     \verb| ( min::ref<min::file> file )|
 \LABEL{MIN::INIT_INPUT_OF_FILE} \\
-\verb|void min::| & \MINKEY{init\_\EOL output}%
+\verb|void min::| & \MINKEY{init\_\EOL output\REL}%
     \verb| ( min::ref<min::file> file )|
 \LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_print\_flags}
+    & \MINKEY{init\_print\_flags\REL}
           \begin{argstack}
           \verb| ( min::ref<min::file> file,| \\
 	  \verb|   min::uns32 print_flags )|
 	  \end{argstack}
 \LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_\EOL spool\_\EOL lines}
+    & \MINKEY{init\_\EOL spool\_\EOL lines\REL}
              \begin{argstack}
 	     \verb| ( min::ref<min::file> file,|\\
              \verb|   min::uns32 spool_lines )|
 	     \end{argstack}
 \LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_\EOL file\_\EOL name}
+    & \MINKEY{init\_\EOL file\_\EOL name\REL}
              \begin{argstack}
 	     \verb| ( min::ref<min::file> file,|\\
              \verb|   min::gen file_name )|
@@ -5453,21 +5500,21 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_output\_ostream}
+    & \MINKEY{init\_output\_ostream\REL}
           \begin{argstack}
           \verb| ( min::ref<min::file> file,| \\
 	  \verb|   std::ostream & ostream )|
           \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_file}
+    & \MINKEY{init\_output\_file\REL}
           \begin{argstack}
           \verb| ( min::ref<min::file> file,| \\
 	  \verb|   min::file ofile )|
           \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_printer}
+    & \MINKEY{init\_output\_printer\REL}
           \begin{argstack}
           \verb| ( min::ref<min::file> file,| \\
 	  \verb|   min::printer printer )|
@@ -5482,7 +5529,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_stream}\ARGBREAK
+    & \MINKEY{init\_input\_stream\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   std::istream & istream,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -5492,7 +5539,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_file}\ARGBREAK
+    & \MINKEY{init\_input\_file\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::file ifile,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -5502,7 +5549,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_named\_file}\ARGBREAK
+    & \MINKEY{init\_input\_named\_file\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -5512,7 +5559,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_string}\ARGBREAK
+    & \MINKEY{init\_input\_string\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   const char * data,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -5611,7 +5658,7 @@ lines:
 \verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
 \LABEL{MIN::NO_LINE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{next\_line}\verb| ( min::file file )|
+    & \MINKEY{next\_line\REL}\verb| ( min::file file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -5766,7 +5813,7 @@ of calls to the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_spool}
+    & \MINKEY{flush\_spool\REL}
 	  \begin{argstack}
 	  \verb| ( min::file file,|\\
 	  \verb|   min::uns32 line_number = min::NO_LINE )|
@@ -5792,7 +5839,7 @@ an error message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line}\ARGBREAK
+    & \MINKEY{print\_\EOL line\REL}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
       \verb|   min::uns32 line_number,|\ARGBREAK
@@ -5838,10 +5885,13 @@ nothing is printed and {\tt NO\_\EOL LINE} is returned.
 
 Note that
 {\tt file->\EOL print\_\EOL flags} is not used to print
-{\tt unavalable\_\EOL line}, {\tt blank\_\EOL line}, or
+{\tt unavailable\_\EOL line}, {\tt blank\_\EOL line}, or
 {\tt end\_\EOL of\_\EOL line} or any following line feed,
 and it is best if these special strings consist of nothing but
 graphic ASCII characters and single spaces.
+Also, these ASCII strings may not be unprotected body pointers,
+as printing may relocate bodies.
+
 In all cases where anything is printed, exactly one complete print line is
 printed.
 
@@ -5862,7 +5912,7 @@ by the code:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   const min::pline_numbers & pline_numbers )|
@@ -5915,7 +5965,7 @@ the line ending NUL character to {\tt file->buffer}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{end\_line}\verb| ( min::file file )|
+    & \MINKEY{end\_line\REL}\verb| ( min::file file )|
 \LABEL{MIN::END_LINE_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -5927,7 +5977,7 @@ a complete line possibly followed by a shorter partial line:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{end\_line}
+    & \MINKEY{end\_line\REL}
 	  \begin{argstack}
           \verb| ( min::file file,|\\
 	  \verb|   min::uns32 offset )|
@@ -5954,7 +6004,7 @@ that the file has
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL file}\verb| ( min::file file )|
+    & \MINKEY{flush\_\EOL file\REL}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -5971,14 +6021,14 @@ the following functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL line}
+    & \MINKEY{flush\_\EOL line\REL}
 	  \begin{argstack}
           \verb| ( min::file file,|\\
 	  \verb|   min::uns32 offset )|
 	  \end{argstack}
 \LABEL{MIN::FLUSH_LINE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_remaining}\verb| ( min::file file )|
+    & \MINKEY{flush\_remaining\REL}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_REMAINING} \\
 \end{tabular}\end{indpar}
 
@@ -6010,13 +6060,13 @@ to any {\tt file->\EOL ostream}, {\tt file->\EOL ofile}, and/or
       \verb|   min::file file )|
 \LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::file}}\ARGBREAK
       \verb| ( min::file ofile,|\ARGBREAK
       \verb|   min::file ifile )|
 \LABEL{FILE_OPERATOR<<_OF_FILE} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::file}}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::file file )|
@@ -6080,11 +6130,11 @@ accomplished by the following:
 	& \verb|packed_struct_updptr<min::printer_struct>|\ARGBREAK
 	  \verb|    min::|\MINKEY{printer}
 \LABEL{MIN::PRINTER} \\
-\verb|min::printer min::| & \MINKEY{init}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{init\REL}\ARGBREAK
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   min::file file = min::NULL_STUB )|
 \LABEL{MIN::INIT_OF_PRINTER} \\
-\verb|min::printer min::| & \MINKEY{init\_output\_stream}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{init\_output\_stream\REL}\ARGBREAK
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   std::ostream & ostream )|
 \LABEL{MIN::INIT_OUTPUT_STREAM_OF_PRINTER} \\
@@ -6456,37 +6506,42 @@ Copying characters into a printer is done by the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer printer, min::ptr<char> s )|
+\LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
@@ -6495,6 +6550,11 @@ Copying characters into a printer is done by the
 A `{\tt const char *}' is interpreted as a UTF-8 encoded
 string of UNICODE characters as per
 {\tt min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
+However, a `{\tt const char *}' cannot be an unprotected body pointer,
+as the body it points into may be relocated during the execution of the
+{\tt <<\REL} operator on a printer.
+A `{\tt min::\EOL ptr<char>}' value can be used
+instead as a pointer to a `{\tt const char *}' string inside a body.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
 When a horizontal tab is copied to a printer file buffer
@@ -6528,7 +6588,7 @@ Operations can be performed on printers by applying the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}{of {\tt min::printer}}\ARGBREAK
+    & \TTOMKEY{<<}{\LT\LT\REL}{of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   const min::op & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
@@ -6569,13 +6629,13 @@ into another {\tt min::\EOL printer}:
       \verb|   min::printer printer )|
 \LABEL{OSTREAM_OPERATOR<<_OF_PRINTER} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::file file,|\ARGBREAK
       \verb|   min::printer printer )|
 \LABEL{FILE_OPERATOR<<_OF_PRINTER} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer oprinter,|\ARGBREAK
       \verb|   min::printer iprinter )|
@@ -6921,13 +6981,14 @@ instead.  If that is also {\tt NULL},
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT}%
+    & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-A {\tt min::printer\_format} is as follows:
+Note that a {\tt min::printer\_format} \underline{cannot} be stored
+in a relocatable body.  Its structure is as follows:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|struct min::| & \MINKEY{printer\_format}\ARGBREAK

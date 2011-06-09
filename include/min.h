@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jun  7 23:35:47 EDT 2011
+// Date:	Thu Jun  9 08:09:28 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1877,12 +1877,6 @@ namespace min {
 		return * location();
 	    }
 
-	    template <typename I> T & operator []
-		    ( I index )
-	    {
-		return (* location())[index];
-	    }
-
 	protected:
 
 	    ref_base ( const min::stub * s,
@@ -2099,7 +2093,7 @@ namespace min {
 #   define MIN_STACKCOPY(T,buffer,length,source) \
     T buffer[length]; \
     memcpy ( buffer, (T const *) (source), \
-             sizeof ( T ) * length )
+             sizeof ( T ) * (length) )
     
     template < typename T >
     inline min::ptr<T> unprotected::new_ptr
