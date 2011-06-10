@@ -2113,6 +2113,104 @@ namespace min {
 	    {}
     };
 
+    // The following must come after the ref<T>
+    // declarations as the later must be complete.
+
+    template <>
+    class ptr<min::gen>
+        : public internal::ptr_base<min::gen>
+    {
+
+    public:
+
+        ptr ( void )
+	    : internal::ptr_base<min::gen> ( NULL, 0 )
+	    {}
+
+	template <typename S>
+        ptr ( const ptr<S> & p )
+	    : internal::ptr_base<min::gen>
+	        ( p.s, p.offset ) {}
+
+	template <typename I> min::ref<min::gen>
+	operator [] ( I index )
+	{
+	    return * ( * this + index );
+	}
+
+	ptr<min::gen> & operator =
+		( const ptr<min::gen> & p )
+	{
+	    new ( this )
+	        ptr<min::gen> ( p.s, p.offset );
+	    return * this;
+	}
+
+    private:
+
+	ptr ( const min::stub * s,
+	      min::unsptr offset )
+	    : internal::ptr_base<min::gen> ( s, offset )
+	    {}
+
+	friend min::ptr<min::gen>
+	    unprotected::new_ptr<min::gen>
+		( const min::stub * s,
+		  min::gen & location );
+	friend min::ptr<min::gen> operator &<>
+	    ( const min::ref<min::gen> & r );
+	friend class internal::ptr_base<min::gen>;
+    };
+
+    template <>
+    class ptr<const min::stub *>
+        : public internal::ptr_base<const min::stub *>
+    {
+
+    public:
+
+        ptr ( void )
+	    : internal::ptr_base<const min::stub *>
+		( NULL, 0 ) {}
+
+	template <typename S>
+        ptr ( const ptr<S> & p )
+	    : internal::ptr_base<const min::stub *>
+	        ( p.s, p.offset ) {}
+
+	template <typename I>
+	min::ref<const min::stub *>
+	operator [] ( I index )
+	{
+	    return * ( * this + index );
+	}
+
+	ptr<const min::stub *> & operator =
+		( const ptr<const min::stub *> & p )
+	{
+	    new ( this )
+	        ptr<const min::stub *>
+		    ( p.s, p.offset );
+	    return * this;
+	}
+
+    private:
+
+	ptr ( const min::stub * s,
+	      min::unsptr offset )
+	    : internal::ptr_base<const min::stub *>
+	        ( s, offset ) {}
+
+	friend min::ptr<const min::stub *>
+	    unprotected::new_ptr<const min::stub *>
+		( const min::stub * s,
+		  const min::stub * & location );
+	friend min::ptr<const min::stub *> operator &<>
+	    ( const min::ref<const min::stub *> & r );
+	friend class
+	    internal::ptr_base<const min::stub *>;
+    };
+
 #   define MIN_REF(type,name,ctype) \
     inline min::ref< type > name##_ref \
                ( ctype container ) \
