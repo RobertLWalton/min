@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  9 19:35:34 EDT 2011
+// Date:	Fri Jun 10 07:33:39 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2369,6 +2369,24 @@ inline bool operator != ( T v, min::ref<T> r )
     return v != (T) r;
 }
 
+// Use MIN_STUB_PTR_CLASS(TARGS,T) if the type
+// template< TARGS > class T is convertable to a
+// const min::stub * value.  This
+//
+//   * Redefines ref<T> so its operator = calls acc_
+//     write_update and so that == and != work if the
+//     second argument is a const min::stub * value.
+//
+//   * Redefines locatable_var<T> so its const min::stub
+//     * value is in fact locatable.
+//
+//   * Redefines packed_vec_updptr<T,...> so that its
+//     [] operator returns a ref<T> value.
+//
+//   * Redefines push(pv,...) for packed vectors so that
+//     either ref<T> is returned or acc_write_update is
+//     called.
+//     
 # define MIN_COMMA ,
 # define MIN_STUB_PTR_CLASS(TARGS,T) \
 namespace min { \
