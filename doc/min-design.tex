@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 9, 2011}
+\date{June 10, 2011}
  
 \maketitle
 
@@ -1032,6 +1032,20 @@ else:				& $2^{40-4e}$ \\
 \subsubsection{General Value Functions}
 \label{GENERAL-VALUE-FUNCTIONS}
 
+General values can be assigned using the default
+{\tt =} operator and compared by the usual equality operations:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::gen}}\ARGBREAK
+      \verb|( min::gen g1, min::gen g2 )|
+\LABEL{MIN::==_OF_GEN} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::gen}}\ARGBREAK
+      \verb|( min::gen g1, min::gen g2 )|
+\LABEL{MIN::!=_OF_GEN} \\
+\end{tabular}\end{indpar}
+
 The following functions return {\tt true} if a {\tt min::gen} datum is of the
 indicated subtype and {\tt false} otherwise:
 
@@ -1757,7 +1771,7 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::|\MINKEY{ptr\TARG}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
     \verb| ( const min::stub * s,|\ARGBREAK
-    \verb|   T const & location )|
+    \verb|   T & location )|
 \LABEL{MUP::NEW_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -1794,6 +1808,31 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \LABEL{MIN::PTR_->} \\
 \end{tabular}\end{indpar}
 
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T & |
+	& \TTOMKEY{[ ]}{[ ]}%
+	          {of {\tt min::ptr\TARG}}
+	  \verb| ( const min::ptr<T> & p, I index )|
+\LABEL{MIN::[]_OF_PTR} \\
+\verb|min::ptr<T> |
+	& \TTOMKEY{+}{+}%
+	          {of {\tt min::ptr\TARG}}
+	  \verb| ( const min::ptr<T> & p, I index )|
+\LABEL{MIN::+_OF_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T * |
+	& \TTOMKEY{T *}{T *}%
+	          {of {\tt min::ptr\TARG}}
+	  \verb| ( const min::ptr<T> & p )|
+\LABEL{MIN::T*_OF_PTR} \\
+\verb|min::ptr<T> |
+	& \MINKEY{ptr\TARG}
+	  \verb| ( const min::ptr<S> & p )| ~~~~~ (unprotected)
+\LABEL{MIN::PTR_OF_PTR} \\
+\end{tabular}\end{indpar}
+
 Internally a {\tt min::\EOL ptr\TARG} value is exactly like a
 {\tt min::\EOL ref\TARG} value; both point at a location defined by
 a stub and an offset within the body of the stub.
@@ -1818,11 +1857,45 @@ A {\tt min::\EOL ref\TARG} value can be recovered from a
 pointer value by applying the
 {\tt *} operator to the {\tt min::\EOL ptr\TARG} value.
 
-A {\tt min::\EOL ref\TARG} value can also be created by the
+A {\tt min::\EOL ptr\TARG} value can also be created by the
 unprotected {\tt MUP::\EOL new\_\EOL ptr} function which
 constructs a {\tt min::\EOL ptr\TARG} value
 from a pointer {\tt s} to a stub and a location
 within the body associated with that stub.
+Unlike {\tt min::\EOL new\_\EOL ref},
+the location within the body may not be {\tt const} unless {\tt T} is
+{\tt const}.
+
+Given {\tt min::\EOL ptr<T>} value {\tt p} and an index {\tt i} of some
+suitable index type {\tt I} (such as {\tt int} or {\tt min::\EOL uns32}),
+{\tt p[i]} is a `{\tt T \&}' reference value for the {\tt i+1}'st element of
+the vector with elements of type {\tt T} pointed at by {\tt p}, and
+{\tt p+i} is a {\tt min::\EOL ptr<T>} pointer to that element.
+
+Note that {\tt p[i]} is only a `{\tt T \&}' reference, and
+\underline{not} a {\tt min:\EOL ref<T>} reference, and as such is
+in effect an unprotected body pointer that will become undefined whenever
+a relocatable function is called.  This has been done because a
+`{\tt .}{\em member-name}' member access operation cannot be made to work with
+{\tt min::\EOL ref<T>} values, and member access operations are
+common when {\tt T} is a structure type.
+
+A pointer of type {\tt min::ptr<T>} can be implicitly converted to a
+pointer of type `{\tt T*}' when used as a function argument.
+This can be of use in code such as
+\begin{indpar}\begin{verbatim}
+ptr<char> s = ...;
+int length = strlen ( s );
+char buffer[length+1];
+strcpy ( buffer, s );
+\end{verbatim}\end{indpar}
+
+If {\tt p} is of type {\tt min::ptr<S>}, then {\tt min::ptr<T>(p)} is
+{\tt p} coerced to the type {\tt min::\EOL ptr<T>} without any change to the
+actual value of {\tt p}, just as {(T *)(q)} is a coersion of {\tt q}
+if {\tt q} has type `{\tt S *}'.  Such coersions are inherently
+unprotected, of course.
+
 
 \subsubsection{Stack Temporaries of Relocatable Vectors}
 \label{STACK-TEMPORARIES-OF-RELOCATABLE-VECTORS}
@@ -10466,6 +10539,21 @@ These are in \verb|min_parameters.h|.
 \verb|(constructor) min::| & \MINKEY{gen}\verb| ( void )|
 \LABEL{MIN::GEN_OF_VOID} \\
 \end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{1.8in}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::gen}}\ARGBREAK
+      \verb|( min::gen g1, min::gen g2 )|
+\LABEL{MIN::==_OF_GEN} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::gen}}\ARGBREAK
+      \verb|( min::gen g1, min::gen g2 )|
+\LABEL{MIN::!=_OF_GEN} \\
+\end{TABULAR}
+
+\medskip
 
 \begin{TABULAR}{1.6in}
 \verb|bool min::| & \MINKEY{is\_stub}\verb| ( min::gen v )|
