@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  9 14:11:55 EDT 2011
+// Date:	Thu Jun  9 19:35:34 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1905,6 +1905,10 @@ namespace min {
 
         ptr ( void ) : s ( NULL ), offset ( 0 ) {}
 
+	template <typename S>
+        ptr ( const ptr<S> & p )
+	    : s ( p.s), offset ( p.offset ) {}
+
 	operator T * ( void )
 	{
 	    return location();
@@ -1919,6 +1923,15 @@ namespace min {
 		( I index )
 	{
 	    return location()[index];
+	}
+
+	template <typename I> ptr<T> operator +
+		( I index )
+	{
+	    return ptr<T> ( this->s,
+	                      this->offset
+			    +   sizeof ( T )
+			      * index );
 	}
 
 	ptr<T> & operator = ( const ptr<T> & p )
@@ -2121,12 +2134,14 @@ namespace min {
     }
 
     template < typename T >
-    inline min::ptr<T> operator & ( const min::ref<T> & r )
+    inline min::ptr<T> operator &
+	    ( const min::ref<T> & r )
     {
         return ptr<T> ( r.s, r.offset );
     }
     template < typename T >
-    inline min::ref<T> operator * ( const min::ptr<T> & p )
+    inline min::ref<T> operator *
+	    ( const min::ptr<T> & p )
     {
 	return min::ref<T> ( p.s, p.offset );
     }
@@ -2513,6 +2528,24 @@ namespace min { \
 	{ \
 	    return (MIN_HEADER *) \
 		   unprotected::ptr_of ( this->s ); \
+	} \
+	\
+	min::ptr< T > operator + ( min::uns32 i ) \
+	    const \
+	{ \
+	    MIN_HEADER * hp = (MIN_HEADER *) \
+		unprotected::ptr_of ( this->s ); \
+	    MIN_ASSERT ( i < hp->length ); \
+	    return unprotected::new_ptr \
+	        ( this->s, \
+	          * (T *) \
+		  ( (uns8 *) hp \
+		    + \
+		    internal::packed_vec_ptr_base \
+		        < T , MIN_HEADER > \
+		    ::computed_header_size \
+		    + \
+		    i * sizeof ( T ) ) ); \
 	} \
 	\
 	min::ref< T > operator [] ( min::uns32 i ) \
@@ -4822,6 +4855,23 @@ namespace min {
 		   unprotected::ptr_of ( this->s );
 	}
 
+	min::ptr<E const> operator + ( min::uns32 i )
+	    const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    MIN_ASSERT ( i < hp->length );
+	    return min::unprotected::new_ptr
+		( this->s,
+		  * ( E const *)
+		  ( (uns8 *) hp
+		    +
+		    internal::packed_vec_ptr_base<E,H>
+		            ::computed_header_size
+		    +
+		    i * sizeof ( E ) ) );
+	}
+
 	E const & operator [] ( min::uns32 i ) const
 	{
 	    H * hp = (H *)
@@ -4933,6 +4983,23 @@ namespace min {
 		  ::computed_header_size
 		  +
 		  i * sizeof ( E ) );
+	}
+
+	min::ptr<E> operator + ( min::uns32 i )
+	    const
+	{
+	    H * hp = (H *)
+		unprotected::ptr_of ( this->s );
+	    MIN_ASSERT ( i < hp->length );
+	    return min::unprotected::new_ptr
+		( this->s,
+		  * ( E *)
+		  ( (uns8 *) hp
+		    +
+		    internal::packed_vec_ptr_base<E,H>
+		            ::computed_header_size
+		    +
+		    i * sizeof ( E ) ) );
 	}
 
 	E * end_ptr ( void ) const
