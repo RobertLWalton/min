@@ -1836,11 +1836,11 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 Internally a {\tt min::\EOL ptr\TARG} value is exactly like a
 {\tt min::\EOL ref\TARG} value; both point at a location defined by
 a stub and an offset within the body of the stub.
-The main difference is that {\tt =} for reference values copies the
+A main difference is that {\tt =} for reference values copies the
 values of the locations pointed at, while {\tt =} for pointer values
 copies the pointer itself; i.e., the pointer to the stub and the offset.
 
-The other difference is the if a {\tt min::\EOL ref\TARG} value {\tt r}
+Another difference is the if a {\tt min::\EOL ref\TARG} value {\tt r}
 designates a location containing a {\tt T} value {\tt v}, then
 {\tt r->\ldots} is equivalent to {\tt v->\ldots}, and designates the value
 pointed at by {\tt v}. 
@@ -4864,6 +4864,9 @@ packed vector pointer type has the usage:
 \LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
 \verb|E const * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
+\verb|min::ptr<E const> pvp|
+    & \TTMKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
+\LABEL{MIN::PACKED_VEC_PTR_+} \\
 \end{tabular}\end{indpar}
 
 As for packed structures, read-only packed vector pointers used as the left
@@ -4874,8 +4877,9 @@ and \verb|max_length| members of the header.
 In addition subscripting read-only packed vector
 pointers gives read-only access to the elements of the vector.  The subscripting
 operator \verb|[]| checks the index \verb|i| against the current length
-of the vector to ensure the access is legal (e.g., \verb|pvp[i]|
-checks \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|).
+of the vector to ensure the access is legal
+(e.g., \verb|pvp[i]| executes a {\tt MIN\_\EOL ASSERT}
+check that \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|).
 The vector elements in a
 packed vector are organized as a C language vector so that
 \begin{center}
@@ -4902,6 +4906,13 @@ memcpy ( ..., pvup.begin_ptr(), sizeof ( E ) * pvup->length );
 \end{verbatim}\end{indpar}
 Using \verb|& pvup[0]| instead of \verb|pvup->begin_ptr()|
 will fail with a {\tt MIN\_\EOL ASSERT} fault if {\tt pvup->\EOL length == 0}.
+
+\verb|pvp+i| can be used to compute a {\tt min::ptr<E const>} pointer that
+points at the \verb|pvp[i]| vector element.
+The {\tt min::ptr<E const>} pointer will still be valid if the packed vector
+body is relocated.
+The {\tt MIN\_\EOL ASSERT} check \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|
+is performed when \verb|pvp+i| is computed.
 
 The read-write {\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EARG}
 pointer type has as its {\tt public} base class the
@@ -4968,14 +4979,18 @@ pointer type is:
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
 \verb|E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
+\verb|min::ptr<E> pvup|
+    & \TTMKEY{+}{of {\tt min::packed\_vec\_updptr}}\verb|i|
+\LABEL{MIN::PACKED_VEC_UPDPTR_+} \\
 \end{tabular}\end{indpar}
 
-The {\tt ->} and {\tt []} operators and
+The {\tt ->}, {\tt []}, and {\tt +} operators and
 {\tt begin\_ptr()} and {\tt end\_ptr()} members are
 redefined (i.e., \underline{not}
 inherited) so that they
-return `{\tt H~*}', `{\tt E~*}' or `{\tt E~\&} values
-instead of `{\tt H~const~*}', `{\tt E~const~*}', or `{\tt E~const~\&}' values.
+return `{\tt H~*}', `{\tt E~*}' `{\tt E~\&}, or `{\tt min::\EOL ptr<E>}' values
+instead of `{\tt H~const~*}', `{\tt E~const~*}', `{\tt E~const~\&}', or
+{\tt min::\EOL ptr<E const>}' values.
 The {\tt []} operator\label{PACKED_VEC_[]_REF}
 is further redefined if {\tt E} is a locatable type
 so that a {\tt min::\EOL ref\BRACKETED{E}} value is returned instead of
