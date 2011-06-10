@@ -1776,17 +1776,6 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::ptr<T> |
-    & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}
-      \verb|( const min::ref<T> & r )|
-\LABEL{MIN::=&_OF_REF_OF_T} \\
-\verb|min::ref<T> |
-    & \TTOMKEY{*}{*}{of {\tt min::ptr\TARG}}
-      \verb|( const min::ptr<T> & p )|
-\LABEL{MIN::=*_OF_PTR_OF_T} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}\begin{tabular}{r@{}l}
 \verb|const min::stub * const p| & \TTARMKEY{s}{in {\tt min::ptr\TARG}}
 \LABEL{MIN::PTR_STUB} \\
 \verb|const min::unsptr p| & \TTARMKEY{offset}{in {\tt min::ptr\TARG}}
@@ -1809,16 +1798,26 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|T & |
-	& \TTOMKEY{[ ]}{[ ]}%
-	          {of {\tt min::ptr\TARG}}
-	  \verb| ( const min::ptr<T> & p, I index )|
-\LABEL{MIN::[]_OF_PTR} \\
 \verb|min::ptr<T> |
-	& \TTOMKEY{+}{+}%
-	          {of {\tt min::ptr\TARG}}
-	  \verb| ( const min::ptr<T> & p, I index )|
-\LABEL{MIN::+_OF_PTR} \\
+    & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}
+      \verb|( const min::ref<T> & r )|
+\LABEL{MIN::=&_OF_REF_OF_T} \\
+\verb|min::ref<T> |
+    & \TTOMKEY{*}{*}{of {\tt min::ptr\TARG}}
+      \verb|( const min::ptr<T> & p )|
+\LABEL{MIN::=*_OF_PTR_OF_T} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|T & p| & \TTBMKEY{i}{of {\tt min::ptr}}
+    \hspace*{1.0in} [if \verb|T| \underline{not} locatable]
+\LABEL{MIN::PTR_[]} \\
+\verb|min::ref<T> p| & \TTBMKEY{i}{of {\tt min::ptr}}
+    \hspace*{1.0in} [if \verb|T| \underline{is} locatable]
+\LABEL{MIN::PTR_TO_STUB_[]} \\
+\verb|min::ptr<T> p|
+    & \TTMKEY{+}{of {\tt min::ptr}}\verb|i|
+\LABEL{MIN::PTR_+} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -1829,7 +1828,7 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \LABEL{MIN::T*_OF_PTR} \\
 \verb|min::ptr<T> |
 	& \MINKEY{ptr\TARG}
-	  \verb| ( const min::ptr<S> & p )| ~~~~~ (unprotected)
+	  \verb| ( const min::ptr<S> & p )| ~~~~~ [unprotected]
 \LABEL{MIN::PTR_OF_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -1868,17 +1867,25 @@ the location within the body may not be {\tt const} unless {\tt T} is
 
 Given {\tt min::\EOL ptr<T>} value {\tt p} and an index {\tt i} of some
 suitable index type {\tt I} (such as {\tt int} or {\tt min::\EOL uns32}),
-{\tt p[i]} is a `{\tt T \&}' reference value for the {\tt i+1}'st element of
+{\tt p[i]} is a `{\tt T \&}' or `{\tt min::\EOL ref<T>}'
+reference value for the {\tt i+1}'st element of
 the vector with elements of type {\tt T} pointed at by {\tt p}, and
 {\tt p+i} is a {\tt min::\EOL ptr<T>} pointer to that element.
 
-Note that {\tt p[i]} is only a `{\tt T \&}' reference, and
-\underline{not} a {\tt min:\EOL ref<T>} reference, and as such is
+If {\tt T} is not a locatable value type
+(\pagref{LOCATABLE-VALUE}), then
+{\tt p[i]} is only a `{\tt T \&}' reference, and
+\underline{not} a {\tt min:\EOL ref<T>} reference.  As such it is
 in effect an unprotected body pointer that will become undefined whenever
-a relocatable function is called.  This has been done because a
+a relocatable function is called.  This is so because the
 `{\tt .}{\em member-name}' member access operation cannot be made to work with
 {\tt min::\EOL ref<T>} values, and member access operations are
-common when {\tt T} is a structure type.
+common when {\tt T} is a structure type.  However, if {\tt T} is locatable,
+it may contain a `{\tt const min::\EOL stub *}' value,
+and therefore cannot be written using a
+`{\tt T \&}' reference.  It can be written using a
+{\tt min:\EOL ref<T>} reference, so such is returned by {\tt p[i]} in
+this case.
 
 A pointer of type {\tt min::ptr<T>} can be implicitly converted to a
 pointer of type `{\tt T*}' when used as a function argument.
