@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 10 07:33:39 EDT 2011
+// Date:	Fri Jun 10 08:47:58 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1892,46 +1892,68 @@ namespace min {
 	    }
 	};
 
+	template < typename T >
+	class ptr_base
+	{
+
+	public:
+
+	    const min::stub * const s;
+	    const min::unsptr offset;
+
+	    operator T * ( void )
+	    {
+		return location();
+	    }
+
+	    T * operator -> ( void )
+	    {
+		return location();
+	    }
+
+	    template <typename I> ptr<T> operator +
+		    ( I index )
+	    {
+		return ptr<T> ( this->s,
+				  this->offset
+				+   sizeof ( T )
+				  * index );
+	    }
+
+	protected:
+
+	    ptr_base ( const min::stub * s,
+		       min::unsptr offset )
+		: s ( s ), offset ( offset ) {}
+
+	    T * location ( void ) const
+	    {
+		return (T *)
+		    (   (uns8 *)
+			unprotected::ptr_of ( s )
+		      + offset );
+	    }
+	};
+
     }
 
     template < typename T >
-    class ptr
+    class ptr : public internal::ptr_base<T>
     {
 
     public:
 
-	const min::stub * const s;
-	const min::unsptr offset;
-
-        ptr ( void ) : s ( NULL ), offset ( 0 ) {}
+        ptr ( void )
+	    : internal::ptr_base<T> ( NULL, 0 ) {}
 
 	template <typename S>
         ptr ( const ptr<S> & p )
-	    : s ( p.s), offset ( p.offset ) {}
-
-	operator T * ( void )
-	{
-	    return location();
-	}
-
-	T * operator -> ( void )
-	{
-	    return location();
-	}
+	    : internal::ptr_base<T> ( p.s, p.offset ) {}
 
 	template <typename I> T & operator []
 		( I index )
 	{
-	    return location()[index];
-	}
-
-	template <typename I> ptr<T> operator +
-		( I index )
-	{
-	    return ptr<T> ( this->s,
-	                      this->offset
-			    +   sizeof ( T )
-			      * index );
+	    return this->location()[index];
 	}
 
 	ptr<T> & operator = ( const ptr<T> & p )
@@ -1944,22 +1966,13 @@ namespace min {
 
 	ptr ( const min::stub * s,
 	      min::unsptr offset )
-	    : s ( s ), offset ( offset ) {}
+	    : internal::ptr_base<T> ( s, offset ) {}
 
 	friend min::ptr<T> unprotected::new_ptr<T>
 	    ( const min::stub * s, T & location );
 	friend min::ptr<T> operator &<>
 	    ( const min::ref<T> & r );
-	friend min::ref<T> operator *<>
-	    ( const min::ptr<T> & p );
-
-	T * location ( void ) const
-	{
-	    return (T *)
-		(   (uns8 *)
-		    unprotected::ptr_of ( s )
-		  + offset );
-	}
+	friend class internal::ptr_base<T>;
     };
 
     template < typename T >
@@ -2386,10 +2399,57 @@ inline bool operator != ( T v, min::ref<T> r )
 //   * Redefines push(pv,...) for packed vectors so that
 //     either ref<T> is returned or acc_write_update is
 //     called.
+//
+// Notes:
+//
+//    * In TARGS use MIN_COMMA for comma.
+//
+//    * In the macro definition, avoid `T>' as T may end
+//      with `>'.  Also avoid `TARGS>'.
 //     
 # define MIN_COMMA ,
 # define MIN_STUB_PTR_CLASS(TARGS,T) \
 namespace min { \
+    template < TARGS > \
+    class ptr< T > : public internal::ptr_base< T > \
+    { \
+    \
+    public: \
+	\
+        ptr ( void ) \
+	    : internal::ptr_base< T > ( NULL, 0 ) {} \
+	\
+	template <typename MIN_TYPE_S> \
+        ptr ( const ptr<MIN_TYPE_S> & p ) \
+	    : internal::ptr_base< T > \
+	          ( p.s, p.offset ) \
+	    {} \
+	\
+	template <typename MIN_TYPE_I> \
+	min::ref< T > operator [] ( MIN_TYPE_I index ) \
+	{ \
+	    return * ( * this + index ); \
+	} \
+	\
+	ptr< T > & operator = ( const ptr< T > & p ) \
+	{ \
+	    new ( this ) ptr< T > ( p.s, p.offset ); \
+	    return * this; \
+	} \
+	\
+    private: \
+	\
+	ptr ( const min::stub * s, \
+	      min::unsptr offset ) \
+	    : internal::ptr_base< T > ( s, offset ) {} \
+	\
+	friend min::ptr< T > unprotected::new_ptr< T > \
+	    ( const min::stub * s, T & location ); \
+	friend min::ptr< T > operator &<> \
+	    ( const min::ref< T > & r ); \
+	friend class internal::ptr_base< T >; \
+    }; \
+    \
     template < TARGS > \
     class ref< T > : public internal::ref_base< T > \
     { \
@@ -2448,12 +2508,12 @@ namespace min { \
 	    ( const min::stub * s, \
 	      T const & location ); \
 	\
-	friend min::ref<T> operator *<> \
-	    ( const min::ptr<T> & p ); \
+	friend min::ref< T > operator *<> \
+	    ( const min::ptr< T > & p ); \
 	\
         ref ( const min::stub * s, \
 	      min::unsptr offset ) \
-	    : internal::ref_base<T> ( s, offset ) {} \
+	    : internal::ref_base< T > ( s, offset ) {} \
     }; \
     \
     template < TARGS > \
@@ -2521,37 +2581,37 @@ namespace min { \
 	} \
     }; \
     \
-    template < TARGS, typename MIN_HEADER > \
-    class packed_vec_updptr<T,MIN_HEADER> \
-	: public packed_vec_ptr<T,MIN_HEADER> \
+    template < TARGS, typename MIN_TYPE_H > \
+    class packed_vec_updptr<T,MIN_TYPE_H> \
+	: public packed_vec_ptr<T,MIN_TYPE_H> \
     { \
     \
     public: \
 	\
 	packed_vec_updptr \
 	        ( const min::packed_vec_updptr \
-			<T,MIN_HEADER> & pvup ) \
+			<T,MIN_TYPE_H> & pvup ) \
 	{ \
 	    this->s = pvup.s; \
 	} \
 	packed_vec_updptr ( min::gen g ) \
-	    : packed_vec_ptr<T,MIN_HEADER> ( g ) {} \
+	    : packed_vec_ptr<T,MIN_TYPE_H> ( g ) {} \
 	packed_vec_updptr \
 		( const min::stub * s ) \
-	    : packed_vec_ptr<T,MIN_HEADER> ( s ) {} \
+	    : packed_vec_ptr<T,MIN_TYPE_H> ( s ) {} \
 	packed_vec_updptr ( void ) \
-	    : packed_vec_ptr<T,MIN_HEADER>() {} \
+	    : packed_vec_ptr<T,MIN_TYPE_H>() {} \
 	\
-	MIN_HEADER * operator -> ( void ) const \
+	MIN_TYPE_H * operator -> ( void ) const \
 	{ \
-	    return (MIN_HEADER *) \
+	    return (MIN_TYPE_H *) \
 		   unprotected::ptr_of ( this->s ); \
 	} \
 	\
 	min::ptr< T > operator + ( min::uns32 i ) \
 	    const \
 	{ \
-	    MIN_HEADER * hp = (MIN_HEADER *) \
+	    MIN_TYPE_H * hp = (MIN_TYPE_H *) \
 		unprotected::ptr_of ( this->s ); \
 	    MIN_ASSERT ( i < hp->length ); \
 	    return unprotected::new_ptr \
@@ -2560,7 +2620,7 @@ namespace min { \
 		  ( (uns8 *) hp \
 		    + \
 		    internal::packed_vec_ptr_base \
-		        < T , MIN_HEADER > \
+		        <T,MIN_TYPE_H> \
 		    ::computed_header_size \
 		    + \
 		    i * sizeof ( T ) ) ); \
@@ -2569,7 +2629,7 @@ namespace min { \
 	min::ref< T > operator [] ( min::uns32 i ) \
 	    const \
 	{ \
-	    MIN_HEADER * hp = (MIN_HEADER *) \
+	    MIN_TYPE_H * hp = (MIN_TYPE_H *) \
 		unprotected::ptr_of ( this->s ); \
 	    MIN_ASSERT ( i < hp->length ); \
 	    return unprotected::new_ref \
@@ -2578,7 +2638,7 @@ namespace min { \
 		  ( (uns8 *) hp \
 		    + \
 		    internal::packed_vec_ptr_base \
-		        < T , MIN_HEADER > \
+		        <T,MIN_TYPE_H> \
 		    ::computed_header_size \
 		    + \
 		    i * sizeof ( T ) ) ); \
@@ -2587,7 +2647,7 @@ namespace min { \
 	packed_vec_updptr & operator = \
 		( const min::stub * s ) \
 	{ \
-	    new ( this ) packed_vec_ptr<T,MIN_HEADER> \
+	    new ( this ) packed_vec_ptr<T,MIN_TYPE_H> \
 	    	( s ); \
 	    return * this; \
 	} \
@@ -2595,7 +2655,7 @@ namespace min { \
 	packed_vec_updptr & operator = \
 		( min::gen g ) \
 	{ \
-	    new ( this ) packed_vec_ptr<T,MIN_HEADER> \
+	    new ( this ) packed_vec_ptr<T,MIN_TYPE_H> \
 	    	( g ); \
 	    return * this; \
 	} \
@@ -2606,10 +2666,10 @@ namespace min { \
 	        ( & packed_vec_updptr::s ); \
 	} \
     }; \
-    template < TARGS, typename MIN_HEADER > \
+    template < TARGS, typename MIN_TYPE_H > \
     inline min::ref< T > push \
 	( typename \
-	  min::packed_vec_insptr< T ,MIN_HEADER> \
+	  min::packed_vec_insptr<T,MIN_TYPE_H> \
 	  pvip ) \
     { \
 	if ( pvip->length >= pvip->max_length ) \
@@ -2619,10 +2679,10 @@ namespace min { \
 	++ * (uns32 *) & pvip->length; \
 	return unprotected::new_ref ( pvip, * p ); \
     } \
-    template < TARGS, typename MIN_HEADER > \
+    template < TARGS, typename MIN_TYPE_H > \
     inline void push \
 	( typename \
-	  min::packed_vec_insptr< T ,MIN_HEADER> pvip, \
+	  min::packed_vec_insptr<T,MIN_TYPE_H> pvip, \
 	  min::uns32 n, T const * vp = NULL ) \
     { \
 	if ( n == 0 ) return; \
@@ -2640,11 +2700,11 @@ namespace min { \
 	    memset ( p, 0, n * sizeof ( T ) ); \
 	* (uns32 *) & pvip->length += n; \
     } \
-    template < TARGS, typename MIN_HEADER > \
+    template < TARGS, typename MIN_TYPE_H > \
     inline void push \
 	( typename \
-	  min::packed_vec_insptr< T ,MIN_HEADER> pvip, \
-	  min::uns32 n, min::ptr<T> vp ) \
+	  min::packed_vec_insptr<T,MIN_TYPE_H> pvip, \
+	  min::uns32 n, min::ptr< T > vp ) \
     { \
 	if ( n == 0 ) return; \
 	if ( pvip->length + n > pvip->max_length ) \
