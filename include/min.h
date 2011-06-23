@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jun 10 08:47:58 EDT 2011
+// Date:	Thu Jun 23 02:13:35 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2802,7 +2802,7 @@ namespace min { \
     inline void push \
 	( typename \
 	  min::packed_vec_insptr<T,MIN_TYPE_H> pvip, \
-	  min::uns32 n, min::ptr< T > vp ) \
+	  min::uns32 n, min::ptr< const T > vp ) \
     { \
 	if ( n == 0 ) return; \
 	if ( pvip->length + n > pvip->max_length ) \
@@ -5668,7 +5668,7 @@ namespace min {
     template < typename E, typename H >
     inline void push
 	( typename min::packed_vec_insptr<E,H> pvip,
-	  min::uns32 n, min::ptr<E> vp )
+	  min::uns32 n, min::ptr<const E> vp )
     {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
@@ -5681,7 +5681,7 @@ namespace min {
     inline void push
 	( typename min::packed_vec_insptr<min::gen,H>
 	           pvip,
-	  min::uns32 n, min::ptr<min::gen> vp )
+	  min::uns32 n, min::ptr<const min::gen> vp )
     {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
@@ -5697,7 +5697,7 @@ namespace min {
 			   <const min::stub *,H>
 	           pvip,
 	  min::uns32 n,
-	  min::ptr<const min::stub *> vp )
+	  min::ptr<const min::stub * const> vp )
     {
 	if ( n == 0 ) return;
 	if ( pvip->length + n > pvip->max_length )
