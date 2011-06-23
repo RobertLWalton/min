@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 10, 2011}
+\date{June 23, 2011}
  
 \maketitle
 
@@ -5080,7 +5080,7 @@ pointer type is:
 \verb|void min::|
 	& \MINKEY{push\REL}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, min::ptr<E> vp )|
+	  \verb|   min::uns32 n, min::ptr<const E> vp )|
 \LABEL{MIN::PACKED_VEC_PUSH_PTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5148,10 +5148,10 @@ new elements are placed within the packed vector in the same
 memory order as they appear in the \verb|vp| vector.
 Here \verb|vp| cannot be an unprotected body pointer, as the data
 it points at might be relocated during the execution of {\tt push}.
-It can either be non-body pointer or a {\tt min::ptr<E>} pointer.
+It can either be a non-body pointer or a {\tt min:\EOL ptr<const E>} pointer.
 In either case {\tt min::\EOL acc\_\EOL write\_\EOL update} 
 (\itemref{ACC-WRITE-UPDATE-FUNCTIONS})
-is called if {\tt E} is locatable.
+is called by {\tt min::\EOL push} if {\tt E} is locatable.
 
 The \verb|min::pop| function removes elements from the end of the
 packed vector, decrementing the current vector length (which is checked
