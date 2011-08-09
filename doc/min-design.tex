@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{June 23, 2011}
+\date{August 9, 2011}
  
 \maketitle
 
@@ -4867,9 +4867,11 @@ packed vector pointer type has the usage:
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
-\verb|E const * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|min::ptr<E const> pvp|
+    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
-\verb|E const * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|min::ptr<E const> pvp|
+    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \verb|min::ptr<E const> pvp|
     & \TTMKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
@@ -4898,13 +4900,21 @@ elements is generally a bad idea.  However, temporary use within a single
 statement is all right if the statement does not call a relocating
 function.
 
-\verb|pvp.begin_ptr()| is the same as `\verb|& pvp[0]|'
+\verb|pvp+i| can be used to compute a {\tt min::ptr<E const>} pointer that
+points at the \verb|pvp[i]| vector element.
+The {\tt min::ptr<E const>} pointer will still be valid if the packed vector
+body is relocated.
+The {\tt MIN\_\EOL ASSERT} check \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|
+is performed when \verb|pvp+i| is computed.
+
+\verb|pvp.begin_ptr()| is the same as `\verb|pvp + 0|'
 except the latter would fail if {\tt pvp->\EOL length == 0}.
-\verb|pvp.end_ptr()| is the same as `\verb|& pvp[pvp->length]|'
+\verb|pvp.end_ptr()| is the same as `\verb|pvp + pvp->length|'
 except the latter will always fail because the index is not less than
 \verb|pvp->length|.
-These member functions are only useful
-in code that does not call a relocating function.
+The {\tt min::ptr<E const>} values of these functions are implicitly
+convertable to `{\tt E const *}' values, and so can be passed to
+functions like {\tt memcpy}.
 
 For example, if \verb|memcpy| is used to copy
 from the vector, use {\tt begin\_\EOL ptr()}:
@@ -4913,13 +4923,6 @@ memcpy ( ..., pvup.begin_ptr(), sizeof ( E ) * pvup->length );
 \end{verbatim}\end{indpar}
 Using \verb|& pvup[0]| instead of \verb|pvup->begin_ptr()|
 will fail with a {\tt MIN\_\EOL ASSERT} fault if {\tt pvup->\EOL length == 0}.
-
-\verb|pvp+i| can be used to compute a {\tt min::ptr<E const>} pointer that
-points at the \verb|pvp[i]| vector element.
-The {\tt min::ptr<E const>} pointer will still be valid if the packed vector
-body is relocated.
-The {\tt MIN\_\EOL ASSERT} check \verb|0|$\leq$\verb|i|$<$\verb|pvp->length|
-is performed when \verb|pvp+i| is computed.
 
 The read-write {\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EARG}
 pointer type has as its {\tt public} base class the
@@ -4981,10 +4984,11 @@ pointer type is:
 \verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
-\verb|E * pvup|
+\verb|min::ptr<E> pvup|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|E * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\verb|min:ptr<E> pvup|
+    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \verb|min::ptr<E> pvup|
     & \TTMKEY{+}{of {\tt min::packed\_vec\_updptr}}\verb|i|
@@ -4995,9 +4999,10 @@ The {\tt ->}, {\tt []}, and {\tt +} operators and
 {\tt begin\_ptr()} and {\tt end\_ptr()} members are
 redefined (i.e., \underline{not}
 inherited) so that they
-return `{\tt H~*}', `{\tt E~*}' `{\tt E~\&}, or `{\tt min::\EOL ptr<E>}' values
-instead of `{\tt H~const~*}', `{\tt E~const~*}', `{\tt E~const~\&}', or
-{\tt min::\EOL ptr<E const>}' values.
+return `{\tt H~*}', `{\tt E~\&},
+or `{\tt min::\EOL ptr<E>}' values
+instead of `{\tt H~const~*}', `{\tt E~const~\&}', or
+`{\tt min::\EOL ptr<E const>}' values.
 The {\tt []} operator\label{PACKED_VEC_[]_REF}
 is further redefined if {\tt E} is a locatable type
 so that a {\tt min::\EOL ref\BRACKETED{E}} value is returned instead of
@@ -12511,9 +12516,11 @@ In loose implementation: \\
 \LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
 \verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
-\verb|E const * pvp| & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|min::ptr<E const> pvp|
+    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
-\verb|E const * pvp| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
+\verb|min::ptr<E const> pvp|
+    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
 \end{TABULAR}
 
@@ -12569,10 +12576,11 @@ In loose implementation: \\
 \verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
     \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
-\verb|E const * pvup|
+\verb|min::ptr<E> pvup|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|E const * pvup| & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\verb|min::ptr<E> pvup|
+    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \end{TABULAR}
 
