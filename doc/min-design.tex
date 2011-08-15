@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 9, 2011}
+\date{August 15, 2011}
  
 \maketitle
 
@@ -3359,20 +3359,28 @@ types of string are described later in this section.
 
 The following functions create new general string values:
 
-\begin{indpar}\begin{tabular}{r@{}l}
+\begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_STR_GEN} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( min::ptr<const char> p )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}
+	\verb| ( min::ptr<const char> p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR_WITH_N} \\
 \end{tabular}\end{indpar}
 
 The \verb|min::new_str_gen| functions copy the input string after the
 manner of \verb|strcpy| and \verb|strncpy|, respectively.  That is,
 they copy from \verb|p|
 until a NUL is copied or \verb|n| characters have been copied, whichever
-comes first.
+comes first.  The forms with a \verb|min:ptr<const char>|
+argument are for use when the input string is part of a relocatable body.
 
 When a string general value
 is created, if the input string is short enough for the general value
@@ -3395,6 +3403,10 @@ a vector of UNICODE characters:
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
       \verb| ( const min::uns32 * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( min::ptr<const min::uns32> p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{tabular}\end{indpar}
 
 Here UNICODE characters are represented as \verb|min::uns32| values.
@@ -11177,9 +11189,21 @@ In loose implementation: \\
       \verb| ( const char * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
 \verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( min::ptr<const char> p )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+	\verb| ( min::ptr<const char> p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR_WITH_N} \\
+\verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
       \verb| ( const min::uns32 * p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( min::ptr<const min::uns32> p,|\ARGBREAK
+      \verb|   min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{2.2in}
