@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  9 17:12:07 EDT 2011
+// Date:	Mon Aug 15 11:16:12 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1307,7 +1307,7 @@ int min::strncmp
 // the first n characters of p.
 //
 min::gen MINT::new_str_stub_gen
-	( const char * p, min::unsptr n )
+	( min::ptr<const char> p, min::unsptr n )
 {
     uns32 hash = strnhash ( p, n );
     uns32 h = hash & MINT::str_hash_mask;

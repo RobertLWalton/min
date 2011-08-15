@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug  9 06:35:13 EDT 2011
+// Date:	Mon Aug 15 11:16:26 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4066,10 +4066,29 @@ namespace min {
 
     namespace internal {
 	min::gen new_str_stub_gen
-	    ( const char * p, min::unsptr n );
+	    ( min::ptr<const char> p, min::unsptr n );
 
 	inline min::gen new_str_gen
 		( const char * p, min::unsptr n )
+	{
+#	if MIN_IS_COMPACT
+		if ( n <= 3 )
+		    return unprotected::
+			   new_direct_str_gen ( p, n );
+#	elif MIN_IS_LOOSE
+		if ( n <= 5 )
+		    return unprotected::
+			   new_direct_str_gen ( p, n );
+#	endif
+	    return internal::new_str_stub_gen
+	        ( unprotected::new_ptr<const char>
+		      ( ZERO_STUB, * p ),
+		  n );
+	}
+
+	inline min::gen new_str_gen
+		( min::ptr<const char> p,
+		  min::unsptr n )
 	{
 #	if MIN_IS_COMPACT
 		if ( n <= 3 )
@@ -4097,8 +4116,64 @@ namespace min {
 	    ( p, internal::strnlen ( p, n ) );
     }
 
+    inline min::gen new_str_gen
+	    ( min::ptr<const char> p )
+    {
+	return internal::new_str_gen
+	    ( p, ::strlen ( p ) );
+    }
+
+    inline min::gen new_str_gen
+            ( min::ptr<const char> p, min::unsptr n )
+    {
+        return internal::new_str_gen
+	    ( p, internal::strnlen ( p, n ) );
+    }
+
+    // Compensate for the lack of implicit conversion
+    // from ptr<char> to ptr<const char>.
+    //
+    inline min::gen new_str_gen
+	    ( min::ptr<char> p )
+    {
+	return internal::new_str_gen
+	    ( (min::ptr<const char>) p,
+	      ::strlen ( p ) );
+    }
+
+    inline min::gen new_str_gen
+            ( min::ptr<char> p, min::unsptr n )
+    {
+        return internal::new_str_gen
+	    ( (min::ptr<const char>) p,
+	      internal::strnlen ( p, n ) );
+    }
+
     min::gen new_str_gen
             ( const min::uns32 * p, min::unsptr n );
+
+    // new_str_gen with min::uns32 characters converts
+    // to a UTF-8 char string in the stack and there-
+    // fore handles relocatable min::ptr's.
+    //
+    inline min::gen new_str_gen
+            ( min::ptr<const min::uns32> p,
+	      min::unsptr n )
+    {
+        return new_str_gen
+	    ( (const min::uns32 *) p, n );
+    }
+
+    // Compensate for the lack of implicit conversion
+    // from ptr<uns32> to ptr<const uns32>.
+    //
+    inline min::gen new_str_gen
+            ( min::ptr<min::uns32> p,
+	      min::unsptr n )
+    {
+        return new_str_gen
+	    ( (const min::uns32 *) p, n );
+    }
 
     // UTF-8 Conversion Functions
 
