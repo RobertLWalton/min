@@ -6665,8 +6665,13 @@ Copying characters into a printer is done by the
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer printer, min::ptr<char> s )|
+      \verb| ( min::printer printer, min::ptr<const char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT\REL}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer printer, const min::str_ptr & s )|
+\LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
 \verb|min::printer |
     & \TTOMKEY{<<}{\LT\LT\REL}%
               {of {\tt min::printer}}\ARGBREAK
@@ -6707,6 +6712,8 @@ as the body it points into may be relocated during the execution of the
 {\tt <<\REL} operator on a printer.
 A `{\tt min::\EOL ptr<char>}' value can be used
 instead as a pointer to a `{\tt const char *}' string inside a body.
+And a `{\tt min::\EOL str\_\EOL ptr}' can be used instead to
+point at the contents of a string {\tt min::gen} value.
 
 \ikey{Horizontal tabs}{horizontal tab} are set every 8 columns.
 When a horizontal tab is copied to a printer file buffer
