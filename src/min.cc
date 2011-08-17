@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 15 11:16:12 EDT 2011
+// Date:	Wed Aug 17 04:10:04 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1785,11 +1785,12 @@ bool min::init_input_named_file
     char error_buffer[512];
     uns64 file_size;
     if ( ! min::os::file_size
-               ( file_size, & fname[0], error_buffer ) )
+               ( file_size, fname.begin_ptr(),
+	         error_buffer ) )
     {
 	ERR << "During attempt to find the size of"
 	       " file "
-	    << & fname[0] << ": "
+	    << fname << ": "
 	    << min::reserve ( 20 )
 	    << error_buffer << min::eol;
         return false;
@@ -1797,7 +1798,8 @@ bool min::init_input_named_file
 
     if ( file_size >= ( 1ull << 32 ) - 1 )
     {
-        ERR << "File " << & fname[0] << ": "
+        ERR << "File "
+	    << fname << ": "
 	    << min::reserve ( 20 )
 	    << "File too large ( size = " << file_size
 	    << " bytes)" << min::eol;
@@ -1807,12 +1809,12 @@ bool min::init_input_named_file
     // We use FILE IO because it is standard for C
     // while open/read is OS dependent.
 
-    FILE * in = fopen ( & fname[0], "r" );
+    FILE * in = fopen ( fname.begin_ptr(), "r" );
 
     if ( in == NULL )
     {
         ERR << "Opening file "
-	    << & fname[0] << ": "
+	    << fname << ": "
 	    << min::reserve ( 20 )
 	    << strerror ( errno )
 	    << min::eol;
@@ -1831,13 +1833,13 @@ bool min::init_input_named_file
     {
 	if ( errno != 0 )
 	    ERR << "Reading file "
-		<< & fname[0] << ": "
+		<< fname << ": "
 	        << min::reserve ( 20 )
 		<< strerror ( errno )
 		<< min::eol;
 	else
 	    ERR << "Reading file "
-		<< & fname[0] << ": "
+		<< fname << ": "
 	        << min::reserve ( 20 )
 		<< " Only " << bytes
 		<< " bytes out of " << file_size
@@ -1850,7 +1852,7 @@ bool min::init_input_named_file
     if ( getc ( in ) != EOF )
     {
 	ERR << "Reading file "
-	    << & fname[0] << ": "
+	    << fname << ": "
 	    << min::reserve ( 20 )
 	    << "File longer than expected (more than "
 	    << file_size << " bytes were read)"
@@ -2116,7 +2118,7 @@ min::printer operator <<
     if ( file->file_name != min::MISSING() )
     {
         min::str_ptr sp ( file->file_name );
-	printer << & sp[0] << ": ";
+	printer << sp << ": ";
     }
     printer << min::push_parameters
             << min::nohbreak;
@@ -7421,8 +7423,8 @@ static T print_gen
     {
         min::unprotected::str_ptr sp ( v );
         return out << f->str_prefix
-	            << min::unprotected::str_of ( sp )
-		    << f->str_postfix;
+	           << sp.begin_ptr()
+		   << f->str_postfix;
     }
     else if ( min::is_lab ( v ) )
     {
@@ -7891,7 +7893,7 @@ min::printer operator <<
 }
 
 min::printer operator <<
-	( min::printer printer, min::ptr<char> s )
+	( min::printer printer, min::ptr<const char> s )
 {
     min::unsptr length = strlen ( s ) + 1;
     MIN_STACKCOPY ( char, buffer, length, s );

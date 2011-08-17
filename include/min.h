@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug 15 11:16:26 EDT 2011
+// Date:	Wed Aug 17 03:17:28 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3856,13 +3856,24 @@ namespace min {
 	    // Operator[] MUST be a member and cannot
 	    // be a friend.
 	    //
-	    const char & operator[] ( int index ) const
+	    char operator[] ( int index ) const
 	    {
 		return
 		    ( (const char * )
 		      unprotected::long_str_of ( s ) )
 		    [sizeof ( unprotected::long_str )
 		     + index];
+	    }
+
+	    ptr<const char> begin_ptr ( void ) const
+	    {
+		return min::unprotected::new_ptr
+		    ( this->s != & this->pseudo_stub ?
+			  this->s : ZERO_STUB,
+		      ( (const char * )
+		        unprotected::long_str_of ( s ) )
+		      [sizeof ( unprotected::long_str )]
+		    );
 	    }
 
 	    str_ptr & operator = ( const min::stub * s )
@@ -10752,7 +10763,21 @@ min::printer operator <<
 
 min::printer operator <<
 	( min::printer printer,
-	  min::ptr<char> s );
+	  min::ptr<const char> s );
+
+inline min::printer operator <<
+	( min::printer printer,
+	  min::ptr<char> s )
+{
+    return printer << (min::ptr<const char>) s;
+}
+
+inline min::printer operator <<
+	( min::printer printer,
+	  const min::str_ptr & s )
+{
+    return printer << s.begin_ptr();
+}
 
 inline min::printer operator <<
 	( min::printer printer,
