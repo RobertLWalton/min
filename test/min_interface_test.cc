@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jun  9 14:17:36 EDT 2011
+// Date:	Wed Aug 17 08:22:38 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -58,6 +58,7 @@ struct min_assert_exception {};
 //
 bool min_assert_print = true;
 bool min_assert_abort = false;
+bool min_desire_failure = false;
 void min_assert
 	( bool value,
 	  const char * file, unsigned line,
@@ -71,10 +72,11 @@ void min_assert
 	     << ( value ? " true." : " false." )
 	     << endl;
     }
-    if ( value )
-        ; // do nothing
-    else if ( min_assert_abort ) abort();
-    else
+    if ( value == min_desire_failure
+         &&
+	 min_assert_abort )
+        abort();
+    else if ( ! value )
 	throw ( new min_assert_exception );
 }
 
@@ -93,11 +95,13 @@ void min_assert
     try { cout << __FILE__ << ":" << __LINE__ \
                << " desire failure:" << endl \
 	       << "    " << #statement << endl; \
+	  min_desire_failure = true; \
 	  statement; \
           cout << "EXITING BECAUSE OF SUCCESSFUL" \
 	          " MIN_ASSERT" << endl; \
 	  exit ( 1 ); } \
-    catch ( min_assert_exception * x ) {}
+    catch ( min_assert_exception * x ) \
+        { min_desire_failure = false; }
 //
 # define MIN_ASSERT(expr) \
     min_assert ( expr ? true : false, \
