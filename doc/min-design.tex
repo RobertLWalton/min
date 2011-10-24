@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{August 17, 2011}
+\date{October 24, 2011}
  
 \maketitle
 
@@ -7858,6 +7858,22 @@ so that an object body may be resized by simply
 expanding or contracting its unused area, without modifying
 the contents of the other parts of the object body.
 
+The operations
+\begin{indpar}\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
+\verb|min::gen |
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::vec\_ptr}}
+	& [same as {\tt min::attr}]\\&
+	  \multicolumn{2}{l}{~(~const min::vec\_ptr \& vp,}\\&
+	  \multicolumn{2}{l}{~~~min::unsptr index )}
+\LABEL{MIN::[]_OF_VEC_PTR} \\
+\verb|min::unsptr min::| & \MINKEY{size\_of}
+	& [same as {\tt min::attr\_size\_of}]\\&
+          \multicolumn{2}{l}{~( min::obj\_vec\_ptr \& vp )}
+\end{tabular}\end{indpar}
+
+are can be used as alternatives that make the attribute
+vector part of an object look like a simple vector.
+
 A \minkey{obj\_vec\_updptr} is like a \verb|min::obj_vec_ptr|
 but has additional functions which support writing object body vector
 elements.  The additional functions for this type of pointer are:
@@ -7900,6 +7916,8 @@ elements.  The additional functions for this type of pointer are:
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_VAR_OF_VEC_UPDPTR} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_hash}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_updptr & vp,| \\
@@ -7907,6 +7925,8 @@ elements.  The additional functions for this type of pointer are:
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_HASH_OF_VEC_UPDPTR} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_attr}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_updptr & vp,| \\
@@ -7914,6 +7934,8 @@ elements.  The additional functions for this type of pointer are:
       \verb|   min::gen value )| \\
       \end{tabular}
 \LABEL{MIN::SET_ATTR_OF_VEC_UPDPTR} \\
+\end{tabular}\end{indpar}
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{set\_aux}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_updptr & vp,| \\
@@ -7943,7 +7965,9 @@ are applicable to
 Exceptions are destructors, the {\tt min::\EOL ini\-tial\-ize}
 functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
-downcast object vector pointer.
+downcast object vector pointer.  The other exceptions are
+
+TBD
 
 A \minkey{obj\_vec\_insptr} is like a
 {\tt min::obj\_\EOL vec\_\EOL updptr}
