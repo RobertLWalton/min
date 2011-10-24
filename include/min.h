@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 17 03:17:28 EDT 2011
+// Date:	Mon Oct 24 10:22:36 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7071,6 +7071,11 @@ namespace min {
 	( min::obj_vec_ptr & vp )
     {
         return vp.unused_offset - vp.attr_offset;
+    }
+    inline min::unsptr size_of
+	( min::obj_vec_ptr & vp )
+    {
+        return min::attr_size_of ( vp );
     }
     inline min::unsptr unused_size_of
 	( min::obj_vec_ptr & vp )
