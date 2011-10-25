@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 17 08:22:38 EDT 2011
+// Date:	Tue Oct 25 01:27:56 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2785,8 +2785,7 @@ void test_object_vector_level
 	    min::total_size_of ( vp );
 
 	MIN_ASSERT ( base[ht] == min::LIST_END() );
-	min::set_hash
-	    ( vp, 0, min::EMPTY_SUBLIST() );
+	min::hash ( vp, 0 ) = min::EMPTY_SUBLIST();
 	MIN_ASSERT
 	    ( base[ht] == min::EMPTY_SUBLIST() );
 	MIN_ASSERT
@@ -2919,19 +2918,18 @@ void test_object_vector_level
 	min::unsptr aux_offset =
 	    MUP::aux_offset_of ( vp );
 
-	min::set_attr ( vp, 0, min::MISSING() );
+	min::attr ( vp, 0 ) = min::MISSING();
 	MIN_ASSERT
 	    ( base[attr_offset] == min::MISSING() );
 	MIN_ASSERT ( vp[0] == min::MISSING() );
 
-	min::set_attr ( vp, 0, min::LIST_END() );
+	min::attr ( vp, 0 ) = min::LIST_END();
 	MIN_ASSERT ( vp[0] == min::LIST_END() );
 
 	vp[1] = min::new_list_aux_gen
 		    ( total_size - aux_offset );
-	min::set_aux
-	    ( vp, total_size - aux_offset,
-	          min::LIST_END() );
+	min::aux ( vp, total_size - aux_offset ) =
+	    min::LIST_END();
 	MIN_ASSERT
 	    ( base[attr_offset] == min::LIST_END() );
 	MIN_ASSERT
