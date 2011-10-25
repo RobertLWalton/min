@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar 17 12:13:15 EDT 2011
+// Date:	Tue Oct 25 01:28:15 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -161,7 +161,7 @@ static void random_deallocate
         min::unsptr i = random_uns32() % size;
 	min::deallocate
 	    ( MUP::stub_of ( min::attr ( vp, i ) ) );
-	min::set_attr ( vp, i, create_object ( m ) );
+	min::attr ( vp, i ) = create_object ( m );
     }
     min_assert_print = print_save;
 }

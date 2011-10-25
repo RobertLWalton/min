@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 24 10:22:36 EDT 2011
+// Date:	Tue Oct 25 01:31:11 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6540,18 +6540,14 @@ namespace min {
 	min::gen * & base
 	    ( min::obj_vec_updptr & vp );
     }
-    void set_var
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value );
-    void set_hash
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value );
-    void set_attr
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value );
-    void set_aux
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value );
+    min::ref<min::gen> var
+	( min::obj_vec_updptr & vp, min::unsptr index );
+    min::ref<min::gen> hash
+	( min::obj_vec_updptr & vp, min::unsptr index );
+    min::ref<min::gen> attr
+	( min::obj_vec_updptr & vp, min::unsptr index );
+    min::ref<min::gen> aux
+	( min::obj_vec_updptr & vp, min::unsptr index );
 
     namespace unprotected {
 	min::unsptr & unused_offset_of
@@ -6704,18 +6700,18 @@ namespace min {
 
 	friend min::gen * & unprotected::base
 	    ( min::obj_vec_updptr & vp );
-	friend void set_var
+	friend min::ref<min::gen> var
 	    ( min::obj_vec_updptr & vp,
-	      min::unsptr index, min::gen value );
-	friend void set_hash
+	      min::unsptr index );
+	friend min::ref<min::gen> hash
 	    ( min::obj_vec_updptr & vp,
-	      min::unsptr index, min::gen value );
-	friend void set_attr
+	      min::unsptr index );
+	friend min::ref<min::gen> attr
 	    ( min::obj_vec_updptr & vp,
-	      min::unsptr index, min::gen value );
-	friend void set_aux
+	      min::unsptr index );
+	friend min::ref<min::gen> aux
 	    ( min::obj_vec_updptr & vp,
-	      min::unsptr index, min::gen value );
+	      min::unsptr index );
 
 	friend min::unsptr &
 	  unprotected::unused_offset_of
@@ -7133,45 +7129,41 @@ namespace min {
 	       unprotected::ptr_ref_of ( vp.s );
     }
 
-    inline void set_var
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value )
+    inline min::ref<min::gen> var
+	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index += vp.var_offset;
 	MIN_ASSERT ( index < vp.hash_offset );
-	unprotected::base(vp)[index] = value;
-	unprotected::acc_write_update ( vp.s, value );
+	return unprotected::new_ref<min::gen>
+	    ( vp.s, unprotected::base(vp)[index] );
     }
 
-    inline void set_hash
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value )
+    inline min::ref<min::gen> hash
+	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index += vp.hash_offset;
 	MIN_ASSERT ( index < vp.attr_offset );
-	unprotected::base(vp)[index] = value;
-	unprotected::acc_write_update ( vp.s, value );
+	return unprotected::new_ref<min::gen>
+	    ( vp.s, unprotected::base(vp)[index] );
     }
 
-    inline void set_attr
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value )
+    inline min::ref<min::gen> attr
+	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index += vp.attr_offset;
 	MIN_ASSERT ( index < vp.unused_offset );
-	unprotected::base(vp)[index] = value;
-	unprotected::acc_write_update ( vp.s, value );
+	return unprotected::new_ref<min::gen>
+	    ( vp.s, unprotected::base(vp)[index] );
     }
 
-    inline void set_aux
-	( min::obj_vec_updptr & vp,
-	  min::unsptr index, min::gen value )
+    inline min::ref<min::gen> aux
+	( min::obj_vec_updptr & vp, min::unsptr index )
     {
 	index = vp.total_size - index;
 	MIN_ASSERT ( vp.aux_offset <= index );
 	MIN_ASSERT ( index < vp.total_size );
-	unprotected::base(vp)[index] = value;
-	unprotected::acc_write_update ( vp.s, value );
+	return unprotected::new_ref<min::gen>
+	    ( vp.s, unprotected::base(vp)[index] );
     }
 
     inline min::unsptr & unprotected::unused_offset_of
