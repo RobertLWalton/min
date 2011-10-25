@@ -8224,12 +8224,13 @@ auxiliary area.
 
 The following are equivalences except for
 the omission of {\tt MIN\_\EOL ASSERT} checks that the index \verb|i|
-is not too large or two small (auxiliary area indices may not be 0),
+is not too large or too small (auxiliary area indices may not be 0),
 checks that the unused area
 is non-empty for pushes and that the attribute vector or auxiliary area
-is non-empty for pops,
-and calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
-for set and push operations
+is non-empty for pops, conversions to \verb|min::ref<min::gen>|
+values for appropriate element access functions, and
+calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
+for push operations
 (\pagref{MUP::ACC_WRITE_GEN_UPDATE}):
 
 \begin{indpar}\begin{tabular}{rcl}
@@ -8243,17 +8244,6 @@ for set and push operations
 \verb|aux ( vp, i )| & $\equiv$
     & \verb|return base(vp)[total_size_of(vp) - i]| \\
 \end{tabular}\end{indpar}\label{OBJECT-VECTOR-EQUIVALENTS}
-\begin{indpar}\begin{tabular}{rcl}
-\hspace*{2.0in} \\[-3ex]
-\verb|set_var ( vp, i, v )| & $\equiv$
-    & \verb|base(vp)[var_offset_of(vp) + i] = v| \\
-\verb|set_hash ( vp, i, v )| & $\equiv$
-    & \verb|base(vp)[hash_offset_of(vp) + i] = v| \\
-\verb|set_attr ( vp, i, v )| & $\equiv$
-    & \verb|base(vp)[attr_offset_of(vp) + i] = v| \\
-\verb|set_aux ( vp, i, v )| & $\equiv$
-    & \verb|base(vp)[total_size_of(vp) - i] = v| \\
-\end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{rcl}
 \hspace*{2.0in} \\[-3ex]
 \verb|attr_push ( vp, v )| & $\equiv$
