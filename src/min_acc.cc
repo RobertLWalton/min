@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 08:21:17 EDT 2011
+// Date:	Fri Oct 28 11:53:32 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1355,6 +1355,12 @@ void MACC::stub_stack
 	}
 	last_segment = sss;
     }
+
+    ++ segment_count;
+    if ( max_segment_count < segment_count )
+	max_segment_count = segment_count;
+        
+    ++ total_segment_count;
 }
 
 void MACC::stub_stack::remove_jump ( void )
@@ -1413,6 +1419,9 @@ void MACC::stub_stack::remove_jump ( void )
 		        ( MACC::last_stub_stack_region,
 			  r );
 	    }
+
+	    assert ( segment_count > 0 );
+	    -- segment_count;
 	}
     }
 }
@@ -1482,6 +1491,8 @@ void MACC::stub_stack::flush ( void )
 		MACC::remove
 		    ( MACC::last_stub_stack_region, r );
 	}
+	assert ( segment_count > 0 );
+	-- segment_count;
     }
 
     if ( output_segment != NULL )
