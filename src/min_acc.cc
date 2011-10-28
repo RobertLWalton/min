@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:09:25 EDT 2011
+// Date:	Fri Oct 28 08:21:17 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1214,12 +1214,16 @@ void MACC::stub_stack::rewind ( void )
 // Called by push() when we are at the end of the
 // current segment, or there is no current segment
 // (stack has no segments yet).  Allocates another
-// segment for the stack.
+// segment for the stack and puts this at the end
+// of the stack.
 //
 void MACC::stub_stack
          ::allocate_stub_stack_segment ( void )
 {
-    region * r = current_stub_stack_region;
+    // Find a stub stack region that has a free segment
+    // or room to allocate a new segment.
+    //
+    region * r = MACC::current_stub_stack_region;
     if ( r != NULL
          &&
 	 r->free_count == 0
@@ -1228,6 +1232,10 @@ void MACC::stub_stack
     {
         // Current stack region exists and has no free
 	// segments or room to allocate a new segment.
+	// Search all existing stack regions for space
+	// to allocate the next segment.  If none found,
+	// set r = NULL; otherwise set r to the found
+	// region.
 
 	r = last_stub_stack_region->region_next;
 	while ( r->free_count == 0
@@ -1275,8 +1283,8 @@ void MACC::stub_stack
     }
 
     // Now r has a free segment or room to allocate
-    // a new segment.
-
+    // a new segment.  Find new segment sss.
+    //
     stub_stack_segment * sss;
     if ( r->free_count > 0 )
     {
@@ -1294,6 +1302,8 @@ void MACC::stub_stack
 	assert ( r->next <= r->end );
     }
 
+    // Fill in members of sss.
+    //
     sss->block_control = MUP::new_control_with_locator
         ( r - region_table, MINT::null_stub );
     sss->block_subcontrol = MUP::new_control_with_type
@@ -1304,13 +1314,23 @@ void MACC::stub_stack
         (min::stub **)
         ( (uns8 *) sss + stub_stack_segment_size );
 
+    // Add segment to stack.
+    //
     if ( last_segment == NULL )
     {
+        // Stack was previously empty.
+	//
         sss->previous_segment = sss->next_segment = sss;
 	last_segment = sss;
+	input_segment = output_segment = sss;
+	input = output = sss->next;
+	assert ( is_at_end );
     }
     else
     {
+        // Stack not previously empty.  Add segment to
+	// the end.
+	//
 	sss->previous_segment =
 	    last_segment;
 	sss->next_segment =

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 25 01:31:11 EDT 2011
+// Date:	Fri Oct 28 11:27:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6482,6 +6482,16 @@ namespace min {
 	    ( min::unsptr unused_size,
 	      min::unsptr hash_size = 0,
 	      min::unsptr var_size = 0 );
+
+    inline bool is_obj ( min::gen g )
+    {
+	if ( ! is_stub ( g ) )
+	    return false;
+	const min::stub * s =
+	    unprotected::stub_of ( g );
+	int t = type_of ( s );
+	return t == SHORT_OBJ || t == LONG_OBJ;
+    }
 }
 
 // Object Vector Level
