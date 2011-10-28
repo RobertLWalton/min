@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 25, 2011}
+\date{October 28, 2011}
  
 \maketitle
 
@@ -7670,6 +7670,14 @@ The attribute vector and auxiliary area can be
 filled by `push' instructions described below
 (\pagref{OBJECT_PUSH_FUNCTIONS}).
 
+A \verb|min::gen| value may be tested to see if it points at an
+object by the function:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|bool min::| & \MINKEY{is\_obj} \verb| ( min::gen v )|
+\LABEL{MIN::IS_OBJ} \\
+\end{tabular}\end{indpar}
+
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
 
@@ -11642,6 +11650,8 @@ In loose implementation: \\
     \verb|   min::unsptr hash_size = 0,|\ARGBREAK
     \verb|   min::unsptr variables_size = 0 )|
 \LABEL{MIN::NEW_OBJ_GEN} \\
+\verb|bool min::| & \MINKEY{is\_obj} \verb| ( min::gen v )|
+\LABEL{MIN::IS_OBJ} \\
 \end{TABULAR}
 
 \end{indpar}
