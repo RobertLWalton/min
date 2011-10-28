@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 07:55:18 EDT 2011
+// Date:	Fri Oct 28 11:49:40 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -884,11 +884,11 @@ namespace min { namespace acc {
     //
     // First, a value can be pushed into the stack using
     // ss.push().  It is also possible to batch push
-    // operations using ss.begin_push() and ss.end_push().
-    // Note that there is no pop operation, so if this
-    // were the only way a stack is used, the stack
-    // could only grow and never shrink (a pop could be
-    // easily implemented).
+    // operations using ss.begin_push() and ss.end_
+    // push().  Note that there is no pop operation, so
+    // if this were the only way a stack is used, the
+    // stack could only grow and never shrink (a pop
+    // could, however, be easily implemented).
     //
     // Second, the stack comes with two pointers, named
     // `input' and `output'.  ss.rewind() resets both
@@ -962,6 +962,16 @@ namespace min { namespace acc {
 	    // stack, and is incremented by the remove()
 	    // function.
 
+	min::uns32 segment_count, max_segment_count;
+	    // The number of segments currently in this
+	    // stack, and the maximum thereof over the
+	    // lifetime of the stack.
+
+	min::uns64 total_segment_count;
+	    // Number of stub stack segments ever allo-
+	    // cated to this stack.  The number freed
+	    // equals this number - segment_count.
+
 
 	stub_stack ( void ) :
 	    last_segment ( NULL ),
@@ -971,7 +981,10 @@ namespace min { namespace acc {
 	    output ( NULL ),
 	    is_at_end ( true ),
 	    in ( 0 ),
-	    out ( 0 ) {}
+	    out ( 0 ),
+	    segment_count ( 0 ),
+	    max_segment_count ( 0 ),
+	    total_segment_count ( 0 ) {}
 
 	void rewind ( void );
 
