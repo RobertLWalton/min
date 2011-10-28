@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:11:01 EDT 2011
+// Date:	Fri Oct 28 07:55:18 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -880,44 +880,55 @@ namespace min { namespace acc {
     };
 
 
-    // A stub stack can be accessed in two ways.
+    // A stub stack ss can be accessed in two ways.
     //
     // First, a value can be pushed into the stack using
-    // push().  It is also possible to batch push
-    // operations using begin_push() and end_push().
+    // ss.push().  It is also possible to batch push
+    // operations using ss.begin_push() and ss.end_push().
+    // Note that there is no pop operation, so if this
+    // were the only way a stack is used, the stack
+    // could only grow and never shrink (a pop could be
+    // easily implemented).
     //
     // Second, the stack comes with two pointers, named
-    // `input' and `output'.  rewind() resets both
-    // pointers to the beginning of the stack.  at_end()
-    // is true if the input pointer is at the end of the
-    // stack.  Otherwise current() is the value pointed
-    // at by the input pointer.  remove() skips this
-    // value by incrementing just the input pointer.
-    // keep() copies the value to the output pointer
-    // location and increments both input and output
-    // pointers.  The output pointer always equals or
-    // trails the input pointer.  flush() makes the
-    // output pointer position the current end of the
-    // stack (the last element in the stack is the last
-    // element kept by keep(), if any) and then rewinds
-    // the stack.
+    // `input' and `output'.  ss.rewind() resets both
+    // pointers to the beginning of the stack.  ss.at_
+    // end() is true iff the input pointer is at the end
+    // of the stack (just beyond the last element).
+    // Otherwise ss.current() is the value pointed at by
+    // the input pointer.  It is a programming error to
+    // use ss.current() when ss.at_end() is true.
     //
-    // When remove() is used in this way stack segments
-    // are freed whenever they are between the output
-    // and input pointer.  That is, a segment is freed
-    // if the output pointer is not in that segment when
-    // the input pointer moves from that segment to the
-    // next segment.
+    // One way of using this ignores the output pointer.
+    // ss.next() moves the input pointer forward one
+    // stack.  It is a programming error to attempt this
+    // when ss.at_end() is true.  ss.push() can be used
+    // to add elements to the stack at any time, making
+    // ss.at_end() false even if it were previously
+    // true.  ss.rewind() can be used to reset the input
+    // pointer.
     //
-    // It is also possible to ignore the output pointer
-    // by using next() instead of remove().  This merely
-    // iterates through the stack without removing any
-    // elements.
+    // The other way of using this is to copy elements
+    // from the input pointer location to the output
+    // pointer location.  The output pointer always
+    // equals or trails the input pointer.  ss.next is
+    // NOT used.  Instead ss.keep() is used to copy the
+    // input element to the output element and increment
+    // both pointers, and ss.remove() is used to incre-
+    // ment the input pointer only, without any copy or
+    // change to the output pointe.  ss.push() can also
+    // be used to add elements to the end of the stack
+    // during all this.  ss.flush() deletes all elements
+    // at or after the output pointer position and does
+    // an ss.rewind().  The last element in the flushed
+    // stack will be the last element kept by ss.keep().
     //
-    // Currently there is NO pop operation on stacks.
-    // So the stub stacks are closer to FIFO lists than
-    // true stacks.  A pop operation could easily be
-    // implemented.
+    // Using ss.remove() causes stack segments between
+    // the output and input pointer to be removed from
+    // the stack.  That is, a segment is removed and
+    // freed if the output pointer is not in that seg-
+    // ment when the input pointer moves from that seg-
+    // ment to the next segment.
     //
     struct stub_stack
     {
@@ -945,8 +956,11 @@ namespace min { namespace acc {
 
 	min::uns64 in, out;
 	    // `in' counts the number of elements pushed
-	    // into the stack.   `out' counts the ele-
-	    // ments removed from the stack.
+	    // into the stack, and is incremented by the
+	    // push() and end_push() functions.   `out'
+	    // counts the elements removed from the
+	    // stack, and is incremented by the remove()
+	    // function.
 
 
 	stub_stack ( void ) :
@@ -992,7 +1006,9 @@ namespace min { namespace acc {
 	// stub * values may be pushed into the stack
 	// by * next ++ = ... until next >= end.  Then
 	// ss.end_push ( next ) should be called to
-	// store next back into the stub stack.
+	// store next back into the stub stack.  Other
+	// stack functions should not be used between
+	// calls to begin_push() and end_push().
 	//
 	void begin_push
 	    ( min::stub ** & next, min::stub ** & end )
@@ -1048,9 +1064,15 @@ namespace min { namespace acc {
 
 	void keep ( void )
 	{
+	    assert ( ! is_at_end );
+
 	    min::stub * value = * input;
-	    remove();
+
+	    if ( ++ input == input_segment->next )
+	        remove_jump();
+
 	    * output = value;
+
 	    if ( ++ output == output_segment->next
 	         &&
 	         output_segment != last_segment )
