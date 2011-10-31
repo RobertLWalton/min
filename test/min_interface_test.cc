@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 25 01:27:56 EDT 2011
+// Date:	Mon Oct 31 11:03:46 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -182,7 +182,7 @@ void initialize_stub_region ( void )
     end_stub_region = (min::stub *) p;
     assert ( begin_stub_region < end_stub_region );
 
-    MINT::first_allocated_stub = begin_stub_region;
+    MINT::head_stub = begin_stub_region;
     MINT::last_allocated_stub = begin_stub_region;
     MINT::number_of_free_stubs = 0;
     ++ stubs_allocated;
