@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 07:17:30 EDT 2011
+// Date:	Mon Oct 31 10:32:27 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,6 +22,7 @@
 //	Stub Functions
 //	Process Interface
 //	Allocator/Collector/Compactor Interface
+//	Locatable Variables, References, and Pointers
 //	Numbers
 //	Strings
 //	Labels
@@ -1856,6 +1857,699 @@ namespace min { namespace unprotected {
 
 } }
 
+namespace min { namespace internal {
+
+    // Stub allocation is from a single list of stubs
+    // chained together by the pointers in the stub
+    // controls.  This is referred to as the `acc list'.
+    // It is null_stub terminated.
+    //
+    // The acc list is divided into two segments.  The
+    // first is the allocated stubs, and the second is
+    // the free stubs.
+    //
+    // A pointer to the last allocated stub is maintain-
+    // ed.  To allocate a new stub, this is updated to
+    // the next stub on the acc list, if any.  Other-
+    // wise, if there is no next stub (i.e., no free
+    // stubs on the acc list), an out-of-line function,
+    // acc_expand_stub_free_list, is called to add more
+    // free stubs to the end of the acc list.
+    //
+    // Free acc list stubs have stub type min::ACC_FREE,
+    // zero stub control flags, and min::NONE() value.
+    //
+    // Free stubs can be removed completely from the
+    // acc list for use as aux stubs.  These are not
+    // garbage collectible.  When freed, aux stubs are
+    // put back on the acc list as free stubs.
+
+    // Pointers to the first and last allocated stub.
+    //
+    // The first acc list stub is the stub pointed at by
+    // the control word of the first_allocated_stub
+    // (which is not itself on the acc list, and there-
+    // fore not actually `allocated').  The first free
+    // stub on the acc list is pointed at by the control
+    // word of the last_allocated_stub.  If there are
+    // allocated stubs on the acc list, the last_alloca-
+    // ted_stub is the last of these; otherwise it
+    // equals first_allocated_stub.
+    //
+    // First_allocated_stub may equal MINT::null_stub
+    // for some system configurations.
+    //
+    // The acc list is MINT::null_stub terminated.  So
+    // if there are no free stubs, the control word of
+    // last_allocate_stub points at MINT::null_stub.
+    //
+    extern min::stub * first_allocated_stub;
+    extern min::stub * last_allocated_stub;
+
+    // ACC flags of stub returned by new_acc_stub.
+    //
+    extern min::uns64 new_acc_stub_flags;
+
+} }
+
+namespace min { namespace unprotected {
+
+    // Counters for statistics only.  Incremented when-
+    // ever an acc or aux stub is allocated or freed.
+    // The number of current acc or aux stubs is the
+    // number allocated minus the number freed.
+    //
+    extern min::uns64 acc_stubs_allocated;
+    extern min::uns64 acc_stubs_freed;
+    extern min::uns64 aux_stubs_allocated;
+    extern min::uns64 aux_stubs_freed;
+
+    // Function to return the next free stub as an acc
+    // (garbage collectible) stub.  The type is set to
+    // min::ACC_FREE and may be changed to any garbage
+    // collectible type.  The value is NOT set.  The acc
+    // flags are set to MINT::new_acc_stub_flags, and
+    // the non-type part of the stub control is main-
+    // tained by the acc.
+    //
+    inline min::stub * new_acc_stub ( void )
+    {
+	if ( internal::number_of_free_stubs == 0 )
+	    internal::acc_expand_stub_free_list ( 1 );
+
+	-- internal::number_of_free_stubs;
+	++ unprotected::acc_stubs_allocated;
+
+	uns64 c = unprotected::control_of
+		    ( internal::last_allocated_stub );
+	min::stub * s =
+	    unprotected::stub_of_acc_control ( c );
+	unprotected::set_flags_of
+	    ( s, internal::new_acc_stub_flags );
+	return internal::last_allocated_stub = s;
+    }
+
+    // Function to return the next free stub while
+    // removing this stub from the acc list.
+    //
+    // The type is set to min::AUX_FREE.  This function
+    // does NOT set any other part of the stub returned.
+    // The stub returned is a non-acc stub ignored by
+    // the garbage collector.
+    //
+    inline min::stub * new_aux_stub ( void )
+    {
+	if ( internal::number_of_free_stubs == 0 )
+	    internal::acc_expand_stub_free_list ( 1 );
+
+	-- internal::number_of_free_stubs;
+	++ unprotected::aux_stubs_allocated;
+
+	uns64 c = unprotected::control_of
+		    ( internal::last_allocated_stub );
+	min::stub * s =
+	    unprotected::stub_of_acc_control ( c );
+	c = unprotected::renew_acc_control_stub
+	        ( c, unprotected::stub_of_acc_control
+			( unprotected
+			     ::control_of ( s ) ) );
+	unprotected::set_control_of
+	    ( internal::last_allocated_stub, c );
+	unprotected::set_type_of ( s, AUX_FREE );
+	return s;
+    }
+
+    // Function to put a stub on the acc free stub list
+    // right after the last allocated stub.  Stub must
+    // NOT be on the acc list (it should be an auxiliary
+    // stub).
+    //
+    // Note that stubs that have been previously
+    // allocated are preferred for new stub allocations
+    // over stubs that have never been allocated.
+    //
+    inline void free_aux_stub ( min::stub * s )
+    {
+        unprotected::set_gen_of ( s, NONE() );
+	uns64 c = unprotected::control_of
+		( internal::last_allocated_stub );
+	min::stub * next =
+	    unprotected::stub_of_acc_control ( c );
+	unprotected::set_control_of
+	    ( s, unprotected::new_acc_control
+		  ( ACC_FREE, next ) );
+	c = unprotected
+	       ::renew_acc_control_stub ( c, s );
+	unprotected::set_control_of
+		( internal::last_allocated_stub, c );
+	++ internal::number_of_free_stubs;
+	++ unprotected::aux_stubs_freed;
+    }
+
+} }
+
+namespace min { namespace internal {
+
+    // Ditto but for use by acc to put stub it has
+    // freed on acc list.  Same as above but does not
+    // increment aux_subs_freed.
+    //
+    inline void free_acc_stub ( min::stub * s )
+    {
+        unprotected::set_gen_of ( s, NONE() );
+	uns64 c = unprotected::control_of
+		    ( internal::last_allocated_stub );
+	min::stub * next =
+	    unprotected::stub_of_acc_control ( c );
+	unprotected::set_control_of
+	    ( s, unprotected::new_acc_control
+		  ( ACC_FREE, next ) );
+	c = unprotected
+	       ::renew_acc_control_stub ( c, s );
+	unprotected::set_control_of
+		( internal::last_allocated_stub, c );
+	++ internal::number_of_free_stubs;
+    }
+
+    // fixed_blocks[j] is the head of a free list of
+    // fixed blocks of size 1 << ( j + 3 ), for 2 <= j,
+    // (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE/8.
+    // Each fixed block begins with a control word whose
+    // locator is provided by the allocator and whose
+    // stub address is set to the stub whose body the
+    // block contains, if there is such a stub, or
+    // equals the address of MINT::null_stub otherwise.
+    // When the block is on the free list, the control
+    // word and the word following it are specified by
+    // the free_fixed_size_block struct.
+    //
+    struct free_fixed_size_block
+    {
+        min::uns64	block_control;
+	    // Block control word that is at the
+	    // beginning of every fixed size block.
+
+	free_fixed_size_block * next;
+	    // Next in circular list of free fixed size
+	    // blocks.
+    };
+    struct fixed_block_list_extension;
+        // Allocator specific extension of fixed_block_
+	// list struct.
+    const unsigned number_fixed_blocks =
+          MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG+1-3;
+    extern struct fixed_block_list
+    {
+	min::unsptr size;
+			// Size of fixed block, includ-
+	                // ing control word.  For fixed_
+			// blocks[j] this equals
+			// 1 << (j+3).
+        min::unsptr count;
+			// Number of fixed blocks on the
+			// free list.
+	free_fixed_size_block * last_free;
+			// Last fixed block on the
+			// circular list of free blocks,
+			// or NULL if list empty.
+	fixed_block_list_extension * extension;
+			// Address of extension of this
+			// structure.  Set during
+			// allocator initialization.
+    } fixed_blocks
+          [number_fixed_blocks];
+
+    // Out of line allocators:
+    //
+    void new_non_fixed_body
+	( min::stub * s, min::unsptr n );
+    void new_fixed_body
+	( min::stub * s, min::unsptr n,
+	  fixed_block_list * fbl );
+
+    extern min::unsptr min_fixed_block_size;
+        // The smallest power of 2 not smaller than the
+	// size of min::internal::free_fixed_size_block.
+    extern min::unsptr max_fixed_block_size;
+        // 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
+
+} }
+
+namespace min { namespace unprotected {
+
+    // Return the size of the body associated with the
+    // stub.  0 is returned for deallocated stubs (of
+    // type min::DEALLOCATED) and stubs with no body.
+    // For stubs with a body, the size must be the same
+    // as the size passed to new_body to allocated
+    // the body.  This function is NOT provided by the
+    // acc; it is used by the acc.  The acc is NOT
+    // responsible for keeping track of body sizes.
+    //
+    min::unsptr body_size_of ( const min::stub * s );
+
+    // Allocate a body to a stub.  n is the minimum size
+    // of the body in bytes, not including the control
+    // word that begins the body.  The stub control is
+    // set and its acc flags may be changed.
+    //
+    inline void new_body
+            ( min::stub * s, min::unsptr n )
+    {
+	unsptr m = n + sizeof ( uns64);
+
+        if ( m < internal::min_fixed_block_size )
+            m = internal::min_fixed_block_size;
+
+	if ( m > internal::max_fixed_block_size )
+	{
+	     internal::new_non_fixed_body ( s, n );
+	     return;
+	}
+
+	// See min_parameters.h for log2floor.
+	//
+	m = m - 1;
+	internal::fixed_block_list * fbl =
+		  internal::fixed_blocks
+		+ internal::log2floor ( m )
+		+ 1 - 3;
+
+	if ( fbl->count == 0 )
+	{
+	     internal::new_fixed_body
+	          ( s, n, fbl );
+	     return;
+	}
+
+	internal::free_fixed_size_block * b =
+	    fbl->last_free->next;
+
+	fbl->last_free->next = b->next;
+	if ( -- fbl->count == 0 )
+	    fbl->last_free = NULL;
+
+	b->block_control =
+	    unprotected::renew_control_stub
+	        ( b->block_control, s );
+	unprotected::set_ptr_of
+	    ( s, & b->block_control + 1 );
+	unprotected::set_flags_of
+	       ( s, internal::ACC_FIXED_BODY_FLAG );
+    }
+
+    // Deallocate the body of a stub, and reset the stub
+    // type to min::DEALLOCATED.  The size n of the body
+    // must be given.  The stub body pointer is pointed
+    // at inaccessible memory of a size that is usually
+    // as big or bigger than the old stub body.  If
+    // n == 0 it is assumed that the stub has no body,
+    // and nothing is done.
+    //
+    void deallocate_body
+	( min::stub * s, min::unsptr n );
+
+} }
+
+
+namespace min { namespace internal {
+
+    // Initialize resize_body stub list.
+    //
+    void acc_initialize_resize_body ( void );
+
+} }
+
+namespace min { namespace unprotected {
+
+    // When constructed the resize_body struct allo-
+    // cates a new body for a stub s, and when descon-
+    // structed the resize_body struct installs the
+    // new body in the stub s  while deallocating the
+    // old body of s.  Stub s is not altered until the
+    // resize_body struct is deconstructed (the
+    // abort_resize_body function can be used to
+    // prevent stub s from ever being altered).
+    //
+    // After the new body is obtained, information
+    // should be copied from the old body to the new
+    // body, before the resize_body struct is decon-
+    // structed.  The new body will not be touched by
+    // the garbage collector while the resize_body
+    // struct exists.  However, it may be relocated.
+    // The existing stub s MUST be protected by the
+    // resize_body user from garbage collection and
+    // its body protected from reorganization while the
+    // resize_body struct exists, but that body may
+    // also be relocated.  s must NOT be deallocated
+    // while the resize_body struct exists, unless
+    // abort_resize_body has been called.
+    //
+    struct resize_body;
+    void abort_resize_body ( resize_body & r );
+    struct resize_body {
+
+	// Construct resize_body for stub s with new
+	// body size new_size and old body size
+	// old_size.
+	//
+        resize_body ( min::stub * s,
+	              min::unsptr new_size,
+		      min::unsptr old_size )
+	    : s ( s ), new_size ( new_size ),
+	      old_size ( old_size ),
+	      new_type ( min::type_of ( s ) )
+	{
+	    // Allocate rstub and its body, which is
+	    // the new body.
+
+	    uns64 c = unprotected::control_of
+		( last_allocated );
+	    rstub = unprotected::stub_of_control ( c );
+	    if ( rstub == internal::null_stub )
+	        rstub = rstub_allocate();
+
+	    last_allocated_save = last_allocated;
+	    last_allocated = rstub;
+
+	    unprotected::set_type_of
+		( rstub, RELOCATE_BODY );
+	    unprotected::new_body
+	        ( rstub, new_size );
+	}
+
+	// Deconstruct relocated_body, switching the
+	// body pointers in s and rstub, and then
+	// deallocating rstub.  But do nothing if
+	// rstub deallocated.
+	//
+	// When switching, switch ACC_FIXED_BODY_FLAG.
+	//
+	// When switching, assumes s is NOT deallocated.
+	//
+	~resize_body ( void )
+	{
+	    if ( type_of ( rstub ) != DEALLOCATED )
+	    {
+		uns64 v = unprotected::value_of ( s );
+		uns64 rv =
+		    unprotected::value_of ( rstub );
+		unprotected::set_value_of ( s, rv );
+		unprotected::set_value_of ( rstub, v );
+
+		uns64 c =
+		    ( unprotected::control_of ( rstub )
+		      ^
+		      unprotected::control_of ( s ) )
+		    &
+		    internal::ACC_FIXED_BODY_FLAG;
+		rstub->c.u64 ^= c;
+		s->c.u64 ^= c;
+
+		int type = type_of ( s );
+		unprotected::set_type_of
+		    ( rstub, type );
+		unprotected::set_type_of
+		    ( s, new_type );
+
+		uns64 * bp = (uns64 *)
+		    unprotected::ptr_of ( s ) - 1;
+		* bp = unprotected::renew_control_stub
+			 ( * bp, s );
+		bp = (uns64 *)
+		    unprotected::ptr_of ( rstub )
+		    - 1;
+		* bp = unprotected::renew_control_stub
+			 ( * bp, rstub );
+
+		unprotected::deallocate_body
+		    ( rstub, old_size );
+	    }
+
+	    last_allocated = last_allocated_save;
+	}
+
+	friend void * & new_body_ptr_ref
+			( resize_body & r );
+	friend void abort_resize_body
+			( resize_body & r );
+	friend void retype_resize_body
+			( resize_body & r,
+			  int new_type );
+	friend void min::internal
+	               ::acc_initialize_resize_body
+		             ( void );
+
+    private:
+
+        // Out of line rstub allocator.  Expands
+	// resize_body stub list.
+	//
+	min::stub * rstub_allocate ( void );
+
+	min::stub * s;
+	    // Stub whose body is being relocated.
+        min::stub * rstub;
+	    // Temporary stub for new body.  Type is
+	    // min::DEALLOCATED if resize_body is
+	    // voided.
+	min::unsptr old_size;
+	    // Size of old body (body being
+	    // reallocated).
+	min::unsptr new_size;
+	    // Size of new body.
+	int new_type;
+	    // Type to be installed in stub s when new
+	    // body is installed in stub.  Initialized
+	    // to type of stub s and reset by retype_
+	    // resize_body.
+	min::stub * last_allocated_save;
+	    // Save of last_allocated.
+
+	static min::stub * last_allocated;
+	    // Last allocated stub on the relocated
+	    // body stub list.
+    };
+
+    // Return a pointer to the new body.
+    //
+    inline void * & new_body_ptr_ref
+	    ( resize_body & r )
+    {
+	return unprotected::ptr_ref_of ( r.rstub );
+    }
+    // Void the resize_body struct so it will not
+    // change anything when deconstructed.  The
+    // new body is deallocated.
+    //
+    inline void abort_resize_body ( resize_body & r )
+    {
+	unprotected::deallocate_body
+	    ( r.rstub, r.new_size );
+    }
+    // Set type to be installed in stub when new body
+    // body is installed in stub.
+    //
+    inline void retype_resize_body
+	    ( resize_body & r, int new_type )
+    {
+	r.new_type = new_type;
+    }
+
+} }
+
+namespace min { namespace internal {
+
+    // Scavenging a stub is done by calling a stub type
+    // specific scavenger routine with a scavenge
+    // control struct as argument.
+    //
+    struct scavenge_control;
+    typedef void (*scavenger_routine)
+        ( scavenge_control & sc );
+
+    // scavenger_routine[t] is the scavenger routine
+    // for stubs of type t, with t >= 0 (i.e., t is
+    // for an acc stub and not an aux stub).
+    //
+    extern scavenger_routine scavenger_routines[128];
+
+    inline bool is_scavengable ( int type )
+    {
+        return scavenger_routines[type] != NULL;
+    }
+
+    // Function to scavenge the thread stack_gen and
+    // stack_num_gen structures and the static_gen
+    // and static_num_gen structures, finding all
+    // pointers therein to acc stubs s2.  For each s2
+    // found, a particular flag of s2, designated by
+    // sc.stub_flag, is checked to see if it is on.
+    // If it is, it is turned off and if the s2 stub
+    // is scavengable, a pointer to s2 is pushed onto
+    // the to_be_scavenged stack.
+    //
+    // Note that s2 is scavengable if and only if
+    // scavenger_rountines[type_of(s2)] != NULL;
+    //
+    // Returns with sc.state != 0 only if it runs out
+    // of to_be_scavenged stack, in which case it should
+    // be recalled with 0 sc.state after to_be_scavenged
+    // stack is emptied.
+    //
+    // This function ignores sc.gen_limit and sc.stub_
+    // flag_accumulator, but increments gen_count and
+    // stub_count.
+    //
+    void thread_scavenger_routine
+        ( scavenge_control & sc );
+    
+    // The job of a scavenger routine is to scavenge
+    // a stub s1 which is pointed at by a scavenge
+    // control struct sc.  This means going through the
+    // stub, any body pointed at by the stub, and any
+    // auxiliary stubs pointed at by the stub, by the
+    // body, or by other auxiliary stubs so pointed
+    // at, and finding all pointers therein to acc
+    // stubs s2.  For each s2 found, two things are
+    // done.
+    //
+    // First, a particular flag of s2, designated by
+    // sc.stub_flag, is checked to see if it is on.
+    // If it is, it is turned off and if s2 is scaven-
+    // gable a pointer to s2 is put in a to-be-scavenged
+    // stack.  s2 is scavengable if and only if
+    // scavenger_rountines[type_of(s2)] != NULL;
+    //
+    // The second thing is to logically OR the control
+    // word of s2 into an accumulator designed as
+    // sc.stub_flag_accumulator.  This may be set to 0
+    // by the caller of the scavenger routine, when
+    // that routine returns after finishing scavenging
+    // s1, certain bits of this accumulator can be used
+    // to tell if s1 contained any pointer to an acc
+    // stub of level >= L, for each possible level L.
+    //
+    // It is also possible for the scavenger routine to
+    // return before it has finished scavenging s1.
+    // A work limit is placed on the scavenger routine
+    // so it does not execute for too long.  And the
+    // routine can also return because it runs out of
+    // space in the currently available portion of the
+    // to-be-scavenged stack.  When the routine returns
+    // early, it may be recalled to resume where it
+    // left off.  To allow this, there is a scavenge
+    // control datum sc.state which is initialized to
+    // 0 by the caller of the scavenger routine before
+    // starting the scavenging of s1, is left non-zero
+    // if the routine returns before finishing scaven-
+    // ging s1, and is set to 0 if the routine returns
+    // after finishing scavenging s1.
+    // 
+    struct scavenge_control
+    {
+        // For definitions of s1 and s2 see above.
+
+	min::uns64 state;
+	    // State of the scavenge of the stub being
+	    // scavenged.  Set to 0 by caller on first
+	    // call to scavenge s1.  Returned as 0 by
+	    // the scavenger routine when scavenging of
+	    // s1 is done.  Returned as non-zero by
+	    // scavenger routine if scavenging of s1
+	    // must be continued.
+	    //
+	    // Note that s1 can be scavenged multiple
+	    // times without harm, so if a scavenger
+	    // routine must return before it is done
+	    // with s1 it can simply set the state to
+	    // non-zero to indicate the routine should
+	    // be rerun from the beginning.  This is
+	    // adequate for small data.
+
+	min::uns64 stub_flag;
+	    // A word with a single bit set.  If this
+	    // bit is set in the stub control of s2 then
+	    // the scavenger routine must clear the bit
+	    // in s2's control and, if scavenger_
+	    // routines[type_of(s2)] is not NULL, put s2
+	    // on the to-be-scavenged stack.
+
+	min::uns64 stub_flag_accumulator;
+	    // Logical OR of all the stub controls of
+	    // all the stubs s2 pointed at by s1.  This
+	    // is not initially set by the scavenger
+	    // routine; to initialize it to zero it must
+	    // be zeroed by the routine's caller before
+	    // beginning the scavenging of s1.
+
+	min::stub * s1;
+	   // Stub being scavenged.
+
+	min::stub ** to_be_scavenged;
+	min::stub ** to_be_scavenged_limit;
+	   // Pointer to the first unused location in
+	   // the to-be-scavenged stack and to the first
+	   // location after the stack.  The stack grows
+	   // in the direction of increasing addresses.
+	   // When there is no more room in the stack
+	   // the scavenger routine must return (with a
+	   // non-zero state if it is not done).
+
+	min::uns32 stub_count;
+	   // Counter incremented by the scavenger
+	   // routine when it finds a pointer to a
+	   // stub s2 in s1.  Just used for statistics.
+
+	min::uns32 gen_count;
+	   // Counter incremented by the scavenger
+	   // routine when it inspects a min::gen value
+	   // or other place that an s2 stub pointer
+	   // may be stored.  Used both for statistics
+	   // and as a measure of scavenger routine
+	   // execution time (see gen_limit).
+
+	min::uns32 gen_limit;
+	   // Upper limit to gen_count.  If exceeded
+	   // the scavenger routine must return.  Used
+	   // to bound the amount of time spent in a
+	   // single call to a scavenger routine.
+    };
+
+    // scavenge_control[L] is the scavenge control
+    // struct for acc level L scavenge routine
+    // executions.
+    //
+    extern scavenge_control scavenge_controls
+    		[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
+
+    // Actual number of acc levels.
+    //
+    extern unsigned number_of_acc_levels;
+
+    // Searches scavenge_controls to see if a stub is
+    // being scavenged and returns true if yes and false
+    // it no.  A stub is being scavenged only if a
+    // scavenge of the stub was interrupted.
+    //
+    inline bool is_being_scavenged ( min::stub * s1 )
+    {
+        for ( scavenge_control * sc = scavenge_controls;
+	      sc <   scavenge_controls
+	           + number_of_acc_levels;
+	      ++ sc )
+	{
+	    if ( sc->state != 0 && sc->s1 == s1 )
+	        return true;
+	}
+	return false;
+    }
+
+} }
+
+// Locatable Variables, References, and Pointers
+// --------- ---------- ----------- --- --------
+
 namespace min {
 
     extern const min::stub * ZERO_STUB;
@@ -2872,696 +3566,6 @@ namespace min { \
 	* (uns32 *) & pvip->length += n; \
     } \
 }
-
-namespace min { namespace internal {
-
-    // Stub allocation is from a single list of stubs
-    // chained together by the pointers in the stub
-    // controls.  This is referred to as the `acc list'.
-    // It is null_stub terminated.
-    //
-    // The acc list is divided into two segments.  The
-    // first is the allocated stubs, and the second is
-    // the free stubs.
-    //
-    // A pointer to the last allocated stub is maintain-
-    // ed.  To allocate a new stub, this is updated to
-    // the next stub on the acc list, if any.  Other-
-    // wise, if there is no next stub (i.e., no free
-    // stubs on the acc list), an out-of-line function,
-    // acc_expand_stub_free_list, is called to add more
-    // free stubs to the end of the acc list.
-    //
-    // Free acc list stubs have stub type min::ACC_FREE,
-    // zero stub control flags, and min::NONE() value.
-    //
-    // Free stubs can be removed completely from the
-    // acc list for use as aux stubs.  These are not
-    // garbage collectible.  When freed, aux stubs are
-    // put back on the acc list as free stubs.
-
-    // Pointers to the first and last allocated stub.
-    //
-    // The first acc list stub is the stub pointed at by
-    // the control word of the first_allocated_stub
-    // (which is not itself on the acc list, and there-
-    // fore not actually `allocated').  The first free
-    // stub on the acc list is pointed at by the control
-    // word of the last_allocated_stub.  If there are
-    // allocated stubs on the acc list, the last_alloca-
-    // ted_stub is the last of these; otherwise it
-    // equals first_allocated_stub.
-    //
-    // First_allocated_stub may equal MINT::null_stub
-    // for some system configurations.
-    //
-    // The acc list is MINT::null_stub terminated.  So
-    // if there are no free stubs, the control word of
-    // last_allocate_stub points at MINT::null_stub.
-    //
-    extern min::stub * first_allocated_stub;
-    extern min::stub * last_allocated_stub;
-
-    // ACC flags of stub returned by new_acc_stub.
-    //
-    extern min::uns64 new_acc_stub_flags;
-
-} }
-
-namespace min { namespace unprotected {
-
-    // Counters for statistics only.  Incremented when-
-    // ever an acc or aux stub is allocated or freed.
-    // The number of current acc or aux stubs is the
-    // number allocated minus the number freed.
-    //
-    extern min::uns64 acc_stubs_allocated;
-    extern min::uns64 acc_stubs_freed;
-    extern min::uns64 aux_stubs_allocated;
-    extern min::uns64 aux_stubs_freed;
-
-    // Function to return the next free stub as an acc
-    // (garbage collectible) stub.  The type is set to
-    // min::ACC_FREE and may be changed to any garbage
-    // collectible type.  The value is NOT set.  The acc
-    // flags are set to MINT::new_acc_stub_flags, and
-    // the non-type part of the stub control is main-
-    // tained by the acc.
-    //
-    inline min::stub * new_acc_stub ( void )
-    {
-	if ( internal::number_of_free_stubs == 0 )
-	    internal::acc_expand_stub_free_list ( 1 );
-
-	-- internal::number_of_free_stubs;
-	++ unprotected::acc_stubs_allocated;
-
-	uns64 c = unprotected::control_of
-		    ( internal::last_allocated_stub );
-	min::stub * s =
-	    unprotected::stub_of_acc_control ( c );
-	unprotected::set_flags_of
-	    ( s, internal::new_acc_stub_flags );
-	return internal::last_allocated_stub = s;
-    }
-
-    // Function to return the next free stub while
-    // removing this stub from the acc list.
-    //
-    // The type is set to min::AUX_FREE.  This function
-    // does NOT set any other part of the stub returned.
-    // The stub returned is a non-acc stub ignored by
-    // the garbage collector.
-    //
-    inline min::stub * new_aux_stub ( void )
-    {
-	if ( internal::number_of_free_stubs == 0 )
-	    internal::acc_expand_stub_free_list ( 1 );
-
-	-- internal::number_of_free_stubs;
-	++ unprotected::aux_stubs_allocated;
-
-	uns64 c = unprotected::control_of
-		    ( internal::last_allocated_stub );
-	min::stub * s =
-	    unprotected::stub_of_acc_control ( c );
-	c = unprotected::renew_acc_control_stub
-	        ( c, unprotected::stub_of_acc_control
-			( unprotected
-			     ::control_of ( s ) ) );
-	unprotected::set_control_of
-	    ( internal::last_allocated_stub, c );
-	unprotected::set_type_of ( s, AUX_FREE );
-	return s;
-    }
-
-    // Function to put a stub on the acc free stub list
-    // right after the last allocated stub.  Stub must
-    // NOT be on the acc list (it should be an auxiliary
-    // stub).
-    //
-    // Note that stubs that have been previously
-    // allocated are preferred for new stub allocations
-    // over stubs that have never been allocated.
-    //
-    inline void free_aux_stub ( min::stub * s )
-    {
-        unprotected::set_gen_of ( s, NONE() );
-	uns64 c = unprotected::control_of
-		( internal::last_allocated_stub );
-	min::stub * next =
-	    unprotected::stub_of_acc_control ( c );
-	unprotected::set_control_of
-	    ( s, unprotected::new_acc_control
-		  ( ACC_FREE, next ) );
-	c = unprotected
-	       ::renew_acc_control_stub ( c, s );
-	unprotected::set_control_of
-		( internal::last_allocated_stub, c );
-	++ internal::number_of_free_stubs;
-	++ unprotected::aux_stubs_freed;
-    }
-
-} }
-
-namespace min { namespace internal {
-
-    // Ditto but for use by acc to put stub it has
-    // freed on acc list.  Same as above but does not
-    // increment aux_subs_freed.
-    //
-    inline void free_acc_stub ( min::stub * s )
-    {
-        unprotected::set_gen_of ( s, NONE() );
-	uns64 c = unprotected::control_of
-		    ( internal::last_allocated_stub );
-	min::stub * next =
-	    unprotected::stub_of_acc_control ( c );
-	unprotected::set_control_of
-	    ( s, unprotected::new_acc_control
-		  ( ACC_FREE, next ) );
-	c = unprotected
-	       ::renew_acc_control_stub ( c, s );
-	unprotected::set_control_of
-		( internal::last_allocated_stub, c );
-	++ internal::number_of_free_stubs;
-    }
-
-    // fixed_blocks[j] is the head of a free list of
-    // fixed blocks of size 1 << ( j + 3 ), for 2 <= j,
-    // (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE/8.
-    // Each fixed block begins with a control word whose
-    // locator is provided by the allocator and whose
-    // stub address is set to the stub whose body the
-    // block contains, if there is such a stub, or
-    // equals the address of MINT::null_stub otherwise.
-    // When the block is on the free list, the control
-    // word and the word following it are specified by
-    // the free_fixed_size_block struct.
-    //
-    struct free_fixed_size_block
-    {
-        min::uns64	block_control;
-	    // Block control word that is at the
-	    // beginning of every fixed size block.
-
-	free_fixed_size_block * next;
-	    // Next in circular list of free fixed size
-	    // blocks.
-    };
-    struct fixed_block_list_extension;
-        // Allocator specific extension of fixed_block_
-	// list struct.
-    const unsigned number_fixed_blocks =
-          MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG+1-3;
-    extern struct fixed_block_list
-    {
-	min::unsptr size;
-			// Size of fixed block, includ-
-	                // ing control word.  For fixed_
-			// blocks[j] this equals
-			// 1 << (j+3).
-        min::unsptr count;
-			// Number of fixed blocks on the
-			// free list.
-	free_fixed_size_block * last_free;
-			// Last fixed block on the
-			// circular list of free blocks,
-			// or NULL if list empty.
-	fixed_block_list_extension * extension;
-			// Address of extension of this
-			// structure.  Set during
-			// allocator initialization.
-    } fixed_blocks
-          [number_fixed_blocks];
-
-    // Out of line allocators:
-    //
-    void new_non_fixed_body
-	( min::stub * s, min::unsptr n );
-    void new_fixed_body
-	( min::stub * s, min::unsptr n,
-	  fixed_block_list * fbl );
-
-    extern min::unsptr min_fixed_block_size;
-        // The smallest power of 2 not smaller than the
-	// size of min::internal::free_fixed_size_block.
-    extern min::unsptr max_fixed_block_size;
-        // 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
-
-} }
-
-namespace min { namespace unprotected {
-
-    // Return the size of the body associated with the
-    // stub.  0 is returned for deallocated stubs (of
-    // type min::DEALLOCATED) and stubs with no body.
-    // For stubs with a body, the size must be the same
-    // as the size passed to new_body to allocated
-    // the body.  This function is NOT provided by the
-    // acc; it is used by the acc.  The acc is NOT
-    // responsible for keeping track of body sizes.
-    //
-    min::unsptr body_size_of ( const min::stub * s );
-
-    // Allocate a body to a stub.  n is the minimum size
-    // of the body in bytes, not including the control
-    // word that begins the body.  The stub control is
-    // set and its acc flags may be changed.
-    //
-    inline void new_body
-            ( min::stub * s, min::unsptr n )
-    {
-	unsptr m = n + sizeof ( uns64);
-
-        if ( m < internal::min_fixed_block_size )
-            m = internal::min_fixed_block_size;
-
-	if ( m > internal::max_fixed_block_size )
-	{
-	     internal::new_non_fixed_body ( s, n );
-	     return;
-	}
-
-	// See min_parameters.h for log2floor.
-	//
-	m = m - 1;
-	internal::fixed_block_list * fbl =
-		  internal::fixed_blocks
-		+ internal::log2floor ( m )
-		+ 1 - 3;
-
-	if ( fbl->count == 0 )
-	{
-	     internal::new_fixed_body
-	          ( s, n, fbl );
-	     return;
-	}
-
-	internal::free_fixed_size_block * b =
-	    fbl->last_free->next;
-
-	fbl->last_free->next = b->next;
-	if ( -- fbl->count == 0 )
-	    fbl->last_free = NULL;
-
-	b->block_control =
-	    unprotected::renew_control_stub
-	        ( b->block_control, s );
-	unprotected::set_ptr_of
-	    ( s, & b->block_control + 1 );
-	unprotected::set_flags_of
-	       ( s, internal::ACC_FIXED_BODY_FLAG );
-    }
-
-    // Deallocate the body of a stub, and reset the stub
-    // type to min::DEALLOCATED.  The size n of the body
-    // must be given.  The stub body pointer is pointed
-    // at inaccessible memory of a size that is usually
-    // as big or bigger than the old stub body.  If
-    // n == 0 it is assumed that the stub has no body,
-    // and nothing is done.
-    //
-    void deallocate_body
-	( min::stub * s, min::unsptr n );
-
-} }
-
-
-namespace min { namespace internal {
-
-    // Initialize resize_body stub list.
-    //
-    void acc_initialize_resize_body ( void );
-
-} }
-
-namespace min { namespace unprotected {
-
-    // When constructed the resize_body struct allo-
-    // cates a new body for a stub s, and when descon-
-    // structed the resize_body struct installs the
-    // new body in the stub s  while deallocating the
-    // old body of s.  Stub s is not altered until the
-    // resize_body struct is deconstructed (the
-    // abort_resize_body function can be used to
-    // prevent stub s from ever being altered).
-    //
-    // After the new body is obtained, information
-    // should be copied from the old body to the new
-    // body, before the resize_body struct is decon-
-    // structed.  The new body will not be touched by
-    // the garbage collector while the resize_body
-    // struct exists.  However, it may be relocated.
-    // The existing stub s MUST be protected by the
-    // resize_body user from garbage collection and
-    // its body protected from reorganization while the
-    // resize_body struct exists, but that body may
-    // also be relocated.  s must NOT be deallocated
-    // while the resize_body struct exists, unless
-    // abort_resize_body has been called.
-    //
-    struct resize_body;
-    void abort_resize_body ( resize_body & r );
-    struct resize_body {
-
-	// Construct resize_body for stub s with new
-	// body size new_size and old body size
-	// old_size.
-	//
-        resize_body ( min::stub * s,
-	              min::unsptr new_size,
-		      min::unsptr old_size )
-	    : s ( s ), new_size ( new_size ),
-	      old_size ( old_size ),
-	      new_type ( min::type_of ( s ) )
-	{
-	    // Allocate rstub and its body, which is
-	    // the new body.
-
-	    uns64 c = unprotected::control_of
-		( last_allocated );
-	    rstub = unprotected::stub_of_control ( c );
-	    if ( rstub == internal::null_stub )
-	        rstub = rstub_allocate();
-
-	    last_allocated_save = last_allocated;
-	    last_allocated = rstub;
-
-	    unprotected::set_type_of
-		( rstub, RELOCATE_BODY );
-	    unprotected::new_body
-	        ( rstub, new_size );
-	}
-
-	// Deconstruct relocated_body, switching the
-	// body pointers in s and rstub, and then
-	// deallocating rstub.  But do nothing if
-	// rstub deallocated.
-	//
-	// When switching, switch ACC_FIXED_BODY_FLAG.
-	//
-	// When switching, assumes s is NOT deallocated.
-	//
-	~resize_body ( void )
-	{
-	    if ( type_of ( rstub ) != DEALLOCATED )
-	    {
-		uns64 v = unprotected::value_of ( s );
-		uns64 rv =
-		    unprotected::value_of ( rstub );
-		unprotected::set_value_of ( s, rv );
-		unprotected::set_value_of ( rstub, v );
-
-		uns64 c =
-		    ( unprotected::control_of ( rstub )
-		      ^
-		      unprotected::control_of ( s ) )
-		    &
-		    internal::ACC_FIXED_BODY_FLAG;
-		rstub->c.u64 ^= c;
-		s->c.u64 ^= c;
-
-		int type = type_of ( s );
-		unprotected::set_type_of
-		    ( rstub, type );
-		unprotected::set_type_of
-		    ( s, new_type );
-
-		uns64 * bp = (uns64 *)
-		    unprotected::ptr_of ( s ) - 1;
-		* bp = unprotected::renew_control_stub
-			 ( * bp, s );
-		bp = (uns64 *)
-		    unprotected::ptr_of ( rstub )
-		    - 1;
-		* bp = unprotected::renew_control_stub
-			 ( * bp, rstub );
-
-		unprotected::deallocate_body
-		    ( rstub, old_size );
-	    }
-
-	    last_allocated = last_allocated_save;
-	}
-
-	friend void * & new_body_ptr_ref
-			( resize_body & r );
-	friend void abort_resize_body
-			( resize_body & r );
-	friend void retype_resize_body
-			( resize_body & r,
-			  int new_type );
-	friend void min::internal
-	               ::acc_initialize_resize_body
-		             ( void );
-
-    private:
-
-        // Out of line rstub allocator.  Expands
-	// resize_body stub list.
-	//
-	min::stub * rstub_allocate ( void );
-
-	min::stub * s;
-	    // Stub whose body is being relocated.
-        min::stub * rstub;
-	    // Temporary stub for new body.  Type is
-	    // min::DEALLOCATED if resize_body is
-	    // voided.
-	min::unsptr old_size;
-	    // Size of old body (body being
-	    // reallocated).
-	min::unsptr new_size;
-	    // Size of new body.
-	int new_type;
-	    // Type to be installed in stub s when new
-	    // body is installed in stub.  Initialized
-	    // to type of stub s and reset by retype_
-	    // resize_body.
-	min::stub * last_allocated_save;
-	    // Save of last_allocated.
-
-	static min::stub * last_allocated;
-	    // Last allocated stub on the relocated
-	    // body stub list.
-    };
-
-    // Return a pointer to the new body.
-    //
-    inline void * & new_body_ptr_ref
-	    ( resize_body & r )
-    {
-	return unprotected::ptr_ref_of ( r.rstub );
-    }
-    // Void the resize_body struct so it will not
-    // change anything when deconstructed.  The
-    // new body is deallocated.
-    //
-    inline void abort_resize_body ( resize_body & r )
-    {
-	unprotected::deallocate_body
-	    ( r.rstub, r.new_size );
-    }
-    // Set type to be installed in stub when new body
-    // body is installed in stub.
-    //
-    inline void retype_resize_body
-	    ( resize_body & r, int new_type )
-    {
-	r.new_type = new_type;
-    }
-
-} }
-
-namespace min { namespace internal {
-
-    // Scavenging a stub is done by calling a stub type
-    // specific scavenger routine with a scavenge
-    // control struct as argument.
-    //
-    struct scavenge_control;
-    typedef void (*scavenger_routine)
-        ( scavenge_control & sc );
-
-    // scavenger_routine[t] is the scavenger routine
-    // for stubs of type t, with t >= 0 (i.e., t is
-    // for an acc stub and not an aux stub).
-    //
-    extern scavenger_routine scavenger_routines[128];
-
-    inline bool is_scavengable ( int type )
-    {
-        return scavenger_routines[type] != NULL;
-    }
-
-    // Function to scavenge the thread stack_gen and
-    // stack_num_gen structures and the static_gen
-    // and static_num_gen structures, finding all
-    // pointers therein to acc stubs s2.  For each s2
-    // found, a particular flag of s2, designated by
-    // sc.stub_flag, is checked to see if it is on.
-    // If it is, it is turned off and if the s2 stub
-    // is scavengable, a pointer to s2 is pushed onto
-    // the to_be_scavenged stack.
-    //
-    // Note that s2 is scavengable if and only if
-    // scavenger_rountines[type_of(s2)] != NULL;
-    //
-    // Returns with sc.state != 0 only if it runs out
-    // of to_be_scavenged stack, in which case it should
-    // be recalled with 0 sc.state after to_be_scavenged
-    // stack is emptied.
-    //
-    // This function ignores sc.gen_limit and sc.stub_
-    // flag_accumulator, but increments gen_count and
-    // stub_count.
-    //
-    void thread_scavenger_routine
-        ( scavenge_control & sc );
-    
-    // The job of a scavenger routine is to scavenge
-    // a stub s1 which is pointed at by a scavenge
-    // control struct sc.  This means going through the
-    // stub, any body pointed at by the stub, and any
-    // auxiliary stubs pointed at by the stub, by the
-    // body, or by other auxiliary stubs so pointed
-    // at, and finding all pointers therein to acc
-    // stubs s2.  For each s2 found, two things are
-    // done.
-    //
-    // First, a particular flag of s2, designated by
-    // sc.stub_flag, is checked to see if it is on.
-    // If it is, it is turned off and if s2 is scaven-
-    // gable a pointer to s2 is put in a to-be-scavenged
-    // stack.  s2 is scavengable if and only if
-    // scavenger_rountines[type_of(s2)] != NULL;
-    //
-    // The second thing is to logically OR the control
-    // word of s2 into an accumulator designed as
-    // sc.stub_flag_accumulator.  This may be set to 0
-    // by the caller of the scavenger routine, when
-    // that routine returns after finishing scavenging
-    // s1, certain bits of this accumulator can be used
-    // to tell if s1 contained any pointer to an acc
-    // stub of level >= L, for each possible level L.
-    //
-    // It is also possible for the scavenger routine to
-    // return before it has finished scavenging s1.
-    // A work limit is placed on the scavenger routine
-    // so it does not execute for too long.  And the
-    // routine can also return because it runs out of
-    // space in the currently available portion of the
-    // to-be-scavenged stack.  When the routine returns
-    // early, it may be recalled to resume where it
-    // left off.  To allow this, there is a scavenge
-    // control datum sc.state which is initialized to
-    // 0 by the caller of the scavenger routine before
-    // starting the scavenging of s1, is left non-zero
-    // if the routine returns before finishing scaven-
-    // ging s1, and is set to 0 if the routine returns
-    // after finishing scavenging s1.
-    // 
-    struct scavenge_control
-    {
-        // For definitions of s1 and s2 see above.
-
-	min::uns64 state;
-	    // State of the scavenge of the stub being
-	    // scavenged.  Set to 0 by caller on first
-	    // call to scavenge s1.  Returned as 0 by
-	    // the scavenger routine when scavenging of
-	    // s1 is done.  Returned as non-zero by
-	    // scavenger routine if scavenging of s1
-	    // must be continued.
-	    //
-	    // Note that s1 can be scavenged multiple
-	    // times without harm, so if a scavenger
-	    // routine must return before it is done
-	    // with s1 it can simply set the state to
-	    // non-zero to indicate the routine should
-	    // be rerun from the beginning.  This is
-	    // adequate for small data.
-
-	min::uns64 stub_flag;
-	    // A word with a single bit set.  If this
-	    // bit is set in the stub control of s2 then
-	    // the scavenger routine must clear the bit
-	    // in s2's control and, if scavenger_
-	    // routines[type_of(s2)] is not NULL, put s2
-	    // on the to-be-scavenged stack.
-
-	min::uns64 stub_flag_accumulator;
-	    // Logical OR of all the stub controls of
-	    // all the stubs s2 pointed at by s1.  This
-	    // is not initially set by the scavenger
-	    // routine; to initialize it to zero it must
-	    // be zeroed by the routine's caller before
-	    // beginning the scavenging of s1.
-
-	min::stub * s1;
-	   // Stub being scavenged.
-
-	min::stub ** to_be_scavenged;
-	min::stub ** to_be_scavenged_limit;
-	   // Pointer to the first unused location in
-	   // the to-be-scavenged stack and to the first
-	   // location after the stack.  The stack grows
-	   // in the direction of increasing addresses.
-	   // When there is no more room in the stack
-	   // the scavenger routine must return (with a
-	   // non-zero state if it is not done).
-
-	min::uns32 stub_count;
-	   // Counter incremented by the scavenger
-	   // routine when it finds a pointer to a
-	   // stub s2 in s1.  Just used for statistics.
-
-	min::uns32 gen_count;
-	   // Counter incremented by the scavenger
-	   // routine when it inspects a min::gen value
-	   // or other place that an s2 stub pointer
-	   // may be stored.  Used both for statistics
-	   // and as a measure of scavenger routine
-	   // execution time (see gen_limit).
-
-	min::uns32 gen_limit;
-	   // Upper limit to gen_count.  If exceeded
-	   // the scavenger routine must return.  Used
-	   // to bound the amount of time spent in a
-	   // single call to a scavenger routine.
-    };
-
-    // scavenge_control[L] is the scavenge control
-    // struct for acc level L scavenge routine
-    // executions.
-    //
-    extern scavenge_control scavenge_controls
-    		[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
-
-    // Actual number of acc levels.
-    //
-    extern unsigned number_of_acc_levels;
-
-    // Searches scavenge_controls to see if a stub is
-    // being scavenged and returns true if yes and false
-    // it no.  A stub is being scavenged only if a
-    // scavenge of the stub was interrupted.
-    //
-    inline bool is_being_scavenged ( min::stub * s1 )
-    {
-        for ( scavenge_control * sc = scavenge_controls;
-	      sc <   scavenge_controls
-	           + number_of_acc_levels;
-	      ++ sc )
-	{
-	    if ( sc->state != 0 && sc->s1 == s1 )
-	        return true;
-	}
-	return false;
-    }
-
-} }
 
 // Numbers
 // -------
