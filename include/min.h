@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 11:27:06 EDT 2011
+// Date:	Mon Oct 31 07:17:30 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1620,31 +1620,39 @@ namespace min { namespace internal {
     void acc_expand_stub_free_list ( min::unsptr n );
 
     // Hash tables for atoms.  There are two hash tables
-    // for every kind of atom: the acc hash table and
-    // the aux hash table.
+    // for every kind of atom: the acc hash table for
+    // non-ephemeral stubs and the aux hash table for
+    // ephemeral stubs.  A stub starts out being ephem-
+    // eral, and after surviving a sufficent number of
+    // garbage collections, becomes non-ephemeral.
     //
     // The elements of the acc hash table are the stubs
     // hashed, chained together by their stub control
     // word stub pointers.  The stubs listed in this
-    // hash table are not in the normal acc list.
+    // hash table are not in the normal acc list.  So
+    // for non-ephemeral stubs, the acc hash tables
+    // supplement the acc list, with all non-ephemeral
+    // stubs appearing in either the acc list or an acc
+    // hash table (but not both).
     //
     // The elements of the aux hash table are HASHTABLE_
     // AUX aux stubs whose values point at the stubs of
     // ephemeral objects hashed.  The stubs hashed in
     // the aux table are also on the acc list.
     //
-    // Xxx_hash_sizes are powers of 2, and each xxx_
-    // hash_mask = xxx_hash_size - 1;  The acc and aux
-    // hash tables for a stub type have the same size.
-    // Stubs are put in the list headed by the table
-    // element whose index is the stub's hash value
-    // masked by the xxx_hash_mask.  Lists are ended
-    // by a pointer to MINT::null_stub.
+    // The acc and aux hash tables for a stub type xxx
+    // have the same size, xxx_hash_size, which must be
+    // a power of 2, and each xxx_hash_mask = xxx_hash_
+    // size - 1.  Stubs are put in the list headed by
+    // the table element whose index is the stub's hash
+    // value masked by the xxx_hash_mask.  Lists are
+    // ended by a pointer to MINT::null_stub.
     //
     // When a hashed stub is created it is ephemeral
     // and is put in the aux hash table.  The acc moves
-    // stubs from the aux hash table to the correspond-
-    // ing acc hash table.
+    // a stub from the aux hash table to the correspond-
+    // ing acc hash table when the stub ceases to be
+    // ephemeral.
 
     extern min::stub ** str_acc_hash;
     extern min::stub ** str_aux_hash;
@@ -1678,9 +1686,12 @@ namespace min { namespace internal {
     //
     //	Bit		Use
     //
-    //	0		    Fixed Body Flag
+    //	0		    Fixed Body Flag; indicates
+    //			    a stub contains a pointer
+    //			    to a body allocated from
+    //			    a fixed_block_list.
     //
-    //	1		    Reserved
+    //	1		    Reserved for future use.
     //
     //	2, ..., 2+p-1	    Flag Pair Low Order Bits
     //
@@ -1690,6 +1701,21 @@ namespace min { namespace internal {
     //			  = ( MIN_ACC_FLAG_BITS - 2 )
     //			    / 2
     //
+    // Most the flags are in pairs.  The disposition of
+    // these pairs is up to the ACC, but it is required
+    // that the mutator put stub pointers s1 and s2 in
+    // the acc stack if s2 is stored in the data of s1
+    // and for some pair of flags, the low order flag
+    // of s2, the high order flag of s1, and the low
+    // order flag of the acc_stack_mask global variable
+    // are all on.  For example, if the low order flag
+    // of a pair means the stub is unmarked and the high
+    // order flag means the stub has been scavenged, s1
+    // and s2 will be put in the acc stack if a pointer
+    // s2 to an unmarked stub is stored in the data of a
+    // previously scavenged stub s1 and the acc_stack_
+    // mask is enabled for this event.
+    //
     const uns64 ACC_FLAG_MASK =
            ( (uns64(1) << MIN_ACC_FLAG_BITS) - 1 )
 	<< ( 56 - MIN_ACC_FLAG_BITS );
@@ -1698,7 +1724,8 @@ namespace min { namespace internal {
     const unsigned ACC_FLAG_PAIRS =
         ( MIN_ACC_FLAG_BITS - 2 ) / 2;
 
-    // acc_write_update ( s1, s2 ) checks whether
+    // unprotected::acc_write_update ( s1, s2 ) checks
+    // whether
     //
     //		flags of *s2
     //		&
@@ -1708,9 +1735,10 @@ namespace min { namespace internal {
     //
     // is non-zero, and if so, pushes first s1 and then
     // s2 into the acc_stack.  This call is made when
-    // a pointer to s2 is stored in the s1 object, and
-    // the acc_stack is used by the collector to adjust
-    // the marks it makes on objects.
+    // a pointer to s2 is stored in s1 object data (the
+    // object stub, body, and any associated auxiliary
+    // stubs), and the acc_stack is used by the collec-
+    // tor to adjust the marks it makes on objects.
     //
     // For efficiency, acc_stack_mask is an uns64 that
     // only has ON bits in the appropriate flag pair
@@ -1733,7 +1761,8 @@ namespace min { namespace unprotected {
     // Function executed whenever a pointer to stub s2
     // is stored in a datum with stub s1.  s1 is the
     // source of the written pointer and s2 is the
-    // target.
+    // target.  But does nothing if s2 == NULL.  Pre-
+    // sumes/requires s1 != NULL.
     //
     inline void acc_write_update
 	    ( const min::stub * s1,
@@ -1831,10 +1860,10 @@ namespace min {
 
     extern const min::stub * ZERO_STUB;
 
-    template < typename T>
+    template < typename T >
     class locatable_var;
 
-    template < typename T>
+    template < typename T >
     class ref;
 
     template < typename T >
@@ -1847,11 +1876,11 @@ namespace min {
 
     namespace unprotected {
 
-	template < typename T>
+	template < typename T >
 	min::ptr<T> new_ptr
 	    ( const min::stub * s, T & location );
 
-	template < typename T>
+	template < typename T >
 	min::ref<T> new_ref
 	    ( const min::stub * s, T const & location );
     }
