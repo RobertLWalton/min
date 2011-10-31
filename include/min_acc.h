@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 11:49:40 EDT 2011
+// Date:	Mon Oct 31 11:00:41 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -79,20 +79,20 @@ namespace min { namespace acc {
     //    // new stubs.)
     //  min::unsptr MINT::number_of_free_stubs
     //    // Count of stubs on free stub list.
-    //  min::stub * MINT::first_allocated_stub
+    //  min::stub * MINT::head_stub
     //    // The control word of this stub points at the
     //    // first stub on the acc stub list, or is
     //    // MINT::null_stub if the list is empty.
-    //    // MINT::first_allocated_stub may or may not
-    //    // equal MINT::null_stub.
+    //    // MINT::head_stub may or may not equal MINT::
+    //    // null_stub.
     //  min::stub * MINT::last_allocated_stub
     //    // The control word of this stub points at the
     //    // first free stub on the acc stub list, or is
     //    // MINT::null_stub if there are no such stubs.
     //    // Last_allocated_stub may be the last alloca-
     //    // ted stub on the acc stub list, or may equal
-    //    // MINT::first_allocated_stub if there are no
-    //    // allocated stubs on the acc stub list.
+    //    // MINT::head_stub if there are no allocated
+    //	  // stubs on the acc stub list.
     //  min::uns64 MINT::new_acc_stub_flags
     //    // Flags for newly allocated acc stubs.
     //
@@ -1408,11 +1408,11 @@ namespace min { namespace acc {
     //   if and only if L1<L2 or L1=L2&S1<S2.
     //
     //   The first stub on the acc list is the stub
-    //   pointed at by the control word of MINT::first_
-    //   allocated_stub.  MINT::first_allocated_stub is
-    //   itself NOT part of the acc list, and has no use
-    //   other than as pointing at the first stub on the
-    //   acc list (and possibly doubling as MINT::null_
+    //   pointed at by the control word of MINT::head_
+    //   stub.  MINT::head_stub is itself NOT part of
+    //   the acc list, and has no use other than for
+    //   holding a pointer to the first stub on the acc
+    //   list (and possibly doubling as MINT::null_
     //   stub).
     //
     //   Newly allocated stubs are put on the end of the
@@ -1420,8 +1420,8 @@ namespace min { namespace acc {
     //   stub age.  The last allocated stub in the acc
     //   list is MINT::last_allocated_stub.  If there
     //   are no allocated stubs, this equals MINT::
-    //   first_allocated_stub (only happens briefly at
-    //   the start of program initialization.)
+    //   head_stub (only happens briefly at the start of
+    //   program initialization.)
     //
     //   Level 0 stubs in the hash tables for strings,
     //   numbers, and labels are not included in the acc
@@ -1839,8 +1839,7 @@ namespace min { namespace acc {
 	    // Last stub on the acc stub list BEFORE the
 	    // first stub on the list whose generation
 	    // is the same as or later than (L,S).
-	    // Equals MINT::first_allocated_stub if
-	    // (L,S)=(0,0).
+	    // Equals MINT::head_stub if (L,S)=(0,0).
 
 	min::uns64 count;
 	    // Number of stubs currently in this

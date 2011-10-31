@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 10:32:27 EDT 2011
+// Date:	Mon Oct 31 11:02:08 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1887,14 +1887,12 @@ namespace min { namespace internal {
     // Pointers to the first and last allocated stub.
     //
     // The first acc list stub is the stub pointed at by
-    // the control word of the first_allocated_stub
-    // (which is not itself on the acc list, and there-
-    // fore not actually `allocated').  The first free
-    // stub on the acc list is pointed at by the control
-    // word of the last_allocated_stub.  If there are
-    // allocated stubs on the acc list, the last_alloca-
-    // ted_stub is the last of these; otherwise it
-    // equals first_allocated_stub.
+    // the control word of the head_stub (which is not
+    // itself on the acc list).  The first free stub on
+    // the acc list is pointed at by the control word of
+    // the last_allocated_stub.  If there are allocated
+    // stubs on the acc list, the last_allocated_stub is
+    // the last of these; otherwise it equals head_stub.
     //
     // First_allocated_stub may equal MINT::null_stub
     // for some system configurations.
@@ -1903,7 +1901,7 @@ namespace min { namespace internal {
     // if there are no free stubs, the control word of
     // last_allocate_stub points at MINT::null_stub.
     //
-    extern min::stub * first_allocated_stub;
+    extern min::stub * head_stub;
     extern min::stub * last_allocated_stub;
 
     // ACC flags of stub returned by new_acc_stub.

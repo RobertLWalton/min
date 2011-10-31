@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Aug 17 04:10:04 EDT 2011
+// Date:	Mon Oct 31 10:59:50 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -348,7 +348,7 @@ min::stub ** MINT::acc_stack;
 min::stub ** MINT::acc_stack_limit;
 
 min::uns64  MINT::new_acc_stub_flags;
-min::stub * MINT::first_allocated_stub;
+min::stub * MINT::head_stub;
 min::stub * MINT::last_allocated_stub;
 
 MINT::fixed_block_list MINT::fixed_blocks

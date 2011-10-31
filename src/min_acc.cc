@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Oct 28 11:53:32 EDT 2011
+// Date:	Mon Oct 31 10:59:27 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -369,7 +369,7 @@ static void stub_allocator_initializer ( void )
 	      ( min::DEALLOCATED,
 	        MINT::null_stub ) );
 
-    MINT::first_allocated_stub = MACC::stub_next;
+    MINT::head_stub = MACC::stub_next;
     MINT::last_allocated_stub = MACC::stub_next;
     MINT::number_of_free_stubs = 0;
 
@@ -1580,7 +1580,7 @@ static void collector_initializer ( void )
 	      j < MACC::ephemeral_sublevels[i]; ++ j )
 	{
 	    g->level = & levels[i];
-	    g->last_before = MINT::first_allocated_stub;
+	    g->last_before = MINT::head_stub;
 	    g->count = 0;
 	    g->lock = -1;
 
