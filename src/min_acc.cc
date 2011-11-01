@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 10:59:27 EDT 2011
+// Date:	Mon Oct 31 20:15:18 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -641,10 +641,10 @@ static void block_allocator_initializer ( void )
           j < MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2;
 	  ++ j )
     {
-        MINT::fixed_blocks[j].extension =
+        MINT::fixed_block_lists[j].extension =
 	    fixed_block_extensions + j;
         fixed_block_extensions[j].fbl =
-	    MINT::fixed_blocks + j;
+	    MINT::fixed_block_lists + j;
         fixed_block_extensions[j].last_region = NULL;
         fixed_block_extensions[j].current_region = NULL;
     }
@@ -2945,9 +2945,9 @@ void MACC::print_acc_statistics ( std::ostream & s )
     min::unsptr total_bytes = 0;
     min::unsptr free_bytes = 0;
     for ( MINT::fixed_block_list * fbl =
-	      MINT::fixed_blocks;
-          fbl < MINT::fixed_blocks
-	      + MINT::number_fixed_blocks;
+	      MINT::fixed_block_lists;
+          fbl < MINT::fixed_block_lists
+	      + MINT::number_fixed_block_lists;
 	  ++ fbl )
     {
 	char buffer [40];
