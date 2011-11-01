@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 20:10:10 EDT 2011
+// Date:	Tue Nov  1 04:05:34 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -387,6 +387,12 @@ namespace min {
 	const min::uns64 STUB_PTR = uns64(1) << 55;
 	    // Indicates value part of control value is
 	    // a packed stub address.
+
+	// The flags
+	//    ( 1ULL << ( 56 - MIN_ACC_FLAG_BITS ) )
+	//    ( 1ULL << ( 56 - MIN_ACC_FLAG_BITS ) + 1 )
+	// are shared between acc and non-acc control
+	// values.
     }
 
     struct stub
@@ -1692,7 +1698,15 @@ namespace min { namespace internal {
     //			    to a body allocated from
     //			    a fixed_block_list.
     //
+    //			    This flag is shared between
+    //			    acc and non-acc control
+    //			    values.
+    //
     //	1		    Reserved for future use.
+    //
+    //			    This flag is shared between
+    //			    acc and non-acc control
+    //			    values.
     //
     //	2, ..., 2+p-1	    Flag Pair Low Order Bits
     //
@@ -2109,8 +2123,10 @@ namespace min { namespace unprotected {
 
     // Allocate a body to a stub.  n is the minimum size
     // of the body in bytes, not including the control
-    // word that begins the body.  The stub control is
-    // set and its acc flags may be changed.
+    // word that begins the body.  The ACC_FIXED_BODY_
+    // flag of the stub control is set; otherwise the
+    // stub control is left untouched.  The stub may be
+    // either an acc or non-acc stub.
     //
     inline void new_body
             ( min::stub * s, min::unsptr n )
@@ -2171,14 +2187,6 @@ namespace min { namespace unprotected {
 } }
 
 
-namespace min { namespace internal {
-
-    // Initialize resize_body stub list.
-    //
-    void acc_initialize_resize_body ( void );
-
-} }
-
 namespace min { namespace unprotected {
 
     // When constructed the resize_body struct allo-
@@ -2204,8 +2212,6 @@ namespace min { namespace unprotected {
     // while the resize_body struct exists, unless
     // abort_resize_body has been called.
     //
-    struct resize_body;
-    void abort_resize_body ( resize_body & r );
     struct resize_body {
 
 	// Construct resize_body for stub s with new
@@ -2222,14 +2228,7 @@ namespace min { namespace unprotected {
 	    // Allocate rstub and its body, which is
 	    // the new body.
 
-	    uns64 c = unprotected::control_of
-		( last_allocated );
-	    rstub = unprotected::stub_of_control ( c );
-	    if ( rstub == internal::null_stub )
-	        rstub = rstub_allocate();
-
-	    last_allocated_save = last_allocated;
-	    last_allocated = rstub;
+	    rstub = unprotected::new_aux_stub();
 
 	    unprotected::set_type_of
 		( rstub, RELOCATE_BODY );
@@ -2285,7 +2284,7 @@ namespace min { namespace unprotected {
 		    ( rstub, old_size );
 	    }
 
-	    last_allocated = last_allocated_save;
+	    unprotected::free_aux_stub ( rstub );
 	}
 
 	friend void * & new_body_ptr_ref
@@ -2295,16 +2294,8 @@ namespace min { namespace unprotected {
 	friend void retype_resize_body
 			( resize_body & r,
 			  int new_type );
-	friend void min::internal
-	               ::acc_initialize_resize_body
-		             ( void );
 
     private:
-
-        // Out of line rstub allocator.  Expands
-	// resize_body stub list.
-	//
-	min::stub * rstub_allocate ( void );
 
 	min::stub * s;
 	    // Stub whose body is being relocated.
@@ -2322,12 +2313,6 @@ namespace min { namespace unprotected {
 	    // body is installed in stub.  Initialized
 	    // to type of stub s and reset by retype_
 	    // resize_body.
-	min::stub * last_allocated_save;
-	    // Save of last_allocated.
-
-	static min::stub * last_allocated;
-	    // Last allocated stub on the relocated
-	    // body stub list.
     };
 
     // Return a pointer to the new body.

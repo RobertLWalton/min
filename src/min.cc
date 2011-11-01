@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 20:14:34 EDT 2011
+// Date:	Tue Nov  1 04:03:17 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -362,41 +362,6 @@ min::uns64 MUP::acc_stubs_allocated = 0;
 min::uns64 MUP::acc_stubs_freed = 0;
 min::uns64 MUP::aux_stubs_allocated = 0;
 min::uns64 MUP::aux_stubs_freed = 0;
-
-min::stub * MUP::resize_body::last_allocated;
-
-min::stub * MUP::resize_body::rstub_allocate ( void )
-{
-    min::stub * endstub = last_allocated;
-    for ( int i = 0; i < 5; ++ i )
-    {
-	min::stub * rstub = MUP::new_aux_stub();
-	MUP::set_control_of
-	     ( endstub,
-	       MUP::renew_control_stub
-		    ( MUP::control_of ( endstub ),
-		      rstub ) );
-	endstub = rstub;
-    }
-    MUP::set_control_of
-	 ( endstub,
-	   MUP::renew_control_stub
-		( MUP::control_of ( endstub ),
-		  MINT::null_stub ) );
-    return MUP::stub_of_control
-		( MUP::control_of
-		    ( last_allocated ) );
-}
-
-void MINT::acc_initialize_resize_body ( void )
-{
-    min::stub * s = MUP::new_aux_stub();
-    MUP::resize_body::last_allocated = s;
-    MUP::set_control_of ( s,
-	MUP::renew_control_stub
-	    ( MUP::control_of ( s ),
-	      MINT::null_stub ) );
-}
 
 MINT::scavenger_routine MINT::scavenger_routines[128];
 MINT::scavenge_control MINT::scavenge_controls

@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 20:16:18 EDT 2011
+// Date:	Tue Nov  1 04:05:56 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -463,8 +463,6 @@ void MINT::acc_initializer ( void )
     initialize_body_region();
     initialize_hash_tables();
     initialize_acc_stack();
-
-    MINT::acc_initialize_resize_body();
 }
 
 // Find a values address in a MINT::locatable_var list.
