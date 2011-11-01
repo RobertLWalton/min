@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 11:03:46 EDT 2011
+// Date:	Mon Oct 31 20:16:18 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -312,8 +312,8 @@ void MINT::new_fixed_body
     min::uns64 * next = next_body;
     MIN_ASSERT ( next + 2 * m <= end_body_region );
 
-    dout << "Using fixed_blocks["
-         << fbl - fixed_blocks << "]"
+    dout << "Using fixed_block_lists["
+         << fbl - fixed_block_lists << "]"
 	 << " and assigning begin_body_region["
 	 << next - begin_body_region
 	 << " .. "

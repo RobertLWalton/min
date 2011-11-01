@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 11:02:08 EDT 2011
+// Date:	Mon Oct 31 20:10:10 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1884,7 +1884,7 @@ namespace min { namespace internal {
     // garbage collectible.  When freed, aux stubs are
     // put back on the acc list as free stubs.
 
-    // Pointers to the first and last allocated stub.
+    // Pointers to the first and last allocated stubs:
     //
     // The first acc list stub is the stub pointed at by
     // the control word of the head_stub (which is not
@@ -2029,17 +2029,17 @@ namespace min { namespace internal {
 	++ internal::number_of_free_stubs;
     }
 
-    // fixed_blocks[j] is the head of a free list of
-    // fixed blocks of size 1 << ( j + 3 ), for 2 <= j,
+    // fixed_block_lists[j] heads a free list of size
+    // blocks of size 1 << ( j + 3 ), for 2 <= j,
     // (1<<j) <= MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE/8.
     // Each fixed block begins with a control word whose
     // locator is provided by the allocator and whose
-    // stub address is set to the stub whose body the
-    // block contains, if there is such a stub, or
-    // equals the address of MINT::null_stub otherwise.
-    // When the block is on the free list, the control
-    // word and the word following it are specified by
-    // the free_fixed_size_block struct.
+    // stub address is set to point to the stub whose
+    // body the block contains, if there is such a
+    // stub, or equals the address of MINT::null_stub
+    // otherwise.  When the block is on the free list,
+    // the control word and the word following it are
+    // specified by the free_fixed_size_block struct.
     //
     struct free_fixed_size_block
     {
@@ -2054,7 +2054,7 @@ namespace min { namespace internal {
     struct fixed_block_list_extension;
         // Allocator specific extension of fixed_block_
 	// list struct.
-    const unsigned number_fixed_blocks =
+    const unsigned number_fixed_block_lists =
           MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG+1-3;
     extern struct fixed_block_list
     {
@@ -2074,10 +2074,11 @@ namespace min { namespace internal {
 			// Address of extension of this
 			// structure.  Set during
 			// allocator initialization.
-    } fixed_blocks
-          [number_fixed_blocks];
+    } fixed_block_lists
+          [number_fixed_block_lists];
 
-    // Out of line allocators:
+    // Out of line allocators.  Only called by min::
+    // new_body.
     //
     void new_non_fixed_body
 	( min::stub * s, min::unsptr n );
@@ -2129,7 +2130,7 @@ namespace min { namespace unprotected {
 	//
 	m = m - 1;
 	internal::fixed_block_list * fbl =
-		  internal::fixed_blocks
+		  internal::fixed_block_lists
 		+ internal::log2floor ( m )
 		+ 1 - 3;
 

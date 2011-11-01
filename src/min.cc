@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 10:59:50 EDT 2011
+// Date:	Mon Oct 31 20:14:34 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -207,10 +207,11 @@ MINT::initializer::initializer ( void )
           j < MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2;
 	  ++ j )
     {
-        MINT::fixed_blocks[j].size = 1 << ( j + 3 );
-        MINT::fixed_blocks[j].count = 0;
-        MINT::fixed_blocks[j].last_free = NULL;
-        MINT::fixed_blocks[j].extension = NULL;
+        MINT::fixed_block_lists[j].size =
+	    1 << ( j + 3 );
+        MINT::fixed_block_lists[j].count = 0;
+        MINT::fixed_block_lists[j].last_free = NULL;
+        MINT::fixed_block_lists[j].extension = NULL;
     }
 
     MINT::min_fixed_block_size =
@@ -351,7 +352,7 @@ min::uns64  MINT::new_acc_stub_flags;
 min::stub * MINT::head_stub;
 min::stub * MINT::last_allocated_stub;
 
-MINT::fixed_block_list MINT::fixed_blocks
+MINT::fixed_block_list MINT::fixed_block_lists
 	[MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG-2];
 
 min::unsptr MINT::min_fixed_block_size;
