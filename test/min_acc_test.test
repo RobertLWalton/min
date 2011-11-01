@@ -1,8 +1,7 @@
-TRACE: debug=pm
+TRACE: debug=pmc
 TRACE: stub_allocator_initializer()
 TRACE: new_pool_between ( 16777216, 0x0, 0xfffffffffff )
-TRACE: new_pool ( 257 )
-TRACE: inaccess_pool ( 1, 0xXXXXXXXX )
+TRACE: new_pool ( 32 )
 TRACE: block_allocator_initializer()
 TRACE: new_pool ( 4096 )
 TRACE: inaccess_pool ( 4096, 0xXXXXXXXX )
@@ -11,12 +10,14 @@ TRACE: allocate_new_superregion()
 TRACE: new_paged_block_region (1073741824, 4)
 TRACE: new_pool ( 262144 )
 TRACE: new_paged_block_region returns & region_table[1]
+TRACE: new_pool ( 257 )
+TRACE: inaccess_pool ( 1, 0xXXXXXXXX )
 TRACE: new_pool ( 1 )
 
 Start Test!
 Before Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:             2          1024          1026
+                          Stubs:             1             0             1
      Bytes in Fixed Size Blocks:             0             0             0
 TRACE: allocate_new_superregion()
 TRACE: new_paged_block_region (1073741824, 4)
@@ -35,7 +36,7 @@ min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:          1003            23          1026
+                          Stubs:          1002            24          1026
                  32 Byte Blocks:             3          2045          2048
                  64 Byte Blocks:            21          1003          1024
                 128 Byte Blocks:            33           479           512
@@ -50,9 +51,9 @@ After Allocation
     type == UPDATABLE true.
 min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
-After Deallocate Test
+After Random Deallocation
                       Numbers of          Used          Free         Total
-                          Stubs:        101003           473        101476
+                          Stubs:        101002           474        101476
                  32 Byte Blocks:             5          2043          2048
                  64 Byte Blocks:             9          1015          1024
                 128 Byte Blocks:            29           483           512
@@ -63,5 +64,16 @@ After Deallocate Test
                4096 Byte Blocks:           161            47           208
                8192 Byte Blocks:             1             7             8
      Bytes in Fixed Size Blocks:       1844832        842144       2686976
-
-Finished Test!
+START COLLECTOR level 2 generation counts:
+    0/0,0,0,0,0/0,0,0,0,101001
+COLLECTOR INITING level 2 collectible 101001 hash 0 root 0
+TRACE: new_paged_block_region (262144, 8)
+TRACE: new_pool ( 64 )
+TRACE: new_paged_block_region returns & region_table[3]
+COLLECTOR SCAVENGING level 2
+          scanned 1 stubs scanned 0 scavenged 0 thrashed 0
+COLLECTOR COLLECTING level 2
+          hash kept 0 hash collected 0 kept 0 collected 101001
+COLLECTOR PROMOTING level 2 promoted 0
+COLLECTOR DONE level 2 generation counts:
+    0/0,0,0,0,0/0,0,0,0,0
