@@ -491,7 +491,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-initial stubs allocated = 2
+initial stubs allocated = 1
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + sbase true.
@@ -549,10 +549,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     p3 != p4 true.
 resize_body ( stub XXX, 128, 128 ) called
-MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
-MINT::acc_expand_stub_free_list (1) called
 MINT::acc_expand_stub_free_list (1) called
 MINT::new_fixed_body ( stub XXX, 128 ) called
 min_interface_test.cc:XXXX assert:

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 20:15:18 EDT 2011
+// Date:	Tue Nov  1 04:03:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -239,8 +239,6 @@ void MINT::acc_initializer ( void )
     stub_allocator_initializer();
     block_allocator_initializer();
     collector_initializer();
-
-    MINT::acc_initialize_resize_body();
 }
 
 
