@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Oct 31 11:00:41 EDT 2011
+// Date:	Tue Nov  1 23:46:06 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1196,14 +1196,19 @@ namespace min { namespace acc {
     //	     Thread List
     //		For each thread, a list of stubs pointed
     //          at by data in the thread's stack.
-    //          Maintained by the min::stack_{num_}gen
+    //          Maintained by the min::locatable_...
     //          structures defined in min.h.
     //
     //	     Static List
     //		A list of stubs pointed at by static
     //		data (e.g., data allocated at link
-    //		time).  Maintained by the min::static_
-    //		{num_}gen structures defined in min.h.
+    //		time).  Maintained by the min::
+    //		locatable_... structures defined in
+    //		min.h.
+    //
+    //		This static list is actually just an
+    //		initial segment of the main thread
+    //		list.
     //
     // As the last step in a scavenging, the thread and
     // static lists are scanned for pointers to stubs
@@ -1268,28 +1273,34 @@ namespace min { namespace acc {
     //
     //	    then the pointers to s1 and s2 are pushed
     //      into the MINT::acc_stack; the pointer to s1
-    //	    is pushed first.
+    //	    is pushed first.  See acc flags and min::
+    //	    unprotected::acc_write_update in min.h.
     //
     // MINT::acc_stack Processing:
     //
     //   The MINT::acc_stack is processed separately by
     //   the MACC::process_acc_stack routine.  This is
     //   run in preference to other acc functions when-
-    //   ever an acc algorithm is executed.
+    //   ever an acc algorithm is executed.  This pre-
+    //   ference keeps the acc stack as small as pos-
+    //   sible.
     //
     //   The MINT::acc_stack contains stub pointer pairs
     //   (s1,s2) such that a pointer to s2 has been
     //   stored in the s1 data (in the s1 stub, any body
     //   pointed at the stub, or any aux stub pointed at
     //   by s1 data, recursively).  The MINT::process_
-    //   acc_stack routine processes these pairs.
+    //   acc_stack routine repeatedly removes a pair
+    //   from the end of stack and processes the pair.
     //
     //   If in any pair (s1,s2) either s1 or s2 has a
     //   flag in common with MACC::removal_request_flags
     //   then the pair is ignored.  This permits stubs
-    //   designated for removal by any level to be
-    //   instantly removed from consideration by the
-    //   collector.
+    //   designated for removal by a level L collection
+    //   that sets the stubs' level L unmarked flag to
+    //   be instantly removed from consideration by the
+    //   collector merely be setting the level L
+    //   unmarked flag of MACC::removal_request_flags.
     //
     //   If the MINT::process_acc_stack routine finds a
     //   level L scavenged stub s1 pointing at a level L
@@ -1306,29 +1317,77 @@ namespace min { namespace acc {
     //   level L non-root stub s1 pointing at a level L
     //   collectible stub s2, and if the acc_stack_mask
     //   level L collectible flag is on, the routine
-    //   turns off the s1 level L non-root flag.  In
-    //   this case, if the s1 level L scavenged flag
-    //   is on, no further processing is done, as s1 is
-    //   currently on the level L root list and is being
-    //   scavenged and s2 will have been processed above
-    //   according to the setting of s2's unmarked flag
-    //   and the scavenged flag of s1.
+    //   turns off the s1 level L non-root flag.  If
+    //   this happens, there are two cases to consider.
     //
-    //   Otherwise, if s1's level L non-root flag has
-    //   been turned off and s1's level L scavenged flag
-    //   is off, s1 is put on the level L root list.  In
-    //   addition, if the level L scavenged flag is set
-    //   in MACC::acc_stack_scavenge_mask, which indic-
-    //   ates that a level L collection is currently
-    //   in a SCAVENGING_... phase, then the s1 level L
-    //   scavenged flag of s1 is turned on, and if the
-    //   s2 level L unmarked flag is on, it is turned
-    //   off and s2 is put on the level L to-be-scaveng-
-    //   ed list if s2 is scavengable.  Note that in
-    //   this case s1 contains only one pointer at a
-    //   stub of level >= L, namely the pointer to s2,
-    //   so there is no need to scavenge s1 to find
-    //   other such pointers.
+    //   In the normal case, s1's level L scavenge flag
+    //   is off because s1 is not on the level L root
+    //   list.  In this case MINT::process_acc_stack
+    //   puts s1 on the level L root list.  In addition,
+    //   if the level L scavenged flag is set in MACC::
+    //   acc_stack_scavenge_mask, which indicates that a
+    //   level L collection is currently in a scavenging
+    //   phase, then MINT::process_acc_stack turns on
+    //   the level L scavenged flag of s1, and if the s2
+    //   level L unmarked flag is on, it is turned off
+    //   and s2 is put on the level L to-be-scavenged
+    //   list if s2 is scavengable.  Note that in this
+    //   case s1 contains only one pointer at a stub of
+    //   L2 >= L, namely the pointer to s2, so there is
+    //   no need to scavenge s1 to find other such
+    //   pointers.
+    //
+    //   The level L scavenger turns on the level L
+    //   scavenge flag in MACC::acc_stack_scavenge_mask
+    //   when it starts to scan the level L root list,
+    //   at a point when the level L scavenged flags of
+    //   all stubs on the root list are off.  Then
+    //   MINT::process_acc_stack may put new stubs on
+    //   the END of the root list, but these will all
+    //   have their level L scavenged flags on.   So
+    //   the level L scavenger knows that when it gets
+    //   to a stub on the root list with its level L
+    //   scavenged flag set, the scavenger is done, as
+    //   all subsequent stubs on the root list will have
+    //   their level L scavenged flag set.
+    //
+    //   In the other case, s1's level L scavenge flag
+    //   is on.  This occurs only when the level L
+    //   scavenger has found s1 in the level L root list
+    //   and is scavenging it, so in this case MINT::
+    //   process_acc_stack merely turns off s1's level L
+    //   non-root flag and does nothing else.
+    //
+    //   The level L scavenger uses this behavior as
+    //   follows.  When the scavenger needs to scavenge
+    //   a stub s1 that it finds in the level L root
+    //   list, it must determine whether s1 should
+    //   remain on the root list.  It does this by first
+    //   turning s1's level L non-root flag and scavenge
+    //   flags both on, then scavenging s1, then looking
+    //   to see if s1 should remain on the level L root
+    //   list, and lastly either turing s1's level L
+    //   non-root flag off if it should remain on the
+    //   list, or removing s1 from the list if it should
+    //   not remain on the level L root list.
+    //
+    //   There are two cases where s1 should remain on
+    //   the level L root list.  One is the case where
+    //   during scavenging a level L3 >= L pointer s3
+    //   was found in the the data of s1.  The other
+    //   case is if MINT::process_acc_stack running
+    //   during the scavenging of s1 found that a
+    //   stub pointer s2 of level L2 >= L, i.e. with
+    //   its level L collectible flag on, has been stored
+    //   in the data of s1.  This last is indicated by
+    //   the fact that s1's non-root flag is turned off
+    //   by MINT::process_acc_stack during the scaveng-
+    //   ing, as described above, so the scavenger
+    //   merely looks at this flag at the end of sca-
+    //   venging and keeps s1 on the level L root list
+    //   if s1's level L non-root flag was turned off
+    //   during scavenging.
+    //
     //
     // Stub Allocation:
     //
