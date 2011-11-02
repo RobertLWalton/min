@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  1 23:46:06 EDT 2011
+// Date:	Wed Nov  2 02:54:51 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1408,12 +1408,20 @@ namespace min { namespace acc {
     //	     all scavenged flags are cleared
     //	     all non-root flags are cleared
     //
-    //   In this case the new stub will remain unmarked
-    //   until a pointer to it is found in a thread,
-    //   in stub data, or in static memory.  Many
-    //   temporary stubs will never be marked and will
-    //   be collected promptly after becoming inacces-
-    //   sible from threads and static memory.
+    //   During level L pre-scavenging and scavenging
+    //   collector phases a new stub will have its level
+    //   L unmarked flag set, and will remain unmarked
+    //   unless it is marked by level L scavenging.
+    //   Many temporary stubs will remain unmarked, and
+    //   will be collected promptly after becoming
+    //   inaccessible from threads and static memory.
+    //
+    //   At the end of level L scavenging, all reachable
+    //   stubs have their level L unmarked flag clear.
+    //   To maintain this invariant, at this time the
+    //   level L unmarked flag in MUP::new_acc_stub_
+    //   flags is cleared, so any newly allocated stubs
+    //   will also have a clear level L unmarked flag.
     //
     //   If a currently running level L scavenging is
     //   having thrashing problems (see below), then
@@ -1434,9 +1442,9 @@ namespace min { namespace acc {
     //   in place of a newly allocated stub, its
     //   level L unmarked flag will be cleared during
     //   level L collection post scavenging phases, so
-    //   that it will not be collected by the level L
-    //   collection.  This is done using MINT::hash_acc_
-    //   clear_flags.
+    //   all reachable stubs will have their level L
+    //   unmarked flag clear.  This is done using MINT::
+    //   hash_acc_clear_flags (see min.h).
     //
     // Acc List:
     //
@@ -1489,7 +1497,7 @@ namespace min { namespace acc {
     //   conceptually part of the level 0 list, but they
     //   are not physically part of the acc list.
     //   
-    // Collector Increments:
+    // Collector Increments and Phases:
     //
     //   The collector executes in increments called
     //   `collector increments' that are of limited
@@ -1499,7 +1507,7 @@ namespace min { namespace acc {
     //   collector must maintain state information for
     //   each level, and this includes a `collector
     //   phase' value that specifies which phase the
-    //   colletion at that level is in.
+    //   collection at that level is in.
     //
     //   Phases are divided into three groups.  The pre-
     //   scavenging or initing phases set stub flags.
@@ -1513,15 +1521,19 @@ namespace min { namespace acc {
     //   Each level has a `level struct' data structure
     //   which can be locked, and each generation (i.e.,
     //   sublevel of a level) has a `generation struct'
-    //   data structure that can be locked.
+    //   data structure which can be locked.
     //
     //   The `last_before' member of a generation struct
     //   points at the stub just before the first stub
     //   of the generation on the acc list.  Any code
-    //   that can change this member must lock the
-    //   generation struct.  Any code that accesses the
-    //   stubs in a generation must lock the genera-
-    //   tion's generation stuct.
+    //   that can change or use this member must lock
+    //   the generation struct.  This means that code
+    //   that accesses the portion of the acc list that
+    //   belongs to a generation must lock that genera-
+    //   tion's generation struct, the subsequent gener-
+    //   ation's generation struct, and ALL generation
+    //   structs that have the same `last_before' value
+    //   as the subsequent generation.
     //
     //   The level struct is locked during all phases
     //   of a level L collection.  It contains a
@@ -1541,8 +1553,11 @@ namespace min { namespace acc {
     //   PRE_XXX values to indicate that the next phase
     //   to be run is an XXX phase but that can only
     //   be run if locks can be set.  If a PRE_XXX
-    //   increment gets the locks it turns itself into
-    //   and XXX phase and continues.
+    //   increment gets the locks it sets the current
+    //   phase to XXX and continues.  If an XXX incre-
+    //   ment needs more locks and cannot get them, it
+    //   resets the current phase to PRE_XXX and returns
+    //   false.
     //
     // Phases:
     //
