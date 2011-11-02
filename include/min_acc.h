@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  2 02:54:51 EDT 2011
+// Date:	Wed Nov  2 11:58:04 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1894,7 +1894,7 @@ namespace min { namespace acc {
 	// the end of each such period.  0 if there
 	// is no collector time period.
 
-    extern min::uns32 period_increments;
+    extern min::uns32 collector_period_increments;
         // The number of collector increments that are
 	// to be executed each period.  If fewer have
 	// been executed by the end of the period, the
@@ -2033,6 +2033,8 @@ namespace min { namespace acc {
     //
     struct level
     {
+	// Statistics:
+
 	// Collector statistics.  These accumulate
 	// across all collections of this level.
 	//
@@ -2045,7 +2047,7 @@ namespace min { namespace acc {
 	//
 	counters saved_count;
 
-	// Level working data.
+	// State:
 
         generation * g;
 	    // First generation with this level in the
@@ -2056,19 +2058,6 @@ namespace min { namespace acc {
 	    // level.  If N, then the sublevels of the
 	    // generations of this level run from 0
 	    // through N-1, with N-1 being the youngest.
-
-	MACC::stub_stack to_be_scavenged;
-	MACC::stub_stack root;
-	    // To-be-scavenged and root lists for
-	    // the level.
-
-	min::uns64 to_be_scavenged_wait
-	              [1+MIN_MAX_EPHEMERAL_LEVELS];
-	    // Set to the to_be_scavenged.in values of
-	    // each level when the REMOVING_TO_BE_
-	    // SCAVENGED phase starts.  This phase then
-	    // simply waits for all the to_be_scavenged
-	    // .out values to become >= these values.
 
         min::uns8 collector_phase;
 	    // One of COLLECTOR_NOT_RUNNING,
@@ -2084,9 +2073,26 @@ namespace min { namespace acc {
 	    // SCAVENGING_ROOT, and REMOVING_ROOT
 	    // phases.
 
+	// Stub Lists:
+
+	MACC::stub_stack to_be_scavenged;
+	MACC::stub_stack root;
+	    // To-be-scavenged and root lists for
+	    // the level.
+
+	// Substate (within Phase):
+
 	min::uns8 next_level;
 	    // Next level to be processed by REMOVING_
 	    // ROOT phase.
+
+	min::uns64 to_be_scavenged_wait
+	              [1+MIN_MAX_EPHEMERAL_LEVELS];
+	    // Set to the to_be_scavenged.in values of
+	    // each level when the REMOVING_TO_BE_
+	    // SCAVENGED phase starts.  This phase then
+	    // simply waits for all the to_be_scavenged
+	    // .out values to become >= these values.
 
 	bool root_scavenge;
 	    // True if the stub currently being sca-
@@ -2125,7 +2131,8 @@ namespace min { namespace acc {
 	    // scan the acc list.
 
 	min::stub * last_stub;
-	    // Pointer to a stub within a locked
+	    // Argument to the current collector incre-
+	    // ment.  Pointer to a stub within a locked
 	    // generation, or the last_before stub of
 	    // a locked generation.
     };

@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  1 04:03:06 EDT 2011
+// Date:	Wed Nov  2 10:53:44 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1503,6 +1503,16 @@ void MACC::stub_stack::flush ( void )
 // Collector
 // ---------
 
+// ACC Parameters:
+//
+min::uns64 MACC::scan_limit;
+min::uns64 MACC::scavenge_limit;
+min::uns64 MACC::collection_limit;
+min::uns32 MACC::collector_period;
+min::uns32 MACC::collector_period_increments;
+
+// ACC Level Data:
+//
 unsigned MACC::ephemeral_levels =
     MIN_DEFAULT_EPHEMERAL_LEVELS;
 static unsigned ephemeral_sublevels
@@ -1518,6 +1528,7 @@ static MACC::generation
 MACC::generation * MACC::generations =
     ::generations_vector;
 MACC::generation * MACC::end_g;
+
 min::uns64 MACC::last_collecting_count;
 
 static const unsigned MAX_LEVELS =
@@ -1526,19 +1537,16 @@ static MACC::level
        levels_vector[MAX_LEVELS];
 MACC::level * MACC::levels = levels_vector;
 
-min::uns64   MACC::removal_request_flags;
-
+// ACC Stack Data:
+//
 min::unsptr  MACC::acc_stack_size;
 min::stub ** MACC::acc_stack_begin;
 min::stub ** MACC::acc_stack_end;
-min::uns64   MACC::acc_stack_scavenge_mask;
+min::uns64   MACC::acc_stack_scavenge_mask = 0;
+min::uns64   MACC::removal_request_flags = 0;
 
-min::uns64 MACC::scan_limit;
-min::uns64 MACC::scavenge_limit;
-min::uns64 MACC::collection_limit;
-min::uns32 MACC::collector_period;
-min::uns32 MACC::period_increments;
-
+// Called from acc_initializer.
+//
 static void collector_initializer ( void )
 {
     get_param ( "ephemeral_levels",
@@ -1546,6 +1554,11 @@ static void collector_initializer ( void )
 		0, MIN_MAX_EPHEMERAL_LEVELS );
 
     MACC::generation * g = MACC::generations;
+
+    g->level = & levels[0];
+    g->last_before = MINT::head_stub;
+    g->count = 0;
+    g->lock = -1;
 
     levels[0].g = g ++;
     levels[0].number_of_sublevels = 1;
@@ -1587,7 +1600,11 @@ static void collector_initializer ( void )
     }
 
     MACC::end_g = g;
+    MACC::end_g->level = NULL;
+    MACC::end_g->last_before = MINT::head_stub;
+    MACC::end_g->count = 0;
     MACC::end_g->lock = -1;
+
     MACC::last_collecting_count = 0;
 
     MACC::acc_stack_size =
@@ -1639,13 +1656,21 @@ static void collector_initializer ( void )
                 MACC::collection_limit,
 		10, 1 << 30 );
 
+    MACC::collector_period =
+        MIN_DEFAULT_COLLECTOR_PERIOD;
+    get_param ( "collector_period",
+                MACC::collector_period,
+		0, 1000000  );
+
+    MACC::collector_period_increments =
+        MIN_DEFAULT_COLLECTOR_PERIOD_INCREMENTS;
+    get_param ( "collector_period_increments",
+                MACC::collector_period_increments,
+		0, 1000000  );
 }
 
 void MACC::process_acc_stack ( min::stub ** acc_lower )
 {
-    unsigned const M = 56 - MIN_ACC_FLAG_BITS + 2;
-    unsigned const E = MIN_MAX_EPHEMERAL_LEVELS;
-
     while ( MINT::acc_stack > acc_lower )
     {
 	// Stub s1 contains a pointer to stub s2.

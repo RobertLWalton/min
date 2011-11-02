@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:11:12 EDT 2011
+// Date:	Wed Nov  2 11:58:16 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -320,6 +320,24 @@
 //
 # ifndef MIN_DEFAULT_ACC_STACK_SIZE
 #   define MIN_DEFAULT_ACC_STACK_SIZE (1<<20)
+# endif
+
+// collector_period
+//     Length in milliseconds of the collector time
+//     period.  There is an interrupt at the end of each
+//     such period.  0 if there is no collector time
+//     period.
+# ifndef MIN_DEFAULT_COLLECTOR_PERIOD
+#   define MIN_DEFAULT_COLLECTOR_PERIOD 100
+# endif
+
+// collector_period_increments
+//     The number of collector increments that are to be
+//     executed each period.  If fewer have been execu-
+//     ted by the end of the period, the remainder are
+//     executed when the period ends.
+# ifndef MIN_DEFAULT_COLLECTOR_PERIOD_INCREMENTS
+#   define MIN_DEFAULT_COLLECTOR_PERIOD_INCREMENTS 1
 # endif
 
 
