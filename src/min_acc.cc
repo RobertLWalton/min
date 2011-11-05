@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  2 10:53:44 EDT 2011
+// Date:	Sat Nov  5 04:43:53 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1796,15 +1796,16 @@ unsigned MACC::collector_increment ( unsigned level )
 
     switch ( lev.collector_phase )
     {
+
+    case COLLECTOR_NOT_RUNNING:
+        break;
+
     case COLLECTOR_START:
     	{
 	    tracec << "START COLLECTOR level "
 	           << level << " generation counts:"
 		   << endl
 		   << print_generations() << endl;
-
-	    MINT::new_acc_stub_flags |=
-	        UNMARKED ( level );
 
 	    // Check that to-be-scavenged stack is
 	    // empty.
@@ -1826,9 +1827,19 @@ unsigned MACC::collector_increment ( unsigned level )
 	    assert (    ( MINT::hash_acc_clear_flags
 	                  & UNMARKED ( level ) )
 		     == 0 );
+	    assert (    ( MINT::new_acc_stub_flags
+	                  & UNMARKED ( level ) )
+		     == 0 );
 
-	    lev.first_g = NULL;
+	    // Execute this phase.
+	    //
+	    MINT::new_acc_stub_flags |=
+	        UNMARKED ( level );
 	    lev.saved_count = lev.count;
+
+	    // Start next phase.
+	    //
+	    lev.first_g = NULL;
 	    lev.collector_phase =
 		PRE_INITING_COLLECTIBLE;
 	}
@@ -1847,8 +1858,13 @@ unsigned MACC::collector_increment ( unsigned level )
 	    //
 	    if ( lev.first_g == NULL )
 	    {
+	        // INITING_COLLECTIBLE has not yet run.
+		//
 	        if ( lev.g->lock >= 0 )
 		    return lev.g->lock;
+
+		// Initialize INITING_COLLECTIBLE.
+		//
 		lev.g->lock = level;
 		lev.first_g = lev.last_g = lev.g;
 		lev.last_stub = lev.g->last_before;
@@ -1872,8 +1888,9 @@ unsigned MACC::collector_increment ( unsigned level )
 	    assert ( lev.first_g->lock == level );
 	    assert ( lev.last_g->lock == level );
 
-	    end_g->last_before =
-		MINT::last_allocated_stub;
+	    if ( lev.last_g == end_g )
+		end_g->last_before =
+		    MINT::last_allocated_stub;
 
 	    min::uns64 scanned = 0;
 	    min::uns64 c =
@@ -1901,12 +1918,16 @@ unsigned MACC::collector_increment ( unsigned level )
 		if ( lev.last_g == end_g )
 		{
 		    lev.last_g->lock = -1;
+
+		    // Start next phase.
+		    //
 		    if ( level == 0 )
 		    {
 			lev.hash_table_id = 0;
 			lev.hash_table_index = 0;
+			lev.hash_stub = MINT::null_stub;
 			lev.collector_phase =
-			    INITING_HASH;
+			    PRE_INITING_HASH;
 		    }
 		    else
 		    {
@@ -1933,57 +1954,23 @@ unsigned MACC::collector_increment ( unsigned level )
 	}
         break;
 
+    case PRE_INITING_HASH:
+
+        if ( lev.g[1].lock >= 0 ) return lev.g[1].lock;
+	lev.g[1].lock = level;
+	    
     case INITING_HASH:
         {
+	    assert ( level == 0 );
+
 	    min::uns64 scanned = 0;
+	    min::stub * s = lev.last_stub;
 
 	    min::stub ** hash_table = NULL;
 	    min::uns32 hash_table_size;
 	    while ( scanned < MACC::scan_limit )
 	    {
-	        if ( hash_table == NULL )
-		    switch ( lev.hash_table_id )
-		{
-		case 0:
-		    hash_table =
-			MINT::str_acc_hash;
-		    hash_table_size =
-			MINT::str_hash_size;
-		    break;
-		case 1:
-		    hash_table =
-			MINT::lab_acc_hash;
-		    hash_table_size =
-			MINT::lab_hash_size;
-		    break;
-#		if MIN_IS_COMPACT
-		    case 2:
-			hash_table =
-			    MINT::num_acc_hash;
-			hash_table_size =
-			    MINT::num_hash_size;
-			break;
-#		endif
-		}
-
-		if ( hash_table == NULL )
-		{
-		    lev.collector_phase =
-		        PRE_INITING_ROOT;
-		    break;
-		}
-
-		if (    lev.hash_table_index
-		     >= hash_table_size )
-		{
-		    ++ lev.hash_table_id;
-		    hash_table = NULL;
-		    continue;
-		}
-
-		min::stub * s =
-		    hash_table [lev.hash_table_index++];
-		while ( s != MINT::null_stub )
+	        if ( s != MINT::null_stub )
 		{
 		    min::uns64 c =
 		        MUP::control_of ( s );
@@ -1992,9 +1979,60 @@ unsigned MACC::collector_increment ( unsigned level )
 		    MUP::set_control_of ( s, c );
 		    s = MUP::stub_of_acc_control ( c );
 		    ++ scanned;
+		    continue;
 		}
+
+	        if ( hash_table == NULL )
+		{
+		    switch ( lev.hash_table_id )
+		    {
+		    case 0:
+			hash_table =
+			    MINT::str_acc_hash;
+			hash_table_size =
+			    MINT::str_hash_size;
+			break;
+		    case 1:
+			hash_table =
+			    MINT::lab_acc_hash;
+			hash_table_size =
+			    MINT::lab_hash_size;
+			break;
+    #		    if MIN_IS_COMPACT
+			case 2:
+			    hash_table =
+				MINT::num_acc_hash;
+			    hash_table_size =
+				MINT::num_hash_size;
+			    break;
+    #		    endif
+		    }
+
+		    if ( hash_table == NULL )
+		    {
+			lev.g[1].lock = -1;
+
+			// Start next phase.
+			//
+			lev.collector_phase =
+			    PRE_INITING_ROOT;
+			break;
+		    }
+		}
+
+		if (    lev.hash_table_index
+		     >= hash_table_size )
+		{
+		    ++ lev.hash_table_id;
+		    lev.hash_table_index = 0;
+		    hash_table = NULL;
+		    continue;
+		}
+
+		s = hash_table [lev.hash_table_index++];
 	    }
 
+	    lev.hash_stub = s;
 	    lev.count.hash_init += scanned;
 	}
 	break;
@@ -2839,6 +2877,12 @@ unsigned MACC::collector_increment ( unsigned level )
 		    // lev.root_lock to push.
 		}
 		MUP::set_control_of ( s, c );
+
+		if ( level == 1 )
+		{
+		    // TBD: if hashed, move from aux to acc
+		    // hash table.
+		}
 		++ promoted;
 		lev.last_stub = s;
 	    }
