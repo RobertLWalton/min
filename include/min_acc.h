@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  5 04:39:14 EDT 2011
+// Date:	Sat Nov  5 06:42:38 EDT 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1943,10 +1943,11 @@ namespace min { namespace acc {
 	    // last real generation.  For this
 	    //		end_g->last_before =
 	    //	    	    MINT::last_allocated_stub
-	    // is executed by all phases that might use
-	    // this fake generation, so MINT::last_
-	    // allocated_stub becomes the last stub of
-	    // the real generations.
+	    // is executed by all phases that lock this
+	    // fake generation if they use end_g->last_
+	    // before, so MINT::last_allocated_stub
+	    // becomes the last stub of the real
+	    // generations.
 
 	min::uns64 count;
 	    // Number of stubs currently in this
@@ -1979,11 +1980,8 @@ namespace min { namespace acc {
     extern min::acc::generation * end_g;
 	// Points at an extra generation struct at the
 	// end of the generations vector which is used
-	// by some collector phases which set
-	//	end_g->last_before =
-	//	    MINT::last_allocated_stub
-	// Phases that use end_g->last_before also
-	// set end_g->lock.
+	// by some collector phases.  See last_before
+	// above.
 
     extern min::uns64 last_collecting_count;
         // Value of MUP::acc_stubs_allocated when last
