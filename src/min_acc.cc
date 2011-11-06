@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  5 06:43:08 EDT 2011
+// Date:	Sun Nov  6 06:03:11 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1667,6 +1667,16 @@ static void collector_initializer ( void )
     get_param ( "collector_period_increments",
                 MACC::collector_period_increments,
 		0, 1000000  );
+}
+
+void MINT::restart_scavenging ( min::stub * s )
+{
+    for ( int i = 0; i <= MACC::ephemeral_levels; ++ i )
+    {
+        scavenge_control & sc = scavenge_controls[i];
+	if ( sc.state != 0 && sc.s1 == s )
+	    sc.state = sc.RESTART;
+    }
 }
 
 void MACC::process_acc_stack ( min::stub ** acc_lower )
