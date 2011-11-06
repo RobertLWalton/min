@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 02:06:27 EST 2011
+// Date:	Sun Nov  6 07:48:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -372,10 +372,10 @@ unsigned MINT::number_of_acc_levels;
 // `state' is the state to be set if the to_be_sca-
 // venged limit has been reached.
 //
-#define MIN_SCAVENGE_S2(STATE) \
+#define MIN_SCAVENGE_S2(FAIL) \
     min::uns64 c = MUP::control_of ( s2 ); \
     int type = MUP::type_of_control ( c ); \
- \
+    \
     if ( ( c & sc.stub_flag ) == 0 ) \
 	; /* do nothing */ \
     else if ( type < 0 \
@@ -387,8 +387,7 @@ unsigned MINT::number_of_acc_levels;
 	      >= sc.to_be_scavenged_limit ) \
     { \
 	sc.stub_flag_accumulator = accumulator; \
-	sc.state = (STATE); \
-	return; \
+	FAIL; \
     } \
     else \
     { \
@@ -396,7 +395,7 @@ unsigned MINT::number_of_acc_levels;
 	MUP::clear_flags_of \
 	    ( s2, sc.stub_flag ); \
     } \
- \
+    \
     accumulator |= c; \
     ++ sc.stub_count;
 
@@ -425,7 +424,8 @@ static void lab_scavenger_routine
 	if ( min::is_stub ( v ) )
 	{
 	    min::stub * s2 = MUP::stub_of ( v );
-	    MIN_SCAVENGE_S2 ( i + 1 );
+	    MIN_SCAVENGE_S2
+	        ( sc.state = i + 1; return );
 	}
 
 	++ sc.gen_count;
@@ -486,7 +486,8 @@ static void packed_struct_scavenger_routine
 	if ( min::is_stub ( v ) )
 	{
 	    min::stub * s2 = MUP::stub_of ( v );
-	    MIN_SCAVENGE_S2 ( ( i << 2 ) + 2 );
+	    MIN_SCAVENGE_S2
+	        ( sc.state = ( i << 2 ) + 2; return );
 	}
 
 	++ sc.gen_count;
@@ -512,7 +513,8 @@ static void packed_struct_scavenger_routine
 	min::stub * s2 = * (min::stub **) (beginp + d );
 	if ( s2 != NULL )
 	{
-	    MIN_SCAVENGE_S2 ( ( i << 2 ) + 3 );
+	    MIN_SCAVENGE_S2
+	        ( sc.state = ( i << 2 ) + 3; return );
 	}
 
 	++ sc.gen_count;
@@ -598,8 +600,9 @@ static void packed_vec_scavenger_routine
 	    {
 		min::stub * s2 = MUP::stub_of ( v );
 		MIN_SCAVENGE_S2
-		    (   ( (min::uns64) k << 32 )
-		      + ( i << 2 ) + 2 );
+		    ( sc.state =
+		            ( (min::uns64) k << 32 )
+		          + ( i << 2 ) + 2; return );
 	    }
 
 	    ++ sc.gen_count;
@@ -632,8 +635,9 @@ static void packed_vec_scavenger_routine
 	    if ( s2 != NULL )
 	    {
 		MIN_SCAVENGE_S2
-		    (   ( (min::uns64) k << 32 )
-		      + ( i << 2 ) + 3 );
+		    ( sc.state =
+		            ( (min::uns64) k << 32 )
+		          + ( i << 2 ) + 3; return );
 	    }
 
 	    ++ sc.gen_count;
@@ -656,6 +660,51 @@ static void packed_vec_scavenger_routine
 }
 
 # if MIN_USE_OBJ_AUX_STUBS
+
+    // Alternative to MIN_SCAVENGE_S2 for use when
+    // s2 may point at an aux stub.
+    //
+#   define MIN_SCAVENGE_S2_WITH_AUX(FAIL) \
+	min::uns64 c = MUP::control_of ( s2 ); \
+	int type = MUP::type_of_control ( c ); \
+        \
+	if ( type < 0 ) \
+	{ \
+	    sc.stub_flag_accumulator = \
+		accumulator; \
+	    if ( obj_aux_scavenge ( sc, s2 ) ) \
+	    { \
+		FAIL; \
+	    } \
+	    accumulator = \
+		sc.stub_flag_accumulator; \
+	} \
+	else \
+	{ \
+	    if ( ( c & sc.stub_flag ) == 0 ) \
+	        /* Do nothing */ ; \
+	    else if ( ! MINT::is_scavengable \
+			    ( type ) ) \
+		MUP::clear_flags_of \
+		    ( s2, sc.stub_flag ); \
+	    else if (    sc.to_be_scavenged \
+		      >= sc.to_be_scavenged_limit ) \
+	    { \
+		sc.stub_flag_accumulator = \
+		    accumulator; \
+		FAIL; \
+	    } \
+	    else \
+	    { \
+		* sc.to_be_scavenged ++ = s2; \
+		MUP::clear_flags_of \
+		    ( s2, sc.stub_flag ); \
+	    } \
+	    ++ sc.gen_count; \
+	    ++ sc.stub_count; \
+	    accumulator |= c; \
+	}
+
     // Helper for obj_scavenger_routine that scavenges
     // an object aux stub.  Recursively scavenges the
     // value of the aux stub and of any pointer to stub
@@ -684,51 +733,8 @@ static void packed_vec_scavenger_routine
 	    {
 
 		min::stub * s2 = MUP::stub_of ( v );
-		min::uns64 c = MUP::control_of ( s2 );
-		int type = MUP::type_of_control ( c );
-
-		if ( type < 0 )
-		{
-		    sc.stub_flag_accumulator =
-			accumulator;
-		    if ( obj_aux_scavenge ( sc, s2 ) )
-			return true;
-		    accumulator =
-			sc.stub_flag_accumulator;
-		}
-		else if ( ( c & sc.stub_flag ) == 0 )
-		{
-		    ++ sc.gen_count;
-		    ++ sc.stub_count;
-		    accumulator |= c;
-		}
-		else if ( ! MINT::is_scavengable
-		                ( type ) )
-		{
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-
-		    ++ sc.gen_count;
-		    ++ sc.stub_count;
-		    accumulator |= c;
-		}
-		else if (    sc.to_be_scavenged
-		          >= sc.to_be_scavenged_limit )
-		{
-		    sc.stub_flag_accumulator =
-		        accumulator;
-		    return true;
-		}
-		else
-		{
-		    * sc.to_be_scavenged ++ = s2;
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-
-		    ++ sc.gen_count;
-		    ++ sc.stub_count;
-		    accumulator |= c;
-		}
+		MIN_SCAVENGE_S2_WITH_AUX
+		    ( return true );
 	    }
 	    else
 		++ sc.gen_count;
@@ -740,7 +746,11 @@ static void packed_vec_scavenger_routine
 	        break;
 	}
 	sc.stub_flag_accumulator = accumulator;
+	return false;
     }
+# else
+#	define MIN_SCAVENGE_S2_WITH_AUX(FAIL) \
+	    MIN_SCAVENGE_S2 ( FAIL )
 # endif
 
 // Scavenger routine for objects.  Setting state = 1
@@ -776,57 +786,8 @@ static void obj_scavenger_routine
 	if ( min::is_stub ( v ) )
 	{
 	    min::stub * s2 = MUP::stub_of ( v );
-	    min::uns64 c = MUP::control_of ( s2 );
-	    int type = MUP::type_of_control ( c );
-
-#	    if MIN_USE_OBJ_AUX_STUBS
-		if ( type < 0 )
-		{
-		    sc.stub_flag_accumulator =
-			accumulator;
-		    if ( obj_aux_scavenge ( sc, s2 ) )
-		    {
-			sc.state = next;
-			return;
-		    }
-		    accumulator =
-			sc.stub_flag_accumulator;
-		}
-		else
-#	    endif
-	    if ( ( c & sc.stub_flag ) == 0 )
-	    {
-		++ sc.gen_count;
-		++ sc.stub_count;
-		accumulator |= c;
-	    }
-	    else if ( ! MINT::is_scavengable ( type ) )
-	    {
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-
-		++ sc.gen_count;
-		++ sc.stub_count;
-		accumulator |= c;
-	    }
-	    else if (    sc.to_be_scavenged
-	              >= sc.to_be_scavenged_limit )
-	    {
-		sc.stub_flag_accumulator = accumulator;
-	        sc.state = next;
-		return;
-	    }
-	    else
-	    {
-		* sc.to_be_scavenged ++ = s2;
-
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-
-		++ sc.gen_count;
-		++ sc.stub_count;
-		accumulator |= c;
-	    }
+	    MIN_SCAVENGE_S2_WITH_AUX
+	        ( sc.state = next; return );
 	}
 	else
 	    ++ sc.gen_count;
@@ -839,37 +800,11 @@ static void obj_scavenger_routine
     sc.state = 0;
 }
 
-inline bool thread_scavenger_helper
-	( MINT::scavenge_control & sc,
-	  min::stub * s )
-{
-    min::uns64 c = MUP::control_of ( s );
-    int type = MUP::type_of_control ( c );
-    assert ( type >= 0 );
-
-    if ( ( c & sc.stub_flag ) == 0 )
-	; // do nothing
-    else if ( ! MINT::is_scavengable ( type ) )
-	MUP::clear_flags_of
-	    ( s, sc.stub_flag );
-    else if (    sc.to_be_scavenged
-	      >= sc.to_be_scavenged_limit )
-    {
-	sc.state = 1;
-	return true;
-    }
-    else
-    {
-	* sc.to_be_scavenged ++ = s;
-	MUP::clear_flags_of
-	    ( s, sc.stub_flag );
-	return false;
-    }
-}
-
 void MINT::thread_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+
     for ( MINT::locatable_gen * loc =
               MINT::locatable_gen_last;
           loc != NULL; 
@@ -878,10 +813,9 @@ void MINT::thread_scavenger_routine
 	min::gen v = loc->value;
 	if ( min::is_stub ( v ) )
 	{
-	    if ( thread_scavenger_helper
-	             ( sc, MUP::stub_of ( v ) ) )
-		return;
-	    ++ sc.stub_count;
+	    min::stub * s2 = MUP::stub_of ( v );
+	    MIN_SCAVENGE_S2
+	        ( sc.state = 1; return );
 	}
 	++ sc.gen_count;
     }
@@ -891,17 +825,17 @@ void MINT::thread_scavenger_routine
           loc != NULL; 
 	  loc = loc->previous )
     {
-	const min::stub * s = loc->value;
-	if ( s != NULL )
+	min::stub * s2 = (min::stub *) loc->value;
+	if ( s2 != NULL )
 	{
-	    if ( thread_scavenger_helper
-	             ( sc, (min::stub *) s ) )
-		return;
+	    MIN_SCAVENGE_S2
+	        ( sc.state = 1; return );
 	    ++ sc.stub_count;
 	}
 	++ sc.gen_count;
     }
 
+    sc.stub_flag_accumulator = accumulator;
     sc.state = 0;
 }
 
