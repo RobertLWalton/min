@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  1 04:05:34 EDT 2011
+// Date:	Sun Nov  6 03:10:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2429,6 +2429,13 @@ namespace min { namespace internal {
     // if the routine returns before finishing scaven-
     // ging s1, and is set to 0 if the routine returns
     // after finishing scavenging s1.
+    //
+    // Lastly, if sc.state is set to sc.RESTART, the
+    // scavenging of s1 will be restarted by recalling
+    // the scavenger routine with sc.state == 0.
+    // sc.state is set to sc.RESTART by the scavenge_
+    // restart function if that function finds that a
+    // stub is being scavenged.
     // 
     struct scavenge_control
     {
@@ -2447,9 +2454,11 @@ namespace min { namespace internal {
 	    // times without harm, so if a scavenger
 	    // routine must return before it is done
 	    // with s1 it can simply set the state to
-	    // non-zero to indicate the routine should
-	    // be rerun from the beginning.  This is
-	    // adequate for small data.
+	    // RESTART (see above).  This is adequate
+	    // for small data.
+
+	static const min::uns64 RESTART =
+	    min::uns64 ( -1ull );
 
 	min::uns64 stub_flag;
 	    // A word with a single bit set.  If this
@@ -2499,6 +2508,12 @@ namespace min { namespace internal {
 	   // to bound the amount of time spent in a
 	   // single call to a scavenger routine.
     };
+
+    // If s is being scavenged, restart the scavenging
+    // of s.  This should be done if whenever s is re-
+    // organized.
+    //
+    void restart_scavenging ( min::stub * s );
 
     // scavenge_control[L] is the scavenge control
     // struct for acc level L scavenge routine
