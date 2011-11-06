@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov  5 06:42:38 EDT 2011
+// Date:	Sun Nov  6 12:01:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1638,175 +1638,165 @@ namespace min { namespace acc {
 	    // scavenged flag cleared.  The lock is left
 	    // on for the next phase.
 
-	   SCAVENGING_ROOT,
-	        // At the beginning of this phase, the
-		// first scavenging phase, the level L
-		// unmarked flag is set in MINT::acc_
-		// stack_mask so stores into scavenged
-		// stubs will be handled by acc stack
-		// processing, and the level L scavenged
-		// flag is set in MACC::acc_stack_
-		// scavenged_mask so acc stack proces-
-		// sing that adds to the level L root
-		// list will set the scavenged flag of
-		// the new root stubs.
-		//
-	        // Each stub on the level L root list
-		// is scavenged.  In the process stubs
-		// are put on the to-be-scavenged list,
-		// and these are also scavenged.
-		//
-		// Any stub found in either the level L
-		// root list or the level L to-be-scav-
-		// enged list that has a flag set which
-		// is also set in MACC::removal_request_
-		// flags is removed from the respective
-		// list and otherwise ignored.  This
-		// permits stubs designated for removal
-		// by OTHER levels to be instantly
-		// removed from these lists by setting
-		// the unmarked flag of the other level
-		// in MACC::removed_request_flags.
-		//
-		// To scavenge a stub s1, each pointer
-		// in s1 or its body to another stub s2
-		// is examined, and if the level L
-		// unmarked flag of s2 is on, it is
-		// cleared and s2 is put on the level L
-		// to-be-scavenged list if it is
-		// scavengable.  s2 is scavengable if
-		// and only if MINT::scavenger_routines
-		// [type_of(s2)] is not NULL.
-		//
-		// Scavenging stubs is done by the
-		// MINT::scavenger_routines defined in
-		// min.h.
-		//
-		// Scavenging a large stub body is done
-		// with multiple collector increments,
-		// so the mutator can interrupt the
-		// scavenging of a large stub body.
-		//
-		// The level L scavenged flag of s1 is
-		// set just before s1 is scavenged, so
-		// that if the mutator stores a pointer
-		// to a level L unmarked stub s2 into
-		// s1 in the middle of scavenging s1, 
-		// the acc_stack mechanism will clear
-		// the level L unmarked flag of s2 and
-		// put s2 on the level L to-be-scavenged
-		// list.
-		//
-		// The level L not-root flag of s1 is
-		// set just before s1 is scavenged if
-		// s1 is on the level L root list.
-		// If any pointer to a stub s2 that
-		// is of level >= L is discovered in
-		// s1, then after s1 is scavenged its
-		// non-root flag is cleared and it is
-		// left on the root list.  Also if s1's
-		// non-root flag is cleared while it is
-		// being scavenged by the action of the
-		// mutator and acc stack processing,
-		// then s1 is left of the root list.
-		// Otherwise s1 is removed from the root
-		// list (it may be restored to the root
-		// list by the action of the mutator
-		// and acc stack at any time).
-		// 
-		// The goal of this phase is to scavenge
-		// all the level L root list stubs and
-		// empty the level L to-be-scavenged
-		// list.  Emptying the to-be-scavenged
-		// list is given priority over scaveng-
-		// ing the next root stub, in order to
-		// keep the to-be-scavenged list short.
-		//
-		// Stubs may be added to the end of the
-		// level L root list by the mutator via
-		// the acc stack during this phase, but
-		// such stubs have their level L
-		// scavenged flag set when they are
-		// added to the root list (see acc
-		// stack processing above), and need not
-		// be scavenged by this phase.  When
-		// this phase encounters the first root
-		// list stub with its scavenged flag
-		// already set, this phase knows it has
-		// finished with the root list, and
-		// merely needs to empty the to-be-
-		// scavenged list to finish.
-	   SCAVENGING_THREAD,
-	        // The thread list of each thread and
-		// the static list (see above) are
-		// treated as if they were the body of
-		// a single root stub and scavenged by
-		// the MINT::thread_scavenger_routine.
-		// The goal of this phase is to scavenge
-		// the thread/static lists and empty the
-		// to-be-scavenged list (which may be
-		// added to by scavenging the thread/
-		// static lists).
-		//
-		// However, if this scavenging is
-		// interrupted by the mutator (i.e., if
-		// a phase collector increment termin-
-		// ates with the scavenging unfinished),
-		// the thread/static scavenging must be
-		// restarted at its beginning.  This can
-		// cause thrashing, but as this phase
-		// runs it decreases the number of
-		// pointers in the thread/static lists
-		// that point at unmarked stubs, and
-		// thereby decreases the likelihood that
-		// thread/static scavenging will be
-		// interrupted by the mutator.
-		//
-		// To prevent indefinite thrashing, the
-		// duration of the collector increment
-		// is increased as a function of the
-		// number of times scavenging the
-		// thread/static lists has been restart-
-		// ed.  This means that the effective
-		// values of MACC::scan_limit and MACC::
-		// scavenge_limit are increased.
-		//
-		// As an alternative, the allocator may
-		// be set to both clear the level L
-		// unmarked flag of any newly allocated
-		// stub and put the stub on the to-be-
-		// scavenged list.  This can greatly
-		// reduce the number of level L unmarked
-		// stubs encountered when scavenging the
-		// thread/static lists.  This is not
-		// currently implemented.
-		//
-	        // At the end of this phase, any level L
-		// stub with its unmarked flag set is
-		// not reachable by the mutator.  Exact-
-		// ly at the end of this phase the level
-		// L unmarked flag is cleared in MINT::
-		// new_acc_stub_flags so any stubs
-		// allocated afterwards will not be
-		// collected by the level L collection,
-		// the level L unmarked flag is set in
-		// MACC::removal_request_flags so any
-		// unmarked level L stubs will be
-		// ignored if they are found in root or
-		// to-be-scavenged lists, or the acc
-		// stack, and the level L unmarked flag
-		// is set in MINT::hash_acc_clear_flags
-		// so that stubs returned from the hash
-		// tables after this point will not be
-		// collected by the level L collection.
-		//
-		// Also the level L unmarked flag is
-		// cleared from MINT::acc_stack_mask so
-		// the acc stack will no longer involve
-		// itself with level L marking, and the
-		// level L scavenged flag is cleared
-		// from MACC::acc_stack_scavenge_mask
-		// for the same reason.
+	SCAVENGING_ROOT,
+	    // At the beginning of this phase, the first
+	    // scavenging phase, the level L unmarked
+	    // flag is set in MINT::acc_stack_mask so
+	    // stores into scavenged stubs will be
+	    // handled by acc stack processing, and the
+	    // level L scavenged flag is set in MACC::
+	    // acc_stack_scavenged_mask so acc stack
+	    // processing that adds to the level L root
+	    // list will set the scavenged flag of the
+	    // new root stubs.
+	    //
+	    // Each stub on the level L root list is
+	    // scavenged.  In the process stubs are put
+	    // on the to-be-scavenged list, and these
+	    // are also scavenged.
+	    //
+	    // Any stub found in either the level L root
+	    // list or the level L to-be-scavenged list
+	    // that has a flag set which is also set in
+	    // MACC::removal_request_flags is removed
+	    // from the respective list and otherwise
+	    // ignored.  This permits stubs designated
+	    // for removal by OTHER levels to be
+	    // instantly removed from these lists by
+	    // setting the unmarked flags of the other
+	    // levels in MACC::removed_request_flags.
+	    //
+	    // To scavenge a stub s1, each pointer in s1
+	    // or its body to another stub s2 is examin-
+	    // ed, and if the level L unmarked flag of
+	    // s2 is on, it is cleared and s2 is put on
+	    // the level L to-be-scavenged list if it is
+	    // scavengable.  s2 is scavengable if and
+	    // only if MINT::scavenger_routines
+	    // [type_of(s2)] is not NULL.
+	    //
+	    // Scavenging stubs is done by the MINT::
+	    // scavenger_routines defined in min.h.
+	    // The MINT::scavenger_controls[L] struct
+	    // is used to control scavenging.  Scaveng-
+	    // ing a large stub body is done with multi-
+	    // ple collector increments, so the mutator
+	    // can interrupt the scavenging of a large
+	    // stub body.  If the mutator sets the state
+	    // of MINT::scavenger_controls[L] to RESTART
+	    // during such a scavenging, then scavenging
+	    // of the stub is restarted.  See the sca-
+	    // venger_routines in min.h for details.
+	    //
+	    // The level L scavenged flag of s1 is set
+	    // just before s1 is scavenged, so that if
+	    // the mutator stores a pointer to a level L
+	    // unmarked stub s2 into s1 in the middle of
+	    // scavenging s1, the acc_stack mechanism
+	    // will clear the level L unmarked flag of
+	    // s2 and put s2 on the level L to-be-sca-
+	    // venged list.
+	    //
+	    // The level L not-root flag of s1 is set
+	    // just before s1 is scavenged if s1 is on
+	    // the level L root list.  If any pointer to
+	    // a stub s2 that is of level >= L is dis-
+	    // covered in s1, then after s1 is scavenged
+	    // its non-root flag is cleared and it is
+	    // left on the root list.  Also if s1's non-
+	    // root flag is cleared while it is being
+	    // scavenged, by the action of the mutator
+	    // and acc stack processing, then s1 is
+	    // left of the root list.  Otherwise s1 is
+	    // removed from the root list (it may be
+	    // restored to the root list by the action
+	    // of the mutator and acc stack processing
+	    // at any later time).
+	    // 
+	    // The goal of this phase is to scavenge all
+	    // the level L root list stubs and empty the
+	    // level L to-be-scavenged list.  Emptying
+	    // the to-be-scavenged list is given prior-
+	    // ity over scavenging the next root stub,
+	    // in order to keep the to-be-scavenged list
+	    // short.
+	    //
+	    // Stubs may be added to the end of the
+	    // level L root list by the mutator via the
+	    // acc stack during this phase, but such
+	    // stubs have their level L scavenged flag
+	    // set when they are added to the root list
+	    // (see acc stack processing above), and
+	    // need not be scavenged by this phase.
+	    // When this phase encounters an already
+	    // scavenged stub on the root list, it is
+	    // skipped over and not rescavenged.
+
+	SCAVENGING_THREAD,
+	    // The thread list of each thread and the
+	    // static list (see above) are treated as if
+	    // they were the body of a single root stub
+	    // and scavenged by the MINT::thread_
+	    // scavenger_routine.  The goal of this
+	    // phase is to scavenge the thread/static
+	    // lists and empty the to-be-scavenged list
+	    // (which may be added to by scavenging the
+	    // thread/static lists).
+	    //
+	    // However, if this scavenging is interrup-
+	    // ted by the mutator (i.e., if a phase col-
+	    // lector increment terminates with the sca-
+	    // venging unfinished), the thread/static
+	    // scavenging must be restarted at its begin-
+	    // ning.  This can cause thrashing, but as
+	    // this phase runs it decreases the number
+	    // of pointers in the thread/static lists
+	    // that point at unmarked stubs, and thereby
+	    // decreases the likelihood that thread/
+	    // static scavenging will be interrupted by
+	    // the mutator.
+	    //
+	    // To prevent indefinite thrashing, the dur-
+	    // ation of the collector increment is
+	    // increased as a function of the number of
+	    // times scavenging the thread/static lists
+	    // has been restarted.  This means that the
+	    // effective values of MACC::scan_limit and
+	    // MACC::scavenge_limit are increased.
+	    //
+	    // As an alternative, the allocator may be
+	    // set to both clear the level L unmarked
+	    // flag of any newly allocated stub and put
+	    // the stub on the to-be-scavenged list.
+	    // This can greatly reduce the number of
+	    // level L unmarked stubs encountered when
+	    // scavenging the thread/static lists.  This
+	    // is not currently implemented.
+	    //
+	    // At the end of this phase, any level L
+	    // stub with its unmarked flag set is not
+	    // reachable by the mutator.  Exactly at the
+	    // end of this phase the level L unmarked
+	    // flag is cleared in MINT::new_acc_stub_
+	    // flags so any stubs allocated afterwards
+	    // will not be collected by the level L
+	    // collection, the level L unmarked flag is
+	    // set in MACC::removal_request_flags so any
+	    // unmarked level L stubs will be ignored if
+	    // they are found in root or to-be-scavenged
+	    // lists, or the acc stack, and the level L
+	    // unmarked flag is set in MINT::hash_acc_
+	    // clear_flags so that stubs returned from
+	    // the hash tables after this point will not
+	    // be collected by the level L collection.
+	    //
+	    // Also the level L unmarked flag is cleared
+	    // from MINT::acc_stack_mask so the acc
+	    // stack will no longer involve itself with
+	    // level L marking, and the level L scaveng-
+	    // ed flag is cleared from MACC::acc_stack_
+	    // scavenge_mask for the same reason.
+
 	   REMOVING_TO_BE_SCAVENGED,
 	        // This phase simply waits until ALL
 		// levels have processed any portion of

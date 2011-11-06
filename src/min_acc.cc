@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 06:03:11 EST 2011
+// Date:	Sun Nov  6 12:01:17 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2131,6 +2131,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    min::uns64 c;
 	    while ( true )
 	    {
+		// Set sc.s1 and c = control of sc.s1.
+		//
 		if ( sc.state == 0 )
 		{
 		    if (    scavenged
@@ -2139,6 +2141,9 @@ unsigned MACC::collector_increment ( unsigned level )
 		    else if ( ! lev.to_be_scavenged
 		                   .at_end() )
 		    {
+		        // sc.s1 comes from scavenged
+			// list.
+			//
 		        sc.s1 = lev.to_be_scavenged
 			           .current();
 		        lev.to_be_scavenged.remove();
@@ -2155,6 +2160,9 @@ unsigned MACC::collector_increment ( unsigned level )
 			c = MUP::control_of ( sc.s1 );
 			if ( c & remove )
 			{
+			    // Remove sc.s1 from root
+			    // list.
+			    //
 			    lev.root.remove();
 			    c |= NON_ROOT ( level );
 			    c &= ~ SCAVENGED ( level );
@@ -2165,10 +2173,23 @@ unsigned MACC::collector_increment ( unsigned level )
 
 			if ( c & SCAVENGED ( level ) )
 			{
+			    // Skip sc.s1 because it has
+			    // already been scavenged
+			    // (because it was put on
+			    // the root list after
+			    // scavenging started).
+			    //
 			    lev.root.keep();
 			    continue;
 			}
 
+			// Set NON_ROOT flag so it can
+			// be checked after scavenging
+			// to see if level L2 >= L
+			// pointer s2 was stored in s1
+			// by acc stack processing
+			// during scavenging.
+			//
 			lev.root_scavenge = true;
 			c |= SCAVENGED ( level )
 			     |
@@ -2176,7 +2197,14 @@ unsigned MACC::collector_increment ( unsigned level )
 		    }
 		    else
 		    {
+			// Scavenging list is empty and
+			// we have reached end of root
+			// list.
+			//
 			lev.root.flush();
+
+			// Start next phase.
+			//
 		        lev.collector_phase =
 			    SCAVENGING_THREAD;
 			break;
@@ -2185,9 +2213,15 @@ unsigned MACC::collector_increment ( unsigned level )
 		    MUP::set_control_of ( sc.s1, c );
 		}
 		else
+		{
+		    if ( sc.state == sc.RESTART )
+			sc.state = 0;
 		    c = MUP::control_of ( sc.s1 );
-		    
+		}
 
+		// sc.s1 is stub to be scavenged and c
+		// is its control.
+		//
 		int type = MUP::type_of_control ( c );
 		assert ( type >= 0 );
 		MINT::scavenger_routine scav =
@@ -2201,19 +2235,34 @@ unsigned MACC::collector_increment ( unsigned level )
 		lev.to_be_scavenged.end_push
 		    ( sc.to_be_scavenged );
 
+		// Stop collector increment if scavenger
+		// routine hit limit.
+		//
 		if ( sc.state != 0 ) break;
 
+		// Scavenging sc.s1 is complete.
+		//
 		++ scavenged;
 		if ( lev.root_scavenge )
 		{
 		    if ( ! MUP::test_flags_of
 		               ( sc.s1,
 			         NON_ROOT ( level ) ) )
+		    {
+		        // Acc stack processing cleared
+			// non-root flag during scaveng-
+			// ing of sc.s1.
+			//
 		        lev.root.keep();
+		    }
 		    else if ( sc.stub_flag_accumulator
 		              &
 			      COLLECTIBLE ( level ) )
 		    {
+			// Some s2 with level L2 >= L
+			// was found in sc.s1 by sca-
+			// venging.
+			//
 		        MUP::clear_flags_of
 			    ( sc.s1,
 			      NON_ROOT ( level ) );
@@ -2221,6 +2270,9 @@ unsigned MACC::collector_increment ( unsigned level )
 		    }
 		    else
 		    {
+			// None of above; remove sc.s1
+			// from root list.
+			//
 		        MUP::clear_flags_of
 			    ( sc.s1,
 			      SCAVENGED ( level ) );
@@ -2236,6 +2288,9 @@ unsigned MACC::collector_increment ( unsigned level )
 	    if (    lev.collector_phase
 	         == SCAVENGING_THREAD )
 	    {
+		// Unlock root list, set up next
+		// phase.
+		//
 		lev.root_lock = -1;
 	        lev.restart_count = 0;
 	        lev.scavenge_limit =
