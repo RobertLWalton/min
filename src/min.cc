@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov  1 04:03:17 EDT 2011
+// Date:	Sun Nov  6 02:06:27 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -368,6 +368,38 @@ MINT::scavenge_control MINT::scavenge_controls
 	[ 1 + MIN_MAX_EPHEMERAL_LEVELS ];
 unsigned MINT::number_of_acc_levels;
 
+// Macro to process a stub pointer s2 for a scavenger.
+// `state' is the state to be set if the to_be_sca-
+// venged limit has been reached.
+//
+#define MIN_SCAVENGE_S2(STATE) \
+    min::uns64 c = MUP::control_of ( s2 ); \
+    int type = MUP::type_of_control ( c ); \
+ \
+    if ( ( c & sc.stub_flag ) == 0 ) \
+	; /* do nothing */ \
+    else if ( type < 0 \
+	      || \
+	      ! MINT::is_scavengable ( type ) ) \
+	MUP::clear_flags_of \
+	    ( s2, sc.stub_flag ); \
+    else if (    sc.to_be_scavenged \
+	      >= sc.to_be_scavenged_limit ) \
+    { \
+	sc.stub_flag_accumulator = accumulator; \
+	sc.state = (STATE); \
+	return; \
+    } \
+    else \
+    { \
+	* sc.to_be_scavenged ++ = s2; \
+	MUP::clear_flags_of \
+	    ( s2, sc.stub_flag ); \
+    } \
+ \
+    accumulator |= c; \
+    ++ sc.stub_count;
+
 // Scavenger routine for labels.  State equals i + 1
 // where i is the index next label element to scavenge.
 //
@@ -393,32 +425,7 @@ static void lab_scavenger_routine
 	if ( min::is_stub ( v ) )
 	{
 	    min::stub * s2 = MUP::stub_of ( v );
-	    min::uns64 c = MUP::control_of ( s2 );
-	    int type = MUP::type_of_control ( c );
-
-	    if ( ( c & sc.stub_flag ) == 0 )
-	        ; // do nothing
-	    else if ( type < 0
-	              ||
-		      ! MINT::is_scavengable ( type ) )
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    else if (    sc.to_be_scavenged
-	              >= sc.to_be_scavenged_limit )
-	    {
-		sc.stub_flag_accumulator = accumulator;
-	        sc.state = i + 1;
-		return;
-	    }
-	    else
-	    {
-		* sc.to_be_scavenged ++ = s2;
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    }
-
-	    accumulator |= c;
-	    ++ sc.stub_count;
+	    MIN_SCAVENGE_S2 ( i + 1 );
 	}
 
 	++ sc.gen_count;
@@ -442,12 +449,12 @@ static void packed_struct_scavenger_routine
 {
     min::uns8 * beginp =
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
-    min::uns32 type = * ( min::uns32 *) beginp;
-    type &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
-    MIN_ASSERT ( type < MINT::packed_subtype_count);
+    min::uns32 subtype = * ( min::uns32 *) beginp;
+    subtype &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
+    MIN_ASSERT ( subtype < MINT::packed_subtype_count);
     MINT::packed_struct_descriptor * psd =
         (MINT::packed_struct_descriptor *)
-        (*MINT::packed_subtypes)[type];
+        (*MINT::packed_subtypes)[subtype];
 
     assert ( sc.state < (1ull << 32 ) );
     min::uns32 i = (min::uns32) sc.state >> 2;
@@ -479,31 +486,7 @@ static void packed_struct_scavenger_routine
 	if ( min::is_stub ( v ) )
 	{
 	    min::stub * s2 = MUP::stub_of ( v );
-	    min::uns64 c = MUP::control_of ( s2 );
-	    int type = MUP::type_of_control ( c );
-	    assert ( type >= 0 );
-
-	    if ( ( c & sc.stub_flag ) == 0 )
-		; // Do nothing
-	    else if ( ! MINT::is_scavengable ( type ) )
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    else if (    sc.to_be_scavenged
-		      >= sc.to_be_scavenged_limit )
-	    {
-		sc.stub_flag_accumulator = accumulator;
-		sc.state = ( i << 2 ) + 2;
-		return;
-	    }
-	    else
-	    {
-		* sc.to_be_scavenged ++ = s2;
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    }
-
-	    ++ sc.stub_count;
-	    accumulator |= c;
+	    MIN_SCAVENGE_S2 ( ( i << 2 ) + 2 );
 	}
 
 	++ sc.gen_count;
@@ -529,31 +512,7 @@ static void packed_struct_scavenger_routine
 	min::stub * s2 = * (min::stub **) (beginp + d );
 	if ( s2 != NULL )
 	{
-	    min::uns64 c = MUP::control_of ( s2 );
-	    int type = MUP::type_of_control ( c );
-	    assert ( type >= 0 );
-
-	    if ( ( c & sc.stub_flag ) == 0 )
-		; // Do nothing
-	    else if ( ! MINT::is_scavengable ( type ) )
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    else if (    sc.to_be_scavenged
-		      >= sc.to_be_scavenged_limit )
-	    {
-		sc.stub_flag_accumulator = accumulator;
-		sc.state = ( i << 2 ) + 3;
-		return;
-	    }
-	    else
-	    {
-		* sc.to_be_scavenged ++ = s2;
-		MUP::clear_flags_of
-		    ( s2, sc.stub_flag );
-	    }
-
-	    ++ sc.stub_count;
-	    accumulator |= c;
+	    MIN_SCAVENGE_S2 ( ( i << 2 ) + 3 );
 	}
 
 	++ sc.gen_count;
@@ -583,12 +542,12 @@ static void packed_vec_scavenger_routine
 
     min::uns8 * beginp =
         (min::uns8 *) MUP::ptr_of ( sc.s1 );
-    min::uns32 type = * ( min::uns32 *) beginp;
-    type &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
-    MIN_ASSERT ( type < MINT::packed_subtype_count);
+    min::uns32 subtype = * ( min::uns32 *) beginp;
+    subtype &= MINT::PACKED_CONTROL_SUBTYPE_MASK;
+    MIN_ASSERT ( subtype < MINT::packed_subtype_count);
     MINT::packed_vec_descriptor * pvd =
         (MINT::packed_vec_descriptor *)
-        (*MINT::packed_subtypes)[type];
+        (*MINT::packed_subtypes)[subtype];
 
     min::uns32 length = * ( min::uns32 *)
     	( beginp + pvd->length_disp );
@@ -638,34 +597,9 @@ static void packed_vec_scavenger_routine
 	    if ( min::is_stub ( v ) )
 	    {
 		min::stub * s2 = MUP::stub_of ( v );
-		min::uns64 c = MUP::control_of ( s2 );
-		int type = MUP::type_of_control ( c );
-		assert ( type >= 0 );
-
-		if ( ( c & sc.stub_flag ) == 0 )
-		    ; // Do nothing
-		else if ( ! MINT::is_scavengable
-		                ( type ) )
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-		else if (    sc.to_be_scavenged
-			  >= sc.to_be_scavenged_limit )
-		{
-		    sc.stub_flag_accumulator =
-		        accumulator;
-		    sc.state = ( (min::uns64) k << 32 )
-			     + ( i << 2 ) + 2;
-		    return;
-		}
-		else
-		{
-		    * sc.to_be_scavenged ++ = s2;
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-		}
-
-		++ sc.stub_count;
-		accumulator |= c;
+		MIN_SCAVENGE_S2
+		    (   ( (min::uns64) k << 32 )
+		      + ( i << 2 ) + 2 );
 	    }
 
 	    ++ sc.gen_count;
@@ -697,34 +631,9 @@ static void packed_vec_scavenger_routine
 	        * (min::stub **) (beginp + d );
 	    if ( s2 != NULL )
 	    {
-		min::uns64 c = MUP::control_of ( s2 );
-		int type = MUP::type_of_control ( c );
-		assert ( type >= 0 );
-
-		if ( ( c & sc.stub_flag ) == 0 )
-		    ; // Do nothing
-		else if ( ! MINT::is_scavengable
-		                ( type ) )
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-		else if (    sc.to_be_scavenged
-			  >= sc.to_be_scavenged_limit )
-		{
-		    sc.stub_flag_accumulator =
-		        accumulator;
-		    sc.state = ( (min::uns64) k << 32 )
-			     + ( i << 2 ) + 3;
-		    return;
-		}
-		else
-		{
-		    * sc.to_be_scavenged ++ = s2;
-		    MUP::clear_flags_of
-			( s2, sc.stub_flag );
-		}
-
-		++ sc.stub_count;
-		accumulator |= c;
+		MIN_SCAVENGE_S2
+		    (   ( (min::uns64) k << 32 )
+		      + ( i << 2 ) + 3 );
 	    }
 
 	    ++ sc.gen_count;
