@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 12:01:50 EST 2011
+// Date:	Mon Nov  7 07:58:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1547,19 +1547,18 @@ namespace min { namespace acc {
     //   other than L, though its counters are read by
     //   these collections.
     //
-    //   The function that runs the next collector
-    //   increment at level L returns false if it
-    //   could not get the locks to run the increment,
-    //   and true if it got the locks and can run the
-    //   increment.  The collector phase can be set to
-    //   PRE_XXX values to indicate that the next phase
-    //   to be run is an XXX phase but that can only
-    //   be run if locks can be set.  If a PRE_XXX
-    //   increment gets the locks it sets the current
-    //   phase to XXX and continues.  If an XXX incre-
-    //   ment needs more locks and cannot get them, it
-    //   resets the current phase to PRE_XXX and returns
-    //   false.
+    //   If the function that runs the next collector
+    //   can not get a lock to run the increment,
+    //   it returns the level of the running collection
+    //   that holds this lock.
+    //
+    //   A collector phase XXX often has associated
+    //   phases START_XXX and LOCK_XXX.  START_XXX just
+    //   initializes data for XXX and immediately starts
+    //   XXX or LOCK_XXX.  LOCK_XXX gets locks required
+    //   by XXX and if successful immediately starts
+    //   XXX.  If XXX needs more locks it may return to
+    //   LOCK_XXX.
     //
     // Phases:
     //
@@ -1606,7 +1605,8 @@ namespace min { namespace acc {
 	    // count will reflect the actions of the
 	    // current collection.
 
-	PRE_INITING_COLLECTIBLE,
+	START_INITING_COLLECTIBLE,
+	LOCK_INITING_COLLECTIBLE,
 	INITING_COLLECTIBLE,
 	    // Iterates over all generations of levels
 	    // >= L.  For each generation g, locks g and
@@ -1619,7 +1619,8 @@ namespace min { namespace acc {
 	    // tion g - 1 is unlocked.  At the end of
 	    // the phase all generations are unlocked.
 
-	PRE_INITING_HASH,
+	START_INITING_HASH,
+	LOCK_INITING_HASH,
 	INITING_HASH,
 	    // Done only for L == 0.  The first non-
 	    // level 0 generation is locked (if there
@@ -1631,13 +1632,16 @@ namespace min { namespace acc {
 	    // flag set and its scavenged flag cleared.
 	    // Then the generation lock is released.
 
-	PRE_INITING_ROOT,
+	START_INITING_ROOT,
+	LOCK_INITING_ROOT,
 	INITING_ROOT,
 	    // The level L root list is locked and scan-
 	    // ned and each stub on this list has its
 	    // scavenged flag cleared.  The lock is left
 	    // on for the next phase.
 
+	START_SCAVENGING_ROOT,
+	LOCK_SCAVENGING_ROOT,
 	SCAVENGING_ROOT,
 	    // At the beginning of this phase, the first
 	    // scavenging phase, the level L unmarked
@@ -1732,6 +1736,7 @@ namespace min { namespace acc {
 	    // scavenged stub on the root list, it is
 	    // skipped over and not rescavenged.
 
+	START_SCAVENGING_THREAD,
 	SCAVENGING_THREAD,
 	    // The thread list of each thread and the
 	    // static list (see above) are treated as if
@@ -1747,14 +1752,14 @@ namespace min { namespace acc {
 	    // ted by the mutator (i.e., if a phase col-
 	    // lector increment terminates with the sca-
 	    // venging unfinished), the thread/static
-	    // scavenging must be restarted at its begin-
-	    // ning.  This can cause thrashing, but as
-	    // this phase runs it decreases the number
-	    // of pointers in the thread/static lists
-	    // that point at unmarked stubs, and thereby
-	    // decreases the likelihood that thread/
-	    // static scavenging will be interrupted by
-	    // the mutator.
+	    // scavenging must be restarted at its
+	    // beginning.  This can cause thrashing, but
+	    // as this phase runs it decreases the num-
+	    // ber of pointers in the thread/static
+	    // lists that point at unmarked stubs, and
+	    // thereby decreases the likelihood that
+	    // thread/static scavenging will be inter-
+	    // rupted by the mutator.
 	    //
 	    // To prevent indefinite thrashing, the dur-
 	    // ation of the collector increment is
@@ -1797,6 +1802,7 @@ namespace min { namespace acc {
 	    // ed flag is cleared from MACC::acc_stack_
 	    // scavenge_mask for the same reason.
 
+	   START_REMOVING_TO_BE_SCAVENGED,
 	   REMOVING_TO_BE_SCAVENGED,
 	        // This phase simply waits until ALL
 		// levels have processed any portion of
@@ -1806,17 +1812,22 @@ namespace min { namespace acc {
 		// request_flags this removed all stubs
 		// with level L unmarked flag set from
 		// all to-be-scavenged lists.
-	   PRE_REMOVING_ROOT,
+
+	   START_REMOVING_ROOT,
+	   LOCK_REMOVING_ROOT,
 	   REMOVING_ROOT,
 	        // For each level L1 > L, L1 is locked,
 		// its root list is scanned, and all
 		// scanned stubs with any MACC::removal_
 		// request_flags flag set are removed.
+	   START_COLLECTING_HASH,
+	   LOCK_COLLECTING_HASH,
 	   COLLECTING_HASH,
 	        // Scan through the XXX_acc_hash tables
 		// and free all stubs with level L == 0
 		// unmarked flag set.
-	   PRE_COLLECTING,
+	   START_COLLECTING,
+	   LOCK_COLLECTING,
 	   COLLECTING,
 		// Iterates over all generations of
 		// levels >= L.  For each generation g,
@@ -1836,7 +1847,8 @@ namespace min { namespace acc {
 		// its hash table.  Being in a hash
 		// table does not prevent collection of
 		// any stub.
-	    PRE_LEVEL_PROMOTING,
+	    START_LEVEL_PROMOTING,
+	    LOCK_LEVEL_PROMOTING,
 	    LEVEL_PROMOTING,
 		// If g is the first generation of level
 		// L, obtains a lock on g and g+1,
@@ -1854,7 +1866,8 @@ namespace min { namespace acc {
 		// eration that is in an xxx_aux_hash
 		// table is moved to the corresponding
 		// XXX_acc_hash table.
-	   GENERATION_PROMOTING
+	   START_GENERATION_PROMOTING,
+	   GENERATION_PROMOTING,
 		// Iterates over all generations of
 		// level L.  For each generation g, gets
 		// a lock on g and then releases any
@@ -1863,6 +1876,8 @@ namespace min { namespace acc {
 		// (g+1)->last_before, effectively
 		// promoting all the stubs in generation
 		// g to generation g-1.
+	COLLECTOR_STOP
+	    // Finish up trace printouts, if any.
     };
 
     // The amount of work done in a collector increment
