@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 12:01:17 EST 2011
+// Date:	Mon Nov  7 02:51:05 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2217,6 +2217,11 @@ unsigned MACC::collector_increment ( unsigned level )
 		    if ( sc.state == sc.RESTART )
 			sc.state = 0;
 		    c = MUP::control_of ( sc.s1 );
+		    if ( c & remove )
+		    {
+		        sc.state = 0;
+			continue;
+		    }
 		}
 
 		// sc.s1 is stub to be scavenged and c
@@ -2245,6 +2250,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		++ scavenged;
 		if ( lev.root_scavenge )
 		{
+		    // Stub sc.s1 was from root list.
+		    //
 		    if ( ! MUP::test_flags_of
 		               ( sc.s1,
 			         NON_ROOT ( level ) ) )
@@ -2308,6 +2315,10 @@ unsigned MACC::collector_increment ( unsigned level )
 	    min::uns64 scavenged = 0;
 
 	    bool thread_scavenged = false;
+	        // True if this collector increment has
+		// completely scavenged the threads, so
+		// the only remaining thing is to empty
+		// the to-be-scavenged list.
 	    min::uns64 remove =
 	        MACC::removal_request_flags;
 	    while ( true )
@@ -2333,31 +2344,11 @@ unsigned MACC::collector_increment ( unsigned level )
 
 			MUP::set_control_of
 			    ( sc.s1, c );
-			int type =
-			    MUP::type_of_control ( c );
-			assert ( type >= 0 );
-			MINT::scavenger_routine scav =
-			    MINT::scavenger_routines
-			        [type];
-			assert ( scav != NULL);
-
-			lev.to_be_scavenged.begin_push
-			    ( sc.to_be_scavenged,
-			      sc.to_be_scavenged_limit
-			    );
-			(* scav) ( sc );
-			lev.to_be_scavenged.end_push
-			    ( sc.to_be_scavenged );
-
-			if ( sc.state != 0 ) break;
-
-			++ scavenged;
 		    }
 		    else if ( ! thread_scavenged )
 		    {
 			min::uns32 init_gen_count =
 			    sc.gen_count;
-
 
 			lev.to_be_scavenged
 			   .begin_push
@@ -2380,6 +2371,20 @@ unsigned MACC::collector_increment ( unsigned level )
 
 			thread_scavenged = true;
 
+			if ( lev.restart_count > 0 )
+			    ++ lev.count.thrash;
+
+			// Threads are scavenged.  We
+			// only need to empty to-be-
+			// scavenged list.
+
+			// Adjust limits and counts in
+			// case this collector increment
+			// cannot empty to-be-scavenged
+			// list and we must run a new
+			// collector increment that
+			// re-scavenges the threads.
+			//
 			if ( lev.restart_count == 0 )
 			    sc.gen_limit +=
 			          sc.gen_count
@@ -2390,8 +2395,7 @@ unsigned MACC::collector_increment ( unsigned level )
 			    sc.gen_limit *= 2;
 			    lev.scavenge_limit *= 2;
 			}
-			if ( lev.restart_count ++ > 0 )
-			    ++ lev.count.thrash;
+			++ lev.restart_count;
 
 			continue;
 		    }
@@ -2404,6 +2408,42 @@ unsigned MACC::collector_increment ( unsigned level )
 			break;
 		    }
 		}
+		else
+		{
+		    if ( sc.state == sc.RESTART )
+			sc.state = 0;
+		    c = MUP::control_of ( sc.s1 );
+		    if ( c & remove )
+		    {
+		        sc.state = 0;
+			continue;
+		    }
+		}
+
+		// sc.s1 is stub to be scavenged and c
+		// is its control.
+		//
+		int type = MUP::type_of_control ( c );
+		assert ( type >= 0 );
+		MINT::scavenger_routine scav =
+		    MINT::scavenger_routines[type];
+		assert ( scav != NULL );
+
+		lev.to_be_scavenged.begin_push
+		    ( sc.to_be_scavenged,
+		      sc.to_be_scavenged_limit );
+		(* scav) ( sc );
+		lev.to_be_scavenged.end_push
+		    ( sc.to_be_scavenged );
+
+		// Stop collector increment if scavenger
+		// routine hit limit.
+		//
+		if ( sc.state != 0 ) break;
+
+		// Scavenging sc.s1 is complete.
+		//
+		++ scavenged;
 	    }
 
 	    lev.count.stub_scanned += sc.stub_count;
