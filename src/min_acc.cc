@@ -2214,6 +2214,10 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 		else
 		{
+		    // Scavenging sc.s1 was split
+		    // between collector increments and
+		    // is being restarted or resumed.
+		    //
 		    if ( sc.state == sc.RESTART )
 			sc.state = 0;
 		    c = MUP::control_of ( sc.s1 );
@@ -2407,6 +2411,10 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 		else
 		{
+		    // Scavenging sc.s1 was split
+		    // between collector increments and
+		    // is being restarted or resumed.
+		    //
 		    if ( sc.state == sc.RESTART )
 			sc.state = 0;
 		    c = MUP::control_of ( sc.s1 );
@@ -2680,6 +2688,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		     >= hash_table_size )
 		{
 		    ++ lev.hash_table_id;
+		    lev.hash_table_index = 0;
 		    hash_table = NULL;
 		    continue;
 		}
@@ -2697,6 +2706,13 @@ unsigned MACC::collector_increment ( unsigned level )
 		    if ( c & UNMARKED ( level ) )
 		    {
 			// Remove s from hash list.
+			//
+			// Note that during scavenging
+			// and collection, if any hashed
+			// stub is returned by hash
+			// table lookup its unmarked
+			// flag is cleared, as per
+			// MINT::hash_acc_clear_flags.
 			//
 			if ( last_s != NULL )
 			{
@@ -2724,7 +2740,6 @@ unsigned MACC::collector_increment ( unsigned level )
 			//
 			MINT::free_acc_stub ( s );
 			++ collected;
-			-- lev.g->count;
 		    }
 		    else
 		    {
@@ -2783,8 +2798,9 @@ unsigned MACC::collector_increment ( unsigned level )
         {
 	    bool done = false;
 
-	    end_g[-1].count += MUP::acc_stubs_allocated
-	                    - last_collecting_count;
+	    end_g[-1].count +=
+		  MUP::acc_stubs_allocated
+		- last_collecting_count;
 	    last_collecting_count =
 		MUP::acc_stubs_allocated;
 
@@ -2811,6 +2827,13 @@ unsigned MACC::collector_increment ( unsigned level )
 			 type != min::ACC_FREE )
 		    {
 			// Remove s from acc list.
+			//
+			// Note that ACC_FREE stubs
+			// may have just been allocated
+			// but not yet put in a place
+			// that the collector can find
+			// and mark them, so they are
+			// not collected.
 			//
 			if ( s == lev.first_g[1]
 				     .last_before )
@@ -2906,9 +2929,14 @@ unsigned MACC::collector_increment ( unsigned level )
 			end_g->last_before =
 			    MINT::last_allocated_stub;
 		}
+
 		if (    lev.collector_phase
 		     == LOCK_COLLECTING );
 		    break;
+
+	        if ( lev.last_g == end_g )
+		    end_g->last_before =
+			MINT::last_allocated_stub;
 	    }
 
 	    lev.count.collected += collected;
