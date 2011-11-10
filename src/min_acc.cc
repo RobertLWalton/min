@@ -2243,7 +2243,10 @@ unsigned MACC::collector_increment ( unsigned level )
 			( sc.to_be_scavenged );
 		}
 		else
+		{
 		    assert ( type == min::DEALLOCATED );
+		    sc.state = 0;
+		}
 
 		// Stop collector increment if scavenger
 		// routine hit limit.
@@ -2443,7 +2446,10 @@ unsigned MACC::collector_increment ( unsigned level )
 			( sc.to_be_scavenged );
 		}
 		else
+		{
 		    assert ( type == min::DEALLOCATED );
+		    sc.state = 0;
+		}
 
 		// Stop collector increment if scavenger
 		// routine hit limit.
@@ -3005,6 +3011,12 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    end_g->last_before =
 		MINT::last_allocated_stub;
+
+	    end_g[-1].count +=
+		  MUP::acc_stubs_allocated
+		- MACC::saved_acc_stubs_count;
+	    MACC::saved_acc_stubs_count =
+		MUP::acc_stubs_allocated;
 
 	    min::uns64 promoted = 0;
 	    min::uns64 c =
