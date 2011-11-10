@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Nov  2 11:58:16 EDT 2011
+// Date:	Thu Nov 10 10:58:10 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -309,7 +309,7 @@
 #   define MIN_DEFAULT_ACC_COLLECTION_LIMIT 10
 # endif
 
-// acc_stack_size
+// acc_stack_max_size
 //     Max size of the stack into which pairs of
 //     pointers to stubs are pushed by the mutator when
 //     a pointer to an unmarked stub is stored in a
@@ -318,8 +318,17 @@
 //     non-L-root stub.  Must be a multiple of page
 //     size.
 //
-# ifndef MIN_DEFAULT_ACC_STACK_SIZE
-#   define MIN_DEFAULT_ACC_STACK_SIZE (1<<20)
+# ifndef MIN_DEFAULT_ACC_STACK_MAX_SIZE
+#   define MIN_DEFAULT_ACC_STACK_MAX_SIZE (1<<20)
+# endif
+
+// acc_stack_trigger
+//     Number of pointer pairs normally allowed in the
+//     acc stack before an interrupt is triggered that
+//     will empty the acc stack.
+//
+# ifndef MIN_DEFAULT_ACC_STACK_TRIGGER
+#   define MIN_DEFAULT_ACC_STACK_TRIGGER 100
 # endif
 
 // collector_period

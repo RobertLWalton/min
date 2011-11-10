@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 02:21:32 EST 2011
+// Date:	Thu Nov 10 10:24:27 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1539,7 +1539,8 @@ MACC::level * MACC::levels = levels_vector;
 
 // ACC Stack Data:
 //
-min::unsptr  MACC::acc_stack_size;
+min::unsptr  MACC::acc_stack_max_size;
+min::unsptr  MACC::acc_stack_trigger;
 min::stub ** MACC::acc_stack_begin;
 min::stub ** MACC::acc_stack_end;
 min::uns64   MACC::acc_stack_scavenge_mask = 0;
@@ -1607,15 +1608,22 @@ static void collector_initializer ( void )
 
     MACC::saved_acc_stubs_count = 0;
 
-    MACC::acc_stack_size =
+    MACC::acc_stack_max_size =
           MACC::page_size
 	* number_of_pages
-	      ( MIN_DEFAULT_ACC_STACK_SIZE );
-    get_param ( "acc_stack_size",
-                MACC::acc_stack_size,
+	      ( MIN_DEFAULT_ACC_STACK_MAX_SIZE );
+    get_param ( "acc_stack_max_size",
+                MACC::acc_stack_max_size,
 		1 << 12, 1 << 24, MACC::page_size );
+
+    MACC::acc_stack_trigger =
+        MIN_DEFAULT_ACC_STACK_TRIGGER;
+    get_param ( "acc_stack_trigger",
+                MACC::acc_stack_trigger,
+		1, 1 << 20 );
+
     min::unsptr np =
-        number_of_pages ( MACC::acc_stack_size );
+        number_of_pages ( MACC::acc_stack_max_size );
     MACC::acc_stack_begin = (min::stub **)
         MOS::new_pool ( np + 1 );
     const char * error =
@@ -1638,6 +1646,11 @@ static void collector_initializer ( void )
     MOS::inaccess_pool ( 1, MACC::acc_stack_end );
         // Allocate an inaccessible page after the
 	// acc stack to catch overflows.
+
+    MINT::acc_stack = MACC::acc_stack_begin;
+    MINT::acc_stack_limit =
+            MINT::acc_stack
+	  + 2 * MACC::acc_stack_trigger;
 
     MACC::scan_limit = MIN_DEFAULT_ACC_SCAN_LIMIT;
     get_param ( "scan_limit",
@@ -1679,10 +1692,14 @@ void MINT::restart_scavenging ( min::stub * s )
     }
 }
 
-void MACC::process_acc_stack ( min::stub ** acc_lower )
+min::unsptr MACC::process_acc_stack
+    ( min::stub ** acc_lower )
 {
+    min::unsptr count = 0;
     while ( MINT::acc_stack > acc_lower )
     {
+        ++ count;
+
 	// Stub s1 contains a pointer to stub s2.
 	//
         min::stub * s2 = * -- MINT::acc_stack;
@@ -1754,6 +1771,8 @@ void MACC::process_acc_stack ( min::stub ** acc_lower )
 	MUP::set_flags_of ( s1, c1 );
 	MUP::set_flags_of ( s2, c2 );
     }
+
+    return count;
 }
 
 // Helper function that removes a stub s with control c
@@ -1800,6 +1819,10 @@ inline void remove_from_aux_hash_table
 
 unsigned MACC::collector_increment ( unsigned level )
 {
+    if (   MACC::process_acc_stack()
+         > 2 * MACC::acc_stack_trigger )
+        return level;
+
     int result = level;
 
     MACC::level & lev = levels[level];
