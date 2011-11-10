@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 02:11:26 EST 2011
+// Date:	Thu Nov 10 10:51:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2223,10 +2223,17 @@ namespace min { namespace acc {
     extern min::stub ** acc_stack_begin;
     extern min::stub ** acc_stack_end;
 
-    // Size in bytes of the acc stack.  Must be a
-    // multiple of the page size.
+    // Maximum size in bytes of the acc stack.  Must be
+    // a multiple of the page size.
     //
-    extern min::unsptr acc_stack_size;
+    extern min::unsptr acc_stack_max_size;
+
+    // Number of pairs allowed in the acc stack before
+    // the stack triggers an interrupt.  acc_stack_limit
+    // is set to acc_stack_begin + 2 * acc_stack_trigger
+    // unless an interrupt is sceduled.
+    //
+    extern min::unsptr acc_stack_trigger;
 
     // Flag bit assignments.
     //
@@ -2300,11 +2307,22 @@ namespace min { namespace acc {
 
     // Process stub pointer pairs from the end of the
     // acc stack until the acc stack pointer is less
-    // than or equal to acc_lower.
+    // than or equal to acc_lower.  Return the number
+    // of pointer pairs processed.
     //
-    void process_acc_stack
+    min::unsptr process_acc_stack
         ( min::stub ** acc_lower =
 	      min::acc::acc_stack_begin );
+
+    // Return the number of entries in the acc stack.
+    // 0 if stack is empty.
+    //
+    inline min::unsptr acc_stack_count ( void )
+    {
+        return (   min::internal::acc_stack
+	         - min::acc::acc_stack_begin )
+	     / 2;
+    }
 
     // Perform one increment of the current collector
     // execution at the given level.  To start a collec-
