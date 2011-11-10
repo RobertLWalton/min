@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 07:58:49 EST 2011
+// Date:	Thu Nov 10 02:21:32 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1529,7 +1529,7 @@ MACC::generation * MACC::generations =
     ::generations_vector;
 MACC::generation * MACC::end_g;
 
-min::uns64 MACC::last_collecting_count;
+min::uns64 MACC::saved_acc_stubs_count;
 
 static const unsigned MAX_LEVELS =
     1 + MIN_MAX_EPHEMERAL_LEVELS;
@@ -1605,7 +1605,7 @@ static void collector_initializer ( void )
     MACC::end_g->count = 0;
     MACC::end_g->lock = -1;
 
-    MACC::last_collecting_count = 0;
+    MACC::saved_acc_stubs_count = 0;
 
     MACC::acc_stack_size =
           MACC::page_size
@@ -1879,9 +1879,6 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.last_g[1].lock = level;
 	    ++ lev.last_g;
-	    if ( lev.last_g == end_g )
-		end_g->last_before =
-		    MINT::last_allocated_stub;
 
 	    lev.collector_phase = INITING_COLLECTIBLE;
 	}
@@ -1894,9 +1891,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    assert ( lev.first_g->lock == level );
 	    assert ( lev.last_g->lock == level );
 
-	    if ( lev.last_g == end_g )
-		end_g->last_before =
-		    MINT::last_allocated_stub;
+	    end_g->last_before =
+		MINT::last_allocated_stub;
 
 	    min::uns64 scanned = 0;
 	    min::uns64 c =
@@ -1946,9 +1942,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		{
 		    lev.last_g[1].lock = level;
 		    ++ lev.last_g;
-		    if ( lev.last_g == end_g )
-			end_g->last_before =
-			    MINT::last_allocated_stub;
 		}
 	    }
 
@@ -1975,6 +1968,7 @@ unsigned MACC::collector_increment ( unsigned level )
     case INITING_HASH:
         {
 	    assert ( level == 0 );
+	    assert ( lev.g[1].lock == level );
 
 	    min::uns64 scanned = 0;
 	    min::stub * s = lev.last_stub;
@@ -2059,6 +2053,8 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case INITING_ROOT:
 	{
+	    assert ( lev.root_lock == level );
+
 	    min::uns64 scanned = 0;
 
 	    while ( ! lev.root.at_end()
@@ -2089,10 +2085,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		       << lev.count.root_init
 		        - lev.saved_count.root_init
 		       << endl;
-		MINT::acc_stack_mask |=
-		    UNMARKED ( level );
-		MACC::acc_stack_scavenge_mask |=
-		    SCAVENGED ( level );
 		lev.collector_phase =
 		    START_SCAVENGING_ROOT;
 	    }
@@ -2101,6 +2093,11 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case START_SCAVENGING_ROOT:
         {
+	    MINT::acc_stack_mask |=
+		UNMARKED ( level );
+	    MACC::acc_stack_scavenge_mask |=
+		SCAVENGED ( level );
+
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
 	    sc.state = 0;
@@ -2111,13 +2108,14 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case LOCK_SCAVENGING_ROOT:
         {
-	    assert ( lev.root_lock == level );
 	    lev.root.rewind();
 	    lev.collector_phase = SCAVENGING_ROOT;
         }
 
     case SCAVENGING_ROOT:
         {
+	    assert ( lev.root_lock == level );
+
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
 
@@ -2154,7 +2152,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		    }
 		    else if ( ! lev.root.at_end() )
 		    {
-			sc.stub_flag_accumulator = 0;
 		        sc.s1 = lev.root.current();
 			c = MUP::control_of ( sc.s1 );
 			if ( c & remove )
@@ -2189,6 +2186,7 @@ unsigned MACC::collector_increment ( unsigned level )
 			// by acc stack processing
 			// during scavenging.
 			//
+			sc.stub_flag_accumulator = 0;
 			lev.root_scavenge = true;
 			c |= SCAVENGED ( level )
 			     |
@@ -2235,14 +2233,17 @@ unsigned MACC::collector_increment ( unsigned level )
 		assert ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
-		assert ( scav != NULL );
-
-		lev.to_be_scavenged.begin_push
-		    ( sc.to_be_scavenged,
-		      sc.to_be_scavenged_limit );
-		(* scav) ( sc );
-		lev.to_be_scavenged.end_push
-		    ( sc.to_be_scavenged );
+		if ( scav != NULL )
+		{
+		    lev.to_be_scavenged.begin_push
+			( sc.to_be_scavenged,
+			  sc.to_be_scavenged_limit );
+		    (* scav) ( sc );
+		    lev.to_be_scavenged.end_push
+			( sc.to_be_scavenged );
+		}
+		else
+		    assert ( type == min::DEALLOCATED );
 
 		// Stop collector increment if scavenger
 		// routine hit limit.
@@ -2432,14 +2433,17 @@ unsigned MACC::collector_increment ( unsigned level )
 		assert ( type >= 0 );
 		MINT::scavenger_routine scav =
 		    MINT::scavenger_routines[type];
-		assert ( scav != NULL );
-
-		lev.to_be_scavenged.begin_push
-		    ( sc.to_be_scavenged,
-		      sc.to_be_scavenged_limit );
-		(* scav) ( sc );
-		lev.to_be_scavenged.end_push
-		    ( sc.to_be_scavenged );
+		if ( scav != NULL )
+		{
+		    lev.to_be_scavenged.begin_push
+			( sc.to_be_scavenged,
+			  sc.to_be_scavenged_limit );
+		    (* scav) ( sc );
+		    lev.to_be_scavenged.end_push
+			( sc.to_be_scavenged );
+		}
+		else
+		    assert ( type == min::DEALLOCATED );
 
 		// Stop collector increment if scavenger
 		// routine hit limit.
@@ -2511,7 +2515,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    {
 	        if (   lev.to_be_scavenged_wait[L1]
 		     > levels[L1].to_be_scavenged.out )
-		    return false;
+		    return L1;
 	    }
 
 	    if ( level == ephemeral_levels )
@@ -2547,6 +2551,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    lev.collector_phase = REMOVING_ROOT;
 	    // Fall through to REMOVING_ROOT.
 	}
+
     case REMOVING_ROOT:
         {
 	    min::uns64 root_kept = 0;
@@ -2566,7 +2571,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		    if ( MUP::test_flags_of
 			     ( s, remove ) )
 		    {
-		        // TBD: clear scavenged flag xxxxxxx
 			rrlev->root.remove();
 			++ root_removed;
 		    }
@@ -2643,6 +2647,9 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case COLLECTING_HASH:
         {
+	    assert ( level == 0 );
+	    assert ( lev.g[1].lock == level );
+
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
 
@@ -2768,6 +2775,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	}
     case LOCK_COLLECTING:
 	{
+	    end_g->last_before =
+		MINT::last_allocated_stub;
 
 	    // We must make last_g > first_g and
 	    //		last_g[1].last_before
@@ -2785,10 +2794,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		    return lev.last_g[1].lock;
 		lev.last_g[1].lock = level;
 		++ lev.last_g;
-	        if ( lev.last_g == end_g )
-		    end_g->last_before =
-			MINT::last_allocated_stub;
-
 	    }
 
 	    lev.collector_phase = COLLECTING;
@@ -2796,13 +2801,19 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case COLLECTING:
         {
-	    bool done = false;
+	    assert ( lev.first_g->lock == level );
+	    assert ( lev.last_g->lock == level );
+
+	    end_g->last_before =
+		MINT::last_allocated_stub;
 
 	    end_g[-1].count +=
 		  MUP::acc_stubs_allocated
-		- last_collecting_count;
-	    last_collecting_count =
+		- MACC::saved_acc_stubs_count;
+	    MACC::saved_acc_stubs_count =
 		MUP::acc_stubs_allocated;
+
+	    bool done = false;
 
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
@@ -2925,18 +2936,11 @@ unsigned MACC::collector_increment ( unsigned level )
 		    }
 		    ++ lev.last_g;
 		    lev.last_g->lock = level;
-		    if ( lev.last_g == end_g )
-			end_g->last_before =
-			    MINT::last_allocated_stub;
 		}
 
 		if (    lev.collector_phase
 		     == LOCK_COLLECTING );
 		    break;
-
-	        if ( lev.last_g == end_g )
-		    end_g->last_before =
-			MINT::last_allocated_stub;
 	    }
 
 	    lev.count.collected += collected;
@@ -2988,9 +2992,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		return lev.g[1].lock;
 	    lev.g->lock = level;
 	    lev.g[1].lock = level;
-	    if ( lev.g + 1 == end_g )
-		end_g->last_before =
-		    MINT::last_allocated_stub;
 	    lev.last_stub = lev.g->last_before;
 
 	    lev.collector_phase = LEVEL_PROMOTING;
@@ -2998,6 +2999,13 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case LEVEL_PROMOTING:
         {
+	    assert ( level > 0 );
+	    assert ( lev.g->lock = level );
+	    assert ( lev.g[1].lock = level );
+
+	    end_g->last_before =
+		MINT::last_allocated_stub;
+
 	    min::uns64 promoted = 0;
 	    min::uns64 c =
 		MUP::control_of
@@ -3039,7 +3047,12 @@ unsigned MACC::collector_increment ( unsigned level )
 	    if (    lev.last_stub
 		 == lev.g[1].last_before )
 	    {
-		lev.g[1].lock = -1;
+		lev.g[-1].count += lev.g->count;
+		lev.g->count = 0;
+		lev.g->last_before =
+		    lev.g[1].last_before;
+
+		lev.g->lock = -1;
 		lev.collector_phase =
 		    START_GENERATION_PROMOTING;
 	    }
@@ -3049,41 +3062,70 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case START_GENERATION_PROMOTING:
 	{
-	    lev.first_g = lev.g;
+	    lev.first_g = lev.last_g = lev.g + 1;
+	    lev.collector_phase =
+		LOCK_GENERATION_PROMOTING;
+	}
+
+    case LOCK_GENERATION_PROMOTING:
+        {
+	    // Establish the condition where
+	    // lev.first_g + 1 == lev.last_g and both
+	    // lev.first_g and lev.last_g are locked.
+
+	    assert ( lev.first_g == lev.last_g );
+	    assert ( lev.first_g->lock == level );
+
+	    if ( lev.last_g[1].lock >= 0 )
+	        return lev.last_g[1].lock;
+
+	    lev.last_g[1].lock = level;
+	    ++ lev.last_g;
+
+	    lev.collector_phase = GENERATION_PROMOTING;
 	}
 
     case GENERATION_PROMOTING:
         {
-	    assert ( lev.first_g->lock == level );
-	    if ( lev.first_g[1].lock >= 0 )
-		return lev.first_g[1].lock;
+	    assert ( level > 0 );
+	    assert ( lev.first_g + 1 == lev.last_g );
+	    assert ( lev.first_g->lock = level );
+	    assert ( lev.last_g->lock = level );
 
-	    end_g[-1].count += MUP::acc_stubs_allocated
-	                    - last_collecting_count;
-	    last_collecting_count =
-		MUP::acc_stubs_allocated;
-
-	    // TBD: do this only when we lock end_g xxxxxxxxx
-	    //
 	    end_g->last_before =
 	        MINT::last_allocated_stub;
+
+	    end_g[-1].count +=
+		  MUP::acc_stubs_allocated
+		- MACC::saved_acc_stubs_count;
+	    MACC::saved_acc_stubs_count =
+		MUP::acc_stubs_allocated;
 
 	    end_g->count = 0;
 
 	    while ( true ) {
 	        lev.first_g->last_before =
-		    lev.first_g[1].last_before;
+		    lev.last_g->last_before;
 	        lev.first_g[-1].count +=
 		    lev.first_g->count;
 		lev.first_g->count = 0;
+
 		lev.first_g->lock = -1;
 		++ lev.first_g;
+		assert ( lev.first_g == lev.last_g );
+
 		if (    lev.first_g - lev.g
 		     == lev.number_of_sublevels )
 		    break;
-		lev.first_g->lock = level;
+
 		if ( lev.first_g[1].lock >= 0 )
+		{
+		    lev.collector_phase =
+		        LOCK_GENERATION_PROMOTING;
 		    return lev.first_g[1].lock;
+		}
+		lev.first_g[1].lock = level;
+		++ lev.last_g;
 	    }
 
 	    // We are done with the last generation.
@@ -3209,8 +3251,9 @@ ostream & operator <<
 	  const MACC::print_generations & pg )
 {
     end_g[-1].count += MUP::acc_stubs_allocated
-		    - last_collecting_count;
-    last_collecting_count = MUP::acc_stubs_allocated;
+		    - MACC::saved_acc_stubs_count;
+    MACC::saved_acc_stubs_count =
+	MUP::acc_stubs_allocated;
 
     MACC::generation * g = MACC::generations;
     unsigned column = pg.column;

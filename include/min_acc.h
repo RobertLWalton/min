@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov  7 07:58:35 EST 2011
+// Date:	Thu Nov 10 02:11:26 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1867,6 +1867,7 @@ namespace min { namespace acc {
 		// table is moved to the corresponding
 		// XXX_acc_hash table.
 	   START_GENERATION_PROMOTING,
+	   LOCK_GENERATION_PROMOTING,
 	   GENERATION_PROMOTING,
 		// Iterates over all generations of
 		// level L.  For each generation g, gets
@@ -1946,21 +1947,40 @@ namespace min { namespace acc {
 	    // There is a fake generation end_g at the
 	    // end of the generations vector, after the
 	    // last real generation.  For this
-	    //		end_g->last_before =
-	    //	    	    MINT::last_allocated_stub
-	    // is executed by all phases that lock this
-	    // fake generation if they use end_g->last_
-	    // before, so MINT::last_allocated_stub
-	    // becomes the last stub of the real
-	    // generations.
+	    //
+	    //	  end_g->last_before =
+	    //	      MINT::last_allocated_stub;
+	    //
+	    // is executed by any phases that might use
+	    // end_g->last_before, so MINT::last_allo-
+	    // cated_stub becomes the last stub of the
+	    // real generations.
 
 	min::uns64 count;
 	    // Number of stubs currently in this
 	    // generation.  For the last generation
 	    // a correction equal to
 	    //		MUP::acc_stubs_allocated
-	    //	      - last_collectible_count
-	    // must be added to this.
+	    //	      - MACC::saved_acc_stubs_count
+	    // must be added to this.  Phases
+	    // that might use this `count' for the
+	    // last generation execute
+	    //
+	    //	   end_g[-1].count +=
+	    //		  MUP::acc_stubs_allocated
+	    //		- MACC::saved_acc_stubs_count;
+	    //	   MACC::saved_acc_stubs_count =
+	    //		MUP::acc_stubs_allocated;
+	    //
+	    // This, in conjunction with end_g->last_
+	    // before (see last_before above), maintains
+	    // the specification that MUP::last_allo-
+	    // cated_stub is the last stub of the last
+	    // real generation.
+	    //
+	    // Also phases that need to set
+	    //
+	    //	    end_g->count = 0
 
 	int lock;
 	    // -1 if unlocked, or level number of
@@ -1988,13 +2008,11 @@ namespace min { namespace acc {
 	// by some collector phases.  See last_before
 	// above.
 
-    extern min::uns64 last_collecting_count;
-        // Value of MUP::acc_stubs_allocated when last
-	// COLLECTING or GENERATION_PROMOTING phase
-	// executed.  This is used to compute the number
-	// of allocated stubs that are not included in
-	// end_g[-1].count; this number being MUP::acc_
-	// stubs_allocated - last_collecting_count.
+    extern min::uns64 saved_acc_stubs_count;
+	// end_g[-1].count must be corrected by adding
+	//	  MUP::acc_stubs_allocated
+	//      - MACC::saved_acc_stubs_count
+	// See the generation::count member above.
 
     // Each acc level maintains the following counters:
     //
