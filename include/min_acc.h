@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 10:51:02 EST 2011
+// Date:	Fri Nov 11 01:13:08 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1571,6 +1571,11 @@ namespace min { namespace acc {
     //   this level.  The level and generation structs
     //   are described below.
     //
+    //   The first thing that the collector_increment
+    //   function which runs phases does is empty the
+    //   acc stack, so phases all run with this stack
+    //   empty.
+    //
     enum
     {
 	COLLECTOR_NOT_RUNNING = 0,
@@ -1735,6 +1740,10 @@ namespace min { namespace acc {
 	    // When this phase encounters an already
 	    // scavenged stub on the root list, it is
 	    // skipped over and not rescavenged.
+	    //
+	    // The level L root list is locked during
+	    // this phase, and the lock is released
+	    // at the end of this phase.
 
 	START_SCAVENGING_THREAD,
 	SCAVENGING_THREAD,
@@ -1802,51 +1811,58 @@ namespace min { namespace acc {
 	    // ed flag is cleared from MACC::acc_stack_
 	    // scavenge_mask for the same reason.
 
-	   START_REMOVING_TO_BE_SCAVENGED,
-	   REMOVING_TO_BE_SCAVENGED,
-	        // This phase simply waits until ALL
-		// levels have processed any portion of
-		// their to-be-scavenged lists that
-		// existed when this phase started.  In
-		// conjunction with MACC::removal_
-		// request_flags this removed all stubs
-		// with level L unmarked flag set from
-		// all to-be-scavenged lists.
+	START_REMOVING_TO_BE_SCAVENGED,
+	REMOVING_TO_BE_SCAVENGED,
+	    // This phase simply waits until ALL levels
+	    // have processed any portion of their
+	    // to-be-scavenged lists that existed when
+	    // this phase started.  In conjunction with
+	    // MACC::removal_request_flags this removes
+	    // all stubs with level L unmarked flag set
+	    // from all to-be-scavenged lists.
 
-	   START_REMOVING_ROOT,
-	   LOCK_REMOVING_ROOT,
-	   REMOVING_ROOT,
-	        // For each level L1 > L, L1 is locked,
-		// its root list is scanned, and all
-		// scanned stubs with any MACC::removal_
-		// request_flags flag set are removed.
-	   START_COLLECTING_HASH,
-	   LOCK_COLLECTING_HASH,
-	   COLLECTING_HASH,
-	        // Scan through the XXX_acc_hash tables
-		// and free all stubs with level L == 0
-		// unmarked flag set.
-	   START_COLLECTING,
-	   LOCK_COLLECTING,
-	   COLLECTING,
-		// Iterates over all generations of
-		// levels >= L.  For each generation g,
-		// gets a lock on g and then releases
-		// any lock on the previous generation.
-		// Then locks generation g+1 and also
-		// locks all subsequent generations
-		// whose last_before == (g+1)->last_
-		// before.
-		//
-		// Then scans the stubs of generation g.
-		// All scanned stubs with level L un-
-		// marked flag set are freed.
-		//
-		// Note that any freed number, string,
-		// or label stub must be removed from
-		// its hash table.  Being in a hash
-		// table does not prevent collection of
-		// any stub.
+	START_REMOVING_ROOT,
+	LOCK_REMOVING_ROOT,
+	REMOVING_ROOT,
+	    // For each level L1 > L, the L1 root list
+	    // is locked, the level L1 root list is then
+	    // scanned, and all scanned stubs with any
+	    // MACC::removal_request_flags flag set are
+	    // removed.
+
+	START_COLLECTING_HASH,
+	LOCK_COLLECTING_HASH,
+	COLLECTING_HASH,
+	    // Scan through the XXX_acc_hash tables and
+	    // free all stubs with level L == 0 unmarked
+	    // flag set.
+	    //
+	    // Only runs if L == 0.  Locks the first
+	    // generation of level 1 when running, as it
+	    // is level 1 promoting that adds to the
+	    // hash table.
+
+	START_COLLECTING,
+	LOCK_COLLECTING,
+	COLLECTING,
+	    // Iterates over all generations of levels
+	    // >= L.  For each generation g, gets a lock
+	    // on g and then releases any lock on the
+	    // previous generation.  Then locks genera-
+	    // tion g+1 and also locks all subsequent
+	    // generations whose last_before == (g+1)->
+	    // last_before.
+	    //
+	    // Then scans the stubs of generation g.
+	    // All scanned stubs with level L unmarked
+	    // flag set are freed.
+	    //
+	    // Note that for ephemeral levels, any freed
+	    // number, string, or label stub is removed
+	    // from its XXX_aux_hash table.  Being in a
+	    // XXX_aux/acc_hash table does not prevent
+	    // collection of any stub.
+
 	    START_LEVEL_PROMOTING,
 	    LOCK_LEVEL_PROMOTING,
 	    LEVEL_PROMOTING,
