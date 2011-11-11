@@ -2989,7 +2989,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		return lev.g[1].lock;
 	    lev.g->lock = level;
 	    lev.g[1].lock = level;
-	    lev.last_stub = lev.g->last_before;
 
 	    lev.collector_phase = LEVEL_PROMOTING;
 	}
@@ -3011,12 +3010,12 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    min::uns64 promoted = 0;
 	    min::uns64 last_c =
-		MUP::control_of ( lev.last_stub );
+		MUP::control_of ( lev.g->last_before );
 
 	    while (   promoted
 		    < MACC::scan_limit
 		    &&
-		       lev.last_stub
+		       lev.g->last_before
 		    != lev.g[1].last_before )
 	    {
 		min::stub * s =
@@ -3041,12 +3040,14 @@ unsigned MACC::collector_increment ( unsigned level )
 			   ( c, s,
 			     last_c, lev.last_stub ) )
 		{
-		    lev.last_stub = s;
+		    lev.g->last_before = s;
 		    last_c = c;
+		    ++ lev.g[-1].count;
 		}
 		else
 		    ++ lev.count.hash_moved;
-		     
+
+		-- lev.g->count;
 		++ promoted;
 	    }
 
@@ -3055,11 +3056,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    if (    lev.last_stub
 		 == lev.g[1].last_before )
 	    {
-		lev.g[-1].count += lev.g->count;
-		lev.g->count = 0;
-		lev.g->last_before =
-		    lev.g[1].last_before;
-
+	        assert ( lev.g->count == 0 );
 		lev.g->lock = -1;
 		lev.collector_phase =
 		    START_GENERATION_PROMOTING;
