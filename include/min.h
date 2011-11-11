@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 03:10:09 EST 2011
+// Date:	Fri Nov 11 06:11:54 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11035,6 +11035,123 @@ namespace min { namespace internal {
 	    aux_s = unprotected::stub_of_control ( c );
 	}
         MIN_ABORT ( "remove_aux_hash failed" );
+    }
+
+    // Remove a stub s with control c from any aux hash
+    // table it might be in.  Return true if the stub
+    // was removed from a table, and false if the stub
+    // type indicated is was not in any aux hash table.
+    // MIN_ABORT is called if the stub type indicates
+    // it is in a table but it is not.
+    //
+    inline bool remove_from_aux_hash_table
+	    ( min::uns64 c, min::stub * s )
+    {
+
+	int t = unprotected::type_of_control ( c );
+	min::stub ** aux_head = NULL;
+	min::uns32 h;
+	switch ( t )
+	{
+#       if MIN_IS_COMPACT
+	    case min::NUMBER:
+		h = min::floathash
+			( unprotected::float_of ( s ) );
+		h &= num_hash_mask;
+		aux_head = num_aux_hash + h;
+		break;
+#       endif
+	case min::SHORT_STR:
+	    h = min::strnhash ( s->v.c8, 8 );
+	    h &= str_hash_mask;
+	    aux_head = str_aux_hash + h;
+	    break;
+	case min::LONG_STR:
+	    h = unprotected::hash_of
+	            ( unprotected::long_str_of ( s ) );
+	    h &= str_hash_mask;
+	    aux_head = str_aux_hash + h;
+	    break;
+	case min::LABEL:
+	    h = min::labhash ( s );
+	    h &= lab_hash_mask;
+	    aux_head = lab_aux_hash + h;
+	    break;
+	default:
+	    return false;
+	}
+
+	remove_aux_hash ( aux_head, s );
+
+	return true;
+    }
+
+    // Move a stub s with control c from any aux hash
+    // table it is in to the corresponding acc hash
+    // table, and remove it from the acc list.  Last_s
+    // is the stub previous to s on the acc stub list,
+    // and last_c is the control of last_s.  True is
+    // returned if the stub is moved and false is
+    // returned if the stub type indicates it is not
+    // in the hash tables.  MIN_ABORT is called if the
+    // stub type indicates it is in the tables but
+    // the stub is not in the aux hash table.
+    //
+    inline bool move_to_acc_hash_table
+	    ( min::uns64 c, min::stub * s,
+	      min::uns64 last_c, min::stub * last_s )
+    {
+
+	int t = unprotected::type_of_control ( c );
+	min::stub ** aux_head = NULL;
+	min::stub ** acc_head = NULL;
+	min::uns32 h;
+	switch ( t )
+	{
+#       if MIN_IS_COMPACT
+	    case min::NUMBER:
+		h = min::floathash
+			( unprotected::float_of ( s ) );
+		h &= num_hash_mask;
+		aux_head = num_aux_hash + h;
+		acc_head = num_acc_hash + h;
+		break;
+#       endif
+	case min::SHORT_STR:
+	    h = min::strnhash ( s->v.c8, 8 );
+	    h &= str_hash_mask;
+	    aux_head = str_aux_hash + h;
+	    acc_head = str_acc_hash + h;
+	    break;
+	case min::LONG_STR:
+	    h = unprotected::hash_of
+	            ( unprotected::long_str_of ( s ) );
+	    h &= str_hash_mask;
+	    aux_head = str_aux_hash + h;
+	    acc_head = str_acc_hash + h;
+	    break;
+	case min::LABEL:
+	    h = min::labhash ( s );
+	    h &= lab_hash_mask;
+	    aux_head = lab_aux_hash + h;
+	    acc_head = lab_acc_hash + h;
+	    break;
+	default:
+	    return false;
+	}
+
+	remove_aux_hash ( aux_head, s );
+
+	last_c = unprotected::renew_acc_control_stub
+	    ( last_c,
+	      unprotected::stub_of_acc_control ( c ) );
+	unprotected::set_control_of ( last_s, last_c );
+	c = unprotected::renew_acc_control_stub
+	        ( c, * acc_head );
+	unprotected::set_control_of ( s, c );
+	* acc_head = s;
+
+	return true;
     }
 
 } }

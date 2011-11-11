@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 10:24:27 EST 2011
+// Date:	Fri Nov 11 06:12:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1565,6 +1565,10 @@ static void collector_initializer ( void )
     levels[0].number_of_sublevels = 1;
     levels[0].collector_phase = COLLECTOR_NOT_RUNNING;
     levels[0].root_lock = -1;
+    memset ( & levels[0].count, 0,
+             sizeof ( levels[0].count ) );
+    memset ( & levels[0].count, 0,
+             sizeof ( levels[0].count ) );
 
     char name[80];
 
@@ -1587,6 +1591,10 @@ static void collector_initializer ( void )
 	levels[i].collector_phase =
 	    COLLECTOR_NOT_RUNNING;
 	levels[i].root_lock = -1;
+	memset ( & levels[i].count, 0,
+		 sizeof ( levels[i].count ) );
+	memset ( & levels[i].count, 0,
+		 sizeof ( levels[i].count ) );
 
 	for ( unsigned j = 0;
 	      j < MACC::ephemeral_sublevels[i]; ++ j )
@@ -1773,48 +1781,6 @@ min::unsptr MACC::process_acc_stack
     }
 
     return count;
-}
-
-// Helper function that removes a stub s with control c
-// from any aux hash table it might be in.
-//
-inline void remove_from_aux_hash_table
-	( min::uns64 c, min::stub * s )
-{
-
-    int t = MUP::type_of_control ( c );
-    min::stub ** head = NULL;
-    min::uns32 h;
-    switch ( t )
-    {
-#   if MIN_IS_COMPACT
-	case min::NUMBER:
-	    h = min::floathash
-		    ( MUP::float_of ( s ) );
-	    h &= MINT::num_hash_mask;
-	    head = MINT::num_aux_hash + h;
-	    break;
-#   endif
-    case min::SHORT_STR:
-	h = min::strnhash ( s->v.c8, 8 );
-	h &= MINT::str_hash_mask;
-	head = MINT::str_aux_hash + h;
-	break;
-    case min::LONG_STR:
-	h = MUP::hash_of ( MUP::long_str_of ( s ) );
-	h &= MINT::str_hash_mask;
-	head = MINT::str_aux_hash + h;
-	break;
-    case min::LABEL:
-	h = min::labhash ( s );
-	h &= MINT::lab_hash_mask;
-	head = MINT::lab_aux_hash + h;
-	break;
-    default:
-	return;
-    }
-
-    MINT::remove_aux_hash ( head, s );
 }
 
 unsigned MACC::collector_increment ( unsigned level )
@@ -2903,8 +2869,10 @@ unsigned MACC::collector_increment ( unsigned level )
 
 			// Remove s from aux hash table.
 			//
-			remove_from_aux_hash_table
-			    ( c, s );
+			if ( MINT::
+			     remove_from_aux_hash_table
+			         ( c, s ) )
+			    ++ lev.count.hash_removed;
 
 			// Deallocate body of s.
 			//
@@ -3042,9 +3010,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		MUP::acc_stubs_allocated;
 
 	    min::uns64 promoted = 0;
-	    min::uns64 c =
-		MUP::control_of
-		    ( lev.last_stub );
+	    min::uns64 last_c =
+		MUP::control_of ( lev.last_stub );
 
 	    while (   promoted
 		    < MACC::scan_limit
@@ -3054,8 +3021,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    {
 		min::stub * s =
 		    MUP::stub_of_acc_control
-			( c );
-		c = MUP::control_of ( s );
+			( last_c );
+		min::uns64 c = MUP::control_of ( s );
 		c &= ~ COLLECTIBLE ( level );
 		int type =
 		    MUP::type_of_control ( c );
@@ -3068,13 +3035,19 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 		MUP::set_control_of ( s, c );
 
-		if ( level == 1 )
+		if ( level != 1
+		     ||
+		     ! MINT::move_to_acc_hash_table
+			   ( c, s,
+			     last_c, lev.last_stub ) )
 		{
-		    // TBD: if hashed, move from aux to acc
-		    // hash table.
+		    lev.last_stub = s;
+		    last_c = c;
 		}
+		else
+		    ++ lev.count.hash_moved;
+		     
 		++ promoted;
-		lev.last_stub = s;
 	    }
 
 	    lev.count.promoted += promoted;
