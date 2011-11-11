@@ -1863,25 +1863,25 @@ namespace min { namespace acc {
 	    // XXX_aux/acc_hash table does not prevent
 	    // collection of any stub.
 
-	    START_LEVEL_PROMOTING,
-	    LOCK_LEVEL_PROMOTING,
-	    LEVEL_PROMOTING,
-		// If g is the first generation of level
-		// L, obtains a lock on g and g+1,
-		// and for each stub in the generation
-		// clears its level L collectible flag,
-		// and if it is scavengable, puts it
-		// on the L root list while clearing its
-		// level L non-root flag.  The next
-		// level L collection will scavenge
-		// these and remove from the root list
-		// any that have no pointer to stubs
-		// of level >= L.
-		//
-		// Also, if L == 1 each stub in the gen-
-		// eration that is in an xxx_aux_hash
-		// table is moved to the corresponding
-		// XXX_acc_hash table.
+	START_LEVEL_PROMOTING,
+	LOCK_LEVEL_PROMOTING,
+	LEVEL_PROMOTING,
+	    // If g is the first generation of level L,
+	    // obtains a lock on g and g+1, and for each
+	    // stub in the generation clears its level L
+	    // collectible flag, and if it is scaveng-
+	    // able, puts it on the L root list while
+	    // clearing its level L non-root flag.  The
+	    // next level L collection will scavenge
+	    // these and remove from the root list any
+	    // that have no pointer to stubs of level
+	    // >= L.
+	    //
+	    // Also, if L == 1 each stub in the genera-
+	    // tion that is in an xxx_aux_hash table is
+	    // moved to the corresponding XXX_acc_hash
+	    // table.
+
 	   START_GENERATION_PROMOTING,
 	   LOCK_GENERATION_PROMOTING,
 	   GENERATION_PROMOTING,
@@ -2088,6 +2088,16 @@ namespace min { namespace acc {
 	min::uns64 collected;
 	    // Number of stubs collected by the
 	    // COLLECTING phase.
+
+	min::uns64 hash_removed;
+	    // Number of level > 0 hashed stubs
+	    // collected and removed from aux hash
+	    // tables by the COLLECTING phase.
+
+	min::uns64 hash_moved;
+	    // Number of stubs moved from aux to acc
+	    // hash tables by the LEVEL_PROMOTING
+	    // phase.
 
 	min::uns64 kept;
 	    // Number of stubs kept by the COLLECTING
