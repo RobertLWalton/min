@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 01:13:08 EST 2011
+// Date:	Fri Nov 11 08:19:20 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1866,6 +1866,8 @@ namespace min { namespace acc {
 	START_LEVEL_PROMOTING,
 	LOCK_LEVEL_PROMOTING,
 	LEVEL_PROMOTING,
+	    // Only executed if L > 0.
+	    //
 	    // If g is the first generation of level L,
 	    // obtains a lock on g and g+1, and for each
 	    // stub in the generation clears its level L
@@ -1877,24 +1879,36 @@ namespace min { namespace acc {
 	    // that have no pointer to stubs of level
 	    // >= L.
 	    //
-	    // Also, if L == 1 each stub in the genera-
-	    // tion that is in an xxx_aux_hash table is
-	    // moved to the corresponding XXX_acc_hash
-	    // table.
+	    // If L == 1 and the stub is in an xxx_aux_
+	    // hash table, the stub is moved to the
+	    // corresponding XXX_acc_hash table.  All
+	    // other stubs are moved one at a time to
+	    // the last generation of level L-1.  This
+	    // is done by adjusting g[-1].count and
+	    // g->last_before.  For every stub g->count
+	    // is decremented, so that by the end of
+	    // this phase it equals 0.
+	    //
+	    // Ends releasing the lock on level g (but
+	    // not the lock on g+1).
 
-	   START_GENERATION_PROMOTING,
-	   LOCK_GENERATION_PROMOTING,
-	   GENERATION_PROMOTING,
-		// Iterates over all generations of
-		// level L.  For each generation g, gets
-		// a lock on g and then releases any
-		// lock on the previous generation.
-		// Then, sets g->last_before =
-		// (g+1)->last_before, effectively
-		// promoting all the stubs in generation
-		// g to generation g-1.
+	START_GENERATION_PROMOTING,
+	LOCK_GENERATION_PROMOTING,
+	GENERATION_PROMOTING,
+	    // Only executed if L > 0.
+	    //
+	    // Iterates over all generations but the
+	    // first of level L.  For each generation g,
+	    // gets a lock on g and g+1.  Then, sets g->
+	    // last_before = (g+1)->last_before, adds
+	    // g->count to (g-1)->count, and zeroes g->
+	    // count, effectively promoting all the
+	    // stubs in generation g to generation g-1.
+
 	COLLECTOR_STOP
-	    // Finish up trace printouts, if any.
+	    // Finishes up trace printouts, if any, and
+	    // resets the level phase to COLLECTOR_NOT_
+	    // RUNNING.
     };
 
     // The amount of work done in a collector increment
