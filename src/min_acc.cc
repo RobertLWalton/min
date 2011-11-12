@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 06:12:09 EST 2011
+// Date:	Sat Nov 12 07:47:10 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3038,7 +3038,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		     ||
 		     ! MINT::move_to_acc_hash_table
 			   ( c, s,
-			     last_c, lev.last_stub ) )
+			     last_c,
+			     lev.g->last_before ) )
 		{
 		    lev.g->last_before = s;
 		    last_c = c;
@@ -3053,7 +3054,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.count.promoted += promoted;
 
-	    if (    lev.last_stub
+	    if (    lev.g->last_before
 		 == lev.g[1].last_before )
 	    {
 	        assert ( lev.g->count == 0 );
