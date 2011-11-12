@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Oct 25 01:28:15 EDT 2011
+// Date:	Sat Nov 12 07:49:38 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -112,7 +112,8 @@ static min::gen create_object ( min::unsptr m )
 
     min::unsptr size = 2 + random_uns32() % m;
 
-    min::gen obj = min::new_obj_gen ( size );
+    min::locatable_gen obj;
+    obj = min::new_obj_gen ( size );
     min::obj_vec_insptr ep ( obj );
 
     for ( min::unsptr j = 0; j < size; ++ j )
@@ -132,7 +133,8 @@ static min::gen create_vec_of_objects
     bool print_save = min_assert_print;
     min_assert_print = false;
 
-    min::gen obj = min::new_obj_gen ( n );
+    min::locatable_gen obj;
+    obj = min::new_obj_gen ( n );
 
     min::obj_vec_insptr vp ( obj );
 
@@ -225,8 +227,8 @@ int main ()
 	cout << "Before Allocation" << endl;
 	MACC::print_acc_statistics ( cout );
 
-    	min::gen v =
-	    create_vec_of_objects ( 1000, 300 );
+    	min::locatable_gen v;
+	v = create_vec_of_objects ( 1000, 300 );
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
 	cout << "After Allocation" << endl;
 	MACC::print_acc_statistics ( cout );
@@ -251,4 +253,3 @@ int main ()
     cout << endl;
     cout << "Finished Test!" << endl;
 }
-
