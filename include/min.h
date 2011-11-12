@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 06:11:54 EST 2011
+// Date:	Sat Nov 12 10:00:22 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4545,6 +4545,24 @@ namespace min {
 	       is_str ( g )
 	       ||
 	       is_lab ( g );
+    }
+
+    namespace internal {
+
+        inline bool is_name_type ( int type )
+	{
+	    switch ( type )
+	    {
+	    case NUMBER:
+            case SHORT_STR:
+            case LONG_STR:
+            case LABEL:
+	        return true;
+	    }
+
+	    return false;
+	}
+
     }
 
     min::uns32 hash ( min::gen g );
