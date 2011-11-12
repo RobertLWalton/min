@@ -66,14 +66,15 @@ After Random Deallocation
      Bytes in Fixed Size Blocks:       1844832        842144       2686976
 START COLLECTOR level 2 generation counts:
     0/0,0,0,0,0/0,0,0,0,101001
-END COLLECTOR INITING level 2 collectible 101001 hash 0 root 0
+END COLLECTOR INITING level 2 collectible 101001 root 0
 TRACE: new_paged_block_region (262144, 8)
 TRACE: new_pool ( 64 )
 TRACE: new_paged_block_region returns & region_table[3]
 END COLLECTOR SCAVENGING level 2
           scanned 153174 stubs scanned 1002 scavenged 1001 thrashed 1
 END COLLECTOR COLLECTING level 2
-          hash kept 0 hash collected 0 kept 1001 collected 100000
+          AUX HASH: kept 0 collected 0
+          NON-HASH: kept 1001 collected 100000
 END COLLECTOR PROMOTING level 2 promoted 0
 COLLECTOR DONE level 2 generation counts:
     0/0,0,0,0,0/0,0,0,1001,0

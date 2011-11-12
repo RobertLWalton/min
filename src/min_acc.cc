@@ -1934,7 +1934,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		}
 	    }
 
-	    lev.count.collectible_init += scanned;
+	    lev.count.collectible_inited += scanned;
 	}
         break;
 
@@ -2026,7 +2026,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    }
 
 	    lev.hash_stub = s;
-	    lev.count.hash_init += scanned;
+	    lev.count.acc_hash_inited += scanned;
 	}
 	break;
 
@@ -2057,23 +2057,32 @@ unsigned MACC::collector_increment ( unsigned level )
 		    ( s, SCAVENGED ( level ) );
 	    }
 
-	    lev.count.root_init += scanned;
+	    lev.count.root_inited += scanned;
 
 	    if ( lev.root.at_end() )
 	    {
-		tracec << "END COLLECTOR INITING level "
-		       << level
-		       << " collectible "
-		       << lev.count.collectible_init
-		        - lev.saved_count
-		             .collectible_init
-		       << " hash "
-		       << lev.count.hash_init
-		        - lev.saved_count.hash_init
-		       << " root "
-		       << lev.count.root_init
-		        - lev.saved_count.root_init
-		       << endl;
+		if ( trace_collector )
+		{
+		    cout << "END COLLECTOR INITING"
+		            " level " << level
+		         << " collectible "
+		         << lev.count
+			       .collectible_inited
+		          - lev.saved_count
+		               .collectible_inited;
+		    if ( level == 0 )
+		        cout << " acc hash "
+		             << lev.count
+			           .acc_hash_inited
+		              - lev.saved_count
+			           .acc_hash_inited;
+		    else
+		        cout << " root "
+		             << lev.count.root_inited
+		              - lev.saved_count
+			           .root_inited;
+		    cout << endl;
+		}
 		lev.collector_phase =
 		    START_SCAVENGING_ROOT;
 	    }
@@ -2754,8 +2763,8 @@ unsigned MACC::collector_increment ( unsigned level )
 		++ lev.hash_table_index;
 	    }
 
-	    lev.count.hash_collected += collected;
-	    lev.count.hash_kept += kept;
+	    lev.count.acc_hash_collected += collected;
+	    lev.count.acc_hash_kept += kept;
 	}
 	break;
 
@@ -2812,11 +2821,13 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
+	    min::uns64 aux_hash_collected = 0;
+	    min::uns64 aux_hash_kept = 0;
+	    min::uns64 scanned = 0;
 
 	    min::uns64 last_c =
 	        MUP::control_of ( lev.last_stub );
-	    while (   collected + kept
-	            < MACC::collection_limit )
+	    while ( scanned < MACC::collection_limit )
 	    {
 		if (    lev.last_stub
 		     != lev.first_g[1].last_before )
@@ -2872,7 +2883,9 @@ unsigned MACC::collector_increment ( unsigned level )
 			if ( MINT::
 			     remove_from_aux_hash_table
 			         ( c, s ) )
-			    ++ lev.count.hash_removed;
+			    ++ aux_hash_collected;
+			else
+			    ++ collected;
 
 			// Deallocate body of s.
 			//
@@ -2885,16 +2898,20 @@ unsigned MACC::collector_increment ( unsigned level )
 			// Free stub s.
 			//
 			MINT::free_acc_stub ( s );
-			++ collected;
 			-- lev.first_g->count;
 		    }
 		    else
 		    {
 			last_c = c;
 			lev.last_stub = s;
-			++ kept;
+			if ( MINT::is_name_type
+			               ( type ) )
+			    ++ aux_hash_kept;
+			else
+			    ++ kept;
 		    }
 
+		    ++ scanned;
 		    continue;
 		}
 
@@ -2942,28 +2959,52 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    lev.count.collected += collected;
 	    lev.count.kept += kept;
+	    lev.count.aux_hash_collected +=
+		aux_hash_collected;
+	    lev.count.aux_hash_kept +=
+		aux_hash_kept;
 
 	    if ( done )
 	    {
-		tracec << "END COLLECTOR COLLECTING"
-			  " level "
-		       << level << endl
-		       << "         "
-		       << " hash kept "
-		       << lev.count.hash_kept
-			- lev.saved_count
-			     .hash_kept
-		       << " hash collected "
-		       << lev.count.hash_collected
-			- lev.saved_count
-			     .hash_collected
-		       << " kept "
-		       << lev.count.kept
-			- lev.saved_count.kept
-		       << " collected "
-		       << lev.count.collected
-			- lev.saved_count.collected
-		       << endl;
+		if ( trace_collector )
+		{
+		    cout << "END COLLECTOR COLLECTING"
+			    " level "
+		         << level << endl;
+		    if ( level == 0 )
+			cout << "         "
+		             << " ACC HASH: kept "
+		             << lev.count.acc_hash_kept
+			      - lev.saved_count
+			           .acc_hash_kept
+		             << " collected "
+		             << lev.count
+			           .acc_hash_collected
+			      - lev.saved_count
+			           .acc_hash_collected;
+		    else
+			cout << "         "
+		             << " AUX HASH: kept "
+		             << lev.count
+			           .aux_hash_kept
+			      - lev.saved_count
+			           .aux_hash_kept
+		             << " collected "
+		             << lev.count
+			           .aux_hash_collected
+			      - lev.saved_count
+			           .aux_hash_collected
+			     << endl
+		             << "         "
+		             << " NON-HASH: kept "
+		             << lev.count.kept
+			      - lev.saved_count.kept
+		             << " collected "
+		             << lev.count.collected
+			      - lev.saved_count
+			           .collected
+		             << endl;
+		}
 
 		MACC::removal_request_flags &=
 		    ~ UNMARKED ( level );
@@ -3136,12 +3177,19 @@ unsigned MACC::collector_increment ( unsigned level )
 
 	    // We are done with the last generation.
 
-	    tracec << "END COLLECTOR PROMOTING level "
-		   << level
-		   << " promoted "
-		   << lev.count.promoted
-		    - lev.saved_count.promoted
-		   << endl;
+	    if ( trace_collector )
+	    {
+		cout << "END COLLECTOR PROMOTING level "
+		     << level
+		     << " promoted "
+		     << lev.count.promoted
+		      - lev.saved_count.promoted;
+		if ( level == 1 )
+		    cout << " hash moved "
+		         << lev.count.hash_moved
+		          - lev.saved_count.hash_moved;
+		cout << endl;
+	    }
 
 	    lev.collector_phase = COLLECTOR_STOP;
 	}

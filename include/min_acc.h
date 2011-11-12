@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 11 08:19:20 EST 2011
+// Date:	Sat Nov 12 10:03:55 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2048,17 +2048,17 @@ namespace min { namespace acc {
     //
     struct counters
     {
-	min::uns64 collectible_init;
+	min::uns64 collectible_inited;
 	    // Number of stubs whose flags are set in
-	    // the INITING_COLLECTIBLE phase.
+	    // INITING_COLLECTIBLE phases.
 
-	min::uns64 root_init;
+	min::uns64 root_inited;
 	    // Number of stubs whose flags are set in
-	    // the INITING_ROOT phase.
+	    // INITING_ROOT phases.
 
-	min::uns64 hash_init;
-	    // Number of level 0 stubs whose flags are
-	    // set in the INITING_HASH phase.
+	min::uns64 acc_hash_inited;
+	    // Number of acc hash stubs whose flags are
+	    // set in level 0 INITING_HASH phases.
 
 	min::uns64 scanned;
 	    // Number of min::gen or min::stub * values
@@ -2079,48 +2079,51 @@ namespace min { namespace acc {
 	    // ger phases.
 
 	min::uns64 thrash;
-	    // Number of times the the SCAVENGING_
-	    // THREAD phase has restarted scavenging the
-	    // thread and the static lists.
+	    // Number of times a SCAVENGING_THREAD phase
+	    // has been restarted in order to rescavenge
+	    // the thread and the static lists, because
+	    // scavenging these lists took too long.
 
 	min::uns64 root_kept;
-	    // Number of root stubs kept during the
-	    // REMOVING_ROOT phase.
+	    // Number of root stubs kept during
+	    // REMOVING_ROOT phases.
 
 	min::uns64 root_removed;
-	    // Number of root stubs removed during the
-	    // REMOVING_ROOT phase.
+	    // Number of root stubs removed during
+	    // REMOVING_ROOT phases.
 
-	min::uns64 hash_collected;
-	    // Number of level 0 hash table stubs col-
-	    // lected by the COLLECTING_HASH phase.
+	min::uns64 acc_hash_collected;
+	    // Number of acc hash table stubs collected
+	    // by level 0 COLLECTING_HASH phases.
 
-	min::uns64 hash_kept;
-	    // Number of level 0 hash table stubs
-	    // kept by the COLLECTING_HASH phase.
+	min::uns64 acc_hash_kept;
+	    // Number of acc hash table stubs kept by
+	    // level 0 COLLECTING_HASH phases.
+
+	min::uns64 aux_hash_collected;
+	    // Number of aux hash table stubs collected
+	    // by level > 0 COLLECTING_HASH phases.
+
+	min::uns64 aux_hash_kept;
+	    // Number of aux hash table stubs kept by
+	    // level > 0 COLLECTING_HASH phases.
 
 	min::uns64 collected;
-	    // Number of stubs collected by the
-	    // COLLECTING phase.
+	    // Number of non-hash stubs collected by
+	    // COLLECTING phases.
 
-	min::uns64 hash_removed;
-	    // Number of level > 0 hashed stubs
-	    // collected and removed from aux hash
-	    // tables by the COLLECTING phase.
+	min::uns64 kept;
+	    // Number of non-hash stubs kept by
+	    // COLLECTING phases.
 
 	min::uns64 hash_moved;
 	    // Number of stubs moved from aux to acc
-	    // hash tables by the LEVEL_PROMOTING
-	    // phase.
-
-	min::uns64 kept;
-	    // Number of stubs kept by the COLLECTING
-	    // phase.
+	    // hash tables by LEVEL_PROMOTING phases.
 
 	min::uns64 promoted;
 	    // Number of stubs promoted from one level
-	    // to the next lower level by the
-	    // PROMOTING phase.
+	    // to the next lower level by PROMOTING
+	    // phases.
     };
 
     // Each acc level is described by a level struct.
