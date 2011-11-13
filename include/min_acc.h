@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 12 10:03:55 EST 2011
+// Date:	Sun Nov 13 08:01:34 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -94,12 +94,12 @@ namespace min { namespace acc {
     //    // MINT::head_stub if there are no allocated
     //	  // stubs on the acc stub list.
     //  min::uns64 MINT::new_acc_stub_flags
-    //    // Flags for newly allocated acc stubs.
+    //    // Acc flags for newly allocated acc stubs.
     //
     // Auxiliary (aux) stubs are not managed by the
-    // acc.  They are allocated from and returned to
-    // the free list by non-acc code, and are NOT
-    // placed on the acc list (defined below).
+    // collector or put on the acc stub list.  They are
+    // allocated from and returned to the free list by
+    // the MUP::{new,free}_aux_stub functions in min.h.
 
     extern min::uns64 max_stubs;
         // The value of the max_stubs parameter.  The
@@ -158,7 +158,9 @@ namespace min { namespace acc {
     //
     extern min::unsptr cache_line_size;
 
-    // Page size for use in inline functions.
+    // Page size used by acc.  Must be a multiple of the
+    // hardware page size returned by MOS::pagesize(),
+    // and is usually equal to this hardware page size.
     //
     extern min::unsptr page_size;
 
