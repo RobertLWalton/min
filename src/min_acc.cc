@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 12 07:47:10 EST 2011
+// Date:	Sun Nov 13 08:14:31 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -235,6 +235,10 @@ void MINT::acc_initializer ( void )
 		 << endl;
     }
     MACC::page_size = MOS::pagesize();
+    get_param ( "page_size",
+                MACC::page_size,
+		MACC::page_size, 1024*MACC::page_size,
+		MACC::page_size, true );
 
     stub_allocator_initializer();
     block_allocator_initializer();

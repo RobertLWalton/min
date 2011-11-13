@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Nov 10 10:58:10 EST 2011
+// Date:	Sun Nov 13 08:08:27 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -130,13 +130,20 @@
 // cache_line_size
 //
 //   This is a power of two that is the assumed size
-//   of a cache line.  Object bodies of the same or
-//   smaller size are aligned if reasonable so they
-//   are inside a cache line.
+//   of a cache line in bytes.  Object bodies of the
+//   same or smaller size are aligned if reasonable so
+//   they are inside a cache line.
 //
 # ifndef MIN_DEFAULT_CACHE_LINE_SIZE
 #    define MIN_DEFAULT_CACHE_LINE_SIZE 256
 # endif
+
+// page_size
+//
+//   This is the page size used by the acc.  It must be
+//   a multiple of the hardware page size returned by
+//   MOS::pagesize(), and defaults to this hardware page
+//   size.
 
 // deallocated_body_size
 //
