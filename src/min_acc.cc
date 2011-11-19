@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 12:04:11 EST 2011
+// Date:	Sat Nov 19 13:14:13 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2355,6 +2355,21 @@ unsigned MACC::collector_increment ( unsigned level )
 		    }
 		    else if ( ! thread_scavenged )
 		    {
+			// Adjust limits and counts 
+			//
+			if ( lev.restart_count != 0
+			     &&
+			     lev.restart_count % 4 == 0
+			   )
+			{
+			    sc.gen_limit *= 2;
+			    lev.scavenge_limit *= 2;
+			}
+
+			if ( lev.restart_count > 0 )
+			    ++ lev.count.thrash;
+			++ lev.restart_count;
+
 			sc.thread_state = 0;
 			bool avoid_gen_limit =
 			    (   sc.gen_count
@@ -2493,21 +2508,6 @@ unsigned MACC::collector_increment ( unsigned level )
 		    ~ SCAVENGED ( level );
 		lev.collector_phase =
 		    START_REMOVING_TO_BE_SCAVENGED;
-	    }
-	    else // if ! done
-	    {
-		++ lev.count.thrash;
-		++ lev.restart_count;
-
-		// Adjust limits and counts 
-		//
-		if ( lev.restart_count != 0
-		     &&
-		     lev.restart_count % 4 == 0 )
-		{
-		    sc.gen_limit *= 2;
-		    lev.scavenge_limit *= 2;
-		}
 	    }
 	}
 	break;
