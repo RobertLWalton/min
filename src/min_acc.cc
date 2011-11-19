@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 13 08:14:31 EST 2011
+// Date:	Sat Nov 19 12:04:11 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2355,55 +2355,46 @@ unsigned MACC::collector_increment ( unsigned level )
 		    }
 		    else if ( ! thread_scavenged )
 		    {
-			min::uns32 init_gen_count =
-			    sc.gen_count;
-
-			lev.to_be_scavenged
-			   .begin_push
+			sc.thread_state = 0;
+			bool avoid_gen_limit =
+			    (   sc.gen_count
+			      < sc.gen_limit / 4 );
+			while ( true )
+			{
+			  lev.to_be_scavenged
+			     .begin_push
 			    ( sc.to_be_scavenged,
 			      sc.to_be_scavenged_limit
 			    );
-			MINT::thread_scavenger_routine
-			    ( sc );
-			lev.to_be_scavenged.end_push
-			    ( sc.to_be_scavenged );
+			  MINT::thread_scavenger_routine
+				( sc );
+			  lev.to_be_scavenged.end_push
+				( sc.to_be_scavenged );
 
-			if ( sc.state != 0 )
-			{
-			    // Thread scavenger ran out
-			    // of to-be-scavenged  list.
+			  if ( sc.thread_state != 0
+			       &&
+				  sc.gen_count
+			       >= sc.gen_limit )
+			  {
+			    // gen_limit reached.
 			    //
-			    sc.state = 0;
-			    continue;
+			    // If we are avoiding gen_
+			    // limit, just increase it
+			    // by 50% and continue.
+			    //
+			    if ( avoid_gen_limit )
+				sc.gen_limit +=
+				  sc.gen_limit / 2;
+			    else break;
+			  }
+			  else break;
+
 			}
+
+			if ( sc.thread_state != 0 )
+			    break;
 
 			thread_scavenged = true;
-
-			if ( lev.restart_count > 0 )
-			    ++ lev.count.thrash;
-
-			// Threads are scavenged.  We
-			// only need to empty to-be-
-			// scavenged list.
-
-			// Adjust limits and counts in
-			// case this collector increment
-			// cannot empty to-be-scavenged
-			// list and we must run a new
-			// collector increment that
-			// re-scavenges the threads.
-			//
-			if ( lev.restart_count == 0 )
-			    sc.gen_limit +=
-			          sc.gen_count
-				- init_gen_count;
-			else if ( lev.restart_count
-			          % 4 == 0 )
-			{
-			    sc.gen_limit *= 2;
-			    lev.scavenge_limit *= 2;
-			}
-			++ lev.restart_count;
 
 			continue;
 		    }
@@ -2502,6 +2493,21 @@ unsigned MACC::collector_increment ( unsigned level )
 		    ~ SCAVENGED ( level );
 		lev.collector_phase =
 		    START_REMOVING_TO_BE_SCAVENGED;
+	    }
+	    else // if ! done
+	    {
+		++ lev.count.thrash;
+		++ lev.restart_count;
+
+		// Adjust limits and counts 
+		//
+		if ( lev.restart_count != 0
+		     &&
+		     lev.restart_count % 4 == 0 )
+		{
+		    sc.gen_limit *= 2;
+		    lev.scavenge_limit *= 2;
+		}
 	    }
 	}
 	break;

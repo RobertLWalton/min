@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 12 10:00:22 EST 2011
+// Date:	Sat Nov 19 09:40:13 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2362,31 +2362,6 @@ namespace min { namespace internal {
     {
         return scavenger_routines[type] != NULL;
     }
-
-    // Function to scavenge the thread stack_gen and
-    // stack_num_gen structures and the static_gen
-    // and static_num_gen structures, finding all
-    // pointers therein to acc stubs s2.  For each s2
-    // found, a particular flag of s2, designated by
-    // sc.stub_flag, is checked to see if it is on.
-    // If it is, it is turned off and if the s2 stub
-    // is scavengable, a pointer to s2 is pushed onto
-    // the to_be_scavenged stack.
-    //
-    // Note that s2 is scavengable if and only if
-    // scavenger_rountines[type_of(s2)] != NULL;
-    //
-    // Returns with sc.state != 0 only if it runs out
-    // of to_be_scavenged stack, in which case it should
-    // be recalled with 0 sc.state after to_be_scavenged
-    // stack is emptied.
-    //
-    // This function ignores sc.gen_limit and sc.stub_
-    // flag_accumulator, but increments gen_count and
-    // stub_count.
-    //
-    void thread_scavenger_routine
-        ( scavenge_control & sc );
     
     // The job of a scavenger routine is to scavenge
     // a stub s1 which is pointed at by a scavenge
@@ -2436,7 +2411,9 @@ namespace min { namespace internal {
     // sc.state is set to sc.RESTART by the scavenge_
     // restart function if that function finds that a
     // stub is being scavenged.
-    // 
+    //
+    struct locatable_var;
+    struct locatable_gen;
     struct scavenge_control
     {
         // For definitions of s1 and s2 see above.
@@ -2507,7 +2484,56 @@ namespace min { namespace internal {
 	   // the scavenger routine must return.  Used
 	   // to bound the amount of time spent in a
 	   // single call to a scavenger routine.
+
+	min::uns64 thread_state;
+	   // State of the thread_scavenge_routine.
+	   // 0 to start from beginning, non-0 to
+	   // continue.
+
+	min::internal::locatable_var *
+		locatable_var_last;
+	min::internal::locatable_gen *
+		locatable_gen_last;
+	    // Pointers to locatable variables from
+	    // which to resume if thread_state != 0.
     };
+
+    // Function to scavenge the static and thread loca-
+    // table_gen, locatable_num_gen, and locatable_var
+    // structures, finding all pointers therein to acc
+    // stubs s2.  For each s2 found, a particular flag
+    // of s2, designated by sc.stub_flag, is checked
+    // to see if it is on.  If it is, it is turned off,
+    // and if the s2 stub is scavengable, a pointer to
+    // s2 is pushed onto the to_be_scavenged stack.
+    //
+    // This is known as thread scavenging.
+    //
+    // Note that s2 is scavengable if and only if
+    // scavenger_rountines[type_of(s2)] != NULL.
+    //
+    // Thread scavenging can be interrupted by scaveng-
+    // ing stubs from the to_be_scavenged stack (non-
+    // thread scavenging).  To accomplish this, thread
+    // scavenging uses the sc.thread_state instead of
+    // sc.state as its state, and has separate variables
+    // in sc to store supplementary state.  Set
+    // sc.thread_state to 0 before calling this routine
+    // to restart thread scavenging.  Upon return by
+    // this routine, sc.thread_state will be 0 if thread
+    // scavenging is finished, and non-zero if thread
+    // scavenging needs to be continued or restarted.
+    // It must be restarted by setting sc.thread_state
+    // to 0 if the mutator runs before thread scavenging
+    // can continue.
+    //
+    // This function updates sc.gen_count, sc.stub_
+    // count, and sc.stub_flag_accumulator, and returns
+    // with non-zero sc.thread_state if gen_count equals
+    // or exceeds gen_limit.
+    //
+    void thread_scavenger_routine
+        ( scavenge_control & sc );
 
     // If s is being scavenged, restart the scavenging
     // of s.  This should be done if whenever s is re-

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov  6 07:48:35 EST 2011
+// Date:	Sat Nov 19 09:43:37 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -803,40 +803,57 @@ static void obj_scavenger_routine
 void MINT::thread_scavenger_routine
 	( MINT::scavenge_control & sc )
 {
-    min::uns64 accumulator = sc.stub_flag_accumulator;
-
-    for ( MINT::locatable_gen * loc =
-              MINT::locatable_gen_last;
-          loc != NULL; 
-	  loc = loc->previous )
+    if ( sc.thread_state == 0 )
     {
-	min::gen v = loc->value;
+        sc.locatable_gen_last =
+	    MINT::locatable_gen_last;
+        sc.locatable_var_last =
+	    MINT::locatable_var_last;
+    }
+
+    min::uns64 accumulator = sc.stub_flag_accumulator;
+    while ( sc.locatable_gen_last != NULL )
+    {
+	if ( sc.gen_count >= sc.gen_limit )
+	{
+	    sc.stub_flag_accumulator = accumulator;
+	    sc.thread_state = 1;
+	    return;
+	}
+	min::gen v = sc.locatable_gen_last->value;
 	if ( min::is_stub ( v ) )
 	{
 	    min::stub * s2 = MUP::stub_of ( v );
 	    MIN_SCAVENGE_S2
-	        ( sc.state = 1; return );
+	        ( sc.thread_state = 1; return );
 	}
 	++ sc.gen_count;
+        sc.locatable_gen_last =
+	    sc.locatable_gen_last->previous;
     }
 
-    for ( MINT::locatable_var * loc =
-              MINT::locatable_var_last;
-          loc != NULL; 
-	  loc = loc->previous )
+    while ( sc.locatable_var_last != NULL )
     {
-	min::stub * s2 = (min::stub *) loc->value;
+	if ( sc.gen_count >= sc.gen_limit )
+	{
+	    sc.stub_flag_accumulator = accumulator;
+	    sc.thread_state = 1;
+	    return;
+	}
+	min::stub * s2 =
+	    (min::stub *) sc.locatable_var_last->value;
 	if ( s2 != NULL )
 	{
 	    MIN_SCAVENGE_S2
-	        ( sc.state = 1; return );
-	    ++ sc.stub_count;
+	        ( sc.thread_state = 1; return );
 	}
 	++ sc.gen_count;
+	sc.locatable_var_last =
+	    sc.locatable_var_last->previous;
     }
 
     sc.stub_flag_accumulator = accumulator;
-    sc.state = 0;
+    sc.thread_state = 0;
 }
 
 // Numbers
