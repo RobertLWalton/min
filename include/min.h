@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 09:40:13 EST 2011
+// Date:	Sun Nov 20 01:00:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2535,12 +2535,6 @@ namespace min { namespace internal {
     void thread_scavenger_routine
         ( scavenge_control & sc );
 
-    // If s is being scavenged, restart the scavenging
-    // of s.  This should be done if whenever s is re-
-    // organized.
-    //
-    void restart_scavenging ( min::stub * s );
-
     // scavenge_control[L] is the scavenge control
     // struct for acc level L scavenge routine
     // executions.
@@ -2568,6 +2562,22 @@ namespace min { namespace internal {
 	        return true;
 	}
 	return false;
+    }
+
+    // If s is being scavenged, restart the scavenging
+    // of s.  This should be done whenever s is being
+    // reorganized.
+    //
+    inline void restart_scavenging ( min::stub * s1 )
+    {
+        for ( scavenge_control * sc = scavenge_controls;
+	      sc <   scavenge_controls
+	           + number_of_acc_levels;
+	      ++ sc )
+	{
+	    if ( sc->state != 0 && sc->s1 == s1 )
+		sc->state = sc->RESTART;
+	}
     }
 
 } }
