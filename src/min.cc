@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 19 09:43:37 EST 2011
+// Date:	Mon Nov 21 10:21:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -369,8 +369,10 @@ MINT::scavenge_control MINT::scavenge_controls
 unsigned MINT::number_of_acc_levels;
 
 // Macro to process a stub pointer s2 for a scavenger.
-// `state' is the state to be set if the to_be_sca-
-// venged limit has been reached.
+// If the to_be_scavenged limit has been reached,
+// this macro stores the `accumulator' and executes
+// the FAIL statements.  Otherwise this macro increments
+// sc.stub_count but does not access sc.gen_count/limit.
 //
 #define MIN_SCAVENGE_S2(FAIL) \
     min::uns64 c = MUP::control_of ( s2 ); \
@@ -700,7 +702,6 @@ static void packed_vec_scavenger_routine
 		MUP::clear_flags_of \
 		    ( s2, sc.stub_flag ); \
 	    } \
-	    ++ sc.gen_count; \
 	    ++ sc.stub_count; \
 	    accumulator |= c; \
 	}
@@ -736,8 +737,7 @@ static void packed_vec_scavenger_routine
 		MIN_SCAVENGE_S2_WITH_AUX
 		    ( return true );
 	    }
-	    else
-		++ sc.gen_count;
+	    ++ sc.gen_count;
 
 	    min::uns64 c = MUP::control_of ( aux_s );
 	    if ( c & MUP::STUB_PTR )
@@ -753,12 +753,10 @@ static void packed_vec_scavenger_routine
 	    MIN_SCAVENGE_S2 ( FAIL )
 # endif
 
-// Scavenger routine for objects.  Setting state = 1
-// causes the object to be rescanned, and should be done
-// whenever the object is reorganized during an
-// interrupt of a scavange of the object, unless the
-// acc_write_update function is used to write ALL
-// pointers into the reorganized object.
+// Scavenger routine for objects.  If non-zero, sc.state
+// is the index of the min::gen object vector element to
+// be scanned next.  This increments but is skipped over
+// the object header and unused areas.
 //
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc )
@@ -789,8 +787,7 @@ static void obj_scavenger_routine
 	    MIN_SCAVENGE_S2_WITH_AUX
 	        ( sc.state = next; return );
 	}
-	else
-	    ++ sc.gen_count;
+	++ sc.gen_count;
 
 	++ next;
 	if ( next == MUP::unused_offset_of ( vp ) )
