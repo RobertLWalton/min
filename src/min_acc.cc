@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 20 00:59:53 EST 2011
+// Date:	Tue Nov 22 08:12:57 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -32,7 +32,9 @@
 
 using namespace MACC;
 
-// For debugging.
+// The ACC uses cout directly, instead of using min::
+// printer's, because the latter might not work when
+// ACC needs them.
 //
 # include <iostream>
 # include <iomanip>
@@ -151,12 +153,11 @@ static bool get_param
 static bool get_param
 	( const char * name, min::unsptr & parameter,
 	  min::unsptr minimum = 0,
-	  min::unsptr maximum = 0x7FFFFFFFFFFFFFFFull,
+	  min::unsptr maximum = min::unsptr_max,
 	  min::unsptr unit = 1,
 	  bool power_of_two = false,
 	  bool trace = trace_parameters )
 {
-    assert ( maximum <= 0x7FFFFFFFFFFFFFFFull );
     min::int64 v;
     if ( ! get_param ( name, v,
                        minimum, maximum,
@@ -374,6 +375,7 @@ static void stub_allocator_initializer ( void )
     MINT::head_stub = MACC::stub_next;
     MINT::last_allocated_stub = MACC::stub_next;
     MINT::number_of_free_stubs = 0;
+    MUP::set_ptr_of ( MACC::stub_next, NULL );
 
     ++ MACC::stub_next;
 
@@ -403,6 +405,8 @@ static void stub_allocator_initializer ( void )
 	exit ( 1 );
     }
 
+    min::stub ** p = tables;
+
     MINT::str_acc_hash = tables;
     tables += MINT::str_hash_size;
     MINT::str_aux_hash = tables;
@@ -416,6 +420,9 @@ static void stub_allocator_initializer ( void )
     MINT::lab_acc_hash = tables;
     tables += MINT::lab_hash_size;
     MINT::lab_aux_hash = tables;
+    tables += MINT::lab_hash_size;
+
+    while ( p < tables ) * p ++ = MINT::null_stub;
 }
 
 void MINT::acc_expand_stub_free_list ( min::unsptr n )
