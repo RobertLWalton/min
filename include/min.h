@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 20 01:00:02 EST 2011
+// Date:	Tue Nov 22 08:13:06 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -103,9 +103,15 @@ namespace min {
 #   if MIN_PTR_BITS <= 32
 	typedef uns32 unsptr;
 	typedef int32 intptr;
+	const unsptr unsptr_max = 0xFFFFFFFF;
+	const intptr intptr_max = 0x7FFFFFFF;
+	const intptr intptr_min = - 0x80000000;
 #   else
 	typedef uns64 unsptr;
 	typedef int64 intptr;
+	const unsptr unsptr_max = 0xFFFFFFFFFFFFFFFF;
+	const intptr intptr_max = 0x7FFFFFFFFFFFFFFF;
+	const intptr intptr_min = - 0x8000000000000000;
 #   endif
 }
 
