@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 13 08:08:27 EST 2011
+// Date:	Tue Nov 22 06:14:53 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,8 +19,7 @@
 // Compactor) parameters and their DEFAULT values.
 // Defaults can be overridden by the MIN_CONFIG
 // environment variable at RUN time.  This variable has
-// the form "name1=value1 name2=value2 ..." where all
-// the values are numbers.  E.g.,
+// the form "name1=value1 name2=value2 ...".  E.g.,
 //
 //   "MIN_CONFIG=ephemeral_levels=2 max_stubs=10000000"
 //
@@ -242,7 +241,7 @@
 //   control word).
 //
 //   The number of ephemeral levels determines the
-//   efficiency of the garbage collector in ways to
+//   efficiency of the garbage collector in ways too
 //   complex to model.
 //
 # ifndef MIN_DEFAULT_EPHEMERAL_LEVELS
@@ -254,6 +253,26 @@
 // ephemeral_sublevels[n]
 //
 //   The number of sublevels for ephemeral level n.
+//   This is the number of garbage collections a datum
+//   must survive in level n before it is promoted to
+//   level n - 1.
+//
+//   Data is sorted into a list by age.  This list is
+//   divided into sublevels which are consecutive
+//   segments.  When a datum survives one garbage
+//   collection, is it promoted to the next lower
+//   (i.e., older) sublevel.  Sublevels are grouped
+//   into levels.  Level 0, the non-ephemeral level,
+//   has 1 sublevel, and data in that sublevel that
+//   survives a garbage collection stays in that sub-
+//   level.  Levels n > 0 are ephemeral and have the
+//   number of sublevels given by this parameter.
+//   When a datum in the lowest sublevel of level
+//   n > 0 survives a garbage collection, it is promoted
+//   to the highest sublevel of level n - 1, and this is
+//   how data is promoted from an ephemeral level to the
+//   next lower level.
+//
 //   Must be >= 1.  Ephemeral levels are numbered n =
 //   1 .. ephemeral_levels where the highest ephemeral
 //   level holds the most recently allocated objects.
@@ -296,15 +315,10 @@
 
 // scavenge_limit
 //     The maximum number of stubs that can be scavenged
-//     in a collection increment.  Must be > 1.  If this
-//     is N, then if there are M stubs of the level of a
-//     collection when scavenging starts there will be
-//     at most M * ( N / ( N - 1 ) ) when scavenging
-//     finishes, assuming the scavenger is not
-//     interupted by higher level collections.
+//     in a collection increment.  Must be > 1.
 //
 # ifndef MIN_DEFAULT_ACC_SCAVENGE_LIMIT
-#   define MIN_DEFAULT_ACC_SCAVENGE_LIMIT 4
+#   define MIN_DEFAULT_ACC_SCAVENGE_LIMIT 30
 # endif
 
 // collection_limit
