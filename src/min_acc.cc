@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 22 08:12:57 EST 2011
+// Date:	Fri Nov 25 08:52:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -523,7 +523,7 @@ static void block_allocator_initializer ( void )
 
     get_param ( "cache_line_size",
                 MACC::cache_line_size,
-		8, 4096, 1, true );
+		8, 1 << 20, 1, true );
 
     MACC::subregion_size = F * F * MACC::page_size;
     get_param ( "subregion_size",
@@ -531,6 +531,10 @@ static void block_allocator_initializer ( void )
 		4 * F * MACC::page_size,
 		F * F * F * MACC::page_size,
 		MACC::page_size );
+
+    while (   MINT::max_fixed_block_size
+            > MACC::subregion_size / F )
+	MINT::max_fixed_block_size >>= 1;
 
     MACC::superregion_size = 64 * MACC::subregion_size;
     get_param ( "superregion_size",
@@ -543,7 +547,7 @@ static void block_allocator_initializer ( void )
     MACC::max_paged_body_size = F * F * MACC::page_size;
     get_param ( "max_paged_body_size",
                 MACC::max_paged_body_size,
-		0,
+		4 * MACC::page_size,
 		( MIN_PTR_BITS <= 32 ?
 		  1 << 24 : 1ull << 32 ),
 		MACC::page_size );
@@ -566,7 +570,7 @@ static void block_allocator_initializer ( void )
         F * MACC::max_paged_body_size;
     get_param ( "paged_body_region_size",
                 MACC::paged_body_region_size,
-		MACC::max_paged_body_size,
+		4 * MACC::max_paged_body_size,
 		( MIN_PTR_BITS <= 32 ?
 		  1 << 28 : 1ull << 44 ),
 		MACC::page_size );
@@ -574,21 +578,17 @@ static void block_allocator_initializer ( void )
     MACC::stub_stack_segment_size = 4 * MACC::page_size;
     get_param ( "stub_stack_segment_size",
                 MACC::stub_stack_segment_size,
-		MACC::page_size, 64 * MACC::page_size,
+		4 * MACC::page_size,
+		64 * MACC::page_size,
 		MACC::page_size );
 
     MACC::stub_stack_region_size =
         16 * MACC::stub_stack_segment_size;
     get_param ( "stub_stack_region_size",
                 MACC::stub_stack_region_size,
-		MACC::stub_stack_segment_size,
-		64 * MACC::stub_stack_segment_size,
+		4 * MACC::stub_stack_segment_size,
+		1024 * MACC::stub_stack_segment_size,
 		MACC::page_size );
-
-    if (   MINT::max_fixed_block_size
-         > F * MACC::page_size )
-	MINT::max_fixed_block_size =
-	    F * MACC::page_size;
 
     // Allocate MACC::deallocated_body.
     //
@@ -662,7 +662,8 @@ static void block_allocator_initializer ( void )
 // Allocate a new non-sub region with the given
 // number of pages.  Note that block_size and max_free_
 // count are set to 0 by this function, and must be
-// set by caller if they are used.
+// set by caller if they are used.  Round_size is set
+// to page_size.  Returns NULL if error.
 //
 static MACC::region * new_paged_block_region
 	( min::unsptr size, int type )
@@ -750,6 +751,7 @@ static void free_paged_block_region
     r->block_size = 0;
     r->free_size = 0;
     r->free_count = 0;
+    r->max_free_count = 0;
     r->last_free = NULL;
 
     assert ( r->region_previous == r->region_next );
@@ -757,7 +759,9 @@ static void free_paged_block_region
     insert ( MACC::last_free_region, r );
 }
 
-// Call this when we are out of superregions.
+// Call this when we are out of superregions to add a
+// new superregion to the end of the MACC::last_super-
+// region list of superregions.
 //
 static void allocate_new_superregion ( void )
 {
@@ -797,8 +801,6 @@ static void allocate_new_superregion ( void )
 	MOS::dump_error_info ( cout );
 	exit ( 1 );
     }
-    r->round_size = MACC::page_size;
-    r->round_mask = MACC::page_size - 1;
     r->block_size = MACC::subregion_size;
     r->max_free_count = size_of ( r ) / r->block_size;
 
@@ -919,12 +921,13 @@ void MINT::new_fixed_body
 	r->round_mask = fbl->size - 1;
 	r->block_size = fbl->size;
 	r->free_count = 0;
+	r->max_free_count = 0;
 	r->last_free = NULL;
 
 	if ( MOS::trace_pools >= 1 )
 	    cout << "TRACE: allocating new subregion"
 	            " for " << fbl->size
-		 << " byte blocks" << endl;
+		 << " byte fixed size blocks" << endl;
 
 	// Insert the region at the end of the fixed
 	// size region list of the given block size.
@@ -981,6 +984,7 @@ void MINT::new_fixed_body
 
 	    r->next += fbl->size;
 	    ++ fbl->count;
+	    ++ r->max_free_count;
 	}
 	assert ( fbl->last_free != NULL );
 	fbl->last_free->next = first;
