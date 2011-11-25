@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 25 08:52:09 EST 2011
+// Date:	Fri Nov 25 10:58:45 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1128,9 +1128,6 @@ void MUP::deallocate_body
     MACC::region * r = MACC::region_of_body ( bp );
     assert ( s == MACC::stub_of_body ( bp ) );
 
-    * bp = MUP::renew_control_stub
-		( * bp, MINT::null_stub );
-
     int type = MACC::type_of ( r );
     if ( type == MACC::FIXED_SIZE_BLOCK_REGION )
     {
@@ -1148,16 +1145,28 @@ void MUP::deallocate_body
 	MUP::clear_flags_of
 	    ( s, MINT::ACC_FIXED_BODY_FLAG );
     }
-    else
+    else if ( type == MACC::MONO_BODY_REGION )
+    {
+        remove ( MACC::last_mono_body_region, r );
+        free_paged_block_region ( r );
+    }
+    else if ( type == MACC::VARIABLE_SIZE_BLOCK_REGION
+              ||
+              type == MACC::PAGED_BODY_REGION )
     {
 	MACC::free_variable_size_block * p =
 	    (MACC::free_variable_size_block *) bp;
 	n = ( n + 8 + r->round_mask ) & ~ r->round_mask;
+	p->block_control = MUP::renew_control_stub
+	    ( p->block_control, MINT::null_stub );
 	p->block_subcontrol =
 	    MUP::new_control_with_type
 	        ( MACC::FREE, n );
 	r->free_size += n;
     }
+    else
+        MIN_ABORT ( "bad region type found by"
+	            " deallocate_body" );
 
     MUP::set_ptr_of ( s, MACC::deallocated_body );
     MUP::set_type_of ( s, min::DEALLOCATED );
