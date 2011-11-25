@@ -23,15 +23,15 @@ TRACE: allocate_new_superregion()
 TRACE: new_paged_block_region (1073741824, 4)
 TRACE: new_pool ( 262144 )
 TRACE: new_paged_block_region returns & region_table[2]
-TRACE: allocating new subregion for 8192 byte blocks
-TRACE: allocating new subregion for 2048 byte blocks
-TRACE: allocating new subregion for 4096 byte blocks
-TRACE: allocating new subregion for 64 byte blocks
-TRACE: allocating new subregion for 128 byte blocks
-TRACE: allocating new subregion for 1024 byte blocks
-TRACE: allocating new subregion for 512 byte blocks
-TRACE: allocating new subregion for 256 byte blocks
-TRACE: allocating new subregion for 32 byte blocks
+TRACE: allocating new subregion for 8192 byte fixed size blocks
+TRACE: allocating new subregion for 2048 byte fixed size blocks
+TRACE: allocating new subregion for 4096 byte fixed size blocks
+TRACE: allocating new subregion for 64 byte fixed size blocks
+TRACE: allocating new subregion for 128 byte fixed size blocks
+TRACE: allocating new subregion for 1024 byte fixed size blocks
+TRACE: allocating new subregion for 512 byte fixed size blocks
+TRACE: allocating new subregion for 256 byte fixed size blocks
+TRACE: allocating new subregion for 32 byte fixed size blocks
 min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Allocation

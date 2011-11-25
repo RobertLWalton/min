@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 22 08:13:06 EST 2011
+// Date:	Fri Nov 25 10:29:09 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2110,7 +2110,8 @@ namespace min { namespace internal {
         // The smallest power of 2 not smaller than the
 	// size of min::internal::free_fixed_size_block.
     extern min::unsptr max_fixed_block_size;
-        // 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG;
+        // A power of 2 >= min_fixed block size and <=
+	// 1 << MIN_ABSOLUTE_MAX_FIXED_BLOCK_SIZE_LOG.
 
 } }
 

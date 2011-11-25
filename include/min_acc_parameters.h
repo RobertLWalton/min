@@ -2,7 +2,7 @@
 //
 // File:	min_acc_parameters.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 22 06:14:53 EST 2011
+// Date:	Fri Nov 25 10:09:33 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -152,7 +152,7 @@
 //	MIN_DEALLOCATED_BODY_SIZE
 //
 //   if defined, or max_paged_body_size otherwise.
-//   Must a multiple of the page size.  This size
+//   Must a multiple of the page_size.  This size
 //   includes both the body and the 8 byte control
 //   word that is just before the body.
 //
@@ -167,22 +167,29 @@
 // subregion_size
 //
 //   Size of variable size block and fixed size block
-//   regions.  Default: F**2 * page_size.
+//   regions.  Default: F**2 * page_size.  Maximum
+//   fixed size block will be <= subregion_size/F.
+//   Must be a multiple of page_size and at least
+//   4 * F * page_size.
 //
 // superregion_size
 //
-//   Size of superregion; should be multiple of size of
+//   Size of superregion; must be multiple of size of
 //   subregion.  Default: 64 * subregion_size.
+//   Must be multiple of subregion_size.
 //
 // max_paged_body_size
 //
 //   Maximum size of body allocated to a paged body
-//   region.  Default: F**2 * page_size.
+//   region.  Default: F**2 * page_size.  Must be a
+//   multiple of page_size and at least 4 * page
+//   size.
 //
 // paged_body_region_size
 //
 //   Normal size of a paged body region.  Default:
-//   F * max_paged_body_size.
+//   F * max_paged_body_size.  Must be a multiple of
+//   page_size and at least 4 * max_paged_body_size.
 //
 // stub_stack_segment_size
 //
@@ -190,12 +197,16 @@
 //   stub pointers for the Collector and consists of
 //   a list of stub stack segments each holding
 //   about stub_stack_segment_size/8 pointers.
-//   Default:: 4 * page_size.
+//   Default:: 4 * page_size.  Must be a multiple of
+//   page_size, at least 4 * page_size, and at most
+//   64 * page_size.
 //
 // stub_stack_region_size
 //
 //   Size of stub stack region.  Default:
-//   16 * stub_stack_segment_size.
+//   16 * stub_stack_segment_size.  Must be a multiple
+//   of page_size, at least 4 * stub_stack_segment_size,
+//   and at most 1024 * stub_stack_segment_size.
 //
 // str_hash_size
 //
