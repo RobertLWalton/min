@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Nov 13 08:01:34 EST 2011
+// Date:	Fri Nov 25 18:55:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -648,56 +648,56 @@ namespace min { namespace acc {
 	     ( r->block_subcontrol );
     }
 
-    // Put region1 on the doubly linked region_previous/
-    // next list after region2.
+    // Put region r1 on the doubly linked region_previous/
+    // next list after region r2.
     //
     inline void insert_after
-        ( region * region1, region * region2 )
+        ( region * r1, region * r2 )
     {
-        region1->region_previous = region2;
-	region1->region_next = region2->region_next;
-	region1->region_previous->region_next = region1;
-	region1->region_next->region_previous = region1;
+        r1->region_previous = r2;
+	r1->region_next = r2->region_next;
+	r1->region_previous->region_next = r1;
+	r1->region_next->region_previous = r1;
     }
 
-    // Put region1 on the end of the doubly linked list
+    // Put region on the end of the doubly linked list
     // whose last member is pointed at by `last', and
-    // make region1 the new last member of the list.
+    // make the region the new last member of the list.
     //
     inline void insert
-        ( region * & last, region * region1 )
+        ( region * & last, region * r )
     {
         if ( last != NULL )
-	    insert_after ( region1, last );
-	last = region1;
+	    insert_after ( r, last );
+	last = r;
     }
 
-    // Remove region1 from the region_previous/next list
-    // it is on and link it to itself.
+    // Remove region from the region_previous/next
+    // list it is on and link it to itself.
     //
-    inline void remove ( region * region1 )
+    inline void remove ( region * r )
     {
-	region1->region_previous->region_next =
-	    region1->region_next;
-	region1->region_next->region_previous =
-	    region1->region_previous;
-        region1->region_previous = region1;
-	region1->region_next = region1;
+	r->region_previous->region_next =
+	    r->region_next;
+	r->region_next->region_previous =
+	    r->region_previous;
+        r->region_previous = r;
+	r->region_next = r;
     }
 
-    // Remove region1 from the doubly linked list whose
-    // last member is pointed at by `last'.
+    // Remove region from the doubly linked list
+    // whose last member is pointed at by `last'.
     //
     inline void remove
-        ( region * & last, region * region1 )
+        ( region * & last, region * r )
     {
-	if ( region1->region_previous == region1 )
+	if ( r->region_previous == r )
 	    last = NULL;
 	else
 	{
-	    if ( region1 == last )
-	       last = region1->region_previous;
-	    remove ( region1 );
+	    if ( r == last )
+	       last = r->region_previous;
+	    remove ( r );
 	}
     }
 
@@ -759,6 +759,7 @@ namespace min { namespace acc {
 	// stub stack segments.
 
     struct free_variable_size_block
+        // Header of a FREE variable size block.
     {
         min::uns64 block_control;
 	    // Block control word.  Stub is MINT::
