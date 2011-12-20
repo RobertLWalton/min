@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 25 10:29:09 EST 2011
+// Date:	Tue Dec 20 08:52:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -409,6 +409,8 @@ namespace min {
 	    min::uns64 u64;
 	    min::int64 i64;
 	    min::uns32 u32[2];
+	    min::uns16 u16[4];
+	    min::uns8 u8[8];
 	    char c8[8];
 	} v; // value
 
@@ -942,7 +944,8 @@ namespace min { namespace unprotected {
 #	    if MIN_IS_BIG_ENDIAN
 		return ( uns64 ( v ) << TSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
-		return ( uns64 ( v & 0xFFFFFF ) );
+		return
+		    ( uns64 ( v & internal::VMASK ) );
 #	    endif
 	}
 #   elif MIN_IS_LOOSE
@@ -3884,6 +3887,51 @@ namespace min {
         ( const char * p,
 	  const min::unprotected::str_ptr & sp,
 	  min::unsptr n );
+
+    inline int strhead ( min::gen g )
+    {
+	unsgen v = unprotected::value_of ( g );
+	if ( v >> VSIZE == GEN_DIRECT_STR )
+	{
+#	    if MIN_IS_BIG_ENDIAN
+		uns8 c = v >> ( VSIZE - 8 );
+		return (    int ( v >> ( VSIZE - 24 ) )
+		         && 0xFF00 )
+		       + c;
+#	    elif MIN_IS_LITTLE_ENDIAN
+		return ( v & 0xFFFF );
+#	    endif
+	}
+
+	MIN_ASSERT ( is_stub ( g ) );
+
+	const min::stub * s =
+	    unprotected::stub_of ( g );
+	if ( type_of ( s ) == min::SHORT_STR )
+	{
+#	    if MIN_IS_BIG_ENDIAN
+		return ( s->v.u8[1] << 8 ) + s->v.u8[0];
+#	    elif MIN_IS_LITTLE_ENDIAN
+		return s->v.u16[0];
+#	    endif
+	}
+	else if ( type_of ( s ) == min::LONG_STR )
+	{
+	    min::unprotected::long_str * lsp =
+	        min::unprotected::long_str_of ( s );
+	    // Note lsp->length > 0.
+	    min::uns8 * cp = (min::uns8 *) lsp
+			   + sizeof ( * lsp );
+#	    if MIN_IS_BIG_ENDIAN
+		return ( cp[1] << 8 ) + cp[0];
+#	    elif MIN_IS_LITTLE_ENDIAN
+		return * (min::uns16 *) cp;
+#	    endif
+	}
+	else
+	    MIN_ABORT
+	        ( "strhead applied to non-string" );
+    }
 
     namespace unprotected {
 
