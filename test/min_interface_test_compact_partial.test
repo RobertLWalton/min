@@ -807,6 +807,20 @@ min_interface_test.cc:XXXX assert:
     is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen13, 12 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::strhead ( strgen3 ) == head true.
+../include/min.h:XXXX assert:
+    is_stub ( g ) true.
+min_interface_test.cc:XXXX assert:
+    min::strhead ( strgen7 ) == head true.
+../include/min.h:XXXX assert:
+    is_stub ( g ) true.
+min_interface_test.cc:XXXX assert:
+    min::strhead ( strgen8 ) == head true.
+../include/min.h:XXXX assert:
+    is_stub ( g ) true.
+min_interface_test.cc:XXXX assert:
+    min::strhead ( strgen13 ) == head true.
 
 Test unprotected string functions:
 min_interface_test.cc:XXXX assert:
