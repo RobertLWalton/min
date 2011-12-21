@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{October 28, 2011}
+\date{December 21, 2011}
  
 \maketitle
 
@@ -1112,17 +1112,17 @@ should be overlaid by a union with a \verb|char[]| buffer, as in
 the code:
 
 \begin{indpar}\begin{verbatim}
-union { min::uns64 str; char buf[6]; } u;
-min::gen v;
-. . . set v to a direct string value . . .
-u.str = min::direct_str_of ( v );
-cout << u.buf;
+union { min::uns64 u; char s[6]; } v;
+min::gen g;
+. . . set g to a direct string value . . .
+v.u = min::direct_str_of ( g );
+cout << v.s;
 \end{verbatim}\end{indpar}
 
 The {\tt min::direct\_str\_of} function merely copies the 3 or
 5 {\tt char}'s of the {\tt min::gen} direct string value and
 appends a NUL character.
-It does this by writing an appropriate value into \verb|u.str|.
+It does this by writing an appropriate value into \verb|v.u|.
 
 The \verb|min::|\ldots\verb|_aux_of|, the \verb|min::index_of| function,
 the \verb|min::control_code_of| function,
@@ -3512,6 +3512,8 @@ a string \verb|min::gen| value.
     & \MINKEY{strncmp} \\
     & \verb|    ( const char * p, min::gen v, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_GEN} \\
+\verb|min::uns64 min::| & \MINKEY{strhead}\verb| ( min::gen v )|
+\LABEL{MIN::STRHEAD_OF_GEN} \\
 \end{tabular}\end{indpar}
 
 Five of these functions correspond to the standard C/C++
@@ -3555,6 +3557,36 @@ A hash value is never zero (so zero can be used to denote a missing hash value).
 
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
+
+The \verb|strhead| function is an optimized function that
+returns the first 8 bytes of the string
+in a \verb|min::uns64| value.  This is intended to be used by
+overloading it with \verb|char[8]|, as in the code:
+
+\begin{indpar}\begin{verbatim}
+union { min::uns64 u; char s[8]; } v;
+min::gen g;
+. . . set g to a string value . . .
+v.u = min::strhead ( g );
+. . . first 8 bytes of string are now in v.s[0], ..., v.s[7] . . .
+\end{verbatim}\end{indpar}
+
+If a string has fewer than 8 bytes, it is padded with zero bytes
+at its end so that 8 bytes may always be returned.  If the \verb|min::gen|
+argument to \verb|strhead| is not a string, 8 zero bytes are returned
+(as if the argument had been an empty string).
+
+\verb|strhead| is useful for testing
+to see what kind of lexeme the string represents; for
+example, if the first byte is a letter, or the first byte is \verb|'|
+and the second byte is a letter, then the string may represent a
+word, but if the first byte is \verb|'| and the second is zero,
+the string may represent a separator.
+Note that the bytes are UTF-8 encoded, and may represent non-ASCII
+UNICODE characters.  Note that UTF-8 can encode a UNICODE character
+in as many as 7 bytes, so if the string begins with two non-ASCII
+characters, the encoding of the second may be truncated after the 8'th
+byte.
 
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
@@ -11299,6 +11331,11 @@ In loose implementation: \\
                    \verb| ( const char * p,|\ARGBREAK
 		   \verb|   min::gen v, min::unsptr n )|
 \LABEL{MIN::STRNCMP_OF_GEN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns64 min::| & \MINKEY{strhead}\verb| ( min::gen v )|
+\LABEL{MIN::STRHEAD_OF_GEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}

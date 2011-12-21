@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Nov 21 10:21:19 EST 2011
+// Date:	Wed Dec 21 05:00:02 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1221,11 +1221,18 @@ min::gen MINT::new_str_stub_gen
 	MUP::set_type_of ( s2, LONG_STR );
 	MUP::new_body
 	    ( s2, sizeof ( MUP::long_str ) + n + 1 );
+
 	MUP::long_str * ls = MUP::long_str_of ( s2 );
 	ls->length = n;
 	ls->hash = hash;
+
+	// Be sure string is NUL padded to a multiple
+	// of 8 bytes.
+	//
+	* (min::uns64 *)
+	  ( MUP::str_of(ls) + n - n % 8 ) = 0;
+
 	::strncpy ( (char *) MUP::str_of ( ls ), p, n );
-	* ( (char *) MUP::str_of(ls) + n ) = 0;
     }
 
     s = MUP::new_aux_stub ();

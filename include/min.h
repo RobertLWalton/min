@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 20 08:52:01 EST 2011
+// Date:	Wed Dec 21 04:37:45 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3801,6 +3801,11 @@ namespace min {
 
 namespace min { namespace unprotected {
 
+    // A long string body consists a long_str structure
+    // followed by the bytes of the NUL-terminated
+    // string.  The latter is padded with zeros to a
+    // multiple of 8 bytes.
+
     struct long_str {
 	min::uns32 length;
 	min::uns32 hash;
@@ -3888,49 +3893,36 @@ namespace min {
 	  const min::unprotected::str_ptr & sp,
 	  min::unsptr n );
 
-    inline int strhead ( min::gen g )
+    inline min::uns64 strhead ( min::gen g )
     {
 	unsgen v = unprotected::value_of ( g );
 	if ( v >> VSIZE == GEN_DIRECT_STR )
 	{
 #	    if MIN_IS_BIG_ENDIAN
-		uns8 c = v >> ( VSIZE - 8 );
-		return (    int ( v >> ( VSIZE - 24 ) )
-		         && 0xFF00 )
-		       + c;
+		return ( v << TSIZE );
 #	    elif MIN_IS_LITTLE_ENDIAN
-		return ( v & 0xFFFF );
+		return ( v & internal::VMASK );
 #	    endif
 	}
 
-	MIN_ASSERT ( is_stub ( g ) );
+	if ( ! is_stub ( g ) ) return 0;
 
 	const min::stub * s =
 	    unprotected::stub_of ( g );
 	if ( type_of ( s ) == min::SHORT_STR )
-	{
-#	    if MIN_IS_BIG_ENDIAN
-		return ( s->v.u8[1] << 8 ) + s->v.u8[0];
-#	    elif MIN_IS_LITTLE_ENDIAN
-		return s->v.u16[0];
-#	    endif
-	}
+	    return s->v.u64;
 	else if ( type_of ( s ) == min::LONG_STR )
 	{
 	    min::unprotected::long_str * lsp =
 	        min::unprotected::long_str_of ( s );
-	    // Note lsp->length > 0.
+	    // Note lsp->length > 0 and strings are
+	    // NUL padded to a multiple of 8 bytes.
 	    min::uns8 * cp = (min::uns8 *) lsp
 			   + sizeof ( * lsp );
-#	    if MIN_IS_BIG_ENDIAN
-		return ( cp[1] << 8 ) + cp[0];
-#	    elif MIN_IS_LITTLE_ENDIAN
-		return * (min::uns16 *) cp;
-#	    endif
+	    return * (min::uns64 *) cp;
 	}
 	else
-	    MIN_ABORT
-	        ( "strhead applied to non-string" );
+	    return 0;
     }
 
     namespace unprotected {
