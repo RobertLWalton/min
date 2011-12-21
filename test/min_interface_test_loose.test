@@ -802,19 +802,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen13, 12 ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    min::strhead ( strgen3 ) == head true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+    strcmp ( v.s, "ABC" ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    min::strhead ( strgen7 ) == head true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+    strcmp ( v.s, "ABCDEFG" ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    min::strhead ( strgen8 ) == head true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+    strncmp ( v.s, "ABCDEFGH", 8 ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    min::strhead ( strgen13 ) == head true.
+    strncmp ( v.s, "ABCDEFGH", 8 ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::strhead ( min::MISSING() ) == 0 true.
 
 Test unprotected string functions:
 min_interface_test.cc:XXXX assert:

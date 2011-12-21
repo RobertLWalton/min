@@ -2,7 +2,7 @@
 //
 // File:	min_acc.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 25 18:55:00 EST 2011
+// Date:	Wed Dec 21 06:37:41 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -648,8 +648,8 @@ namespace min { namespace acc {
 	     ( r->block_subcontrol );
     }
 
-    // Put region r1 on the doubly linked region_previous/
-    // next list after region r2.
+    // Put region r1 on the doubly linked region_
+    // previous/next list after region r2.
     //
     inline void insert_after
         ( region * r1, region * r2 )

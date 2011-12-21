@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 20 08:51:47 EST 2011
+// Date:	Wed Dec 21 04:59:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1602,11 +1602,17 @@ void test_strings ( void )
 	(    min::strncmp ( buffer, strgen13, 12 )
 	  == 0 );
 
-    int head = ( 'B' << 8 ) + 'A';
-    MIN_ASSERT ( min::strhead ( strgen3 ) == head );
-    MIN_ASSERT ( min::strhead ( strgen7 ) == head );
-    MIN_ASSERT ( min::strhead ( strgen8 ) == head );
-    MIN_ASSERT ( min::strhead ( strgen13 ) == head );
+    union { min::uns64 u; char s[8]; } v;
+    v.u = min::strhead ( strgen3 );
+    MIN_ASSERT ( strcmp ( v.s, "ABC" ) == 0 );
+    v.u = min::strhead ( strgen7 );
+    MIN_ASSERT ( strcmp ( v.s, "ABCDEFG" ) == 0 );
+    v.u = min::strhead ( strgen8 );
+    MIN_ASSERT ( strncmp ( v.s, "ABCDEFGH", 8 ) == 0 );
+    v.u = min::strhead ( strgen13 );
+    MIN_ASSERT ( strncmp ( v.s, "ABCDEFGH", 8 ) == 0 );
+
+    MIN_ASSERT ( min::strhead ( min::MISSING() ) == 0 );
 
     cout << endl;
     cout << "Test unprotected string functions:"
