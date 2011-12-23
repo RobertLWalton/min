@@ -2599,12 +2599,27 @@ void test_printer ( void )
     min::print_line ( printer, file, 4 );
     min::print_line ( printer, file, 5 );
 
+    min::position bpos1 = { 1, 5, 5 };
+    min::position epos1 = { 2, 4, 4 };
+    min::position bpos2 = { 2, 5, 5 };
+    min::position epos2 = { 5, 0, 0 };
+    min::print_item_lines
+	( printer, file, bpos1, epos1 );
+    min::print_item_lines
+	( printer, file, bpos2, epos2,
+	  '#', "<EMPTY>", "<EOF>");
+
     file->print_flags =
         min::GRAPHIC_FLAGS + min::DISPLAY_EOL_FLAG;
     min::print_line ( printer, file, 1 );
     min::print_line ( printer, file, 3 );
     min::print_line ( printer, file, 4 );
     min::print_line ( printer, file, 5 );
+    min::print_item_lines
+	( printer, file, bpos1, epos1 );
+    min::print_item_lines
+	( printer, file, bpos2, epos2,
+	  '#', "<EMPTY>", "<EOF>");
 
     min::locatable_var<min::file> efile;
     min::init_input_named_file

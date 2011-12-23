@@ -1712,10 +1712,30 @@ Line 2
 <BLANK-LINE>
 <END-OF-FILE>
 <UNAVALABLE-LINE>
+Line 2
+     ^
+Line 3
+^^^^
+Line 3
+     #
+<EMPTY>
+#
+<EOF>
+#
 Line␣2␤
 ␤
 <END-OF-FILE>
 <UNAVALABLE-LINE>
+Line␣2␤
+     ^^
+Line␣3␤
+^^^^
+Line␣3␤
+     ##
+␤
+#
+<EOF>
+#
 ERROR: During attempt to find the size of file min_non_existent_file:
        No such file or directory
 

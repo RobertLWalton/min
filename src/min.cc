@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 21 05:00:02 EST 2011
+// Date:	Fri Dec 23 10:34:30 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1938,6 +1938,57 @@ min::uns32 min::print_line
 		  4 : 1 );
     }
     return width;
+}
+
+void min::print_item_lines
+	( min::printer printer,
+	  min::file file,
+	  const min::position & begin,
+	  const min::position & end,
+	  char mark,
+	  const char * blank_line,
+	  const char * end_of_file,
+	  const char * unavailable_line )
+{
+    assert ( end.line >= begin.line );
+
+    uns32 line = begin.line;
+    uns32 first_column = begin.column;
+
+    uns32 width = min::print_line
+	( printer, file, line,
+	  blank_line, end_of_file, unavailable_line );
+
+    while ( true )
+    {
+        for ( uns32 i = 0; i < first_column; ++ i )
+	    printer << ' ';
+
+	uns32 end_column =
+	    end.line == line ? end.column : width;
+	if ( end_column <= first_column )
+	    end_column = width;
+	if ( end_column <= first_column )
+	    end_column = first_column + 1;
+
+        for ( uns32 i = first_column;
+	      i < end_column; ++ i )
+	    printer << mark;
+	printer << min::eol;
+
+	if ( line == end.line ) return;
+
+	++ line;
+
+	if ( line == end.line && end.column == 0 )
+	    return;
+
+	first_column = 0;
+	width = min::print_line
+	    ( printer, file, line,
+	      blank_line, end_of_file,
+	      unavailable_line );
+    }
 }
 
 min::printer operator <<
