@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 21, 2011}
+\date{December 23, 2011}
  
 \maketitle
 
@@ -6114,6 +6114,35 @@ An example use is
           ++ line_number )
         min::print_line ( printer, file, line_number );
 \end{verbatim}\end{indpar}
+
+But there is a better way to print error messages
+if the positions of the erroneous text in the file
+are known and are encoded in
+\verb|min::position| structures:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32 line;|\ARGBREAK
+    \verb|  min::uns32 offset;|\ARGBREAK
+    \verb|  min::uns32 column;|\ARGBREAK
+    \verb|};|
+\ttmindex{line}{in {\tt min::position}}
+\ttmindex{offset}{in {\tt min::position}}
+\ttmindex{column}{in {\tt min::position}}
+\LABEL{MIN::POSITION_STRUCT} \\
+\end{tabular}\end{indpar}
+
+Here \verb|line| is the line number, \verb|offset| it the
+number of bytes before the position in the line within the
+file, and \verb|column| is the number of print columns
+before the position in the printed version of the line if
+printing is done as per {\tt min::\EOL print\_\EOL line}.
+Then in place of the above \verb|for| loop with its calls
+to {\tt min::\EOL print\_\EOL line}, one can use the function:
+
+TBD
+
 
 It is possible to `rewind' a file with the function:
 
