@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 21 04:37:45 EST 2011
+// Date:	Fri Dec 23 10:33:29 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6254,6 +6254,13 @@ namespace min {
     MIN_REF ( min::file, ofile, min::file )
     MIN_REF ( min::gen, file_name, min::file )
 
+    struct position
+    {
+	uns32	line;
+	uns32	index;
+	uns32	column;
+    };
+
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
 
@@ -6373,6 +6380,19 @@ namespace min {
     	    ( min::printer,
 	      min::file file,
 	      min::uns32 line_number,
+	      const char * blank_line =
+	          "<BLANK-LINE>",
+	      const char * end_of_file =
+	          "<END-OF-FILE>",
+	      const char * unavailable_line =
+	          "<UNAVALABLE-LINE>" );
+
+    void print_item_lines
+	    ( min::printer printer,
+	      min::file file,
+	      const min::position & begin,
+	      const min::position & end,
+	      char mark = '^',
 	      const char * blank_line =
 	          "<BLANK-LINE>",
 	      const char * end_of_file =
