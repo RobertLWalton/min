@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 21 04:59:50 EST 2011
+// Date:	Sat Dec 24 05:36:43 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2584,12 +2584,12 @@ void test_printer ( void )
 
     printer << "The file has lines: "
             << min::pline_numbers
-		  ( file, 1, file->file_lines )
+		  ( file, 0, file->file_lines - 1 )
 	    << min::eol;
     printer << "The last line is: "
             << min::pline_numbers
-		  ( file, file->file_lines,
-		          file->file_lines )
+		  ( file, file->file_lines - 1,
+		          file->file_lines - 1 )
 	    << min::eol;
 
     min::flush_file ( file );

@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 23, 2011}
+\date{December 24, 2011}
  
 \maketitle
 
@@ -5969,7 +5969,8 @@ The following function does this:
 \LABEL{MIN::LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
-Here {\tt file->line\_index} must exist (i.e., not be {\tt NULL\_\EOL STUB})
+Here \verb|line_number| is \verb|0| for the first line of the file,
+{\tt file->line\_index} must exist (i.e., not be {\tt NULL\_\EOL STUB}),
 and
 \begin{center}\begin{tabular}{rl}
        & \tt file->next\_line\_number - file->line\_index->length \\
@@ -6115,8 +6116,13 @@ An example use is
         min::print_line ( printer, file, line_number );
 \end{verbatim}\end{indpar}
 
-But there is a better way to print error messages
-if the positions of the erroneous text in the file
+The line numbers printed by {\tt min::\EOL pline\_\EOL number}
+are \verb|1| greater than the line numbers given in the arguments,
+so the line number of the first line of a file is denoted by a
+\verb|0| argument which is printed as \verb|1|.
+
+There is a better way to print the lines of a file within an
+error message if the positions of the erroneous text in the file
 are known and are encoded in
 \verb|min::position| structures:
 
@@ -6133,16 +6139,49 @@ are known and are encoded in
 \LABEL{MIN::POSITION_STRUCT} \\
 \end{tabular}\end{indpar}
 
-Here \verb|line| is the line number, \verb|offset| it the
+Here \verb|line| is the line number of the line containing the position
+(the first line is line number \verb|0|), \verb|offset| is the
 number of bytes before the position in the line within the
 file, and \verb|column| is the number of print columns
 before the position in the printed version of the line if
 printing is done as per {\tt min::\EOL print\_\EOL line}.
-Then in place of the above \verb|for| loop with its calls
+Note that \verb|column| is partly determined by the
+{\tt print\_\EOL flags} of the file passed to {\tt min::\EOL print\_\EOL line},
+so if positions are computed assuming one value of
+{\tt print\_\EOL flags}, the \verb|column| values in these positions will
+not be valid for a different value of {\tt print\_\EOL flags}.
+
+If the positions of the beginning and ending of an erroneous text in
+a file are known, then in place of the above \verb|for| loop with its calls
 to {\tt min::\EOL print\_\EOL line}, one can use the function:
 
-TBD
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL item\_\EOL lines\REL}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   const min::position & begin,|\ARGBREAK
+      \verb|   const min::position & end,|\ARGBREAK
+      \verb|   char mark = '^',|\ARGBREAK
+      \verb|   const char * blank_line =|\ARGBREAK
+      \verb|       "<BLANK-LINE>",|\ARGBREAK
+      \verb|   const char * end_of_file =|\ARGBREAK
+      \verb|       "<END-OF-FILE>",|\ARGBREAK
+      \verb|   const char * unavailable_line =|\ARGBREAK
+      \verb|       "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_ITEM_LINES} \\
+\end{tabular}\end{indpar}
 
+Here the `item' is the erroneous text,
+the \verb|begin| argument is the position of the first
+character of the item, the \verb|end| argument is the position
+just \underline{after} the last character of the item, the
+lines containing the item are printed, and under each item
+character a \verb|mark| is printed.  The lines are printed
+as per {\tt min::\EOL print\_\EOL line} using the
+{\tt blank\_\EOL line},
+{\tt end\_\EOL of\_\EOL file}, and
+{\tt unavailable\_\EOL line} arguments.
 
 It is possible to `rewind' a file with the function:
 

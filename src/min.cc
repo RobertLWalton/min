@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 23 10:34:30 EST 2011
+// Date:	Sat Dec 24 05:35:22 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2005,10 +2005,10 @@ min::printer operator <<
             << min::nohbreak;
 
     if ( pline_numbers.first == pline_numbers.last )
-        printer << "line " << pline_numbers.first;
+        printer << "line " << pline_numbers.first + 1;
     else
-        printer << "lines " << pline_numbers.first
-	        << "-" << pline_numbers.last;
+        printer << "lines " << pline_numbers.first + 1
+	        << "-" << pline_numbers.last + 1;
 
     return printer << min::pop_parameters;
 }
