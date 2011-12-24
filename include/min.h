@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 23 10:33:29 EST 2011
+// Date:	Sat Dec 24 07:38:01 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6260,6 +6260,28 @@ namespace min {
 	uns32	index;
 	uns32	column;
     };
+
+    struct element_position
+    {
+        min::position begin;
+        min::position end;
+    };
+
+    struct element_positions_header
+    {
+        const min::uns32 control;
+        const min::uns32 length;
+        const min::uns32 max_length;
+	const min::file  file;
+    };
+    typedef min::packed_vec_ptr
+	    < element_position,
+	      element_positions_header >
+	element_positions;
+    typedef min::packed_vec_insptr
+	    < element_position,
+	      element_positions_header >
+	element_positions_insptr;
 
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
