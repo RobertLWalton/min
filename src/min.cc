@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 24 05:35:22 EST 2011
+// Date:	Sun Dec 25 12:25:52 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1940,16 +1940,19 @@ min::uns32 min::print_line
     return width;
 }
 
-void min::print_item_lines
+void min::print_phrase_lines
 	( min::printer printer,
 	  min::file file,
-	  const min::position & begin,
-	  const min::position & end,
+	  const min::phrase_position &
+	      phrase_position,
 	  char mark,
 	  const char * blank_line,
 	  const char * end_of_file,
 	  const char * unavailable_line )
 {
+    const min::position & begin = phrase_position.begin;
+    const min::position & end   = phrase_position.end;
+
     assert ( end.line >= begin.line );
 
     uns32 line = begin.line;

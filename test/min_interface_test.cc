@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 24 05:36:43 EST 2011
+// Date:	Sun Dec 25 12:26:44 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2599,14 +2599,20 @@ void test_printer ( void )
     min::print_line ( printer, file, 4 );
     min::print_line ( printer, file, 5 );
 
-    min::position bpos1 = { 1, 5, 5 };
-    min::position epos1 = { 2, 4, 4 };
-    min::position bpos2 = { 2, 5, 5 };
-    min::position epos2 = { 5, 0, 0 };
-    min::print_item_lines
-	( printer, file, bpos1, epos1 );
-    min::print_item_lines
-	( printer, file, bpos2, epos2,
+    min::phrase_position ppos1 =
+        { { 1, 5, 5 }, { 2, 4, 4 } };
+    min::phrase_position ppos2 =
+	{ { 2, 5, 5 }, { 5, 0, 0 } };
+
+    printer << "Phrase Print Test: "
+            << min::pline_numbers ( file, ppos1 )
+	    << min::eol;
+    min::print_phrase_lines ( printer, file, ppos1 );
+    printer << "Phrase Print Test: "
+            << min::pline_numbers ( file, ppos2 )
+	    << min::eol;
+    min::print_phrase_lines
+	( printer, file, ppos2,
 	  '#', "<EMPTY>", "<EOF>");
 
     file->print_flags =
@@ -2615,10 +2621,16 @@ void test_printer ( void )
     min::print_line ( printer, file, 3 );
     min::print_line ( printer, file, 4 );
     min::print_line ( printer, file, 5 );
-    min::print_item_lines
-	( printer, file, bpos1, epos1 );
-    min::print_item_lines
-	( printer, file, bpos2, epos2,
+
+    printer << "Phrase Print Test: "
+            << min::pline_numbers ( file, ppos1 )
+	    << min::eol;
+    min::print_phrase_lines ( printer, file, ppos1 );
+    printer << "Phrase Print Test: "
+            << min::pline_numbers ( file, ppos2 )
+	    << min::eol;
+    min::print_phrase_lines
+	( printer, file, ppos2,
 	  '#', "<EMPTY>", "<EOF>");
 
     min::locatable_var<min::file> efile;

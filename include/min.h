@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 24 07:38:01 EST 2011
+// Date:	Sun Dec 25 05:40:00 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6261,27 +6261,28 @@ namespace min {
 	uns32	column;
     };
 
-    struct element_position
+    struct phrase_position
     {
         min::position begin;
         min::position end;
     };
 
-    struct element_positions_header
+    struct vec_phrase_positions_header
     {
         const min::uns32 control;
         const min::uns32 length;
         const min::uns32 max_length;
 	const min::file  file;
+	min::phrase_position phrase_position;
     };
     typedef min::packed_vec_ptr
-	    < element_position,
-	      element_positions_header >
-	element_positions;
+	    < phrase_position,
+	      vec_phrase_positions_header >
+	vec_phrase_positions;
     typedef min::packed_vec_insptr
-	    < element_position,
-	      element_positions_header >
-	element_positions_insptr;
+	    < phrase_position,
+	      vec_phrase_positions_header >
+	vec_phrase_positions_insptr;
 
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
@@ -6409,11 +6410,11 @@ namespace min {
 	      const char * unavailable_line =
 	          "<UNAVALABLE-LINE>" );
 
-    void print_item_lines
+    void print_phrase_lines
 	    ( min::printer printer,
 	      min::file file,
-	      const min::position & begin,
-	      const min::position & end,
+	      const min::phrase_position
+	          & phrase_position,
 	      char mark = '^',
 	      const char * blank_line =
 	          "<BLANK-LINE>",
@@ -6431,6 +6432,12 @@ namespace min {
 			min::uns32 last )
 	    : file ( file ),
 	      first ( first ), last ( last ) {}
+	pline_numbers ( min::file file,
+	                const min::phrase_position
+			    & phrase_position )
+	    : file ( file ),
+	      first ( phrase_position.begin.line ),
+	      last  ( phrase_position.end.line ) {}
     };
 }
 
