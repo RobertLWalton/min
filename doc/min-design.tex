@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 24, 2011}
+\date{December 25, 2011}
  
 \maketitle
 
@@ -6151,17 +6151,49 @@ so if positions are computed assuming one value of
 {\tt print\_\EOL flags}, the \verb|column| values in these positions will
 not be valid for a different value of {\tt print\_\EOL flags}.
 
-If the positions of the beginning and ending of an erroneous text in
-a file are known, then in place of the above \verb|for| loop with its calls
-to {\tt min::\EOL print\_\EOL line}, one can use the function:
+Two \verb|min::position| structures are needed to encode the boundaries
+of a piece of text in a file.  Such a piece of text is called
+a `\key{phrase}', and its positions are encoded in a
+{\tt min::\EOL phrase\_\EOL position} structure:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::position begin;|\ARGBREAK
+    \verb|  min::position end;|\ARGBREAK
+    \verb|};|
+\ttmindex{begin}{in {\tt min::phrase\_position}}
+\ttmindex{end}{in {\tt min::phrase\_position}}
+\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
+\end{tabular}\end{indpar}
+
+Here `\verb|begin|' encodes the position of the first character
+of the phrase in the file, and `\verb|end|' encodes the position
+of the first character \underline{after} the phrase in the file.
+If the phrase is empty, {\tt begin == end}, and the position
+referenced by both is the position of the empty phrase in the file.
+
+To print the line numbers of a phrase one can use the constructor:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb| ( min::file file,|\ARGBREAK
+    \verb|   min::phrase_position & phrase_position )|
+\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
+\end{tabular}\end{indpar}
+
+which uses {\tt phrase\_\EOL position.begin.line} and
+which uses {\tt phrase\_\EOL position.end.line} as
+line numbers.
+
+To print a phrase one can use the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL item\_\EOL lines\REL}\ARGBREAK
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\REL}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
-      \verb|   const min::position & begin,|\ARGBREAK
-      \verb|   const min::position & end,|\ARGBREAK
+      \verb|   const min::phrase_position & phrase_position,|\ARGBREAK
       \verb|   char mark = '^',|\ARGBREAK
       \verb|   const char * blank_line =|\ARGBREAK
       \verb|       "<BLANK-LINE>",|\ARGBREAK
@@ -6169,19 +6201,26 @@ to {\tt min::\EOL print\_\EOL line}, one can use the function:
       \verb|       "<END-OF-FILE>",|\ARGBREAK
       \verb|   const char * unavailable_line =|\ARGBREAK
       \verb|       "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_ITEM_LINES} \\
+\LABEL{MIN::PRINT_PHRASE_LINES} \\
 \end{tabular}\end{indpar}
 
-Here the `item' is the erroneous text,
-the \verb|begin| argument is the position of the first
-character of the item, the \verb|end| argument is the position
-just \underline{after} the last character of the item, the
-lines containing the item are printed, and under each item
+The lines containing the phrase are printed, and under each phrase
 character a \verb|mark| is printed.  The lines are printed
 as per {\tt min::\EOL print\_\EOL line} using the
 {\tt blank\_\EOL line},
 {\tt end\_\EOL of\_\EOL file}, and
 {\tt unavailable\_\EOL line} arguments.
+An empty phrase is marked as if it were 1-column wide, that column
+being at the empty phrase position.
+
+An example using a {\tt phrase\_position} is
+
+\begin{indpar}\begin{verbatim}
+    printer << ... error description ...
+            << min::pline_numbers ( file, phrase_position )
+            << min::eol;
+    min::print_phrase_lines ( printer, file, phrase_position );
+\end{verbatim}\end{indpar}
 
 It is possible to `rewind' a file with the function:
 
