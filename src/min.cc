@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 12:25:52 EST 2011
+// Date:	Sun Dec 25 20:44:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1943,15 +1943,14 @@ min::uns32 min::print_line
 void min::print_phrase_lines
 	( min::printer printer,
 	  min::file file,
-	  const min::phrase_position &
-	      phrase_position,
+	  const min::phrase_position & position,
 	  char mark,
 	  const char * blank_line,
 	  const char * end_of_file,
 	  const char * unavailable_line )
 {
-    const min::position & begin = phrase_position.begin;
-    const min::position & end   = phrase_position.end;
+    const min::position & begin = position.begin;
+    const min::position & end   = position.end;
 
     assert ( end.line >= begin.line );
 

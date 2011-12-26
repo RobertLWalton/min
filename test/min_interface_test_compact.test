@@ -1659,7 +1659,7 @@ Line 2
      ^
 Line 3
 ^^^^
-Phrase Print Test: test_file: lines 3-6
+Phrase Print Test: test_file: lines 3-5
 Line 3
      #
 <EMPTY>
@@ -1675,7 +1675,7 @@ Line␣2␤
      ^^
 Line␣3␤
 ^^^^
-Phrase Print Test: test_file: lines 3-6
+Phrase Print Test: test_file: lines 3-5
 Line␣3␤
      ##
 ␤
