@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 20:44:19 EST 2011
+// Date:	Mon Dec 26 13:23:13 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1830,6 +1830,7 @@ min::uns32 min::line
 
 min::uns32 min::print_line
 	( min::printer printer,
+	  min::uns32 print_flags,
 	  min::file file,
 	  min::uns32 line_number,
 	  const char * blank_line,
@@ -1880,12 +1881,12 @@ min::uns32 min::print_line
     //
     if ( blank_line == NULL )
         ; // do nothing
-    else if ( ( file->print_flags & min::GRAPHIC_FLAGS )
+    else if ( ( print_flags & min::GRAPHIC_FLAGS )
               &&
 	      buffer[0] != 0 )
         ; // do nothing
     else if ( eof ? end_of_file != NULL :
-                  (   file->print_flags
+                  (   print_flags
                     & min::DISPLAY_EOL_FLAG ) )
         ; // do nothing
     else
@@ -1921,7 +1922,7 @@ min::uns32 min::print_line
 			  + min::ALLOW_NSPACE_FLAG
 		          + min::ASCII_FLAG
 		          + min::DISPLAY_EOL_FLAG )
-		      & file->print_flags )
+		      & print_flags )
 	    << buffer;
     uns32 width = printer->column;
     if ( eof )
@@ -1932,16 +1933,48 @@ min::uns32 min::print_line
     else
     {
 	printer << min::eol << min::pop_parameters;
-	if ( file->print_flags & min::DISPLAY_EOL_FLAG )
+	if ( print_flags & min::DISPLAY_EOL_FLAG )
 	    width +=
-	        ( file->print_flags & min::ASCII_FLAG ?
+	        ( print_flags & min::ASCII_FLAG ?
 		  4 : 1 );
     }
     return width;
 }
 
+min::uns32 min::print_line_column
+	( min::uns32 print_flags,
+	  min::file file,
+	  const min::position & position )
+{
+    min::uns32 column = 0;
+    min::uns32 offset =
+        min::line ( file, position.line );
+    min::uns32 length;
+    
+    if ( offset == min::NO_LINE )
+    {
+	if ( position.line == file->file_lines )
+	{
+	    length = min::partial_length ( file );
+	    if ( length != 0 )
+		offset = min::partial_offset ( file );
+	    else return 0;
+	}
+	else return 0;
+    }
+    else
+        length = ::strlen ( & file->buffer[offset] );
+
+    min::pwidth ( column, & file->buffer[offset],
+    		  position.index <= length ?
+		      position.index : length,
+                  print_flags );
+    return column;
+}
+
 void min::print_phrase_lines
 	( min::printer printer,
+	  min::uns32 print_flags,
 	  min::file file,
 	  const min::phrase_position & position,
 	  char mark,
@@ -1949,10 +1982,17 @@ void min::print_phrase_lines
 	  const char * end_of_file,
 	  const char * unavailable_line )
 {
-    const min::position & begin = position.begin;
-    const min::position & end   = position.end;
+    assert ( position.end.line >= position.begin.line );
 
-    assert ( end.line >= begin.line );
+    // Temporary recomputation of columns to see if
+    // pwidth works.
+    //
+    min::position begin = position.begin;
+    min::position end   = position.end;
+    begin.column =
+        print_line_column ( print_flags, file, begin );
+    end.column =
+        print_line_column ( print_flags, file, end );
 
     uns32 line = begin.line;
     uns32 first_column = begin.column;
@@ -1987,7 +2027,7 @@ void min::print_phrase_lines
 
 	first_column = 0;
 	width = min::print_line
-	    ( printer, file, line,
+	    ( printer, print_flags, file, line,
 	      blank_line, end_of_file,
 	      unavailable_line );
     }
@@ -8090,40 +8130,17 @@ std::ostream & operator <<
 	  NULL );
 }
 
-void min::pwidth
+void MINT::pwidth
     ( min::uns32 & column,
       min::uns32 c, min::uns32 flags )
 {
-    // Divide into cases.  Either update column and
-    // return, or fall through if output is to be
-    // either utf8graphic[c] or asciigraphic[c].
+    // Continuation of inline min::pwidth.
+
+    // Divide into cases.  Update column and return, or
+    // fall through to use asciigraphic[c] if ASCII or
+    // just add 1 to column if not ASCII.
     //
-    if ( 0x20 < c && c < 0x7F )
-    {
-        ++ column;
-	return;
-    }
-    else if ( c == ' ' )
-    {
-        if ( flags & min::GRAPHIC_HSPACE_FLAG )
-	    ; // Fall through
-	else
-	{
-	    ++ column;
-	    return;
-	}
-    }
-    else if ( c == '\t' )
-    {
-        if ( flags & min::GRAPHIC_HSPACE_FLAG )
-	    ; // Fall through
-	else
-	{
-	    column += 8 - column % 8;
-	    return;
-	}
-    }
-    else if ( c == '\f' || c == '\v' )
+    if ( c == '\f' || c == '\v' )
     {
         if ( flags & min::GRAPHIC_VSPACE_FLAG )
 	    ; // Fall through
@@ -8158,10 +8175,22 @@ void min::pwidth
 	return;
     }
 
+    // We have fallen through.
+    //
     if ( flags & min::ASCII_FLAG )
     {
 	if ( c == 0x7F ) c = DEL_REP;
 	column += ::strlen ( asciigraphic[c] );
     }
     else ++ column;
+}
+
+void min::pwidth ( min::uns32 & column,
+                   const char * s, min::unsptr n,
+		   min::uns32 flags )
+{
+    const char * ends = s + n;
+    while ( s < ends )
+        pwidth ( column, utf8_to_unicode ( s ),
+	         flags );
 }

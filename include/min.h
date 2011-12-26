@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 20:41:35 EST 2011
+// Date:	Mon Dec 26 12:56:20 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4309,10 +4309,11 @@ namespace min {
     inline uns32 utf8_to_unicode ( const char * & s )
     {
         uns8 c = (uns8) * s ++;
+	if ( c < 0x80 ) return c;
+
 	uns32 bytes = 0;
 	uns32 unicode = c;
-	if ( c < 0x80 ) unicode = c;
-	else if ( c < 0xC0 )
+	if ( c < 0xC0 )
 	    unicode = ILLEGAL_UTF8;
 	else if ( c < 0xD0 )
 	    unicode &= 0x1F, bytes = 1;
@@ -6401,6 +6402,7 @@ namespace min {
 
     min::uns32 print_line
     	    ( min::printer,
+	      min::uns32 print_flags,
 	      min::file file,
 	      min::uns32 line_number,
 	      const char * blank_line =
@@ -6410,8 +6412,39 @@ namespace min {
 	      const char * unavailable_line =
 	          "<UNAVALABLE-LINE>" );
 
+    inline min::uns32 print_line
+    	    ( min::printer printer,
+	      min::file file,
+	      min::uns32 line_number,
+	      const char * blank_line =
+	          "<BLANK-LINE>",
+	      const char * end_of_file =
+	          "<END-OF-FILE>",
+	      const char * unavailable_line =
+	          "<UNAVALABLE-LINE>" )
+    {
+        return print_line
+	    ( printer, file->print_flags, file,
+	      line_number, blank_line, end_of_file,
+	      unavailable_line );
+    }
+
+    min::uns32 print_line_column
+	    ( min::uns32 print_flags,
+	      min::file file,
+	      const min::position & position );
+
+    inline min::uns32 print_line_column
+	    ( min::file file,
+	      const min::position & position )
+    {
+        return print_line_column
+	    ( file->print_flags, file, position );
+    }
+
     void print_phrase_lines
 	    ( min::printer printer,
+	      min::uns32 print_flags,
 	      min::file file,
 	      const min::phrase_position & position,
 	      char mark = '^',
@@ -6421,6 +6454,24 @@ namespace min {
 	          "<END-OF-FILE>",
 	      const char * unavailable_line =
 	          "<UNAVALABLE-LINE>" );
+
+    inline void print_phrase_lines
+	    ( min::printer printer,
+	      min::file file,
+	      const min::phrase_position & position,
+	      char mark = '^',
+	      const char * blank_line =
+	          "<BLANK-LINE>",
+	      const char * end_of_file =
+	          "<END-OF-FILE>",
+	      const char * unavailable_line =
+	          "<UNAVALABLE-LINE>" )
+    {
+        return print_phrase_lines
+	    ( printer, file->print_flags, file,
+	      position, mark, blank_line, end_of_file,
+	      unavailable_line );
+    }
 
     struct pline_numbers
     {
@@ -6440,7 +6491,7 @@ namespace min {
 	{
 	    if ( last > first
 	         &&
-		 position.end.column == 0 )
+		 position.end.index == 0 )
 	        -- last;
 	}
     };
@@ -10936,15 +10987,56 @@ namespace min {
     extern const op nographic;
     extern const op verbatim;
 
-    void pwidth
-        ( uns32 & column, uns32 c, uns32 flags );
-
     namespace internal
     {
+	void pwidth
+	    ( uns32 & column, uns32 c, uns32 flags );
+
         min::printer print_unicode
 		( min::printer printer,
 		  min::unsptr n, const min::uns32 * p );
     }
+
+    inline void pwidth
+	( min::uns32 & column,
+	  min::uns32 c, min::uns32 flags )
+    {
+	// Handle common cases and call out-of-line for
+	// less common cases.
+	//
+	if ( 0x20 < c && c < 0x7F )
+	{
+	    ++ column;
+	    return;
+	}
+	else if ( c == ' ' )
+	{
+	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
+		; // Fall through
+	    else
+	    {
+		++ column;
+		return;
+	    }
+	}
+	else if ( c == '\t' )
+	{
+	    if ( flags & min::GRAPHIC_HSPACE_FLAG )
+		; // Fall through
+	    else
+	    {
+		column += 8 - column % 8;
+		return;
+	    }
+	}
+
+	return internal::pwidth ( column, c, flags );
+    }
+
+    void pwidth
+	( min::uns32 & column,
+	  const char * s, min::unsptr n,
+	  min::uns32 flags );
 }
 
 min::printer operator <<
