@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 05:40:00 EST 2011
+// Date:	Sun Dec 25 20:41:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6413,8 +6413,7 @@ namespace min {
     void print_phrase_lines
 	    ( min::printer printer,
 	      min::file file,
-	      const min::phrase_position
-	          & phrase_position,
+	      const min::phrase_position & position,
 	      char mark = '^',
 	      const char * blank_line =
 	          "<BLANK-LINE>",
@@ -6434,10 +6433,16 @@ namespace min {
 	      first ( first ), last ( last ) {}
 	pline_numbers ( min::file file,
 	                const min::phrase_position
-			    & phrase_position )
+			    & position )
 	    : file ( file ),
-	      first ( phrase_position.begin.line ),
-	      last  ( phrase_position.end.line ) {}
+	      first ( position.begin.line ),
+	      last  ( position.end.line )
+	{
+	    if ( last > first
+	         &&
+		 position.end.column == 0 )
+	        -- last;
+	}
     };
 }
 
