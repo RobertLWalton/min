@@ -3420,7 +3420,7 @@ characters and \key{UTF-8} strings:
 \LABEL{MIN::UTF8_ILLEGAL} \\
 \verb|min::uns32 min::|
     & \MINKEY{utf8\_to\_unicode}\ARGBREAK
-      \verb| ( const char * & s )|
+      \verb| ( const char * & s, const char * ends )|
 \LABEL{MIN::UTF8_TO_UNICODE} \\
 \verb|min::unsptr min::|
     & \MINKEY{unicode\_to\_utf8}\ARGBREAK
@@ -3428,9 +3428,13 @@ characters and \key{UTF-8} strings:
 \LABEL{MIN::UNICODE_TO_UTF8} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::uft8\_to\_unicode} function reads a UTF-8 encoded character
-from \verb|s|, updating \verb|s| to point after the character, and returns
-the character.  {\tt min::\EOL unicode\_\EOL to\_\EOL utf8} writes
+The {\tt min::uft8\_to\_unicode} function reads a UNICODE character
+encoded as a UTF-8 byte string.  Here \verb|s| points at the first byte
+of the encoding and is updated to point after the encoding, while
+\verb|ends| points just after the last byte that can be part of
+the encoding.
+
+The {\tt min::\EOL unicode\_\EOL to\_\EOL utf8} function writes
 a UTF-8 character \verb|c| into \verb|s|, updating \verb|s| to point after the
 character, and returns the number of bytes written.
 
@@ -3438,15 +3442,22 @@ The {\tt min::uft8\_to\_unicode} function will accept
 \mkey{overlong}{UTF-8 encoding} UTF-8 encodings as legal,
 and also accept 7-byte encodings (first byte {\tt 0xFE})
 so that $2^{32}-1$ can be encoded.  If it encounters an
-encoding with the wrong number of continuation bytes,
-or if it encounters a continuation byte with no preceeding
-start byte, it returns \verb|min|::\MINNBKEY{UTF8\_\EOL ILLEGAL},%
+illegal encoding it returns \verb|min|::\MINNBKEY{UTF8\_\EOL ILLEGAL},%
 \label{UTF8_ILLEGAL}
 which is 2639 (hexadecimal),
 the `\key{white frowning face}\index{face, white frowning}',
 \ILLEGALCHAR.
-In this case \verb|s| is updated to just after the illegal encoding.
-No other checks for illegal UNICODE characters are made.
+In this case \verb|s| is updated to point just after the illegal encoding.
+Applying the {\tt min::uft8\_to\_unicode} function repeatedly
+until {\tt s >= ends} and will produce a sequence of UNICODE
+characters from any byte string, even one that is not legal UTF-8,
+though if the string is not legal some {\tt min::\EOL UTF8\_\EOL ILLEGAL}
+characters will be returned.
+
+More specifically, an illegal encoding is a string of bytes such that
+the last byte cannot be UTF-8 legal given the previous bytes, or
+is an incomplete UTF-8 encoding at the end of the byte string
+bounded by \verb|s| and \verb|ends|.
 
 The {\tt min::unicode\_to\_utf8} function will output
 7-byte encodings (first byte {\tt 0xFE}) for
@@ -3455,6 +3466,8 @@ the overlong encoding {\tt 0xC0},{\tt 0x80}
 for \ttnbmkey{NUL}{UTF-8 encoding}
 (UTF-8 in which this is the \underline{only} permitted overlong encoding
 is called `modified UTF-8').  No other overlong encodings are output.
+At most 7 bytes will be output, and
+\verb|s| must point to a byte string buffer with at least 7 bytes.
 
 It is sometimes useful to divide UNICODE characters into
 \skey{unicode class}{es}.  The function
@@ -3561,10 +3574,10 @@ truncated to provide a random hash.
 The \verb|strhead| function is an optimized function that
 returns the first 8 bytes of the string
 in a \verb|min::uns64| value.  This is intended to be used by
-overloading it with \verb|char[8]|, as in the code:
+overloading it with \verb|min::uns8[8]|, as in the code:
 
 \begin{indpar}\begin{verbatim}
-union { min::uns64 u; char s[8]; } v;
+union { min::uns64 u; min::uns8 s[8]; } v;
 min::gen g;
 . . . set g to a string value . . .
 v.u = min::strhead ( g );
@@ -3585,8 +3598,7 @@ the string may represent a separator.
 Note that the bytes are UTF-8 encoded, and may represent non-ASCII
 UNICODE characters.  Note that UTF-8 can encode a UNICODE character
 in as many as 7 bytes, so if the string begins with two non-ASCII
-characters, the encoding of the second may be truncated after the 8'th
-byte.
+characters, the encoding of the second may be truncated.
 
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
@@ -6873,6 +6885,22 @@ must be input to the function.
 \LABEL{MIN::PWIDTH} \\
 \end{tabular}\end{indpar}
 
+In order to find the number of columns consumed by a UTF-8
+encoded string, the following can be used:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{pwidth}\ARGBREAK
+         \verb| ( min::uns32 & column,|\ARGBREAK
+         \verb|   const char * s, min::unsptr n,|\ARGBREAK
+         \verb|   min::uns32 flags )|
+\LABEL{MIN::PWIDTH_OF_STRING} \\
+\end{tabular}\end{indpar}
+
+This function updates `\verb|column|'
+by applying the previous \verb|pwidth| function successively to the
+UNICODE characters encoded by the \verb|n| byte string \verb|s|.
+
 Numbers may be formatted by specified {\tt printf} formats and the results
 printed by using the following operations:
 
@@ -7454,7 +7482,6 @@ are known and are encoded in
     \verb|{|\ARGBREAK
     \verb|  min::uns32 line;|\ARGBREAK
     \verb|  min::uns32 offset;|\ARGBREAK
-    \verb|  min::uns32 column;|\ARGBREAK
     \verb|};|
 \ttmindex{line}{in {\tt min::position}}
 \ttmindex{offset}{in {\tt min::position}}
@@ -7462,17 +7489,9 @@ are known and are encoded in
 \LABEL{MIN::POSITION_STRUCT} \\
 \end{tabular}\end{indpar}
 
-Here \verb|line| is the line number of the line containing the position
-(the first line is line number \verb|0|), \verb|offset| is the
-number of bytes before the position in the line within the
-file, and \verb|column| is the number of print columns
-before the position in the printed version of the line if
-printing is done as per {\tt min::\EOL print\_\EOL line}.
-Note that \verb|column| is partly determined by the
-{\tt print\_\EOL flags} of the file passed to {\tt min::\EOL print\_\EOL line},
-so if positions are computed assuming one value of
-{\tt print\_\EOL flags}, the \verb|column| values in these positions will
-not be valid for a different value of {\tt print\_\EOL flags}.
+Here \verb|line| is the number of full lines before the line
+containing the position and \verb|offset| is the
+number of bytes before the position in the line.
 
 Two \verb|min::position| structures are needed to encode the boundaries
 of a piece of text in a file.  Such a piece of text is called
@@ -7494,31 +7513,33 @@ Here `\verb|begin|' encodes the position of the first character
 of the phrase in the file, and `\verb|end|' encodes the position
 of the first character \underline{after} the phrase in the file.
 If the phrase is empty, {\tt begin == end}, and the position
-referenced by both is the position of the empty phrase in the file.
+referenced by both `\verb|begin|' and `\verb|end|'
+is the position of the empty phrase in the file.
 
 To print the line numbers of a phrase one can use the constructor:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
     \verb| ( min::file file,|\ARGBREAK
-    \verb|   min::phrase_position & position )|
+    \verb|   const min::phrase_position & position )|
 \LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
 \end{tabular}\end{indpar}
 
 which uses {\tt position.begin.line} and
 {\tt position.end.line} as
-line numbers, except if
+line numbers, except that when
 \begin{center}
-{\tt position.end.column == 0} and
+{\tt position.end.offset == 0} \\
+and \\
 {\tt position.end.line > position.begin.line}
 \end{center}
-then {\tt position.end.line - 1} is used instead of
+then {\tt position.end.line - 1} is used in place of
 {\tt position.end.line}.
 
 To print a phrase one can use the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
+\verb|void min::|
     & \MINKEY{print\_\EOL phrase\_\EOL lines\REL}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
@@ -7550,6 +7571,21 @@ An example using a {\tt phrase\_position} is
             << min::eol;
     min::print_phrase_lines ( printer, file, phrase_position );
 \end{verbatim}\end{indpar}
+
+Internally {\tt min::\EOL print\_\EOL phrase\_\EOL lines}
+uses the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\_\EOL column\REL}\ARGBREAK
+      \verb| ( min::file file,|\ARGBREAK
+      \verb|   const min::phrase_position & position )|
+\LABEL{MIN::PRINT_LINE_COLUMN} \\
+\end{tabular}\end{indpar}
+
+which, given a file and a position within that file, returns the number of
+columns before the position in a {\tt min::\EOL print\_\EOL line}
+printout of the line specified by the position.
 
 \subsection{Objects}
 \label{OBJECTS}
