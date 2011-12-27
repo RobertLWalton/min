@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 13:23:13 EST 2011
+// Date:	Mon Dec 26 23:39:32 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1989,13 +1989,13 @@ void min::print_phrase_lines
     //
     min::position begin = position.begin;
     min::position end   = position.end;
-    begin.column =
+    uns32 begin_column =
         print_line_column ( print_flags, file, begin );
-    end.column =
+    uns32 end_column =
         print_line_column ( print_flags, file, end );
 
     uns32 line = begin.line;
-    uns32 first_column = begin.column;
+    uns32 first_column = begin_column;
 
     uns32 width = min::print_line
 	( printer, file, line,
@@ -2006,15 +2006,15 @@ void min::print_phrase_lines
         for ( uns32 i = 0; i < first_column; ++ i )
 	    printer << ' ';
 
-	uns32 end_column =
-	    end.line == line ? end.column : width;
-	if ( end_column <= first_column )
-	    end_column = width;
-	if ( end_column <= first_column )
-	    end_column = first_column + 1;
+	uns32 last_column =
+	    end.line == line ? end_column : width;
+	if ( last_column <= first_column )
+	    last_column = width;
+	if ( last_column <= first_column )
+	    last_column = first_column + 1;
 
         for ( uns32 i = first_column;
-	      i < end_column; ++ i )
+	      i < last_column; ++ i )
 	    printer << mark;
 	printer << min::eol;
 
@@ -2022,7 +2022,7 @@ void min::print_phrase_lines
 
 	++ line;
 
-	if ( line == end.line && end.column == 0 )
+	if ( line == end.line && end_column == 0 )
 	    return;
 
 	first_column = 0;

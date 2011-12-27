@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 12:56:20 EST 2011
+// Date:	Mon Dec 26 23:35:36 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6259,7 +6259,6 @@ namespace min {
     {
 	uns32	line;
 	uns32	index;
-	uns32	column;
     };
 
     struct phrase_position

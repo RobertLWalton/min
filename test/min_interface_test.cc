@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Dec 25 12:26:44 EST 2011
+// Date:	Mon Dec 26 23:40:56 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2600,9 +2600,9 @@ void test_printer ( void )
     min::print_line ( printer, file, 5 );
 
     min::phrase_position ppos1 =
-        { { 1, 5, 5 }, { 2, 4, 4 } };
+        { { 1, 5 }, { 2, 4 } };
     min::phrase_position ppos2 =
-	{ { 2, 5, 5 }, { 5, 0, 0 } };
+	{ { 2, 5 }, { 5, 0 } };
 
     printer << "Phrase Print Test: "
             << min::pline_numbers ( file, ppos1 )
