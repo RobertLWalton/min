@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 23:39:32 EST 2011
+// Date:	Tue Dec 27 07:28:23 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7794,12 +7794,14 @@ min::printer operator <<
     // other things.
     
     int length = ::strlen ( s );
+    const char * ends = s + length;
+
     min::uns32 buffer[length];
     min::uns32 i = 0;
 
-    min::uns32 c;
-    while ( c = (min::uns8) * s ++ )
+    while ( s < ends )
     {
+	min::uns32 c = (min::uns8) * s ++;
         if ( c >= 0x80 )
 	{
 	    // UTF-8 encoded character.  Might be
@@ -7807,7 +7809,7 @@ min::printer operator <<
 	    // as NUL.
 
 	    -- s;
-	    c = min::utf8_to_unicode ( s );
+	    c = min::utf8_to_unicode ( s, ends );
 	}
 	buffer[i++] = c;
     }
@@ -8191,6 +8193,6 @@ void min::pwidth ( min::uns32 & column,
 {
     const char * ends = s + n;
     while ( s < ends )
-        pwidth ( column, utf8_to_unicode ( s ),
+        pwidth ( column, utf8_to_unicode ( s, ends ),
 	         flags );
 }

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 23:35:36 EST 2011
+// Date:	Tue Dec 27 05:59:20 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4306,8 +4306,11 @@ namespace min {
     const uns32 ILLEGAL_UTF8 = 0x2639;
 	// == `white frowning face',
 
-    inline uns32 utf8_to_unicode ( const char * & s )
+    inline uns32 utf8_to_unicode
+    	( const char * & s, const char * ends )
     {
+        if ( s >= ends ) return ILLEGAL_UTF8;
+
         uns8 c = (uns8) * s ++;
 	if ( c < 0x80 ) return c;
 
@@ -4327,12 +4330,18 @@ namespace min {
 	    unicode &= 0x01, bytes = 5;
 	else
 	    unicode &= 0x00, bytes = 6;
+
+	if ( s + bytes > ends )
+	{
+	    s = ends;
+	    return ILLEGAL_UTF8;
+	}
+
 	while ( bytes -- )
 	{
 	    c = (uns8) * s ++;
 	    if ( c < 0x80 || 0xC0 <= c )
 	    {
-	        -- s;
 		unicode = ILLEGAL_UTF8;
 		break;
 	    }
