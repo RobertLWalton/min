@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 25, 2011}
+\date{December 27, 2011}
  
 \maketitle
 
@@ -6017,217 +6017,6 @@ It is a programming error if
 \tt line\_number > file->next\_line\_number
 \end{center}
 
-
-
-The following function uses {\tt min::line} to print a line as part of
-an error message:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\REL}\ARGBREAK
-      \verb| ( min::printer printer,|\ARGBREAK
-      \verb|   min::file file,|\ARGBREAK
-      \verb|   min::uns32 line_number,|\ARGBREAK
-      \verb|   const char * blank_line =|\ARGBREAK
-      \verb|       "<BLANK-LINE>",|\ARGBREAK
-      \verb|   const char * end_of_file =|\ARGBREAK
-      \verb|       "<END-OF-FILE>",|\ARGBREAK
-      \verb|   const char * unavailable_line =|\ARGBREAK
-      \verb|       "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_LINE} \\
-\end{tabular}\end{indpar}
-
-The {\tt file} line with the given {\tt line\_number}
-is printed on a single {\tt printer} line.  {\tt file->\EOL print\_\EOL flags}
-(\pagref{FILE_PRINT_FLAGS})
-are used to print this line, and the number of columns in the result,
-including any end of line representation printed by the
-{\tt min::\EOL DISPLAY\_\EOL EOL} flag, is returned.
-
-If a line is
-unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
-see above)
-and {\tt line\_\EOL number} is not equal {\tt file->\EOL file\_\EOL lines},
-then {\tt unavailable\_\EOL line} is printed on a line by itself instead, and
-{\tt 0} is returned, if {\tt unavailable\_EOL line} is not {\tt NULL}.
-But if {\tt unavailable\_\EOL line} is {\tt NULL}, nothing is done except
-to return {\tt min::\EOL NO\_\EOL LINE}.
-
-If a line would print as blank, i.e., consisting of
-nothing but horizontal space characters with no end of line display, and if
-{\tt blank\_\EOL line} is not {\tt NULL},
-{\tt blank\_\EOL line} is printed instead of the line, and {\tt 0} is returned.
-
-If there is no line
-because {\tt line\_\EOL number == file->\EOL file\_\EOL lines},
-then any partial line at the end of the file buffer is printed,
-immediately followed by {\tt end\_\EOL of\_\EOL file}, all on one line,
-and the number of columns used to print the partial line is returned.
-However, if {\tt end\_\EOL of\_\EOL file} is {\tt NULL}, then
-if there is a partial line, only that is printed, on a single line
-without any visible ending line feed, and if there is no partial line,
-nothing is printed and {\tt NO\_\EOL LINE} is returned.
-
-Note that
-{\tt file->\EOL print\_\EOL flags} is not used to print
-{\tt unavailable\_\EOL line}, {\tt blank\_\EOL line}, or
-{\tt end\_\EOL of\_\EOL line} or any following line feed,
-and it is best if these special strings consist of nothing but
-graphic ASCII characters and single spaces.
-Also, these ASCII strings may not be unprotected body pointers,
-as printing may relocate bodies.
-
-In all cases where anything is printed, exactly one complete print line is
-printed.
-
-Error messages typically consist of a description of the error
-followed by the lines involved printed with the above function
-(often the portions of the lines involved are marked by printing
-`\verb|^|' characters under them).  The error description before
-the lines typically ends with the name of the file containing
-the lines and the numbers of the lines.  This can be produced
-by the code:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb| ( min::file file,|\ARGBREAK
-    \verb|   min::uns32 first, min::use32 last )|
-\LABEL{MIN::PLINE_NUMBERS} \\
-\end{tabular}\end{indpar}
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
-              {of {\tt min::printer}}\ARGBREAK
-      \verb| ( min::printer printer,|\ARGBREAK
-      \verb|   const min::pline_numbers & pline_numbers )|
-\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
-\end{tabular}\end{indpar}
-
-An example use is
-
-\begin{indpar}\begin{verbatim}
-    printer << ... error description ...
-            << min::pline_numbers ( file, first, last )
-            << min::eol;
-    for ( min::uns32 line_number = first;
-          line_number <= last,
-          ++ line_number )
-        min::print_line ( printer, file, line_number );
-\end{verbatim}\end{indpar}
-
-The line numbers printed by {\tt min::\EOL pline\_\EOL number}
-are \verb|1| greater than the line numbers given in the arguments,
-so the line number of the first line of a file is denoted by a
-\verb|0| argument which is printed as \verb|1|.
-
-There is a better way to print the lines of a file within an
-error message if the positions of the erroneous text in the file
-are known and are encoded in
-\verb|min::position| structures:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{position}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::uns32 line;|\ARGBREAK
-    \verb|  min::uns32 offset;|\ARGBREAK
-    \verb|  min::uns32 column;|\ARGBREAK
-    \verb|};|
-\ttmindex{line}{in {\tt min::position}}
-\ttmindex{offset}{in {\tt min::position}}
-\ttmindex{column}{in {\tt min::position}}
-\LABEL{MIN::POSITION_STRUCT} \\
-\end{tabular}\end{indpar}
-
-Here \verb|line| is the line number of the line containing the position
-(the first line is line number \verb|0|), \verb|offset| is the
-number of bytes before the position in the line within the
-file, and \verb|column| is the number of print columns
-before the position in the printed version of the line if
-printing is done as per {\tt min::\EOL print\_\EOL line}.
-Note that \verb|column| is partly determined by the
-{\tt print\_\EOL flags} of the file passed to {\tt min::\EOL print\_\EOL line},
-so if positions are computed assuming one value of
-{\tt print\_\EOL flags}, the \verb|column| values in these positions will
-not be valid for a different value of {\tt print\_\EOL flags}.
-
-Two \verb|min::position| structures are needed to encode the boundaries
-of a piece of text in a file.  Such a piece of text is called
-a `\key{phrase}', and its positions are encoded in a
-{\tt min::\EOL phrase\_\EOL position} structure:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  min::position begin;|\ARGBREAK
-    \verb|  min::position end;|\ARGBREAK
-    \verb|};|
-\ttmindex{begin}{in {\tt min::phrase\_position}}
-\ttmindex{end}{in {\tt min::phrase\_position}}
-\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
-\end{tabular}\end{indpar}
-
-Here `\verb|begin|' encodes the position of the first character
-of the phrase in the file, and `\verb|end|' encodes the position
-of the first character \underline{after} the phrase in the file.
-If the phrase is empty, {\tt begin == end}, and the position
-referenced by both is the position of the empty phrase in the file.
-
-To print the line numbers of a phrase one can use the constructor:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
-    \verb| ( min::file file,|\ARGBREAK
-    \verb|   min::phrase_position & position )|
-\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
-\end{tabular}\end{indpar}
-
-which uses {\tt position.begin.line} and
-{\tt position.end.line} as
-line numbers, except if
-\begin{center}
-{\tt position.end.column == 0} and
-{\tt position.end.line > position.begin.line}
-\end{center}
-then {\tt position.end.line - 1} is used instead of
-{\tt position.end.line}.
-
-To print a phrase one can use the function:
-
-\begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\REL}\ARGBREAK
-      \verb| ( min::printer printer,|\ARGBREAK
-      \verb|   min::file file,|\ARGBREAK
-      \verb|   const min::phrase_position & position,|\ARGBREAK
-      \verb|   char mark = '^',|\ARGBREAK
-      \verb|   const char * blank_line =|\ARGBREAK
-      \verb|       "<BLANK-LINE>",|\ARGBREAK
-      \verb|   const char * end_of_file =|\ARGBREAK
-      \verb|       "<END-OF-FILE>",|\ARGBREAK
-      \verb|   const char * unavailable_line =|\ARGBREAK
-      \verb|       "<UNAVAILABLE-LINE>" )|
-\LABEL{MIN::PRINT_PHRASE_LINES} \\
-\end{tabular}\end{indpar}
-
-The lines containing the phrase are printed, and under each phrase
-character a \verb|mark| is printed.  The lines are printed
-as per {\tt min::\EOL print\_\EOL line} using the
-{\tt blank\_\EOL line},
-{\tt end\_\EOL of\_\EOL file}, and
-{\tt unavailable\_\EOL line} arguments.
-An empty phrase is marked as if it were 1-column wide, that column
-being at the empty phrase position.
-
-An example using a {\tt phrase\_position} is
-
-\begin{indpar}\begin{verbatim}
-    printer << ... error description ...
-            << min::pline_numbers ( file, phrase_position )
-            << min::eol;
-    min::print_phrase_lines ( printer, file, phrase_position );
-\end{verbatim}\end{indpar}
-
 It is possible to `rewind' a file with the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7549,6 +7338,218 @@ is passed as an argument to the {\tt pstub} function,
 and may or may not be be ignored by that function.
 
 \end{itemlist}
+
+\subsection{Printing File Lines and Phrases}
+\label{PRINTING-FILE-LINES-AND-PHRASES}
+
+The following function uses {\tt min::line} to print a line as part of
+an error message:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\REL}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   min::uns32 line_number,|\ARGBREAK
+      \verb|   const char * blank_line =|\ARGBREAK
+      \verb|       "<BLANK-LINE>",|\ARGBREAK
+      \verb|   const char * end_of_file =|\ARGBREAK
+      \verb|       "<END-OF-FILE>",|\ARGBREAK
+      \verb|   const char * unavailable_line =|\ARGBREAK
+      \verb|       "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE} \\
+\end{tabular}\end{indpar}
+
+The {\tt file} line with the given {\tt line\_number}
+is printed on a single {\tt printer} line.  {\tt file->\EOL print\_\EOL flags}
+(\pagref{FILE_PRINT_FLAGS})
+are used to print this line, and the number of columns in the result,
+including any end of line representation printed by the
+{\tt min::\EOL DISPLAY\_\EOL EOL} flag, is returned.
+
+If a line is
+unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
+see above)
+and {\tt line\_\EOL number} is not equal {\tt file->\EOL file\_\EOL lines},
+then {\tt unavailable\_\EOL line} is printed on a line by itself instead, and
+{\tt 0} is returned, if {\tt unavailable\_EOL line} is not {\tt NULL}.
+But if {\tt unavailable\_\EOL line} is {\tt NULL}, nothing is done except
+to return {\tt min::\EOL NO\_\EOL LINE}.
+
+If a line would print as blank, i.e., consisting of
+nothing but horizontal space characters with no end of line display, and if
+{\tt blank\_\EOL line} is not {\tt NULL},
+{\tt blank\_\EOL line} is printed instead of the line, and {\tt 0} is returned.
+
+If there is no line
+because {\tt line\_\EOL number == file->\EOL file\_\EOL lines},
+then any partial line at the end of the file buffer is printed,
+immediately followed by {\tt end\_\EOL of\_\EOL file}, all on one line,
+and the number of columns used to print the partial line is returned.
+However, if {\tt end\_\EOL of\_\EOL file} is {\tt NULL}, then
+if there is a partial line, only that is printed, on a single line
+without any visible ending line feed, and if there is no partial line,
+nothing is printed and {\tt NO\_\EOL LINE} is returned.
+
+Note that
+{\tt file->\EOL print\_\EOL flags} is not used to print
+{\tt unavailable\_\EOL line}, {\tt blank\_\EOL line}, or
+{\tt end\_\EOL of\_\EOL line} or any following line feed,
+and it is best if these special strings consist of nothing but
+graphic ASCII characters and single spaces.
+Also, these ASCII strings may not be unprotected body pointers,
+as printing may relocate bodies.
+
+In all cases where anything is printed, exactly one complete print line is
+printed.
+
+Error messages typically consist of a description of the error
+followed by the lines involved printed with the above function
+(often the portions of the lines involved are marked by printing
+`\verb|^|' characters under them).  The error description before
+the lines typically ends with the name of the file containing
+the lines and the numbers of the lines.  This can be produced
+by the code:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb| ( min::file file,|\ARGBREAK
+    \verb|   min::uns32 first, min::uns32 last )|
+\LABEL{MIN::PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT\REL}%
+              {of {\tt min::printer}}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   const min::pline_numbers & pline_numbers )|
+\LABEL{PRINTER_OPERATOR<<_OF_PLINE_NUMBERS} \\
+\end{tabular}\end{indpar}
+
+An example use is
+
+\begin{indpar}\begin{verbatim}
+    printer << ... error description ...
+            << min::pline_numbers ( file, first, last )
+            << min::eol;
+    for ( min::uns32 line_number = first;
+          line_number <= last,
+          ++ line_number )
+        min::print_line ( printer, file, line_number );
+\end{verbatim}\end{indpar}
+
+The line numbers printed by {\tt min::\EOL pline\_\EOL number}
+are \verb|1| greater than the line numbers given in the arguments,
+so the line number of the first line of a file is denoted by a
+\verb|0| argument which is printed as \verb|1|.
+
+There is a better way to print the lines of a file within an
+error message if the positions of the erroneous text in the file
+are known and are encoded in
+\verb|min::position| structures:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32 line;|\ARGBREAK
+    \verb|  min::uns32 offset;|\ARGBREAK
+    \verb|  min::uns32 column;|\ARGBREAK
+    \verb|};|
+\ttmindex{line}{in {\tt min::position}}
+\ttmindex{offset}{in {\tt min::position}}
+\ttmindex{column}{in {\tt min::position}}
+\LABEL{MIN::POSITION_STRUCT} \\
+\end{tabular}\end{indpar}
+
+Here \verb|line| is the line number of the line containing the position
+(the first line is line number \verb|0|), \verb|offset| is the
+number of bytes before the position in the line within the
+file, and \verb|column| is the number of print columns
+before the position in the printed version of the line if
+printing is done as per {\tt min::\EOL print\_\EOL line}.
+Note that \verb|column| is partly determined by the
+{\tt print\_\EOL flags} of the file passed to {\tt min::\EOL print\_\EOL line},
+so if positions are computed assuming one value of
+{\tt print\_\EOL flags}, the \verb|column| values in these positions will
+not be valid for a different value of {\tt print\_\EOL flags}.
+
+Two \verb|min::position| structures are needed to encode the boundaries
+of a piece of text in a file.  Such a piece of text is called
+a `\key{phrase}', and its positions are encoded in a
+{\tt min::\EOL phrase\_\EOL position} structure:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{phrase\_\EOL position}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::position begin;|\ARGBREAK
+    \verb|  min::position end;|\ARGBREAK
+    \verb|};|
+\ttmindex{begin}{in {\tt min::phrase\_position}}
+\ttmindex{end}{in {\tt min::phrase\_position}}
+\LABEL{MIN::PHRASE_POSITION_STRUCT} \\
+\end{tabular}\end{indpar}
+
+Here `\verb|begin|' encodes the position of the first character
+of the phrase in the file, and `\verb|end|' encodes the position
+of the first character \underline{after} the phrase in the file.
+If the phrase is empty, {\tt begin == end}, and the position
+referenced by both is the position of the empty phrase in the file.
+
+To print the line numbers of a phrase one can use the constructor:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|(constructor) min::| & \MINKEY{pline\_numbers}\ARGBREAK
+    \verb| ( min::file file,|\ARGBREAK
+    \verb|   min::phrase_position & position )|
+\LABEL{MIN::PLINE_NUMBERS_OF_PHRASE_POSITION} \\
+\end{tabular}\end{indpar}
+
+which uses {\tt position.begin.line} and
+{\tt position.end.line} as
+line numbers, except if
+\begin{center}
+{\tt position.end.column == 0} and
+{\tt position.end.line > position.begin.line}
+\end{center}
+then {\tt position.end.line - 1} is used instead of
+{\tt position.end.line}.
+
+To print a phrase one can use the function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\REL}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   const min::phrase_position & position,|\ARGBREAK
+      \verb|   char mark = '^',|\ARGBREAK
+      \verb|   const char * blank_line =|\ARGBREAK
+      \verb|       "<BLANK-LINE>",|\ARGBREAK
+      \verb|   const char * end_of_file =|\ARGBREAK
+      \verb|       "<END-OF-FILE>",|\ARGBREAK
+      \verb|   const char * unavailable_line =|\ARGBREAK
+      \verb|       "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_PHRASE_LINES} \\
+\end{tabular}\end{indpar}
+
+The lines containing the phrase are printed, and under each phrase
+character a \verb|mark| is printed.  The lines are printed
+as per {\tt min::\EOL print\_\EOL line} using the
+{\tt blank\_\EOL line},
+{\tt end\_\EOL of\_\EOL file}, and
+{\tt unavailable\_\EOL line} arguments.
+An empty phrase is marked as if it were 1-column wide, that column
+being at the empty phrase position.
+
+An example using a {\tt phrase\_position} is
+
+\begin{indpar}\begin{verbatim}
+    printer << ... error description ...
+            << min::pline_numbers ( file, phrase_position )
+            << min::eol;
+    min::print_phrase_lines ( printer, file, phrase_position );
+\end{verbatim}\end{indpar}
 
 \subsection{Objects}
 \label{OBJECTS}
