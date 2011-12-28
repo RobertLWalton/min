@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 27, 2011}
+\date{December 28, 2011}
  
 \maketitle
 
@@ -7586,6 +7586,58 @@ uses the function:
 which, given a file and a position within that file, returns the number of
 columns before the position in a {\tt min::\EOL print\_\EOL line}
 printout of the line specified by the position.
+
+Some of the above functions use {\tt file->print\_flags}
+to control how lines are printed and therefore which column
+a position corresponds to.  For example, depending upon the
+setting of the print flags, a horizontal tab may appear as
+1 to 8 whitespace columns, or as the 4 characters `{\tt <HT>}',
+or as the 1-column character {\tiny $\stackrel{\textstyle H~}{~T}$}.
+The following are alternatives to the above functions that take
+an extra {\tt print\_\EOL flags} argument and use that in place of
+{\tt file->\EOL print\_\EOL flags}:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\REL}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::uns32 print_flags,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   min::uns32 line_number,|\ARGBREAK
+      \verb|   const char * blank_line =|\ARGBREAK
+      \verb|       "<BLANK-LINE>",|\ARGBREAK
+      \verb|   const char * end_of_file =|\ARGBREAK
+      \verb|       "<END-OF-FILE>",|\ARGBREAK
+      \verb|   const char * unavailable_line =|\ARGBREAK
+      \verb|       "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_LINE_WITH_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|void min::|
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\REL}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::uns32 print_flags,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   const min::phrase_position & position,|\ARGBREAK
+      \verb|   char mark = '^',|\ARGBREAK
+      \verb|   const char * blank_line =|\ARGBREAK
+      \verb|       "<BLANK-LINE>",|\ARGBREAK
+      \verb|   const char * end_of_file =|\ARGBREAK
+      \verb|       "<END-OF-FILE>",|\ARGBREAK
+      \verb|   const char * unavailable_line =|\ARGBREAK
+      \verb|       "<UNAVAILABLE-LINE>" )|
+\LABEL{MIN::PRINT_PHRASE_LINES_WITH_FLAGS} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+    & \MINKEY{print\_\EOL line\_\EOL column\REL}\ARGBREAK
+      \verb| ( min::uns32 print_flags,|\ARGBREAK
+      \verb|   min::file file,|\ARGBREAK
+      \verb|   const min::phrase_position & position )|
+\LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
+\end{tabular}\end{indpar}
 
 \subsection{Objects}
 \label{OBJECTS}
