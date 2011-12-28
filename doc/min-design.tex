@@ -7639,6 +7639,52 @@ an extra {\tt print\_\EOL flags} argument and use that in place of
 \LABEL{MIN::PRINT_LINE_COLUMN_WITH_FLAGS} \\
 \end{tabular}\end{indpar}
 
+There is a type of packed vector, the `\key{phrase position vector}\,',
+that is specialized to
+record the phrase positions of elements of any linear vector:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::|
+	& \verb|packed_vec_ptr<min::phrase_position_vec_header,|\\&
+	  \verb|               min::phrase_position>|\\&
+	  \verb|    min::|\MINKEY{phrase\_position\_vec}
+\LABEL{MIN::PHRASE_POSITION_VEC} \\
+\verb|typedef min::|
+	& \verb|packed_vec_insptr<min::phrase_position_vec_header,|\\&
+	  \verb|                  min::phrase_position>|\\&
+	  \verb|    min::|\MINKEY{phrase\_position\_vec\_insptr}
+\LABEL{MIN::PHRASE_POSITION_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|const min::uns32 vpp| & \TTARMKEY{length}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_LENGTH} \\
+\verb|const min::file vpp| & \TTARMKEY{file}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_FILE} \\
+\verb|min::phrase_position vpp| & \TTARMKEY{position}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_POSITION} \\
+\verb|min::phrase_position vpp| & \TTBMKEY{i}%
+    {in {\tt min::phrase\_\EOL position\_\EOL vec}}
+\LABEL{MIN::PHRASE_POSITION_VEC_ELEMENT} \\
+\end{tabular}\end{indpar}
+
+A phrase position vector is associated with some other data vector.
+For example, a phrase position vector may be the value of the
+{\tt .position} attribute of an object
+(see Section~\ref{OBJECTS}), in which case it will be associated with
+the attribute vector of the object.
+If {\tt vpp} is a phrase position vector pointer, {\tt vpp->\EOL position}
+is the position of the phrase that is encoded in the data vector,
+{\tt vp[i]} is the position of the phrase that is encoded in
+the {\tt i+1}'st element of the data vector, and
+{\tt vpp->\EOL file} is the file containing these phrases.
+{\tt vpp->\EOL length} is, as per the definition of packed vectors,
+the number of elements in the phrase position vector, and should
+match the number of elements in the data vector.
+
 \subsection{Objects}
 \label{OBJECTS}
 
