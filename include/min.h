@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 27 05:59:20 EST 2011
+// Date:	Wed Dec 28 06:26:35 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6267,7 +6267,7 @@ namespace min {
     struct position
     {
 	uns32	line;
-	uns32	index;
+	uns32	offset;
     };
 
     struct phrase_position
@@ -6282,7 +6282,7 @@ namespace min {
         const min::uns32 length;
         const min::uns32 max_length;
 	const min::file  file;
-	min::phrase_position phrase_position;
+	min::phrase_position position;
     };
     typedef min::packed_vec_ptr
 	    < phrase_position,
@@ -6499,7 +6499,7 @@ namespace min {
 	{
 	    if ( last > first
 	         &&
-		 position.end.index == 0 )
+		 position.end.offset == 0 )
 	        -- last;
 	}
     };

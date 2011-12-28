@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Dec 27 07:28:23 EST 2011
+// Date:	Wed Dec 28 06:27:21 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1966,8 +1966,8 @@ min::uns32 min::print_line_column
         length = ::strlen ( & file->buffer[offset] );
 
     min::pwidth ( column, & file->buffer[offset],
-    		  position.index <= length ?
-		      position.index : length,
+    		  position.offset <= length ?
+		      position.offset : length,
                   print_flags );
     return column;
 }
