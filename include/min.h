@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Dec 28 06:26:35 EST 2011
+// Date:	Thu Dec 29 02:43:50 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6276,7 +6276,7 @@ namespace min {
         min::position end;
     };
 
-    struct vec_phrase_positions_header
+    struct phrase_position_vec_header
     {
         const min::uns32 control;
         const min::uns32 length;
@@ -6286,12 +6286,15 @@ namespace min {
     };
     typedef min::packed_vec_ptr
 	    < phrase_position,
-	      vec_phrase_positions_header >
-	vec_phrase_positions;
+	      phrase_position_vec_header >
+	phrase_position_vec;
     typedef min::packed_vec_insptr
 	    < phrase_position,
-	      vec_phrase_positions_header >
-	vec_phrase_positions_insptr;
+	      phrase_position_vec_header >
+	phrase_position_vec_insptr;
+
+    MIN_REF ( min::file, file,
+              min::phrase_position_vec_insptr )
 
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
