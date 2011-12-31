@@ -1295,7 +1295,7 @@ min_interface_test.cc:XXXX assert:
     subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
-upv1->control = 6
+upv1->control = 7
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1308,7 +1308,7 @@ min_interface_test.cc:XXXX assert:
     t == PACKED_STRUCT || t == PACKED_VEC true.
 ../include/min.h:XXXX assert:
     subtype < internal::packed_subtype_count true.
-upv2->control = 7
+upv2->control = 8
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:
