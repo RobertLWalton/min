@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 29 02:43:50 EST 2011
+// Date:	Sat Dec 31 05:07:19 EST 2011
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6295,6 +6295,13 @@ namespace min {
 
     MIN_REF ( min::file, file,
               min::phrase_position_vec_insptr )
+
+    min::phrase_position_vec_insptr init
+	    ( min::ref<min::phrase_position_vec_insptr>
+		  vec,
+	      min::file file,
+	      const min::phrase_position & position,
+	      min::uns32 max_length );
 
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;

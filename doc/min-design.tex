@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 28, 2011}
+\date{December 31, 2011}
  
 \maketitle
 
@@ -4668,7 +4668,7 @@ named \verb|pvtype| use
 	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+	  \verb|   const min::uns32 * header_stub_disp = NULL )|
 \LABEL{MIN::PACKED_VEC_TYPE} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
@@ -4678,7 +4678,7 @@ named \verb|pvtype| use
 	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+	  \verb|   const min::uns32 * header_stub_disp = NULL )|
 \LABEL{MIN::PACKED_VEC_TYPE_WITH_BASE} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -7657,6 +7657,15 @@ record the phrase positions of elements of any linear vector:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::| & \verb|phrase_position_vec_insptr min::|\MINKEY{init\REL}\ARGBREAK
+    \verb| ( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
+    \verb|   min::file file,|\ARGBREAK
+    \verb|   const min::phrase_position & position,|\ARGBREAK
+    \verb|   min::uns32 max_length )|
+\LABEL{MIN::INIT_OF_PHRASE_POSITION_VEC} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::uns32 vpp| & \TTARMKEY{length}%
     {in {\tt min::phrase\_\EOL position\_\EOL vec}}
 \LABEL{MIN::PHRASE_POSITION_VEC_LENGTH} \\
@@ -7684,6 +7693,10 @@ the {\tt i+1}'st element of the data vector, and
 {\tt vpp->\EOL length} is, as per the definition of packed vectors,
 the number of elements in the phrase position vector, and should
 match the number of elements in the data vector.
+The {\tt min::\EOL init} function above can be used to create or
+reinitialize a {\tt min::\EOL phrase\_\EOL position\_\EOL vec},
+and sets the {\tt file}, {\tt position}, and initial maximum length
+of the phrase position vector.
 
 \subsection{Objects}
 \label{OBJECTS}
@@ -12823,7 +12836,7 @@ In loose implementation: \\
 	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+	  \verb|   const min::uns32 * header_stub_disp = NULL )|
 \LABEL{MIN::PACKED_VEC_TYPE} \\
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
@@ -12833,7 +12846,7 @@ In loose implementation: \\
 	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
 	  \verb|                            = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL )|
+	  \verb|   const min::uns32 * header_stub_disp = NULL )|
 \LABEL{MIN::PACKED_VEC_TYPE_WITH_BASE} \\
 \end{TABULAR}
 
