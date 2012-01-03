@@ -3,7 +3,7 @@
 //
 // File:	min_acc_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Nov 12 07:49:38 EST 2011
+// Date:	Tue Jan  3 17:42:38 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -72,6 +72,10 @@ void min_assert
 # define MUP min::unprotected
 # define MINT min::internal
 # define MACC min::acc
+
+static min::locatable_gen teststr;
+    // Set to "this is a test str" before GC and
+    // checked after GC.
 
 // Helper functions for tests.
 
@@ -227,6 +231,9 @@ int main ()
 	cout << "Before Allocation" << endl;
 	MACC::print_acc_statistics ( cout );
 
+	::teststr = min::new_str_gen
+	                ( "this is a test str" );
+
     	min::locatable_gen v;
 	v = create_vec_of_objects ( 1000, 300 );
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
@@ -242,6 +249,11 @@ int main ()
 	MIN_ASSERT ( check_vec_of_objects ( v ) );
 	cout << "After Highest Level GC" << endl;
 	MACC::print_acc_statistics ( cout );
+
+	MIN_ASSERT
+	    (    ::teststr
+	      == min::new_str_gen
+	                ( "this is a test str" ) );
 
 
     } catch ( min_assert_exception * x ) {

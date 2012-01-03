@@ -25,10 +25,10 @@ Before Allocation
                           Stubs:             3          1023          1026
                  32 Byte Blocks:             1          2047          2048
      Bytes in Fixed Size Blocks:            32         65504         65536
+TRACE: allocating new subregion for 64 byte fixed size blocks
 TRACE: allocating new subregion for 8192 byte fixed size blocks
 TRACE: allocating new subregion for 2048 byte fixed size blocks
 TRACE: allocating new subregion for 4096 byte fixed size blocks
-TRACE: allocating new subregion for 64 byte fixed size blocks
 TRACE: allocating new subregion for 128 byte fixed size blocks
 TRACE: allocating new subregion for 1024 byte fixed size blocks
 TRACE: allocating new subregion for 512 byte fixed size blocks
@@ -37,9 +37,9 @@ min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Allocation
                       Numbers of          Used          Free         Total
-                          Stubs:          1004            22          1026
+                          Stubs:          1006            20          1026
                  32 Byte Blocks:             4          2044          2048
-                 64 Byte Blocks:            21          1003          1024
+                 64 Byte Blocks:            22          1002          1024
                 128 Byte Blocks:            33           479           512
                 256 Byte Blocks:            54           202           256
                 512 Byte Blocks:            97            31           128
@@ -47,16 +47,16 @@ After Allocation
                2048 Byte Blocks:           443             5           448
                4096 Byte Blocks:           144             0           144
                8192 Byte Blocks:             1             7             8
-     Bytes in Fixed Size Blocks:       1784384        378304       2162688
+     Bytes in Fixed Size Blocks:       1784448        378240       2162688
 ../include/min.h:XXXX assert:
     type == UPDATABLE true.
 min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Random Deallocation
                       Numbers of          Used          Free         Total
-                          Stubs:        101004           472        101476
+                          Stubs:        101006           470        101476
                  32 Byte Blocks:             6          2042          2048
-                 64 Byte Blocks:             9          1015          1024
+                 64 Byte Blocks:            10          1014          1024
                 128 Byte Blocks:            29           483           512
                 256 Byte Blocks:            55           201           256
                 512 Byte Blocks:            93           163           256
@@ -64,28 +64,28 @@ After Random Deallocation
                2048 Byte Blocks:           437            75           512
                4096 Byte Blocks:           161            47           208
                8192 Byte Blocks:             1             7             8
-     Bytes in Fixed Size Blocks:       1844864        842112       2686976
+     Bytes in Fixed Size Blocks:       1844928        842048       2686976
 START COLLECTOR level 2 generation counts:
-    0/0,0,0,0,0/0,0,0,0,101002
-END COLLECTOR INITING level 2 collectible 101002 root 0
+    0/0,0,0,0,0/0,0,0,0,101003
+END COLLECTOR INITING level 2 collectible 101003 root 0
 TRACE: new_paged_block_region (262144, 8)
 TRACE: new_pool ( 64 )
 TRACE: new_paged_block_region returns & region_table[3]
 END COLLECTOR SCAVENGING level 2
-          scanned 154176 stubs scanned 1002 scavenged 1001 thrashed 1
+          scanned 154178 stubs scanned 1004 scavenged 1001 thrashed 1
 END COLLECTOR COLLECTING level 2
-          AUX HASH: kept 0 collected 1
+          AUX HASH: kept 1 collected 1
           NON-HASH: kept 1001 collected 100000
 END COLLECTOR PROMOTING level 2 promoted 0
 COLLECTOR DONE level 2 generation counts:
-    0/0,0,0,0,0/0,0,0,1001,0
+    0/0,0,0,0,0/0,0,0,1002,0
 min_acc_test.cc:XXXX assert:
     check_vec_of_objects ( v ) true.
 After Highest Level GC
                       Numbers of          Used          Free         Total
-                          Stubs:          1002        100474        101476
+                          Stubs:          1004        100472        101476
                  32 Byte Blocks:             5          2043          2048
-                 64 Byte Blocks:             9          1015          1024
+                 64 Byte Blocks:            10          1014          1024
                 128 Byte Blocks:            29           483           512
                 256 Byte Blocks:            55           201           256
                 512 Byte Blocks:            93           163           256
@@ -93,6 +93,8 @@ After Highest Level GC
                2048 Byte Blocks:           437            75           512
                4096 Byte Blocks:           161            47           208
                8192 Byte Blocks:             1             7             8
-     Bytes in Fixed Size Blocks:       1844832        842144       2686976
+     Bytes in Fixed Size Blocks:       1844896        842080       2686976
+min_acc_test.cc:XXXX assert:
+    ::teststr == min::new_str_gen ( "this is a test str" ) true.
 
 Finished Test!
