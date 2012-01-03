@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 31 05:13:40 EST 2011
+// Date:	Mon Jan  2 20:42:17 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,6 +68,9 @@ static void packed_vec_scavenger_routine
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
 static bool initializer_called = false;
+
+static min::locatable_gen position;
+    // ".position" string.
 
 #define PTR_CHECK(...) \
     assert (    sizeof ( __VA_ARGS__ ) \
@@ -236,6 +239,9 @@ MINT::initializer::initializer ( void )
     	= & obj_scavenger_routine;
     MINT::scavenger_routines[LONG_OBJ]
     	= & obj_scavenger_routine;
+
+    ::position = min::new_str_gen ( ".position" );
+
 }
 
 // Names
@@ -1356,8 +1362,8 @@ min::gen min::new_lab_gen
 // ------ ---------- --- -------
 
 void *** MINT::packed_subtypes;
-min::uns32 MINT::packed_subtype_count;
-min::uns32 MINT::max_packed_subtype_count;
+min::uns32 MINT::packed_subtype_count = 1;
+min::uns32 MINT::max_packed_subtype_count = 0;
 
 const min::stub * MINT::packed_struct_new_stub
 	( MINT::packed_struct_descriptor * psd )
@@ -1399,7 +1405,7 @@ void MINT::packed_vec_resize
         ( const min::stub * s,
 	  min::uns32 max_length )
 {
-    uns32 t = MINT::packed_subtype_of ( s );
+    uns32 t = MUP::packed_subtype_of ( s );
     packed_vec_descriptor * pvdescriptor =
 	(packed_vec_descriptor *)
 	(*packed_subtypes)[t];
@@ -2302,6 +2308,15 @@ min::phrase_position_vec_insptr min::init
     file_ref(vec) = file;
     vec->position = position;
     return vec;
+}
+
+min::phrase_position_vec min::position_of
+	( min::obj_vec_ptr & vp )
+{
+    min::attr_ptr ap ( vp );
+    min::locate ( ap, ::position );
+    min::gen v = min::get ( ap );
+    return min::phrase_position_vec ( v );
 }
 
 // Objects

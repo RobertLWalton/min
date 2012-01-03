@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Dec 26 23:40:56 EST 2011
+// Date:	Tue Jan  3 09:29:47 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1389,7 +1389,7 @@ void test_acc_interface ( void )
 	  == MIN_IS_COMPACT );
     MIN_ASSERT
 	(    count_gen_locators()
-	  == 3 + 2 * MIN_IS_COMPACT );
+	  == 4 + 2 * MIN_IS_COMPACT );
     {
         min::locatable_gen staticg3[5];
 	MIN_ASSERT
@@ -1397,11 +1397,11 @@ void test_acc_interface ( void )
 	          ( & (min::gen &) staticg1[2] ) );
 	MIN_ASSERT
 	    (    count_gen_locators()
-	      == 8 + 2 * MIN_IS_COMPACT );
+	      == 9 + 2 * MIN_IS_COMPACT );
     }
     MIN_ASSERT
 	(    count_gen_locators()
-	  == 3 + 2 * MIN_IS_COMPACT );
+	  == 4 + 2 * MIN_IS_COMPACT );
 
     memory_debug = memory_debug_save;
 

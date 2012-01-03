@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 31 05:07:19 EST 2011
+// Date:	Mon Jan  2 20:42:03 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1016,8 +1016,10 @@ namespace min {
 
     inline const min::stub * stub_of ( min::gen g )
     {
-	MIN_ASSERT ( is_stub ( g ) );
-	return unprotected::stub_of ( g );
+	if ( is_stub ( g ) )
+	    return unprotected::stub_of ( g );
+	else
+	    return NULL;
     }
 #   if MIN_IS_COMPACT
 	inline int direct_int_of ( min::gen g )
@@ -1399,9 +1401,30 @@ namespace min { namespace unprotected {
 
 namespace min {
 
+    namespace unprotected {
+
+	inline int type_of ( const min::stub * s )
+	{
+	    return s->c.i8[7*MIN_IS_LITTLE_ENDIAN];
+	}
+
+    }
+
     inline int type_of ( const min::stub * s )
     {
-        return s->c.i8[7*MIN_IS_LITTLE_ENDIAN];
+	if ( s == NULL )
+	    return 0;
+	else
+	    return s->c.i8[7*MIN_IS_LITTLE_ENDIAN];
+    }
+
+    inline int type_of ( min::gen g )
+    {
+        if ( is_stub ( g ) )
+	    return unprotected::type_of
+	        ( unprotected::stub_of ( g ) );
+	else
+	    return 0;
     }
 
     inline bool is_collectible ( int type )
@@ -2257,7 +2280,8 @@ namespace min { namespace unprotected {
 	//
 	~resize_body ( void )
 	{
-	    if ( type_of ( rstub ) != DEALLOCATED )
+	    if (    unprotected::type_of ( rstub )
+	         != DEALLOCATED )
 	    {
 		uns64 v = unprotected::value_of ( s );
 		uns64 rv =
@@ -2274,7 +2298,7 @@ namespace min { namespace unprotected {
 		rstub->c.u64 ^= c;
 		s->c.u64 ^= c;
 
-		int type = type_of ( s );
+		int type = unprotected::type_of ( s );
 		unprotected::set_type_of
 		    ( rstub, type );
 		unprotected::set_type_of
@@ -3935,7 +3959,8 @@ namespace min {
 	        : s ( s )
 	    {
 		if ( s == NULL ) return;
-		else if ( type_of ( s ) == LONG_STR )
+		else if (    unprotected::type_of ( s )
+		          == LONG_STR )
 		    return;
 
 		pseudo_body.u.str = s->v.u64;
@@ -4705,7 +4730,7 @@ namespace min {
 	  ( 1 << MIN_PACKED_CONTROL_SUBTYPE_BITS ) - 1;
 
 	// Types t for packed_subtypes must be in the
-	// range 0 <= t < packed_subtype_count.  If a
+	// range 0 < t < packed_subtype_count.  If a
 	// new packed subtype is allocated, packed_
 	// subtype_count is incremented.  If it would
 	// become > max_packed_subtype_count then
@@ -4713,22 +4738,6 @@ namespace min {
 	//
 	extern unsigned packed_subtype_count;
 	extern unsigned max_packed_subtype_count;
-
-	// Use the following after checking
-	// type_of ( s ).
-	//
-	inline min::uns32 packed_subtype_of
-		( const min::stub * s )
-	{
-	    void * p = unprotected::ptr_of ( s );
-	    uns32 subtype = * (uns32 *) p;
-	    subtype &=
-		internal::PACKED_CONTROL_SUBTYPE_MASK;
-	    MIN_ASSERT
-		(   subtype
-		  < internal::packed_subtype_count);
-	    return subtype;
-	}
 
 	// Allocate or reallocate the packed_subtypes
 	// vector setting max_packed_subtype_count to
@@ -4842,19 +4851,34 @@ namespace min {
 	    ( packed_struct_descriptor * psd );
     }
 
+    namespace unprotected {
+
+	inline min::uns32 packed_subtype_of
+		( const min::stub * s )
+	{
+	    void * p = unprotected::ptr_of ( s );
+	    uns32 subtype = * (uns32 *) p;
+	    subtype &=
+		internal::PACKED_CONTROL_SUBTYPE_MASK;
+	    return subtype;
+	}
+
+    }
+
     inline min::uns32 packed_subtype_of
 	    ( const min::stub * s )
     {
 	int t = type_of ( s );
-	MIN_ASSERT
-	    ( t == PACKED_STRUCT || t == PACKED_VEC );
-	return internal::packed_subtype_of ( s );
+	if ( t == PACKED_STRUCT || t == PACKED_VEC )
+	    return unprotected::packed_subtype_of ( s );
+	else
+	    return 0;
     }
 
     inline min::uns32 packed_subtype_of
 	    ( min::gen g )
     {
-        return packed_subtype_of ( stub_of ( g ) );
+	return packed_subtype_of ( stub_of ( g ) );
     }
 
     template < typename S >
@@ -5045,18 +5069,25 @@ namespace min {
     {
 	if ( s == NULL ) return;
 
-	int t = type_of ( s );
-	MIN_ASSERT
-	    ( t == PACKED_STRUCT || t == PACKED_VEC );
+	int t = unprotected::type_of ( s );
+	if ( t != PACKED_STRUCT )
+	{
+	    this->s = NULL;
+	    return;
+	}
 	uns32 subtype =
-	    internal::packed_subtype_of ( s );
+	    unprotected::packed_subtype_of ( s );
 	packed_struct_descriptor * psdescriptor =
 	    (packed_struct_descriptor *)
 	    (*packed_subtypes)[subtype];
 	const packed_id * id = psdescriptor->id;
 	while ( & packed_struct<S>::id != id )
 	{
-	    MIN_ASSERT ( id != NULL );
+	    if ( id == NULL )
+	    {
+	        this->s = NULL;
+		return;
+	    }
 	    id = id->base;
 	}
     }
@@ -5926,14 +5957,23 @@ namespace min {
     {
 	if ( s == NULL ) return;
 
-        MIN_ASSERT ( type_of ( s ) == PACKED_VEC );
+        if ( type_of ( s ) != PACKED_VEC )
+	{
+	    this->s = NULL;
+	    return;
+	}
+
 	uns32 subtype =
-	    internal::packed_subtype_of ( s );
+	    unprotected::packed_subtype_of ( s );
 	packed_vec_descriptor * pvdescriptor =
 	    (packed_vec_descriptor *)
 	    (*packed_subtypes)[subtype];
 	const packed_id * id = pvdescriptor->id;
-	MIN_ASSERT ( ( & packed_vec<E,H>::id == id ) );
+	if ( & packed_vec<E,H>::id != id )
+	{
+	    this->s = NULL;
+	    return;
+	}
     }
 
     template < typename E, typename H >
@@ -6302,6 +6342,10 @@ namespace min {
 	      min::file file,
 	      const min::phrase_position & position,
 	      min::uns32 max_length );
+
+    class obj_vec_ptr;
+    min::phrase_position_vec position_of
+	    ( min::obj_vec_ptr & vp );
 
     const min::uns32 ALL_LINES = 0xFFFFFFFF;
     const min::uns32 NO_LINE   = 0xFFFFFFFF;
@@ -8161,7 +8205,8 @@ namespace min { namespace unprotected {
 		{
 		    min::stub * s =
 		      unprotected::stub_of ( current );
-		    int type = type_of ( s );
+		    int type =
+		        unprotected::type_of ( s );
 
 		    if ( type == LIST_AUX )
 		    {
@@ -8333,7 +8378,8 @@ namespace min { namespace unprotected {
 		{
 		    min::stub * s =
 		      unprotected::stub_of ( current );
-		    int type = type_of ( s );
+		    int type =
+		        unprotected::type_of ( s );
 
 		    if ( type == LIST_AUX )
 		    {
@@ -11188,7 +11234,7 @@ inline std::ostream & operator <<
 inline min::unsptr min::unprotected::body_size_of
 	( const min::stub * s )
 {
-    switch ( type_of ( s ) )
+    switch ( unprotected::type_of ( s ) )
     {
     case LONG_STR:
 	return   unprotected::length_of
@@ -11270,14 +11316,13 @@ namespace min { namespace internal {
     inline void remove_aux_hash
 	    ( min::stub ** head, min::stub * s )
     {
-	min::gen g = new_stub_gen ( s );
         min::stub * aux_s = * head;
 	min::stub * last_aux_s = NULL;
 	uns64 last_c;
 	while ( aux_s != null_stub )
 	{
 	    uns64 c = unprotected::control_of ( aux_s );
-	    if ( unprotected::gen_of ( aux_s ) == g )
+	    if ( unprotected::ptr_of ( aux_s ) == s )
 	    {
 	        unprotected::free_aux_stub ( aux_s );
 		if ( last_aux_s != NULL )

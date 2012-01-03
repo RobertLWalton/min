@@ -1,5 +1,7 @@
 min_interface_test.cc:XXXX assert:
     begin_stub_region >= (min::stub *) min::internal::stub_base true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     OFFSETOF ( & locatable_var< min::packed_struct_updptr<S> > ::previous ) == sizeof ( const min::stub * ) true.
 ../include/min.h:XXXX assert:
@@ -491,7 +493,7 @@ min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack + 2 true.
 
 Test stub allocator functions:
-initial stubs allocated = 1
+initial stubs allocated = 3
 MINT::acc_expand_stub_free_list (1) called
 min_interface_test.cc:XXXX assert:
     stub1 == begin_stub_region + sbase true.
@@ -574,13 +576,13 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     find_gen_locator ( & (min::gen &) staticg2[0] ) == MIN_IS_COMPACT true.
 min_interface_test.cc:XXXX assert:
-    count_gen_locators() == 3 + 2 * MIN_IS_COMPACT true.
+    count_gen_locators() == 4 + 2 * MIN_IS_COMPACT true.
 min_interface_test.cc:XXXX assert:
     find_gen_locator ( & (min::gen &) staticg1[2] ) true.
 min_interface_test.cc:XXXX assert:
-    count_gen_locators() == 8 + 2 * MIN_IS_COMPACT true.
+    count_gen_locators() == 9 + 2 * MIN_IS_COMPACT true.
 min_interface_test.cc:XXXX assert:
-    count_gen_locators() == 3 + 2 * MIN_IS_COMPACT true.
+    count_gen_locators() == 4 + 2 * MIN_IS_COMPACT true.
 
 Finish Allocator/Collector/Compactor Interface Test!
 
@@ -672,8 +674,6 @@ min_interface_test.cc:XXXX assert:
 
 Test string general values:
 min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 8 ) == strgen8 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( s13, 20 ) == strgen13 true.
@@ -717,94 +717,52 @@ min_interface_test.cc:XXXX assert:
     buffer[2] == 0 true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen3, 2 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen7 ) == 7 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen7 ) == s7hash true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::hash ( strgen7 ) == s7hash true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s7 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s7, strgen7 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen7 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     buffer[6] == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen7, 6 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen8 ) == 8 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen8 ) == s8hash true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::hash ( strgen8 ) == s8hash true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s8 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s8, strgen8 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen8 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     buffer[7] == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen8, 7 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::hash ( strgen13 ) == s13hash true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s13, strgen13 ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::new_str_gen ( buffer ) == strgen13 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     buffer[12] == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strncmp ( buffer, strgen13, 12 ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -839,16 +797,12 @@ min_interface_test.cc:XXXX assert:
 Test protected string ptrs:
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( stub13 ) == sizeof ( MUP::long_str ) + 13 + 1 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     min::strlen ( strgen13 ) == 13 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::strhash ( strgen13 ) == s13hash true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     strcmp ( buffer, s13 ) == 0 true.
 ../include/min.h:XXXX assert:
@@ -924,8 +878,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     strcmp ( p13str_before, s13 ) == 0 true.
 min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-min_interface_test.cc:XXXX assert:
     p13str_after != p13str_before true.
 min_interface_test.cc:XXXX assert:
     min::strcmp ( s13, p13 ) == 0 true.
@@ -949,21 +901,17 @@ Finish Strings Test!
 Start Labels Test!
 
 Test label hash:
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 labhash1: 95375049
 
 Test labels:
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     min::is_lab ( lab ) true.
 min_interface_test.cc:XXXX assert:
     min::is_name ( lab ) true.
 min_interface_test.cc:XXXX assert:
     min::is_stub ( lab ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
@@ -973,21 +921,15 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::lablen ( s ) == 3 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     min::labhash ( lab ) == labhash1 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == min::LABEL true.
 min_interface_test.cc:XXXX assert:
     min::lablen ( lab ) == 3 true.
 min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( s ) == 3 * sizeof ( min::gen ) + sizeof ( MINT::lab_header ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
@@ -1003,8 +945,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, s ) == 3 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
@@ -1015,8 +955,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::new_lab_gen ( labv2, 3 ) == lab true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
@@ -1026,8 +964,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, lab ) == 3 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
@@ -1044,43 +980,23 @@ Finish Labels Test!
 Start Names Test!
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 HASH of new_num_gen ( 1 ) = 3919206129
 HASH of new_num_gen ( 2 ) = 3295440832
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 HASH of new_str_gen ( "str 1" ) = 3498587010
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 HASH of new_str_gen ( "str 2" ) = 3498587011
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 1.0 }, 1 ) = 1239175266
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 2.0 }, 1 ) = 615409969
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 1.0, "str 1" }, 2 ) = 991637220
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 HASH of new_lab_gen ( { 1.0, "str 2" }, 2 ) = 991637221
@@ -1109,19 +1025,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( str2, str1 ) > 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab11, lab11 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1129,19 +1037,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab11, lab12 ) < 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab12, lab11 ) > 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1156,10 +1056,6 @@ min_interface_test.cc:XXXX assert:
     is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab21 ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1167,19 +1063,11 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab11, lab21 ) < 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab11 ) > 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1195,29 +1083,17 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab21 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab21, lab23 ) < 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab21 ) > 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1233,10 +1109,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab23 ) == 0 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
@@ -1250,10 +1122,6 @@ min_interface_test.cc:XXXX assert:
     is_str ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::compare ( lab23, lab24 ) < 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -1279,36 +1147,16 @@ min_interface_test.cc:XXXX assert:
 ps1type.name = ps1type
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
-upv1->control = 7
+upv1->control = 8
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
-upv2->control = 8
+upv2->control = 9
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1317,30 +1165,16 @@ min_interface_test.cc:XXXX assert:
     upv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
     upv2->j == 99 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     pv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
     pv2->j == 99 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     upv2 == min::stub_of ( v2 ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     upv2 != min::stub_of ( v2 ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1349,12 +1183,6 @@ min_interface_test.cc:XXXX assert:
     upv2->i == 22 true.
 min_interface_test.cc:XXXX assert:
     upv2->j == 44 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     upv2->i == 55 true.
 min_interface_test.cc:XXXX assert:
@@ -1376,22 +1204,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     8 * min::OFFSETOF ( & min::locatable_var<pvt::insptr> ::previous ) == MIN_PTR_BITS true.
 pvtype.name = pvtype
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v ) == pvtype.subtype true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    ( & packed_vec<E,H>::id == id ) true.
-../include/min.h:XXXX assert:
-    t == PACKED_STRUCT || t == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( pvip ) == pvtype.subtype true.
 min_interface_test.cc:XXXX assert:
@@ -1404,14 +1218,6 @@ min_interface_test.cc:XXXX assert:
     i < hp->length true.
 min_interface_test.cc:XXXX assert:
     pvip[0].j == 88 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    ( & packed_vec<E,H>::id == id ) true.
 min_interface_test.cc:XXXX assert:
     pvp->length == 1 true.
 ../include/min.h:XXXX assert:
@@ -1434,8 +1240,6 @@ min_interface_test.cc:XXXX assert:
     pvp->length == 4 true.
 min_interface_test.cc:XXXX assert:
     pvp->max_length == 5 true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
@@ -1474,12 +1278,6 @@ min_interface_test.cc:XXXX assert:
     pvp[2].j == 33 true.
 min_interface_test.cc:XXXX assert:
     pvp != v true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    ( & packed_vec<E,H>::id == id ) true.
 min_interface_test.cc:XXXX assert:
     pvp == v true.
 ../include/min.h:XXXX assert:
@@ -1496,12 +1294,6 @@ min_interface_test.cc:XXXX assert:
     pvip->length == 3 true.
 min_interface_test.cc:XXXX assert:
     pvip->pvip == min::NULL_STUB true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == PACKED_VEC true.
-../include/min.h:XXXX assert:
-    subtype < internal::packed_subtype_count true.
-../include/min.h:XXXX assert:
-    ( & packed_vec<E,H>::id == id ) true.
 min_interface_test.cc:XXXX assert:
     pvip->length == 4 true.
 ../include/min.h:XXXX assert:
@@ -1703,8 +1495,6 @@ min_interface_test.cc:XXXX assert:
 Test short objects:
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( sstub ) == min::SHORT_OBJ true.
 ../include/min.h:XXXX assert:
@@ -1728,12 +1518,8 @@ min_interface_test.cc:XXXX assert:
 Test long objects:
 min_interface_test.cc:XXXX assert:
     next_body + m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 min_interface_test.cc:XXXX assert:
     min::type_of ( lstub ) == min::LONG_OBJ true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type == LONG_OBJ true.
 ../include/min.h:XXXX assert:
@@ -1808,8 +1594,6 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[av+1] == num1 true.
@@ -1986,8 +1770,6 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == READONLY true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[attr_offset] == min::LIST_END() true.
@@ -2055,8 +1837,6 @@ min_interface_test.cc:XXXX assert:
     t == LONG_OBJ true.
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     type == LONG_OBJ true.
 ../include/min.h:XXXX assert:
@@ -2244,8 +2024,6 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     t == LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     type == LONG_OBJ true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
@@ -2271,8 +2049,6 @@ Finish Object Vector Level Test!
 Start Object List Level Test!
 
 Test short object aux stubs list level:
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 510 USIZE 0 TSIZE 632
@@ -2558,8 +2334,6 @@ min_interface_test.cc:XXXX assert:
     type == INSERTABLE true.
 
 Test short object aux area list level:
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 510 USIZE 0 TSIZE 632
@@ -3001,8 +2775,6 @@ min_interface_test.cc:XXXX assert:
 
 Test short object alternate aux list level:
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
  VORG 122 VSIZE 826 USIZE 0 TSIZE 948
 ../include/min.h:XXXX assert:
@@ -3369,35 +3141,19 @@ Finish Object List Level Test!
 
 Start Object Attribute Level Test!
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     ( * flags_p & OBJ_PRIVATE ) == 0 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     type_of ( s ) == LABEL true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
@@ -3409,7 +3165,13 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int1 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
+    insertions <= elements true.
+../include/min.h:XXXX assert:
+    p < (unsgen) 1 << VSIZE true.
+../include/min.h:XXXX assert:
+    & lp.vecp == & lp2.vecp true.
+../include/min.h:XXXX assert:
+    lp.total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
@@ -3419,8 +3181,6 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
@@ -3428,18 +3188,6 @@ min_interface_test.cc:XXXX assert:
     & lp.vecp == & lp2.vecp true.
 ../include/min.h:XXXX assert:
     lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
-    insertions <= elements true.
-../include/min.h:XXXX assert:
-    p < (unsgen) 1 << VSIZE true.
-../include/min.h:XXXX assert:
-    & lp.vecp == & lp2.vecp true.
-../include/min.h:XXXX assert:
-    lp.total_size == lp2.total_size true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
@@ -3448,8 +3196,6 @@ min_interface_test.cc:XXXX assert:
     lp.total_size == lp2.total_size true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int1 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
@@ -3459,8 +3205,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int2 true.
 ../include/min.h:XXXX assert:
-    is_stub ( g ) true.
-../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
     & lp.vecp == & lp2.vecp true.
@@ -3468,8 +3212,6 @@ min_interface_test.cc:XXXX assert:
     lp.total_size == lp2.total_size true.
 min_interface_test.cc:XXXX assert:
     min::get ( ap ) == int3 true.
-../include/min.h:XXXX assert:
-    is_stub ( g ) true.
 ../include/min.h:XXXX assert:
     is_list_aux ( g ) true.
 ../include/min.h:XXXX assert:
