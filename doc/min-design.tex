@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{December 31, 2011}
+\date{January 2, 2012}
  
 \maketitle
 
@@ -1083,6 +1083,8 @@ The following protected functions return the value appropriate for a given
 subtype, after checking the subtype with a {\tt MIN\_ASSERT} statement:
 
 \begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
+\LABEL{MIN::NULL_STUB} \\
 \verb|const min::stub * min::| & \MINKEY{stub\_of}\verb| ( min::gen v )|
 \LABEL{MIN::STUB_OF} \\
 \verb|min::float64 min::|
@@ -1106,6 +1108,14 @@ subtype, after checking the subtype with a {\tt MIN\_ASSERT} statement:
     & \MINKEY{indirect\_aux\_of}\verb| ( min::gen v )|
 \LABEL{MIN::INDIRECT_AUX_OF} \\
 \end{tabular}\end{indpar}
+
+The {\tt min::stub\_of} function is unusual in that it can be applied
+to a {\tt min::\EOL gen} value that does not contain a stub pointer, and will
+return {\tt min::\EOL NULL\_\EOL STUB} in this case.  The latter is
+just {\tt NULL} type cast to a {\tt const min::\EOL stub~*} type.
+The other functions must be applied to {\tt min::\EOL gen}
+values of the right kind else a {\tt MIN\_\EOL ASSERT} failure will
+occur.
 
 Here the \verb|min::uns64| value returned by \minkey{direct\_str\_of}
 should be overlaid by a union with a \verb|char[]| buffer, as in
@@ -1162,6 +1172,10 @@ subtype, \underline{without} checking the subtype:
 
 Note that \verb|MUP::stub_of| returns a `\verb|min::stub *|' pointer
 whereas \verb|min::stub_of| returns a `\verb|const min::stub *|' pointer.
+Also, if the {\tt min::\EOL gen} argument does not contain a stub pointer,
+the argument is illegal for {\tt MUP::\EOL stub\_\EOL of}, but
+it is legal for {\tt min::\EOL stub\_\EOL of} which will return
+{\tt min::\EOL NULL\_\EOL STUB}.
 
 The {\tt MUP::\EOL aux\_\EOL of} function returns the auxiliary pointer
 of any \verb|min::gen| value containing an auxiliary pointer (list,
@@ -1424,8 +1438,26 @@ The \key{type code} of a stub may be returned by
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|int min::| & \MINKEY{type\_of}\verb| ( const min::stub * s )|
-\LABEL{MIN::TYPE_OF}
+\LABEL{MIN::TYPE_OF} \\
+\verb|int MUP::| & \MUPKEY{type\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::TYPE_OF}
 \end{tabular}\end{indpar}
+
+If the argument is {\tt min::NULL\_STUB},
+the {\tt min::type\_of} function returns {\tt 0}, which is not
+a legal stub type code,
+whereas the {\tt MUP::\EOL type\_\EOL of} function suffers a memory fault.
+
+The type code of the stub pointed at by a {\tt min::gen} value
+can be obtained by
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|int min::| & \MINKEY{type\_of}\verb| ( min::gen v )|
+\LABEL{MIN::TYPE_OF_GEN}
+\end{tabular}\end{indpar}
+
+This function will return {\tt 0}, which is not a legal stub type,
+if {\tt v} does not contain a stub pointer.
 
 A determination of whether or not a stub is collectible may be made
 by applying the function
@@ -4426,8 +4458,6 @@ have the usage:
 \LABEL{MIN::PACKED_STRUCT_PTR_*} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
-\LABEL{MIN::NULL_STUB} \\
 \end{tabular}\end{indpar}
 
 A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr \SARG} value is just
@@ -7683,7 +7713,7 @@ record the phrase positions of elements of any linear vector:
 A phrase position vector is associated with some other data vector.
 For example, a phrase position vector may be the value of the
 {\tt .position} attribute of an object
-(see Section~\ref{OBJECTS}), in which case it will be associated with
+(see below), in which case it will be associated with
 the attribute vector of the object.
 If {\tt vpp} is a phrase position vector pointer, {\tt vpp->\EOL position}
 is the position of the phrase that is encoded in the data vector,
@@ -7697,6 +7727,22 @@ The {\tt min::\EOL init} function above can be used to create or
 reinitialize a {\tt min::\EOL phrase\_\EOL position\_\EOL vec},
 and sets the {\tt file}, {\tt position}, and initial maximum length
 of the phrase position vector.
+
+A MIN object may have a {\tt .position} attribute equal to a
+phrase position vector.  If an object does, the phrase position
+pointer is returned by the following function:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|min::phrase_position_vec min::| & \MINKEY{position}
+    \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
+Here the object is identified by the {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
+which is being used to access the object elements.  If the
+object has no {\tt .position} attribute, or if the attribute is
+not a {\tt min::\EOL phrase\_\EOL position\_\EOL vec} value,
+{\tt min::\EOL NULL\_\EOL STUB} is returned.
 
 \subsection{Objects}
 \label{OBJECTS}
@@ -10901,7 +10947,11 @@ These are in \verb|min_parameters.h|.
 
 \begin{TABULAR}{1.2in}
 \verb|int min::| & \MINKEY{type\_of}\verb| ( const min::stub * s )|
-\LABEL{MIN::TYPE_OF} \\[1ex]
+\LABEL{MIN::TYPE_OF} \\
+\verb|int MUP::| & \MUPKEY{type\_of}\verb| ( const min::stub * s )|
+\LABEL{MUP::TYPE_OF} \\
+\verb|int min::| & \MINKEY{type\_of}\verb| ( min::gen v )|
+\LABEL{MIN::TYPE_OF_GEN} \\
 \verb|bool min::| & \MINKEY{is\_collectible}\verb| ( int type )|
 \LABEL{MIN::IS_COLLECTIBLE} \\[1ex]
 \verb|bool min::| & \MINKEY{relocated\_flag}\verb| ( void )|
@@ -10970,6 +11020,11 @@ These are in \verb|min_parameters.h|.
 \end{TABULAR}
 
 \medskip
+
+\begin{TABULAR}{1.8in}
+\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
+\LABEL{MIN::NULL_STUB} \\
+\end{TABULAR}
 
 \begin{TABULAR}{2.4in}
 \verb|const min::stub * min::| & \MINKEY{stub\_of}\ARGBREAK
@@ -12806,11 +12861,6 @@ In loose implementation: \\
 	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
 	  \verb| ( const min::packed_struct_updptr<S> & psup )|
 \LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::stub * | & \MINNBKEY{NULL\_STUB}
-\LABEL{MIN::NULL_STUB} \\
 \end{TABULAR}
 
 \end{indpar}

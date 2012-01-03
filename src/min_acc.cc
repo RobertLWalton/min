@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Nov 25 10:58:45 EST 2011
+// Date:	Tue Jan  3 08:59:55 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1189,7 +1189,7 @@ void MINT::allocate_packed_subtypes ( min::uns32 count )
         number_of_pages ( count * sizeof ( void * ) );
     void ** new_packed_subtypes = (void **)
         MOS::new_pool ( new_pages );
-    if ( MINT::max_packed_subtype_count != 0 )
+    if ( ::packed_subtypes_p != NULL )
     {
         min::unsptr old_pages =
 	    number_of_pages
@@ -1202,7 +1202,7 @@ void MINT::allocate_packed_subtypes ( min::uns32 count )
 	MOS::free_pool
 	    ( old_pages, * packed_subtypes_p );
     }
-    packed_subtypes_p = new_packed_subtypes;
+    ::packed_subtypes_p = new_packed_subtypes;
     MINT::max_packed_subtype_count = count;
     MINT::packed_subtypes = & ::packed_subtypes_p;
 }
