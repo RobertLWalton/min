@@ -4468,21 +4468,36 @@ have the usage:
 \begin{indpar}\begin{tabular}{r@{}l}
 \end{tabular}\end{indpar}
 
-A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr \SARG} value is just
+A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is just
 a `{\tt const min::stub~*}' value in fancy clothes, and may be
 converted to/from a `{\tt const min::stub~*}' value.
 
-For the constructors and the {\tt =} assignment operator \verb|v| or
-\verb|s| must point at packed structure, or \verb|s| must equal
-\verb|min::NULL_STUB|, which is just the standard C language \verb|NULL|
-cast to the `\verb|const min::stub *|' type.  This cast is necessary
-as \verb|NULL| by inself may be convertable to either a `\verb|min::stub *|'
-or \verb|min::gen| type and is thus ambiguous when used in a constructor
-or on the right side of \verb|=|.
+For the constructors and the {\tt =} assignment operator, if the
+argument \verb|v| or \verb|s| does not point at a packed structure
+of type {\tt S}, the {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
+result is set to {\tt min::\EOL NULL\_\EOL STUB},
+which is just the standard C language \verb|NULL|
+cast to the `\verb|const min::stub *|' type.
+Note that \verb|NULL| cannot itself be used as an argument to
+the constructors or {\tt =} operator, as it is
+convertable to either a `\verb|min::stub *|'
+or \verb|min::gen| type, and is thus creates ambiguity.
+But {\tt min::\EOL NULL\_\EOL STUB} can be used.
+If a constructor for {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
+is not given an argument, the pointer is also set to
+{\tt min::\EOL NULL\_\EOL STUB}.
 
-A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value is internally
-also a `\verb|S const **|' value that is made to behave externally like a
-also a `\verb|S const *|' value with respect to the \verb|->| and
+A pointer equal to
+{\tt min::\EOL NULL\_\EOL STUB} gives undefined results if
+used to access a structure,
+though almost always the result will be a memory fault.
+The {\tt ==} and {\tt !=} operators can be used to test whether
+or not a {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer
+equals {\tt min::\EOL NULL\_\EOL STUB}.
+
+A {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} pointer is also
+internally a `\verb|S const **|' value that is made to behave externally like a
+`\verb|S const *|' value with respect to the \verb|->| and
 unary \verb|*| operators.  Thus looking ahead at the example below,
 if \verb|upv| is a
 {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
@@ -4496,11 +4511,6 @@ and the alternative {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
 must be used instead.  The later are usually preferred anyway because
 they can be defined without defining \verb|S|, and therefore can be
 used to build recursive structures.
-
-If a constructor for {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
-is not given an argument, these the pointer is set to
-\verb|min::NULL_STUB|.  Such a pointer gives undefined results if
-used, though most frequently the result will be a memory fault.
 
 The read-write {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG}
 pointer type has the
