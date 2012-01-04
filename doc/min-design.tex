@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 2, 2012}
+\date{January 4, 2012}
  
 \maketitle
 
@@ -4391,21 +4391,29 @@ The subtype of a packed structure can be retrieved by
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{PACKED_STRUCT_SUBTYPE_OF_GEN} \\
+\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_GEN} \\
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\verb|min::uns32 MUP::|
+	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MUP::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
 \end{tabular}\end{indpar}
 
-when the argument is a value returned by
-{\tt pstype.new\_\EOL gen} or {\tt pstype.new\_\EOL stub}.
-Here the subtype is computed by looking in the
-`{\tt control}' member of the packed structure.  Packed vectors
-also have subtypes that can be discovered by
-{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
-(see \pagref{PACKED_VEC_SUBTYPE_OF_GEN}),
-but no packed structure
-has the same subtype as any packed vector.
+These functions work in the same way for both packed structures
+and packed vectors (\itemref{PACKED-VECTORS}).
+No packed structure has the same subtype as any packed vector, and
+vice versa.
+The {\tt min::\EOL packed\_\EOL subtype\_\EOL of}
+functions return {\tt 0}, which
+is not a legal packed structure or packed vector subtype, if the
+argument does not reference a packed structure or vector.
+The {\tt MUP::\EOL packed\_\EOL subtype\_\EOL of} function gives
+undefined result unless its argument references a packed structure
+or packed vector.  When the argument is a packed structure
+or packed vector,
+the subtype is computed by looking in the
+`{\tt control}' member of the structure or vector.
 
 The two kinds of pointers that can be used to access
 a packed structure.  The read-only
@@ -4921,21 +4929,17 @@ The subtype of a packed vector can be retrieved by
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{PACKED_VEC_SUBTYPE_OF_GEN} \\
+\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_GEN} \\
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{PACKED_VEC_SUBTYPE_OF_STUB} \\
+\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_STUB} \\
+\verb|min::uns32 MUP::|
+	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MUP::PACKED_VEC_SUBTYPE_OF_STUB} \\
 \end{tabular}\end{indpar}
 
-when the argument is a value returned by {\tt pvtype.new\_\EOL gen}
-or {\tt pvtype.new\_\EOL stub}.
-Here the subtype is computed by looking in the
-`{\tt control}' member of the packed vector.  Packed structures
-also have subtypes that can be discovered by
-{\tt min::\EOL packed\_\EOL subtype\_\EOL of}
-(see \pagref{PACKED_STRUCT_SUBTYPE_OF_GEN}),
-but no packed vector
-has the same subtype as any packed structure.
+These functions work for packed vectors in the same was as for
+packed structures; see \pagref{MIN::PACKED_STRUCT_SUBTYPE_OF_GEN} for details.
 
 There are three kinds of pointers that can be used to access
 a packed vector.  The read-only
@@ -12763,10 +12767,13 @@ In loose implementation: \\
 \begin{TABULAR}{1.4in}
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{PACKED_STRUCT_SUBTYPE_OF_GEN} \\
+\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_GEN} \\
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\verb|min::uns32 MUP::|
+	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MUP::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -12955,10 +12962,13 @@ In loose implementation: \\
 \begin{TABULAR}{1.4in}
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{PACKED_VEC_SUBTYPE_OF_GEN} \\
+\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_GEN} \\
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{PACKED_VEC_SUBTYPE_OF_STUB} \\
+\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_STUB} \\
+\verb|min::uns32 MUP::|
+	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MUP::PACKED_VEC_SUBTYPE_OF_STUB} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
