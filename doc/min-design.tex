@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 4, 2012}
+\date{January 14, 2012}
  
 \maketitle
 
@@ -3954,27 +3954,22 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 \LABEL{MIN::HASH_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
-Here \verb|v| or \verb|s| must point at the stub of a label,
-and given a label pointer \verb|labp| pointing at
-a label, \verb|labp[i]| is the \verb|i|+1's
+Here if \verb|v| or \verb|s| do not point at the stub of a label
+the new label pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
+which gives undefined results, but usually a memory fault, if
+used to access the parts of a label.  The no-argument label
+pointer constructor also creates a label pointer equal to
+{\tt min::\EOL NULL\_\EOL STUB}, and the {\tt =} operators
+set a label pointer just as a constructor with the {\tt =} right side
+as the constructor argument would.
+
+Given a label pointer \verb|labp| pointing at a real label,
+\verb|labp[i]| is the \verb|i|+1's
 element of the label, for
 $0\leq$\verb|i|$<$\verb|min::length_of(labp)|,
 where the {\tt min::\EOL length\_\EOL of} function
 returns the number of elements in the label.
-Note that \verb|labp[i]| is read-only, but one can take
-its address, as in:
-\begin{indpar}\begin{verbatim}
-memcpy ( ..., & labp[0], sizeof ( T ) * min::length_of ( labp ) );
-\end{verbatim}\end{indpar}
-
-The form of constructor that has no argument creates a label pointer
-that is not pointing at any label, and will produce undefined results
-if used (typically usage causes a memory fault).  Such a label pointer can also
-be created by giving the constructor the argument
-{\tt min::\EOL NULL\_\EOL STUB}.  The {\tt =} operator can be used
-to change the label a label pointer is pointing at, or by setting the
-label pointer to {\tt min::\EOL NULL\_\EOL STUB}, make the pointer
-not point at any label.
+The {\tt min::\EOL length\_\EOL of} function returns the hash of the label.
 
 The length of a label is the number of elements (general values) in the label.
 The length of a label may be read from a label pointer, or may be read
@@ -3995,11 +3990,6 @@ directly by the following functions:
 \LABEL{MIN::LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
-\verb|const min::uns32 min::| & \MINKEY{labhash\_initial}\verb| = 1009|
-\LABEL{MIN::LABHASH_INITIAL} \\
-\verb|min::uns32 min::| & \MINKEY{labhash}%
-    \verb| ( min::uns32 hash, min::uns32 h )|
-\LABEL{MIN::LABHASH_INCREMENTAL} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}%
     \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
@@ -4007,17 +3997,39 @@ directly by the following functions:
 
 The last function computes the hash value for a label that could be created
 from the given vector {\tt p} of {\tt n} general values, where each
-general value is a name component.  The hash of a label is computed from
-the hash of each of its elements using the following
-machine independent algorithm:\label{LABEL-HASH-ALGORITHM}
+general value is a name component.
+
+The hash of a label is computed from
+the hash of each of its elements using:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|const min::uns32 min::| & \MINKEY{labhash\_initial}\verb| = 1009|
+\LABEL{MIN::LABHASH_INITIAL} \\
+\verb|const min::uns32 min::| & \MINKEY{labhash\_factor}%
+    \verb| = 65599**10 (mod 2**32)|
+\LABEL{MIN::LABHASH_FACTOR} \\
+\verb|min::uns32 min::| & \MINKEY{labhash}%
+    \verb| ( min::uns32 hash, min::uns32 h )|
+\LABEL{MIN::LABHASH_INCREMENTAL} \\
+\end{tabular}\end{indpar}
+
+in the following machine independent algorithm:\label{LABEL-HASH-ALGORITHM}
 
 \begin{indpar}\begin{verbatim}
 hash = min::labhash_initial;
 n = length of label
 for i = 1 through n:
     h = hash of i'th element of label
-    hash = ( hash * ( 65599 ** 10 ) ) + h
-    if hash = 0, then hash = 2**32 - 1
+    hash = min::labhash ( hash, h )
+\end{verbatim}\end{indpar}
+
+where {\tt min::labhash ( hash, h )} is defined as:
+
+\begin{indpar}\begin{verbatim}
+min::labhash ( hash, h ):
+    // All arithmetic is mod 2**32
+    hash = hash * min::labhash_factor + h
+    if ( hash == 0 ) hash = -1
 \end{verbatim}\end{indpar}
 
 Comparing this with the hash algorithm for strings
@@ -11901,14 +11913,20 @@ In loose implementation: \\
 \LABEL{MIN::LABHASH} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\verb| ( min::gen v )|
 \LABEL{MIN::LABHASH_OF_GEN} \\
-\verb|const min::uns32 min::| & \MINKEY{labhash\_initial}\verb| = 1009|
-\LABEL{MIN::LABHASH_INITIAL} \\
-\verb|min::uns32 min::| & \MINKEY{labhash}%
-    \verb| ( min::uns32 hash, min::uns32 h )|
-\LABEL{MIN::LABHASH_INCREMENTAL} \\
 \verb|min::uns32 min::| & \MINKEY{labhash}\ARGBREAK
     \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::LABHASH_OF_GEN_VECTOR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.0in}
+\verb|const min::uns32 min::| & \MINKEY{labhash\_initial}\verb| = 1009|
+\LABEL{MIN::LABHASH_INITIAL} \\
+\verb|const min::uns32 min::| & \MINKEY{labhash\_factor}%
+    \verb| = 65599**10 (mod 2**32)|
+\LABEL{MIN::LABHASH_FACTOR} \\
+\verb|min::uns32 min::| & \MINKEY{labhash}%
+    \verb| ( min::uns32 hash, min::uns32 h )|
+\LABEL{MIN::LABHASH_INCREMENTAL} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
