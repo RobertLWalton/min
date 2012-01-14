@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  2 20:42:03 EST 2012
+// Date:	Sat Jan 14 06:24:19 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4531,15 +4531,18 @@ namespace min {
     public:
 
         lab_ptr ( min::gen g )
-	    : unprotected::lab_ptr ( g )
 	{
-	    MIN_ASSERT ( type_of ( s ) == LABEL );
+	    if ( is_stub ( g ) )
+	    {
+	        const min::stub * s = stub_of ( g );
+		if ( type_of ( s ) == LABEL )
+		    this->s = s;
+	    }
 	}
 
         lab_ptr ( const min::stub * s )
-	    : unprotected::lab_ptr ( s )
 	{
-	    MIN_ASSERT ( type_of ( s ) == LABEL );
+	    if ( type_of ( s ) == LABEL ) this->s = s;
 	}
 
         lab_ptr ( void ) {}

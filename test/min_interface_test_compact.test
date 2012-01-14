@@ -935,8 +935,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::hash ( lab ) == labhash1 true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
@@ -945,8 +943,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, s ) == 3 true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
@@ -954,8 +950,6 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::new_lab_gen ( labv2, 3 ) == lab true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
@@ -965,8 +959,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::lab_of ( labv2, 5, lab ) == 3 true.
 ../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
-../include/min.h:XXXX assert:
     i < header()->length true.
 ../include/min.h:XXXX assert:
     i < header()->length true.
@@ -974,6 +966,32 @@ min_interface_test.cc:XXXX assert:
     i < header()->length true.
 min_interface_test.cc:XXXX assert:
     min::new_lab_gen ( labv2, 3 ) == lab true.
+min_interface_test.cc:XXXX assert:
+    labp != min::NULL_STUB true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+min_interface_test.cc:XXXX assert:
+    labp[0] == labv1[0] true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+min_interface_test.cc:XXXX assert:
+    labp[1] == labv1[1] true.
+../include/min.h:XXXX assert:
+    i < header()->length true.
+min_interface_test.cc:XXXX assert:
+    labp[1] == labv1[1] true.
+min_interface_test.cc:XXXX assert:
+    min::length_of ( labp ) == 3 true.
+min_interface_test.cc:XXXX assert:
+    min::hash_of ( labp ) == labhash1 true.
+min_interface_test.cc:XXXX assert:
+    labp == min::NULL_STUB true.
+min_interface_test.cc:XXXX assert:
+    min::length_of ( labp ) == 3 true.
+min_interface_test.cc:XXXX assert:
+    labp1 == min::NULL_STUB true.
+min_interface_test.cc:XXXX assert:
+    labp2 == min::NULL_STUB true.
 
 Finish Labels Test!
 
@@ -3146,14 +3164,8 @@ min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
-../include/min.h:XXXX assert:
-    type_of ( s ) == LABEL true.
 ../include/min.h:XXXX assert:
     insertions <= elements true.
 ../include/min.h:XXXX assert:
