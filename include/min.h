@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 17 07:42:20 EST 2012
+// Date:	Tue Jan 17 10:07:06 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2254,8 +2254,9 @@ namespace min { namespace unprotected {
         resize_body ( min::stub * s,
 	              min::unsptr new_size,
 		      min::unsptr old_size )
-	    : s ( s ), new_size ( new_size ),
+	    : s ( s ),
 	      old_size ( old_size ),
+	      new_size ( new_size ),
 	      new_type ( min::type_of ( s ) )
 	{
 	    // Allocate rstub and its body, which is
@@ -3096,6 +3097,7 @@ namespace min {
 
         locatable_var
 	        ( const locatable_var<min::gen> & var )
+	    : internal::locatable_gen_base ()
 	{}
 
     public:
@@ -4964,9 +4966,7 @@ namespace min {
 	packed_struct_updptr
 	        ( const min::packed_struct_updptr<S>
 		        & psup )
-	{
-	    this->s = psup.s;
-	}
+	  : packed_struct_ptr<S> ( psup.s ) {}
 	packed_struct_updptr
 		( min::gen g )
 	    : packed_struct_ptr<S> ( g ) {}
@@ -5305,9 +5305,8 @@ namespace min {
 
 	packed_vec_ptr
 	        ( const min::packed_vec_ptr<E,H> & pvp )
-	{
-	    this->s = pvp.s;
-	}
+	    : internal::packed_vec_ptr_base<E,H>
+	    ( pvp.s ) {}
 	packed_vec_ptr ( min::gen g )
 	    : internal::packed_vec_ptr_base<E,H>
 	    ( g ) {}
@@ -5403,7 +5402,7 @@ namespace min {
 
 	static min::uns32 DISP ( void )
 	{
-	    OFFSETOF ( & packed_vec_ptr::s );
+	    return OFFSETOF ( & packed_vec_ptr::s );
 	}
     };
 
@@ -5426,9 +5425,7 @@ namespace min {
 	packed_vec_updptr
 	        ( const min::packed_vec_updptr<E,H>
 		      & pvup )
-	{
-	    this->s = pvup.s;
-	}
+	    : packed_vec_ptr<E,H> ( pvup.s ) {}
 	packed_vec_updptr ( min::gen g )
 	    : packed_vec_ptr<E,H> ( g ) {}
 	packed_vec_updptr
@@ -5535,9 +5532,7 @@ namespace min {
 	        ( const min::packed_vec_updptr
 			    <min::gen,H>
 		      & pvup )
-	{
-	    this->s = pvup.s;
-	}
+	    : packed_vec_ptr<min::gen,H> ( pvup.s ) {}
 	packed_vec_updptr ( min::gen g )
 	    : packed_vec_ptr<min::gen,H> ( g ) {}
 	packed_vec_updptr
@@ -5653,9 +5648,8 @@ namespace min {
 	        ( const min::packed_vec_updptr
 			    <const min::stub *,H>
 		      & pvup )
-	{
-	    this->s = pvup.s;
-	}
+	    : packed_vec_ptr<const min::stub *,H>
+	    ( pvup.s ) {}
 	packed_vec_updptr ( min::gen g )
 	    : packed_vec_ptr<const min::stub *,H> ( g )
 	    {}
@@ -5779,9 +5773,8 @@ namespace min {
 	packed_vec_insptr
 	        ( const min::packed_vec_insptr<E,H>
 		      & pvip )
-	{
-	    this->s = pvip.s;
-	}
+	    : packed_vec_updptr<E,H> ( pvip.s )
+	{}
 	packed_vec_insptr ( min::gen g )
 	    : packed_vec_updptr<E,H> ( g ) {}
 	packed_vec_insptr
@@ -6443,12 +6436,12 @@ namespace min {
 	return file->end_offset;
     }
 
-    inline min::uns32 end_line ( min::file file )
+    inline void end_line ( min::file file )
     {
         push(file->buffer) = 0;
 	file->end_offset = file->buffer->length;
     }
-    inline min::uns32 end_line
+    inline void end_line
 	    ( min::file file, min::uns32 offset )
     {
 	MIN_ASSERT ( offset < file->buffer->length );
@@ -6920,14 +6913,14 @@ namespace min {
     public:
 
 	obj_vec_ptr ( const min::stub * s )
-	    : s ( (min::stub *) s ), type ( READONLY )
+	    : type ( READONLY ), s ( (min::stub *) s )
 	    { init(); }
 	obj_vec_ptr ( min::gen g )
-	    : s ( (min::stub *) min::stub_of ( g ) ),
-	      type ( READONLY )
+	    : type ( READONLY ),
+	      s ( (min::stub *) min::stub_of ( g ) )
 	    { init(); }
 	obj_vec_ptr ( void )
-	    : s ( NULL ), type ( READONLY )
+	    : type ( READONLY), s ( NULL )
 	    { init(); }
 
 	~ obj_vec_ptr ( void )
@@ -7082,7 +7075,7 @@ namespace min {
     protected:
 
 	obj_vec_ptr ( const min::stub * s, int type )
-	    : s ( (min::stub *) s ), type ( type )
+	    : type ( type ), s ( (min::stub *) s )
 	    { init(); }
 
         enum {
@@ -9408,14 +9401,12 @@ namespace min { namespace unprotected {
     public:
 
         attr_ptr_type ( vecpt & vecp )
-	    : dlp ( vecp ),
-	      locate_dlp ( vecp ),
-	      lp ( vecp ),
-	      attr_name ( NONE() ),
+	    : attr_name ( NONE() ),
 	      reverse_attr_name ( NONE() ),
-	      state ( INIT )
-	{
-	}
+	      state ( INIT ),
+	      dlp ( vecp ),
+	      locate_dlp ( vecp ),
+	      lp ( vecp ) {}
 
     private:
 
