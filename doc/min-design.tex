@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 14, 2012}
+\date{January 16, 2012}
  
 \maketitle
 
@@ -8117,7 +8117,7 @@ by the {\tt min::\EOL publish\REL} function (\pagref{MIN::PUBLISH}).
 \subsubsubsection{Protected Object Vector Pointers}
 \label{PROTECTED-OBJECT-VECTOR-POINTERS}
 
-A read-only \minkey{obj\_\EOL vec\_\EOL pointer}
+A read-only \minkey{obj\_\EOL vec\_\EOL ptr}
 to the body vector of an object with stub \verb|s| or with
 general value \verb|v| pointing to its stub
 may be created by the following functions:
@@ -8136,7 +8136,7 @@ may be created by the following functions:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb| ( const min::obj_vec_ptr & vp )|
+          \verb| ( min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -8150,18 +8150,18 @@ may be created by the following functions:
 \LABEL{MIN::=_OBJ_VEC_PTR_OF_STUB} \\
 \end{tabular}\end{indpar}
 
-The constructors point the new vector pointer at an object designated
-by a \verb|min::gen| value or \verb|min::stub *| pointer, or in the
-case of the constructor with no argument, leave the vector pointer
-unpointed at any object, which is equivalent to providing the constructor
-with a {\tt min::\EOL NULL\_\EOL STUB} argument.
-Use of the pointer when it is not pointed at any object will give
-undefined results, though access to object elements will usually
-result in a memory fault.
+Here if \verb|v| or \verb|s| do not point at the stub of an object
+the new object pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
+which gives undefined results, but usually a memory fault, if
+used to access the parts of a object.  The no-argument object
+pointer constructor also creates an object pointer equal to
+{\tt min::\EOL NULL\_\EOL STUB}, and the {\tt =} operators
+set a object pointer just as a constructor with the {\tt =} right side
+as the constructor argument would.
 
-The {\tt =} operator destructs the vector pointer and then
-reconstructs it.  The pointer can be set to
-{\tt min::\EOL NULL\_\EOL STUB}.
+Note that unlike label, packed structure, or packed vector pointers,
+object vector pointers cache information about the object, and must always
+be writable, and never {\tt const}.
 
 The following protected functions may be used to discover information
 about the object pointed at by a read-only {\tt min::obj\_vec\_ptr}:
@@ -8268,7 +8268,7 @@ to permit writting elements.  Its functions are:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_updptr}}\ARGBREAK
-          \verb| ( const min::obj_vec_updptr & vp )|
+          \verb| ( min::obj_vec_updptr & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_updptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
@@ -8353,7 +8353,7 @@ The additional functions for this type of pointer are:
 \begin{indpar}\begin{tabular}{r@{}l}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_insptr}}\ARGBREAK
-          \verb| ( const min::obj_vec_insptr & vp )|
+          \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_insptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_insptr}}\ARGBREAK
@@ -8849,34 +8849,34 @@ The functions for using a read-only {\tt min::\EOL list\_\EOL ptr} are:
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_COPY_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_COPY_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_COPY_OF_LIST_INSPTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_SUBLIST_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_SUBLIST_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_SUBLIST_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::list_ptr & lp )|
@@ -9109,29 +9109,29 @@ from lists.  The functions for using this are:
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_COPY_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_COPY_OF_LIST_INSPTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_SUBLIST_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_SUBLIST_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_SUBLIST_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
@@ -9238,24 +9238,24 @@ The functions defined for this are:
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_COPY_OF_LIST_INSPTR} \\
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_SUBLIST_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_SUBLIST_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_SUBLIST_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
@@ -12061,7 +12061,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_ptr}}\ARGBREAK
-          \verb| ( const min::obj_vec_ptr & vp )|
+          \verb| ( min::obj_vec_ptr & vp )|
 \LABEL{MIN::OBJ_VEC_PTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_ptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
@@ -12152,7 +12152,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_updptr}}\ARGBREAK
-          \verb| ( const min::obj_vec_updptr & vp )|
+          \verb| ( min::obj_vec_updptr & vp )|
 \LABEL{MIN::OBJ_VEC_UPDPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_updptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
@@ -12226,7 +12226,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.9in}
 	& \TTOMKEY{min::stub}{const min::stub *}%
 	  {of {\tt MUP::obj\_vec\_insptr}}\ARGBREAK
-          \verb| ( const min::obj_vec_insptr & vp )|
+          \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::OBJ_VEC_INSPTR_TO_MIN_STUB} \\
 \verb|min::obj_vec_insptr & |
 	& \TTOMKEY{=}{=}{of {\tt min::obj\_vec\_insptr}}\ARGBREAK
@@ -12398,32 +12398,32 @@ In loose implementation: \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_COPY_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_COPY_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_COPY_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_SUBLIST_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_SUBLIST_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_ptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_PTR_SUBLIST_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\verb| ( min::list_ptr & lp )|
@@ -12510,27 +12510,27 @@ In loose implementation: \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_COPY_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_COPY_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_SUBLIST_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_SUBLIST_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_updptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_UPDPTR_SUBLIST_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
@@ -12621,22 +12621,22 @@ In loose implementation: \\
 \verb|min::gen min::|
 	& \MINKEY{start\_copy}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_COPY_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_ptr & lp2 )|
+	  \verb|   min::list_ptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_SUBLIST_OF_LIST_PTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_updptr & lp2 )|
+	  \verb|   min::list_updptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_SUBLIST_OF_LIST_UPDPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
-	  \verb|   const min::list_insptr & lp2 )|
+	  \verb|   min::list_insptr & lp2 )|
 \LABEL{MIN::START_LIST_INSPTR_SUBLIST_OF_LIST_INSPTR} \\
 \verb|min::gen min::|
 	& \MINKEY{start\_sublist}\ARGBREAK

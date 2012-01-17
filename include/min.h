@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 14 06:24:19 EST 2012
+// Date:	Mon Jan 16 19:08:51 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6938,7 +6938,7 @@ namespace min {
 	    deinit();
 	}
 
-	operator const min::stub * ( void ) const
+	operator const min::stub * ( void )
 	{
 	    return s;
 	}
@@ -7114,7 +7114,17 @@ namespace min {
 
         void init ( void )
 	{
-	    if ( s == NULL ) return;
+	    if ( s == NULL )
+	    {
+		unused_offset = 0;
+		aux_offset = 0;
+		hash_size = 0;
+		total_size = 0;
+		var_offset = 0;
+		hash_offset = 0;
+		attr_offset = 0;
+		return;
+	    }
 
 	    int type = type_of ( s );
 	    uns8 * flags_p;
@@ -7144,9 +7154,8 @@ namespace min {
 		    short_obj_total_size_of_flags
 		        ( so->flags );
 	    }
-	    else
+	    else if ( type == LONG_OBJ )
 	    {
-	        MIN_ASSERT ( type == LONG_OBJ );
 		internal::long_obj * lo =
 		    internal::long_obj_of ( s );
 
@@ -7171,6 +7180,19 @@ namespace min {
 		    long_obj_total_size_of_flags
 		        ( lo->flags );
 	    }
+	    else
+	    {
+	        s = NULL;
+		unused_offset = 0;
+		aux_offset = 0;
+		hash_size = 0;
+		total_size = 0;
+		var_offset = 0;
+		hash_offset = 0;
+		attr_offset = 0;
+		return;
+	    }
+
 	    attr_offset = hash_offset + hash_size;
 
 	    MIN_ASSERT
@@ -7786,19 +7808,18 @@ namespace min {
     min::gen start_copy
             ( min::unprotected
 	         ::list_ptr_type<vecpt> & lp,
-	      const
 	      min::unprotected
 	         ::list_ptr_type<vecpt2> & lp2 );
     template < class vecpt, class vecpt2 >
     min::gen start_sublist
     	    ( min::unprotected
 	         ::list_ptr_type<vecpt> & lp,
-    	      const min::unprotected
+    	      min::unprotected
 	         ::list_ptr_type<vecpt2> & lp2 );
     template < class vecpt >
     min::gen start_sublist
     	    ( min::list_insptr & lp,
-    	      const min::unprotected
+    	      min::unprotected
 	         ::list_ptr_type<vecpt> & lp2 );
 
     template < class vecpt >
@@ -8103,28 +8124,22 @@ namespace min { namespace unprotected {
 
 	friend min::gen start_copy<>
 		( min::list_insptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_updptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_insptr & lp,
-		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_insptr & lp,
-		  const
 		  min::list_updptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_insptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 
 	friend min::gen min::next<>
@@ -8285,56 +8300,43 @@ namespace min { namespace unprotected {
 
 	friend min::gen start_copy<>
 		( min::list_ptr & lp,
-		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_copy<>
 		( min::list_ptr & lp,
-		  const
 		  min::list_updptr & lp2 );
 	friend min::gen start_copy<>
 		( min::list_ptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 	friend min::gen start_copy<>
 		( min::list_updptr & lp,
-		  const
 		  min::list_updptr & lp2 );
 	friend min::gen start_copy<>
 		( min::list_updptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
-		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
-		  const
 		  min::list_updptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_ptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_updptr & lp,
-		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_updptr & lp,
-		  const
 		  min::list_updptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_updptr & lp,
-		  const
 		  min::list_insptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_insptr & lp,
-		  const
 		  min::list_ptr & lp2 );
 	friend min::gen start_sublist<>
 		( min::list_insptr & lp,
-		  const
 		  min::list_updptr & lp2 );
 
 	friend min::gen min::next<>
@@ -8466,7 +8468,6 @@ namespace min {
     inline min::gen start_copy
             ( min::unprotected
 	         ::list_ptr_type<vecpt> & lp,
-	      const
 	      min::unprotected
 	         ::list_ptr_type<vecpt2> & lp2 )
     {
@@ -8488,7 +8489,6 @@ namespace min {
     template <>
     inline min::gen start_copy
             ( min::list_insptr & lp,
-	      const
 	      min::list_insptr & lp2 )
     {
 	lp.hash_offset =
@@ -8518,7 +8518,7 @@ namespace min {
     inline min::gen start_sublist
     	    ( min::unprotected
 	         ::list_ptr_type<vecpt> & lp,
-    	      const min::unprotected
+    	      min::unprotected
 	         ::list_ptr_type<vecpt2> & lp2 )
     {
 	// We want the total size check to work even
@@ -8569,7 +8569,7 @@ namespace min {
     template <class vecpt>
     inline min::gen start_sublist
     	    ( min::list_insptr & lp,
-    	      const min::unprotected
+    	      min::unprotected
 	         ::list_ptr_type<vecpt> & lp2 )
     {
 	// We want the total size check to work even

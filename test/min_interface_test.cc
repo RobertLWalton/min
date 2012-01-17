@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Jan 14 06:34:24 EST 2012
+// Date:	Mon Jan 16 21:50:01 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3012,7 +3012,9 @@ void test_object_vector_level
 	min::unsptr aux_offset =
 	    MUP::aux_offset_of ( vp );
 	vp = min::NULL_STUB;
+	MIN_ASSERT ( vp == min::NULL_STUB );
 	vp = v;
+	MIN_ASSERT ( vp == sstub );
 	MIN_ASSERT
 	    ( base[attr_offset] == min::LIST_END() );
 	MIN_ASSERT
@@ -3023,6 +3025,16 @@ void test_object_vector_level
 	    (    base[attr_offset + 1]
 	      == min::new_list_aux_gen
 		     ( total_size - aux_offset ) );
+    }
+    {
+	min::obj_vec_ptr vp ( min::new_num_gen ( 8 ) );
+	MIN_ASSERT ( vp == min::NULL_STUB );
+	vp = v;
+	MIN_ASSERT ( vp == sstub );
+	MIN_ASSERT
+	    ( min::var_size_of ( vp ) == 20 );
+	vp = min::MISSING();
+	MIN_ASSERT ( vp == min::NULL_STUB );
     }
 }
 
