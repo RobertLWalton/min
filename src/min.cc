@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan  2 20:42:17 EST 2012
+// Date:	Tue Jan 17 08:04:43 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -68,9 +68,6 @@ static void packed_vec_scavenger_routine
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
 static bool initializer_called = false;
-
-static min::locatable_gen position;
-    // ".position" string.
 
 #define PTR_CHECK(...) \
     assert (    sizeof ( __VA_ARGS__ ) \
@@ -239,9 +236,6 @@ MINT::initializer::initializer ( void )
     	= & obj_scavenger_routine;
     MINT::scavenger_routines[LONG_OBJ]
     	= & obj_scavenger_routine;
-
-    ::position = min::new_str_gen ( ".position" );
-
 }
 
 // Names
@@ -1357,6 +1351,17 @@ min::gen min::new_lab_gen
     MUP::set_type_of ( s2, LABEL );
     return new_stub_gen ( s2 );
 }
+
+min::gen min::new_dot_lab_gen ( const char * s )
+{
+    min::locatable_gen dot, tmp;
+    dot = min::new_str_gen ( "." );
+    tmp = min::new_str_gen ( s );
+    min::gen elements[2];
+    elements[0] = dot;
+    elements[1] = tmp;
+    return min::new_lab_gen ( elements, 2 );
+}
 
 // Packed Structures and Vectors
 // ------ ---------- --- -------
@@ -2310,9 +2315,14 @@ min::phrase_position_vec_insptr min::init
     return vec;
 }
 
+static min::locatable_gen position;
+
 min::phrase_position_vec min::position_of
 	( min::obj_vec_ptr & vp )
 {
+    if ( ::position == MISSING() )
+        ::position =
+	    min::new_dot_lab_gen ( "position" );
     min::attr_ptr ap ( vp );
     min::locate ( ap, ::position );
     min::gen v = min::get ( ap );

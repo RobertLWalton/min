@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 16, 2012}
+\date{January 17, 2012}
  
 \maketitle
 
@@ -4096,6 +4096,17 @@ those given by the function arguments, in preference to creating a new
 label.  Thus two \verb|min::gen| label values with equal elements are
 \verb|==|.
 
+For convenience in generating frequently used labels,
+a 2-element label whose first element is the
+string \verb|"."| and whose second element is the string given by \verb|s|
+may be created by
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{new\_dot\_lab\_gen}%
+    \verb| ( const char * s )|
+\LABEL{MIN::NEW_DOT_LAB_GEN} \\
+\end{tabular}\end{indpar}
+
 The following function returns true if and only if its argument is
 a label:
 
@@ -7759,7 +7770,7 @@ phrase position vector.  If an object does, the phrase position
 pointer is returned by the following function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::phrase_position_vec min::| & \MINKEY{position}
+\verb|min::phrase_position_vec min::| & \MINKEY{position\_of}
     \verb| ( min::obj_vec_ptr & vp )|
 \LABEL{MIN::POSITION_OF_OBJECT_VEC_PTR} \\
 \end{tabular}\end{indpar}
@@ -11948,6 +11959,9 @@ In loose implementation: \\
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
     \verb| ( const min::gen * p, min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_dot\_lab\_gen}%
+    \verb| ( const char * s )|
+\LABEL{MIN::NEW_DOT_LAB_GEN} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
