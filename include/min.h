@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 06:32:24 EST 2012
+// Date:	Wed Jan 18 07:29:06 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3111,6 +3111,9 @@ namespace min {
 	}
         ~ locatable_var ( void )
 	{
+	    assert
+	      (    internal::locatable_gen_last
+	        == (internal::locatable_gen *) this );
 	    internal::locatable_gen_last = previous;
 	}
 
@@ -3170,6 +3173,9 @@ namespace min {
 	}
         ~ locatable_var ( void )
 	{
+	    assert
+	      (    internal::locatable_var_last
+	        == (internal::locatable_var *) this );
 	    internal::locatable_var_last = previous;
 	}
 
@@ -3439,6 +3445,9 @@ namespace min { \
 	} \
         ~ locatable_var ( void ) \
 	{ \
+	    assert (    internal::locatable_var_last \
+	             == (internal::locatable_var *) \
+		        this ); \
 	    internal::locatable_var_last = previous; \
 	} \
         \
