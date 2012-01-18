@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 06:32:38 EST 2012
+// Date:	Wed Jan 18 07:19:04 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -78,6 +78,12 @@ MINT::initializer::initializer ( void )
 {
     if ( initializer_called ) return;
     initializer_called = true;
+
+    // WARNING: DO NOT initialize static variables that
+    // have constructors in this routine, as the
+    // constructors will run after this routine; e.g.,
+    // DO NOT initialize min::locatable_gen static
+    // variables in this routine.
 
     PTR_CHECK ( min::packed_struct<int>::ptr );
     PTR_CHECK ( min::packed_struct<int>::updptr );

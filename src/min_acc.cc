@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 06:58:33 EST 2012
+// Date:	Wed Jan 18 07:22:50 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -188,6 +188,12 @@ static bool get_param
     return true;
 }
 #endif
+
+// WARNING: DO NOT initialize static variables that have
+// constructors in acc initializer routines, as the
+// constructors will run after these routines; e.g.,
+// DO NOT initialize min::locatable_gen static
+// variables in these routines.
 
 static void stub_allocator_initializer ( void );
 static void block_allocator_initializer ( void );
