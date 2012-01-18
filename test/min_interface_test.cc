@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Jan 16 21:50:01 EST 2012
+// Date:	Wed Jan 18 06:22:00 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -407,7 +407,8 @@ void initialize_hash_tables ( void )
         new stubp[MINT::str_hash_size];
     MINT::str_aux_hash =
         new stubp[MINT::str_hash_size];
-    for ( int i = 0; i < MINT::str_hash_size; ++ i )
+    for ( unsigned i = 0; i < MINT::str_hash_size;
+                          ++ i )
 	MINT::str_acc_hash[i] = MINT::str_aux_hash[i] =
 	    MINT::null_stub;
 #   if MIN_IS_COMPACT
@@ -417,7 +418,8 @@ void initialize_hash_tables ( void )
 	    new stubp[MINT::num_hash_size];
 	MINT::num_aux_hash =
 	    new stubp[MINT::num_hash_size];
-	for ( int i = 0; i < MINT::num_hash_size; ++ i )
+	for ( unsigned i = 0; i < MINT::num_hash_size;
+	                      ++ i )
 	    MINT::num_acc_hash[i] =
 	        MINT::num_aux_hash[i] =
 		MINT::null_stub;
@@ -428,7 +430,8 @@ void initialize_hash_tables ( void )
         new stubp[MINT::lab_hash_size];
     MINT::lab_aux_hash =
         new stubp[MINT::lab_hash_size];
-    for ( int i = 0; i < MINT::lab_hash_size; ++ i )
+    for ( unsigned i = 0; i < MINT::lab_hash_size;
+                          ++ i )
 	MINT::lab_acc_hash[i] = MINT::lab_aux_hash[i] =
 	    MINT::null_stub;
 }
@@ -973,8 +976,6 @@ void test_control_values ( void )
     min::uns64 v2 = 83670280;
     int type1 = -123;
     int type2 = 127;
-    void * p1 = (void *) 353456321;
-    void * p2 = (void *) 651946503;
     static char stubsarea[3*sizeof(min::stub)];
     min::unsptr stubp = min::unsptr ( stubsarea );
     stubp += sizeof (min::stub) - 1;
@@ -1395,6 +1396,9 @@ void test_acc_interface ( void )
 	MIN_ASSERT
 	    ( find_gen_locator
 	          ( & (min::gen &) staticg1[2] ) );
+	MIN_ASSERT
+	    ( find_gen_locator
+	          ( & (min::gen &) staticg3[4] ) );
 	MIN_ASSERT
 	    (    count_gen_locators()
 	      == 9 + 2 * MIN_IS_COMPACT );
@@ -2047,7 +2051,8 @@ void test_packed_vectors ( void )
                  == pvtype.subtype );
     MIN_ASSERT ( pvip->max_length == 5 );
     MIN_ASSERT ( pvip->length == 0 );
-    pve e1 = { min::MISSING(), min::ANY(), NULL, 88 };
+    pve e1 = { min::MISSING(), min::ANY(),
+               NULL, 88, { 0 } };
     min::push(pvip) = e1;
     MIN_ASSERT ( pvip->length == 1 );
     MIN_ASSERT ( pvip[0].j == 88 );
@@ -2056,11 +2061,11 @@ void test_packed_vectors ( void )
     MIN_ASSERT ( pvp[0].j == 88 );
 
     pve e2[3] = { { min::MISSING(), min::NONE(),
-                    NULL, 11 },
+                    NULL, 11, { 0 } },
                   { min::MISSING(), min::NONE(),
-		    NULL, 22 },
+		    NULL, 22, { 0 } },
                   { min::MISSING(), min::NONE(),
-		    NULL, 33 } };
+		    NULL, 33, { 0 } } };
     min::push ( pvip, 3, e2 );
     MIN_ASSERT ( pvp[1].j == 11 );
     MIN_ASSERT ( pvp[2].j == 22 );
@@ -2808,7 +2813,7 @@ void test_object_vector_level
     min::gen num3 = min::new_num_gen ( 3 );
     min::gen numv[3] = { num1, num2, num3 };
     min::gen fillv[70000];
-    for ( int i = 0; i < 70000; ++ i )
+    for ( unsigned i = 0; i < 70000; ++ i )
 	fillv[i] = num0;
     min::gen outv[4];
 
@@ -3922,10 +3927,10 @@ void test_object_attribute_level ( void )
         { lab2, 1, 0, 0 },
         { lab3, 1, 0, 0 },
         { lab4, 1, 0, 0 },
-	{ int1lab1, 0, 0 },
-	{ int1lab2, 0, 0 },
-	{ lab1int1, 0, 0 },
-	{ lab1int2, 0, 0 } };
+	{ int1lab1, 0, 0, 0 },
+	{ int1lab2, 0, 0, 0 },
+	{ lab1int1, 0, 0, 0 },
+	{ lab1int2, 0, 0, 0 } };
 
     MIN_ASSERT ( check_attr_info ( ap, ai, 8 ) );
 

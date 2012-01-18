@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan  3 08:59:55 EST 2012
+// Date:	Wed Jan 18 06:58:33 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1365,14 +1365,14 @@ void MACC::stub_stack
 	     &&
 	     input == last_segment->next )
 	{
-	    input_segment == sss;
+	    input_segment = sss;
 	    input = sss->begin;
 	}
 	if ( output_segment == last_segment
 	     &&
 	     output == last_segment->next )
 	{
-	    output_segment == sss;
+	    output_segment = sss;
 	    output = sss->begin;
 	}
 	last_segment = sss;
@@ -1875,7 +1875,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    //
 
 	    assert ( lev.first_g == lev.last_g );
-	    assert ( lev.first_g->lock == level );
+	    assert ( lev.first_g->lock == (int) level );
 
 	    if ( lev.last_g[1].lock >= 0 )
 	        return lev.last_g[1].lock;
@@ -1891,8 +1891,8 @@ unsigned MACC::collector_increment ( unsigned level )
 	    // Set the flags of lev.first_g.
 	    //
 	    assert ( lev.first_g + 1 == lev.last_g );
-	    assert ( lev.first_g->lock == level );
-	    assert ( lev.last_g->lock == level );
+	    assert ( lev.first_g->lock == (int) level );
+	    assert ( lev.last_g->lock == (int) level );
 
 	    end_g->last_before =
 		MINT::last_allocated_stub;
@@ -1971,7 +1971,7 @@ unsigned MACC::collector_increment ( unsigned level )
     case INITING_HASH:
         {
 	    assert ( level == 0 );
-	    assert ( lev.g[1].lock == level );
+	    assert ( lev.g[1].lock == (int) level );
 
 	    min::uns64 scanned = 0;
 	    min::stub * s = lev.last_stub;
@@ -2056,7 +2056,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case INITING_ROOT:
 	{
-	    assert ( lev.root_lock == level );
+	    assert ( lev.root_lock == (int) level );
 
 	    min::uns64 scanned = 0;
 
@@ -2126,7 +2126,7 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case SCAVENGING_ROOT:
         {
-	    assert ( lev.root_lock == level );
+	    assert ( lev.root_lock == (int) level );
 
 	    MINT::scavenge_control & sc =
 		MINT::scavenge_controls[level];
@@ -2584,7 +2584,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	        MACC::removal_request_flags;
 	    MACC::level * rrlev =
 	        levels + lev.next_level;
-	    assert ( rrlev->root_lock == level );
+	    assert ( rrlev->root_lock == (int) level );
 	    while (   root_kept + root_removed
 		    < MACC::scan_limit )
 	    {
@@ -2644,6 +2644,7 @@ unsigned MACC::collector_increment ( unsigned level )
 		       << endl;
 
 		if ( level == 0 )
+		    lev.collector_phase =
 			START_COLLECTING_HASH;
 		else
 		    lev.collector_phase =
@@ -2672,7 +2673,7 @@ unsigned MACC::collector_increment ( unsigned level )
     case COLLECTING_HASH:
         {
 	    assert ( level == 0 );
-	    assert ( lev.g[1].lock == level );
+	    assert ( lev.g[1].lock == (int) level );
 
 	    min::uns64 collected = 0;
 	    min::uns64 kept = 0;
@@ -2825,8 +2826,8 @@ unsigned MACC::collector_increment ( unsigned level )
 
     case COLLECTING:
         {
-	    assert ( lev.first_g->lock == level );
-	    assert ( lev.last_g->lock == level );
+	    assert ( lev.first_g->lock == (int) level );
+	    assert ( lev.last_g->lock == (int) level );
 
 	    end_g->last_before =
 		MINT::last_allocated_stub;
@@ -3141,7 +3142,7 @@ unsigned MACC::collector_increment ( unsigned level )
 	    // lev.first_g and lev.last_g are locked.
 
 	    assert ( lev.first_g == lev.last_g );
-	    assert ( lev.first_g->lock == level );
+	    assert ( lev.first_g->lock == (int) level );
 
 	    if ( lev.last_g[1].lock >= 0 )
 	        return lev.last_g[1].lock;
@@ -3290,8 +3291,8 @@ void MACC::print_acc_statistics ( std::ostream & s )
 	  ++ fbl )
     {
 	char buffer [40];
-	sprintf ( buffer, "%d Byte Blocks:",
-	                  fbl->size );
+	sprintf ( buffer, "%llu Byte Blocks:",
+	                  (min::uns64) fbl->size );
         MINT::fixed_block_list_extension * fblex =
 	    fbl->extension;
 	min::unsptr free = fbl->count;
@@ -3360,7 +3361,7 @@ ostream & operator <<
 	    p = buffer;
 	    p += sprintf( p, "/" );
 	}
-	p += sprintf ( p, "%ld", g->count );
+	p += sprintf ( p, "%llu", g->count );
 	++ g;
     }
     return s;

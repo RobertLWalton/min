@@ -2,7 +2,7 @@
 //
 // File:	min_builtin_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:07:57 EDT 2011
+// Date:	Wed Jan 18 06:57:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,7 +38,7 @@ int main ()
     cout << "MIN_USE_GNUC_BUILTINS = "
          << MIN_USE_GNUC_BUILTINS << endl;
     assert ( sizeof ( unsigned ) >= 4 );
-    for ( int i = 0; i <= 30; ++ i )
+    for ( unsigned i = 0; i <= 30; ++ i )
     {
 	assert
 	  ( min::internal ::log2floor ( 1u << i )

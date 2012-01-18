@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 17 10:07:06 EST 2012
+// Date:	Wed Jan 18 06:32:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8819,6 +8819,7 @@ namespace min {
 	    else
 		return c;
         }
+	MIN_ABORT ( "control should never reach here" );
     }
 
     template < class vecpt >
@@ -9751,7 +9752,7 @@ namespace min {
 
 	if ( 0 <= name
 	     &&
-	     name < attr_size_of
+	     (unsigned) name < attr_size_of
 	                ( obj_vec_ptr_of
 			    ( ap.locate_dlp ) ) )
 	{
@@ -9846,7 +9847,7 @@ namespace min {
 		 &&
 		 0 <= i
 		 &&
-		 i < attr_size_of
+		 (unsigned) i < attr_size_of
 			( obj_vec_ptr_of
 			    ( ap.locate_dlp ) ) )
 	    {

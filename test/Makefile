@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Tue Feb 15 09:59:19 EST 2011
+# Date:		Wed Jan 18 06:17:07 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -25,6 +25,10 @@ D = $$
 # O3 is needed to inline functions.
 #
 OPTIMIZE = -O3
+
+WFLAGS = -Wall -Wextra \
+         -Wno-unused-parameter \
+	 -Wno-char-subscripts
 
 INCLUDE_FILES = \
 	../include/min_parameters.h \
@@ -120,9 +124,6 @@ optimization_test:	\
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
-min.o:	../src/min.cc
-	g++ -I ../include -c ../src/min.cc
-
 # Note: MIN_STUB_BASE if set must be LESS than any
 #       data address.
 
@@ -179,7 +180,7 @@ min_acc_test.out:	\
 ${INTERFACE_PROGRAMS}:		\
 		min_interface_test.cc ../src/min.cc \
 		${INCLUDE_FILES} Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    min_interface_test.cc \
@@ -189,7 +190,7 @@ min_os_test:		\
 		min_os_test.cc \
 		../src/min_os.cc \
 		${INCLUDE_FILES} Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    min_os_test.cc
@@ -197,7 +198,7 @@ min_os_test:		\
 min_builtin_test:		\
 		min_builtin_test.cc \
 		${INCLUDE_FILES} Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    min_builtin_test.cc
@@ -205,7 +206,7 @@ min_builtin_test:		\
 min_builtin_replacement_test:		\
 		min_builtin_test.cc \
 		${INCLUDE_FILES} Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    -DMIN_USE_GNUC_BUILTINS=0 \
@@ -217,7 +218,7 @@ min_acc_test:		\
 		../include/min_acc.h \
 		../include/min_acc_parameters.h \
 		${INCLUDE_FILES} Makefile
-	g++ -g ${GFLAGS} \
+	g++ -g ${GFLAGS} ${WFLAGS} \
 	    -I ../include \
 	    -o $@ \
 	    ../src/min_acc.cc ../src/min.cc \
