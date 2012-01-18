@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 17 08:04:43 EST 2012
+// Date:	Wed Jan 18 06:32:38 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -953,7 +953,7 @@ min::uns32 min::strhash ( const char * p )
     uns32 hash = 0;
     const unsigned char * q = (const unsigned char *) p;
     unsigned char c;
-    while ( c = * q ++ )
+    while ( ( c = * q ++ ) != 0 )
     {
         hash = ( hash * 65599 ) + c;
     }
@@ -3402,7 +3402,7 @@ min::gen min::new_obj_gen
 	      min::unsptr hash_size,
 	      min::unsptr var_size )
 {
-    int lo = 0, hi = hash_size_length - 1;
+    unsigned lo = 0, hi = hash_size_length - 1;
     if ( hash_size <= 1 ) hi = hash_size;
     else if ( hash_size < min::LONG_OBJ_MAX_HASH_SIZE )
 	while ( true )
@@ -3412,7 +3412,7 @@ min::gen min::new_obj_gen
 	    //    MINT::hash_size[hi] >= u
 	    //    MINT::hash_size[lo] < u
 	    //
-	    int mid = ( lo + hi ) / 2;
+	    unsigned mid = ( lo + hi ) / 2;
 	    if ( MINT::hash_size[mid] >= hash_size )
 	        hi = mid;
 	    else if ( lo == mid )
@@ -3620,11 +3620,6 @@ bool min::resize
     min::gen * & oldb = MUP::base ( vp );
     min::gen * & newb = * ( min::gen **) &
 	MUP::new_body_ptr_ref ( r );
-
-    // Compute aux pointer offset.
-    //
-    unsgen aux_offset = (unsgen) new_size
-	              - (unsgen) old_size;
 
     // Initialize copy pointers.
     //
@@ -4944,7 +4939,7 @@ min::attr_info_vec min::attr_info_vec_type
 	     &&
 	     ( i = (int) f ) == f
 	     &&
-	     i < attr_size_of
+	     (unsigned) i < attr_size_of
 	             ( obj_vec_ptr_of ( ap.dlp ) ) )
 	{
 	    start_vector ( ap.dlp, i );
@@ -5320,7 +5315,7 @@ min::attr_info_vec min::attr_info_vec_type
 		 &&
 		 0 <= i
 		 &&
-		 i < attr_size_of
+		 (unsigned) i < attr_size_of
 		        ( obj_vec_ptr_of ( ap.dlp ) ) )
 	    {
 		start_vector ( ap.locate_dlp, i );
@@ -7228,7 +7223,7 @@ const min::printer_parameters
 //
 inline bool is_diacritic ( min::uns32 c )
 {
-    return 0x20D0 <= c && c <- 0x20FF;
+    return 0x20D0 <= c && c <= 0x20FF;
 }
 
 // Representations for printing control characters in

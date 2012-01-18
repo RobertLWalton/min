@@ -578,6 +578,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     find_gen_locator ( & (min::gen &) staticg1[2] ) true.
 min_interface_test.cc:XXXX assert:
+    find_gen_locator ( & (min::gen &) staticg3[4] ) true.
+min_interface_test.cc:XXXX assert:
     count_gen_locators() == 9 + 2 * MIN_IS_COMPACT true.
 min_interface_test.cc:XXXX assert:
     count_gen_locators() == 4 + 2 * MIN_IS_COMPACT true.

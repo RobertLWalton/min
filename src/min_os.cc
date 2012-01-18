@@ -2,7 +2,7 @@
 //
 // File:	min_os.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:10:13 EDT 2011
+// Date:	Wed Jan 18 06:53:59 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -137,7 +137,7 @@ min::uns64 MOS::pagesize ( void )
 
 // new_poolXX error messages:
 //
-static const int pool_limit = 4;
+static const unsigned pool_limit = 4;
 static const char * pool_message[pool_limit] = {
 /*0*/
     "",
@@ -642,7 +642,6 @@ void * MOS::new_pool_between
 
     min::unsptr size =
         (min::unsptr) pages * ::pagesize();
-    min::unsptr mask = ::pagesize() - 1;
 
     prolog ( "ALLOCATION", true );
 
