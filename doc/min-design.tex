@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 17, 2012}
+\date{January 19, 2012}
  
 \maketitle
 
@@ -443,6 +443,61 @@ Namespace   & viation   & Use
 			  {\tt .h} files.
 \end{tabular}
 \end{indpar}
+
+\section{Initialization}
+
+Because C++ compilers are inconsistent in the order in which they
+call constructors for {\tt static} data, MIN initialization is
+not done until after {\tt main()} begins execution.  {\tt main()}
+should begin with either
+\begin{center}
+\tt min::initialize();
+\end{center}
+or
+\begin{center}
+\tt min::interrupt();
+\end{center}
+
+Either will initialize MIN.
+
+Generally MIN out-of-line functions \underline{cannot} be called
+by constructors of {\tt static} or {\tt extern} data, because
+MIN is not initiallized when these constructors execute.
+MIN constructors designed to be used by such data do not call
+MIN out-of-line functions or depend upon other MIN data being
+constructed.  The following are some of the MIN constructors
+and {\tt inline} functions that can be invoked during construction
+of {\tt static} and {\tt extern} data:
+\begin{center}
+\tt
+\begin{tabular}{l}
+min::gen; \\
+min::MISSING(); \\
+min::NONE(); \\
+min::locatable\_gen; \\
+min::locatable\_var<T>; \\
+min::ptr<T>; \\
+\end{tabular}
+\end{center}
+
+After MIN initializes itself it calls initializers that are
+declared by including the following in a translation unit:
+
+\begin{center}
+\tt
+\begin{tabular}{l}
+void my\_initializer ( void ) \\
+{ ... } \\
+min::initializer ( my\_initializer ); \\
+\end{tabular}
+\end{center}
+
+Immediately after MIN performs its own initialization
+it calls {\tt my\_initializer()} and other functions defined by
+{\tt min::\EOL initializer}'s.  The order in which these
+are called is indeterminant.  These functions can call any
+MIN function and can finish initialization of {\tt static} or
+{\tt extern} data.
 
 \section{Data}
 
