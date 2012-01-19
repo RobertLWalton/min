@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 02:01:02 EST 2012
+// Date:	Thu Jan 19 04:19:18 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -134,6 +134,13 @@ bool MINT::acc_interrupt ( void )
     min::thread_interrupt();
     return true;
 }
+
+static void test_initialize ( void )
+{
+    cout << "TEST INITIALIZE CALLED" << endl;
+}
+static min::initializer
+    test_initializer ( ::test_initialize );
 
 // Allocator/Collector/Compactor Interface Functions.
 
