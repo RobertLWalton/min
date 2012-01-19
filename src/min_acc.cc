@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 02:07:28 EST 2012
+// Date:	Thu Jan 19 03:51:50 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -434,6 +434,13 @@ static void stub_allocator_initializer ( void )
 
 void MINT::acc_expand_stub_free_list ( min::unsptr n )
 {
+    if ( ! MINT::initialization_done )
+    {
+        cout << "Called MIN function before"
+	        " initialization done." << endl;
+        abort();
+    }
+
     if ( n == 0 ) return;
 
     min::unsptr max_n =

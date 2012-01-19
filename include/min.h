@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 19:10:35 EST 2012
+// Date:	Thu Jan 19 04:19:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1558,8 +1558,15 @@ namespace min {
 	initializer ( void (*init) ( void ) )
 	    : init ( init )
 	{
+	    assert ( previous == NULL );
 	    previous = internal::last_initializer;
 	    internal::last_initializer = this;
+	}
+	~ initializer ( void )
+	{
+	    assert (    internal::last_initializer
+	             == this );
+	    internal::last_initializer = previous;
 	}
     };
 

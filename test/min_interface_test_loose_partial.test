@@ -12,6 +12,7 @@
 Initialize!
 min_interface_test.cc:XXXX assert:
     begin_stub_region >= (min::stub *) min::internal::stub_base true.
+TEST INITIALIZE CALLED
 
 Start Test!
 

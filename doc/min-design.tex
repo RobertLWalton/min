@@ -477,6 +477,9 @@ min::NONE(); \\
 min::locatable\_gen; \\
 min::locatable\_var<T>; \\
 min::ptr<T>; \\
+min::packed\_struct<S>; \\
+min::packed\_vector<E>; \\
+min::packed\_vector<E,H>; \\
 \end{tabular}
 \end{center}
 
@@ -486,14 +489,14 @@ declared by including the following in a translation unit:
 \begin{center}
 \tt
 \begin{tabular}{l}
-void my\_initializer ( void ) \\
+void my\_initialize ( void ) \\
 { ... } \\
-min::initializer ( my\_initializer ); \\
+min::initializer my\_initializer ( ::my\_initialize ); \\
 \end{tabular}
 \end{center}
 
 Immediately after MIN performs its own initialization
-it calls {\tt my\_initializer()} and other functions defined by
+it calls {\tt my\_initialize()} and other functions specified by
 {\tt min::\EOL initializer}'s.  The order in which these
 are called is indeterminant.  These functions can call any
 MIN function and can finish initialization of {\tt static} or
