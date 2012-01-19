@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 07:22:50 EST 2012
+// Date:	Thu Jan 19 02:07:28 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,6 +18,7 @@
 //	Stub Stack Manager
 //	Collector
 //	Compactor
+//	ACC Interrupt
 //	Statistics
 
 // Setup
@@ -1188,25 +1189,19 @@ static void ** packed_subtypes_p;
 
 void MINT::allocate_packed_subtypes ( min::uns32 count )
 {
-    // Warning: this may be called before
-    // initialization!
+    // Warning: this is called during program construc-
+    // tion and BEFORE min::initialize().
     //
-    min::unsptr new_pages =
-        number_of_pages ( count * sizeof ( void * ) );
-    void ** new_packed_subtypes = (void **)
-        MOS::new_pool ( new_pages );
+    void ** new_packed_subtypes = new void * [count];
+    memset ( new_packed_subtypes,
+             0, count * sizeof ( void * ) );
     if ( ::packed_subtypes_p != NULL )
     {
-        min::unsptr old_pages =
-	    number_of_pages
-	        (   MINT::max_packed_subtype_count
-		  * sizeof ( void * ) );
 	memcpy ( new_packed_subtypes,
-	         * packed_subtypes_p,
-	         MINT::packed_subtype_count
+	         packed_subtypes_p,
+	           MINT::packed_subtype_count
 		 * sizeof ( void * ) );
-	MOS::free_pool
-	    ( old_pages, * packed_subtypes_p );
+	delete [] packed_subtypes_p;
     }
     ::packed_subtypes_p = new_packed_subtypes;
     MINT::max_packed_subtype_count = count;
@@ -3266,6 +3261,16 @@ void MACC::collect ( unsigned level )
 
 // Compactor
 // ---------
+
+// ACC Interrupt
+// --- ---------
+
+bool MINT::acc_interrupt ( void )
+{
+    min::initialize();
+    // TBD
+    return true;
+}
 
 // Statistics
 // ----------

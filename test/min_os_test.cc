@@ -2,7 +2,7 @@
 //
 // File:	min_os_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar 16 16:08:12 EDT 2011
+// Date:	Thu Jan 19 02:05:49 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -70,7 +70,6 @@ void min_assert
 //
 # include "../src/min_os.cc"
 
-MINT::initializer::initializer ( void ) {}
 
 // Memory Management Functions
 // ------ ---------- ---------

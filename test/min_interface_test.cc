@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 06:22:00 EST 2012
+// Date:	Thu Jan 19 02:01:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -124,12 +124,14 @@ void min_assert
 // Process Interface Functions.
 
 // When this out-of-line interrupt function is called it
-// sets the `interrupt_called' variable to true.
+// counts the interrupt_count variable.
 //
-bool interrupt_called;
-bool MINT::interrupt ( void )
+min::uns32 interrupt_count = 0;
+bool MINT::acc_interrupt ( void )
 {
-    interrupt_called = true;
+    min::initialize();
+    ++ interrupt_count;
+    min::thread_interrupt();
     return true;
 }
 
@@ -1194,13 +1196,13 @@ void test_process_interface ( void )
 
     cout << endl;
     cout << "Test interrupt function:" << endl;
-    interrupt_called = false;
+    min::uns32 count = ::interrupt_count;
     min::interrupt();
-    MIN_ASSERT ( ! interrupt_called );
+    MIN_ASSERT ( ::interrupt_count == count );
     min::stub ** limit_save = MINT::acc_stack_limit;
     MINT::acc_stack_limit = MINT::acc_stack;
     min::interrupt();
-    MIN_ASSERT ( interrupt_called );
+    MIN_ASSERT ( ::interrupt_count == count + 1 );
     MINT::acc_stack_limit = limit_save;
 
     cout << endl;
@@ -3979,6 +3981,13 @@ void test_object_attribute_level ( void )
 int main ( int argc )
 {
     debug = ( argc > 1 );
+    cout << endl;
+    cout << "Initialize!" << endl;
+    assert ( ::interrupt_count == 0 );
+    assert ( ! MINT::initialization_done );
+    min::interrupt();
+    assert ( ::interrupt_count == 1 );
+    assert ( MINT::initialization_done );
     cout << endl;
     cout << "Start Test!" << endl;
 
