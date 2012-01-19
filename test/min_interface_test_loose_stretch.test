@@ -1,5 +1,3 @@
-min_interface_test.cc:XXXX assert:
-    begin_stub_region >= (min::stub *) min::internal::stub_base true.
 ../include/min.h:XXXX assert:
     OFFSETOF ( & locatable_var< min::packed_struct_updptr<S> > ::previous ) == sizeof ( const min::stub * ) true.
 ../include/min.h:XXXX assert:
@@ -10,6 +8,10 @@ min_interface_test.cc:XXXX assert:
     ( OFFSETOF<H,const min::uns32> ( & H::control ) == 0 ) true.
 ../include/min.h:XXXX assert:
     OFFSETOF ( & locatable_var< min::packed_struct_updptr<S> > ::previous ) == sizeof ( const min::stub * ) true.
+
+Initialize!
+min_interface_test.cc:XXXX assert:
+    begin_stub_region >= (min::stub *) min::internal::stub_base true.
 
 Start Test!
 
@@ -414,9 +416,9 @@ Start Process Interface Test!
 
 Test interrupt function:
 min_interface_test.cc:XXXX assert:
-    ! interrupt_called true.
+    ::interrupt_count == count true.
 min_interface_test.cc:XXXX assert:
-    interrupt_called true.
+    ::interrupt_count == count + 1 true.
 
 Test relocate flag functions:
 min_interface_test.cc:XXXX assert:

@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 07:19:04 EST 2012
+// Date:	Thu Jan 19 01:44:32 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -51,6 +51,9 @@ using std::endl;
 // Initialization
 // --------------
 
+min::initializer * MINT::last_initializer = NULL;
+bool MINT::initialization_done = false;
+
 static char const * type_name_vector[256];
 char const ** min::type_name = type_name_vector + 128;
 
@@ -67,23 +70,15 @@ static void packed_vec_scavenger_routine
 	( MINT::scavenge_control & sc );
 static void obj_scavenger_routine
 	( MINT::scavenge_control & sc );
-static bool initializer_called = false;
 
 #define PTR_CHECK(...) \
     assert (    sizeof ( __VA_ARGS__ ) \
              == sizeof ( min::stub * ) ); \
     assert ( ( __VA_ARGS__::DISP() == 0 ) );
 
-MINT::initializer::initializer ( void )
+void MINT::initialize ( void )
 {
-    if ( initializer_called ) return;
-    initializer_called = true;
-
-    // WARNING: DO NOT initialize static variables that
-    // have constructors in this routine, as the
-    // constructors will run after this routine; e.g.,
-    // DO NOT initialize min::locatable_gen static
-    // variables in this routine.
+    MINT::initialization_done = true;
 
     PTR_CHECK ( min::packed_struct<int>::ptr );
     PTR_CHECK ( min::packed_struct<int>::updptr );
@@ -242,6 +237,10 @@ MINT::initializer::initializer ( void )
     	= & obj_scavenger_routine;
     MINT::scavenger_routines[LONG_OBJ]
     	= & obj_scavenger_routine;
+
+    for ( min::initializer * i = MINT::last_initializer;
+          i != NULL; i = i->previous )
+        i->init();
 }
 
 // Names
@@ -313,6 +312,9 @@ int min::compare ( min::gen g1, min::gen g2 )
 // ------- ----------
 
 bool MINT::relocated_flag;
+
+bool MINT::thread_interrupt_needed = false;
+void MINT::thread_interrupt ( void ) {}  // TBD
 
 // Allocator/Collector/Compactor 
 // -----------------------------

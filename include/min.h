@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jan 18 07:29:06 EST 2012
+// Date:	Wed Jan 18 19:10:35 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -20,6 +20,7 @@
 //	General Value Read Functions
 //	Control Values
 //	Stub Functions
+//	Initializer Interface
 //	Process Interface
 //	Allocator/Collector/Compactor Interface
 //	Locatable Variables, References, and Pointers
@@ -36,7 +37,6 @@
 //	Object Attribute Level
 //	Printers
 //	More Allocator/Collector/Compactor Interface
-//	Initialization
 
 // Namespaces:
 //
@@ -1533,6 +1533,43 @@ namespace min {
     }
 }
 
+// Initializer Interface
+// ----------- ---------
+
+namespace min {
+
+    struct initializer;
+
+    namespace internal {
+
+        extern min::initializer * last_initializer;
+
+	extern bool initialization_done;
+
+	void initialize ( void );
+
+    }
+
+    struct initializer
+    {
+        void (*init) ( void );
+	min::initializer * previous;
+
+	initializer ( void (*init) ( void ) )
+	    : init ( init )
+	{
+	    previous = internal::last_initializer;
+	    internal::last_initializer = this;
+	}
+    };
+
+    inline void initialize ( void )
+    {
+        if ( ! internal::initialization_done )
+	    internal::initialize();
+    }
+}
+
 // Process Interface
 // ------- ---------
 
@@ -1540,46 +1577,64 @@ namespace min {
 // and functions to test for interrupts.  The process
 // control block contains pointers to stacks.
 
-namespace min { namespace internal {
-
-
-    extern bool relocated_flag;
-	// On if bodies have been relocated.
-
-    extern min::stub ** acc_stack;
-    extern min::stub ** acc_stack_limit;
-        // acc_stack points at the first unused location
-	// in the acc stack.
-	//
-        // If acc_stack >= acc_stack_limit, an interrupt
-	// is invoked.  Min::stub * values can be pushed
-	// into the acc stack, increasing the acc_stack
-	// value.  The acc_stack_limit is much less than
-	// the actual end of the acc stack.  Interrupts
-	// may be scheduled by setting acc_stack_limit
-	// =< acc_stack, and work that leads to inter-
-	// rupts may be counted by decreasing acc_stack_
-	// limit.
-	//
-	// Interrupts perform acc actions such as
-	// emptying the acc_stack (and resetting acc_
-	// stack_limit), and may perform thread
-	// switches.
-
-    // Out of line function to execute interrupt.
-    // Returns true.
-    //
-    bool interrupt ( void );
-
-} }
-
 namespace min {
+
+    namespace internal {
+
+	extern bool relocated_flag;
+	    // On if bodies have been relocated.
+
+	extern min::stub ** acc_stack;
+	extern min::stub ** acc_stack_limit;
+	    // acc_stack points at the first unused
+	    // location in the acc stack.  If
+	    // acc_stack >= acc_stack_limit, an
+	    // interrupt is invoked.
+	    //
+	    // On startup, acc_stack == acc_stack_limit
+	    // == 0, so the first check for an interrupt
+	    // will cause one.
+	    //
+	    // Most interrupts just perform acc actions
+	    // such as emptying the acc_stack.
+	    //
+	    // Min::stub * values can be pushed into the
+	    // acc stack, increasing the acc_stack
+	    // value.  The acc_stack_limit is much less
+	    // than the actual end of the acc stack.
+	    // Interrupts may be scheduled by setting
+	    // acc_stack_limit =< acc_stack, and work
+	    // that leads to interrupts may be counted
+	    // by decreasing acc_stack_limit.
+
+	// Out of line function to execute interrupt.
+	// Provided by ACC as most interrupts merely
+	// process the ACC stack.  Begins by calling
+	// min::initialize() and ends by calling
+	// min::thread_interrupt().  Returns true.
+	//
+	bool acc_interrupt ( void );
+
+	// On if a thread interrupt has been scheduled.
+	//
+	extern bool thread_interrupt_needed;
+
+	// Call to execute a thread interrupt.
+	//
+	void thread_interrupt ( void );
+    }
+
+    inline void thread_interrupt ( void )
+    {
+        if ( internal::thread_interrupt_needed )
+	    internal::thread_interrupt();
+    }
 
     inline bool interrupt ( void )
     {
         if (    internal::acc_stack
 	     >= internal::acc_stack_limit )
-	    return internal::interrupt();
+	    return internal::acc_interrupt();
 	else return false;
     }
 
@@ -4757,7 +4812,9 @@ namespace min {
 
 	// Allocate or reallocate the packed_subtypes
 	// vector setting max_packed_subtype_count to
-	// the given value.
+	// the given value.  WARNING: this is called
+	// during static memory construction and BEFORE
+	// min::initialize().
 	//
 	void allocate_packed_subtypes
 	    ( min::uns32 max_packed_subtype_count );
@@ -11471,24 +11528,5 @@ namespace min { namespace internal {
     }
 
 } }
-
-// Initialization
-// --------------
-
-namespace min { namespace internal {
-
-    class initializer
-    {
-        public:
-
-	initializer ( void );
-	    // NOTE: This calls acc_initializer()
-	    // defined below.
-    };
-    static initializer initializer_instance;
-
-} }
-
-
 
 # endif // MIN_H

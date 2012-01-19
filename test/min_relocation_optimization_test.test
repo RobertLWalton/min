@@ -21,13 +21,11 @@ _Z41__static_initialization_and_destruction_0ii:
 	jne	.L5
 	movl	$_ZSt8__ioinit, %edi
 	call	_ZNSt8ios_base4InitC1Ev
-	movl	$__tcf_0, %edi
 	movl	$__dso_handle, %edx
 	xorl	%esi, %esi
-	call	__cxa_atexit
-	movl	$_ZN3min8internal20initializer_instanceE, %edi
+	movl	$__tcf_0, %edi
 	addq	$8, %rsp
-	jmp	_ZN3min8internal11initializerC1Ev
+	jmp	__cxa_atexit
 .LFEXXX:
 	.size	_Z41__static_initialization_and_destruction_0ii, .-_Z41__static_initialization_and_destruction_0ii
 .globl __gxx_personality_v0
@@ -119,8 +117,6 @@ _Z4testPKN3min4stubEi:
 	.size	_Z4testPKN3min4stubEi, .-_Z4testPKN3min4stubEi
 	.local	_ZSt8__ioinit
 	.comm	_ZSt8__ioinit,1,1
-	.local	_ZN3min8internal20initializer_instanceE
-	.comm	_ZN3min8internal20initializer_instanceE,1,1
 	.weakref	_Z20__gthrw_pthread_oncePiPFvvE,pthread_once
 	.weakref	_Z27__gthrw_pthread_getspecificj,pthread_getspecific
 	.weakref	_Z27__gthrw_pthread_setspecificjPKv,pthread_setspecific
