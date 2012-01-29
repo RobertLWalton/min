@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 04:19:18 EST 2012
+// Date:	Sun Jan 29 08:07:23 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2153,7 +2153,8 @@ void test_file ( void )
 
     min::locatable_var<min::file> file1;
     min::init_input_string
-        ( file1, "Line 1\nLine 2\nLine 3\n" );
+        ( file1,
+	  min::new_ptr ( "Line 1\nLine 2\nLine 3\n" ) );
     MIN_ASSERT
         (    strcmp ( "Line 1",
 	              & file1->buffer
@@ -2608,7 +2609,9 @@ void test_printer ( void )
     min::locatable_var<min::file> file;
     min::init_output_printer ( file, printer);
     min::init_input_string
-        ( file, "Line 1\nLine 2\nLine 3\n\n" );
+        ( file,
+	  min::new_ptr ( "Line 1\nLine 2\nLine 3\n\n" )
+	 );
     min::init_file_name
         ( file, min::new_str_gen ( "test_file" ) );
 
