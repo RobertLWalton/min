@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 01:44:32 EST 2012
+// Date:	Sun Jan 29 08:07:02 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1740,7 +1740,7 @@ bool min::init_input_named_file
 
 void min::init_input_string
 	( min::ref<min::file> file,
-	  const char * data,
+	  min::ptr<const char> data,
 	  min::uns32 print_flags,
 	  min::uns32 spool_lines )
 {

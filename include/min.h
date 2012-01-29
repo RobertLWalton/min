@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 04:19:54 EST 2012
+// Date:	Sun Jan 29 08:02:09 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2704,7 +2704,7 @@ namespace min {
 
 	template < typename T >
 	min::ptr<T> new_ptr
-	    ( const min::stub * s, T & location );
+	    ( const min::stub * s, T * location );
 
 	template < typename T >
 	min::ref<T> new_ref
@@ -2824,7 +2824,7 @@ namespace min {
 	    : internal::ptr_base<T> ( s, offset ) {}
 
 	friend min::ptr<T> unprotected::new_ptr<T>
-	    ( const min::stub * s, T & location );
+	    ( const min::stub * s, T * location );
 	friend min::ptr<T> operator &<>
 	    ( const min::ref<T> & r );
 	friend class internal::ptr_base<T>;
@@ -3011,7 +3011,7 @@ namespace min {
 	friend min::ptr<min::gen>
 	    unprotected::new_ptr<min::gen>
 		( const min::stub * s,
-		  min::gen & location );
+		  min::gen * location );
 	friend min::ptr<min::gen> operator &<>
 	    ( const min::ref<min::gen> & r );
 	friend class internal::ptr_base<min::gen>;
@@ -3059,7 +3059,7 @@ namespace min {
 	friend min::ptr<const min::stub *>
 	    unprotected::new_ptr<const min::stub *>
 		( const min::stub * s,
-		  const min::stub * & location );
+		  const min::stub ** location );
 	friend min::ptr<const min::stub *> operator &<>
 	    ( const min::ref<const min::stub *> & r );
 	friend class
@@ -3078,15 +3078,22 @@ namespace min {
     T buffer[length]; \
     memcpy ( buffer, (T const *) (source), \
              sizeof ( T ) * (length) )
-    
+ 
     template < typename T >
     inline min::ptr<T> unprotected::new_ptr
-        ( const min::stub * s, T & location )
+        ( const min::stub * s, T * location )
     {
         return min::ptr<T>
-	    ( s, (uns8 *) & location
+	    ( s, (uns8 *) location
 		 -
 		 (uns8 *) unprotected::ptr_of ( s ) );
+    }
+
+    template < typename T >
+    inline min::ptr<T> new_ptr ( T * p )
+    {
+	return unprotected::new_ptr<T>
+	    ( ZERO_STUB, p );
     }
 
     template < typename T >
@@ -3097,6 +3104,13 @@ namespace min {
 	    ( s, (uns8 *) & location
 		 -
 		 (uns8 *) unprotected::ptr_of ( s ) );
+    }
+
+    template < typename T >
+    inline min::ref<T> new_ref ( T & location )
+    {
+	return unprotected::new_ref<T>
+	    ( ZERO_STUB, location );
     }
 
     template < typename T >
@@ -3404,7 +3418,8 @@ namespace min { \
 	    : internal::ptr_base< T > ( s, offset ) {} \
 	\
 	friend min::ptr< T > unprotected::new_ptr< T > \
-	    ( const min::stub * s, T & location ); \
+	    ( const min::stub * s, \
+	      T * location ); \
 	friend min::ptr< T > operator &<> \
 	    ( const min::ref< T > & r ); \
 	friend class internal::ptr_base< T >; \
@@ -3579,7 +3594,7 @@ namespace min { \
 	    MIN_ASSERT ( i < hp->length ); \
 	    return unprotected::new_ptr \
 	        ( this->s, \
-	          * (T *) \
+	          (T *) \
 		  ( (uns8 *) hp \
 		    + \
 		    internal::packed_vec_ptr_base \
@@ -3612,7 +3627,7 @@ namespace min { \
 		unprotected::ptr_of ( this->s ); \
 	    return min::unprotected::new_ptr \
 		( this->s, \
-		  * ( T *) \
+		  ( T *) \
 		  ( (uns8 *) hp \
 		    + \
 		    internal::packed_vec_ptr_base \
@@ -3627,7 +3642,7 @@ namespace min { \
 		unprotected::ptr_of ( this->s ); \
 	    return min::unprotected::new_ptr \
 		( this->s, \
-		  * ( T *) \
+		  ( T *) \
 		  ( (uns8 *) hp \
 		    + \
 		    internal::packed_vec_ptr_base \
@@ -4085,7 +4100,7 @@ namespace min {
 			  this->s : ZERO_STUB,
 		      ( (const char * )
 		        unprotected::long_str_of ( s ) )
-		      [sizeof ( unprotected::long_str )]
+		      + sizeof ( unprotected::long_str )
 		    );
 	    }
 
@@ -4305,9 +4320,7 @@ namespace min {
 			   new_direct_str_gen ( p, n );
 #	endif
 	    return internal::new_str_stub_gen
-	        ( unprotected::new_ptr<const char>
-		      ( ZERO_STUB, * p ),
-		  n );
+	        ( new_ptr<const char> ( p ), n );
 	}
 
 	inline min::gen new_str_gen
@@ -5404,7 +5417,7 @@ namespace min {
 	    MIN_ASSERT ( i < hp->length );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( E const *)
+		  ( E const *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base<E,H>
@@ -5433,7 +5446,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( E const *)
+		  ( E const *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base<E,H>
@@ -5448,7 +5461,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( E const *)
+		  ( E const *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base<E,H>
@@ -5536,7 +5549,7 @@ namespace min {
 	    MIN_ASSERT ( i < hp->length );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( E *)
+		  ( E *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base<E,H>
@@ -5551,7 +5564,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( E *)
+		  ( E *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base<E,H>
@@ -5566,7 +5579,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( E *)
+		  ( E *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base<E,H>
@@ -5646,7 +5659,7 @@ namespace min {
 	    MIN_ASSERT ( i < hp->length );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( min::gen *)
+		  ( min::gen *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base
@@ -5662,7 +5675,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( min::gen *)
+		  ( min::gen *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base
@@ -5679,7 +5692,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( min::gen *)
+		  ( min::gen *)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base
@@ -5767,7 +5780,7 @@ namespace min {
 	    MIN_ASSERT ( i < hp->length );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( const min::stub **)
+		  ( const min::stub **)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base
@@ -5785,7 +5798,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( const min::stub **)
+		  ( const min::stub **)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base
@@ -5803,7 +5816,7 @@ namespace min {
 		unprotected::ptr_of ( this->s );
 	    return min::unprotected::new_ptr
 		( this->s,
-		  * ( const min::stub **)
+		  ( const min::stub **)
 		  ( (uns8 *) hp
 		    +
 		    internal::packed_vec_ptr_base
@@ -6468,9 +6481,21 @@ namespace min {
 
     void init_input_string
 	    ( min::ref<min::file> file,
-	      const char * data,
+	      min::ptr<const char> data,
 	      min::uns32 print_flags = 0,
 	      min::uns32 spool_lines = min::ALL_LINES );
+
+    inline void init_input_string
+	    ( min::ref<min::file> file,
+	      min::ptr<char> data,
+	      min::uns32 print_flags = 0,
+	      min::uns32 spool_lines = min::ALL_LINES )
+    {
+        init_input_string
+	    ( file, (min::ptr<const char>) data,
+	       print_flags, spool_lines );
+    }
+	             
 
     min::uns32 next_line ( min::file file );
     min::uns32 line

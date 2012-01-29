@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 19, 2012}
+\date{January 29, 2012}
  
 \maketitle
 
@@ -1701,7 +1701,7 @@ that have bodies.
 In addition to specialized pointer types for each type of object,
 there are a general body reference and pointer types
 that reference any type an element in any body associated with any stub.
-The reference types are most frequently used:
+The functions for creating and using reference types are:
 
 \newcommand{\TARG}{\BRACKETED{T}}
 
@@ -1710,6 +1710,9 @@ The reference types are most frequently used:
     \verb| ( const min::stub * s,|\ARGBREAK
     \verb|   T const & location )|
 \LABEL{MUP::NEW_REF} \\
+\verb|min::|\MINKEY{ref\TARG}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
+    \verb| ( T & location )|
+\LABEL{MIN::NEW_REF} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -1808,13 +1811,42 @@ TBD
 \end{center}
 
 The unprotected {\tt MUP::new\_ref} function is used by these
-protected function to construct a {\tt min::\EOL ref\TARG} value
+protected functions to construct a {\tt min::\EOL ref\TARG} value
 from a pointer {\tt s} to a stub and a {\tt const} location
-within the body associated with that stub.  The location is
-{\tt const} only to prevent it being written \underline{without}
-using the {\tt min::\EOL ref\TARG} reference value returned by
-{\tt MUP::\EOL new\_\EOL ref}; the reference value \underline{does}
-permit the location to be written by protected code.
+within the body associated with that stub.  Note that if the
+location is of a `{\tt T const}' type the resulting
+{\tt min::\EOL ref\TARG} reference value will allow the location
+to be written.  This is done because locations inside data bodies
+that point at stubs are declared as `{\tt const}' locations
+so they are not directly writable, but these locations can be
+written using {\tt min::\EOL ref\TARG} values.
+
+The protected {\tt min::new\_ref} function may be used to construct
+a {\tt min::\EOL ref\TARG} value from a non-relocatable location,
+such as a global location or a location in the stack.
+This function constructs a {\tt min::\EOL ref\TARG} value whose
+stub is the special {\tt min::\EOL ZERO\_\EOL STUB} stub that
+has a zero body pointer and whose offset is the address of the
+non-relocatable location.
+
+Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
+differ according to whether or not the type {\tt T} is
+`\mkey{locatable}{{\tt min::ref\BRACKETED{T}} reference to}'
+\label{LOCATABLE_REF}
+({\tt min::\EOL gen}, {\tt const min::\EOL stub~*}, and
+classes such as {\tt min:\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
+that encapulate {\tt const min::\EOL stub~*} values are
+locatable types: see \pagref{LOCATABLE-TYPE}).
+If {\tt T} is locatable, storing a value in a {\tt min::\EOL ref\TARG}
+location implicitly calls the
+{\tt min::\EOL acc\_\EOL write\_\EOL update} functions of
+Section~\itemref{ACC-WRITE-UPDATE-FUNCTIONS} to update the stubs
+involved, unless the {\tt min::\EOL ref\TARG} value references
+{\tt min::\EOL ZERO\_\EOL STUB}.
+If {\tt T} is not locatable or if the
+{\tt min::\EOL ref\TARG} value references {\tt min::\EOL ZERO\_\EOL STUB},
+the {\tt min::\EOL acc\_\EOL write\_\EOL update} functions are not implicitly
+called.
 
 A {\tt min::ref\TARG} value is implicitly convertable to the type {\tt T}
 value its internal pointer points at.  As this implicit conversion
@@ -1830,26 +1862,6 @@ second argument is of this latter type, so that expressions such as
 \end{center}
 can be used.
 
-Actually there are two kinds of {\tt min::\EOL ref\TARG} types that
-differ according to whether or not the type {\tt T} is
-`\mkey{locatable}{{\tt min::ref\BRACKETED{T}} reference to}'
-\label{LOCATABLE_REF}
-({\tt min::\EOL gen}, {\tt const min::\EOL stub~*}, and
-classes such as {\tt min:\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
-that encapulate {\tt const min::\EOL stub~*} values are
-locatable types: see \pagref{LOCATABLE-TYPE}).
-If {\tt T} is locatable, storing a value in a {\tt min::\EOL ref\TARG}
-location implicitly calls the
-{\tt min::\EOL acc\_\EOL write\_\EOL update} functions of
-Section~\itemref{ACC-WRITE-UPDATE-FUNCTIONS} to update the stubs
-involved.  If {\tt T} is not locatable, this is not done.
-
-A {\tt min::\EOL ref\TARG} reference value can also designate a location at
-an absolute address not in a body associated with a stub.  This is
-done by using fake stub whose `body pointer' is zero.  Such reference
-values are used to point at locatable variables in static memory or the
-stack (see {\tt operator min::ref\TARG}, \pagref{LOCATABLE_VAR_REF}).
-
 Associated with the {\tt min::\EOL ref\TARG} reference type is
 the companion {\tt min::\EOL ptr\TARG} pointer type:
 
@@ -1861,8 +1873,11 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::|\MINKEY{ptr\TARG}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
     \verb| ( const min::stub * s,|\ARGBREAK
-    \verb|   T & location )|
+    \verb|   T * location )|
 \LABEL{MUP::NEW_PTR} \\
+\verb|min::|\MINKEY{ptr\TARG}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
+    \verb| ( T * location )|
+\LABEL{MIN::NEW_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -1930,13 +1945,11 @@ values of the locations pointed at, while {\tt =} for pointer values
 copies the pointer itself; i.e., the pointer to the stub and the offset.
 
 Another difference is the if a {\tt min::\EOL ref\TARG} value {\tt r}
-designates a location containing a {\tt T} value {\tt v}, then
-{\tt r->\ldots} is equivalent to {\tt v->\ldots}, and designates the value
-pointed at by {\tt v}. 
+designates a location {\tt v} containing a {\tt T} value, then
+{\tt r->\ldots} is equivalent to {\tt v->\ldots}.
 But if a {\tt min::\EOL ptr\TARG} value {\tt p}
-designates a location containing a {\tt T} value {\tt v}, then
-{\tt p->\ldots} is equivalent to {\tt (\&v)->\ldots},
-and designates the value {\tt v} itself.
+points at location {\tt v} containing a {\tt T}, then
+{\tt p->\ldots} is equivalent to {\tt (\&v)->\ldots}.
 
 A {\tt min::\EOL ptr\TARG} value can be created by applying the
 {\tt \&} operator to a {\tt min::\EOL ref\TARG} value or to a
@@ -1949,11 +1962,15 @@ pointer value by applying the
 A {\tt min::\EOL ptr\TARG} value can also be created by the
 unprotected {\tt MUP::\EOL new\_\EOL ptr} function which
 constructs a {\tt min::\EOL ptr\TARG} value
-from a pointer {\tt s} to a stub and a location
+from a pointer {\tt s} to a stub and a pointer to
 within the body associated with that stub.
-Unlike {\tt min::\EOL new\_\EOL ref},
-the location within the body may not be {\tt const} unless {\tt T} is
+However, unlike {\tt min::\EOL new\_\EOL ref},
+the location pointed at within a body may not be {\tt const} unless {\tt T} is
 {\tt const}.
+
+A {\tt min::\EOL ptr\TARG} value can be created by the
+protected {\tt min::\EOL new\_\EOL ptr} function from
+a non-relocatable pointer to a value of type {\tt T}.
 
 Given {\tt min::\EOL ptr<T>} value {\tt p} and an index {\tt i} of some
 suitable index type {\tt I} (such as {\tt int} or {\tt min::\EOL uns32}),
@@ -1967,15 +1984,13 @@ If {\tt T} is not a locatable value type
 {\tt p[i]} is only a `{\tt T \&}' reference, and
 \underline{not} a {\tt min:\EOL ref<T>} reference.  As such it is
 in effect an unprotected body pointer that will become undefined whenever
-a relocatable function is called.  This is so because the
-`{\tt .}{\em member-name}' member access operation cannot be made to work with
-{\tt min::\EOL ref<T>} values, and member access operations are
-common when {\tt T} is a structure type.  However, if {\tt T} is locatable,
+a relocatable function is called.
+However, if {\tt T} is locatable,
 it may contain a `{\tt const min::\EOL stub *}' value,
 and therefore cannot be written using a
 `{\tt T \&}' reference.  It can be written using a
-{\tt min:\EOL ref<T>} reference, so such is returned by {\tt p[i]} in
-this case.
+{\tt min:\EOL ref<T>} reference, so such is returned by {\tt p[i]} if
+{\tt T} is locatable.
 
 A pointer of type {\tt min::ptr<T>} can be implicitly converted to a
 pointer of type `{\tt T*}' when used as a function argument.
@@ -5882,7 +5897,14 @@ accomplished by the following:
 \verb|void min::|
     & \MINKEY{init\_input\_string\REL}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
-	  \verb|   const char * data,|\ARGBREAK
+	  \verb|   min::ptr<const char> data,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_input\_string\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::ptr<char> data,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
