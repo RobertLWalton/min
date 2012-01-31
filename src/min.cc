@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 29 08:07:02 EST 2012
+// Date:	Tue Jan 31 05:39:07 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2037,15 +2037,13 @@ void min::print_phrase_lines
         for ( uns32 i = 0; i < first_column; ++ i )
 	    printer << ' ';
 
-	uns32 last_column =
+	uns32 next_column =
 	    end.line == line ? end_column : width;
-	if ( last_column <= first_column )
-	    last_column = width;
-	if ( last_column <= first_column )
-	    last_column = first_column + 1;
+	if ( next_column <= first_column )
+	    next_column = first_column + 1;
 
         for ( uns32 i = first_column;
-	      i < last_column; ++ i )
+	      i < next_column; ++ i )
 	    printer << mark;
 	printer << min::eol;
 
