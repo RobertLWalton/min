@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 29, 2012}
+\date{January 31, 2012}
  
 \maketitle
 
@@ -7211,7 +7211,8 @@ min::ASCII\_FLAG
 \end{indpar}
 
 This permits characters in a {\tt printer->file} line to be copied
-to another printer verbatim.  Note that {\tt min::\EOL DISPLAY\_\EOL EOL}
+to another printer verbatim.  Note that
+the {\tt min::\EOL DISPLAY\_\EOL EOL\_\EOL FLAG}
 is not affected, as when copying to a printer from
 from some {\tt printer->\EOL file}
 line terminating NULs are translated to {\tt min::\EOL eol}
@@ -7540,7 +7541,7 @@ is printed on a single {\tt printer} line.  {\tt file->\EOL print\_\EOL flags}
 (\pagref{FILE_PRINT_FLAGS})
 are used to print this line, and the number of columns in the result,
 including any end of line representation printed by the
-{\tt min::\EOL DISPLAY\_\EOL EOL} flag, is returned.
+{\tt min::\EOL DISPLAY\_\EOL EOL\_\EOL FLAG}, is returned.
 
 If a line is
 unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
