@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 31 05:39:07 EST 2012
+// Date:	Tue Jan 31 05:58:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2029,7 +2029,7 @@ void min::print_phrase_lines
     uns32 first_column = begin_column;
 
     uns32 width = min::print_line
-	( printer, file, line,
+	( printer, print_flags, file, line,
 	  blank_line, end_of_file, unavailable_line );
 
     while ( true )
