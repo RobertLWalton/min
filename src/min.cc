@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jan 31 05:58:05 EST 2012
+// Date:	Fri Feb  3 04:03:54 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -60,7 +60,7 @@ char const ** min::type_name = type_name_vector + 128;
 char const * min::special_name
                       [min::SPECIAL_NAME_LENGTH] =
     { "MISSING", "NONE", "ANY", "MULTI_VALUED",
-      "UNDEFINED", "SUCCESS", "FAILURE" };
+      "UNDEFINED", "SUCCESS", "FAILURE", "ERROR" };
 
 static void lab_scavenger_routine
 	( MINT::scavenge_control & sc );

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 29 08:02:09 EST 2012
+// Date:	Fri Feb  3 04:03:15 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -325,8 +325,11 @@ namespace min {
     inline min::gen FAILURE ( void )
 	{ return min::unprotected::new_special_gen
 	    ( 0xFFFFF9 ); }
+    inline min::gen ERROR ( void )
+	{ return min::unprotected::new_special_gen
+	    ( 0xFFFFF8 ); }
 
-    const unsigned SPECIAL_NAME_LENGTH = 7;
+    const unsigned SPECIAL_NAME_LENGTH = 8;
     extern const char * special_name
                             [SPECIAL_NAME_LENGTH];
         // special_name[0xFFFFFF-i] is the name of

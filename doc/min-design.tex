@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{January 31, 2012}
+\date{February 3, 2012}
  
 \maketitle
 
@@ -1398,7 +1398,8 @@ see \pagref{MUP::NEW_GEN}.
 \label{SPECIAL-VALUES}
 
 Special general values are \verb|min::gen| values that are unique
-and not equal to any value that can be generated during
+and not equal to any non-special {\tt min::\EOL gen}
+value that can be generated during
 program execution.  Special general values are C/C++ {\tt const}
 values, and must only be used as specified by documentation.
 They are used as return or argument values by some functions.
@@ -1415,14 +1416,17 @@ Denotes a missing value or an empty set of values, and may be input
 or output and used as an attribute value.
 \item[{\tt const min::gen min::}\MINNBKEY{NONE()}]~%
 	\LABEL{MIN::NONE}\\
-Denotes a non-existent function value or result, and may not be
-input or output or used as an attribute value or label.
+Denotes a non-existent function value or result, but may \underline{not} be
+input or output or used in an attribute value or label.  May be used
+as a function argument or return value.
 \item[{\tt const min::gen min::}\MINNBKEY{ANY()}]~%
 	\LABEL{MIN::ANY}\\
-Denotes any value from a set of values.
+An argument value used to specify that any value from a set of values may be
+used or returned.
 \item[{\tt const min::gen min::}\MINNBKEY{MULTI\_VALUED()}]~%
 	\LABEL{MIN::MULTI_VALUED}\\
-Indicates a set of values has more than one element.
+A value returned to indicate that
+a set of values has more than one element.
 \item[{\tt const min::gen min::}\MINNBKEY{UNDEFINED()}]~%
 	\LABEL{MIN::UNDEFINED}\\
 A value given to an object variable vector element
@@ -1433,29 +1437,36 @@ A value returned to indicate a function has succeeded.
 \item[{\tt const min::gen min::}\MINNBKEY{FAILURE()}]~%
 	\LABEL{MIN::FAILURE}\\
 A value returned to indicate a function has failed.
+\item[{\tt const min::gen min::}\MINNBKEY{ERROR()}]~%
+	\LABEL{MIN::ERROR}\\
+A value returned to indicate a function call has suffered an error.
+The function may print an error message in
+this case, or may leave an error message in
+{\tt min::\EOL error\_\EOL message} (\pagref{ERROR_MESSAGE}).
 \end{list}
 \end{indpar}
 
 Special general values each have a unique \ikey{index}{of special value}
 that identifies them relative to other special values.  These
-indices are in the range $0$ through $2^{24}-1$.  The last 256 indices of this
-range, $2^{24}-256$ through $2^{24}-1$ are reserved for use by the MIN
+indices are in the range $0$ through $2^{24}-1$.  The last 1024 indices of this
+range, $2^{24}-1024$ through $2^{24}-1$, are reserved for use by the MIN
 system.  Other special values can be created by other systems,
 and indices near 0 are reserved for non-system users.
 
 For efficiency reasons it is desirable for special values to be
 compile time constants.  Because {\tt min::\EOL gen} is a class type,
 C++ constants cannot be used to insert special values into optimized
-instructions, and {\tt inline} functions are used instead.  The
-standard definition of the special value {\tt SPECIAL\_I}
-with index {\tt i} is:
+instructions, and {\tt inline} functions are used instead.  A
+special value {\tt S} with index {\tt I} should be defined by:
 
 \begin{indpar}\begin{verbatim}
-inline min::gen SPECIAL_I ( void )
+inline min::gen S ( void )
 {
-    return min::new_special_gen ( i );
+    return min::new_special_gen ( I );
 }
 \end{verbatim}\end{indpar}
+
+where {\tt I} is an integer constant in the range $0,\ldots,2^{24}-1025$.
 
 
 \subsection{Stubs}
@@ -11337,6 +11348,8 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::SUCCESS} \\
 \verb|min::gen min::| & \MINNBKEY{FAILURE()}
 \LABEL{MIN::FAILURE} \\
+\verb|min::gen min::| & \MINNBKEY{ERROR()}
+\LABEL{MIN::ERROR} \\
 \end{TABULAR}
 
 \end{indpar}
