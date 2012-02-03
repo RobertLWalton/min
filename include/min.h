@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  3 04:03:15 EST 2012
+// Date:	Fri Feb  3 11:21:07 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4731,7 +4731,14 @@ namespace min {
     }
 
     min::gen new_lab_gen
-	    ( const min::gen * p, min::uns32 n );
+	    ( min::ptr<const min::gen> p,
+	      min::uns32 n );
+
+    inline min::gen new_lab_gen
+	    ( const min::gen * p, min::uns32 n )
+    {
+        return new_lab_gen ( new_ptr ( p ), n );
+    }
 
     inline bool is_lab ( min::gen g )
     {

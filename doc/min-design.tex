@@ -4164,12 +4164,17 @@ the label vector has are read.  The number of elements read is returned
 in any case.  The label can be denoted by either its stub address or
 by a general value pointing at its stub address.
 
-A label may be created by the following protected function:
+A label may be created by the following protected functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::gen min::| & \MINKEY{new\_lab\_gen}%
-    \verb| ( const min::gen * p, min::uns32 n )|
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+    \verb| ( const min::gen * p,|\ARGBREAK
+    \verb|   min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+    \verb| ( min::ptr<const min::gen> p,|\ARGBREAK
+    \verb|   min::uns32 n )|
+\LABEL{MIN::NEW_LAB_GEN_OF_PTR} \\
 \end{tabular}\end{indpar}
 
 Here {\tt p} must point to a vector of {\tt n} \verb|min::gen|
@@ -4177,7 +4182,7 @@ values that becomes the value vector of the label.  Each
 \verb|min::gen| value must be a name component.
 This function returns any existing label with elements equal to
 those given by the function arguments, in preference to creating a new
-label.  Thus two \verb|min::gen| label values with equal elements are
+label.  Thus two \verb|min::gen| label values with \verb|==| elements are
 \verb|==|.
 
 For convenience in generating frequently used labels,
@@ -12051,8 +12056,13 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
-    \verb| ( const min::gen * p, min::uns32 n )|
+    \verb| ( const min::gen * p,|\ARGBREAK
+    \verb|   min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+    \verb| ( min::ptr<const min::gen> p,|\ARGBREAK
+    \verb|   min::uns32 n )|
+\LABEL{MIN::NEW_LAB_GEN_OF_PTR} \\
 \verb|min::gen min::| & \MINKEY{new\_dot\_lab\_gen}%
     \verb| ( const char * s )|
 \LABEL{MIN::NEW_DOT_LAB_GEN} \\
