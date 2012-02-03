@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  3 04:03:54 EST 2012
+// Date:	Fri Feb  3 11:21:33 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1283,7 +1283,7 @@ min::uns32 min::labhash
 }
 
 min::gen min::new_lab_gen
-	( const min::gen * p, min::uns32 n )
+	( min::ptr<const min::gen> p, min::uns32 n )
 {
     uns32 hash = labhash ( p, n );
     uns32 h = hash & MINT::lab_hash_mask;
