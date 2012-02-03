@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  3 11:21:33 EST 2012
+// Date:	Fri Feb  3 13:50:46 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1646,7 +1646,7 @@ bool min::init_input_named_file
     char error_buffer[512];
     uns64 file_size;
     if ( ! min::os::file_size
-               ( file_size, fname.begin_ptr(),
+               ( file_size, min::begin_ptr_of ( fname ),
 	         error_buffer ) )
     {
 	ERR << "During attempt to find the size of"
@@ -1670,7 +1670,8 @@ bool min::init_input_named_file
     // We use FILE IO because it is standard for C
     // while open/read is OS dependent.
 
-    FILE * in = fopen ( fname.begin_ptr(), "r" );
+    FILE * in =
+        fopen ( min::begin_ptr_of ( fname ), "r" );
 
     if ( in == NULL )
     {
@@ -7405,7 +7406,7 @@ static T print_gen
     {
         min::unprotected::str_ptr sp ( v );
         return out << f->str_prefix
-	           << sp.begin_ptr()
+	           << min::begin_ptr_of ( sp )
 		   << f->str_postfix;
     }
     else if ( min::is_lab ( v ) )

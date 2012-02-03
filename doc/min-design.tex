@@ -3751,8 +3751,8 @@ a \key{string pointer}:
 \verb|char sp|
     & \TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> sp|
-    & \TTDMKEY{begin\_ptr()}{of {\tt min::str\_ptr}}
+\verb|min::ptr<const char> |
+    & \MINKEY{begin\_ptr\_of}\verb| ( min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -3799,9 +3799,9 @@ The \verb|strlen|, \verb|strhash|, \verb|strcpy|, \verb|strncpy|,
 about the string pointed at by a string pointer as they retrieve about
 the string value the pointer points at.
 
-{\tt sp.begin\_ptr()}
+The {\tt begin\_ptr\_of} function
 returns a {\tt min::ptr<const char>} pointer to
-the NUL-terminated vector of {\tt char}'s that is the string.
+the NUL-terminat\-ed vector of {\tt char}'s that is the string.
 Its value can be implicitly converted to a `{\tt const char *}'
 that may be passed to the {\tt strcpy}, {\tt strcmp}, \ldots{}
 C library functions.
@@ -3862,8 +3862,8 @@ unprotected string pointer also makes the same assumption.
 \verb|char sp|
     & \TTBMKEY{i}{of {\tt MUP::str\_ptr}}
 \LABEL{MUP::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> sp|
-    & \TTDMKEY{begin\_ptr()}{of {\tt MUP::str\_ptr}}
+\verb|min::ptr<const char> |
+    & \MINKEY{begin\_ptr\_of}\verb| ( MUP::str_ptr & sp )|
 \LABEL{MUP::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -8343,19 +8343,43 @@ The operations
 
 \begin{indpar}\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
 \verb|min::gen |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::vec\_ptr}}
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}
 	& [same as {\tt min::attr}]\\&
-	  \multicolumn{2}{l}{~(~const min::vec\_ptr \& vp,}\\&
+	  \multicolumn{2}{l}{~(~const min::obj\_vec\_ptr \& vp,}\\&
 	  \multicolumn{2}{l}{~~~min::unsptr index )}
-\LABEL{MIN::[]_OF_VEC_PTR} \\
+\LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{size\_of}
 	& [same as {\tt min::attr\_size\_of}]\\&
           \multicolumn{2}{l}{~( min::obj\_vec\_ptr \& vp )}
-\LABEL{MIN::SIZE_OF_VEC_PTR} \\
+\LABEL{MIN::SIZE_OF_OBJ_VEC_PTR} \\
 \end{tabular}\end{indpar}
 
 are can be used as alternatives that make the attribute
 vector part of an object look like a simple vector.
+Also in this vein, the operations
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::ptr<const min::gen> |
+	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
+	  \verb| ( const min::obj_vec_ptr & vp,|\ARGBREAK
+	  \verb|   min::unsptr index )|
+\LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
+\verb|min::ptr<const min::gen> |
+    & \MINKEY{begin\_ptr\_of}\verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::ptr<const min::gen> |
+    & \MINKEY{end\_ptr\_of}\verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
+can be used to return {\tt min::ptr<const min::gen>} pointers
+to elements of the attribute vector.  {\tt vp + i} returns a
+pointer to the {\tt i}+1'st element, but includes a
+{\tt MIN\_\EOL ASSERT} check that {\tt i} is less than the
+size of the attribute vector.  The {\tt min::\EOL begin\_\EOL ptr\_\EOL of}
+and {\tt min::\EOL end\_\EOL ptr\_\EOL of} functions are the same as
+{\tt vp + 0} and {\tt vp + min::\EOL size\_\EOL of(vp)} but do
+not include this {\tt MIN\_\EOL ASSERT} check.
 
 A \minkey{obj\_vec\_updptr} is like a \verb|min::obj_vec_ptr|
 but has element access functions that have been modified
@@ -8421,11 +8445,25 @@ to permit writting elements.  Its functions are:
 
 \begin{indpar}\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
 \verb|min::ref<min::gen> |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::vec\_updptr}}
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_updptr}}
 	& [same as {\tt min::attr}]\\&
-	  \multicolumn{2}{l}{~(~const min::vec\_updptr \& vp,}\\&
+	  \multicolumn{2}{l}{~(~const min::obj\_vec\_updptr \& vp,}\\&
 	  \multicolumn{2}{l}{~~~min::unsptr index )}
-\LABEL{MIN::[]_OF_VEC_UPDPTR} \\
+\LABEL{MIN::[]_OF_OBJ_VEC_UPDPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::ptr<min::gen> |
+	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
+	  \verb| ( const min::obj_vec_updptr & vp,|\ARGBREAK
+	  \verb|   min::unsptr index )|
+\LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::ptr<min::gen> |
+    & \MINKEY{begin\_ptr\_of}\verb| ( min::obj_vec_updptr & vp )|
+\LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::ptr<min::gen> |
+    & \MINKEY{end\_ptr\_of}\verb| ( min::obj_vec_updptr & vp )|
+\LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
 A {\tt min::\EOL obj\_\EOL vec\_\EOL updptr} may be automatically
@@ -8636,7 +8674,7 @@ required functions are:
 \LABEL{MUP::BASE_OF_OBJ_VEC_PTR} \\
 \verb|min::gen * & MUP::| & \MUPKEY{base}%
     \verb| ( min::obj_vec_updptr & v )|
-\LABEL{MUP::BASE_OF_VEC_UPDPTR} \\
+\LABEL{MUP::BASE_OF_OBJ_VEC_UPDPTR} \\
 
 \end{tabular}\end{indpar}
 
@@ -9190,7 +9228,7 @@ from lists.  The functions for using this are:
 (constructor)~\verb|min::|
 	& \MINKEY{list\_updptr} \verb|lp| \\
 	& \verb|    ( min::obj_vec_updptr & vp )|
-\LABEL{MIN::LIST_UPDPTR_OF_VEC_UPDPTR} \\
+\LABEL{MIN::LIST_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
 \multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
 \verb|min::|
 	& \MINKEY{obj\_vec\_ptr\_of} \\
@@ -10515,7 +10553,7 @@ are:
 (constructor)~\verb|min::|
 	& \MINKEY{attr\_updptr} \verb|ap|\ARGBREAK
 	  \verb| ( min::obj_vec_updptr & vp )|
-\LABEL{MIN::ATTR_UPDPTR_OF_VEC_UPDPTR} \\
+\LABEL{MIN::ATTR_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
 \verb|void min::|
 	& \MINKEY{locate}\ARGBREAK
 	  \verb| ( min::attr_updptr & ap,|\ARGBREAK
@@ -11834,8 +11872,8 @@ In loose implementation: \\
       \verb| ( const min::str_ptr & sp,|\ARGBREAK
       \verb|   int index )|
 \LABEL{MIN::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> sp|
-    & \TTDMKEY{begin\_ptr()}{of {\tt min::str\_ptr}}
+\verb|min::ptr<const char> |
+    & \MINKEY{begin\_ptr\_of}\verb| ( min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{TABULAR}
 
@@ -11904,8 +11942,8 @@ In loose implementation: \\
 \verb|char sp|
     & \TTBMKEY{i}{of {\tt MUP::str\_ptr}}
 \LABEL{MUP::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> sp|
-    & \TTDMKEY{begin\_ptr()}{of {\tt MUP::str\_ptr}}
+\verb|min::ptr<const char> |
+    & \MINKEY{begin\_ptr\_of}\verb| ( MUP::str_ptr & sp )|
 \LABEL{MUP::BEGIN_PTR_OF_STR_PTR} \\
 \end{TABULAR}
 
@@ -12239,13 +12277,29 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.6in}
 \verb|min::gen |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::vec\_ptr}}\ARGBREAK
-	  \verb| ( const min::vec_ptr & vp,|\ARGBREAK
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
+	  \verb| ( const min::obj_vec_ptr & vp,|\ARGBREAK
 	  \verb|   min::unsptr index )|
-\LABEL{MIN::[]_OF_VEC_PTR} \\
+\LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
 \verb|min::unsptr min::| & \MINKEY{size\_of}
           \verb|( min::obj_vec_ptr & vp )|
-\LABEL{MIN::SIZE_OF_VEC_PTR} \\
+\LABEL{MIN::SIZE_OF_OBJ_VEC_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|min::ptr<const min::gen> |
+	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_ptr}}\ARGBREAK
+	  \verb| ( const min::obj_vec_ptr & vp,|\ARGBREAK
+	  \verb|   min::unsptr index )|
+\LABEL{MIN::+_OF_OBJ_VEC_PTR} \\
+\verb|min::ptr<const min::gen> |
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_PTR} \\
+\verb|min::ptr<const min::gen> |
+    & \MINKEY{end\_ptr\_of}\ARGBREAK
+      \verb| ( min::obj_vec_ptr & vp )|
+\LABEL{MIN::END_PTR_OF_OBJ_VEC_PTR} \\
 \end{TABULAR}
 
 \bigskip
@@ -12315,10 +12369,26 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.7in}
 \verb|min::ref<min::gen> |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::vec\_updptr}}\ARGBREAK
-	  \verb| ( const min::vec_updptr & vp,|\ARGBREAK
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj_vec\_updptr}}\ARGBREAK
+	  \verb| ( const min::obj_vec_updptr & vp,|\ARGBREAK
 	  \verb|   min::unsptr index )|
-\LABEL{MIN::[]_OF_VEC_UPDPTR} \\
+\LABEL{MIN::[]_OF_OBJ_VEC_UPDPTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.7in}
+\verb|min::ptr<min::gen> |
+	& \TTOMKEY{+}{+}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
+	  \verb| ( const min::obj_vec_updptr & vp,|\ARGBREAK
+	  \verb|   min::unsptr index )|
+\LABEL{MIN::+_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::ptr<min::gen> |
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp )|
+\LABEL{MIN::BEGIN_PTR_OF_OBJ_VEC_UPDPTR} \\
+\verb|min::ptr<min::gen> |
+    & \MINKEY{end\_ptr\_of}\ARGBREAK
+      \verb| ( min::obj_vec_updptr & vp )|
+\LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
 \end{TABULAR}
 
 \bigskip
@@ -12424,7 +12494,7 @@ In loose implementation: \\
 \LABEL{MUP::BASE_OF_OBJ_VEC_PTR} \\
 \verb|min::gen * & MUP::| & \MUPKEY{base}\ARGBREAK
     \verb| ( min::obj_vec_updptr & v )|
-\LABEL{MUP::BASE_OF_VEC_UPDPTR} \\
+\LABEL{MUP::BASE_OF_OBJ_VEC_UPDPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.6in}
@@ -12599,7 +12669,7 @@ In loose implementation: \\
 (constructor)~\verb|min::|
 	& \MINKEY{list\_updptr} \verb|lp|\ARGBREAK
 	  \verb| ( min::obj_vec_updptr & vp )|
-\LABEL{MIN::LIST_UPDPTR_OF_VEC_UPDPTR} \\
+\LABEL{MIN::LIST_UPDPTR_OF_OBJ_VEC_UPDPTR} \\
 \multicolumn{2}{@{}l}{\tt min::obj\_vec\_updptr \&} \\
 \verb|min::|
 	& \MINKEY{obj\_vec\_ptr\_of}\ARGBREAK

@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  3 11:21:07 EST 2012
+// Date:	Fri Feb  3 13:32:20 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4007,6 +4007,8 @@ namespace min {
         ( const char * p,
 	  const min::unprotected::str_ptr & sp,
 	  min::unsptr n );
+    ptr<const char> begin_ptr_of
+	( const min::unprotected::str_ptr & sp );
 
     inline min::uns64 strhead ( min::gen g )
     {
@@ -4096,17 +4098,6 @@ namespace min {
 		     + index];
 	    }
 
-	    ptr<const char> begin_ptr ( void ) const
-	    {
-		return min::unprotected::new_ptr
-		    ( this->s != & this->pseudo_stub ?
-			  this->s : ZERO_STUB,
-		      ( (const char * )
-		        unprotected::long_str_of ( s ) )
-		      + sizeof ( unprotected::long_str )
-		    );
-	    }
-
 	    str_ptr & operator = ( const min::stub * s )
 	    {
 		new ( this ) str_ptr ( s );
@@ -4154,6 +4145,9 @@ namespace min {
 		( const char * p,
 		  const unprotected::str_ptr & sp,
 		  min::unsptr n );
+	    friend min::ptr<const char>
+	        min::begin_ptr_of
+		    ( const unprotected::str_ptr & sp );
 
 	private:
 
@@ -4304,6 +4298,18 @@ namespace min {
     {
         return ::strncmp
 	    ( p, unprotected::str_of ( sp ), n );
+    }
+
+    inline min::ptr<const char> begin_ptr_of
+	( const unprotected::str_ptr & sp )
+    {
+	return min::unprotected::new_ptr
+	    ( sp.s != & sp.pseudo_stub ?
+		  sp.s : ZERO_STUB,
+	      ( (const char * )
+		unprotected::long_str_of ( sp.s ) )
+	      + sizeof ( unprotected::long_str )
+	    );
     }
 
     namespace internal {
@@ -6951,6 +6957,10 @@ namespace min {
 	( min::obj_vec_ptr & vp, min::unsptr index );
     min::gen aux
 	( min::obj_vec_ptr & vp, min::unsptr index );
+    min::ptr<const min::gen> begin_ptr_of
+	( min::obj_vec_ptr & vp );
+    min::ptr<const min::gen> end_ptr_of
+	( min::obj_vec_ptr & vp );
 
     namespace unprotected {
 	min::gen * & base
@@ -6964,6 +6974,10 @@ namespace min {
 	( min::obj_vec_updptr & vp, min::unsptr index );
     min::ref<min::gen> aux
 	( min::obj_vec_updptr & vp, min::unsptr index );
+    min::ptr<min::gen> begin_ptr_of
+	( min::obj_vec_updptr & vp );
+    min::ptr<min::gen> end_ptr_of
+	( min::obj_vec_updptr & vp );
 
     namespace unprotected {
 	min::unsptr & unused_offset_of
@@ -7062,13 +7076,24 @@ namespace min {
 	    return * this;
 	}
 
-	min::gen operator [] ( min::uns32 index )
+	min::gen operator [] ( min::unsptr index )
 	{
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
 	    return
 		( (min::gen *) unprotected::ptr_of (s) )
 		[index];
+	}
+
+	min::ptr<const min::gen> operator +
+		( min::unsptr index ) const
+	{
+	    index += attr_offset;
+	    MIN_ASSERT ( index < unused_offset );
+	    return unprotected::new_ptr
+	        ( s, ( (min::gen *)
+		       unprotected::ptr_of (s) )
+		     + index );
 	}
 
         // Friends
@@ -7113,6 +7138,12 @@ namespace min {
 	friend min::gen aux
 	    ( min::obj_vec_ptr & vp,
 	      min::unsptr index );
+	friend min::ptr<const min::gen>
+	    min::begin_ptr_of
+		( min::obj_vec_ptr & vp );
+	friend min::ptr<const min::gen>
+	    min::end_ptr_of
+		( min::obj_vec_ptr & vp );
 
 	friend min::gen * & unprotected::base
 	    ( min::obj_vec_updptr & vp );
@@ -7128,6 +7159,10 @@ namespace min {
 	friend min::ref<min::gen> aux
 	    ( min::obj_vec_updptr & vp,
 	      min::unsptr index );
+	friend min::ptr<min::gen> min::begin_ptr_of
+	    ( min::obj_vec_updptr & vp );
+	friend min::ptr<min::gen> min::end_ptr_of
+	    ( min::obj_vec_updptr & vp );
 
 	friend min::unsptr &
 	  unprotected::unused_offset_of
@@ -7386,7 +7421,7 @@ namespace min {
 	    return * this;
 	}
 
-	ref<min::gen> operator [] ( min::uns32 index )
+	ref<min::gen> operator [] ( min::unsptr index )
 	{
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
@@ -7394,6 +7429,17 @@ namespace min {
 	        ( s, ( (min::gen *)
 		       unprotected::ptr_of (s) )
 		     [index] );
+	}
+
+	min::ptr<min::gen> operator +
+		( min::unsptr index ) const
+	{
+	    index += attr_offset;
+	    MIN_ASSERT ( index < unused_offset );
+	    return unprotected::new_ptr
+	        ( s, ( (min::gen *)
+		       unprotected::ptr_of (s) )
+		     + index );
 	}
 
     protected:
@@ -7443,7 +7489,7 @@ namespace min {
 	    return * this;
 	}
 
-	ref<min::gen> operator [] ( min::uns32 index )
+	ref<min::gen> operator [] ( min::unsptr index )
 	{
 	    index += attr_offset;
 	    MIN_ASSERT ( index < unused_offset );
@@ -7560,6 +7606,24 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
+    inline min::ptr<const min::gen> begin_ptr_of
+	( min::obj_vec_ptr & vp )
+    {
+	return unprotected::new_ptr
+	    ( vp.s, ( (const min::gen *)
+		   unprotected::ptr_of (vp.s) )
+		 + vp.attr_offset );
+    }
+
+    inline min::ptr<const min::gen> end_ptr_of
+	( min::obj_vec_ptr & vp )
+    {
+	return unprotected::new_ptr
+	    ( vp.s, ( (const min::gen *)
+		   unprotected::ptr_of (vp.s) )
+		 + vp.unused_offset );
+    }
+
     inline min::gen * & unprotected::base
 	( min::obj_vec_updptr & vp )
     {
@@ -7602,6 +7666,24 @@ namespace min {
 	MIN_ASSERT ( index < vp.total_size );
 	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)[index] );
+    }
+
+    inline min::ptr<min::gen> begin_ptr_of
+	( min::obj_vec_updptr & vp )
+    {
+	return unprotected::new_ptr
+	    ( vp.s, ( (min::gen *)
+		   unprotected::ptr_of (vp.s) )
+		 + vp.attr_offset );
+    }
+
+    inline min::ptr<min::gen> end_ptr_of
+	( min::obj_vec_updptr & vp )
+    {
+	return unprotected::new_ptr
+	    ( vp.s, ( (min::gen *)
+		   unprotected::ptr_of (vp.s) )
+		 + vp.unused_offset );
     }
 
     inline min::unsptr & unprotected::unused_offset_of
@@ -11231,7 +11313,7 @@ inline min::printer operator <<
 	( min::printer printer,
 	  const min::str_ptr & s )
 {
-    return printer << s.begin_ptr();
+    return printer << min::begin_ptr_of ( s );
 }
 
 inline min::printer operator <<
