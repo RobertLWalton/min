@@ -3460,7 +3460,8 @@ of the functions given below, including the protected functions,
 check for this.
 
 A MIN string value cannot store the NUL character as legal UTF-8.
-But it is possible to use the `\key{modified UTF-8}' encoding instead of
+But it is possible to use the `\key{modified UTF-8}'
+\label{MODIFIED-UTF-8} encoding instead of
 strict UTF-8.  The difference is that strict UTF-8 encodes the NUL
 character in a single byte as an ASCII NUL, whereas modified UTF-8
 encodes the NUL character as the `overlong' 2-byte string `\verb|0xC0,0x80|'
@@ -3492,7 +3493,8 @@ and have hash values (\pagref{HASH-VALUE}).
 There are protected functions accessing general values that denote
 strings of any kind without distinction, and these are described next.
 Unprotected functions that apply only to particular
-types of string are described later in this section.
+types of string are described later in
+Section~\itemref{UNPROTECTED-STRING-FUNCTIONS}.
 
 The following functions create new general string values:
 
@@ -3505,10 +3507,17 @@ The following functions create new general string values:
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( min::ptr<const char> p )|
-\LABEL{MIN::NEW_STR_GEN_OF_PTR} \\
+\LABEL{MIN::NEW_STR_GEN_OF_CONST_PTR} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}
 	\verb| ( min::ptr<const char> p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_CONST_PTR_WITH_N} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( min::ptr<char> p )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}
+	\verb| ( min::ptr<char> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_WITH_N} \\
 \end{tabular}\end{indpar}
 
@@ -3516,8 +3525,11 @@ The \verb|min::new_str_gen| functions copy the input string after the
 manner of \verb|strcpy| and \verb|strncpy|, respectively.  That is,
 they copy from \verb|p|
 until a NUL is copied or \verb|n| characters have been copied, whichever
-comes first.  The forms with a \verb|min:ptr<const char>|
+comes first.  The forms with a \verb|min::ptr<const char>|
+or \verb|min::ptr<char>|
 argument are for use when the input string is part of a relocatable body.
+Because \verb|min::ptr<char>| is not implicitly castable to
+\verb|min::ptr<const char>|, both types are argument are provided for.
 
 When a string general value
 is created, if the input string is short enough for the general value
@@ -3532,8 +3544,8 @@ than 8 {\tt char}'s, a long string stub and body are created.
 Thus if two string \verb|min::gen| values are equal as
 strings, they have \verb|==| \verb|min::gen| values.
 
-There is also a function to create a new general string value from
-a vector of UNICODE characters:
+There are also functions to create a new general string values from
+vectors of UNICODE characters:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::|
@@ -3543,10 +3555,18 @@ a vector of UNICODE characters:
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
       \verb| ( min::ptr<const min::uns32> p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_CONST_UNICODE} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( min::ptr<min::uns32> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{tabular}\end{indpar}
 
-Here UNICODE characters are represented as \verb|min::uns32| values.
+Here UNICODE characters are represented as \verb|min::uns32| values,
+and the strings are \underline{not} terminated by a zero
+\verb|min::uns32| value, which is encoded as
+the 2 string bytes `\verb|0xC0,0x80|'
+using modified UTF-8 (\pagref{MODIFIED-UTF-8}).
 
 The following may be used to convert between UNICODE
 characters and \key{UTF-8} strings:
@@ -3645,7 +3665,7 @@ is a string and obtain information from
 a string \verb|min::gen| value.
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|int min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
+\verb|bool min::| & \MINKEY{is\_str}\verb| ( min::gen v )|
 \LABEL{MIN::IS_STR_OF_GEN} \\[1ex]
 \verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
@@ -3671,6 +3691,38 @@ Five of these functions correspond to the standard C/C++
 and {\tt strncmp} functions, and differ
 from these only in that instead of taking a {\tt char *} source string
 argument, these functions take a {\tt min::gen} source argument.
+
+The \verb|is_str| function simply returns true if and only if
+its argument is a string.
+
+The \verb|strhead| function is an optimized function that
+returns the first 8 bytes of the string
+in a \verb|min::uns64| value.  This is intended to be used by
+overloading it with \verb|min::uns8[8]|, as in the code:
+
+\begin{indpar}\begin{verbatim}
+union { min::uns64 u; min::uns8 s[8]; } v;
+min::gen g;
+. . . set g to a string value . . .
+v.u = min::strhead ( g );
+. . . first 8 bytes of string are now in v.s[0], ..., v.s[7] . . .
+\end{verbatim}\end{indpar}
+
+If a string has fewer than 8 bytes, it is padded with zero bytes
+at its end so that 8 bytes may always be returned.  If the \verb|min::gen|
+argument to \verb|strhead| is not a string, 8 zero bytes are returned
+(as if the argument had been an empty string).
+
+\verb|strhead| is useful for testing
+to see what kind of lexeme the string represents; for
+example, if the first byte is a letter, or the first byte is \verb|'|
+and the second byte is a letter, then the string may represent a
+word, but if the first byte is \verb|'| and the second is zero,
+the string may represent a separator.
+Note that the bytes are UTF-8 encoded, and may represent non-ASCII
+UNICODE characters.  Note that UTF-8 can encode a UNICODE character
+in as many as 7 bytes, so if the string begins with two non-ASCII
+characters, the encoding of the second may be truncated.
 
 To permit hash values of arbitrary strings to be computed,
 without creating {\tt min::gen} values from them first,
@@ -3708,35 +3760,6 @@ A hash value is never zero (so zero can be used to denote a missing hash value).
 The low order bits of the hash value are random, so it can be
 truncated to provide a random hash.
 
-The \verb|strhead| function is an optimized function that
-returns the first 8 bytes of the string
-in a \verb|min::uns64| value.  This is intended to be used by
-overloading it with \verb|min::uns8[8]|, as in the code:
-
-\begin{indpar}\begin{verbatim}
-union { min::uns64 u; min::uns8 s[8]; } v;
-min::gen g;
-. . . set g to a string value . . .
-v.u = min::strhead ( g );
-. . . first 8 bytes of string are now in v.s[0], ..., v.s[7] . . .
-\end{verbatim}\end{indpar}
-
-If a string has fewer than 8 bytes, it is padded with zero bytes
-at its end so that 8 bytes may always be returned.  If the \verb|min::gen|
-argument to \verb|strhead| is not a string, 8 zero bytes are returned
-(as if the argument had been an empty string).
-
-\verb|strhead| is useful for testing
-to see what kind of lexeme the string represents; for
-example, if the first byte is a letter, or the first byte is \verb|'|
-and the second byte is a letter, then the string may represent a
-word, but if the first byte is \verb|'| and the second is zero,
-the string may represent a separator.
-Note that the bytes are UTF-8 encoded, and may represent non-ASCII
-UNICODE characters.  Note that UTF-8 can encode a UNICODE character
-in as many as 7 bytes, so if the string begins with two non-ASCII
-characters, the encoding of the second may be truncated.
-
 \subsubsection{Protected String Pointers}
 \label{PROTECTED-STRING-POINTERS}
 
@@ -3769,10 +3792,10 @@ a \key{string pointer}:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|char sp|
+\verb|const char & sp|
     & \TTBMKEY{i}{of {\tt min::str\_ptr}}
 \LABEL{MIN::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> |
+\verb|min::ptr<const char>  min::|
     & \MINKEY{begin\_ptr\_of}\verb| ( min::str_ptr & sp )|
 \LABEL{MIN::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -3883,7 +3906,7 @@ unprotected string pointer also makes the same assumption.
 \verb|char sp|
     & \TTBMKEY{i}{of {\tt MUP::str\_ptr}}
 \LABEL{MUP::[]_OF_STR_PTR} \\
-\verb|min::ptr<const char> |
+\verb|min::ptr<const char>  min::|
     & \MINKEY{begin\_ptr\_of}\verb| ( MUP::str_ptr & sp )|
 \LABEL{MUP::BEGIN_PTR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
@@ -5143,7 +5166,7 @@ packed vector pointer type has the usage:
 \verb|min::ptr<E const> pvp|
     & \TTMKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
 \LABEL{MIN::PACKED_VEC_PTR_+} \\
-\verb|min::ptr<E const> |
+\verb|min::ptr<E const>  min::|
     & \MINKEY{begin\_ptr\_of}\ARGBREAK
       \verb| ( min::packed_vec_ptr<E,H> pvp )|
 \LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
@@ -5262,7 +5285,7 @@ pointer type is:
 \verb|min::ptr<E> pvup|
     & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|min:ptr<E> pvup|
+\verb|min::ptr<E> pvup|
     & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
 \LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
 \verb|min::ptr<E> pvup|
@@ -6018,7 +6041,7 @@ the 1-argument {\tt min::\EOL init\_\EOL input} function.
 If you use this function you can write your own code to append
 to the file buffer, as for example:
 \begin{indpar}\begin{verbatim}
-min:locatable_ptr<min::file> file;
+min::locatable_ptr<min::file> file;
 init_input ( file );
 ...
 const char * my_string = ...;
@@ -11789,7 +11812,7 @@ In loose implementation: \\
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.8in}
+\begin{TABULAR}{1.4in}
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( const char * p )|
 \LABEL{MIN::NEW_STR_GEN} \\
@@ -11799,10 +11822,17 @@ In loose implementation: \\
 \LABEL{MIN::NEW_STR_GEN_WITH_N} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL} \verb| ( min::ptr<const char> p )|
-\LABEL{MIN::NEW_STR_GEN_OF_PTR} \\
+\LABEL{MIN::NEW_STR_GEN_OF_CONST_PTR} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
 	\verb| ( min::ptr<const char> p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_CONST_PTR_WITH_N} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL} \verb| ( min::ptr<char> p )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+	\verb| ( min::ptr<char> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_WITH_N} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
@@ -11810,8 +11840,11 @@ In loose implementation: \\
 \LABEL{MIN::NEW_STR_GEN_OF_UNICODE} \\
 \verb|min::gen min::|
     & \MINKEY{new\_str\_gen\REL}\ARGBREAK
-      \verb| ( min::ptr<const min::uns32> p,|\ARGBREAK
-      \verb|   min::unsptr n )|
+      \verb| ( min::ptr<const min::uns32> p, min::unsptr n )|
+\LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_CONST_UNICODE} \\
+\verb|min::gen min::|
+    & \MINKEY{new\_str\_gen\REL}\ARGBREAK
+      \verb| ( min::ptr<min::uns32> p, min::unsptr n )|
 \LABEL{MIN::NEW_STR_GEN_OF_PTR_OF_UNICODE} \\
 \end{TABULAR}
 
@@ -11837,7 +11870,7 @@ In loose implementation: \\
 \begin{TABULAR}{1.8in}
 \verb|min::unsptr min::| & \MINKEY{strlen}\verb| ( min::gen v )|
 \LABEL{MIN::STRLEN_OF_GEN} \\
-\verb|min:uns32 min::| & \MINKEY{strhash}\verb| ( min::gen v )|
+\verb|min::uns32 min::| & \MINKEY{strhash}\verb| ( min::gen v )|
 \LABEL{MIN::STRHASH_OF_GEN} \\
 \verb|char * min::| & \MINKEY{strcpy}\verb| ( char * p, min::gen v )|
 \LABEL{MIN::STRCPY_OF_GEN} \\
