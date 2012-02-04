@@ -1,8 +1,23 @@
 	.file	"min_relocation_optimization_test.cc"
 	.section	.ctors,"aw",@progbits
 	.align 8
-	.quad	_GLOBAL__I__Z4testPKN3min4stubEi
+	.quad	_GLOBAL__I__Z5test1PKN3min4stubEi
 	.text
+	.align 2
+	.p2align 4,,15
+.globl _Z5test2PKN3min4stubEii
+	.type	_Z5test2PKN3min4stubEii, @function
+_Z5test2PKN3min4stubEii:
+.LFBXXX:
+	movq	(%rdi), %rcx
+	movslq	%esi,%rsi
+	movslq	%edx,%rdx
+	movl	(%rcx,%rsi,4), %eax
+	imull	(%rcx,%rdx,4), %eax
+	ret
+.LFEXXX:
+	.size	_Z5test2PKN3min4stubEii, .-_Z5test2PKN3min4stubEii
+.globl __gxx_personality_v0
 	.align 2
 	.p2align 4,,15
 	.type	_Z41__static_initialization_and_destruction_0ii, @function
@@ -11,14 +26,14 @@ _Z41__static_initialization_and_destruction_0ii:
 	subq	$8, %rsp
 .LCFIXXX:
 	subl	$1, %edi
-	je	.L7
-.L5:
+	je	.L9
+.L7:
 	addq	$8, %rsp
 	ret
 	.p2align 4,,7
-.L7:
+.L9:
 	cmpl	$65535, %esi
-	jne	.L5
+	jne	.L7
 	movl	$_ZSt8__ioinit, %edi
 	call	_ZNSt8ios_base4InitC1Ev
 	movl	$__dso_handle, %edx
@@ -28,17 +43,16 @@ _Z41__static_initialization_and_destruction_0ii:
 	jmp	__cxa_atexit
 .LFEXXX:
 	.size	_Z41__static_initialization_and_destruction_0ii, .-_Z41__static_initialization_and_destruction_0ii
-.globl __gxx_personality_v0
 	.align 2
 	.p2align 4,,15
-	.type	_GLOBAL__I__Z4testPKN3min4stubEi, @function
-_GLOBAL__I__Z4testPKN3min4stubEi:
+	.type	_GLOBAL__I__Z5test1PKN3min4stubEi, @function
+_GLOBAL__I__Z5test1PKN3min4stubEi:
 .LFBXXX:
 	movl	$65535, %esi
 	movl	$1, %edi
 	jmp	_Z41__static_initialization_and_destruction_0ii
 .LFEXXX:
-	.size	_GLOBAL__I__Z4testPKN3min4stubEi, .-_GLOBAL__I__Z4testPKN3min4stubEi
+	.size	_GLOBAL__I__Z5test1PKN3min4stubEi, .-_GLOBAL__I__Z5test1PKN3min4stubEi
 	.align 2
 	.p2align 4,,15
 	.type	__tcf_0, @function
@@ -50,9 +64,9 @@ __tcf_0:
 	.size	__tcf_0, .-__tcf_0
 	.align 2
 	.p2align 4,,15
-.globl _Z4testPKN3min4stubEi
-	.type	_Z4testPKN3min4stubEi, @function
-_Z4testPKN3min4stubEi:
+.globl _Z5test1PKN3min4stubEi
+	.type	_Z5test1PKN3min4stubEi, @function
+_Z5test1PKN3min4stubEi:
 .LFBXXX:
 	pushq	%r13
 .LCFIXXX:
@@ -69,16 +83,16 @@ _Z4testPKN3min4stubEi:
 	movq	(%rdi), %rcx
 	cmpl	$1, %esi
 	movl	(%rcx), %ebp
-	jle	.L13
+	jle	.L15
 	movq	%rcx, %rax
 	movl	$1, %edx
 	.p2align 4,,7
-.L15:
+.L17:
 	addl	$1, %edx
 	addl	4(%rax), %ebp
 	addq	$4, %rax
 	cmpl	%r12d, %edx
-	jne	.L15
+	jne	.L17
 	movl	40(%rcx), %ebx
 	call	_Z12do_somethingv
 	movq	(%r13), %rsi
@@ -87,12 +101,12 @@ _Z4testPKN3min4stubEi:
 	movq	%rsi, %rdx
 	leal	(%rbx,%rbp), %eax
 	.p2align 4,,7
-.L17:
+.L19:
 	addl	$1, %ecx
 	addl	4(%rdx), %eax
 	addq	$4, %rdx
 	cmpl	%r12d, %ecx
-	jne	.L17
+	jne	.L19
 	addl	40(%rsi), %eax
 	addq	$8, %rsp
 	popq	%rbx
@@ -100,7 +114,7 @@ _Z4testPKN3min4stubEi:
 	popq	%r12
 	popq	%r13
 	ret
-.L13:
+.L15:
 	movl	40(%rcx), %ebx
 	call	_Z12do_somethingv
 	movq	(%r13), %rsi
@@ -114,7 +128,7 @@ _Z4testPKN3min4stubEi:
 	popq	%r13
 	ret
 .LFEXXX:
-	.size	_Z4testPKN3min4stubEi, .-_Z4testPKN3min4stubEi
+	.size	_Z5test1PKN3min4stubEi, .-_Z5test1PKN3min4stubEi
 	.local	_ZSt8__ioinit
 	.comm	_ZSt8__ioinit,1,1
 	.weakref	_Z20__gthrw_pthread_oncePiPFvvE,pthread_once
@@ -154,6 +168,15 @@ _Z4testPKN3min4stubEi:
 	.uleb128 0x1
 	.align 8
 .LECIEXXX:
+.LSFDEXXX:
+	.long	.LEFDEXXX-.LASFDEXXX
+.LASFDEXXX:
+	.long	.LASFDEXXX-.Lframe1
+	.long	.LFBXXX
+	.long	.LFEXXX-.LFBXXX
+	.uleb128 0x0
+	.align 8
+.LEFDEXXX:
 .LSFDEXXX:
 	.long	.LEFDEXXX-.LASFDEXXX
 .LASFDEXXX:
