@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 06:08:16 EST 2012
+// Date:	Sat Feb  4 12:52:03 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3194,6 +3194,13 @@ namespace min {
 	    internal::locatable_gen_last =
 	        (internal::locatable_gen *) this;
 	}
+        locatable_var ( min::gen g )
+	{
+	    value = g;
+	    previous = internal::locatable_gen_last;
+	    internal::locatable_gen_last =
+	        (internal::locatable_gen *) this;
+	}
         ~ locatable_var ( void )
 	{
 	    assert
@@ -3252,6 +3259,13 @@ namespace min {
         locatable_var ( void )
 	{
 	    value = NULL;
+	    previous = internal::locatable_var_last;
+	    internal::locatable_var_last =
+	        (internal::locatable_var *) this;
+	}
+        locatable_var ( const min::stub * s )
+	{
+	    value = s;
 	    previous = internal::locatable_var_last;
 	    internal::locatable_var_last =
 	        (internal::locatable_var *) this;
@@ -3520,6 +3534,18 @@ namespace min { \
     \
         locatable_var ( void ) \
 	    : T ( NULL_STUB ) \
+	{ \
+	    previous = internal::locatable_var_last; \
+	    internal::locatable_var_last = \
+	        (internal::locatable_var *) this; \
+	    MIN_ASSERT \
+	        ( OFFSETOF \
+		      ( & locatable_var< T > \
+		          ::previous ) \
+		  == sizeof ( const min::stub * ) ); \
+	} \
+        locatable_var ( T v ) \
+	    : T ( v ) \
 	{ \
 	    previous = internal::locatable_var_last; \
 	    internal::locatable_var_last = \

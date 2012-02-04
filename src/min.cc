@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb  3 13:50:46 EST 2012
+// Date:	Sat Feb  4 08:55:32 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1362,9 +1362,8 @@ min::gen min::new_lab_gen
 
 min::gen min::new_dot_lab_gen ( const char * s )
 {
-    min::locatable_gen dot, tmp;
-    dot = min::new_str_gen ( "." );
-    tmp = min::new_str_gen ( s );
+    min::locatable_gen dot ( min::new_str_gen ( "." ) );
+    min::locatable_gen tmp ( min::new_str_gen ( s ) );
     min::gen elements[2];
     elements[0] = dot;
     elements[1] = tmp;

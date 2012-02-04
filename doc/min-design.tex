@@ -2123,6 +2123,9 @@ with certainty to be numbers, in locations of type
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| var ( void )|
 \LABEL{MIN::LOCATABLE_GEN} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_gen}%
+    \verb| var ( min::gen value )|
+\LABEL{MIN::LOCATABLE_GEN_OF_GEN} \\
 \verb|min::locatable_gen & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( min::locatable_gen & var,|\ARGBREAK
@@ -2174,6 +2177,31 @@ value into it or out of it.  Setting one {\tt min::\EOL locatable\_\EOL gen}
 location equal to another copies the {\tt min::gen} value of the locations,
 and not the location structure itself.
 
+Due to a technical difficulty with C++, it is not possible to use
+{\tt =} in a {\tt min::\EOL locatable\_\EOL gen} initializer.
+Specifically:
+
+\begin{indpar}\begin{verbatim}
+min::gen c = ...;
+min::locatable_gen x = c;               // Does NOT compile!
+min::locatable_gen y ( c );             // OK
+min::locatable_gen z;                   // OK
+z = c;                                  // OK
+min::gen d = y;                         // OK
+min::locatable_gen v ( x );             // Does NOT compile!
+min::locatable_gen w ( (min::gen) x );  // OK
+\end{verbatim}\end{indpar}
+
+The reason that the initialization of {\tt x} does not work is that
+\label{LOCATABLE-VAR-COPY-CONSTRUCTOR}
+when {\tt =} is used with an initializer in C++, the right side is
+first converted to the type of the left side in a temporary, and then a
+\underline{copy constructor} is applied to move the result to the
+left side's location.  But we cannot allow {\tt min::\EOL locatable\_\EOL gen}
+temporaries, so we disable the {\tt min::\EOL locatable\_\EOL gen}
+copy constructor by making it {\tt private}.  Also the initialization
+of {\tt v} happens to use the copy constructor, but that of {\tt w} does not.
+
 A {\tt min::\EOL locatable\_\EOL gen} locatable variable
 \label{LOCATABLE_VAR_REF}
 is implicitly convertable to a
@@ -2188,52 +2216,20 @@ Applying the {\tt \&} operator to a
 returns a pointer of type {\tt min::\EOL ptr<min::gen>} that points
 at the locatable variable.
 
-Due to a technical difficulty with C++, it is not possible to pass a
-{\tt min::gen} value to a {\tt min::\EOL locatable\_\EOL gen} constructor.%
-%
-\footnote{\label{LOCATABLE-VAR-COPY-FOOTNOTE}
-More specifically, we need to disable the copy constructor
-for {\tt min::\EOL locatable\_\EOL gen} values, as constructing such a
-value stores its address in a global location so the garbage collector
-can find it, and copying the {\tt min::\EOL locatable\_\EOL gen} value
-to another location would be a disaster.  Therefore we disable the
-{\tt min::\EOL locatable\_\EOL gen}
-copy constructor by making it {\tt private}.
-Then the construction `{\tt T~x~=~y}' fails because it works
-by compiling `{\tt T~x~(T(y))}' if {\tt y} is not of type {\tt T},
-that is, C++ uses the conversion constructor to convert {\tt y}
-to type {\tt T}, and then uses the \underline{copy constructor}
-to copy the result to its final resting place.  This is not acceptable for
-location sensitive values such as
-{\tt min::\EOL locatable\_\EOL gen} values.}
-%
-For example:
-
-\begin{indpar}\begin{verbatim}
-min::locatable_gen x = y;    // Does NOT compile!
-min::locatable_gen x;        // OK
-x = y;                       // OK
-\end{verbatim}\end{indpar}
-
-The only available {\tt min::locatable\_gen} constructor takes
-no arguments and initializes the value of the locatable variable
-to {\tt min::\EOL MISSING}.
-
-An example usage is:
+Some more {\tt min::locatable\_gen} examples are:
 
 \begin{indpar}\begin{verbatim}
 static min::locatable_gen v;
 . . . . . . . . . .
 void f ( ref<min::gen> r );
 . . . . . . . . . .
-... some_function ( min::gen x )
+void some_function ( min::gen x, min::gen y )
 {
-    min::locatable_gen q;
-    q = x;
-    min::ptr p = & q;
+    min::locatable_gen q ( x );
+    min::ptr<min::gen> p = & q;
     . . .
     v = q;     // Copies the min::gen value of q to v.
-    * p = x;   // Sets q to x.
+    * p = y;   // Sets q to y.
     . . .
     f ( v );   // Converts v to min::ref<min::gen>
     ..
@@ -2255,6 +2251,10 @@ this may be done with the code:
 \verb|(constructor) min::|
     & \MINKEY{locatable\_var\TARG}\verb| var ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
+\verb|(constructor) min::|
+    & \MINKEY{locatable\_var\TARG}%
+      \verb| var ( T value )|
+\LABEL{MIN::LOCATABLE_VAR_OF_T} \\
 \verb|min::locatable_var<T> & |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var\TARG}}\ARGBREAK
       \verb|( min::locatable_var<T> & var,|\ARGBREAK
@@ -2300,7 +2300,7 @@ value is implicitly convertable to a {\tt const min::\EOL stub~*} value.
 In the second case, {\tt T} is the {\tt public} base class of
 {\tt min::\EOL locatable\_\EOL var\TARG}, so expressions of
 the forms {\tt \ldots=var},
-{\tt var->\ldots}, {\tt var[\ldots]}, etc will work for
+{\tt var->\ldots}, {\tt var[\ldots]}, etc will work for a
 {\tt min::\EOL locatable\_\EOL var\TARG} value {\tt var} if they
 will work for a value of type {\tt T}.
 
@@ -2312,12 +2312,10 @@ by a pointer of type {\tt min::\EOL ptr<T>} obtained by applying
 the {\tt \&} operator to the locatable variable.
 
 And as with {\tt min::\EOL locatable\_\EOL gen} locatable variables,
-due to a technical difficulty with C++ it is not possible to pass a
-type {\tt T} value to a {\tt min::\EOL locatable\_\EOL var\TARG} constructor.%
-\footnote{See footnote \itemref{LOCATABLE-VAR-COPY-FOOTNOTE}.}
-The only available {\tt min::locatable\_var\TARG} constructor takes
-no arguments and initializes the value of the locatable variable
-to {\tt min::\EOL NULL\_\EOL STUB}.
+due to a technical difficulty with C++ it is not possible to use
+{\tt =} to pass an initializer
+to a {\tt min::\EOL locatable\_\EOL var\TARG} constructor
+(See \pagref{LOCATABLE-VAR-COPY-CONSTRUCTOR}).
 
 An example usage is:
 
@@ -2328,8 +2326,9 @@ min::locatable_var<bufvec> x;
 void f ( min::ref<bufvec> p );
 ... some_function ( ... )
 {
-    min::locatable_var<bufvec> y;
-    y = x;    // Copies the bufvec value of x to y.
+    min::locatable_var<bufvec> y ( (bufvec) x );
+              // x must be converted to bufvec to avoid
+              // using copy constructor.
     f ( y );  // Converts y to a min::ref<bufvec> reference.
 }
 \end{verbatim}\end{indpar}
@@ -2339,7 +2338,7 @@ of {\tt min::\EOL locatable\_\EOL var}:
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
 \verb|typedef |
-	& \verb|min::locatable_var<min::gen>|\ARGBREAK
+	& \verb|min::locatable_var<min::gen>| ~~
 	  \verb|min::|\MINKEY{locatable\_gen}
 \LABEL{MIN::LOCATABLE_GEN_TYPEDEF} \\
 \end{tabular}\end{indpar}
@@ -2368,7 +2367,7 @@ function needing to store the value in a locatable variable.
 For example, the caller can store the value in its own locatable
 variable.  This is called the `\key{caller locating convention}'.
 
-Also \verb|min::gen| and {\tt const min::\EOL stub~}
+Also \verb|min::gen| and {\tt const min::\EOL stub~*}
 values need only be locatable by
 the garbage collector when a relocating function (\pagref{RELOCATING-FUNCTIONS})
 is called.  In between such calls \verb|min::gen|
@@ -11429,6 +11428,9 @@ These are in \verb|min_parameters.h|.
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::| & \MINKEY{locatable\_gen} \verb| ( void )|
 \LABEL{MIN::LOCATABLE_GEN} \\
+\verb|(constructor) min::| & \MINKEY{locatable\_gen}%
+    \verb| var ( min::gen value )|
+\LABEL{MIN::LOCATABLE_GEN_OF_GEN} \\
 \verb|min::gen |
     & \TTOMKEY{min::gen}{min::gen}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
@@ -11460,6 +11462,10 @@ In loose implementation: \\
 \verb|(constructor) min::|
     & \MINKEY{locatable\_var}\BRACKETED{T}\verb| ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
+\verb|(constructor) min::|
+    & \MINKEY{locatable\_var\TARG}%
+      \verb| var ( T value )|
+\LABEL{MIN::LOCATABLE_VAR_OF_T} \\
 \verb|T |
     & \TTOMKEY{=}{=}{of {\tt min::locatable\_var}}\ARGBREAK
       \verb|( min::locatable_var<T> & location,|\ARGBREAK
