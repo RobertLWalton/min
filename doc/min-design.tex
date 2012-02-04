@@ -3890,7 +3890,7 @@ unprotected string pointer also makes the same assumption.
 \end{tabular}\end{indpar}
 
 The following unprotected
-function is equivalent to {\tt begin\_ptr()} with its
+function is equivalent to {\tt begin\_ptr\_of()} with its
 result cast to `{\tt const char *}', but is more efficient:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -5120,14 +5120,16 @@ packed vector pointer type has the usage:
 \verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|min::ptr<E const> pvp|
-    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
-\verb|min::ptr<E const> pvp|
-    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
-\verb|min::ptr<E const> pvp|
     & \TTMKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
 \LABEL{MIN::PACKED_VEC_PTR_+} \\
+\verb|min::ptr<E const> |
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb| ( min::packed_vec_ptr<E,H> pvp )|
+\LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
+\verb|min::ptr<E const> |
+    & \MINKEY{end\_ptr\_of}\ARGBREAK
+      \verb| ( min::packed_vec_ptr<E,H> pvp )|
+\LABEL{MIN::END_PTR_OF_PACKED_VEC_PTR} \\
 \end{tabular}\end{indpar}
 
 As for packed structures, read-only packed vector pointers used as the left
@@ -13238,11 +13240,16 @@ In loose implementation: \\
 \verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
 \LABEL{MIN::PACKED_VEC_PTR_[]} \\
 \verb|min::ptr<E const> pvp|
-    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_BEGIN_PTR} \\
-\verb|min::ptr<E const> pvp|
-    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_END_PTR} \\
+    & \TTMKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
+\LABEL{MIN::PACKED_VEC_PTR_+} \\
+\verb|min::ptr<E const> |
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb| ( min::packed_vec_ptr<E,H> pvp )|
+\LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
+\verb|min::ptr<E const> |
+    & \MINKEY{end\_ptr\_of}\ARGBREAK
+      \verb| ( min::packed_vec_ptr<E,H> pvp )|
+\LABEL{MIN::END_PTR_OF_PACKED_VEC_PTR} \\
 \end{TABULAR}
 
 \bigskip
