@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 05:15:29 EST 2012
+// Date:	Sat Feb  4 06:08:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2867,6 +2867,9 @@ namespace min {
 
         ref ( const min::stub * s, min::unsptr offset )
 	    : internal::ref_base<T> ( s, offset ) {}
+
+        ref ( void )
+	    : internal::ref_base<T> ( NULL, 0 ) {}
     };
 
     template <>
@@ -3340,24 +3343,24 @@ namespace min {
 // results.
 //
 template < typename T >
-inline bool operator == ( min::ref<T> r, T v )
+inline bool operator == ( const min::ref<T> & r, T v )
 {
     return (T) r == v;
 }
 
 template < typename T >
-inline bool operator == ( T v, min::ref<T> r )
+inline bool operator == ( T v, const min::ref<T> & r )
 {
     return v == (T) r;
 }
 template < typename T >
-inline bool operator != ( min::ref<T> r, T v )
+inline bool operator != ( const min::ref<T> & r, T v )
 {
     return (T) r != v;
 }
 
 template < typename T >
-inline bool operator != ( T v, min::ref<T> r )
+inline bool operator != ( T v, const min::ref<T> & r )
 {
     return v != (T) r;
 }
@@ -3474,12 +3477,12 @@ namespace min { \
 	\
 	/* For some reason == MUST be defined as a
 	   member if it is to be recognized. */ \
-	bool operator == ( const min::stub * s ) \
+	bool operator == ( const min::stub * s ) const \
 	{ \
 	    return * this->location() == s; \
 	} \
 	\
-	bool operator != ( const min::stub * s ) \
+	bool operator != ( const min::stub * s ) const \
 	{ \
 	    return * this->location() != s; \
 	} \

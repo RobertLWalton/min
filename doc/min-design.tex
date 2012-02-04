@@ -231,7 +231,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 3, 2012}
+\date{February 4, 2012}
  
 \maketitle
 
@@ -1746,8 +1746,8 @@ The functions for creating and using reference types are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|T |
-    & \TTOMKEY{T}{{\tt T}}{of {\tt min::ref\TARG}}
+\verb|T & |
+    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref\TARG}}
       \verb|( const min::ref<T> & r )|
 \LABEL{MIN::REF_TO_T} \\
 \verb|T |
@@ -1760,19 +1760,19 @@ The functions for creating and using reference types are:
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
-      \verb|( min::ref<T> r, T v )|
+      \verb|( const min::ref<T> & r, T v )|
 \LABEL{MIN::==REF_AND_T} \\
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
-      \verb|( T v, min::ref<T> r )|
+      \verb|( T v, const min::ref<T> & r )|
 \LABEL{MIN::==T_AND_REF} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
-      \verb|( min::ref<T> r, T v )|
+      \verb|( const min::ref<T> & r, T v )|
 \LABEL{MIN::!=REF_AND_T} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
-      \verb|( T v, min::ref<T> r )|
+      \verb|( T v, const min::ref<T> & r )|
 \LABEL{MIN::!=T_AND_REF} \\
 \end{tabular}\end{indpar}
 
@@ -1784,11 +1784,11 @@ i.e., {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} or
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
     & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}
-      \verb|( min::ref<T> r, const min::stub * s )|
+      \verb|( const min::ref<T> & r, const min::stub * s )|
 \LABEL{MIN::==REF_AND_STUB} \\
 \verb|bool |
     & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}
-      \verb|( min::ref<T> r, const min::stub * s )|
+      \verb|( const min::ref<T> & r, const min::stub * s )|
 \LABEL{MIN::!=REF_AND_STUB} \\
 \end{tabular}\end{indpar}
 
@@ -1859,8 +1859,8 @@ If {\tt T} is not locatable or if the
 the {\tt min::\EOL acc\_\EOL write\_\EOL update} functions are not implicitly
 called.
 
-A {\tt min::ref\TARG} value is implicitly convertable to the type {\tt T}
-value its internal pointer points at.  As this implicit conversion
+A {\tt min::ref\TARG} value is implicitly convertable to the type {\tt T \&}.
+As this implicit conversion
 is not activated by C++ in the case of an expression of the form
 `{\tt r->\ldots}', `{\tt operator~->}' of a {\tt min::\EOL ref\TARG}
 argument is defined to invoke the conversion explicitly.
@@ -1926,10 +1926,12 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|T & p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{1.0in} [if \verb|T| \underline{not} locatable]
+    \hspace*{1.0in} [if \verb|T| {\tt const}
+                     or \verb|T| is \underline{not} locatable]
 \LABEL{MIN::PTR_[]} \\
 \verb|min::ref<T> p| & \TTBMKEY{i}{of {\tt min::ptr}}
-    \hspace*{1.0in} [if \verb|T| \underline{is} locatable]
+    \hspace*{1.0in} [if \verb|T| \underline{not} {\tt const}
+                     and \verb|T| is locatable]
 \LABEL{MIN::PTR_TO_STUB_[]} \\
 \verb|min::ptr<T> p|
     & \TTMKEY{+}{of {\tt min::ptr}}\verb|i|
@@ -1990,18 +1992,38 @@ reference value for the {\tt i+1}'st element of
 the vector with elements of type {\tt T} pointed at by {\tt p}, and
 {\tt p+i} is a {\tt min::\EOL ptr<T>} pointer to that element.
 
-If {\tt T} is not a locatable value type
+If {\tt T} is {\tt const} or is not a locatable value type
 (\pagref{LOCATABLE-VALUE}), then
 {\tt p[i]} is only a `{\tt T \&}' reference, and
 \underline{not} a {\tt min:\EOL ref<T>} reference.  As such it is
 in effect an unprotected body pointer that will become undefined whenever
 a relocatable function is called.
-However, if {\tt T} is locatable,
-it may contain a `{\tt const min::\EOL stub *}' value,
+However, if {\tt T} is locatable and not {\tt const},
+it may contain a {\tt min::gen} or `{\tt const min::\EOL stub *}' value,
 and therefore cannot be written using a
 `{\tt T \&}' reference.  It can be written using a
 {\tt min:\EOL ref<T>} reference, so such is returned by {\tt p[i]} if
 {\tt T} is locatable.
+
+One might ask whether {\tt p[i]} should always have a {\tt min::\EOL ref<T>}
+reference value, and why it should ever have a `{\tt T \&}' reference
+value.  The answer is that if {\tt T} is a structure type with a member
+{\tt m}, then {\tt p[i].m} will not work if {\tt p[i]} has type
+{\tt min::\EOL ref<T>}, but it will work if {\tt p[i]} has type
+`{\tt T \&}'.  This is unfortunate, but we must deal with this as best
+we can.  (Ideally C++ would get an `{\tt operator .}' which better
+enable non-standard reference types just as
+`{\tt operator ->}' better enables non-standard pointer types).
+When {\tt T} is itself a non-{\tt const}
+pointer value, such as a {\tt min::gen} or
+`{\tt const min::\EOL stub~*}' value, then it is perfectly alright
+to have {\tt p[i]} be a {\tt min::\EOL ref<T>} reference, and in
+fact it is even more desireable since writing the pointer value
+needs to implicitly call {\tt min::\EOL acc\_\EOL write\_\EOL update}.
+So we make it a rule that the {\tt [~]} operator returns a
+{\tt min::ref<T>} value only in the case that {\tt T} is
+{\tt min::\EOL gen} or is convertable to `{\tt const min::\EOL stub~*}',
+and {\tt T} is not {\tt const}.
 
 A pointer of type {\tt min::ptr<T>} can be implicitly converted to a
 pointer of type `{\tt T*}' when used as a function argument.
@@ -2013,7 +2035,7 @@ char buffer[length+1];
 strcpy ( buffer, s );
 \end{verbatim}\end{indpar}
 
-If {\tt p} is of type {\tt min::ptr<S>}, then {\tt min::ptr<T>(p)} is
+If {\tt p} is of type {\tt min::ptr<S>}, then {\tt min::ptr<T>(p)} is just
 {\tt p} coerced to the type {\tt min::\EOL ptr<T>} without any change to the
 actual value of {\tt p}, just as {(T *)(q)} is a coersion of {\tt q}
 if {\tt q} has type `{\tt S *}'.  Such coersions are inherently
