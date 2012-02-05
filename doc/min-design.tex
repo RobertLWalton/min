@@ -4161,7 +4161,19 @@ element of the label, for
 $0\leq$\verb|i|$<$\verb|min::length_of(labp)|,
 where the {\tt min::\EOL length\_\EOL of} function
 returns the number of elements in the label.
-The {\tt min::\EOL length\_\EOL of} function returns the hash of the label.
+The {\tt min::\EOL hash\_\EOL of} function returns the hash of the label.
+
+The {\tt min::\EOL begin\_\EOL ptr\_\EOL of} and
+{\tt min::\EOL end\_\EOL ptr\_\EOL of} and
+functions return {\tt min::\EOL ptr<const min::\EOL gen>} values that
+point at the first label element and the location just after the
+last label element, respectively.  Unlike `{\tt \& labp[0]}',
+{\tt min::\EOL begin\_\EOL ptr\_\EOL} of will not suffer an error if
+the label length is {\tt 0}, and unlike
+`{\tt \& labp[length\_of(labp)]}',
+{\tt min::\EOL end\_\EOL ptr\_\EOL of} will not suffer an error.
+In addition these functions return {\tt min::ptr} pointers that
+remain valid even if the label body is relocated.
 
 The length of a label is the number of elements (general values) in the label.
 The length of a label may be read from a label pointer, or may be read
@@ -4282,6 +4294,10 @@ A label may be created by the following protected functions:
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
     \verb| ( min::ptr<const min::gen> p,|\ARGBREAK
     \verb|   min::uns32 n )|
+\LABEL{MIN::NEW_LAB_GEN_OF_PTR_CONST} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+    \verb| ( min::ptr<min::gen> p,|\ARGBREAK
+    \verb|   min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN_OF_PTR} \\
 \end{tabular}\end{indpar}
 
@@ -4312,9 +4328,11 @@ a label:
 \LABEL{MIN::IS_LAB_OF_GEN} \\
 \end{tabular}\end{indpar}
 
-The following unprotected constructors are just like their
+The following unprotected constructors and functions operating
+on the resulting unprotected label points are just like their
 protected versions except that they assume any \verb|min::gen|
-value \verb|v| or \verb|min::stub *| value \verb|s| is a label:
+value \verb|v| or \verb|min::stub *| value \verb|s| is a label
+and furthermore do not check subscript ranges:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|MUP::|
@@ -4351,8 +4369,27 @@ value \verb|v| or \verb|min::stub *| value \verb|s| is a label:
 \LABEL{MUP::[]_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
-The {\tt =} operator applied to these unprotected
-pointers also makes the same assumption.
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{begin\_ptr\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::BEGIN_PTR_OF_MUP_LAB_PTR} \\
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{end\_ptr\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::END_PTR_OF_MUP_LAB_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::uns32 min::|
+	& \MINKEY{length\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::LENGTH_OF_MUP_LAB_PTR} \\
+\verb|min::uns32 min::|
+	& \MINKEY{hash\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::HASH_OF_MUP_LAB_PTR} \\
+\end{tabular}\end{indpar}
 
 \subsection{Names}
 \label{NAMES}
@@ -12240,6 +12277,10 @@ In loose implementation: \\
 \verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
     \verb| ( min::ptr<const min::gen> p,|\ARGBREAK
     \verb|   min::uns32 n )|
+\LABEL{MIN::NEW_LAB_GEN_OF_PTR_CONST} \\
+\verb|min::gen min::| & \MINKEY{new\_lab\_gen}\ARGBREAK
+    \verb| ( min::ptr<min::gen> p,|\ARGBREAK
+    \verb|   min::uns32 n )|
 \LABEL{MIN::NEW_LAB_GEN_OF_PTR} \\
 \verb|min::gen min::| & \MINKEY{new\_dot\_lab\_gen}%
     \verb| ( const char * s )|
@@ -12284,6 +12325,28 @@ In loose implementation: \\
 	  \verb| ( const MUP::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
 \LABEL{MUP::[]_OF_LAB_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.6in}
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{begin\_ptr\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::BEGIN_PTR_OF_MUP_LAB_PTR} \\
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{end\_ptr\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::END_PTR_OF_MUP_LAB_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+\verb|min::uns32 min::|
+	& \MINKEY{length\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::LENGTH_OF_MUP_LAB_PTR} \\
+\verb|min::uns32 min::|
+	& \MINKEY{hash\_of}\ARGBREAK
+	  \verb| ( MUP::lab_ptr & labp )|
+\LABEL{MIN::HASH_OF_MUP_LAB_PTR} \\
 \end{TABULAR}
 
 \end{indpar}
