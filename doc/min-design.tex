@@ -140,6 +140,7 @@
 %
 \newcommand{\LT}{{\tt <}}
 \newcommand{\GT}{{\tt >}}
+\newcommand{\MINUS}{{\tt -}}
 \newcommand{\BRACKETED}[1]{{\tt <#1>}}
 \newcommand{\NARG}{\BRACKETED{}}
 
@@ -231,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 4, 2012}
+\date{February 5, 2012}
  
 \maketitle
 
@@ -2025,6 +2026,12 @@ So we make it a rule that the {\tt [~]} operator returns a
 {\tt min::\EOL gen} or is convertable to `{\tt const min::\EOL stub~*}',
 and {\tt T} is not {\tt const}.
 
+An important consequence of this rule is that an expression such as
+{\tt \& p[i]} usually returns an unprotected relocatable pointer which can only
+be used temporarily.  Unless the value pointed at is locatable
+and not {\tt const}, such an expression is best used only as a source
+argument for functions like C++ {\tt memcpy} or {\tt strlen}.
+
 A pointer of type {\tt min::ptr<T>} can be implicitly converted to a
 pointer of type `{\tt T*}' when used as a function argument.
 This can be of use in code such as
@@ -2040,6 +2047,40 @@ If {\tt p} is of type {\tt min::ptr<S>}, then {\tt min::ptr<T>(p)} is just
 actual value of {\tt p}, just as {(T *)(q)} is a coersion of {\tt q}
 if {\tt q} has type `{\tt S *}'.  Such coersions are inherently
 unprotected, of course.
+
+Several pointer operators are defined on {\tt min::ptr<T>} values:
+
+\begin{indpar}\begin{tabular}{r@{}l@{~~~~}l}
+\verb|bool |
+    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr\TARG}}\ARGBREAK
+      \verb|( const min::ptr<T> & p1,|\ARGBREAK
+      \verb|  const min::ptr<T> & p2 )|
+\LABEL{MIN::<_OF_PTR_OF_T} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{++}{++}{of {\tt min::ptr\TARG}}%
+    & [postfix {\tt ++}]\ARGBREAK
+      \verb|( min::ptr<T> & r, int )|
+\LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr\TARG}}%
+    & [prefix {\tt --}]\ARGBREAK
+      \verb|( min::ptr<T> & r )|
+\LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
+\end{tabular}\end{indpar}
+
+These are just what is required to take the {\tt min::\EOL ptr<T>}
+values of
+{\tt min::\EOL begin\_\EOL ptr\_\EOL of} and
+{\tt min::\EOL end\_\EOL ptr\_\EOL of} applied to various type specific
+object pointers and step through the vector bracketted by the
+resulting pointers.  See, for example, 
+{\tt min::\EOL begin\_\EOL ptr\_\EOL of} on
+\pagref{MIN::BEGIN_PTR_OF_STR_PTR}
+and \pagref{MIN::BEGIN_PTR_OF_LAB_PTR}.
+To protect as much as possible from misuse, {\tt <} is defined to be
+false if the two pointers point at different relocatable bodies.
+So one should use the pointers to access data only if the smaller
+pointer is still {\tt <} than the larger pointer.
 
 
 \subsubsection{Stack Temporaries of Relocatable Vectors}
@@ -3531,8 +3572,9 @@ argument are for use when the input string is part of a relocatable body.
 Because \verb|min::ptr<char>| is not implicitly castable to
 \verb|min::ptr<const char>|, both types are argument are provided for.
 
-When a string general value
-is created, if the input string is short enough for the general value
+When a string general value is created,
+\label{STRING-CREATION}
+if the input string is short enough for the general value
 to hold the string itself, a direct string general value is created.
 Otherwise \verb|min::new_str_gen| searches to see if any equal string
 exists.  If such a string exists, a pointer to the stub of the existing
@@ -3903,7 +3945,7 @@ unprotected string pointer also makes the same assumption.
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|char sp|
+\verb|const char & sp|
     & \TTBMKEY{i}{of {\tt MUP::str\_ptr}}
 \LABEL{MUP::[]_OF_STR_PTR} \\
 \verb|min::ptr<const char>  min::|
@@ -3935,12 +3977,15 @@ unprotected string pointer also makes the same assumption.
 
 The following unprotected
 function is equivalent to {\tt begin\_ptr\_of()} with its
-result cast to `{\tt const char *}', but is more efficient:
+result cast to `{\tt const char *}':
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|const char * MUP::| & \MUPKEY{str\_of}\verb| ( MUP::str_ptr & sp )|
 \LABEL{MUP::STR_OF_STR_PTR} \\
 \end{tabular}\end{indpar}
+
+However, note that the pointer returned is relocatable, so this function
+is unprotected.
 
 The following unprotected functions
 may be used to access the internals of short
@@ -3973,7 +4018,9 @@ cout << u.buf;
 Short string values are NUL (zero) padded 0 to 8 \verb|char|
 strings.  To be sure any value read is NUL terminated, a NUL (zero)
 must be stored after the value read, as is done by \verb|u.buf[8] = 0|
-in the example.
+in the example.  Of course, legal short string values should have more
+characters that can be stored in a direct string
+(\pagref{STRING-CREATION}).
 
 A \key{long string stub}\label{LONG-STRING-STUB} is collectible, has
 \minnbkey{LONG\_STR}\LABEL{MIN::LONG_STR} stub type code, and has
@@ -3985,7 +4032,7 @@ of the string, followed by a \verb|char|
 vector containing the string proper with the terminating NUL.  The
 \verb|char| vector is padded to a multiple of 8 bytes with NUL
 bytes, but the terminating NUL and the padding are not included
-in the length.
+in the length.  To be legal the length should be larger than 8.
 
 The following are unprotected functions to return a relocatable pointer to the
 long string body, a relocatable pointer to the string itself,
@@ -4010,7 +4057,9 @@ are relocatable.
 \subsection{Labels}
 \label{LABELS}
 
-Attribute labels are often atoms, i.e., single strings or numbers.
+Object attribute labels
+(see Section~\itemref{OBJECT-ATTRIBUTE-LEVEL})
+are often atoms, i.e., single strings or numbers.
 But they may be sequences of atoms.  Such sequences are represented by
 \skey{label}s.\footnote{Labels could also be represented by
 sublists stored inside objects (\pagref{LIST-LEVEL}), but each label tends to
@@ -4019,7 +4068,7 @@ would be inefficient.  In addition labels are useful as function arguments.}
 Labels may also be elements of other labels.
 
 A label is just a vector of name components, where a name
-component is an atom or a label.  However, labels are immutable and
+component is an atom or a label.  Labels are immutable and
 have the property that no two distinct label stubs can have equal vectors of
 name components.  
 
@@ -4028,13 +4077,13 @@ is distinct from the element itself and has a different
 hash code.  Also note that labels can be elements of labels.  A programming
 language may wish to require that the elements of labels be numbers or
 strings, that numbers and strings be treated as labels of one element,
-and that proper labels with one element not be created.  But the
+and that proper labels with zero or one element not be created.  But the
 \verb|min.h| code does not do this.
 
 A \key{label stub}\label{LABEL-STUB} is collectible,
 has \minnbkey{LABEL}\LABEL{MIN::LABEL} stub type code,
 and has an immutable value.
-The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
+The label value may be read by using {\tt min::\EOL lab\_\EOL ptr}'s:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -4064,11 +4113,22 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 	  \TTOMKEY{=}{=}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( min::lab_ptr & labp, const min::stub * s )|
 \LABEL{MIN::=_LAB_PTR_OF_STUB} \\
-\verb|min::gen |
+\verb|const min::gen & |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::lab\_ptr}}\ARGBREAK
 	  \verb| ( const min::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
 \LABEL{MIN::[]_OF_LAB_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{begin\_ptr\_of}\ARGBREAK
+	  \verb| ( min::lab_ptr & labp )|
+\LABEL{MIN::BEGIN_PTR_OF_LAB_PTR} \\
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{end\_ptr\_of}\ARGBREAK
+	  \verb| ( min::lab_ptr & labp )|
+\LABEL{MIN::END_PTR_OF_LAB_PTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -4084,8 +4144,12 @@ The label value may be read by using {\tt min::\EOL lab\_\EOL pointer}'s:
 
 Here if \verb|v| or \verb|s| do not point at the stub of a label
 the new label pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
-which gives undefined results, but usually a memory fault, if
-used to access the parts of a label.  The no-argument label
+but this is not in an of itself an error.  The resulting
+{\tt min::\EOL lab\_\EOL ptr} can be tested to see if it is {\tt ==}
+to {\tt min::\EOL NULL\_\EOL STUB}.  Using such a pointer to access
+parts of a label, however, gives undefined results,
+but usually a memory fault.
+The no-argument label
 pointer constructor also creates a label pointer equal to
 {\tt min::\EOL NULL\_\EOL STUB}, and the {\tt =} operators
 set a label pointer just as a constructor with the {\tt =} right side
@@ -4280,7 +4344,7 @@ value \verb|v| or \verb|min::stub *| value \verb|s| is a label:
 	  \TTOMKEY{=}{=}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb| ( MUP::lab_ptr & labp, const min::stub * s )|
 \LABEL{MUP::=_LAB_PTR_OF_STUB} \\
-\verb|min::gen |
+\verb|const min::gen & |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt MUP::lab\_ptr}}\ARGBREAK
 	  \verb| ( const MUP::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
@@ -12097,6 +12161,19 @@ In loose implementation: \\
 	  \verb| ( const min::lab_ptr & labp,|\ARGBREAK
 	  \verb|   min::uns32 i )|
 \LABEL{MIN::[]_OF_LAB_PTR} \\
+\end{TABULAR}
+
+\medskip
+
+\begin{TABULAR}{2.6in}
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{begin\_ptr\_of}\ARGBREAK
+	  \verb| ( min::lab_ptr & labp )|
+\LABEL{MIN::BEGIN_PTR_OF_LAB_PTR} \\
+\verb|min::ptr<const min::gen> min::|
+	& \MINKEY{end\_ptr\_of}\ARGBREAK
+	  \verb| ( min::lab_ptr & labp )|
+\LABEL{MIN::END_PTR_OF_LAB_PTR} \\
 \end{TABULAR}
 
 \medskip
