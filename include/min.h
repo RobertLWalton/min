@@ -4808,6 +4808,14 @@ namespace min {
 	      min::uns32 n );
 
     inline min::gen new_lab_gen
+	    ( min::ptr<min::gen> p,
+	      min::uns32 n )
+    {
+        return new_lab_gen
+	    ( (min::ptr<const min::gen>) p, n );
+    }
+
+    inline min::gen new_lab_gen
 	    ( const min::gen * p, min::uns32 n )
     {
         return new_lab_gen ( new_ptr ( p ), n );
