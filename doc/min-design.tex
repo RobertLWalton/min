@@ -745,7 +745,7 @@ desired effect, {\tt min::\EOL gen} constants are represented by
 {\tt inline} functions, which allows the optimizing compiler 
 to insert the constants directly into instructions.  Thus
 we have the constant {\tt min::\EOL MISSING()}, a function call
-with no arguments, \underline{instead of} {\tt min::\EOL MISSING}, a datum.
+with no arguments, \underline{instead of} {\tt min::\EOL MISSING()}, a datum.
 
 There are two kinds of MIN implementation: `\key{compact}' and
 `\key{loose}'.\label{COMPACT}\label{LOOSE}\label{COMPACT-OR-LOOSE}
@@ -4467,6 +4467,14 @@ C++ classes are not permitted, as member types must \underline{not}
 have constructors or destructors and must be copyable with
 a simple `{\tt =}' operator or with the \verb|memcpy| function.
 
+There is one exception to the rule that a packed structure type must be
+a C type: it may have a public base structure, as long as that is an
+admissible packed structure type.  In this case the
+`{\tt control}' member must be the first member of the base structure.
+This rule can be applied recursively to get, for example, a `{\tt struct}'
+based on a public `{\tt struct}'
+based on a public `{\tt struct}' whose first member is `{\tt control}'.
+
 There are two types of pointers that can be used to
 access members of packed structures:
 \begin{indpar}\begin{tabular}{l@{~~~~~a.k.a~~~~~}l}
@@ -4758,7 +4766,7 @@ internally a `\verb|S const **|' value that is made to behave externally like a
 unary \verb|*| operators.  Thus looking ahead at the example below,
 if \verb|upv| is a
 {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG} value
-and \verb|S| has a member \verb|i|, then \verb|upv->i| is the \verb|i|
+and \verb|S| has a member \verb|m|, then \verb|upv->m| is the \verb|m|
 member of the \verb|S| struct pointed at by \verb|upv|.
 
 Note that in certain
@@ -4766,7 +4774,7 @@ circumstances, such as inside a {\tt template} class,
 component names like {\tt min::\EOL packed\_\EOL struct<S>::ptr} will not work
 and the alternative {\tt min::\EOL packed\_\EOL struct\_\EOL ptr<S>}
 must be used instead.  The later are usually preferred anyway because
-they can be defined without defining \verb|S|, and therefore can be
+it can be defined without defining \verb|S|, and therefore can be
 used to build recursive structures.
 
 The read-write {\tt min::\EOL packed\_\EOL struct\_\EOL updptr\SARG}
@@ -4855,9 +4863,9 @@ MIN_REF ( psptr, pv, psupdptr )
 MIN_REF ( const min::stub *, s, psupdptr )
 
 static min::uns32 ps_gen_disp[2] =
-    { min::DISP(&ps::g), min::DISP_END };
-static min::uns32 ps_stub_disp[2] =
-    { min::DISP(&ps::s), min::DISP(&ps::pv), min::DISP_END };
+    { min::DISP ( & ps::g ), min::DISP_END };
+static min::uns32 ps_stub_disp[3] =
+    { min::DISP ( & ps::s ), min::DISP ( & ps::pv ), min::DISP_END };
 
 static min::packed_struct<ps> pstype
     ( "pstype", ps_gen_disp, ps_stub_disp );
@@ -4965,6 +4973,8 @@ named \verb|pvtype| use
     \verb|  const min::uns32 max_length;|\ARGBREAK
     \verb|};|
 \LABEL{MIN::PACKED_VEC_HEADER} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
 	& \MINIKEY{packed\_vec\EARGDEFAULT}{packed\_vec\EARG}
 	      \verb|pvtype|\ARGBREAK
@@ -4975,6 +4985,8 @@ named \verb|pvtype| use
 	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
 	  \verb|   const min::uns32 * header_stub_disp = NULL )|
 \LABEL{MIN::PACKED_VEC_TYPE} \\
+\end{tabular}\end{indpar}
+\begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
 	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
 		\verb|pvtype|\ARGBREAK
@@ -5045,6 +5057,14 @@ declared.  This need not be a \verb|struct| type; it can
 be \verb|min::gen|, \verb|min::stub *|,
 any pointer-to-packed-struct or pointer-to-packed-vector
 type, or any numeric type.
+
+However, {\tt E} must \underline{not} be a {\tt const} type.
+Also, if it has a zero argument constructor, that may not
+be used to initialize the element, but instead the element
+bytes may be zeroed.  Similarly an assignment or copy operator
+may not be used, but {\tt memcpy} may be used instead,
+and a destructor may not be used.  Lastly, the element may
+be relocated in memory using {\tt memcpy}.
 
 \item[{\tt H}]\label{PACKED_VEC_HEADER_TYPE}
 The C \verb|struct| type of the header data at the beginning of the
@@ -5295,9 +5315,10 @@ packed vector are organized as a C language vector so that
 \end{center}
 but the vector elements are stored in a body whose address can change
 if a relocating function is called, so saving C pointers to packed vector
-elements is generally a bad idea.  However, temporary use within a single
+elements are relocatable.  However, temporary use within a single
 statement is all right if the statement does not call a relocating
-function.
+function, so, for example, `{\tt \& pvp[i]}' may be used as an
+argument to {\tt memcpy}.
 
 \verb|pvp+i| can be used to compute a {\tt min::ptr<E const>} pointer that
 points at the \verb|pvp[i]| vector element.
@@ -5326,7 +5347,7 @@ will fail with a {\tt MIN\_\EOL ASSERT} fault if {\tt pvup->\EOL length == 0}.
 The read-write {\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EARG}
 pointer type has as its {\tt public} base class the
 {\tt min::\EOL packed\_\EOL vec\_\EOL ptr\EARG} pointer type,
-so that read-write pointers can be implicitely converted to
+so that read-write pointers can be implicitly converted to
 read-only pointers.  The new code defined for the read-write
 pointer type is:
 
@@ -5420,7 +5441,7 @@ The insertable {\tt min::\EOL packed\_\EOL vec\_\EOL insptr\EARG}
 pointer type, which permits elements to be added to a packed vector,
 has as its {\tt public} base class the
 {\tt min::\EOL packed\_\EOL vec\_\EOL updptr\EARG} pointer type,
-so that insertable pointers can be implicitely converted to
+so that insertable pointers can be implicitly converted to
 read-write or read-only pointers.  The new code defined for the insertable
 pointer type is:
 
@@ -5543,6 +5564,9 @@ reference.  Otherwise, if {\tt E} is not locatable, an
 Note that {\tt \& min::push(pvip)}
 is an \underline{unprotected} body pointer if {\tt E} is not
 locatable.
+Very importantly, this means that {\tt v} \underline{must not}
+be a relocating expression.  Since {\tt v} does not have locatable type,
+this should not normally be an issue.
 
 The two or three argument {\tt min::\EOL push\REL} adds {\tt n}
 elements to the vector, and fills the new elements from {\tt vp}
@@ -5603,7 +5627,7 @@ struct pvh {
 struct pve {
     // Note: pve is not a locatable type but contains
     // locatable type elements which means that
-    // MUP::acc_write_update must be called explicitely
+    // MUP::acc_write_update must be called explicitly
     // when pve elements are written into a packed vector.
 
     min::gen g;
@@ -5612,9 +5636,9 @@ struct pve {
 };
 
 static min::uns32 pve_gen_disp[2] =
-    { 0, min::DISP_END };
+    { min::DISP ( & pve::g ), min::DISP_END };
 static min::uns32 pve_stub_disp[2] =
-    { 0 + sizeof ( min::gen ), min::DISP_END };
+    { min::DISP ( & pve::s ), min::DISP_END };
 
 static min::packed_vec<pve,pvh> pvtype
     ( "pvtype", pve_gen_disp, pve_stub_disp );
@@ -5627,7 +5651,7 @@ main ( ... )
         // pvip->max_length == 5
         // pvip->length == 0
         // min::packed_subtype_of ( pvip ) == pvtype.subtype
-    pve e1 = { min::MISSING, NULL, 88 };
+    pve e1 = { min::MISSING(), NULL, 88 };
     min::push(pvip) = e1;
        // Need not call MUP::acc_write_update as neither
        // e1.g or e1.s point at a stub.
@@ -5635,9 +5659,9 @@ main ( ... )
         // pvp->length == 1
         // pvp[0].j == 88
 
-    pve e2[3] = { { min::MISSING, NULL, 11 },
-                  { min::MISSING, NULL, 22 },
-                  { min::MISSING, NULL, 33 } };
+    pve e2[3] = { { min::MISSING(), NULL, 11 },
+                  { min::MISSING(), NULL, 22 },
+                  { min::MISSING(), NULL, 33 } };
     min::push ( pvip, 3, e2 );
         // Again no need to call MUP::acc_write_update because
         // e2 does not point at stubs.
@@ -5651,9 +5675,12 @@ main ( ... )
     name2 = min::new_str_gen ( "my-name-2" );
 
     pve e3 = { name1, min::stub_of ( name2 ), 44 };
-    min::push(pvip) = e3;
+    min::push(pvip) = e3
+        // It is required that the right size of =
+        // not call relocating min::new_... functions.
     MUP::acc_write_update ( pvip, e3.g ); 
     MUP::acc_write_update ( pvip, e3.s ); 
+        // pvp->length == 5
 
     min::resize ( pvip, 10 );
         // pvp->max_length == 10
@@ -5662,19 +5689,21 @@ main ( ... )
     locatable_gen g2;
     locatable_var<const min::stub *> s2;
     e4 = min::pop ( pvip );
-        // e4[0].j == 44
+        // e4.j == 44
         // pvp->length == 4
     g2 = e4.g;
     s2 = e4.s;
         // We must make e4.g and e4.s locatable before
-        // we call any more relocating functions.
+        // we call any more relocating functions, where we
+        // are assuming they are NOT related to name1 above.
 
     pve e5[3];
     min::pop ( pvip, 2, e5 );
         // e5[0].j == 22
         // e5[1].j == 33
     e4 = min::pop ( pvip );
-        // 3e.j == 11
+        // e4.j == 11
+        // pvp[0].j == 88
         // pvp->length == 1
 }
 \end{verbatim}\end{indpar}
@@ -5952,12 +5981,12 @@ line-terminating NUL elements are translated into calls to
 Set to {\tt min::\EOL NULL\_\EOL STUB} when the file is created.
 
 \item[\ttmkey{filename}{in {\tt min::file}}]
-If not {\tt min::MISSING}, this
+If not {\tt min::MISSING()}, this
 is the name of this file used for printing error messages
 concerning file lines, in particular by the
 {\tt min::\EOL pline\_\EOL numbers} constructor
 (\pagref{MIN::PLINE_NUMBERS}).
-Set to {\tt min::\EOL MISSING} when the file is created.
+Set to {\tt min::\EOL MISSING()} when the file is created.
 
 \end{itemlist}
 
@@ -7608,7 +7637,7 @@ is printed between elements.
 \item[\ttmkey{special\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
 The {\tt special\_\EOL \BRA pre,post\KET fix}
 members are printed just before and
-just after special {\tt min::gen} values (such as `{\tt MISSING}').
+just after special {\tt min::gen} values (such as `{\tt MISSING()}').
 
 \item[\ttmkey{special\_names}{in {\tt min::printer\_format}}]
 \item[\ttmkey{special\_names\_size}{in {\tt min::printer\_format}}]\vspace{-2ex}
