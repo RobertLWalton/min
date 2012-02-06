@@ -5566,7 +5566,9 @@ is an \underline{unprotected} body pointer if {\tt E} is not
 locatable.
 Very importantly, this means that {\tt v} \underline{must not}
 be a relocating expression.  Since {\tt v} does not have locatable type,
-this should not normally be an issue.
+this should not normally be an issue, but if {\tt v} is
+a structure type containing locatable elements, the situation is
+tricky: see the below example.
 
 The two or three argument {\tt min::\EOL push\REL} adds {\tt n}
 elements to the vector, and fills the new elements from {\tt vp}
@@ -8518,9 +8520,9 @@ the contents of the other parts of the object body.
 The operations
 
 \begin{indpar}\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
-\verb|min::gen |
+\verb|const min::gen & |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}
-	& [same as {\tt min::attr}]\\&
+	& [similar to {\tt min::attr}]\\&
 	  \multicolumn{2}{l}{~(~const min::obj\_vec\_ptr \& vp,}\\&
 	  \multicolumn{2}{l}{~~~min::unsptr index )}
 \LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
@@ -8532,6 +8534,16 @@ The operations
 
 are can be used as alternatives that make the attribute
 vector part of an object look like a simple vector.
+{\tt vp[i]} differs from {\tt min::\EOL attr(vp,i)} in that
+the former can be cast to an address within the object body vector,
+whereas the latter produces a {\tt min::gen}
+temporary value whose address is useless.  Note, however,
+that {\tt \&vp[i]} is a relocatable address, and so it should only
+be passed to a non-relocating function like {\tt memcpy}.
+Both {\tt vp[i]} and {\tt min::\EOL attr(vp,i)} include a 
+{\tt MIN\_\EOL ASSERT} check that
+$0\leq i<\mbox{\tt min::\EOL attr\_\EOL size\_\EOL of(vp)}$.
+
 Also in this vein, the operations
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -8550,7 +8562,7 @@ Also in this vein, the operations
 
 can be used to return {\tt min::ptr<const min::gen>} pointers
 to elements of the attribute vector.  {\tt vp + i} returns a
-pointer to the {\tt i}+1'st element, but includes a
+pointer to the {\tt i}+1'st element, and includes a
 {\tt MIN\_\EOL ASSERT} check that {\tt i} is less than the
 size of the attribute vector.  The {\tt min::\EOL begin\_\EOL ptr\_\EOL of}
 and {\tt min::\EOL end\_\EOL ptr\_\EOL of} functions are the same as
@@ -8619,12 +8631,11 @@ to permit writting elements.  Its functions are:
 
 \end{tabular}\end{indpar}
 
-\begin{indpar}\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ref<min::gen> |
-	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_updptr}}
-	& [same as {\tt min::attr}]\\&
-	  \multicolumn{2}{l}{~(~const min::obj\_vec\_updptr \& vp,}\\&
-	  \multicolumn{2}{l}{~~~min::unsptr index )}
+	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_updptr}}\ARGBREAK
+	  \verb| ( const min::obj_vec_updptr & vp,|\ARGBREAK
+	  \verb|   min::unsptr index )|
 \LABEL{MIN::[]_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
