@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 5, 2012}
+\date{February 7, 2012}
  
 \maketitle
 
@@ -8569,7 +8569,9 @@ and {\tt min::\EOL end\_\EOL ptr\_\EOL of} functions are the same as
 {\tt vp + 0} and {\tt vp + min::\EOL size\_\EOL of(vp)} but do
 not include this {\tt MIN\_\EOL ASSERT} check.
 
-A \minkey{obj\_vec\_updptr} is like a \verb|min::obj_vec_ptr|
+A \minkey{obj\_vec\_updptr} read-write (update) object vector
+pointer is like a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
+read-only object vector pointer,
 but has element access functions that have been modified
 to permit writting elements.  Its functions are:
 
@@ -8653,8 +8655,17 @@ to permit writting elements.  Its functions are:
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
-A {\tt min::\EOL obj\_\EOL vec\_\EOL updptr} may be automatically
-downcast to a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}.  This means that
+Read-write element access
+functions return {\tt min::\EOL ref<min::gen>}
+or {\tt min::\EOL ptr<min::gen>} while read-only
+element access functions return
+{\tt min::gen}, `{\tt const min::\EOL gen~\&}', or
+{\tt min::\EOL ptr<const min::gen>}.
+
+A {\tt min::\EOL obj\_\EOL vec\_\EOL updptr} read-write pointer
+may be automatically
+downcast to a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr} read-only pointer.
+This means that
 the non-constructor functions not redefined above that are applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s.
@@ -8663,8 +8674,8 @@ functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
 will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
 downcast object vector pointer.
 
-A \minkey{obj\_vec\_insptr} is like a
-{\tt min::obj\_\EOL vec\_\EOL updptr}
+A \minkey{obj\_vec\_insptr} insertable object vector pointer is like a
+{\tt min::obj\_\EOL vec\_\EOL updptr} read-write object vector pointer
 but has additional functions which support pushing or popping elements
 from the end of the object body attribute vector or the beginning
 of the object body auxiliary area and resizing the unused area and
