@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb  5 01:13:53 EST 2012
+// Date:	Tue Feb  7 08:58:56 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2218,6 +2218,34 @@ namespace min { namespace unprotected {
     // responsible for keeping track of body sizes.
     //
     min::unsptr body_size_of ( const min::stub * s );
+
+    // Return the optimal body size equal to or greater
+    // than a given body size, from the point of view
+    // of a resizing that increases the size of a body.
+    // Thus if given 83 this returns 120, it means that
+    // any newly allocated body with size larger than 83
+    // bytes will in fact consume 120 bytes, so one
+    // might as well ask for 120 bytes.  If this is
+    // true, it is likely because the allocator uses
+    // lists of fixed size places to put bodies (the
+    // compactor may later squeeze the bodies into a
+    // smaller area).
+    //
+    inline min::unsptr optimal_body_size
+        ( min::unsptr size )
+    {
+	unsptr m = size + 2 * sizeof ( uns64 ) - 1;
+	m &= sizeof ( uns64 ) - 1;
+
+        if ( m < internal::min_fixed_block_size )
+            m = internal::min_fixed_block_size;
+	else if ( m <= internal::max_fixed_block_size )
+	    m = (min::unsptr) 1
+		<< 
+		( internal::log2floor
+		      ( (unsigned) m - 1 ) + 1 );
+	return m - sizeof ( uns64 );
+    }
 
     // Allocate a body to a stub.  n is the minimum size
     // of the body in bytes, not including the control
