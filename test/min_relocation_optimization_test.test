@@ -129,6 +129,37 @@ _Z5test1PKN3min4stubEi:
 	ret
 .LFEXXX:
 	.size	_Z5test1PKN3min4stubEi, .-_Z5test1PKN3min4stubEi
+	.align 2
+	.p2align 4,,15
+.globl _Z5test3Ri
+	.type	_Z5test3Ri, @function
+_Z5test3Ri:
+.LFBXXX:
+	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rax
+	cmpq	%rax, _ZN3min8internal9acc_stackE(%rip)
+	pushq	%rbx
+.LCFIXXX:
+	movq	%rdi, %rbx
+	jae	.L31
+.L26:
+	addl	$1, (%rbx)
+	movq	_ZN3min8internal15acc_stack_limitE(%rip), %rax
+	cmpq	%rax, _ZN3min8internal9acc_stackE(%rip)
+	jae	.L32
+	popq	%rbx
+	ret
+	.p2align 4,,7
+.L32:
+	popq	%rbx
+	jmp	_ZN3min8internal13acc_interruptEv
+	.p2align 4,,7
+.L31:
+	.p2align 4,,7
+	call	_ZN3min8internal13acc_interruptEv
+	.p2align 4,,4
+	jmp	.L26
+.LFEXXX:
+	.size	_Z5test3Ri, .-_Z5test3Ri
 	.local	_ZSt8__ioinit
 	.comm	_ZSt8__ioinit,1,1
 	.weakref	_Z20__gthrw_pthread_oncePiPFvvE,pthread_once
@@ -243,6 +274,21 @@ _Z5test1PKN3min4stubEi:
 	.uleb128 0x5
 	.byte	0x86
 	.uleb128 0x4
+	.align 8
+.LEFDEXXX:
+.LSFDEXXX:
+	.long	.LEFDEXXX-.LASFDEXXX
+.LASFDEXXX:
+	.long	.LASFDEXXX-.Lframe1
+	.long	.LFBXXX
+	.long	.LFEXXX-.LFBXXX
+	.uleb128 0x0
+	.byte	0x4
+	.long	.LCFIXXX-.LFBXXX
+	.byte	0xe
+	.uleb128 0x10
+	.byte	0x83
+	.uleb128 0x2
 	.align 8
 .LEFDEXXX:
 	.ident	"GCC: (GNU) 4.1.2 20080704 (Red Hat 4.1.2-51)"

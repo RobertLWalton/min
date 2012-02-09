@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 08:55:32 EST 2012
+// Date:	Thu Feb  9 09:45:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -354,7 +354,7 @@ min::uns64 MINT::hash_acc_clear_flags;
 
 min::uns64   MINT::acc_stack_mask;
 min::stub ** MINT::acc_stack;
-min::stub ** MINT::acc_stack_limit;
+min::stub ** volatile MINT::acc_stack_limit;
 
 min::uns64  MINT::new_acc_stub_flags;
 min::stub * MINT::head_stub;
@@ -3722,6 +3722,14 @@ bool min::resize
 }
 
 bool min::resize
+    ( min::obj_vec_insptr & vp,
+      min::unsptr unused_size )
+{
+    return min::resize ( vp, unused_size,
+                         min::var_size_of ( vp ) );
+}
+
+bool min::expand
     ( min::obj_vec_insptr & vp,
       min::unsptr unused_size )
 {
