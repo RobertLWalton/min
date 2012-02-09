@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Feb  7 08:58:56 EST 2012
+// Date:	Thu Feb  9 09:45:38 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1595,7 +1595,7 @@ namespace min {
 	    // On if bodies have been relocated.
 
 	extern min::stub ** acc_stack;
-	extern min::stub ** acc_stack_limit;
+	extern min::stub ** volatile acc_stack_limit;
 	    // acc_stack points at the first unused
 	    // location in the acc stack.  If
 	    // acc_stack >= acc_stack_limit, an
@@ -7103,6 +7103,9 @@ namespace min {
 	( min::obj_vec_insptr & vp,
 	  min::unsptr unused_size,
 	  min::unsptr var_size );
+    bool expand
+	( min::obj_vec_insptr & vp,
+	  min::unsptr unused_size );
 
     class obj_vec_ptr
     {
@@ -7289,6 +7292,9 @@ namespace min {
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr unused_size,
 	      min::unsptr var_size );
+	friend bool expand
+	    ( min::obj_vec_insptr & vp,
+	      min::unsptr unused_size );
 
     protected:
 

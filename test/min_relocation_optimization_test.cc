@@ -2,7 +2,7 @@
 //
 // File:	min_relocation_optimization_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Feb  4 03:44:17 EST 2012
+// Date:	Thu Feb  9 09:44:01 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -17,6 +17,7 @@ using std::cout;
 using std::endl;
 # include <min.h>
 # define MUP min::unprotected
+# define MINT min::internal
 
 // Test1 tests when a pointer indirecting through
 // a stub to a relocatable body is recomputed.  The
@@ -65,4 +66,14 @@ inline int index
 int test2 ( const min::stub * s, int i1, int i2 )
 {
     return ref_index ( s, i1 ) * index ( s, i2 );
+}
+
+// Test 3 tests whether the interrupt() function checks
+// for asynchronous changes to MINT::acc_stack_limit.
+//
+void test3 ( int & n )
+{
+    min::interrupt();
+    ++ n;
+    min::interrupt();
 }
