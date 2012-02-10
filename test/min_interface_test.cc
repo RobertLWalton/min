@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Jan 29 08:07:23 EST 2012
+// Date:	Fri Feb 10 10:21:19 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1256,6 +1256,11 @@ void test_acc_interface ( void )
     cout << endl;
     cout << "Start Allocator/Collector/Compactor"
 	    " Interface Test!" << endl;
+
+    cout << endl;
+    cout << "optimal_body_size ( 53 ) = "
+         << min::unprotected::optimal_body_size ( 53 )
+	 << endl;
 
     bool memory_debug_save = memory_debug;
     memory_debug = true;
@@ -2690,49 +2695,6 @@ void test_objects ( void )
 {
     cout << endl;
     cout << "Start Objects Test!" << endl;
-
-    cout << "SHORT_OBJ_MAX_VAR_SIZE = 0x"
-	<< hex << min::SHORT_OBJ_MAX_VAR_SIZE
-	<< dec << endl;
-    cout << "SHORT_OBJ_MAX_HASH_SIZE = 0x"
-	<< hex << min::SHORT_OBJ_MAX_HASH_SIZE
-	<< dec << endl;
-    cout << "SHORT_OBJ_MAX_TOTAL_SIZE = 0x"
-	<< hex << min::SHORT_OBJ_MAX_TOTAL_SIZE
-	<< dec << endl;
-    cout << "LONG_OBJ_MAX_VAR_SIZE = 0x"
-	<< hex << min::LONG_OBJ_MAX_VAR_SIZE
-	<< dec << endl;
-    cout << "LONG_OBJ_MAX_HASH_SIZE = 0x"
-	<< hex << min::LONG_OBJ_MAX_HASH_SIZE
-	<< dec << endl;
-    cout << "LONG_OBJ_MAX_TOTAL_SIZE = 0x"
-	<< hex << min::LONG_OBJ_MAX_TOTAL_SIZE
-	<< dec << endl;
-
-    cout << endl;
-    cout << "Test object size functions:" << endl;
-
-    min::unsptr lastht = 0;
-    min::unsptr maxht =
-	min::obj_hash_size ( min::unsptr(-1) );
-    cout << "maxht: " << maxht << endl;
-    MIN_ASSERT ( maxht >= 4000000 );
-    // Note: maxht < ( 1 << 22 ) is possible.
-    for ( min::unsptr u = 0; u <= 4000000; ++ u )
-    {
-	// Use `assert' to avoid to many .out
-	// lines.
-
-	min::unsptr t = min::obj_total_size ( u );
-	assert ( u <= t );
-	min::unsptr ht = min::obj_hash_size ( u );
-	if ( u > ht )
-	    assert ( ht == maxht );
-	else
-	    assert ( lastht < u || lastht == ht );
-	lastht = ht;
-    }
 
     cout << endl;
     cout << "Test short objects:" << endl;
