@@ -479,6 +479,8 @@ Finish Process Interface Test!
 
 Start Allocator/Collector/Compactor Interface Test!
 
+optimal_body_size ( 53 ) = 56
+
 Test mutator functions:
 min_interface_test.cc:XXXX assert:
     MINT::acc_stack == ::acc_stack true.
@@ -1443,7 +1445,7 @@ SPECIAL(0xabcdef)
 AUX_FREE
 RELOCATE_BODY
 TYPE(0)
-SHORT_OBJ
+TINY_OBJ
 LIST_AUX(10)
 SUBLIST_AUX(20)
 INDIRECT_AUX(30)
@@ -1501,17 +1503,6 @@ ERROR: During attempt to find the size of file min_non_existent_file:
 Finish Printer Test!
 
 Start Objects Test!
-SHORT_OBJ_MAX_VAR_SIZE = 0x1ff
-SHORT_OBJ_MAX_HASH_SIZE = 0x7f
-SHORT_OBJ_MAX_TOTAL_SIZE = 0x1000
-LONG_OBJ_MAX_VAR_SIZE = 0xfffff
-LONG_OBJ_MAX_HASH_SIZE = 0xfe3b4f4e
-LONG_OBJ_MAX_TOTAL_SIZE = 0x1000000
-
-Test object size functions:
-maxht: 4265299790
-min_interface_test.cc:XXXX assert:
-    maxht >= 4000000 true.
 
 Test short objects:
 min_interface_test.cc:XXXX assert:
@@ -1519,8 +1510,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::type_of ( sstub ) == min::SHORT_OBJ true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
-sh: 2 sht: 100 sua: 500 sav: 0 saa: 0 st: 602
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
+sh: 2 sht: 100 sua: 920 sav: 0 saa: 0 st: 1022
 min_interface_test.cc:XXXX assert:
     sht >= 100 true.
 min_interface_test.cc:XXXX assert:
@@ -1542,8 +1533,8 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     min::type_of ( lstub ) == min::LONG_OBJ true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
-lh: 4 lht: 7033 lua: 70003 lav: 0 laa: 0 lt: 77040
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
+lh: 4 lht: 7000 lua: 70000 lav: 0 laa: 0 lt: 77004
 min_interface_test.cc:XXXX assert:
     lht >= 7000 true.
 min_interface_test.cc:XXXX assert:
@@ -1558,8 +1549,6 @@ min_interface_test.cc:XXXX assert:
     MUP::body_size_of ( lstub ) == lt * sizeof ( min::gen ) true.
 ../include/min.h:XXXX assert:
     type == READONLY true.
-../include/min.h:XXXX assert:
-    t == LONG_OBJ true.
 
 Finish Objects Test!
 
@@ -1567,7 +1556,7 @@ Start Object Vector Level Test!
 
 Test short object vector level:
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::attr_size_of ( vp ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1613,7 +1602,7 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[av+1] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -1778,10 +1767,12 @@ min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::var_size_of ( vp ) == 20 true.
 min_interface_test.cc:XXXX assert:
@@ -1791,7 +1782,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     vp == min::NULL_STUB true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     vp == sstub true.
 min_interface_test.cc:XXXX assert:
@@ -1811,7 +1802,7 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     vp == min::NULL_STUB true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     vp == sstub true.
 min_interface_test.cc:XXXX assert:
@@ -1823,7 +1814,7 @@ min_interface_test.cc:XXXX assert:
 
 Test long object vector level:
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::attr_size_of ( vp ) == 0 true.
 min_interface_test.cc:XXXX assert:
@@ -1867,11 +1858,9 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    t == LONG_OBJ true.
-../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     base[av+1] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -2041,21 +2030,17 @@ min_interface_test.cc:XXXX assert:
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
-    t == LONG_OBJ true.
-../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     min::var_size_of ( vp ) == 20 true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) >= 10 true.
 ../include/min.h:XXXX assert:
     type == READONLY true.
-../include/min.h:XXXX assert:
-    t == LONG_OBJ true.
 min_interface_test.cc:XXXX assert:
     vp == min::NULL_STUB true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     vp == sstub true.
 min_interface_test.cc:XXXX assert:
@@ -2072,20 +2057,16 @@ min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 ../include/min.h:XXXX assert:
     type == READONLY true.
-../include/min.h:XXXX assert:
-    t == LONG_OBJ true.
 min_interface_test.cc:XXXX assert:
     vp == min::NULL_STUB true.
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     vp == sstub true.
 min_interface_test.cc:XXXX assert:
     min::var_size_of ( vp ) == 20 true.
 ../include/min.h:XXXX assert:
     type == READONLY true.
-../include/min.h:XXXX assert:
-    t == LONG_OBJ true.
 min_interface_test.cc:XXXX assert:
     vp == min::NULL_STUB true.
 
@@ -2095,8 +2076,8 @@ Start Object List Level Test!
 
 Test short object aux stubs list level:
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
- VORG 122 VSIZE 510 USIZE 0 TSIZE 632
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
+ VORG 122 VSIZE 1924 USIZE 0 TSIZE 2046
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2380,8 +2361,8 @@ min_interface_test.cc:XXXX assert:
 
 Test short object aux area list level:
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
- VORG 122 VSIZE 510 USIZE 0 TSIZE 632
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
+ VORG 122 VSIZE 1924 USIZE 0 TSIZE 2046
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2820,8 +2801,8 @@ min_interface_test.cc:XXXX assert:
 
 Test short object alternate aux list level:
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
- VORG 122 VSIZE 826 USIZE 0 TSIZE 948
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
+ VORG 122 VSIZE 2924 USIZE 0 TSIZE 3046
 ../include/min.h:XXXX assert:
     lp.head_index < unprotected::unused_offset_of ( lp.vecp ) true.
 min_interface_test.cc:XXXX assert:
@@ -2935,8 +2916,6 @@ min_interface_test.cc:XXXX assert:
 EMPTYING UNUSED AREA
 ../include/min.h:XXXX assert:
     insertions <= elements true.
-min_interface_test.cc:XXXX assert:
-    next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
 RESIZE HAPPENED
@@ -3186,7 +3165,7 @@ Finish Object List Level Test!
 
 Start Object Attribute Level Test!
 ../include/min.h:XXXX assert:
-    ( * flags_p & OBJ_PRIVATE ) == 0 true.
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
 min_interface_test.cc:XXXX assert:
     next + 2 * m <= end_body_region true.
 min_interface_test.cc:XXXX assert:

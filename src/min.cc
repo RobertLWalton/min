@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 10 06:25:31 EST 2012
+// Date:	Fri Feb 10 20:37:27 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2335,7 +2335,7 @@ min::gen min::new_obj_gen
     min::gen * p;  // First element of object vector.
     int type;
 
-    if ( MIN_IS_LOOSE
+    if ( MIN_IS_COMPACT
          &&
 	 var_size < MASK ( HSIZE ( TINY_OBJ ) )
          &&
@@ -2529,7 +2529,7 @@ bool min::resize
 
     int new_type;
 
-    if ( MIN_IS_LOOSE
+    if ( MIN_IS_COMPACT
          &&
 	 var_size < MASK ( HSIZE ( TINY_OBJ ) )
          &&
