@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 7, 2012}
+\date{February 13, 2012}
  
 \maketitle
 
@@ -3235,8 +3235,11 @@ virtual memory so references to it will cause program terminating
 memory fault.  For many stubs, this is the only possible 
 type change.  However some bodies may not only be relocated, but
 may be reorganized, causing their stub to change type.  An example
-is objects, which can have stub type {\tt min::\EOL SHORT\_\EOL OBJ} or
-{\tt min::\EOL LONG\_\EOL OBJ}, and may be reorganized during relocation to
+is objects, which can have stub type {\tt min::\EOL TINY\_\EOL OBJ},
+{\tt min::\EOL SHORT\_\EOL OBJ},
+{\tt min::\EOL LONG\_\EOL OBJ},
+or {\tt min::\EOL HUGE\_\EOL OBJ},
+and may be reorganized during relocation to
 become more compact.  Usually such stubs are marked when they
 are in use by a function that calls relocating functions so that
 they will not change type (except for deallocation) and their
@@ -8163,27 +8166,19 @@ its variable vector.  An object may be compacted to eliminate, or less
 commonly to shrink, its unused area, and possibly to shrink its hash
 table.
 
-There are two kinds of objects: short and long.  A \key{short object}
-has an 8 byte header that stores 16 bit unsigned sizes.
-A \key{long object}
-has a 16 byte header that stores 32 bit unsigned sizes.
-Otherwise there is
-no essential difference between a short and a long object.%
-\footnote{Provision is made to permit future implement of two
-additional kinds of objects, a \key{tiny object} with 4 byte header
-and 8 bit unsigned sizes that can only be implemented for
-compact implementations with 32 bit {\tt min::gen} values because
-otherwise the header size would a 1/2, and
-a \key{huge object}\label{HUGE_OBJECT}
-with 32 byte header and 64 bit unsigned sizes that
-can only be implemented for loose implementations with 64 bit
-{\tt min::gen} values because otherwise auxiliary pointers would not
-be able to point into the auxiliary area.}
+There are four kinds of objects: tiny, short, long, and huge.
+These have respectively 4, 8, 16, and 32 byte headers, and are capable
+of storing information for successively larger objects.
+There is no essential difference between these headers and their
+internal structure is not visible.  There is no practical limit on
+the size of an object%
+\footnote{There is currently a limit of $2^62$ bytes but currenly
+the maximum virtual address space size is $2^48$ bytes.}.
 
 An object body may be \smkey{relocate}d{object body}, which means the
 body is simply copied to a new address, or
 \smkey{reorganize}d{object body}, which means the object body is reformatted,
-and possibly converted from short to long or vice versa.  Frequently an
+and possibly converted from one header size to another.  Frequently an
 object whose attribute labels and number of values for each label are no
 longer subject to change will be compacted, to make it as small as possible,
 and this is one kind of object body reorganization.
@@ -8192,8 +8187,8 @@ function that sets the
 object {\tt OBJ\_\EOL PUBLISH} flag which prevents changes to the
 attribute labels, attribute label flags, and number of attribute values
 of an object.
-Reorganization can also occur whenever an object is relocated,
-provided that the {\tt OBJ\_\EOL PRIVATE} and
+Reorganization can also occur whenever an object is relocated by the
+compactor, provided that the {\tt OBJ\_\EOL PRIVATE} and
 {\tt OBJ\_\EOL PUBLIC} object flags are not set.
 
 The data structure of an object body can be viewed at any of three levels:
@@ -8208,45 +8203,6 @@ typed object interface (\itemref{TYPED-OBJECTS}).
 \subsubsection{Object Creation}
 \label{OBJECT-CREATION}
 
-An object header encodes the variables vector size,
-hash table size, and total size of the object
-indirectly using a logarithmic or pseudo-floating-point code.
-Therefore not every variables vector size,
-hash table size, or total size is supported.
-In order to create an object it is necessary to determine possible
-variable vector, hash table, and total sizes.
-
-Note that all sizes are in \verb|min::gen| units.
-
-The following functions return the smallest
-possible size equal to or greater than the function argument,
-\underline{unless} all possible sizes are less than the function argument,
-in which case the largest possible size is returned.  The caller of
-one of these functions must check the returned value to be sure it is
-as large as the function argument.
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|min::unsptr min::|
-    & \MINKEY{obj\_var\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_VAR_SIZE} \\
-\verb|min::unsptr min::|
-    & \MINKEY{obj\_hash\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_HASH_SIZE} \\
-\verb|min::unsptr min::|
-    & \MINKEY{obj\_total\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_TOTAL_SIZE} \\
-\end{tabular}\end{indpar}
-
-Maximum possible total, hash table, and variables vector
-size values can be determined
-by presenting these functions with the \verb|u| argument value
-`\verb|min::unsptr(-1)|'.
-
-All power of two sizes not larger than the maximum sizes are
-supported.  In particular, hash table sizes that are powers
-of two are supported, so hash values can be mapped to
-hash table indices by simple masking.
-
 An object can be created by the protected function:
 
 \begin{indpar}\begin{tabular}{r@{}l}
@@ -8255,68 +8211,40 @@ An object can be created by the protected function:
     \verb| ( min::unsptr unused_size,| \\
     \verb|   min::unsptr hash_size = 0,| \\
     \verb|   min::unsptr variable_size = 0 )| \\
+    \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \end{tabular}\end{indpar}
 
-The variables vector size of the returned object is the smallest possible
-variables vector size that is at least as large as that given.
-The hash table size of the returned object is the smallest possible
-hash table size that is at least as large as that given.  The total
-size of the returned object is the smallest possible total size
-that is at least as large as the sum of
-the actual variables vector size, the actual hash table size,
-the unused area size given, and the header size.
-Then the actual unused size is set by subtracting the other sizes from
-the total size; this actual size is never smaller than the given size.
-Note that if the given sizes of the variables vector and hash table
-are powers of two
-not greater than the maximums allowed, the corresponding actual sizes will
-be equal to the given sizes.
+The new object has a zero length attribute vector, but this can be
+expanded by growing the attribute vector upward into the unused area.
+Similarly the auxilarly area is zero length, but can be expanded by
+growing downward into th unused area.  The variable vector and
+hash table sizes, however, are fixed, though they can be changed
+by the {\tt min::\EOL resize} function
+(\pagref{MIN::RESIZE_UNUSED_AND_VAR_OF_VEC_INSPTR}).
 
-The returned object is short if the given sizes are small enough.
-Otherwise the object is long.
-It is a fatal programming error if no possible hash table or total size
-is large enough, but this is unlikely, given the large sizes allowed
-by a long object.
+Allocators often maintain sets of free memory blocks of particular
+sizes, often powers of two, and allocate new object bodies to one
+of these blocks.  In such a case the block may be larger than the
+requested body size.  If the `{\tt expand}' argument is {\tt true},
+{\tt min::\EOL new\_\EOL obj\_\EOL gen} will round the unused area
+size of the new object up so that the new object body fills the
+free block to which it is allocated.
 
-The sizes allowed for short and long objects are implementation dependent.
-The maximum sizes are available as the value of the following:
-
-\begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::unsptr min::| & \MINNBKEY{SHORT\_OBJ\_MAX\_VAR\_SIZE}
-\LABEL{MIN::SHORT_OBJ_MAX_VAR_SIZE} \\
-\verb|const min::unsptr min::| & \MINNBKEY{SHORT\_OBJ\_MAX\_HASH\_SIZE}
-\LABEL{MIN::SHORT_OBJ_MAX_HASH_SIZE} \\
-\verb|const min::unsptr min::| & \MINNBKEY{SHORT\_OBJ\_MAX\_TOTAL\_SIZE}
-\LABEL{MIN::SHORT_OBJ_MAX_TOTAL_SIZE} \\
-\verb|const min::unsptr min::| & \MINNBKEY{LONG\_OBJ\_MAX\_VAR\_SIZE}
-\LABEL{MIN::LONG_OBJ_MAX_VAR_SIZE} \\
-\verb|const min::unsptr min::| & \MINNBKEY{LONG\_OBJ\_MAX\_HASH\_SIZE}
-\LABEL{MIN::LONG_OBJ_MAX_HASH_SIZE} \\
-\verb|const min::unsptr min::| & \MINNBKEY{LONG\_OBJ\_MAX\_TOTAL\_SIZE}
-\LABEL{MIN::LONG_OBJ_MAX_TOTAL_SIZE} \\
-\end{tabular}\end{indpar}
-
-{\tt MIN::LONG\_OBJ\_MAX\_TOTAL\_SIZE} is $2^{24}$ for a compact implementation
-(as auxiliary pointers are 24 bits)
-and $2^{32}$ for a loose implementation (as long object headers store at most
-32 bit unused and auxiliary area offsets).%
-\footnote{{\tt MIN::LONG\_OBJ\_MAX\_TOTAL\_SIZE} could be $2^{40}$ for
-a loose implementation with 40 bit auxiliary pointers if
-huge objects were implemented (\pagref{HUGE_OBJECT}).}
-{\tt MIN::SHORT\_OBJ\_MAX\_TOTAL\_SIZE} is typically $2^{12}$ as having a
-smaller header is not important for larger sizes and the left over header bits
-are needed for flags.
+On the flip side, the compactor may reduce the size of the unused
+area.  For an object that has been around a long enough time, the
+compactor may eliminate the unused area completely, and may reorganize
+the object to downsize its hash table and compact its auxiliary area.
 
 The hash table of the returned object is filled with \verb|min::LIST_END|
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
-The variables vector is filled with \verb|min::UNDEFINED| values.
+The variable vector is filled with \verb|min::UNDEFINED| values.
 Unused area elements are initialized to some implementation defined
 value like \verb|0| or \verb|min::NONE|.
 The attribute vector and auxiliary areas of the returned object are
 zero length, and all space not used by the header, hash table, and
-variables vector is allocated to the unused area.
+variable vector is allocated to the unused area.
 The attribute vector and auxiliary area can be
 filled by `push' instructions described below
 (\pagref{OBJECT_PUSH_FUNCTIONS}).
@@ -8329,6 +8257,18 @@ object by the function:
 \LABEL{MIN::IS_OBJ} \\
 \end{tabular}\end{indpar}
 
+The {\tt min::type\_of} function (\pagref{MIN::TYPE_OF_GEN})
+applied to an object returns one of the following:
+
+\begin{center}
+\begin{tabular}{l}
+\ttnbkey{TINY\_OBJ}\LABEL{MIN::TINY_OBJ} \\
+\ttnbkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} \\
+\ttnbkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} \\
+\ttnbkey{HUGE\_OBJ}\LABEL{MIN::HUGE_OBJ} \\
+\end{tabular}
+\end{center}
+
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
 
@@ -8339,18 +8279,21 @@ for the header, consists of \verb|min::gen| elements of the
 body vector.
 A \key{body vector index} is an index of an element in this vector,
 and ranges from 0
-to one less than the total size of the object, which is the size of
-the body vector.  The index 0 cannot be used, as it corresponds to the
+to one less than the total size of the object,
+which is the size of the body vector in {\tt min::\EOL gen} units.
+The index 0 cannot be used, as it corresponds to the
 header, which does not contain \verb|min::gen| values.
 It can be used as a form of null pointer.
 
 An auxiliary pointer index \verb|i| corresponds to the
-body vector index \verb|total_size - i|, so \verb|i=1| corresponds
+body vector index total size {\tt - i}, so \verb|i=1| corresponds
 to the last element of the auxiliary area.
 The 0 auxiliary pointer index corresponds to the location just
 beyond the body vector and is not
 usable as the index of auxiliary area element, so it
-can also be used as a form of null pointer.
+can also be used as a form of null pointer.  By indexing auxiliarly
+area elements in this way, the unused area size can be changed without
+changing any auxiliary pointers.
 
 There are three kinds of vector level protected object pointers.
 A read-only {\tt min::\EOL obj\_\EOL vec\_\EOL ptr} pointer
@@ -8375,7 +8318,7 @@ created.  The object is therefore private to the code possessing the
 vector pointer.
 
 If an object has neither flag, its \verb|min::OBJ_PUBLIC| flag may be set
-by calling the `{\tt min::\EOL publish\REL}' function
+by calling the {\tt min::\EOL publish\REL} function
 (\pagref{MIN::PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
@@ -8386,8 +8329,13 @@ protected functions.  The idea here is that setting the \verb|min::OBJ_PUBLIC|
 flag fixes the attribute label structure of the object, the flags attached
 to attribute labels, and the size of
 the value multiset of each attribute, but permits the existing values of an
-attribute to be read or written.  This permits read-only and limited
-read-write sharing of the object.
+attribute to be read or written.  This permits read-only
+sharing of the object and read-write sharing of attribute values of the
+object, but does not permit attribute values to be added to or deleted
+from the object.
+
+An object with its {\tt min::OBJ\_PUBLIC} flag set is said to be a
+\ikey{public}{object} object.
 
 Note that object bodies can be relocated whenever a
 relocating function (\pagref{RELOCATING-FUNCTIONS}) is called.
@@ -8397,7 +8345,8 @@ function only if neither the
 Object bodies may also be reorganization when insertions are made
 using the {\tt min::\EOL insert\_\EOL reserve\REL} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
-or when the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
+and object bodies are usually reorganized
+when the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
 by the {\tt min::\EOL publish\REL} function (\pagref{MIN::PUBLISH}).
 
 \subsubsubsection{Protected Object Vector Pointers}
@@ -8445,7 +8394,14 @@ pointer constructor also creates an object pointer equal to
 set a object pointer just as a constructor with the {\tt =} right side
 as the constructor argument would.
 
-Note that unlike label, packed structure, or packed vector pointers,
+Because an object vector pointer can be converted to a
+{\tt const min::\EOL stub~*} value, it is possible to check whether
+an object vector pointer equals {\tt min::\EOL NULL\_\EOL STUB}
+by using the {\tt == function}.  It is also possible to set one
+vector pointer from another, as the latter will be converted to a
+{\tt const min::\EOL stub~*} value, provided the object is public.
+
+Unlike label, packed structure, or packed vector pointers,
 object vector pointers cache information about the object, and must always
 be writable, and never {\tt const}.
 
@@ -8477,23 +8433,26 @@ about the object pointed at by a read-only {\tt min::obj\_vec\_ptr}:
 
 Here the sizes are in \verb|min::gen| units.  When an object
 body is reorganized, some of these sizes may change, but simply
-relocating the object body does not change these sizes.
+relocating the object body does not change these sizes.  The
+automatic resizing of the object that may occur when new elements
+are pushed into the attribute vector or auxiliarly area only changes
+the unused size.
 
 The following functions can be used for \underline{read-only}
 access to object elements:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 
-\verb|min::gen | & \MINKEY{var}%
+\verb|const min::gen & | & \MINKEY{var}%
     \verb| ( min::obj_vec_ptr & vp, min::unsptr index )|
 \LABEL{MIN::VAR_OF_OBJ_VEC_PTR} \\
-\verb|min::gen | & \MINKEY{hash}%
+\verb|const min::gen & | & \MINKEY{hash}%
     \verb| ( min::obj_vec_ptr & vp, min::unsptr index )|
 \LABEL{MIN::HASH_OF_OBJ_VEC_PTR} \\
-\verb|min::gen | & \MINKEY{attr}%
+\verb|const min::gen & | & \MINKEY{attr}%
     \verb| ( min::obj_vec_ptr & vp, min::unsptr index )|
 \LABEL{MIN::ATTR_OF_OBJ_VEC_PTR} \\
-\verb|min::gen | & \MINKEY{aux}%
+\verb|const min::gen & | & \MINKEY{aux}%
     \verb| ( min::obj_vec_ptr & vp, min::unsptr aux_ptr )|
 \LABEL{MIN::AUX_OF_OBJ_VEC_PTR} \\
 
@@ -8522,7 +8481,7 @@ The operations
 \begin{indpar}\begin{tabular}{r@{}l@{\hspace*{1.4in}}l}
 \verb|const min::gen & |
 	& \TTOMKEY{[ ]}{[ ]}{of {\tt min::obj\_vec\_ptr}}
-	& [similar to {\tt min::attr}]\\&
+	& [same as {\tt min::attr}]\\&
 	  \multicolumn{2}{l}{~(~const min::obj\_vec\_ptr \& vp,}\\&
 	  \multicolumn{2}{l}{~~~min::unsptr index )}
 \LABEL{MIN::[]_OF_OBJ_VEC_PTR} \\
@@ -8534,12 +8493,11 @@ The operations
 
 are can be used as alternatives that make the attribute
 vector part of an object look like a simple vector.
-{\tt vp[i]} differs from {\tt min::\EOL attr(vp,i)} in that
-the former can be cast to an address within the object body vector,
-whereas the latter produces a {\tt min::gen}
-temporary value whose address is useless.  Note, however,
-that {\tt \&vp[i]} is a relocatable address, and so it should only
-be passed to a non-relocating function like {\tt memcpy}.
+
+Note that addresses such as {\tt \&min::\EOL var(vp,i)} and
+{\tt \&vp[i]} are relocatable addresses, and as such should only
+be passed to a non-relocating function like {\tt memcpy},
+and never saved in a local variable.
 Both {\tt vp[i]} and {\tt min::\EOL attr(vp,i)} include a 
 {\tt MIN\_\EOL ASSERT} check that
 $0\leq i<\mbox{\tt min::\EOL attr\_\EOL size\_\EOL of(vp)}$.
@@ -8567,7 +8525,9 @@ pointer to the {\tt i}+1'st element, and includes a
 size of the attribute vector.  The {\tt min::\EOL begin\_\EOL ptr\_\EOL of}
 and {\tt min::\EOL end\_\EOL ptr\_\EOL of} functions are the same as
 {\tt vp + 0} and {\tt vp + min::\EOL size\_\EOL of(vp)} but do
-not include this {\tt MIN\_\EOL ASSERT} check.
+not include this {\tt MIN\_\EOL ASSERT} check, so that, for
+example, {\tt min::\EOL begin\_\EOL ptr\_\EOL of} can be used when
+the attribure vector has zero length.
 
 A \minkey{obj\_vec\_updptr} read-write (update) object vector
 pointer is like a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
@@ -8655,12 +8615,12 @@ to permit writting elements.  Its functions are:
 \LABEL{MIN::END_PTR_OF_OBJ_VEC_UPDPTR} \\
 \end{tabular}\end{indpar}
 
-Read-write element access
+Updatable pointer read-write element access
 functions return {\tt min::\EOL ref<min::gen>}
-or {\tt min::\EOL ptr<min::gen>} while read-only
+or {\tt min::\EOL ptr<min::gen>} values while read-only pointer
 element access functions return
-{\tt min::gen}, `{\tt const min::\EOL gen~\&}', or
-{\tt min::\EOL ptr<const min::gen>}.
+`{\tt const min::\EOL gen~\&}' or
+{\tt min::\EOL ptr<const min::gen>} values.
 
 A {\tt min::\EOL obj\_\EOL vec\_\EOL updptr} read-write pointer
 may be automatically
@@ -8669,17 +8629,13 @@ This means that
 the non-constructor functions not redefined above that are applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s.
-Exceptions are destructors, the {\tt min::\EOL ini\-tial\-ize}
-functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
-will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
-downcast object vector pointer.
 
 A \minkey{obj\_vec\_insptr} insertable object vector pointer is like a
 {\tt min::obj\_\EOL vec\_\EOL updptr} read-write object vector pointer
 but has additional functions which support pushing or popping elements
 from the end of the object body attribute vector or the beginning
 of the object body auxiliary area and resizing the unused area and
-variables vector portions of the object body.
+variable vector portions of the object body.
 The additional functions for this type of pointer are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -8712,73 +8668,54 @@ The additional functions for this type of pointer are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-
-\verb|void min::| & \MINKEY{attr\_push}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::gen value )| \\
-      \end{tabular}
+\verb|void min::ref<min::gen> min::| & \MINKEY{attr\_push}%
+      \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::ATTR_PUSH_OF_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{attr\_push}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   const min::gen * p, min::unsptr n )| \\
-      \end{tabular}
-\LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
-
-\verb|void min::| & \MINKEY{aux\_push}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::gen value )| \\
-      \end{tabular}
+\verb|void min::ref<min::gen> min::| & \MINKEY{aux\_push}%
+      \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::AUX_PUSH_OF_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{aux\_push}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   const min::gen * p, min::unsptr n )| \\
-      \end{tabular}
-\LABEL{MIN::AUX_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
-
 \end{tabular}\end{indpar}\label{OBJECT_PUSH_FUNCTIONS}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-
-\verb|void min::| & \MINKEY{attr\_pop}%
+\verb|void min::| & \MINKEY{attr\_push}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::gen & value )| \\
+      \verb|   min::unsptr n, const min::gen * p = NULL )| \\
       \end{tabular}
-\LABEL{MIN::ATTR_POP_OF_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{attr\_pop}%
+\LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{aux\_push}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::gen * p, min::unsptr n )| \\
+      \verb|   min::unsptr n, const min::gen * p = NULL )| \\
       \end{tabular}
-\LABEL{MIN::ATTR_POP_MULTIPLE_OF_VEC_INSPTR} \\
-
-\verb|void min::| & \MINKEY{aux\_pop}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::gen & value )| \\
-      \end{tabular}
-\LABEL{MIN::AUX_POP_OF_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{aux\_pop}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::gen * p, min::unsptr n )| \\
-      \end{tabular}
-\LABEL{MIN::AUX_POP_MULTIPLE_OF_VEC_INSPTR} \\
-
+\LABEL{MIN::AUX_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|min::gen min::| & \MINKEY{attr\_pop}%
+      \verb| ( min::obj_vec_insptr & vp )|
+\LABEL{MIN::ATTR_POP_OF_VEC_INSPTR} \\
+\verb|min::gen min::| & \MINKEY{aux\_pop}%
+      \verb| ( min::obj_vec_insptr & vp )|
+\LABEL{MIN::AUX_POP_OF_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
 
-\verb|bool min::| & \MINKEY{resize\REL}%
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{attr\_pop}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::unsptr unused_size )| \\
+      \verb|   min::unsptr n, min::gen * p = NULL )| \\
       \end{tabular}
-\LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
+\LABEL{MIN::ATTR_POP_MULTIPLE_OF_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{aux\_pop}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::obj_vec_insptr & vp,| \\
+      \verb|   min::unsptr n, min::gen * p = NULL )| \\
+      \end{tabular}
+\LABEL{MIN::AUX_POP_MULTIPLE_OF_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{resize\REL}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
@@ -8786,7 +8723,18 @@ The additional functions for this type of pointer are:
       \verb|   min::unsptr var_size )| \\
       \end{tabular}
 \LABEL{MIN::RESIZE_UNUSED_AND_VAR_OF_VEC_INSPTR} \\
-
+\verb|bool min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::obj_vec_insptr & vp,| \\
+      \verb|   min::unsptr unused_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
+\verb|bool min::| & \MINKEY{expand\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::obj_vec_insptr & vp,| \\
+      \verb|   min::unsptr unused_size )| \\
+      \end{tabular}
+\LABEL{MIN::EXPAND_UNUSED_OF_VEC_INSPTR} \\
 \end{tabular}\end{indpar}
 
 The push functions push values to the end of the attribute vector
@@ -8807,36 +8755,45 @@ in the order \verb|p[n-1]|, \verb|p[n-2]|, \verb|p[n-3]|, \ldots.
 The order of the elements of {\tt p} in memory is the same
 as the order of the elements in the object body.
 
-The push functions fail (via \verb|MIN_ASSERT|) if the unused
-area size is smaller
-than the number of {\tt min::gen} values being pushed.
-The size of the unused area can be determined by the
-\verb|min::unused_size_of| function
-(\pagref{MIN::UNUSED_SIZE_OF_OBJ_VEC_PTR}).
-These push functions invoke the
-{\tt min::\EOL acc\_\EOL write\_\EOL update}
-Accumu\-la\-tor/\EOL Col\-lec\-tor/\EOL Com\-pac\-tor function
-(\pagref{MUP::ACC_WRITE_GEN_UPDATE}) that must
-be called when a \verb|min::gen| value is written into an object.
+If the push functions are called with argument {\tt p = NULL},
+they set the elements pushed to zero.
+If the pop functions are called with argument {\tt p = NULL},
+they discard the values of the popped elements.
 
-The {\tt min::resize\REL} functions change the size of the unused
-area and variables vector.  The sizes can be either increased or
-decreased.  Elements added to the variables vector are added to
+If the push functions are called when the unused
+area size is smaller by $k$ elements
+than the number of {\tt min::gen} values being pushed, these
+functions call the {\tt min::\EOL expand} function (see below)
+to add $k$ elements to the unused area before the push is executed.
+
+The 4-argument {\tt min::resize\REL} function changes the size of the unused
+area and variable vector.  The sizes can be either increased or
+decreased.  Elements added to the variable vector are added to
 its end and initialized with the value {\tt min::\EOL UNDEFINED}.
-The object body may be relocated by these functions in order to
-resize it, and may be converted from a short object to a long
-object or vice versa.  The sizes of the attribute vector and
+The unused area is zeroed.
+The object body may be relocated by this function in order to
+resize it, and its header size may be changed.
+The sizes of the attribute vector and
 auxiliary area are not changed, but can be changed by later pushes
 and pops.
-No change is made to object contents outside the unused
-area, whose elements are reinitialized to some implementation defined
-value like \verb|0| or \verb|min::NONE|.
+No change is made to retained object elements outside the unused area.
 
-The {\tt min::resize\REL} functions return \verb|true| if they
-relocate the object's body, and \verb|false| if they do not.
-They set the relocated flag (\pagref{RELOCATED-FLAG}) if they
-relocate any \underline{other} body, but not if they just relocate
-the body being resized.
+The `{\tt expand}' argument, like that `{\tt expand}'
+of the {\tt min::\EOL new\_\EOL obj\_\EOL gen} function
+(\pagref{MIN::NEW_OBJ_GEN}), controls whether the allocator rounds up
+the unused area size of the new object up so that the new object body fills the
+free block to which it is allocated.
+
+The {\tt min::resize\REL} function returns \verb|true| if it
+relocated the object's body, and \verb|false| if it did not.
+
+The 2-argument {\tt min::resize} function is equivalent to the
+4-argument function with no change in variable vector size and \verb|false|
+{\tt expand} argument.
+
+The 2-argument {\tt min::expand} function is equivalent to the
+4-argument function with no change in variable vector size and \verb|true|
+{\tt expand} argument.
 
 It is \underline{not}
 possible to resize the hash table with these functions because
@@ -8853,10 +8810,6 @@ all the non-constructor functions applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s or
 {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL insptr}'s.
-Exceptions are destructors, the {\tt min::\EOL ini\-tial\-ize}
-functions, and the {\tt min::\EOL de\-ini\-tial\-ize} functions, which
-will suffer a {\tt MIN\_\EOL ASSERT} error if applied to a
-downcast object vector pointer.
 
 \subsubsubsection{Unprotected Object Vector Level}
 \label{OBJECT-UNPROTECTED-VECTOR-LEVEL}
@@ -9013,7 +8966,7 @@ may be flagged, thereby identifying objects that need extra work
 when deallocated or reorganized.
 
 An implementation is not required to support all possible values of
-the variables vector size, hash table size, or total size, but should support
+the variable vector size, hash table size, or total size, but should support
 values that permit objects that are read-only to be efficiently compacted.
 Size values that are powers of two and not
 greater than the maximum supported sizes must be supported.
@@ -11300,10 +11253,14 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::PACKED_STRUCT} \\
 \verb|const int min::| & \MINKEY{PACKED\_VEC}
 \LABEL{MIN::PACKED_VEC} \\
+\verb|const int min::| & \MINKEY{TINY\_OBJ}
+\LABEL{MIN::TINY_OBJ} \\
 \verb|const int min::| & \MINKEY{SHORT\_OBJ}
 \LABEL{MIN::SHORT_OBJ} \\
 \verb|const int min::| & \MINKEY{LONG\_OBJ}
 \LABEL{MIN::LONG_OBJ} \\
+\verb|const int min::| & \MINKEY{HUGE\_OBJ}
+\LABEL{MIN::HUGE_OBJ} \\
 \verb|const int min::| & \MINKEY{LIST\_AUX}
 \LABEL{MIN::LIST_AUX} \\
 \verb|const int min::| & \MINKEY{SUBLIST\_AUX}
@@ -12421,24 +12378,6 @@ In loose implementation: \\
 
 \begin{indpar}[0.2in]
 
-\begin{TABULAR}{1.5in}
-\verb|min::unsptr min::|
-    & \MINKEY{obj\_var\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_VAR_SIZE} \\
-\verb|min::unsptr min::|
-    & \MINKEY{obj\_hash\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_HASH_SIZE} \\
-\verb|min::unsptr min::|
-    & \MINKEY{obj\_total\_size}\verb| ( min::unsptr u )|
-\LABEL{MIN::OBJ_TOTAL_SIZE} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\medskip
-
-\begin{indpar}[0.2in]
-
 \begin{TABULAR}{1.2in}
 \verb|min::gen min::| & \MINKEY{new\_obj\_gen\REL}\ARGBREAK
     \verb| ( min::unsptr unused_size,|\ARGBREAK
@@ -12684,56 +12623,66 @@ In loose implementation: \\
 
 \medskip
 
+\begin{TABULAR}{2.6in}
+\verb|void min::ref<min::gen> min::| & \MINKEY{attr\_push}\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp )|
+\LABEL{MIN::ATTR_PUSH_OF_VEC_INSPTR} \\
+\verb|void min::ref<min::gen> min::| & \MINKEY{aux\_push}\ARGBREAK
+      \verb| ( min::obj_vec_insptr & vp )|
+\LABEL{MIN::AUX_PUSH_OF_VEC_INSPTR} \\
+\end{TABULAR}
+
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{attr\_push}\ARGBREAK
       \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::gen value )|
-\LABEL{MIN::ATTR_PUSH_OF_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{attr\_push}\ARGBREAK
-      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   const min::gen * p, min::unsptr n )|
+      \verb|   min::unsptr n, const min::gen * p = NULL )|
 \LABEL{MIN::ATTR_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
-
 \verb|void min::| & \MINKEY{aux\_push}\ARGBREAK
       \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::gen value )|
-\LABEL{MIN::AUX_PUSH_OF_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{aux\_push}\ARGBREAK
-      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   const min::gen * p, min::unsptr n )|
+      \verb|   min::unsptr n, const min::gen * p = NULL )|
 \LABEL{MIN::AUX_PUSH_MULTIPLE_OF_VEC_INSPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{attr\_pop}\ARGBREAK
-      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::gen & value )|
+\verb|min::gen min::| & \MINKEY{attr\_pop}%
+      \verb| ( min::obj_vec_insptr & vp )|
 \LABEL{MIN::ATTR_POP_OF_VEC_INSPTR} \\
+\verb|min::gen min::| & \MINKEY{aux\_pop}%
+      \verb| ( min::obj_vec_insptr & vp )|
+\LABEL{MIN::AUX_POP_OF_VEC_INSPTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{attr\_pop}\ARGBREAK
       \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::gen * p, min::unsptr n )|
+      \verb|   min::unsptr n, min::gen * p = NULL )|
 \LABEL{MIN::ATTR_POP_MULTIPLE_OF_VEC_INSPTR} \\
-
 \verb|void min::| & \MINKEY{aux\_pop}\ARGBREAK
       \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::gen & value )|
-\LABEL{MIN::AUX_POP_OF_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{aux\_pop}\ARGBREAK
-      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::gen * p, min::unsptr n )|
+      \verb|   min::unsptr n, min::gen * p = NULL )|
 \LABEL{MIN::AUX_POP_MULTIPLE_OF_VEC_INSPTR} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|bool min::| & \MINKEY{resize\REL}\ARGBREAK
-      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::unsptr unused_size )|
-\LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
-\verb|bool min::| & \MINKEY{resize\REL}\ARGBREAK
-      \verb| ( min::obj_vec_insptr & vp,|\ARGBREAK
-      \verb|   min::unsptr unused_size,|\ARGBREAK
-      \verb|   min::unsptr var_size )|
+\verb|void min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::obj_vec_insptr & vp,| \\
+      \verb|   min::unsptr unused_size,| \\
+      \verb|   min::unsptr var_size )| \\
+      \end{tabular}
 \LABEL{MIN::RESIZE_UNUSED_AND_VAR_OF_VEC_INSPTR} \\
+\verb|bool min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::obj_vec_insptr & vp,| \\
+      \verb|   min::unsptr unused_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
+\verb|bool min::| & \MINKEY{expand\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::obj_vec_insptr & vp,| \\
+      \verb|   min::unsptr unused_size )| \\
+      \end{tabular}
+\LABEL{MIN::EXPAND_UNUSED_OF_VEC_INSPTR} \\
 \end{TABULAR}
 
 \end{indpar}
