@@ -1655,8 +1655,6 @@ min_interface_test.cc:XXXX assert:
     base[av+0] == num0 true.
 min_interface_test.cc:XXXX assert:
     cua == av + 0 true.
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     base[av] == num1 true.
 ../include/min.h:XXXX assert:
@@ -1673,8 +1671,6 @@ min_interface_test.cc:XXXX assert:
     base[av+2] == num0 true.
 min_interface_test.cc:XXXX assert:
     base[av+3] == num0 true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
@@ -1701,8 +1697,6 @@ min_interface_test.cc:XXXX assert:
     base[aa-1] == num0 true.
 min_interface_test.cc:XXXX assert:
     caa == aa true.
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     base[aa-1] == num1 true.
 ../include/min.h:XXXX assert:
@@ -1721,8 +1715,6 @@ min_interface_test.cc:XXXX assert:
     base[aa-3] == num0 true.
 min_interface_test.cc:XXXX assert:
     base[aa-4] == num0 true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     base[aa-4] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -1768,8 +1760,6 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX assert:
     vp.attr_offset + n <= vp.unused_offset false.
 ../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
-../include/min.h:XXXX assert:
     vp.aux_offset + n <= vp.total_size true.
 ../include/min.h:XXXX assert:
     vp.aux_offset < vp.total_size true.
@@ -1795,24 +1785,10 @@ min_interface_test.cc:XXXX desire failure:
     min::aux_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX assert:
     vp.aux_offset + n <= vp.total_size false.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == 0 true.
 min_interface_test.cc:XXXX assert:
     cua == caa true.
-min_interface_test.cc:XXXX desire failure:
-    min::attr_push(vp) = num3
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset false.
-min_interface_test.cc:XXXX desire failure:
-    min::aux_push(vp) = num3;
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset false.
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 min_interface_test.cc:XXXX assert:
@@ -1877,6 +1853,56 @@ min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 ../include/min.h:XXXX assert:
     type == READONLY true.
+../include/min.h:XXXX assert:
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::unused_size_of ( vp ) >= 10 true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    min::unused_size_of ( vp ) == 0 true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    att_end == min::attr ( vp, attr_size - 1 ) true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    aux_begin == min::aux ( vp, aux_size ) true.
+min_interface_test.cc:XXXX assert:
+    att_end != min::SUCCESS() true.
+min_interface_test.cc:XXXX assert:
+    aux_begin != min::SUCCESS() true.
+min_interface_test.cc:XXXX assert:
+    next + 2 * m <= end_body_region true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    att_end == min::attr ( vp, attr_size - 1 ) true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    min::SUCCESS() == min::attr ( vp, attr_size ) true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    aux_begin == min::aux ( vp, aux_size ) true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    min::SUCCESS() == min::aux ( vp, aux_size + 1 ) true.
+../include/min.h:XXXX assert:
+    type == INSERTABLE true.
 min_interface_test.cc:XXXX assert:
     vp == min::NULL_STUB true.
 ../include/min.h:XXXX assert:
@@ -1913,8 +1939,6 @@ min_interface_test.cc:XXXX assert:
     base[av+0] == num0 true.
 min_interface_test.cc:XXXX assert:
     cua == av + 0 true.
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     base[av] == num1 true.
 ../include/min.h:XXXX assert:
@@ -1931,8 +1955,6 @@ min_interface_test.cc:XXXX assert:
     base[av+2] == num0 true.
 min_interface_test.cc:XXXX assert:
     base[av+3] == num0 true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
 ../include/min.h:XXXX assert:
     type == INSERTABLE true.
 ../include/min.h:XXXX assert:
@@ -1959,8 +1981,6 @@ min_interface_test.cc:XXXX assert:
     base[aa-1] == num0 true.
 min_interface_test.cc:XXXX assert:
     caa == aa true.
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     base[aa-1] == num1 true.
 ../include/min.h:XXXX assert:
@@ -1979,8 +1999,6 @@ min_interface_test.cc:XXXX assert:
     base[aa-3] == num0 true.
 min_interface_test.cc:XXXX assert:
     base[aa-4] == num0 true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     base[aa-4] == num1 true.
 min_interface_test.cc:XXXX assert:
@@ -2026,8 +2044,6 @@ min_interface_test.cc:XXXX desire failure:
 ../include/min.h:XXXX assert:
     vp.attr_offset + n <= vp.unused_offset false.
 ../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
-../include/min.h:XXXX assert:
     vp.aux_offset + n <= vp.total_size true.
 ../include/min.h:XXXX assert:
     vp.aux_offset < vp.total_size true.
@@ -2053,24 +2069,10 @@ min_interface_test.cc:XXXX desire failure:
     min::aux_pop ( vp, 3, outv + 1 );
 ../include/min.h:XXXX assert:
     vp.aux_offset + n <= vp.total_size false.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
-../include/min.h:XXXX assert:
-    vp.unused_offset + n <= vp.aux_offset true.
 min_interface_test.cc:XXXX assert:
     min::unused_size_of ( vp ) == 0 true.
 min_interface_test.cc:XXXX assert:
     cua == caa true.
-min_interface_test.cc:XXXX desire failure:
-    min::attr_push(vp) = num3
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset false.
-min_interface_test.cc:XXXX desire failure:
-    min::aux_push(vp) = num3;
-../include/min.h:XXXX assert:
-    vp.unused_offset < vp.aux_offset false.
 ../include/min.h:XXXX assert:
     index < vp.unused_offset true.
 min_interface_test.cc:XXXX assert:
@@ -2135,6 +2137,60 @@ min_interface_test.cc:XXXX assert:
     base[attr_offset + 1] == min::new_list_aux_gen ( total_size - aux_offset ) true.
 ../include/min.h:XXXX assert:
     type == READONLY true.
+../include/min.h:XXXX assert:
+    ( total_size_flags & OBJ_PRIVATE ) == 0 true.
+min_interface_test.cc:XXXX assert:
+    min::unused_size_of ( vp ) >= 10 true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    next_body + m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    min::unused_size_of ( vp ) == 0 true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    att_end == min::attr ( vp, attr_size - 1 ) true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    aux_begin == min::aux ( vp, aux_size ) true.
+min_interface_test.cc:XXXX assert:
+    att_end != min::SUCCESS() true.
+min_interface_test.cc:XXXX assert:
+    aux_begin != min::SUCCESS() true.
+min_interface_test.cc:XXXX assert:
+    next_body + m <= end_body_region true.
+min_interface_test.cc:XXXX assert:
+    next_body + m <= end_body_region true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    att_end == min::attr ( vp, attr_size - 1 ) true.
+../include/min.h:XXXX assert:
+    index < vp.unused_offset true.
+min_interface_test.cc:XXXX assert:
+    min::SUCCESS() == min::attr ( vp, attr_size ) true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    aux_begin == min::aux ( vp, aux_size ) true.
+../include/min.h:XXXX assert:
+    vp.aux_offset <= index true.
+../include/min.h:XXXX assert:
+    index < vp.total_size true.
+min_interface_test.cc:XXXX assert:
+    min::SUCCESS() == min::aux ( vp, aux_size + 1 ) true.
+../include/min.h:XXXX assert:
+    type == INSERTABLE true.
 min_interface_test.cc:XXXX assert:
     vp == min::NULL_STUB true.
 ../include/min.h:XXXX assert:

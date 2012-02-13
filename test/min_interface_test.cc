@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 10 10:21:19 EST 2012
+// Date:	Mon Feb 13 12:37:24 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -256,11 +256,11 @@ void MINT::acc_expand_stub_free_list ( min::unsptr n )
 // Place to allocate bodies.  Bodes must be allocated on
 // 8 byte boundaries.
 //
-char body_region[2000000];
+char body_region[4000000];
 
 // Place to point deallocated bodies.  All zeros.
 //
-char deallocated_body_region[2000000];
+char deallocated_body_region[4000000];
 
 // Address of the first body control block in the
 // region, and the address of the first location beyond
@@ -2938,12 +2938,6 @@ void test_object_vector_level
 	MIN_ASSERT
 	    ( min::unused_size_of ( vp ) == 0 );
 	MIN_ASSERT ( cua == caa );
-	desire_failure (
-	    min::attr_push(vp) = num3
-	);
-	desire_failure (
-	    min::aux_push(vp) = num3;
-	);
 
 	min::unsptr attr_offset =
 	    MUP::attr_offset_of ( vp );
@@ -2973,6 +2967,7 @@ void test_object_vector_level
 
 	MIN_ASSERT
 	    ( min::unused_size_of ( vp ) == 0 );
+
 	min::resize ( vp, 10, 20 );
     }
 
@@ -3005,6 +3000,47 @@ void test_object_vector_level
 	      == min::new_list_aux_gen
 		     ( total_size - aux_offset ) );
     }
+
+    {
+	min::obj_vec_insptr vp ( sstub );
+	MIN_ASSERT
+	    ( min::unused_size_of ( vp ) >= 10 );
+	min::unsptr attr_size =
+	    min::attr_size_of ( vp );
+	min::unsptr aux_size =
+	    min::aux_size_of ( vp );
+	min::gen att_end =
+	    min::attr ( vp, attr_size - 1 );
+	min::gen aux_begin =
+	    min::aux ( vp, aux_size );
+
+	min::resize ( vp, 0 );
+	MIN_ASSERT ( min::unused_size_of ( vp ) == 0 );
+	MIN_ASSERT
+	    (    att_end
+	      == min::attr ( vp, attr_size - 1 ) );
+	MIN_ASSERT
+	    (    aux_begin
+	      == min::aux ( vp, aux_size  ) );
+
+	MIN_ASSERT ( att_end != min::SUCCESS() );
+	MIN_ASSERT ( aux_begin != min::SUCCESS() );
+	min::attr_push ( vp ) = min::SUCCESS();
+	min::aux_push ( vp ) = min::SUCCESS();
+	MIN_ASSERT
+	    (    att_end
+	      == min::attr ( vp, attr_size - 1 ) );
+	MIN_ASSERT
+	    (    min::SUCCESS()
+	      == min::attr ( vp, attr_size ) );
+	MIN_ASSERT
+	    (    aux_begin
+	      == min::aux ( vp, aux_size  ) );
+	MIN_ASSERT
+	    (    min::SUCCESS()
+	      == min::aux ( vp, aux_size + 1  ) );
+    }
+
     {
 	min::obj_vec_ptr vp ( min::new_num_gen ( 8 ) );
 	MIN_ASSERT ( vp == min::NULL_STUB );

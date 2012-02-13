@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 10 06:25:20 EST 2012
+// Date:	Mon Feb 13 08:34:42 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6961,13 +6961,13 @@ namespace min {
 	( min::obj_vec_ptr & vp );
     min::unsptr total_size_of
 	( min::obj_vec_ptr & vp );
-    min::gen var
+    const min::gen & var
 	( min::obj_vec_ptr & vp, min::unsptr index );
-    min::gen hash
+    const min::gen & hash
 	( min::obj_vec_ptr & vp, min::unsptr index );
-    min::gen attr
+    const min::gen & attr
 	( min::obj_vec_ptr & vp, min::unsptr index );
-    min::gen aux
+    const min::gen & aux
 	( min::obj_vec_ptr & vp, min::unsptr index );
     min::ptr<const min::gen> begin_ptr_of
 	( min::obj_vec_ptr & vp );
@@ -7002,15 +7002,9 @@ namespace min {
 	( min::obj_vec_insptr & vp );
     void attr_push
 	( min::obj_vec_insptr & vp,
-	  min::unsptr n );
-    void attr_push
-	( min::obj_vec_insptr & vp,
 	  min::unsptr n, const min::gen * p );
     ref<min::gen> aux_push
 	( min::obj_vec_insptr & vp );
-    void aux_push
-	( min::obj_vec_insptr & vp,
-	  min::unsptr n );
     void aux_push
 	( min::obj_vec_insptr & vp,
 	  min::unsptr n, const min::gen * p );
@@ -7019,16 +7013,10 @@ namespace min {
 	( min::obj_vec_insptr & vp );
     void attr_pop
 	( min::obj_vec_insptr & vp,
-	  min::unsptr n );
-    void attr_pop
-	( min::obj_vec_insptr & vp,
 	  min::unsptr n,
 	  min::gen * p );
     min::gen aux_pop
 	( min::obj_vec_insptr & vp );
-    void aux_pop
-	( min::obj_vec_insptr & vp,
-	  min::unsptr n );
     void aux_pop
 	( min::obj_vec_insptr & vp,
 	  min::unsptr n,
@@ -7143,16 +7131,16 @@ namespace min {
 	friend min::unsptr total_size_of
 	    ( min::obj_vec_ptr & vp );
 
-	friend min::gen var
+	friend const min::gen & var
 	    ( min::obj_vec_ptr & vp,
 	      min::unsptr index );
-	friend min::gen hash
+	friend const min::gen & hash
 	    ( min::obj_vec_ptr & vp,
 	      min::unsptr index );
-	friend min::gen attr
+	friend const min::gen & attr
 	    ( min::obj_vec_ptr & vp,
 	      min::unsptr index );
-	friend min::gen aux
+	friend const min::gen & aux
 	    ( min::obj_vec_ptr & vp,
 	      min::unsptr index );
 	friend min::ptr<const min::gen>
@@ -7191,15 +7179,9 @@ namespace min {
 	    ( min::obj_vec_insptr & vp );
 	friend void attr_push
 	    ( min::obj_vec_insptr & vp,
-	      min::unsptr n );
-	friend void attr_push
-	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n, const min::gen * p );
 	friend ref<min::gen> aux_push
 	    ( min::obj_vec_insptr & vp );
-	friend void aux_push
-	    ( min::obj_vec_insptr & vp,
-	      min::unsptr n );
 	friend void aux_push
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n, const min::gen * p );
@@ -7208,17 +7190,11 @@ namespace min {
 	    ( min::obj_vec_insptr & vp );
 	friend void attr_pop
 	    ( min::obj_vec_insptr & vp,
-	      min::unsptr n );
-	friend void attr_pop
-	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n,
 	      min::gen * p );
 
 	friend min::gen aux_pop
 	    ( min::obj_vec_insptr & vp );
-	friend void aux_pop
-	    ( min::obj_vec_insptr & vp,
-	      min::unsptr n );
 	friend void aux_pop
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr n,
@@ -7712,7 +7688,7 @@ namespace min {
         return vp.total_size;
     }
 
-    inline min::gen var
+    inline const min::gen & var
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index += vp.var_offset;
@@ -7720,7 +7696,7 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline min::gen hash
+    inline const min::gen & hash
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index += vp.hash_offset;
@@ -7728,7 +7704,7 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline min::gen attr
+    inline const min::gen & attr
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index += vp.attr_offset;
@@ -7736,7 +7712,7 @@ namespace min {
 	return unprotected::base(vp)[index];
     }
 
-    inline min::gen aux
+    inline min::gen const & aux
 	( min::obj_vec_ptr & vp, min::unsptr index )
     {
 	index = vp.total_size - index;
@@ -7839,7 +7815,8 @@ namespace min {
     inline ref<min::gen> attr_push
 	( min::obj_vec_insptr & vp )
     {
-	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
+	if ( vp.unused_offset >= vp.aux_offset )
+	    expand ( vp, 1 );
 	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)
 	                [vp.unused_offset ++] );
@@ -7847,62 +7824,57 @@ namespace min {
 
     inline void attr_push
 	( min::obj_vec_insptr & vp,
-	  min::unsptr n )
-    {
-	MIN_ASSERT
-	    ( vp.unused_offset + n <= vp.aux_offset );
-
-	min::gen * p = unprotected::base(vp)
-		     + vp.unused_offset;
-	vp.unused_offset += n;
-	while ( n -- ) * p ++ = MISSING();
-    }
-
-    inline void attr_push
-	( min::obj_vec_insptr & vp,
 	  min::unsptr n,
-	  const min::gen * p )
+	  const min::gen * p = NULL )
     {
-	MIN_ASSERT
-	    ( vp.unused_offset + n <= vp.aux_offset );
+	min::unsptr m = unused_size_of ( vp );
+	if ( m < n ) expand ( vp, n - m );
 
-	memcpy (   unprotected::base(vp)
-		 + vp.unused_offset,
-		 p, sizeof ( min::gen ) * n );
+	if ( p == NULL )
+	    memset (   unprotected::base(vp)
+		     + vp.unused_offset,
+		     0, sizeof ( min::gen ) * n );
+	else
+	{
+	    memcpy (   unprotected::base(vp)
+		     + vp.unused_offset,
+		     p, sizeof ( min::gen ) * n );
+	    unprotected::acc_write_update
+	        ( vp.s, p, n );
+        }
 	vp.unused_offset += n;
-	unprotected::acc_write_update ( vp.s, p, n );
     }
 
     inline ref<min::gen> aux_push
 	( min::obj_vec_insptr & vp )
     {
-	MIN_ASSERT ( vp.unused_offset < vp.aux_offset );
+	if ( vp.unused_offset >= vp.aux_offset )
+	    expand ( vp, 1 );
 	return unprotected::new_ref<min::gen>
 	    ( vp.s, unprotected::base(vp)
 	                [-- vp.aux_offset] );
     }
 
     inline void aux_push
-	( min::obj_vec_insptr & vp, min::unsptr n )
-    {
-	MIN_ASSERT
-	    ( vp.unused_offset + n <= vp.aux_offset );
-	min::gen * p = unprotected::base(vp)
-		     + vp.aux_offset;
-	vp.aux_offset -= n;
-	while ( n -- ) * -- p = MISSING();
-    }
-
-    inline void aux_push
 	( min::obj_vec_insptr & vp,
-	  min::unsptr n, const min::gen * p )
+	  min::unsptr n, const min::gen * p = NULL )
     {
-	MIN_ASSERT
-	    ( vp.unused_offset + n <= vp.aux_offset );
+	min::unsptr m = unused_size_of ( vp );
+	if ( m < n ) expand ( vp, n - m );
+
 	vp.aux_offset -= n;
-	memcpy ( unprotected::base(vp) + vp.aux_offset,
-	         p, sizeof ( min::gen ) * n );
-	unprotected::acc_write_update ( vp.s, p, n );
+	if ( p == NULL )
+	    memset (   unprotected::base(vp)
+	             + vp.aux_offset,
+		     0, sizeof ( min::gen ) * n );
+	else
+	{
+	    memcpy (   unprotected::base(vp)
+	             + vp.aux_offset,
+		     p, sizeof ( min::gen ) * n );
+	    unprotected::acc_write_update
+	        ( vp.s, p, n );
+	}
     }
 
     inline min::gen attr_pop
@@ -7916,25 +7888,18 @@ namespace min {
 
     inline void attr_pop
 	( min::obj_vec_insptr & vp,
-	  min::unsptr n )
-    {
-	MIN_ASSERT
-	    ( vp.attr_offset + n <= vp.unused_offset );
-	vp.unused_offset -= n;
-    }
-
-    inline void attr_pop
-	( min::obj_vec_insptr & vp,
 	  min::unsptr n,
-	  min::gen * p )
+	  min::gen * p = NULL )
     {
 	MIN_ASSERT
 	    ( vp.attr_offset + n <= vp.unused_offset );
 	vp.unused_offset -= n;
-	memcpy
-	    ( p,
-	      unprotected::base(vp) + vp.unused_offset,
-	      sizeof ( min::gen ) * n );
+	if ( p != NULL )
+	    memcpy
+		( p,
+		    unprotected::base(vp)
+		  + vp.unused_offset,
+		  sizeof ( min::gen ) * n );
     }
 
     inline min::gen aux_pop
@@ -7946,23 +7911,16 @@ namespace min {
 
     inline void aux_pop
 	( min::obj_vec_insptr & vp,
-	  min::unsptr n )
-    {
-	MIN_ASSERT
-	    ( vp.aux_offset + n <= vp.total_size );
-	vp.aux_offset += n;
-    }
-
-    inline void aux_pop
-	( min::obj_vec_insptr & vp,
 	  min::unsptr n,
-	  min::gen * p )
+	  min::gen * p = NULL )
     {
 	MIN_ASSERT
 	    ( vp.aux_offset + n <= vp.total_size );
-	memcpy ( p,
-		 unprotected::base(vp) + vp.aux_offset,
-	         sizeof ( min::gen ) * n );
+	if ( p != NULL )
+	    memcpy ( p,
+		       unprotected::base(vp)
+		     + vp.aux_offset,
+		     sizeof ( min::gen ) * n );
 	vp.aux_offset += n;
     }
 }
