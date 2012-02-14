@@ -8890,14 +8890,16 @@ Note that the {\tt min::\EOL unused\_\EOL offset\_\EOL of} and
 {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} return an
 lvalue.  For insertable pointers these offsets change when
 values are pushed into or popped from the attribute vector or
-auxiliary area.
+auxiliary area.  Using these unprotected functions it is possible
+to write your own push and pop functions.
 
 The following are equivalences except for
 the omission of {\tt MIN\_\EOL ASSERT} checks that the index \verb|i|
 is not too large or too small (auxiliary area indices may not be 0),
-checks that the unused area
-is non-empty for pushes and that the attribute vector or auxiliary area
-is non-empty for pops, conversions to \verb|min::ref<min::gen>|
+calls to {\tt min::\EOL expand} when the unused area is too small
+for a push, {\tt MIN\_\EOL ASSERT} checks that element to be popped
+actually exist,
+conversions to \verb|min::ref<min::gen>|
 values for appropriate element access functions, and
 calls to {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
 for push operations
@@ -8916,29 +8918,17 @@ for push operations
 \end{tabular}\end{indpar}\label{OBJECT-VECTOR-EQUIVALENTS}
 \begin{indpar}\begin{tabular}{rcl}
 \hspace*{2.0in} \\[-3ex]
-\verb|attr_push ( vp, v )| & $\equiv$
+\verb|attr_push ( vp ) = v| & $\equiv$
     & \verb|base(vp)[unused_offset_of(vp)++] = v| \\
-\verb|attr_pop ( vp, v )| & $\equiv$
+\verb|v = attr_pop ( vp )| & $\equiv$
     & \verb|v = base(vp)[--unused_offset_of(vp)]| \\
-\verb|aux_push ( vp, v )| & $\equiv$
+\verb|aux_push ( vp ) = v| & $\equiv$
     & \verb|base(vp)[--aux_offset_of(vp)] = v| \\
-\verb|aux_pop ( vp, v )| & $\equiv$
+\verb|v = aux_pop ( vp )| & $\equiv$
     & \verb|v = base(vp)[aux_offset_of(vp)++]| \\
 \end{tabular}\end{indpar}
 
 
-
-Recall that there are two kinds of objects: short and long.
-A \key{short object stub}\label{SHORT-OBJECT-STUB} is collectible, has
-\minnbkey{SHORT\_OBJ}\LABEL{MIN::SHORT_OBJ} stub type code, and has
-a value that is a pointer to a body with an 8 byte object header
-that allows an object with total size up to $2^{16}$ \verb|min::gen|
-values.
-A \key{long object stub}\label{LONG-OBJECT-STUB} is collectible, has
-\minnbkey{LONG\_OBJ}\LABEL{MIN::LONG_OBJ} stub type code, and has
-a value that is a pointer to a body with a 16 byte object header
-that allows an object with total size up to $2^{32}$ \verb|min::gen|
-values.
 
 The header is the only part of an object body that is
 \underline{not} \verb|min::gen| values.  Even so it is
@@ -8947,34 +8937,11 @@ is {\tt 2} for a compact implementation and {\tt 1}
 for a loose implementation (\pagref{COMPACT-OR-LOOSE}).
 
 The header may contain implementation dependent information used
-for optimization.  Most implementations do not store all the required
-sizes directly.  For example, an implementation usually permits only
-particular hash table sizes, and uses 7 bits for short objects
-and 12 bits for long objects to encode a reference to a table
-of hash table sizes.  Similarly and implementation typically stores
-a total size as a 12 bits in a short object and as a 15 bit integer
-mantissa and 5 bit exponent in a long object.
-The {\tt min::\EOL OBJ\_\EOL PRIVATE},
-{\tt min::\EOL OBJ\_\EOL PUBLIC},
-and {\tt min::\EOL OBJ\_\EOL TYPED} flags are stored in bits made
-available by these packed size encodings.
-Additional implementation dependent
-flags may be used to optimize garbage collection.
+for optimization.
 For example, objects which have auxiliary stubs
 (\pagref{OBJECT-AUXILIARY-STUBS})
 may be flagged, thereby identifying objects that need extra work
 when deallocated or reorganized.
-
-An implementation is not required to support all possible values of
-the variable vector size, hash table size, or total size, but should support
-values that permit objects that are read-only to be efficiently compacted.
-Size values that are powers of two and not
-greater than the maximum supported sizes must be supported.
-Within the bounds set by these size values, arbitrary sizes
-of the attribute vector, unused area, and auxiliary area must
-be supported.
-
-
 
 \subsubsection{Object List Level}
 \label{OBJECT-LIST-LEVEL}
