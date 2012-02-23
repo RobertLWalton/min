@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 13 08:34:42 EST 2012
+// Date:	Wed Feb 22 22:35:26 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -5097,6 +5097,15 @@ namespace min {
 	    ( min::gen g )
     {
 	return packed_subtype_of ( stub_of ( g ) );
+    }
+
+    inline const char * name_of_packed_subtype
+        ( min::uns32 subtype )
+    {
+	internal::packed_descriptor * pdescriptor =
+	    (internal::packed_descriptor *)
+	    (*internal::packed_subtypes)[subtype];
+	return pdescriptor->name;
     }
 
     template < typename S >

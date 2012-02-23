@@ -2,7 +2,7 @@
 //
 // File:	min_acc.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jan 19 03:51:50 EST 2012
+// Date:	Wed Feb 22 22:35:36 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1194,6 +1194,12 @@ void MUP::deallocate_body
 //
 static void ** packed_subtypes_p;
 
+static MINT::packed_descriptor
+    null_packed_descriptor
+        ( 0, 0, NULL, "non-packed value" );
+	// This can be initialized anytime before main
+	// runs.
+
 void MINT::allocate_packed_subtypes ( min::uns32 count )
 {
     // Warning: this is called during program construc-
@@ -1210,6 +1216,10 @@ void MINT::allocate_packed_subtypes ( min::uns32 count )
 		 * sizeof ( void * ) );
 	delete [] packed_subtypes_p;
     }
+    else
+        new_packed_subtypes[0] =
+	    & null_packed_descriptor;
+
     ::packed_subtypes_p = new_packed_subtypes;
     MINT::max_packed_subtype_count = count;
     MINT::packed_subtypes = & ::packed_subtypes_p;

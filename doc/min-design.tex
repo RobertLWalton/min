@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 13, 2012}
+\date{February 22, 2012}
  
 \maketitle
 
@@ -4533,7 +4533,7 @@ named \verb|pstype| use
 \verb|min::uns32 pstype|
     & \TTDMKEY{subtype}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_SUBTYPE} \\
-\verb|const char * const pstype.|
+\verb|const char * const pstype|
     & \TTDMKEY{name}{in {\tt min::packed\_struct}}
 \LABEL{PACKED_STRUCT_NAME} \\
 \verb|const min::uns32 * const pstype|
@@ -4592,6 +4592,7 @@ structures that are created by {\tt pstype.new\_\EOL gen} or
 of these packed structures to \verb|pstype|.
 
 \item[\ttmkey{name}{in {\tt min::packed\_struct}}]
+\label{NAME_IN_PACKED_STRUCT}
 A name unique to the \verb|pstype| datum, typically the
 fully qualified name of this datum.  This character string may
 be output to identify the packed structure type when a packed structure is
@@ -4666,6 +4667,9 @@ The subtype of a packed structure can be retrieved by
 \verb|min::uns32 MUP::|
 	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
 \LABEL{MUP::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\verb|const char * min::|
+	& \MINKEY{name\_of\_packed\_subtype} \verb|( min::uns32 subtype )|
+\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
 \end{tabular}\end{indpar}
 
 These functions work in the same way for both packed structures
@@ -4682,6 +4686,11 @@ or packed vector.  When the argument is a packed structure
 or packed vector,
 the subtype is computed by looking in the
 `{\tt control}' member of the structure or vector.
+
+The {\tt min::name\_of\_packed\_subtype} function returns the
+{\tt pstype.name} (\pagref{NAME_IN_PACKED_STRUCT}) of the
+{\tt pstype} associated
+with the subtype, which is useful for tracing and debugging.
 
 The two kinds of pointers that can be used to access
 a packed structure.  The read-only
@@ -5226,6 +5235,9 @@ The subtype of a packed vector can be retrieved by
 \verb|min::uns32 MUP::|
 	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
 \LABEL{MUP::PACKED_VEC_SUBTYPE_OF_STUB} \\
+\verb|const char * min::|
+	& \MINKEY{name\_of\_packed\_subtype} \verb|( min::uns32 subtype )|
+\\
 \end{tabular}\end{indpar}
 
 These functions work for packed vectors in the same was as for
@@ -13150,7 +13162,7 @@ In loose implementation: \\
 \LABEL{PACKED_STRUCT_STUB_DISP} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.4in}
+\begin{TABULAR}{1.6in}
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
 \LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_GEN} \\
@@ -13160,6 +13172,10 @@ In loose implementation: \\
 \verb|min::uns32 MUP::|
 	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
 \LABEL{MUP::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\verb|const char * min::|
+	& \MINKEY{name\_of\_packed\_subtype}\ARGBREAK
+	  \verb|( min::uns32 subtype )|
+\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
@@ -13345,7 +13361,7 @@ In loose implementation: \\
 \LABEL{PACKED_VEC_MAX_INCREMENT} \\
 \end{TABULAR}
 
-\begin{TABULAR}{1.4in}
+\begin{TABULAR}{1.6in}
 \verb|min::uns32 min::|
 	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
 \LABEL{MIN::PACKED_VEC_SUBTYPE_OF_GEN} \\
@@ -13355,6 +13371,10 @@ In loose implementation: \\
 \verb|min::uns32 MUP::|
 	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
 \LABEL{MUP::PACKED_VEC_SUBTYPE_OF_STUB} \\
+\verb|const char * min::|
+	& \MINKEY{name\_of\_packed\_subtype}\ARGBREAK
+	  \verb|( min::uns32 subtype )|
+\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.4in}
