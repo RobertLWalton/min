@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 22 22:35:26 EST 2012
+// Date:	Sun Feb 26 05:47:09 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -6785,8 +6785,13 @@ namespace min {
     // the object and other vec_xxxptrs may not
     // be created for the object.
     //
+    // OBJ_AUX means object may have aux stubs.  If this
+    // flag is off, it means the object DEFINITELY does
+    // NOT have aux stubs.
+    //
     const unsigned OBJ_PRIVATE = ( 1 << 0 );
     const unsigned OBJ_PUBLIC  = ( 1 << 1 );
+    const unsigned OBJ_AUX     = ( 1 << 3 );
 
     // OBJ_TYPE means object first variable (var[0])
     // points at the object's type.
@@ -6804,22 +6809,24 @@ namespace min { namespace internal {
     //
     //    0		OBJ_PUBLIC
     //    1		OBJ_PRIVATE
-    //    2..N-1	total size - 1
+    //    2		reserved
+    //	  3		OBJ_AUX
+    //    4..N-1	total size - 1
     //
     //  Unused Offset Bits:
     //
     //    0		OBJ_TYPED
-    //	  1		reserved for more flags
-    //	  2..N-1	unused offset - 1
+    //	  1..3		reserved for more flags
+    //	  4..N-1	unused offset - 1
     //
     //  Aux Offset Bits:
     //
-    //	  0..1		reserved for more flags
-    //	  2..N-1	unused offset - 1
+    //	  0..3		reserved for more flags
+    //	  4..N-1	unused offset - 1
 
     // Number of bits reserved for flags.
     //
-    const unsigned OBJ_FLAG_BITS = 2;
+    const unsigned OBJ_FLAG_BITS = 4;
 
     // Let object type be OBJ + T.  Then
     //

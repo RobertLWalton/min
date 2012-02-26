@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 22, 2012}
+\date{February 25, 2012}
  
 \maketitle
 
@@ -8082,20 +8082,28 @@ The part of the hash table that maps attribute names that are equal to
 or begin with small unsigned integers is actually a vector.
 An attribute value is a \verb|min::gen| datum.
 
-Each map of an attribute name to an attribute value represents an
-arrow in the data base.  Some arrows can be double arrows pointing
-both to and from another object.
+Each attribute name-value pair in an object map represents an
+\ikey{arrow}{attribute} in the data base.
+The \ikey{source}{of attribute arrow} of the arrow is the object
+which is the map,
+the \ikey{label}{of attribute arrow} of the arrow is the attribute name,
+and the \ikey{destination}{of attribute arrow}
+of the arrow is the attribute value.
+Some arrows can be \skey{double arrow}s pointing
+both to and from the arrow destination.
 If the arrow is a double arrow,
 a reverse direction label, called the \key{reverse attribute name}
-is attached to the arrow, and the object at the other end of the
-arrow has the same arrow but with directions and direction names reversed.
+is attached to the arrow, and the object at the destination end of the
+arrow is the source of the reversed arrow, whose label is the
+reverse attribut name and whose destination is the unreversed arrow's
+source.
 
 There can be several arrows with the same attribute name,
 and even several arrows with both the same attribute name and the
 same value.
 There can be several double arrows with the same attribute name and
 the same reverse attribute name, and even several double arrows with
-the same names and target object.
+the same names and destination object.
 
 Therefore an attribute name and reverse attribute name together name a
 multi-set of values, where the reverse attribute name can be missing to
@@ -8121,6 +8129,9 @@ and contains attribute labels, and one called the
 context, which contains a vector of \skey{variable}s that hold attribute
 values.  Typed objects are described in more detail in
 \itemref{TYPED-OBJECTS}.
+
+\subsubsection{Object Bodies}
+\label{OBJECT-BODIES}
 
 An object has a body that consists of the following 6 parts in
 the order given:
@@ -8184,8 +8195,7 @@ of storing information for successively larger objects.
 There is no essential difference between these headers and their
 internal structure is not visible.  There is no practical limit on
 the size of an object%
-\footnote{There is currently a limit of $2^62$ bytes but currenly
-the maximum virtual address space size is $2^48$ bytes.}.
+\footnote{Currently the maximum virtual address space size is $2^{48}$ bytes.}.
 
 An object body may be \smkey{relocate}d{object body}, which means the
 body is simply copied to a new address, or

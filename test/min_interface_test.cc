@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 13 12:37:24 EST 2012
+// Date:	Sun Feb 26 05:58:23 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2507,7 +2507,7 @@ void test_printer ( void )
     printer << min::pgen ( min::new_stub_gen ( s ) )
             << min::eol;
 
-    printer << min::pgen ( min::new_obj_gen ( 10, 10 ) )
+    printer << min::pgen ( min::new_obj_gen ( 5, 5 ) )
             << min::eol;
 
     printer << min::pgen
