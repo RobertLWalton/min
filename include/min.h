@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 05:47:09 EST 2012
+// Date:	Sun Feb 26 08:12:16 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7013,6 +7013,10 @@ namespace min {
 	min::unsptr & aux_offset_of
 	    ( min::obj_vec_insptr & vp );
     }
+    namespace internal {
+	void set_obj_aux_flag_of
+	    ( min::obj_vec_insptr & vp );
+    }
 
     ref<min::gen> attr_push
 	( min::obj_vec_insptr & vp );
@@ -7189,6 +7193,8 @@ namespace min {
 	  unprotected::unused_offset_of
 	    ( min::obj_vec_insptr & vp );
 	friend min::unsptr & unprotected::aux_offset_of
+	    ( min::obj_vec_insptr & vp );
+	friend void internal::set_obj_aux_flag_of
 	    ( min::obj_vec_insptr & vp );
 
 	friend ref<min::gen> attr_push
@@ -7666,6 +7672,11 @@ namespace min {
 	( min::obj_vec_ptr & vp )
     {
         return vp.aux_offset;
+    }
+    inline void internal::set_obj_aux_flag_of
+	( min::obj_vec_insptr & vp )
+    {
+        vp.total_size_flags |= OBJ_AUX;
     }
 
     inline min::unsptr var_size_of

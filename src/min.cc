@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Feb 10 20:37:27 EST 2012
+// Date:	Sun Feb 26 08:12:55 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2980,6 +2980,7 @@ void min::insert_before
 		      p, n,
 		      MUP::new_control_with_type
 			( 0, (uns64) 0 ) );
+		MINT::set_obj_aux_flag_of ( lp.vecp );
 
 		fgen = min::new_stub_gen ( first );
 		if ( lp.previous_stub != NULL )
@@ -3009,6 +3010,8 @@ void min::insert_before
 		    {
 		        min::stub * s =
 			    MUP::new_aux_stub();
+			MINT::set_obj_aux_flag_of
+			    ( lp.vecp );
 			MUP::set_gen_of
 			    ( s,
 			      lp.base
@@ -3158,6 +3161,7 @@ void min::insert_before
 	    else if ( ! previous )
 	    {
 	        s = MUP::new_aux_stub();
+		MINT::set_obj_aux_flag_of ( lp.vecp );
 		MUP::set_gen_of ( s, lp.current );
 		end = MUP::new_control_with_type
 		    ( 0, s, MUP::STUB_PTR );
@@ -3195,6 +3199,7 @@ void min::insert_before
 	    min::stub * first, * last;
 	    MINT::allocate_stub_list
 		( first, last, type, p, n, end );
+	    MINT::set_obj_aux_flag_of ( lp.vecp );
 
 	    if ( lp.previous_index != 0 )
 		lp.base[lp.previous_index] =
@@ -3374,6 +3379,8 @@ void min::insert_after
 		      p, n,
 		      MUP::control_of
 		          ( lp.current_stub ) );
+		MINT::set_obj_aux_flag_of ( lp.vecp );
+
 		MUP::set_control_of
 		    ( lp.current_stub,
 		      MUP::new_control_with_type
@@ -3385,6 +3392,7 @@ void min::insert_after
 	    }
 
 	    min::stub * s = MUP::new_aux_stub();
+	    MINT::set_obj_aux_flag_of ( lp.vecp );
 	    MUP::set_gen_of ( s, lp.current );
 	    int type = lp.previous_is_sublist_head ?
 	    	       min::SUBLIST_AUX :
@@ -3403,9 +3411,12 @@ void min::insert_after
 		    ( type, next );
 
 	    if ( n > previous )
+	    {
 		MINT::allocate_stub_list
 		    ( first, last, min::LIST_AUX,
 		      p, n - previous, end );
+		MINT::set_obj_aux_flag_of ( lp.vecp );
+	    }
 
 	    if ( previous )
 	    {
