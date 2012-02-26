@@ -8241,10 +8241,23 @@ An object can be created by the protected function:
 The new object has a zero length attribute vector, but this can be
 expanded by growing the attribute vector upward into the unused area.
 Similarly the auxilarly area is zero length, but can be expanded by
-growing downward into th unused area.  The variable vector and
-hash table sizes, however, are fixed, though they can be changed
-by the {\tt min::\EOL resize} function
-(\pagref{MIN::RESIZE_UNUSED_AND_VAR_OF_VEC_INSPTR}).
+growing downward into the unused area.
+
+Various sizes can be changed, however, by {\tt min::\EOL resize}
+functions.  The variable vector, attribute vector, and unused area
+sizes can be changed by applying {\tt min::\EOL resize} to
+a {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} object vector pointer
+(\pagref{MIN::RESIZE_OF_OBJ_VEC_INSPTR}).
+The these sizes can be changed and the
+auxilarly area can be compacted by applying 
+{\tt min::\EOL resize} to
+a {\tt min::\EOL list\_\EOL insptr} list pointer
+(\pagref{MIN::RESIZE_OF_LIST_INSPTR}).
+All the sizes can be changed, including the hash table size, and the
+auxilarly area can be compacted by applying 
+{\tt min::\EOL resize} to
+a {\tt min::\EOL attr\_\EOL insptr} attribute pointer
+(\pagref{MIN::RESIZE_OF_ATTR_INSPTR}).
 
 Allocators often maintain sets of free memory blocks of particular
 sizes, often powers of two, and allocate new object bodies to one
@@ -8744,19 +8757,19 @@ The additional functions for this type of pointer are:
       \verb|   min::unsptr unused_size,| \\
       \verb|   min::unsptr var_size )| \\
       \end{tabular}
-\LABEL{MIN::RESIZE_UNUSED_AND_VAR_OF_VEC_INSPTR} \\
+\LABEL{MIN::RESIZE_OF_OBJ_VEC_INSPTR} \\
 \verb|bool min::| & \MINKEY{resize\REL}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::unsptr unused_size )| \\
       \end{tabular}
-\LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
+\LABEL{MIN::RESIZE_UNUSED_OF_OBJ_VEC_INSPTR} \\
 \verb|bool min::| & \MINKEY{expand\REL}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::unsptr unused_size )| \\
       \end{tabular}
-\LABEL{MIN::EXPAND_UNUSED_OF_VEC_INSPTR} \\
+\LABEL{MIN::EXPAND_UNUSED_OF_OBJ_VEC_INSPTR} \\
 \end{tabular}\end{indpar}
 
 The push functions push values to the end of the attribute vector
@@ -9655,7 +9668,7 @@ in error.
 The {\tt min::insert\_reserve\REL} function may resize the body of
 the object in which space is being reserved
 (using {\tt min::\EOL resize\REL},
-\pagref{MIN::RESIZE_UNUSED_OF_VEC_INSPTR}).
+\pagref{MIN::RESIZE_UNUSED_OF_OBJ_VEC_INSPTR}).
 It returns \verb|true| if it
 resizes the object's body, and \verb|false| if it does not.
 It sets the relocated flag (\pagref{RELOCATED-FLAG}) if it
@@ -9812,6 +9825,31 @@ element list headed in the hash table or attribute vector.
 Any insertion before the end of a list of such a single element list
 is transformed into an insertion after the list's single element.
 \end{quote}
+
+An object can be resized with its lists reorganized so as to
+compact the auxiliary area, and also to move information out
+of any auxiliary stubs attached to the object and into the
+auxiliary area.  This can be done by the functions:
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::list_insptr & lp,| \\
+      \verb|   min::unsptr unused_size,| \\
+      \verb|   min::unsptr var_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_OF_LIST_INSPTR} \\
+\verb|bool min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::list_insptr & lp,| \\
+      \verb|   min::unsptr unused_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED_OF_LIST_INSPTR} \\
+\end{tabular}\end{indpar}
+
+The size of the unused area is changed by these functions, and
+the size of the variable area is also changed by the first of these
+functions.
 
 The various list pointer types are instances of
 \verb|MUP::|\MUPKEY{list\_ptr\_type} defined as follows:
@@ -11041,6 +11079,30 @@ functions can be used to alter a single flag whose number is
 given as the argument {\tt n}.  The flag is set, cleared,
 or flipped, respectively.  The previous value of the flag is
 returned.
+
+An object can be resized and reorganized so as to
+compact the auxiliary area, move information out
+of any auxiliary stubs attached to the object and into the
+auxiliary area, and if desired change the size of the
+hash table.  This can be done by the functions:
+
+\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::attr_insptr & ap,| \\
+      \verb|   min::unsptr unused_size,| \\
+      \verb|   min::unsptr hash_size,| \\
+      \verb|   min::unsptr var_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_OF_ATTR_INSPTR} \\
+\verb|bool min::| & \MINKEY{resize\REL}%
+      \begin{tabular}[t]{@{}l@{}}
+      \verb| ( min::attr_insptr & ap,| \\
+      \verb|   min::unsptr unused_size,| \\
+      \verb|   min::unsptr hash_size )| \\
+      \end{tabular}
+\LABEL{MIN::RESIZE_HASH_OF_ATTR_INSPTR} \\
+\end{tabular}\end{indpar}
 
 TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
 
@@ -12659,19 +12721,19 @@ In loose implementation: \\
       \verb|   min::unsptr unused_size,| \\
       \verb|   min::unsptr var_size )| \\
       \end{tabular}
-\LABEL{MIN::RESIZE_UNUSED_AND_VAR_OF_VEC_INSPTR} \\
+\LABEL{MIN::RESIZE_OF_OBJ_VEC_INSPTR} \\
 \verb|bool min::| & \MINKEY{resize\REL}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::unsptr unused_size )| \\
       \end{tabular}
-\LABEL{MIN::RESIZE_UNUSED_OF_VEC_INSPTR} \\
+\LABEL{MIN::RESIZE_UNUSED_OF_OBJ_VEC_INSPTR} \\
 \verb|bool min::| & \MINKEY{expand\REL}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::obj_vec_insptr & vp,| \\
       \verb|   min::unsptr unused_size )| \\
       \end{tabular}
-\LABEL{MIN::EXPAND_UNUSED_OF_VEC_INSPTR} \\
+\LABEL{MIN::EXPAND_UNUSED_OF_OBJ_VEC_INSPTR} \\
 \end{TABULAR}
 
 \end{indpar}
