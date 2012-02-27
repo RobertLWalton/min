@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 08:12:55 EST 2012
+// Date:	Mon Feb 27 02:31:09 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2812,7 +2812,85 @@ void MINT::allocate_stub_list
                      ( saved_relocated_flag ) );
 }
 
+
 # endif // MIN_USE_OBJ_AUX_STUBS
+
+min::unsptr min::unprotected::list_element_count
+	( min::obj_vec_ptr & vp,
+	  min::unsptr index
+#	if MIN_USE_OBJ_AUX_STUBS
+	  , const min::stub * s // = NULL
+#	endif
+	)
+{
+    unsptr count = 0;
+    min::gen v;
+    while ( true )
+    {
+        ++ count;
+
+#	if MIN_USE_OBJ_AUX_STUBS
+
+	    if ( s != NULL )
+	    {
+		MIN_ASSERT
+		    ( min::type_of ( s ) == LIST_AUX
+		      ||
+		      min::type_of ( s ) == SUBLIST_AUX
+		    );
+
+		min::gen v = MUP::gen_of ( s );
+
+		uns64 c = control_of ( s );
+		if ( c & STUB_PTR )
+		    s = stub_of_control ( c );
+		else
+		{
+		    index = value_of_control ( c );
+		    if ( index != 0 )
+			index = total_size_of ( vp )
+			      - index;
+		    s = NULL;
+		}
+	    }
+	    else
+#	endif // MIN_USE_OBJ_AUX_STUBS
+
+	if ( index != 0 )
+	{
+	    min::gen v = vp[index];
+	    if ( is_list_aux ( v ) )
+	    {
+	        index = aux_of ( v );
+		if ( index == 0 ) return count;
+		index = total_size_of ( vp ) - index;
+		continue;
+	    }
+	    else
+	        -- index;
+	}
+	else return count;
+
+#       if MIN_USE_OBJ_AUX_STUBS
+	    if ( is_stub ( v ) )
+	    {
+		const min::stub * s2 =
+		    unprotected::stub_of ( v );
+		if ( min::type_of ( s2 ) == LIST_AUX )
+		    count += list_element_count
+				( vp, 0, s2 );
+	    }
+	    else
+#	endif // MIN_USE_OBJ_AUX_STUBS
+	if ( is_sublist_aux ( v )
+	     &&
+	     v != min::EMPTY_SUBLIST() )
+	    count += list_element_count
+			( vp, total_size_of ( vp )
+			      -
+			      aux_of ( v ) );
+    }
+}
 
 // Remove a list.  Free any aux stubs used and
 // set any auxiliary area elements use to min::NONE().
