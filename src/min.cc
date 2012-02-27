@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 02:31:09 EST 2012
+// Date:	Mon Feb 27 08:54:30 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -250,8 +250,8 @@ int min::compare ( min::gen g1, min::gen g2 )
         else if ( ! is_str ( g2 ) ) return -1;
 	str_ptr p1 ( g1 );
 	str_ptr p2 ( g2 );
-	return ::strcmp ( unprotected::str_of ( p1 ),
-	                  unprotected::str_of ( p2 ) );
+	return ::strcmp ( MUP::str_of ( p1 ),
+	                  MUP::str_of ( p2 ) );
     }
     else
     if ( is_lab ( g1 ) )
@@ -275,8 +275,8 @@ int min::compare ( min::gen g1, min::gen g2 )
     else if ( is_name ( g2 ) ) return +1;
     else
     {
-        unsgen v1 = unprotected::value_of ( g1 );
-        unsgen v2 = unprotected::value_of ( g2 );
+        unsgen v1 = MUP::value_of ( g1 );
+        unsgen v2 = MUP::value_of ( g2 );
 	return v1  < v2 ? -1 : v1 == v2 ? 0 : +1;
     }
 }
@@ -962,7 +962,7 @@ min::unsptr min::strlen ( min::gen g )
     else
     {
 	MIN_ASSERT ( type_of ( s ) == LONG_STR );
-	return unprotected::long_str_of ( s )->length;
+	return MUP::long_str_of ( s )->length;
     }
 }
 
@@ -981,7 +981,7 @@ min::uns32 min::strhash ( min::gen g )
     else
     {
 	MIN_ASSERT ( type_of ( s ) == LONG_STR );
-	return unprotected::long_str_of ( s )->hash;
+	return MUP::long_str_of ( s )->hash;
     }
 }
 
@@ -1008,8 +1008,8 @@ char * min::strcpy ( char * p, min::gen g )
     {
 	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strcpy
-	    ( p, unprotected::str_of
-		   ( unprotected::long_str_of ( s ) ) );
+	    ( p, MUP::str_of
+		   ( MUP::long_str_of ( s ) ) );
     }
 }
 
@@ -1035,8 +1035,8 @@ char * min::strncpy
     {
 	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strncpy
-	    ( p, unprotected::str_of
-		   ( unprotected::long_str_of ( s ) ),
+	    ( p, MUP::str_of
+		   ( MUP::long_str_of ( s ) ),
 		 n );
     }
 }
@@ -1067,8 +1067,8 @@ int min::strcmp ( const char * p, min::gen g )
     {
 	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strcmp
-	    ( p, unprotected::str_of
-		   ( unprotected::long_str_of ( s ) ) );
+	    ( p, MUP::str_of
+		   ( MUP::long_str_of ( s ) ) );
     }
 }
 
@@ -1099,8 +1099,8 @@ int min::strncmp
     {
 	MIN_ASSERT ( type_of ( s ) == LONG_STR );
 	return ::strncmp
-	    ( p, unprotected::str_of
-		   ( unprotected::long_str_of ( s ) ),
+	    ( p, MUP::str_of
+		   ( MUP::long_str_of ( s ) ),
 		 n );
     }
 }
@@ -1353,12 +1353,12 @@ min::uns32 MINT::max_packed_subtype_count = 0;
 const min::stub * MINT::packed_struct_new_stub
 	( MINT::packed_struct_descriptor * psd )
 {
-    min::stub * s = unprotected::new_acc_stub();
-    unprotected::new_body ( s, psd->size );
-    uns32 * tp = (uns32 *) unprotected::ptr_of ( s );
+    min::stub * s = MUP::new_acc_stub();
+    MUP::new_body ( s, psd->size );
+    uns32 * tp = (uns32 *) MUP::ptr_of ( s );
     memset ( tp, 0, psd->size );
     * tp = psd->subtype;
-    unprotected::set_type_of ( s, PACKED_STRUCT );
+    MUP::set_type_of ( s, PACKED_STRUCT );
     return s;
 }
 
@@ -1368,12 +1368,12 @@ const min::stub * MINT::packed_vec_new_stub
 	  min::uns32 length,
 	  const void * vp )
 {
-    min::stub * s = unprotected::new_acc_stub();
+    min::stub * s = MUP::new_acc_stub();
     uns32 size = pvd->header_size
 	       +   max_length
 	         * pvd->element_size;
-    unprotected::new_body ( s, size );
-    uns8 * bodyp = (uns8 *) unprotected::ptr_of ( s );
+    MUP::new_body ( s, size );
+    uns8 * bodyp = (uns8 *) MUP::ptr_of ( s );
     memset ( bodyp, 0, size );
     * (uns32 *) bodyp = pvd->subtype;
     * (uns32 *) ( bodyp + pvd->length_disp ) = length;
@@ -1382,7 +1382,7 @@ const min::stub * MINT::packed_vec_new_stub
     if ( vp )
         memcpy ( bodyp + pvd->header_size,
 	         vp, length * pvd->element_size);
-    unprotected::set_type_of ( s, PACKED_VEC );
+    MUP::set_type_of ( s, PACKED_VEC );
     return s;
 }
 
@@ -1418,7 +1418,7 @@ void MINT::packed_vec_resize
 		    +   max_length
                       * pvd->element_size;
     if ( copy_size > new_size ) copy_size = new_size;
-    unprotected::resize_body r
+    MUP::resize_body r
 	( (min::stub *) s, new_size, old_size );
     uns8 * & new_p =
         * (uns8 **) & MUP::new_body_ptr_ref ( r );
@@ -2815,7 +2815,7 @@ void MINT::allocate_stub_list
 
 # endif // MIN_USE_OBJ_AUX_STUBS
 
-min::unsptr min::unprotected::list_element_count
+min::unsptr MUP::list_element_count
 	( min::obj_vec_ptr & vp,
 	  min::unsptr index
 #	if MIN_USE_OBJ_AUX_STUBS
@@ -2823,73 +2823,136 @@ min::unsptr min::unprotected::list_element_count
 #	endif
 	)
 {
-    unsptr count = 0;
-    min::gen v;
+    unsptr count = 1;  // +1 for LIST_END
+    unsptr total_size = min::total_size_of ( vp );
     while ( true )
     {
-        ++ count;
 
 #	if MIN_USE_OBJ_AUX_STUBS
 
 	    if ( s != NULL )
 	    {
 		MIN_ASSERT
-		    ( min::type_of ( s ) == LIST_AUX
+		    ( MUP::type_of ( s ) == LIST_AUX
 		      ||
-		      min::type_of ( s ) == SUBLIST_AUX
+		      MUP::type_of ( s ) == SUBLIST_AUX
 		    );
 
 		min::gen v = MUP::gen_of ( s );
+		++ count;
+		if ( is_stub ( v ) )
+		{
+		    const min::stub * s2 =
+			MUP::stub_of ( v );
+		    if (    MUP::type_of ( s2 )
+		         == SUBLIST_AUX )
+			count += list_element_count
+				    ( vp, 0, s2 );
+		}
+		else if ( is_sublist_aux ( v )
+		          &&
+		          v != min::EMPTY_SUBLIST() )
+		    count += list_element_count
+				( vp,   total_size
+				      - MUP::aux_of
+				            ( v ) );
 
-		uns64 c = control_of ( s );
+		uns64 c = MUP::control_of ( s );
 		if ( c & STUB_PTR )
-		    s = stub_of_control ( c );
+		    s = MUP::stub_of_control ( c );
 		else
 		{
-		    index = value_of_control ( c );
-		    if ( index != 0 )
-			index = total_size_of ( vp )
-			      - index;
+		    index = MUP::value_of_control ( c );
+		    if ( index == 0 )
+		        return count;
+		    index = total_size - index;
 		    s = NULL;
 		}
 	    }
 	    else
 #	endif // MIN_USE_OBJ_AUX_STUBS
 
-	if ( index != 0 )
 	{
+	    MIN_ASSERT ( index != 0 );
+
 	    min::gen v = vp[index];
+
 	    if ( is_list_aux ( v ) )
 	    {
-	        index = aux_of ( v );
+	        index = MUP::aux_of ( v );
 		if ( index == 0 ) return count;
-		index = total_size_of ( vp ) - index;
-		continue;
+		index = total_size - index;
 	    }
-	    else
-	        -- index;
-	}
-	else return count;
-
-#       if MIN_USE_OBJ_AUX_STUBS
-	    if ( is_stub ( v ) )
+	    else if ( is_sublist_aux ( v ) )
 	    {
-		const min::stub * s2 =
-		    unprotected::stub_of ( v );
-		if ( min::type_of ( s2 ) == LIST_AUX )
+	        ++ count;
+	        unsptr index2 = MUP::aux_of ( v );
+		if ( index2 != 0 )
 		    count += list_element_count
-				( vp, 0, s2 );
+			( vp, total_size - index2 );
 	    }
+#           if MIN_USE_OBJ_AUX_STUBS
+		else if ( is_stub ( v ) )
+		{
+		    const min::stub * s2 =
+			MUP::stub_of ( v );
+		    int type = MUP::type_of ( s2 );
+		    if ( type == LIST_AUX )
+		    {
+		        s = s2;
+			index = 0;
+		    }
+		    else if ( type == SUBLIST_AUX )
+			count += 1 + list_element_count
+				    ( vp, 0, s2 );
+		    else ++ count;
+		}
+#	    endif // MIN_USE_OBJ_AUX_STUBS
 	    else
-#	endif // MIN_USE_OBJ_AUX_STUBS
-	if ( is_sublist_aux ( v )
-	     &&
-	     v != min::EMPTY_SUBLIST() )
-	    count += list_element_count
-			( vp, total_size_of ( vp )
-			      -
-			      aux_of ( v ) );
+	    {
+	        ++ count;
+	        -- index;
+	    }
+	}
     }
+}
+
+min::unsptr min::list_element_count
+	( min::obj_vec_ptr & vp )
+{
+    unsptr count = 0;
+    unsptr index = MUP::var_offset_of ( vp );
+    unsptr end_index = MUP::unused_offset_of ( vp );
+    unsptr total_size = total_size_of ( vp );
+    while ( index < end_index )
+    {
+        min::gen v = vp[index++];
+
+	if ( is_list_aux ( v )
+	     ||
+	     is_sublist_aux ( v ) )
+	{
+	    unsptr index2 = MUP::aux_of ( v );
+	    if ( index2 != 0 )
+	        count += MUP::list_element_count
+			    ( vp, total_size - index2 );
+	}
+#	if MIN_USE_OBJ_AUX_STUBS
+	    else if ( is_stub ( v ) )
+	    {
+	    	const min::stub * s =
+		    MUP::stub_of ( v );
+		int type = MUP::type_of ( s );
+	        if ( type == LIST_AUX
+		     ||
+		     type == SUBLIST_AUX )
+		    count += MUP::list_element_count
+				( vp, 0, s );
+	    }
+#	endif // MIN_USE_OBJ_AUX_STUBS
+    }
+
+    return count;
 }
 
 // Remove a list.  Free any aux stubs used and
@@ -2915,7 +2978,7 @@ void MINT::remove_list
 	    {
 		MINT::remove_sublist
 		    ( base, total_size,
-		      min::unprotected::gen_of ( s ) );
+		      MUP::gen_of ( s ) );
 		uns64 c = MUP::control_of ( s );
 		MUP::free_aux_stub ( s );
 		if ( c & MUP::STUB_PTR)
@@ -2940,10 +3003,9 @@ void MINT::remove_list
 #	    if MIN_USE_OBJ_AUX_STUBS
 		if ( min::is_stub ( v ) )
 		{
-		    min::stub * s2 =
-			min::unprotected::stub_of ( v );
-		    if (    min::type_of ( s2 )
-			 == min::LIST_AUX )
+		    min::stub * s2 = MUP::stub_of ( v );
+		    if (    MUP::type_of ( s2 )
+			 == LIST_AUX )
 		        s = s2, index = 0;
 		}
 		else
@@ -2989,9 +3051,9 @@ void min::insert_before
     }
 
     unsptr unused_offset =
-        unprotected::unused_offset_of ( lp.vecp );
+        MUP::unused_offset_of ( lp.vecp );
     unsptr aux_offset =
-        unprotected::aux_offset_of ( lp.vecp );
+        MUP::aux_offset_of ( lp.vecp );
     unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
@@ -3191,8 +3253,7 @@ void min::insert_before
 	    lp.base[-- aux_offset] = * p ++;
 	lp.base[-- aux_offset] = min::LIST_END();
 
-	unprotected::aux_offset_of ( lp.vecp ) =
-	    aux_offset;
+	MUP::aux_offset_of ( lp.vecp ) = aux_offset;
 	return;
     }
 
@@ -3407,7 +3468,7 @@ void min::insert_before
 	lp.current_stub = NULL;
 #   endif
 
-    unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
+    MUP::aux_offset_of ( lp.vecp ) = aux_offset;
 }
 
 void min::insert_after
@@ -3417,9 +3478,9 @@ void min::insert_after
     if ( n == 0 ) return;
 
     unsptr unused_offset =
-        unprotected::unused_offset_of ( lp.vecp );
+        MUP::unused_offset_of ( lp.vecp );
     unsptr aux_offset =
-        unprotected::aux_offset_of ( lp.vecp );
+        MUP::aux_offset_of ( lp.vecp );
     unsptr total_size = lp.total_size;
     MIN_ASSERT (    total_size
                  == min::total_size_of ( lp.vecp ) );
@@ -3667,7 +3728,7 @@ void min::insert_after
 	lp.current_index = first;
     }
 
-    unprotected::aux_offset_of ( lp.vecp ) = aux_offset;
+    MUP::aux_offset_of ( lp.vecp ) = aux_offset;
 }
 
 min::unsptr min::remove
@@ -5218,7 +5279,7 @@ static bool compute_counts
 
 template < class vecpt >
 min::gen min::get_attrs
-	( unprotected::attr_ptr_type < vecpt > & ap )
+	( MUP::attr_ptr_type < vecpt > & ap )
 {
     min::gen airv = attr_info_vec_type.new_gen();
     min::attr_info_vec::insptr aip ( airv );
@@ -5282,8 +5343,7 @@ template min::gen min::get_attrs
 
 template < class vecpt >
 min::gen min::get_reverse_attrs
-	( unprotected::attr_ptr_type
-	      < vecpt > & ap )
+	( MUP::attr_ptr_type < vecpt > & ap )
 {
     min::gen rairv =
         reverse_attr_info_vec_type.new_gen();
@@ -6515,15 +6575,14 @@ static T print_gen
     }
     else if ( min::is_str ( v ) )
     {
-        min::unprotected::str_ptr sp ( v );
+        MUP::str_ptr sp ( v );
         return out << f->str_prefix
 	           << min::begin_ptr_of ( sp )
 		   << f->str_postfix;
     }
     else if ( min::is_lab ( v ) )
     {
-	min::unprotected
-	   ::lab_ptr labp ( MUP::stub_of ( v ) );
+	MUP::lab_ptr labp ( MUP::stub_of ( v ) );
         min::uns32 len = min::length_of ( labp );
 	out << f->lab_prefix;
 	for ( min::unsptr i = 0; i < len; ++ i )
@@ -6645,7 +6704,7 @@ min::printer operator <<
 
 	return print_gen<min::printer>
 	    ( printer,
-	      min::unprotected::new_gen ( op.v1.g ),
+	      MUP::new_gen ( op.v1.g ),
 	      f, f->pstub );
     }
     case min::op::PUNICODE1:
