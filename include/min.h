@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 08:12:16 EST 2012
+// Date:	Mon Feb 27 02:18:05 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8709,6 +8709,13 @@ namespace min { namespace unprotected {
 	}
     };
 
+    min::unsptr list_element_count
+	    ( min::obj_vec_ptr & vp,
+	      min::unsptr index
+#	    if MIN_USE_OBJ_AUX_STUBS
+	      , const min::stub * s = NULL
+#	    endif
+	);
 
 } }
 
