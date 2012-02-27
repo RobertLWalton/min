@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 08:54:30 EST 2012
+// Date:	Mon Feb 27 09:07:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2812,148 +2812,7 @@ void MINT::allocate_stub_list
                      ( saved_relocated_flag ) );
 }
 
-
 # endif // MIN_USE_OBJ_AUX_STUBS
-
-min::unsptr MUP::list_element_count
-	( min::obj_vec_ptr & vp,
-	  min::unsptr index
-#	if MIN_USE_OBJ_AUX_STUBS
-	  , const min::stub * s // = NULL
-#	endif
-	)
-{
-    unsptr count = 1;  // +1 for LIST_END
-    unsptr total_size = min::total_size_of ( vp );
-    while ( true )
-    {
-
-#	if MIN_USE_OBJ_AUX_STUBS
-
-	    if ( s != NULL )
-	    {
-		MIN_ASSERT
-		    ( MUP::type_of ( s ) == LIST_AUX
-		      ||
-		      MUP::type_of ( s ) == SUBLIST_AUX
-		    );
-
-		min::gen v = MUP::gen_of ( s );
-		++ count;
-		if ( is_stub ( v ) )
-		{
-		    const min::stub * s2 =
-			MUP::stub_of ( v );
-		    if (    MUP::type_of ( s2 )
-		         == SUBLIST_AUX )
-			count += list_element_count
-				    ( vp, 0, s2 );
-		}
-		else if ( is_sublist_aux ( v )
-		          &&
-		          v != min::EMPTY_SUBLIST() )
-		    count += list_element_count
-				( vp,   total_size
-				      - MUP::aux_of
-				            ( v ) );
-
-		uns64 c = MUP::control_of ( s );
-		if ( c & STUB_PTR )
-		    s = MUP::stub_of_control ( c );
-		else
-		{
-		    index = MUP::value_of_control ( c );
-		    if ( index == 0 )
-		        return count;
-		    index = total_size - index;
-		    s = NULL;
-		}
-	    }
-	    else
-#	endif // MIN_USE_OBJ_AUX_STUBS
-
-	{
-	    MIN_ASSERT ( index != 0 );
-
-	    min::gen v = vp[index];
-
-	    if ( is_list_aux ( v ) )
-	    {
-	        index = MUP::aux_of ( v );
-		if ( index == 0 ) return count;
-		index = total_size - index;
-	    }
-	    else if ( is_sublist_aux ( v ) )
-	    {
-	        ++ count;
-	        unsptr index2 = MUP::aux_of ( v );
-		if ( index2 != 0 )
-		    count += list_element_count
-			( vp, total_size - index2 );
-	    }
-#           if MIN_USE_OBJ_AUX_STUBS
-		else if ( is_stub ( v ) )
-		{
-		    const min::stub * s2 =
-			MUP::stub_of ( v );
-		    int type = MUP::type_of ( s2 );
-		    if ( type == LIST_AUX )
-		    {
-		        s = s2;
-			index = 0;
-		    }
-		    else if ( type == SUBLIST_AUX )
-			count += 1 + list_element_count
-				    ( vp, 0, s2 );
-		    else ++ count;
-		}
-#	    endif // MIN_USE_OBJ_AUX_STUBS
-	    else
-	    {
-	        ++ count;
-	        -- index;
-	    }
-	}
-    }
-}
-
-min::unsptr min::list_element_count
-	( min::obj_vec_ptr & vp )
-{
-    unsptr count = 0;
-    unsptr index = MUP::var_offset_of ( vp );
-    unsptr end_index = MUP::unused_offset_of ( vp );
-    unsptr total_size = total_size_of ( vp );
-    while ( index < end_index )
-    {
-        min::gen v = vp[index++];
-
-	if ( is_list_aux ( v )
-	     ||
-	     is_sublist_aux ( v ) )
-	{
-	    unsptr index2 = MUP::aux_of ( v );
-	    if ( index2 != 0 )
-	        count += MUP::list_element_count
-			    ( vp, total_size - index2 );
-	}
-#	if MIN_USE_OBJ_AUX_STUBS
-	    else if ( is_stub ( v ) )
-	    {
-	    	const min::stub * s =
-		    MUP::stub_of ( v );
-		int type = MUP::type_of ( s );
-	        if ( type == LIST_AUX
-		     ||
-		     type == SUBLIST_AUX )
-		    count += MUP::list_element_count
-				( vp, 0, s );
-	    }
-#	endif // MIN_USE_OBJ_AUX_STUBS
-    }
-
-    return count;
-}
 
 // Remove a list.  Free any aux stubs used and
 // set any auxiliary area elements use to min::NONE().
@@ -4038,6 +3897,401 @@ bool MINT::insert_reserve
 #   endif
 
     return result;
+}
+
+min::unsptr MUP::list_element_count
+	( min::obj_vec_ptr & vp,
+	  min::unsptr index
+#	if MIN_USE_OBJ_AUX_STUBS
+	  , const min::stub * s // = NULL
+#	endif
+	)
+{
+    unsptr count = 1;  // +1 for LIST_END
+    unsptr total_size = min::total_size_of ( vp );
+    while ( true )
+    {
+
+#	if MIN_USE_OBJ_AUX_STUBS
+
+	    if ( s != NULL )
+	    {
+		MIN_ASSERT
+		    ( MUP::type_of ( s ) == LIST_AUX
+		      ||
+		      MUP::type_of ( s ) == SUBLIST_AUX
+		    );
+
+		min::gen v = MUP::gen_of ( s );
+		++ count;
+		if ( is_stub ( v ) )
+		{
+		    const min::stub * s2 =
+			MUP::stub_of ( v );
+		    if (    MUP::type_of ( s2 )
+		         == SUBLIST_AUX )
+			count += list_element_count
+				    ( vp, 0, s2 );
+		}
+		else if ( is_sublist_aux ( v )
+		          &&
+		          v != min::EMPTY_SUBLIST() )
+		    count += list_element_count
+				( vp,   total_size
+				      - MUP::aux_of
+				            ( v ) );
+
+		uns64 c = MUP::control_of ( s );
+		if ( c & STUB_PTR )
+		    s = MUP::stub_of_control ( c );
+		else
+		{
+		    index = MUP::value_of_control ( c );
+		    if ( index == 0 )
+		        return count;
+		    index = total_size - index;
+		    s = NULL;
+		}
+	    }
+	    else
+#	endif // MIN_USE_OBJ_AUX_STUBS
+
+	{
+	    MIN_ASSERT ( index != 0 );
+
+	    min::gen v = vp[index];
+
+	    if ( is_list_aux ( v ) )
+	    {
+	        index = MUP::aux_of ( v );
+		if ( index == 0 ) return count;
+		index = total_size - index;
+	    }
+	    else if ( is_sublist_aux ( v ) )
+	    {
+	        ++ count;
+	        unsptr index2 = MUP::aux_of ( v );
+		if ( index2 != 0 )
+		    count += list_element_count
+			( vp, total_size - index2 );
+	    }
+#           if MIN_USE_OBJ_AUX_STUBS
+		else if ( is_stub ( v ) )
+		{
+		    const min::stub * s2 =
+			MUP::stub_of ( v );
+		    int type = MUP::type_of ( s2 );
+		    if ( type == LIST_AUX )
+		    {
+		        s = s2;
+			index = 0;
+		    }
+		    else if ( type == SUBLIST_AUX )
+			count += 1 + list_element_count
+				    ( vp, 0, s2 );
+		    else ++ count;
+		}
+#	    endif // MIN_USE_OBJ_AUX_STUBS
+	    else
+	    {
+	        ++ count;
+	        -- index;
+	    }
+	}
+    }
+}
+
+min::unsptr min::list_element_count
+	( min::obj_vec_ptr & vp )
+{
+    unsptr count = 0;
+    unsptr index = MUP::var_offset_of ( vp );
+    unsptr end_index = MUP::unused_offset_of ( vp );
+    unsptr total_size = total_size_of ( vp );
+    while ( index < end_index )
+    {
+        min::gen v = vp[index++];
+
+	if ( is_list_aux ( v )
+	     ||
+	     is_sublist_aux ( v ) )
+	{
+	    unsptr index2 = MUP::aux_of ( v );
+	    if ( index2 != 0 )
+	        count += MUP::list_element_count
+			    ( vp, total_size - index2 );
+	}
+#	if MIN_USE_OBJ_AUX_STUBS
+	    else if ( is_stub ( v ) )
+	    {
+	    	const min::stub * s =
+		    MUP::stub_of ( v );
+		int type = MUP::type_of ( s );
+	        if ( type == LIST_AUX
+		     ||
+		     type == SUBLIST_AUX )
+		    count += MUP::list_element_count
+				( vp, 0, s );
+	    }
+#	endif // MIN_USE_OBJ_AUX_STUBS
+    }
+
+    return count;
+}
+
+void min::reorganize
+	( min::obj_vec_insptr & vp,
+	  min::unsptr hash_size,
+	  min::unsptr var_size,
+	  min::unsptr unused_size )
+{
+    bool change_hash_size =
+        ( hash_size != hash_size_of ( vp ) );
+    unsptr total_size = total_size_of ( vp );
+
+    // Figure the size of the work area.  Object header
+    // is NOT included.  Work area may be oversized.
+    //
+    unsptr work_size = var_size
+                     + hash_size
+                     + unused_size
+                     + attr_size_of ( vp );
+    if ( MINT::obj_aux_flag_of ( vp ) )
+        work_size += min::list_element_count ( vp );
+    else
+        work_size += aux_size_of ( vp );
+
+    // Establish work area.  Data are pushed by
+    //		* work_low ++ = ...
+    //		* -- work_high = ...
+    //
+    // and aux pointer indices reference
+    //
+    //		work_end[-index]
+    //
+    min::gen work[work_size];
+    min::gen * work_low = work;
+    min::gen * work_high = work + work_size;
+    min::gen * work_end = work + work_size;
+
+    // We first copy the variable vector, hash table,
+    // and attribute vectors, and any lists or sublists
+    // they point directly at, to the work area.  What
+    // is in the work aux area at the end of this are
+    // clean lists which may contain pointers to
+    // sublists in the original object.  What is in the
+    // work variable vector, hash table, and attribute
+    // vector at the end of this is non-aux-pointer
+    // elements and aux pointers that point at the
+    // clean lists in the work aux area.
+    //
+    // Note that aux stubs in the original object whose
+    // values are copied to the clean work aux area
+    // lists are deallocated.
+
+    unsptr index = MUP::var_offset_of ( vp );
+    unsptr index_end = MUP::unused_offset_of ( vp );
+    unsptr var_end =
+        ( var_size < min::var_size_of ( vp ) ?
+	  var_size : min::var_size_of ( vp ) );
+    unsptr hash_index = MUP::hash_offset_of ( vp );
+
+    while ( index < index_end )
+    {
+        if ( index == var_end )
+	{
+	    if ( var_size < min::var_size_of ( vp ) )
+	        index = hash_index;
+	    else if (   var_size
+	              > min::var_size_of ( vp ) )
+	        work_low += var_size
+		          - min::var_size_of ( vp );
+	}
+
+        if ( change_hash_size && index == hash_index )
+	{
+	    // In order to change the hash table size
+	    // we must precompute the length of the
+	    // lists headed by the new hash table
+	    // elements.  Then we allocate the new
+	    // lists with empty elements and then we
+	    // fill in the elements.
+
+	    // hash_count[i] is the number of nodes
+	    // or attributes that will land in the
+	    // new hash_table element of index i.
+	    //
+	    unsptr hash_count[hash_size];
+	    memset ( hash_count, 0,
+	             sizeof ( hash_count ) );
+	    for ( unsptr i = 0;
+	          i  < hash_size_of ( vp ); ++ i )
+	    {
+		unsptr index2 = index + i;
+		bool label_is_next = true;
+		while ( true )
+		{
+		    min::gen v = vp[index2];
+		    if ( is_list_aux ( v ) )
+		    {
+		        if ( v == LIST_END() ) break;
+		        index2 = total_size
+			       - MUP::aux_of ( v );
+			continue;
+		    }
+		    else if ( label_is_next )
+		    {
+		        uns32 hash = min::hash ( v )
+			           % hash_size;
+			++ hash_count[hash];
+			label_is_next = false;
+		    }
+		    else label_is_next = true;
+		    -- index2;
+		}
+		MIN_ASSERT ( label_is_next );
+	    }
+
+	    // Now allocate new hash table lists, with
+	    // the correct length but 0 elements.
+	    // In the new hash table use aux pointers
+	    // to point at the ENDs of the new lists.
+	    //
+	    // Move work_low past the new hash table
+	    // while we do this.
+	    //
+	    min::gen * new_hash = work_low;
+	    for ( unsptr i = 0; i  < hash_size; ++ i )
+	    {
+	        unsptr c = hash_count[i];
+		if ( c == 0 )
+		    * work_low ++ = LIST_END();
+		else
+		{
+		    work_high -= 2 * c + 1;
+		    * work_low ++ =
+		        MUP::new_list_aux_gen
+			    ( work_end - work_high );
+		    * work_high = LIST_END();
+		    memset ( work_high + 1, 0,
+		             2 * c
+			       * sizeof ( min::gen ) );
+		}
+	    }
+
+	    // Now go back through the original hash
+	    // table and move the attribute/node-name-
+	    // descriptor-pairs to the new hash table
+	    // lists.  When a pair is moved into
+	    // new_hash[j], increment the aux pointer
+	    // in new_hash[j] by 2.
+	    //
+	    for ( unsptr i = 0;
+	          i  < hash_size_of ( vp ); ++ i )
+	    {
+		unsptr index2 = index + i;
+		bool label_is_next = true;
+		min::gen * descriptor;
+		while ( true )
+		{
+		    min::gen v = vp[index2];
+		    if ( is_list_aux ( v ) )
+		    {
+		        if ( v == LIST_END() ) break;
+		        index2 = total_size
+			       - MUP::aux_of ( v );
+			continue;
+		    }
+		    else if ( label_is_next )
+		    {
+		        uns32 hash = min::hash ( v )
+			           % hash_size;
+			unsptr index2 =
+			    MUP::aux_of
+			        ( new_hash[hash] );
+			index -= 2;
+			descriptor = work_end
+			           - index2;
+			* descriptor -- = v;
+			new_hash[hash] =
+			    MUP::new_list_aux_gen
+			        ( index2 );
+			label_is_next = false;
+		    }
+		    else
+		    {
+		        * descriptor = v;
+			label_is_next = true;
+		    }
+		    -- index2;
+		}
+		MIN_ASSERT ( label_is_next );
+	    }
+	    index += min::hash_size_of ( vp );
+	}
+	else
+	{
+	    min::gen v = vp[index++];
+	    if ( is_list_aux ( v )
+	         ||
+		 is_sublist_aux ( v ) )
+	    {
+	        unsptr index2 = MUP::aux_of ( v );
+		if ( index2 == 0 )
+		    * work_low ++ = v;
+		else
+		{
+		    * work_low = MUP::renew_gen
+		        ( v, work_end - work_high + 1 );
+		    while ( index2 != 0 )
+		    {
+		        v = vp[total_size - index2];
+			if ( is_list_aux ( v ) )
+			{
+			    index2 = MUP::aux_of ( v );
+			    if ( index2 == 0 ) break;
+			}
+			else
+			{
+			    * -- work_high = v;
+			    ++ index;
+			}
+		    }
+		    * -- work_high = LIST_END();
+		}
+	    }
+	    else * work_low ++ = v;
+	}
+    }
+
+    // Scan from the end of the new AUX area to the
+    // beginning moving any sublists found.
+    //
+    min::gen * p = work_end;
+    while ( p > work_high )
+    {
+        min::gen v = * -- p;
+	if ( ! is_sublist_aux ( v ) ) continue;
+	unsptr index = MUP::aux_of ( v );
+	if ( index == 0 ) continue;
+	* p = MUP::new_sublist_aux_gen
+	    ( work_end - work_high + 1 );
+	while ( true )
+	{
+	    v = vp[total_size-index];
+	    if ( is_list_aux ( v ) )
+	    {
+	        index = MUP::aux_of ( v );
+		if ( index == 0 ) break;
+	    }
+	    else
+	    {
+	        * -- work_high = v;
+		++ index;
+	    }
+	}
+	* -- work_high = LIST_END();
+    }
 }
 
 // Object Attribute Level
