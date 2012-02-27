@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 04:49:39 EST 2012
+// Date:	Mon Feb 27 11:39:33 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7014,6 +7014,8 @@ namespace min {
 	    ( min::obj_vec_insptr & vp );
     }
     namespace internal {
+	bool obj_aux_flag_of
+	    ( min::obj_vec_insptr & vp );
 	void set_obj_aux_flag_of
 	    ( min::obj_vec_insptr & vp );
     }
@@ -7193,6 +7195,8 @@ namespace min {
 	  unprotected::unused_offset_of
 	    ( min::obj_vec_insptr & vp );
 	friend min::unsptr & unprotected::aux_offset_of
+	    ( min::obj_vec_insptr & vp );
+	friend bool internal::obj_aux_flag_of
 	    ( min::obj_vec_insptr & vp );
 	friend void internal::set_obj_aux_flag_of
 	    ( min::obj_vec_insptr & vp );
@@ -7672,6 +7676,11 @@ namespace min {
 	( min::obj_vec_ptr & vp )
     {
         return vp.aux_offset;
+    }
+    inline bool internal::obj_aux_flag_of
+	( min::obj_vec_insptr & vp )
+    {
+        return vp.total_size_flags & OBJ_AUX;
     }
     inline void internal::set_obj_aux_flag_of
 	( min::obj_vec_insptr & vp )
@@ -9371,6 +9380,25 @@ namespace min {
 
     min::unsptr list_element_count
 	    ( min::obj_vec_ptr & vp );
+
+    void reorganize
+	    ( min::obj_vec_insptr & vp,
+	      min::unsptr hash_size,
+	      min::unsptr var_size,
+	      min::unsptr unused_size = 0 );
+    inline void reorganize
+	    ( min::obj_vec_insptr & vp,
+	      min::unsptr hash_size )
+    {
+        reorganize ( vp, hash_size,
+	             var_size_of ( vp ) );
+    }
+    inline void reorganize
+	    ( min::obj_vec_insptr & vp )
+    {
+        reorganize ( vp, hash_size_of ( vp ),
+	                 var_size_of ( vp ) );
+    }
 }
 
 
