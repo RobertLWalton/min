@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Wed Jan 18 06:17:07 EST 2012
+# Date:		Wed Feb 29 10:50:47 EST 2012
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -36,7 +36,7 @@ INCLUDE_FILES = \
 
 LIBRARIES =
 
-TEST_CASES = loose compact \
+TEST_CASES = loose loose_no_aux compact \
              loose_stretch compact_stretch \
 	     loose_partial compact_partial
 
@@ -134,6 +134,9 @@ min_interface_test_loose:	\
 min_interface_test_compact:	\
 	GFLAGS = -DMIN_IS_COMPACT=1 \
 	         -DMIN_USE_OBJ_AUX_STUBS=1
+
+min_interface_test_loose_no_aux:	\
+	GFLAGS = -DMIN_IS_COMPACT=0
 
 N=MIN_MAX_NUMBER_OF_STUBS
 min_interface_test_loose_stretch:	\
