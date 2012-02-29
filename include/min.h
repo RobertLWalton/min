@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 11:39:33 EST 2012
+// Date:	Wed Feb 29 11:01:22 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7052,6 +7052,11 @@ namespace min {
     bool resize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr unused_size );
+    void reorganize
+	( min::obj_vec_insptr & vp,
+	  min::unsptr hash_size,
+	  min::unsptr var_size,
+	  min::unsptr unused_size );
     bool expand
 	( min::obj_vec_insptr & vp,
 	  min::unsptr unused_size );
@@ -7233,6 +7238,11 @@ namespace min {
 	      bool expand );
 	friend bool resize
 	    ( min::obj_vec_insptr & vp,
+	      min::unsptr unused_size );
+	friend void reorganize
+	    ( min::obj_vec_insptr & vp,
+	      min::unsptr hash_size,
+	      min::unsptr var_size,
 	      min::unsptr unused_size );
 	friend bool expand
 	    ( min::obj_vec_insptr & vp,

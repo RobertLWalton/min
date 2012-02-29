@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Feb 29 04:42:23 EST 2012
+// Date:	Wed Feb 29 10:59:47 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2313,7 +2313,7 @@ min::phrase_position_vec min::position_of
 
 bool min::use_obj_aux_stubs = false;
 
-inline min::unsptr MASK ( unsigned bits )
+inline min::unsptr EXP2 ( unsigned bits )
 {
     return (min::unsptr) 1 << bits;
 }
@@ -2337,12 +2337,12 @@ min::gen min::new_obj_gen
 
     if ( MIN_IS_COMPACT
          &&
-	 var_size < MASK ( HSIZE ( TINY_OBJ ) )
+	 var_size < EXP2 ( HSIZE ( TINY_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( TINY_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( TINY_OBJ ) )
 	 &&
 	    total_size + GSIZE ( TINY_OBJ )
-         <= MASK ( TSIZE ( TINY_OBJ ) ) )
+         <= EXP2 ( TSIZE ( TINY_OBJ ) ) )
     {
         total_size += GSIZE ( TINY_OBJ );
 
@@ -2355,7 +2355,7 @@ min::gen min::new_obj_gen
 		/ sizeof ( min::gen );
 	    assert ( old_total_size <= total_size );
 	    assert (    total_size
-	             <= MASK ( TSIZE ( TINY_OBJ ) ) );
+	             <= EXP2 ( TSIZE ( TINY_OBJ ) ) );
 	}
 
 	type = min::TINY_OBJ;
@@ -2377,12 +2377,12 @@ min::gen min::new_obj_gen
 	p = (min::gen *) hp + GSIZE ( TINY_OBJ );
     }
     else
-    if ( var_size < MASK ( HSIZE ( SHORT_OBJ ) )
+    if ( var_size < EXP2 ( HSIZE ( SHORT_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( SHORT_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( SHORT_OBJ ) )
 	 &&
 	    total_size + GSIZE ( SHORT_OBJ )
-         <= MASK ( TSIZE ( SHORT_OBJ ) ) )
+         <= EXP2 ( TSIZE ( SHORT_OBJ ) ) )
     {
         total_size += GSIZE ( SHORT_OBJ );
 
@@ -2395,7 +2395,7 @@ min::gen min::new_obj_gen
 		/ sizeof ( min::gen );
 	    assert ( old_total_size <= total_size );
 	    assert (    total_size
-	             <= MASK ( TSIZE ( SHORT_OBJ ) ) );
+	             <= EXP2 ( TSIZE ( SHORT_OBJ ) ) );
 	}
 
 	type = min::SHORT_OBJ;
@@ -2417,12 +2417,12 @@ min::gen min::new_obj_gen
 	p = (min::gen *) hp + GSIZE ( SHORT_OBJ );
     }
     else
-    if ( var_size < MASK ( HSIZE ( LONG_OBJ ) )
+    if ( var_size < EXP2 ( HSIZE ( LONG_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( LONG_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( LONG_OBJ ) )
 	 &&
 	    total_size + GSIZE ( LONG_OBJ )
-         <= MASK ( TSIZE ( LONG_OBJ ) ) )
+         <= EXP2 ( TSIZE ( LONG_OBJ ) ) )
     {
         total_size += GSIZE ( LONG_OBJ );
 
@@ -2435,7 +2435,7 @@ min::gen min::new_obj_gen
 		/ sizeof ( min::gen );
 	    assert ( old_total_size <= total_size );
 	    assert (    total_size
-	             <= MASK ( TSIZE ( LONG_OBJ ) ) );
+	             <= EXP2 ( TSIZE ( LONG_OBJ ) ) );
 	}
 
 	type = min::LONG_OBJ;
@@ -2457,12 +2457,12 @@ min::gen min::new_obj_gen
 	p = (min::gen *) hp + GSIZE ( LONG_OBJ );
     }
     else
-    if ( var_size < MASK ( HSIZE ( HUGE_OBJ ) )
+    if ( var_size < EXP2 ( HSIZE ( HUGE_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( HUGE_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( HUGE_OBJ ) )
 	 &&
 	    total_size + GSIZE ( HUGE_OBJ )
-         <= MASK ( TSIZE ( HUGE_OBJ ) ) )
+         <= EXP2 ( TSIZE ( HUGE_OBJ ) ) )
     {
         total_size += GSIZE ( HUGE_OBJ );
 
@@ -2475,7 +2475,7 @@ min::gen min::new_obj_gen
 		/ sizeof ( min::gen );
 	    assert ( old_total_size <= total_size );
 	    assert (    total_size
-	             <= MASK ( TSIZE ( HUGE_OBJ ) ) );
+	             <= EXP2 ( TSIZE ( HUGE_OBJ ) ) );
 	}
 
 	type = min::HUGE_OBJ;
@@ -2531,45 +2531,45 @@ bool min::resize
 
     if ( MIN_IS_COMPACT
          &&
-	 var_size < MASK ( HSIZE ( TINY_OBJ ) )
+	 var_size < EXP2 ( HSIZE ( TINY_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( TINY_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( TINY_OBJ ) )
 	 &&
 	    total_size + GSIZE ( TINY_OBJ )
-         <= MASK ( TSIZE ( TINY_OBJ ) ) )
+         <= EXP2 ( TSIZE ( TINY_OBJ ) ) )
     {
         total_size += GSIZE ( TINY_OBJ );
 	new_type = TINY_OBJ;
     }
     else
-    if ( var_size < MASK ( HSIZE ( SHORT_OBJ ) )
+    if ( var_size < EXP2 ( HSIZE ( SHORT_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( SHORT_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( SHORT_OBJ ) )
 	 &&
 	    total_size + GSIZE ( SHORT_OBJ )
-         <= MASK ( TSIZE ( SHORT_OBJ ) ) )
+         <= EXP2 ( TSIZE ( SHORT_OBJ ) ) )
     {
         total_size += GSIZE ( SHORT_OBJ );
 	new_type = SHORT_OBJ;
     }
     else
-    if ( var_size < MASK ( HSIZE ( LONG_OBJ ) )
+    if ( var_size < EXP2 ( HSIZE ( LONG_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( LONG_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( LONG_OBJ ) )
 	 &&
 	    total_size + GSIZE ( LONG_OBJ )
-         <= MASK ( TSIZE ( LONG_OBJ ) ) )
+         <= EXP2 ( TSIZE ( LONG_OBJ ) ) )
     {
         total_size += GSIZE ( LONG_OBJ );
 	new_type = LONG_OBJ;
     }
     else
-    if ( var_size < MASK ( HSIZE ( HUGE_OBJ ) )
+    if ( var_size < EXP2 ( HSIZE ( HUGE_OBJ ) )
          &&
-         hash_size < MASK ( HSIZE ( HUGE_OBJ ) )
+         hash_size < EXP2 ( HSIZE ( HUGE_OBJ ) )
 	 &&
 	    total_size + GSIZE ( HUGE_OBJ )
-         <= MASK ( TSIZE ( HUGE_OBJ ) ) )
+         <= EXP2 ( TSIZE ( HUGE_OBJ ) ) )
     {
         total_size += GSIZE ( HUGE_OBJ );
 	new_type = HUGE_OBJ;
@@ -3970,7 +3970,7 @@ bool MINT::insert_reserve
 
 #   define FORLIST(vp,i,s,v,free) \
     { \
-	min:gen v; \
+	min::gen v; \
 	while ( true ) \
 	{ \
 	    v = vp[i]; \
@@ -4076,7 +4076,6 @@ void min::reorganize
     //
     unsptr work_size = var_size
                      + hash_size
-                     + unused_size
                      + attr_size_of ( vp );
 #   if MIN_USE_OBJ_AUX_STUBS
 	if ( MINT::obj_aux_flag_of ( vp ) )
@@ -4272,22 +4271,24 @@ void min::reorganize
 		    MUP::renew_gen
 		        ( v, work_end - work_high + 1 );
 	    }
-	    else if ( is_stub ( v ) )
-	    {
-	        s = MUP::stub_of ( v );
-		int type = MUP::type_of ( s );
-		if ( type == LIST_AUX )
-		    work_low[-1] =
-			MUP::new_list_aux_gen
-			    ( work_end - work_high
-			               + 1 );
-		else if ( type == SUBLIST_AUX )
-		    work_low[-1] =
-			MUP::new_sublist_aux_gen
-			    ( work_end - work_high
-			               + 1 );
-		else continue;
-	    }
+#           if MIN_USE_OBJ_AUX_STUBS
+		else if ( is_stub ( v ) )
+		{
+		    s = MUP::stub_of ( v );
+		    int type = MUP::type_of ( s );
+		    if ( type == LIST_AUX )
+			work_low[-1] =
+			    MUP::new_list_aux_gen
+				( work_end - work_high
+					   + 1 );
+		    else if ( type == SUBLIST_AUX )
+			work_low[-1] =
+			    MUP::new_sublist_aux_gen
+				( work_end - work_high
+					   + 1 );
+		    else continue;
+		}
+#           endif // MIN_USE_OBJ_AUX_STUBS
 	    else continue;
 
 	    FORLIST(vp,index2,s,v2,true)
@@ -4327,6 +4328,171 @@ void min::reorganize
 	ENDFORLIST
 	* -- work_high = LIST_END();
     }
+
+    // Compute new total size and header size
+    // and type.
+
+    unsptr total_size =
+          ( work_low - work )
+	+ ( work_end - work_high )
+	+ unused_size;
+
+    int type;
+    unsptr header_size;
+    if ( MIN_IS_COMPACT
+         &&
+	 var_size < EXP2 ( HSIZE ( TINY_OBJ ) )
+         &&
+         hash_size < EXP2 ( HSIZE ( TINY_OBJ ) )
+	 &&
+	    total_size + GSIZE ( TINY_OBJ )
+         <= EXP2 ( TSIZE ( TINY_OBJ ) ) )
+    {
+	type = TINY_OBJ;
+	header_size = GSIZE ( TINY_OBJ );
+    }
+    else
+    if ( var_size < EXP2 ( HSIZE ( SHORT_OBJ ) )
+         &&
+         hash_size < EXP2 ( HSIZE ( SHORT_OBJ ) )
+	 &&
+	    total_size + GSIZE ( SHORT_OBJ )
+         <= EXP2 ( TSIZE ( SHORT_OBJ ) ) )
+    {
+	type = SHORT_OBJ;
+	header_size = GSIZE ( SHORT_OBJ );
+    }
+    else
+    if ( var_size < EXP2 ( HSIZE ( LONG_OBJ ) )
+         &&
+         hash_size < EXP2 ( HSIZE ( LONG_OBJ ) )
+	 &&
+	    total_size + GSIZE ( LONG_OBJ )
+         <= EXP2 ( TSIZE ( LONG_OBJ ) ) )
+    {
+	type = LONG_OBJ;
+	header_size = GSIZE ( LONG_OBJ );
+    }
+    else
+    if ( var_size < EXP2 ( HSIZE ( HUGE_OBJ ) )
+         &&
+         hash_size < EXP2 ( HSIZE ( HUGE_OBJ ) )
+	 &&
+	    total_size + GSIZE ( HUGE_OBJ )
+         <= EXP2 ( TSIZE ( HUGE_OBJ ) ) )
+    {
+	type = HUGE_OBJ;
+	header_size = GSIZE ( HUGE_OBJ );
+    }
+    else
+        MIN_ABORT ( "humongous object requested" );
+
+    total_size += header_size;
+
+    MUP::resize_body rbody
+        ( MUP::stub_of ( vp ),
+	  total_size * sizeof ( min::gen ),
+	    min::total_size_of ( vp )
+	  * sizeof ( min::gen ) );
+
+    unsptr var_offset = header_size;
+    unsptr hash_offset = var_offset + var_size;
+    unsptr attr_offset = hash_offset + hash_size;
+    unsptr unused_offset = attr_offset
+                         + min::attr_size_of ( vp );
+    unsptr aux_offset = total_size
+                      - ( work_end - work_high );
+
+    void * & newb = MUP::new_body_ptr_ref ( rbody );
+    const unsigned SHIFT = MINT::OBJ_FLAG_BITS;
+    const unsigned MASK = ( 1 << SHIFT ) - 1;
+
+    switch ( type )
+    {
+    case TINY_OBJ:
+    {
+	MINT::tiny_obj * hp = (MINT::tiny_obj *) newb;
+	hp->total_size =
+	      ( ( total_size - 1 ) << SHIFT )
+	    + ( vp.total_size_flags & MASK );
+	hp->var_size = var_size;
+	hp->hash_size = hash_size;
+	hp->unused_offset =
+	      ( ( unused_offset - 1 ) << SHIFT )
+	    + ( vp.unused_offset_flags & MASK );
+	hp->aux_offset =
+	      ( ( aux_offset - 1 ) << SHIFT )
+	    + ( vp.aux_offset_flags & MASK );
+        
+    }
+    case SHORT_OBJ:
+    {
+	MINT::short_obj * hp = (MINT::short_obj *) newb;
+	hp->total_size =
+	      ( ( total_size - 1 ) << SHIFT )
+	    + ( vp.total_size_flags & MASK );
+	hp->var_size = var_size;
+	hp->hash_size = hash_size;
+	hp->unused_offset =
+	      ( ( unused_offset - 1 ) << SHIFT )
+	    + ( vp.unused_offset_flags & MASK );
+	hp->aux_offset =
+	      ( ( aux_offset - 1 ) << SHIFT )
+	    + ( vp.aux_offset_flags & MASK );
+        
+    }
+    case LONG_OBJ:
+    {
+	MINT::long_obj * hp = (MINT::long_obj *) newb;
+	hp->total_size =
+	      ( ( total_size - 1 ) << SHIFT )
+	    + ( vp.total_size_flags & MASK );
+	hp->var_size = var_size;
+	hp->hash_size = hash_size;
+	hp->unused_offset =
+	      ( ( unused_offset - 1 ) << SHIFT )
+	    + ( vp.unused_offset_flags & MASK );
+	hp->aux_offset =
+	      ( ( aux_offset - 1 ) << SHIFT )
+	    + ( vp.aux_offset_flags & MASK );
+        
+    }
+    case HUGE_OBJ:
+    {
+	MINT::huge_obj * hp = (MINT::huge_obj *) newb;
+	hp->total_size =
+	      ( ( total_size - 1 ) << SHIFT )
+	    + ( vp.total_size_flags & MASK );
+	hp->var_size = var_size;
+	hp->hash_size = hash_size;
+	hp->unused_offset =
+	      ( ( unused_offset - 1 ) << SHIFT )
+	    + ( vp.unused_offset_flags & MASK );
+	hp->aux_offset =
+	      ( ( aux_offset - 1 ) << SHIFT )
+	    + ( vp.aux_offset_flags & MASK );
+        
+    }
+    }
+    memcpy ( (min::gen *) newb + header_size,
+             & var ( vp, 0 ),
+	       ( unused_offset - header_size )
+	     * sizeof ( min::gen ) );
+    memset ( (min::gen *) newb + unused_offset,
+             0, unused_size * sizeof ( min::gen ) );
+    memcpy ( (min::gen *) newb + aux_offset,
+             work_high,
+	       ( work_end - work_high )
+	     * sizeof ( min::gen ) );
+    MUP::retype_resize_body ( rbody, type );
+
+    vp.unused_offset = unused_offset;
+    vp.aux_offset = aux_offset;
+    vp.hash_size = hash_size;
+    vp.total_size = total_size;
+    vp.var_offset = var_offset;
+    vp.hash_offset = hash_offset;
+    vp.attr_offset = attr_offset;
 }
 
 // Object Attribute Level
