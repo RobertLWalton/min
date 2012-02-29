@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Feb 27 09:07:31 EST 2012
+// Date:	Wed Feb 29 04:42:23 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3899,6 +3899,94 @@ bool MINT::insert_reserve
     return result;
 }
 
+// FORLIST(vp,i,s,v,free) ... code ... ENDFORLIST
+//
+// Scans through a list in object pointed at by
+// min::obj_vec_ptr vp using unsptr i as the index
+// and const min::stub * s as the aux stub pointer if
+// aux stubs are in use.  The next value is put into
+// min::gen v and ... code ... is run.  vp,i,s,v should
+// be simple C++ names of pre-declared variables.
+//
+// free is true to free any aux stubs scanned, and false
+// to not do this.  free should be `true' or `false'.
+//
+// If MIN_USE_OBJ_AUX_STUBS is not true, s and free are
+// not used.
+//
+# if MIN_USE_OBJ_AUX_STUBS
+
+#   define FORLIST(vp,i,s,v,free) \
+    { \
+	min::gen v; \
+	while ( true ) \
+	{ \
+	    if ( s != NULL ) \
+	    { \
+		v = MUP::gen_of ( s ); \
+		uns64 c = MUP::control_of ( s ); \
+		if ( free ) \
+		    MUP::free_aux_stub \
+		        ( (min::stub *) s ); \
+		if ( c & MUP::STUB_PTR ) \
+		    s = MUP::stub_of_control ( c ); \
+		else \
+		{ \
+		    i = MUP::value_of_control ( c ); \
+		    if ( i != 0 ) \
+		        i = min::total_size_of ( vp ) \
+			  - i; \
+		    s = NULL; \
+		} \
+	    } \
+	    else if ( i != 0 ) \
+	    { \
+		v = vp[i]; \
+		if ( is_list_aux ( v ) ) \
+		{ \
+		    if ( v == min::LIST_END() ) break; \
+		    i = min::total_size_of ( vp ) \
+		      - MUP::aux_of ( v ); \
+		    continue; \
+		} \
+		else if ( is_stub ( v ) ) \
+		{ \
+		    const min::stub * s2 = \
+			MUP::stub_of ( v ); \
+		    if (    MUP::type_of ( s2 ) \
+			 == LIST_AUX ) \
+		    { \
+			s = s2; \
+			continue; \
+		    } \
+		} \
+		-- i; \
+	    } \
+	    else break;
+
+#   define ENDFORLIST } }
+
+# else // ! MIN_USE_OBJ_AUX_STUBS
+
+#   define FORLIST(vp,i,s,v,free) \
+    { \
+	min:gen v; \
+	while ( true ) \
+	{ \
+	    v = vp[i]; \
+	    if ( is_list_aux ( v ) ) \
+	    { \
+		if ( v == min::LIST_END() ) break; \
+		i = min::total_size_of ( vp ) \
+		  - MUP::aux_of ( v ); \
+		continue; \
+	    } \
+	    -- i;
+
+#   define ENDFORLIST } }
+
+# endif // MIN_USE_OBJ_AUX_STUBS
+
 min::unsptr MUP::list_element_count
 	( min::obj_vec_ptr & vp,
 	  min::unsptr index
@@ -3908,97 +3996,32 @@ min::unsptr MUP::list_element_count
 	)
 {
     unsptr count = 1;  // +1 for LIST_END
-    unsptr total_size = min::total_size_of ( vp );
-    while ( true )
-    {
-
+    FORLIST(vp,index,s,v,false)
+        ++ count;
+	if ( min::is_sublist_aux ( v ) )
+	{
+	    min::unsptr subindex = MUP::aux_of ( v );
+	    if ( subindex != 0 )
+		count += MUP::list_element_count
+		    ( vp,   min::total_size_of ( vp )
+			  - subindex );
+	}
 #	if MIN_USE_OBJ_AUX_STUBS
 
-	    if ( s != NULL )
+	    else if ( is_stub ( v ) )
 	    {
-		MIN_ASSERT
-		    ( MUP::type_of ( s ) == LIST_AUX
-		      ||
-		      MUP::type_of ( s ) == SUBLIST_AUX
-		    );
-
-		min::gen v = MUP::gen_of ( s );
-		++ count;
-		if ( is_stub ( v ) )
-		{
-		    const min::stub * s2 =
-			MUP::stub_of ( v );
-		    if (    MUP::type_of ( s2 )
-		         == SUBLIST_AUX )
-			count += list_element_count
-				    ( vp, 0, s2 );
-		}
-		else if ( is_sublist_aux ( v )
-		          &&
-		          v != min::EMPTY_SUBLIST() )
-		    count += list_element_count
-				( vp,   total_size
-				      - MUP::aux_of
-				            ( v ) );
-
-		uns64 c = MUP::control_of ( s );
-		if ( c & STUB_PTR )
-		    s = MUP::stub_of_control ( c );
-		else
-		{
-		    index = MUP::value_of_control ( c );
-		    if ( index == 0 )
-		        return count;
-		    index = total_size - index;
-		    s = NULL;
-		}
+		const min::stub * s2 =
+		    MUP::stub_of ( v );
+		if (    MUP::type_of ( s2 )
+		     == SUBLIST_AUX )
+		    count += MUP::list_element_count
+				( vp, 0, s2 );
 	    }
-	    else
 #	endif // MIN_USE_OBJ_AUX_STUBS
 
-	{
-	    MIN_ASSERT ( index != 0 );
+    ENDFORLIST
 
-	    min::gen v = vp[index];
-
-	    if ( is_list_aux ( v ) )
-	    {
-	        index = MUP::aux_of ( v );
-		if ( index == 0 ) return count;
-		index = total_size - index;
-	    }
-	    else if ( is_sublist_aux ( v ) )
-	    {
-	        ++ count;
-	        unsptr index2 = MUP::aux_of ( v );
-		if ( index2 != 0 )
-		    count += list_element_count
-			( vp, total_size - index2 );
-	    }
-#           if MIN_USE_OBJ_AUX_STUBS
-		else if ( is_stub ( v ) )
-		{
-		    const min::stub * s2 =
-			MUP::stub_of ( v );
-		    int type = MUP::type_of ( s2 );
-		    if ( type == LIST_AUX )
-		    {
-		        s = s2;
-			index = 0;
-		    }
-		    else if ( type == SUBLIST_AUX )
-			count += 1 + list_element_count
-				    ( vp, 0, s2 );
-		    else ++ count;
-		}
-#	    endif // MIN_USE_OBJ_AUX_STUBS
-	    else
-	    {
-	        ++ count;
-	        -- index;
-	    }
-	}
-    }
+    return count;
 }
 
 min::unsptr min::list_element_count
@@ -4045,9 +4068,8 @@ void min::reorganize
 	  min::unsptr var_size,
 	  min::unsptr unused_size )
 {
-    bool change_hash_size =
-        ( hash_size != hash_size_of ( vp ) );
-    unsptr total_size = total_size_of ( vp );
+    unsptr old_hash_size = min::hash_size_of ( vp );
+    unsptr old_var_size = min::var_size_of ( vp );
 
     // Figure the size of the work area.  Object header
     // is NOT included.  Work area may be oversized.
@@ -4056,10 +4078,12 @@ void min::reorganize
                      + hash_size
                      + unused_size
                      + attr_size_of ( vp );
-    if ( MINT::obj_aux_flag_of ( vp ) )
-        work_size += min::list_element_count ( vp );
-    else
-        work_size += aux_size_of ( vp );
+#   if MIN_USE_OBJ_AUX_STUBS
+	if ( MINT::obj_aux_flag_of ( vp ) )
+	    work_size += min::list_element_count ( vp );
+	else
+#   endif
+	work_size += aux_size_of ( vp );
 
     // Establish work area.  Data are pushed by
     //		* work_low ++ = ...
@@ -4068,6 +4092,11 @@ void min::reorganize
     // and aux pointer indices reference
     //
     //		work_end[-index]
+    //
+    // After object has been prepared in work area,
+    // new object contents from var_offset to unused_
+    // offset are in work to work_low, and new aux
+    // area is in work_high to work_end.
     //
     min::gen work[work_size];
     min::gen * work_low = work;
@@ -4091,25 +4120,34 @@ void min::reorganize
 
     unsptr index = MUP::var_offset_of ( vp );
     unsptr index_end = MUP::unused_offset_of ( vp );
-    unsptr var_end =
-        ( var_size < min::var_size_of ( vp ) ?
-	  var_size : min::var_size_of ( vp ) );
+    unsptr index_var_end =
+        ( var_size < old_var_size ?
+	  var_size :
+	  old_var_size );
     unsptr hash_index = MUP::hash_offset_of ( vp );
+    bool change_hash_size =
+        ( hash_size != old_hash_size );
 
     while ( index < index_end )
     {
-        if ( index == var_end )
+        if ( index == index_var_end )
 	{
-	    if ( var_size < min::var_size_of ( vp ) )
+	    if ( var_size < old_var_size )
 	        index = hash_index;
-	    else if (   var_size
-	              > min::var_size_of ( vp ) )
-	        work_low += var_size
-		          - min::var_size_of ( vp );
+	    else if ( var_size > old_var_size )
+	    {
+	        unsptr count = var_size - old_var_size;
+		while ( count -- )
+		    * work_low ++ = min::NONE();
+	    }
 	}
 
         if ( change_hash_size && index == hash_index )
 	{
+	    // If we are changing the hash table size,
+	    // we run this separate code to copy the
+	    // new hash table.
+
 	    // In order to change the hash table size
 	    // we must precompute the length of the
 	    // lists headed by the new hash table
@@ -4124,31 +4162,24 @@ void min::reorganize
 	    unsptr hash_count[hash_size];
 	    memset ( hash_count, 0,
 	             sizeof ( hash_count ) );
-	    for ( unsptr i = 0;
-	          i  < hash_size_of ( vp ); ++ i )
+	    for ( unsptr i = 0; i < old_hash_size;
+	                        ++ i )
 	    {
+#               if MIN_USE_OBJ_AUX_STUBS
+		    const min::stub * s = NULL;
+#               endif
 		unsptr index2 = index + i;
 		bool label_is_next = true;
-		while ( true )
-		{
-		    min::gen v = vp[index2];
-		    if ( is_list_aux ( v ) )
+		FORLIST(vp,index2,s,v,false)
+		    if ( label_is_next )
 		    {
-		        if ( v == LIST_END() ) break;
-		        index2 = total_size
-			       - MUP::aux_of ( v );
-			continue;
-		    }
-		    else if ( label_is_next )
-		    {
-		        uns32 hash = min::hash ( v )
-			           % hash_size;
+			uns32 hash = min::hash ( v )
+				   % hash_size;
 			++ hash_count[hash];
 			label_is_next = false;
 		    }
 		    else label_is_next = true;
-		    -- index2;
-		}
+		ENDFORLIST
 		MIN_ASSERT ( label_is_next );
 	    }
 
@@ -4192,30 +4223,25 @@ void min::reorganize
 		unsptr index2 = index + i;
 		bool label_is_next = true;
 		min::gen * descriptor;
-		while ( true )
-		{
-		    min::gen v = vp[index2];
-		    if ( is_list_aux ( v ) )
-		    {
-		        if ( v == LIST_END() ) break;
-		        index2 = total_size
-			       - MUP::aux_of ( v );
-			continue;
-		    }
-		    else if ( label_is_next )
+#               if MIN_USE_OBJ_AUX_STUBS
+		    const min::stub * s = NULL;
+#               endif
+
+		FORLIST(vp,index2,s,v,true)
+		    if ( label_is_next )
 		    {
 		        uns32 hash = min::hash ( v )
 			           % hash_size;
-			unsptr index2 =
+			unsptr index3 =
 			    MUP::aux_of
 			        ( new_hash[hash] );
-			index -= 2;
+			index3 -= 2;
 			descriptor = work_end
-			           - index2;
+			           - index3;
 			* descriptor -- = v;
 			new_hash[hash] =
 			    MUP::new_list_aux_gen
-			        ( index2 );
+			        ( index3 );
 			label_is_next = false;
 		    }
 		    else
@@ -4223,8 +4249,7 @@ void min::reorganize
 		        * descriptor = v;
 			label_is_next = true;
 		    }
-		    -- index2;
-		}
+		ENDFORLIST
 		MIN_ASSERT ( label_is_next );
 	    }
 	    index += min::hash_size_of ( vp );
@@ -4232,35 +4257,43 @@ void min::reorganize
 	else
 	{
 	    min::gen v = vp[index++];
-	    if ( is_list_aux ( v )
+	    * work_low ++ = v;
+#           if MIN_USE_OBJ_AUX_STUBS
+		const min::stub * s = NULL;
+#           endif
+	    unsptr index2;
+	    if ( is_sublist_aux ( v )
 	         ||
-		 is_sublist_aux ( v ) )
+		 is_list_aux ( v ) )
 	    {
-	        unsptr index2 = MUP::aux_of ( v );
-		if ( index2 == 0 )
-		    * work_low ++ = v;
-		else
-		{
-		    * work_low = MUP::renew_gen
+	        index2 = MUP::aux_of ( v );
+		if ( index2 == 0 ) continue;
+		work_low[-1] =
+		    MUP::renew_gen
 		        ( v, work_end - work_high + 1 );
-		    while ( index2 != 0 )
-		    {
-		        v = vp[total_size - index2];
-			if ( is_list_aux ( v ) )
-			{
-			    index2 = MUP::aux_of ( v );
-			    if ( index2 == 0 ) break;
-			}
-			else
-			{
-			    * -- work_high = v;
-			    ++ index;
-			}
-		    }
-		    * -- work_high = LIST_END();
-		}
 	    }
-	    else * work_low ++ = v;
+	    else if ( is_stub ( v ) )
+	    {
+	        s = MUP::stub_of ( v );
+		int type = MUP::type_of ( s );
+		if ( type == LIST_AUX )
+		    work_low[-1] =
+			MUP::new_list_aux_gen
+			    ( work_end - work_high
+			               + 1 );
+		else if ( type == SUBLIST_AUX )
+		    work_low[-1] =
+			MUP::new_sublist_aux_gen
+			    ( work_end - work_high
+			               + 1 );
+		else continue;
+	    }
+	    else continue;
+
+	    FORLIST(vp,index2,s,v2,true)
+		* -- work_high = v2;
+	    ENDFORLIST
+	    * -- work_high = LIST_END();
 	}
     }
 
@@ -4271,25 +4304,27 @@ void min::reorganize
     while ( p > work_high )
     {
         min::gen v = * -- p;
-	if ( ! is_sublist_aux ( v ) ) continue;
-	unsptr index = MUP::aux_of ( v );
-	if ( index == 0 ) continue;
-	* p = MUP::new_sublist_aux_gen
-	    ( work_end - work_high + 1 );
-	while ( true )
-	{
-	    v = vp[total_size-index];
-	    if ( is_list_aux ( v ) )
-	    {
-	        index = MUP::aux_of ( v );
-		if ( index == 0 ) break;
-	    }
+	if ( ! is_sublist ( v )
+	     ||
+	     v == min::EMPTY_SUBLIST() )
+	    continue;
+
+#       if MIN_USE_OBJ_AUX_STUBS
+	    const min::stub * s = NULL;
+	    unsptr index = 0;
+	    if ( is_sublist_aux ( v ) )
+		index = MUP::aux_of ( v );
 	    else
-	    {
-	        * -- work_high = v;
-		++ index;
-	    }
-	}
+		s = MUP::stub_of ( v );
+#       else
+	    unsptr index = MUP::aux_of ( v );
+#       endif
+
+	* p = min::new_sublist_aux_gen
+	    ( work_end - work_high + 1 );
+	FORLIST(vp,index,s,v2,true)
+	    * -- work_high = v2;
+	ENDFORLIST
 	* -- work_high = LIST_END();
     }
 }
