@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  5 17:27:31 EST 2012
+// Date:	Tue Mar  6 08:24:59 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2500,14 +2500,14 @@ min::gen min::new_obj_gen
         unused_size + hash_size + var_size;
     int type;
     unsptr header_size;
-    compute_object_type
+    ::compute_object_type
 	( type, total_size, header_size,
 	  var_size, hash_size, expand );
 
     min::stub * s = MUP::new_acc_stub();
     MUP::new_body ( s, sizeof (min::gen) * total_size );
 
-    compute_object_header
+    ::compute_object_header
 	( MUP::ptr_ref_of ( s ),
 	  type,
 	  var_size,
@@ -2548,7 +2548,7 @@ bool min::resize
     int new_type;
     unsptr header_size;
     unsptr saved_total_size = total_size;
-    compute_object_type
+    ::compute_object_type
 	( new_type, total_size, header_size,
 	  var_size, hash_size, expand );
     unused_size += total_size - header_size
@@ -2632,24 +2632,6 @@ bool min::resize
     // Currently `resize' always relocates.
     //
     return true;
-}
-
-bool min::resize
-    ( min::obj_vec_insptr & vp,
-      min::unsptr unused_size )
-{
-    return min::resize ( vp, unused_size,
-                         min::var_size_of ( vp ),
-			 false );
-}
-
-bool min::expand
-    ( min::obj_vec_insptr & vp,
-      min::unsptr unused_size )
-{
-    return min::resize ( vp, unused_size,
-                         min::var_size_of ( vp ),
-			 true );
 }
 
 // Object List Level
@@ -4232,7 +4214,8 @@ void min::reorganize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr hash_size,
 	  min::unsptr var_size,
-	  min::unsptr unused_size )
+	  min::unsptr unused_size,
+	  bool expand )
 {
     unsptr old_hash_size = min::hash_size_of ( vp );
     unsptr old_var_size = min::var_size_of ( vp );
@@ -4292,9 +4275,9 @@ void min::reorganize
 
     int type;
     unsptr header_size;
-    compute_object_type
+    ::compute_object_type
 	( type, total_size, header_size,
-	  var_size, hash_size );
+	  var_size, hash_size, expand );
 
     MUP::resize_body rbody
         ( MUP::stub_of ( vp ),
@@ -4312,7 +4295,7 @@ void min::reorganize
 
     void * & newb = MUP::new_body_ptr_ref ( rbody );
 
-    compute_object_header
+    ::compute_object_header
 	( newb,
 	  type,
 	  var_size,
