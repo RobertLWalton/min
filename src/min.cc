@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Mar  5 08:29:25 EST 2012
+// Date:	Mon Mar  5 17:27:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -3976,7 +3976,8 @@ min::unsptr min::list_element_count
 //
 // Note that aux stubs in the original object whose
 // values are copied to the clean work aux area lists
-// are deallocated.
+// are deallocated when the values in the stubs are
+// copied to the work area.
 //
 // The work area is defined by
 //	work_begin	// Location of first element
@@ -4065,6 +4066,168 @@ inline void copy_to_work
     }
 }
 
+// Copy hash table to work as per pass 1, changing the
+// size of the hash table.
+//
+inline void copy_hash_to_work
+	( min::obj_vec_ptr & vp,
+	  min::unsptr new_hash_size,
+	  min::gen * & work_low,
+	  min::gen * & work_high,
+	  min::gen *   work_end )
+{
+    // In order to change the hash table size we must
+    // precompute the length of the lists headed by
+    // the new hash table elements.  Then we allocate
+    // the new lists with elements equal to 0, and
+    // then we fill in the elements.
+
+    // hash_count[i] is the number of attribute/node
+    // name-descriptor-pairs that will land in the new
+    // hash_table element of index i.
+    //
+    min::unsptr old_hash_size =
+        min::hash_size_of ( vp );
+    min::unsptr hash_count[new_hash_size];
+    memset ( hash_count, 0, sizeof ( hash_count ) );
+    min::unsptr begin_index =
+        MUP::hash_offset_of ( vp );
+    min::unsptr end_index = begin_index + old_hash_size;
+    for ( min::unsptr index = begin_index;
+          index < end_index; ++ index )
+    {
+#       if MIN_USE_OBJ_AUX_STUBS
+	    const min::stub * s = NULL;
+#       endif
+	min::unsptr index2 = index;
+	bool label_is_next = true;
+	FORLIST(vp,index2,s,v,false)
+	    if ( label_is_next )
+	    {
+		min::uns32 hash = min::hash ( v )
+			        % new_hash_size;
+		++ hash_count[hash];
+		label_is_next = false;
+	    }
+	    else label_is_next = true;
+	ENDFORLIST
+	MIN_ASSERT ( label_is_next );
+    }
+
+    // Now allocate new hash table lists, with the
+    // correct length but elements equal to 0.  In the
+    // new hash table use aux pointers to point at the
+    // ENDs of the new lists.  As the lists are filled
+    // these will be incremented to point to the last
+    // element actually set in the list.
+    //
+    // Move work_low past the new hash table while we
+    // do this.
+    //
+    min::gen * new_hash = work_low;
+    for ( min::unsptr i = 0; i  < new_hash_size; ++ i )
+    {
+	min::unsptr c = hash_count[i];
+	if ( c == 0 )
+	    * work_low ++ = min::LIST_END();
+	else
+	{
+	    work_high -= 2 * c + 1;
+	    * work_low ++ =
+		MUP::new_list_aux_gen
+		    ( work_end - work_high );
+	    * work_high = min::LIST_END();
+	    memset ( work_high + 1, 0,
+		     2 * c
+		       * sizeof ( min::gen ) );
+	}
+    }
+
+    // Now go back through the original hash table and
+    // move the attribute/node-name-descriptor-pairs to
+    // the new hash table lists.  When a pair is moved
+    // into new_hash[i], increment the aux pointer in
+    // new_hash[i] by 2 to point at the pair just moved.
+    //
+    // Deallocate aux stubs in the old hash table if
+    // there are any.
+    //
+    for ( min::unsptr index = begin_index;
+          index < end_index; ++ index )
+    {
+	min::unsptr index2 = index;
+	bool label_is_next = true;
+	min::gen * descriptor;
+#       if MIN_USE_OBJ_AUX_STUBS
+	    const min::stub * s = NULL;
+#       endif
+
+	FORLIST(vp,index2,s,v,true)
+	    if ( label_is_next )
+	    {
+		min::uns32 hash = min::hash ( v )
+			        % new_hash_size;
+		min::unsptr index3 =
+		    MUP::aux_of
+			( new_hash[hash] );
+		index3 -= 2;
+		descriptor = work_end - index3;
+		* descriptor -- = v;
+		new_hash[hash] =
+		    MUP::new_list_aux_gen ( index3 );
+		label_is_next = false;
+	    }
+	    else
+	    {
+		* descriptor = v;
+		label_is_next = true;
+	    }
+	ENDFORLIST
+	MIN_ASSERT ( label_is_next );
+    }
+}
+
+// Perform second pass on work area.
+//
+inline void scan_work_area
+	( min::obj_vec_ptr & vp,
+	  min::gen * & work_low,
+	  min::gen * & work_high,
+	  min::gen *   work_end )
+{
+
+    // Scan from the end of the new AUX area to the
+    // beginning moving any sublists found.
+    //
+    min::gen * p = work_end;
+    while ( p > work_high )
+    {
+        min::gen v = * -- p;
+	if ( ! min::is_sublist ( v )
+	     ||
+	     v == min::EMPTY_SUBLIST() )
+	    continue;
+
+#       if MIN_USE_OBJ_AUX_STUBS
+	    const min::stub * s = NULL;
+	    min::unsptr index = 0;
+	    if ( min::is_sublist_aux ( v ) )
+		index = MUP::aux_of ( v );
+	    else
+		s = MUP::stub_of ( v );
+#       else
+	    min::unsptr index = MUP::aux_of ( v );
+#       endif
+
+	* p = min::new_sublist_aux_gen
+	    ( work_end - work_high + 1 );
+	FORLIST(vp,index,s,v2,true)
+	    * -- work_high = v2;
+	ENDFORLIST
+	* -- work_high = min::LIST_END();
+    }
+}
+
 void min::reorganize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr hash_size,
@@ -4086,229 +4249,44 @@ void min::reorganize
 	else
 #   endif
 	work_size += aux_size_of ( vp );
-    min::gen work[work_size];
-    min::gen * work_low = work;
-    min::gen * work_high = work + work_size;
-    min::gen * work_end = work + work_size;
+    min::gen work_begin[work_size];
+    min::gen * work_low = work_begin;
+    min::gen * work_high = work_begin + work_size;
+    min::gen * work_end = work_begin + work_size;
 
 
     unsptr index = MUP::var_offset_of ( vp );
-    unsptr index_end = MUP::unused_offset_of ( vp );
-    unsptr index_var_end =
+    unsptr end_index =
         ( var_size < old_var_size ?
 	  var_size :
 	  old_var_size );
-    unsptr hash_index = MUP::hash_offset_of ( vp );
-    bool change_hash_size =
-        ( hash_size != old_hash_size );
 
-    while ( index < index_end )
+    ::copy_to_work
+	( vp, index, end_index,
+	  work_low, work_high, work_end );
+    while ( work_low < work_begin + var_size )
+        * work_low ++ = min::UNDEFINED();
+
+    if ( hash_size != old_hash_size )
     {
-        if ( index == index_var_end )
-	{
-	    if ( var_size < old_var_size )
-	        index = hash_index;
-	    else if ( var_size > old_var_size )
-	    {
-	        unsptr count = var_size - old_var_size;
-		while ( count -- )
-		    * work_low ++ = min::NONE();
-	    }
-	}
-
-        if ( change_hash_size && index == hash_index )
-	{
-	    // If we are changing the hash table size,
-	    // we run this separate code to copy the
-	    // new hash table.
-
-	    // In order to change the hash table size
-	    // we must precompute the length of the
-	    // lists headed by the new hash table
-	    // elements.  Then we allocate the new
-	    // lists with empty elements and then we
-	    // fill in the elements.
-
-	    // hash_count[i] is the number of nodes
-	    // or attributes that will land in the
-	    // new hash_table element of index i.
-	    //
-	    unsptr hash_count[hash_size];
-	    memset ( hash_count, 0,
-	             sizeof ( hash_count ) );
-	    for ( unsptr i = 0; i < old_hash_size;
-	                        ++ i )
-	    {
-#               if MIN_USE_OBJ_AUX_STUBS
-		    const min::stub * s = NULL;
-#               endif
-		unsptr index2 = index + i;
-		bool label_is_next = true;
-		FORLIST(vp,index2,s,v,false)
-		    if ( label_is_next )
-		    {
-			uns32 hash = min::hash ( v )
-				   % hash_size;
-			++ hash_count[hash];
-			label_is_next = false;
-		    }
-		    else label_is_next = true;
-		ENDFORLIST
-		MIN_ASSERT ( label_is_next );
-	    }
-
-	    // Now allocate new hash table lists, with
-	    // the correct length but 0 elements.
-	    // In the new hash table use aux pointers
-	    // to point at the ENDs of the new lists.
-	    //
-	    // Move work_low past the new hash table
-	    // while we do this.
-	    //
-	    min::gen * new_hash = work_low;
-	    for ( unsptr i = 0; i  < hash_size; ++ i )
-	    {
-	        unsptr c = hash_count[i];
-		if ( c == 0 )
-		    * work_low ++ = LIST_END();
-		else
-		{
-		    work_high -= 2 * c + 1;
-		    * work_low ++ =
-		        MUP::new_list_aux_gen
-			    ( work_end - work_high );
-		    * work_high = LIST_END();
-		    memset ( work_high + 1, 0,
-		             2 * c
-			       * sizeof ( min::gen ) );
-		}
-	    }
-
-	    // Now go back through the original hash
-	    // table and move the attribute/node-name-
-	    // descriptor-pairs to the new hash table
-	    // lists.  When a pair is moved into
-	    // new_hash[j], increment the aux pointer
-	    // in new_hash[j] by 2.
-	    //
-	    for ( unsptr i = 0;
-	          i  < hash_size_of ( vp ); ++ i )
-	    {
-		unsptr index2 = index + i;
-		bool label_is_next = true;
-		min::gen * descriptor;
-#               if MIN_USE_OBJ_AUX_STUBS
-		    const min::stub * s = NULL;
-#               endif
-
-		FORLIST(vp,index2,s,v,true)
-		    if ( label_is_next )
-		    {
-		        uns32 hash = min::hash ( v )
-			           % hash_size;
-			unsptr index3 =
-			    MUP::aux_of
-			        ( new_hash[hash] );
-			index3 -= 2;
-			descriptor = work_end
-			           - index3;
-			* descriptor -- = v;
-			new_hash[hash] =
-			    MUP::new_list_aux_gen
-			        ( index3 );
-			label_is_next = false;
-		    }
-		    else
-		    {
-		        * descriptor = v;
-			label_is_next = true;
-		    }
-		ENDFORLIST
-		MIN_ASSERT ( label_is_next );
-	    }
-	    index += min::hash_size_of ( vp );
-	}
-	else
-	{
-	    min::gen v = vp[index++];
-	    * work_low ++ = v;
-#           if MIN_USE_OBJ_AUX_STUBS
-		const min::stub * s = NULL;
-#           endif
-	    unsptr index2;
-	    if ( is_sublist_aux ( v )
-	         ||
-		 is_list_aux ( v ) )
-	    {
-	        index2 = MUP::aux_of ( v );
-		if ( index2 == 0 ) continue;
-		work_low[-1] =
-		    MUP::renew_gen
-		        ( v, work_end - work_high + 1 );
-	    }
-#           if MIN_USE_OBJ_AUX_STUBS
-		else if ( is_stub ( v ) )
-		{
-		    s = MUP::stub_of ( v );
-		    int type = MUP::type_of ( s );
-		    if ( type == LIST_AUX )
-			work_low[-1] =
-			    MUP::new_list_aux_gen
-				( work_end - work_high
-					   + 1 );
-		    else if ( type == SUBLIST_AUX )
-			work_low[-1] =
-			    MUP::new_sublist_aux_gen
-				( work_end - work_high
-					   + 1 );
-		    else continue;
-		}
-#           endif // MIN_USE_OBJ_AUX_STUBS
-	    else continue;
-
-	    FORLIST(vp,index2,s,v2,true)
-		* -- work_high = v2;
-	    ENDFORLIST
-	    * -- work_high = LIST_END();
-	}
+	::copy_hash_to_work
+	    ( vp, hash_size,
+	    work_low, work_high, work_end );
+	index = MUP::attr_offset_of ( vp );
     }
+    else
+	index = MUP::hash_offset_of ( vp );
 
-    // Scan from the end of the new AUX area to the
-    // beginning moving any sublists found.
-    //
-    min::gen * p = work_end;
-    while ( p > work_high )
-    {
-        min::gen v = * -- p;
-	if ( ! is_sublist ( v )
-	     ||
-	     v == min::EMPTY_SUBLIST() )
-	    continue;
+    end_index = MUP::unused_offset_of ( vp );
+    ::copy_to_work
+	( vp, index, end_index,
+	  work_low, work_high, work_end );
 
-#       if MIN_USE_OBJ_AUX_STUBS
-	    const min::stub * s = NULL;
-	    unsptr index = 0;
-	    if ( is_sublist_aux ( v ) )
-		index = MUP::aux_of ( v );
-	    else
-		s = MUP::stub_of ( v );
-#       else
-	    unsptr index = MUP::aux_of ( v );
-#       endif
-
-	* p = min::new_sublist_aux_gen
-	    ( work_end - work_high + 1 );
-	FORLIST(vp,index,s,v2,true)
-	    * -- work_high = v2;
-	ENDFORLIST
-	* -- work_high = LIST_END();
-    }
-
-    // Compute new total size and header size
-    // and type.
+    ::scan_work_area
+	( vp, work_low, work_high, work_end );
 
     unsptr total_size =
-          ( work_low - work )
+          ( work_low - work_begin )
 	+ ( work_end - work_high )
 	+ unused_size;
 
