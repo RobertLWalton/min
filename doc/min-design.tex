@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{February 25, 2012}
+\date{March 6, 2012}
  
 \maketitle
 
@@ -6359,7 +6359,7 @@ the requirement reduces to
 \begin{center}
 \tt 0 <= line\_number < file->next\_line\_number
 \end{center}
-For other non-{\tt 0} values of {\tt spool\_EOL lines},
+For other non-{\tt 0} values of {\tt spool\_\EOL lines},
 {\tt file->\EOL line\_\EOL index} exists and
 {\tt file->\EOL line\_\EOL index->\EOL length} is a function of the history
 of calls to the function:
@@ -7757,7 +7757,7 @@ unavailable (i.e., {\tt min::\EOL line} returns {\tt min::\EOL NO\_\EOL LINE}
 see above)
 and {\tt line\_\EOL number} is not equal {\tt file->\EOL file\_\EOL lines},
 then {\tt unavailable\_\EOL line} is printed on a line by itself instead, and
-{\tt 0} is returned, if {\tt unavailable\_EOL line} is not {\tt NULL}.
+{\tt 0} is returned, if {\tt unavailable\_\EOL line} is not {\tt NULL}.
 But if {\tt unavailable\_\EOL line} is {\tt NULL}, nothing is done except
 to return {\tt min::\EOL NO\_\EOL LINE}.
 
@@ -8272,7 +8272,7 @@ area.  For an object that has been around a long enough time, the
 compactor may eliminate the unused area completely, and may reorganize
 the object to downsize its hash table and compact its auxiliary area.
 
-The hash table of the returned object is filled with \verb|min::LIST_END|
+The hash table of the returned object is filled with \verb|min::LIST_END()|
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
 The variable vector is filled with \verb|min::UNDEFINED| values.
 Unused area elements are initialized to some implementation defined
@@ -8303,6 +8303,180 @@ applied to an object returns one of the following:
 \ttnbkey{HUGE\_OBJ}\LABEL{MIN::HUGE_OBJ} \\
 \end{tabular}
 \end{center}
+
+\subsubsection{Object Maintenance Functions}
+\label{OBJECT-Maintenance Functions}
+
+Object maintenance functions are used to change the sizes of
+object components and compact objects.  The most basic of
+these functions do nothing but change the size of the unused
+area and variable area:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{obj\_resize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::OBJ_RESIZE} \\
+\verb|void min::| & \MINKEY{obj\_resize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::OBJ_RESIZE_UNUSED} \\
+\verb|void min::| & \MINKEY{obj\_expand\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::OBJ_EXPAND} \\
+\end{tabular}\end{indpar}
+
+The 4-argument {\tt min::obj\_resize} function can change
+the size of both the variables vector and unused area at the same
+time.  The object body is reallocated, and the function's
+`{\tt expand}' argument, if `{\tt true}', will increase
+the size of the requested unused area until the object fills
+the actual allocated block.  This is useful because allocators
+typically allocate blocks whose size is a power of two or
+a bit less, so if the requested size is not just right, some
+memory will be wasted.
+
+The 2-argument {\tt min::obj\_resize} function and the {\tt min::\EOL expand}
+function are both equivalent to {\tt min::\EOL resize} with no change
+in variables vector size.  The 2-argument {\tt min::obj\_\EOL resize}
+has implied {\tt false} `{\tt expand}' argument, and the
+{\tt min::\EOL expand} function has implied {\tt true} `{\tt expand}'
+argument.
+
+The {\tt min::expand} function is the one implicitly used when an object simply
+needs more memory for its attribute vector or auxiliary area to grow into.
+In this case the argument is just the memory required, and extra unused
+area is allocated to fill the next real allocated size block.  Repeated
+uses of {\tt min::expand} on the same object will more or less keep
+doubling the actual size of the object.
+
+The remaining maintenance functions assume objects are organized
+as per Section~\itemref{OBJECT-LIST-LEVEL}, Object List Level.
+These functions all \ikey{reorganize}{object}
+an object so it has no discontinuities
+in its lists, and therefore no unnecessary invisible jumps (auxilary
+list pointers, actually) within its lists, and makes no use of
+auxiliary stubs (\itemref{OBJECT-AUXILIARY-STUBS}).  So in this
+sense these functions clean up and compactify the object.  Object
+reorganization just involves changing auxiliary pointers in the object and
+changing the locations of list elements in the object auxiliary area.
+
+A function that changes the size of an object hash table further
+assumes that hash table elements are {\em attribute/node-name-descriptor-pairs}
+as per Section~\itemref{OBJECT-ATTRIBUTE-LEVEL}, Object Attribute Level.
+More specifically, it is assumed just that hash table entries are lists
+whose elements are grouped into pairs and the first element of each
+pair is a hashable {\tt min::gen} value such that if the hash of this
+element is $H$, then the pair is put into the list of the $H$\verb|%|$S+1$'st
+hash table element, where $S$ is the size of the hash table.
+
+With all this in mind, the following function can be used to
+reorganize and object and change the sizes of its variable vector, hash table,
+and unused area.
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{obj\_reorganize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr hash_size,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::OBJ_REORGANIZE} \\
+\end{tabular}\end{indpar}
+
+The `{\tt expand}' argument to this function works to increase the
+size of the unused area in the same was as the
+the `{\tt expand}' argument to the {\tt min::resize} function above.
+If the hash table size is not actually changed, the Object Attribute Level
+assumptions made above do not apply, but the Object List Level assumptions
+do apply to all object reorganizations.
+
+After all an object's attributes have been set, the number of
+{\em attribute/node-name-descriptor-pairs} in the object hash table
+will cease to change, and the hash table size an be optimized
+to about twice this number.  The following functions use this idea:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{obj\_compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::OBJ_COMPACT_AND_RESIZE} \\
+\verb|void min::| & \MINKEY{obj\_compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::OBJ_COMPACT} \\
+\verb|void min::| & \MINKEY{obj\_publish\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::OBJ_PUBLISH} \\
+\end{tabular}\end{indpar}
+
+These functions are like the {\tt min::reoganize} function
+but they pick the size of the hash table automatically as
+follows.  If $N$ is the number of
+{\em attribute/node-name-descriptor-pairs} in the hash table
+and $S$ is the size of the hash table, the hash table size
+is left unchanged if $2N/3\leq S\leq 3N/2$.  Otherwise the
+hash table size is reset to $2N$.
+
+The 1-argument {min::compact} function does not change the
+size of the variables vector and forces the unused area size
+to be zero.  Its goal is to compact the object under the assumption
+the object will not change any of its sizes in the future.
+
+The {min::publish} function just executes a
+1-argument {min::compact} function and then sets
+the object {\tt OBJ\_\EOL PUBLISH} flag which prevents further changes to the
+to the object sizes or organization (but not to attribute values).
+
+If you want to build your own compactification function implementing
+a different algorithm for choosing hash table size, you may use
+{\tt min::reorganize} and the following:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::HASH_COUNT_OF} \\
+\verb|void min::| & \MINKEY{set\_publish\_flag\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::SET_PUBLISH_FLAG} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::hash\_count\_of} function just returns the number of
+{\em attribute/node-name-descrip\-tor-pairs} in the object's hash table,
+and the {\tt min::\EOL set\_\EOL publish\_\EOL flag} function just sets
+the object's {\tt min::\EOL OBJ\_\EOL PUBLISH} flag.
+
+All of the above maintenance functions work by creating
+vector pointers and using versions of the functions in which the
+{\tt min::gen} object argument is replaced by a vector pointer argument.
+The functions that actually change the object use a
+{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} insertable object
+vector pointer and therefore will not work if the object's
+{\tt min::\EOL OBJ\_\EOL PUBLISH} flag as already been set.  The
+The {\tt min::hash\_count\_of} function will work, and just uses a
+{\tt min::\EOL obj\_\EOL vec\_\EOL ptr} read-only object vector pointer.
 
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
@@ -9004,10 +9178,10 @@ Lists also make use of two constant values:
 
 \begin{indpar}
 \begin{list}{}{}
-\item[{\tt const min::gen min::}\MINKEY{LIST\_END}]~\LABEL{MIN::LIST_END}\\
+\item[{\tt const min::gen min::}\MINKEY{LIST\_END()}]~\LABEL{MIN::LIST_END}\\
 The list ends here.
 This actually equals a list auxiliary pointer with zero index.
-\item[{\tt const min::gen min::}\MINKEY{EMPTY\_SUBLIST}]~%
+\item[{\tt const min::gen min::}\MINKEY{EMPTY\_SUBLIST()}]~%
 	\LABEL{MIN::EMPTY_SUBLIST}\\
 A list element value that represents an empty sublist.
 This actually equals a sublist auxiliary pointer with zero index.
@@ -9020,15 +9194,15 @@ body vector that has a particular interpretation, described below.
 However, not all list continuations are list heads.
 
 A list continuation represents a final segment of a list.
-If it has the value \verb|min::LIST_END|, the final segment is empty.
+If it has the value \verb|min::LIST_END()|, the final segment is empty.
 If the list continuation has a list auxiliary pointer value,
 that pointer points at another list continuation that continues the list.
 Otherwise the list continuation represents an element of the list,
 and is called a \key{list element}.
 
 A list element is an element of the list, and cannot be a list auxiliary
-pointer or the special value \verb|min::LIST_END|.  But it can be
-a sublist auxiliary pointer, or the special value \verb|min::EMPTY_SUBLIST|,
+pointer or the special value \verb|min::LIST_END()|.  But it can be
+a sublist auxiliary pointer, or the special value \verb|min::EMPTY_SUBLIST()|,
 both of which denote a list element that is a sublist.
 
 Given a list element, the rest of the list after the element begins with
@@ -9040,23 +9214,23 @@ so testing whether a list element is a list head can be done if just the
 index of the list element in the body vector is known.
 
 A list element
-that is a sublist auxiliary pointer or the value \verb|min::EMPTY_SUBLIST|
+that is a sublist auxiliary pointer or the value \verb|min::EMPTY_SUBLIST()|
 represents a sublist, and is the \key{sublist head} of that sublist.  A
 sublist head is a list element of the list containing a sublist,
 but cannot be a list element of the sublist.
 If it is a sublist auxiliary pointer,
 it points at a list continuation of the sublist.  If it is the
-value \verb|min::EMPTY_SUBLIST|, it represents an empty sublist.
+value \verb|min::EMPTY_SUBLIST()|, it represents an empty sublist.
 
 There are several rules that the list level obeys that lead to
 some efficiencies:
 
 \begin{indpar}
-{\bf No Superfluous {\tt \bf min::LIST\_END}'s}.%
-\index{superfluous LIST_END@superfluous {\tt LIST\_END}}%
+{\bf No Superfluous {\tt \bf min::LIST\_END()}'s}.%
+\index{superfluous LIST_END()@superfluous {\tt LIST\_END()}}%
 \label{NO-SUPERFLUOUS-LIST}
 A list or sublist auxiliary pointer may not point at an auxiliary
-area element containing a \verb|min::LIST_END| value.
+area element containing a \verb|min::LIST_END()| value.
 
 {\bf No Superfluous List Auxiliary Pointers}.%
 \index{superfluous list auxiliary pointers}
@@ -9260,7 +9434,7 @@ The {\tt min::\EOL start\_\EOL hash} function positions
 a list pointer at the beginning of the
 list whose head is at the given index within the hash table, treating the
 hash table as a vector.  This function returns the value of the first
-element of the list, or returns {\tt min::\EOL LIST\_\EOL END}
+element of the list, or returns {\tt min::\EOL LIST\_\EOL END()}
 if the list is empty.
 The index is usually the hash value of a name component
 (number, string, or label),
@@ -9299,7 +9473,8 @@ to the first element of the sublist represented by the current
 element of another list pointer ({\tt lp2}).
 The current element of the second pointer must represent a sublist.
 This function returns the value of the first element of
-the sublist, or returns {\tt min::\EOL LIST\_\EOL END} if the sublist is empty.
+the sublist, or returns {\tt min::\EOL LIST\_\EOL END()}
+if the sublist is empty.
 The two list pointers must have been constructed from the same
 vector pointer.
 Also note that the list pointer {\tt lp2}
@@ -9317,11 +9492,11 @@ Again the list pointer must be valid before this function is executed.
 The {\tt min::\EOL next} function moves the list pointer
 to the next list element of the
 list the pointer points at, and returns the value of that
-list element.  It returns {\tt min::\EOL LIST\_\EOL END} if there is
+list element.  It returns {\tt min::\EOL LIST\_\EOL END()} if there is
 no next list element because the end of the list has been reached.
 After the end of a list has been reached, additional
 calls to {\tt min::next}
-will do nothing but return {\tt min::\EOL LIST\_\EOL END}.
+will do nothing but return {\tt min::\EOL LIST\_\EOL END()}.
 
 The {\tt min::\EOL peek} function returns the next element of the
 list, i.e., the
@@ -9331,7 +9506,7 @@ modify the list pointer.
 
 The {\tt min::current} function just returns the value of the list
 element the list pointer currently points at, or returns
-{\tt min::\EOL LIST\_\EOL END}
+{\tt min::\EOL LIST\_\EOL END()}
 if there is no such element because the pointer is at the end of a list.
 This function does not modify the list pointer.
 
@@ -9360,16 +9535,16 @@ Determining whether a list pointer current element value
 represents a sublist requires
 the {\tt min::\EOL is\_\EOL sublist} function, which must check whether the
 value is a sublist auxiliary pointer,
-is the value {\tt min::\EOL EMPTY\_\EOL SUBLIST},
+is the value {\tt min::\EOL EMPTY\_\EOL SUBLIST()},
 or is a pointer to a sublist auxiliary stub as described in
 \itemref{OBJECT-AUXILIARY-STUBS}.
 The {\tt min::\EOL is\_\EOL empty\_\EOL sublist}
 function, on the other hand, merely checks whether the value is
-{\tt min::\EOL EMPTY\_\EOL SUBLIST}.
+{\tt min::\EOL EMPTY\_\EOL SUBLIST()}.
 
 Determining whether a list pointer current element value
 represents the end of a list can be done by
-simply checking whether the value equals {\tt min::\EOL LIST\_\EOL END},
+simply checking whether the value equals {\tt min::\EOL LIST\_\EOL END()},
 or can be done equivalently
 with the {\tt min::\EOL is\_\EOL list\_\EOL end} function.
 
@@ -9490,7 +9665,7 @@ does not.
 The {\tt min::update} function can be used to replace the
 value of the current element of a list.
 Neither the previous value of the element nor the
-new value of the element may be {\tt min::\EOL LIST\_\EOL END},
+new value of the element may be {\tt min::\EOL LIST\_\EOL END()},
 and neither may represent a sublist (even an empty sublist).
 
 If a list pointer {\tt lp2} points at a element that is
@@ -9652,7 +9827,7 @@ an insertable list pointer than it can for an updatable list pointer.  For
 an insertable list pointer (but not for an updatable list pointer)
 the current value replaced by {\tt min::update}
 may be a sublist, and/or the replacing value may be
-{\tt min::\EOL EMPTY\_\EOL SUBLIST}.  Thus {\tt min::update} can be used
+{\tt min::\EOL EMPTY\_\EOL SUBLIST()}.  Thus {\tt min::update} can be used
 to remove a sublist or to create an empty sublist.
 
 Making insertions in object lists requires reservation of the necessary
@@ -9723,13 +9898,13 @@ vector {\tt p} of {\tt min::gen} values.
 If \verb|n=0| elements are to be inserted, both insert
 functions are no operations.
 
-To insert a sublist, first insert {\tt min::\EOL EMPTY\_SUBLIST}, then
+To insert a sublist, first insert {\tt min::\EOL EMPTY\_SUBLIST()}, then
 position the pointer to the sublist and use
 {\tt min::\EOL start\_sublist} to enter the sublist, and then use
 {\tt min::\EOL insert\_before} to insert the elements of the sublist.
 Also, as noted above, you can use {\tt min::\EOL update} with an
 insertable pointer to change
-the current element to {\tt min::\EOL EMPTY\_\EOL SUBLIST}.
+the current element to {\tt min::\EOL EMPTY\_\EOL SUBLIST()}.
 
 A sequence of instructions that begins with a
 call to {\tt min::\EOL insert\_reserve} and ends with the last
@@ -9911,13 +10086,13 @@ following variable:
 The value of an object
 auxiliary stub is treated like an auxiliary area element value that is
 always a list element, and is never a list auxiliary pointer
-or a \verb|min::LIST_END| value.  However, as a list element,
+or a \verb|min::LIST_END()| value.  However, as a list element,
 the value may be a sublist auxiliary pointer (or equivalent, see below)
-or a \verb|min::EMPTY_SUBLIST| value.
+or a \verb|min::EMPTY_SUBLIST()| value.
 
 The control of an object auxiliary stub is treated like an auxiliary
 area element value that is always a list auxiliary pointer
-or a \verb|min::LIST_END| value, and is never a list element.
+or a \verb|min::LIST_END()| value, and is never a list element.
 
 The value and control of an object auxiliary stub are treated like
 consecutive elements of the object auxiliary area, with the control
@@ -9978,17 +10153,17 @@ pointer pointing at the list element that is stub $S$'s value.
 \index{value!of object auxiliary stub}
 An object auxiliary stub value is always a list element, and can never
 be a list auxiliary pointer value, a \verb|min::gen| value pointing at
-a stub of type \verb|min::LIST_AUX|, or a \verb|min::LIST_END| value.
+a stub of type \verb|min::LIST_AUX|, or a \verb|min::LIST_END()| value.
 
 However, it can be a sublist auxiliary pointer value, a \verb|min::gen|
 value pointing at a stub of type \verb|min::SUBLIST_AUX|, or a
-\verb|min::EMPTY_SUBLIST| value.
+\verb|min::EMPTY_SUBLIST()| value.
 
 {\bf Controls of Object Auxiliary Stubs}.%
 \index{control!of object auxiliary stub}
 An object auxiliary stub control is never a list element, and must
 be a list auxiliary pointer value, a stub pointer value pointing at
-a stub of type \verb|min::LIST_AUX|, or a \verb|min::LIST_END| value.
+a stub of type \verb|min::LIST_AUX|, or a \verb|min::LIST_END()| value.
 
 {\bf Pointers to Object Auxiliary Stubs}.%
 \index{pointer!to object auxiliary stub}
@@ -12797,10 +12972,10 @@ In loose implementation: \\
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\verb|const min::gen min::| & \MINKEY{LIST\_END}
+\verb|const min::gen min::| & \MINKEY{LIST\_END()}
 \LABEL{MIN::LIST_END} \\
 \verb|const min::gen min::|
-    & \MINKEY{EMPTY\_SUBLIST}
+    & \MINKEY{EMPTY\_SUBLIST()}
 \LABEL{MIN::EMPTY_SUBLIST} \\
 \end{TABULAR}
 
