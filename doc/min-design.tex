@@ -8206,7 +8206,7 @@ longer subject to change will be compacted, to make it as small as possible,
 and this is one kind of object body reorganization.
 Objects are compacted by the `{\tt min::\EOL publish\REL}'
 function that sets the
-object {\tt OBJ\_\EOL PUBLISH} flag which prevents changes to the
+object {\tt OBJ\_\EOL PUBLIC} flag which prevents changes to the
 attribute labels, attribute label flags, and number of attribute values
 of an object.
 Reorganization can also occur whenever an object is relocated by the
@@ -8443,40 +8443,59 @@ the object will not change any of its sizes in the future.
 
 The {min::publish} function just executes a
 1-argument {min::compact} function and then sets
-the object {\tt OBJ\_\EOL PUBLISH} flag which prevents further changes to the
+the object {\tt OBJ\_\EOL PUBLIC} flag which prevents further changes to the
 to the object sizes or organization (but not to attribute values).
 
-If you want to build your own compactification function implementing
-a different algorithm for choosing hash table size, you may use
-{\tt min::reorganize} and the following:
+It is sometimes useful to discover the values of an object's
+{\tt OBJ\_\EOL PRIVATE} and {\tt OBJ\_\EOL PUBLIC} flags.
+This can be done by the functions:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+\verb|void min::| & \MINKEY{obj\_private\_flag\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
-\LABEL{MIN::HASH_COUNT_OF} \\
-\verb|void min::| & \MINKEY{set\_publish\_flag\_of\REL}%
+\LABEL{MIN::OBJ_PRIVATE_FLAG_OF} \\
+\verb|void min::| & \MINKEY{obj\_public\_flag\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
-\LABEL{MIN::SET_PUBLISH_FLAG} \\
+\LABEL{MIN::OBJ_PUBLIC_FLAG_OF} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::hash\_count\_of} function just returns the number of
-{\em attribute/node-name-descrip\-tor-pairs} in the object's hash table,
-and the {\tt min::\EOL set\_\EOL publish\_\EOL flag} function just sets
-the object's {\tt min::\EOL OBJ\_\EOL PUBLISH} flag.
-
-All of the above maintenance functions work by creating
+All of the above maintenance functions except the last two
+flag reading functions work by creating
 vector pointers and using versions of the functions in which the
 {\tt min::gen} object argument is replaced by a vector pointer argument.
 The functions that actually change the object use a
 {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} insertable object
 vector pointer and therefore will not work if the object's
-{\tt min::\EOL OBJ\_\EOL PUBLISH} flag as already been set.  The
-The {\tt min::hash\_count\_of} function will work, and just uses a
-{\tt min::\EOL obj\_\EOL vec\_\EOL ptr} read-only object vector pointer.
+{\tt min::\EOL OBJ\_\EOL PUBLIC} flag as already been set.  The
+The {\tt min::hash\_count\_of} function will work, as it just uses a
+{\tt min::\EOL obj\_\EOL vec\_\EOL ptr} read-only object vector pointer,
+as long as there is no other vector pointer pointing at the object.
+
+If you want to build your own compactification function implementing
+a different algorithm for choosing hash table size, you may use
+the vector pointer version of {\tt min::reorganize} and the following:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_ptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::HASH_COUNT_OF} \\
+\verb|void min::| & \MINKEY{set\_public\_flag\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::SET_PUBLIC_FLAG} \\
+\end{tabular}\end{indpar}
+
+The {\tt min::hash\_count\_of} function just returns the number of
+{\em attribute/node-name-descrip\-tor-pairs} in the object's hash table,
+and the {\tt min::\EOL set\_\EOL publish\_\EOL flag} function just sets
+the object's {\tt min::\EOL OBJ\_\EOL PUBLIC} flag.
 
 \subsubsection{Object Vector Level}
 \label{OBJECT-VECTOR-LEVEL}
@@ -8527,8 +8546,8 @@ created.  The object is therefore private to the code possessing the
 vector pointer.
 
 If an object has neither flag, its \verb|min::OBJ_PUBLIC| flag may be set
-by calling the {\tt min::\EOL publish\REL} function
-(\pagref{MIN::PUBLISH}).
+by calling the {\tt min::\EOL obj\_\EOL publish\REL} function
+(\pagref{MIN::OBJ_PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
 to the object may be created.  Constructing and destructing
@@ -8556,7 +8575,8 @@ using the {\tt min::\EOL insert\_\EOL reserve\REL} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
 and object bodies are usually reorganized
 when the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
-by the {\tt min::\EOL publish\REL} function (\pagref{MIN::PUBLISH}).
+by the {\tt min::\EOL obj\_\EOL publish\REL} function
+(\pagref{MIN::OBJ_PUBLISH}).
 
 \subsubsubsection{Protected Object Vector Pointers}
 \label{PROTECTED-OBJECT-VECTOR-POINTERS}
@@ -11278,10 +11298,6 @@ hash table.  This can be done by the functions:
       \end{tabular}
 \LABEL{MIN::RESIZE_HASH_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
-
-TBD: The `{\tt min::\EOL publish\REL}' function.\label{MIN::PUBLISH}
-
-TBD: resize functions\label{MIN::RESIZE_OF_ATTR}.
 
 \section{Code and Execution}
 
