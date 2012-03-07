@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Feb 26 05:58:23 EST 2012
+// Date:	Wed Mar  7 06:43:37 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1197,7 +1197,6 @@ void test_process_interface ( void )
 {
     cout << endl;
     cout << "Start Process Interface Test!" << endl;
-    MINT::relocated_flag = false;
 
     // Process control testing is TBD.
 
@@ -1211,37 +1210,6 @@ void test_process_interface ( void )
     min::interrupt();
     MIN_ASSERT ( ::interrupt_count == count + 1 );
     MINT::acc_stack_limit = limit_save;
-
-    cout << endl;
-    cout << "Test relocate flag functions:"
-	 << endl;
-    MIN_ASSERT ( ! min::relocated_flag() );
-    MIN_ASSERT
-	( ! min::set_relocated_flag ( true ) );
-    MIN_ASSERT ( min::relocated_flag() );
-    MIN_ASSERT
-	( min::set_relocated_flag ( false ) );
-    MIN_ASSERT ( ! min::relocated_flag() );
-
-    // Now relocated flag is false.
-    {
-	min::relocated r;
-	MIN_ASSERT ( ! r );
-	MIN_ASSERT ( ! min::relocated_flag() );
-	min::set_relocated_flag ( true );
-	MIN_ASSERT ( r );
-	MIN_ASSERT ( ! min::relocated_flag() );
-    }
-    MIN_ASSERT ( min::relocated_flag() );
-
-    // Now relocated flag is true.
-    {
-	min::relocated r;
-	MIN_ASSERT ( ! min::relocated_flag() );
-	MIN_ASSERT ( ! r );
-	MIN_ASSERT ( ! min::relocated_flag() );
-    }
-    MIN_ASSERT ( min::relocated_flag() );
 
     cout << endl;
     cout << "Finish Process Interface Test!"
@@ -3124,7 +3092,6 @@ static void insert
     }
 
     use_obj_aux_stubs ^= alternate_aux;
-    MIN_ASSERT ( ! min::relocated_flag() );
     if ( before )
 	min::insert_before ( wlp, p, n );
     else
@@ -3181,8 +3148,6 @@ void test_object_list_level
     cout << " VORG " << vorg << " VSIZE " << vsize
 	 << " USIZE " << usize << " TSIZE " << tsize
 	 << endl;
-
-    min::set_relocated_flag ( false );
 
     min::list_ptr lp ( vp );
     min::start_vector ( lp, 0 );

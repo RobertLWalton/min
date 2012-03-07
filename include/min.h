@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  7 02:36:11 EST 2012
+// Date:	Wed Mar  7 06:39:47 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1597,9 +1597,6 @@ namespace min {
 
     namespace internal {
 
-	extern bool relocated_flag;
-	    // On if bodies have been relocated.
-
 	extern min::stub ** acc_stack;
 	extern min::stub ** volatile acc_stack_limit;
 	    // acc_stack points at the first unused
@@ -1653,43 +1650,6 @@ namespace min {
 	    return internal::acc_interrupt();
 	else return false;
     }
-
-    inline bool relocated_flag ( void )
-    {
-         return internal::relocated_flag;
-    }
-    inline bool set_relocated_flag ( bool value )
-    {
-         bool old_value =
-	     internal::relocated_flag;
-	 internal::relocated_flag =
-	     value;
-	 return old_value;
-    }
-
-    class relocated {
-    public:
-        bool relocated_flag;
-	relocated ( void )
-	{
-	    relocated_flag =
-	        min::set_relocated_flag ( false );
-	}
-	~ relocated ( void )
-	{
-	    bool current_relocated_flag =
-	        min::set_relocated_flag
-		    ( relocated_flag );
-	    MIN_ASSERT ( ! current_relocated_flag );
-	}
-	operator bool ()
-	{
-	    if ( min::set_relocated_flag ( false ) )
-	        return relocated_flag = true;
-	    else
-	        return false;
-	}
-    };
 }
 
 // Allocator/Collector/Compactor Interface
