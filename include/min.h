@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  6 19:32:31 EST 2012
+// Date:	Wed Mar  7 02:36:11 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7014,13 +7014,21 @@ namespace min {
 	    ( min::obj_vec_insptr & vp );
     }
     namespace internal {
-	bool obj_aux_flag_of
+	bool aux_flag_of
 	    ( min::obj_vec_insptr & vp );
-	void set_obj_aux_flag_of
+	void set_aux_flag_of
 	    ( min::obj_vec_insptr & vp );
     }
+    bool private_flag_of
+	( min::obj_vec_ptr & vp );
+    bool public_flag_of
+	( min::obj_vec_ptr & vp );
+    void set_public_flag_of
+	( min::obj_vec_insptr & vp );
 
-    bool resize
+    min::unsptr hash_count_of
+	( min::obj_vec_ptr & vp );
+    void resize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr unused_size,
 	  min::unsptr var_size,
@@ -7028,6 +7036,11 @@ namespace min {
     void reorganize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr hash_size,
+	  min::unsptr var_size,
+	  min::unsptr unused_size,
+	  bool expand = true );
+    void compact
+	( min::obj_vec_insptr & vp,
 	  min::unsptr var_size,
 	  min::unsptr unused_size,
 	  bool expand = true );
@@ -7196,12 +7209,18 @@ namespace min {
 	    ( min::obj_vec_insptr & vp );
 	friend min::unsptr & unprotected::aux_offset_of
 	    ( min::obj_vec_insptr & vp );
-	friend bool internal::obj_aux_flag_of
+	friend bool internal::aux_flag_of
 	    ( min::obj_vec_insptr & vp );
-	friend void internal::set_obj_aux_flag_of
+	friend void internal::set_aux_flag_of
+	    ( min::obj_vec_insptr & vp );
+	friend bool private_flag_of
+	    ( min::obj_vec_ptr & vp );
+	friend bool public_flag_of
+	    ( min::obj_vec_ptr & vp );
+	friend void set_public_flag_of
 	    ( min::obj_vec_insptr & vp );
 
-	friend bool resize
+	friend void resize
 	    ( min::obj_vec_insptr & vp,
 	      min::unsptr unused_size,
 	      min::unsptr var_size,
@@ -7677,15 +7696,30 @@ namespace min {
     {
         return vp.aux_offset;
     }
-    inline bool internal::obj_aux_flag_of
+    inline bool internal::aux_flag_of
 	( min::obj_vec_insptr & vp )
     {
         return vp.total_size_flags & OBJ_AUX;
     }
-    inline void internal::set_obj_aux_flag_of
+    inline void internal::set_aux_flag_of
 	( min::obj_vec_insptr & vp )
     {
         vp.total_size_flags |= OBJ_AUX;
+    }
+    inline bool private_flag_of
+	( min::obj_vec_ptr & vp )
+    {
+        return vp.total_size_flags & OBJ_PRIVATE;
+    }
+    inline bool public_flag_of
+	( min::obj_vec_ptr & vp )
+    {
+        return vp.total_size_flags & OBJ_PUBLIC;
+    }
+    inline void set_public_flag_of
+	( min::obj_vec_insptr & vp )
+    {
+        vp.total_size_flags |= OBJ_PUBLIC;
     }
 
     inline min::unsptr var_size_of
@@ -7848,49 +7882,44 @@ namespace min {
         return vp.aux_offset;
     }
 
-    inline bool resize
+    inline void resize
 	( min::obj_vec_insptr & vp,
 	  min::unsptr unused_size )
     {
-	return min::resize ( vp, unused_size,
-			     min::var_size_of ( vp ),
-			     false );
+	resize ( vp, unused_size,
+		     var_size_of ( vp ), false );
     }
-    inline bool expand
+    inline void expand
 	( min::obj_vec_insptr & vp,
 	  min::unsptr unused_size )
     {
-	return min::resize ( vp, unused_size,
-			     min::var_size_of ( vp ),
-			     true );
+	resize ( vp, unused_size,
+		     var_size_of ( vp ), true );
     }
-    inline bool resize
+    inline void resize
 	( min::gen obj,
 	  min::unsptr unused_size,
 	  min::unsptr var_size,
 	  bool expand = true )
     {
         min::obj_vec_insptr vp ( obj );
-	return min::resize
-	    ( vp, unused_size, var_size, expand );
+	resize ( vp, unused_size, var_size, expand );
     }
-    inline bool resize
+    inline void resize
 	( min::gen obj,
 	  min::unsptr unused_size )
     {
         min::obj_vec_insptr vp ( obj );
-	return min::resize
-	    ( vp, unused_size,
-	      min::var_size_of ( vp ), false );
+	resize ( vp, unused_size,
+	             var_size_of ( vp ), false );
     }
-    inline bool expand
+    inline void expand
 	( min::gen obj,
 	  min::unsptr unused_size )
     {
         min::obj_vec_insptr vp ( obj );
-	return min::resize
-	    ( vp, unused_size,
-	      min::var_size_of ( vp ), true );
+	resize ( vp, unused_size,
+	         var_size_of ( vp ), true );
     }
     inline void reorganize
 	( min::gen obj,
@@ -7900,9 +7929,42 @@ namespace min {
 	  bool expand = true )
     {
         min::obj_vec_insptr vp ( obj );
-	return min::reorganize
+	reorganize
 	    ( vp, hash_size, var_size, unused_size,
 	          expand );
+    }
+    inline void compact
+	( min::obj_vec_insptr & vp )
+    {
+	compact ( vp, var_size_of ( vp ), 0, false );
+    }
+    inline void compact
+	( min::gen obj,
+	  min::unsptr var_size,
+	  min::unsptr unused_size,
+	  bool expand = true )
+    {
+        min::obj_vec_insptr vp ( obj );
+	compact ( vp, var_size, unused_size, expand );
+    }
+    inline void compact
+	( min::gen obj )
+    {
+        min::obj_vec_insptr vp ( obj );
+	compact ( vp, var_size_of ( vp ), 0, false );
+    }
+    inline void publish
+	( min::obj_vec_insptr & vp )
+    {
+	compact ( vp, var_size_of ( vp ), 0, false );
+	set_public_flag_of ( vp );
+    }
+    inline void publish
+	( min::gen obj )
+    {
+        min::obj_vec_insptr vp ( obj );
+	compact ( vp, var_size_of ( vp ), 0, false );
+	set_public_flag_of ( vp );
     }
 
     inline bool private_flag_of ( min::gen obj )
@@ -9471,25 +9533,6 @@ namespace min {
 
     min::unsptr list_element_count
 	    ( min::obj_vec_ptr & vp );
-
-    void reorganize
-	    ( min::obj_vec_insptr & vp,
-	      min::unsptr hash_size,
-	      min::unsptr var_size,
-	      min::unsptr unused_size = 0 );
-    inline void reorganize
-	    ( min::obj_vec_insptr & vp,
-	      min::unsptr hash_size )
-    {
-        reorganize ( vp, hash_size,
-	             var_size_of ( vp ) );
-    }
-    inline void reorganize
-	    ( min::obj_vec_insptr & vp )
-    {
-        reorganize ( vp, hash_size_of ( vp ),
-	                 var_size_of ( vp ) );
-    }
 }
 
 

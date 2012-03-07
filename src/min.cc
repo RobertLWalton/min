@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  6 08:24:59 EST 2012
+// Date:	Wed Mar  7 01:27:08 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2530,7 +2530,7 @@ min::gen min::new_obj_gen
 // Object Vector Level
 // ------ ------ -----
 
-bool min::resize
+void min::resize
     ( min::obj_vec_insptr & vp,
       min::unsptr unused_size,
       min::unsptr var_size,
@@ -2628,10 +2628,6 @@ bool min::resize
     vp.aux_offset = vp.unused_offset
 		  + unused_size;
     vp.total_size = total_size;
-
-    // Currently `resize' always relocates.
-    //
-    return true;
 }
 
 // Object List Level
@@ -2861,7 +2857,7 @@ void min::insert_before
 		      p, n,
 		      MUP::new_control_with_type
 			( 0, (uns64) 0 ) );
-		MINT::set_obj_aux_flag_of ( lp.vecp );
+		MINT::set_aux_flag_of ( lp.vecp );
 
 		fgen = min::new_stub_gen ( first );
 		if ( lp.previous_stub != NULL )
@@ -2891,7 +2887,7 @@ void min::insert_before
 		    {
 		        min::stub * s =
 			    MUP::new_aux_stub();
-			MINT::set_obj_aux_flag_of
+			MINT::set_aux_flag_of
 			    ( lp.vecp );
 			MUP::set_gen_of
 			    ( s,
@@ -3041,7 +3037,7 @@ void min::insert_before
 	    else if ( ! previous )
 	    {
 	        s = MUP::new_aux_stub();
-		MINT::set_obj_aux_flag_of ( lp.vecp );
+		MINT::set_aux_flag_of ( lp.vecp );
 		MUP::set_gen_of ( s, lp.current );
 		end = MUP::new_control_with_type
 		    ( 0, s, MUP::STUB_PTR );
@@ -3079,7 +3075,7 @@ void min::insert_before
 	    min::stub * first, * last;
 	    MINT::allocate_stub_list
 		( first, last, type, p, n, end );
-	    MINT::set_obj_aux_flag_of ( lp.vecp );
+	    MINT::set_aux_flag_of ( lp.vecp );
 
 	    if ( lp.previous_index != 0 )
 		lp.base[lp.previous_index] =
@@ -3259,7 +3255,7 @@ void min::insert_after
 		      p, n,
 		      MUP::control_of
 		          ( lp.current_stub ) );
-		MINT::set_obj_aux_flag_of ( lp.vecp );
+		MINT::set_aux_flag_of ( lp.vecp );
 
 		MUP::set_control_of
 		    ( lp.current_stub,
@@ -3272,7 +3268,7 @@ void min::insert_after
 	    }
 
 	    min::stub * s = MUP::new_aux_stub();
-	    MINT::set_obj_aux_flag_of ( lp.vecp );
+	    MINT::set_aux_flag_of ( lp.vecp );
 	    MUP::set_gen_of ( s, lp.current );
 	    int type = lp.previous_is_sublist_head ?
 	    	       min::SUBLIST_AUX :
@@ -3295,7 +3291,7 @@ void min::insert_after
 		MINT::allocate_stub_list
 		    ( first, last, min::LIST_AUX,
 		      p, n - previous, end );
-		MINT::set_obj_aux_flag_of ( lp.vecp );
+		MINT::set_aux_flag_of ( lp.vecp );
 	    }
 
 	    if ( previous )
@@ -3944,6 +3940,49 @@ min::unsptr min::list_element_count
     return count;
 }
 
+min::unsptr min::hash_count_of
+	( min::obj_vec_ptr & vp )
+{
+    unsptr count = 0;
+    unsptr index = MUP::hash_offset_of ( vp );
+    unsptr end_index = MUP::attr_offset_of ( vp );
+    for ( ; index < end_index; ++ index )
+    {
+        min::gen v = vp[index];
+	if ( v == LIST_END() ) continue;
+
+	// We could simplify this BUT we want to add
+	// MIN_ASSERTs to be sure hash table element
+	// is a list pointer.
+	//
+	min::unsptr index2 = index;
+#       if MIN_USE_OBJ_AUX_STUBS
+	    const min::stub * s = NULL;
+	    if ( is_stub ( v ) )
+	    {
+	    	s = MUP::stub_of ( v );
+		MIN_ASSERT
+		    ( MUP::type_of ( s ) == LIST_AUX );
+	    }
+	    else
+#       endif
+	MIN_ASSERT ( is_list_aux ( v ) );
+	    
+	bool label_is_next = true;
+	FORLIST(vp,index2,s,v2,false)
+	    if ( label_is_next )
+	    {
+	        ++ count;
+		label_is_next = false;
+	    }
+	    else label_is_next = true;
+	ENDFORLIST
+	MIN_ASSERT ( label_is_next );
+    }
+
+    return count;
+}
+
 // The following functions copy parts of an object body
 // to a work area.  The first pass copies the variable
 // vector, hash table, and attribute vectors, and any
@@ -4227,7 +4266,7 @@ void min::reorganize
                      + hash_size
                      + attr_size_of ( vp );
 #   if MIN_USE_OBJ_AUX_STUBS
-	if ( MINT::obj_aux_flag_of ( vp ) )
+	if ( MINT::aux_flag_of ( vp ) )
 	    work_size += min::list_element_count ( vp );
 	else
 #   endif
@@ -4237,33 +4276,45 @@ void min::reorganize
     min::gen * work_high = work_begin + work_size;
     min::gen * work_end = work_begin + work_size;
 
-
+    // Optimize a bit by making the first copy_to_work
+    // as large as possible.  If var_size and hash_size
+    // have not changed it can do the whole thing.
+    //
     unsptr index = MUP::var_offset_of ( vp );
-    unsptr end_index =
-        ( var_size < old_var_size ?
-	  var_size :
-	  old_var_size );
-
-    ::copy_to_work
-	( vp, index, end_index,
-	  work_low, work_high, work_end );
-    while ( work_low < work_begin + var_size )
-        * work_low ++ = min::UNDEFINED();
-
-    if ( hash_size != old_hash_size )
-    {
-	::copy_hash_to_work
-	    ( vp, hash_size,
-	    work_low, work_high, work_end );
-	index = MUP::attr_offset_of ( vp );
-    }
+    unsptr end_index;
+    if (var_size < old_var_size )
+        end_index = var_size;
+    else if ( var_size > old_var_size )
+        end_index = old_var_size;
+    else if ( hash_size != old_hash_size )
+	end_index = MUP::hash_offset_of ( vp );
     else
-	index = MUP::hash_offset_of ( vp );
+	end_index = MUP::unused_offset_of ( vp );
 
-    end_index = MUP::unused_offset_of ( vp );
     ::copy_to_work
 	( vp, index, end_index,
 	  work_low, work_high, work_end );
+
+    if ( end_index != MUP::unused_offset_of ( vp ) )
+    {
+	while ( work_low < work_begin + var_size )
+	    * work_low ++ = min::UNDEFINED();
+
+	if ( hash_size != old_hash_size )
+	{
+	    ::copy_hash_to_work
+		( vp, hash_size,
+		work_low, work_high, work_end );
+	    index = MUP::attr_offset_of ( vp );
+	}
+	else
+	    index = MUP::hash_offset_of ( vp );
+
+	end_index = MUP::unused_offset_of ( vp );
+	::copy_to_work
+	    ( vp, index, end_index,
+	      work_low, work_high, work_end );
+    }
 
     ::scan_work_area
 	( vp, work_low, work_high, work_end );
@@ -4326,6 +4377,28 @@ void min::reorganize
     vp.var_offset = var_offset;
     vp.hash_offset = hash_offset;
     vp.attr_offset = attr_offset;
+}
+
+void min::compact
+	( min::obj_vec_insptr & vp,
+	  min::unsptr var_size,
+	  min::unsptr unused_size,
+	  bool expand )
+{
+    unsptr old_hash_size = min::hash_size_of ( vp );
+
+    // Figure the size of the new hash table.
+    //
+    unsptr hash_count = hash_count_of ( vp );
+    unsptr hash_size = old_hash_size;
+    if ( 3 * hash_count < 2 * old_hash_size
+         ||
+	 hash_count > 3 *old_hash_size )
+        hash_size = 2 * hash_count;
+
+    reorganize
+	( vp, hash_size, var_size, unused_size,
+	      expand );
 }
 
 // Object Attribute Level
