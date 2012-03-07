@@ -232,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 6, 2012}
+\date{March 7, 2012}
  
 \maketitle
 
@@ -8243,21 +8243,9 @@ expanded by growing the attribute vector upward into the unused area.
 Similarly the auxilarly area is zero length, but can be expanded by
 growing downward into the unused area.
 
-Various sizes can be changed, however, by {\tt min::\EOL resize}
-functions.  The variable vector, attribute vector, and unused area
-sizes can be changed by applying {\tt min::\EOL resize} to
-a {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} object vector pointer
-(\pagref{MIN::RESIZE_OF_OBJ_VEC_INSPTR}).
-The these sizes can be changed and the
-auxilarly area can be compacted by applying 
-{\tt min::\EOL resize} to
-a {\tt min::\EOL list\_\EOL insptr} list pointer
-(\pagref{MIN::RESIZE_OF_LIST_INSPTR}).
-All the sizes can be changed, including the hash table size, and the
-auxilarly area can be compacted by applying 
-{\tt min::\EOL resize} to
-a {\tt min::\EOL attr\_\EOL insptr} attribute pointer
-(\pagref{MIN::RESIZE_OF_ATTR_INSPTR}).
+The sizes of parts of an object may be changed after the object has
+been created by the object maintenance functions
+described in Section~\itemref{OBJECT-MAINTENANCE-FUNCTIONS}.
 
 Allocators often maintain sets of free memory blocks of particular
 sizes, often powers of two, and allocate new object bodies to one
@@ -8267,7 +8255,9 @@ requested body size.  If the `{\tt expand}' argument is {\tt true},
 size of the new object up so that the new object body fills the
 free block to which it is allocated.
 
-On the flip side, the compactor may reduce the size of the unused
+On the flip side, the compactor part of the
+allocator/\EOL collector/\EOL compactor
+may reduce the size of the unused
 area.  For an object that has been around a long enough time, the
 compactor may eliminate the unused area completely, and may reorganize
 the object to downsize its hash table and compact its auxiliary area.
@@ -8276,7 +8266,7 @@ The hash table of the returned object is filled with \verb|min::LIST_END()|
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
 The variable vector is filled with \verb|min::UNDEFINED| values.
 Unused area elements are initialized to some implementation defined
-value like \verb|0| or \verb|min::NONE|.
+value like \verb|0|.
 The attribute vector and auxiliary areas of the returned object are
 zero length, and all space not used by the header, hash table, and
 variable vector is allocated to the unused area.
@@ -8305,7 +8295,7 @@ applied to an object returns one of the following:
 \end{center}
 
 \subsubsection{Object Maintenance Functions}
-\label{OBJECT-Maintenance Functions}
+\label{OBJECT-MAINTENANCE-FUNCTIONS}
 
 Object maintenance functions are used to change the sizes of
 object components and compact objects.  The most basic of
@@ -8313,29 +8303,29 @@ these functions do nothing but change the size of the unused
 area and variable area:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{obj\_resize\REL}%
+\verb|void min::| & \MINKEY{resize\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr variable_size,| \\
     \verb|   min::unsptr unused_size,| \\
     \verb|   bool expand = true )| \\
     \end{tabular}
-\LABEL{MIN::OBJ_RESIZE} \\
-\verb|void min::| & \MINKEY{obj\_resize\REL}%
+\LABEL{MIN::RESIZE} \\
+\verb|void min::| & \MINKEY{resize\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr unused_size )| \\
     \end{tabular}
-\LABEL{MIN::OBJ_RESIZE_UNUSED} \\
-\verb|void min::| & \MINKEY{obj\_expand\REL}%
+\LABEL{MIN::RESIZE_UNUSED} \\
+\verb|void min::| & \MINKEY{expand\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr unused_size )| \\
     \end{tabular}
-\LABEL{MIN::OBJ_EXPAND} \\
+\LABEL{MIN::EXPAND} \\
 \end{tabular}\end{indpar}
 
-The 4-argument {\tt min::obj\_resize} function can change
+The 4-argument {\tt min::resize} function can change
 the size of both the variables vector and unused area at the same
 time.  The object body is reallocated, and the function's
 `{\tt expand}' argument, if `{\tt true}', will increase
@@ -8345,9 +8335,9 @@ typically allocate blocks whose size is a power of two or
 a bit less, so if the requested size is not just right, some
 memory will be wasted.
 
-The 2-argument {\tt min::obj\_resize} function and the {\tt min::\EOL expand}
+The 2-argument {\tt min::resize} function and the {\tt min::\EOL expand}
 function are both equivalent to {\tt min::\EOL resize} with no change
-in variables vector size.  The 2-argument {\tt min::obj\_\EOL resize}
+in variables vector size.  The 2-argument {\tt min::\EOL resize}
 has implied {\tt false} `{\tt expand}' argument, and the
 {\tt min::\EOL expand} function has implied {\tt true} `{\tt expand}'
 argument.
@@ -8384,7 +8374,7 @@ reorganize and object and change the sizes of its variable vector, hash table,
 and unused area.
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{obj\_reorganize\REL}%
+\verb|void min::| & \MINKEY{reorganize\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr hash_size,| \\
@@ -8392,7 +8382,7 @@ and unused area.
     \verb|   min::unsptr unused_size,| \\
     \verb|   bool expand = true )| \\
     \end{tabular}
-\LABEL{MIN::OBJ_REORGANIZE} \\
+\LABEL{MIN::REORGANIZE} \\
 \end{tabular}\end{indpar}
 
 The `{\tt expand}' argument to this function works to increase the
@@ -8408,24 +8398,24 @@ will cease to change, and the hash table size an be optimized
 to about twice this number.  The following functions use this idea:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{obj\_compact\REL}%
+\verb|void min::| & \MINKEY{compact\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr variable_size,| \\
     \verb|   min::unsptr unused_size,| \\
     \verb|   bool expand = true )| \\
     \end{tabular}
-\LABEL{MIN::OBJ_COMPACT_AND_RESIZE} \\
-\verb|void min::| & \MINKEY{obj\_compact\REL}%
+\LABEL{MIN::COMPACT_AND_RESIZE} \\
+\verb|void min::| & \MINKEY{compact\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
-\LABEL{MIN::OBJ_COMPACT} \\
-\verb|void min::| & \MINKEY{obj\_publish\REL}%
+\LABEL{MIN::COMPACT} \\
+\verb|void min::| & \MINKEY{publish\REL}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
-\LABEL{MIN::OBJ_PUBLISH} \\
+\LABEL{MIN::PUBLISH} \\
 \end{tabular}\end{indpar}
 
 These functions are like the {\tt min::reoganize} function
@@ -8433,7 +8423,7 @@ but they pick the size of the hash table automatically as
 follows.  If $N$ is the number of
 {\em attribute/node-name-descriptor-pairs} in the hash table
 and $S$ is the size of the hash table, the hash table size
-is left unchanged if $2N/3\leq S\leq 3N/2$.  Otherwise the
+is left unchanged if $2N/3\leq S\leq 3N$.  Otherwise the
 hash table size is reset to $2N$.
 
 The 1-argument {min::compact} function does not change the
@@ -8489,7 +8479,7 @@ the vector pointer version of {\tt min::reorganize} and the following:
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
-\LABEL{MIN::SET_PUBLIC_FLAG} \\
+\LABEL{MIN::SET_PUBLIC_FLAG_OF} \\
 \end{tabular}\end{indpar}
 
 The {\tt min::hash\_count\_of} function just returns the number of
@@ -8546,8 +8536,8 @@ created.  The object is therefore private to the code possessing the
 vector pointer.
 
 If an object has neither flag, its \verb|min::OBJ_PUBLIC| flag may be set
-by calling the {\tt min::\EOL obj\_\EOL publish\REL} function
-(\pagref{MIN::OBJ_PUBLISH}).
+by calling the {\tt min::\EOL publish\REL} function
+(\pagref{MIN::PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
 to the object may be created.  Constructing and destructing
@@ -8575,8 +8565,8 @@ using the {\tt min::\EOL insert\_\EOL reserve\REL} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
 and object bodies are usually reorganized
 when the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
-by the {\tt min::\EOL obj\_\EOL publish\REL} function
-(\pagref{MIN::OBJ_PUBLISH}).
+by the {\tt min::\EOL publish\REL} function
+(\pagref{MIN::PUBLISH}).
 
 \subsubsubsection{Protected Object Vector Pointers}
 \label{PROTECTED-OBJECT-VECTOR-POINTERS}
@@ -8944,28 +8934,6 @@ The additional functions for this type of pointer are:
 \LABEL{MIN::AUX_POP_MULTIPLE_OF_VEC_INSPTR} \\
 \end{tabular}\end{indpar}
 
-\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{resize\REL}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::unsptr unused_size,| \\
-      \verb|   min::unsptr var_size )| \\
-      \end{tabular}
-\LABEL{MIN::RESIZE_OF_OBJ_VEC_INSPTR} \\
-\verb|bool min::| & \MINKEY{resize\REL}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::unsptr unused_size )| \\
-      \end{tabular}
-\LABEL{MIN::RESIZE_UNUSED_OF_OBJ_VEC_INSPTR} \\
-\verb|bool min::| & \MINKEY{expand\REL}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::unsptr unused_size )| \\
-      \end{tabular}
-\LABEL{MIN::EXPAND_UNUSED_OF_OBJ_VEC_INSPTR} \\
-\end{tabular}\end{indpar}
-
 The push functions push values to the end of the attribute vector
 and the beginning of the unused area.  The pop functions pop values
 from the end of the attribute vector and the beginning of the unused
@@ -8995,43 +8963,6 @@ than the number of {\tt min::gen} values being pushed, these
 functions call the {\tt min::\EOL expand} function (see below)
 to add $k$ elements to the unused area before the push is executed.
 
-The 4-argument {\tt min::resize\REL} function changes the size of the unused
-area and variable vector.  The sizes can be either increased or
-decreased.  Elements added to the variable vector are added to
-its end and initialized with the value {\tt min::\EOL UNDEFINED}.
-The unused area is zeroed.
-The object body may be relocated by this function in order to
-resize it, and its header size may be changed.
-The sizes of the attribute vector and
-auxiliary area are not changed, but can be changed by later pushes
-and pops.
-No change is made to retained object elements outside the unused area.
-
-The `{\tt expand}' argument, like that `{\tt expand}'
-of the {\tt min::\EOL new\_\EOL obj\_\EOL gen} function
-(\pagref{MIN::NEW_OBJ_GEN}), controls whether the allocator rounds up
-the unused area size of the new object up so that the new object body fills the
-free block to which it is allocated.
-
-The {\tt min::resize\REL} function returns \verb|true| if it
-relocated the object's body, and \verb|false| if it did not.
-
-The 2-argument {\tt min::resize} function is equivalent to the
-4-argument function with no change in variable vector size and \verb|false|
-{\tt expand} argument.
-
-The 2-argument {\tt min::expand} function is equivalent to the
-4-argument function with no change in variable vector size and \verb|true|
-{\tt expand} argument.
-
-It is \underline{not}
-possible to resize the hash table with these functions because
-this involves moving data from a hash table entry with a given index
-to another hash table entry with a different index, and the vector level
-does not have enough information to do this.  The hash table can be
-resized at the
-attribute level (\pagref{MIN::RESIZE_OF_ATTR}).
-
 A {\tt min::\EOL obj\_\EOL vec\_\EOL insptr} may be automatically
 downcast to either a {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}
 or a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}.  This means that
@@ -9039,6 +8970,99 @@ all the non-constructor functions applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}'s or
 {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}'s are applicable to
 {\tt min::\EOL obj\_\EOL vec\_\EOL insptr}'s.
+
+\subsubsubsection{Vector Level Object Maintenance}
+\label{VECTOR-LEVEL-OBJECT-MAINTENANCE}
+
+The object maintenance functions of
+Section~\itemref{OBJECT-MAINTENANCE-FUNCTIONS}
+which operate on {\tt min::\EOL gen} values have counterparts
+that operate on object vector pointers.  These are described in the section
+just mentioned, and are merely listed here:
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{resize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::RESIZE_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{resize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{expand\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::EXPAND_OBJ_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
+
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{reorganize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr hash_size,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::REORGANIZE_OBJ_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::COMPACT_AND_RESIZE_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::COMPACT_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{publish\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::PUBLISH_OBJ_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
+
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{private\_flag\_of}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_ptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::PRIVATE_FLAG_OF_OBJ_VEC_PTR} \\
+\verb|void min::| & \MINKEY{public\_flag\_of}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_ptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::PUBLIC_FLAG_OF_OBJ_VEC_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
+\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_ptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::HASH_COUNT_OF_OBJ_VEC_PTR} \\
+\verb|void min::| & \MINKEY{set\_public\_flag\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::SET_PUBLIC_FLAG_OF_OBJ_VEC_INSPTR} \\
+\end{tabular}\end{indpar}
 
 \subsubsubsection{Unprotected Object Vector Level}
 \label{OBJECT-UNPROTECTED-VECTOR-LEVEL}
@@ -9860,19 +9884,6 @@ be equal to the number of insertion function calls.  If space is not
 reserved for insertion function calls in this way, the calls will be
 in error.
 
-The {\tt min::insert\_reserve\REL} function may resize the body of
-the object in which space is being reserved
-(using {\tt min::\EOL resize\REL},
-\pagref{MIN::RESIZE_UNUSED_OF_OBJ_VEC_INSPTR}).
-It returns \verb|true| if it
-resizes the object's body, and \verb|false| if it does not.
-It sets the relocated flag (\pagref{RELOCATED-FLAG}) if it
-resizes the body and must relocate any \underline{other} body,
-but not if it just resizes and possibly relocates
-the body of the object in which space is being reserved.
-It returns \verb|false| if it relocates the body but does
-\underline{not} resize it.
-
 Only one pointer at a time
 for a given object may have an effective reservation.
 Each call to {\tt min::\EOL insert\_reserve} for a list pointer
@@ -9882,16 +9893,23 @@ to the same object.  Errors in this regard involving two different
 list pointers will be detected if insufficient memory is reserved,
 but not otherwise.
 
-Note that {\tt min::\EOL insert\_reserve} is the only list pointer
-function that may cause a relocation and/or resizing of
+The {\tt min::insert\_reserve\REL} function may expand the body of
+the object in which space is being reserved
+(using {\tt min::\EOL expand\REL},
+\pagref{MIN::EXPAND_OBJ_VEC_INSPTR}).
+It returns \verb|true| if it expands the
+object's body, and \verb|false| if it does not.
+
+Importantly {\tt min::\EOL insert\_reserve} is the only list pointer
+function that may cause a resizing of
 the object pointed at, and if a resizing occurs (i.e., if \verb|true|
 is returned),
 all other list pointers to the same object
 become invalid and must be refreshed by
 a call to {\tt min::\EOL insert\_\EOL refresh}.
 
-The {\tt min::\EOL insert\_reserve} function can increase the size of the object
-if it is insufficient, or instead it can depend upon using
+The {\tt min::\EOL insert\_reserve} function can expand the object
+if it's size is insufficient, or instead it can depend upon using
 object auxiliary stubs (\itemref{OBJECT-AUXILIARY-STUBS}) if the object
 runs out of space, in which case {\tt min::\EOL insert\_reserve} must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
@@ -12616,7 +12634,7 @@ In loose implementation: \\
 
 \end{indpar}
 
-\INDEXHEADER{Objects}
+\INDEXHEADER{Object Creation}
 
 \begin{indpar}[0.2in]
 
@@ -12628,6 +12646,81 @@ In loose implementation: \\
 \LABEL{MIN::NEW_OBJ_GEN} \\
 \verb|bool min::| & \MINKEY{is\_obj} \verb| ( min::gen v )|
 \LABEL{MIN::IS_OBJ} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Object Maintenance}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{resize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::RESIZE} \\
+\verb|void min::| & \MINKEY{resize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED} \\
+\verb|void min::| & \MINKEY{expand\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::EXPAND} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{reorganize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr hash_size,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::REORGANIZE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::COMPACT_AND_RESIZE} \\
+\verb|void min::| & \MINKEY{compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::COMPACT} \\
+\verb|void min::| & \MINKEY{publish\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::PUBLISH} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{private\_flag\_of}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::PRIVATE_FLAG_OF} \\
+\verb|void min::| & \MINKEY{public\_flag\_of}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::gen object )| \\
+    \end{tabular}
+\LABEL{MIN::PUBLIC_FLAG_OF} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -12905,26 +12998,92 @@ In loose implementation: \\
 \LABEL{MIN::AUX_POP_MULTIPLE_OF_VEC_INSPTR} \\
 \end{TABULAR}
 
+\end{indpar}
+
+\INDEXHEADER{Vector Level Object Maintenance}
+
+\begin{indpar}[0.2in]
+
 \begin{TABULAR}{1.2in}
 \verb|void min::| & \MINKEY{resize\REL}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::unsptr unused_size,| \\
-      \verb|   min::unsptr var_size )| \\
-      \end{tabular}
-\LABEL{MIN::RESIZE_OF_OBJ_VEC_INSPTR} \\
-\verb|bool min::| & \MINKEY{resize\REL}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::unsptr unused_size )| \\
-      \end{tabular}
-\LABEL{MIN::RESIZE_UNUSED_OF_OBJ_VEC_INSPTR} \\
-\verb|bool min::| & \MINKEY{expand\REL}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::obj_vec_insptr & vp,| \\
-      \verb|   min::unsptr unused_size )| \\
-      \end{tabular}
-\LABEL{MIN::EXPAND_UNUSED_OF_OBJ_VEC_INSPTR} \\
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::RESIZE_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{resize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::RESIZE_UNUSED_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{expand\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr unused_size )| \\
+    \end{tabular}
+\LABEL{MIN::EXPAND_OBJ_VEC_INSPTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{reorganize\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr hash_size,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::REORGANIZE_OBJ_VEC_INSPTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp,| \\
+    \verb|   min::unsptr variable_size,| \\
+    \verb|   min::unsptr unused_size,| \\
+    \verb|   bool expand = true )| \\
+    \end{tabular}
+\LABEL{MIN::COMPACT_AND_RESIZE_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{compact\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::COMPACT_OBJ_VEC_INSPTR} \\
+\verb|void min::| & \MINKEY{publish\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::PUBLISH_OBJ_VEC_INSPTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{private\_flag\_of}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_ptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::PRIVATE_FLAG_OF_OBJ_VEC_PTR} \\
+\verb|void min::| & \MINKEY{public\_flag\_of}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_ptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::PUBLIC_FLAG_OF_OBJ_VEC_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_ptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::HASH_COUNT_OF} \\
+\verb|void min::| & \MINKEY{set\_public\_flag\_of\REL}%
+    \begin{tabular}[t]{@{}l@{}}
+    \verb| ( min::obj_vec_insptr & vp )| \\
+    \end{tabular}
+\LABEL{MIN::SET_PUBLIC_FLAG_OF} \\
 \end{TABULAR}
 
 \end{indpar}
