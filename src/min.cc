@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  7 01:27:08 EST 2012
+// Date:	Wed Mar  7 06:51:07 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -283,8 +283,6 @@ int min::compare ( min::gen g1, min::gen g2 )
 
 // Process Management
 // ------- ----------
-
-bool MINT::relocated_flag;
 
 bool MINT::thread_interrupt_needed = false;
 void MINT::thread_interrupt ( void ) {}  // TBD
@@ -2646,10 +2644,6 @@ void min::resize
 // This function returns pointers to the first and last
 // stubs allocated.  n > 0 is required.
 //
-// This function asserts that the relocated flag is not
-// set during the execution of this function.  Suffi-
-// cient stubs should have been reserved in advance.
-//
 void MINT::allocate_stub_list
 	( min::stub * & first,
 	  min::stub * & last,
@@ -2658,12 +2652,6 @@ void MINT::allocate_stub_list
 	  min::uns64 end )
 {
     MIN_ASSERT ( n > 0 );
-
-    // Check for failure to use min::insert_reserve
-    // properly.
-    //
-    bool saved_relocated_flag =
-        min::set_relocated_flag ( false );
 
     first = MUP::new_aux_stub ();
     MUP::set_gen_of ( first, * p ++ );
@@ -2682,12 +2670,6 @@ void MINT::allocate_stub_list
     }
     MUP::set_control_of
         ( last, MUP::renew_control_type ( end, type ) );
-
-    // Check for failure to use min::insert_reserve
-    // properly.
-    //
-    MIN_ASSERT ( ! min::set_relocated_flag
-                     ( saved_relocated_flag ) );
 }
 
 # endif // MIN_USE_OBJ_AUX_STUBS
@@ -3763,7 +3745,7 @@ bool MINT::insert_reserve
 	    if ( desired_size > 1000 )
 	        desired_size = 1000;
 	}
-	min::resize ( lp.vecp, desired_size );
+	min::expand ( lp.vecp, desired_size );
 	min::insert_refresh ( lp );
 	result = true;
     }

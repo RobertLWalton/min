@@ -421,40 +421,6 @@ min_interface_test.cc:XXXX assert:
 min_interface_test.cc:XXXX assert:
     ::interrupt_count == count + 1 true.
 
-Test relocate flag functions:
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
-min_interface_test.cc:XXXX assert:
-    ! min::set_relocated_flag ( true ) true.
-min_interface_test.cc:XXXX assert:
-    min::relocated_flag() true.
-min_interface_test.cc:XXXX assert:
-    min::set_relocated_flag ( false ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
-min_interface_test.cc:XXXX assert:
-    ! r true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
-min_interface_test.cc:XXXX assert:
-    r true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
-../include/min.h:XXXX assert:
-    ! current_relocated_flag true.
-min_interface_test.cc:XXXX assert:
-    min::relocated_flag() true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
-min_interface_test.cc:XXXX assert:
-    ! r true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
-../include/min.h:XXXX assert:
-    ! current_relocated_flag true.
-min_interface_test.cc:XXXX assert:
-    min::relocated_flag() true.
-
 Finish Process Interface Test!
 
 Start Allocator/Collector/Compactor Interface Test!
@@ -2237,8 +2203,6 @@ ADDING 20 ELEMENTS TO UNUSED AREA
     insertions <= elements true.
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
@@ -2248,8 +2212,6 @@ ADDING 20 ELEMENTS TO UNUSED AREA
     insertions <= elements true.
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ADDING 20 ELEMENTS TO UNUSED AREA
@@ -2257,8 +2219,6 @@ ADDING 20 ELEMENTS TO UNUSED AREA
     insertions <= elements true.
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -2320,8 +2280,6 @@ ADDING 20 ELEMENTS TO UNUSED AREA
     insertions <= elements true.
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 min_interface_test.cc:XXXX assert:
@@ -2346,8 +2304,6 @@ EMPTYING UNUSED AREA
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
 RESIZE HAPPENED
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
@@ -2365,8 +2321,6 @@ ADDING 20 ELEMENTS TO UNUSED AREA
     insertions <= elements true.
 min_interface_test.cc:XXXX assert:
     resize_happened == ( ! use_obj_aux_stubs && resize ) true.
-min_interface_test.cc:XXXX assert:
-    ! min::relocated_flag() true.
 ../include/min.h:XXXX assert:
     p < (unsgen) 1 << VSIZE true.
 ../include/min.h:XXXX assert:
