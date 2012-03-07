@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Mar  6 08:25:17 EST 2012
+// Date:	Tue Mar  6 19:32:31 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7897,12 +7897,46 @@ namespace min {
 	  min::unsptr hash_size,
 	  min::unsptr var_size,
 	  min::unsptr unused_size,
-	  bool expand = true );
+	  bool expand = true )
     {
         min::obj_vec_insptr vp ( obj );
 	return min::reorganize
 	    ( vp, hash_size, var_size, unused_size,
 	          expand );
+    }
+
+    inline bool private_flag_of ( min::gen obj )
+    {
+	if ( ! min::is_stub ( obj ) ) return false;
+	const min::stub * s =
+	    min::unprotected::stub_of ( obj );
+	int type = min::unprotected::type_of ( s );
+	if ( ( type & OBJ_MASK ) != OBJ ) return false;
+	return     (   ( (const uns8 *)
+	                 min::unprotected
+			    ::ptr_of ( s ) )
+	               [min::internal
+		           ::obj_header_flags_offset
+	                           ( type )]
+		     & min::OBJ_PRIVATE )
+		!= 0;
+    }
+
+    inline bool public_flag_of ( min::gen obj )
+    {
+	if ( ! min::is_stub ( obj ) ) return false;
+	const min::stub * s =
+	    min::unprotected::stub_of ( obj );
+	int type = min::unprotected::type_of ( s );
+	if ( ( type & OBJ_MASK ) != OBJ ) return false;
+	return     (   ( (const uns8 *)
+	                 min::unprotected
+			    ::ptr_of ( s ) )
+	               [min::internal
+		           ::obj_header_flags_offset
+	                           ( type )]
+		     & min::OBJ_PUBLIC )
+		!= 0;
     }
 
     inline ref<min::gen> attr_push
