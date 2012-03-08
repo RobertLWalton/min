@@ -463,7 +463,7 @@ Either will initialize MIN.
 
 Generally MIN out-of-line functions \underline{cannot} be called
 by constructors of {\tt static} or {\tt extern} data, because
-MIN is not initiallized when these constructors execute.
+MIN is not initialized when these constructors execute.
 MIN constructors designed to be used by such data do not call
 MIN out-of-line functions or depend upon other MIN data being
 constructed.  The following are some of the MIN constructors
@@ -499,7 +499,7 @@ min::initializer my\_initializer ( ::my\_initialize ); \\
 Immediately after MIN performs its own initialization
 it calls {\tt my\_initialize()} and other functions specified by
 {\tt min::\EOL initializer}'s.  The order in which these
-are called is indeterminant.  These functions can call any
+are called is indeterminate.  These functions can call any
 MIN function and can finish initialization of {\tt static} or
 {\tt extern} data.
 
@@ -548,7 +548,7 @@ Current implementations of MIN assume a compiler that has
 direct support for 64 bit integers.  It is possible, but not recommended,
 to modify the implementations to use compilers without such support.
 
-MIN depends upon certain undocumentated C++ conventions.
+MIN depends upon certain undocumented C++ conventions.
 
 First, it is assumed that classes will not have hidden
 padding that is not required to align member offsets.
@@ -1655,7 +1655,7 @@ for functions that can read and write auxiliary stubs.
 \label{PROTECTED-BODY-POINTERS}
 
 Bodies are relocatable
-(\pagref{RELOCATABLE-BODY}) and and pointers into bodies,
+(\pagref{RELOCATABLE-BODY}) and pointers into bodies,
 called \skey{body pointer}s,
 require special handling to
 ensure that they are up-to-date.  There are two ways of managing
@@ -1728,20 +1728,20 @@ The functions for creating and using reference types are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * const r| & \TTARMKEY{s}{in {\tt min::ref\TARG}}
+\verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref\TARG}}
 \LABEL{MIN::REF_STUB} \\
-\verb|const min::unsptr r| & \TTARMKEY{offset}{in {\tt min::ref\TARG}}
+\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref\TARG}}
 \LABEL{MIN::REF_OFFSET} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
-      \verb|( min::ref<T> const & r, T value )|
+      \verb|( const min::ref<T> & r, T value )|
 \LABEL{MIN::=REF_OF_T} \\
 \verb|min::ref<T> const & |
     & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
-      \verb|( min::ref<T> const & r,|\ARGBREAK
+      \verb|( const min::ref<T> & r,|\ARGBREAK
       \verb|  const min::ref<T> & r2 )|
 \LABEL{MIN::=REF_OF_REF} \\
 \end{tabular}\end{indpar}
@@ -1779,8 +1779,8 @@ The functions for creating and using reference types are:
 
 In addition, the following are defined
 only if {\tt T} is a packed structure or vector pointer,
-i.e., {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} or
-{\tt min::\EOL packed\_\EOL vec\EHARG::\EOL xxxptr}:
+i.e., {\tt min::\EOL packed\_\EOL struct\_\EOL xxxptr\SARG} or
+{\tt min::\EOL packed\_\EOL vec\_\EOL xxxptr\EHARG}:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool |
@@ -1796,8 +1796,8 @@ i.e., {\tt min::\EOL packed\_\EOL struct\SARG::\EOL xxxptr} or
 A {\tt min::ref\TARG} type is similar to the `{\tt T \&}' type.
 Internally a {\tt min::ref\TARG} value {\tt r}
 is a pointer to a location of type {\tt T} that
-consists of a {\tt const min::\EOL stub~*} pointer {\tt r->s} to a stub
-and an {\tt min::\EOL unsptr} byte offset {\tt r->offset}
+consists of a {\tt const min::\EOL stub~*} pointer {\tt r.s} to a stub
+and an {\tt min::\EOL unsptr} byte offset {\tt r.offset}
 of a location in the body
 associated with the stub.  Setting a reference type equal to a value
 of type {\tt T} stores the value in the location.  Setting a reference
@@ -1809,16 +1809,17 @@ value at the {\tt r2} location to the {\tt r} location.
 elsewhere:
 \begin{center}
 \begin{tabular}{ll}
-packed stuctures & see {\tt MIN\_REF},
+packed structures & see {\tt MIN\_REF}
     \pagref{MIN_REF} and \pagref{PACKED_STRUCT_MIN_REF} \\
-packed vector headers & see {\tt MIN\_REF},
+packed vector headers & see {\tt MIN\_REF}
     \pagref{MIN_REF} and \pagref{PACKED_VEC_MIN_REF} \\
-packed vector elements	& see {\tt operator []},
-    \pagref{PACKED_VEC_[]_REF} \\
-locatable variables	& see {\tt operator min::ref\TARG},
+packed vector elements	& see {\tt operator []}
+    \pagref{PACKED_VEC_[]_REF},
+    {\tt push} function \pagref{PACKED_VEC_PUSH_REF} \\
+locatable variables	& see {\tt operator min::ref\TARG}
     \pagref{LOCATABLE_VAR_REF} \\
-object vector elements	& see TBD pTBD \\
-TBD
+object vector elements	& see access functions \pagref{OBJ_VEC_UPDPTR_REF},
+			  push functions \pagref{OBJ_VEC_UPDPTR_PUSH_REF}
 \end{tabular}
 \end{center}
 
@@ -1847,7 +1848,7 @@ differ according to whether or not the type {\tt T} is
 \label{LOCATABLE_REF}
 ({\tt min::\EOL gen}, {\tt const min::\EOL stub~*}, and
 classes such as {\tt min:\EOL packed\_\EOL\ldots ptr\BRACKETED{\ldots}}
-that encapulate {\tt const min::\EOL stub~*} values are
+that encapsulate {\tt const min::\EOL stub~*} values are
 locatable types: see \pagref{LOCATABLE-TYPE}).
 If {\tt T} is locatable, storing a value in a {\tt min::\EOL ref\TARG}
 location implicitly calls the
@@ -1860,14 +1861,14 @@ If {\tt T} is not locatable or if the
 the {\tt min::\EOL acc\_\EOL write\_\EOL update} functions are not implicitly
 called.
 
-A {\tt min::ref\TARG} value is implicitly convertable to the type {\tt T \&}.
+A {\tt min::ref\TARG} value is implicitly convertible to the type {\tt T \&}.
 As this implicit conversion
 is not activated by C++ in the case of an expression of the form
 `{\tt r->\ldots}', `{\tt operator~->}' of a {\tt min::\EOL ref\TARG}
 argument is defined to invoke the conversion explicitly.
 Similarly for {\tt operator ==} and {\tt operator !=}.
 In addition, these are defined to make the conversion when
-{\tt T} is convertable to {\tt const min::\EOL stub~*} and the
+{\tt T} is convertible to {\tt const min::\EOL stub~*} and the
 second argument is of this latter type, so that expressions such as
 \begin{center}
 \tt r == min::NULL\_STUB
@@ -1893,9 +1894,9 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|const min::stub * const p| & \TTARMKEY{s}{in {\tt min::ptr\TARG}}
+\verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr\TARG}}
 \LABEL{MIN::PTR_STUB} \\
-\verb|const min::unsptr p| & \TTARMKEY{offset}{in {\tt min::ptr\TARG}}
+\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr\TARG}}
 \LABEL{MIN::PTR_OFFSET} \\
 \end{tabular}\end{indpar}
 
@@ -1978,15 +1979,16 @@ unprotected {\tt MUP::\EOL new\_\EOL ptr} function which
 constructs a {\tt min::\EOL ptr\TARG} value
 from a pointer {\tt s} to a stub and a pointer to
 within the body associated with that stub.
-However, unlike {\tt min::\EOL new\_\EOL ref},
+However, unlike {\tt MUP::\EOL new\_\EOL ref},
 the location pointed at within a body may not be {\tt const} unless {\tt T} is
 {\tt const}.
 
 A {\tt min::\EOL ptr\TARG} value can be created by the
 protected {\tt min::\EOL new\_\EOL ptr} function from
-a non-relocatable pointer to a value of type {\tt T}.
+a non-relocatable pointer to a value of type {\tt T} that is located
+in static or stack memory.
 
-Given {\tt min::\EOL ptr<T>} value {\tt p} and an index {\tt i} of some
+Given a {\tt min::\EOL ptr<T>} value {\tt p} and an index {\tt i} of some
 suitable index type {\tt I} (such as {\tt int} or {\tt min::\EOL uns32}),
 {\tt p[i]} is a `{\tt T \&}' or `{\tt min::\EOL ref<T>}'
 reference value for the {\tt i+1}'st element of
@@ -2001,9 +2003,15 @@ in effect an unprotected body pointer that will become undefined whenever
 a relocatable function is called.
 However, if {\tt T} is locatable and not {\tt const},
 it may contain a {\tt min::gen} or `{\tt const min::\EOL stub *}' value,
-and therefore cannot be written using a
-`{\tt T \&}' reference.  It can be written using a
-{\tt min:\EOL ref<T>} reference, so such is returned by {\tt p[i]} if
+and therefore cannot be simply written using a
+`{\tt T \&}' reference
+without calling a {\tt min::\EOL acc\_\EOL write\_\EOL update} function
+explicitly.
+However, it can be written using a
+{\tt min::\EOL ref<T>} reference,
+which will call the {\tt min::\EOL acc\_\EOL write\_\EOL update} function
+implicitly,
+so a {\tt min::\EOL ref<T>} reference is returned by {\tt p[i]} if
 {\tt T} is locatable.
 
 One might ask whether {\tt p[i]} should always have a {\tt min::\EOL ref<T>}
@@ -2012,18 +2020,18 @@ value.  The answer is that if {\tt T} is a structure type with a member
 {\tt m}, then {\tt p[i].m} will not work if {\tt p[i]} has type
 {\tt min::\EOL ref<T>}, but it will work if {\tt p[i]} has type
 `{\tt T \&}'.  This is unfortunate, but we must deal with this as best
-we can.  (Ideally C++ would get an `{\tt operator .}' which better
-enable non-standard reference types just as
+we can.  (Ideally C++ would have an `{\tt operator .}' which better
+enables non-standard reference types just as
 `{\tt operator ->}' better enables non-standard pointer types).
 When {\tt T} is itself a non-{\tt const}
 pointer value, such as a {\tt min::gen} or
 `{\tt const min::\EOL stub~*}' value, then it is perfectly alright
 to have {\tt p[i]} be a {\tt min::\EOL ref<T>} reference, and in
-fact it is even more desireable since writing the pointer value
+fact it is even more desirable since writing the pointer value
 needs to implicitly call {\tt min::\EOL acc\_\EOL write\_\EOL update}.
-So we make it a rule that the {\tt [~]} operator returns a
+So we make it a rule that the {\tt [\,]} operator returns a
 {\tt min::ref<T>} value only in the case that {\tt T} is
-{\tt min::\EOL gen} or is convertable to `{\tt const min::\EOL stub~*}',
+{\tt min::\EOL gen} or is convertible to `{\tt const min::\EOL stub~*}',
 and {\tt T} is not {\tt const}.
 
 An important consequence of this rule is that an expression such as
@@ -2044,8 +2052,8 @@ strcpy ( buffer, s );
 
 If {\tt p} is of type {\tt min::ptr<S>}, then {\tt min::ptr<T>(p)} is just
 {\tt p} coerced to the type {\tt min::\EOL ptr<T>} without any change to the
-actual value of {\tt p}, just as {(T *)(q)} is a coersion of {\tt q}
-if {\tt q} has type `{\tt S *}'.  Such coersions are inherently
+actual value of {\tt p}, just as {(T *)(q)} is a coercion of {\tt q}
+if {\tt q} has type `{\tt S *}'.  Such coercions are inherently
 unprotected, of course.
 
 Several pointer operators are defined on {\tt min::ptr<T>} values:
@@ -2072,11 +2080,12 @@ These are just what is required to take the {\tt min::\EOL ptr<T>}
 values of
 {\tt min::\EOL begin\_\EOL ptr\_\EOL of} and
 {\tt min::\EOL end\_\EOL ptr\_\EOL of} applied to various type specific
-object pointers and step through the vector bracketted by the
+object pointers and step through the vector bracketed by the
 resulting pointers.  See, for example, 
 {\tt min::\EOL begin\_\EOL ptr\_\EOL of} on
 \pagref{MIN::BEGIN_PTR_OF_STR_PTR}
-and \pagref{MIN::BEGIN_PTR_OF_LAB_PTR}.
+and {\tt min::\EOL begin/end\_\EOL ptr\_\EOL of} on
+\pagref{MIN::BEGIN_PTR_OF_LAB_PTR}.
 To protect as much as possible from misuse, {\tt <} is defined to be
 false if the two pointers point at different relocatable bodies.
 So one should use the pointers to access data only if the smaller
@@ -2207,7 +2216,7 @@ In loose implementation: \\
 \LABEL{MIN::LOCATABLE_NUM_GEN_TYPEDEF} \\
 \end{tabular}\end{indpar}
 
-If the implemention is loose (\pagref{LOOSE}),
+If the implementation is loose (\pagref{LOOSE}),
 {\tt min::locatable\_\EOL num\_\EOL gen} is equivalent to
 {\tt min::gen}.  If the implementation is compact, it is equivalent to
 {\tt min::locatable\_\EOL gen}.
@@ -2245,7 +2254,7 @@ of {\tt v} happens to use the copy constructor, but that of {\tt w} does not.
 
 A {\tt min::\EOL locatable\_\EOL gen} locatable variable
 \label{LOCATABLE_VAR_REF}
-is implicitly convertable to a
+is implicitly convertible to a
 reference
 of type {\tt min::\EOL ref<min::gen>}
 that references the {\tt min::gen}
@@ -2336,7 +2345,7 @@ Here {\tt T} must be
 or a class like {\tt min::\EOL packed\_\ldots ptr\BRACKETED{\ldots}}
 whose only data member is of type {\tt const min::stub~*}.
 In either case, a {\tt min::\EOL locatable\_\EOL var\TARG}
-value is implicitly convertable to a {\tt const min::\EOL stub~*} value.
+value is implicitly convertible to a {\tt const min::\EOL stub~*} value.
 
 In the second case, {\tt T} is the {\tt public} base class of
 {\tt min::\EOL locatable\_\EOL var\TARG}, so expressions of
@@ -2347,7 +2356,7 @@ will work for a value of type {\tt T}.
 
 Like a {\tt min::\EOL locatable\_\EOL gen} locatable variable,
 a {\tt min::\EOL locatable\_\EOL var\TARG} locatable variable
-is implicitly convertable to a
+is implicitly convertible to a
 reference of type {\tt min::\EOL ref<T>}, and can be pointed at
 by a pointer of type {\tt min::\EOL ptr<T>} obtained by applying
 the {\tt \&} operator to the locatable variable.
@@ -2386,7 +2395,7 @@ of {\tt min::\EOL locatable\_\EOL var}:
 
 However, this specialization differs from
 {\tt min::\EOL locatable\_\EOL var\TARG}in that it is not
-implicitly convertable to a {\tt const min::\EOL stub~*} value nor
+implicitly convertible to a {\tt const min::\EOL stub~*} value nor
 is {\tt min::gen} a base type of this specialization.
 
 Importantly a \verb|min::gen| or \verb|const min::stub *|
@@ -2505,7 +2514,7 @@ Here the calls to {\tt MUP::acc\_write\_update} are inside the
 {\tt \ldots\_ref(q) =} calls (\pagref{LOCATABLE_REF}).
 Writing {\tt q->g = \ldots}
 and {\tt q->p = \ldots} is prevented by making the {\tt g} and {\tt p}
-members `{\tt const}', so accidently updating locatable members
+members `{\tt const}', so accidentally updating locatable members
 without calling {\tt MUP::\EOL acc\_\EOL write\_\EOL update}
 is prevented.
 
@@ -2648,7 +2657,7 @@ implementation.
 
 The last three of the above functions look at all the
 values \verb|p[0]|, \ldots, \verb|p[n-1]|, and for each of these
-call the corresponding function choosen from the first three
+call the corresponding function chosen from the first three
 of the above functions.
 
 The {\tt min::\EOL acc\_\EOL write\_\EOL num\_\EOL update}
@@ -4276,7 +4285,7 @@ with a stub that has a \minnbkey{PACKED\_STRUCT}\LABEL{MIN::PACKED_STRUCT}
 stub type code.
 
 The C type of a packed structure must be a C \verb|struct|
-initializable by setting all bytes to zero and copiable
+initializable by setting all bytes to zero and copyable
 by \verb|memcpy|.
 Its \underline{first} member must be
 \begin{center}
@@ -4576,7 +4585,7 @@ which is just the standard C language \verb|NULL|
 cast to the `\verb|const min::stub *|' type.
 Note that \verb|NULL| cannot itself be used as an argument to
 the constructors or {\tt =} operator, as it is
-convertable to either a `\verb|min::stub *|'
+convertible to either a `\verb|min::stub *|'
 or \verb|min::gen| type, and is thus creates ambiguity.
 But {\tt min::\EOL NULL\_\EOL STUB} can be used.
 If a constructor for {\tt min::\EOL packed\_\EOL struct\_\EOL ptr\SARG}
@@ -4917,7 +4926,7 @@ be changed by the user.
 has just the require header members: \verb|control|, \verb|length|, and
 {\tt max\_\EOL length}.  Because of this default,
 \verb|H| is the \underline{second} template parameter,
-even though is preceeds the vector elements in memory.
+even though is precedes the vector elements in memory.
 
 Only C language syntax may be used in defining the type {\tt H},
 except that a single base type may be be used, as in
@@ -5167,7 +5176,7 @@ except the latter would fail if {\tt pvp->\EOL length == 0}.
 except the latter will always fail because the index is not less than
 \verb|pvp->length|.
 The {\tt min::ptr<E const>} values of these functions are implicitly
-convertable to `{\tt E const *}' values, and so can be passed to
+convertible to `{\tt E const *}' values, and so can be passed to
 functions like {\tt memcpy}.
 
 For example, if \verb|memcpy| is used to copy
@@ -5391,8 +5400,9 @@ push(pvip) = v;
 \end{verbatim}\end{indpar}
 where \verb|v| is the value of the element to be added to the vector.
 If the element type {\tt E} is locatable, {\tt min::\EOL push\REL}
-returns a {\tt min::\EOL ref\TARG}
-reference.  Otherwise, if {\tt E} is not locatable, an
+returns a {\tt min::\EOL ref\TARG} reference.%
+\label{PACKED_VEC_PUSH_REF}
+Otherwise, if {\tt E} is not locatable, an
 `{\tt E \&}' reference is returned.
 
 Note that {\tt \& min::push(pvip)}
@@ -6073,7 +6083,7 @@ This is done by:
 \LABEL{MIN::SKIP_REMAINING} \\
 \end{tabular}\end{indpar}
 
-The {\tt min::skip\_remaining} function can have an undesireable
+The {\tt min::skip\_remaining} function can have an undesirable
 interaction with the use of {\tt min::\EOL end\_\EOL line} to
 make an initial segment of a partial line into a complete line:
 see \pagref{SKIP_REMAINING_END_LINE}.  It also affects the next
@@ -6258,7 +6268,7 @@ a complete line possibly followed by a shorter partial line:
 \LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
 \end{tabular}\end{indpar}
 
-This function sets {\tt file->buffer[offset]} to NUL, overwritting
+This function sets {\tt file->buffer[offset]} to NUL, overwriting
 any previous {\tt char} value of this buffer element, and
 making this element the line-terminating NUL for an initial segment
 of the partial line at the end of the buffer.  The remainder of
@@ -6281,7 +6291,7 @@ that the file has
 \LABEL{MIN::FLUSH_FILE} \\
 \end{tabular}\end{indpar}
 
-This function first calls {\tt min::next\_line} repeatly
+This function first calls {\tt min::next\_line} repeatedly
 for the file, and flushes each line returned by that function.
 Then it flushes any partial line left over at the end of the
 file, and calls {\tt min::\EOL skip\_\EOL remaining}
@@ -6289,7 +6299,7 @@ file, and calls {\tt min::\EOL skip\_\EOL remaining}
 (so it will be invisible to subsequent calls to
 {\tt min::\EOL next\_\EOL line}).
 
-The flushing subactions of {\tt min::flush\_file} are available by using
+The flushing sub-actions of {\tt min::flush\_file} are available by using
 the following functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6727,7 +6737,7 @@ the `\key{white frowning face}\index{face!white frowning}',
 \vspace{-1ex}
 {\raggedright~\\}
 If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is off,
-printing of characters of class {\tt XXX} is controled by the
+printing of characters of class {\tt XXX} is controlled by the
 {\tt ALLOW\_\EOL XXX\_\EOL FLAG} flag, which
 causes all characters in class {\tt XXX} to
 represent themselves.  The single space character takes {\tt 1}
@@ -7016,7 +7026,7 @@ synonym for pushing the parameters.
 
 The idea is that
 a message that consists of several lines with special flags set
-can be bracketted by {\tt min::bom} and {\tt min::eom}
+can be bracketed by {\tt min::bom} and {\tt min::eom}
 to restore parameters at the end of the message.
 
 {\tt min::gen} values may be printed under the control of a
@@ -7039,7 +7049,7 @@ can be printed using the following operations:
 \LABEL{MIN::PUNICODE_BUFFER} \\
 \end{tabular}\end{indpar}
 
-Sometimes it is desireable to find out how many columns a
+Sometimes it is desirable to find out how many columns a
 single UNICODE character will take for a given value of
 {\tt parameters.flags}.  For the horizontal tab character,
 this depends upon the column the character is printed in.
@@ -7436,7 +7446,7 @@ the {\tt RAW\_\EOL FLAG} implies the {\tt DATA\_\EOL FLAG}.
 
 \item[\ttmkey{number\_format}{in {\tt min::printer\_format}}]
 The {\tt number\_format} member is used as a {\tt printf} format
-for printing {\tt min::gen} numbers convered to {\tt min::\EOL float64} values.
+for printing {\tt min::gen} numbers converted to {\tt min::\EOL float64} values.
 
 \item[\ttmkey{str\_prefix}{in {\tt min::printer\_format}}]
 \item[\ttmkey{str\_postfix}{in {\tt min::printer\_format}}]\vspace{-2ex}
@@ -7484,7 +7494,7 @@ a {\tt min::\EOL new\_\EOL special\_\EOL gen(i)} value, if
 \item[\ttmkey{space\_prefix\_mask}{in {\tt min::printer\_format}}]
 \item[\ttmkey{space\_postfix\_mask}{in {\tt min::printer\_format}}]\vspace{-2ex}
 The space normally output after a {\tt lab\_\EOL separator} or between object
-vector elements is surpressed if
+vector elements is suppressed if
 \begin{center}
 \tt space\_prefix\_mask[B] \& space\_postfix\_mask[A] != 0
 \end{center}
@@ -7514,12 +7524,12 @@ The following flags are used in these masks:
 In the {\tt space\_\EOL prefix\_\EOL mask} this flag means that a character
 is a prefix separator character that may be adjacent to a following character,
 and in the {\tt space\_\EOL postfix\_\EOL mask} this flag means that
-a character may be adjacent to an immediately preceeding prefix separator
+a character may be adjacent to an immediately preceding prefix separator
 character.
 
 \item[\ttnbmkey{POSTFIX\_SEPARATOR\_FLAG}{{\tt min::printer\_format} flag}]
 In the {\tt space\_\EOL postfix\_\EOL mask} this flag means that a character
-is a postfix separator character that may be adjacent to a preceeding character,
+is a postfix separator character that may be adjacent to a preceding character,
 and in the {\tt space\_\EOL prefix\_\EOL mask} this flag means that
 a character may be adjacent to an immediately following postfix separator
 character.
@@ -7914,7 +7924,7 @@ If the arrow is a double arrow,
 a reverse direction label, called the \key{reverse attribute name}
 is attached to the arrow, and the object at the destination end of the
 arrow is the source of the reversed arrow, whose label is the
-reverse attribut name and whose destination is the unreversed arrow's
+reverse attribute name and whose destination is the unreversed arrow's
 source.
 
 There can be several arrows with the same attribute name,
@@ -8059,7 +8069,7 @@ An object can be created by the protected function:
 
 The new object has a zero length attribute vector, but this can be
 expanded by growing the attribute vector upward into the unused area.
-Similarly the auxilarly area is zero length, but can be expanded by
+Similarly the auxiliary area is zero length, but can be expanded by
 growing downward into the unused area.
 
 The sizes of parts of an object may be changed after the object has
@@ -8172,7 +8182,7 @@ The remaining maintenance functions assume objects are organized
 as per Section~\itemref{OBJECT-LIST-LEVEL}, Object List Level.
 These functions all \ikey{reorganize}{object}
 an object so it has no discontinuities
-in its lists, and therefore no unnecessary invisible jumps (auxilary
+in its lists, and therefore no unnecessary invisible jumps (auxiliary
 list pointers, actually) within its lists, and makes no use of
 auxiliary stubs (\itemref{OBJECT-AUXILIARY-STUBS}).  So in this
 sense these functions clean up and compactify the object.  Object
@@ -8237,7 +8247,7 @@ to about twice this number.  The following functions use this idea:
 \LABEL{MIN::PUBLISH} \\
 \end{tabular}\end{indpar}
 
-These functions are like the {\tt min::reoganize} function
+These functions are like the {\tt min::reorganize} function
 but they pick the size of the hash table automatically as
 follows.  If $N$ is the number of
 {\em attribute/node-name-descriptor-pairs} in the hash table
@@ -8328,7 +8338,7 @@ to the last element of the auxiliary area.
 The 0 auxiliary pointer index corresponds to the location just
 beyond the body vector and is not
 usable as the index of auxiliary area element, so it
-can also be used as a form of null pointer.  By indexing auxiliarly
+can also be used as a form of null pointer.  By indexing auxiliary
 area elements in this way, the unused area size can be changed without
 changing any auxiliary pointers.
 
@@ -8473,7 +8483,7 @@ Here the sizes are in \verb|min::gen| units.  When an object
 body is reorganized, some of these sizes may change, but simply
 relocating the object body does not change these sizes.  The
 automatic resizing of the object that may occur when new elements
-are pushed into the attribute vector or auxiliarly area only changes
+are pushed into the attribute vector or auxiliary area only changes
 the unused size.
 
 The following functions can be used for \underline{read-only}
@@ -8565,13 +8575,13 @@ and {\tt min::\EOL end\_\EOL ptr\_\EOL of} functions are the same as
 {\tt vp + 0} and {\tt vp + min::\EOL size\_\EOL of(vp)} but do
 not include this {\tt MIN\_\EOL ASSERT} check, so that, for
 example, {\tt min::\EOL begin\_\EOL ptr\_\EOL of} can be used when
-the attribure vector has zero length.
+the attribute vector has zero length.
 
 A \minkey{obj\_vec\_updptr} read-write (update) object vector
 pointer is like a {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}
 read-only object vector pointer,
 but has element access functions that have been modified
-to permit writting elements.  Its functions are:
+to permit writing elements.  Its functions are:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
 \verb|(constructor) min::| & \MINKEY{obj\_vec\_updptr}%
@@ -8654,7 +8664,8 @@ to permit writting elements.  Its functions are:
 \end{tabular}\end{indpar}
 
 Updatable pointer read-write element access
-functions return {\tt min::\EOL ref<min::gen>}
+functions return {\tt min::\EOL ref<min::gen>}%
+\label{OBJ_VEC_UPDPTR_REF}
 or {\tt min::\EOL ptr<min::gen>} values while read-only pointer
 element access functions return
 `{\tt const min::\EOL gen~\&}' or
@@ -8759,7 +8770,10 @@ from the end of the attribute vector and the beginning of the unused
 area.
 
 There are two versions of each push or pop: one that
-handles a single {\tt min::gen} value, and one that handles
+returns {\tt min::\EOL ref<min::gen>} reference to
+a single {\tt min::gen} value,%
+\label{OBJ_VEC_UPDPTR_PUSH_REF}
+and one that handles
 {\tt n} values stored in a C/C++ vector pointed at by {\tt p}.
 These latter push and pop functions preserve the order of the values in memory,
 so \verb|p[0]| is pushed into or popped from a body vector location immediately
