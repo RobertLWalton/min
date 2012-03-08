@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  7 06:39:47 EST 2012
+// Date:	Thu Mar  8 03:44:27 EST 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2836,9 +2836,9 @@ template < typename T >
 inline bool operator <
     ( const min::ptr<T> & p1, const min::ptr<T> & p2 )
 {
-    return p1->s == p2->s
+    return p1.s == p2.s
 	   &&
-	   p1->offset < p2->offset;
+	   p1.offset < p2.offset;
 }
 
 template < typename T >
@@ -2846,14 +2846,14 @@ inline min::ptr<T> operator ++
 	( min::ptr<T> & p, int )
 {
     min::ptr<T> result = p;
-    * (min::unsptr *) & p->offset += sizeof ( T );
+    * (min::unsptr *) & p.offset += sizeof ( T );
     return result;
 }
 
 template < typename T >
 inline min::ptr<T> operator -- ( min::ptr<T> & p )
 {
-    * (min::unsptr *) & p->offset -= sizeof ( T );
+    * (min::unsptr *) & p.offset -= sizeof ( T );
     return p;
 }
 
