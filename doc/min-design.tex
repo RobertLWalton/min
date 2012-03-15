@@ -114,6 +114,8 @@
 \newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
 \newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
 \newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+\newcommand{\subskey}[1]{$\mathbf{^{#1}}$\index{#1@$^{#1}$}}
+\newcommand{\subsmkey}[2]{$\mathbf{^{#1}}$\index{#1@$^{#1}$!#2}}
 
 \newcommand{\minkey}[1]%
            {{\tt \bf min::#1}\ttindex{min::#1}\ttindex{#1}}
@@ -212,6 +214,8 @@
 \newcommand{\REL}{$\,^R$}
 \newcommand{\COMPACT}{$\,^C$}
 \newcommand{\LOOSE}{$\,^L$}
+\newcommand{\RESIZE}{$\,^S$}
+\newcommand{\REORG}{$\,^O$}
 
 \newcommand{\ILLEGALCHAR}{
     \makebox[0.1in]{\raisebox{-0.05in}{
@@ -232,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 7, 2012}
+\date{March 15, 2012}
  
 \maketitle
 
@@ -298,6 +302,26 @@ and the corresponding code:
                                   (i.e., read-write pointer) \\
 \ttmkey{var}{abbreviation}	& variable (\itemref{OBJECT-VECTOR-LEVEL}) \\
 \ttmkey{vec}{abbreviation}	& vector (\itemref{OBJECT-VECTOR-LEVEL}) \\
+\end{tabular}
+\end{center}
+
+Also one of a small number of \skey{subscript}s may be attached to a
+function name to indicate that the function is of a certain class
+of functions:
+
+\begin{center}
+\begin{tabular}{ll}
+\subsmkey{C}{function qualifier}	& compact function
+                                          (\pagref{COMPACT-FUNCTIONS}) \\
+\subsmkey{L}{function qualifier}	& loose function
+                                          (\pagref{LOOSE-FUNCTIONS}) \\
+\subsmkey{R}{function qualifier}	& relocating function
+                                          (\pagref{RELOCATING-FUNCTIONS}) \\
+\subsmkey{S}{function qualifier}	& resizing function
+                                          (\pagref{RESIZING-FUNCTIONS}) \\
+\subsmkey{O}{function qualifier}	& reorganizing function
+                                          (\pagref{REORGANIZING-FUNCTIONS}) \\
+
 \end{tabular}
 \end{center}
 
@@ -615,7 +639,8 @@ any body can be moved and its corresponding stub value reset to
 point at the new location of the body.
 Functions with this property are called
 `\key{relocating functions}'\label{RELOCATING-FUNCTIONS}
-and are marked by {\REL} in documentation.  Included
+and their names are marked by the superscript
+\subsmkey{R}{of function} in this document.  Included
 are functions that allocate objects.
 Obtaining a C++ pointer into a body is an unprotected operation, because
 the pointer must be maintained if a relocating function is called.
@@ -763,12 +788,14 @@ stored verbatim in {\tt min::\EOL gen} values.
 
 Some functions and constants are defined only for compact implementations,
 and some only for loose implementations.  Those defined only for
-compact implementations are marked
-with the superscript {\COMPACT}\index{C@{\COMPACT}}
+compact implementations are called
+`\skey{compact function}s'\label{COMPACT-FUNCTIONS} and their
+names are marked with the superscript \subsmkey{C}{of function}
 in this document.
 Those defined only for
-loose implementations are similarly marked
-with the superscript {\LOOSE}\index{L@{\LOOSE}}.
+loose implementations are similarly called
+`\skey{loose function}s'\label{LOOSE-FUNCTIONS} and their
+names are marked with the superscript \subsmkey{L}{of function}.
 
 The value of a compact implementation is that it uses less memory%
 \footnote{However, double precision floating point numbers only
@@ -8132,7 +8159,7 @@ these functions do nothing but change the size of the unused
 area and variable area:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -8140,13 +8167,13 @@ area and variable area:
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE} \\
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr unused_size )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE_UNUSED} \\
-\verb|void min::| & \MINKEY{expand\REL}%
+\verb|void min::| & \MINKEY{expand\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr unused_size )| \\
@@ -8178,6 +8205,13 @@ area is allocated to fill the next real allocated size block.  Repeated
 uses of {\tt min::expand} on the same object will more or less keep
 doubling the actual size of the object.
 
+The {\tt min::resize} and {\tt min::expand} functions with object arguments
+are called `\skey{resizing function}s'\label{RESIZING-FUNCTIONS},
+because they change not only
+the size of the object but also the offset of some elements within the object.
+The names of such functions are marked with the subscript
+\subsmkey{S}{of function}.
+
 The remaining maintenance functions assume objects are organized
 as per Section~\itemref{OBJECT-LIST-LEVEL}, Object List Level.
 These functions all \ikey{reorganize}{object}
@@ -8203,7 +8237,7 @@ reorganize and object and change the sizes of its variable vector, hash table,
 and unused area.
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{reorganize\REL}%
+\verb|void min::| & \MINKEY{reorganize\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr hash_size,| \\
@@ -8227,7 +8261,7 @@ will cease to change, and the hash table size an be optimized
 to about twice this number.  The following functions use this idea:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -8235,12 +8269,12 @@ to about twice this number.  The following functions use this idea:
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT_AND_RESIZE} \\
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT} \\
-\verb|void min::| & \MINKEY{publish\REL}%
+\verb|void min::| & \MINKEY{publish\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
@@ -8264,6 +8298,13 @@ The {min::publish} function just executes a
 1-argument {min::compact} function and then sets
 the object {\tt OBJ\_\EOL PUBLIC} flag which prevents further changes to the
 to the object sizes or organization (but not to attribute values).
+
+The {\tt min::reorganize}, {\tt min::compact}, and {\tt min::\EOL publish}
+functions with object arguments
+are called `\skey{reorganizing function}s'\label{REORGANIZING-FUNCTIONS},
+because they move elements around inside the object.
+The names of such functions are marked with the subscript
+\subsmkey{O}{of function}.
 
 It is sometimes useful to discover the values of an object's
 {\tt OBJ\_\EOL PRIVATE} and {\tt OBJ\_\EOL PUBLIC} flags.
@@ -8814,7 +8855,7 @@ that operate on object vector pointers.  These are described in the section
 just mentioned, and are merely listed here:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -8822,13 +8863,13 @@ just mentioned, and are merely listed here:
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr unused_size )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE_UNUSED_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{expand\REL}%
+\verb|void min::| & \MINKEY{expand\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr unused_size )| \\
@@ -8838,7 +8879,7 @@ just mentioned, and are merely listed here:
 
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{reorganize\REL}%
+\verb|void min::| & \MINKEY{reorganize\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr hash_size,| \\
@@ -8850,7 +8891,7 @@ just mentioned, and are merely listed here:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -8858,12 +8899,12 @@ just mentioned, and are merely listed here:
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT_AND_RESIZE_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{publish\REL}%
+\verb|void min::| & \MINKEY{publish\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
@@ -9655,7 +9696,7 @@ The functions defined for this are:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|bool min::|
-	& \MINKEY{insert\_reserve\REL}%
+	& \MINKEY{insert\_reserve\RESIZE}%
 	  \begin{tabular}[t]{@{}l@{}}
 	  \verb| ( min::list_insptr & lp,| \\
 	  \verb|   min::unsptr insertions,| \\
@@ -9726,14 +9767,14 @@ to the same object.  Errors in this regard involving two different
 list pointers will be detected if insufficient memory is reserved,
 but not otherwise.
 
-The {\tt min::insert\_reserve\REL} function may expand the body of
+The {\tt min::insert\_reserve\RESIZE} function may expand the body of
 the object in which space is being reserved
-(using {\tt min::\EOL expand\REL},
+(using {\tt min::\EOL expand\RESIZE},
 \pagref{MIN::EXPAND_OBJ_VEC_INSPTR}).
 It returns \verb|true| if it expands the
 object's body, and \verb|false| if it does not.
 
-Importantly {\tt min::\EOL insert\_reserve} is the only list pointer
+Importantly {\tt min::\EOL insert\_reserve\RESIZE} is the only list pointer
 function that may cause a resizing of
 the object pointed at, and if a resizing occurs (i.e., if \verb|true|
 is returned),
@@ -9741,12 +9782,14 @@ all other list pointers to the same object
 become invalid and must be refreshed by
 a call to {\tt min::\EOL insert\_\EOL refresh}.
 
-The {\tt min::\EOL insert\_reserve} function can expand the object
+The {\tt min::\EOL insert\_reserve\RESIZE} function can expand the object
 if it's size is insufficient, or instead it can depend upon using
 object auxiliary stubs (\itemref{OBJECT-AUXILIARY-STUBS}) if the object
-runs out of space, in which case {\tt min::\EOL insert\_reserve} must be sure
+runs out of space, in which case {\tt min::\EOL insert\_reserve\RESIZE}
+must be sure
 there are sufficient free stubs to satisfy the insertion calls.  The
-last argument to {\tt min::\EOL insert\_reserve} determines which strategy is
+last argument to {\tt min::\EOL insert\_reserve\RESIZE}
+determines which strategy is
 used.  It defaults to the value of \minkey{use\_obj\_aux\_stubs}
 (see \pagref{MIN::USE_OBJ_AUX_STUBS}).%
 \footnote{But if the auxiliary stub code is not compiled in, the last
@@ -9778,14 +9821,14 @@ insertable pointer to change
 the current element to {\tt min::\EOL EMPTY\_\EOL SUBLIST()}.
 
 A sequence of instructions that begins with a
-call to {\tt min::\EOL insert\_reserve} and ends with the last
+call to {\tt min::\EOL insert\_reserve\RESIZE} and ends with the last
 list insertion function for which the beginning call made a reservation
 is called a `\key{list insertion sequence}'.  A list insertion sequence
-must not contain any call to
-a relocating (\REL) function (\pagref{RELOCATING-FUNCTIONS}), aside from
-the beginning call to {\tt min::\EOL insert\_reserve}.  In particular, there can
-be no call to {\tt min::\EOL interrupt\REL} (\pagref{MIN::INTERRUPT}) and no
-second call to {\tt min::\EOL insert\_reserve\REL}.  There can be calls to
+must not contain any call to a resizing (\RESIZE) function
+(\pagref{RESIZING-FUNCTIONS}), aside from
+the beginning call to {\tt min::\EOL insert\_reserve\RESIZE}.
+In particular, there can be no
+second call to {\tt min::\EOL insert\_reserve\RESIZE}.  There can be calls to
 create and position list pointers, and to read, update, and remove
 list elements.
 
@@ -9849,6 +9892,14 @@ The effects can be subtle
 and not obvious: for example, using {\tt lp2} to insert before or after
 a list element that is an empty sublist can invalidate {\tt lp1}
 if {\tt lp1} points at the end of that empty sublist.
+
+If the insertable vector pointer of an insertable list pointer
+{\tt lp1} is used as an argument to
+a resizing function (\pagref{RESIZING-FUNCTIONS}) or
+a reorganizing function (\pagref{REORGANIZING-FUNCTIONS}) to resize
+or reorganize the object {\tt lp1} points to, then
+{\tt lp1} must be restarted with a
+{\tt min::\EOL start\_}\,\ldots function.
 
 The invalidation of {\tt lp1} in the above situations
 is \underline{not} a detectable error.
@@ -13319,7 +13370,7 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.8in}
 \verb|bool min::|
-	& \MINKEY{insert\_reserve\REL}\ARGBREAK
+	& \MINKEY{insert\_reserve\RESIZE}\ARGBREAK
 	  \verb| ( min::list_insptr & lp,|\ARGBREAK
 	  \verb|   min::unsptr insertions,|\ARGBREAK
 	  \verb|   min::unsptr elements = 0,|\ARGBREAK
