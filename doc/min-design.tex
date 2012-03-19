@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 15, 2012}
+\date{March 19, 2012}
  
 \maketitle
 
@@ -4534,7 +4534,8 @@ vice versa.
 The {\tt min::\EOL packed\_\EOL subtype\_\EOL of}
 functions return {\tt 0}, which
 is not a legal packed structure or packed vector subtype, if the
-argument does not reference a packed structure or vector.
+argument does not reference a packed structure or vector.  This includes
+the case where the argument is {\tt min::\EOL NULL\_\EOL STUB}.
 The {\tt MUP::\EOL packed\_\EOL subtype\_\EOL of} function gives
 undefined result unless its argument references a packed structure
 or packed vector.  When the argument is a packed structure
