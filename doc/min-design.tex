@@ -8372,14 +8372,14 @@ to one less than the total size of the object,
 which is the size of the body vector in {\tt min::\EOL gen} units.
 The index 0 cannot be used, as it corresponds to the
 header, which does not contain \verb|min::gen| values.
-It can be used as a form of null pointer.
+0 can be used as a form of null pointer.
 
 An auxiliary pointer index \verb|i| corresponds to the
 body vector index total size {\tt - i}, so \verb|i=1| corresponds
 to the last element of the auxiliary area.
 The 0 auxiliary pointer index corresponds to the location just
 beyond the body vector and is not
-usable as the index of auxiliary area element, so it
+usable as the index of an auxiliary area element, so it
 can also be used as a form of null pointer.  By indexing auxiliary
 area elements in this way, the unused area size can be changed without
 changing any auxiliary pointers.
@@ -8442,9 +8442,17 @@ by the {\tt min::\EOL publish\REL} function
 \subsubsubsection{Protected Object Vector Pointers}
 \label{PROTECTED-OBJECT-VECTOR-POINTERS}
 
-A read-only \minkey{obj\_\EOL vec\_\EOL ptr}
-to the body vector of an object with stub \verb|s| or with
-general value \verb|v| pointing to its stub
+An \key{object vector pointer} points at the stub of an object
+and caches information derived from the header of the object,
+so that the differences between different sized object headers are
+hidden.  A non-public object can have at most one object vector
+pointer pointing at it.  A public object can have any number of
+read-only or read-write (update) object vector pointers pointing
+at it, but may not change the sizes of its various parts
+(like the attribute vector or auxiliary area), so that the
+information cached in the object vector pointers never changes.
+
+A \minkey{obj\_\EOL vec\_\EOL ptr} read-only object vector pointer
 may be created by the following functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
@@ -8476,20 +8484,25 @@ may be created by the following functions:
 \end{tabular}\end{indpar}
 
 Here if \verb|v| or \verb|s| do not point at the stub of an object
-the new object pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
+the new object vector pointer is set to {\tt min::\EOL NULL\_\EOL STUB},
 which gives undefined results, but usually a memory fault, if
-used to access the parts of a object.  The no-argument object
-pointer constructor also creates an object pointer equal to
-{\tt min::\EOL NULL\_\EOL STUB}, and the {\tt =} operators
-set a object pointer just as a constructor with the {\tt =} right side
-as the constructor argument would.
+used to access the parts of a object.
+The case where \verb|s| equals {\tt min::\EOL NULL\_\EOL STUB}
+also sets the object vector pointer to {\tt min::\EOL NULL\_\EOL STUB},
+as does the no-argument object vector pointer constructor.
+An {\tt =} operator
+sets an object vector pointer just as if the pointer
+had just been constructed by a constructor whose argument
+was the right-side argument of the {\tt =} operator.
 
 Because an object vector pointer can be converted to a
 {\tt const min::\EOL stub~*} value, it is possible to check whether
 an object vector pointer equals {\tt min::\EOL NULL\_\EOL STUB}
 by using the {\tt == function}.  It is also possible to set one
 vector pointer from another, as the latter will be converted to a
-{\tt const min::\EOL stub~*} value, provided the object is public.
+{\tt const min::\EOL stub~*} value, but note that the object
+must be public in order for more than one object vector pointer to
+point at it.
 
 Unlike label, packed structure, or packed vector pointers,
 object vector pointers cache information about the object, and must always
@@ -9025,7 +9038,7 @@ The following are equivalences except for
 the omission of {\tt MIN\_\EOL ASSERT} checks that the index \verb|i|
 is not too large or too small (auxiliary area indices may not be 0),
 calls to {\tt min::\EOL expand} when the unused area is too small
-for a push, {\tt MIN\_\EOL ASSERT} checks that element to be popped
+for a push, {\tt MIN\_\EOL ASSERT} checks that elements to be popped
 actually exist,
 conversions to \verb|min::ref<min::gen>|
 values for appropriate element access functions, and
@@ -9086,10 +9099,10 @@ the help of the list and sublist auxiliary pointers:
 \begin{center}
 \begin{tabular}{lp{3in}}
 \key{list auxiliary pointer} &
-The list is continued at the target of the list auxiliary pointer.
+The list is \underline{continued} at the target of the list auxiliary pointer.
 \\[2ex]
 \key{sublist auxiliary pointer}	&
-A sublist starts at the target of the sublist auxiliary pointer.
+A sublist \underline{starts} at the target of the sublist auxiliary pointer.
 \end{tabular}
 \end{center}
 
@@ -9131,6 +9144,12 @@ list head, in which case there is no next element, and the list has only
 one element.  All list heads lie in the hash table or attribute vector,
 so testing whether a list element is a list head can be done if just the
 index of the list element in the body vector is known.
+As a consequence of all this,
+zero and one element lists with heads in the hash table
+or attribute vector are represented by either {\tt min::\EOL LIST\_\EOL END()}
+or by the single list element, stored in the hash table or attribute
+vector entry, without any part of the list being stored in the
+auxiliary area.
 
 A list element
 that is a sublist auxiliary pointer or the value \verb|min::EMPTY_SUBLIST()|
@@ -9191,27 +9210,28 @@ section must be modified as explained in \itemref{OBJECT-AUXILIARY-STUBS}.
 A \key{list pointer} can be used to move around in a object at
 the list level.
 There are three kinds of list pointers.
-A read-only \verb|min::list_ptr| permits read-only access to list
+A \verb|min::list_ptr| read-only list pointer permits read-only access to list
 elements.
-A read-write or updatable {\tt min::\EOL list\_\EOL updptr}
+A {\tt min::\EOL list\_\EOL updptr} read-write or updatable list pointer
 permits read-write access to list elements, but does not permit
 adding or removing list elements.
-An insertable {\tt min::\EOL list\_\EOL insptr}
+A {\tt min::\EOL list\_\EOL insptr} insertable list pointer
 permits adding and removing elements, in addition to permitting
 read-write access to elements.
 
 Note that unlike vector pointers, you \underline{cannot} downcast more capable
-list pointers to less capable list pointers.  E.g., an
-{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} may be
-explicitly or implicitly downcast to an
+list pointers to less capable list pointers.  E.g., a
+{\tt min::\EOL obj\_\EOL vec\_\EOL insptr} object vector pointer may be
+explicitly or implicitly downcast to a
 {\tt min::\EOL obj\_\EOL vec\_\EOL updptr}
-or {\tt min::\EOL obj\_\EOL vec\_\EOL ptr}, but 
-a {\tt min::\EOL list\_\EOL insptr} may \underline{not} be
+or {\tt min::\EOL obj\_\EOL vec\_\EOL ptr} object vector pointer, but 
+a {\tt min::\EOL list\_\EOL insptr} list pointer may \underline{not} be
 explicitly or implicitly downcast to an
 {\tt min::\EOL list\_\EOL updptr}
-or {\tt min::\EOL list\_\EOL ptr}.
+or {\tt min::\EOL list\_\EOL ptr} list pointer.
 
-The functions for using a read-only {\tt min::\EOL list\_\EOL ptr} are:
+The functions for using a \minkey{list\_\EOL ptr} read-only list pointer
+are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
 (constructor)~\verb|min::|
@@ -9327,8 +9347,27 @@ The {\tt min::\EOL next} function moves forward one element
 in the current list,
 while the {\tt min::\EOL peek} function returns the next element without
 moving to it.
-The list is always pointing at a current element, whose value is
-returned by the {\tt min::\EOL current} function.
+The list pointer is always pointing at a current element, or at
+the end of the list.
+The {\tt min::\EOL current} function returns the current element
+or {\tt min::\EOL LIST\_\EOL END()}.
+
+Determining whether a list pointer current element value
+represents a sublist requires
+the {\tt min::\EOL is\_\EOL sublist} function, which must check whether the
+value is a sublist auxiliary pointer,
+is the value {\tt min::\EOL EMPTY\_\EOL SUBLIST()},
+or is a pointer to a sublist auxiliary stub as described in
+\itemref{OBJECT-AUXILIARY-STUBS}.
+The {\tt min::\EOL is\_\EOL empty\_\EOL sublist}
+function, on the other hand, merely checks whether the value is
+{\tt min::\EOL EMPTY\_\EOL SUBLIST()}.
+
+Determining whether a list pointer current element value
+represents the end of a list can be done by
+simply checking whether the value equals {\tt min::\EOL LIST\_\EOL END()},
+or can be done equivalently
+with the {\tt min::\EOL is\_\EOL list\_\EOL end} function.
 
 If the current element
 is updated using {\tt min::\EOL update}
@@ -9343,7 +9382,8 @@ need to be used when another pointer is used to insert elements into
 or remove elements
 from the object, though in some situations this is
 not adequate and the list pointer must be restarted
-with a {\tt min::\EOL start\_\dots} function.
+with a {\tt min::\EOL start\_\dots} function
+(see \pagref{RESTARTING_LIST_PTR}).
 
 A list pointer that has been created but not started by one of the
 list start functions appears to be
@@ -9377,8 +9417,8 @@ The index is \underline{not} a body vector index.
 The {\tt min::\EOL start\_\EOL copy} function
 positions a list pointer ({\tt lp})
 to the same place as another list pointer ({\tt lp2}).
-The two list pointers must have been constructed from the same
-vector pointer.
+The two list pointers must have been constructed from the \underline{same}
+object vector pointer.
 Also note that the list pointer {\tt lp2}
 must be valid; that is, if it has been invalidated by
 an update, remove, or insert, it must be made valid by a refresh or restart
@@ -9394,8 +9434,8 @@ The current element of the second pointer must represent a sublist.
 This function returns the value of the first element of
 the sublist, or returns {\tt min::\EOL LIST\_\EOL END()}
 if the sublist is empty.
-The two list pointers must have been constructed from the same
-vector pointer.
+The two list pointers must have been constructed from the \underline{same}
+object vector pointer.
 Also note that the list pointer {\tt lp2}
 must be valid; that is, if it has been invalidated by
 an update, remove, or insert, it must be made valid by a refresh or restart
@@ -9440,8 +9480,8 @@ The {\tt min::\EOL insert\_\EOL refresh} function must be called if the
 {\tt min::\EOL insert\_\EOL reserve} function is used with \underline{another}
 pointer to the same object and that function returned \verb|true| indicating
 that it resized the object.  The 
-{\tt min::\EOL insert\_\EOL reserve} function also does what the
-{\tt min::\EOL update\_\EOL reserve} function does, and therefore it is
+{\tt min::\EOL insert\_\EOL refresh} function also does what the
+{\tt min::\EOL update\_\EOL refresh} function does, and therefore it is
 never necessary to call both functions.
 There are also situations detailed on \pagref{RESTARTING_LIST_PTR}
 in which use of {\tt min::\EOL insert\_\EOL before},
@@ -9450,24 +9490,7 @@ in which use of {\tt min::\EOL insert\_\EOL before},
 absolutely requires that the current pointer be
 restarted by a {\tt min::\EOL start\_\ldots} function.
 
-Determining whether a list pointer current element value
-represents a sublist requires
-the {\tt min::\EOL is\_\EOL sublist} function, which must check whether the
-value is a sublist auxiliary pointer,
-is the value {\tt min::\EOL EMPTY\_\EOL SUBLIST()},
-or is a pointer to a sublist auxiliary stub as described in
-\itemref{OBJECT-AUXILIARY-STUBS}.
-The {\tt min::\EOL is\_\EOL empty\_\EOL sublist}
-function, on the other hand, merely checks whether the value is
-{\tt min::\EOL EMPTY\_\EOL SUBLIST()}.
-
-Determining whether a list pointer current element value
-represents the end of a list can be done by
-simply checking whether the value equals {\tt min::\EOL LIST\_\EOL END()},
-or can be done equivalently
-with the {\tt min::\EOL is\_\EOL list\_\EOL end} function.
-
-An {\tt min::list\_\EOL updptr} allows read-write access to
+A \minkey{list\_\EOL updptr} updatable list pointer allows read-write access to
 list elements without permitting insertion or removal of elements
 from lists.  The functions for using this are:
 
@@ -9596,8 +9619,8 @@ then {\tt lp2} will be invalid until
 has been executed.
 
 Inserting and removing elements from a list requires yet another
-kind of list pointer, an insertable list pointer,
-{\tt min::\EOL list\_\EOL insptr}.
+kind of list pointer,
+a \minkey{list\_\EOL insptr} insertable list pointer.
 The functions defined for this are:
 
 \begin{indpar}\begin{tabular}{r@{}l}
