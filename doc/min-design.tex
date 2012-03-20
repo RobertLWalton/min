@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 19, 2012}
+\date{March 20, 2012}
  
 \maketitle
 
@@ -3427,7 +3427,7 @@ until a NUL is copied or \verb|n| characters have been copied, whichever
 comes first.  The forms with a \verb|min::ptr<const char>|
 or \verb|min::ptr<char>|
 argument are for use when the input string is part of a relocatable body.
-Because \verb|min::ptr<char>| is not implicitly castable to
+Because \verb|min::ptr<char>| is not implicitly cast-able to
 \verb|min::ptr<const char>|, both types are argument are provided for.
 
 When a string general value is created,
@@ -5864,7 +5864,7 @@ Set to {\tt min::\EOL MISSING()} when the file is created.
 
 \end{itemlist}
 
-Creation, initialization, and parameterization of files is
+Creation, initialization, and parametrization of files is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6433,7 +6433,7 @@ if ( error-occurred )
 ...
 \end{verbatim}\end{indpar}
 
-Creation, initialization, and parameterization of printers is
+Creation, initialization, and parametrization of printers is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -8221,8 +8221,9 @@ in its lists, and therefore no unnecessary invisible jumps (auxiliary
 list pointers, actually) within its lists, and makes no use of
 auxiliary stubs (\itemref{OBJECT-AUXILIARY-STUBS}).  So in this
 sense these functions clean up and compactify the object.  Object
-reorganization just involves changing auxiliary pointers in the object and
+reorganization involves changing auxiliary pointers in the object and
 changing the locations of list elements in the object auxiliary area.
+It also involves resizing the object.
 
 A function that changes the size of an object hash table further
 assumes that hash table elements are {\em attribute/node-name-descriptor-pairs}
@@ -8306,6 +8307,8 @@ are called `\skey{reorganizing function}s'\label{REORGANIZING-FUNCTIONS},
 because they move elements around inside the object.
 The names of such functions are marked with the subscript
 \subsmkey{O}{of function}.
+A reorganizing function is also a resizing function
+(\pagref{RESIZING-FUNCTIONS}).
 
 It is sometimes useful to discover the values of an object's
 {\tt OBJ\_\EOL PRIVATE} and {\tt OBJ\_\EOL PUBLIC} flags.
@@ -9786,7 +9789,7 @@ Only one pointer at a time
 for a given object may have an effective reservation.
 Each call to {\tt min::\EOL insert\_reserve} for a list pointer
 to an object invalidates all previous calls to
-{\tt min::\EOL insert\_reserve} for any list pointer
+{\tt min::\EOL insert\_reserve} for any other list pointer
 to the same object.  Errors in this regard involving two different
 list pointers will be detected if insufficient memory is reserved,
 but not otherwise.
@@ -9848,8 +9851,9 @@ A sequence of instructions that begins with a
 call to {\tt min::\EOL insert\_reserve\RESIZE} and ends with the last
 list insertion function for which the beginning call made a reservation
 is called a `\key{list insertion sequence}'.  A list insertion sequence
-must not contain any call to a resizing (\RESIZE) function
-(\pagref{RESIZING-FUNCTIONS}), aside from
+must not contain any call to a resizing function
+(\RESIZE, \pagref{RESIZING-FUNCTIONS}) or reorganizing function
+(\REORG, \pagref{REORGANIZING-FUNCTIONS}), aside from
 the beginning call to {\tt min::\EOL insert\_reserve\RESIZE}.
 In particular, there can be no
 second call to {\tt min::\EOL insert\_reserve\RESIZE}.  There can be calls to
@@ -10001,8 +10005,8 @@ list elements to
 an object whose unused area has been exhausted, without relocating the
 object.  Object auxiliary stubs
 are considered to be \skey{extension}s of the object.
-If the object is later relocated, it can be reorganized to
-eliminate the use of any object auxiliary stubs that extend the object
+If the object is later reorganized,
+use of any object auxiliary stubs that extend the object may be eliminated
 by moving information from these into a new larger object auxiliary area.
 
 The code implementing object auxiliary stubs can be compiled into a program
@@ -10074,23 +10078,18 @@ Thus the following rules are obeyed:
 \begin{indpar}
 
 {\bf \minnbkey{LIST\_AUX} stubs}.
-An auxiliary area element
-holding a \verb|min::gen| value that points at a stub $S$
-of type \verb|min::LIST_AUX| is the equivalent of a list auxiliary
+A \verb|min::gen| value that points at a stub $S$
+of type {\tt min::\EOL LIST\_\EOL AUX} is the equivalent of a list auxiliary
 pointer pointing at the list element that is stub $S$'s value.
 
-If the control of an object auxiliary stub holds a stub pointer, that pointer
+Similarly,
+if the control of an object auxiliary stub holds a stub pointer, that pointer
 must point at an object auxiliary stub $S$ of type \verb|min::LIST_AUX| and the
 control is the equivalent of a list auxiliary pointer pointing at
 the list element that is stub $S$'s value.
 
 {\bf \minnbkey{SUBLIST\_AUX} stubs}.
-An auxiliary area element holding a \verb|min::gen| value that points at
-a stub $S$
-of type \verb|min::SUBLIST_AUX| is the equivalent of a sublist auxiliary
-pointer pointing at the list element that is stub $S$'s value.
-
-An object auxiliary stub \verb|min::gen| value that points at
+A \verb|min::gen| value that points at
 a stub $S$ of type {\tt min::\EOL SUBLIST\_\EOL AUX}
 is the equivalent of a sublist auxiliary
 pointer pointing at the list element that is stub $S$'s value.
@@ -10117,9 +10116,20 @@ Every object auxiliary stub is pointed at by a \verb|min::gen|
 value or by the control of another object auxiliary stub.  There is
 only one such pointer pointing at each object auxiliary stub.
 A \verb|min::gen| value pointing at an object auxiliary stub $S$
-must the the value of an auxiliary area element or the value of
-an object auxiliary stub, and in this latter case $S$ must be of type
-\verb|min::SUBLIST_AUX|.
+must be one of the following:
+\begin{center}
+\begin{tabular}{l@{~~~}l}
+Location of \verb|min::gen| & Type of auxiliary stub
+\\[2ex]
+value of auxiliary area element & \verb|LIST_AUX| or \verb|SUBLIST_AUX|
+\\[1ex]
+value of auxiliary stub & \verb|SUBLIST_AUX|
+\\[1ex]
+value of hash table element & \verb|LIST_AUX|
+\\[1ex]
+value of attribute vector element & \verb|LIST_AUX|
+\end{tabular}
+\end{center}
 
 \end{indpar}
 
@@ -10689,7 +10699,7 @@ arguments that are labels (\itemref{LABELS}).  If an atom (number or
 string) is given instead, this is treated as the equivalent of
 a label whose only element is the atom.
 
-If ab object is reorganized by the \verb|min::publish| function or
+If an object is reorganized by the \verb|min::publish| function or
 relocated by use of an insertable pointer to set attribute values or
 flags, every attribute pointer to the object other than the insertable
 pointer used to set values or flags will become invalid.
