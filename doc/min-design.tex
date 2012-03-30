@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 20, 2012}
+\date{March 30, 2012}
  
 \maketitle
 
@@ -8121,7 +8121,7 @@ the object to downsize its hash table and compact its auxiliary area.
 
 The hash table of the returned object is filled with \verb|min::LIST_END()|
 values (\pagref{MIN::LIST_END}), and is therefore an empty hash table.
-The variable vector is filled with \verb|min::UNDEFINED| values.
+The variable vector is filled with \verb|min::UNDEFINED()| values.
 Unused area elements are initialized to some implementation defined
 value like \verb|0|.
 The attribute vector and auxiliary areas of the returned object are
@@ -8207,11 +8207,13 @@ uses of {\tt min::expand} on the same object will more or less keep
 doubling the actual size of the object.
 
 The {\tt min::resize} and {\tt min::expand} functions with object arguments
-are called `\skey{resizing function}s'\label{RESIZING-FUNCTIONS},
-because they change not only
-the size of the object but also the offset of some elements within the object.
+are called `\skey{resizing function}s'\label{RESIZING-FUNCTIONS}
+because they change the size of the object.  They also change
+the offset of some elements within the object, and usually
+relocate the object.
 The names of such functions are marked with the subscript
-\subsmkey{S}{of function}.
+\subsmkey{S}{of function}.  A resizing funciton is also
+a relocating function (\pagref{RELOCATING-FUNCTIONS}).
 
 The remaining maintenance functions assume objects are organized
 as per Section~\itemref{OBJECT-LIST-LEVEL}, Object List Level.
@@ -8308,7 +8310,8 @@ because they move elements around inside the object.
 The names of such functions are marked with the subscript
 \subsmkey{O}{of function}.
 A reorganizing function is also a resizing function
-(\pagref{RESIZING-FUNCTIONS}).
+(\pagref{RESIZING-FUNCTIONS}) and
+a relocating function (\pagref{RELOCATING-FUNCTIONS}).
 
 It is sometimes useful to discover the values of an object's
 {\tt OBJ\_\EOL PRIVATE} and {\tt OBJ\_\EOL PUBLIC} flags.
@@ -8344,12 +8347,12 @@ a different algorithm for choosing hash table size, you may use
 the vector pointer version of {\tt min::reorganize} and the following:
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+\verb|void min::| & \MINKEY{hash\_count\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_ptr & vp )| \\
     \end{tabular}
 \LABEL{MIN::HASH_COUNT_OF} \\
-\verb|void min::| & \MINKEY{set\_public\_flag\_of\REL}%
+\verb|void min::| & \MINKEY{set\_public\_flag\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
@@ -8943,12 +8946,12 @@ just mentioned, and are merely listed here:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+\verb|void min::| & \MINKEY{hash\_count\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_ptr & vp )| \\
     \end{tabular}
 \LABEL{MIN::HASH_COUNT_OF_OBJ_VEC_PTR} \\
-\verb|void min::| & \MINKEY{set\_public\_flag\_of\REL}%
+\verb|void min::| & \MINKEY{set\_public\_flag\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
@@ -9479,10 +9482,12 @@ is used with \underline{another} pointer to the same object to update
 the element, or if the element is a sublist head and a function is used
 to remove the first element of the sublist or insert elements at the
 beginning of the sublist or after the first element of the sublist.
+
 The {\tt min::\EOL insert\_\EOL refresh} function must be called if the
 {\tt min::\EOL insert\_\EOL reserve} function is used with \underline{another}
 pointer to the same object and that function returned \verb|true| indicating
-that it resized the object.  The 
+that it resized the object, or if a resizing function is called
+for the object (\pagref{RESIZING-FUNCTIONS}).  The 
 {\tt min::\EOL insert\_\EOL refresh} function also does what the
 {\tt min::\EOL update\_\EOL refresh} function does, and therefore it is
 never necessary to call both functions.
@@ -9614,7 +9619,7 @@ new value of the element may be {\tt min::\EOL LIST\_\EOL END()},
 and neither may represent a sublist (even an empty sublist).
 
 If a list pointer {\tt lp2} points at a element that is
-{\tt min::update} using a different updatable list pointer {\tt lp1},
+{\tt min::update}'ed using a different updatable list pointer {\tt lp1},
 then {\tt lp2} will be invalid until
 {\tt min::\EOL update\_\EOL refresh(lp2)},
 {\tt min::\EOL insert\_\EOL refresh(lp2)}, or
@@ -10153,6 +10158,9 @@ object auxiliary stubs would be for debugging.
 \subsubsection{Typed Objects}
 \label{TYPED-OBJECTS}
 
+[Typed object are not yet implemented and are not discussed outside
+this section.]
+
 A \key{typed object} is a pair of objects: the \mkey{type}{of typed object}
 which provides attribute labels, and the \mkey{context}{of typed object}
 which provides variables that give attribute values.  The type
@@ -10244,6 +10252,8 @@ the object lists have the syntax:
 \\[1ex]
 \emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object}
                              $|$ {\em indirect-pointer}
+\\[1ex]
+\emkey{atom} ::= {\em string} $|$ {\em number}
 \\[1ex]
 \emkey{indirect-pointer} ::= {\em index} $|$ {\em indirect-auxiliary}
 \end{indpar}
@@ -10405,6 +10415,8 @@ the object lists have the following alternative syntax:
 \emkey{value} ::= {\em atom} $|$ {\em label} $|$ {\em object}
                              $|$ {\em indirect-pointer}
 \\[1ex]
+\emkey{atom} ::= {\em string} $|$ {\em number}
+\\[1ex]
 \emkey{indirect-pointer} ::= {\em index} $|$ {\em indirect-auxiliary}
 \end{indpar}
 
@@ -10441,8 +10453,8 @@ can either be empty or can consist of just an empty {\em node-descriptor}
 {\em node-sublist}.
 
 For a child of the root whose name component is not a legal attribute
-vector index, its {\em attribute-name-component} and
-{\em node-descriptor} is placed in the {\em hash-table-entry}
+vector index, its {\em attribute-name-component}/{\em node-descriptor}
+pair is placed in the {\em hash-table-entry}
 whose index in the object's hash table equals the hash of the
 {\em attribute-name-component} modulo the length of the hash table.
 
@@ -10474,7 +10486,7 @@ a single {\em atom}, function arguments representing the name can be
 either this {\em atom} or a {\em label} whose only element is the {\em atom}.
 Otherwise function arguments must be non-empty
 {\em labels} whose elements are the {\em attribute-name-components}.
-Note that zero length attribute names are forbidden.
+Note that zero length labels may not be used as attribute names.
 
 \ikey{Attribute flags}{attribute flag!representation}\label{ATTRIBUTE-FLAGS}
 are represented by a {\em flag-set} in an {\em attribute-sublist} or
@@ -10503,16 +10515,16 @@ flags and values
 in an object.
 An attribute pointer stores an attribute name
 and a reverse attribute name.  The latter can take the special
-values {\tt min::NONE} and {\tt min::ANY}.  The attribute name designates
+values {\tt min::NONE()} and {\tt min::ANY()}.  The attribute name designates
 the object attribute pointed at by the attribute pointer.
 The flag set pointed at is always
 the flag set of this attribute, regardless of the setting of the
 reverse attribute name.  The attribute name and
 reverse attribute name together designate the
 value multiset pointed at.  If the reverse attribute name
-is {\tt min::NONE}, the value multiset pointed at is the set of all values
+is {\tt min::NONE()}, the value multiset pointed at is the set of all values
 \underline{not} associated with any reverse attribute name.  If the
-reverse attribute name is {\tt min::ANY},
+reverse attribute name is {\tt min::ANY()},
 the value multiset is the set of all
 values that are associated with any reverse attribute name.
 Otherwise the value multiset pointed at is the set of values
@@ -10623,6 +10635,9 @@ are:
 \verb|typedef | & \verb|min::attr_info_vec::ptr|\ARGBREAK
                        \verb|min::|\MINKEY{attr\_info\_ptr}
 \LABEL{MIN::ATTR_INFO_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{get\_attrs}\ARGBREAK
     \verb| ( min::attr_ptr ap )|
 \LABEL{MIN::GET_ATTRS} \\
@@ -10648,6 +10663,9 @@ are:
 \verb|typedef | & \verb|min::reverse_attr_info_vec::ptr|\ARGBREAK
                        \verb|min::|\MINKEY{reverse\_attr\_info\_ptr}
 \LABEL{MIN::REVERSE_ATTR_INFO_PTR} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}\begin{tabular}{r@{}l}
 \verb|min::gen min::| & \MINKEY{get\_reverse\_attrs}\ARGBREAK
     \verb| ( min::attr_ptr ap )|
 \LABEL{MIN::GET_REVERSE_ATTRS} \\
@@ -10688,10 +10706,10 @@ argument.  If \verb|0| is returned in `\verb|length|',
 no initial segment having a non-empty multiset of values was found.
 
 The {\tt min::\EOL locate\_reverse} function sets the reverse attribute name of
-a pointer.  This can take the special value {\tt min::NONE} or
-{\tt min::ANY}, as noted above.  A call to {\tt min::\EOL locate} or
+a pointer.  This can take the special value {\tt min::NONE()} or
+{\tt min::ANY()}, as noted above.  A call to {\tt min::\EOL locate} or
 {\tt min::\EOL locatei} sets the
-reverse attribute name to {\tt min::NONE}.
+reverse attribute name to {\tt min::NONE()}.
 
 Both the {\tt min::\EOL locate} and {\tt min::\EOL locate\_reverse}
 functions take name
@@ -10699,8 +10717,8 @@ arguments that are labels (\itemref{LABELS}).  If an atom (number or
 string) is given instead, this is treated as the equivalent of
 a label whose only element is the atom.
 
-If an object is reorganized by the \verb|min::publish| function or
-relocated by use of an insertable pointer to set attribute values or
+If an object is
+relocated by use of an insertable attribute pointer to set attribute values or
 flags, every attribute pointer to the object other than the insertable
 pointer used to set values or flags will become invalid.
 When an attribute pointer becomes invalid, it may be restored to
@@ -10716,20 +10734,20 @@ For the purposes of describing these functions,
 an attribute pointer is considered to point at the attribute
 named by the pointer's attribute name, and the reverse attribute
 pointed at by the pointer's attribute and reverse attribute names,
-unless the latter are \verb|min::NONE| or \verb|min::ANY|.
+unless the latter are \verb|min::NONE()| or \verb|min::ANY()|.
 If these names have never been set it is an error to call an accessor
 function for the pointer.
 
 The value multiset pointed at by a pointer is that of the attribute pointed
-at if the reverse attribute name is \verb|min::NONE|, or is that of
+at if the reverse attribute name is \verb|min::NONE()|, or is that of
 the reverse attribute pointed at if the reverse attribute name is not
-\verb|min::NONE| or \verb|min::ANY|.
-If the reverse attribute name is \verb|min::ANY| the value multiset is
+\verb|min::NONE()| or \verb|min::ANY()|.
+If the reverse attribute name is \verb|min::ANY()| the value multiset is
 the set of all values associated with any reverse attribute name, but
-this \verb||min::ANY|
+this \verb||min::ANY()|
 value set can only be read by the 3-argument \verb|min::get|
 function, and made empty by the \verb|min::set| function with 0 new values.
-It is an error to attempt any other access to this \verb|min::ANY| value set.
+It is an error to attempt any other access to this \verb|min::ANY()| value set.
 
 The flag set pointed at by a pointer is that of the attribute pointed
 at regardless of the setting of the reverse attribute name.
@@ -10759,7 +10777,7 @@ the number of values in the value multiset.
 The 1-argument {\tt min::\EOL get} function assumes that there is exactly
 one value in the value multiset
 and returns that value, or returns the special value
-\verb|min::NONE| (\pagref{MIN::NONE}) if the value multiset is empty,
+\verb|min::NONE()| (\pagref{MIN::NONE}) if the value multiset is empty,
 or returns the special value
 \verb|min::MULTI_VALUED| (\pagref{MIN::MULTI_VALUED}) if the value multiset
 has more than one value.
@@ -10943,7 +10961,7 @@ of an attribute, and not a reverse attribute.
 This function replaces the single value, returning the previous value.
 It is an error if the value multiset is empty or has more than one
 value, or if the attribute pointer
-reverse attribute name is not \verb|min::NONE|.
+reverse attribute name is not \verb|min::NONE()|.
 
 Insertable attribute pointers can remove and insert values and
 set and clear flags,
@@ -11122,15 +11140,15 @@ the new values are given in the `{\tt in}' vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
 For 2-argument {\tt min::\EOL set} there is one new value given as an
-argument, unless {\tt v} is \verb|min::NONE|,
+argument, unless {\tt v} is \verb|min::NONE()|,
 in which case there are no new values and all previous values are simply
 deleted.
 
 For the {\tt min::\EOL set} function the
-pointer's reverse attribute name can be \verb|min::NONE|
-but cannot be \verb|min::ANY|, which the exception of the case
+pointer's reverse attribute name can be \verb|min::NONE()|
+but cannot be \verb|min::ANY()|, which the exception of the case
 where all values are being deleted.  If the reverse attribute name
-is \verb|min:ANY| and the {\tt min::\EOL set} function is called to
+is \verb|min:ANY()| and the {\tt min::\EOL set} function is called to
 delete all previous values,
 all double arrows with the current attribute name and any
 reverse attribute name are deleted.
@@ -11143,11 +11161,11 @@ The {\tt min::\EOL add\_\EOL to\_\EOL multiset} function
 adds values even if they are already in the multiset.
 Both functions have a 3-argument version with a vector of new values,
 and a 2-argument version with a single new value.  In the latter case
-if {\tt v} is \verb|min::NONE| there is no new value and the function
+if {\tt v} is \verb|min::NONE()| there is no new value and the function
 is a no-operation.
 For these functions the pointer's reverse attribute name
-can be \verb|min::NONE|
-but cannot be \verb|min::ANY|.
+can be \verb|min::NONE()|
+but cannot be \verb|min::ANY()|.
 
 The {\tt min::\EOL remove\_\EOL one} function
 removes values from the multiset set of values, removing only one copy of
@@ -11159,11 +11177,11 @@ from the multiset of values (it may be less efficient if
 the multiset is actually a set).
 Both functions have a 3-argument version with a vector of values to remove,
 and a 2-argument version with a single value to remove.  In the latter case
-if {\tt v} is \verb|min::NONE| there is no value to remove and the function
+if {\tt v} is \verb|min::NONE()| there is no value to remove and the function
 is a no-operation.  These functions return the number of values actually
 removed from the multiset of values.
 For these functions the pointer's reverse attribute name
-can be \verb|min::NONE| but cannot be \verb|min::ANY|.
+can be \verb|min::NONE()| but cannot be \verb|min::ANY()|.
 
 Note that attribute values cannot be control codes, and reverse attribute
 values must be pointers to objects.
@@ -12986,12 +13004,12 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{hash\_count\_of\REL}%
+\verb|void min::| & \MINKEY{hash\_count\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_ptr & vp )| \\
     \end{tabular}
 \LABEL{MIN::HASH_COUNT_OF} \\
-\verb|void min::| & \MINKEY{set\_public\_flag\_of\REL}%
+\verb|void min::| & \MINKEY{set\_public\_flag\_of}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
