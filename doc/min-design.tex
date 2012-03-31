@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 30, 2012}
+\date{March 31, 2012}
  
 \maketitle
 
@@ -5361,20 +5361,20 @@ pointer type is:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|E & min::|
-	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
 	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|min::ref<E> min::|
-	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
           \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
 \verb|void min::|
-	& \MINKEY{push\REL}\ARGBREAK
+	& \MINKEY{push\RESIZE}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
 \verb|void min::|
-	& \MINKEY{push\REL}\ARGBREAK
+	& \MINKEY{push\RESIZE}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, min::ptr<const E> vp )|
 \LABEL{MIN::PACKED_VEC_PUSH_PTR} \\
@@ -5392,12 +5392,12 @@ pointer type is:
 \end{tabular}\end{indpar}
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::|
-	& \MINKEY{resize\REL}\ARGBREAK
+	& \MINKEY{resize\RESIZE}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 max_length )|
 \LABEL{MIN::PACKED_VEC_RESIZE} \\
 \verb|void min::|
-	& \MINKEY{reserve\REL}\ARGBREAK
+	& \MINKEY{reserve\RESIZE}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 reserve_length )|
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
@@ -5408,11 +5408,12 @@ length of the vector to be changed.
 The current vector length is \verb|pvip->length| and the maximum
 length is \verb|pvip->max_length| (see description of \verb|H| on
 \pagref{PACKED_VEC_HEADER_TYPE}).
-The current length can be changed by {\tt min::\EOL push\REL} and
+The current length can be changed by {\tt min::\EOL push\RESIZE} and
 {\tt min::\EOL pop} functions and the maximum length can be changed
-by {\tt min::\EOL resize\REL} and {\tt min::\EOL reserve\REL} functions.  If
-{\tt min::\EOL push\REL} needs more space it automatically calls
-{\tt min::reserve\REL}.
+by {\tt min::\EOL resize\RESIZE} and {\tt min::\EOL reserve\RESIZE}
+functions.  If
+{\tt min::\EOL push\RESIZE} needs more space it automatically calls
+{\tt min::reserve\RESIZE}.
 
 The \verb|min::push| function adds elements
 to the end of the packed vector
@@ -5420,14 +5421,14 @@ by incrementing the current vector length, and if this would
 exceed the maximum length, first calls the \verb|min::reserve| function
 with the number of elements to be pushed.
 
-The single argument {\tt min::\EOL push\REL} adds one element to the vector,
+The single argument {\tt min::\EOL push\RESIZE} adds one element to the vector,
 zeros that element, and returns a reference to the element.  The
 intended use is
 \begin{indpar}\begin{verbatim}
 push(pvip) = v;
 \end{verbatim}\end{indpar}
 where \verb|v| is the value of the element to be added to the vector.
-If the element type {\tt E} is locatable, {\tt min::\EOL push\REL}
+If the element type {\tt E} is locatable, {\tt min::\EOL push\RESIZE}
 returns a {\tt min::\EOL ref\TARG} reference.%
 \label{PACKED_VEC_PUSH_REF}
 Otherwise, if {\tt E} is not locatable, an
@@ -5442,7 +5443,7 @@ this should not normally be an issue, but if {\tt v} is
 a structure type containing locatable elements, the situation is
 tricky: see the below example.
 
-The two or three argument {\tt min::\EOL push\REL} adds {\tt n}
+The two or three argument {\tt min::\EOL push\RESIZE} adds {\tt n}
 elements to the vector, and fills the new elements from {\tt vp}
 if that is not {\tt NULL}, or with zeros otherwise.
 If \verb|vp| is not \verb|NULL|,
@@ -5868,10 +5869,10 @@ Creation, initialization, and parametrization of files is
 accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{init\_\EOL input\REL}%
+\verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}%
     \verb| ( min::ref<min::file> file )|
 \LABEL{MIN::INIT_INPUT_OF_FILE} \\
-\verb|void min::| & \MINKEY{init\_\EOL output\REL}%
+\verb|void min::| & \MINKEY{init\_\EOL output\RESIZE}%
     \verb| ( min::ref<min::file> file )|
 \LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
 \end{tabular}\end{indpar}
@@ -5931,7 +5932,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_stream\REL}\ARGBREAK
+    & \MINKEY{init\_input\_stream\RESIZE}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   std::istream & istream,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -5941,7 +5942,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_file\REL}\ARGBREAK
+    & \MINKEY{init\_input\_file\RESIZE}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::file ifile,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -5951,7 +5952,7 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_named\_file\REL}\ARGBREAK
+    & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::gen filename,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -5961,14 +5962,14 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_input\_string\REL}\ARGBREAK
+    & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::ptr<const char> data,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
 	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
 \LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_input\_string\REL}\ARGBREAK
+    & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
           \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::ptr<char> data,|\ARGBREAK
 	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
@@ -6067,7 +6068,7 @@ lines:
 \verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
 \LABEL{MIN::NO_LINE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{next\_line\REL}\verb| ( min::file file )|
+    & \MINKEY{next\_line\RESIZE}\verb| ( min::file file )|
 \LABEL{MIN::NEXT_LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -6223,7 +6224,7 @@ of calls to the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_spool\REL}
+    & \MINKEY{flush\_spool\RESIZE}
 	  \begin{argstack}
 	  \verb| ( min::file file,|\\
 	  \verb|   min::uns32 line_number = min::NO_LINE )|
@@ -6268,7 +6269,7 @@ which eliminates the possibility of failure.
 
 If a {\tt file} does not have an input {\tt istream} or
 {\tt ifile}, a line can be added to the end of the file
-by using the packed vector {\tt min::push\REL} function
+by using the packed vector {\tt min::push\RESIZE} function
 (\pagref{MIN::PACKED_VEC_PUSH}) to push the characters of
 the line to {\tt file->buffer},
 and then using the following function to push the
@@ -6276,7 +6277,7 @@ the line ending NUL character to {\tt file->buffer}:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{end\_line\REL}\verb| ( min::file file )|
+    & \MINKEY{end\_line\RESIZE}\verb| ( min::file file )|
 \LABEL{MIN::END_LINE_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -6288,7 +6289,7 @@ a complete line possibly followed by a shorter partial line:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{end\_line\REL}
+    & \MINKEY{end\_line\RESIZE}
 	  \begin{argstack}
           \verb| ( min::file file,|\\
 	  \verb|   min::uns32 offset )|
@@ -6315,7 +6316,7 @@ that the file has
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL file\REL}\verb| ( min::file file )|
+    & \MINKEY{flush\_\EOL file\RESIZE}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -6332,14 +6333,14 @@ the following functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL line\REL}
+    & \MINKEY{flush\_\EOL line\RESIZE}
 	  \begin{argstack}
           \verb| ( min::file file,|\\
 	  \verb|   min::uns32 offset )|
 	  \end{argstack}
 \LABEL{MIN::FLUSH_LINE} \\
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_remaining\REL}\verb| ( min::file file )|
+    & \MINKEY{flush\_remaining\RESIZE}\verb| ( min::file file )|
 \LABEL{MIN::FLUSH_REMAINING} \\
 \end{tabular}\end{indpar}
 
@@ -6371,13 +6372,13 @@ to any {\tt file->\EOL ostream}, {\tt file->\EOL ofile}, and/or
       \verb|   min::file file )|
 \LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb| ( min::file ofile,|\ARGBREAK
       \verb|   min::file ifile )|
 \LABEL{FILE_OPERATOR<<_OF_FILE} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::file}}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::file file )|
@@ -6445,7 +6446,7 @@ accomplished by the following:
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   min::file file = min::NULL_STUB )|
 \LABEL{MIN::INIT_OF_PRINTER} \\
-\verb|min::printer min::| & \MINKEY{init\_output\_stream\REL}\ARGBREAK
+\verb|min::printer min::| & \MINKEY{init\_output\_stream\RESIZE}\ARGBREAK
     \verb| ( min::ref<min::printer> printer,|\ARGBREAK
     \verb|   std::ostream & ostream )|
 \LABEL{MIN::INIT_OUTPUT_STREAM_OF_PRINTER} \\
@@ -6817,47 +6818,47 @@ Copying characters into a printer is done by the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, const char * s )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR_*} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::ptr<const char> s )|
 \LABEL{PRINTER_OPERATOR<<_OF_PTR_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, const min::str_ptr & s )|
 \LABEL{PRINTER_OPERATOR<<_OF_STR_PTR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, char c )|
 \LABEL{PRINTER_OPERATOR<<_OF_CHAR} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::int32 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::int64 i )|
 \LABEL{PRINTER_OPERATOR<<_OF_INT64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::uns32 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS32} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::uns64 u )|
 \LABEL{PRINTER_OPERATOR<<_OF_UNS64} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::float64 f )|
 \LABEL{PRINTER_OPERATOR<<_OF_FLOAT64} \\
@@ -6868,7 +6869,7 @@ string of UNICODE characters as per
 {\tt min::\EOL utf8\_\EOL to\_\EOL unicode}, \pagref{MIN::UTF8_TO_UNICODE}.
 However, a `{\tt const char *}' cannot be an unprotected body pointer,
 as the body it points into may be relocated during the execution of the
-{\tt <<\REL} operator on a printer.
+{\tt <<\RESIZE} operator on a printer.
 A `{\tt min::\EOL ptr<char>}' value can be used
 instead as a pointer to a `{\tt const char *}' string inside a body.
 And a `{\tt min::\EOL str\_\EOL ptr}' can be used instead to
@@ -6906,7 +6907,7 @@ Operations can be performed on printers by applying the
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}{of {\tt min::printer}}\ARGBREAK
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}{of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   const min::op & op )|
 \LABEL{OPERATOR<<_OF_PRINTER_OP} \\
@@ -6947,13 +6948,13 @@ into another {\tt min::\EOL printer}:
       \verb|   min::printer printer )|
 \LABEL{OSTREAM_OPERATOR<<_OF_PRINTER} \\
 \verb|min::file |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::file file,|\ARGBREAK
       \verb|   min::printer printer )|
 \LABEL{FILE_OPERATOR<<_OF_PRINTER} \\
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer oprinter,|\ARGBREAK
       \verb|   min::printer iprinter )|
@@ -7316,7 +7317,7 @@ instead.  If that is also {\tt NULL},
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer, min::gen v )|
 \LABEL{PRINTER_OPERATOR<<_OF_GEN} \\
@@ -7589,7 +7590,7 @@ an error message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\REL}\ARGBREAK
+    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
       \verb|   min::uns32 line_number,|\ARGBREAK
@@ -7662,7 +7663,7 @@ by the code:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::printer |
-    & \TTOMKEY{<<}{\LT\LT\REL}%
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
               {of {\tt min::printer}}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   const min::pline_numbers & pline_numbers )|
@@ -7754,7 +7755,7 @@ To print a phrase one can use the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\REL}\ARGBREAK
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
       \verb|   const min::phrase_position & position,|\ARGBREAK
@@ -7791,7 +7792,7 @@ uses the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\REL}\ARGBREAK
+    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb| ( min::file file,|\ARGBREAK
       \verb|   const min::phrase_position & position )|
 \LABEL{MIN::PRINT_LINE_COLUMN} \\
@@ -7813,7 +7814,7 @@ an extra {\tt print\_\EOL flags} argument and use that in place of
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\REL}\ARGBREAK
+    & \MINKEY{print\_\EOL line\RESIZE}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::uns32 print_flags,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
@@ -7829,7 +7830,7 @@ an extra {\tt print\_\EOL flags} argument and use that in place of
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{print\_\EOL phrase\_\EOL lines\REL}\ARGBREAK
+    & \MINKEY{print\_\EOL phrase\_\EOL lines\RESIZE}\ARGBREAK
       \verb| ( min::printer printer,|\ARGBREAK
       \verb|   min::uns32 print_flags,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
@@ -7846,7 +7847,7 @@ an extra {\tt print\_\EOL flags} argument and use that in place of
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{print\_\EOL line\_\EOL column\REL}\ARGBREAK
+    & \MINKEY{print\_\EOL line\_\EOL column\RESIZE}\ARGBREAK
       \verb| ( min::uns32 print_flags,|\ARGBREAK
       \verb|   min::file file,|\ARGBREAK
       \verb|   const min::phrase_position & position )|
@@ -7871,7 +7872,8 @@ record the phrase positions of elements of any linear vector:
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::| & \verb|phrase_position_vec_insptr min::|\MINKEY{init\REL}\ARGBREAK
+\verb|min::| 
+  & \verb|phrase_position_vec_insptr min::|\MINKEY{init\RESIZE}\ARGBREAK
     \verb| ( min::ref<min::phrase_position_vec_insptr> vec,|\ARGBREAK
     \verb|   min::file file,|\ARGBREAK
     \verb|   const min::phrase_position & position,|\ARGBREAK
@@ -8061,7 +8063,7 @@ and possibly converted from one header size to another.  Frequently an
 object whose attribute labels and number of values for each label are no
 longer subject to change will be compacted, to make it as small as possible,
 and this is one kind of object body reorganization.
-Objects are compacted by the `{\tt min::\EOL publish\REL}'
+Objects are compacted by the `{\tt min::\EOL publish\REORG}'
 function that sets the
 object {\tt OBJ\_\EOL PUBLIC} flag which prevents changes to the
 attribute labels, attribute label flags, and number of attribute values
@@ -8413,7 +8415,7 @@ created.  The object is therefore private to the code possessing the
 vector pointer.
 
 If an object has neither flag, its \verb|min::OBJ_PUBLIC| flag may be set
-by calling the {\tt min::\EOL publish\REL} function
+by calling the {\tt min::\EOL publish\REORG} function
 (\pagref{MIN::PUBLISH}).
 When this is set, any number of read-only and read-write (updatable) vector
 pointers to the object may be created, but no insertable vector pointers
@@ -8438,11 +8440,11 @@ However object bodies may be reorganized by a relocating
 function only if neither the
 \verb|min::OBJ_PRIVATE| or \verb|min::OBJ_PUBLIC| flags are set.
 Object bodies may also be reorganization when insertions are made
-using the {\tt min::\EOL insert\_\EOL reserve\REL} function
+using the {\tt min::\EOL insert\_\EOL reserve\RESIZE} function
 (\pagref{MIN::INSERT_RESERVE}) on an insertable pointer,
 and object bodies are usually reorganized
 when the {\tt min::\EOL OBJ\_\EOL PUBLIC} flag is set on an object
-by the {\tt min::\EOL publish\REL} function
+by the {\tt min::\EOL publish\REORG} function
 (\pagref{MIN::PUBLISH}).
 
 \subsubsubsection{Protected Object Vector Pointers}
@@ -9962,14 +9964,14 @@ of any auxiliary stubs attached to the object and into the
 auxiliary area.  This can be done by the functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::list_insptr & lp,| \\
       \verb|   min::unsptr unused_size,| \\
       \verb|   min::unsptr var_size )| \\
       \end{tabular}
 \LABEL{MIN::RESIZE_OF_LIST_INSPTR} \\
-\verb|bool min::| & \MINKEY{resize\REL}%
+\verb|bool min::| & \MINKEY{resize\RESIZE}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::list_insptr & lp,| \\
       \verb|   min::unsptr unused_size )| \\
@@ -10717,16 +10719,18 @@ arguments that are labels (\itemref{LABELS}).  If an atom (number or
 string) is given instead, this is treated as the equivalent of
 a label whose only element is the atom.
 
-If an object is
-relocated by use of an insertable attribute pointer to set attribute values or
-flags, every attribute pointer to the object other than the insertable
-pointer used to set values or flags will become invalid.
-When an attribute pointer becomes invalid, it may be restored to
-validity by calling the {\tt min::\EOL relocate} function, without
-changing the pointer's attribute and reverse attribute names.  Alternatively,
-the {\tt min::\EOL locate} and if necessary {\tt min::\EOL locate\_reverse}
-functions may be called for the pointer to reset or change
-the pointer's attribute and reverse attribute names.
+If an insertable attribute pointer {\tt ap1} is used
+to add or remove attribute values or set or clear attribute flags,
+every other attribute pointer {\tt ap2}
+to the object will become invalid until a {\tt min::\EOL locate} or
+{\tt min::\EOL relocate} function is called for {\tt ap2}.  The later
+function is equivalent to repeating the calls to {\tt min::\EOL locate}
+and if necessary {\tt min::\EOL reverse\_\_EOl locate} that positioned
+{\tt ap2} to where it was before {\tt ap1} was used to modify the object.
+
+Note that no special functions need to be called when an attribute
+value is updated using {\tt min::\EOL update} on
+an updatable attribute pointer.
 
 \ikey{Accessor functions}{accessor function}
 can be used for reading attribute values and flags.
@@ -11044,30 +11048,30 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::SET_OF_ATTR_INSPTR} \\
-\verb|void min::| & \MINKEY{set\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{set\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   min::gen v )|
 \LABEL{MIN::SET1_OF_ATTR_INSPTR} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_SET} \\
-\verb|void min::| & \MINKEY{add\_to\_set\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{add\_to\_set\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   min::gen v )|
 \LABEL{MIN::ADD1_TO_SET} \\
-\verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   const min::gen * in, min::unsptr n )|
 \LABEL{MIN::ADD_TO_MULTISET} \\
-\verb|void min::| & \MINKEY{add\_to\_multiset\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{add\_to\_multiset\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   min::gen v )|
 \LABEL{MIN::ADD1_TO_MULTISET} \\
@@ -11093,34 +11097,34 @@ are:
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{set\_flags\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{set\_flags\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_FLAGS_OF_ATTR_INSPTR} \\
-\verb|void min::| & \MINKEY{set\_some\_flags\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{set\_some\_flags\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::SET_SOME_FLAGS} \\
-\verb|void min::| & \MINKEY{clear\_some\_flags\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{clear\_some\_flags\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::CLEAR_SOME_FLAGS} \\
-\verb|void min::| & \MINKEY{flip\_some\_flags\REL}\ARGBREAK
+\verb|void min::| & \MINKEY{flip\_some\_flags\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   const min::gen * in, unsigned n )|
 \LABEL{MIN::FLIP_SOME_FLAGS} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}\begin{tabular}{r@{}l}
-\verb|bool min::| & \MINKEY{set\_flag\REL}\ARGBREAK
+\verb|bool min::| & \MINKEY{set\_flag\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   unsigned n )|
 \LABEL{MIN::SET_FLAG} \\
-\verb|bool min::| & \MINKEY{clear\_flag\REL}\ARGBREAK
+\verb|bool min::| & \MINKEY{clear\_flag\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   unsigned n )|
 \LABEL{MIN::CLEAR_FLAG} \\
-\verb|bool min::| & \MINKEY{flip\_flag\REL}\ARGBREAK
+\verb|bool min::| & \MINKEY{flip\_flag\RESIZE}\ARGBREAK
     \verb| ( min::attr_insptr wap,|\ARGBREAK
     \verb|   unsigned n )|
 \LABEL{MIN::FLIP_FLAG} \\
@@ -11236,7 +11240,7 @@ auxiliary area, and if desired change the size of the
 hash table.  This can be done by the functions:
 
 \begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::attr_insptr & ap,| \\
       \verb|   min::unsptr unused_size,| \\
@@ -11244,7 +11248,7 @@ hash table.  This can be done by the functions:
       \verb|   min::unsptr var_size )| \\
       \end{tabular}
 \LABEL{MIN::RESIZE_OF_ATTR_INSPTR} \\
-\verb|bool min::| & \MINKEY{resize\REL}%
+\verb|bool min::| & \MINKEY{resize\RESIZE}%
       \begin{tabular}[t]{@{}l@{}}
       \verb| ( min::attr_insptr & ap,| \\
       \verb|   min::unsptr unused_size,| \\
@@ -12585,7 +12589,7 @@ In loose implementation: \\
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -12593,13 +12597,13 @@ In loose implementation: \\
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE} \\
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr unused_size )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE_UNUSED} \\
-\verb|void min::| & \MINKEY{expand\REL}%
+\verb|void min::| & \MINKEY{expand\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr unused_size )| \\
@@ -12608,7 +12612,7 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{reorganize\REL}%
+\verb|void min::| & \MINKEY{reorganize\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr hash_size,| \\
@@ -12620,7 +12624,7 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -12628,12 +12632,12 @@ In loose implementation: \\
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT_AND_RESIZE} \\
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT} \\
-\verb|void min::| & \MINKEY{publish\REL}%
+\verb|void min::| & \MINKEY{publish\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::gen object )| \\
     \end{tabular}
@@ -12935,7 +12939,7 @@ In loose implementation: \\
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -12943,13 +12947,13 @@ In loose implementation: \\
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{resize\REL}%
+\verb|void min::| & \MINKEY{resize\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr unused_size )| \\
     \end{tabular}
 \LABEL{MIN::RESIZE_UNUSED_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{expand\REL}%
+\verb|void min::| & \MINKEY{expand\RESIZE}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr unused_size )| \\
@@ -12958,7 +12962,7 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{reorganize\REL}%
+\verb|void min::| & \MINKEY{reorganize\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr hash_size,| \\
@@ -12970,7 +12974,7 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.2in}
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp,| \\
     \verb|   min::unsptr variable_size,| \\
@@ -12978,12 +12982,12 @@ In loose implementation: \\
     \verb|   bool expand = true )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT_AND_RESIZE_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{compact\REL}%
+\verb|void min::| & \MINKEY{compact\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
 \LABEL{MIN::COMPACT_OBJ_VEC_INSPTR} \\
-\verb|void min::| & \MINKEY{publish\REL}%
+\verb|void min::| & \MINKEY{publish\REORG}%
     \begin{tabular}[t]{@{}l@{}}
     \verb| ( min::obj_vec_insptr & vp )| \\
     \end{tabular}
@@ -13896,15 +13900,15 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.6in}
 \verb|E & min::|
-	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
 	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
 \LABEL{MIN::PACKED_VEC_PUSH} \\
 \verb|min::ref<E> min::|
-	& \MINKEY{push\REL} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
           \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
 \LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
 \verb|void min::|
-	& \MINKEY{push\REL}\ARGBREAK
+	& \MINKEY{push\RESIZE}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 n, E const * vp = NULL )|
 \LABEL{MIN::PACKED_VEC_PUSH_N} \\
@@ -13924,12 +13928,12 @@ In loose implementation: \\
 
 \begin{TABULAR}{1.6in}
 \verb|void min::|
-	& \MINKEY{resize\REL}\ARGBREAK
+	& \MINKEY{resize\RESIZE}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 max_length )|
 \LABEL{MIN::PACKED_VEC_RESIZE} \\
 \verb|void min::|
-	& \MINKEY{reserve\REL}\ARGBREAK
+	& \MINKEY{reserve\RESIZE}\ARGBREAK
 	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
 	  \verb|   min::uns32 reserve_length )|
 \LABEL{MIN::PACKED_VEC_RESERVE} \\
