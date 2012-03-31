@@ -10755,7 +10755,7 @@ the set of all values associated with any reverse attribute name, but
 this \verb|min::ANY()|
 value set can only be read by the 3-argument \verb|min::get|
 function, and made empty by the {\tt min::\EOL set\RESIZE}
-function with 0 new values (see \pagref{MIN::SET_OF_ATTR_INSPTR}).
+function with 0 new values (see \pagref{MIN::SET_DELETE_ANY}).
 It is an error to attempt any other access to this \verb|min::ANY()| value set.
 
 The flag set pointed at by a pointer is that of the attribute pointed
@@ -11153,9 +11153,10 @@ argument, unless {\tt v} is \verb|min::NONE()|,
 in which case there are no new values and all previous values are simply
 deleted.
 
-For the {\tt min::\EOL set\RESIZE} function the
-pointer's reverse attribute name can be \verb|min::NONE()|
-but cannot be \verb|min::ANY()|, which the exception of the case
+For the {\tt min::\EOL set\RESIZE} function
+\label{MIN::SET_DELETE_ANY}
+the pointer's reverse attribute name can be \verb|min::NONE()|
+but cannot be \verb|min::ANY()|, with the exception of the case
 where all values are being deleted.  If the reverse attribute name
 is \verb|min:ANY()| and the {\tt min::\EOL set\RESIZE} function is called to
 delete all previous values,
@@ -11198,18 +11199,17 @@ values must be pointers to objects.
 If the attribute pointer is pointing at a multiset of values
 associated with a reverse attribute name,
 the values represent double arrows.
-In this case, let the object being pointed at by the attribute pointer
-be $O_1$,
-the pointer attribute name be $N$, and the pointer reverse
-attribute name be $R$.
-If a double arrow value pointing at object $O_2$ is set or removed, the value
-pointing at $O_1$ will also be set or removed from the attribute named
-$R$ with
-reverse attribute name $N$ of the object $O_2$.  That is, the other end of
-the double arrow will also be set or removed.
+In this case, let the object whose attribute value is being set or removed
+be $O_1$, the pointer attribute name be $N$, the pointer reverse
+attribute name be $R$, and the object being pointed at by the value
+being set or removed be $O_2$.
+Then when the value is set or removed, the corresponding value that is
+an attribute value of $O_2$ with name $R$, reverse name $N$, and target $O_1$
+will be set or removed.
+That is, the other end of the double arrow will also be set or removed.
 In the unusual special case where $O_1=O_2$ and also $N=R$, only one value
-pointing at $O_1=O_2$ is put in the reverse attribute multiset; that
-is, this value is \underline{not} duplicated.
+is set or removed, so the value will not be duplicated when set and is
+assumed to be unduplicated when removed.
 
 The {\tt min::\EOL set\_\EOL flags\RESIZE} function sets the control codes
 of the flag set the attribute pointer points at.
