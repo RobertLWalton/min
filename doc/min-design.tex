@@ -10724,11 +10724,14 @@ to add or remove attribute values or set or clear attribute flags,
 every other attribute pointer {\tt ap2}
 to the object will become invalid until a {\tt min::\EOL locate} or
 {\tt min::\EOL relocate} function is called for {\tt ap2}.  The later
-function is equivalent to repeating the calls to {\tt min::\EOL locate}
-and if necessary {\tt min::\EOL reverse\_\_EOl locate} that positioned
+function is equivalent to repeating the calls to {\tt min::\EOL locate},
+and if necessary {\tt min::\EOL reverse\_\EOL locate}, that positioned
 {\tt ap2} to where it was before {\tt ap1} was used to modify the object.
+Note that simply calling {\tt min::\EOL locate}
+and {\tt min::\EOL reverse\_\EOL locate} on {\tt ap1} will
+\underline{not} add or remove attribute values or set or clear attribute flags.
 
-Note that no special functions need to be called when an attribute
+Note that \underline{no} special functions need to be called when an attribute
 value is updated using {\tt min::\EOL update} on
 an updatable attribute pointer.
 
@@ -10739,7 +10742,8 @@ an attribute pointer is considered to point at the attribute
 named by the pointer's attribute name, and the reverse attribute
 pointed at by the pointer's attribute and reverse attribute names,
 unless the latter are \verb|min::NONE()| or \verb|min::ANY()|.
-If these names have never been set it is an error to call an accessor
+If the {\tt min::\EOL locate} function has never been called to set
+these names it is an error to call an accessor
 function for the pointer.
 
 The value multiset pointed at by a pointer is that of the attribute pointed
@@ -10748,9 +10752,10 @@ the reverse attribute pointed at if the reverse attribute name is not
 \verb|min::NONE()| or \verb|min::ANY()|.
 If the reverse attribute name is \verb|min::ANY()| the value multiset is
 the set of all values associated with any reverse attribute name, but
-this \verb||min::ANY()|
+this \verb|min::ANY()|
 value set can only be read by the 3-argument \verb|min::get|
-function, and made empty by the \verb|min::set| function with 0 new values.
+function, and made empty by the {\tt min::\EOL set\RESIZE}
+function with 0 new values (see \pagref{MIN::SET_OF_ATTR_INSPTR}).
 It is an error to attempt any other access to this \verb|min::ANY()| value set.
 
 The flag set pointed at by a pointer is that of the attribute pointed
@@ -10772,7 +10777,7 @@ multiset pointed at and stores them in the `{\tt out}' vector.
 The total number of values in the value
 multiset is returned (regardless of the value of {\tt n}).
 The argument {\tt n}, the length of `{\tt out}',
-the maximum number of values that may be returned in `{\tt out}'.
+is the maximum number of values that may be returned in `{\tt out}'.
 If there are more then {\tt n} values, only the first {\tt n}
 are returned in `{\tt out}'.
 If {\tt n==0} the function just returns
@@ -10792,7 +10797,7 @@ these in the \verb|min::gen| vector `{\tt out}'.
 The total number of control codes in the flag set is returned
 (regardless of the value of {\tt n}).
 The argument {\tt n}, the length of `{\tt out}',
-the maximum number of control codes that may be returned in `{\tt out}'.
+is the maximum number of control codes that may be returned in `{\tt out}'.
 If there are more then {\tt n} control codes, only the first {\tt n}
 are returned in `{\tt out}'.
 If {\tt n==0} the function just returns
@@ -11136,32 +11141,32 @@ same results.  However, insertable list pointers
 can\underline{not} be converted to be updatable or read-only list pointers
 (unlike the situation with vector pointers).
 
-The {\tt min::\EOL set}
+The {\tt min::\EOL set\RESIZE}
 function sets all the values in the value multiset the
 attribute pointer is pointing at, deleting any previous values.
-For 3-argument {\tt min::\EOL set}
+For 3-argument {\tt min::\EOL set\RESIZE}
 the new values are given in the `{\tt in}' vector, and
 the number of values is given in {\tt n}.  If {\tt n} is zero, all
 values are deleted.
-For 2-argument {\tt min::\EOL set} there is one new value given as an
+For 2-argument {\tt min::\EOL set\RESIZE} there is one new value given as an
 argument, unless {\tt v} is \verb|min::NONE()|,
 in which case there are no new values and all previous values are simply
 deleted.
 
-For the {\tt min::\EOL set} function the
+For the {\tt min::\EOL set\RESIZE} function the
 pointer's reverse attribute name can be \verb|min::NONE()|
 but cannot be \verb|min::ANY()|, which the exception of the case
 where all values are being deleted.  If the reverse attribute name
-is \verb|min:ANY()| and the {\tt min::\EOL set} function is called to
+is \verb|min:ANY()| and the {\tt min::\EOL set\RESIZE} function is called to
 delete all previous values,
 all double arrows with the current attribute name and any
 reverse attribute name are deleted.
 
-The {\tt min::\EOL add\_\EOL to\_\EOL set} function
+The {\tt min::\EOL add\_\EOL to\_\EOL set\RESIZE} function
 adds values to the multiset set of values,
 but adds each value if and only if the value is not already in the multiset,
 using {\tt ==} to compare values for equality.
-The {\tt min::\EOL add\_\EOL to\_\EOL multiset} function
+The {\tt min::\EOL add\_\EOL to\_\EOL multiset\RESIZE} function
 adds values even if they are already in the multiset.
 Both functions have a 3-argument version with a vector of new values,
 and a 2-argument version with a single new value.  In the latter case
@@ -11206,7 +11211,7 @@ In the unusual special case where $O_1=O_2$ and also $N=R$, only one value
 pointing at $O_1=O_2$ is put in the reverse attribute multiset; that
 is, this value is \underline{not} duplicated.
 
-The {\tt min::\EOL set\_\EOL flags} function sets the control codes
+The {\tt min::\EOL set\_\EOL flags\RESIZE} function sets the control codes
 of the flag set the attribute pointer points at.
 The new control codes are given in the `{\tt in}' vector which
 has length {\tt n}: see the discussion of
@@ -11218,14 +11223,14 @@ If {\tt n} is zero, all existing control codes are zeroed.
 When the object is reorganized, high order zero control codes will
 be deleted.
 
-The {\tt min::\EOL set\_\EOL some\_\EOL flags},
+The {\tt min::\EOL set\_\EOL some\_\EOL flags\RESIZE},
 {\tt min::\EOL clear\_\EOL some\_\EOL flags},
 and {\tt min::\EOL flip\_\EOL some\_\EOL flags}
 functions can be used to alter flags.  If the bit corresponding
 to the flag is on in the `{\tt in}' vector, it is set, cleared,
 or flipped, respectively.
 
-The {\tt min::\EOL set\_\EOL flag},
+The {\tt min::\EOL set\_\EOL flag\RESIZE},
 {\tt min::\EOL clear\_\EOL flag},
 and {\tt min::\EOL flip\_\EOL flag}
 functions can be used to alter a single flag whose number is
