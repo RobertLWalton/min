@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  4 07:10:51 EDT 2012
+// Date:	Wed Apr  4 08:16:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7680,6 +7680,7 @@ namespace min {
 	( min::obj_vec_insptr & vp )
     {
         vp.total_size_flags |= OBJ_PUBLIC;
+	vp = NULL_STUB;
     }
 
     inline min::unsptr var_size_of
