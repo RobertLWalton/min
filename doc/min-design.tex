@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 3, 2012}
+\date{April 4, 2012}
  
 \maketitle
 
@@ -8873,8 +8873,14 @@ all the non-constructor functions applicable to
 The object maintenance functions of
 Section~\itemref{OBJECT-MAINTENANCE-FUNCTIONS}
 which operate on {\tt min::\EOL gen} values have counterparts
-that operate on object vector pointers.  These are described in the section
-just mentioned, and are merely listed here:
+that operate on object vector pointers.  These last are merely listed
+here, and are as described in the section
+just mentioned, with the exception that
+the two functions that set the {\tt min::\EOL PUBLIC} flag,
+{\tt min::\EOL set\_\EOL public\_\EOL flag\_\EOL of} and
+{\tt min::\EOL publish}, end by setting the insertable object vector pointer
+they use to {\tt min::\EOL NULL\_\EOL STUB}, as an insertable object vector
+pointer is not allowed to point at a public object.
 
 \begin{indpar}\begin{tabular}{r@{}l}
 \verb|void min::| & \MINKEY{resize\RESIZE}%
