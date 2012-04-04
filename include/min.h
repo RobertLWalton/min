@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Mar  8 03:44:27 EST 2012
+// Date:	Wed Apr  4 07:10:51 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -8863,7 +8863,7 @@ namespace min {
 	    unprotected::hash_offset_of ( lp.vecp );
 	lp.total_size = total_size_of ( lp.vecp );
 
-	MIN_ASSERT ( index < hash_size_of ( lp.vecp ) );
+	index %= hash_size_of ( lp.vecp );
 
 	lp.head_index = lp.hash_offset + index;
 	return lp.forward ( lp.head_index );
@@ -9952,11 +9952,11 @@ namespace min { namespace unprotected {
 	    };
 
 	min::unsptr index;
-	    // Hash or attribute vector index passed to
-	    // the start_hash or start_vector functions
-	    // by the last call to locate.  See the
-	    // IN_VECTOR flag above.  Set even if
-	    // locate failed.
+	    // Attribute vector index passed to the
+	    // start_vector function, or the hash value
+	    // passed to the start_hash function, by the
+	    // last call to locate.  See the IN_VECTOR
+	    // flag above.  Set even if locate failed.
 
     	list_ptr_type<vecpt> dlp;
 	    // Descriptor list pointer.  Points at the

@@ -236,7 +236,7 @@
 
 \author{Robert L. Walton}
 
-\date{March 31, 2012}
+\date{April 3, 2012}
  
 \maketitle
 
@@ -9400,18 +9400,17 @@ at the end of an immutable empty list.
 The {\tt min::\EOL start\_\EOL hash} function positions
 a list pointer at the beginning of the
 list whose head is at the given index within the hash table, treating the
-hash table as a vector.  This function returns the value of the first
-element of the list, or returns {\tt min::\EOL LIST\_\EOL END()}
-if the list is empty.
-The index is usually the hash value of a name component
-(number, string, or label),
-modulo the size of the hash table,
-but exactly how the index is computed is not determined by the object
-list level.  Index 0 refers to the first element of the
-hash table, and the maximum index is the size of the hash table minus 1.
+hash table as a vector.  This function mods the index by the hash table
+size, so the index can be, and usually should be, a hash value returned
+by {\tt min::\EOL hash} (\pagref{MIN::HASH}).
+Index 0 refers to the first element of the hash table,
+and the size of the hash table minus 1 refers to the last element.
 The size of the hash table may be obtained from the
 {\tt min::\EOL hash\_\EOL size\_\EOL of} function.
 The index is \underline{not} a body vector index.
+This function returns the value of the first
+element of the list, or returns {\tt min::\EOL LIST\_\EOL END()}
+if the list is empty.
 
 The {\tt min::\EOL start\_\EOL attr} function is analogous except it is given
 an index within the object attribute vector and positions the list pointer
@@ -11237,30 +11236,6 @@ functions can be used to alter a single flag whose number is
 given as the argument {\tt n}.  The flag is set, cleared,
 or flipped, respectively.  The previous value of the flag is
 returned.
-
-An object can be resized and reorganized so as to
-compact the auxiliary area, move information out
-of any auxiliary stubs attached to the object and into the
-auxiliary area, and if desired change the size of the
-hash table.  This can be done by the functions:
-
-\begin{indpar}[0.2in]\begin{tabular}{r@{}l}
-\verb|void min::| & \MINKEY{resize\RESIZE}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::attr_insptr & ap,| \\
-      \verb|   min::unsptr unused_size,| \\
-      \verb|   min::unsptr hash_size,| \\
-      \verb|   min::unsptr var_size )| \\
-      \end{tabular}
-\LABEL{MIN::RESIZE_OF_ATTR_INSPTR} \\
-\verb|bool min::| & \MINKEY{resize\RESIZE}%
-      \begin{tabular}[t]{@{}l@{}}
-      \verb| ( min::attr_insptr & ap,| \\
-      \verb|   min::unsptr unused_size,| \\
-      \verb|   min::unsptr hash_size )| \\
-      \end{tabular}
-\LABEL{MIN::RESIZE_HASH_OF_ATTR_INSPTR} \\
-\end{tabular}\end{indpar}
 
 \section{Code and Execution}
 
