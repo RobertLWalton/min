@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  7 06:51:07 EST 2012
+// Date:	Wed Apr  4 07:07:46 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -4471,9 +4471,7 @@ min::attr_info_vec min::attr_info_vec_type
 	}
 	else
 	{
-	    ap.index = min::hash ( element[0] )
-	             % hash_size_of
-		         ( obj_vec_ptr_of ( ap.dlp ) );
+	    ap.index = min::hash ( element[0] );
 	    ap.flags = 0;
 
 	    start_hash ( ap.dlp, ap.index );
@@ -4857,10 +4855,7 @@ min::attr_info_vec min::attr_info_vec_type
 	    }
 	}
 
-	ap.index = min::hash ( name )
-		 % hash_size_of
-			  ( obj_vec_ptr_of
-			        ( ap.locate_dlp ) );
+	ap.index = min::hash ( name );
 	ap.flags = 0;
 	start_hash ( ap.locate_dlp, ap.index );
 
@@ -5218,7 +5213,7 @@ void min::relocate
     }
     else
     {
-        start_hash ( ap.locate_dlp, ap.index );
+	start_hash ( ap.locate_dlp, ap.index );
 	MINT::relocate ( ap );
     }
 
