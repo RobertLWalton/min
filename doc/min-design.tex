@@ -184,10 +184,6 @@
 	 \item}%
 	{\end{list}}
 
-\newenvironment{argstack}%
-	{\begin{tabular}[t]{@{}l@{}}}
-	{\end{tabular}}
-
 \newenvironment{itemlist}[1][1.2in]%
 	{\begin{list}{}{\setlength{\labelwidth}{#1}%
 		        \setlength{\leftmargin}{\labelwidth}%
@@ -236,7 +232,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 4, 2012}
+\date{April 19, 2012}
  
 \maketitle
 
@@ -1946,7 +1942,7 @@ the companion {\tt min::\EOL ptr\TARG} pointer type:
 \verb|min::ptr<T> |
     & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}
       \verb|( const min::ref<T> & r )|
-\LABEL{MIN::=&_OF_REF_OF_T} \\
+\LABEL{MIN::=AMPERSAND_OF_REF_OF_T} \\
 \verb|min::ref<T> |
     & \TTOMKEY{*}{*}{of {\tt min::ptr\TARG}}
       \verb|( const min::ptr<T> & p )|
@@ -2230,7 +2226,7 @@ with certainty to be numbers, in locations of type
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_gen}}\ARGBREAK
       \verb|( const min::locatable_gen & var )|
-\LABEL{MIN::&_LOCATABLE_GEN} \\
+\LABEL{MIN::AMPERSAND_LOCATABLE_GEN} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[0.1in]\begin{tabular}{r@{}l}
@@ -2364,7 +2360,7 @@ this may be done with the code:
     & \TTOMKEY{\&}{\&}%
               {of {\tt min::locatable\_var\TARG}}\ARGBREAK
       \verb|( const min::locatable_var<T> & var )|
-\LABEL{MIN::&_LOCATABLE_VAR} \\
+\LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
 \end{tabular}\end{indpar}
 
 Here {\tt T} must be
@@ -5879,49 +5875,37 @@ accomplished by the following:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_print\_flags\REL}
-          \begin{argstack}
-          \verb| ( min::ref<min::file> file,| \\
+    & \MINKEY{init\_print\_flags\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::uns32 print_flags )|
-	  \end{argstack}
 \LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_\EOL spool\_\EOL lines\REL}
-             \begin{argstack}
-	     \verb| ( min::ref<min::file> file,|\\
+    & \MINKEY{init\_\EOL spool\_\EOL lines\REL}\ARGBREAK
+	     \verb| ( min::ref<min::file> file,|\ARGBREAK
              \verb|   min::uns32 spool_lines )|
-	     \end{argstack}
 \LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_\EOL file\_\EOL name\REL}
-             \begin{argstack}
-	     \verb| ( min::ref<min::file> file,|\\
+    & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
+	     \verb| ( min::ref<min::file> file,|\ARGBREAK
              \verb|   min::gen file_name )|
-	     \end{argstack}
 \LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{init\_output\_ostream\REL}
-          \begin{argstack}
-          \verb| ( min::ref<min::file> file,| \\
+    & \MINKEY{init\_output\_ostream\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   std::ostream & ostream )|
-          \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_file\REL}
-          \begin{argstack}
-          \verb| ( min::ref<min::file> file,| \\
+    & \MINKEY{init\_output\_file\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::file ofile )|
-          \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
 \verb|void min::|
-    & \MINKEY{init\_output\_printer\REL}
-          \begin{argstack}
-          \verb| ( min::ref<min::file> file,| \\
+    & \MINKEY{init\_output\_printer\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
 	  \verb|   min::printer printer )|
-          \end{argstack}
 \LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -6085,10 +6069,9 @@ After the last line has been returned by
 end of the buffer will be returned by the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|bool min::|
 \verb|min::uns32 min::|
     & \MINKEY{remaining\_\EOL offset}\verb| ( min::file file )|
-\LABEL{MIN::REMAINING} \\
+\LABEL{MIN::REMAINING_OFFSET} \\
 \verb|min::uns32 min::|
     & \MINKEY{remaining\_\EOL length}\verb| ( min::file file )|
 \LABEL{MIN::REMAINING_LENGTH} \\
@@ -6126,7 +6109,6 @@ At any time the complete partial line at the end of the file can be
 accessed by the functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|bool min::|
 \verb|min::uns32 min::|
     & \MINKEY{partial\_\EOL length}\verb| ( min::file file )|
 \LABEL{MIN::PARTIAL_LENGTH} \\
@@ -6187,11 +6169,9 @@ The following function does this:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{line}
-	  \begin{argstack}
-	  \verb| ( min::file file,|\\
+    & \MINKEY{line}\ARGBREAK
+	  \verb| ( min::file file,|\ARGBREAK
 	  \verb|   min::uns32 line_number )|
-	  \end{argstack}
 \LABEL{MIN::LINE_OF_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -6224,13 +6204,12 @@ of calls to the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_spool\RESIZE}
-	  \begin{argstack}
-	  \verb| ( min::file file,|\\
+    & \MINKEY{flush\_spool\RESIZE}\ARGBREAK
+	  \verb| ( min::file file,|\ARGBREAK
 	  \verb|   min::uns32 line_number = min::NO_LINE )|
-	  \end{argstack}
 \LABEL{MIN::FLUSH_SPOOL} \\
 \end{tabular}\end{indpar}
+
 This function deletes lines from the file buffer
 if there are more than {\tt file->\EOL spool\_\EOL lines}
 lines before the line of the given {\tt line\_\EOL number} in the buffer.
@@ -6247,11 +6226,9 @@ It is possible to `rewind' a file with the function:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{rewind}
-        \begin{argstack}
-	\verb| ( min::file file,|\\
+    & \MINKEY{rewind}\ARGBREAK
+	\verb| ( min::file file,|\ARGBREAK
 	\verb|   min::uns32 line_number = 0 )|
-	\end{argstack}
 \LABEL{MIN::REWIND_FILE} \\
 \end{tabular}\end{indpar}
 
@@ -6289,11 +6266,9 @@ a complete line possibly followed by a shorter partial line:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|void min::|
-    & \MINKEY{end\_line\RESIZE}
-	  \begin{argstack}
-          \verb| ( min::file file,|\\
+    & \MINKEY{end\_line\RESIZE}\ARGBREAK
+          \verb| ( min::file file,|\ARGBREAK
 	  \verb|   min::uns32 offset )|
-	  \end{argstack}
 \LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
 \end{tabular}\end{indpar}
 
@@ -6333,11 +6308,9 @@ the following functions:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::uns32 min::|
-    & \MINKEY{flush\_\EOL line\RESIZE}
-	  \begin{argstack}
-          \verb| ( min::file file,|\\
+    & \MINKEY{flush\_\EOL line\RESIZE}\ARGBREAK
+          \verb| ( min::file file,|\ARGBREAK
 	  \verb|   min::uns32 offset )|
-	  \end{argstack}
 \LABEL{MIN::FLUSH_LINE} \\
 \verb|min::uns32 min::|
     & \MINKEY{flush\_remaining\RESIZE}\verb| ( min::file file )|
@@ -7120,25 +7093,19 @@ printed by using the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
-    & \MINKEY{pint}
-	  \begin{argstack}
-	  \verb| ( min::int64 i,|\\
+    & \MINKEY{pint}\ARGBREAK
+	  \verb| ( min::int64 i,|\ARGBREAK
 	  \verb|   const char * printf_format )|
-	  \end{argstack}
 \LABEL{MIN::PINT} \\
 \verb|min::op min::|
-    & \MINKEY{puns}
-	  \begin{argstack}
-	  \verb| ( min::uns64 u,|\\
+    & \MINKEY{puns}\ARGBREAK
+	  \verb| ( min::uns64 u,|\ARGBREAK
 	  \verb|   const char * printf_format )|
-	  \end{argstack}
 \LABEL{MIN::PUNS} \\
 \verb|min::op min::|
-    & \MINKEY{pfloat}
-	  \begin{argstack}
-	  \verb| ( min::float64 f,|\\
+    & \MINKEY{pfloat}\ARGBREAK
+	  \verb| ( min::float64 f,|\ARGBREAK
 	  \verb|   const char * printf_format )|
-	  \end{argstack}
 \LABEL{MIN::PFLOAT} \\
 \end{tabular}\end{indpar}
 
@@ -7297,11 +7264,9 @@ this format explicitly:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::op min::|
-    & \MINKEY{pgen}
-	  \begin{argstack}
-	  \verb| ( min::gen v,|\\
+    & \MINKEY{pgen}\ARGBREAK
+	  \verb| ( min::gen v,|\ARGBREAK
 	  \verb|   const min::printer_format * format = NULL )|
-	  \end{argstack}
 \LABEL{MIN::PGEN} \\
 \end{tabular}\end{indpar}
 
@@ -10162,40 +10127,6 @@ unprotected functions to read and write stubs of all kinds in
 though the only use of these functions on
 object auxiliary stubs would be for debugging.
 
-\subsubsection{Typed Objects}
-\label{TYPED-OBJECTS}
-
-[Typed object are not yet implemented and are not discussed outside
-this section.]
-
-A \key{typed object} is a pair of objects: the \mkey{type}{of typed object}
-which provides attribute labels, and the \mkey{context}{of typed object}
-which provides variables that give attribute values.  The type
-contains variable indices that act as indirect pointers to the
-variables in the context.  By abuse of language the context may be
-called the `typed object'.
-
-Typed objects may be introduced in two different ways.  In the first
-method the context is given the {\tt min::\EOL OBJ\_\EOL TYPED} flag
-and its first variable points at the type.  In the second method
-the typed object is represented by a stub of {\tt min::\EOL TYPED\_\EOL OBJECT}
-type which in turn points at an auxiliary stub that holds two pointers
-to stubs: one pointing at the type and the second pointing at the context.
-The type is pointed at by the control of the auxiliary stub, the context
-is pointed at by the value of the auxiliary stub.
-
-Typed objects make use of two kinds of indirect pointer.  The first is
-just a single index \verb|min::gen| value that holds the index of a
-variable vector element.  This always refers to a variable in the context.
-The second is an indirect \verb|min::gen| value that points at a pair
-of values in an auxiliary area: the first being an index \verb|min::gen|
-value and the second a pointer-to-object-stub \verb|min::gen| value.
-This refers the the variable vector element of the object pointed to
-that is indexed by the given index.  If an attribute value is an indirect
-pointer, the indirection is taken to the variable element referred to.
-If that in turn has an indirect pointer value, that indirection is also
-taken, to any depth.
-
 \subsubsection{Object Attribute Level}
 \label{OBJECT-ATTRIBUTE-LEVEL}
 
@@ -11243,6 +11174,47 @@ given as the argument {\tt n}.  The flag is set, cleared,
 or flipped, respectively.  The previous value of the flag is
 returned.
 
+\subsubsection{Typed Objects}
+\label{TYPED-OBJECTS}
+
+[Typed objects are not yet implemented and are not discussed outside
+this section.  Implementation is likely to consist merely of special
+functions to get and set attribute values respecting indirection of
+these values while augmenting attribute pointers to hold the
+equivalent of {\tt min::\EOL TYPED\_\EOL OBJECT}s
+as pointers in place of the equivalent of {\tt min::\EOL gen}
+object pointers.  In addition an acyclic unification algorithm
+will be provided (cyclic algorithms do not work if only variable
+nodes can be forwarded).]
+
+A \key{typed object} is a pair of objects: the \mkey{type}{of typed object}
+which provides attribute labels, and the \mkey{context}{of typed object}
+which provides variables that give attribute values.  The type
+contains variable indices that act as indirect pointers to the
+variables in the context.  By abuse of language the context may be
+called the `typed object'.
+
+Typed objects may be introduced in two different ways.  In the first
+method the context is given the {\tt min::\EOL OBJ\_\EOL TYPED} flag
+and its first variable points at the type.  In the second method
+the typed object is represented by a stub of {\tt min::\EOL TYPED\_\EOL OBJECT}
+type which in turn points at an auxiliary stub that holds two pointers
+to stubs: one pointing at the type and the second pointing at the context.
+The type is pointed at by the control of the auxiliary stub, the context
+is pointed at by the value of the auxiliary stub.
+
+Typed objects make use of two kinds of indirect pointer.  The first is
+just a single index \verb|min::gen| value that holds the index of a
+variable vector element.  This always refers to a variable in the context.
+The second is an indirect \verb|min::gen| value that points at a pair
+of values in an auxiliary area: the first being an index \verb|min::gen|
+value and the second a pointer-to-object-stub \verb|min::gen| value.
+This refers the the variable vector element of the object pointed to
+that is indexed by the given index.  If an attribute value is an indirect
+pointer, the indirection is taken to the variable element referred to.
+If that in turn has an indirect pointer value, that indirection is also
+taken, to any depth.
+
 \section{Code and Execution}
 
 \subsection{Execution Flags}
@@ -11733,6 +11705,198 @@ These are in \verb|min_parameters.h|.
 \end{indpar}
 
 
+\INDEXHEADER{Body References}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|min::|\MINKEY{ref\TARG}\verb| MUP::| & \MUPKEY{new\_ref}\ARGBREAK
+    \verb| ( const min::stub * s,|\ARGBREAK
+    \verb|   T const & location )|
+\LABEL{MUP::NEW_REF} \\
+\verb|min::|\MINKEY{ref\TARG}\verb| min::| & \MINKEY{new\_ref}\ARGBREAK
+    \verb| ( T & location )|
+\LABEL{MIN::NEW_REF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::stub * const r| & \TTDMKEY{s}{in {\tt min::ref\TARG}}
+\LABEL{MIN::REF_STUB} \\
+\verb|const min::unsptr r| & \TTDMKEY{offset}{in {\tt min::ref\TARG}}
+\LABEL{MIN::REF_OFFSET} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::ref<T> const & |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r, T value )|
+\LABEL{MIN::=REF_OF_T} \\
+\verb|min::ref<T> const & |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r,|\ARGBREAK
+      \verb|  const min::ref<T> & r2 )|
+\LABEL{MIN::=REF_OF_REF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|T & |
+    & \TTOMKEY{T \&}{{\tt T \&}}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r )|
+\LABEL{MIN::REF_TO_T} \\
+\verb|T |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::ref\TARG}}\ARGBREAK
+	  \verb| ( const min::ref<T> & r )|
+\LABEL{MIN::REF_->} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r, T v )|
+\LABEL{MIN::==REF_AND_T} \\
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( T v, const min::ref<T> & r )|
+\LABEL{MIN::==T_AND_REF} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r, T v )|
+\LABEL{MIN::!=REF_AND_T} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( T v, const min::ref<T> & r )|
+\LABEL{MIN::!=T_AND_REF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool |
+    & \TTOMKEY{==}{==}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r,|\ARGBREAK
+      \verb|  const min::stub * s )|
+\LABEL{MIN::==REF_AND_STUB} \\
+\verb|bool |
+    & \TTOMKEY{!=}{!=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r,|\ARGBREAK
+      \verb|  const min::stub * s )|
+\LABEL{MIN::!=REF_AND_STUB} \\
+\end{TABULAR}
+
+\end{indpar}
+
+
+\INDEXHEADER{Body Pointers}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|(constructor) min::| & \MINKEY{ptr\TARG} \verb| p|
+\LABEL{MIN::PTR_OF_T} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::|\MINKEY{ptr\TARG}\verb| MUP::| & \MUPKEY{new\_ptr}\ARGBREAK
+    \verb| ( const min::stub * s,|\ARGBREAK
+    \verb|   T * location )|
+\LABEL{MUP::NEW_PTR} \\
+\verb|min::|\MINKEY{ptr\TARG}\verb| min::| & \MINKEY{new\_ptr}\ARGBREAK
+    \verb| ( T * location )|
+\LABEL{MIN::NEW_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|const min::stub * const p| & \TTDMKEY{s}{in {\tt min::ptr\TARG}}
+\LABEL{MIN::PTR_STUB} \\
+\verb|const min::unsptr p| & \TTDMKEY{offset}{in {\tt min::ptr\TARG}}
+\LABEL{MIN::PTR_OFFSET} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::ptr<T> & |
+    & \TTOMKEY{=}{=}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( min::ptr<T> & p,|\ARGBREAK
+      \verb|  const min::ptr<T> & p2 )|
+\LABEL{MIN::=PTR_OF_PTR}
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|T * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::ptr\TARG}}\ARGBREAK
+	  \verb| ( const min::ptr<T> & p )|
+\LABEL{MIN::PTR_->} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::ptr<T> |
+    & \TTOMKEY{\&}{\&}{of {\tt min::ref\TARG}}\ARGBREAK
+      \verb|( const min::ref<T> & r )|
+\LABEL{MIN::=AMPERSAND_OF_REF_OF_T} \\
+\verb|min::ref<T> |
+    & \TTOMKEY{*}{*}{of {\tt min::ptr\TARG}}\ARGBREAK
+      \verb|( const min::ptr<T> & p )|
+\LABEL{MIN::=*_OF_PTR_OF_T} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|T & p| & \TTBMKEY{i}{of {\tt min::ptr}}
+    \hspace*{0.2in} [if \verb|T| {\tt const}
+                     or \verb|T| is \underline{not} locatable]
+\LABEL{MIN::PTR_[]} \\
+\verb|min::ref<T> p| & \TTBMKEY{i}{of {\tt min::ptr}}
+    \hspace*{0.2in} [if \verb|T| \underline{not} {\tt const}
+                     and \verb|T| is locatable]
+\LABEL{MIN::PTR_TO_STUB_[]} \\
+\verb|min::ptr<T> p|
+    & \TTMKEY{+}{of {\tt min::ptr}}\verb|i|
+\LABEL{MIN::PTR_+} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|T * |
+	& \TTOMKEY{T *}{T *}%
+	          {of {\tt min::ptr\TARG}}\ARGBREAK
+	  \verb| ( const min::ptr<T> & p )|
+\LABEL{MIN::T*_OF_PTR} \\
+\verb|min::ptr<T> |
+	& \MINKEY{ptr\TARG}\ARGBREAK
+	  \verb| ( const min::ptr<S> & p )| ~ [unprotected]
+\LABEL{MIN::PTR_OF_PTR} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|bool |
+    & \TTOMKEY{\LT}{\LT}{of {\tt min::ptr\TARG}}\ARGBREAK
+      \verb|( const min::ptr<T> & p1,|\ARGBREAK
+      \verb|  const min::ptr<T> & p2 )|
+\LABEL{MIN::<_OF_PTR_OF_T} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{++}{++}{of {\tt min::ptr\TARG}}%
+    \hspace*{1.3in} [postfix {\tt ++}]\ARGBREAK
+      \verb|( min::ptr<T> & r, int )|
+\LABEL{MIN::POSTFIX_++_OF_PTR_OF_T} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{\MINUS\MINUS}{\MINUS\MINUS}{of {\tt min::ptr\TARG}}%
+    \hspace*{1.3in} [prefix {\tt --}]\ARGBREAK
+      \verb|( min::ptr<T> & r )|
+\LABEL{MIN::PREFIX_--_OF_PTR_OF_T} \\
+\end{TABULAR}
+
+\end{indpar}
+
+
+\INDEXHEADER{Body Copy Macros}
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{@{}p{6.2in}@{}}
+\TTNBKEY{MIN\_STACKCOPY}\verb| ( type, name, length, source )|
+\LABEL{MIN_STACKCOPY}
+\end{tabular}
+
+\end{indpar}
+
+
 \INDEXHEADER{ACC Locatable Types}
 
 \begin{indpar}[0.2in]
@@ -11760,6 +11924,26 @@ These are in \verb|min_parameters.h|.
 \LABEL{MIN::=LOCATABLE_GEN_OF_LOCATABLE_GEN} \\
 \end{TABULAR}
 
+\begin{TABULAR}{1.8in}
+\verb|min::gen |
+    & \TTOMKEY{min::gen}{min::gen}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( const min::locatable_gen & var )|
+\LABEL{MIN::LOCATABLE_GEN_TO_GEN} \\
+\verb|min::ref<min::gen> |
+    & \TTOMKEY{min::ref<min::gen>}{min::ref\BRACKETED{min::gen}}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( const min::locatable_gen & var )|
+\LABEL{MIN::LOCATABLE_GEN_TO_REF_GEN} \\
+\verb|min::ptr<min::gen> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_gen}}\ARGBREAK
+      \verb|( const min::locatable_gen & var )|
+\LABEL{MIN::AMPERSAND_LOCATABLE_GEN} \\
+\end{TABULAR}
+
+\bigskip
+
 \begin{TABULAR}{2.0in}
 In compact implementation: \\
 ~~~~\verb|typedef  |
@@ -11770,9 +11954,11 @@ In loose implementation: \\
 \LABEL{MIN::LOCATABLE_NUM_GEN_TYPEDEF} \\
 \end{TABULAR}
 
+\bigskip
+
 \begin{TABULAR}{1.8in}
 \verb|(constructor) min::|
-    & \MINKEY{locatable\_var}\BRACKETED{T}\verb| ( void )|
+    & \MINKEY{locatable\_var\TARG}\verb| var ( void )|
 \LABEL{MIN::LOCATABLE_VAR} \\
 \verb|(constructor) min::|
     & \MINKEY{locatable\_var\TARG}%
@@ -11796,11 +11982,38 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
+\verb|const min::stub * |
+    & \TTOMKEY{const min::stub *}{const min::stub *}%
+              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+      \verb|( const min::locatable_var<T> & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_STUB_PTR} \\
+\verb|min::ref<T> |
+    & \TTOMKEY{min::ref<T>}{min::ref\TARG}%
+              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+      \verb|( const min::locatable_var<T> & var )|
+\LABEL{MIN::LOCATABLE_VAR_TO_REF_T} \\
+\verb|min::ptr<T> |
+    & \TTOMKEY{\&}{\&}%
+              {of {\tt min::locatable\_var\TARG}}\ARGBREAK
+      \verb|( const min::locatable_var<T> & var )|
+\LABEL{MIN::AMPERSAND_LOCATABLE_VAR} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
 \verb|typedef |
 	& \verb|min::locatable_var<min::gen>|\ARGBREAK
 	  \verb|min::|\MINKEY{locatable\_gen}
 \LABEL{MIN::LOCATABLE_GEN_TYPEDEF} \\
 \end{TABULAR}
+
+\bigskip
+
+\begin{tabular}{@{}p{6.2in}@{}}
+\TTNBKEY{MIN\_REF}\verb| ( type, name, ctype )|
+\LABEL{MIN_REF}
+\end{tabular}
 
 \end{indpar}
 
@@ -11859,6 +12072,8 @@ In loose implementation: \\
 \LABEL{MUP::NEW_ACC_STUB} \\
 \verb|min::stub * MUP::| & \MUPKEY{new\_aux\_stub}\verb| ( void )|
 \LABEL{MUP::NEW_AUX_STUB} \\
+\verb|void MUP::| & \MUPKEY{free\_aux\_stub}\verb| ( min::stub * s )|
+\LABEL{MUP::FREE_AUX_STUB} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -12047,6 +12262,10 @@ In loose implementation: \\
 \verb|void MUP::| & \MUPKEY{abort\_resize\_body}\ARGBREAK
 	     \verb|    ( MUP::resize_body & rb )| 
 \LABEL{MUP::ABORT_RESIZE_BODY} \\
+\verb|void MUP::| & \MUPKEY{retype\_resize\_body}\ARGBREAK
+	     \verb| ( MUP::resize_body & rb,|\ARGBREAK
+	     \verb|   int new_type )| 
+\LABEL{MUP::RETYPE_RESIZE_BODY} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -12550,6 +12769,759 @@ In loose implementation: \\
 \LABEL{MIN::HASH} \\
 \verb|int min::| & \MINKEY{compare}\verb| ( min::gen v1, min::gen v2 )|
 \LABEL{MIN::COMPARE} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\bigskip
+
+\INDEXHEADER{Packed Structures}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.4in}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * stub_disp = NULL )|
+\LABEL{MIN::PACKED_STRUCT_TYPE} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
+		\verb|pstype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * stub_disp = NULL )|
+\LABEL{MIN::PACKED_STRUCT_TYPE_WITH_BASE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+\verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
+\LABEL{MIN::DISP} \\
+\verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
+\LABEL{MIN::DISP_END} \\
+\end{TABULAR}
+
+\begin{TABULAR}{3.0in}
+\verb|min::gen pstype|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_struct}} \verb|( void )|
+\LABEL{PACKED_STRUCT_NEW_GEN} \\
+\verb|const min::stub * pstype|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_struct}} \verb|( void )|
+\LABEL{PACKED_STRUCT_NEW_STUB} \\
+\verb|min::uns32 pstype|
+    & \TTDMKEY{subtype}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_SUBTYPE} \\
+\verb|const char * const pstype.|
+    & \TTDMKEY{name}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_NAME} \\
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{gen\_\EOL disp}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_GEN_DISP} \\
+\verb|const min::uns32 * const pstype|
+    & \TTDMKEY{stub\_\EOL disp}{in {\tt min::packed\_struct}}
+\LABEL{PACKED_STRUCT_STUB_DISP} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\verb|min::uns32 MUP::|
+	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MUP::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
+\verb|const char * min::|
+	& \MINKEY{name\_of\_packed\_subtype}\ARGBREAK
+	  \verb|( min::uns32 subtype )|
+\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
+	  \verb| ( void )|
+\LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
+\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|min::packed_struct_ptr<S> & |
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_GEN} \\
+\verb|min::packed_struct_ptr<S> & |
+	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
+	  \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.0in}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+          \verb| ( const min::packed_struct_ptr<S> & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
+\verb|S const * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_ptr<S> & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_->} \\
+\verb|S const & |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_ptr<S> & psp )|
+\LABEL{MIN::PACKED_STRUCT_PTR_*} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
+	               \verb| ( void )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.8in}
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S>|\\
+	& \verb|        & psup,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_GEN} \\
+\verb|min::packed_struct_updptr<S> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
+	& \verb| ( min::packed_struct_updptr<S> |\\
+	& \verb|        & psup,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{0.8in}
+\verb|S * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_updptr<S> & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
+\verb|S & |
+	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
+	  \verb| ( const min::packed_struct_updptr<S> & psup )|
+\LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\bigskip
+
+\INDEXHEADER{Packed Vectors}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.4in}
+\verb|struct min::| & \MINKEY{packed\_vec\_header}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  const min::uns32 type;|\ARGBREAK
+    \verb|  const min::uns32 length;|\ARGBREAK
+    \verb|  const min::uns32 max_length;|\ARGBREAK
+    \verb|};|
+\LABEL{MIN::PACKED_VEC_HEADER} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\EARGDEFAULT} \verb|pvtype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_stub_disp = NULL )|
+\LABEL{MIN::PACKED_VEC_TYPE} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
+		\verb|pvtype|\ARGBREAK
+	  \verb| ( const char * name,|\ARGBREAK
+	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
+	  \verb|                            = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
+	  \verb|   const min::uns32 * header_stub_disp = NULL )|
+\LABEL{MIN::PACKED_VEC_TYPE_WITH_BASE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.2in}
+\verb|min::gen pvtype|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}} \verb|( void )|
+\LABEL{PACKED_VEC_NEW_GEN_VOID} \\
+\verb|const min::stub * pvtype|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}} \verb|( void )|
+\LABEL{PACKED_VEC_NEW_STUB_VOID} \\
+\verb|min::gen pvtype|
+    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
+	  \verb|   E const * vp = NULL )|
+\LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
+\verb|const min::stub * pvtype|
+    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
+	  \verb| ( min::uns32 max_length,|\ARGBREAK
+	  \verb|   min::uns32 length = 0,|\ARGBREAK
+	  \verb|   E const * vp = NULL )|
+\LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
+\end{TABULAR}
+
+\begin{TABULAR}{3.0in}
+\verb|const char * const pvtype| & \TTDMKEY{subtype}{in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_SUBTYPE} \\
+\verb|const char * const pvtype| & \TTDMKEY{name}{in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_NAME} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL gen\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL stub\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL gen\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
+\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL stub\_\EOL disp}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
+\end{TABULAR}
+
+\begin{TABULAR}{2.4in}
+\verb|min::uns32 pvtype| & \TTDMKEY{initial\_max\_length}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_INITIAL_MAX_LENGTH} \\
+\verb|min::float64 pvtype| & \TTDMKEY{increment\_ratio}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_INCREMENT_RATIO} \\
+\verb|min::uns32 pvtype| & \TTDMKEY{max\_increment}
+	                       {in {\tt min::packed\_vec}}
+\LABEL{PACKED_VEC_MAX_INCREMENT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
+\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_GEN} \\
+\verb|min::uns32 min::|
+	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_STUB} \\
+\verb|min::uns32 MUP::|
+	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
+\LABEL{MUP::PACKED_VEC_SUBTYPE_OF_STUB} \\
+\verb|const char * min::|
+	& \MINKEY{name\_of\_packed\_subtype}\ARGBREAK
+	  \verb|( min::uns32 subtype )|
+\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.4in}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
+	  \verb| ( void )|
+\LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_ptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::ptr}
+\LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.6in}
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
+	& \verb| ( min::packed_vec_ptr<E,H>|\\
+	& \verb|        & pvp,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_VEC_PTR_OF_GEN} \\
+\verb|min::packed_vec_ptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
+	& \verb| ( min::packed_vec_ptr<E,H>|\\
+	& \verb|        & pvp,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_VEC_PTR_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.0in}
+	& \TTOMKEY{min::stub}{const min::stub *}%
+	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
+          \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
+\LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
+\verb|H const * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
+	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
+\LABEL{MIN::PACKED_VEC_PTR_->} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
+\verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
+\LABEL{MIN::PACKED_VEC_PTR_[]} \\
+\verb|min::ptr<E const> pvp|
+    & \TTMKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
+\LABEL{MIN::PACKED_VEC_PTR_+} \\
+\verb|min::ptr<E const> |
+    & \MINKEY{begin\_ptr\_of}\ARGBREAK
+      \verb| ( min::packed_vec_ptr<E,H> pvp )|
+\LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
+\verb|min::ptr<E const> |
+    & \MINKEY{end\_ptr\_of}\ARGBREAK
+      \verb| ( min::packed_vec_ptr<E,H> pvp )|
+\LABEL{MIN::END_PTR_OF_PACKED_VEC_PTR} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.4in}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_updptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::updptr}
+\LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.6in}
+\verb|min::packed_vec_updptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
+	& \verb| ( min::packed_vec_updptr<E,H>|\\
+	& \verb|        & pvup,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_GEN} \\
+\verb|min::packed_vec_updptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
+	& \verb| ( min::packed_vec_updptr<E,H>|\\
+	& \verb|        & pvup,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.0in}
+\verb|H * |
+	& \TTOMKEY{-\GT}{-\GT}%
+	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
+	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
+	  \verb|      & pvup )|
+\LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|E & pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
+\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
+\verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
+    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
+\verb|min::ptr<E> pvup|
+    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
+\verb|min::ptr<E> pvup|
+    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
+\LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.4in}
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
+	  \verb| ( min::gen v )|
+\LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
+	  \verb| ( min::stub * s )|
+\LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
+(constructor)~\verb|min::|
+	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
+	               \verb|( void )|
+\LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
+\verb|typedef |
+	& \verb|min::packed_vec_insptr|{\tt \EHARG}\ARGBREAK
+	  \verb|min::|\MINKEY{packed\_vec\EHARG::insptr}
+\LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
+\end{TABULAR}
+
+\begin{TABULAR}{2.6in}
+\verb|min::packed_vec_insptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
+	& \verb| ( min::packed_vec_insptr<E,H>|\\
+	& \verb|        & pvip,|\\
+	& \verb|   min::gen v )|
+\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_GEN} \\
+\verb|min::packed_vec_insptr<E,H> & | \\
+	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
+	& \verb| ( min::packed_vec_insptr<E,H>|\\
+	& \verb|        & pvip,|\\
+	& \verb|   const min::stub * s )|
+\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|const min::uns32 pvip|
+    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
+\LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|E & min::|
+	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
+\LABEL{MIN::PACKED_VEC_PUSH} \\
+\verb|min::ref<E> min::|
+	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
+          \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
+\LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
+\verb|void min::|
+	& \MINKEY{push\RESIZE}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 n, E const * vp = NULL )|
+\LABEL{MIN::PACKED_VEC_PUSH_N} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|E min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip )|
+\LABEL{MIN::PACKED_VEC_POP} \\
+\verb|void min::|
+	& \MINKEY{pop}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 n, E * vp = NULL )|
+\LABEL{MIN::PACKED_VEC_POP_N} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.6in}
+\verb|void min::|
+	& \MINKEY{resize\RESIZE}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 max_length )|
+\LABEL{MIN::PACKED_VEC_RESIZE} \\
+\verb|void min::|
+	& \MINKEY{reserve\RESIZE}\ARGBREAK
+	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
+	  \verb|   min::uns32 reserve_length )|
+\LABEL{MIN::PACKED_VEC_RESERVE} \\
+\end{TABULAR}
+
+\end{indpar}
+
+\INDEXHEADER{Files}
+
+\begin{indpar}[0.2in]
+
+\begin{TABULAR}{1.8in}
+\verb|typedef min::|
+	& \verb|packed_struct_updptr<min::file_struct>|\ARGBREAK
+	  \verb|    min::|\MINKEY{file}
+\LABEL{MIN::FILE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{3.4in}
+\verb|min::packed_vec_insprt<char> file| & \TTARMKEY{buffer}{in {\tt min::file}}
+\LABEL{MIN::FILE_BUFFER} \\
+\verb|min::uns32 file| & \TTARMKEY{buffer-\GT length}{in {\tt min::file}}
+\LABEL{MIN::FILE_BUFFER_LENGTH} \\
+\verb|min::uns32 file| & \TTARMKEY{end\_offset}{in {\tt min::file}}
+\LABEL{MIN::FILE_END_OFFSET} \\
+\verb|min::uns32 file| & \TTARMKEY{file\_lines}{in {\tt min::file}}
+\LABEL{MIN::FILE_FILE_LINES} \\
+\verb|min::uns32 file|
+    & \TTARMKEY{next\_\EOL line\_\EOL number}{in {\tt min::file}}
+\LABEL{MIN::FILE_NEXT_LINE_NUMBER} \\
+\verb|min::uns32 file|
+    & \TTARMKEY{next\_\EOL offset}{in {\tt min::file}}
+\LABEL{MIN::FILE_NEXT_LINE_OFFSET} \\
+\verb|min::packed_vec_insptr<min::uns32> file|
+    & \TTARMKEY{line\_index}{in {\tt min::file}}
+\LABEL{MIN::FILE_LINE_INDEX} \\
+\end{TABULAR}
+
+\begin{TABULAR}{3.4in}
+\verb|min::uns32 file| & \TTARMKEY{spool\_lines}{in {\tt min::file}}
+\LABEL{MIN::FILE_SPOOL_LINES} \\
+\verb|min::uns32 file| & \TTARMKEY{print\_flags}{in {\tt min::file}}
+\LABEL{MIN::FILE_PRINT_FLAGS} \\
+\end{TABULAR}
+
+\begin{TABULAR}{3.4in}
+\verb|std::istream * file| & \TTARMKEY{istream}{in {\tt min::file}}
+\LABEL{MIN::FILE_ISTREAM} \\
+\verb|min::file file| & \TTARMKEY{ifile}{in {\tt min::file}}
+\LABEL{MIN::FILE_IFILE} \\
+\verb|std::ostream * file| & \TTARMKEY{ostream}{in {\tt min::file}}
+\LABEL{MIN::FILE_OSTREAM} \\
+\verb|min::printer file| & \TTARMKEY{printer}{in {\tt min::file}}
+\LABEL{MIN::FILE_PRINTER} \\
+\verb|min::file file| & \TTARMKEY{ofile}{in {\tt min::file}}
+\LABEL{MIN::FILE_OFILE} \\
+\verb|min::gen file| & \TTARMKEY{filename}{in {\tt min::file}}
+\LABEL{MIN::FILE_FILENAME} \\
+\end{TABULAR}
+
+
+\begin{TABULAR}{1.2in}
+\verb|void min::| & \MINKEY{init\_\EOL input\RESIZE}\ARGBREAK
+    \verb| ( min::ref<min::file> file )|
+\LABEL{MIN::INIT_INPUT_OF_FILE} \\
+\verb|void min::| & \MINKEY{init\_\EOL output\RESIZE}\ARGBREAK
+    \verb| ( min::ref<min::file> file )|
+\LABEL{MIN::INIT_OUTPUT_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{init\_print\_flags\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::uns32 print_flags )|
+\LABEL{MIN::INIT_PRINT_FLAGS_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_\EOL spool\_\EOL lines\REL}\ARGBREAK
+	     \verb| ( min::ref<min::file> file,|\ARGBREAK
+             \verb|   min::uns32 spool_lines )|
+\LABEL{MIN::INIT_SPOOL_LINES_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_\EOL file\_\EOL name\REL}\ARGBREAK
+	     \verb| ( min::ref<min::file> file,|\ARGBREAK
+             \verb|   min::gen file_name )|
+\LABEL{MIN::INIT_FILE_NAME_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{init\_output\_ostream\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   std::ostream & ostream )|
+\LABEL{MIN::INIT_OUTPUT_OSTREAM_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_output\_file\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::file ofile )|
+\LABEL{MIN::INIT_OUTPUT_FILE_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_output\_printer\REL}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::printer printer )|
+\LABEL{MIN::INIT_OUTPUT_PRINTER_OF_FILE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINNBKEY{ALL\_LINES}
+\LABEL{MIN::ALL_LINES} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{init\_input\_stream\RESIZE}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   std::istream & istream,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_STREAM_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{init\_input\_file\RESIZE}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::file ifile,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_FILE_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{init\_input\_named\_file\RESIZE}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::gen filename,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_NAMED_FILE_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|void min::|
+    & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::ptr<const char> data,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_CONST_STRING_OF_FILE} \\
+\verb|void min::|
+    & \MINKEY{init\_input\_string\RESIZE}\ARGBREAK
+          \verb| ( min::ref<min::file> file,|\ARGBREAK
+	  \verb|   min::ptr<char> data,|\ARGBREAK
+	  \verb|   min::uns32 print_flags = 0,|\ARGBREAK
+	  \verb|   min::uns32 spool_lines = min::ALL_LINES )|
+\LABEL{MIN::INIT_INPUT_STRING_OF_FILE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{2.4in}
+\verb|const min::uns32 min::| & \MINNBKEY{NO\_LINE}
+\LABEL{MIN::NO_LINE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{next\_line\RESIZE}\verb| ( min::file file )|
+\LABEL{MIN::NEXT_LINE_OF_FILE} \\
+\end{TABULAR}
+
+\bigskip
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{remaining\_\EOL offset}\verb| ( min::file file )|
+\LABEL{MIN::REMAINING_OFFSET} \\
+\verb|min::uns32 min::|
+    & \MINKEY{remaining\_\EOL length}\verb| ( min::file file )|
+\LABEL{MIN::REMAINING_LENGTH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{skip\_\EOL remaining}\verb| ( min::file file )|
+\LABEL{MIN::SKIP_REMAINING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{partial\_\EOL length}\verb| ( min::file file )|
+\LABEL{MIN::PARTIAL_LENGTH} \\
+\verb|min::uns32 min::|
+    & \MINKEY{partial\_\EOL offset}\verb| ( min::file file )|
+\LABEL{MIN::PARTIAL_OFFSET} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{file\_\EOL is\_\EOL complete}\verb| ( min::file file )|
+\LABEL{MIN::FILE_IS_COMPLETE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{line}\ARGBREAK
+	  \verb| ( min::file file,|\ARGBREAK
+	  \verb|   min::uns32 line_number )|
+\LABEL{MIN::LINE_OF_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{flush\_spool\RESIZE}\ARGBREAK
+	  \verb| ( min::file file,|\ARGBREAK
+	  \verb|   min::uns32 line_number =|\ARGBREAK
+	  \verb|       min::NO_LINE )|
+\LABEL{MIN::FLUSH_SPOOL} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{rewind}\ARGBREAK
+	\verb| ( min::file file,|\ARGBREAK
+	\verb|   min::uns32 line_number = 0 )|
+\LABEL{MIN::REWIND_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::|
+    & \MINKEY{end\_line\RESIZE}\verb| ( min::file file )|
+\LABEL{MIN::END_LINE_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|void min::|
+    & \MINKEY{end\_line\RESIZE}\ARGBREAK
+          \verb| ( min::file file,|\ARGBREAK
+	  \verb|   min::uns32 offset )|
+\LABEL{MIN::END_LINE_FILE_WITH_OFFSET} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{flush\_\EOL file\RESIZE}\verb| ( min::file file )|
+\LABEL{MIN::FLUSH_FILE} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|min::uns32 min::|
+    & \MINKEY{flush\_\EOL line\RESIZE}\ARGBREAK
+          \verb| ( min::file file,|\ARGBREAK
+	  \verb|   min::uns32 offset )|
+\LABEL{MIN::FLUSH_LINE} \\
+\verb|min::uns32 min::|
+    & \MINKEY{flush\_remaining\RESIZE}\verb| ( min::file file )|
+\LABEL{MIN::FLUSH_REMAINING} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.8in}
+\verb|std::ostream & |
+    & \TTOMKEY{<<}{\LT\LT}%
+              {of {\tt min::file}}\ARGBREAK
+      \verb| ( std::ostream & out,|\ARGBREAK
+      \verb|   min::file file )|
+\LABEL{OSTREAM_OPERATOR<<_OF_FILE} \\
+\verb|min::file |
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+              {of {\tt min::file}}\ARGBREAK
+      \verb| ( min::file ofile,|\ARGBREAK
+      \verb|   min::file ifile )|
+\LABEL{FILE_OPERATOR<<_OF_FILE} \\
+\verb|min::printer |
+    & \TTOMKEY{<<}{\LT\LT\RESIZE}%
+              {of {\tt min::file}}\ARGBREAK
+      \verb| ( min::printer printer,|\ARGBREAK
+      \verb|   min::file file )|
+\LABEL{PRINTER_OPERATOR<<_OF_FILE} \\
 \end{TABULAR}
 
 \end{indpar}
@@ -13450,479 +14422,6 @@ In loose implementation: \\
 \begin{indpar}[0.2in]
 
 \begin{TABULAR}{1.8in}
-\end{TABULAR}
-
-\end{indpar}
-
-\bigskip
-
-\INDEXHEADER{Packed Structures}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.4in}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\SARG} \verb|pstype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT_TYPE} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_with\_base\BRACKETED{S,B}}
-		\verb|pstype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * stub_disp = NULL )|
-\LABEL{MIN::PACKED_STRUCT_TYPE_WITH_BASE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-\verb|min::uns32 min::| & \MINNBKEY{DISP} \verb|( & |$S$\verb|::|$m$\verb| )|
-\LABEL{MIN::DISP} \\
-\verb|min::uns32 min::| & \MINNBKEY{DISP\_END}
-\LABEL{MIN::DISP_END} \\
-\end{TABULAR}
-
-\begin{TABULAR}{3.0in}
-\verb|min::gen pstype|
-    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_struct}} \verb|( void )|
-\LABEL{PACKED_STRUCT_NEW_GEN} \\
-\verb|const min::stub * pstype|
-    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_struct}} \verb|( void )|
-\LABEL{PACKED_STRUCT_NEW_STUB} \\
-\verb|min::uns32 pstype|
-    & \TTDMKEY{subtype}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_SUBTYPE} \\
-\verb|const char * const pstype.|
-    & \TTDMKEY{name}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_NAME} \\
-\verb|const min::uns32 * const pstype|
-    & \TTDMKEY{gen\_\EOL disp}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_GEN_DISP} \\
-\verb|const min::uns32 * const pstype|
-    & \TTDMKEY{stub\_\EOL disp}{in {\tt min::packed\_struct}}
-\LABEL{PACKED_STRUCT_STUB_DISP} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_GEN} \\
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
-\verb|min::uns32 MUP::|
-	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{MUP::PACKED_STRUCT_SUBTYPE_OF_STUB} \\
-\verb|const char * min::|
-	& \MINKEY{name\_of\_packed\_subtype}\ARGBREAK
-	  \verb|( min::uns32 subtype )|
-\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_PTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_PTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_ptr\SARG} \verb|psp|
-	  \verb| ( void )|
-\LABEL{MIN::PACKED_STRUCT_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_ptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::ptr}
-\LABEL{MIN::PACKED_STRUCT_PTR_TYPEDEF} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|min::packed_struct_ptr<S> & |
-	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
-	  \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_GEN} \\
-\verb|min::packed_struct_ptr<S> & |
-	& \TTOMKEY{=}{=}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( min::packed_struct_ptr<S> & psp,|\ARGBREAK
-	  \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_STRUCT_PTR_OF_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.0in}
-	& \TTOMKEY{min::stub}{const min::stub *}%
-	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-          \verb| ( const min::packed_struct_ptr<S> & psp )|
-\LABEL{MIN::PACKED_STRUCT_PTR_TO_MIN_STUB} \\
-\verb|S const * |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_ptr<S> & psp )|
-\LABEL{MIN::PACKED_STRUCT_PTR_->} \\
-\verb|S const & |
-	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_ptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_ptr<S> & psp )|
-\LABEL{MIN::PACKED_STRUCT_PTR_*} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_struct\_updptr\SARG} \verb|psup|\ARGBREAK
-	               \verb| ( void )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_struct_updptr|{\tt \SARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_struct\SARG::updptr}
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_TYPEDEF} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.8in}
-\verb|min::packed_struct_updptr<S> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
-	& \verb| ( min::packed_struct_updptr<S>|\\
-	& \verb|        & psup,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_GEN} \\
-\verb|min::packed_struct_updptr<S> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_struct\_updptr}}
-	& \verb| ( min::packed_struct_updptr<S> |\\
-	& \verb|        & psup,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_STRUCT_UPDPTR_OF_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{0.8in}
-\verb|S * |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_struct\_udpptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_updptr<S> & psup )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_->} \\
-\verb|S & |
-	& \TTOMKEY{*}{*}{of {\tt min::packed\_struct\_updptr}}\ARGBREAK
-	  \verb| ( const min::packed_struct_updptr<S> & psup )|
-\LABEL{MIN::PACKED_STRUCT_UPDPTR_*} \\
-\end{TABULAR}
-
-\end{indpar}
-
-\bigskip
-
-\INDEXHEADER{Packed Vectors}
-
-\begin{indpar}[0.2in]
-
-\begin{TABULAR}{1.4in}
-\verb|struct min::| & \MINKEY{packed\_vec\_header}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  const min::uns32 type;|\ARGBREAK
-    \verb|  const min::uns32 length;|\ARGBREAK
-    \verb|  const min::uns32 max_length;|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::PACKED_VEC_HEADER} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\EARGDEFAULT} \verb|pvtype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
-	  \verb|                            = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_stub_disp = NULL )|
-\LABEL{MIN::PACKED_VEC_TYPE} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_with\_base\BRACKETED{E,H,B}}
-		\verb|pvtype|\ARGBREAK
-	  \verb| ( const char * name,|\ARGBREAK
-	  \verb|   const min::uns32 * element_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * element_stub_disp|\ARGBREAK
-	  \verb|                            = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_gen_disp = NULL,|\ARGBREAK
-	  \verb|   const min::uns32 * header_stub_disp = NULL )|
-\LABEL{MIN::PACKED_VEC_TYPE_WITH_BASE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.2in}
-\verb|min::gen pvtype|
-    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}} \verb|( void )|
-\LABEL{PACKED_VEC_NEW_GEN_VOID} \\
-\verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}} \verb|( void )|
-\LABEL{PACKED_VEC_NEW_STUB_VOID} \\
-\verb|min::gen pvtype|
-    & \TTDMKEY{new\_\EOL gen}{in {\tt min::packed\_vec}}\ARGBREAK
-	  \verb| ( min::uns32 max_length,|\ARGBREAK
-	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   E const * vp = NULL )|
-\LABEL{PACKED_VEC_NEW_GEN_MAX_LENGTH} \\
-\verb|const min::stub * pvtype|
-    & \TTDMKEY{new\_\EOL stub}{in {\tt min::packed\_vec}}\ARGBREAK
-	  \verb| ( min::uns32 max_length,|\ARGBREAK
-	  \verb|   min::uns32 length = 0,|\ARGBREAK
-	  \verb|   E const * vp = NULL )|
-\LABEL{PACKED_VEC_NEW_STUB_MAX_LENGTH} \\
-\end{TABULAR}
-
-\begin{TABULAR}{3.0in}
-\verb|const char * const pvtype| & \TTDMKEY{subtype}{in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_SUBTYPE} \\
-\verb|const char * const pvtype| & \TTDMKEY{name}{in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_NAME} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL gen\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_HEADER_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{header\_\EOL stub\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_HEADER_STUB_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL gen\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_ELEMENT_GEN_DISP} \\
-\verb|const min::uns32 * const pvtype| & \TTDMKEY{element\_\EOL stub\_\EOL disp}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_ELEMENT_STUB_DISP} \\[1ex]
-\end{TABULAR}
-
-\begin{TABULAR}{2.4in}
-\verb|min::uns32 pvtype| & \TTDMKEY{initial\_max\_length}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_INITIAL_MAX_LENGTH} \\
-\verb|min::float64 pvtype| & \TTDMKEY{increment\_ratio}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_INCREMENT_RATIO} \\
-\verb|min::uns32 pvtype| & \TTDMKEY{max\_increment}
-	                       {in {\tt min::packed\_vec}}
-\LABEL{PACKED_VEC_MAX_INCREMENT} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( min::gen v )|
-\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_GEN} \\
-\verb|min::uns32 min::|
-	& \MINKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{MIN::PACKED_VEC_SUBTYPE_OF_STUB} \\
-\verb|min::uns32 MUP::|
-	& \MUPKEY{packed\_subtype\_of} \verb|( const min::stub * s )|
-\LABEL{MUP::PACKED_VEC_SUBTYPE_OF_STUB} \\
-\verb|const char * min::|
-	& \MINKEY{name\_of\_packed\_subtype}\ARGBREAK
-	  \verb|( min::uns32 subtype )|
-\LABEL{MIN::NAME_OF_PACKED_SUBTYPE} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.4in}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_VEC_PTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_PTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_ptr\EARGDEFAULT} \verb|pvp|\ARGBREAK
-	  \verb| ( void )|
-\LABEL{MIN::PACKED_VEC_PTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_ptr|{\tt \EHARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHARG::ptr}
-\LABEL{MIN::PACKED_VEC_PTR_TYPEDEF} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.6in}
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
-	& \verb| ( min::packed_vec_ptr<E,H>|\\
-	& \verb|        & pvp,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_VEC_PTR_OF_GEN} \\
-\verb|min::packed_vec_ptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_ptr}}
-	& \verb| ( min::packed_vec_ptr<E,H>|\\
-	& \verb|        & pvp,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_VEC_PTR_OF_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.0in}
-	& \TTOMKEY{min::stub}{const min::stub *}%
-	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-          \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
-\LABEL{MIN::PACKED_VEC_PTR_TO_MIN_STUB} \\
-\verb|H const * |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_vec\_ptr}}\ARGBREAK
-	  \verb| ( const min::packed_vec_ptr<E,H> & pvp )|
-\LABEL{MIN::PACKED_VEC_PTR_->} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::uns32 pvp| & \TTARMKEY{length}{in {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_LENGTH} \\
-\verb|E const & pvp| & \TTBMKEY{i}{of {\tt min::packed\_vec\_ptr}}
-\LABEL{MIN::PACKED_VEC_PTR_[]} \\
-\verb|min::ptr<E const> pvp|
-    & \TTMKEY{+}{of {\tt min::packed\_vec\_ptr}}\verb|i|
-\LABEL{MIN::PACKED_VEC_PTR_+} \\
-\verb|min::ptr<E const> |
-    & \MINKEY{begin\_ptr\_of}\ARGBREAK
-      \verb| ( min::packed_vec_ptr<E,H> pvp )|
-\LABEL{MIN::BEGIN_PTR_OF_PACKED_VEC_PTR} \\
-\verb|min::ptr<E const> |
-    & \MINKEY{end\_ptr\_of}\ARGBREAK
-      \verb| ( min::packed_vec_ptr<E,H> pvp )|
-\LABEL{MIN::END_PTR_OF_PACKED_VEC_PTR} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.4in}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_updptr\EARGDEFAULT} \verb|pvup|\ARGBREAK
-	               \verb|( void )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_updptr|{\tt \EHARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHARG::updptr}
-\LABEL{MIN::PACKED_VEC_UPDPTR_TYPEDEF} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.6in}
-\verb|min::packed_vec_updptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
-	& \verb| ( min::packed_vec_updptr<E,H>|\\
-	& \verb|        & pvup,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_GEN} \\
-\verb|min::packed_vec_updptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_updptr}}
-	& \verb| ( min::packed_vec_updptr<E,H>|\\
-	& \verb|        & pvup,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_VEC_UPDPTR_OF_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.0in}
-\verb|H * |
-	& \TTOMKEY{-\GT}{-\GT}%
-	          {of {\tt min::packed\_vec\_updptr}}\ARGBREAK
-	  \verb| ( const min::packed_vec_updptr<E,H>|\ARGBREAK
-	  \verb|      & pvup )|
-\LABEL{MIN::PACKED_VEC_UPDPTR_->} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|E & pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
-    \hspace*{1.0in} [if \verb|E| \underline{not} locatable]
-\LABEL{MIN::PACKED_VEC_UPDPTR_[]} \\
-\verb|min::ref<E> pvup| & \TTBMKEY{i}{of {\tt min::packed\_vec\_updptr}}
-    \hspace*{1.0in} [if \verb|E| \underline{is} locatable]
-\LABEL{MIN::PACKED_VEC_OF_STUB_PTR_UPDPTR_[]} \\
-\verb|min::ptr<E> pvup|
-    & \TTDMKEY{begin\_ptr()}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_BEGIN_PTR} \\
-\verb|min::ptr<E> pvup|
-    & \TTDMKEY{end\_ptr()}{of {\tt min::packed\_vec\_updptr}}
-\LABEL{MIN::PACKED_VEC_UPDPTR_END_PTR} \\
-\end{TABULAR}
-
-\bigskip
-
-\begin{TABULAR}{1.4in}
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
-	  \verb| ( min::gen v )|
-\LABEL{MIN::PACKED_VEC_INSPTR_OF_GEN} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
-	  \verb| ( min::stub * s )|
-\LABEL{MIN::PACKED_VEC_INSPTR_OF_STUB} \\
-(constructor)~\verb|min::|
-	& \MINKEY{packed\_vec\_insptr\EARGDEFAULT} \verb|pvip|\ARGBREAK
-	               \verb|( void )|
-\LABEL{MIN::PACKED_VEC_INSPTR_OF_VOID} \\
-\verb|typedef |
-	& \verb|min::packed_vec_insptr|{\tt \EHARG}\ARGBREAK
-	  \verb|min::|\MINKEY{packed\_vec\EHARG::insptr}
-\LABEL{MIN::PACKED_VEC_INSPTR_TYPEDEF} \\
-\end{TABULAR}
-
-\begin{TABULAR}{2.6in}
-\verb|min::packed_vec_insptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
-	& \verb| ( min::packed_vec_insptr<E,H>|\\
-	& \verb|        & pvip,|\\
-	& \verb|   min::gen v )|
-\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_GEN} \\
-\verb|min::packed_vec_insptr<E,H> & | \\
-	\TTOMKEY{=}{=}{of {\tt min::packed\_vec\_insptr}}
-	& \verb| ( min::packed_vec_insptr<E,H>|\\
-	& \verb|        & pvip,|\\
-	& \verb|   const min::stub * s )|
-\LABEL{MIN::=_PACKED_VEC_INSPTR_OF_STUB} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.8in}
-\verb|const min::uns32 pvip|
-    & \TTARMKEY{max\_\EOL length}{in {\tt min::packed\_vec\_insptr}}
-\LABEL{MIN::PACKED_VEC_INSPTR_MAX_LENGTH} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|E & min::|
-	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
-	  \hspace*{0.1in} [if \verb|E| \underline{not} locatable]
-\LABEL{MIN::PACKED_VEC_PUSH} \\
-\verb|min::ref<E> min::|
-	& \MINKEY{push\RESIZE} \verb| ( packed_vec_insptr<E,H> pvip )|\\&
-          \hspace*{0.1in} [if \verb|E| \underline{is} locatable]
-\LABEL{MIN::PACKED_VEC_PUSH_OF_LOCATABLE} \\[2ex]
-\verb|void min::|
-	& \MINKEY{push\RESIZE}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, E const * vp = NULL )|
-\LABEL{MIN::PACKED_VEC_PUSH_N} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|E min::|
-	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip )|
-\LABEL{MIN::PACKED_VEC_POP} \\
-\verb|void min::|
-	& \MINKEY{pop}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 n, E * vp = NULL )|
-\LABEL{MIN::PACKED_VEC_POP_N} \\
-\end{TABULAR}
-
-\begin{TABULAR}{1.6in}
-\verb|void min::|
-	& \MINKEY{resize\RESIZE}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 max_length )|
-\LABEL{MIN::PACKED_VEC_RESIZE} \\
-\verb|void min::|
-	& \MINKEY{reserve\RESIZE}\ARGBREAK
-	  \verb| ( packed_vec_insptr<E,H> pvip,|\ARGBREAK
-	  \verb|   min::uns32 reserve_length )|
-\LABEL{MIN::PACKED_VEC_RESERVE} \\
 \end{TABULAR}
 
 \end{indpar}
