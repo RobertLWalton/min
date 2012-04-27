@@ -8,13 +8,6 @@
 # domain; they make no warranty and accept no liability
 # for this program.
 #
-# RCS Info (may not be true date or author):
-#
-#   $Author: walton $
-#   $Date: 2010/08/01 11:23:40 $
-#   $RCSfile: Makefile,v $
-#   $Revision: 1.34 $
-
 # We need the following to mask RCS lines
 #
 D = $$
