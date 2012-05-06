@@ -235,7 +235,7 @@
 
 \author{Robert L. Walton}
 
-\date{April 19, 2012}
+\date{May 6, 2012}
  
 \maketitle
 
@@ -6441,6 +6441,9 @@ accomplished by the following:
 \verb|const min::uns32 printer|
     & \TTARMKEY{break\_column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_BREAK_COLUMN} \\
+\verb|const min::break_stack printer|
+    & \TTARMKEY{break\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_BREAK_STACK} \\
 \end{tabular}\end{indpar}
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -6515,6 +6518,11 @@ If there is no break point in the current line, this equals {\tt 0}.
 Otherwise it is the column of the
 first byte in the current line after the last break point in the line.
 Initialized to {\tt 0}.
+
+\item[\ttmkey{break\_\EOL stack}{in {\tt min::printer}}]
+Used with {\tt min::push\_break} and {\tt min::pop\_break} to set
+multiple break points when printing nested lists.  See \pagref{BREAK-STACK}
+for details.
 
 \end{itemlist}
 
@@ -6619,7 +6627,8 @@ The {\tt min::printer\_parameters} members are:
 
 \begin{itemlist}
 
-\item[\ttmkey{line\_length}{in {\tt min::printer\_parameters}}]
+\item[\ttmkey{line\_length}{in {\tt min::printer\_parameters}}]%
+\label{LINE-LENGTH}
 When a character representative other that single space or horizontal
 tab is to be inserted into the line, and this would cause the number
 of columns in the line to exceed the {\tt line\_length}, then if a
@@ -6628,12 +6637,26 @@ break point exists and
 \verb|printer->break_column > printer->parameters.indent|
 \end{center}
 then a break, consisting of a line end followed by indentation spaces,
-is pushed into the printer file buffer before the character representative.
-Any space characters before the break are deleted.
+is inserted into the printer file buffer just after
+{\tt printer->break\_offset}.
+
+Horizontal space
+characters immediately before the inserted line end are deleted.
+After the break is inserted, {\tt break\_\EOL column} is reset to
+the number of indentation spaces
+and {\tt break\_\EOL offset} to the first position after
+the inserted indentation spaces.
 
 Breaks may be inserted automatically by using
 {\tt min::\EOL HBREAK\_\EOL FLAG} or
 {\tt min::\EOL BBREAK\_\EOL FLAG}: see below.
+
+If a non-empty {\tt break\_stack} exists
+because a {\tt min::\EOL push\_\EOL break} was executed,
+then elements of the break stack may override
+{\tt break\_\EOL column} and {\tt break\_\EOL offset} and
+cause {\tt indent} (see below) to be reset.
+See \pagref{BREAK-STACK} for details.
 
 \item[\ttmkey{ indent}{in {\tt min::printer\_parameters}}]
 When a break is automatically pushed into a printer file buffer, the
@@ -6959,6 +6982,12 @@ printer->break_offset = printer->buffer->length;
 printer->break_column = printer->column;
 \end{verbatim}\end{indpar}
 
+One typically sets a break just before printing text that one wants
+to appear all on one line.  Then if the text extends beyond the
+limits defined by the printer {\tt line\_\EOL length}, a line end
+will be inserted at the break point.  See {\tt line\_\EOL length}
+on \pagref{LINE-LENGTH} for details.
+
 The {\tt min::left} and {\tt min::right} operations can be used to
 left or right adjust text in a line:
 
@@ -6992,6 +7021,11 @@ columns remaining in a line:
 Here the line break consists of a {\tt min::eol} end of line followed
 by {\tt parameters.indent} single spaces followed by setting a break
 with {\tt min::\EOL setbreak}.
+
+When you set a break for a {\tt min::left} or {\tt min::\EOL right}
+operation you may want to do a {\tt min::\EOL reserve} first.
+Unless you do, an adjustment
+that extends beyond the printer {\tt line\_\EOL length} may format badly.
 
 The {\tt min::indent} operation forces a line break if the current
 printer column is greater than {\tt parameters.indent}, and otherwise inserts
@@ -7260,6 +7294,62 @@ line terminating NULs are translated to {\tt min::\EOL eol}
 operations.  Also note that the operation to undo the results
 of {\tt min::\EOL verbatim} does not exist (you must push and pop
 the parameters).
+
+The {\tt break\_stack}\label{BREAK-STACK}
+allows the setting of multiple simultaneous break points,
+modifies what happens when exceeding the {\tt line\_\EOL length}
+triggers a line break, and
+is specialized to printing nested lists.
+It is assumed that a list header exists preceeded by a list header
+break point and followed by a list indentation
+point which is used as the indentation inside the list.
+The first break needed inside the list uses the list header break
+point, but thereafter this break point is never reused.  When and
+if it is used, however, it resets {\tt indent} to the list indentation
+point.  At the end of the list {\tt indent} is restored to its
+pre-list value, and the list break point is forgotten.
+
+This is implemented by a {\tt break\_stack} with
+{\tt break\_\EOL entry} elements:
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|struct min::| & \MINKEY{break\_entry}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32 break_offset;|\ARGBREAK
+    \verb|  min::uns32 break_column;|\ARGBREAK
+    \verb|  min::uns32 break_indent;|\ARGBREAK
+    \verb|  min::uns32 saved_indent;|\ARGBREAK
+    \verb|  bool used;|\ARGBREAK
+    \verb|};|
+\ttmindex{break\_offset}{in {\tt min::break\_entry}}
+\ttmindex{break\_column}{in {\tt min::break\_entry}}
+\ttmindex{break\_indent}{in {\tt min::break\_entry}}
+\ttmindex{saved\_indent}{in {\tt min::break\_entry}}
+\ttmindex{used}{in {\tt min::break\_entry}}
+\LABEL{MIN::BREAK_ENTRY_STRUCT} \\
+\end{tabular}\end{indpar}
+
+\begin{indpar}[1em]\begin{tabular}{r@{}l}
+\verb|typedef min::|
+	& \verb|packed_vec_ptr<min::break_entry>|
+	  \verb|    min::|\MINKEY{break\_stack}
+\LABEL{MIN::BREAK_STACK} \\
+\end{tabular}\end{indpar}
+
+When the {\tt break\_stack} is empty it has no effect on
+printing.
+
+The {\tt min::push\_break} operation pushes an entry into
+the break stack.  The current printer {\tt break\_\EOL offset},
+{\tt break\_\EOL column}, {\tt column}, and {\tt indent}
+are copied into the entry, with {\tt column} becoming the entry
+{\tt break\_\EOL indent} and {\tt indent} becoming the entry
+{\tt saved\_\EOL indent}.  The {\tt used} entry member is set to
+{\tt false}.
+
+The {\tt min::pop\_break} operation pops an entry from
+the stack and sets the printer {\tt indent} to the value of
+the popped entry's {\tt saved\_\EOL indent} member.
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -13580,6 +13670,9 @@ In loose implementation: \\
 \verb|const min::uns32 printer|
     & \TTARMKEY{break\_column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_BREAK_COLUMN} \\
+\verb|const min::break_stack printer|
+    & \TTARMKEY{break\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_BREAK_STACK} \\
 \verb|min::printer_parameters printer|
     & \TTARMKEY{parameters}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_PARAMETERS} \\
