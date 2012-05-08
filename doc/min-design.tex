@@ -6596,7 +6596,7 @@ The {\tt file->buffer} index of the
 first byte in the current line after the last break point in the line.
 Initialized to {\tt 0}.
 
-\item[\ttmkey{line\_length}{in {\tt min::printer\_parameters}}]%
+\item[\ttmkey{line\_length}{in {\tt min::printer}}]%
 \label{LINE-LENGTH}
 Nominal maximum line length in columns.  Initialized to {\tt 72}.
 
@@ -6630,7 +6630,7 @@ then elements of the break stack may override
 {\tt indent} (but not {\tt line\_length}).
 See \pagref{BREAK-STACK} for details.
 
-\item[\ttmkey{ indent}{in {\tt min::printer\_parameters}}]
+\item[\ttmkey{ indent}{in {\tt min::printer}}]
 Indention of a new line created by automatic break insertion.
 Initialized to {\tt 4}.
 
@@ -6649,7 +6649,7 @@ See \pagref{BREAK-STACK} for details.
 
 \begin{itemlist}
 
-\item[\ttmkey{forma\_flags}{in {\tt min::printer\_parameters}}]%
+\item[\ttmkey{format\_flags}{in {\tt min::printer}}]%
 \label{FORMAT_FLAGS}
 The following flag bits control printing.  Some of these
 flags affect only certain categories of characters, which are
@@ -6672,10 +6672,10 @@ with codes {\tt > 0x7F}.
 
 \begin{indpar}\begin{itemlist}[1.4in]
 
-\item[\ttnbmkey{GRAPHIC\_HSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
-\item[\ttnbmkey{GRAPHIC\_VSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]%
+\item[\ttnbmkey{GRAPHIC\_HSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]
+\item[\ttnbmkey{GRAPHIC\_VSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
 \vspace{-1ex}
-\item[\ttnbmkey{GRAPHIC\_NSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]%
+\item[\ttnbmkey{GRAPHIC\_NSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
 \vspace{-1ex}
 {\raggedright~\\}
 {\tt GRAPHIC\_XXX} causes all characters in class {\tt XXX} to be
@@ -6706,7 +6706,7 @@ For example, single space prints as {\tt \textvisiblespace} and
 line feed as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 All these character representations take exactly 1 column.
 
-\item[\ttnbmkey{GRAPHIC\_FLAGS}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{GRAPHIC\_FLAGS}{in printer {\tt format\_\EOL flags}}]
 The sum of the {\tt min::GRAPHIC\_XXX} format flags:
 \begin{indpar}
 \tt
@@ -6715,7 +6715,7 @@ min::GRAPHIC\_VSPACE \\
 min::GRAPHIC\_NSPACE
 \end{indpar}
 
-\item[\ttnbmkey{ASCII\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{ASCII\_FLAG}{in printer {\tt format\_\EOL flags}}]
 This controls the printing of non-ASCII UNICODE characters, and in
 graphics mode, the printing of ASCII control characters.
 
@@ -6743,10 +6743,10 @@ the `\key{white frowning face}%
 \index{face, white frowning}',
 \ILLEGALCHAR.
 
-\item[\ttnbmkey{ALLOW\_HSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]
-\item[\ttnbmkey{ALLOW\_VSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]%
+\item[\ttnbmkey{ALLOW\_HSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]
+\item[\ttnbmkey{ALLOW\_VSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
 \vspace{-1ex}
-\item[\ttnbmkey{ALLOW\_NSPACE\_FLAG}{{\tt min::printer\_parameters} flag}]%
+\item[\ttnbmkey{ALLOW\_NSPACE\_FLAG}{in printer {\tt format\_\EOL flags}}]%
 \vspace{-1ex}
 {\raggedright~\\}
 If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is off,
@@ -6769,18 +6769,18 @@ by the empty string: i.e., they do not output anything.
 If the {\tt GRAPHIC\_\EOL XXX\_\EOL FLAG} is on the
 {\tt ALLOW\_\EOL XXX\_\EOL FLAG} flag has no affect.
 
-\item[\ttnbmkey{DISPLAY\_EOL\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{DISPLAY\_EOL\_FLAG}{in printer {\tt format\_\EOL flags}}]
 If this flag is on, the end of line prints as a graphic mode control
 character (even if the {\tt GRAPHIC\_FLAG} is off).
 If the {\tt ASCII\_FLAG} is on, it prints as
 {\tt <LF>}.  Otherwise it prints as {\tiny $\stackrel{\textstyle N~}{~L}$}.
 
-\item[\ttnbmkey{HBREAK\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{HBREAK\_FLAG}{in printer {\tt format\_\EOL flags}}]
 If this flag is on, a line break is automatically set
 before every non-single space, non-horizontal tab character that
 follows a single space or horizontal tab character.
 
-\item[\ttnbmkey{GBREAK\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{GBREAK\_FLAG}{in printer {\tt format\_\EOL flags}}]
 If this flag is on, a line break is automatically set
 just before and just after every character
 representative that prints a mark.  This applies to space and control
@@ -6791,7 +6791,7 @@ A non-control, non-space character followed by a
 \key{diacritical combining mark} is considered to represent one character if
 printed in non-ascii mode.
 
-\item[\ttnbmkey{EOL\_FLUSH\_FLAG}{{\tt min::printer\_parameters} flag}]
+\item[\ttnbmkey{EOL\_FLUSH\_FLAG}{in printer {\tt format\_\EOL flags}}]
 If this flag is on, a {\tt min::flush()} printer operation is
 executed at the very end of a {\tt min::\EOL eol} or
 {\tt min::\EOL eom} printer operation.
@@ -6799,9 +6799,8 @@ executed at the very end of a {\tt min::\EOL eol} or
 \end{itemlist}\end{indpar}
 
 \begin{itemlist}
-\item[\ttmkey{format}{in {\tt min::printer\_parameters}}]
-The {\tt format}
-controls the printing of
+\item[\ttmkey{pgen\_format}{in printer {\tt format\_\EOL flags}}]
+Controls the printing of
 {\tt min::gen} values as described in Section \itemref{PRINTING-GENERAL-VALUES}.
 
 \item[\ttmkey{format\_\EOL stack}{in {\tt min::printer}}]
@@ -7211,10 +7210,10 @@ print as
 
 After printing the 34 characters
 \begin{center}
-\tt \BRA aaa, bbb, [ ccc, ddd, eee, ( fff
+\tt \BRA aaa, bbb, [ ccc, ddd, eee, ( fff, ggg )
 \end{center}
 a break is triggered just before printing the `{\tt ,}' following
-`{\tt fff}'.  The first element in the break stack was pushed
+`{\tt ggg)}'.  The first element in the break stack was pushed
 just after printing `{\tt \BRA~}'% }
 and is disabled as it is at the beginning of line.
 The second element was pushed just after printing `{\tt [~}' and is
@@ -7231,14 +7230,15 @@ element of the stack, and it is expected that
 {\tt min::\EOL eol} will be explicitly executed after
 {\tt min::\EOL restore\_\EOL break}.
 
-TBD
-
-The \key{end of message} operation ends the current line,
+The \key{end of message} operation executes {\tt min::\EOL restore\_\EOL break}
+operations until the break stack is empty, then executes a {\tt min::\EOL eol}
+operation, then
 flushes {\tt printer->\EOL file}
 if {\tt min::\EOL EOL\_\EOL FLUSH\_\EOL FLAG} is set,
-and restores the parameters from the {\tt save\_\EOL parameters}
-stack.  The \key{beginning of message} operation is just a
-synonym for pushing the parameters.
+and lastly executes a {\tt min::\EOL restore\_\EOL format} operation.
+The \key{beginning of message} operation executes both a
+a {\tt min::\EOL save\_\EOL break}
+and a {\tt min::\EOL save\_\EOL format} operation.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{bom}
@@ -7250,10 +7250,18 @@ synonym for pushing the parameters.
 The idea is that
 a message that consists of several lines with special flags set
 can be bracketed by {\tt min::bom} and {\tt min::eom}
-to restore parameters at the end of the message.
+to restore formats at the end of the message.
+Furthermore if {\tt min::\EOL bom} is executed after a message
+header such as `{\tt ERROR: }', the message body will be indented
+by the size of the header.
+
+{\tt min::bom} will set {\tt indent} to the current value of {\tt column},
+but if a smaller indent is desired, it can be set by following
+{\tt min::\EOL bom} with {\tt min::\EOL set\_\EOL indent}
+(\pagref{MIN::SET_INDENT}).
 
 {\tt min::gen} values may be printed under the control of a
-{\tt min::\EOL printer\_\EOL format}.  As printing objects
+{\tt min::\EOL pgen\_\EOL format}.  As printing objects
 can be complex, printing {\tt min::gen} values is
 described in the separate Section~\itemref{PRINTING-GENERAL-VALUES}.
 
@@ -7274,14 +7282,14 @@ can be printed using the following operations:
 
 Sometimes it is desirable to find out how many columns a
 single UNICODE character will take for a given value of
-{\tt parameters.flags}.  For the horizontal tab character,
+{\tt format\_\EOL flags}.  For the horizontal tab character,
 this depends upon the column the character is printed in.
 So the following function updates a {\tt column} variable
 whose initial value is that of {\tt printer->column}
 before a UNICODE character is printed with
 {\tt printer << min::\EOL punicode~(~c~)}
 and whose final value is {\tt printer->\EOL column}
-after the character is printed.  Here {\tt printer->\EOL parameters.flags}
+after the character is printed.  Here {\tt printer->\EOL format\_\EOL flags}
 must be input to the function.
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7330,13 +7338,10 @@ printed by using the following operations:
 \LABEL{MIN::PFLOAT} \\
 \end{tabular}\end{indpar}
 
-The components of a printer {\tt parameters} member may be set
+Printer parameters may be set
 by the following operations:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
-\verb|min::op min::|
-    & \MINKEY{set\_\EOL format}\verb| ( min::printer_format * format )|
-\LABEL{MIN::SET_FORMAT} \\
 \verb|min::op min::|
     & \MINKEY{set\_\EOL line\_length}\verb| ( min::uns32 line_length )|
 \LABEL{MIN::SET_LINE_LENGTH} \\
@@ -7349,12 +7354,16 @@ by the following operations:
 \verb|min::op min::|
     & \MINKEY{clear\_format\_flags}\verb| ( min::uns32 format_flags )|
 \LABEL{MIN::CLEAR_FORMAT_FLAGS} \\
+\verb|min::op min::|
+    & \MINKEY{set\_\EOL pgen\_\EOL format}%
+      \verb| ( min::printer_format * format )|
+\LABEL{MIN::SET_PGEN_FORMAT} \\
 \end{tabular}\end{indpar}
 
 For example, `{\tt printer<<min::set\_flags(min::ASCII\_FLAG)}'
-sets the {\tt ASCII\_FLAG} of {\tt para\-meters.flags}.
+sets the {\tt ASCII\_FLAG} of {\tt for\-mat\_\EOL flags}.
 
-Particular {\tt parameters->flags} may be set and cleared by the
+Particular {\tt format\_\EOL flags} may be set and cleared by the
 following
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
@@ -7416,7 +7425,7 @@ following
 \end{tabular}\end{indpar}
 
 For example, `{\tt printer<<min::ascii}' sets the
-{\tt printer->\EOL parameters.flags} {\tt min::\EOL ASCII\_\EOL FLAG}
+{\tt printer->\EOL format\_\EOL flags} {\tt min::\EOL ASCII\_\EOL FLAG}
 and `{\tt printer<<\EOL min::\EOL noascii}' clears this flag.
 
 There are several operations that set and clear several flags each:
@@ -7473,7 +7482,7 @@ from some {\tt printer->\EOL file}
 line terminating NULs are translated to {\tt min::\EOL eol}
 operations.  Also note that the operation to undo the results
 of {\tt min::\EOL verbatim} does not exist (you must push and pop
-the parameters).
+the format).
 
 \subsection{Printing General Values}
 \label{PRINTING-GENERAL-VALUES}
@@ -7494,7 +7503,7 @@ this format explicitly:
 The expression `{\tt printer<<min::pgen(v,f)}' prints the {\tt min::gen}
 value \verb|v| to the printer {\tt printer} using the
 {\tt min::\EOL printer\_\EOL format} value pointed at by {\tt f}.
-If {\tt f} is {\tt NULL}, {\tt printer->\EOL parameters.for\-mat} is used
+If {\tt f} is {\tt NULL}, {\tt printer->\EOL format\_EOL flags} is used
 instead.  If that is also {\tt NULL},
 {\tt \&\,min::default\_\EOL printer\_\EOL format} is used.
 
@@ -14053,10 +14062,11 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{1.4in}
+\begin{TABULAR}{1.2in}
 \verb|min::op min::|
-    & \MINKEY{set\_\EOL format}\verb| ( min::printer_format * format )|
-\LABEL{MIN::SET_FORMAT} \\
+    & \MINKEY{set\_\EOL pgen\_\EOL format}%
+      \verb| ( min::printer_format * format )|
+\LABEL{MIN::SET_PGEN_FORMAT} \\
 \verb|min::op min::|
     & \MINKEY{set\_\EOL line\_length}\verb| ( min::uns32 line_length )|
 \LABEL{MIN::SET_LINE_LENGTH} \\
