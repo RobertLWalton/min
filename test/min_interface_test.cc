@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Mar  7 06:43:37 EST 2012
+// Date:	Wed May  9 08:42:06 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2265,8 +2265,8 @@ void test_printer ( void )
     MIN_ASSERT ( printer->column == 16 );
     MIN_ASSERT ( printer->break_column == 7 );
     printer << " ";
+    MIN_ASSERT ( printer->break_column == 7 );
     MIN_ASSERT ( printer->column == 17 );
-    MIN_ASSERT ( printer->break_column == 17 );
     printer << "\t";
     MIN_ASSERT ( printer->column == 24 );
     printer << "A";
@@ -2281,7 +2281,7 @@ void test_printer ( void )
     printer << "\tab\t";
     MIN_ASSERT ( printer->file->end_offset == 41 );
     MIN_ASSERT ( printer->column == 8 );
-    MIN_ASSERT ( printer->break_column == 8 );
+    MIN_ASSERT ( printer->break_column == 4 );
     printer << "123456789012345678901234567890";
     MIN_ASSERT ( printer->file->end_offset == 48 );
     MIN_ASSERT ( printer->column == 34 );

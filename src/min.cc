@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  4 07:07:46 EDT 2012
+// Date:	Wed May  9 07:54:48 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7319,7 +7319,7 @@ static void insert_line_break ( min::printer printer )
 	// Notes: Use memmove instead of memcpy.
 	//        Also do NOT move 0 bytes as then
 	//        source address is off the end of
-	// 	      the vector is and not legal.
+	// 	      the vector and is not legal.
 	//
 	if ( movelen > 0 )
 	    memmove ( & buffer[begoff+indent+1],
@@ -7412,6 +7412,17 @@ min::printer MINT::print_unicode
 	( ( flags & min::HBREAK_FLAG ) != 0 );
 
     char temp[32];
+
+    char lastc = ( buffer->length == 0 ? 0 :
+                   buffer[buffer->length - 1] );
+    bool force_gbreak =
+        ( gbreak
+	  ||
+	  ( hbreak
+	    &&
+	    ( lastc == ' '
+	      ||
+	      lastc == '\t' ) ) );
     while ( n -- )
     {
         uns32 c = * str ++;
@@ -7422,21 +7433,18 @@ min::printer MINT::print_unicode
 	//
 	if ( 0x20 < c && c < 0x7F )
 	{
-	    /* Common case: ASCII graphic character.
-	     */
-	    if ( printer->column >= line_length )
+	    /* Common case: ASCII graphic character. */
+
+	    if ( force_gbreak )
 	    {
-		if ( gbreak )
-		{
-		    printer->break_offset =
-		        buffer->length;
-		    printer->break_column =
-		        printer->column;
-		}
-		if (   printer->break_column
-		     > indent )
-		    ::insert_line_break ( printer );
+		printer->break_offset = buffer->length;
+		printer->break_column = printer->column;
 	    }
+
+	    if ( printer->column >= line_length
+	         &&
+		 printer->break_column > indent )
+		::insert_line_break ( printer );
 	   
 	    min::push(buffer) = (char) c;
 	    ++ printer->column;
@@ -7444,13 +7452,14 @@ min::printer MINT::print_unicode
 	    if ( gbreak
 	         &&
 		 (    n == 0
-		   || ! is_diacritic ( * str ) ) )
+		   || ! ::is_diacritic ( * str ) ) )
 	    {
-	        printer->break_offset =
-		    buffer->length;
-	        printer->break_column =
-		    printer->column;
+	        printer->break_offset = buffer->length;
+	        printer->break_column = printer->column;
+		force_gbreak = false;
 	    }
+	    else
+		force_gbreak = gbreak;
 
 	    continue;
 	}
@@ -7462,14 +7471,7 @@ min::printer MINT::print_unicode
 	    {
 		++ printer->column;
 		min::push(buffer) = ' ';
-
-		if ( hbreak )
-		{
-		    printer->break_offset =
-		        buffer->length;
-		    printer->break_column =
-		        printer->column;
-		}
+		force_gbreak = gbreak || hbreak;
 		
 		continue;
 	    }
@@ -7489,13 +7491,7 @@ min::printer MINT::print_unicode
 		    min::push
 			( buffer, spaces, "        " );
 
-		if ( hbreak )
-		{
-		    printer->break_offset =
-		        buffer->length;
-		    printer->break_column =
-		        printer->column;
-		}
+		force_gbreak = gbreak || hbreak;
 
 		continue;
 	    }
@@ -7507,7 +7503,10 @@ min::printer MINT::print_unicode
 	    else
 	    {
 	        if ( flags & min::ALLOW_VSPACE_FLAG )
+		{
 		    min::push(buffer) = (char) c;
+		    force_gbreak = gbreak;
+		}
 
 		continue;
 	    }
@@ -7528,6 +7527,8 @@ min::printer MINT::print_unicode
 			    2, NUL_UTF8_ENCODING );
 		    else
 			min::push(buffer) = (char) c;
+
+		    force_gbreak = gbreak;
 		}
 
 		continue;
@@ -7580,31 +7581,32 @@ min::printer MINT::print_unicode
 		               ( p, c );
 		}
 	    }
-	   
-	    if (   printer->column + columns
-	         > line_length )
+
+	    if ( force_gbreak && ! is_diacritic )
 	    {
-		if ( gbreak && ! is_diacritic )
-		{
-		    printer->break_offset =
-		        buffer->length;
-		    printer->break_column =
-		        printer->column;
-		}
-		if ( printer->break_column > indent )
-		    ::insert_line_break ( printer );
+		printer->break_offset = buffer->length;
+		printer->break_column = printer->column;
 	    }
+	   
+	    if ( printer->column + columns > line_length
+		 &&
+		 printer->break_column > indent )
+		::insert_line_break ( printer );
 	   
 	    min::push ( buffer, len, rep );
 	    printer->column += columns;
 
-	    if ( gbreak )
+	    if ( gbreak
+	         &&
+		 (    n == 0
+		   || ! ::is_diacritic ( * str ) ) )
 	    {
-	        printer->break_offset =
-		    buffer->length;
-	        printer->break_column =
-		    printer->column;
+	        printer->break_offset = buffer->length;
+	        printer->break_column = printer->column;
+		force_gbreak = false;
 	    }
+	    else
+		force_gbreak = gbreak;
 
 	    continue;
 	}
@@ -7631,33 +7633,27 @@ min::printer MINT::print_unicode
 	    len = ::strlen ( rep );
 	    columns = 1;
 	}
-       
-	if (   printer->column + columns
-	     > line_length )
+
+	if ( force_gbreak )
 	{
-	    if ( gbreak )
-	    {
-		printer->break_offset =
-		    buffer->length;
-		printer->break_column =
-		    printer->column;
-	    }
-	    if (   printer->break_column
-		 > indent )
-		::insert_line_break
-		    ( printer );
+	    printer->break_offset = buffer->length;
+	    printer->break_column = printer->column;
 	}
+       
+	if ( printer->column + columns > line_length
+	     &&
+	     printer->break_column > indent )
+	    ::insert_line_break ( printer );
        
 	min::push ( buffer, len, rep );
 	printer->column += columns;
 
 	if ( gbreak )
 	{
-	    printer->break_offset =
-		buffer->length;
-	    printer->break_column =
-		printer->column;
+	    printer->break_offset = buffer->length;
+	    printer->break_column = printer->column;
 	}
+	force_gbreak = false;
     }
 
     return printer;
@@ -7739,7 +7735,7 @@ void MINT::pwidth
 		column += 3;
 	    }
 	}
-	else if ( ! is_diacritic ( c ) )
+	else if ( ! ::is_diacritic ( c ) )
 	    ++ column;
 
 	return;
