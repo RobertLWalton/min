@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 07:54:48 EDT 2012
+// Date:	Fri May 11 00:46:19 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7415,14 +7415,8 @@ min::printer MINT::print_unicode
 
     char lastc = ( buffer->length == 0 ? 0 :
                    buffer[buffer->length - 1] );
-    bool force_gbreak =
-        ( gbreak
-	  ||
-	  ( hbreak
-	    &&
-	    ( lastc == ' '
-	      ||
-	      lastc == '\t' ) ) );
+    bool hspace_precedes =
+	( lastc == ' ' || lastc == '\t' );
     while ( n -- )
     {
         uns32 c = * str ++;
@@ -7435,7 +7429,9 @@ min::printer MINT::print_unicode
 	{
 	    /* Common case: ASCII graphic character. */
 
-	    if ( force_gbreak )
+	    if ( gbreak
+	         ||
+		 ( hbreak && hspace_precedes ) )
 	    {
 		printer->break_offset = buffer->length;
 		printer->break_column = printer->column;
@@ -7448,18 +7444,7 @@ min::printer MINT::print_unicode
 	   
 	    min::push(buffer) = (char) c;
 	    ++ printer->column;
-
-	    if ( gbreak
-	         &&
-		 (    n == 0
-		   || ! ::is_diacritic ( * str ) ) )
-	    {
-	        printer->break_offset = buffer->length;
-	        printer->break_column = printer->column;
-		force_gbreak = false;
-	    }
-	    else
-		force_gbreak = gbreak;
+	    hspace_precedes = false;
 
 	    continue;
 	}
@@ -7469,9 +7454,17 @@ min::printer MINT::print_unicode
 	        ; // Drop through
 	    else
 	    {
+		if ( gbreak && ! hspace_precedes )
+		{
+		    printer->break_offset =
+		        buffer->length;
+		    printer->break_column =
+		        printer->column;
+		}
+
 		++ printer->column;
 		min::push(buffer) = ' ';
-		force_gbreak = gbreak || hbreak;
+		hspace_precedes = true;
 		
 		continue;
 	    }
@@ -7482,6 +7475,14 @@ min::printer MINT::print_unicode
 	        ; // Drop through
 	    else
 	    {
+		if ( gbreak && ! hspace_precedes )
+		{
+		    printer->break_offset =
+		        buffer->length;
+		    printer->break_column =
+		        printer->column;
+		}
+
 	        uns32 spaces = 8 - printer->column % 8;
 		printer->column += spaces;
 
@@ -7490,8 +7491,7 @@ min::printer MINT::print_unicode
 		else
 		    min::push
 			( buffer, spaces, "        " );
-
-		force_gbreak = gbreak || hbreak;
+		hspace_precedes = true;
 
 		continue;
 	    }
@@ -7505,7 +7505,7 @@ min::printer MINT::print_unicode
 	        if ( flags & min::ALLOW_VSPACE_FLAG )
 		{
 		    min::push(buffer) = (char) c;
-		    force_gbreak = gbreak;
+		    hspace_precedes = false;
 		}
 
 		continue;
@@ -7527,8 +7527,7 @@ min::printer MINT::print_unicode
 			    2, NUL_UTF8_ENCODING );
 		    else
 			min::push(buffer) = (char) c;
-
-		    force_gbreak = gbreak;
+		    hspace_precedes = false;
 		}
 
 		continue;
@@ -7582,7 +7581,11 @@ min::printer MINT::print_unicode
 		}
 	    }
 
-	    if ( force_gbreak && ! is_diacritic )
+	    if ( columns > 0  // ASCII or non-diacritic
+	         &&
+		 ( gbreak
+		   ||
+		   ( hbreak && hspace_precedes ) ) )
 	    {
 		printer->break_offset = buffer->length;
 		printer->break_column = printer->column;
@@ -7596,17 +7599,7 @@ min::printer MINT::print_unicode
 	    min::push ( buffer, len, rep );
 	    printer->column += columns;
 
-	    if ( gbreak
-	         &&
-		 (    n == 0
-		   || ! ::is_diacritic ( * str ) ) )
-	    {
-	        printer->break_offset = buffer->length;
-	        printer->break_column = printer->column;
-		force_gbreak = false;
-	    }
-	    else
-		force_gbreak = gbreak;
+	    hspace_precedes = false;
 
 	    continue;
 	}
@@ -7634,12 +7627,12 @@ min::printer MINT::print_unicode
 	    columns = 1;
 	}
 
-	if ( force_gbreak )
+	if ( gbreak || ( hbreak && hspace_precedes ) )
 	{
 	    printer->break_offset = buffer->length;
 	    printer->break_column = printer->column;
 	}
-       
+
 	if ( printer->column + columns > line_length
 	     &&
 	     printer->break_column > indent )
@@ -7647,13 +7640,7 @@ min::printer MINT::print_unicode
        
 	min::push ( buffer, len, rep );
 	printer->column += columns;
-
-	if ( gbreak )
-	{
-	    printer->break_offset = buffer->length;
-	    printer->break_column = printer->column;
-	}
-	force_gbreak = false;
+	hspace_precedes = false;
     }
 
     return printer;

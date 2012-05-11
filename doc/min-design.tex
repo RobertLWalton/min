@@ -235,7 +235,7 @@
 
 \author{Robert L. Walton}
 
-\date{May 8, 2012}
+\date{May 11, 2012}
  
 \maketitle
 
@@ -6384,7 +6384,7 @@ way values are written to {\tt std::\EOL ostream}'s.  A special
 printer line end operation writes a line terminating {\tt NUL}
 at the end of the printer file buffer, and optionally flushes the file.
 
-The MIN system has a per-process printer to hold error messages:
+The MIN system has a per-thread printer to hold error messages:
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|min::locatable_var<min::printer> min::| & \MINKEY{error\_\EOL message}
 \LABEL{MIN::ERROR_MESSAGE}%
@@ -6565,8 +6565,8 @@ Both initialization functions return the printer, which is
 sometimes convenient, as in the code often used 
 with {\tt min::\EOL error\_\EOL message}: see \pagref{ERROR_MESSAGE_EXAMPLE}.
 
-The members of a printer may be read but \underline{not} written, unless
-noted below.  They are:
+The members of a printer may be read but \underline{not} written.
+They are:
 
 \begin{itemlist}[0.8in]
 
@@ -6621,7 +6621,7 @@ the inserted indentation spaces.
 
 Break points may be inserted automatically by using
 {\tt min::\EOL HBREAK\_\EOL FLAG} or
-{\tt min::\EOL BBREAK\_\EOL FLAG}: see below.
+{\tt min::\EOL GBREAK\_\EOL FLAG}: see below.
 
 If a non-empty {\tt break\_stack} exists
 because a {\tt min::\EOL save\_\EOL break} was executed,
@@ -6632,6 +6632,7 @@ See \pagref{BREAK-STACK} for details.
 
 \item[\ttmkey{ indent}{in {\tt min::printer}}]
 Indention of a new line created by automatic break insertion.
+Also used by the {\tt min::\EOL indent} operation (\pagref{MIN::INDENT}).
 Initialized to {\tt 4}.
 
 Specifically, when
@@ -6642,8 +6643,8 @@ break consists of a line end ({\tt NUL} character) followed by
 \item[\ttmkey{break\_\EOL stack}{in {\tt min::printer}}]
 Used with {\tt min::save\_break} and {\tt min::restore\_break} to set
 multiple break points when printing nested lists.
-Initialized to {\tt min::\EOL NULL\_\EOL STUB}.
 See \pagref{BREAK-STACK} for details.
+Initialized to {\tt min::\EOL NULL\_\EOL STUB}.
 
 \end{itemlist}
 
@@ -6664,8 +6665,8 @@ defined as follows:
     Non-Space Control Characters: all other characters
 with codes {\tt < 0x20}, including line feed and carriage return, \\
 plus the delete character with code {\tt 0x7f}
-\item[] Non-ASCII Characters: characters
-with codes {\tt > 0x7F}.
+\item[\ttnbmkey{ASCII}{character category}] ASCII Characters: characters
+with codes {\tt <= 0x7F}.
 \end{itemlist}
 
 \end{itemlist}
@@ -6716,10 +6717,12 @@ min::GRAPHIC\_NSPACE
 \end{indpar}
 
 \item[\ttnbmkey{ASCII\_FLAG}{in printer {\tt format\_\EOL flags}}]
-This controls the printing of non-ASCII UNICODE characters, and in
-graphics mode, the printing of ASCII control characters.
+Used in graphics mode to control the printing of ASCII control characters:
+see {\tt GRAPHIC\_XXX\_FLAG}'s above.
 
-If the {\tt ASCII\_FLAG} is on,
+Also controls the printing of non-ASCII UNICODE characters as follows:
+
+If the {\tt ASCII\_FLAG} is on (this is known as being in \key{ASCII mode}),
 non-ASCII characters are printed as `{\tt <XXXX>}', where
 {\tt XXXX} represents the character code in hexadecimal,
 and consists of some non-zero number of hexadecimal digits.
@@ -6777,19 +6780,22 @@ If the {\tt ASCII\_FLAG} is on, it prints as
 
 \item[\ttnbmkey{HBREAK\_FLAG}{in printer {\tt format\_\EOL flags}}]
 If this flag is on, a line break is automatically set
-before every non-single space, non-horizontal tab character that
-follows a single space or horizontal tab character.
+before every character representation that
+follows a single space or horizontal tab character,
+except for representations of ASCII control characters in non-graphic mode
+(this includes horizontal and vertical spaces)
+and UNICODE \skey{diacritical combining mark}s in non-ASCII mode.
 
 \item[\ttnbmkey{GBREAK\_FLAG}{in printer {\tt format\_\EOL flags}}]
 If this flag is on, a line break is automatically set
-just before and just after every character
-representative that prints a mark.  This applies to space and control
-characters printed in graphic mode, but not to these characters
-printed in non-graphic mode.
-
-A non-control, non-space character followed by a
-\key{diacritical combining mark} is considered to represent one character if
-printed in non-ascii mode.
+before every character representation
+except for representations of ASCII vertical space and non-space
+control characters in non-graphic mode,
+representations of ASCII horizontal control characters (single space
+and horizontal tab) in non-graphic
+if these are preceded by representations of ASCII horizontal control
+characters in non-graphic mode,
+and UNICODE diacritical combining marks in non-ASCII mode.
 
 \item[\ttnbmkey{EOL\_FLUSH\_FLAG}{in printer {\tt format\_\EOL flags}}]
 If this flag is on, a {\tt min::flush()} printer operation is
@@ -6806,8 +6812,8 @@ Controls the printing of
 \item[\ttmkey{format\_\EOL stack}{in {\tt min::printer}}]
 Used with {\tt min::save\_format} and {\tt min::restore\_format} to save and
 restore format parameters.
-Initialized to {\tt min::\EOL NULL\_\EOL STUB}.
 See \pagref{FORMAT-STACK} for details.
+Initialized to {\tt min::\EOL NULL\_\EOL STUB}.
 
 \end{itemlist}
 
@@ -13797,37 +13803,30 @@ In loose implementation: \\
 \LABEL{MIN::PRINTER_FILE} \\
 \verb|const min::uns32 printer| & \TTARMKEY{column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_COLUMN} \\
+\end{TABULAR}
+
+\begin{TABULAR}{3.0in}
 \verb|const min::uns32 printer|
     & \TTARMKEY{break\_offset}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_BREAK_OFFSET} \\
 \verb|const min::uns32 printer|
     & \TTARMKEY{break\_column}{in {\tt min::printer}}
 \LABEL{MIN::PRINTER_BREAK_COLUMN} \\
-\verb|const min::break_stack printer|
-    & \TTARMKEY{break\_stack}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_BREAK_STACK} \\
-\verb|min::printer_parameters printer|
-    & \TTARMKEY{parameters}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_PARAMETERS} \\
-\verb|min::printer_parameters printer|
-    & \TTARMKEY{saved\_\EOL parameters[8]}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_SAVED_PARAMETERS} \\
 \verb|const min::uns32 printer|
-    & \TTARMKEY{save\_index}{in {\tt min::printer}}
-\LABEL{MIN::PRINTER_SAVE_INDEX} \\
+    & \TTARMKEY{line\_length}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_LINE_LENGTH} \\
+\verb|const min::uns32 printer|
+    & \TTARMKEY{indent}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_INDENT} \\
 \end{TABULAR}
 
-\bigskip
-
-\begin{TABULAR}{1.8in}
-\verb|struct min::| & \MINKEY{printer\_parameters}\ARGBREAK
-    \verb|{|\ARGBREAK
-    \verb|  const min::printer_format * format;|\ARGBREAK
-    \verb|  min::uns32 line_length;|\ARGBREAK
-    \verb|  min::uns32 indent;|\ARGBREAK
-    \verb|  min::uns32 flags;|\ARGBREAK
-    \verb|};|
-\LABEL{MIN::PRINTER_PARAMETERS_STRUCT} \\
+\begin{TABULAR}{3.0in}
+\verb|min::uns32 printer|
+    & \TTARMKEY{format\_flags}{in {\tt min::printer}}
+\LABEL{MIN::FORMAT_FLAGS} \\
+\verb|min::pgen_format printer_format|
+    & \TTARMKEY{pgen\_format}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_PGEN_FORMAT} \\
 \end{TABULAR}
 
 \bigskip
@@ -13876,18 +13875,39 @@ In loose implementation: \\
 
 \bigskip
 
-\begin{TABULAR}{0.5in}
-\multicolumn{2}{l}{\tt const min::printer\_parameters
-                       min::\MINKEY{default\_printer\_parameters} =}\ARGBREAK
+\begin{TABULAR}{4.2in}
+\verb|const min::packed_vec_insptr<min::break> printer|
+    & \TTARMKEY{break\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_LINE_BREAK_STACK} \\
+\verb|const min::packed_vec_insptr<min::format> printer|
+    & \TTARMKEY{format\_stack}{in {\tt min::printer}}
+\LABEL{MIN::PRINTER_FORMAT_STACK} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|struct min::| & \MINKEY{break}\ARGBREAK
     \verb|{|\ARGBREAK
-    \verb|  & min::default_printer_format,   // format|\ARGBREAK
-    \verb|  72,                              // line_length|\ARGBREAK
-    \verb|  4,                               // indent|\ARGBREAK
-    \verb|    min::HBREAK_FLAG               // flags|\ARGBREAK
-    \verb|  + min::ALLOW_VSPACE_FLAG|\ARGBREAK
-    \verb|  // Additional members may be added.|\ARGBREAK
+    \verb|  min::uns32 break_offset;|\ARGBREAK
+    \verb|  min::uns32 break_column;|\ARGBREAK
+    \verb|  min::uns32 line_length;|\ARGBREAK
+    \verb|  min::uns32 indent;|\ARGBREAK
     \verb|};|
-\LABEL{MIN::DEFAULT_PRINTER_PARAMETERS}
+\ttmindex{line\_length}{in {\tt min::break}}
+\ttmindex{indent}{in {\tt min::break}}
+\ttmindex{break\_offset}{in {\tt min::break}}
+\ttmindex{break\_column}{in {\tt min::break}}
+\LABEL{MIN::BREAK_STRUCT} \\
+\end{TABULAR}
+
+\begin{TABULAR}{1.2in}
+\verb|struct min::| & \MINKEY{format}\ARGBREAK
+    \verb|{|\ARGBREAK
+    \verb|  min::uns32 flags;|\ARGBREAK
+    \verb|  const min::pgen_format * pgen_format;|\ARGBREAK
+    \verb|};|
+\ttmindex{flags}{in {\tt min::format}}
+\ttmindex{pgen\_format}{in {\tt min::format}}
+\LABEL{MIN::FORMAT_STRUCT} \\
 \end{TABULAR}
 
 \bigskip
