@@ -2,7 +2,7 @@
 //
 // File:	min_interface_test.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed May  9 08:42:06 EDT 2012
+// Date:	Sat May 12 05:21:44 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -2254,18 +2254,18 @@ void test_printer ( void )
     min::init_output_stream ( printer, std::cout );
     min::resize ( printer->file->buffer, 16*1024 );
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 )
             << min::set_line_length ( 16 )
             << "123456 123456789";
     MIN_ASSERT
-        ( printer->parameters.line_length == 16 );
+        ( printer->line_break.line_length == 16 );
     MIN_ASSERT
-        ( printer->parameters.indent == 4 );
+        ( printer->line_break.indent == 4 );
     MIN_ASSERT ( printer->file->end_offset == 0 );
     MIN_ASSERT ( printer->column == 16 );
-    MIN_ASSERT ( printer->break_column == 7 );
+    MIN_ASSERT ( printer->line_break.column == 7 );
     printer << " ";
-    MIN_ASSERT ( printer->break_column == 7 );
+    MIN_ASSERT ( printer->line_break.column == 7 );
     MIN_ASSERT ( printer->column == 17 );
     printer << "\t";
     MIN_ASSERT ( printer->column == 24 );
@@ -2274,14 +2274,14 @@ void test_printer ( void )
     MIN_ASSERT ( printer->column == 5 );
     printer << " B C D E F";
     MIN_ASSERT ( printer->column == 15 );
-    MIN_ASSERT ( printer->break_column == 14 );
+    MIN_ASSERT ( printer->line_break.column == 14 );
     printer << "1234";
     MIN_ASSERT ( printer->file->end_offset == 31 );
     MIN_ASSERT ( printer->column == 9 );
     printer << "\tab\t";
     MIN_ASSERT ( printer->file->end_offset == 41 );
     MIN_ASSERT ( printer->column == 8 );
-    MIN_ASSERT ( printer->break_column == 4 );
+    MIN_ASSERT ( printer->line_break.column == 4 );
     printer << "123456789012345678901234567890";
     MIN_ASSERT ( printer->file->end_offset == 48 );
     MIN_ASSERT ( printer->column == 34 );
@@ -2294,9 +2294,10 @@ void test_printer ( void )
                  == printer->file->buffer->length );
     MIN_ASSERT ( printer->column == 0 );
     MIN_ASSERT
-        ( printer->parameters.line_length == 72 );
+        ( printer->line_break.line_length == 72 );
 
-    printer << min::bom << min::gbreak
+    printer << min::bom << min::set_indent ( 4 ) 
+            << min::gbreak
             << min::graphic << min::ascii
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
@@ -2305,7 +2306,7 @@ void test_printer ( void )
 		   "\040\177\200\300"
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::gbreak << min::graphic
             << "\300\200\001\002\003\004\005\006\007"
                    "\010\011\012\013\014\015\016\017"
@@ -2324,56 +2325,59 @@ void test_printer ( void )
     * bp = 0;
 
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
             << buffer
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
             << min::ascii << buffer
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
             << min::gbreak << min::graphic << buffer
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 40 )
             << min::ascii << min::gbreak << min::graphic
 	    << buffer
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::display_eol << "hello"
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::ascii
             << min::display_eol << "hello"
             << min::eom;
 
-    printer << min::bom << min::nohbreak;
+    printer << min::bom << min::set_indent ( 4 ) 
+            << min::nohbreak;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::right ( 4 );
     printer << min::eom;
 
-    printer << min::bom << min::nohbreak;
+    printer << min::bom << min::set_indent ( 4 ) 
+            << min::nohbreak;
     for ( min::uns32 i = 0; i < 100; ++ i )
         printer << i << min::left ( 4 );
     printer << min::eom;
 
-    printer << min::push_parameters;
-    MIN_ASSERT ( printer->parameters.indent == 4 );
+    printer << min::save_line_break
+            << min::set_indent ( 4 );
+    MIN_ASSERT ( printer->line_break.indent == 4 );
     printer << min::set_indent ( 8 );
-    MIN_ASSERT ( printer->parameters.indent == 8 );
-    printer << min::pop_parameters;
-    MIN_ASSERT ( printer->parameters.indent == 4 );
+    MIN_ASSERT ( printer->line_break.indent == 8 );
+    printer << min::restore_line_break;
+    MIN_ASSERT ( printer->line_break.indent == 4 );
 
     printer << "A" << min::indent << "B"
             << min::indent << "C" << min::eol;
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
             << min::set_line_length ( 10 )
 	    << min::indent << "A B "
 	    << min::reserve ( 4 ) << "C D "
@@ -2390,16 +2394,16 @@ void test_printer ( void )
 	* ubp ++ = c;
     }
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
     	    << min::set_line_length ( 40 )
             << min::punicode ( ubp - ubuffer, ubuffer )
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
     	    << min::punicode ( min::ILLEGAL_UTF8 )
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
     	    << min::set_line_length ( 20 )
             << min::nohbreak
             <<  "int32 -1 = " << (min::int32) -1
@@ -2415,7 +2419,7 @@ void test_printer ( void )
             << "char 'A' = " << (char) 'A'
             << min::eom;
 
-    printer << min::bom
+    printer << min::bom << min::set_indent ( 4 ) 
     	    << min::set_line_length ( 20 )
             << min::nohbreak
             <<  "pint ( -3, \"%05d\" ) = "
@@ -2499,31 +2503,32 @@ void test_printer ( void )
 		        << min::VSIZE ) )
             << min::eol;
 
-    min::printer_format f = min::default_printer_format;
+    min::gen_format f = min::default_gen_format;
     f.special_prefix = "{";
     f.special_postfix = "}";
     printer << min::bom
             << min::pgen ( min::MISSING() ) << " "
-            << min::set_format ( & f )
+            << min::set_gen_format ( & f )
 	    << min::pgen ( min::MISSING() ) << " "
 	    << min::pgen
 	           ( min::MISSING(),
-		     & min::default_printer_format )
+		     & min::default_gen_format )
             << min::eom;
 
-    printer << min::push_parameters
+    printer << min::save_print_format
             << min::noeol_flush
 	    << "The line being flushed" << min::eol;
     std::cout << "A flush is next:" << std::endl;
     printer << min::flush;
-    printer << min::pop_parameters;
+    printer << min::restore_print_format;
 
     min::uns32 column;
-    printer << min::push_parameters;
+    printer << min::save_print_format;
 #   define WTEST(c) \
 	printer << min::punicode ( c ); \
 	min::pwidth \
-	    ( column, c, printer->parameters.flags ); \
+	    ( column, c, \
+	      printer->print_format.flags ); \
 	MIN_ASSERT ( printer->column == column );
 
     MIN_ASSERT ( printer->column == 0 );
@@ -2575,7 +2580,7 @@ void test_printer ( void )
     WTEST ( min::ILLEGAL_UTF8 );
     printer << min::eol;
 
-    printer << min::pop_parameters;
+    printer << min::restore_print_format;
 
     // Tests of files and printers.
 

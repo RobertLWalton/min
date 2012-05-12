@@ -2,7 +2,7 @@
 //
 // File:	min.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Apr  4 08:16:30 EDT 2012
+// Date:	Sat May 12 04:16:15 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -11171,7 +11171,7 @@ namespace min {
 
 namespace min {
 
-    struct printer_format
+    struct gen_format
     {
     	uns32	             flags;
         const char *         number_format;
@@ -11190,7 +11190,7 @@ namespace min {
 	const uns32 *        space_postfix_mask;
 	min::printer     ( * pstub )
 	    ( min::printer printer,
-	      const min::printer_format * format,
+	      const min::gen_format * gen_format,
 	      const min::stub * s );
 	// Additional members may be added.
     };
@@ -11208,37 +11208,51 @@ namespace min {
 	POSTFIX_SEPARATOR_FLAG		= ( 1 << 1 )
     };
 
-    extern const printer_format default_printer_format;
+    extern const gen_format default_gen_format;
 
-    struct printer_parameters
+    struct line_break
     {
-        const printer_format * format;
+	uns32 offset;
+	uns32 column;
 	uns32 line_length;
 	uns32 indent;
-	uns32 flags;
     };
 
-    extern const printer_parameters
-	default_printer_parameters;
+    extern const line_break default_line_break;
 
-    const uns32 saved_parameters_stack_size = 8;
+    typedef min::packed_vec_insptr<min::line_break>
+        line_break_stack;
+
+    struct print_format
+    {
+	uns32 flags;
+        const min::gen_format * gen_format;
+    };
+
+    extern const print_format default_print_format;
+
+    typedef min::packed_vec_insptr<min::print_format>
+        print_format_stack;
+
     struct printer_struct
     {
         const uns32 control;
 
 	const min::file file;
-
-	printer_parameters parameters;
-	printer_parameters saved_parameters
-	    [saved_parameters_stack_size];
-	uns32 save_index;
-
 	uns32 column;
-	uns32 break_offset;
-	uns32 break_column;
+
+	min::line_break line_break;
+	min::print_format print_format;
+
+	min::line_break_stack line_break_stack;
+	min::print_format_stack print_format_stack;
     };
 
     MIN_REF ( min::file, file, min::printer )
+    MIN_REF ( min::line_break_stack,
+              line_break_stack, min::printer )
+    MIN_REF ( min::print_format_stack,
+              print_format_stack, min::printer )
 
     enum {
         GRAPHIC_HSPACE_FLAG	= ( 1 << 0 ),
@@ -11273,14 +11287,16 @@ namespace min {
 	    PINT,
 	    PUNS,
 	    PFLOAT,
-	    SET_FORMAT,
 	    SET_LINE_LENGTH,
 	    SET_INDENT,
+	    SET_GEN_FORMAT,
 	    SET_FLAGS,
 	    CLEAR_FLAGS,
 	    VERBATIM,
-	    PUSH_PARAMETERS,
-	    POP_PARAMETERS,
+	    SAVE_LINE_BREAK,
+	    RESTORE_LINE_BREAK,
+	    SAVE_PRINT_FORMAT,
+	    RESTORE_PRINT_FORMAT,
 	    EOL,
 	    FLUSH,
 	    BOM,
@@ -11307,7 +11323,7 @@ namespace min {
 	    : opcode ( opcode ) {}
 	op ( op::OPCODE opcode,
 	     min::gen v,
-	     const printer_format * f )
+	     const gen_format * f )
 	    : opcode ( opcode )
 	{
 	    v1.g = unprotected::value_of ( v );
@@ -11352,10 +11368,10 @@ namespace min {
 	    v1.p = (void *) out;
 	}
 	op ( op::OPCODE opcode,
-	     const printer_format * format )
+	     const min::gen_format * gen_format )
 	    : opcode ( opcode )
 	{
-	    v1.p = (void *) format;
+	    v1.p = (void *) gen_format;
 	}
 
     };
@@ -11370,9 +11386,10 @@ namespace min {
 
     inline op pgen
 	    ( min::gen v,
-              const printer_format * format = NULL )
+              const min::gen_format * gen_format =
+	          NULL )
     {
-        return op ( op::PGEN, v, format );
+        return op ( op::PGEN, v, gen_format );
     }
 
     inline op punicode ( min::uns32 c )
@@ -11408,56 +11425,51 @@ namespace min {
         return op ( op::PFLOAT, f, printf_format );
     }
 
-    inline op set_format
-	    ( const printer_format * format )
-    {
-        return op ( op::SET_FORMAT, format );
-    }
-
-    inline op set_line_length
-	    ( uns32 line_length )
+    inline op set_line_length ( uns32 line_length )
     {
         return op ( op::SET_LINE_LENGTH, line_length );
     }
 
-    inline op set_indent
-	    ( uns32 indent )
+    inline op set_indent ( uns32 indent )
     {
         return op ( op::SET_INDENT, indent );
     }
 
-    inline op set_flags
-	    ( uns32 flags )
+    inline op set_flags ( uns32 flags )
     {
         return op ( op::SET_FLAGS, flags );
     }
 
-    inline op clear_flags
-	    ( uns32 flags )
+    inline op clear_flags ( uns32 flags )
     {
         return op ( op::CLEAR_FLAGS, flags );
     }
 
-    inline op left
-	    ( uns32 width )
+    inline op set_gen_format
+	    ( const min::gen_format * gen_format )
+    {
+        return op ( op::SET_GEN_FORMAT, gen_format );
+    }
+
+    inline op left ( uns32 width )
     {
         return op ( op::LEFT, width );
     }
 
-    inline op right
-	    ( uns32 width )
+    inline op right ( uns32 width )
     {
         return op ( op::RIGHT, width );
     }
 
-    inline op reserve
-	    ( uns32 width )
+    inline op reserve ( uns32 width )
     {
         return op ( op::RESERVE, width );
     }
 
-    extern const op push_parameters;
-    extern const op pop_parameters;
+    extern const op save_line_break;
+    extern const op restore_line_break;
+    extern const op save_print_format;
+    extern const op restore_print_format;
 
     extern const op eol;
     extern const op flush;
@@ -11636,16 +11648,19 @@ namespace min { namespace test {
     struct ogen
     {
         min::gen g;
-	const min::printer_format * format;
+	const min::gen_format * gen_format;
 	ogen ( min::gen g,
-	       const min::printer_format * format
-	           = & min::default_printer_format )
-	    : g ( g ), format ( format ) {}
+	       const min::gen_format * gen_format
+	           = & min::default_gen_format )
+	    : g ( g ), gen_format ( gen_format ) {}
     };
 } }
 
-// out << ogen ( g, format ) is used only for test pur-
-// poses in contexts where printer < pgen ( g, format )
+// out << ogen ( g, gen_format ) is used only for test
+// purposes in contexts where
+//
+//	printer < pgen ( g, gen_format )
+//
 // should not be used because packed vectors have not
 // been tested or may be defective.  Asside from the
 // difference between `out' and `printer', the other

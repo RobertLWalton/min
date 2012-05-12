@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri May 11 00:46:19 EDT 2012
+// Date:	Sat May 12 04:16:27 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -1903,7 +1903,7 @@ min::uns32 min::print_line
 	}
     }
 
-    printer << min::push_parameters
+    printer << min::save_print_format
             << min::clear_flags
 	            (   min::HBREAK_FLAG
 		      + min::GBREAK_FLAG
@@ -1930,11 +1930,13 @@ min::uns32 min::print_line
     if ( eof )
     {
         if ( end_of_file ) printer << end_of_file;
-	printer << min::pop_parameters << min::eol;
+	printer << min::restore_print_format
+	        << min::eol;
     }
     else
     {
-	printer << min::eol << min::pop_parameters;
+	printer << min::eol
+	        << min::restore_print_format;
 	if ( print_flags & min::DISPLAY_EOL_FLAG )
 	    width +=
 	        ( print_flags & min::ASCII_FLAG ?
@@ -2043,7 +2045,7 @@ min::printer operator <<
         min::str_ptr sp ( file->file_name );
 	printer << sp << ": ";
     }
-    printer << min::push_parameters
+    printer << min::save_print_format
             << min::nohbreak;
 
     if ( pline_numbers.first == pline_numbers.last )
@@ -2052,7 +2054,7 @@ min::printer operator <<
         printer << "lines " << pline_numbers.first + 1
 	        << "-" << pline_numbers.last + 1;
 
-    return printer << min::pop_parameters;
+    return printer << min::restore_print_format;
 }
 
 void min::flush_file ( min::file file )
@@ -2089,10 +2091,10 @@ void min::flush_line
     }
 
     if ( file->printer != NULL_STUB )
-        file->printer << min::push_parameters
+        file->printer << min::save_print_format
 		      << min::verbatim
 		      << & file->buffer[offset]
-		      << min::pop_parameters
+		      << min::restore_print_format
 		      << min::eol;
 }
 
@@ -2116,10 +2118,10 @@ void min::flush_remaining ( min::file file )
 
     if ( file->printer != NULL_STUB )
     {
-        file->printer << min::push_parameters
+        file->printer << min::save_print_format
 		      << min::verbatim
 		      << & file->buffer[offset]
-		      << min::pop_parameters;
+		      << min::restore_print_format;
     }
 
     min::pop ( file->buffer );
@@ -2244,7 +2246,7 @@ min::file operator <<
 min::printer operator <<
 	( min::printer printer, min::file file )
 {
-    printer << min::push_parameters
+    printer << min::save_print_format
 	    << min::verbatim;
 
     while ( true )
@@ -2254,16 +2256,16 @@ min::printer operator <<
 	printer << & file->buffer[offset] << min::eol;
     }
 
-    printer << min::pop_parameters;
+    printer << min::restore_print_format;
 
     if ( file->next_offset < file->buffer->length )
     {
 	min::push(file->buffer) = 0;
-	printer << min::push_parameters
+	printer << min::save_print_format
 		<< min::verbatim
 	        << & file->buffer
 		         [file->next_offset]
-		<< min::pop_parameters;
+		<< min::restore_print_format;
 	min::pop ( file->buffer );
 	file->next_offset = file->buffer->length;
     }
@@ -6712,8 +6714,7 @@ bool MINT::flip_flag
 
 min::locatable_var<min::printer> min::error_message;
 
-const min::printer_format
-    min::default_printer_format =
+const min::gen_format min::default_gen_format =
 {
     0,
     "%.15g",
@@ -6726,13 +6727,15 @@ const min::printer_format
     NULL
 };
 
-const min::printer_parameters
-    min::default_printer_parameters =
+const min::line_break min::default_line_break =
 {
-    & min::default_printer_format,
-    72,
-    4,
-    min::HBREAK_FLAG + min::ALLOW_VSPACE_FLAG
+    0, 0, 72, 4
+};
+
+const min::print_format min::default_print_format =
+{
+    min::HBREAK_FLAG + min::ALLOW_VSPACE_FLAG,
+    & min::default_gen_format
 };
 
 // Return true iff c is combining diacritic.
@@ -6825,6 +6828,14 @@ static void init_utf8graphic ( void )
 
 static char NUL_UTF8_ENCODING[2] = { 0xC0, 0x80 };
 
+static min::packed_vec<min::line_break>
+    line_break_stack_type
+        ( "min::line_break_stack_type" );
+
+static min::packed_vec<min::print_format>
+    print_format_stack_type
+        ( "min::print_format_stack_type" );
+
 static min::uns32 printer_stub_disp[2] =
     { min::DISP ( & min::printer_struct::file ),
       min::DISP_END };
@@ -6848,6 +6859,18 @@ min::printer min::init
 	}
 
         printer = ::printer_type.new_stub();
+	line_break_stack_ref ( printer ) =
+	    ::line_break_stack_type.new_stub();
+	print_format_stack_ref ( printer ) =
+	    ::print_format_stack_type.new_stub();
+    }
+    else
+    {
+        min::pop ( printer->line_break_stack,
+	           printer->line_break_stack->length );
+        min::pop ( printer->print_format_stack,
+	           printer->print_format_stack
+		          ->length );
     }
 
     if ( file != NULL_STUB )
@@ -6856,11 +6879,8 @@ min::printer min::init
 	init_input ( file_ref(printer) );
 
     printer->column = 0;
-    printer->break_offset = 0;
-    printer->break_column = 0;
-    printer->save_index = 0;
-    printer->parameters =
-	min::default_printer_parameters;
+    printer->line_break = min::default_line_break;
+    printer->print_format = min::default_print_format;
 
     return printer;
 }
@@ -6878,8 +6898,8 @@ template < typename T >
 static void print_obj
 	( T out,
 	  const min::stub * s,
-	  const min::printer_format * f, 
-	  T (*pstub) ( T, const min::printer_format * f,
+	  const min::gen_format * f, 
+	  T (*pstub) ( T, const min::gen_format * f,
 	                  const min::stub *) )
 {
     int type = min::type_of ( s );
@@ -6895,8 +6915,8 @@ template < typename T >
 static T print_gen
 	( T out,
 	  min::gen v,
-	  const min::printer_format * f, 
-	  T (*pstub) ( T, const min::printer_format * f,
+	  const min::gen_format * f, 
+	  T (*pstub) ( T, const min::gen_format * f,
 	                  const min::stub *) )
 {
     if ( v == min::new_stub_gen ( MINT::null_stub ) )
@@ -7002,7 +7022,7 @@ static void end_line ( min::printer printer )
 
     // Add displayed eol.
     //
-    min::uns32 flags = printer->parameters.flags;
+    min::uns32 flags = printer->print_format.flags;
     if ( flags & min::DISPLAY_EOL_FLAG )
     {
 	const char * rep;
@@ -7017,8 +7037,8 @@ static void end_line ( min::printer printer )
     min::end_line ( printer->file );
 
     printer->column = 0;
-    printer->break_offset = buffer->length;
-    printer->break_column = 0;
+    printer->line_break.offset = buffer->length;
+    printer->line_break.column = 0;
 }
 
 static void insert_line_break
@@ -7033,12 +7053,12 @@ min::printer operator <<
     {
     case min::op::PGEN:
     {
-	const min::printer_format * f =
-	    (min::printer_format *) op.v2.p;
+	const min::gen_format * f =
+	    (min::gen_format *) op.v2.p;
 	if  ( f == NULL )
-	    f = printer->parameters.format;
+	    f = printer->print_format.gen_format;
 	if  ( f == NULL )
-	    f = & min::default_printer_format;
+	    f = & min::default_gen_format;
 
 	return print_gen<min::printer>
 	    ( printer,
@@ -7064,28 +7084,28 @@ min::printer operator <<
 	sprintf ( buffer, (const char *) op.v2.p,
 			  op.v1.f64 );
 	return printer << buffer;
-    case min::op::SET_FORMAT:
-	printer->parameters.format =
-	    (const min::printer_format *) op.v1.p;
-	return printer;
     case min::op::SET_LINE_LENGTH:
-	printer->parameters.line_length = op.v1.u32;
+	printer->line_break.line_length = op.v1.u32;
 	return printer;
     case min::op::SET_INDENT:
-	printer->parameters.indent = op.v1.u32;
+	printer->line_break.indent = op.v1.u32;
+	return printer;
+    case min::op::SET_GEN_FORMAT:
+	printer->print_format.gen_format =
+	    (const min::gen_format *) op.v1.p;
 	return printer;
     case min::op::SET_FLAGS:
-	printer->parameters.flags |= op.v1.u32;
+	printer->print_format.flags |= op.v1.u32;
 	return printer;
     case min::op::CLEAR_FLAGS:
-	printer->parameters.flags &= ~ op.v1.u32;
+	printer->print_format.flags &= ~ op.v1.u32;
 	return printer;
     case min::op::VERBATIM:
-	printer->parameters.flags |=
+	printer->print_format.flags |=
 	      min::ALLOW_HSPACE_FLAG
 	    + min::ALLOW_VSPACE_FLAG
 	    + min::ALLOW_NSPACE_FLAG;
-	printer->parameters.flags &=
+	printer->print_format.flags &=
 	    ~ (   min::GRAPHIC_HSPACE_FLAG
 	        + min::GRAPHIC_VSPACE_FLAG
 	        + min::GRAPHIC_NSPACE_FLAG
@@ -7093,44 +7113,53 @@ min::printer operator <<
 	        + min::GBREAK_FLAG
 	        + min::ASCII_FLAG );
 	return printer;
-    case min::op::PUSH_PARAMETERS:
+    case min::op::SAVE_LINE_BREAK:
+    save_line_break:
+        min::push ( printer->line_break_stack ) =
+	    printer->line_break;
+	printer->line_break.indent = printer->column;
+	return printer;
+    case min::op::RESTORE_LINE_BREAK:
+	printer->line_break =
+	    min::pop ( printer->line_break_stack );
+	return printer;
+    case min::op::SAVE_PRINT_FORMAT:
+        min::push ( printer->print_format_stack ) =
+	    printer->print_format;
+	return printer;
+    case min::op::RESTORE_PRINT_FORMAT:
+    restore_print_format:
+	printer->print_format =
+	    min::pop ( printer->print_format_stack );
+	return printer;
     case min::op::BOM:
-	assert (   printer->save_index
-	         < min::saved_parameters_stack_size );
-	printer->saved_parameters
-	        [printer->save_index++] =
-	    printer->parameters;
-	return printer;
+        min::push ( printer->print_format_stack ) =
+	    printer->print_format;
+	goto save_line_break;
     case min::op::EOM:
-	::end_line ( printer );
-	if (   printer->parameters.flags
-	     & min::EOL_FLUSH_FLAG )
-	    min::flush_file ( printer->file );
-	// Fall through to pop parameters
-    case min::op::POP_PARAMETERS:
-	assert ( printer->save_index > 0 );
-	printer->parameters =
-	    printer->saved_parameters
-		[--printer->save_index];
-	return printer;
+	printer->line_break =
+	    min::pop ( printer->line_break_stack );
     case min::op::EOL:
 	::end_line ( printer );
-	if (   printer->parameters.flags
+	if (   printer->print_format.flags
 	     & min::EOL_FLUSH_FLAG )
 	    min::flush_file ( printer->file );
+	if ( op.opcode == min::op::EOM )
+	    goto restore_print_format;
 	return printer;
     case min::op::FLUSH:
 	min::flush_file ( printer->file );
 	return printer;
     case min::op::SETBREAK:
     setbreak:
-	printer->break_offset =
+	printer->line_break.offset =
 	    printer->file->buffer->length;
-	printer->break_column = printer->column;
+	printer->line_break.column = printer->column;
 	return printer;
     case min::op::LEFT:
         while (   printer->column
-	        < printer->break_column + op.v1.u32 )
+	        <   printer->line_break.column
+		  + op.v1.u32 )
 	{
 	    ++ printer->column;
 	    min::push(printer->file->buffer) = ' ';
@@ -7138,20 +7167,22 @@ min::printer operator <<
 	goto setbreak;
     case min::op::RIGHT:
         if (   printer->column
-	     < printer->break_column + op.v1.u32 )
+	     < printer->line_break.column + op.v1.u32 )
 	{
 	    min::packed_vec_insptr<char> buffer =
 	        printer->file->buffer;
 	    min::uns32 line_length =
-	        printer->parameters.line_length;
+	        printer->line_break.line_length;
 	    min::uns32 indent =
-	        printer->parameters.indent;
+	        printer->line_break.indent;
 
-	    min::uns32 offset = printer->break_offset;
-	    min::uns32 len = buffer->length - offset;
-	    min::uns32 n = printer->break_column
-	                 + op.v1.u32
-	                 - printer->column;
+	    min::uns32 offset =
+	        printer->line_break.offset;
+	    min::uns32 len =
+	        buffer->length - offset;
+	    min::uns32 n =
+	          printer->line_break.column
+		+ op.v1.u32 - printer->column;
 
 	    // See if inserting n spaces will put a
 	    // non-space character past line_length, and
@@ -7160,9 +7191,10 @@ min::printer operator <<
 	    // which we have to discount.
 	    //
 	    if (   line_length
-	         < printer->break_column + op.v1.u32
+	         <   printer->line_break.column
+		   + op.v1.u32
 		 &&
-		 indent < printer->break_column )
+		 indent < printer->line_break.column )
 	    {
 	        min::uns32 column = printer->column;
 		min::uns32 i = buffer->length;
@@ -7187,15 +7219,15 @@ min::printer operator <<
 	goto setbreak;
     case min::op::RESERVE:
         if (    printer->column + op.v1.u32
-	     <= printer->parameters.line_length )
+	     <= printer->line_break.line_length )
 	    return printer;
 	// Fall through to INDENT.
     case min::op::INDENT:
         if (   printer->column
-	     > printer->parameters.indent )
+	     > printer->line_break.indent )
 	    ::end_line ( printer );
 	while (   printer->column
-		< printer->parameters.indent )
+		< printer->line_break.indent )
 	{
 	    ++ printer->column;
 	    min::push(printer->file->buffer) = ' ';
@@ -7206,10 +7238,14 @@ min::printer operator <<
     }
 }
 
-const min::op min::push_parameters
-    ( min::op::PUSH_PARAMETERS );
-const min::op min::pop_parameters
-    ( min::op::POP_PARAMETERS );
+const min::op min::save_line_break
+    ( min::op::SAVE_LINE_BREAK );
+const min::op min::restore_line_break
+    ( min::op::RESTORE_LINE_BREAK );
+const min::op min::save_print_format
+    ( min::op::SAVE_PRINT_FORMAT );
+const min::op min::restore_print_format
+    ( min::op::RESTORE_PRINT_FORMAT );
 
 const min::op min::eol ( min::op::EOL );
 const min::op min::flush ( min::op::FLUSH );
@@ -7283,12 +7319,14 @@ const min::op min::verbatim
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
 // into the line, the result would exceed line length,
-// and break_column > indent.
+// and line_break.column > indent.
 //
 static void insert_line_break ( min::printer printer )
 {
-    min::uns32 indent = printer->parameters.indent;
-    min::uns32 break_column = printer->break_column;
+    min::uns32 indent =
+        printer->line_break.indent;
+    min::uns32 break_column =
+        printer->line_break.column;
     assert ( break_column > indent );
 
     min::packed_vec_insptr<char> buffer =
@@ -7297,7 +7335,7 @@ static void insert_line_break ( min::printer printer )
     // buffer[begoff..endoff-1] are horizontal spaces
     // to be deleted.
     //
-    min::uns32 endoff = printer->break_offset;
+    min::uns32 endoff = printer->line_break.offset;
     min::uns32 begoff = endoff;
     while ( begoff > 0
             &&
@@ -7347,8 +7385,8 @@ static void insert_line_break ( min::printer printer )
 
     // Adjust parameters.
     //
-    printer->break_offset = begoff;
-    printer->break_column = indent;
+    printer->line_break.offset = begoff;
+    printer->line_break.column = indent;
     printer->column -= break_column;
     printer->column += indent;
 }
@@ -7397,9 +7435,9 @@ min::printer MINT::print_unicode
 	( min::printer printer,
 	  min::unsptr n, const min::uns32 * str )
 {
-    uns32 flags = printer->parameters.flags;
-    uns32 line_length = printer->parameters.line_length;
-    uns32 indent = printer->parameters.indent;
+    uns32 flags = printer->print_format.flags;
+    uns32 line_length = printer->line_break.line_length;
+    uns32 indent = printer->line_break.indent;
 
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
@@ -7433,13 +7471,15 @@ min::printer MINT::print_unicode
 	         ||
 		 ( hbreak && hspace_precedes ) )
 	    {
-		printer->break_offset = buffer->length;
-		printer->break_column = printer->column;
+		printer->line_break.offset =
+		    buffer->length;
+		printer->line_break.column =
+		    printer->column;
 	    }
 
 	    if ( printer->column >= line_length
 	         &&
-		 printer->break_column > indent )
+		 printer->line_break.column > indent )
 		::insert_line_break ( printer );
 	   
 	    min::push(buffer) = (char) c;
@@ -7456,9 +7496,9 @@ min::printer MINT::print_unicode
 	    {
 		if ( gbreak && ! hspace_precedes )
 		{
-		    printer->break_offset =
+		    printer->line_break.offset =
 		        buffer->length;
-		    printer->break_column =
+		    printer->line_break.column =
 		        printer->column;
 		}
 
@@ -7477,9 +7517,9 @@ min::printer MINT::print_unicode
 	    {
 		if ( gbreak && ! hspace_precedes )
 		{
-		    printer->break_offset =
+		    printer->line_break.offset =
 		        buffer->length;
-		    printer->break_column =
+		    printer->line_break.column =
 		        printer->column;
 		}
 
@@ -7587,13 +7627,15 @@ min::printer MINT::print_unicode
 		   ||
 		   ( hbreak && hspace_precedes ) ) )
 	    {
-		printer->break_offset = buffer->length;
-		printer->break_column = printer->column;
+		printer->line_break.offset =
+		    buffer->length;
+		printer->line_break.column =
+		    printer->column;
 	    }
 	   
 	    if ( printer->column + columns > line_length
 		 &&
-		 printer->break_column > indent )
+		 printer->line_break.column > indent )
 		::insert_line_break ( printer );
 	   
 	    min::push ( buffer, len, rep );
@@ -7629,13 +7671,15 @@ min::printer MINT::print_unicode
 
 	if ( gbreak || ( hbreak && hspace_precedes ) )
 	{
-	    printer->break_offset = buffer->length;
-	    printer->break_column = printer->column;
+	    printer->line_break.offset =
+	        buffer->length;
+	    printer->line_break.column =
+	        printer->column;
 	}
 
 	if ( printer->column + columns > line_length
 	     &&
-	     printer->break_column > indent )
+	     printer->line_break.column > indent )
 	    ::insert_line_break ( printer );
        
 	min::push ( buffer, len, rep );
@@ -7675,10 +7719,10 @@ std::ostream & operator <<
 	  const min::test::ogen & og )
 {
     return print_gen<std::ostream &>
-        ( out, og.g, og.format,
+        ( out, og.g, og.gen_format,
 	  (std::ostream & (*)
 	      ( std::ostream &,
-	        const min::printer_format *,
+	        const min::gen_format *,
 		const min::stub * ) )
 	  NULL );
 }

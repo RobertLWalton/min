@@ -1218,12 +1218,12 @@ min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( v1 ) == ps1type.subtype true.
 min_interface_test.cc:XXXX assert:
     min::packed_subtype_of ( upv1 ) == ps1type.subtype true.
-upv1->control = 8
+upv1->control = 10
 min_interface_test.cc:XXXX assert:
     upv1->i == 0 true.
 min_interface_test.cc:XXXX assert:
     upv1->i == 88 true.
-upv2->control = 9
+upv2->control = 11
 min_interface_test.cc:XXXX assert:
     upv2->i == 0 true.
 min_interface_test.cc:XXXX assert:
