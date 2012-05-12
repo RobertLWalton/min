@@ -2,7 +2,7 @@
 //
 // File:	min.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat May 12 04:16:27 EDT 2012
+// Date:	Sat May 12 07:08:30 EDT 2012
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -7041,7 +7041,7 @@ static void end_line ( min::printer printer )
     printer->line_break.column = 0;
 }
 
-static void insert_line_break
+static bool insert_line_break
 	( min::printer printer );
 
 min::printer operator <<
@@ -7318,24 +7318,43 @@ const min::op min::verbatim
 
 // Called when we are about to insert non-horizontal
 // space characters representing a single character
-// into the line, the result would exceed line length,
-// and line_break.column > indent.
+// into the line and the result would exceed line
+// length.  Return true if there is no enabled line
+// break and false if there MIGHT be an enabled line
+// break.  The return value can be used to avoid
+// repeated calls to check for break insertion if
+// no break points are set between calls.
 //
-static void insert_line_break ( min::printer printer )
+static bool insert_line_break ( min::printer printer )
 {
-    min::uns32 indent =
-        printer->line_break.indent;
-    min::uns32 break_column =
-        printer->line_break.column;
-    assert ( break_column > indent );
-
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
+    min::line_break_stack line_break_stack =
+        printer->line_break_stack;
+
+    min::line_break line_break = printer->line_break;
+        // We copy this from its relocatable position
+	// to the stack so we do not have to use a
+	// min::ptr to access it.
+    min::uns32 i;
+        // i is also needed at end to copy line_break
+	// back.
+    for ( i = 0; i < line_break_stack->length; ++ i )
+    {
+        if ( line_break_stack[i].column
+	     > line_break_stack[i].indent )
+	{
+	    line_break = line_break_stack[i];
+	    break;
+	}
+    }
+    if ( line_break.column <= line_break.indent )
+	return true;
 
     // buffer[begoff..endoff-1] are horizontal spaces
     // to be deleted.
     //
-    min::uns32 endoff = printer->line_break.offset;
+    min::uns32 endoff = line_break.offset;
     min::uns32 begoff = endoff;
     while ( begoff > 0
             &&
@@ -7350,7 +7369,7 @@ static void insert_line_break ( min::printer printer )
     //
     min::uns32 gap = endoff - begoff;
     min::uns32 movelen = buffer->length - endoff;
-    if ( gap > indent + 1 )
+    if ( gap > line_break.indent + 1 )
     {
 	// Move down.
 	//
@@ -7360,35 +7379,60 @@ static void insert_line_break ( min::printer printer )
 	// 	      the vector and is not legal.
 	//
 	if ( movelen > 0 )
-	    memmove ( & buffer[begoff+indent+1],
-		      & buffer[endoff],
-		      movelen );
-	min::pop ( buffer, gap - indent - 1 );
+	    memmove
+	        ( & buffer[begoff+line_break.indent+1],
+		  & buffer[endoff],
+		  movelen );
+	min::pop
+	    ( buffer, gap - line_break.indent - 1 );
     }
-    else if ( gap < indent + 1 )
+    else if ( gap < line_break.indent + 1 )
     {
 	// Move up.
 	//
-	min::push ( buffer, indent + 1 - gap );
+	min::push
+	    ( buffer, line_break.indent + 1 - gap );
 	if ( movelen > 0 )
-	    memmove ( & buffer[begoff+indent+1],
-		      & buffer[endoff],
-		      movelen );
+	    memmove
+	        ( & buffer[begoff+line_break.indent+1],
+		  & buffer[endoff],
+		  movelen );
     }
 
     // Insert NUL and indent spaces.
     //
     min::end_line ( printer->file, begoff++ );
 
-    for ( min::uns32 i = 0; i < indent; ++ i )
+    for ( min::uns32 i = 0; i < line_break.indent;
+                            ++ i )
 	buffer[begoff++] = ' ';
 
     // Adjust parameters.
     //
-    printer->line_break.offset = begoff;
-    printer->line_break.column = indent;
-    printer->column -= break_column;
-    printer->column += indent;
+    min::uns32 offset_adj = begoff - line_break.offset;
+    min::uns32 column_adj =
+        line_break.indent - line_break.column;
+    line_break.offset += offset_adj;
+    line_break.column += column_adj;
+    printer->column += column_adj;
+
+    if ( i != printer->line_break_stack->length )
+    {
+        line_break_stack[i++] = line_break;
+	for ( ; i < line_break_stack->length; ++ i )
+	{
+	    line_break_stack[i].offset += offset_adj;
+	    line_break_stack[i].column += column_adj;
+	    line_break_stack[i].indent += column_adj;
+	}
+	printer->line_break.offset += offset_adj;
+	printer->line_break.column += column_adj;
+	printer->line_break.indent += column_adj;
+    }
+    else
+        printer->line_break = line_break;
+
+    return false;
 }
 
 min::printer operator <<
@@ -7437,7 +7481,6 @@ min::printer MINT::print_unicode
 {
     uns32 flags = printer->print_format.flags;
     uns32 line_length = printer->line_break.line_length;
-    uns32 indent = printer->line_break.indent;
 
     min::packed_vec_insptr<char> buffer =
         printer->file->buffer;
@@ -7455,6 +7498,7 @@ min::printer MINT::print_unicode
                    buffer[buffer->length - 1] );
     bool hspace_precedes =
 	( lastc == ' ' || lastc == '\t' );
+    bool no_line_break_enabled = false;
     while ( n -- )
     {
         uns32 c = * str ++;
@@ -7475,12 +7519,14 @@ min::printer MINT::print_unicode
 		    buffer->length;
 		printer->line_break.column =
 		    printer->column;
+		no_line_break_enabled = false;
 	    }
 
 	    if ( printer->column >= line_length
 	         &&
-		 printer->line_break.column > indent )
-		::insert_line_break ( printer );
+		 ! no_line_break_enabled )
+	        no_line_break_enabled =
+		    ::insert_line_break ( printer );
 	   
 	    min::push(buffer) = (char) c;
 	    ++ printer->column;
@@ -7500,6 +7546,7 @@ min::printer MINT::print_unicode
 		        buffer->length;
 		    printer->line_break.column =
 		        printer->column;
+		    no_line_break_enabled = false;
 		}
 
 		++ printer->column;
@@ -7521,6 +7568,7 @@ min::printer MINT::print_unicode
 		        buffer->length;
 		    printer->line_break.column =
 		        printer->column;
+		    no_line_break_enabled = false;
 		}
 
 	        uns32 spaces = 8 - printer->column % 8;
@@ -7631,12 +7679,14 @@ min::printer MINT::print_unicode
 		    buffer->length;
 		printer->line_break.column =
 		    printer->column;
+		no_line_break_enabled = false;
 	    }
 	   
 	    if ( printer->column + columns > line_length
-		 &&
-		 printer->line_break.column > indent )
-		::insert_line_break ( printer );
+	         &&
+		 ! no_line_break_enabled )
+	        no_line_break_enabled =
+		    ::insert_line_break ( printer );
 	   
 	    min::push ( buffer, len, rep );
 	    printer->column += columns;
@@ -7675,12 +7725,14 @@ min::printer MINT::print_unicode
 	        buffer->length;
 	    printer->line_break.column =
 	        printer->column;
+	    no_line_break_enabled = false;
 	}
 
 	if ( printer->column + columns > line_length
 	     &&
-	     printer->line_break.column > indent )
-	    ::insert_line_break ( printer );
+	     ! no_line_break_enabled )
+	    no_line_break_enabled =
+		::insert_line_break ( printer );
        
 	min::push ( buffer, len, rep );
 	printer->column += columns;
