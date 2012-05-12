@@ -7277,15 +7277,8 @@ element of the stack, and it is expected that
 {\tt min::\EOL eol} will be explicitly executed after
 {\tt min::\EOL restore\_\EOL break}.
 
-The \key{end of message} operation executes {\tt min::\EOL restore\_\EOL break}
-operations until the break stack is empty, then executes a {\tt min::\EOL eol}
-operation, then
-flushes {\tt printer->\EOL file}
-if {\tt min::\EOL EOL\_\EOL FLUSH\_\EOL FLAG} is set,
-and lastly executes a {\tt min::\EOL restore\_\EOL format} operation.
-The \key{beginning of message} operation executes both a
-a {\tt min::\EOL save\_\EOL break}
-and a {\tt min::\EOL save\_\EOL format} operation.
+The \key{begin message} and {\tt end message} operations can be used
+to surround the body of an error message or other message:
 
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 \verb|const min::op min::| & \MINKEY{bom}
@@ -7294,13 +7287,31 @@ and a {\tt min::\EOL save\_\EOL format} operation.
 \LABEL{MIN::EOM} \\
 \end{tabular}\end{indpar}
 
-The idea is that
-a message that consists of several lines with special flags set
-can be bracketed by {\tt min::bom} and {\tt min::eom}
-to restore formats at the end of the message.
-Furthermore if {\tt min::\EOL bom} is executed after a message
-header such as `{\tt ERROR: }', the message body will be indented
-by the size of the header.
+{\tt min::bom} executes both
+a {\tt min::\EOL save\_\EOL break}
+and a {\tt min::\EOL save\_\EOL format} operation.
+{\tt min::\EOL eom} executes in order a
+{\tt min::\EOL restore\_\EOL break}, {\tt min::\EOL eol},
+and {\tt min::\EOL restore\_\EOL format}.
+operations until the break stack is empty, then executes a {\tt min::\EOL eol}
+operation, then
+Note that format flags in effect just before {\tt min::\EOL eom}
+is executed govern the {\tt min::\EOL eol} operation executed by
+{\tt min::\EOL eom}.
+
+For example, the following might be used to print an error message:
+\begin{indpar}\begin{verbatim}
+    printer << "ERROR: " << min::bom;
+    . . . . . .
+    // Print contents of error message
+    . . . . . .
+    printer << min::eom;
+\end{verbatim}\end{indpar}
+
+Here the error message will be indented by the number of columns
+consumed by `{\tt ERROR:~}', and any format parameters changed
+while printing the error message body will be restored at the end
+of the message by the {\tt min::\EOL eom}.
 
 {\tt min::bom} will set {\tt indent} to the current value of {\tt column},
 but if a smaller indent is desired, it can be set by following
@@ -7421,6 +7432,10 @@ following
 \end{tabular}\end{indpar}
 \begin{indpar}[1em]\begin{tabular}{r@{}l}
 
+\verb|const min::op min::| & \MINKEY{graphic\_hspace}
+\LABEL{MIN::GRAPHIC_HSPACE} \\
+\verb|const min::op min::| & \MINKEY{nographic\_hspace}
+\LABEL{MIN::NOGRAPHIC_HSPACE} \\
 \verb|const min::op min::| & \MINKEY{graphic\_vspace}
 \LABEL{MIN::GRAPHIC_VSPACE} \\
 \verb|const min::op min::| & \MINKEY{nographic\_vspace}
@@ -7527,7 +7542,8 @@ the {\tt min::\EOL DISPLAY\_\EOL EOL\_\EOL FLAG}
 is not affected, as when copying to a printer from
 from some {\tt printer->\EOL file}
 line terminating NULs are translated to {\tt min::\EOL eol}
-operations.  Also note that the operation to undo the results
+operations on the target printer.
+Also note that the operation to undo the results
 of {\tt min::\EOL verbatim} does not exist (you must push and pop
 the format).
 
@@ -14152,6 +14168,10 @@ In loose implementation: \\
 \end{TABULAR}
 
 \begin{TABULAR}{1.8in}
+\verb|const min::op min::| & \MINKEY{graphic\_hspace}
+\LABEL{MIN::GRAPHIC_HSPACE} \\
+\verb|const min::op min::| & \MINKEY{nographic\_hspace}
+\LABEL{MIN::NOGRAPHIC_HSPACE} \\
 \verb|const min::op min::| & \MINKEY{graphic\_vspace}
 \LABEL{MIN::GRAPHIC_VSPACE} \\
 \verb|const min::op min::| & \MINKEY{nographic\_vspace}
